@@ -1,0 +1,35 @@
+# --- Secrets ---
+.env
+*.key
+*.pem
+*.p12
+
+# --- Data (raw should never be committed) ---
+/data/raw/**
+!/data/raw/.gitkeep
+
+# Optional: keep processed out of git initially (avoid bloat)
+/data/processed/**
+!/data/processed/.gitkeep
+
+# --- Logs ---
+/logs/**
+!/logs/.gitkeep
+
+# --- Archives ---
+*.zip
+*.7z
+*.tar
+*.gz
+
+# --- Python cache / env ---
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# --- OS / IDE ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

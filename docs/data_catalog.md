@@ -48,3 +48,11 @@
 - SHA256: 2e4613306880068fc7fa75baf50e3735d7d9f917d072da257191090c726a6344
 - Storage path: data/processed/binance_um_perp_BTCUSDT_4h_2026-01-01_2026-02-27_2026-02-27T0721Z.parquet
 
+## Dataset: BTCUSDT funding rates (Binance USDT-M Perp) – Parquet
+- Source: Binance Futures API `/fapi/v1/fundingRate`
+- Symbol/Contract: BTCUSDT (USDT-M Perpetual)
+- Timeframe: 8h funding events
+- Range (start/end): 2026-01-01 / 2026-02-27
+- Created (UTC): 2026-02-27T0739Z
+- SHA256: 47b662918ebfe9a4610959cbd6963002f4a1a7e26a1465b3fcb045299ba4d5e3
+- Storage path: data/processed/binance_um_perp_BTCUSDT_funding_8h_2026-01-01_2026-02-27_2026-02-27T0739Z.parquet

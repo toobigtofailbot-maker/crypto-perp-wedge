@@ -18,3 +18,5 @@
 
 # 2\) configs in /configs
 
+
+Python: 3.11.9

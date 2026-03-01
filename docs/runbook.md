@@ -52,3 +52,18 @@ Expected:
 
 &nbsp; - decision\_id
 
+
+------------
+
+## Data validation gate (required)
+
+Run (from repo root, venv active):
+- python scripts/validate_data.py
+
+Expected:
+- "VALIDATION PASS"
+- exit code = 0
+- reports/validation_report.json exists and status=PASS
+
+Fail behavior:
+- exit code != 0 => STOP. Fix data/validator before any further backtest steps.

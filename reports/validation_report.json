@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "inputs": {
+    "klines_1h": "C:/GitHub/crypto-perp-wedge/data/processed/binance_um_perp_BTCUSDT_1h_2026-01-01_2026-02-27_2026-02-27T0721Z.parquet",
+    "klines_4h": "C:/GitHub/crypto-perp-wedge/data/processed/binance_um_perp_BTCUSDT_4h_2026-01-01_2026-02-27_2026-02-27T0721Z.parquet",
+    "funding_8h": "C:/GitHub/crypto-perp-wedge/data/processed/binance_um_perp_BTCUSDT_funding_8h_2026-01-01_2026-02-27_2026-02-27T0739Z.parquet"
+  },
+  "counts": {
+    "klines_1h_rows": 1376,
+    "klines_4h_rows": 344,
+    "funding_rows": 172
+  },
+  "policy": {
+    "funding_mapping": "nearest prior funding event",
+    "funding_grid": "8h with constant phase offset (near-hour boundary \u00b160s)",
+    "bar_range_check": "funding events must lie within [first_1h_bar_open .. last_1h_bar_open+1h]"
+  },
+  "errors": [],
+  "warnings": []
+}

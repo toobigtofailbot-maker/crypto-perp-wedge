@@ -1,0 +1,40 @@
+{
+  "run_timestamp_utc": "2026-03-01T153211Z",
+  "git_commit_id": "d6b6e3750747159c346c5f2efed1154e5b524389",
+  "decision_id": "D-0001",
+  "config_path": "configs/backtest_single_trade.json",
+  "config_sha256": "6af559bf056c81e245a0d2069b27ebb6c3ce9acda7736305fbe7957535945786",
+  "dataset_hashes": {
+    "klines_parquet": {
+      "path": "data/processed/binance_um_perp_BTCUSDT_1h_2026-01-01_2026-02-27_2026-02-27T0721Z.parquet",
+      "sha256": "7ee8deba11fd616d127c0f7a879199868c0634105c30831388c3521293375ed6"
+    },
+    "funding_parquet": {
+      "path": "data/processed/binance_um_perp_BTCUSDT_funding_8h_2026-01-01_2026-02-27_2026-02-27T0739Z.parquet",
+      "sha256": "47b662918ebfe9a4610959cbd6963002f4a1a7e26a1465b3fcb045299ba4d5e3"
+    }
+  },
+  "inputs": {
+    "timeframe": "1h",
+    "qty_base": 0.01,
+    "entry_ts_utc": "2026-02-10 00:00:00+00:00",
+    "exit_ts_utc": "2026-02-20 00:00:00+00:00",
+    "fee_rate": 0.0004,
+    "slippage_bps": 2.0
+  },
+  "results": {
+    "entry_bar_open_time": "2026-02-10 00:00:00+00:00",
+    "exit_bar_open_time": "2026-02-20 00:00:00+00:00",
+    "entry_mid": 70110.6,
+    "entry_exec": 70124.62212,
+    "exit_mid": 66973.9,
+    "exit_exec": 66960.50521999999,
+    "entry_fee": -0.28049848848000003,
+    "entry_slippage": -0.14022119999994176,
+    "exit_fee": -0.26784202088,
+    "exit_slippage": -0.13394780000002357,
+    "funding_events_held": 30,
+    "funding_pnl": 0.07750085424,
+    "total_pnl_impact": -0.7450086551199654
+  }
+}

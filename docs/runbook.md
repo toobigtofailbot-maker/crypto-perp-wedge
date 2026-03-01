@@ -67,3 +67,13 @@ Expected:
 
 Fail behavior:
 - exit code != 0 => STOP. Fix data/validator before any further backtest steps.
+
+## G4 API smoke test (live UM Futures)
+
+- Script: `python scripts/g4_api_smoke_test.py`
+- Endpoint: `https://fapi.binance.com` (live only)
+- Credentials: `BINANCE_API_KEY` and `BINANCE_API_SECRET` read at runtime via `os.getenv`
+- Report output: `reports/g4_api_smoke_test/g4_api_smoke_test_report.json`
+- Local logs only: `logs/g4_api_smoke_test/`
+- Exit codes: PASS => 0, FAIL => 1
+- Safety: script performs read-only API checks and does not place orders.

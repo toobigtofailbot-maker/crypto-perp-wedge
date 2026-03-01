@@ -33,3 +33,9 @@ venv/
 Thumbs.db
 .vscode/
 .idea/
+
+# --- Reports ---
+/reports/**
+!/reports/
+!/reports/g4_api_smoke_test/
+!/reports/g4_api_smoke_test/g4_api_smoke_test_report.json

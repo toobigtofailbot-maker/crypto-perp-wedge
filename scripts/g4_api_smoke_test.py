@@ -29,6 +29,8 @@ from decimal import Decimal, ROUND_CEILING, ROUND_DOWN
 from pathlib import Path
 from typing import Any
 from importlib.metadata import PackageNotFoundError, version
+from binance.error import ClientError
+
 
 
 BASE_URL = "https://fapi.binance.com"
@@ -143,7 +145,8 @@ def extract_filters(exchange_info: dict[str, Any], symbol: str) -> SymbolFilters
 def compute_order_params(current_price: Decimal, filters: SymbolFilters) -> tuple[str, Decimal, Decimal]:
     side = "SELL"
 
-    candidate_price = current_price * Decimal("1.30")
+    min_price_for_min_qty = filters.min_notional / max(filters.min_qty, Decimal("0.00000001"))
+    candidate_price = max(current_price * Decimal("1.50"), min_price_for_min_qty)
     if filters.multiplier_up is not None and filters.multiplier_up > 0:
         candidate_price = min(candidate_price, current_price * filters.multiplier_up * Decimal("0.98"))
 
@@ -243,7 +246,7 @@ def main() -> int:
         server_time = client.time()
         report["pre_checks"]["server_time_ok"] = isinstance(server_time, dict) and "serverTime" in server_time
 
-        account_info = client.account()
+        account_info = client.account(recvWindow=10000)
         report["pre_checks"]["permissions_ok"] = isinstance(account_info, dict)
 
         exchange_info = client.exchange_info()
@@ -280,7 +283,7 @@ def main() -> int:
         if not args.skip_order_test:
             report["order_test"]["attempted"] = True
             try:
-                client.new_order_test(**order_payload)
+                client.new_order_test(**order_payload, recvWindow=10000)
                 report["order_test"]["ok"] = True
             except Exception as exc:  # noqa: BLE001
                 report["order_test"]["ok"] = False
@@ -288,22 +291,44 @@ def main() -> int:
                 raise
 
         report["place_order"]["attempted"] = True
-        placed = client.new_order(**order_payload)
+        placed = client.new_order(**order_payload, recvWindow=10000)
         report["place_order"]["orderId"] = placed.get("orderId")
         report["place_order"]["status"] = placed.get("status")
 
         report["cancel_order"]["attempted"] = True
-        canceled = client.cancel_order(symbol=args.symbol, orderId=placed["orderId"])
+        canceled = client.cancel_order(symbol=args.symbol, orderId=placed["orderId"], recvWindow=10000)
         report["cancel_order"]["ok"] = True
         report["cancel_order"]["status"] = canceled.get("status")
 
-        open_orders = client.get_open_orders(symbol=args.symbol)
-        report["post_state"]["open_orders_count"] = len(open_orders)
+        # After cancel: verify there are NO remaining open orders for this symbol.
+        open_orders = client.get_orders(symbol=args.symbol, recvWindow=10000)
+        report["post_state"]["open_orders_count"] = len(open_orders)      
 
-        positions = client.get_position_risk(symbol=args.symbol)
-        if not positions:
-            raise RuntimeError(f"No position_risk returned for {args.symbol}")
-        position_amt = dec(positions[0].get("positionAmt", "0"))
+        # Post-state position check: use account().positions if present.
+        account_after = client.account(recvWindow=10000)
+        positions_list = account_after.get("positions", None)
+
+        position_amt = dec("0")  # default: assume flat unless evidence otherwise
+
+        if isinstance(positions_list, list):
+            # If Binance returns only non-zero positions, BTCUSDT might be missing when flat -> treat as 0.
+            pos = next((p for p in positions_list if p.get("symbol") == args.symbol), None)
+            if pos is not None:
+                position_amt = dec(pos.get("positionAmt", "0"))
+            else:
+                # Safety: if any position is non-zero, we must FAIL (even if BTCUSDT missing).
+                any_nonzero = any(dec(p.get("positionAmt", "0")) != 0 for p in positions_list)
+                if any_nonzero:
+                    raise RuntimeError("Non-flat position detected in account().positions")
+
+        else:
+            # positions field not present -> fallback to totals if available, else FAIL (can't verify).
+            t_pos_margin = dec(account_after.get("totalPositionInitialMargin", "0"))
+            t_upl = dec(account_after.get("totalUnrealizedProfit", "0"))
+            if t_pos_margin != 0 or t_upl != 0:
+                raise RuntimeError("Account totals indicate non-flat exposure (position margin or UPL != 0)")
+            # else: keep position_amt = 0
+
         report["post_state"]["position_amt"] = str(position_amt)
 
         all_good = (

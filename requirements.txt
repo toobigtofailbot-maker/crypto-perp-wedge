@@ -1,2 +1,4 @@
 ﻿pandas
 pyarrow
+
+binance-futures-connector

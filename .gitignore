@@ -1,4 +1,6 @@
 # --- Secrets ---
+/secrets/**
+!/secrets/.gitkeep
 .env
 *.key
 *.pem

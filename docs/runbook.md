@@ -80,3 +80,37 @@ Fail behavior:
 - Local logs only (gitignored): `logs/g4_api_smoke_test/`
 - Exit codes: PASS => 0, FAIL => 1
 - Safety: places a far-away LIVE `LIMIT` and immediately cancels (minimize fill chance; still a LIVE order).
+
+## Phase-0 Gate G4 — Binance USD-M Futures LIVE API Smoke Test
+
+**Purpose:** Validate LIVE connectivity + permissions (USD-M Futures) and confirm "place LIMIT → immediate cancel" leaves zero open orders and zero position.
+
+**Command (Windows / PowerShell):**
+cd C:\GitHub\crypto-perp-wedge
+.\.venv\Scripts\Activate.ps1
+$env:BINANCE_API_KEY="..."
+$env:BINANCE_API_SECRET="..."
+python scripts\g4_api_smoke_test.py --env LIVE --symbol BTCUSDT
+echo $LASTEXITCODE
+
+**PASS criteria (must all be true):**
+- Exit code == 0
+- Report exists at:
+  `reports/g4_api_smoke_test/g4_api_smoke_test_report.json`
+- Report fields:
+  - status == "PASS"
+  - env == "LIVE"
+  - base_url == "https://fapi.binance.com"
+  - post_state.open_orders_count == 0
+  - post_state.position_amt == "0"
+
+**Evidence:**
+- Committed JSON report:
+  `reports/g4_api_smoke_test/g4_api_smoke_test_report.json`
+- Local logs (not committed):
+  `logs/g4_api_smoke_test/`
+
+**Deterministic Preconditions (portability):**
+- USD-M Futures permission enabled for the API key.
+- Sufficient available margin for minNotional constraints (else -2019).
+- Account position mode may affect required order params (Hedge Mode may require positionSide).

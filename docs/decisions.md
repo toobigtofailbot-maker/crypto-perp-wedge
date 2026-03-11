@@ -35,8 +35,41 @@ A decision in this file is binding once marked \*\*LOCKED\*\*. Any change requir
 
 
 ---
+## P1-A — Context Overlay Decision (LOCKED)
 
+**Status:** LOCKED  
+**Scope:** Phase-1 Paper (deterministic, non-agentic)  
+**Decision ID:** P1-A-OVERLAY-LOCK  
+**Date:** 2026-03-09  
 
+### Output Contract (binding)
+The overlay MUST emit exactly one of:
+- `ALLOW` (size_multiplier = 1.0)
+- `ALLOW_REDUCED` (size_multiplier = 0.5)   <-- binding
+- `BLOCK` (size_multiplier = 0.0)
+
+**Binding rule:** `ALLOW_REDUCED` is ALWAYS exactly **0.5x**. No other reduced levels are permitted.
+
+### Eligible macro triggers (only)
+- CPI
+- FOMC
+- NFP
+
+### Macro windows (binding)
+- Only macro windows based on the events above are allowed.
+- No additional event types and no dynamic/learned widening.
+
+### Fail-open (non-negotiable)
+If macro context is missing, stale, or API fails:
+- overlay MUST return `ALLOW` (size_multiplier = 1.0)
+- and set `context_missing = true` in the emitted audit record.
+
+### Change protocol
+Any modification to overlay semantics requires:
+- a new decision entry in this file
+- explicit review/approval by Main Architecture Chat
+- version bump of overlay rules (no silent changes)
+---
 
 \## D-0001 — Phase-1 Defaults (LOCKED)
 

@@ -187,3 +187,25 @@ Changes allowed only if one of these is met and validated:
 
 \- Data fidelity upgrade enables safer intra-bar logic (e.g., reliable 1m/tick + fill model).
 
+
+## P1-C — Macro Window Policy v1 (LOCKED) (Addendum to P1-A)
+
+**Status:** LOCKED  
+**Decision ID:** P1-C-MACRO-POLICY-V1  
+**Date:** 2026-03-10  
+
+### Per-event permission (binding)
+- FOMC: `BLOCK`
+- CPI: `ALLOW_REDUCED`
+- NFP: `ALLOW_REDUCED`
+
+### Windows (UTC relative)
+- FOMC: pre `30` minutes, post `150` minutes
+- CPI: pre `30` minutes, post `60` minutes
+- NFP: pre `30` minutes, post `60` minutes
+
+### Merge rule (binding)
+When windows overlap, apply strict severity ordering: `BLOCK` > `ALLOW_REDUCED` > `ALLOW`; merge/sort behavior MUST be deterministic.
+
+### Fail-open (binding)
+If calendar/snapshot context is missing, empty, or invalid, emit exactly one full-range `ALLOW` window with `context_missing=true`. Change protocol: new Decision Change entry required.

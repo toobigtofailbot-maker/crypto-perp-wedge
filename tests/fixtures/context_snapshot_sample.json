@@ -1,0 +1,21 @@
+{
+  "asof_timestamp_utc": "2025-01-01T00:00:00Z",
+  "events": [
+    {
+      "event_timestamp_utc": "2025-01-10T13:30:00Z",
+      "event_type": "NFP",
+      "title": "Non Farm Payrolls"
+    },
+    {
+      "event_timestamp_utc": "2025-01-15T19:00:00Z",
+      "event_type": "FOMC",
+      "title": "FOMC Rate Decision"
+    },
+    {
+      "event_timestamp_utc": "2025-01-12T13:30:00Z",
+      "event_type": "CPI",
+      "title": "Consumer Price Index"
+    }
+  ],
+  "snapshot_hash": "samplehash"
+}

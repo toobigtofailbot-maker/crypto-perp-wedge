@@ -1,0 +1,7 @@
+{
+  "symbol": "BTCUSDT",
+  "polls": 12,
+  "poll_interval_seconds": 1.0,
+  "book_ticker_bucket_seconds": 10,
+  "offline_sample": false
+}

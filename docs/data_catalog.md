@@ -56,3 +56,30 @@
 - Created (UTC): 2026-02-27T0739Z
 - SHA256: 47b662918ebfe9a4610959cbd6963002f4a1a7e26a1465b3fcb045299ba4d5e3
 - Storage path: data/processed/binance_um_perp_BTCUSDT_funding_8h_2026-01-01_2026-02-27_2026-02-27T0739Z.parquet
+
+## Dataset: BTCUSDT premium index snapshots (Binance USDT-M Perp) – Parquet
+- Source: Binance Futures API `/fapi/v1/premiumIndex`
+- Symbol/Contract: BTCUSDT (USDT-M Perpetual)
+- Timeframe: snapshot polling (1s configured)
+- Range (start/end): 2026-03-11 / 2026-03-11
+- Created (UTC): 2026-03-11T0104Z
+- SHA256: 26c78fd2ddea0fc63d09ad117d54c5e797608c18830ad36eeb2ac986b5ccb144
+- Storage path: data/processed/binance_um_perp_BTCUSDT_premium_index_snapshots_2026-03-11_2026-03-11_2026-03-11T0104Z.parquet
+
+## Dataset: BTCUSDT book ticker snapshots (Binance USDT-M Perp, 10s deterministic buckets) – Parquet
+- Source: Binance Futures API `/fapi/v1/ticker/bookTicker`
+- Symbol/Contract: BTCUSDT (USDT-M Perpetual)
+- Timeframe: deterministic bucketed snapshots (10s)
+- Range (start/end): 2026-03-11 / 2026-03-11
+- Created (UTC): 2026-03-11T0104Z
+- SHA256: feacd9e1a30f898d09925006518064fb4526c42d8b0ec3dec447f4e4bf82d30b
+- Storage path: data/processed/binance_um_perp_BTCUSDT_book_ticker_10s_2026-03-11_2026-03-11_2026-03-11T0104Z.parquet
+
+## Dataset: BTCUSDT funding schedule metadata (Binance USDT-M Perp) – Parquet
+- Source: Binance Futures API `/fapi/v1/fundingInfo` + `/fapi/v1/premiumIndex`
+- Symbol/Contract: BTCUSDT (USDT-M Perpetual)
+- Timeframe: snapshot polling (1s configured)
+- Range (start/end): 2026-03-11 / 2026-03-11
+- Created (UTC): 2026-03-11T0104Z
+- SHA256: 6ec3ca2f7302a65413ed3f05beeb4e1d8f97cd3ae975c37af8e499c120dffb21
+- Storage path: data/processed/binance_um_perp_BTCUSDT_funding_schedule_metadata_2026-03-11_2026-03-11_2026-03-11T0104Z.parquet

@@ -1,0 +1,27 @@
+{
+  "event_types": [
+    "CPI",
+    "FOMC",
+    "NFP"
+  ],
+  "fail_open": true,
+  "per_event_permission": {
+    "FOMC": "BLOCK",
+    "CPI": "ALLOW_REDUCED",
+    "NFP": "ALLOW_REDUCED"
+  },
+  "per_event_window_minutes": {
+    "FOMC": {
+      "pre": 30,
+      "post": 150
+    },
+    "CPI": {
+      "pre": 30,
+      "post": 60
+    },
+    "NFP": {
+      "pre": 30,
+      "post": 60
+    }
+  }
+}

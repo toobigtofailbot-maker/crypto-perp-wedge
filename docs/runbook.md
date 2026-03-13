@@ -114,3 +114,8 @@ echo $LASTEXITCODE
 - USD-M Futures permission enabled for the API key.
 - Sufficient available margin for minNotional constraints (else -2019).
 - Account position mode may affect required order params (Hedge Mode may require positionSide).
+## P1-E Batch 1 — paper trader once-run
+
+Run:
+```powershell
+.\.venv\Scripts\python.exe -m src.runtime.paper_trader --once --config configs\paper_runtime.json

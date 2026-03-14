@@ -4,12 +4,14 @@ import argparse
 import json
 import uuid
 from datetime import datetime, timezone
+from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
 from src.logging.event_writer import append_event_jsonl
 from src.overlay.overlay_evaluator_v1 import evaluate_overlay
 from src.runtime.scheduler import next_hour_close_utc, sleep_until
+from src.signal.provider import build_signal_provider
 
 
 def _utc_now_iso() -> str:
@@ -89,6 +91,7 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
     symbol = str(config["symbol"])
     macro_flags_path = str(config["macro_flags_path"])
     event_log_path = str(config["event_log_path"])
+    signal_provider_name = str(config.get("signal_provider", "flat"))
     latest_bar_time_path = config.get("latest_bar_time_path")
     freshness_tolerance_seconds = int(config.get("freshness_tolerance_seconds", 0))
     evaluation_time_source = str(config.get("evaluation_time_source", "now_utc"))
@@ -164,21 +167,72 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
         )
         return 0
 
-    desired_position = {
+    signal_provider = build_signal_provider(signal_provider_name)
+    signal_inputs = {
         "symbol": symbol,
-        "target_qty": None,
-        "target_notional": None,
-        "source_timeframe": "1m",
         "decision_id": decision_id,
         "correlation_id": correlation_id,
         "run_id": run_id,
+        "source_timeframe": "1m",
+    }
+    desired_position = signal_provider.compute_desired_position(evaluation_time_utc=evaluation_time_utc, inputs=signal_inputs)
+
+    desired_position_payload = {
+        "symbol": desired_position.symbol,
+        "target_qty": str(desired_position.target_qty) if desired_position.target_qty is not None else None,
+        "target_notional": (
+            str(desired_position.target_notional) if desired_position.target_notional is not None else None
+        ),
+        "timestamp_utc": desired_position.timestamp_utc,
+        "source_timeframe": desired_position.source_timeframe,
+        "decision_id": desired_position.decision_id,
+        "correlation_id": desired_position.correlation_id,
+        "run_id": desired_position.run_id,
     }
 
+    append_event_jsonl(
+        event_log_path,
+        _event(
+            event_type="SignalEvent",
+            run_id=run_id,
+            correlation_id=correlation_id,
+            decision_id=decision_id,
+            env=env,
+            timestamp_utc=evaluation_time_utc,
+            bar_close_time_utc=evaluation_time_utc,
+            symbol=symbol,
+            payload={
+                "signal_provider": signal_provider_name,
+                "evaluation_time_utc": evaluation_time_utc,
+                "desired_position": desired_position_payload,
+            },
+        ),
+    )
+
     overlay_result = evaluate_overlay(
-        desired_position=desired_position,
+        desired_position=desired_position_payload,
         evaluation_time_utc=evaluation_time_utc,
         macro_flags_path=macro_flags_path,
     )
+
+    size_multiplier = Decimal(str(overlay_result.get("size_multiplier", 1.0)))
+    adjusted_target_qty = desired_position.target_qty
+    if adjusted_target_qty is not None:
+        adjusted_target_qty = adjusted_target_qty * size_multiplier
+
+    overlay_result["desired_position_after_overlay"] = {
+        "symbol": desired_position.symbol,
+        "target_qty": str(adjusted_target_qty) if adjusted_target_qty is not None else None,
+        "target_notional": (
+            str(desired_position.target_notional) if desired_position.target_notional is not None else None
+        ),
+        "timestamp_utc": desired_position.timestamp_utc,
+        "source_timeframe": desired_position.source_timeframe,
+        "decision_id": desired_position.decision_id,
+        "correlation_id": desired_position.correlation_id,
+        "run_id": desired_position.run_id,
+        "size_multiplier_applied": str(size_multiplier),
+    }
 
     append_event_jsonl(
         event_log_path,

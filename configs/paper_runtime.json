@@ -4,5 +4,7 @@
   "decision_id": "D-0001",
   "macro_flags_path": "reports/overlay/macro_window_flags.json",
   "event_log_path": "logs/paper_trader/events.jsonl",
-  "evaluation_time_source": "now_utc"
+  "evaluation_time_source": "now_utc",
+  "freshness_tolerance_seconds": 120,
+  "latest_bar_time_path": "reports/runtime/latest_bar_timestamp.json"
 }

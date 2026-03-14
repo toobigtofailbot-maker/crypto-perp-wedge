@@ -81,9 +81,9 @@ Fail behavior:
 - Exit codes: PASS => 0, FAIL => 1
 - Safety: places a far-away LIVE `LIMIT` and immediately cancels (minimize fill chance; still a LIVE order).
 
-## Phase-0 Gate G4 — Binance USD-M Futures LIVE API Smoke Test
+## Phase-0 Gate G4 â€” Binance USD-M Futures LIVE API Smoke Test
 
-**Purpose:** Validate LIVE connectivity + permissions (USD-M Futures) and confirm "place LIMIT → immediate cancel" leaves zero open orders and zero position.
+**Purpose:** Validate LIVE connectivity + permissions (USD-M Futures) and confirm "place LIMIT â†’ immediate cancel" leaves zero open orders and zero position.
 
 **Command (Windows / PowerShell):**
 cd C:\GitHub\crypto-perp-wedge
@@ -114,7 +114,27 @@ echo $LASTEXITCODE
 - USD-M Futures permission enabled for the API key.
 - Sufficient available margin for minNotional constraints (else -2019).
 - Account position mode may affect required order params (Hedge Mode may require positionSide).
-## P1-E Batch 1 � paper trader once-run
+
+## P1-E Batch 2 — deterministic bar-close scheduler + freshness gate
+
+Run one deterministic cycle at a specific UTC 1h bar close:
+
+```bash
+python -m src.runtime.paper_trader --once-at 2026-01-01T01:00:00Z --config configs/paper_runtime.json
+```
+
+Run continuous UTC 1h bar-close loop:
+
+```bash
+python -m src.runtime.paper_trader --loop --config configs/paper_runtime.json
+```
+
+Expected stale-data behavior:
+- Runtime compares configured `latest_bar_time_path` timestamp to the cycle `bar_close_time_utc`.
+- If outside `freshness_tolerance_seconds`, cycle is skipped.
+- Skip is recorded as `SystemEvent` with `payload.phase="skip"` and `payload.reason="stale_data"`.
+- Event log remains append-only JSONL, including start/skip/end events for skipped cycles.
+## P1-E Batch 1 — paper trader once-run
 
 Run:
 ```powershell

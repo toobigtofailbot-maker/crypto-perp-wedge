@@ -9,14 +9,26 @@ from typing import Any
 
 from src.logging.event_writer import append_event_jsonl
 from src.overlay.overlay_evaluator_v1 import evaluate_overlay
+from src.runtime.scheduler import next_hour_close_utc, sleep_until
 
 
 def _utc_now_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
+def _parse_iso_utc(value: str) -> datetime:
+    dt = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    if dt.tzinfo is None:
+        raise ValueError(f"Expected timezone-aware UTC timestamp, got: {value}")
+    return dt.astimezone(timezone.utc)
+
+
 def _load_json(path: str) -> dict[str, Any]:
     return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def _iso_utc(value: datetime) -> str:
+    return value.replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
 def _event(
@@ -26,11 +38,13 @@ def _event(
     decision_id: str,
     env: str,
     timestamp_utc: str,
+    bar_close_time_utc: str,
     symbol: str | None = None,
     payload: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     event: dict[str, Any] = {
         "timestamp_utc": timestamp_utc,
+        "bar_close_time_utc": bar_close_time_utc,
         "event_type": event_type,
         "run_id": run_id,
         "correlation_id": correlation_id,
@@ -44,19 +58,47 @@ def _event(
     return event
 
 
-def run_once(config_path: str) -> int:
+def _is_data_fresh(latest_bar_time_path: str, bar_close_time_utc: str, tolerance_seconds: int) -> tuple[bool, str]:
+    path = Path(latest_bar_time_path)
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (FileNotFoundError, OSError, json.JSONDecodeError, ValueError):
+        return False, "LATEST_BAR_FILE_UNAVAILABLE"
+
+    latest_raw = payload.get("latest_bar_timestamp_utc") or payload.get("timestamp_utc")
+    if not isinstance(latest_raw, str):
+        return False, "LATEST_BAR_TIMESTAMP_MISSING"
+
+    try:
+        latest_dt = _parse_iso_utc(latest_raw)
+        close_dt = _parse_iso_utc(bar_close_time_utc)
+    except ValueError:
+        return False, "LATEST_BAR_TIMESTAMP_INVALID"
+
+    delta_seconds = abs((close_dt - latest_dt).total_seconds())
+    if delta_seconds <= tolerance_seconds:
+        return True, "FRESH"
+
+    return False, "LATEST_BAR_STALE"
+
+
+def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
     config = _load_json(config_path)
 
     env = str(config["env"])
     symbol = str(config["symbol"])
     macro_flags_path = str(config["macro_flags_path"])
     event_log_path = str(config["event_log_path"])
+    latest_bar_time_path = config.get("latest_bar_time_path")
+    freshness_tolerance_seconds = int(config.get("freshness_tolerance_seconds", 0))
     evaluation_time_source = str(config.get("evaluation_time_source", "now_utc"))
     decision_id = str(config.get("decision_id", "D-0001"))
     run_id = str(config.get("run_id", f"RUN-{uuid.uuid4().hex[:8]}"))
     correlation_id = str(config.get("correlation_id", run_id))
 
-    if evaluation_time_source == "now_utc":
+    if bar_close_time_utc is not None:
+        evaluation_time_utc = bar_close_time_utc
+    elif evaluation_time_source == "now_utc":
         evaluation_time_utc = _utc_now_iso()
     else:
         evaluation_time_utc = str(config["evaluation_time_utc"])
@@ -70,10 +112,57 @@ def run_once(config_path: str) -> int:
             decision_id=decision_id,
             env=env,
             timestamp_utc=evaluation_time_utc,
+            bar_close_time_utc=evaluation_time_utc,
             symbol=symbol,
             payload={"phase": "start", "mode": "once"},
         ),
     )
+
+    fresh = True
+    freshness_reason = "FRESHNESS_GATE_DISABLED"
+    if latest_bar_time_path:
+        fresh, freshness_reason = _is_data_fresh(
+            latest_bar_time_path=str(latest_bar_time_path),
+            bar_close_time_utc=evaluation_time_utc,
+            tolerance_seconds=freshness_tolerance_seconds,
+        )
+
+    if not fresh:
+        append_event_jsonl(
+            event_log_path,
+            _event(
+                event_type="SystemEvent",
+                run_id=run_id,
+                correlation_id=correlation_id,
+                decision_id=decision_id,
+                env=env,
+                timestamp_utc=evaluation_time_utc,
+                bar_close_time_utc=evaluation_time_utc,
+                symbol=symbol,
+                payload={
+                    "phase": "skip",
+                    "reason": "stale_data",
+                    "freshness_reason": freshness_reason,
+                    "latest_bar_time_path": latest_bar_time_path,
+                    "freshness_tolerance_seconds": freshness_tolerance_seconds,
+                },
+            ),
+        )
+        append_event_jsonl(
+            event_log_path,
+            _event(
+                event_type="SystemEvent",
+                run_id=run_id,
+                correlation_id=correlation_id,
+                decision_id=decision_id,
+                env=env,
+                timestamp_utc=evaluation_time_utc,
+                bar_close_time_utc=evaluation_time_utc,
+                symbol=symbol,
+                payload={"phase": "end", "mode": "once", "skipped": True},
+            ),
+        )
+        return 0
 
     desired_position = {
         "symbol": symbol,
@@ -100,6 +189,7 @@ def run_once(config_path: str) -> int:
             decision_id=decision_id,
             env=env,
             timestamp_utc=evaluation_time_utc,
+            bar_close_time_utc=evaluation_time_utc,
             symbol=symbol,
             payload=overlay_result,
         ),
@@ -114,6 +204,7 @@ def run_once(config_path: str) -> int:
             decision_id=decision_id,
             env=env,
             timestamp_utc=evaluation_time_utc,
+            bar_close_time_utc=evaluation_time_utc,
             symbol=symbol,
             payload={"status": "no-op", "note": "D-0001 enforced elsewhere"},
         ),
@@ -128,6 +219,7 @@ def run_once(config_path: str) -> int:
             decision_id=decision_id,
             env=env,
             timestamp_utc=evaluation_time_utc,
+            bar_close_time_utc=evaluation_time_utc,
             symbol=symbol,
             payload={"status": "stub", "note": "paper intent would be generated here"},
         ),
@@ -142,6 +234,7 @@ def run_once(config_path: str) -> int:
             decision_id=decision_id,
             env=env,
             timestamp_utc=evaluation_time_utc,
+            bar_close_time_utc=evaluation_time_utc,
             symbol=symbol,
             payload={"phase": "end", "mode": "once"},
         ),
@@ -150,16 +243,30 @@ def run_once(config_path: str) -> int:
     return 0
 
 
+def _run_loop(config_path: str) -> int:
+    while True:
+        bar_close = next_hour_close_utc(datetime.now(timezone.utc))
+        sleep_until(bar_close)
+        run_once(config_path=config_path, bar_close_time_utc=_iso_utc(bar_close))
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Paper trader runtime")
     parser.add_argument("--once", action="store_true", help="Run exactly one paper-safe cycle")
+    parser.add_argument("--loop", action="store_true", help="Run each UTC 1h bar close")
+    parser.add_argument("--once-at", help="Run one cycle at explicit UTC bar-close timestamp (ISO8601)")
     parser.add_argument("--config", required=True, help="Path to runtime config JSON")
     args = parser.parse_args()
 
-    if not args.once:
-        raise SystemExit("Only --once mode is allowed in this batch")
+    selected_modes = sum(bool(mode) for mode in [args.once, args.loop, args.once_at])
+    if selected_modes != 1:
+        raise SystemExit("Select exactly one mode: --once, --loop, or --once-at")
 
-    return run_once(args.config)
+    if args.once:
+        return run_once(args.config)
+    if args.once_at:
+        return run_once(args.config, bar_close_time_utc=_iso_utc(_parse_iso_utc(args.once_at)))
+    return _run_loop(args.config)
 
 
 if __name__ == "__main__":

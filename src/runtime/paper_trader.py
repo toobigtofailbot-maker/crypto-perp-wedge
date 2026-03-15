@@ -8,10 +8,23 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
+from src.execution.interfaces import OrderIntent
 from src.logging.event_writer import append_event_jsonl
 from src.overlay.overlay_evaluator_v1 import evaluate_overlay
+from src.paper.paper_broker import PaperBroker, PaperFill
+from src.paper.position_state import (
+    PositionState,
+    apply_fill_to_position,
+    load_position_state,
+    position_delta_qty,
+    save_position_state,
+    snapshot_position_state,
+)
 from src.runtime.scheduler import next_hour_close_utc, sleep_until
 from src.signal.provider import build_signal_provider
+
+
+ZERO = Decimal("0")
 
 
 def _utc_now_iso() -> str:
@@ -31,6 +44,22 @@ def _load_json(path: str) -> dict[str, Any]:
 
 def _iso_utc(value: datetime) -> str:
     return value.replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def _decimal_text(value: Decimal | None) -> str | None:
+    if value is None:
+        return None
+    if value == 0:
+        return "0"
+    return format(value.normalize(), "f")
+
+
+def _decimal_from_config(config: dict[str, Any], key: str, default: str) -> Decimal:
+    return Decimal(str(config.get(key, default)))
+
+
+def _default_paper_path(event_log_path: str, filename: str) -> str:
+    return str(Path(event_log_path).with_name(filename))
 
 
 def _event(
@@ -95,6 +124,57 @@ def _freshness_gate_path(value: Any) -> str | None:
     return path
 
 
+def _serialize_desired_position(
+    *,
+    symbol: str,
+    target_qty: Decimal | None,
+    target_notional: Decimal | None,
+    timestamp_utc: str,
+    source_timeframe: str | None,
+    decision_id: str,
+    correlation_id: str,
+    run_id: str,
+    size_multiplier_applied: Decimal | None = None,
+) -> dict[str, Any]:
+    payload = {
+        "symbol": symbol,
+        "target_qty": _decimal_text(target_qty),
+        "target_notional": _decimal_text(target_notional),
+        "timestamp_utc": timestamp_utc,
+        "source_timeframe": source_timeframe,
+        "decision_id": decision_id,
+        "correlation_id": correlation_id,
+        "run_id": run_id,
+    }
+    if size_multiplier_applied is not None:
+        payload["size_multiplier_applied"] = _decimal_text(size_multiplier_applied)
+    return payload
+
+
+def _serialize_order_intent(order_intent: OrderIntent) -> dict[str, Any]:
+    return {
+        "symbol": order_intent.symbol,
+        "side": order_intent.side.value,
+        "qty": _decimal_text(order_intent.qty),
+        "price": _decimal_text(order_intent.price),
+        "order_type": order_intent.order_type.value,
+        "reduce_only": order_intent.reduce_only,
+        "client_order_id": order_intent.client_order_id,
+        "tif": order_intent.tif,
+        "urgency": order_intent.urgency,
+        "correlation_id": order_intent.correlation_id,
+        "decision_id": order_intent.decision_id,
+    }
+
+
+def _serialize_fill(fill: PaperFill) -> dict[str, Any]:
+    return fill.to_dict()
+
+
+def _serialize_position(state: PositionState) -> dict[str, Any]:
+    return state.to_dict()
+
+
 def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
     config = _load_json(config_path)
 
@@ -106,9 +186,15 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
     latest_bar_time_path = _freshness_gate_path(config.get("latest_bar_time_path"))
     freshness_tolerance_seconds = int(config.get("freshness_tolerance_seconds", 0))
     evaluation_time_source = str(config.get("evaluation_time_source", "now_utc"))
+    paper_fill_price_mode = str(config.get("paper_fill_price_mode", "fixed")).strip().lower()
+    paper_fill_price_fixed = _decimal_from_config(config, "paper_fill_price_fixed", "0")
+    paper_slippage_bps = _decimal_from_config(config, "paper_slippage_bps", "0")
+    paper_fee_bps = _decimal_from_config(config, "paper_fee_bps", "0")
     decision_id = str(config.get("decision_id", "D-0001"))
     run_id = str(config.get("run_id", f"RUN-{uuid.uuid4().hex[:8]}"))
     correlation_id = str(config.get("correlation_id", run_id))
+    position_state_path = str(config.get("paper_position_state_path", _default_paper_path(event_log_path, "position_state.json")))
+    paper_ledger_path = str(config.get("paper_ledger_path", _default_paper_path(event_log_path, "ledger.jsonl")))
 
     if bar_close_time_utc is not None:
         evaluation_time_utc = bar_close_time_utc
@@ -116,6 +202,9 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
         evaluation_time_utc = _utc_now_iso()
     else:
         evaluation_time_utc = str(config["evaluation_time_utc"])
+
+    if paper_fill_price_mode != "fixed":
+        raise ValueError(f"Unsupported paper_fill_price_mode for this batch: {paper_fill_price_mode}")
 
     append_event_jsonl(
         event_log_path,
@@ -179,6 +268,12 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
         return 0
 
     signal_provider = build_signal_provider(signal_provider_name)
+    broker = PaperBroker(ledger_path=paper_ledger_path)
+    current_position = load_position_state(
+        position_state_path,
+        symbol=symbol,
+        as_of_utc=evaluation_time_utc,
+    )
     desired_position = signal_provider.compute_desired_position(
         evaluation_time_utc=evaluation_time_utc,
         inputs={
@@ -190,16 +285,16 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
         },
     )
 
-    desired_position_payload = {
-        "symbol": desired_position.symbol,
-        "target_qty": str(desired_position.target_qty) if desired_position.target_qty is not None else None,
-        "target_notional": str(desired_position.target_notional) if desired_position.target_notional is not None else None,
-        "timestamp_utc": desired_position.timestamp_utc,
-        "source_timeframe": desired_position.source_timeframe,
-        "decision_id": desired_position.decision_id,
-        "correlation_id": desired_position.correlation_id,
-        "run_id": desired_position.run_id,
-    }
+    desired_position_payload = _serialize_desired_position(
+        symbol=desired_position.symbol,
+        target_qty=desired_position.target_qty,
+        target_notional=desired_position.target_notional,
+        timestamp_utc=desired_position.timestamp_utc,
+        source_timeframe=desired_position.source_timeframe,
+        decision_id=desired_position.decision_id,
+        correlation_id=desired_position.correlation_id,
+        run_id=desired_position.run_id,
+    )
 
     append_event_jsonl(
         event_log_path,
@@ -231,17 +326,18 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
     if adjusted_target_qty is not None:
         adjusted_target_qty = adjusted_target_qty * size_multiplier
 
-    overlay_result["desired_position_after_overlay"] = {
-        "symbol": desired_position.symbol,
-        "target_qty": str(adjusted_target_qty) if adjusted_target_qty is not None else None,
-        "target_notional": str(desired_position.target_notional) if desired_position.target_notional is not None else None,
-        "timestamp_utc": desired_position.timestamp_utc,
-        "source_timeframe": desired_position.source_timeframe,
-        "decision_id": desired_position.decision_id,
-        "correlation_id": desired_position.correlation_id,
-        "run_id": desired_position.run_id,
-        "size_multiplier_applied": str(size_multiplier),
-    }
+    overlay_result["target_qty_after_multiplier"] = _decimal_text(adjusted_target_qty)
+    overlay_result["desired_position_after_overlay"] = _serialize_desired_position(
+        symbol=desired_position.symbol,
+        target_qty=adjusted_target_qty,
+        target_notional=desired_position.target_notional,
+        timestamp_utc=desired_position.timestamp_utc,
+        source_timeframe=desired_position.source_timeframe,
+        decision_id=desired_position.decision_id,
+        correlation_id=desired_position.correlation_id,
+        run_id=desired_position.run_id,
+        size_multiplier_applied=size_multiplier,
+    )
 
     append_event_jsonl(
         event_log_path,
@@ -258,6 +354,25 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
         ),
     )
 
+    delta_qty = ZERO
+    no_trade_reason = "TARGET_QTY_MISSING"
+    order_intent: OrderIntent | None = None
+    if adjusted_target_qty is not None:
+        delta_qty = position_delta_qty(current_position.qty, adjusted_target_qty)
+        if delta_qty == ZERO:
+            no_trade_reason = "TARGET_MATCHES_POSITION"
+        else:
+            order_intent = broker.build_rebalance_order_intent(
+                symbol=symbol,
+                current_qty=current_position.qty,
+                target_qty=adjusted_target_qty,
+                evaluation_time_utc=evaluation_time_utc,
+                decision_id=decision_id,
+                correlation_id=correlation_id,
+            )
+            if order_intent is None:
+                no_trade_reason = "ORDER_INTENT_NOT_CREATED"
+
     append_event_jsonl(
         event_log_path,
         _event(
@@ -269,9 +384,32 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
             timestamp_utc=evaluation_time_utc,
             bar_close_time_utc=evaluation_time_utc,
             symbol=symbol,
-            payload={"status": "no-op", "note": "D-0001 enforced elsewhere"},
+            payload={
+                "status": "paper-safe",
+                "note": "paper runtime only simulates deterministic local fills",
+                "current_qty": _decimal_text(current_position.qty),
+                "target_qty_after_multiplier": _decimal_text(adjusted_target_qty),
+                "delta_qty": _decimal_text(delta_qty),
+            },
         ),
     )
+
+    order_intent_payload: dict[str, Any] = {
+        "status": "trade_planned" if order_intent is not None else "no_trade",
+        "current_qty": _decimal_text(current_position.qty),
+        "target_qty_after_multiplier": _decimal_text(adjusted_target_qty),
+        "delta_qty": _decimal_text(delta_qty),
+        "paper_fill_price_mode": paper_fill_price_mode,
+        "paper_fill_price_fixed": _decimal_text(paper_fill_price_fixed),
+        "paper_slippage_bps": _decimal_text(paper_slippage_bps),
+        "paper_fee_bps": _decimal_text(paper_fee_bps),
+        "paper_position_state_path": position_state_path,
+        "paper_ledger_path": paper_ledger_path,
+    }
+    if order_intent is not None:
+        order_intent_payload["order_intent"] = _serialize_order_intent(order_intent)
+    else:
+        order_intent_payload["reason"] = no_trade_reason
 
     append_event_jsonl(
         event_log_path,
@@ -284,7 +422,76 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
             timestamp_utc=evaluation_time_utc,
             bar_close_time_utc=evaluation_time_utc,
             symbol=symbol,
-            payload={"status": "stub", "note": "paper intent would be generated here"},
+            payload=order_intent_payload,
+        ),
+    )
+
+    next_position = snapshot_position_state(current_position, evaluation_time_utc)
+    if order_intent is not None:
+        fill = broker.simulate_fill(
+            order_intent,
+            price_ref=paper_fill_price_fixed,
+            slippage_bps=paper_slippage_bps,
+            fee_bps=paper_fee_bps,
+        )
+        next_position = apply_fill_to_position(
+            current_position,
+            signed_fill_qty=fill.signed_qty,
+            fill_price=fill.fill_price,
+            as_of_utc=evaluation_time_utc,
+        )
+        broker.append_fill_ledger(
+            fill,
+            timestamp_utc=evaluation_time_utc,
+            run_id=run_id,
+            correlation_id=correlation_id,
+            decision_id=decision_id,
+            current_qty_before=current_position.qty,
+            target_qty_after=adjusted_target_qty,
+            position_qty_after=next_position.qty,
+        )
+        append_event_jsonl(
+            event_log_path,
+            _event(
+                event_type="FillEvent",
+                run_id=run_id,
+                correlation_id=correlation_id,
+                decision_id=decision_id,
+                env=env,
+                timestamp_utc=evaluation_time_utc,
+                bar_close_time_utc=evaluation_time_utc,
+                symbol=symbol,
+                payload={
+                    "paper_ledger_path": paper_ledger_path,
+                    "fill": _serialize_fill(fill),
+                },
+            ),
+        )
+
+    save_position_state(position_state_path, next_position)
+
+    append_event_jsonl(
+        event_log_path,
+        _event(
+            event_type="PositionEvent",
+            run_id=run_id,
+            correlation_id=correlation_id,
+            decision_id=decision_id,
+            env=env,
+            timestamp_utc=evaluation_time_utc,
+            bar_close_time_utc=evaluation_time_utc,
+            symbol=symbol,
+            payload={
+                "evaluation_time_utc": evaluation_time_utc,
+                "paper_position_state_path": position_state_path,
+                "paper_ledger_path": paper_ledger_path,
+                "current_qty_before": _decimal_text(current_position.qty),
+                "target_qty_after_multiplier": _decimal_text(adjusted_target_qty),
+                "delta_qty": _decimal_text(delta_qty),
+                "position_qty_after": _decimal_text(next_position.qty),
+                "traded": order_intent is not None,
+                "position_state": _serialize_position(next_position),
+            },
         ),
     )
 

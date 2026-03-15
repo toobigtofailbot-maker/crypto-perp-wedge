@@ -6,5 +6,6 @@
   "event_log_path": "logs/paper_trader/events.jsonl",
   "evaluation_time_source": "now_utc",
   "freshness_tolerance_seconds": 120,
-  "latest_bar_time_path": "reports/runtime/latest_bar_timestamp.json"
+  "latest_bar_time_path": null,
+  "signal_provider": "flat"
 }

@@ -10,6 +10,7 @@ from typing import Any
 
 from src.execution.interfaces import OrderIntent
 from src.logging.event_writer import append_event_jsonl
+from src.marketdata.price_ref_provider import PriceRefProvider, PriceReference
 from src.overlay.overlay_evaluator_v1 import evaluate_overlay
 from src.paper.paper_broker import PaperBroker, PaperFill
 from src.paper.position_state import (
@@ -62,6 +63,10 @@ def _default_paper_path(event_log_path: str, filename: str) -> str:
     return str(Path(event_log_path).with_name(filename))
 
 
+def _serialize_price_reference(price_reference: PriceReference) -> dict[str, str]:
+    return price_reference.to_event_fields()
+
+
 def _event(
     event_type: str,
     run_id: str,
@@ -72,6 +77,7 @@ def _event(
     bar_close_time_utc: str,
     symbol: str | None = None,
     payload: dict[str, Any] | None = None,
+    price_ref_metadata: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     event: dict[str, Any] = {
         "timestamp_utc": timestamp_utc,
@@ -84,6 +90,8 @@ def _event(
     }
     if symbol:
         event["symbol"] = symbol
+    if price_ref_metadata is not None:
+        event.update(price_ref_metadata)
     if payload is not None:
         event["payload"] = payload
     return event
@@ -186,10 +194,12 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
     latest_bar_time_path = _freshness_gate_path(config.get("latest_bar_time_path"))
     freshness_tolerance_seconds = int(config.get("freshness_tolerance_seconds", 0))
     evaluation_time_source = str(config.get("evaluation_time_source", "now_utc"))
-    paper_fill_price_mode = str(config.get("paper_fill_price_mode", "fixed")).strip().lower()
+    paper_fill_price_mode = str(config.get("paper_fill_price_mode", "mid_bookticker")).strip().lower()
     paper_fill_price_fixed = _decimal_from_config(config, "paper_fill_price_fixed", "0")
     paper_slippage_bps = _decimal_from_config(config, "paper_slippage_bps", "0")
     paper_fee_bps = _decimal_from_config(config, "paper_fee_bps", "0")
+    price_ref_paths = config.get("price_ref_paths") if isinstance(config.get("price_ref_paths"), dict) else {}
+    price_ref_lookback_seconds = int(config.get("price_ref_lookback_seconds", 3600))
     decision_id = str(config.get("decision_id", "D-0001"))
     run_id = str(config.get("run_id", f"RUN-{uuid.uuid4().hex[:8]}"))
     correlation_id = str(config.get("correlation_id", run_id))
@@ -203,8 +213,22 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
     else:
         evaluation_time_utc = str(config["evaluation_time_utc"])
 
-    if paper_fill_price_mode != "fixed":
-        raise ValueError(f"Unsupported paper_fill_price_mode for this batch: {paper_fill_price_mode}")
+    price_ref_provider = PriceRefProvider(
+        bookticker_parquet=(
+            str(price_ref_paths.get("bookticker_parquet")) if price_ref_paths.get("bookticker_parquet") is not None else None
+        ),
+        premiumindex_parquet=(
+            str(price_ref_paths.get("premiumindex_parquet")) if price_ref_paths.get("premiumindex_parquet") is not None else None
+        ),
+        lookback_seconds=price_ref_lookback_seconds,
+        fixed_fallback=paper_fill_price_fixed,
+    )
+    price_reference = price_ref_provider.resolve(
+        symbol=symbol,
+        evaluation_time_utc=evaluation_time_utc,
+        mode=paper_fill_price_mode,
+    )
+    price_ref_metadata = _serialize_price_reference(price_reference)
 
     append_event_jsonl(
         event_log_path,
@@ -217,6 +241,7 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
             timestamp_utc=evaluation_time_utc,
             bar_close_time_utc=evaluation_time_utc,
             symbol=symbol,
+            price_ref_metadata=price_ref_metadata,
             payload={"phase": "start", "mode": "once"},
         ),
     )
@@ -242,6 +267,7 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
                 timestamp_utc=evaluation_time_utc,
                 bar_close_time_utc=evaluation_time_utc,
                 symbol=symbol,
+                price_ref_metadata=price_ref_metadata,
                 payload={
                     "phase": "skip",
                     "reason": "stale_data",
@@ -262,6 +288,7 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
                 timestamp_utc=evaluation_time_utc,
                 bar_close_time_utc=evaluation_time_utc,
                 symbol=symbol,
+                price_ref_metadata=price_ref_metadata,
                 payload={"phase": "end", "mode": "once", "skipped": True},
             ),
         )
@@ -307,6 +334,7 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
             timestamp_utc=evaluation_time_utc,
             bar_close_time_utc=evaluation_time_utc,
             symbol=symbol,
+            price_ref_metadata=price_ref_metadata,
             payload={
                 "signal_provider": signal_provider_name,
                 "evaluation_time_utc": evaluation_time_utc,
@@ -350,6 +378,7 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
             timestamp_utc=evaluation_time_utc,
             bar_close_time_utc=evaluation_time_utc,
             symbol=symbol,
+            price_ref_metadata=price_ref_metadata,
             payload=overlay_result,
         ),
     )
@@ -384,6 +413,7 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
             timestamp_utc=evaluation_time_utc,
             bar_close_time_utc=evaluation_time_utc,
             symbol=symbol,
+            price_ref_metadata=price_ref_metadata,
             payload={
                 "status": "paper-safe",
                 "note": "paper runtime only simulates deterministic local fills",
@@ -405,6 +435,7 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
         "paper_fee_bps": _decimal_text(paper_fee_bps),
         "paper_position_state_path": position_state_path,
         "paper_ledger_path": paper_ledger_path,
+        "price_ref_lookup_mode": paper_fill_price_mode,
     }
     if order_intent is not None:
         order_intent_payload["order_intent"] = _serialize_order_intent(order_intent)
@@ -422,6 +453,7 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
             timestamp_utc=evaluation_time_utc,
             bar_close_time_utc=evaluation_time_utc,
             symbol=symbol,
+            price_ref_metadata=price_ref_metadata,
             payload=order_intent_payload,
         ),
     )
@@ -430,9 +462,11 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
     if order_intent is not None:
         fill = broker.simulate_fill(
             order_intent,
-            price_ref=paper_fill_price_fixed,
+            price_ref=price_reference.price_ref,
             slippage_bps=paper_slippage_bps,
             fee_bps=paper_fee_bps,
+            price_ref_source=price_reference.price_ref_source,
+            price_ref_asof_utc=price_reference.price_ref_asof_utc,
         )
         next_position = apply_fill_to_position(
             current_position,
@@ -461,6 +495,7 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
                 timestamp_utc=evaluation_time_utc,
                 bar_close_time_utc=evaluation_time_utc,
                 symbol=symbol,
+                price_ref_metadata=price_ref_metadata,
                 payload={
                     "paper_ledger_path": paper_ledger_path,
                     "fill": _serialize_fill(fill),
@@ -481,6 +516,7 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
             timestamp_utc=evaluation_time_utc,
             bar_close_time_utc=evaluation_time_utc,
             symbol=symbol,
+            price_ref_metadata=price_ref_metadata,
             payload={
                 "evaluation_time_utc": evaluation_time_utc,
                 "paper_position_state_path": position_state_path,
@@ -506,6 +542,7 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
             timestamp_utc=evaluation_time_utc,
             bar_close_time_utc=evaluation_time_utc,
             symbol=symbol,
+            price_ref_metadata=price_ref_metadata,
             payload={"phase": "end", "mode": "once"},
         ),
     )

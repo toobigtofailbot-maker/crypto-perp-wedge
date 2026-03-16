@@ -36,6 +36,8 @@ class PaperFill:
     slippage_bps: Decimal
     fee_bps: Decimal
     reduce_only: bool
+    price_ref_source: str | None = None
+    price_ref_asof_utc: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -51,6 +53,8 @@ class PaperFill:
             "slippage_bps": _decimal_text(self.slippage_bps),
             "fee_bps": _decimal_text(self.fee_bps),
             "reduce_only": self.reduce_only,
+            "price_ref_source": self.price_ref_source,
+            "price_ref_asof_utc": self.price_ref_asof_utc,
         }
 
 
@@ -109,6 +113,8 @@ class PaperBroker:
         price_ref: Decimal,
         slippage_bps: Decimal,
         fee_bps: Decimal,
+        price_ref_source: str | None = None,
+        price_ref_asof_utc: str | None = None,
     ) -> PaperFill:
         if price_ref <= ZERO:
             raise ValueError("price_ref must be positive for paper fill simulation")
@@ -135,6 +141,8 @@ class PaperBroker:
             slippage_bps=slippage_bps,
             fee_bps=fee_bps,
             reduce_only=order_intent.reduce_only,
+            price_ref_source=price_ref_source,
+            price_ref_asof_utc=price_ref_asof_utc,
         )
 
     def append_fill_ledger(
@@ -169,3 +177,5 @@ class PaperBroker:
         target.parent.mkdir(parents=True, exist_ok=True)
         with target.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(payload, sort_keys=True) + "\n")
+
+

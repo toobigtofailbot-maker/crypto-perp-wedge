@@ -12,6 +12,12 @@ from src.execution.interfaces import OrderIntent
 from src.logging.event_writer import append_event_jsonl
 from src.marketdata.price_ref_provider import PriceRefProvider, PriceReference
 from src.overlay.overlay_evaluator_v1 import evaluate_overlay
+from src.paper.ledger_state import (
+    LedgerState,
+    load_ledger_state,
+    save_ledger_state,
+    snapshot_ledger_state,
+)
 from src.paper.paper_broker import PaperBroker, PaperFill
 from src.paper.position_state import (
     PositionState,
@@ -57,6 +63,14 @@ def _decimal_text(value: Decimal | None) -> str | None:
 
 def _decimal_from_config(config: dict[str, Any], key: str, default: str) -> Decimal:
     return Decimal(str(config.get(key, default)))
+
+
+def _decimal_from_config_keys(config: dict[str, Any], keys: tuple[str, ...], default: str) -> Decimal:
+    for key in keys:
+        value = config.get(key)
+        if value is not None:
+            return Decimal(str(value))
+    return Decimal(default)
 
 
 def _default_paper_path(event_log_path: str, filename: str) -> str:
@@ -183,6 +197,10 @@ def _serialize_position(state: PositionState) -> dict[str, Any]:
     return state.to_dict()
 
 
+def _serialize_ledger_state(state: LedgerState) -> dict[str, Any]:
+    return state.to_dict()
+
+
 def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
     config = _load_json(config_path)
 
@@ -196,8 +214,9 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
     evaluation_time_source = str(config.get("evaluation_time_source", "now_utc"))
     paper_fill_price_mode = str(config.get("paper_fill_price_mode", "mid_bookticker")).strip().lower()
     paper_fill_price_fixed = _decimal_from_config(config, "paper_fill_price_fixed", "0")
-    paper_slippage_bps = _decimal_from_config(config, "paper_slippage_bps", "0")
-    paper_fee_bps = _decimal_from_config(config, "paper_fee_bps", "0")
+    paper_slippage_bps = _decimal_from_config_keys(config, ("slippage_bps", "paper_slippage_bps"), "0")
+    paper_fee_bps = _decimal_from_config_keys(config, ("fee_bps", "paper_fee_bps"), "0")
+    initial_equity = _decimal_from_config(config, "initial_equity", "0")
     price_ref_paths = config.get("price_ref_paths") if isinstance(config.get("price_ref_paths"), dict) else {}
     price_ref_lookback_seconds = int(config.get("price_ref_lookback_seconds", 3600))
     decision_id = str(config.get("decision_id", "D-0001"))
@@ -205,6 +224,7 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
     correlation_id = str(config.get("correlation_id", run_id))
     position_state_path = str(config.get("paper_position_state_path", _default_paper_path(event_log_path, "position_state.json")))
     paper_ledger_path = str(config.get("paper_ledger_path", _default_paper_path(event_log_path, "ledger.jsonl")))
+    paper_ledger_state_path = str(config.get("paper_ledger_state_path", _default_paper_path(event_log_path, "ledger_state.json")))
 
     if bar_close_time_utc is not None:
         evaluation_time_utc = bar_close_time_utc
@@ -300,6 +320,14 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
         position_state_path,
         symbol=symbol,
         as_of_utc=evaluation_time_utc,
+    )
+    current_ledger = load_ledger_state(
+        paper_ledger_state_path,
+        symbol=symbol,
+        initial_equity=initial_equity,
+        as_of_utc=evaluation_time_utc,
+        position_qty=current_position.qty,
+        avg_entry_price=current_position.avg_entry_price,
     )
     desired_position = signal_provider.compute_desired_position(
         evaluation_time_utc=evaluation_time_utc,
@@ -431,10 +459,14 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
         "delta_qty": _decimal_text(delta_qty),
         "paper_fill_price_mode": paper_fill_price_mode,
         "paper_fill_price_fixed": _decimal_text(paper_fill_price_fixed),
+        "slippage_bps": _decimal_text(paper_slippage_bps),
+        "fee_bps": _decimal_text(paper_fee_bps),
+        "initial_equity": _decimal_text(initial_equity),
         "paper_slippage_bps": _decimal_text(paper_slippage_bps),
         "paper_fee_bps": _decimal_text(paper_fee_bps),
         "paper_position_state_path": position_state_path,
         "paper_ledger_path": paper_ledger_path,
+        "paper_ledger_state_path": paper_ledger_state_path,
         "price_ref_lookup_mode": paper_fill_price_mode,
     }
     if order_intent is not None:
@@ -459,6 +491,7 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
     )
 
     next_position = snapshot_position_state(current_position, evaluation_time_utc)
+    next_ledger = snapshot_ledger_state(current_ledger, evaluation_time_utc)
     if order_intent is not None:
         fill = broker.simulate_fill(
             order_intent,
@@ -474,6 +507,7 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
             fill_price=fill.fill_price,
             as_of_utc=evaluation_time_utc,
         )
+        next_ledger = current_ledger.apply_fill(fill, as_of_utc=evaluation_time_utc)
         broker.append_fill_ledger(
             fill,
             timestamp_utc=evaluation_time_utc,
@@ -483,6 +517,7 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
             current_qty_before=current_position.qty,
             target_qty_after=adjusted_target_qty,
             position_qty_after=next_position.qty,
+            ledger_state_after=_serialize_ledger_state(next_ledger),
         )
         append_event_jsonl(
             event_log_path,
@@ -498,12 +533,22 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
                 price_ref_metadata=price_ref_metadata,
                 payload={
                     "paper_ledger_path": paper_ledger_path,
+                    "paper_ledger_state_path": paper_ledger_state_path,
                     "fill": _serialize_fill(fill),
                 },
             ),
         )
 
     save_position_state(position_state_path, next_position)
+    save_ledger_state(paper_ledger_state_path, next_ledger)
+    ledger_payload = next_ledger.to_event_payload(
+        evaluation_time_utc=evaluation_time_utc,
+        mark_price=price_reference.price_ref,
+    )
+    ledger_payload["paper_ledger_path"] = paper_ledger_path
+    ledger_payload["paper_ledger_state_path"] = paper_ledger_state_path
+    ledger_payload["traded"] = order_intent is not None
+    ledger_payload["ledger_state"] = _serialize_ledger_state(next_ledger)
 
     append_event_jsonl(
         event_log_path,
@@ -528,6 +573,22 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
                 "traded": order_intent is not None,
                 "position_state": _serialize_position(next_position),
             },
+        ),
+    )
+
+    append_event_jsonl(
+        event_log_path,
+        _event(
+            event_type="LedgerEvent",
+            run_id=run_id,
+            correlation_id=correlation_id,
+            decision_id=decision_id,
+            env=env,
+            timestamp_utc=evaluation_time_utc,
+            bar_close_time_utc=evaluation_time_utc,
+            symbol=symbol,
+            price_ref_metadata=price_ref_metadata,
+            payload=ledger_payload,
         ),
     )
 

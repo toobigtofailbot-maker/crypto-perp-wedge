@@ -51,6 +51,7 @@ def _write_price_ref_files(tmp_path: Path) -> tuple[Path, Path]:
 
 def test_flat_signal_still_logs_price_ref_metadata_without_fill(tmp_path: Path) -> None:
     event_log_path = tmp_path / "logs" / "paper_trader" / "events.jsonl"
+    ledger_state_path = tmp_path / "logs" / "paper_trader" / "ledger_state.json"
     config_path = tmp_path / "paper_runtime.json"
     book_path, premium_path = _write_price_ref_files(tmp_path)
 
@@ -65,8 +66,10 @@ def test_flat_signal_still_logs_price_ref_metadata_without_fill(tmp_path: Path) 
         "run_id": "RUN-TEST-PRICE-REF-1",
         "correlation_id": "RUN-TEST-PRICE-REF-1",
         "signal_provider": "flat",
+        "paper_ledger_state_path": str(ledger_state_path),
         "paper_fill_price_mode": "mid_bookticker",
         "paper_fill_price_fixed": 77777,
+        "initial_equity": 300000,
         "price_ref_paths": {
             "bookticker_parquet": str(book_path),
             "premiumindex_parquet": str(premium_path),
@@ -87,18 +90,23 @@ def test_flat_signal_still_logs_price_ref_metadata_without_fill(tmp_path: Path) 
     signal_event = next(event for event in events if event["event_type"] == "SignalEvent")
     order_event = next(event for event in events if event["event_type"] == "OrderIntent")
     position_event = next(event for event in events if event["event_type"] == "PositionEvent")
+    ledger_event = next(event for event in events if event["event_type"] == "LedgerEvent")
 
-    for event in (signal_event, order_event, position_event):
+    for event in (signal_event, order_event, position_event, ledger_event):
         assert event["price_ref"] == "100000"
         assert event["price_ref_source"] == "mid_bookticker"
         assert event["price_ref_asof_utc"] == "2026-01-01T00:59:50Z"
 
     assert order_event["payload"]["status"] == "no_trade"
+    assert ledger_event["payload"]["mark_price"] == "100000"
+    assert ledger_event["payload"]["position_qty"] == "0"
+    assert ledger_event["payload"]["unrealized_pnl"] == "0"
 
 
-def test_fill_uses_resolved_price_ref_instead_of_fixed_config(tmp_path: Path, monkeypatch) -> None:
+def test_fill_uses_resolved_price_ref_and_ledger_marks_same_reference(tmp_path: Path, monkeypatch) -> None:
     event_log_path = tmp_path / "logs" / "paper_trader" / "events.jsonl"
     ledger_path = tmp_path / "logs" / "paper_trader" / "ledger.jsonl"
+    ledger_state_path = tmp_path / "logs" / "paper_trader" / "ledger_state.json"
     config_path = tmp_path / "paper_runtime.json"
     book_path, premium_path = _write_price_ref_files(tmp_path)
 
@@ -129,10 +137,12 @@ def test_fill_uses_resolved_price_ref_instead_of_fixed_config(tmp_path: Path, mo
         "correlation_id": "RUN-TEST-PRICE-REF-2",
         "signal_provider": "custom-long",
         "paper_ledger_path": str(ledger_path),
+        "paper_ledger_state_path": str(ledger_state_path),
         "paper_fill_price_mode": "mid_bookticker",
         "paper_fill_price_fixed": 77777,
-        "paper_slippage_bps": 0,
-        "paper_fee_bps": 0,
+        "slippage_bps": 0,
+        "fee_bps": 0,
+        "initial_equity": 300000,
         "price_ref_paths": {
             "bookticker_parquet": str(book_path),
             "premiumindex_parquet": str(premium_path),
@@ -147,6 +157,7 @@ def test_fill_uses_resolved_price_ref_instead_of_fixed_config(tmp_path: Path, mo
 
     events = [json.loads(line) for line in event_log_path.read_text(encoding="utf-8").splitlines()]
     fill_event = next(event for event in events if event["event_type"] == "FillEvent")
+    ledger_event = next(event for event in events if event["event_type"] == "LedgerEvent")
 
     assert fill_event["price_ref"] == "100000"
     assert fill_event["price_ref_source"] == "mid_bookticker"
@@ -156,6 +167,14 @@ def test_fill_uses_resolved_price_ref_instead_of_fixed_config(tmp_path: Path, mo
     assert fill_event["payload"]["fill"]["price_ref_asof_utc"] == "2026-01-01T00:59:50Z"
     assert fill_event["payload"]["fill"]["fill_price"] == "100000"
     assert fill_event["payload"]["fill"]["fill_price"] != "77777"
+
+    assert ledger_event["price_ref"] == "100000"
+    assert ledger_event["price_ref_source"] == "mid_bookticker"
+    assert ledger_event["price_ref_asof_utc"] == "2026-01-01T00:59:50Z"
+    assert ledger_event["payload"]["mark_price"] == "100000"
+    assert ledger_event["payload"]["position_qty"] == "2"
+    assert ledger_event["payload"]["avg_entry_price"] == "100000"
+    assert ledger_event["payload"]["unrealized_pnl"] == "0"
 
     ledger_entries = [json.loads(line) for line in ledger_path.read_text(encoding="utf-8").splitlines()]
     assert len(ledger_entries) == 1

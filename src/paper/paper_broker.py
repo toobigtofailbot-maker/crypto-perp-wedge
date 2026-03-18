@@ -31,13 +31,19 @@ class PaperFill:
     signed_qty: Decimal
     fill_price: Decimal
     price_ref: Decimal
+    reference_notional: Decimal
     gross_notional: Decimal
-    fee: Decimal
+    fee_cost: Decimal
+    slippage_cost: Decimal
     slippage_bps: Decimal
     fee_bps: Decimal
     reduce_only: bool
     price_ref_source: str | None = None
     price_ref_asof_utc: str | None = None
+
+    @property
+    def fee(self) -> Decimal:
+        return self.fee_cost
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -48,8 +54,11 @@ class PaperFill:
             "signed_qty": _decimal_text(self.signed_qty),
             "fill_price": _decimal_text(self.fill_price),
             "price_ref": _decimal_text(self.price_ref),
+            "reference_notional": _decimal_text(self.reference_notional),
             "gross_notional": _decimal_text(self.gross_notional),
-            "fee": _decimal_text(self.fee),
+            "fee": _decimal_text(self.fee_cost),
+            "fee_cost": _decimal_text(self.fee_cost),
+            "slippage_cost": _decimal_text(self.slippage_cost),
             "slippage_bps": _decimal_text(self.slippage_bps),
             "fee_bps": _decimal_text(self.fee_bps),
             "reduce_only": self.reduce_only,
@@ -124,8 +133,10 @@ class PaperBroker:
         direction = Decimal("1") if order_intent.side == OrderSide.BUY else Decimal("-1")
         slippage_multiplier = Decimal("1") + ((slippage_bps / BPS_DENOMINATOR) * direction)
         fill_price = price_ref * slippage_multiplier
+        reference_notional = order_intent.qty * price_ref
         gross_notional = order_intent.qty * fill_price
-        fee = gross_notional * (fee_bps / BPS_DENOMINATOR)
+        slippage_cost = reference_notional * (slippage_bps / BPS_DENOMINATOR)
+        fee_cost = reference_notional * (fee_bps / BPS_DENOMINATOR)
         signed_qty = order_intent.qty if order_intent.side == OrderSide.BUY else -order_intent.qty
 
         return PaperFill(
@@ -136,8 +147,10 @@ class PaperBroker:
             signed_qty=signed_qty,
             fill_price=fill_price,
             price_ref=price_ref,
+            reference_notional=reference_notional,
             gross_notional=gross_notional,
-            fee=fee,
+            fee_cost=fee_cost,
+            slippage_cost=slippage_cost,
             slippage_bps=slippage_bps,
             fee_bps=fee_bps,
             reduce_only=order_intent.reduce_only,
@@ -156,6 +169,7 @@ class PaperBroker:
         current_qty_before: Decimal,
         target_qty_after: Decimal,
         position_qty_after: Decimal,
+        ledger_state_after: dict[str, Any] | None = None,
     ) -> None:
         if not self.ledger_path:
             return
@@ -172,10 +186,10 @@ class PaperBroker:
             "position_qty_after": _decimal_text(position_qty_after),
             "fill": fill.to_dict(),
         }
+        if ledger_state_after is not None:
+            payload["ledger_state_after"] = ledger_state_after
 
         target = Path(self.ledger_path)
         target.parent.mkdir(parents=True, exist_ok=True)
         with target.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(payload, sort_keys=True) + "\n")
-
-

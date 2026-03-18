@@ -46,7 +46,11 @@ def test_paper_broker_is_deterministic_for_same_inputs() -> None:
 
     assert fill_a == fill_b
     assert fill_a.to_dict()["fill_price"] == "100100"
-    assert fill_a.to_dict()["fee"] == "100.1"
+    assert fill_a.to_dict()["reference_notional"] == "200000"
+    assert fill_a.to_dict()["gross_notional"] == "200200"
+    assert fill_a.to_dict()["fee"] == "100"
+    assert fill_a.to_dict()["fee_cost"] == "100"
+    assert fill_a.to_dict()["slippage_cost"] == "200"
 
 
 def test_paper_broker_appends_local_fill_ledger_entries(tmp_path: Path) -> None:
@@ -79,6 +83,7 @@ def test_paper_broker_appends_local_fill_ledger_entries(tmp_path: Path) -> None:
         current_qty_before=Decimal("1.5"),
         target_qty_after=Decimal("0"),
         position_qty_after=Decimal("0"),
+        ledger_state_after={"realized_pnl": "7350"},
     )
 
     entries = [json.loads(line) for line in ledger_path.read_text(encoding="utf-8").splitlines()]
@@ -86,4 +91,8 @@ def test_paper_broker_appends_local_fill_ledger_entries(tmp_path: Path) -> None:
     assert entries[0]["event_type"] == "PaperLedgerEntry"
     assert entries[0]["fill"]["side"] == "SELL"
     assert entries[0]["fill"]["fill_price"] == "99900"
+    assert entries[0]["fill"]["reference_notional"] == "150000"
+    assert entries[0]["fill"]["fee_cost"] == "75"
+    assert entries[0]["fill"]["slippage_cost"] == "150"
     assert entries[0]["position_qty_after"] == "0"
+    assert entries[0]["ledger_state_after"]["realized_pnl"] == "7350"

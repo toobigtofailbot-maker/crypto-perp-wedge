@@ -31,7 +31,7 @@ See docs/runbook.md
 ## Baseline tag
 
 Tag: phase1-closed
-Commit: (filled after tagging)
+Commit: e48805ccb1980fa2c95715c6cc45b9b92b74762a
 
 ## Validation at closure (fill with actual outputs)
 

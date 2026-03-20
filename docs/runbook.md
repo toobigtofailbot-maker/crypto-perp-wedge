@@ -139,3 +139,12 @@ Expected stale-data behavior:
 Run:
 ```powershell
 .\.venv\Scripts\python.exe -m src.runtime.paper_trader --once --config configs\paper_runtime.json
+```
+
+## Phase 1 baseline
+
+Run the frozen Phase 1 closure baseline with:
+
+```powershell
+python -m src.runtime.paper_trader --once-at 2026-01-01T01:00:00Z --config configs\paper_runtime.phase1_closed.json
+```

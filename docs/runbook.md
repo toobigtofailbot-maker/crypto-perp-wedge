@@ -69,6 +69,67 @@ Fail behavior:
 - exit code != 0 => STOP. Fix data/validator before any further backtest steps.
 
 
+## Phase 2 history fetch
+
+### Overview
+
+Phase 2 requires full BTCUSDT USDT-M perpetual history for research. This section documents how to fetch the canonical datasets.
+
+### OHLCV klines (all timeframes)
+
+Fetch full history for each timeframe:
+
+```bash
+/c/GitHub/crypto-perp-wedge/.venv/Scripts/python scripts/fetch_btcusdt_klines_bulk.py --interval 15m
+/c/GitHub/crypto-perp-wedge/.venv/Scripts/python scripts/fetch_btcusdt_klines_bulk.py --interval 30m
+/c/GitHub/crypto-perp-wedge/.venv/Scripts/python scripts/fetch_btcusdt_klines_bulk.py --interval 1h
+/c/GitHub/crypto-perp-wedge/.venv/Scripts/python scripts/fetch_btcusdt_klines_bulk.py --interval 4h
+/c/GitHub/crypto-perp-wedge/.venv/Scripts/python scripts/fetch_btcusdt_klines_bulk.py --interval 1d
+```
+
+Expected runtime: 10-30 minutes per timeframe depending on network speed.
+
+Output: `data/processed/binance_um_perp_BTCUSDT_{interval}_{start}_{end}_{created}.parquet`
+
+### Funding rates (full history)
+
+Fetch full funding rate history:
+
+```bash
+/c/GitHub/crypto-perp-wedge/.venv/Scripts/python scripts/fetch_btcusdt_funding_bulk.py
+```
+
+Expected runtime: 5-10 minutes.
+
+Output: `data/processed/binance_um_perp_BTCUSDT_funding_8h_{start}_{end}_{created}.parquet`
+
+### Expected row counts (minimum thresholds for ~6 years)
+
+| Timeframe | Minimum rows |
+| --------- | ------------ |
+| 15m       | 210,000      |
+| 30m       | 105,000      |
+| 1h        | 55,000       |
+| 4h        | 13,750       |
+| 1d        | 2,300        |
+| Funding   | 6,500        |
+
+### Validation
+
+After fetching, run the validator:
+
+```bash
+/c/GitHub/crypto-perp-wedge/.venv/Scripts/python scripts/validate_data.py
+```
+
+Check `reports/validation_report.json` for status and any gaps.
+
+### Data location
+
+All Parquet files are stored in `data/processed/` which is gitignored. Files are NOT committed to the repository. Each operator fetches independently.
+
+SHA256 checksums are recorded in `docs/data_catalog.md` for reproducibility verification.
+
 ## G4 API smoke test (live UM Futures)
 
 - Script: `python scripts/g4_api_smoke_test.py --env LIVE --symbol BTCUSDT`

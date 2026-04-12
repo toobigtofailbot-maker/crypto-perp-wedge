@@ -209,3 +209,51 @@ When windows overlap, apply strict severity ordering: `BLOCK` > `ALLOW_REDUCED` 
 
 ### Fail-open (binding)
 If calendar/snapshot context is missing, empty, or invalid, emit exactly one full-range `ALLOW` window with `context_missing=true`. Change protocol: new Decision Change entry required.
+
+---
+
+## D2-008 — Overlay Semantics Addendum (LOCKED)
+
+**Status:** LOCKED  
+**Decision ID:** D2-008  
+**Date:** 2026-04-11  
+**Scope:** Phase 2 (addendum to P1-A)
+
+### Semantics (binding)
+
+BLOCK gates only new entries and risk-increasing deltas. ALLOW_REDUCED(0.5) scales only the increase component. Reductions always allowed at full size.
+
+**Formula:**
+```
+effective_delta = delta_risk_increasing * multiplier + delta_risk_reducing * 1.0
+```
+
+### Change protocol
+
+Any modification requires a new decision entry in this file with explicit Main Architecture chat approval.
+
+---
+
+## Phase 2 Locked Decisions
+
+The following decisions are locked for Phase 2. Full details in `docs/onboarding/PHASE2_BASELINE.md`.
+
+| ID | Summary |
+|----|---------|
+| D2-001 | Research-first, infrastructure-second |
+| D2-002 | Lightweight pandas/numpy backtester (~300 lines) |
+| D2-003 | Free Binance data only |
+| D2-004 | DSR + trial_log.jsonl overfitting firewall |
+| D2-005 | Hypothesis pre-registration mandatory |
+| D2-006 | Promotion gates locked |
+| D2-007 | Shadow mode bridge (≥14 days + parity check) |
+| D2-008 | Overlay semantics addendum (see above) |
+| D2-009 | Token efficiency operating model |
+| D2-010 | Tool adoption/rejection list |
+| D2-011 | Agent roster with autonomy levels |
+| D2-012 | OpenClaw reframed as thin layer |
+| D2-013 | Supported timeframes (15m, 30m, 1h, 4h, 1d) |
+| D2-014 | Timeframe is hypothesis-level choice |
+| D2-015 | Multi-timeframe confirmation rules |
+| D2-016 | Research Agent advisory briefs only |
+| D2-017 | Cold storage for failed timeframes |

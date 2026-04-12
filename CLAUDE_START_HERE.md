@@ -38,4 +38,4 @@ See: docs/runbook.md
 
 ## What not to assume
 
-Strategy v1 is NOT locked. Phase 2 is explicitly allowed to propose better candidates and a more intelligent research engine, as long as core safety constraints remain intact.
+Phase 2 baseline is now locked. See `docs/onboarding/PHASE2_BASELINE.md` for the authoritative Phase 2 reference, including all locked decisions (D2-001 through D2-017), research workflow, tool decisions, and promotion gates.

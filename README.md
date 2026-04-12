@@ -20,3 +20,4 @@
 
 
 Python: 3.11.9
+Phase 2 reference: docs/onboarding/PHASE2_BASELINE.md

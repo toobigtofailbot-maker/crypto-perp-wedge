@@ -29,3 +29,17 @@
 * Kill-switch semantics
 * Hard risk caps (D-0001)
 * Overlay bounds + fail-open rule
+
+---
+
+## Phase 2 additions
+
+The following directories will appear during Phase 2:
+
+- `lib/` — lightweight backtester and evaluation utilities (D2-002)
+- `research/` — hypothesis specs, experiment notebooks, decision records, trial_log.jsonl (D2-004, D2-005)
+- `strategies/` — promoted strategy modules (D2-007)
+- `.claude/` — Claude Code operating rules, skills, and agent definitions (D2-012)
+- `prompts/` — execution brief and report-back templates
+
+**Phase 1 modules listed above are protected boundaries.** See `docs/onboarding/PHASE2_BASELINE.md` for the full list of protected items.

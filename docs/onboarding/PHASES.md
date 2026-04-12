@@ -23,6 +23,8 @@ Goal: build an “Aladdin-like” small-scale research and decision-support engi
 
 Exit (Phase 2): Strategy v1 is locked + implemented + paper-evaluated with a formal promotion gate decision (promote / revise / discard).
 
+**Phase 2 baseline is locked.** See `docs/onboarding/PHASE2_BASELINE.md` for the authoritative reference containing all locked decisions (D2-001 through D2-017).
+
 ## Phase 3 — Paper hardening + staged live (future)
 
 Goal: OMS/reconciliation live path, monitoring, incident playbooks, staged sizing.

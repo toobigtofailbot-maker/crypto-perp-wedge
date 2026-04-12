@@ -1,3 +1,9 @@
+> ⚠️ **SUPERSEDED BY `docs/onboarding/PHASE2_BASELINE.md`**
+>
+> This document is kept for historical context only. The authoritative Phase 2 reference is now `docs/onboarding/PHASE2_BASELINE.md`.
+
+---
+
 # Phase 2 Mandate — Strategy Research Program (Ambitious Option B)
 
 ## Goal

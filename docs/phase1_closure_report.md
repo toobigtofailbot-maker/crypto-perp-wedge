@@ -43,3 +43,9 @@ Commit: e48805ccb1980fa2c95715c6cc45b9b92b74762a
 ## Notes
 
 Keep all execution-critical controls deterministic. Phase 2 may be ambitious in research/intelligence, but must not break core safety constraints.
+
+---
+
+## Phase 2 Reference
+
+Phase 2 baseline is locked. See `docs/onboarding/PHASE2_BASELINE.md` for the authoritative Phase 2 reference.

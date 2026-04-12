@@ -83,3 +83,57 @@
 - Created (UTC): 2026-03-11T0104Z
 - SHA256: 6ec3ca2f7302a65413ed3f05beeb4e1d8f97cd3ae975c37af8e499c120dffb21
 - Storage path: data/processed/binance_um_perp_BTCUSDT_funding_schedule_metadata_2026-03-11_2026-03-11_2026-03-11T0104Z.parquet
+
+## Dataset: BTCUSDT 15m full history (Binance USDT-M Perp) – Parquet
+- Source: data.binance.vision bulk archives + Binance Futures API
+- Symbol/Contract: BTCUSDT (USDT-M Perpetual)
+- Timeframe: 15m
+- Range (start/end): 2020-01-01 / 2026-04-11
+- Created (UTC): 2026-04-12T1655Z
+- SHA256: 3fd05b841210962147a92bd77167ccefce57f6eb812cb55565d6f6cbb5154c31
+- Storage path: data/processed/binance_um_perp_BTCUSDT_15m_2020-01-01_2026-04-11_2026-04-12T1655Z.parquet
+
+## Dataset: BTCUSDT 30m full history (Binance USDT-M Perp) – Parquet
+- Source: data.binance.vision bulk archives + Binance Futures API
+- Symbol/Contract: BTCUSDT (USDT-M Perpetual)
+- Timeframe: 30m
+- Range (start/end): 2020-01-01 / 2026-04-11
+- Created (UTC): 2026-04-12T1655Z
+- SHA256: 059cb1ab3e5194578a39823e787ab29f41f6ce061309371cd414e0936aa9625b
+- Storage path: data/processed/binance_um_perp_BTCUSDT_30m_2020-01-01_2026-04-11_2026-04-12T1655Z.parquet
+
+## Dataset: BTCUSDT 1h full history (Binance USDT-M Perp) – Parquet
+- Source: data.binance.vision bulk archives + Binance Futures API
+- Symbol/Contract: BTCUSDT (USDT-M Perpetual)
+- Timeframe: 1h
+- Range (start/end): 2020-01-01 / 2026-04-11
+- Created (UTC): 2026-04-12T1655Z
+- SHA256: 9f77e67628e2ece56d114af1af45d732c840df569a5f51fda3ac2a923349da54
+- Storage path: data/processed/binance_um_perp_BTCUSDT_1h_2020-01-01_2026-04-11_2026-04-12T1655Z.parquet
+
+## Dataset: BTCUSDT 4h full history (Binance USDT-M Perp) – Parquet
+- Source: data.binance.vision bulk archives + Binance Futures API
+- Symbol/Contract: BTCUSDT (USDT-M Perpetual)
+- Timeframe: 4h
+- Range (start/end): 2020-01-01 / 2026-04-11
+- Created (UTC): 2026-04-12T1655Z
+- SHA256: 4aed22360d52e01ea724637f82593c4f91ca2bcdad1581a92f434d4077669e50
+- Storage path: data/processed/binance_um_perp_BTCUSDT_4h_2020-01-01_2026-04-11_2026-04-12T1655Z.parquet
+
+## Dataset: BTCUSDT 1d full history (Binance USDT-M Perp) – Parquet
+- Source: data.binance.vision bulk archives + Binance Futures API
+- Symbol/Contract: BTCUSDT (USDT-M Perpetual)
+- Timeframe: 1d
+- Range (start/end): 2020-01-01 / 2026-04-11
+- Created (UTC): 2026-04-12T1655Z
+- SHA256: c6e2e7ce030db6a710d95e48325fc77b27efbbdd441199b3d7458d4394795802
+- Storage path: data/processed/binance_um_perp_BTCUSDT_1d_2020-01-01_2026-04-11_2026-04-12T1655Z.parquet
+
+## Dataset: BTCUSDT funding rates full history (Binance USDT-M Perp) – Parquet
+- Source: Binance Futures API `/fapi/v1/fundingRate`
+- Symbol/Contract: BTCUSDT (USDT-M Perpetual)
+- Timeframe: 8h funding events
+- Range (start/end): 2019-09-10 / 2026-04-12
+- Created (UTC): 2026-04-12T1655Z
+- SHA256: 5f0da7478ccf3514af41dff9958b579cd2f797a2716001b0fa10a11059912798
+- Storage path: data/processed/binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z.parquet

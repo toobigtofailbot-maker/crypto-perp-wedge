@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/GitHub/crypto-perp-wedge/**)",
+      "Bash(/c/GitHub/crypto-perp-wedge/.venv/Scripts/python -m pytest -q)",
+      "Bash(/c/GitHub/crypto-perp-wedge/.venv/Scripts/python -c \"import urllib.request; urllib.request.urlopen\\('https://data.binance.vision', timeout=20\\); print\\('data.binance.vision OK'\\)\")",
+      "Bash(/c/GitHub/crypto-perp-wedge/.venv/Scripts/python -c \"import urllib.request; urllib.request.urlopen\\('https://fapi.binance.com/fapi/v1/ping', timeout=20\\); print\\('fapi.binance.com OK'\\)\")",
+      "Bash(git checkout:*)",
+      "Bash(/c/GitHub/crypto-perp-wedge/.venv/Scripts/python -m py_compile scripts/fetch_btcusdt_klines_bulk.py scripts/fetch_btcusdt_funding_bulk.py)",
+      "Bash(/c/GitHub/crypto-perp-wedge/.venv/Scripts/python scripts/fetch_btcusdt_klines_bulk.py --interval 1d)",
+      "Bash(/c/GitHub/crypto-perp-wedge/.venv/Scripts/python scripts/fetch_btcusdt_klines_bulk.py --interval 4h)",
+      "Bash(/c/GitHub/crypto-perp-wedge/.venv/Scripts/python scripts/fetch_btcusdt_klines_bulk.py --interval 1h)",
+      "Bash(/c/GitHub/crypto-perp-wedge/.venv/Scripts/python scripts/fetch_btcusdt_klines_bulk.py --interval 30m)",
+      "Bash(/c/GitHub/crypto-perp-wedge/.venv/Scripts/python scripts/fetch_btcusdt_klines_bulk.py --interval 15m)",
+      "Bash(/c/GitHub/crypto-perp-wedge/.venv/Scripts/python scripts/fetch_btcusdt_funding_bulk.py)",
+      "Bash(/c/GitHub/crypto-perp-wedge/.venv/Scripts/python scripts/validate_data.py)",
+      "Bash(/c/GitHub/crypto-perp-wedge/.venv/Scripts/python -c \"import json,sys; r=json.load\\(sys.stdin\\); print\\(json.dumps\\({k:v for k,v in r.items\\(\\) if k!='warnings'}, indent=2\\)\\)\")",
+      "Bash(/c/GitHub/crypto-perp-wedge/.venv/Scripts/python -m py_compile scripts/fetch_btcusdt_klines_bulk.py scripts/fetch_btcusdt_funding_bulk.py scripts/validate_data.py)",
+      "Bash(/c/GitHub/crypto-perp-wedge/.venv/Scripts/python -c ':*)",
+      "Bash(git cherry-pick:*)",
+      "Bash(git fetch:*)",
+      "Bash(git push:*)",
+      "Bash(gh pr create --title 'WP-1a Batch 1: Full BTCUSDT history \\(15m, 30m, 1h, 4h, 1d\\) + funding' --base main --body ':*)",
+      "Bash(git check-ignore:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}

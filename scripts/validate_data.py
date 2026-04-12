@@ -85,6 +85,125 @@ def check_required_columns(df: pd.DataFrame, required: list[str], label: str, er
         fail(errors, f"{label}: missing columns {missing}")
 
 
+OHLCV_INTERVALS = {
+    "15m": {"cadence_ms": 900_000, "min_rows": 210_000},
+    "30m": {"cadence_ms": 1_800_000, "min_rows": 105_000},
+    "1h":  {"cadence_ms": 3_600_000, "min_rows": 55_000},
+    "4h":  {"cadence_ms": 14_400_000, "min_rows": 13_750},
+    "1d":  {"cadence_ms": 86_400_000, "min_rows": 2_200},
+}
+FUNDING_HISTORY_CADENCE_MS = 28_800_000  # 8h
+FUNDING_HISTORY_CADENCE_TOLERANCE_MS = 60_000  # 60s
+FUNDING_HISTORY_MIN_ROWS = 6_500
+
+
+def validate_ohlcv_interval(
+    interval: str, cadence_ms: int, min_rows: int, errors: List[str], warnings: List[str]
+) -> dict:
+    """Validate a single OHLCV interval file. Returns a report dict for this interval."""
+    pattern = f"binance_um_perp_BTCUSDT_{interval}_*.parquet"
+    try:
+        path = discover_latest(pattern)
+    except FileNotFoundError:
+        warn(warnings, f"OHLCV_{interval}: no file found (pattern: {pattern}) — fetch not yet run")
+        return {"status": "MISSING", "rows": 0, "file": None}
+
+    df = pd.read_parquet(path)
+    row_count = int(len(df))
+    check_required_columns(
+        df,
+        ["open_time_ms", "open", "high", "low", "close", "volume",
+         "close_time_ms", "quote_asset_volume", "num_trades",
+         "taker_buy_base_vol", "taker_buy_quote_vol"],
+        f"OHLCV_{interval}",
+        errors,
+    )
+
+    if "open_time_ms" not in df.columns:
+        return {"status": "FAIL", "rows": row_count, "file": path.as_posix()}
+
+    raw_ts = pd.to_numeric(df["open_time_ms"], errors="coerce")
+    ts = to_utc_from_ms(raw_ts)
+    check_monotonic(ts, f"OHLCV_{interval}", errors)
+    check_no_future(ts, f"OHLCV_{interval}", errors)
+    check_ms_units(raw_ts, f"OHLCV_{interval}.open_time_ms", errors)
+
+    # Duplicate check
+    if raw_ts.duplicated().any():
+        fail(errors, f"OHLCV_{interval}: duplicate open_time_ms values found")
+
+    # UTC alignment (open_time_ms divisible by cadence_ms)
+    if not raw_ts.isna().any():
+        misaligned = (raw_ts % cadence_ms) != 0
+        if misaligned.any():
+            fail(errors, f"OHLCV_{interval}: {misaligned.sum()} bars not UTC-aligned to {cadence_ms}ms cadence")
+
+    # Gap detection (warn only, do not fail)
+    if len(raw_ts) > 1 and not raw_ts.isna().any():
+        diffs = raw_ts.diff().dropna()
+        gaps = diffs[diffs > cadence_ms * 2]
+        if not gaps.empty:
+            warn(warnings, f"OHLCV_{interval}: {len(gaps)} gap(s) > 2x cadence detected")
+
+    # Row count minimum
+    if row_count < min_rows:
+        fail(errors, f"OHLCV_{interval}: row count {row_count} below minimum {min_rows}")
+
+    interval_errors = [e for e in errors if f"OHLCV_{interval}" in e]
+    status = "FAIL" if interval_errors else "PASS"
+    return {"status": status, "rows": row_count, "file": path.as_posix()}
+
+
+def validate_funding_history(errors: List[str], warnings: List[str]) -> dict:
+    """Validate the full-history funding rate file. Returns a report dict."""
+    pattern = "binance_um_perp_BTCUSDT_funding_8h_*.parquet"
+    try:
+        path = discover_latest(pattern)
+    except FileNotFoundError:
+        warn(warnings, f"FUNDING_HISTORY: no file found (pattern: {pattern}) — fetch not yet run")
+        return {"status": "MISSING", "rows": 0, "file": None}
+
+    df = pd.read_parquet(path)
+    row_count = int(len(df))
+    check_required_columns(df, ["fundingTime", "fundingRate"], "FUNDING_HISTORY", errors)
+
+    if "fundingTime" not in df.columns:
+        return {"status": "FAIL", "rows": row_count, "file": path.as_posix()}
+
+    raw_ts = pd.to_numeric(df["fundingTime"], errors="coerce")
+    ts = to_utc_from_ms(raw_ts)
+    check_monotonic(ts, "FUNDING_HISTORY", errors)
+    check_no_future(ts, "FUNDING_HISTORY", errors)
+
+    # Duplicate check
+    if raw_ts.duplicated().any():
+        fail(errors, "FUNDING_HISTORY: duplicate fundingTime values found")
+
+    # 8h cadence check with tolerance
+    if len(raw_ts) > 1 and not raw_ts.isna().any():
+        diffs = raw_ts.diff().dropna()
+        cadence_ms = FUNDING_HISTORY_CADENCE_MS
+        tol = FUNDING_HISTORY_CADENCE_TOLERANCE_MS
+        bad_cadence = diffs[abs(diffs - cadence_ms) > tol]
+        if not bad_cadence.empty:
+            warn(warnings, f"FUNDING_HISTORY: {len(bad_cadence)} interval(s) deviate from 8h cadence ±{tol}ms")
+
+    # fundingRate bounds check
+    if "fundingRate" in df.columns:
+        rates = pd.to_numeric(df["fundingRate"], errors="coerce")
+        out_of_bounds = (rates < -0.1) | (rates > 0.1)
+        if out_of_bounds.any():
+            fail(errors, f"FUNDING_HISTORY: {out_of_bounds.sum()} fundingRate values outside [-0.1, 0.1]")
+
+    # Row count minimum
+    if row_count < FUNDING_HISTORY_MIN_ROWS:
+        fail(errors, f"FUNDING_HISTORY: row count {row_count} below minimum {FUNDING_HISTORY_MIN_ROWS}")
+
+    history_errors = [e for e in errors if "FUNDING_HISTORY" in e]
+    status = "FAIL" if history_errors else "PASS"
+    return {"status": status, "rows": row_count, "file": path.as_posix()}
+
+
 def validate() -> Result:
     errors: List[str] = []
     warnings: List[str] = []
@@ -167,6 +286,15 @@ def validate() -> Result:
         else:
             check_ms_units(schedule_df["nextFundingTime"], "FUNDING_SCHEDULE.nextFundingTime", errors)
 
+    # --- History validation (OHLCV full-history + funding history) ---
+    history_ohlcv: dict = {}
+    for interval, cfg in OHLCV_INTERVALS.items():
+        history_ohlcv[interval] = validate_ohlcv_interval(
+            interval, cfg["cadence_ms"], cfg["min_rows"], errors, warnings
+        )
+
+    history_funding = validate_funding_history(errors, warnings)
+
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
     report = {
         "status": "PASS" if not errors else "FAIL",
@@ -180,6 +308,8 @@ def validate() -> Result:
             "book_rows": int(len(book_df)),
             "funding_schedule_rows": int(len(schedule_df)),
         },
+        "history_ohlcv": history_ohlcv,
+        "history_funding": history_funding,
         "errors": errors,
         "warnings": warnings,
     }

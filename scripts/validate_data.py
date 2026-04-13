@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import math
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import List
 
@@ -13,6 +13,7 @@ import pyarrow.parquet as pq
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = REPO_ROOT / "data" / "processed"
 REPORTS_DIR = REPO_ROOT / "reports"
+IRREPARABLE_GAPS_PATH = REPO_ROOT / "data" / "irreparable_gaps.json"
 
 
 @dataclass
@@ -95,6 +96,26 @@ OHLCV_INTERVALS = {
 FUNDING_HISTORY_CADENCE_MS = 28_800_000  # 8h
 FUNDING_HISTORY_CADENCE_TOLERANCE_MS = 60_000  # 60s
 FUNDING_HISTORY_MIN_ROWS = 6_500
+DERIVED_KLINE_STREAMS = {
+    "mark_price": {"label": "MARK_PRICE", "manifest_stream": "markPriceKlines"},
+    "index_price": {"label": "INDEX_PRICE", "manifest_stream": "indexPriceKlines"},
+    "premium_index": {"label": "PREMIUM_INDEX_KLINES", "manifest_stream": "premiumIndexKlines"},
+}
+DERIVED_KLINE_REQUIRED_COLUMNS = [
+    "open_time_ms", "open", "high", "low", "close", "volume",
+    "close_time_ms", "quote_asset_volume", "num_trades",
+    "taker_buy_base_vol", "taker_buy_quote_vol",
+]
+DERIVED_KLINE_INTERVALS = {
+    "15m": {"cadence_ms": 900_000, "min_rows": 210_000},
+    "30m": {"cadence_ms": 1_800_000, "min_rows": 105_000},
+    "1h":  {"cadence_ms": 3_600_000, "min_rows": 55_000},
+    "4h":  {"cadence_ms": 14_400_000, "min_rows": 13_750},
+    "1d":  {"cadence_ms": 86_400_000, "min_rows": 2_200},
+}
+DERIVED_KLINE_TOLERANCE_PCT = 0.01
+DERIVED_KLINE_MAX_IRREPARABLE_WINDOW = 8
+DERIVED_KLINE_RECENT_DAYS = 90
 
 
 def validate_ohlcv_interval(
@@ -204,6 +225,185 @@ def validate_funding_history(errors: List[str], warnings: List[str]) -> dict:
     return {"status": status, "rows": row_count, "file": path.as_posix()}
 
 
+def parse_utc_ms(value: str) -> int:
+    ts = pd.Timestamp(value)
+    if ts.tzinfo is None:
+        ts = ts.tz_localize("UTC")
+    return int(ts.timestamp() * 1000)
+
+
+def load_irreparable_manifest(errors: List[str]) -> dict:
+    if not IRREPARABLE_GAPS_PATH.exists():
+        fail(errors, f"IRREPARABLE_GAPS: missing manifest {IRREPARABLE_GAPS_PATH}")
+        return {"entries": []}
+    try:
+        manifest = json.loads(IRREPARABLE_GAPS_PATH.read_text(encoding="utf-8"))
+    except Exception as exc:
+        fail(errors, f"IRREPARABLE_GAPS: cannot parse manifest: {exc!r}")
+        return {"entries": []}
+    if manifest.get("schema_version") != 1:
+        fail(errors, "IRREPARABLE_GAPS: schema_version must be 1")
+    if not isinstance(manifest.get("entries"), list):
+        fail(errors, "IRREPARABLE_GAPS: entries must be a list")
+        manifest["entries"] = []
+    return manifest
+
+
+def find_expected_gaps(raw_ts: pd.Series, cadence_ms: int) -> list[dict]:
+    timestamps = [int(v) for v in raw_ts.dropna().astype("int64").tolist()]
+    gaps: list[dict] = []
+    for prev_ts, next_ts in zip(timestamps, timestamps[1:]):
+        missing_bars = (next_ts - prev_ts) // cadence_ms - 1
+        if missing_bars > 0:
+            gaps.append({
+                "start_ms": prev_ts + cadence_ms,
+                "end_ms": next_ts - cadence_ms,
+                "missing_bars": int(missing_bars),
+            })
+    return gaps
+
+
+def manifest_entries_for(manifest: dict, stream: str, interval: str) -> list[dict]:
+    entries: list[dict] = []
+    for entry in manifest.get("entries", []):
+        if entry.get("stream") == stream and entry.get("interval") == interval:
+            entry = dict(entry)
+            entry["start_ms"] = parse_utc_ms(entry["start_utc"])
+            entry["end_ms"] = parse_utc_ms(entry["end_utc"])
+            entries.append(entry)
+    return entries
+
+
+def manifest_covers_gap(gap: dict, entries: list[dict], cadence_ms: int) -> bool:
+    covered: set[int] = set()
+    target = gap["start_ms"]
+    while target <= gap["end_ms"]:
+        for entry in entries:
+            if entry["start_ms"] <= target <= entry["end_ms"]:
+                covered.add(target)
+                break
+        target += cadence_ms
+    return len(covered) == gap["missing_bars"]
+
+
+def validate_derived_kline_interval(
+    stream_name: str, manifest_stream: str, label_prefix: str, interval: str,
+    cadence_ms: int, min_rows: int, manifest: dict, errors: List[str], warnings: List[str]
+) -> dict:
+    """Validate one mark/index/premium-index kline history file under D2-003A."""
+    pattern = f"binance_um_perp_BTCUSDT_{stream_name}_{interval}_*.parquet"
+    label = f"{label_prefix}_{interval}"
+    try:
+        path = discover_latest(pattern)
+    except FileNotFoundError:
+        warn(warnings, f"{label}: no file found (pattern: {pattern}) — fetch not yet run")
+        return {"status": "MISSING", "rows": 0, "file": None}
+
+    df = pd.read_parquet(path)
+    row_count = int(len(df))
+    required = DERIVED_KLINE_REQUIRED_COLUMNS + ["is_repaired"]
+    check_required_columns(df, required, label, errors)
+
+    missing_required = [c for c in required if c not in df.columns]
+    if missing_required or "open_time_ms" not in df.columns:
+        return {"status": "FAIL", "rows": row_count, "file": path.as_posix()}
+
+    null_cols = [c for c in DERIVED_KLINE_REQUIRED_COLUMNS if df[c].isna().any()]
+    if null_cols:
+        fail(errors, f"{label}: required columns contain null/NaT values {null_cols}")
+    if df["is_repaired"].isna().any():
+        fail(errors, f"{label}: is_repaired contains null values")
+
+    raw_ts = pd.to_numeric(df["open_time_ms"], errors="coerce")
+    ts = to_utc_from_ms(raw_ts)
+    check_monotonic(ts, label, errors)
+    check_no_future(ts, label, errors)
+    check_ms_units(raw_ts, f"{label}.open_time_ms", errors)
+
+    if raw_ts.duplicated().any():
+        fail(errors, f"{label}: duplicate open_time_ms values found")
+
+    if not raw_ts.isna().any():
+        misaligned = (raw_ts % cadence_ms) != 0
+        if misaligned.any():
+            fail(errors, f"{label}: {misaligned.sum()} bars not UTC-aligned to {cadence_ms}ms cadence")
+
+    if row_count < min_rows:
+        fail(errors, f"{label}: row count {row_count} below minimum {min_rows}")
+
+    if row_count == 0 or raw_ts.isna().any():
+        return {"status": "FAIL", "rows": row_count, "file": path.as_posix()}
+
+    start_ms = int(raw_ts.iloc[0])
+    end_ms = int(raw_ts.iloc[-1])
+    expected_bars = int(((end_ms - start_ms) // cadence_ms) + 1)
+    gaps = find_expected_gaps(raw_ts, cadence_ms)
+    entries = manifest_entries_for(manifest, manifest_stream, interval)
+    relevant_entries = [
+        e for e in entries
+        if not (e["end_ms"] < start_ms or e["start_ms"] > end_ms)
+    ]
+
+    unacceptable_gaps = []
+    for gap in gaps:
+        if not manifest_covers_gap(gap, relevant_entries, cadence_ms):
+            unacceptable_gaps.append(gap)
+            fail(
+                errors,
+                f"{label}: unacceptable gap {pd.Timestamp(gap['start_ms'], unit='ms', tz='UTC')} "
+                f"to {pd.Timestamp(gap['end_ms'], unit='ms', tz='UTC')}"
+            )
+
+    irreparable_bars = sum(int(e["missing_bars"]) for e in relevant_entries)
+    irreparable_pct = (irreparable_bars / expected_bars * 100) if expected_bars else 0.0
+    largest_irreparable_window = max([int(e["missing_bars"]) for e in relevant_entries], default=0)
+    recent_cutoff_ms = int((pd.Timestamp(end_ms, unit="ms", tz="UTC") - pd.Timedelta(days=DERIVED_KLINE_RECENT_DAYS)).timestamp() * 1000)
+    within_recent_90d = any(e["end_ms"] >= recent_cutoff_ms for e in relevant_entries)
+
+    if irreparable_pct > DERIVED_KLINE_TOLERANCE_PCT:
+        fail(errors, f"{label}: irreparable_pct {irreparable_pct:.6f} > {DERIVED_KLINE_TOLERANCE_PCT}")
+    if largest_irreparable_window > DERIVED_KLINE_MAX_IRREPARABLE_WINDOW:
+        fail(errors, f"{label}: largest irreparable window {largest_irreparable_window} > {DERIVED_KLINE_MAX_IRREPARABLE_WINDOW}")
+    if within_recent_90d:
+        fail(errors, f"{label}: irreparable gap falls within recent {DERIVED_KLINE_RECENT_DAYS} days")
+
+    interval_errors = [e for e in errors if label in e]
+    status = "FAIL" if interval_errors else "PASS"
+    return {
+        "status": status,
+        "rows": row_count,
+        "file": path.as_posix(),
+        "expected_bars": expected_bars,
+        "present_bars": row_count,
+        "irreparable_bars": irreparable_bars,
+        "irreparable_pct": irreparable_pct,
+        "largest_irreparable_window": largest_irreparable_window,
+        "within_recent_90d": within_recent_90d,
+        "gap_count": len(gaps),
+        "unacceptable_gap_count": len(unacceptable_gaps),
+    }
+
+
+def validate_derived_kline_stream(
+    stream_name: str, stream_cfg: dict, manifest: dict, errors: List[str], warnings: List[str]
+) -> dict:
+    """Validate all locked intervals for one derived kline stream."""
+    stream_report: dict = {}
+    for interval, cfg in DERIVED_KLINE_INTERVALS.items():
+        stream_report[interval] = validate_derived_kline_interval(
+            stream_name,
+            stream_cfg["manifest_stream"],
+            stream_cfg["label"],
+            interval,
+            cfg["cadence_ms"],
+            cfg["min_rows"],
+            manifest,
+            errors,
+            warnings,
+        )
+    return stream_report
+
+
 def validate() -> Result:
     errors: List[str] = []
     warnings: List[str] = []
@@ -294,6 +494,12 @@ def validate() -> Result:
         )
 
     history_funding = validate_funding_history(errors, warnings)
+    irreparable_manifest = load_irreparable_manifest(errors)
+    history_mark_index_premium: dict = {}
+    for stream_name, stream_cfg in DERIVED_KLINE_STREAMS.items():
+        history_mark_index_premium[stream_name] = validate_derived_kline_stream(
+            stream_name, stream_cfg, irreparable_manifest, errors, warnings
+        )
 
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
     report = {
@@ -310,6 +516,8 @@ def validate() -> Result:
         },
         "history_ohlcv": history_ohlcv,
         "history_funding": history_funding,
+        "irreparable_gaps_manifest": IRREPARABLE_GAPS_PATH.as_posix(),
+        "history_mark_index_premium": history_mark_index_premium,
         "errors": errors,
         "warnings": warnings,
     }

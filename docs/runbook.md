@@ -103,6 +103,40 @@ Expected runtime: 5-10 minutes.
 
 Output: `data/processed/binance_um_perp_BTCUSDT_funding_8h_{start}_{end}_{created}.parquet`
 
+### Mark / index / premium index klines (repaired official-source history)
+
+Fetch each stream and timeframe with the corrected three-stage pipeline:
+
+```bash
+/c/GitHub/crypto-perp-wedge/.venv/Scripts/python scripts/fetch_btcusdt_mark_index_premium_bulk.py --stream markPriceKlines --interval 15m
+/c/GitHub/crypto-perp-wedge/.venv/Scripts/python scripts/fetch_btcusdt_mark_index_premium_bulk.py --stream markPriceKlines --interval 30m
+/c/GitHub/crypto-perp-wedge/.venv/Scripts/python scripts/fetch_btcusdt_mark_index_premium_bulk.py --stream markPriceKlines --interval 1h
+/c/GitHub/crypto-perp-wedge/.venv/Scripts/python scripts/fetch_btcusdt_mark_index_premium_bulk.py --stream markPriceKlines --interval 4h
+/c/GitHub/crypto-perp-wedge/.venv/Scripts/python scripts/fetch_btcusdt_mark_index_premium_bulk.py --stream markPriceKlines --interval 1d
+/c/GitHub/crypto-perp-wedge/.venv/Scripts/python scripts/fetch_btcusdt_mark_index_premium_bulk.py --stream indexPriceKlines --interval 15m
+/c/GitHub/crypto-perp-wedge/.venv/Scripts/python scripts/fetch_btcusdt_mark_index_premium_bulk.py --stream indexPriceKlines --interval 30m
+/c/GitHub/crypto-perp-wedge/.venv/Scripts/python scripts/fetch_btcusdt_mark_index_premium_bulk.py --stream indexPriceKlines --interval 1h
+/c/GitHub/crypto-perp-wedge/.venv/Scripts/python scripts/fetch_btcusdt_mark_index_premium_bulk.py --stream indexPriceKlines --interval 4h
+/c/GitHub/crypto-perp-wedge/.venv/Scripts/python scripts/fetch_btcusdt_mark_index_premium_bulk.py --stream indexPriceKlines --interval 1d
+/c/GitHub/crypto-perp-wedge/.venv/Scripts/python scripts/fetch_btcusdt_mark_index_premium_bulk.py --stream premiumIndexKlines --interval 15m
+/c/GitHub/crypto-perp-wedge/.venv/Scripts/python scripts/fetch_btcusdt_mark_index_premium_bulk.py --stream premiumIndexKlines --interval 30m
+/c/GitHub/crypto-perp-wedge/.venv/Scripts/python scripts/fetch_btcusdt_mark_index_premium_bulk.py --stream premiumIndexKlines --interval 1h
+/c/GitHub/crypto-perp-wedge/.venv/Scripts/python scripts/fetch_btcusdt_mark_index_premium_bulk.py --stream premiumIndexKlines --interval 4h
+/c/GitHub/crypto-perp-wedge/.venv/Scripts/python scripts/fetch_btcusdt_mark_index_premium_bulk.py --stream premiumIndexKlines --interval 1d
+```
+
+Pipeline:
+- monthly data.binance.vision archives are the base layer
+- full historical daily archives fill bars missing from the monthly layer
+- targeted Binance REST requests fill bars still missing after the daily overlay
+- bars still absent from all three official sources are recorded in `data/irreparable_gaps.json`
+
+Expected runtime: about 10-30 minutes per stream/timeframe depending on network speed.
+
+Output: `data/processed/binance_um_perp_BTCUSDT_{mark_price|index_price|premium_index}_{interval}_{start}_{end}_{created}.parquet`
+
+Each output includes `is_repaired=true` for bars sourced from the daily overlay or REST backfill. Known irreparable official-source gaps are tracked in `data/irreparable_gaps.json` under D2-003A in `docs/decisions.md`. Downstream research must consult the manifest and skip or explicitly handle affected bars; silent interpolation is forbidden.
+
 ### Expected row counts (minimum thresholds for ~6 years)
 
 | Timeframe | Minimum rows |

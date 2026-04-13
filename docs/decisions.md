@@ -257,3 +257,27 @@ The following decisions are locked for Phase 2. Full details in `docs/onboarding
 | D2-015 | Multi-timeframe confirmation rules |
 | D2-016 | Research Agent advisory briefs only |
 | D2-017 | Cold storage for failed timeframes |
+
+### D2-003A — Irreparable official-source gap policy
+
+A bar is classified 'irreparable' if it is missing from all three of:
+(a) data.binance.vision monthly archive, (b) data.binance.vision historical
+daily archive, (c) Binance REST official endpoint. Irreparable bars are
+recorded in data/irreparable_gaps.json with stream, interval, UTC range,
+bar count, and the UTC date of the verification pass. Produced Parquet
+files remain gap-flagged (a boolean column or sidecar manifest) but are
+accepted by the validator provided all of the following bounded tolerances
+hold per (stream, interval) file:
+
+* total irreparable bars <= 0.01% of expected bars in the declared range
+* no single contiguous irreparable window exceeds 8 bars
+* no irreparable window falls within the most recent 90 days of the
+  declared range
+  Files breaching any tolerance FAIL the validator and block the PR.
+  Downstream research code (WP-1b onward) MUST consult the gap manifest and
+  either skip affected bars or explicitly handle them; silent interpolation
+  is forbidden.
+  Rationale: preserves D2-003 (free sources only) while preventing indefinite
+  blockage on a category of gaps that is structurally bounded and documented.
+  Change protocol: modifying thresholds requires a new Decision Change
+  entry.

@@ -137,3 +137,168 @@
 - Created (UTC): 2026-04-12T1655Z
 - SHA256: 5f0da7478ccf3514af41dff9958b579cd2f797a2716001b0fa10a11059912798
 - Storage path: data/processed/binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z.parquet
+
+## Dataset: BTCUSDT mark price klines full history (Binance USDT-M Perp) - Parquet (15m)
+- Source: data.binance.vision monthly archives + historical daily overlay + Binance Futures REST repair
+- Symbol/Contract: BTCUSDT (USDT-M Perpetual)
+- Stream: markPriceKlines
+- Timeframe: 15m
+- Range (start/end): 2019-12-23 / 2026-04-11
+- Created (UTC): 2026-04-12T2316Z
+- SHA256: 80a14b519817c653a8fa17f4e144b01612dd8fe32c11acfa93dad6e217aad6e0
+- Storage path: data/processed/binance_um_perp_BTCUSDT_mark_price_15m_2019-12-23_2026-04-11_2026-04-12T2316Z.parquet
+- Known irreparable gaps: 2 bar(s), largest window 1 bar(s); see data/irreparable_gaps.json
+
+## Dataset: BTCUSDT mark price klines full history (Binance USDT-M Perp) - Parquet (30m)
+- Source: data.binance.vision monthly archives + historical daily overlay + Binance Futures REST repair
+- Symbol/Contract: BTCUSDT (USDT-M Perpetual)
+- Stream: markPriceKlines
+- Timeframe: 30m
+- Range (start/end): 2019-12-23 / 2026-04-11
+- Created (UTC): 2026-04-12T2327Z
+- SHA256: 2706cf22c20e05acfb69808fe7544c4746c9d17e268f5868c319d22ced1c1c4a
+- Storage path: data/processed/binance_um_perp_BTCUSDT_mark_price_30m_2019-12-23_2026-04-11_2026-04-12T2327Z.parquet
+- Known irreparable gaps: 0 bar(s), largest window 0 bar(s); see data/irreparable_gaps.json
+
+## Dataset: BTCUSDT mark price klines full history (Binance USDT-M Perp) - Parquet (1h)
+- Source: data.binance.vision monthly archives + historical daily overlay + Binance Futures REST repair
+- Symbol/Contract: BTCUSDT (USDT-M Perpetual)
+- Stream: markPriceKlines
+- Timeframe: 1h
+- Range (start/end): 2019-12-23 / 2026-04-11
+- Created (UTC): 2026-04-12T2338Z
+- SHA256: ba3bb5d632ef479fe56959907763ee7709f0d5fa684b91d78f6c7577fd7a512b
+- Storage path: data/processed/binance_um_perp_BTCUSDT_mark_price_1h_2019-12-23_2026-04-11_2026-04-12T2338Z.parquet
+- Known irreparable gaps: 0 bar(s), largest window 0 bar(s); see data/irreparable_gaps.json
+
+## Dataset: BTCUSDT mark price klines full history (Binance USDT-M Perp) - Parquet (4h)
+- Source: data.binance.vision monthly archives + historical daily overlay + Binance Futures REST repair
+- Symbol/Contract: BTCUSDT (USDT-M Perpetual)
+- Stream: markPriceKlines
+- Timeframe: 4h
+- Range (start/end): 2019-12-23 / 2026-04-11
+- Created (UTC): 2026-04-12T2349Z
+- SHA256: 4faaaaa5db911732914bbe6117a32f116e5d593a03d51f20a69a304f4866dedd
+- Storage path: data/processed/binance_um_perp_BTCUSDT_mark_price_4h_2019-12-23_2026-04-11_2026-04-12T2349Z.parquet
+- Known irreparable gaps: 0 bar(s), largest window 0 bar(s); see data/irreparable_gaps.json
+
+## Dataset: BTCUSDT mark price klines full history (Binance USDT-M Perp) - Parquet (1d)
+- Source: data.binance.vision monthly archives + historical daily overlay + Binance Futures REST repair
+- Symbol/Contract: BTCUSDT (USDT-M Perpetual)
+- Stream: markPriceKlines
+- Timeframe: 1d
+- Range (start/end): 2019-12-23 / 2026-04-11
+- Created (UTC): 2026-04-12T2359Z
+- SHA256: 9ffbdcbc55316f7c6c89ef7431b18aaa953bb4add0991c0af0338dfc406d0f77
+- Storage path: data/processed/binance_um_perp_BTCUSDT_mark_price_1d_2019-12-23_2026-04-11_2026-04-12T2359Z.parquet
+- Known irreparable gaps: 0 bar(s), largest window 0 bar(s); see data/irreparable_gaps.json
+
+## Dataset: BTCUSDT index price klines full history (Binance USDT-M Perp) - Parquet (15m)
+- Source: data.binance.vision monthly archives + historical daily overlay + Binance Futures REST repair
+- Symbol/Contract: BTCUSDT (USDT-M Perpetual)
+- Stream: indexPriceKlines
+- Timeframe: 15m
+- Range (start/end): 2019-12-23 / 2026-04-11
+- Created (UTC): 2026-04-13T0010Z
+- SHA256: 2cc256a77c62c61dbe6a7a73c9d076d25f8d972d9cf1474b27076ec2c72290c1
+- Storage path: data/processed/binance_um_perp_BTCUSDT_index_price_15m_2019-12-23_2026-04-11_2026-04-13T0010Z.parquet
+- Known irreparable gaps: 2 bar(s), largest window 1 bar(s); see data/irreparable_gaps.json
+
+## Dataset: BTCUSDT index price klines full history (Binance USDT-M Perp) - Parquet (30m)
+- Source: data.binance.vision monthly archives + historical daily overlay + Binance Futures REST repair
+- Symbol/Contract: BTCUSDT (USDT-M Perpetual)
+- Stream: indexPriceKlines
+- Timeframe: 30m
+- Range (start/end): 2019-12-23 / 2026-04-11
+- Created (UTC): 2026-04-13T0021Z
+- SHA256: 73c82d0dd3fa33e288e132f2d2936f947abc713b62d10231da7847970e2ee156
+- Storage path: data/processed/binance_um_perp_BTCUSDT_index_price_30m_2019-12-23_2026-04-11_2026-04-13T0021Z.parquet
+- Known irreparable gaps: 0 bar(s), largest window 0 bar(s); see data/irreparable_gaps.json
+
+## Dataset: BTCUSDT index price klines full history (Binance USDT-M Perp) - Parquet (1h)
+- Source: data.binance.vision monthly archives + historical daily overlay + Binance Futures REST repair
+- Symbol/Contract: BTCUSDT (USDT-M Perpetual)
+- Stream: indexPriceKlines
+- Timeframe: 1h
+- Range (start/end): 2019-12-23 / 2026-04-11
+- Created (UTC): 2026-04-13T0032Z
+- SHA256: 31f53f22855195bed051c65b303b28cab8d7e4a5b7abc67f761bd598224614bc
+- Storage path: data/processed/binance_um_perp_BTCUSDT_index_price_1h_2019-12-23_2026-04-11_2026-04-13T0032Z.parquet
+- Known irreparable gaps: 0 bar(s), largest window 0 bar(s); see data/irreparable_gaps.json
+
+## Dataset: BTCUSDT index price klines full history (Binance USDT-M Perp) - Parquet (4h)
+- Source: data.binance.vision monthly archives + historical daily overlay + Binance Futures REST repair
+- Symbol/Contract: BTCUSDT (USDT-M Perpetual)
+- Stream: indexPriceKlines
+- Timeframe: 4h
+- Range (start/end): 2019-12-23 / 2026-04-11
+- Created (UTC): 2026-04-13T0043Z
+- SHA256: 48136899fdb805d462b1f726419e66e011a379d1b7cf4fadbf9b50ab6e881e31
+- Storage path: data/processed/binance_um_perp_BTCUSDT_index_price_4h_2019-12-23_2026-04-11_2026-04-13T0043Z.parquet
+- Known irreparable gaps: 0 bar(s), largest window 0 bar(s); see data/irreparable_gaps.json
+
+## Dataset: BTCUSDT index price klines full history (Binance USDT-M Perp) - Parquet (1d)
+- Source: data.binance.vision monthly archives + historical daily overlay + Binance Futures REST repair
+- Symbol/Contract: BTCUSDT (USDT-M Perpetual)
+- Stream: indexPriceKlines
+- Timeframe: 1d
+- Range (start/end): 2019-12-23 / 2026-04-11
+- Created (UTC): 2026-04-13T0054Z
+- SHA256: 0f9333680e60293f78079ba1e2590c4808642d5eacacac801ce24b1522d9c2a0
+- Storage path: data/processed/binance_um_perp_BTCUSDT_index_price_1d_2019-12-23_2026-04-11_2026-04-13T0054Z.parquet
+- Known irreparable gaps: 0 bar(s), largest window 0 bar(s); see data/irreparable_gaps.json
+
+## Dataset: BTCUSDT premium index klines full history (Binance USDT-M Perp) - Parquet (15m)
+- Source: data.binance.vision monthly archives + historical daily overlay + Binance Futures REST repair
+- Symbol/Contract: BTCUSDT (USDT-M Perpetual)
+- Stream: premiumIndexKlines
+- Timeframe: 15m
+- Range (start/end): 2019-12-24 / 2026-04-11
+- Created (UTC): 2026-04-13T0107Z
+- SHA256: 61f1a714c3bfe8a868569b879ce34b307d8c4fc421b8ba112db767cfd5ec53b6
+- Storage path: data/processed/binance_um_perp_BTCUSDT_premium_index_15m_2019-12-24_2026-04-11_2026-04-13T0107Z.parquet
+- Known irreparable gaps: 8 bar(s), largest window 5 bar(s); see data/irreparable_gaps.json
+
+## Dataset: BTCUSDT premium index klines full history (Binance USDT-M Perp) - Parquet (30m)
+- Source: data.binance.vision monthly archives + historical daily overlay + Binance Futures REST repair
+- Symbol/Contract: BTCUSDT (USDT-M Perpetual)
+- Stream: premiumIndexKlines
+- Timeframe: 30m
+- Range (start/end): 2019-12-24 / 2026-04-11
+- Created (UTC): 2026-04-13T0120Z
+- SHA256: 06c937cd2ee47e93c998f34b2f59d446383bd7b85331e6b48bc68478723a5d8d
+- Storage path: data/processed/binance_um_perp_BTCUSDT_premium_index_30m_2019-12-24_2026-04-11_2026-04-13T0120Z.parquet
+- Known irreparable gaps: 3 bar(s), largest window 2 bar(s); see data/irreparable_gaps.json
+
+## Dataset: BTCUSDT premium index klines full history (Binance USDT-M Perp) - Parquet (1h)
+- Source: data.binance.vision monthly archives + historical daily overlay + Binance Futures REST repair
+- Symbol/Contract: BTCUSDT (USDT-M Perpetual)
+- Stream: premiumIndexKlines
+- Timeframe: 1h
+- Range (start/end): 2019-12-24 / 2026-04-11
+- Created (UTC): 2026-04-13T0136Z
+- SHA256: a0ba3d2fca7ed6638020579ce339705f7162849ce8fd8de70f4ff0f6a43532a9
+- Storage path: data/processed/binance_um_perp_BTCUSDT_premium_index_1h_2019-12-24_2026-04-11_2026-04-13T0136Z.parquet
+- Known irreparable gaps: 1 bar(s), largest window 1 bar(s); see data/irreparable_gaps.json
+
+## Dataset: BTCUSDT premium index klines full history (Binance USDT-M Perp) - Parquet (4h)
+- Source: data.binance.vision monthly archives + historical daily overlay + Binance Futures REST repair
+- Symbol/Contract: BTCUSDT (USDT-M Perpetual)
+- Stream: premiumIndexKlines
+- Timeframe: 4h
+- Range (start/end): 2019-12-24 / 2026-04-11
+- Created (UTC): 2026-04-13T0154Z
+- SHA256: af0194829805a080cf700b11d56c819fd673d0af4c39612b324aa61195ff6f07
+- Storage path: data/processed/binance_um_perp_BTCUSDT_premium_index_4h_2019-12-24_2026-04-11_2026-04-13T0154Z.parquet
+- Known irreparable gaps: 0 bar(s), largest window 0 bar(s); see data/irreparable_gaps.json
+
+## Dataset: BTCUSDT premium index klines full history (Binance USDT-M Perp) - Parquet (1d)
+- Source: data.binance.vision monthly archives + historical daily overlay + Binance Futures REST repair
+- Symbol/Contract: BTCUSDT (USDT-M Perpetual)
+- Stream: premiumIndexKlines
+- Timeframe: 1d
+- Range (start/end): 2019-12-24 / 2026-04-11
+- Created (UTC): 2026-04-13T0226Z
+- SHA256: 5cd7f1150ab34ed6b41dbe759165ea7750a0036a900809fefd4b389931079f4b
+- Storage path: data/processed/binance_um_perp_BTCUSDT_premium_index_1d_2019-12-24_2026-04-11_2026-04-13T0226Z.parquet
+- Known irreparable gaps: 0 bar(s), largest window 0 bar(s); see data/irreparable_gaps.json

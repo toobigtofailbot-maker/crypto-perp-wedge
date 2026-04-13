@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "updated_utc": "2026-04-13T02:26:21Z",
+  "entries": [
+    {
+      "stream": "indexPriceKlines",
+      "interval": "15m",
+      "start_utc": "2020-01-19T13:15:00Z",
+      "end_utc": "2020-01-19T13:15:00Z",
+      "missing_bars": 1,
+      "verified_utc": "2026-04-12T00:00:00Z",
+      "sources_checked": [
+        "monthly_archive",
+        "daily_archive",
+        "rest"
+      ]
+    },
+    {
+      "stream": "indexPriceKlines",
+      "interval": "15m",
+      "start_utc": "2023-11-10T03:45:00Z",
+      "end_utc": "2023-11-10T03:45:00Z",
+      "missing_bars": 1,
+      "verified_utc": "2026-04-12T00:00:00Z",
+      "sources_checked": [
+        "monthly_archive",
+        "daily_archive",
+        "rest"
+      ]
+    },
+    {
+      "stream": "markPriceKlines",
+      "interval": "15m",
+      "start_utc": "2020-01-19T13:15:00Z",
+      "end_utc": "2020-01-19T13:15:00Z",
+      "missing_bars": 1,
+      "verified_utc": "2026-04-12T00:00:00Z",
+      "sources_checked": [
+        "monthly_archive",
+        "daily_archive",
+        "rest"
+      ]
+    },
+    {
+      "stream": "markPriceKlines",
+      "interval": "15m",
+      "start_utc": "2023-11-10T03:45:00Z",
+      "end_utc": "2023-11-10T03:45:00Z",
+      "missing_bars": 1,
+      "verified_utc": "2026-04-12T00:00:00Z",
+      "sources_checked": [
+        "monthly_archive",
+        "daily_archive",
+        "rest"
+      ]
+    },
+    {
+      "stream": "premiumIndexKlines",
+      "interval": "15m",
+      "start_utc": "2020-01-19T13:15:00Z",
+      "end_utc": "2020-01-19T13:15:00Z",
+      "missing_bars": 1,
+      "verified_utc": "2026-04-12T00:00:00Z",
+      "sources_checked": [
+        "monthly_archive",
+        "daily_archive",
+        "rest"
+      ]
+    },
+    {
+      "stream": "premiumIndexKlines",
+      "interval": "15m",
+      "start_utc": "2020-12-01T22:45:00Z",
+      "end_utc": "2020-12-01T23:45:00Z",
+      "missing_bars": 5,
+      "verified_utc": "2026-04-12T00:00:00Z",
+      "sources_checked": [
+        "monthly_archive",
+        "daily_archive",
+        "rest"
+      ]
+    },
+    {
+      "stream": "premiumIndexKlines",
+      "interval": "15m",
+      "start_utc": "2022-07-12T14:00:00Z",
+      "end_utc": "2022-07-12T14:15:00Z",
+      "missing_bars": 2,
+      "verified_utc": "2026-04-12T00:00:00Z",
+      "sources_checked": [
+        "monthly_archive",
+        "daily_archive",
+        "rest"
+      ]
+    },
+    {
+      "stream": "premiumIndexKlines",
+      "interval": "1h",
+      "start_utc": "2020-12-01T23:00:00Z",
+      "end_utc": "2020-12-01T23:00:00Z",
+      "missing_bars": 1,
+      "verified_utc": "2026-04-12T00:00:00Z",
+      "sources_checked": [
+        "monthly_archive",
+        "daily_archive",
+        "rest"
+      ]
+    },
+    {
+      "stream": "premiumIndexKlines",
+      "interval": "30m",
+      "start_utc": "2020-12-01T23:00:00Z",
+      "end_utc": "2020-12-01T23:30:00Z",
+      "missing_bars": 2,
+      "verified_utc": "2026-04-12T00:00:00Z",
+      "sources_checked": [
+        "monthly_archive",
+        "daily_archive",
+        "rest"
+      ]
+    },
+    {
+      "stream": "premiumIndexKlines",
+      "interval": "30m",
+      "start_utc": "2022-07-12T14:00:00Z",
+      "end_utc": "2022-07-12T14:00:00Z",
+      "missing_bars": 1,
+      "verified_utc": "2026-04-12T00:00:00Z",
+      "sources_checked": [
+        "monthly_archive",
+        "daily_archive",
+        "rest"
+      ]
+    }
+  ]
+}

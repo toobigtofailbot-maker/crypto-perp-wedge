@@ -1,62 +1,56 @@
 # Report-Back Template
 
-> Fill in this template after completing an execution brief. Paste the completed report into the Architecture chat.
+Use this stable order for execution package report-backs.
 
----
+## Status
 
-## Work Package
-
-**WP-X:** [Name from execution brief]
-
----
+`[COMPLETE | BLOCKED | FAILED]`
 
 ## Branch
 
 `[branch-name]`
 
----
+## PR URL Or Compare URL
 
-## Files Changed
+`[URL]`
 
-```
-[Paste output of: git diff --stat]
-```
+## Base Commit
 
----
+`[sha]`
+
+## Changed Files
+
+- `[path]`
+
+## Summary
+
+- `[short item]`
 
 ## Validation Gates
 
-| Gate | Command | Result | Output |
-|------|---------|--------|--------|
-| 1 | `[command]` | PASS/FAIL | [output or summary] |
-| 2 | `[command]` | PASS/FAIL | [output or summary] |
-| ... | | | |
+Include raw evidence or exact summaries for every gate:
 
----
+- **Gate 1:** `[command/check]` -> `[output/result]`
+- **Gate 2:** `[command/check]` -> `[output/result]`
 
-## Evidence Checklist
+## Forbidden-Scope Confirmation
 
-- [ ] [Evidence item 1 from execution brief]
-- [ ] [Evidence item 2]
-- [ ] ...
+- `[confirmed no forbidden paths touched / list exception and escalation]`
 
----
+## No-Data / No-Artifact Confirmation
 
-## Issues Encountered
+- `[NONE changed / explicit list]`
 
-[None / List any issues and how they were resolved]
+## Dependencies Added
 
----
+`NONE`
 
-## Escalation Items
+## Open Escalations
 
-[None / List anything that requires Architecture chat decision]
+`NONE` or:
 
----
+- `[item]`
 
-## Ready for Review
+## Ready For Merge
 
-- [ ] All gates pass
-- [ ] All evidence items checked
-- [ ] No forbidden files modified
-- [ ] PR opened with correct title
+`[YES | NO]`

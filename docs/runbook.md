@@ -243,3 +243,169 @@ Run the frozen Phase 1 closure baseline with:
 ```powershell
 python -m src.runtime.paper_trader --once-at 2026-01-01T01:00:00Z --config configs\paper_runtime.phase1_closed.json
 ```
+
+## Phase 2 research workbench
+
+### Overview
+
+The research workbench (`lib/backtest.py` + `lib/evaluation.py`) consumes the
+merged dataset from WP-1a and produces reproducible, statistically-disciplined
+backtest results.
+
+### How to import lib.backtest
+
+```python
+from lib.backtest import run_backtest, BacktestResult
+from lib.evaluation import (
+    check_promotion_gates, append_trial, make_trial_entry,
+    sharpe, max_drawdown,
+)
+```
+
+Ensure the repo root is on your Python path (or activate the venv from the
+repo root).
+
+### Minimal end-to-end example against merged dataset
+
+```python
+import pandas as pd
+from pathlib import Path
+from lib.backtest import run_backtest
+from lib.evaluation import sharpe, check_promotion_gates, make_trial_entry, append_trial
+
+# 1. Load the 1h OHLCV dataset (adjust filename to latest)
+ohlcv = pd.read_parquet(
+    "data/processed/binance_um_perp_BTCUSDT_1h_2020-01-01_2026-04-11_2026-04-12T1655Z.parquet"
+)
+# Ensure UTC index
+if ohlcv.index.tz is None:
+    ohlcv.index = ohlcv.index.tz_localize("UTC")
+
+# 2. Load funding rates (use latest file)
+funding = pd.read_parquet(
+    "data/processed/binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z.parquet"
+)
+if funding.index.tz is None:
+    funding.index = funding.index.tz_localize("UTC")
+
+# 3. Define a minimal SMA crossover signal
+fast = ohlcv["close"].rolling(5).mean()
+slow = ohlcv["close"].rolling(20).mean()
+signal = pd.Series(0.0, index=ohlcv.index)
+signal[fast > slow] = 1.0
+signal[fast <= slow] = -1.0
+signal[slow.isna()] = 0.0
+
+# 4. Run the backtester
+result = run_backtest(
+    signal=signal,
+    ohlcv=ohlcv,
+    funding=funding,
+    fee_bps_taker=4.0,    # 0.04% taker fee
+    fee_bps_maker=2.0,    # 0.02% maker fee
+    slippage_bps=1.0,     # 0.01% slippage
+    initial_equity=10_000.0,
+    stream="klines",
+    interval="1h",
+    # gaps_path defaults to data/irreparable_gaps.json
+)
+
+print(f"Final equity:   {result.equity_curve.iloc[-1]:,.2f}")
+print(f"Fees paid:      {result.fees_paid:,.2f}")
+print(f"Funding paid:   {result.funding_paid:,.2f}")
+print(f"Skipped bars:   {result.skipped_bars}")
+
+# 5. Evaluate
+oos_returns = result.equity_curve.pct_change().dropna()
+oos_sharpe = sharpe(oos_returns, "1h")
+print(f"OOS Sharpe:     {oos_sharpe:.4f}")
+
+# 6. Run promotion gates
+report = check_promotion_gates(
+    result=result,
+    trial_count=1,
+    params_meta={"n_free_params": 2, "sensitivity_min_ratio": 1.0},
+    freq="1h",
+)
+import json
+print(json.dumps(report.to_dict(), indent=2))
+
+# 7. Log the trial
+entry = make_trial_entry(
+    hypothesis_id="H-001",
+    config={"fast": 5, "slow": 20},
+    dataset_ids=["binance_um_perp_BTCUSDT_1h"],
+    params={"fast": 5, "slow": 20},
+    in_sample_sharpe=oos_sharpe,
+    oos_sharpe=oos_sharpe,
+    max_dd=0.0,  # compute with max_drawdown(result.equity_curve)[0]
+    n_obs=len(oos_returns),
+    notes="minimal SMA crossover smoke test",
+)
+append_trial(Path("research/trial_log.jsonl"), entry)
+```
+
+### How to interpret a GateReport
+
+`check_promotion_gates()` returns a `GateReport` dataclass.  Call
+`.to_dict()` for a JSON-serialisable representation.
+
+```json
+{
+  "overall_pass": false,
+  "summary": {"n_passed": 5, "n_failed": 3, "n_total": 8, ...},
+  "gates": [
+    {"gate_id": 1, "gate_name": "OOS Sharpe >= 1.0", "passed": false, "value": 0.42, "threshold": 1.0, "note": ""},
+    {"gate_id": 2, "gate_name": "DSR > 0.95 (95% CI)", "passed": false, "value": 0.31, "threshold": 0.95, "note": "SR benchmark=1.23"},
+    ...
+  ]
+}
+```
+
+A strategy must pass **all 8 gates** to be promoted:
+
+| Gate | Requirement |
+|------|-------------|
+| 1 | OOS Sharpe >= 1.0 |
+| 2 | DSR > 0.95 (95% confidence vs. expected maximum from N trials) |
+| 3 | Per-fold max drawdown <= 20% |
+| 4 | Parameter sensitivity: min Sharpe ratio >= 70% at ±25% shift |
+| 5 | Cost drag <= 50% of gross PnL |
+| 6 | No 90-day window > 60% of total PnL |
+| 7 | <= 5 free parameters |
+| 8 | Walk-forward efficiency > 0.5 |
+
+### Appending to trial_log.jsonl
+
+Every genuine OOS evaluation must be logged:
+
+```python
+from pathlib import Path
+from lib.evaluation import make_trial_entry, append_trial
+
+entry = make_trial_entry(
+    hypothesis_id="H-001",          # must match a registered hypothesis
+    config={"fast": 5, "slow": 20}, # full config dict
+    dataset_ids=["binance_um_perp_BTCUSDT_1h_2020-01-01_2026-04-11"],
+    params={"fast": 5, "slow": 20},
+    in_sample_sharpe=1.5,
+    oos_sharpe=1.2,
+    max_dd=0.08,
+    n_obs=5000,
+    notes="baseline run",
+)
+append_trial(Path("research/trial_log.jsonl"), entry)
+```
+
+The total number of rows in `trial_log.jsonl` is the `n_trials` input to the
+DSR calculation.  Do not inflate this count with test runs or aborted evaluations.
+
+### Running the test suite
+
+```bash
+# All tests (baseline + WP-1b)
+.venv/Scripts/python.exe -m pytest -q
+
+# WP-1b tests only
+.venv/Scripts/python.exe -m pytest tests/test_backtest.py tests/test_evaluation.py -v
+```

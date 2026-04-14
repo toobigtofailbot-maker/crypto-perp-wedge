@@ -9,6 +9,14 @@
 
 <!-- Format: H-NNN -->
 
+## Metadata
+
+<!-- Created: YYYY-MM-DD -->
+
+<!-- Status: DRAFT | TESTING | CONCLUDED -->
+
+<!-- Owner: optional -->
+
 ## Economic Rationale
 
 <!-- Why does this edge exist? What market inefficiency, behavioral pattern,
@@ -30,6 +38,14 @@
 
 <!-- Optional. Must be coarser than primary. List or "None". -->
 
+## Required Data
+
+<!-- Instrument -->
+
+<!-- Required streams -->
+
+<!-- Optional evaluation range -->
+
 ## Success Criteria
 
 <!-- Numeric thresholds aligned with D2-006 gates -->
@@ -46,6 +62,18 @@
 
 <!-- Estimated number of trials before evaluation. Include rationale
      (e.g., grid size × folds). -->
+
+## Artefacts
+
+<!-- Notebook / report / output path if applicable -->
+
+<!-- Keep optional and lightweight -->
+
+## Decision Record
+
+<!-- Outcome: GO | NO-GO | REVISE -->
+
+<!-- Fill only after evaluation -->
 
 ## Notes
 

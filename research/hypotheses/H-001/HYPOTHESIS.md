@@ -4,6 +4,11 @@
 
 H-001
 
+## Metadata
+
+* Created: 2026-04-14
+* Status: DRAFT
+
 ## Economic Rationale
 
 BTCUSDT perpetual futures exhibit persistent positive funding rates during
@@ -40,6 +45,11 @@ timeframes (1d) would miss intra-day funding regime shifts.
 
 None
 
+## Required Data
+
+* Instrument: BTCUSDT Binance USDT-M perpetual
+* Required streams: OHLCV, funding rates
+
 ## Success Criteria
 
 * OOS Sharpe ≥ 1.0 net of modeled costs (Gate 1)
@@ -74,6 +84,15 @@ Total trials: ~720
 Rationale: This covers a reasonable parameter space without excessive
 multiple-testing burden. DSR will use this registered trial count when testing
 whether P(true Sharpe > 1.0) exceeds 0.95.
+
+## Artefacts
+
+* Evaluation artefacts: TBD after first evaluation run
+
+## Decision Record
+
+* Outcome: Not evaluated
+* Decision record: TBD after evaluation
 
 ## Notes
 

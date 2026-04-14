@@ -164,9 +164,11 @@ def test_max_drawdown_no_drawdown():
 def test_dsr_overfit_case():
     """With 1000 trials and sharpe=1.2, DSR falls below 0.95 so Gate 2 FAILS.
 
-    This is the classic multiple-testing scenario where a mediocre strategy
-    appears to have a decent Sharpe ratio only because we tried 1000 variants.
-    The DSR corrects for this and must return DSR < 0.95.
+    Gate 2 spec: "DSR > 1.0 at 95% CI" — stored threshold = 1.0 (Sharpe floor),
+    pass condition = P(true Sharpe > 1.0) > 0.95.
+
+    With 1000 trials, the expected max SR >> 1.2, so the DSR probability is
+    well below 0.95. Gate 2 therefore FAILS.
     """
     dsr_val, sr_benchmark = deflated_sharpe_ratio(
         sharpe_hat=1.2,

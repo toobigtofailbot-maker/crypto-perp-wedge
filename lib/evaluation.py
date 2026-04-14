@@ -246,10 +246,11 @@ def deflated_sharpe_ratio(
 
     Returns
     -------
-    (dsr, psr_value)
-        dsr: Deflated Sharpe Ratio ∈ [0, 1] (probability the true SR exceeds
-             the expected maximum of N trials).
-        psr_value: the expected maximum SR benchmark used.
+    (dsr_probability, sr_benchmark)
+        dsr_probability: ∈ [0, 1].  Probability that the strategy's true SR
+            exceeds the expected maximum SR from N random trials.
+            Gate 2 passes when this value > 0.95 ("at 95% CI").
+        sr_benchmark: the expected maximum SR benchmark from N trials.
     """
     if n_trials < 1 or n_obs < 4:
         return 0.0, 0.0
@@ -455,7 +456,7 @@ def check_promotion_gates(
     Gates
     -----
     1. OOS Sharpe >= 1.0
-    2. DSR > 0.95 (95% CI that this is the best strategy, not random)
+    2. DSR > 1.0 at 95% CI (probability of true Sharpe > 1.0 exceeds 0.95)
     3. Per-fold max DD <= 20%
     4. Parameter sensitivity: min ratio >= 0.70 at ±25%
     5. Cost drag <= 50% of gross PnL
@@ -479,7 +480,10 @@ def check_promotion_gates(
         threshold=1.0,
     ))
 
-    # ---- Gate 2: DSR > 0.95 ----
+    # ---- Gate 2: DSR > 1.0 at 95% CI ----
+    # Checks: P(true Sharpe > 1.0) > 0.95 after multiple-testing correction.
+    # threshold=1.0 is the Sharpe floor being tested.
+    # The pass condition uses the 0.95 probability cutoff ("at 95% CI").
     n_obs = len(oos_returns)
     dsr_val, sr_benchmark = deflated_sharpe_ratio(
         sharpe_hat=oos_sr,
@@ -492,11 +496,11 @@ def check_promotion_gates(
     g2_pass = dsr_val > 0.95
     gates.append(GateResult(
         gate_id=2,
-        gate_name="DSR > 0.95 (95% CI)",
+        gate_name="DSR > 1.0 at 95% CI",
         passed=g2_pass,
         value=round(dsr_val, 6),
-        threshold=0.95,
-        note=f"SR benchmark={sr_benchmark:.4f}",
+        threshold=1.0,
+        note=f"P(SR>1.0)={dsr_val:.4f}; SR benchmark={sr_benchmark:.4f}",
     ))
 
     # ---- Gate 3: Per-fold max DD <= 20% ----

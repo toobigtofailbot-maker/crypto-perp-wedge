@@ -21,6 +21,8 @@ Treat the repo as the source of truth. If chat context, memory, or a brief confl
 4. Do not make architecture decisions. Escalate ambiguity that changes behavior, boundaries, or locked truth.
 5. Preserve deterministic execution and auditability.
 
+Default package flow is Main Architecture -> Claude Code / Codex direct execution. Separate Karl Architecture review/handoff is optional, not default; if an additional architecture ruling is explicitly requested, wait for that ruling before executing.
+
 ## Protected Boundaries
 
 Do not touch without explicit package scope and locked architecture approval:

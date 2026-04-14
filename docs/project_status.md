@@ -25,6 +25,8 @@ Startup read order:
 
 ## Merged Work Package Ledger
 
+Naming convention: `WP-*` is reserved for Main Architecture research/execution work packages. `OPS-*` is reserved for repo-maintenance, workflow, and entrypoint addenda outside the main research package chain.
+
 | Package | Status | PR / merge ref | Outcome |
 |---|---|---|---|
 | WP-0 baseline lock | Merged | PR #17 / `b0149b2` | Locked Phase 2 baseline and D2-001 through D2-017 references. |
@@ -32,7 +34,7 @@ Startup read order:
 | WP-1a Batch 2 corrected | Merged | PR #19 / `284a7f8` | Added corrected mark/index/premium history and irreparable official-source-gap policy. |
 | WP-1b | Merged | PR #20 / `42b450a` | Added research workbench, backtest/evaluation scaffolding, trial log support, and dependencies. |
 | WP-1c | Merged | PR #21 / `f51ec44` | Added orchestration scaffold, agent/skill definitions, and research/evaluation prompt artifacts. |
-| Current-state anchor | Merged | PR #22 / `77d9ec5` | Added this current-state anchor and entrypoint references. |
+| OPS-01 - current-state anchor | Merged | PR #22 / `77d9ec5` | Added this current-state anchor and entrypoint references. |
 
 ## Locked / Do-Not-Touch Boundaries
 
@@ -66,6 +68,7 @@ Protected unless a package explicitly authorizes the change and the locked decis
 - `.claude/` contains bounded agent operating guidance and role/skill scaffolding from WP-1c.
 - `prompts/` contains execution, report-back, review, hypothesis, and evaluation templates.
 - Orchestration is a thin repo-first workflow layer. It does not own runtime state or execution decisions.
+- Default execution flow is Main Architecture -> Claude Code / Codex direct execution brief. Separate Karl Architecture handoff/review is optional and used only when explicitly requested.
 
 ## Deferred But Intentional Items
 

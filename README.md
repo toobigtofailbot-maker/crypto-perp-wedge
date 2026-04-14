@@ -25,4 +25,4 @@ Treat the repo as the source of truth. If chat context conflicts with the files 
 - Data catalog: `docs/data_catalog.md`
 - Current-state anchor: `docs/project_status.md`
 
-Python: 3.11.9
+Environment/setup/runtime details live in `docs/runbook.md`.

@@ -96,3 +96,29 @@ Phase 2 does not use LangChain, AutoGen, or any external orchestration
 framework for routing between models.  Routing is done manually by the human
 operator using the three-tier policy above.  This policy is locked per D2-009
 and may not be changed by an Execution chat.
+
+---
+
+## Agents and skills
+
+Agent definitions:
+
+- `.claude/agents/analyst.md`
+- `.claude/agents/engineer.md`
+- `.claude/agents/auditor.md`
+- `.claude/agents/watchdog.md`
+
+Workflow skills:
+
+- `.claude/skills/write-execution-brief.md`
+- `.claude/skills/review-report-back.md`
+- `.claude/skills/draft-hypothesis.md`
+- `.claude/skills/run-evaluation.md`
+- `.claude/skills/timeframe-suitability-brief.md`
+
+Prompt templates:
+
+- `prompts/pr_review.md`
+- `prompts/contradiction_sweep.md`
+- `prompts/hypothesis_drafting.md`
+- `prompts/evaluation_review.md`

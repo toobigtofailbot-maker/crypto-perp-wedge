@@ -1,92 +1,87 @@
 # Execution Brief Template
 
-> Copy this template for each new work package. Fill in all sections.
+Copy this template for each work package. Keep it repo-first, scoped, and testable.
 
----
+## Package
 
-## Work Package ID
+- **ID:** `[WP-X]`
+- **Title:** `[Short name]`
+- **Base branch:** `main`
+- **Working branch:** `[branch-name]`
+- **PR title:** `[PR title]`
 
-**WP-X:** [Short name]
+## Repo-First Startup
 
----
+Before editing:
+
+1. Read `docs/project_status.md`.
+2. Read only the additional files needed for this package.
+3. If repo truth conflicts with stale chat wording, stop and report the conflict.
+4. Do not improvise outside this brief.
 
 ## Objective
 
-[One paragraph describing what this work package accomplishes]
-
----
-
-## Why This Must Happen
-
-[Why is this work package necessary? What does it unblock?]
-
----
+[One paragraph describing what this package accomplishes and what it intentionally does not do.]
 
 ## Allowed Scope
 
-### Files to CREATE
+Create or update only:
 
-| File | Purpose |
-|------|---------|
-| | |
-
-### Files to UPDATE
-
-| File | Type of edit |
-|------|--------------|
-| | |
-
----
+| Path | Allowed action | Purpose |
+|---|---|---|
+| `[path]` | `[create/update]` | `[why]` |
 
 ## Forbidden Scope
 
-**DO NOT MODIFY:**
-- [List specific files and directories]
+Do not modify:
 
-**DO NOT:**
-- [List specific prohibited actions]
+- `[specific files/directories]`
 
----
+Do not:
+
+- Add dependencies unless explicitly listed.
+- Change runtime behavior unless explicitly listed.
+- Touch generated data/artifacts unless explicitly listed.
+- Make architecture decisions.
 
 ## File Specifications
 
-### [Filename]
+### `[path]`
 
-**Why:** [Purpose]
-
-**What goes in it:** [Content specification or template]
-
-**What must NOT be changed:** [Constraints]
-
----
+- **Required change:** `[content or behavior required]`
+- **Must preserve:** `[constraints]`
+- **Must not do:** `[negative constraints]`
 
 ## Validation Gates
 
-All gates must pass before reporting back:
+All gates must pass before reporting complete:
 
-1. [Gate 1 — exact command and expected output]
-2. [Gate 2 — exact command and expected output]
-3. ...
-
----
-
-## Branch and PR
-
-- **Branch:** `[branch-name]`
-- **PR title:** `[PR title]`
-- **Approver:** [Name(s)]
-
----
-
-## Report-Back Format
-
-Use the template in `prompts/report_back.md`.
-
----
+| Gate | Command / check | Expected |
+|---|---|---|
+| 1 | `[exact command]` | `[expected result]` |
+| 2 | `[manual check]` | `[expected result]` |
 
 ## Stop Conditions
 
-Halt and escalate if:
-- [Condition 1]
-- [Condition 2]
-- ...
+Stop and escalate if:
+
+- Repo truth contradicts this brief in a way that affects scope, locked decisions, or validation.
+- Required work would touch forbidden files.
+- Baseline validation fails before edits.
+- Any uncertainty remains about current repo truth versus outdated wording.
+
+## Done Criteria
+
+- All required files updated.
+- All validation gates pass.
+- Only allowed files changed.
+- No forbidden runtime/data/test/config/dependency drift.
+- PR is ready for review or blocker is reported clearly.
+
+## Manual Tasks
+
+[None / list any required human-only checks or follow-up actions.]
+
+## Report-Back Format
+
+Use `prompts/report_back.md` unless this package supplies a stricter format.

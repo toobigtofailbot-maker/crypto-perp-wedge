@@ -1,123 +1,79 @@
-# Claude Code Operating Rules
+# Claude Code / Codex Operating Rules
 
-This document defines the operating constraints for all Claude Code sessions working on this repository.
+This file defines operating constraints for Claude Code and Codex sessions working in this repository.
 
----
+## Current-State Anchor
 
-## Current-state anchor
-Before starting any new architecture, execution, implementation, or review task, read:
-- `docs/project_status.md`
+Read order for every architecture, execution, implementation, or review task:
 
-Treat that file as the primary current-state status anchor for the repo.
+1. `docs/project_status.md`
+2. `CLAUDE_START_HERE.md`
+3. `docs/runbook.md`
+4. Only the additional files needed for the current task
 
-Use it to confirm:
-- latest merged work packages
-- locked boundaries
-- open items
-- immediate next architecture need
+Treat the repo as the source of truth. If chat context, memory, or a brief conflicts with current repo files, prefer repo truth and report the mismatch. If the mismatch affects scope, locked decisions, or validation, stop and escalate instead of improvising.
 
-If `docs/project_status.md` and chat context differ, prefer repo truth and update workflow from the repo state.
+## Scope Discipline
 
-This rule is meant to reduce context drift and unnecessary long prompt repetition.
+1. Work only on the branch named in the current execution brief.
+2. Edit only files listed in the allowed scope for the current package.
+3. Never modify protected runtime, data, tests, configs, scripts, architecture docs, agents, skills, or prompt files unless the current package explicitly allows it.
+4. Do not make architecture decisions. Escalate ambiguity that changes behavior, boundaries, or locked truth.
+5. Preserve deterministic execution and auditability.
 
----
+Default package flow is Main Architecture -> Claude Code / Codex direct execution. Separate Karl Architecture review/handoff is optional, not default; if an additional architecture ruling is explicitly requested, wait for that ruling before executing.
 
-## Core Constraints
+## Protected Boundaries
 
-1. **Only edit files listed in the current execution brief.** Never modify files outside the allowed scope.
+Do not touch without explicit package scope and locked architecture approval:
 
-2. **Run validation gates before reporting back.** Every report-back must include gate outputs.
+- `docs/architecture/**`
+- `docs/decisions.md`
+- OMS truth / reconciliation truth
+- Kill-switch semantics
+- D-0001 hard caps
+- Overlay bounds `{ALLOW, ALLOW_REDUCED=0.5, BLOCK}` and fail-open behavior
+- Paper ledger accounting math
+- Files under `src/`, `tests/`, `configs/`, `scripts/`, or `data/` unless explicitly listed in the brief
+- Existing `.claude/skills/*` and `.claude/agents/*` unless explicitly listed in the brief
 
-3. **Never touch protected boundaries:**
-   - `docs/architecture/**` — OMS, reconciliation, safe mode, execution policy, event log schema
-   - D-0001 hard caps in `docs/decisions.md`
-   - Overlay bounds and fail-open behavior (P1-A, P1-C)
-   - Ledger math in `src/paper/ledger_state.py`
-   - Any file under `src/`, `tests/`, `configs/`, `scripts/` unless explicitly listed in the execution brief
+## Validation And Report-Back
 
-4. **Do not make architecture decisions.** If the execution brief is ambiguous or requires a decision not covered, STOP and report back. Do not improvise.
+Run the validation gates from the execution brief before reporting complete. Report-back must include:
 
-5. **Branch discipline:** Always work on the branch specified in the execution brief. Never commit directly to main.
+- Branch and PR or compare URL.
+- Files changed.
+- Validation gates with raw evidence or exact summaries.
+- Forbidden-scope confirmation.
+- No-data/no-artifact confirmation where relevant.
+- Dependencies added: `NONE` or an explicit list.
+- Open escalations.
 
----
+Use `prompts/report_back.md` unless the brief supplies a stricter format.
 
-## Token Efficiency (D2-009)
+## Token Efficiency And Model Use
 
-- **Interactive work:** Claude Pro subscription
-- **Automated queries:** API + prompt caching
-- **Complex decisions:** Advisor Strategy (Opus advisor + Sonnet executor)
-- **Classification/alerts:** Haiku
-
-When in doubt, prefer Sonnet for code generation.
-
----
-
-## Agent Boundaries (D2-011)
-
-No agent or Claude Code session may:
-- Modify overlay logic, ledger math, or D-0001 caps
-- Push to main without PR review
-- Execute trades or modify positions
-- Change risk parameters
-
----
-
-## Report-Back Requirements
-
-Every session must report back using the template in `prompts/report_back.md`:
-- Files changed (git diff --stat)
-- Validation gate outputs
-- Evidence checklist
-- Issues encountered
-- Escalation items
-
----
-
-## Advisor Strategy (D2-009)
-
-Phase 2 uses a three-tier model selection policy.  **No third-party model
-routers** are used in Phase 2.
-
-### When to use each model
+Phase 2 uses the locked Advisor Strategy from D2-009:
 
 | Tier | Model | Use case |
-|------|-------|----------|
-| Advisor | **Opus** (claude-opus-4-6) | Architecture decisions, contradiction sweeps, scope rulings, reviewing complex execution briefs before issuing them, evaluating report-backs with escalation flags |
-| Executor | **Sonnet** (claude-sonnet-4-6) | Default for all Claude Code implementation sessions: writing code, running tests, committing, creating PRs |
-| Classifier | **Haiku** (claude-haiku-4-5) | Log parsing, alert classification, high-volume batch labelling, fast triage of trade events |
+|---|---|---|
+| Advisor | Opus | Architecture decisions, contradiction sweeps, scope rulings, complex brief review, escalation review |
+| Executor | Sonnet | Default implementation sessions: writing code, running tests, committing, creating PRs |
+| Classifier | Haiku | Log parsing, alert classification, batch labelling, fast triage |
 
-### Advisor + Executor workflow
+No third-party model routers are used in Phase 2.
 
-Use the Opus-as-Advisor + Sonnet-as-Executor pattern when:
-- A design question has no clear answer in `docs/decisions.md`
-- Two plausible implementations exist with different architectural trade-offs
-- A contradiction sweep surfaces a conflict in locked truth
-- An escalation is received from an Execution chat
+## Agent Boundaries
 
-Steps:
-1. **Advisor (Opus):** Open a separate conversation.  Present the ambiguity.
-   Get a ruling or design decision.  Document the decision in `docs/decisions.md`
-   if it is durable.
-2. **Executor (Sonnet):** Proceed with the execution brief once the ambiguity
-   is resolved.  Do not improvise on architecture questions.
+No agent or Claude Code / Codex session may:
 
-### What Haiku handles
+- Execute trades or modify positions.
+- Change risk parameters.
+- Modify overlay logic, ledger math, or D-0001 caps without explicit architecture approval.
+- Push to `main` without PR review.
+- Override promotion gates or approve its own evaluation.
 
-- Parsing JSONL event logs for anomalies
-- Classifying funding-rate regime (positive / negative / neutral)
-- Batch-labelling candle patterns for hypothesis screening
-- Triage of alerts from the paper trader
-
-### Policy: no third-party routers in Phase 2
-
-Phase 2 does not use LangChain, AutoGen, or any external orchestration
-framework for routing between models.  Routing is done manually by the human
-operator using the three-tier policy above.  This policy is locked per D2-009
-and may not be changed by an Execution chat.
-
----
-
-## Agents and skills
+## Local Workflow Assets
 
 Agent definitions:
 
@@ -136,6 +92,8 @@ Workflow skills:
 
 Prompt templates:
 
+- `prompts/execution_brief.md`
+- `prompts/report_back.md`
 - `prompts/pr_review.md`
 - `prompts/contradiction_sweep.md`
 - `prompts/hypothesis_drafting.md`

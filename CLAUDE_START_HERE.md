@@ -1,55 +1,46 @@
-# Claude Pro — Project Start Here
+# Claude Pro - Project Start Here
 
-## What this repo is
+## What This Repo Is
 
-A BTCUSDT USDT-M perpetual futures trading system with a deterministic execution core, paper runtime, and an expanding research/intelligence layer. Phase 1 built the paper-safe foundation; Phase 2 is strategy research + strategy definition.
+A BTCUSDT Binance USDT-M perpetual futures trading system with a deterministic paper/runtime foundation and a Phase 2 research/workbench layer. Phase 1 built the protected paper-safe foundation; Phase 2 tests strategy hypotheses across the locked timeframe set: `15m`, `30m`, `1h`, `4h`, `1d`.
 
-## Current status
+## Hard Startup Sequence
 
-* Phase 1: paper runtime foundation is complete (deterministic scheduling, overlay gating, simulated broker, ledger, structured logs, persistence/idempotency).
-* Phase 2: starts next (research program + strategy candidates + evaluation + promotion gates).
+1. Read `docs/project_status.md` first. It is the current-state anchor.
+2. Read this file for entrypoint rules.
+3. Read `docs/runbook.md`.
+4. After that, read only the files needed for the task.
 
-## First file to read
-Before drafting architecture, execution, or implementation work, read:
-- `docs/project_status.md`
+Repo truth beats stale chat context. If a brief, chat, or memory conflicts with current repo files, report the mismatch instead of silently improvising.
 
-This file is the current-state anchor for the repo.
-Use it first to understand:
-- what is already merged
-- what is locked
-- what is still open
-- what the next architecture task is
+## Non-Negotiables
 
-Chats are not the source of truth.
-The repo is the source of truth, and `docs/project_status.md` is the fastest current-state entrypoint.
+Execution-critical truth must remain deterministic and auditable:
 
-## Non-negotiables (do not break)
+- OMS truth / reconciliation truth.
+- Kill-switch semantics.
+- D-0001 hard risk caps.
+- Context overlay bounds: `{ALLOW, ALLOW_REDUCED(0.5), BLOCK}` plus fail-open behavior.
+- Paper ledger accounting math.
+- No agentic execution or autonomous risk/execution changes.
 
-Execution-critical truth must remain deterministic + auditable:
+## Phase 2 Rules
 
-* OMS truth / reconciliation truth
-* Kill-switch semantics
-* Hard risk caps (D-0001)
-* Context overlay bounds: {ALLOW, ALLOW_REDUCED(0.5), BLOCK} + fail-open
-  Anything “agentic” or AI-driven must not directly modify the above.
+- Phase 2 is research-first, not runtime-refactor-first.
+- No single global primary timeframe is fixed for research candidates.
+- Strategy candidates must declare their primary timeframe, and any allowed confirmation timeframes, within the locked set before testing.
+- The paper runtime remains protected until an explicitly scoped shadow/promotion package authorizes additive work.
 
-## Two-layer principle (important)
+## If Something Does Not Line Up
 
-* Build workflow is repo-first/workspace-first (modular files, PRs, auditability).
-* Target system may become a central intelligence/decision-support layer aggregating many signals and producing rankings/scores — but only as inputs to deterministic risk/execution.
+Stop and report when a task requires a decision not present in repo truth, conflicts with locked Phase 2 baseline docs, or would require edits outside the allowed package scope.
 
-## How to run (paper)
+## References
 
-See: docs/runbook.md
-
-## Phase map + what to do next
-
-* Phases: docs/onboarding/PHASES.md
-* Phase 2 mandate (research program): docs/onboarding/PHASE2_MANDATE.md
-* Architecture map: docs/onboarding/SYSTEM_MAP.md
-* Workflow/roles: docs/onboarding/WORKFLOW.md
-* Open questions: docs/onboarding/OPEN_QUESTIONS.md
-
-## What not to assume
-
-Phase 2 baseline is now locked. See `docs/onboarding/PHASE2_BASELINE.md` for the authoritative Phase 2 reference, including all locked decisions (D2-001 through D2-017), research workflow, tool decisions, and promotion gates.
+- Current-state anchor: `docs/project_status.md`
+- Runbook: `docs/runbook.md`
+- Phase map: `docs/onboarding/PHASES.md`
+- Phase 2 baseline: `docs/onboarding/PHASE2_BASELINE.md`
+- System map: `docs/onboarding/SYSTEM_MAP.md`
+- Workflow/roles: `docs/onboarding/WORKFLOW.md`
+- Open questions: `docs/onboarding/OPEN_QUESTIONS.md`

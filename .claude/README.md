@@ -52,3 +52,47 @@ Every session must report back using the template in `prompts/report_back.md`:
 - Evidence checklist
 - Issues encountered
 - Escalation items
+
+---
+
+## Advisor Strategy (D2-009)
+
+Phase 2 uses a three-tier model selection policy.  **No third-party model
+routers** are used in Phase 2.
+
+### When to use each model
+
+| Tier | Model | Use case |
+|------|-------|----------|
+| Advisor | **Opus** (claude-opus-4-6) | Architecture decisions, contradiction sweeps, scope rulings, reviewing complex execution briefs before issuing them, evaluating report-backs with escalation flags |
+| Executor | **Sonnet** (claude-sonnet-4-6) | Default for all Claude Code implementation sessions: writing code, running tests, committing, creating PRs |
+| Classifier | **Haiku** (claude-haiku-4-5) | Log parsing, alert classification, high-volume batch labelling, fast triage of trade events |
+
+### Advisor + Executor workflow
+
+Use the Opus-as-Advisor + Sonnet-as-Executor pattern when:
+- A design question has no clear answer in `docs/decisions.md`
+- Two plausible implementations exist with different architectural trade-offs
+- A contradiction sweep surfaces a conflict in locked truth
+- An escalation is received from an Execution chat
+
+Steps:
+1. **Advisor (Opus):** Open a separate conversation.  Present the ambiguity.
+   Get a ruling or design decision.  Document the decision in `docs/decisions.md`
+   if it is durable.
+2. **Executor (Sonnet):** Proceed with the execution brief once the ambiguity
+   is resolved.  Do not improvise on architecture questions.
+
+### What Haiku handles
+
+- Parsing JSONL event logs for anomalies
+- Classifying funding-rate regime (positive / negative / neutral)
+- Batch-labelling candle patterns for hypothesis screening
+- Triage of alerts from the paper trader
+
+### Policy: no third-party routers in Phase 2
+
+Phase 2 does not use LangChain, AutoGen, or any external orchestration
+framework for routing between models.  Routing is done manually by the human
+operator using the three-tier policy above.  This policy is locked per D2-009
+and may not be changed by an Execution chat.

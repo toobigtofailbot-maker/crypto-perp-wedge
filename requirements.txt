@@ -1,4 +1,6 @@
 ﻿pandas
 pyarrow
+duckdb
+polars
 
 binance-futures-connector

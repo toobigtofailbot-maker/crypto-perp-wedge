@@ -4,6 +4,24 @@ This document defines the operating constraints for all Claude Code sessions wor
 
 ---
 
+## Current-state anchor
+Before starting any new architecture, execution, implementation, or review task, read:
+- `docs/project_status.md`
+
+Treat that file as the primary current-state status anchor for the repo.
+
+Use it to confirm:
+- latest merged work packages
+- locked boundaries
+- open items
+- immediate next architecture need
+
+If `docs/project_status.md` and chat context differ, prefer repo truth and update workflow from the repo state.
+
+This rule is meant to reduce context drift and unnecessary long prompt repetition.
+
+---
+
 ## Core Constraints
 
 1. **Only edit files listed in the current execution brief.** Never modify files outside the allowed scope.

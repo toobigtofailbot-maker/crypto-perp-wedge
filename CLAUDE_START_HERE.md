@@ -9,6 +9,20 @@ A BTCUSDT USDT-M perpetual futures trading system with a deterministic execution
 * Phase 1: paper runtime foundation is complete (deterministic scheduling, overlay gating, simulated broker, ledger, structured logs, persistence/idempotency).
 * Phase 2: starts next (research program + strategy candidates + evaluation + promotion gates).
 
+## First file to read
+Before drafting architecture, execution, or implementation work, read:
+- `docs/project_status.md`
+
+This file is the current-state anchor for the repo.
+Use it first to understand:
+- what is already merged
+- what is locked
+- what is still open
+- what the next architecture task is
+
+Chats are not the source of truth.
+The repo is the source of truth, and `docs/project_status.md` is the fastest current-state entrypoint.
+
 ## Non-negotiables (do not break)
 
 Execution-critical truth must remain deterministic + auditable:

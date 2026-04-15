@@ -1,101 +1,122 @@
-# Hypothesis: Funding-Informed Short Baseline
+# Hypothesis H-001: Funding-Directional Strategy (4h)
 
 ## Hypothesis ID
-
 H-001
 
 ## Metadata
-
-* Created: 2026-04-14
-* Status: DRAFT
+- Created: 2026-04-14
+- Status: DRAFT
+- Owner: WP-2b-combined
+- Supersedes: Original H-001 "funding-informed short baseline" was replaced before any trials were logged. The original framing was short-only; this version is symmetric (long and short). See git history for original content.
 
 ## Economic Rationale
 
-BTCUSDT perpetual futures exhibit persistent positive funding rates during
-bull regimes, meaning long holders pay shorts. A true hedged funding carry
-trade would short the perpetual and hold an offsetting long exposure elsewhere,
-such as spot or another venue, to isolate the funding leg.
+Perpetual futures funding rates reflect the balance between long and short positioning in the derivatives market:
 
-This hypothesis is not a fully hedged carry strategy. It is a simplified
-single-instrument directional proxy: use elevated positive funding as evidence
-of crowded long positioning and express that signal through short exposure in
-the BTCUSDT USDT-M perpetual itself.
+- **Positive funding:** Longs pay shorts - indicates crowded long positioning, perp trading at premium to spot
+- **Negative funding:** Shorts pay longs - indicates crowded short positioning, perp trading at discount to spot
 
-The edge being tested is the combination of speculative long imbalance,
-adverse carry for longs, and possible mean-reversion in overheated long regimes.
+Both extremes represent positioning imbalances that tend to mean-revert as:
+1. The cost of holding the crowded position accumulates via funding payments
+2. Crowded positions become vulnerable to liquidation cascades on adverse moves
+3. Arbitrageurs enter to collect the funding spread
+
+This strategy exploits these dynamics by:
+1. **Shorting when funding is highly positive** - fade crowded longs, collect funding carry
+2. **Longing when funding is highly negative** - fade crowded shorts, collect funding carry
+3. **Staying flat when funding is near zero** - no edge, avoid transaction costs
+
+The strategy is symmetric: it treats positive and negative funding extremes as equivalent opportunities in opposite directions.
 
 ## Testable Prediction
 
-A single-instrument strategy that sizes short exposure proportionally to
-trailing positive funding above a threshold will produce positive
-risk-adjusted returns net of realistic costs on BTCUSDT USDT-M perpetual at
-the 4h timeframe.
+A symmetric funding-directional strategy on BTCUSDT perpetual 4h bars will:
+1. Generate OOS Sharpe >= 1.0 net of fees (4bps taker, 2bps slippage)
+2. Capture both crowded-long and crowded-short regimes
+3. Outperform a passive long-BTC benchmark on risk-adjusted basis
+4. Survive walk-forward validation with efficiency > 0.5
 
 ## Primary Timeframe
-
 4h
 
-**Justification:** Funding events occur every 8h. A 4h bar cadence allows
-the strategy to observe one funding event per two bars, capturing funding
-state without excessive noise. Finer timeframes (1h, 30m, 15m) would
-introduce signal fragmentation without additional information. Coarser
-timeframes (1d) would miss intra-day funding regime shifts.
+**Justification:** Funding on Binance USDT-M perpetuals settles every 8 hours. A 4h bar strategy samples twice per funding period, providing sufficient resolution to react to funding changes while maintaining low trade frequency (cost efficiency). Coarser timeframes (1d) would miss intra-day funding swings; finer timeframes (1h, 15m) would increase costs without proportional signal improvement.
 
 ## Confirmation Timeframes
-
 None
 
 ## Required Data
+- Instrument: BTCUSDT Binance USDT-M Perpetual
+- Required streams: 4h OHLCV, 8h funding rates
+- Evaluation range: Full history (2020-01-01 to present, per data_catalog.md)
 
-* Instrument: BTCUSDT Binance USDT-M perpetual
-* Required streams: OHLCV, funding rates
+## Signal Logic
 
-## Success Criteria
+INPUTS:
+- funding_rate: 8h funding rate series from Binance (`fundingRate` field from `/fapi/v1/fundingRate`)
+- ohlcv_4h: 4h OHLCV bars
 
-* OOS Sharpe ≥ 1.0 net of modeled costs (Gate 1)
-* DSR probability P(true Sharpe > 1.0) > 0.95 after multiple-testing correction using the registered trial count (Gate 2)
-* Max drawdown ≤ 20% in any walk-forward fold (Gate 3)
-* Parameter sensitivity: ±25% shift keeps Sharpe within 70% of baseline (Gate 4)
-* Cost drag ≤ 50% of gross PnL (Gate 5)
-* No 90-day window > 60% of total PnL (Gate 6)
-* ≤ 5 free parameters (Gate 7)
-* Walk-forward efficiency > 0.5 (Gate 8)
+PARAMETERS:
+- lookback: 6 (number of 4h bars = 24 hours = 3 funding settlement periods)
+- threshold: 0.0001 (+/-0.01% per 8h settlement, equivalent to ~10% annualized)
+
+PREPROCESSING:
+1. Align `funding_rate` to 4h bar timestamps using forward-fill
+2. Each 8h funding rate applies to the 4h bars that follow its settlement until the next settlement
+3. Settlement times on Binance: 00:00, 08:00, 16:00 UTC
+
+SIGNAL GENERATION:
+1. Compute `rolling_mean_funding` = rolling mean of aligned funding rate over `lookback` 4h bars
+2. Generate signal at each 4h bar close:
+   - If `rolling_mean_funding > +threshold`: signal = -1 (SHORT)
+   - If `rolling_mean_funding < -threshold`: signal = +1 (LONG)
+   - Else: signal = 0 (FLAT)
+
+POSITION LOGIC:
+- Position changes only on signal change
+- No intra-bar position changes
+- Position size: 1x notional (no leverage scaling in baseline)
+
+EXECUTION ASSUMPTION:
+- Entry / exit at next bar open after signal generation
+- Taker fees: 4 bps
+- Slippage: 2 bps
+
+## Success Criteria (aligned with D2-006)
+1. OOS Sharpe >= 1.0 net of modeled costs
+2. DSR > 1.0 at 95% CI, implemented as P(SR > 1.0) > 0.95 after multiple-testing correction using the registered trial count
+3. Max drawdown <= 20% in any walk-forward fold
+4. Parameter sensitivity: +/-25% parameter shift keeps Sharpe within 70% of baseline
+5. Cost drag <= 50% of gross PnL
+6. No single 90-day window contributes > 60% of total PnL
+7. Walk-forward efficiency (OOS/IS Sharpe) > 0.5
 
 ## Kill Criteria
-
-* OOS Sharpe < 0.5 after full walk-forward evaluation
-* Max drawdown > 30% in any fold
-* More than 80% of PnL concentrated in a single 90-day window
-* Parameter sensitivity shows Sharpe collapses (< 30% of baseline) at ±25% shift
+- OOS Sharpe < 0.3 after baseline test -> archive hypothesis
+- Max drawdown > 35% in any walk-forward fold -> archive hypothesis
+- Both long leg and short leg unprofitable when analyzed separately -> archive hypothesis
+- Funding rate predictability degrades to no better than random -> archive hypothesis
 
 ## Free Parameters
+1. **lookback** (default: 6) - number of 4h bars for rolling mean
+2. **threshold** (default: 0.0001) - funding rate threshold for signal generation
 
-1. `funding_threshold` — minimum funding rate (bps) to trigger short signal
-2. `lookback_periods` — number of 4h bars for trailing funding average
-3. `position_scale` — multiplier mapping funding magnitude to position size
-4. `exit_threshold` — funding rate below which position is closed
+**Count: 2** (well under 5-parameter cap per D2-006)
 
 ## Expected Trial Count
-
-Grid: 4 values × 4 values × 3 values × 3 values = 144 combinations
-Walk-forward folds: 5
-Total trials: ~720
-
-Rationale: This covers a reasonable parameter space without excessive
-multiple-testing burden. DSR will use this registered trial count when testing
-whether P(true Sharpe > 1.0) exceeds 0.95.
+- Baseline (default parameters): 1 trial
+- Lookback sensitivity sweep (3, 6, 9, 12): 4 trials
+- Threshold sensitivity sweep (0.00005, 0.0001, 0.00015, 0.0002): 4 trials
+- Combined grid (if baseline promising): up to 16 trials
+- **Conservative estimate: 5-10 trials**
 
 ## Artefacts
-
-* Evaluation artefacts: TBD after first evaluation run
+- Notebook: `research/hypotheses/H-001/experiment.ipynb` (to be created in execution package)
+- Decision record: `research/decisions/DEC-0001.md` (to be created after evaluation)
 
 ## Decision Record
-
-* Outcome: Not evaluated
-* Decision record: TBD after evaluation
+- Outcome: [PENDING - to be filled after evaluation]
 
 ## Notes
-
-This hypothesis intentionally uses a simple funding-informed short baseline to
-validate the research pipeline before testing more complex strategies. It is
-not a full hedge-based carry implementation.
+- Current market context (April 2026): Funding is deeply negative (~-0.011), meaning this strategy would currently be LONG, not short. This is a useful OOS stress test - the strategy should handle regime variety.
+- The symmetric design differs from simple "short the perp, long the spot" carry arbitrage - this is a directional strategy informed by funding, not a hedged carry trade.
+- Academic support: Funding rates are predictable (Inan 2025), and funding arbitrage shows favorable risk-adjusted returns (ScienceDirect 2025).

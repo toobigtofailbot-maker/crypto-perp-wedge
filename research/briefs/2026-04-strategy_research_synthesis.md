@@ -16,9 +16,9 @@ Bitcoin appears to show stronger trend persistence than simple short-horizon mea
 
 ### Finding 2: Timeframe Matters Significantly
 
-Longer timeframes appear more robust and less exposed to cost drag. Shorter timeframes may still work, but usually require stronger filtering and better trade selection.
+Longer timeframes may reduce noise and cost drag, while smaller timeframes can provide the more frequent daily opportunity needed for an eventual portfolio. Shorter timeframes may still work, but usually require stronger filtering and better trade selection.
 
-**Implication:** Start with 1d as the primary next research tier, then 1h as a secondary later tier. 30m remains exploratory. Defer 15m for now.
+**Implication:** Keep 1d in scope as the slower / lower-turnover layer while expanding meaningful intraday research across 1h, 30m, and later 15m. Do not treat any timeframe as proven before it survives repo evaluation gates.
 
 ### Finding 3: Volatility-Based Strategies Are Plausible Candidates
 
@@ -46,11 +46,11 @@ Trend, volatility, or regime filters are common in more professional systems and
 
 | Timeframe | Status | Rationale |
 |-----------|--------|-----------|
-| 15m | Deferred | Cost drag concern; defer until longer timeframes prove viable |
-| 30m | Exploratory | Candidate tier now pre-registered cautiously; higher cost-drag risk requires controlled research |
-| 1h | Secondary | Candidate tier now pre-registered cautiously; balance between signal count and cost drag |
+| 15m | Planning / Candidate Expansion Target | In scope for later candidate registration because portfolio goals include frequent intraday opportunities; cost drag requires especially strong filtering |
+| 30m | Active Intraday Candidate Layer | Candidate tier now pre-registered cautiously; higher cost-drag risk requires controlled research |
+| 1h | Active Intraday Candidate Layer | Candidate tier now pre-registered cautiously; balance between signal count and cost drag |
 | 4h | Cold Storage | H-001 / H-002 failures; revisit only with materially different logic |
-| 1d | Primary | Strongest current candidate tier for next research batch |
+| 1d | Slower Candidate Layer | Lower-turnover foundation layer within a broader multi-timeframe portfolio map |
 
 ### Why These Strategies?
 
@@ -59,7 +59,13 @@ Trend, volatility, or regime filters are common in more professional systems and
 | H-003 | 1d BB Mean Reversion (Long-Only) | Plausible candidate family for filtered reversion with BTC upward drift respected |
 | H-004 | 1d Dual MA + Volatility Regime | Foundation trend-following logic enhanced with a regime filter |
 | H-005 | 1h MACD + Price Structure | Research-informed momentum candidate using structure confirmation to filter weaker crossovers |
-| H-006 | 30m BB Squeeze Breakout | Exploratory volatility-breakout candidate using compression logic to control trade selection |
+| H-006 | 30m BB Squeeze Breakout | Intraday volatility-breakout candidate using compression logic to control trade selection |
+
+### Portfolio Construction Direction
+
+The end-state target is not one strategy. The research program should build toward a basket of independently validated strategies across multiple locked timeframes.
+
+Smaller timeframes may eventually host more candidate diversity because they can produce more frequent entries, which better matches the desired daily opportunity set. This is a research-priority statement, not an edge claim: no timeframe gets a free pass, and every candidate must survive the same pre-registration, backtest, trial-log, shadow, and promotion discipline.
 
 ---
 
@@ -69,7 +75,7 @@ Trend, volatility, or regime filters are common in more professional systems and
 |--------|-------------------------------|
 | Simple baseline logic failed | New candidates use richer structure while preserving interpretability |
 | No strong regime framing | New candidates include directional, volatility, or structure-aware framing |
-| 4h did not survive baseline gates | Primary pivot to 1d |
+| 4h did not survive baseline gates | Keep 4h in Cold Storage while researching materially different logic on other locked timeframes |
 | Need stronger foundation before optimization | New candidates chosen for robustness and interpretability |
 
 ---
@@ -87,13 +93,13 @@ External backtest literature suggests plausibility for these strategy families, 
 
 ---
 
-## Prioritization
+## Candidate Coverage Map
 
-1. H-003 - primary
-2. H-004 - primary
-3. H-005 - secondary
-4. H-006 - exploratory
-5. 15m - deferred
+- H-003 - 1d slower-timeframe layer
+- H-004 - 1d slower-timeframe layer
+- H-005 - 1h active intraday layer
+- H-006 - 30m active intraday layer
+- 15m - in-scope future intraday expansion target
 
 ---
 

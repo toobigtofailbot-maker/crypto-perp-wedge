@@ -65,11 +65,12 @@ Protected unless a package explicitly authorizes the change and the locked decis
 - Phase 2 uses the lightweight research backtester/evaluation path for hypothesis testing.
 - Promotion gates, DSR/trial-log discipline, and pre-registration remain the overfitting firewall.
 - Final Strategy v1 is not locked.
+- Long-term research direction targets a multi-strategy, multi-timeframe portfolio rather than concentration in a single strategy or timeframe.
 - H-001 and H-002 are CONCLUDED / NO-GO after 4h baseline execution; 4h is in Cold Storage.
-- H-003 and H-004 are DRAFT 1d primary research candidates pre-registered for later baseline execution.
-- H-005 is a DRAFT 1h secondary research candidate pre-registered for later baseline execution.
-- H-006 is a DRAFT 30m exploratory research candidate pre-registered for later baseline execution.
-- Current candidate map: 1d primary; 1h secondary; 30m exploratory; 15m deferred unless a future package supplies explicit cost and edge justification; 4h remains Cold Storage.
+- H-003 and H-004 are DRAFT 1d slower-timeframe candidates pre-registered for later baseline execution.
+- H-005 is a DRAFT 1h active intraday research candidate pre-registered for later baseline execution.
+- H-006 is a DRAFT 30m active intraday research candidate pre-registered for later baseline execution.
+- Current candidate map: 1d slower timeframe layer; 1h / 30m active intraday candidate layers; 15m in-scope and high-interest for future intraday candidate expansion; 4h remains Cold Storage.
 
 ## Orchestration / Skills / Prompts Status
 
@@ -89,13 +90,14 @@ Protected unless a package explicitly authorizes the change and the locked decis
 ## Current Open Risks / Architecture Questions
 
 - Whether the current candidate batch can pass baseline gates after H-001 and H-002 failed on 4h.
+- How to expand 15m candidate registration without weakening cost-drag, overfitting, or promotion-gate discipline.
 - How candidates that survive research gates will be wrapped for shadow mode.
 - How to keep trial-log discipline tight while allowing useful exploratory EDA.
 - How to enforce downstream handling of irreparable official-source gaps without silent interpolation.
 
 ## Next Expected Package / Immediate Architecture Need
 
-Main Architecture should define the next executable package from current merged repo truth. Do not guess it from stale chat context. The likely next architecture need is a tightly scoped baseline execution package for the pre-registered candidate batch, but it is not locked until issued by Main Architecture.
+Main Architecture should define the next executable package from current merged repo truth. Do not guess it from stale chat context. The likely next architecture need is a tightly scoped baseline execution package for the pre-registered candidate batch or a bounded 15m candidate-registration package, but it is not locked until issued by Main Architecture.
 
 ## Update Discipline
 

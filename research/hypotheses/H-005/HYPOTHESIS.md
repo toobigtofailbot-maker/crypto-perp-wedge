@@ -16,7 +16,7 @@ The candidate rationale is:
 
 1. **MACD is a plausible momentum family:** MACD crossovers are a common way to express changes in directional momentum.
 2. **Structure confirmation may filter false momentum signals:** Requiring price to break a recent swing high or swing low can avoid taking every indicator crossover in choppy conditions.
-3. **The 1h timeframe balances signal count and cost drag:** Hourly bars should provide more observations than 1d while remaining more manageable than very short intraday frames.
+3. **The 1h timeframe is an active intraday layer:** Hourly bars should provide more observations than 1d while remaining more manageable than very short intraday frames.
 4. **Dual confirmation may improve robustness:** Combining momentum and structure keeps the baseline interpretable while avoiding a single-indicator trigger.
 
 This candidate remains to be validated in the repo's backtest, evaluation, and trial-log process.
@@ -33,7 +33,7 @@ An hourly MACD crossover strategy with price-structure confirmation on BTCUSDT p
 ## Primary Timeframe
 1h
 
-**Justification:** The 1h timeframe is the secondary research tier after the current 1d primary candidates. It offers a balance between trade frequency and cost drag: more signal opportunities than 1d, but less noise and turnover pressure than 30m or 15m.
+**Justification:** The 1h timeframe is an active intraday candidate layer in the broader multi-timeframe research portfolio. It offers a balance between trade frequency and cost drag: more signal opportunities than 1d, but less noise and turnover pressure than 30m or 15m.
 
 ## Confirmation Timeframes
 None
@@ -127,3 +127,4 @@ Baseline execution status: pending; no backtest has been run in this package.
 ## Notes
 - Research support wording is intentionally cautious: MACD momentum and structure confirmation are known candidate patterns, not evidence of profitability in this repo.
 - If 1h OHLCV is unavailable to a future executor, report it as a data blocker while preserving this pre-registration.
+- If validated, this candidate would contribute to an eventual basket of strategies across timeframes rather than replacing the slower-timeframe candidates.

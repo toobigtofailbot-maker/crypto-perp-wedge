@@ -16,7 +16,7 @@ The candidate rationale is:
 
 1. **Markets cycle between contraction and expansion:** Low realized volatility can precede larger directional moves.
 2. **Post-squeeze expansion is a plausible momentum event:** A close outside the bands after compression may indicate that directional pressure is emerging.
-3. **The 30m timeframe is exploratory:** It may offer useful signal count, but it is more vulnerable to noise and cost drag than 1h or 1d.
+3. **The 30m timeframe is an active intraday layer:** It may offer useful signal count for the desired daily opportunity set, but it is more vulnerable to noise and cost drag than 1h or 1d.
 4. **Patience is the main edge thesis:** The squeeze filter avoids treating every band breakout as actionable.
 
 This candidate remains to be validated in the repo's backtest, evaluation, and trial-log process.
@@ -33,7 +33,7 @@ A 30-minute Bollinger Band squeeze breakout strategy on BTCUSDT perpetuals will:
 ## Primary Timeframe
 30m
 
-**Justification:** The 30m timeframe is an exploratory tier. It may provide a usable compromise between trade frequency and noise, but it is more exposed to cost drag than the 1h secondary tier and the 1d primary tier. The squeeze condition is required to keep this candidate controlled.
+**Justification:** The 30m timeframe is an active intraday candidate layer in the broader multi-timeframe research portfolio. It may provide a usable compromise between trade frequency and noise, but it is more exposed to cost drag than 1h or 1d. The squeeze condition is required to keep this candidate controlled.
 
 ## Confirmation Timeframes
 None
@@ -131,3 +131,4 @@ Baseline execution status: pending; no backtest has been run in this package.
 ## Notes
 - Research support wording is intentionally cautious: BB squeeze logic is a known candidate family, not evidence of profitability in this repo.
 - If 30m OHLCV is unavailable to a future executor, report it as a data blocker while preserving this pre-registration.
+- If validated, this candidate would contribute to an eventual basket of strategies across timeframes rather than replacing the slower-timeframe candidates.

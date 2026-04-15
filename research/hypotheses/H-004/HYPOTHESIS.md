@@ -17,7 +17,7 @@ The candidate rationale is:
 1. **BTC trends can persist:** Slower moving averages may capture medium-term directional regimes.
 2. **Low-volatility/ranging periods weaken crossover quality:** Crossover signals can churn when price lacks directional expansion.
 3. **Volatility regime filtering is a common enhancement pattern:** A realized-volatility filter may improve robustness by requiring a more active market state.
-4. **Daily timeframe keeps turnover low:** A 1d primary timeframe should reduce cost drag versus shorter bars.
+4. **Daily timeframe keeps turnover low:** A 1d timeframe should reduce cost drag versus shorter bars while serving as the slower layer in a broader candidate portfolio.
 
 This is a research-informed candidate to be validated in our stack, not a proven repo strategy.
 
@@ -33,7 +33,7 @@ A daily 50/200 SMA crossover strategy with a realized-volatility regime filter o
 ## Primary Timeframe
 1d
 
-**Justification:** Daily bars match the slow trend-following concept and reduce turnover. The 1d timeframe is the current primary research pivot after H-001 and H-002 failed on 4h.
+**Justification:** Daily bars match the slow trend-following concept and reduce turnover. The 1d timeframe is the slower / lower-turnover layer in a broader multi-timeframe research portfolio after H-001 and H-002 failed on 4h.
 
 ## Confirmation Timeframes
 None
@@ -130,3 +130,4 @@ Baseline execution status: pending; no backtest has been run in this package.
 ## Notes
 - Trend-following is a plausible BTC candidate family, and volatility regime filtering is a common enhancement pattern.
 - This candidate remains to be validated in the repo's backtest, evaluation, and trial-log process.
+- If validated, this candidate would be one portfolio component rather than a single winner-takes-all model.

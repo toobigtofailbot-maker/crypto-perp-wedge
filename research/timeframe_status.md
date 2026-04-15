@@ -4,11 +4,11 @@ Tracks the status of each locked Phase 2 timeframe per D2-017.
 
 | Timeframe | Status | Last Evaluated | Notes          |
 | --------- | ------ | -------------- | -------------- |
-| 15m       | Active | —              | Not yet tested |
-| 30m       | Active | —              | Not yet tested |
-| 1h        | Active | —              | Not yet tested |
+| 15m       | PLANNING | —              | In-scope future intraday candidate expansion target |
+| 30m       | PLANNING | —              | Active intraday candidate research; planned hypothesis H-006 |
+| 1h        | PLANNING | —              | Active intraday candidate research; planned hypothesis H-005 |
 | 4h        | Cold Storage | 2026-04-15     | H-001, H-002 baseline NO-GO; no candidate survived gates |
-| 1d        | PLANNING | —              | Current primary research timeframe; planned hypotheses H-003, H-004 |
+| 1d        | PLANNING | —              | Slower timeframe candidate layer; planned hypotheses H-003, H-004 |
 
 ## Cold Storage Rules (D2-017)
 
@@ -24,4 +24,6 @@ survives the D2-006 promotion gates. Cold-storage timeframes:
 
 - 2026-04-14: 4h -> PLANNING with H-001, H-002 (WP-2b-combined)
 - 2026-04-15: 4h -> Cold Storage after H-001 and H-002 baseline NO-GO decisions (WP-2c)
-- 2026-04-15: 1d -> PLANNING as current primary research timeframe with H-003 and H-004 pre-registered (WP-3a1)
+- 2026-04-15: 1d -> PLANNING with H-003 and H-004 pre-registered (WP-3a1)
+- 2026-04-15: 1h -> PLANNING with H-005; 30m -> PLANNING with H-006 (WP-3a2)
+- 2026-04-15: 15m -> PLANNING as an in-scope future intraday expansion target; reframed 1h / 30m / 1d planning notes for multi-timeframe portfolio direction (WP-3a2-FIX)

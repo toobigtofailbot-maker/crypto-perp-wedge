@@ -33,7 +33,7 @@ A daily long-only Bollinger Band mean-reversion strategy on BTCUSDT perpetuals w
 ## Primary Timeframe
 1d
 
-**Justification:** Daily bars are the primary research pivot after H-001 and H-002 failed on 4h. The 1d timeframe is expected to reduce lower-timeframe noise and cost drag while preserving enough BTCUSDT history for baseline evaluation.
+**Justification:** Daily bars provide the slower / lower-turnover layer in a broader multi-timeframe research portfolio. The 1d timeframe is expected to reduce lower-timeframe noise and cost drag while preserving enough BTCUSDT history for baseline evaluation.
 
 ## Confirmation Timeframes
 None
@@ -119,4 +119,4 @@ Baseline execution status: pending; no backtest has been run in this package.
 
 ## Notes
 - Research support wording is intentionally cautious: external literature suggests plausibility, not proof of profitability in this repo.
-- This candidate respects the H-001/H-002 lesson that simple 4h baselines did not survive gates; it pivots timeframe and uses a directional long-only context.
+- This candidate respects the H-001/H-002 lesson that simple 4h baselines did not survive gates while keeping 1d as one layer of a broader multi-strategy, multi-timeframe research map.

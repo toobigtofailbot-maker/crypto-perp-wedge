@@ -10,7 +10,7 @@ This document records architecture direction that should guide future execution 
 
 The repo is in Phase 2 research execution. Phase 2 remains research-first: validate or kill pre-registered BTCUSDT perpetual strategy hypotheses before expanding runtime scope.
 
-H-001 and H-002 are the current baseline research hypotheses. They are the immediate hypothesis execution focus unless a later locked package changes that order.
+The long-term target is a multi-strategy, multi-timeframe portfolio rather than a single winner-takes-all strategy. All locked Phase 2 timeframes remain in consideration for candidate research, with 4h in Cold Storage for now after H-001 and H-002 failed baseline gates.
 
 The deterministic execution core remains protected. OMS truth, reconciliation truth, kill-switch semantics, D-0001 hard risk caps, overlay bounds, paper ledger accounting, and event-log discipline remain outside normal research automation authority.
 
@@ -19,16 +19,19 @@ The deterministic execution core remains protected. OMS truth, reconciliation tr
 The long-term architecture progresses in staged layers:
 
 1. Baseline hypothesis execution using the Phase 2 research workbench and the current registered hypotheses.
-2. Parameter sensitivity and structured sweeps after baseline runs establish whether a candidate deserves deeper testing.
-3. Walk-forward and regime validation to measure durability across time, market conditions, and cost assumptions.
-4. Shadow deployment for candidates that pass research gates, using the protected runtime path without live execution authority.
-5. Research automation for repeatable sweeps, reports, gate checks, and trial-log discipline.
-6. Advisory decision pipeline that summarizes evidence and proposes bounded actions without owning execution truth.
-7. Production execution only after shadow evidence, human approval, and protected runtime integration.
-8. Multi-strategy management once more than one independently validated strategy family exists.
-9. Monitor and self-improvement research layer that watches performance, proposes variants, and routes evidence back into safe research workflows.
+2. Candidate coverage expansion across the locked timeframe set, including meaningful future research on 15m, 30m, and 1h because the desired portfolio needs more frequent daily opportunity than slower bars alone can provide.
+3. Parameter sensitivity and structured sweeps after baseline runs establish whether a candidate deserves deeper testing.
+4. Walk-forward and regime validation to measure durability across time, market conditions, and cost assumptions.
+5. Shadow deployment for candidates that pass research gates, using the protected runtime path without live execution authority.
+6. Research automation for repeatable sweeps, reports, gate checks, trial-log discipline, and broader candidate coverage across timeframes.
+7. Advisory decision pipeline that summarizes evidence and proposes bounded actions without owning execution truth.
+8. Production execution only after shadow evidence, human approval, and protected runtime integration.
+9. Multi-strategy management for independently validated strategy families across multiple timeframes.
+10. Monitor and self-improvement research layer that watches performance, proposes variants, and routes evidence back into safe research workflows.
 
 Each stage should add capability only after the prior stage has produced repo-recorded evidence and an explicit execution package.
+
+The intended end state is not one active strategy. Each active timeframe may eventually host multiple independently validated strategies, roughly 2-3 candidates where research evidence justifies continued work. No timeframe receives a free pass: every candidate must still pass pre-registration, research evaluation, shadow/parity checks, and human-controlled promotion gates before trading.
 
 ## Managed Agents
 
@@ -47,6 +50,7 @@ Research automation should arrive before heavy managed-agent orchestration. The 
 - Automated reports from repo artifacts and evaluation outputs.
 - Gate checking against locked promotion criteria.
 - Trial logging with reproducible config, dataset, and metric metadata.
+- Candidate coverage tracking across locked timeframes, especially 15m, 30m, and 1h as intraday research expands.
 
 Automation should reduce manual repetition and improve evidence quality. It must not bypass pre-registration, inflate trial counts with non-evidence runs, silently modify promotion gates, or promote candidates without human review.
 
@@ -107,7 +111,7 @@ Automation in these areas must preserve provenance, reproducibility, and the exi
 
 The following items remain deferred unless a later architecture package explicitly unlocks them:
 
-- 15m and 30m priority work, except where a hypothesis provides explicit cost and edge justification.
+- 4h routine research work, while it remains in Cold Storage after the H-001 and H-002 baseline failures.
 - Heavy live-trading framework upgrades before research evidence requires them.
 - CCXT adoption for execution abstraction.
 - Managed agents now.

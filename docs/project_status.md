@@ -23,6 +23,10 @@ Startup read order:
 - WP-1a Batch 1, WP-1a Batch 2 corrected, WP-1b, WP-1c, and the current-state-anchor package are merged to `main`.
 - Current repo state is research-first: validate or kill BTCUSDT perp strategy hypotheses without weakening protected execution boundaries.
 
+## Key Architecture References
+
+- Long-term roadmap, automation, managed-agent, dashboard, and self-improvement scope is locked in `docs/architecture/LONG_TERM_SCOPE.md`.
+
 ## Merged Work Package Ledger
 
 Naming convention: `WP-*` is reserved for Main Architecture research/execution work packages. `OPS-*` is reserved for repo-maintenance, workflow, and entrypoint addenda outside the main research package chain.

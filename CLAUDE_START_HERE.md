@@ -39,6 +39,7 @@ Stop and report when a task requires a decision not present in repo truth, confl
 
 - Current-state anchor: `docs/project_status.md`
 - Runbook: `docs/runbook.md`
+- Long-term architecture scope: `docs/architecture/LONG_TERM_SCOPE.md` when clarifying longer-horizon roadmap, automation, agent, dashboard, or self-improvement scope
 - Phase map: `docs/onboarding/PHASES.md`
 - Phase 2 baseline: `docs/onboarding/PHASE2_BASELINE.md`
 - System map: `docs/onboarding/SYSTEM_MAP.md`

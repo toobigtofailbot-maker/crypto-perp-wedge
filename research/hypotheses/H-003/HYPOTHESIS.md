@@ -5,7 +5,7 @@ H-003
 
 ## Metadata
 - Created: 2026-04-15
-- Status: DRAFT
+- Status: CONCLUDED
 - Owner: WP-3a1
 
 ## Economic Rationale
@@ -89,7 +89,7 @@ EXECUTION ASSUMPTION:
 7. Free parameters <= 5
 8. Walk-forward efficiency (OOS/IS Sharpe) > 0.5
 
-Baseline execution status: pending; no backtest has been run in this package.
+Baseline execution status: completed in WP-3b; baseline decision is NO-GO.
 
 ## Kill Criteria
 - OOS Sharpe < 0.3 after baseline test -> archive hypothesis
@@ -111,12 +111,13 @@ Baseline execution status: pending; no backtest has been run in this package.
 - **Conservative estimate: 5-9 trials**
 
 ## Artefacts
-- Notebook / report: to be created in a later execution package
-- Decision record: to be created after evaluation if baseline execution occurs
+- Notebook: `research/hypotheses/H-003/experiment.ipynb`
+- Decision record: `research/decisions/DEC-0003.md`
 
 ## Decision Record
-- Outcome: PENDING
+- Outcome: NO-GO
+- Record: `research/decisions/DEC-0003.md`
 
 ## Notes
 - Research support wording is intentionally cautious: external literature suggests plausibility, not proof of profitability in this repo.
-- This candidate respects the H-001/H-002 lesson that simple 4h baselines did not survive gates while keeping 1d as one layer of a broader multi-strategy, multi-timeframe research map.
+- This baseline did not survive gates; 1d is now in Cold Storage alongside 4h while 1h / 30m and future 15m work remain in the broader multi-strategy, multi-timeframe research map.

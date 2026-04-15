@@ -5,7 +5,7 @@ H-004
 
 ## Metadata
 - Created: 2026-04-15
-- Status: DRAFT
+- Status: CONCLUDED
 - Owner: WP-3a1
 
 ## Economic Rationale
@@ -98,7 +98,7 @@ EXECUTION ASSUMPTION:
 7. Free parameters <= 5
 8. Walk-forward efficiency (OOS/IS Sharpe) > 0.5
 
-Baseline execution status: pending; no backtest has been run in this package.
+Baseline execution status: completed in WP-3b; baseline decision is NO-GO.
 
 ## Kill Criteria
 - OOS Sharpe < 0.3 after baseline test -> archive hypothesis
@@ -121,13 +121,14 @@ Baseline execution status: pending; no backtest has been run in this package.
 - **Conservative estimate: 9-17 trials**
 
 ## Artefacts
-- Notebook / report: to be created in a later execution package
-- Decision record: to be created after evaluation if baseline execution occurs
+- Notebook: `research/hypotheses/H-004/experiment.ipynb`
+- Decision record: `research/decisions/DEC-0004.md`
 
 ## Decision Record
-- Outcome: PENDING
+- Outcome: NO-GO
+- Record: `research/decisions/DEC-0004.md`
 
 ## Notes
 - Trend-following is a plausible BTC candidate family, and volatility regime filtering is a common enhancement pattern.
-- This candidate remains to be validated in the repo's backtest, evaluation, and trial-log process.
-- If validated, this candidate would be one portfolio component rather than a single winner-takes-all model.
+- This candidate has now been evaluated in the repo's backtest, evaluation, and trial-log process and did not survive baseline gates.
+- The result is evidence against this specific 1d baseline, not against the broader multi-strategy, multi-timeframe portfolio direction.

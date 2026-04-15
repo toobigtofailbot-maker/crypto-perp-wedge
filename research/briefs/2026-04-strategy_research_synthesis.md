@@ -47,8 +47,8 @@ Trend, volatility, or regime filters are common in more professional systems and
 | Timeframe | Status | Rationale |
 |-----------|--------|-----------|
 | 15m | Deferred | Cost drag concern; defer until longer timeframes prove viable |
-| 30m | Exploratory Later | Candidate tier exists, but not in this primary pre-registration package |
-| 1h | Secondary Later | Candidate tier exists, but not in this primary pre-registration package |
+| 30m | Exploratory | Candidate tier now pre-registered cautiously; higher cost-drag risk requires controlled research |
+| 1h | Secondary | Candidate tier now pre-registered cautiously; balance between signal count and cost drag |
 | 4h | Cold Storage | H-001 / H-002 failures; revisit only with materially different logic |
 | 1d | Primary | Strongest current candidate tier for next research batch |
 
@@ -58,6 +58,8 @@ Trend, volatility, or regime filters are common in more professional systems and
 |------------|----------|---------------------|
 | H-003 | 1d BB Mean Reversion (Long-Only) | Plausible candidate family for filtered reversion with BTC upward drift respected |
 | H-004 | 1d Dual MA + Volatility Regime | Foundation trend-following logic enhanced with a regime filter |
+| H-005 | 1h MACD + Price Structure | Research-informed momentum candidate using structure confirmation to filter weaker crossovers |
+| H-006 | 30m BB Squeeze Breakout | Exploratory volatility-breakout candidate using compression logic to control trade selection |
 
 ---
 
@@ -65,8 +67,8 @@ Trend, volatility, or regime filters are common in more professional systems and
 
 | Lesson | Application in New Candidates |
 |--------|-------------------------------|
-| Simple baseline logic failed | Both new candidates use richer structure |
-| No strong regime framing | New candidates include directional or regime-aware framing |
+| Simple baseline logic failed | New candidates use richer structure while preserving interpretability |
+| No strong regime framing | New candidates include directional, volatility, or structure-aware framing |
 | 4h did not survive baseline gates | Primary pivot to 1d |
 | Need stronger foundation before optimization | New candidates chosen for robustness and interpretability |
 
@@ -89,16 +91,16 @@ External backtest literature suggests plausibility for these strategy families, 
 
 1. H-003 - primary
 2. H-004 - primary
-3. 1h candidates - next tier
-4. 30m candidates - exploratory tier
+3. H-005 - secondary
+4. H-006 - exploratory
 5. 15m - deferred
 
 ---
 
 ## Next Steps
 
-1. Pre-register H-003 and H-004 (this package)
-2. Register secondary / exploratory candidates later
+1. Pre-register H-003 and H-004 as the primary 1d candidates (WP-3a1)
+2. Pre-register H-005 and H-006 as secondary / exploratory candidates (WP-3a2)
 3. Execute baseline backtests in a later package
 4. Evaluate results and produce decision records
 5. Only surviving candidates proceed to sweeps / deeper research

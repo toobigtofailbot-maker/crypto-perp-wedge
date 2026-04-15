@@ -5,7 +5,7 @@ H-001
 
 ## Metadata
 - Created: 2026-04-14
-- Status: DRAFT
+- Status: CONCLUDED
 - Owner: WP-2b-combined
 - Supersedes: Original H-001 "funding-informed short baseline" was replaced before any trials were logged. The original framing was short-only; this version is symmetric (long and short). See git history for original content.
 
@@ -114,7 +114,8 @@ EXECUTION ASSUMPTION:
 - Decision record: `research/decisions/DEC-0001.md` (to be created after evaluation)
 
 ## Decision Record
-- Outcome: [PENDING - to be filled after evaluation]
+- Outcome: NO-GO
+- Record: `research/decisions/DEC-0001.md`
 
 ## Notes
 - Current market context (April 2026): Funding is deeply negative (~-0.011), meaning this strategy would currently be LONG, not short. This is a useful OOS stress test - the strategy should handle regime variety.

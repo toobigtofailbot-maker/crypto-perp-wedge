@@ -20,7 +20,7 @@ Startup read order:
 
 - Phase 1 is closed.
 - Phase 2 baseline is locked in `docs/onboarding/PHASE2_BASELINE.md`.
-- WP-1a Batch 1, WP-1a Batch 2 corrected, WP-1b, WP-1c, and the current-state-anchor package are merged to `main`.
+- WP-1a Batch 1, WP-1a Batch 2 corrected, WP-1b, WP-1c, the current-state-anchor package, OPS-02, WP-2b, and WP-2c are merged to `main`.
 - Current repo state is research-first: validate or kill BTCUSDT perp strategy hypotheses without weakening protected execution boundaries.
 
 ## Key Architecture References
@@ -65,7 +65,9 @@ Protected unless a package explicitly authorizes the change and the locked decis
 - Phase 2 uses the lightweight research backtester/evaluation path for hypothesis testing.
 - Promotion gates, DSR/trial-log discipline, and pre-registration remain the overfitting firewall.
 - Final Strategy v1 is not locked.
-- First hypothesis execution remains a future architecture package.
+- H-001 and H-002 are CONCLUDED / NO-GO after 4h baseline execution; 4h is in Cold Storage.
+- H-003 and H-004 are DRAFT 1d primary research candidates pre-registered for later baseline execution.
+- 1h remains a secondary later tier; 30m remains exploratory later; 15m remains deferred unless a future package supplies explicit cost and edge justification.
 
 ## Orchestration / Skills / Prompts Status
 
@@ -84,14 +86,14 @@ Protected unless a package explicitly authorizes the change and the locked decis
 
 ## Current Open Risks / Architecture Questions
 
-- Which first hypotheses should be tested end-to-end under WP-2.
+- Whether H-003 and H-004 can pass baseline gates on 1d after H-001 and H-002 failed on 4h.
 - How candidates that survive research gates will be wrapped for shadow mode.
 - How to keep trial-log discipline tight while allowing useful exploratory EDA.
 - How to enforce downstream handling of irreparable official-source gaps without silent interpolation.
 
 ## Next Expected Package / Immediate Architecture Need
 
-Main Architecture should define the next executable package from current merged repo truth. Do not guess it from stale chat context. The likely next architecture need is a tightly scoped first-hypothesis package, but it is not locked until issued by Main Architecture.
+Main Architecture should define the next executable package from current merged repo truth. Do not guess it from stale chat context. The likely next architecture need is a tightly scoped baseline execution package for H-003 and H-004, but it is not locked until issued by Main Architecture.
 
 ## Update Discipline
 

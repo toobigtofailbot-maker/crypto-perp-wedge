@@ -9,7 +9,8 @@ Read order for every architecture, execution, implementation, or review task:
 1. `docs/project_status.md`
 2. `CLAUDE_START_HERE.md`
 3. `docs/runbook.md`
-4. Only the additional files needed for the current task
+4. `docs/architecture/LONG_TERM_SCOPE.md` when the task touches longer-horizon roadmap, automation, agent, dashboard, or self-improvement scope
+5. Only the additional files needed for the current task
 
 Treat the repo as the source of truth. If chat context, memory, or a brief conflicts with current repo files, prefer repo truth and report the mismatch. If the mismatch affects scope, locked decisions, or validation, stop and escalate instead of improvising.
 

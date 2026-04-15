@@ -5,7 +5,7 @@ H-002
 
 ## Metadata
 - Created: 2026-04-14
-- Status: DRAFT
+- Status: CONCLUDED
 - Owner: WP-2b-combined
 
 ## Economic Rationale
@@ -116,7 +116,8 @@ EXECUTION ASSUMPTION:
 - Decision record: `research/decisions/DEC-0002.md` (to be created after evaluation)
 
 ## Decision Record
-- Outcome: [PENDING - to be filled after evaluation]
+- Outcome: NO-GO
+- Record: `research/decisions/DEC-0002.md`
 
 ## Notes
 - Donchian channel is chosen over moving average crossover for simplicity: 1 parameter vs 2.

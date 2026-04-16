@@ -20,7 +20,7 @@ Startup read order:
 
 - Phase 1 is closed.
 - Phase 2 baseline is locked in `docs/onboarding/PHASE2_BASELINE.md`.
-- WP-1a Batch 1, WP-1a Batch 2 corrected, WP-1b, WP-1c, the current-state-anchor package, OPS-02, WP-2b, and WP-2c are merged to `main`.
+- WP-1a Batch 1, WP-1a Batch 2 corrected, WP-1b, WP-1c, the current-state-anchor package, OPS-02, WP-2b, WP-2c, and WP-3b are merged to `main`.
 - Current repo state is research-first: validate or kill BTCUSDT perp strategy hypotheses without weakening protected execution boundaries.
 
 ## Key Architecture References
@@ -69,10 +69,11 @@ Protected unless a package explicitly authorizes the change and the locked decis
 - Long-term research direction targets a multi-strategy, multi-timeframe portfolio rather than concentration in a single strategy or timeframe.
 - H-001 and H-002 are CONCLUDED / NO-GO after 4h baseline execution; 4h is in Cold Storage.
 - H-003 and H-004 are CONCLUDED / NO-GO after 1d baseline execution; 1d is in Cold Storage.
-- H-005 is a DRAFT 1h active intraday research candidate pre-registered for later baseline execution.
-- H-006 is a DRAFT 30m active intraday research candidate pre-registered for later baseline execution.
+- H-005 is CONCLUDED / NO-GO after 1h baseline execution.
+- H-006 is CONCLUDED / NO-GO after 30m baseline execution.
 - WP-3b created DEC-0003 and DEC-0004 and grew `research/trial_log.jsonl` from 2 to 4 rows.
-- Current candidate map: 1h / 30m active intraday candidate layers; 15m in-scope and high-interest for future intraday candidate expansion; 4h and 1d remain Cold Storage.
+- WP-3c created DEC-0005 and DEC-0006 and grew `research/trial_log.jsonl` from 4 to 6 rows.
+- Current candidate map: 1h / 30m remain PLANNING after one failed intraday candidate cycle each; 15m remains in-scope and data-ready, but current 1h / 30m evidence argues for caution before faster 15m expansion; 4h and 1d remain Cold Storage.
 
 ## Orchestration / Skills / Prompts Status
 
@@ -91,15 +92,15 @@ Protected unless a package explicitly authorizes the change and the locked decis
 
 ## Current Open Risks / Architecture Questions
 
-- Whether the active intraday candidate batch can pass baseline gates after H-001/H-002 failed on 4h and H-003/H-004 failed on 1d.
-- How to expand 15m candidate registration without weakening cost-drag, overfitting, or promotion-gate discipline.
+- Whether any future active intraday candidate can pass baseline gates after H-005/H-006 failed on 1h / 30m, following H-001/H-002 failures on 4h and H-003/H-004 failures on 1d.
+- How to expand 15m candidate registration without weakening cost-drag, overfitting, or promotion-gate discipline, given negative 1h / 30m intraday evidence.
 - How candidates that survive research gates will be wrapped for shadow mode.
 - How to keep trial-log discipline tight while allowing useful exploratory EDA.
 - How to enforce downstream handling of irreparable official-source gaps without silent interpolation.
 
 ## Next Expected Package / Immediate Architecture Need
 
-Main Architecture should define the next executable package from current merged repo truth. Do not guess it from stale chat context. The likely next architecture need is a tightly scoped baseline execution package for H-005 / H-006 or a bounded 15m candidate-registration package, supported by the WP-3b intraday data assessment, but it is not locked until issued by Main Architecture.
+Main Architecture should define the next executable package from current merged repo truth. Do not guess it from stale chat context. The likely next architecture need is a bounded 15m candidate-registration package or a revised intraday hypothesis package that explicitly addresses cost drag, noise, and signal fragility observed in WP-3c, but it is not locked until issued by Main Architecture.
 
 ## Update Discipline
 

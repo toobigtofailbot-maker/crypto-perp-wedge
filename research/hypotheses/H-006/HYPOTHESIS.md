@@ -5,7 +5,7 @@ H-006
 
 ## Metadata
 - Created: 2026-04-15
-- Status: DRAFT
+- Status: CONCLUDED
 - Owner: WP-3a2
 
 ## Economic Rationale
@@ -97,7 +97,7 @@ EXECUTION ASSUMPTION:
 7. Free parameters <= 5
 8. Walk-forward efficiency (OOS/IS Sharpe) > 0.5
 
-Baseline execution status: pending; no backtest has been run in this package.
+Baseline execution status: completed in WP-3c; baseline decision is NO-GO.
 
 ## Kill Criteria
 - OOS Sharpe < 0.3 after baseline test -> archive hypothesis
@@ -122,13 +122,15 @@ Baseline execution status: pending; no backtest has been run in this package.
 - **Conservative estimate: 11-16 trials**
 
 ## Artefacts
-- Notebook / report: to be created in a later execution package
-- Decision record: to be created after evaluation if baseline execution occurs
+- Notebook: `research/hypotheses/H-006/experiment.ipynb`
+- Decision record: `research/decisions/DEC-0006.md`
 
 ## Decision Record
-- Outcome: PENDING
+- Outcome: NO-GO
+- Record: `research/decisions/DEC-0006.md`
 
 ## Notes
 - Research support wording is intentionally cautious: BB squeeze logic is a known candidate family, not evidence of profitability in this repo.
 - If 30m OHLCV is unavailable to a future executor, report it as a data blocker while preserving this pre-registration.
-- If validated, this candidate would contribute to an eventual basket of strategies across timeframes rather than replacing the slower-timeframe candidates.
+- This candidate has now been evaluated in the repo's backtest, evaluation, and trial-log process and did not survive baseline gates.
+- The result argues for caution before faster 15m breakout expansion because noise, drawdown, and negative risk-adjusted performance dominated this 30m baseline.

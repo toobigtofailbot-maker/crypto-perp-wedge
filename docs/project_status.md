@@ -59,6 +59,7 @@ Protected unless a package explicitly authorizes the change and the locked decis
 - Current repo documentation covers full BTCUSDT OHLCV, funding, mark price, index price, and premium index history for the locked timeframe set.
 - Provenance belongs in `docs/data_catalog.md`; raw and processed data contents are not package-edit targets unless explicitly authorized.
 - Known irreparable official-source gaps are tracked by `data/irreparable_gaps.json` and governed by D2-003A plus `docs/irreparable_gaps_policy.md`.
+- WP-3b intraday assessment confirms existing 1h and 30m OHLCV data are sufficient for H-005 / H-006 baseline execution; 15m OHLCV is also ready for future OHLCV-only hypotheses.
 
 ## Research / Workbench Status
 
@@ -67,10 +68,11 @@ Protected unless a package explicitly authorizes the change and the locked decis
 - Final Strategy v1 is not locked.
 - Long-term research direction targets a multi-strategy, multi-timeframe portfolio rather than concentration in a single strategy or timeframe.
 - H-001 and H-002 are CONCLUDED / NO-GO after 4h baseline execution; 4h is in Cold Storage.
-- H-003 and H-004 are DRAFT 1d slower-timeframe candidates pre-registered for later baseline execution.
+- H-003 and H-004 are CONCLUDED / NO-GO after 1d baseline execution; 1d is in Cold Storage.
 - H-005 is a DRAFT 1h active intraday research candidate pre-registered for later baseline execution.
 - H-006 is a DRAFT 30m active intraday research candidate pre-registered for later baseline execution.
-- Current candidate map: 1d slower timeframe layer; 1h / 30m active intraday candidate layers; 15m in-scope and high-interest for future intraday candidate expansion; 4h remains Cold Storage.
+- WP-3b created DEC-0003 and DEC-0004 and grew `research/trial_log.jsonl` from 2 to 4 rows.
+- Current candidate map: 1h / 30m active intraday candidate layers; 15m in-scope and high-interest for future intraday candidate expansion; 4h and 1d remain Cold Storage.
 
 ## Orchestration / Skills / Prompts Status
 
@@ -89,7 +91,7 @@ Protected unless a package explicitly authorizes the change and the locked decis
 
 ## Current Open Risks / Architecture Questions
 
-- Whether the current candidate batch can pass baseline gates after H-001 and H-002 failed on 4h.
+- Whether the active intraday candidate batch can pass baseline gates after H-001/H-002 failed on 4h and H-003/H-004 failed on 1d.
 - How to expand 15m candidate registration without weakening cost-drag, overfitting, or promotion-gate discipline.
 - How candidates that survive research gates will be wrapped for shadow mode.
 - How to keep trial-log discipline tight while allowing useful exploratory EDA.
@@ -97,7 +99,7 @@ Protected unless a package explicitly authorizes the change and the locked decis
 
 ## Next Expected Package / Immediate Architecture Need
 
-Main Architecture should define the next executable package from current merged repo truth. Do not guess it from stale chat context. The likely next architecture need is a tightly scoped baseline execution package for the pre-registered candidate batch or a bounded 15m candidate-registration package, but it is not locked until issued by Main Architecture.
+Main Architecture should define the next executable package from current merged repo truth. Do not guess it from stale chat context. The likely next architecture need is a tightly scoped baseline execution package for H-005 / H-006 or a bounded 15m candidate-registration package, supported by the WP-3b intraday data assessment, but it is not locked until issued by Main Architecture.
 
 ## Update Discipline
 

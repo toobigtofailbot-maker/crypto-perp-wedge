@@ -20,7 +20,7 @@ Startup read order:
 
 - Phase 1 is closed.
 - Phase 2 baseline is locked in `docs/onboarding/PHASE2_BASELINE.md`.
-- WP-1a Batch 1, WP-1a Batch 2 corrected, WP-1b, WP-1c, the current-state-anchor package, OPS-02, WP-2b, WP-2c, WP-3b, WP-3c, and WP-4a are merged to `main`; WP-4b1 is in execution.
+- WP-1a Batch 1, WP-1a Batch 2 corrected, WP-1b, WP-1c, the current-state-anchor package, OPS-02, WP-2b, WP-2c, WP-3b, WP-3c, WP-4a, and WP-4b1 are merged to `main`; WP-4b2 is in execution.
 - Current repo state is research-first: validate or kill BTCUSDT perp strategy hypotheses without weakening protected execution boundaries.
 
 ## Key Architecture References
@@ -77,11 +77,15 @@ Protected unless a package explicitly authorizes the change and the locked decis
 - WP-4b1 executed H-007 and H-010 4h cross-stream baselines, created DEC-0007 and DEC-0010, and grew `research/trial_log.jsonl` from 6 to 8 rows.
 - H-007 is CONCLUDED / NO-GO after 4h funding + momentum baseline execution.
 - H-010 is CONCLUDED / NO-GO after 4h basis / premium mean-reversion baseline execution.
-- Hypothesis status count: 8 CONCLUDED / NO-GO; 2 DRAFT / pending (H-008 and H-009).
+- WP-4b2 executed H-008 and H-009 intraday confirmation baselines, created DEC-0008 and DEC-0009, and grew `research/trial_log.jsonl` from 8 to 10 rows.
+- H-008 is CONCLUDED / NO-GO after 1h premium-confirmed momentum baseline execution (Sharpe -0.15, Max DD 3929%, 5211 trades, 3/8 gates).
+- H-009 is CONCLUDED / NO-GO after 30m multi-timeframe alignment baseline execution (Sharpe -0.16, Max DD 925%, 2148 trades, 2/8 gates).
+- Hypothesis status count: 10 CONCLUDED / NO-GO; 0 DRAFT / pending.
 - 4h is back in Cold Storage after H-007 and H-010 also failed D2-006 promotion gates.
-- Brief phase note: WP-4b1 executed; WP-4b2 pending.
-- H-008 replaced the initially considered volatility-scaling concept because current backtester signal handling does not support true fractional exposure without code changes.
-- Current candidate map: H-008 1h premium-confirmed momentum continuation and H-009 30m multi-timeframe trend alignment remain pending for WP-4b2. 4h and 1d are in Cold Storage; 15m remains in-scope and data-ready, but current intraday evidence argues for caution before faster expansion.
+- 1h is now in Cold Storage after H-005 and H-008 both failed D2-006 promotion gates (two hypothesis cycles exhausted per D2-017).
+- 30m is now in Cold Storage after H-006 and H-009 both failed D2-006 promotion gates (two hypothesis cycles exhausted per D2-017).
+- Brief phase note: WP-4b2 executed; reset batch complete (H-007..H-010). Zero passing candidates across entire reset batch. All tested timeframes (1d, 4h, 1h, 30m) now in Cold Storage. Only 15m remains in PLANNING.
+- DEC-0008: research/decisions/DEC-0008.md | DEC-0009: research/decisions/DEC-0009.md
 
 ## Orchestration / Skills / Prompts Status
 
@@ -108,7 +112,7 @@ Protected unless a package explicitly authorizes the change and the locked decis
 
 ## Next Expected Package / Immediate Architecture Need
 
-WP-4b1 executed H-007 and H-010. The likely next architecture need is WP-4b2 execution of H-008 and H-009, unless Main Architecture pauses after the renewed 4h Cold Storage result.
+WP-4b2 executed H-008 and H-009. The reset batch (H-007..H-010) is fully concluded with zero passing candidates. All tested timeframes (1d, 4h, 1h, 30m) are now in Cold Storage. The next architecture decision point is whether to: (a) expand to 15m with a new hypothesis that addresses structural cost drag, (b) pivot to a different asset/data procurement path, or (c) pause for a broader direction review before further hypothesis registration.
 
 ## Update Discipline
 

@@ -5,7 +5,7 @@ H-008
 
 ## Metadata
 - Created: 2026-04-16
-- Status: DRAFT
+- Status: CONCLUDED
 - Owner: WP-4a
 - Note: Replaces the initially considered volatility-scaling test because current `lib/backtest.py` casts signals to integer positions, so true fractional volatility-scaled sizing is not executable in this docs-only package.
 
@@ -124,7 +124,10 @@ EXECUTION ASSUMPTION:
 - Decision record: `research/decisions/DEC-0008.md` (to be created after evaluation)
 
 ## Decision Record
-- Outcome: TBD
+- Outcome: NO-GO
+- Decision record: `research/decisions/DEC-0008.md`
+- Trial ID: `20605a84-41ec-4d41-860d-8450698fbf69`
+- Sharpe: -0.1502 | Max DD: 3928.85% | Trades: 5211 | Gates passed: 3/8
 
 ## Notes
 - This is not a volatility-scaling hypothesis. It replaces that candidate because the current backtester does not support fractional signal exposure without code changes.

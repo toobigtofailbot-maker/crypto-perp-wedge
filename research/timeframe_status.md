@@ -5,8 +5,8 @@ Tracks the status of each locked Phase 2 timeframe per D2-017.
 | Timeframe | Status | Last Evaluated | Notes          |
 | --------- | ------ | -------------- | -------------- |
 | 15m       | PLANNING | —              | In-scope future intraday candidate expansion target; current evidence still argues for caution before faster expansion |
-| 30m       | PLANNING | 2026-04-16     | H-006 baseline NO-GO; H-009 multi-timeframe candidate registered |
-| 1h        | PLANNING | 2026-04-16     | H-005 baseline NO-GO; H-008 premium-confirmed candidate registered |
+| 30m       | Cold Storage | 2026-04-17     | H-006, H-009 baseline NO-GO; two hypothesis cycles exhausted; cost drag structural at 30m |
+| 1h        | Cold Storage | 2026-04-17     | H-005, H-008 baseline NO-GO; two hypothesis cycles exhausted; premium confirmation did not salvage signal |
 | 4h        | Cold Storage | 2026-04-17     | H-001, H-002, H-007, H-010 baseline NO-GO; cross-stream revisit failed promotion gates |
 | 1d        | Cold Storage | 2026-04-15     | H-003, H-004 baseline NO-GO; no candidate survived gates |
 
@@ -31,3 +31,4 @@ survives the D2-006 promotion gates. Cold-storage timeframes:
 - 2026-04-16: 1h remains PLANNING after H-005 baseline NO-GO; 30m remains PLANNING after H-006 baseline NO-GO; current intraday evidence argues for caution before 15m expansion (WP-3c)
 - 2026-04-16: Failure-analysis reset registered H-007 through H-010; 4h -> PLANNING only for materially different funding-composite and basis/premium candidates, preserving H-001/H-002 Cold Storage history (WP-4a)
 - 2026-04-17: 4h -> Cold Storage after H-007 and H-010 cross-stream baseline NO-GO decisions; H-001/H-002 Cold Storage history preserved (WP-4b1)
+- 2026-04-17: 1h -> Cold Storage after H-005 and H-008 baseline NO-GO decisions; 30m -> Cold Storage after H-006 and H-009 baseline NO-GO decisions; reset batch (H-007..H-010) fully concluded with zero passing candidates (WP-4b2)

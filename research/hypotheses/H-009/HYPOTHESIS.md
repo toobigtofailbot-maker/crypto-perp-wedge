@@ -5,7 +5,7 @@ H-009
 
 ## Metadata
 - Created: 2026-04-16
-- Status: DRAFT
+- Status: CONCLUDED
 - Owner: WP-4a
 
 ## Economic Rationale
@@ -129,7 +129,10 @@ EXECUTION ASSUMPTION:
 - Decision record: `research/decisions/DEC-0009.md` (to be created after evaluation)
 
 ## Decision Record
-- Outcome: TBD
+- Outcome: NO-GO
+- Decision record: `research/decisions/DEC-0009.md`
+- Trial ID: `7292282d-abcb-462c-8d4a-c8572ff529d7`
+- Sharpe: -0.1638 | Max DD: 925.16% | Trades: 2148 | Gates passed: 2/8
 
 ## Notes
 - This candidate should not be simplified into a single-timeframe breakout during implementation.

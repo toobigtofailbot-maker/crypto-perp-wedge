@@ -20,7 +20,7 @@ Startup read order:
 
 - Phase 1 is closed.
 - Phase 2 baseline is locked in `docs/onboarding/PHASE2_BASELINE.md`.
-- WP-1a Batch 1, WP-1a Batch 2 corrected, WP-1b, WP-1c, the current-state-anchor package, OPS-02, WP-2b, WP-2c, and WP-3b are merged to `main`.
+- WP-1a Batch 1, WP-1a Batch 2 corrected, WP-1b, WP-1c, the current-state-anchor package, OPS-02, WP-2b, WP-2c, WP-3b, WP-3c, and WP-4a are merged to `main`.
 - Current repo state is research-first: validate or kill BTCUSDT perp strategy hypotheses without weakening protected execution boundaries.
 
 ## Key Architecture References
@@ -73,7 +73,9 @@ Protected unless a package explicitly authorizes the change and the locked decis
 - H-006 is CONCLUDED / NO-GO after 30m baseline execution.
 - WP-3b created DEC-0003 and DEC-0004 and grew `research/trial_log.jsonl` from 2 to 4 rows.
 - WP-3c created DEC-0005 and DEC-0006 and grew `research/trial_log.jsonl` from 4 to 6 rows.
-- Current candidate map: 1h / 30m remain PLANNING after one failed intraday candidate cycle each; 15m remains in-scope and data-ready, but current 1h / 30m evidence argues for caution before faster 15m expansion; 4h and 1d remain Cold Storage.
+- WP-4a created the H-001 through H-006 failure analysis, documented alternative families, and registered H-007 through H-010 without new backtests or trial-log entries.
+- H-008 replaced the initially considered volatility-scaling concept because current backtester signal handling does not support true fractional exposure without code changes.
+- Current candidate map: H-007 4h funding + momentum composite; H-008 1h premium-confirmed momentum continuation; H-009 30m multi-timeframe trend alignment; H-010 4h basis / premium mean reversion. 1d remains Cold Storage; 15m remains in-scope and data-ready, but current intraday evidence argues for caution before faster expansion.
 
 ## Orchestration / Skills / Prompts Status
 
@@ -100,7 +102,7 @@ Protected unless a package explicitly authorizes the change and the locked decis
 
 ## Next Expected Package / Immediate Architecture Need
 
-Main Architecture should define the next executable package from current merged repo truth. Do not guess it from stale chat context. The likely next architecture need is a bounded 15m candidate-registration package or a revised intraday hypothesis package that explicitly addresses cost drag, noise, and signal fragility observed in WP-3c, but it is not locked until issued by Main Architecture.
+Main Architecture should define the next executable package from current merged repo truth. Do not guess it from stale chat context. The likely next architecture need is execution of the H-007 through H-010 next-batch baselines, with no trial-log entries until the corresponding execution package runs.
 
 ## Update Discipline
 

@@ -533,12 +533,17 @@ def check_promotion_gates(
     # ---- Gate 5: Cost drag <= 50% of gross PnL ----
     cd = cost_drag(oos)
     drag = cd["cost_drag_fraction"]
-    if math.isnan(drag):
+    gross_pnl = cd["gross_pnl"]
+    if gross_pnl > 0:
+        g5_pass = drag <= 0.50
+        g5_note = ""
+    elif gross_pnl == 0:
         drag = 0.0
         g5_note = "gross_pnl=0, cost drag undefined"
+        g5_pass = False
     else:
-        g5_note = ""
-    g5_pass = drag <= 0.50
+        g5_note = f"gross_pnl={gross_pnl:.2f} <= 0: cost drag undefined/misleading"
+        g5_pass = False
     gates.append(GateResult(
         gate_id=5,
         gate_name="Cost drag <= 50% of gross PnL",

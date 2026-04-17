@@ -116,7 +116,10 @@ WP-4b2 executed H-008 and H-009. The reset batch (H-007..H-010) is fully conclud
 
 - WP-5a pipeline audit completed; see `docs/audits/2026-04-pipeline_audit.md`
 - Audit verdict: MINOR ISSUES (no liquidation model; cost-drag edge cases; all NO-GO verdicts remain valid)
-- Next step: WP-5b bounded fix package recommended before executing H-008/H-009
+- WP-5b pipeline fixes completed; see `docs/fixes/2026-04-pipeline_fixes.md`
+- F-001 bounded-equity / liquidation: fixed
+- F-002 Gate 5 pass/fail for non-positive gross_pnl: fixed
+- All 10 existing overall NO-GO verdicts preserved (logical argument, Section 3 of fix report); Gate 3/5 pass/fail assignments for individual trials may differ post-fix, which is expected
 
 ## Update Discipline
 

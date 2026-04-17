@@ -110,6 +110,10 @@ Protected unless a package explicitly authorizes the change and the locked decis
 
 WP-4b1 executed H-007 and H-010. The likely next architecture need is WP-4b2 execution of H-008 and H-009, unless Main Architecture pauses after the renewed 4h Cold Storage result.
 
+- WP-5a pipeline audit completed; see `docs/audits/2026-04-pipeline_audit.md`
+- Audit verdict: MINOR ISSUES (no liquidation model; cost-drag edge cases; all NO-GO verdicts remain valid)
+- Next step: WP-5b bounded fix package recommended before executing H-008/H-009
+
 ## Update Discipline
 
 - Read this file first.

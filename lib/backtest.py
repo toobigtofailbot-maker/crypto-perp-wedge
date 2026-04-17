@@ -65,6 +65,8 @@ class BacktestResult:
     skipped_bars: int                # D2-003A: number of bars skipped
     skipped_bar_timestamps: list     # audit trail of skipped bar timestamps
     params: dict                     # snapshot of run parameters
+    liquidated: bool = False         # True when equity is floored at zero
+    liquidation_timestamp: Optional[pd.Timestamp] = None
 
 
 # ---------------------------------------------------------------------------
@@ -242,6 +244,8 @@ def run_backtest(
 
     skipped_bars: list = []
     trades: list[dict] = []
+    liquidated = False
+    liquidation_timestamp: Optional[pd.Timestamp] = None
 
     # We need to track position value for funding calculations.
     # Assume 1-contract sizing: position_value = abs(position) * fill_price.
@@ -329,9 +333,42 @@ def run_backtest(
         else:
             unrealized = 0.0
 
-        equity_curve_vals[i] = equity + unrealized
+        marked_equity = equity + unrealized
+        if marked_equity <= 0.0:
+            liquidated = True
+            liquidation_timestamp = bar_ts
+            prev_equity = equity_curve_vals[i - 1] if i > 0 else initial_equity
+
+            if position != 0:
+                liquidation_realized = -equity
+                liquidation_price = entry_fill_price + (liquidation_realized / position)
+                total_realized += liquidation_realized
+                trades.append({
+                    "entry_bar": bars[entry_bar_idx],
+                    "exit_bar": bar_ts,
+                    "direction": position,
+                    "entry_price": entry_fill_price,
+                    "exit_price": liquidation_price,
+                    "gross_pnl": liquidation_realized,
+                    "fees": 0.0,
+                    "slippage": 0.0,
+                    "net_pnl": liquidation_realized,
+                })
+                position = 0
+                entry_fill_price = 0.0
+
+            equity = 0.0
+            unrealized = 0.0
+            equity_curve_vals[i] = 0.0
+            per_bar_pnl_vals[i] = -prev_equity
+            if i + 1 < n:
+                equity_curve_vals[i + 1:] = 0.0
+                per_bar_pnl_vals[i + 1:] = 0.0
+            break
+
+        equity_curve_vals[i] = marked_equity
         per_bar_pnl_vals[i] = (
-            equity + unrealized - (equity_curve_vals[i - 1] if i > 0 else initial_equity)
+            marked_equity - (equity_curve_vals[i - 1] if i > 0 else initial_equity)
         )
 
     # ---- Close any open position at last bar's close ----
@@ -375,4 +412,6 @@ def run_backtest(
         skipped_bars=len(skipped_bars),
         skipped_bar_timestamps=skipped_bars,
         params=params_snapshot,
+        liquidated=liquidated,
+        liquidation_timestamp=liquidation_timestamp,
     )

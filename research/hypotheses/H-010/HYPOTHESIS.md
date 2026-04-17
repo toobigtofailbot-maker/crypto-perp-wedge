@@ -5,7 +5,7 @@ H-010
 
 ## Metadata
 - Created: 2026-04-16
-- Status: DRAFT
+- Status: CONCLUDED
 - Owner: WP-4a
 
 ## Economic Rationale
@@ -121,11 +121,12 @@ EXECUTION ASSUMPTION:
 - **Conservative estimate: 9-13 trials**
 
 ## Artefacts
-- Notebook: `research/hypotheses/H-010/experiment.ipynb` (to be created by execution package)
-- Decision record: `research/decisions/DEC-0010.md` (to be created after evaluation)
+- Notebook: `research/hypotheses/H-010/experiment.ipynb`
+- Decision record: `research/decisions/DEC-0010.md`
 
 ## Decision Record
-- Outcome: TBD
+- Outcome: NO-GO
+- Decision record: `research/decisions/DEC-0010.md`
 
 ## Notes
 - This hypothesis must remain basis/premium based. It should not be implemented as price-band mean reversion.

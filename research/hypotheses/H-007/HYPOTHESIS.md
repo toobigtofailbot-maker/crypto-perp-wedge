@@ -5,7 +5,7 @@ H-007
 
 ## Metadata
 - Created: 2026-04-16
-- Status: DRAFT
+- Status: CONCLUDED
 - Owner: WP-4a
 
 ## Economic Rationale
@@ -116,11 +116,12 @@ EXECUTION ASSUMPTION:
 - **Conservative estimate: 9-13 trials**
 
 ## Artefacts
-- Notebook: `research/hypotheses/H-007/experiment.ipynb` (to be created by execution package)
-- Decision record: `research/decisions/DEC-0007.md` (to be created after evaluation)
+- Notebook: `research/hypotheses/H-007/experiment.ipynb`
+- Decision record: `research/decisions/DEC-0007.md`
 
 ## Decision Record
-- Outcome: TBD
+- Outcome: NO-GO
+- Decision record: `research/decisions/DEC-0007.md`
 
 ## Notes
 - This hypothesis reopens 4h planning only because it is materially different from H-001 and H-002.

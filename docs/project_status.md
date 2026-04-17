@@ -114,6 +114,10 @@ Protected unless a package explicitly authorizes the change and the locked decis
 
 WP-4b2 executed H-008 and H-009. The reset batch (H-007..H-010) is fully concluded with zero passing candidates. All tested timeframes (1d, 4h, 1h, 30m) are now in Cold Storage. The next architecture decision point is whether to: (a) expand to 15m with a new hypothesis that addresses structural cost drag, (b) pivot to a different asset/data procurement path, or (c) pause for a broader direction review before further hypothesis registration.
 
+- WP-5a pipeline audit completed; see `docs/audits/2026-04-pipeline_audit.md`
+- Audit verdict: MINOR ISSUES (no liquidation model; cost-drag edge cases; all NO-GO verdicts remain valid)
+- Next step: WP-5b bounded fix package recommended before executing H-008/H-009
+
 ## Update Discipline
 
 - Read this file first.

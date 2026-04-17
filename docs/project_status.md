@@ -20,7 +20,7 @@ Startup read order:
 
 - Phase 1 is closed.
 - Phase 2 baseline is locked in `docs/onboarding/PHASE2_BASELINE.md`.
-- WP-1a Batch 1, WP-1a Batch 2 corrected, WP-1b, WP-1c, the current-state-anchor package, OPS-02, WP-2b, WP-2c, WP-3b, WP-3c, and WP-4a are merged to `main`.
+- WP-1a Batch 1, WP-1a Batch 2 corrected, WP-1b, WP-1c, the current-state-anchor package, OPS-02, WP-2b, WP-2c, WP-3b, WP-3c, and WP-4a are merged to `main`; WP-4b1 is in execution.
 - Current repo state is research-first: validate or kill BTCUSDT perp strategy hypotheses without weakening protected execution boundaries.
 
 ## Key Architecture References
@@ -67,15 +67,21 @@ Protected unless a package explicitly authorizes the change and the locked decis
 - Promotion gates, DSR/trial-log discipline, and pre-registration remain the overfitting firewall.
 - Final Strategy v1 is not locked.
 - Long-term research direction targets a multi-strategy, multi-timeframe portfolio rather than concentration in a single strategy or timeframe.
-- H-001 and H-002 are CONCLUDED / NO-GO after 4h baseline execution; 4h is in Cold Storage.
+- H-001 and H-002 are CONCLUDED / NO-GO after 4h baseline execution.
 - H-003 and H-004 are CONCLUDED / NO-GO after 1d baseline execution; 1d is in Cold Storage.
 - H-005 is CONCLUDED / NO-GO after 1h baseline execution.
 - H-006 is CONCLUDED / NO-GO after 30m baseline execution.
 - WP-3b created DEC-0003 and DEC-0004 and grew `research/trial_log.jsonl` from 2 to 4 rows.
 - WP-3c created DEC-0005 and DEC-0006 and grew `research/trial_log.jsonl` from 4 to 6 rows.
 - WP-4a created the H-001 through H-006 failure analysis, documented alternative families, and registered H-007 through H-010 without new backtests or trial-log entries.
+- WP-4b1 executed H-007 and H-010 4h cross-stream baselines, created DEC-0007 and DEC-0010, and grew `research/trial_log.jsonl` from 6 to 8 rows.
+- H-007 is CONCLUDED / NO-GO after 4h funding + momentum baseline execution.
+- H-010 is CONCLUDED / NO-GO after 4h basis / premium mean-reversion baseline execution.
+- Hypothesis status count: 8 CONCLUDED / NO-GO; 2 DRAFT / pending (H-008 and H-009).
+- 4h is back in Cold Storage after H-007 and H-010 also failed D2-006 promotion gates.
+- Brief phase note: WP-4b1 executed; WP-4b2 pending.
 - H-008 replaced the initially considered volatility-scaling concept because current backtester signal handling does not support true fractional exposure without code changes.
-- Current candidate map: H-007 4h funding + momentum composite; H-008 1h premium-confirmed momentum continuation; H-009 30m multi-timeframe trend alignment; H-010 4h basis / premium mean reversion. 1d remains Cold Storage; 15m remains in-scope and data-ready, but current intraday evidence argues for caution before faster expansion.
+- Current candidate map: H-008 1h premium-confirmed momentum continuation and H-009 30m multi-timeframe trend alignment remain pending for WP-4b2. 4h and 1d are in Cold Storage; 15m remains in-scope and data-ready, but current intraday evidence argues for caution before faster expansion.
 
 ## Orchestration / Skills / Prompts Status
 
@@ -94,7 +100,7 @@ Protected unless a package explicitly authorizes the change and the locked decis
 
 ## Current Open Risks / Architecture Questions
 
-- Whether any future active intraday candidate can pass baseline gates after H-005/H-006 failed on 1h / 30m, following H-001/H-002 failures on 4h and H-003/H-004 failures on 1d.
+- Whether any future active intraday candidate can pass baseline gates after H-005/H-006 failed on 1h / 30m, following H-001/H-002/H-007/H-010 failures on 4h and H-003/H-004 failures on 1d.
 - How to expand 15m candidate registration without weakening cost-drag, overfitting, or promotion-gate discipline, given negative 1h / 30m intraday evidence.
 - How candidates that survive research gates will be wrapped for shadow mode.
 - How to keep trial-log discipline tight while allowing useful exploratory EDA.
@@ -102,7 +108,7 @@ Protected unless a package explicitly authorizes the change and the locked decis
 
 ## Next Expected Package / Immediate Architecture Need
 
-Main Architecture should define the next executable package from current merged repo truth. Do not guess it from stale chat context. The likely next architecture need is execution of the H-007 through H-010 next-batch baselines, with no trial-log entries until the corresponding execution package runs.
+WP-4b1 executed H-007 and H-010. The likely next architecture need is WP-4b2 execution of H-008 and H-009, unless Main Architecture pauses after the renewed 4h Cold Storage result.
 
 ## Update Discipline
 

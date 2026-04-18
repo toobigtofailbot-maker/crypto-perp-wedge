@@ -7,11 +7,23 @@
 
 ---
 
+## Phase 2 Direction Update (Locked clarification)
+
+Phase 2 remains research-first, but the accepted path is no longer forced to be candidate-first with research infrastructure deferred until after Strategy v1. Phase 2 now explicitly includes a candidate-agnostic research machine foundation tranche for systematic BTCUSDT candidate discovery, testing, comparison, and later human-gated promotion.
+
+This clarification does not weaken the protected deterministic execution core, does not lock Strategy v1 now, and does not convert the project into agentic execution. OMS truth, reconciliation truth, kill-switch semantics, D-0001 hard caps, overlay bounds, paper ledger accounting, and runtime decision paths remain protected.
+
+The immediate next architecture work may include bounded research-process foundations such as a candidate registry, experiment artifact schemas, evidence/report conventions, pipeline foundation work, and later bounded research-agent interfaces. Candidate execution resumes through that broader research machine rather than being the only organizing principle of the phase.
+
+H-011 and future hypotheses remain valid backlog candidates, but no single candidate is automatically the central next move. Strategy v1 lock-in is deferred until structured evidence supports selection, ranking, shadow readiness, and human approval.
+
+---
+
 ## Purpose
 
 This document locks the Phase 2 architecture, operating model, and execution direction for the BTCUSDT USDT-M perpetual futures trading system. It defines what Phase 2 is, what it is not, what changed relative to Phase 1, and what remains protected.
 
-Phase 2 is a **research program**, not an infrastructure program. Its job is to answer one question: *is there a tradeable edge in BTCUSDT perpetual futures at the locked timeframes, net of realistic costs, passing objective promotion gates?*
+Phase 2 is a **research program**, not a runtime-infrastructure expansion program. Its job is to answer one question: *is there a tradeable edge in BTCUSDT perpetual futures at the locked timeframes, net of realistic costs, passing objective promotion gates?* Candidate-agnostic research machine foundations are in scope when they directly improve disciplined candidate discovery, evidence collection, comparison, or human-gated promotion without touching protected execution.
 
 ---
 
@@ -36,11 +48,11 @@ Each decision below is structured as: **What changes / Why / Trade-offs / What r
 
 ### D2-001 — Research-first, infrastructure-second
 
-- **What changes:** Phase 2 is an alpha research program, not an infrastructure program. Engineering effort is gated on "does this unblock a hypothesis test?" If the answer is no, it is deferred.
+- **What changes:** Phase 2 is an alpha research program, not a runtime-infrastructure program. Engineering effort is gated on "does this improve disciplined BTC candidate research, evidence quality, comparison, or promotion readiness?" If the answer is no, it is deferred. Candidate-agnostic research machine foundations are allowed under that gate.
 - **Why:** Phase 1 built sound infrastructure with zero validated strategies. Continuing to refine plumbing before testing alpha inverts the professional quant workflow and burns the scarcest resource (team attention).
-- **Trade-offs:** Less architectural elegance in the short term; some Phase 1 polish work is deliberately left undone. In exchange, we get validated or killed hypotheses within weeks instead of months.
+- **Trade-offs:** Less architectural elegance in the protected runtime in the short term; some Phase 1 polish work is deliberately left undone. In exchange, we get validated or killed hypotheses and reusable research evidence flow without prematurely locking Strategy v1.
 - **What remains protected:** D-0001 hard risk caps, OMS state machine semantics, reconciliation truth rules, kill-switch, overlay bounds {ALLOW, ALLOW_REDUCED=0.5, BLOCK} + fail-open, event log schema.
-- **Implementation impact:** All work packages are measured by "hypotheses tested per week," not "files written per week."
+- **Implementation impact:** Work packages are measured by research evidence quality, candidate throughput, and promotion-readiness clarity, not "files written per week" or runtime polish.
 
 ---
 
@@ -258,17 +270,18 @@ The following are never modified without an explicit Decision Change entry in `d
 2. **WP-1a — Data foundation.** Full BTCUSDT history from `data.binance.vision` plus funding from Binance REST. Split into batches: Batch 1 (1h/4h OHLCV + funding), Batch 2 (15m, 30m, 1d + mark/index/premium index).
 3. **WP-1b — Research workbench.** `lib/backtest.py`, `lib/evaluation.py` (with DSR and promotion-gate checker), `research/trial_log.jsonl` initialized. DuckDB and Polars added as dependencies.
 4. **WP-1c — Agent and tooling setup.** Graphify index, Superpowers plugin, `.claude/agents/` definitions for the four roles, `.claude/skills/` scaffolding, Advisor Strategy configured, `prompts/` templates.
-5. **WP-2 — First two hypotheses tested end-to-end.** Trend-following and funding carry, each pre-registered under `research/hypotheses/`. Full evaluation suite. Decision records in `research/decisions/`.
-6. **WP-3 — First shadow deployment + promotion pipeline formalization.** Surviving candidate wrapped as `SignalProvider`, plugged into paper runtime in shadow mode, 14+ day run, parity report.
-7. **WP-4 onward.** One hypothesis per week, each following the WP-2 → WP-3 path.
+5. **WP-2 through WP-5b — Baseline hypothesis execution, audit, and bounded pipeline fixes.** H-001 through H-010 were tested and concluded NO-GO; the research pipeline was audited and bounded fixes were applied without changing existing overall NO-GO verdicts.
+6. **PRE-WP-6a / WP-6a onward — Research machine foundations before Strategy v1 lock-in.** Candidate registry, experiment artifact schemas, bounded research-process infrastructure, and later bounded research-agent interfaces may be built before the next candidate-specific execution package.
+7. **Later Phase 2 — Multi-candidate evaluation and promotion path.** Candidate discovery, testing, comparison, ranking, and human-gated promotion feed eventual Strategy v1 selection and shadow work when evidence justifies it.
 
-**Phase 2 exit condition:** either a candidate has passed shadow and is ready for Phase 3 staged-live, or we have statistical evidence that 1h–4h bar strategies on BTCUSDT perp do not carry exploitable edge at our cost assumptions, and we pivot deliberately.
+**Phase 2 exit condition:** either a candidate has passed shadow and is ready for Phase 3 staged-live, or the candidate-agnostic research machine has produced enough structured evidence to support deliberate Strategy v1 selection, revision, discard, or pivot.
 
 ---
 
 ## What Phase 2 is NOT
 
-- Not an infrastructure refinement program.
+- Not a protected-runtime infrastructure refinement program.
+- Not immediate Strategy v1 lock-in.
 - Not a platform migration (no NautilusTrader in Phase 2).
 - Not a multi-venue effort.
 - Not an agentic execution effort. Execution remains deterministic and human-controlled.
@@ -280,5 +293,6 @@ The following are never modified without an explicit Decision Change entry in `d
 ## Change log
 
 - **Initial lock** — WP-0 baseline lock PR. Decisions D2-001 through D2-017 locked. D2-008 overlay addendum locked in `docs/decisions.md` in the same PR.
+- **PRE-WP-6a direction clarification (D2-018)** — Candidate-agnostic research machine foundation work is explicitly in scope before Strategy v1 lock-in; protected deterministic execution core remains unchanged.
 
 Any future change to this document requires a new Decision Change entry in `docs/decisions.md` and an updated change log line here.

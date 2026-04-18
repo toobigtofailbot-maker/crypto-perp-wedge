@@ -2,7 +2,7 @@
 
 ## What This Repo Is
 
-A BTCUSDT Binance USDT-M perpetual futures trading system with a deterministic paper/runtime foundation and a Phase 2 research/workbench layer. Phase 1 built the protected paper-safe foundation; Phase 2 tests strategy hypotheses across the locked timeframe set: `15m`, `30m`, `1h`, `4h`, `1d`.
+A BTCUSDT Binance USDT-M perpetual futures trading system with a deterministic paper/runtime foundation and a Phase 2 research/workbench layer. Phase 1 built the protected paper-safe foundation; Phase 2 now includes a candidate-agnostic research machine for discovering, testing, comparing, and later promoting strategy candidates across the locked timeframe set: `15m`, `30m`, `1h`, `4h`, `1d`.
 
 ## Hard Startup Sequence
 
@@ -27,8 +27,11 @@ Execution-critical truth must remain deterministic and auditable:
 ## Phase 2 Rules
 
 - Phase 2 is research-first, not runtime-refactor-first.
+- Current next-step direction is candidate-agnostic research machine foundation work: registry, schemas, pipeline foundations, and bounded research interfaces.
+- Strategy v1 is not locked now. Candidate selection and promotion remain future human-gated decisions based on structured evidence.
 - No single global primary timeframe is fixed for research candidates.
 - Strategy candidates must declare their primary timeframe, and any allowed confirmation timeframes, within the locked set before testing.
+- The model should support ongoing strategy discovery, comparison, ranking, and later bounded promotion rather than anchoring on one immediate candidate.
 - The paper runtime remains protected until an explicitly scoped shadow/promotion package authorizes additive work.
 
 ## If Something Does Not Line Up

@@ -1,0 +1,118 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crypto-perp-wedge.local/research/schemas/experiment_plan.schema.json",
+  "title": "Experiment Plan",
+  "description": "JSON artifact that pre-registers a research experiment for a candidate.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "plan_id",
+    "candidate_id",
+    "plan_type",
+    "rationale",
+    "hypothesis_to_test",
+    "success_criteria",
+    "evaluation_window",
+    "parameters",
+    "data_requirements",
+    "pre_registration_date",
+    "author",
+    "human_approval_required"
+  ],
+  "properties": {
+    "plan_id": {
+      "description": "Stable experiment plan identifier.",
+      "type": "string",
+      "pattern": "^EXP-[0-9]{4}$"
+    },
+    "candidate_id": {
+      "description": "Candidate registry identifier.",
+      "type": "string",
+      "pattern": "^H-[0-9]{3}$"
+    },
+    "plan_type": {
+      "description": "Experiment class.",
+      "type": "string",
+      "enum": [
+        "baseline",
+        "sensitivity_sweep",
+        "walk_forward",
+        "monte_carlo",
+        "paper_validation",
+        "regime_conditional",
+        "comparison",
+        "other"
+      ]
+    },
+    "rationale": {
+      "description": "Why this plan exists and what question it answers.",
+      "type": "string",
+      "minLength": 1
+    },
+    "hypothesis_to_test": {
+      "description": "Falsifiable statement under test.",
+      "type": "string",
+      "minLength": 1
+    },
+    "success_criteria": {
+      "description": "Gate references and additional criteria for the plan.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["gates", "additional_criteria"],
+      "properties": {
+        "gates": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "additional_criteria": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "evaluation_window": {
+      "description": "Evaluation windows for the experiment. Null values are allowed when the repo has not yet formalized a split.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["in_sample", "out_of_sample"],
+      "properties": {
+        "in_sample": { "$ref": "#/definitions/window" },
+        "out_of_sample": { "$ref": "#/definitions/window" }
+      }
+    },
+    "parameters": {
+      "description": "Candidate-specific parameter object.",
+      "type": "object"
+    },
+    "data_requirements": {
+      "description": "Data catalog references or named streams required by this plan.",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "pre_registration_date": {
+      "description": "ISO date when the plan was pre-registered.",
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "author": {
+      "description": "Person or package that authored the plan.",
+      "type": "string",
+      "minLength": 1
+    },
+    "human_approval_required": {
+      "description": "True for live-affecting, risk-parameter, or first-promotion changes.",
+      "type": "boolean"
+    }
+  },
+  "definitions": {
+    "window": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start", "end"],
+      "properties": {
+        "start": { "type": ["string", "null"] },
+        "end": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

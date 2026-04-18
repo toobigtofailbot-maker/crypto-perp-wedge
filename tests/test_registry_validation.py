@@ -42,6 +42,25 @@ def _valid_registry_row() -> dict:
     }
 
 
+def _reserved_slot_row() -> dict:
+    return {
+        "candidate_id": "H-011",
+        "name": "BTC/Gold relative-strength regime signal (reserved)",
+        "status": "DRAFT",
+        "overall_verdict": "PENDING",
+        "strategy_family": "cross_asset_regime",
+        "timeframe": "weekly",
+        "information_inputs": [],
+        "free_parameter_count": None,
+        "hypothesis_md_path": None,
+        "decision_record_path": None,
+        "trial_ids": [],
+        "pipeline_stage": "reserved",
+        "created_at": "2026-04-18",
+        "updated_at": "2026-04-18",
+    }
+
+
 def test_valid_backfill_like_row_passes():
     errors = _validate(REGISTRY_SCHEMA_PATH, _valid_registry_row())
     assert errors == []
@@ -76,26 +95,38 @@ def test_conflicting_status_and_verdict_fails():
 
 
 def test_reserved_h011_shape_passes():
-    row = {
-        "candidate_id": "H-011",
-        "name": "BTC/Gold relative-strength regime signal (reserved)",
-        "status": "DRAFT",
-        "overall_verdict": "PENDING",
-        "strategy_family": "cross_asset_regime",
-        "timeframe": "weekly",
-        "information_inputs": [],
-        "free_parameter_count": None,
-        "hypothesis_md_path": None,
-        "decision_record_path": None,
-        "trial_ids": [],
-        "pipeline_stage": "reserved",
-        "created_at": "2026-04-18",
-        "updated_at": "2026-04-18",
-    }
+    row = _reserved_slot_row()
 
     errors = _validate(REGISTRY_SCHEMA_PATH, row)
 
     assert errors == []
+
+
+def test_reserved_slot_rejects_decision_record_path():
+    row = _reserved_slot_row()
+    row["decision_record_path"] = "research/decisions/DEC-0001.md"
+
+    errors = _validate(REGISTRY_SCHEMA_PATH, row)
+
+    assert any("is not of type 'null'" in error for error in errors)
+
+
+def test_reserved_slot_rejects_trial_ids():
+    row = _reserved_slot_row()
+    row["trial_ids"] = ["ea334eac-fd82-4d65-9457-09d3a4141fc6"]
+
+    errors = _validate(REGISTRY_SCHEMA_PATH, row)
+
+    assert any("is expected to be empty" in error for error in errors)
+
+
+def test_reserved_slot_rejects_hypothesis_md_path():
+    row = _reserved_slot_row()
+    row["hypothesis_md_path"] = "research/hypotheses/H-001/HYPOTHESIS.md"
+
+    errors = _validate(REGISTRY_SCHEMA_PATH, row)
+
+    assert any("is not of type 'null'" in error for error in errors)
 
 
 def test_current_registry_passes():

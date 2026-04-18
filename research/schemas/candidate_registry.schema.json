@@ -164,6 +164,23 @@
           "status": { "enum": ["CONCLUDED", "ARCHIVED", "PROMOTED"] }
         }
       }
+    },
+    {
+      "if": {
+        "properties": {
+          "pipeline_stage": { "const": "reserved" }
+        },
+        "required": ["pipeline_stage"]
+      },
+      "then": {
+        "properties": {
+          "status": { "const": "DRAFT" },
+          "overall_verdict": { "const": "PENDING" },
+          "hypothesis_md_path": { "type": "null" },
+          "decision_record_path": { "type": "null" },
+          "trial_ids": { "maxItems": 0 }
+        }
+      }
     }
   ]
 }

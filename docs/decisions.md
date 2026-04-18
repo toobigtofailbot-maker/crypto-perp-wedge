@@ -257,6 +257,7 @@ The following decisions are locked for Phase 2. Full details in `docs/onboarding
 | D2-015 | Multi-timeframe confirmation rules |
 | D2-016 | Research Agent advisory briefs only |
 | D2-017 | Cold storage for failed timeframes |
+| D2-018 | Decision Change: Phase 2 research machine direction clarification |
 
 ### D2-003A — Irreparable official-source gap policy
 
@@ -281,3 +282,58 @@ hold per (stream, interval) file:
   blockage on a category of gaps that is structurally bounded and documented.
   Change protocol: modifying thresholds requires a new Decision Change
   entry.
+
+### D2-018 — Decision Change: Phase 2 research machine direction clarification
+
+**Status:** LOCKED
+**Decision ID:** D2-018
+**Date:** 2026-04-17
+**Scope:** Phase 2 direction clarification; updates `docs/onboarding/PHASE2_BASELINE.md`
+**References:** D2-001, D2-004, D2-005, D2-006, D2-007, D2-011, D2-012, D2-017
+
+#### What changed (old -> new)
+
+Old: Phase 2 could be read as candidate-first, with research infrastructure deferred until after Strategy v1 selection.
+
+New: Phase 2 remains research-first, but candidate-agnostic research machine foundation work is explicitly in scope before Strategy v1 lock-in when it improves disciplined candidate discovery, evidence collection, testing, comparison, ranking, or human-gated promotion.
+
+#### Authorized by this change
+
+- Candidate registry foundation work.
+- Experiment artifact schemas for plans, reports, evidence, and decisions.
+- Bounded research-process foundation work for systematic multi-candidate research.
+- Later bounded research automation above the protected deterministic execution core.
+
+#### What remains protected
+
+- OMS truth.
+- Reconciliation truth.
+- Kill-switch semantics.
+- D-0001 hard caps.
+- Bounded overlay semantics.
+- Paper ledger accounting and execution-critical runtime behavior.
+- No agentic execution, autonomous risk changes, or automated promotion authority.
+
+#### What this does not authorize
+
+- Strategy v1 lock-in now.
+- H-011 execution or pre-registration now.
+- Runtime, OMS, reconciliation, overlay, or risk-cap changes.
+- Automatic promotion from research to shadow or live.
+- Changes to D2-006 promotion gate thresholds.
+
+#### Why
+
+H-001 through H-010 produced no promotable candidate, and WP-5a/WP-5b established an audited and bounded research instrument. The repo now needs reusable structure for candidate discovery, evidence capture, comparison, and later human-gated promotion before more candidate-specific execution work becomes the default next step.
+
+#### Trigger conditions
+
+This change applies only to docs and later explicitly scoped research-machine foundation packages. Any package that touches protected execution, risk, OMS, reconciliation, overlay semantics, promotion thresholds, trial logs, hypotheses, decisions, or runtime behavior still requires its own explicit authorization.
+
+#### Effective date
+
+2026-04-17
+
+#### Backtest / paper validation plan
+
+None. This is a docs-only Phase 2 direction clarification and does not affect risk, execution, backtest results, paper runtime behavior, or live behavior.

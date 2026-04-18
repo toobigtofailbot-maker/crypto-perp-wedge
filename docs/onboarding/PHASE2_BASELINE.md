@@ -293,6 +293,6 @@ The following are never modified without an explicit Decision Change entry in `d
 ## Change log
 
 - **Initial lock** — WP-0 baseline lock PR. Decisions D2-001 through D2-017 locked. D2-008 overlay addendum locked in `docs/decisions.md` in the same PR.
-- **PRE-WP-6a direction clarification** — Candidate-agnostic research machine foundation work is explicitly in scope before Strategy v1 lock-in; protected deterministic execution core remains unchanged.
+- **PRE-WP-6a direction clarification (D2-018)** — Candidate-agnostic research machine foundation work is explicitly in scope before Strategy v1 lock-in; protected deterministic execution core remains unchanged.
 
 Any future change to this document requires a new Decision Change entry in `docs/decisions.md` and an updated change log line here.

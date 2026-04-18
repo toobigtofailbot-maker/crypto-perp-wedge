@@ -8,11 +8,17 @@ This document records architecture direction that should guide future execution 
 
 ## Current Position
 
-The repo is in Phase 2 research execution. Phase 2 remains research-first: validate or kill pre-registered BTCUSDT perpetual strategy hypotheses before expanding runtime scope.
+The repo is in Phase 2 research execution. Phase 2 remains research-first: validate or kill BTCUSDT perpetual strategy candidates before expanding runtime scope.
 
-The long-term target is a multi-strategy, multi-timeframe portfolio rather than a single winner-takes-all strategy. All locked Phase 2 timeframes remain in consideration for candidate research, with 4h in Cold Storage for now after H-001 and H-002 failed baseline gates.
+The long-term target is a multi-strategy, multi-timeframe portfolio rather than a single winner-takes-all strategy. The current accepted direction adds a candidate-agnostic research machine buildout tranche before Strategy v1 lock-in.
 
 The deterministic execution core remains protected. OMS truth, reconciliation truth, kill-switch semantics, D-0001 hard risk caps, overlay bounds, paper ledger accounting, and event-log discipline remain outside normal research automation authority.
+
+## Research Machine Buildout
+
+The repo has accepted a near-term candidate-agnostic research machine buildout tranche. Its priority is foundation work for systematic candidate discovery, testing, comparison, ranking, and later human-gated promotion.
+
+This layer sits above the protected deterministic execution core. It may define registry, schema, artifact, query, and bounded research automation foundations, but it does not weaken OMS, reconciliation, kill-switch, risk-cap, overlay, paper ledger, event-log, or runtime decision semantics.
 
 ## Forward Roadmap
 

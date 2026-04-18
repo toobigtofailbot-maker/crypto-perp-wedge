@@ -1,35 +1,39 @@
 # Open Questions (Phase 2)
 
-## Strategy
+Phase 2 now includes candidate-agnostic research machine foundation work before Strategy v1 lock-in. These questions should guide registry, schema, pipeline, and bounded research automation packages without changing protected execution semantics.
 
-**RESOLVED:** Strategy families and feature sets are addressed by D2-001 (research-first), D2-002 (lightweight backtester), D2-006 (≤5 free parameters gate). See `docs/onboarding/PHASE2_BASELINE.md`.
+## Candidate Registry
 
-* Which 2–3 strategy families should we test first (non-HFT, 1h–4h disciplined)?
-* What is the minimal feature set per candidate (avoid feature sprawl)?
-* How do we define confidence/ranking outputs without overfitting?
+* What fields are required to track a candidate before, during, and after hypothesis pre-registration?
+* How should candidate stages be represented: backlog, draft, registered, running, concluded, ranked, shadow-ready, archived?
+* How should H-011-style future candidates be tracked without making them the organizing principle or bypassing pre-registration?
 
-## Evaluation / promotion
+## Experiment Artifacts
 
-**RESOLVED:** Promotion gates and time windows are locked in D2-006 and D2-007. See `docs/onboarding/PHASE2_BASELINE.md`.
+* What structured fields belong in experiment plans before a run is eligible for trial-log entry?
+* What report schema should capture metrics, gate results, failure modes, data references, and decision links?
+* How should artifact hashes, dataset provenance, and irreparable-gap handling be represented for repeatable multi-candidate work?
 
-* What are paper promotion gates (DD, turnover, stability, parity checks)?
-* What time windows/regimes must be covered before any promotion?
+## Comparison / Ranking
 
-## Data / context
+* What evidence fields are safe to compare across candidates without creating an overfitting leaderboard?
+* How should ranking distinguish raw performance, robustness, cost drag, parameter stability, regime concentration, and implementation readiness?
+* How should concluded NO-GO evidence remain visible so future work does not retest near-duplicates accidentally?
 
-**RESOLVED:** Data sourcing and timeframes are locked in D2-003 and D2-013. See `docs/onboarding/PHASE2_BASELINE.md`.
+## Bounded Research Automation
 
-* Do we upgrade to 15m canonical base later, or stay 1h/4h for v1?
-* Which context features are allowed to influence trade permission beyond the current macro windows?
+* Which bounded agent interfaces are needed first: registry drafting, artifact validation, report assembly, candidate comparison, or evidence summarization?
+* What permissions and output contracts keep bounded research automation out of execution, risk, and promotion authority?
+* How should automation support exploratory EDA while preserving the distinction between scratch exploration and registered evidence?
 
-## Agents / tools
+## Human-Gated Promotion
 
-**RESOLVED:** Tool adoption/rejection and agent roster are locked in D2-010, D2-011, and D2-012. See `docs/onboarding/PHASE2_BASELINE.md`.
+* What structured artifacts should human reviewers consume before approving shadow readiness or Strategy v1 selection?
+* How should promotion gates consume registry status, experiment reports, trial logs, and decision records without changing D2-006 thresholds?
+* What explicit review checkpoints are required before any candidate can move from research evidence to shadow integration?
 
-* Where do Claude Skills / OpenClaw add real ROI?
-* Which parts remain advisory only vs gated influence?
+## Data / Query Layer
 
-## Operational
-
-* When do we introduce monitoring (Prometheus/Grafana) vs minimal alerts?
-* What is the staged-live plan (small size, incident playbook, rollback)?
+* What query layer is needed for systematic multi-candidate and multi-timeframe analysis over catalogued BTCUSDT data?
+* How should pipeline foundations expose data readiness, known gaps, and timeframe status without duplicating repo truth?
+* What summaries should be generated for candidate discovery while keeping raw data, notebooks, and audit artifacts out of normal package scope?

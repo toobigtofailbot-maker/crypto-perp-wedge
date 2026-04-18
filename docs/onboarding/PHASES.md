@@ -13,15 +13,18 @@ Includes: scheduling (1h bar close), overlay evaluator, paper broker, determinis
 
 Exit: paper loop runs offline, produces logs + state, passes tests, bounded overlay behavior, no forbidden path drift.
 
-## Phase 2 — Strategy research + strategy definition (starts next)
+## Phase 2 — Research machine + strategy selection (active)
 
-Goal: build an “Aladdin-like” small-scale research and decision-support engine:
+Goal: build a small-scale BTC research and decision-support engine that can discover, test, compare, and later promote strategy candidates without weakening the protected deterministic execution core.
 
-* explore 2–3 serious candidate wedges (not a toy A/B)
-* build evaluation discipline (segmentation, robustness, evidence)
-* define Strategy v1 spec + parameters + promotion gates (paper → staged live)
+Sub-tranches:
 
-Exit (Phase 2): Strategy v1 is locked + implemented + paper-evaluated with a formal promotion gate decision (promote / revise / discard).
+* Phase 2a — Research machine foundations: candidate registry, evidence conventions, and pipeline foundation work.
+* Phase 2b — Bounded research artifacts / interfaces: experiment plans, reports, candidate stages, and bounded research automation surfaces.
+* Phase 2c — Multi-candidate evaluation flow: systematic testing, comparison, and ranking across eligible BTC candidates and timeframes.
+* Phase 2d — Candidate ranking / later Strategy v1 selection: human-gated promotion decisions, shadow readiness, and eventual Strategy v1 lock only after evidence supports it.
+
+Exit (Phase 2): structured research evidence supports a formal human-gated decision to promote, revise, discard, or pivot. Strategy v1 selection remains an eventual Phase 2 outcome, not the immediate next step.
 
 **Phase 2 baseline is locked.** See `docs/onboarding/PHASE2_BASELINE.md` for the authoritative reference containing all locked decisions (D2-001 through D2-017).
 

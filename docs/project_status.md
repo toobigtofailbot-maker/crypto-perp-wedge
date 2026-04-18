@@ -12,7 +12,7 @@ Startup read order:
 
 - Instrument: BTCUSDT Binance USDT-M perpetual.
 - Runtime foundation: deterministic paper/runtime core from Phase 1.
-- Current program: Phase 2 research/workbench progression toward strategy evidence and shadow promotion.
+- Current program: Phase 2 candidate-agnostic research machine progression toward structured BTC strategy evidence, comparison, and later human-gated promotion.
 - Locked Phase 2 timeframe set: `15m`, `30m`, `1h`, `4h`, `1d`.
 - Timeframe rule: no single global primary timeframe is fixed. Each candidate declares its primary timeframe and any allowed confirmation timeframes before testing.
 
@@ -20,12 +20,15 @@ Startup read order:
 
 - Phase 1 is closed.
 - Phase 2 baseline is locked in `docs/onboarding/PHASE2_BASELINE.md`.
-- WP-1a Batch 1, WP-1a Batch 2 corrected, WP-1b, WP-1c, the current-state-anchor package, OPS-02, WP-2b, WP-2c, WP-3b, WP-3c, WP-4a, and WP-4b1 are merged to `main`; WP-4b2 is in execution.
-- Current repo state is research-first: validate or kill BTCUSDT perp strategy hypotheses without weakening protected execution boundaries.
+- WP-1a Batch 1, WP-1a Batch 2 corrected, WP-1b, WP-1c, the current-state-anchor package, OPS-02, WP-2b, WP-2c, WP-3b, WP-3c, WP-4a, WP-4b1, WP-4b2, WP-5a, and WP-5b are merged to `main`.
+- Current repo state is research-first: build a candidate-agnostic BTC research machine for systematic candidate discovery, testing, comparison, and later human-gated promotion without weakening protected execution boundaries.
+- Strategy v1 is not locked. Immediate architecture work may be registry / schemas / pipeline foundations rather than candidate-specific execution.
+- H-011 remains a possible future backlog candidate, not the organizing principle of the next architecture step.
 
 ## Key Architecture References
 
 - Long-term roadmap, automation, managed-agent, dashboard, and self-improvement scope is locked in `docs/architecture/LONG_TERM_SCOPE.md`.
+- Accepted research machine direction is documented in `docs/architecture/RESEARCH_MACHINE_DIRECTION.md`.
 
 ## Merged Work Package Ledger
 
@@ -39,6 +42,8 @@ Naming convention: `WP-*` is reserved for Main Architecture research/execution w
 | WP-1b | Merged | PR #20 / `42b450a` | Added research workbench, backtest/evaluation scaffolding, trial log support, and dependencies. |
 | WP-1c | Merged | PR #21 / `f51ec44` | Added orchestration scaffold, agent/skill definitions, and research/evaluation prompt artifacts. |
 | OPS-01 - current-state anchor | Merged | PR #22 / `77d9ec5` | Added this current-state anchor and entrypoint references. |
+| WP-5a pipeline audit | Merged | PR #35 / `032a6d8` | Audited the research instrument and found minor pipeline issues; existing NO-GO verdicts remained valid. |
+| WP-5b pipeline fixes | Merged | PR #36 / `cbb6877` | Fixed bounded-equity / liquidation semantics and Gate 5 pass/fail behavior; preserved all 10 overall NO-GO verdicts. |
 
 ## Locked / Do-Not-Touch Boundaries
 
@@ -64,8 +69,10 @@ Protected unless a package explicitly authorizes the change and the locked decis
 ## Research / Workbench Status
 
 - Phase 2 uses the lightweight research backtester/evaluation path for hypothesis testing.
+- The audited research instrument exists and WP-5b bounded fixes are merged.
 - Promotion gates, DSR/trial-log discipline, and pre-registration remain the overfitting firewall.
 - Final Strategy v1 is not locked.
+- Candidate-agnostic research machine foundation work is now explicitly in scope before Strategy v1 lock-in.
 - Long-term research direction targets a multi-strategy, multi-timeframe portfolio rather than concentration in a single strategy or timeframe.
 - H-001 and H-002 are CONCLUDED / NO-GO after 4h baseline execution.
 - H-003 and H-004 are CONCLUDED / NO-GO after 1d baseline execution; 1d is in Cold Storage.
@@ -104,15 +111,17 @@ Protected unless a package explicitly authorizes the change and the locked decis
 
 ## Current Open Risks / Architecture Questions
 
-- Whether any future active intraday candidate can pass baseline gates after H-005/H-006 failed on 1h / 30m, following H-001/H-002/H-007/H-010 failures on 4h and H-003/H-004 failures on 1d.
-- How to expand 15m candidate registration without weakening cost-drag, overfitting, or promotion-gate discipline, given negative 1h / 30m intraday evidence.
-- How candidates that survive research gates will be wrapped for shadow mode.
-- How to keep trial-log discipline tight while allowing useful exploratory EDA.
-- How to enforce downstream handling of irreparable official-source gaps without silent interpolation.
+- Which fields belong in the candidate registry so future H-011-style candidates can be tracked without pre-registering them prematurely.
+- Which experiment plan and report schemas are required before further multi-candidate work.
+- How candidate stages, ranking, comparison, and evidence status should be represented without weakening DSR/trial-log discipline.
+- Which bounded research-agent interfaces are useful first, while keeping agents out of execution, risk, and promotion authority.
+- What query/data layer is required for systematic multi-candidate work while preserving irreparable-gap handling and provenance.
 
 ## Next Expected Package / Immediate Architecture Need
 
-WP-4b2 executed H-008 and H-009. The reset batch (H-007..H-010) is fully concluded with zero passing candidates. All tested timeframes (1d, 4h, 1h, 30m) are now in Cold Storage. The next architecture decision point is whether to: (a) expand to 15m with a new hypothesis that addresses structural cost drag, (b) pivot to a different asset/data procurement path, or (c) pause for a broader direction review before further hypothesis registration.
+WP-5b is merged and the audited research instrument is suitable for further research. The reset batch (H-007..H-010) is fully concluded with zero passing candidates. All tested timeframes (1d, 4h, 1h, 30m) are now in Cold Storage.
+
+The accepted next architecture tranche is candidate-agnostic research machine foundation work: registry, schemas, evidence/report conventions, and pipeline foundations. The next package class is not immediate Strategy v1 lock-in and not automatic H-011 execution.
 
 - WP-5a pipeline audit completed; see `docs/audits/2026-04-pipeline_audit.md`
 - Audit verdict: MINOR ISSUES (no liquidation model; cost-drag edge cases; all NO-GO verdicts remain valid)

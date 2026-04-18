@@ -80,6 +80,15 @@ def validate_experiment_artifacts(
     known_plan_ids: set[str] = set()
     plan_files = sorted(experiments_dir.rglob("*.plan.json"))
     report_files = sorted(experiments_dir.rglob("*.report.json"))
+    yaml_files = sorted(experiments_dir.rglob("*.plan.yaml")) + sorted(
+        experiments_dir.rglob("*.report.yaml")
+    )
+
+    for path in yaml_files:
+        errors.append(
+            f"{path}: YAML experiment artifacts are unsupported in WP-6a; "
+            "use *.plan.json or *.report.json instead"
+        )
 
     for path in plan_files:
         payload, file_errors = _validate_json_file(path, plan_validator)

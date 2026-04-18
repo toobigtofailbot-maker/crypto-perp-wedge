@@ -204,6 +204,33 @@ def test_experiment_artifact_validator_noops_when_directory_absent(tmp_path):
     assert errors == []
 
 
+def test_experiment_artifact_validator_rejects_plan_yaml(tmp_path):
+    experiments_dir = tmp_path / "research" / "experiments"
+    experiments_dir.mkdir(parents=True)
+    (experiments_dir / "EXP-0001.plan.yaml").write_text("plan_id: EXP-0001\n", encoding="utf-8")
+
+    errors = validate_experiment_artifacts(experiments_dir=experiments_dir)
+
+    assert len(errors) == 1
+    assert "YAML experiment artifacts are unsupported in WP-6a" in errors[0]
+    assert "*.plan.json or *.report.json" in errors[0]
+
+
+def test_experiment_artifact_validator_rejects_report_yaml(tmp_path):
+    experiments_dir = tmp_path / "research" / "experiments"
+    experiments_dir.mkdir(parents=True)
+    (experiments_dir / "REP-0001.report.yaml").write_text(
+        "report_id: REP-0001\n",
+        encoding="utf-8",
+    )
+
+    errors = validate_experiment_artifacts(experiments_dir=experiments_dir)
+
+    assert len(errors) == 1
+    assert "YAML experiment artifacts are unsupported in WP-6a" in errors[0]
+    assert "*.plan.json or *.report.json" in errors[0]
+
+
 def test_concluded_requires_trial_id():
     row = copy.deepcopy(_valid_registry_row())
     row["trial_ids"] = []

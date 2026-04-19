@@ -1,0 +1,110 @@
+{
+  "report_id": "REP-0011",
+  "plan_id": "EXP-0011",
+  "candidate_id": "H-004",
+  "execution_date": "2026-04-19",
+  "trial_ids": [
+    "ecb78d88-eba7-4569-9ca0-5715d69fa80c"
+  ],
+  "metrics": {
+    "in_sample": {
+      "sharpe": 0.746191460507614,
+      "source_field": "trial_log.in_sample_sharpe",
+      "window_convention": "No separate IS/OOS split convention is introduced by WP-6h; this field records the full-period Sharpe from the forward-flow re-execution under the current post-WP-5b pipeline."
+    },
+    "out_of_sample": {
+      "sharpe": 0.746191460507614,
+      "source_field": "trial_log.oos_sharpe",
+      "window_convention": "No separate IS/OOS split convention is introduced by WP-6h; this object records full-period baseline metrics from the actual current H-004 re-execution.",
+      "trial_count_before_append": 10,
+      "trial_count_after_append": 11,
+      "config_sha256": "9f7f97b8ad066f3413a5c199dec239edab3e95eae21eb785591a0496b0035164",
+      "dataset_sha256": "47b91ceac5ae9e472a08c23390ec8a5f6fee9a627a44df11e3557fbace02813d",
+      "max_drawdown": 0.697949870640699,
+      "max_drawdown_peak": "2024-12-08 23:59:59.999000+00:00",
+      "max_drawdown_trough": "2025-11-16 23:59:59.999000+00:00",
+      "n_obs": 2292,
+      "trades": 41,
+      "hit_rate": 0.5365853658536586,
+      "profit_factor": 1.5037466064620668,
+      "final_equity": 49897.77544811701,
+      "total_pnl": 39897.77544811701,
+      "gross_pnl": 53747.65000000001,
+      "fees_paid": 1734.0594600000002,
+      "slippage_paid": 867.0297300000001,
+      "funding_paid": 11248.78536188244,
+      "cost_drag_fraction": 0.2576833508419891,
+      "skipped_bars": 0,
+      "sensitivity_min_ratio": 0.7827681657491495,
+      "dsr": 1.0,
+      "dsr_note": "P(SR>1.0)=1.0000; SR benchmark=0.4979",
+      "walk_forward_efficiency": 1.0,
+      "gates_passed": 5,
+      "gates_total": 8,
+      "short_side_trades": 16,
+      "short_side_net_pnl": 11231.55919600001,
+      "long_side_trades": 25,
+      "long_side_net_pnl": 41206.417530000006
+    }
+  },
+  "gate_results": [
+    {
+      "gate_id": "D2-006-G1: OOS Sharpe >= 1.0",
+      "threshold": 1.0,
+      "observed": 0.7462,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G2: DSR evaluator probability gate",
+      "threshold": "dsr_val > 0.95 vs evaluator SR benchmark",
+      "observed": "1.0; P(SR>1.0)=1.0000; SR benchmark=0.4979",
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G3: Per-fold max DD <= 20%",
+      "threshold": 0.2,
+      "observed": 0.6979,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G4: Parameter sensitivity min_ratio >= 0.70",
+      "threshold": 0.7,
+      "observed": 0.7828,
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G5: Cost drag <= 50% of gross PnL",
+      "threshold": 0.5,
+      "observed": 0.2577,
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G6: No 90-day window > 60% of PnL",
+      "threshold": 0.6,
+      "observed": 0.9901,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G7: <= 5 free parameters",
+      "threshold": 5,
+      "observed": 4,
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G8: Walk-forward efficiency > 0.5",
+      "threshold": 0.5,
+      "observed": 1.0,
+      "pass": true
+    }
+  ],
+  "overall_verdict": "NO-GO",
+  "observations": "This forward-flow report was authored after the actual WP-6h H-004 re-execution, using EXP-0011 as the pre-run plan and trial_id ecb78d88-eba7-4569-9ca0-5715d69fa80c as the current generated trial evidence. The run reproduced the H-004 daily dual moving-average with volatility regime filter under the current post-WP-5b pipeline, with full-period Sharpe 0.746191460507614, max drawdown 0.697949870640699, and 5 of 8 D2-006 gates passing. The report coexists with the historical retrospective H-004 artifacts EXP-0005 and REP-0005, which remain unchanged and continue to describe the earlier WP-3b/WP-6c retrospective evidence.",
+  "next_step_recommendation": "archive",
+  "diagnostic_findings": [
+    "The forward-flow artifact contract worked for an already-known candidate: EXP-0011 was authored before execution, the run generated a new trial_id, and REP-0011 records the actual output.",
+    "H-004 remains a NO-GO under the current post-WP-5b measurement pipeline because OOS Sharpe remains below 1.0, max drawdown remains above 20%, and the 90-day concentration gate remains failed.",
+    "The current run generated the same config and dataset hashes as the historical H-004 trial, supporting a clean historical-versus-current comparison without data procurement or candidate registration.",
+    "Trial count increased from 10 to 11 after exactly one appended H-004 forward-flow trial entry.",
+    "This report does not promote H-004, lock Strategy v1, or reinterpret the historical retrospective H-004 artifacts."
+  ]
+}

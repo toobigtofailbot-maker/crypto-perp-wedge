@@ -18,6 +18,11 @@ for H-005 under `research/experiments/`. See
 `2026-04-retrospective_instance_convention.md` for the convention used when an
 instance is authored after execution.
 
+## Query Layer
+
+`2026-04-query_layer.md` explains the read-only DuckDB query layer over the
+candidate registry, experiment artifacts, and trial log.
+
 ## Relationship To Architecture
 
 This package supports the research-pipeline side of the accepted research

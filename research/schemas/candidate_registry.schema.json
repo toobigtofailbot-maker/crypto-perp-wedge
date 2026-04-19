@@ -1,0 +1,186 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crypto-perp-wedge.local/research/schemas/candidate_registry.schema.json",
+  "title": "Candidate Registry Entry",
+  "description": "One candidate registry row for a strategy hypothesis or reserved candidate slot.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "candidate_id",
+    "name",
+    "status",
+    "overall_verdict",
+    "strategy_family",
+    "timeframe",
+    "information_inputs",
+    "free_parameter_count",
+    "hypothesis_md_path",
+    "decision_record_path",
+    "trial_ids",
+    "pipeline_stage",
+    "created_at",
+    "updated_at"
+  ],
+  "properties": {
+    "candidate_id": {
+      "description": "Stable hypothesis identifier.",
+      "type": "string",
+      "pattern": "^H-[0-9]{3}$"
+    },
+    "name": {
+      "description": "Human-readable candidate name from the hypothesis title or reserved slot.",
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "description": "Current lifecycle status of the candidate.",
+      "type": "string",
+      "enum": ["DRAFT", "CONCLUDED", "ARCHIVED", "PROMOTED"]
+    },
+    "overall_verdict": {
+      "description": "Decision outcome when available; PENDING for drafts and reserved slots.",
+      "type": "string",
+      "enum": ["PENDING", "NO-GO", "PASS", "CONDITIONAL"]
+    },
+    "strategy_family": {
+      "description": "Conservative normalized family label derived from the hypothesis title and rationale.",
+      "type": ["string", "null"],
+      "minLength": 1
+    },
+    "timeframe": {
+      "description": "Primary timeframe declared by the candidate, or reserved timeframe for a slot.",
+      "type": ["string", "null"],
+      "minLength": 1
+    },
+    "information_inputs": {
+      "description": "Normalized information streams used by the candidate. Reserved slots may be empty.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "free_parameter_count": {
+      "description": "Number of free parameters when declared; null for reserved slots or incomplete repo truth.",
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
+    "hypothesis_md_path": {
+      "description": "Path to the candidate HYPOTHESIS.md file, or null for a reserved slot.",
+      "type": ["string", "null"],
+      "minLength": 1
+    },
+    "decision_record_path": {
+      "description": "Path to the decision record, or null before a decision exists.",
+      "type": ["string", "null"],
+      "minLength": 1
+    },
+    "trial_ids": {
+      "description": "Trial-log IDs associated with this candidate.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "pipeline_stage": {
+      "description": "Current stage in the research pipeline. Reserved does not imply pre-registration.",
+      "type": "string",
+      "enum": [
+        "reserved",
+        "pre_registered",
+        "baseline_tested",
+        "sensitivity_tested",
+        "monte_carlo_tested",
+        "paper_validated",
+        "shadow_live",
+        "production_live",
+        "archived"
+      ]
+    },
+    "created_at": {
+      "description": "ISO date when the candidate or reserved slot was created.",
+      "type": ["string", "null"],
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "updated_at": {
+      "description": "ISO date of the latest registry-relevant update.",
+      "type": ["string", "null"],
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "direction_profile": {
+      "description": "Optional directional profile when cleanly derivable.",
+      "type": ["string", "null"],
+      "enum": ["long_only", "short_only", "long_short", "long_flat", "long_flat_short", null]
+    },
+    "notes": {
+      "description": "Short human note about repo-truth limitations or slot status.",
+      "type": "string"
+    },
+    "differentiation_summary": {
+      "description": "One-line summary of what makes the candidate distinct.",
+      "type": "string"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": { "const": "CONCLUDED" }
+        },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "decision_record_path": { "type": "string" },
+          "trial_ids": { "minItems": 1 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "overall_verdict": { "const": "PENDING" }
+        },
+        "required": ["overall_verdict"]
+      },
+      "then": {
+        "properties": {
+          "status": { "const": "DRAFT" }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "overall_verdict": { "enum": ["NO-GO", "PASS", "CONDITIONAL"] }
+        },
+        "required": ["overall_verdict"]
+      },
+      "then": {
+        "properties": {
+          "status": { "enum": ["CONCLUDED", "ARCHIVED", "PROMOTED"] }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "pipeline_stage": { "const": "reserved" }
+        },
+        "required": ["pipeline_stage"]
+      },
+      "then": {
+        "properties": {
+          "status": { "const": "DRAFT" },
+          "overall_verdict": { "const": "PENDING" },
+          "hypothesis_md_path": { "type": "null" },
+          "decision_record_path": { "type": "null" },
+          "trial_ids": { "maxItems": 0 }
+        }
+      }
+    }
+  ]
+}

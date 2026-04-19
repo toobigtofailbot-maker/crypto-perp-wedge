@@ -1,0 +1,94 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crypto-perp-wedge.local/research/schemas/experiment_report.schema.json",
+  "title": "Experiment Report",
+  "description": "JSON artifact that records the outcome of an experiment plan.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "report_id",
+    "plan_id",
+    "candidate_id",
+    "execution_date",
+    "trial_ids",
+    "metrics",
+    "gate_results",
+    "overall_verdict",
+    "observations",
+    "next_step_recommendation",
+    "diagnostic_findings"
+  ],
+  "properties": {
+    "report_id": {
+      "description": "Stable experiment report identifier.",
+      "type": "string",
+      "pattern": "^REP-[0-9]{4}$"
+    },
+    "plan_id": {
+      "description": "Experiment plan this report satisfies.",
+      "type": "string",
+      "pattern": "^EXP-[0-9]{4}$"
+    },
+    "candidate_id": {
+      "description": "Candidate registry identifier.",
+      "type": "string",
+      "pattern": "^H-[0-9]{3}$"
+    },
+    "execution_date": {
+      "description": "ISO date when the experiment was executed.",
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "trial_ids": {
+      "description": "Trial-log IDs generated or referenced by this report.",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "metrics": {
+      "description": "Metric objects for in-sample and out-of-sample results.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["in_sample", "out_of_sample"],
+      "properties": {
+        "in_sample": { "type": "object" },
+        "out_of_sample": { "type": "object" }
+      }
+    },
+    "gate_results": {
+      "description": "Promotion or experiment-gate results. Threshold and observed values are soft because existing DEC records include textual evaluator semantics.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["gate_id", "threshold", "observed", "pass"],
+        "properties": {
+          "gate_id": { "type": "string", "minLength": 1 },
+          "threshold": { "type": ["number", "string", "null"] },
+          "observed": { "type": ["number", "string", "null"] },
+          "pass": { "type": "boolean" }
+        }
+      }
+    },
+    "overall_verdict": {
+      "description": "Report-level conclusion.",
+      "type": "string",
+      "enum": ["PASS", "NO-GO", "CONDITIONAL", "INCONCLUSIVE"]
+    },
+    "observations": {
+      "description": "Diagnostic summary.",
+      "type": "string",
+      "minLength": 1
+    },
+    "next_step_recommendation": {
+      "description": "Recommended next research-pipeline action.",
+      "type": "string",
+      "enum": ["proceed_to_next_plan", "archive", "revise_and_resubmit", "escalate_to_human"]
+    },
+    "diagnostic_findings": {
+      "description": "Lessons that may inform future candidate generation.",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    }
+  }
+}

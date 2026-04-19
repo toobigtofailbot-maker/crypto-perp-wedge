@@ -4,3 +4,4 @@ duckdb
 polars
 
 binance-futures-connector
+jsonschema

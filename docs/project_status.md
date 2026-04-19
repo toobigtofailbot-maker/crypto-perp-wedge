@@ -129,6 +129,7 @@ The accepted next architecture tranche is candidate-agnostic research machine fo
 - F-001 bounded-equity / liquidation: fixed
 - F-002 Gate 5 pass/fail for non-positive gross_pnl: fixed
 - All 10 existing overall NO-GO verdicts preserved (logical argument, Section 3 of fix report); Gate 3/5 pass/fail assignments for individual trials may differ post-fix, which is expected
+- WP-6a (reframed) merged: Candidate Registry and Experiment Plan/Report schemas introduced. H-001..H-010 backfilled; H-011 slot reserved (not pre-registered yet). Schemas validated by regression tests. Foundational data-layer for multi-candidate research pipeline; no execution-core changes, no strategy lock, no agent work. See docs/research_pipeline/README.md.
 
 ## Update Discipline
 

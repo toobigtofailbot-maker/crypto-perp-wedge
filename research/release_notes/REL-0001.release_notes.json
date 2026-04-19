@@ -1,0 +1,34 @@
+{
+  "release_notes_id": "REL-0001",
+  "decision_change_id": "DCH-0001",
+  "candidate_id": "H-005",
+  "released_at": "2026-04-19T12:30:00-06:00",
+  "released_by": "WP-6g retrospective documentation package",
+  "effective_stage": "archived",
+  "monitoring_plan": {
+    "metrics_tracked": [
+      "Artifact linkage remains valid for H-005, REP-0001, and DCH-0001",
+      "Stage 6 and Stage 7 integrity views remain empty",
+      "No promotion, paper, shadow, live, or runtime-change artifacts are introduced for H-005"
+    ],
+    "review_cadence": "Retrospective documentation review during WP-6g PR review only; no live operational monitoring cadence is created.",
+    "rollback_triggers": [
+      "Any validator or integrity-view failure involving DCH-0001 or REL-0001",
+      "Any wording that implies H-005 was promoted, revived, rerun, or reconsidered in real time",
+      "Any discovered mismatch between effective_stage and the referenced decision_change transition"
+    ],
+    "alert_recipients": [
+      "WP-6g human reviewer"
+    ]
+  },
+  "rollback_plan": "RETROSPECTIVE: no runtime rollback exists because no promotion, release, paper validation, shadow deployment, live deployment, or execution behavior change occurred. If this documentation is found inaccurate, revert or amend only the WP-6g documentation artifacts through a separately reviewed package; do not alter H-005 research history without explicit scope.",
+  "notes": "RETROSPECTIVE: first Stage 7 release_notes instance authored under WP-6g. The effective stage is archived to match DCH-0001 and the candidate-level archive recommendation in DEC-0005; later 1h Cold Storage remains contextual timeframe status after both H-005 and H-008 failed.",
+  "linked_artifacts": [
+    "research/candidate_registry.jsonl:H-005",
+    "research/experiments/EXP-0001.plan.json",
+    "research/experiments/REP-0001.report.json",
+    "research/decisions/DEC-0005.md",
+    "research/timeframe_status.md",
+    "docs/project_status.md"
+  ]
+}

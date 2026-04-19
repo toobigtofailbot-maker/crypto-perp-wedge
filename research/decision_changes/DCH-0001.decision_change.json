@@ -1,0 +1,19 @@
+{
+  "decision_change_id": "DCH-0001",
+  "candidate_id": "H-005",
+  "report_ids": [
+    "REP-0001"
+  ],
+  "decision": "REJECT_AT_THIS_STAGE",
+  "stage_transition": {
+    "from_stage": "baseline_tested",
+    "to_stage": "archived"
+  },
+  "decided_by": "WP-6g retrospective documentation package",
+  "decided_at": "2026-04-19T12:00:00-06:00",
+  "rationale": "RETROSPECTIVE: this artifact records an already-taken historical outcome for H-005 in the Stage 6 decision_change grammar introduced by WP-6f. DEC-0005 concluded H-005 as NO-GO and recommended archiving the baseline after failed promotion gates, severe drawdown, fatal cost drag, and unprofitable long and short legs. This artifact does not promote, revive, rerun, or modify H-005.",
+  "evidence_summary": "RETROSPECTIVE: evidence reviewed is the H-005 registry row, EXP-0001, REP-0001, DEC-0005, research/timeframe_status.md, and docs/project_status.md. REP-0001 records H-005 overall_verdict NO-GO, OOS Sharpe 0.3751092454780985 against the 1.0 threshold, max drawdown 212.0803%, cost drag 445.53% of gross PnL, and 3 of 8 gates passed. DEC-0005 states Archive H-005 as a baseline NO-GO. Later timeframe status records 1h Cold Storage only after H-005 and H-008 both failed; the schema-level candidate transition here is baseline_tested to archived.",
+  "risk_acknowledgment": "RETROSPECTIVE: no runtime, paper, shadow, live, risk, OMS, overlay, or kill-switch behavior is changed by this documentation artifact. H-005 remains historically concluded as NO-GO. Any future reconsideration would require a separately scoped package and new human review.",
+  "supersedes_decision_id": null,
+  "notes": "RETROSPECTIVE: first Stage 6 decision_change instance authored under WP-6g to exercise the WP-6f schema and query-layer support with real content. Cold Storage is contextual timeframe status in repo docs, not a pipeline_stage enum value."
+}

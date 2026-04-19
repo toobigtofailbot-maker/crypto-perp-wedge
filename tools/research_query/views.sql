@@ -212,8 +212,8 @@ SELECT
     'decision_unknown_candidate' AS issue_type,
     d.decision_change_id,
     d.candidate_id,
-    NULL AS report_id,
-    NULL AS supersedes_decision_id
+    CAST(NULL AS VARCHAR) AS report_id,
+    CAST(NULL AS VARCHAR) AS supersedes_decision_id
 FROM decision_changes AS d
 LEFT JOIN candidates AS c
   ON d.candidate_id = c.candidate_id
@@ -224,7 +224,7 @@ SELECT
     d.decision_change_id,
     d.candidate_id,
     reports.report_id,
-    NULL AS supersedes_decision_id
+    CAST(NULL AS VARCHAR) AS supersedes_decision_id
 FROM decision_changes AS d,
 UNNEST(d.report_ids) AS reports(report_id)
 LEFT JOIN exp_reports AS r
@@ -235,12 +235,12 @@ SELECT
     'decision_unknown_supersedes' AS issue_type,
     d.decision_change_id,
     d.candidate_id,
-    NULL AS report_id,
-    d.supersedes_decision_id
+    CAST(NULL AS VARCHAR) AS report_id,
+    CAST(d.supersedes_decision_id AS VARCHAR) AS supersedes_decision_id
 FROM decision_changes AS d
 LEFT JOIN decision_changes AS prior
-  ON d.supersedes_decision_id = prior.decision_change_id
-WHERE d.supersedes_decision_id IS NOT NULL
+  ON CAST(d.supersedes_decision_id AS VARCHAR) = prior.decision_change_id
+WHERE CAST(d.supersedes_decision_id AS VARCHAR) IS NOT NULL
   AND prior.decision_change_id IS NULL;
 
 -- Do all release_notes references match their approving decision_change artifact?

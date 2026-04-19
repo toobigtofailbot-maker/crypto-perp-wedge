@@ -135,6 +135,7 @@ The accepted next architecture tranche is candidate-agnostic research machine fo
 - WP-6d merged: DuckDB read-only query layer over registry and experiments; cross-candidate analysis now queryable.
 - WP-6e merged: first query-layer-driven cross-candidate diagnostic brief authored; Diagram 2 stages 1-2 exercised with committed evidence artifacts.
 - WP-6f merged: schemas and validators for Diagram 2 stages 6-7 (decision_change, release_notes); query layer extended to recognize these artifact types. No instances authored.
+- WP-6g merged: first retrospective decision_change + release_notes pair authored for H-005 historical NO-GO / cold-storage-equivalent outcome; Stage 6-7 loop now exercised with real instances.
 
 ## Update Discipline
 

@@ -1,0 +1,58 @@
+[
+  {
+    "gate_id": "D2-006-G1: OOS Sharpe >= 1.0",
+    "n_candidates": 10,
+    "n_pass": 0,
+    "n_fail": 10,
+    "failed_candidate_ids": "H-001, H-002, H-003, H-004, H-005, H-006, H-007, H-008, H-009, H-010"
+  },
+  {
+    "gate_id": "D2-006-G2: DSR evaluator probability gate",
+    "n_candidates": 10,
+    "n_pass": 4,
+    "n_fail": 6,
+    "failed_candidate_ids": "H-001, H-003, H-006, H-007, H-008, H-009"
+  },
+  {
+    "gate_id": "D2-006-G3: Per-fold max DD <= 20%",
+    "n_candidates": 10,
+    "n_pass": 0,
+    "n_fail": 10,
+    "failed_candidate_ids": "H-001, H-002, H-003, H-004, H-005, H-006, H-007, H-008, H-009, H-010"
+  },
+  {
+    "gate_id": "D2-006-G4: Parameter sensitivity min_ratio >= 0.70",
+    "n_candidates": 10,
+    "n_pass": 2,
+    "n_fail": 8,
+    "failed_candidate_ids": "H-001, H-003, H-005, H-006, H-007, H-008, H-009, H-010"
+  },
+  {
+    "gate_id": "D2-006-G5: Cost drag <= 50% of gross PnL",
+    "n_candidates": 10,
+    "n_pass": 5,
+    "n_fail": 5,
+    "failed_candidate_ids": "H-001, H-005, H-007, H-009, H-010"
+  },
+  {
+    "gate_id": "D2-006-G6: No 90-day window > 60% of PnL",
+    "n_candidates": 10,
+    "n_pass": 3,
+    "n_fail": 7,
+    "failed_candidate_ids": "H-001, H-002, H-003, H-004, H-005, H-007, H-010"
+  },
+  {
+    "gate_id": "D2-006-G7: <= 5 free parameters",
+    "n_candidates": 10,
+    "n_pass": 10,
+    "n_fail": 0,
+    "failed_candidate_ids": null
+  },
+  {
+    "gate_id": "D2-006-G8: Walk-forward efficiency > 0.5",
+    "n_candidates": 10,
+    "n_pass": 4,
+    "n_fail": 6,
+    "failed_candidate_ids": "H-001, H-003, H-006, H-007, H-008, H-009"
+  }
+]

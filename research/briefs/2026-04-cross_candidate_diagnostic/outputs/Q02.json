@@ -1,0 +1,42 @@
+[
+  {
+    "strategy_family": "basis_mean_reversion",
+    "overall_verdict": "NO-GO",
+    "n_candidates": 1
+  },
+  {
+    "strategy_family": "breakout",
+    "overall_verdict": "NO-GO",
+    "n_candidates": 1
+  },
+  {
+    "strategy_family": "funding_directional",
+    "overall_verdict": "NO-GO",
+    "n_candidates": 1
+  },
+  {
+    "strategy_family": "funding_momentum_composite",
+    "overall_verdict": "NO-GO",
+    "n_candidates": 1
+  },
+  {
+    "strategy_family": "mean_reversion",
+    "overall_verdict": "NO-GO",
+    "n_candidates": 1
+  },
+  {
+    "strategy_family": "momentum",
+    "overall_verdict": "NO-GO",
+    "n_candidates": 2
+  },
+  {
+    "strategy_family": "multi_tf_alignment",
+    "overall_verdict": "NO-GO",
+    "n_candidates": 1
+  },
+  {
+    "strategy_family": "trend_following",
+    "overall_verdict": "NO-GO",
+    "n_candidates": 2
+  }
+]

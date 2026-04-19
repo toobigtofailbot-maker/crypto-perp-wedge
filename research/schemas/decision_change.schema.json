@@ -1,0 +1,180 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crypto-perp-wedge.local/research/schemas/decision_change.schema.json",
+  "title": "Decision Change",
+  "description": "JSON artifact that records a human approval gate decision for a candidate stage transition.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "decision_change_id",
+    "candidate_id",
+    "report_ids",
+    "decision",
+    "stage_transition",
+    "decided_by",
+    "decided_at",
+    "rationale",
+    "evidence_summary",
+    "risk_acknowledgment",
+    "supersedes_decision_id"
+  ],
+  "properties": {
+    "decision_change_id": {
+      "description": "Stable decision-change artifact identifier.",
+      "type": "string",
+      "pattern": "^DCH-[0-9]{4}$"
+    },
+    "candidate_id": {
+      "description": "Candidate registry identifier.",
+      "type": "string",
+      "pattern": "^H-[0-9]{3}$"
+    },
+    "report_ids": {
+      "description": "Experiment report identifiers used as evidence for this decision.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^REP-[0-9]{4}$"
+      },
+      "uniqueItems": true
+    },
+    "decision": {
+      "description": "Human approval gate outcome.",
+      "type": "string",
+      "enum": [
+        "APPROVE_TO_SHADOW",
+        "APPROVE_TO_PAPER",
+        "APPROVE_TO_LIVE",
+        "REJECT_AT_THIS_STAGE",
+        "REQUEST_REVISION",
+        "REVERT_PRIOR_APPROVAL"
+      ]
+    },
+    "stage_transition": {
+      "description": "Pipeline stage transition considered by this decision.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from_stage", "to_stage"],
+      "properties": {
+        "from_stage": {
+          "description": "Pipeline stage before the decision.",
+          "$ref": "#/definitions/pipeline_stage"
+        },
+        "to_stage": {
+          "description": "Pipeline stage after the decision.",
+          "$ref": "#/definitions/pipeline_stage"
+        }
+      }
+    },
+    "decided_by": {
+      "description": "Human reviewer or package that recorded the decision.",
+      "type": "string",
+      "minLength": 1
+    },
+    "decided_at": {
+      "description": "Timezone-qualified ISO datetime when the decision was recorded.",
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "rationale": {
+      "description": "Decision rationale.",
+      "type": "string",
+      "minLength": 1
+    },
+    "evidence_summary": {
+      "description": "Summary of schema-validated evidence considered by the reviewer.",
+      "type": "string",
+      "minLength": 1
+    },
+    "risk_acknowledgment": {
+      "description": "Human acknowledgment of risk, rollback, and execution boundary implications.",
+      "type": "string",
+      "minLength": 1
+    },
+    "supersedes_decision_id": {
+      "description": "Prior decision_change_id superseded by this artifact, or null when none.",
+      "type": ["string", "null"],
+      "pattern": "^DCH-[0-9]{4}$"
+    },
+    "notes": {
+      "description": "Optional human note that does not change the decision outcome.",
+      "type": "string"
+    },
+    "conditions": {
+      "description": "Required follow-up conditions when the decision requests revision.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    }
+  },
+  "definitions": {
+    "pipeline_stage": {
+      "type": "string",
+      "enum": [
+        "reserved",
+        "pre_registered",
+        "baseline_tested",
+        "sensitivity_tested",
+        "monte_carlo_tested",
+        "paper_validated",
+        "shadow_live",
+        "production_live",
+        "archived"
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "decision": {
+            "enum": [
+              "APPROVE_TO_SHADOW",
+              "APPROVE_TO_PAPER",
+              "APPROVE_TO_LIVE"
+            ]
+          }
+        },
+        "required": ["decision"]
+      },
+      "then": {
+        "properties": {
+          "report_ids": { "minItems": 1 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "decision": { "const": "REVERT_PRIOR_APPROVAL" }
+        },
+        "required": ["decision"]
+      },
+      "then": {
+        "properties": {
+          "supersedes_decision_id": {
+            "type": "string",
+            "pattern": "^DCH-[0-9]{4}$"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "decision": { "const": "REQUEST_REVISION" }
+        },
+        "required": ["decision"]
+      },
+      "then": {
+        "required": ["conditions"],
+        "properties": {
+          "conditions": { "minItems": 1 }
+        }
+      }
+    }
+  ]
+}

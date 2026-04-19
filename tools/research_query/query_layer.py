@@ -12,6 +12,8 @@ import duckdb
 REPO_ROOT = Path(__file__).resolve().parents[2]
 REGISTRY_PATH = REPO_ROOT / "research" / "candidate_registry.jsonl"
 EXPERIMENTS_DIR = REPO_ROOT / "research" / "experiments"
+DECISION_CHANGES_DIR = REPO_ROOT / "research" / "decision_changes"
+RELEASE_NOTES_DIR = REPO_ROOT / "research" / "release_notes"
 TRIAL_LOG_PATH = REPO_ROOT / "research" / "trial_log.jsonl"
 VIEWS_PATH = Path(__file__).resolve().with_name("views.sql")
 
@@ -57,6 +59,82 @@ def _sql_path(path: Path) -> str:
 def _require_file(path: Path, label: str) -> None:
     if not path.exists():
         raise FileNotFoundError(f"{label} not found; preflight mismatch: {path}")
+
+
+def _register_decision_changes(conn: duckdb.DuckDBPyConnection) -> None:
+    decision_files = (
+        sorted(DECISION_CHANGES_DIR.glob("*.decision_change.json"))
+        if DECISION_CHANGES_DIR.exists()
+        else []
+    )
+    if decision_files:
+        conn.execute(
+            f"""
+            CREATE VIEW decision_changes AS
+            SELECT * FROM read_json_auto('{_sql_path(DECISION_CHANGES_DIR / "*.decision_change.json")}')
+            """
+        )
+        return
+
+    conn.execute(
+        """
+        CREATE VIEW decision_changes AS
+        SELECT
+            CAST(NULL AS VARCHAR) AS decision_change_id,
+            CAST(NULL AS VARCHAR) AS candidate_id,
+            CAST([] AS VARCHAR[]) AS report_ids,
+            CAST(NULL AS VARCHAR) AS decision,
+            CAST(NULL AS STRUCT(from_stage VARCHAR, to_stage VARCHAR)) AS stage_transition,
+            CAST(NULL AS VARCHAR) AS decided_by,
+            CAST(NULL AS VARCHAR) AS decided_at,
+            CAST(NULL AS VARCHAR) AS rationale,
+            CAST(NULL AS VARCHAR) AS evidence_summary,
+            CAST(NULL AS VARCHAR) AS risk_acknowledgment,
+            CAST(NULL AS VARCHAR) AS supersedes_decision_id,
+            CAST(NULL AS VARCHAR) AS notes,
+            CAST([] AS VARCHAR[]) AS conditions
+        WHERE FALSE
+        """
+    )
+
+
+def _register_release_notes(conn: duckdb.DuckDBPyConnection) -> None:
+    release_files = (
+        sorted(RELEASE_NOTES_DIR.glob("*.release_notes.json"))
+        if RELEASE_NOTES_DIR.exists()
+        else []
+    )
+    if release_files:
+        conn.execute(
+            f"""
+            CREATE VIEW release_notes AS
+            SELECT * FROM read_json_auto('{_sql_path(RELEASE_NOTES_DIR / "*.release_notes.json")}')
+            """
+        )
+        return
+
+    conn.execute(
+        """
+        CREATE VIEW release_notes AS
+        SELECT
+            CAST(NULL AS VARCHAR) AS release_notes_id,
+            CAST(NULL AS VARCHAR) AS decision_change_id,
+            CAST(NULL AS VARCHAR) AS candidate_id,
+            CAST(NULL AS VARCHAR) AS released_at,
+            CAST(NULL AS VARCHAR) AS released_by,
+            CAST(NULL AS VARCHAR) AS effective_stage,
+            CAST(NULL AS STRUCT(
+                metrics_tracked VARCHAR[],
+                review_cadence VARCHAR,
+                rollback_triggers VARCHAR[],
+                alert_recipients VARCHAR[]
+            )) AS monitoring_plan,
+            CAST(NULL AS VARCHAR) AS rollback_plan,
+            CAST(NULL AS VARCHAR) AS notes,
+            CAST([] AS VARCHAR[]) AS linked_artifacts
+        WHERE FALSE
+        """
+    )
 
 
 def _rows_as_dicts(cursor: duckdb.DuckDBPyConnection) -> list[dict[str, Any]]:
@@ -206,6 +284,8 @@ def init_duckdb(read_only: bool = True) -> duckdb.DuckDBPyConnection:
         SELECT * FROM read_json_auto('{_sql_path(TRIAL_LOG_PATH)}', format='newline_delimited')
         """
     )
+    _register_decision_changes(conn)
+    _register_release_notes(conn)
     load_views(conn)
     return conn
 

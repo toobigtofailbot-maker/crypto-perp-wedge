@@ -1,0 +1,98 @@
+{
+  "report_id": "REP-0007",
+  "plan_id": "EXP-0007",
+  "candidate_id": "H-007",
+  "execution_date": "2026-04-17",
+  "trial_ids": [
+    "b88b2e9a-03b3-41de-8197-dee370a9c536"
+  ],
+  "metrics": {
+    "in_sample": {
+      "sharpe": -0.6416904457583815,
+      "source_field": "trial_log.in_sample_sharpe",
+      "window_convention": "No separate IS/OOS split convention existed in repo truth; this field records the full-period Sharpe per DEC-0007 and the trial-log note."
+    },
+    "out_of_sample": {
+      "sharpe": -0.6416904457583815,
+      "source_field": "trial_log.oos_sharpe",
+      "window_convention": "No separate IS/OOS split convention existed in repo truth; this object records full-period baseline metrics from DEC-0007 and the H-007 experiment notebook.",
+      "max_drawdown": 1.1523413843087515,
+      "n_obs": 13757,
+      "trades": 240,
+      "hit_rate": 0.3541666666666667,
+      "profit_factor": 0.9532661799036274,
+      "final_equity": 6286.266900753674,
+      "total_pnl": -3713.7330992463258,
+      "gross_pnl": 1152.1999999999643,
+      "fees_paid": 7817.407848000002,
+      "slippage_paid": 3908.703924000001,
+      "funding_paid": -6860.178672753699,
+      "funding_events_applied": 664,
+      "cost_drag_fraction": 4.223167071034936,
+      "dsr": 0.0,
+      "walk_forward_efficiency": 0.0,
+      "gates_passed": 1,
+      "gates_total": 8
+    }
+  },
+  "gate_results": [
+    {
+      "gate_id": "D2-006-G1: OOS Sharpe >= 1.0",
+      "threshold": 1.0,
+      "observed": -0.6417,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G2: DSR evaluator probability gate",
+      "threshold": "dsr_val > 0.95 vs evaluator SR benchmark",
+      "observed": 0.0,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G3: Per-fold max DD <= 20%",
+      "threshold": 0.2,
+      "observed": 1.1523,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G4: Parameter sensitivity min_ratio >= 0.70",
+      "threshold": 0.7,
+      "observed": -1.1884,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G5: Cost drag <= 50% of gross PnL",
+      "threshold": 0.5,
+      "observed": 4.2232,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G6: No 90-day window > 60% of PnL",
+      "threshold": 0.6,
+      "observed": 5.4978,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G7: <= 5 free parameters",
+      "threshold": 5,
+      "observed": 4,
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G8: Walk-forward efficiency > 0.5",
+      "threshold": 0.5,
+      "observed": 0.0,
+      "pass": false
+    }
+  ],
+  "overall_verdict": "NO-GO",
+  "observations": "RETROSPECTIVE: this report was authored after execution as part of WP-6c. Metrics are transcribed from DEC-0007, the H-007 trial_log entry, and the H-007 experiment notebook. H-007 produced negative full-period Sharpe of -0.6416904457583815, max drawdown of 115.2341%, and cost drag of 422.3167% of gross PnL. The strategy failed 7 of 8 D2-006 gates; short exposure dominated, modeled fees and slippage overwhelmed the small gross PnL base, and DEC-0007 archived the candidate as a baseline NO-GO. Max-drawdown and cost-drag values are under pre-WP-5b pipeline semantics; per WP-5a/WP-5b audit conclusions the overall NO-GO verdict is unaffected by later pipeline fixes.",
+  "next_step_recommendation": "archive",
+  "diagnostic_findings": [
+    "The funding plus momentum composite did not repair the H-001 funding-directional failure mode.",
+    "Funding cashflows were favorable in aggregate, but modeled fees and slippage overwhelmed the small gross PnL base.",
+    "Short exposure dominated the baseline and the short leg was materially negative.",
+    "This result is evidence against this 4h funding-composite candidate, not against all derivative-market data streams.",
+    "Future funding-family work should require materially different risk control or selectivity rather than another direct funding-directional composite."
+  ]
+}

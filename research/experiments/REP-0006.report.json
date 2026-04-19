@@ -1,0 +1,98 @@
+{
+  "report_id": "REP-0006",
+  "plan_id": "EXP-0006",
+  "candidate_id": "H-006",
+  "execution_date": "2026-04-16",
+  "trial_ids": [
+    "c62d21f1-3a49-428b-ac4e-8e2cd990f324"
+  ],
+  "metrics": {
+    "in_sample": {
+      "sharpe": -0.35122389498871254,
+      "source_field": "trial_log.in_sample_sharpe",
+      "window_convention": "No separate IS/OOS split convention existed in repo truth; this field records the full-period Sharpe per DEC-0006 and the trial-log note."
+    },
+    "out_of_sample": {
+      "sharpe": -0.35122389498871254,
+      "source_field": "trial_log.oos_sharpe",
+      "window_convention": "No separate IS/OOS split convention existed in repo truth; this object records full-period baseline metrics from DEC-0006.",
+      "max_drawdown": 6.120835298111914,
+      "n_obs": 110063,
+      "trades": 926,
+      "hit_rate": 0.341253,
+      "profit_factor": 0.7999,
+      "final_equity": -72193.3197,
+      "total_pnl": -82193.3197,
+      "gross_pnl": -27929.42,
+      "fees_paid": 36088.5197,
+      "slippage_paid": 18044.2599,
+      "funding_paid": 131.1202,
+      "funding_events_applied": 564,
+      "cost_drag_fraction": -1.9429,
+      "dsr": 0.0,
+      "walk_forward_efficiency": 0.0,
+      "gates_passed": 3,
+      "gates_total": 8
+    }
+  },
+  "gate_results": [
+    {
+      "gate_id": "D2-006-G1: OOS Sharpe >= 1.0",
+      "threshold": 1.0,
+      "observed": -0.3512,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G2: DSR evaluator probability gate",
+      "threshold": "dsr_val > 0.95 vs evaluator SR benchmark",
+      "observed": 0.0,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G3: Per-fold max DD <= 20%",
+      "threshold": 0.2,
+      "observed": 6.1208,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G4: Parameter sensitivity min_ratio >= 0.70",
+      "threshold": 0.7,
+      "observed": -2.0964,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G5: Cost drag <= 50% of gross PnL",
+      "threshold": 0.5,
+      "observed": -1.9429,
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G6: No 90-day window > 60% of PnL",
+      "threshold": 0.6,
+      "observed": 0.1831,
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G7: <= 5 free parameters",
+      "threshold": 5,
+      "observed": 5,
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G8: Walk-forward efficiency > 0.5",
+      "threshold": 0.5,
+      "observed": 0.0,
+      "pass": false
+    }
+  ],
+  "overall_verdict": "NO-GO",
+  "observations": "RETROSPECTIVE: this report was authored after execution as part of WP-6c. Metrics are transcribed from DEC-0006 and the H-006 trial_log entry. H-006 produced negative full-period Sharpe of -0.35122389498871254 and max drawdown of 612.0835%. The strategy failed 5 of 8 D2-006 gates; both long and short legs were negative on net PnL, and Gate 5 passed mechanically only because gross PnL was negative. DEC-0006 archived the candidate as a baseline NO-GO. Max-drawdown and cost-drag values are under pre-WP-5b pipeline semantics; per WP-5a/WP-5b audit conclusions the overall NO-GO verdict is unaffected by later pipeline fixes.",
+  "next_step_recommendation": "archive",
+  "diagnostic_findings": [
+    "30m Bollinger Band squeeze breakout is not promotable under current promotion gates.",
+    "The baseline produced negative full-period Sharpe and extreme drawdown, triggering the pre-registered Sharpe and drawdown kill criteria.",
+    "Both long and short legs were negative on net PnL, indicating that the squeeze breakout framing did not produce durable follow-through.",
+    "Gate 5 passed mechanically because gross PnL was negative; DEC-0006 explicitly warns not to read this as healthy cost behavior.",
+    "The result argues for caution before faster 15m breakout expansion because noise, drawdown, and modeled costs dominated this 30m baseline."
+  ]
+}

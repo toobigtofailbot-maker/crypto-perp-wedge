@@ -1,0 +1,97 @@
+{
+  "report_id": "REP-0003",
+  "plan_id": "EXP-0003",
+  "candidate_id": "H-002",
+  "execution_date": "2026-04-15",
+  "trial_ids": [
+    "357cca8c-d560-4d43-9037-b8bc24784a84"
+  ],
+  "metrics": {
+    "in_sample": {
+      "sharpe": 0.07581376350868253,
+      "source_field": "trial_log.in_sample_sharpe",
+      "window_convention": "No separate IS/OOS split convention existed in repo truth; this field records the full-period Sharpe per DEC-0002 and the trial-log note."
+    },
+    "out_of_sample": {
+      "sharpe": 0.07581376350868253,
+      "source_field": "trial_log.oos_sharpe",
+      "window_convention": "No separate IS/OOS split convention existed in repo truth; this object records full-period baseline metrics from DEC-0002 and the H-002 experiment notebook.",
+      "max_drawdown": 1.205046870289211,
+      "n_obs": 13757,
+      "trades": 258,
+      "hit_rate": 0.375968992248062,
+      "profit_factor": 1.1500680644706736,
+      "final_equity": 47282.5648280035,
+      "total_pnl": 37282.5648280035,
+      "gross_pnl": 61859.97000000002,
+      "fees_paid": 10624.495244000002,
+      "slippage_paid": 5312.247622000001,
+      "funding_paid": 8640.662305996888,
+      "cost_drag_fraction": 0.39730709814435544,
+      "dsr": 1.0,
+      "walk_forward_efficiency": 1.0,
+      "gates_passed": 5,
+      "gates_total": 8
+    }
+  },
+  "gate_results": [
+    {
+      "gate_id": "D2-006-G1: OOS Sharpe >= 1.0",
+      "threshold": 1.0,
+      "observed": 0.0758,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G2: DSR evaluator probability gate",
+      "threshold": "dsr_val > 0.95 vs evaluator SR benchmark",
+      "observed": 1.0,
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G3: Per-fold max DD <= 20%",
+      "threshold": 0.2,
+      "observed": 1.205,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G4: Parameter sensitivity min_ratio >= 0.70",
+      "threshold": 0.7,
+      "observed": 6.1475,
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G5: Cost drag <= 50% of gross PnL",
+      "threshold": 0.5,
+      "observed": 0.3973,
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G6: No 90-day window > 60% of PnL",
+      "threshold": 0.6,
+      "observed": 1.1103,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G7: <= 5 free parameters",
+      "threshold": 5,
+      "observed": 1,
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G8: Walk-forward efficiency > 0.5",
+      "threshold": 0.5,
+      "observed": 1.0,
+      "pass": true
+    }
+  ],
+  "overall_verdict": "NO-GO",
+  "observations": "RETROSPECTIVE: this report was authored after execution as part of WP-6c. Metrics are transcribed from DEC-0002, the H-002 trial_log entry, and the H-002 experiment notebook. H-002 produced positive full-period PnL but OOS Sharpe of 0.07581376350868253, far below the 1.0 promotion threshold, with max drawdown of 120.5047%. The strategy failed 3 of 8 D2-006 gates, including Sharpe, drawdown, and 90-day concentration, and DEC-0002 archived the candidate as a baseline NO-GO. Max-drawdown and cost-drag values are under pre-WP-5b pipeline semantics; per WP-5a/WP-5b audit conclusions the overall NO-GO verdict is unaffected by later pipeline fixes.",
+  "next_step_recommendation": "archive",
+  "diagnostic_findings": [
+    "Simple 4h Donchian breakout trend following without additional risk or context design is not promotable under current promotion gates.",
+    "Positive total PnL was insufficient because risk-adjusted performance and drawdown durability failed.",
+    "PnL was concentrated enough to fail the 90-day contribution gate.",
+    "Long trades carried the positive net PnL while short trades were net negative, weakening the symmetric trend-following thesis.",
+    "Future Donchian or trend-following variants should be pre-registered separately with explicit risk controls and a fresh trial budget."
+  ]
+}

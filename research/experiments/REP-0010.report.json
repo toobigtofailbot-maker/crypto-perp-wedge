@@ -1,0 +1,97 @@
+{
+  "report_id": "REP-0010",
+  "plan_id": "EXP-0010",
+  "candidate_id": "H-010",
+  "execution_date": "2026-04-17",
+  "trial_ids": [
+    "7f5c9d50-b541-4b09-850c-d9340dba2923"
+  ],
+  "metrics": {
+    "in_sample": {
+      "sharpe": 0.46477526210643,
+      "source_field": "trial_log.in_sample_sharpe",
+      "window_convention": "No separate IS/OOS split convention existed in repo truth; this field records the full-period Sharpe per DEC-0010 and the trial-log note."
+    },
+    "out_of_sample": {
+      "sharpe": 0.46477526210643,
+      "source_field": "trial_log.oos_sharpe",
+      "window_convention": "No separate IS/OOS split convention existed in repo truth; this object records full-period baseline metrics from DEC-0010 and the H-010 experiment notebook.",
+      "max_drawdown": 0.8497227861150672,
+      "n_obs": 13757,
+      "trades": 345,
+      "hit_rate": 0.4985507246376812,
+      "profit_factor": 1.0656445568132804,
+      "final_equity": 14400.467066539371,
+      "total_pnl": 4400.467066539371,
+      "gross_pnl": 18228.50000000011,
+      "fees_paid": 12883.662231999995,
+      "slippage_paid": 6441.831115999998,
+      "funding_paid": -5497.460414539095,
+      "cost_drag_fraction": 0.7585941209348446,
+      "dsr": 0.99827,
+      "walk_forward_efficiency": 1.0,
+      "gates_passed": 3,
+      "gates_total": 8
+    }
+  },
+  "gate_results": [
+    {
+      "gate_id": "D2-006-G1: OOS Sharpe >= 1.0",
+      "threshold": 1.0,
+      "observed": 0.4648,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G2: DSR evaluator probability gate",
+      "threshold": "dsr_val > 0.95 vs evaluator SR benchmark",
+      "observed": 0.99827,
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G3: Per-fold max DD <= 20%",
+      "threshold": 0.2,
+      "observed": 0.8497,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G4: Parameter sensitivity min_ratio >= 0.70",
+      "threshold": 0.7,
+      "observed": -0.9283,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G5: Cost drag <= 50% of gross PnL",
+      "threshold": 0.5,
+      "observed": 0.7586,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G6: No 90-day window > 60% of PnL",
+      "threshold": 0.6,
+      "observed": 3.4877,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G7: <= 5 free parameters",
+      "threshold": 5,
+      "observed": 4,
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G8: Walk-forward efficiency > 0.5",
+      "threshold": 0.5,
+      "observed": 1.0,
+      "pass": true
+    }
+  ],
+  "overall_verdict": "NO-GO",
+  "observations": "RETROSPECTIVE: this report was authored after execution as part of WP-6c. Metrics are transcribed from DEC-0010, the H-010 trial_log entry, and the H-010 experiment notebook. H-010 produced positive full-period Sharpe of 0.46477526210643 and positive PnL, but Sharpe remained below the 1.0 promotion threshold, max drawdown reached 84.9723%, cost drag reached 75.8594% of gross PnL, and parameter sensitivity was fragile. The strategy failed 5 of 8 D2-006 gates, and DEC-0010 archived the candidate as a baseline NO-GO. Max-drawdown and cost-drag values are under pre-WP-5b pipeline semantics; per WP-5a/WP-5b audit conclusions the overall NO-GO verdict is unaffected by later pipeline fixes.",
+  "next_step_recommendation": "archive",
+  "diagnostic_findings": [
+    "4h basis / premium mean reversion produced the strongest WP-4b1 4h cross-stream baseline but was still not promotable.",
+    "Positive PnL and Sharpe were insufficient because Sharpe remained below threshold and drawdown, cost drag, sensitivity, and concentration gates failed.",
+    "Cost drag reached 75.8594% of gross PnL, so the structural-dislocation signal was not strong enough to absorb modeled execution friction.",
+    "The +25% basis-z threshold variant flipped Sharpe negative, making the baseline too parameter-sensitive for Gate 4.",
+    "Future basis-family work should require materially different risk containment, stricter regime filtering, or separately justified lower-cost assumptions."
+  ]
+}

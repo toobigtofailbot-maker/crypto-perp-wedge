@@ -1,0 +1,98 @@
+{
+  "report_id": "REP-0001",
+  "plan_id": "EXP-0001",
+  "candidate_id": "H-005",
+  "execution_date": "2026-04-16",
+  "trial_ids": [
+    "f4605dfa-fdad-4b76-8bbf-6e0a805d42a4"
+  ],
+  "metrics": {
+    "in_sample": {
+      "sharpe": 0.3751092454780985,
+      "source_field": "trial_log.in_sample_sharpe",
+      "window_convention": "No separate IS/OOS split convention existed in repo truth; this field records the full-period Sharpe per DEC-0005 and the trial-log note."
+    },
+    "out_of_sample": {
+      "sharpe": 0.3751092454780985,
+      "source_field": "trial_log.oos_sharpe",
+      "window_convention": "No separate IS/OOS split convention existed in repo truth; this object records full-period baseline metrics from DEC-0005 and TEST-08.",
+      "max_drawdown": 2.120802633322742,
+      "n_obs": 55031,
+      "trades": 934,
+      "hit_rate": 0.364026,
+      "profit_factor": 0.9581,
+      "final_equity": -35556.0483,
+      "total_pnl": -45556.0483,
+      "gross_pnl": 13184.28,
+      "fees_paid": 38149.5906,
+      "slippage_paid": 19074.7953,
+      "funding_paid": 1515.9424,
+      "funding_events_applied": 1254,
+      "cost_drag_fraction": 4.4553,
+      "dsr": 1.0,
+      "walk_forward_efficiency": 1.0,
+      "gates_passed": 3,
+      "gates_total": 8
+    }
+  },
+  "gate_results": [
+    {
+      "gate_id": "D2-006-G1: OOS Sharpe >= 1.0",
+      "threshold": 1.0,
+      "observed": 0.3751,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G2: DSR evaluator probability gate",
+      "threshold": "dsr_val > 0.95 vs evaluator SR benchmark",
+      "observed": 1.0,
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G3: Per-fold max DD <= 20%",
+      "threshold": 0.2,
+      "observed": 2.1208,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G4: Parameter sensitivity min_ratio >= 0.70",
+      "threshold": 0.7,
+      "observed": -1.3729,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G5: Cost drag <= 50% of gross PnL",
+      "threshold": 0.5,
+      "observed": 4.4553,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G6: No 90-day window > 60% of PnL",
+      "threshold": 0.6,
+      "observed": 0.7282,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G7: <= 5 free parameters",
+      "threshold": 5,
+      "observed": 5,
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G8: Walk-forward efficiency > 0.5",
+      "threshold": 0.5,
+      "observed": 1.0,
+      "pass": true
+    }
+  ],
+  "overall_verdict": "NO-GO",
+  "observations": "RETROSPECTIVE: this report was authored after execution as part of WP-6b. Metrics are transcribed from DEC-0005, the H-005 trial_log entry, and TEST-08 reproducibility audit. H-005 produced positive full-period Sharpe of 0.3751092454780985, below the 1.0 promotion threshold, while max drawdown reached 212.0803% and cost drag reached 445.53% of gross PnL. The strategy failed 5 of 8 D2-006 gates, both long and short legs were negative on net PnL, and DEC-0005 archived the candidate as a baseline NO-GO. Max-drawdown and cost-drag values are under pre-WP-5b pipeline semantics; per WP-5a/WP-5b audit and fix conclusions, the overall NO-GO verdict is unaffected by later pipeline fixes.",
+  "next_step_recommendation": "archive",
+  "diagnostic_findings": [
+    "The tested 1h MACD crossover plus price-structure confirmation baseline is not promotable under current cost, drawdown, Sharpe, and concentration gates.",
+    "Intraday single-indicator momentum with OHLCV-only structure confirmation produced high turnover and inadequate edge under the modeled cost framework.",
+    "Cost drag at 1h frequency was fatal to the marginal pre-cost edge: DEC-0005 recorded gross PnL of 13184.28 against total modeled costs of 58740.3283.",
+    "Higher trade frequency did not improve signal quality; H-005 recorded 934 trades and still failed 5 of 8 gates.",
+    "Future intraday momentum work needs a materially different rationale for turnover control, regime selection, independent confirmation streams, or exit design before registration."
+  ]
+}

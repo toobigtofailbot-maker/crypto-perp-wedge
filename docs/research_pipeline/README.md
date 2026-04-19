@@ -11,6 +11,13 @@ research machine.
 - `2026-04-experiment_artifacts.md` explains JSON Experiment Plan and Experiment
   Report artifacts for the Continuous Improvement loop.
 
+## Instances
+
+The first exercise of the experiment artifact grammar is EXP-0001 / REP-0001
+for H-005 under `research/experiments/`. See
+`2026-04-retrospective_instance_convention.md` for the convention used when an
+instance is authored after execution.
+
 ## Relationship To Architecture
 
 This package supports the research-pipeline side of the accepted research

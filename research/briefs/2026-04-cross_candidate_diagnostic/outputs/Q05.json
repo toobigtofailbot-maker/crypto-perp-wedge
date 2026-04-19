@@ -1,0 +1,102 @@
+[
+  {
+    "candidate_id": "H-006",
+    "strategy_family": "breakout",
+    "timeframe": "30m",
+    "oos_total_trades": 926,
+    "oos_cost_drag": -1.9429,
+    "timeframe_candidate_count": 2,
+    "timeframe_avg_trades": 1537.0,
+    "timeframe_avg_cost_drag": 3.35335
+  },
+  {
+    "candidate_id": "H-009",
+    "strategy_family": "multi_tf_alignment",
+    "timeframe": "30m",
+    "oos_total_trades": 2148,
+    "oos_cost_drag": 8.6496,
+    "timeframe_candidate_count": 2,
+    "timeframe_avg_trades": 1537.0,
+    "timeframe_avg_cost_drag": 3.35335
+  },
+  {
+    "candidate_id": "H-005",
+    "strategy_family": "momentum",
+    "timeframe": "1h",
+    "oos_total_trades": 934,
+    "oos_cost_drag": 4.4553,
+    "timeframe_candidate_count": 2,
+    "timeframe_avg_trades": 3072.5,
+    "timeframe_avg_cost_drag": 0.5374000000000001
+  },
+  {
+    "candidate_id": "H-008",
+    "strategy_family": "momentum",
+    "timeframe": "1h",
+    "oos_total_trades": 5211,
+    "oos_cost_drag": -3.3805,
+    "timeframe_candidate_count": 2,
+    "timeframe_avg_trades": 3072.5,
+    "timeframe_avg_cost_drag": 0.5374000000000001
+  },
+  {
+    "candidate_id": "H-001",
+    "strategy_family": "funding_directional",
+    "timeframe": "4h",
+    "oos_total_trades": 104,
+    "oos_cost_drag": 2.5182778234221295,
+    "timeframe_candidate_count": 4,
+    "timeframe_avg_trades": 236.75,
+    "timeframe_avg_cost_drag": 1.9743365283840664
+  },
+  {
+    "candidate_id": "H-002",
+    "strategy_family": "trend_following",
+    "timeframe": "4h",
+    "oos_total_trades": 258,
+    "oos_cost_drag": 0.39730709814435544,
+    "timeframe_candidate_count": 4,
+    "timeframe_avg_trades": 236.75,
+    "timeframe_avg_cost_drag": 1.9743365283840664
+  },
+  {
+    "candidate_id": "H-007",
+    "strategy_family": "funding_momentum_composite",
+    "timeframe": "4h",
+    "oos_total_trades": 240,
+    "oos_cost_drag": 4.223167071034936,
+    "timeframe_candidate_count": 4,
+    "timeframe_avg_trades": 236.75,
+    "timeframe_avg_cost_drag": 1.9743365283840664
+  },
+  {
+    "candidate_id": "H-010",
+    "strategy_family": "basis_mean_reversion",
+    "timeframe": "4h",
+    "oos_total_trades": 345,
+    "oos_cost_drag": 0.7585941209348446,
+    "timeframe_candidate_count": 4,
+    "timeframe_avg_trades": 236.75,
+    "timeframe_avg_cost_drag": 1.9743365283840664
+  },
+  {
+    "candidate_id": "H-003",
+    "strategy_family": "mean_reversion",
+    "timeframe": "1d",
+    "oos_total_trades": 35,
+    "oos_cost_drag": 0.2413375925028918,
+    "timeframe_candidate_count": 2,
+    "timeframe_avg_trades": 38.0,
+    "timeframe_avg_cost_drag": 0.24951047167244045
+  },
+  {
+    "candidate_id": "H-004",
+    "strategy_family": "trend_following",
+    "timeframe": "1d",
+    "oos_total_trades": 41,
+    "oos_cost_drag": 0.2576833508419891,
+    "timeframe_candidate_count": 2,
+    "timeframe_avg_trades": 38.0,
+    "timeframe_avg_cost_drag": 0.24951047167244045
+  }
+]

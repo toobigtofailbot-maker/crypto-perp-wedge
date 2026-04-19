@@ -133,6 +133,7 @@ The accepted next architecture tranche is candidate-agnostic research machine fo
 - WP-6b merged: first experiment plan/report instance (EXP-0001/REP-0001) created retrospectively for H-005 to exercise the artifact grammar end-to-end.
 - WP-6c merged: retrospective EXP/REP backfill for H-001..H-004, H-006..H-010 (nine candidates). Artifact grammar coverage now symmetric across all ten concluded candidates. No schema changes. No registry changes. No backtests re-run.
 - WP-6d merged: DuckDB read-only query layer over registry and experiments; cross-candidate analysis now queryable.
+- WP-6e merged: first query-layer-driven cross-candidate diagnostic brief authored; Diagram 2 stages 1-2 exercised with committed evidence artifacts.
 
 ## Update Discipline
 

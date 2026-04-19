@@ -1,0 +1,92 @@
+[
+  {
+    "candidate_id": "H-001",
+    "name": "Funding-Directional Strategy (4h)",
+    "strategy_family": "funding_directional",
+    "timeframe": "4h",
+    "free_parameter_count": 2,
+    "pipeline_stage": "baseline_tested",
+    "trial_id_count": 1
+  },
+  {
+    "candidate_id": "H-002",
+    "name": "Donchian Channel Trend-Following (4h)",
+    "strategy_family": "trend_following",
+    "timeframe": "4h",
+    "free_parameter_count": 1,
+    "pipeline_stage": "baseline_tested",
+    "trial_id_count": 1
+  },
+  {
+    "candidate_id": "H-003",
+    "name": "Daily Bollinger Band Mean Reversion (Long-Only)",
+    "strategy_family": "mean_reversion",
+    "timeframe": "1d",
+    "free_parameter_count": 2,
+    "pipeline_stage": "baseline_tested",
+    "trial_id_count": 1
+  },
+  {
+    "candidate_id": "H-004",
+    "name": "Daily Dual Moving Average with Volatility Regime Filter",
+    "strategy_family": "trend_following",
+    "timeframe": "1d",
+    "free_parameter_count": 4,
+    "pipeline_stage": "baseline_tested",
+    "trial_id_count": 1
+  },
+  {
+    "candidate_id": "H-005",
+    "name": "Hourly MACD with Price Structure Confirmation",
+    "strategy_family": "momentum",
+    "timeframe": "1h",
+    "free_parameter_count": 5,
+    "pipeline_stage": "baseline_tested",
+    "trial_id_count": 1
+  },
+  {
+    "candidate_id": "H-006",
+    "name": "30-Minute Bollinger Band Squeeze Breakout",
+    "strategy_family": "breakout",
+    "timeframe": "30m",
+    "free_parameter_count": 5,
+    "pipeline_stage": "baseline_tested",
+    "trial_id_count": 1
+  },
+  {
+    "candidate_id": "H-007",
+    "name": "Funding + Momentum Composite",
+    "strategy_family": "funding_momentum_composite",
+    "timeframe": "4h",
+    "free_parameter_count": 4,
+    "pipeline_stage": "baseline_tested",
+    "trial_id_count": 1
+  },
+  {
+    "candidate_id": "H-008",
+    "name": "Premium-Confirmed Momentum Continuation",
+    "strategy_family": "momentum",
+    "timeframe": "1h",
+    "free_parameter_count": 4,
+    "pipeline_stage": "baseline_tested",
+    "trial_id_count": 1
+  },
+  {
+    "candidate_id": "H-009",
+    "name": "Multi-Timeframe Trend Alignment",
+    "strategy_family": "multi_tf_alignment",
+    "timeframe": "30m",
+    "free_parameter_count": 5,
+    "pipeline_stage": "baseline_tested",
+    "trial_id_count": 1
+  },
+  {
+    "candidate_id": "H-010",
+    "name": "Basis / Premium Mean Reversion",
+    "strategy_family": "basis_mean_reversion",
+    "timeframe": "4h",
+    "free_parameter_count": 4,
+    "pipeline_stage": "baseline_tested",
+    "trial_id_count": 1
+  }
+]

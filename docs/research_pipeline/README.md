@@ -23,6 +23,11 @@ instance is authored after execution.
 `2026-04-query_layer.md` explains the read-only DuckDB query layer over the
 candidate registry, experiment artifacts, and trial log.
 
+## Briefs / Diagnostic Outputs
+
+- `2026-04-cross_candidate_diagnostic.md`: First cross-candidate diagnostic
+  brief (WP-6e). See the `queries/` + `outputs/` directory beside it.
+
 ## Relationship To Architecture
 
 This package supports the research-pipeline side of the accepted research

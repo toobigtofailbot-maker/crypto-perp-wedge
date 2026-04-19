@@ -1,0 +1,82 @@
+[
+  {
+    "candidate_id": "H-008",
+    "strategy_family": "momentum",
+    "timeframe": "1h",
+    "oos_max_drawdown": 39.2885145105369,
+    "gate3_threshold": "0.2",
+    "gate3_pass": false
+  },
+  {
+    "candidate_id": "H-009",
+    "strategy_family": "multi_tf_alignment",
+    "timeframe": "30m",
+    "oos_max_drawdown": 9.251630002885372,
+    "gate3_threshold": "0.2",
+    "gate3_pass": false
+  },
+  {
+    "candidate_id": "H-006",
+    "strategy_family": "breakout",
+    "timeframe": "30m",
+    "oos_max_drawdown": 6.120835298111914,
+    "gate3_threshold": "0.2",
+    "gate3_pass": false
+  },
+  {
+    "candidate_id": "H-005",
+    "strategy_family": "momentum",
+    "timeframe": "1h",
+    "oos_max_drawdown": 2.120802633322742,
+    "gate3_threshold": "0.2",
+    "gate3_pass": false
+  },
+  {
+    "candidate_id": "H-001",
+    "strategy_family": "funding_directional",
+    "timeframe": "4h",
+    "oos_max_drawdown": 1.7813160535564552,
+    "gate3_threshold": "0.2",
+    "gate3_pass": false
+  },
+  {
+    "candidate_id": "H-002",
+    "strategy_family": "trend_following",
+    "timeframe": "4h",
+    "oos_max_drawdown": 1.205046870289211,
+    "gate3_threshold": "0.2",
+    "gate3_pass": false
+  },
+  {
+    "candidate_id": "H-007",
+    "strategy_family": "funding_momentum_composite",
+    "timeframe": "4h",
+    "oos_max_drawdown": 1.1523413843087515,
+    "gate3_threshold": "0.2",
+    "gate3_pass": false
+  },
+  {
+    "candidate_id": "H-003",
+    "strategy_family": "mean_reversion",
+    "timeframe": "1d",
+    "oos_max_drawdown": 1.0958689603729395,
+    "gate3_threshold": "0.2",
+    "gate3_pass": false
+  },
+  {
+    "candidate_id": "H-010",
+    "strategy_family": "basis_mean_reversion",
+    "timeframe": "4h",
+    "oos_max_drawdown": 0.8497227861150672,
+    "gate3_threshold": "0.2",
+    "gate3_pass": false
+  },
+  {
+    "candidate_id": "H-004",
+    "strategy_family": "trend_following",
+    "timeframe": "1d",
+    "oos_max_drawdown": 0.697949870640699,
+    "gate3_threshold": "0.2",
+    "gate3_pass": false
+  }
+]

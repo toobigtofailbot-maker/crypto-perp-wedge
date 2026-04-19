@@ -23,6 +23,12 @@ instance is authored after execution.
 `2026-04-query_layer.md` explains the read-only DuckDB query layer over the
 candidate registry, experiment artifacts, and trial log.
 
+## Stages 6-7 Artifacts
+
+`2026-04-decision_change_artifact.md` and
+`2026-04-release_notes_artifact.md` explain the JSON artifact conventions for
+the Human Approval Gate and Release & Monitor stages.
+
 ## Briefs / Diagnostic Outputs
 
 - `2026-04-cross_candidate_diagnostic.md`: First cross-candidate diagnostic

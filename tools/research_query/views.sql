@@ -158,3 +158,130 @@ FROM exp_reports AS r
 LEFT JOIN candidates AS c
   ON r.candidate_id = c.candidate_id
 WHERE c.candidate_id IS NULL;
+
+-- What human approval gate decisions have been recorded?
+-- Derives report_id_count from the decision report_ids list. Current zero-instance
+-- state returns no rows until decision_change artifacts are authored.
+CREATE OR REPLACE VIEW v_decision_changes_overview AS
+SELECT
+    decision_change_id,
+    candidate_id,
+    decision,
+    stage_transition.from_stage AS from_stage,
+    stage_transition.to_stage AS to_stage,
+    decided_by,
+    decided_at,
+    supersedes_decision_id,
+    list_count(report_ids) AS report_id_count
+FROM decision_changes;
+
+-- What release notes have been recorded for approved stage transitions?
+-- Exposes one row per release_notes artifact without expanding monitoring details.
+CREATE OR REPLACE VIEW v_release_notes_overview AS
+SELECT
+    release_notes_id,
+    decision_change_id,
+    candidate_id,
+    released_at,
+    released_by,
+    effective_stage
+FROM release_notes;
+
+-- Which decision changes have release notes, and which remain unreleased?
+-- Left-joins release notes to decision changes so decisions without a release remain visible.
+CREATE OR REPLACE VIEW v_stage_transitions AS
+SELECT
+    d.decision_change_id,
+    d.candidate_id,
+    d.decision,
+    d.stage_transition.from_stage AS from_stage,
+    d.stage_transition.to_stage AS to_stage,
+    d.decided_at,
+    r.release_notes_id,
+    r.released_at,
+    r.effective_stage
+FROM decision_changes AS d
+LEFT JOIN release_notes AS r
+  ON d.decision_change_id = r.decision_change_id;
+
+-- Do all decision_change references resolve to existing structured artifacts?
+-- Returns unresolved candidate, report, or superseded decision references.
+-- Expected to be empty in a healthy repo state.
+CREATE OR REPLACE VIEW v_integrity_decision_refs AS
+SELECT
+    'decision_unknown_candidate' AS issue_type,
+    d.decision_change_id,
+    d.candidate_id,
+    NULL AS report_id,
+    NULL AS supersedes_decision_id
+FROM decision_changes AS d
+LEFT JOIN candidates AS c
+  ON d.candidate_id = c.candidate_id
+WHERE c.candidate_id IS NULL
+UNION ALL
+SELECT
+    'decision_unknown_report' AS issue_type,
+    d.decision_change_id,
+    d.candidate_id,
+    reports.report_id,
+    NULL AS supersedes_decision_id
+FROM decision_changes AS d,
+UNNEST(d.report_ids) AS reports(report_id)
+LEFT JOIN exp_reports AS r
+  ON reports.report_id = r.report_id
+WHERE r.report_id IS NULL
+UNION ALL
+SELECT
+    'decision_unknown_supersedes' AS issue_type,
+    d.decision_change_id,
+    d.candidate_id,
+    NULL AS report_id,
+    d.supersedes_decision_id
+FROM decision_changes AS d
+LEFT JOIN decision_changes AS prior
+  ON d.supersedes_decision_id = prior.decision_change_id
+WHERE d.supersedes_decision_id IS NOT NULL
+  AND prior.decision_change_id IS NULL;
+
+-- Do all release_notes references match their approving decision_change artifact?
+-- Returns unresolved decision references, candidate mismatches, or effective-stage mismatches.
+-- Expected to be empty in a healthy repo state.
+CREATE OR REPLACE VIEW v_integrity_release_refs AS
+SELECT
+    'release_unknown_decision' AS issue_type,
+    r.release_notes_id,
+    r.decision_change_id,
+    r.candidate_id AS release_candidate_id,
+    NULL AS decision_candidate_id,
+    r.effective_stage,
+    NULL AS decision_to_stage
+FROM release_notes AS r
+LEFT JOIN decision_changes AS d
+  ON r.decision_change_id = d.decision_change_id
+WHERE d.decision_change_id IS NULL
+UNION ALL
+SELECT
+    'release_candidate_mismatch' AS issue_type,
+    r.release_notes_id,
+    r.decision_change_id,
+    r.candidate_id AS release_candidate_id,
+    d.candidate_id AS decision_candidate_id,
+    r.effective_stage,
+    d.stage_transition.to_stage AS decision_to_stage
+FROM release_notes AS r
+JOIN decision_changes AS d
+  ON r.decision_change_id = d.decision_change_id
+WHERE r.candidate_id <> d.candidate_id
+UNION ALL
+SELECT
+    'release_stage_mismatch' AS issue_type,
+    r.release_notes_id,
+    r.decision_change_id,
+    r.candidate_id AS release_candidate_id,
+    d.candidate_id AS decision_candidate_id,
+    r.effective_stage,
+    d.stage_transition.to_stage AS decision_to_stage
+FROM release_notes AS r
+JOIN decision_changes AS d
+  ON r.decision_change_id = d.decision_change_id
+WHERE r.effective_stage <> d.stage_transition.to_stage;

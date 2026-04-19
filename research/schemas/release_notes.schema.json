@@ -1,0 +1,131 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crypto-perp-wedge.local/research/schemas/release_notes.schema.json",
+  "title": "Release Notes",
+  "description": "JSON artifact that records release and monitoring details for a human-approved stage transition.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "release_notes_id",
+    "decision_change_id",
+    "candidate_id",
+    "released_at",
+    "released_by",
+    "effective_stage",
+    "monitoring_plan",
+    "rollback_plan"
+  ],
+  "properties": {
+    "release_notes_id": {
+      "description": "Stable release-notes artifact identifier.",
+      "type": "string",
+      "pattern": "^REL-[0-9]{4}$"
+    },
+    "decision_change_id": {
+      "description": "Decision-change artifact that authorized this release step.",
+      "type": "string",
+      "pattern": "^DCH-[0-9]{4}$"
+    },
+    "candidate_id": {
+      "description": "Candidate registry identifier.",
+      "type": "string",
+      "pattern": "^H-[0-9]{3}$"
+    },
+    "released_at": {
+      "description": "Timezone-qualified ISO datetime when the release step was recorded.",
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "released_by": {
+      "description": "Human reviewer or package that recorded the release notes.",
+      "type": "string",
+      "minLength": 1
+    },
+    "effective_stage": {
+      "description": "Pipeline stage made effective by the referenced decision change.",
+      "$ref": "#/definitions/pipeline_stage"
+    },
+    "monitoring_plan": {
+      "description": "Monitoring expectations for the released stage.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "metrics_tracked",
+        "review_cadence",
+        "rollback_triggers",
+        "alert_recipients"
+      ],
+      "properties": {
+        "metrics_tracked": {
+          "description": "Metrics or checks monitored after release.",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "review_cadence": {
+          "description": "Human review cadence for monitoring the release.",
+          "type": "string",
+          "minLength": 1
+        },
+        "rollback_triggers": {
+          "description": "Conditions that should trigger rollback review.",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "alert_recipients": {
+          "description": "People, roles, or channels that should receive monitoring alerts.",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    },
+    "rollback_plan": {
+      "description": "Human-readable rollback plan for the released stage.",
+      "type": "string",
+      "minLength": 1
+    },
+    "notes": {
+      "description": "Optional human note that does not change the release state.",
+      "type": "string"
+    },
+    "linked_artifacts": {
+      "description": "Optional related artifact paths or identifiers.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    }
+  },
+  "definitions": {
+    "pipeline_stage": {
+      "type": "string",
+      "enum": [
+        "reserved",
+        "pre_registered",
+        "baseline_tested",
+        "sensitivity_tested",
+        "monte_carlo_tested",
+        "paper_validated",
+        "shadow_live",
+        "production_live",
+        "archived"
+      ]
+    }
+  }
+}

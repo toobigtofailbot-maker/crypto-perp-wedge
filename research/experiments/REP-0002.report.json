@@ -1,0 +1,97 @@
+{
+  "report_id": "REP-0002",
+  "plan_id": "EXP-0002",
+  "candidate_id": "H-001",
+  "execution_date": "2026-04-15",
+  "trial_ids": [
+    "ea334eac-fd82-4d65-9457-09d3a4141fc6"
+  ],
+  "metrics": {
+    "in_sample": {
+      "sharpe": -0.3897788502290693,
+      "source_field": "trial_log.in_sample_sharpe",
+      "window_convention": "No separate IS/OOS split convention existed in repo truth; this field records the full-period Sharpe per DEC-0001 and the trial-log note."
+    },
+    "out_of_sample": {
+      "sharpe": -0.3897788502290693,
+      "source_field": "trial_log.oos_sharpe",
+      "window_convention": "No separate IS/OOS split convention existed in repo truth; this object records full-period baseline metrics from DEC-0001 and the H-001 experiment notebook.",
+      "max_drawdown": 1.7813160535564552,
+      "n_obs": 13757,
+      "trades": 104,
+      "hit_rate": 0.5384615384615384,
+      "profit_factor": 0.9220824891347528,
+      "final_equity": 18638.78825637672,
+      "total_pnl": 8638.78825637672,
+      "gross_pnl": -5689.860000000022,
+      "fees_paid": 2882.868112,
+      "slippage_paid": 1441.434056,
+      "funding_paid": -18652.950424376693,
+      "cost_drag_fraction": 2.5182778234221295,
+      "dsr": 0.0,
+      "walk_forward_efficiency": 0.0,
+      "gates_passed": 1,
+      "gates_total": 8
+    }
+  },
+  "gate_results": [
+    {
+      "gate_id": "D2-006-G1: OOS Sharpe >= 1.0",
+      "threshold": 1.0,
+      "observed": -0.3898,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G2: DSR evaluator probability gate",
+      "threshold": "dsr_val > 0.95 vs evaluator SR benchmark",
+      "observed": 0.0,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G3: Per-fold max DD <= 20%",
+      "threshold": 0.2,
+      "observed": 1.7813,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G4: Parameter sensitivity min_ratio >= 0.70",
+      "threshold": 0.7,
+      "observed": -0.7711,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G5: Cost drag <= 50% of gross PnL",
+      "threshold": 0.5,
+      "observed": 2.5183,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G6: No 90-day window > 60% of PnL",
+      "threshold": 0.6,
+      "observed": 4.1463,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G7: <= 5 free parameters",
+      "threshold": 5,
+      "observed": 2,
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G8: Walk-forward efficiency > 0.5",
+      "threshold": 0.5,
+      "observed": 0.0,
+      "pass": false
+    }
+  ],
+  "overall_verdict": "NO-GO",
+  "observations": "RETROSPECTIVE: this report was authored after execution as part of WP-6c. Metrics are transcribed from DEC-0001, the H-001 trial_log entry, and the H-001 experiment notebook. H-001 produced negative full-period Sharpe of -0.3897788502290693, max drawdown of 178.1316%, and cost drag of 251.8278% of gross PnL. The strategy failed 7 of 8 D2-006 gates; the short leg lost materially while the long leg was profitable, and DEC-0001 archived the candidate as a baseline NO-GO. Max-drawdown and cost-drag values are under pre-WP-5b pipeline semantics; per WP-5a/WP-5b audit conclusions the overall NO-GO verdict is unaffected by later pipeline fixes.",
+  "next_step_recommendation": "archive",
+  "diagnostic_findings": [
+    "Naive symmetric funding-directional logic on 4h bars is not promotable under current cost, drawdown, Sharpe, and concentration gates.",
+    "Funding receipts dominated the final equity result, but the equity path was unstable and risk-adjusted performance was negative.",
+    "The short leg lost money materially while the long leg was profitable, so symmetric funding-directional exposure did not behave as a balanced edge.",
+    "The H-001 result contributed to the WP-4a failure-analysis conclusion that future funding work needs independent confirmation or materially different risk design.",
+    "Any future funding-directional variant should be pre-registered separately with a fresh rationale, parameter budget, and risk-control design."
+  ]
+}

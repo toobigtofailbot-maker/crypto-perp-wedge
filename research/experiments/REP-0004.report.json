@@ -1,0 +1,97 @@
+{
+  "report_id": "REP-0004",
+  "plan_id": "EXP-0004",
+  "candidate_id": "H-003",
+  "execution_date": "2026-04-15",
+  "trial_ids": [
+    "b56ccac3-306d-45b0-9626-6b37d4065002"
+  ],
+  "metrics": {
+    "in_sample": {
+      "sharpe": -0.40644276086066977,
+      "source_field": "trial_log.in_sample_sharpe",
+      "window_convention": "No separate IS/OOS split convention existed in repo truth; this field records the full-period Sharpe per DEC-0003 and the trial-log note."
+    },
+    "out_of_sample": {
+      "sharpe": -0.40644276086066977,
+      "source_field": "trial_log.oos_sharpe",
+      "window_convention": "No separate IS/OOS split convention existed in repo truth; this object records full-period baseline metrics from DEC-0003 and the H-003 experiment notebook.",
+      "max_drawdown": 1.0958689603729395,
+      "n_obs": 2292,
+      "trades": 35,
+      "hit_rate": 0.6857142857142857,
+      "profit_factor": 1.4185356490953485,
+      "final_equity": 27399.156066914336,
+      "total_pnl": 17399.156066914336,
+      "gross_pnl": 22933.990000000005,
+      "fees_paid": 1515.6519720000003,
+      "slippage_paid": 757.8259860000002,
+      "funding_paid": 3261.3559750853965,
+      "cost_drag_fraction": 0.2413375925028918,
+      "dsr": 0.0,
+      "walk_forward_efficiency": 0.0,
+      "gates_passed": 2,
+      "gates_total": 8
+    }
+  },
+  "gate_results": [
+    {
+      "gate_id": "D2-006-G1: OOS Sharpe >= 1.0",
+      "threshold": 1.0,
+      "observed": -0.4064,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G2: DSR evaluator probability gate",
+      "threshold": "dsr_val > 0.95 vs evaluator SR benchmark",
+      "observed": 0.0,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G3: Per-fold max DD <= 20%",
+      "threshold": 0.2,
+      "observed": 1.0959,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G4: Parameter sensitivity min_ratio >= 0.70",
+      "threshold": 0.7,
+      "observed": -2.0053,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G5: Cost drag <= 50% of gross PnL",
+      "threshold": 0.5,
+      "observed": 0.2413,
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G6: No 90-day window > 60% of PnL",
+      "threshold": 0.6,
+      "observed": 1.5292,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G7: <= 5 free parameters",
+      "threshold": 5,
+      "observed": 2,
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G8: Walk-forward efficiency > 0.5",
+      "threshold": 0.5,
+      "observed": 0.0,
+      "pass": false
+    }
+  ],
+  "overall_verdict": "NO-GO",
+  "observations": "RETROSPECTIVE: this report was authored after execution as part of WP-6c. Metrics are transcribed from DEC-0003, the H-003 trial_log entry, and the H-003 experiment notebook. H-003 generated positive total PnL but negative full-period Sharpe of -0.40644276086066977, with max drawdown of 109.5869% and unstable parameter sensitivity. The strategy failed 6 of 8 D2-006 gates, and DEC-0003 archived the candidate as a baseline NO-GO. Max-drawdown and cost-drag values are under pre-WP-5b pipeline semantics; per WP-5a/WP-5b audit conclusions the overall NO-GO verdict is unaffected by later pipeline fixes.",
+  "next_step_recommendation": "archive",
+  "diagnostic_findings": [
+    "Daily long-only price-band Bollinger mean reversion is not promotable under current promotion gates.",
+    "Positive total PnL did not translate to positive risk-adjusted performance; full-period Sharpe was negative.",
+    "Max drawdown breached both the D2-006 promotion gate and the pre-registered kill-threshold framing.",
+    "Parameter sensitivity was unstable: a +/-25% parameter shift produced a negative minimum ratio to baseline.",
+    "WP-4a failure analysis treats this as a rejection of the tested price-band mean-reversion implementation, not of all mean-reversion or structural dislocation ideas."
+  ]
+}

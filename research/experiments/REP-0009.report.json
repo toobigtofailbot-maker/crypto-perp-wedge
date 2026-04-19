@@ -1,0 +1,97 @@
+{
+  "report_id": "REP-0009",
+  "plan_id": "EXP-0009",
+  "candidate_id": "H-009",
+  "execution_date": "2026-04-17",
+  "trial_ids": [
+    "7292282d-abcb-462c-8d4a-c8572ff529d7"
+  ],
+  "metrics": {
+    "in_sample": {
+      "sharpe": -0.16384370990793867,
+      "source_field": "trial_log.in_sample_sharpe",
+      "window_convention": "No separate IS/OOS split convention existed in repo truth; this field records the full-period Sharpe per DEC-0009 and the trial-log note."
+    },
+    "out_of_sample": {
+      "sharpe": -0.16384370990793867,
+      "source_field": "trial_log.oos_sharpe",
+      "window_convention": "No separate IS/OOS split convention existed in repo truth; this object records full-period baseline metrics from DEC-0009.",
+      "max_drawdown": 9.251630002885372,
+      "n_obs": 110063,
+      "trades": 2148,
+      "hit_rate": 0.3547,
+      "profit_factor": 0.934,
+      "final_equity": -109274.0,
+      "total_pnl": -119274.0,
+      "gross_pnl": 15592.0,
+      "fees_paid": 86620.0,
+      "slippage_paid": 43310.0,
+      "funding_paid": 4937.0,
+      "cost_drag_fraction": 8.6496,
+      "dsr": 0.0,
+      "walk_forward_efficiency": 0.0,
+      "gates_passed": 2,
+      "gates_total": 8
+    }
+  },
+  "gate_results": [
+    {
+      "gate_id": "D2-006-G1: OOS Sharpe >= 1.0",
+      "threshold": 1.0,
+      "observed": -0.1638,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G2: DSR evaluator probability gate",
+      "threshold": "dsr_val > 0.95 vs evaluator SR benchmark",
+      "observed": 0.0,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G3: Per-fold max DD <= 20%",
+      "threshold": 0.2,
+      "observed": 9.2516,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G4: Parameter sensitivity min_ratio >= 0.70",
+      "threshold": 0.7,
+      "observed": -5.3017,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G5: Cost drag <= 50% of gross PnL",
+      "threshold": 0.5,
+      "observed": 8.6496,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G6: No 90-day window > 60% of PnL",
+      "threshold": 0.6,
+      "observed": 0.2961,
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G7: <= 5 free parameters",
+      "threshold": 5,
+      "observed": 5,
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G8: Walk-forward efficiency > 0.5",
+      "threshold": 0.5,
+      "observed": 0.0,
+      "pass": false
+    }
+  ],
+  "overall_verdict": "NO-GO",
+  "observations": "RETROSPECTIVE: this report was authored after execution as part of WP-6c. Metrics are transcribed from DEC-0009 and the H-009 trial_log entry. H-009 produced negative full-period Sharpe of -0.16384370990793867, max drawdown of 925.1630%, 2148 trades, positive gross PnL of 15592.0, and cost drag of 864.96% of gross PnL. The strategy failed 6 of 8 D2-006 gates because the multi-timeframe filter was too permissive to reduce 30m turnover and cost drag, and DEC-0009 archived the candidate as a baseline NO-GO. Max-drawdown and cost-drag values are under pre-WP-5b pipeline semantics; per WP-5a/WP-5b audit conclusions the overall NO-GO verdict is unaffected by later pipeline fixes.",
+  "next_step_recommendation": "archive",
+  "diagnostic_findings": [
+    "The multi-timeframe alignment filter did not provide enough selectivity to overcome the 30m cost-drag failure mode from H-006.",
+    "Gross PnL was positive, but fees and slippage produced total costs that were 8.6496 times gross PnL.",
+    "The 1h and 4h alignment filter permitted entries on roughly 78% of bars, making it nearly as permissive as no filter.",
+    "Parameter sensitivity showed extreme instability, with nearby variants flipping Sharpe sign.",
+    "H-006 and H-009 together exhausted two 30m hypothesis cycles, supporting the Cold Storage status noted in project_status.md."
+  ]
+}

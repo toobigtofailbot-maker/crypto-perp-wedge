@@ -14,6 +14,7 @@ REGISTRY_PATH = REPO_ROOT / "research" / "candidate_registry.jsonl"
 EXPERIMENTS_DIR = REPO_ROOT / "research" / "experiments"
 DECISION_CHANGES_DIR = REPO_ROOT / "research" / "decision_changes"
 RELEASE_NOTES_DIR = REPO_ROOT / "research" / "release_notes"
+AGENT_OUTPUTS_DIR = REPO_ROOT / "research" / "agent_outputs"
 TRIAL_LOG_PATH = REPO_ROOT / "research" / "trial_log.jsonl"
 VIEWS_PATH = Path(__file__).resolve().with_name("views.sql")
 
@@ -132,6 +133,48 @@ def _register_release_notes(conn: duckdb.DuckDBPyConnection) -> None:
             CAST(NULL AS VARCHAR) AS rollback_plan,
             CAST(NULL AS VARCHAR) AS notes,
             CAST([] AS VARCHAR[]) AS linked_artifacts
+        WHERE FALSE
+        """
+    )
+
+
+def _register_agent_outputs(conn: duckdb.DuckDBPyConnection) -> None:
+    agent_output_files = (
+        sorted(AGENT_OUTPUTS_DIR.glob("*.agent_output.json"))
+        if AGENT_OUTPUTS_DIR.exists()
+        else []
+    )
+    if agent_output_files:
+        conn.execute(
+            f"""
+            CREATE VIEW agent_outputs AS
+            SELECT * FROM read_json_auto('{_sql_path(AGENT_OUTPUTS_DIR / "*.agent_output.json")}')
+            """
+        )
+        return
+
+    conn.execute(
+        """
+        CREATE VIEW agent_outputs AS
+        SELECT
+            CAST(NULL AS VARCHAR) AS agent_output_id,
+            CAST(NULL AS VARCHAR) AS agent_type,
+            CAST(NULL AS VARCHAR) AS generated_at,
+            CAST([] AS STRUCT(path VARCHAR, sha256 VARCHAR, role VARCHAR)[]) AS input_data_refs,
+            CAST(NULL AS VARCHAR) AS as_of_timestamp,
+            CAST(NULL AS DOUBLE) AS setup_score,
+            CAST(NULL AS DOUBLE) AS confidence,
+            CAST(NULL AS STRUCT(
+                method_id VARCHAR,
+                realized_volatility DOUBLE,
+                vol_component DOUBLE,
+                funding_component DOUBLE,
+                spread_component DOUBLE,
+                stress_score DOUBLE
+            )) AS scoring_method,
+            CAST(NULL AS VARCHAR) AS rationale_summary,
+            CAST(NULL AS BOOLEAN) AS deterministic,
+            CAST(NULL AS VARCHAR) AS notes
         WHERE FALSE
         """
     )
@@ -286,6 +329,7 @@ def init_duckdb(read_only: bool = True) -> duckdb.DuckDBPyConnection:
     )
     _register_decision_changes(conn)
     _register_release_notes(conn)
+    _register_agent_outputs(conn)
     load_views(conn)
     return conn
 

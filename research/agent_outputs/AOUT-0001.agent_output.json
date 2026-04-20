@@ -1,0 +1,26 @@
+{
+  "agent_output_id": "AOUT-0001",
+  "agent_type": "REGIME_SCORING",
+  "generated_at": "2026-04-19T18:00:00Z",
+  "input_data_refs": [
+    {
+      "path": "tests/fixtures/regime_scoring_market_fixture.json",
+      "sha256": "932d259fa9205c126b3190a743e9c2601be2b3469907ca15d5079a31cc68ac51",
+      "role": "fixture_market_snapshot"
+    }
+  ],
+  "as_of_timestamp": "2026-04-19T17:00:00Z",
+  "setup_score": 72.95,
+  "confidence": 0.891,
+  "scoring_method": {
+    "method_id": "fixture_regime_scoring_v1",
+    "realized_volatility": 0.001720816252602692,
+    "vol_component": 0.3441632505205384,
+    "funding_component": 0.16,
+    "spread_component": 0.16,
+    "stress_score": 0.27049795031232304
+  },
+  "rationale_summary": "Fixture-backed deterministic Regime/Scoring stub: low normalized realized volatility, funding, and spread stress produce a bounded advisory setup score.",
+  "deterministic": true,
+  "notes": "WP-7a advisory-only output generated from a tiny committed fixture. It uses no ignored local processed market data, live external input, network call, LLM call, candidate recommendation, overlay signal, OMS instruction, risk change, sizing instruction, or execution authority."
+}

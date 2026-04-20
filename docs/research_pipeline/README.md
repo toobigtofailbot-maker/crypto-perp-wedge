@@ -49,6 +49,14 @@ explain the first deterministic advisory score bucket mapper introduced by
 WP-6j. The first instance consumes `AOUT-0001` only and maps it into the locked
 `ALLOW` / `ALLOW_REDUCED` / `BLOCK` domain without overlay contact.
 
+## Overlay Shadow Logs
+
+`2026-04-overlay_shadow_log_artifact.md` and
+`2026-04-overlay_shadow_external_hook.md` explain the first zero-override
+overlay shadow log family introduced by WP-7c. The first instance compares
+`BMAP-0001` against an externally observable overlay-side source without
+changing `lib/` or runtime behavior.
+
 ## Briefs / Diagnostic Outputs
 
 - `2026-04-cross_candidate_diagnostic.md`: First cross-candidate diagnostic

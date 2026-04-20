@@ -1,0 +1,218 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crypto-perp-wedge.local/research/schemas/overlay_shadow_log.schema.json",
+  "title": "Overlay Shadow Log",
+  "description": "Zero-override research-side comparison between an externally observed overlay bucket and an advisory bucket mapping.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "overlay_shadow_log_id",
+    "source_bucket_mapping_id",
+    "source_agent_output_id",
+    "observed_overlay_bucket",
+    "observed_overlay_size_multiplier",
+    "mapped_bucket",
+    "size_multiplier",
+    "comparison_result",
+    "override_applied",
+    "fail_open_preserved",
+    "advisory_only",
+    "observed_at",
+    "observation_source",
+    "notes"
+  ],
+  "properties": {
+    "overlay_shadow_log_id": {
+      "description": "Stable overlay-shadow-log artifact identifier.",
+      "type": "string",
+      "pattern": "^OSH-[0-9]{4}$"
+    },
+    "source_bucket_mapping_id": {
+      "description": "Stable source bucket-mapping artifact identifier.",
+      "type": "string",
+      "pattern": "^BMAP-[0-9]{4}$"
+    },
+    "source_agent_output_id": {
+      "description": "Stable source agent-output artifact identifier copied from the bucket mapping.",
+      "type": "string",
+      "pattern": "^AOUT-[0-9]{4}$"
+    },
+    "observed_overlay_bucket": {
+      "description": "Externally observed overlay-side bucket from the locked overlay domain.",
+      "type": "string",
+      "enum": ["ALLOW", "ALLOW_REDUCED", "BLOCK"]
+    },
+    "observed_overlay_size_multiplier": {
+      "description": "Externally observed overlay-side size multiplier associated with the observed bucket.",
+      "type": "number",
+      "enum": [1.0, 0.5, 0.0]
+    },
+    "mapped_bucket": {
+      "description": "Advisory mapped bucket copied from the source bucket mapping.",
+      "type": "string",
+      "enum": ["ALLOW", "ALLOW_REDUCED", "BLOCK"]
+    },
+    "size_multiplier": {
+      "description": "Advisory size multiplier copied from the source bucket mapping.",
+      "type": "number",
+      "enum": [1.0, 0.5, 0.0]
+    },
+    "comparison_result": {
+      "description": "Whether the externally observed overlay bucket matched the advisory mapped bucket.",
+      "type": "string",
+      "enum": ["MATCH", "MISMATCH"]
+    },
+    "override_applied": {
+      "description": "Overlay shadow logs must never override an overlay decision.",
+      "const": false
+    },
+    "fail_open_preserved": {
+      "description": "Whether the locked overlay fail-open semantics remained untouched.",
+      "const": true
+    },
+    "advisory_only": {
+      "description": "Whether the shadow log has no overlay, OMS, risk, or execution authority.",
+      "const": true
+    },
+    "observed_at": {
+      "description": "Timezone-qualified ISO datetime used for the external overlay-side observation.",
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "observation_source": {
+      "description": "External non-lib source pair and deterministic observation metadata.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_type",
+        "snapshot_path",
+        "config_path",
+        "evaluation_time_utc",
+        "decision_id",
+        "context_missing",
+        "reason_code"
+      ],
+      "properties": {
+        "source_type": {
+          "description": "Stable label for the external observation mechanism.",
+          "type": "string",
+          "const": "committed_macro_context_fixture"
+        },
+        "snapshot_path": {
+          "description": "Repo-relative committed macro context snapshot path.",
+          "type": "string",
+          "const": "tests/fixtures/context_snapshot_sample.json"
+        },
+        "config_path": {
+          "description": "Repo-relative committed macro flag configuration path.",
+          "type": "string",
+          "const": "configs/fmp_macro_flags.json"
+        },
+        "evaluation_time_utc": {
+          "description": "Timezone-qualified ISO datetime used for the overlay-side observation.",
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(Z|[+-][0-9]{2}:[0-9]{2})$"
+        },
+        "decision_id": {
+          "description": "Locked overlay decision identifier exposed by the external macro flag surface.",
+          "type": "string",
+          "const": "D-0001"
+        },
+        "context_missing": {
+          "description": "Whether the external context source was missing or empty.",
+          "type": "boolean"
+        },
+        "reason_code": {
+          "description": "Deterministic observation reason code.",
+          "type": "string",
+          "enum": ["ACTIVE_WINDOW_MATCH", "NO_ACTIVE_WINDOW", "CONTEXT_MISSING_FAIL_OPEN"]
+        }
+      }
+    },
+    "notes": {
+      "description": "Boundary notes; must state zero override, no lib changes, no execution influence, and no OMS or risk authority.",
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "observed_overlay_bucket": { "const": "ALLOW" }
+        },
+        "required": ["observed_overlay_bucket"]
+      },
+      "then": {
+        "properties": {
+          "observed_overlay_size_multiplier": { "const": 1.0 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "observed_overlay_bucket": { "const": "ALLOW_REDUCED" }
+        },
+        "required": ["observed_overlay_bucket"]
+      },
+      "then": {
+        "properties": {
+          "observed_overlay_size_multiplier": { "const": 0.5 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "observed_overlay_bucket": { "const": "BLOCK" }
+        },
+        "required": ["observed_overlay_bucket"]
+      },
+      "then": {
+        "properties": {
+          "observed_overlay_size_multiplier": { "const": 0.0 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "mapped_bucket": { "const": "ALLOW" }
+        },
+        "required": ["mapped_bucket"]
+      },
+      "then": {
+        "properties": {
+          "size_multiplier": { "const": 1.0 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "mapped_bucket": { "const": "ALLOW_REDUCED" }
+        },
+        "required": ["mapped_bucket"]
+      },
+      "then": {
+        "properties": {
+          "size_multiplier": { "const": 0.5 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "mapped_bucket": { "const": "BLOCK" }
+        },
+        "required": ["mapped_bucket"]
+      },
+      "then": {
+        "properties": {
+          "size_multiplier": { "const": 0.0 }
+        }
+      }
+    }
+  ]
+}

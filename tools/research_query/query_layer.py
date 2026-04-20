@@ -16,6 +16,7 @@ DECISION_CHANGES_DIR = REPO_ROOT / "research" / "decision_changes"
 RELEASE_NOTES_DIR = REPO_ROOT / "research" / "release_notes"
 AGENT_OUTPUTS_DIR = REPO_ROOT / "research" / "agent_outputs"
 BUCKET_MAPPINGS_DIR = REPO_ROOT / "research" / "bucket_mappings"
+OVERLAY_SHADOW_LOGS_DIR = REPO_ROOT / "research" / "overlay_shadow_logs"
 TRIAL_LOG_PATH = REPO_ROOT / "research" / "trial_log.jsonl"
 VIEWS_PATH = Path(__file__).resolve().with_name("views.sql")
 
@@ -220,6 +221,52 @@ def _register_bucket_mappings(conn: duckdb.DuckDBPyConnection) -> None:
     )
 
 
+def _register_overlay_shadow_logs(conn: duckdb.DuckDBPyConnection) -> None:
+    shadow_log_files = (
+        sorted(OVERLAY_SHADOW_LOGS_DIR.glob("*.overlay_shadow_log.json"))
+        if OVERLAY_SHADOW_LOGS_DIR.exists()
+        else []
+    )
+    if shadow_log_files:
+        conn.execute(
+            f"""
+            CREATE VIEW overlay_shadow_logs AS
+            SELECT * FROM read_json_auto('{_sql_path(OVERLAY_SHADOW_LOGS_DIR / "*.overlay_shadow_log.json")}')
+            """
+        )
+        return
+
+    conn.execute(
+        """
+        CREATE VIEW overlay_shadow_logs AS
+        SELECT
+            CAST(NULL AS VARCHAR) AS overlay_shadow_log_id,
+            CAST(NULL AS VARCHAR) AS source_bucket_mapping_id,
+            CAST(NULL AS VARCHAR) AS source_agent_output_id,
+            CAST(NULL AS VARCHAR) AS observed_overlay_bucket,
+            CAST(NULL AS DOUBLE) AS observed_overlay_size_multiplier,
+            CAST(NULL AS VARCHAR) AS mapped_bucket,
+            CAST(NULL AS DOUBLE) AS size_multiplier,
+            CAST(NULL AS VARCHAR) AS comparison_result,
+            CAST(NULL AS BOOLEAN) AS override_applied,
+            CAST(NULL AS BOOLEAN) AS fail_open_preserved,
+            CAST(NULL AS BOOLEAN) AS advisory_only,
+            CAST(NULL AS VARCHAR) AS observed_at,
+            CAST(NULL AS STRUCT(
+                source_type VARCHAR,
+                snapshot_path VARCHAR,
+                config_path VARCHAR,
+                evaluation_time_utc VARCHAR,
+                decision_id VARCHAR,
+                context_missing BOOLEAN,
+                reason_code VARCHAR
+            )) AS observation_source,
+            CAST(NULL AS VARCHAR) AS notes
+        WHERE FALSE
+        """
+    )
+
+
 def _rows_as_dicts(cursor: duckdb.DuckDBPyConnection) -> list[dict[str, Any]]:
     columns = [description[0] for description in cursor.description or []]
     return [dict(zip(columns, row, strict=True)) for row in cursor.fetchall()]
@@ -371,6 +418,7 @@ def init_duckdb(read_only: bool = True) -> duckdb.DuckDBPyConnection:
     _register_release_notes(conn)
     _register_agent_outputs(conn)
     _register_bucket_mappings(conn)
+    _register_overlay_shadow_logs(conn)
     load_views(conn)
     return conn
 

@@ -1,0 +1,32 @@
+{
+  "release_notes_id": "REL-0002",
+  "decision_change_id": "DCH-0002",
+  "candidate_id": "H-004",
+  "released_at": "2026-04-20T12:30:00-06:00",
+  "released_by": "WP-6i forward-flow documentation package",
+  "effective_stage": "archived",
+  "monitoring_plan": {
+    "metrics_tracked": [
+      "Artifact linkage remains valid for H-004, REP-0011, and DCH-0002",
+      "Stage 6 and Stage 7 integrity views remain empty",
+      "No promotion, paper, shadow, live, runtime, schema, validator, or query-layer artifacts are introduced for H-004"
+    ],
+    "review_cadence": "Forward-flow documentation review during WP-6i PR review only; no live operational monitoring cadence is created.",
+    "rollback_triggers": [
+      "Any validator or integrity-view failure involving DCH-0002 or REL-0002",
+      "Any wording that implies H-004 was promoted, rerun, approved for paper, approved for shadow, approved for live, or changed at runtime",
+      "Any discovered mismatch between effective_stage and the referenced decision_change transition"
+    ],
+    "alert_recipients": [
+      "WP-6i human reviewer"
+    ]
+  },
+  "rollback_plan": "FORWARD-FLOW: no runtime rollback exists because no promotion, release deployment, paper validation, shadow deployment, live deployment, or execution behavior change occurred. If this documentation is found inaccurate, revert or amend only the WP-6i documentation artifacts through a separately reviewed package; do not alter H-004 research history, trial history, schemas, validators, query-layer files, or execution behavior.",
+  "notes": "FORWARD-FLOW: first Stage 7 release_notes instance authored from current-pipeline evidence. The effective stage is archived to match DCH-0002 stage_transition.to_stage and the REP-0011 NO-GO archive recommendation; this is a terminal-state confirmation, not a promotion or live release.",
+  "linked_artifacts": [
+    "research/experiments/EXP-0011.plan.json",
+    "research/experiments/REP-0011.report.json",
+    "research/candidate_registry.jsonl:H-004",
+    "docs/project_status.md"
+  ]
+}

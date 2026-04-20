@@ -21,6 +21,9 @@ instance is authored after execution.
 The first Stage 6 / Stage 7 retrospective instance pair is DCH-0001 / REL-0001
 for the historical H-005 NO-GO archive outcome.
 
+The first Stage 6 / Stage 7 forward-flow instance pair is DCH-0002 / REL-0002
+for the H-004 REP-0011 current-evidence NO-GO archive outcome.
+
 ## Query Layer
 
 `2026-04-query_layer.md` explains the read-only DuckDB query layer over the

@@ -143,6 +143,7 @@ The accepted next architecture tranche is candidate-agnostic research machine fo
 - WP-7c merged: first external overlay shadow hook added, logging mapper-vs-overlay comparison evidence with zero override and no `lib/` changes.
 - WP-7d merged: first aggregate overlay-shadow signal views added, summarizing agreement/disagreement evidence and auditing zero-override behavior over the committed shadow-log family.
 - WP-7e merged: first shadow-log diagnostic brief added, consuming aggregate shadow-signal views and documenting the current evidence state without recommending policy change.
+- WP-7f merged: first deterministic macro/narrative advisory agent stub added, fixture-backed and candidate-agnostic, producing a macro-window output with no runtime influence.
 
 ## Update Discipline
 

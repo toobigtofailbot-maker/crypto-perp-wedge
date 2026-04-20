@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import re
+import hashlib
+import json
 from pathlib import Path
 from typing import Any
 
@@ -15,6 +17,7 @@ EXPERIMENTS_DIR = REPO_ROOT / "research" / "experiments"
 DECISION_CHANGES_DIR = REPO_ROOT / "research" / "decision_changes"
 RELEASE_NOTES_DIR = REPO_ROOT / "research" / "release_notes"
 AGENT_OUTPUTS_DIR = REPO_ROOT / "research" / "agent_outputs"
+MACRO_WINDOW_AGENT_OUTPUTS_DIR = REPO_ROOT / "research" / "macro_window_agent_outputs"
 BUCKET_MAPPINGS_DIR = REPO_ROOT / "research" / "bucket_mappings"
 OVERLAY_SHADOW_LOGS_DIR = REPO_ROOT / "research" / "overlay_shadow_logs"
 TRIAL_LOG_PATH = REPO_ROOT / "research" / "trial_log.jsonl"
@@ -57,6 +60,14 @@ class ReadOnlyQueryError(ValueError):
 
 def _sql_path(path: Path) -> str:
     return path.as_posix().replace("'", "''")
+
+
+def _sql_literal(value: Any) -> str:
+    if value is None:
+        return "NULL"
+    if isinstance(value, bool):
+        return "TRUE" if value else "FALSE"
+    return "'" + str(value).replace("'", "''") + "'"
 
 
 def _require_file(path: Path, label: str) -> None:
@@ -180,6 +191,144 @@ def _register_agent_outputs(conn: duckdb.DuckDBPyConnection) -> None:
         WHERE FALSE
         """
     )
+
+
+def _resolve_repo_ref(ref_path: Any) -> Path | None:
+    if not isinstance(ref_path, str) or not ref_path:
+        return None
+    candidate = Path(ref_path)
+    if candidate.is_absolute() or ".." in candidate.parts:
+        return None
+    resolved = (REPO_ROOT / candidate).resolve()
+    try:
+        resolved.relative_to(REPO_ROOT.resolve())
+    except ValueError:
+        return None
+    return resolved
+
+
+def _macro_window_fixture_check_rows() -> list[dict[str, Any]]:
+    if not MACRO_WINDOW_AGENT_OUTPUTS_DIR.exists():
+        return []
+
+    rows: list[dict[str, Any]] = []
+    for output_path in sorted(MACRO_WINDOW_AGENT_OUTPUTS_DIR.glob("*.macro_window_agent_output.json")):
+        try:
+            payload = json.loads(output_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            continue
+
+        source_fixture_path = payload.get("source_fixture_path")
+        fixture_path = _resolve_repo_ref(source_fixture_path)
+        fixture_exists = bool(fixture_path and fixture_path.exists())
+        actual_sha256: str | None = None
+        expected_flag: bool | None = None
+
+        if fixture_path and fixture_path.exists():
+            actual_sha256 = hashlib.sha256(fixture_path.read_bytes()).hexdigest()
+            try:
+                fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                fixture = {}
+            if "macro_event_window_active" in fixture:
+                expected_flag = bool(fixture["macro_event_window_active"])
+
+        rows.append(
+            {
+                "macro_window_agent_output_id": payload.get("macro_window_agent_output_id"),
+                "source_fixture_path": source_fixture_path,
+                "source_fixture_exists": fixture_exists,
+                "actual_source_fixture_sha256": actual_sha256,
+                "expected_macro_window_flag": expected_flag,
+            }
+        )
+
+    return rows
+
+
+def _register_macro_window_fixture_checks(conn: duckdb.DuckDBPyConnection) -> None:
+    rows = _macro_window_fixture_check_rows()
+    if rows:
+        values = ",\n            ".join(
+            "("
+            + ", ".join(
+                [
+                    _sql_literal(row["macro_window_agent_output_id"]),
+                    _sql_literal(row["source_fixture_path"]),
+                    _sql_literal(row["source_fixture_exists"]),
+                    _sql_literal(row["actual_source_fixture_sha256"]),
+                    _sql_literal(row["expected_macro_window_flag"]),
+                ]
+            )
+            + ")"
+            for row in rows
+        )
+        conn.execute(
+            f"""
+            CREATE VIEW macro_window_agent_output_fixture_checks AS
+            SELECT *
+            FROM (VALUES
+                {values}
+            ) AS t(
+                macro_window_agent_output_id,
+                source_fixture_path,
+                source_fixture_exists,
+                actual_source_fixture_sha256,
+                expected_macro_window_flag
+            )
+            """
+        )
+        return
+
+    conn.execute(
+        """
+        CREATE VIEW macro_window_agent_output_fixture_checks AS
+        SELECT
+            CAST(NULL AS VARCHAR) AS macro_window_agent_output_id,
+            CAST(NULL AS VARCHAR) AS source_fixture_path,
+            CAST(NULL AS BOOLEAN) AS source_fixture_exists,
+            CAST(NULL AS VARCHAR) AS actual_source_fixture_sha256,
+            CAST(NULL AS BOOLEAN) AS expected_macro_window_flag
+        WHERE FALSE
+        """
+    )
+
+
+def _register_macro_window_agent_outputs(conn: duckdb.DuckDBPyConnection) -> None:
+    macro_window_agent_output_files = (
+        sorted(MACRO_WINDOW_AGENT_OUTPUTS_DIR.glob("*.macro_window_agent_output.json"))
+        if MACRO_WINDOW_AGENT_OUTPUTS_DIR.exists()
+        else []
+    )
+    if macro_window_agent_output_files:
+        conn.execute(
+            f"""
+            CREATE VIEW macro_window_agent_outputs AS
+            SELECT * FROM read_json_auto('{_sql_path(MACRO_WINDOW_AGENT_OUTPUTS_DIR / "*.macro_window_agent_output.json")}')
+            """
+        )
+        _register_macro_window_fixture_checks(conn)
+        return
+
+    conn.execute(
+        """
+        CREATE VIEW macro_window_agent_outputs AS
+        SELECT
+            CAST(NULL AS VARCHAR) AS macro_window_agent_output_id,
+            CAST(NULL AS VARCHAR) AS generated_at,
+            CAST(NULL AS VARCHAR) AS as_of_timestamp,
+            CAST(NULL AS VARCHAR) AS source_fixture_path,
+            CAST(NULL AS VARCHAR) AS source_fixture_sha256,
+            CAST(NULL AS BOOLEAN) AS macro_window_flag,
+            CAST(NULL AS VARCHAR) AS event_class,
+            CAST(NULL AS VARCHAR) AS event_name,
+            CAST(NULL AS BOOLEAN) AS deterministic,
+            CAST(NULL AS BOOLEAN) AS advisory_only,
+            CAST(NULL AS VARCHAR) AS notes
+        WHERE FALSE
+        """
+    )
+    _register_macro_window_fixture_checks(conn)
 
 
 def _register_bucket_mappings(conn: duckdb.DuckDBPyConnection) -> None:
@@ -417,6 +566,7 @@ def init_duckdb(read_only: bool = True) -> duckdb.DuckDBPyConnection:
     _register_decision_changes(conn)
     _register_release_notes(conn)
     _register_agent_outputs(conn)
+    _register_macro_window_agent_outputs(conn)
     _register_bucket_mappings(conn)
     _register_overlay_shadow_logs(conn)
     load_views(conn)

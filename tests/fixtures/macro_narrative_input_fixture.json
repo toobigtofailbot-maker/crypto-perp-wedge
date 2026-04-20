@@ -1,0 +1,11 @@
+{
+  "fixture_id": "MACRO-NARRATIVE-FIXTURE-0001",
+  "generated_at": "2026-04-19T19:00:00Z",
+  "as_of_timestamp": "2026-04-19T18:00:00Z",
+  "macro_event_window_active": true,
+  "event_class": "SYNTHETIC_MACRO_EVENT",
+  "event_name": "Synthetic macro risk window fixture",
+  "narrative_risk_level": "ELEVATED",
+  "operator_notes": "Synthetic committed fixture only. This is not live news, not an external feed, not runtime operator input, and not execution guidance.",
+  "deterministic_stub_case": "macro_window_active_true"
+}

@@ -653,3 +653,94 @@ SELECT
     CAST(advisory_only AS VARCHAR) AS actual_value
 FROM overlay_shadow_logs
 WHERE advisory_only IS DISTINCT FROM true;
+
+-- What macro-window advisory outputs have been recorded?
+-- Exposes one row per macro_window_agent_output artifact without expanding fixture checks.
+CREATE OR REPLACE VIEW v_macro_window_agent_outputs_overview AS
+SELECT
+    macro_window_agent_output_id,
+    macro_window_flag,
+    event_class,
+    event_name,
+    deterministic,
+    advisory_only
+FROM macro_window_agent_outputs;
+
+-- What is the latest macro-window advisory output?
+-- Uses generated_at as the primary ordering field and artifact ID as a stable tie-breaker.
+CREATE OR REPLACE VIEW v_macro_window_agent_outputs_latest AS
+SELECT
+    macro_window_agent_output_id,
+    generated_at,
+    as_of_timestamp,
+    macro_window_flag,
+    event_class,
+    event_name,
+    deterministic,
+    advisory_only
+FROM macro_window_agent_outputs
+QUALIFY ROW_NUMBER() OVER (
+    ORDER BY generated_at DESC, macro_window_agent_output_id DESC
+) = 1;
+
+-- Are macro_window_agent_output fixture references and advisory flags consistent?
+-- Returns missing fixture, hash mismatch, deterministic/advisory violations, or rule mismatch.
+-- Expected to be empty in a healthy repo state.
+CREATE OR REPLACE VIEW v_integrity_macro_window_agent_output_refs AS
+SELECT
+    'macro_window_missing_fixture' AS issue_type,
+    m.macro_window_agent_output_id,
+    m.source_fixture_path,
+    'source_fixture_path' AS source_field,
+    'exists' AS expected_value,
+    CAST(c.source_fixture_exists AS VARCHAR) AS actual_value
+FROM macro_window_agent_outputs AS m
+LEFT JOIN macro_window_agent_output_fixture_checks AS c
+  ON m.macro_window_agent_output_id = c.macro_window_agent_output_id
+WHERE c.source_fixture_exists IS DISTINCT FROM true
+UNION ALL
+SELECT
+    'macro_window_source_hash_mismatch' AS issue_type,
+    m.macro_window_agent_output_id,
+    m.source_fixture_path,
+    'source_fixture_sha256' AS source_field,
+    m.source_fixture_sha256 AS expected_value,
+    c.actual_source_fixture_sha256 AS actual_value
+FROM macro_window_agent_outputs AS m
+JOIN macro_window_agent_output_fixture_checks AS c
+  ON m.macro_window_agent_output_id = c.macro_window_agent_output_id
+WHERE c.source_fixture_exists IS TRUE
+  AND m.source_fixture_sha256 <> c.actual_source_fixture_sha256
+UNION ALL
+SELECT
+    'macro_window_not_deterministic' AS issue_type,
+    macro_window_agent_output_id,
+    source_fixture_path,
+    'deterministic' AS source_field,
+    'true' AS expected_value,
+    CAST(deterministic AS VARCHAR) AS actual_value
+FROM macro_window_agent_outputs
+WHERE deterministic IS DISTINCT FROM true
+UNION ALL
+SELECT
+    'macro_window_not_advisory_only' AS issue_type,
+    macro_window_agent_output_id,
+    source_fixture_path,
+    'advisory_only' AS source_field,
+    'true' AS expected_value,
+    CAST(advisory_only AS VARCHAR) AS actual_value
+FROM macro_window_agent_outputs
+WHERE advisory_only IS DISTINCT FROM true
+UNION ALL
+SELECT
+    'macro_window_flag_rule_mismatch' AS issue_type,
+    m.macro_window_agent_output_id,
+    m.source_fixture_path,
+    'macro_window_flag' AS source_field,
+    CAST(c.expected_macro_window_flag AS VARCHAR) AS expected_value,
+    CAST(m.macro_window_flag AS VARCHAR) AS actual_value
+FROM macro_window_agent_outputs AS m
+JOIN macro_window_agent_output_fixture_checks AS c
+  ON m.macro_window_agent_output_id = c.macro_window_agent_output_id
+WHERE c.expected_macro_window_flag IS NOT NULL
+  AND m.macro_window_flag IS DISTINCT FROM c.expected_macro_window_flag;

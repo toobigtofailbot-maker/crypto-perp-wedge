@@ -42,6 +42,13 @@ the Human Approval Gate and Release & Monitor stages.
 advisory agent output family introduced by WP-7a. The first instance is
 fixture-backed, schema-validated, queryable, and advisory-only.
 
+## Macro Window Agent Outputs
+
+`2026-04-macro_window_agent_output_artifact.md` and
+`2026-04-macro_narrative_agent_stub.md` explain the first deterministic
+macro/narrative advisory lane introduced by WP-7f. The first instance is a
+committed-fixture-backed macro-window flag with no runtime influence.
+
 ## Advisory Bucket Mappings
 
 `2026-04-bucket_mapping_artifact.md` and `2026-04-score_bucket_mapper.md`

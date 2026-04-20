@@ -344,3 +344,107 @@ WHERE input_ref.path IS NULL
    OR NOT regexp_matches(input_ref.sha256, '^[0-9a-f]{64}$')
    OR input_ref.role IS NULL
    OR input_ref.role <> 'fixture_market_snapshot';
+
+-- What deterministic advisory bucket mappings have been recorded?
+-- Exposes one row per bucket_mapping artifact without creating overlay contact.
+CREATE OR REPLACE VIEW v_bucket_mappings_overview AS
+SELECT
+    bucket_mapping_id,
+    source_agent_output_id,
+    agent_type,
+    mapped_bucket,
+    size_multiplier,
+    source_setup_score,
+    source_confidence,
+    deterministic,
+    advisory_only
+FROM bucket_mappings;
+
+-- What is the latest deterministic advisory bucket mapping per agent family?
+-- Uses generated_at as the primary ordering field and artifact ID as a stable tie-breaker.
+CREATE OR REPLACE VIEW v_bucket_mappings_latest AS
+SELECT
+    bucket_mapping_id,
+    source_agent_output_id,
+    agent_type,
+    mapped_bucket,
+    size_multiplier,
+    source_setup_score,
+    source_confidence,
+    deterministic,
+    advisory_only
+FROM bucket_mappings
+QUALIFY ROW_NUMBER() OVER (
+    PARTITION BY agent_type
+    ORDER BY generated_at DESC, bucket_mapping_id DESC
+) = 1;
+
+-- Do all bucket_mapping references and copied source values resolve?
+-- Filesystem source existence is also enforced by validate_bucket_mappings.py.
+-- Expected to be empty in a healthy repo state.
+CREATE OR REPLACE VIEW v_integrity_bucket_mapping_refs AS
+SELECT
+    'bucket_mapping_unknown_agent_output' AS issue_type,
+    b.bucket_mapping_id,
+    b.source_agent_output_id,
+    CAST(NULL AS VARCHAR) AS source_field,
+    CAST(NULL AS VARCHAR) AS expected_value,
+    CAST(NULL AS VARCHAR) AS actual_value
+FROM bucket_mappings AS b
+LEFT JOIN agent_outputs AS a
+  ON b.source_agent_output_id = a.agent_output_id
+WHERE a.agent_output_id IS NULL
+UNION ALL
+SELECT
+    'bucket_mapping_agent_type_mismatch' AS issue_type,
+    b.bucket_mapping_id,
+    b.source_agent_output_id,
+    'agent_type' AS source_field,
+    a.agent_type AS expected_value,
+    b.agent_type AS actual_value
+FROM bucket_mappings AS b
+JOIN agent_outputs AS a
+  ON b.source_agent_output_id = a.agent_output_id
+WHERE b.agent_type <> a.agent_type
+UNION ALL
+SELECT
+    'bucket_mapping_setup_score_mismatch' AS issue_type,
+    b.bucket_mapping_id,
+    b.source_agent_output_id,
+    'source_setup_score' AS source_field,
+    CAST(a.setup_score AS VARCHAR) AS expected_value,
+    CAST(b.source_setup_score AS VARCHAR) AS actual_value
+FROM bucket_mappings AS b
+JOIN agent_outputs AS a
+  ON b.source_agent_output_id = a.agent_output_id
+WHERE b.source_setup_score <> a.setup_score
+UNION ALL
+SELECT
+    'bucket_mapping_confidence_mismatch' AS issue_type,
+    b.bucket_mapping_id,
+    b.source_agent_output_id,
+    'source_confidence' AS source_field,
+    CAST(a.confidence AS VARCHAR) AS expected_value,
+    CAST(b.source_confidence AS VARCHAR) AS actual_value
+FROM bucket_mappings AS b
+JOIN agent_outputs AS a
+  ON b.source_agent_output_id = a.agent_output_id
+WHERE b.source_confidence <> a.confidence
+UNION ALL
+SELECT
+    'bucket_mapping_illegal_multiplier_pair' AS issue_type,
+    bucket_mapping_id,
+    source_agent_output_id,
+    'mapped_bucket_size_multiplier' AS source_field,
+    CASE
+        WHEN mapped_bucket = 'ALLOW' THEN '1.0'
+        WHEN mapped_bucket = 'ALLOW_REDUCED' THEN '0.5'
+        WHEN mapped_bucket = 'BLOCK' THEN '0.0'
+        ELSE 'ALLOW|ALLOW_REDUCED|BLOCK'
+    END AS expected_value,
+    CAST(size_multiplier AS VARCHAR) AS actual_value
+FROM bucket_mappings
+WHERE (mapped_bucket = 'ALLOW' AND size_multiplier <> 1.0)
+   OR (mapped_bucket = 'ALLOW_REDUCED' AND size_multiplier <> 0.5)
+   OR (mapped_bucket = 'BLOCK' AND size_multiplier <> 0.0)
+   OR mapped_bucket NOT IN ('ALLOW', 'ALLOW_REDUCED', 'BLOCK');

@@ -1,0 +1,170 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crypto-perp-wedge.local/research/schemas/bucket_mapping.schema.json",
+  "title": "Bucket Mapping",
+  "description": "Deterministic advisory score bucket mapping artifact for Z2 to Z3 research-pipeline evidence.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "bucket_mapping_id",
+    "source_agent_output_id",
+    "agent_type",
+    "generated_at",
+    "as_of_timestamp",
+    "source_setup_score",
+    "source_confidence",
+    "mapping_method",
+    "confidence_floor",
+    "confidence_floor_triggered",
+    "mapped_bucket",
+    "size_multiplier",
+    "deterministic",
+    "advisory_only",
+    "notes"
+  ],
+  "properties": {
+    "bucket_mapping_id": {
+      "description": "Stable bucket-mapping artifact identifier.",
+      "type": "string",
+      "pattern": "^BMAP-[0-9]{4}$"
+    },
+    "source_agent_output_id": {
+      "description": "Stable source agent-output artifact identifier.",
+      "type": "string",
+      "pattern": "^AOUT-[0-9]{4}$"
+    },
+    "agent_type": {
+      "description": "Bounded advisory agent family whose output was mapped.",
+      "type": "string",
+      "enum": ["REGIME_SCORING"]
+    },
+    "generated_at": {
+      "description": "Timezone-qualified ISO datetime copied from the source agent output.",
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "as_of_timestamp": {
+      "description": "Timezone-qualified ISO datetime copied from the source agent output.",
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "source_setup_score": {
+      "description": "Bounded setup score copied from the source agent output.",
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "source_confidence": {
+      "description": "Bounded confidence copied from the source agent output.",
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "mapping_method": {
+      "description": "Stable identifier for the deterministic mapping formula.",
+      "type": "string",
+      "const": "score_thresholds_with_confidence_floor_v1"
+    },
+    "confidence_floor": {
+      "description": "Hard confidence floor below which the advisory bucket maps to BLOCK.",
+      "type": "number",
+      "const": 0.6
+    },
+    "confidence_floor_triggered": {
+      "description": "Whether the confidence floor forced the advisory bucket to BLOCK.",
+      "type": "boolean"
+    },
+    "mapped_bucket": {
+      "description": "Bounded advisory bucket produced by the mapper.",
+      "type": "string",
+      "enum": ["ALLOW", "ALLOW_REDUCED", "BLOCK"]
+    },
+    "size_multiplier": {
+      "description": "Advisory size multiplier associated with the mapped bucket.",
+      "type": "number",
+      "enum": [1.0, 0.5, 0.0]
+    },
+    "deterministic": {
+      "description": "Whether the mapping was produced without stochastic, LLM, network, or live external inputs.",
+      "const": true
+    },
+    "advisory_only": {
+      "description": "Whether the mapping has no overlay, OMS, risk, or execution authority.",
+      "const": true
+    },
+    "notes": {
+      "description": "Boundary notes; must not imply overlay contact, bucket override authority, sizing authority, OMS, risk, or execution influence.",
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "mapped_bucket": { "const": "ALLOW" }
+        },
+        "required": ["mapped_bucket"]
+      },
+      "then": {
+        "properties": {
+          "size_multiplier": { "const": 1.0 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "mapped_bucket": { "const": "ALLOW_REDUCED" }
+        },
+        "required": ["mapped_bucket"]
+      },
+      "then": {
+        "properties": {
+          "size_multiplier": { "const": 0.5 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "mapped_bucket": { "const": "BLOCK" }
+        },
+        "required": ["mapped_bucket"]
+      },
+      "then": {
+        "properties": {
+          "size_multiplier": { "const": 0.0 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "confidence_floor_triggered": { "const": true }
+        },
+        "required": ["confidence_floor_triggered"]
+      },
+      "then": {
+        "properties": {
+          "source_confidence": { "exclusiveMaximum": 0.6 },
+          "mapped_bucket": { "const": "BLOCK" },
+          "size_multiplier": { "const": 0.0 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "confidence_floor_triggered": { "const": false }
+        },
+        "required": ["confidence_floor_triggered"]
+      },
+      "then": {
+        "properties": {
+          "source_confidence": { "minimum": 0.6 }
+        }
+      }
+    }
+  ]
+}

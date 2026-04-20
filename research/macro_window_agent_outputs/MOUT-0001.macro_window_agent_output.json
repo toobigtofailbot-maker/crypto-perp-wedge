@@ -1,0 +1,13 @@
+{
+  "macro_window_agent_output_id": "MOUT-0001",
+  "generated_at": "2026-04-19T19:00:00Z",
+  "as_of_timestamp": "2026-04-19T18:00:00Z",
+  "source_fixture_path": "tests/fixtures/macro_narrative_input_fixture.json",
+  "source_fixture_sha256": "4b9206c4162a5c96db60ef6dd51b8fec28d728f7bfe5a113b247bb6c82867a2b",
+  "macro_window_flag": true,
+  "event_class": "SYNTHETIC_MACRO_EVENT",
+  "event_name": "Synthetic macro risk window fixture",
+  "deterministic": true,
+  "advisory_only": true,
+  "notes": "WP-7f fixture-backed macro-window advisory output. It is advisory-only, has no runtime influence, no execution authority, no live news ingestion, no LLM call, no candidate-specific logic, and no overlay, OMS, risk, sizing, or policy authority."
+}

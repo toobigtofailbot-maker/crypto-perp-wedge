@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crypto-perp-wedge.local/research/schemas/macro_window_agent_output.schema.json",
+  "title": "Macro Window Agent Output",
+  "description": "Deterministic advisory macro-window agent output artifact for fixture-backed Z2 research-pipeline evidence.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "macro_window_agent_output_id",
+    "generated_at",
+    "as_of_timestamp",
+    "source_fixture_path",
+    "source_fixture_sha256",
+    "macro_window_flag",
+    "event_class",
+    "event_name",
+    "deterministic",
+    "advisory_only",
+    "notes"
+  ],
+  "properties": {
+    "macro_window_agent_output_id": {
+      "description": "Stable macro-window agent-output artifact identifier.",
+      "type": "string",
+      "pattern": "^MOUT-[0-9]{4}$"
+    },
+    "generated_at": {
+      "description": "Timezone-qualified ISO datetime copied from the committed fixture.",
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "as_of_timestamp": {
+      "description": "Timezone-qualified ISO datetime copied from the committed fixture.",
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "source_fixture_path": {
+      "description": "Repo-relative committed fixture path used as the sole input source.",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9_./-]+$"
+    },
+    "source_fixture_sha256": {
+      "description": "SHA256 hash of the referenced fixture file.",
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "macro_window_flag": {
+      "description": "Deterministic advisory macro-window flag derived from the fixture.",
+      "type": "boolean"
+    },
+    "event_class": {
+      "description": "Fixture-provided macro or narrative event class.",
+      "type": "string",
+      "minLength": 1
+    },
+    "event_name": {
+      "description": "Fixture-provided macro or narrative event name.",
+      "type": "string",
+      "minLength": 1
+    },
+    "deterministic": {
+      "description": "Whether the output was produced without stochastic, LLM, network, or live external inputs.",
+      "const": true
+    },
+    "advisory_only": {
+      "description": "Whether the output has no runtime, overlay, OMS, risk, or execution authority.",
+      "const": true
+    },
+    "notes": {
+      "description": "Boundary notes; must not imply runtime influence, execution authority, candidate recommendation, OMS, risk, or overlay authority.",
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

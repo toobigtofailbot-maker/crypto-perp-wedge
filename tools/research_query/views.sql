@@ -448,3 +448,158 @@ WHERE (mapped_bucket = 'ALLOW' AND size_multiplier <> 1.0)
    OR (mapped_bucket = 'ALLOW_REDUCED' AND size_multiplier <> 0.5)
    OR (mapped_bucket = 'BLOCK' AND size_multiplier <> 0.0)
    OR mapped_bucket NOT IN ('ALLOW', 'ALLOW_REDUCED', 'BLOCK');
+
+-- What zero-override overlay shadow comparisons have been recorded?
+-- Exposes one row per overlay_shadow_log artifact without creating execution influence.
+CREATE OR REPLACE VIEW v_overlay_shadow_logs_overview AS
+SELECT
+    overlay_shadow_log_id,
+    source_bucket_mapping_id,
+    source_agent_output_id,
+    observed_overlay_bucket,
+    mapped_bucket,
+    size_multiplier,
+    comparison_result,
+    override_applied,
+    fail_open_preserved,
+    advisory_only
+FROM overlay_shadow_logs;
+
+-- What is the latest overlay shadow comparison per source bucket mapping?
+-- Uses observed_at as the primary ordering field and artifact ID as a stable tie-breaker.
+CREATE OR REPLACE VIEW v_overlay_shadow_logs_latest AS
+SELECT
+    overlay_shadow_log_id,
+    source_bucket_mapping_id,
+    source_agent_output_id,
+    observed_overlay_bucket,
+    mapped_bucket,
+    size_multiplier,
+    comparison_result,
+    override_applied,
+    fail_open_preserved,
+    advisory_only
+FROM overlay_shadow_logs
+QUALIFY ROW_NUMBER() OVER (
+    PARTITION BY source_bucket_mapping_id
+    ORDER BY observed_at DESC, overlay_shadow_log_id DESC
+) = 1;
+
+-- Do all overlay_shadow_log references and copied source values resolve?
+-- Returns unresolved references, source mismatches, or zero-override violations.
+-- Expected to be empty in a healthy repo state.
+CREATE OR REPLACE VIEW v_integrity_overlay_shadow_refs AS
+SELECT
+    'overlay_shadow_unknown_bucket_mapping' AS issue_type,
+    o.overlay_shadow_log_id,
+    o.source_bucket_mapping_id,
+    o.source_agent_output_id,
+    CAST(NULL AS VARCHAR) AS source_field,
+    CAST(NULL AS VARCHAR) AS expected_value,
+    CAST(NULL AS VARCHAR) AS actual_value
+FROM overlay_shadow_logs AS o
+LEFT JOIN bucket_mappings AS b
+  ON o.source_bucket_mapping_id = b.bucket_mapping_id
+WHERE b.bucket_mapping_id IS NULL
+UNION ALL
+SELECT
+    'overlay_shadow_unknown_agent_output' AS issue_type,
+    o.overlay_shadow_log_id,
+    o.source_bucket_mapping_id,
+    o.source_agent_output_id,
+    CAST(NULL AS VARCHAR) AS source_field,
+    CAST(NULL AS VARCHAR) AS expected_value,
+    CAST(NULL AS VARCHAR) AS actual_value
+FROM overlay_shadow_logs AS o
+LEFT JOIN agent_outputs AS a
+  ON o.source_agent_output_id = a.agent_output_id
+WHERE a.agent_output_id IS NULL
+UNION ALL
+SELECT
+    'overlay_shadow_source_agent_output_mismatch' AS issue_type,
+    o.overlay_shadow_log_id,
+    o.source_bucket_mapping_id,
+    o.source_agent_output_id,
+    'source_agent_output_id' AS source_field,
+    b.source_agent_output_id AS expected_value,
+    o.source_agent_output_id AS actual_value
+FROM overlay_shadow_logs AS o
+JOIN bucket_mappings AS b
+  ON o.source_bucket_mapping_id = b.bucket_mapping_id
+WHERE o.source_agent_output_id <> b.source_agent_output_id
+UNION ALL
+SELECT
+    'overlay_shadow_mapped_bucket_mismatch' AS issue_type,
+    o.overlay_shadow_log_id,
+    o.source_bucket_mapping_id,
+    o.source_agent_output_id,
+    'mapped_bucket' AS source_field,
+    b.mapped_bucket AS expected_value,
+    o.mapped_bucket AS actual_value
+FROM overlay_shadow_logs AS o
+JOIN bucket_mappings AS b
+  ON o.source_bucket_mapping_id = b.bucket_mapping_id
+WHERE o.mapped_bucket <> b.mapped_bucket
+UNION ALL
+SELECT
+    'overlay_shadow_size_multiplier_mismatch' AS issue_type,
+    o.overlay_shadow_log_id,
+    o.source_bucket_mapping_id,
+    o.source_agent_output_id,
+    'size_multiplier' AS source_field,
+    CAST(b.size_multiplier AS VARCHAR) AS expected_value,
+    CAST(o.size_multiplier AS VARCHAR) AS actual_value
+FROM overlay_shadow_logs AS o
+JOIN bucket_mappings AS b
+  ON o.source_bucket_mapping_id = b.bucket_mapping_id
+WHERE o.size_multiplier <> b.size_multiplier
+UNION ALL
+SELECT
+    'overlay_shadow_comparison_result_mismatch' AS issue_type,
+    overlay_shadow_log_id,
+    source_bucket_mapping_id,
+    source_agent_output_id,
+    'comparison_result' AS source_field,
+    CASE
+        WHEN observed_overlay_bucket = mapped_bucket THEN 'MATCH'
+        ELSE 'MISMATCH'
+    END AS expected_value,
+    comparison_result AS actual_value
+FROM overlay_shadow_logs
+WHERE comparison_result <> CASE
+    WHEN observed_overlay_bucket = mapped_bucket THEN 'MATCH'
+    ELSE 'MISMATCH'
+END
+UNION ALL
+SELECT
+    'overlay_shadow_override_applied' AS issue_type,
+    overlay_shadow_log_id,
+    source_bucket_mapping_id,
+    source_agent_output_id,
+    'override_applied' AS source_field,
+    'false' AS expected_value,
+    CAST(override_applied AS VARCHAR) AS actual_value
+FROM overlay_shadow_logs
+WHERE override_applied IS DISTINCT FROM false
+UNION ALL
+SELECT
+    'overlay_shadow_fail_open_not_preserved' AS issue_type,
+    overlay_shadow_log_id,
+    source_bucket_mapping_id,
+    source_agent_output_id,
+    'fail_open_preserved' AS source_field,
+    'true' AS expected_value,
+    CAST(fail_open_preserved AS VARCHAR) AS actual_value
+FROM overlay_shadow_logs
+WHERE fail_open_preserved IS DISTINCT FROM true
+UNION ALL
+SELECT
+    'overlay_shadow_not_advisory_only' AS issue_type,
+    overlay_shadow_log_id,
+    source_bucket_mapping_id,
+    source_agent_output_id,
+    'advisory_only' AS source_field,
+    'true' AS expected_value,
+    CAST(advisory_only AS VARCHAR) AS actual_value
+FROM overlay_shadow_logs
+WHERE advisory_only IS DISTINCT FROM true;

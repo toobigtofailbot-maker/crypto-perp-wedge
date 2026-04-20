@@ -1,0 +1,11 @@
+[
+  {
+    "comparison_result": "MISMATCH",
+    "entry_count": 1,
+    "match_count": 0,
+    "mismatch_count": 1,
+    "override_true_count": 0,
+    "first_observed_at": "2026-04-19T17:00:00Z",
+    "last_observed_at": "2026-04-19T17:00:00Z"
+  }
+]

@@ -141,6 +141,7 @@ The accepted next architecture tranche is candidate-agnostic research machine fo
 - WP-6i merged: first forward-flow decision_change + release_notes pair authored for H-004 using REP-0011 as current evidence; loop now exercised end-to-end on fresh evidence.
 - WP-6j merged: first deterministic advisory score bucket mapper stub added, translating Regime/Scoring agent output into bounded ALLOW / ALLOW_REDUCED / BLOCK bucket mappings with no overlay contact.
 - WP-7c merged: first external overlay shadow hook added, logging mapper-vs-overlay comparison evidence with zero override and no `lib/` changes.
+- WP-7d merged: first aggregate overlay-shadow signal views added, summarizing agreement/disagreement evidence and auditing zero-override behavior over the committed shadow-log family.
 
 ## Update Discipline
 

@@ -57,6 +57,9 @@ overlay shadow log family introduced by WP-7c. The first instance compares
 `BMAP-0001` against an externally observable overlay-side source without
 changing `lib/` or runtime behavior.
 
+`2026-04-shadow_signal_views.md` explains the first aggregate diagnostic views
+over the committed overlay shadow-log family.
+
 ## Briefs / Diagnostic Outputs
 
 - `2026-04-cross_candidate_diagnostic.md`: First cross-candidate diagnostic

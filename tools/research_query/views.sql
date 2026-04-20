@@ -603,3 +603,53 @@ SELECT
     CAST(advisory_only AS VARCHAR) AS actual_value
 FROM overlay_shadow_logs
 WHERE advisory_only IS DISTINCT FROM true;
+
+-- What agreement/disagreement signal has accumulated across overlay shadow logs?
+-- Aggregates by comparison class only; individual row details remain in baseline views.
+CREATE OR REPLACE VIEW v_overlay_shadow_agreement_summary AS
+SELECT
+    comparison_result,
+    COUNT(*) AS entry_count,
+    SUM(CASE WHEN comparison_result = 'MATCH' THEN 1 ELSE 0 END) AS match_count,
+    SUM(CASE WHEN comparison_result = 'MISMATCH' THEN 1 ELSE 0 END) AS mismatch_count,
+    SUM(CASE WHEN override_applied IS TRUE THEN 1 ELSE 0 END) AS override_true_count,
+    strftime('%Y-%m-%dT%H:%M:%SZ', MIN(CAST(observed_at AS TIMESTAMP))) AS first_observed_at,
+    strftime('%Y-%m-%dT%H:%M:%SZ', MAX(CAST(observed_at AS TIMESTAMP))) AS last_observed_at
+FROM overlay_shadow_logs
+GROUP BY comparison_result;
+
+-- Are any overlay shadow logs drifting away from strict zero-override behavior?
+-- Expected to be empty in a healthy advisory-only shadow state.
+CREATE OR REPLACE VIEW v_overlay_shadow_override_audit AS
+SELECT
+    'overlay_shadow_override_applied' AS issue_type,
+    overlay_shadow_log_id,
+    source_bucket_mapping_id,
+    source_agent_output_id,
+    'override_applied' AS source_field,
+    'false' AS expected_value,
+    CAST(override_applied AS VARCHAR) AS actual_value
+FROM overlay_shadow_logs
+WHERE override_applied IS DISTINCT FROM false
+UNION ALL
+SELECT
+    'overlay_shadow_fail_open_not_preserved' AS issue_type,
+    overlay_shadow_log_id,
+    source_bucket_mapping_id,
+    source_agent_output_id,
+    'fail_open_preserved' AS source_field,
+    'true' AS expected_value,
+    CAST(fail_open_preserved AS VARCHAR) AS actual_value
+FROM overlay_shadow_logs
+WHERE fail_open_preserved IS DISTINCT FROM true
+UNION ALL
+SELECT
+    'overlay_shadow_not_advisory_only' AS issue_type,
+    overlay_shadow_log_id,
+    source_bucket_mapping_id,
+    source_agent_output_id,
+    'advisory_only' AS source_field,
+    'true' AS expected_value,
+    CAST(advisory_only AS VARCHAR) AS actual_value
+FROM overlay_shadow_logs
+WHERE advisory_only IS DISTINCT FROM true;

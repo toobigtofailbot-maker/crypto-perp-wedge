@@ -1,0 +1,19 @@
+{
+  "decision_change_id": "DCH-0002",
+  "candidate_id": "H-004",
+  "report_ids": [
+    "REP-0011"
+  ],
+  "decision": "REJECT_AT_THIS_STAGE",
+  "stage_transition": {
+    "from_stage": "baseline_tested",
+    "to_stage": "archived"
+  },
+  "decided_by": "WP-6i forward-flow documentation package",
+  "decided_at": "2026-04-20T12:00:00-06:00",
+  "rationale": "FORWARD-FLOW: this artifact records the human approval gate outcome implied by current-pipeline evidence in REP-0011 for H-004. REP-0011 reports overall_verdict NO-GO and next_step_recommendation archive after the post-WP-5b forward-flow run, so this decision rejects H-004 at the baseline-tested stage and records the archive outcome. This artifact does not promote H-004, lock Strategy v1, rerun any experiment, reinterpret retrospective H-004 artifacts, or change execution-side behavior.",
+  "evidence_summary": "FORWARD-FLOW: REP-0011 is the sole evidence report used for this decision. REP-0011 references EXP-0011 and trial_id ecb78d88-eba7-4569-9ca0-5715d69fa80c, records H-004 full-period Sharpe 0.746191460507614, max drawdown 0.697949870640699, 5 of 8 D2-006 gates passing, and failed promotion gates for OOS Sharpe, max drawdown, and 90-day PnL concentration. The report states H-004 remains NO-GO under the current post-WP-5b measurement pipeline and does not promote H-004, lock Strategy v1, or reinterpret historical retrospective artifacts.",
+  "risk_acknowledgment": "FORWARD-FLOW: no runtime, paper, shadow, live, OMS, overlay, risk, kill-switch, data, schema, validator, query-layer, trial-log, or execution behavior changes are authorized by this documentation artifact. H-004 remains not promoted. Any future reconsideration or stage advancement would require a separately scoped human-reviewed package with new evidence.",
+  "supersedes_decision_id": null,
+  "notes": "FORWARD-FLOW: first Stage 6 decision_change instance authored from current-pipeline evidence rather than a retrospective reconstruction. The transition baseline_tested to archived documents the non-promotion outcome from REP-0011 only."
+}

@@ -138,6 +138,7 @@ The accepted next architecture tranche is candidate-agnostic research machine fo
 - WP-6g merged: first retrospective decision_change + release_notes pair authored for H-005 historical NO-GO / cold-storage-equivalent outcome; Stage 6-7 loop now exercised with real instances.
 - WP-6h merged: first real-time forward-flow plan/report pair executed for H-004 under the current post-WP-5b pipeline; historical retrospective H-004 artifacts preserved alongside the new run.
 - WP-7a merged: first deterministic bounded advisory agent stub (Regime/Scoring) added with schema-validated agent output and additive query-layer support; no execution-side wiring.
+- WP-6i merged: first forward-flow decision_change + release_notes pair authored for H-004 using REP-0011 as current evidence; loop now exercised end-to-end on fresh evidence.
 
 ## Update Discipline
 

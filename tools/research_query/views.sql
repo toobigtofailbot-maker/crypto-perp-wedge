@@ -285,3 +285,62 @@ FROM release_notes AS r
 JOIN decision_changes AS d
   ON r.decision_change_id = d.decision_change_id
 WHERE r.effective_stage <> d.stage_transition.to_stage;
+
+-- What deterministic advisory agent outputs have been recorded?
+-- Exposes one row per agent_output artifact without expanding input references.
+CREATE OR REPLACE VIEW v_agent_outputs_overview AS
+SELECT
+    agent_output_id,
+    agent_type,
+    generated_at,
+    as_of_timestamp,
+    setup_score,
+    confidence,
+    deterministic
+FROM agent_outputs;
+
+-- What is the latest deterministic advisory output per agent family?
+-- Uses generated_at as the primary ordering field and artifact ID as a stable tie-breaker.
+CREATE OR REPLACE VIEW v_agent_outputs_latest AS
+SELECT
+    agent_output_id,
+    agent_type,
+    generated_at,
+    as_of_timestamp,
+    setup_score,
+    confidence,
+    deterministic
+FROM agent_outputs
+QUALIFY ROW_NUMBER() OVER (
+    PARTITION BY agent_type
+    ORDER BY generated_at DESC, agent_output_id DESC
+) = 1;
+
+-- Are agent_output input references structurally well formed?
+-- Filesystem existence and sha256 equality are enforced by validate_agent_outputs.py.
+-- Expected to be empty in a healthy repo state.
+CREATE OR REPLACE VIEW v_integrity_agent_output_refs AS
+SELECT
+    'agent_output_missing_input_ref' AS issue_type,
+    agent_output_id,
+    CAST(NULL AS VARCHAR) AS input_path,
+    CAST(NULL AS VARCHAR) AS input_sha256,
+    CAST(NULL AS VARCHAR) AS input_role
+FROM agent_outputs
+WHERE list_count(input_data_refs) = 0
+UNION ALL
+SELECT
+    'agent_output_malformed_input_ref' AS issue_type,
+    a.agent_output_id,
+    input_ref.path AS input_path,
+    input_ref.sha256 AS input_sha256,
+    input_ref.role AS input_role
+FROM agent_outputs AS a,
+UNNEST(a.input_data_refs) AS refs(input_ref)
+WHERE input_ref.path IS NULL
+   OR input_ref.path = ''
+   OR regexp_matches(input_ref.path, '(^/|^[A-Za-z]:|\\.\\.)')
+   OR input_ref.sha256 IS NULL
+   OR NOT regexp_matches(input_ref.sha256, '^[0-9a-f]{64}$')
+   OR input_ref.role IS NULL
+   OR input_ref.role <> 'fixture_market_snapshot';

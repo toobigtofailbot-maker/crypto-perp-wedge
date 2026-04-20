@@ -32,6 +32,13 @@ candidate registry, experiment artifacts, and trial log.
 `2026-04-release_notes_artifact.md` explain the JSON artifact conventions for
 the Human Approval Gate and Release & Monitor stages.
 
+## Advisory Agent Outputs
+
+`2026-04-agent_output_artifact.md` and
+`2026-04-regime_scoring_agent_stub.md` explain the first deterministic bounded
+advisory agent output family introduced by WP-7a. The first instance is
+fixture-backed, schema-validated, queryable, and advisory-only.
+
 ## Briefs / Diagnostic Outputs
 
 - `2026-04-cross_candidate_diagnostic.md`: First cross-candidate diagnostic

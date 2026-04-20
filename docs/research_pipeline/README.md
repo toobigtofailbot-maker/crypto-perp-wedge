@@ -42,6 +42,13 @@ the Human Approval Gate and Release & Monitor stages.
 advisory agent output family introduced by WP-7a. The first instance is
 fixture-backed, schema-validated, queryable, and advisory-only.
 
+## Advisory Bucket Mappings
+
+`2026-04-bucket_mapping_artifact.md` and `2026-04-score_bucket_mapper.md`
+explain the first deterministic advisory score bucket mapper introduced by
+WP-6j. The first instance consumes `AOUT-0001` only and maps it into the locked
+`ALLOW` / `ALLOW_REDUCED` / `BLOCK` domain without overlay contact.
+
 ## Briefs / Diagnostic Outputs
 
 - `2026-04-cross_candidate_diagnostic.md`: First cross-candidate diagnostic

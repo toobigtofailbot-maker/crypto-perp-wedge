@@ -15,6 +15,7 @@ EXPERIMENTS_DIR = REPO_ROOT / "research" / "experiments"
 DECISION_CHANGES_DIR = REPO_ROOT / "research" / "decision_changes"
 RELEASE_NOTES_DIR = REPO_ROOT / "research" / "release_notes"
 AGENT_OUTPUTS_DIR = REPO_ROOT / "research" / "agent_outputs"
+BUCKET_MAPPINGS_DIR = REPO_ROOT / "research" / "bucket_mappings"
 TRIAL_LOG_PATH = REPO_ROOT / "research" / "trial_log.jsonl"
 VIEWS_PATH = Path(__file__).resolve().with_name("views.sql")
 
@@ -180,6 +181,45 @@ def _register_agent_outputs(conn: duckdb.DuckDBPyConnection) -> None:
     )
 
 
+def _register_bucket_mappings(conn: duckdb.DuckDBPyConnection) -> None:
+    bucket_mapping_files = (
+        sorted(BUCKET_MAPPINGS_DIR.glob("*.bucket_mapping.json"))
+        if BUCKET_MAPPINGS_DIR.exists()
+        else []
+    )
+    if bucket_mapping_files:
+        conn.execute(
+            f"""
+            CREATE VIEW bucket_mappings AS
+            SELECT * FROM read_json_auto('{_sql_path(BUCKET_MAPPINGS_DIR / "*.bucket_mapping.json")}')
+            """
+        )
+        return
+
+    conn.execute(
+        """
+        CREATE VIEW bucket_mappings AS
+        SELECT
+            CAST(NULL AS VARCHAR) AS bucket_mapping_id,
+            CAST(NULL AS VARCHAR) AS source_agent_output_id,
+            CAST(NULL AS VARCHAR) AS agent_type,
+            CAST(NULL AS VARCHAR) AS generated_at,
+            CAST(NULL AS VARCHAR) AS as_of_timestamp,
+            CAST(NULL AS DOUBLE) AS source_setup_score,
+            CAST(NULL AS DOUBLE) AS source_confidence,
+            CAST(NULL AS VARCHAR) AS mapping_method,
+            CAST(NULL AS DOUBLE) AS confidence_floor,
+            CAST(NULL AS BOOLEAN) AS confidence_floor_triggered,
+            CAST(NULL AS VARCHAR) AS mapped_bucket,
+            CAST(NULL AS DOUBLE) AS size_multiplier,
+            CAST(NULL AS BOOLEAN) AS deterministic,
+            CAST(NULL AS BOOLEAN) AS advisory_only,
+            CAST(NULL AS VARCHAR) AS notes
+        WHERE FALSE
+        """
+    )
+
+
 def _rows_as_dicts(cursor: duckdb.DuckDBPyConnection) -> list[dict[str, Any]]:
     columns = [description[0] for description in cursor.description or []]
     return [dict(zip(columns, row, strict=True)) for row in cursor.fetchall()]
@@ -330,6 +370,7 @@ def init_duckdb(read_only: bool = True) -> duckdb.DuckDBPyConnection:
     _register_decision_changes(conn)
     _register_release_notes(conn)
     _register_agent_outputs(conn)
+    _register_bucket_mappings(conn)
     load_views(conn)
     return conn
 

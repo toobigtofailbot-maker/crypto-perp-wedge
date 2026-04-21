@@ -744,3 +744,272 @@ JOIN macro_window_agent_output_fixture_checks AS c
   ON m.macro_window_agent_output_id = c.macro_window_agent_output_id
 WHERE c.expected_macro_window_flag IS NOT NULL
   AND m.macro_window_flag IS DISTINCT FROM c.expected_macro_window_flag;
+
+-- What bundle-only pre-gate advisory snapshots have been recorded?
+-- Exposes one row per pre_gate_advisory_snapshot artifact without applying combination policy.
+CREATE OR REPLACE VIEW v_pre_gate_advisory_snapshots_overview AS
+SELECT
+    pre_gate_advisory_snapshot_id,
+    source_agent_output_id,
+    source_bucket_mapping_id,
+    source_macro_window_agent_output_id,
+    mapped_bucket,
+    size_multiplier,
+    macro_window_flag,
+    combination_rule_applied,
+    deterministic,
+    advisory_only
+FROM pre_gate_advisory_snapshots;
+
+-- What is the latest bundle-only pre-gate advisory snapshot?
+-- Uses generated_at as the primary ordering field and artifact ID as a stable tie-breaker.
+CREATE OR REPLACE VIEW v_pre_gate_advisory_snapshots_latest AS
+SELECT
+    pre_gate_advisory_snapshot_id,
+    generated_at,
+    as_of_timestamp,
+    source_agent_output_id,
+    source_bucket_mapping_id,
+    source_macro_window_agent_output_id,
+    setup_score,
+    confidence,
+    mapped_bucket,
+    size_multiplier,
+    macro_window_flag,
+    deterministic,
+    advisory_only,
+    combination_rule_applied
+FROM pre_gate_advisory_snapshots
+QUALIFY ROW_NUMBER() OVER (
+    ORDER BY generated_at DESC, pre_gate_advisory_snapshot_id DESC
+) = 1;
+
+-- Do all pre_gate_advisory_snapshot references and copied source values resolve?
+-- Returns missing sources, copied-value mismatches, timestamp-derivation mismatches, or bundle-only violations.
+-- Expected to be empty in a healthy repo state.
+CREATE OR REPLACE VIEW v_integrity_pre_gate_advisory_snapshot_refs AS
+SELECT
+    'pre_gate_snapshot_unknown_agent_output' AS issue_type,
+    p.pre_gate_advisory_snapshot_id,
+    p.source_agent_output_id,
+    p.source_bucket_mapping_id,
+    p.source_macro_window_agent_output_id,
+    CAST(NULL AS VARCHAR) AS source_field,
+    CAST(NULL AS VARCHAR) AS expected_value,
+    CAST(NULL AS VARCHAR) AS actual_value
+FROM pre_gate_advisory_snapshots AS p
+LEFT JOIN agent_outputs AS a
+  ON p.source_agent_output_id = a.agent_output_id
+WHERE a.agent_output_id IS NULL
+UNION ALL
+SELECT
+    'pre_gate_snapshot_unknown_bucket_mapping' AS issue_type,
+    p.pre_gate_advisory_snapshot_id,
+    p.source_agent_output_id,
+    p.source_bucket_mapping_id,
+    p.source_macro_window_agent_output_id,
+    CAST(NULL AS VARCHAR) AS source_field,
+    CAST(NULL AS VARCHAR) AS expected_value,
+    CAST(NULL AS VARCHAR) AS actual_value
+FROM pre_gate_advisory_snapshots AS p
+LEFT JOIN bucket_mappings AS b
+  ON p.source_bucket_mapping_id = b.bucket_mapping_id
+WHERE b.bucket_mapping_id IS NULL
+UNION ALL
+SELECT
+    'pre_gate_snapshot_unknown_macro_window_agent_output' AS issue_type,
+    p.pre_gate_advisory_snapshot_id,
+    p.source_agent_output_id,
+    p.source_bucket_mapping_id,
+    p.source_macro_window_agent_output_id,
+    CAST(NULL AS VARCHAR) AS source_field,
+    CAST(NULL AS VARCHAR) AS expected_value,
+    CAST(NULL AS VARCHAR) AS actual_value
+FROM pre_gate_advisory_snapshots AS p
+LEFT JOIN macro_window_agent_outputs AS m
+  ON p.source_macro_window_agent_output_id = m.macro_window_agent_output_id
+WHERE m.macro_window_agent_output_id IS NULL
+UNION ALL
+SELECT
+    'pre_gate_snapshot_source_agent_output_mismatch' AS issue_type,
+    p.pre_gate_advisory_snapshot_id,
+    p.source_agent_output_id,
+    p.source_bucket_mapping_id,
+    p.source_macro_window_agent_output_id,
+    'source_agent_output_id' AS source_field,
+    b.source_agent_output_id AS expected_value,
+    p.source_agent_output_id AS actual_value
+FROM pre_gate_advisory_snapshots AS p
+JOIN bucket_mappings AS b
+  ON p.source_bucket_mapping_id = b.bucket_mapping_id
+WHERE p.source_agent_output_id <> b.source_agent_output_id
+UNION ALL
+SELECT
+    'pre_gate_snapshot_setup_score_mismatch' AS issue_type,
+    p.pre_gate_advisory_snapshot_id,
+    p.source_agent_output_id,
+    p.source_bucket_mapping_id,
+    p.source_macro_window_agent_output_id,
+    'setup_score' AS source_field,
+    CAST(a.setup_score AS VARCHAR) AS expected_value,
+    CAST(p.setup_score AS VARCHAR) AS actual_value
+FROM pre_gate_advisory_snapshots AS p
+JOIN agent_outputs AS a
+  ON p.source_agent_output_id = a.agent_output_id
+WHERE p.setup_score <> a.setup_score
+UNION ALL
+SELECT
+    'pre_gate_snapshot_confidence_mismatch' AS issue_type,
+    p.pre_gate_advisory_snapshot_id,
+    p.source_agent_output_id,
+    p.source_bucket_mapping_id,
+    p.source_macro_window_agent_output_id,
+    'confidence' AS source_field,
+    CAST(a.confidence AS VARCHAR) AS expected_value,
+    CAST(p.confidence AS VARCHAR) AS actual_value
+FROM pre_gate_advisory_snapshots AS p
+JOIN agent_outputs AS a
+  ON p.source_agent_output_id = a.agent_output_id
+WHERE p.confidence <> a.confidence
+UNION ALL
+SELECT
+    'pre_gate_snapshot_mapped_bucket_mismatch' AS issue_type,
+    p.pre_gate_advisory_snapshot_id,
+    p.source_agent_output_id,
+    p.source_bucket_mapping_id,
+    p.source_macro_window_agent_output_id,
+    'mapped_bucket' AS source_field,
+    b.mapped_bucket AS expected_value,
+    p.mapped_bucket AS actual_value
+FROM pre_gate_advisory_snapshots AS p
+JOIN bucket_mappings AS b
+  ON p.source_bucket_mapping_id = b.bucket_mapping_id
+WHERE p.mapped_bucket <> b.mapped_bucket
+UNION ALL
+SELECT
+    'pre_gate_snapshot_size_multiplier_mismatch' AS issue_type,
+    p.pre_gate_advisory_snapshot_id,
+    p.source_agent_output_id,
+    p.source_bucket_mapping_id,
+    p.source_macro_window_agent_output_id,
+    'size_multiplier' AS source_field,
+    CAST(b.size_multiplier AS VARCHAR) AS expected_value,
+    CAST(p.size_multiplier AS VARCHAR) AS actual_value
+FROM pre_gate_advisory_snapshots AS p
+JOIN bucket_mappings AS b
+  ON p.source_bucket_mapping_id = b.bucket_mapping_id
+WHERE p.size_multiplier <> b.size_multiplier
+UNION ALL
+SELECT
+    'pre_gate_snapshot_macro_window_flag_mismatch' AS issue_type,
+    p.pre_gate_advisory_snapshot_id,
+    p.source_agent_output_id,
+    p.source_bucket_mapping_id,
+    p.source_macro_window_agent_output_id,
+    'macro_window_flag' AS source_field,
+    CAST(m.macro_window_flag AS VARCHAR) AS expected_value,
+    CAST(p.macro_window_flag AS VARCHAR) AS actual_value
+FROM pre_gate_advisory_snapshots AS p
+JOIN macro_window_agent_outputs AS m
+  ON p.source_macro_window_agent_output_id = m.macro_window_agent_output_id
+WHERE p.macro_window_flag IS DISTINCT FROM m.macro_window_flag
+UNION ALL
+SELECT
+    'pre_gate_snapshot_generated_at_mismatch' AS issue_type,
+    p.pre_gate_advisory_snapshot_id,
+    p.source_agent_output_id,
+    p.source_bucket_mapping_id,
+    p.source_macro_window_agent_output_id,
+    'generated_at' AS source_field,
+    strftime(
+        '%Y-%m-%dT%H:%M:%SZ',
+        GREATEST(
+            CAST(a.generated_at AS TIMESTAMP),
+            CAST(b.generated_at AS TIMESTAMP),
+            CAST(m.generated_at AS TIMESTAMP)
+        )
+    ) AS expected_value,
+    p.generated_at AS actual_value
+FROM pre_gate_advisory_snapshots AS p
+JOIN agent_outputs AS a
+  ON p.source_agent_output_id = a.agent_output_id
+JOIN bucket_mappings AS b
+  ON p.source_bucket_mapping_id = b.bucket_mapping_id
+JOIN macro_window_agent_outputs AS m
+  ON p.source_macro_window_agent_output_id = m.macro_window_agent_output_id
+WHERE p.generated_at <> strftime(
+    '%Y-%m-%dT%H:%M:%SZ',
+    GREATEST(
+        CAST(a.generated_at AS TIMESTAMP),
+        CAST(b.generated_at AS TIMESTAMP),
+        CAST(m.generated_at AS TIMESTAMP)
+    )
+)
+UNION ALL
+SELECT
+    'pre_gate_snapshot_as_of_timestamp_mismatch' AS issue_type,
+    p.pre_gate_advisory_snapshot_id,
+    p.source_agent_output_id,
+    p.source_bucket_mapping_id,
+    p.source_macro_window_agent_output_id,
+    'as_of_timestamp' AS source_field,
+    strftime(
+        '%Y-%m-%dT%H:%M:%SZ',
+        GREATEST(
+            CAST(a.as_of_timestamp AS TIMESTAMP),
+            CAST(b.as_of_timestamp AS TIMESTAMP),
+            CAST(m.as_of_timestamp AS TIMESTAMP)
+        )
+    ) AS expected_value,
+    p.as_of_timestamp AS actual_value
+FROM pre_gate_advisory_snapshots AS p
+JOIN agent_outputs AS a
+  ON p.source_agent_output_id = a.agent_output_id
+JOIN bucket_mappings AS b
+  ON p.source_bucket_mapping_id = b.bucket_mapping_id
+JOIN macro_window_agent_outputs AS m
+  ON p.source_macro_window_agent_output_id = m.macro_window_agent_output_id
+WHERE p.as_of_timestamp <> strftime(
+    '%Y-%m-%dT%H:%M:%SZ',
+    GREATEST(
+        CAST(a.as_of_timestamp AS TIMESTAMP),
+        CAST(b.as_of_timestamp AS TIMESTAMP),
+        CAST(m.as_of_timestamp AS TIMESTAMP)
+    )
+)
+UNION ALL
+SELECT
+    'pre_gate_snapshot_not_deterministic' AS issue_type,
+    pre_gate_advisory_snapshot_id,
+    source_agent_output_id,
+    source_bucket_mapping_id,
+    source_macro_window_agent_output_id,
+    'deterministic' AS source_field,
+    'true' AS expected_value,
+    CAST(deterministic AS VARCHAR) AS actual_value
+FROM pre_gate_advisory_snapshots
+WHERE deterministic IS DISTINCT FROM true
+UNION ALL
+SELECT
+    'pre_gate_snapshot_not_advisory_only' AS issue_type,
+    pre_gate_advisory_snapshot_id,
+    source_agent_output_id,
+    source_bucket_mapping_id,
+    source_macro_window_agent_output_id,
+    'advisory_only' AS source_field,
+    'true' AS expected_value,
+    CAST(advisory_only AS VARCHAR) AS actual_value
+FROM pre_gate_advisory_snapshots
+WHERE advisory_only IS DISTINCT FROM true
+UNION ALL
+SELECT
+    'pre_gate_snapshot_invalid_combination_rule' AS issue_type,
+    pre_gate_advisory_snapshot_id,
+    source_agent_output_id,
+    source_bucket_mapping_id,
+    source_macro_window_agent_output_id,
+    'combination_rule_applied' AS source_field,
+    'NONE_BUNDLE_ONLY' AS expected_value,
+    combination_rule_applied AS actual_value
+FROM pre_gate_advisory_snapshots
+WHERE combination_rule_applied <> 'NONE_BUNDLE_ONLY';

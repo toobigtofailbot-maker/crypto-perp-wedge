@@ -404,6 +404,7 @@ def _register_pre_gate_advisory_snapshots(conn: duckdb.DuckDBPyConnection) -> No
             CAST(NULL AS BOOLEAN) AS deterministic,
             CAST(NULL AS BOOLEAN) AS advisory_only,
             CAST(NULL AS VARCHAR) AS combination_rule_applied,
+            CAST(NULL AS VARCHAR) AS combined_bucket,
             CAST(NULL AS VARCHAR) AS notes
         WHERE FALSE
         """

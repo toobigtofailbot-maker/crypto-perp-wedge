@@ -745,8 +745,8 @@ JOIN macro_window_agent_output_fixture_checks AS c
 WHERE c.expected_macro_window_flag IS NOT NULL
   AND m.macro_window_flag IS DISTINCT FROM c.expected_macro_window_flag;
 
--- What bundle-only pre-gate advisory snapshots have been recorded?
--- Exposes one row per pre_gate_advisory_snapshot artifact without applying combination policy.
+-- What pre-gate advisory snapshots have been recorded?
+-- Exposes one row per pre_gate_advisory_snapshot artifact, including applied rule state.
 CREATE OR REPLACE VIEW v_pre_gate_advisory_snapshots_overview AS
 SELECT
     pre_gate_advisory_snapshot_id,
@@ -757,11 +757,12 @@ SELECT
     size_multiplier,
     macro_window_flag,
     combination_rule_applied,
+    combined_bucket,
     deterministic,
     advisory_only
 FROM pre_gate_advisory_snapshots;
 
--- What is the latest bundle-only pre-gate advisory snapshot?
+-- What is the latest pre-gate advisory snapshot?
 -- Uses generated_at as the primary ordering field and artifact ID as a stable tie-breaker.
 CREATE OR REPLACE VIEW v_pre_gate_advisory_snapshots_latest AS
 SELECT
@@ -778,14 +779,15 @@ SELECT
     macro_window_flag,
     deterministic,
     advisory_only,
-    combination_rule_applied
+    combination_rule_applied,
+    combined_bucket
 FROM pre_gate_advisory_snapshots
 QUALIFY ROW_NUMBER() OVER (
     ORDER BY generated_at DESC, pre_gate_advisory_snapshot_id DESC
 ) = 1;
 
 -- Do all pre_gate_advisory_snapshot references and copied source values resolve?
--- Returns missing sources, copied-value mismatches, timestamp-derivation mismatches, or bundle-only violations.
+-- Returns missing sources, copied-value mismatches, timestamp-derivation mismatches, or rule violations.
 -- Expected to be empty in a healthy repo state.
 CREATE OR REPLACE VIEW v_integrity_pre_gate_advisory_snapshot_refs AS
 SELECT
@@ -1009,7 +1011,46 @@ SELECT
     source_bucket_mapping_id,
     source_macro_window_agent_output_id,
     'combination_rule_applied' AS source_field,
-    'NONE_BUNDLE_ONLY' AS expected_value,
+    'NONE_BUNDLE_ONLY|MACRO_AWARE_FLOOR' AS expected_value,
     combination_rule_applied AS actual_value
 FROM pre_gate_advisory_snapshots
-WHERE combination_rule_applied <> 'NONE_BUNDLE_ONLY';
+WHERE combination_rule_applied IS NULL
+   OR combination_rule_applied NOT IN ('NONE_BUNDLE_ONLY', 'MACRO_AWARE_FLOOR')
+UNION ALL
+SELECT
+    'pre_gate_snapshot_unexpected_combined_bucket' AS issue_type,
+    pre_gate_advisory_snapshot_id,
+    source_agent_output_id,
+    source_bucket_mapping_id,
+    source_macro_window_agent_output_id,
+    'combined_bucket' AS source_field,
+    CAST(NULL AS VARCHAR) AS expected_value,
+    combined_bucket AS actual_value
+FROM pre_gate_advisory_snapshots
+WHERE combination_rule_applied = 'NONE_BUNDLE_ONLY'
+  AND combined_bucket IS NOT NULL
+UNION ALL
+SELECT
+    'pre_gate_snapshot_combined_bucket_mismatch' AS issue_type,
+    p.pre_gate_advisory_snapshot_id,
+    p.source_agent_output_id,
+    p.source_bucket_mapping_id,
+    p.source_macro_window_agent_output_id,
+    'combined_bucket' AS source_field,
+    CASE
+        WHEN m.macro_window_flag IS DISTINCT FROM true THEN b.mapped_bucket
+        WHEN b.mapped_bucket = 'ALLOW' THEN 'ALLOW_REDUCED'
+        ELSE b.mapped_bucket
+    END AS expected_value,
+    p.combined_bucket AS actual_value
+FROM pre_gate_advisory_snapshots AS p
+JOIN bucket_mappings AS b
+  ON p.source_bucket_mapping_id = b.bucket_mapping_id
+JOIN macro_window_agent_outputs AS m
+  ON p.source_macro_window_agent_output_id = m.macro_window_agent_output_id
+WHERE p.combination_rule_applied = 'MACRO_AWARE_FLOOR'
+  AND p.combined_bucket IS DISTINCT FROM CASE
+      WHEN m.macro_window_flag IS DISTINCT FROM true THEN b.mapped_bucket
+      WHEN b.mapped_bucket = 'ALLOW' THEN 'ALLOW_REDUCED'
+      ELSE b.mapped_bucket
+  END;

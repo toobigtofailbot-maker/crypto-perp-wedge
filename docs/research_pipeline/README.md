@@ -51,11 +51,13 @@ committed-fixture-backed macro-window flag with no runtime influence.
 
 ## Pre-Gate Advisory Snapshots
 
-`2026-04-pre_gate_advisory_snapshot_artifact.md` and
-`2026-04-pre_gate_advisory_snapshot_builder.md` explain the first bundle-only
-pre-gate advisory snapshot family introduced by WP-7g. The first instance
-packages `AOUT-0001`, `BMAP-0001`, and `MOUT-0001` together for read-only
-review with no combination rule and no runtime influence.
+`2026-04-pre_gate_advisory_snapshot_artifact.md`,
+`2026-04-pre_gate_advisory_snapshot_builder.md`, and
+`2026-04-pgas_combination_rule_v1.md` explain the pre-gate advisory snapshot
+family introduced by WP-7g and extended by WP-7h. `PGAS-0001` remains the
+historical bundle-only snapshot. `PGAS-0002` is the first deterministic
+`MACRO_AWARE_FLOOR` rule-applied snapshot with a committed combined bucket and
+no runtime influence.
 
 ## Advisory Bucket Mappings
 

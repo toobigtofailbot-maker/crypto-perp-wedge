@@ -145,6 +145,7 @@ The accepted next architecture tranche is candidate-agnostic research machine fo
 - WP-7e merged: first shadow-log diagnostic brief added, consuming aggregate shadow-signal views and documenting the current evidence state without recommending policy change.
 - WP-7f merged: first deterministic macro/narrative advisory agent stub added, fixture-backed and candidate-agnostic, producing a macro-window output with no runtime influence.
 - WP-7g merged: first pre-gate advisory snapshot family added, bundling regime output, bucket mapping, and macro-window output into one candidate-agnostic advisory snapshot with no combination rule or runtime influence.
+- WP-7h branch-state: first pre-gate advisory combination rule v1 adds `MACRO_AWARE_FLOOR`, the first non-NONE `combination_rule_applied`, and the first committed combined-bucket PGAS instance (`PGAS-0002`) with no runtime influence.
 
 ## Update Discipline
 

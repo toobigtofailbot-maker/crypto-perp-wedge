@@ -10,6 +10,11 @@ from typing import Any
 
 from jsonschema import Draft7Validator
 
+from tools.mappers.pre_gate_advisory_combiner import (
+    MACRO_AWARE_FLOOR,
+    combine_pre_gate_advisory_bucket,
+)
+
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_PRE_GATE_ADVISORY_SNAPSHOTS_DIR = REPO_ROOT / "research" / "pre_gate_advisory_snapshots"
@@ -19,7 +24,8 @@ DEFAULT_MACRO_WINDOW_AGENT_OUTPUTS_DIR = REPO_ROOT / "research" / "macro_window_
 PRE_GATE_ADVISORY_SNAPSHOT_SCHEMA_PATH = (
     REPO_ROOT / "research" / "schemas" / "pre_gate_advisory_snapshot.schema.json"
 )
-COMBINATION_RULE = "NONE_BUNDLE_ONLY"
+COMBINATION_RULE_BUNDLE_ONLY = "NONE_BUNDLE_ONLY"
+COMBINATION_RULES = {COMBINATION_RULE_BUNDLE_ONLY, MACRO_AWARE_FLOOR}
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -203,10 +209,42 @@ def validate_pre_gate_advisory_snapshots(
                 f"got {payload.get('as_of_timestamp')}"
             )
 
-        if payload.get("combination_rule_applied") != COMBINATION_RULE:
+        combination_rule_applied = payload.get("combination_rule_applied")
+        if combination_rule_applied not in COMBINATION_RULES:
             errors.append(
-                f"{path}: combination_rule_applied should be {COMBINATION_RULE}, "
-                f"got {payload.get('combination_rule_applied')}"
+                f"{path}: combination_rule_applied should be one of {sorted(COMBINATION_RULES)}, "
+                f"got {combination_rule_applied}"
+            )
+            continue
+
+        if combination_rule_applied == COMBINATION_RULE_BUNDLE_ONLY:
+            if "combined_bucket" in payload:
+                errors.append(
+                    f"{path}: combined_bucket must be absent when combination_rule_applied "
+                    f"is {COMBINATION_RULE_BUNDLE_ONLY}"
+                )
+            continue
+
+        if "combined_bucket" not in payload:
+            errors.append(
+                f"{path}: combined_bucket is required when combination_rule_applied "
+                f"is {combination_rule_applied}"
+            )
+            continue
+
+        try:
+            expected_combined_bucket = combine_pre_gate_advisory_bucket(
+                mapped_bucket=bucket_mapping.get("mapped_bucket"),
+                macro_window_flag=macro_window_agent_output.get("macro_window_flag"),
+            )
+        except ValueError as exc:
+            errors.append(f"{path}: cannot derive combined_bucket: {exc}")
+            continue
+
+        if payload.get("combined_bucket") != expected_combined_bucket:
+            errors.append(
+                f"{path}: combined_bucket should be {expected_combined_bucket}, "
+                f"got {payload.get('combined_bucket')}"
             )
 
     return errors

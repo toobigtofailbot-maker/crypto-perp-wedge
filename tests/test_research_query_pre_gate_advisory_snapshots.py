@@ -28,7 +28,7 @@ def conn():
 def test_pre_gate_advisory_snapshots_relation_registered_under_current_state(conn):
     count = conn.execute("SELECT COUNT(*) FROM pre_gate_advisory_snapshots").fetchone()[0]
 
-    assert count == 1
+    assert count == 2
 
 
 def test_pre_gate_advisory_snapshots_relation_registered_empty_with_missing_dir(monkeypatch, tmp_path):
@@ -65,9 +65,11 @@ def test_pre_gate_advisory_snapshot_overview_returns_current_rows(conn):
             size_multiplier,
             macro_window_flag,
             combination_rule_applied,
+            combined_bucket,
             deterministic,
             advisory_only
         FROM v_pre_gate_advisory_snapshots_overview
+        ORDER BY pre_gate_advisory_snapshot_id
         """
     ).fetchall()
 
@@ -81,6 +83,20 @@ def test_pre_gate_advisory_snapshot_overview_returns_current_rows(conn):
             0.5,
             True,
             "NONE_BUNDLE_ONLY",
+            None,
+            True,
+            True,
+        ),
+        (
+            "PGAS-0002",
+            "AOUT-0001",
+            "BMAP-0001",
+            "MOUT-0001",
+            "ALLOW_REDUCED",
+            0.5,
+            True,
+            "MACRO_AWARE_FLOOR",
+            "ALLOW_REDUCED",
             True,
             True,
         )
@@ -99,7 +115,7 @@ def test_pre_gate_advisory_snapshot_latest_returns_current_rows(conn):
         """
     ).fetchall()
 
-    assert rows == [("PGAS-0001", "AOUT-0001", "BMAP-0001", "MOUT-0001")]
+    assert rows == [("PGAS-0002", "AOUT-0001", "BMAP-0001", "MOUT-0001")]
 
 
 def test_pre_gate_advisory_snapshot_integrity_view_empty_under_current_state(conn):

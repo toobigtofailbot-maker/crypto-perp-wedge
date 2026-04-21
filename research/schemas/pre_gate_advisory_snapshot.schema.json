@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://crypto-perp-wedge.local/research/schemas/pre_gate_advisory_snapshot.schema.json",
   "title": "Pre-Gate Advisory Snapshot",
-  "description": "Deterministic bundle-only pre-gate advisory snapshot artifact for candidate-agnostic research review.",
+  "description": "Deterministic pre-gate advisory snapshot artifact for candidate-agnostic research review.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -88,9 +88,14 @@
       "const": true
     },
     "combination_rule_applied": {
-      "description": "Explicit statement that no lane-combination rule has been applied.",
+      "description": "Explicit statement of whether no lane-combination rule or the first deterministic v1 rule has been applied.",
       "type": "string",
-      "const": "NONE_BUNDLE_ONLY"
+      "enum": ["NONE_BUNDLE_ONLY", "MACRO_AWARE_FLOOR"]
+    },
+    "combined_bucket": {
+      "description": "Bounded advisory bucket produced by the applied non-NONE pre-gate advisory combination rule.",
+      "type": "string",
+      "enum": ["ALLOW", "ALLOW_REDUCED", "BLOCK"]
     },
     "notes": {
       "description": "Boundary notes; must describe bundle-only semantics and no policy, overlay, OMS, risk, runtime, or execution authority.",
@@ -136,6 +141,30 @@
         "properties": {
           "size_multiplier": { "const": 0.0 }
         }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "combination_rule_applied": { "const": "NONE_BUNDLE_ONLY" }
+        },
+        "required": ["combination_rule_applied"]
+      },
+      "then": {
+        "not": {
+          "required": ["combined_bucket"]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "combination_rule_applied": { "const": "MACRO_AWARE_FLOOR" }
+        },
+        "required": ["combination_rule_applied"]
+      },
+      "then": {
+        "required": ["combined_bucket"]
       }
     }
   ]

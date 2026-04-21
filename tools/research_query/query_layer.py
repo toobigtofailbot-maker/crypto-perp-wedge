@@ -19,6 +19,7 @@ RELEASE_NOTES_DIR = REPO_ROOT / "research" / "release_notes"
 AGENT_OUTPUTS_DIR = REPO_ROOT / "research" / "agent_outputs"
 MACRO_WINDOW_AGENT_OUTPUTS_DIR = REPO_ROOT / "research" / "macro_window_agent_outputs"
 BUCKET_MAPPINGS_DIR = REPO_ROOT / "research" / "bucket_mappings"
+PRE_GATE_ADVISORY_SNAPSHOTS_DIR = REPO_ROOT / "research" / "pre_gate_advisory_snapshots"
 OVERLAY_SHADOW_LOGS_DIR = REPO_ROOT / "research" / "overlay_shadow_logs"
 TRIAL_LOG_PATH = REPO_ROOT / "research" / "trial_log.jsonl"
 VIEWS_PATH = Path(__file__).resolve().with_name("views.sql")
@@ -370,6 +371,45 @@ def _register_bucket_mappings(conn: duckdb.DuckDBPyConnection) -> None:
     )
 
 
+def _register_pre_gate_advisory_snapshots(conn: duckdb.DuckDBPyConnection) -> None:
+    snapshot_files = (
+        sorted(PRE_GATE_ADVISORY_SNAPSHOTS_DIR.glob("*.pre_gate_advisory_snapshot.json"))
+        if PRE_GATE_ADVISORY_SNAPSHOTS_DIR.exists()
+        else []
+    )
+    if snapshot_files:
+        conn.execute(
+            f"""
+            CREATE VIEW pre_gate_advisory_snapshots AS
+            SELECT * FROM read_json_auto('{_sql_path(PRE_GATE_ADVISORY_SNAPSHOTS_DIR / "*.pre_gate_advisory_snapshot.json")}')
+            """
+        )
+        return
+
+    conn.execute(
+        """
+        CREATE VIEW pre_gate_advisory_snapshots AS
+        SELECT
+            CAST(NULL AS VARCHAR) AS pre_gate_advisory_snapshot_id,
+            CAST(NULL AS VARCHAR) AS generated_at,
+            CAST(NULL AS VARCHAR) AS as_of_timestamp,
+            CAST(NULL AS VARCHAR) AS source_agent_output_id,
+            CAST(NULL AS VARCHAR) AS source_bucket_mapping_id,
+            CAST(NULL AS VARCHAR) AS source_macro_window_agent_output_id,
+            CAST(NULL AS DOUBLE) AS setup_score,
+            CAST(NULL AS DOUBLE) AS confidence,
+            CAST(NULL AS VARCHAR) AS mapped_bucket,
+            CAST(NULL AS DOUBLE) AS size_multiplier,
+            CAST(NULL AS BOOLEAN) AS macro_window_flag,
+            CAST(NULL AS BOOLEAN) AS deterministic,
+            CAST(NULL AS BOOLEAN) AS advisory_only,
+            CAST(NULL AS VARCHAR) AS combination_rule_applied,
+            CAST(NULL AS VARCHAR) AS notes
+        WHERE FALSE
+        """
+    )
+
+
 def _register_overlay_shadow_logs(conn: duckdb.DuckDBPyConnection) -> None:
     shadow_log_files = (
         sorted(OVERLAY_SHADOW_LOGS_DIR.glob("*.overlay_shadow_log.json"))
@@ -568,6 +608,7 @@ def init_duckdb(read_only: bool = True) -> duckdb.DuckDBPyConnection:
     _register_agent_outputs(conn)
     _register_macro_window_agent_outputs(conn)
     _register_bucket_mappings(conn)
+    _register_pre_gate_advisory_snapshots(conn)
     _register_overlay_shadow_logs(conn)
     load_views(conn)
     return conn

@@ -1,0 +1,142 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crypto-perp-wedge.local/research/schemas/pre_gate_advisory_snapshot.schema.json",
+  "title": "Pre-Gate Advisory Snapshot",
+  "description": "Deterministic bundle-only pre-gate advisory snapshot artifact for candidate-agnostic research review.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "pre_gate_advisory_snapshot_id",
+    "generated_at",
+    "as_of_timestamp",
+    "source_agent_output_id",
+    "source_bucket_mapping_id",
+    "source_macro_window_agent_output_id",
+    "setup_score",
+    "confidence",
+    "mapped_bucket",
+    "size_multiplier",
+    "macro_window_flag",
+    "deterministic",
+    "advisory_only",
+    "combination_rule_applied",
+    "notes"
+  ],
+  "properties": {
+    "pre_gate_advisory_snapshot_id": {
+      "description": "Stable pre-gate advisory snapshot artifact identifier.",
+      "type": "string",
+      "pattern": "^PGAS-[0-9]{4}$"
+    },
+    "generated_at": {
+      "description": "Timezone-qualified ISO datetime deterministically derived as the latest source generated_at timestamp.",
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "as_of_timestamp": {
+      "description": "Timezone-qualified ISO datetime deterministically derived as the latest source as_of_timestamp.",
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "source_agent_output_id": {
+      "description": "Stable source Regime/Scoring agent-output artifact identifier.",
+      "type": "string",
+      "pattern": "^AOUT-[0-9]{4}$"
+    },
+    "source_bucket_mapping_id": {
+      "description": "Stable source advisory bucket-mapping artifact identifier.",
+      "type": "string",
+      "pattern": "^BMAP-[0-9]{4}$"
+    },
+    "source_macro_window_agent_output_id": {
+      "description": "Stable source macro-window agent-output artifact identifier.",
+      "type": "string",
+      "pattern": "^MOUT-[0-9]{4}$"
+    },
+    "setup_score": {
+      "description": "Bounded setup score copied from the source Regime/Scoring agent output.",
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "confidence": {
+      "description": "Bounded confidence copied from the source Regime/Scoring agent output.",
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "mapped_bucket": {
+      "description": "Bounded advisory bucket copied from the source bucket mapping artifact.",
+      "type": "string",
+      "enum": ["ALLOW", "ALLOW_REDUCED", "BLOCK"]
+    },
+    "size_multiplier": {
+      "description": "Advisory size multiplier copied from the source bucket mapping artifact.",
+      "type": "number",
+      "enum": [1.0, 0.5, 0.0]
+    },
+    "macro_window_flag": {
+      "description": "Deterministic macro-window advisory flag copied from the source macro-window agent output.",
+      "type": "boolean"
+    },
+    "deterministic": {
+      "description": "Whether the bundle was produced deterministically from committed repo artifacts only.",
+      "const": true
+    },
+    "advisory_only": {
+      "description": "Whether the bundle has no overlay, OMS, risk, runtime, or execution authority.",
+      "const": true
+    },
+    "combination_rule_applied": {
+      "description": "Explicit statement that no lane-combination rule has been applied.",
+      "type": "string",
+      "const": "NONE_BUNDLE_ONLY"
+    },
+    "notes": {
+      "description": "Boundary notes; must describe bundle-only semantics and no policy, overlay, OMS, risk, runtime, or execution authority.",
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "mapped_bucket": { "const": "ALLOW" }
+        },
+        "required": ["mapped_bucket"]
+      },
+      "then": {
+        "properties": {
+          "size_multiplier": { "const": 1.0 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "mapped_bucket": { "const": "ALLOW_REDUCED" }
+        },
+        "required": ["mapped_bucket"]
+      },
+      "then": {
+        "properties": {
+          "size_multiplier": { "const": 0.5 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "mapped_bucket": { "const": "BLOCK" }
+        },
+        "required": ["mapped_bucket"]
+      },
+      "then": {
+        "properties": {
+          "size_multiplier": { "const": 0.0 }
+        }
+      }
+    }
+  ]
+}

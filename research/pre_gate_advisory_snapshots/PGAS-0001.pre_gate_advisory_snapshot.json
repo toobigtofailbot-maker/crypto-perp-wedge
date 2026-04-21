@@ -1,0 +1,17 @@
+{
+  "pre_gate_advisory_snapshot_id": "PGAS-0001",
+  "generated_at": "2026-04-19T19:00:00Z",
+  "as_of_timestamp": "2026-04-19T18:00:00Z",
+  "source_agent_output_id": "AOUT-0001",
+  "source_bucket_mapping_id": "BMAP-0001",
+  "source_macro_window_agent_output_id": "MOUT-0001",
+  "setup_score": 72.95,
+  "confidence": 0.891,
+  "mapped_bucket": "ALLOW_REDUCED",
+  "size_multiplier": 0.5,
+  "macro_window_flag": true,
+  "deterministic": true,
+  "advisory_only": true,
+  "combination_rule_applied": "NONE_BUNDLE_ONLY",
+  "notes": "WP-7g bundle-only pre-gate advisory snapshot over committed advisory artifacts. It encodes no final gate decision, no runtime influence, no execution authority, and no overlay, OMS, risk, or policy authority."
+}

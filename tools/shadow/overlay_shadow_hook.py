@@ -11,11 +11,15 @@ from typing import Any, Mapping
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_BUCKET_MAPPING_PATH = REPO_ROOT / "research" / "bucket_mappings" / "BMAP-0001.bucket_mapping.json"
+DEFAULT_PRE_GATE_ADVISORY_SNAPSHOT_PATH = (
+    REPO_ROOT / "research" / "pre_gate_advisory_snapshots" / "PGAS-0002.pre_gate_advisory_snapshot.json"
+)
 DEFAULT_AGENT_OUTPUTS_DIR = REPO_ROOT / "research" / "agent_outputs"
 DEFAULT_SNAPSHOT_PATH = REPO_ROOT / "tests" / "fixtures" / "context_snapshot_sample.json"
 DEFAULT_CONFIG_PATH = REPO_ROOT / "configs" / "fmp_macro_flags.json"
 DEFAULT_OUTPUT_PATH = REPO_ROOT / "research" / "overlay_shadow_logs" / "OSH-0001.overlay_shadow_log.json"
 
+ADVISORY_SOURCES = {"BMAP", "PGAS"}
 PERMISSION_TO_MULTIPLIER = {"ALLOW": 1.0, "ALLOW_REDUCED": 0.5, "BLOCK": 0.0}
 MULTIPLIER_TO_PERMISSION = {v: k for k, v in PERMISSION_TO_MULTIPLIER.items()}
 SEVERITY_RANK = {"BLOCK": 0, "ALLOW_REDUCED": 1, "ALLOW": 2}
@@ -191,6 +195,31 @@ def _source_agent_output_path(agent_outputs_dir: Path, source_agent_output_id: s
     return agent_outputs_dir / f"{source_agent_output_id}.agent_output.json"
 
 
+def _source_bucket_mapping_path(bucket_mappings_dir: Path, source_bucket_mapping_id: str) -> Path:
+    return bucket_mappings_dir / f"{source_bucket_mapping_id}.bucket_mapping.json"
+
+
+def _normalize_advisory_source(advisory_source: str | None) -> str:
+    normalized = str(advisory_source or "BMAP").upper()
+    if normalized not in ADVISORY_SOURCES:
+        raise ValueError(f"unsupported advisory source: {advisory_source}")
+    return normalized
+
+
+def _notes_for_advisory_source(advisory_source: str) -> str:
+    if advisory_source == "PGAS":
+        return (
+            "WP-7i zero-override shadow comparison. The PGAS combined advisory bucket is advisory-only "
+            "and records comparison evidence only; no lib changes, no execution influence, no OMS "
+            "authority, and no risk authority are created by this artifact."
+        )
+    return (
+        "WP-7c zero-override shadow comparison. The mapper output is advisory-only and "
+        "records comparison evidence only; no lib changes, no execution influence, no "
+        "OMS authority, and no risk authority are created by this artifact."
+    )
+
+
 def build_overlay_shadow_log(
     bucket_mapping: Mapping[str, Any],
     agent_output: Mapping[str, Any],
@@ -198,26 +227,45 @@ def build_overlay_shadow_log(
     config: Mapping[str, Any],
     *,
     shadow_log_id: str = "OSH-0001",
+    advisory_source: str | None = None,
+    pre_gate_advisory_snapshot: Mapping[str, Any] | None = None,
     snapshot_path: Path = DEFAULT_SNAPSHOT_PATH,
     config_path: Path = DEFAULT_CONFIG_PATH,
 ) -> dict[str, Any]:
-    evaluation_time_utc = str(bucket_mapping["as_of_timestamp"])
+    normalized_source = _normalize_advisory_source(advisory_source)
+    if normalized_source == "PGAS":
+        if pre_gate_advisory_snapshot is None:
+            raise ValueError("pre_gate_advisory_snapshot is required for PGAS advisory_source")
+        combined_bucket = pre_gate_advisory_snapshot.get("combined_bucket")
+        if combined_bucket not in PERMISSION_TO_MULTIPLIER:
+            raise ValueError("PGAS advisory_source requires a combined_bucket in the locked bucket domain")
+        evaluation_time_utc = str(pre_gate_advisory_snapshot["as_of_timestamp"])
+        mapped_bucket = str(combined_bucket)
+        size_multiplier = PERMISSION_TO_MULTIPLIER[mapped_bucket]
+        source_bucket_mapping_id = str(pre_gate_advisory_snapshot["source_bucket_mapping_id"])
+        source_agent_output_id = str(pre_gate_advisory_snapshot["source_agent_output_id"])
+    else:
+        evaluation_time_utc = str(bucket_mapping["as_of_timestamp"])
+        mapped_bucket = str(bucket_mapping["mapped_bucket"])
+        size_multiplier = bucket_mapping["size_multiplier"]
+        source_bucket_mapping_id = str(bucket_mapping["bucket_mapping_id"])
+        source_agent_output_id = str(agent_output["agent_output_id"])
+
     observation = observe_external_overlay_bucket(
         snapshot=snapshot,
         config=config,
         evaluation_time_utc=evaluation_time_utc,
     )
     observed_bucket = str(observation["observed_overlay_bucket"])
-    mapped_bucket = str(bucket_mapping["mapped_bucket"])
 
-    return {
+    payload = {
         "overlay_shadow_log_id": shadow_log_id,
-        "source_bucket_mapping_id": bucket_mapping["bucket_mapping_id"],
-        "source_agent_output_id": agent_output["agent_output_id"],
+        "source_bucket_mapping_id": source_bucket_mapping_id,
+        "source_agent_output_id": source_agent_output_id,
         "observed_overlay_bucket": observed_bucket,
         "observed_overlay_size_multiplier": observation["observed_overlay_size_multiplier"],
         "mapped_bucket": mapped_bucket,
-        "size_multiplier": bucket_mapping["size_multiplier"],
+        "size_multiplier": size_multiplier,
         "comparison_result": "MATCH" if observed_bucket == mapped_bucket else "MISMATCH",
         "override_applied": False,
         "fail_open_preserved": True,
@@ -232,12 +280,14 @@ def build_overlay_shadow_log(
             "context_missing": observation["context_missing"],
             "reason_code": observation["reason_code"],
         },
-        "notes": (
-            "WP-7c zero-override shadow comparison. The mapper output is advisory-only and "
-            "records comparison evidence only; no lib changes, no execution influence, no "
-            "OMS authority, and no risk authority are created by this artifact."
-        ),
+        "notes": _notes_for_advisory_source(normalized_source),
     }
+    if normalized_source == "PGAS":
+        payload["advisory_source"] = "PGAS"
+        payload["source_pre_gate_advisory_snapshot_id"] = str(
+            pre_gate_advisory_snapshot["pre_gate_advisory_snapshot_id"]
+        )
+    return payload
 
 
 def build_default_overlay_shadow_log(
@@ -245,9 +295,28 @@ def build_default_overlay_shadow_log(
     agent_outputs_dir: Path = DEFAULT_AGENT_OUTPUTS_DIR,
     snapshot_path: Path = DEFAULT_SNAPSHOT_PATH,
     config_path: Path = DEFAULT_CONFIG_PATH,
+    *,
+    advisory_source: str = "BMAP",
+    pre_gate_advisory_snapshot_path: Path = DEFAULT_PRE_GATE_ADVISORY_SNAPSHOT_PATH,
+    shadow_log_id: str | None = None,
 ) -> dict[str, Any]:
-    bucket_mapping = load_json(bucket_mapping_path)
-    source_agent_output_id = str(bucket_mapping["source_agent_output_id"])
+    normalized_source = _normalize_advisory_source(advisory_source)
+    bucket_mappings_dir = bucket_mapping_path.parent
+    pre_gate_advisory_snapshot: dict[str, Any] | None = None
+
+    if normalized_source == "PGAS":
+        pre_gate_advisory_snapshot = load_json(pre_gate_advisory_snapshot_path)
+        bucket_mapping = load_json(
+            _source_bucket_mapping_path(
+                bucket_mappings_dir,
+                str(pre_gate_advisory_snapshot["source_bucket_mapping_id"]),
+            )
+        )
+        source_agent_output_id = str(pre_gate_advisory_snapshot["source_agent_output_id"])
+    else:
+        bucket_mapping = load_json(bucket_mapping_path)
+        source_agent_output_id = str(bucket_mapping["source_agent_output_id"])
+
     agent_output = load_json(_source_agent_output_path(agent_outputs_dir, source_agent_output_id))
     snapshot = load_json(snapshot_path)
     config = load_json(config_path)
@@ -256,6 +325,9 @@ def build_default_overlay_shadow_log(
         agent_output=agent_output,
         snapshot=snapshot,
         config=config,
+        shadow_log_id=shadow_log_id or ("OSH-0002" if normalized_source == "PGAS" else "OSH-0001"),
+        advisory_source=normalized_source,
+        pre_gate_advisory_snapshot=pre_gate_advisory_snapshot,
         snapshot_path=snapshot_path,
         config_path=config_path,
     )
@@ -270,6 +342,12 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--bucket-mapping", type=Path, default=DEFAULT_BUCKET_MAPPING_PATH)
     parser.add_argument("--agent-outputs-dir", type=Path, default=DEFAULT_AGENT_OUTPUTS_DIR)
+    parser.add_argument("--advisory-source", choices=sorted(ADVISORY_SOURCES), default="BMAP")
+    parser.add_argument(
+        "--pre-gate-advisory-snapshot",
+        type=Path,
+        default=DEFAULT_PRE_GATE_ADVISORY_SNAPSHOT_PATH,
+    )
     parser.add_argument("--snapshot", type=Path, default=DEFAULT_SNAPSHOT_PATH)
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG_PATH)
     parser.add_argument("--out", type=Path, default=None)
@@ -280,6 +358,8 @@ def main() -> int:
         agent_outputs_dir=args.agent_outputs_dir,
         snapshot_path=args.snapshot,
         config_path=args.config,
+        advisory_source=args.advisory_source,
+        pre_gate_advisory_snapshot_path=args.pre_gate_advisory_snapshot,
     )
 
     if args.out is not None:

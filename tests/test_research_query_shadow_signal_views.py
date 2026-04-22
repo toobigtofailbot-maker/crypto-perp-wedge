@@ -43,6 +43,7 @@ def test_shadow_agreement_summary_reflects_current_committed_entry(conn):
     rows = conn.execute(
         """
         SELECT
+            advisory_source,
             comparison_result,
             entry_count,
             match_count,
@@ -51,12 +52,13 @@ def test_shadow_agreement_summary_reflects_current_committed_entry(conn):
             first_observed_at,
             last_observed_at
         FROM v_overlay_shadow_agreement_summary
-        ORDER BY comparison_result
+        ORDER BY advisory_source, comparison_result
         """
     ).fetchall()
 
     assert rows == [
         (
+            "BMAP",
             "MISMATCH",
             1,
             0,
@@ -64,7 +66,17 @@ def test_shadow_agreement_summary_reflects_current_committed_entry(conn):
             0,
             "2026-04-19T17:00:00Z",
             "2026-04-19T17:00:00Z",
-        )
+        ),
+        (
+            "PGAS",
+            "MISMATCH",
+            1,
+            0,
+            1,
+            0,
+            "2026-04-19T18:00:00Z",
+            "2026-04-19T18:00:00Z",
+        ),
     ]
 
 

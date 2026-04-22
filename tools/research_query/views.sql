@@ -454,7 +454,9 @@ WHERE (mapped_bucket = 'ALLOW' AND size_multiplier <> 1.0)
 CREATE OR REPLACE VIEW v_overlay_shadow_logs_overview AS
 SELECT
     overlay_shadow_log_id,
+    COALESCE(advisory_source, 'BMAP') AS advisory_source,
     source_bucket_mapping_id,
+    source_pre_gate_advisory_snapshot_id,
     source_agent_output_id,
     observed_overlay_bucket,
     mapped_bucket,
@@ -470,7 +472,9 @@ FROM overlay_shadow_logs;
 CREATE OR REPLACE VIEW v_overlay_shadow_logs_latest AS
 SELECT
     overlay_shadow_log_id,
+    COALESCE(advisory_source, 'BMAP') AS advisory_source,
     source_bucket_mapping_id,
+    source_pre_gate_advisory_snapshot_id,
     source_agent_output_id,
     observed_overlay_bucket,
     mapped_bucket,
@@ -481,7 +485,7 @@ SELECT
     advisory_only
 FROM overlay_shadow_logs
 QUALIFY ROW_NUMBER() OVER (
-    PARTITION BY source_bucket_mapping_id
+    PARTITION BY COALESCE(advisory_source, 'BMAP'), source_bucket_mapping_id
     ORDER BY observed_at DESC, overlay_shadow_log_id DESC
 ) = 1;
 
@@ -492,7 +496,9 @@ CREATE OR REPLACE VIEW v_integrity_overlay_shadow_refs AS
 SELECT
     'overlay_shadow_unknown_bucket_mapping' AS issue_type,
     o.overlay_shadow_log_id,
+    COALESCE(o.advisory_source, 'BMAP') AS advisory_source,
     o.source_bucket_mapping_id,
+    o.source_pre_gate_advisory_snapshot_id,
     o.source_agent_output_id,
     CAST(NULL AS VARCHAR) AS source_field,
     CAST(NULL AS VARCHAR) AS expected_value,
@@ -505,7 +511,9 @@ UNION ALL
 SELECT
     'overlay_shadow_unknown_agent_output' AS issue_type,
     o.overlay_shadow_log_id,
+    COALESCE(o.advisory_source, 'BMAP') AS advisory_source,
     o.source_bucket_mapping_id,
+    o.source_pre_gate_advisory_snapshot_id,
     o.source_agent_output_id,
     CAST(NULL AS VARCHAR) AS source_field,
     CAST(NULL AS VARCHAR) AS expected_value,
@@ -518,7 +526,9 @@ UNION ALL
 SELECT
     'overlay_shadow_source_agent_output_mismatch' AS issue_type,
     o.overlay_shadow_log_id,
+    COALESCE(o.advisory_source, 'BMAP') AS advisory_source,
     o.source_bucket_mapping_id,
+    o.source_pre_gate_advisory_snapshot_id,
     o.source_agent_output_id,
     'source_agent_output_id' AS source_field,
     b.source_agent_output_id AS expected_value,
@@ -531,7 +541,9 @@ UNION ALL
 SELECT
     'overlay_shadow_mapped_bucket_mismatch' AS issue_type,
     o.overlay_shadow_log_id,
+    COALESCE(o.advisory_source, 'BMAP') AS advisory_source,
     o.source_bucket_mapping_id,
+    o.source_pre_gate_advisory_snapshot_id,
     o.source_agent_output_id,
     'mapped_bucket' AS source_field,
     b.mapped_bucket AS expected_value,
@@ -539,12 +551,15 @@ SELECT
 FROM overlay_shadow_logs AS o
 JOIN bucket_mappings AS b
   ON o.source_bucket_mapping_id = b.bucket_mapping_id
-WHERE o.mapped_bucket <> b.mapped_bucket
+WHERE COALESCE(o.advisory_source, 'BMAP') <> 'PGAS'
+  AND o.mapped_bucket <> b.mapped_bucket
 UNION ALL
 SELECT
     'overlay_shadow_size_multiplier_mismatch' AS issue_type,
     o.overlay_shadow_log_id,
+    COALESCE(o.advisory_source, 'BMAP') AS advisory_source,
     o.source_bucket_mapping_id,
+    o.source_pre_gate_advisory_snapshot_id,
     o.source_agent_output_id,
     'size_multiplier' AS source_field,
     CAST(b.size_multiplier AS VARCHAR) AS expected_value,
@@ -552,12 +567,105 @@ SELECT
 FROM overlay_shadow_logs AS o
 JOIN bucket_mappings AS b
   ON o.source_bucket_mapping_id = b.bucket_mapping_id
-WHERE o.size_multiplier <> b.size_multiplier
+WHERE COALESCE(o.advisory_source, 'BMAP') <> 'PGAS'
+  AND o.size_multiplier <> b.size_multiplier
+UNION ALL
+SELECT
+    'overlay_shadow_unknown_pre_gate_advisory_snapshot' AS issue_type,
+    o.overlay_shadow_log_id,
+    COALESCE(o.advisory_source, 'BMAP') AS advisory_source,
+    o.source_bucket_mapping_id,
+    o.source_pre_gate_advisory_snapshot_id,
+    o.source_agent_output_id,
+    CAST(NULL AS VARCHAR) AS source_field,
+    CAST(NULL AS VARCHAR) AS expected_value,
+    CAST(NULL AS VARCHAR) AS actual_value
+FROM overlay_shadow_logs AS o
+LEFT JOIN pre_gate_advisory_snapshots AS p
+  ON o.source_pre_gate_advisory_snapshot_id = p.pre_gate_advisory_snapshot_id
+WHERE COALESCE(o.advisory_source, 'BMAP') = 'PGAS'
+  AND p.pre_gate_advisory_snapshot_id IS NULL
+UNION ALL
+SELECT
+    'overlay_shadow_pre_gate_source_bucket_mapping_mismatch' AS issue_type,
+    o.overlay_shadow_log_id,
+    COALESCE(o.advisory_source, 'BMAP') AS advisory_source,
+    o.source_bucket_mapping_id,
+    o.source_pre_gate_advisory_snapshot_id,
+    o.source_agent_output_id,
+    'source_bucket_mapping_id' AS source_field,
+    p.source_bucket_mapping_id AS expected_value,
+    o.source_bucket_mapping_id AS actual_value
+FROM overlay_shadow_logs AS o
+JOIN pre_gate_advisory_snapshots AS p
+  ON o.source_pre_gate_advisory_snapshot_id = p.pre_gate_advisory_snapshot_id
+WHERE COALESCE(o.advisory_source, 'BMAP') = 'PGAS'
+  AND o.source_bucket_mapping_id <> p.source_bucket_mapping_id
+UNION ALL
+SELECT
+    'overlay_shadow_pre_gate_source_agent_output_mismatch' AS issue_type,
+    o.overlay_shadow_log_id,
+    COALESCE(o.advisory_source, 'BMAP') AS advisory_source,
+    o.source_bucket_mapping_id,
+    o.source_pre_gate_advisory_snapshot_id,
+    o.source_agent_output_id,
+    'source_agent_output_id' AS source_field,
+    p.source_agent_output_id AS expected_value,
+    o.source_agent_output_id AS actual_value
+FROM overlay_shadow_logs AS o
+JOIN pre_gate_advisory_snapshots AS p
+  ON o.source_pre_gate_advisory_snapshot_id = p.pre_gate_advisory_snapshot_id
+WHERE COALESCE(o.advisory_source, 'BMAP') = 'PGAS'
+  AND o.source_agent_output_id <> p.source_agent_output_id
+UNION ALL
+SELECT
+    'overlay_shadow_pre_gate_combined_bucket_mismatch' AS issue_type,
+    o.overlay_shadow_log_id,
+    COALESCE(o.advisory_source, 'BMAP') AS advisory_source,
+    o.source_bucket_mapping_id,
+    o.source_pre_gate_advisory_snapshot_id,
+    o.source_agent_output_id,
+    'mapped_bucket' AS source_field,
+    p.combined_bucket AS expected_value,
+    o.mapped_bucket AS actual_value
+FROM overlay_shadow_logs AS o
+JOIN pre_gate_advisory_snapshots AS p
+  ON o.source_pre_gate_advisory_snapshot_id = p.pre_gate_advisory_snapshot_id
+WHERE COALESCE(o.advisory_source, 'BMAP') = 'PGAS'
+  AND o.mapped_bucket IS DISTINCT FROM p.combined_bucket
+UNION ALL
+SELECT
+    'overlay_shadow_pre_gate_size_multiplier_mismatch' AS issue_type,
+    o.overlay_shadow_log_id,
+    COALESCE(o.advisory_source, 'BMAP') AS advisory_source,
+    o.source_bucket_mapping_id,
+    o.source_pre_gate_advisory_snapshot_id,
+    o.source_agent_output_id,
+    'size_multiplier' AS source_field,
+    CASE
+        WHEN p.combined_bucket = 'ALLOW' THEN '1.0'
+        WHEN p.combined_bucket = 'ALLOW_REDUCED' THEN '0.5'
+        WHEN p.combined_bucket = 'BLOCK' THEN '0.0'
+        ELSE 'ALLOW|ALLOW_REDUCED|BLOCK'
+    END AS expected_value,
+    CAST(o.size_multiplier AS VARCHAR) AS actual_value
+FROM overlay_shadow_logs AS o
+JOIN pre_gate_advisory_snapshots AS p
+  ON o.source_pre_gate_advisory_snapshot_id = p.pre_gate_advisory_snapshot_id
+WHERE COALESCE(o.advisory_source, 'BMAP') = 'PGAS'
+  AND o.size_multiplier IS DISTINCT FROM CASE
+      WHEN p.combined_bucket = 'ALLOW' THEN 1.0
+      WHEN p.combined_bucket = 'ALLOW_REDUCED' THEN 0.5
+      WHEN p.combined_bucket = 'BLOCK' THEN 0.0
+      ELSE NULL
+  END
 UNION ALL
 SELECT
     'overlay_shadow_comparison_result_mismatch' AS issue_type,
     overlay_shadow_log_id,
+    COALESCE(advisory_source, 'BMAP') AS advisory_source,
     source_bucket_mapping_id,
+    source_pre_gate_advisory_snapshot_id,
     source_agent_output_id,
     'comparison_result' AS source_field,
     CASE
@@ -574,7 +682,9 @@ UNION ALL
 SELECT
     'overlay_shadow_override_applied' AS issue_type,
     overlay_shadow_log_id,
+    COALESCE(advisory_source, 'BMAP') AS advisory_source,
     source_bucket_mapping_id,
+    source_pre_gate_advisory_snapshot_id,
     source_agent_output_id,
     'override_applied' AS source_field,
     'false' AS expected_value,
@@ -585,7 +695,9 @@ UNION ALL
 SELECT
     'overlay_shadow_fail_open_not_preserved' AS issue_type,
     overlay_shadow_log_id,
+    COALESCE(advisory_source, 'BMAP') AS advisory_source,
     source_bucket_mapping_id,
+    source_pre_gate_advisory_snapshot_id,
     source_agent_output_id,
     'fail_open_preserved' AS source_field,
     'true' AS expected_value,
@@ -596,7 +708,9 @@ UNION ALL
 SELECT
     'overlay_shadow_not_advisory_only' AS issue_type,
     overlay_shadow_log_id,
+    COALESCE(advisory_source, 'BMAP') AS advisory_source,
     source_bucket_mapping_id,
+    source_pre_gate_advisory_snapshot_id,
     source_agent_output_id,
     'advisory_only' AS source_field,
     'true' AS expected_value,
@@ -608,6 +722,7 @@ WHERE advisory_only IS DISTINCT FROM true;
 -- Aggregates by comparison class only; individual row details remain in baseline views.
 CREATE OR REPLACE VIEW v_overlay_shadow_agreement_summary AS
 SELECT
+    COALESCE(advisory_source, 'BMAP') AS advisory_source,
     comparison_result,
     COUNT(*) AS entry_count,
     SUM(CASE WHEN comparison_result = 'MATCH' THEN 1 ELSE 0 END) AS match_count,
@@ -616,7 +731,7 @@ SELECT
     strftime('%Y-%m-%dT%H:%M:%SZ', MIN(CAST(observed_at AS TIMESTAMP))) AS first_observed_at,
     strftime('%Y-%m-%dT%H:%M:%SZ', MAX(CAST(observed_at AS TIMESTAMP))) AS last_observed_at
 FROM overlay_shadow_logs
-GROUP BY comparison_result;
+GROUP BY COALESCE(advisory_source, 'BMAP'), comparison_result;
 
 -- Are any overlay shadow logs drifting away from strict zero-override behavior?
 -- Expected to be empty in a healthy advisory-only shadow state.
@@ -624,7 +739,9 @@ CREATE OR REPLACE VIEW v_overlay_shadow_override_audit AS
 SELECT
     'overlay_shadow_override_applied' AS issue_type,
     overlay_shadow_log_id,
+    COALESCE(advisory_source, 'BMAP') AS advisory_source,
     source_bucket_mapping_id,
+    source_pre_gate_advisory_snapshot_id,
     source_agent_output_id,
     'override_applied' AS source_field,
     'false' AS expected_value,
@@ -635,7 +752,9 @@ UNION ALL
 SELECT
     'overlay_shadow_fail_open_not_preserved' AS issue_type,
     overlay_shadow_log_id,
+    COALESCE(advisory_source, 'BMAP') AS advisory_source,
     source_bucket_mapping_id,
+    source_pre_gate_advisory_snapshot_id,
     source_agent_output_id,
     'fail_open_preserved' AS source_field,
     'true' AS expected_value,
@@ -646,7 +765,9 @@ UNION ALL
 SELECT
     'overlay_shadow_not_advisory_only' AS issue_type,
     overlay_shadow_log_id,
+    COALESCE(advisory_source, 'BMAP') AS advisory_source,
     source_bucket_mapping_id,
+    source_pre_gate_advisory_snapshot_id,
     source_agent_output_id,
     'advisory_only' AS source_field,
     'true' AS expected_value,

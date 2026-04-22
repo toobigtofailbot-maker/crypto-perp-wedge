@@ -431,7 +431,9 @@ def _register_overlay_shadow_logs(conn: duckdb.DuckDBPyConnection) -> None:
         CREATE VIEW overlay_shadow_logs AS
         SELECT
             CAST(NULL AS VARCHAR) AS overlay_shadow_log_id,
+            CAST(NULL AS VARCHAR) AS advisory_source,
             CAST(NULL AS VARCHAR) AS source_bucket_mapping_id,
+            CAST(NULL AS VARCHAR) AS source_pre_gate_advisory_snapshot_id,
             CAST(NULL AS VARCHAR) AS source_agent_output_id,
             CAST(NULL AS VARCHAR) AS observed_overlay_bucket,
             CAST(NULL AS DOUBLE) AS observed_overlay_size_multiplier,

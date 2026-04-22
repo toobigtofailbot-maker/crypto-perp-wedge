@@ -27,10 +27,20 @@
       "type": "string",
       "pattern": "^OSH-[0-9]{4}$"
     },
+    "advisory_source": {
+      "description": "Additive advisory source selector. Missing means historical BMAP semantics.",
+      "type": "string",
+      "enum": ["BMAP", "PGAS"]
+    },
     "source_bucket_mapping_id": {
       "description": "Stable source bucket-mapping artifact identifier.",
       "type": "string",
       "pattern": "^BMAP-[0-9]{4}$"
+    },
+    "source_pre_gate_advisory_snapshot_id": {
+      "description": "Stable source pre-gate advisory snapshot identifier for PGAS-sourced entries.",
+      "type": "string",
+      "pattern": "^PGAS-[0-9]{4}$"
     },
     "source_agent_output_id": {
       "description": "Stable source agent-output artifact identifier copied from the bucket mapping.",
@@ -136,6 +146,28 @@
     }
   },
   "allOf": [
+    {
+      "if": {
+        "properties": {
+          "advisory_source": { "const": "PGAS" }
+        },
+        "required": ["advisory_source"]
+      },
+      "then": {
+        "required": ["source_pre_gate_advisory_snapshot_id"]
+      }
+    },
+    {
+      "if": {
+        "required": ["source_pre_gate_advisory_snapshot_id"]
+      },
+      "then": {
+        "properties": {
+          "advisory_source": { "const": "PGAS" }
+        },
+        "required": ["advisory_source"]
+      }
+    },
     {
       "if": {
         "properties": {

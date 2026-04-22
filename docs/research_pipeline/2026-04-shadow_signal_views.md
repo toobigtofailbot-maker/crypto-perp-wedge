@@ -12,19 +12,20 @@ entry-level shadow logs as the source of truth.
 These views consume `research/overlay_shadow_logs/*.overlay_shadow_log.json` via
 the existing read-only `overlay_shadow_logs` relation. WP-7d reuses the WP-7c
 schema, validator, external shadow hook, baseline query views, and committed
-`OSH-0001` instance. It does not create a new schema, validator, hook, or
-shadow-log entry.
+`OSH-0001` instance. WP-7i extends those exact surfaces additively with
+`advisory_source` segmentation and the first PGAS-sourced entry, `OSH-0002`.
 
 ## New Views
 
-`v_overlay_shadow_agreement_summary` groups committed shadow logs by
-`comparison_result`. It reports entry count, match count, mismatch count,
-override-true count, and the first and last observed timestamps for each
-comparison class.
+`v_overlay_shadow_agreement_summary` now groups committed shadow logs by
+`advisory_source` plus `comparison_result`. It reports entry count, match count,
+mismatch count, override-true count, and the first and last observed timestamps
+for each advisory-source comparison class.
 
 `v_overlay_shadow_override_audit` is a strict zero-override audit surface. It
 returns rows only when a shadow log records `override_applied=true`,
-`fail_open_preserved=false`, or `advisory_only=false`.
+`fail_open_preserved=false`, or `advisory_only=false`. WP-7i preserves the same
+zero-override audit rule while exposing `advisory_source` additively.
 
 ## Interpreting MATCH And MISMATCH
 
@@ -33,10 +34,11 @@ for a committed shadow-log observation. `MISMATCH` means they differed. A
 mismatch is diagnostic evidence only: it can motivate review, but it does not
 recommend a policy change and does not authorize overlay behavior changes.
 
-The current single committed entry is useful for proving the evidence path, but
-one observation is not enough evidence for promotion, demotion, or policy
-change. Shadow-log evidence should be reviewed over time alongside the
-entry-level logs, source references, and existing integrity views.
+The current two committed entries are useful for proving both the historical
+BMAP path and the additive PGAS path, but they are still only evidence points.
+They are not enough evidence for promotion, demotion, or policy change.
+Shadow-log evidence should be reviewed over time alongside the entry-level logs,
+source references, and existing integrity views.
 
 ## Zero Override Boundary
 

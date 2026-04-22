@@ -70,12 +70,15 @@ WP-6j. The first instance consumes `AOUT-0001` only and maps it into the locked
 
 `2026-04-overlay_shadow_log_artifact.md` and
 `2026-04-overlay_shadow_external_hook.md` explain the first zero-override
-overlay shadow log family introduced by WP-7c. The first instance compares
-`BMAP-0001` against an externally observable overlay-side source without
-changing `lib/` or runtime behavior.
+overlay shadow log family introduced by WP-7c and extended by WP-7i. The
+historical first instance compares `BMAP-0001` against an externally observable
+overlay-side source without changing `lib/` or runtime behavior. `OSH-0002` is
+the first PGAS-sourced shadow entry and compares `PGAS-0002.combined_bucket`
+through the same external observation path.
 
 `2026-04-shadow_signal_views.md` explains the first aggregate diagnostic views
-over the committed overlay shadow-log family.
+over the committed overlay shadow-log family, now segmentable by
+`advisory_source`.
 
 ## Briefs / Diagnostic Outputs
 

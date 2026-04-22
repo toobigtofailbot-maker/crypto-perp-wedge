@@ -28,7 +28,7 @@ def conn():
 def test_overlay_shadow_logs_relation_registered_under_current_state(conn):
     count = conn.execute("SELECT COUNT(*) FROM overlay_shadow_logs").fetchone()[0]
 
-    assert count == 1
+    assert count == 2
 
 
 def test_overlay_shadow_logs_relation_registered_empty_with_missing_dir(monkeypatch, tmp_path):
@@ -54,7 +54,9 @@ def test_overlay_shadow_log_overview_returns_current_rows(conn):
         """
         SELECT
             overlay_shadow_log_id,
+            advisory_source,
             source_bucket_mapping_id,
+            source_pre_gate_advisory_snapshot_id,
             source_agent_output_id,
             observed_overlay_bucket,
             mapped_bucket,
@@ -70,7 +72,24 @@ def test_overlay_shadow_log_overview_returns_current_rows(conn):
     assert rows == [
         (
             "OSH-0001",
+            "BMAP",
             "BMAP-0001",
+            None,
+            "AOUT-0001",
+            "ALLOW",
+            "ALLOW_REDUCED",
+            0.5,
+            "MISMATCH",
+            False,
+            True,
+            True,
+        )
+        ,
+        (
+            "OSH-0002",
+            "PGAS",
+            "BMAP-0001",
+            "PGAS-0002",
             "AOUT-0001",
             "ALLOW",
             "ALLOW_REDUCED",
@@ -86,12 +105,21 @@ def test_overlay_shadow_log_overview_returns_current_rows(conn):
 def test_overlay_shadow_log_latest_returns_current_rows(conn):
     rows = conn.execute(
         """
-        SELECT overlay_shadow_log_id, source_bucket_mapping_id, source_agent_output_id
+        SELECT
+            overlay_shadow_log_id,
+            advisory_source,
+            source_bucket_mapping_id,
+            source_pre_gate_advisory_snapshot_id,
+            source_agent_output_id
         FROM v_overlay_shadow_logs_latest
+        ORDER BY advisory_source
         """
     ).fetchall()
 
-    assert rows == [("OSH-0001", "BMAP-0001", "AOUT-0001")]
+    assert rows == [
+        ("OSH-0001", "BMAP", "BMAP-0001", None, "AOUT-0001"),
+        ("OSH-0002", "PGAS", "BMAP-0001", "PGAS-0002", "AOUT-0001"),
+    ]
 
 
 def test_overlay_shadow_log_integrity_view_empty_under_current_state(conn):

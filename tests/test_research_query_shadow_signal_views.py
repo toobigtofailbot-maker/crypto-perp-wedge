@@ -39,7 +39,7 @@ def test_shadow_signal_views_are_listed(conn):
     assert SHADOW_SIGNAL_VIEWS <= view_names
 
 
-def test_shadow_agreement_summary_reflects_current_committed_entry(conn):
+def test_shadow_agreement_summary_reflects_current_committed_corpus(conn):
     rows = conn.execute(
         """
         SELECT
@@ -60,22 +60,22 @@ def test_shadow_agreement_summary_reflects_current_committed_entry(conn):
         (
             "BMAP",
             "MISMATCH",
-            1,
+            2,
             0,
-            1,
+            2,
             0,
             "2026-04-19T17:00:00Z",
-            "2026-04-19T17:00:00Z",
+            "2026-04-22T00:00:00Z",
         ),
         (
             "PGAS",
             "MISMATCH",
-            1,
+            2,
             0,
-            1,
+            2,
             0,
             "2026-04-19T18:00:00Z",
-            "2026-04-19T18:00:00Z",
+            "2026-04-22T01:00:00Z",
         ),
     ]
 

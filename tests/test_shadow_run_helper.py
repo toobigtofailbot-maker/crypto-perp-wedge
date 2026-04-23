@@ -36,6 +36,16 @@ def _patched_repo_relative(path: Path) -> str:
     return resolved.as_posix()
 
 
+def _overlay_shadow_log_path(overlay_shadow_logs_dir: Path, overlay_shadow_log_id: str) -> Path:
+    return overlay_shadow_logs_dir / f"{overlay_shadow_log_id}.overlay_shadow_log.json"
+
+
+def _next_output_path(overlay_shadow_logs_dir: Path | None = None) -> Path:
+    overlay_shadow_logs_dir = overlay_shadow_logs_dir or helper.OVERLAY_SHADOW_LOGS_DIR
+    overlay_shadow_log_id = helper.next_overlay_shadow_log_id(overlay_shadow_logs_dir)
+    return _overlay_shadow_log_path(overlay_shadow_logs_dir, overlay_shadow_log_id)
+
+
 def test_cli_rejects_unsupported_advisory_source():
     with pytest.raises(SystemExit):
         helper.run(
@@ -114,8 +124,15 @@ def test_resolve_output_path_rejects_path_outside_committed_dir(tmp_path):
         helper.resolve_output_path(tmp_path / "OSH-0003.overlay_shadow_log.json")
 
 
-def test_next_overlay_shadow_log_id_is_deterministic_under_current_repo_state():
-    assert helper.next_overlay_shadow_log_id() == "OSH-0003"
+def test_next_overlay_shadow_log_id_advances_past_current_committed_corpus():
+    committed_ids = [
+        int(path.stem.split(".")[0].split("-")[1])
+        for path in helper.OVERLAY_SHADOW_LOGS_DIR.glob("OSH-*.overlay_shadow_log.json")
+    ]
+
+    expected = f"OSH-{max(committed_ids) + 1:04d}"
+
+    assert helper.next_overlay_shadow_log_id() == expected
 
 
 def test_bmap_payload_generation_is_byte_identical_for_identical_inputs():
@@ -125,7 +142,7 @@ def test_bmap_payload_generation_is_byte_identical_for_identical_inputs():
         timestamp_utc="2026-04-22T00:00:00Z",
         snapshot_path=helper.CANONICAL_SNAPSHOT_PATH,
         config_path=helper.CANONICAL_CONFIG_PATH,
-        overlay_shadow_log_id="OSH-0003",
+        overlay_shadow_log_id="OSH-9999",
     )
     payload_b = helper.build_candidate_payload(
         advisory_source="BMAP",
@@ -133,7 +150,7 @@ def test_bmap_payload_generation_is_byte_identical_for_identical_inputs():
         timestamp_utc="2026-04-22T00:00:00Z",
         snapshot_path=helper.CANONICAL_SNAPSHOT_PATH,
         config_path=helper.CANONICAL_CONFIG_PATH,
-        overlay_shadow_log_id="OSH-0003",
+        overlay_shadow_log_id="OSH-9999",
     )
 
     assert helper.render_payload(payload_a) == helper.render_payload(payload_b)
@@ -146,7 +163,7 @@ def test_bmap_payload_uses_explicit_timestamp_and_omits_advisory_source():
         timestamp_utc="2026-04-22T00:00:00Z",
         snapshot_path=helper.CANONICAL_SNAPSHOT_PATH,
         config_path=helper.CANONICAL_CONFIG_PATH,
-        overlay_shadow_log_id="OSH-0003",
+        overlay_shadow_log_id="OSH-9999",
     )
 
     assert payload["observed_at"] == "2026-04-22T00:00:00Z"
@@ -162,7 +179,7 @@ def test_pgas_payload_uses_committed_combined_bucket_without_recomputation():
         timestamp_utc="2026-04-22T00:00:00Z",
         snapshot_path=helper.CANONICAL_SNAPSHOT_PATH,
         config_path=helper.CANONICAL_CONFIG_PATH,
-        overlay_shadow_log_id="OSH-0003",
+        overlay_shadow_log_id="OSH-9999",
     )
 
     assert payload["advisory_source"] == "PGAS"
@@ -174,7 +191,8 @@ def test_pgas_payload_uses_committed_combined_bucket_without_recomputation():
 
 
 def test_dry_run_prints_candidate_and_writes_nothing(capsys):
-    expected_path = helper.OVERLAY_SHADOW_LOGS_DIR / "OSH-0003.overlay_shadow_log.json"
+    expected_path = _next_output_path()
+    expected_id = expected_path.stem.split(".")[0]
     assert not expected_path.exists()
 
     exit_code = helper.run(
@@ -188,9 +206,9 @@ def test_dry_run_prints_candidate_and_writes_nothing(capsys):
     captured = capsys.readouterr()
 
     assert exit_code == 0
-    assert '"overlay_shadow_log_id": "OSH-0003"' in captured.out
-    assert "Proposed output path: research/overlay_shadow_logs/OSH-0003.overlay_shadow_log.json" in captured.err
-    assert "Proposed output id: OSH-0003" in captured.err
+    assert f'"overlay_shadow_log_id": "{expected_id}"' in captured.out
+    assert f"Proposed output path: research/overlay_shadow_logs/{expected_id}.overlay_shadow_log.json" in captured.err
+    assert f"Proposed output id: {expected_id}" in captured.err
     assert "Validation: PASS" in captured.err
     assert not expected_path.exists()
 
@@ -216,7 +234,7 @@ def test_validation_against_corpus_catches_duplicate_overlay_shadow_log_id():
 def test_write_mode_refuses_overwrite_existing_file(tmp_path, capsys, monkeypatch):
     overlay_shadow_logs_dir = tmp_path / "research" / "overlay_shadow_logs"
     _copy_committed_overlay_shadow_logs(overlay_shadow_logs_dir)
-    existing_path = overlay_shadow_logs_dir / "OSH-0003.overlay_shadow_log.json"
+    existing_path = _next_output_path(overlay_shadow_logs_dir)
     existing_path.write_text("already here\n", encoding="utf-8")
     monkeypatch.setattr(helper, "OVERLAY_SHADOW_LOGS_DIR", overlay_shadow_logs_dir)
 
@@ -239,7 +257,7 @@ def test_write_mode_refuses_overwrite_existing_file(tmp_path, capsys, monkeypatc
 def test_write_mode_fails_without_writing_when_validation_fails(tmp_path, capsys, monkeypatch):
     overlay_shadow_logs_dir = tmp_path / "research" / "overlay_shadow_logs"
     _copy_committed_overlay_shadow_logs(overlay_shadow_logs_dir)
-    target_path = overlay_shadow_logs_dir / "OSH-0003.overlay_shadow_log.json"
+    target_path = _next_output_path(overlay_shadow_logs_dir)
     monkeypatch.setattr(helper, "OVERLAY_SHADOW_LOGS_DIR", overlay_shadow_logs_dir)
     monkeypatch.setattr(helper, "_repo_relative", _patched_repo_relative)
     monkeypatch.setattr(helper, "validate_candidate_against_corpus", lambda payload, destination_path: ["boom"])
@@ -263,7 +281,8 @@ def test_write_mode_fails_without_writing_when_validation_fails(tmp_path, capsys
 def test_write_mode_writes_only_after_successful_validation(tmp_path, capsys, monkeypatch):
     overlay_shadow_logs_dir = tmp_path / "research" / "overlay_shadow_logs"
     _copy_committed_overlay_shadow_logs(overlay_shadow_logs_dir)
-    target_path = overlay_shadow_logs_dir / "OSH-0003.overlay_shadow_log.json"
+    target_path = _next_output_path(overlay_shadow_logs_dir)
+    target_id = target_path.stem.split(".")[0]
     monkeypatch.setattr(helper, "OVERLAY_SHADOW_LOGS_DIR", overlay_shadow_logs_dir)
     monkeypatch.setattr(helper, "_repo_relative", _patched_repo_relative)
 
@@ -280,5 +299,5 @@ def test_write_mode_writes_only_after_successful_validation(tmp_path, capsys, mo
 
     assert exit_code == 0
     assert target_path.exists()
-    assert '"overlay_shadow_log_id": "OSH-0003"' in target_path.read_text(encoding="utf-8")
+    assert f'"overlay_shadow_log_id": "{target_id}"' in target_path.read_text(encoding="utf-8")
     assert "Wrote validated overlay shadow log:" in captured.out

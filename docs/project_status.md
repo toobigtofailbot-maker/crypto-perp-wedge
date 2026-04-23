@@ -150,6 +150,7 @@ The accepted next architecture tranche is candidate-agnostic research machine fo
 - WP-7j branch-state: second shadow-log diagnostic brief consumes both `OSH-0001` and `OSH-0002`, uses advisory-source-segmented shadow evidence, and encodes no runtime influence or policy change.
 - WP-7k branch-state: manual / on-demand shadow-run helper added under `tools/shadow`, dry-run remains the default, writes require an explicit flag and corpus validation, and the package introduces no scheduler, trigger infrastructure, committed new OSH entry, or runtime influence.
 - WP-7l branch-state: first committed helper-produced shadow batch added `OSH-0003` and `OSH-0004`, extending the corpus beyond `OSH-0001` and `OSH-0002`; the batch size followed the locked diversity fallback rule and resolved to 2 because only two distinct helper-accepted combinations currently exist, with no helper/runtime/schema/query-layer behavior change and no policy or runtime influence encoded.
+- WP-7m branch-state: third shadow-log diagnostic brief consumes the expanded committed corpus through `OSH-0004`, uses advisory-source-segmented shadow evidence, and encodes no runtime influence or policy change.
 
 ## Update Discipline
 

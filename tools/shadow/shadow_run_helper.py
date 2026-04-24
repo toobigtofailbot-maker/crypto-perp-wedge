@@ -39,8 +39,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--advisory-source", choices=sorted(ADVISORY_SOURCE_PATTERNS), required=True)
     parser.add_argument("--advisory-artifact-id", required=True)
-    parser.add_argument("--snapshot", type=Path, required=True)
-    parser.add_argument("--config", type=Path, required=True)
+    parser.add_argument("--snapshot", type=Path, default=None)
+    parser.add_argument("--config", type=Path, default=None)
+    parser.add_argument("--context-snapshot-path", type=Path, default=None)
+    parser.add_argument("--macro-flags-path", type=Path, default=None)
     parser.add_argument("--timestamp", required=True)
     parser.add_argument("--out", type=Path, default=None)
     parser.add_argument("--write", action="store_true")
@@ -49,6 +51,14 @@ def build_parser() -> argparse.ArgumentParser:
 
 def _repo_relative(path: Path) -> str:
     return path.resolve().relative_to(REPO_ROOT.resolve()).as_posix()
+
+
+def _display_path(path: Path) -> str:
+    resolved = path.resolve()
+    try:
+        return _repo_relative(resolved)
+    except ValueError:
+        return resolved.as_posix()
 
 
 def _require_exact_path(path: Path, expected: Path, label: str) -> Path:
@@ -129,6 +139,45 @@ def overlay_shadow_log_id_from_path(path: Path) -> str:
     if match is None:
         raise ValueError(f"invalid overlay shadow log filename: {path.name}")
     return match.group(1)
+
+
+def _load_json_path(path: Path, label: str) -> Path:
+    resolved = path.resolve()
+    if not resolved.exists():
+        raise ValueError(f"{label} does not exist: {_display_path(resolved)}")
+    if not resolved.is_file():
+        raise ValueError(f"{label} is not a file: {_display_path(resolved)}")
+    try:
+        load_json(resolved)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"{label} contains invalid JSON: {_display_path(resolved)}: {exc}") from exc
+    return resolved
+
+
+def resolve_overlay_input_paths(args: argparse.Namespace) -> tuple[str, Path, Path]:
+    explicit_snapshot = args.context_snapshot_path
+    explicit_config = args.macro_flags_path
+    legacy_snapshot = args.snapshot
+    legacy_config = args.config
+
+    if (explicit_snapshot is None) != (explicit_config is None):
+        raise ValueError(
+            "--context-snapshot-path and --macro-flags-path must be supplied together or omitted together"
+        )
+
+    if explicit_snapshot is not None and (legacy_snapshot is not None or legacy_config is not None):
+        raise ValueError(
+            "legacy --snapshot/--config cannot be combined with --context-snapshot-path/--macro-flags-path"
+        )
+
+    if explicit_snapshot is not None:
+        snapshot_path = _load_json_path(explicit_snapshot, "context snapshot path")
+        config_path = _load_json_path(explicit_config, "macro flags path")
+        return "explicit", snapshot_path, config_path
+
+    snapshot_path = _require_exact_path(legacy_snapshot or CANONICAL_SNAPSHOT_PATH, CANONICAL_SNAPSHOT_PATH, "snapshot")
+    config_path = _require_exact_path(legacy_config or CANONICAL_CONFIG_PATH, CANONICAL_CONFIG_PATH, "config")
+    return "canonical", snapshot_path, config_path
 
 
 def render_payload(payload: Mapping[str, Any]) -> str:
@@ -293,14 +342,23 @@ def _print_validation_errors(errors: Sequence[str]) -> None:
         print(f"VALIDATION ERROR: {error}", file=sys.stderr)
 
 
+def _is_noncanonical_explicit_mode(overlay_input_mode: str, snapshot_path: Path, config_path: Path) -> bool:
+    return (
+        overlay_input_mode == "explicit"
+        and (
+            snapshot_path.resolve() != CANONICAL_SNAPSHOT_PATH.resolve()
+            or config_path.resolve() != CANONICAL_CONFIG_PATH.resolve()
+        )
+    )
+
+
 def run(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
     try:
         advisory_artifact_id = validate_advisory_artifact_id(args.advisory_source, args.advisory_artifact_id)
-        snapshot_path = _require_exact_path(args.snapshot, CANONICAL_SNAPSHOT_PATH, "snapshot")
-        config_path = _require_exact_path(args.config, CANONICAL_CONFIG_PATH, "config")
+        overlay_input_mode, snapshot_path, config_path = resolve_overlay_input_paths(args)
         timestamp_utc = parse_timestamp_utc(args.timestamp)
         destination_path = resolve_output_path(args.out)
         overlay_shadow_log_id = overlay_shadow_log_id_from_path(destination_path)
@@ -310,6 +368,17 @@ def run(argv: Sequence[str] | None = None) -> int:
 
     if args.write and destination_path.exists():
         print(f"ERROR: refusing to overwrite existing file: {destination_path}", file=sys.stderr)
+        return 1
+
+    noncanonical_explicit_mode = _is_noncanonical_explicit_mode(overlay_input_mode, snapshot_path, config_path)
+
+    if args.write and noncanonical_explicit_mode:
+        print(
+            "ERROR: noncanonical explicit overlay-input paths cannot be written because the current "
+            "overlay_shadow_log schema and validator still lock observation_source.snapshot_path and "
+            "observation_source.config_path to the canonical fixture paths",
+            file=sys.stderr,
+        )
         return 1
 
     try:
@@ -325,17 +394,30 @@ def run(argv: Sequence[str] | None = None) -> int:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 1
 
-    errors = validate_candidate_against_corpus(payload, destination_path)
+    errors: list[str] = []
+    validation_note: str | None = None
+    if noncanonical_explicit_mode:
+        validation_note = (
+            "Corpus validation skipped because the current overlay_shadow_log schema and validator still "
+            "lock observation_source.snapshot_path and observation_source.config_path to the canonical fixtures"
+        )
+    else:
+        errors = validate_candidate_against_corpus(payload, destination_path)
 
     if not args.write:
         print(render_payload(payload), end="")
         print(f"Proposed output path: {_repo_relative(destination_path)}", file=sys.stderr)
         print(f"Proposed output id: {overlay_shadow_log_id}", file=sys.stderr)
+        print(f"Overlay input mode: {overlay_input_mode}", file=sys.stderr)
+        print(f"Context snapshot path: {_display_path(snapshot_path)}", file=sys.stderr)
+        print(f"Macro flags path: {_display_path(config_path)}", file=sys.stderr)
         if errors:
             print("Validation: FAIL", file=sys.stderr)
             _print_validation_errors(errors)
             return 1
         print("Validation: PASS", file=sys.stderr)
+        if validation_note is not None:
+            print(f"Validation note: {validation_note}", file=sys.stderr)
         return 0
 
     if errors:

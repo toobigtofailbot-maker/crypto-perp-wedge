@@ -1,0 +1,50 @@
+[
+  {
+    "advisory_source": "BMAP",
+    "source_bucket_mapping_id": "BMAP-0001",
+    "source_pre_gate_advisory_snapshot_id": null,
+    "lineage_key": "BMAP / BMAP-0001 / null",
+    "canonical_observation_count": 2,
+    "canonical_signal_outcome": "INSUFFICIENT_EVIDENCE",
+    "_02_observation_count": 1,
+    "_02_signal_outcome": "INSUFFICIENT_EVIDENCE",
+    "signal_outcome_stable_within_lineage": true,
+    "observation_count_delta": -1
+  },
+  {
+    "advisory_source": "BMAP",
+    "source_bucket_mapping_id": "BMAP-0002",
+    "source_pre_gate_advisory_snapshot_id": null,
+    "lineage_key": "BMAP / BMAP-0002 / null",
+    "canonical_observation_count": 1,
+    "canonical_signal_outcome": "INSUFFICIENT_EVIDENCE",
+    "_02_observation_count": 1,
+    "_02_signal_outcome": "INSUFFICIENT_EVIDENCE",
+    "signal_outcome_stable_within_lineage": true,
+    "observation_count_delta": 0
+  },
+  {
+    "advisory_source": "PGAS",
+    "source_bucket_mapping_id": "BMAP-0001",
+    "source_pre_gate_advisory_snapshot_id": "PGAS-0002",
+    "lineage_key": "PGAS / BMAP-0001 / PGAS-0002",
+    "canonical_observation_count": 2,
+    "canonical_signal_outcome": "INSUFFICIENT_EVIDENCE",
+    "_02_observation_count": 1,
+    "_02_signal_outcome": "INSUFFICIENT_EVIDENCE",
+    "signal_outcome_stable_within_lineage": true,
+    "observation_count_delta": -1
+  },
+  {
+    "advisory_source": "PGAS",
+    "source_bucket_mapping_id": "BMAP-0002",
+    "source_pre_gate_advisory_snapshot_id": "PGAS-0003",
+    "lineage_key": "PGAS / BMAP-0002 / PGAS-0003",
+    "canonical_observation_count": 1,
+    "canonical_signal_outcome": "INSUFFICIENT_EVIDENCE",
+    "_02_observation_count": 1,
+    "_02_signal_outcome": "INSUFFICIENT_EVIDENCE",
+    "signal_outcome_stable_within_lineage": true,
+    "observation_count_delta": 0
+  }
+]

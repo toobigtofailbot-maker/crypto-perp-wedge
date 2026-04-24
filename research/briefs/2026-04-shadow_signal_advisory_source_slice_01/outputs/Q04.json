@@ -1,0 +1,16 @@
+[
+  {
+    "advisory_source": "BMAP",
+    "observation_count": 5,
+    "floor_required": 10,
+    "insufficient_evidence": true,
+    "signal_outcome": "INSUFFICIENT_EVIDENCE"
+  },
+  {
+    "advisory_source": "PGAS",
+    "observation_count": 5,
+    "floor_required": 10,
+    "insufficient_evidence": true,
+    "signal_outcome": "INSUFFICIENT_EVIDENCE"
+  }
+]

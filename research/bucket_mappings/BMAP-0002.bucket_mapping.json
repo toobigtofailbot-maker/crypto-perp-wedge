@@ -1,0 +1,17 @@
+{
+  "bucket_mapping_id": "BMAP-0002",
+  "source_agent_output_id": "AOUT-0002",
+  "agent_type": "REGIME_SCORING",
+  "generated_at": "2026-04-22T02:00:00Z",
+  "as_of_timestamp": "2026-04-22T01:00:00Z",
+  "source_setup_score": 95.31,
+  "source_confidence": 0.978,
+  "mapping_method": "score_thresholds_with_confidence_floor_v1",
+  "confidence_floor": 0.6,
+  "confidence_floor_triggered": false,
+  "mapped_bucket": "ALLOW",
+  "size_multiplier": 1.0,
+  "deterministic": true,
+  "advisory_only": true,
+  "notes": "WP-6j advisory-only bucket mapping generated from committed Regime/Scoring agent output. It has no overlay contact, no execution influence, no OMS or risk authority, and no bucket override semantics."
+}

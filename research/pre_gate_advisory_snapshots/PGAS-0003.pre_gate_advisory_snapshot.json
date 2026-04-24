@@ -1,0 +1,18 @@
+{
+  "pre_gate_advisory_snapshot_id": "PGAS-0003",
+  "generated_at": "2026-04-22T02:30:00Z",
+  "as_of_timestamp": "2026-04-22T02:00:00Z",
+  "source_agent_output_id": "AOUT-0002",
+  "source_bucket_mapping_id": "BMAP-0002",
+  "source_macro_window_agent_output_id": "MOUT-0002",
+  "setup_score": 95.31,
+  "confidence": 0.978,
+  "mapped_bucket": "ALLOW",
+  "size_multiplier": 1.0,
+  "macro_window_flag": false,
+  "deterministic": true,
+  "advisory_only": true,
+  "combination_rule_applied": "MACRO_AWARE_FLOOR",
+  "combined_bucket": "ALLOW",
+  "notes": "WP-7h deterministic pre-gate advisory snapshot over committed advisory artifacts. It applies the first non-bundle-only MACRO_AWARE_FLOOR rule, remains advisory-only, has no runtime influence, no execution authority, and has no overlay, OMS, risk, or policy authority."
+}

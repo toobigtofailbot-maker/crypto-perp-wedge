@@ -28,7 +28,7 @@ def conn():
 def test_agent_outputs_relation_registered_under_current_state(conn):
     count = conn.execute("SELECT COUNT(*) FROM agent_outputs").fetchone()[0]
 
-    assert count == 1
+    assert count == 2
 
 
 def test_agent_outputs_relation_registered_empty_with_missing_dir(monkeypatch, tmp_path):
@@ -54,10 +54,14 @@ def test_agent_output_overview_returns_current_rows(conn):
         """
         SELECT agent_output_id, agent_type, setup_score, confidence, deterministic
         FROM v_agent_outputs_overview
+        ORDER BY agent_output_id
         """
     ).fetchall()
 
-    assert rows == [("AOUT-0001", "REGIME_SCORING", 72.95, 0.891, True)]
+    assert rows == [
+        ("AOUT-0001", "REGIME_SCORING", 72.95, 0.891, True),
+        ("AOUT-0002", "REGIME_SCORING", 95.31, 0.978, True),
+    ]
 
 
 def test_agent_output_latest_returns_current_rows(conn):
@@ -68,7 +72,7 @@ def test_agent_output_latest_returns_current_rows(conn):
         """
     ).fetchall()
 
-    assert rows == [("AOUT-0001", "REGIME_SCORING")]
+    assert rows == [("AOUT-0002", "REGIME_SCORING")]
 
 
 def test_agent_output_integrity_view_empty_under_current_state(conn):

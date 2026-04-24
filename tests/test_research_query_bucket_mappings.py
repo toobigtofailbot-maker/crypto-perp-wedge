@@ -28,7 +28,7 @@ def conn():
 def test_bucket_mappings_relation_registered_under_current_state(conn):
     count = conn.execute("SELECT COUNT(*) FROM bucket_mappings").fetchone()[0]
 
-    assert count == 1
+    assert count == 2
 
 
 def test_bucket_mappings_relation_registered_empty_with_missing_dir(monkeypatch, tmp_path):
@@ -63,6 +63,7 @@ def test_bucket_mapping_overview_returns_current_rows(conn):
             deterministic,
             advisory_only
         FROM v_bucket_mappings_overview
+        ORDER BY bucket_mapping_id
         """
     ).fetchall()
 
@@ -77,7 +78,18 @@ def test_bucket_mapping_overview_returns_current_rows(conn):
             0.891,
             True,
             True,
-        )
+        ),
+        (
+            "BMAP-0002",
+            "AOUT-0002",
+            "REGIME_SCORING",
+            "ALLOW",
+            1.0,
+            95.31,
+            0.978,
+            True,
+            True,
+        ),
     ]
 
 
@@ -89,7 +101,7 @@ def test_bucket_mapping_latest_returns_current_rows(conn):
         """
     ).fetchall()
 
-    assert rows == [("BMAP-0001", "AOUT-0001", "REGIME_SCORING")]
+    assert rows == [("BMAP-0002", "AOUT-0002", "REGIME_SCORING")]
 
 
 def test_bucket_mapping_integrity_view_empty_under_current_state(conn):

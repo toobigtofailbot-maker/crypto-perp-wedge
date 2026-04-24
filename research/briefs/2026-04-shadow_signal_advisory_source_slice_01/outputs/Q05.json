@@ -1,0 +1,82 @@
+[
+  {
+    "comparison_axis": "source",
+    "comparison_key": "BMAP",
+    "segment_count": 4,
+    "insufficient_segment_count": 4,
+    "sufficient_segment_count": 0,
+    "total_observation_count": 5,
+    "total_rate_denominator": 5,
+    "constraint_note": "Advisory-source slice is a readout over SSS-0001, not a source-only SSS instance."
+  },
+  {
+    "comparison_axis": "source",
+    "comparison_key": "PGAS",
+    "segment_count": 4,
+    "insufficient_segment_count": 4,
+    "sufficient_segment_count": 0,
+    "total_observation_count": 5,
+    "total_rate_denominator": 5,
+    "constraint_note": "Advisory-source slice is a readout over SSS-0001, not a source-only SSS instance."
+  },
+  {
+    "comparison_axis": "fixture_identity",
+    "comparison_key": "_02",
+    "segment_count": 4,
+    "insufficient_segment_count": 4,
+    "sufficient_segment_count": 0,
+    "total_observation_count": 4,
+    "total_rate_denominator": 4,
+    "constraint_note": "Advisory-source slice is a readout over SSS-0001, not a source-only SSS instance."
+  },
+  {
+    "comparison_axis": "fixture_identity",
+    "comparison_key": "canonical",
+    "segment_count": 4,
+    "insufficient_segment_count": 4,
+    "sufficient_segment_count": 0,
+    "total_observation_count": 6,
+    "total_rate_denominator": 6,
+    "constraint_note": "Advisory-source slice is a readout over SSS-0001, not a source-only SSS instance."
+  },
+  {
+    "comparison_axis": "lineage",
+    "comparison_key": "BMAP / BMAP-0001 / null",
+    "segment_count": 2,
+    "insufficient_segment_count": 2,
+    "sufficient_segment_count": 0,
+    "total_observation_count": 3,
+    "total_rate_denominator": 3,
+    "constraint_note": "Advisory-source slice is a readout over SSS-0001, not a source-only SSS instance."
+  },
+  {
+    "comparison_axis": "lineage",
+    "comparison_key": "BMAP / BMAP-0002 / null",
+    "segment_count": 2,
+    "insufficient_segment_count": 2,
+    "sufficient_segment_count": 0,
+    "total_observation_count": 2,
+    "total_rate_denominator": 2,
+    "constraint_note": "Advisory-source slice is a readout over SSS-0001, not a source-only SSS instance."
+  },
+  {
+    "comparison_axis": "lineage",
+    "comparison_key": "PGAS / BMAP-0001 / PGAS-0002",
+    "segment_count": 2,
+    "insufficient_segment_count": 2,
+    "sufficient_segment_count": 0,
+    "total_observation_count": 3,
+    "total_rate_denominator": 3,
+    "constraint_note": "Advisory-source slice is a readout over SSS-0001, not a source-only SSS instance."
+  },
+  {
+    "comparison_axis": "lineage",
+    "comparison_key": "PGAS / BMAP-0002 / PGAS-0003",
+    "segment_count": 2,
+    "insufficient_segment_count": 2,
+    "sufficient_segment_count": 0,
+    "total_observation_count": 2,
+    "total_rate_denominator": 2,
+    "constraint_note": "Advisory-source slice is a readout over SSS-0001, not a source-only SSS instance."
+  }
+]

@@ -539,7 +539,7 @@ def test_write_mode_accepts_noncanonical_explicit_paths_after_validation(tmp_pat
     assert f"Wrote validated overlay shadow log: {_patched_repo_relative(target_path)}" in captured.out
     assert target_path.exists()
     payload = helper.load_json(target_path)
-    assert payload["overlay_shadow_log_id"] == "OSH-0007"
+    assert payload["overlay_shadow_log_id"] == "OSH-0011"
     assert payload["observation_source"]["snapshot_path"] == _patched_repo_relative(snapshot_path)
     assert payload["observation_source"]["config_path"] == _patched_repo_relative(config_path)
 

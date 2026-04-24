@@ -59,6 +59,16 @@ def test_shadow_agreement_summary_reflects_current_committed_corpus(conn):
     assert rows == [
         (
             "BMAP",
+            "MATCH",
+            1,
+            1,
+            0,
+            0,
+            "2026-04-22T03:00:00Z",
+            "2026-04-22T03:00:00Z",
+        ),
+        (
+            "BMAP",
             "MISMATCH",
             2,
             0,
@@ -66,6 +76,16 @@ def test_shadow_agreement_summary_reflects_current_committed_corpus(conn):
             0,
             "2026-04-19T17:00:00Z",
             "2026-04-22T00:00:00Z",
+        ),
+        (
+            "PGAS",
+            "MATCH",
+            1,
+            1,
+            0,
+            0,
+            "2026-04-22T04:00:00Z",
+            "2026-04-22T04:00:00Z",
         ),
         (
             "PGAS",

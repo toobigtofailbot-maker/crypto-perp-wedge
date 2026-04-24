@@ -28,7 +28,7 @@ def conn():
 def test_overlay_shadow_logs_relation_registered_under_current_state(conn):
     count = conn.execute("SELECT COUNT(*) FROM overlay_shadow_logs").fetchone()[0]
 
-    assert count == 4
+    assert count == 6
 
 
 def test_overlay_shadow_logs_relation_registered_empty_with_missing_dir(monkeypatch, tmp_path):
@@ -126,7 +126,35 @@ def test_overlay_shadow_log_overview_returns_current_rows(conn):
             False,
             True,
             True,
-        )
+        ),
+        (
+            "OSH-0005",
+            "BMAP",
+            "BMAP-0002",
+            None,
+            "AOUT-0002",
+            "ALLOW",
+            "ALLOW",
+            1.0,
+            "MATCH",
+            False,
+            True,
+            True,
+        ),
+        (
+            "OSH-0006",
+            "PGAS",
+            "BMAP-0002",
+            "PGAS-0003",
+            "AOUT-0002",
+            "ALLOW",
+            "ALLOW",
+            1.0,
+            "MATCH",
+            False,
+            True,
+            True,
+        ),
     ]
 
 
@@ -140,13 +168,15 @@ def test_overlay_shadow_log_latest_returns_current_rows(conn):
             source_pre_gate_advisory_snapshot_id,
             source_agent_output_id
         FROM v_overlay_shadow_logs_latest
-        ORDER BY advisory_source
+        ORDER BY advisory_source, source_bucket_mapping_id
         """
     ).fetchall()
 
     assert rows == [
         ("OSH-0003", "BMAP", "BMAP-0001", None, "AOUT-0001"),
+        ("OSH-0005", "BMAP", "BMAP-0002", None, "AOUT-0002"),
         ("OSH-0004", "PGAS", "BMAP-0001", "PGAS-0002", "AOUT-0001"),
+        ("OSH-0006", "PGAS", "BMAP-0002", "PGAS-0003", "AOUT-0002"),
     ]
 
 

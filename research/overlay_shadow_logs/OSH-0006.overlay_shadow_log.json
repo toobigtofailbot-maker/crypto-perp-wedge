@@ -1,0 +1,26 @@
+{
+  "overlay_shadow_log_id": "OSH-0006",
+  "source_bucket_mapping_id": "BMAP-0002",
+  "source_agent_output_id": "AOUT-0002",
+  "observed_overlay_bucket": "ALLOW",
+  "observed_overlay_size_multiplier": 1.0,
+  "mapped_bucket": "ALLOW",
+  "size_multiplier": 1.0,
+  "comparison_result": "MATCH",
+  "override_applied": false,
+  "fail_open_preserved": true,
+  "advisory_only": true,
+  "observed_at": "2026-04-22T04:00:00Z",
+  "observation_source": {
+    "source_type": "committed_macro_context_fixture",
+    "snapshot_path": "tests/fixtures/context_snapshot_sample.json",
+    "config_path": "configs/fmp_macro_flags.json",
+    "evaluation_time_utc": "2026-04-22T04:00:00Z",
+    "decision_id": "D-0001",
+    "context_missing": false,
+    "reason_code": "NO_ACTIVE_WINDOW"
+  },
+  "notes": "WP-7k manual shadow-run helper. The PGAS combined advisory bucket is advisory-only, validation-gated, manual/on-demand only, and records comparison evidence only; no scheduler, trigger, runtime influence, OMS authority, or risk authority are created by this helper.",
+  "advisory_source": "PGAS",
+  "source_pre_gate_advisory_snapshot_id": "PGAS-0003"
+}

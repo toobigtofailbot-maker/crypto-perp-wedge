@@ -342,16 +342,6 @@ def _print_validation_errors(errors: Sequence[str]) -> None:
         print(f"VALIDATION ERROR: {error}", file=sys.stderr)
 
 
-def _is_noncanonical_explicit_mode(overlay_input_mode: str, snapshot_path: Path, config_path: Path) -> bool:
-    return (
-        overlay_input_mode == "explicit"
-        and (
-            snapshot_path.resolve() != CANONICAL_SNAPSHOT_PATH.resolve()
-            or config_path.resolve() != CANONICAL_CONFIG_PATH.resolve()
-        )
-    )
-
-
 def run(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -370,17 +360,6 @@ def run(argv: Sequence[str] | None = None) -> int:
         print(f"ERROR: refusing to overwrite existing file: {destination_path}", file=sys.stderr)
         return 1
 
-    noncanonical_explicit_mode = _is_noncanonical_explicit_mode(overlay_input_mode, snapshot_path, config_path)
-
-    if args.write and noncanonical_explicit_mode:
-        print(
-            "ERROR: noncanonical explicit overlay-input paths cannot be written because the current "
-            "overlay_shadow_log schema and validator still lock observation_source.snapshot_path and "
-            "observation_source.config_path to the canonical fixture paths",
-            file=sys.stderr,
-        )
-        return 1
-
     try:
         payload = build_candidate_payload(
             advisory_source=args.advisory_source,
@@ -394,15 +373,7 @@ def run(argv: Sequence[str] | None = None) -> int:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 1
 
-    errors: list[str] = []
-    validation_note: str | None = None
-    if noncanonical_explicit_mode:
-        validation_note = (
-            "Corpus validation skipped because the current overlay_shadow_log schema and validator still "
-            "lock observation_source.snapshot_path and observation_source.config_path to the canonical fixtures"
-        )
-    else:
-        errors = validate_candidate_against_corpus(payload, destination_path)
+    errors = validate_candidate_against_corpus(payload, destination_path)
 
     if not args.write:
         print(render_payload(payload), end="")
@@ -416,8 +387,6 @@ def run(argv: Sequence[str] | None = None) -> int:
             _print_validation_errors(errors)
             return 1
         print("Validation: PASS", file=sys.stderr)
-        if validation_note is not None:
-            print(f"Validation note: {validation_note}", file=sys.stderr)
         return 0
 
     if errors:

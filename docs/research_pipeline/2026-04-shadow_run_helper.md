@@ -36,9 +36,8 @@ Dry-run is the default mode. Without `--write`, the helper:
 - prints the proposed `OSH` output path and id
 - prints whether canonical or explicit overlay-input paths were used
 - prints the snapshot/config paths used for the observation
-- runs corpus-aware validation when the observation source remains schema-valid
-- keeps noncanonical explicit-path dry-runs helper-local and reports that
-  corpus validation is skipped under the current schema lock
+- runs corpus-aware validation for both canonical and explicit paired
+  overlay-input references when the candidate payload is schema-valid
 - writes nothing to the repo
 
 Write mode is explicit. `--write` must be present before the helper can create
@@ -113,14 +112,10 @@ temporary corpus. The helper only writes after validation succeeds.
 
 The helper also refuses to overwrite an existing target file.
 
-Noncanonical explicit overlay-input paths are currently dry-run only. Write mode
-remains blocked for noncanonical explicit paths because the current
-`overlay_shadow_log` schema and validator still lock
-`observation_source.snapshot_path` and `observation_source.config_path` to the
-canonical fixture paths. Dry-run still succeeds after helper-local path and
-JSON checks, but corpus validation is reported as skipped for those
-noncanonical explicit inputs. A later package can widen that contract
-explicitly if needed.
+Because WP-7r-prep widened the `overlay_shadow_log` schema and validator
+contract, explicit noncanonical overlay-input pairs now follow the same
+validation-gated path as canonical inputs. Dry-run reports the validator result,
+and `--write` succeeds for explicit paired inputs when corpus validation passes.
 
 ## What This Is Not
 

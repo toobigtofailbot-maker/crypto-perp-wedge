@@ -393,7 +393,7 @@ def test_explicit_mode_dry_run_accepts_valid_overlay_inputs_and_reports_paths(ca
     assert f"Context snapshot path: {helper._display_path(snapshot_path)}" in captured.err
     assert f"Macro flags path: {helper._display_path(config_path)}" in captured.err
     assert "Validation: PASS" in captured.err
-    assert "Validation note: Corpus validation skipped" in captured.err
+    assert "Validation note:" not in captured.err
 
 
 def test_explicit_mode_rejects_nonexistent_context_snapshot_path(capsys):
@@ -514,17 +514,12 @@ def test_write_mode_refuses_overwrite_existing_file(tmp_path, capsys, monkeypatc
     assert existing_path.read_text(encoding="utf-8") == "already here\n"
 
 
-def test_write_mode_rejects_noncanonical_explicit_paths_before_validation(tmp_path, capsys, monkeypatch):
+def test_write_mode_accepts_noncanonical_explicit_paths_after_validation(tmp_path, capsys, monkeypatch):
     overlay_shadow_logs_dir = tmp_path / "research" / "overlay_shadow_logs"
     _copy_committed_overlay_shadow_logs(overlay_shadow_logs_dir)
     target_path = _next_output_path(overlay_shadow_logs_dir)
     monkeypatch.setattr(helper, "OVERLAY_SHADOW_LOGS_DIR", overlay_shadow_logs_dir)
     monkeypatch.setattr(helper, "_repo_relative", _patched_repo_relative)
-    monkeypatch.setattr(
-        helper,
-        "validate_candidate_against_corpus",
-        lambda payload, destination_path: pytest.fail("validation should not run for noncanonical explicit writes"),
-    )
 
     with _repo_temp_overlay_inputs() as (snapshot_path, config_path):
         exit_code = helper.run(
@@ -540,9 +535,13 @@ def test_write_mode_rejects_noncanonical_explicit_paths_before_validation(tmp_pa
 
     captured = capsys.readouterr()
 
-    assert exit_code == 1
-    assert "schema and validator still lock" in captured.err
-    assert not target_path.exists()
+    assert exit_code == 0
+    assert f"Wrote validated overlay shadow log: {_patched_repo_relative(target_path)}" in captured.out
+    assert target_path.exists()
+    payload = helper.load_json(target_path)
+    assert payload["overlay_shadow_log_id"] == "OSH-0007"
+    assert payload["observation_source"]["snapshot_path"] == _patched_repo_relative(snapshot_path)
+    assert payload["observation_source"]["config_path"] == _patched_repo_relative(config_path)
 
 
 def test_write_mode_fails_without_writing_when_validation_fails(tmp_path, capsys, monkeypatch):

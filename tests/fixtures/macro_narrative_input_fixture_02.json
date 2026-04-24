@@ -1,0 +1,11 @@
+{
+  "fixture_id": "MACRO-NARRATIVE-FIXTURE-0002",
+  "generated_at": "2026-04-22T02:30:00Z",
+  "as_of_timestamp": "2026-04-22T02:00:00Z",
+  "macro_event_window_active": false,
+  "event_class": "SYNTHETIC_MACRO_EVENT",
+  "event_name": "Synthetic macro calm window fixture",
+  "narrative_risk_level": "NORMAL",
+  "operator_notes": "Synthetic committed fixture only. This is not live news, not an external feed, not runtime operator input, and not execution guidance. This variant encodes a calm synthetic macro window for advisory-only contrast.",
+  "deterministic_stub_case": "macro_window_active_false"
+}

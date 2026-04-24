@@ -28,7 +28,7 @@ def conn():
 def test_macro_window_agent_outputs_relation_registered_under_current_state(conn):
     count = conn.execute("SELECT COUNT(*) FROM macro_window_agent_outputs").fetchone()[0]
 
-    assert count == 1
+    assert count == 2
 
 
 def test_macro_window_agent_outputs_relation_registered_empty_with_missing_dir(monkeypatch, tmp_path):
@@ -64,6 +64,7 @@ def test_macro_window_agent_output_overview_returns_current_rows(conn):
             deterministic,
             advisory_only
         FROM v_macro_window_agent_outputs_overview
+        ORDER BY macro_window_agent_output_id
         """
     ).fetchall()
 
@@ -75,7 +76,15 @@ def test_macro_window_agent_output_overview_returns_current_rows(conn):
             "Synthetic macro risk window fixture",
             True,
             True,
-        )
+        ),
+        (
+            "MOUT-0002",
+            False,
+            "SYNTHETIC_MACRO_EVENT",
+            "Synthetic macro calm window fixture",
+            True,
+            True,
+        ),
     ]
 
 
@@ -87,7 +96,7 @@ def test_macro_window_agent_output_latest_returns_current_rows(conn):
         """
     ).fetchall()
 
-    assert rows == [("MOUT-0001", True)]
+    assert rows == [("MOUT-0002", False)]
 
 
 def test_macro_window_agent_output_integrity_view_empty_under_current_state(conn):

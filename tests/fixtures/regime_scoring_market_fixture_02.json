@@ -1,0 +1,55 @@
+{
+  "fixture_id": "REGIME-SCORING-FIXTURE-0002",
+  "generated_at": "2026-04-22T02:00:00Z",
+  "as_of_timestamp": "2026-04-22T01:00:00Z",
+  "observations": [
+    {
+      "timestamp": "2026-04-21T18:00:00Z",
+      "close": 84200.0,
+      "funding_rate": 0.00002,
+      "spread_bps": 0.5
+    },
+    {
+      "timestamp": "2026-04-21T19:00:00Z",
+      "close": 84230.0,
+      "funding_rate": 0.00002,
+      "spread_bps": 0.4
+    },
+    {
+      "timestamp": "2026-04-21T20:00:00Z",
+      "close": 84210.0,
+      "funding_rate": 0.00001,
+      "spread_bps": 0.5
+    },
+    {
+      "timestamp": "2026-04-21T21:00:00Z",
+      "close": 84240.0,
+      "funding_rate": 0.00002,
+      "spread_bps": 0.4
+    },
+    {
+      "timestamp": "2026-04-21T22:00:00Z",
+      "close": 84260.0,
+      "funding_rate": 0.00002,
+      "spread_bps": 0.5
+    },
+    {
+      "timestamp": "2026-04-21T23:00:00Z",
+      "close": 84255.0,
+      "funding_rate": 0.00002,
+      "spread_bps": 0.4
+    },
+    {
+      "timestamp": "2026-04-22T00:00:00Z",
+      "close": 84275.0,
+      "funding_rate": 0.00001,
+      "spread_bps": 0.5
+    },
+    {
+      "timestamp": "2026-04-22T01:00:00Z",
+      "close": 84290.0,
+      "funding_rate": 0.00002,
+      "spread_bps": 0.4
+    }
+  ]
+}

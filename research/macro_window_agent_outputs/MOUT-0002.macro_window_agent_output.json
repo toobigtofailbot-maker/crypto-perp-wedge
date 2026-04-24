@@ -1,0 +1,13 @@
+{
+  "macro_window_agent_output_id": "MOUT-0002",
+  "generated_at": "2026-04-22T02:30:00Z",
+  "as_of_timestamp": "2026-04-22T02:00:00Z",
+  "source_fixture_path": "tests/fixtures/macro_narrative_input_fixture_02.json",
+  "source_fixture_sha256": "bcf706275be8dc0807fdd3840e51a69740b42e90cdb236473d1ad1b1c6e136fc",
+  "macro_window_flag": false,
+  "event_class": "SYNTHETIC_MACRO_EVENT",
+  "event_name": "Synthetic macro calm window fixture",
+  "deterministic": true,
+  "advisory_only": true,
+  "notes": "WP-7f fixture-backed macro-window advisory output. It is advisory-only, has no runtime influence, no execution authority, no live news ingestion, no LLM call, no candidate-specific logic, and no overlay, OMS, risk, sizing, or policy authority."
+}

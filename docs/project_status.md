@@ -159,6 +159,7 @@ The accepted next architecture tranche is candidate-agnostic research machine fo
 - WP-7r-prep branch-state: the overlay-shadow-log schema and validator now accept explicit noncanonical committed overlay-input path references additively through `observation_source.snapshot_path` plus `observation_source.config_path`, existing canonical entries remain valid unchanged, explicit overlay-input pairing is enforced, and no new shadow rows, helper/runtime/query-layer behavior changes, or policy/runtime influence are encoded.
 - WP-7r-helper branch-state: the manual shadow-run helper now sends explicit noncanonical overlay-input pairs through the same corpus validation path as canonical inputs, `--write` now succeeds for schema-valid explicit paired inputs, and the package changes only helper/documentation alignment with no schema/query/runtime/policy influence and no committed new shadow rows.
 - WP-7r branch-state: third helper-produced shadow batch adds `OSH-0007` through `OSH-0010`, consumes the honest write-valid subset of the expanded combinatorial space through the `_02` explicit overlay-input pair, and changes no helper/runtime/schema/query-layer behavior while encoding no policy or runtime influence.
+- WP-7s branch-state: fourth shadow-log diagnostic brief characterizes the expanded two-axis shadow corpus jointly across advisory lineage and overlay-input fixture identity, while changing no helper/runtime/schema/query-layer behavior and encoding no signal-definition, policy, or runtime influence.
 
 ## Update Discipline
 

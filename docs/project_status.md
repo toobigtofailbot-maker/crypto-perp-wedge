@@ -153,6 +153,7 @@ The accepted next architecture tranche is candidate-agnostic research machine fo
 - WP-7m branch-state: third shadow-log diagnostic brief consumes the expanded committed corpus through `OSH-0004`, uses advisory-source-segmented shadow evidence, and encodes no runtime influence or policy change.
 - WP-7n branch-state: advisory-input diversification adds a second committed upstream artifact set (`AOUT-0002`, `MOUT-0002`, `BMAP-0002`, `PGAS-0003`), so the mapper and rule-applied PGAS latest-state surfaces now observe differentiated committed inputs; no shadow entries were added, and no code/schema/query/runtime behavior change or policy/runtime influence is encoded.
 - WP-7o branch-state: second helper-produced shadow batch adds `OSH-0005` and `OSH-0006`, extends the committed shadow corpus beyond `OSH-0004`, and exercises the diversified advisory-state path introduced by WP-7n; no helper/runtime/schema/query-layer behavior changed, and no policy or runtime influence is encoded.
+- WP-7p branch-state: fourth shadow-log diagnostic brief consumes the committed shadow corpus through `OSH-0006`, records both the historical mismatch lineages and the first diversified match lineages, and encodes no runtime influence or policy change.
 
 ## Update Discipline
 

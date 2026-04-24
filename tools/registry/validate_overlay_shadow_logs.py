@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -11,12 +12,18 @@ from jsonschema import Draft7Validator
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT_RESOLVED = REPO_ROOT.resolve()
 DEFAULT_OVERLAY_SHADOW_LOGS_DIR = REPO_ROOT / "research" / "overlay_shadow_logs"
 DEFAULT_BUCKET_MAPPINGS_DIR = REPO_ROOT / "research" / "bucket_mappings"
 DEFAULT_AGENT_OUTPUTS_DIR = REPO_ROOT / "research" / "agent_outputs"
 DEFAULT_PRE_GATE_ADVISORY_SNAPSHOTS_DIR = REPO_ROOT / "research" / "pre_gate_advisory_snapshots"
 OVERLAY_SHADOW_LOG_SCHEMA_PATH = REPO_ROOT / "research" / "schemas" / "overlay_shadow_log.schema.json"
 LOCKED_BUCKET_TO_MULTIPLIER = {"ALLOW": 1.0, "ALLOW_REDUCED": 0.5, "BLOCK": 0.0}
+CANONICAL_SNAPSHOT_PATH = "tests/fixtures/context_snapshot_sample.json"
+CANONICAL_CONFIG_PATH = "configs/fmp_macro_flags.json"
+REPO_RELATIVE_JSON_PATH_PATTERN = re.compile(
+    r"^(?!/)(?!.*(?:^|/)\.\.(?:/|$))[A-Za-z0-9._/-]+\.json$"
+)
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -90,6 +97,51 @@ def _expected_size_multiplier_for_bucket(bucket: Any) -> float | None:
     return LOCKED_BUCKET_TO_MULTIPLIER.get(bucket)
 
 
+def _resolve_repo_relative_json_path(path_value: Any) -> Path | None:
+    if not isinstance(path_value, str) or not REPO_RELATIVE_JSON_PATH_PATTERN.fullmatch(path_value):
+        return None
+
+    resolved_path = (REPO_ROOT / Path(path_value)).resolve()
+    try:
+        resolved_path.relative_to(REPO_ROOT_RESOLVED)
+    except ValueError:
+        return None
+    return resolved_path
+
+
+def _validate_observation_source_overlay_inputs(path: Path, observation_source: Any) -> list[str]:
+    if not isinstance(observation_source, dict):
+        return []
+
+    errors: list[str] = []
+    snapshot_path_value = observation_source.get("snapshot_path")
+    config_path_value = observation_source.get("config_path")
+
+    snapshot_is_canonical = snapshot_path_value == CANONICAL_SNAPSHOT_PATH
+    config_is_canonical = config_path_value == CANONICAL_CONFIG_PATH
+    if snapshot_is_canonical != config_is_canonical:
+        errors.append(
+            f"{path}: observation_source.snapshot_path and observation_source.config_path must both use "
+            "the canonical pair or both use an explicit noncanonical pair"
+        )
+
+    resolved_snapshot_path = _resolve_repo_relative_json_path(snapshot_path_value)
+    if resolved_snapshot_path is None:
+        errors.append(f"{path}: observation_source.snapshot_path must be a repo-relative .json path")
+    elif not resolved_snapshot_path.exists():
+        errors.append(
+            f"{path}: observation_source.snapshot_path does not exist: {snapshot_path_value}"
+        )
+
+    resolved_config_path = _resolve_repo_relative_json_path(config_path_value)
+    if resolved_config_path is None:
+        errors.append(f"{path}: observation_source.config_path must be a repo-relative .json path")
+    elif not resolved_config_path.exists():
+        errors.append(f"{path}: observation_source.config_path does not exist: {config_path_value}")
+
+    return errors
+
+
 def validate_overlay_shadow_logs(
     overlay_shadow_logs_dir: Path = DEFAULT_OVERLAY_SHADOW_LOGS_DIR,
     bucket_mappings_dir: Path = DEFAULT_BUCKET_MAPPINGS_DIR,
@@ -156,6 +208,7 @@ def validate_overlay_shadow_logs(
                 errors.append(
                     f"{path}: observed_at must match observation_source.evaluation_time_utc"
                 )
+        errors.extend(_validate_observation_source_overlay_inputs(path, observation_source))
 
         advisory_source = _normalized_advisory_source(payload)
         bucket_mapping_path = _source_bucket_mapping_path(

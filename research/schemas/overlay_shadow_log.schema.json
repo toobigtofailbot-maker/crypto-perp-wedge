@@ -5,6 +5,12 @@
   "description": "Zero-override research-side comparison between an externally observed overlay bucket and an advisory bucket mapping.",
   "type": "object",
   "additionalProperties": false,
+  "definitions": {
+    "repo_relative_json_path": {
+      "type": "string",
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9._/-]+\\.json$"
+    }
+  },
   "required": [
     "overlay_shadow_log_id",
     "source_bucket_mapping_id",
@@ -109,14 +115,12 @@
           "const": "committed_macro_context_fixture"
         },
         "snapshot_path": {
-          "description": "Repo-relative committed macro context snapshot path.",
-          "type": "string",
-          "const": "tests/fixtures/context_snapshot_sample.json"
+          "description": "Repo-relative committed macro context snapshot path. Existing entries preserve the canonical fixture path; additive explicit noncanonical paths are also valid when paired with an explicit noncanonical config_path.",
+          "$ref": "#/definitions/repo_relative_json_path"
         },
         "config_path": {
-          "description": "Repo-relative committed macro flag configuration path.",
-          "type": "string",
-          "const": "configs/fmp_macro_flags.json"
+          "description": "Repo-relative committed macro flag configuration path. Existing entries preserve the canonical fixture path; additive explicit noncanonical paths are also valid when paired with an explicit noncanonical snapshot_path.",
+          "$ref": "#/definitions/repo_relative_json_path"
         },
         "evaluation_time_utc": {
           "description": "Timezone-qualified ISO datetime used for the overlay-side observation.",
@@ -166,6 +170,52 @@
           "advisory_source": { "const": "PGAS" }
         },
         "required": ["advisory_source"]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "observation_source": {
+            "properties": {
+              "snapshot_path": { "const": "tests/fixtures/context_snapshot_sample.json" }
+            },
+            "required": ["snapshot_path"]
+          }
+        },
+        "required": ["observation_source"]
+      },
+      "then": {
+        "properties": {
+          "observation_source": {
+            "properties": {
+              "config_path": { "const": "configs/fmp_macro_flags.json" }
+            },
+            "required": ["config_path"]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "observation_source": {
+            "properties": {
+              "config_path": { "const": "configs/fmp_macro_flags.json" }
+            },
+            "required": ["config_path"]
+          }
+        },
+        "required": ["observation_source"]
+      },
+      "then": {
+        "properties": {
+          "observation_source": {
+            "properties": {
+              "snapshot_path": { "const": "tests/fixtures/context_snapshot_sample.json" }
+            },
+            "required": ["snapshot_path"]
+          }
+        }
       }
     },
     {

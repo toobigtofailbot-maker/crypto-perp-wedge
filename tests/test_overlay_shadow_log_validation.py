@@ -12,6 +12,12 @@ from tools.registry.validate_overlay_shadow_logs import (
 from tools.shadow.overlay_shadow_hook import build_default_overlay_shadow_log
 
 
+CANONICAL_SNAPSHOT_PATH = "tests/fixtures/context_snapshot_sample.json"
+CANONICAL_CONFIG_PATH = "configs/fmp_macro_flags.json"
+EXPLICIT_SNAPSHOT_PATH = "tests/fixtures/context_snapshot_sample_02.json"
+EXPLICIT_CONFIG_PATH = "configs/fmp_macro_flags_02.json"
+
+
 def _load_schema(path: Path = OVERLAY_SHADOW_LOG_SCHEMA_PATH) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
@@ -22,7 +28,11 @@ def _validate(payload: dict) -> list[str]:
     return [error.message for error in Draft7Validator(schema).iter_errors(payload)]
 
 
-def _valid_overlay_shadow_log() -> dict:
+def _valid_overlay_shadow_log(
+    *,
+    snapshot_path: str = CANONICAL_SNAPSHOT_PATH,
+    config_path: str = CANONICAL_CONFIG_PATH,
+) -> dict:
     return {
         "overlay_shadow_log_id": "OSH-9999",
         "source_bucket_mapping_id": "BMAP-0001",
@@ -38,8 +48,8 @@ def _valid_overlay_shadow_log() -> dict:
         "observed_at": "2026-04-19T17:00:00Z",
         "observation_source": {
             "source_type": "committed_macro_context_fixture",
-            "snapshot_path": "tests/fixtures/context_snapshot_sample.json",
-            "config_path": "configs/fmp_macro_flags.json",
+            "snapshot_path": snapshot_path,
+            "config_path": config_path,
             "evaluation_time_utc": "2026-04-19T17:00:00Z",
             "decision_id": "D-0001",
             "context_missing": False,
@@ -75,6 +85,17 @@ def test_overlay_shadow_log_schema_meta_valid():
 
 def test_valid_minimum_overlay_shadow_log_passes():
     errors = _validate(_valid_overlay_shadow_log())
+
+    assert errors == []
+
+
+def test_valid_explicit_overlay_input_pair_passes_schema():
+    errors = _validate(
+        _valid_overlay_shadow_log(
+            snapshot_path=EXPLICIT_SNAPSHOT_PATH,
+            config_path=EXPLICIT_CONFIG_PATH,
+        )
+    )
 
     assert errors == []
 
@@ -120,6 +141,28 @@ def test_pgas_missing_source_snapshot_fails_schema():
     del payload["source_pre_gate_advisory_snapshot_id"]
 
     errors = _validate(payload)
+
+    assert errors
+
+
+def test_schema_rejects_mixed_canonical_snapshot_with_explicit_config():
+    errors = _validate(
+        _valid_overlay_shadow_log(
+            snapshot_path=CANONICAL_SNAPSHOT_PATH,
+            config_path=EXPLICIT_CONFIG_PATH,
+        )
+    )
+
+    assert errors
+
+
+def test_schema_rejects_explicit_snapshot_with_canonical_config():
+    errors = _validate(
+        _valid_overlay_shadow_log(
+            snapshot_path=EXPLICIT_SNAPSHOT_PATH,
+            config_path=CANONICAL_CONFIG_PATH,
+        )
+    )
 
     assert errors
 
@@ -183,6 +226,100 @@ def test_overlay_shadow_validator_rejects_duplicate_overlay_shadow_log_ids(tmp_p
     errors = validate_overlay_shadow_logs(overlay_shadow_logs_dir=overlay_shadow_logs_dir)
 
     assert any("duplicate overlay_shadow_log_id OSH-9004" in error for error in errors)
+
+
+def test_overlay_shadow_validator_accepts_explicit_overlay_input_paths(tmp_path):
+    overlay_shadow_logs_dir = tmp_path / "research" / "overlay_shadow_logs"
+    payload = _valid_overlay_shadow_log(
+        snapshot_path=EXPLICIT_SNAPSHOT_PATH,
+        config_path=EXPLICIT_CONFIG_PATH,
+    )
+    payload["overlay_shadow_log_id"] = "OSH-9005"
+    _write_json(overlay_shadow_logs_dir / "OSH-9005.overlay_shadow_log.json", payload)
+
+    errors = validate_overlay_shadow_logs(overlay_shadow_logs_dir=overlay_shadow_logs_dir)
+
+    assert errors == []
+
+
+def test_overlay_shadow_validator_rejects_missing_explicit_snapshot_path(tmp_path):
+    overlay_shadow_logs_dir = tmp_path / "research" / "overlay_shadow_logs"
+    payload = _valid_overlay_shadow_log(
+        snapshot_path="tests/fixtures/context_snapshot_sample_missing.json",
+        config_path=EXPLICIT_CONFIG_PATH,
+    )
+    payload["overlay_shadow_log_id"] = "OSH-9006"
+    _write_json(overlay_shadow_logs_dir / "OSH-9006.overlay_shadow_log.json", payload)
+
+    errors = validate_overlay_shadow_logs(overlay_shadow_logs_dir=overlay_shadow_logs_dir)
+
+    assert any("observation_source.snapshot_path does not exist" in error for error in errors)
+
+
+def test_overlay_shadow_validator_rejects_missing_explicit_config_path(tmp_path):
+    overlay_shadow_logs_dir = tmp_path / "research" / "overlay_shadow_logs"
+    payload = _valid_overlay_shadow_log(
+        snapshot_path=EXPLICIT_SNAPSHOT_PATH,
+        config_path="configs/fmp_macro_flags_missing.json",
+    )
+    payload["overlay_shadow_log_id"] = "OSH-9007"
+    _write_json(overlay_shadow_logs_dir / "OSH-9007.overlay_shadow_log.json", payload)
+
+    errors = validate_overlay_shadow_logs(overlay_shadow_logs_dir=overlay_shadow_logs_dir)
+
+    assert any("observation_source.config_path does not exist" in error for error in errors)
+
+
+def test_overlay_shadow_validator_rejects_canonical_snapshot_with_explicit_config(tmp_path):
+    overlay_shadow_logs_dir = tmp_path / "research" / "overlay_shadow_logs"
+    payload = _valid_overlay_shadow_log(
+        snapshot_path=CANONICAL_SNAPSHOT_PATH,
+        config_path=EXPLICIT_CONFIG_PATH,
+    )
+    payload["overlay_shadow_log_id"] = "OSH-9008"
+    _write_json(overlay_shadow_logs_dir / "OSH-9008.overlay_shadow_log.json", payload)
+
+    errors = validate_overlay_shadow_logs(overlay_shadow_logs_dir=overlay_shadow_logs_dir)
+
+    assert any(
+        "must both use the canonical pair or both use an explicit noncanonical pair" in error
+        for error in errors
+    )
+
+
+def test_overlay_shadow_validator_rejects_explicit_snapshot_with_canonical_config(tmp_path):
+    overlay_shadow_logs_dir = tmp_path / "research" / "overlay_shadow_logs"
+    payload = _valid_overlay_shadow_log(
+        snapshot_path=EXPLICIT_SNAPSHOT_PATH,
+        config_path=CANONICAL_CONFIG_PATH,
+    )
+    payload["overlay_shadow_log_id"] = "OSH-9009"
+    _write_json(overlay_shadow_logs_dir / "OSH-9009.overlay_shadow_log.json", payload)
+
+    errors = validate_overlay_shadow_logs(overlay_shadow_logs_dir=overlay_shadow_logs_dir)
+
+    assert any(
+        "must both use the canonical pair or both use an explicit noncanonical pair" in error
+        for error in errors
+    )
+
+
+def test_overlay_shadow_validator_accepts_mixed_corpus_with_canonical_and_explicit_entries(tmp_path):
+    overlay_shadow_logs_dir = tmp_path / "research" / "overlay_shadow_logs"
+
+    canonical_payload = _valid_overlay_shadow_log()
+    canonical_payload["overlay_shadow_log_id"] = "OSH-9010"
+    _write_json(overlay_shadow_logs_dir / "OSH-9010.overlay_shadow_log.json", canonical_payload)
+
+    explicit_payload = _valid_pgas_overlay_shadow_log()
+    explicit_payload["overlay_shadow_log_id"] = "OSH-9011"
+    explicit_payload["observation_source"]["snapshot_path"] = EXPLICIT_SNAPSHOT_PATH
+    explicit_payload["observation_source"]["config_path"] = EXPLICIT_CONFIG_PATH
+    _write_json(overlay_shadow_logs_dir / "OSH-9011.overlay_shadow_log.json", explicit_payload)
+
+    errors = validate_overlay_shadow_logs(overlay_shadow_logs_dir=overlay_shadow_logs_dir)
+
+    assert errors == []
 
 
 def test_hook_builds_current_overlay_shadow_log():

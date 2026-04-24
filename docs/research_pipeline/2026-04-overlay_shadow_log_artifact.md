@@ -58,7 +58,28 @@ The schema records:
 - `advisory_only`: required to be `true`.
 - `observed_at` and `observation_source`: deterministic external observation
   metadata.
+- `observation_source.snapshot_path` and `observation_source.config_path`:
+  repo-relative committed overlay-input references. Existing committed entries
+  preserve the canonical pair
+  `tests/fixtures/context_snapshot_sample.json` plus
+  `configs/fmp_macro_flags.json` unchanged. Additive explicit noncanonical
+  references are also valid when both fields move together as a paired explicit
+  overlay-input reference.
 - `notes`: boundary statement.
+
+## Overlay-Input Reference Semantics
+
+The shadow-log contract now accepts two overlay-input reference modes:
+
+- Canonical pair mode: existing committed entries such as `OSH-0001` through
+  `OSH-0006` continue to use the canonical fixture pair unchanged.
+- Explicit pair mode: later packages may record a noncanonical committed
+  snapshot/config pair additively when both repo-relative paths are stored
+  explicitly in `observation_source`.
+
+Mixed overlay-input reference mode is invalid. `snapshot_path` and
+`config_path` must either both use the canonical pair or both use an explicit
+noncanonical pair. Partial explicit pairing is rejected.
 
 ## Validator Command
 
@@ -70,10 +91,17 @@ The validator exits successfully when `research/overlay_shadow_logs/` is missing
 or empty. When files exist, it validates schema shape, filename conventions,
 duplicate IDs, source bucket mapping / PGAS / agent output references,
 historical copied-field consistency, PGAS combined-bucket consistency,
-comparison result consistency, and the zero-override booleans.
+comparison result consistency, overlay-input path pairing and file existence,
+and the zero-override booleans.
 
 `OSH-0001` remains the unchanged historical BMAP-path instance. `OSH-0002` is
-the first PGAS-sourced entry and remains advisory-only.
+the first PGAS-sourced entry and remains advisory-only. `OSH-0001` through
+`OSH-0006` remain byte-identically valid under the widened schema/validator
+contract.
+
+This widening does not create new shadow rows. It only makes later committed
+entries write-valid when they truthfully reference a noncanonical committed
+overlay-input fixture pair.
 
 ## Zero-Override Statement
 

@@ -1,0 +1,24 @@
+[
+  {
+    "fixture_identity": "_02",
+    "segment_count": 4,
+    "insufficient_segment_count": 4,
+    "sufficient_segment_count": 0,
+    "agreement_signal_count": 0,
+    "disagreement_signal_count": 0,
+    "mixed_signal_count": 0,
+    "total_observation_count": 4,
+    "total_rate_denominator": 4
+  },
+  {
+    "fixture_identity": "canonical",
+    "segment_count": 4,
+    "insufficient_segment_count": 4,
+    "sufficient_segment_count": 0,
+    "agreement_signal_count": 0,
+    "disagreement_signal_count": 0,
+    "mixed_signal_count": 0,
+    "total_observation_count": 6,
+    "total_rate_denominator": 6
+  }
+]

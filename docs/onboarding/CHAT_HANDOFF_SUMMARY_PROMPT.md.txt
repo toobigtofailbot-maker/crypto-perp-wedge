@@ -1,0 +1,46 @@
+The context window is almost full.
+
+Create a Markdown handoff file for a new chat.
+
+This is not a general summary.
+It is a continuity artifact for ongoing technical project work.
+
+Your job is to preserve enough structured context so a new chat can continue with minimal drift, minimal rework, and minimal hidden loss of important constraints.
+
+Rules:
+- Do not produce a narrative summary.
+- Do not over-compress.
+- Do not hide uncertainty.
+- Do not merge facts, assumptions, and open questions together.
+- Do not lose protected boundaries, locked decisions, or validation status.
+- If any claim is not file-grounded or otherwise verified, label it clearly.
+
+Create a Markdown document titled:
+
+# CHAT_HANDOFF_SUMMARY
+
+Required sections:
+1. Project identity
+2. Current objective
+3. Source-of-truth rules
+4. Confirmed current state
+5. Locked decisions
+6. Protected boundaries / forbidden scope
+7. Active workstream and current status
+8. Open questions
+9. Important reasoning to preserve
+10. Relevant files / artifacts / branches / reports
+11. Validation status
+12. Narrowest recommended next step
+13. Paste-ready bootstrap prompt for the new chat
+14. Handoff confidence and risk
+
+For each important item, label it as one of:
+- confirmed
+- inferred
+- open
+- superseded
+- needs validation
+
+Optimize for continuation quality, not brevity.
+If preserving fidelity requires a longer handoff, prefer the longer handoff.

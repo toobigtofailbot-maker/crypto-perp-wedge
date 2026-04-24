@@ -1,0 +1,33 @@
+# Example only for `crypto-perp-wedge`.
+# This is not a live Codex Desktop config.
+# Exact keys, nesting, and supported values must be verified against the
+# current Codex Desktop config schema before activating anything here.
+# Do not rename this file to `config.toml` without that verification.
+
+[example_profiles.ask_read_only]
+intent = "Repo-truth discovery, reading, planning, and review prep."
+filesystem = "read-only"
+network = "off_by_default"
+approvals = "conservative"
+notes = "Use for Ask Mode and repo inspection."
+
+[example_profiles.implementation_workspace_write]
+intent = "Execute one locked work package inside the workspace only."
+filesystem = "workspace-write"
+network = "off_by_default"
+approvals = "conservative"
+notes = "Use only after repo-truth discovery confirms scope and branch."
+
+[example_profiles.review_read_only]
+intent = "PR review, changed-file inspection, and validation audit."
+filesystem = "read-only"
+network = "off_by_default"
+approvals = "conservative"
+notes = "Prefer this for review-only sessions."
+
+[example_profiles.high_risk_read_only]
+intent = "High-risk boundary investigation without mutation."
+filesystem = "read-only"
+network = "off_by_default"
+approvals = "approval-heavy"
+notes = "Use when runtime, risk, overlay, or live-trading-adjacent paths are involved."

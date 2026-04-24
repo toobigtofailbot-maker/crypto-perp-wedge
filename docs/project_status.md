@@ -100,6 +100,7 @@ Protected unless a package explicitly authorizes the change and the locked decis
 - `prompts/` contains execution, report-back, review, hypothesis, and evaluation templates.
 - Orchestration is a thin repo-first workflow layer. It does not own runtime state or execution decisions.
 - Default execution flow is Main Architecture -> Claude Code / Codex direct execution brief. Separate Karl Architecture handoff/review is optional and used only when explicitly requested.
+- OPS-CODEX-01 branch-state: repo-side Codex operating-model guidance added via `AGENTS.md`, protected-path overrides, and `docs/ai/codex` guidance; no runtime, research artifact, schema, validator, query-layer, or execution behavior changed.
 
 ## Deferred But Intentional Items
 

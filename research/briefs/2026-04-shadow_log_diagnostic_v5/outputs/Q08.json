@@ -1,0 +1,90 @@
+[
+  {
+    "advisory_source": "BMAP",
+    "fixture_identity": "_02",
+    "comparison_result": "MATCH",
+    "entry_count": 1,
+    "match_count": 1,
+    "mismatch_count": 0,
+    "override_true_count": 0,
+    "first_observed_at": "2026-04-22T07:00:00Z",
+    "last_observed_at": "2026-04-22T07:00:00Z"
+  },
+  {
+    "advisory_source": "BMAP",
+    "fixture_identity": "_02",
+    "comparison_result": "MISMATCH",
+    "entry_count": 1,
+    "match_count": 0,
+    "mismatch_count": 1,
+    "override_true_count": 0,
+    "first_observed_at": "2026-04-22T05:00:00Z",
+    "last_observed_at": "2026-04-22T05:00:00Z"
+  },
+  {
+    "advisory_source": "BMAP",
+    "fixture_identity": "canonical",
+    "comparison_result": "MATCH",
+    "entry_count": 1,
+    "match_count": 1,
+    "mismatch_count": 0,
+    "override_true_count": 0,
+    "first_observed_at": "2026-04-22T03:00:00Z",
+    "last_observed_at": "2026-04-22T03:00:00Z"
+  },
+  {
+    "advisory_source": "BMAP",
+    "fixture_identity": "canonical",
+    "comparison_result": "MISMATCH",
+    "entry_count": 2,
+    "match_count": 0,
+    "mismatch_count": 2,
+    "override_true_count": 0,
+    "first_observed_at": "2026-04-19T17:00:00Z",
+    "last_observed_at": "2026-04-22T00:00:00Z"
+  },
+  {
+    "advisory_source": "PGAS",
+    "fixture_identity": "_02",
+    "comparison_result": "MATCH",
+    "entry_count": 1,
+    "match_count": 1,
+    "mismatch_count": 0,
+    "override_true_count": 0,
+    "first_observed_at": "2026-04-22T08:00:00Z",
+    "last_observed_at": "2026-04-22T08:00:00Z"
+  },
+  {
+    "advisory_source": "PGAS",
+    "fixture_identity": "_02",
+    "comparison_result": "MISMATCH",
+    "entry_count": 1,
+    "match_count": 0,
+    "mismatch_count": 1,
+    "override_true_count": 0,
+    "first_observed_at": "2026-04-22T06:00:00Z",
+    "last_observed_at": "2026-04-22T06:00:00Z"
+  },
+  {
+    "advisory_source": "PGAS",
+    "fixture_identity": "canonical",
+    "comparison_result": "MATCH",
+    "entry_count": 1,
+    "match_count": 1,
+    "mismatch_count": 0,
+    "override_true_count": 0,
+    "first_observed_at": "2026-04-22T04:00:00Z",
+    "last_observed_at": "2026-04-22T04:00:00Z"
+  },
+  {
+    "advisory_source": "PGAS",
+    "fixture_identity": "canonical",
+    "comparison_result": "MISMATCH",
+    "entry_count": 2,
+    "match_count": 0,
+    "mismatch_count": 2,
+    "override_true_count": 0,
+    "first_observed_at": "2026-04-19T18:00:00Z",
+    "last_observed_at": "2026-04-22T01:00:00Z"
+  }
+]

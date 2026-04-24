@@ -155,6 +155,7 @@ The accepted next architecture tranche is candidate-agnostic research machine fo
 - WP-7o branch-state: second helper-produced shadow batch adds `OSH-0005` and `OSH-0006`, extends the committed shadow corpus beyond `OSH-0004`, and exercises the diversified advisory-state path introduced by WP-7n; no helper/runtime/schema/query-layer behavior changed, and no policy or runtime influence is encoded.
 - WP-7p branch-state: fourth shadow-log diagnostic brief consumes the committed shadow corpus through `OSH-0006`, records both the historical mismatch lineages and the first diversified match lineages, and encodes no runtime influence or policy change.
 - WP-7q-prep branch-state: the manual shadow-run helper now accepts additive explicit overlay-input fixture paths through a paired helper-only CLI surface, canonical default behavior remains unchanged, both-or-neither explicit-path pairing is enforced, and no new fixtures, shadow entries, runtime influence, or policy change are encoded.
+- WP-7q branch-state: additive overlay-input fixture diversification introduces a second committed overlay-input fixture set (`tests/fixtures/context_snapshot_sample_02.json` plus `configs/fmp_macro_flags_02.json`), documents that independent variation is honest across the four helper-consumable fixture combinations, and proves the merged helper can dry-run the new repo-resident fixture paths through the paired explicit-path surface; no shadow entries were added, and no helper/runtime/schema/query-layer behavior or policy/runtime influence is encoded.
 
 ## Update Discipline
 

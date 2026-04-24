@@ -1,0 +1,58 @@
+[
+  {
+    "advisory_source": "BMAP",
+    "source_bucket_mapping_id": "BMAP-0001",
+    "source_pre_gate_advisory_snapshot_id": null,
+    "lineage_key": "BMAP / BMAP-0001 / null",
+    "segment_count": 2,
+    "insufficient_segment_count": 2,
+    "sufficient_segment_count": 0,
+    "agreement_signal_count": 0,
+    "disagreement_signal_count": 0,
+    "mixed_signal_count": 0,
+    "total_observation_count": 3,
+    "total_rate_denominator": 3
+  },
+  {
+    "advisory_source": "BMAP",
+    "source_bucket_mapping_id": "BMAP-0002",
+    "source_pre_gate_advisory_snapshot_id": null,
+    "lineage_key": "BMAP / BMAP-0002 / null",
+    "segment_count": 2,
+    "insufficient_segment_count": 2,
+    "sufficient_segment_count": 0,
+    "agreement_signal_count": 0,
+    "disagreement_signal_count": 0,
+    "mixed_signal_count": 0,
+    "total_observation_count": 2,
+    "total_rate_denominator": 2
+  },
+  {
+    "advisory_source": "PGAS",
+    "source_bucket_mapping_id": "BMAP-0001",
+    "source_pre_gate_advisory_snapshot_id": "PGAS-0002",
+    "lineage_key": "PGAS / BMAP-0001 / PGAS-0002",
+    "segment_count": 2,
+    "insufficient_segment_count": 2,
+    "sufficient_segment_count": 0,
+    "agreement_signal_count": 0,
+    "disagreement_signal_count": 0,
+    "mixed_signal_count": 0,
+    "total_observation_count": 3,
+    "total_rate_denominator": 3
+  },
+  {
+    "advisory_source": "PGAS",
+    "source_bucket_mapping_id": "BMAP-0002",
+    "source_pre_gate_advisory_snapshot_id": "PGAS-0003",
+    "lineage_key": "PGAS / BMAP-0002 / PGAS-0003",
+    "segment_count": 2,
+    "insufficient_segment_count": 2,
+    "sufficient_segment_count": 0,
+    "agreement_signal_count": 0,
+    "disagreement_signal_count": 0,
+    "mixed_signal_count": 0,
+    "total_observation_count": 2,
+    "total_rate_denominator": 2
+  }
+]

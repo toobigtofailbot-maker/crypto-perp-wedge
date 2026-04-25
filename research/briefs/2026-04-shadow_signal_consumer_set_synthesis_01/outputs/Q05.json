@@ -1,0 +1,38 @@
+[
+  {
+    "observation_direction": "corpus_growth",
+    "completed_consumer_count": 3,
+    "committed_sss_instance_count": 1,
+    "total_partition_count": 8,
+    "partitions_at_or_above_floor": 0,
+    "total_observation_count": 10,
+    "support_note": "All three completed single-axis consumers remain below the locked floor across 8 total realized partitions, so additional corpus growth would be required before stronger axis-level signal statements become available."
+  },
+  {
+    "observation_direction": "different_consumer_family",
+    "completed_consumer_count": 3,
+    "committed_sss_instance_count": 1,
+    "total_partition_count": 8,
+    "partitions_at_or_above_floor": 0,
+    "total_observation_count": 10,
+    "support_note": "The three completed consumers show that single-axis readouts are structurally consumable, but they do not expose cross-axis interactions, temporal trends, or rare-segment effects, which may motivate a different bounded consumer family later."
+  },
+  {
+    "observation_direction": "sss_instance_cadence_mechanism",
+    "completed_consumer_count": 3,
+    "committed_sss_instance_count": 1,
+    "total_partition_count": 8,
+    "partitions_at_or_above_floor": 0,
+    "total_observation_count": 10,
+    "support_note": "Repo truth contains one committed SSS instance only, so the current consumer set cannot describe multi-instance trend or cadence behavior without additional committed SSS windows."
+  },
+  {
+    "observation_direction": "sss_v2_schema_evolution",
+    "completed_consumer_count": 3,
+    "committed_sss_instance_count": 1,
+    "total_partition_count": 8,
+    "partitions_at_or_above_floor": 0,
+    "total_observation_count": 10,
+    "support_note": "The advisory-source consumer is an SSS-0001 readout rather than a first-class source-only summary instance, so any future source-only summary shape would require a different SSS schema or derivation contract."
+  }
+]

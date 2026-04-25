@@ -1,0 +1,23 @@
+[
+  {
+    "consumer_axis": "fixture_identity",
+    "brief_filename": "2026-04-shadow_signal_overlay_fixture_slice_01.md",
+    "summary_artifact_id": "SSS-0001",
+    "segment_partition_count": 2,
+    "floor_required": 10
+  },
+  {
+    "consumer_axis": "lineage",
+    "brief_filename": "2026-04-shadow_signal_lineage_slice_01.md",
+    "summary_artifact_id": "SSS-0001",
+    "segment_partition_count": 4,
+    "floor_required": 10
+  },
+  {
+    "consumer_axis": "advisory_source",
+    "brief_filename": "2026-04-shadow_signal_advisory_source_slice_01.md",
+    "summary_artifact_id": "SSS-0001",
+    "segment_partition_count": 2,
+    "floor_required": 10
+  }
+]

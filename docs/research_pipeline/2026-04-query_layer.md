@@ -47,11 +47,12 @@ mutate, or validate new SSS instances; it only makes existing committed SSS v2
 content queryable centrally.
 
 The SSS v2 integrity view is expected to return no rows in healthy state for
-supported v2 instance shapes. It supports advisory-source-only v2 summaries and
+supported v2 instance shapes. It supports advisory-source-only v2 summaries,
 advisory-lineage v2 summaries encoded by `advisory_source`,
-`source_bucket_mapping_id`, and `source_pre_gate_advisory_snapshot_id`.
-Unsupported future v2 segmentation shapes are surfaced as integrity rows until a
-later package explicitly extends coverage.
+`source_bucket_mapping_id`, and `source_pre_gate_advisory_snapshot_id`, and
+fixture-only v2 summaries encoded by `fixture_identity`. Unsupported future v2
+segmentation shapes are surfaced as integrity rows until a later package
+explicitly extends coverage.
 
 ## Invocation
 

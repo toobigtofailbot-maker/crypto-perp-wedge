@@ -1,0 +1,17 @@
+[
+  {
+    "v2_shadow_signal_summary_id": "SSS-0002",
+    "v2_schema_version": "v2",
+    "v2_source_count": 2,
+    "v2_partition_row_count": 2,
+    "v2_advisory_source_is_first_class_segment_key": true,
+    "v2_evidence_source_kind": "dedicated_v2_instance",
+    "v1_shadow_signal_summary_id": "SSS-0001",
+    "v1_schema_version": "v1_readout",
+    "v1_source_count": 2,
+    "v1_partition_row_count": 2,
+    "v1_advisory_source_is_first_class_segment_key": false,
+    "v1_evidence_source_kind": "v1_readout_over_four_axis_instance",
+    "floor_outcomes_differ": false
+  }
+]

@@ -13,6 +13,7 @@ research evidence.
 - `research/experiments/EXP-*.plan.json` -> `exp_plans`
 - `research/experiments/REP-*.report.json` -> `exp_reports`
 - `research/trial_log.jsonl` -> `trial_log`
+- `research/shadow_signal_summaries_v2/*.shadow_signal_summary.json` -> `shadow_signal_summaries_v2`
 
 The DuckDB connection is in-memory. No `.duckdb` file is created.
 
@@ -30,6 +31,25 @@ The DuckDB connection is in-memory. No `.duckdb` file is created.
 | `v_information_inputs` | One row per candidate information input. | Which candidates used funding or premium data? |
 | `v_integrity_plan_report_pairs` | Broken plan/report references. Expected empty. | Are any EXP/REP pairings missing? |
 | `v_integrity_candidate_refs` | Broken candidate references from EXP/REP artifacts. Expected empty. | Do all artifacts point to real registry candidates? |
+| `v_shadow_signal_summaries_v2_overview` | One row per committed SSS v2 segment with schema version, segmentation axes, corpus window, segment keys, counts, rates, and outcome fields. | What committed SSS v2 advisory-source segment evidence exists? |
+| `v_integrity_shadow_signal_summary_v2_derivation` | SSS v2 derivation drift check against committed overlay shadow logs. Expected empty for supported healthy instances. | Does committed advisory-source-only SSS v2 content still match the cited corpus? |
+
+## SSS v2 Query-Layer Support
+
+WP-8c adds read-only central query-layer support for committed SSS v2 content.
+The relation loads committed artifacts only from
+`research/shadow_signal_summaries_v2/` and exposes them through the canonical
+research query surface.
+
+This support replaces the WP-8b bounded consumer workaround that registered
+local temporary DuckDB relations inside the brief bundle. WP-8c does not create,
+mutate, or validate new SSS instances; it only makes existing committed SSS v2
+content queryable centrally.
+
+The SSS v2 integrity view is expected to return no rows in healthy state for the
+currently supported advisory-source-only v2 instance shape. Unsupported future
+v2 segmentation shapes are surfaced as integrity rows until a later package
+explicitly extends coverage.
 
 ## Invocation
 
@@ -92,6 +112,7 @@ The guard favors false negatives over permissive execution.
 - No persisted database file
 - No backtest execution
 - No promotion, risk, OMS, or execution-core behavior
+- No runtime, policy, override, OMS, risk, or execution behavior from SSS v2 query-layer support
 
 ## Example Queries
 

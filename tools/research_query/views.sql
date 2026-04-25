@@ -1347,6 +1347,502 @@ UNION ALL
 SELECT *
 FROM segment_value_issues;
 
+-- What committed shadow-signal summary v2 segments have been recorded?
+-- Flattens one row per segment from each committed v2 summary artifact.
+CREATE OR REPLACE VIEW v_shadow_signal_summaries_v2_overview AS
+WITH flattened AS (
+    SELECT
+        s.shadow_signal_summary_id,
+        s.schema_version,
+        strftime('%Y-%m-%dT%H:%M:%SZ', CAST(s.generated_at AS TIMESTAMP)) AS generated_at,
+        s.corpus_window.first_overlay_shadow_log_id AS first_overlay_shadow_log_id,
+        s.corpus_window.last_overlay_shadow_log_id AS last_overlay_shadow_log_id,
+        strftime(
+            '%Y-%m-%dT%H:%M:%SZ',
+            CAST(s.corpus_window.first_observed_at AS TIMESTAMP)
+        ) AS corpus_first_observed_at,
+        strftime(
+            '%Y-%m-%dT%H:%M:%SZ',
+            CAST(s.corpus_window.last_observed_at AS TIMESTAMP)
+        ) AS corpus_last_observed_at,
+        s.corpus_window.total_source_observation_count AS total_source_observation_count,
+        s.derivation_method,
+        array_to_string(s.segmentation_axes, ',') AS segmentation_axes,
+        CAST(to_json(s.segmentation_axes) AS VARCHAR) AS segmentation_axes_json,
+        to_json(segment) AS segment_json,
+        s.deterministic,
+        s.advisory_only
+    FROM shadow_signal_summaries_v2 AS s,
+    UNNEST(s.segments) AS segments(segment)
+)
+SELECT
+    shadow_signal_summary_id,
+    schema_version,
+    generated_at,
+    first_overlay_shadow_log_id,
+    last_overlay_shadow_log_id,
+    corpus_first_observed_at,
+    corpus_last_observed_at,
+    total_source_observation_count,
+    derivation_method,
+    segmentation_axes,
+    segmentation_axes_json,
+    json_extract_string(segment_json, '$.advisory_source') AS advisory_source,
+    json_extract_string(segment_json, '$.source_bucket_mapping_id') AS source_bucket_mapping_id,
+    json_extract_string(
+        segment_json,
+        '$.source_pre_gate_advisory_snapshot_id'
+    ) AS source_pre_gate_advisory_snapshot_id,
+    json_extract_string(segment_json, '$.fixture_identity') AS fixture_identity,
+    CAST(json_extract(segment_json, '$.match_count') AS BIGINT) AS match_count,
+    CAST(json_extract(segment_json, '$.mismatch_count') AS BIGINT) AS mismatch_count,
+    CAST(json_extract(segment_json, '$.abstention_count') AS BIGINT) AS abstention_count,
+    CAST(json_extract(segment_json, '$.observation_count') AS BIGINT) AS observation_count,
+    CAST(json_extract(segment_json, '$.rate_denominator') AS BIGINT) AS rate_denominator,
+    CAST(json_extract(segment_json, '$.agreement_rate') AS DOUBLE) AS agreement_rate,
+    CAST(json_extract(segment_json, '$.disagreement_rate') AS DOUBLE) AS disagreement_rate,
+    CAST(json_extract(segment_json, '$.insufficient_evidence') AS BOOLEAN) AS insufficient_evidence,
+    json_extract_string(segment_json, '$.signal_outcome') AS signal_outcome,
+    strftime(
+        '%Y-%m-%dT%H:%M:%SZ',
+        CAST(json_extract_string(segment_json, '$.first_observed_at') AS TIMESTAMP)
+    ) AS first_segment_observed_at,
+    strftime(
+        '%Y-%m-%dT%H:%M:%SZ',
+        CAST(json_extract_string(segment_json, '$.last_observed_at') AS TIMESTAMP)
+    ) AS last_segment_observed_at,
+    deterministic,
+    advisory_only
+FROM flattened;
+
+-- Does each committed advisory-source-only v2 summary match the live committed corpus?
+-- Returns rows only when v2 summary metadata or supported segment derivation drifts.
+CREATE OR REPLACE VIEW v_integrity_shadow_signal_summary_v2_derivation AS
+WITH live_shadow_rows AS (
+    SELECT
+        overlay_shadow_log_id,
+        CAST(observed_at AS TIMESTAMP) AS observed_at_ts,
+        observed_at,
+        comparison_result,
+        COALESCE(advisory_source, 'BMAP') AS advisory_source
+    FROM overlay_shadow_logs
+),
+expected_segments AS (
+    SELECT
+        advisory_source,
+        SUM(CASE WHEN comparison_result = 'MATCH' THEN 1 ELSE 0 END) AS match_count,
+        SUM(CASE WHEN comparison_result = 'MISMATCH' THEN 1 ELSE 0 END) AS mismatch_count,
+        SUM(
+            CASE
+                WHEN comparison_result NOT IN ('MATCH', 'MISMATCH')
+                  OR comparison_result IS NULL
+                    THEN 1
+                ELSE 0
+            END
+        ) AS abstention_count,
+        COUNT(*) AS observation_count,
+        SUM(CASE WHEN comparison_result IN ('MATCH', 'MISMATCH') THEN 1 ELSE 0 END) AS rate_denominator,
+        CASE
+            WHEN COUNT(*) < 10 THEN NULL
+            ELSE
+                CAST(SUM(CASE WHEN comparison_result = 'MATCH' THEN 1 ELSE 0 END) AS DOUBLE)
+                / NULLIF(SUM(CASE WHEN comparison_result IN ('MATCH', 'MISMATCH') THEN 1 ELSE 0 END), 0)
+        END AS agreement_rate,
+        CASE
+            WHEN COUNT(*) < 10 THEN NULL
+            ELSE
+                CAST(SUM(CASE WHEN comparison_result = 'MISMATCH' THEN 1 ELSE 0 END) AS DOUBLE)
+                / NULLIF(SUM(CASE WHEN comparison_result IN ('MATCH', 'MISMATCH') THEN 1 ELSE 0 END), 0)
+        END AS disagreement_rate,
+        CASE
+            WHEN COUNT(*) < 10 THEN true
+            ELSE false
+        END AS insufficient_evidence,
+        CASE
+            WHEN COUNT(*) < 10 THEN 'INSUFFICIENT_EVIDENCE'
+            WHEN SUM(CASE WHEN comparison_result = 'MATCH' THEN 1 ELSE 0 END)
+               > SUM(CASE WHEN comparison_result = 'MISMATCH' THEN 1 ELSE 0 END)
+                THEN 'AGREEMENT_SIGNAL'
+            WHEN SUM(CASE WHEN comparison_result = 'MISMATCH' THEN 1 ELSE 0 END)
+               > SUM(CASE WHEN comparison_result = 'MATCH' THEN 1 ELSE 0 END)
+                THEN 'DISAGREEMENT_SIGNAL'
+            ELSE 'MIXED_SIGNAL'
+        END AS signal_outcome,
+        strftime('%Y-%m-%dT%H:%M:%SZ', MIN(observed_at_ts)) AS first_observed_at,
+        strftime('%Y-%m-%dT%H:%M:%SZ', MAX(observed_at_ts)) AS last_observed_at
+    FROM live_shadow_rows
+    GROUP BY advisory_source
+),
+expected_corpus_window AS (
+    SELECT
+        (
+            SELECT overlay_shadow_log_id
+            FROM live_shadow_rows
+            ORDER BY observed_at_ts ASC, overlay_shadow_log_id ASC
+            LIMIT 1
+        ) AS first_overlay_shadow_log_id,
+        (
+            SELECT overlay_shadow_log_id
+            FROM live_shadow_rows
+            ORDER BY observed_at_ts DESC, overlay_shadow_log_id DESC
+            LIMIT 1
+        ) AS last_overlay_shadow_log_id,
+        strftime('%Y-%m-%dT%H:%M:%SZ', MIN(observed_at_ts)) AS first_observed_at,
+        strftime('%Y-%m-%dT%H:%M:%SZ', MAX(observed_at_ts)) AS last_observed_at,
+        COUNT(*) AS total_source_observation_count
+    FROM live_shadow_rows
+),
+supported_summaries AS (
+    SELECT *
+    FROM shadow_signal_summaries_v2
+    WHERE segmentation_axes IS NOT DISTINCT FROM ['advisory_source']
+),
+actual_segments AS (
+    SELECT
+        shadow_signal_summary_id,
+        advisory_source,
+        match_count,
+        mismatch_count,
+        abstention_count,
+        observation_count,
+        rate_denominator,
+        agreement_rate,
+        disagreement_rate,
+        insufficient_evidence,
+        signal_outcome,
+        first_segment_observed_at AS first_observed_at,
+        last_segment_observed_at AS last_observed_at
+    FROM v_shadow_signal_summaries_v2_overview
+    WHERE segmentation_axes = 'advisory_source'
+),
+segment_join AS (
+    SELECT
+        COALESCE(a.shadow_signal_summary_id, s.shadow_signal_summary_id) AS shadow_signal_summary_id,
+        COALESCE(a.advisory_source, e.advisory_source) AS advisory_source,
+        a.advisory_source AS actual_advisory_source,
+        e.advisory_source AS expected_advisory_source,
+        a.match_count AS actual_match_count,
+        e.match_count AS expected_match_count,
+        a.mismatch_count AS actual_mismatch_count,
+        e.mismatch_count AS expected_mismatch_count,
+        a.abstention_count AS actual_abstention_count,
+        e.abstention_count AS expected_abstention_count,
+        a.observation_count AS actual_observation_count,
+        e.observation_count AS expected_observation_count,
+        a.rate_denominator AS actual_rate_denominator,
+        e.rate_denominator AS expected_rate_denominator,
+        a.agreement_rate AS actual_agreement_rate,
+        e.agreement_rate AS expected_agreement_rate,
+        a.disagreement_rate AS actual_disagreement_rate,
+        e.disagreement_rate AS expected_disagreement_rate,
+        a.insufficient_evidence AS actual_insufficient_evidence,
+        e.insufficient_evidence AS expected_insufficient_evidence,
+        a.signal_outcome AS actual_signal_outcome,
+        e.signal_outcome AS expected_signal_outcome,
+        a.first_observed_at AS actual_first_observed_at,
+        e.first_observed_at AS expected_first_observed_at,
+        a.last_observed_at AS actual_last_observed_at,
+        e.last_observed_at AS expected_last_observed_at
+    FROM supported_summaries AS s
+    LEFT JOIN actual_segments AS a
+      ON a.shadow_signal_summary_id = s.shadow_signal_summary_id
+    FULL OUTER JOIN expected_segments AS e
+      ON a.advisory_source = e.advisory_source
+),
+metadata_issues AS (
+    SELECT
+        shadow_signal_summary_id,
+        CAST(NULL AS VARCHAR) AS advisory_source,
+        'shadow_signal_summary_v2_unsupported_segmentation_axes' AS issue_type,
+        'advisory_source' AS expected_value,
+        array_to_string(segmentation_axes, ',') AS actual_value
+    FROM shadow_signal_summaries_v2
+    WHERE segmentation_axes IS DISTINCT FROM ['advisory_source']
+    UNION ALL
+    SELECT
+        shadow_signal_summary_id,
+        NULL,
+        'shadow_signal_summary_v2_schema_version_mismatch' AS issue_type,
+        'v2' AS expected_value,
+        schema_version AS actual_value
+    FROM shadow_signal_summaries_v2
+    WHERE schema_version <> 'v2'
+    UNION ALL
+    SELECT
+        shadow_signal_summary_id,
+        NULL,
+        'shadow_signal_summary_v2_derivation_method_mismatch' AS issue_type,
+        'shadow_signal_summary_option_a_floor_10_v1' AS expected_value,
+        derivation_method AS actual_value
+    FROM shadow_signal_summaries_v2
+    WHERE derivation_method <> 'shadow_signal_summary_option_a_floor_10_v1'
+    UNION ALL
+    SELECT
+        shadow_signal_summary_id,
+        NULL,
+        'shadow_signal_summary_v2_source_relation_mismatch' AS issue_type,
+        'overlay_shadow_logs' AS expected_value,
+        derivation_inputs.source_relation AS actual_value
+    FROM shadow_signal_summaries_v2
+    WHERE derivation_inputs.source_relation <> 'overlay_shadow_logs'
+    UNION ALL
+    SELECT
+        shadow_signal_summary_id,
+        NULL,
+        'shadow_signal_summary_v2_source_family_mismatch' AS issue_type,
+        'overlay_shadow_logs' AS expected_value,
+        derivation_inputs.source_artifact_family AS actual_value
+    FROM shadow_signal_summaries_v2
+    WHERE derivation_inputs.source_artifact_family <> 'overlay_shadow_logs'
+    UNION ALL
+    SELECT
+        shadow_signal_summary_id,
+        NULL,
+        'shadow_signal_summary_v2_fixture_identity_rule_mismatch' AS issue_type,
+        'committed_overlay_input_pair_v1' AS expected_value,
+        derivation_inputs.fixture_identity_rule AS actual_value
+    FROM shadow_signal_summaries_v2
+    WHERE derivation_inputs.fixture_identity_rule <> 'committed_overlay_input_pair_v1'
+    UNION ALL
+    SELECT
+        shadow_signal_summary_id,
+        NULL,
+        'shadow_signal_summary_v2_rate_denominator_rule_mismatch' AS issue_type,
+        'match_plus_mismatch' AS expected_value,
+        derivation_inputs.rate_denominator_rule AS actual_value
+    FROM shadow_signal_summaries_v2
+    WHERE derivation_inputs.rate_denominator_rule <> 'match_plus_mismatch'
+    UNION ALL
+    SELECT
+        s.shadow_signal_summary_id,
+        NULL,
+        'shadow_signal_summary_v2_generated_at_mismatch' AS issue_type,
+        expected_corpus_window.last_observed_at AS expected_value,
+        s.generated_at AS actual_value
+    FROM shadow_signal_summaries_v2 AS s
+    CROSS JOIN expected_corpus_window
+    WHERE s.generated_at <> expected_corpus_window.last_observed_at
+    UNION ALL
+    SELECT
+        s.shadow_signal_summary_id,
+        NULL,
+        'shadow_signal_summary_v2_first_overlay_shadow_log_id_mismatch' AS issue_type,
+        expected_corpus_window.first_overlay_shadow_log_id AS expected_value,
+        s.corpus_window.first_overlay_shadow_log_id AS actual_value
+    FROM shadow_signal_summaries_v2 AS s
+    CROSS JOIN expected_corpus_window
+    WHERE s.corpus_window.first_overlay_shadow_log_id <> expected_corpus_window.first_overlay_shadow_log_id
+    UNION ALL
+    SELECT
+        s.shadow_signal_summary_id,
+        NULL,
+        'shadow_signal_summary_v2_last_overlay_shadow_log_id_mismatch' AS issue_type,
+        expected_corpus_window.last_overlay_shadow_log_id AS expected_value,
+        s.corpus_window.last_overlay_shadow_log_id AS actual_value
+    FROM shadow_signal_summaries_v2 AS s
+    CROSS JOIN expected_corpus_window
+    WHERE s.corpus_window.last_overlay_shadow_log_id <> expected_corpus_window.last_overlay_shadow_log_id
+    UNION ALL
+    SELECT
+        s.shadow_signal_summary_id,
+        NULL,
+        'shadow_signal_summary_v2_first_observed_at_mismatch' AS issue_type,
+        expected_corpus_window.first_observed_at AS expected_value,
+        s.corpus_window.first_observed_at AS actual_value
+    FROM shadow_signal_summaries_v2 AS s
+    CROSS JOIN expected_corpus_window
+    WHERE s.corpus_window.first_observed_at <> expected_corpus_window.first_observed_at
+    UNION ALL
+    SELECT
+        s.shadow_signal_summary_id,
+        NULL,
+        'shadow_signal_summary_v2_last_observed_at_mismatch' AS issue_type,
+        expected_corpus_window.last_observed_at AS expected_value,
+        s.corpus_window.last_observed_at AS actual_value
+    FROM shadow_signal_summaries_v2 AS s
+    CROSS JOIN expected_corpus_window
+    WHERE s.corpus_window.last_observed_at <> expected_corpus_window.last_observed_at
+    UNION ALL
+    SELECT
+        s.shadow_signal_summary_id,
+        NULL,
+        'shadow_signal_summary_v2_total_source_observation_count_mismatch' AS issue_type,
+        CAST(expected_corpus_window.total_source_observation_count AS VARCHAR) AS expected_value,
+        CAST(s.corpus_window.total_source_observation_count AS VARCHAR) AS actual_value
+    FROM shadow_signal_summaries_v2 AS s
+    CROSS JOIN expected_corpus_window
+    WHERE s.corpus_window.total_source_observation_count <> expected_corpus_window.total_source_observation_count
+    UNION ALL
+    SELECT
+        shadow_signal_summary_id,
+        NULL,
+        'shadow_signal_summary_v2_not_deterministic' AS issue_type,
+        'true' AS expected_value,
+        CAST(deterministic AS VARCHAR) AS actual_value
+    FROM shadow_signal_summaries_v2
+    WHERE deterministic IS DISTINCT FROM true
+    UNION ALL
+    SELECT
+        shadow_signal_summary_id,
+        NULL,
+        'shadow_signal_summary_v2_not_advisory_only' AS issue_type,
+        'true' AS expected_value,
+        CAST(advisory_only AS VARCHAR) AS actual_value
+    FROM shadow_signal_summaries_v2
+    WHERE advisory_only IS DISTINCT FROM true
+),
+segment_presence_issues AS (
+    SELECT
+        shadow_signal_summary_id,
+        advisory_source,
+        'shadow_signal_summary_v2_missing_segment' AS issue_type,
+        'present' AS expected_value,
+        'missing' AS actual_value
+    FROM segment_join
+    WHERE actual_advisory_source IS NULL
+      AND expected_advisory_source IS NOT NULL
+    UNION ALL
+    SELECT
+        shadow_signal_summary_id,
+        advisory_source,
+        'shadow_signal_summary_v2_extra_segment' AS issue_type,
+        'missing' AS expected_value,
+        'present' AS actual_value
+    FROM segment_join
+    WHERE actual_advisory_source IS NOT NULL
+      AND expected_advisory_source IS NULL
+),
+segment_value_issues AS (
+    SELECT
+        shadow_signal_summary_id,
+        advisory_source,
+        'shadow_signal_summary_v2_match_count_mismatch' AS issue_type,
+        CAST(expected_match_count AS VARCHAR) AS expected_value,
+        CAST(actual_match_count AS VARCHAR) AS actual_value
+    FROM segment_join
+    WHERE expected_advisory_source IS NOT NULL
+      AND actual_advisory_source IS NOT NULL
+      AND actual_match_count IS DISTINCT FROM expected_match_count
+    UNION ALL
+    SELECT
+        shadow_signal_summary_id,
+        advisory_source,
+        'shadow_signal_summary_v2_mismatch_count_mismatch' AS issue_type,
+        CAST(expected_mismatch_count AS VARCHAR) AS expected_value,
+        CAST(actual_mismatch_count AS VARCHAR) AS actual_value
+    FROM segment_join
+    WHERE expected_advisory_source IS NOT NULL
+      AND actual_advisory_source IS NOT NULL
+      AND actual_mismatch_count IS DISTINCT FROM expected_mismatch_count
+    UNION ALL
+    SELECT
+        shadow_signal_summary_id,
+        advisory_source,
+        'shadow_signal_summary_v2_abstention_count_mismatch' AS issue_type,
+        CAST(expected_abstention_count AS VARCHAR) AS expected_value,
+        CAST(actual_abstention_count AS VARCHAR) AS actual_value
+    FROM segment_join
+    WHERE expected_advisory_source IS NOT NULL
+      AND actual_advisory_source IS NOT NULL
+      AND actual_abstention_count IS DISTINCT FROM expected_abstention_count
+    UNION ALL
+    SELECT
+        shadow_signal_summary_id,
+        advisory_source,
+        'shadow_signal_summary_v2_observation_count_mismatch' AS issue_type,
+        CAST(expected_observation_count AS VARCHAR) AS expected_value,
+        CAST(actual_observation_count AS VARCHAR) AS actual_value
+    FROM segment_join
+    WHERE expected_advisory_source IS NOT NULL
+      AND actual_advisory_source IS NOT NULL
+      AND actual_observation_count IS DISTINCT FROM expected_observation_count
+    UNION ALL
+    SELECT
+        shadow_signal_summary_id,
+        advisory_source,
+        'shadow_signal_summary_v2_rate_denominator_mismatch' AS issue_type,
+        CAST(expected_rate_denominator AS VARCHAR) AS expected_value,
+        CAST(actual_rate_denominator AS VARCHAR) AS actual_value
+    FROM segment_join
+    WHERE expected_advisory_source IS NOT NULL
+      AND actual_advisory_source IS NOT NULL
+      AND actual_rate_denominator IS DISTINCT FROM expected_rate_denominator
+    UNION ALL
+    SELECT
+        shadow_signal_summary_id,
+        advisory_source,
+        'shadow_signal_summary_v2_agreement_rate_mismatch' AS issue_type,
+        CAST(expected_agreement_rate AS VARCHAR) AS expected_value,
+        CAST(actual_agreement_rate AS VARCHAR) AS actual_value
+    FROM segment_join
+    WHERE expected_advisory_source IS NOT NULL
+      AND actual_advisory_source IS NOT NULL
+      AND actual_agreement_rate IS DISTINCT FROM expected_agreement_rate
+    UNION ALL
+    SELECT
+        shadow_signal_summary_id,
+        advisory_source,
+        'shadow_signal_summary_v2_disagreement_rate_mismatch' AS issue_type,
+        CAST(expected_disagreement_rate AS VARCHAR) AS expected_value,
+        CAST(actual_disagreement_rate AS VARCHAR) AS actual_value
+    FROM segment_join
+    WHERE expected_advisory_source IS NOT NULL
+      AND actual_advisory_source IS NOT NULL
+      AND actual_disagreement_rate IS DISTINCT FROM expected_disagreement_rate
+    UNION ALL
+    SELECT
+        shadow_signal_summary_id,
+        advisory_source,
+        'shadow_signal_summary_v2_insufficient_evidence_mismatch' AS issue_type,
+        CAST(expected_insufficient_evidence AS VARCHAR) AS expected_value,
+        CAST(actual_insufficient_evidence AS VARCHAR) AS actual_value
+    FROM segment_join
+    WHERE expected_advisory_source IS NOT NULL
+      AND actual_advisory_source IS NOT NULL
+      AND actual_insufficient_evidence IS DISTINCT FROM expected_insufficient_evidence
+    UNION ALL
+    SELECT
+        shadow_signal_summary_id,
+        advisory_source,
+        'shadow_signal_summary_v2_signal_outcome_mismatch' AS issue_type,
+        expected_signal_outcome AS expected_value,
+        actual_signal_outcome AS actual_value
+    FROM segment_join
+    WHERE expected_advisory_source IS NOT NULL
+      AND actual_advisory_source IS NOT NULL
+      AND actual_signal_outcome IS DISTINCT FROM expected_signal_outcome
+    UNION ALL
+    SELECT
+        shadow_signal_summary_id,
+        advisory_source,
+        'shadow_signal_summary_v2_first_observed_at_segment_mismatch' AS issue_type,
+        expected_first_observed_at AS expected_value,
+        actual_first_observed_at AS actual_value
+    FROM segment_join
+    WHERE expected_advisory_source IS NOT NULL
+      AND actual_advisory_source IS NOT NULL
+      AND actual_first_observed_at IS DISTINCT FROM expected_first_observed_at
+    UNION ALL
+    SELECT
+        shadow_signal_summary_id,
+        advisory_source,
+        'shadow_signal_summary_v2_last_observed_at_segment_mismatch' AS issue_type,
+        expected_last_observed_at AS expected_value,
+        actual_last_observed_at AS actual_value
+    FROM segment_join
+    WHERE expected_advisory_source IS NOT NULL
+      AND actual_advisory_source IS NOT NULL
+      AND actual_last_observed_at IS DISTINCT FROM expected_last_observed_at
+)
+SELECT *
+FROM metadata_issues
+UNION ALL
+SELECT *
+FROM segment_presence_issues
+UNION ALL
+SELECT *
+FROM segment_value_issues;
+
 -- What macro-window advisory outputs have been recorded?
 -- Exposes one row per macro_window_agent_output artifact without expanding fixture checks.
 CREATE OR REPLACE VIEW v_macro_window_agent_outputs_overview AS

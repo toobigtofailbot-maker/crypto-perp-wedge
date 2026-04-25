@@ -1,0 +1,15 @@
+[
+  {
+    "shadow_signal_summary_id": "SSS-0003",
+    "segment_count": 4,
+    "above_floor_segment_count": 0,
+    "below_floor_segment_count": 4,
+    "null_rate_segment_count": 4,
+    "insufficient_evidence_segment_count": 4,
+    "insufficient_signal_outcome_count": 4,
+    "min_observation_count": 2,
+    "max_observation_count": 3,
+    "floor_required": 10,
+    "all_segments_below_floor": true
+  }
+]

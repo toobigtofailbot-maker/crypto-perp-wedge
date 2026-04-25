@@ -31,8 +31,8 @@ The DuckDB connection is in-memory. No `.duckdb` file is created.
 | `v_information_inputs` | One row per candidate information input. | Which candidates used funding or premium data? |
 | `v_integrity_plan_report_pairs` | Broken plan/report references. Expected empty. | Are any EXP/REP pairings missing? |
 | `v_integrity_candidate_refs` | Broken candidate references from EXP/REP artifacts. Expected empty. | Do all artifacts point to real registry candidates? |
-| `v_shadow_signal_summaries_v2_overview` | One row per committed SSS v2 segment with schema version, segmentation axes, corpus window, segment keys, counts, rates, and outcome fields. | What committed SSS v2 advisory-source segment evidence exists? |
-| `v_integrity_shadow_signal_summary_v2_derivation` | SSS v2 derivation drift check against committed overlay shadow logs. Expected empty for supported healthy instances. | Does committed advisory-source-only SSS v2 content still match the cited corpus? |
+| `v_shadow_signal_summaries_v2_overview` | One row per committed SSS v2 segment with schema version, segmentation axes, corpus window, segment keys, counts, rates, and outcome fields. | What committed SSS v2 segment evidence exists? |
+| `v_integrity_shadow_signal_summary_v2_derivation` | SSS v2 derivation drift check against committed overlay shadow logs. Expected empty for supported healthy instances. | Does committed SSS v2 content still match the cited corpus? |
 
 ## SSS v2 Query-Layer Support
 
@@ -46,10 +46,12 @@ local temporary DuckDB relations inside the brief bundle. WP-8c does not create,
 mutate, or validate new SSS instances; it only makes existing committed SSS v2
 content queryable centrally.
 
-The SSS v2 integrity view is expected to return no rows in healthy state for the
-currently supported advisory-source-only v2 instance shape. Unsupported future
-v2 segmentation shapes are surfaced as integrity rows until a later package
-explicitly extends coverage.
+The SSS v2 integrity view is expected to return no rows in healthy state for
+supported v2 instance shapes. It supports advisory-source-only v2 summaries and
+advisory-lineage v2 summaries encoded by `advisory_source`,
+`source_bucket_mapping_id`, and `source_pre_gate_advisory_snapshot_id`.
+Unsupported future v2 segmentation shapes are surfaced as integrity rows until a
+later package explicitly extends coverage.
 
 ## Invocation
 

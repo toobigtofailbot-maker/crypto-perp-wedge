@@ -1,3 +1,5 @@
+import json
+
 import pytest
 
 from tools.research_query import query_layer
@@ -198,6 +200,120 @@ def test_shadow_signal_summary_v2_integrity_view_empty_under_current_state(conn)
     rows = conn.execute("SELECT * FROM v_integrity_shadow_signal_summary_v2_derivation").fetchall()
 
     assert rows == []
+
+
+def test_shadow_signal_summary_v2_integrity_supports_advisory_lineage_form(
+    monkeypatch,
+    tmp_path,
+):
+    summaries_dir = tmp_path / "research" / "shadow_signal_summaries_v2"
+    summaries_dir.mkdir(parents=True)
+    lineage_payload = {
+        "shadow_signal_summary_id": "SSS-9003",
+        "schema_version": "v2",
+        "generated_at": "2026-04-22T08:00:00Z",
+        "corpus_window": {
+            "first_overlay_shadow_log_id": "OSH-0001",
+            "last_overlay_shadow_log_id": "OSH-0010",
+            "first_observed_at": "2026-04-19T17:00:00Z",
+            "last_observed_at": "2026-04-22T08:00:00Z",
+            "total_source_observation_count": 10,
+        },
+        "derivation_method": "shadow_signal_summary_option_a_floor_10_v1",
+        "segmentation_axes": [
+            "advisory_source",
+            "source_bucket_mapping_id",
+            "source_pre_gate_advisory_snapshot_id",
+        ],
+        "derivation_inputs": {
+            "source_relation": "overlay_shadow_logs",
+            "source_artifact_family": "overlay_shadow_logs",
+            "fixture_identity_rule": "committed_overlay_input_pair_v1",
+            "rate_denominator_rule": "match_plus_mismatch",
+        },
+        "segments": [
+            {
+                "advisory_source": "BMAP",
+                "source_bucket_mapping_id": "BMAP-0001",
+                "source_pre_gate_advisory_snapshot_id": None,
+                "match_count": 0,
+                "mismatch_count": 3,
+                "abstention_count": 0,
+                "observation_count": 3,
+                "rate_denominator": 3,
+                "agreement_rate": None,
+                "disagreement_rate": None,
+                "insufficient_evidence": True,
+                "signal_outcome": "INSUFFICIENT_EVIDENCE",
+                "first_observed_at": "2026-04-19T17:00:00Z",
+                "last_observed_at": "2026-04-22T05:00:00Z",
+            },
+            {
+                "advisory_source": "BMAP",
+                "source_bucket_mapping_id": "BMAP-0002",
+                "source_pre_gate_advisory_snapshot_id": None,
+                "match_count": 2,
+                "mismatch_count": 0,
+                "abstention_count": 0,
+                "observation_count": 2,
+                "rate_denominator": 2,
+                "agreement_rate": None,
+                "disagreement_rate": None,
+                "insufficient_evidence": True,
+                "signal_outcome": "INSUFFICIENT_EVIDENCE",
+                "first_observed_at": "2026-04-22T03:00:00Z",
+                "last_observed_at": "2026-04-22T07:00:00Z",
+            },
+            {
+                "advisory_source": "PGAS",
+                "source_bucket_mapping_id": "BMAP-0001",
+                "source_pre_gate_advisory_snapshot_id": "PGAS-0002",
+                "match_count": 0,
+                "mismatch_count": 3,
+                "abstention_count": 0,
+                "observation_count": 3,
+                "rate_denominator": 3,
+                "agreement_rate": None,
+                "disagreement_rate": None,
+                "insufficient_evidence": True,
+                "signal_outcome": "INSUFFICIENT_EVIDENCE",
+                "first_observed_at": "2026-04-19T18:00:00Z",
+                "last_observed_at": "2026-04-22T06:00:00Z",
+            },
+            {
+                "advisory_source": "PGAS",
+                "source_bucket_mapping_id": "BMAP-0002",
+                "source_pre_gate_advisory_snapshot_id": "PGAS-0003",
+                "match_count": 2,
+                "mismatch_count": 0,
+                "abstention_count": 0,
+                "observation_count": 2,
+                "rate_denominator": 2,
+                "agreement_rate": None,
+                "disagreement_rate": None,
+                "insufficient_evidence": True,
+                "signal_outcome": "INSUFFICIENT_EVIDENCE",
+                "first_observed_at": "2026-04-22T04:00:00Z",
+                "last_observed_at": "2026-04-22T08:00:00Z",
+            },
+        ],
+        "deterministic": True,
+        "advisory_only": True,
+        "notes": "Temporary test artifact for advisory-lineage v2 integrity coverage.",
+    }
+    artifact_path = summaries_dir / "SSS-9003.shadow_signal_summary.json"
+    artifact_path.write_text(json.dumps(lineage_payload, indent=2) + "\n", encoding="utf-8")
+    monkeypatch.setattr(query_layer, "SHADOW_SIGNAL_SUMMARIES_V2_DIR", summaries_dir)
+
+    connection = init_duckdb()
+    try:
+        rows = connection.execute(
+            "SELECT * FROM v_integrity_shadow_signal_summary_v2_derivation"
+        ).fetchall()
+
+        assert rows == []
+    finally:
+        connection.close()
 
 
 def test_read_only_guard_still_rejects_writes(conn):

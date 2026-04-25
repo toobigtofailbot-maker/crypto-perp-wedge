@@ -1415,7 +1415,7 @@ SELECT
     advisory_only
 FROM flattened;
 
--- Does each committed advisory-source-only v2 summary match the live committed corpus?
+-- Does each committed supported-form v2 summary match the live committed corpus?
 -- Returns rows only when v2 summary metadata or supported segment derivation drifts.
 CREATE OR REPLACE VIEW v_integrity_shadow_signal_summary_v2_derivation AS
 WITH live_shadow_rows AS (
@@ -1424,12 +1424,18 @@ WITH live_shadow_rows AS (
         CAST(observed_at AS TIMESTAMP) AS observed_at_ts,
         observed_at,
         comparison_result,
-        COALESCE(advisory_source, 'BMAP') AS advisory_source
+        COALESCE(advisory_source, 'BMAP') AS advisory_source,
+        source_bucket_mapping_id,
+        source_pre_gate_advisory_snapshot_id
     FROM overlay_shadow_logs
 ),
 expected_segments AS (
     SELECT
+        'advisory_source' AS segmentation_axes,
+        advisory_source AS segment_key,
         advisory_source,
+        CAST(NULL AS VARCHAR) AS source_bucket_mapping_id,
+        CAST(NULL AS VARCHAR) AS source_pre_gate_advisory_snapshot_id,
         SUM(CASE WHEN comparison_result = 'MATCH' THEN 1 ELSE 0 END) AS match_count,
         SUM(CASE WHEN comparison_result = 'MISMATCH' THEN 1 ELSE 0 END) AS mismatch_count,
         SUM(
@@ -1472,6 +1478,57 @@ expected_segments AS (
         strftime('%Y-%m-%dT%H:%M:%SZ', MAX(observed_at_ts)) AS last_observed_at
     FROM live_shadow_rows
     GROUP BY advisory_source
+    UNION ALL
+    SELECT
+        'advisory_source,source_bucket_mapping_id,source_pre_gate_advisory_snapshot_id'
+            AS segmentation_axes,
+        advisory_source || '|' || source_bucket_mapping_id || '|'
+            || COALESCE(source_pre_gate_advisory_snapshot_id, '') AS segment_key,
+        advisory_source,
+        source_bucket_mapping_id,
+        source_pre_gate_advisory_snapshot_id,
+        SUM(CASE WHEN comparison_result = 'MATCH' THEN 1 ELSE 0 END) AS match_count,
+        SUM(CASE WHEN comparison_result = 'MISMATCH' THEN 1 ELSE 0 END) AS mismatch_count,
+        SUM(
+            CASE
+                WHEN comparison_result NOT IN ('MATCH', 'MISMATCH')
+                  OR comparison_result IS NULL
+                    THEN 1
+                ELSE 0
+            END
+        ) AS abstention_count,
+        COUNT(*) AS observation_count,
+        SUM(CASE WHEN comparison_result IN ('MATCH', 'MISMATCH') THEN 1 ELSE 0 END) AS rate_denominator,
+        CASE
+            WHEN COUNT(*) < 10 THEN NULL
+            ELSE
+                CAST(SUM(CASE WHEN comparison_result = 'MATCH' THEN 1 ELSE 0 END) AS DOUBLE)
+                / NULLIF(SUM(CASE WHEN comparison_result IN ('MATCH', 'MISMATCH') THEN 1 ELSE 0 END), 0)
+        END AS agreement_rate,
+        CASE
+            WHEN COUNT(*) < 10 THEN NULL
+            ELSE
+                CAST(SUM(CASE WHEN comparison_result = 'MISMATCH' THEN 1 ELSE 0 END) AS DOUBLE)
+                / NULLIF(SUM(CASE WHEN comparison_result IN ('MATCH', 'MISMATCH') THEN 1 ELSE 0 END), 0)
+        END AS disagreement_rate,
+        CASE
+            WHEN COUNT(*) < 10 THEN true
+            ELSE false
+        END AS insufficient_evidence,
+        CASE
+            WHEN COUNT(*) < 10 THEN 'INSUFFICIENT_EVIDENCE'
+            WHEN SUM(CASE WHEN comparison_result = 'MATCH' THEN 1 ELSE 0 END)
+               > SUM(CASE WHEN comparison_result = 'MISMATCH' THEN 1 ELSE 0 END)
+                THEN 'AGREEMENT_SIGNAL'
+            WHEN SUM(CASE WHEN comparison_result = 'MISMATCH' THEN 1 ELSE 0 END)
+               > SUM(CASE WHEN comparison_result = 'MATCH' THEN 1 ELSE 0 END)
+                THEN 'DISAGREEMENT_SIGNAL'
+            ELSE 'MIXED_SIGNAL'
+        END AS signal_outcome,
+        strftime('%Y-%m-%dT%H:%M:%SZ', MIN(observed_at_ts)) AS first_observed_at,
+        strftime('%Y-%m-%dT%H:%M:%SZ', MAX(observed_at_ts)) AS last_observed_at
+    FROM live_shadow_rows
+    GROUP BY advisory_source, source_bucket_mapping_id, source_pre_gate_advisory_snapshot_id
 ),
 expected_corpus_window AS (
     SELECT
@@ -1496,11 +1553,50 @@ supported_summaries AS (
     SELECT *
     FROM shadow_signal_summaries_v2
     WHERE segmentation_axes IS NOT DISTINCT FROM ['advisory_source']
+       OR segmentation_axes IS NOT DISTINCT FROM [
+           'advisory_source',
+           'source_bucket_mapping_id',
+           'source_pre_gate_advisory_snapshot_id'
+       ]
+),
+expected_for_summaries AS (
+    SELECT
+        s.shadow_signal_summary_id,
+        e.segmentation_axes,
+        e.segment_key,
+        e.advisory_source,
+        e.source_bucket_mapping_id,
+        e.source_pre_gate_advisory_snapshot_id,
+        e.match_count,
+        e.mismatch_count,
+        e.abstention_count,
+        e.observation_count,
+        e.rate_denominator,
+        e.agreement_rate,
+        e.disagreement_rate,
+        e.insufficient_evidence,
+        e.signal_outcome,
+        e.first_observed_at,
+        e.last_observed_at
+    FROM supported_summaries AS s
+    JOIN expected_segments AS e
+      ON array_to_string(s.segmentation_axes, ',') = e.segmentation_axes
 ),
 actual_segments AS (
     SELECT
         shadow_signal_summary_id,
+        segmentation_axes,
+        CASE
+            WHEN segmentation_axes = 'advisory_source'
+                THEN advisory_source
+            WHEN segmentation_axes = 'advisory_source,source_bucket_mapping_id,source_pre_gate_advisory_snapshot_id'
+                THEN advisory_source || '|' || source_bucket_mapping_id || '|'
+                    || COALESCE(source_pre_gate_advisory_snapshot_id, '')
+            ELSE NULL
+        END AS segment_key,
         advisory_source,
+        source_bucket_mapping_id,
+        source_pre_gate_advisory_snapshot_id,
         match_count,
         mismatch_count,
         abstention_count,
@@ -1513,14 +1609,17 @@ actual_segments AS (
         first_segment_observed_at AS first_observed_at,
         last_segment_observed_at AS last_observed_at
     FROM v_shadow_signal_summaries_v2_overview
-    WHERE segmentation_axes = 'advisory_source'
+    WHERE segmentation_axes IN (
+        'advisory_source',
+        'advisory_source,source_bucket_mapping_id,source_pre_gate_advisory_snapshot_id'
+    )
 ),
 segment_join AS (
     SELECT
-        COALESCE(a.shadow_signal_summary_id, s.shadow_signal_summary_id) AS shadow_signal_summary_id,
-        COALESCE(a.advisory_source, e.advisory_source) AS advisory_source,
-        a.advisory_source AS actual_advisory_source,
-        e.advisory_source AS expected_advisory_source,
+        COALESCE(a.shadow_signal_summary_id, e.shadow_signal_summary_id) AS shadow_signal_summary_id,
+        COALESCE(a.segment_key, e.segment_key) AS advisory_source,
+        a.segment_key AS actual_segment_key,
+        e.segment_key AS expected_segment_key,
         a.match_count AS actual_match_count,
         e.match_count AS expected_match_count,
         a.mismatch_count AS actual_mismatch_count,
@@ -1543,21 +1642,27 @@ segment_join AS (
         e.first_observed_at AS expected_first_observed_at,
         a.last_observed_at AS actual_last_observed_at,
         e.last_observed_at AS expected_last_observed_at
-    FROM supported_summaries AS s
-    LEFT JOIN actual_segments AS a
-      ON a.shadow_signal_summary_id = s.shadow_signal_summary_id
-    FULL OUTER JOIN expected_segments AS e
-      ON a.advisory_source = e.advisory_source
+    FROM expected_for_summaries AS e
+    FULL OUTER JOIN actual_segments AS a
+      ON a.shadow_signal_summary_id = e.shadow_signal_summary_id
+     AND a.segmentation_axes = e.segmentation_axes
+     AND a.segment_key = e.segment_key
 ),
 metadata_issues AS (
     SELECT
         shadow_signal_summary_id,
         CAST(NULL AS VARCHAR) AS advisory_source,
         'shadow_signal_summary_v2_unsupported_segmentation_axes' AS issue_type,
-        'advisory_source' AS expected_value,
+        'advisory_source|advisory_source,source_bucket_mapping_id,source_pre_gate_advisory_snapshot_id'
+            AS expected_value,
         array_to_string(segmentation_axes, ',') AS actual_value
     FROM shadow_signal_summaries_v2
     WHERE segmentation_axes IS DISTINCT FROM ['advisory_source']
+      AND segmentation_axes IS DISTINCT FROM [
+          'advisory_source',
+          'source_bucket_mapping_id',
+          'source_pre_gate_advisory_snapshot_id'
+      ]
     UNION ALL
     SELECT
         shadow_signal_summary_id,
@@ -1699,8 +1804,8 @@ segment_presence_issues AS (
         'present' AS expected_value,
         'missing' AS actual_value
     FROM segment_join
-    WHERE actual_advisory_source IS NULL
-      AND expected_advisory_source IS NOT NULL
+    WHERE actual_segment_key IS NULL
+      AND expected_segment_key IS NOT NULL
     UNION ALL
     SELECT
         shadow_signal_summary_id,
@@ -1709,8 +1814,8 @@ segment_presence_issues AS (
         'missing' AS expected_value,
         'present' AS actual_value
     FROM segment_join
-    WHERE actual_advisory_source IS NOT NULL
-      AND expected_advisory_source IS NULL
+    WHERE actual_segment_key IS NOT NULL
+      AND expected_segment_key IS NULL
 ),
 segment_value_issues AS (
     SELECT
@@ -1720,8 +1825,8 @@ segment_value_issues AS (
         CAST(expected_match_count AS VARCHAR) AS expected_value,
         CAST(actual_match_count AS VARCHAR) AS actual_value
     FROM segment_join
-    WHERE expected_advisory_source IS NOT NULL
-      AND actual_advisory_source IS NOT NULL
+    WHERE expected_segment_key IS NOT NULL
+      AND actual_segment_key IS NOT NULL
       AND actual_match_count IS DISTINCT FROM expected_match_count
     UNION ALL
     SELECT
@@ -1731,8 +1836,8 @@ segment_value_issues AS (
         CAST(expected_mismatch_count AS VARCHAR) AS expected_value,
         CAST(actual_mismatch_count AS VARCHAR) AS actual_value
     FROM segment_join
-    WHERE expected_advisory_source IS NOT NULL
-      AND actual_advisory_source IS NOT NULL
+    WHERE expected_segment_key IS NOT NULL
+      AND actual_segment_key IS NOT NULL
       AND actual_mismatch_count IS DISTINCT FROM expected_mismatch_count
     UNION ALL
     SELECT
@@ -1742,8 +1847,8 @@ segment_value_issues AS (
         CAST(expected_abstention_count AS VARCHAR) AS expected_value,
         CAST(actual_abstention_count AS VARCHAR) AS actual_value
     FROM segment_join
-    WHERE expected_advisory_source IS NOT NULL
-      AND actual_advisory_source IS NOT NULL
+    WHERE expected_segment_key IS NOT NULL
+      AND actual_segment_key IS NOT NULL
       AND actual_abstention_count IS DISTINCT FROM expected_abstention_count
     UNION ALL
     SELECT
@@ -1753,8 +1858,8 @@ segment_value_issues AS (
         CAST(expected_observation_count AS VARCHAR) AS expected_value,
         CAST(actual_observation_count AS VARCHAR) AS actual_value
     FROM segment_join
-    WHERE expected_advisory_source IS NOT NULL
-      AND actual_advisory_source IS NOT NULL
+    WHERE expected_segment_key IS NOT NULL
+      AND actual_segment_key IS NOT NULL
       AND actual_observation_count IS DISTINCT FROM expected_observation_count
     UNION ALL
     SELECT
@@ -1764,8 +1869,8 @@ segment_value_issues AS (
         CAST(expected_rate_denominator AS VARCHAR) AS expected_value,
         CAST(actual_rate_denominator AS VARCHAR) AS actual_value
     FROM segment_join
-    WHERE expected_advisory_source IS NOT NULL
-      AND actual_advisory_source IS NOT NULL
+    WHERE expected_segment_key IS NOT NULL
+      AND actual_segment_key IS NOT NULL
       AND actual_rate_denominator IS DISTINCT FROM expected_rate_denominator
     UNION ALL
     SELECT
@@ -1775,8 +1880,8 @@ segment_value_issues AS (
         CAST(expected_agreement_rate AS VARCHAR) AS expected_value,
         CAST(actual_agreement_rate AS VARCHAR) AS actual_value
     FROM segment_join
-    WHERE expected_advisory_source IS NOT NULL
-      AND actual_advisory_source IS NOT NULL
+    WHERE expected_segment_key IS NOT NULL
+      AND actual_segment_key IS NOT NULL
       AND actual_agreement_rate IS DISTINCT FROM expected_agreement_rate
     UNION ALL
     SELECT
@@ -1786,8 +1891,8 @@ segment_value_issues AS (
         CAST(expected_disagreement_rate AS VARCHAR) AS expected_value,
         CAST(actual_disagreement_rate AS VARCHAR) AS actual_value
     FROM segment_join
-    WHERE expected_advisory_source IS NOT NULL
-      AND actual_advisory_source IS NOT NULL
+    WHERE expected_segment_key IS NOT NULL
+      AND actual_segment_key IS NOT NULL
       AND actual_disagreement_rate IS DISTINCT FROM expected_disagreement_rate
     UNION ALL
     SELECT
@@ -1797,8 +1902,8 @@ segment_value_issues AS (
         CAST(expected_insufficient_evidence AS VARCHAR) AS expected_value,
         CAST(actual_insufficient_evidence AS VARCHAR) AS actual_value
     FROM segment_join
-    WHERE expected_advisory_source IS NOT NULL
-      AND actual_advisory_source IS NOT NULL
+    WHERE expected_segment_key IS NOT NULL
+      AND actual_segment_key IS NOT NULL
       AND actual_insufficient_evidence IS DISTINCT FROM expected_insufficient_evidence
     UNION ALL
     SELECT
@@ -1808,8 +1913,8 @@ segment_value_issues AS (
         expected_signal_outcome AS expected_value,
         actual_signal_outcome AS actual_value
     FROM segment_join
-    WHERE expected_advisory_source IS NOT NULL
-      AND actual_advisory_source IS NOT NULL
+    WHERE expected_segment_key IS NOT NULL
+      AND actual_segment_key IS NOT NULL
       AND actual_signal_outcome IS DISTINCT FROM expected_signal_outcome
     UNION ALL
     SELECT
@@ -1819,8 +1924,8 @@ segment_value_issues AS (
         expected_first_observed_at AS expected_value,
         actual_first_observed_at AS actual_value
     FROM segment_join
-    WHERE expected_advisory_source IS NOT NULL
-      AND actual_advisory_source IS NOT NULL
+    WHERE expected_segment_key IS NOT NULL
+      AND actual_segment_key IS NOT NULL
       AND actual_first_observed_at IS DISTINCT FROM expected_first_observed_at
     UNION ALL
     SELECT
@@ -1830,8 +1935,8 @@ segment_value_issues AS (
         expected_last_observed_at AS expected_value,
         actual_last_observed_at AS actual_value
     FROM segment_join
-    WHERE expected_advisory_source IS NOT NULL
-      AND actual_advisory_source IS NOT NULL
+    WHERE expected_segment_key IS NOT NULL
+      AND actual_segment_key IS NOT NULL
       AND actual_last_observed_at IS DISTINCT FROM expected_last_observed_at
 )
 SELECT *

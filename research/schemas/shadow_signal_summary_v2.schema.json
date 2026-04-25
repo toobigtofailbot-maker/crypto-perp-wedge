@@ -1,0 +1,760 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crypto-perp-wedge.local/research/schemas/shadow_signal_summary_v2.schema.json",
+  "title": "Shadow Signal Summary v2",
+  "description": "Additive v2 shadow-signal summary schema supporting four-axis and coherent single-axis segment forms without mutating SSS v1.",
+  "type": "object",
+  "additionalProperties": false,
+  "definitions": {
+    "utc_timestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "summary_id": {
+      "type": "string",
+      "pattern": "^SSS-[0-9]{4}$"
+    },
+    "fixture_identity": {
+      "type": "string",
+      "enum": ["canonical", "_02"]
+    },
+    "advisory_source": {
+      "type": "string",
+      "enum": ["BMAP", "PGAS"]
+    },
+    "bucket_mapping_id": {
+      "type": "string",
+      "pattern": "^BMAP-[0-9]{4}$"
+    },
+    "pre_gate_advisory_snapshot_id": {
+      "type": ["string", "null"],
+      "pattern": "^PGAS-[0-9]{4}$"
+    },
+    "four_axis_segment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "advisory_source",
+        "source_bucket_mapping_id",
+        "source_pre_gate_advisory_snapshot_id",
+        "fixture_identity",
+        "match_count",
+        "mismatch_count",
+        "abstention_count",
+        "observation_count",
+        "rate_denominator",
+        "agreement_rate",
+        "disagreement_rate",
+        "insufficient_evidence",
+        "signal_outcome",
+        "first_observed_at",
+        "last_observed_at"
+      ],
+      "properties": {
+        "advisory_source": {
+          "$ref": "#/definitions/advisory_source"
+        },
+        "source_bucket_mapping_id": {
+          "$ref": "#/definitions/bucket_mapping_id"
+        },
+        "source_pre_gate_advisory_snapshot_id": {
+          "$ref": "#/definitions/pre_gate_advisory_snapshot_id"
+        },
+        "fixture_identity": {
+          "$ref": "#/definitions/fixture_identity"
+        },
+        "match_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "mismatch_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "abstention_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "observation_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rate_denominator": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "agreement_rate": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "disagreement_rate": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "insufficient_evidence": {
+          "type": "boolean"
+        },
+        "signal_outcome": {
+          "type": "string",
+          "enum": [
+            "INSUFFICIENT_EVIDENCE",
+            "AGREEMENT_SIGNAL",
+            "DISAGREEMENT_SIGNAL",
+            "MIXED_SIGNAL"
+          ]
+        },
+        "first_observed_at": {
+          "$ref": "#/definitions/utc_timestamp"
+        },
+        "last_observed_at": {
+          "$ref": "#/definitions/utc_timestamp"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "advisory_source": { "const": "BMAP" }
+            },
+            "required": ["advisory_source"]
+          },
+          "then": {
+            "properties": {
+              "source_pre_gate_advisory_snapshot_id": { "type": "null" }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "advisory_source": { "const": "PGAS" }
+            },
+            "required": ["advisory_source"]
+          },
+          "then": {
+            "properties": {
+              "source_pre_gate_advisory_snapshot_id": {
+                "type": "string",
+                "pattern": "^PGAS-[0-9]{4}$"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "insufficient_evidence": { "const": true }
+            },
+            "required": ["insufficient_evidence"]
+          },
+          "then": {
+            "properties": {
+              "signal_outcome": { "const": "INSUFFICIENT_EVIDENCE" },
+              "agreement_rate": { "type": "null" },
+              "disagreement_rate": { "type": "null" }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "insufficient_evidence": { "const": false }
+            },
+            "required": ["insufficient_evidence"]
+          },
+          "then": {
+            "properties": {
+              "signal_outcome": {
+                "type": "string",
+                "enum": [
+                  "AGREEMENT_SIGNAL",
+                  "DISAGREEMENT_SIGNAL",
+                  "MIXED_SIGNAL"
+                ]
+              },
+              "agreement_rate": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "disagreement_rate": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "advisory_source_segment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "advisory_source",
+        "match_count",
+        "mismatch_count",
+        "abstention_count",
+        "observation_count",
+        "rate_denominator",
+        "agreement_rate",
+        "disagreement_rate",
+        "insufficient_evidence",
+        "signal_outcome",
+        "first_observed_at",
+        "last_observed_at"
+      ],
+      "properties": {
+        "advisory_source": {
+          "$ref": "#/definitions/advisory_source"
+        },
+        "match_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "mismatch_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "abstention_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "observation_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rate_denominator": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "agreement_rate": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "disagreement_rate": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "insufficient_evidence": {
+          "type": "boolean"
+        },
+        "signal_outcome": {
+          "type": "string",
+          "enum": [
+            "INSUFFICIENT_EVIDENCE",
+            "AGREEMENT_SIGNAL",
+            "DISAGREEMENT_SIGNAL",
+            "MIXED_SIGNAL"
+          ]
+        },
+        "first_observed_at": {
+          "$ref": "#/definitions/utc_timestamp"
+        },
+        "last_observed_at": {
+          "$ref": "#/definitions/utc_timestamp"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "insufficient_evidence": { "const": true }
+            },
+            "required": ["insufficient_evidence"]
+          },
+          "then": {
+            "properties": {
+              "signal_outcome": { "const": "INSUFFICIENT_EVIDENCE" },
+              "agreement_rate": { "type": "null" },
+              "disagreement_rate": { "type": "null" }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "insufficient_evidence": { "const": false }
+            },
+            "required": ["insufficient_evidence"]
+          },
+          "then": {
+            "properties": {
+              "signal_outcome": {
+                "type": "string",
+                "enum": [
+                  "AGREEMENT_SIGNAL",
+                  "DISAGREEMENT_SIGNAL",
+                  "MIXED_SIGNAL"
+                ]
+              },
+              "agreement_rate": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "disagreement_rate": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "fixture_identity_segment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fixture_identity",
+        "match_count",
+        "mismatch_count",
+        "abstention_count",
+        "observation_count",
+        "rate_denominator",
+        "agreement_rate",
+        "disagreement_rate",
+        "insufficient_evidence",
+        "signal_outcome",
+        "first_observed_at",
+        "last_observed_at"
+      ],
+      "properties": {
+        "fixture_identity": {
+          "$ref": "#/definitions/fixture_identity"
+        },
+        "match_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "mismatch_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "abstention_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "observation_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rate_denominator": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "agreement_rate": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "disagreement_rate": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "insufficient_evidence": {
+          "type": "boolean"
+        },
+        "signal_outcome": {
+          "type": "string",
+          "enum": [
+            "INSUFFICIENT_EVIDENCE",
+            "AGREEMENT_SIGNAL",
+            "DISAGREEMENT_SIGNAL",
+            "MIXED_SIGNAL"
+          ]
+        },
+        "first_observed_at": {
+          "$ref": "#/definitions/utc_timestamp"
+        },
+        "last_observed_at": {
+          "$ref": "#/definitions/utc_timestamp"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "insufficient_evidence": { "const": true }
+            },
+            "required": ["insufficient_evidence"]
+          },
+          "then": {
+            "properties": {
+              "signal_outcome": { "const": "INSUFFICIENT_EVIDENCE" },
+              "agreement_rate": { "type": "null" },
+              "disagreement_rate": { "type": "null" }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "insufficient_evidence": { "const": false }
+            },
+            "required": ["insufficient_evidence"]
+          },
+          "then": {
+            "properties": {
+              "signal_outcome": {
+                "type": "string",
+                "enum": [
+                  "AGREEMENT_SIGNAL",
+                  "DISAGREEMENT_SIGNAL",
+                  "MIXED_SIGNAL"
+                ]
+              },
+              "agreement_rate": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "disagreement_rate": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "advisory_lineage_segment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "advisory_source",
+        "source_bucket_mapping_id",
+        "source_pre_gate_advisory_snapshot_id",
+        "match_count",
+        "mismatch_count",
+        "abstention_count",
+        "observation_count",
+        "rate_denominator",
+        "agreement_rate",
+        "disagreement_rate",
+        "insufficient_evidence",
+        "signal_outcome",
+        "first_observed_at",
+        "last_observed_at"
+      ],
+      "properties": {
+        "advisory_source": {
+          "$ref": "#/definitions/advisory_source"
+        },
+        "source_bucket_mapping_id": {
+          "$ref": "#/definitions/bucket_mapping_id"
+        },
+        "source_pre_gate_advisory_snapshot_id": {
+          "$ref": "#/definitions/pre_gate_advisory_snapshot_id"
+        },
+        "match_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "mismatch_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "abstention_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "observation_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rate_denominator": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "agreement_rate": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "disagreement_rate": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "insufficient_evidence": {
+          "type": "boolean"
+        },
+        "signal_outcome": {
+          "type": "string",
+          "enum": [
+            "INSUFFICIENT_EVIDENCE",
+            "AGREEMENT_SIGNAL",
+            "DISAGREEMENT_SIGNAL",
+            "MIXED_SIGNAL"
+          ]
+        },
+        "first_observed_at": {
+          "$ref": "#/definitions/utc_timestamp"
+        },
+        "last_observed_at": {
+          "$ref": "#/definitions/utc_timestamp"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "advisory_source": { "const": "BMAP" }
+            },
+            "required": ["advisory_source"]
+          },
+          "then": {
+            "properties": {
+              "source_pre_gate_advisory_snapshot_id": { "type": "null" }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "advisory_source": { "const": "PGAS" }
+            },
+            "required": ["advisory_source"]
+          },
+          "then": {
+            "properties": {
+              "source_pre_gate_advisory_snapshot_id": {
+                "type": "string",
+                "pattern": "^PGAS-[0-9]{4}$"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "insufficient_evidence": { "const": true }
+            },
+            "required": ["insufficient_evidence"]
+          },
+          "then": {
+            "properties": {
+              "signal_outcome": { "const": "INSUFFICIENT_EVIDENCE" },
+              "agreement_rate": { "type": "null" },
+              "disagreement_rate": { "type": "null" }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "insufficient_evidence": { "const": false }
+            },
+            "required": ["insufficient_evidence"]
+          },
+          "then": {
+            "properties": {
+              "signal_outcome": {
+                "type": "string",
+                "enum": [
+                  "AGREEMENT_SIGNAL",
+                  "DISAGREEMENT_SIGNAL",
+                  "MIXED_SIGNAL"
+                ]
+              },
+              "agreement_rate": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "disagreement_rate": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "required": [
+    "shadow_signal_summary_id",
+    "schema_version",
+    "generated_at",
+    "corpus_window",
+    "derivation_method",
+    "segmentation_axes",
+    "derivation_inputs",
+    "segments",
+    "deterministic",
+    "advisory_only",
+    "notes"
+  ],
+  "properties": {
+    "shadow_signal_summary_id": {
+      "$ref": "#/definitions/summary_id"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "v2"
+    },
+    "generated_at": {
+      "$ref": "#/definitions/utc_timestamp"
+    },
+    "corpus_window": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "first_overlay_shadow_log_id",
+        "last_overlay_shadow_log_id",
+        "first_observed_at",
+        "last_observed_at",
+        "total_source_observation_count"
+      ],
+      "properties": {
+        "first_overlay_shadow_log_id": {
+          "type": "string",
+          "pattern": "^OSH-[0-9]{4}$"
+        },
+        "last_overlay_shadow_log_id": {
+          "type": "string",
+          "pattern": "^OSH-[0-9]{4}$"
+        },
+        "first_observed_at": {
+          "$ref": "#/definitions/utc_timestamp"
+        },
+        "last_observed_at": {
+          "$ref": "#/definitions/utc_timestamp"
+        },
+        "total_source_observation_count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "derivation_method": {
+      "type": "string",
+      "const": "shadow_signal_summary_option_a_floor_10_v1"
+    },
+    "segmentation_axes": {
+      "type": "array"
+    },
+    "derivation_inputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_relation",
+        "source_artifact_family",
+        "fixture_identity_rule",
+        "rate_denominator_rule"
+      ],
+      "properties": {
+        "source_relation": {
+          "type": "string",
+          "const": "overlay_shadow_logs"
+        },
+        "source_artifact_family": {
+          "type": "string",
+          "const": "overlay_shadow_logs"
+        },
+        "fixture_identity_rule": {
+          "type": "string",
+          "const": "committed_overlay_input_pair_v1"
+        },
+        "rate_denominator_rule": {
+          "type": "string",
+          "const": "match_plus_mismatch"
+        }
+      }
+    },
+    "segments": {
+      "type": "array",
+      "minItems": 1
+    },
+    "deterministic": {
+      "const": true
+    },
+    "advisory_only": {
+      "const": true
+    },
+    "notes": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "segmentation_axes": {
+          "const": [
+            "advisory_source",
+            "source_bucket_mapping_id",
+            "source_pre_gate_advisory_snapshot_id",
+            "fixture_identity"
+          ]
+        },
+        "segments": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/four_axis_segment"
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "segmentation_axes": {
+          "const": [
+            "advisory_source"
+          ]
+        },
+        "segments": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/advisory_source_segment"
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "segmentation_axes": {
+          "const": [
+            "fixture_identity"
+          ]
+        },
+        "segments": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/fixture_identity_segment"
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "segmentation_axes": {
+          "const": [
+            "advisory_source",
+            "source_bucket_mapping_id",
+            "source_pre_gate_advisory_snapshot_id"
+          ]
+        },
+        "segments": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/advisory_lineage_segment"
+          }
+        }
+      }
+    }
+  ]
+}

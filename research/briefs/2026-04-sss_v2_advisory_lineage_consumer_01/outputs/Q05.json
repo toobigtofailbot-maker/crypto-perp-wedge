@@ -1,0 +1,22 @@
+[
+  {
+    "observation_key": "central_v2_query_layer_load_bearing",
+    "observation_statement": "WP-8e consumes SSS-0003 through v_shadow_signal_summaries_v2_overview and checks v_integrity_shadow_signal_summary_v2_derivation; the package does not use local temporary SSS v2 relations."
+  },
+  {
+    "observation_key": "corpus_growth_is_binding_constraint",
+    "observation_statement": "The current committed shadow-log corpus covers OSH-0001 through OSH-0010, so stronger segment-level signal classifications remain constrained by floor-limited observation counts."
+  },
+  {
+    "observation_key": "current_v2_segments_remain_below_floor",
+    "observation_statement": "SSS-0002 and SSS-0003 are visible through the central v2 overview, and every current v2 segment remains below the locked floor of 10 observations with null usable rates."
+  },
+  {
+    "observation_key": "possible_later_third_consumer_or_synthesis",
+    "observation_statement": "A third bounded v2 consumer or later v2 synthesis may become useful after additional committed v2 evidence, but this query records no ranking, recommendation, cadence, or scope commitment."
+  },
+  {
+    "observation_key": "possible_later_v2_fixture_instance",
+    "observation_statement": "A later overlay-input-fixture v2 instance remains a descriptive future direction only if separately scoped, authored, and validated."
+  }
+]

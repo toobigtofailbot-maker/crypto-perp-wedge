@@ -22,6 +22,7 @@ BUCKET_MAPPINGS_DIR = REPO_ROOT / "research" / "bucket_mappings"
 PRE_GATE_ADVISORY_SNAPSHOTS_DIR = REPO_ROOT / "research" / "pre_gate_advisory_snapshots"
 OVERLAY_SHADOW_LOGS_DIR = REPO_ROOT / "research" / "overlay_shadow_logs"
 SHADOW_SIGNAL_SUMMARIES_DIR = REPO_ROOT / "research" / "shadow_signal_summaries"
+SHADOW_SIGNAL_SUMMARIES_V2_DIR = REPO_ROOT / "research" / "shadow_signal_summaries_v2"
 TRIAL_LOG_PATH = REPO_ROOT / "research" / "trial_log.jsonl"
 VIEWS_PATH = Path(__file__).resolve().with_name("views.sql")
 
@@ -521,6 +522,68 @@ def _register_shadow_signal_summaries(conn: duckdb.DuckDBPyConnection) -> None:
     )
 
 
+def _register_shadow_signal_summaries_v2(conn: duckdb.DuckDBPyConnection) -> None:
+    summary_files = (
+        sorted(SHADOW_SIGNAL_SUMMARIES_V2_DIR.glob("*.shadow_signal_summary.json"))
+        if SHADOW_SIGNAL_SUMMARIES_V2_DIR.exists()
+        else []
+    )
+    if summary_files:
+        conn.execute(
+            f"""
+            CREATE VIEW shadow_signal_summaries_v2 AS
+            SELECT * FROM read_json_auto('{_sql_path(SHADOW_SIGNAL_SUMMARIES_V2_DIR / "*.shadow_signal_summary.json")}')
+            """
+        )
+        return
+
+    conn.execute(
+        """
+        CREATE VIEW shadow_signal_summaries_v2 AS
+        SELECT
+            CAST(NULL AS VARCHAR) AS shadow_signal_summary_id,
+            CAST(NULL AS VARCHAR) AS schema_version,
+            CAST(NULL AS VARCHAR) AS generated_at,
+            CAST(NULL AS STRUCT(
+                first_overlay_shadow_log_id VARCHAR,
+                last_overlay_shadow_log_id VARCHAR,
+                first_observed_at VARCHAR,
+                last_observed_at VARCHAR,
+                total_source_observation_count BIGINT
+            )) AS corpus_window,
+            CAST(NULL AS VARCHAR) AS derivation_method,
+            CAST([] AS VARCHAR[]) AS segmentation_axes,
+            CAST(NULL AS STRUCT(
+                source_relation VARCHAR,
+                source_artifact_family VARCHAR,
+                fixture_identity_rule VARCHAR,
+                rate_denominator_rule VARCHAR
+            )) AS derivation_inputs,
+            CAST([] AS STRUCT(
+                advisory_source VARCHAR,
+                source_bucket_mapping_id VARCHAR,
+                source_pre_gate_advisory_snapshot_id VARCHAR,
+                fixture_identity VARCHAR,
+                match_count BIGINT,
+                mismatch_count BIGINT,
+                abstention_count BIGINT,
+                observation_count BIGINT,
+                rate_denominator BIGINT,
+                agreement_rate DOUBLE,
+                disagreement_rate DOUBLE,
+                insufficient_evidence BOOLEAN,
+                signal_outcome VARCHAR,
+                first_observed_at VARCHAR,
+                last_observed_at VARCHAR
+            )[]) AS segments,
+            CAST(NULL AS BOOLEAN) AS deterministic,
+            CAST(NULL AS BOOLEAN) AS advisory_only,
+            CAST(NULL AS VARCHAR) AS notes
+        WHERE FALSE
+        """
+    )
+
+
 def _rows_as_dicts(cursor: duckdb.DuckDBPyConnection) -> list[dict[str, Any]]:
     columns = [description[0] for description in cursor.description or []]
     return [dict(zip(columns, row, strict=True)) for row in cursor.fetchall()]
@@ -676,6 +739,7 @@ def init_duckdb(read_only: bool = True) -> duckdb.DuckDBPyConnection:
     _register_pre_gate_advisory_snapshots(conn)
     _register_overlay_shadow_logs(conn)
     _register_shadow_signal_summaries(conn)
+    _register_shadow_signal_summaries_v2(conn)
     load_views(conn)
     return conn
 

@@ -1,0 +1,55 @@
+{
+  "shadow_signal_summary_id": "SSS-0004",
+  "schema_version": "v2",
+  "generated_at": "2026-04-22T08:00:00Z",
+  "corpus_window": {
+    "first_overlay_shadow_log_id": "OSH-0001",
+    "last_overlay_shadow_log_id": "OSH-0010",
+    "first_observed_at": "2026-04-19T17:00:00Z",
+    "last_observed_at": "2026-04-22T08:00:00Z",
+    "total_source_observation_count": 10
+  },
+  "derivation_method": "shadow_signal_summary_option_a_floor_10_v1",
+  "segmentation_axes": [
+    "fixture_identity"
+  ],
+  "derivation_inputs": {
+    "source_relation": "overlay_shadow_logs",
+    "source_artifact_family": "overlay_shadow_logs",
+    "fixture_identity_rule": "committed_overlay_input_pair_v1",
+    "rate_denominator_rule": "match_plus_mismatch"
+  },
+  "segments": [
+    {
+      "fixture_identity": "_02",
+      "match_count": 2,
+      "mismatch_count": 2,
+      "abstention_count": 0,
+      "observation_count": 4,
+      "rate_denominator": 4,
+      "agreement_rate": null,
+      "disagreement_rate": null,
+      "insufficient_evidence": true,
+      "signal_outcome": "INSUFFICIENT_EVIDENCE",
+      "first_observed_at": "2026-04-22T05:00:00Z",
+      "last_observed_at": "2026-04-22T08:00:00Z"
+    },
+    {
+      "fixture_identity": "canonical",
+      "match_count": 2,
+      "mismatch_count": 4,
+      "abstention_count": 0,
+      "observation_count": 6,
+      "rate_denominator": 6,
+      "agreement_rate": null,
+      "disagreement_rate": null,
+      "insufficient_evidence": true,
+      "signal_outcome": "INSUFFICIENT_EVIDENCE",
+      "first_observed_at": "2026-04-19T17:00:00Z",
+      "last_observed_at": "2026-04-22T04:00:00Z"
+    }
+  ],
+  "deterministic": true,
+  "advisory_only": true,
+  "notes": "WP-8f third committed SSS v2 instance. This fixture-only segment form is encoded by fixture_identity; it is descriptive, deterministic, advisory-only, and has no consumer, policy, runtime, override, OMS, risk, or execution authority."
+}

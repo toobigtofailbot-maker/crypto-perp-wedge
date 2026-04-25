@@ -37,7 +37,7 @@ def test_shadow_signal_summaries_relation_registered_under_current_state(conn):
 def test_shadow_signal_summaries_v2_relation_registered_under_current_state(conn):
     count = conn.execute("SELECT COUNT(*) FROM shadow_signal_summaries_v2").fetchone()[0]
 
-    assert count == 2
+    assert count == 3
 
 
 def test_shadow_signal_summaries_relation_registered_empty_with_missing_dir(monkeypatch, tmp_path):
@@ -274,6 +274,48 @@ def test_shadow_signal_summary_v2_overview_exposes_current_segments(conn):
             "INSUFFICIENT_EVIDENCE",
             "2026-04-22T04:00:00Z",
             "2026-04-22T08:00:00Z",
+        ),
+        (
+            "SSS-0004",
+            "v2",
+            "fixture_identity",
+            '["fixture_identity"]',
+            None,
+            None,
+            None,
+            "_02",
+            2,
+            2,
+            0,
+            4,
+            4,
+            None,
+            None,
+            True,
+            "INSUFFICIENT_EVIDENCE",
+            "2026-04-22T05:00:00Z",
+            "2026-04-22T08:00:00Z",
+        ),
+        (
+            "SSS-0004",
+            "v2",
+            "fixture_identity",
+            '["fixture_identity"]',
+            None,
+            None,
+            None,
+            "canonical",
+            2,
+            4,
+            0,
+            6,
+            6,
+            None,
+            None,
+            True,
+            "INSUFFICIENT_EVIDENCE",
+            "2026-04-19T17:00:00Z",
+            "2026-04-22T04:00:00Z",
         ),
     ]
 

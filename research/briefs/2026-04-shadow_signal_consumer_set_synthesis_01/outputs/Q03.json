@@ -1,0 +1,23 @@
+[
+  {
+    "comparison_axis": "fixture_identity",
+    "partitions_at_or_above_floor": 0,
+    "partitions_below_floor": 2,
+    "usable_rate_count": 0,
+    "null_rate_count": 2
+  },
+  {
+    "comparison_axis": "lineage",
+    "partitions_at_or_above_floor": 0,
+    "partitions_below_floor": 4,
+    "usable_rate_count": 0,
+    "null_rate_count": 4
+  },
+  {
+    "comparison_axis": "advisory_source",
+    "partitions_at_or_above_floor": 0,
+    "partitions_below_floor": 2,
+    "usable_rate_count": 0,
+    "null_rate_count": 2
+  }
+]

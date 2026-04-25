@@ -1,0 +1,26 @@
+[
+  {
+    "comparison_axis": "fixture_identity",
+    "partition_row_count": 2,
+    "insufficient_partition_count": 2,
+    "sufficient_partition_count": 0,
+    "total_observation_count": 10,
+    "total_rate_denominator": 10
+  },
+  {
+    "comparison_axis": "lineage",
+    "partition_row_count": 4,
+    "insufficient_partition_count": 4,
+    "sufficient_partition_count": 0,
+    "total_observation_count": 10,
+    "total_rate_denominator": 10
+  },
+  {
+    "comparison_axis": "advisory_source",
+    "partition_row_count": 2,
+    "insufficient_partition_count": 2,
+    "sufficient_partition_count": 0,
+    "total_observation_count": 10,
+    "total_rate_denominator": 10
+  }
+]

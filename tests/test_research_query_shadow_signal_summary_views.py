@@ -37,7 +37,7 @@ def test_shadow_signal_summaries_relation_registered_under_current_state(conn):
 def test_shadow_signal_summaries_v2_relation_registered_under_current_state(conn):
     count = conn.execute("SELECT COUNT(*) FROM shadow_signal_summaries_v2").fetchone()[0]
 
-    assert count == 1
+    assert count == 2
 
 
 def test_shadow_signal_summaries_relation_registered_empty_with_missing_dir(monkeypatch, tmp_path):
@@ -140,7 +140,11 @@ def test_shadow_signal_summary_v2_overview_exposes_current_segments(conn):
             first_segment_observed_at,
             last_segment_observed_at
         FROM v_shadow_signal_summaries_v2_overview
-        ORDER BY advisory_source
+        ORDER BY
+            shadow_signal_summary_id,
+            advisory_source,
+            source_bucket_mapping_id,
+            source_pre_gate_advisory_snapshot_id
         """
     ).fetchall()
 
@@ -185,6 +189,90 @@ def test_shadow_signal_summary_v2_overview_exposes_current_segments(conn):
             True,
             "INSUFFICIENT_EVIDENCE",
             "2026-04-19T18:00:00Z",
+            "2026-04-22T08:00:00Z",
+        ),
+        (
+            "SSS-0003",
+            "v2",
+            "advisory_source,source_bucket_mapping_id,source_pre_gate_advisory_snapshot_id",
+            '["advisory_source","source_bucket_mapping_id","source_pre_gate_advisory_snapshot_id"]',
+            "BMAP",
+            "BMAP-0001",
+            None,
+            None,
+            0,
+            3,
+            0,
+            3,
+            3,
+            None,
+            None,
+            True,
+            "INSUFFICIENT_EVIDENCE",
+            "2026-04-19T17:00:00Z",
+            "2026-04-22T05:00:00Z",
+        ),
+        (
+            "SSS-0003",
+            "v2",
+            "advisory_source,source_bucket_mapping_id,source_pre_gate_advisory_snapshot_id",
+            '["advisory_source","source_bucket_mapping_id","source_pre_gate_advisory_snapshot_id"]',
+            "BMAP",
+            "BMAP-0002",
+            None,
+            None,
+            2,
+            0,
+            0,
+            2,
+            2,
+            None,
+            None,
+            True,
+            "INSUFFICIENT_EVIDENCE",
+            "2026-04-22T03:00:00Z",
+            "2026-04-22T07:00:00Z",
+        ),
+        (
+            "SSS-0003",
+            "v2",
+            "advisory_source,source_bucket_mapping_id,source_pre_gate_advisory_snapshot_id",
+            '["advisory_source","source_bucket_mapping_id","source_pre_gate_advisory_snapshot_id"]',
+            "PGAS",
+            "BMAP-0001",
+            "PGAS-0002",
+            None,
+            0,
+            3,
+            0,
+            3,
+            3,
+            None,
+            None,
+            True,
+            "INSUFFICIENT_EVIDENCE",
+            "2026-04-19T18:00:00Z",
+            "2026-04-22T06:00:00Z",
+        ),
+        (
+            "SSS-0003",
+            "v2",
+            "advisory_source,source_bucket_mapping_id,source_pre_gate_advisory_snapshot_id",
+            '["advisory_source","source_bucket_mapping_id","source_pre_gate_advisory_snapshot_id"]',
+            "PGAS",
+            "BMAP-0002",
+            "PGAS-0003",
+            None,
+            2,
+            0,
+            0,
+            2,
+            2,
+            None,
+            None,
+            True,
+            "INSUFFICIENT_EVIDENCE",
+            "2026-04-22T04:00:00Z",
             "2026-04-22T08:00:00Z",
         ),
     ]

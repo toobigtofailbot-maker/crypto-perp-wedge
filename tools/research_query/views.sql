@@ -1426,7 +1426,16 @@ WITH live_shadow_rows AS (
         comparison_result,
         COALESCE(advisory_source, 'BMAP') AS advisory_source,
         source_bucket_mapping_id,
-        source_pre_gate_advisory_snapshot_id
+        source_pre_gate_advisory_snapshot_id,
+        CASE
+            WHEN observation_source.snapshot_path = 'tests/fixtures/context_snapshot_sample.json'
+             AND observation_source.config_path = 'configs/fmp_macro_flags.json'
+                THEN 'canonical'
+            WHEN observation_source.snapshot_path = 'tests/fixtures/context_snapshot_sample_02.json'
+             AND observation_source.config_path = 'configs/fmp_macro_flags_02.json'
+                THEN '_02'
+            ELSE NULL
+        END AS fixture_identity
     FROM overlay_shadow_logs
 ),
 expected_segments AS (
@@ -1529,6 +1538,56 @@ expected_segments AS (
         strftime('%Y-%m-%dT%H:%M:%SZ', MAX(observed_at_ts)) AS last_observed_at
     FROM live_shadow_rows
     GROUP BY advisory_source, source_bucket_mapping_id, source_pre_gate_advisory_snapshot_id
+    UNION ALL
+    SELECT
+        'fixture_identity' AS segmentation_axes,
+        fixture_identity AS segment_key,
+        CAST(NULL AS VARCHAR) AS advisory_source,
+        CAST(NULL AS VARCHAR) AS source_bucket_mapping_id,
+        CAST(NULL AS VARCHAR) AS source_pre_gate_advisory_snapshot_id,
+        SUM(CASE WHEN comparison_result = 'MATCH' THEN 1 ELSE 0 END) AS match_count,
+        SUM(CASE WHEN comparison_result = 'MISMATCH' THEN 1 ELSE 0 END) AS mismatch_count,
+        SUM(
+            CASE
+                WHEN comparison_result NOT IN ('MATCH', 'MISMATCH')
+                  OR comparison_result IS NULL
+                    THEN 1
+                ELSE 0
+            END
+        ) AS abstention_count,
+        COUNT(*) AS observation_count,
+        SUM(CASE WHEN comparison_result IN ('MATCH', 'MISMATCH') THEN 1 ELSE 0 END) AS rate_denominator,
+        CASE
+            WHEN COUNT(*) < 10 THEN NULL
+            ELSE
+                CAST(SUM(CASE WHEN comparison_result = 'MATCH' THEN 1 ELSE 0 END) AS DOUBLE)
+                / NULLIF(SUM(CASE WHEN comparison_result IN ('MATCH', 'MISMATCH') THEN 1 ELSE 0 END), 0)
+        END AS agreement_rate,
+        CASE
+            WHEN COUNT(*) < 10 THEN NULL
+            ELSE
+                CAST(SUM(CASE WHEN comparison_result = 'MISMATCH' THEN 1 ELSE 0 END) AS DOUBLE)
+                / NULLIF(SUM(CASE WHEN comparison_result IN ('MATCH', 'MISMATCH') THEN 1 ELSE 0 END), 0)
+        END AS disagreement_rate,
+        CASE
+            WHEN COUNT(*) < 10 THEN true
+            ELSE false
+        END AS insufficient_evidence,
+        CASE
+            WHEN COUNT(*) < 10 THEN 'INSUFFICIENT_EVIDENCE'
+            WHEN SUM(CASE WHEN comparison_result = 'MATCH' THEN 1 ELSE 0 END)
+               > SUM(CASE WHEN comparison_result = 'MISMATCH' THEN 1 ELSE 0 END)
+                THEN 'AGREEMENT_SIGNAL'
+            WHEN SUM(CASE WHEN comparison_result = 'MISMATCH' THEN 1 ELSE 0 END)
+               > SUM(CASE WHEN comparison_result = 'MATCH' THEN 1 ELSE 0 END)
+                THEN 'DISAGREEMENT_SIGNAL'
+            ELSE 'MIXED_SIGNAL'
+        END AS signal_outcome,
+        strftime('%Y-%m-%dT%H:%M:%SZ', MIN(observed_at_ts)) AS first_observed_at,
+        strftime('%Y-%m-%dT%H:%M:%SZ', MAX(observed_at_ts)) AS last_observed_at
+    FROM live_shadow_rows
+    WHERE fixture_identity IS NOT NULL
+    GROUP BY fixture_identity
 ),
 expected_corpus_window AS (
     SELECT
@@ -1558,6 +1617,7 @@ supported_summaries AS (
            'source_bucket_mapping_id',
            'source_pre_gate_advisory_snapshot_id'
        ]
+       OR segmentation_axes IS NOT DISTINCT FROM ['fixture_identity']
 ),
 expected_for_summaries AS (
     SELECT
@@ -1592,6 +1652,8 @@ actual_segments AS (
             WHEN segmentation_axes = 'advisory_source,source_bucket_mapping_id,source_pre_gate_advisory_snapshot_id'
                 THEN advisory_source || '|' || source_bucket_mapping_id || '|'
                     || COALESCE(source_pre_gate_advisory_snapshot_id, '')
+            WHEN segmentation_axes = 'fixture_identity'
+                THEN fixture_identity
             ELSE NULL
         END AS segment_key,
         advisory_source,
@@ -1611,7 +1673,8 @@ actual_segments AS (
     FROM v_shadow_signal_summaries_v2_overview
     WHERE segmentation_axes IN (
         'advisory_source',
-        'advisory_source,source_bucket_mapping_id,source_pre_gate_advisory_snapshot_id'
+        'advisory_source,source_bucket_mapping_id,source_pre_gate_advisory_snapshot_id',
+        'fixture_identity'
     )
 ),
 segment_join AS (
@@ -1653,7 +1716,7 @@ metadata_issues AS (
         shadow_signal_summary_id,
         CAST(NULL AS VARCHAR) AS advisory_source,
         'shadow_signal_summary_v2_unsupported_segmentation_axes' AS issue_type,
-        'advisory_source|advisory_source,source_bucket_mapping_id,source_pre_gate_advisory_snapshot_id'
+        'advisory_source|advisory_source,source_bucket_mapping_id,source_pre_gate_advisory_snapshot_id|fixture_identity'
             AS expected_value,
         array_to_string(segmentation_axes, ',') AS actual_value
     FROM shadow_signal_summaries_v2
@@ -1663,6 +1726,7 @@ metadata_issues AS (
           'source_bucket_mapping_id',
           'source_pre_gate_advisory_snapshot_id'
       ]
+      AND segmentation_axes IS DISTINCT FROM ['fixture_identity']
     UNION ALL
     SELECT
         shadow_signal_summary_id,

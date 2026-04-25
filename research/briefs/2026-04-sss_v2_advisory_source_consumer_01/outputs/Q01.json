@@ -1,0 +1,34 @@
+[
+  {
+    "shadow_signal_summary_id": "SSS-0002",
+    "schema_version": "v2",
+    "advisory_source": "BMAP",
+    "match_count": 2,
+    "mismatch_count": 3,
+    "abstention_count": 0,
+    "observation_count": 5,
+    "rate_denominator": 5,
+    "agreement_rate": null,
+    "disagreement_rate": null,
+    "insufficient_evidence": true,
+    "signal_outcome": "INSUFFICIENT_EVIDENCE",
+    "first_observed_at": "2026-04-19T17:00:00Z",
+    "last_observed_at": "2026-04-22T07:00:00Z"
+  },
+  {
+    "shadow_signal_summary_id": "SSS-0002",
+    "schema_version": "v2",
+    "advisory_source": "PGAS",
+    "match_count": 2,
+    "mismatch_count": 3,
+    "abstention_count": 0,
+    "observation_count": 5,
+    "rate_denominator": 5,
+    "agreement_rate": null,
+    "disagreement_rate": null,
+    "insufficient_evidence": true,
+    "signal_outcome": "INSUFFICIENT_EVIDENCE",
+    "first_observed_at": "2026-04-19T18:00:00Z",
+    "last_observed_at": "2026-04-22T08:00:00Z"
+  }
+]

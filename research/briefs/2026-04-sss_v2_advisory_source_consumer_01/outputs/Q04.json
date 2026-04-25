@@ -1,0 +1,27 @@
+[
+  {
+    "constraint_key": "below_floor_limits_claims",
+    "constraint_statement": "Below-floor evidence still limits the consumer to insufficiency statements rather than usable source-level rates.",
+    "supported_by_current_repo_truth": "Both SSS-0002 source segments have observation_count = 5, floor_required = 10, and null usable rates."
+  },
+  {
+    "constraint_key": "first_v2_consumer_over_sss_0002",
+    "constraint_statement": "This bundle is the first bounded downstream consumer over the committed SSS v2 instance SSS-0002.",
+    "supported_by_current_repo_truth": "Repo truth contains WP-8a plus SSS-0002 and no prior v2 consumer brief."
+  },
+  {
+    "constraint_key": "no_runtime_or_policy_authority",
+    "constraint_statement": "The brief is descriptive only and grants no runtime, policy, override, OMS, risk, or execution authority.",
+    "supported_by_current_repo_truth": "SSS-0002 notes advisory-only semantics and the package scope forbids protected-path changes."
+  },
+  {
+    "constraint_key": "no_schema_or_validator_modification",
+    "constraint_statement": "The consumer reads the committed v2 instance without modifying any schema or validator.",
+    "supported_by_current_repo_truth": "The package uses existing SSS v1 and v2 schema and validator files unchanged."
+  },
+  {
+    "constraint_key": "v2_solves_shape_not_sufficiency",
+    "constraint_statement": "SSS v2 solves the first-class source-only instance shape while leaving evidence sufficiency dependent on corpus size.",
+    "supported_by_current_repo_truth": "SSS-0002 uses segmentation_axes = [\\\"advisory_source\\\"], but both realized sources remain below the locked floor."
+  }
+]

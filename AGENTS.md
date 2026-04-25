@@ -6,6 +6,25 @@ Read first:
 2. `CLAUDE_START_HERE.md`
 3. `docs/runbook.md`
 
+Precedence order:
+
+1. Current merged repo truth, including actual changed files and live merged state.
+2. The active work package or task-specific scope and constraints.
+3. `AGENTS.md`.
+4. Supporting Codex workflow docs under `docs/ai/codex/`.
+5. Chat memory, prior summaries, and generic best practice.
+
+Precedence notes:
+
+- Current merged repo truth outranks all repo guidance.
+- The active work package or task scope outranks general repo guidance.
+- Package-specific forbidden scope and constraints still win.
+- `AGENTS.md` is a control layer, not execution authority.
+- Repo-side guidance cannot justify widening scope.
+- Stale local state, stale branch assumptions, stale chat context, and generic best practice lose to current merged repo truth.
+- Actual changed files and live merged state outrank guidance summaries.
+- Nested `AGENTS.override.md` files constrain local work only; they do not authorize work outside the active package.
+
 Core rules:
 
 - Repo truth wins over memory, chat summaries, handoffs, and assumptions.

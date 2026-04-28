@@ -102,6 +102,57 @@ def test_lifecycle_integrity_views_empty_under_current_state(conn):
         assert rows == []
 
 
+def test_temp_lifecycle_change_refs_accept_real_repo_refs(monkeypatch, tmp_path):
+    lifecycle_changes_dir = tmp_path / "research" / "lifecycle_changes"
+    payload = _base_lifecycle_change()
+    payload["candidate_id"] = "H-001"
+    payload["evidence_artifact_refs"] = [
+        "research/hypotheses/H-001/HYPOTHESIS.md",
+        "REP-0002",
+        "research/decisions/DEC-0001.md",
+    ]
+    _write_json(lifecycle_changes_dir / "LCH-9001.lifecycle_change.json", payload)
+    monkeypatch.setattr(query_layer, "LIFECYCLE_CHANGES_DIR", lifecycle_changes_dir)
+
+    connection = init_duckdb()
+    try:
+        rows = connection.execute("SELECT * FROM v_integrity_lifecycle_change_refs").fetchall()
+
+        assert rows == []
+    finally:
+        connection.close()
+
+
+def test_temp_lifecycle_change_refs_emit_unknown_known_pattern_issue(monkeypatch, tmp_path):
+    lifecycle_changes_dir = tmp_path / "research" / "lifecycle_changes"
+    payload = _base_lifecycle_change()
+    payload["candidate_id"] = "H-001"
+    payload["evidence_artifact_refs"] = ["REP-9999"]
+    _write_json(lifecycle_changes_dir / "LCH-9001.lifecycle_change.json", payload)
+    monkeypatch.setattr(query_layer, "LIFECYCLE_CHANGES_DIR", lifecycle_changes_dir)
+
+    connection = init_duckdb()
+    try:
+        rows = connection.execute(
+            """
+            SELECT issue_type, lifecycle_change_id, candidate_id, ref_kind, ref_value
+            FROM v_integrity_lifecycle_change_refs
+            """
+        ).fetchall()
+
+        assert rows == [
+            (
+                "lifecycle_unknown_rep_ref",
+                "LCH-9001",
+                "H-001",
+                "evidence_artifact_refs",
+                "REP-9999",
+            )
+        ]
+    finally:
+        connection.close()
+
+
 def test_temp_valid_lifecycle_change_produces_overview_row(monkeypatch, tmp_path):
     lifecycle_changes_dir = tmp_path / "research" / "lifecycle_changes"
     payload = _base_lifecycle_change()

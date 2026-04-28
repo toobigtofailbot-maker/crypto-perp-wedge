@@ -243,7 +243,7 @@ WITH lifecycle_refs AS (
         lifecycle_change_id,
         candidate_id,
         'evidence_artifact_refs' AS ref_kind,
-        ref.ref_value
+        CAST(ref.ref_value AS VARCHAR) AS ref_value
     FROM lifecycle_changes,
     UNNEST(evidence_artifact_refs) AS ref(ref_value)
     UNION ALL
@@ -251,7 +251,7 @@ WITH lifecycle_refs AS (
         lifecycle_change_id,
         candidate_id,
         'linked_advisory_artifacts' AS ref_kind,
-        ref.ref_value
+        CAST(ref.ref_value AS VARCHAR) AS ref_value
     FROM lifecycle_changes,
     UNNEST(linked_advisory_artifacts) AS ref(ref_value)
 ),

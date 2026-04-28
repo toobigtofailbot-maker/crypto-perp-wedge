@@ -81,13 +81,61 @@ operational policy is deferred.
 
 ## Validation
 
-WP-9a does not add an LCH validator. The schema validates local shape and local
-transition-edge consistency only.
+WP-9a did not add an LCH validator. WP-9b adds the first validator at:
+
+```text
+tools/registry/validate_lifecycle_changes.py
+```
+
+The validator treats a missing or empty `research/lifecycle_changes/` directory
+as a healthy empty state. It validates schema shape, filename/ID consistency,
+duplicate IDs, candidate references, supersession references, tractable
+known-pattern artifact references, approval-field completeness,
+retrospective-disclosure structure, and fast-track structure.
+
+The schema validates local shape and local transition-edge consistency only.
 
 Repository reference checks, candidate existence checks, supersession
-resolution, artifact-reference resolution, prior-state history, and
-`halted -> previous_non_halted_state` historical validation belong to WP-9b
-validator/integrity logic or later.
+resolution, artifact-reference resolution, prior-state history, and historical
+`halted -> previous_non_halted_state` validation are outside the schema.
+WP-9b covers the tractable reference and local-shape checks through the
+validator and query-layer integrity views. Historical proof that halted recovery
+returns to the immediately preceding non-halted state remains deferred until a
+later package locks ordering policy.
+
+## Query-Layer Support
+
+WP-9b adds central read-only query-layer support through the relation:
+
+```text
+lifecycle_changes
+```
+
+The relation is registered from:
+
+```text
+research/lifecycle_changes/*.lifecycle_change.json
+```
+
+When the directory is missing or empty, the query layer registers a typed empty
+relation so the healthy committed state remains queryable without requiring an
+LCH instance.
+
+WP-9b adds these overview and aggregate views:
+
+- `v_lifecycle_change_overview`
+- `v_lifecycle_state_transitions`
+
+WP-9b adds these expected-empty integrity views:
+
+- `v_integrity_lifecycle_change_refs`
+- `v_integrity_lifecycle_transition_graph`
+- `v_integrity_lifecycle_approval_completeness`
+- `v_integrity_lifecycle_fast_track_completeness`
+
+These views add validation and observability only. WP-9b commits no LCH
+instances and adds no runtime, policy, deployment, OMS, reconciliation, risk,
+overlay, safe-mode, live-trading, promotion, demotion, or execution authority.
 
 ## Non-Claims
 

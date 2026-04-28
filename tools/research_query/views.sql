@@ -204,6 +204,415 @@ FROM decision_changes AS d
 LEFT JOIN release_notes AS r
   ON d.decision_change_id = r.decision_change_id;
 
+-- What Phase 9 lifecycle changes have been recorded?
+-- Exposes one row per LCH artifact without expanding evidence or advisory references.
+CREATE OR REPLACE VIEW v_lifecycle_change_overview AS
+SELECT
+    lifecycle_change_id,
+    schema_version,
+    candidate_id,
+    from_state,
+    to_state,
+    transition_edge,
+    decided_by,
+    decided_at,
+    supersedes_lch_id,
+    COALESCE(retrospective_flag, false) AS retrospective_flag,
+    COALESCE(fast_track_flag, false) AS fast_track_flag,
+    list_count(evidence_artifact_refs) AS evidence_ref_count,
+    list_count(linked_advisory_artifacts) AS linked_advisory_ref_count,
+    list_count(strong_candidate_criteria_refs) AS strong_candidate_criteria_ref_count
+FROM lifecycle_changes;
+
+-- How many lifecycle transitions have been recorded per permitted edge?
+CREATE OR REPLACE VIEW v_lifecycle_state_transitions AS
+SELECT
+    from_state,
+    to_state,
+    transition_edge,
+    COUNT(*) AS transition_count
+FROM lifecycle_changes
+GROUP BY from_state, to_state, transition_edge;
+
+-- Do all lifecycle_change candidate, supersession, and known-pattern artifact references resolve?
+-- Repo-relative path existence remains validator-only because SQL has no repo filesystem authority.
+-- Expected to be empty in a healthy repo state.
+CREATE OR REPLACE VIEW v_integrity_lifecycle_change_refs AS
+WITH lifecycle_refs AS (
+    SELECT
+        lifecycle_change_id,
+        candidate_id,
+        'evidence_artifact_refs' AS ref_kind,
+        ref.ref_value
+    FROM lifecycle_changes,
+    UNNEST(evidence_artifact_refs) AS ref(ref_value)
+    UNION ALL
+    SELECT
+        lifecycle_change_id,
+        candidate_id,
+        'linked_advisory_artifacts' AS ref_kind,
+        ref.ref_value
+    FROM lifecycle_changes,
+    UNNEST(linked_advisory_artifacts) AS ref(ref_value)
+),
+known_ref_issues AS (
+    SELECT
+        'lifecycle_unknown_exp_ref' AS issue_type,
+        l.lifecycle_change_id,
+        l.candidate_id,
+        l.ref_kind,
+        l.ref_value
+    FROM lifecycle_refs AS l
+    LEFT JOIN exp_plans AS p
+      ON l.ref_value = p.plan_id
+    WHERE regexp_matches(l.ref_value, '^EXP-[0-9]{4}$')
+      AND p.plan_id IS NULL
+    UNION ALL
+    SELECT
+        'lifecycle_unknown_rep_ref' AS issue_type,
+        l.lifecycle_change_id,
+        l.candidate_id,
+        l.ref_kind,
+        l.ref_value
+    FROM lifecycle_refs AS l
+    LEFT JOIN exp_reports AS r
+      ON l.ref_value = r.report_id
+    WHERE regexp_matches(l.ref_value, '^REP-[0-9]{4}$')
+      AND r.report_id IS NULL
+    UNION ALL
+    SELECT
+        'lifecycle_unknown_dch_ref' AS issue_type,
+        l.lifecycle_change_id,
+        l.candidate_id,
+        l.ref_kind,
+        l.ref_value
+    FROM lifecycle_refs AS l
+    LEFT JOIN decision_changes AS d
+      ON l.ref_value = d.decision_change_id
+    WHERE regexp_matches(l.ref_value, '^DCH-[0-9]{4}$')
+      AND d.decision_change_id IS NULL
+    UNION ALL
+    SELECT
+        'lifecycle_unknown_rel_ref' AS issue_type,
+        l.lifecycle_change_id,
+        l.candidate_id,
+        l.ref_kind,
+        l.ref_value
+    FROM lifecycle_refs AS l
+    LEFT JOIN release_notes AS r
+      ON l.ref_value = r.release_notes_id
+    WHERE regexp_matches(l.ref_value, '^REL-[0-9]{4}$')
+      AND r.release_notes_id IS NULL
+    UNION ALL
+    SELECT
+        'lifecycle_unknown_aout_ref' AS issue_type,
+        l.lifecycle_change_id,
+        l.candidate_id,
+        l.ref_kind,
+        l.ref_value
+    FROM lifecycle_refs AS l
+    LEFT JOIN agent_outputs AS a
+      ON l.ref_value = a.agent_output_id
+    WHERE regexp_matches(l.ref_value, '^AOUT-[0-9]{4}$')
+      AND a.agent_output_id IS NULL
+    UNION ALL
+    SELECT
+        'lifecycle_unknown_mout_ref' AS issue_type,
+        l.lifecycle_change_id,
+        l.candidate_id,
+        l.ref_kind,
+        l.ref_value
+    FROM lifecycle_refs AS l
+    LEFT JOIN macro_window_agent_outputs AS m
+      ON l.ref_value = m.macro_window_agent_output_id
+    WHERE regexp_matches(l.ref_value, '^MOUT-[0-9]{4}$')
+      AND m.macro_window_agent_output_id IS NULL
+    UNION ALL
+    SELECT
+        'lifecycle_unknown_bmap_ref' AS issue_type,
+        l.lifecycle_change_id,
+        l.candidate_id,
+        l.ref_kind,
+        l.ref_value
+    FROM lifecycle_refs AS l
+    LEFT JOIN bucket_mappings AS b
+      ON l.ref_value = b.bucket_mapping_id
+    WHERE regexp_matches(l.ref_value, '^BMAP-[0-9]{4}$')
+      AND b.bucket_mapping_id IS NULL
+    UNION ALL
+    SELECT
+        'lifecycle_unknown_pgas_ref' AS issue_type,
+        l.lifecycle_change_id,
+        l.candidate_id,
+        l.ref_kind,
+        l.ref_value
+    FROM lifecycle_refs AS l
+    LEFT JOIN pre_gate_advisory_snapshots AS p
+      ON l.ref_value = p.pre_gate_advisory_snapshot_id
+    WHERE regexp_matches(l.ref_value, '^PGAS-[0-9]{4}$')
+      AND p.pre_gate_advisory_snapshot_id IS NULL
+    UNION ALL
+    SELECT
+        'lifecycle_unknown_osh_ref' AS issue_type,
+        l.lifecycle_change_id,
+        l.candidate_id,
+        l.ref_kind,
+        l.ref_value
+    FROM lifecycle_refs AS l
+    LEFT JOIN overlay_shadow_logs AS o
+      ON l.ref_value = o.overlay_shadow_log_id
+    WHERE regexp_matches(l.ref_value, '^OSH-[0-9]{4}$')
+      AND o.overlay_shadow_log_id IS NULL
+    UNION ALL
+    SELECT
+        'lifecycle_unknown_sss_ref' AS issue_type,
+        l.lifecycle_change_id,
+        l.candidate_id,
+        l.ref_kind,
+        l.ref_value
+    FROM lifecycle_refs AS l
+    LEFT JOIN shadow_signal_summaries AS s1
+      ON l.ref_value = s1.shadow_signal_summary_id
+    LEFT JOIN shadow_signal_summaries_v2 AS s2
+      ON l.ref_value = s2.shadow_signal_summary_id
+    WHERE regexp_matches(l.ref_value, '^SSS-[0-9]{4}$')
+      AND s1.shadow_signal_summary_id IS NULL
+      AND s2.shadow_signal_summary_id IS NULL
+    UNION ALL
+    SELECT
+        'lifecycle_unknown_lch_ref' AS issue_type,
+        l.lifecycle_change_id,
+        l.candidate_id,
+        l.ref_kind,
+        l.ref_value
+    FROM lifecycle_refs AS l
+    LEFT JOIN lifecycle_changes AS prior
+      ON l.ref_value = prior.lifecycle_change_id
+    WHERE regexp_matches(l.ref_value, '^LCH-[0-9]{4}$')
+      AND prior.lifecycle_change_id IS NULL
+)
+SELECT
+    'lifecycle_unknown_candidate' AS issue_type,
+    l.lifecycle_change_id,
+    l.candidate_id,
+    CAST(NULL AS VARCHAR) AS ref_kind,
+    CAST(NULL AS VARCHAR) AS ref_value
+FROM lifecycle_changes AS l
+LEFT JOIN candidates AS c
+  ON l.candidate_id = c.candidate_id
+WHERE c.candidate_id IS NULL
+UNION ALL
+SELECT
+    'lifecycle_unknown_supersedes' AS issue_type,
+    l.lifecycle_change_id,
+    l.candidate_id,
+    'supersedes_lch_id' AS ref_kind,
+    CAST(l.supersedes_lch_id AS VARCHAR) AS ref_value
+FROM lifecycle_changes AS l
+LEFT JOIN lifecycle_changes AS prior
+  ON CAST(l.supersedes_lch_id AS VARCHAR) = prior.lifecycle_change_id
+WHERE CAST(l.supersedes_lch_id AS VARCHAR) IS NOT NULL
+  AND prior.lifecycle_change_id IS NULL
+UNION ALL
+SELECT *
+FROM known_ref_issues;
+
+-- Do lifecycle transitions match the Phase 9 v1 transition graph local shape?
+-- Historical proof of halted recovery to the immediately previous non-halted state remains deferred.
+-- Expected to be empty in a healthy repo state.
+CREATE OR REPLACE VIEW v_integrity_lifecycle_transition_graph AS
+SELECT
+    CASE
+        WHEN from_state = 'archived' THEN 'lifecycle_archived_outbound_transition'
+        WHEN transition_edge NOT IN (
+            'proposed->in_research',
+            'proposed->halted',
+            'in_research->research_concluded',
+            'in_research->halted',
+            'research_concluded->paper_eligible',
+            'research_concluded->archived',
+            'research_concluded->halted',
+            'paper_eligible->paper_active',
+            'paper_eligible->archived',
+            'paper_eligible->halted',
+            'paper_active->paper_concluded',
+            'paper_active->halted',
+            'paper_active->archived',
+            'paper_concluded->live_eligible',
+            'paper_concluded->archived',
+            'paper_concluded->halted',
+            'live_eligible->live_active',
+            'live_eligible->archived',
+            'live_eligible->halted',
+            'live_active->paper_concluded',
+            'live_active->halted',
+            'live_active->archived',
+            'halted->archived',
+            'halted->previous_non_halted_state'
+        ) THEN 'lifecycle_unknown_transition_edge'
+        ELSE 'lifecycle_transition_shape_mismatch'
+    END AS issue_type,
+    lifecycle_change_id,
+    candidate_id,
+    from_state,
+    to_state,
+    transition_edge
+FROM lifecycle_changes
+WHERE from_state = 'archived'
+   OR transition_edge NOT IN (
+       'proposed->in_research',
+       'proposed->halted',
+       'in_research->research_concluded',
+       'in_research->halted',
+       'research_concluded->paper_eligible',
+       'research_concluded->archived',
+       'research_concluded->halted',
+       'paper_eligible->paper_active',
+       'paper_eligible->archived',
+       'paper_eligible->halted',
+       'paper_active->paper_concluded',
+       'paper_active->halted',
+       'paper_active->archived',
+       'paper_concluded->live_eligible',
+       'paper_concluded->archived',
+       'paper_concluded->halted',
+       'live_eligible->live_active',
+       'live_eligible->archived',
+       'live_eligible->halted',
+       'live_active->paper_concluded',
+       'live_active->halted',
+       'live_active->archived',
+       'halted->archived',
+       'halted->previous_non_halted_state'
+   )
+   OR (transition_edge = 'proposed->in_research' AND (from_state <> 'proposed' OR to_state <> 'in_research'))
+   OR (transition_edge = 'proposed->halted' AND (from_state <> 'proposed' OR to_state <> 'halted'))
+   OR (transition_edge = 'in_research->research_concluded' AND (from_state <> 'in_research' OR to_state <> 'research_concluded'))
+   OR (transition_edge = 'in_research->halted' AND (from_state <> 'in_research' OR to_state <> 'halted'))
+   OR (transition_edge = 'research_concluded->paper_eligible' AND (from_state <> 'research_concluded' OR to_state <> 'paper_eligible'))
+   OR (transition_edge = 'research_concluded->archived' AND (from_state <> 'research_concluded' OR to_state <> 'archived'))
+   OR (transition_edge = 'research_concluded->halted' AND (from_state <> 'research_concluded' OR to_state <> 'halted'))
+   OR (transition_edge = 'paper_eligible->paper_active' AND (from_state <> 'paper_eligible' OR to_state <> 'paper_active'))
+   OR (transition_edge = 'paper_eligible->archived' AND (from_state <> 'paper_eligible' OR to_state <> 'archived'))
+   OR (transition_edge = 'paper_eligible->halted' AND (from_state <> 'paper_eligible' OR to_state <> 'halted'))
+   OR (transition_edge = 'paper_active->paper_concluded' AND (from_state <> 'paper_active' OR to_state <> 'paper_concluded'))
+   OR (transition_edge = 'paper_active->halted' AND (from_state <> 'paper_active' OR to_state <> 'halted'))
+   OR (transition_edge = 'paper_active->archived' AND (from_state <> 'paper_active' OR to_state <> 'archived'))
+   OR (transition_edge = 'paper_concluded->live_eligible' AND (from_state <> 'paper_concluded' OR to_state <> 'live_eligible'))
+   OR (transition_edge = 'paper_concluded->archived' AND (from_state <> 'paper_concluded' OR to_state <> 'archived'))
+   OR (transition_edge = 'paper_concluded->halted' AND (from_state <> 'paper_concluded' OR to_state <> 'halted'))
+   OR (transition_edge = 'live_eligible->live_active' AND (from_state <> 'live_eligible' OR to_state <> 'live_active'))
+   OR (transition_edge = 'live_eligible->archived' AND (from_state <> 'live_eligible' OR to_state <> 'archived'))
+   OR (transition_edge = 'live_eligible->halted' AND (from_state <> 'live_eligible' OR to_state <> 'halted'))
+   OR (transition_edge = 'live_active->paper_concluded' AND (from_state <> 'live_active' OR to_state <> 'paper_concluded'))
+   OR (transition_edge = 'live_active->halted' AND (from_state <> 'live_active' OR to_state <> 'halted'))
+   OR (transition_edge = 'live_active->archived' AND (from_state <> 'live_active' OR to_state <> 'archived'))
+   OR (transition_edge = 'halted->archived' AND (from_state <> 'halted' OR to_state <> 'archived'))
+   OR (
+       transition_edge = 'halted->previous_non_halted_state'
+       AND (
+           from_state <> 'halted'
+           OR to_state NOT IN (
+               'proposed',
+               'in_research',
+               'research_concluded',
+               'paper_eligible',
+               'paper_active',
+               'paper_concluded',
+               'live_eligible',
+               'live_active'
+           )
+       )
+   );
+
+-- Are lifecycle approval fields structurally complete for consequential transitions?
+-- Expected to be empty in a healthy repo state.
+CREATE OR REPLACE VIEW v_integrity_lifecycle_approval_completeness AS
+SELECT
+    'lifecycle_operational_transition_missing_evidence' AS issue_type,
+    lifecycle_change_id,
+    candidate_id,
+    'evidence_artifact_refs' AS field_name
+FROM lifecycle_changes
+WHERE to_state IN ('paper_active', 'live_eligible', 'live_active')
+  AND list_count(evidence_artifact_refs) = 0
+UNION ALL
+SELECT
+    'lifecycle_halted_recovery_missing_evidence' AS issue_type,
+    lifecycle_change_id,
+    candidate_id,
+    'evidence_artifact_refs' AS field_name
+FROM lifecycle_changes
+WHERE from_state = 'halted'
+  AND to_state <> 'archived'
+  AND list_count(evidence_artifact_refs) = 0
+UNION ALL
+SELECT
+    'lifecycle_missing_risk_acknowledgment' AS issue_type,
+    lifecycle_change_id,
+    candidate_id,
+    'risk_acknowledgment' AS field_name
+FROM lifecycle_changes
+WHERE risk_acknowledgment IS NULL
+   OR trim(CAST(risk_acknowledgment AS VARCHAR)) = ''
+UNION ALL
+SELECT
+    'lifecycle_missing_decided_by' AS issue_type,
+    lifecycle_change_id,
+    candidate_id,
+    'decided_by' AS field_name
+FROM lifecycle_changes
+WHERE decided_by IS NULL
+   OR trim(CAST(decided_by AS VARCHAR)) = ''
+UNION ALL
+SELECT
+    'lifecycle_missing_decided_at' AS issue_type,
+    lifecycle_change_id,
+    candidate_id,
+    'decided_at' AS field_name
+FROM lifecycle_changes
+WHERE decided_at IS NULL
+   OR trim(CAST(decided_at AS VARCHAR)) = '';
+
+-- Are lifecycle fast-track records structurally complete without encoding promotion policy?
+-- Expected to be empty in a healthy repo state.
+CREATE OR REPLACE VIEW v_integrity_lifecycle_fast_track_completeness AS
+SELECT
+    'lifecycle_fast_track_wrong_to_state' AS issue_type,
+    lifecycle_change_id,
+    candidate_id,
+    'to_state' AS field_name
+FROM lifecycle_changes
+WHERE fast_track_flag IS TRUE
+  AND to_state <> 'live_eligible'
+UNION ALL
+SELECT
+    'lifecycle_fast_track_missing_strong_candidate_criteria' AS issue_type,
+    lifecycle_change_id,
+    candidate_id,
+    'strong_candidate_criteria_refs' AS field_name
+FROM lifecycle_changes
+WHERE fast_track_flag IS TRUE
+  AND list_count(strong_candidate_criteria_refs) = 0
+UNION ALL
+SELECT
+    'lifecycle_fast_track_missing_evidence' AS issue_type,
+    lifecycle_change_id,
+    candidate_id,
+    'evidence_artifact_refs' AS field_name
+FROM lifecycle_changes
+WHERE fast_track_flag IS TRUE
+  AND list_count(evidence_artifact_refs) = 0
+UNION ALL
+SELECT
+    'lifecycle_fast_track_missing_risk_acknowledgment' AS issue_type,
+    lifecycle_change_id,
+    candidate_id,
+    'risk_acknowledgment' AS field_name
+FROM lifecycle_changes
+WHERE fast_track_flag IS TRUE
+  AND (risk_acknowledgment IS NULL OR trim(CAST(risk_acknowledgment AS VARCHAR)) = '');
+
 -- Do all decision_change references resolve to existing structured artifacts?
 -- Returns unresolved candidate, report, or superseded decision references.
 -- Expected to be empty in a healthy repo state.

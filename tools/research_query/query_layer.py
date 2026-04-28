@@ -16,6 +16,7 @@ REGISTRY_PATH = REPO_ROOT / "research" / "candidate_registry.jsonl"
 EXPERIMENTS_DIR = REPO_ROOT / "research" / "experiments"
 DECISION_CHANGES_DIR = REPO_ROOT / "research" / "decision_changes"
 RELEASE_NOTES_DIR = REPO_ROOT / "research" / "release_notes"
+LIFECYCLE_CHANGES_DIR = REPO_ROOT / "research" / "lifecycle_changes"
 AGENT_OUTPUTS_DIR = REPO_ROOT / "research" / "agent_outputs"
 MACRO_WINDOW_AGENT_OUTPUTS_DIR = REPO_ROOT / "research" / "macro_window_agent_outputs"
 BUCKET_MAPPINGS_DIR = REPO_ROOT / "research" / "bucket_mappings"
@@ -149,6 +150,48 @@ def _register_release_notes(conn: duckdb.DuckDBPyConnection) -> None:
             CAST(NULL AS VARCHAR) AS rollback_plan,
             CAST(NULL AS VARCHAR) AS notes,
             CAST([] AS VARCHAR[]) AS linked_artifacts
+        WHERE FALSE
+        """
+    )
+
+
+def _register_lifecycle_changes(conn: duckdb.DuckDBPyConnection) -> None:
+    lifecycle_change_files = (
+        sorted(LIFECYCLE_CHANGES_DIR.glob("*.lifecycle_change.json"))
+        if LIFECYCLE_CHANGES_DIR.exists()
+        else []
+    )
+    if lifecycle_change_files:
+        conn.execute(
+            f"""
+            CREATE VIEW lifecycle_changes AS
+            SELECT * FROM read_json_auto('{_sql_path(LIFECYCLE_CHANGES_DIR / "*.lifecycle_change.json")}')
+            """
+        )
+        return
+
+    conn.execute(
+        """
+        CREATE VIEW lifecycle_changes AS
+        SELECT
+            CAST(NULL AS VARCHAR) AS lifecycle_change_id,
+            CAST(NULL AS VARCHAR) AS schema_version,
+            CAST(NULL AS VARCHAR) AS candidate_id,
+            CAST(NULL AS VARCHAR) AS from_state,
+            CAST(NULL AS VARCHAR) AS to_state,
+            CAST(NULL AS VARCHAR) AS transition_edge,
+            CAST(NULL AS VARCHAR) AS decided_by,
+            CAST(NULL AS VARCHAR) AS decided_at,
+            CAST(NULL AS VARCHAR) AS evidence_summary,
+            CAST(NULL AS VARCHAR) AS risk_acknowledgment,
+            CAST([] AS VARCHAR[]) AS evidence_artifact_refs,
+            CAST(NULL AS VARCHAR) AS supersedes_lch_id,
+            CAST(NULL AS VARCHAR) AS notes,
+            CAST([] AS VARCHAR[]) AS linked_advisory_artifacts,
+            CAST(NULL AS BOOLEAN) AS retrospective_flag,
+            CAST(NULL AS VARCHAR) AS retrospective_disclosure,
+            CAST(NULL AS BOOLEAN) AS fast_track_flag,
+            CAST([] AS VARCHAR[]) AS strong_candidate_criteria_refs
         WHERE FALSE
         """
     )
@@ -733,6 +776,7 @@ def init_duckdb(read_only: bool = True) -> duckdb.DuckDBPyConnection:
     )
     _register_decision_changes(conn)
     _register_release_notes(conn)
+    _register_lifecycle_changes(conn)
     _register_agent_outputs(conn)
     _register_macro_window_agent_outputs(conn)
     _register_bucket_mappings(conn)

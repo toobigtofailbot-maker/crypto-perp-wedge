@@ -58,10 +58,10 @@ def conn():
         connection.close()
 
 
-def test_lifecycle_relation_registered_empty_under_current_state(conn):
+def test_lifecycle_relation_registered_with_h001_backfill_under_current_state(conn):
     count = conn.execute("SELECT COUNT(*) FROM lifecycle_changes").fetchone()[0]
 
-    assert count == 0
+    assert count == 3
 
 
 def test_lifecycle_relation_registered_empty_with_missing_dir(monkeypatch, tmp_path):
@@ -82,12 +82,75 @@ def test_lifecycle_views_are_listed(conn):
     assert LIFECYCLE_VIEWS <= view_names
 
 
-def test_lifecycle_overview_and_transition_views_empty_under_current_state(conn):
-    overview_rows = conn.execute("SELECT * FROM v_lifecycle_change_overview").fetchall()
-    transition_rows = conn.execute("SELECT * FROM v_lifecycle_state_transitions").fetchall()
+def test_lifecycle_overview_and_transition_views_include_h001_backfill_under_current_state(conn):
+    overview_rows = conn.execute(
+        """
+        SELECT
+            lifecycle_change_id,
+            candidate_id,
+            from_state,
+            to_state,
+            transition_edge,
+            retrospective_flag,
+            fast_track_flag,
+            evidence_ref_count,
+            linked_advisory_ref_count,
+            strong_candidate_criteria_ref_count
+        FROM v_lifecycle_change_overview
+        ORDER BY lifecycle_change_id
+        """
+    ).fetchall()
+    transition_rows = conn.execute(
+        """
+        SELECT from_state, to_state, transition_edge, transition_count
+        FROM v_lifecycle_state_transitions
+        ORDER BY transition_edge
+        """
+    ).fetchall()
 
-    assert overview_rows == []
-    assert transition_rows == []
+    assert overview_rows == [
+        (
+            "LCH-0001",
+            "H-001",
+            "proposed",
+            "in_research",
+            "proposed->in_research",
+            True,
+            False,
+            1,
+            0,
+            0,
+        ),
+        (
+            "LCH-0002",
+            "H-001",
+            "in_research",
+            "research_concluded",
+            "in_research->research_concluded",
+            True,
+            False,
+            1,
+            0,
+            0,
+        ),
+        (
+            "LCH-0003",
+            "H-001",
+            "research_concluded",
+            "archived",
+            "research_concluded->archived",
+            True,
+            False,
+            1,
+            0,
+            0,
+        ),
+    ]
+    assert transition_rows == [
+        ("in_research", "research_concluded", "in_research->research_concluded", 1),
+        ("proposed", "in_research", "proposed->in_research", 1),
+        ("research_concluded", "archived", "research_concluded->archived", 1),
+    ]
 
 
 def test_lifecycle_integrity_views_empty_under_current_state(conn):

@@ -1,0 +1,27 @@
+[
+  {
+    "limit_key": "no_agreement_rate_inference",
+    "limit_statement": "All consumed v2 single-axis segments have null agreement and disagreement rates with INSUFFICIENT_EVIDENCE outcomes, so agreement-rate inference is unsupported.",
+    "support_status": "floor-limited evidence state"
+  },
+  {
+    "limit_key": "no_cross_axis_interactions",
+    "limit_statement": "The completed v2 consumers are single-axis reads over SSS-0002, SSS-0003, and SSS-0004; they do not test cross-axis interaction effects.",
+    "support_status": "structural limit of current consumer set"
+  },
+  {
+    "limit_key": "no_temporal_trends",
+    "limit_statement": "The three committed v2 instances share one corpus window over OSH-0001 through OSH-0010, so the set does not demonstrate temporal trend behavior.",
+    "support_status": "structural limit of current corpus window"
+  },
+  {
+    "limit_key": "rare_segments_not_reviewable",
+    "limit_statement": "Every consumed v2 single-axis segment remains below the floor of 10 observations, so rare-segment effects are not reviewable from current evidence.",
+    "support_status": "floor-limited evidence state"
+  },
+  {
+    "limit_key": "structural_coverage_only",
+    "limit_statement": "The set demonstrates central-query-layer consumption over three committed v2 axes, not sufficient signal evidence.",
+    "support_status": "positive structural finding with evidence limit"
+  }
+]

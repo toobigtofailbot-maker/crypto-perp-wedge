@@ -1,0 +1,15 @@
+[
+  {
+    "synthesis_set": "SSS v2 consumed single-axis set",
+    "consumed_summary_count": 3,
+    "total_segments": 8,
+    "above_floor_segments": 0,
+    "below_floor_segments": 8,
+    "null_rate_segments": 8,
+    "insufficient_evidence_segments": 8,
+    "total_segment_observation_count": 30,
+    "min_corpus_observation_count": 10,
+    "max_corpus_observation_count": 10,
+    "floor_required": 10
+  }
+]

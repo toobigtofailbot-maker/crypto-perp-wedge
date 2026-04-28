@@ -1,0 +1,338 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crypto-perp-wedge.local/research/schemas/lifecycle_change.schema.json",
+  "title": "Lifecycle Change",
+  "description": "JSON artifact that records a human lifecycle-state transition for Phase 9 research lifecycle governance. The schema validates local shape and edge consistency only; candidate existence, artifact references, supersession, and historical halted recovery checks are deferred to validators or integrity views.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "lifecycle_change_id",
+    "schema_version",
+    "candidate_id",
+    "from_state",
+    "to_state",
+    "transition_edge",
+    "decided_by",
+    "decided_at",
+    "evidence_summary",
+    "risk_acknowledgment",
+    "evidence_artifact_refs",
+    "supersedes_lch_id"
+  ],
+  "properties": {
+    "lifecycle_change_id": {
+      "description": "Stable lifecycle-change artifact identifier.",
+      "type": "string",
+      "pattern": "^LCH-[0-9]{4}$"
+    },
+    "schema_version": {
+      "description": "Explicit Phase 9 lifecycle-change schema marker.",
+      "type": "string",
+      "const": "v1"
+    },
+    "candidate_id": {
+      "description": "Candidate registry identifier.",
+      "type": "string",
+      "pattern": "^H-[0-9]{3}$"
+    },
+    "from_state": {
+      "description": "Lifecycle state before the transition.",
+      "$ref": "#/definitions/lifecycle_state"
+    },
+    "to_state": {
+      "description": "Lifecycle state after the transition.",
+      "$ref": "#/definitions/lifecycle_state"
+    },
+    "transition_edge": {
+      "description": "Permitted lifecycle transition edge. halted->previous_non_halted_state requires later historical validation.",
+      "$ref": "#/definitions/transition_edge"
+    },
+    "decided_by": {
+      "description": "Human reviewer or package that recorded the lifecycle change.",
+      "type": "string",
+      "minLength": 1
+    },
+    "decided_at": {
+      "description": "Timezone-qualified ISO datetime when the lifecycle decision was recorded.",
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "evidence_summary": {
+      "description": "Summary of evidence considered for the lifecycle transition.",
+      "type": "string",
+      "minLength": 1
+    },
+    "risk_acknowledgment": {
+      "description": "Human acknowledgment of risk, rollback, and boundary implications.",
+      "type": "string",
+      "minLength": 1
+    },
+    "evidence_artifact_refs": {
+      "description": "Evidence artifact identifiers or paths. Cross-reference validation is deferred.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "supersedes_lch_id": {
+      "description": "Prior lifecycle_change_id superseded by this artifact, or null when none.",
+      "type": ["string", "null"],
+      "pattern": "^LCH-[0-9]{4}$"
+    },
+    "notes": {
+      "description": "Optional human note that does not change the lifecycle transition.",
+      "type": "string"
+    },
+    "linked_advisory_artifacts": {
+      "description": "Optional one-way lineage references to advisory artifacts. Exact resolution is deferred.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "retrospective_flag": {
+      "description": "True when the lifecycle change is a retrospective disclosure.",
+      "type": "boolean"
+    },
+    "retrospective_disclosure": {
+      "description": "Required explanation when retrospective_flag is true.",
+      "type": "string",
+      "minLength": 1
+    },
+    "fast_track_flag": {
+      "description": "True when the lifecycle change uses the exceptional fast-track structure.",
+      "type": "boolean"
+    },
+    "strong_candidate_criteria_refs": {
+      "description": "Artifact references supporting exceptional fast-track consideration.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    }
+  },
+  "definitions": {
+    "lifecycle_state": {
+      "type": "string",
+      "enum": [
+        "proposed",
+        "in_research",
+        "research_concluded",
+        "paper_eligible",
+        "paper_active",
+        "paper_concluded",
+        "live_eligible",
+        "live_active",
+        "halted",
+        "archived"
+      ]
+    },
+    "transition_edge": {
+      "type": "string",
+      "enum": [
+        "proposed->in_research",
+        "proposed->halted",
+        "in_research->research_concluded",
+        "in_research->halted",
+        "research_concluded->paper_eligible",
+        "research_concluded->archived",
+        "research_concluded->halted",
+        "paper_eligible->paper_active",
+        "paper_eligible->archived",
+        "paper_eligible->halted",
+        "paper_active->paper_concluded",
+        "paper_active->halted",
+        "paper_active->archived",
+        "paper_concluded->live_eligible",
+        "paper_concluded->archived",
+        "paper_concluded->halted",
+        "live_eligible->live_active",
+        "live_eligible->archived",
+        "live_eligible->halted",
+        "live_active->paper_concluded",
+        "live_active->halted",
+        "live_active->archived",
+        "halted->archived",
+        "halted->previous_non_halted_state"
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "transition_edge": { "const": "proposed->in_research" } }, "required": ["transition_edge"] },
+      "then": { "properties": { "from_state": { "const": "proposed" }, "to_state": { "const": "in_research" } } }
+    },
+    {
+      "if": { "properties": { "transition_edge": { "const": "proposed->halted" } }, "required": ["transition_edge"] },
+      "then": { "properties": { "from_state": { "const": "proposed" }, "to_state": { "const": "halted" } } }
+    },
+    {
+      "if": { "properties": { "transition_edge": { "const": "in_research->research_concluded" } }, "required": ["transition_edge"] },
+      "then": { "properties": { "from_state": { "const": "in_research" }, "to_state": { "const": "research_concluded" } } }
+    },
+    {
+      "if": { "properties": { "transition_edge": { "const": "in_research->halted" } }, "required": ["transition_edge"] },
+      "then": { "properties": { "from_state": { "const": "in_research" }, "to_state": { "const": "halted" } } }
+    },
+    {
+      "if": { "properties": { "transition_edge": { "const": "research_concluded->paper_eligible" } }, "required": ["transition_edge"] },
+      "then": { "properties": { "from_state": { "const": "research_concluded" }, "to_state": { "const": "paper_eligible" } } }
+    },
+    {
+      "if": { "properties": { "transition_edge": { "const": "research_concluded->archived" } }, "required": ["transition_edge"] },
+      "then": { "properties": { "from_state": { "const": "research_concluded" }, "to_state": { "const": "archived" } } }
+    },
+    {
+      "if": { "properties": { "transition_edge": { "const": "research_concluded->halted" } }, "required": ["transition_edge"] },
+      "then": { "properties": { "from_state": { "const": "research_concluded" }, "to_state": { "const": "halted" } } }
+    },
+    {
+      "if": { "properties": { "transition_edge": { "const": "paper_eligible->paper_active" } }, "required": ["transition_edge"] },
+      "then": { "properties": { "from_state": { "const": "paper_eligible" }, "to_state": { "const": "paper_active" } } }
+    },
+    {
+      "if": { "properties": { "transition_edge": { "const": "paper_eligible->archived" } }, "required": ["transition_edge"] },
+      "then": { "properties": { "from_state": { "const": "paper_eligible" }, "to_state": { "const": "archived" } } }
+    },
+    {
+      "if": { "properties": { "transition_edge": { "const": "paper_eligible->halted" } }, "required": ["transition_edge"] },
+      "then": { "properties": { "from_state": { "const": "paper_eligible" }, "to_state": { "const": "halted" } } }
+    },
+    {
+      "if": { "properties": { "transition_edge": { "const": "paper_active->paper_concluded" } }, "required": ["transition_edge"] },
+      "then": { "properties": { "from_state": { "const": "paper_active" }, "to_state": { "const": "paper_concluded" } } }
+    },
+    {
+      "if": { "properties": { "transition_edge": { "const": "paper_active->halted" } }, "required": ["transition_edge"] },
+      "then": { "properties": { "from_state": { "const": "paper_active" }, "to_state": { "const": "halted" } } }
+    },
+    {
+      "if": { "properties": { "transition_edge": { "const": "paper_active->archived" } }, "required": ["transition_edge"] },
+      "then": { "properties": { "from_state": { "const": "paper_active" }, "to_state": { "const": "archived" } } }
+    },
+    {
+      "if": { "properties": { "transition_edge": { "const": "paper_concluded->live_eligible" } }, "required": ["transition_edge"] },
+      "then": { "properties": { "from_state": { "const": "paper_concluded" }, "to_state": { "const": "live_eligible" } } }
+    },
+    {
+      "if": { "properties": { "transition_edge": { "const": "paper_concluded->archived" } }, "required": ["transition_edge"] },
+      "then": { "properties": { "from_state": { "const": "paper_concluded" }, "to_state": { "const": "archived" } } }
+    },
+    {
+      "if": { "properties": { "transition_edge": { "const": "paper_concluded->halted" } }, "required": ["transition_edge"] },
+      "then": { "properties": { "from_state": { "const": "paper_concluded" }, "to_state": { "const": "halted" } } }
+    },
+    {
+      "if": { "properties": { "transition_edge": { "const": "live_eligible->live_active" } }, "required": ["transition_edge"] },
+      "then": { "properties": { "from_state": { "const": "live_eligible" }, "to_state": { "const": "live_active" } } }
+    },
+    {
+      "if": { "properties": { "transition_edge": { "const": "live_eligible->archived" } }, "required": ["transition_edge"] },
+      "then": { "properties": { "from_state": { "const": "live_eligible" }, "to_state": { "const": "archived" } } }
+    },
+    {
+      "if": { "properties": { "transition_edge": { "const": "live_eligible->halted" } }, "required": ["transition_edge"] },
+      "then": { "properties": { "from_state": { "const": "live_eligible" }, "to_state": { "const": "halted" } } }
+    },
+    {
+      "if": { "properties": { "transition_edge": { "const": "live_active->paper_concluded" } }, "required": ["transition_edge"] },
+      "then": { "properties": { "from_state": { "const": "live_active" }, "to_state": { "const": "paper_concluded" } } }
+    },
+    {
+      "if": { "properties": { "transition_edge": { "const": "live_active->halted" } }, "required": ["transition_edge"] },
+      "then": { "properties": { "from_state": { "const": "live_active" }, "to_state": { "const": "halted" } } }
+    },
+    {
+      "if": { "properties": { "transition_edge": { "const": "live_active->archived" } }, "required": ["transition_edge"] },
+      "then": { "properties": { "from_state": { "const": "live_active" }, "to_state": { "const": "archived" } } }
+    },
+    {
+      "if": { "properties": { "transition_edge": { "const": "halted->archived" } }, "required": ["transition_edge"] },
+      "then": { "properties": { "from_state": { "const": "halted" }, "to_state": { "const": "archived" } } }
+    },
+    {
+      "if": { "properties": { "transition_edge": { "const": "halted->previous_non_halted_state" } }, "required": ["transition_edge"] },
+      "then": {
+        "properties": {
+          "from_state": { "const": "halted" },
+          "to_state": {
+            "enum": [
+              "proposed",
+              "in_research",
+              "research_concluded",
+              "paper_eligible",
+              "paper_active",
+              "paper_concluded",
+              "live_eligible",
+              "live_active"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "to_state": {
+            "enum": ["paper_active", "live_eligible", "live_active"]
+          }
+        },
+        "required": ["to_state"]
+      },
+      "then": {
+        "properties": {
+          "evidence_artifact_refs": { "minItems": 1 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "from_state": { "const": "halted" },
+          "to_state": { "not": { "const": "archived" } }
+        },
+        "required": ["from_state", "to_state"]
+      },
+      "then": {
+        "properties": {
+          "evidence_artifact_refs": { "minItems": 1 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "retrospective_flag": { "const": true }
+        },
+        "required": ["retrospective_flag"]
+      },
+      "then": {
+        "required": ["retrospective_disclosure"],
+        "properties": {
+          "retrospective_disclosure": { "minLength": 1 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fast_track_flag": { "const": true }
+        },
+        "required": ["fast_track_flag"]
+      },
+      "then": {
+        "required": ["strong_candidate_criteria_refs"],
+        "properties": {
+          "to_state": { "const": "live_eligible" },
+          "strong_candidate_criteria_refs": { "minItems": 1 }
+        }
+      }
+    }
+  ]
+}

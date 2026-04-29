@@ -17,8 +17,9 @@ candidate_paths AS (
         candidate_id,
         string_agg(transition_edge, ' | ' ORDER BY transition_order, lifecycle_change_id) AS lifecycle_path,
         string_agg(lifecycle_change_id, ' | ' ORDER BY transition_order, lifecycle_change_id) AS ordered_lch_ids,
-        min(decided_at) AS first_decided_at,
-        max(decided_at) AS final_decided_at,
+        max(CASE WHEN transition_edge = 'proposed->in_research' THEN decided_at END) AS proposed_to_research_at,
+        max(CASE WHEN transition_edge = 'in_research->research_concluded' THEN decided_at END) AS research_concluded_at,
+        max(CASE WHEN transition_edge = 'research_concluded->archived' THEN decided_at END) AS archived_at,
         count(*) AS transition_count
     FROM ordered_lifecycle
     GROUP BY candidate_id
@@ -27,8 +28,9 @@ SELECT
     candidate_id,
     lifecycle_path,
     ordered_lch_ids,
-    first_decided_at,
-    final_decided_at,
+    proposed_to_research_at,
+    research_concluded_at,
+    archived_at,
     transition_count,
     CASE
         WHEN lifecycle_path = 'proposed->in_research | in_research->research_concluded | research_concluded->archived'

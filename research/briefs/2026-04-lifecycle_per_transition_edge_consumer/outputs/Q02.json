@@ -1,0 +1,41 @@
+[
+  {
+    "transition_order": 1,
+    "transition_edge": "proposed->in_research",
+    "from_state": "proposed",
+    "to_state": "in_research",
+    "candidate_count": 10,
+    "lch_count": 10,
+    "candidate_ids": "H-001 | H-002 | H-003 | H-004 | H-005 | H-006 | H-007 | H-008 | H-009 | H-010",
+    "lch_ids": "LCH-0001 | LCH-0004 | LCH-0007 | LCH-0010 | LCH-0013 | LCH-0016 | LCH-0019 | LCH-0022 | LCH-0025 | LCH-0028",
+    "first_artifact_timestamp": "2026-04-14 22:32:27",
+    "last_artifact_timestamp": "2026-04-16 04:27:43",
+    "covers_all_ten_candidates": true
+  },
+  {
+    "transition_order": 2,
+    "transition_edge": "in_research->research_concluded",
+    "from_state": "in_research",
+    "to_state": "research_concluded",
+    "candidate_count": 10,
+    "lch_count": 10,
+    "candidate_ids": "H-001 | H-002 | H-003 | H-004 | H-005 | H-006 | H-007 | H-008 | H-009 | H-010",
+    "lch_ids": "LCH-0002 | LCH-0005 | LCH-0008 | LCH-0011 | LCH-0014 | LCH-0017 | LCH-0020 | LCH-0023 | LCH-0026 | LCH-0029",
+    "first_artifact_timestamp": "2026-04-19 04:37:21",
+    "last_artifact_timestamp": "2026-04-19 05:10:50",
+    "covers_all_ten_candidates": true
+  },
+  {
+    "transition_order": 3,
+    "transition_edge": "research_concluded->archived",
+    "from_state": "research_concluded",
+    "to_state": "archived",
+    "candidate_count": 10,
+    "lch_count": 10,
+    "candidate_ids": "H-001 | H-002 | H-003 | H-004 | H-005 | H-006 | H-007 | H-008 | H-009 | H-010",
+    "lch_ids": "LCH-0003 | LCH-0006 | LCH-0009 | LCH-0012 | LCH-0015 | LCH-0018 | LCH-0021 | LCH-0024 | LCH-0027 | LCH-0030",
+    "first_artifact_timestamp": "2026-04-15 15:17:20",
+    "last_artifact_timestamp": "2026-04-17 02:51:27",
+    "covers_all_ten_candidates": true
+  }
+]

@@ -1,0 +1,13 @@
+[
+  {
+    "summary_scope": "wp_9f_alignment",
+    "candidate_count": 10,
+    "lch_count": 30,
+    "transition_edge_count": 3,
+    "distinct_path_count": 1,
+    "rows_per_edge": "proposed->in_research=10 | in_research->research_concluded=10 | research_concluded->archived=10",
+    "all_candidates_share_path": true,
+    "each_edge_covers_all_candidates": true,
+    "consistent_with_wp9f_current_lch_baseline": true
+  }
+]

@@ -1,0 +1,23 @@
+{
+  "lifecycle_change_id": "LCH-0015",
+  "schema_version": "v1",
+  "candidate_id": "H-005",
+  "from_state": "research_concluded",
+  "to_state": "archived",
+  "transition_edge": "research_concluded->archived",
+  "decided_by": "retrospective_backfill_wp_9e",
+  "decided_at": "2026-04-15T21:24:12-06:00",
+  "evidence_summary": "Retrospective lifecycle backfill for H-005 archival after research conclusion, evidenced by the committed DEC-0005 decision record and the related DCH-0001 / REL-0001 retrospective artifacts.",
+  "risk_acknowledgment": "Retrospective backfill of historical lifecycle transition; no operational risk implication. Original decision risk was acknowledged in cited evidence artifacts.",
+  "evidence_artifact_refs": [
+    "research/decisions/DEC-0005.md",
+    "DCH-0001",
+    "REL-0001"
+  ],
+  "supersedes_lch_id": null,
+  "linked_advisory_artifacts": [],
+  "retrospective_flag": true,
+  "retrospective_disclosure": "Retrospective backfill of research_concluded->archived for H-005. The historical transition is evidenced by research/decisions/DEC-0005.md with additional retrospective context from DCH-0001 and REL-0001; decided_at is sourced from the first commit timestamp introducing the DEC-0005 evidence artifact. This LCH was authored post hoc in WP-9e to populate the Phase 9 lifecycle layer under Decision 7; it does not modify the candidate, the cited evidence artifacts, any historical decision, or any runtime behavior.",
+  "fast_track_flag": false,
+  "strong_candidate_criteria_refs": []
+}

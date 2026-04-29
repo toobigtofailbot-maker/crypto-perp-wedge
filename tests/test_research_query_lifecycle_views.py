@@ -49,6 +49,37 @@ def _base_lifecycle_change(lifecycle_change_id="LCH-9001"):
     }
 
 
+def _expected_current_state_overview_rows():
+    rows = []
+    candidates = [f"H-{idx:03d}" for idx in range(1, 11)]
+    for candidate_index, candidate_id in enumerate(candidates):
+        first_lch_number = (candidate_index * 3) + 1
+        for offset, (from_state, to_state, transition_edge) in enumerate(
+            [
+                ("proposed", "in_research", "proposed->in_research"),
+                ("in_research", "research_concluded", "in_research->research_concluded"),
+                ("research_concluded", "archived", "research_concluded->archived"),
+            ]
+        ):
+            lifecycle_change_id = f"LCH-{first_lch_number + offset:04d}"
+            evidence_ref_count = 3 if lifecycle_change_id == "LCH-0015" else 1
+            rows.append(
+                (
+                    lifecycle_change_id,
+                    candidate_id,
+                    from_state,
+                    to_state,
+                    transition_edge,
+                    True,
+                    False,
+                    evidence_ref_count,
+                    0,
+                    0,
+                )
+            )
+    return rows
+
+
 @pytest.fixture()
 def conn():
     connection = init_duckdb()
@@ -58,10 +89,10 @@ def conn():
         connection.close()
 
 
-def test_lifecycle_relation_registered_with_h001_backfill_under_current_state(conn):
+def test_lifecycle_relation_registered_with_h001_through_h010_backfill_under_current_state(conn):
     count = conn.execute("SELECT COUNT(*) FROM lifecycle_changes").fetchone()[0]
 
-    assert count == 3
+    assert count == 30
 
 
 def test_lifecycle_relation_registered_empty_with_missing_dir(monkeypatch, tmp_path):
@@ -82,7 +113,7 @@ def test_lifecycle_views_are_listed(conn):
     assert LIFECYCLE_VIEWS <= view_names
 
 
-def test_lifecycle_overview_and_transition_views_include_h001_backfill_under_current_state(conn):
+def test_lifecycle_overview_and_transition_views_include_h001_through_h010_backfill_under_current_state(conn):
     overview_rows = conn.execute(
         """
         SELECT
@@ -108,48 +139,11 @@ def test_lifecycle_overview_and_transition_views_include_h001_backfill_under_cur
         """
     ).fetchall()
 
-    assert overview_rows == [
-        (
-            "LCH-0001",
-            "H-001",
-            "proposed",
-            "in_research",
-            "proposed->in_research",
-            True,
-            False,
-            1,
-            0,
-            0,
-        ),
-        (
-            "LCH-0002",
-            "H-001",
-            "in_research",
-            "research_concluded",
-            "in_research->research_concluded",
-            True,
-            False,
-            1,
-            0,
-            0,
-        ),
-        (
-            "LCH-0003",
-            "H-001",
-            "research_concluded",
-            "archived",
-            "research_concluded->archived",
-            True,
-            False,
-            1,
-            0,
-            0,
-        ),
-    ]
+    assert overview_rows == _expected_current_state_overview_rows()
     assert transition_rows == [
-        ("in_research", "research_concluded", "in_research->research_concluded", 1),
-        ("proposed", "in_research", "proposed->in_research", 1),
-        ("research_concluded", "archived", "research_concluded->archived", 1),
+        ("in_research", "research_concluded", "in_research->research_concluded", 10),
+        ("proposed", "in_research", "proposed->in_research", 10),
+        ("research_concluded", "archived", "research_concluded->archived", 10),
     ]
 
 

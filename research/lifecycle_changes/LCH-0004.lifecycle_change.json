@@ -1,0 +1,21 @@
+{
+  "lifecycle_change_id": "LCH-0004",
+  "schema_version": "v1",
+  "candidate_id": "H-002",
+  "from_state": "proposed",
+  "to_state": "in_research",
+  "transition_edge": "proposed->in_research",
+  "decided_by": "retrospective_backfill_wp_9e",
+  "decided_at": "2026-04-14T20:43:16-06:00",
+  "evidence_summary": "Retrospective lifecycle backfill for H-002 entering active research, evidenced by the committed H-002 hypothesis document.",
+  "risk_acknowledgment": "Retrospective backfill of historical lifecycle transition; no operational risk implication. Original decision risk was acknowledged in cited evidence artifacts.",
+  "evidence_artifact_refs": [
+    "research/hypotheses/H-002/HYPOTHESIS.md"
+  ],
+  "supersedes_lch_id": null,
+  "linked_advisory_artifacts": [],
+  "retrospective_flag": true,
+  "retrospective_disclosure": "Retrospective backfill of proposed->in_research for H-002. The historical transition is evidenced by research/hypotheses/H-002/HYPOTHESIS.md with decided_at sourced from the first commit timestamp introducing that evidence artifact. This LCH was authored post hoc in WP-9e to populate the Phase 9 lifecycle layer under Decision 7; it does not modify the candidate, the cited evidence artifact, any historical decision, or any runtime behavior.",
+  "fast_track_flag": false,
+  "strong_candidate_criteria_refs": []
+}

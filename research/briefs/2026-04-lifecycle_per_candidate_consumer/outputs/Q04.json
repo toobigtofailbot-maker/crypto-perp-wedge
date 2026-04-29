@@ -1,0 +1,112 @@
+[
+  {
+    "candidate_id": "H-001",
+    "hypothesis_path_count": 1,
+    "rep_count": 1,
+    "dec_path_count": 1,
+    "dch_count": 0,
+    "rel_count": 0,
+    "other_count": 0,
+    "evidence_refs": "research/hypotheses/H-001/HYPOTHESIS.md | REP-0002 | research/decisions/DEC-0001.md",
+    "h005_archival_exception_refs": null
+  },
+  {
+    "candidate_id": "H-002",
+    "hypothesis_path_count": 1,
+    "rep_count": 1,
+    "dec_path_count": 1,
+    "dch_count": 0,
+    "rel_count": 0,
+    "other_count": 0,
+    "evidence_refs": "research/hypotheses/H-002/HYPOTHESIS.md | REP-0003 | research/decisions/DEC-0002.md",
+    "h005_archival_exception_refs": null
+  },
+  {
+    "candidate_id": "H-003",
+    "hypothesis_path_count": 1,
+    "rep_count": 1,
+    "dec_path_count": 1,
+    "dch_count": 0,
+    "rel_count": 0,
+    "other_count": 0,
+    "evidence_refs": "research/hypotheses/H-003/HYPOTHESIS.md | REP-0004 | research/decisions/DEC-0003.md",
+    "h005_archival_exception_refs": null
+  },
+  {
+    "candidate_id": "H-004",
+    "hypothesis_path_count": 1,
+    "rep_count": 1,
+    "dec_path_count": 1,
+    "dch_count": 0,
+    "rel_count": 0,
+    "other_count": 0,
+    "evidence_refs": "research/hypotheses/H-004/HYPOTHESIS.md | REP-0005 | research/decisions/DEC-0004.md",
+    "h005_archival_exception_refs": null
+  },
+  {
+    "candidate_id": "H-005",
+    "hypothesis_path_count": 1,
+    "rep_count": 1,
+    "dec_path_count": 1,
+    "dch_count": 1,
+    "rel_count": 1,
+    "other_count": 0,
+    "evidence_refs": "research/hypotheses/H-005/HYPOTHESIS.md | REP-0001 | DCH-0001 | REL-0001 | research/decisions/DEC-0005.md",
+    "h005_archival_exception_refs": "DCH-0001 | REL-0001 | research/decisions/DEC-0005.md"
+  },
+  {
+    "candidate_id": "H-006",
+    "hypothesis_path_count": 1,
+    "rep_count": 1,
+    "dec_path_count": 1,
+    "dch_count": 0,
+    "rel_count": 0,
+    "other_count": 0,
+    "evidence_refs": "research/hypotheses/H-006/HYPOTHESIS.md | REP-0006 | research/decisions/DEC-0006.md",
+    "h005_archival_exception_refs": null
+  },
+  {
+    "candidate_id": "H-007",
+    "hypothesis_path_count": 1,
+    "rep_count": 1,
+    "dec_path_count": 1,
+    "dch_count": 0,
+    "rel_count": 0,
+    "other_count": 0,
+    "evidence_refs": "research/hypotheses/H-007/HYPOTHESIS.md | REP-0007 | research/decisions/DEC-0007.md",
+    "h005_archival_exception_refs": null
+  },
+  {
+    "candidate_id": "H-008",
+    "hypothesis_path_count": 1,
+    "rep_count": 1,
+    "dec_path_count": 1,
+    "dch_count": 0,
+    "rel_count": 0,
+    "other_count": 0,
+    "evidence_refs": "research/hypotheses/H-008/HYPOTHESIS.md | REP-0008 | research/decisions/DEC-0008.md",
+    "h005_archival_exception_refs": null
+  },
+  {
+    "candidate_id": "H-009",
+    "hypothesis_path_count": 1,
+    "rep_count": 1,
+    "dec_path_count": 1,
+    "dch_count": 0,
+    "rel_count": 0,
+    "other_count": 0,
+    "evidence_refs": "research/hypotheses/H-009/HYPOTHESIS.md | REP-0009 | research/decisions/DEC-0009.md",
+    "h005_archival_exception_refs": null
+  },
+  {
+    "candidate_id": "H-010",
+    "hypothesis_path_count": 1,
+    "rep_count": 1,
+    "dec_path_count": 1,
+    "dch_count": 0,
+    "rel_count": 0,
+    "other_count": 0,
+    "evidence_refs": "research/hypotheses/H-010/HYPOTHESIS.md | REP-0010 | research/decisions/DEC-0010.md",
+    "h005_archival_exception_refs": null
+  }
+]

@@ -1,0 +1,102 @@
+[
+  {
+    "candidate_id": "H-001",
+    "proposed_to_research_at": "2026-04-14 22:32:27",
+    "research_concluded_at": "2026-04-19 05:10:50",
+    "archived_at": "2026-04-15 15:17:20",
+    "gap_seconds_t1_to_t2": 369503,
+    "gap_seconds_t2_to_t3": -309210,
+    "archival_timestamp_precedes_research_conclusion_timestamp": true,
+    "timing_interpretation": "artifact_commit_timestamp_gap_not_operational_duration"
+  },
+  {
+    "candidate_id": "H-002",
+    "proposed_to_research_at": "2026-04-15 02:43:16",
+    "research_concluded_at": "2026-04-19 05:10:50",
+    "archived_at": "2026-04-15 15:17:20",
+    "gap_seconds_t1_to_t2": 354454,
+    "gap_seconds_t2_to_t3": -309210,
+    "archival_timestamp_precedes_research_conclusion_timestamp": true,
+    "timing_interpretation": "artifact_commit_timestamp_gap_not_operational_duration"
+  },
+  {
+    "candidate_id": "H-003",
+    "proposed_to_research_at": "2026-04-15 19:58:53",
+    "research_concluded_at": "2026-04-19 05:10:50",
+    "archived_at": "2026-04-15 23:08:03",
+    "gap_seconds_t1_to_t2": 292317,
+    "gap_seconds_t2_to_t3": -280967,
+    "archival_timestamp_precedes_research_conclusion_timestamp": true,
+    "timing_interpretation": "artifact_commit_timestamp_gap_not_operational_duration"
+  },
+  {
+    "candidate_id": "H-004",
+    "proposed_to_research_at": "2026-04-15 19:58:53",
+    "research_concluded_at": "2026-04-19 05:10:50",
+    "archived_at": "2026-04-15 23:08:03",
+    "gap_seconds_t1_to_t2": 292317,
+    "gap_seconds_t2_to_t3": -280967,
+    "archival_timestamp_precedes_research_conclusion_timestamp": true,
+    "timing_interpretation": "artifact_commit_timestamp_gap_not_operational_duration"
+  },
+  {
+    "candidate_id": "H-005",
+    "proposed_to_research_at": "2026-04-15 21:02:08",
+    "research_concluded_at": "2026-04-19 04:37:21",
+    "archived_at": "2026-04-16 03:24:12",
+    "gap_seconds_t1_to_t2": 286513,
+    "gap_seconds_t2_to_t3": -263589,
+    "archival_timestamp_precedes_research_conclusion_timestamp": true,
+    "timing_interpretation": "artifact_commit_timestamp_gap_not_operational_duration"
+  },
+  {
+    "candidate_id": "H-006",
+    "proposed_to_research_at": "2026-04-15 21:02:08",
+    "research_concluded_at": "2026-04-19 05:10:50",
+    "archived_at": "2026-04-16 03:24:12",
+    "gap_seconds_t1_to_t2": 288522,
+    "gap_seconds_t2_to_t3": -265598,
+    "archival_timestamp_precedes_research_conclusion_timestamp": true,
+    "timing_interpretation": "artifact_commit_timestamp_gap_not_operational_duration"
+  },
+  {
+    "candidate_id": "H-007",
+    "proposed_to_research_at": "2026-04-16 04:27:43",
+    "research_concluded_at": "2026-04-19 05:10:50",
+    "archived_at": "2026-04-17 02:10:39",
+    "gap_seconds_t1_to_t2": 261787,
+    "gap_seconds_t2_to_t3": -183611,
+    "archival_timestamp_precedes_research_conclusion_timestamp": true,
+    "timing_interpretation": "artifact_commit_timestamp_gap_not_operational_duration"
+  },
+  {
+    "candidate_id": "H-008",
+    "proposed_to_research_at": "2026-04-16 04:27:43",
+    "research_concluded_at": "2026-04-19 05:10:50",
+    "archived_at": "2026-04-17 02:51:27",
+    "gap_seconds_t1_to_t2": 261787,
+    "gap_seconds_t2_to_t3": -181163,
+    "archival_timestamp_precedes_research_conclusion_timestamp": true,
+    "timing_interpretation": "artifact_commit_timestamp_gap_not_operational_duration"
+  },
+  {
+    "candidate_id": "H-009",
+    "proposed_to_research_at": "2026-04-16 04:27:43",
+    "research_concluded_at": "2026-04-19 05:10:50",
+    "archived_at": "2026-04-17 02:51:27",
+    "gap_seconds_t1_to_t2": 261787,
+    "gap_seconds_t2_to_t3": -181163,
+    "archival_timestamp_precedes_research_conclusion_timestamp": true,
+    "timing_interpretation": "artifact_commit_timestamp_gap_not_operational_duration"
+  },
+  {
+    "candidate_id": "H-010",
+    "proposed_to_research_at": "2026-04-16 04:27:43",
+    "research_concluded_at": "2026-04-19 05:10:50",
+    "archived_at": "2026-04-17 02:10:39",
+    "gap_seconds_t1_to_t2": 261787,
+    "gap_seconds_t2_to_t3": -183611,
+    "archival_timestamp_precedes_research_conclusion_timestamp": true,
+    "timing_interpretation": "artifact_commit_timestamp_gap_not_operational_duration"
+  }
+]

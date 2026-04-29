@@ -1,0 +1,35 @@
+[
+  {
+    "transition_edge": "proposed->in_research",
+    "hypothesis_path_count": 10,
+    "rep_count": 0,
+    "dec_path_count": 0,
+    "dch_count": 0,
+    "rel_count": 0,
+    "other_count": 0,
+    "evidence_refs": "research/hypotheses/H-001/HYPOTHESIS.md | research/hypotheses/H-002/HYPOTHESIS.md | research/hypotheses/H-003/HYPOTHESIS.md | research/hypotheses/H-004/HYPOTHESIS.md | research/hypotheses/H-005/HYPOTHESIS.md | research/hypotheses/H-006/HYPOTHESIS.md | research/hypotheses/H-007/HYPOTHESIS.md | research/hypotheses/H-008/HYPOTHESIS.md | research/hypotheses/H-009/HYPOTHESIS.md | research/hypotheses/H-010/HYPOTHESIS.md",
+    "h005_archival_exception_refs": null
+  },
+  {
+    "transition_edge": "in_research->research_concluded",
+    "hypothesis_path_count": 0,
+    "rep_count": 10,
+    "dec_path_count": 0,
+    "dch_count": 0,
+    "rel_count": 0,
+    "other_count": 0,
+    "evidence_refs": "REP-0001 | REP-0002 | REP-0003 | REP-0004 | REP-0005 | REP-0006 | REP-0007 | REP-0008 | REP-0009 | REP-0010",
+    "h005_archival_exception_refs": null
+  },
+  {
+    "transition_edge": "research_concluded->archived",
+    "hypothesis_path_count": 0,
+    "rep_count": 0,
+    "dec_path_count": 10,
+    "dch_count": 1,
+    "rel_count": 1,
+    "other_count": 0,
+    "evidence_refs": "DCH-0001 | REL-0001 | research/decisions/DEC-0001.md | research/decisions/DEC-0002.md | research/decisions/DEC-0003.md | research/decisions/DEC-0004.md | research/decisions/DEC-0005.md | research/decisions/DEC-0006.md | research/decisions/DEC-0007.md | research/decisions/DEC-0008.md | research/decisions/DEC-0009.md | research/decisions/DEC-0010.md",
+    "h005_archival_exception_refs": "DCH-0001 | REL-0001 | research/decisions/DEC-0005.md"
+  }
+]

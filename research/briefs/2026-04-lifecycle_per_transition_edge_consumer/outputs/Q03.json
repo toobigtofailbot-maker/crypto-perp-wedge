@@ -1,0 +1,22 @@
+[
+  {
+    "target_transition_edge": "in_research->research_concluded",
+    "candidate_gap_count": 10,
+    "min_gap_seconds": 261787,
+    "max_gap_seconds": 369503,
+    "avg_gap_seconds": 293077.4,
+    "negative_gap_count": 0,
+    "archive_before_research_artifact_count": 0,
+    "timing_interpretation": "artifact_commit_timestamp_gap_not_operational_duration"
+  },
+  {
+    "target_transition_edge": "research_concluded->archived",
+    "candidate_gap_count": 10,
+    "min_gap_seconds": -309210,
+    "max_gap_seconds": -181163,
+    "avg_gap_seconds": -243908.9,
+    "negative_gap_count": 10,
+    "archive_before_research_artifact_count": 10,
+    "timing_interpretation": "artifact_commit_timestamp_gap_not_operational_duration"
+  }
+]

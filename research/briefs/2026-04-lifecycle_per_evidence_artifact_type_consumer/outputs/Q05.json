@@ -1,0 +1,16 @@
+[
+  {
+    "summary_scope": "wp_9h_current_lch_baseline_alignment",
+    "candidate_count": 10,
+    "lch_count": 30,
+    "transition_edge_count": 3,
+    "evidence_ref_count": 32,
+    "evidence_artifact_type_count": 5,
+    "distinct_path_count": 1,
+    "h005_exception_count": 1,
+    "unknown_evidence_type_count": 0,
+    "all_candidates_share_path": true,
+    "all_edges_cover_all_candidates": true,
+    "consistent_with_wp9f_wp9g_current_lch_baselines": true
+  }
+]

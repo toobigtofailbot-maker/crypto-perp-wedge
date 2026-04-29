@@ -1,0 +1,57 @@
+[
+  {
+    "evidence_artifact_type": "hypothesis_path",
+    "ref_count": 10,
+    "distinct_candidate_count": 10,
+    "distinct_lch_count": 10,
+    "transition_edge_coverage_count": 1,
+    "transition_edges": "proposed->in_research",
+    "candidate_ids": "H-001 | H-002 | H-003 | H-004 | H-005 | H-006 | H-007 | H-008 | H-009 | H-010",
+    "evidence_refs": "research/hypotheses/H-001/HYPOTHESIS.md | research/hypotheses/H-002/HYPOTHESIS.md | research/hypotheses/H-003/HYPOTHESIS.md | research/hypotheses/H-004/HYPOTHESIS.md | research/hypotheses/H-005/HYPOTHESIS.md | research/hypotheses/H-006/HYPOTHESIS.md | research/hypotheses/H-007/HYPOTHESIS.md | research/hypotheses/H-008/HYPOTHESIS.md | research/hypotheses/H-009/HYPOTHESIS.md | research/hypotheses/H-010/HYPOTHESIS.md",
+    "coverage_interpretation": "full_candidate_coverage_for_current_retrospective_corpus"
+  },
+  {
+    "evidence_artifact_type": "rep",
+    "ref_count": 10,
+    "distinct_candidate_count": 10,
+    "distinct_lch_count": 10,
+    "transition_edge_coverage_count": 1,
+    "transition_edges": "in_research->research_concluded",
+    "candidate_ids": "H-001 | H-002 | H-003 | H-004 | H-005 | H-006 | H-007 | H-008 | H-009 | H-010",
+    "evidence_refs": "REP-0001 | REP-0002 | REP-0003 | REP-0004 | REP-0005 | REP-0006 | REP-0007 | REP-0008 | REP-0009 | REP-0010",
+    "coverage_interpretation": "full_candidate_coverage_for_current_retrospective_corpus"
+  },
+  {
+    "evidence_artifact_type": "dec_path",
+    "ref_count": 10,
+    "distinct_candidate_count": 10,
+    "distinct_lch_count": 10,
+    "transition_edge_coverage_count": 1,
+    "transition_edges": "research_concluded->archived",
+    "candidate_ids": "H-001 | H-002 | H-003 | H-004 | H-005 | H-006 | H-007 | H-008 | H-009 | H-010",
+    "evidence_refs": "research/decisions/DEC-0001.md | research/decisions/DEC-0002.md | research/decisions/DEC-0003.md | research/decisions/DEC-0004.md | research/decisions/DEC-0005.md | research/decisions/DEC-0006.md | research/decisions/DEC-0007.md | research/decisions/DEC-0008.md | research/decisions/DEC-0009.md | research/decisions/DEC-0010.md",
+    "coverage_interpretation": "full_candidate_coverage_for_current_retrospective_corpus"
+  },
+  {
+    "evidence_artifact_type": "dch",
+    "ref_count": 1,
+    "distinct_candidate_count": 1,
+    "distinct_lch_count": 1,
+    "transition_edge_coverage_count": 1,
+    "transition_edges": "research_concluded->archived",
+    "candidate_ids": "H-005",
+    "evidence_refs": "DCH-0001",
+    "coverage_interpretation": "h005_archival_cross_family_exception_only"
+  },
+  {
+    "evidence_artifact_type": "rel",
+    "ref_count": 1,
+    "distinct_candidate_count": 1,
+    "distinct_lch_count": 1,
+    "transition_edge_coverage_count": 1,
+    "transition_edges": "research_concluded->archived",
+    "candidate_ids": "H-005",
+    "evidence_refs": "REL-0001",
+    "coverage_interpretation": "h005_archival_cross_family_exception_only"
+  }
+]

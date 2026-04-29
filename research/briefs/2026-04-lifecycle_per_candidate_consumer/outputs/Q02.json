@@ -1,0 +1,92 @@
+[
+  {
+    "candidate_id": "H-001",
+    "lifecycle_path": "proposed->in_research | in_research->research_concluded | research_concluded->archived",
+    "ordered_lch_ids": "LCH-0001 | LCH-0002 | LCH-0003",
+    "first_decided_at": "2026-04-14 22:32:27",
+    "final_decided_at": "2026-04-19 05:10:50",
+    "transition_count": 3,
+    "follows_expected_retrospective_path": true
+  },
+  {
+    "candidate_id": "H-002",
+    "lifecycle_path": "proposed->in_research | in_research->research_concluded | research_concluded->archived",
+    "ordered_lch_ids": "LCH-0004 | LCH-0005 | LCH-0006",
+    "first_decided_at": "2026-04-15 02:43:16",
+    "final_decided_at": "2026-04-19 05:10:50",
+    "transition_count": 3,
+    "follows_expected_retrospective_path": true
+  },
+  {
+    "candidate_id": "H-003",
+    "lifecycle_path": "proposed->in_research | in_research->research_concluded | research_concluded->archived",
+    "ordered_lch_ids": "LCH-0007 | LCH-0008 | LCH-0009",
+    "first_decided_at": "2026-04-15 19:58:53",
+    "final_decided_at": "2026-04-19 05:10:50",
+    "transition_count": 3,
+    "follows_expected_retrospective_path": true
+  },
+  {
+    "candidate_id": "H-004",
+    "lifecycle_path": "proposed->in_research | in_research->research_concluded | research_concluded->archived",
+    "ordered_lch_ids": "LCH-0010 | LCH-0011 | LCH-0012",
+    "first_decided_at": "2026-04-15 19:58:53",
+    "final_decided_at": "2026-04-19 05:10:50",
+    "transition_count": 3,
+    "follows_expected_retrospective_path": true
+  },
+  {
+    "candidate_id": "H-005",
+    "lifecycle_path": "proposed->in_research | in_research->research_concluded | research_concluded->archived",
+    "ordered_lch_ids": "LCH-0013 | LCH-0014 | LCH-0015",
+    "first_decided_at": "2026-04-15 21:02:08",
+    "final_decided_at": "2026-04-19 04:37:21",
+    "transition_count": 3,
+    "follows_expected_retrospective_path": true
+  },
+  {
+    "candidate_id": "H-006",
+    "lifecycle_path": "proposed->in_research | in_research->research_concluded | research_concluded->archived",
+    "ordered_lch_ids": "LCH-0016 | LCH-0017 | LCH-0018",
+    "first_decided_at": "2026-04-15 21:02:08",
+    "final_decided_at": "2026-04-19 05:10:50",
+    "transition_count": 3,
+    "follows_expected_retrospective_path": true
+  },
+  {
+    "candidate_id": "H-007",
+    "lifecycle_path": "proposed->in_research | in_research->research_concluded | research_concluded->archived",
+    "ordered_lch_ids": "LCH-0019 | LCH-0020 | LCH-0021",
+    "first_decided_at": "2026-04-16 04:27:43",
+    "final_decided_at": "2026-04-19 05:10:50",
+    "transition_count": 3,
+    "follows_expected_retrospective_path": true
+  },
+  {
+    "candidate_id": "H-008",
+    "lifecycle_path": "proposed->in_research | in_research->research_concluded | research_concluded->archived",
+    "ordered_lch_ids": "LCH-0022 | LCH-0023 | LCH-0024",
+    "first_decided_at": "2026-04-16 04:27:43",
+    "final_decided_at": "2026-04-19 05:10:50",
+    "transition_count": 3,
+    "follows_expected_retrospective_path": true
+  },
+  {
+    "candidate_id": "H-009",
+    "lifecycle_path": "proposed->in_research | in_research->research_concluded | research_concluded->archived",
+    "ordered_lch_ids": "LCH-0025 | LCH-0026 | LCH-0027",
+    "first_decided_at": "2026-04-16 04:27:43",
+    "final_decided_at": "2026-04-19 05:10:50",
+    "transition_count": 3,
+    "follows_expected_retrospective_path": true
+  },
+  {
+    "candidate_id": "H-010",
+    "lifecycle_path": "proposed->in_research | in_research->research_concluded | research_concluded->archived",
+    "ordered_lch_ids": "LCH-0028 | LCH-0029 | LCH-0030",
+    "first_decided_at": "2026-04-16 04:27:43",
+    "final_decided_at": "2026-04-19 05:10:50",
+    "transition_count": 3,
+    "follows_expected_retrospective_path": true
+  }
+]

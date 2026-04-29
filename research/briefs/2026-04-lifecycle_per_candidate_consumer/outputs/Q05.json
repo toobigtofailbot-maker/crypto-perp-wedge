@@ -1,0 +1,13 @@
+[
+  {
+    "summary_scope": "corpus_summary",
+    "candidate_count": 10,
+    "lch_count": 30,
+    "distinct_path_count": 1,
+    "transition_edge_count": 3,
+    "min_count_per_transition": 10,
+    "max_count_per_transition": 10,
+    "transition_counts": "in_research->research_concluded=10 | proposed->in_research=10 | research_concluded->archived=10",
+    "all_candidates_share_three_transition_path": true
+  }
+]

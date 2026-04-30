@@ -1,0 +1,15 @@
+[
+  {
+    "inventory_scope": "current_lifecycle_corpus_synthesis_inventory",
+    "lch_row_count": 30,
+    "candidate_count": 10,
+    "transition_edge_count": 3,
+    "evidence_ref_count": 32,
+    "evidence_artifact_type_count": 5,
+    "fast_track_count": 0,
+    "non_retrospective_count": 0,
+    "linked_advisory_ref_count": 0,
+    "strong_candidate_criteria_ref_count": 0,
+    "unknown_evidence_ref_count": 0
+  }
+]

@@ -1,0 +1,107 @@
+[
+  {
+    "capability": "H-005 evidence exception identification",
+    "status": "supported_descriptive",
+    "reason": "current archival transition evidence makes H-005 the only DCH/REL cross-family exception",
+    "required_future_dependency": null,
+    "policy_authority": false
+  },
+  {
+    "capability": "current LCH corpus inventory",
+    "status": "supported_descriptive",
+    "reason": "current central lifecycle query surfaces expose row, candidate, transition, evidence, and boundary counts",
+    "required_future_dependency": null,
+    "policy_authority": false
+  },
+  {
+    "capability": "evidence-artifact-type lineage view",
+    "status": "supported_descriptive",
+    "reason": "WP-9h and current evidence refs classify HYPOTHESIS path, REP, DEC path, DCH, and REL refs with zero unknown refs",
+    "required_future_dependency": null,
+    "policy_authority": false
+  },
+  {
+    "capability": "lifecycle integrity and boundary validation",
+    "status": "supported_descriptive",
+    "reason": "current lifecycle integrity views and all discovered integrity views return no rows",
+    "required_future_dependency": null,
+    "policy_authority": false
+  },
+  {
+    "capability": "per-candidate retrospective path view",
+    "status": "supported_descriptive",
+    "reason": "WP-9f and current LCH rows show one ordered retrospective path across H-001 through H-010",
+    "required_future_dependency": null,
+    "policy_authority": false
+  },
+  {
+    "capability": "per-transition-edge aggregate view",
+    "status": "supported_descriptive",
+    "reason": "WP-9g and current transition rows show three edges with all ten candidates on each edge",
+    "required_future_dependency": null,
+    "policy_authority": false
+  },
+  {
+    "capability": "fast-track versus standard-track comparison",
+    "status": "unsupported_current_corpus",
+    "reason": "current fast_track_flag count is zero",
+    "required_future_dependency": "future fast-track and standard-track LCH examples plus approved comparison scope",
+    "policy_authority": false
+  },
+  {
+    "capability": "halted/recovery behavior",
+    "status": "unsupported_current_corpus",
+    "reason": "current path contains no halted or recovery states",
+    "required_future_dependency": "approved halted/recovery lifecycle semantics and committed artifacts",
+    "policy_authority": false
+  },
+  {
+    "capability": "paper/live lifecycle behavior",
+    "status": "unsupported_current_corpus",
+    "reason": "current lifecycle states and transitions do not include paper or live behavior",
+    "required_future_dependency": "approved lifecycle extension and committed paper/live lifecycle artifacts",
+    "policy_authority": false
+  },
+  {
+    "capability": "runtime/deployment authority",
+    "status": "unsupported_current_corpus",
+    "reason": "research briefs and LCH artifacts have no execution authority",
+    "required_future_dependency": "explicit later package opening protected runtime/deployment scope",
+    "policy_authority": false
+  },
+  {
+    "capability": "REC/reconciliation linkage",
+    "status": "requires_future_artifacts",
+    "reason": "current lifecycle corpus has no REC or reconciliation linkage",
+    "required_future_dependency": "approved REC/reconciliation architecture and committed artifacts",
+    "policy_authority": false
+  },
+  {
+    "capability": "evidence-quality scoring",
+    "status": "requires_future_artifacts",
+    "reason": "current evidence lineage classifies artifact types only and does not score evidence quality",
+    "required_future_dependency": "approved scoring semantics and evidence-quality artifacts",
+    "policy_authority": false
+  },
+  {
+    "capability": "future candidate forward-flow behavior",
+    "status": "requires_future_artifacts",
+    "reason": "current LCH corpus is retrospective for H-001 through H-010 only",
+    "required_future_dependency": "future non-retrospective LCH artifacts and an approved forward-flow package",
+    "policy_authority": false
+  },
+  {
+    "capability": "outcome-learning linkage",
+    "status": "requires_future_artifacts",
+    "reason": "current lifecycle corpus has no outcome-learning ledger or outcome linkage",
+    "required_future_dependency": "approved outcome-learning architecture and committed outcome artifacts",
+    "policy_authority": false
+  },
+  {
+    "capability": "promotion/demotion threshold",
+    "status": "requires_future_artifacts",
+    "reason": "current lifecycle consumers are descriptive and do not encode thresholds",
+    "required_future_dependency": "approved promotion policy architecture and threshold artifacts",
+    "policy_authority": false
+  }
+]

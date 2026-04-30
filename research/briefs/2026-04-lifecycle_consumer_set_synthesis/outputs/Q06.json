@@ -1,0 +1,19 @@
+[
+  {
+    "summary_scope": "integrity_and_boundary_snapshot",
+    "lifecycle_change_ref_integrity_count": 0,
+    "lifecycle_transition_graph_integrity_count": 0,
+    "lifecycle_approval_completeness_integrity_count": 0,
+    "lifecycle_fast_track_completeness_integrity_count": 0,
+    "discovered_integrity_view_count": 15,
+    "all_discovered_integrity_row_count": 0,
+    "fast_track_true_count": 0,
+    "non_retrospective_count": 0,
+    "linked_advisory_ref_count": 0,
+    "strong_candidate_criteria_ref_count": 0,
+    "lch_row_count": 30,
+    "evidence_ref_count": 32,
+    "unknown_evidence_type_count": 0,
+    "consumer_brief_count": 3
+  }
+]

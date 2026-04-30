@@ -1,0 +1,16 @@
+[
+  {
+    "timing_scope": "timing_and_retrospective_boundary_synthesis",
+    "timing_interpretation": "artifact_commit_timestamp_gap_not_operational_duration",
+    "archival_edge_negative_gap_count": 10,
+    "fast_track_count": 0,
+    "non_retrospective_count": 0,
+    "cannot_infer_operational_lifecycle_speed": true,
+    "cannot_infer_process_speed": true,
+    "cannot_infer_research_quality": true,
+    "cannot_infer_candidate_quality": true,
+    "cannot_infer_operational_readiness": true,
+    "cannot_infer_promotion_readiness": true,
+    "cannot_infer_evidence_strength": true
+  }
+]

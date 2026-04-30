@@ -1,0 +1,16 @@
+[
+  {
+    "consistency_scope": "cross_axis_structural_consistency",
+    "distinct_path_count": 1,
+    "candidates_with_all_three_transitions": 10,
+    "edges_covering_all_candidates": 3,
+    "min_candidates_per_edge": 10,
+    "max_candidates_per_edge": 10,
+    "hypothesis_path_on_proposed_edge_count": 10,
+    "rep_on_research_concluded_edge_count": 10,
+    "dec_path_on_archival_edge_count": 10,
+    "unknown_evidence_ref_count": 0,
+    "h005_exception_count": 1,
+    "all_consistency_checks_pass": true
+  }
+]

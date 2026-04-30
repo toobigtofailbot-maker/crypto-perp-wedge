@@ -1,0 +1,41 @@
+[
+  {
+    "consumer_axis": "per_candidate_path",
+    "source_brief_path": "research/briefs/2026-04-lifecycle_per_candidate_consumer.md",
+    "query_bundle_path": "research/briefs/2026-04-lifecycle_per_candidate_consumer/",
+    "axis_unit": "candidate lifecycle path",
+    "primary_entity_count": 10,
+    "secondary_current_count": 1,
+    "key_finding": "10 candidates; 1 uniform retrospective path",
+    "main_limitation": "current corpus has no future-flow, paper/live, fast-track, halted, or recovery paths",
+    "policy_inference_supported": false,
+    "lch_row_count": 30,
+    "unknown_evidence_ref_count": 0
+  },
+  {
+    "consumer_axis": "per_transition_edge",
+    "source_brief_path": "research/briefs/2026-04-lifecycle_per_transition_edge_consumer.md",
+    "query_bundle_path": "research/briefs/2026-04-lifecycle_per_transition_edge_consumer/",
+    "axis_unit": "transition edge",
+    "primary_entity_count": 3,
+    "secondary_current_count": 10,
+    "key_finding": "3 edges; 10 rows on each edge",
+    "main_limitation": "edge timing is retrospective artifact timestamp gap only",
+    "policy_inference_supported": false,
+    "lch_row_count": 30,
+    "unknown_evidence_ref_count": 0
+  },
+  {
+    "consumer_axis": "per_evidence_artifact_type",
+    "source_brief_path": "research/briefs/2026-04-lifecycle_per_evidence_artifact_type_consumer.md",
+    "query_bundle_path": "research/briefs/2026-04-lifecycle_per_evidence_artifact_type_consumer/",
+    "axis_unit": "evidence artifact type",
+    "primary_entity_count": 5,
+    "secondary_current_count": 32,
+    "key_finding": "5 evidence artifact types; 32 evidence refs; 0 unknown refs",
+    "main_limitation": "evidence lineage is descriptive and does not rank evidence or candidates",
+    "policy_inference_supported": false,
+    "lch_row_count": 30,
+    "unknown_evidence_ref_count": 0
+  }
+]

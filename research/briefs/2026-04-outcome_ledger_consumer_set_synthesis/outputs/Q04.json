@@ -1,0 +1,10 @@
+[
+  {
+    "total_segments": 11,
+    "below_floor_segments": 11,
+    "at_or_above_floor_segments": 0,
+    "inference_floor": "n >= 3 per candidate / outcome_kind / pipeline_version before cross-window inference",
+    "floor_status_summary": "INSUFFICIENT_EVIDENCE for every current segment",
+    "grouping_boundary": "consumer grouping by candidate, pipeline version, or strategy family does not lower OL-4; no retrospective special-case lowering"
+  }
+]

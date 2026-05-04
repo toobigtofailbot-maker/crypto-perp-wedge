@@ -1,0 +1,14 @@
+[
+  {
+    "candidate_id": "H-004",
+    "strategy_family": "trend_following",
+    "outcome_ids": "OL-0005 | OL-0011",
+    "source_reps": "REP-0005 | REP-0011",
+    "source_exps": "EXP-0005 | EXP-0011",
+    "pipeline_versions": "pre_wp_5b | post_wp_5b",
+    "candidate_axis_role": "only current two-entry candidate in the per-candidate axis",
+    "pipeline_axis_role": "only current cross-pipeline candidate and only post_wp_5b contributor",
+    "strategy_family_axis_role": "trend_following split contributor across pre_wp_5b and post_wp_5b",
+    "inference_boundary": "structural exception only; no improvement, degradation, comparability, recommendation, or promotion claim"
+  }
+]

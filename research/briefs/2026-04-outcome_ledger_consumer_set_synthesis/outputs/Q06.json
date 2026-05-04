@@ -1,0 +1,11 @@
+[
+  {
+    "ol_row_count": 11,
+    "rows_with_exp_rep_links": 11,
+    "rows_missing_exp_rep_links": 0,
+    "advisory_link_count": 0,
+    "rows_with_advisory_links": 0,
+    "lineage_status": "all OL rows have EXP/REP lineage",
+    "advisory_status": "advisory links are currently empty; forward-compatible field is unexercised"
+  }
+]

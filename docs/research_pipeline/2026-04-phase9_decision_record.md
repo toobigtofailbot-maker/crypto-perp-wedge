@@ -164,6 +164,61 @@ not retrofit SSS v1 or SSS v2. SSS v1 remains governed by its top-level
 `derivation_method` marker, and SSS v2 already has explicit
 `schema_version: "v2"`.
 
+## OL-1 - Outcome Ledger v1 Outcome Kind
+
+Outcome-ledger v1 supports `research_oos` only.
+
+Paper and live outcome kinds are v2 or later future work. WP-9k creates no
+paper/live outcome semantics.
+
+## OL-2 - Retrospective REP Backfill
+
+Retrospective outcome-ledger backfill from REP artifacts is accepted after the
+outcome-ledger schema and validator support are merged.
+
+WP-9n or an equivalent later scoped package executes this backfill. WP-9k
+creates no outcome-ledger instances.
+
+## OL-3 - Derivation And Pipeline Disclosure
+
+Outcome-ledger entries require `derivation_record`.
+
+Outcome-ledger entries require `pipeline_version`.
+
+Reproducibility is interpreted under the disclosed pipeline semantics and the
+available committed source artifacts.
+
+## OL-4 - Consumer Inference Floor
+
+Outcome-ledger consumers must use an insufficient-evidence floor of at least 3
+evaluation windows per candidate / outcome_kind / pipeline_version before
+cross-window inference.
+
+Below that floor, consumers must mark the inference state as
+`INSUFFICIENT_EVIDENCE`.
+
+This is a consumer-time rule for later packages. It is not WP-9k runtime,
+validator, query-layer, or policy behavior.
+
+## OL-5 - Outcome Ledger v1 Schema Scope
+
+Outcome-ledger v1 includes:
+
+- `research_oos` only
+- required `pipeline_version`
+- optional `linked_advisory_artifacts`
+- no paper/live outcome kinds
+- no per-trade granularity
+- no evidence-quality scoring
+
+## OL-6 - Outcome Ingestion Helper Sequencing
+
+The outcome-ingestion helper is a mid-tranche package after schema,
+validator/query-layer, methodology/synthetic instance, and retrospective
+backfill.
+
+WP-9k creates no outcome-ingestion helper.
+
 ## Non-Claims / Forbidden Implications
 
 WP-9a does not imply:

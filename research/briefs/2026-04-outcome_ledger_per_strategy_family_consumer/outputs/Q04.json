@@ -1,0 +1,83 @@
+[
+  {
+    "strategy_family": "basis_mean_reversion",
+    "pipeline_version": "pre_wp_5b",
+    "candidate_count": 1,
+    "ol_row_count": 1,
+    "candidate_ids": "H-010",
+    "outcome_ids": "OL-0010",
+    "source_reps": "REP-0010"
+  },
+  {
+    "strategy_family": "breakout",
+    "pipeline_version": "pre_wp_5b",
+    "candidate_count": 1,
+    "ol_row_count": 1,
+    "candidate_ids": "H-006",
+    "outcome_ids": "OL-0006",
+    "source_reps": "REP-0006"
+  },
+  {
+    "strategy_family": "funding_directional",
+    "pipeline_version": "pre_wp_5b",
+    "candidate_count": 1,
+    "ol_row_count": 1,
+    "candidate_ids": "H-001",
+    "outcome_ids": "OL-0001",
+    "source_reps": "REP-0002"
+  },
+  {
+    "strategy_family": "funding_momentum_composite",
+    "pipeline_version": "pre_wp_5b",
+    "candidate_count": 1,
+    "ol_row_count": 1,
+    "candidate_ids": "H-007",
+    "outcome_ids": "OL-0007",
+    "source_reps": "REP-0007"
+  },
+  {
+    "strategy_family": "mean_reversion",
+    "pipeline_version": "pre_wp_5b",
+    "candidate_count": 1,
+    "ol_row_count": 1,
+    "candidate_ids": "H-003",
+    "outcome_ids": "OL-0004",
+    "source_reps": "REP-0004"
+  },
+  {
+    "strategy_family": "momentum",
+    "pipeline_version": "pre_wp_5b",
+    "candidate_count": 2,
+    "ol_row_count": 2,
+    "candidate_ids": "H-005 | H-008",
+    "outcome_ids": "OL-0002 | OL-0008",
+    "source_reps": "REP-0001 | REP-0008"
+  },
+  {
+    "strategy_family": "multi_tf_alignment",
+    "pipeline_version": "pre_wp_5b",
+    "candidate_count": 1,
+    "ol_row_count": 1,
+    "candidate_ids": "H-009",
+    "outcome_ids": "OL-0009",
+    "source_reps": "REP-0009"
+  },
+  {
+    "strategy_family": "trend_following",
+    "pipeline_version": "pre_wp_5b",
+    "candidate_count": 2,
+    "ol_row_count": 2,
+    "candidate_ids": "H-002 | H-004",
+    "outcome_ids": "OL-0003 | OL-0005",
+    "source_reps": "REP-0003 | REP-0005"
+  },
+  {
+    "strategy_family": "trend_following",
+    "pipeline_version": "post_wp_5b",
+    "candidate_count": 1,
+    "ol_row_count": 1,
+    "candidate_ids": "H-004",
+    "outcome_ids": "OL-0011",
+    "source_reps": "REP-0011"
+  }
+]

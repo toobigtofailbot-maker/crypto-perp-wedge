@@ -1,0 +1,22 @@
+[
+  {
+    "strategy_family": "trend_following",
+    "candidate_count": 2,
+    "ol_row_count": 3,
+    "candidate_ids": "H-002 | H-004",
+    "outcome_ids": "OL-0003 | OL-0005 | OL-0011",
+    "source_reps": "REP-0003 | REP-0005 | REP-0011",
+    "pipeline_versions": "post_wp_5b | pre_wp_5b",
+    "structural_note": "multi-entry structural family; not a ranking or performance conclusion"
+  },
+  {
+    "strategy_family": "momentum",
+    "candidate_count": 2,
+    "ol_row_count": 2,
+    "candidate_ids": "H-005 | H-008",
+    "outcome_ids": "OL-0002 | OL-0008",
+    "source_reps": "REP-0001 | REP-0008",
+    "pipeline_versions": "pre_wp_5b",
+    "structural_note": "multi-entry structural family; not a ranking or performance conclusion"
+  }
+]

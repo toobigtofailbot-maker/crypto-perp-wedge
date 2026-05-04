@@ -1,0 +1,92 @@
+[
+  {
+    "claim_area": "H-004 structural exception",
+    "status": "SUPPORTED_DESCRIPTIVE",
+    "basis": "Q03 shows OL-0005 / REP-0005 / EXP-0005 / pre_wp_5b and OL-0011 / REP-0011 / EXP-0011 / post_wp_5b",
+    "boundary": "structural exception only; no improvement, degradation, comparability, or recommendation claim"
+  },
+  {
+    "claim_area": "OL-4 consumer-time floor marking",
+    "status": "SUPPORTED_DESCRIPTIVE",
+    "basis": "Q04 shows all candidate / outcome_kind / pipeline_version segments below n >= 3",
+    "boundary": "all current cross-window inference remains INSUFFICIENT_EVIDENCE"
+  },
+  {
+    "claim_area": "REC/reconciliation",
+    "status": "UNSUPPORTED_FUTURE_DEPENDENT",
+    "basis": "WP-9s reads OL only and creates no REC schema or artifact",
+    "boundary": "requires later REC/reconciliation package"
+  },
+  {
+    "claim_area": "corpus inventory",
+    "status": "SUPPORTED_DESCRIPTIVE",
+    "basis": "Q01 reports current OL rows, candidates, source REP/EXP counts, pipeline versions, strategy families, and advisory link count",
+    "boundary": "inventory only; no policy, ranking, or runtime authority"
+  },
+  {
+    "claim_area": "cross-window inference",
+    "status": "UNSUPPORTED_FUTURE_DEPENDENT",
+    "basis": "Q04 shows every current segment below n >= 3",
+    "boundary": "all current segments remain INSUFFICIENT_EVIDENCE"
+  },
+  {
+    "claim_area": "evidence-quality scoring",
+    "status": "UNSUPPORTED_FUTURE_DEPENDENT",
+    "basis": "no evidence-quality score field, schema, or artifact is introduced",
+    "boundary": "requires later explicit scoring package"
+  },
+  {
+    "claim_area": "paper/live semantics",
+    "status": "UNSUPPORTED_FUTURE_DEPENDENT",
+    "basis": "OL v1 supports research_oos only",
+    "boundary": "paper/live outcome semantics require later versioned work"
+  },
+  {
+    "claim_area": "per-candidate path",
+    "status": "SUPPORTED_DESCRIPTIVE",
+    "basis": "WP-9p and Q02 show OL coverage by candidate, including H-004 as the only two-entry candidate",
+    "boundary": "single-window factual inspection only below OL-4"
+  },
+  {
+    "claim_area": "pipeline-version distribution",
+    "status": "SUPPORTED_DESCRIPTIVE",
+    "basis": "WP-9q and Q02 show 10 pre_wp_5b rows and 1 post_wp_5b row",
+    "boundary": "pipeline_version is disclosure only; no automatic comparability"
+  },
+  {
+    "claim_area": "pipeline-version performance comparison",
+    "status": "UNSUPPORTED_FUTURE_DEPENDENT",
+    "basis": "pipeline_version is disclosure and H-004 rows are single-window facts",
+    "boundary": "no automatic pre/post comparability below OL-4"
+  },
+  {
+    "claim_area": "promotion/demotion policy",
+    "status": "UNSUPPORTED_FUTURE_DEPENDENT",
+    "basis": "no promotion or demotion policy artifact is created or modified",
+    "boundary": "requires later explicit policy package"
+  },
+  {
+    "claim_area": "runtime/deployment authority",
+    "status": "UNSUPPORTED_FUTURE_DEPENDENT",
+    "basis": "WP-9s changes only research brief/status surfaces",
+    "boundary": "no runtime, deployment, OMS, risk, safe-mode, or live-trading authority"
+  },
+  {
+    "claim_area": "source EXP/REP lineage",
+    "status": "SUPPORTED_DESCRIPTIVE",
+    "basis": "Q01 and Q06 show 11 source REP artifacts and 11 source EXP artifacts",
+    "boundary": "lineage completeness only; no REC or advisory conclusion"
+  },
+  {
+    "claim_area": "strategy-family distribution",
+    "status": "SUPPORTED_DESCRIPTIVE",
+    "basis": "WP-9r and Q02 show 8 represented strategy families with trend_following and momentum as multi-entry families",
+    "boundary": "family grouping does not rank families or lower OL-4"
+  },
+  {
+    "claim_area": "strategy-family ranking",
+    "status": "UNSUPPORTED_FUTURE_DEPENDENT",
+    "basis": "family counts are descriptive and floor-limited",
+    "boundary": "no family superiority, inferiority, robustness, or recommendation claim"
+  }
+]

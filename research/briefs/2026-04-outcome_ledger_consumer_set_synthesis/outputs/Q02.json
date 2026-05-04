@@ -1,0 +1,26 @@
+[
+  {
+    "consumer_axis": "per_candidate",
+    "represented_groups": 10,
+    "ol_row_count": 11,
+    "candidate_count": 10,
+    "key_structural_finding": "10 OL-covered candidates; H-004 is the only two-entry candidate",
+    "primary_boundary": "descriptive path inspection only; no ranking, recommendation, or OL-4 floor lowering"
+  },
+  {
+    "consumer_axis": "per_pipeline_version",
+    "represented_groups": 2,
+    "ol_row_count": 11,
+    "candidate_count": 10,
+    "key_structural_finding": "2 pipeline versions; H-004 is the only cross-pipeline candidate and only post_wp_5b row",
+    "primary_boundary": "pipeline_version is disclosure only; no automatic comparability or performance comparison below OL-4"
+  },
+  {
+    "consumer_axis": "per_strategy_family",
+    "represented_groups": 8,
+    "ol_row_count": 11,
+    "candidate_count": 10,
+    "key_structural_finding": "8 represented families; trend_following and momentum are current multi-entry families",
+    "primary_boundary": "family grouping is descriptive only; no ranking, policy authority, or OL-4 floor lowering"
+  }
+]

@@ -1,0 +1,290 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crypto-perp-wedge.local/research/schemas/outcome_ledger.schema.json",
+  "title": "Outcome Ledger",
+  "description": "JSON artifact that records one Phase 9 research out-of-sample outcome for one candidate and evaluation window. The schema validates local shape only; reference resolution, cross-field datetime ordering, and consumer inference floors are deferred to validators, query-layer integrity views, or later consumers.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "outcome_id",
+    "candidate_id",
+    "lifecycle_state_during_window",
+    "evaluation_window_start",
+    "evaluation_window_end",
+    "outcome_kind",
+    "metrics",
+    "data_provenance",
+    "derivation_record",
+    "pipeline_version",
+    "linked_artifacts",
+    "retrospective_flag"
+  ],
+  "properties": {
+    "schema_version": {
+      "description": "Explicit Phase 9 outcome-ledger schema marker.",
+      "type": "string",
+      "const": "v1"
+    },
+    "outcome_id": {
+      "description": "Stable outcome-ledger artifact identifier.",
+      "type": "string",
+      "pattern": "^OL-[0-9]{4}$"
+    },
+    "candidate_id": {
+      "description": "Candidate registry identifier.",
+      "type": "string",
+      "pattern": "^H-[0-9]{3}$"
+    },
+    "lifecycle_state_during_window": {
+      "description": "Lifecycle state occupied by the candidate during the evaluation window. Outcome-ledger v1 supports research outcomes only.",
+      "type": "string",
+      "enum": ["in_research"]
+    },
+    "evaluation_window_start": {
+      "description": "Evaluation-window start. Null is allowed when the source EXP/REP record explicitly preserves the current no-formal-split convention.",
+      "type": ["string", "null"]
+    },
+    "evaluation_window_end": {
+      "description": "Evaluation-window end. Null is allowed when the source EXP/REP record explicitly preserves the current no-formal-split convention.",
+      "type": ["string", "null"]
+    },
+    "outcome_kind": {
+      "description": "Outcome class recorded by this ledger entry. Outcome-ledger v1 supports research OOS outcomes only.",
+      "type": "string",
+      "enum": ["research_oos"]
+    },
+    "metrics": {
+      "description": "REP-derived out-of-sample metric object. Field names mirror committed REP metrics without inventing outcome-ledger-specific metric names.",
+      "$ref": "#/definitions/research_oos_metrics"
+    },
+    "data_provenance": {
+      "description": "Source data or source artifact basis for the evaluation window.",
+      "$ref": "#/definitions/data_provenance"
+    },
+    "derivation_record": {
+      "description": "Disclosure of how the outcome-ledger entry was derived.",
+      "$ref": "#/definitions/derivation_record"
+    },
+    "pipeline_version": {
+      "description": "Pipeline-semantics disclosure label. These labels do not imply automatic metric comparability across versions.",
+      "type": "string",
+      "enum": ["pre_wp_5b", "post_wp_5b"]
+    },
+    "linked_artifacts": {
+      "description": "Related artifact identifiers or repo-relative paths. Resolution is deferred to WP-9l validator/query-layer work.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "retrospective_flag": {
+      "description": "True when the outcome-ledger entry is a retrospective derivation from already committed evidence.",
+      "type": "boolean"
+    },
+    "linked_advisory_artifacts": {
+      "description": "Optional one-way lineage references to advisory artifacts. These links carry no execution or policy authority.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "notes": {
+      "description": "Optional human note that does not change the recorded outcome.",
+      "type": "string"
+    },
+    "retrospective_disclosure": {
+      "description": "Required explanation when retrospective_flag is true.",
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "definitions": {
+    "research_oos_metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_field",
+        "window_convention",
+        "sharpe",
+        "max_drawdown",
+        "n_obs",
+        "trades",
+        "hit_rate",
+        "profit_factor",
+        "final_equity",
+        "total_pnl",
+        "gross_pnl",
+        "fees_paid",
+        "slippage_paid",
+        "funding_paid",
+        "cost_drag_fraction",
+        "dsr",
+        "walk_forward_efficiency",
+        "gates_passed",
+        "gates_total"
+      ],
+      "properties": {
+        "source_field": {
+          "description": "Source field disclosed by the REP metrics object.",
+          "type": "string",
+          "minLength": 1
+        },
+        "window_convention": {
+          "description": "Window convention disclosed by the REP metrics object.",
+          "type": "string",
+          "minLength": 1
+        },
+        "sharpe": { "type": "number" },
+        "max_drawdown": { "type": "number" },
+        "n_obs": { "type": "integer", "minimum": 0 },
+        "trades": { "type": "integer", "minimum": 0 },
+        "hit_rate": { "type": "number" },
+        "profit_factor": { "type": "number" },
+        "final_equity": { "type": "number" },
+        "total_pnl": { "type": "number" },
+        "gross_pnl": { "type": "number" },
+        "fees_paid": { "type": "number" },
+        "slippage_paid": { "type": "number" },
+        "funding_paid": { "type": "number" },
+        "cost_drag_fraction": { "type": "number" },
+        "dsr": { "type": "number" },
+        "walk_forward_efficiency": { "type": "number" },
+        "gates_passed": { "type": "integer", "minimum": 0 },
+        "gates_total": { "type": "integer", "minimum": 0 },
+        "funding_events_applied": { "type": "integer", "minimum": 0 },
+        "config_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "dataset_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "dsr_note": { "type": "string" },
+        "max_drawdown_peak": { "type": "string" },
+        "max_drawdown_trough": { "type": "string" },
+        "skipped_bars": { "type": "integer", "minimum": 0 },
+        "sensitivity_min_ratio": { "type": "number" },
+        "short_side_trades": { "type": "integer", "minimum": 0 },
+        "short_side_net_pnl": { "type": "number" },
+        "long_side_trades": { "type": "integer", "minimum": 0 },
+        "long_side_net_pnl": { "type": "number" },
+        "trial_count_before_append": { "type": "integer", "minimum": 0 },
+        "trial_count_after_append": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "data_provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_data_refs",
+        "source_data_window_start",
+        "source_data_window_end"
+      ],
+      "properties": {
+        "source_data_refs": {
+          "description": "Source data references, data-requirement strings, dataset identifiers, or artifact references available from the source EXP/REP evidence.",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "source_data_window_start": {
+          "description": "Source-data window start when available from committed evidence; null otherwise.",
+          "type": ["string", "null"]
+        },
+        "source_data_window_end": {
+          "description": "Source-data window end when available from committed evidence; null otherwise.",
+          "type": ["string", "null"]
+        },
+        "source_data_notes": {
+          "description": "Optional provenance note copied or summarized from committed source artifacts.",
+          "type": "string"
+        }
+      }
+    },
+    "derivation_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "derivation_method",
+        "source_artifact_id",
+        "source_artifact_path",
+        "derivation_timestamp"
+      ],
+      "properties": {
+        "derivation_method": {
+          "description": "Method used to derive the outcome-ledger entry.",
+          "type": "string",
+          "enum": ["from_rep_artifact"]
+        },
+        "source_artifact_id": {
+          "description": "Source REP artifact identifier.",
+          "type": "string",
+          "pattern": "^REP-[0-9]{4}$"
+        },
+        "source_artifact_path": {
+          "description": "Repo-relative path to the source artifact.",
+          "type": "string",
+          "pattern": "^(?!/)(?!.*(^|/)\\.\\.(/|$)).+$"
+        },
+        "derivation_timestamp": {
+          "description": "Timezone-qualified ISO datetime when this outcome entry was derived.",
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(Z|[+-][0-9]{2}:[0-9]{2})$"
+        },
+        "derivation_tool_version": {
+          "description": "Optional derivation tool version when a later helper exists.",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "retrospective_flag": { "const": true }
+        },
+        "required": ["retrospective_flag"]
+      },
+      "then": {
+        "required": ["retrospective_disclosure"]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "derivation_record": {
+            "type": "object",
+            "properties": {
+              "derivation_method": { "const": "from_rep_artifact" }
+            },
+            "required": ["derivation_method"]
+          }
+        },
+        "required": ["derivation_record"]
+      },
+      "then": {
+        "properties": {
+          "derivation_record": {
+            "properties": {
+              "source_artifact_id": {
+                "pattern": "^REP-[0-9]{4}$"
+              }
+            },
+            "required": ["source_artifact_id"]
+          }
+        }
+      }
+    }
+  ]
+}

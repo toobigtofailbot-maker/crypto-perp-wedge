@@ -146,3 +146,13 @@ post-WP-5b outcome-ledger entries.
 This application note changes no methodology rules and adds no policy,
 REC/reconciliation, promotion, paper/live, helper, runtime, or deployment
 behavior.
+
+## WP-9o Helper Note
+
+WP-9o adds an offline helper that operationalizes the WP-9m/WP-9n mapping rules
+for future REP-derived outcome-ledger candidate JSON. The helper does not
+replace this methodology: generated output must still be reviewed, validated,
+and committed through the normal work-package and PR process.
+
+The helper grants no policy, REC/reconciliation, promotion, paper/live,
+runtime, deployment, strategy-adjustment, or protected-path authority.

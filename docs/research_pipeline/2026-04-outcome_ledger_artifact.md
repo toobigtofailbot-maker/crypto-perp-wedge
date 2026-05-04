@@ -38,6 +38,18 @@ WP-9l implementation note:
   paper/live semantics, evidence-quality scoring, runtime behavior, deployment
   behavior, or protected-path behavior
 
+WP-9m implementation note:
+
+- the first seed artifact now exists:
+  `research/outcome_ledgers/OL-0001.outcome_ledger.json`
+- the retrospective backfill methodology now exists:
+  `docs/research_pipeline/2026-04-outcome_ledger_backfill_methodology.md`
+- the committed outcome-ledger corpus size is now 1
+- WP-9m adds no bulk retrospective backfill, ingestion helper,
+  REC/reconciliation, promotion or demotion policy, paper/live semantics,
+  evidence-quality scoring, runtime behavior, deployment behavior, or
+  protected-path behavior
+
 ## Version And Schema Posture
 
 Outcome ledger v1 uses:

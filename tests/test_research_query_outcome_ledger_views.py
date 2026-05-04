@@ -84,10 +84,54 @@ def conn():
         connection.close()
 
 
-def test_outcome_ledgers_relation_empty_under_current_state(conn):
-    assert conn.execute("SELECT COUNT(*) FROM outcome_ledgers").fetchone()[0] == 0
+def test_outcome_ledgers_relation_current_committed_state(conn):
+    assert conn.execute("SELECT COUNT(*) FROM outcome_ledgers").fetchone()[0] == 1
 
-    for view_name in OUTCOME_LEDGER_VIEWS:
+    overview_rows = conn.execute(
+        """
+        SELECT
+            outcome_id,
+            candidate_id,
+            outcome_kind,
+            pipeline_version,
+            lifecycle_state_during_window,
+            retrospective_flag,
+            source_artifact_id,
+            source_artifact_path,
+            linked_artifact_count,
+            linked_advisory_artifact_count
+        FROM v_outcome_ledger_overview
+        """
+    ).fetchall()
+    summary_rows = conn.execute(
+        """
+        SELECT candidate_id, outcome_kind, pipeline_version, outcome_count, retrospective_count
+        FROM v_outcome_ledger_candidate_pipeline_summary
+        """
+    ).fetchall()
+
+    assert overview_rows == [
+        (
+            "OL-0001",
+            "H-001",
+            "research_oos",
+            "pre_wp_5b",
+            "in_research",
+            True,
+            "REP-0002",
+            "research/experiments/REP-0002.report.json",
+            2,
+            0,
+        )
+    ]
+    assert summary_rows == [("H-001", "research_oos", "pre_wp_5b", 1, 1)]
+
+    for view_name in {
+        "v_integrity_outcome_ledger_refs",
+        "v_integrity_outcome_ledger_window_bounds",
+        "v_integrity_outcome_ledger_derivation",
+        "v_integrity_outcome_ledger_scope",
+    }:
         rows = conn.execute(f'SELECT * FROM "{view_name}"').fetchall()
 
         assert rows == []

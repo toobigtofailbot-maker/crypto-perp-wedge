@@ -26,6 +26,18 @@ tests, helper, methodology, retrospective backfill, REC/reconciliation,
 promotion or demotion policy, paper/live values, evidence-quality scoring,
 runtime behavior, deployment behavior, or protected-path behavior.
 
+WP-9l implementation note:
+
+- validator support now exists in `tools/registry/validate_outcome_ledger.py`
+- central query-layer relation `outcome_ledgers` now exists
+- overview and integrity views now exist for the outcome-ledger family
+- the committed outcome-ledger corpus remains empty; missing
+  `research/outcome_ledgers/` is a healthy empty state
+- WP-9l adds no outcome-ledger instances, methodology, retrospective backfill,
+  ingestion helper, REC/reconciliation, promotion or demotion policy,
+  paper/live semantics, evidence-quality scoring, runtime behavior, deployment
+  behavior, or protected-path behavior
+
 ## Version And Schema Posture
 
 Outcome ledger v1 uses:

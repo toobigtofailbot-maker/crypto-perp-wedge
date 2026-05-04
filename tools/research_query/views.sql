@@ -234,6 +234,381 @@ SELECT
 FROM lifecycle_changes
 GROUP BY from_state, to_state, transition_edge;
 
+-- What outcome-ledger entries have been recorded?
+-- Exposes one row per outcome-ledger artifact without expanding linked artifacts.
+CREATE OR REPLACE VIEW v_outcome_ledger_overview AS
+SELECT
+    outcome_id,
+    candidate_id,
+    outcome_kind,
+    pipeline_version,
+    lifecycle_state_during_window,
+    evaluation_window_start,
+    evaluation_window_end,
+    COALESCE(retrospective_flag, false) AS retrospective_flag,
+    derivation_record.source_artifact_id AS source_artifact_id,
+    derivation_record.source_artifact_path AS source_artifact_path,
+    list_count(linked_artifacts) AS linked_artifact_count,
+    list_count(linked_advisory_artifacts) AS linked_advisory_artifact_count
+FROM outcome_ledgers;
+
+-- How many outcome-ledger entries exist per candidate / kind / pipeline version?
+CREATE OR REPLACE VIEW v_outcome_ledger_candidate_pipeline_summary AS
+SELECT
+    candidate_id,
+    outcome_kind,
+    pipeline_version,
+    COUNT(*) AS outcome_count,
+    MIN(evaluation_window_start) AS first_evaluation_window_start,
+    MAX(evaluation_window_end) AS last_evaluation_window_end,
+    SUM(CASE WHEN COALESCE(retrospective_flag, false) THEN 1 ELSE 0 END) AS retrospective_count
+FROM outcome_ledgers
+GROUP BY candidate_id, outcome_kind, pipeline_version;
+
+-- Do all outcome-ledger candidate, REP, linked artifact, and advisory references resolve?
+-- Repo-relative path existence remains validator-only because SQL has no repo filesystem authority.
+-- Expected to be empty in a healthy repo state.
+CREATE OR REPLACE VIEW v_integrity_outcome_ledger_refs AS
+WITH outcome_linked_refs AS (
+    SELECT
+        outcome_id,
+        candidate_id,
+        'linked_artifacts' AS ref_kind,
+        CAST(ref.ref_value AS VARCHAR) AS ref_value
+    FROM outcome_ledgers,
+    UNNEST(linked_artifacts) AS ref(ref_value)
+),
+outcome_advisory_refs AS (
+    SELECT
+        outcome_id,
+        candidate_id,
+        'linked_advisory_artifacts' AS ref_kind,
+        CAST(ref.ref_value AS VARCHAR) AS ref_value
+    FROM outcome_ledgers,
+    UNNEST(linked_advisory_artifacts) AS ref(ref_value)
+),
+all_refs AS (
+    SELECT * FROM outcome_linked_refs
+    UNION ALL
+    SELECT * FROM outcome_advisory_refs
+),
+known_ref_issues AS (
+    SELECT
+        'outcome_unknown_exp_ref' AS issue_type,
+        o.outcome_id,
+        o.candidate_id,
+        o.ref_kind,
+        o.ref_value
+    FROM all_refs AS o
+    LEFT JOIN exp_plans AS p
+      ON o.ref_value = p.plan_id
+    WHERE regexp_matches(o.ref_value, '^EXP-[0-9]{4}$')
+      AND p.plan_id IS NULL
+    UNION ALL
+    SELECT
+        'outcome_unknown_rep_ref' AS issue_type,
+        o.outcome_id,
+        o.candidate_id,
+        o.ref_kind,
+        o.ref_value
+    FROM all_refs AS o
+    LEFT JOIN exp_reports AS r
+      ON o.ref_value = r.report_id
+    WHERE regexp_matches(o.ref_value, '^REP-[0-9]{4}$')
+      AND r.report_id IS NULL
+    UNION ALL
+    SELECT
+        'outcome_unknown_dch_ref' AS issue_type,
+        o.outcome_id,
+        o.candidate_id,
+        o.ref_kind,
+        o.ref_value
+    FROM all_refs AS o
+    LEFT JOIN decision_changes AS d
+      ON o.ref_value = d.decision_change_id
+    WHERE regexp_matches(o.ref_value, '^DCH-[0-9]{4}$')
+      AND d.decision_change_id IS NULL
+    UNION ALL
+    SELECT
+        'outcome_unknown_rel_ref' AS issue_type,
+        o.outcome_id,
+        o.candidate_id,
+        o.ref_kind,
+        o.ref_value
+    FROM all_refs AS o
+    LEFT JOIN release_notes AS r
+      ON o.ref_value = r.release_notes_id
+    WHERE regexp_matches(o.ref_value, '^REL-[0-9]{4}$')
+      AND r.release_notes_id IS NULL
+    UNION ALL
+    SELECT
+        'outcome_unknown_aout_ref' AS issue_type,
+        o.outcome_id,
+        o.candidate_id,
+        o.ref_kind,
+        o.ref_value
+    FROM all_refs AS o
+    LEFT JOIN agent_outputs AS a
+      ON o.ref_value = a.agent_output_id
+    WHERE regexp_matches(o.ref_value, '^AOUT-[0-9]{4}$')
+      AND a.agent_output_id IS NULL
+    UNION ALL
+    SELECT
+        'outcome_unknown_mout_ref' AS issue_type,
+        o.outcome_id,
+        o.candidate_id,
+        o.ref_kind,
+        o.ref_value
+    FROM all_refs AS o
+    LEFT JOIN macro_window_agent_outputs AS m
+      ON o.ref_value = m.macro_window_agent_output_id
+    WHERE regexp_matches(o.ref_value, '^MOUT-[0-9]{4}$')
+      AND m.macro_window_agent_output_id IS NULL
+    UNION ALL
+    SELECT
+        'outcome_unknown_bmap_ref' AS issue_type,
+        o.outcome_id,
+        o.candidate_id,
+        o.ref_kind,
+        o.ref_value
+    FROM all_refs AS o
+    LEFT JOIN bucket_mappings AS b
+      ON o.ref_value = b.bucket_mapping_id
+    WHERE regexp_matches(o.ref_value, '^BMAP-[0-9]{4}$')
+      AND b.bucket_mapping_id IS NULL
+    UNION ALL
+    SELECT
+        'outcome_unknown_pgas_ref' AS issue_type,
+        o.outcome_id,
+        o.candidate_id,
+        o.ref_kind,
+        o.ref_value
+    FROM all_refs AS o
+    LEFT JOIN pre_gate_advisory_snapshots AS p
+      ON o.ref_value = p.pre_gate_advisory_snapshot_id
+    WHERE regexp_matches(o.ref_value, '^PGAS-[0-9]{4}$')
+      AND p.pre_gate_advisory_snapshot_id IS NULL
+    UNION ALL
+    SELECT
+        'outcome_unknown_osh_ref' AS issue_type,
+        o.outcome_id,
+        o.candidate_id,
+        o.ref_kind,
+        o.ref_value
+    FROM all_refs AS o
+    LEFT JOIN overlay_shadow_logs AS s
+      ON o.ref_value = s.overlay_shadow_log_id
+    WHERE regexp_matches(o.ref_value, '^OSH-[0-9]{4}$')
+      AND s.overlay_shadow_log_id IS NULL
+    UNION ALL
+    SELECT
+        'outcome_unknown_sss_ref' AS issue_type,
+        o.outcome_id,
+        o.candidate_id,
+        o.ref_kind,
+        o.ref_value
+    FROM all_refs AS o
+    LEFT JOIN shadow_signal_summaries AS s1
+      ON o.ref_value = s1.shadow_signal_summary_id
+    LEFT JOIN shadow_signal_summaries_v2 AS s2
+      ON o.ref_value = s2.shadow_signal_summary_id
+    WHERE regexp_matches(o.ref_value, '^SSS-[0-9]{4}$')
+      AND s1.shadow_signal_summary_id IS NULL
+      AND s2.shadow_signal_summary_id IS NULL
+    UNION ALL
+    SELECT
+        'outcome_unknown_lch_ref' AS issue_type,
+        o.outcome_id,
+        o.candidate_id,
+        o.ref_kind,
+        o.ref_value
+    FROM all_refs AS o
+    LEFT JOIN lifecycle_changes AS l
+      ON o.ref_value = l.lifecycle_change_id
+    WHERE regexp_matches(o.ref_value, '^LCH-[0-9]{4}$')
+      AND l.lifecycle_change_id IS NULL
+)
+SELECT
+    'outcome_unknown_candidate_ref' AS issue_type,
+    o.outcome_id,
+    o.candidate_id,
+    'candidate_id' AS ref_kind,
+    CAST(o.candidate_id AS VARCHAR) AS ref_value
+FROM outcome_ledgers AS o
+LEFT JOIN candidates AS c
+  ON o.candidate_id = c.candidate_id
+WHERE c.candidate_id IS NULL
+UNION ALL
+SELECT
+    'outcome_unknown_rep_ref' AS issue_type,
+    o.outcome_id,
+    o.candidate_id,
+    'derivation_record.source_artifact_id' AS ref_kind,
+    CAST(o.derivation_record.source_artifact_id AS VARCHAR) AS ref_value
+FROM outcome_ledgers AS o
+LEFT JOIN exp_reports AS r
+  ON CAST(o.derivation_record.source_artifact_id AS VARCHAR) = r.report_id
+WHERE CAST(o.derivation_record.source_artifact_id AS VARCHAR) IS NOT NULL
+  AND r.report_id IS NULL
+UNION ALL
+SELECT
+    CASE
+        WHEN ref_kind = 'linked_advisory_artifacts' THEN
+            'outcome_unknown_linked_advisory_ref'
+        ELSE
+            'outcome_unknown_linked_artifact_ref'
+    END AS issue_type,
+    outcome_id,
+    candidate_id,
+    ref_kind,
+    ref_value
+FROM known_ref_issues;
+
+-- Are outcome-ledger evaluation and source-data window bounds internally ordered?
+-- Expected to be empty in a healthy repo state.
+CREATE OR REPLACE VIEW v_integrity_outcome_ledger_window_bounds AS
+SELECT
+    'outcome_window_one_sided_null' AS issue_type,
+    outcome_id,
+    candidate_id,
+    'evaluation_window' AS field_name,
+    evaluation_window_start AS start_value,
+    evaluation_window_end AS end_value
+FROM outcome_ledgers
+WHERE (
+        evaluation_window_start IS NULL
+        OR evaluation_window_end IS NULL
+      )
+  AND NOT (evaluation_window_start IS NULL AND evaluation_window_end IS NULL)
+UNION ALL
+SELECT
+    'outcome_window_start_after_end' AS issue_type,
+    outcome_id,
+    candidate_id,
+    'evaluation_window' AS field_name,
+    evaluation_window_start AS start_value,
+    evaluation_window_end AS end_value
+FROM outcome_ledgers
+WHERE evaluation_window_start IS NOT NULL
+  AND evaluation_window_end IS NOT NULL
+  AND TRY_CAST(replace(CAST(evaluation_window_start AS VARCHAR), 'Z', '+00:00') AS TIMESTAMPTZ)
+      > TRY_CAST(replace(CAST(evaluation_window_end AS VARCHAR), 'Z', '+00:00') AS TIMESTAMPTZ)
+UNION ALL
+SELECT
+    'outcome_source_data_window_one_sided_null' AS issue_type,
+    outcome_id,
+    candidate_id,
+    'source_data_window' AS field_name,
+    data_provenance.source_data_window_start AS start_value,
+    data_provenance.source_data_window_end AS end_value
+FROM outcome_ledgers
+WHERE (
+        data_provenance.source_data_window_start IS NULL
+        OR data_provenance.source_data_window_end IS NULL
+      )
+  AND NOT (
+        data_provenance.source_data_window_start IS NULL
+        AND data_provenance.source_data_window_end IS NULL
+      )
+UNION ALL
+SELECT
+    'outcome_source_data_window_start_after_end' AS issue_type,
+    outcome_id,
+    candidate_id,
+    'source_data_window' AS field_name,
+    data_provenance.source_data_window_start AS start_value,
+    data_provenance.source_data_window_end AS end_value
+FROM outcome_ledgers
+WHERE data_provenance.source_data_window_start IS NOT NULL
+  AND data_provenance.source_data_window_end IS NOT NULL
+  AND TRY_CAST(replace(CAST(data_provenance.source_data_window_start AS VARCHAR), 'Z', '+00:00') AS TIMESTAMPTZ)
+      > TRY_CAST(replace(CAST(data_provenance.source_data_window_end AS VARCHAR), 'Z', '+00:00') AS TIMESTAMPTZ);
+
+-- Are outcome-ledger derivation references structurally consistent?
+-- Source artifact path existence remains validator-only.
+-- Expected to be empty in a healthy repo state.
+CREATE OR REPLACE VIEW v_integrity_outcome_ledger_derivation AS
+SELECT
+    'outcome_unknown_rep_ref' AS issue_type,
+    o.outcome_id,
+    o.candidate_id,
+    CAST(o.derivation_record.source_artifact_id AS VARCHAR) AS source_artifact_id,
+    CAST(o.derivation_record.source_artifact_path AS VARCHAR) AS source_artifact_path,
+    CAST(NULL AS VARCHAR) AS expected_source_artifact_path,
+    CAST(o.derivation_record.derivation_timestamp AS VARCHAR) AS derivation_timestamp
+FROM outcome_ledgers AS o
+LEFT JOIN exp_reports AS r
+  ON CAST(o.derivation_record.source_artifact_id AS VARCHAR) = r.report_id
+WHERE CAST(o.derivation_record.source_artifact_id AS VARCHAR) IS NOT NULL
+  AND r.report_id IS NULL
+UNION ALL
+SELECT
+    'outcome_source_artifact_mismatch' AS issue_type,
+    o.outcome_id,
+    o.candidate_id,
+    CAST(o.derivation_record.source_artifact_id AS VARCHAR) AS source_artifact_id,
+    CAST(o.derivation_record.source_artifact_path AS VARCHAR) AS source_artifact_path,
+    'research/experiments/' || CAST(o.derivation_record.source_artifact_id AS VARCHAR) || '.report.json'
+        AS expected_source_artifact_path,
+    CAST(o.derivation_record.derivation_timestamp AS VARCHAR) AS derivation_timestamp
+FROM outcome_ledgers AS o
+JOIN exp_reports AS r
+  ON CAST(o.derivation_record.source_artifact_id AS VARCHAR) = r.report_id
+WHERE CAST(o.derivation_record.derivation_method AS VARCHAR) = 'from_rep_artifact'
+  AND CAST(o.derivation_record.source_artifact_path AS VARCHAR)
+      <> 'research/experiments/' || CAST(o.derivation_record.source_artifact_id AS VARCHAR) || '.report.json'
+UNION ALL
+SELECT
+    'outcome_invalid_derivation_timestamp' AS issue_type,
+    outcome_id,
+    candidate_id,
+    CAST(derivation_record.source_artifact_id AS VARCHAR) AS source_artifact_id,
+    CAST(derivation_record.source_artifact_path AS VARCHAR) AS source_artifact_path,
+    CAST(NULL AS VARCHAR) AS expected_source_artifact_path,
+    CAST(derivation_record.derivation_timestamp AS VARCHAR) AS derivation_timestamp
+FROM outcome_ledgers
+WHERE TRY_CAST(replace(CAST(derivation_record.derivation_timestamp AS VARCHAR), 'Z', '+00:00') AS TIMESTAMPTZ)
+    IS NULL;
+
+-- Does the committed outcome-ledger corpus stay inside the WP-9k v1 scope?
+-- Expected to be empty in a healthy repo state.
+CREATE OR REPLACE VIEW v_integrity_outcome_ledger_scope AS
+SELECT
+    'outcome_invalid_schema_version' AS issue_type,
+    outcome_id,
+    candidate_id,
+    'schema_version' AS field_name,
+    schema_version AS actual_value
+FROM outcome_ledgers
+WHERE schema_version <> 'v1'
+UNION ALL
+SELECT
+    'outcome_invalid_kind' AS issue_type,
+    outcome_id,
+    candidate_id,
+    'outcome_kind' AS field_name,
+    outcome_kind AS actual_value
+FROM outcome_ledgers
+WHERE outcome_kind <> 'research_oos'
+UNION ALL
+SELECT
+    'outcome_invalid_lifecycle_state' AS issue_type,
+    outcome_id,
+    candidate_id,
+    'lifecycle_state_during_window' AS field_name,
+    lifecycle_state_during_window AS actual_value
+FROM outcome_ledgers
+WHERE lifecycle_state_during_window <> 'in_research'
+UNION ALL
+SELECT
+    'outcome_invalid_pipeline_version' AS issue_type,
+    outcome_id,
+    candidate_id,
+    'pipeline_version' AS field_name,
+    pipeline_version AS actual_value
+FROM outcome_ledgers
+WHERE pipeline_version NOT IN ('pre_wp_5b', 'post_wp_5b');
+
 -- Do all lifecycle_change candidate, supersession, and known-pattern artifact references resolve?
 -- Repo-relative path existence remains validator-only because SQL has no repo filesystem authority.
 -- Expected to be empty in a healthy repo state.

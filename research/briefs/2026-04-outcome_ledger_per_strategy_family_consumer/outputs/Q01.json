@@ -1,0 +1,74 @@
+[
+  {
+    "strategy_family": "trend_following",
+    "candidate_count": 2,
+    "ol_row_count": 3,
+    "source_rep_count": 3,
+    "source_exp_count": 3,
+    "pipeline_versions": "post_wp_5b | pre_wp_5b",
+    "advisory_link_count": 0
+  },
+  {
+    "strategy_family": "momentum",
+    "candidate_count": 2,
+    "ol_row_count": 2,
+    "source_rep_count": 2,
+    "source_exp_count": 2,
+    "pipeline_versions": "pre_wp_5b",
+    "advisory_link_count": 0
+  },
+  {
+    "strategy_family": "basis_mean_reversion",
+    "candidate_count": 1,
+    "ol_row_count": 1,
+    "source_rep_count": 1,
+    "source_exp_count": 1,
+    "pipeline_versions": "pre_wp_5b",
+    "advisory_link_count": 0
+  },
+  {
+    "strategy_family": "breakout",
+    "candidate_count": 1,
+    "ol_row_count": 1,
+    "source_rep_count": 1,
+    "source_exp_count": 1,
+    "pipeline_versions": "pre_wp_5b",
+    "advisory_link_count": 0
+  },
+  {
+    "strategy_family": "funding_directional",
+    "candidate_count": 1,
+    "ol_row_count": 1,
+    "source_rep_count": 1,
+    "source_exp_count": 1,
+    "pipeline_versions": "pre_wp_5b",
+    "advisory_link_count": 0
+  },
+  {
+    "strategy_family": "funding_momentum_composite",
+    "candidate_count": 1,
+    "ol_row_count": 1,
+    "source_rep_count": 1,
+    "source_exp_count": 1,
+    "pipeline_versions": "pre_wp_5b",
+    "advisory_link_count": 0
+  },
+  {
+    "strategy_family": "mean_reversion",
+    "candidate_count": 1,
+    "ol_row_count": 1,
+    "source_rep_count": 1,
+    "source_exp_count": 1,
+    "pipeline_versions": "pre_wp_5b",
+    "advisory_link_count": 0
+  },
+  {
+    "strategy_family": "multi_tf_alignment",
+    "candidate_count": 1,
+    "ol_row_count": 1,
+    "source_rep_count": 1,
+    "source_exp_count": 1,
+    "pipeline_versions": "pre_wp_5b",
+    "advisory_link_count": 0
+  }
+]

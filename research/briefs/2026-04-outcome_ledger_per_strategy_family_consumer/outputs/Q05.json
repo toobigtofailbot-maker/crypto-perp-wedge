@@ -1,0 +1,112 @@
+[
+  {
+    "strategy_family": "basis_mean_reversion",
+    "candidate_id": "H-010",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "window_count": 1,
+    "inference_floor": 3,
+    "floor_status": "INSUFFICIENT_EVIDENCE",
+    "allowed_claim_type": "single-window factual observation only"
+  },
+  {
+    "strategy_family": "breakout",
+    "candidate_id": "H-006",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "window_count": 1,
+    "inference_floor": 3,
+    "floor_status": "INSUFFICIENT_EVIDENCE",
+    "allowed_claim_type": "single-window factual observation only"
+  },
+  {
+    "strategy_family": "funding_directional",
+    "candidate_id": "H-001",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "window_count": 1,
+    "inference_floor": 3,
+    "floor_status": "INSUFFICIENT_EVIDENCE",
+    "allowed_claim_type": "single-window factual observation only"
+  },
+  {
+    "strategy_family": "funding_momentum_composite",
+    "candidate_id": "H-007",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "window_count": 1,
+    "inference_floor": 3,
+    "floor_status": "INSUFFICIENT_EVIDENCE",
+    "allowed_claim_type": "single-window factual observation only"
+  },
+  {
+    "strategy_family": "mean_reversion",
+    "candidate_id": "H-003",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "window_count": 1,
+    "inference_floor": 3,
+    "floor_status": "INSUFFICIENT_EVIDENCE",
+    "allowed_claim_type": "single-window factual observation only"
+  },
+  {
+    "strategy_family": "momentum",
+    "candidate_id": "H-005",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "window_count": 1,
+    "inference_floor": 3,
+    "floor_status": "INSUFFICIENT_EVIDENCE",
+    "allowed_claim_type": "single-window factual observation only"
+  },
+  {
+    "strategy_family": "momentum",
+    "candidate_id": "H-008",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "window_count": 1,
+    "inference_floor": 3,
+    "floor_status": "INSUFFICIENT_EVIDENCE",
+    "allowed_claim_type": "single-window factual observation only"
+  },
+  {
+    "strategy_family": "multi_tf_alignment",
+    "candidate_id": "H-009",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "window_count": 1,
+    "inference_floor": 3,
+    "floor_status": "INSUFFICIENT_EVIDENCE",
+    "allowed_claim_type": "single-window factual observation only"
+  },
+  {
+    "strategy_family": "trend_following",
+    "candidate_id": "H-002",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "window_count": 1,
+    "inference_floor": 3,
+    "floor_status": "INSUFFICIENT_EVIDENCE",
+    "allowed_claim_type": "single-window factual observation only"
+  },
+  {
+    "strategy_family": "trend_following",
+    "candidate_id": "H-004",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "window_count": 1,
+    "inference_floor": 3,
+    "floor_status": "INSUFFICIENT_EVIDENCE",
+    "allowed_claim_type": "single-window factual observation only"
+  },
+  {
+    "strategy_family": "trend_following",
+    "candidate_id": "H-004",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "post_wp_5b",
+    "window_count": 1,
+    "inference_floor": 3,
+    "floor_status": "INSUFFICIENT_EVIDENCE",
+    "allowed_claim_type": "single-window factual observation only"
+  }
+]

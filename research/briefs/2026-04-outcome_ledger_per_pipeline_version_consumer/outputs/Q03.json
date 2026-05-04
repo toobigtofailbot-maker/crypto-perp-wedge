@@ -1,0 +1,10 @@
+[
+  {
+    "candidate_id": "H-004",
+    "pipeline_version_count": 2,
+    "pipeline_versions": "pre_wp_5b | post_wp_5b",
+    "outcome_ids": "OL-0005 | OL-0011",
+    "source_reps": "REP-0005 | REP-0011",
+    "source_exps": "EXP-0005 | EXP-0011"
+  }
+]

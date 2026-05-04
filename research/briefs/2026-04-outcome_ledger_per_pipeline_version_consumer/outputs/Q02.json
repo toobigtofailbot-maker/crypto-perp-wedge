@@ -1,0 +1,18 @@
+[
+  {
+    "pipeline_version": "pre_wp_5b",
+    "candidate_count": 10,
+    "candidate_ids": "H-001 | H-002 | H-003 | H-004 | H-005 | H-006 | H-007 | H-008 | H-009 | H-010",
+    "outcome_ids": "OL-0001 | OL-0002 | OL-0003 | OL-0004 | OL-0005 | OL-0006 | OL-0007 | OL-0008 | OL-0009 | OL-0010",
+    "source_reps": "REP-0002 | REP-0001 | REP-0003 | REP-0004 | REP-0005 | REP-0006 | REP-0007 | REP-0008 | REP-0009 | REP-0010",
+    "source_exps": "EXP-0002 | EXP-0001 | EXP-0003 | EXP-0004 | EXP-0005 | EXP-0006 | EXP-0007 | EXP-0008 | EXP-0009 | EXP-0010"
+  },
+  {
+    "pipeline_version": "post_wp_5b",
+    "candidate_count": 1,
+    "candidate_ids": "H-004",
+    "outcome_ids": "OL-0011",
+    "source_reps": "REP-0011",
+    "source_exps": "EXP-0011"
+  }
+]

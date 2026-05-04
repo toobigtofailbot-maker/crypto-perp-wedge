@@ -1,0 +1,18 @@
+[
+  {
+    "pipeline_version": "pre_wp_5b",
+    "ol_row_count": 10,
+    "candidate_count": 10,
+    "source_rep_count": 10,
+    "source_exp_count": 10,
+    "advisory_link_count": 0
+  },
+  {
+    "pipeline_version": "post_wp_5b",
+    "ol_row_count": 1,
+    "candidate_count": 1,
+    "source_rep_count": 1,
+    "source_exp_count": 1,
+    "advisory_link_count": 0
+  }
+]

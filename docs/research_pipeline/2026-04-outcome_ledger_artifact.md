@@ -63,6 +63,20 @@ WP-9n implementation note:
   policy, paper/live semantics, evidence-quality scoring, runtime behavior,
   deployment behavior, or protected-path behavior
 
+WP-9o implementation note:
+
+- an offline REP ingestion helper now exists at
+  `tools/outcome_ledger/build_from_rep.py`
+- the helper derives candidate outcome-ledger JSON from committed REP/EXP repo
+  truth using explicit outcome ID, source REP/EXP, candidate, pipeline version,
+  and derivation timestamp inputs
+- the helper does not auto-allocate outcome IDs and writes only when the caller
+  explicitly provides an output target or requests stdout
+- WP-9o changes no schema, validator, query-layer code, source REP/EXP
+  artifacts, committed outcome-ledger corpus, REC/reconciliation, promotion or
+  demotion policy, paper/live semantics, evidence-quality scoring, runtime
+  behavior, deployment behavior, or protected-path behavior
+
 ## Version And Schema Posture
 
 Outcome ledger v1 uses:

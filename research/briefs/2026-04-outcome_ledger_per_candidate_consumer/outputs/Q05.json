@@ -1,0 +1,145 @@
+[
+  {
+    "outcome_id": "OL-0001",
+    "candidate_id": "H-001",
+    "linked_artifacts": [
+      "EXP-0002",
+      "REP-0002"
+    ],
+    "linked_artifact_count": 2,
+    "linked_advisory_artifacts": [],
+    "linked_advisory_artifact_count": 0,
+    "source_artifact_id": "REP-0002",
+    "source_artifact_path": "research/experiments/REP-0002.report.json"
+  },
+  {
+    "outcome_id": "OL-0002",
+    "candidate_id": "H-005",
+    "linked_artifacts": [
+      "EXP-0001",
+      "REP-0001"
+    ],
+    "linked_artifact_count": 2,
+    "linked_advisory_artifacts": [],
+    "linked_advisory_artifact_count": 0,
+    "source_artifact_id": "REP-0001",
+    "source_artifact_path": "research/experiments/REP-0001.report.json"
+  },
+  {
+    "outcome_id": "OL-0003",
+    "candidate_id": "H-002",
+    "linked_artifacts": [
+      "EXP-0003",
+      "REP-0003"
+    ],
+    "linked_artifact_count": 2,
+    "linked_advisory_artifacts": [],
+    "linked_advisory_artifact_count": 0,
+    "source_artifact_id": "REP-0003",
+    "source_artifact_path": "research/experiments/REP-0003.report.json"
+  },
+  {
+    "outcome_id": "OL-0004",
+    "candidate_id": "H-003",
+    "linked_artifacts": [
+      "EXP-0004",
+      "REP-0004"
+    ],
+    "linked_artifact_count": 2,
+    "linked_advisory_artifacts": [],
+    "linked_advisory_artifact_count": 0,
+    "source_artifact_id": "REP-0004",
+    "source_artifact_path": "research/experiments/REP-0004.report.json"
+  },
+  {
+    "outcome_id": "OL-0005",
+    "candidate_id": "H-004",
+    "linked_artifacts": [
+      "EXP-0005",
+      "REP-0005"
+    ],
+    "linked_artifact_count": 2,
+    "linked_advisory_artifacts": [],
+    "linked_advisory_artifact_count": 0,
+    "source_artifact_id": "REP-0005",
+    "source_artifact_path": "research/experiments/REP-0005.report.json"
+  },
+  {
+    "outcome_id": "OL-0006",
+    "candidate_id": "H-006",
+    "linked_artifacts": [
+      "EXP-0006",
+      "REP-0006"
+    ],
+    "linked_artifact_count": 2,
+    "linked_advisory_artifacts": [],
+    "linked_advisory_artifact_count": 0,
+    "source_artifact_id": "REP-0006",
+    "source_artifact_path": "research/experiments/REP-0006.report.json"
+  },
+  {
+    "outcome_id": "OL-0007",
+    "candidate_id": "H-007",
+    "linked_artifacts": [
+      "EXP-0007",
+      "REP-0007"
+    ],
+    "linked_artifact_count": 2,
+    "linked_advisory_artifacts": [],
+    "linked_advisory_artifact_count": 0,
+    "source_artifact_id": "REP-0007",
+    "source_artifact_path": "research/experiments/REP-0007.report.json"
+  },
+  {
+    "outcome_id": "OL-0008",
+    "candidate_id": "H-008",
+    "linked_artifacts": [
+      "EXP-0008",
+      "REP-0008"
+    ],
+    "linked_artifact_count": 2,
+    "linked_advisory_artifacts": [],
+    "linked_advisory_artifact_count": 0,
+    "source_artifact_id": "REP-0008",
+    "source_artifact_path": "research/experiments/REP-0008.report.json"
+  },
+  {
+    "outcome_id": "OL-0009",
+    "candidate_id": "H-009",
+    "linked_artifacts": [
+      "EXP-0009",
+      "REP-0009"
+    ],
+    "linked_artifact_count": 2,
+    "linked_advisory_artifacts": [],
+    "linked_advisory_artifact_count": 0,
+    "source_artifact_id": "REP-0009",
+    "source_artifact_path": "research/experiments/REP-0009.report.json"
+  },
+  {
+    "outcome_id": "OL-0010",
+    "candidate_id": "H-010",
+    "linked_artifacts": [
+      "EXP-0010",
+      "REP-0010"
+    ],
+    "linked_artifact_count": 2,
+    "linked_advisory_artifacts": [],
+    "linked_advisory_artifact_count": 0,
+    "source_artifact_id": "REP-0010",
+    "source_artifact_path": "research/experiments/REP-0010.report.json"
+  },
+  {
+    "outcome_id": "OL-0011",
+    "candidate_id": "H-004",
+    "linked_artifacts": [
+      "EXP-0011",
+      "REP-0011"
+    ],
+    "linked_artifact_count": 2,
+    "linked_advisory_artifacts": [],
+    "linked_advisory_artifact_count": 0,
+    "source_artifact_id": "REP-0011",
+    "source_artifact_path": "research/experiments/REP-0011.report.json"
+  }
+]

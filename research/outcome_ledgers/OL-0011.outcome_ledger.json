@@ -1,0 +1,69 @@
+{
+  "schema_version": "v1",
+  "outcome_id": "OL-0011",
+  "candidate_id": "H-004",
+  "lifecycle_state_during_window": "in_research",
+  "evaluation_window_start": null,
+  "evaluation_window_end": null,
+  "outcome_kind": "research_oos",
+  "metrics": {
+    "sharpe": 0.746191460507614,
+    "source_field": "trial_log.oos_sharpe",
+    "window_convention": "No separate IS/OOS split convention is introduced by WP-6h; this object records full-period baseline metrics from the actual current H-004 re-execution.",
+    "trial_count_before_append": 10,
+    "trial_count_after_append": 11,
+    "config_sha256": "9f7f97b8ad066f3413a5c199dec239edab3e95eae21eb785591a0496b0035164",
+    "dataset_sha256": "47b91ceac5ae9e472a08c23390ec8a5f6fee9a627a44df11e3557fbace02813d",
+    "max_drawdown": 0.697949870640699,
+    "max_drawdown_peak": "2024-12-08 23:59:59.999000+00:00",
+    "max_drawdown_trough": "2025-11-16 23:59:59.999000+00:00",
+    "n_obs": 2292,
+    "trades": 41,
+    "hit_rate": 0.5365853658536586,
+    "profit_factor": 1.5037466064620668,
+    "final_equity": 49897.77544811701,
+    "total_pnl": 39897.77544811701,
+    "gross_pnl": 53747.65000000001,
+    "fees_paid": 1734.0594600000002,
+    "slippage_paid": 867.0297300000001,
+    "funding_paid": 11248.78536188244,
+    "cost_drag_fraction": 0.2576833508419891,
+    "skipped_bars": 0,
+    "sensitivity_min_ratio": 0.7827681657491495,
+    "dsr": 1.0,
+    "dsr_note": "P(SR>1.0)=1.0000; SR benchmark=0.4979",
+    "walk_forward_efficiency": 1.0,
+    "gates_passed": 5,
+    "gates_total": 8,
+    "short_side_trades": 16,
+    "short_side_net_pnl": 11231.55919600001,
+    "long_side_trades": 25,
+    "long_side_net_pnl": 41206.417530000006
+  },
+  "data_provenance": {
+    "source_data_refs": [
+      "BTCUSDT 1d OHLCV full-history dataset: data/processed/binance_um_perp_BTCUSDT_1d_2020-01-01_2026-04-11_2026-04-12T1655Z.parquet",
+      "BTCUSDT funding-rate full-history dataset for funding cashflows: data/processed/binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z.parquet",
+      "Dataset identifiers used for hashing: binance_um_perp_BTCUSDT_1d_2020-01-01_2026-04-11_2026-04-12T1655Z and binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z",
+      "No separate IS/OOS split convention is introduced by this package; full-period Sharpe is recorded in both trial-log Sharpe fields per the existing baseline pattern"
+    ],
+    "source_data_window_start": null,
+    "source_data_window_end": null,
+    "source_data_notes": "Copied from EXP-0011 data_requirements; no formal source-data window endpoints are committed for this baseline."
+  },
+  "derivation_record": {
+    "derivation_method": "from_rep_artifact",
+    "source_artifact_id": "REP-0011",
+    "source_artifact_path": "research/experiments/REP-0011.report.json",
+    "derivation_timestamp": "2026-05-04T18:30:00Z"
+  },
+  "pipeline_version": "post_wp_5b",
+  "linked_artifacts": [
+    "EXP-0011",
+    "REP-0011"
+  ],
+  "retrospective_flag": true,
+  "linked_advisory_artifacts": [],
+  "notes": "WP-9n retrospective backfill maps H-004 / REP-0011 / EXP-0011 as post_wp_5b; source EXP/REP truth preserves the no-formal-split window convention. H-004 split is explicit; this entry remains distinct from REP-0005 pre-WP-5b evidence.",
+  "retrospective_disclosure": "WP-9n derives this outcome-ledger artifact after the fact from the already committed REP-0011 report as part of the retrospective REP-derived outcome-ledger backfill. REP remains the authoritative research record. This artifact carries no promotion, demotion, policy, REC/reconciliation, paper/live, runtime, deployment, strategy adjustment, or protected-path authority."
+}

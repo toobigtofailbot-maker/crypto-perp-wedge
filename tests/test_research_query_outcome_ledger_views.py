@@ -85,7 +85,7 @@ def conn():
 
 
 def test_outcome_ledgers_relation_current_committed_state(conn):
-    assert conn.execute("SELECT COUNT(*) FROM outcome_ledgers").fetchone()[0] == 1
+    assert conn.execute("SELECT COUNT(*) FROM outcome_ledgers").fetchone()[0] == 11
 
     overview_rows = conn.execute(
         """
@@ -101,12 +101,14 @@ def test_outcome_ledgers_relation_current_committed_state(conn):
             linked_artifact_count,
             linked_advisory_artifact_count
         FROM v_outcome_ledger_overview
+        ORDER BY outcome_id
         """
     ).fetchall()
     summary_rows = conn.execute(
         """
         SELECT candidate_id, outcome_kind, pipeline_version, outcome_count, retrospective_count
         FROM v_outcome_ledger_candidate_pipeline_summary
+        ORDER BY candidate_id, pipeline_version
         """
     ).fetchall()
 
@@ -122,9 +124,141 @@ def test_outcome_ledgers_relation_current_committed_state(conn):
             "research/experiments/REP-0002.report.json",
             2,
             0,
-        )
+        ),
+        (
+            "OL-0002",
+            "H-005",
+            "research_oos",
+            "pre_wp_5b",
+            "in_research",
+            True,
+            "REP-0001",
+            "research/experiments/REP-0001.report.json",
+            2,
+            0,
+        ),
+        (
+            "OL-0003",
+            "H-002",
+            "research_oos",
+            "pre_wp_5b",
+            "in_research",
+            True,
+            "REP-0003",
+            "research/experiments/REP-0003.report.json",
+            2,
+            0,
+        ),
+        (
+            "OL-0004",
+            "H-003",
+            "research_oos",
+            "pre_wp_5b",
+            "in_research",
+            True,
+            "REP-0004",
+            "research/experiments/REP-0004.report.json",
+            2,
+            0,
+        ),
+        (
+            "OL-0005",
+            "H-004",
+            "research_oos",
+            "pre_wp_5b",
+            "in_research",
+            True,
+            "REP-0005",
+            "research/experiments/REP-0005.report.json",
+            2,
+            0,
+        ),
+        (
+            "OL-0006",
+            "H-006",
+            "research_oos",
+            "pre_wp_5b",
+            "in_research",
+            True,
+            "REP-0006",
+            "research/experiments/REP-0006.report.json",
+            2,
+            0,
+        ),
+        (
+            "OL-0007",
+            "H-007",
+            "research_oos",
+            "pre_wp_5b",
+            "in_research",
+            True,
+            "REP-0007",
+            "research/experiments/REP-0007.report.json",
+            2,
+            0,
+        ),
+        (
+            "OL-0008",
+            "H-008",
+            "research_oos",
+            "pre_wp_5b",
+            "in_research",
+            True,
+            "REP-0008",
+            "research/experiments/REP-0008.report.json",
+            2,
+            0,
+        ),
+        (
+            "OL-0009",
+            "H-009",
+            "research_oos",
+            "pre_wp_5b",
+            "in_research",
+            True,
+            "REP-0009",
+            "research/experiments/REP-0009.report.json",
+            2,
+            0,
+        ),
+        (
+            "OL-0010",
+            "H-010",
+            "research_oos",
+            "pre_wp_5b",
+            "in_research",
+            True,
+            "REP-0010",
+            "research/experiments/REP-0010.report.json",
+            2,
+            0,
+        ),
+        (
+            "OL-0011",
+            "H-004",
+            "research_oos",
+            "post_wp_5b",
+            "in_research",
+            True,
+            "REP-0011",
+            "research/experiments/REP-0011.report.json",
+            2,
+            0,
+        ),
     ]
-    assert summary_rows == [("H-001", "research_oos", "pre_wp_5b", 1, 1)]
+    assert summary_rows == [
+        ("H-001", "research_oos", "pre_wp_5b", 1, 1),
+        ("H-002", "research_oos", "pre_wp_5b", 1, 1),
+        ("H-003", "research_oos", "pre_wp_5b", 1, 1),
+        ("H-004", "research_oos", "post_wp_5b", 1, 1),
+        ("H-004", "research_oos", "pre_wp_5b", 1, 1),
+        ("H-005", "research_oos", "pre_wp_5b", 1, 1),
+        ("H-006", "research_oos", "pre_wp_5b", 1, 1),
+        ("H-007", "research_oos", "pre_wp_5b", 1, 1),
+        ("H-008", "research_oos", "pre_wp_5b", 1, 1),
+        ("H-009", "research_oos", "pre_wp_5b", 1, 1),
+        ("H-010", "research_oos", "pre_wp_5b", 1, 1),
+    ]
 
     for view_name in {
         "v_integrity_outcome_ledger_refs",

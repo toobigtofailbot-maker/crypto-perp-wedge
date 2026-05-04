@@ -1,0 +1,56 @@
+{
+  "schema_version": "v1",
+  "outcome_id": "OL-0004",
+  "candidate_id": "H-003",
+  "lifecycle_state_during_window": "in_research",
+  "evaluation_window_start": null,
+  "evaluation_window_end": null,
+  "outcome_kind": "research_oos",
+  "metrics": {
+    "sharpe": -0.40644276086066977,
+    "source_field": "trial_log.oos_sharpe",
+    "window_convention": "No separate IS/OOS split convention existed in repo truth; this object records full-period baseline metrics from DEC-0003 and the H-003 experiment notebook.",
+    "max_drawdown": 1.0958689603729395,
+    "n_obs": 2292,
+    "trades": 35,
+    "hit_rate": 0.6857142857142857,
+    "profit_factor": 1.4185356490953485,
+    "final_equity": 27399.156066914336,
+    "total_pnl": 17399.156066914336,
+    "gross_pnl": 22933.990000000005,
+    "fees_paid": 1515.6519720000003,
+    "slippage_paid": 757.8259860000002,
+    "funding_paid": 3261.3559750853965,
+    "cost_drag_fraction": 0.2413375925028918,
+    "dsr": 0.0,
+    "walk_forward_efficiency": 0.0,
+    "gates_passed": 2,
+    "gates_total": 8
+  },
+  "data_provenance": {
+    "source_data_refs": [
+      "1d OHLCV stream: ohlcv_1d",
+      "BTCUSDT 1d full history: data/processed/binance_um_perp_BTCUSDT_1d_2020-01-01_2026-04-11_2026-04-12T1655Z.parquet",
+      "BTCUSDT funding rates full history supplied for funding cashflows: data/processed/binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z.parquet",
+      "No separate IS/OOS split convention existed in repo truth for this baseline; DEC-0003 records full-period Sharpe in both trial-log Sharpe fields"
+    ],
+    "source_data_window_start": null,
+    "source_data_window_end": null,
+    "source_data_notes": "Copied from EXP-0004 data_requirements; no formal source-data window endpoints are committed for this baseline."
+  },
+  "derivation_record": {
+    "derivation_method": "from_rep_artifact",
+    "source_artifact_id": "REP-0004",
+    "source_artifact_path": "research/experiments/REP-0004.report.json",
+    "derivation_timestamp": "2026-05-04T18:30:00Z"
+  },
+  "pipeline_version": "pre_wp_5b",
+  "linked_artifacts": [
+    "EXP-0004",
+    "REP-0004"
+  ],
+  "retrospective_flag": true,
+  "linked_advisory_artifacts": [],
+  "notes": "WP-9n retrospective backfill maps H-003 / REP-0004 / EXP-0004 as pre_wp_5b; source EXP/REP truth preserves the no-formal-split window convention.",
+  "retrospective_disclosure": "WP-9n derives this outcome-ledger artifact after the fact from the already committed REP-0004 report as part of the retrospective REP-derived outcome-ledger backfill. REP remains the authoritative research record. This artifact carries no promotion, demotion, policy, REC/reconciliation, paper/live, runtime, deployment, strategy adjustment, or protected-path authority."
+}

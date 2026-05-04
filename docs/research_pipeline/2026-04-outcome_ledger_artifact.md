@@ -50,6 +50,19 @@ WP-9m implementation note:
   evidence-quality scoring, runtime behavior, deployment behavior, or
   protected-path behavior
 
+WP-9n implementation note:
+
+- the retrospective REP-derived corpus now exists as
+  `research/outcome_ledgers/OL-0001.outcome_ledger.json` through
+  `research/outcome_ledgers/OL-0011.outcome_ledger.json`
+- `OL-0001` remains the WP-9m seed artifact; `OL-0002` through `OL-0011`
+  backfill the remaining eligible committed REP-derived sources
+- H-004 is represented by separate entries for historical `REP-0005`
+  pre-WP-5b evidence and later `REP-0011` post-WP-5b forward-flow evidence
+- WP-9n adds no ingestion helper, REC/reconciliation, promotion or demotion
+  policy, paper/live semantics, evidence-quality scoring, runtime behavior,
+  deployment behavior, or protected-path behavior
+
 ## Version And Schema Posture
 
 Outcome ledger v1 uses:

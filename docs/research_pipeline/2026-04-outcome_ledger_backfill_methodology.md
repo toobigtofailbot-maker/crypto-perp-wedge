@@ -134,3 +134,15 @@ handle the H-004 `REP-0005` / `REP-0011` split explicitly, avoid duplicating
 `OL-0001`, report any REP that cannot populate required schema fields, and not
 introduce policy, REC/reconciliation, promotion, paper/live, helper, runtime,
 or deployment behavior.
+
+## WP-9n Application Note
+
+WP-9n applied this methodology unchanged to the remaining eligible committed
+REP-derived retrospective sources. `OL-0001` was preserved, `OL-0002` through
+`OL-0011` were allocated append-only by remaining source REP order, and the
+H-004 `REP-0005` / `REP-0011` split was preserved as distinct pre-WP-5b and
+post-WP-5b outcome-ledger entries.
+
+This application note changes no methodology rules and adds no policy,
+REC/reconciliation, promotion, paper/live, helper, runtime, or deployment
+behavior.

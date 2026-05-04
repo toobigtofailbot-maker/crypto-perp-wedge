@@ -1,0 +1,32 @@
+[
+  {
+    "candidate_id": "H-004",
+    "outcome_id": "OL-0005",
+    "source_rep": "REP-0005",
+    "source_exp": "EXP-0005",
+    "pipeline_version": "pre_wp_5b",
+    "sharpe": 0.746191460507614,
+    "max_drawdown": 0.697949870640699,
+    "n_obs": 2292,
+    "trades": 41,
+    "gates_passed": 5,
+    "gates_total": 8,
+    "derivation_method": "from_rep_artifact",
+    "notes": "WP-9n retrospective backfill maps H-004 / REP-0005 / EXP-0005 as pre_wp_5b; source EXP/REP truth preserves the no-formal-split window convention. H-004 split is explicit; this entry remains distinct from REP-0011 post-WP-5b evidence."
+  },
+  {
+    "candidate_id": "H-004",
+    "outcome_id": "OL-0011",
+    "source_rep": "REP-0011",
+    "source_exp": "EXP-0011",
+    "pipeline_version": "post_wp_5b",
+    "sharpe": 0.746191460507614,
+    "max_drawdown": 0.697949870640699,
+    "n_obs": 2292,
+    "trades": 41,
+    "gates_passed": 5,
+    "gates_total": 8,
+    "derivation_method": "from_rep_artifact",
+    "notes": "WP-9n retrospective backfill maps H-004 / REP-0011 / EXP-0011 as post_wp_5b; source EXP/REP truth preserves the no-formal-split window convention. H-004 split is explicit; this entry remains distinct from REP-0005 pre-WP-5b evidence."
+  }
+]

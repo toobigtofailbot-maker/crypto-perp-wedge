@@ -148,7 +148,7 @@ def test_committed_reconciliation_corpus_appears_in_views_and_integrity_empty(co
         """
     ).fetchall()
 
-    assert overview_rows == [
+    exp_rows = [
         (
             "REC-0001",
             "H-001",
@@ -294,30 +294,176 @@ def test_committed_reconciliation_corpus_appears_in_views_and_integrity_empty(co
             "manual_retrospective_wp10b_d2_006_seed_v1",
         ),
     ]
-    assert len(overview_rows) == 12
+    d2_rows = [
+        (
+            "REC-0013",
+            "H-005",
+            "OL-0002",
+            "research_oos",
+            "pre_wp_5b",
+            "d2_006_gates",
+            "D2-006",
+            "partially_met",
+            True,
+            "manual_retrospective_wp10c_d2_006_backfill_v1",
+        ),
+        (
+            "REC-0014",
+            "H-002",
+            "OL-0003",
+            "research_oos",
+            "pre_wp_5b",
+            "d2_006_gates",
+            "D2-006",
+            "partially_met",
+            True,
+            "manual_retrospective_wp10c_d2_006_backfill_v1",
+        ),
+        (
+            "REC-0015",
+            "H-003",
+            "OL-0004",
+            "research_oos",
+            "pre_wp_5b",
+            "d2_006_gates",
+            "D2-006",
+            "partially_met",
+            True,
+            "manual_retrospective_wp10c_d2_006_backfill_v1",
+        ),
+        (
+            "REC-0016",
+            "H-004",
+            "OL-0005",
+            "research_oos",
+            "pre_wp_5b",
+            "d2_006_gates",
+            "D2-006",
+            "partially_met",
+            True,
+            "manual_retrospective_wp10c_d2_006_backfill_v1",
+        ),
+        (
+            "REC-0017",
+            "H-006",
+            "OL-0006",
+            "research_oos",
+            "pre_wp_5b",
+            "d2_006_gates",
+            "D2-006",
+            "none_met",
+            True,
+            "manual_retrospective_wp10c_d2_006_backfill_v1",
+        ),
+        (
+            "REC-0018",
+            "H-007",
+            "OL-0007",
+            "research_oos",
+            "pre_wp_5b",
+            "d2_006_gates",
+            "D2-006",
+            "none_met",
+            True,
+            "manual_retrospective_wp10c_d2_006_backfill_v1",
+        ),
+        (
+            "REC-0019",
+            "H-008",
+            "OL-0008",
+            "research_oos",
+            "pre_wp_5b",
+            "d2_006_gates",
+            "D2-006",
+            "none_met",
+            True,
+            "manual_retrospective_wp10c_d2_006_backfill_v1",
+        ),
+        (
+            "REC-0020",
+            "H-009",
+            "OL-0009",
+            "research_oos",
+            "pre_wp_5b",
+            "d2_006_gates",
+            "D2-006",
+            "none_met",
+            True,
+            "manual_retrospective_wp10c_d2_006_backfill_v1",
+        ),
+        (
+            "REC-0021",
+            "H-010",
+            "OL-0010",
+            "research_oos",
+            "pre_wp_5b",
+            "d2_006_gates",
+            "D2-006",
+            "partially_met",
+            True,
+            "manual_retrospective_wp10c_d2_006_backfill_v1",
+        ),
+        (
+            "REC-0022",
+            "H-004",
+            "OL-0011",
+            "research_oos",
+            "post_wp_5b",
+            "d2_006_gates",
+            "D2-006",
+            "partially_met",
+            True,
+            "manual_retrospective_wp10c_d2_006_backfill_v1",
+        ),
+    ]
+    assert overview_rows == exp_rows + d2_rows
+    assert len(overview_rows) == 22
+    assert [row[0] for row in overview_rows] == [f"REC-{idx:04d}" for idx in range(1, 23)]
+    assert {
+        row[2] for row in overview_rows if row[5] == "d2_006_gates"
+    } == {f"OL-{idx:04d}" for idx in range(1, 12)}
     assert {
         row[5]: sum(1 for candidate in overview_rows if candidate[5] == row[5])
         for row in overview_rows
     } == {
         "exp_success_criteria": 11,
-        "d2_006_gates": 1,
+        "d2_006_gates": 11,
     }
     assert sorted(summary_rows) == sorted(
         [
             ("H-001", "research_oos", "pre_wp_5b", "exp_success_criteria", 1, ["none_met"]),
             ("H-001", "research_oos", "pre_wp_5b", "d2_006_gates", 1, ["none_met"]),
+            ("H-002", "research_oos", "pre_wp_5b", "d2_006_gates", 1, ["partially_met"]),
             ("H-002", "research_oos", "pre_wp_5b", "exp_success_criteria", 1, ["partially_met"]),
+            ("H-003", "research_oos", "pre_wp_5b", "d2_006_gates", 1, ["partially_met"]),
             ("H-003", "research_oos", "pre_wp_5b", "exp_success_criteria", 1, ["partially_met"]),
+            ("H-004", "research_oos", "post_wp_5b", "d2_006_gates", 1, ["partially_met"]),
             ("H-004", "research_oos", "post_wp_5b", "exp_success_criteria", 1, ["insufficient_evidence"]),
+            ("H-004", "research_oos", "pre_wp_5b", "d2_006_gates", 1, ["partially_met"]),
             ("H-004", "research_oos", "pre_wp_5b", "exp_success_criteria", 1, ["partially_met"]),
+            ("H-005", "research_oos", "pre_wp_5b", "d2_006_gates", 1, ["partially_met"]),
             ("H-005", "research_oos", "pre_wp_5b", "exp_success_criteria", 1, ["partially_met"]),
+            ("H-006", "research_oos", "pre_wp_5b", "d2_006_gates", 1, ["none_met"]),
             ("H-006", "research_oos", "pre_wp_5b", "exp_success_criteria", 1, ["partially_met"]),
+            ("H-007", "research_oos", "pre_wp_5b", "d2_006_gates", 1, ["none_met"]),
             ("H-007", "research_oos", "pre_wp_5b", "exp_success_criteria", 1, ["none_met"]),
+            ("H-008", "research_oos", "pre_wp_5b", "d2_006_gates", 1, ["none_met"]),
             ("H-008", "research_oos", "pre_wp_5b", "exp_success_criteria", 1, ["partially_met"]),
+            ("H-009", "research_oos", "pre_wp_5b", "d2_006_gates", 1, ["none_met"]),
             ("H-009", "research_oos", "pre_wp_5b", "exp_success_criteria", 1, ["none_met"]),
+            ("H-010", "research_oos", "pre_wp_5b", "d2_006_gates", 1, ["partially_met"]),
             ("H-010", "research_oos", "pre_wp_5b", "exp_success_criteria", 1, ["partially_met"]),
         ]
     )
+    assert max(row[4] for row in summary_rows) < 3
+    assert sorted(
+        (row[0], row[2], row[4], row[5], row[6]) for row in overview_rows if row[1] == "H-004"
+    ) == [
+        ("REC-0005", "OL-0005", "pre_wp_5b", "exp_success_criteria", "EXP-0005"),
+        ("REC-0011", "OL-0011", "post_wp_5b", "exp_success_criteria", "EXP-0011"),
+        ("REC-0016", "OL-0005", "pre_wp_5b", "d2_006_gates", "D2-006"),
+        ("REC-0022", "OL-0011", "post_wp_5b", "d2_006_gates", "D2-006"),
+    ]
     for view_name in {
         "v_integrity_reconciliation_refs",
         "v_integrity_reconciliation_scope",

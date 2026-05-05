@@ -18,6 +18,7 @@ DECISION_CHANGES_DIR = REPO_ROOT / "research" / "decision_changes"
 RELEASE_NOTES_DIR = REPO_ROOT / "research" / "release_notes"
 LIFECYCLE_CHANGES_DIR = REPO_ROOT / "research" / "lifecycle_changes"
 OUTCOME_LEDGERS_DIR = REPO_ROOT / "research" / "outcome_ledgers"
+RECONCILIATIONS_DIR = REPO_ROOT / "research" / "reconciliations"
 AGENT_OUTPUTS_DIR = REPO_ROOT / "research" / "agent_outputs"
 MACRO_WINDOW_AGENT_OUTPUTS_DIR = REPO_ROOT / "research" / "macro_window_agent_outputs"
 BUCKET_MAPPINGS_DIR = REPO_ROOT / "research" / "bucket_mappings"
@@ -276,6 +277,117 @@ def _register_outcome_ledgers(conn: duckdb.DuckDBPyConnection) -> None:
             CAST([] AS VARCHAR[]) AS linked_artifacts,
             CAST(NULL AS BOOLEAN) AS retrospective_flag,
             CAST([] AS VARCHAR[]) AS linked_advisory_artifacts,
+            CAST(NULL AS VARCHAR) AS notes,
+            CAST(NULL AS VARCHAR) AS retrospective_disclosure
+        WHERE FALSE
+        """
+    )
+
+
+def _register_reconciliations(conn: duckdb.DuckDBPyConnection) -> None:
+    reconciliation_files = (
+        sorted(RECONCILIATIONS_DIR.glob("*.reconciliation.json"))
+        if RECONCILIATIONS_DIR.exists()
+        else []
+    )
+    if reconciliation_files:
+        conn.execute(
+            f"""
+            CREATE VIEW reconciliations AS
+            SELECT * FROM read_json_auto('{_sql_path(RECONCILIATIONS_DIR / "*.reconciliation.json")}')
+            """
+        )
+        return
+
+    conn.execute(
+        """
+        CREATE VIEW reconciliations AS
+        SELECT
+            CAST(NULL AS VARCHAR) AS schema_version,
+            CAST(NULL AS VARCHAR) AS reconciliation_id,
+            CAST(NULL AS VARCHAR) AS candidate_id,
+            CAST(NULL AS VARCHAR) AS outcome_id,
+            CAST(NULL AS VARCHAR) AS outcome_kind,
+            CAST(NULL AS VARCHAR) AS pipeline_version,
+            CAST(NULL AS VARCHAR) AS expectation_source_type,
+            CAST(NULL AS VARCHAR) AS expectation_source_artifact_id,
+            CAST(NULL AS VARCHAR) AS expectation_source_artifact_path,
+            CAST(NULL AS STRUCT(
+                source_type VARCHAR,
+                source_artifact_id VARCHAR,
+                source_artifact_path VARCHAR,
+                extraction_method VARCHAR,
+                extracted_at VARCHAR,
+                metric_expectations STRUCT(
+                    metric_name VARCHAR,
+                    expected_operator VARCHAR,
+                    expected_value JSON,
+                    expected_unit VARCHAR,
+                    source_field_path VARCHAR,
+                    source_text VARCHAR,
+                    notes VARCHAR
+                )[]
+            )) AS expectation_extracted,
+            CAST(NULL AS STRUCT(
+                source_field VARCHAR,
+                window_convention VARCHAR,
+                sharpe DOUBLE,
+                max_drawdown DOUBLE,
+                n_obs BIGINT,
+                trades BIGINT,
+                hit_rate DOUBLE,
+                profit_factor DOUBLE,
+                final_equity DOUBLE,
+                total_pnl DOUBLE,
+                gross_pnl DOUBLE,
+                fees_paid DOUBLE,
+                slippage_paid DOUBLE,
+                funding_paid DOUBLE,
+                cost_drag_fraction DOUBLE,
+                dsr DOUBLE,
+                walk_forward_efficiency DOUBLE,
+                gates_passed BIGINT,
+                gates_total BIGINT,
+                funding_events_applied BIGINT,
+                config_sha256 VARCHAR,
+                dataset_sha256 VARCHAR,
+                dsr_note VARCHAR,
+                max_drawdown_peak VARCHAR,
+                max_drawdown_trough VARCHAR,
+                skipped_bars BIGINT,
+                sensitivity_min_ratio DOUBLE,
+                short_side_trades BIGINT,
+                short_side_net_pnl DOUBLE,
+                long_side_trades BIGINT,
+                long_side_net_pnl DOUBLE,
+                trial_count_before_append BIGINT,
+                trial_count_after_append BIGINT
+            )) AS realized_metrics,
+            CAST(NULL AS STRUCT(
+                metric_comparisons STRUCT(
+                    metric_name VARCHAR,
+                    expected_value JSON,
+                    realized_value JSON,
+                    delta_absolute DOUBLE,
+                    delta_relative DOUBLE,
+                    comparison_verdict VARCHAR,
+                    comparison_notes VARCHAR
+                )[]
+            )) AS comparison,
+            CAST(NULL AS VARCHAR) AS overall_verdict,
+            CAST(NULL AS VARCHAR) AS interpretation,
+            CAST(NULL AS STRUCT(
+                derivation_method VARCHAR,
+                source_artifact_id VARCHAR,
+                source_artifact_path VARCHAR,
+                derivation_timestamp VARCHAR,
+                source_outcome_id VARCHAR,
+                expectation_source_type VARCHAR,
+                tool_version VARCHAR
+            )) AS derivation_record,
+            CAST(NULL AS BOOLEAN) AS retrospective_flag,
+            CAST([] AS VARCHAR[]) AS linked_advisory_artifacts,
+            CAST([] AS VARCHAR[]) AS linked_lifecycle_artifacts,
             CAST(NULL AS VARCHAR) AS notes,
             CAST(NULL AS VARCHAR) AS retrospective_disclosure
         WHERE FALSE
@@ -864,6 +976,7 @@ def init_duckdb(read_only: bool = True) -> duckdb.DuckDBPyConnection:
     _register_release_notes(conn)
     _register_lifecycle_changes(conn)
     _register_outcome_ledgers(conn)
+    _register_reconciliations(conn)
     _register_agent_outputs(conn)
     _register_macro_window_agent_outputs(conn)
     _register_bucket_mappings(conn)

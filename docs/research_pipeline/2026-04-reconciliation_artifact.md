@@ -29,9 +29,9 @@ REC v1 includes:
 - a derived `overall_verdict`
 - derivation and retrospective disclosure fields
 
-WP-9u creates no REC instances, validator, query-layer relation, query-layer
-view, helper, tests, consumers, policy, runtime authority, paper/live
-semantics, or evidence-quality scoring.
+WP-9u creates no REC instances, helper, consumers, policy, runtime authority,
+paper/live semantics, or evidence-quality scoring. WP-9v adds validator and
+query-layer support only.
 
 ## Relationship to Outcome Ledger
 
@@ -156,9 +156,67 @@ WP-9u validates only the schema/documentation foundation:
 - existing pytest regression suites
 - `git diff --check`
 
-Path existence checks, copied OL metric consistency, expectation-source
-reference resolution, and `overall_verdict` derivation enforcement are deferred
-to later validator work.
+WP-9v adds path/reference checks, copied OL metric consistency, and clear
+`overall_verdict` derivation enforcement. Nuanced enforcement for "decisive
+required metrics" remains deferred because REC v1 does not identify decisive
+metrics in schema shape.
+
+## WP-9v Validator And Query Layer
+
+WP-9v makes REC v1 operationally checkable and queryable while keeping the REC
+corpus empty.
+
+The validator is:
+
+```powershell
+.\.venv\Scripts\python.exe -m tools.registry.validate_reconciliations
+```
+
+Future REC artifacts use this directory and filename convention:
+
+```text
+research/reconciliations/REC-0001.reconciliation.json
+```
+
+Missing `research/reconciliations/` and an existing directory with no
+`*.reconciliation.json` files are healthy empty states. WP-9v does not create
+the directory and does not create any REC instances.
+
+The validator checks JSON shape against
+`research/schemas/reconciliation.schema.json`, duplicate IDs, filename/ID
+consistency, candidate and outcome-ledger references, REC/OL copied
+segmentation fields, EXP and D2-006 expectation-source references,
+top-level-vs-extracted expectation source consistency, derivation-record
+consistency, linked advisory/lifecycle references, deterministic copied
+`realized_metrics` values, retrospective disclosure, and clear
+`overall_verdict` derivations.
+
+The query layer exposes:
+
+- `reconciliations`
+- `v_reconciliation_overview`
+- `v_reconciliation_candidate_pipeline_summary`
+- `v_integrity_reconciliation_refs`
+- `v_integrity_reconciliation_scope`
+- `v_integrity_reconciliation_expectation_source`
+- `v_integrity_reconciliation_derivation`
+- `v_integrity_reconciliation_realized_metrics`
+
+All REC overview, summary, and integrity views return empty results in the
+current no-instance state.
+
+WP-9v explicitly defers:
+
+- REC instances
+- REC methodology
+- retrospective REC backfill
+- REC helper or artifact-generation tooling
+- REC consumers and consumer-floor views
+- promotion/demotion policy
+- paper/live reconciliation semantics
+- evidence-quality scoring
+- runtime, deployment, config, OMS, risk, overlay, safe-mode, or live-trading
+  behavior
 
 ## Non-Claims
 

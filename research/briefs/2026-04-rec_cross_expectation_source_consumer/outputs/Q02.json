@@ -1,0 +1,321 @@
+[
+  {
+    "candidate_id": "H-001",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "exp_success_criteria_count": 1,
+    "d2_006_gates_count": 1,
+    "exp_success_criteria_rec_ids": [
+      "REC-0001"
+    ],
+    "d2_006_gates_rec_ids": [
+      "REC-0012"
+    ],
+    "exp_success_criteria_ol_ids": [
+      "OL-0001"
+    ],
+    "d2_006_gates_ol_ids": [
+      "OL-0001"
+    ],
+    "exp_success_criteria_verdicts": [
+      "none_met"
+    ],
+    "d2_006_gates_verdicts": [
+      "none_met"
+    ],
+    "exp_success_criteria_below_rec5_floor": true,
+    "d2_006_gates_below_rec5_floor": true,
+    "counts_are_not_combined_across_expectation_sources": true,
+    "all_source_segments_below_rec5_floor": true
+  },
+  {
+    "candidate_id": "H-002",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "exp_success_criteria_count": 1,
+    "d2_006_gates_count": 1,
+    "exp_success_criteria_rec_ids": [
+      "REC-0003"
+    ],
+    "d2_006_gates_rec_ids": [
+      "REC-0014"
+    ],
+    "exp_success_criteria_ol_ids": [
+      "OL-0003"
+    ],
+    "d2_006_gates_ol_ids": [
+      "OL-0003"
+    ],
+    "exp_success_criteria_verdicts": [
+      "partially_met"
+    ],
+    "d2_006_gates_verdicts": [
+      "partially_met"
+    ],
+    "exp_success_criteria_below_rec5_floor": true,
+    "d2_006_gates_below_rec5_floor": true,
+    "counts_are_not_combined_across_expectation_sources": true,
+    "all_source_segments_below_rec5_floor": true
+  },
+  {
+    "candidate_id": "H-003",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "exp_success_criteria_count": 1,
+    "d2_006_gates_count": 1,
+    "exp_success_criteria_rec_ids": [
+      "REC-0004"
+    ],
+    "d2_006_gates_rec_ids": [
+      "REC-0015"
+    ],
+    "exp_success_criteria_ol_ids": [
+      "OL-0004"
+    ],
+    "d2_006_gates_ol_ids": [
+      "OL-0004"
+    ],
+    "exp_success_criteria_verdicts": [
+      "partially_met"
+    ],
+    "d2_006_gates_verdicts": [
+      "partially_met"
+    ],
+    "exp_success_criteria_below_rec5_floor": true,
+    "d2_006_gates_below_rec5_floor": true,
+    "counts_are_not_combined_across_expectation_sources": true,
+    "all_source_segments_below_rec5_floor": true
+  },
+  {
+    "candidate_id": "H-004",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "post_wp_5b",
+    "exp_success_criteria_count": 1,
+    "d2_006_gates_count": 1,
+    "exp_success_criteria_rec_ids": [
+      "REC-0011"
+    ],
+    "d2_006_gates_rec_ids": [
+      "REC-0022"
+    ],
+    "exp_success_criteria_ol_ids": [
+      "OL-0011"
+    ],
+    "d2_006_gates_ol_ids": [
+      "OL-0011"
+    ],
+    "exp_success_criteria_verdicts": [
+      "insufficient_evidence"
+    ],
+    "d2_006_gates_verdicts": [
+      "partially_met"
+    ],
+    "exp_success_criteria_below_rec5_floor": true,
+    "d2_006_gates_below_rec5_floor": true,
+    "counts_are_not_combined_across_expectation_sources": true,
+    "all_source_segments_below_rec5_floor": true
+  },
+  {
+    "candidate_id": "H-004",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "exp_success_criteria_count": 1,
+    "d2_006_gates_count": 1,
+    "exp_success_criteria_rec_ids": [
+      "REC-0005"
+    ],
+    "d2_006_gates_rec_ids": [
+      "REC-0016"
+    ],
+    "exp_success_criteria_ol_ids": [
+      "OL-0005"
+    ],
+    "d2_006_gates_ol_ids": [
+      "OL-0005"
+    ],
+    "exp_success_criteria_verdicts": [
+      "partially_met"
+    ],
+    "d2_006_gates_verdicts": [
+      "partially_met"
+    ],
+    "exp_success_criteria_below_rec5_floor": true,
+    "d2_006_gates_below_rec5_floor": true,
+    "counts_are_not_combined_across_expectation_sources": true,
+    "all_source_segments_below_rec5_floor": true
+  },
+  {
+    "candidate_id": "H-005",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "exp_success_criteria_count": 1,
+    "d2_006_gates_count": 1,
+    "exp_success_criteria_rec_ids": [
+      "REC-0002"
+    ],
+    "d2_006_gates_rec_ids": [
+      "REC-0013"
+    ],
+    "exp_success_criteria_ol_ids": [
+      "OL-0002"
+    ],
+    "d2_006_gates_ol_ids": [
+      "OL-0002"
+    ],
+    "exp_success_criteria_verdicts": [
+      "partially_met"
+    ],
+    "d2_006_gates_verdicts": [
+      "partially_met"
+    ],
+    "exp_success_criteria_below_rec5_floor": true,
+    "d2_006_gates_below_rec5_floor": true,
+    "counts_are_not_combined_across_expectation_sources": true,
+    "all_source_segments_below_rec5_floor": true
+  },
+  {
+    "candidate_id": "H-006",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "exp_success_criteria_count": 1,
+    "d2_006_gates_count": 1,
+    "exp_success_criteria_rec_ids": [
+      "REC-0006"
+    ],
+    "d2_006_gates_rec_ids": [
+      "REC-0017"
+    ],
+    "exp_success_criteria_ol_ids": [
+      "OL-0006"
+    ],
+    "d2_006_gates_ol_ids": [
+      "OL-0006"
+    ],
+    "exp_success_criteria_verdicts": [
+      "partially_met"
+    ],
+    "d2_006_gates_verdicts": [
+      "none_met"
+    ],
+    "exp_success_criteria_below_rec5_floor": true,
+    "d2_006_gates_below_rec5_floor": true,
+    "counts_are_not_combined_across_expectation_sources": true,
+    "all_source_segments_below_rec5_floor": true
+  },
+  {
+    "candidate_id": "H-007",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "exp_success_criteria_count": 1,
+    "d2_006_gates_count": 1,
+    "exp_success_criteria_rec_ids": [
+      "REC-0007"
+    ],
+    "d2_006_gates_rec_ids": [
+      "REC-0018"
+    ],
+    "exp_success_criteria_ol_ids": [
+      "OL-0007"
+    ],
+    "d2_006_gates_ol_ids": [
+      "OL-0007"
+    ],
+    "exp_success_criteria_verdicts": [
+      "none_met"
+    ],
+    "d2_006_gates_verdicts": [
+      "none_met"
+    ],
+    "exp_success_criteria_below_rec5_floor": true,
+    "d2_006_gates_below_rec5_floor": true,
+    "counts_are_not_combined_across_expectation_sources": true,
+    "all_source_segments_below_rec5_floor": true
+  },
+  {
+    "candidate_id": "H-008",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "exp_success_criteria_count": 1,
+    "d2_006_gates_count": 1,
+    "exp_success_criteria_rec_ids": [
+      "REC-0008"
+    ],
+    "d2_006_gates_rec_ids": [
+      "REC-0019"
+    ],
+    "exp_success_criteria_ol_ids": [
+      "OL-0008"
+    ],
+    "d2_006_gates_ol_ids": [
+      "OL-0008"
+    ],
+    "exp_success_criteria_verdicts": [
+      "partially_met"
+    ],
+    "d2_006_gates_verdicts": [
+      "none_met"
+    ],
+    "exp_success_criteria_below_rec5_floor": true,
+    "d2_006_gates_below_rec5_floor": true,
+    "counts_are_not_combined_across_expectation_sources": true,
+    "all_source_segments_below_rec5_floor": true
+  },
+  {
+    "candidate_id": "H-009",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "exp_success_criteria_count": 1,
+    "d2_006_gates_count": 1,
+    "exp_success_criteria_rec_ids": [
+      "REC-0009"
+    ],
+    "d2_006_gates_rec_ids": [
+      "REC-0020"
+    ],
+    "exp_success_criteria_ol_ids": [
+      "OL-0009"
+    ],
+    "d2_006_gates_ol_ids": [
+      "OL-0009"
+    ],
+    "exp_success_criteria_verdicts": [
+      "none_met"
+    ],
+    "d2_006_gates_verdicts": [
+      "none_met"
+    ],
+    "exp_success_criteria_below_rec5_floor": true,
+    "d2_006_gates_below_rec5_floor": true,
+    "counts_are_not_combined_across_expectation_sources": true,
+    "all_source_segments_below_rec5_floor": true
+  },
+  {
+    "candidate_id": "H-010",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "exp_success_criteria_count": 1,
+    "d2_006_gates_count": 1,
+    "exp_success_criteria_rec_ids": [
+      "REC-0010"
+    ],
+    "d2_006_gates_rec_ids": [
+      "REC-0021"
+    ],
+    "exp_success_criteria_ol_ids": [
+      "OL-0010"
+    ],
+    "d2_006_gates_ol_ids": [
+      "OL-0010"
+    ],
+    "exp_success_criteria_verdicts": [
+      "partially_met"
+    ],
+    "d2_006_gates_verdicts": [
+      "partially_met"
+    ],
+    "exp_success_criteria_below_rec5_floor": true,
+    "d2_006_gates_below_rec5_floor": true,
+    "counts_are_not_combined_across_expectation_sources": true,
+    "all_source_segments_below_rec5_floor": true
+  }
+]

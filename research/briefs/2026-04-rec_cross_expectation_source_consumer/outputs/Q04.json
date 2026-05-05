@@ -1,0 +1,54 @@
+[
+  {
+    "reconciliation_id": "REC-0022",
+    "outcome_id": "OL-0011",
+    "candidate_id": "H-004",
+    "pipeline_version": "post_wp_5b",
+    "expectation_source_type": "d2_006_gates",
+    "overall_verdict": "partially_met",
+    "comparison_count": 6,
+    "deterministic_comparison_count": 6,
+    "met_comparison_count": 3,
+    "not_met_comparison_count": 3,
+    "h004_split_posture": "structural_split_only_no_pre_post_improvement_or_degradation_inference"
+  },
+  {
+    "reconciliation_id": "REC-0016",
+    "outcome_id": "OL-0005",
+    "candidate_id": "H-004",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "d2_006_gates",
+    "overall_verdict": "partially_met",
+    "comparison_count": 5,
+    "deterministic_comparison_count": 5,
+    "met_comparison_count": 2,
+    "not_met_comparison_count": 3,
+    "h004_split_posture": "structural_split_only_no_pre_post_improvement_or_degradation_inference"
+  },
+  {
+    "reconciliation_id": "REC-0011",
+    "outcome_id": "OL-0011",
+    "candidate_id": "H-004",
+    "pipeline_version": "post_wp_5b",
+    "expectation_source_type": "exp_success_criteria",
+    "overall_verdict": "insufficient_evidence",
+    "comparison_count": 7,
+    "deterministic_comparison_count": 0,
+    "met_comparison_count": 0,
+    "not_met_comparison_count": 0,
+    "h004_split_posture": "structural_split_only_no_pre_post_improvement_or_degradation_inference"
+  },
+  {
+    "reconciliation_id": "REC-0005",
+    "outcome_id": "OL-0005",
+    "candidate_id": "H-004",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "exp_success_criteria",
+    "overall_verdict": "partially_met",
+    "comparison_count": 5,
+    "deterministic_comparison_count": 5,
+    "met_comparison_count": 3,
+    "not_met_comparison_count": 2,
+    "h004_split_posture": "structural_split_only_no_pre_post_improvement_or_degradation_inference"
+  }
+]

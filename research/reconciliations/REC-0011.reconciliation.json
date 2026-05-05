@@ -1,0 +1,202 @@
+{
+  "schema_version": "v1",
+  "reconciliation_id": "REC-0011",
+  "candidate_id": "H-004",
+  "outcome_id": "OL-0011",
+  "outcome_kind": "research_oos",
+  "pipeline_version": "post_wp_5b",
+  "expectation_source_type": "exp_success_criteria",
+  "expectation_source_artifact_id": "EXP-0011",
+  "expectation_source_artifact_path": "research/experiments/EXP-0011.plan.json",
+  "expectation_extracted": {
+    "source_type": "exp_success_criteria",
+    "source_artifact_id": "EXP-0011",
+    "source_artifact_path": "research/experiments/EXP-0011.plan.json",
+    "extraction_method": "manual_retrospective_wp9x_backfill_v1",
+    "extracted_at": "2026-05-05T12:00:00Z",
+    "metric_expectations": [
+      {
+        "metric_name": "d2_006_gates",
+        "expected_operator": "gate_reference",
+        "expected_value": "D2-006 promotion gates from docs/onboarding/PHASE2_BASELINE.md as implemented by the current post-WP-5b lib.evaluation.check_promotion_gates",
+        "expected_unit": null,
+        "source_field_path": "success_criteria.gates",
+        "source_text": "D2-006 promotion gates from docs/onboarding/PHASE2_BASELINE.md as implemented by the current post-WP-5b lib.evaluation.check_promotion_gates",
+        "notes": "Preserved as a committed EXP success-criteria gate reference; direct REC comparison uses only deterministically mapped OL metrics when explicit numeric thresholds are present."
+      },
+      {
+        "metric_name": "plan_file_authored",
+        "expected_operator": "qualitative",
+        "expected_value": "Plan file EXP-0011 is authored and validated before the H-004 re-execution begins",
+        "expected_unit": null,
+        "source_field_path": "success_criteria.additional_criteria[0]",
+        "source_text": "Plan file EXP-0011 is authored and validated before the H-004 re-execution begins",
+        "notes": "Preserved from EXP-0011 success criteria but not compared because the criterion is operational/qualitative and does not provide a deterministic numeric threshold mapped to OL-0011 metrics."
+      },
+      {
+        "metric_name": "registered_h004_parameters",
+        "expected_operator": "qualitative",
+        "expected_value": "The run uses the exact registered H-004 baseline parameters and committed H-004 signal logic",
+        "expected_unit": null,
+        "source_field_path": "success_criteria.additional_criteria[1]",
+        "source_text": "The run uses the exact registered H-004 baseline parameters and committed H-004 signal logic",
+        "notes": "Preserved from EXP-0011 success criteria but not compared because the criterion is operational/qualitative and does not provide a deterministic numeric threshold mapped to OL-0011 metrics."
+      },
+      {
+        "metric_name": "trial_log_append_count",
+        "expected_operator": "qualitative",
+        "expected_value": "The run appends exactly one new generated trial entry to research/trial_log.jsonl",
+        "expected_unit": null,
+        "source_field_path": "success_criteria.additional_criteria[2]",
+        "source_text": "The run appends exactly one new generated trial entry to research/trial_log.jsonl",
+        "notes": "Preserved from EXP-0011 success criteria but not compared because the criterion is operational/qualitative and does not provide a deterministic numeric threshold mapped to OL-0011 metrics."
+      },
+      {
+        "metric_name": "report_trial_reference",
+        "expected_operator": "qualitative",
+        "expected_value": "The resulting report references the actual generated trial_id and actual current-run metrics",
+        "expected_unit": null,
+        "source_field_path": "success_criteria.additional_criteria[3]",
+        "source_text": "The resulting report references the actual generated trial_id and actual current-run metrics",
+        "notes": "Preserved from EXP-0011 success criteria but not compared because the criterion is operational/qualitative and does not provide a deterministic numeric threshold mapped to OL-0011 metrics."
+      },
+      {
+        "metric_name": "historical_h004_artifact_preservation",
+        "expected_operator": "qualitative",
+        "expected_value": "Historical retrospective H-004 artifacts EXP-0005 and REP-0005 remain unchanged alongside the new forward-flow pair",
+        "expected_unit": null,
+        "source_field_path": "success_criteria.additional_criteria[4]",
+        "source_text": "Historical retrospective H-004 artifacts EXP-0005 and REP-0005 remain unchanged alongside the new forward-flow pair",
+        "notes": "Preserved from EXP-0011 success criteria but not compared because the criterion is operational/qualitative and does not provide a deterministic numeric threshold mapped to OL-0011 metrics."
+      },
+      {
+        "metric_name": "scope_preservation",
+        "expected_operator": "qualitative",
+        "expected_value": "No candidate registration, data procurement, schema, validator, query-layer, test, runtime, or promotion change occurs",
+        "expected_unit": null,
+        "source_field_path": "success_criteria.additional_criteria[5]",
+        "source_text": "No candidate registration, data procurement, schema, validator, query-layer, test, runtime, or promotion change occurs",
+        "notes": "Preserved from EXP-0011 success criteria but not compared because the criterion is operational/qualitative and does not provide a deterministic numeric threshold mapped to OL-0011 metrics."
+      }
+    ]
+  },
+  "realized_metrics": {
+    "sharpe": 0.746191460507614,
+    "source_field": "trial_log.oos_sharpe",
+    "window_convention": "No separate IS/OOS split convention is introduced by WP-6h; this object records full-period baseline metrics from the actual current H-004 re-execution.",
+    "trial_count_before_append": 10,
+    "trial_count_after_append": 11,
+    "config_sha256": "9f7f97b8ad066f3413a5c199dec239edab3e95eae21eb785591a0496b0035164",
+    "dataset_sha256": "47b91ceac5ae9e472a08c23390ec8a5f6fee9a627a44df11e3557fbace02813d",
+    "max_drawdown": 0.697949870640699,
+    "max_drawdown_peak": "2024-12-08 23:59:59.999000+00:00",
+    "max_drawdown_trough": "2025-11-16 23:59:59.999000+00:00",
+    "n_obs": 2292,
+    "trades": 41,
+    "hit_rate": 0.5365853658536586,
+    "profit_factor": 1.5037466064620668,
+    "final_equity": 49897.77544811701,
+    "total_pnl": 39897.77544811701,
+    "gross_pnl": 53747.65000000001,
+    "fees_paid": 1734.0594600000002,
+    "slippage_paid": 867.0297300000001,
+    "funding_paid": 11248.78536188244,
+    "cost_drag_fraction": 0.2576833508419891,
+    "skipped_bars": 0,
+    "sensitivity_min_ratio": 0.7827681657491495,
+    "dsr": 1.0,
+    "dsr_note": "P(SR>1.0)=1.0000; SR benchmark=0.4979",
+    "walk_forward_efficiency": 1.0,
+    "gates_passed": 5,
+    "gates_total": 8,
+    "short_side_trades": 16,
+    "short_side_net_pnl": 11231.55919600001,
+    "long_side_trades": 25,
+    "long_side_net_pnl": 41206.417530000006
+  },
+  "comparison": {
+    "metric_comparisons": [
+      {
+        "metric_name": "d2_006_gates",
+        "expected_value": [
+          "D2-006 promotion gates from docs/onboarding/PHASE2_BASELINE.md as implemented by the current post-WP-5b lib.evaluation.check_promotion_gates"
+        ],
+        "realized_value": null,
+        "delta_absolute": null,
+        "delta_relative": null,
+        "comparison_verdict": "insufficient_evidence",
+        "comparison_notes": "EXP-0011 criterion at success_criteria.gates is preserved, but REC v1 cannot compare it to OL-0011 without inventing an OL metric mapping, numeric threshold, or operational pass/fail authority."
+      },
+      {
+        "metric_name": "plan_file_authored",
+        "expected_value": "Plan file EXP-0011 is authored and validated before the H-004 re-execution begins",
+        "realized_value": null,
+        "delta_absolute": null,
+        "delta_relative": null,
+        "comparison_verdict": "insufficient_evidence",
+        "comparison_notes": "EXP-0011 criterion at success_criteria.additional_criteria[0] is preserved, but REC v1 cannot compare it to OL-0011 without inventing an OL metric mapping, numeric threshold, or operational pass/fail authority."
+      },
+      {
+        "metric_name": "registered_h004_parameters",
+        "expected_value": "The run uses the exact registered H-004 baseline parameters and committed H-004 signal logic",
+        "realized_value": null,
+        "delta_absolute": null,
+        "delta_relative": null,
+        "comparison_verdict": "insufficient_evidence",
+        "comparison_notes": "EXP-0011 criterion at success_criteria.additional_criteria[1] is preserved, but REC v1 cannot compare it to OL-0011 without inventing an OL metric mapping, numeric threshold, or operational pass/fail authority."
+      },
+      {
+        "metric_name": "trial_log_append_count",
+        "expected_value": "The run appends exactly one new generated trial entry to research/trial_log.jsonl",
+        "realized_value": null,
+        "delta_absolute": null,
+        "delta_relative": null,
+        "comparison_verdict": "insufficient_evidence",
+        "comparison_notes": "EXP-0011 criterion at success_criteria.additional_criteria[2] is preserved, but REC v1 cannot compare it to OL-0011 without inventing an OL metric mapping, numeric threshold, or operational pass/fail authority."
+      },
+      {
+        "metric_name": "report_trial_reference",
+        "expected_value": "The resulting report references the actual generated trial_id and actual current-run metrics",
+        "realized_value": null,
+        "delta_absolute": null,
+        "delta_relative": null,
+        "comparison_verdict": "insufficient_evidence",
+        "comparison_notes": "EXP-0011 criterion at success_criteria.additional_criteria[3] is preserved, but REC v1 cannot compare it to OL-0011 without inventing an OL metric mapping, numeric threshold, or operational pass/fail authority."
+      },
+      {
+        "metric_name": "historical_h004_artifact_preservation",
+        "expected_value": "Historical retrospective H-004 artifacts EXP-0005 and REP-0005 remain unchanged alongside the new forward-flow pair",
+        "realized_value": null,
+        "delta_absolute": null,
+        "delta_relative": null,
+        "comparison_verdict": "insufficient_evidence",
+        "comparison_notes": "EXP-0011 criterion at success_criteria.additional_criteria[4] is preserved, but REC v1 cannot compare it to OL-0011 without inventing an OL metric mapping, numeric threshold, or operational pass/fail authority."
+      },
+      {
+        "metric_name": "scope_preservation",
+        "expected_value": "No candidate registration, data procurement, schema, validator, query-layer, test, runtime, or promotion change occurs",
+        "realized_value": null,
+        "delta_absolute": null,
+        "delta_relative": null,
+        "comparison_verdict": "insufficient_evidence",
+        "comparison_notes": "EXP-0011 criterion at success_criteria.additional_criteria[5] is preserved, but REC v1 cannot compare it to OL-0011 without inventing an OL metric mapping, numeric threshold, or operational pass/fail authority."
+      }
+    ]
+  },
+  "overall_verdict": "insufficient_evidence",
+  "interpretation": "REC-0011 reconciles OL-0011 against committed EXP-0011 success criteria while preserving the H-004 post-WP-5b forward-flow source posture. The selected EXP criteria are operational and qualitative rather than deterministic numeric OL metric thresholds, so REC v1 records insufficient evidence and creates no promotion, demotion, paper/live readiness, evidence score, recommendation, policy, runtime, or protected-path authority.",
+  "derivation_record": {
+    "derivation_method": "manual_retrospective_wp9x_backfill_v1",
+    "source_artifact_id": "OL-0011",
+    "source_artifact_path": "research/outcome_ledgers/OL-0011.outcome_ledger.json",
+    "source_outcome_id": "OL-0011",
+    "expectation_source_type": "exp_success_criteria",
+    "derivation_timestamp": "2026-05-05T12:00:00Z",
+    "tool_version": "wp9x_manual_backfill_v1"
+  },
+  "retrospective_flag": true,
+  "linked_advisory_artifacts": [],
+  "linked_lifecycle_artifacts": [],
+  "notes": "WP-9x uses OL-0011 and EXP-0011 because the OL-linked EXP success criteria are committed and candidate-consistent. No D2 fallback is used; no H-004 pre/post comparison is inferred.",
+  "retrospective_disclosure": "WP-9x derives REC-0011 retrospectively from already committed OL-0011 and EXP-0011 repo truth to complete the REC v1 retrospective backfill over the locked OL v1 corpus. This entry preserves source limitations and carries no promotion, demotion, paper/live, scoring, policy, consumer, helper, runtime, deployment, OMS, risk, safe-mode, overlay, config, or protected-path authority."
+}

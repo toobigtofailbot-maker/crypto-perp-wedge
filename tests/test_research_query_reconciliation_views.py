@@ -1,0 +1,295 @@
+import json
+from pathlib import Path
+
+import pytest
+
+from tools.research_query import query_layer
+from tools.research_query.query_layer import (
+    ReadOnlyQueryError,
+    init_duckdb,
+    list_views,
+    run_sql,
+)
+
+
+RECONCILIATION_VIEWS = {
+    "v_reconciliation_overview",
+    "v_reconciliation_candidate_pipeline_summary",
+    "v_integrity_reconciliation_refs",
+    "v_integrity_reconciliation_scope",
+    "v_integrity_reconciliation_expectation_source",
+    "v_integrity_reconciliation_derivation",
+    "v_integrity_reconciliation_realized_metrics",
+}
+
+
+def _write_json(path: Path, payload: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+
+def _committed_metrics(outcome_id: str = "OL-0002") -> dict:
+    path = query_layer.REPO_ROOT / "research" / "outcome_ledgers" / f"{outcome_id}.outcome_ledger.json"
+    return json.loads(path.read_text(encoding="utf-8"))["metrics"]
+
+
+def _base_rec(reconciliation_id: str = "REC-9001") -> dict:
+    metrics = _committed_metrics()
+    return {
+        "schema_version": "v1",
+        "reconciliation_id": reconciliation_id,
+        "candidate_id": "H-005",
+        "outcome_id": "OL-0002",
+        "outcome_kind": "research_oos",
+        "pipeline_version": "pre_wp_5b",
+        "expectation_source_type": "exp_success_criteria",
+        "expectation_source_artifact_id": "EXP-0001",
+        "expectation_source_artifact_path": "research/experiments/EXP-0001.plan.json",
+        "expectation_extracted": {
+            "source_type": "exp_success_criteria",
+            "source_artifact_id": "EXP-0001",
+            "source_artifact_path": "research/experiments/EXP-0001.plan.json",
+            "extraction_method": "pytest fixture",
+            "extracted_at": "2026-05-04T12:00:00Z",
+            "metric_expectations": [
+                {
+                    "metric_name": "sharpe",
+                    "expected_operator": "gte",
+                    "expected_value": 1.0,
+                    "expected_unit": None,
+                    "source_field_path": "success_criteria.gates",
+                    "source_text": "Fixture expectation",
+                }
+            ],
+        },
+        "realized_metrics": metrics,
+        "comparison": {
+            "metric_comparisons": [
+                {
+                    "metric_name": "sharpe",
+                    "expected_value": 1.0,
+                    "realized_value": metrics["sharpe"],
+                    "delta_absolute": metrics["sharpe"] - 1.0,
+                    "delta_relative": metrics["sharpe"] - 1.0,
+                    "comparison_verdict": "not_met",
+                    "comparison_notes": "Fixture comparison.",
+                }
+            ]
+        },
+        "overall_verdict": "none_met",
+        "interpretation": "Pytest fixture REC.",
+        "derivation_record": {
+            "derivation_method": "pytest fixture",
+            "source_artifact_id": "OL-0002",
+            "source_artifact_path": "research/outcome_ledgers/OL-0002.outcome_ledger.json",
+            "derivation_timestamp": "2026-05-04T12:00:00Z",
+            "source_outcome_id": "OL-0002",
+            "expectation_source_type": "exp_success_criteria",
+        },
+        "retrospective_flag": True,
+        "retrospective_disclosure": "Pytest retrospective fixture.",
+        "linked_advisory_artifacts": [],
+        "linked_lifecycle_artifacts": [],
+    }
+
+
+@pytest.fixture()
+def conn():
+    connection = init_duckdb()
+    try:
+        yield connection
+    finally:
+        connection.close()
+
+
+def test_reconciliations_relation_registered_empty_with_missing_dir(monkeypatch, tmp_path):
+    monkeypatch.setattr(query_layer, "RECONCILIATIONS_DIR", tmp_path / "missing_reconciliations")
+
+    connection = init_duckdb()
+    try:
+        assert connection.execute("SELECT COUNT(*) FROM reconciliations").fetchone()[0] == 0
+        assert connection.execute("SELECT * FROM v_reconciliation_overview").fetchall() == []
+    finally:
+        connection.close()
+
+
+def test_reconciliation_views_are_listed(conn):
+    assert RECONCILIATION_VIEWS <= set(list_views(conn))
+
+
+def test_reconciliation_empty_state_views_and_integrity_empty(conn):
+    assert conn.execute("SELECT * FROM v_reconciliation_overview").fetchall() == []
+    assert conn.execute("SELECT * FROM v_reconciliation_candidate_pipeline_summary").fetchall() == []
+    for view_name in {
+        "v_integrity_reconciliation_refs",
+        "v_integrity_reconciliation_scope",
+        "v_integrity_reconciliation_expectation_source",
+        "v_integrity_reconciliation_derivation",
+        "v_integrity_reconciliation_realized_metrics",
+    }:
+        assert conn.execute(f'SELECT * FROM "{view_name}"').fetchall() == []
+
+
+def test_temp_valid_reconciliation_appears_in_overview_and_summary(monkeypatch, tmp_path):
+    reconciliations_dir = tmp_path / "research" / "reconciliations"
+    _write_json(reconciliations_dir / "REC-9001.reconciliation.json", _base_rec())
+    monkeypatch.setattr(query_layer, "RECONCILIATIONS_DIR", reconciliations_dir)
+
+    connection = init_duckdb()
+    try:
+        overview_rows = connection.execute(
+            """
+            SELECT
+                reconciliation_id,
+                candidate_id,
+                outcome_id,
+                outcome_kind,
+                pipeline_version,
+                expectation_source_type,
+                expectation_source_artifact_id,
+                overall_verdict,
+                retrospective_flag,
+                derivation_method,
+                derivation_timestamp
+            FROM v_reconciliation_overview
+            """
+        ).fetchall()
+        summary_rows = connection.execute(
+            """
+            SELECT
+                candidate_id,
+                outcome_kind,
+                pipeline_version,
+                expectation_source_type,
+                reconciliation_count,
+                overall_verdicts
+            FROM v_reconciliation_candidate_pipeline_summary
+            """
+        ).fetchall()
+
+        assert overview_rows == [
+            (
+                "REC-9001",
+                "H-005",
+                "OL-0002",
+                "research_oos",
+                "pre_wp_5b",
+                "exp_success_criteria",
+                "EXP-0001",
+                "none_met",
+                True,
+                "pytest fixture",
+                "2026-05-04T12:00:00Z",
+            )
+        ]
+        assert summary_rows == [
+            ("H-005", "research_oos", "pre_wp_5b", "exp_success_criteria", 1, ["none_met"])
+        ]
+    finally:
+        connection.close()
+
+
+def test_temp_valid_reconciliation_integrity_views_empty(monkeypatch, tmp_path):
+    reconciliations_dir = tmp_path / "research" / "reconciliations"
+    _write_json(reconciliations_dir / "REC-9001.reconciliation.json", _base_rec())
+    monkeypatch.setattr(query_layer, "RECONCILIATIONS_DIR", reconciliations_dir)
+
+    connection = init_duckdb()
+    try:
+        for view_name in {
+            "v_integrity_reconciliation_refs",
+            "v_integrity_reconciliation_scope",
+            "v_integrity_reconciliation_expectation_source",
+            "v_integrity_reconciliation_derivation",
+            "v_integrity_reconciliation_realized_metrics",
+        }:
+            assert connection.execute(f'SELECT * FROM "{view_name}"').fetchall() == []
+    finally:
+        connection.close()
+
+
+def test_temp_invalid_reconciliation_integrity_views_emit_stable_issues(monkeypatch, tmp_path):
+    reconciliations_dir = tmp_path / "research" / "reconciliations"
+    payload = _base_rec()
+    payload["candidate_id"] = "H-999"
+    payload["outcome_kind"] = "paper_oos"
+    payload["pipeline_version"] = "future_pipeline"
+    payload["expectation_source_artifact_id"] = "EXP-9999"
+    payload["expectation_extracted"]["source_artifact_id"] = "EXP-9999"
+    payload["derivation_record"]["source_outcome_id"] = "OL-9999"
+    payload["realized_metrics"]["sharpe"] = 9.9
+    payload["linked_advisory_artifacts"] = ["PGAS-9999"]
+    _write_json(reconciliations_dir / "REC-9001.reconciliation.json", payload)
+    monkeypatch.setattr(query_layer, "RECONCILIATIONS_DIR", reconciliations_dir)
+
+    connection = init_duckdb()
+    try:
+        ref_issue_types = {
+            row[0]
+            for row in connection.execute("SELECT issue_type FROM v_integrity_reconciliation_refs").fetchall()
+        }
+        scope_issue_types = {
+            row[0]
+            for row in connection.execute("SELECT issue_type FROM v_integrity_reconciliation_scope").fetchall()
+        }
+        expectation_issue_types = {
+            row[0]
+            for row in connection.execute(
+                "SELECT issue_type FROM v_integrity_reconciliation_expectation_source"
+            ).fetchall()
+        }
+        derivation_issue_types = {
+            row[0]
+            for row in connection.execute("SELECT issue_type FROM v_integrity_reconciliation_derivation").fetchall()
+        }
+        realized_issue_types = {
+            row[0]
+            for row in connection.execute(
+                "SELECT issue_type FROM v_integrity_reconciliation_realized_metrics"
+            ).fetchall()
+        }
+
+        assert {
+            "reconciliation_unknown_candidate_ref",
+            "reconciliation_outcome_candidate_mismatch",
+            "reconciliation_unknown_linked_advisory_ref",
+        } <= ref_issue_types
+        assert {
+            "reconciliation_invalid_kind",
+            "reconciliation_invalid_pipeline_version",
+            "reconciliation_outcome_kind_mismatch",
+            "reconciliation_pipeline_version_mismatch",
+        } <= scope_issue_types
+        assert {"reconciliation_unknown_exp_source"} <= expectation_issue_types
+        assert {"reconciliation_source_outcome_mismatch"} <= derivation_issue_types
+        assert realized_issue_types == {"reconciliation_realized_metric_mismatch"}
+    finally:
+        connection.close()
+
+
+def test_existing_query_layer_read_only_guard_still_rejects_writes(conn):
+    with pytest.raises(ReadOnlyQueryError):
+        run_sql(conn, "CREATE TABLE reconciliation_fixture AS SELECT 1 AS x")
+
+
+def test_existing_outcome_ledger_behavior_preserved(conn):
+    assert conn.execute("SELECT COUNT(*) FROM v_outcome_ledger_overview").fetchone()[0] == 11
+    assert conn.execute(
+        """
+        SELECT pipeline_version, COUNT(*)
+        FROM v_outcome_ledger_overview
+        GROUP BY pipeline_version
+        ORDER BY pipeline_version
+        """
+    ).fetchall() == [("post_wp_5b", 1), ("pre_wp_5b", 10)]
+    assert conn.execute(
+        """
+        SELECT candidate_id, pipeline_version, outcome_count
+        FROM v_outcome_ledger_candidate_pipeline_summary
+        WHERE candidate_id = 'H-004'
+        ORDER BY pipeline_version
+        """
+    ).fetchall() == [
+        ("H-004", "post_wp_5b", 1),
+        ("H-004", "pre_wp_5b", 1),
+    ]

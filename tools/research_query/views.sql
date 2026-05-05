@@ -609,6 +609,506 @@ SELECT
 FROM outcome_ledgers
 WHERE pipeline_version NOT IN ('pre_wp_5b', 'post_wp_5b');
 
+-- What reconciliation entries have been recorded?
+-- Exposes one row per REC artifact without expanding extracted expectations or comparisons.
+CREATE OR REPLACE VIEW v_reconciliation_overview AS
+SELECT
+    reconciliation_id,
+    candidate_id,
+    outcome_id,
+    outcome_kind,
+    pipeline_version,
+    expectation_source_type,
+    expectation_source_artifact_id,
+    overall_verdict,
+    COALESCE(retrospective_flag, false) AS retrospective_flag,
+    derivation_record.derivation_method AS derivation_method,
+    strftime(
+        '%Y-%m-%dT%H:%M:%SZ',
+        CAST(derivation_record.derivation_timestamp AS TIMESTAMP)
+    ) AS derivation_timestamp
+FROM reconciliations;
+
+-- How many reconciliation entries exist per consumer-floor segment?
+CREATE OR REPLACE VIEW v_reconciliation_candidate_pipeline_summary AS
+SELECT
+    candidate_id,
+    outcome_kind,
+    pipeline_version,
+    expectation_source_type,
+    COUNT(*) AS reconciliation_count,
+    list_sort(list_distinct(list(overall_verdict))) AS overall_verdicts
+FROM reconciliations
+GROUP BY candidate_id, outcome_kind, pipeline_version, expectation_source_type;
+
+-- Do all reconciliation candidate, outcome, and linked references resolve?
+-- Repo-relative path existence remains validator-only because SQL has no repo filesystem authority.
+-- Expected to be empty in a healthy repo state.
+CREATE OR REPLACE VIEW v_integrity_reconciliation_refs AS
+WITH reconciliation_advisory_refs AS (
+    SELECT
+        reconciliation_id,
+        candidate_id,
+        'linked_advisory_artifacts' AS ref_kind,
+        CAST(ref.ref_value AS VARCHAR) AS ref_value
+    FROM reconciliations,
+    UNNEST(linked_advisory_artifacts) AS ref(ref_value)
+),
+reconciliation_lifecycle_refs AS (
+    SELECT
+        reconciliation_id,
+        candidate_id,
+        'linked_lifecycle_artifacts' AS ref_kind,
+        CAST(ref.ref_value AS VARCHAR) AS ref_value
+    FROM reconciliations,
+    UNNEST(linked_lifecycle_artifacts) AS ref(ref_value)
+),
+all_refs AS (
+    SELECT * FROM reconciliation_advisory_refs
+    UNION ALL
+    SELECT * FROM reconciliation_lifecycle_refs
+),
+known_ref_issues AS (
+    SELECT
+        'reconciliation_unknown_aout_ref' AS issue_type,
+        r.reconciliation_id,
+        r.candidate_id,
+        r.ref_kind,
+        r.ref_value
+    FROM all_refs AS r
+    LEFT JOIN agent_outputs AS a
+      ON r.ref_value = a.agent_output_id
+    WHERE regexp_matches(r.ref_value, '^AOUT-[0-9]{4}$')
+      AND a.agent_output_id IS NULL
+    UNION ALL
+    SELECT
+        'reconciliation_unknown_mout_ref' AS issue_type,
+        r.reconciliation_id,
+        r.candidate_id,
+        r.ref_kind,
+        r.ref_value
+    FROM all_refs AS r
+    LEFT JOIN macro_window_agent_outputs AS m
+      ON r.ref_value = m.macro_window_agent_output_id
+    WHERE regexp_matches(r.ref_value, '^MOUT-[0-9]{4}$')
+      AND m.macro_window_agent_output_id IS NULL
+    UNION ALL
+    SELECT
+        'reconciliation_unknown_bmap_ref' AS issue_type,
+        r.reconciliation_id,
+        r.candidate_id,
+        r.ref_kind,
+        r.ref_value
+    FROM all_refs AS r
+    LEFT JOIN bucket_mappings AS b
+      ON r.ref_value = b.bucket_mapping_id
+    WHERE regexp_matches(r.ref_value, '^BMAP-[0-9]{4}$')
+      AND b.bucket_mapping_id IS NULL
+    UNION ALL
+    SELECT
+        'reconciliation_unknown_pgas_ref' AS issue_type,
+        r.reconciliation_id,
+        r.candidate_id,
+        r.ref_kind,
+        r.ref_value
+    FROM all_refs AS r
+    LEFT JOIN pre_gate_advisory_snapshots AS p
+      ON r.ref_value = p.pre_gate_advisory_snapshot_id
+    WHERE regexp_matches(r.ref_value, '^PGAS-[0-9]{4}$')
+      AND p.pre_gate_advisory_snapshot_id IS NULL
+    UNION ALL
+    SELECT
+        'reconciliation_unknown_osh_ref' AS issue_type,
+        r.reconciliation_id,
+        r.candidate_id,
+        r.ref_kind,
+        r.ref_value
+    FROM all_refs AS r
+    LEFT JOIN overlay_shadow_logs AS o
+      ON r.ref_value = o.overlay_shadow_log_id
+    WHERE regexp_matches(r.ref_value, '^OSH-[0-9]{4}$')
+      AND o.overlay_shadow_log_id IS NULL
+    UNION ALL
+    SELECT
+        'reconciliation_unknown_sss_ref' AS issue_type,
+        r.reconciliation_id,
+        r.candidate_id,
+        r.ref_kind,
+        r.ref_value
+    FROM all_refs AS r
+    LEFT JOIN shadow_signal_summaries AS s1
+      ON r.ref_value = s1.shadow_signal_summary_id
+    LEFT JOIN shadow_signal_summaries_v2 AS s2
+      ON r.ref_value = s2.shadow_signal_summary_id
+    WHERE regexp_matches(r.ref_value, '^SSS-[0-9]{4}$')
+      AND s1.shadow_signal_summary_id IS NULL
+      AND s2.shadow_signal_summary_id IS NULL
+    UNION ALL
+    SELECT
+        'reconciliation_unknown_lch_ref' AS issue_type,
+        r.reconciliation_id,
+        r.candidate_id,
+        r.ref_kind,
+        r.ref_value
+    FROM all_refs AS r
+    LEFT JOIN lifecycle_changes AS l
+      ON r.ref_value = l.lifecycle_change_id
+    WHERE regexp_matches(r.ref_value, '^LCH-[0-9]{4}$')
+      AND l.lifecycle_change_id IS NULL
+)
+SELECT
+    'reconciliation_unknown_candidate_ref' AS issue_type,
+    r.reconciliation_id,
+    r.candidate_id,
+    'candidate_id' AS ref_kind,
+    CAST(r.candidate_id AS VARCHAR) AS ref_value
+FROM reconciliations AS r
+LEFT JOIN candidates AS c
+  ON r.candidate_id = c.candidate_id
+WHERE c.candidate_id IS NULL
+UNION ALL
+SELECT
+    'reconciliation_unknown_outcome_ref' AS issue_type,
+    r.reconciliation_id,
+    r.candidate_id,
+    'outcome_id' AS ref_kind,
+    CAST(r.outcome_id AS VARCHAR) AS ref_value
+FROM reconciliations AS r
+LEFT JOIN outcome_ledgers AS o
+  ON r.outcome_id = o.outcome_id
+WHERE o.outcome_id IS NULL
+UNION ALL
+SELECT
+    'reconciliation_outcome_candidate_mismatch' AS issue_type,
+    r.reconciliation_id,
+    r.candidate_id,
+    'outcome_id' AS ref_kind,
+    CAST(r.outcome_id AS VARCHAR) AS ref_value
+FROM reconciliations AS r
+JOIN outcome_ledgers AS o
+  ON r.outcome_id = o.outcome_id
+WHERE r.candidate_id <> o.candidate_id
+UNION ALL
+SELECT
+    CASE
+        WHEN ref_kind = 'linked_lifecycle_artifacts' THEN
+            'reconciliation_unknown_linked_lifecycle_ref'
+        ELSE
+            'reconciliation_unknown_linked_advisory_ref'
+    END AS issue_type,
+    reconciliation_id,
+    candidate_id,
+    ref_kind,
+    ref_value
+FROM known_ref_issues;
+
+-- Does the committed reconciliation corpus stay inside the REC v1 scope?
+-- Expected to be empty in a healthy repo state.
+CREATE OR REPLACE VIEW v_integrity_reconciliation_scope AS
+SELECT
+    'reconciliation_invalid_schema_version' AS issue_type,
+    reconciliation_id,
+    candidate_id,
+    'schema_version' AS field_name,
+    schema_version AS actual_value
+FROM reconciliations
+WHERE schema_version <> 'v1'
+UNION ALL
+SELECT
+    'reconciliation_invalid_kind' AS issue_type,
+    reconciliation_id,
+    candidate_id,
+    'outcome_kind' AS field_name,
+    outcome_kind AS actual_value
+FROM reconciliations
+WHERE outcome_kind <> 'research_oos'
+UNION ALL
+SELECT
+    'reconciliation_invalid_pipeline_version' AS issue_type,
+    reconciliation_id,
+    candidate_id,
+    'pipeline_version' AS field_name,
+    pipeline_version AS actual_value
+FROM reconciliations
+WHERE pipeline_version NOT IN ('pre_wp_5b', 'post_wp_5b')
+UNION ALL
+SELECT
+    'reconciliation_invalid_expectation_source_type' AS issue_type,
+    reconciliation_id,
+    candidate_id,
+    'expectation_source_type' AS field_name,
+    expectation_source_type AS actual_value
+FROM reconciliations
+WHERE expectation_source_type NOT IN ('exp_success_criteria', 'd2_006_gates')
+UNION ALL
+SELECT
+    'reconciliation_outcome_kind_mismatch' AS issue_type,
+    r.reconciliation_id,
+    r.candidate_id,
+    'outcome_kind' AS field_name,
+    r.outcome_kind AS actual_value
+FROM reconciliations AS r
+JOIN outcome_ledgers AS o
+  ON r.outcome_id = o.outcome_id
+WHERE r.outcome_kind <> o.outcome_kind
+UNION ALL
+SELECT
+    'reconciliation_pipeline_version_mismatch' AS issue_type,
+    r.reconciliation_id,
+    r.candidate_id,
+    'pipeline_version' AS field_name,
+    r.pipeline_version AS actual_value
+FROM reconciliations AS r
+JOIN outcome_ledgers AS o
+  ON r.outcome_id = o.outcome_id
+WHERE r.pipeline_version <> o.pipeline_version;
+
+-- Are REC expectation-source fields internally consistent and resolvable by relation joins?
+-- Source path existence remains validator-only.
+-- Expected to be empty in a healthy repo state.
+CREATE OR REPLACE VIEW v_integrity_reconciliation_expectation_source AS
+SELECT
+    'reconciliation_expectation_extracted_source_type_mismatch' AS issue_type,
+    reconciliation_id,
+    candidate_id,
+    expectation_source_type,
+    expectation_source_artifact_id,
+    expectation_source_artifact_path,
+    CAST(expectation_extracted.source_type AS VARCHAR) AS extracted_value
+FROM reconciliations
+WHERE CAST(expectation_extracted.source_type AS VARCHAR) IS DISTINCT FROM expectation_source_type
+UNION ALL
+SELECT
+    'reconciliation_expectation_extracted_source_id_mismatch' AS issue_type,
+    reconciliation_id,
+    candidate_id,
+    expectation_source_type,
+    expectation_source_artifact_id,
+    expectation_source_artifact_path,
+    CAST(expectation_extracted.source_artifact_id AS VARCHAR) AS extracted_value
+FROM reconciliations
+WHERE CAST(expectation_extracted.source_artifact_id AS VARCHAR) IS DISTINCT FROM expectation_source_artifact_id
+UNION ALL
+SELECT
+    'reconciliation_expectation_extracted_source_path_mismatch' AS issue_type,
+    reconciliation_id,
+    candidate_id,
+    expectation_source_type,
+    expectation_source_artifact_id,
+    expectation_source_artifact_path,
+    CAST(expectation_extracted.source_artifact_path AS VARCHAR) AS extracted_value
+FROM reconciliations
+WHERE CAST(expectation_extracted.source_artifact_path AS VARCHAR) IS DISTINCT FROM expectation_source_artifact_path
+UNION ALL
+SELECT
+    'reconciliation_unknown_exp_source' AS issue_type,
+    r.reconciliation_id,
+    r.candidate_id,
+    r.expectation_source_type,
+    r.expectation_source_artifact_id,
+    r.expectation_source_artifact_path,
+    CAST(NULL AS VARCHAR) AS extracted_value
+FROM reconciliations AS r
+LEFT JOIN exp_plans AS p
+  ON r.expectation_source_artifact_id = p.plan_id
+WHERE r.expectation_source_type = 'exp_success_criteria'
+  AND p.plan_id IS NULL
+UNION ALL
+SELECT
+    'reconciliation_exp_candidate_mismatch' AS issue_type,
+    r.reconciliation_id,
+    r.candidate_id,
+    r.expectation_source_type,
+    r.expectation_source_artifact_id,
+    r.expectation_source_artifact_path,
+    p.candidate_id AS extracted_value
+FROM reconciliations AS r
+JOIN exp_plans AS p
+  ON r.expectation_source_artifact_id = p.plan_id
+WHERE r.expectation_source_type = 'exp_success_criteria'
+  AND r.candidate_id <> p.candidate_id
+UNION ALL
+SELECT
+    'reconciliation_exp_source_path_mismatch' AS issue_type,
+    r.reconciliation_id,
+    r.candidate_id,
+    r.expectation_source_type,
+    r.expectation_source_artifact_id,
+    r.expectation_source_artifact_path,
+    'research/experiments/' || r.expectation_source_artifact_id || '.plan.json' AS extracted_value
+FROM reconciliations AS r
+JOIN exp_plans AS p
+  ON r.expectation_source_artifact_id = p.plan_id
+WHERE r.expectation_source_type = 'exp_success_criteria'
+  AND r.expectation_source_artifact_path
+      <> 'research/experiments/' || r.expectation_source_artifact_id || '.plan.json'
+UNION ALL
+SELECT
+    'reconciliation_exp_missing_success_criteria' AS issue_type,
+    r.reconciliation_id,
+    r.candidate_id,
+    r.expectation_source_type,
+    r.expectation_source_artifact_id,
+    r.expectation_source_artifact_path,
+    CAST(NULL AS VARCHAR) AS extracted_value
+FROM reconciliations AS r
+JOIN exp_plans AS p
+  ON r.expectation_source_artifact_id = p.plan_id
+WHERE r.expectation_source_type = 'exp_success_criteria'
+  AND p.success_criteria IS NULL
+UNION ALL
+SELECT
+    'reconciliation_d2_source_id_mismatch' AS issue_type,
+    reconciliation_id,
+    candidate_id,
+    expectation_source_type,
+    expectation_source_artifact_id,
+    expectation_source_artifact_path,
+    'D2-006' AS extracted_value
+FROM reconciliations
+WHERE expectation_source_type = 'd2_006_gates'
+  AND expectation_source_artifact_id <> 'D2-006'
+UNION ALL
+SELECT
+    'reconciliation_d2_source_path_mismatch' AS issue_type,
+    reconciliation_id,
+    candidate_id,
+    expectation_source_type,
+    expectation_source_artifact_id,
+    expectation_source_artifact_path,
+    'docs/onboarding/PHASE2_BASELINE.md' AS extracted_value
+FROM reconciliations
+WHERE expectation_source_type = 'd2_006_gates'
+  AND expectation_source_artifact_path <> 'docs/onboarding/PHASE2_BASELINE.md';
+
+-- Are REC derivation disclosures internally consistent?
+-- Expected to be empty in a healthy repo state.
+CREATE OR REPLACE VIEW v_integrity_reconciliation_derivation AS
+SELECT
+    'reconciliation_source_outcome_mismatch' AS issue_type,
+    reconciliation_id,
+    candidate_id,
+    outcome_id,
+    CAST(derivation_record.source_outcome_id AS VARCHAR) AS actual_value,
+    CAST(outcome_id AS VARCHAR) AS expected_value
+FROM reconciliations
+WHERE CAST(derivation_record.source_outcome_id AS VARCHAR) IS NOT NULL
+  AND CAST(derivation_record.source_outcome_id AS VARCHAR) <> outcome_id
+UNION ALL
+SELECT
+    'reconciliation_derivation_expectation_source_type_mismatch' AS issue_type,
+    reconciliation_id,
+    candidate_id,
+    outcome_id,
+    CAST(derivation_record.expectation_source_type AS VARCHAR) AS actual_value,
+    CAST(expectation_source_type AS VARCHAR) AS expected_value
+FROM reconciliations
+WHERE CAST(derivation_record.expectation_source_type AS VARCHAR) IS NOT NULL
+  AND CAST(derivation_record.expectation_source_type AS VARCHAR) <> expectation_source_type
+UNION ALL
+SELECT
+    'reconciliation_invalid_derivation_timestamp' AS issue_type,
+    reconciliation_id,
+    candidate_id,
+    outcome_id,
+    CAST(derivation_record.derivation_timestamp AS VARCHAR) AS actual_value,
+    CAST(NULL AS VARCHAR) AS expected_value
+FROM reconciliations
+WHERE TRY_CAST(replace(CAST(derivation_record.derivation_timestamp AS VARCHAR), 'Z', '+00:00') AS TIMESTAMPTZ)
+    IS NULL;
+
+-- Do REC realized_metrics values match the referenced OL metrics where direct equality is deterministic?
+-- Expected to be empty in a healthy repo state.
+CREATE OR REPLACE VIEW v_integrity_reconciliation_realized_metrics AS
+WITH metric_pairs AS (
+    SELECT r.reconciliation_id, r.candidate_id, r.outcome_id, 'source_field' AS metric_name,
+        CAST(o.metrics.source_field AS VARCHAR) AS expected_value,
+        CAST(r.realized_metrics.source_field AS VARCHAR) AS actual_value
+    FROM reconciliations AS r JOIN outcome_ledgers AS o ON r.outcome_id = o.outcome_id
+    UNION ALL
+    SELECT r.reconciliation_id, r.candidate_id, r.outcome_id, 'window_convention',
+        CAST(o.metrics.window_convention AS VARCHAR), CAST(r.realized_metrics.window_convention AS VARCHAR)
+    FROM reconciliations AS r JOIN outcome_ledgers AS o ON r.outcome_id = o.outcome_id
+    UNION ALL
+    SELECT r.reconciliation_id, r.candidate_id, r.outcome_id, 'sharpe',
+        CAST(o.metrics.sharpe AS VARCHAR), CAST(r.realized_metrics.sharpe AS VARCHAR)
+    FROM reconciliations AS r JOIN outcome_ledgers AS o ON r.outcome_id = o.outcome_id
+    UNION ALL
+    SELECT r.reconciliation_id, r.candidate_id, r.outcome_id, 'max_drawdown',
+        CAST(o.metrics.max_drawdown AS VARCHAR), CAST(r.realized_metrics.max_drawdown AS VARCHAR)
+    FROM reconciliations AS r JOIN outcome_ledgers AS o ON r.outcome_id = o.outcome_id
+    UNION ALL
+    SELECT r.reconciliation_id, r.candidate_id, r.outcome_id, 'n_obs',
+        CAST(o.metrics.n_obs AS VARCHAR), CAST(r.realized_metrics.n_obs AS VARCHAR)
+    FROM reconciliations AS r JOIN outcome_ledgers AS o ON r.outcome_id = o.outcome_id
+    UNION ALL
+    SELECT r.reconciliation_id, r.candidate_id, r.outcome_id, 'trades',
+        CAST(o.metrics.trades AS VARCHAR), CAST(r.realized_metrics.trades AS VARCHAR)
+    FROM reconciliations AS r JOIN outcome_ledgers AS o ON r.outcome_id = o.outcome_id
+    UNION ALL
+    SELECT r.reconciliation_id, r.candidate_id, r.outcome_id, 'hit_rate',
+        CAST(o.metrics.hit_rate AS VARCHAR), CAST(r.realized_metrics.hit_rate AS VARCHAR)
+    FROM reconciliations AS r JOIN outcome_ledgers AS o ON r.outcome_id = o.outcome_id
+    UNION ALL
+    SELECT r.reconciliation_id, r.candidate_id, r.outcome_id, 'profit_factor',
+        CAST(o.metrics.profit_factor AS VARCHAR), CAST(r.realized_metrics.profit_factor AS VARCHAR)
+    FROM reconciliations AS r JOIN outcome_ledgers AS o ON r.outcome_id = o.outcome_id
+    UNION ALL
+    SELECT r.reconciliation_id, r.candidate_id, r.outcome_id, 'final_equity',
+        CAST(o.metrics.final_equity AS VARCHAR), CAST(r.realized_metrics.final_equity AS VARCHAR)
+    FROM reconciliations AS r JOIN outcome_ledgers AS o ON r.outcome_id = o.outcome_id
+    UNION ALL
+    SELECT r.reconciliation_id, r.candidate_id, r.outcome_id, 'total_pnl',
+        CAST(o.metrics.total_pnl AS VARCHAR), CAST(r.realized_metrics.total_pnl AS VARCHAR)
+    FROM reconciliations AS r JOIN outcome_ledgers AS o ON r.outcome_id = o.outcome_id
+    UNION ALL
+    SELECT r.reconciliation_id, r.candidate_id, r.outcome_id, 'gross_pnl',
+        CAST(o.metrics.gross_pnl AS VARCHAR), CAST(r.realized_metrics.gross_pnl AS VARCHAR)
+    FROM reconciliations AS r JOIN outcome_ledgers AS o ON r.outcome_id = o.outcome_id
+    UNION ALL
+    SELECT r.reconciliation_id, r.candidate_id, r.outcome_id, 'fees_paid',
+        CAST(o.metrics.fees_paid AS VARCHAR), CAST(r.realized_metrics.fees_paid AS VARCHAR)
+    FROM reconciliations AS r JOIN outcome_ledgers AS o ON r.outcome_id = o.outcome_id
+    UNION ALL
+    SELECT r.reconciliation_id, r.candidate_id, r.outcome_id, 'slippage_paid',
+        CAST(o.metrics.slippage_paid AS VARCHAR), CAST(r.realized_metrics.slippage_paid AS VARCHAR)
+    FROM reconciliations AS r JOIN outcome_ledgers AS o ON r.outcome_id = o.outcome_id
+    UNION ALL
+    SELECT r.reconciliation_id, r.candidate_id, r.outcome_id, 'funding_paid',
+        CAST(o.metrics.funding_paid AS VARCHAR), CAST(r.realized_metrics.funding_paid AS VARCHAR)
+    FROM reconciliations AS r JOIN outcome_ledgers AS o ON r.outcome_id = o.outcome_id
+    UNION ALL
+    SELECT r.reconciliation_id, r.candidate_id, r.outcome_id, 'cost_drag_fraction',
+        CAST(o.metrics.cost_drag_fraction AS VARCHAR), CAST(r.realized_metrics.cost_drag_fraction AS VARCHAR)
+    FROM reconciliations AS r JOIN outcome_ledgers AS o ON r.outcome_id = o.outcome_id
+    UNION ALL
+    SELECT r.reconciliation_id, r.candidate_id, r.outcome_id, 'dsr',
+        CAST(o.metrics.dsr AS VARCHAR), CAST(r.realized_metrics.dsr AS VARCHAR)
+    FROM reconciliations AS r JOIN outcome_ledgers AS o ON r.outcome_id = o.outcome_id
+    UNION ALL
+    SELECT r.reconciliation_id, r.candidate_id, r.outcome_id, 'walk_forward_efficiency',
+        CAST(o.metrics.walk_forward_efficiency AS VARCHAR), CAST(r.realized_metrics.walk_forward_efficiency AS VARCHAR)
+    FROM reconciliations AS r JOIN outcome_ledgers AS o ON r.outcome_id = o.outcome_id
+    UNION ALL
+    SELECT r.reconciliation_id, r.candidate_id, r.outcome_id, 'gates_passed',
+        CAST(o.metrics.gates_passed AS VARCHAR), CAST(r.realized_metrics.gates_passed AS VARCHAR)
+    FROM reconciliations AS r JOIN outcome_ledgers AS o ON r.outcome_id = o.outcome_id
+    UNION ALL
+    SELECT r.reconciliation_id, r.candidate_id, r.outcome_id, 'gates_total',
+        CAST(o.metrics.gates_total AS VARCHAR), CAST(r.realized_metrics.gates_total AS VARCHAR)
+    FROM reconciliations AS r JOIN outcome_ledgers AS o ON r.outcome_id = o.outcome_id
+)
+SELECT
+    'reconciliation_realized_metric_mismatch' AS issue_type,
+    reconciliation_id,
+    candidate_id,
+    outcome_id,
+    metric_name,
+    expected_value,
+    actual_value
+FROM metric_pairs
+WHERE actual_value IS DISTINCT FROM expected_value;
+
 -- Do all lifecycle_change candidate, supersession, and known-pattern artifact references resolve?
 -- Repo-relative path existence remains validator-only because SQL has no repo filesystem authority.
 -- Expected to be empty in a healthy repo state.

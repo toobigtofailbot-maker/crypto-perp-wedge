@@ -1,0 +1,200 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crypto-perp-wedge.local/research/schemas/reconciliation.schema.json",
+  "title": "Reconciliation Artifact",
+  "description": "JSON artifact that compares one research out-of-sample outcome-ledger entry against one committed expectation source. The schema validates local shape only; reference resolution, copied-value consistency, and overall-verdict derivation are deferred to later validator or consumer packages.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "reconciliation_id",
+    "candidate_id",
+    "outcome_id",
+    "outcome_kind",
+    "pipeline_version",
+    "expectation_source_type",
+    "expectation_source_artifact_id",
+    "expectation_source_artifact_path",
+    "expectation_extracted",
+    "realized_metrics",
+    "comparison",
+    "overall_verdict",
+    "interpretation",
+    "derivation_record",
+    "retrospective_flag"
+  ],
+  "properties": {
+    "schema_version": { "description": "Explicit Phase 9 reconciliation schema marker.", "type": "string", "const": "v1" },
+    "reconciliation_id": { "description": "Stable reconciliation artifact identifier.", "type": "string", "pattern": "^REC-[0-9]{4}$" },
+    "candidate_id": { "description": "Candidate registry identifier.", "type": "string", "pattern": "^H-[0-9]{3}$" },
+    "outcome_id": { "description": "Outcome-ledger artifact identifier reconciled by this REC entry.", "type": "string", "pattern": "^OL-[0-9]{4}$" },
+    "outcome_kind": { "description": "Outcome class reconciled by this artifact. REC v1 supports research OOS only.", "type": "string", "const": "research_oos" },
+    "pipeline_version": { "description": "Pipeline-semantics disclosure label copied from the reconciled outcome-ledger entry.", "type": "string", "enum": ["pre_wp_5b", "post_wp_5b"] },
+    "expectation_source_type": { "description": "Committed expectation source family used for comparison.", "type": "string", "enum": ["exp_success_criteria", "d2_006_gates"] },
+    "expectation_source_artifact_id": { "description": "Identifier for the committed expectation source artifact.", "type": "string", "minLength": 1 },
+    "expectation_source_artifact_path": { "description": "Repo-relative path to the committed expectation source artifact.", "$ref": "#/definitions/repo_relative_path" },
+    "expectation_extracted": { "description": "Structured extraction from the committed expectation source. This records extracted expectations without inventing unavailable thresholds.", "$ref": "#/definitions/expectation_extracted" },
+    "realized_metrics": { "description": "Outcome-ledger metrics copied from the reconciled OL entry. WP-9v or later validation enforces copied-value consistency.", "$ref": "#/definitions/research_oos_metrics" },
+    "comparison": { "description": "Per-metric expected-vs-realized comparison.", "$ref": "#/definitions/comparison" },
+    "overall_verdict": { "description": "Derived reconciliation verdict. Derivation is documented for consumers and enforced by later validator work.", "type": "string", "enum": ["all_met", "partially_met", "none_met", "insufficient_evidence"] },
+    "interpretation": { "description": "Human-readable interpretation of the reconciliation. This carries no promotion, policy, or runtime authority.", "type": "string", "minLength": 1 },
+    "derivation_record": { "description": "Disclosure of how the reconciliation artifact was derived.", "$ref": "#/definitions/derivation_record" },
+    "retrospective_flag": { "description": "True when the reconciliation entry is a retrospective derivation from already committed evidence.", "type": "boolean" },
+    "linked_advisory_artifacts": { "description": "Optional one-way lineage references to advisory artifacts. These links carry no execution, approval, ranking, or policy authority.", "$ref": "#/definitions/artifact_refs" },
+    "linked_lifecycle_artifacts": { "description": "Optional one-way lineage references to lifecycle artifacts. These links carry no lifecycle-transition authority.", "$ref": "#/definitions/artifact_refs" },
+    "notes": { "description": "Optional human note that does not change the reconciliation result.", "type": "string" },
+    "retrospective_disclosure": { "description": "Required explanation when retrospective_flag is true.", "type": "string", "minLength": 1 }
+  },
+  "definitions": {
+    "repo_relative_path": { "type": "string", "pattern": "^(?!/)(?!.*(^|/)\\.\\.(/|$)).+$" },
+    "artifact_refs": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+    "qualified_datetime": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(Z|[+-][0-9]{2}:[0-9]{2})$" },
+    "expectation_extracted": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_type", "source_artifact_id", "source_artifact_path", "extraction_method", "extracted_at", "metric_expectations"],
+      "properties": {
+        "source_type": { "type": "string", "enum": ["exp_success_criteria", "d2_006_gates"] },
+        "source_artifact_id": { "type": "string", "minLength": 1 },
+        "source_artifact_path": { "$ref": "#/definitions/repo_relative_path" },
+        "extraction_method": { "description": "Method used to extract expectations from the committed source.", "type": "string", "minLength": 1 },
+        "extracted_at": { "description": "Timezone-qualified ISO datetime when expectations were extracted.", "$ref": "#/definitions/qualified_datetime" },
+        "metric_expectations": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/metric_expectation" } }
+      }
+    },
+    "metric_expectation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["metric_name", "expected_operator", "expected_value", "expected_unit", "source_field_path", "source_text"],
+      "properties": {
+        "metric_name": { "type": "string", "minLength": 1 },
+        "expected_operator": { "type": "string", "enum": ["gte", "lte", "gt", "lt", "eq", "neq", "range", "gate_reference", "qualitative"] },
+        "expected_value": { "type": ["number", "string", "boolean", "object", "array", "null"] },
+        "expected_unit": { "type": ["string", "null"] },
+        "source_field_path": { "type": "string", "minLength": 1 },
+        "source_text": { "type": "string", "minLength": 1 },
+        "notes": { "type": "string" }
+      }
+    },
+    "research_oos_metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_field",
+        "window_convention",
+        "sharpe",
+        "max_drawdown",
+        "n_obs",
+        "trades",
+        "hit_rate",
+        "profit_factor",
+        "final_equity",
+        "total_pnl",
+        "gross_pnl",
+        "fees_paid",
+        "slippage_paid",
+        "funding_paid",
+        "cost_drag_fraction",
+        "dsr",
+        "walk_forward_efficiency",
+        "gates_passed",
+        "gates_total"
+      ],
+      "properties": {
+        "source_field": { "description": "Source field disclosed by the OL metrics object.", "type": "string", "minLength": 1 },
+        "window_convention": { "description": "Window convention disclosed by the OL metrics object.", "type": "string", "minLength": 1 },
+        "sharpe": { "type": "number" },
+        "max_drawdown": { "type": "number" },
+        "n_obs": { "type": "integer", "minimum": 0 },
+        "trades": { "type": "integer", "minimum": 0 },
+        "hit_rate": { "type": "number" },
+        "profit_factor": { "type": "number" },
+        "final_equity": { "type": "number" },
+        "total_pnl": { "type": "number" },
+        "gross_pnl": { "type": "number" },
+        "fees_paid": { "type": "number" },
+        "slippage_paid": { "type": "number" },
+        "funding_paid": { "type": "number" },
+        "cost_drag_fraction": { "type": "number" },
+        "dsr": { "type": "number" },
+        "walk_forward_efficiency": { "type": "number" },
+        "gates_passed": { "type": "integer", "minimum": 0 },
+        "gates_total": { "type": "integer", "minimum": 0 },
+        "funding_events_applied": { "type": "integer", "minimum": 0 },
+        "config_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "dataset_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "dsr_note": { "type": "string" },
+        "max_drawdown_peak": { "type": "string" },
+        "max_drawdown_trough": { "type": "string" },
+        "skipped_bars": { "type": "integer", "minimum": 0 },
+        "sensitivity_min_ratio": { "type": "number" },
+        "short_side_trades": { "type": "integer", "minimum": 0 },
+        "short_side_net_pnl": { "type": "number" },
+        "long_side_trades": { "type": "integer", "minimum": 0 },
+        "long_side_net_pnl": { "type": "number" },
+        "trial_count_before_append": { "type": "integer", "minimum": 0 },
+        "trial_count_after_append": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "comparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["metric_comparisons"],
+      "properties": {
+        "metric_comparisons": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/metric_comparison" } }
+      }
+    },
+    "metric_comparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["metric_name", "expected_value", "realized_value", "delta_absolute", "delta_relative", "comparison_verdict", "comparison_notes"],
+      "properties": {
+        "metric_name": { "type": "string", "minLength": 1 },
+        "expected_value": { "type": ["number", "string", "boolean", "object", "array", "null"] },
+        "realized_value": { "type": ["number", "string", "boolean", "object", "array", "null"] },
+        "delta_absolute": { "description": "Numeric absolute delta, or null when the comparison is qualitative or gate-reference based.", "type": ["number", "null"] },
+        "delta_relative": { "description": "Numeric relative delta, or null when the comparison is qualitative or gate-reference based.", "type": ["number", "null"] },
+        "comparison_verdict": { "type": "string", "enum": ["met", "not_met", "insufficient_evidence"] },
+        "comparison_notes": { "type": "string" }
+      }
+    },
+    "derivation_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["derivation_method", "source_artifact_id", "source_artifact_path", "derivation_timestamp"],
+      "properties": {
+        "derivation_method": { "description": "Method used to derive the reconciliation entry.", "type": "string", "minLength": 1 },
+        "source_artifact_id": { "description": "Primary source artifact identifier used to derive this reconciliation entry.", "type": "string", "minLength": 1 },
+        "source_artifact_path": { "description": "Repo-relative path to the primary derivation source artifact.", "$ref": "#/definitions/repo_relative_path" },
+        "derivation_timestamp": { "description": "Timezone-qualified ISO datetime when this reconciliation entry was derived.", "$ref": "#/definitions/qualified_datetime" },
+        "source_outcome_id": { "description": "Outcome-ledger entry reconciled by this artifact.", "type": "string", "pattern": "^OL-[0-9]{4}$" },
+        "expectation_source_type": { "type": "string", "enum": ["exp_success_criteria", "d2_006_gates"] },
+        "tool_version": { "description": "Optional derivation tool version when a later helper exists.", "type": "string", "minLength": 1 }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "retrospective_flag": { "const": true } }, "required": ["retrospective_flag"] },
+      "then": { "required": ["retrospective_disclosure"] }
+    },
+    {
+      "if": { "properties": { "expectation_source_type": { "const": "exp_success_criteria" } }, "required": ["expectation_source_type"] },
+      "then": {
+        "properties": {
+          "expectation_source_artifact_id": { "pattern": "^EXP-[0-9]{4}$" },
+          "expectation_extracted": { "properties": { "source_type": { "const": "exp_success_criteria" }, "source_artifact_id": { "pattern": "^EXP-[0-9]{4}$" } } }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "expectation_source_type": { "const": "d2_006_gates" } }, "required": ["expectation_source_type"] },
+      "then": {
+        "properties": {
+          "expectation_source_artifact_id": { "const": "D2-006" },
+          "expectation_extracted": { "properties": { "source_type": { "const": "d2_006_gates" }, "source_artifact_id": { "const": "D2-006" } } }
+        }
+      }
+    }
+  ]
+}

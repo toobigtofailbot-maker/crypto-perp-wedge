@@ -219,6 +219,98 @@ backfill.
 
 WP-9k creates no outcome-ingestion helper.
 
+## REC-1 - REC v1 Outcome Kind Lock
+
+REC v1 reconciles `research_oos` outcome-ledger entries only.
+
+Recommendation: keep REC v1 aligned to the locked OL v1 research-OOS corpus so
+the first reconciliation contract can compare committed research outcomes
+without introducing paper/live semantics.
+
+Rejected alternative: allowing paper or live reconciliation in v1. That would
+prematurely mix future operational outcome classes into a schema-only package.
+
+Lock type: schema-shaping lock.
+
+## REC-2 - REC v1 Expectation Sources
+
+REC v1 supports exactly two expectation source types:
+
+- `exp_success_criteria`
+- `d2_006_gates`
+
+Recommendation: allow committed EXP success criteria and the canonical D2-006
+gate source as the only v1 expectation sources.
+
+Rejected alternative: allowing DEC records, HYPOTHESIS files, REP
+`gate_results`, advisory artifacts, paper/live artifacts, or policy artifacts
+as v1 expectation sources. Those sources either record decisions/results rather
+than expectations or belong to later scoped policy/runtime work.
+
+Lock type: schema-shaping lock.
+
+## REC-3 - Per-Metric Comparison And Overall Verdict
+
+REC v1 supports per-metric comparison plus a derived `overall_verdict`.
+
+Recommendation: record metric-level expected values, realized values, deltas
+when meaningful, and comparison verdicts, then carry a derived overall verdict
+for later consumers.
+
+Rejected alternative: recording only a single overall reconciliation verdict.
+That would hide the metric basis needed for audit and later consumer review.
+
+Lock type: schema-shaping lock.
+
+## REC-4 - Retrospective REC Backfill Sequencing
+
+Retrospective REC backfill for `OL-0001` through `OL-0011` is accepted in
+principle for later packages.
+
+WP-9u creates no REC instances.
+
+Recommendation: create the schema and companion documentation first, then
+perform retrospective REC backfill only after a later scoped package defines
+the validator and derivation mechanics needed for safe instance production.
+
+Rejected alternative: bundling retrospective REC instances into the schema
+foundation package. That would make the package harder to review and would
+force instance-level derivation choices before validator support exists.
+
+Lock type: principle lock for later packages.
+
+## REC-5 - REC Consumer Floor
+
+REC consumers must use a floor of at least 3 reconciliations per candidate_id /
+outcome_kind / pipeline_version / expectation_source_type before drawing
+segment-level inference.
+
+Below that floor, consumers must treat inference as insufficient evidence.
+
+Recommendation: include the segmentation fields in the schema now and leave
+consumer enforcement to later bounded consumer packages.
+
+Rejected alternative: encoding consumer inference behavior in the WP-9u schema
+or omitting the expectation-source segmentation field. The first would exceed
+schema-foundation scope; the second would leave later consumers unable to apply
+the intended floor honestly.
+
+Lock type: principle lock for later packages.
+
+## REC-6 - REC v1 Exclusions
+
+REC v1 excludes paper/live, evidence-quality scoring, policy fields,
+promotion/demotion flags, and runtime authority.
+
+Recommendation: keep REC v1 as a research reconciliation evidence contract
+only.
+
+Rejected alternative: adding policy flags, paper/live extensions, scoring
+fields, or runtime-facing semantics to v1. Those belong to later scoped work
+after reconciliation evidence exists.
+
+Lock type: schema-shaping lock.
+
 ## Non-Claims / Forbidden Implications
 
 WP-9a does not imply:

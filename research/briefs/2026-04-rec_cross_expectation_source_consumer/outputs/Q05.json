@@ -1,0 +1,526 @@
+[
+  {
+    "reconciliation_id": "REC-0012",
+    "outcome_id": "OL-0001",
+    "candidate_id": "H-001",
+    "pipeline_version": "pre_wp_5b",
+    "overall_verdict": "none_met",
+    "gross_pnl": -5689.860000000022,
+    "extracted_metric_names": [
+      "cost_drag_fraction",
+      "dsr",
+      "free_parameter_count",
+      "max_drawdown",
+      "pnl_concentration_90d",
+      "sensitivity_min_ratio",
+      "sharpe",
+      "walk_forward_efficiency"
+    ],
+    "compared_metrics": [
+      {
+        "metric_name": "cost_drag_fraction",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "dsr",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "max_drawdown",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "sharpe",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "walk_forward_efficiency",
+        "comparison_verdict": "not_met"
+      }
+    ],
+    "cost_drag_compared": true,
+    "cost_drag_compared_with_non_positive_gross_pnl": true,
+    "cost_drag_skipped_due_to_non_positive_gross_pnl": false,
+    "cost_drag_non_positive_gross_pnl_posture": "compared_despite_non_positive_gross_pnl_pre_wp10c_seed_requires_followup",
+    "sensitivity_min_ratio_compared": false,
+    "pnl_concentration_90d_extracted_only": true,
+    "free_parameter_count_extracted_only": true,
+    "comparison_surface_posture": "comparison_surface_descriptive_only_no_evidence_quality_scoring_inference"
+  },
+  {
+    "reconciliation_id": "REC-0013",
+    "outcome_id": "OL-0002",
+    "candidate_id": "H-005",
+    "pipeline_version": "pre_wp_5b",
+    "overall_verdict": "partially_met",
+    "gross_pnl": 13184.28,
+    "extracted_metric_names": [
+      "cost_drag_fraction",
+      "dsr",
+      "free_parameter_count",
+      "max_drawdown",
+      "pnl_concentration_90d",
+      "sensitivity_min_ratio",
+      "sharpe",
+      "walk_forward_efficiency"
+    ],
+    "compared_metrics": [
+      {
+        "metric_name": "cost_drag_fraction",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "dsr",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "max_drawdown",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "sharpe",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "walk_forward_efficiency",
+        "comparison_verdict": "met"
+      }
+    ],
+    "cost_drag_compared": true,
+    "cost_drag_compared_with_non_positive_gross_pnl": false,
+    "cost_drag_skipped_due_to_non_positive_gross_pnl": false,
+    "cost_drag_non_positive_gross_pnl_posture": "compared_with_positive_gross_pnl",
+    "sensitivity_min_ratio_compared": false,
+    "pnl_concentration_90d_extracted_only": true,
+    "free_parameter_count_extracted_only": true,
+    "comparison_surface_posture": "comparison_surface_descriptive_only_no_evidence_quality_scoring_inference"
+  },
+  {
+    "reconciliation_id": "REC-0014",
+    "outcome_id": "OL-0003",
+    "candidate_id": "H-002",
+    "pipeline_version": "pre_wp_5b",
+    "overall_verdict": "partially_met",
+    "gross_pnl": 61859.97000000002,
+    "extracted_metric_names": [
+      "cost_drag_fraction",
+      "dsr",
+      "free_parameter_count",
+      "max_drawdown",
+      "pnl_concentration_90d",
+      "sensitivity_min_ratio",
+      "sharpe",
+      "walk_forward_efficiency"
+    ],
+    "compared_metrics": [
+      {
+        "metric_name": "cost_drag_fraction",
+        "comparison_verdict": "met"
+      },
+      {
+        "metric_name": "dsr",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "max_drawdown",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "sharpe",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "walk_forward_efficiency",
+        "comparison_verdict": "met"
+      }
+    ],
+    "cost_drag_compared": true,
+    "cost_drag_compared_with_non_positive_gross_pnl": false,
+    "cost_drag_skipped_due_to_non_positive_gross_pnl": false,
+    "cost_drag_non_positive_gross_pnl_posture": "compared_with_positive_gross_pnl",
+    "sensitivity_min_ratio_compared": false,
+    "pnl_concentration_90d_extracted_only": true,
+    "free_parameter_count_extracted_only": true,
+    "comparison_surface_posture": "comparison_surface_descriptive_only_no_evidence_quality_scoring_inference"
+  },
+  {
+    "reconciliation_id": "REC-0015",
+    "outcome_id": "OL-0004",
+    "candidate_id": "H-003",
+    "pipeline_version": "pre_wp_5b",
+    "overall_verdict": "partially_met",
+    "gross_pnl": 22933.990000000005,
+    "extracted_metric_names": [
+      "cost_drag_fraction",
+      "dsr",
+      "free_parameter_count",
+      "max_drawdown",
+      "pnl_concentration_90d",
+      "sensitivity_min_ratio",
+      "sharpe",
+      "walk_forward_efficiency"
+    ],
+    "compared_metrics": [
+      {
+        "metric_name": "cost_drag_fraction",
+        "comparison_verdict": "met"
+      },
+      {
+        "metric_name": "dsr",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "max_drawdown",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "sharpe",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "walk_forward_efficiency",
+        "comparison_verdict": "not_met"
+      }
+    ],
+    "cost_drag_compared": true,
+    "cost_drag_compared_with_non_positive_gross_pnl": false,
+    "cost_drag_skipped_due_to_non_positive_gross_pnl": false,
+    "cost_drag_non_positive_gross_pnl_posture": "compared_with_positive_gross_pnl",
+    "sensitivity_min_ratio_compared": false,
+    "pnl_concentration_90d_extracted_only": true,
+    "free_parameter_count_extracted_only": true,
+    "comparison_surface_posture": "comparison_surface_descriptive_only_no_evidence_quality_scoring_inference"
+  },
+  {
+    "reconciliation_id": "REC-0016",
+    "outcome_id": "OL-0005",
+    "candidate_id": "H-004",
+    "pipeline_version": "pre_wp_5b",
+    "overall_verdict": "partially_met",
+    "gross_pnl": 53747.65000000001,
+    "extracted_metric_names": [
+      "cost_drag_fraction",
+      "dsr",
+      "free_parameter_count",
+      "max_drawdown",
+      "pnl_concentration_90d",
+      "sensitivity_min_ratio",
+      "sharpe",
+      "walk_forward_efficiency"
+    ],
+    "compared_metrics": [
+      {
+        "metric_name": "cost_drag_fraction",
+        "comparison_verdict": "met"
+      },
+      {
+        "metric_name": "dsr",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "max_drawdown",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "sharpe",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "walk_forward_efficiency",
+        "comparison_verdict": "met"
+      }
+    ],
+    "cost_drag_compared": true,
+    "cost_drag_compared_with_non_positive_gross_pnl": false,
+    "cost_drag_skipped_due_to_non_positive_gross_pnl": false,
+    "cost_drag_non_positive_gross_pnl_posture": "compared_with_positive_gross_pnl",
+    "sensitivity_min_ratio_compared": false,
+    "pnl_concentration_90d_extracted_only": true,
+    "free_parameter_count_extracted_only": true,
+    "comparison_surface_posture": "comparison_surface_descriptive_only_no_evidence_quality_scoring_inference"
+  },
+  {
+    "reconciliation_id": "REC-0017",
+    "outcome_id": "OL-0006",
+    "candidate_id": "H-006",
+    "pipeline_version": "pre_wp_5b",
+    "overall_verdict": "none_met",
+    "gross_pnl": -27929.42,
+    "extracted_metric_names": [
+      "cost_drag_fraction",
+      "dsr",
+      "free_parameter_count",
+      "max_drawdown",
+      "pnl_concentration_90d",
+      "sensitivity_min_ratio",
+      "sharpe",
+      "walk_forward_efficiency"
+    ],
+    "compared_metrics": [
+      {
+        "metric_name": "dsr",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "max_drawdown",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "sharpe",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "walk_forward_efficiency",
+        "comparison_verdict": "not_met"
+      }
+    ],
+    "cost_drag_compared": false,
+    "cost_drag_compared_with_non_positive_gross_pnl": false,
+    "cost_drag_skipped_due_to_non_positive_gross_pnl": true,
+    "cost_drag_non_positive_gross_pnl_posture": "skipped_due_to_non_positive_gross_pnl",
+    "sensitivity_min_ratio_compared": false,
+    "pnl_concentration_90d_extracted_only": true,
+    "free_parameter_count_extracted_only": true,
+    "comparison_surface_posture": "comparison_surface_descriptive_only_no_evidence_quality_scoring_inference"
+  },
+  {
+    "reconciliation_id": "REC-0018",
+    "outcome_id": "OL-0007",
+    "candidate_id": "H-007",
+    "pipeline_version": "pre_wp_5b",
+    "overall_verdict": "none_met",
+    "gross_pnl": 1152.1999999999643,
+    "extracted_metric_names": [
+      "cost_drag_fraction",
+      "dsr",
+      "free_parameter_count",
+      "max_drawdown",
+      "pnl_concentration_90d",
+      "sensitivity_min_ratio",
+      "sharpe",
+      "walk_forward_efficiency"
+    ],
+    "compared_metrics": [
+      {
+        "metric_name": "cost_drag_fraction",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "dsr",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "max_drawdown",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "sharpe",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "walk_forward_efficiency",
+        "comparison_verdict": "not_met"
+      }
+    ],
+    "cost_drag_compared": true,
+    "cost_drag_compared_with_non_positive_gross_pnl": false,
+    "cost_drag_skipped_due_to_non_positive_gross_pnl": false,
+    "cost_drag_non_positive_gross_pnl_posture": "compared_with_positive_gross_pnl",
+    "sensitivity_min_ratio_compared": false,
+    "pnl_concentration_90d_extracted_only": true,
+    "free_parameter_count_extracted_only": true,
+    "comparison_surface_posture": "comparison_surface_descriptive_only_no_evidence_quality_scoring_inference"
+  },
+  {
+    "reconciliation_id": "REC-0019",
+    "outcome_id": "OL-0008",
+    "candidate_id": "H-008",
+    "pipeline_version": "pre_wp_5b",
+    "overall_verdict": "none_met",
+    "gross_pnl": -91802.2,
+    "extracted_metric_names": [
+      "cost_drag_fraction",
+      "dsr",
+      "free_parameter_count",
+      "max_drawdown",
+      "pnl_concentration_90d",
+      "sensitivity_min_ratio",
+      "sharpe",
+      "walk_forward_efficiency"
+    ],
+    "compared_metrics": [
+      {
+        "metric_name": "dsr",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "max_drawdown",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "sharpe",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "walk_forward_efficiency",
+        "comparison_verdict": "not_met"
+      }
+    ],
+    "cost_drag_compared": false,
+    "cost_drag_compared_with_non_positive_gross_pnl": false,
+    "cost_drag_skipped_due_to_non_positive_gross_pnl": true,
+    "cost_drag_non_positive_gross_pnl_posture": "skipped_due_to_non_positive_gross_pnl",
+    "sensitivity_min_ratio_compared": false,
+    "pnl_concentration_90d_extracted_only": true,
+    "free_parameter_count_extracted_only": true,
+    "comparison_surface_posture": "comparison_surface_descriptive_only_no_evidence_quality_scoring_inference"
+  },
+  {
+    "reconciliation_id": "REC-0020",
+    "outcome_id": "OL-0009",
+    "candidate_id": "H-009",
+    "pipeline_version": "pre_wp_5b",
+    "overall_verdict": "none_met",
+    "gross_pnl": 15592.0,
+    "extracted_metric_names": [
+      "cost_drag_fraction",
+      "dsr",
+      "free_parameter_count",
+      "max_drawdown",
+      "pnl_concentration_90d",
+      "sensitivity_min_ratio",
+      "sharpe",
+      "walk_forward_efficiency"
+    ],
+    "compared_metrics": [
+      {
+        "metric_name": "cost_drag_fraction",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "dsr",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "max_drawdown",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "sharpe",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "walk_forward_efficiency",
+        "comparison_verdict": "not_met"
+      }
+    ],
+    "cost_drag_compared": true,
+    "cost_drag_compared_with_non_positive_gross_pnl": false,
+    "cost_drag_skipped_due_to_non_positive_gross_pnl": false,
+    "cost_drag_non_positive_gross_pnl_posture": "compared_with_positive_gross_pnl",
+    "sensitivity_min_ratio_compared": false,
+    "pnl_concentration_90d_extracted_only": true,
+    "free_parameter_count_extracted_only": true,
+    "comparison_surface_posture": "comparison_surface_descriptive_only_no_evidence_quality_scoring_inference"
+  },
+  {
+    "reconciliation_id": "REC-0021",
+    "outcome_id": "OL-0010",
+    "candidate_id": "H-010",
+    "pipeline_version": "pre_wp_5b",
+    "overall_verdict": "partially_met",
+    "gross_pnl": 18228.50000000011,
+    "extracted_metric_names": [
+      "cost_drag_fraction",
+      "dsr",
+      "free_parameter_count",
+      "max_drawdown",
+      "pnl_concentration_90d",
+      "sensitivity_min_ratio",
+      "sharpe",
+      "walk_forward_efficiency"
+    ],
+    "compared_metrics": [
+      {
+        "metric_name": "cost_drag_fraction",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "dsr",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "max_drawdown",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "sharpe",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "walk_forward_efficiency",
+        "comparison_verdict": "met"
+      }
+    ],
+    "cost_drag_compared": true,
+    "cost_drag_compared_with_non_positive_gross_pnl": false,
+    "cost_drag_skipped_due_to_non_positive_gross_pnl": false,
+    "cost_drag_non_positive_gross_pnl_posture": "compared_with_positive_gross_pnl",
+    "sensitivity_min_ratio_compared": false,
+    "pnl_concentration_90d_extracted_only": true,
+    "free_parameter_count_extracted_only": true,
+    "comparison_surface_posture": "comparison_surface_descriptive_only_no_evidence_quality_scoring_inference"
+  },
+  {
+    "reconciliation_id": "REC-0022",
+    "outcome_id": "OL-0011",
+    "candidate_id": "H-004",
+    "pipeline_version": "post_wp_5b",
+    "overall_verdict": "partially_met",
+    "gross_pnl": 53747.65000000001,
+    "extracted_metric_names": [
+      "cost_drag_fraction",
+      "dsr",
+      "free_parameter_count",
+      "max_drawdown",
+      "pnl_concentration_90d",
+      "sensitivity_min_ratio",
+      "sharpe",
+      "walk_forward_efficiency"
+    ],
+    "compared_metrics": [
+      {
+        "metric_name": "cost_drag_fraction",
+        "comparison_verdict": "met"
+      },
+      {
+        "metric_name": "dsr",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "max_drawdown",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "sensitivity_min_ratio",
+        "comparison_verdict": "met"
+      },
+      {
+        "metric_name": "sharpe",
+        "comparison_verdict": "not_met"
+      },
+      {
+        "metric_name": "walk_forward_efficiency",
+        "comparison_verdict": "met"
+      }
+    ],
+    "cost_drag_compared": true,
+    "cost_drag_compared_with_non_positive_gross_pnl": false,
+    "cost_drag_skipped_due_to_non_positive_gross_pnl": false,
+    "cost_drag_non_positive_gross_pnl_posture": "compared_with_positive_gross_pnl",
+    "sensitivity_min_ratio_compared": true,
+    "pnl_concentration_90d_extracted_only": true,
+    "free_parameter_count_extracted_only": true,
+    "comparison_surface_posture": "comparison_surface_descriptive_only_no_evidence_quality_scoring_inference"
+  }
+]

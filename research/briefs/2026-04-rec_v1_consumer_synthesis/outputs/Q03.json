@@ -1,0 +1,66 @@
+[
+  {
+    "overall_verdict": "insufficient_evidence",
+    "reconciliation_count": 1,
+    "reconciliation_ids": [
+      "REC-0011"
+    ],
+    "candidate_ids": [
+      "H-004"
+    ],
+    "pipeline_versions": [
+      "post_wp_5b"
+    ],
+    "expectation_source_types": [
+      "exp_success_criteria"
+    ]
+  },
+  {
+    "overall_verdict": "none_met",
+    "reconciliation_count": 3,
+    "reconciliation_ids": [
+      "REC-0001",
+      "REC-0007",
+      "REC-0009"
+    ],
+    "candidate_ids": [
+      "H-001",
+      "H-007",
+      "H-009"
+    ],
+    "pipeline_versions": [
+      "pre_wp_5b"
+    ],
+    "expectation_source_types": [
+      "exp_success_criteria"
+    ]
+  },
+  {
+    "overall_verdict": "partially_met",
+    "reconciliation_count": 7,
+    "reconciliation_ids": [
+      "REC-0002",
+      "REC-0003",
+      "REC-0004",
+      "REC-0005",
+      "REC-0006",
+      "REC-0008",
+      "REC-0010"
+    ],
+    "candidate_ids": [
+      "H-002",
+      "H-003",
+      "H-004",
+      "H-005",
+      "H-006",
+      "H-008",
+      "H-010"
+    ],
+    "pipeline_versions": [
+      "pre_wp_5b"
+    ],
+    "expectation_source_types": [
+      "exp_success_criteria"
+    ]
+  }
+]

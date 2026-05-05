@@ -1,0 +1,200 @@
+[
+  {
+    "candidate_id": "H-001",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "exp_success_criteria",
+    "reconciliation_ids": [
+      "REC-0001"
+    ],
+    "outcome_ids": [
+      "OL-0001"
+    ],
+    "verdicts": [
+      "none_met"
+    ],
+    "reconciliation_count": 1,
+    "inference_floor": 3,
+    "floor_status": "INSUFFICIENT_EVIDENCE"
+  },
+  {
+    "candidate_id": "H-002",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "exp_success_criteria",
+    "reconciliation_ids": [
+      "REC-0003"
+    ],
+    "outcome_ids": [
+      "OL-0003"
+    ],
+    "verdicts": [
+      "partially_met"
+    ],
+    "reconciliation_count": 1,
+    "inference_floor": 3,
+    "floor_status": "INSUFFICIENT_EVIDENCE"
+  },
+  {
+    "candidate_id": "H-003",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "exp_success_criteria",
+    "reconciliation_ids": [
+      "REC-0004"
+    ],
+    "outcome_ids": [
+      "OL-0004"
+    ],
+    "verdicts": [
+      "partially_met"
+    ],
+    "reconciliation_count": 1,
+    "inference_floor": 3,
+    "floor_status": "INSUFFICIENT_EVIDENCE"
+  },
+  {
+    "candidate_id": "H-004",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "post_wp_5b",
+    "expectation_source_type": "exp_success_criteria",
+    "reconciliation_ids": [
+      "REC-0011"
+    ],
+    "outcome_ids": [
+      "OL-0011"
+    ],
+    "verdicts": [
+      "insufficient_evidence"
+    ],
+    "reconciliation_count": 1,
+    "inference_floor": 3,
+    "floor_status": "INSUFFICIENT_EVIDENCE"
+  },
+  {
+    "candidate_id": "H-004",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "exp_success_criteria",
+    "reconciliation_ids": [
+      "REC-0005"
+    ],
+    "outcome_ids": [
+      "OL-0005"
+    ],
+    "verdicts": [
+      "partially_met"
+    ],
+    "reconciliation_count": 1,
+    "inference_floor": 3,
+    "floor_status": "INSUFFICIENT_EVIDENCE"
+  },
+  {
+    "candidate_id": "H-005",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "exp_success_criteria",
+    "reconciliation_ids": [
+      "REC-0002"
+    ],
+    "outcome_ids": [
+      "OL-0002"
+    ],
+    "verdicts": [
+      "partially_met"
+    ],
+    "reconciliation_count": 1,
+    "inference_floor": 3,
+    "floor_status": "INSUFFICIENT_EVIDENCE"
+  },
+  {
+    "candidate_id": "H-006",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "exp_success_criteria",
+    "reconciliation_ids": [
+      "REC-0006"
+    ],
+    "outcome_ids": [
+      "OL-0006"
+    ],
+    "verdicts": [
+      "partially_met"
+    ],
+    "reconciliation_count": 1,
+    "inference_floor": 3,
+    "floor_status": "INSUFFICIENT_EVIDENCE"
+  },
+  {
+    "candidate_id": "H-007",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "exp_success_criteria",
+    "reconciliation_ids": [
+      "REC-0007"
+    ],
+    "outcome_ids": [
+      "OL-0007"
+    ],
+    "verdicts": [
+      "none_met"
+    ],
+    "reconciliation_count": 1,
+    "inference_floor": 3,
+    "floor_status": "INSUFFICIENT_EVIDENCE"
+  },
+  {
+    "candidate_id": "H-008",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "exp_success_criteria",
+    "reconciliation_ids": [
+      "REC-0008"
+    ],
+    "outcome_ids": [
+      "OL-0008"
+    ],
+    "verdicts": [
+      "partially_met"
+    ],
+    "reconciliation_count": 1,
+    "inference_floor": 3,
+    "floor_status": "INSUFFICIENT_EVIDENCE"
+  },
+  {
+    "candidate_id": "H-009",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "exp_success_criteria",
+    "reconciliation_ids": [
+      "REC-0009"
+    ],
+    "outcome_ids": [
+      "OL-0009"
+    ],
+    "verdicts": [
+      "none_met"
+    ],
+    "reconciliation_count": 1,
+    "inference_floor": 3,
+    "floor_status": "INSUFFICIENT_EVIDENCE"
+  },
+  {
+    "candidate_id": "H-010",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "exp_success_criteria",
+    "reconciliation_ids": [
+      "REC-0010"
+    ],
+    "outcome_ids": [
+      "OL-0010"
+    ],
+    "verdicts": [
+      "partially_met"
+    ],
+    "reconciliation_count": 1,
+    "inference_floor": 3,
+    "floor_status": "INSUFFICIENT_EVIDENCE"
+  }
+]

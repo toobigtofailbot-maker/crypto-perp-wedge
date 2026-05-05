@@ -130,9 +130,37 @@ WP-10c must preserve append-only artifact discipline, deterministic mapping
 rules, copied realized metrics, REC-5 floor discipline, and the same
 non-authority boundaries. It must not create synthetic production evidence.
 
+## WP-10c Completion
+
+WP-10c appends `REC-0013` through `REC-0022`, completing the bounded
+`d2_006_gates` backfill over the locked OL v1 corpus. The complete
+`d2_006_gates` coverage is now:
+
+```text
+REC-0012 through REC-0022
+```
+
+Each locked OL v1 row from `OL-0001` through `OL-0011` now has exactly one
+`d2_006_gates` REC entry. The prior `REC-0012 -> OL-0001` seed remains
+unchanged, and WP-10c adds one append-only entry for each remaining OL row.
+
+The H-004 split remains preserved under the D2-006 expectation source:
+
+```text
+REC-0016 / OL-0005 / H-004 / pre_wp_5b
+REC-0022 / OL-0011 / H-004 / post_wp_5b
+```
+
+REC-5 remains below floor for every current segment because each
+`candidate_id / outcome_kind / pipeline_version / expectation_source_type`
+segment has `reconciliation_count = 1`. WP-10c creates no policy,
+promotion/demotion, ranking/recommendation, paper/live, evidence-scoring,
+runtime, deployment, config, OMS, risk, safe-mode, overlay, or protected-path
+authority.
+
 ## Non-Claims
 
-This methodology and `REC-0012` create no:
+This methodology and the committed `d2_006_gates` REC corpus create no:
 
 - promotion or demotion policy
 - candidate recommendation

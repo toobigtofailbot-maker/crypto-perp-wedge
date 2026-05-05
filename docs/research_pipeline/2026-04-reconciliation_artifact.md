@@ -314,6 +314,39 @@ WP-10b changes no REC schema, validator, query-layer code, policy surface,
 paper/live semantics, evidence-quality scoring, runtime, deployment, config,
 OMS, risk, overlay, safe-mode, or live-trading behavior.
 
+## WP-10c D2-006 Gates Backfill
+
+WP-10c completes the `d2_006_gates` REC v1 retrospective backfill over the
+locked OL v1 corpus. The committed REC corpus now has 22 rows:
+
+```text
+REC-0001 through REC-0022
+```
+
+The expectation-source distribution is now 11 `exp_success_criteria` rows and
+11 `d2_006_gates` rows. D2-006 coverage spans:
+
+```text
+REC-0012 through REC-0022
+```
+
+Those D2-006 rows cover source OL outcomes `OL-0001` through `OL-0011` exactly
+once each. The H-004 split remains preserved across both expectation sources:
+
+```text
+REC-0005 / OL-0005 / H-004 / pre_wp_5b / exp_success_criteria
+REC-0011 / OL-0011 / H-004 / post_wp_5b / exp_success_criteria
+REC-0016 / OL-0005 / H-004 / pre_wp_5b / d2_006_gates
+REC-0022 / OL-0011 / H-004 / post_wp_5b / d2_006_gates
+```
+
+REC-5 remains below floor for every current segment. WP-10c is descriptive
+only and leaves the WP-10d cross-expectation-source descriptive brief as the
+downstream consumer package. WP-10c changes no REC schema, validator,
+query-layer code, policy surface, paper/live semantics, evidence-quality
+scoring, ranking/recommendation logic, runtime, deployment, config, OMS, risk,
+overlay, safe-mode, or live-trading behavior.
+
 ## Non-Claims
 
 REC v1 does not claim:

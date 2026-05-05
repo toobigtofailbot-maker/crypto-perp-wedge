@@ -1,0 +1,41 @@
+[
+  {
+    "rec_row_count": 11,
+    "rec_id_min": "REC-0001",
+    "rec_id_max": "REC-0011",
+    "source_ol_count": 11,
+    "candidate_count": 10,
+    "pipeline_version_distribution": [
+      {
+        "pipeline_version": "post_wp_5b",
+        "row_count": 1
+      },
+      {
+        "pipeline_version": "pre_wp_5b",
+        "row_count": 10
+      }
+    ],
+    "expectation_source_distribution": [
+      {
+        "expectation_source_type": "exp_success_criteria",
+        "row_count": 11
+      }
+    ],
+    "verdict_distribution": [
+      {
+        "overall_verdict": "insufficient_evidence",
+        "row_count": 1
+      },
+      {
+        "overall_verdict": "none_met",
+        "row_count": 3
+      },
+      {
+        "overall_verdict": "partially_met",
+        "row_count": 7
+      }
+    ],
+    "d2_fallback_count": 0,
+    "h004_rec_row_count": 2
+  }
+]

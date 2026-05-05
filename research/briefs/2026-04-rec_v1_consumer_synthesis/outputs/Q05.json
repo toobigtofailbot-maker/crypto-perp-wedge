@@ -1,0 +1,254 @@
+[
+  {
+    "exp_success_criteria_count": 11,
+    "d2_006_gates_count": 0,
+    "deterministic_comparison_metrics": [
+      {
+        "metric_name": "cost_drag_fraction",
+        "comparison_count": 10,
+        "comparison_verdicts": [
+          "met",
+          "not_met"
+        ]
+      },
+      {
+        "metric_name": "dsr",
+        "comparison_count": 10,
+        "comparison_verdicts": [
+          "met",
+          "not_met"
+        ]
+      },
+      {
+        "metric_name": "max_drawdown",
+        "comparison_count": 10,
+        "comparison_verdicts": [
+          "not_met"
+        ]
+      },
+      {
+        "metric_name": "sharpe",
+        "comparison_count": 10,
+        "comparison_verdicts": [
+          "not_met"
+        ]
+      },
+      {
+        "metric_name": "walk_forward_efficiency",
+        "comparison_count": 10,
+        "comparison_verdicts": [
+          "met",
+          "not_met"
+        ]
+      }
+    ],
+    "preserved_qualitative_or_gate_reference_metrics": [
+      {
+        "metric_name": "d2_006_gates",
+        "expected_operator": "gate_reference",
+        "expectation_count": 11
+      },
+      {
+        "metric_name": "historical_h004_artifact_preservation",
+        "expected_operator": "qualitative",
+        "expectation_count": 1
+      },
+      {
+        "metric_name": "kill_criteria",
+        "expected_operator": "qualitative",
+        "expectation_count": 10
+      },
+      {
+        "metric_name": "plan_file_authored",
+        "expected_operator": "qualitative",
+        "expectation_count": 1
+      },
+      {
+        "metric_name": "registered_h004_parameters",
+        "expected_operator": "qualitative",
+        "expectation_count": 1
+      },
+      {
+        "metric_name": "report_trial_reference",
+        "expected_operator": "qualitative",
+        "expectation_count": 1
+      },
+      {
+        "metric_name": "scope_preservation",
+        "expected_operator": "qualitative",
+        "expectation_count": 1
+      },
+      {
+        "metric_name": "trial_log_append_count",
+        "expected_operator": "qualitative",
+        "expectation_count": 1
+      }
+    ],
+    "rows_with_preserved_non_numeric_surface": [
+      {
+        "reconciliation_id": "REC-0001",
+        "outcome_id": "OL-0001",
+        "candidate_id": "H-001",
+        "pipeline_version": "pre_wp_5b",
+        "overall_verdict": "none_met",
+        "preserved_metric_names": [
+          "d2_006_gates",
+          "free_parameter_count",
+          "kill_criteria",
+          "pnl_concentration",
+          "sensitivity_min_ratio"
+        ]
+      },
+      {
+        "reconciliation_id": "REC-0002",
+        "outcome_id": "OL-0002",
+        "candidate_id": "H-005",
+        "pipeline_version": "pre_wp_5b",
+        "overall_verdict": "partially_met",
+        "preserved_metric_names": [
+          "d2_006_gates",
+          "free_parameter_count",
+          "kill_criteria",
+          "pnl_concentration",
+          "sensitivity_min_ratio"
+        ]
+      },
+      {
+        "reconciliation_id": "REC-0003",
+        "outcome_id": "OL-0003",
+        "candidate_id": "H-002",
+        "pipeline_version": "pre_wp_5b",
+        "overall_verdict": "partially_met",
+        "preserved_metric_names": [
+          "d2_006_gates",
+          "free_parameter_count",
+          "kill_criteria",
+          "pnl_concentration",
+          "sensitivity_min_ratio"
+        ]
+      },
+      {
+        "reconciliation_id": "REC-0004",
+        "outcome_id": "OL-0004",
+        "candidate_id": "H-003",
+        "pipeline_version": "pre_wp_5b",
+        "overall_verdict": "partially_met",
+        "preserved_metric_names": [
+          "d2_006_gates",
+          "free_parameter_count",
+          "kill_criteria",
+          "pnl_concentration",
+          "sensitivity_min_ratio"
+        ]
+      },
+      {
+        "reconciliation_id": "REC-0005",
+        "outcome_id": "OL-0005",
+        "candidate_id": "H-004",
+        "pipeline_version": "pre_wp_5b",
+        "overall_verdict": "partially_met",
+        "preserved_metric_names": [
+          "d2_006_gates",
+          "free_parameter_count",
+          "kill_criteria",
+          "pnl_concentration",
+          "sensitivity_min_ratio"
+        ]
+      },
+      {
+        "reconciliation_id": "REC-0006",
+        "outcome_id": "OL-0006",
+        "candidate_id": "H-006",
+        "pipeline_version": "pre_wp_5b",
+        "overall_verdict": "partially_met",
+        "preserved_metric_names": [
+          "d2_006_gates",
+          "free_parameter_count",
+          "kill_criteria",
+          "pnl_concentration",
+          "sensitivity_min_ratio"
+        ]
+      },
+      {
+        "reconciliation_id": "REC-0007",
+        "outcome_id": "OL-0007",
+        "candidate_id": "H-007",
+        "pipeline_version": "pre_wp_5b",
+        "overall_verdict": "none_met",
+        "preserved_metric_names": [
+          "d2_006_gates",
+          "free_parameter_count",
+          "kill_criteria",
+          "pnl_concentration",
+          "sensitivity_min_ratio"
+        ]
+      },
+      {
+        "reconciliation_id": "REC-0008",
+        "outcome_id": "OL-0008",
+        "candidate_id": "H-008",
+        "pipeline_version": "pre_wp_5b",
+        "overall_verdict": "partially_met",
+        "preserved_metric_names": [
+          "d2_006_gates",
+          "free_parameter_count",
+          "kill_criteria",
+          "pnl_concentration",
+          "sensitivity_min_ratio"
+        ]
+      },
+      {
+        "reconciliation_id": "REC-0009",
+        "outcome_id": "OL-0009",
+        "candidate_id": "H-009",
+        "pipeline_version": "pre_wp_5b",
+        "overall_verdict": "none_met",
+        "preserved_metric_names": [
+          "d2_006_gates",
+          "free_parameter_count",
+          "kill_criteria",
+          "pnl_concentration",
+          "sensitivity_min_ratio"
+        ]
+      },
+      {
+        "reconciliation_id": "REC-0010",
+        "outcome_id": "OL-0010",
+        "candidate_id": "H-010",
+        "pipeline_version": "pre_wp_5b",
+        "overall_verdict": "partially_met",
+        "preserved_metric_names": [
+          "d2_006_gates",
+          "free_parameter_count",
+          "kill_criteria",
+          "pnl_concentration",
+          "sensitivity_min_ratio"
+        ]
+      },
+      {
+        "reconciliation_id": "REC-0011",
+        "outcome_id": "OL-0011",
+        "candidate_id": "H-004",
+        "pipeline_version": "post_wp_5b",
+        "overall_verdict": "insufficient_evidence",
+        "preserved_metric_names": [
+          "d2_006_gates",
+          "historical_h004_artifact_preservation",
+          "plan_file_authored",
+          "registered_h004_parameters",
+          "report_trial_reference",
+          "scope_preservation",
+          "trial_log_append_count"
+        ]
+      }
+    ],
+    "rec_0011_posture": {
+      "reconciliation_id": "REC-0011",
+      "outcome_id": "OL-0011",
+      "candidate_id": "H-004",
+      "pipeline_version": "post_wp_5b",
+      "overall_verdict": "insufficient_evidence",
+      "interpretation": "REC-0011 reconciles OL-0011 against committed EXP-0011 success criteria while preserving the H-004 post-WP-5b forward-flow source posture. The selected EXP criteria are operational and qualitative rather than deterministic numeric OL metric thresholds, so REC v1 records insufficient evidence and creates no promotion, demotion, paper/live readiness, evidence score, recommendation, policy, runtime, or protected-path authority."
+    }
+  }
+]

@@ -1,0 +1,28 @@
+[
+  {
+    "reconciliation_id": "REC-0005",
+    "outcome_id": "OL-0005",
+    "candidate_id": "H-004",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "exp_success_criteria",
+    "expectation_source_artifact_id": "EXP-0005",
+    "expectation_source_artifact_path": "research/experiments/EXP-0005.plan.json",
+    "overall_verdict": "partially_met",
+    "interpretation": "REC-0005 compares realized OL-0005 metrics against committed EXP-0005 success criteria using only deterministic OL metric mappings. Gate-reference and qualitative or unmapped criteria remain extracted but do not create promotion, demotion, paper/live readiness, evidence score, recommendation, policy, runtime, or protected-path authority.",
+    "notes": "WP-9x uses OL-0005 and EXP-0005 because the OL-linked EXP success criteria are committed, candidate-consistent, and sufficient for deterministic REC v1 comparison of Sharpe, DSR, max drawdown, cost drag, and walk-forward efficiency."
+  },
+  {
+    "reconciliation_id": "REC-0011",
+    "outcome_id": "OL-0011",
+    "candidate_id": "H-004",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "post_wp_5b",
+    "expectation_source_type": "exp_success_criteria",
+    "expectation_source_artifact_id": "EXP-0011",
+    "expectation_source_artifact_path": "research/experiments/EXP-0011.plan.json",
+    "overall_verdict": "insufficient_evidence",
+    "interpretation": "REC-0011 reconciles OL-0011 against committed EXP-0011 success criteria while preserving the H-004 post-WP-5b forward-flow source posture. The selected EXP criteria are operational and qualitative rather than deterministic numeric OL metric thresholds, so REC v1 records insufficient evidence and creates no promotion, demotion, paper/live readiness, evidence score, recommendation, policy, runtime, or protected-path authority.",
+    "notes": "WP-9x uses OL-0011 and EXP-0011 because the OL-linked EXP success criteria are committed and candidate-consistent. No D2 fallback is used; no H-004 pre/post comparison is inferred."
+  }
+]

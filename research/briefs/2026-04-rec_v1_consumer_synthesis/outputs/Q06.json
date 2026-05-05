@@ -1,0 +1,211 @@
+[
+  {
+    "claim_class": "supported_descriptive",
+    "claim": "H-004 split inspection",
+    "basis": "supported as separate pre_wp_5b and post_wp_5b REC rows",
+    "rec_row_count": 11,
+    "source_ol_count": 11,
+    "candidate_count": 10,
+    "h004_row_count": 2,
+    "exp_success_criteria_count": 11,
+    "d2_006_gates_count": 0
+  },
+  {
+    "claim_class": "supported_descriptive",
+    "claim": "REC corpus inventory",
+    "basis": "supported by REC row count and ID range",
+    "rec_row_count": 11,
+    "source_ol_count": 11,
+    "candidate_count": 10,
+    "h004_row_count": 2,
+    "exp_success_criteria_count": 11,
+    "d2_006_gates_count": 0
+  },
+  {
+    "claim_class": "supported_descriptive",
+    "claim": "REC-5 floor marking",
+    "basis": "supported by candidate_id / outcome_kind / pipeline_version / expectation_source_type counts",
+    "rec_row_count": 11,
+    "source_ol_count": 11,
+    "candidate_count": 10,
+    "h004_row_count": 2,
+    "exp_success_criteria_count": 11,
+    "d2_006_gates_count": 0
+  },
+  {
+    "claim_class": "supported_descriptive",
+    "claim": "REC-to-OL mapping inspection",
+    "basis": "supported by one REC outcome_id mapping per row",
+    "rec_row_count": 11,
+    "source_ol_count": 11,
+    "candidate_count": 10,
+    "h004_row_count": 2,
+    "exp_success_criteria_count": 11,
+    "d2_006_gates_count": 0
+  },
+  {
+    "claim_class": "supported_descriptive",
+    "claim": "comparison-surface inspection limited to deterministic mapped metrics and preserved qualitative/gate-reference criteria",
+    "basis": "supported by existing REC comparison and expectation arrays",
+    "rec_row_count": 11,
+    "source_ol_count": 11,
+    "candidate_count": 10,
+    "h004_row_count": 2,
+    "exp_success_criteria_count": 11,
+    "d2_006_gates_count": 0
+  },
+  {
+    "claim_class": "supported_descriptive",
+    "claim": "expectation-source distribution inspection",
+    "basis": "supported by expectation_source_type counts only",
+    "rec_row_count": 11,
+    "source_ol_count": 11,
+    "candidate_count": 10,
+    "h004_row_count": 2,
+    "exp_success_criteria_count": 11,
+    "d2_006_gates_count": 0
+  },
+  {
+    "claim_class": "supported_descriptive",
+    "claim": "per-candidate REC path inspection",
+    "basis": "supported by candidate_id and pipeline_version segmentation",
+    "rec_row_count": 11,
+    "source_ol_count": 11,
+    "candidate_count": 10,
+    "h004_row_count": 2,
+    "exp_success_criteria_count": 11,
+    "d2_006_gates_count": 0
+  },
+  {
+    "claim_class": "supported_descriptive",
+    "claim": "verdict distribution inspection",
+    "basis": "supported by overall_verdict counts only",
+    "rec_row_count": 11,
+    "source_ol_count": 11,
+    "candidate_count": 10,
+    "h004_row_count": 2,
+    "exp_success_criteria_count": 11,
+    "d2_006_gates_count": 0
+  },
+  {
+    "claim_class": "unsupported_future_dependent",
+    "claim": "OMS/risk/safe-mode/execution authority",
+    "basis": "outside REC v1 consumer authority",
+    "rec_row_count": 11,
+    "source_ol_count": 11,
+    "candidate_count": 10,
+    "h004_row_count": 2,
+    "exp_success_criteria_count": 11,
+    "d2_006_gates_count": 0
+  },
+  {
+    "claim_class": "unsupported_future_dependent",
+    "claim": "candidate recommendation",
+    "basis": "requires later explicit decision package",
+    "rec_row_count": 11,
+    "source_ol_count": 11,
+    "candidate_count": 10,
+    "h004_row_count": 2,
+    "exp_success_criteria_count": 11,
+    "d2_006_gates_count": 0
+  },
+  {
+    "claim_class": "unsupported_future_dependent",
+    "claim": "cross-window inference",
+    "basis": "blocked below REC-5 floor",
+    "rec_row_count": 11,
+    "source_ol_count": 11,
+    "candidate_count": 10,
+    "h004_row_count": 2,
+    "exp_success_criteria_count": 11,
+    "d2_006_gates_count": 0
+  },
+  {
+    "claim_class": "unsupported_future_dependent",
+    "claim": "evidence-quality scoring",
+    "basis": "requires later explicit scoring package",
+    "rec_row_count": 11,
+    "source_ol_count": 11,
+    "candidate_count": 10,
+    "h004_row_count": 2,
+    "exp_success_criteria_count": 11,
+    "d2_006_gates_count": 0
+  },
+  {
+    "claim_class": "unsupported_future_dependent",
+    "claim": "paper/live readiness",
+    "basis": "requires later explicit paper/live package",
+    "rec_row_count": 11,
+    "source_ol_count": 11,
+    "candidate_count": 10,
+    "h004_row_count": 2,
+    "exp_success_criteria_count": 11,
+    "d2_006_gates_count": 0
+  },
+  {
+    "claim_class": "unsupported_future_dependent",
+    "claim": "pipeline-version performance comparison",
+    "basis": "requires later sufficient-evidence package",
+    "rec_row_count": 11,
+    "source_ol_count": 11,
+    "candidate_count": 10,
+    "h004_row_count": 2,
+    "exp_success_criteria_count": 11,
+    "d2_006_gates_count": 0
+  },
+  {
+    "claim_class": "unsupported_future_dependent",
+    "claim": "promotion/demotion policy",
+    "basis": "requires later explicit policy package",
+    "rec_row_count": 11,
+    "source_ol_count": 11,
+    "candidate_count": 10,
+    "h004_row_count": 2,
+    "exp_success_criteria_count": 11,
+    "d2_006_gates_count": 0
+  },
+  {
+    "claim_class": "unsupported_future_dependent",
+    "claim": "protected-path authority",
+    "basis": "outside REC v1 consumer authority",
+    "rec_row_count": 11,
+    "source_ol_count": 11,
+    "candidate_count": 10,
+    "h004_row_count": 2,
+    "exp_success_criteria_count": 11,
+    "d2_006_gates_count": 0
+  },
+  {
+    "claim_class": "unsupported_future_dependent",
+    "claim": "ranking",
+    "basis": "requires later explicit ranking/evidence package",
+    "rec_row_count": 11,
+    "source_ol_count": 11,
+    "candidate_count": 10,
+    "h004_row_count": 2,
+    "exp_success_criteria_count": 11,
+    "d2_006_gates_count": 0
+  },
+  {
+    "claim_class": "unsupported_future_dependent",
+    "claim": "runtime/deployment authority",
+    "basis": "outside REC v1 consumer authority",
+    "rec_row_count": 11,
+    "source_ol_count": 11,
+    "candidate_count": 10,
+    "h004_row_count": 2,
+    "exp_success_criteria_count": 11,
+    "d2_006_gates_count": 0
+  },
+  {
+    "claim_class": "unsupported_future_dependent",
+    "claim": "strategy-family performance conclusion",
+    "basis": "requires later sufficient-evidence package",
+    "rec_row_count": 11,
+    "source_ol_count": 11,
+    "candidate_count": 10,
+    "h004_row_count": 2,
+    "exp_success_criteria_count": 11,
+    "d2_006_gates_count": 0
+  }
+]

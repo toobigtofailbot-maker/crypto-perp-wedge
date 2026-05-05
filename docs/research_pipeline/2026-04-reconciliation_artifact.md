@@ -248,6 +248,37 @@ WP-9w defers full REC backfill, helper tooling, consumers, promotion/demotion
 policy, paper/live semantics, evidence-quality scoring, and runtime,
 deployment, config, OMS, risk, overlay, safe-mode, or live-trading behavior.
 
+## WP-9x Retrospective Backfill
+
+WP-9x completes the REC v1 retrospective artifact backfill over the locked OL
+v1 corpus. The committed REC corpus now covers:
+
+```text
+REC-0001 through REC-0011
+```
+
+Each locked OL v1 row has exactly one REC v1 artifact. `REC-0001` remains the
+WP-9w seed; WP-9x appends `REC-0002` through `REC-0011` without rewriting the
+seed.
+
+Source selection follows the WP-9w methodology: use the OL-linked committed
+EXP success criteria when present and candidate-consistent, and use D2-006 only
+as a fallback. The WP-9x corpus uses committed EXP success criteria for every
+new REC row. Realized metrics are copied from the referenced OL artifacts
+without recomputation.
+
+The H-004 split is preserved as two distinct REC rows:
+
+```text
+REC-0005 / OL-0005 / H-004 / pre_wp_5b
+REC-0011 / OL-0011 / H-004 / post_wp_5b
+```
+
+The REC validator and query layer now operate over 11 committed REC rows.
+Helper tooling, REC consumers, promotion/demotion policy, paper/live
+semantics, evidence-quality scoring, and runtime, deployment, config, OMS,
+risk, overlay, safe-mode, or live-trading behavior remain deferred.
+
 ## Non-Claims
 
 REC v1 does not claim:

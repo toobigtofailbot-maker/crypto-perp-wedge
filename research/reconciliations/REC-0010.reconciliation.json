@@ -1,0 +1,191 @@
+{
+  "schema_version": "v1",
+  "reconciliation_id": "REC-0010",
+  "candidate_id": "H-010",
+  "outcome_id": "OL-0010",
+  "outcome_kind": "research_oos",
+  "pipeline_version": "pre_wp_5b",
+  "expectation_source_type": "exp_success_criteria",
+  "expectation_source_artifact_id": "EXP-0010",
+  "expectation_source_artifact_path": "research/experiments/EXP-0010.plan.json",
+  "expectation_extracted": {
+    "source_type": "exp_success_criteria",
+    "source_artifact_id": "EXP-0010",
+    "source_artifact_path": "research/experiments/EXP-0010.plan.json",
+    "extraction_method": "manual_retrospective_wp9x_backfill_v1",
+    "extracted_at": "2026-05-05T12:00:00Z",
+    "metric_expectations": [
+      {
+        "metric_name": "d2_006_gates",
+        "expected_operator": "gate_reference",
+        "expected_value": "D2-006 promotion gates from docs/onboarding/PHASE2_BASELINE.md",
+        "expected_unit": null,
+        "source_field_path": "success_criteria.gates",
+        "source_text": "D2-006 promotion gates from docs/onboarding/PHASE2_BASELINE.md",
+        "notes": "Preserved as a committed EXP success-criteria gate reference; direct REC comparison uses only deterministically mapped OL metrics when explicit numeric thresholds are present."
+      },
+      {
+        "metric_name": "sharpe",
+        "expected_operator": "gte",
+        "expected_value": 1.0,
+        "expected_unit": null,
+        "source_field_path": "success_criteria.additional_criteria[0]",
+        "source_text": "OOS Sharpe >= 1.0 net of modeled costs"
+      },
+      {
+        "metric_name": "dsr",
+        "expected_operator": "gt",
+        "expected_value": 0.95,
+        "expected_unit": null,
+        "source_field_path": "success_criteria.additional_criteria[1]",
+        "source_text": "Gate 2 passes under current evaluator semantics: dsr_val > 0.95 versus the expected maximum-SR benchmark from the registered trial count"
+      },
+      {
+        "metric_name": "max_drawdown",
+        "expected_operator": "lte",
+        "expected_value": 0.2,
+        "expected_unit": "fraction",
+        "source_field_path": "success_criteria.additional_criteria[2]",
+        "source_text": "Max drawdown <= 20% in any walk-forward fold"
+      },
+      {
+        "metric_name": "sensitivity_min_ratio",
+        "expected_operator": "gte",
+        "expected_value": 0.7,
+        "expected_unit": "ratio",
+        "source_field_path": "success_criteria.additional_criteria[3]",
+        "source_text": "Parameter sensitivity: +/-25% parameter shift keeps Sharpe within 70% of baseline",
+        "notes": "Preserved from EXP success criteria but not compared because OL-0010 metrics do not include sensitivity_min_ratio."
+      },
+      {
+        "metric_name": "cost_drag_fraction",
+        "expected_operator": "lte",
+        "expected_value": 0.5,
+        "expected_unit": "fraction_of_gross_pnl",
+        "source_field_path": "success_criteria.additional_criteria[4]",
+        "source_text": "Cost drag <= 50% of gross PnL"
+      },
+      {
+        "metric_name": "pnl_concentration",
+        "expected_operator": "lte",
+        "expected_value": 0.6,
+        "expected_unit": "fraction_of_total_pnl",
+        "source_field_path": "success_criteria.additional_criteria[5]",
+        "source_text": "No single 90-day window contributes > 60% of total PnL",
+        "notes": "Preserved from EXP success criteria but not compared because OL-0010 metrics do not include a 90-day contribution metric."
+      },
+      {
+        "metric_name": "free_parameter_count",
+        "expected_operator": "lte",
+        "expected_value": 5,
+        "expected_unit": "count",
+        "source_field_path": "success_criteria.additional_criteria[6]",
+        "source_text": "Free parameters <= 5",
+        "notes": "Preserved from EXP success criteria but not compared because REC v1 realized_metrics copy OL metrics and OL-0010 does not include free_parameter_count."
+      },
+      {
+        "metric_name": "walk_forward_efficiency",
+        "expected_operator": "gt",
+        "expected_value": 0.5,
+        "expected_unit": "ratio",
+        "source_field_path": "success_criteria.additional_criteria[7]",
+        "source_text": "Walk-forward efficiency (OOS/IS Sharpe) > 0.5"
+      },
+      {
+        "metric_name": "kill_criteria",
+        "expected_operator": "qualitative",
+        "expected_value": "Kill criteria from H-010 HYPOTHESIS.md apply: OOS Sharpe < 0.3, max drawdown > 35%, cost drag > 50% of gross PnL, basis extremes persisting rather than reverting, or results dominated by too few dislocation windows",
+        "expected_unit": null,
+        "source_field_path": "success_criteria.additional_criteria[8]",
+        "source_text": "Kill criteria from H-010 HYPOTHESIS.md apply: OOS Sharpe < 0.3, max drawdown > 35%, cost drag > 50% of gross PnL, basis extremes persisting rather than reverting, or results dominated by too few dislocation windows",
+        "notes": "Preserved as qualitative EXP success-criteria text; REC v1 does not derive promotion, demotion, archival, or kill conclusions."
+      }
+    ]
+  },
+  "realized_metrics": {
+    "sharpe": 0.46477526210643,
+    "source_field": "trial_log.oos_sharpe",
+    "window_convention": "No separate IS/OOS split convention existed in repo truth; this object records full-period baseline metrics from DEC-0010 and the H-010 experiment notebook.",
+    "max_drawdown": 0.8497227861150672,
+    "n_obs": 13757,
+    "trades": 345,
+    "hit_rate": 0.4985507246376812,
+    "profit_factor": 1.0656445568132804,
+    "final_equity": 14400.467066539371,
+    "total_pnl": 4400.467066539371,
+    "gross_pnl": 18228.50000000011,
+    "fees_paid": 12883.662231999995,
+    "slippage_paid": 6441.831115999998,
+    "funding_paid": -5497.460414539095,
+    "cost_drag_fraction": 0.7585941209348446,
+    "dsr": 0.99827,
+    "walk_forward_efficiency": 1.0,
+    "gates_passed": 3,
+    "gates_total": 8
+  },
+  "comparison": {
+    "metric_comparisons": [
+      {
+        "metric_name": "sharpe",
+        "expected_value": 1.0,
+        "realized_value": 0.46477526210643,
+        "delta_absolute": -0.53522473789357,
+        "delta_relative": -0.53522473789357,
+        "comparison_verdict": "not_met",
+        "comparison_notes": "EXP-0010 requires OOS Sharpe >= 1.0; OL-0010 records sharpe at the copied OL metric value."
+      },
+      {
+        "metric_name": "dsr",
+        "expected_value": 0.95,
+        "realized_value": 0.99827,
+        "delta_absolute": 0.048270000000000035,
+        "delta_relative": 0.050810526315789514,
+        "comparison_verdict": "met",
+        "comparison_notes": "EXP-0010 requires dsr_val > 0.95; OL-0010 records dsr at the copied OL metric value."
+      },
+      {
+        "metric_name": "max_drawdown",
+        "expected_value": 0.2,
+        "realized_value": 0.8497227861150672,
+        "delta_absolute": 0.6497227861150672,
+        "delta_relative": 3.2486139305753357,
+        "comparison_verdict": "not_met",
+        "comparison_notes": "EXP-0010 requires max drawdown <= 20%; OL-0010 records max_drawdown at the copied OL metric value."
+      },
+      {
+        "metric_name": "cost_drag_fraction",
+        "expected_value": 0.5,
+        "realized_value": 0.7585941209348446,
+        "delta_absolute": 0.2585941209348446,
+        "delta_relative": 0.5171882418696891,
+        "comparison_verdict": "not_met",
+        "comparison_notes": "EXP-0010 requires cost drag <= 50% of gross PnL; OL-0010 records cost_drag_fraction at the copied OL metric value."
+      },
+      {
+        "metric_name": "walk_forward_efficiency",
+        "expected_value": 0.5,
+        "realized_value": 1.0,
+        "delta_absolute": 0.5,
+        "delta_relative": 1.0,
+        "comparison_verdict": "met",
+        "comparison_notes": "EXP-0010 requires walk-forward efficiency > 0.5; OL-0010 records walk_forward_efficiency at the copied OL metric value."
+      }
+    ]
+  },
+  "overall_verdict": "partially_met",
+  "interpretation": "REC-0010 compares realized OL-0010 metrics against committed EXP-0010 success criteria using only deterministic OL metric mappings. Gate-reference and qualitative or unmapped criteria remain extracted but do not create promotion, demotion, paper/live readiness, evidence score, recommendation, policy, runtime, or protected-path authority.",
+  "derivation_record": {
+    "derivation_method": "manual_retrospective_wp9x_backfill_v1",
+    "source_artifact_id": "OL-0010",
+    "source_artifact_path": "research/outcome_ledgers/OL-0010.outcome_ledger.json",
+    "source_outcome_id": "OL-0010",
+    "expectation_source_type": "exp_success_criteria",
+    "derivation_timestamp": "2026-05-05T12:00:00Z",
+    "tool_version": "wp9x_manual_backfill_v1"
+  },
+  "retrospective_flag": true,
+  "linked_advisory_artifacts": [],
+  "linked_lifecycle_artifacts": [],
+  "notes": "WP-9x uses OL-0010 and EXP-0010 because the OL-linked EXP success criteria are committed, candidate-consistent, and sufficient for deterministic REC v1 comparison of Sharpe, DSR, max drawdown, cost drag, and walk-forward efficiency.",
+  "retrospective_disclosure": "WP-9x derives REC-0010 retrospectively from already committed OL-0010 and EXP-0010 repo truth to complete the REC v1 retrospective backfill over the locked OL v1 corpus. This entry preserves source limitations and carries no promotion, demotion, paper/live, scoring, policy, consumer, helper, runtime, deployment, OMS, risk, safe-mode, overlay, config, or protected-path authority."
+}

@@ -117,7 +117,7 @@ def test_reconciliation_views_are_listed(conn):
     assert RECONCILIATION_VIEWS <= set(list_views(conn))
 
 
-def test_committed_reconciliation_seed_appears_in_views_and_integrity_empty(conn):
+def test_committed_reconciliation_corpus_appears_in_views_and_integrity_empty(conn):
     overview_rows = conn.execute(
         """
         SELECT
@@ -132,6 +132,7 @@ def test_committed_reconciliation_seed_appears_in_views_and_integrity_empty(conn
             retrospective_flag,
             derivation_method
         FROM v_reconciliation_overview
+        ORDER BY reconciliation_id
         """
     ).fetchall()
     summary_rows = conn.execute(
@@ -159,11 +160,143 @@ def test_committed_reconciliation_seed_appears_in_views_and_integrity_empty(conn
             "none_met",
             True,
             "manual_retrospective_wp9w_seed_v1",
-        )
+        ),
+        (
+            "REC-0002",
+            "H-005",
+            "OL-0002",
+            "research_oos",
+            "pre_wp_5b",
+            "exp_success_criteria",
+            "EXP-0001",
+            "partially_met",
+            True,
+            "manual_retrospective_wp9x_backfill_v1",
+        ),
+        (
+            "REC-0003",
+            "H-002",
+            "OL-0003",
+            "research_oos",
+            "pre_wp_5b",
+            "exp_success_criteria",
+            "EXP-0003",
+            "partially_met",
+            True,
+            "manual_retrospective_wp9x_backfill_v1",
+        ),
+        (
+            "REC-0004",
+            "H-003",
+            "OL-0004",
+            "research_oos",
+            "pre_wp_5b",
+            "exp_success_criteria",
+            "EXP-0004",
+            "partially_met",
+            True,
+            "manual_retrospective_wp9x_backfill_v1",
+        ),
+        (
+            "REC-0005",
+            "H-004",
+            "OL-0005",
+            "research_oos",
+            "pre_wp_5b",
+            "exp_success_criteria",
+            "EXP-0005",
+            "partially_met",
+            True,
+            "manual_retrospective_wp9x_backfill_v1",
+        ),
+        (
+            "REC-0006",
+            "H-006",
+            "OL-0006",
+            "research_oos",
+            "pre_wp_5b",
+            "exp_success_criteria",
+            "EXP-0006",
+            "partially_met",
+            True,
+            "manual_retrospective_wp9x_backfill_v1",
+        ),
+        (
+            "REC-0007",
+            "H-007",
+            "OL-0007",
+            "research_oos",
+            "pre_wp_5b",
+            "exp_success_criteria",
+            "EXP-0007",
+            "none_met",
+            True,
+            "manual_retrospective_wp9x_backfill_v1",
+        ),
+        (
+            "REC-0008",
+            "H-008",
+            "OL-0008",
+            "research_oos",
+            "pre_wp_5b",
+            "exp_success_criteria",
+            "EXP-0008",
+            "partially_met",
+            True,
+            "manual_retrospective_wp9x_backfill_v1",
+        ),
+        (
+            "REC-0009",
+            "H-009",
+            "OL-0009",
+            "research_oos",
+            "pre_wp_5b",
+            "exp_success_criteria",
+            "EXP-0009",
+            "none_met",
+            True,
+            "manual_retrospective_wp9x_backfill_v1",
+        ),
+        (
+            "REC-0010",
+            "H-010",
+            "OL-0010",
+            "research_oos",
+            "pre_wp_5b",
+            "exp_success_criteria",
+            "EXP-0010",
+            "partially_met",
+            True,
+            "manual_retrospective_wp9x_backfill_v1",
+        ),
+        (
+            "REC-0011",
+            "H-004",
+            "OL-0011",
+            "research_oos",
+            "post_wp_5b",
+            "exp_success_criteria",
+            "EXP-0011",
+            "insufficient_evidence",
+            True,
+            "manual_retrospective_wp9x_backfill_v1",
+        ),
     ]
-    assert summary_rows == [
-        ("H-001", "research_oos", "pre_wp_5b", "exp_success_criteria", 1, ["none_met"])
-    ]
+    assert sorted(summary_rows) == sorted(
+        [
+            ("H-001", "research_oos", "pre_wp_5b", "exp_success_criteria", 1, ["none_met"]),
+            ("H-002", "research_oos", "pre_wp_5b", "exp_success_criteria", 1, ["partially_met"]),
+            ("H-003", "research_oos", "pre_wp_5b", "exp_success_criteria", 1, ["partially_met"]),
+            ("H-004", "research_oos", "post_wp_5b", "exp_success_criteria", 1, ["insufficient_evidence"]),
+            ("H-004", "research_oos", "pre_wp_5b", "exp_success_criteria", 1, ["partially_met"]),
+            ("H-005", "research_oos", "pre_wp_5b", "exp_success_criteria", 1, ["partially_met"]),
+            ("H-006", "research_oos", "pre_wp_5b", "exp_success_criteria", 1, ["partially_met"]),
+            ("H-007", "research_oos", "pre_wp_5b", "exp_success_criteria", 1, ["none_met"]),
+            ("H-008", "research_oos", "pre_wp_5b", "exp_success_criteria", 1, ["partially_met"]),
+            ("H-009", "research_oos", "pre_wp_5b", "exp_success_criteria", 1, ["none_met"]),
+            ("H-010", "research_oos", "pre_wp_5b", "exp_success_criteria", 1, ["partially_met"]),
+        ]
+    )
     for view_name in {
         "v_integrity_reconciliation_refs",
         "v_integrity_reconciliation_scope",

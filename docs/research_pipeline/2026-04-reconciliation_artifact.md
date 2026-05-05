@@ -279,6 +279,41 @@ Helper tooling, REC consumers, promotion/demotion policy, paper/live
 semantics, evidence-quality scoring, and runtime, deployment, config, OMS,
 risk, overlay, safe-mode, or live-trading behavior remain deferred.
 
+## WP-10b D2-006 Gates Seed
+
+WP-10b commits the first real `d2_006_gates` REC v1 artifact:
+
+```text
+research/reconciliations/REC-0012.reconciliation.json
+```
+
+The seed reconciles `OL-0001` for `H-001` under `pre_wp_5b` pipeline
+semantics against the committed D2-006 source at:
+
+```text
+docs/onboarding/PHASE2_BASELINE.md
+```
+
+The methodology for deriving `d2_006_gates` REC entries is documented at:
+
+```text
+docs/research_pipeline/2026-04-rec_d2_006_gates_methodology.md
+```
+
+The committed REC corpus now has 12 rows: 11 `exp_success_criteria` rows and
+one `d2_006_gates` row. The new segment is:
+
+```text
+H-001 / research_oos / pre_wp_5b / d2_006_gates -> reconciliation_count = 1
+```
+
+That segment remains below the REC-5 floor. WP-10c bulk `d2_006_gates`
+backfill remains deferred.
+
+WP-10b changes no REC schema, validator, query-layer code, policy surface,
+paper/live semantics, evidence-quality scoring, runtime, deployment, config,
+OMS, risk, overlay, safe-mode, or live-trading behavior.
+
 ## Non-Claims
 
 REC v1 does not claim:

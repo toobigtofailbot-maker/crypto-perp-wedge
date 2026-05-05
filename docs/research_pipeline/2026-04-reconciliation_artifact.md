@@ -218,6 +218,36 @@ WP-9v explicitly defers:
 - runtime, deployment, config, OMS, risk, overlay, safe-mode, or live-trading
   behavior
 
+## WP-9w Seed And Methodology
+
+WP-9w commits the first real REC v1 artifact:
+
+```text
+research/reconciliations/REC-0001.reconciliation.json
+```
+
+The seed reconciles `OL-0001` for `H-001` under `pre_wp_5b` pipeline semantics
+against `EXP-0002` success criteria at:
+
+```text
+research/experiments/EXP-0002.plan.json
+```
+
+The retrospective backfill methodology is documented at:
+
+```text
+docs/research_pipeline/2026-04-reconciliation_backfill_methodology.md
+```
+
+The REC validator and query-layer now operate over one committed REC row.
+REC-0001 extracts the committed EXP success criteria, compares only
+deterministically mapped OL metrics, and preserves unmapped gate-reference or
+qualitative criteria without inventing thresholds or authority.
+
+WP-9w defers full REC backfill, helper tooling, consumers, promotion/demotion
+policy, paper/live semantics, evidence-quality scoring, and runtime,
+deployment, config, OMS, risk, overlay, safe-mode, or live-trading behavior.
+
 ## Non-Claims
 
 REC v1 does not claim:

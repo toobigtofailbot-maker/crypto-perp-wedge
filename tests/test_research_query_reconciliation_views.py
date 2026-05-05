@@ -117,9 +117,53 @@ def test_reconciliation_views_are_listed(conn):
     assert RECONCILIATION_VIEWS <= set(list_views(conn))
 
 
-def test_reconciliation_empty_state_views_and_integrity_empty(conn):
-    assert conn.execute("SELECT * FROM v_reconciliation_overview").fetchall() == []
-    assert conn.execute("SELECT * FROM v_reconciliation_candidate_pipeline_summary").fetchall() == []
+def test_committed_reconciliation_seed_appears_in_views_and_integrity_empty(conn):
+    overview_rows = conn.execute(
+        """
+        SELECT
+            reconciliation_id,
+            candidate_id,
+            outcome_id,
+            outcome_kind,
+            pipeline_version,
+            expectation_source_type,
+            expectation_source_artifact_id,
+            overall_verdict,
+            retrospective_flag,
+            derivation_method
+        FROM v_reconciliation_overview
+        """
+    ).fetchall()
+    summary_rows = conn.execute(
+        """
+        SELECT
+            candidate_id,
+            outcome_kind,
+            pipeline_version,
+            expectation_source_type,
+            reconciliation_count,
+            overall_verdicts
+        FROM v_reconciliation_candidate_pipeline_summary
+        """
+    ).fetchall()
+
+    assert overview_rows == [
+        (
+            "REC-0001",
+            "H-001",
+            "OL-0001",
+            "research_oos",
+            "pre_wp_5b",
+            "exp_success_criteria",
+            "EXP-0002",
+            "none_met",
+            True,
+            "manual_retrospective_wp9w_seed_v1",
+        )
+    ]
+    assert summary_rows == [
+        ("H-001", "research_oos", "pre_wp_5b", "exp_success_criteria", 1, ["none_met"])
+    ]
     for view_name in {
         "v_integrity_reconciliation_refs",
         "v_integrity_reconciliation_scope",

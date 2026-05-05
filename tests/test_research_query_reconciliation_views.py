@@ -281,10 +281,31 @@ def test_committed_reconciliation_corpus_appears_in_views_and_integrity_empty(co
             True,
             "manual_retrospective_wp9x_backfill_v1",
         ),
+        (
+            "REC-0012",
+            "H-001",
+            "OL-0001",
+            "research_oos",
+            "pre_wp_5b",
+            "d2_006_gates",
+            "D2-006",
+            "none_met",
+            True,
+            "manual_retrospective_wp10b_d2_006_seed_v1",
+        ),
     ]
+    assert len(overview_rows) == 12
+    assert {
+        row[5]: sum(1 for candidate in overview_rows if candidate[5] == row[5])
+        for row in overview_rows
+    } == {
+        "exp_success_criteria": 11,
+        "d2_006_gates": 1,
+    }
     assert sorted(summary_rows) == sorted(
         [
             ("H-001", "research_oos", "pre_wp_5b", "exp_success_criteria", 1, ["none_met"]),
+            ("H-001", "research_oos", "pre_wp_5b", "d2_006_gates", 1, ["none_met"]),
             ("H-002", "research_oos", "pre_wp_5b", "exp_success_criteria", 1, ["partially_met"]),
             ("H-003", "research_oos", "pre_wp_5b", "exp_success_criteria", 1, ["partially_met"]),
             ("H-004", "research_oos", "post_wp_5b", "exp_success_criteria", 1, ["insufficient_evidence"]),

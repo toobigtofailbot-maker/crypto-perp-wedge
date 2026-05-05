@@ -44,12 +44,38 @@ SELECT
           AND c.metric_name = 'cost_drag_fraction'
     ) AS cost_drag_compared,
     r.realized_metrics.gross_pnl <= 0
+      AND EXISTS (
+          SELECT 1
+          FROM comparison_metrics AS c
+          WHERE c.reconciliation_id = r.reconciliation_id
+            AND c.metric_name = 'cost_drag_fraction'
+      ) AS cost_drag_compared_with_non_positive_gross_pnl,
+    r.realized_metrics.gross_pnl <= 0
       AND NOT EXISTS (
           SELECT 1
           FROM comparison_metrics AS c
           WHERE c.reconciliation_id = r.reconciliation_id
             AND c.metric_name = 'cost_drag_fraction'
       ) AS cost_drag_skipped_due_to_non_positive_gross_pnl,
+    CASE
+        WHEN r.realized_metrics.gross_pnl <= 0
+          AND EXISTS (
+              SELECT 1
+              FROM comparison_metrics AS c
+              WHERE c.reconciliation_id = r.reconciliation_id
+                AND c.metric_name = 'cost_drag_fraction'
+          )
+        THEN 'compared_despite_non_positive_gross_pnl_pre_wp10c_seed_requires_followup'
+        WHEN r.realized_metrics.gross_pnl <= 0
+          AND NOT EXISTS (
+              SELECT 1
+              FROM comparison_metrics AS c
+              WHERE c.reconciliation_id = r.reconciliation_id
+                AND c.metric_name = 'cost_drag_fraction'
+          )
+        THEN 'skipped_due_to_non_positive_gross_pnl'
+        ELSE 'compared_with_positive_gross_pnl'
+    END AS cost_drag_non_positive_gross_pnl_posture,
     EXISTS (
         SELECT 1
         FROM comparison_metrics AS c

@@ -77,9 +77,14 @@ ranking, paper/live, or recommendation inference from the four rows.
 The D2 rows compare only metrics that are deterministically mapped and
 semantically valid.
 
-`REC-0017` and `REC-0019` exclude cost-drag pass/fail comparison because their
-referenced OL rows have `gross_pnl <= 0`; both rows have
+`REC-0017` and `REC-0019` correctly exclude cost-drag pass/fail comparison
+because their referenced OL rows have `gross_pnl <= 0`; both rows have
 `overall_verdict = none_met`.
+
+`REC-0012` is a pre-WP-10c seed with cost-drag still compared despite
+`gross_pnl <= 0`. WP-10d surfaces this as a descriptive anomaly and follow-up
+candidate in `Q05`; it does not modify the REC artifact and does not fix the
+seed inside this read-only consumer package.
 
 `REC-0022` compares `sensitivity_min_ratio` because `OL-0011` directly
 contains the metric. `pnl_concentration_90d` and `free_parameter_count` remain

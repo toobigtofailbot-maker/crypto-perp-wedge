@@ -54,7 +54,8 @@
         "expected_value": 0.5,
         "expected_unit": "fraction_of_gross_pnl",
         "source_field_path": "D2-006.What changes[5]",
-        "source_text": "Cost drag \u2264 50% of gross PnL."
+        "source_text": "Cost drag \u2264 50% of gross PnL.",
+        "notes": "Preserved from D2-006 but not compared because OL-0001.metrics.gross_pnl <= 0, so the cost_drag_fraction as a fraction of gross PnL is not semantically interpretable as a pass/fail ratio."
       },
       {
         "metric_name": "pnl_concentration_90d",
@@ -135,15 +136,6 @@
         "comparison_notes": "D2-006 requires max drawdown <= 20% in any walk-forward fold; OL-0001 records max_drawdown above that threshold."
       },
       {
-        "metric_name": "cost_drag_fraction",
-        "expected_value": 0.5,
-        "realized_value": 2.5182778234221295,
-        "delta_absolute": 2.0182778234221295,
-        "delta_relative": 4.036555646844259,
-        "comparison_verdict": "not_met",
-        "comparison_notes": "D2-006 requires cost drag <= 50% of gross PnL; OL-0001 records cost_drag_fraction above that threshold."
-      },
-      {
         "metric_name": "walk_forward_efficiency",
         "expected_value": 0.5,
         "realized_value": 0.0,
@@ -155,7 +147,7 @@
     ]
   },
   "overall_verdict": "none_met",
-  "interpretation": "REC-0012 exercises the D2-006 expectation-source path against OL-0001 using only committed D2-006 source text and copied OL metrics. It remains descriptive, does not satisfy REC-5, and does not authorize policy, promotion, demotion, ranking, paper/live, scoring, runtime, deployment, OMS, risk, safe-mode, overlay, config, or protected-path action.",
+  "interpretation": "REC-0012 exercises the D2-006 expectation-source path against OL-0001 using only committed D2-006 source text and copied OL metrics. WP-10g corrects the non-positive-gross-PnL cost-drag comparison posture: cost_drag_fraction remains preserved as an extracted D2 gate but is not deterministically compared because OL-0001.metrics.gross_pnl <= 0 makes it semantically uninterpretable as a pass/fail ratio. REC-0012 remains descriptive, does not satisfy REC-5, and does not authorize policy, promotion, demotion, ranking, paper/live, scoring, runtime, deployment, OMS, risk, safe-mode, overlay, config, or protected-path action.",
   "derivation_record": {
     "derivation_method": "manual_retrospective_wp10b_d2_006_seed_v1",
     "source_artifact_id": "OL-0001",
@@ -168,6 +160,6 @@
   "retrospective_flag": true,
   "linked_advisory_artifacts": [],
   "linked_lifecycle_artifacts": [],
-  "notes": "WP-10b uses OL-0001 and committed D2-006 source text to seed the previously unexercised d2_006_gates REC expectation-source path without creating synthetic production evidence.",
-  "retrospective_disclosure": "WP-10b derives REC-0012 retrospectively from already committed OL-0001 and the committed D2-006 source at docs/onboarding/PHASE2_BASELINE.md to exercise the REC v1 d2_006_gates expectation-source path before any later bulk backfill. This entry preserves source limitations and carries no promotion, demotion, REC-5 satisfaction, paper/live, scoring, ranking, recommendation, policy, consumer, helper, runtime, deployment, OMS, risk, safe-mode, overlay, config, or protected-path authority."
+  "notes": "WP-10b uses OL-0001 and committed D2-006 source text to seed the previously unexercised d2_006_gates REC expectation-source path without creating synthetic production evidence. The original WP-10b seed compared cost_drag_fraction despite OL-0001.metrics.gross_pnl <= 0. WP-10g corrects REC-0012 to match the WP-10c non-positive-gross-PnL cost-drag semantics used by REC-0017 and REC-0019, preventing downstream exception propagation without creating schema, validator, query-layer, OL, EXP/REP, policy, scoring, ranking, paper/live, runtime, config, dependency, or protected-path authority.",
+  "retrospective_disclosure": "WP-10b derives REC-0012 retrospectively from already committed OL-0001 and the committed D2-006 source at docs/onboarding/PHASE2_BASELINE.md to exercise the REC v1 d2_006_gates expectation-source path before any later bulk backfill. WP-10g corrects the original seed's cost-drag comparison posture by preserving the extracted D2-006 cost-drag gate while excluding deterministic pass/fail comparison because OL-0001.metrics.gross_pnl <= 0 makes cost_drag_fraction semantically uninterpretable as a pass/fail ratio. This entry preserves source limitations and carries no promotion, demotion, REC-5 satisfaction, paper/live, scoring, ranking, recommendation, policy, consumer, helper, runtime, deployment, OMS, risk, safe-mode, overlay, config, dependency, or protected-path authority."
 }

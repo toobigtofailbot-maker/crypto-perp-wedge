@@ -54,14 +54,16 @@ For `REC-0012 -> OL-0001`, the deterministic mappings are:
 | Out-of-sample Sharpe >= 1.0 net of modeled costs | `sharpe` | numeric |
 | DSR > 1.0 at 95% confidence given actual trial count | `dsr` | numeric |
 | Max drawdown <= 20% in any walk-forward fold | `max_drawdown` | numeric |
-| Cost drag <= 50% of gross PnL | `cost_drag_fraction` | numeric |
+| Cost drag <= 50% of gross PnL | `cost_drag_fraction` | extracted-only when `gross_pnl <= 0` |
 | Walk-forward efficiency (OOS/IS Sharpe ratio) > 0.5 | `walk_forward_efficiency` | numeric |
 
 The following gates are preserved in `expectation_extracted` but are not
-compared for `REC-0012` because `OL-0001.metrics` does not include directly
-mapped realized values:
+compared for `REC-0012` because the referenced OL row either lacks a directly
+mapped realized value or makes the ratio semantically uninterpretable:
 
 - parameter sensitivity
+- cost drag, because `OL-0001.metrics.gross_pnl <= 0` makes
+  `cost_drag_fraction` semantically uninterpretable as a pass/fail ratio
 - 90-day PnL concentration
 - free parameter count
 
@@ -157,6 +159,20 @@ segment has `reconciliation_count = 1`. WP-10c creates no policy,
 promotion/demotion, ranking/recommendation, paper/live, evidence-scoring,
 runtime, deployment, config, OMS, risk, safe-mode, overlay, or protected-path
 authority.
+
+## WP-10g REC-0012 Cost-Drag Correction
+
+WP-10g corrects the original `REC-0012` seed so non-positive-gross-PnL
+cost-drag comparison posture is consistent across D2 rows. `REC-0012`,
+`REC-0017`, and `REC-0019` now preserve the D2-006 cost-drag expectation in
+`expectation_extracted` but skip deterministic pass/fail comparison because
+the referenced OL rows have `gross_pnl <= 0`.
+
+WP-10g changes no REC schema, REC validator, query-layer code, OL artifacts,
+EXP/REP artifacts, candidate registry, lifecycle artifacts, policy surface,
+paper/live semantics, evidence scoring, ranking/recommendation logic, runtime,
+deployment, config, dependency, OMS, risk, safe-mode, overlay, or
+protected-path behavior. REC-5 remains below floor for every current segment.
 
 ## Non-Claims
 

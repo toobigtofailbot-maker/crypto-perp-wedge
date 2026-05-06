@@ -18,10 +18,6 @@
     ],
     "compared_metrics": [
       {
-        "metric_name": "cost_drag_fraction",
-        "comparison_verdict": "not_met"
-      },
-      {
         "metric_name": "dsr",
         "comparison_verdict": "not_met"
       },
@@ -38,10 +34,10 @@
         "comparison_verdict": "not_met"
       }
     ],
-    "cost_drag_compared": true,
-    "cost_drag_compared_with_non_positive_gross_pnl": true,
-    "cost_drag_skipped_due_to_non_positive_gross_pnl": false,
-    "cost_drag_non_positive_gross_pnl_posture": "compared_despite_non_positive_gross_pnl_pre_wp10c_seed_requires_followup",
+    "cost_drag_compared": false,
+    "cost_drag_compared_with_non_positive_gross_pnl": false,
+    "cost_drag_skipped_due_to_non_positive_gross_pnl": true,
+    "cost_drag_non_positive_gross_pnl_posture": "skipped_due_to_non_positive_gross_pnl",
     "sensitivity_min_ratio_compared": false,
     "pnl_concentration_90d_extracted_only": true,
     "free_parameter_count_extracted_only": true,

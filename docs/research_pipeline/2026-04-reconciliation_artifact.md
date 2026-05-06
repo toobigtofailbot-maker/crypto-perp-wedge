@@ -347,6 +347,21 @@ query-layer code, policy surface, paper/live semantics, evidence-quality
 scoring, ranking/recommendation logic, runtime, deployment, config, OMS, risk,
 overlay, safe-mode, or live-trading behavior.
 
+## WP-10g REC-0012 Cost-Drag Correction
+
+WP-10g corrects the `REC-0012` D2-006 cost-drag comparison posture after WP-10d
+surfaced the pre-WP-10c seed anomaly. `REC-0012` now preserves the D2-006
+cost-drag gate in `expectation_extracted` but omits `cost_drag_fraction` from
+deterministic pass/fail comparison because `OL-0001.metrics.gross_pnl <= 0`
+makes the ratio semantically uninterpretable.
+
+The correction makes non-positive-gross-PnL cost-drag handling consistent
+across `REC-0012`, `REC-0017`, and `REC-0019`. It changes no REC schema, REC
+validator, query-layer code, OL artifacts, EXP/REP artifacts, policy surface,
+paper/live semantics, evidence-quality scoring, ranking/recommendation logic,
+runtime, deployment, config, OMS, risk, overlay, safe-mode, or live-trading
+behavior. REC-5 remains below floor for every current segment.
+
 ## Non-Claims
 
 REC v1 does not claim:

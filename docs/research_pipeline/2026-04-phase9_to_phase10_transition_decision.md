@@ -48,10 +48,12 @@ REC-0016 / OL-0005 / H-004 / pre_wp_5b / d2_006_gates / partially_met
 REC-0022 / OL-0011 / H-004 / post_wp_5b / d2_006_gates / partially_met
 ```
 
-- `REC-0012` remains known anomaly debt: a pre-WP-10c D2 seed that compares
-  cost drag despite `gross_pnl <= 0`, surfaced by WP-10d and locked by
-  WP-10e as
+- `REC-0012` was known anomaly debt after WP-10f: a pre-WP-10c D2 seed that
+  compared cost drag despite `gross_pnl <= 0`, surfaced by WP-10d and locked
+  by WP-10e as
   `compared_despite_non_positive_gross_pnl_pre_wp10c_seed_requires_followup`.
+  WP-10g corrected the artifact, so Phase 10 planning no longer needs to
+  carry this anomaly as open debt.
 
 ## Transition Decisions
 
@@ -86,15 +88,16 @@ Consequence:
 - Phase 10 cannot treat the current REC corpus as sufficient evidence for
   policy.
 
-### TD-3 - REC-0012 Anomaly Is Carried As Known Debt, Not Clean Evidence
+### TD-3 - REC-0012 Anomaly Was Carried As Known Debt Until WP-10g Correction
 
 Decision:
 
-- Do not silently reinterpret `REC-0012` as clean.
-- Do not correct `REC-0012` in WP-10f.
-- Any correction requires a future explicit artifact-correction package.
-- Any policy, scoring, or ranking package must either correct it first or
-  explicitly exclude it.
+- Do not silently reinterpret historical `REC-0012` anomaly text as clean.
+- WP-10f did not correct `REC-0012`; WP-10g later corrected it through an
+  explicit artifact-correction package.
+- Future Phase 10 planning no longer needs to carry the anomaly as open debt.
+- The correction does not create policy, scoring, ranking, paper/live, or
+  runtime authority.
 
 ### TD-4 - Forward-Flow Evidence Is Required Before Policy / Promotion / Demotion
 
@@ -110,7 +113,7 @@ Decision:
 
 Allowed immediate post-WP-10f package classes:
 
-1. `REC-0012` correction package.
+1. completed WP-10g `REC-0012` correction package.
 2. Forward-flow evidence plan.
 3. Phase 10 architecture plan.
 4. Evidence-generation design package.
@@ -131,7 +134,7 @@ Forbidden immediate package classes:
 
 Purpose:
 
-- Correct the pre-WP-10c cost-drag comparison anomaly in `REC-0012`.
+- Corrected the pre-WP-10c cost-drag comparison anomaly in `REC-0012`.
 
 Allowed scope:
 
@@ -176,7 +179,8 @@ Risks:
 
 Recommended posture:
 
-- If Main 3.0 prioritizes semantic cleanliness, choose Candidate A.
+- Main 3.0 prioritized semantic cleanliness and selected Candidate A as
+  WP-10g.
 - If Main 3.0 prioritizes evidence sufficiency, choose Candidate B.
 - If Main 3.0 prioritizes broader sequencing, choose Candidate C.
 - Do not choose policy, scoring, ranking, paper/live, or runtime as the
@@ -186,9 +190,9 @@ Recommended posture:
 
 Ask Main 3.0 to decide:
 
-1. Should `REC-0012` be corrected before any further consumer or planning work?
-2. Should the next package be a corrective artifact package, forward-flow
-   evidence plan, or Phase 10 architecture plan?
+1. WP-10g corrected `REC-0012` before further consumer or planning work.
+2. The next package after WP-10g should be the forward-flow evidence plan or
+   the Phase 10 architecture plan selected by Main 3.0.
 3. Are all downstream outputs still descriptive-only until REC-5 is satisfied?
 4. What evidence-generation path may create new REC-satisfying observations?
 5. What package classes remain forbidden?
@@ -200,7 +204,7 @@ Ask Main 3.0 to decide:
 Supported:
 
 - architecture planning.
-- known-debt tracking.
+- historical known-debt tracking.
 - floor-gap tracking.
 - forward-flow evidence planning.
 - descriptive research-machine inspection.
@@ -229,7 +233,7 @@ Unsupported:
 - Do not combine pre/post pipeline versions to satisfy REC-5.
 - Do not combine H-004 structural split rows to satisfy REC-5.
 - Do not use dual-source coverage as floor satisfaction.
-- Do not reinterpret `REC-0012` as clean without explicit correction.
+- `REC-0012` is clean only after the explicit WP-10g correction.
 - Future artifact correction must be explicit, narrow, and validator-backed.
 - Phase 10 implementation requires Main 3.0 authorization after WP-10f.
 

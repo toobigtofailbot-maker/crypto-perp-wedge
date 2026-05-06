@@ -119,24 +119,27 @@ or degradation inference, no pipeline-version performance comparison, and no
 promotion, demotion, ranking, recommendation, paper/live, policy, evidence
 scoring, or runtime inference.
 
-## D2 Comparison-Surface Anomaly Register
+## D2 Comparison-Surface Correction Register
 
 `REC-0017` and `REC-0019` correctly skip cost-drag pass/fail comparison
-because `gross_pnl <= 0`. Both rows have `overall_verdict = none_met`.
+because `gross_pnl <= 0`. WP-10d surfaced that `REC-0012` was a pre-WP-10c
+seed that still compared cost drag despite `gross_pnl <= 0`, and WP-10e locked
+that as open anomaly debt rather than accepted clean semantics.
 
-`REC-0012` is a pre-WP-10c seed that still compares cost drag despite
-`gross_pnl <= 0`. WP-10d surfaces `REC-0012` as:
+WP-10g corrects `REC-0012` to match the WP-10c non-positive-gross-PnL
+cost-drag semantics:
 
 ```text
-compared_despite_non_positive_gross_pnl_pre_wp10c_seed_requires_followup
+skipped_due_to_non_positive_gross_pnl
 ```
 
-WP-10e locks this as an open anomaly and follow-up candidate, not accepted
-clean semantics. WP-10e does not modify `REC-0012`. Any correction must be a
-separate explicitly scoped artifact-correction package.
+The current locked posture after WP-10g is clean non-positive-gross-PnL
+cost-drag handling for `REC-0012`, `REC-0017`, and `REC-0019`. All three rows
+preserve the extracted D2-006 cost-drag gate, skip deterministic pass/fail
+comparison, and retain `overall_verdict = none_met`.
 
 No policy, scoring, ranking, recommendation, paper/live, promotion, demotion,
-or runtime inference may use the anomaly.
+or runtime inference is created by the correction.
 
 ## Supported Descriptive Uses
 
@@ -179,8 +182,8 @@ Later packages must follow these rules:
 - do not combine expectation sources to satisfy REC-5.
 - do not combine pre/post pipeline versions to satisfy REC-5.
 - do not use dual-source coverage as evidence-floor satisfaction.
-- do not reinterpret the `REC-0012` anomaly as clean without explicit
-  correction.
+- treat the `REC-0012` anomaly as resolved only because WP-10g explicitly
+  corrected the artifact.
 - future REC artifact corrections require an explicit package with
   preservation and validation.
 - future policy, paper/live, scoring, ranking, recommendation, or runtime work
@@ -193,7 +196,7 @@ document. WP-10f must not implement Phase 10.
 
 WP-10f must explicitly decide whether to:
 
-- carry the `REC-0012` anomaly as known debt.
+- carry the historical WP-10d/WP-10e `REC-0012` anomaly as resolved by WP-10g.
 - schedule a corrective artifact package.
 - require forward-flow evidence before policy.
 - keep all downstream outputs descriptive-only.

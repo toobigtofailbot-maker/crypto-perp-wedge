@@ -616,6 +616,39 @@ def test_existing_query_layer_read_only_guard_still_rejects_writes(conn):
         run_sql(conn, "CREATE TABLE reconciliation_fixture AS SELECT 1 AS x")
 
 
+def test_committed_rec_cross_source_q05_cost_drag_non_positive_posture(conn):
+    q05_sql = (
+        query_layer.REPO_ROOT
+        / "research"
+        / "briefs"
+        / "2026-04-rec_cross_expectation_source_consumer"
+        / "queries"
+        / "Q05.sql"
+    ).read_text(encoding="utf-8")
+
+    rows = run_sql(conn, q05_sql)
+    posture_by_rec = {
+        row["reconciliation_id"]: row["cost_drag_non_positive_gross_pnl_posture"]
+        for row in rows
+    }
+    compared_with_non_positive = [
+        row["reconciliation_id"]
+        for row in rows
+        if row["cost_drag_non_positive_gross_pnl_posture"]
+        == "compared_despite_non_positive_gross_pnl_pre_wp10c_seed_requires_followup"
+    ]
+
+    assert {
+        rec_id: posture_by_rec[rec_id]
+        for rec_id in ("REC-0012", "REC-0017", "REC-0019")
+    } == {
+        "REC-0012": "skipped_due_to_non_positive_gross_pnl",
+        "REC-0017": "skipped_due_to_non_positive_gross_pnl",
+        "REC-0019": "skipped_due_to_non_positive_gross_pnl",
+    }
+    assert compared_with_non_positive == []
+
+
 def test_existing_outcome_ledger_behavior_preserved(conn):
     assert conn.execute("SELECT COUNT(*) FROM v_outcome_ledger_overview").fetchone()[0] == 11
     assert conn.execute(

@@ -1,0 +1,57 @@
+[
+  {
+    "posture_kind": "forbidden_next_package_class",
+    "posture_value": "EXP planning without Main 3.0 approval",
+    "wp10k_posture": "requires_later_explicit_main_3_0_authorization_or_remains_out_of_scope"
+  },
+  {
+    "posture_kind": "forbidden_next_package_class",
+    "posture_value": "policy/scoring/ranking/paper-live/runtime",
+    "wp10k_posture": "requires_later_explicit_main_3_0_authorization_or_remains_out_of_scope"
+  },
+  {
+    "posture_kind": "forbidden_output_field",
+    "posture_value": "paper_live_readiness",
+    "wp10k_posture": "excluded_from_wp10k_outputs"
+  },
+  {
+    "posture_kind": "forbidden_output_field",
+    "posture_value": "policy_action",
+    "wp10k_posture": "excluded_from_wp10k_outputs"
+  },
+  {
+    "posture_kind": "forbidden_output_field",
+    "posture_value": "promotion_status",
+    "wp10k_posture": "excluded_from_wp10k_outputs"
+  },
+  {
+    "posture_kind": "forbidden_output_field",
+    "posture_value": "rank",
+    "wp10k_posture": "excluded_from_wp10k_outputs"
+  },
+  {
+    "posture_kind": "forbidden_output_field",
+    "posture_value": "recommendation",
+    "wp10k_posture": "excluded_from_wp10k_outputs"
+  },
+  {
+    "posture_kind": "forbidden_output_field",
+    "posture_value": "runtime_action",
+    "wp10k_posture": "excluded_from_wp10k_outputs"
+  },
+  {
+    "posture_kind": "forbidden_output_field",
+    "posture_value": "score",
+    "wp10k_posture": "excluded_from_wp10k_outputs"
+  },
+  {
+    "posture_kind": "supported_next_package_class",
+    "posture_value": "candidate-selection eligibility matrix / rule application",
+    "wp10k_posture": "supported_as_future_bounded_planning_or_consumer_work"
+  },
+  {
+    "posture_kind": "supported_next_package_class",
+    "posture_value": "evidence-generation architecture detail",
+    "wp10k_posture": "supported_as_future_bounded_planning_or_consumer_work"
+  }
+]

@@ -1,0 +1,232 @@
+[
+  {
+    "candidate_id": "H-001",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "d2_006_gates",
+    "eligibility_status": "eligible_for_future_evidence_planning",
+    "eligibility_gate_results": "registry_presence=pass; integrity_blockers=pass; lifecycle_provenance=pass; ol_rec_artifact_presence=pass; target_segment_identified=pass; below_rec5=pass; retrospective_artifact_cloning_required=no; forbidden_scope_required=no",
+    "required_future_evidence_units": 2,
+    "blocked_reason": null
+  },
+  {
+    "candidate_id": "H-001",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "exp_success_criteria",
+    "eligibility_status": "eligible_for_future_evidence_planning",
+    "eligibility_gate_results": "registry_presence=pass; integrity_blockers=pass; lifecycle_provenance=pass; ol_rec_artifact_presence=pass; target_segment_identified=pass; below_rec5=pass; retrospective_artifact_cloning_required=no; forbidden_scope_required=no",
+    "required_future_evidence_units": 2,
+    "blocked_reason": null
+  },
+  {
+    "candidate_id": "H-002",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "d2_006_gates",
+    "eligibility_status": "eligible_for_future_evidence_planning",
+    "eligibility_gate_results": "registry_presence=pass; integrity_blockers=pass; lifecycle_provenance=pass; ol_rec_artifact_presence=pass; target_segment_identified=pass; below_rec5=pass; retrospective_artifact_cloning_required=no; forbidden_scope_required=no",
+    "required_future_evidence_units": 2,
+    "blocked_reason": null
+  },
+  {
+    "candidate_id": "H-002",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "exp_success_criteria",
+    "eligibility_status": "eligible_for_future_evidence_planning",
+    "eligibility_gate_results": "registry_presence=pass; integrity_blockers=pass; lifecycle_provenance=pass; ol_rec_artifact_presence=pass; target_segment_identified=pass; below_rec5=pass; retrospective_artifact_cloning_required=no; forbidden_scope_required=no",
+    "required_future_evidence_units": 2,
+    "blocked_reason": null
+  },
+  {
+    "candidate_id": "H-003",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "d2_006_gates",
+    "eligibility_status": "eligible_for_future_evidence_planning",
+    "eligibility_gate_results": "registry_presence=pass; integrity_blockers=pass; lifecycle_provenance=pass; ol_rec_artifact_presence=pass; target_segment_identified=pass; below_rec5=pass; retrospective_artifact_cloning_required=no; forbidden_scope_required=no",
+    "required_future_evidence_units": 2,
+    "blocked_reason": null
+  },
+  {
+    "candidate_id": "H-003",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "exp_success_criteria",
+    "eligibility_status": "eligible_for_future_evidence_planning",
+    "eligibility_gate_results": "registry_presence=pass; integrity_blockers=pass; lifecycle_provenance=pass; ol_rec_artifact_presence=pass; target_segment_identified=pass; below_rec5=pass; retrospective_artifact_cloning_required=no; forbidden_scope_required=no",
+    "required_future_evidence_units": 2,
+    "blocked_reason": null
+  },
+  {
+    "candidate_id": "H-004",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "post_wp_5b",
+    "target_expectation_source_type": "d2_006_gates",
+    "eligibility_status": "eligible_for_future_evidence_planning",
+    "eligibility_gate_results": "registry_presence=pass; integrity_blockers=pass; lifecycle_provenance=pass; ol_rec_artifact_presence=pass; target_segment_identified=pass; below_rec5=pass; retrospective_artifact_cloning_required=no; forbidden_scope_required=no",
+    "required_future_evidence_units": 2,
+    "blocked_reason": null
+  },
+  {
+    "candidate_id": "H-004",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "post_wp_5b",
+    "target_expectation_source_type": "exp_success_criteria",
+    "eligibility_status": "eligible_for_future_evidence_planning",
+    "eligibility_gate_results": "registry_presence=pass; integrity_blockers=pass; lifecycle_provenance=pass; ol_rec_artifact_presence=pass; target_segment_identified=pass; below_rec5=pass; retrospective_artifact_cloning_required=no; forbidden_scope_required=no",
+    "required_future_evidence_units": 2,
+    "blocked_reason": null
+  },
+  {
+    "candidate_id": "H-004",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "d2_006_gates",
+    "eligibility_status": "eligible_for_future_evidence_planning",
+    "eligibility_gate_results": "registry_presence=pass; integrity_blockers=pass; lifecycle_provenance=pass; ol_rec_artifact_presence=pass; target_segment_identified=pass; below_rec5=pass; retrospective_artifact_cloning_required=no; forbidden_scope_required=no",
+    "required_future_evidence_units": 2,
+    "blocked_reason": null
+  },
+  {
+    "candidate_id": "H-004",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "exp_success_criteria",
+    "eligibility_status": "eligible_for_future_evidence_planning",
+    "eligibility_gate_results": "registry_presence=pass; integrity_blockers=pass; lifecycle_provenance=pass; ol_rec_artifact_presence=pass; target_segment_identified=pass; below_rec5=pass; retrospective_artifact_cloning_required=no; forbidden_scope_required=no",
+    "required_future_evidence_units": 2,
+    "blocked_reason": null
+  },
+  {
+    "candidate_id": "H-005",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "d2_006_gates",
+    "eligibility_status": "eligible_for_future_evidence_planning",
+    "eligibility_gate_results": "registry_presence=pass; integrity_blockers=pass; lifecycle_provenance=pass; ol_rec_artifact_presence=pass; target_segment_identified=pass; below_rec5=pass; retrospective_artifact_cloning_required=no; forbidden_scope_required=no",
+    "required_future_evidence_units": 2,
+    "blocked_reason": null
+  },
+  {
+    "candidate_id": "H-005",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "exp_success_criteria",
+    "eligibility_status": "eligible_for_future_evidence_planning",
+    "eligibility_gate_results": "registry_presence=pass; integrity_blockers=pass; lifecycle_provenance=pass; ol_rec_artifact_presence=pass; target_segment_identified=pass; below_rec5=pass; retrospective_artifact_cloning_required=no; forbidden_scope_required=no",
+    "required_future_evidence_units": 2,
+    "blocked_reason": null
+  },
+  {
+    "candidate_id": "H-006",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "d2_006_gates",
+    "eligibility_status": "eligible_for_future_evidence_planning",
+    "eligibility_gate_results": "registry_presence=pass; integrity_blockers=pass; lifecycle_provenance=pass; ol_rec_artifact_presence=pass; target_segment_identified=pass; below_rec5=pass; retrospective_artifact_cloning_required=no; forbidden_scope_required=no",
+    "required_future_evidence_units": 2,
+    "blocked_reason": null
+  },
+  {
+    "candidate_id": "H-006",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "exp_success_criteria",
+    "eligibility_status": "eligible_for_future_evidence_planning",
+    "eligibility_gate_results": "registry_presence=pass; integrity_blockers=pass; lifecycle_provenance=pass; ol_rec_artifact_presence=pass; target_segment_identified=pass; below_rec5=pass; retrospective_artifact_cloning_required=no; forbidden_scope_required=no",
+    "required_future_evidence_units": 2,
+    "blocked_reason": null
+  },
+  {
+    "candidate_id": "H-007",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "d2_006_gates",
+    "eligibility_status": "eligible_for_future_evidence_planning",
+    "eligibility_gate_results": "registry_presence=pass; integrity_blockers=pass; lifecycle_provenance=pass; ol_rec_artifact_presence=pass; target_segment_identified=pass; below_rec5=pass; retrospective_artifact_cloning_required=no; forbidden_scope_required=no",
+    "required_future_evidence_units": 2,
+    "blocked_reason": null
+  },
+  {
+    "candidate_id": "H-007",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "exp_success_criteria",
+    "eligibility_status": "eligible_for_future_evidence_planning",
+    "eligibility_gate_results": "registry_presence=pass; integrity_blockers=pass; lifecycle_provenance=pass; ol_rec_artifact_presence=pass; target_segment_identified=pass; below_rec5=pass; retrospective_artifact_cloning_required=no; forbidden_scope_required=no",
+    "required_future_evidence_units": 2,
+    "blocked_reason": null
+  },
+  {
+    "candidate_id": "H-008",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "d2_006_gates",
+    "eligibility_status": "eligible_for_future_evidence_planning",
+    "eligibility_gate_results": "registry_presence=pass; integrity_blockers=pass; lifecycle_provenance=pass; ol_rec_artifact_presence=pass; target_segment_identified=pass; below_rec5=pass; retrospective_artifact_cloning_required=no; forbidden_scope_required=no",
+    "required_future_evidence_units": 2,
+    "blocked_reason": null
+  },
+  {
+    "candidate_id": "H-008",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "exp_success_criteria",
+    "eligibility_status": "eligible_for_future_evidence_planning",
+    "eligibility_gate_results": "registry_presence=pass; integrity_blockers=pass; lifecycle_provenance=pass; ol_rec_artifact_presence=pass; target_segment_identified=pass; below_rec5=pass; retrospective_artifact_cloning_required=no; forbidden_scope_required=no",
+    "required_future_evidence_units": 2,
+    "blocked_reason": null
+  },
+  {
+    "candidate_id": "H-009",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "d2_006_gates",
+    "eligibility_status": "eligible_for_future_evidence_planning",
+    "eligibility_gate_results": "registry_presence=pass; integrity_blockers=pass; lifecycle_provenance=pass; ol_rec_artifact_presence=pass; target_segment_identified=pass; below_rec5=pass; retrospective_artifact_cloning_required=no; forbidden_scope_required=no",
+    "required_future_evidence_units": 2,
+    "blocked_reason": null
+  },
+  {
+    "candidate_id": "H-009",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "exp_success_criteria",
+    "eligibility_status": "eligible_for_future_evidence_planning",
+    "eligibility_gate_results": "registry_presence=pass; integrity_blockers=pass; lifecycle_provenance=pass; ol_rec_artifact_presence=pass; target_segment_identified=pass; below_rec5=pass; retrospective_artifact_cloning_required=no; forbidden_scope_required=no",
+    "required_future_evidence_units": 2,
+    "blocked_reason": null
+  },
+  {
+    "candidate_id": "H-010",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "d2_006_gates",
+    "eligibility_status": "eligible_for_future_evidence_planning",
+    "eligibility_gate_results": "registry_presence=pass; integrity_blockers=pass; lifecycle_provenance=pass; ol_rec_artifact_presence=pass; target_segment_identified=pass; below_rec5=pass; retrospective_artifact_cloning_required=no; forbidden_scope_required=no",
+    "required_future_evidence_units": 2,
+    "blocked_reason": null
+  },
+  {
+    "candidate_id": "H-010",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "exp_success_criteria",
+    "eligibility_status": "eligible_for_future_evidence_planning",
+    "eligibility_gate_results": "registry_presence=pass; integrity_blockers=pass; lifecycle_provenance=pass; ol_rec_artifact_presence=pass; target_segment_identified=pass; below_rec5=pass; retrospective_artifact_cloning_required=no; forbidden_scope_required=no",
+    "required_future_evidence_units": 2,
+    "blocked_reason": null
+  },
+  {
+    "candidate_id": "H-011",
+    "target_outcome_kind": null,
+    "target_pipeline_version": null,
+    "target_expectation_source_type": null,
+    "eligibility_status": "not_applicable",
+    "eligibility_gate_results": "registry_presence=pass; integrity_blockers=pass; lifecycle_provenance=missing; ol_rec_artifact_presence=fail; target_segment_identified=fail; below_rec5=not_applicable; retrospective_artifact_cloning_required=no; forbidden_scope_required=no",
+    "required_future_evidence_units": null,
+    "blocked_reason": "no_current_ol_rec_target_segment"
+  }
+]

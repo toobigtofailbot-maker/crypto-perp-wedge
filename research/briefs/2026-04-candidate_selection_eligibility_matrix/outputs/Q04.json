@@ -1,0 +1,728 @@
+[
+  {
+    "candidate_id": "H-001",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "d2_006_gates",
+    "artifact_completeness_note": "available_ol_rec_segment_artifacts",
+    "lifecycle_completeness_note": "complete_three_transition_lifecycle_path",
+    "ol_rec_coverage_note": "ol_and_rec_coverage_present",
+    "strategy_family_availability_note": "strategy_family_available",
+    "strategy_family": "funding_directional",
+    "expectation_source_mapping_note": "expectation_source_mapping_clear",
+    "pipeline_version_clarity_note": "pipeline_version_clear",
+    "data_availability_note": "registry_timeframe_available",
+    "timeframe": "4h",
+    "lifecycle_transition_edges": [
+      "in_research->research_concluded",
+      "proposed->in_research",
+      "research_concluded->archived"
+    ],
+    "source_rep_ids": [
+      "REP-0002"
+    ],
+    "rec_ids": [
+      "REC-0012"
+    ],
+    "ol_ids": [
+      "OL-0001"
+    ],
+    "expectation_source_artifact_ids": [
+      "D2-006"
+    ],
+    "descriptive_tie_breaker_notes": "descriptive_inputs_only_no_score_rank_or_recommendation"
+  },
+  {
+    "candidate_id": "H-001",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "exp_success_criteria",
+    "artifact_completeness_note": "available_ol_rec_segment_artifacts",
+    "lifecycle_completeness_note": "complete_three_transition_lifecycle_path",
+    "ol_rec_coverage_note": "ol_and_rec_coverage_present",
+    "strategy_family_availability_note": "strategy_family_available",
+    "strategy_family": "funding_directional",
+    "expectation_source_mapping_note": "expectation_source_mapping_clear",
+    "pipeline_version_clarity_note": "pipeline_version_clear",
+    "data_availability_note": "registry_timeframe_available",
+    "timeframe": "4h",
+    "lifecycle_transition_edges": [
+      "in_research->research_concluded",
+      "proposed->in_research",
+      "research_concluded->archived"
+    ],
+    "source_rep_ids": [
+      "REP-0002"
+    ],
+    "rec_ids": [
+      "REC-0001"
+    ],
+    "ol_ids": [
+      "OL-0001"
+    ],
+    "expectation_source_artifact_ids": [
+      "EXP-0002"
+    ],
+    "descriptive_tie_breaker_notes": "descriptive_inputs_only_no_score_rank_or_recommendation"
+  },
+  {
+    "candidate_id": "H-002",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "d2_006_gates",
+    "artifact_completeness_note": "available_ol_rec_segment_artifacts",
+    "lifecycle_completeness_note": "complete_three_transition_lifecycle_path",
+    "ol_rec_coverage_note": "ol_and_rec_coverage_present",
+    "strategy_family_availability_note": "strategy_family_available",
+    "strategy_family": "trend_following",
+    "expectation_source_mapping_note": "expectation_source_mapping_clear",
+    "pipeline_version_clarity_note": "pipeline_version_clear",
+    "data_availability_note": "registry_timeframe_available",
+    "timeframe": "4h",
+    "lifecycle_transition_edges": [
+      "in_research->research_concluded",
+      "proposed->in_research",
+      "research_concluded->archived"
+    ],
+    "source_rep_ids": [
+      "REP-0003"
+    ],
+    "rec_ids": [
+      "REC-0014"
+    ],
+    "ol_ids": [
+      "OL-0003"
+    ],
+    "expectation_source_artifact_ids": [
+      "D2-006"
+    ],
+    "descriptive_tie_breaker_notes": "descriptive_inputs_only_no_score_rank_or_recommendation"
+  },
+  {
+    "candidate_id": "H-002",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "exp_success_criteria",
+    "artifact_completeness_note": "available_ol_rec_segment_artifacts",
+    "lifecycle_completeness_note": "complete_three_transition_lifecycle_path",
+    "ol_rec_coverage_note": "ol_and_rec_coverage_present",
+    "strategy_family_availability_note": "strategy_family_available",
+    "strategy_family": "trend_following",
+    "expectation_source_mapping_note": "expectation_source_mapping_clear",
+    "pipeline_version_clarity_note": "pipeline_version_clear",
+    "data_availability_note": "registry_timeframe_available",
+    "timeframe": "4h",
+    "lifecycle_transition_edges": [
+      "in_research->research_concluded",
+      "proposed->in_research",
+      "research_concluded->archived"
+    ],
+    "source_rep_ids": [
+      "REP-0003"
+    ],
+    "rec_ids": [
+      "REC-0003"
+    ],
+    "ol_ids": [
+      "OL-0003"
+    ],
+    "expectation_source_artifact_ids": [
+      "EXP-0003"
+    ],
+    "descriptive_tie_breaker_notes": "descriptive_inputs_only_no_score_rank_or_recommendation"
+  },
+  {
+    "candidate_id": "H-003",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "d2_006_gates",
+    "artifact_completeness_note": "available_ol_rec_segment_artifacts",
+    "lifecycle_completeness_note": "complete_three_transition_lifecycle_path",
+    "ol_rec_coverage_note": "ol_and_rec_coverage_present",
+    "strategy_family_availability_note": "strategy_family_available",
+    "strategy_family": "mean_reversion",
+    "expectation_source_mapping_note": "expectation_source_mapping_clear",
+    "pipeline_version_clarity_note": "pipeline_version_clear",
+    "data_availability_note": "registry_timeframe_available",
+    "timeframe": "1d",
+    "lifecycle_transition_edges": [
+      "in_research->research_concluded",
+      "proposed->in_research",
+      "research_concluded->archived"
+    ],
+    "source_rep_ids": [
+      "REP-0004"
+    ],
+    "rec_ids": [
+      "REC-0015"
+    ],
+    "ol_ids": [
+      "OL-0004"
+    ],
+    "expectation_source_artifact_ids": [
+      "D2-006"
+    ],
+    "descriptive_tie_breaker_notes": "descriptive_inputs_only_no_score_rank_or_recommendation"
+  },
+  {
+    "candidate_id": "H-003",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "exp_success_criteria",
+    "artifact_completeness_note": "available_ol_rec_segment_artifacts",
+    "lifecycle_completeness_note": "complete_three_transition_lifecycle_path",
+    "ol_rec_coverage_note": "ol_and_rec_coverage_present",
+    "strategy_family_availability_note": "strategy_family_available",
+    "strategy_family": "mean_reversion",
+    "expectation_source_mapping_note": "expectation_source_mapping_clear",
+    "pipeline_version_clarity_note": "pipeline_version_clear",
+    "data_availability_note": "registry_timeframe_available",
+    "timeframe": "1d",
+    "lifecycle_transition_edges": [
+      "in_research->research_concluded",
+      "proposed->in_research",
+      "research_concluded->archived"
+    ],
+    "source_rep_ids": [
+      "REP-0004"
+    ],
+    "rec_ids": [
+      "REC-0004"
+    ],
+    "ol_ids": [
+      "OL-0004"
+    ],
+    "expectation_source_artifact_ids": [
+      "EXP-0004"
+    ],
+    "descriptive_tie_breaker_notes": "descriptive_inputs_only_no_score_rank_or_recommendation"
+  },
+  {
+    "candidate_id": "H-004",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "post_wp_5b",
+    "target_expectation_source_type": "d2_006_gates",
+    "artifact_completeness_note": "available_ol_rec_segment_artifacts",
+    "lifecycle_completeness_note": "complete_three_transition_lifecycle_path",
+    "ol_rec_coverage_note": "ol_and_rec_coverage_present",
+    "strategy_family_availability_note": "strategy_family_available",
+    "strategy_family": "trend_following",
+    "expectation_source_mapping_note": "expectation_source_mapping_clear",
+    "pipeline_version_clarity_note": "pipeline_version_clear",
+    "data_availability_note": "registry_timeframe_available",
+    "timeframe": "1d",
+    "lifecycle_transition_edges": [
+      "in_research->research_concluded",
+      "proposed->in_research",
+      "research_concluded->archived"
+    ],
+    "source_rep_ids": [
+      "REP-0011"
+    ],
+    "rec_ids": [
+      "REC-0022"
+    ],
+    "ol_ids": [
+      "OL-0011"
+    ],
+    "expectation_source_artifact_ids": [
+      "D2-006"
+    ],
+    "descriptive_tie_breaker_notes": "descriptive_inputs_only_no_score_rank_or_recommendation"
+  },
+  {
+    "candidate_id": "H-004",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "post_wp_5b",
+    "target_expectation_source_type": "exp_success_criteria",
+    "artifact_completeness_note": "available_ol_rec_segment_artifacts",
+    "lifecycle_completeness_note": "complete_three_transition_lifecycle_path",
+    "ol_rec_coverage_note": "ol_and_rec_coverage_present",
+    "strategy_family_availability_note": "strategy_family_available",
+    "strategy_family": "trend_following",
+    "expectation_source_mapping_note": "expectation_source_mapping_clear",
+    "pipeline_version_clarity_note": "pipeline_version_clear",
+    "data_availability_note": "registry_timeframe_available",
+    "timeframe": "1d",
+    "lifecycle_transition_edges": [
+      "in_research->research_concluded",
+      "proposed->in_research",
+      "research_concluded->archived"
+    ],
+    "source_rep_ids": [
+      "REP-0011"
+    ],
+    "rec_ids": [
+      "REC-0011"
+    ],
+    "ol_ids": [
+      "OL-0011"
+    ],
+    "expectation_source_artifact_ids": [
+      "EXP-0011"
+    ],
+    "descriptive_tie_breaker_notes": "descriptive_inputs_only_no_score_rank_or_recommendation"
+  },
+  {
+    "candidate_id": "H-004",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "d2_006_gates",
+    "artifact_completeness_note": "available_ol_rec_segment_artifacts",
+    "lifecycle_completeness_note": "complete_three_transition_lifecycle_path",
+    "ol_rec_coverage_note": "ol_and_rec_coverage_present",
+    "strategy_family_availability_note": "strategy_family_available",
+    "strategy_family": "trend_following",
+    "expectation_source_mapping_note": "expectation_source_mapping_clear",
+    "pipeline_version_clarity_note": "pipeline_version_clear",
+    "data_availability_note": "registry_timeframe_available",
+    "timeframe": "1d",
+    "lifecycle_transition_edges": [
+      "in_research->research_concluded",
+      "proposed->in_research",
+      "research_concluded->archived"
+    ],
+    "source_rep_ids": [
+      "REP-0005"
+    ],
+    "rec_ids": [
+      "REC-0016"
+    ],
+    "ol_ids": [
+      "OL-0005"
+    ],
+    "expectation_source_artifact_ids": [
+      "D2-006"
+    ],
+    "descriptive_tie_breaker_notes": "descriptive_inputs_only_no_score_rank_or_recommendation"
+  },
+  {
+    "candidate_id": "H-004",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "exp_success_criteria",
+    "artifact_completeness_note": "available_ol_rec_segment_artifacts",
+    "lifecycle_completeness_note": "complete_three_transition_lifecycle_path",
+    "ol_rec_coverage_note": "ol_and_rec_coverage_present",
+    "strategy_family_availability_note": "strategy_family_available",
+    "strategy_family": "trend_following",
+    "expectation_source_mapping_note": "expectation_source_mapping_clear",
+    "pipeline_version_clarity_note": "pipeline_version_clear",
+    "data_availability_note": "registry_timeframe_available",
+    "timeframe": "1d",
+    "lifecycle_transition_edges": [
+      "in_research->research_concluded",
+      "proposed->in_research",
+      "research_concluded->archived"
+    ],
+    "source_rep_ids": [
+      "REP-0005"
+    ],
+    "rec_ids": [
+      "REC-0005"
+    ],
+    "ol_ids": [
+      "OL-0005"
+    ],
+    "expectation_source_artifact_ids": [
+      "EXP-0005"
+    ],
+    "descriptive_tie_breaker_notes": "descriptive_inputs_only_no_score_rank_or_recommendation"
+  },
+  {
+    "candidate_id": "H-005",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "d2_006_gates",
+    "artifact_completeness_note": "available_ol_rec_segment_artifacts",
+    "lifecycle_completeness_note": "complete_three_transition_lifecycle_path",
+    "ol_rec_coverage_note": "ol_and_rec_coverage_present",
+    "strategy_family_availability_note": "strategy_family_available",
+    "strategy_family": "momentum",
+    "expectation_source_mapping_note": "expectation_source_mapping_clear",
+    "pipeline_version_clarity_note": "pipeline_version_clear",
+    "data_availability_note": "registry_timeframe_available",
+    "timeframe": "1h",
+    "lifecycle_transition_edges": [
+      "in_research->research_concluded",
+      "proposed->in_research",
+      "research_concluded->archived"
+    ],
+    "source_rep_ids": [
+      "REP-0001"
+    ],
+    "rec_ids": [
+      "REC-0013"
+    ],
+    "ol_ids": [
+      "OL-0002"
+    ],
+    "expectation_source_artifact_ids": [
+      "D2-006"
+    ],
+    "descriptive_tie_breaker_notes": "descriptive_inputs_only_no_score_rank_or_recommendation"
+  },
+  {
+    "candidate_id": "H-005",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "exp_success_criteria",
+    "artifact_completeness_note": "available_ol_rec_segment_artifacts",
+    "lifecycle_completeness_note": "complete_three_transition_lifecycle_path",
+    "ol_rec_coverage_note": "ol_and_rec_coverage_present",
+    "strategy_family_availability_note": "strategy_family_available",
+    "strategy_family": "momentum",
+    "expectation_source_mapping_note": "expectation_source_mapping_clear",
+    "pipeline_version_clarity_note": "pipeline_version_clear",
+    "data_availability_note": "registry_timeframe_available",
+    "timeframe": "1h",
+    "lifecycle_transition_edges": [
+      "in_research->research_concluded",
+      "proposed->in_research",
+      "research_concluded->archived"
+    ],
+    "source_rep_ids": [
+      "REP-0001"
+    ],
+    "rec_ids": [
+      "REC-0002"
+    ],
+    "ol_ids": [
+      "OL-0002"
+    ],
+    "expectation_source_artifact_ids": [
+      "EXP-0001"
+    ],
+    "descriptive_tie_breaker_notes": "descriptive_inputs_only_no_score_rank_or_recommendation"
+  },
+  {
+    "candidate_id": "H-006",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "d2_006_gates",
+    "artifact_completeness_note": "available_ol_rec_segment_artifacts",
+    "lifecycle_completeness_note": "complete_three_transition_lifecycle_path",
+    "ol_rec_coverage_note": "ol_and_rec_coverage_present",
+    "strategy_family_availability_note": "strategy_family_available",
+    "strategy_family": "breakout",
+    "expectation_source_mapping_note": "expectation_source_mapping_clear",
+    "pipeline_version_clarity_note": "pipeline_version_clear",
+    "data_availability_note": "registry_timeframe_available",
+    "timeframe": "30m",
+    "lifecycle_transition_edges": [
+      "in_research->research_concluded",
+      "proposed->in_research",
+      "research_concluded->archived"
+    ],
+    "source_rep_ids": [
+      "REP-0006"
+    ],
+    "rec_ids": [
+      "REC-0017"
+    ],
+    "ol_ids": [
+      "OL-0006"
+    ],
+    "expectation_source_artifact_ids": [
+      "D2-006"
+    ],
+    "descriptive_tie_breaker_notes": "descriptive_inputs_only_no_score_rank_or_recommendation"
+  },
+  {
+    "candidate_id": "H-006",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "exp_success_criteria",
+    "artifact_completeness_note": "available_ol_rec_segment_artifacts",
+    "lifecycle_completeness_note": "complete_three_transition_lifecycle_path",
+    "ol_rec_coverage_note": "ol_and_rec_coverage_present",
+    "strategy_family_availability_note": "strategy_family_available",
+    "strategy_family": "breakout",
+    "expectation_source_mapping_note": "expectation_source_mapping_clear",
+    "pipeline_version_clarity_note": "pipeline_version_clear",
+    "data_availability_note": "registry_timeframe_available",
+    "timeframe": "30m",
+    "lifecycle_transition_edges": [
+      "in_research->research_concluded",
+      "proposed->in_research",
+      "research_concluded->archived"
+    ],
+    "source_rep_ids": [
+      "REP-0006"
+    ],
+    "rec_ids": [
+      "REC-0006"
+    ],
+    "ol_ids": [
+      "OL-0006"
+    ],
+    "expectation_source_artifact_ids": [
+      "EXP-0006"
+    ],
+    "descriptive_tie_breaker_notes": "descriptive_inputs_only_no_score_rank_or_recommendation"
+  },
+  {
+    "candidate_id": "H-007",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "d2_006_gates",
+    "artifact_completeness_note": "available_ol_rec_segment_artifacts",
+    "lifecycle_completeness_note": "complete_three_transition_lifecycle_path",
+    "ol_rec_coverage_note": "ol_and_rec_coverage_present",
+    "strategy_family_availability_note": "strategy_family_available",
+    "strategy_family": "funding_momentum_composite",
+    "expectation_source_mapping_note": "expectation_source_mapping_clear",
+    "pipeline_version_clarity_note": "pipeline_version_clear",
+    "data_availability_note": "registry_timeframe_available",
+    "timeframe": "4h",
+    "lifecycle_transition_edges": [
+      "in_research->research_concluded",
+      "proposed->in_research",
+      "research_concluded->archived"
+    ],
+    "source_rep_ids": [
+      "REP-0007"
+    ],
+    "rec_ids": [
+      "REC-0018"
+    ],
+    "ol_ids": [
+      "OL-0007"
+    ],
+    "expectation_source_artifact_ids": [
+      "D2-006"
+    ],
+    "descriptive_tie_breaker_notes": "descriptive_inputs_only_no_score_rank_or_recommendation"
+  },
+  {
+    "candidate_id": "H-007",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "exp_success_criteria",
+    "artifact_completeness_note": "available_ol_rec_segment_artifacts",
+    "lifecycle_completeness_note": "complete_three_transition_lifecycle_path",
+    "ol_rec_coverage_note": "ol_and_rec_coverage_present",
+    "strategy_family_availability_note": "strategy_family_available",
+    "strategy_family": "funding_momentum_composite",
+    "expectation_source_mapping_note": "expectation_source_mapping_clear",
+    "pipeline_version_clarity_note": "pipeline_version_clear",
+    "data_availability_note": "registry_timeframe_available",
+    "timeframe": "4h",
+    "lifecycle_transition_edges": [
+      "in_research->research_concluded",
+      "proposed->in_research",
+      "research_concluded->archived"
+    ],
+    "source_rep_ids": [
+      "REP-0007"
+    ],
+    "rec_ids": [
+      "REC-0007"
+    ],
+    "ol_ids": [
+      "OL-0007"
+    ],
+    "expectation_source_artifact_ids": [
+      "EXP-0007"
+    ],
+    "descriptive_tie_breaker_notes": "descriptive_inputs_only_no_score_rank_or_recommendation"
+  },
+  {
+    "candidate_id": "H-008",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "d2_006_gates",
+    "artifact_completeness_note": "available_ol_rec_segment_artifacts",
+    "lifecycle_completeness_note": "complete_three_transition_lifecycle_path",
+    "ol_rec_coverage_note": "ol_and_rec_coverage_present",
+    "strategy_family_availability_note": "strategy_family_available",
+    "strategy_family": "momentum",
+    "expectation_source_mapping_note": "expectation_source_mapping_clear",
+    "pipeline_version_clarity_note": "pipeline_version_clear",
+    "data_availability_note": "registry_timeframe_available",
+    "timeframe": "1h",
+    "lifecycle_transition_edges": [
+      "in_research->research_concluded",
+      "proposed->in_research",
+      "research_concluded->archived"
+    ],
+    "source_rep_ids": [
+      "REP-0008"
+    ],
+    "rec_ids": [
+      "REC-0019"
+    ],
+    "ol_ids": [
+      "OL-0008"
+    ],
+    "expectation_source_artifact_ids": [
+      "D2-006"
+    ],
+    "descriptive_tie_breaker_notes": "descriptive_inputs_only_no_score_rank_or_recommendation"
+  },
+  {
+    "candidate_id": "H-008",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "exp_success_criteria",
+    "artifact_completeness_note": "available_ol_rec_segment_artifacts",
+    "lifecycle_completeness_note": "complete_three_transition_lifecycle_path",
+    "ol_rec_coverage_note": "ol_and_rec_coverage_present",
+    "strategy_family_availability_note": "strategy_family_available",
+    "strategy_family": "momentum",
+    "expectation_source_mapping_note": "expectation_source_mapping_clear",
+    "pipeline_version_clarity_note": "pipeline_version_clear",
+    "data_availability_note": "registry_timeframe_available",
+    "timeframe": "1h",
+    "lifecycle_transition_edges": [
+      "in_research->research_concluded",
+      "proposed->in_research",
+      "research_concluded->archived"
+    ],
+    "source_rep_ids": [
+      "REP-0008"
+    ],
+    "rec_ids": [
+      "REC-0008"
+    ],
+    "ol_ids": [
+      "OL-0008"
+    ],
+    "expectation_source_artifact_ids": [
+      "EXP-0008"
+    ],
+    "descriptive_tie_breaker_notes": "descriptive_inputs_only_no_score_rank_or_recommendation"
+  },
+  {
+    "candidate_id": "H-009",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "d2_006_gates",
+    "artifact_completeness_note": "available_ol_rec_segment_artifacts",
+    "lifecycle_completeness_note": "complete_three_transition_lifecycle_path",
+    "ol_rec_coverage_note": "ol_and_rec_coverage_present",
+    "strategy_family_availability_note": "strategy_family_available",
+    "strategy_family": "multi_tf_alignment",
+    "expectation_source_mapping_note": "expectation_source_mapping_clear",
+    "pipeline_version_clarity_note": "pipeline_version_clear",
+    "data_availability_note": "registry_timeframe_available",
+    "timeframe": "30m",
+    "lifecycle_transition_edges": [
+      "in_research->research_concluded",
+      "proposed->in_research",
+      "research_concluded->archived"
+    ],
+    "source_rep_ids": [
+      "REP-0009"
+    ],
+    "rec_ids": [
+      "REC-0020"
+    ],
+    "ol_ids": [
+      "OL-0009"
+    ],
+    "expectation_source_artifact_ids": [
+      "D2-006"
+    ],
+    "descriptive_tie_breaker_notes": "descriptive_inputs_only_no_score_rank_or_recommendation"
+  },
+  {
+    "candidate_id": "H-009",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "exp_success_criteria",
+    "artifact_completeness_note": "available_ol_rec_segment_artifacts",
+    "lifecycle_completeness_note": "complete_three_transition_lifecycle_path",
+    "ol_rec_coverage_note": "ol_and_rec_coverage_present",
+    "strategy_family_availability_note": "strategy_family_available",
+    "strategy_family": "multi_tf_alignment",
+    "expectation_source_mapping_note": "expectation_source_mapping_clear",
+    "pipeline_version_clarity_note": "pipeline_version_clear",
+    "data_availability_note": "registry_timeframe_available",
+    "timeframe": "30m",
+    "lifecycle_transition_edges": [
+      "in_research->research_concluded",
+      "proposed->in_research",
+      "research_concluded->archived"
+    ],
+    "source_rep_ids": [
+      "REP-0009"
+    ],
+    "rec_ids": [
+      "REC-0009"
+    ],
+    "ol_ids": [
+      "OL-0009"
+    ],
+    "expectation_source_artifact_ids": [
+      "EXP-0009"
+    ],
+    "descriptive_tie_breaker_notes": "descriptive_inputs_only_no_score_rank_or_recommendation"
+  },
+  {
+    "candidate_id": "H-010",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "d2_006_gates",
+    "artifact_completeness_note": "available_ol_rec_segment_artifacts",
+    "lifecycle_completeness_note": "complete_three_transition_lifecycle_path",
+    "ol_rec_coverage_note": "ol_and_rec_coverage_present",
+    "strategy_family_availability_note": "strategy_family_available",
+    "strategy_family": "basis_mean_reversion",
+    "expectation_source_mapping_note": "expectation_source_mapping_clear",
+    "pipeline_version_clarity_note": "pipeline_version_clear",
+    "data_availability_note": "registry_timeframe_available",
+    "timeframe": "4h",
+    "lifecycle_transition_edges": [
+      "in_research->research_concluded",
+      "proposed->in_research",
+      "research_concluded->archived"
+    ],
+    "source_rep_ids": [
+      "REP-0010"
+    ],
+    "rec_ids": [
+      "REC-0021"
+    ],
+    "ol_ids": [
+      "OL-0010"
+    ],
+    "expectation_source_artifact_ids": [
+      "D2-006"
+    ],
+    "descriptive_tie_breaker_notes": "descriptive_inputs_only_no_score_rank_or_recommendation"
+  },
+  {
+    "candidate_id": "H-010",
+    "target_outcome_kind": "research_oos",
+    "target_pipeline_version": "pre_wp_5b",
+    "target_expectation_source_type": "exp_success_criteria",
+    "artifact_completeness_note": "available_ol_rec_segment_artifacts",
+    "lifecycle_completeness_note": "complete_three_transition_lifecycle_path",
+    "ol_rec_coverage_note": "ol_and_rec_coverage_present",
+    "strategy_family_availability_note": "strategy_family_available",
+    "strategy_family": "basis_mean_reversion",
+    "expectation_source_mapping_note": "expectation_source_mapping_clear",
+    "pipeline_version_clarity_note": "pipeline_version_clear",
+    "data_availability_note": "registry_timeframe_available",
+    "timeframe": "4h",
+    "lifecycle_transition_edges": [
+      "in_research->research_concluded",
+      "proposed->in_research",
+      "research_concluded->archived"
+    ],
+    "source_rep_ids": [
+      "REP-0010"
+    ],
+    "rec_ids": [
+      "REC-0010"
+    ],
+    "ol_ids": [
+      "OL-0010"
+    ],
+    "expectation_source_artifact_ids": [
+      "EXP-0010"
+    ],
+    "descriptive_tie_breaker_notes": "descriptive_inputs_only_no_score_rank_or_recommendation"
+  }
+]

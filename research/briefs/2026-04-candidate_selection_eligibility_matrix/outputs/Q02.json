@@ -1,0 +1,288 @@
+[
+  {
+    "candidate_id": "H-001",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "d2_006_gates",
+    "reconciliation_count": 1,
+    "rec5_target": 3,
+    "additional_observations_needed": 2,
+    "rec5_status": "BELOW_FLOOR",
+    "overall_verdicts": [
+      "none_met"
+    ]
+  },
+  {
+    "candidate_id": "H-001",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "exp_success_criteria",
+    "reconciliation_count": 1,
+    "rec5_target": 3,
+    "additional_observations_needed": 2,
+    "rec5_status": "BELOW_FLOOR",
+    "overall_verdicts": [
+      "none_met"
+    ]
+  },
+  {
+    "candidate_id": "H-002",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "d2_006_gates",
+    "reconciliation_count": 1,
+    "rec5_target": 3,
+    "additional_observations_needed": 2,
+    "rec5_status": "BELOW_FLOOR",
+    "overall_verdicts": [
+      "partially_met"
+    ]
+  },
+  {
+    "candidate_id": "H-002",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "exp_success_criteria",
+    "reconciliation_count": 1,
+    "rec5_target": 3,
+    "additional_observations_needed": 2,
+    "rec5_status": "BELOW_FLOOR",
+    "overall_verdicts": [
+      "partially_met"
+    ]
+  },
+  {
+    "candidate_id": "H-003",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "d2_006_gates",
+    "reconciliation_count": 1,
+    "rec5_target": 3,
+    "additional_observations_needed": 2,
+    "rec5_status": "BELOW_FLOOR",
+    "overall_verdicts": [
+      "partially_met"
+    ]
+  },
+  {
+    "candidate_id": "H-003",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "exp_success_criteria",
+    "reconciliation_count": 1,
+    "rec5_target": 3,
+    "additional_observations_needed": 2,
+    "rec5_status": "BELOW_FLOOR",
+    "overall_verdicts": [
+      "partially_met"
+    ]
+  },
+  {
+    "candidate_id": "H-004",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "post_wp_5b",
+    "expectation_source_type": "d2_006_gates",
+    "reconciliation_count": 1,
+    "rec5_target": 3,
+    "additional_observations_needed": 2,
+    "rec5_status": "BELOW_FLOOR",
+    "overall_verdicts": [
+      "partially_met"
+    ]
+  },
+  {
+    "candidate_id": "H-004",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "post_wp_5b",
+    "expectation_source_type": "exp_success_criteria",
+    "reconciliation_count": 1,
+    "rec5_target": 3,
+    "additional_observations_needed": 2,
+    "rec5_status": "BELOW_FLOOR",
+    "overall_verdicts": [
+      "insufficient_evidence"
+    ]
+  },
+  {
+    "candidate_id": "H-004",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "d2_006_gates",
+    "reconciliation_count": 1,
+    "rec5_target": 3,
+    "additional_observations_needed": 2,
+    "rec5_status": "BELOW_FLOOR",
+    "overall_verdicts": [
+      "partially_met"
+    ]
+  },
+  {
+    "candidate_id": "H-004",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "exp_success_criteria",
+    "reconciliation_count": 1,
+    "rec5_target": 3,
+    "additional_observations_needed": 2,
+    "rec5_status": "BELOW_FLOOR",
+    "overall_verdicts": [
+      "partially_met"
+    ]
+  },
+  {
+    "candidate_id": "H-005",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "d2_006_gates",
+    "reconciliation_count": 1,
+    "rec5_target": 3,
+    "additional_observations_needed": 2,
+    "rec5_status": "BELOW_FLOOR",
+    "overall_verdicts": [
+      "partially_met"
+    ]
+  },
+  {
+    "candidate_id": "H-005",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "exp_success_criteria",
+    "reconciliation_count": 1,
+    "rec5_target": 3,
+    "additional_observations_needed": 2,
+    "rec5_status": "BELOW_FLOOR",
+    "overall_verdicts": [
+      "partially_met"
+    ]
+  },
+  {
+    "candidate_id": "H-006",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "d2_006_gates",
+    "reconciliation_count": 1,
+    "rec5_target": 3,
+    "additional_observations_needed": 2,
+    "rec5_status": "BELOW_FLOOR",
+    "overall_verdicts": [
+      "none_met"
+    ]
+  },
+  {
+    "candidate_id": "H-006",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "exp_success_criteria",
+    "reconciliation_count": 1,
+    "rec5_target": 3,
+    "additional_observations_needed": 2,
+    "rec5_status": "BELOW_FLOOR",
+    "overall_verdicts": [
+      "partially_met"
+    ]
+  },
+  {
+    "candidate_id": "H-007",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "d2_006_gates",
+    "reconciliation_count": 1,
+    "rec5_target": 3,
+    "additional_observations_needed": 2,
+    "rec5_status": "BELOW_FLOOR",
+    "overall_verdicts": [
+      "none_met"
+    ]
+  },
+  {
+    "candidate_id": "H-007",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "exp_success_criteria",
+    "reconciliation_count": 1,
+    "rec5_target": 3,
+    "additional_observations_needed": 2,
+    "rec5_status": "BELOW_FLOOR",
+    "overall_verdicts": [
+      "none_met"
+    ]
+  },
+  {
+    "candidate_id": "H-008",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "d2_006_gates",
+    "reconciliation_count": 1,
+    "rec5_target": 3,
+    "additional_observations_needed": 2,
+    "rec5_status": "BELOW_FLOOR",
+    "overall_verdicts": [
+      "none_met"
+    ]
+  },
+  {
+    "candidate_id": "H-008",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "exp_success_criteria",
+    "reconciliation_count": 1,
+    "rec5_target": 3,
+    "additional_observations_needed": 2,
+    "rec5_status": "BELOW_FLOOR",
+    "overall_verdicts": [
+      "partially_met"
+    ]
+  },
+  {
+    "candidate_id": "H-009",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "d2_006_gates",
+    "reconciliation_count": 1,
+    "rec5_target": 3,
+    "additional_observations_needed": 2,
+    "rec5_status": "BELOW_FLOOR",
+    "overall_verdicts": [
+      "none_met"
+    ]
+  },
+  {
+    "candidate_id": "H-009",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "exp_success_criteria",
+    "reconciliation_count": 1,
+    "rec5_target": 3,
+    "additional_observations_needed": 2,
+    "rec5_status": "BELOW_FLOOR",
+    "overall_verdicts": [
+      "none_met"
+    ]
+  },
+  {
+    "candidate_id": "H-010",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "d2_006_gates",
+    "reconciliation_count": 1,
+    "rec5_target": 3,
+    "additional_observations_needed": 2,
+    "rec5_status": "BELOW_FLOOR",
+    "overall_verdicts": [
+      "partially_met"
+    ]
+  },
+  {
+    "candidate_id": "H-010",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "pre_wp_5b",
+    "expectation_source_type": "exp_success_criteria",
+    "reconciliation_count": 1,
+    "rec5_target": 3,
+    "additional_observations_needed": 2,
+    "rec5_status": "BELOW_FLOOR",
+    "overall_verdicts": [
+      "partially_met"
+    ]
+  }
+]

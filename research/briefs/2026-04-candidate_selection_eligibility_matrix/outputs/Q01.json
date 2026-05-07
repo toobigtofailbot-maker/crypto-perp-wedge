@@ -1,0 +1,385 @@
+[
+  {
+    "candidate_id": "H-001",
+    "registry_present": true,
+    "registry_status": "CONCLUDED",
+    "registry_pipeline_stage": "baseline_tested",
+    "strategy_family": "funding_directional",
+    "timeframe": "4h",
+    "lifecycle_change_count": 3,
+    "lifecycle_coverage_present": true,
+    "lifecycle_transition_edges": [
+      "in_research->research_concluded",
+      "proposed->in_research",
+      "research_concluded->archived"
+    ],
+    "ol_row_count": 1,
+    "ol_coverage_present": true,
+    "ol_outcome_kinds": [
+      "research_oos"
+    ],
+    "ol_pipeline_versions": [
+      "pre_wp_5b"
+    ],
+    "rec_row_count": 2,
+    "rec_coverage_present": true,
+    "rec_outcome_kinds": [
+      "research_oos"
+    ],
+    "rec_pipeline_versions": [
+      "pre_wp_5b"
+    ],
+    "rec_expectation_source_types": [
+      "d2_006_gates",
+      "exp_success_criteria"
+    ],
+    "registry_present_but_missing_ol_or_rec_coverage": false
+  },
+  {
+    "candidate_id": "H-002",
+    "registry_present": true,
+    "registry_status": "CONCLUDED",
+    "registry_pipeline_stage": "baseline_tested",
+    "strategy_family": "trend_following",
+    "timeframe": "4h",
+    "lifecycle_change_count": 3,
+    "lifecycle_coverage_present": true,
+    "lifecycle_transition_edges": [
+      "in_research->research_concluded",
+      "proposed->in_research",
+      "research_concluded->archived"
+    ],
+    "ol_row_count": 1,
+    "ol_coverage_present": true,
+    "ol_outcome_kinds": [
+      "research_oos"
+    ],
+    "ol_pipeline_versions": [
+      "pre_wp_5b"
+    ],
+    "rec_row_count": 2,
+    "rec_coverage_present": true,
+    "rec_outcome_kinds": [
+      "research_oos"
+    ],
+    "rec_pipeline_versions": [
+      "pre_wp_5b"
+    ],
+    "rec_expectation_source_types": [
+      "d2_006_gates",
+      "exp_success_criteria"
+    ],
+    "registry_present_but_missing_ol_or_rec_coverage": false
+  },
+  {
+    "candidate_id": "H-003",
+    "registry_present": true,
+    "registry_status": "CONCLUDED",
+    "registry_pipeline_stage": "baseline_tested",
+    "strategy_family": "mean_reversion",
+    "timeframe": "1d",
+    "lifecycle_change_count": 3,
+    "lifecycle_coverage_present": true,
+    "lifecycle_transition_edges": [
+      "in_research->research_concluded",
+      "proposed->in_research",
+      "research_concluded->archived"
+    ],
+    "ol_row_count": 1,
+    "ol_coverage_present": true,
+    "ol_outcome_kinds": [
+      "research_oos"
+    ],
+    "ol_pipeline_versions": [
+      "pre_wp_5b"
+    ],
+    "rec_row_count": 2,
+    "rec_coverage_present": true,
+    "rec_outcome_kinds": [
+      "research_oos"
+    ],
+    "rec_pipeline_versions": [
+      "pre_wp_5b"
+    ],
+    "rec_expectation_source_types": [
+      "d2_006_gates",
+      "exp_success_criteria"
+    ],
+    "registry_present_but_missing_ol_or_rec_coverage": false
+  },
+  {
+    "candidate_id": "H-004",
+    "registry_present": true,
+    "registry_status": "CONCLUDED",
+    "registry_pipeline_stage": "baseline_tested",
+    "strategy_family": "trend_following",
+    "timeframe": "1d",
+    "lifecycle_change_count": 3,
+    "lifecycle_coverage_present": true,
+    "lifecycle_transition_edges": [
+      "in_research->research_concluded",
+      "proposed->in_research",
+      "research_concluded->archived"
+    ],
+    "ol_row_count": 2,
+    "ol_coverage_present": true,
+    "ol_outcome_kinds": [
+      "research_oos"
+    ],
+    "ol_pipeline_versions": [
+      "post_wp_5b",
+      "pre_wp_5b"
+    ],
+    "rec_row_count": 4,
+    "rec_coverage_present": true,
+    "rec_outcome_kinds": [
+      "research_oos"
+    ],
+    "rec_pipeline_versions": [
+      "post_wp_5b",
+      "pre_wp_5b"
+    ],
+    "rec_expectation_source_types": [
+      "d2_006_gates",
+      "exp_success_criteria"
+    ],
+    "registry_present_but_missing_ol_or_rec_coverage": false
+  },
+  {
+    "candidate_id": "H-005",
+    "registry_present": true,
+    "registry_status": "CONCLUDED",
+    "registry_pipeline_stage": "baseline_tested",
+    "strategy_family": "momentum",
+    "timeframe": "1h",
+    "lifecycle_change_count": 3,
+    "lifecycle_coverage_present": true,
+    "lifecycle_transition_edges": [
+      "in_research->research_concluded",
+      "proposed->in_research",
+      "research_concluded->archived"
+    ],
+    "ol_row_count": 1,
+    "ol_coverage_present": true,
+    "ol_outcome_kinds": [
+      "research_oos"
+    ],
+    "ol_pipeline_versions": [
+      "pre_wp_5b"
+    ],
+    "rec_row_count": 2,
+    "rec_coverage_present": true,
+    "rec_outcome_kinds": [
+      "research_oos"
+    ],
+    "rec_pipeline_versions": [
+      "pre_wp_5b"
+    ],
+    "rec_expectation_source_types": [
+      "d2_006_gates",
+      "exp_success_criteria"
+    ],
+    "registry_present_but_missing_ol_or_rec_coverage": false
+  },
+  {
+    "candidate_id": "H-006",
+    "registry_present": true,
+    "registry_status": "CONCLUDED",
+    "registry_pipeline_stage": "baseline_tested",
+    "strategy_family": "breakout",
+    "timeframe": "30m",
+    "lifecycle_change_count": 3,
+    "lifecycle_coverage_present": true,
+    "lifecycle_transition_edges": [
+      "in_research->research_concluded",
+      "proposed->in_research",
+      "research_concluded->archived"
+    ],
+    "ol_row_count": 1,
+    "ol_coverage_present": true,
+    "ol_outcome_kinds": [
+      "research_oos"
+    ],
+    "ol_pipeline_versions": [
+      "pre_wp_5b"
+    ],
+    "rec_row_count": 2,
+    "rec_coverage_present": true,
+    "rec_outcome_kinds": [
+      "research_oos"
+    ],
+    "rec_pipeline_versions": [
+      "pre_wp_5b"
+    ],
+    "rec_expectation_source_types": [
+      "d2_006_gates",
+      "exp_success_criteria"
+    ],
+    "registry_present_but_missing_ol_or_rec_coverage": false
+  },
+  {
+    "candidate_id": "H-007",
+    "registry_present": true,
+    "registry_status": "CONCLUDED",
+    "registry_pipeline_stage": "baseline_tested",
+    "strategy_family": "funding_momentum_composite",
+    "timeframe": "4h",
+    "lifecycle_change_count": 3,
+    "lifecycle_coverage_present": true,
+    "lifecycle_transition_edges": [
+      "in_research->research_concluded",
+      "proposed->in_research",
+      "research_concluded->archived"
+    ],
+    "ol_row_count": 1,
+    "ol_coverage_present": true,
+    "ol_outcome_kinds": [
+      "research_oos"
+    ],
+    "ol_pipeline_versions": [
+      "pre_wp_5b"
+    ],
+    "rec_row_count": 2,
+    "rec_coverage_present": true,
+    "rec_outcome_kinds": [
+      "research_oos"
+    ],
+    "rec_pipeline_versions": [
+      "pre_wp_5b"
+    ],
+    "rec_expectation_source_types": [
+      "d2_006_gates",
+      "exp_success_criteria"
+    ],
+    "registry_present_but_missing_ol_or_rec_coverage": false
+  },
+  {
+    "candidate_id": "H-008",
+    "registry_present": true,
+    "registry_status": "CONCLUDED",
+    "registry_pipeline_stage": "baseline_tested",
+    "strategy_family": "momentum",
+    "timeframe": "1h",
+    "lifecycle_change_count": 3,
+    "lifecycle_coverage_present": true,
+    "lifecycle_transition_edges": [
+      "in_research->research_concluded",
+      "proposed->in_research",
+      "research_concluded->archived"
+    ],
+    "ol_row_count": 1,
+    "ol_coverage_present": true,
+    "ol_outcome_kinds": [
+      "research_oos"
+    ],
+    "ol_pipeline_versions": [
+      "pre_wp_5b"
+    ],
+    "rec_row_count": 2,
+    "rec_coverage_present": true,
+    "rec_outcome_kinds": [
+      "research_oos"
+    ],
+    "rec_pipeline_versions": [
+      "pre_wp_5b"
+    ],
+    "rec_expectation_source_types": [
+      "d2_006_gates",
+      "exp_success_criteria"
+    ],
+    "registry_present_but_missing_ol_or_rec_coverage": false
+  },
+  {
+    "candidate_id": "H-009",
+    "registry_present": true,
+    "registry_status": "CONCLUDED",
+    "registry_pipeline_stage": "baseline_tested",
+    "strategy_family": "multi_tf_alignment",
+    "timeframe": "30m",
+    "lifecycle_change_count": 3,
+    "lifecycle_coverage_present": true,
+    "lifecycle_transition_edges": [
+      "in_research->research_concluded",
+      "proposed->in_research",
+      "research_concluded->archived"
+    ],
+    "ol_row_count": 1,
+    "ol_coverage_present": true,
+    "ol_outcome_kinds": [
+      "research_oos"
+    ],
+    "ol_pipeline_versions": [
+      "pre_wp_5b"
+    ],
+    "rec_row_count": 2,
+    "rec_coverage_present": true,
+    "rec_outcome_kinds": [
+      "research_oos"
+    ],
+    "rec_pipeline_versions": [
+      "pre_wp_5b"
+    ],
+    "rec_expectation_source_types": [
+      "d2_006_gates",
+      "exp_success_criteria"
+    ],
+    "registry_present_but_missing_ol_or_rec_coverage": false
+  },
+  {
+    "candidate_id": "H-010",
+    "registry_present": true,
+    "registry_status": "CONCLUDED",
+    "registry_pipeline_stage": "baseline_tested",
+    "strategy_family": "basis_mean_reversion",
+    "timeframe": "4h",
+    "lifecycle_change_count": 3,
+    "lifecycle_coverage_present": true,
+    "lifecycle_transition_edges": [
+      "in_research->research_concluded",
+      "proposed->in_research",
+      "research_concluded->archived"
+    ],
+    "ol_row_count": 1,
+    "ol_coverage_present": true,
+    "ol_outcome_kinds": [
+      "research_oos"
+    ],
+    "ol_pipeline_versions": [
+      "pre_wp_5b"
+    ],
+    "rec_row_count": 2,
+    "rec_coverage_present": true,
+    "rec_outcome_kinds": [
+      "research_oos"
+    ],
+    "rec_pipeline_versions": [
+      "pre_wp_5b"
+    ],
+    "rec_expectation_source_types": [
+      "d2_006_gates",
+      "exp_success_criteria"
+    ],
+    "registry_present_but_missing_ol_or_rec_coverage": false
+  },
+  {
+    "candidate_id": "H-011",
+    "registry_present": true,
+    "registry_status": "DRAFT",
+    "registry_pipeline_stage": "reserved",
+    "strategy_family": "cross_asset_regime",
+    "timeframe": "weekly",
+    "lifecycle_change_count": 0,
+    "lifecycle_coverage_present": false,
+    "lifecycle_transition_edges": null,
+    "ol_row_count": 0,
+    "ol_coverage_present": false,
+    "ol_outcome_kinds": null,
+    "ol_pipeline_versions": null,
+    "rec_row_count": 0,
+    "rec_coverage_present": false,
+    "rec_outcome_kinds": null,
+    "rec_pipeline_versions": null,
+    "rec_expectation_source_types": null,
+    "registry_present_but_missing_ol_or_rec_coverage": true
+  }
+]

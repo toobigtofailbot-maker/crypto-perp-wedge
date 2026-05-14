@@ -1,0 +1,180 @@
+{
+  "report_id": "REP-0013",
+  "plan_id": "EXP-0011",
+  "candidate_id": "H-004",
+  "execution_date": "2026-05-14",
+  "trial_ids": [
+    "55189f9a-0232-43e1-a551-c840de73095b"
+  ],
+  "metrics": {
+    "in_sample": {
+      "sharpe": 1.2607085745479694,
+      "source_field": "trial_log.in_sample_sharpe",
+      "window_convention": "No separate IS/OOS split convention is introduced by WP-10w; this field records the same actual WP-10w next-most-recent contiguous equivalent-length evaluation Sharpe as the out_of_sample object for schema continuity."
+    },
+    "out_of_sample": {
+      "sharpe": 1.2607085745479694,
+      "source_field": "trial_log.oos_sharpe",
+      "window_convention": "WP-10w uses the next-most-recent contiguous equivalent-length evaluation window before REP-0012 / OL-0012: 2024-04-12 through 2025-04-11. Indicators are warmed up on prior available history, but the backtest window starts flat with no pre-window position carry-in. No separate IS metric convention is introduced; in_sample.sharpe records the same actual window Sharpe for schema continuity.",
+      "evaluation_window_start": "2024-04-12",
+      "evaluation_window_end": "2025-04-11",
+      "actual_bar_window_start": "2024-04-12 23:59:59.999000+00:00",
+      "actual_bar_window_end": "2025-04-11 23:59:59.999000+00:00",
+      "data_source": [
+        "data/processed/binance_um_perp_BTCUSDT_1d_2020-01-01_2026-04-11_2026-04-12T1655Z.parquet",
+        "data/processed/binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z.parquet"
+      ],
+      "dataset_ids": [
+        "binance_um_perp_BTCUSDT_1d_2020-01-01_2026-04-11_2026-04-12T1655Z",
+        "binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z"
+      ],
+      "config_sha256": "87ce3ab6021bd08db03f6d7ab0220b6202fbab4e7dc009b39d435ca2df455932",
+      "dataset_sha256": "47b91ceac5ae9e472a08c23390ec8a5f6fee9a627a44df11e3557fbace02813d",
+      "trial_count_before_append": 12,
+      "trial_count_after_append": 13,
+      "max_drawdown": 0.9049202087559992,
+      "max_drawdown_peak": "2024-04-12 23:59:59.999000+00:00",
+      "max_drawdown_trough": "2024-05-01 23:59:59.999000+00:00",
+      "n_obs": 364,
+      "trades": 10,
+      "hit_rate": 0.5,
+      "profit_factor": 1.312470813881372,
+      "final_equity": 9611.366264952077,
+      "total_pnl": -388.6337350479225,
+      "gross_pnl": 2876.3000000000247,
+      "fees_paid": 633.27528,
+      "slippage_paid": 316.63764,
+      "funding_paid": 2315.0208150480003,
+      "cost_drag_fraction": 1.135115855455958,
+      "pnl_concentration_90d": 54.0423,
+      "skipped_bars": 0,
+      "liquidated": false,
+      "liquidation_timestamp": null,
+      "sensitivity_min_ratio": 0.8839335285119408,
+      "sensitivity": [
+        {
+          "variant": "fast_ma_up_25pct",
+          "sharpe": 1.4540681563925144,
+          "ratio_to_base": 1.1533737342223398
+        },
+        {
+          "variant": "fast_ma_down_25pct",
+          "sharpe": 1.394050345485203,
+          "ratio_to_base": 1.1057673229398346
+        },
+        {
+          "variant": "slow_ma_up_25pct",
+          "sharpe": 1.1143825787254458,
+          "ratio_to_base": 0.8839335285119408
+        },
+        {
+          "variant": "slow_ma_down_25pct",
+          "sharpe": 1.824435184554211,
+          "ratio_to_base": 1.447150611479237
+        },
+        {
+          "variant": "rv_lookback_up_25pct",
+          "sharpe": 1.1734491988938403,
+          "ratio_to_base": 0.9307854508045873
+        },
+        {
+          "variant": "rv_lookback_down_25pct",
+          "sharpe": 1.2684516892243558,
+          "ratio_to_base": 1.0061418751587081
+        },
+        {
+          "variant": "rv_percentile_up_25pct",
+          "sharpe": 1.4630904502810265,
+          "ratio_to_base": 1.160530260378075
+        },
+        {
+          "variant": "rv_percentile_down_25pct",
+          "sharpe": 1.3775640460983265,
+          "ratio_to_base": 1.0926903123445924
+        }
+      ],
+      "dsr": 1.0,
+      "dsr_note": "P(SR>1.0)=1.0000; SR benchmark=0.5265",
+      "walk_forward_efficiency": 1.0,
+      "gates_passed": 5,
+      "gates_total": 8,
+      "side_summary": [
+        {
+          "direction": -1,
+          "count": 1,
+          "net_pnl_sum": 6722.419060000002,
+          "net_pnl_mean": 6722.419060000002
+        },
+        {
+          "direction": 1,
+          "count": 9,
+          "net_pnl_sum": -57.214899999979025,
+          "net_pnl_mean": -6.35721111110878
+        }
+      ]
+    }
+  },
+  "gate_results": [
+    {
+      "gate_id": "D2-006-G1: OOS Sharpe >= 1.0",
+      "threshold": 1.0,
+      "observed": 1.2607,
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G2: DSR > 1.0 at 95% CI",
+      "threshold": "dsr_val > 0.95 vs evaluator SR benchmark",
+      "observed": "1.000000; P(SR>1.0)=1.0000; SR benchmark=0.5265",
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G3: Per-fold max DD <= 20%",
+      "threshold": 0.2,
+      "observed": 0.9049,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G4: Parameter sensitivity min_ratio >= 0.70",
+      "threshold": 0.7,
+      "observed": 0.8839,
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G5: Cost drag <= 50% of gross PnL",
+      "threshold": 0.5,
+      "observed": 1.1351,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G6: No 90-day window > 60% of PnL",
+      "threshold": 0.6,
+      "observed": 54.0423,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G7: <= 5 free parameters",
+      "threshold": 5.0,
+      "observed": 4.0,
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G8: Walk-forward efficiency > 0.5",
+      "threshold": 0.5,
+      "observed": 1.0,
+      "pass": true
+    }
+  ],
+  "overall_verdict": "NO-GO",
+  "observations": "WP-10w is the REP step of the second Stage 2 Path A evidence cycle after WP-10v. It uses existing EXP-0011 for H-004 / research_oos / post_wp_5b / d2_006_gates, creates no new EXP scaffold or EXP plan, creates no OL or REC rows, and does not itself move REC-5 from 2 to 3. REC-5 remains unsatisfied until a future OL and D2 REC are separately committed. The WP-10w window is the next-most-recent contiguous equivalent-length window, 2024-04-12 through 2025-04-11, distinct from and not cloned from the REP-0012 / OL-0012 window. The actual run produced 5 of 8 D2-006 gates passing and an overall NO-GO verdict. WP-10w creates no policy, scoring, ranking/recommendation, paper/live, runtime, or protected-path authority, makes no H-004 pre/post comparison claim, and does not include H-011, H-012, Path B, cohort, EXP scaffold, or exp_success_criteria reconciliation.",
+  "next_step_recommendation": "archive",
+  "diagnostic_findings": [
+    "The WP-10w evidence unit is one genuine local research evaluation with a new trial id against existing EXP-0011; no new EXP was created.",
+    "The evaluation window is explicit and non-cloned: 2024-04-12 through 2025-04-11, with 365 daily bars from 2024-04-12 23:59:59.999000+00:00 through 2025-04-11 23:59:59.999000+00:00.",
+    "Indicators were warmed up on earlier available local history, and the backtest window started flat with no inherited pre-window position carry-in.",
+    "D2-006 gate results are computed from the actual WP-10w run using current post-WP-5b evaluator semantics.",
+    "The run does not create OL or REC rows and does not itself satisfy REC-5; the selected exact segment remains at two committed REC observations until future OL and REC artifacts are separately committed.",
+    "The run carries no policy, scoring, ranking/recommendation, paper/live, runtime, promotion, demotion, or protected-path authority.",
+    "The run makes no H-004 pre/post comparison claim and does not combine expectation sources or pipeline versions.",
+    "The run does not include H-011, H-012, Path B, cohort creation, EXP scaffold creation, or exp_success_criteria reconciliation."
+  ]
+}

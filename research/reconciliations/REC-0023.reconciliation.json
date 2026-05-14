@@ -1,0 +1,181 @@
+{
+  "schema_version": "v1",
+  "reconciliation_id": "REC-0023",
+  "candidate_id": "H-004",
+  "outcome_id": "OL-0012",
+  "outcome_kind": "research_oos",
+  "pipeline_version": "post_wp_5b",
+  "expectation_source_type": "d2_006_gates",
+  "expectation_source_artifact_id": "D2-006",
+  "expectation_source_artifact_path": "docs/onboarding/PHASE2_BASELINE.md",
+  "expectation_extracted": {
+    "source_type": "d2_006_gates",
+    "source_artifact_id": "D2-006",
+    "source_artifact_path": "docs/onboarding/PHASE2_BASELINE.md",
+    "extraction_method": "manual_forward_wp10t_d2_006_rec_append_v1",
+    "extracted_at": "2026-05-14T14:33:39-06:00",
+    "metric_expectations": [
+      {
+        "metric_name": "sharpe",
+        "expected_operator": "gte",
+        "expected_value": 1.0,
+        "expected_unit": null,
+        "source_field_path": "D2-006.What changes[1]",
+        "source_text": "Out-of-sample Sharpe \u2265 1.0 net of modeled costs."
+      },
+      {
+        "metric_name": "dsr",
+        "expected_operator": "gt",
+        "expected_value": 1.0,
+        "expected_unit": "95_percent_confidence_given_actual_trial_count",
+        "source_field_path": "D2-006.What changes[2]",
+        "source_text": "DSR > 1.0 at 95% confidence given actual trial count."
+      },
+      {
+        "metric_name": "max_drawdown",
+        "expected_operator": "lte",
+        "expected_value": 0.2,
+        "expected_unit": "fraction",
+        "source_field_path": "D2-006.What changes[3]",
+        "source_text": "Max drawdown \u2264 20% in any walk-forward fold."
+      },
+      {
+        "metric_name": "sensitivity_min_ratio",
+        "expected_operator": "gte",
+        "expected_value": 0.7,
+        "expected_unit": "ratio",
+        "source_field_path": "D2-006.What changes[4]",
+        "source_text": "Parameter sensitivity: \u00b125% parameter shift keeps Sharpe within 70% of baseline."
+      },
+      {
+        "metric_name": "cost_drag_fraction",
+        "expected_operator": "lte",
+        "expected_value": 0.5,
+        "expected_unit": "fraction_of_gross_pnl",
+        "source_field_path": "D2-006.What changes[5]",
+        "source_text": "Cost drag \u2264 50% of gross PnL.",
+        "notes": "Preserved from D2-006 but not compared because OL-0012.metrics.gross_pnl <= 0, so the cost_drag_fraction as a fraction of gross PnL is not semantically interpretable as a pass/fail ratio."
+      },
+      {
+        "metric_name": "pnl_concentration_90d",
+        "expected_operator": "lte",
+        "expected_value": 0.6,
+        "expected_unit": "fraction_of_total_pnl",
+        "source_field_path": "D2-006.What changes[6]",
+        "source_text": "No single 90-day window contributes > 60% of total PnL.",
+        "notes": "Preserved from D2-006 but not compared because OL-0012.metrics does not include a 90-day contribution metric."
+      },
+      {
+        "metric_name": "free_parameter_count",
+        "expected_operator": "lte",
+        "expected_value": 5,
+        "expected_unit": "count",
+        "source_field_path": "D2-006.What changes[7]",
+        "source_text": "\u2264 5 free parameters.",
+        "notes": "Preserved from D2-006 but not compared because OL-0012.metrics does not include free_parameter_count."
+      },
+      {
+        "metric_name": "walk_forward_efficiency",
+        "expected_operator": "gt",
+        "expected_value": 0.5,
+        "expected_unit": "ratio",
+        "source_field_path": "D2-006.What changes[8]",
+        "source_text": "Walk-forward efficiency (OOS/IS Sharpe ratio) > 0.5."
+      }
+    ]
+  },
+  "realized_metrics": {
+    "source_field": "trial_log.oos_sharpe",
+    "window_convention": "WP-10r uses a distinct final-local-data-year OOS window from 2025-04-12 through 2026-04-11. Indicators are warmed up on prior available history, but the backtest window starts flat with no pre-window position carry-in. No separate IS metric convention is introduced; in_sample.sharpe records the same actual window Sharpe for schema continuity.",
+    "sharpe": 0.8059644695016975,
+    "max_drawdown": 1.0,
+    "n_obs": 19,
+    "trades": 1,
+    "hit_rate": 0.0,
+    "profit_factor": 0.0,
+    "final_equity": 0.0,
+    "total_pnl": -10000.0,
+    "gross_pnl": -9995.841242858996,
+    "fees_paid": 34.09516,
+    "slippage_paid": 17.04758,
+    "funding_paid": -46.983982858999994,
+    "cost_drag_fraction": -0.00041604873866629433,
+    "dsr": 0.859916,
+    "walk_forward_efficiency": 1.0,
+    "gates_passed": 2,
+    "gates_total": 8,
+    "config_sha256": "565585457877dcb24ed9c1e80e09d535cfc76e15cb25457d96601ddaf7987862",
+    "dataset_sha256": "47b91ceac5ae9e472a08c23390ec8a5f6fee9a627a44df11e3557fbace02813d",
+    "dsr_note": "P(SR>1.0)=0.8599; SR benchmark=0.5130",
+    "max_drawdown_peak": "2025-04-15 23:59:59.999000+00:00",
+    "max_drawdown_trough": "2025-05-01 23:59:59.999000+00:00",
+    "skipped_bars": 0,
+    "sensitivity_min_ratio": -1.7632447911251334,
+    "trial_count_before_append": 11,
+    "trial_count_after_append": 12
+  },
+  "comparison": {
+    "metric_comparisons": [
+      {
+        "metric_name": "sharpe",
+        "expected_value": 1.0,
+        "realized_value": 0.8059644695016975,
+        "delta_absolute": -0.19403553049830247,
+        "delta_relative": -0.19403553049830247,
+        "comparison_verdict": "not_met",
+        "comparison_notes": "D2-006 requires out-of-sample Sharpe >= 1.0 net of modeled costs; OL-0012 records sharpe below that threshold."
+      },
+      {
+        "metric_name": "dsr",
+        "expected_value": 1.0,
+        "realized_value": 0.859916,
+        "delta_absolute": -0.140084,
+        "delta_relative": -0.140084,
+        "comparison_verdict": "not_met",
+        "comparison_notes": "D2-006 requires DSR > 1.0 at 95% confidence given actual trial count; OL-0012 records dsr below that threshold."
+      },
+      {
+        "metric_name": "max_drawdown",
+        "expected_value": 0.2,
+        "realized_value": 1.0,
+        "delta_absolute": 0.8,
+        "delta_relative": 4.0,
+        "comparison_verdict": "not_met",
+        "comparison_notes": "D2-006 requires max drawdown <= 20% in any walk-forward fold; OL-0012 records max_drawdown above that threshold."
+      },
+      {
+        "metric_name": "sensitivity_min_ratio",
+        "expected_value": 0.7,
+        "realized_value": -1.7632447911251334,
+        "delta_absolute": -2.4632447911251334,
+        "delta_relative": -3.518921130178762,
+        "comparison_verdict": "not_met",
+        "comparison_notes": "D2-006 requires parameter sensitivity to keep Sharpe within 70% of baseline under +/-25% parameter shifts; OL-0012 records sensitivity_min_ratio below that threshold."
+      },
+      {
+        "metric_name": "walk_forward_efficiency",
+        "expected_value": 0.5,
+        "realized_value": 1.0,
+        "delta_absolute": 0.5,
+        "delta_relative": 1.0,
+        "comparison_verdict": "met",
+        "comparison_notes": "D2-006 requires walk-forward efficiency > 0.5; OL-0012 records walk_forward_efficiency above that threshold."
+      }
+    ]
+  },
+  "overall_verdict": "partially_met",
+  "interpretation": "WP-10t is a Stage 2 Path A REC append. REC-0023 derives from OL-0012 and reconciles against D2-006 only using committed D2-006 source text and copied OL metrics. It creates no EXP, REP, OL, LCH, registry, schema, validator, query-layer, runtime, config, dependency, data, or protected-path change. It does not satisfy REC-5: the selected exact segment H-004 / research_oos / post_wp_5b / d2_006_gates moves from 1 to 2 REC observations and remains below n >= 3. It creates no policy, scoring, ranking/recommendation, paper/live, runtime, promotion, or demotion authority, and makes no H-004 pre/post comparison claim.",
+  "derivation_record": {
+    "derivation_method": "manual_forward_wp10t_d2_006_rec_append_v1",
+    "source_artifact_id": "OL-0012",
+    "source_artifact_path": "research/outcome_ledgers/OL-0012.outcome_ledger.json",
+    "source_outcome_id": "OL-0012",
+    "expectation_source_type": "d2_006_gates",
+    "derivation_timestamp": "2026-05-14T14:33:39-06:00",
+    "tool_version": "wp10t_manual_d2_006_rec_append_v1"
+  },
+  "retrospective_flag": false,
+  "linked_advisory_artifacts": [],
+  "linked_lifecycle_artifacts": [],
+  "notes": "WP-10t creates only REC-0023 from OL-0012 for the selected exact segment H-004 / research_oos / post_wp_5b / d2_006_gates. The D2-006 cost_drag_fraction expectation is preserved but skipped for deterministic comparison because OL-0012.metrics.gross_pnl <= 0; the negative cost_drag_fraction is not treated as a pass. The D2-006 pnl_concentration_90d and free_parameter_count expectations are preserved but not compared because OL-0012.metrics does not include those fields. REC-0023 reconciles against D2-006 only, does not satisfy REC-5, creates no policy, scoring, ranking/recommendation, paper/live, runtime, promotion, or demotion authority, and makes no H-004 pre/post comparison claim."
+}

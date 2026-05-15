@@ -263,7 +263,7 @@ def run_local_dry_run(intent: ResearchIntentFixture, output_dir: Path) -> LocalD
     under ``output_dir``.
     """
 
-    if output_dir.exists() and not output_dir.is_dir():
+    if not output_dir.exists() or not output_dir.is_dir():
         failure_report = _build_validation_report("LDR-INVALID", ("output_dir must be a directory",))
         return LocalDryRunResult(
             run_request=None,
@@ -272,7 +272,6 @@ def run_local_dry_run(intent: ResearchIntentFixture, output_dir: Path) -> LocalD
             validation_report=failure_report,
             written_files={},
         )
-    output_dir.mkdir(parents=True, exist_ok=True)
 
     intent_failures = _validate_intent(intent)
     if intent_failures:

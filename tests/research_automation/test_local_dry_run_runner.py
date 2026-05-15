@@ -43,6 +43,47 @@ def test_local_dry_run_writes_expected_bundle_files_under_tmp_path(tmp_path):
         assert path.parent == tmp_path
 
 
+def test_missing_output_dir_returns_failure_and_writes_no_files(tmp_path):
+    missing_dir = tmp_path / "missing" / "runner-output"
+
+    result = run_local_dry_run(_intent(), missing_dir)
+
+    assert result.run_request is None
+    assert result.manifest is None
+    assert result.output_bundle is None
+    assert result.written_files == {}
+    assert result.validation_report.passed is False
+    assert result.validation_report.failure_reasons == ("output_dir must be a directory",)
+    assert not missing_dir.exists()
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_file_path_as_output_dir_returns_failure_and_writes_no_files(tmp_path):
+    output_file = tmp_path / "not-a-directory"
+    output_file.write_text("existing file\n", encoding="utf-8")
+
+    result = run_local_dry_run(_intent(), output_file)
+
+    assert result.run_request is None
+    assert result.manifest is None
+    assert result.output_bundle is None
+    assert result.written_files == {}
+    assert result.validation_report.passed is False
+    assert result.validation_report.failure_reasons == ("output_dir must be a directory",)
+    assert output_file.read_text(encoding="utf-8") == "existing file\n"
+    assert [path.name for path in tmp_path.iterdir()] == ["not-a-directory"]
+
+
+def test_runner_does_not_create_parent_directories(tmp_path):
+    missing_dir = tmp_path / "parent" / "child"
+
+    result = run_local_dry_run(_intent(), missing_dir)
+
+    assert result.validation_report.passed is False
+    assert result.written_files == {}
+    assert not (tmp_path / "parent").exists()
+
+
 def test_local_dry_run_converts_intent_to_run_request(tmp_path):
     result = run_local_dry_run(_intent(), tmp_path)
 
@@ -79,6 +120,8 @@ def test_manifest_output_and_validation_boundaries_are_non_authoritative(tmp_pat
 def test_local_dry_run_is_deterministic_for_identical_intent(tmp_path):
     first_dir = tmp_path / "first"
     second_dir = tmp_path / "second"
+    first_dir.mkdir()
+    second_dir.mkdir()
 
     first = run_local_dry_run(_intent(), first_dir)
     second = run_local_dry_run(_intent(), second_dir)

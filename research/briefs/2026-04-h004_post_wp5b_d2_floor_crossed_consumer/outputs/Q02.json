@@ -1,0 +1,26 @@
+[
+  {
+    "reconciliation_id": "REC-0022",
+    "outcome_id": "OL-0011",
+    "overall_verdict": "partially_met",
+    "retrospective_flag": true,
+    "derivation_method": "manual_retrospective_wp10c_d2_006_backfill_v1",
+    "derivation_timestamp": "2026-05-05T19:57:59Z"
+  },
+  {
+    "reconciliation_id": "REC-0023",
+    "outcome_id": "OL-0012",
+    "overall_verdict": "partially_met",
+    "retrospective_flag": false,
+    "derivation_method": "manual_forward_wp10t_d2_006_rec_append_v1",
+    "derivation_timestamp": "2026-05-14T14:33:39Z"
+  },
+  {
+    "reconciliation_id": "REC-0024",
+    "outcome_id": "OL-0013",
+    "overall_verdict": "partially_met",
+    "retrospective_flag": false,
+    "derivation_method": "manual_forward_wp10y_d2_006_rec_append_v1",
+    "derivation_timestamp": "2026-05-14T18:42:39Z"
+  }
+]

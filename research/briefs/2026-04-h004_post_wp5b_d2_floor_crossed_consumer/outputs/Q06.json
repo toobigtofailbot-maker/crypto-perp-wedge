@@ -1,0 +1,82 @@
+[
+  {
+    "claim_class": "forbidden_claim",
+    "claim": "H-004 general inference",
+    "basis": "Forbidden; this brief is exact-segment only."
+  },
+  {
+    "claim_class": "forbidden_claim",
+    "claim": "H-004 post-WP-5b D2 versus exp_success_criteria comparison",
+    "basis": "Forbidden; expectation sources remain separate."
+  },
+  {
+    "claim_class": "forbidden_claim",
+    "claim": "H-004 pre/post comparison",
+    "basis": "Forbidden; pre-WP-5b and post-WP-5b rows remain structurally separate."
+  },
+  {
+    "claim_class": "forbidden_claim",
+    "claim": "Path B, cohort, new candidate, or protected-path work",
+    "basis": "Forbidden; no such direction is authorized by this brief."
+  },
+  {
+    "claim_class": "forbidden_claim",
+    "claim": "cross-segment inference",
+    "basis": "Forbidden by WP-10z PFC-2 and outside this brief scope."
+  },
+  {
+    "claim_class": "forbidden_claim",
+    "claim": "policy, scoring, ranking, recommendation, paper-live, runtime, lifecycle, promotion, or demotion authority",
+    "basis": "Forbidden; the brief is descriptive only and carries no protected-path or operational authority."
+  },
+  {
+    "claim_class": "forbidden_claim",
+    "claim": "predictive inference",
+    "basis": "Forbidden; current observations do not project future observations."
+  },
+  {
+    "claim_class": "marker_rule",
+    "claim": "INSUFFICIENT_EVIDENCE not required within crossed exact segment",
+    "basis": "Within-segment cross-observation patterns for the selected exact segment may be stated descriptively."
+  },
+  {
+    "claim_class": "marker_rule",
+    "claim": "INSUFFICIENT_EVIDENCE required for cross-boundary claims",
+    "basis": "Claims outside the selected exact segment require INSUFFICIENT_EVIDENCE or explicit forbidden-boundary language."
+  },
+  {
+    "claim_class": "post_brief_stop_rule",
+    "claim": "no automatic further Stage 2 work",
+    "basis": "WP-10z PFC-3 remains active; another explicit chat-level direction-setting decision is required after WP-11a."
+  },
+  {
+    "claim_class": "supported_descriptive",
+    "claim": "comparison-surface gap review",
+    "basis": "Supported for extracted-only and skipped-comparison rows exposed by Q05 only."
+  },
+  {
+    "claim_class": "supported_descriptive",
+    "claim": "consumer-brief methodology example",
+    "basis": "Supported as an example for later floor-crossed-segment consumer briefs without authorizing those later briefs."
+  },
+  {
+    "claim_class": "supported_descriptive",
+    "claim": "floor-crossed exact-segment inventory",
+    "basis": "Supported only for H-004 / research_oos / post_wp_5b / d2_006_gates from Q01."
+  },
+  {
+    "claim_class": "supported_descriptive",
+    "claim": "per-metric comparison pattern review",
+    "basis": "Supported for compared metrics exposed by Q04 only."
+  },
+  {
+    "claim_class": "supported_descriptive",
+    "claim": "per-observation review",
+    "basis": "Supported for REC-0022, REC-0023, and REC-0024 from Q02 and Q03."
+  },
+  {
+    "claim_class": "supported_descriptive",
+    "claim": "within-segment cross-observation summary",
+    "basis": "Supported inside the crossed exact segment; no INSUFFICIENT_EVIDENCE marker is required for within-segment patterns."
+  }
+]

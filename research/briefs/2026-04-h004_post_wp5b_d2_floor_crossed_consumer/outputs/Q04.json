@@ -1,0 +1,155 @@
+[
+  {
+    "reconciliation_id": "REC-0022",
+    "outcome_id": "OL-0011",
+    "metric_name": "cost_drag_fraction",
+    "expected_value": "0.5",
+    "realized_value": 0.2576833508419891,
+    "comparison_verdict": "met",
+    "comparison_notes": "D2-006 requires cost drag <= 50% of gross PnL; OL-0011 records cost_drag_fraction at or below that threshold."
+  },
+  {
+    "reconciliation_id": "REC-0024",
+    "outcome_id": "OL-0013",
+    "metric_name": "cost_drag_fraction",
+    "expected_value": "0.5",
+    "realized_value": 1.135115855455958,
+    "comparison_verdict": "not_met",
+    "comparison_notes": "D2-006 requires cost drag <= 50% of gross PnL; OL-0013 records positive gross_pnl and cost_drag_fraction above that threshold."
+  },
+  {
+    "reconciliation_id": "REC-0022",
+    "outcome_id": "OL-0011",
+    "metric_name": "dsr",
+    "expected_value": "1.0",
+    "realized_value": 1.0,
+    "comparison_verdict": "not_met",
+    "comparison_notes": "D2-006 requires DSR > 1.0 at 95% confidence given actual trial count; OL-0011 records dsr below that threshold."
+  },
+  {
+    "reconciliation_id": "REC-0023",
+    "outcome_id": "OL-0012",
+    "metric_name": "dsr",
+    "expected_value": "1.0",
+    "realized_value": 0.859916,
+    "comparison_verdict": "not_met",
+    "comparison_notes": "D2-006 requires DSR > 1.0 at 95% confidence given actual trial count; OL-0012 records dsr below that threshold."
+  },
+  {
+    "reconciliation_id": "REC-0024",
+    "outcome_id": "OL-0013",
+    "metric_name": "dsr",
+    "expected_value": "1.0",
+    "realized_value": 1.0,
+    "comparison_verdict": "not_met",
+    "comparison_notes": "D2-006 requires DSR > 1.0 at 95% confidence given actual trial count; OL-0013 records dsr equal to 1.0, which does not satisfy the strict greater-than threshold."
+  },
+  {
+    "reconciliation_id": "REC-0022",
+    "outcome_id": "OL-0011",
+    "metric_name": "max_drawdown",
+    "expected_value": "0.2",
+    "realized_value": 0.697949870640699,
+    "comparison_verdict": "not_met",
+    "comparison_notes": "D2-006 requires max drawdown <= 20% in any walk-forward fold; OL-0011 records max_drawdown above that threshold."
+  },
+  {
+    "reconciliation_id": "REC-0023",
+    "outcome_id": "OL-0012",
+    "metric_name": "max_drawdown",
+    "expected_value": "0.2",
+    "realized_value": 1.0,
+    "comparison_verdict": "not_met",
+    "comparison_notes": "D2-006 requires max drawdown <= 20% in any walk-forward fold; OL-0012 records max_drawdown above that threshold."
+  },
+  {
+    "reconciliation_id": "REC-0024",
+    "outcome_id": "OL-0013",
+    "metric_name": "max_drawdown",
+    "expected_value": "0.2",
+    "realized_value": 0.9049202087559992,
+    "comparison_verdict": "not_met",
+    "comparison_notes": "D2-006 requires max drawdown <= 20% in any walk-forward fold; OL-0013 records max_drawdown above that threshold."
+  },
+  {
+    "reconciliation_id": "REC-0022",
+    "outcome_id": "OL-0011",
+    "metric_name": "sensitivity_min_ratio",
+    "expected_value": "0.7",
+    "realized_value": 0.7827681657491495,
+    "comparison_verdict": "met",
+    "comparison_notes": "D2-006 requires parameter sensitivity to keep Sharpe within 70% of baseline under +/-25% parameter shifts; OL-0011 records sensitivity_min_ratio at or above that threshold."
+  },
+  {
+    "reconciliation_id": "REC-0023",
+    "outcome_id": "OL-0012",
+    "metric_name": "sensitivity_min_ratio",
+    "expected_value": "0.7",
+    "realized_value": -1.7632447911251334,
+    "comparison_verdict": "not_met",
+    "comparison_notes": "D2-006 requires parameter sensitivity to keep Sharpe within 70% of baseline under +/-25% parameter shifts; OL-0012 records sensitivity_min_ratio below that threshold."
+  },
+  {
+    "reconciliation_id": "REC-0024",
+    "outcome_id": "OL-0013",
+    "metric_name": "sensitivity_min_ratio",
+    "expected_value": "0.7",
+    "realized_value": 0.8839335285119408,
+    "comparison_verdict": "met",
+    "comparison_notes": "D2-006 requires parameter sensitivity to keep Sharpe within 70% of baseline under +/-25% parameter shifts; OL-0013 records sensitivity_min_ratio at or above that threshold."
+  },
+  {
+    "reconciliation_id": "REC-0022",
+    "outcome_id": "OL-0011",
+    "metric_name": "sharpe",
+    "expected_value": "1.0",
+    "realized_value": 0.746191460507614,
+    "comparison_verdict": "not_met",
+    "comparison_notes": "D2-006 requires out-of-sample Sharpe >= 1.0 net of modeled costs; OL-0011 records sharpe below that threshold."
+  },
+  {
+    "reconciliation_id": "REC-0023",
+    "outcome_id": "OL-0012",
+    "metric_name": "sharpe",
+    "expected_value": "1.0",
+    "realized_value": 0.8059644695016975,
+    "comparison_verdict": "not_met",
+    "comparison_notes": "D2-006 requires out-of-sample Sharpe >= 1.0 net of modeled costs; OL-0012 records sharpe below that threshold."
+  },
+  {
+    "reconciliation_id": "REC-0024",
+    "outcome_id": "OL-0013",
+    "metric_name": "sharpe",
+    "expected_value": "1.0",
+    "realized_value": 1.2607085745479694,
+    "comparison_verdict": "met",
+    "comparison_notes": "D2-006 requires out-of-sample Sharpe >= 1.0 net of modeled costs; OL-0013 records sharpe at or above that threshold."
+  },
+  {
+    "reconciliation_id": "REC-0022",
+    "outcome_id": "OL-0011",
+    "metric_name": "walk_forward_efficiency",
+    "expected_value": "0.5",
+    "realized_value": 1.0,
+    "comparison_verdict": "met",
+    "comparison_notes": "D2-006 requires walk-forward efficiency > 0.5; OL-0011 records walk_forward_efficiency above that threshold."
+  },
+  {
+    "reconciliation_id": "REC-0023",
+    "outcome_id": "OL-0012",
+    "metric_name": "walk_forward_efficiency",
+    "expected_value": "0.5",
+    "realized_value": 1.0,
+    "comparison_verdict": "met",
+    "comparison_notes": "D2-006 requires walk-forward efficiency > 0.5; OL-0012 records walk_forward_efficiency above that threshold."
+  },
+  {
+    "reconciliation_id": "REC-0024",
+    "outcome_id": "OL-0013",
+    "metric_name": "walk_forward_efficiency",
+    "expected_value": "0.5",
+    "realized_value": 1.0,
+    "comparison_verdict": "met",
+    "comparison_notes": "D2-006 requires walk-forward efficiency > 0.5; OL-0013 records walk_forward_efficiency above that threshold."
+  }
+]

@@ -43,6 +43,12 @@ When manifest validation passes, it creates deterministic per-item output
 directories under the caller-provided output root, calls `run_local_dry_run(...)`
 once per item, and writes `local_batch_run_summary.json` under that output root.
 
+Top-level item output directories may be created directly under the existing
+output root. Nested item output directories are created only when their
+immediate parent directory already exists. Missing item-directory parents are
+recorded as blocked item results; the runner does not create those parent
+directories.
+
 ## Non-Authoritative Boundary
 
 WP-12h output material is local-only, research-only, and non-authoritative. It

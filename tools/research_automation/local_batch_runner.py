@@ -132,6 +132,23 @@ def _failure_summary(
     )
 
 
+def _item_directory_blocked_result(item: BatchManifestItem) -> LocalBatchItemResult:
+    return LocalBatchItemResult(
+        item_id=item.item_id,
+        source_id=item.source_id,
+        status="blocked",
+        output_path=item.output_path,
+        dry_run_run_id="",
+        dry_run_written_files={},
+        failure_reasons=("item output directory parent must already exist",),
+        local_only=True,
+        research_only=True,
+        non_authoritative=True,
+        creates_committed_evidence=False,
+        protected_boundary_preserved=False,
+    )
+
+
 def _intent_from_item(item: BatchManifestItem) -> ResearchIntentFixture:
     return ResearchIntentFixture(
         intent_id=item.source_id,
@@ -192,6 +209,22 @@ def run_local_batch(
     """Run one deterministic local batch from explicit caller-provided items."""
 
     output_root_path = _as_path(output_root)
+    if not output_root_path.exists() or not output_root_path.is_dir():
+        failure_summary = _failure_summary(
+            None,
+            ("output_root must be an existing directory",),
+        )
+        return LocalBatchRunResult(
+            manifest_result=None,
+            summary=failure_summary,
+            written_files={},
+            local_only=True,
+            research_only=True,
+            non_authoritative=True,
+            creates_committed_evidence=False,
+            protected_boundary_preserved=False,
+        )
+
     manifest_result = build_batch_manifest(
         items,
         output_root_path,
@@ -219,7 +252,15 @@ def run_local_batch(
     failure_reasons: list[str] = []
     for item in manifest_result.manifest.items:
         item_output_dir = output_root_path / item.output_path
-        item_output_dir.mkdir(parents=True, exist_ok=True)
+        if not item_output_dir.parent.exists() or not item_output_dir.parent.is_dir():
+            item_result = _item_directory_blocked_result(item)
+            item_results.append(item_result)
+            failure_reasons.extend(
+                f"{item.item_id}: {reason}" for reason in item_result.failure_reasons
+            )
+            continue
+
+        item_output_dir.mkdir(exist_ok=True)
         dry_run_result = run_local_dry_run(_intent_from_item(item), item_output_dir)
         item_result = _item_result_from_dry_run(item, output_root_path, dry_run_result)
         item_results.append(item_result)
@@ -229,6 +270,7 @@ def run_local_batch(
 
     success_count = sum(item.status == "succeeded" for item in item_results)
     failed_count = sum(item.status == "failed" for item in item_results)
+    blocked_count = sum(item.status == "blocked" for item in item_results)
     summary = LocalBatchRunSummary(
         batch_id=manifest_result.manifest.batch_id,
         implementation_id=IMPLEMENTATION_ID,
@@ -237,7 +279,7 @@ def run_local_batch(
         success_item_count=success_count,
         failed_item_count=failed_count,
         skipped_item_count=0,
-        blocked_item_count=0,
+        blocked_item_count=blocked_count,
         failure_reasons=tuple(failure_reasons),
         item_results=tuple(item_results),
         manifest_files=_manifest_written_files(manifest_result.written_files, output_root_path),
@@ -247,7 +289,7 @@ def run_local_batch(
         research_only=True,
         non_authoritative=True,
         creates_committed_evidence=False,
-        protected_boundary_preserved=failed_count == 0,
+        protected_boundary_preserved=failed_count == 0 and blocked_count == 0,
     )
 
     summary_path = output_root_path / SUMMARY_FILE_NAME

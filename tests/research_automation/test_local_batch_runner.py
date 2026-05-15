@@ -62,6 +62,8 @@ def _json_ready(payload: dict) -> dict:
 
 
 def test_two_item_success_writes_manifest_summary_and_item_outputs(tmp_path):
+    (tmp_path / "nested").mkdir()
+
     result = run_local_batch(_items(), tmp_path, _limits(), static_metadata=_metadata())
 
     assert result.summary.item_count == 2
@@ -79,6 +81,7 @@ def test_two_item_success_writes_manifest_summary_and_item_outputs(tmp_path):
 
 
 def test_local_dry_run_called_once_per_item_with_item_derived_intent(tmp_path, monkeypatch):
+    (tmp_path / "nested").mkdir()
     calls = []
 
     def fake_run_local_dry_run(intent, output_dir):
@@ -119,6 +122,8 @@ def test_local_batch_is_deterministic_for_identical_input_and_clean_roots(tmp_pa
     second_root = tmp_path / "second"
     first_root.mkdir()
     second_root.mkdir()
+    (first_root / "nested").mkdir()
+    (second_root / "nested").mkdir()
 
     first = run_local_batch(_items(), first_root, _limits(), static_metadata=_metadata())
     second = run_local_batch(_items(), second_root, _limits(), static_metadata=_metadata())
@@ -141,7 +146,7 @@ def test_missing_output_root_fails_with_no_writes_and_no_parent_creation(tmp_pat
     assert result.summary.failed_item_count == 0
     assert result.summary.protected_boundary_preserved is False
     assert result.written_files == {}
-    assert result.manifest_result.written_files == {}
+    assert result.manifest_result is None
     assert result.summary.failure_reasons == ("output_root must be an existing directory",)
     assert not missing_root.exists()
     assert not (tmp_path / "missing").exists()
@@ -157,6 +162,65 @@ def test_file_path_output_root_fails_and_preserves_file(tmp_path):
     assert result.summary.failure_reasons == ("output_root must be an existing directory",)
     assert output_file.read_text(encoding="utf-8") == "existing file\n"
     assert [path.name for path in tmp_path.iterdir()] == ["not-a-directory"]
+
+
+def test_top_level_item_output_directory_can_be_created_under_existing_root(tmp_path):
+    result = run_local_batch(
+        (_item("INTENT-WP12H-0001", "item-0001"),),
+        tmp_path,
+        BatchResourceLimits(max_item_count=1),
+        static_metadata=_metadata(),
+    )
+
+    assert result.summary.success_item_count == 1
+    assert result.summary.blocked_item_count == 0
+    assert (tmp_path / "item-0001").is_dir()
+    assert (tmp_path / "item-0001" / "run_request.json").exists()
+
+
+def test_nested_item_output_directory_succeeds_when_immediate_parent_exists(tmp_path):
+    nested_parent = tmp_path / "nested"
+    nested_parent.mkdir()
+
+    result = run_local_batch(
+        (_item("INTENT-WP12H-0001", "nested/item-0001"),),
+        tmp_path,
+        BatchResourceLimits(max_item_count=1),
+        static_metadata=_metadata(),
+    )
+
+    assert result.summary.success_item_count == 1
+    assert result.summary.blocked_item_count == 0
+    assert (nested_parent / "item-0001").is_dir()
+    assert (nested_parent / "item-0001" / "run_request.json").exists()
+
+
+def test_nested_item_output_directory_missing_parent_is_blocked(tmp_path, monkeypatch):
+    calls = []
+    monkeypatch.setattr(
+        "tools.research_automation.local_batch_runner.run_local_dry_run",
+        lambda intent, output_dir: calls.append((intent, output_dir)),
+    )
+
+    result = run_local_batch(
+        (_item("INTENT-WP12H-0001", "nested/item-0001"),),
+        tmp_path,
+        BatchResourceLimits(max_item_count=1),
+        static_metadata=_metadata(),
+    )
+
+    assert calls == []
+    assert result.summary.success_item_count == 0
+    assert result.summary.failed_item_count == 0
+    assert result.summary.blocked_item_count == 1
+    assert result.summary.item_results[0].status == "blocked"
+    assert result.summary.item_results[0].failure_reasons == (
+        "item output directory parent must already exist",
+    )
+    assert not (tmp_path / "nested").exists()
+    assert (tmp_path / "batch_manifest.json").exists()
+    assert (tmp_path / "batch_validation_report.json").exists()
+    assert (tmp_path / SUMMARY_FILE_NAME).exists()
 
 
 def test_invalid_batch_item_fails_without_calling_dry_run(tmp_path, monkeypatch):
@@ -225,6 +289,8 @@ def test_max_item_count_resource_limit_failure_blocks_execution(tmp_path, monkey
 
 
 def test_summary_json_matches_returned_dataclass(tmp_path):
+    (tmp_path / "nested").mkdir()
+
     result = run_local_batch(_items(), tmp_path, _limits(), static_metadata=_metadata())
 
     summary = _load(tmp_path / SUMMARY_FILE_NAME)
@@ -237,6 +303,8 @@ def test_summary_json_matches_returned_dataclass(tmp_path):
 
 
 def test_outputs_mark_local_research_non_authoritative_no_evidence(tmp_path):
+    (tmp_path / "nested").mkdir()
+
     result = run_local_batch(_items(), tmp_path, _limits(), static_metadata=_metadata())
 
     assert result.local_only is True
@@ -255,6 +323,8 @@ def test_outputs_mark_local_research_non_authoritative_no_evidence(tmp_path):
 
 
 def test_boundaries_record_no_runtime_or_trigger_behavior(tmp_path):
+    (tmp_path / "nested").mkdir()
+
     result = run_local_batch(_items(), tmp_path, _limits(), static_metadata=_metadata())
 
     assert "no_runtime_paper_live_oms_risk_safe_mode_contact" in result.summary.checked_boundaries

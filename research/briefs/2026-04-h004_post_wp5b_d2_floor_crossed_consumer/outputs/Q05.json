@@ -1,0 +1,72 @@
+[
+  {
+    "reconciliation_id": "REC-0022",
+    "metric_name": "free_parameter_count",
+    "expected_operator": "lte",
+    "expected_value": "5",
+    "expected_unit": "count",
+    "notes": "Preserved from D2-006 but not compared because OL-0011.metrics does not include free_parameter_count.",
+    "source_text": "\u2264 5 free parameters.",
+    "comparison_surface_posture": "extracted_only_no_realized_ol_metric"
+  },
+  {
+    "reconciliation_id": "REC-0022",
+    "metric_name": "pnl_concentration_90d",
+    "expected_operator": "lte",
+    "expected_value": "0.6",
+    "expected_unit": "fraction_of_total_pnl",
+    "notes": "Preserved from D2-006 but not compared because OL-0011.metrics does not include a 90-day contribution metric.",
+    "source_text": "No single 90-day window contributes > 60% of total PnL.",
+    "comparison_surface_posture": "extracted_only_no_realized_ol_metric"
+  },
+  {
+    "reconciliation_id": "REC-0023",
+    "metric_name": "cost_drag_fraction",
+    "expected_operator": "lte",
+    "expected_value": "0.5",
+    "expected_unit": "fraction_of_gross_pnl",
+    "notes": "Preserved from D2-006 but not compared because OL-0012.metrics.gross_pnl <= 0, so the cost_drag_fraction as a fraction of gross PnL is not semantically interpretable as a pass/fail ratio.",
+    "source_text": "Cost drag \u2264 50% of gross PnL.",
+    "comparison_surface_posture": "skipped_due_to_non_positive_gross_pnl"
+  },
+  {
+    "reconciliation_id": "REC-0023",
+    "metric_name": "free_parameter_count",
+    "expected_operator": "lte",
+    "expected_value": "5",
+    "expected_unit": "count",
+    "notes": "Preserved from D2-006 but not compared because OL-0012.metrics does not include free_parameter_count.",
+    "source_text": "\u2264 5 free parameters.",
+    "comparison_surface_posture": "extracted_only_no_realized_ol_metric"
+  },
+  {
+    "reconciliation_id": "REC-0023",
+    "metric_name": "pnl_concentration_90d",
+    "expected_operator": "lte",
+    "expected_value": "0.6",
+    "expected_unit": "fraction_of_total_pnl",
+    "notes": "Preserved from D2-006 but not compared because OL-0012.metrics does not include a 90-day contribution metric.",
+    "source_text": "No single 90-day window contributes > 60% of total PnL.",
+    "comparison_surface_posture": "extracted_only_no_realized_ol_metric"
+  },
+  {
+    "reconciliation_id": "REC-0024",
+    "metric_name": "free_parameter_count",
+    "expected_operator": "lte",
+    "expected_value": "5",
+    "expected_unit": "count",
+    "notes": "Preserved from D2-006 but not compared because OL-0013.metrics does not include free_parameter_count.",
+    "source_text": "\u2264 5 free parameters.",
+    "comparison_surface_posture": "extracted_only_no_realized_ol_metric"
+  },
+  {
+    "reconciliation_id": "REC-0024",
+    "metric_name": "pnl_concentration_90d",
+    "expected_operator": "lte",
+    "expected_value": "0.6",
+    "expected_unit": "fraction_of_total_pnl",
+    "notes": "Preserved from D2-006 but not compared because OL-0013.metrics does not include a 90-day contribution metric.",
+    "source_text": "No single 90-day window contributes > 60% of total PnL.",
+    "comparison_surface_posture": "extracted_only_no_realized_ol_metric"
+  }
+]

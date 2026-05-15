@@ -1,0 +1,29 @@
+[
+  {
+    "reconciliation_id": "REC-0022",
+    "outcome_id": "OL-0011",
+    "evaluation_window_start": null,
+    "evaluation_window_end": null,
+    "retrospective_flag": true,
+    "source_artifact_id": "REP-0011",
+    "source_artifact_path": "research/experiments/REP-0011.report.json"
+  },
+  {
+    "reconciliation_id": "REC-0023",
+    "outcome_id": "OL-0012",
+    "evaluation_window_start": "2025-04-12",
+    "evaluation_window_end": "2026-04-11",
+    "retrospective_flag": false,
+    "source_artifact_id": "REP-0012",
+    "source_artifact_path": "research/experiments/REP-0012.report.json"
+  },
+  {
+    "reconciliation_id": "REC-0024",
+    "outcome_id": "OL-0013",
+    "evaluation_window_start": "2024-04-12",
+    "evaluation_window_end": "2025-04-11",
+    "retrospective_flag": false,
+    "source_artifact_id": "REP-0013",
+    "source_artifact_path": "research/experiments/REP-0013.report.json"
+  }
+]

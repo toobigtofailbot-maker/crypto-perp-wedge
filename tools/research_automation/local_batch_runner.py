@@ -17,6 +17,10 @@ from tools.research_automation.batch_manifest import (
     BatchResourceLimits,
     build_batch_manifest,
 )
+from tools.research_automation.batch_run_summary_validation import (
+    BatchRunSummaryValidationReport,
+    validate_local_batch_run_summary,
+)
 from tools.research_automation.local_dry_run_runner import (
     ResearchIntentFixture,
     run_local_dry_run,
@@ -26,6 +30,7 @@ from tools.research_automation.local_dry_run_runner import (
 IMPLEMENTATION_ID = "wp_12h_auto_07_local_batch_runner_v1"
 PACKAGE_LABEL = "WP-12h / AUTO-07"
 SUMMARY_FILE_NAME = "local_batch_run_summary.json"
+SUMMARY_VALIDATION_FILE_NAME = "local_batch_run_summary_validation.json"
 CHECKED_BOUNDARIES = (
     "local_only",
     "research_only",
@@ -79,6 +84,7 @@ class LocalBatchRunSummary:
 class LocalBatchRunResult:
     manifest_result: Any
     summary: LocalBatchRunSummary
+    summary_validation_report: BatchRunSummaryValidationReport | None
     written_files: Mapping[str, str]
     local_only: bool
     research_only: bool
@@ -217,6 +223,7 @@ def run_local_batch(
         return LocalBatchRunResult(
             manifest_result=None,
             summary=failure_summary,
+            summary_validation_report=None,
             written_files={},
             local_only=True,
             research_only=True,
@@ -240,6 +247,7 @@ def run_local_batch(
         return LocalBatchRunResult(
             manifest_result=manifest_result,
             summary=failure_summary,
+            summary_validation_report=None,
             written_files={},
             local_only=True,
             research_only=True,
@@ -292,14 +300,32 @@ def run_local_batch(
         protected_boundary_preserved=failed_count == 0 and blocked_count == 0,
     )
 
+    summary_validation_report = validate_local_batch_run_summary(asdict(summary))
+    if not summary_validation_report.passed:
+        return LocalBatchRunResult(
+            manifest_result=manifest_result,
+            summary=summary,
+            summary_validation_report=summary_validation_report,
+            written_files=dict(summary.manifest_files),
+            local_only=True,
+            research_only=True,
+            non_authoritative=True,
+            creates_committed_evidence=False,
+            protected_boundary_preserved=False,
+        )
+
     summary_path = output_root_path / SUMMARY_FILE_NAME
+    summary_validation_path = output_root_path / SUMMARY_VALIDATION_FILE_NAME
     _write_json(summary_path, asdict(summary))
+    _write_json(summary_validation_path, asdict(summary_validation_report))
     written_files = dict(summary.manifest_files)
     written_files["local_batch_run_summary"] = SUMMARY_FILE_NAME
+    written_files["local_batch_run_summary_validation"] = SUMMARY_VALIDATION_FILE_NAME
 
     return LocalBatchRunResult(
         manifest_result=manifest_result,
         summary=summary,
+        summary_validation_report=summary_validation_report,
         written_files=written_files,
         local_only=True,
         research_only=True,

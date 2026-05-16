@@ -3,8 +3,10 @@ from dataclasses import asdict
 from pathlib import Path
 
 from tools.research_automation.batch_manifest import BatchManifestItem, BatchResourceLimits
+from tools.research_automation.batch_run_summary_validation import BatchRunSummaryValidationReport
 from tools.research_automation.local_batch_runner import (
     SUMMARY_FILE_NAME,
+    SUMMARY_VALIDATION_FILE_NAME,
     LocalBatchItemResult,
     LocalBatchRunResult,
     LocalBatchRunSummary,
@@ -74,6 +76,11 @@ def test_two_item_success_writes_manifest_summary_and_item_outputs(tmp_path):
     assert (tmp_path / "batch_manifest.json").exists()
     assert (tmp_path / "batch_validation_report.json").exists()
     assert (tmp_path / SUMMARY_FILE_NAME).exists()
+    assert (tmp_path / SUMMARY_VALIDATION_FILE_NAME).exists()
+    assert result.summary_validation_report is not None
+    assert result.summary_validation_report.passed is True
+    assert result.written_files["local_batch_run_summary"] == SUMMARY_FILE_NAME
+    assert result.written_files["local_batch_run_summary_validation"] == SUMMARY_VALIDATION_FILE_NAME
     for item_dir in (tmp_path / "item-0001", tmp_path / "nested" / "item-0002"):
         assert item_dir.is_dir()
         for file_name in DRY_RUN_OUTPUT_FILE_NAMES.values():
@@ -147,6 +154,7 @@ def test_missing_output_root_fails_with_no_writes_and_no_parent_creation(tmp_pat
     assert result.summary.protected_boundary_preserved is False
     assert result.written_files == {}
     assert result.manifest_result is None
+    assert result.summary_validation_report is None
     assert result.summary.failure_reasons == ("output_root must be an existing directory",)
     assert not missing_root.exists()
     assert not (tmp_path / "missing").exists()
@@ -159,6 +167,7 @@ def test_file_path_output_root_fails_and_preserves_file(tmp_path):
     result = run_local_batch(_items(), output_file, _limits(), static_metadata=_metadata())
 
     assert result.written_files == {}
+    assert result.summary_validation_report is None
     assert result.summary.failure_reasons == ("output_root must be an existing directory",)
     assert output_file.read_text(encoding="utf-8") == "existing file\n"
     assert [path.name for path in tmp_path.iterdir()] == ["not-a-directory"]
@@ -221,6 +230,7 @@ def test_nested_item_output_directory_missing_parent_is_blocked(tmp_path, monkey
     assert (tmp_path / "batch_manifest.json").exists()
     assert (tmp_path / "batch_validation_report.json").exists()
     assert (tmp_path / SUMMARY_FILE_NAME).exists()
+    assert (tmp_path / SUMMARY_VALIDATION_FILE_NAME).exists()
 
 
 def test_invalid_batch_item_fails_without_calling_dry_run(tmp_path, monkeypatch):
@@ -246,8 +256,10 @@ def test_invalid_batch_item_fails_without_calling_dry_run(tmp_path, monkeypatch)
     assert calls == []
     assert result.manifest_result.manifest is None
     assert result.written_files == {}
+    assert result.summary_validation_report is None
     assert "items[0].source_id must be a non-empty string" in result.summary.failure_reasons
     assert not (tmp_path / SUMMARY_FILE_NAME).exists()
+    assert not (tmp_path / SUMMARY_VALIDATION_FILE_NAME).exists()
     assert list(tmp_path.iterdir()) == []
 
 
@@ -267,6 +279,7 @@ def test_output_path_escape_fails_without_writes_outside_tmp_path(tmp_path, monk
 
     assert calls == []
     assert result.written_files == {}
+    assert result.summary_validation_report is None
     assert result.summary.failure_reasons == ("items[0].output_path must be contained under output_root",)
     assert not (tmp_path.parent / "outside-root").exists()
     assert list(tmp_path.iterdir()) == []
@@ -284,6 +297,7 @@ def test_max_item_count_resource_limit_failure_blocks_execution(tmp_path, monkey
     assert calls == []
     assert result.manifest_result.manifest is None
     assert result.written_files == {}
+    assert result.summary_validation_report is None
     assert "item count exceeds resource_limits.max_item_count" in result.summary.failure_reasons
     assert list(tmp_path.iterdir()) == []
 
@@ -300,6 +314,27 @@ def test_summary_json_matches_returned_dataclass(tmp_path):
         "batch_manifest": "batch_manifest.json",
         "batch_validation_report": "batch_validation_report.json",
     }
+    assert result.written_files == {
+        "batch_manifest": "batch_manifest.json",
+        "batch_validation_report": "batch_validation_report.json",
+        "local_batch_run_summary": SUMMARY_FILE_NAME,
+        "local_batch_run_summary_validation": SUMMARY_VALIDATION_FILE_NAME,
+    }
+
+
+def test_summary_validation_report_json_marks_local_non_authoritative_no_evidence(tmp_path):
+    (tmp_path / "nested").mkdir()
+
+    result = run_local_batch(_items(), tmp_path, _limits(), static_metadata=_metadata())
+
+    validation_report = _load(tmp_path / SUMMARY_VALIDATION_FILE_NAME)
+
+    assert validation_report == _json_ready(asdict(result.summary_validation_report))
+    assert validation_report["passed"] is True
+    assert validation_report["local_only"] is True
+    assert validation_report["research_only"] is True
+    assert validation_report["non_authoritative"] is True
+    assert validation_report["creates_committed_evidence"] is False
 
 
 def test_outputs_mark_local_research_non_authoritative_no_evidence(tmp_path):
@@ -311,6 +346,9 @@ def test_outputs_mark_local_research_non_authoritative_no_evidence(tmp_path):
     assert result.research_only is True
     assert result.non_authoritative is True
     assert result.creates_committed_evidence is False
+    assert result.summary_validation_report is not None
+    assert result.summary_validation_report.non_authoritative is True
+    assert result.summary_validation_report.creates_committed_evidence is False
     assert result.summary.local_only is True
     assert result.summary.research_only is True
     assert result.summary.non_authoritative is True
@@ -336,6 +374,44 @@ def test_boundaries_record_no_runtime_or_trigger_behavior(tmp_path):
         for marker in ("scheduler", "daemon", "queue", "watcher", "trigger")
     )
     assert result.summary.protected_boundary_preserved is True
+
+
+def test_summary_validation_failure_writes_no_summary_or_validation_report(tmp_path, monkeypatch):
+    failed_report = BatchRunSummaryValidationReport(
+        passed=False,
+        failure_reasons=("summary fixture validation failure",),
+        local_only=True,
+        research_only=True,
+        non_authoritative=True,
+        creates_committed_evidence=False,
+        protected_boundary_preserved=False,
+    )
+    monkeypatch.setattr(
+        "tools.research_automation.local_batch_runner.validate_local_batch_run_summary",
+        lambda summary: failed_report,
+    )
+
+    result = run_local_batch(
+        (_item("INTENT-WP12H-0001", "item-0001"),),
+        tmp_path,
+        BatchResourceLimits(max_item_count=1),
+        static_metadata=_metadata(),
+    )
+
+    assert result.summary_validation_report == failed_report
+    assert result.local_only is True
+    assert result.research_only is True
+    assert result.non_authoritative is True
+    assert result.creates_committed_evidence is False
+    assert result.protected_boundary_preserved is False
+    assert result.written_files == {
+        "batch_manifest": "batch_manifest.json",
+        "batch_validation_report": "batch_validation_report.json",
+    }
+    assert (tmp_path / "batch_manifest.json").exists()
+    assert (tmp_path / "batch_validation_report.json").exists()
+    assert not (tmp_path / SUMMARY_FILE_NAME).exists()
+    assert not (tmp_path / SUMMARY_VALIDATION_FILE_NAME).exists()
 
 
 def test_local_batch_dataclass_names_are_available():

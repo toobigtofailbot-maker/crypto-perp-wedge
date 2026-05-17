@@ -13,6 +13,7 @@ from tools.research_automation.local_run_registry import (
     LocalRunRegistryResult,
     build_local_run_registry,
 )
+from tools.research_automation.local_run_registry_validation import LocalRunRegistryValidationReport
 
 
 def _intent() -> ResearchIntentFixture:
@@ -53,6 +54,22 @@ def _load(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _expected_registry_keys() -> set[str]:
+    return {
+        "checked_boundaries",
+        "creates_committed_evidence",
+        "failure_reasons",
+        "implementation_id",
+        "local_only",
+        "non_authoritative",
+        "package_label",
+        "protected_boundary_preserved",
+        "record_count",
+        "records",
+        "research_only",
+    }
+
+
 def test_valid_local_dry_run_output_root_is_indexed(tmp_path):
     dry_root = tmp_path / "dry"
     registry_root = tmp_path / "registry"
@@ -63,6 +80,8 @@ def test_valid_local_dry_run_output_root_is_indexed(tmp_path):
     result = build_local_run_registry((dry_root,), registry_root)
 
     assert result.failure_reasons == ()
+    assert result.registry_validation_report is not None
+    assert result.registry_validation_report.passed is True
     assert len(result.records) == 1
     record = result.records[0]
     assert record.source_kind == "local_dry_run"
@@ -87,6 +106,8 @@ def test_valid_local_batch_run_output_root_is_indexed(tmp_path):
     result = build_local_run_registry((batch_root,), registry_root)
 
     assert result.failure_reasons == ()
+    assert result.registry_validation_report is not None
+    assert result.registry_validation_report.passed is True
     assert len(result.records) == 1
     record = result.records[0]
     assert record.source_kind == "local_batch_run"
@@ -111,6 +132,8 @@ def test_mixed_dry_run_and_batch_roots_produce_two_records(tmp_path):
     result = build_local_run_registry((batch_root, dry_root), registry_root)
 
     assert result.failure_reasons == ()
+    assert result.registry_validation_report is not None
+    assert result.registry_validation_report.passed is True
     assert [record.source_kind for record in result.records] == [
         "local_batch_run",
         "local_dry_run",
@@ -128,6 +151,8 @@ def test_registry_writes_exact_file_under_registry_output_root(tmp_path):
 
     assert result.registry_file == registry_root / LOCAL_RUN_REGISTRY_FILE_NAME
     assert result.written_files == {"local_run_registry": registry_root / LOCAL_RUN_REGISTRY_FILE_NAME}
+    assert result.registry_validation_report is not None
+    assert result.registry_validation_report.passed is True
     assert (registry_root / LOCAL_RUN_REGISTRY_FILE_NAME).exists()
     assert sorted(path.name for path in registry_root.iterdir()) == [LOCAL_RUN_REGISTRY_FILE_NAME]
     assert LOCAL_RUN_REGISTRY_FILE_NAME not in [path.name for path in dry_root.iterdir()]
@@ -143,6 +168,7 @@ def test_registry_output_contains_boundary_markers(tmp_path):
     build_local_run_registry((dry_root,), registry_root)
 
     payload = _load(registry_root / LOCAL_RUN_REGISTRY_FILE_NAME)
+    assert set(payload) == _expected_registry_keys()
     assert payload["local_only"] is True
     assert payload["research_only"] is True
     assert payload["non_authoritative"] is True
@@ -162,6 +188,8 @@ def test_registry_records_include_source_file_hashes(tmp_path):
 
     result = build_local_run_registry((dry_root,), registry_root)
 
+    assert result.registry_validation_report is not None
+    assert result.registry_validation_report.passed is True
     hashes = result.records[0].source_file_hashes
     assert set(hashes) == {"manifest", "output_bundle", "run_request", "validation_report"}
     assert all(len(value) == 64 for value in hashes.values())
@@ -195,6 +223,7 @@ def test_invalid_registry_output_root_writes_nothing(tmp_path):
     result = build_local_run_registry((dry_root,), missing_registry_root)
 
     assert result.records == ()
+    assert result.registry_validation_report is None
     assert result.written_files == {}
     assert "registry_output_root must be an existing directory" in result.failure_reasons
     assert not missing_registry_root.exists()
@@ -208,6 +237,7 @@ def test_missing_source_root_writes_nothing(tmp_path):
     result = build_local_run_registry((missing_source_root,), registry_root)
 
     assert result.records == ()
+    assert result.registry_validation_report is None
     assert result.written_files == {}
     assert any("source root must be an existing directory" in reason for reason in result.failure_reasons)
     assert list(registry_root.iterdir()) == []
@@ -223,6 +253,7 @@ def test_unrecognized_source_root_writes_nothing(tmp_path):
     result = build_local_run_registry((source_root,), registry_root)
 
     assert result.records == ()
+    assert result.registry_validation_report is None
     assert result.written_files == {}
     assert any("no recognized local run signature" in reason for reason in result.failure_reasons)
     assert list(registry_root.iterdir()) == []
@@ -243,6 +274,7 @@ def test_ambiguous_source_root_writes_nothing(tmp_path):
     result = build_local_run_registry((source_root,), registry_root)
 
     assert result.records == ()
+    assert result.registry_validation_report is None
     assert result.written_files == {}
     assert any("both dry-run and batch-run signatures" in reason for reason in result.failure_reasons)
     assert list(registry_root.iterdir()) == []
@@ -259,6 +291,7 @@ def test_invalid_json_in_required_source_file_writes_nothing(tmp_path):
     result = build_local_run_registry((dry_root,), registry_root)
 
     assert result.records == ()
+    assert result.registry_validation_report is None
     assert result.written_files == {}
     assert any("validation_report.json contains invalid JSON" in reason for reason in result.failure_reasons)
     assert list(registry_root.iterdir()) == []
@@ -284,6 +317,7 @@ def test_batch_summary_validation_drift_writes_nothing(tmp_path):
     result = build_local_run_registry((batch_root,), registry_root)
 
     assert result.records == ()
+    assert result.registry_validation_report is None
     assert result.written_files == {}
     assert any("batch summary validation helper" in reason for reason in result.failure_reasons)
     assert list(registry_root.iterdir()) == []
@@ -309,6 +343,8 @@ def test_failed_dry_run_validation_can_be_indexed_as_failed_local_record(tmp_pat
     result = build_local_run_registry((dry_root,), registry_root)
 
     assert result.failure_reasons == ()
+    assert result.registry_validation_report is not None
+    assert result.registry_validation_report.passed is True
     assert len(result.records) == 1
     record = result.records[0]
     assert record.source_kind == "local_dry_run"
@@ -329,6 +365,46 @@ def test_tests_do_not_write_outside_tmp_path(tmp_path):
 
     assert sorted(path.name for path in tmp_path.iterdir()) == ["dry", "registry"]
     assert (registry_root / LOCAL_RUN_REGISTRY_FILE_NAME).exists()
+
+
+def test_registry_validation_failure_writes_nothing(monkeypatch, tmp_path):
+    dry_root = tmp_path / "dry"
+    registry_root = tmp_path / "registry"
+    dry_root.mkdir()
+    registry_root.mkdir()
+    run_local_dry_run(_intent(), dry_root)
+    failed_report = LocalRunRegistryValidationReport(
+        passed=False,
+        failure_reasons=("forced local registry validation failure",),
+        record_count=1,
+        local_only=True,
+        research_only=True,
+        non_authoritative=True,
+        creates_committed_evidence=False,
+        protected_boundary_preserved=False,
+    )
+
+    def fail_validation(registry):
+        return failed_report
+
+    monkeypatch.setattr(
+        "tools.research_automation.local_run_registry_validation.validate_local_run_registry",
+        fail_validation,
+    )
+
+    result = build_local_run_registry((dry_root,), registry_root)
+
+    assert len(result.records) == 1
+    assert result.registry_file is None
+    assert result.written_files == {}
+    assert result.failure_reasons == failed_report.failure_reasons
+    assert result.registry_validation_report is failed_report
+    assert result.local_only is True
+    assert result.research_only is True
+    assert result.non_authoritative is True
+    assert result.creates_committed_evidence is False
+    assert result.protected_boundary_preserved is False
+    assert list(registry_root.iterdir()) == []
 
 
 def test_local_registry_dataclass_names_are_available():

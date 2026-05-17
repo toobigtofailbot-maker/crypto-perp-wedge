@@ -167,7 +167,7 @@ def _failure_result(
 def _is_valid_name(value: Any) -> bool:
     if not isinstance(value, str) or not value.strip() or value != value.strip():
         return False
-    if value in {".", ".."}:
+    if "." in value:
         return False
     if "/" in value or "\\" in value:
         return False
@@ -209,10 +209,17 @@ def _validate_spec(spec: ParameterSweepSpec) -> tuple[str, ...]:
         if not isinstance(value, str) or not value.strip():
             failures.append(f"{field_name} must be a non-empty string")
 
-    if not spec.data_refs or any(not isinstance(item, str) or not item.strip() for item in spec.data_refs):
+    if isinstance(spec.data_refs, str) or not isinstance(spec.data_refs, (tuple, list)):
+        failures.append("data_refs must be a tuple or list of non-empty local references")
+    elif not spec.data_refs or any(not isinstance(item, str) or not item.strip() for item in spec.data_refs):
         failures.append("data_refs must contain at least one non-empty local reference")
 
     _validate_string_mapping(spec.evaluation_window, "evaluation_window", failures)
+    if isinstance(spec.evaluation_window, Mapping):
+        for field_name in ("start", "end"):
+            value = spec.evaluation_window.get(field_name)
+            if not isinstance(value, str) or not value.strip():
+                failures.append(f"evaluation_window.{field_name} must be a non-empty string")
     _validate_string_mapping(spec.static_metadata, "static_metadata", failures)
 
     if not isinstance(spec.base_parameters, Mapping):

@@ -360,6 +360,114 @@ def test_non_serializable_parameter_value_fails_before_execution(tmp_path):
     assert list(registry_root.iterdir()) == []
 
 
+def test_dotted_sweep_parameter_name_fails_before_calls_and_writes(tmp_path, monkeypatch):
+    output_root = tmp_path / "batch"
+    registry_root = tmp_path / "registry"
+    output_root.mkdir()
+    registry_root.mkdir()
+    calls = []
+    monkeypatch.setattr(
+        "tools.research_automation.local_parameter_sweep.run_local_batch",
+        lambda *args, **kwargs: calls.append(("batch", args, kwargs)),
+    )
+    monkeypatch.setattr(
+        "tools.research_automation.local_parameter_sweep.build_local_run_registry",
+        lambda *args, **kwargs: calls.append(("registry", args, kwargs)),
+    )
+
+    result = run_local_parameter_sweep(
+        _spec(sweep_parameters={"threshold.value": (1, 2)}),
+        output_root,
+        registry_root,
+    )
+
+    assert calls == []
+    assert "sweep_parameters keys must be non-empty unambiguous strings" in result.failure_reasons
+    assert list(output_root.iterdir()) == []
+    assert list(registry_root.iterdir()) == []
+
+
+def test_dotted_base_parameter_name_fails_before_calls_and_writes(tmp_path, monkeypatch):
+    output_root = tmp_path / "batch"
+    registry_root = tmp_path / "registry"
+    output_root.mkdir()
+    registry_root.mkdir()
+    calls = []
+    monkeypatch.setattr(
+        "tools.research_automation.local_parameter_sweep.run_local_batch",
+        lambda *args, **kwargs: calls.append(("batch", args, kwargs)),
+    )
+    monkeypatch.setattr(
+        "tools.research_automation.local_parameter_sweep.build_local_run_registry",
+        lambda *args, **kwargs: calls.append(("registry", args, kwargs)),
+    )
+
+    result = run_local_parameter_sweep(
+        _spec(base_parameters={"max.rows": 1}),
+        output_root,
+        registry_root,
+    )
+
+    assert calls == []
+    assert "base_parameters keys must be non-empty unambiguous strings" in result.failure_reasons
+    assert list(output_root.iterdir()) == []
+    assert list(registry_root.iterdir()) == []
+
+
+def test_bare_string_data_refs_fails_before_calls_and_writes(tmp_path, monkeypatch):
+    output_root = tmp_path / "batch"
+    registry_root = tmp_path / "registry"
+    output_root.mkdir()
+    registry_root.mkdir()
+    calls = []
+    monkeypatch.setattr(
+        "tools.research_automation.local_parameter_sweep.run_local_batch",
+        lambda *args, **kwargs: calls.append(("batch", args, kwargs)),
+    )
+    monkeypatch.setattr(
+        "tools.research_automation.local_parameter_sweep.build_local_run_registry",
+        lambda *args, **kwargs: calls.append(("registry", args, kwargs)),
+    )
+
+    result = run_local_parameter_sweep(
+        _spec(data_refs="local_fixture:wp12q:auto16:sample"),
+        output_root,
+        registry_root,
+    )
+
+    assert calls == []
+    assert "data_refs must be a tuple or list of non-empty local references" in result.failure_reasons
+    assert list(output_root.iterdir()) == []
+    assert list(registry_root.iterdir()) == []
+
+
+def test_missing_evaluation_window_end_fails_before_calls_and_writes(tmp_path, monkeypatch):
+    output_root = tmp_path / "batch"
+    registry_root = tmp_path / "registry"
+    output_root.mkdir()
+    registry_root.mkdir()
+    calls = []
+    monkeypatch.setattr(
+        "tools.research_automation.local_parameter_sweep.run_local_batch",
+        lambda *args, **kwargs: calls.append(("batch", args, kwargs)),
+    )
+    monkeypatch.setattr(
+        "tools.research_automation.local_parameter_sweep.build_local_run_registry",
+        lambda *args, **kwargs: calls.append(("registry", args, kwargs)),
+    )
+
+    result = run_local_parameter_sweep(
+        _spec(evaluation_window={"start": "2026-04-01T00:00:00Z"}),
+        output_root,
+        registry_root,
+    )
+
+    assert calls == []
+    assert "evaluation_window.end must be a non-empty string" in result.failure_reasons
+    assert list(output_root.iterdir()) == []
+    assert list(registry_root.iterdir()) == []
+
+
 def test_downstream_batch_failure_writes_no_sweep_summary(tmp_path, monkeypatch):
     output_root = tmp_path / "batch"
     registry_root = tmp_path / "registry"

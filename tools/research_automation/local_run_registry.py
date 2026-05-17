@@ -11,11 +11,14 @@ import hashlib
 import json
 from dataclasses import asdict, dataclass
 from pathlib import Path, PurePosixPath
-from typing import Any, Iterable, Mapping
+from typing import TYPE_CHECKING, Any, Iterable, Mapping
 
 from tools.research_automation.batch_run_summary_validation import (
     validate_local_batch_run_summary_file,
 )
+
+if TYPE_CHECKING:
+    from tools.research_automation.local_run_registry_validation import LocalRunRegistryValidationReport
 
 
 IMPLEMENTATION_ID = "wp_12m_auto_12_local_run_registry_v1"
@@ -77,6 +80,7 @@ class LocalRunRegistryResult:
     registry_file: Path | None
     written_files: Mapping[str, Path]
     failure_reasons: tuple[str, ...]
+    registry_validation_report: LocalRunRegistryValidationReport | None
     local_only: bool
     research_only: bool
     non_authoritative: bool
@@ -102,6 +106,7 @@ def _failure_result(failure_reasons: Iterable[str]) -> LocalRunRegistryResult:
         registry_file=None,
         written_files={},
         failure_reasons=tuple(failure_reasons),
+        registry_validation_report=None,
         local_only=True,
         research_only=True,
         non_authoritative=True,
@@ -455,13 +460,32 @@ def build_local_run_registry(
         return _failure_result(failures)
 
     record_tuple = tuple(sorted(records, key=lambda record: record.registry_record_id))
+    registry_payload = _registry_payload(record_tuple)
+    from tools.research_automation.local_run_registry_validation import validate_local_run_registry
+
+    registry_validation_report = validate_local_run_registry(registry_payload)
+    if not registry_validation_report.passed:
+        return LocalRunRegistryResult(
+            records=record_tuple,
+            registry_file=None,
+            written_files={},
+            failure_reasons=tuple(registry_validation_report.failure_reasons),
+            registry_validation_report=registry_validation_report,
+            local_only=True,
+            research_only=True,
+            non_authoritative=True,
+            creates_committed_evidence=False,
+            protected_boundary_preserved=False,
+        )
+
     registry_file = registry_root / LOCAL_RUN_REGISTRY_FILE_NAME
-    _write_json(registry_file, _registry_payload(record_tuple))
+    _write_json(registry_file, registry_payload)
     return LocalRunRegistryResult(
         records=record_tuple,
         registry_file=registry_file,
         written_files={"local_run_registry": registry_file},
         failure_reasons=(),
+        registry_validation_report=registry_validation_report,
         local_only=True,
         research_only=True,
         non_authoritative=True,

@@ -1,0 +1,68 @@
+{
+  "schema_version": "v1",
+  "outcome_id": "OL-0014",
+  "candidate_id": "H-004",
+  "lifecycle_state_during_window": "in_research",
+  "evaluation_window_start": "2023-04-12",
+  "evaluation_window_end": "2024-04-11",
+  "outcome_kind": "research_oos",
+  "metrics": {
+    "source_field": "trial_log.oos_sharpe",
+    "window_convention": "WP-12ad / S2b-2 uses the next prior contiguous equivalent-length evaluation window before REP-0013 / OL-0013: 2023-04-12 through 2024-04-11. Indicators are warmed up on prior available history, but the backtest window starts flat with no pre-window position carry-in. No separate IS metric convention is introduced; in_sample.sharpe records the same actual window Sharpe for schema continuity.",
+    "sharpe": 1.739521471772824,
+    "max_drawdown": 0.3323145024165733,
+    "n_obs": 365,
+    "trades": 5,
+    "hit_rate": 0.6,
+    "profit_factor": 8.636620361346967,
+    "final_equity": 30214.160542944963,
+    "total_pnl": 20214.160542944963,
+    "gross_pnl": 24220.099999999988,
+    "fees_paid": 148.65688,
+    "slippage_paid": 74.32844,
+    "funding_paid": 3782.9541370550087,
+    "cost_drag_fraction": 0.16539731285399362,
+    "dsr": 1.0,
+    "walk_forward_efficiency": 1.0,
+    "gates_passed": 6,
+    "gates_total": 8,
+    "config_sha256": "9330affb8f4c5a12a39f4b42e0d8dcb722fc13c6a9ef83b27af7ff03148ec20c",
+    "dataset_sha256": "47b91ceac5ae9e472a08c23390ec8a5f6fee9a627a44df11e3557fbace02813d",
+    "dsr_note": "P(SR>1.0)=1.0000; SR benchmark=0.5497",
+    "max_drawdown_peak": "2024-03-13 23:59:59.999000+00:00",
+    "max_drawdown_trough": "2024-03-19 23:59:59.999000+00:00",
+    "skipped_bars": 0,
+    "sensitivity_min_ratio": 0.7606228173766925,
+    "short_side_trades": 2,
+    "short_side_net_pnl": -2167.6184800000037,
+    "long_side_trades": 3,
+    "long_side_net_pnl": 18720.897899999996,
+    "trial_count_before_append": 13,
+    "trial_count_after_append": 14
+  },
+  "data_provenance": {
+    "source_data_refs": [
+      "data/processed/binance_um_perp_BTCUSDT_1d_2020-01-01_2026-04-11_2026-04-12T1655Z.parquet",
+      "data/processed/binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z.parquet",
+      "binance_um_perp_BTCUSDT_1d_2020-01-01_2026-04-11_2026-04-12T1655Z",
+      "binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z"
+    ],
+    "source_data_window_start": "2023-04-12",
+    "source_data_window_end": "2024-04-11",
+    "source_data_notes": "OL-0014 derives from REP-0014. REP-0014 used the next prior contiguous equivalent-length non-cloned evaluation window, covering 2023-04-12 through 2024-04-11. This window is distinct from REP-0011 full-period evidence, REP-0012 final-local-data-year evidence, and REP-0013 next-most-recent evidence."
+  },
+  "derivation_record": {
+    "derivation_method": "from_rep_artifact",
+    "source_artifact_id": "REP-0014",
+    "source_artifact_path": "research/experiments/REP-0014.report.json",
+    "derivation_timestamp": "2026-05-18T16:08:23-06:00"
+  },
+  "pipeline_version": "post_wp_5b",
+  "linked_artifacts": [
+    "EXP-0011",
+    "REP-0014"
+  ],
+  "retrospective_flag": false,
+  "linked_advisory_artifacts": [],
+  "notes": "WP-12ae derives OL-0014 from REP-0014. It covers H-004 / research_oos / post_wp_5b / exp_success_criteria. gross_pnl > 0 and cost_drag_fraction are copied from REP-0014. WP-12ae performs no EXP-success or D2 reconciliation. WP-12ae creates no REC and does not satisfy REC-5. No policy, scoring, ranking/recommendation, paper/live, runtime, lifecycle, promotion, demotion, or protected-path authority is created."
+}

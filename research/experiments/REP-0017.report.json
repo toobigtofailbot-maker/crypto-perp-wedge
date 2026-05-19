@@ -1,0 +1,159 @@
+{
+  "report_id": "REP-0017",
+  "plan_id": "EXP-0002",
+  "candidate_id": "H-001",
+  "execution_date": "2026-05-19",
+  "trial_ids": [
+    "9b536aff-a20d-4346-8b3a-792688e24955"
+  ],
+  "metrics": {
+    "in_sample": {
+      "sharpe": 1.0319722051262536,
+      "source_field": "trial_log.in_sample_sharpe",
+      "window_convention": "No separate IS/OOS split convention is introduced by WP-12at / WP-S2c-11; this field records the same actual WP-12at prior-contiguous-year evaluation-window Sharpe as the out_of_sample object for schema continuity."
+    },
+    "out_of_sample": {
+      "sharpe": 1.0319722051262536,
+      "source_field": "trial_log.oos_sharpe",
+      "window_convention": "WP-12at / WP-S2c-11 uses the next prior contiguous equivalent-length non-cloned evaluation window, 2024-04-12 through 2025-04-11, as the second additional H-001 D2 observation after the original full-period no-formal-split baseline. Indicators are warmed up on prior available history, but the backtest window starts flat with no pre-window position carry-in. The original H-001 REP-0002 evidence used a full-period retrospective posture, so strict non-overlap against that baseline is impossible; this package follows the later repo precedent of explicit non-cloned window disclosure for additional REP evidence.",
+      "evaluation_window_start": "2024-04-12",
+      "evaluation_window_end": "2025-04-11",
+      "actual_bar_window_start": "2024-04-12 03:59:59.999000+00:00",
+      "actual_bar_window_end": "2025-04-11 23:59:59.999000+00:00",
+      "data_source": [
+        "data\\processed\\binance_um_perp_BTCUSDT_4h_2020-01-01_2026-04-11_2026-04-12T1655Z.parquet",
+        "data\\processed\\binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z.parquet"
+      ],
+      "dataset_ids": [
+        "binance_um_perp_BTCUSDT_4h_2020-01-01_2026-04-11_2026-04-12T1655Z",
+        "binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z"
+      ],
+      "config_sha256": "4fbb6d198750ebeac13774a2859a48667860c63bc9d3a58780ee92f835429381",
+      "dataset_sha256": "9c52bdd9b90a5c4c3f3857ee39de6941f0bd6de038007dc712616f5d6618fb87",
+      "trial_count_before_append": 16,
+      "trial_count_after_append": 17,
+      "max_drawdown": 0.9028253902869342,
+      "max_drawdown_peak": "2024-05-31 15:59:59.999000+00:00",
+      "max_drawdown_trough": "2024-12-05 03:59:59.999000+00:00",
+      "n_obs": 2189,
+      "bars": 2190,
+      "trades": 10,
+      "hit_rate": 0.5,
+      "profit_factor": 0.8237812682480523,
+      "final_equity": 8650.837766207971,
+      "total_pnl": -1349.162233792029,
+      "gross_pnl": -2153.4000000000087,
+      "fees_paid": 603.01288,
+      "slippage_paid": 301.50644,
+      "funding_paid": -1708.7570862080001,
+      "cost_drag_fraction": 0.37347346810067655,
+      "pnl_concentration_90d": 12.0867,
+      "skipped_bars": 0,
+      "liquidated": false,
+      "liquidation_timestamp": null,
+      "sensitivity_min_ratio": 0.1696498894559417,
+      "sensitivity": [
+        {
+          "variant": "lookback_up_25pct",
+          "sharpe": 0.17507397052127333,
+          "ratio_to_base": 0.1696498894559417
+        },
+        {
+          "variant": "lookback_down_25pct",
+          "sharpe": 0.23160901646800214,
+          "ratio_to_base": 0.22443338620701184
+        },
+        {
+          "variant": "threshold_up_25pct",
+          "sharpe": 1.1564223607209303,
+          "ratio_to_base": 1.120594484014665
+        },
+        {
+          "variant": "threshold_down_25pct",
+          "sharpe": 1.1063716882433257,
+          "ratio_to_base": 1.0720944641217056
+        }
+      ],
+      "dsr": 1.0,
+      "dsr_note": "P(SR>1.0)=1.0000; SR benchmark=0.5781",
+      "walk_forward_efficiency": 1.0,
+      "gates_passed": 4,
+      "gates_total": 8,
+      "side_summary": [
+        {
+          "direction": -1,
+          "count": 10,
+          "net_pnl_sum": -2606.30568000001,
+          "net_pnl_mean": -260.630568000001
+        }
+      ],
+      "signal_counts": {
+        "-1": 233,
+        "0": 1957
+      }
+    }
+  },
+  "gate_results": [
+    {
+      "gate_id": "D2-006-G1: OOS Sharpe >= 1.0",
+      "threshold": 1.0,
+      "observed": 1.032,
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G2: DSR > 1.0 at 95% CI",
+      "threshold": 1.0,
+      "observed": "1.0; P(SR>1.0)=1.0000; SR benchmark=0.5781",
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G3: Per-fold max DD <= 20%",
+      "threshold": 0.2,
+      "observed": 0.9028,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G4: Parameter sensitivity min_ratio >= 0.70",
+      "threshold": 0.7,
+      "observed": "0.1696; Computed by parameter_sensitivity() at +/-25%",
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G5: Cost drag <= 50% of gross PnL",
+      "threshold": 0.5,
+      "observed": "0.3735; gross_pnl=-2153.40 <= 0: cost drag undefined/misleading",
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G6: No 90-day window > 60% of PnL",
+      "threshold": 0.6,
+      "observed": 12.0867,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G7: <= 5 free parameters",
+      "threshold": 5.0,
+      "observed": 2.0,
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G8: Walk-forward efficiency > 0.5",
+      "threshold": 0.5,
+      "observed": 1.0,
+      "pass": true
+    }
+  ],
+  "overall_verdict": "NO-GO",
+  "observations": "WP-12at / WP-S2c-11 is the REP-only package for the A2C-001 first-member runway exact segment H-001 / research_oos / pre_wp_5b / d2_006_gates. It uses existing committed EXP-0002 and creates REP-0017 only, with one appended H-001 trial-log row. It creates no new EXP scaffold or EXP plan, creates no OL or REC rows, does not increase reconciliation_count, and does not floor-cross the selected exact segment. The WP-12at window is the next prior contiguous equivalent-length non-cloned evaluation window before REP-0016, 2024-04-12 through 2025-04-11, with indicator warmup from earlier available history and no pre-window position carry-in. The prior H-001 evidence used a no-formal-split full-period retrospective baseline, so this report explicitly discloses that strict non-overlap against REP-0002 is impossible while preserving a non-cloned bounded observation window. The schema-required next_step_recommendation field carries no policy, promotion, ranking, paper/live, runtime, protected-path, or downstream authority.",
+  "next_step_recommendation": "archive",
+  "diagnostic_findings": [
+    "REP-0017 is one genuine local research evaluation with a new trial id against existing EXP-0002; no new EXP was created.",
+    "The selected downstream exact segment is H-001 / research_oos / pre_wp_5b / d2_006_gates.",
+    "The evaluation window is explicit and non-cloned: 2024-04-12 through 2025-04-11, with 2190 4h bars from 2024-04-12 03:59:59.999000+00:00 through 2025-04-11 23:59:59.999000+00:00.",
+    "Indicators were warmed up on earlier available local history, and the backtest window started flat with no inherited pre-window position carry-in.",
+    "The original H-001 REP-0002 evidence used a full-period no-formal-split retrospective baseline, so strict non-overlap against the existing committed H-001 evidence is impossible; this report records that limitation explicitly.",
+    "The run creates no OL or REC rows, makes no REC-5 claim, and does not change H-001 d2_006_gates reconciliation_count from 2.",
+    "The next_step_recommendation field is schema-required only and has no policy, scoring, ranking/recommendation, paper/live, runtime, promotion, demotion, readiness, lifecycle, protected-path, or downstream authority.",
+    "The run does not include paired-source reuse, H-005/H-006 work, Path B, EXP scaffold authoring, cohort implementation beyond this REP append, AUTO successor work, runtime behavior, or protected-path authority."
+  ]
+}

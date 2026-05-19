@@ -1,0 +1,185 @@
+{
+  "schema_version": "v1",
+  "reconciliation_id": "REC-0027",
+  "candidate_id": "H-001",
+  "outcome_id": "OL-0016",
+  "outcome_kind": "research_oos",
+  "pipeline_version": "pre_wp_5b",
+  "expectation_source_type": "d2_006_gates",
+  "expectation_source_artifact_id": "D2-006",
+  "expectation_source_artifact_path": "docs/onboarding/PHASE2_BASELINE.md",
+  "expectation_extracted": {
+    "source_type": "d2_006_gates",
+    "source_artifact_id": "D2-006",
+    "source_artifact_path": "docs/onboarding/PHASE2_BASELINE.md",
+    "extraction_method": "manual_forward_wp12as_d2_006_rec_append_v1",
+    "extracted_at": "2026-05-19T14:07:41-06:00",
+    "metric_expectations": [
+      {
+        "metric_name": "sharpe",
+        "expected_operator": "gte",
+        "expected_value": 1.0,
+        "expected_unit": null,
+        "source_field_path": "D2-006.What changes[1]",
+        "source_text": "Out-of-sample Sharpe \u2265 1.0 net of modeled costs."
+      },
+      {
+        "metric_name": "dsr",
+        "expected_operator": "gt",
+        "expected_value": 1.0,
+        "expected_unit": "95_percent_confidence_given_actual_trial_count",
+        "source_field_path": "D2-006.What changes[2]",
+        "source_text": "DSR > 1.0 at 95% confidence given actual trial count."
+      },
+      {
+        "metric_name": "max_drawdown",
+        "expected_operator": "lte",
+        "expected_value": 0.2,
+        "expected_unit": "fraction",
+        "source_field_path": "D2-006.What changes[3]",
+        "source_text": "Max drawdown \u2264 20% in any walk-forward fold."
+      },
+      {
+        "metric_name": "sensitivity_min_ratio",
+        "expected_operator": "gte",
+        "expected_value": 0.7,
+        "expected_unit": "ratio",
+        "source_field_path": "D2-006.What changes[4]",
+        "source_text": "Parameter sensitivity: \u00b125% parameter shift keeps Sharpe within 70% of baseline."
+      },
+      {
+        "metric_name": "cost_drag_fraction",
+        "expected_operator": "lte",
+        "expected_value": 0.5,
+        "expected_unit": "fraction_of_gross_pnl",
+        "source_field_path": "D2-006.What changes[5]",
+        "source_text": "Cost drag \u2264 50% of gross PnL.",
+        "notes": "Preserved from D2-006 but not compared because OL-0016.metrics.gross_pnl <= 0, so the cost_drag_fraction as a fraction of gross PnL is not semantically interpretable as a pass/fail ratio."
+      },
+      {
+        "metric_name": "pnl_concentration_90d",
+        "expected_operator": "lte",
+        "expected_value": 0.6,
+        "expected_unit": "fraction_of_total_pnl",
+        "source_field_path": "D2-006.What changes[6]",
+        "source_text": "No single 90-day window contributes > 60% of total PnL.",
+        "notes": "Preserved from D2-006 but not compared because OL-0016.metrics does not include a 90-day contribution metric."
+      },
+      {
+        "metric_name": "free_parameter_count",
+        "expected_operator": "lte",
+        "expected_value": 5,
+        "expected_unit": "count",
+        "source_field_path": "D2-006.What changes[7]",
+        "source_text": "\u2264 5 free parameters.",
+        "notes": "Preserved from D2-006 but not compared because OL-0016.metrics does not include free_parameter_count."
+      },
+      {
+        "metric_name": "walk_forward_efficiency",
+        "expected_operator": "gt",
+        "expected_value": 0.5,
+        "expected_unit": "ratio",
+        "source_field_path": "D2-006.What changes[8]",
+        "source_text": "Walk-forward efficiency (OOS/IS Sharpe ratio) > 0.5."
+      }
+    ]
+  },
+  "realized_metrics": {
+    "source_field": "trial_log.oos_sharpe",
+    "window_convention": "WP-12aq / WP-S2c-8 uses the final local data-year evaluation window, 2025-04-12 through 2026-04-11, as the first additional H-001 D2 observation after the original full-period no-formal-split baseline. Indicators are warmed up on prior available history, but the backtest window starts flat with no pre-window position carry-in. The original H-001 REP-0002 evidence used a full-period retrospective posture, so strict non-overlap against that baseline is impossible; this package follows the later repo precedent of explicit non-cloned window disclosure for additional REP evidence.",
+    "sharpe": -0.5207875394924478,
+    "max_drawdown": 0.3643704231727983,
+    "n_obs": 2189,
+    "trades": 2,
+    "hit_rate": 0.0,
+    "profit_factor": 0.0,
+    "final_equity": 7638.416170592014,
+    "total_pnl": -2361.583829407986,
+    "gross_pnl": -2171.9999999999854,
+    "fees_paid": 133.30592,
+    "slippage_paid": 66.65296,
+    "funding_paid": -10.375050591999997,
+    "cost_drag_fraction": -0.0872853726556175,
+    "dsr": 0.0,
+    "walk_forward_efficiency": 0.0,
+    "gates_passed": 1,
+    "gates_total": 8,
+    "config_sha256": "995fca34c0faaf5f1ae32a6d78a6358c398313b30c076d0f297cd408cae05815",
+    "dataset_sha256": "9c52bdd9b90a5c4c3f3857ee39de6941f0bd6de038007dc712616f5d6618fb87",
+    "dsr_note": "P(SR>1.0)=0.0000; SR benchmark=0.5599",
+    "max_drawdown_peak": "2025-04-12 03:59:59.999000+00:00",
+    "max_drawdown_trough": "2026-02-07 11:59:59.999000+00:00",
+    "skipped_bars": 0,
+    "sensitivity_min_ratio": -2.1541967756113927,
+    "long_side_trades": 2,
+    "long_side_net_pnl": -2271.3278399999854,
+    "short_side_trades": 0,
+    "short_side_net_pnl": 0.0,
+    "trial_count_before_append": 15,
+    "trial_count_after_append": 16
+  },
+  "comparison": {
+    "metric_comparisons": [
+      {
+        "metric_name": "sharpe",
+        "expected_value": 1.0,
+        "realized_value": -0.5207875394924478,
+        "delta_absolute": -1.5207875394924478,
+        "delta_relative": -1.5207875394924478,
+        "comparison_verdict": "not_met",
+        "comparison_notes": "D2-006 requires out-of-sample Sharpe >= 1.0 net of modeled costs; OL-0016 records sharpe below that threshold."
+      },
+      {
+        "metric_name": "dsr",
+        "expected_value": 1.0,
+        "realized_value": 0.0,
+        "delta_absolute": -1.0,
+        "delta_relative": -1.0,
+        "comparison_verdict": "not_met",
+        "comparison_notes": "D2-006 requires DSR > 1.0 at 95% confidence given actual trial count; OL-0016 records dsr below that threshold."
+      },
+      {
+        "metric_name": "max_drawdown",
+        "expected_value": 0.2,
+        "realized_value": 0.3643704231727983,
+        "delta_absolute": 0.16437042317279827,
+        "delta_relative": 0.8218521158639913,
+        "comparison_verdict": "not_met",
+        "comparison_notes": "D2-006 requires max drawdown <= 20% in any walk-forward fold; OL-0016 records max_drawdown above that threshold."
+      },
+      {
+        "metric_name": "sensitivity_min_ratio",
+        "expected_value": 0.7,
+        "realized_value": -2.1541967756113927,
+        "delta_absolute": -2.8541967756113924,
+        "delta_relative": -4.077423965159132,
+        "comparison_verdict": "not_met",
+        "comparison_notes": "D2-006 requires parameter sensitivity min_ratio >= 0.70; OL-0016 records sensitivity_min_ratio below that threshold."
+      },
+      {
+        "metric_name": "walk_forward_efficiency",
+        "expected_value": 0.5,
+        "realized_value": 0.0,
+        "delta_absolute": -0.5,
+        "delta_relative": -1.0,
+        "comparison_verdict": "not_met",
+        "comparison_notes": "D2-006 requires walk-forward efficiency > 0.5; OL-0016 records walk_forward_efficiency below that threshold."
+      }
+    ]
+  },
+  "overall_verdict": "none_met",
+  "interpretation": "REC-0027 derives from OL-0016 and is the WP-S2c-10 H-001 d2_006_gates cycle 1 REC for the A2C-001 first-member runway. It is the second REC observation for the exact segment H-001 / research_oos / pre_wp_5b / d2_006_gates, increasing the exact segment count from 1 to 2. It does not satisfy REC-5 and does not floor-cross the segment. Cost-drag is preserved but not deterministically compared because OL-0016.metrics.gross_pnl <= 0 makes cost_drag_fraction semantically uninterpretable as a pass/fail ratio. REC-0027 does not authorize paired-source reuse, H-005/H-006 work, Path B, policy, scoring, ranking/recommendation, paper-live/runtime, lifecycle, promotion, demotion, protected-path authority, or downstream authority.",
+  "derivation_record": {
+    "derivation_method": "manual_forward_wp12as_d2_006_rec_append_v1",
+    "source_artifact_id": "OL-0016",
+    "source_artifact_path": "research/outcome_ledgers/OL-0016.outcome_ledger.json",
+    "source_outcome_id": "OL-0016",
+    "expectation_source_type": "d2_006_gates",
+    "derivation_timestamp": "2026-05-19T14:07:41-06:00",
+    "tool_version": "wp12as_manual_d2_006_rec_append_v1"
+  },
+  "retrospective_flag": false,
+  "linked_advisory_artifacts": [],
+  "linked_lifecycle_artifacts": [],
+  "notes": "WP-12as creates only REC-0027 from existing committed OL-0016 against committed D2-006 expectations. It creates no REP, OL, EXP, or LCH artifact. It moves H-001 / research_oos / pre_wp_5b / d2_006_gates from reconciliation_count = 1 to 2, still below REC-5 target 3. It does not authorize paired-source reuse, H-005/H-006 work, Path B, EXP scaffold authoring, cohort implementation beyond this REC append, schema, validator, central query-layer, implementation, config, dependency, data, runtime, AUTO, H-011 first-time inclusion, H-012+ registration, policy, scoring, ranking/recommendation, approval, promotion, demotion, readiness, lifecycle transition, protected-path authority, or downstream authority."
+}

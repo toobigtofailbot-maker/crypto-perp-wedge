@@ -1,0 +1,212 @@
+[
+  {
+    "reconciliation_id": "REC-0011",
+    "metric_name": "d2_006_gates",
+    "expected_operator": null,
+    "expected_value": "[\"D2-006 promotion gates from docs/onboarding/PHASE2_BASELINE.md as implemented by the current post-WP-5b lib.evaluation.check_promotion_gates\"]",
+    "expected_unit": null,
+    "notes": "EXP-0011 criterion at success_criteria.gates is preserved, but REC v1 cannot compare it to OL-0011 without inventing an OL metric mapping, numeric threshold, or operational pass/fail authority.",
+    "source_text": null,
+    "comparison_surface_posture": "compared_as_insufficient_evidence_with_null_realized_and_delta"
+  },
+  {
+    "reconciliation_id": "REC-0011",
+    "metric_name": "historical_h004_artifact_preservation",
+    "expected_operator": null,
+    "expected_value": "\"Historical retrospective H-004 artifacts EXP-0005 and REP-0005 remain unchanged alongside the new forward-flow pair\"",
+    "expected_unit": null,
+    "notes": "EXP-0011 criterion at success_criteria.additional_criteria[4] is preserved, but REC v1 cannot compare it to OL-0011 without inventing an OL metric mapping, numeric threshold, or operational pass/fail authority.",
+    "source_text": null,
+    "comparison_surface_posture": "compared_as_insufficient_evidence_with_null_realized_and_delta"
+  },
+  {
+    "reconciliation_id": "REC-0011",
+    "metric_name": "plan_file_authored",
+    "expected_operator": null,
+    "expected_value": "\"Plan file EXP-0011 is authored and validated before the H-004 re-execution begins\"",
+    "expected_unit": null,
+    "notes": "EXP-0011 criterion at success_criteria.additional_criteria[0] is preserved, but REC v1 cannot compare it to OL-0011 without inventing an OL metric mapping, numeric threshold, or operational pass/fail authority.",
+    "source_text": null,
+    "comparison_surface_posture": "compared_as_insufficient_evidence_with_null_realized_and_delta"
+  },
+  {
+    "reconciliation_id": "REC-0011",
+    "metric_name": "registered_h004_parameters",
+    "expected_operator": null,
+    "expected_value": "\"The run uses the exact registered H-004 baseline parameters and committed H-004 signal logic\"",
+    "expected_unit": null,
+    "notes": "EXP-0011 criterion at success_criteria.additional_criteria[1] is preserved, but REC v1 cannot compare it to OL-0011 without inventing an OL metric mapping, numeric threshold, or operational pass/fail authority.",
+    "source_text": null,
+    "comparison_surface_posture": "compared_as_insufficient_evidence_with_null_realized_and_delta"
+  },
+  {
+    "reconciliation_id": "REC-0011",
+    "metric_name": "report_trial_reference",
+    "expected_operator": null,
+    "expected_value": "\"The resulting report references the actual generated trial_id and actual current-run metrics\"",
+    "expected_unit": null,
+    "notes": "EXP-0011 criterion at success_criteria.additional_criteria[3] is preserved, but REC v1 cannot compare it to OL-0011 without inventing an OL metric mapping, numeric threshold, or operational pass/fail authority.",
+    "source_text": null,
+    "comparison_surface_posture": "compared_as_insufficient_evidence_with_null_realized_and_delta"
+  },
+  {
+    "reconciliation_id": "REC-0011",
+    "metric_name": "scope_preservation",
+    "expected_operator": null,
+    "expected_value": "\"No candidate registration, data procurement, schema, validator, query-layer, test, runtime, or promotion change occurs\"",
+    "expected_unit": null,
+    "notes": "EXP-0011 criterion at success_criteria.additional_criteria[5] is preserved, but REC v1 cannot compare it to OL-0011 without inventing an OL metric mapping, numeric threshold, or operational pass/fail authority.",
+    "source_text": null,
+    "comparison_surface_posture": "compared_as_insufficient_evidence_with_null_realized_and_delta"
+  },
+  {
+    "reconciliation_id": "REC-0011",
+    "metric_name": "trial_log_append_count",
+    "expected_operator": null,
+    "expected_value": "\"The run appends exactly one new generated trial entry to research/trial_log.jsonl\"",
+    "expected_unit": null,
+    "notes": "EXP-0011 criterion at success_criteria.additional_criteria[2] is preserved, but REC v1 cannot compare it to OL-0011 without inventing an OL metric mapping, numeric threshold, or operational pass/fail authority.",
+    "source_text": null,
+    "comparison_surface_posture": "compared_as_insufficient_evidence_with_null_realized_and_delta"
+  },
+  {
+    "reconciliation_id": "REC-0025",
+    "metric_name": "d2_006_gates",
+    "expected_operator": null,
+    "expected_value": "[\"D2-006 promotion gates from docs/onboarding/PHASE2_BASELINE.md as implemented by the current post-WP-5b lib.evaluation.check_promotion_gates\"]",
+    "expected_unit": null,
+    "notes": "EXP-0011 criterion at success_criteria.gates is preserved, but REC v1 cannot compare it to OL-0014 without inventing an OL metric mapping, numeric threshold, operational pass/fail authority, or D2 direct-threshold fallback. No D2 fallback is used in this EXP-success REC.",
+    "source_text": null,
+    "comparison_surface_posture": "compared_as_insufficient_evidence_with_null_realized_and_delta"
+  },
+  {
+    "reconciliation_id": "REC-0025",
+    "metric_name": "historical_h004_artifact_preservation",
+    "expected_operator": null,
+    "expected_value": "\"Historical retrospective H-004 artifacts EXP-0005 and REP-0005 remain unchanged alongside the new forward-flow pair\"",
+    "expected_unit": null,
+    "notes": "EXP-0011 criterion at success_criteria.additional_criteria[4] is preserved, but REC v1 cannot compare it to OL-0014 without inventing an OL metric mapping, numeric threshold, operational pass/fail authority, or D2 direct-threshold fallback. No D2 fallback is used in this EXP-success REC.",
+    "source_text": null,
+    "comparison_surface_posture": "compared_as_insufficient_evidence_with_null_realized_and_delta"
+  },
+  {
+    "reconciliation_id": "REC-0025",
+    "metric_name": "plan_file_authored",
+    "expected_operator": null,
+    "expected_value": "\"Plan file EXP-0011 is authored and validated before the H-004 re-execution begins\"",
+    "expected_unit": null,
+    "notes": "EXP-0011 criterion at success_criteria.additional_criteria[0] is preserved, but REC v1 cannot compare it to OL-0014 without inventing an OL metric mapping, numeric threshold, operational pass/fail authority, or D2 direct-threshold fallback. No D2 fallback is used in this EXP-success REC.",
+    "source_text": null,
+    "comparison_surface_posture": "compared_as_insufficient_evidence_with_null_realized_and_delta"
+  },
+  {
+    "reconciliation_id": "REC-0025",
+    "metric_name": "registered_h004_parameters",
+    "expected_operator": null,
+    "expected_value": "\"The run uses the exact registered H-004 baseline parameters and committed H-004 signal logic\"",
+    "expected_unit": null,
+    "notes": "EXP-0011 criterion at success_criteria.additional_criteria[1] is preserved, but REC v1 cannot compare it to OL-0014 without inventing an OL metric mapping, numeric threshold, operational pass/fail authority, or D2 direct-threshold fallback. No D2 fallback is used in this EXP-success REC.",
+    "source_text": null,
+    "comparison_surface_posture": "compared_as_insufficient_evidence_with_null_realized_and_delta"
+  },
+  {
+    "reconciliation_id": "REC-0025",
+    "metric_name": "report_trial_reference",
+    "expected_operator": null,
+    "expected_value": "\"The resulting report references the actual generated trial_id and actual current-run metrics\"",
+    "expected_unit": null,
+    "notes": "EXP-0011 criterion at success_criteria.additional_criteria[3] is preserved, but REC v1 cannot compare it to OL-0014 without inventing an OL metric mapping, numeric threshold, operational pass/fail authority, or D2 direct-threshold fallback. No D2 fallback is used in this EXP-success REC.",
+    "source_text": null,
+    "comparison_surface_posture": "compared_as_insufficient_evidence_with_null_realized_and_delta"
+  },
+  {
+    "reconciliation_id": "REC-0025",
+    "metric_name": "scope_preservation",
+    "expected_operator": null,
+    "expected_value": "\"No candidate registration, data procurement, schema, validator, query-layer, test, runtime, or promotion change occurs\"",
+    "expected_unit": null,
+    "notes": "EXP-0011 criterion at success_criteria.additional_criteria[5] is preserved, but REC v1 cannot compare it to OL-0014 without inventing an OL metric mapping, numeric threshold, operational pass/fail authority, or D2 direct-threshold fallback. No D2 fallback is used in this EXP-success REC.",
+    "source_text": null,
+    "comparison_surface_posture": "compared_as_insufficient_evidence_with_null_realized_and_delta"
+  },
+  {
+    "reconciliation_id": "REC-0025",
+    "metric_name": "trial_log_append_count",
+    "expected_operator": null,
+    "expected_value": "\"The run appends exactly one new generated trial entry to research/trial_log.jsonl\"",
+    "expected_unit": null,
+    "notes": "EXP-0011 criterion at success_criteria.additional_criteria[2] is preserved, but REC v1 cannot compare it to OL-0014 without inventing an OL metric mapping, numeric threshold, operational pass/fail authority, or D2 direct-threshold fallback. No D2 fallback is used in this EXP-success REC.",
+    "source_text": null,
+    "comparison_surface_posture": "compared_as_insufficient_evidence_with_null_realized_and_delta"
+  },
+  {
+    "reconciliation_id": "REC-0026",
+    "metric_name": "d2_006_gates",
+    "expected_operator": null,
+    "expected_value": "[\"D2-006 promotion gates from docs/onboarding/PHASE2_BASELINE.md as implemented by the current post-WP-5b lib.evaluation.check_promotion_gates\"]",
+    "expected_unit": null,
+    "notes": "EXP-0011 criterion at success_criteria.gates is preserved, but REC v1 cannot compare it to OL-0015 without inventing an OL metric mapping, numeric threshold, operational pass/fail authority, or D2 direct-threshold fallback. No D2 fallback is used in this EXP-success REC.",
+    "source_text": null,
+    "comparison_surface_posture": "compared_as_insufficient_evidence_with_null_realized_and_delta"
+  },
+  {
+    "reconciliation_id": "REC-0026",
+    "metric_name": "historical_h004_artifact_preservation",
+    "expected_operator": null,
+    "expected_value": "\"Historical retrospective H-004 artifacts EXP-0005 and REP-0005 remain unchanged alongside the new forward-flow pair\"",
+    "expected_unit": null,
+    "notes": "EXP-0011 criterion at success_criteria.additional_criteria[4] is preserved, but REC v1 cannot compare it to OL-0015 without inventing an OL metric mapping, numeric threshold, operational pass/fail authority, or D2 direct-threshold fallback. No D2 fallback is used in this EXP-success REC.",
+    "source_text": null,
+    "comparison_surface_posture": "compared_as_insufficient_evidence_with_null_realized_and_delta"
+  },
+  {
+    "reconciliation_id": "REC-0026",
+    "metric_name": "plan_file_authored",
+    "expected_operator": null,
+    "expected_value": "\"Plan file EXP-0011 is authored and validated before the H-004 re-execution begins\"",
+    "expected_unit": null,
+    "notes": "EXP-0011 criterion at success_criteria.additional_criteria[0] is preserved, but REC v1 cannot compare it to OL-0015 without inventing an OL metric mapping, numeric threshold, operational pass/fail authority, or D2 direct-threshold fallback. No D2 fallback is used in this EXP-success REC.",
+    "source_text": null,
+    "comparison_surface_posture": "compared_as_insufficient_evidence_with_null_realized_and_delta"
+  },
+  {
+    "reconciliation_id": "REC-0026",
+    "metric_name": "registered_h004_parameters",
+    "expected_operator": null,
+    "expected_value": "\"The run uses the exact registered H-004 baseline parameters and committed H-004 signal logic\"",
+    "expected_unit": null,
+    "notes": "EXP-0011 criterion at success_criteria.additional_criteria[1] is preserved, but REC v1 cannot compare it to OL-0015 without inventing an OL metric mapping, numeric threshold, operational pass/fail authority, or D2 direct-threshold fallback. No D2 fallback is used in this EXP-success REC.",
+    "source_text": null,
+    "comparison_surface_posture": "compared_as_insufficient_evidence_with_null_realized_and_delta"
+  },
+  {
+    "reconciliation_id": "REC-0026",
+    "metric_name": "report_trial_reference",
+    "expected_operator": null,
+    "expected_value": "\"The resulting report references the actual generated trial_id and actual current-run metrics\"",
+    "expected_unit": null,
+    "notes": "EXP-0011 criterion at success_criteria.additional_criteria[3] is preserved, but REC v1 cannot compare it to OL-0015 without inventing an OL metric mapping, numeric threshold, operational pass/fail authority, or D2 direct-threshold fallback. No D2 fallback is used in this EXP-success REC.",
+    "source_text": null,
+    "comparison_surface_posture": "compared_as_insufficient_evidence_with_null_realized_and_delta"
+  },
+  {
+    "reconciliation_id": "REC-0026",
+    "metric_name": "scope_preservation",
+    "expected_operator": null,
+    "expected_value": "\"No candidate registration, data procurement, schema, validator, query-layer, test, runtime, or promotion change occurs\"",
+    "expected_unit": null,
+    "notes": "EXP-0011 criterion at success_criteria.additional_criteria[5] is preserved, but REC v1 cannot compare it to OL-0015 without inventing an OL metric mapping, numeric threshold, operational pass/fail authority, or D2 direct-threshold fallback. No D2 fallback is used in this EXP-success REC.",
+    "source_text": null,
+    "comparison_surface_posture": "compared_as_insufficient_evidence_with_null_realized_and_delta"
+  },
+  {
+    "reconciliation_id": "REC-0026",
+    "metric_name": "trial_log_append_count",
+    "expected_operator": null,
+    "expected_value": "\"The run appends exactly one new generated trial entry to research/trial_log.jsonl\"",
+    "expected_unit": null,
+    "notes": "EXP-0011 criterion at success_criteria.additional_criteria[2] is preserved, but REC v1 cannot compare it to OL-0015 without inventing an OL metric mapping, numeric threshold, operational pass/fail authority, or D2 direct-threshold fallback. No D2 fallback is used in this EXP-success REC.",
+    "source_text": null,
+    "comparison_surface_posture": "compared_as_insufficient_evidence_with_null_realized_and_delta"
+  }
+]

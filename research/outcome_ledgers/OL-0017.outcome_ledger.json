@@ -1,0 +1,68 @@
+{
+  "schema_version": "v1",
+  "outcome_id": "OL-0017",
+  "candidate_id": "H-001",
+  "lifecycle_state_during_window": "in_research",
+  "evaluation_window_start": "2024-04-12",
+  "evaluation_window_end": "2025-04-11",
+  "outcome_kind": "research_oos",
+  "metrics": {
+    "source_field": "trial_log.oos_sharpe",
+    "window_convention": "WP-12at / WP-S2c-11 uses the next prior contiguous equivalent-length non-cloned evaluation window, 2024-04-12 through 2025-04-11, as the second additional H-001 D2 observation after the original full-period no-formal-split baseline. Indicators are warmed up on prior available history, but the backtest window starts flat with no pre-window position carry-in. The original H-001 REP-0002 evidence used a full-period retrospective posture, so strict non-overlap against that baseline is impossible; this package follows the later repo precedent of explicit non-cloned window disclosure for additional REP evidence.",
+    "sharpe": 1.0319722051262536,
+    "max_drawdown": 0.9028253902869342,
+    "n_obs": 2189,
+    "trades": 10,
+    "hit_rate": 0.5,
+    "profit_factor": 0.8237812682480523,
+    "final_equity": 8650.837766207971,
+    "total_pnl": -1349.162233792029,
+    "gross_pnl": -2153.4000000000087,
+    "fees_paid": 603.01288,
+    "slippage_paid": 301.50644,
+    "funding_paid": -1708.7570862080001,
+    "cost_drag_fraction": 0.37347346810067655,
+    "dsr": 1.0,
+    "walk_forward_efficiency": 1.0,
+    "gates_passed": 4,
+    "gates_total": 8,
+    "config_sha256": "4fbb6d198750ebeac13774a2859a48667860c63bc9d3a58780ee92f835429381",
+    "dataset_sha256": "9c52bdd9b90a5c4c3f3857ee39de6941f0bd6de038007dc712616f5d6618fb87",
+    "dsr_note": "P(SR>1.0)=1.0000; SR benchmark=0.5781",
+    "max_drawdown_peak": "2024-05-31 15:59:59.999000+00:00",
+    "max_drawdown_trough": "2024-12-05 03:59:59.999000+00:00",
+    "skipped_bars": 0,
+    "sensitivity_min_ratio": 0.1696498894559417,
+    "short_side_trades": 10,
+    "short_side_net_pnl": -2606.30568000001,
+    "long_side_trades": 0,
+    "long_side_net_pnl": 0.0,
+    "trial_count_before_append": 16,
+    "trial_count_after_append": 17
+  },
+  "data_provenance": {
+    "source_data_refs": [
+      "data/processed/binance_um_perp_BTCUSDT_4h_2020-01-01_2026-04-11_2026-04-12T1655Z.parquet",
+      "data/processed/binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z.parquet",
+      "binance_um_perp_BTCUSDT_4h_2020-01-01_2026-04-11_2026-04-12T1655Z",
+      "binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z"
+    ],
+    "source_data_window_start": "2024-04-12",
+    "source_data_window_end": "2025-04-11",
+    "source_data_notes": "OL-0017 derives from REP-0017. REP-0017 used the prior contiguous equivalent-length non-cloned evaluation window, covering 2024-04-12 through 2025-04-11. Indicators were warmed up on prior available history, and the backtest window started flat with no pre-window position carry-in. This window is distinct from REP-0016 final-local-data-year evidence. The original H-001 full-period baseline used a no-formal-split retrospective posture, so strict non-overlap against that baseline is impossible."
+  },
+  "derivation_record": {
+    "derivation_method": "from_rep_artifact",
+    "source_artifact_id": "REP-0017",
+    "source_artifact_path": "research/experiments/REP-0017.report.json",
+    "derivation_timestamp": "2026-05-19T15:13:03-06:00"
+  },
+  "pipeline_version": "pre_wp_5b",
+  "linked_artifacts": [
+    "EXP-0002",
+    "REP-0017"
+  ],
+  "retrospective_flag": false,
+  "linked_advisory_artifacts": [],
+  "notes": "WP-12au derives OL-0017 from REP-0017. It covers H-001 / research_oos / pre_wp_5b / downstream d2_006_gates evidence production. WP-12au creates no REC, does not increase reconciliation_count, does not satisfy REC-5, and does not floor-cross the segment. It does not authorize paired-source reuse, H-005/H-006 work, Path B, EXP scaffold authoring, AUTO successor work, policy, scoring, ranking/recommendation, paper-live, runtime, lifecycle, promotion, demotion, protected-path authority, or downstream authority. REP-0017 next_step_recommendation is schema-required only and is not authority."
+}

@@ -714,7 +714,7 @@ def test_committed_rec_cross_source_q05_cost_drag_non_positive_posture(conn):
 
 
 def test_existing_outcome_ledger_behavior_preserved(conn):
-    assert conn.execute("SELECT COUNT(*) FROM v_outcome_ledger_overview").fetchone()[0] == 15
+    assert conn.execute("SELECT COUNT(*) FROM v_outcome_ledger_overview").fetchone()[0] == 16
     assert conn.execute(
         """
         SELECT pipeline_version, COUNT(*)
@@ -722,7 +722,7 @@ def test_existing_outcome_ledger_behavior_preserved(conn):
         GROUP BY pipeline_version
         ORDER BY pipeline_version
         """
-    ).fetchall() == [("post_wp_5b", 5), ("pre_wp_5b", 10)]
+    ).fetchall() == [("post_wp_5b", 5), ("pre_wp_5b", 11)]
     assert conn.execute(
         """
         SELECT candidate_id, pipeline_version, outcome_count

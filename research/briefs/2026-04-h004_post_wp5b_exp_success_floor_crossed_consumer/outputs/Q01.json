@@ -1,0 +1,13 @@
+[
+  {
+    "candidate_id": "H-004",
+    "outcome_kind": "research_oos",
+    "pipeline_version": "post_wp_5b",
+    "expectation_source_type": "exp_success_criteria",
+    "reconciliation_count": 3,
+    "overall_verdicts": [
+      "insufficient_evidence"
+    ],
+    "rec5_floor_crossed_for_selected_segment": true
+  }
+]

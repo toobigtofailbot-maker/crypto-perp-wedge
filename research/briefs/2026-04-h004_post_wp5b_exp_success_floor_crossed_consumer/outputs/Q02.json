@@ -1,0 +1,29 @@
+[
+  {
+    "reconciliation_id": "REC-0011",
+    "outcome_id": "OL-0011",
+    "overall_verdict": "insufficient_evidence",
+    "retrospective_flag": true,
+    "derivation_method": "manual_retrospective_wp9x_backfill_v1",
+    "derivation_timestamp": "2026-05-05T12:00:00Z",
+    "expectation_source_artifact_id": "EXP-0011"
+  },
+  {
+    "reconciliation_id": "REC-0025",
+    "outcome_id": "OL-0014",
+    "overall_verdict": "insufficient_evidence",
+    "retrospective_flag": false,
+    "derivation_method": "manual_forward_wp12af_exp_success_rec_append_v1",
+    "derivation_timestamp": "2026-05-18T20:05:08Z",
+    "expectation_source_artifact_id": "EXP-0011"
+  },
+  {
+    "reconciliation_id": "REC-0026",
+    "outcome_id": "OL-0015",
+    "overall_verdict": "insufficient_evidence",
+    "retrospective_flag": false,
+    "derivation_method": "manual_forward_wp12ai_exp_success_rec_append_v1",
+    "derivation_timestamp": "2026-05-18T22:08:47Z",
+    "expectation_source_artifact_id": "EXP-0011"
+  }
+]

@@ -510,12 +510,33 @@ def test_committed_reconciliation_corpus_appears_in_views_and_integrity_empty(co
             "manual_forward_wp12ay_exp_success_rec_append_v1",
         )
     ]
+    rec_0030_row = [
+        (
+            "REC-0030",
+            "H-001",
+            "OL-0019",
+            "research_oos",
+            "pre_wp_5b",
+            "exp_success_criteria",
+            "EXP-0002",
+            "partially_met",
+            False,
+            "manual_forward_wp12bb_exp_success_rec_append_v1",
+        )
+    ]
     assert (
         overview_rows
-        == exp_rows + d2_rows + rec_0025_row + rec_0026_row + rec_0027_row + rec_0028_row + rec_0029_row
+        == exp_rows
+        + d2_rows
+        + rec_0025_row
+        + rec_0026_row
+        + rec_0027_row
+        + rec_0028_row
+        + rec_0029_row
+        + rec_0030_row
     )
-    assert len(overview_rows) == 29
-    assert [row[0] for row in overview_rows] == [f"REC-{idx:04d}" for idx in range(1, 30)]
+    assert len(overview_rows) == 30
+    assert [row[0] for row in overview_rows] == [f"REC-{idx:04d}" for idx in range(1, 31)]
     assert {
         row[2] for row in overview_rows if row[5] == "d2_006_gates"
     } == {f"OL-{idx:04d}" for idx in range(1, 14)} | {"OL-0016", "OL-0017"}
@@ -523,12 +544,12 @@ def test_committed_reconciliation_corpus_appears_in_views_and_integrity_empty(co
         row[5]: sum(1 for candidate in overview_rows if candidate[5] == row[5])
         for row in overview_rows
     } == {
-        "exp_success_criteria": 14,
+        "exp_success_criteria": 15,
         "d2_006_gates": 15,
     }
     assert sorted(summary_rows) == sorted(
         [
-            ("H-001", "research_oos", "pre_wp_5b", "exp_success_criteria", 2, ["none_met"]),
+            ("H-001", "research_oos", "pre_wp_5b", "exp_success_criteria", 3, ["none_met", "partially_met"]),
             ("H-001", "research_oos", "pre_wp_5b", "d2_006_gates", 3, ["none_met", "partially_met"]),
             ("H-002", "research_oos", "pre_wp_5b", "d2_006_gates", 1, ["partially_met"]),
             ("H-002", "research_oos", "pre_wp_5b", "exp_success_criteria", 1, ["partially_met"]),
@@ -559,6 +580,7 @@ def test_committed_reconciliation_corpus_appears_in_views_and_integrity_empty(co
         if row[4] == 3
     ) == [
         ("H-001", "research_oos", "pre_wp_5b", "d2_006_gates", 3),
+        ("H-001", "research_oos", "pre_wp_5b", "exp_success_criteria", 3),
         ("H-004", "research_oos", "post_wp_5b", "d2_006_gates", 3),
         ("H-004", "research_oos", "post_wp_5b", "exp_success_criteria", 3),
     ]

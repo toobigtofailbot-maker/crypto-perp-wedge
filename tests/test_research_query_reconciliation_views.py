@@ -524,6 +524,20 @@ def test_committed_reconciliation_corpus_appears_in_views_and_integrity_empty(co
             "manual_forward_wp12bb_exp_success_rec_append_v1",
         )
     ]
+    rec_0031_row = [
+        (
+            "REC-0031",
+            "H-005",
+            "OL-0020",
+            "research_oos",
+            "pre_wp_5b",
+            "d2_006_gates",
+            "D2-006",
+            "partially_met",
+            False,
+            "manual_forward_wp12bg_d2_006_rec_append_v1",
+        )
+    ]
     assert (
         overview_rows
         == exp_rows
@@ -534,18 +548,19 @@ def test_committed_reconciliation_corpus_appears_in_views_and_integrity_empty(co
         + rec_0028_row
         + rec_0029_row
         + rec_0030_row
+        + rec_0031_row
     )
-    assert len(overview_rows) == 30
-    assert [row[0] for row in overview_rows] == [f"REC-{idx:04d}" for idx in range(1, 31)]
+    assert len(overview_rows) == 31
+    assert [row[0] for row in overview_rows] == [f"REC-{idx:04d}" for idx in range(1, 32)]
     assert {
         row[2] for row in overview_rows if row[5] == "d2_006_gates"
-    } == {f"OL-{idx:04d}" for idx in range(1, 14)} | {"OL-0016", "OL-0017"}
+    } == {f"OL-{idx:04d}" for idx in range(1, 14)} | {"OL-0016", "OL-0017", "OL-0020"}
     assert {
         row[5]: sum(1 for candidate in overview_rows if candidate[5] == row[5])
         for row in overview_rows
     } == {
         "exp_success_criteria": 15,
-        "d2_006_gates": 15,
+        "d2_006_gates": 16,
     }
     assert sorted(summary_rows) == sorted(
         [
@@ -559,7 +574,7 @@ def test_committed_reconciliation_corpus_appears_in_views_and_integrity_empty(co
             ("H-004", "research_oos", "post_wp_5b", "exp_success_criteria", 3, ["insufficient_evidence"]),
             ("H-004", "research_oos", "pre_wp_5b", "d2_006_gates", 1, ["partially_met"]),
             ("H-004", "research_oos", "pre_wp_5b", "exp_success_criteria", 1, ["partially_met"]),
-            ("H-005", "research_oos", "pre_wp_5b", "d2_006_gates", 1, ["partially_met"]),
+            ("H-005", "research_oos", "pre_wp_5b", "d2_006_gates", 2, ["partially_met"]),
             ("H-005", "research_oos", "pre_wp_5b", "exp_success_criteria", 1, ["partially_met"]),
             ("H-006", "research_oos", "pre_wp_5b", "d2_006_gates", 1, ["none_met"]),
             ("H-006", "research_oos", "pre_wp_5b", "exp_success_criteria", 1, ["partially_met"]),

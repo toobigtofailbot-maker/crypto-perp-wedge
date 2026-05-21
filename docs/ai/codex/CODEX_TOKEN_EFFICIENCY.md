@@ -1,0 +1,110 @@
+# Codex Token Efficiency and Context Hygiene
+
+## Scope and non-authority
+
+This document is guidance-only for Codex token efficiency, prompt size, and context hygiene. It does not create implementation authority, validation-tier authority, evidence authority, runtime authority, or downstream decision authority.
+
+Token efficiency cannot justify skipping repo-truth inspection, refreshed-main preflight, changed-file inspection, integrity views, registry validators, full pytest, package-specific validation, or package-specific stop conditions. It also cannot justify protected-path, runtime, paper/live, OMS, risk, safe-mode, config, dependency, schema, validator, query-layer, data, or implementation drift.
+
+## Source-of-truth hierarchy
+
+Use the active package's precedence order when one is provided. Otherwise:
+
+1. Current merged repo truth, including actual changed files and live merged state.
+2. Active work package scope and constraints.
+3. `AGENTS.md`.
+4. Supporting Codex workflow docs under `docs/ai/codex/`.
+5. Chat memory, prior summaries, Agent Mode research, and generic best practice.
+
+Repo truth and active WP scope always win. Cached status, memory, summaries, or compressed notes never replace current repo inspection.
+
+## Context hygiene rules
+
+Read required startup anchors first, then read only task-relevant files or slices. Prefer targeted searches, exact file reads, and current diffs over broad context ingestion.
+
+Do not paste or restate long guidance blocks when a canonical repo document can be referenced. Do not rely on older handoffs or chat memory for current branch, artifact, test, or PR state.
+
+## Prompt-efficiency rules
+
+Future Codex prompts may reference this document to reduce repeated boilerplate, but every WP must still include package-specific objective, dependencies, allowed files, forbidden scope, validation, stop conditions, and report-back requirements.
+
+Prompt compression must preserve scope control. It must not omit protected boundaries, validation gates, dependency checks, or package-specific stop triggers.
+
+## Targeted repo inspection
+
+Codex should inspect the startup anchors and the files that are material to the package. Use `rg` or exact-path reads for repo-local discovery where practical.
+
+Targeted inspection does not mean shallow inspection. If a package changes a file, inspect that file directly. If a package depends on current branch, PR, artifact, or validation state, verify it against current repo truth.
+
+## Concise project-status entries
+
+`docs/project_status.md` entries should stay concise when full detail exists in the package artifact, guidance document, or PR body. The entry must still include package identity, created or modified files, core boundary, and next-step authority.
+
+Brevity must not omit material authority facts, stop-trigger facts, protected-boundary facts, validation posture, or downstream non-authority.
+
+## Concise report-backs
+
+Default concise report-backs should use:
+
+```text
+A. Scope
+B. Changed files
+C. Validation
+D. Boundary check
+E. Decision
+```
+
+Longer report-backs remain required for Tier 2/3/4 packages, artifact packages, stop triggers, validation failures, nontrivial semantics, or package-specific report formats.
+
+## Validation-output summarization
+
+Do not dump long logs into PR bodies or report-backs when a precise count/result summary is enough. Include enough detail to prove the command actually ran and passed.
+
+`v_integrity_*: clean (N)` is allowed only if all discovered integrity views actually ran with JSON output and returned `[]`. Integrity views must still be discovered and executed.
+
+Registry validators and pytest results may be summarized by exact command class and pass count when the underlying commands actually ran. Summaries do not replace command execution.
+
+## Optional manual command-output compression
+
+Optional tools or manual techniques such as RTK or command-output compression may be used to reduce copied output. They are not required, are not repo dependencies, and are not validation authority.
+
+Compressed output may support reporting only. It cannot replace running the required commands or inspecting the actual diff.
+
+## Future helper/tooling sequence
+
+Future efficiency ideas are sequenced, not implemented here:
+
+- compact WP templates;
+- local diff/scope summary helper;
+- optional RTK or manual compression guidance;
+- validation-summary helper or wrapper design;
+- code-index design;
+- memory/status snapshot design.
+
+Each future helper or tooling idea requires its own package scope and validation. This document does not implement helpers, wrappers, indexes, memory files, automation, scripts, schemas, validators, query-layer changes, or runtime behavior.
+
+## R1/R2 and H-005 boundaries
+
+R1 paired-source reuse and R2 batched-cycle methodology remain design-only unless later approved and locked into repo truth. This guidance does not apply R1 or R2.
+
+H-005 remains under the strict exact-segment runway. WP-S2c-30 remains paused only because the user paused the workflow to insert this token-efficiency guidance sequence. This document does not complete, supersede, authorize, or resume WP-S2c-30.
+
+## What not to do
+
+Do not use token efficiency to:
+
+- skip refreshed-main preflight;
+- skip required startup anchors;
+- skip changed-file inspection;
+- skip integrity views;
+- skip registry validators;
+- skip full pytest unless a future repo-approved validation-tier document changes that;
+- weaken forbidden-scope handling or protected boundaries;
+- treat compressed summaries, memory, or cached status as repo truth;
+- implement RTK, diff-summary helpers, validation wrappers, code indexes, memory/status snapshots, R1/R2, H-006, Path B, runtime, paper/live, OMS, risk, safe-mode, config, dependency, schema, validator, query-layer, data, policy, scoring, ranking, recommendation, approval, readiness, lifecycle, promotion/demotion, or downstream authority.
+
+## Codex stop conditions
+
+Stop and report if efficiency wording or tooling would require touching protected paths, runtime behavior, paper/live paths, OMS, risk, safe mode, configs, dependencies, schemas, validators, query-layer behavior, data, implementation code, or forbidden package paths without explicit authority.
+
+Stop and report if a package cannot preserve repo truth, active scope, validation discipline, changed-file inspection, project-status overlap guardrails, H-005 strict sequencing, R1/R2 non-application, or WP-S2c-30 pause status.

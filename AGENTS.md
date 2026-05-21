@@ -35,6 +35,12 @@ Core rules:
 - Protected runtime boundaries stay protected unless the package explicitly authorizes the change.
 - Research, advisory, and shadow artifacts have no execution authority.
 
+Workflow efficiency lock:
+
+- Read `docs/research_pipeline/2026-05-stage2c_workflow_efficiency_operating_model_lock.md` when package scope involves workflow, parallel tranches, `docs/project_status.md` updates, report-back format, efficiency policy, or tiered execution.
+- Do not create simultaneous open PRs that modify `docs/project_status.md`; start any package touching it from refreshed `main` and stop if another open PR already edits it.
+- Package-specific scope and current repo truth still outrank general workflow guidance.
+
 Stop and escalate if:
 
 - the required package scope touches protected runtime, OMS, reconciliation, risk, overlay, safe-mode, live-trading, schema, validator, or query-layer behavior without explicit authorization

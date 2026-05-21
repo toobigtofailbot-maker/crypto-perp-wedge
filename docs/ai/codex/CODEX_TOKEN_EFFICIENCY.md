@@ -74,12 +74,13 @@ Detailed guidance is implemented as guidance only at `docs/ai/codex/OPTIONAL_COM
 
 ## Future helper/tooling sequence
 
-Future efficiency ideas are sequenced. Compact WP template guidance is now implemented as guidance at `docs/ai/codex/COMPACT_WP_TEMPLATE.md`; the local diff/scope summary helper is now implemented as a repo-local advisory helper at `tools/dev/diff_scope_summary.py`; optional RTK/manual command-output compression guidance is now implemented as guidance only at `docs/ai/codex/OPTIONAL_COMMAND_OUTPUT_COMPRESSION.md`. The remaining helper/tooling items below are not implemented here:
+Future efficiency ideas are sequenced. Compact WP template guidance is now implemented as guidance at `docs/ai/codex/COMPACT_WP_TEMPLATE.md`; the local diff/scope summary helper is now implemented as a repo-local advisory helper at `tools/dev/diff_scope_summary.py`; optional RTK/manual command-output compression guidance is now implemented as guidance only at `docs/ai/codex/OPTIONAL_COMMAND_OUTPUT_COMPRESSION.md`; validation-summary helper/wrapper design is now implemented as design only at `docs/ai/codex/VALIDATION_SUMMARY_HELPER_DESIGN.md`. The remaining helper/tooling items below are not implemented here:
 
 - compact WP templates: implemented guidance only in `docs/ai/codex/COMPACT_WP_TEMPLATE.md`;
 - local diff/scope summary helper: implemented repo-local advisory helper only at `tools/dev/diff_scope_summary.py`;
 - optional RTK/RTX/TRS/manual compression tooling: not implemented;
-- validation-summary helper or wrapper design: not implemented;
+- validation-summary helper or wrapper design: implemented design only in `docs/ai/codex/VALIDATION_SUMMARY_HELPER_DESIGN.md`;
+- validation-summary helper or wrapper implementation: not implemented;
 - code-index design: not implemented;
 - memory/status snapshot design: not implemented.
 

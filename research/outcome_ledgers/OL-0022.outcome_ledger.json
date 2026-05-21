@@ -1,0 +1,69 @@
+{
+  "schema_version": "v1",
+  "outcome_id": "OL-0022",
+  "candidate_id": "H-005",
+  "lifecycle_state_during_window": "in_research",
+  "evaluation_window_start": "2023-04-12",
+  "evaluation_window_end": "2024-04-11",
+  "outcome_kind": "research_oos",
+  "metrics": {
+    "source_field": "trial_log.oos_sharpe",
+    "window_convention": "WP-12bn / WP-S2c-28 uses the next prior contiguous equivalent-length non-cloned evaluation window before REP-0021, 2023-04-12 through 2024-04-11, as the first additional H-005 exp_success_criteria observation after the original full-period no-formal-split baseline and two H-005 D2 observations. Indicators are warmed up on prior available history, but the backtest window starts flat with no pre-window position carry-in. The original H-005 REP-0001 evidence used a full-period retrospective posture, so strict non-overlap against that baseline is impossible; this report records explicit non-cloned bounded-window disclosure for additional REP evidence.",
+    "sharpe": 0.8292513997694115,
+    "max_drawdown": 0.76616727748177,
+    "n_obs": 8783,
+    "trades": 138,
+    "hit_rate": 0.34782608695652173,
+    "profit_factor": 1.25563547148421,
+    "final_equity": 13594.879801345998,
+    "total_pnl": 3594.879801345998,
+    "gross_pnl": 10531.199999999997,
+    "fees_paid": 4205.523400000001,
+    "slippage_paid": 2102.7617000000005,
+    "funding_paid": 628.0350986540001,
+    "cost_drag_fraction": 0.6586448076813661,
+    "dsr": 1.0,
+    "walk_forward_efficiency": 1.0,
+    "gates_passed": 3,
+    "gates_total": 8,
+    "funding_events_applied": 190,
+    "config_sha256": "0a08ca687aed8a345b082837950db0fc27956e1170d17976c3a9e17e49803ff8",
+    "dataset_sha256": "3ea0c8be1ef4132516c6d2acd89b7d5dc8348364df2da53b944c33c031a39910",
+    "dsr_note": "P(SR>1.0)=1.0000; SR benchmark=0.6078",
+    "max_drawdown_peak": "2023-06-23 15:59:59.999000+00:00",
+    "max_drawdown_trough": "2023-11-03 17:59:59.999000+00:00",
+    "skipped_bars": 0,
+    "sensitivity_min_ratio": 0.623420447555612,
+    "short_side_trades": 53,
+    "short_side_net_pnl": -8091.307260000028,
+    "long_side_trades": 85,
+    "long_side_net_pnl": 15494.333640000026,
+    "trial_count_before_append": 21,
+    "trial_count_after_append": 22
+  },
+  "data_provenance": {
+    "source_data_refs": [
+      "data/processed/binance_um_perp_BTCUSDT_1h_2020-01-01_2026-04-11_2026-04-12T1655Z.parquet",
+      "data/processed/binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z.parquet",
+      "binance_um_perp_BTCUSDT_1h_2020-01-01_2026-04-11_2026-04-12T1655Z",
+      "binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z"
+    ],
+    "source_data_window_start": "2023-04-12",
+    "source_data_window_end": "2024-04-11",
+    "source_data_notes": "OL-0022 derives from REP-0022. REP-0022 used the next prior contiguous equivalent-length non-cloned evaluation window before REP-0021, covering 2023-04-12 through 2024-04-11, with actual bars from 2023-04-12 00:59:59.999000+00:00 through 2024-04-11 23:59:59.999000+00:00. Indicators were warmed up on prior available history, and the backtest window started flat with no pre-window position carry-in. The original H-005 REP-0001 evidence used a full-period no-formal-split retrospective baseline, so strict non-overlap against that baseline is impossible."
+  },
+  "derivation_record": {
+    "derivation_method": "from_rep_artifact",
+    "source_artifact_id": "REP-0022",
+    "source_artifact_path": "research/experiments/REP-0022.report.json",
+    "derivation_timestamp": "2026-05-21T13:01:27-06:00"
+  },
+  "pipeline_version": "pre_wp_5b",
+  "linked_artifacts": [
+    "EXP-0001",
+    "REP-0022"
+  ],
+  "retrospective_flag": false,
+  "linked_advisory_artifacts": [],
+  "notes": "WP-12bo derives OL-0022 from committed REP-0022 only. It covers H-005 / research_oos / pre_wp_5b / downstream exp_success_criteria evidence production. REP-0022 records no liquidation, final_equity = 13594.879801345998, liquidation_timestamp = null, gross_pnl = 10531.199999999997, total_pnl = 3594.879801345998, cost_drag_fraction = 0.6586448076813661, pnl_concentration_90d = 2.7921433963479916, sensitivity_min_ratio = 0.623420447555612, dsr = 1.0, walk_forward_efficiency = 1.0, and no pre-window position carry-in after warmup on earlier available history. OL v1 carries no liquidation timestamp, PnL concentration, sensitivity-array, signal-count, or bar-count fields, so those REP facts are preserved here as descriptive notes rather than invented metrics. WP-12bo creates no REP or REC, does not increase reconciliation_count, does not satisfy REC-5, and does not floor-cross the segment. It does not apply or authorize R1 paired-source reuse or R2 batched-cycle methodology, and it does not authorize H-006 work, Path B, EXP scaffold authoring, cohort implementation beyond this OL append, AUTO successor work, policy, scoring, ranking/recommendation, paper-live, runtime, lifecycle, promotion, demotion, protected-path authority, downstream authority, or REC comparison logic. REP-0022 next_step_recommendation is schema-required only and is not authority."
+}

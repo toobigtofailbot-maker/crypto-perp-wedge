@@ -38,6 +38,7 @@ Core rules:
 Workflow efficiency lock:
 
 - Read `docs/research_pipeline/2026-05-stage2c_workflow_efficiency_operating_model_lock.md` when package scope involves workflow, parallel tranches, `docs/project_status.md` updates, report-back format, efficiency policy, or tiered execution.
+- Use `docs/ai/codex/CODEX_TOKEN_EFFICIENCY.md` as canonical Codex token-efficiency and context-hygiene guidance; it is guidance-only and cannot weaken repo truth, active package scope, validation, or protected boundaries.
 - Do not create simultaneous open PRs that modify `docs/project_status.md`; start any package touching it from refreshed `main` and stop if another open PR already edits it.
 - Package-specific scope and current repo truth still outrank general workflow guidance.
 

@@ -72,16 +72,16 @@ Compressed output may support reporting only. It cannot replace running the requ
 
 ## Future helper/tooling sequence
 
-Future efficiency ideas are sequenced. Compact WP template guidance is now implemented as guidance at `docs/ai/codex/COMPACT_WP_TEMPLATE.md`; the remaining items below are not implemented here:
+Future efficiency ideas are sequenced. Compact WP template guidance is now implemented as guidance at `docs/ai/codex/COMPACT_WP_TEMPLATE.md`; the local diff/scope summary helper is now implemented as a repo-local advisory helper at `tools/dev/diff_scope_summary.py`. The remaining items below are not implemented here:
 
 - compact WP templates: implemented guidance only in `docs/ai/codex/COMPACT_WP_TEMPLATE.md`;
-- local diff/scope summary helper;
+- local diff/scope summary helper: implemented repo-local advisory helper only at `tools/dev/diff_scope_summary.py`;
 - optional RTK or manual compression guidance;
 - validation-summary helper or wrapper design;
 - code-index design;
 - memory/status snapshot design.
 
-Each future helper or tooling idea requires its own package scope and validation. This document does not implement helpers, wrappers, indexes, memory files, automation, scripts, schemas, validators, query-layer changes, or runtime behavior.
+Each future helper or tooling idea requires its own package scope and validation. The implemented diff/scope helper is advisory only and does not replace package scope, direct changed-file inspection, integrity views, registry validators, scoped pytest, full pytest, or semantic review. This document does not implement RTK/RTX/manual compression, validation wrappers, indexes, memory files, automation, schemas, validators, query-layer changes, or runtime behavior.
 
 ## R1/R2 and H-005 boundaries
 

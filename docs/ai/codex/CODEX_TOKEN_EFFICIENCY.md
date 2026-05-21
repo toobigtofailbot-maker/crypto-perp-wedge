@@ -72,9 +72,9 @@ Compressed output may support reporting only. It cannot replace running the requ
 
 ## Future helper/tooling sequence
 
-Future efficiency ideas are sequenced, not implemented here:
+Future efficiency ideas are sequenced. Compact WP template guidance is now implemented as guidance at `docs/ai/codex/COMPACT_WP_TEMPLATE.md`; the remaining items below are not implemented here:
 
-- compact WP templates;
+- compact WP templates: implemented guidance only in `docs/ai/codex/COMPACT_WP_TEMPLATE.md`;
 - local diff/scope summary helper;
 - optional RTK or manual compression guidance;
 - validation-summary helper or wrapper design;

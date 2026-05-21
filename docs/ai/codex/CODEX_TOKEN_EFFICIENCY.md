@@ -70,18 +70,20 @@ Optional tools or manual techniques such as RTK or command-output compression ma
 
 Compressed output may support reporting only. It cannot replace running the required commands or inspecting the actual diff.
 
+Detailed guidance is implemented as guidance only at `docs/ai/codex/OPTIONAL_COMMAND_OUTPUT_COMPRESSION.md`. Actual RTK/RTX/TRS/manual compression tooling remains unimplemented.
+
 ## Future helper/tooling sequence
 
-Future efficiency ideas are sequenced. Compact WP template guidance is now implemented as guidance at `docs/ai/codex/COMPACT_WP_TEMPLATE.md`; the local diff/scope summary helper is now implemented as a repo-local advisory helper at `tools/dev/diff_scope_summary.py`. The remaining items below are not implemented here:
+Future efficiency ideas are sequenced. Compact WP template guidance is now implemented as guidance at `docs/ai/codex/COMPACT_WP_TEMPLATE.md`; the local diff/scope summary helper is now implemented as a repo-local advisory helper at `tools/dev/diff_scope_summary.py`; optional RTK/manual command-output compression guidance is now implemented as guidance only at `docs/ai/codex/OPTIONAL_COMMAND_OUTPUT_COMPRESSION.md`. The remaining helper/tooling items below are not implemented here:
 
 - compact WP templates: implemented guidance only in `docs/ai/codex/COMPACT_WP_TEMPLATE.md`;
 - local diff/scope summary helper: implemented repo-local advisory helper only at `tools/dev/diff_scope_summary.py`;
-- optional RTK or manual compression guidance;
-- validation-summary helper or wrapper design;
-- code-index design;
-- memory/status snapshot design.
+- optional RTK/RTX/TRS/manual compression tooling: not implemented;
+- validation-summary helper or wrapper design: not implemented;
+- code-index design: not implemented;
+- memory/status snapshot design: not implemented.
 
-Each future helper or tooling idea requires its own package scope and validation. The implemented diff/scope helper is advisory only and does not replace package scope, direct changed-file inspection, integrity views, registry validators, scoped pytest, full pytest, or semantic review. This document does not implement RTK/RTX/manual compression, validation wrappers, indexes, memory files, automation, schemas, validators, query-layer changes, or runtime behavior.
+Each future helper or tooling idea requires its own package scope and validation. The implemented guidance and helper surfaces are advisory only and do not replace package scope, direct changed-file inspection, integrity views, registry validators, scoped pytest, full pytest, or semantic review. This document does not implement RTK/RTX/TRS/manual compression tooling, validation wrappers, indexes, memory files, automation, schemas, validators, query-layer changes, or runtime behavior.
 
 ## R1/R2 and H-005 boundaries
 

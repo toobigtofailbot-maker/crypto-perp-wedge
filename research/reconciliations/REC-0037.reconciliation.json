@@ -136,8 +136,8 @@
         "realized_value": 1.0,
         "delta_absolute": 0.0,
         "delta_relative": 0.0,
-        "comparison_verdict": "met",
-        "comparison_notes": "D2-006 gate evaluation records DSR pass with P(SR>1.0)=1.0000 against the expected maximum-SR benchmark from the registered trial count."
+        "comparison_verdict": "not_met",
+        "comparison_notes": "D2-006 requires DSR > 1.0; OL-0025 records dsr = 1.0, which equals but does not strictly exceed the threshold."
       },
       {
         "metric_name": "max_drawdown",

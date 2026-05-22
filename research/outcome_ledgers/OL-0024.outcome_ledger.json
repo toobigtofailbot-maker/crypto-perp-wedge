@@ -1,0 +1,69 @@
+{
+  "schema_version": "v1",
+  "outcome_id": "OL-0024",
+  "candidate_id": "H-006",
+  "lifecycle_state_during_window": "in_research",
+  "evaluation_window_start": "2025-04-12",
+  "evaluation_window_end": "2026-04-11",
+  "outcome_kind": "research_oos",
+  "metrics": {
+    "source_field": "trial_log.oos_sharpe",
+    "window_convention": "WP-12ch / WP-S2c-40 uses the final local data-year evaluation window, 2025-04-12 through 2026-04-11, as the first additional H-006 combined R1+R2 observation after the original full-period no-formal-split baseline. Indicators are warmed up on prior available 30m history, but the backtest window starts flat with no pre-window position carry-in. The original H-006 REP-0006 evidence used a full-period retrospective posture, so strict non-overlap against that baseline is impossible; this report records explicit non-cloned bounded-window disclosure for additional REP evidence.",
+    "sharpe": -0.6745503277268311,
+    "max_drawdown": 1.0,
+    "n_obs": 2040,
+    "trades": 17,
+    "hit_rate": 0.17647058823529413,
+    "profit_factor": 0.0752493960155977,
+    "final_equity": 0.0,
+    "total_pnl": -10000.0,
+    "gross_pnl": -8047.558997057004,
+    "fees_paid": 1275.4468400000003,
+    "slippage_paid": 637.7234200000001,
+    "funding_paid": 39.270742943,
+    "cost_drag_fraction": -0.2426128225536475,
+    "dsr": 0.0,
+    "walk_forward_efficiency": 0.0,
+    "gates_passed": 1,
+    "gates_total": 8,
+    "funding_events_applied": 90,
+    "config_sha256": "0a12198dd67a8725befa08a184fda3e7e822e89a6c7f09b28ba3a3246f4f595d",
+    "dataset_sha256": "a4e41fdf3ef6ea56048b3a9a4314b126a8ea3ba1626506693c3d0cd436ffe85d",
+    "dsr_note": "P(SR>1.0)=0.0000; SR benchmark=0.6203",
+    "max_drawdown_peak": "2025-04-12 00:29:59.999000+00:00",
+    "max_drawdown_trough": "2025-05-24 12:29:59.999000+00:00",
+    "skipped_bars": 0,
+    "sensitivity_min_ratio": -1.506626217280696,
+    "short_side_trades": 8,
+    "short_side_net_pnl": -4374.183499999985,
+    "long_side_trades": 9,
+    "long_side_net_pnl": -4597.173237057018,
+    "trial_count_before_append": 23,
+    "trial_count_after_append": 24
+  },
+  "data_provenance": {
+    "source_data_refs": [
+      "data/processed/binance_um_perp_BTCUSDT_30m_2020-01-01_2026-04-11_2026-04-12T1655Z.parquet",
+      "data/processed/binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z.parquet",
+      "binance_um_perp_BTCUSDT_30m_2020-01-01_2026-04-11_2026-04-12T1655Z",
+      "binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z"
+    ],
+    "source_data_window_start": "2025-04-12",
+    "source_data_window_end": "2026-04-11",
+    "source_data_notes": "OL-0024 derives from REP-0024. REP-0024 used the final local data-year evaluation window, covering 2025-04-12 through 2026-04-11, with actual bars from 2025-04-12 00:29:59.999000+00:00 through 2026-04-11 23:59:59.999000+00:00. Indicators were warmed up on prior available 30m history, and the backtest window started flat with no pre-window position carry-in. The original H-006 REP-0006 evidence used a full-period no-formal-split retrospective baseline, so strict non-overlap against that baseline is impossible."
+  },
+  "derivation_record": {
+    "derivation_method": "from_rep_artifact",
+    "source_artifact_id": "REP-0024",
+    "source_artifact_path": "research/experiments/REP-0024.report.json",
+    "derivation_timestamp": "2026-05-22T21:08:27Z"
+  },
+  "pipeline_version": "pre_wp_5b",
+  "linked_artifacts": [
+    "EXP-0006",
+    "REP-0024"
+  ],
+  "retrospective_flag": false,
+  "linked_advisory_artifacts": [],
+  "notes": "WP-12ch derives OL-0024 from committed REP-0024 only. It is the shared source OL for two separate H-006 RECs under approved R1 paired-source reuse and approved R2 batched-cycle methodology: REC-0035 for d2_006_gates and REC-0036 for exp_success_criteria. REP-0024 records liquidation with final_equity = 0.0 and liquidation_timestamp = 2025-05-24 12:29:59.999000+00:00; OL v1 carries those facts here as descriptive notes because liquidated and liquidation_timestamp are not supported metrics fields. REP-0024 records gross_pnl <= 0 and cost_drag_fraction = -0.2426128225536475; deterministic REC comparison treats gross-PnL-negative cost drag as undefined or misleading rather than healthy cost behavior. WP-12ch does not satisfy REC-5, does not floor-cross either H-006 exact segment, and does not authorize H-006 candidate approval, cohort-level approval, A2C-001 completion, Path B, policy, scoring, ranking/recommendation, paper-live, runtime, lifecycle, promotion, demotion, protected-path authority, or downstream authority. REP-0024 next_step_recommendation is schema-required only and is not authority."
+}

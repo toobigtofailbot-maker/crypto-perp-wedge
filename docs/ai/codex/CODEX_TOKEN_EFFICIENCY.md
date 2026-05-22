@@ -83,13 +83,15 @@ Future efficiency ideas are sequenced. Compact WP template guidance is now imple
 - optional RTK/RTX/TRS/manual compression tooling: not implemented;
 - validation-summary helper or wrapper design: implemented design only in `docs/ai/codex/VALIDATION_SUMMARY_HELPER_DESIGN.md`;
 - validation-summary log helper: implemented repo-local advisory helper only at `tools/dev/validation_summary.py`;
-- validation-summary command-running wrapper modes: not implemented;
+- validation-summary command-running wrapper modes: not implemented; deferred / not implemented for now;
 - code-index design: implemented design only in `docs/ai/codex/CODE_INDEX_DESIGN.md`;
 - code-index implementation: implemented repo-local advisory helper only at `tools/dev/code_index.py`;
 - memory/status snapshot design: implemented design only in `docs/ai/codex/MEMORY_STATUS_SNAPSHOT_DESIGN.md`;
 - memory/status snapshot implementation: implemented repo-local advisory helper only at `tools/dev/status_snapshot.py`.
 
-Each future helper or tooling idea requires its own package scope and validation. The implemented guidance, helper, and design surfaces are advisory only and do not replace package scope, raw logs, command execution, direct changed-file inspection, integrity views, registry validators, scoped pytest, full pytest, repo-truth file inspection, `docs/project_status.md`, branch/PR checks, artifact/count verification, or semantic review. This document does not implement RTK/RTX/TRS/manual compression tooling, command-running validation wrappers, generated committed indexes, generated committed memory/status snapshots, memory files, automation, schemas, validators, query-layer changes, or runtime behavior.
+Validation command-running wrapper modes are deferred / not implemented for now. The current approved workflow continues to execute required commands directly and may summarize existing local logs through `tools/dev/validation_summary.py`. The helper remains a log-summary helper only, and its command-running wrapper modes remain intentionally unimplemented / fail-closed. Wrapper modes may be reopened only by a future explicit package if repeated validation-reporting bottlenecks justify the added risk; any such package must fail closed, preserve raw failure output, preserve exit codes and timeouts, and keep actual commands as validation authority.
+
+The current efficiency/tooling tranche is complete enough to resume project work after explicit user/Karl instruction. Each future helper or tooling idea still requires its own package scope and validation. The implemented guidance, helper, and design surfaces are advisory only and do not replace package scope, raw logs, command execution, direct changed-file inspection, integrity views, registry validators, scoped pytest, full pytest, repo-truth file inspection, `docs/project_status.md`, branch/PR checks, artifact/count verification, or semantic review. This document does not implement RTK/RTX/TRS/manual compression tooling, command-running validation wrappers, generated committed indexes, generated committed memory/status snapshots, memory files, automation, schemas, validators, query-layer changes, or runtime behavior.
 
 ## R1/R2 and H-005 boundaries
 

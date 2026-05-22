@@ -608,6 +608,34 @@ def test_committed_reconciliation_corpus_appears_in_views_and_integrity_empty(co
             "manual_forward_wp12ch_exp_success_rec_append_v1",
         )
     ]
+    rec_0037_row = [
+        (
+            "REC-0037",
+            "H-006",
+            "OL-0025",
+            "research_oos",
+            "pre_wp_5b",
+            "d2_006_gates",
+            "D2-006",
+            "partially_met",
+            False,
+            "manual_forward_wp12ci_d2_006_rec_append_v1",
+        )
+    ]
+    rec_0038_row = [
+        (
+            "REC-0038",
+            "H-006",
+            "OL-0025",
+            "research_oos",
+            "pre_wp_5b",
+            "exp_success_criteria",
+            "EXP-0006",
+            "partially_met",
+            False,
+            "manual_forward_wp12ci_exp_success_rec_append_v1",
+        )
+    ]
     assert (
         overview_rows
         == exp_rows
@@ -624,9 +652,11 @@ def test_committed_reconciliation_corpus_appears_in_views_and_integrity_empty(co
         + rec_0034_row
         + rec_0035_row
         + rec_0036_row
+        + rec_0037_row
+        + rec_0038_row
     )
-    assert len(overview_rows) == 36
-    assert [row[0] for row in overview_rows] == [f"REC-{idx:04d}" for idx in range(1, 37)]
+    assert len(overview_rows) == 38
+    assert [row[0] for row in overview_rows] == [f"REC-{idx:04d}" for idx in range(1, 39)]
     assert {
         row[2] for row in overview_rows if row[5] == "d2_006_gates"
     } == {f"OL-{idx:04d}" for idx in range(1, 14)} | {
@@ -635,13 +665,14 @@ def test_committed_reconciliation_corpus_appears_in_views_and_integrity_empty(co
         "OL-0020",
         "OL-0021",
         "OL-0024",
+        "OL-0025",
     }
     assert {
         row[5]: sum(1 for candidate in overview_rows if candidate[5] == row[5])
         for row in overview_rows
     } == {
-        "exp_success_criteria": 18,
-        "d2_006_gates": 18,
+        "exp_success_criteria": 19,
+        "d2_006_gates": 19,
     }
     assert sorted(summary_rows) == sorted(
         [
@@ -657,8 +688,8 @@ def test_committed_reconciliation_corpus_appears_in_views_and_integrity_empty(co
             ("H-004", "research_oos", "pre_wp_5b", "exp_success_criteria", 1, ["partially_met"]),
             ("H-005", "research_oos", "pre_wp_5b", "d2_006_gates", 3, ["none_met", "partially_met"]),
             ("H-005", "research_oos", "pre_wp_5b", "exp_success_criteria", 3, ["none_met", "partially_met"]),
-            ("H-006", "research_oos", "pre_wp_5b", "d2_006_gates", 2, ["none_met"]),
-            ("H-006", "research_oos", "pre_wp_5b", "exp_success_criteria", 2, ["none_met", "partially_met"]),
+            ("H-006", "research_oos", "pre_wp_5b", "d2_006_gates", 3, ["none_met", "partially_met"]),
+            ("H-006", "research_oos", "pre_wp_5b", "exp_success_criteria", 3, ["none_met", "partially_met"]),
             ("H-007", "research_oos", "pre_wp_5b", "d2_006_gates", 1, ["none_met"]),
             ("H-007", "research_oos", "pre_wp_5b", "exp_success_criteria", 1, ["none_met"]),
             ("H-008", "research_oos", "pre_wp_5b", "d2_006_gates", 1, ["none_met"]),
@@ -681,6 +712,8 @@ def test_committed_reconciliation_corpus_appears_in_views_and_integrity_empty(co
         ("H-004", "research_oos", "post_wp_5b", "exp_success_criteria", 3),
         ("H-005", "research_oos", "pre_wp_5b", "d2_006_gates", 3),
         ("H-005", "research_oos", "pre_wp_5b", "exp_success_criteria", 3),
+        ("H-006", "research_oos", "pre_wp_5b", "d2_006_gates", 3),
+        ("H-006", "research_oos", "pre_wp_5b", "exp_success_criteria", 3),
     ]
     assert sorted(
         (row[0], row[2], row[4], row[5], row[6]) for row in overview_rows if row[1] == "H-004"
@@ -880,7 +913,7 @@ def test_committed_rec_cross_source_q05_cost_drag_non_positive_posture(conn):
 
 
 def test_existing_outcome_ledger_behavior_preserved(conn):
-    assert conn.execute("SELECT COUNT(*) FROM v_outcome_ledger_overview").fetchone()[0] == 24
+    assert conn.execute("SELECT COUNT(*) FROM v_outcome_ledger_overview").fetchone()[0] == 25
     assert conn.execute(
         """
         SELECT pipeline_version, COUNT(*)
@@ -888,7 +921,7 @@ def test_existing_outcome_ledger_behavior_preserved(conn):
         GROUP BY pipeline_version
         ORDER BY pipeline_version
         """
-    ).fetchall() == [("post_wp_5b", 5), ("pre_wp_5b", 19)]
+    ).fetchall() == [("post_wp_5b", 5), ("pre_wp_5b", 20)]
     assert conn.execute(
         """
         SELECT candidate_id, pipeline_version, outcome_count

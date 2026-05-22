@@ -10,29 +10,114 @@ Manual steps for this guidance package: none.
 
 Manual steps become relevant only if a later package explicitly proposes actual setup or required use of a compression tool. Until then, users do not need to install RTK, RTX, TRS, or any other external compression tool for repo workflow.
 
-## When optional compression may help
+## Preferred optional tool posture
 
-Optional compression may help reduce copied or pasted terminal-output noise when a command succeeds and produces long repetitive output.
+RTK is the preferred optional manual/local command-output compression candidate for this repo's Codex / Claude Code reporting workflow when long successful shell outputs would otherwise waste tokens.
 
-For now, Codex may manually summarize long successful outputs, but must not summarize away failures.
+RTK remains optional. It is not a repo dependency, is not required for Codex execution, and is not validation authority.
 
-## Manual-step rule
+RTK does not replace raw logs, command execution, changed-file inspection, integrity views, registry validators, scoped pytest, full pytest, or Side semantic review.
 
-For current repo operation, no user action is required.
+If RTK is unavailable, Codex must use the existing no-RTK fallback: direct command execution, precise manual summaries, `tools/dev/diff_scope_summary.py`, and `tools/dev/validation_summary.py` where applicable.
 
-Any future package that proposes setup or required use of a compression tool must state exactly what the user must do, when to do it, whether setup is optional or required, whether it creates a repo dependency, and what fallback Codex must use when the tool is unavailable.
+## Where RTK may help
 
-## Tool-agnostic posture
+RTK may be useful for long successful output from:
 
-Repo guidance is tool-agnostic. RTK, RTX, TRS, and manual compression remain optional and unimplemented until a future approved package identifies a tool and creates explicit setup or use authority.
+- `git status`
+- `git diff`
+- `git diff --cached`
+- `git ls-files --others --exclude-standard`
+- `git log` / PR metadata
+- pytest successful output
+- registry validator successful output
+- query/integrity successful output
+- repetitive successful command logs
 
-Local-only compression is preferred if compression is used. External services require explicit user/Karl approval and are out of scope for this package.
+RTK is reporting support only. It does not decide whether commands passed.
+
+## Where raw output is required
+
+Raw output must be preserved or retrieved for:
+
+- failures
+- nonzero exit codes
+- timeouts
+- stack traces
+- assertion diffs
+- failing test names
+- validator names/errors
+- integrity rows
+- changed-file paths
+- forbidden path matches
+- allowed-file violations
+- trial-log diffs
+- protected-boundary evidence
+- schema/validator/query-layer diagnostics
+- anything needed for semantic review
+
+## Windows / WSL / no-RTK fallback
+
+Karl is on Windows. Do not assume shell hooks work reliably in native PowerShell.
+
+The preferred Windows posture is explicit/manual RTK command use if Karl installs it locally and confirms it works. WSL/Linux/macOS may use normal shell command patterns if Karl chooses that route.
+
+Follow current official RTK installation instructions outside the repo if you choose to trial RTK manually.
+
+The no-RTK fallback remains fully valid and requires no setup. Codex must not block, fail, or refuse a WP merely because RTK is unavailable unless a future WP explicitly makes it required.
+
+Native Windows hook-based integration must not be assumed or required by repo guidance.
+
+## Manual trial rule
+
+Manual RTK setup/trial is optional and outside this package. Manual trial should happen after this docs-only WP merges, if Karl chooses.
+
+Manual trial should not modify repo files, add dependencies, or install hooks into the repo.
+
+Manual trial should compare:
+
+- raw output vs RTK-compressed output for successful long commands;
+- whether failures remain visible enough to diagnose;
+- whether Windows/PowerShell or WSL behavior is reliable.
+
+If manual trial is successful, a later WP may decide whether to document exact local command patterns or build no-code usage examples.
+
+If manual trial is not useful, no repo behavior changes.
+
+## Allowed reporting pattern
+
+Safe example pattern:
+
+```text
+Raw command executed: <exact command>
+Output reported: RTK-compressed summary, advisory only
+Status: pass/fail/timeout with exact count
+Raw output: retained locally when failure or diagnostic detail is needed
+```
+
+## Disallowed patterns
+
+RTK must not be used to:
+
+- hide failures;
+- hide changed files;
+- hide forbidden-scope hits;
+- compress away integrity rows;
+- compress away failing test names;
+- replace PR changed-file inspection;
+- replace raw failure output;
+- claim validation passed when only compressed output was inspected;
+- send secrets/private/protected content to external services;
+- create a mandatory setup requirement;
+- create dependency, hook, wrapper, CI, config, runtime, or protected-path changes.
 
 ## Allowed use
 
 Optional compression is allowed only to reduce copied or pasted output noise in reports, PR bodies, or chat summaries.
 
 Compressed output may support readability, but it is not repo truth, validation authority, or evidence authority.
+
+Local-only compression is preferred if compression is used. External services require explicit user/Karl approval and are out of scope for this package.
 
 ## Required safeguards
 
@@ -107,4 +192,4 @@ Stop and report if compression wording or use would:
 - replace integrity views, registry validators, scoped pytest, full pytest, or semantic review;
 - hide failures, stack traces, exception messages, assertion diffs, failing test names, changed-file paths, integrity rows, validator errors, or nonzero exit codes;
 - send secrets, credentials, `.env` values, keys, tokens, exchange credentials, private data files, or protected-path content to an external service;
-- resume WP-S2c-30, apply R1/R2, create H-006 or Path B authority, touch runtime/protected paths, or create policy, readiness, lifecycle, promotion/demotion, or downstream authority.
+- resume evidence-runway work, apply R1/R2, create H-006 or Path B authority, touch runtime/protected paths, or create policy, readiness, lifecycle, promotion/demotion, or downstream authority.

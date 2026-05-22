@@ -66,15 +66,17 @@ Registry validators and pytest results may be summarized by exact command class 
 
 ## Optional manual command-output compression
 
-Optional tools or manual techniques such as RTK or command-output compression may be used to reduce copied output. They are not required, are not repo dependencies, and are not validation authority.
+RTK is now the preferred optional manual/local command-output compression candidate for long successful Codex / Claude Code command output.
+
+Actual RTK/RTX/TRS tooling remains unimplemented. RTK is not required, is not a repo dependency, and requires no setup for normal Codex execution.
 
 Compressed output may support reporting only. It cannot replace running the required commands or inspecting the actual diff.
 
-Detailed guidance is implemented as guidance only at `docs/ai/codex/OPTIONAL_COMMAND_OUTPUT_COMPRESSION.md`. Actual RTK/RTX/TRS/manual compression tooling remains unimplemented.
+Follow `docs/ai/codex/OPTIONAL_COMMAND_OUTPUT_COMPRESSION.md` for safeguards, raw-output requirements, and Windows / WSL / no-RTK fallback posture.
 
 ## Future helper/tooling sequence
 
-Future efficiency ideas are sequenced. Compact WP template guidance is now implemented as guidance at `docs/ai/codex/COMPACT_WP_TEMPLATE.md`; the local diff/scope summary helper is now implemented as a repo-local advisory helper at `tools/dev/diff_scope_summary.py`; optional RTK/manual command-output compression guidance is now implemented as guidance only at `docs/ai/codex/OPTIONAL_COMMAND_OUTPUT_COMPRESSION.md`; validation-summary helper/wrapper design is now implemented as design only at `docs/ai/codex/VALIDATION_SUMMARY_HELPER_DESIGN.md`; the validation-summary log helper is now implemented as a repo-local advisory helper at `tools/dev/validation_summary.py` for summarizing existing local logs only; code-index design is now implemented as design only at `docs/ai/codex/CODE_INDEX_DESIGN.md`; memory/status snapshot design is now implemented as design only at `docs/ai/codex/MEMORY_STATUS_SNAPSHOT_DESIGN.md`. The remaining helper/tooling items below are not implemented here:
+Future efficiency ideas are sequenced. Compact WP template guidance is now implemented as guidance at `docs/ai/codex/COMPACT_WP_TEMPLATE.md`; the local diff/scope summary helper is now implemented as a repo-local advisory helper at `tools/dev/diff_scope_summary.py`; optional RTK command-output compression guidance is now implemented as guidance only at `docs/ai/codex/OPTIONAL_COMMAND_OUTPUT_COMPRESSION.md`, identifying RTK as the preferred optional manual/local compression candidate while leaving RTK/RTX/TRS tooling unimplemented; validation-summary helper/wrapper design is now implemented as design only at `docs/ai/codex/VALIDATION_SUMMARY_HELPER_DESIGN.md`; the validation-summary log helper is now implemented as a repo-local advisory helper at `tools/dev/validation_summary.py` for summarizing existing local logs only; code-index design is now implemented as design only at `docs/ai/codex/CODE_INDEX_DESIGN.md`; memory/status snapshot design is now implemented as design only at `docs/ai/codex/MEMORY_STATUS_SNAPSHOT_DESIGN.md`. The remaining helper/tooling items below are not implemented here:
 
 - compact WP templates: implemented guidance only in `docs/ai/codex/COMPACT_WP_TEMPLATE.md`;
 - local diff/scope summary helper: implemented repo-local advisory helper only at `tools/dev/diff_scope_summary.py`;

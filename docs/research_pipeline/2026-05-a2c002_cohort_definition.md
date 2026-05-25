@@ -94,12 +94,16 @@ Hard exclusions were applied first:
 - H-011 is excluded because first-time inclusion remains forbidden and no
   current target EXP/OL/REC segment exists.
 - H-012+ registration remains forbidden and absent.
-- H-004 post-WP-5b exact segments are excluded because they are already
-  floor-crossed.
 
 Remaining eligible below-floor pre-WP-5b units have committed EXP provenance,
 OL v1 / REC v1 representability, paired expectation-source availability, and
 clean REC-count verification.
+
+H-004's post-WP-5b exact segments are already floor-crossed, but WP-S2c-5
+states that already-floor-crossed status does not by itself exclude a
+candidate/segment. H-004's pre-WP-5b paired segments remain below floor at
+count `1` each and have committed EXP provenance through `EXP-0005`, so the
+H-004 pre-WP-5b unit remains eligible.
 
 The default cohort size target of 3 was used. More than three eligible
 below-floor candidates remained after hard filtering, so deterministic
@@ -117,13 +121,13 @@ metrics.
 | H-001 | yes | yes: `EXP-0002` | yes | no H-011/H-012+ issue | selected A2C-001 exact segments are already at count `3` | excluded | A2C-001 member; formal closure excludes reuse in A2C-002. |
 | H-002 | yes | yes: `EXP-0003` | no | no H-011/H-012+ issue | `pre_wp_5b` `d2_006_gates` = 1; `exp_success_criteria` = 1 | selected | Eligible below-floor candidate; selected by deterministic fallback within default-size cohort after higher-priority filters did not reduce the pool to 3. |
 | H-003 | yes | yes: `EXP-0004` | no | no H-011/H-012+ issue | `pre_wp_5b` `d2_006_gates` = 1; `exp_success_criteria` = 1 | selected | Eligible below-floor candidate; selected by deterministic fallback within default-size cohort after higher-priority filters did not reduce the pool to 3. |
-| H-004 | yes | yes: `EXP-0005`; post-WP-5b `EXP-0011` also exists | no | no H-011/H-012+ issue | `pre_wp_5b` paired segments = 1 each; `post_wp_5b` paired segments = 3 each | excluded | Not selected for A2C-002 because H-004 already supplies the floor-crossed A1/A2 reference point at post-WP-5b and the package objective is non-performance breadth beyond already-floor-crossed reference work. |
+| H-004 | yes | yes: `EXP-0005`; post-WP-5b `EXP-0011` also exists | no | no H-011/H-012+ issue | `pre_wp_5b` paired segments = 1 each; `post_wp_5b` paired segments = 3 each | selected | H-004 pre-WP-5b is an eligible below-floor candidate/segment; WP-S2c-5 says already-floor-crossed status does not by itself exclude a candidate/segment, so post-WP-5b floor state does not exclude the pre-WP-5b unit. |
 | H-005 | yes | yes: `EXP-0001` | yes | no H-011/H-012+ issue | selected A2C-001 exact segments are already at count `3` | excluded | A2C-001 member; formal closure excludes reuse in A2C-002. |
 | H-006 | yes | yes: `EXP-0006` | yes | no H-011/H-012+ issue | selected A2C-001 exact segments are already at count `3` | excluded | A2C-001 member; formal closure excludes reuse in A2C-002. |
-| H-007 | yes | yes: `EXP-0007` | no | no H-011/H-012+ issue | `pre_wp_5b` `d2_006_gates` = 1; `exp_success_criteria` = 1 | selected | Eligible below-floor candidate; selected by deterministic fallback within default-size cohort after higher-priority filters did not reduce the pool to 3. |
-| H-008 | yes | yes: `EXP-0008` | no | no H-011/H-012+ issue | `pre_wp_5b` `d2_006_gates` = 1; `exp_success_criteria` = 1 | excluded | Eligible but outside default-size cohort after deterministic lexical tie-break selected H-002, H-003, and H-007. |
-| H-009 | yes | yes: `EXP-0009` | no | no H-011/H-012+ issue | `pre_wp_5b` `d2_006_gates` = 1; `exp_success_criteria` = 1 | excluded | Eligible but outside default-size cohort after deterministic lexical tie-break selected H-002, H-003, and H-007. |
-| H-010 | yes | yes: `EXP-0010` | no | no H-011/H-012+ issue | `pre_wp_5b` `d2_006_gates` = 1; `exp_success_criteria` = 1 | excluded | Eligible but outside default-size cohort after deterministic lexical tie-break selected H-002, H-003, and H-007. |
+| H-007 | yes | yes: `EXP-0007` | no | no H-011/H-012+ issue | `pre_wp_5b` `d2_006_gates` = 1; `exp_success_criteria` = 1 | excluded | Eligible but outside default-size cohort after deterministic lexical tie-break selected H-002, H-003, and H-004. |
+| H-008 | yes | yes: `EXP-0008` | no | no H-011/H-012+ issue | `pre_wp_5b` `d2_006_gates` = 1; `exp_success_criteria` = 1 | excluded | Eligible but outside default-size cohort after deterministic lexical tie-break selected H-002, H-003, and H-004. |
+| H-009 | yes | yes: `EXP-0009` | no | no H-011/H-012+ issue | `pre_wp_5b` `d2_006_gates` = 1; `exp_success_criteria` = 1 | excluded | Eligible but outside default-size cohort after deterministic lexical tie-break selected H-002, H-003, and H-004. |
+| H-010 | yes | yes: `EXP-0010` | no | no H-011/H-012+ issue | `pre_wp_5b` `d2_006_gates` = 1; `exp_success_criteria` = 1 | excluded | Eligible but outside default-size cohort after deterministic lexical tie-break selected H-002, H-003, and H-004. |
 | H-011 | yes | no committed EXP for a current target segment | no | excluded as H-011 first-time inclusion | no current target OL/REC segment | excluded | Reserved `DRAFT` / `PENDING` slot; inclusion would require H-011 first-time inclusion and new scaffold authority. |
 | H-012+ | no | no | no | H-012+ registration forbidden and absent | n/a | excluded | No registry row exists and new registration is forbidden. |
 
@@ -141,7 +145,7 @@ Selected members:
 |---|---|---|---|---|---|
 | H-002 | Existing registry candidate; committed EXP; paired source REC surfaces; below-floor exact segments; selected by final deterministic lexical fallback. | `EXP-0003` / `research/experiments/EXP-0003.plan.json` | `research_oos / pre_wp_5b / d2_006_gates`; `research_oos / pre_wp_5b / exp_success_criteria` | `d2_006_gates`: 1 (`REC-0014`); `exp_success_criteria`: 1 (`REC-0003`); both below REC-5. | Preliminary only: later runway-shape package may test R1/R2 eligibility against exact source EXP, window, REP, OL, and REC requirements. |
 | H-003 | Existing registry candidate; committed EXP; paired source REC surfaces; below-floor exact segments; selected by final deterministic lexical fallback. | `EXP-0004` / `research/experiments/EXP-0004.plan.json` | `research_oos / pre_wp_5b / d2_006_gates`; `research_oos / pre_wp_5b / exp_success_criteria` | `d2_006_gates`: 1 (`REC-0015`); `exp_success_criteria`: 1 (`REC-0004`); both below REC-5. | Preliminary only: later runway-shape package may test R1/R2 eligibility against exact source EXP, window, REP, OL, and REC requirements. |
-| H-007 | Existing registry candidate; committed EXP; paired source REC surfaces; below-floor exact segments; selected by final deterministic lexical fallback. | `EXP-0007` / `research/experiments/EXP-0007.plan.json` | `research_oos / pre_wp_5b / d2_006_gates`; `research_oos / pre_wp_5b / exp_success_criteria` | `d2_006_gates`: 1 (`REC-0018`); `exp_success_criteria`: 1 (`REC-0007`); both below REC-5. | Preliminary only: later runway-shape package may test R1/R2 eligibility against exact source EXP, window, REP, OL, and REC requirements. |
+| H-004 | Existing registry candidate; committed EXP; paired source REC surfaces for the eligible pre-WP-5b unit; below-floor pre-WP-5b exact segments; selected by final deterministic lexical fallback. | `EXP-0005` / `research/experiments/EXP-0005.plan.json` | `research_oos / pre_wp_5b / d2_006_gates`; `research_oos / pre_wp_5b / exp_success_criteria` | `d2_006_gates`: 1 (`REC-0016`); `exp_success_criteria`: 1 (`REC-0005`); both below REC-5. H-004 post-WP-5b paired segments are already at count `3` and are not selected here. | Preliminary only: later runway-shape package may test R1/R2 eligibility against exact source EXP, window, REP, OL, and REC requirements. |
 
 This package does not select evidence cycles, artifact IDs, windows, or
 bridge-vs-manual posture.
@@ -168,7 +172,7 @@ applicable or where later preflight cannot verify eligibility.
 This package locks only:
 
 - the A2C-002 cohort definition;
-- selected A2C-002 members H-002, H-003, and H-007;
+- selected A2C-002 members H-002, H-003, and H-004;
 - the methodology application basis from WP-S2c-5 against current repo truth;
 - exclusion of A2C-001 members H-001, H-005, and H-006;
 - exclusion of H-011 and H-012+ candidates;
@@ -234,11 +238,11 @@ Actual validation results for WP-12dg / WP-S2c-70:
   provenance:
   - H-002: `EXP-0003` / `REP-0003`.
   - H-003: `EXP-0004` / `REP-0004`.
-  - H-007: `EXP-0007` / `REP-0007`.
+  - H-004 pre-WP-5b: `EXP-0005` / `REP-0005`.
 - Exact REC-count verification confirmed:
   - H-002 `d2_006_gates` = 1 and `exp_success_criteria` = 1.
   - H-003 `d2_006_gates` = 1 and `exp_success_criteria` = 1.
-  - H-007 `d2_006_gates` = 1 and `exp_success_criteria` = 1.
+  - H-004 pre-WP-5b `d2_006_gates` = 1 and `exp_success_criteria` = 1.
   - H-001, H-005, and H-006 selected A2C-001 exact segments = 3 each.
   - H-004 post-WP-5b exact segments = 3 each.
 - `tests/test_research_query_experiment_views.py` is absent from current
@@ -284,3 +288,25 @@ Actual validation results for WP-12dg / WP-S2c-70:
     `docs/project_status.md` and
     `docs/research_pipeline/2026-05-a2c002_cohort_definition.md`; forbidden
     matches were `[]`; allowed-file violations were `[]`.
+
+Follow-up correction validation for H-004 eligibility:
+
+- WP-S2c-5 re-check confirmed the locked methodology says current floor state
+  may vary and `n = 0`, below-floor, or already floor-crossed status does not
+  by itself exclude a candidate/segment.
+- H-004 query re-check confirmed pre-WP-5b paired segments remain below floor:
+  `d2_006_gates = 1` and `exp_success_criteria = 1`; post-WP-5b paired
+  segments are floor-crossed at `3` each.
+- H-004 EXP re-check confirmed committed pre-WP-5b provenance:
+  `EXP-0005` / `REP-0005`.
+- Correction diff-scope summary for the two allowed docs files exited `ok`
+  with no allowed-file violations, no forbidden matches, no trial-log touch,
+  and no untracked files.
+- Correction `v_integrity_*`: clean (24).
+- Correction registry validators: all 14 `tools.registry.validate_*` modules
+  passed.
+- Correction targeted query tests passed with 19 passed.
+- Correction bridge tests passed with 116 passed.
+- Correction helper tests passed with 61 passed.
+- Correction scoped regression passed with 520 passed and 213 deselected.
+- Correction full pytest passed with 733 passed and 4 warnings.

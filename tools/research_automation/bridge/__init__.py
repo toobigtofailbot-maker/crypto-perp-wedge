@@ -14,6 +14,11 @@ from tools.research_automation.bridge.intake import (
     create_intake_record,
     sha256_bytes,
 )
+from tools.research_automation.bridge.orchestrate import (
+    BridgeOrchestrationError,
+    BridgeRunResult,
+    run_bridge_pipeline,
+)
 from tools.research_automation.bridge.transform import (
     BridgeNormalizedRecord,
     BridgeTransformError,
@@ -34,7 +39,9 @@ __all__ = [
     "BridgeIntakeError",
     "BridgeIntakeRecord",
     "BridgeNormalizedRecord",
+    "BridgeOrchestrationError",
     "BridgeRunContext",
+    "BridgeRunResult",
     "BridgeSourceRef",
     "BridgeTransformError",
     "BridgeValidationError",
@@ -44,6 +51,7 @@ __all__ = [
     "create_candidate_artifact_draft",
     "create_intake_record",
     "normalize_bridge_payload",
+    "run_bridge_pipeline",
     "sha256_bytes",
     "sha256_draft_payload",
     "sha256_json_payload",

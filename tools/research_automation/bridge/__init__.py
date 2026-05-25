@@ -1,5 +1,11 @@
 """Local-only AUTO bridge primitives."""
 
+from tools.research_automation.bridge.candidate_artifact import (
+    BridgeCandidateArtifactDraft,
+    BridgeCandidateArtifactError,
+    create_candidate_artifact_draft,
+    sha256_draft_payload,
+)
 from tools.research_automation.bridge.intake import (
     BridgeIntakeError,
     BridgeIntakeRecord,
@@ -23,6 +29,8 @@ from tools.research_automation.bridge.validate import (
 )
 
 __all__ = [
+    "BridgeCandidateArtifactDraft",
+    "BridgeCandidateArtifactError",
     "BridgeIntakeError",
     "BridgeIntakeRecord",
     "BridgeNormalizedRecord",
@@ -33,9 +41,11 @@ __all__ = [
     "BridgeValidationIssue",
     "BridgeValidationResult",
     "assert_valid_normalized_record",
+    "create_candidate_artifact_draft",
     "create_intake_record",
     "normalize_bridge_payload",
     "sha256_bytes",
+    "sha256_draft_payload",
     "sha256_json_payload",
     "validate_normalized_record",
 ]

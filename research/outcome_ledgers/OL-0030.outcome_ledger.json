@@ -1,0 +1,67 @@
+{
+  "schema_version": "v1",
+  "outcome_id": "OL-0030",
+  "candidate_id": "H-004",
+  "lifecycle_state_during_window": "in_research",
+  "evaluation_window_start": "2025-04-12",
+  "evaluation_window_end": "2026-04-11",
+  "outcome_kind": "research_oos",
+  "metrics": {
+    "source_field": "trial_log.oos_sharpe",
+    "window_convention": "WP-12do / WP-S2c-78 uses the final local data-year evaluation window, 2025-04-12 through 2026-04-11, as H-004 selected pre-WP-5b combined R1+R2 cycle 1 after the original full-period no-formal-split retrospective baseline. Indicators are warmed up on prior available 1d history, but the backtest window starts flat with no pre-window position carry-in. The original H-004 REP-0005 evidence used a full-period retrospective posture, so strict non-overlap against that baseline is impossible; this report records explicit non-cloned bounded-window disclosure for additional pre-WP-5b runway evidence.",
+    "sharpe": 0.8059644695016975,
+    "max_drawdown": 1.0,
+    "n_obs": 19,
+    "trades": 1,
+    "hit_rate": 0.0,
+    "profit_factor": 0.0,
+    "final_equity": 0.0,
+    "total_pnl": -10000.0,
+    "gross_pnl": -9995.841242858996,
+    "fees_paid": 34.09516,
+    "slippage_paid": 17.04758,
+    "funding_paid": -46.983982858999994,
+    "cost_drag_fraction": -0.00041604873866629433,
+    "dsr": 0.71578,
+    "walk_forward_efficiency": 1.0,
+    "gates_passed": 2,
+    "gates_total": 8,
+    "funding_events_applied": 1092,
+    "config_sha256": "c5be5b8eebef7add74b6522998b74cdb4e03150e9e427440f8fa0bf3fc458175",
+    "dataset_sha256": "47b91ceac5ae9e472a08c23390ec8a5f6fee9a627a44df11e3557fbace02813d",
+    "dsr_note": "P(SR>1.0)=0.7158; SR benchmark=0.6512",
+    "max_drawdown_peak": "2025-04-15 23:59:59.999000+00:00",
+    "max_drawdown_trough": "2025-05-01 23:59:59.999000+00:00",
+    "skipped_bars": 0,
+    "sensitivity_min_ratio": -1.7632447911251334,
+    "short_side_trades": 1,
+    "short_side_net_pnl": -9995.841242858996,
+    "trial_count_before_append": 29,
+    "trial_count_after_append": 30
+  },
+  "data_provenance": {
+    "source_data_refs": [
+      "data/processed/binance_um_perp_BTCUSDT_1d_2020-01-01_2026-04-11_2026-04-12T1655Z.parquet",
+      "data/processed/binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z.parquet",
+      "binance_um_perp_BTCUSDT_1d_2020-01-01_2026-04-11_2026-04-12T1655Z",
+      "binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z"
+    ],
+    "source_data_window_start": "2025-04-12",
+    "source_data_window_end": "2026-04-11",
+    "source_data_notes": "OL-0030 derives from REP-0030. REP-0030 used the final local data-year evaluation window, covering 2025-04-12 through 2026-04-11, with actual bars from 2025-04-12 23:59:59.999000+00:00 through 2026-04-11 23:59:59.999000+00:00. Indicators were warmed up on prior available 1d history, and the backtest window started flat with no pre-window position carry-in. The original H-004 REP-0005 evidence used a full-period no-formal-split retrospective baseline, so strict non-overlap against that baseline is impossible."
+  },
+  "derivation_record": {
+    "derivation_method": "from_rep_artifact",
+    "source_artifact_id": "REP-0030",
+    "source_artifact_path": "research/experiments/REP-0030.report.json",
+    "derivation_timestamp": "2026-05-26T19:20:00Z"
+  },
+  "pipeline_version": "pre_wp_5b",
+  "linked_artifacts": [
+    "EXP-0005",
+    "REP-0030"
+  ],
+  "retrospective_flag": false,
+  "linked_advisory_artifacts": [],
+  "notes": "WP-12do derives OL-0030 from committed REP-0030 only. It is the shared source OL for two separate H-004 selected pre-WP-5b RECs under approved R1 paired-source reuse and approved R2 batched-cycle methodology: REC-0047 for d2_006_gates and REC-0048 for exp_success_criteria. REP-0030 records liquidation, final_equity = 0.0, max_drawdown = 1.0, and liquidation_timestamp = 2025-05-01 23:59:59.999000+00:00. REP-0030 records gross_pnl <= 0 and cost_drag_fraction = -0.00041604873866629433; deterministic REC comparison treats gross-PnL-negative cost drag as undefined or misleading rather than healthy cost behavior. WP-12do moves the two selected H-004 pre-WP-5b exact segments from count 1 to 2 if validation confirms, does not satisfy REC-5, does not floor-cross either selected pre-WP-5b segment, does not touch or reinterpret H-004 post-WP-5b segments, and does not authorize H-004 completion, A2C-002 completion, Path B, policy, scoring, ranking/recommendation, paper-live, runtime, lifecycle, promotion, demotion, protected-path authority, or downstream authority."
+}

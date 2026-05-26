@@ -1,0 +1,216 @@
+{
+  "report_id": "REP-0030",
+  "plan_id": "EXP-0005",
+  "candidate_id": "H-004",
+  "execution_date": "2026-05-26",
+  "trial_ids": [
+    "a85d191e-ec0f-4eae-9386-a29634e0741b"
+  ],
+  "metrics": {
+    "in_sample": {
+      "sharpe": 0.8059644695016975,
+      "source_field": "trial_log.in_sample_sharpe",
+      "window_convention": "No separate IS/OOS split convention is introduced by WP-12do / WP-S2c-78; this field records the same actual cycle 1 annual evaluation-window Sharpe as the out_of_sample object for schema continuity."
+    },
+    "out_of_sample": {
+      "source_field": "trial_log.oos_sharpe",
+      "window_convention": "WP-12do / WP-S2c-78 uses the final local data-year evaluation window, 2025-04-12 through 2026-04-11, as H-004 selected pre-WP-5b combined R1+R2 cycle 1 after the original full-period no-formal-split retrospective baseline. Indicators are warmed up on prior available 1d history, but the backtest window starts flat with no pre-window position carry-in. The original H-004 REP-0005 evidence used a full-period retrospective posture, so strict non-overlap against that baseline is impossible; this report records explicit non-cloned bounded-window disclosure for additional pre-WP-5b runway evidence.",
+      "sharpe": 0.8059644695016975,
+      "max_drawdown": 1.0,
+      "n_obs": 19,
+      "trades": 1,
+      "hit_rate": 0.0,
+      "profit_factor": 0.0,
+      "final_equity": 0.0,
+      "total_pnl": -10000.0,
+      "gross_pnl": -9995.841242858996,
+      "fees_paid": 34.09516,
+      "slippage_paid": 17.04758,
+      "funding_paid": -46.983982858999994,
+      "cost_drag_fraction": -0.00041604873866629433,
+      "dsr": 0.71578,
+      "walk_forward_efficiency": 1.0,
+      "gates_passed": 2,
+      "gates_total": 8,
+      "funding_events_applied": 1092,
+      "config_sha256": "c5be5b8eebef7add74b6522998b74cdb4e03150e9e427440f8fa0bf3fc458175",
+      "dataset_sha256": "47b91ceac5ae9e472a08c23390ec8a5f6fee9a627a44df11e3557fbace02813d",
+      "dsr_note": "P(SR>1.0)=0.7158; SR benchmark=0.6512",
+      "max_drawdown_peak": "2025-04-15 23:59:59.999000+00:00",
+      "max_drawdown_trough": "2025-05-01 23:59:59.999000+00:00",
+      "skipped_bars": 0,
+      "sensitivity_min_ratio": -1.7632447911251334,
+      "short_side_trades": 1,
+      "short_side_net_pnl": -9995.841242858996,
+      "trial_count_before_append": 29,
+      "trial_count_after_append": 30,
+      "bars": 365,
+      "liquidated": true,
+      "liquidation_timestamp": "2025-05-01 23:59:59.999000+00:00",
+      "evaluation_window_start": "2025-04-12",
+      "evaluation_window_end": "2026-04-11",
+      "actual_bar_window_start": "2025-04-12 23:59:59.999000+00:00",
+      "actual_bar_window_end": "2026-04-11 23:59:59.999000+00:00",
+      "data_source": [
+        "data\\processed\\binance_um_perp_BTCUSDT_1d_2020-01-01_2026-04-11_2026-04-12T1655Z.parquet",
+        "data\\processed\\binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z.parquet"
+      ],
+      "dataset_ids": [
+        "binance_um_perp_BTCUSDT_1d_2020-01-01_2026-04-11_2026-04-12T1655Z",
+        "binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z"
+      ],
+      "sensitivity": [
+        {
+          "variant": "fast_ma_up_25pct",
+          "fast_ma": 62.5,
+          "slow_ma": 200,
+          "rv_lookback": 30,
+          "rv_percentile": 50,
+          "sharpe": 0.8059644695016975,
+          "ratio_to_base": 1.0
+        },
+        {
+          "variant": "fast_ma_down_25pct",
+          "fast_ma": 37.5,
+          "slow_ma": 200,
+          "rv_lookback": 30,
+          "rv_percentile": 50,
+          "sharpe": 0.8059644695016975,
+          "ratio_to_base": 1.0
+        },
+        {
+          "variant": "slow_ma_up_25pct",
+          "fast_ma": 50,
+          "slow_ma": 250,
+          "rv_lookback": 30,
+          "rv_percentile": 50,
+          "sharpe": -1.4087765710444156,
+          "ratio_to_base": -1.7479388041949513
+        },
+        {
+          "variant": "slow_ma_down_25pct",
+          "fast_ma": 50,
+          "slow_ma": 150,
+          "rv_lookback": 30,
+          "rv_percentile": 50,
+          "sharpe": 0.8059644695016975,
+          "ratio_to_base": 1.0
+        },
+        {
+          "variant": "rv_lookback_up_25pct",
+          "fast_ma": 50,
+          "slow_ma": 200,
+          "rv_lookback": 37.5,
+          "rv_percentile": 50,
+          "sharpe": 0.8059644695016975,
+          "ratio_to_base": 1.0
+        },
+        {
+          "variant": "rv_lookback_down_25pct",
+          "fast_ma": 50,
+          "slow_ma": 200,
+          "rv_lookback": 22.5,
+          "rv_percentile": 50,
+          "sharpe": 0.8059644695016975,
+          "ratio_to_base": 1.0
+        },
+        {
+          "variant": "rv_percentile_up_25pct",
+          "fast_ma": 50,
+          "slow_ma": 200,
+          "rv_lookback": 30,
+          "rv_percentile": 62.5,
+          "sharpe": -1.4211126526807996,
+          "ratio_to_base": -1.7632447911251334
+        },
+        {
+          "variant": "rv_percentile_down_25pct",
+          "fast_ma": 50,
+          "slow_ma": 200,
+          "rv_lookback": 30,
+          "rv_percentile": 37.5,
+          "sharpe": 0.8059644695016975,
+          "ratio_to_base": 1.0
+        }
+      ],
+      "side_summary": [
+        {
+          "direction": -1,
+          "count": 1,
+          "net_pnl_sum": -9995.841242858996,
+          "net_pnl_mean": -9995.841242858996
+        }
+      ],
+      "signal_counts": {
+        "-1.0": 139,
+        "0.0": 189,
+        "1.0": 37
+      }
+    }
+  },
+  "gate_results": [
+    {
+      "gate_id": "D2-006-G1: OOS Sharpe >= 1.0",
+      "threshold": 1.0,
+      "observed": 0.806,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G2: DSR > 1.0 at 95% CI",
+      "threshold": 1.0,
+      "observed": "0.71578; P(SR>1.0)=0.7158; SR benchmark=0.6512",
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G3: Per-fold max DD <= 20%",
+      "threshold": 0.2,
+      "observed": 1.0,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G4: Parameter sensitivity min_ratio >= 0.70",
+      "threshold": 0.7,
+      "observed": "-1.7632; Computed by parameter_sensitivity() at +/-25%",
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G5: Cost drag <= 50% of gross PnL",
+      "threshold": 0.5,
+      "observed": "-0.0004; gross_pnl=-9995.84 <= 0: cost drag undefined/misleading",
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G6: No 90-day window > 60% of PnL",
+      "threshold": 0.6,
+      "observed": 1.1599,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G7: <= 5 free parameters",
+      "threshold": 5.0,
+      "observed": 4.0,
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G8: Walk-forward efficiency > 0.5",
+      "threshold": 0.5,
+      "observed": 1.0,
+      "pass": true
+    }
+  ],
+  "overall_verdict": "NO-GO",
+  "observations": "WP-12do / WP-S2c-78 is the H-004 selected pre-WP-5b combined R1+R2 cycle 1 evidence package. It uses existing committed EXP-0005 and creates REP-0030, one trial-log row, OL-0030, and two separate RECs from OL-0030 for d2_006_gates and exp_success_criteria. The WP-12do window is the final local data-year window, 2025-04-12 through 2026-04-11, with indicator warmup from earlier available 1d history and no pre-window position carry-in. The bounded run liquidated on 2025-05-01 23:59:59.999000+00:00, produced final_equity = 0.0, failed 6 of 8 D2-006 gates, and preserved gross-PnL-negative cost-drag as undefined/misleading rather than healthy cost behavior. This report is pre-WP-5b runway evidence only and does not touch or reinterpret H-004 post-WP-5b evidence. The schema-required next_step_recommendation field carries no policy, promotion, ranking, paper/live, runtime, protected-path, or downstream authority.",
+  "next_step_recommendation": "archive",
+  "diagnostic_findings": [
+    "REP-0030 is one genuine local research evaluation with a new trial id against existing EXP-0005; no new EXP was created.",
+    "The selected exact segments are H-004 / research_oos / pre_wp_5b / d2_006_gates and H-004 / research_oos / pre_wp_5b / exp_success_criteria.",
+    "The evaluation window is explicit and non-cloned: 2025-04-12 through 2026-04-11, with 365 1d bars from 2025-04-12 23:59:59.999000+00:00 through 2026-04-11 23:59:59.999000+00:00.",
+    "Indicators were warmed up on earlier available local 1d history, and the backtest window started flat with no inherited pre-window position carry-in.",
+    "The original H-004 REP-0005 evidence used a full-period no-formal-split retrospective baseline, so strict non-overlap against existing committed H-004 pre-WP-5b evidence is impossible; this report records that limitation explicitly.",
+    "The run liquidated on 2025-05-01 23:59:59.999000+00:00 and recorded final_equity = 0.0 and max_drawdown = 1.0 under current bounded-equity helper semantics used for this local evaluation.",
+    "The source REP/OL chain is intentionally reused for two separate RECs under approved R1 paired-source reuse and approved R2 batched-cycle methodology; the two RECs preserve separate expectation-source comparisons and exact-segment counts.",
+    "The H-004 post-WP-5b paired exact segments remain outside this selected A2C-002 runway package and are not consumed, modified, or reinterpreted.",
+    "The next_step_recommendation field is schema-required only and has no policy, scoring, ranking/recommendation, paper/live, runtime, promotion, demotion, readiness, lifecycle, protected-path, or downstream authority.",
+    "The run creates no H-004 completion, selected pre-WP-5b REC-5 floor crossing, A2C-002 completion, Path B, Phase 3, runtime behavior, or protected-path authority."
+  ]
+}

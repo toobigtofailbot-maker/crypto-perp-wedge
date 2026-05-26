@@ -1,0 +1,170 @@
+{
+  "report_id": "REP-0028",
+  "plan_id": "EXP-0004",
+  "candidate_id": "H-003",
+  "execution_date": "2026-05-26",
+  "trial_ids": [
+    "b60eaf6e-bde4-43f8-ac37-3d096231d546"
+  ],
+  "metrics": {
+    "in_sample": {
+      "sharpe": 1.0445552332978285,
+      "source_field": "trial_log.in_sample_sharpe",
+      "window_convention": "No separate IS/OOS split convention is introduced by WP-12dl / WP-S2c-75; this field records the same actual cycle 1 annual evaluation-window Sharpe as the out_of_sample object for schema continuity."
+    },
+    "out_of_sample": {
+      "source_field": "trial_log.oos_sharpe",
+      "window_convention": "WP-12dl / WP-S2c-75 uses the final local data-year evaluation window, 2025-04-12 through 2026-04-11, as H-003 combined R1+R2 cycle 1 after the original full-period no-formal-split retrospective baseline. Indicators are warmed up on prior available 1d history, but the backtest window starts flat with no pre-window position carry-in. The original H-003 REP-0004 evidence used a full-period retrospective posture, so strict non-overlap against that baseline is impossible; this report records explicit non-cloned bounded-window disclosure for additional REP evidence.",
+      "sharpe": 1.0445552332978285,
+      "max_drawdown": 0.9387065478299754,
+      "n_obs": 364,
+      "trades": 7,
+      "hit_rate": 0.7142857142857143,
+      "profit_factor": 0.9653869308525456,
+      "final_equity": 7849.724492290963,
+      "total_pnl": -2150.275507709037,
+      "gross_pnl": -277.8000000000029,
+      "fees_paid": 562.0501599999999,
+      "slippage_paid": 281.02507999999995,
+      "funding_paid": 1029.4002677089995,
+      "cost_drag_fraction": -6.740372597944492,
+      "dsr": 1.0,
+      "walk_forward_efficiency": 1.0,
+      "gates_passed": 4,
+      "gates_total": 8,
+      "funding_events_applied": 1092,
+      "config_sha256": "4b98a2d3bf3190a76c07a717e881ccc5655ec2d6d669ebdef6aae0a169eae6f7",
+      "dataset_sha256": "47b91ceac5ae9e472a08c23390ec8a5f6fee9a627a44df11e3557fbace02813d",
+      "dsr_note": "P(SR>1.0)=1.0000; SR benchmark=0.6418",
+      "max_drawdown_peak": "2025-11-10 23:59:59.999000+00:00",
+      "max_drawdown_trough": "2026-02-05 23:59:59.999000+00:00",
+      "skipped_bars": 0,
+      "sensitivity_min_ratio": -1.5263829392310895,
+      "long_side_trades": 7,
+      "long_side_net_pnl": -699.2542800000047,
+      "trial_count_before_append": 27,
+      "trial_count_after_append": 28,
+      "bars": 365,
+      "liquidated": false,
+      "liquidation_timestamp": null,
+      "evaluation_window_start": "2025-04-12",
+      "evaluation_window_end": "2026-04-11",
+      "actual_bar_window_start": "2025-04-12 23:59:59.999000+00:00",
+      "actual_bar_window_end": "2026-04-11 23:59:59.999000+00:00",
+      "data_source": [
+        "data\\processed\\binance_um_perp_BTCUSDT_1d_2020-01-01_2026-04-11_2026-04-12T1655Z.parquet",
+        "data\\processed\\binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z.parquet"
+      ],
+      "dataset_ids": [
+        "binance_um_perp_BTCUSDT_1d_2020-01-01_2026-04-11_2026-04-12T1655Z",
+        "binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z"
+      ],
+      "sensitivity": [
+        {
+          "variant": "bb_period_up_25pct",
+          "bb_period": 25,
+          "bb_std_dev": 2.0,
+          "sharpe": 0.46495471801556365,
+          "ratio_to_base": 0.4451221947810524
+        },
+        {
+          "variant": "bb_period_down_25pct",
+          "bb_period": 15,
+          "bb_std_dev": 2.0,
+          "sharpe": -1.5943912871903558,
+          "ratio_to_base": -1.5263829392310895
+        },
+        {
+          "variant": "bb_std_dev_up_25pct",
+          "bb_period": 20,
+          "bb_std_dev": 2.5,
+          "sharpe": -1.5581317464490756,
+          "ratio_to_base": -1.4916700398214497
+        },
+        {
+          "variant": "bb_std_dev_down_25pct",
+          "bb_period": 20,
+          "bb_std_dev": 1.5,
+          "sharpe": 1.1130858539266097,
+          "ratio_to_base": 1.0656074647315863
+        }
+      ],
+      "side_summary": [
+        {
+          "direction": 1,
+          "count": 7,
+          "net_pnl_sum": -699.2542800000047,
+          "net_pnl_mean": -99.89346857142924
+        }
+      ],
+      "signal_counts": {
+        "0.0": 263,
+        "1.0": 102
+      }
+    }
+  },
+  "gate_results": [
+    {
+      "gate_id": "D2-006-G1: OOS Sharpe >= 1.0",
+      "threshold": 1.0,
+      "observed": 1.0446,
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G2: DSR > 1.0 at 95% CI",
+      "threshold": 1.0,
+      "observed": "1.0; P(SR>1.0)=1.0000; SR benchmark=0.6418",
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G3: Per-fold max DD <= 20%",
+      "threshold": 0.2,
+      "observed": 0.9387,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G4: Parameter sensitivity min_ratio >= 0.70",
+      "threshold": 0.7,
+      "observed": "-1.5264; Computed by parameter_sensitivity() at +/-25%",
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G5: Cost drag <= 50% of gross PnL",
+      "threshold": 0.5,
+      "observed": "-6.7404; gross_pnl=-277.80 <= 0: cost drag undefined/misleading",
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G6: No 90-day window > 60% of PnL",
+      "threshold": 0.6,
+      "observed": 12.3735,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G7: <= 5 free parameters",
+      "threshold": 5.0,
+      "observed": 2.0,
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G8: Walk-forward efficiency > 0.5",
+      "threshold": 0.5,
+      "observed": 1.0,
+      "pass": true
+    }
+  ],
+  "overall_verdict": "NO-GO",
+  "observations": "WP-12dl / WP-S2c-75 is the H-003 combined R1+R2 cycle 1 evidence package. It uses existing committed EXP-0004 and creates REP-0028, one trial-log row, OL-0028, and two separate RECs from OL-0028 for d2_006_gates and exp_success_criteria. The WP-12dl window is the final local data-year window, 2025-04-12 through 2026-04-11, with indicator warmup from earlier available 1d history and no pre-window position carry-in. The bounded run produced positive OOS Sharpe but negative total PnL, failed 4 of 8 D2-006 gates, and preserved gross-PnL-negative cost-drag as undefined/misleading rather than healthy cost behavior. The schema-required next_step_recommendation field carries no policy, promotion, ranking, paper/live, runtime, protected-path, or downstream authority.",
+  "next_step_recommendation": "archive",
+  "diagnostic_findings": [
+    "REP-0028 is one genuine local research evaluation with a new trial id against existing EXP-0004; no new EXP was created.",
+    "The selected exact segments are H-003 / research_oos / pre_wp_5b / d2_006_gates and H-003 / research_oos / pre_wp_5b / exp_success_criteria.",
+    "The evaluation window is explicit and non-cloned: 2025-04-12 through 2026-04-11, with 365 1d bars from 2025-04-12 23:59:59.999000+00:00 through 2026-04-11 23:59:59.999000+00:00.",
+    "Indicators were warmed up on earlier available local 1d history, and the backtest window started flat with no inherited pre-window position carry-in.",
+    "The original H-003 REP-0004 evidence used a full-period no-formal-split retrospective baseline, so strict non-overlap against existing committed H-003 evidence is impossible; this report records that limitation explicitly.",
+    "The run did not liquidate but recorded max_drawdown = 0.9387065478299754 and final_equity = 7849.724492290963 under current WP-5b bounded-equity semantics.",
+    "The source REP/OL chain is intentionally reused for two separate RECs under approved R1 paired-source reuse and approved R2 batched-cycle methodology; the two RECs preserve separate expectation-source comparisons and exact-segment counts.",
+    "The next_step_recommendation field is schema-required only and has no policy, scoring, ranking/recommendation, paper/live, runtime, promotion, demotion, readiness, lifecycle, protected-path, or downstream authority.",
+    "The run creates no H-003 completion, A2C-002 completion, Path B, Phase 3, runtime behavior, or protected-path authority."
+  ]
+}

@@ -14,8 +14,13 @@ research evidence.
 - `research/experiments/REP-*.report.json` -> `exp_reports`
 - `research/trial_log.jsonl` -> `trial_log`
 - `research/shadow_signal_summaries_v2/*.shadow_signal_summary.json` -> `shadow_signal_summaries_v2`
+- `research/r2s_approval_records/*.r2s_approval_record.json` -> `r2s_approval_records`
+- `research/shadow_evidence_retention/*.shadow_evidence_retention.json` -> `shadow_evidence_retention`
+- `research/s2p_approval_records/*.s2p_approval_record.json` -> `s2p_approval_records`
 
 The DuckDB connection is in-memory. No `.duckdb` file is created.
+Missing Scope 6 artifact directories and zero committed Scope 6 instances are
+healthy empty state.
 
 ## Named Views
 
@@ -33,6 +38,32 @@ The DuckDB connection is in-memory. No `.duckdb` file is created.
 | `v_integrity_candidate_refs` | Broken candidate references from EXP/REP artifacts. Expected empty. | Do all artifacts point to real registry candidates? |
 | `v_shadow_signal_summaries_v2_overview` | One row per committed SSS v2 segment with schema version, segmentation axes, corpus window, segment keys, counts, rates, and outcome fields. | What committed SSS v2 segment evidence exists? |
 | `v_integrity_shadow_signal_summary_v2_derivation` | SSS v2 derivation drift check against committed overlay shadow logs. Expected empty for supported healthy instances. | Does committed SSS v2 content still match the cited corpus? |
+| `v_r2s_approval_records` | One row per future R2S approval record with candidate, decision, REC-5, preservation, and non-authority fields. | What R2S approval-record artifacts exist for inspection? |
+| `v_shadow_evidence_retention` | One row per future shadow-evidence retention record with shadow-window, D2-007, parity, disclosure, mismatch, and non-authority fields. | What retained shadow-evidence records exist for review? |
+| `v_s2p_approval_records` | One row per future S2P approval record with shadow-evidence reference, decision, preservation, and non-authority fields. | What S2P approval-record artifacts exist for inspection? |
+| `v_scope6_candidate_packaging_overview` | Candidate-level Scope 6 artifact inventory counts and booleans only. | Which candidates have Scope 6 packaging artifacts present? |
+| `v_s2p_shadow_evidence_links` | S2P-to-shadow-evidence reference inspection with candidate-ID consistency. | Do S2P records resolve to the retained shadow-evidence record they cite? |
+| `v_integrity_r2s_approval_candidate_refs` | Broken R2S approval-record candidate references. Expected empty. | Do all R2S records point to real registry candidates? |
+| `v_integrity_shadow_evidence_candidate_refs` | Broken shadow-evidence retention candidate references. Expected empty. | Do all retained shadow-evidence records point to real registry candidates? |
+| `v_integrity_s2p_approval_candidate_refs` | Broken S2P approval-record candidate references. Expected empty. | Do all S2P records point to real registry candidates? |
+| `v_integrity_r2s_rec5_candidate_consistency` | R2S top-level candidate versus nested REC-5 candidate mismatch check. Expected empty. | Does nested REC-5 evidence stay on the same candidate? |
+| `v_integrity_s2p_shadow_evidence_refs` | Missing S2P shadow-evidence references. Expected empty. | Does every S2P record resolve to its referenced shadow evidence? |
+| `v_integrity_s2p_shadow_evidence_candidate_consistency` | S2P candidate versus referenced shadow-evidence candidate mismatch check. Expected empty. | Do linked S2P and shadow-evidence records agree on candidate ID? |
+| `v_integrity_scope6_authority_flags` | Scope 6 forbidden-authority and required non-authority flag drift. Expected empty. | Did any Scope 6 record acquire authority-bearing flags? |
+| `v_integrity_scope6_preservation_flags` | Scope 6 preservation and D2-007 boundary flag drift. Expected empty. | Did any Scope 6 record lose required preservation confirmations? |
+
+## Scope 6 Query-Layer Support
+
+WP-S2c-117 adds read-only in-memory query support for future Scope 6
+R2S approval-record, shadow-evidence retention, and S2P approval-record
+artifact families. The query layer registers these optional families as
+in-memory DuckDB views only. It does not create files or directories, and
+missing directories or zero matching instances are healthy empty state.
+
+The Scope 6 views expose inventory, artifact references, preservation flags,
+non-authority flags, and consistency diagnostics only. They create no artifacts
+and grant no readiness, approval, transition, promotion, ranking, scoring,
+recommendation, policy, runtime, or human-gate execution authority.
 
 ## SSS v2 Query-Layer Support
 
@@ -116,6 +147,7 @@ The guard favors false negatives over permissive execution.
 - No backtest execution
 - No promotion, risk, OMS, or execution-core behavior
 - No runtime, policy, override, OMS, risk, or execution behavior from SSS v2 query-layer support
+- No readiness, approval, transition, promotion, ranking, scoring, recommendation, policy, runtime, or human-gate execution authority from Scope 6 query-layer support
 
 ## Example Queries
 

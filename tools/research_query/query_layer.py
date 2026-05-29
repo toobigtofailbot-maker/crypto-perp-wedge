@@ -26,6 +26,9 @@ PRE_GATE_ADVISORY_SNAPSHOTS_DIR = REPO_ROOT / "research" / "pre_gate_advisory_sn
 OVERLAY_SHADOW_LOGS_DIR = REPO_ROOT / "research" / "overlay_shadow_logs"
 SHADOW_SIGNAL_SUMMARIES_DIR = REPO_ROOT / "research" / "shadow_signal_summaries"
 SHADOW_SIGNAL_SUMMARIES_V2_DIR = REPO_ROOT / "research" / "shadow_signal_summaries_v2"
+R2S_APPROVAL_RECORDS_DIR = REPO_ROOT / "research" / "r2s_approval_records"
+SHADOW_EVIDENCE_RETENTION_DIR = REPO_ROOT / "research" / "shadow_evidence_retention"
+S2P_APPROVAL_RECORDS_DIR = REPO_ROOT / "research" / "s2p_approval_records"
 TRIAL_LOG_PATH = REPO_ROOT / "research" / "trial_log.jsonl"
 VIEWS_PATH = Path(__file__).resolve().with_name("views.sql")
 
@@ -825,6 +828,209 @@ def _register_shadow_signal_summaries_v2(conn: duckdb.DuckDBPyConnection) -> Non
     )
 
 
+def _register_r2s_approval_records(conn: duckdb.DuckDBPyConnection) -> None:
+    record_files = (
+        sorted(R2S_APPROVAL_RECORDS_DIR.glob("*.r2s_approval_record.json"))
+        if R2S_APPROVAL_RECORDS_DIR.exists()
+        else []
+    )
+    if record_files:
+        conn.execute(
+            f"""
+            CREATE VIEW r2s_approval_records AS
+            SELECT * FROM read_json_auto('{_sql_path(R2S_APPROVAL_RECORDS_DIR / "*.r2s_approval_record.json")}')
+            """
+        )
+        return
+
+    conn.execute(
+        """
+        CREATE VIEW r2s_approval_records AS
+        SELECT
+            CAST(NULL AS VARCHAR) AS schema_version,
+            CAST(NULL AS VARCHAR) AS record_type,
+            CAST(NULL AS VARCHAR) AS approval_record_id,
+            CAST(NULL AS VARCHAR) AS candidate_id,
+            CAST(NULL AS VARCHAR) AS strategy_or_candidate_family,
+            CAST([] AS STRUCT(artifact_id_or_label VARCHAR, artifact_path VARCHAR, notes VARCHAR)[])
+                AS evidence_snapshot_references,
+            CAST(NULL AS STRUCT(artifact_id_or_label VARCHAR, artifact_path VARCHAR, notes VARCHAR))
+                AS d2_006_gate_pass_evidence_reference_or_attestation,
+            CAST(NULL AS STRUCT(
+                candidate_id VARCHAR,
+                outcome_kind VARCHAR,
+                pipeline_version VARCHAR,
+                expectation_source_type VARCHAR,
+                evidence_references STRUCT(artifact_id_or_label VARCHAR, artifact_path VARCHAR, notes VARCHAR)[],
+                no_pooled_or_cross_segment_inference_below_floor BOOLEAN
+            )) AS rec5_exact_segment_evidence,
+            CAST(NULL AS BOOLEAN) AS no_cross_segment_inference_below_rec5_floor,
+            CAST(NULL AS VARCHAR) AS approver_identity,
+            CAST(NULL AS VARCHAR) AS approval_timestamp_utc,
+            CAST(NULL AS VARCHAR) AS decision_outcome,
+            CAST(NULL AS STRUCT(
+                permanent_human_gates_preserved BOOLEAN,
+                d2_006_preserved BOOLEAN,
+                d2_007_preserved BOOLEAN,
+                rec5_preserved BOOLEAN,
+                phase9_preserved BOOLEAN
+            )) AS preservation_confirmation,
+            CAST(NULL AS VARCHAR) AS transition_machinery_statement,
+            CAST(NULL AS STRUCT(
+                candidate_readiness_authority BOOLEAN,
+                transition_authority BOOLEAN,
+                promotion_authority BOOLEAN,
+                gate_execution_authority BOOLEAN,
+                runtime_authority BOOLEAN,
+                tier4_authority BOOLEAN
+            )) AS authority_flags
+        WHERE FALSE
+        """
+    )
+
+
+def _register_shadow_evidence_retention(conn: duckdb.DuckDBPyConnection) -> None:
+    retention_files = (
+        sorted(SHADOW_EVIDENCE_RETENTION_DIR.glob("*.shadow_evidence_retention.json"))
+        if SHADOW_EVIDENCE_RETENTION_DIR.exists()
+        else []
+    )
+    if retention_files:
+        conn.execute(
+            f"""
+            CREATE VIEW shadow_evidence_retention AS
+            SELECT * FROM read_json_auto('{_sql_path(SHADOW_EVIDENCE_RETENTION_DIR / "*.shadow_evidence_retention.json")}')
+            """
+        )
+        return
+
+    conn.execute(
+        """
+        CREATE VIEW shadow_evidence_retention AS
+        SELECT
+            CAST(NULL AS VARCHAR) AS schema_version,
+            CAST(NULL AS VARCHAR) AS record_type,
+            CAST(NULL AS VARCHAR) AS shadow_evidence_id,
+            CAST(NULL AS VARCHAR) AS candidate_id,
+            CAST(NULL AS STRUCT(
+                start_utc VARCHAR,
+                end_utc VARCHAR,
+                calendar_days_observed BIGINT
+            )) AS shadow_window,
+            CAST(NULL AS STRUCT(
+                minimum_shadow_window_calendar_days BIGINT,
+                pnl_deviation_max DOUBLE,
+                trade_count_deviation_max DOUBLE
+            )) AS d2_007_thresholds,
+            CAST(NULL AS STRUCT(
+                observed_pnl_deviation DOUBLE,
+                observed_trade_count_deviation DOUBLE,
+                parity_result_evidence_reference_or_attestation STRUCT(
+                    artifact_id_or_label VARCHAR,
+                    artifact_path VARCHAR,
+                    notes VARCHAR
+                )
+            )) AS parity_result,
+            CAST([] AS STRUCT(artifact_id_or_label VARCHAR, artifact_path VARCHAR, notes VARCHAR)[])
+                AS shadow_observation_lineage,
+            CAST(NULL AS STRUCT(
+                interruptions STRUCT(
+                    description VARCHAR,
+                    evidence_reference_or_attestation STRUCT(artifact_id_or_label VARCHAR, artifact_path VARCHAR, notes VARCHAR)
+                )[],
+                invalid_observations STRUCT(
+                    description VARCHAR,
+                    evidence_reference_or_attestation STRUCT(artifact_id_or_label VARCHAR, artifact_path VARCHAR, notes VARCHAR)
+                )[],
+                missing_data STRUCT(
+                    description VARCHAR,
+                    evidence_reference_or_attestation STRUCT(artifact_id_or_label VARCHAR, artifact_path VARCHAR, notes VARCHAR)
+                )[],
+                observation_resets STRUCT(
+                    description VARCHAR,
+                    evidence_reference_or_attestation STRUCT(artifact_id_or_label VARCHAR, artifact_path VARCHAR, notes VARCHAR)
+                )[]
+            )) AS disclosure,
+            CAST(NULL AS STRUCT(artifact_id_or_label VARCHAR, artifact_path VARCHAR, notes VARCHAR))
+                AS evidence_retention_reference,
+            CAST(NULL AS STRUCT(
+                decision_support_only BOOLEAN,
+                ranking_authority BOOLEAN,
+                scoring_authority BOOLEAN,
+                recommendation_authority BOOLEAN,
+                transition_logic_authority BOOLEAN,
+                diagnostic_references STRUCT(artifact_id_or_label VARCHAR, artifact_path VARCHAR, notes VARCHAR)[],
+                notes VARCHAR
+            )) AS mismatch_diagnostics,
+            CAST(NULL AS STRUCT(
+                candidate_readiness_authority BOOLEAN,
+                transition_authority BOOLEAN,
+                ranking_authority BOOLEAN,
+                scoring_authority BOOLEAN,
+                recommendation_authority BOOLEAN,
+                gate_execution_authority BOOLEAN,
+                runtime_authority BOOLEAN,
+                tier4_authority BOOLEAN
+            )) AS authority_flags
+        WHERE FALSE
+        """
+    )
+
+
+def _register_s2p_approval_records(conn: duckdb.DuckDBPyConnection) -> None:
+    record_files = (
+        sorted(S2P_APPROVAL_RECORDS_DIR.glob("*.s2p_approval_record.json"))
+        if S2P_APPROVAL_RECORDS_DIR.exists()
+        else []
+    )
+    if record_files:
+        conn.execute(
+            f"""
+            CREATE VIEW s2p_approval_records AS
+            SELECT * FROM read_json_auto('{_sql_path(S2P_APPROVAL_RECORDS_DIR / "*.s2p_approval_record.json")}')
+            """
+        )
+        return
+
+    conn.execute(
+        """
+        CREATE VIEW s2p_approval_records AS
+        SELECT
+            CAST(NULL AS VARCHAR) AS schema_version,
+            CAST(NULL AS VARCHAR) AS record_type,
+            CAST(NULL AS VARCHAR) AS approval_record_id,
+            CAST(NULL AS VARCHAR) AS candidate_id,
+            CAST(NULL AS STRUCT(shadow_evidence_id VARCHAR, artifact_path VARCHAR, notes VARCHAR))
+                AS shadow_window_evidence_reference,
+            CAST(NULL AS STRUCT(artifact_id_or_label VARCHAR, artifact_path VARCHAR, notes VARCHAR))
+                AS d2_007_parity_result_reference_or_attestation,
+            CAST(NULL AS STRUCT(artifact_id_or_label VARCHAR, artifact_path VARCHAR, notes VARCHAR))
+                AS interruption_or_invalid_observation_disclosure_reference,
+            CAST(NULL AS BOOLEAN) AS paper_runtime_protection_confirmation,
+            CAST(NULL AS VARCHAR) AS approver_identity,
+            CAST(NULL AS VARCHAR) AS approval_timestamp_utc,
+            CAST(NULL AS VARCHAR) AS decision_outcome,
+            CAST(NULL AS STRUCT(
+                permanent_human_gates_preserved BOOLEAN,
+                d2_007_preserved BOOLEAN,
+                phase1_paper_runtime_protection_preserved BOOLEAN,
+                tier4_boundaries_preserved BOOLEAN
+            )) AS preservation_confirmation,
+            CAST(NULL AS VARCHAR) AS transition_machinery_statement,
+            CAST(NULL AS STRUCT(
+                candidate_readiness_authority BOOLEAN,
+                transition_authority BOOLEAN,
+                promotion_authority BOOLEAN,
+                gate_execution_authority BOOLEAN,
+                paper_runtime_authority BOOLEAN,
+                runtime_authority BOOLEAN,
+                tier4_authority BOOLEAN
+            )) AS authority_flags
+        WHERE FALSE
+        """
+    )
+
+
 def _rows_as_dicts(cursor: duckdb.DuckDBPyConnection) -> list[dict[str, Any]]:
     columns = [description[0] for description in cursor.description or []]
     return [dict(zip(columns, row, strict=True)) for row in cursor.fetchall()]
@@ -984,6 +1190,9 @@ def init_duckdb(read_only: bool = True) -> duckdb.DuckDBPyConnection:
     _register_overlay_shadow_logs(conn)
     _register_shadow_signal_summaries(conn)
     _register_shadow_signal_summaries_v2(conn)
+    _register_r2s_approval_records(conn)
+    _register_shadow_evidence_retention(conn)
+    _register_s2p_approval_records(conn)
     load_views(conn)
     return conn
 

@@ -1,0 +1,193 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crypto-perp-wedge.local/research/schemas/r2s_approval_record.schema.json",
+  "title": "Research To Shadow Approval Record",
+  "description": "Schema for future canonical human research-to-shadow approval records. The schema validates local shape and required content only; it grants no approval, readiness, transition, promotion, runtime, Tier 4, ranking, scoring, recommendation, policy, or human-gate execution authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_type",
+    "approval_record_id",
+    "candidate_id",
+    "strategy_or_candidate_family",
+    "evidence_snapshot_references",
+    "d2_006_gate_pass_evidence_reference_or_attestation",
+    "rec5_exact_segment_evidence",
+    "no_cross_segment_inference_below_rec5_floor",
+    "approver_identity",
+    "approval_timestamp_utc",
+    "decision_outcome",
+    "preservation_confirmation",
+    "transition_machinery_statement",
+    "authority_flags"
+  ],
+  "properties": {
+    "schema_version": { "$ref": "#/definitions/schema_version" },
+    "record_type": {
+      "description": "Distinct research-to-shadow approval-record type marker.",
+      "type": "string",
+      "const": "research_to_shadow_approval_record"
+    },
+    "approval_record_id": {
+      "description": "Stable research-to-shadow approval-record identifier.",
+      "type": "string",
+      "pattern": "^R2S-AR-[0-9]{4}$"
+    },
+    "candidate_id": { "$ref": "#/definitions/candidate_id" },
+    "strategy_or_candidate_family": {
+      "description": "Strategy or candidate-family label used for human review context; it does not create family-level approval or cross-candidate authority.",
+      "type": "string",
+      "minLength": 1
+    },
+    "evidence_snapshot_references": {
+      "description": "Stable references to exact evidence snapshots considered by the human approver.",
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/definitions/artifact_ref" },
+      "uniqueItems": true
+    },
+    "d2_006_gate_pass_evidence_reference_or_attestation": {
+      "description": "Reference or attestation that D2-006 pass evidence exists; this is prerequisite evidence only and not automatic shadow promotion.",
+      "$ref": "#/definitions/artifact_ref"
+    },
+    "rec5_exact_segment_evidence": {
+      "description": "REC-5 exact-segment evidence used for human review. No pooled or cross-segment inference below the REC-5 floor is permitted by this schema shape.",
+      "$ref": "#/definitions/rec5_exact_segment_evidence"
+    },
+    "no_cross_segment_inference_below_rec5_floor": {
+      "description": "Explicit preservation of the REC-5 no-cross-segment-inference boundary below the floor.",
+      "type": "boolean",
+      "const": true
+    },
+    "approver_identity": {
+      "description": "Human approver identity or reviewer handle.",
+      "type": "string",
+      "minLength": 1
+    },
+    "approval_timestamp_utc": {
+      "description": "Timezone-qualified UTC timestamp for the human decision.",
+      "$ref": "#/definitions/utc_timestamp"
+    },
+    "decision_outcome": {
+      "description": "Human decision outcome only; this field does not execute or authorize transition.",
+      "type": "string",
+      "enum": ["approved", "rejected", "deferred"]
+    },
+    "preservation_confirmation": { "$ref": "#/definitions/preservation_confirmation" },
+    "transition_machinery_statement": {
+      "description": "Non-authority statement preserving the distinction between a required human record and transition machinery.",
+      "type": "string",
+      "const": "This record is required before any future research-to-shadow transition, but it does not implement transition machinery or authorize transition execution."
+    },
+    "authority_flags": { "$ref": "#/definitions/authority_flags" }
+  },
+  "definitions": {
+    "schema_version": {
+      "description": "Explicit Scope 6 approval-record schema marker.",
+      "type": "string",
+      "const": "v1"
+    },
+    "candidate_id": {
+      "description": "Candidate registry identifier.",
+      "type": "string",
+      "pattern": "^H-[0-9]{3}$"
+    },
+    "repo_relative_path": {
+      "type": "string",
+      "pattern": "^(?!/)(?!.*(^|/)\\.\\.(/|$)).+$"
+    },
+    "utc_timestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    },
+    "artifact_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_id_or_label", "artifact_path"],
+      "properties": {
+        "artifact_id_or_label": { "type": "string", "minLength": 1 },
+        "artifact_path": { "$ref": "#/definitions/repo_relative_path" },
+        "notes": { "type": "string" }
+      }
+    },
+    "rec5_exact_segment_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidate_id",
+        "outcome_kind",
+        "pipeline_version",
+        "expectation_source_type",
+        "evidence_references",
+        "no_pooled_or_cross_segment_inference_below_floor"
+      ],
+      "properties": {
+        "candidate_id": { "$ref": "#/definitions/candidate_id" },
+        "outcome_kind": {
+          "description": "Exact outcome-kind segment used for REC-5 evidence.",
+          "type": "string",
+          "minLength": 1
+        },
+        "pipeline_version": {
+          "description": "Exact pipeline-version segment used for REC-5 evidence.",
+          "type": "string",
+          "minLength": 1
+        },
+        "expectation_source_type": {
+          "description": "Exact expectation-source-type segment used for REC-5 evidence.",
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence_references": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/definitions/artifact_ref" },
+          "uniqueItems": true
+        },
+        "no_pooled_or_cross_segment_inference_below_floor": {
+          "type": "boolean",
+          "const": true
+        }
+      }
+    },
+    "preservation_confirmation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "permanent_human_gates_preserved",
+        "d2_006_preserved",
+        "d2_007_preserved",
+        "rec5_preserved",
+        "phase9_preserved"
+      ],
+      "properties": {
+        "permanent_human_gates_preserved": { "type": "boolean", "const": true },
+        "d2_006_preserved": { "type": "boolean", "const": true },
+        "d2_007_preserved": { "type": "boolean", "const": true },
+        "rec5_preserved": { "type": "boolean", "const": true },
+        "phase9_preserved": { "type": "boolean", "const": true }
+      }
+    },
+    "authority_flags": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidate_readiness_authority",
+        "transition_authority",
+        "promotion_authority",
+        "gate_execution_authority",
+        "runtime_authority",
+        "tier4_authority"
+      ],
+      "properties": {
+        "candidate_readiness_authority": { "type": "boolean", "const": false },
+        "transition_authority": { "type": "boolean", "const": false },
+        "promotion_authority": { "type": "boolean", "const": false },
+        "gate_execution_authority": { "type": "boolean", "const": false },
+        "runtime_authority": { "type": "boolean", "const": false },
+        "tier4_authority": { "type": "boolean", "const": false }
+      }
+    }
+  }
+}

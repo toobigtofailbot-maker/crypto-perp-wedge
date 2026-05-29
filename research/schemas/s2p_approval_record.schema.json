@@ -1,0 +1,154 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crypto-perp-wedge.local/research/schemas/s2p_approval_record.schema.json",
+  "title": "Shadow To Paper Approval Record",
+  "description": "Schema for future canonical human shadow-to-paper approval records. The schema validates local shape and required content only; it grants no approval, readiness, transition, promotion, paper runtime, runtime, Tier 4, ranking, scoring, recommendation, policy, or human-gate execution authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_type",
+    "approval_record_id",
+    "candidate_id",
+    "shadow_window_evidence_reference",
+    "d2_007_parity_result_reference_or_attestation",
+    "interruption_or_invalid_observation_disclosure_reference",
+    "paper_runtime_protection_confirmation",
+    "approver_identity",
+    "approval_timestamp_utc",
+    "decision_outcome",
+    "preservation_confirmation",
+    "transition_machinery_statement",
+    "authority_flags"
+  ],
+  "properties": {
+    "schema_version": { "$ref": "#/definitions/schema_version" },
+    "record_type": {
+      "description": "Distinct shadow-to-paper approval-record type marker.",
+      "type": "string",
+      "const": "shadow_to_paper_approval_record"
+    },
+    "approval_record_id": {
+      "description": "Stable shadow-to-paper approval-record identifier.",
+      "type": "string",
+      "pattern": "^S2P-AR-[0-9]{4}$"
+    },
+    "candidate_id": { "$ref": "#/definitions/candidate_id" },
+    "shadow_window_evidence_reference": {
+      "description": "Stable reference to the future canonical shadow-evidence retention artifact family.",
+      "$ref": "#/definitions/shadow_evidence_retention_ref"
+    },
+    "d2_007_parity_result_reference_or_attestation": {
+      "description": "Reference or attestation for D2-007 parity evidence; parity evidence is human-review input only.",
+      "$ref": "#/definitions/artifact_ref"
+    },
+    "interruption_or_invalid_observation_disclosure_reference": {
+      "description": "Reference or attestation for interruption or invalid-observation disclosure used in human review.",
+      "$ref": "#/definitions/artifact_ref"
+    },
+    "paper_runtime_protection_confirmation": {
+      "description": "Explicit confirmation that Phase 1 paper runtime protection remains preserved.",
+      "type": "boolean",
+      "const": true
+    },
+    "approver_identity": {
+      "description": "Human approver identity or reviewer handle.",
+      "type": "string",
+      "minLength": 1
+    },
+    "approval_timestamp_utc": {
+      "description": "Timezone-qualified UTC timestamp for the human decision.",
+      "$ref": "#/definitions/utc_timestamp"
+    },
+    "decision_outcome": {
+      "description": "Human decision outcome only; this field does not execute or authorize paper transition.",
+      "type": "string",
+      "enum": ["approved", "rejected", "deferred"]
+    },
+    "preservation_confirmation": { "$ref": "#/definitions/preservation_confirmation" },
+    "transition_machinery_statement": {
+      "description": "Non-authority statement preserving the distinction between a required human record and transition machinery.",
+      "type": "string",
+      "const": "This record is required before any future shadow-to-paper transition, but it does not implement transition machinery, invoke paper runtime, or authorize transition execution."
+    },
+    "authority_flags": { "$ref": "#/definitions/authority_flags" }
+  },
+  "definitions": {
+    "schema_version": {
+      "description": "Explicit Scope 6 approval-record schema marker.",
+      "type": "string",
+      "const": "v1"
+    },
+    "candidate_id": {
+      "description": "Candidate registry identifier.",
+      "type": "string",
+      "pattern": "^H-[0-9]{3}$"
+    },
+    "repo_relative_path": {
+      "type": "string",
+      "pattern": "^(?!/)(?!.*(^|/)\\.\\.(/|$)).+$"
+    },
+    "utc_timestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    },
+    "artifact_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_id_or_label", "artifact_path"],
+      "properties": {
+        "artifact_id_or_label": { "type": "string", "minLength": 1 },
+        "artifact_path": { "$ref": "#/definitions/repo_relative_path" },
+        "notes": { "type": "string" }
+      }
+    },
+    "shadow_evidence_retention_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["shadow_evidence_id", "artifact_path"],
+      "properties": {
+        "shadow_evidence_id": { "type": "string", "pattern": "^SER-[0-9]{4}$" },
+        "artifact_path": { "$ref": "#/definitions/repo_relative_path" },
+        "notes": { "type": "string" }
+      }
+    },
+    "preservation_confirmation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "permanent_human_gates_preserved",
+        "d2_007_preserved",
+        "phase1_paper_runtime_protection_preserved",
+        "tier4_boundaries_preserved"
+      ],
+      "properties": {
+        "permanent_human_gates_preserved": { "type": "boolean", "const": true },
+        "d2_007_preserved": { "type": "boolean", "const": true },
+        "phase1_paper_runtime_protection_preserved": { "type": "boolean", "const": true },
+        "tier4_boundaries_preserved": { "type": "boolean", "const": true }
+      }
+    },
+    "authority_flags": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidate_readiness_authority",
+        "transition_authority",
+        "promotion_authority",
+        "gate_execution_authority",
+        "paper_runtime_authority",
+        "runtime_authority",
+        "tier4_authority"
+      ],
+      "properties": {
+        "candidate_readiness_authority": { "type": "boolean", "const": false },
+        "transition_authority": { "type": "boolean", "const": false },
+        "promotion_authority": { "type": "boolean", "const": false },
+        "gate_execution_authority": { "type": "boolean", "const": false },
+        "paper_runtime_authority": { "type": "boolean", "const": false },
+        "runtime_authority": { "type": "boolean", "const": false },
+        "tier4_authority": { "type": "boolean", "const": false }
+      }
+    }
+  }
+}

@@ -3696,3 +3696,369 @@ WHERE p.combination_rule_applied = 'MACRO_AWARE_FLOOR'
       WHEN b.mapped_bucket = 'ALLOW' THEN 'ALLOW_REDUCED'
       ELSE b.mapped_bucket
   END;
+
+-- What future research-to-shadow approval records have been retained?
+-- Exposes one row per Scope 6 R2S approval record for read-only inspection only.
+CREATE OR REPLACE VIEW v_r2s_approval_records AS
+SELECT
+    approval_record_id,
+    candidate_id,
+    strategy_or_candidate_family,
+    decision_outcome,
+    approval_timestamp_utc,
+    no_cross_segment_inference_below_rec5_floor,
+    rec5_exact_segment_evidence.candidate_id AS rec5_candidate_id,
+    rec5_exact_segment_evidence.outcome_kind AS rec5_outcome_kind,
+    rec5_exact_segment_evidence.pipeline_version AS rec5_pipeline_version,
+    rec5_exact_segment_evidence.expectation_source_type AS rec5_expectation_source_type,
+    rec5_exact_segment_evidence.no_pooled_or_cross_segment_inference_below_floor
+        AS rec5_no_pooled_or_cross_segment_inference_below_floor,
+    preservation_confirmation.permanent_human_gates_preserved
+        AS permanent_human_gates_preserved,
+    preservation_confirmation.d2_006_preserved AS d2_006_preserved,
+    preservation_confirmation.d2_007_preserved AS d2_007_preserved,
+    preservation_confirmation.rec5_preserved AS rec5_preserved,
+    preservation_confirmation.phase9_preserved AS phase9_preserved,
+    authority_flags.candidate_readiness_authority AS candidate_readiness_authority,
+    authority_flags.transition_authority AS transition_authority,
+    authority_flags.promotion_authority AS promotion_authority,
+    authority_flags.gate_execution_authority AS gate_execution_authority,
+    authority_flags.runtime_authority AS runtime_authority,
+    authority_flags.tier4_authority AS tier4_authority
+FROM r2s_approval_records;
+
+-- What future shadow-evidence retention records have been retained?
+-- Exposes shadow-window, parity, disclosure, and non-authority fields without
+-- interpreting the retained evidence as readiness or transition sufficiency.
+CREATE OR REPLACE VIEW v_shadow_evidence_retention AS
+SELECT
+    shadow_evidence_id,
+    candidate_id,
+    shadow_window.start_utc AS shadow_window_start_utc,
+    shadow_window.end_utc AS shadow_window_end_utc,
+    shadow_window.calendar_days_observed AS calendar_days_observed,
+    d2_007_thresholds.minimum_shadow_window_calendar_days
+        AS d2_007_minimum_shadow_window_calendar_days,
+    d2_007_thresholds.pnl_deviation_max AS d2_007_pnl_deviation_max,
+    d2_007_thresholds.trade_count_deviation_max AS d2_007_trade_count_deviation_max,
+    parity_result.observed_pnl_deviation AS observed_pnl_deviation,
+    parity_result.observed_trade_count_deviation AS observed_trade_count_deviation,
+    evidence_retention_reference.artifact_id_or_label AS evidence_retention_artifact_id_or_label,
+    evidence_retention_reference.artifact_path AS evidence_retention_artifact_path,
+    list_count(disclosure.interruptions) AS interruption_count,
+    list_count(disclosure.invalid_observations) AS invalid_observation_count,
+    list_count(disclosure.missing_data) AS missing_data_count,
+    list_count(disclosure.observation_resets) AS observation_reset_count,
+    mismatch_diagnostics.decision_support_only AS mismatch_decision_support_only,
+    mismatch_diagnostics.ranking_authority AS mismatch_ranking_authority,
+    mismatch_diagnostics.scoring_authority AS mismatch_scoring_authority,
+    mismatch_diagnostics.recommendation_authority AS mismatch_recommendation_authority,
+    mismatch_diagnostics.transition_logic_authority AS mismatch_transition_logic_authority,
+    authority_flags.candidate_readiness_authority AS candidate_readiness_authority,
+    authority_flags.transition_authority AS transition_authority,
+    authority_flags.ranking_authority AS ranking_authority,
+    authority_flags.scoring_authority AS scoring_authority,
+    authority_flags.recommendation_authority AS recommendation_authority,
+    authority_flags.gate_execution_authority AS gate_execution_authority,
+    authority_flags.runtime_authority AS runtime_authority,
+    authority_flags.tier4_authority AS tier4_authority
+FROM shadow_evidence_retention;
+
+-- What future shadow-to-paper approval records have been retained?
+-- Exposes one row per Scope 6 S2P approval record for read-only inspection only.
+CREATE OR REPLACE VIEW v_s2p_approval_records AS
+SELECT
+    approval_record_id,
+    candidate_id,
+    shadow_window_evidence_reference.shadow_evidence_id AS referenced_shadow_evidence_id,
+    shadow_window_evidence_reference.artifact_path AS referenced_shadow_evidence_artifact_path,
+    decision_outcome,
+    approval_timestamp_utc,
+    paper_runtime_protection_confirmation,
+    preservation_confirmation.permanent_human_gates_preserved
+        AS permanent_human_gates_preserved,
+    preservation_confirmation.d2_007_preserved AS d2_007_preserved,
+    preservation_confirmation.phase1_paper_runtime_protection_preserved
+        AS phase1_paper_runtime_protection_preserved,
+    preservation_confirmation.tier4_boundaries_preserved AS tier4_boundaries_preserved,
+    authority_flags.candidate_readiness_authority AS candidate_readiness_authority,
+    authority_flags.transition_authority AS transition_authority,
+    authority_flags.promotion_authority AS promotion_authority,
+    authority_flags.gate_execution_authority AS gate_execution_authority,
+    authority_flags.paper_runtime_authority AS paper_runtime_authority,
+    authority_flags.runtime_authority AS runtime_authority,
+    authority_flags.tier4_authority AS tier4_authority
+FROM s2p_approval_records;
+
+-- Which candidates have Scope 6 packaging artifacts present?
+-- Candidate-level inventory only; counts and booleans do not imply readiness,
+-- approval, promotion, recommendation, policy, or transition state.
+CREATE OR REPLACE VIEW v_scope6_candidate_packaging_overview AS
+WITH r2s_counts AS (
+    SELECT candidate_id, COUNT(*) AS r2s_approval_record_count
+    FROM r2s_approval_records
+    GROUP BY candidate_id
+),
+shadow_counts AS (
+    SELECT candidate_id, COUNT(*) AS shadow_evidence_retention_count
+    FROM shadow_evidence_retention
+    GROUP BY candidate_id
+),
+s2p_counts AS (
+    SELECT candidate_id, COUNT(*) AS s2p_approval_record_count
+    FROM s2p_approval_records
+    GROUP BY candidate_id
+)
+SELECT
+    c.candidate_id,
+    COALESCE(r.r2s_approval_record_count, 0) AS r2s_approval_record_count,
+    COALESCE(s.shadow_evidence_retention_count, 0) AS shadow_evidence_retention_count,
+    COALESCE(p.s2p_approval_record_count, 0) AS s2p_approval_record_count,
+    COALESCE(r.r2s_approval_record_count, 0) > 0 AS has_r2s_approval_record,
+    COALESCE(s.shadow_evidence_retention_count, 0) > 0 AS has_shadow_evidence_retention,
+    COALESCE(p.s2p_approval_record_count, 0) > 0 AS has_s2p_approval_record
+FROM candidates AS c
+LEFT JOIN r2s_counts AS r
+  ON c.candidate_id = r.candidate_id
+LEFT JOIN shadow_counts AS s
+  ON c.candidate_id = s.candidate_id
+LEFT JOIN s2p_counts AS p
+  ON c.candidate_id = p.candidate_id;
+
+-- Do S2P records resolve to their referenced shadow-evidence retention records?
+-- This is a reference-inspection view only and does not authorize paper transition.
+CREATE OR REPLACE VIEW v_s2p_shadow_evidence_links AS
+SELECT
+    s2p.approval_record_id AS s2p_approval_record_id,
+    s2p.candidate_id AS s2p_candidate_id,
+    s2p.shadow_window_evidence_reference.shadow_evidence_id AS referenced_shadow_evidence_id,
+    shadow.shadow_evidence_id AS shadow_evidence_id,
+    shadow.candidate_id AS shadow_evidence_candidate_id,
+    CASE
+        WHEN shadow.shadow_evidence_id IS NULL THEN false
+        ELSE s2p.candidate_id = shadow.candidate_id
+    END AS candidate_id_match
+FROM s2p_approval_records AS s2p
+LEFT JOIN shadow_evidence_retention AS shadow
+  ON s2p.shadow_window_evidence_reference.shadow_evidence_id = shadow.shadow_evidence_id;
+
+-- Do all R2S approval-record candidate references resolve to the registry?
+-- Expected to be empty in healthy state.
+CREATE OR REPLACE VIEW v_integrity_r2s_approval_candidate_refs AS
+SELECT
+    'r2s_approval_unknown_candidate' AS issue_type,
+    r.approval_record_id,
+    r.candidate_id
+FROM r2s_approval_records AS r
+LEFT JOIN candidates AS c
+  ON r.candidate_id = c.candidate_id
+WHERE c.candidate_id IS NULL;
+
+-- Do all shadow-evidence retention candidate references resolve to the registry?
+-- Expected to be empty in healthy state.
+CREATE OR REPLACE VIEW v_integrity_shadow_evidence_candidate_refs AS
+SELECT
+    'shadow_evidence_unknown_candidate' AS issue_type,
+    s.shadow_evidence_id,
+    s.candidate_id
+FROM shadow_evidence_retention AS s
+LEFT JOIN candidates AS c
+  ON s.candidate_id = c.candidate_id
+WHERE c.candidate_id IS NULL;
+
+-- Do all S2P approval-record candidate references resolve to the registry?
+-- Expected to be empty in healthy state.
+CREATE OR REPLACE VIEW v_integrity_s2p_approval_candidate_refs AS
+SELECT
+    's2p_approval_unknown_candidate' AS issue_type,
+    s.approval_record_id,
+    s.candidate_id
+FROM s2p_approval_records AS s
+LEFT JOIN candidates AS c
+  ON s.candidate_id = c.candidate_id
+WHERE c.candidate_id IS NULL;
+
+-- Does nested REC-5 evidence stay on the same candidate as the R2S record?
+-- Expected to be empty in healthy state.
+CREATE OR REPLACE VIEW v_integrity_r2s_rec5_candidate_consistency AS
+SELECT
+    'r2s_rec5_candidate_mismatch' AS issue_type,
+    approval_record_id,
+    candidate_id,
+    rec5_exact_segment_evidence.candidate_id AS rec5_candidate_id
+FROM r2s_approval_records
+WHERE rec5_exact_segment_evidence.candidate_id IS DISTINCT FROM candidate_id;
+
+-- Do S2P records resolve to referenced shadow-evidence retention records?
+-- Expected to be empty in healthy state.
+CREATE OR REPLACE VIEW v_integrity_s2p_shadow_evidence_refs AS
+SELECT
+    's2p_unknown_shadow_evidence_ref' AS issue_type,
+    s2p_approval_record_id,
+    s2p_candidate_id,
+    referenced_shadow_evidence_id
+FROM v_s2p_shadow_evidence_links
+WHERE shadow_evidence_id IS NULL;
+
+-- Do S2P records and referenced shadow-evidence records agree on candidate ID?
+-- Expected to be empty in healthy state.
+CREATE OR REPLACE VIEW v_integrity_s2p_shadow_evidence_candidate_consistency AS
+SELECT
+    's2p_shadow_evidence_candidate_mismatch' AS issue_type,
+    s2p_approval_record_id,
+    s2p_candidate_id,
+    referenced_shadow_evidence_id,
+    shadow_evidence_candidate_id
+FROM v_s2p_shadow_evidence_links
+WHERE shadow_evidence_id IS NOT NULL
+  AND candidate_id_match IS DISTINCT FROM true;
+
+-- Do Scope 6 records preserve non-authority flags?
+-- Expected to be empty in healthy state.
+CREATE OR REPLACE VIEW v_integrity_scope6_authority_flags AS
+SELECT
+    'scope6_authority_flag_violation' AS issue_type,
+    'r2s_approval_record' AS record_family,
+    approval_record_id AS record_id,
+    candidate_id,
+    source_field,
+    expected_value,
+    actual_value
+FROM (
+    SELECT approval_record_id, candidate_id, 'authority_flags.candidate_readiness_authority' AS source_field, 'false' AS expected_value, CAST(authority_flags.candidate_readiness_authority AS VARCHAR) AS actual_value FROM r2s_approval_records WHERE authority_flags.candidate_readiness_authority IS DISTINCT FROM false
+    UNION ALL
+    SELECT approval_record_id, candidate_id, 'authority_flags.transition_authority', 'false', CAST(authority_flags.transition_authority AS VARCHAR) FROM r2s_approval_records WHERE authority_flags.transition_authority IS DISTINCT FROM false
+    UNION ALL
+    SELECT approval_record_id, candidate_id, 'authority_flags.promotion_authority', 'false', CAST(authority_flags.promotion_authority AS VARCHAR) FROM r2s_approval_records WHERE authority_flags.promotion_authority IS DISTINCT FROM false
+    UNION ALL
+    SELECT approval_record_id, candidate_id, 'authority_flags.gate_execution_authority', 'false', CAST(authority_flags.gate_execution_authority AS VARCHAR) FROM r2s_approval_records WHERE authority_flags.gate_execution_authority IS DISTINCT FROM false
+    UNION ALL
+    SELECT approval_record_id, candidate_id, 'authority_flags.runtime_authority', 'false', CAST(authority_flags.runtime_authority AS VARCHAR) FROM r2s_approval_records WHERE authority_flags.runtime_authority IS DISTINCT FROM false
+    UNION ALL
+    SELECT approval_record_id, candidate_id, 'authority_flags.tier4_authority', 'false', CAST(authority_flags.tier4_authority AS VARCHAR) FROM r2s_approval_records WHERE authority_flags.tier4_authority IS DISTINCT FROM false
+) AS issues
+UNION ALL
+SELECT
+    'scope6_authority_flag_violation' AS issue_type,
+    'shadow_evidence_retention' AS record_family,
+    shadow_evidence_id AS record_id,
+    candidate_id,
+    source_field,
+    expected_value,
+    actual_value
+FROM (
+    SELECT shadow_evidence_id, candidate_id, 'mismatch_diagnostics.decision_support_only' AS source_field, 'true' AS expected_value, CAST(mismatch_diagnostics.decision_support_only AS VARCHAR) AS actual_value FROM shadow_evidence_retention WHERE mismatch_diagnostics.decision_support_only IS DISTINCT FROM true
+    UNION ALL
+    SELECT shadow_evidence_id, candidate_id, 'mismatch_diagnostics.ranking_authority', 'false', CAST(mismatch_diagnostics.ranking_authority AS VARCHAR) FROM shadow_evidence_retention WHERE mismatch_diagnostics.ranking_authority IS DISTINCT FROM false
+    UNION ALL
+    SELECT shadow_evidence_id, candidate_id, 'mismatch_diagnostics.scoring_authority', 'false', CAST(mismatch_diagnostics.scoring_authority AS VARCHAR) FROM shadow_evidence_retention WHERE mismatch_diagnostics.scoring_authority IS DISTINCT FROM false
+    UNION ALL
+    SELECT shadow_evidence_id, candidate_id, 'mismatch_diagnostics.recommendation_authority', 'false', CAST(mismatch_diagnostics.recommendation_authority AS VARCHAR) FROM shadow_evidence_retention WHERE mismatch_diagnostics.recommendation_authority IS DISTINCT FROM false
+    UNION ALL
+    SELECT shadow_evidence_id, candidate_id, 'mismatch_diagnostics.transition_logic_authority', 'false', CAST(mismatch_diagnostics.transition_logic_authority AS VARCHAR) FROM shadow_evidence_retention WHERE mismatch_diagnostics.transition_logic_authority IS DISTINCT FROM false
+    UNION ALL
+    SELECT shadow_evidence_id, candidate_id, 'authority_flags.candidate_readiness_authority', 'false', CAST(authority_flags.candidate_readiness_authority AS VARCHAR) FROM shadow_evidence_retention WHERE authority_flags.candidate_readiness_authority IS DISTINCT FROM false
+    UNION ALL
+    SELECT shadow_evidence_id, candidate_id, 'authority_flags.transition_authority', 'false', CAST(authority_flags.transition_authority AS VARCHAR) FROM shadow_evidence_retention WHERE authority_flags.transition_authority IS DISTINCT FROM false
+    UNION ALL
+    SELECT shadow_evidence_id, candidate_id, 'authority_flags.ranking_authority', 'false', CAST(authority_flags.ranking_authority AS VARCHAR) FROM shadow_evidence_retention WHERE authority_flags.ranking_authority IS DISTINCT FROM false
+    UNION ALL
+    SELECT shadow_evidence_id, candidate_id, 'authority_flags.scoring_authority', 'false', CAST(authority_flags.scoring_authority AS VARCHAR) FROM shadow_evidence_retention WHERE authority_flags.scoring_authority IS DISTINCT FROM false
+    UNION ALL
+    SELECT shadow_evidence_id, candidate_id, 'authority_flags.recommendation_authority', 'false', CAST(authority_flags.recommendation_authority AS VARCHAR) FROM shadow_evidence_retention WHERE authority_flags.recommendation_authority IS DISTINCT FROM false
+    UNION ALL
+    SELECT shadow_evidence_id, candidate_id, 'authority_flags.gate_execution_authority', 'false', CAST(authority_flags.gate_execution_authority AS VARCHAR) FROM shadow_evidence_retention WHERE authority_flags.gate_execution_authority IS DISTINCT FROM false
+    UNION ALL
+    SELECT shadow_evidence_id, candidate_id, 'authority_flags.runtime_authority', 'false', CAST(authority_flags.runtime_authority AS VARCHAR) FROM shadow_evidence_retention WHERE authority_flags.runtime_authority IS DISTINCT FROM false
+    UNION ALL
+    SELECT shadow_evidence_id, candidate_id, 'authority_flags.tier4_authority', 'false', CAST(authority_flags.tier4_authority AS VARCHAR) FROM shadow_evidence_retention WHERE authority_flags.tier4_authority IS DISTINCT FROM false
+) AS issues
+UNION ALL
+SELECT
+    'scope6_authority_flag_violation' AS issue_type,
+    's2p_approval_record' AS record_family,
+    approval_record_id AS record_id,
+    candidate_id,
+    source_field,
+    expected_value,
+    actual_value
+FROM (
+    SELECT approval_record_id, candidate_id, 'authority_flags.candidate_readiness_authority' AS source_field, 'false' AS expected_value, CAST(authority_flags.candidate_readiness_authority AS VARCHAR) AS actual_value FROM s2p_approval_records WHERE authority_flags.candidate_readiness_authority IS DISTINCT FROM false
+    UNION ALL
+    SELECT approval_record_id, candidate_id, 'authority_flags.transition_authority', 'false', CAST(authority_flags.transition_authority AS VARCHAR) FROM s2p_approval_records WHERE authority_flags.transition_authority IS DISTINCT FROM false
+    UNION ALL
+    SELECT approval_record_id, candidate_id, 'authority_flags.promotion_authority', 'false', CAST(authority_flags.promotion_authority AS VARCHAR) FROM s2p_approval_records WHERE authority_flags.promotion_authority IS DISTINCT FROM false
+    UNION ALL
+    SELECT approval_record_id, candidate_id, 'authority_flags.gate_execution_authority', 'false', CAST(authority_flags.gate_execution_authority AS VARCHAR) FROM s2p_approval_records WHERE authority_flags.gate_execution_authority IS DISTINCT FROM false
+    UNION ALL
+    SELECT approval_record_id, candidate_id, 'authority_flags.paper_runtime_authority', 'false', CAST(authority_flags.paper_runtime_authority AS VARCHAR) FROM s2p_approval_records WHERE authority_flags.paper_runtime_authority IS DISTINCT FROM false
+    UNION ALL
+    SELECT approval_record_id, candidate_id, 'authority_flags.runtime_authority', 'false', CAST(authority_flags.runtime_authority AS VARCHAR) FROM s2p_approval_records WHERE authority_flags.runtime_authority IS DISTINCT FROM false
+    UNION ALL
+    SELECT approval_record_id, candidate_id, 'authority_flags.tier4_authority', 'false', CAST(authority_flags.tier4_authority AS VARCHAR) FROM s2p_approval_records WHERE authority_flags.tier4_authority IS DISTINCT FROM false
+) AS issues;
+
+-- Do Scope 6 records preserve required boundary-confirmation flags?
+-- Expected to be empty in healthy state.
+CREATE OR REPLACE VIEW v_integrity_scope6_preservation_flags AS
+SELECT
+    'scope6_preservation_flag_violation' AS issue_type,
+    'r2s_approval_record' AS record_family,
+    approval_record_id AS record_id,
+    candidate_id,
+    source_field,
+    expected_value,
+    actual_value
+FROM (
+    SELECT approval_record_id, candidate_id, 'no_cross_segment_inference_below_rec5_floor' AS source_field, 'true' AS expected_value, CAST(no_cross_segment_inference_below_rec5_floor AS VARCHAR) AS actual_value FROM r2s_approval_records WHERE no_cross_segment_inference_below_rec5_floor IS DISTINCT FROM true
+    UNION ALL
+    SELECT approval_record_id, candidate_id, 'rec5_exact_segment_evidence.no_pooled_or_cross_segment_inference_below_floor', 'true', CAST(rec5_exact_segment_evidence.no_pooled_or_cross_segment_inference_below_floor AS VARCHAR) FROM r2s_approval_records WHERE rec5_exact_segment_evidence.no_pooled_or_cross_segment_inference_below_floor IS DISTINCT FROM true
+    UNION ALL
+    SELECT approval_record_id, candidate_id, 'preservation_confirmation.permanent_human_gates_preserved', 'true', CAST(preservation_confirmation.permanent_human_gates_preserved AS VARCHAR) FROM r2s_approval_records WHERE preservation_confirmation.permanent_human_gates_preserved IS DISTINCT FROM true
+    UNION ALL
+    SELECT approval_record_id, candidate_id, 'preservation_confirmation.d2_006_preserved', 'true', CAST(preservation_confirmation.d2_006_preserved AS VARCHAR) FROM r2s_approval_records WHERE preservation_confirmation.d2_006_preserved IS DISTINCT FROM true
+    UNION ALL
+    SELECT approval_record_id, candidate_id, 'preservation_confirmation.d2_007_preserved', 'true', CAST(preservation_confirmation.d2_007_preserved AS VARCHAR) FROM r2s_approval_records WHERE preservation_confirmation.d2_007_preserved IS DISTINCT FROM true
+    UNION ALL
+    SELECT approval_record_id, candidate_id, 'preservation_confirmation.rec5_preserved', 'true', CAST(preservation_confirmation.rec5_preserved AS VARCHAR) FROM r2s_approval_records WHERE preservation_confirmation.rec5_preserved IS DISTINCT FROM true
+    UNION ALL
+    SELECT approval_record_id, candidate_id, 'preservation_confirmation.phase9_preserved', 'true', CAST(preservation_confirmation.phase9_preserved AS VARCHAR) FROM r2s_approval_records WHERE preservation_confirmation.phase9_preserved IS DISTINCT FROM true
+) AS issues
+UNION ALL
+SELECT
+    'scope6_preservation_flag_violation' AS issue_type,
+    'shadow_evidence_retention' AS record_family,
+    shadow_evidence_id AS record_id,
+    candidate_id,
+    source_field,
+    expected_value,
+    actual_value
+FROM (
+    SELECT shadow_evidence_id, candidate_id, 'shadow_window.calendar_days_observed' AS source_field, '>=14' AS expected_value, CAST(shadow_window.calendar_days_observed AS VARCHAR) AS actual_value FROM shadow_evidence_retention WHERE shadow_window.calendar_days_observed < 14 OR shadow_window.calendar_days_observed IS NULL
+    UNION ALL
+    SELECT shadow_evidence_id, candidate_id, 'd2_007_thresholds.minimum_shadow_window_calendar_days', '14', CAST(d2_007_thresholds.minimum_shadow_window_calendar_days AS VARCHAR) FROM shadow_evidence_retention WHERE d2_007_thresholds.minimum_shadow_window_calendar_days IS DISTINCT FROM 14
+    UNION ALL
+    SELECT shadow_evidence_id, candidate_id, 'd2_007_thresholds.pnl_deviation_max', '0.1', CAST(d2_007_thresholds.pnl_deviation_max AS VARCHAR) FROM shadow_evidence_retention WHERE d2_007_thresholds.pnl_deviation_max IS DISTINCT FROM 0.1
+    UNION ALL
+    SELECT shadow_evidence_id, candidate_id, 'd2_007_thresholds.trade_count_deviation_max', '0.05', CAST(d2_007_thresholds.trade_count_deviation_max AS VARCHAR) FROM shadow_evidence_retention WHERE d2_007_thresholds.trade_count_deviation_max IS DISTINCT FROM 0.05
+) AS issues
+UNION ALL
+SELECT
+    'scope6_preservation_flag_violation' AS issue_type,
+    's2p_approval_record' AS record_family,
+    approval_record_id AS record_id,
+    candidate_id,
+    source_field,
+    expected_value,
+    actual_value
+FROM (
+    SELECT approval_record_id, candidate_id, 'paper_runtime_protection_confirmation' AS source_field, 'true' AS expected_value, CAST(paper_runtime_protection_confirmation AS VARCHAR) AS actual_value FROM s2p_approval_records WHERE paper_runtime_protection_confirmation IS DISTINCT FROM true
+    UNION ALL
+    SELECT approval_record_id, candidate_id, 'preservation_confirmation.permanent_human_gates_preserved', 'true', CAST(preservation_confirmation.permanent_human_gates_preserved AS VARCHAR) FROM s2p_approval_records WHERE preservation_confirmation.permanent_human_gates_preserved IS DISTINCT FROM true
+    UNION ALL
+    SELECT approval_record_id, candidate_id, 'preservation_confirmation.d2_007_preserved', 'true', CAST(preservation_confirmation.d2_007_preserved AS VARCHAR) FROM s2p_approval_records WHERE preservation_confirmation.d2_007_preserved IS DISTINCT FROM true
+    UNION ALL
+    SELECT approval_record_id, candidate_id, 'preservation_confirmation.phase1_paper_runtime_protection_preserved', 'true', CAST(preservation_confirmation.phase1_paper_runtime_protection_preserved AS VARCHAR) FROM s2p_approval_records WHERE preservation_confirmation.phase1_paper_runtime_protection_preserved IS DISTINCT FROM true
+    UNION ALL
+    SELECT approval_record_id, candidate_id, 'preservation_confirmation.tier4_boundaries_preserved', 'true', CAST(preservation_confirmation.tier4_boundaries_preserved AS VARCHAR) FROM s2p_approval_records WHERE preservation_confirmation.tier4_boundaries_preserved IS DISTINCT FROM true
+) AS issues;

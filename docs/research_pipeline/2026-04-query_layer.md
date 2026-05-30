@@ -34,7 +34,7 @@ healthy empty state.
 | `v_gate_results_flat` | One row per candidate/report/gate result. | Which candidates failed a specific D2-006 gate? |
 | `v_candidate_by_family` | Counts by strategy family, timeframe, and verdict bucket. | Have we already tried this family on this timeframe? |
 | `v_information_inputs` | One row per candidate information input. | Which candidates used funding or premium data? |
-| `v_integrity_plan_report_pairs` | Broken plan/report references. Expected empty. | Are any EXP/REP pairings missing? |
+| `v_integrity_plan_report_pairs` | Broken EXP/REP relationships, while allowing bounded pre-execution EXP plans for pending pre-registered candidates. Expected empty. | Are any EXP/REP pairings missing outside legitimate pre-execution state? |
 | `v_integrity_candidate_refs` | Broken candidate references from EXP/REP artifacts. Expected empty. | Do all artifacts point to real registry candidates? |
 | `v_shadow_signal_summaries_v2_overview` | One row per committed SSS v2 segment with schema version, segmentation axes, corpus window, segment keys, counts, rates, and outcome fields. | What committed SSS v2 segment evidence exists? |
 | `v_integrity_shadow_signal_summary_v2_derivation` | SSS v2 derivation drift check against committed overlay shadow logs. Expected empty for supported healthy instances. | Does committed SSS v2 content still match the cited corpus? |
@@ -190,6 +190,8 @@ Integrity checks:
 ```sql
 SELECT * FROM v_integrity_plan_report_pairs;
 ```
+
+`v_integrity_plan_report_pairs` treats an EXP without REP as healthy only while it is attached to a known `DRAFT` / `PENDING` / `pre_registered` candidate with empty `trial_ids` and null `decision_record_path`. The exception ends once trial evidence or decision state exists, and REP artifacts that reference unknown plan IDs remain integrity issues. This preserves pre-registration discipline by allowing a committed EXP before backtest/REP creation without fake placeholder reports.
 
 ```sql
 SELECT * FROM v_integrity_candidate_refs;

@@ -132,27 +132,36 @@ entries in `research/candidate_registry.jsonl` (H-001, H-007, H-008, H-009,
 H-010). It is fully established in the locked taxonomy. As an 8h funding event
 stream it is cross-timeframe and may be used alongside any OHLCV timeframe.
 
-**`ohlcv_15m`:** This label follows the established `ohlcv_{timeframe}` naming
-convention present verbatim across `ohlcv_30m` (H-006, H-009), `ohlcv_1h`
-(H-005, H-008, H-009), `ohlcv_4h` (H-001, H-002, H-007, H-009), and `ohlcv_1d`
-(H-003, H-004) in `research/candidate_registry.jsonl`. The 15m OHLCV dataset
-exists in `docs/data_catalog.md` under "Dataset: BTCUSDT 15m full history
-(Binance USDT-M Perp) – Parquet", with data from 2020-01-01 / 2026-04-11.
-The label `ohlcv_15m` applies this established convention to the locked 15m
-timeframe.
-
-Note: `ohlcv_15m` has not yet appeared verbatim as a registered candidate
-information_input in Q06
+**`ohlcv_15m` — CONDITIONAL, pending Main/Karl interpretation confirmation:**
+This label has not appeared verbatim as a registered candidate `information_input`
+in any prior candidate entry. Q06
 (`research/briefs/2026-05-cross_candidate_diagnostic_brief/outputs/Q06.json`)
-because no 15m candidate has been registered. WP-S2c-126 pre-draft verification
-must confirm Main's interpretation: that `ohlcv_15m` is a permitted label under
-the established naming convention applied to the locked 15m timeframe, and is
-not treated as "adding" a new taxonomy label type. If Main disputes this
-interpretation, WP-S2c-126 must halt and report.
+confirms no `ohlcv_15m` label exists in the current committed registry. No repo
+file explicitly states that `ohlcv_15m` is an authorized locked-taxonomy label.
+
+Repo evidence supporting the label as a plausible extension:
+- The pattern `ohlcv_{timeframe}` appears verbatim across `ohlcv_30m` (H-006,
+  H-009), `ohlcv_1h` (H-005, H-008, H-009), `ohlcv_4h` (H-001, H-002, H-007,
+  H-009), and `ohlcv_1d` (H-003, H-004) in `research/candidate_registry.jsonl`.
+- The 15m OHLCV dataset exists in `docs/data_catalog.md` under "Dataset:
+  BTCUSDT 15m full history (Binance USDT-M Perp) – Parquet", range
+  2020-01-01 / 2026-04-11.
+- D2-013 (`docs/onboarding/PHASE2_BASELINE.md`) lists `15m` in the locked
+  timeframe set: "15m, 30m, 1h, 4h, 1d."
+
+However, no repo file explicitly authorizes `ohlcv_15m` as a locked-taxonomy
+label. The label is inferred from the naming convention applied to the locked
+15m timeframe. Whether this inference constitutes a permitted label under locked
+Option B, or constitutes "adding" a new taxonomy label, is an interpretation
+question that requires Main/Karl confirmation before WP-S2c-126 may be drafted.
+
+This design selects `ohlcv_15m` as the intended primary information_input
+conditional on that confirmation. If Main/Karl rejects this interpretation, the
+design surface must be revised before WP-S2c-126 proceeds.
 
 No taxonomy label is added, modified, reinterpreted, or combined through new
-grammar. The combination does not introduce C-shape grammar work. The selection
-remains inside Option B.
+grammar as an action of this package. The combination does not introduce C-shape
+grammar work. The selection remains inside Option B, pending confirmation.
 
 ## 8. Selected data source(s)
 
@@ -376,18 +385,27 @@ proceeding.
 
 ## 17. WP-S2c-126 pre-draft verification requirements
 
-Before WP-S2c-126 drafts, Side/Claude must verify directly by reading current
-repo files:
+**Mandatory stop after WP-S2c-125 merge.** Side must report back to Main/Karl
+for explicit interpretation confirmation before WP-S2c-126 may be drafted.
+The specific confirmation required is stated in item 2 below. WP-S2c-126 may
+not proceed from refreshed-main preflight alone; it requires the explicit
+Main/Karl confirmation described here.
+
+Once Main/Karl has confirmed, Side/Claude must also verify directly by reading
+current repo files before drafting WP-S2c-126:
 
 1. An appropriate candidate registry slot exists (H-011 or next available)
-   and is compatible with the selected 15m / trend_following / ohlcv_15m +
-   funding_8h design surface.
+   and is compatible with the selected 15m / trend_following /
+   `ohlcv_15m` + `funding_8h` design surface.
 
-2. The `ohlcv_15m` label is confirmed as permitted — either by Main's explicit
-   approval or by confirming that the `ohlcv_{timeframe}` naming convention
-   applies to the locked 15m timeframe without objection. If Main requires
-   explicit confirmation before WP-S2c-126 proceeds, that confirmation must be
-   obtained first.
+2. **`ohlcv_15m` label interpretation confirmed by Main/Karl.** No repo file
+   explicitly authorizes `ohlcv_15m` as a locked-taxonomy label. The label is
+   inferred from the `ohlcv_{timeframe}` naming convention applied to the locked
+   15m timeframe. Main/Karl must explicitly state whether `ohlcv_15m` is
+   accepted as a permitted label under the locked information_inputs taxonomy, or
+   whether a different information_input selection is required. This confirmation
+   must be obtained before WP-S2c-126 drafts. If rejected, the design surface
+   must be revised before any WP-S2c-126 work begins.
 
 3. `funding_8h` label exists verbatim in `research/candidate_registry.jsonl`
    (confirmed in this package; reconfirm at WP-S2c-126 preflight).
@@ -405,8 +423,8 @@ repo files:
    `research/timeframe_status.md`, or `docs/data_catalog.md` since this
    package's merge.
 
-Failure to verify any item halts WP-S2c-126 and requires a report back to
-Main/Karl.
+Failure to verify any item, or absence of the item 2 Main/Karl confirmation,
+halts WP-S2c-126 and requires a report back to Main/Karl.
 
 ## 18. Non-authority and forbidden surfaces
 
@@ -478,10 +496,16 @@ this and subsequent packages:
 
 WP-S2c-125 uses CS12 T1-doc-narrow.
 
-After merge, Side may draft WP-S2c-126 only after:
-- refreshed-main preflight;
-- the explicit pre-draft verification gate described in Section 17 above;
-- no open stop condition from Section 19.
+After merge, Side must stop and report back to Main/Karl. WP-S2c-126 may not
+be drafted until Main/Karl provides explicit confirmation of the `ohlcv_15m`
+label interpretation (Section 17, item 2). Refreshed-main preflight alone does
+not authorize WP-S2c-126 to proceed.
+
+Once Main/Karl confirms and the Section 17 pre-draft verification gate passes
+in full:
+- Reconfirm the full Section 17 checklist against current repo files.
+- Confirm no open stop condition from Section 19 applies.
+- Only then draft WP-S2c-126.
 
 WP-S2c-126 is a T3-implementation package with full pytest required. It must
 not be auto-drafted from this merge.

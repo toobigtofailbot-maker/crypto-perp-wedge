@@ -349,7 +349,7 @@ def test_existing_views_and_integrity_regressions_preserved(conn):
     } <= view_names
 
     candidate_count = conn.execute("SELECT COUNT(*) FROM v_candidate_overview").fetchone()[0]
-    assert candidate_count == 11
+    assert candidate_count == 12
 
     for view_name in {
         "v_integrity_plan_report_pairs",

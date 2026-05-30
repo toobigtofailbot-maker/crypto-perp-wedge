@@ -142,7 +142,7 @@ def test_existing_integrity_views_still_empty(conn):
 def test_existing_candidate_view_still_returns_registered_rows(conn):
     candidate_count = conn.execute("SELECT COUNT(*) FROM v_candidate_overview").fetchone()[0]
 
-    assert candidate_count == 11
+    assert candidate_count == 12
 
 
 def test_read_only_guard_still_rejects_writes(conn):

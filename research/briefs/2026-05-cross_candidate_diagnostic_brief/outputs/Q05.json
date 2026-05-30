@@ -1,0 +1,102 @@
+[
+  {
+    "candidate_ids": "H-003",
+    "n_candidates": 1,
+    "n_conditional": 0,
+    "n_inconclusive": 0,
+    "n_no_go": 1,
+    "n_pass": 0,
+    "strategy_family": "mean_reversion",
+    "timeframe": "1d"
+  },
+  {
+    "candidate_ids": "H-004",
+    "n_candidates": 1,
+    "n_conditional": 0,
+    "n_inconclusive": 0,
+    "n_no_go": 1,
+    "n_pass": 0,
+    "strategy_family": "trend_following",
+    "timeframe": "1d"
+  },
+  {
+    "candidate_ids": "H-005, H-008",
+    "n_candidates": 2,
+    "n_conditional": 0,
+    "n_inconclusive": 0,
+    "n_no_go": 2,
+    "n_pass": 0,
+    "strategy_family": "momentum",
+    "timeframe": "1h"
+  },
+  {
+    "candidate_ids": "H-006",
+    "n_candidates": 1,
+    "n_conditional": 0,
+    "n_inconclusive": 0,
+    "n_no_go": 1,
+    "n_pass": 0,
+    "strategy_family": "breakout",
+    "timeframe": "30m"
+  },
+  {
+    "candidate_ids": "H-009",
+    "n_candidates": 1,
+    "n_conditional": 0,
+    "n_inconclusive": 0,
+    "n_no_go": 1,
+    "n_pass": 0,
+    "strategy_family": "multi_tf_alignment",
+    "timeframe": "30m"
+  },
+  {
+    "candidate_ids": "H-010",
+    "n_candidates": 1,
+    "n_conditional": 0,
+    "n_inconclusive": 0,
+    "n_no_go": 1,
+    "n_pass": 0,
+    "strategy_family": "basis_mean_reversion",
+    "timeframe": "4h"
+  },
+  {
+    "candidate_ids": "H-001",
+    "n_candidates": 1,
+    "n_conditional": 0,
+    "n_inconclusive": 0,
+    "n_no_go": 1,
+    "n_pass": 0,
+    "strategy_family": "funding_directional",
+    "timeframe": "4h"
+  },
+  {
+    "candidate_ids": "H-007",
+    "n_candidates": 1,
+    "n_conditional": 0,
+    "n_inconclusive": 0,
+    "n_no_go": 1,
+    "n_pass": 0,
+    "strategy_family": "funding_momentum_composite",
+    "timeframe": "4h"
+  },
+  {
+    "candidate_ids": "H-002",
+    "n_candidates": 1,
+    "n_conditional": 0,
+    "n_inconclusive": 0,
+    "n_no_go": 1,
+    "n_pass": 0,
+    "strategy_family": "trend_following",
+    "timeframe": "4h"
+  },
+  {
+    "candidate_ids": "H-011",
+    "n_candidates": 1,
+    "n_conditional": 0,
+    "n_inconclusive": 0,
+    "n_no_go": 0,
+    "n_pass": 0,
+    "strategy_family": "cross_asset_regime",
+    "timeframe": "weekly"
+  }
+]

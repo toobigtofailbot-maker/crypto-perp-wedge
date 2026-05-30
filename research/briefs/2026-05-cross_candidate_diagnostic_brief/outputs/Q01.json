@@ -1,0 +1,14 @@
+[
+  {
+    "candidate_count": 10,
+    "candidate_ids": "H-001, H-002, H-003, H-004, H-005, H-006, H-007, H-008, H-009, H-010",
+    "pipeline_stage": "baseline_tested",
+    "status": "CONCLUDED"
+  },
+  {
+    "candidate_count": 1,
+    "candidate_ids": "H-011",
+    "pipeline_stage": "reserved",
+    "status": "DRAFT"
+  }
+]

@@ -1,0 +1,16 @@
+[
+  {
+    "r2s_approval_record_count": null,
+    "row_count": 0,
+    "s2p_approval_record_count": null,
+    "scope6_view": "v_s2p_shadow_evidence_links",
+    "shadow_evidence_retention_count": null
+  },
+  {
+    "r2s_approval_record_count": 0,
+    "row_count": 11,
+    "s2p_approval_record_count": 0,
+    "scope6_view": "v_scope6_candidate_packaging_overview",
+    "shadow_evidence_retention_count": 0
+  }
+]

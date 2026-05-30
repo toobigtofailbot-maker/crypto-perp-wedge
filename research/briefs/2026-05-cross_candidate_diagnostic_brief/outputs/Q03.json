@@ -1,0 +1,26 @@
+[
+  {
+    "artifact_count": 5,
+    "bucket": "research_oos",
+    "candidate_count": 1,
+    "candidate_ids": "H-004",
+    "row_type": "outcome_ledger",
+    "sub_bucket": "post_wp_5b"
+  },
+  {
+    "artifact_count": 26,
+    "bucket": "research_oos",
+    "candidate_count": 10,
+    "candidate_ids": "H-001, H-002, H-003, H-004, H-005, H-006, H-007, H-008, H-009, H-010",
+    "row_type": "outcome_ledger",
+    "sub_bucket": "pre_wp_5b"
+  },
+  {
+    "artifact_count": null,
+    "bucket": "NO-GO",
+    "candidate_count": 10,
+    "candidate_ids": "H-001, H-002, H-003, H-004, H-005, H-006, H-007, H-008, H-009, H-010",
+    "row_type": "registry_verdict",
+    "sub_bucket": null
+  }
+]

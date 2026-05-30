@@ -112,7 +112,9 @@ FROM candidates AS c,
 UNNEST(c.information_inputs) AS input(information_input);
 
 -- Are any plan/report pairings broken?
--- Returns EXP rows with no REP and REP rows that reference an unknown plan_id.
+-- Returns unhealthy EXP rows with no REP and REP rows that reference an unknown plan_id.
+-- Bounded pre-execution EXP plans are healthy only for known DRAFT / PENDING /
+-- pre_registered candidates with no trial IDs and no decision record.
 -- Expected to be empty in a healthy repo state.
 CREATE OR REPLACE VIEW v_integrity_plan_report_pairs AS
 SELECT
@@ -123,7 +125,17 @@ SELECT
 FROM exp_plans AS p
 LEFT JOIN exp_reports AS r
   ON p.plan_id = r.plan_id
+LEFT JOIN candidates AS c
+  ON p.candidate_id = c.candidate_id
 WHERE r.plan_id IS NULL
+  AND NOT (
+      c.candidate_id IS NOT NULL
+      AND c.status = 'DRAFT'
+      AND c.overall_verdict = 'PENDING'
+      AND c.pipeline_stage = 'pre_registered'
+      AND list_count(c.trial_ids) = 0
+      AND c.decision_record_path IS NULL
+  )
 UNION ALL
 SELECT
     'report_without_plan' AS issue_type,

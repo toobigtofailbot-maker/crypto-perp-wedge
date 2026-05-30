@@ -1,0 +1,342 @@
+[
+  {
+    "table_type": "VIEW",
+    "view_category": "integrity",
+    "view_name": "v_integrity_agent_output_refs"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "integrity",
+    "view_name": "v_integrity_bucket_mapping_refs"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "integrity",
+    "view_name": "v_integrity_candidate_refs"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "integrity",
+    "view_name": "v_integrity_decision_refs"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "integrity",
+    "view_name": "v_integrity_lifecycle_approval_completeness"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "integrity",
+    "view_name": "v_integrity_lifecycle_change_refs"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "integrity",
+    "view_name": "v_integrity_lifecycle_fast_track_completeness"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "integrity",
+    "view_name": "v_integrity_lifecycle_transition_graph"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "integrity",
+    "view_name": "v_integrity_macro_window_agent_output_refs"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "integrity",
+    "view_name": "v_integrity_outcome_ledger_derivation"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "integrity",
+    "view_name": "v_integrity_outcome_ledger_refs"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "integrity",
+    "view_name": "v_integrity_outcome_ledger_scope"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "integrity",
+    "view_name": "v_integrity_outcome_ledger_window_bounds"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "integrity",
+    "view_name": "v_integrity_overlay_shadow_refs"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "integrity",
+    "view_name": "v_integrity_plan_report_pairs"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "integrity",
+    "view_name": "v_integrity_pre_gate_advisory_snapshot_refs"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "integrity",
+    "view_name": "v_integrity_reconciliation_derivation"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "integrity",
+    "view_name": "v_integrity_reconciliation_expectation_source"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "integrity",
+    "view_name": "v_integrity_reconciliation_realized_metrics"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "integrity",
+    "view_name": "v_integrity_reconciliation_refs"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "integrity",
+    "view_name": "v_integrity_reconciliation_scope"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "integrity",
+    "view_name": "v_integrity_release_refs"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "integrity",
+    "view_name": "v_integrity_shadow_signal_summary_derivation"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "integrity",
+    "view_name": "v_integrity_shadow_signal_summary_v2_derivation"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "other",
+    "view_name": "v_agent_outputs_latest"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "other",
+    "view_name": "v_agent_outputs_overview"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "other",
+    "view_name": "v_bucket_mappings_latest"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "other",
+    "view_name": "v_bucket_mappings_overview"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "other",
+    "view_name": "v_candidate_by_family"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "other",
+    "view_name": "v_candidate_overview"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "other",
+    "view_name": "v_concluded_candidates"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "other",
+    "view_name": "v_decision_changes_overview"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "other",
+    "view_name": "v_experiment_instances"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "other",
+    "view_name": "v_gate_results_flat"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "other",
+    "view_name": "v_information_inputs"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "other",
+    "view_name": "v_is_metrics_by_candidate"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "other",
+    "view_name": "v_lifecycle_change_overview"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "other",
+    "view_name": "v_lifecycle_state_transitions"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "other",
+    "view_name": "v_macro_window_agent_outputs_latest"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "other",
+    "view_name": "v_macro_window_agent_outputs_overview"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "other",
+    "view_name": "v_oos_metrics_by_candidate"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "other",
+    "view_name": "v_outcome_ledger_candidate_pipeline_summary"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "other",
+    "view_name": "v_outcome_ledger_overview"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "other",
+    "view_name": "v_overlay_shadow_agreement_summary"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "other",
+    "view_name": "v_overlay_shadow_logs_latest"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "other",
+    "view_name": "v_overlay_shadow_logs_overview"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "other",
+    "view_name": "v_overlay_shadow_override_audit"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "other",
+    "view_name": "v_pre_gate_advisory_snapshots_latest"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "other",
+    "view_name": "v_pre_gate_advisory_snapshots_overview"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "other",
+    "view_name": "v_reconciliation_candidate_pipeline_summary"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "other",
+    "view_name": "v_reconciliation_overview"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "other",
+    "view_name": "v_release_notes_overview"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "other",
+    "view_name": "v_shadow_signal_summaries_overview"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "other",
+    "view_name": "v_shadow_signal_summaries_v2_overview"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "other",
+    "view_name": "v_stage_transitions"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "scope6_base_or_link",
+    "view_name": "v_r2s_approval_records"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "scope6_base_or_link",
+    "view_name": "v_s2p_approval_records"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "scope6_base_or_link",
+    "view_name": "v_s2p_shadow_evidence_links"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "scope6_base_or_link",
+    "view_name": "v_scope6_candidate_packaging_overview"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "scope6_base_or_link",
+    "view_name": "v_shadow_evidence_retention"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "scope6_integrity",
+    "view_name": "v_integrity_r2s_approval_candidate_refs"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "scope6_integrity",
+    "view_name": "v_integrity_r2s_rec5_candidate_consistency"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "scope6_integrity",
+    "view_name": "v_integrity_s2p_approval_candidate_refs"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "scope6_integrity",
+    "view_name": "v_integrity_s2p_shadow_evidence_candidate_consistency"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "scope6_integrity",
+    "view_name": "v_integrity_s2p_shadow_evidence_refs"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "scope6_integrity",
+    "view_name": "v_integrity_scope6_authority_flags"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "scope6_integrity",
+    "view_name": "v_integrity_scope6_preservation_flags"
+  },
+  {
+    "table_type": "VIEW",
+    "view_category": "scope6_integrity",
+    "view_name": "v_integrity_shadow_evidence_candidate_refs"
+  }
+]

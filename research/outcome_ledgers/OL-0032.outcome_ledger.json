@@ -1,0 +1,68 @@
+{
+  "schema_version": "v1",
+  "outcome_id": "OL-0032",
+  "candidate_id": "H-012",
+  "lifecycle_state_during_window": "in_research",
+  "evaluation_window_start": null,
+  "evaluation_window_end": null,
+  "outcome_kind": "research_oos",
+  "metrics": {
+    "source_field": "trial_log.oos_sharpe",
+    "window_convention": "No separate IS/OOS split convention is introduced by WP-12fh / WP-S2c-128; this field records the same full evaluation-window Sharpe as the in_sample object for schema continuity.",
+    "sharpe": -0.8317508855081367,
+    "max_drawdown": 1.0,
+    "n_obs": 38906,
+    "trades": 160,
+    "hit_rate": 0.4,
+    "profit_factor": 0.7293061966590685,
+    "final_equity": 0.0,
+    "total_pnl": -10000.0,
+    "gross_pnl": -10353.025709013202,
+    "fees_paid": 1571.9949399999996,
+    "slippage_paid": 785.9974699999998,
+    "funding_paid": -2711.0181190132016,
+    "cost_drag_fraction": 0.034098795746818525,
+    "dsr": 0.0,
+    "walk_forward_efficiency": 0.0,
+    "gates_passed": 1,
+    "gates_total": 8,
+    "config_sha256": "7c5a9ca6985922e5ac5a3645d103ff4aae39bc4d31935b36836eaee9c515bd83",
+    "dataset_sha256": "ce026a647b9e341387e3054d9ada08e3ce827b1d4703e01e7dc39d69f46bf5fc",
+    "dsr_note": "P(SR>1.0)=0.0000; SR benchmark=0.6640",
+    "max_drawdown_peak": "2020-12-21 12:14:59.999000+00:00",
+    "max_drawdown_trough": "2021-02-09 06:44:59.999000+00:00",
+    "skipped_bars": 0,
+    "sensitivity_min_ratio": 0.5746081806962058,
+    "trial_count_before_append": 31,
+    "trial_count_after_append": 32
+  },
+  "data_provenance": {
+    "source_data_refs": [
+      "H-012 information_inputs: ohlcv_15m, funding_8h",
+      "BTCUSDT 15m OHLCV full-history dataset: data/processed/binance_um_perp_BTCUSDT_15m_2020-01-01_2026-04-11_2026-04-12T1655Z.parquet",
+      "BTCUSDT funding-rate full-history dataset: data/processed/binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z.parquet",
+      "No external, paid, Tier 4, protected-path, runtime, paper/live, broker/exchange/order/live API contact.",
+      "No separate IS/OOS split convention is introduced by this package; evaluation windows remain null until WP-S2c-128 execution/reporting if repo convention requires concrete splits.",
+      "Main 4.0 accepted ohlcv_15m as convention application against locked surfaces, not taxonomy expansion."
+    ],
+    "source_data_window_start": null,
+    "source_data_window_end": null,
+    "source_data_notes": "Copied from EXP-0012 data_requirements; no formal source-data window endpoints are committed for this baseline."
+  },
+  "derivation_record": {
+    "derivation_method": "from_rep_artifact",
+    "source_artifact_id": "REP-0032",
+    "source_artifact_path": "research/experiments/REP-0032.report.json",
+    "derivation_timestamp": "2026-06-01T17:33:45Z",
+    "derivation_tool_version": "wp12fi_manual_ol_from_rep0032_v1"
+  },
+  "pipeline_version": "post_wp_5b",
+  "linked_artifacts": [
+    "EXP-0012",
+    "REP-0032"
+  ],
+  "retrospective_flag": true,
+  "linked_advisory_artifacts": [],
+  "notes": "WP-12fi derives OL-0032 from REP-0032 only, with EXP-0012 providing data provenance. No formal split was introduced; evaluation_window_start and evaluation_window_end remain null under the committed no-formal-split convention. REP-0032 records H-012 liquidation and an overall NO-GO verdict with 1/8 D2-006 gates passed. OL-0032 is source evidence only and creates no REC-5 satisfaction, no DEC, no readiness or transition, and no runtime or protected-path authority.",
+  "retrospective_disclosure": "WP-12fi derives this outcome-ledger artifact retrospectively from already committed REP-0032 / EXP-0012 / H-012 evidence. REP-0032 remains the authoritative research report. This artifact carries no candidate decision, archive, promotion, demotion, readiness, transition, ranking, scoring, paper/live, runtime, policy, or protected-path authority."
+}

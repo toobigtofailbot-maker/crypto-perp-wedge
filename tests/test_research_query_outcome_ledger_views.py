@@ -85,7 +85,7 @@ def conn():
 
 
 def test_outcome_ledgers_relation_current_committed_state(conn):
-    assert conn.execute("SELECT COUNT(*) FROM outcome_ledgers").fetchone()[0] == 31
+    assert conn.execute("SELECT COUNT(*) FROM outcome_ledgers").fetchone()[0] == 32
 
     overview_rows = conn.execute(
         """
@@ -485,6 +485,18 @@ def test_outcome_ledgers_relation_current_committed_state(conn):
             2,
             0,
         ),
+        (
+            "OL-0032",
+            "H-012",
+            "research_oos",
+            "post_wp_5b",
+            "in_research",
+            True,
+            "REP-0032",
+            "research/experiments/REP-0032.report.json",
+            2,
+            0,
+        ),
     ]
     assert summary_rows == [
         ("H-001", "research_oos", "pre_wp_5b", 5, 1),
@@ -498,6 +510,7 @@ def test_outcome_ledgers_relation_current_committed_state(conn):
         ("H-008", "research_oos", "pre_wp_5b", 1, 1),
         ("H-009", "research_oos", "pre_wp_5b", 1, 1),
         ("H-010", "research_oos", "pre_wp_5b", 1, 1),
+        ("H-012", "research_oos", "post_wp_5b", 1, 1),
     ]
 
     for view_name in {

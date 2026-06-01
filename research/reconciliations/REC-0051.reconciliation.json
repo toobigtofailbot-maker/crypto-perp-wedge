@@ -1,0 +1,183 @@
+{
+  "schema_version": "v1",
+  "reconciliation_id": "REC-0051",
+  "candidate_id": "H-012",
+  "outcome_id": "OL-0032",
+  "outcome_kind": "research_oos",
+  "pipeline_version": "post_wp_5b",
+  "expectation_source_type": "d2_006_gates",
+  "expectation_source_artifact_id": "D2-006",
+  "expectation_source_artifact_path": "docs/onboarding/PHASE2_BASELINE.md",
+  "expectation_extracted": {
+    "source_type": "d2_006_gates",
+    "source_artifact_id": "D2-006",
+    "source_artifact_path": "docs/onboarding/PHASE2_BASELINE.md",
+    "extraction_method": "manual_wp12fi_d2_006_rec_append_v1",
+    "extracted_at": "2026-06-01T17:33:45Z",
+    "metric_expectations": [
+      {
+        "metric_name": "sharpe",
+        "expected_operator": "gte",
+        "expected_value": 1.0,
+        "expected_unit": null,
+        "source_field_path": "D2-006.What changes[1]",
+        "source_text": "Out-of-sample Sharpe >= 1.0 net of modeled costs."
+      },
+      {
+        "metric_name": "dsr",
+        "expected_operator": "gt",
+        "expected_value": 0.95,
+        "expected_unit": "repo_evaluator_probability_posture",
+        "source_field_path": "D2-006.What changes[2]",
+        "source_text": "DSR > 1.0 at 95% confidence given actual trial count.",
+        "notes": "The package records the current repo evaluator probability posture as DSR probability > 0.95 while preserving the D2-006 source text."
+      },
+      {
+        "metric_name": "max_drawdown",
+        "expected_operator": "lte",
+        "expected_value": 0.2,
+        "expected_unit": "fraction",
+        "source_field_path": "D2-006.What changes[3]",
+        "source_text": "Max drawdown <= 20% in any walk-forward fold."
+      },
+      {
+        "metric_name": "sensitivity_min_ratio",
+        "expected_operator": "gte",
+        "expected_value": 0.7,
+        "expected_unit": "ratio",
+        "source_field_path": "D2-006.What changes[4]",
+        "source_text": "Parameter sensitivity: +/-25% parameter shift keeps Sharpe within 70% of baseline."
+      },
+      {
+        "metric_name": "cost_drag_fraction",
+        "expected_operator": "lte",
+        "expected_value": 0.5,
+        "expected_unit": "fraction_of_gross_pnl",
+        "source_field_path": "D2-006.What changes[5]",
+        "source_text": "Cost drag <= 50% of gross PnL.",
+        "notes": "Preserved from D2-006 but not compared because OL-0032 records gross_pnl <= 0, making cost_drag_fraction semantically unsuitable as a healthy pass/fail ratio."
+      },
+      {
+        "metric_name": "pnl_concentration_90d",
+        "expected_operator": "lte",
+        "expected_value": 0.6,
+        "expected_unit": "fraction_of_total_pnl",
+        "source_field_path": "D2-006.What changes[6]",
+        "source_text": "No single 90-day window contributes > 60% of total PnL.",
+        "notes": "Preserved from D2-006 but not compared because REC v1 realized_metrics copy OL metrics and OL-0032 does not include a 90-day contribution metric."
+      },
+      {
+        "metric_name": "free_parameter_count",
+        "expected_operator": "lte",
+        "expected_value": 5,
+        "expected_unit": "count",
+        "source_field_path": "D2-006.What changes[7]",
+        "source_text": "<= 5 free parameters.",
+        "notes": "Preserved from D2-006 but not compared because REC v1 realized_metrics copy OL metrics and OL-0032 does not include free_parameter_count."
+      },
+      {
+        "metric_name": "walk_forward_efficiency",
+        "expected_operator": "gt",
+        "expected_value": 0.5,
+        "expected_unit": "ratio",
+        "source_field_path": "D2-006.What changes[8]",
+        "source_text": "Walk-forward efficiency (OOS/IS Sharpe ratio) > 0.5."
+      }
+    ]
+  },
+  "realized_metrics": {
+    "source_field": "trial_log.oos_sharpe",
+    "window_convention": "No separate IS/OOS split convention is introduced by WP-12fh / WP-S2c-128; this field records the same full evaluation-window Sharpe as the in_sample object for schema continuity.",
+    "sharpe": -0.8317508855081367,
+    "max_drawdown": 1.0,
+    "n_obs": 38906,
+    "trades": 160,
+    "hit_rate": 0.4,
+    "profit_factor": 0.7293061966590685,
+    "final_equity": 0.0,
+    "total_pnl": -10000.0,
+    "gross_pnl": -10353.025709013202,
+    "fees_paid": 1571.9949399999996,
+    "slippage_paid": 785.9974699999998,
+    "funding_paid": -2711.0181190132016,
+    "cost_drag_fraction": 0.034098795746818525,
+    "dsr": 0.0,
+    "walk_forward_efficiency": 0.0,
+    "gates_passed": 1,
+    "gates_total": 8,
+    "config_sha256": "7c5a9ca6985922e5ac5a3645d103ff4aae39bc4d31935b36836eaee9c515bd83",
+    "dataset_sha256": "ce026a647b9e341387e3054d9ada08e3ce827b1d4703e01e7dc39d69f46bf5fc",
+    "dsr_note": "P(SR>1.0)=0.0000; SR benchmark=0.6640",
+    "max_drawdown_peak": "2020-12-21 12:14:59.999000+00:00",
+    "max_drawdown_trough": "2021-02-09 06:44:59.999000+00:00",
+    "skipped_bars": 0,
+    "sensitivity_min_ratio": 0.5746081806962058,
+    "trial_count_before_append": 31,
+    "trial_count_after_append": 32
+  },
+  "comparison": {
+    "metric_comparisons": [
+      {
+        "metric_name": "sharpe",
+        "expected_value": 1.0,
+        "realized_value": -0.8317508855081367,
+        "delta_absolute": -1.8317508855081367,
+        "delta_relative": -1.8317508855081367,
+        "comparison_verdict": "not_met",
+        "comparison_notes": "D2-006 requires out-of-sample Sharpe >= 1.0 net of modeled costs; OL-0032 records sharpe below that threshold."
+      },
+      {
+        "metric_name": "dsr",
+        "expected_value": 0.95,
+        "realized_value": 0.0,
+        "delta_absolute": -0.95,
+        "delta_relative": -1.0,
+        "comparison_verdict": "not_met",
+        "comparison_notes": "D2-006 confidence posture requires DSR probability above 0.95 under current repo evaluator semantics; OL-0032 records dsr = 0.0."
+      },
+      {
+        "metric_name": "max_drawdown",
+        "expected_value": 0.2,
+        "realized_value": 1.0,
+        "delta_absolute": 0.8,
+        "delta_relative": 4.0,
+        "comparison_verdict": "not_met",
+        "comparison_notes": "D2-006 requires max drawdown <= 20% in any walk-forward fold; OL-0032 records max_drawdown above that threshold."
+      },
+      {
+        "metric_name": "sensitivity_min_ratio",
+        "expected_value": 0.7,
+        "realized_value": 0.5746081806962058,
+        "delta_absolute": -0.12539181930379416,
+        "delta_relative": -0.17913117043399166,
+        "comparison_verdict": "not_met",
+        "comparison_notes": "D2-006 requires parameter sensitivity min_ratio >= 0.70; OL-0032 records sensitivity_min_ratio below that threshold."
+      },
+      {
+        "metric_name": "walk_forward_efficiency",
+        "expected_value": 0.5,
+        "realized_value": 0.0,
+        "delta_absolute": -0.5,
+        "delta_relative": -1.0,
+        "comparison_verdict": "not_met",
+        "comparison_notes": "D2-006 requires walk-forward efficiency > 0.5; OL-0032 records walk_forward_efficiency below that threshold."
+      }
+    ]
+  },
+  "overall_verdict": "none_met",
+  "interpretation": "REC-0051 derives from OL-0032 and reconciles H-012 research_oos post_wp_5b evidence against D2-006 gates only. It is exact-segment evidence for H-012 / research_oos / post_wp_5b / d2_006_gates and increases that segment count to 1, which remains below the REC-5 floor of n >= 3 per candidate_id / outcome_kind / pipeline_version / expectation_source_type. No cross-segment inference is allowed. This REC creates no candidate decision, archive, promotion, demotion, readiness, transition, recommendation, ranking, scoring, paper/live, runtime, protected-path, or downstream authority. DEC remains deferred to WP-S2c-130.",
+  "derivation_record": {
+    "derivation_method": "manual_wp12fi_d2_006_rec_append_v1",
+    "source_artifact_id": "OL-0032",
+    "source_artifact_path": "research/outcome_ledgers/OL-0032.outcome_ledger.json",
+    "source_outcome_id": "OL-0032",
+    "expectation_source_type": "d2_006_gates",
+    "derivation_timestamp": "2026-06-01T17:33:45Z",
+    "tool_version": "wp12fi_manual_d2_006_rec_append_v1"
+  },
+  "retrospective_flag": true,
+  "linked_advisory_artifacts": [],
+  "linked_lifecycle_artifacts": [],
+  "notes": "WP-12fi creates REC-0051 from new committed OL-0032 against committed D2-006 expectations. It records H-012 / research_oos / post_wp_5b / d2_006_gates = 1, below the REC-5 floor. It creates one D2-006 REC only and no exp_success_criteria REC, DEC, approval record, shadow-evidence retention artifact, readiness, transition, recommendation, ranking, scoring, human-gate execution, Tier 4 contact, schema, validator, query-layer, tool, runtime, paper bridge, AUTO bridge, A2C-003, or protected-path authority.",
+  "retrospective_disclosure": "WP-12fi derives this reconciliation retrospectively from already committed OL-0032 / REP-0032 / EXP-0012 / D2-006 evidence. It is evidence-only and carries no candidate decision, archive, promotion, demotion, readiness, transition, ranking, scoring, paper/live, runtime, policy, or protected-path authority."
+}

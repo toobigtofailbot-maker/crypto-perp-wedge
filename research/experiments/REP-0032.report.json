@@ -1,0 +1,260 @@
+{
+  "report_id": "REP-0032",
+  "plan_id": "EXP-0012",
+  "candidate_id": "H-012",
+  "execution_date": "2026-06-01",
+  "trial_ids": [
+    "da2640a4-877b-4fcb-98f4-962d9ba1091d"
+  ],
+  "metrics": {
+    "in_sample": {
+      "sharpe": -0.8317508855081367,
+      "source_field": "trial_log.in_sample_sharpe",
+      "window_convention": "No separate IS/OOS split convention is introduced by WP-12fh / WP-S2c-128; this field records the same full evaluation-window Sharpe as the out_of_sample object for schema continuity."
+    },
+    "out_of_sample": {
+      "sharpe": -0.8317508855081367,
+      "max_drawdown": 1.0,
+      "max_drawdown_peak": "2020-12-21 12:14:59.999000+00:00",
+      "max_drawdown_trough": "2021-02-09 06:44:59.999000+00:00",
+      "n_obs": 38906,
+      "bars": 220128,
+      "trades": 160,
+      "hit_rate": 0.4,
+      "profit_factor": 0.7293061966590685,
+      "final_equity": 0.0,
+      "total_pnl": -10000.0,
+      "realized_pnl": -10353.025709013202,
+      "unrealized_pnl": 0.0,
+      "fees_paid": 1571.9949399999996,
+      "slippage_paid": 785.9974699999998,
+      "funding_paid": -2711.0181190132016,
+      "gross_pnl": -10353.025709013202,
+      "total_cost": -353.02570901320223,
+      "cost_drag_fraction": 0.034098795746818525,
+      "skipped_bars": 0,
+      "liquidated": true,
+      "liquidation_timestamp": "2021-02-09 06:44:59.999000+00:00",
+      "negative_trade_fraction": 0.6,
+      "side_summary": [
+        {
+          "direction": -1,
+          "count": 74,
+          "net_pnl_sum": -24839.4841710132,
+          "net_pnl_mean": -335.66870501369186
+        },
+        {
+          "direction": 1,
+          "count": 86,
+          "net_pnl_sum": 13310.305179999998,
+          "net_pnl_mean": 154.77099046511626
+        }
+      ],
+      "signal_counts": {
+        "-1": 109626,
+        "0": 15157,
+        "1": 95345
+      },
+      "actual_bar_window_start": "2020-01-01 00:14:59.999000+00:00",
+      "actual_bar_window_end": "2026-04-11 23:59:59.999000+00:00",
+      "source_field": "trial_log.oos_sharpe",
+      "window_convention": "No separate IS/OOS split convention is introduced by WP-12fh / WP-S2c-128; this field records the same full evaluation-window Sharpe as the in_sample object for schema continuity.",
+      "dsr": 0.0,
+      "dsr_note": "P(SR>1.0)=0.0000; SR benchmark=0.6640",
+      "walk_forward_efficiency": 0.0,
+      "sensitivity_min_ratio": 0.5746081806962058,
+      "sensitivity": [
+        {
+          "variant": "trend_lookback_bars_up_25pct",
+          "trend_lookback_bars": 120,
+          "sharpe": -0.47793086311428856,
+          "ratio_to_base": 0.5746081806962058,
+          "trades": 128,
+          "max_drawdown": 1.0,
+          "final_equity": 0.0,
+          "liquidated": true
+        },
+        {
+          "variant": "trend_lookback_bars_down_25pct",
+          "trend_lookback_bars": 72,
+          "sharpe": -0.7298409150549051,
+          "ratio_to_base": 0.8774753688528119,
+          "trades": 216,
+          "max_drawdown": 1.0,
+          "final_equity": 0.0,
+          "liquidated": true
+        },
+        {
+          "variant": "funding_threshold_abs_up_25pct",
+          "funding_threshold_abs": 0.000125,
+          "sharpe": -1.2123829288852517,
+          "ratio_to_base": 1.457627457943225,
+          "trades": 157,
+          "max_drawdown": 1.0,
+          "final_equity": 0.0,
+          "liquidated": true
+        },
+        {
+          "variant": "funding_threshold_abs_down_25pct",
+          "funding_threshold_abs": 7.5e-05,
+          "sharpe": -2.080649780600004,
+          "ratio_to_base": 2.5015299855423474,
+          "trades": 58,
+          "max_drawdown": 1.0,
+          "final_equity": 0.0,
+          "liquidated": true
+        },
+        {
+          "variant": "min_hold_bars_up_25pct",
+          "min_hold_bars": 5,
+          "sharpe": -0.8317508855081367,
+          "ratio_to_base": 1.0,
+          "trades": 160,
+          "max_drawdown": 1.0,
+          "final_equity": 0.0,
+          "liquidated": true
+        },
+        {
+          "variant": "min_hold_bars_down_25pct",
+          "min_hold_bars": 3,
+          "sharpe": -0.8317508855081367,
+          "ratio_to_base": 1.0,
+          "trades": 160,
+          "max_drawdown": 1.0,
+          "final_equity": 0.0,
+          "liquidated": true
+        }
+      ],
+      "pure_trend_comparator": {
+        "sharpe": 0.28842321693927386,
+        "max_drawdown": 1.0,
+        "max_drawdown_peak": "2021-01-11 16:44:59.999000+00:00",
+        "max_drawdown_trough": "2021-03-19 11:59:59.999000+00:00",
+        "n_obs": 42575,
+        "bars": 220128,
+        "trades": 201,
+        "hit_rate": 0.373134328358209,
+        "profit_factor": 0.9482679919316774,
+        "final_equity": 0.0,
+        "total_pnl": -10000.0,
+        "realized_pnl": -2029.8726688193678,
+        "unrealized_pnl": 0.0,
+        "fees_paid": 2883.777903999999,
+        "slippage_paid": 1441.8889519999996,
+        "funding_paid": 3644.460475180702,
+        "gross_pnl": -2029.8726688193678,
+        "total_cost": 7970.127331180701,
+        "cost_drag_fraction": -3.926417382532844,
+        "skipped_bars": 0,
+        "liquidated": true,
+        "liquidation_timestamp": "2021-03-19 11:59:59.999000+00:00",
+        "negative_trade_fraction": 0.6268656716417911,
+        "side_summary": [
+          {
+            "direction": -1,
+            "count": 101,
+            "net_pnl_sum": -27939.503334819354,
+            "net_pnl_mean": -276.62874588930055
+          },
+          {
+            "direction": 1,
+            "count": 100,
+            "net_pnl_sum": 23748.947289999986,
+            "net_pnl_mean": 237.48947289999987
+          }
+        ],
+        "signal_counts": {
+          "-1": 103019,
+          "0": 104,
+          "1": 117005
+        },
+        "actual_bar_window_start": "2020-01-01 00:14:59.999000+00:00",
+        "actual_bar_window_end": "2026-04-11 23:59:59.999000+00:00"
+      },
+      "funding_filter_trade_delta_vs_comparator": {
+        "trade_count_delta": -41,
+        "negative_trade_fraction_delta": -0.0268656716417911,
+        "sharpe_delta": -1.1201741024474106,
+        "liquidation_timestamp_delta": "filtered liquidated earlier than pure comparator"
+      },
+      "trial_count_before_append": 31,
+      "trial_count_after_append": 32,
+      "returns_skew": -17.708628649554754,
+      "returns_kurtosis_non_excess": 2554.701760304912,
+      "config_sha256": "7c5a9ca6985922e5ac5a3645d103ff4aae39bc4d31935b36836eaee9c515bd83",
+      "dataset_sha256": "ce026a647b9e341387e3054d9ada08e3ce827b1d4703e01e7dc39d69f46bf5fc",
+      "data_source": [
+        "data/processed/binance_um_perp_BTCUSDT_15m_2020-01-01_2026-04-11_2026-04-12T1655Z.parquet",
+        "data/processed/binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z.parquet"
+      ],
+      "dataset_ids": [
+        "binance_um_perp_BTCUSDT_15m_2020-01-01_2026-04-11_2026-04-12T1655Z",
+        "binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z"
+      ],
+      "signal_rule": "Donchian breakout using prior-bar rolling high/low; funding context filter blocks/flat long when funding > +threshold and blocks/flat short when funding < -threshold; min_hold applies before non-forced state changes."
+    }
+  },
+  "gate_results": [
+    {
+      "gate_id": "D2-006-G1: OOS Sharpe >= 1.0",
+      "threshold": 1.0,
+      "observed": -0.8318,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G2: DSR > 1.0 at 95% CI",
+      "threshold": 1.0,
+      "observed": "0.0; P(SR>1.0)=0.0000; SR benchmark=0.6640",
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G3: Per-fold max DD <= 20%",
+      "threshold": 0.2,
+      "observed": 1.0,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G4: Parameter sensitivity min_ratio >= 0.70",
+      "threshold": 0.7,
+      "observed": "0.5746; computed at +/-25%",
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G5: Cost drag <= 50% of gross PnL",
+      "threshold": 0.5,
+      "observed": "0.0341; gross_pnl=-10353.03 <= 0: cost drag undefined/misleading",
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G6: No single 90-day window > 60% of total PnL",
+      "threshold": 0.6,
+      "observed": 2.2493,
+      "pass": false
+    },
+    {
+      "gate_id": "D2-006-G7: <= 5 free parameters",
+      "threshold": 5.0,
+      "observed": 3.0,
+      "pass": true
+    },
+    {
+      "gate_id": "D2-006-G8: Walk-forward efficiency > 0.5",
+      "threshold": 0.5,
+      "observed": 0.0,
+      "pass": false
+    }
+  ],
+  "overall_verdict": "NO-GO",
+  "observations": "WP-12fh / WP-S2c-128 runs the pre-registered H-012 EXP-0012 15m Donchian breakout baseline with funding-rate context filter on local repo data only. The baseline liquidated on 2021-02-09, produced Sharpe -0.8318, max_drawdown 1.0, and passed 1 of 8 D2-006 gates. The pure 15m Donchian comparator also liquidated, but later, with Sharpe 0.2884 and 201 trades versus 160 filtered trades. The funding filter reduced trade count and negative-trade fraction slightly but worsened Sharpe and liquidation timing. This report creates evidence only and has no OL/REC, DEC, readiness, transition, ranking, scoring, paper/live, runtime, or protected-path authority.",
+  "next_step_recommendation": "archive",
+  "diagnostic_findings": [
+    "Cost-drag behavior is not a healthy pass signal: gross_pnl is negative, so Gate 5 is treated as undefined/misleading and failed under repo evaluator semantics despite a numeric drag ratio of 0.0341.",
+    "The baseline liquidated to zero final equity on 2021-02-09 06:44:59.999000+00:00 with max_drawdown = 1.0.",
+    "The pure 15m Donchian comparator without the funding filter also liquidated, with Sharpe 0.2884, 201 trades, and liquidation on 2021-03-19 11:59:59.999000+00:00.",
+    "Funding filter effect versus comparator: trades fell from 201 to 160 and negative trade fraction fell from 0.6269 to 0.6000, but Sharpe worsened from 0.2884 to -0.8318 and liquidation occurred earlier.",
+    "Sensitivity across the three free parameters produced min_ratio = 0.5746, below the D2-006 Gate 4 threshold of 0.70; all sensitivity variants liquidated.",
+    "No formal separate IS/OOS split was introduced; in-sample and out-of-sample schema fields both record the full evaluation-window Sharpe, matching existing baseline precedent.",
+    "The trial-log append records exactly one primary H-012 trial for EXP-0012; comparator and sensitivity variants are diagnostics only and are not separate trial-log rows or candidates.",
+    "This package does not create OL/REC, DEC, readiness, transition, recommendation/ranking/scoring authority, paper/live authority, runtime influence, or REC-5 satisfaction."
+  ]
+}

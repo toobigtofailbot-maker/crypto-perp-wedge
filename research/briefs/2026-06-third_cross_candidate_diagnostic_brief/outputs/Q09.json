@@ -1,0 +1,130 @@
+[
+  {
+    "integrity_view": "v_integrity_agent_output_refs",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_bucket_mapping_refs",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_candidate_refs",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_decision_refs",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_lifecycle_approval_completeness",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_lifecycle_change_refs",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_lifecycle_fast_track_completeness",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_lifecycle_transition_graph",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_macro_window_agent_output_refs",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_outcome_ledger_derivation",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_outcome_ledger_refs",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_outcome_ledger_scope",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_outcome_ledger_window_bounds",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_overlay_shadow_refs",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_plan_report_pairs",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_pre_gate_advisory_snapshot_refs",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_r2s_approval_candidate_refs",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_r2s_rec5_candidate_consistency",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_reconciliation_derivation",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_reconciliation_expectation_source",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_reconciliation_realized_metrics",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_reconciliation_refs",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_reconciliation_scope",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_release_refs",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_s2p_approval_candidate_refs",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_s2p_shadow_evidence_candidate_consistency",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_s2p_shadow_evidence_refs",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_scope6_authority_flags",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_scope6_preservation_flags",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_shadow_evidence_candidate_refs",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_shadow_signal_summary_derivation",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_shadow_signal_summary_v2_derivation",
+    "issue_count": 0
+  }
+]

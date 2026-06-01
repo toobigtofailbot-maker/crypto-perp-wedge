@@ -1,0 +1,33 @@
+[
+  {
+    "candidate_id": "H-012",
+    "decision_record_path": "research/decisions/DEC-0011.md",
+    "expectation_source_type": "d2_006_gates",
+    "information_inputs": [
+      "ohlcv_15m",
+      "funding_8h"
+    ],
+    "outcome_gates_passed": 1,
+    "outcome_gates_total": 8,
+    "outcome_id": "OL-0032",
+    "outcome_kind": "research_oos",
+    "overall_verdict": "NO-GO",
+    "pipeline_stage": "baseline_tested",
+    "pipeline_version": "post_wp_5b",
+    "plan_id": "EXP-0012",
+    "reconciliation_id": "REC-0051",
+    "reconciliation_verdict": "none_met",
+    "report_final_equity": 0.0,
+    "report_gates_passed": 1,
+    "report_gates_total": 8,
+    "report_id": "REP-0032",
+    "report_liquidated": true,
+    "report_oos_max_drawdown": 1.0,
+    "report_oos_sharpe": -0.8317508855081367,
+    "report_trades": 160,
+    "report_verdict": "NO-GO",
+    "status": "CONCLUDED",
+    "strategy_family": "trend_following",
+    "timeframe": "15m"
+  }
+]

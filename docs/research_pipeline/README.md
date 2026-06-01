@@ -87,6 +87,9 @@ over the committed overlay shadow-log family, now segmentable by
 - `research/briefs/2026-05-cross_candidate_diagnostic_brief.md`: Second
   cross-candidate diagnostic brief over the extended query layer, with adjacent
   `queries/` and `outputs/` evidence directories.
+- `research/briefs/2026-06-third_cross_candidate_diagnostic_brief.md`: Third
+  cross-candidate diagnostic brief with H-012 included, with adjacent
+  `queries/` and `outputs/` evidence directories.
 - `2026-04-shadow_log_diagnostic.md`: First shadow-log diagnostic brief (WP-7e).
 
 ## Relationship To Architecture

@@ -1,0 +1,34 @@
+[
+  {
+    "integrity_view": "v_integrity_r2s_approval_candidate_refs",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_r2s_rec5_candidate_consistency",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_s2p_approval_candidate_refs",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_s2p_shadow_evidence_candidate_consistency",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_s2p_shadow_evidence_refs",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_scope6_authority_flags",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_scope6_preservation_flags",
+    "issue_count": 0
+  },
+  {
+    "integrity_view": "v_integrity_shadow_evidence_candidate_refs",
+    "issue_count": 0
+  }
+]

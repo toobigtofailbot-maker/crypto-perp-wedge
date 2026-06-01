@@ -1,0 +1,62 @@
+[
+  {
+    "candidate_count": 6,
+    "candidate_ids": "H-001, H-007, H-008, H-009, H-010, H-012",
+    "h012_rows": 1,
+    "information_input": "funding_8h"
+  },
+  {
+    "candidate_count": 4,
+    "candidate_ids": "H-001, H-002, H-007, H-009",
+    "h012_rows": 0,
+    "information_input": "ohlcv_4h"
+  },
+  {
+    "candidate_count": 3,
+    "candidate_ids": "H-005, H-008, H-009",
+    "h012_rows": 0,
+    "information_input": "ohlcv_1h"
+  },
+  {
+    "candidate_count": 2,
+    "candidate_ids": "H-003, H-004",
+    "h012_rows": 0,
+    "information_input": "ohlcv_1d"
+  },
+  {
+    "candidate_count": 2,
+    "candidate_ids": "H-006, H-009",
+    "h012_rows": 0,
+    "information_input": "ohlcv_30m"
+  },
+  {
+    "candidate_count": 1,
+    "candidate_ids": "H-010",
+    "h012_rows": 0,
+    "information_input": "index_price_4h"
+  },
+  {
+    "candidate_count": 1,
+    "candidate_ids": "H-010",
+    "h012_rows": 0,
+    "information_input": "mark_price_4h"
+  },
+  {
+    "candidate_count": 1,
+    "candidate_ids": "H-012",
+    "h012_rows": 1,
+    "information_input": "ohlcv_15m"
+  },
+  {
+    "candidate_count": 1,
+    "candidate_ids": "H-008",
+    "h012_rows": 0,
+    "information_input": "premium_index_1h"
+  },
+  {
+    "candidate_count": 1,
+    "candidate_ids": "H-010",
+    "h012_rows": 0,
+    "information_input": "premium_index_4h"
+  }
+]

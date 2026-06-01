@@ -1,0 +1,317 @@
+[
+  {
+    "artifact_count": 5,
+    "candidate_id": "H-001",
+    "expectation_source_type": null,
+    "outcome_kind": "research_oos",
+    "overall_verdicts": null,
+    "pipeline_version": "pre_wp_5b",
+    "row_type": "outcome_ledger_segment"
+  },
+  {
+    "artifact_count": 3,
+    "candidate_id": "H-002",
+    "expectation_source_type": null,
+    "outcome_kind": "research_oos",
+    "overall_verdicts": null,
+    "pipeline_version": "pre_wp_5b",
+    "row_type": "outcome_ledger_segment"
+  },
+  {
+    "artifact_count": 3,
+    "candidate_id": "H-003",
+    "expectation_source_type": null,
+    "outcome_kind": "research_oos",
+    "overall_verdicts": null,
+    "pipeline_version": "pre_wp_5b",
+    "row_type": "outcome_ledger_segment"
+  },
+  {
+    "artifact_count": 5,
+    "candidate_id": "H-004",
+    "expectation_source_type": null,
+    "outcome_kind": "research_oos",
+    "overall_verdicts": null,
+    "pipeline_version": "post_wp_5b",
+    "row_type": "outcome_ledger_segment"
+  },
+  {
+    "artifact_count": 3,
+    "candidate_id": "H-004",
+    "expectation_source_type": null,
+    "outcome_kind": "research_oos",
+    "overall_verdicts": null,
+    "pipeline_version": "pre_wp_5b",
+    "row_type": "outcome_ledger_segment"
+  },
+  {
+    "artifact_count": 5,
+    "candidate_id": "H-005",
+    "expectation_source_type": null,
+    "outcome_kind": "research_oos",
+    "overall_verdicts": null,
+    "pipeline_version": "pre_wp_5b",
+    "row_type": "outcome_ledger_segment"
+  },
+  {
+    "artifact_count": 3,
+    "candidate_id": "H-006",
+    "expectation_source_type": null,
+    "outcome_kind": "research_oos",
+    "overall_verdicts": null,
+    "pipeline_version": "pre_wp_5b",
+    "row_type": "outcome_ledger_segment"
+  },
+  {
+    "artifact_count": 1,
+    "candidate_id": "H-007",
+    "expectation_source_type": null,
+    "outcome_kind": "research_oos",
+    "overall_verdicts": null,
+    "pipeline_version": "pre_wp_5b",
+    "row_type": "outcome_ledger_segment"
+  },
+  {
+    "artifact_count": 1,
+    "candidate_id": "H-008",
+    "expectation_source_type": null,
+    "outcome_kind": "research_oos",
+    "overall_verdicts": null,
+    "pipeline_version": "pre_wp_5b",
+    "row_type": "outcome_ledger_segment"
+  },
+  {
+    "artifact_count": 1,
+    "candidate_id": "H-009",
+    "expectation_source_type": null,
+    "outcome_kind": "research_oos",
+    "overall_verdicts": null,
+    "pipeline_version": "pre_wp_5b",
+    "row_type": "outcome_ledger_segment"
+  },
+  {
+    "artifact_count": 1,
+    "candidate_id": "H-010",
+    "expectation_source_type": null,
+    "outcome_kind": "research_oos",
+    "overall_verdicts": null,
+    "pipeline_version": "pre_wp_5b",
+    "row_type": "outcome_ledger_segment"
+  },
+  {
+    "artifact_count": 1,
+    "candidate_id": "H-012",
+    "expectation_source_type": null,
+    "outcome_kind": "research_oos",
+    "overall_verdicts": null,
+    "pipeline_version": "post_wp_5b",
+    "row_type": "outcome_ledger_segment"
+  },
+  {
+    "artifact_count": 3,
+    "candidate_id": "H-001",
+    "expectation_source_type": "d2_006_gates",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "none_met, partially_met",
+    "pipeline_version": "pre_wp_5b",
+    "row_type": "reconciliation_segment"
+  },
+  {
+    "artifact_count": 3,
+    "candidate_id": "H-001",
+    "expectation_source_type": "exp_success_criteria",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "none_met, partially_met",
+    "pipeline_version": "pre_wp_5b",
+    "row_type": "reconciliation_segment"
+  },
+  {
+    "artifact_count": 3,
+    "candidate_id": "H-002",
+    "expectation_source_type": "d2_006_gates",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "partially_met",
+    "pipeline_version": "pre_wp_5b",
+    "row_type": "reconciliation_segment"
+  },
+  {
+    "artifact_count": 3,
+    "candidate_id": "H-002",
+    "expectation_source_type": "exp_success_criteria",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "partially_met",
+    "pipeline_version": "pre_wp_5b",
+    "row_type": "reconciliation_segment"
+  },
+  {
+    "artifact_count": 3,
+    "candidate_id": "H-003",
+    "expectation_source_type": "d2_006_gates",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "partially_met",
+    "pipeline_version": "pre_wp_5b",
+    "row_type": "reconciliation_segment"
+  },
+  {
+    "artifact_count": 3,
+    "candidate_id": "H-003",
+    "expectation_source_type": "exp_success_criteria",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "partially_met",
+    "pipeline_version": "pre_wp_5b",
+    "row_type": "reconciliation_segment"
+  },
+  {
+    "artifact_count": 3,
+    "candidate_id": "H-004",
+    "expectation_source_type": "d2_006_gates",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "partially_met",
+    "pipeline_version": "post_wp_5b",
+    "row_type": "reconciliation_segment"
+  },
+  {
+    "artifact_count": 3,
+    "candidate_id": "H-004",
+    "expectation_source_type": "exp_success_criteria",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "insufficient_evidence",
+    "pipeline_version": "post_wp_5b",
+    "row_type": "reconciliation_segment"
+  },
+  {
+    "artifact_count": 3,
+    "candidate_id": "H-004",
+    "expectation_source_type": "d2_006_gates",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "partially_met",
+    "pipeline_version": "pre_wp_5b",
+    "row_type": "reconciliation_segment"
+  },
+  {
+    "artifact_count": 3,
+    "candidate_id": "H-004",
+    "expectation_source_type": "exp_success_criteria",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "partially_met",
+    "pipeline_version": "pre_wp_5b",
+    "row_type": "reconciliation_segment"
+  },
+  {
+    "artifact_count": 3,
+    "candidate_id": "H-005",
+    "expectation_source_type": "d2_006_gates",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "none_met, partially_met",
+    "pipeline_version": "pre_wp_5b",
+    "row_type": "reconciliation_segment"
+  },
+  {
+    "artifact_count": 3,
+    "candidate_id": "H-005",
+    "expectation_source_type": "exp_success_criteria",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "none_met, partially_met",
+    "pipeline_version": "pre_wp_5b",
+    "row_type": "reconciliation_segment"
+  },
+  {
+    "artifact_count": 3,
+    "candidate_id": "H-006",
+    "expectation_source_type": "d2_006_gates",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "none_met, partially_met",
+    "pipeline_version": "pre_wp_5b",
+    "row_type": "reconciliation_segment"
+  },
+  {
+    "artifact_count": 3,
+    "candidate_id": "H-006",
+    "expectation_source_type": "exp_success_criteria",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "none_met, partially_met",
+    "pipeline_version": "pre_wp_5b",
+    "row_type": "reconciliation_segment"
+  },
+  {
+    "artifact_count": 1,
+    "candidate_id": "H-007",
+    "expectation_source_type": "d2_006_gates",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "none_met",
+    "pipeline_version": "pre_wp_5b",
+    "row_type": "reconciliation_segment"
+  },
+  {
+    "artifact_count": 1,
+    "candidate_id": "H-007",
+    "expectation_source_type": "exp_success_criteria",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "none_met",
+    "pipeline_version": "pre_wp_5b",
+    "row_type": "reconciliation_segment"
+  },
+  {
+    "artifact_count": 1,
+    "candidate_id": "H-008",
+    "expectation_source_type": "d2_006_gates",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "none_met",
+    "pipeline_version": "pre_wp_5b",
+    "row_type": "reconciliation_segment"
+  },
+  {
+    "artifact_count": 1,
+    "candidate_id": "H-008",
+    "expectation_source_type": "exp_success_criteria",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "partially_met",
+    "pipeline_version": "pre_wp_5b",
+    "row_type": "reconciliation_segment"
+  },
+  {
+    "artifact_count": 1,
+    "candidate_id": "H-009",
+    "expectation_source_type": "d2_006_gates",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "none_met",
+    "pipeline_version": "pre_wp_5b",
+    "row_type": "reconciliation_segment"
+  },
+  {
+    "artifact_count": 1,
+    "candidate_id": "H-009",
+    "expectation_source_type": "exp_success_criteria",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "none_met",
+    "pipeline_version": "pre_wp_5b",
+    "row_type": "reconciliation_segment"
+  },
+  {
+    "artifact_count": 1,
+    "candidate_id": "H-010",
+    "expectation_source_type": "d2_006_gates",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "partially_met",
+    "pipeline_version": "pre_wp_5b",
+    "row_type": "reconciliation_segment"
+  },
+  {
+    "artifact_count": 1,
+    "candidate_id": "H-010",
+    "expectation_source_type": "exp_success_criteria",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "partially_met",
+    "pipeline_version": "pre_wp_5b",
+    "row_type": "reconciliation_segment"
+  },
+  {
+    "artifact_count": 1,
+    "candidate_id": "H-012",
+    "expectation_source_type": "d2_006_gates",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "none_met",
+    "pipeline_version": "post_wp_5b",
+    "row_type": "reconciliation_segment"
+  }
+]

@@ -1,0 +1,123 @@
+[
+  {
+    "candidate_id": null,
+    "candidate_ids": "H-001, H-002, H-003, H-004, H-005, H-006, H-007, H-008, H-009, H-010, H-012",
+    "distinct_candidates": 11,
+    "fail_count": 19,
+    "gate_id": "D2-006-G1: OOS Sharpe >= 1.0",
+    "gate_result_rows": 28,
+    "pass_count": 9,
+    "report_id": null,
+    "row_type": "all_reports_gate_pattern"
+  },
+  {
+    "candidate_id": null,
+    "candidate_ids": "H-001, H-002, H-003, H-004, H-005, H-006, H-012",
+    "distinct_candidates": 7,
+    "fail_count": 8,
+    "gate_id": "D2-006-G2: DSR > 1.0 at 95% CI",
+    "gate_result_rows": 17,
+    "pass_count": 9,
+    "report_id": null,
+    "row_type": "all_reports_gate_pattern"
+  },
+  {
+    "candidate_id": null,
+    "candidate_ids": "H-001, H-002, H-003, H-004, H-005, H-006, H-007, H-008, H-009, H-010",
+    "distinct_candidates": 10,
+    "fail_count": 6,
+    "gate_id": "D2-006-G2: DSR evaluator probability gate",
+    "gate_result_rows": 11,
+    "pass_count": 5,
+    "report_id": null,
+    "row_type": "all_reports_gate_pattern"
+  },
+  {
+    "candidate_id": null,
+    "candidate_ids": "H-001, H-002, H-003, H-004, H-005, H-006, H-007, H-008, H-009, H-010, H-012",
+    "distinct_candidates": 11,
+    "fail_count": 28,
+    "gate_id": "D2-006-G3: Per-fold max DD <= 20%",
+    "gate_result_rows": 28,
+    "pass_count": 0,
+    "report_id": null,
+    "row_type": "all_reports_gate_pattern"
+  },
+  {
+    "candidate_id": null,
+    "candidate_ids": "H-001, H-002, H-003, H-004, H-005, H-006, H-007, H-008, H-009, H-010, H-012",
+    "distinct_candidates": 11,
+    "fail_count": 21,
+    "gate_id": "D2-006-G4: Parameter sensitivity min_ratio >= 0.70",
+    "gate_result_rows": 28,
+    "pass_count": 7,
+    "report_id": null,
+    "row_type": "all_reports_gate_pattern"
+  },
+  {
+    "candidate_id": null,
+    "candidate_ids": "H-001, H-002, H-003, H-004, H-005, H-006, H-007, H-008, H-009, H-010, H-012",
+    "distinct_candidates": 11,
+    "fail_count": 19,
+    "gate_id": "D2-006-G5: Cost drag <= 50% of gross PnL",
+    "gate_result_rows": 28,
+    "pass_count": 9,
+    "report_id": null,
+    "row_type": "all_reports_gate_pattern"
+  },
+  {
+    "candidate_id": null,
+    "candidate_ids": "H-001, H-002, H-003, H-004, H-005, H-006, H-007, H-008, H-009, H-010",
+    "distinct_candidates": 10,
+    "fail_count": 23,
+    "gate_id": "D2-006-G6: No 90-day window > 60% of PnL",
+    "gate_result_rows": 27,
+    "pass_count": 4,
+    "report_id": null,
+    "row_type": "all_reports_gate_pattern"
+  },
+  {
+    "candidate_id": null,
+    "candidate_ids": "H-012",
+    "distinct_candidates": 1,
+    "fail_count": 1,
+    "gate_id": "D2-006-G6: No single 90-day window > 60% of total PnL",
+    "gate_result_rows": 1,
+    "pass_count": 0,
+    "report_id": null,
+    "row_type": "all_reports_gate_pattern"
+  },
+  {
+    "candidate_id": null,
+    "candidate_ids": "H-001, H-002, H-003, H-004, H-005, H-006, H-007, H-008, H-009, H-010, H-012",
+    "distinct_candidates": 11,
+    "fail_count": 0,
+    "gate_id": "D2-006-G7: <= 5 free parameters",
+    "gate_result_rows": 28,
+    "pass_count": 28,
+    "report_id": null,
+    "row_type": "all_reports_gate_pattern"
+  },
+  {
+    "candidate_id": null,
+    "candidate_ids": "H-001, H-002, H-003, H-004, H-005, H-006, H-007, H-008, H-009, H-010, H-012",
+    "distinct_candidates": 11,
+    "fail_count": 11,
+    "gate_id": "D2-006-G8: Walk-forward efficiency > 0.5",
+    "gate_result_rows": 28,
+    "pass_count": 17,
+    "report_id": null,
+    "row_type": "all_reports_gate_pattern"
+  },
+  {
+    "candidate_id": "H-012",
+    "candidate_ids": null,
+    "distinct_candidates": null,
+    "fail_count": 7,
+    "gate_id": null,
+    "gate_result_rows": 8,
+    "pass_count": 1,
+    "report_id": "REP-0032",
+    "row_type": "h012_report_gate_summary"
+  }
+]

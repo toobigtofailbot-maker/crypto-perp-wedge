@@ -1,0 +1,209 @@
+[
+  {
+    "candidate_id": "H-001",
+    "exact_segment_count": 3,
+    "expectation_source_type": "d2_006_gates",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "none_met, partially_met",
+    "pipeline_version": "pre_wp_5b",
+    "rec5_floor_satisfied": true
+  },
+  {
+    "candidate_id": "H-001",
+    "exact_segment_count": 3,
+    "expectation_source_type": "exp_success_criteria",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "none_met, partially_met",
+    "pipeline_version": "pre_wp_5b",
+    "rec5_floor_satisfied": true
+  },
+  {
+    "candidate_id": "H-002",
+    "exact_segment_count": 3,
+    "expectation_source_type": "d2_006_gates",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "partially_met",
+    "pipeline_version": "pre_wp_5b",
+    "rec5_floor_satisfied": true
+  },
+  {
+    "candidate_id": "H-002",
+    "exact_segment_count": 3,
+    "expectation_source_type": "exp_success_criteria",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "partially_met",
+    "pipeline_version": "pre_wp_5b",
+    "rec5_floor_satisfied": true
+  },
+  {
+    "candidate_id": "H-003",
+    "exact_segment_count": 3,
+    "expectation_source_type": "d2_006_gates",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "partially_met",
+    "pipeline_version": "pre_wp_5b",
+    "rec5_floor_satisfied": true
+  },
+  {
+    "candidate_id": "H-003",
+    "exact_segment_count": 3,
+    "expectation_source_type": "exp_success_criteria",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "partially_met",
+    "pipeline_version": "pre_wp_5b",
+    "rec5_floor_satisfied": true
+  },
+  {
+    "candidate_id": "H-004",
+    "exact_segment_count": 3,
+    "expectation_source_type": "d2_006_gates",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "partially_met",
+    "pipeline_version": "post_wp_5b",
+    "rec5_floor_satisfied": true
+  },
+  {
+    "candidate_id": "H-004",
+    "exact_segment_count": 3,
+    "expectation_source_type": "exp_success_criteria",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "insufficient_evidence",
+    "pipeline_version": "post_wp_5b",
+    "rec5_floor_satisfied": true
+  },
+  {
+    "candidate_id": "H-004",
+    "exact_segment_count": 3,
+    "expectation_source_type": "d2_006_gates",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "partially_met",
+    "pipeline_version": "pre_wp_5b",
+    "rec5_floor_satisfied": true
+  },
+  {
+    "candidate_id": "H-004",
+    "exact_segment_count": 3,
+    "expectation_source_type": "exp_success_criteria",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "partially_met",
+    "pipeline_version": "pre_wp_5b",
+    "rec5_floor_satisfied": true
+  },
+  {
+    "candidate_id": "H-005",
+    "exact_segment_count": 3,
+    "expectation_source_type": "d2_006_gates",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "none_met, partially_met",
+    "pipeline_version": "pre_wp_5b",
+    "rec5_floor_satisfied": true
+  },
+  {
+    "candidate_id": "H-005",
+    "exact_segment_count": 3,
+    "expectation_source_type": "exp_success_criteria",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "none_met, partially_met",
+    "pipeline_version": "pre_wp_5b",
+    "rec5_floor_satisfied": true
+  },
+  {
+    "candidate_id": "H-006",
+    "exact_segment_count": 3,
+    "expectation_source_type": "d2_006_gates",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "none_met, partially_met",
+    "pipeline_version": "pre_wp_5b",
+    "rec5_floor_satisfied": true
+  },
+  {
+    "candidate_id": "H-006",
+    "exact_segment_count": 3,
+    "expectation_source_type": "exp_success_criteria",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "none_met, partially_met",
+    "pipeline_version": "pre_wp_5b",
+    "rec5_floor_satisfied": true
+  },
+  {
+    "candidate_id": "H-007",
+    "exact_segment_count": 1,
+    "expectation_source_type": "d2_006_gates",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "none_met",
+    "pipeline_version": "pre_wp_5b",
+    "rec5_floor_satisfied": false
+  },
+  {
+    "candidate_id": "H-007",
+    "exact_segment_count": 1,
+    "expectation_source_type": "exp_success_criteria",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "none_met",
+    "pipeline_version": "pre_wp_5b",
+    "rec5_floor_satisfied": false
+  },
+  {
+    "candidate_id": "H-008",
+    "exact_segment_count": 1,
+    "expectation_source_type": "d2_006_gates",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "none_met",
+    "pipeline_version": "pre_wp_5b",
+    "rec5_floor_satisfied": false
+  },
+  {
+    "candidate_id": "H-008",
+    "exact_segment_count": 1,
+    "expectation_source_type": "exp_success_criteria",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "partially_met",
+    "pipeline_version": "pre_wp_5b",
+    "rec5_floor_satisfied": false
+  },
+  {
+    "candidate_id": "H-009",
+    "exact_segment_count": 1,
+    "expectation_source_type": "d2_006_gates",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "none_met",
+    "pipeline_version": "pre_wp_5b",
+    "rec5_floor_satisfied": false
+  },
+  {
+    "candidate_id": "H-009",
+    "exact_segment_count": 1,
+    "expectation_source_type": "exp_success_criteria",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "none_met",
+    "pipeline_version": "pre_wp_5b",
+    "rec5_floor_satisfied": false
+  },
+  {
+    "candidate_id": "H-010",
+    "exact_segment_count": 1,
+    "expectation_source_type": "d2_006_gates",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "partially_met",
+    "pipeline_version": "pre_wp_5b",
+    "rec5_floor_satisfied": false
+  },
+  {
+    "candidate_id": "H-010",
+    "exact_segment_count": 1,
+    "expectation_source_type": "exp_success_criteria",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "partially_met",
+    "pipeline_version": "pre_wp_5b",
+    "rec5_floor_satisfied": false
+  },
+  {
+    "candidate_id": "H-012",
+    "exact_segment_count": 1,
+    "expectation_source_type": "d2_006_gates",
+    "outcome_kind": "research_oos",
+    "overall_verdicts": "none_met",
+    "pipeline_version": "post_wp_5b",
+    "rec5_floor_satisfied": false
+  }
+]

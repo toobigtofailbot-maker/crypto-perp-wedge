@@ -1,0 +1,32 @@
+[
+  {
+    "metric": "wp_s2c_119_reference_concluded_count",
+    "numeric_value": 10,
+    "text_value": null
+  },
+  {
+    "metric": "current_concluded_candidate_count",
+    "numeric_value": 11,
+    "text_value": null
+  },
+  {
+    "metric": "concluded_candidate_delta_since_wp_s2c_119",
+    "numeric_value": 1,
+    "text_value": null
+  },
+  {
+    "metric": "h011_reserved_draft_rows",
+    "numeric_value": 1,
+    "text_value": null
+  },
+  {
+    "metric": "h012_concluded_rows",
+    "numeric_value": 1,
+    "text_value": null
+  },
+  {
+    "metric": "h012_artifact_chain",
+    "numeric_value": null,
+    "text_value": "H-012 | CONCLUDED | NO-GO | baseline_tested | trend_following | 15m | EXP-0012 | REP-0032 | OL-0032 | REC-0051 | research/decisions/DEC-0011.md"
+  }
+]

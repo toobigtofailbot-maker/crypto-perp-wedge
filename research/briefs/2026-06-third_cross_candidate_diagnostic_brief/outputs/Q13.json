@@ -1,0 +1,32 @@
+[
+  {
+    "view_category": "advisory_shadow",
+    "view_count": 12,
+    "view_names": "v_agent_outputs_latest, v_agent_outputs_overview, v_bucket_mappings_latest, v_bucket_mappings_overview, v_macro_window_agent_outputs_latest, v_macro_window_agent_outputs_overview, v_overlay_shadow_agreement_summary, v_overlay_shadow_logs_latest, v_overlay_shadow_logs_overview, v_overlay_shadow_override_audit, v_shadow_signal_summaries_overview, v_shadow_signal_summaries_v2_overview"
+  },
+  {
+    "view_category": "candidate_experiment",
+    "view_count": 12,
+    "view_names": "v_candidate_by_family, v_candidate_overview, v_concluded_candidates, v_experiment_instances, v_gate_results_flat, v_information_inputs, v_is_metrics_by_candidate, v_oos_metrics_by_candidate, v_outcome_ledger_candidate_pipeline_summary, v_pre_gate_advisory_snapshots_latest, v_pre_gate_advisory_snapshots_overview, v_reconciliation_candidate_pipeline_summary"
+  },
+  {
+    "view_category": "integrity",
+    "view_count": 32,
+    "view_names": "v_integrity_agent_output_refs, v_integrity_bucket_mapping_refs, v_integrity_candidate_refs, v_integrity_decision_refs, v_integrity_lifecycle_approval_completeness, v_integrity_lifecycle_change_refs, v_integrity_lifecycle_fast_track_completeness, v_integrity_lifecycle_transition_graph, v_integrity_macro_window_agent_output_refs, v_integrity_outcome_ledger_derivation, v_integrity_outcome_ledger_refs, v_integrity_outcome_ledger_scope, v_integrity_outcome_ledger_window_bounds, v_integrity_overlay_shadow_refs, v_integrity_plan_report_pairs, v_integrity_pre_gate_advisory_snapshot_refs, v_integrity_r2s_approval_candidate_refs, v_integrity_r2s_rec5_candidate_consistency, v_integrity_reconciliation_derivation, v_integrity_reconciliation_expectation_source, v_integrity_reconciliation_realized_metrics, v_integrity_reconciliation_refs, v_integrity_reconciliation_scope, v_integrity_release_refs, v_integrity_s2p_approval_candidate_refs, v_integrity_s2p_shadow_evidence_candidate_consistency, v_integrity_s2p_shadow_evidence_refs, v_integrity_scope6_authority_flags, v_integrity_scope6_preservation_flags, v_integrity_shadow_evidence_candidate_refs, v_integrity_shadow_signal_summary_derivation, v_integrity_shadow_signal_summary_v2_derivation"
+  },
+  {
+    "view_category": "lifecycle_evidence",
+    "view_count": 7,
+    "view_names": "v_decision_changes_overview, v_lifecycle_change_overview, v_lifecycle_state_transitions, v_outcome_ledger_overview, v_reconciliation_overview, v_release_notes_overview, v_stage_transitions"
+  },
+  {
+    "view_category": "scope6_base_link",
+    "view_count": 5,
+    "view_names": "v_r2s_approval_records, v_s2p_approval_records, v_s2p_shadow_evidence_links, v_scope6_candidate_packaging_overview, v_shadow_evidence_retention"
+  },
+  {
+    "view_category": "total_v_views",
+    "view_count": 68,
+    "view_names": "v_agent_outputs_latest, v_agent_outputs_overview, v_bucket_mappings_latest, v_bucket_mappings_overview, v_candidate_by_family, v_candidate_overview, v_concluded_candidates, v_decision_changes_overview, v_experiment_instances, v_gate_results_flat, v_information_inputs, v_integrity_agent_output_refs, v_integrity_bucket_mapping_refs, v_integrity_candidate_refs, v_integrity_decision_refs, v_integrity_lifecycle_approval_completeness, v_integrity_lifecycle_change_refs, v_integrity_lifecycle_fast_track_completeness, v_integrity_lifecycle_transition_graph, v_integrity_macro_window_agent_output_refs, v_integrity_outcome_ledger_derivation, v_integrity_outcome_ledger_refs, v_integrity_outcome_ledger_scope, v_integrity_outcome_ledger_window_bounds, v_integrity_overlay_shadow_refs, v_integrity_plan_report_pairs, v_integrity_pre_gate_advisory_snapshot_refs, v_integrity_r2s_approval_candidate_refs, v_integrity_r2s_rec5_candidate_consistency, v_integrity_reconciliation_derivation, v_integrity_reconciliation_expectation_source, v_integrity_reconciliation_realized_metrics, v_integrity_reconciliation_refs, v_integrity_reconciliation_scope, v_integrity_release_refs, v_integrity_s2p_approval_candidate_refs, v_integrity_s2p_shadow_evidence_candidate_consistency, v_integrity_s2p_shadow_evidence_refs, v_integrity_scope6_authority_flags, v_integrity_scope6_preservation_flags, v_integrity_shadow_evidence_candidate_refs, v_integrity_shadow_signal_summary_derivation, v_integrity_shadow_signal_summary_v2_derivation, v_is_metrics_by_candidate, v_lifecycle_change_overview, v_lifecycle_state_transitions, v_macro_window_agent_outputs_latest, v_macro_window_agent_outputs_overview, v_oos_metrics_by_candidate, v_outcome_ledger_candidate_pipeline_summary, v_outcome_ledger_overview, v_overlay_shadow_agreement_summary, v_overlay_shadow_logs_latest, v_overlay_shadow_logs_overview, v_overlay_shadow_override_audit, v_pre_gate_advisory_snapshots_latest, v_pre_gate_advisory_snapshots_overview, v_r2s_approval_records, v_reconciliation_candidate_pipeline_summary, v_reconciliation_overview, v_release_notes_overview, v_s2p_approval_records, v_s2p_shadow_evidence_links, v_scope6_candidate_packaging_overview, v_shadow_evidence_retention, v_shadow_signal_summaries_overview, v_shadow_signal_summaries_v2_overview, v_stage_transitions"
+  }
+]

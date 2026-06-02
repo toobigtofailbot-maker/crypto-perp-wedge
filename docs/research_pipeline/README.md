@@ -369,6 +369,8 @@ decision records, schemas, validators, or locked baseline documents.
   DSL/spec consolidation and WP-S2c-151 decision-prep questions; design surface.
 - `2026-06-strategy_dsl_locking_decision.md` - Karl-gated Strategy DSL/spec
   locking decision; decision surface.
+- `2026-06-concept_ingestion_design_opening.md` - concept-ingestion design
+  opening for lab idea-to-concept flow; design surface.
 - `2026-04-automation_build_operating_model.md` - automation build operating
   model; operating-model surface.
 - `2026-04-research_automation_architecture_map.md` - research automation

@@ -371,6 +371,8 @@ decision records, schemas, validators, or locked baseline documents.
   locking decision; decision surface.
 - `2026-06-concept_ingestion_design_opening.md` - concept-ingestion design
   opening for lab idea-to-concept flow; design surface.
+- `2026-06-concept_to_spec_authoring_approval_discipline.md` -
+  concept-to-Strategy-Spec authoring and approval discipline; design surface.
 - `2026-04-automation_build_operating_model.md` - automation build operating
   model; operating-model surface.
 - `2026-04-research_automation_architecture_map.md` - research automation

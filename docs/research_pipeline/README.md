@@ -361,6 +361,8 @@ decision records, schemas, validators, or locked baseline documents.
   Strategy Research Lab target operating-model design opening; design surface.
 - `2026-06-strategy_research_lab_target_operating_model.md` - Strategy
   Research Lab substantive target operating model; design surface.
+- `2026-06-strategy_dsl_design_opening.md` - Strategy DSL design opening for
+  lab strategy-spec representation; design surface.
 - `2026-04-automation_build_operating_model.md` - automation build operating
   model; operating-model surface.
 - `2026-04-research_automation_architecture_map.md` - research automation

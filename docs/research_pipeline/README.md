@@ -379,6 +379,8 @@ decision records, schemas, validators, or locked baseline documents.
   pre-registered variant populations; design surface.
 - `2026-06-result_population_storage_design.md` - result population and
   storage design for future lab sweep outputs; design surface.
+- `2026-06-variant_storage_consolidation.md` - variant/storage consolidation
+  and WP-S2c-158 decision-prep questions; design surface.
 - `2026-04-automation_build_operating_model.md` - automation build operating
   model; operating-model surface.
 - `2026-04-research_automation_architecture_map.md` - research automation

@@ -375,6 +375,8 @@ decision records, schemas, validators, or locked baseline documents.
   concept-to-Strategy-Spec authoring and approval discipline; design surface.
 - `2026-06-variant_generation_design_opening.md` - variant-generation design
   opening for bounded Strategy Spec-derived populations; design surface.
+- `2026-06-sweep_orchestration_design.md` - sweep-orchestration design for
+  pre-registered variant populations; design surface.
 - `2026-04-automation_build_operating_model.md` - automation build operating
   model; operating-model surface.
 - `2026-04-research_automation_architecture_map.md` - research automation

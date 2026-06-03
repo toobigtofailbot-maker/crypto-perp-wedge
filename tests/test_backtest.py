@@ -668,3 +668,143 @@ def test_funding_event_at_entry_bar_timestamp_remains_excluded(tmp_path):
 def test_invalid_funding_notional_mode_raises(tmp_path):
     with pytest.raises(ValueError, match="funding_notional_mode"):
         _funding_notional_fixture(tmp_path, funding_notional_mode="index_price")
+
+
+# ---------------------------------------------------------------------------
+# test_fill_size_liquidity_assumptions
+# ---------------------------------------------------------------------------
+
+
+def _size_liquidity_fixture(tmp_path: Path, *, volume_at_entry=1_000.0, **kwargs):
+    """Run a one-round-trip fixture with deterministic funding and costs."""
+    dates = pd.date_range("2020-01-01", periods=5, freq="1h", tz="UTC")
+    ohlcv = pd.DataFrame(
+        {
+            "open": [100.0, 100.0, 100.0, 120.0, 130.0],
+            "high": [100.0, 110.0, 120.0, 130.0, 140.0],
+            "low": [100.0, 90.0, 95.0, 115.0, 125.0],
+            "close": [100.0, 110.0, 120.0, 130.0, 140.0],
+            "volume": [1_000.0, 1_000.0, volume_at_entry, 1_000.0, 1_000.0],
+        },
+        index=dates,
+    )
+    signal = pd.Series([0.0, 1.0, 1.0, 0.0, 0.0], index=dates)
+    funding = pd.DataFrame(
+        {"funding_rate": [0.01]},
+        index=pd.DatetimeIndex(
+            [pd.Timestamp("2020-01-01 02:30:00", tz="UTC")],
+            tz="UTC",
+        ),
+    )
+    return run_backtest(
+        signal=signal,
+        ohlcv=ohlcv,
+        funding=funding,
+        fee_bps_taker=10.0,
+        fee_bps_maker=2.0,
+        slippage_bps=1.0,
+        initial_equity=10_000.0,
+        stream="klines",
+        interval="1h",
+        gaps_path=_no_gaps_path(tmp_path),
+        **kwargs,
+    )
+
+
+def test_default_fill_size_liquidity_assumptions_preserve_outcomes(tmp_path):
+    implicit_default = _size_liquidity_fixture(tmp_path)
+    explicit_default = _size_liquidity_fixture(
+        tmp_path,
+        order_size=1.0,
+        fill_mode="complete",
+        liquidity_cap_fraction=None,
+        slippage_model="fixed_bps",
+    )
+
+    pd.testing.assert_series_equal(
+        implicit_default.equity_curve,
+        explicit_default.equity_curve,
+    )
+    pd.testing.assert_series_equal(
+        implicit_default.per_bar_pnl,
+        explicit_default.per_bar_pnl,
+    )
+    pd.testing.assert_frame_equal(
+        implicit_default.trades_df,
+        explicit_default.trades_df,
+    )
+    assert implicit_default.fees_paid == explicit_default.fees_paid
+    assert implicit_default.slippage_paid == explicit_default.slippage_paid
+    assert implicit_default.funding_paid == explicit_default.funding_paid
+    assert implicit_default.realized_pnl == explicit_default.realized_pnl
+    assert implicit_default.unrealized_pnl == explicit_default.unrealized_pnl
+    assert implicit_default.liquidated == explicit_default.liquidated
+    assert implicit_default.params["order_size"] == 1.0
+    assert implicit_default.params["fill_mode"] == "complete"
+    assert implicit_default.params["liquidity_cap_fraction"] is None
+    assert implicit_default.params["slippage_model"] == "fixed_bps"
+
+
+@pytest.mark.parametrize(
+    "kwargs,match",
+    [
+        ({"order_size": 0.0}, "order_size"),
+        ({"order_size": -1.0}, "order_size"),
+        ({"fill_mode": "partial"}, "fill_mode"),
+        ({"liquidity_cap_fraction": 0.0}, "liquidity_cap_fraction"),
+        ({"liquidity_cap_fraction": -0.1}, "liquidity_cap_fraction"),
+        ({"liquidity_cap_fraction": 1.1}, "liquidity_cap_fraction"),
+        ({"slippage_model": "impact"}, "slippage_model"),
+    ],
+)
+def test_invalid_fill_size_liquidity_assumptions_raise(tmp_path, kwargs, match):
+    with pytest.raises(ValueError, match=match):
+        _size_liquidity_fixture(tmp_path, **kwargs)
+
+
+def test_order_size_two_scales_pnl_costs_funding_and_trade_notional(tmp_path):
+    one = _size_liquidity_fixture(tmp_path, order_size=1.0)
+    two = _size_liquidity_fixture(tmp_path, order_size=2.0)
+
+    assert abs(one.realized_pnl - 30.0) < 1e-12
+    assert abs(two.realized_pnl - 60.0) < 1e-12
+    assert abs(two.realized_pnl - one.realized_pnl * 2.0) < 1e-12
+    assert abs(two.fees_paid - one.fees_paid * 2.0) < 1e-12
+    assert abs(two.slippage_paid - one.slippage_paid * 2.0) < 1e-12
+    assert abs(two.funding_paid - one.funding_paid * 2.0) < 1e-12
+    assert abs(two.trades_df.loc[0, "gross_pnl"] - one.trades_df.loc[0, "gross_pnl"] * 2.0) < 1e-12
+    assert abs(two.trades_df.loc[0, "net_pnl"] - one.trades_df.loc[0, "net_pnl"] * 2.0) < 1e-12
+    assert two.trades_df.loc[0, "size"] == 2.0
+    assert two.trades_df.loc[0, "entry_notional"] == 200.0
+    assert two.trades_df.loc[0, "exit_notional"] == 260.0
+    assert two.trades_df.loc[0, "notional"] == 400.0
+    np.testing.assert_allclose(
+        (two.equity_curve - 10_000.0).tolist(),
+        ((one.equity_curve - 10_000.0) * 2.0).tolist(),
+        rtol=0,
+        atol=1e-9,
+    )
+
+
+def test_liquidity_capacity_allows_sufficient_complete_fill(tmp_path):
+    capped = _size_liquidity_fixture(
+        tmp_path,
+        order_size=2.0,
+        volume_at_entry=5.0,
+        liquidity_cap_fraction=0.5,
+    )
+    uncapped = _size_liquidity_fixture(tmp_path, order_size=2.0, volume_at_entry=5.0)
+
+    pd.testing.assert_series_equal(capped.equity_curve, uncapped.equity_curve)
+    pd.testing.assert_frame_equal(capped.trades_df, uncapped.trades_df)
+    assert capped.params["liquidity_cap_fraction"] == 0.5
+
+
+def test_liquidity_capacity_rejects_without_partial_fill(tmp_path):
+    with pytest.raises(ValueError, match="liquidity capacity"):
+        _size_liquidity_fixture(
+            tmp_path,
+            order_size=3.0,
+            volume_at_entry=5.0,
+            liquidity_cap_fraction=0.5,
+        )

@@ -151,16 +151,58 @@ def _funding_notional(
     *,
     entry_fill_price: float,
     current_close_price: float,
+    order_size: float,
 ) -> float:
-    """Return deterministic one-contract notional for funding cashflows."""
+    """Return deterministic notional for funding cashflows."""
     if mode == "entry_price":
-        return abs(entry_fill_price)
+        return abs(entry_fill_price * order_size)
     if mode == "mark_price":
-        return abs(current_close_price)
+        return abs(current_close_price * order_size)
     raise ValueError(
         "funding_notional_mode must be 'entry_price' or 'mark_price', "
         f"got {mode!r}"
     )
+
+
+def _validate_fill_size_assumptions(
+    *,
+    order_size: float,
+    fill_mode: str,
+    liquidity_cap_fraction: Optional[float],
+    slippage_model: str,
+) -> None:
+    """Validate deterministic fill, size, liquidity, and slippage assumptions."""
+    if order_size <= 0:
+        raise ValueError("order_size must be positive")
+    if fill_mode != "complete":
+        raise ValueError(f"fill_mode must be 'complete', got {fill_mode!r}")
+    if liquidity_cap_fraction is not None and not (0 < liquidity_cap_fraction <= 1.0):
+        raise ValueError("liquidity_cap_fraction must be positive and <= 1.0")
+    if slippage_model != "fixed_bps":
+        raise ValueError(f"slippage_model must be 'fixed_bps', got {slippage_model!r}")
+
+
+def _check_liquidity_capacity(
+    *,
+    order_size: float,
+    liquidity_cap_fraction: Optional[float],
+    volume_at_fill_bar: float,
+    fill_bar: pd.Timestamp,
+) -> None:
+    """Fail fast when an opt-in deterministic volume-share cap is exceeded."""
+    if liquidity_cap_fraction is None:
+        return
+    if not math.isfinite(volume_at_fill_bar) or volume_at_fill_bar < 0:
+        raise ValueError(
+            "volume_at_fill_bar must be finite and non-negative when "
+            "liquidity_cap_fraction is provided"
+        )
+    capacity_units = volume_at_fill_bar * liquidity_cap_fraction
+    if order_size > capacity_units:
+        raise ValueError(
+            "order_size exceeds deterministic liquidity capacity at "
+            f"{fill_bar}: order_size={order_size}, capacity_units={capacity_units}"
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -187,6 +229,10 @@ def run_backtest(
     lot_size: Optional[float] = None,
     min_notional: Optional[float] = None,
     funding_notional_mode: str = "entry_price",
+    order_size: float = 1.0,
+    fill_mode: str = "complete",
+    liquidity_cap_fraction: Optional[float] = None,
+    slippage_model: str = "fixed_bps",
 ) -> BacktestResult:
     """Run a vectorised bar-by-bar backtest.
 
@@ -224,6 +270,17 @@ def run_backtest(
         preserves existing behavior by using the entry fill price.
         ``"mark_price"`` uses the current bar close where the funding event is
         applied. No external mark/index data is consumed.
+    order_size:
+        Deterministic fixed contract size. ``1.0`` preserves existing behavior.
+    fill_mode:
+        Deterministic fill assumption. Only ``"complete"`` is supported here.
+    liquidity_cap_fraction:
+        Optional deterministic volume-share capacity cap. When provided, each
+        attempted complete fill must have ``order_size <= volume * cap`` or the
+        run fails fast. No partial fills are modeled.
+    slippage_model:
+        Deterministic slippage model disclosure. Only ``"fixed_bps"`` is
+        supported here and preserves existing fixed bps slippage behavior.
 
     Returns
     -------
@@ -250,6 +307,13 @@ def run_backtest(
         funding_notional_mode,
         entry_fill_price=1.0,
         current_close_price=1.0,
+        order_size=1.0,
+    )
+    _validate_fill_size_assumptions(
+        order_size=order_size,
+        fill_mode=fill_mode,
+        liquidity_cap_fraction=liquidity_cap_fraction,
+        slippage_model=slippage_model,
     )
 
     # ------------------------------------------------------------------
@@ -300,9 +364,10 @@ def run_backtest(
     sig_vals = signal.values
     open_prices = ohlcv["open"].values
     close_prices = ohlcv["close"].values
+    volumes = ohlcv["volume"].values
 
     equity = initial_equity
-    position = 0          # current position: +1, -1, or 0
+    position = 0          # current direction: +1, -1, or 0
     entry_price = 0.0
     entry_bar_idx = -1
 
@@ -320,8 +385,6 @@ def run_backtest(
     liquidation_timestamp: Optional[pd.Timestamp] = None
 
     # We need to track position value for funding calculations.
-    # Assume 1-contract sizing: position_value = abs(position) * fill_price.
-    # This keeps the math clean; callers can scale to notional externally.
     entry_fill_price = 0.0
 
     for i in range(n):
@@ -349,6 +412,7 @@ def run_backtest(
                         funding_notional_mode,
                         entry_fill_price=entry_fill_price,
                         current_close_price=close_prices[i],
+                        order_size=order_size,
                     )
                     funding_cashflow = -position * rate * notional
                     equity += funding_cashflow
@@ -357,7 +421,7 @@ def run_backtest(
         # ---- Unrealized PnL on open position at bar close ----
         unrealized = 0.0
         if position != 0:
-            unrealized = position * (close_prices[i] - entry_fill_price)
+            unrealized = position * (close_prices[i] - entry_fill_price) * order_size
 
         # ---- Determine fill for this bar ----
         # Signal at bar i-1 -> fill at open of bar i (next_bar_open)
@@ -365,12 +429,20 @@ def run_backtest(
             desired = int(sig_vals[i - 1])
             if desired != position:
                 fill_price = open_prices[i]
+                _check_liquidity_capacity(
+                    order_size=order_size,
+                    liquidity_cap_fraction=liquidity_cap_fraction,
+                    volume_at_fill_bar=float(volumes[i]),
+                    fill_bar=bar_ts,
+                )
 
                 # ---- Close existing position if any ----
                 if position != 0:
-                    realized_this_trade = position * (fill_price - entry_fill_price)
-                    fee_exit = _bps_cost(fill_price, 1.0, exit_fee_bps)
-                    slip_exit = _bps_cost(fill_price, 1.0, slippage_bps)
+                    realized_this_trade = (
+                        position * (fill_price - entry_fill_price) * order_size
+                    )
+                    fee_exit = _bps_cost(fill_price, order_size, exit_fee_bps)
+                    slip_exit = _bps_cost(fill_price, order_size, slippage_bps)
 
                     equity += realized_this_trade - fee_exit - slip_exit
                     total_fees += fee_exit
@@ -383,6 +455,10 @@ def run_backtest(
                         "direction": position,
                         "entry_price": entry_fill_price,
                         "exit_price": fill_price,
+                        "size": order_size,
+                        "entry_notional": abs(entry_fill_price * order_size),
+                        "exit_notional": abs(fill_price * order_size),
+                        "notional": abs(entry_fill_price * order_size) * 2.0,
                         "gross_pnl": realized_this_trade,
                         "fees": fee_exit,
                         "slippage": slip_exit,
@@ -393,8 +469,8 @@ def run_backtest(
 
                 # ---- Open new position if desired != 0 ----
                 if desired != 0:
-                    fee_entry = _bps_cost(fill_price, 1.0, entry_fee_bps)
-                    slip_entry = _bps_cost(fill_price, 1.0, slippage_bps)
+                    fee_entry = _bps_cost(fill_price, order_size, entry_fee_bps)
+                    slip_entry = _bps_cost(fill_price, order_size, slippage_bps)
                     equity -= fee_entry + slip_entry
                     total_fees += fee_entry
                     total_slippage += slip_entry
@@ -406,7 +482,7 @@ def run_backtest(
 
         # ---- Recompute unrealized after any fill ----
         if position != 0:
-            unrealized = position * (close_prices[i] - entry_fill_price)
+            unrealized = position * (close_prices[i] - entry_fill_price) * order_size
         else:
             unrealized = 0.0
 
@@ -418,7 +494,9 @@ def run_backtest(
 
             if position != 0:
                 liquidation_realized = -equity
-                liquidation_price = entry_fill_price + (liquidation_realized / position)
+                liquidation_price = entry_fill_price + (
+                    liquidation_realized / (position * order_size)
+                )
                 total_realized += liquidation_realized
                 trades.append({
                     "entry_bar": bars[entry_bar_idx],
@@ -426,6 +504,10 @@ def run_backtest(
                     "direction": position,
                     "entry_price": entry_fill_price,
                     "exit_price": liquidation_price,
+                    "size": order_size,
+                    "entry_notional": abs(entry_fill_price * order_size),
+                    "exit_notional": abs(liquidation_price * order_size),
+                    "notional": abs(entry_fill_price * order_size) * 2.0,
                     "gross_pnl": liquidation_realized,
                     "fees": 0.0,
                     "slippage": 0.0,
@@ -452,7 +534,7 @@ def run_backtest(
     final_unrealized = 0.0
     if position != 0:
         last_close = close_prices[-1]
-        final_unrealized = position * (last_close - entry_fill_price)
+        final_unrealized = position * (last_close - entry_fill_price) * order_size
 
     equity_series = pd.Series(equity_curve_vals, index=bars, name="equity")
     pnl_series = pd.Series(per_bar_pnl_vals, index=bars, name="pnl")
@@ -461,6 +543,7 @@ def run_backtest(
         columns=[
             "entry_bar", "exit_bar", "direction",
             "entry_price", "exit_price",
+            "size", "entry_notional", "exit_notional", "notional",
             "gross_pnl", "fees", "slippage", "net_pnl",
         ]
     )
@@ -471,7 +554,11 @@ def run_backtest(
         "entry_fee_side": entry_fee_side,
         "exit_fee_side": exit_fee_side,
         "slippage_bps": slippage_bps,
+        "slippage_model": slippage_model,
         "funding_notional_mode": funding_notional_mode,
+        "order_size": order_size,
+        "fill_mode": fill_mode,
+        "liquidity_cap_fraction": liquidity_cap_fraction,
         "initial_equity": initial_equity,
         "execution": execution,
         "stream": stream,

@@ -156,6 +156,38 @@ def test_max_drawdown_no_drawdown():
     assert trough_ts is None
 
 
+def test_turnover_preserves_legacy_entry_price_behavior():
+    equity = _make_equity([100.0, 100.0, 100.0])
+    trades = pd.DataFrame({"entry_price": [100.0, 200.0]})
+
+    assert turnover(trades, equity) == 6.0
+
+
+def test_turnover_uses_trade_notional_when_present():
+    equity = _make_equity([100.0, 100.0, 100.0])
+    trades = pd.DataFrame(
+        {
+            "entry_price": [100.0, 200.0],
+            "notional": [300.0, 700.0],
+        }
+    )
+
+    assert turnover(trades, equity) == 10.0
+
+
+def test_turnover_uses_entry_exit_notional_when_round_trip_notional_absent():
+    equity = _make_equity([100.0, 100.0, 100.0])
+    trades = pd.DataFrame(
+        {
+            "entry_price": [100.0, 200.0],
+            "entry_notional": [100.0, 400.0],
+            "exit_notional": [150.0, 450.0],
+        }
+    )
+
+    assert turnover(trades, equity) == 11.0
+
+
 # ---------------------------------------------------------------------------
 # test_dsr_overfit_case
 # ---------------------------------------------------------------------------

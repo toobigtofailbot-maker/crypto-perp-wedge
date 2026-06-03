@@ -205,6 +205,32 @@ def _check_liquidity_capacity(
         )
 
 
+def _validate_liquidation_assumptions(
+    *,
+    liquidation_mode: str,
+    maintenance_margin_rate: Optional[float],
+    mark_price_source: str,
+) -> None:
+    """Validate deterministic liquidation and mark-source assumptions."""
+    if liquidation_mode not in {"zero_equity", "maintenance_margin"}:
+        raise ValueError(
+            "liquidation_mode must be 'zero_equity' or 'maintenance_margin', "
+            f"got {liquidation_mode!r}"
+        )
+    if mark_price_source != "close":
+        raise ValueError(
+            "mark_price_source must be 'close'; external mark/index data is "
+            f"not supported here, got {mark_price_source!r}"
+        )
+    if maintenance_margin_rate is not None and not (0 < maintenance_margin_rate < 1.0):
+        raise ValueError("maintenance_margin_rate must be positive and < 1.0")
+    if liquidation_mode == "maintenance_margin" and maintenance_margin_rate is None:
+        raise ValueError(
+            "maintenance_margin_rate is required when "
+            "liquidation_mode='maintenance_margin'"
+        )
+
+
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
@@ -233,6 +259,9 @@ def run_backtest(
     fill_mode: str = "complete",
     liquidity_cap_fraction: Optional[float] = None,
     slippage_model: str = "fixed_bps",
+    liquidation_mode: str = "zero_equity",
+    maintenance_margin_rate: Optional[float] = None,
+    mark_price_source: str = "close",
 ) -> BacktestResult:
     """Run a vectorised bar-by-bar backtest.
 
@@ -281,6 +310,17 @@ def run_backtest(
     slippage_model:
         Deterministic slippage model disclosure. Only ``"fixed_bps"`` is
         supported here and preserves existing fixed bps slippage behavior.
+    liquidation_mode:
+        Deterministic liquidation assumption. ``"zero_equity"`` preserves
+        existing ruin semantics. ``"maintenance_margin"`` enables an opt-in
+        research-stage maintenance-margin approximation.
+    maintenance_margin_rate:
+        Positive rate below 1.0 required for ``"maintenance_margin"`` mode.
+        The approximation triggers when close-marked equity is less than or
+        equal to ``abs(close * order_size) * maintenance_margin_rate``.
+    mark_price_source:
+        Deterministic mark-source disclosure. Only ``"close"`` is supported in
+        this package, preserving existing OHLCV close marking.
 
     Returns
     -------
@@ -314,6 +354,11 @@ def run_backtest(
         fill_mode=fill_mode,
         liquidity_cap_fraction=liquidity_cap_fraction,
         slippage_model=slippage_model,
+    )
+    _validate_liquidation_assumptions(
+        liquidation_mode=liquidation_mode,
+        maintenance_margin_rate=maintenance_margin_rate,
+        mark_price_source=mark_price_source,
     )
 
     # ------------------------------------------------------------------
@@ -486,8 +531,20 @@ def run_backtest(
         else:
             unrealized = 0.0
 
+        mark_price = close_prices[i]
         marked_equity = equity + unrealized
-        if marked_equity <= 0.0:
+        maintenance_margin = 0.0
+        if liquidation_mode == "maintenance_margin":
+            maintenance_margin = abs(mark_price * order_size) * float(
+                maintenance_margin_rate
+            )
+
+        liquidation_triggered = (
+            marked_equity <= 0.0
+            if liquidation_mode == "zero_equity"
+            else marked_equity <= maintenance_margin
+        )
+        if liquidation_triggered:
             liquidated = True
             liquidation_timestamp = bar_ts
             prev_equity = equity_curve_vals[i - 1] if i > 0 else initial_equity
@@ -512,6 +569,10 @@ def run_backtest(
                     "fees": 0.0,
                     "slippage": 0.0,
                     "net_pnl": liquidation_realized,
+                    "liquidation_mode": liquidation_mode,
+                    "maintenance_margin": maintenance_margin,
+                    "mark_price_source": mark_price_source,
+                    "mark_price": mark_price,
                 })
                 position = 0
                 entry_fill_price = 0.0
@@ -559,6 +620,9 @@ def run_backtest(
         "order_size": order_size,
         "fill_mode": fill_mode,
         "liquidity_cap_fraction": liquidity_cap_fraction,
+        "liquidation_mode": liquidation_mode,
+        "maintenance_margin_rate": maintenance_margin_rate,
+        "mark_price_source": mark_price_source,
         "initial_equity": initial_equity,
         "execution": execution,
         "stream": stream,

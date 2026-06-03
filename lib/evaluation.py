@@ -161,10 +161,17 @@ def turnover(trades_df: pd.DataFrame, equity_curve: pd.Series) -> float:
     avg_equity = equity_curve.mean()
     if avg_equity == 0:
         return 0.0
-    # Notional per trade = entry_price (for a 1-contract model)
-    if "entry_price" not in trades_df.columns:
-        return 0.0
-    total_notional = (trades_df["entry_price"].abs() * 2).sum()  # * 2: entry + exit
+    if "notional" in trades_df.columns:
+        total_notional = trades_df["notional"].abs().sum()
+    elif {"entry_notional", "exit_notional"}.issubset(trades_df.columns):
+        total_notional = (
+            trades_df["entry_notional"].abs() + trades_df["exit_notional"].abs()
+        ).sum()
+    else:
+        # Legacy fallback: notional per trade = entry_price for a 1-contract model.
+        if "entry_price" not in trades_df.columns:
+            return 0.0
+        total_notional = (trades_df["entry_price"].abs() * 2).sum()
     return float(total_notional / avg_equity)
 
 

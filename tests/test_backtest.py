@@ -16,6 +16,7 @@ import pandas as pd
 import pytest
 
 from lib.backtest import run_backtest, BacktestResult
+from lib.evaluation import cost_drag
 
 
 # ---------------------------------------------------------------------------
@@ -52,6 +53,172 @@ def _no_gaps_path(tmp_path: Path) -> Path:
     p = tmp_path / "gaps.json"
     p.write_text(json.dumps({"schema_version": 1, "entries": []}))
     return p
+
+
+def _fee_side_fixture(tmp_path: Path, **kwargs):
+    """Run a deterministic one-round-trip fixture for fee-side tests."""
+    dates = pd.date_range("2020-01-01", periods=6, freq="1h", tz="UTC")
+    ohlcv = pd.DataFrame(
+        {
+            "open": [100.0, 100.0, 110.0, 120.0, 130.0, 140.0],
+            "high": [100.0, 110.0, 120.0, 130.0, 140.0, 150.0],
+            "low": [100.0, 100.0, 110.0, 120.0, 130.0, 140.0],
+            "close": [100.0, 110.0, 120.0, 130.0, 140.0, 150.0],
+            "volume": [1_000.0] * 6,
+        },
+        index=dates,
+    )
+    signal = pd.Series([0.0, 1.0, 1.0, 0.0, 0.0, 0.0], index=dates)
+    return run_backtest(
+        signal=signal,
+        ohlcv=ohlcv,
+        funding=_empty_funding(),
+        fee_bps_taker=10.0,
+        fee_bps_maker=2.0,
+        slippage_bps=1.0,
+        initial_equity=10_000.0,
+        stream="klines",
+        interval="1h",
+        gaps_path=_no_gaps_path(tmp_path),
+        **kwargs,
+    )
+
+
+# ---------------------------------------------------------------------------
+# test_fee_side_model
+# ---------------------------------------------------------------------------
+
+
+def test_default_taker_taker_fee_behavior_preserved(tmp_path):
+    result = _fee_side_fixture(tmp_path)
+
+    expected_equity = [
+        10_000.0,
+        10_000.0,
+        10_009.879,
+        10_019.879,
+        10_019.736,
+        10_019.736,
+    ]
+    np.testing.assert_allclose(
+        result.equity_curve.tolist(), expected_equity, rtol=0, atol=1e-12
+    )
+    np.testing.assert_allclose(
+        result.trades_df["fees"].tolist(), [0.13], rtol=0, atol=1e-12
+    )
+    assert abs(result.fees_paid - 0.24) < 1e-12
+    assert abs(result.slippage_paid - 0.024) < 1e-12
+    assert result.funding_paid == 0.0
+    assert result.liquidated is False
+    assert result.params["entry_fee_side"] == "taker"
+    assert result.params["exit_fee_side"] == "taker"
+    assert result.params["exchange_constraints"] == {
+        "tick_size": None,
+        "lot_size": None,
+        "min_notional": None,
+    }
+
+
+def test_maker_entry_uses_maker_fee(tmp_path):
+    result = _fee_side_fixture(tmp_path, entry_fee_side="maker")
+
+    expected_entry_fee = 110.0 * 2.0 / 10_000.0
+    expected_exit_fee = 130.0 * 10.0 / 10_000.0
+    assert abs(result.fees_paid - (expected_entry_fee + expected_exit_fee)) < 1e-12
+    np.testing.assert_allclose(
+        result.trades_df["fees"].tolist(), [expected_exit_fee], rtol=0, atol=1e-12
+    )
+    assert result.params["entry_fee_side"] == "maker"
+    assert result.params["exit_fee_side"] == "taker"
+
+
+def test_maker_exit_uses_maker_fee(tmp_path):
+    result = _fee_side_fixture(tmp_path, exit_fee_side="maker")
+
+    expected_entry_fee = 110.0 * 10.0 / 10_000.0
+    expected_exit_fee = 130.0 * 2.0 / 10_000.0
+    assert abs(result.fees_paid - (expected_entry_fee + expected_exit_fee)) < 1e-12
+    np.testing.assert_allclose(
+        result.trades_df["fees"].tolist(), [expected_exit_fee], rtol=0, atol=1e-12
+    )
+    assert result.params["entry_fee_side"] == "taker"
+    assert result.params["exit_fee_side"] == "maker"
+
+
+def test_mixed_maker_taker_fee_sides_and_cost_drag(tmp_path):
+    taker_taker = _fee_side_fixture(tmp_path)
+    maker_maker = _fee_side_fixture(
+        tmp_path,
+        entry_fee_side="maker",
+        exit_fee_side="maker",
+    )
+
+    expected_maker_maker_fees = (110.0 + 130.0) * 2.0 / 10_000.0
+    expected_delta = taker_taker.fees_paid - expected_maker_maker_fees
+    assert abs(maker_maker.fees_paid - expected_maker_maker_fees) < 1e-12
+    assert abs(expected_delta - 0.192) < 1e-12
+
+    drag = cost_drag(maker_maker)
+    assert drag["fees_paid"] == maker_maker.fees_paid
+    assert (
+        abs(drag["total_cost"] - (maker_maker.fees_paid + maker_maker.slippage_paid))
+        < 1e-12
+    )
+
+
+def test_invalid_fee_side_raises(tmp_path):
+    with pytest.raises(ValueError, match="fee side"):
+        _fee_side_fixture(tmp_path, entry_fee_side="post_only")
+
+    with pytest.raises(ValueError, match="fee side"):
+        _fee_side_fixture(tmp_path, exit_fee_side="auction")
+
+
+# ---------------------------------------------------------------------------
+# test_exchange_constraint_disclosure
+# ---------------------------------------------------------------------------
+
+
+def test_exchange_constraint_disclosure_recorded_without_outcome_effect(tmp_path):
+    baseline = _fee_side_fixture(tmp_path)
+    disclosed = _fee_side_fixture(
+        tmp_path,
+        tick_size=0.1,
+        lot_size=0.001,
+        min_notional=5.0,
+    )
+
+    pd.testing.assert_series_equal(disclosed.equity_curve, baseline.equity_curve)
+    pd.testing.assert_series_equal(disclosed.per_bar_pnl, baseline.per_bar_pnl)
+    pd.testing.assert_frame_equal(disclosed.trades_df, baseline.trades_df)
+    assert disclosed.fees_paid == baseline.fees_paid
+    assert disclosed.slippage_paid == baseline.slippage_paid
+    assert disclosed.funding_paid == baseline.funding_paid
+    assert disclosed.realized_pnl == baseline.realized_pnl
+    assert disclosed.unrealized_pnl == baseline.unrealized_pnl
+    assert disclosed.liquidated == baseline.liquidated
+    assert disclosed.liquidation_timestamp == baseline.liquidation_timestamp
+    assert disclosed.params["exchange_constraints"] == {
+        "tick_size": 0.1,
+        "lot_size": 0.001,
+        "min_notional": 5.0,
+    }
+
+
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        {"tick_size": 0.0},
+        {"tick_size": -0.1},
+        {"lot_size": 0.0},
+        {"lot_size": -0.001},
+        {"min_notional": 0.0},
+        {"min_notional": -5.0},
+    ],
+)
+def test_invalid_exchange_constraint_disclosure_raises(tmp_path, kwargs):
+    with pytest.raises(ValueError, match="must be positive"):
+        _fee_side_fixture(tmp_path, **kwargs)
 
 
 # ---------------------------------------------------------------------------

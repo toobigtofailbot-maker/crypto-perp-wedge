@@ -16,7 +16,7 @@ import pandas as pd
 import pytest
 
 from lib.backtest import run_backtest, BacktestResult
-from lib.evaluation import cost_drag
+from lib.evaluation import cost_drag, turnover
 
 
 # ---------------------------------------------------------------------------
@@ -808,3 +808,232 @@ def test_liquidity_capacity_rejects_without_partial_fill(tmp_path):
             volume_at_entry=5.0,
             liquidity_cap_fraction=0.5,
         )
+
+
+# ---------------------------------------------------------------------------
+# test_bar_path_assumption_and_regression_consolidation
+# ---------------------------------------------------------------------------
+
+
+def _assert_same_outputs_except_params(left, right):
+    """Assert result equivalence where additive params are the only intended delta."""
+    pd.testing.assert_series_equal(left.equity_curve, right.equity_curve)
+    pd.testing.assert_series_equal(left.per_bar_pnl, right.per_bar_pnl)
+    pd.testing.assert_frame_equal(left.trades_df, right.trades_df)
+    assert left.fees_paid == right.fees_paid
+    assert left.slippage_paid == right.slippage_paid
+    assert left.funding_paid == right.funding_paid
+    assert left.realized_pnl == right.realized_pnl
+    assert left.unrealized_pnl == right.unrealized_pnl
+    assert left.liquidated == right.liquidated
+    assert left.liquidation_timestamp == right.liquidation_timestamp
+
+
+def test_bar_path_assumption_default_recorded(tmp_path):
+    result = _fee_side_fixture(tmp_path)
+
+    assert result.params["bar_path_assumption"] == "next_open_close_mark"
+
+
+def test_explicit_bar_path_assumption_preserves_default_outcomes(tmp_path):
+    implicit_default = _fee_side_fixture(tmp_path)
+    explicit_default = _fee_side_fixture(
+        tmp_path,
+        bar_path_assumption="next_open_close_mark",
+    )
+
+    _assert_same_outputs_except_params(implicit_default, explicit_default)
+    assert implicit_default.params == explicit_default.params
+
+
+def test_invalid_bar_path_assumption_raises(tmp_path):
+    with pytest.raises(ValueError, match="bar_path_assumption"):
+        _fee_side_fixture(tmp_path, bar_path_assumption="intrabar_high_low")
+
+
+def test_execution_next_bar_open_remains_recorded(tmp_path):
+    result = _fee_side_fixture(tmp_path, execution="next_bar_open")
+
+    assert result.params["execution"] == "next_bar_open"
+    assert result.params["bar_path_assumption"] == "next_open_close_mark"
+
+
+def test_invalid_execution_behavior_remains_unchanged(tmp_path):
+    with pytest.raises(AssertionError, match="next_bar_open"):
+        _fee_side_fixture(tmp_path, execution="same_bar_close")
+
+
+def test_default_one_round_trip_bar_path_behavior_preserved(tmp_path):
+    result = _fee_side_fixture(tmp_path)
+
+    np.testing.assert_allclose(
+        result.equity_curve.tolist(),
+        [10_000.0, 10_000.0, 10_009.879, 10_019.879, 10_019.736, 10_019.736],
+        rtol=0,
+        atol=1e-12,
+    )
+    np.testing.assert_allclose(
+        result.per_bar_pnl.tolist(),
+        [0.0, 0.0, 9.879, 10.0, -0.143, 0.0],
+        rtol=0,
+        atol=1e-12,
+    )
+    assert result.trades_df.loc[0, "entry_price"] == 110.0
+    assert result.trades_df.loc[0, "exit_price"] == 130.0
+    assert abs(result.fees_paid - 0.24) < 1e-12
+    assert abs(result.slippage_paid - 0.024) < 1e-12
+    assert result.funding_paid == 0.0
+    assert result.realized_pnl == 20.0
+    assert result.unrealized_pnl == 0.0
+    assert result.liquidated is False
+
+
+def test_default_funding_bar_path_behavior_preserved(tmp_path):
+    result = _funding_notional_fixture(tmp_path)
+
+    assert result.params["bar_path_assumption"] == "next_open_close_mark"
+    assert result.funding_paid == 2.0
+    assert result.equity_curve.iloc[3] == 10_028.0
+    assert result.fees_paid == 0.0
+    assert result.slippage_paid == 0.0
+
+
+def test_default_size_capacity_bar_path_behavior_preserved(tmp_path):
+    result = _size_liquidity_fixture(
+        tmp_path,
+        order_size=2.0,
+        volume_at_entry=5.0,
+        liquidity_cap_fraction=0.5,
+    )
+
+    assert result.params["bar_path_assumption"] == "next_open_close_mark"
+    assert result.params["fill_mode"] == "complete"
+    assert result.params["slippage_model"] == "fixed_bps"
+    assert result.params["liquidity_cap_fraction"] == 0.5
+    assert result.trades_df.loc[0, "size"] == 2.0
+    assert result.realized_pnl == 60.0
+
+
+def test_high_low_values_do_not_alter_next_open_close_mark_outcomes(tmp_path):
+    dates = pd.date_range("2020-01-01", periods=5, freq="1h", tz="UTC")
+    base = pd.DataFrame(
+        {
+            "open": [100.0, 100.0, 110.0, 120.0, 130.0],
+            "high": [100.0, 110.0, 120.0, 130.0, 140.0],
+            "low": [100.0, 100.0, 110.0, 120.0, 130.0],
+            "close": [100.0, 110.0, 120.0, 130.0, 140.0],
+            "volume": [1_000.0] * 5,
+        },
+        index=dates,
+    )
+    mutated = base.copy()
+    mutated["high"] = [10_000.0, 20_000.0, 30_000.0, 40_000.0, 50_000.0]
+    mutated["low"] = [1.0, 2.0, 3.0, 4.0, 5.0]
+    signal = pd.Series([0.0, 1.0, 1.0, 0.0, 0.0], index=dates)
+    kwargs = dict(
+        signal=signal,
+        funding=_empty_funding(),
+        fee_bps_taker=10.0,
+        fee_bps_maker=2.0,
+        slippage_bps=1.0,
+        initial_equity=10_000.0,
+        stream="klines",
+        interval="1h",
+        gaps_path=_no_gaps_path(tmp_path),
+        bar_path_assumption="next_open_close_mark",
+    )
+
+    base_result = run_backtest(ohlcv=base, **kwargs)
+    mutated_result = run_backtest(ohlcv=mutated, **kwargs)
+
+    _assert_same_outputs_except_params(base_result, mutated_result)
+    assert base_result.params == mutated_result.params
+
+
+def test_consolidated_realism_assumptions_are_deterministic(tmp_path):
+    dates = pd.date_range("2020-01-01", periods=5, freq="1h", tz="UTC")
+    ohlcv = pd.DataFrame(
+        {
+            "open": [100.0, 100.0, 110.0, 120.0, 130.0],
+            "high": [100.0, 110.0, 120.0, 130.0, 140.0],
+            "low": [100.0, 100.0, 110.0, 120.0, 130.0],
+            "close": [100.0, 110.0, 120.0, 130.0, 140.0],
+            "volume": [1_000.0] * 5,
+        },
+        index=dates,
+    )
+    signal = pd.Series([0.0, 1.0, 1.0, 0.0, 0.0], index=dates)
+    funding = pd.DataFrame(
+        {"funding_rate": [0.01]},
+        index=pd.DatetimeIndex(
+            [pd.Timestamp("2020-01-01 02:30:00", tz="UTC")],
+            tz="UTC",
+        ),
+    )
+
+    result = run_backtest(
+        signal=signal,
+        ohlcv=ohlcv,
+        funding=funding,
+        fee_bps_taker=10.0,
+        fee_bps_maker=2.0,
+        slippage_bps=1.0,
+        initial_equity=10_000.0,
+        stream="klines",
+        interval="1h",
+        gaps_path=_no_gaps_path(tmp_path),
+        entry_fee_side="maker",
+        exit_fee_side="taker",
+        tick_size=0.1,
+        lot_size=0.001,
+        min_notional=5.0,
+        funding_notional_mode="mark_price",
+        order_size=2.0,
+        fill_mode="complete",
+        liquidity_cap_fraction=0.01,
+        slippage_model="fixed_bps",
+        liquidation_mode="maintenance_margin",
+        maintenance_margin_rate=0.01,
+        mark_price_source="close",
+        bar_path_assumption="next_open_close_mark",
+    )
+
+    np.testing.assert_allclose(
+        result.equity_curve.tolist(),
+        [10_000.0, 10_000.0, 10_019.934, 10_037.334, 10_037.048],
+        rtol=0,
+        atol=1e-9,
+    )
+    np.testing.assert_allclose(
+        result.per_bar_pnl.tolist(),
+        [0.0, 0.0, 19.934, 17.4, -0.286],
+        rtol=0,
+        atol=1e-12,
+    )
+    assert abs(result.fees_paid - 0.304) < 1e-12
+    assert abs(result.slippage_paid - 0.048) < 1e-12
+    assert abs(result.funding_paid - 2.6) < 1e-12
+    assert result.realized_pnl == 40.0
+    assert result.unrealized_pnl == 0.0
+    assert result.liquidated is False
+    assert result.params["entry_fee_side"] == "maker"
+    assert result.params["exit_fee_side"] == "taker"
+    assert result.params["funding_notional_mode"] == "mark_price"
+    assert result.params["order_size"] == 2.0
+    assert result.params["fill_mode"] == "complete"
+    assert result.params["liquidity_cap_fraction"] == 0.01
+    assert result.params["slippage_model"] == "fixed_bps"
+    assert result.params["liquidation_mode"] == "maintenance_margin"
+    assert result.params["maintenance_margin_rate"] == 0.01
+    assert result.params["mark_price_source"] == "close"
+    assert result.params["bar_path_assumption"] == "next_open_close_mark"
+    assert result.params["exchange_constraints"] == {
+        "tick_size": 0.1,
+        "lot_size": 0.001,
+        "min_notional": 5.0,
+    }
+    assert cost_drag(result)["cost_drag_fraction"] == 0.0738
+    assert (
+        abs(turnover(result.trades_df, result.equity_curve) - 0.04391715818617027)
+        < 1e-15
+    )

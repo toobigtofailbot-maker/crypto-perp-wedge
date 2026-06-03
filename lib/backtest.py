@@ -231,6 +231,15 @@ def _validate_liquidation_assumptions(
         )
 
 
+def _validate_bar_path_assumption(bar_path_assumption: str) -> None:
+    """Validate deterministic bar-path disclosure."""
+    if bar_path_assumption != "next_open_close_mark":
+        raise ValueError(
+            "bar_path_assumption must be 'next_open_close_mark', "
+            f"got {bar_path_assumption!r}"
+        )
+
+
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
@@ -262,6 +271,7 @@ def run_backtest(
     liquidation_mode: str = "zero_equity",
     maintenance_margin_rate: Optional[float] = None,
     mark_price_source: str = "close",
+    bar_path_assumption: str = "next_open_close_mark",
 ) -> BacktestResult:
     """Run a vectorised bar-by-bar backtest.
 
@@ -321,6 +331,12 @@ def run_backtest(
     mark_price_source:
         Deterministic mark-source disclosure. Only ``"close"`` is supported in
         this package, preserving existing OHLCV close marking.
+    bar_path_assumption:
+        Deterministic bar-path disclosure. Only ``"next_open_close_mark"`` is
+        supported: signal at bar t fills completely at open of bar t+1,
+        unrealized PnL and liquidation checks use OHLCV close marking, and no
+        intrabar high/low sequence, order book, spread, latency, impact, VWAP,
+        queue, or partial-fill path is modeled.
 
     Returns
     -------
@@ -360,6 +376,7 @@ def run_backtest(
         maintenance_margin_rate=maintenance_margin_rate,
         mark_price_source=mark_price_source,
     )
+    _validate_bar_path_assumption(bar_path_assumption)
 
     # ------------------------------------------------------------------
     # Input validation
@@ -623,6 +640,7 @@ def run_backtest(
         "liquidation_mode": liquidation_mode,
         "maintenance_margin_rate": maintenance_margin_rate,
         "mark_price_source": mark_price_source,
+        "bar_path_assumption": bar_path_assumption,
         "initial_equity": initial_equity,
         "execution": execution,
         "stream": stream,

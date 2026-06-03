@@ -126,6 +126,26 @@ def _bps_cost(price: float, size: float, bps: float) -> float:
     return abs(price * size) * bps / 10_000.0
 
 
+def _fee_bps_for_side(
+    side: str,
+    *,
+    fee_bps_taker: float,
+    fee_bps_maker: float,
+) -> float:
+    """Return the fee bps for an explicit deterministic fill-side assumption."""
+    if side == "taker":
+        return fee_bps_taker
+    if side == "maker":
+        return fee_bps_maker
+    raise ValueError(f"fee side must be 'maker' or 'taker', got {side!r}")
+
+
+def _validate_positive_optional(value: Optional[float], name: str) -> None:
+    """Validate optional exchange-constraint disclosure values."""
+    if value is not None and value <= 0:
+        raise ValueError(f"{name} must be positive when provided")
+
+
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
@@ -144,6 +164,11 @@ def run_backtest(
     stream: str = "klines",
     interval: str = "1h",
     gaps_path: Optional[Path] = None,
+    entry_fee_side: str = "taker",
+    exit_fee_side: str = "taker",
+    tick_size: Optional[float] = None,
+    lot_size: Optional[float] = None,
+    min_notional: Optional[float] = None,
 ) -> BacktestResult:
     """Run a vectorised bar-by-bar backtest.
 
@@ -159,7 +184,7 @@ def run_backtest(
         DataFrame with columns [funding_rate].
         Index = UTC funding-event timestamps (every 8 h for Binance UM perp).
     fee_bps_taker, fee_bps_maker:
-        Fee in basis-points per side.  Entries use taker; exits use taker.
+        Fee in basis-points per side.
     slippage_bps:
         One-way slippage in basis-points (applied symmetrically on entry/exit).
     initial_equity:
@@ -170,6 +195,12 @@ def run_backtest(
         Used to look up irreparable gaps in ``data/irreparable_gaps.json``.
     gaps_path:
         Override path to irreparable_gaps.json (used in tests).
+    entry_fee_side, exit_fee_side:
+        Explicit deterministic fee-side assumptions. Must be ``"maker"`` or
+        ``"taker"``. Defaults preserve existing taker/taker behavior.
+    tick_size, lot_size, min_notional:
+        Optional positive exchange-constraint disclosures. They are recorded in
+        params only and do not alter fills, rounding, rejection, or outcomes.
 
     Returns
     -------
@@ -179,6 +210,19 @@ def run_backtest(
     assert execution == "next_bar_open", (
         f"Only 'next_bar_open' execution is supported, got '{execution}'"
     )
+    entry_fee_bps = _fee_bps_for_side(
+        entry_fee_side,
+        fee_bps_taker=fee_bps_taker,
+        fee_bps_maker=fee_bps_maker,
+    )
+    exit_fee_bps = _fee_bps_for_side(
+        exit_fee_side,
+        fee_bps_taker=fee_bps_taker,
+        fee_bps_maker=fee_bps_maker,
+    )
+    _validate_positive_optional(tick_size, "tick_size")
+    _validate_positive_optional(lot_size, "lot_size")
+    _validate_positive_optional(min_notional, "min_notional")
 
     # ------------------------------------------------------------------
     # Input validation
@@ -292,7 +336,7 @@ def run_backtest(
                 # ---- Close existing position if any ----
                 if position != 0:
                     realized_this_trade = position * (fill_price - entry_fill_price)
-                    fee_exit = _bps_cost(fill_price, 1.0, fee_bps_taker)
+                    fee_exit = _bps_cost(fill_price, 1.0, exit_fee_bps)
                     slip_exit = _bps_cost(fill_price, 1.0, slippage_bps)
 
                     equity += realized_this_trade - fee_exit - slip_exit
@@ -316,7 +360,7 @@ def run_backtest(
 
                 # ---- Open new position if desired != 0 ----
                 if desired != 0:
-                    fee_entry = _bps_cost(fill_price, 1.0, fee_bps_taker)
+                    fee_entry = _bps_cost(fill_price, 1.0, entry_fee_bps)
                     slip_entry = _bps_cost(fill_price, 1.0, slippage_bps)
                     equity -= fee_entry + slip_entry
                     total_fees += fee_entry
@@ -391,6 +435,8 @@ def run_backtest(
     params_snapshot = {
         "fee_bps_taker": fee_bps_taker,
         "fee_bps_maker": fee_bps_maker,
+        "entry_fee_side": entry_fee_side,
+        "exit_fee_side": exit_fee_side,
         "slippage_bps": slippage_bps,
         "initial_equity": initial_equity,
         "execution": execution,
@@ -398,6 +444,11 @@ def run_backtest(
         "interval": interval,
         "n_bars": n,
         "n_irreparable_skipped": len(skipped_bars),
+        "exchange_constraints": {
+            "tick_size": tick_size,
+            "lot_size": lot_size,
+            "min_notional": min_notional,
+        },
     }
 
     return BacktestResult(

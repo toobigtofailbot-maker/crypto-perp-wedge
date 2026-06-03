@@ -107,6 +107,7 @@ def test_default_liquidation_assumptions_recorded_without_outcome_effect(tmp_pat
     assert implicit_default.params["liquidation_mode"] == "zero_equity"
     assert implicit_default.params["maintenance_margin_rate"] is None
     assert implicit_default.params["mark_price_source"] == "close"
+    assert implicit_default.params["bar_path_assumption"] == "next_open_close_mark"
 
 
 def test_buy_and_hold_unchanged_on_benign_window():
@@ -278,6 +279,7 @@ def test_maintenance_margin_preserves_adjacent_assumption_params(tmp_path):
     assert result.params["fill_mode"] == "complete"
     assert result.params["liquidity_cap_fraction"] is None
     assert result.params["slippage_model"] == "fixed_bps"
+    assert result.params["bar_path_assumption"] == "next_open_close_mark"
 
 
 def test_liquidation_idempotent_after_trigger(tmp_path):

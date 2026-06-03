@@ -146,6 +146,23 @@ def _validate_positive_optional(value: Optional[float], name: str) -> None:
         raise ValueError(f"{name} must be positive when provided")
 
 
+def _funding_notional(
+    mode: str,
+    *,
+    entry_fill_price: float,
+    current_close_price: float,
+) -> float:
+    """Return deterministic one-contract notional for funding cashflows."""
+    if mode == "entry_price":
+        return abs(entry_fill_price)
+    if mode == "mark_price":
+        return abs(current_close_price)
+    raise ValueError(
+        "funding_notional_mode must be 'entry_price' or 'mark_price', "
+        f"got {mode!r}"
+    )
+
+
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
@@ -169,6 +186,7 @@ def run_backtest(
     tick_size: Optional[float] = None,
     lot_size: Optional[float] = None,
     min_notional: Optional[float] = None,
+    funding_notional_mode: str = "entry_price",
 ) -> BacktestResult:
     """Run a vectorised bar-by-bar backtest.
 
@@ -201,6 +219,11 @@ def run_backtest(
     tick_size, lot_size, min_notional:
         Optional positive exchange-constraint disclosures. They are recorded in
         params only and do not alter fills, rounding, rejection, or outcomes.
+    funding_notional_mode:
+        Explicit deterministic funding notional assumption. ``"entry_price"``
+        preserves existing behavior by using the entry fill price.
+        ``"mark_price"`` uses the current bar close where the funding event is
+        applied. No external mark/index data is consumed.
 
     Returns
     -------
@@ -223,6 +246,11 @@ def run_backtest(
     _validate_positive_optional(tick_size, "tick_size")
     _validate_positive_optional(lot_size, "lot_size")
     _validate_positive_optional(min_notional, "min_notional")
+    _funding_notional(
+        funding_notional_mode,
+        entry_fill_price=1.0,
+        current_close_price=1.0,
+    )
 
     # ------------------------------------------------------------------
     # Input validation
@@ -316,8 +344,13 @@ def run_backtest(
                     f_ts = pd.Timestamp(f_ts)
                 if prev_bar_ts < f_ts <= bar_ts:
                     # Longs pay positive funding; shorts receive
-                    # cashflow to equity = -position * rate * abs(entry_fill_price)
-                    funding_cashflow = -position * rate * abs(entry_fill_price)
+                    # cashflow to equity = -position * rate * funding_notional
+                    notional = _funding_notional(
+                        funding_notional_mode,
+                        entry_fill_price=entry_fill_price,
+                        current_close_price=close_prices[i],
+                    )
+                    funding_cashflow = -position * rate * notional
                     equity += funding_cashflow
                     total_funding -= funding_cashflow  # positive means we paid
 
@@ -438,6 +471,7 @@ def run_backtest(
         "entry_fee_side": entry_fee_side,
         "exit_fee_side": exit_fee_side,
         "slippage_bps": slippage_bps,
+        "funding_notional_mode": funding_notional_mode,
         "initial_equity": initial_equity,
         "execution": execution,
         "stream": stream,

@@ -495,3 +495,176 @@ def test_funding_cashflow(tmp_path):
     assert abs(result.equity_curve.iloc[3] - expected_eq_bar3) < 1e-9, (
         f"equity[3]: expected {expected_eq_bar3}, got {result.equity_curve.iloc[3]}"
     )
+
+
+def _funding_notional_fixture(tmp_path: Path, *, signal_values=None, **kwargs):
+    """Run a compact deterministic funding fixture with changing closes."""
+    dates = pd.date_range("2020-01-01", periods=5, freq="1h", tz="UTC")
+    ohlcv = pd.DataFrame(
+        {
+            "open": [100.0, 100.0, 100.0, 120.0, 130.0],
+            "high": [100.0, 110.0, 120.0, 130.0, 140.0],
+            "low": [100.0, 90.0, 95.0, 115.0, 125.0],
+            "close": [100.0, 110.0, 120.0, 130.0, 140.0],
+            "volume": [1_000.0] * 5,
+        },
+        index=dates,
+    )
+    signal = pd.Series(
+        signal_values if signal_values is not None else [0.0, 1.0, 1.0, 1.0, 1.0],
+        index=dates,
+    )
+    funding = pd.DataFrame(
+        {"funding_rate": [0.01, 0.02]},
+        index=pd.DatetimeIndex(
+            [
+                pd.Timestamp("2020-01-01 02:00:00", tz="UTC"),
+                pd.Timestamp("2020-01-01 02:30:00", tz="UTC"),
+            ],
+            tz="UTC",
+        ),
+    )
+    return run_backtest(
+        signal=signal,
+        ohlcv=ohlcv,
+        funding=funding,
+        fee_bps_taker=0.0,
+        fee_bps_maker=0.0,
+        slippage_bps=0.0,
+        initial_equity=10_000.0,
+        stream="klines",
+        interval="1h",
+        gaps_path=_no_gaps_path(tmp_path),
+        **kwargs,
+    )
+
+
+def test_default_funding_notional_mode_preserves_entry_price_behavior(tmp_path):
+    implicit_default = _funding_notional_fixture(tmp_path)
+    explicit_default = _funding_notional_fixture(
+        tmp_path,
+        funding_notional_mode="entry_price",
+    )
+
+    pd.testing.assert_series_equal(
+        implicit_default.equity_curve,
+        explicit_default.equity_curve,
+    )
+    pd.testing.assert_series_equal(
+        implicit_default.per_bar_pnl,
+        explicit_default.per_bar_pnl,
+    )
+    pd.testing.assert_frame_equal(
+        implicit_default.trades_df,
+        explicit_default.trades_df,
+    )
+    assert implicit_default.funding_paid == 2.0
+    assert explicit_default.funding_paid == 2.0
+    assert implicit_default.fees_paid == explicit_default.fees_paid == 0.0
+    assert implicit_default.slippage_paid == explicit_default.slippage_paid == 0.0
+    assert implicit_default.liquidated is explicit_default.liquidated is False
+    assert implicit_default.params["funding_notional_mode"] == "entry_price"
+    assert explicit_default.params["funding_notional_mode"] == "entry_price"
+
+
+def test_mark_price_funding_uses_current_bar_close_and_updates_cost_drag(tmp_path):
+    entry_mode = _funding_notional_fixture(tmp_path)
+    mark_mode = _funding_notional_fixture(
+        tmp_path,
+        funding_notional_mode="mark_price",
+    )
+
+    expected_entry_funding = 0.02 * 100.0
+    expected_mark_funding = 0.02 * 130.0
+    expected_delta = expected_mark_funding - expected_entry_funding
+
+    assert abs(entry_mode.funding_paid - expected_entry_funding) < 1e-12
+    assert abs(mark_mode.funding_paid - expected_mark_funding) < 1e-12
+    assert abs(mark_mode.funding_paid - entry_mode.funding_paid - expected_delta) < 1e-12
+    assert abs(mark_mode.equity_curve.iloc[3] - 10027.4) < 1e-12
+    assert abs(mark_mode.equity_curve.iloc[-1] - 10037.4) < 1e-12
+    assert mark_mode.params["funding_notional_mode"] == "mark_price"
+
+    entry_drag = cost_drag(entry_mode)
+    mark_drag = cost_drag(mark_mode)
+    assert entry_drag["funding_paid"] == 2.0
+    assert mark_drag["funding_paid"] == 2.6
+    assert entry_drag["cost_drag_fraction"] == 0.05
+    assert mark_drag["cost_drag_fraction"] == 0.065
+
+
+def test_short_positive_funding_receives_under_both_notional_modes(tmp_path):
+    entry_mode = _funding_notional_fixture(
+        tmp_path,
+        signal_values=[0.0, -1.0, -1.0, -1.0, -1.0],
+    )
+    mark_mode = _funding_notional_fixture(
+        tmp_path,
+        signal_values=[0.0, -1.0, -1.0, -1.0, -1.0],
+        funding_notional_mode="mark_price",
+    )
+
+    assert abs(entry_mode.funding_paid - -2.0) < 1e-12
+    assert abs(mark_mode.funding_paid - -2.6) < 1e-12
+    assert abs(entry_mode.equity_curve.iloc[3] - 9972.0) < 1e-12
+    assert abs(mark_mode.equity_curve.iloc[3] - 9972.6) < 1e-12
+
+
+def test_multiple_funding_events_in_one_interval_use_same_current_close(tmp_path):
+    dates = pd.date_range("2020-01-01", periods=5, freq="1h", tz="UTC")
+    ohlcv = pd.DataFrame(
+        {
+            "open": [100.0, 100.0, 100.0, 120.0, 130.0],
+            "high": [100.0, 110.0, 120.0, 130.0, 140.0],
+            "low": [100.0, 90.0, 95.0, 115.0, 125.0],
+            "close": [100.0, 110.0, 120.0, 130.0, 140.0],
+            "volume": [1_000.0] * 5,
+        },
+        index=dates,
+    )
+    signal = pd.Series([0.0, 1.0, 1.0, 1.0, 1.0], index=dates)
+    funding = pd.DataFrame(
+        {"funding_rate": [0.01, 0.02, -0.005]},
+        index=pd.DatetimeIndex(
+            [
+                pd.Timestamp("2020-01-01 02:15:00", tz="UTC"),
+                pd.Timestamp("2020-01-01 02:30:00", tz="UTC"),
+                pd.Timestamp("2020-01-01 02:45:00", tz="UTC"),
+            ],
+            tz="UTC",
+        ),
+    )
+
+    result = run_backtest(
+        signal=signal,
+        ohlcv=ohlcv,
+        funding=funding,
+        fee_bps_taker=0.0,
+        fee_bps_maker=0.0,
+        slippage_bps=0.0,
+        initial_equity=10_000.0,
+        stream="klines",
+        interval="1h",
+        gaps_path=_no_gaps_path(tmp_path),
+        funding_notional_mode="mark_price",
+    )
+
+    expected_funding_paid = (0.01 + 0.02 - 0.005) * 130.0
+    assert abs(result.funding_paid - expected_funding_paid) < 1e-12
+    assert abs(result.equity_curve.iloc[3] - 10026.75) < 1e-12
+
+
+def test_funding_event_at_entry_bar_timestamp_remains_excluded(tmp_path):
+    result = _funding_notional_fixture(
+        tmp_path,
+        funding_notional_mode="mark_price",
+    )
+
+    # The 02:00 event is at the same bar timestamp where the position opens,
+    # so the existing open-position rule excludes it; only 02:30 is applied.
+    assert abs(result.funding_paid - (0.02 * 130.0)) < 1e-12
+
+
+def test_invalid_funding_notional_mode_raises(tmp_path):
+    with pytest.raises(ValueError, match="funding_notional_mode"):
+        _funding_notional_fixture(tmp_path, funding_notional_mode="index_price")

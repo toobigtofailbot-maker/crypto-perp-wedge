@@ -1,0 +1,537 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crypto-perp-wedge.local/research/schemas/sweep_plan.schema.json",
+  "title": "Sweep Plan",
+  "description": "Non-executing pre-registered test-plan artifact shape over one variant manifest. This schema grants no validator, query, runner, sweep execution, result computation, result-population, runtime, paper/live, recommendation, ranking, approval, readiness, transition, or human-gate execution authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "sweep_plan_id",
+    "status",
+    "non_execution_declaration",
+    "parent_variant_manifest",
+    "test_selection",
+    "validation_methods",
+    "data_and_timeframe_assumptions",
+    "realism_assumptions",
+    "result_capture_expectations",
+    "trial_accounting",
+    "lineage",
+    "review",
+    "amendment_and_supersession"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "v1" },
+    "sweep_plan_id": { "type": "string", "pattern": "^SWEEP-PLAN-[0-9]{4}$" },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "review_requested", "approved_for_offline_run_planning", "closed", "superseded", "rejected"]
+    },
+    "non_execution_declaration": { "$ref": "#/definitions/non_execution_declaration" },
+    "parent_variant_manifest": { "$ref": "#/definitions/parent_variant_manifest" },
+    "test_selection": { "$ref": "#/definitions/test_selection" },
+    "validation_methods": { "$ref": "#/definitions/validation_methods" },
+    "data_and_timeframe_assumptions": { "$ref": "#/definitions/data_and_timeframe_assumptions" },
+    "realism_assumptions": { "$ref": "#/definitions/realism_assumptions" },
+    "result_capture_expectations": { "$ref": "#/definitions/result_capture_expectations" },
+    "trial_accounting": { "$ref": "#/definitions/trial_accounting" },
+    "lineage": { "$ref": "#/definitions/lineage" },
+    "review": { "$ref": "#/definitions/review" },
+    "amendment_and_supersession": { "$ref": "#/definitions/amendment_and_supersession" }
+  },
+  "definitions": {
+    "non_empty_string": { "type": "string", "minLength": 1 },
+    "nullable_string": { "type": ["string", "null"] },
+    "date_time_or_null": { "type": ["string", "null"], "format": "date-time" },
+    "sha256_hash": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "sha256_or_null": { "type": ["string", "null"], "pattern": "^sha256:[a-f0-9]{64}$" },
+    "string_array": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "non_execution_declaration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "planning_surface_only",
+        "not_executable",
+        "not_runner_authority",
+        "not_sweep_authority",
+        "not_result_authority",
+        "not_candidate_approval",
+        "not_exp_approval",
+        "not_ranking_authority",
+        "not_recommendation_authority",
+        "not_readiness_authority",
+        "not_transition_authority",
+        "not_runtime_authority",
+        "not_paper_live_authority",
+        "not_gate_authority"
+      ],
+      "properties": {
+        "planning_surface_only": { "type": "boolean", "const": true },
+        "not_executable": { "type": "boolean", "const": true },
+        "not_runner_authority": { "type": "boolean", "const": true },
+        "not_sweep_authority": { "type": "boolean", "const": true },
+        "not_result_authority": { "type": "boolean", "const": true },
+        "not_candidate_approval": { "type": "boolean", "const": true },
+        "not_exp_approval": { "type": "boolean", "const": true },
+        "not_ranking_authority": { "type": "boolean", "const": true },
+        "not_recommendation_authority": { "type": "boolean", "const": true },
+        "not_readiness_authority": { "type": "boolean", "const": true },
+        "not_transition_authority": { "type": "boolean", "const": true },
+        "not_runtime_authority": { "type": "boolean", "const": true },
+        "not_paper_live_authority": { "type": "boolean", "const": true },
+        "not_gate_authority": { "type": "boolean", "const": true }
+      }
+    },
+    "parent_variant_manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "variant_manifest_id",
+        "variant_manifest_schema_version",
+        "manifest_hash",
+        "hash_algorithm",
+        "manifest_population_count",
+        "manifest_committed_population_count",
+        "manifest_population_cap",
+        "manifest_pre_registration_status",
+        "mismatch_policy",
+        "missing_manifest_policy",
+        "one_manifest_only"
+      ],
+      "properties": {
+        "variant_manifest_id": { "type": "string", "pattern": "^VM-[0-9]{4}$" },
+        "variant_manifest_schema_version": { "$ref": "#/definitions/non_empty_string" },
+        "manifest_hash": { "$ref": "#/definitions/sha256_hash" },
+        "hash_algorithm": { "type": "string", "enum": ["sha256"] },
+        "manifest_population_count": { "type": "integer", "minimum": 0 },
+        "manifest_committed_population_count": { "type": "integer", "minimum": 0 },
+        "manifest_population_cap": { "type": "integer", "minimum": 1 },
+        "manifest_pre_registration_status": { "type": "string", "const": "frozen_for_sweep_planning" },
+        "mismatch_policy": { "type": "string", "const": "block" },
+        "missing_manifest_policy": { "type": "string", "const": "block" },
+        "one_manifest_only": { "type": "boolean", "const": true }
+      }
+    },
+    "test_selection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "selection_mode",
+        "selected_variant_ids",
+        "excluded_variant_ids",
+        "subset_selection_rule",
+        "declared_before_results",
+        "post_hoc_addition_forbidden",
+        "outside_manifest_variants_forbidden"
+      ],
+      "properties": {
+        "selection_mode": { "type": "string", "enum": ["all_manifest_variants", "pre_registered_subset"] },
+        "selected_variant_ids": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^VAR-[0-9]{6}$" },
+          "uniqueItems": true
+        },
+        "excluded_variant_ids": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^VAR-[0-9]{6}$" },
+          "uniqueItems": true
+        },
+        "subset_selection_rule": { "$ref": "#/definitions/nullable_string" },
+        "declared_before_results": { "type": "boolean", "const": true },
+        "post_hoc_addition_forbidden": { "type": "boolean", "const": true },
+        "outside_manifest_variants_forbidden": { "type": "boolean", "const": true }
+      }
+    },
+    "method_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "method_ref", "notes"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "method_ref": { "$ref": "#/definitions/nullable_string" },
+        "notes": { "$ref": "#/definitions/nullable_string" }
+      }
+    },
+    "validation_methods": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "backtest",
+        "walk_forward_oos",
+        "robustness",
+        "dsr_psr_mintrl_accounting",
+        "monte_carlo",
+        "declarative_intent_only",
+        "no_runner_hooks",
+        "no_formulas",
+        "no_computation"
+      ],
+      "properties": {
+        "backtest": { "$ref": "#/definitions/method_ref" },
+        "walk_forward_oos": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled", "method_ref", "declares_chronological_separation", "notes"],
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "method_ref": { "$ref": "#/definitions/nullable_string" },
+            "declares_chronological_separation": { "type": "boolean" },
+            "notes": { "$ref": "#/definitions/nullable_string" }
+          }
+        },
+        "robustness": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled", "method_ref", "families_declared", "notes"],
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "method_ref": { "$ref": "#/definitions/nullable_string" },
+            "families_declared": { "$ref": "#/definitions/string_array" },
+            "notes": { "$ref": "#/definitions/nullable_string" }
+          }
+        },
+        "dsr_psr_mintrl_accounting": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled", "denominator_ref", "computation_deferred", "notes"],
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "denominator_ref": { "$ref": "#/definitions/non_empty_string" },
+            "computation_deferred": { "type": "boolean", "const": true },
+            "notes": { "$ref": "#/definitions/nullable_string" }
+          }
+        },
+        "monte_carlo": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled", "method_ref", "computation_deferred", "notes"],
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "method_ref": { "$ref": "#/definitions/nullable_string" },
+            "computation_deferred": { "type": "boolean", "const": true },
+            "notes": { "$ref": "#/definitions/nullable_string" }
+          }
+        },
+        "declarative_intent_only": { "type": "boolean", "const": true },
+        "no_runner_hooks": { "type": "boolean", "const": true },
+        "no_formulas": { "type": "boolean", "const": true },
+        "no_computation": { "type": "boolean", "const": true }
+      }
+    },
+    "host_data_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stream", "timeframe", "field", "availability"],
+      "properties": {
+        "stream": { "type": "string", "enum": ["ohlcv", "funding", "mark", "index", "premium", "indicator_catalog"] },
+        "timeframe": { "$ref": "#/definitions/nullable_string" },
+        "field": { "$ref": "#/definitions/non_empty_string" },
+        "availability": { "type": "string", "enum": ["required", "optional", "blocker_if_missing"] }
+      }
+    },
+    "data_and_timeframe_assumptions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primary_timeframe", "confirmation_timeframes", "data_refs", "missing_data_posture", "gap_handling_assumption"],
+      "properties": {
+        "primary_timeframe": { "type": "string", "enum": ["15m", "30m", "1h", "4h", "1d"] },
+        "confirmation_timeframes": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["15m", "30m", "1h", "4h", "1d"] },
+          "uniqueItems": true
+        },
+        "data_refs": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/host_data_ref" }
+        },
+        "missing_data_posture": { "$ref": "#/definitions/non_empty_string" },
+        "gap_handling_assumption": { "$ref": "#/definitions/nullable_string" }
+      }
+    },
+    "realism_assumptions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fee_side_assumption",
+        "exchange_constraints_disclosed",
+        "funding_notional_mode",
+        "slippage_model",
+        "fill_mode",
+        "order_size_assumption",
+        "liquidity_capacity_assumption",
+        "liquidation_mode",
+        "maintenance_margin_assumption",
+        "mark_price_source",
+        "bar_path_assumption",
+        "declarations_only"
+      ],
+      "properties": {
+        "fee_side_assumption": { "$ref": "#/definitions/nullable_string" },
+        "exchange_constraints_disclosed": { "type": "boolean" },
+        "funding_notional_mode": { "type": "string", "enum": ["entry_price", "mark_price", "unspecified"] },
+        "slippage_model": { "type": "string", "enum": ["fixed_bps", "unspecified"] },
+        "fill_mode": { "type": "string", "enum": ["complete", "unspecified"] },
+        "order_size_assumption": { "$ref": "#/definitions/nullable_string" },
+        "liquidity_capacity_assumption": { "$ref": "#/definitions/nullable_string" },
+        "liquidation_mode": { "type": "string", "enum": ["zero_equity", "maintenance_margin", "unspecified"] },
+        "maintenance_margin_assumption": { "$ref": "#/definitions/nullable_string" },
+        "mark_price_source": { "type": "string", "enum": ["close", "unspecified"] },
+        "bar_path_assumption": { "type": "string", "enum": ["next_open_close_mark", "unspecified"] },
+        "declarations_only": { "type": "boolean", "const": true }
+      }
+    },
+    "result_capture_expectations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "result_population_expected",
+        "expected_result_population_ref",
+        "must_capture_successful",
+        "must_capture_failed",
+        "must_capture_invalid",
+        "must_capture_excluded",
+        "must_capture_errored",
+        "must_capture_aborted",
+        "must_capture_filtered",
+        "must_capture_data_unavailable",
+        "must_capture_not_attempted",
+        "winner_only_retention_forbidden",
+        "canonical_evidence_mapping_deferred"
+      ],
+      "properties": {
+        "result_population_expected": { "type": "boolean" },
+        "expected_result_population_ref": { "$ref": "#/definitions/nullable_string" },
+        "must_capture_successful": { "type": "boolean", "const": true },
+        "must_capture_failed": { "type": "boolean", "const": true },
+        "must_capture_invalid": { "type": "boolean", "const": true },
+        "must_capture_excluded": { "type": "boolean", "const": true },
+        "must_capture_errored": { "type": "boolean", "const": true },
+        "must_capture_aborted": { "type": "boolean", "const": true },
+        "must_capture_filtered": { "type": "boolean", "const": true },
+        "must_capture_data_unavailable": { "type": "boolean", "const": true },
+        "must_capture_not_attempted": { "type": "boolean", "const": true },
+        "winner_only_retention_forbidden": { "type": "boolean", "const": true },
+        "canonical_evidence_mapping_deferred": { "type": "boolean", "const": true }
+      }
+    },
+    "trial_accounting": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "committed_population_count",
+        "selected_variant_count",
+        "executed_variant_count",
+        "successful_variant_count",
+        "failed_variant_count",
+        "errored_variant_count",
+        "aborted_variant_count",
+        "filtered_variant_count",
+        "data_unavailable_variant_count",
+        "excluded_variant_count",
+        "not_attempted_variant_count",
+        "multiple_testing_denominator",
+        "denominator_basis",
+        "denominator_equals_committed_population_count",
+        "executed_only_denominator_forbidden",
+        "successful_only_denominator_forbidden",
+        "failed_variants_remain_in_denominator",
+        "excluded_variants_remain_in_denominator",
+        "invalid_variants_remain_in_denominator",
+        "errored_variants_remain_in_denominator",
+        "aborted_variants_remain_in_denominator",
+        "filtered_variants_remain_in_denominator",
+        "data_unavailable_variants_remain_in_denominator",
+        "not_attempted_variants_remain_in_denominator"
+      ],
+      "properties": {
+        "committed_population_count": { "type": "integer", "minimum": 0 },
+        "selected_variant_count": { "type": "integer", "minimum": 0 },
+        "executed_variant_count": { "type": "integer", "minimum": 0 },
+        "successful_variant_count": { "type": "integer", "minimum": 0 },
+        "failed_variant_count": { "type": "integer", "minimum": 0 },
+        "errored_variant_count": { "type": "integer", "minimum": 0 },
+        "aborted_variant_count": { "type": "integer", "minimum": 0 },
+        "filtered_variant_count": { "type": "integer", "minimum": 0 },
+        "data_unavailable_variant_count": { "type": "integer", "minimum": 0 },
+        "excluded_variant_count": { "type": "integer", "minimum": 0 },
+        "not_attempted_variant_count": { "type": "integer", "minimum": 0 },
+        "multiple_testing_denominator": { "type": "integer", "minimum": 0 },
+        "denominator_basis": { "type": "string", "const": "committed_pre_registered_population_count" },
+        "denominator_equals_committed_population_count": { "type": "boolean", "const": true },
+        "executed_only_denominator_forbidden": { "type": "boolean", "const": true },
+        "successful_only_denominator_forbidden": { "type": "boolean", "const": true },
+        "failed_variants_remain_in_denominator": { "type": "boolean", "const": true },
+        "excluded_variants_remain_in_denominator": { "type": "boolean", "const": true },
+        "invalid_variants_remain_in_denominator": { "type": "boolean", "const": true },
+        "errored_variants_remain_in_denominator": { "type": "boolean", "const": true },
+        "aborted_variants_remain_in_denominator": { "type": "boolean", "const": true },
+        "filtered_variants_remain_in_denominator": { "type": "boolean", "const": true },
+        "data_unavailable_variants_remain_in_denominator": { "type": "boolean", "const": true },
+        "not_attempted_variants_remain_in_denominator": { "type": "boolean", "const": true }
+      }
+    },
+    "lineage_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ref_type", "ref_id", "ref_path", "ref_hash"],
+      "properties": {
+        "ref_type": { "type": "string", "enum": ["strategy_spec", "variant_manifest", "search_family", "manual_review", "other"] },
+        "ref_id": { "$ref": "#/definitions/non_empty_string" },
+        "ref_path": { "$ref": "#/definitions/nullable_string" },
+        "ref_hash": { "$ref": "#/definitions/sha256_or_null" }
+      }
+    },
+    "lineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "parent_manifest_ref",
+        "parent_strategy_spec_ref",
+        "search_family_id",
+        "source_refs",
+        "created_at",
+        "updated_at",
+        "audit_notes"
+      ],
+      "properties": {
+        "parent_manifest_ref": { "$ref": "#/definitions/lineage_ref" },
+        "parent_strategy_spec_ref": { "$ref": "#/definitions/lineage_ref" },
+        "search_family_id": { "$ref": "#/definitions/non_empty_string" },
+        "source_refs": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/lineage_ref" }
+        },
+        "created_at": { "$ref": "#/definitions/date_time_or_null" },
+        "updated_at": { "$ref": "#/definitions/date_time_or_null" },
+        "audit_notes": { "$ref": "#/definitions/string_array" }
+      }
+    },
+    "review_non_authority_acknowledgement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "not_candidate_approval",
+        "not_exp_approval",
+        "not_runner_authority",
+        "not_sweep_authority",
+        "not_result_authority",
+        "not_ranking_authority",
+        "not_recommendation_authority",
+        "not_readiness_authority",
+        "not_transition_authority",
+        "not_runtime_authority",
+        "not_paper_live_authority",
+        "not_gate_satisfaction"
+      ],
+      "properties": {
+        "not_candidate_approval": { "type": "boolean", "const": true },
+        "not_exp_approval": { "type": "boolean", "const": true },
+        "not_runner_authority": { "type": "boolean", "const": true },
+        "not_sweep_authority": { "type": "boolean", "const": true },
+        "not_result_authority": { "type": "boolean", "const": true },
+        "not_ranking_authority": { "type": "boolean", "const": true },
+        "not_recommendation_authority": { "type": "boolean", "const": true },
+        "not_readiness_authority": { "type": "boolean", "const": true },
+        "not_transition_authority": { "type": "boolean", "const": true },
+        "not_runtime_authority": { "type": "boolean", "const": true },
+        "not_paper_live_authority": { "type": "boolean", "const": true },
+        "not_gate_satisfaction": { "type": "boolean", "const": true }
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["human_review_required", "reviewer", "reviewed_at", "review_notes", "approval_scope", "non_authority_acknowledgement"],
+      "properties": {
+        "human_review_required": { "type": "boolean", "const": true },
+        "reviewer": { "$ref": "#/definitions/nullable_string" },
+        "reviewed_at": { "$ref": "#/definitions/date_time_or_null" },
+        "review_notes": { "$ref": "#/definitions/string_array" },
+        "approval_scope": { "type": "string", "enum": ["none", "offline_run_planning_only"] },
+        "non_authority_acknowledgement": { "$ref": "#/definitions/review_non_authority_acknowledgement" }
+      }
+    },
+    "supersedes_sweep_plan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sweep_plan_id", "sweep_plan_hash", "reason", "superseded_at"],
+      "properties": {
+        "sweep_plan_id": { "type": "string", "pattern": "^SWEEP-PLAN-[0-9]{4}$" },
+        "sweep_plan_hash": { "$ref": "#/definitions/sha256_hash" },
+        "reason": { "$ref": "#/definitions/non_empty_string" },
+        "superseded_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "supersession_lineage_entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "superseded_sweep_plan_id",
+        "superseded_sweep_plan_hash",
+        "supersession_reason",
+        "superseded_at",
+        "prior_sweep_plan_preserved_immutably"
+      ],
+      "properties": {
+        "superseded_sweep_plan_id": { "type": "string", "pattern": "^SWEEP-PLAN-[0-9]{4}$" },
+        "superseded_sweep_plan_hash": { "$ref": "#/definitions/sha256_hash" },
+        "supersession_reason": { "$ref": "#/definitions/non_empty_string" },
+        "superseded_at": { "type": "string", "format": "date-time" },
+        "prior_sweep_plan_preserved_immutably": { "type": "boolean", "const": true }
+      }
+    },
+    "amendment_and_supersession": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "amendment_mode",
+        "supersedes",
+        "supersession_lineage",
+        "amendment_reason",
+        "associated_results_state",
+        "supersession_allowed",
+        "close_only_after_results",
+        "post_result_change",
+        "preserve_prior_sweep_plan_required",
+        "does_not_modify_parent_manifest",
+        "does_not_modify_manifest_denominator"
+      ],
+      "properties": {
+        "amendment_mode": { "type": "string", "enum": ["none", "supersedes_prior_sweep_plan", "closed_after_results"] },
+        "supersedes": { "anyOf": [{ "$ref": "#/definitions/supersedes_sweep_plan" }, { "type": "null" }] },
+        "supersession_lineage": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/supersession_lineage_entry" }
+        },
+        "amendment_reason": { "$ref": "#/definitions/nullable_string" },
+        "associated_results_state": { "type": "string", "enum": ["no_associated_results", "associated_results_exist"] },
+        "supersession_allowed": { "type": "boolean" },
+        "close_only_after_results": { "type": "boolean", "const": true },
+        "post_result_change": { "type": "boolean", "const": false },
+        "preserve_prior_sweep_plan_required": { "type": "boolean", "const": true },
+        "does_not_modify_parent_manifest": { "type": "boolean", "const": true },
+        "does_not_modify_manifest_denominator": { "type": "boolean", "const": true }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "associated_results_state": { "const": "associated_results_exist" } },
+            "required": ["associated_results_state"]
+          },
+          "then": {
+            "properties": {
+              "amendment_mode": { "const": "closed_after_results" },
+              "supersession_allowed": { "const": false },
+              "supersedes": { "type": "null" }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

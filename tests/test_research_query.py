@@ -8,6 +8,7 @@ from tools.research_query import query_layer
 from tools.research_query.query_layer import (
     EXPERIMENTS_DIR,
     REGISTRY_PATH,
+    RESULT_POPULATIONS_DIR,
     SWEEP_PLANS_DIR,
     STRATEGY_SPECS_DIR,
     TRIAL_LOG_PATH,
@@ -48,6 +49,19 @@ REQUIRED_VIEWS = {
     "v_sweep_plan_validation_methods",
     "v_sweep_plan_trial_accounting",
     "v_sweep_plan_result_capture_expectations",
+    "v_result_population_overview",
+    "v_result_population_parent_lineage",
+    "v_result_population_denominator",
+    "v_result_population_outcome_counts",
+    "v_result_population_variant_rows",
+    "v_result_population_error_summary",
+    "v_result_population_data_coverage",
+    "v_result_population_backtest_assumptions",
+    "v_result_population_identity_audit",
+    "v_result_population_append_only_ledger",
+    "v_result_population_ledger_events",
+    "v_result_population_non_authority",
+    "v_result_population_execution_context",
     "v_integrity_variant_manifest_non_authority",
     "v_integrity_variant_manifest_denominator",
     "v_integrity_variant_manifest_hash_readiness",
@@ -56,6 +70,18 @@ REQUIRED_VIEWS = {
     "v_integrity_sweep_plan_denominator",
     "v_integrity_sweep_plan_parent_manifest",
     "v_integrity_sweep_plan_no_computation",
+    "v_integrity_result_population_denominator_mismatch",
+    "v_integrity_result_population_outcome_count_mismatch",
+    "v_integrity_result_population_missing_variant_rows",
+    "v_integrity_result_population_unknown_outcome_category",
+    "v_integrity_result_population_audit_in_identity_scope",
+    "v_integrity_result_population_non_authority_violation",
+    "v_integrity_result_population_canonical_evidence_violation",
+    "v_integrity_result_population_append_only_violation",
+    "v_integrity_result_population_offline_boundary_violation",
+    "v_integrity_result_population_canonical_write_violation",
+    "v_integrity_result_population_authority_key_violation",
+    "v_integrity_result_population_parent_hash_chain_mismatch",
 }
 
 EXPECTED_COLUMNS = {
@@ -296,6 +322,39 @@ EXPECTED_COLUMNS = {
         "must_capture_not_attempted",
         "winner_only_retention_forbidden",
         "canonical_evidence_mapping_deferred",
+    ],
+    "v_result_population_overview": [
+        "result_population_id",
+        "schema_version",
+        "status",
+        "parent_strategy_spec_id",
+        "parent_variant_manifest_id",
+        "parent_sweep_plan_id",
+        "committed_denominator",
+        "result_row_count",
+        "outcome_counts_sum",
+        "execution_mode",
+        "offline_only",
+        "review_status",
+        "review_scope",
+    ],
+    "v_result_population_variant_rows": [
+        "result_population_id",
+        "variant_id",
+        "row_id",
+        "outcome_category",
+        "attempted",
+        "pnl",
+        "return_pct",
+        "drawdown",
+        "trade_count",
+        "sharpe",
+        "non_success_reason",
+        "error_category",
+        "data_slice_identity",
+        "parent_variant_id",
+        "parent_sweep_plan_id",
+        "parent_manifest_id",
     ],
 }
 
@@ -1013,6 +1072,350 @@ def _valid_sweep_plan(manifest: dict, sweep_plan_id: str = "SWEEP-PLAN-9001") ->
     }
 
 
+def _valid_result_population(result_population_id: str = "RP-9001") -> dict:
+    strategy_hash = "sha256:" + "1" * 64
+    manifest_hash = "sha256:" + "4" * 64
+    sweep_hash = "sha256:" + "5" * 64
+    input_hash = "sha256:" + "6" * 64
+    result_hash = "sha256:" + "7" * 64
+    rows = [
+        _result_population_row(result_population_id, 1, "VAR-900001", "successful"),
+        _result_population_row(result_population_id, 2, "VAR-900002", "failed"),
+    ]
+    return {
+        "schema_version": "v1",
+        "result_population_id": result_population_id,
+        "status": "generated",
+        "non_authority_declaration": {
+            **_true_flags(
+                "not_executable",
+                "not_runner_authority",
+                "not_sweep_authority",
+                "not_result_authority",
+                "not_candidate_approval",
+                "not_exp_approval",
+                "not_ranking_authority",
+                "not_recommendation_authority",
+                "not_readiness_authority",
+                "not_transition_authority",
+                "not_runtime_authority",
+                "not_paper_live_authority",
+                "not_gate_authority",
+                "not_canonical_evidence_replacement",
+                "not_trial_log_replacement",
+                "not_outcome_ledger_replacement",
+                "not_reconciliation_authority",
+                "not_decision_authority",
+                "not_exp_replacement",
+                "not_rep_replacement",
+                "not_ol_replacement",
+                "not_rec_replacement",
+                "not_dec_replacement",
+            ),
+            "canonical_evidence_relationship": "reference_only",
+        },
+        "parent_strategy_spec": {
+            "strategy_spec_id": "STRAT-SPEC-9001",
+            "strategy_spec_schema_version": "v1",
+            "strategy_spec_hash": strategy_hash,
+            "hash_algorithm": "sha256",
+            "hash_scope_version": "strategy_spec_hash_scope_v1",
+            "strategy_spec_ref": None,
+            "mismatch_policy": "block",
+            "missing_parent_policy": "block",
+        },
+        "parent_variant_manifest": {
+            "variant_manifest_id": "VM-9001",
+            "variant_manifest_schema_version": "v1",
+            "manifest_hash": manifest_hash,
+            "hash_algorithm": "sha256",
+            "hash_scope_version": "variant_manifest_hash_scope_v1",
+            "manifest_ref": None,
+            "manifest_pre_registration_status": "frozen_for_sweep_planning",
+            "committed_population_count": 2,
+            "mismatch_policy": "block",
+            "missing_manifest_policy": "block",
+        },
+        "parent_sweep_plan": {
+            "sweep_plan_id": "SWEEP-PLAN-9001",
+            "sweep_plan_schema_version": "v1",
+            "sweep_plan_identity_hash": sweep_hash,
+            "hash_algorithm": "sha256",
+            "hash_scope_version": "sweep_plan_identity_hash_scope_v1",
+            "sweep_plan_ref": None,
+            "manifest_id": "VM-9001",
+            "manifest_hash": manifest_hash,
+            "committed_population_count": 2,
+            "selected_variant_count": 2,
+            "mismatch_policy": "block",
+            "missing_sweep_plan_policy": "block",
+        },
+        "execution_context": {
+            "runner_id": "offline-research-runner",
+            "runner_version": "pytest-manual",
+            "runner_code_ref": "manual_pytest_fixture",
+            "repo_commit": "pytest",
+            "environment_summary": ["pytest"],
+            "dependency_summary": ["duckdb"],
+            "determinism_seed": 7,
+            "execution_mode": "offline_research",
+            "offline_only": True,
+            "no_runtime_contact": True,
+            "no_paper_live_contact": True,
+            "no_broker_exchange_order_contact": True,
+            "no_protected_path_contact": True,
+        },
+        "input_identity_hash": {
+            "hash": input_hash,
+            "hash_algorithm": "sha256",
+            "canonicalization": "json_canonical_v1",
+            "hash_scope_version": "input_identity_hash_scope_v1",
+            "hash_scope": [
+                "parent_strategy_spec.strategy_spec_hash",
+                "parent_variant_manifest.manifest_hash",
+                "parent_sweep_plan.sweep_plan_identity_hash",
+            ],
+            "audit_envelope_excluded": True,
+            "audit_envelope_exclusion_reason": (
+                "administrative_audit_metadata_is_excluded_from_scientific_identity"
+            ),
+        },
+        "result_population_identity_hash": {
+            "hash": result_hash,
+            "hash_algorithm": "sha256",
+            "canonicalization": "json_canonical_v1",
+            "hash_scope_version": "result_population_identity_hash_scope_v1",
+            "hash_scope": [
+                "parent_strategy_spec.strategy_spec_hash",
+                "parent_variant_manifest.manifest_hash",
+                "parent_sweep_plan.sweep_plan_identity_hash",
+                "variant_result_rows",
+            ],
+            "audit_envelope_excluded": True,
+            "audit_envelope_exclusion_reason": (
+                "administrative_audit_metadata_is_excluded_from_scientific_identity"
+            ),
+        },
+        "audit_envelope": {
+            "excluded_from_input_identity_hash": True,
+            "excluded_from_result_population_identity_hash": True,
+            "may_contain_scientific_content": False,
+            "administrative_only": True,
+            "created_at": "2026-06-01T00:00:00Z",
+            "created_by": "pytest",
+            "review_notes": [],
+            "operator_notes": [],
+            "validation_run_logs": [],
+            "administrative_lineage": [],
+        },
+        "committed_denominator_snapshot": {
+            "denominator_basis": "committed_pre_registered_population_count",
+            "parent_manifest_committed_population_count": 2,
+            "parent_sweep_plan_committed_population_count": 2,
+            "selected_variant_count": 2,
+            "result_row_count": 2,
+            "outcome_counts_sum": 2,
+            "committed_denominator": 2,
+            **_true_flags(
+                "denominator_equals_parent_manifest_committed_population_count",
+                "denominator_equals_parent_sweep_plan_committed_population_count",
+                "outcome_counts_sum_equals_committed_denominator",
+                "result_row_count_equals_committed_denominator",
+                "executed_only_denominator_forbidden",
+                "successful_only_denominator_forbidden",
+                "winner_only_retention_forbidden",
+                "post_hoc_cleanup_forbidden",
+                "failed_variants_remain_in_denominator",
+                "invalid_variants_remain_in_denominator",
+                "excluded_variants_remain_in_denominator",
+                "errored_variants_remain_in_denominator",
+                "aborted_variants_remain_in_denominator",
+                "filtered_variants_remain_in_denominator",
+                "data_unavailable_variants_remain_in_denominator",
+                "not_attempted_variants_remain_in_denominator",
+            ),
+        },
+        "variant_result_rows": rows,
+        "outcome_category_counts": {
+            "successful": 1,
+            "failed": 1,
+            "invalid": 0,
+            "excluded": 0,
+            "errored": 0,
+            "aborted": 0,
+            "filtered": 0,
+            "data_unavailable": 0,
+            "not_attempted": 0,
+            "counts_sum": 2,
+            "counts_sum_equals_committed_denominator": True,
+        },
+        "append_only_ledger": {
+            "ledger_required": True,
+            "append_only": True,
+            "post_commit_in_place_mutation_forbidden": True,
+            "scientific_identity_mutation_forbidden_after_finalization": True,
+            "corrections_require_append_only_event": True,
+            "supersession_preserves_prior_result_population": True,
+            "creation_event_ref": f"{result_population_id}-EVENT-001",
+            "events": [
+                {
+                    "event_id": f"{result_population_id}-EVENT-001",
+                    "event_type": "created",
+                    "event_timestamp": "2026-06-01T00:00:00Z",
+                    "actor_or_tool": "pytest",
+                    "related_artifact_refs": [],
+                    "notes": ["manual temporary fixture"],
+                }
+            ],
+        },
+        "validation_summary": {
+            "schema_validation_status": "passed",
+            "validator_status": "passed",
+            "validator_version": "pytest",
+            "validator_identity": "manual_pytest_fixture",
+            "validation_timestamp": "2026-06-01T00:00:00Z",
+            "blocking_errors": [],
+            "non_blocking_warnings": [],
+            "validator_authority_boundary": "evidence_only_no_approval_no_execution",
+            "validator_does_not_approve": True,
+            "validator_does_not_recommend": True,
+            "validator_does_not_rank": True,
+            "validator_does_not_execute": True,
+            "validator_does_not_contact_runtime": True,
+        },
+        "error_summary": {
+            "failed": 1,
+            "errored": 0,
+            "aborted": 0,
+            "filtered": 0,
+            "data_unavailable": 0,
+            "not_attempted": 0,
+            "invalid": 0,
+            "excluded": 0,
+            "all_error_categories_counted_in_denominator": True,
+            "error_rows_preserved": True,
+        },
+        "data_coverage_summary": {
+            "data_catalog_ref": "pytest",
+            "data_slice_identity": "pytest-slice",
+            "timeframe": "1h",
+            "data_stream": "ohlcv",
+            "missing_data_policy": "block_if_missing",
+            "irreparable_gap_count": 0,
+            "data_unavailable_count": 0,
+            "data_coverage_notes": [],
+        },
+        "backtest_assumption_summary": {
+            "fee_side_assumption": "taker_entry_taker_exit",
+            "exchange_constraint_disclosure": "true",
+            "funding_notional": "entry_price",
+            "slippage_model": "fixed_bps",
+            "fill_mode": "complete",
+            "order_size_assumption": "fixed_1_contract",
+            "liquidity_capacity_assumption": "fixture capacity",
+            "liquidation_mode": "zero_equity",
+            "maintenance_margin_assumption": None,
+            "mark_price_source": "close",
+            "bar_path_assumption": "next_open_close_mark",
+            "records_assumptions_only": True,
+        },
+        "lineage": {
+            "strategy_spec_id": "STRAT-SPEC-9001",
+            "variant_manifest_id": "VM-9001",
+            "sweep_plan_id": "SWEEP-PLAN-9001",
+            "result_population_id": result_population_id,
+            "parent_hash_chain": {
+                "strategy_spec_hash": strategy_hash,
+                "variant_manifest_hash": manifest_hash,
+                "sweep_plan_identity_hash": sweep_hash,
+                "input_identity_hash": input_hash,
+            },
+            "created_from_validated_inputs": True,
+            "complete_population_lineage_preserved": True,
+        },
+        "review": {
+            "review_status": "not_reviewed",
+            "review_scope": "none",
+            "review_notes": [],
+            "non_authority_acknowledgement": _true_flags(
+                "not_approval",
+                "not_recommendation",
+                "not_readiness",
+                "not_transition",
+                "not_gate_satisfaction",
+                "not_runtime_authority",
+                "not_paper_live_authority",
+            ),
+        },
+    }
+
+
+def _result_population_row(
+    result_population_id: str,
+    row_number: int,
+    variant_id: str,
+    outcome: str,
+) -> dict:
+    successful = outcome == "successful"
+    return {
+        "variant_id": variant_id,
+        "row_id": f"{result_population_id}-ROW-{row_number:06d}",
+        "row_identity_hash": "sha256:" + f"{row_number}".zfill(64),
+        "assignment_hash": "sha256:" + f"{row_number + 10}".zfill(64),
+        "assignment_ref": None,
+        "outcome_category": outcome,
+        "attempted": True,
+        "metrics": {
+            "pnl": 10.0 if successful else None,
+            "return_pct": 0.01 if successful else None,
+            "drawdown": 0.02 if successful else None,
+            "trade_count": 1 if successful else None,
+            "win_rate": 1.0 if successful else None,
+            "sharpe": 1.1 if successful else None,
+            "fees": 1.0 if successful else None,
+            "funding": 0.0 if successful else None,
+            "slippage": 0.5 if successful else None,
+            "exposure": 1.0 if successful else None,
+        },
+        "non_success": {
+            "reason": None if successful else "fixture failure",
+            "rule_ref": None,
+            "declared_before_results": None if successful else True,
+            "counts_in_denominator": True,
+        },
+        "error": {
+            "error_category": None if successful else "strategy_underperformance",
+            "error_message_class": None,
+            "is_infrastructure_error": None if successful else False,
+            "is_strategy_underperformance": None if successful else True,
+            "counts_in_denominator": True,
+        },
+        "data_coverage": {
+            "data_catalog_ref": "pytest",
+            "data_slice_identity": "pytest-slice",
+            "timeframe": "1h",
+            "data_stream": "ohlcv",
+            "missing_data_policy": "block_if_missing",
+            "irreparable_gap": False,
+            "counts_in_denominator": True,
+        },
+        "backtest_assumption_ref": "backtest_assumption_summary",
+        "lineage": {
+            "parent_variant_id": variant_id,
+            "parent_variant_assignment_hash": "sha256:" + f"{row_number + 10}".zfill(64),
+            "parent_variant_assignment_ref": None,
+            "parent_sweep_plan_id": "SWEEP-PLAN-9001",
+            "parent_manifest_id": "VM-9001",
+        },
+        "row_mutation_policy": _true_flags(
+            "scientific_row_identity_immutable_after_commit",
+            "corrections_require_append_only_event",
+            "post_commit_in_place_mutation_forbidden",
+            "post_hoc_cleanup_forbidden",
+        ),
+    }
+
+
 def _init_temp_query_layer(
     monkeypatch,
     tmp_path,
@@ -1022,6 +1425,7 @@ def _init_temp_query_layer(
     strategy_specs=None,
     variant_manifests=None,
     sweep_plans=None,
+    result_populations=None,
 ):
     registry_path = tmp_path / "research" / "candidate_registry.jsonl"
     trial_log_path = tmp_path / "research" / "trial_log.jsonl"
@@ -1029,6 +1433,7 @@ def _init_temp_query_layer(
     strategy_specs_dir = tmp_path / "research" / "strategy_specs"
     variant_manifests_dir = tmp_path / "research" / "variant_manifests"
     sweep_plans_dir = tmp_path / "research" / "sweep_plans"
+    result_populations_dir = tmp_path / "research" / "result_populations"
 
     registry_path.parent.mkdir(parents=True, exist_ok=True)
     registry_path.write_text(
@@ -1057,6 +1462,12 @@ def _init_temp_query_layer(
             sweep_plans_dir / f"{sweep_plan['sweep_plan_id']}.sweep_plan.json",
             sweep_plan,
         )
+    for result_population in result_populations or []:
+        _write_json(
+            result_populations_dir
+            / f"{result_population['result_population_id']}.result_population.json",
+            result_population,
+        )
 
     monkeypatch.setattr(query_layer, "REGISTRY_PATH", registry_path)
     monkeypatch.setattr(query_layer, "TRIAL_LOG_PATH", trial_log_path)
@@ -1064,6 +1475,7 @@ def _init_temp_query_layer(
     monkeypatch.setattr(query_layer, "STRATEGY_SPECS_DIR", strategy_specs_dir)
     monkeypatch.setattr(query_layer, "VARIANT_MANIFESTS_DIR", variant_manifests_dir)
     monkeypatch.setattr(query_layer, "SWEEP_PLANS_DIR", sweep_plans_dir)
+    monkeypatch.setattr(query_layer, "RESULT_POPULATIONS_DIR", result_populations_dir)
 
     return init_duckdb()
 
@@ -1996,6 +2408,447 @@ def test_sweep_plan_no_computation_integrity_flags_violation(monkeypatch, tmp_pa
         assert "validation_methods.monte_carlo.computation_deferred" in source_fields
     finally:
         connection.close()
+
+
+def test_result_population_relation_empty_without_directory(monkeypatch, tmp_path):
+    connection = _init_temp_query_layer(
+        monkeypatch,
+        tmp_path,
+        [_valid_candidate_row()],
+        [_valid_plan()],
+        [_valid_report()],
+    )
+    try:
+        assert not (tmp_path / "research" / "result_populations").exists()
+        assert connection.execute("SELECT * FROM result_populations").fetchall() == []
+        for view_name in [
+            "v_result_population_overview",
+            "v_result_population_parent_lineage",
+            "v_result_population_denominator",
+            "v_result_population_outcome_counts",
+            "v_result_population_variant_rows",
+            "v_result_population_error_summary",
+            "v_result_population_data_coverage",
+            "v_result_population_backtest_assumptions",
+            "v_result_population_identity_audit",
+            "v_result_population_append_only_ledger",
+            "v_result_population_ledger_events",
+            "v_result_population_non_authority",
+            "v_result_population_execution_context",
+            "v_integrity_result_population_denominator_mismatch",
+            "v_integrity_result_population_outcome_count_mismatch",
+            "v_integrity_result_population_missing_variant_rows",
+            "v_integrity_result_population_unknown_outcome_category",
+            "v_integrity_result_population_audit_in_identity_scope",
+            "v_integrity_result_population_non_authority_violation",
+            "v_integrity_result_population_canonical_evidence_violation",
+            "v_integrity_result_population_append_only_violation",
+            "v_integrity_result_population_offline_boundary_violation",
+            "v_integrity_result_population_canonical_write_violation",
+            "v_integrity_result_population_authority_key_violation",
+            "v_integrity_result_population_parent_hash_chain_mismatch",
+        ]:
+            assert connection.execute(f'SELECT * FROM "{view_name}"').fetchall() == []
+        assert not (tmp_path / "research" / "result_populations").exists()
+    finally:
+        connection.close()
+
+
+def test_temp_result_population_appears_in_read_only_views(monkeypatch, tmp_path):
+    result_population = _valid_result_population()
+
+    connection = _init_temp_query_layer(
+        monkeypatch,
+        tmp_path,
+        [_valid_candidate_row()],
+        [_valid_plan()],
+        [_valid_report()],
+        result_populations=[result_population],
+    )
+    try:
+        overview = connection.execute(
+            """
+            SELECT result_population_id, parent_strategy_spec_id,
+                   parent_variant_manifest_id, parent_sweep_plan_id,
+                   committed_denominator, result_row_count, outcome_counts_sum,
+                   execution_mode, offline_only, review_scope
+            FROM v_result_population_overview
+            """
+        ).fetchall()
+        rows = connection.execute(
+            """
+            SELECT variant_id, outcome_category, attempted, parent_sweep_plan_id,
+                   parent_manifest_id
+            FROM v_result_population_variant_rows
+            ORDER BY row_id
+            """
+        ).fetchall()
+        ledger = connection.execute(
+            """
+            SELECT result_population_id, append_only, creation_event_ref, event_count
+            FROM v_result_population_append_only_ledger
+            """
+        ).fetchall()
+
+        assert overview == [
+            (
+                "RP-9001",
+                "STRAT-SPEC-9001",
+                "VM-9001",
+                "SWEEP-PLAN-9001",
+                2,
+                2,
+                2,
+                "offline_research",
+                True,
+                "none",
+            )
+        ]
+        assert rows == [
+            ("VAR-900001", "successful", True, "SWEEP-PLAN-9001", "VM-9001"),
+            ("VAR-900002", "failed", True, "SWEEP-PLAN-9001", "VM-9001"),
+        ]
+        assert ledger == [("RP-9001", True, "RP-9001-EVENT-001", 1)]
+    finally:
+        connection.close()
+
+
+def test_result_population_integrity_views_clean_for_valid_temp_fixture(monkeypatch, tmp_path):
+    connection = _init_temp_query_layer(
+        monkeypatch,
+        tmp_path,
+        [_valid_candidate_row()],
+        [_valid_plan()],
+        [_valid_report()],
+        result_populations=[_valid_result_population()],
+    )
+    try:
+        for view_name in [
+            "v_integrity_result_population_denominator_mismatch",
+            "v_integrity_result_population_outcome_count_mismatch",
+            "v_integrity_result_population_missing_variant_rows",
+            "v_integrity_result_population_unknown_outcome_category",
+            "v_integrity_result_population_audit_in_identity_scope",
+            "v_integrity_result_population_non_authority_violation",
+            "v_integrity_result_population_canonical_evidence_violation",
+            "v_integrity_result_population_append_only_violation",
+            "v_integrity_result_population_offline_boundary_violation",
+            "v_integrity_result_population_canonical_write_violation",
+            "v_integrity_result_population_authority_key_violation",
+            "v_integrity_result_population_parent_hash_chain_mismatch",
+        ]:
+            assert connection.execute(f'SELECT * FROM "{view_name}"').fetchall() == []
+    finally:
+        connection.close()
+
+
+def test_result_population_denominator_mismatch_integrity_flags_violation(monkeypatch, tmp_path):
+    result_population = _valid_result_population()
+    result_population["committed_denominator_snapshot"]["committed_denominator"] = 3
+
+    connection = _init_temp_query_layer(
+        monkeypatch,
+        tmp_path,
+        [_valid_candidate_row()],
+        [_valid_plan()],
+        [_valid_report()],
+        result_populations=[result_population],
+    )
+    try:
+        source_fields = {
+            row[0]
+            for row in connection.execute(
+                """
+                SELECT source_field
+                FROM v_integrity_result_population_denominator_mismatch
+                """
+            ).fetchall()
+        }
+
+        assert "committed_denominator_snapshot.result_row_count" in source_fields
+        assert "committed_denominator_snapshot.outcome_counts_sum" in source_fields
+    finally:
+        connection.close()
+
+
+def test_result_population_unknown_outcome_category_integrity_flags_violation(
+    monkeypatch, tmp_path
+):
+    result_population = _valid_result_population()
+    result_population["variant_result_rows"][1]["outcome_category"] = "winner"
+
+    connection = _init_temp_query_layer(
+        monkeypatch,
+        tmp_path,
+        [_valid_candidate_row()],
+        [_valid_plan()],
+        [_valid_report()],
+        result_populations=[result_population],
+    )
+    try:
+        rows = connection.execute(
+            """
+            SELECT row_id, variant_id, outcome_category
+            FROM v_integrity_result_population_unknown_outcome_category
+            """
+        ).fetchall()
+
+        assert rows == [("RP-9001-ROW-000002", "VAR-900002", "winner")]
+    finally:
+        connection.close()
+
+
+def test_result_population_audit_identity_scope_integrity_flags_violation(
+    monkeypatch, tmp_path
+):
+    result_population = _valid_result_population()
+    result_population["result_population_identity_hash"]["hash_scope"].append("audit_envelope")
+
+    connection = _init_temp_query_layer(
+        monkeypatch,
+        tmp_path,
+        [_valid_candidate_row()],
+        [_valid_plan()],
+        [_valid_report()],
+        result_populations=[result_population],
+    )
+    try:
+        rows = connection.execute(
+            """
+            SELECT source_field, scope_item
+            FROM v_integrity_result_population_audit_in_identity_scope
+            """
+        ).fetchall()
+
+        assert rows == [("result_population_identity_hash.hash_scope", "audit_envelope")]
+    finally:
+        connection.close()
+
+
+def test_result_population_non_authority_integrity_flags_violation(monkeypatch, tmp_path):
+    result_population = _valid_result_population()
+    result_population["non_authority_declaration"]["not_recommendation_authority"] = False
+    result_population["review"]["non_authority_acknowledgement"]["not_approval"] = False
+
+    connection = _init_temp_query_layer(
+        monkeypatch,
+        tmp_path,
+        [_valid_candidate_row()],
+        [_valid_plan()],
+        [_valid_report()],
+        result_populations=[result_population],
+    )
+    try:
+        source_fields = {
+            row[0]
+            for row in connection.execute(
+                """
+                SELECT source_field
+                FROM v_integrity_result_population_non_authority_violation
+                """
+            ).fetchall()
+        }
+
+        assert "non_authority_declaration.not_recommendation_authority" in source_fields
+        assert "review.non_authority_acknowledgement.not_approval" in source_fields
+    finally:
+        connection.close()
+
+
+def test_result_population_append_only_integrity_flags_violation(monkeypatch, tmp_path):
+    result_population = _valid_result_population()
+    result_population["append_only_ledger"]["append_only"] = False
+    result_population["append_only_ledger"]["events"][0]["event_type"] = "reviewed"
+
+    connection = _init_temp_query_layer(
+        monkeypatch,
+        tmp_path,
+        [_valid_candidate_row()],
+        [_valid_plan()],
+        [_valid_report()],
+        result_populations=[result_population],
+    )
+    try:
+        source_fields = {
+            row[0]
+            for row in connection.execute(
+                """
+                SELECT source_field
+                FROM v_integrity_result_population_append_only_violation
+                """
+            ).fetchall()
+        }
+
+        assert "append_only_ledger.append_only" in source_fields
+        assert "append_only_ledger.events" in source_fields
+    finally:
+        connection.close()
+
+
+def test_result_population_offline_boundary_integrity_flags_violation(monkeypatch, tmp_path):
+    result_population = _valid_result_population()
+    result_population["execution_context"]["offline_only"] = False
+    result_population["execution_context"]["no_runtime_contact"] = False
+
+    connection = _init_temp_query_layer(
+        monkeypatch,
+        tmp_path,
+        [_valid_candidate_row()],
+        [_valid_plan()],
+        [_valid_report()],
+        result_populations=[result_population],
+    )
+    try:
+        source_fields = {
+            row[0]
+            for row in connection.execute(
+                """
+                SELECT source_field
+                FROM v_integrity_result_population_offline_boundary_violation
+                """
+            ).fetchall()
+        }
+
+        assert "execution_context.offline_only" in source_fields
+        assert "execution_context.no_runtime_contact" in source_fields
+    finally:
+        connection.close()
+
+
+def test_result_population_canonical_write_integrity_flags_violation(monkeypatch, tmp_path):
+    result_population = _valid_result_population()
+    result_population["audit_envelope"]["operator_notes"] = [
+        "output_dir=research/result_populations"
+    ]
+
+    connection = _init_temp_query_layer(
+        monkeypatch,
+        tmp_path,
+        [_valid_candidate_row()],
+        [_valid_plan()],
+        [_valid_report()],
+        result_populations=[result_population],
+    )
+    try:
+        rows = connection.execute(
+            """
+            SELECT result_population_id
+            FROM v_integrity_result_population_canonical_write_violation
+            """
+        ).fetchall()
+
+        assert rows == [("RP-9001",)]
+    finally:
+        connection.close()
+
+
+def test_result_population_authority_key_integrity_flags_violation(monkeypatch, tmp_path):
+    result_population = _valid_result_population()
+    result_population["audit_envelope"]["operator_notes"] = ["ranking_score=1.0"]
+
+    connection = _init_temp_query_layer(
+        monkeypatch,
+        tmp_path,
+        [_valid_candidate_row()],
+        [_valid_plan()],
+        [_valid_report()],
+        result_populations=[result_population],
+    )
+    try:
+        rows = connection.execute(
+            """
+            SELECT source_field
+            FROM v_integrity_result_population_authority_key_violation
+            """
+        ).fetchall()
+
+        assert rows == [("ranking_score",)]
+    finally:
+        connection.close()
+
+
+def test_result_population_parent_hash_chain_integrity_flags_violation(monkeypatch, tmp_path):
+    result_population = _valid_result_population()
+    result_population["lineage"]["parent_hash_chain"]["variant_manifest_hash"] = (
+        "sha256:" + "0" * 64
+    )
+
+    connection = _init_temp_query_layer(
+        monkeypatch,
+        tmp_path,
+        [_valid_candidate_row()],
+        [_valid_plan()],
+        [_valid_report()],
+        result_populations=[result_population],
+    )
+    try:
+        rows = connection.execute(
+            """
+            SELECT source_field
+            FROM v_integrity_result_population_parent_hash_chain_mismatch
+            """
+        ).fetchall()
+
+        assert rows == [("lineage.parent_hash_chain.variant_manifest_hash",)]
+    finally:
+        connection.close()
+
+
+def test_querying_result_population_views_does_not_modify_or_create_repo_corpus(conn):
+    result_population_files = (
+        sorted(RESULT_POPULATIONS_DIR.glob("*.json")) if RESULT_POPULATIONS_DIR.exists() else []
+    )
+    research_files = [
+        REGISTRY_PATH,
+        TRIAL_LOG_PATH,
+        *sorted(EXPERIMENTS_DIR.glob("*.json")),
+        *result_population_files,
+    ]
+    before = _file_checksums(research_files)
+    corpus_existed_before = RESULT_POPULATIONS_DIR.exists()
+
+    for view_name in [
+        "v_result_population_overview",
+        "v_result_population_parent_lineage",
+        "v_result_population_denominator",
+        "v_result_population_outcome_counts",
+        "v_result_population_variant_rows",
+        "v_result_population_error_summary",
+        "v_result_population_data_coverage",
+        "v_result_population_backtest_assumptions",
+        "v_result_population_identity_audit",
+        "v_result_population_append_only_ledger",
+        "v_result_population_ledger_events",
+        "v_result_population_non_authority",
+        "v_result_population_execution_context",
+        "v_integrity_result_population_denominator_mismatch",
+        "v_integrity_result_population_outcome_count_mismatch",
+        "v_integrity_result_population_missing_variant_rows",
+        "v_integrity_result_population_unknown_outcome_category",
+        "v_integrity_result_population_audit_in_identity_scope",
+        "v_integrity_result_population_non_authority_violation",
+        "v_integrity_result_population_canonical_evidence_violation",
+        "v_integrity_result_population_append_only_violation",
+        "v_integrity_result_population_offline_boundary_violation",
+        "v_integrity_result_population_canonical_write_violation",
+        "v_integrity_result_population_authority_key_violation",
+        "v_integrity_result_population_parent_hash_chain_mismatch",
+    ]:
+        run_named_view(conn, view_name)
+
+    after = _file_checksums(research_files)
+
+    assert after == before
+    assert RESULT_POPULATIONS_DIR.exists() is corpus_existed_before
+
+
+def test_query_layer_does_not_import_or_run_offline_runner():
+    source = (query_layer.REPO_ROOT / "tools" / "research_query" / "query_layer.py").read_text(
+        encoding="utf-8"
+    )
+
+    assert "tools.research_runner" not in source
+    assert "run_offline_sweep" not in source
 
 
 def test_querying_variant_sweep_views_does_not_modify_research_files(conn):

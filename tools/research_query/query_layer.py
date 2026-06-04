@@ -32,6 +32,7 @@ S2P_APPROVAL_RECORDS_DIR = REPO_ROOT / "research" / "s2p_approval_records"
 STRATEGY_SPECS_DIR = REPO_ROOT / "research" / "strategy_specs"
 VARIANT_MANIFESTS_DIR = REPO_ROOT / "research" / "variant_manifests"
 SWEEP_PLANS_DIR = REPO_ROOT / "research" / "sweep_plans"
+RESULT_POPULATIONS_DIR = REPO_ROOT / "research" / "result_populations"
 TRIAL_LOG_PATH = REPO_ROOT / "research" / "trial_log.jsonl"
 VIEWS_PATH = Path(__file__).resolve().with_name("views.sql")
 
@@ -1661,6 +1662,331 @@ def _register_sweep_plans(conn: duckdb.DuckDBPyConnection) -> None:
     )
 
 
+def _register_result_populations(conn: duckdb.DuckDBPyConnection) -> None:
+    result_population_files = (
+        sorted(RESULT_POPULATIONS_DIR.glob("*.result_population.json"))
+        if RESULT_POPULATIONS_DIR.exists()
+        else []
+    )
+    if result_population_files:
+        conn.execute(
+            f"""
+            CREATE VIEW result_populations AS
+            SELECT * FROM read_json_auto('{_sql_path(RESULT_POPULATIONS_DIR / "*.result_population.json")}')
+            """
+        )
+        return
+
+    conn.execute(
+        """
+        CREATE VIEW result_populations AS
+        SELECT
+            CAST(NULL AS VARCHAR) AS schema_version,
+            CAST(NULL AS VARCHAR) AS result_population_id,
+            CAST(NULL AS VARCHAR) AS status,
+            CAST(NULL AS STRUCT(
+                not_executable BOOLEAN,
+                not_runner_authority BOOLEAN,
+                not_sweep_authority BOOLEAN,
+                not_result_authority BOOLEAN,
+                not_candidate_approval BOOLEAN,
+                not_exp_approval BOOLEAN,
+                not_ranking_authority BOOLEAN,
+                not_recommendation_authority BOOLEAN,
+                not_readiness_authority BOOLEAN,
+                not_transition_authority BOOLEAN,
+                not_runtime_authority BOOLEAN,
+                not_paper_live_authority BOOLEAN,
+                not_gate_authority BOOLEAN,
+                not_canonical_evidence_replacement BOOLEAN,
+                not_trial_log_replacement BOOLEAN,
+                not_outcome_ledger_replacement BOOLEAN,
+                not_reconciliation_authority BOOLEAN,
+                not_decision_authority BOOLEAN,
+                not_exp_replacement BOOLEAN,
+                not_rep_replacement BOOLEAN,
+                not_ol_replacement BOOLEAN,
+                not_rec_replacement BOOLEAN,
+                not_dec_replacement BOOLEAN,
+                canonical_evidence_relationship VARCHAR
+            )) AS non_authority_declaration,
+            CAST(NULL AS STRUCT(
+                strategy_spec_id VARCHAR,
+                strategy_spec_schema_version VARCHAR,
+                strategy_spec_hash VARCHAR,
+                hash_algorithm VARCHAR,
+                hash_scope_version VARCHAR,
+                strategy_spec_ref VARCHAR,
+                mismatch_policy VARCHAR,
+                missing_parent_policy VARCHAR
+            )) AS parent_strategy_spec,
+            CAST(NULL AS STRUCT(
+                variant_manifest_id VARCHAR,
+                variant_manifest_schema_version VARCHAR,
+                manifest_hash VARCHAR,
+                hash_algorithm VARCHAR,
+                hash_scope_version VARCHAR,
+                manifest_ref VARCHAR,
+                manifest_pre_registration_status VARCHAR,
+                committed_population_count BIGINT,
+                mismatch_policy VARCHAR,
+                missing_manifest_policy VARCHAR
+            )) AS parent_variant_manifest,
+            CAST(NULL AS STRUCT(
+                sweep_plan_id VARCHAR,
+                sweep_plan_schema_version VARCHAR,
+                sweep_plan_identity_hash VARCHAR,
+                hash_algorithm VARCHAR,
+                hash_scope_version VARCHAR,
+                sweep_plan_ref VARCHAR,
+                manifest_id VARCHAR,
+                manifest_hash VARCHAR,
+                committed_population_count BIGINT,
+                selected_variant_count BIGINT,
+                mismatch_policy VARCHAR,
+                missing_sweep_plan_policy VARCHAR
+            )) AS parent_sweep_plan,
+            CAST(NULL AS STRUCT(
+                runner_id VARCHAR,
+                runner_version VARCHAR,
+                runner_code_ref VARCHAR,
+                repo_commit VARCHAR,
+                environment_summary VARCHAR[],
+                dependency_summary VARCHAR[],
+                determinism_seed BIGINT,
+                execution_mode VARCHAR,
+                offline_only BOOLEAN,
+                no_runtime_contact BOOLEAN,
+                no_paper_live_contact BOOLEAN,
+                no_broker_exchange_order_contact BOOLEAN,
+                no_protected_path_contact BOOLEAN
+            )) AS execution_context,
+            CAST(NULL AS STRUCT(
+                hash VARCHAR,
+                hash_algorithm VARCHAR,
+                canonicalization VARCHAR,
+                hash_scope_version VARCHAR,
+                hash_scope VARCHAR[],
+                audit_envelope_excluded BOOLEAN,
+                audit_envelope_exclusion_reason VARCHAR
+            )) AS input_identity_hash,
+            CAST(NULL AS STRUCT(
+                hash VARCHAR,
+                hash_algorithm VARCHAR,
+                canonicalization VARCHAR,
+                hash_scope_version VARCHAR,
+                hash_scope VARCHAR[],
+                audit_envelope_excluded BOOLEAN,
+                audit_envelope_exclusion_reason VARCHAR
+            )) AS result_population_identity_hash,
+            CAST(NULL AS STRUCT(
+                excluded_from_input_identity_hash BOOLEAN,
+                excluded_from_result_population_identity_hash BOOLEAN,
+                may_contain_scientific_content BOOLEAN,
+                administrative_only BOOLEAN,
+                created_at VARCHAR,
+                created_by VARCHAR,
+                review_notes VARCHAR[],
+                operator_notes VARCHAR[],
+                validation_run_logs VARCHAR[],
+                administrative_lineage VARCHAR[]
+            )) AS audit_envelope,
+            CAST(NULL AS STRUCT(
+                denominator_basis VARCHAR,
+                parent_manifest_committed_population_count BIGINT,
+                parent_sweep_plan_committed_population_count BIGINT,
+                selected_variant_count BIGINT,
+                result_row_count BIGINT,
+                outcome_counts_sum BIGINT,
+                committed_denominator BIGINT,
+                denominator_equals_parent_manifest_committed_population_count BOOLEAN,
+                denominator_equals_parent_sweep_plan_committed_population_count BOOLEAN,
+                outcome_counts_sum_equals_committed_denominator BOOLEAN,
+                result_row_count_equals_committed_denominator BOOLEAN,
+                executed_only_denominator_forbidden BOOLEAN,
+                successful_only_denominator_forbidden BOOLEAN,
+                winner_only_retention_forbidden BOOLEAN,
+                post_hoc_cleanup_forbidden BOOLEAN,
+                failed_variants_remain_in_denominator BOOLEAN,
+                invalid_variants_remain_in_denominator BOOLEAN,
+                excluded_variants_remain_in_denominator BOOLEAN,
+                errored_variants_remain_in_denominator BOOLEAN,
+                aborted_variants_remain_in_denominator BOOLEAN,
+                filtered_variants_remain_in_denominator BOOLEAN,
+                data_unavailable_variants_remain_in_denominator BOOLEAN,
+                not_attempted_variants_remain_in_denominator BOOLEAN
+            )) AS committed_denominator_snapshot,
+            CAST([] AS STRUCT(
+                variant_id VARCHAR,
+                row_id VARCHAR,
+                row_identity_hash VARCHAR,
+                assignment_hash VARCHAR,
+                assignment_ref VARCHAR,
+                outcome_category VARCHAR,
+                attempted BOOLEAN,
+                metrics STRUCT(
+                    pnl DOUBLE,
+                    return_pct DOUBLE,
+                    drawdown DOUBLE,
+                    trade_count BIGINT,
+                    win_rate DOUBLE,
+                    sharpe DOUBLE,
+                    fees DOUBLE,
+                    funding DOUBLE,
+                    slippage DOUBLE,
+                    exposure DOUBLE
+                ),
+                non_success STRUCT(
+                    reason VARCHAR,
+                    rule_ref VARCHAR,
+                    declared_before_results BOOLEAN,
+                    counts_in_denominator BOOLEAN
+                ),
+                error STRUCT(
+                    error_category VARCHAR,
+                    error_message_class VARCHAR,
+                    is_infrastructure_error BOOLEAN,
+                    is_strategy_underperformance BOOLEAN,
+                    counts_in_denominator BOOLEAN
+                ),
+                data_coverage STRUCT(
+                    data_catalog_ref VARCHAR,
+                    data_slice_identity VARCHAR,
+                    timeframe VARCHAR,
+                    data_stream VARCHAR,
+                    missing_data_policy VARCHAR,
+                    irreparable_gap BOOLEAN,
+                    counts_in_denominator BOOLEAN
+                ),
+                backtest_assumption_ref VARCHAR,
+                lineage STRUCT(
+                    parent_variant_id VARCHAR,
+                    parent_variant_assignment_hash VARCHAR,
+                    parent_variant_assignment_ref VARCHAR,
+                    parent_sweep_plan_id VARCHAR,
+                    parent_manifest_id VARCHAR
+                ),
+                row_mutation_policy STRUCT(
+                    scientific_row_identity_immutable_after_commit BOOLEAN,
+                    corrections_require_append_only_event BOOLEAN,
+                    post_commit_in_place_mutation_forbidden BOOLEAN,
+                    post_hoc_cleanup_forbidden BOOLEAN
+                )
+            )[]) AS variant_result_rows,
+            CAST(NULL AS STRUCT(
+                successful BIGINT,
+                failed BIGINT,
+                invalid BIGINT,
+                excluded BIGINT,
+                errored BIGINT,
+                aborted BIGINT,
+                filtered BIGINT,
+                data_unavailable BIGINT,
+                not_attempted BIGINT,
+                counts_sum BIGINT,
+                counts_sum_equals_committed_denominator BOOLEAN
+            )) AS outcome_category_counts,
+            CAST(NULL AS STRUCT(
+                ledger_required BOOLEAN,
+                append_only BOOLEAN,
+                post_commit_in_place_mutation_forbidden BOOLEAN,
+                scientific_identity_mutation_forbidden_after_finalization BOOLEAN,
+                corrections_require_append_only_event BOOLEAN,
+                supersession_preserves_prior_result_population BOOLEAN,
+                creation_event_ref VARCHAR,
+                events STRUCT(
+                    event_id VARCHAR,
+                    event_type VARCHAR,
+                    event_timestamp VARCHAR,
+                    actor_or_tool VARCHAR,
+                    related_artifact_refs VARCHAR[],
+                    notes VARCHAR[]
+                )[]
+            )) AS append_only_ledger,
+            CAST(NULL AS STRUCT(
+                schema_validation_status VARCHAR,
+                validator_status VARCHAR,
+                validator_version VARCHAR,
+                validator_identity VARCHAR,
+                validation_timestamp VARCHAR,
+                blocking_errors VARCHAR[],
+                non_blocking_warnings VARCHAR[],
+                validator_authority_boundary VARCHAR,
+                validator_does_not_approve BOOLEAN,
+                validator_does_not_recommend BOOLEAN,
+                validator_does_not_rank BOOLEAN,
+                validator_does_not_execute BOOLEAN,
+                validator_does_not_contact_runtime BOOLEAN
+            )) AS validation_summary,
+            CAST(NULL AS STRUCT(
+                failed BIGINT,
+                errored BIGINT,
+                aborted BIGINT,
+                filtered BIGINT,
+                data_unavailable BIGINT,
+                not_attempted BIGINT,
+                invalid BIGINT,
+                excluded BIGINT,
+                all_error_categories_counted_in_denominator BOOLEAN,
+                error_rows_preserved BOOLEAN
+            )) AS error_summary,
+            CAST(NULL AS STRUCT(
+                data_catalog_ref VARCHAR,
+                data_slice_identity VARCHAR,
+                timeframe VARCHAR,
+                data_stream VARCHAR,
+                missing_data_policy VARCHAR,
+                irreparable_gap_count BIGINT,
+                data_unavailable_count BIGINT,
+                data_coverage_notes VARCHAR[]
+            )) AS data_coverage_summary,
+            CAST(NULL AS STRUCT(
+                fee_side_assumption VARCHAR,
+                exchange_constraint_disclosure VARCHAR,
+                funding_notional VARCHAR,
+                slippage_model VARCHAR,
+                fill_mode VARCHAR,
+                order_size_assumption VARCHAR,
+                liquidity_capacity_assumption VARCHAR,
+                liquidation_mode VARCHAR,
+                maintenance_margin_assumption VARCHAR,
+                mark_price_source VARCHAR,
+                bar_path_assumption VARCHAR,
+                records_assumptions_only BOOLEAN
+            )) AS backtest_assumption_summary,
+            CAST(NULL AS STRUCT(
+                strategy_spec_id VARCHAR,
+                variant_manifest_id VARCHAR,
+                sweep_plan_id VARCHAR,
+                result_population_id VARCHAR,
+                parent_hash_chain STRUCT(
+                    strategy_spec_hash VARCHAR,
+                    variant_manifest_hash VARCHAR,
+                    sweep_plan_identity_hash VARCHAR,
+                    input_identity_hash VARCHAR
+                ),
+                created_from_validated_inputs BOOLEAN,
+                complete_population_lineage_preserved BOOLEAN
+            )) AS lineage,
+            CAST(NULL AS STRUCT(
+                review_status VARCHAR,
+                review_scope VARCHAR,
+                review_notes VARCHAR[],
+                non_authority_acknowledgement STRUCT(
+                    not_approval BOOLEAN,
+                    not_recommendation BOOLEAN,
+                    not_readiness BOOLEAN,
+                    not_transition BOOLEAN,
+                    not_gate_satisfaction BOOLEAN,
+                    not_runtime_authority BOOLEAN,
+                    not_paper_live_authority BOOLEAN
+                )
+            )) AS review
+        WHERE FALSE
+        """
+    )
+
+
 def _rows_as_dicts(cursor: duckdb.DuckDBPyConnection) -> list[dict[str, Any]]:
     columns = [description[0] for description in cursor.description or []]
     return [dict(zip(columns, row, strict=True)) for row in cursor.fetchall()]
@@ -1826,6 +2152,7 @@ def init_duckdb(read_only: bool = True) -> duckdb.DuckDBPyConnection:
     _register_strategy_specs(conn)
     _register_variant_manifests(conn)
     _register_sweep_plans(conn)
+    _register_result_populations(conn)
     load_views(conn)
     return conn
 

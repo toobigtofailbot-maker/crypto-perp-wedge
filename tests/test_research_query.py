@@ -8,8 +8,10 @@ from tools.research_query import query_layer
 from tools.research_query.query_layer import (
     EXPERIMENTS_DIR,
     REGISTRY_PATH,
+    SWEEP_PLANS_DIR,
     STRATEGY_SPECS_DIR,
     TRIAL_LOG_PATH,
+    VARIANT_MANIFESTS_DIR,
     ReadOnlyQueryError,
     init_duckdb,
     list_views,
@@ -36,6 +38,24 @@ REQUIRED_VIEWS = {
     "v_integrity_strategy_spec_non_authority",
     "v_integrity_strategy_spec_bounds",
     "v_integrity_strategy_spec_hash_readiness",
+    "v_variant_manifest_overview",
+    "v_variant_manifest_population",
+    "v_variant_manifest_parameter_axes",
+    "v_variant_manifest_assignments",
+    "v_variant_manifest_hash_pinning",
+    "v_variant_manifest_supersession",
+    "v_sweep_plan_overview",
+    "v_sweep_plan_validation_methods",
+    "v_sweep_plan_trial_accounting",
+    "v_sweep_plan_result_capture_expectations",
+    "v_integrity_variant_manifest_non_authority",
+    "v_integrity_variant_manifest_denominator",
+    "v_integrity_variant_manifest_hash_readiness",
+    "v_integrity_variant_manifest_supersession",
+    "v_integrity_sweep_plan_non_authority",
+    "v_integrity_sweep_plan_denominator",
+    "v_integrity_sweep_plan_parent_manifest",
+    "v_integrity_sweep_plan_no_computation",
 }
 
 EXPECTED_COLUMNS = {
@@ -153,6 +173,129 @@ EXPECTED_COLUMNS = {
         "maintenance_margin_assumption",
         "mark_price_source",
         "bar_path_assumption",
+    ],
+    "v_variant_manifest_overview": [
+        "variant_manifest_id",
+        "status",
+        "parent_strategy_spec_id",
+        "parent_strategy_spec_hash",
+        "parent_strategy_spec_review_status",
+        "committed_population_count",
+        "declared_variant_count",
+        "population_cap",
+        "search_family_id",
+        "search_family_method",
+        "pre_registration_status",
+        "manifest_hash",
+        "hash_status",
+        "approval_scope",
+    ],
+    "v_variant_manifest_population": [
+        "variant_manifest_id",
+        "committed_population_count",
+        "declared_variant_count",
+        "included_variant_count",
+        "excluded_variant_count",
+        "invalid_variant_count",
+        "not_attempted_variant_count",
+        "population_cap",
+        "planned_trial_count",
+        "trial_budget_denominator",
+        "denominator_count",
+        "denominator_basis",
+        "denominator_type",
+        "adaptive_search_used",
+        "winner_only_review_forbidden",
+        "executed_only_denominator_forbidden",
+    ],
+    "v_variant_manifest_parameter_axes": [
+        "variant_manifest_id",
+        "axis_id",
+        "parameter_name",
+        "parent_strategy_spec_parameter_ref",
+        "parameter_type",
+        "units",
+        "axis_kind",
+        "generator_method",
+        "counts_toward_parent_free_parameter_cap",
+        "is_declared_in_parent_strategy_spec",
+    ],
+    "v_variant_manifest_assignments": [
+        "variant_manifest_id",
+        "variant_id",
+        "assignment_status",
+        "parameter_value_hash",
+        "axis_ref_count",
+        "exclusion_rule_count",
+        "invalid_combination_rule_count",
+        "status_reason",
+        "generated_by_rule",
+        "generation_order",
+    ],
+    "v_sweep_plan_overview": [
+        "sweep_plan_id",
+        "status",
+        "parent_variant_manifest_id",
+        "parent_manifest_hash",
+        "manifest_committed_population_count",
+        "manifest_population_cap",
+        "manifest_pre_registration_status",
+        "selection_mode",
+        "selected_variant_count",
+        "excluded_variant_count",
+        "approval_scope",
+    ],
+    "v_sweep_plan_validation_methods": [
+        "sweep_plan_id",
+        "backtest_enabled",
+        "walk_forward_oos_enabled",
+        "declares_chronological_separation",
+        "robustness_enabled",
+        "robustness_family_count",
+        "dsr_psr_mintrl_enabled",
+        "dsr_denominator_ref",
+        "dsr_computation_deferred",
+        "monte_carlo_enabled",
+        "monte_carlo_computation_deferred",
+        "declarative_intent_only",
+        "no_runner_hooks",
+        "no_formulas",
+        "no_computation",
+    ],
+    "v_sweep_plan_trial_accounting": [
+        "sweep_plan_id",
+        "committed_population_count",
+        "selected_variant_count",
+        "executed_variant_count",
+        "successful_variant_count",
+        "failed_variant_count",
+        "errored_variant_count",
+        "aborted_variant_count",
+        "filtered_variant_count",
+        "data_unavailable_variant_count",
+        "excluded_variant_count",
+        "not_attempted_variant_count",
+        "multiple_testing_denominator",
+        "denominator_basis",
+        "denominator_equals_committed_population_count",
+        "executed_only_denominator_forbidden",
+        "successful_only_denominator_forbidden",
+    ],
+    "v_sweep_plan_result_capture_expectations": [
+        "sweep_plan_id",
+        "result_population_expected",
+        "expected_result_population_ref",
+        "must_capture_successful",
+        "must_capture_failed",
+        "must_capture_invalid",
+        "must_capture_excluded",
+        "must_capture_errored",
+        "must_capture_aborted",
+        "must_capture_filtered",
+        "must_capture_data_unavailable",
+        "must_capture_not_attempted",
+        "winner_only_retention_forbidden",
+        "canonical_evidence_mapping_deferred",
     ],
 }
 
@@ -471,6 +614,405 @@ def _valid_strategy_spec(strategy_spec_id: str = "STRAT-SPEC-9001") -> dict:
     }
 
 
+def _valid_variant_manifest(variant_manifest_id: str = "VM-9001") -> dict:
+    return {
+        "schema_version": "v1",
+        "variant_manifest_id": variant_manifest_id,
+        "status": "approved_for_sweep_planning",
+        "non_execution_declaration": _true_flags(
+            "planning_surface_only",
+            "not_executable",
+            "not_runner_authority",
+            "not_sweep_authority",
+            "not_result_authority",
+            "not_candidate_approval",
+            "not_exp_approval",
+            "not_ranking_authority",
+            "not_recommendation_authority",
+            "not_readiness_authority",
+            "not_transition_authority",
+            "not_runtime_authority",
+            "not_paper_live_authority",
+            "not_gate_authority",
+        ),
+        "parent_strategy_spec": {
+            "strategy_spec_id": "STRAT-SPEC-9001",
+            "strategy_spec_schema_version": "v1",
+            "strategy_spec_hash": "sha256:" + "1" * 64,
+            "hash_algorithm": "sha256",
+            "hash_scope_version": "strategy_spec_hash_scope_v1",
+            "strategy_spec_review_status": "approved_for_variant_planning",
+            "strategy_spec_ref": None,
+            "mismatch_policy": "block",
+            "missing_parent_policy": "block",
+            "does_not_mutate_parent_strategy_spec": True,
+        },
+        "population_governance": {
+            "population_cap": {
+                "max_variants": 2,
+                "cap_basis": "manual_grid",
+                "cap_source": "human_declared",
+                "cap_exception_authorized": False,
+                "cap_exception_ref": None,
+            },
+            "declared_population": {
+                "committed_population_count": 2,
+                "declared_variant_count": 2,
+                "included_variant_count": 2,
+                "excluded_variant_count": 0,
+                "invalid_variant_count": 0,
+                "not_attempted_variant_count": 0,
+            },
+            "trial_budget": {
+                "planned_trial_count": 2,
+                "trial_budget_denominator": 2,
+                "denominator_basis": "committed_pre_registered_population_count",
+                "denominator_count": 2,
+                "denominator_includes_failed": True,
+                "denominator_includes_excluded": True,
+                "denominator_includes_invalid": True,
+                "denominator_includes_errored": True,
+                "denominator_includes_aborted": True,
+                "denominator_includes_filtered": True,
+                "denominator_includes_data_unavailable": True,
+                "denominator_includes_not_attempted": True,
+                "executed_only_denominator_forbidden": True,
+            },
+            "multiple_testing_accounting": {
+                "denominator_required": True,
+                "denominator_type": "committed_pre_registered_population",
+                "search_family_id": "SF-9001",
+                "search_family_method": "manual_grid",
+                "adaptive_search_used": False,
+                "adaptive_search_authorization_ref": None,
+                "all_trials_visible_required": True,
+                "winner_only_review_forbidden": True,
+            },
+            "pre_registration": {
+                "pre_registered": True,
+                "pre_registration_status": "frozen_for_sweep_planning",
+                "pre_registration_scope": "full_variant_population",
+                "freeze_required_before_sweep": True,
+                "post_hoc_addition_forbidden": True,
+                "post_result_mutation_forbidden": True,
+                "allowed_change_mode": "supersede_before_results_only",
+            },
+        },
+        "parameter_axes": [
+            {
+                "axis_id": "AXIS-001",
+                "parameter_name": "lookback",
+                "parent_strategy_spec_parameter_ref": "free_parameters.parameters.lookback",
+                "parameter_type": "integer",
+                "units": "bars",
+                "axis_kind": "free_parameter",
+                "generator_method": "manual_grid",
+                "allowed_values": [10, 20],
+                "range": {
+                    "min": 10,
+                    "max": 20,
+                    "step": 10,
+                    "inclusive_min": True,
+                    "inclusive_max": True,
+                },
+                "counts_toward_parent_free_parameter_cap": True,
+                "is_declared_in_parent_strategy_spec": True,
+                "invalid_combination_rule_refs": [],
+                "notes": None,
+            }
+        ],
+        "invalid_combination_rules": [],
+        "exclusion_rules": [],
+        "variant_assignments": [
+            {
+                "variant_id": "VAR-900001",
+                "assignment_status": "included",
+                "parameter_values": {"lookback": 10},
+                "parameter_value_hash": "sha256:" + "2" * 64,
+                "axis_refs": ["AXIS-001"],
+                "exclusion_rule_refs": [],
+                "invalid_combination_rule_refs": [],
+                "status_reason": None,
+                "lineage": {"generated_by_rule": "manual-grid", "generation_order": 1},
+            },
+            {
+                "variant_id": "VAR-900002",
+                "assignment_status": "included",
+                "parameter_values": {"lookback": 20},
+                "parameter_value_hash": "sha256:" + "3" * 64,
+                "axis_refs": ["AXIS-001"],
+                "exclusion_rule_refs": [],
+                "invalid_combination_rule_refs": [],
+                "status_reason": None,
+                "lineage": {"generated_by_rule": "manual-grid", "generation_order": 2},
+            },
+        ],
+        "manifest_hash_pinning": {
+            "manifest_hash": "sha256:" + "4" * 64,
+            "hash_algorithm": "sha256",
+            "canonicalization": "json_canonical_v1",
+            "hash_scope_version": "variant_manifest_hash_scope_v1",
+            "hash_scope": [
+                "schema_version",
+                "variant_manifest_id",
+                "parent_strategy_spec.strategy_spec_id",
+                "parent_strategy_spec.strategy_spec_hash",
+                "population_governance",
+                "parameter_axes",
+                "invalid_combination_rules",
+                "exclusion_rules",
+                "variant_assignments",
+            ],
+            "hash_status": "computed",
+            "frozen_at": "2026-06-01T00:00:00Z",
+            "pre_sweep_freeze_required": True,
+            "post_result_mutation_forbidden": True,
+        },
+        "amendment_and_supersession": {
+            "amendment_mode": "none",
+            "supersedes": None,
+            "supersession_lineage": [],
+            "amendment_reason": None,
+            "associated_results_state": "no_associated_results",
+            "supersession_allowed": False,
+            "close_only_after_results": True,
+            "post_result_change": False,
+            "preserve_prior_manifest_required": True,
+            "fresh_denominator_required": True,
+            "does_not_inherit_prior_results": True,
+        },
+        "lineage": {
+            "parent_refs": [],
+            "source_refs": [],
+            "created_at": "2026-06-01T00:00:00Z",
+            "updated_at": "2026-06-01T00:00:00Z",
+            "audit_notes": [],
+            "hash_refs": [],
+        },
+        "review": {
+            "human_review_required": True,
+            "reviewer": None,
+            "reviewed_at": None,
+            "review_notes": [],
+            "approval_scope": "sweep_planning_only",
+            "non_authority_acknowledgement": _true_flags(
+                "not_candidate_approval",
+                "not_exp_approval",
+                "not_sweep_authority",
+                "not_runner_authority",
+                "not_result_authority",
+                "not_ranking_authority",
+                "not_recommendation_authority",
+                "not_readiness_authority",
+                "not_transition_authority",
+                "not_runtime_authority",
+                "not_paper_live_authority",
+                "not_gate_satisfaction",
+            ),
+        },
+    }
+
+
+def _valid_sweep_plan(manifest: dict, sweep_plan_id: str = "SWEEP-PLAN-9001") -> dict:
+    manifest_hash = manifest["manifest_hash_pinning"]["manifest_hash"]
+    return {
+        "schema_version": "v1",
+        "sweep_plan_id": sweep_plan_id,
+        "status": "approved_for_offline_run_planning",
+        "non_execution_declaration": _true_flags(
+            "planning_surface_only",
+            "not_executable",
+            "not_runner_authority",
+            "not_sweep_authority",
+            "not_result_authority",
+            "not_candidate_approval",
+            "not_exp_approval",
+            "not_ranking_authority",
+            "not_recommendation_authority",
+            "not_readiness_authority",
+            "not_transition_authority",
+            "not_runtime_authority",
+            "not_paper_live_authority",
+            "not_gate_authority",
+        ),
+        "parent_variant_manifest": {
+            "variant_manifest_id": manifest["variant_manifest_id"],
+            "variant_manifest_schema_version": "v1",
+            "manifest_hash": manifest_hash,
+            "hash_algorithm": "sha256",
+            "manifest_population_count": 2,
+            "manifest_committed_population_count": 2,
+            "manifest_population_cap": 2,
+            "manifest_pre_registration_status": "frozen_for_sweep_planning",
+            "mismatch_policy": "block",
+            "missing_manifest_policy": "block",
+            "one_manifest_only": True,
+        },
+        "test_selection": {
+            "selection_mode": "all_manifest_variants",
+            "selected_variant_ids": ["VAR-900001", "VAR-900002"],
+            "excluded_variant_ids": [],
+            "subset_selection_rule": None,
+            "declared_before_results": True,
+            "post_hoc_addition_forbidden": True,
+            "outside_manifest_variants_forbidden": True,
+        },
+        "validation_methods": {
+            "backtest": {"enabled": True, "method_ref": None, "notes": None},
+            "walk_forward_oos": {
+                "enabled": True,
+                "method_ref": None,
+                "declares_chronological_separation": True,
+                "notes": None,
+            },
+            "robustness": {
+                "enabled": False,
+                "method_ref": None,
+                "families_declared": [],
+                "notes": None,
+            },
+            "dsr_psr_mintrl_accounting": {
+                "enabled": True,
+                "denominator_ref": "committed_population_count",
+                "computation_deferred": True,
+                "notes": None,
+            },
+            "monte_carlo": {
+                "enabled": False,
+                "method_ref": None,
+                "computation_deferred": True,
+                "notes": None,
+            },
+            "declarative_intent_only": True,
+            "no_runner_hooks": True,
+            "no_formulas": True,
+            "no_computation": True,
+        },
+        "data_and_timeframe_assumptions": {
+            "primary_timeframe": "1h",
+            "confirmation_timeframes": [],
+            "data_refs": [
+                {
+                    "stream": "ohlcv",
+                    "timeframe": "1h",
+                    "field": "close",
+                    "availability": "required",
+                }
+            ],
+            "missing_data_posture": "block_if_missing",
+            "gap_handling_assumption": None,
+        },
+        "realism_assumptions": {
+            "fee_side_assumption": None,
+            "exchange_constraints_disclosed": False,
+            "funding_notional_mode": "unspecified",
+            "slippage_model": "unspecified",
+            "fill_mode": "unspecified",
+            "order_size_assumption": None,
+            "liquidity_capacity_assumption": None,
+            "liquidation_mode": "unspecified",
+            "maintenance_margin_assumption": None,
+            "mark_price_source": "unspecified",
+            "bar_path_assumption": "unspecified",
+            "declarations_only": True,
+        },
+        "result_capture_expectations": {
+            "result_population_expected": True,
+            "expected_result_population_ref": None,
+            "must_capture_successful": True,
+            "must_capture_failed": True,
+            "must_capture_invalid": True,
+            "must_capture_excluded": True,
+            "must_capture_errored": True,
+            "must_capture_aborted": True,
+            "must_capture_filtered": True,
+            "must_capture_data_unavailable": True,
+            "must_capture_not_attempted": True,
+            "winner_only_retention_forbidden": True,
+            "canonical_evidence_mapping_deferred": True,
+        },
+        "trial_accounting": {
+            "committed_population_count": 2,
+            "selected_variant_count": 2,
+            "executed_variant_count": 0,
+            "successful_variant_count": 0,
+            "failed_variant_count": 0,
+            "errored_variant_count": 0,
+            "aborted_variant_count": 0,
+            "filtered_variant_count": 0,
+            "data_unavailable_variant_count": 0,
+            "excluded_variant_count": 0,
+            "not_attempted_variant_count": 2,
+            "multiple_testing_denominator": 2,
+            "denominator_basis": "committed_pre_registered_population_count",
+            "denominator_equals_committed_population_count": True,
+            "executed_only_denominator_forbidden": True,
+            "successful_only_denominator_forbidden": True,
+            "failed_variants_remain_in_denominator": True,
+            "excluded_variants_remain_in_denominator": True,
+            "invalid_variants_remain_in_denominator": True,
+            "errored_variants_remain_in_denominator": True,
+            "aborted_variants_remain_in_denominator": True,
+            "filtered_variants_remain_in_denominator": True,
+            "data_unavailable_variants_remain_in_denominator": True,
+            "not_attempted_variants_remain_in_denominator": True,
+        },
+        "lineage": {
+            "parent_manifest_ref": {
+                "ref_type": "variant_manifest",
+                "ref_id": manifest["variant_manifest_id"],
+                "ref_path": None,
+                "ref_hash": manifest_hash,
+            },
+            "parent_strategy_spec_ref": {
+                "ref_type": "strategy_spec",
+                "ref_id": "STRAT-SPEC-9001",
+                "ref_path": None,
+                "ref_hash": manifest["parent_strategy_spec"]["strategy_spec_hash"],
+            },
+            "search_family_id": "SF-9001",
+            "source_refs": [],
+            "created_at": "2026-06-01T00:00:00Z",
+            "updated_at": "2026-06-01T00:00:00Z",
+            "audit_notes": [],
+        },
+        "review": {
+            "human_review_required": True,
+            "reviewer": None,
+            "reviewed_at": None,
+            "review_notes": [],
+            "approval_scope": "offline_run_planning_only",
+            "non_authority_acknowledgement": _true_flags(
+                "not_candidate_approval",
+                "not_exp_approval",
+                "not_runner_authority",
+                "not_sweep_authority",
+                "not_result_authority",
+                "not_ranking_authority",
+                "not_recommendation_authority",
+                "not_readiness_authority",
+                "not_transition_authority",
+                "not_runtime_authority",
+                "not_paper_live_authority",
+                "not_gate_satisfaction",
+            ),
+        },
+        "amendment_and_supersession": {
+            "amendment_mode": "none",
+            "supersedes": None,
+            "supersession_lineage": [],
+            "amendment_reason": None,
+            "associated_results_state": "no_associated_results",
+            "supersession_allowed": False,
+            "close_only_after_results": True,
+            "post_result_change": False,
+            "preserve_prior_sweep_plan_required": True,
+            "does_not_modify_parent_manifest": True,
+            "does_not_modify_manifest_denominator": True,
+        },
+    }
+
+
 def _init_temp_query_layer(
     monkeypatch,
     tmp_path,
@@ -478,11 +1020,15 @@ def _init_temp_query_layer(
     plans,
     reports,
     strategy_specs=None,
+    variant_manifests=None,
+    sweep_plans=None,
 ):
     registry_path = tmp_path / "research" / "candidate_registry.jsonl"
     trial_log_path = tmp_path / "research" / "trial_log.jsonl"
     experiments_dir = tmp_path / "research" / "experiments"
     strategy_specs_dir = tmp_path / "research" / "strategy_specs"
+    variant_manifests_dir = tmp_path / "research" / "variant_manifests"
+    sweep_plans_dir = tmp_path / "research" / "sweep_plans"
 
     registry_path.parent.mkdir(parents=True, exist_ok=True)
     registry_path.write_text(
@@ -500,11 +1046,24 @@ def _init_temp_query_layer(
             strategy_specs_dir / f"{strategy_spec['strategy_spec_id']}.strategy_spec.json",
             strategy_spec,
         )
+    for variant_manifest in variant_manifests or []:
+        _write_json(
+            variant_manifests_dir
+            / f"{variant_manifest['variant_manifest_id']}.variant_manifest.json",
+            variant_manifest,
+        )
+    for sweep_plan in sweep_plans or []:
+        _write_json(
+            sweep_plans_dir / f"{sweep_plan['sweep_plan_id']}.sweep_plan.json",
+            sweep_plan,
+        )
 
     monkeypatch.setattr(query_layer, "REGISTRY_PATH", registry_path)
     monkeypatch.setattr(query_layer, "TRIAL_LOG_PATH", trial_log_path)
     monkeypatch.setattr(query_layer, "EXPERIMENTS_DIR", experiments_dir)
     monkeypatch.setattr(query_layer, "STRATEGY_SPECS_DIR", strategy_specs_dir)
+    monkeypatch.setattr(query_layer, "VARIANT_MANIFESTS_DIR", variant_manifests_dir)
+    monkeypatch.setattr(query_layer, "SWEEP_PLANS_DIR", sweep_plans_dir)
 
     return init_duckdb()
 
@@ -984,6 +1543,494 @@ def test_querying_strategy_spec_views_does_not_modify_research_files(conn):
         "v_integrity_strategy_spec_non_authority",
         "v_integrity_strategy_spec_bounds",
         "v_integrity_strategy_spec_hash_readiness",
+    ]:
+        run_named_view(conn, view_name)
+
+    after = _file_checksums(research_files)
+
+    assert after == before
+
+
+def test_variant_sweep_relations_zero_instance_repo_state(conn):
+    assert conn.execute("SELECT * FROM variant_manifests").fetchall() == []
+    assert conn.execute("SELECT * FROM sweep_plans").fetchall() == []
+
+
+def test_variant_sweep_views_zero_rows_under_current_zero_instance_state(conn):
+    for view_name in [
+        "v_variant_manifest_overview",
+        "v_variant_manifest_population",
+        "v_variant_manifest_parameter_axes",
+        "v_variant_manifest_assignments",
+        "v_variant_manifest_hash_pinning",
+        "v_variant_manifest_supersession",
+        "v_sweep_plan_overview",
+        "v_sweep_plan_validation_methods",
+        "v_sweep_plan_trial_accounting",
+        "v_sweep_plan_result_capture_expectations",
+    ]:
+        assert conn.execute(f'SELECT * FROM "{view_name}"').fetchall() == []
+
+
+def test_variant_sweep_integrity_views_empty_under_current_zero_instance_state(conn):
+    for view_name in [
+        "v_integrity_variant_manifest_non_authority",
+        "v_integrity_variant_manifest_denominator",
+        "v_integrity_variant_manifest_hash_readiness",
+        "v_integrity_variant_manifest_supersession",
+        "v_integrity_sweep_plan_non_authority",
+        "v_integrity_sweep_plan_denominator",
+        "v_integrity_sweep_plan_parent_manifest",
+        "v_integrity_sweep_plan_no_computation",
+    ]:
+        assert conn.execute(f'SELECT * FROM "{view_name}"').fetchall() == []
+
+
+def test_temp_variant_manifest_appears_in_read_only_views(monkeypatch, tmp_path):
+    manifest = _valid_variant_manifest()
+
+    connection = _init_temp_query_layer(
+        monkeypatch,
+        tmp_path,
+        [_valid_candidate_row()],
+        [_valid_plan()],
+        [_valid_report()],
+        variant_manifests=[manifest],
+    )
+    try:
+        overview = connection.execute(
+            """
+            SELECT variant_manifest_id, parent_strategy_spec_id, committed_population_count,
+                   declared_variant_count, population_cap, search_family_id,
+                   pre_registration_status, hash_status, approval_scope
+            FROM v_variant_manifest_overview
+            """
+        ).fetchall()
+        population = connection.execute(
+            """
+            SELECT variant_manifest_id, included_variant_count, planned_trial_count,
+                   trial_budget_denominator, denominator_count, denominator_basis,
+                   denominator_type, adaptive_search_used, winner_only_review_forbidden,
+                   executed_only_denominator_forbidden
+            FROM v_variant_manifest_population
+            """
+        ).fetchall()
+        axes = connection.execute(
+            """
+            SELECT variant_manifest_id, axis_id, parameter_name, parameter_type,
+                   units, generator_method, counts_toward_parent_free_parameter_cap
+            FROM v_variant_manifest_parameter_axes
+            """
+        ).fetchall()
+        assignments = connection.execute(
+            """
+            SELECT variant_manifest_id, variant_id, assignment_status, axis_ref_count,
+                   exclusion_rule_count, invalid_combination_rule_count, generated_by_rule,
+                   generation_order
+            FROM v_variant_manifest_assignments
+            ORDER BY variant_id
+            """
+        ).fetchall()
+        hash_pinning = connection.execute(
+            """
+            SELECT variant_manifest_id, hash_algorithm, canonicalization,
+                   hash_scope_version, hash_scope_count, hash_status,
+                   pre_sweep_freeze_required, post_result_mutation_forbidden
+            FROM v_variant_manifest_hash_pinning
+            """
+        ).fetchall()
+        supersession = connection.execute(
+            """
+            SELECT variant_manifest_id, amendment_mode, associated_results_state,
+                   supersession_allowed, post_result_change, close_only_after_results,
+                   preserve_prior_manifest_required, fresh_denominator_required,
+                   does_not_inherit_prior_results, supersession_lineage_count
+            FROM v_variant_manifest_supersession
+            """
+        ).fetchall()
+
+        assert overview == [
+            (
+                "VM-9001",
+                "STRAT-SPEC-9001",
+                2,
+                2,
+                2,
+                "SF-9001",
+                "frozen_for_sweep_planning",
+                "computed",
+                "sweep_planning_only",
+            )
+        ]
+        assert population == [
+            (
+                "VM-9001",
+                2,
+                2,
+                2,
+                2,
+                "committed_pre_registered_population_count",
+                "committed_pre_registered_population",
+                False,
+                True,
+                True,
+            )
+        ]
+        assert axes == [
+            ("VM-9001", "AXIS-001", "lookback", "integer", "bars", "manual_grid", True)
+        ]
+        assert assignments == [
+            ("VM-9001", "VAR-900001", "included", 1, 0, 0, "manual-grid", 1),
+            ("VM-9001", "VAR-900002", "included", 1, 0, 0, "manual-grid", 2),
+        ]
+        assert hash_pinning == [
+            (
+                "VM-9001",
+                "sha256",
+                "json_canonical_v1",
+                "variant_manifest_hash_scope_v1",
+                9,
+                "computed",
+                True,
+                True,
+            )
+        ]
+        assert supersession == [
+            ("VM-9001", "none", "no_associated_results", False, False, True, True, True, True, 0)
+        ]
+    finally:
+        connection.close()
+
+
+def test_temp_sweep_plan_appears_in_read_only_views(monkeypatch, tmp_path):
+    manifest = _valid_variant_manifest()
+    sweep_plan = _valid_sweep_plan(manifest)
+
+    connection = _init_temp_query_layer(
+        monkeypatch,
+        tmp_path,
+        [_valid_candidate_row()],
+        [_valid_plan()],
+        [_valid_report()],
+        variant_manifests=[manifest],
+        sweep_plans=[sweep_plan],
+    )
+    try:
+        overview = connection.execute(
+            """
+            SELECT sweep_plan_id, parent_variant_manifest_id,
+                   manifest_committed_population_count, manifest_population_cap,
+                   manifest_pre_registration_status, selection_mode,
+                   selected_variant_count, excluded_variant_count, approval_scope
+            FROM v_sweep_plan_overview
+            """
+        ).fetchall()
+        methods = connection.execute(
+            """
+            SELECT sweep_plan_id, backtest_enabled, walk_forward_oos_enabled,
+                   declares_chronological_separation, robustness_enabled,
+                   robustness_family_count, dsr_psr_mintrl_enabled,
+                   dsr_denominator_ref, dsr_computation_deferred,
+                   monte_carlo_enabled, monte_carlo_computation_deferred,
+                   declarative_intent_only, no_runner_hooks, no_formulas, no_computation
+            FROM v_sweep_plan_validation_methods
+            """
+        ).fetchall()
+        accounting = connection.execute(
+            """
+            SELECT sweep_plan_id, committed_population_count, selected_variant_count,
+                   executed_variant_count, successful_variant_count, failed_variant_count,
+                   errored_variant_count, aborted_variant_count, filtered_variant_count,
+                   data_unavailable_variant_count, excluded_variant_count,
+                   not_attempted_variant_count, multiple_testing_denominator,
+                   denominator_basis, denominator_equals_committed_population_count,
+                   executed_only_denominator_forbidden, successful_only_denominator_forbidden
+            FROM v_sweep_plan_trial_accounting
+            """
+        ).fetchall()
+        capture = connection.execute(
+            """
+            SELECT sweep_plan_id, result_population_expected,
+                   expected_result_population_ref, must_capture_successful,
+                   must_capture_failed, must_capture_invalid, must_capture_excluded,
+                   must_capture_errored, must_capture_aborted, must_capture_filtered,
+                   must_capture_data_unavailable, must_capture_not_attempted,
+                   winner_only_retention_forbidden, canonical_evidence_mapping_deferred
+            FROM v_sweep_plan_result_capture_expectations
+            """
+        ).fetchall()
+
+        assert overview == [
+            (
+                "SWEEP-PLAN-9001",
+                "VM-9001",
+                2,
+                2,
+                "frozen_for_sweep_planning",
+                "all_manifest_variants",
+                2,
+                0,
+                "offline_run_planning_only",
+            )
+        ]
+        assert methods == [
+            (
+                "SWEEP-PLAN-9001",
+                True,
+                True,
+                True,
+                False,
+                0,
+                True,
+                "committed_population_count",
+                True,
+                False,
+                True,
+                True,
+                True,
+                True,
+                True,
+            )
+        ]
+        assert accounting == [
+            (
+                "SWEEP-PLAN-9001",
+                2,
+                2,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                2,
+                2,
+                "committed_pre_registered_population_count",
+                True,
+                True,
+                True,
+            )
+        ]
+        assert capture == [
+            (
+                "SWEEP-PLAN-9001",
+                True,
+                None,
+                True,
+                True,
+                True,
+                True,
+                True,
+                True,
+                True,
+                True,
+                True,
+                True,
+                True,
+            )
+        ]
+    finally:
+        connection.close()
+
+
+def test_variant_manifest_denominator_integrity_flags_violation(monkeypatch, tmp_path):
+    manifest = _valid_variant_manifest()
+    manifest["population_governance"]["trial_budget"]["denominator_count"] = 1
+
+    connection = _init_temp_query_layer(
+        monkeypatch,
+        tmp_path,
+        [_valid_candidate_row()],
+        [_valid_plan()],
+        [_valid_report()],
+        variant_manifests=[manifest],
+    )
+    try:
+        rows = connection.execute(
+            """
+            SELECT variant_manifest_id, source_field, expected_value, actual_value
+            FROM v_integrity_variant_manifest_denominator
+            WHERE source_field = 'trial_budget.denominator_count'
+            """
+        ).fetchall()
+
+        assert rows == [("VM-9001", "trial_budget.denominator_count", "2", "1")]
+    finally:
+        connection.close()
+
+
+def test_variant_manifest_supersession_integrity_flags_violation(monkeypatch, tmp_path):
+    manifest = _valid_variant_manifest()
+    manifest["amendment_and_supersession"]["associated_results_state"] = (
+        "associated_results_exist"
+    )
+    manifest["amendment_and_supersession"]["amendment_mode"] = "supersedes_prior_manifest"
+    manifest["amendment_and_supersession"]["supersession_allowed"] = True
+    manifest["amendment_and_supersession"]["supersedes"] = {
+        "variant_manifest_id": "VM-9002",
+        "manifest_hash": "sha256:" + "5" * 64,
+        "reason": "fixture",
+        "superseded_at": "2026-06-01T00:00:00Z",
+    }
+
+    connection = _init_temp_query_layer(
+        monkeypatch,
+        tmp_path,
+        [_valid_candidate_row()],
+        [_valid_plan()],
+        [_valid_report()],
+        variant_manifests=[manifest],
+    )
+    try:
+        source_fields = {
+            row[0]
+            for row in connection.execute(
+                """
+                SELECT source_field
+                FROM v_integrity_variant_manifest_supersession
+                """
+            ).fetchall()
+        }
+
+        assert "amendment_and_supersession.amendment_mode" in source_fields
+        assert "amendment_and_supersession.supersession_allowed" in source_fields
+        assert "amendment_and_supersession.supersedes" in source_fields
+    finally:
+        connection.close()
+
+
+def test_variant_manifest_hash_readiness_integrity_flags_violation(monkeypatch, tmp_path):
+    manifest = _valid_variant_manifest()
+    manifest["manifest_hash_pinning"]["hash_status"] = "not_computed"
+    manifest["manifest_hash_pinning"]["manifest_hash"] = None
+    manifest["manifest_hash_pinning"]["frozen_at"] = None
+
+    connection = _init_temp_query_layer(
+        monkeypatch,
+        tmp_path,
+        [_valid_candidate_row()],
+        [_valid_plan()],
+        [_valid_report()],
+        variant_manifests=[manifest],
+    )
+    try:
+        source_fields = {
+            row[0]
+            for row in connection.execute(
+                """
+                SELECT source_field
+                FROM v_integrity_variant_manifest_hash_readiness
+                """
+            ).fetchall()
+        }
+
+        assert "manifest_hash_pinning.hash_status" in source_fields
+        assert "manifest_hash_pinning.manifest_hash" in source_fields
+        assert "manifest_hash_pinning.frozen_at" in source_fields
+    finally:
+        connection.close()
+
+
+def test_sweep_plan_denominator_integrity_flags_violation(monkeypatch, tmp_path):
+    manifest = _valid_variant_manifest()
+    sweep_plan = _valid_sweep_plan(manifest)
+    sweep_plan["trial_accounting"]["multiple_testing_denominator"] = 1
+    sweep_plan["trial_accounting"]["executed_only_denominator_forbidden"] = False
+
+    connection = _init_temp_query_layer(
+        monkeypatch,
+        tmp_path,
+        [_valid_candidate_row()],
+        [_valid_plan()],
+        [_valid_report()],
+        variant_manifests=[manifest],
+        sweep_plans=[sweep_plan],
+    )
+    try:
+        source_fields = {
+            row[0]
+            for row in connection.execute(
+                """
+                SELECT source_field
+                FROM v_integrity_sweep_plan_denominator
+                """
+            ).fetchall()
+        }
+
+        assert "trial_accounting.multiple_testing_denominator" in source_fields
+        assert "trial_accounting.executed_only_denominator_forbidden" in source_fields
+    finally:
+        connection.close()
+
+
+def test_sweep_plan_no_computation_integrity_flags_violation(monkeypatch, tmp_path):
+    manifest = _valid_variant_manifest()
+    sweep_plan = _valid_sweep_plan(manifest)
+    sweep_plan["validation_methods"]["no_runner_hooks"] = False
+    sweep_plan["validation_methods"]["monte_carlo"]["enabled"] = True
+    sweep_plan["validation_methods"]["monte_carlo"]["computation_deferred"] = False
+
+    connection = _init_temp_query_layer(
+        monkeypatch,
+        tmp_path,
+        [_valid_candidate_row()],
+        [_valid_plan()],
+        [_valid_report()],
+        variant_manifests=[manifest],
+        sweep_plans=[sweep_plan],
+    )
+    try:
+        source_fields = {
+            row[0]
+            for row in connection.execute(
+                """
+                SELECT source_field
+                FROM v_integrity_sweep_plan_no_computation
+                """
+            ).fetchall()
+        }
+
+        assert "validation_methods.no_runner_hooks" in source_fields
+        assert "validation_methods.monte_carlo.computation_deferred" in source_fields
+    finally:
+        connection.close()
+
+
+def test_querying_variant_sweep_views_does_not_modify_research_files(conn):
+    variant_manifest_files = (
+        sorted(VARIANT_MANIFESTS_DIR.glob("*.json")) if VARIANT_MANIFESTS_DIR.exists() else []
+    )
+    sweep_plan_files = sorted(SWEEP_PLANS_DIR.glob("*.json")) if SWEEP_PLANS_DIR.exists() else []
+    research_files = [
+        REGISTRY_PATH,
+        TRIAL_LOG_PATH,
+        *sorted(EXPERIMENTS_DIR.glob("*.json")),
+        *variant_manifest_files,
+        *sweep_plan_files,
+    ]
+    before = _file_checksums(research_files)
+
+    for view_name in [
+        "v_variant_manifest_overview",
+        "v_variant_manifest_population",
+        "v_variant_manifest_parameter_axes",
+        "v_variant_manifest_assignments",
+        "v_variant_manifest_hash_pinning",
+        "v_variant_manifest_supersession",
+        "v_sweep_plan_overview",
+        "v_sweep_plan_validation_methods",
+        "v_sweep_plan_trial_accounting",
+        "v_sweep_plan_result_capture_expectations",
+        "v_integrity_variant_manifest_non_authority",
+        "v_integrity_variant_manifest_denominator",
+        "v_integrity_variant_manifest_hash_readiness",
+        "v_integrity_variant_manifest_supersession",
+        "v_integrity_sweep_plan_non_authority",
+        "v_integrity_sweep_plan_denominator",
+        "v_integrity_sweep_plan_parent_manifest",
+        "v_integrity_sweep_plan_no_computation",
     ]:
         run_named_view(conn, view_name)
 

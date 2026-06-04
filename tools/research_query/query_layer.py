@@ -30,6 +30,8 @@ R2S_APPROVAL_RECORDS_DIR = REPO_ROOT / "research" / "r2s_approval_records"
 SHADOW_EVIDENCE_RETENTION_DIR = REPO_ROOT / "research" / "shadow_evidence_retention"
 S2P_APPROVAL_RECORDS_DIR = REPO_ROOT / "research" / "s2p_approval_records"
 STRATEGY_SPECS_DIR = REPO_ROOT / "research" / "strategy_specs"
+VARIANT_MANIFESTS_DIR = REPO_ROOT / "research" / "variant_manifests"
+SWEEP_PLANS_DIR = REPO_ROOT / "research" / "sweep_plans"
 TRIAL_LOG_PATH = REPO_ROOT / "research" / "trial_log.jsonl"
 VIEWS_PATH = Path(__file__).resolve().with_name("views.sql")
 
@@ -1231,6 +1233,434 @@ def _register_strategy_specs(conn: duckdb.DuckDBPyConnection) -> None:
     )
 
 
+def _register_variant_manifests(conn: duckdb.DuckDBPyConnection) -> None:
+    variant_manifest_files = (
+        sorted(VARIANT_MANIFESTS_DIR.glob("*.variant_manifest.json"))
+        if VARIANT_MANIFESTS_DIR.exists()
+        else []
+    )
+    if variant_manifest_files:
+        conn.execute(
+            f"""
+            CREATE VIEW variant_manifests AS
+            SELECT * FROM read_json_auto('{_sql_path(VARIANT_MANIFESTS_DIR / "*.variant_manifest.json")}')
+            """
+        )
+        return
+
+    conn.execute(
+        """
+        CREATE VIEW variant_manifests AS
+        SELECT
+            CAST(NULL AS VARCHAR) AS schema_version,
+            CAST(NULL AS VARCHAR) AS variant_manifest_id,
+            CAST(NULL AS VARCHAR) AS status,
+            CAST(NULL AS STRUCT(
+                planning_surface_only BOOLEAN,
+                not_executable BOOLEAN,
+                not_runner_authority BOOLEAN,
+                not_sweep_authority BOOLEAN,
+                not_result_authority BOOLEAN,
+                not_candidate_approval BOOLEAN,
+                not_exp_approval BOOLEAN,
+                not_ranking_authority BOOLEAN,
+                not_recommendation_authority BOOLEAN,
+                not_readiness_authority BOOLEAN,
+                not_transition_authority BOOLEAN,
+                not_runtime_authority BOOLEAN,
+                not_paper_live_authority BOOLEAN,
+                not_gate_authority BOOLEAN
+            )) AS non_execution_declaration,
+            CAST(NULL AS STRUCT(
+                strategy_spec_id VARCHAR,
+                strategy_spec_schema_version VARCHAR,
+                strategy_spec_hash VARCHAR,
+                hash_algorithm VARCHAR,
+                hash_scope_version VARCHAR,
+                strategy_spec_review_status VARCHAR,
+                strategy_spec_ref VARCHAR,
+                mismatch_policy VARCHAR,
+                missing_parent_policy VARCHAR,
+                does_not_mutate_parent_strategy_spec BOOLEAN
+            )) AS parent_strategy_spec,
+            CAST(NULL AS STRUCT(
+                population_cap STRUCT(
+                    max_variants BIGINT,
+                    cap_basis VARCHAR,
+                    cap_source VARCHAR,
+                    cap_exception_authorized BOOLEAN,
+                    cap_exception_ref VARCHAR
+                ),
+                declared_population STRUCT(
+                    committed_population_count BIGINT,
+                    declared_variant_count BIGINT,
+                    included_variant_count BIGINT,
+                    excluded_variant_count BIGINT,
+                    invalid_variant_count BIGINT,
+                    not_attempted_variant_count BIGINT
+                ),
+                trial_budget STRUCT(
+                    planned_trial_count BIGINT,
+                    trial_budget_denominator BIGINT,
+                    denominator_basis VARCHAR,
+                    denominator_count BIGINT,
+                    denominator_includes_failed BOOLEAN,
+                    denominator_includes_excluded BOOLEAN,
+                    denominator_includes_invalid BOOLEAN,
+                    denominator_includes_errored BOOLEAN,
+                    denominator_includes_aborted BOOLEAN,
+                    denominator_includes_filtered BOOLEAN,
+                    denominator_includes_data_unavailable BOOLEAN,
+                    denominator_includes_not_attempted BOOLEAN,
+                    executed_only_denominator_forbidden BOOLEAN
+                ),
+                multiple_testing_accounting STRUCT(
+                    denominator_required BOOLEAN,
+                    denominator_type VARCHAR,
+                    search_family_id VARCHAR,
+                    search_family_method VARCHAR,
+                    adaptive_search_used BOOLEAN,
+                    adaptive_search_authorization_ref VARCHAR,
+                    all_trials_visible_required BOOLEAN,
+                    winner_only_review_forbidden BOOLEAN
+                ),
+                pre_registration STRUCT(
+                    pre_registered BOOLEAN,
+                    pre_registration_status VARCHAR,
+                    pre_registration_scope VARCHAR,
+                    freeze_required_before_sweep BOOLEAN,
+                    post_hoc_addition_forbidden BOOLEAN,
+                    post_result_mutation_forbidden BOOLEAN,
+                    allowed_change_mode VARCHAR
+                )
+            )) AS population_governance,
+            CAST([] AS STRUCT(
+                axis_id VARCHAR,
+                parameter_name VARCHAR,
+                parent_strategy_spec_parameter_ref VARCHAR,
+                parameter_type VARCHAR,
+                units VARCHAR,
+                axis_kind VARCHAR,
+                generator_method VARCHAR,
+                allowed_values JSON[],
+                "range" STRUCT(
+                    min DOUBLE,
+                    max DOUBLE,
+                    step DOUBLE,
+                    inclusive_min BOOLEAN,
+                    inclusive_max BOOLEAN
+                ),
+                counts_toward_parent_free_parameter_cap BOOLEAN,
+                is_declared_in_parent_strategy_spec BOOLEAN,
+                invalid_combination_rule_refs VARCHAR[],
+                notes VARCHAR
+            )[]) AS parameter_axes,
+            CAST([] AS STRUCT(
+                rule_id VARCHAR,
+                description VARCHAR,
+                affected_axes VARCHAR[],
+                rule_type VARCHAR,
+                declared_before_results BOOLEAN,
+                notes VARCHAR
+            )[]) AS invalid_combination_rules,
+            CAST([] AS STRUCT(
+                rule_id VARCHAR,
+                description VARCHAR,
+                affected_variants VARCHAR[],
+                reason VARCHAR,
+                declared_before_results BOOLEAN,
+                notes VARCHAR
+            )[]) AS exclusion_rules,
+            CAST([] AS STRUCT(
+                variant_id VARCHAR,
+                assignment_status VARCHAR,
+                parameter_values JSON,
+                parameter_value_hash VARCHAR,
+                axis_refs VARCHAR[],
+                exclusion_rule_refs VARCHAR[],
+                invalid_combination_rule_refs VARCHAR[],
+                status_reason VARCHAR,
+                lineage STRUCT(generated_by_rule VARCHAR, generation_order BIGINT)
+            )[]) AS variant_assignments,
+            CAST(NULL AS STRUCT(
+                manifest_hash VARCHAR,
+                hash_algorithm VARCHAR,
+                canonicalization VARCHAR,
+                hash_scope_version VARCHAR,
+                hash_scope VARCHAR[],
+                hash_status VARCHAR,
+                frozen_at VARCHAR,
+                pre_sweep_freeze_required BOOLEAN,
+                post_result_mutation_forbidden BOOLEAN
+            )) AS manifest_hash_pinning,
+            CAST(NULL AS STRUCT(
+                amendment_mode VARCHAR,
+                supersedes STRUCT(
+                    variant_manifest_id VARCHAR,
+                    manifest_hash VARCHAR,
+                    reason VARCHAR,
+                    superseded_at VARCHAR
+                ),
+                supersession_lineage STRUCT(
+                    superseded_variant_manifest_id VARCHAR,
+                    superseded_manifest_hash VARCHAR,
+                    supersession_reason VARCHAR,
+                    superseded_at VARCHAR,
+                    prior_manifest_preserved_immutably BOOLEAN
+                )[],
+                amendment_reason VARCHAR,
+                associated_results_state VARCHAR,
+                supersession_allowed BOOLEAN,
+                close_only_after_results BOOLEAN,
+                post_result_change BOOLEAN,
+                preserve_prior_manifest_required BOOLEAN,
+                fresh_denominator_required BOOLEAN,
+                does_not_inherit_prior_results BOOLEAN
+            )) AS amendment_and_supersession,
+            CAST(NULL AS STRUCT(
+                parent_refs STRUCT(ref_type VARCHAR, ref_id VARCHAR, ref_path VARCHAR, ref_hash VARCHAR)[],
+                source_refs STRUCT(ref_type VARCHAR, ref_id VARCHAR, ref_path VARCHAR, ref_hash VARCHAR)[],
+                created_at VARCHAR,
+                updated_at VARCHAR,
+                audit_notes VARCHAR[],
+                hash_refs VARCHAR[]
+            )) AS lineage,
+            CAST(NULL AS STRUCT(
+                human_review_required BOOLEAN,
+                reviewer VARCHAR,
+                reviewed_at VARCHAR,
+                review_notes VARCHAR[],
+                approval_scope VARCHAR,
+                non_authority_acknowledgement STRUCT(
+                    not_candidate_approval BOOLEAN,
+                    not_exp_approval BOOLEAN,
+                    not_sweep_authority BOOLEAN,
+                    not_runner_authority BOOLEAN,
+                    not_result_authority BOOLEAN,
+                    not_ranking_authority BOOLEAN,
+                    not_recommendation_authority BOOLEAN,
+                    not_readiness_authority BOOLEAN,
+                    not_transition_authority BOOLEAN,
+                    not_runtime_authority BOOLEAN,
+                    not_paper_live_authority BOOLEAN,
+                    not_gate_satisfaction BOOLEAN
+                )
+            )) AS review
+        WHERE FALSE
+        """
+    )
+
+
+def _register_sweep_plans(conn: duckdb.DuckDBPyConnection) -> None:
+    sweep_plan_files = (
+        sorted(SWEEP_PLANS_DIR.glob("*.sweep_plan.json")) if SWEEP_PLANS_DIR.exists() else []
+    )
+    if sweep_plan_files:
+        conn.execute(
+            f"""
+            CREATE VIEW sweep_plans AS
+            SELECT * FROM read_json_auto('{_sql_path(SWEEP_PLANS_DIR / "*.sweep_plan.json")}')
+            """
+        )
+        return
+
+    conn.execute(
+        """
+        CREATE VIEW sweep_plans AS
+        SELECT
+            CAST(NULL AS VARCHAR) AS schema_version,
+            CAST(NULL AS VARCHAR) AS sweep_plan_id,
+            CAST(NULL AS VARCHAR) AS status,
+            CAST(NULL AS STRUCT(
+                planning_surface_only BOOLEAN,
+                not_executable BOOLEAN,
+                not_runner_authority BOOLEAN,
+                not_sweep_authority BOOLEAN,
+                not_result_authority BOOLEAN,
+                not_candidate_approval BOOLEAN,
+                not_exp_approval BOOLEAN,
+                not_ranking_authority BOOLEAN,
+                not_recommendation_authority BOOLEAN,
+                not_readiness_authority BOOLEAN,
+                not_transition_authority BOOLEAN,
+                not_runtime_authority BOOLEAN,
+                not_paper_live_authority BOOLEAN,
+                not_gate_authority BOOLEAN
+            )) AS non_execution_declaration,
+            CAST(NULL AS STRUCT(
+                variant_manifest_id VARCHAR,
+                variant_manifest_schema_version VARCHAR,
+                manifest_hash VARCHAR,
+                hash_algorithm VARCHAR,
+                manifest_population_count BIGINT,
+                manifest_committed_population_count BIGINT,
+                manifest_population_cap BIGINT,
+                manifest_pre_registration_status VARCHAR,
+                mismatch_policy VARCHAR,
+                missing_manifest_policy VARCHAR,
+                one_manifest_only BOOLEAN
+            )) AS parent_variant_manifest,
+            CAST(NULL AS STRUCT(
+                selection_mode VARCHAR,
+                selected_variant_ids VARCHAR[],
+                excluded_variant_ids VARCHAR[],
+                subset_selection_rule VARCHAR,
+                declared_before_results BOOLEAN,
+                post_hoc_addition_forbidden BOOLEAN,
+                outside_manifest_variants_forbidden BOOLEAN
+            )) AS test_selection,
+            CAST(NULL AS STRUCT(
+                backtest STRUCT(enabled BOOLEAN, method_ref VARCHAR, notes VARCHAR),
+                walk_forward_oos STRUCT(
+                    enabled BOOLEAN,
+                    method_ref VARCHAR,
+                    declares_chronological_separation BOOLEAN,
+                    notes VARCHAR
+                ),
+                robustness STRUCT(
+                    enabled BOOLEAN,
+                    method_ref VARCHAR,
+                    families_declared VARCHAR[],
+                    notes VARCHAR
+                ),
+                dsr_psr_mintrl_accounting STRUCT(
+                    enabled BOOLEAN,
+                    denominator_ref VARCHAR,
+                    computation_deferred BOOLEAN,
+                    notes VARCHAR
+                ),
+                monte_carlo STRUCT(
+                    enabled BOOLEAN,
+                    method_ref VARCHAR,
+                    computation_deferred BOOLEAN,
+                    notes VARCHAR
+                ),
+                declarative_intent_only BOOLEAN,
+                no_runner_hooks BOOLEAN,
+                no_formulas BOOLEAN,
+                no_computation BOOLEAN
+            )) AS validation_methods,
+            CAST(NULL AS STRUCT(
+                primary_timeframe VARCHAR,
+                confirmation_timeframes VARCHAR[],
+                data_refs STRUCT(stream VARCHAR, timeframe VARCHAR, field VARCHAR, availability VARCHAR)[],
+                missing_data_posture VARCHAR,
+                gap_handling_assumption VARCHAR
+            )) AS data_and_timeframe_assumptions,
+            CAST(NULL AS STRUCT(
+                fee_side_assumption VARCHAR,
+                exchange_constraints_disclosed BOOLEAN,
+                funding_notional_mode VARCHAR,
+                slippage_model VARCHAR,
+                fill_mode VARCHAR,
+                order_size_assumption VARCHAR,
+                liquidity_capacity_assumption VARCHAR,
+                liquidation_mode VARCHAR,
+                maintenance_margin_assumption VARCHAR,
+                mark_price_source VARCHAR,
+                bar_path_assumption VARCHAR,
+                declarations_only BOOLEAN
+            )) AS realism_assumptions,
+            CAST(NULL AS STRUCT(
+                result_population_expected BOOLEAN,
+                expected_result_population_ref VARCHAR,
+                must_capture_successful BOOLEAN,
+                must_capture_failed BOOLEAN,
+                must_capture_invalid BOOLEAN,
+                must_capture_excluded BOOLEAN,
+                must_capture_errored BOOLEAN,
+                must_capture_aborted BOOLEAN,
+                must_capture_filtered BOOLEAN,
+                must_capture_data_unavailable BOOLEAN,
+                must_capture_not_attempted BOOLEAN,
+                winner_only_retention_forbidden BOOLEAN,
+                canonical_evidence_mapping_deferred BOOLEAN
+            )) AS result_capture_expectations,
+            CAST(NULL AS STRUCT(
+                committed_population_count BIGINT,
+                selected_variant_count BIGINT,
+                executed_variant_count BIGINT,
+                successful_variant_count BIGINT,
+                failed_variant_count BIGINT,
+                errored_variant_count BIGINT,
+                aborted_variant_count BIGINT,
+                filtered_variant_count BIGINT,
+                data_unavailable_variant_count BIGINT,
+                excluded_variant_count BIGINT,
+                not_attempted_variant_count BIGINT,
+                multiple_testing_denominator BIGINT,
+                denominator_basis VARCHAR,
+                denominator_equals_committed_population_count BOOLEAN,
+                executed_only_denominator_forbidden BOOLEAN,
+                successful_only_denominator_forbidden BOOLEAN,
+                failed_variants_remain_in_denominator BOOLEAN,
+                excluded_variants_remain_in_denominator BOOLEAN,
+                invalid_variants_remain_in_denominator BOOLEAN,
+                errored_variants_remain_in_denominator BOOLEAN,
+                aborted_variants_remain_in_denominator BOOLEAN,
+                filtered_variants_remain_in_denominator BOOLEAN,
+                data_unavailable_variants_remain_in_denominator BOOLEAN,
+                not_attempted_variants_remain_in_denominator BOOLEAN
+            )) AS trial_accounting,
+            CAST(NULL AS STRUCT(
+                parent_manifest_ref STRUCT(ref_type VARCHAR, ref_id VARCHAR, ref_path VARCHAR, ref_hash VARCHAR),
+                parent_strategy_spec_ref STRUCT(ref_type VARCHAR, ref_id VARCHAR, ref_path VARCHAR, ref_hash VARCHAR),
+                search_family_id VARCHAR,
+                source_refs STRUCT(ref_type VARCHAR, ref_id VARCHAR, ref_path VARCHAR, ref_hash VARCHAR)[],
+                created_at VARCHAR,
+                updated_at VARCHAR,
+                audit_notes VARCHAR[]
+            )) AS lineage,
+            CAST(NULL AS STRUCT(
+                human_review_required BOOLEAN,
+                reviewer VARCHAR,
+                reviewed_at VARCHAR,
+                review_notes VARCHAR[],
+                approval_scope VARCHAR,
+                non_authority_acknowledgement STRUCT(
+                    not_candidate_approval BOOLEAN,
+                    not_exp_approval BOOLEAN,
+                    not_runner_authority BOOLEAN,
+                    not_sweep_authority BOOLEAN,
+                    not_result_authority BOOLEAN,
+                    not_ranking_authority BOOLEAN,
+                    not_recommendation_authority BOOLEAN,
+                    not_readiness_authority BOOLEAN,
+                    not_transition_authority BOOLEAN,
+                    not_runtime_authority BOOLEAN,
+                    not_paper_live_authority BOOLEAN,
+                    not_gate_satisfaction BOOLEAN
+                )
+            )) AS review,
+            CAST(NULL AS STRUCT(
+                amendment_mode VARCHAR,
+                supersedes STRUCT(
+                    sweep_plan_id VARCHAR,
+                    sweep_plan_hash VARCHAR,
+                    reason VARCHAR,
+                    superseded_at VARCHAR
+                ),
+                supersession_lineage STRUCT(
+                    superseded_sweep_plan_id VARCHAR,
+                    superseded_sweep_plan_hash VARCHAR,
+                    supersession_reason VARCHAR,
+                    superseded_at VARCHAR,
+                    prior_sweep_plan_preserved_immutably BOOLEAN
+                )[],
+                amendment_reason VARCHAR,
+                associated_results_state VARCHAR,
+                supersession_allowed BOOLEAN,
+                close_only_after_results BOOLEAN,
+                post_result_change BOOLEAN,
+                preserve_prior_sweep_plan_required BOOLEAN,
+                does_not_modify_parent_manifest BOOLEAN,
+                does_not_modify_manifest_denominator BOOLEAN
+            )) AS amendment_and_supersession
+        WHERE FALSE
+        """
+    )
+
+
 def _rows_as_dicts(cursor: duckdb.DuckDBPyConnection) -> list[dict[str, Any]]:
     columns = [description[0] for description in cursor.description or []]
     return [dict(zip(columns, row, strict=True)) for row in cursor.fetchall()]
@@ -1394,6 +1824,8 @@ def init_duckdb(read_only: bool = True) -> duckdb.DuckDBPyConnection:
     _register_shadow_evidence_retention(conn)
     _register_s2p_approval_records(conn)
     _register_strategy_specs(conn)
+    _register_variant_manifests(conn)
+    _register_sweep_plans(conn)
     load_views(conn)
     return conn
 

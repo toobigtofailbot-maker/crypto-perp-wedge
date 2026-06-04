@@ -4224,3 +4224,441 @@ FROM (
     WHERE pre_registration_support.intended_for_variant_manifest IS DISTINCT FROM false
       AND hash_pinning.hash_status IS DISTINCT FROM 'computed'
 ) AS issues;
+
+-- What Variant Manifest artifacts are visible to the read-only query layer?
+-- This is descriptive visibility only and does not approve variants or sweeps.
+CREATE OR REPLACE VIEW v_variant_manifest_overview AS
+SELECT
+    variant_manifest_id,
+    status,
+    parent_strategy_spec.strategy_spec_id AS parent_strategy_spec_id,
+    parent_strategy_spec.strategy_spec_hash AS parent_strategy_spec_hash,
+    parent_strategy_spec.strategy_spec_review_status AS parent_strategy_spec_review_status,
+    population_governance.declared_population.committed_population_count AS committed_population_count,
+    population_governance.declared_population.declared_variant_count AS declared_variant_count,
+    population_governance.population_cap.max_variants AS population_cap,
+    population_governance.multiple_testing_accounting.search_family_id AS search_family_id,
+    population_governance.multiple_testing_accounting.search_family_method AS search_family_method,
+    population_governance.pre_registration.pre_registration_status AS pre_registration_status,
+    manifest_hash_pinning.manifest_hash AS manifest_hash,
+    manifest_hash_pinning.hash_status AS hash_status,
+    review.approval_scope AS approval_scope
+FROM variant_manifests;
+
+-- What population and denominator posture is declared by each Variant Manifest?
+CREATE OR REPLACE VIEW v_variant_manifest_population AS
+SELECT
+    variant_manifest_id,
+    population_governance.declared_population.committed_population_count AS committed_population_count,
+    population_governance.declared_population.declared_variant_count AS declared_variant_count,
+    population_governance.declared_population.included_variant_count AS included_variant_count,
+    population_governance.declared_population.excluded_variant_count AS excluded_variant_count,
+    population_governance.declared_population.invalid_variant_count AS invalid_variant_count,
+    population_governance.declared_population.not_attempted_variant_count AS not_attempted_variant_count,
+    population_governance.population_cap.max_variants AS population_cap,
+    population_governance.trial_budget.planned_trial_count AS planned_trial_count,
+    population_governance.trial_budget.trial_budget_denominator AS trial_budget_denominator,
+    population_governance.trial_budget.denominator_count AS denominator_count,
+    population_governance.trial_budget.denominator_basis AS denominator_basis,
+    population_governance.multiple_testing_accounting.denominator_type AS denominator_type,
+    population_governance.multiple_testing_accounting.adaptive_search_used AS adaptive_search_used,
+    population_governance.multiple_testing_accounting.winner_only_review_forbidden AS winner_only_review_forbidden,
+    population_governance.trial_budget.executed_only_denominator_forbidden AS executed_only_denominator_forbidden
+FROM variant_manifests;
+
+-- Which parameter axes are declared by Variant Manifests?
+CREATE OR REPLACE VIEW v_variant_manifest_parameter_axes AS
+SELECT
+    v.variant_manifest_id,
+    axis.axis_id,
+    axis.parameter_name,
+    axis.parent_strategy_spec_parameter_ref,
+    axis.parameter_type,
+    axis.units,
+    axis.axis_kind,
+    axis.generator_method,
+    axis.counts_toward_parent_free_parameter_cap,
+    axis.is_declared_in_parent_strategy_spec
+FROM variant_manifests AS v,
+UNNEST(v.parameter_axes) AS axes(axis);
+
+-- Which variant assignments are declared without expanding dynamic parameter values?
+CREATE OR REPLACE VIEW v_variant_manifest_assignments AS
+SELECT
+    v.variant_manifest_id,
+    assignment.variant_id,
+    assignment.assignment_status,
+    assignment.parameter_value_hash,
+    list_count(assignment.axis_refs) AS axis_ref_count,
+    list_count(assignment.exclusion_rule_refs) AS exclusion_rule_count,
+    list_count(assignment.invalid_combination_rule_refs) AS invalid_combination_rule_count,
+    assignment.status_reason,
+    assignment.lineage.generated_by_rule AS generated_by_rule,
+    assignment.lineage.generation_order AS generation_order
+FROM variant_manifests AS v,
+UNNEST(v.variant_assignments) AS assignments(assignment);
+
+-- What hash-pinning posture is declared by each Variant Manifest?
+CREATE OR REPLACE VIEW v_variant_manifest_hash_pinning AS
+SELECT
+    variant_manifest_id,
+    manifest_hash_pinning.manifest_hash AS manifest_hash,
+    manifest_hash_pinning.hash_algorithm AS hash_algorithm,
+    manifest_hash_pinning.canonicalization AS canonicalization,
+    manifest_hash_pinning.hash_scope_version AS hash_scope_version,
+    list_count(manifest_hash_pinning.hash_scope) AS hash_scope_count,
+    manifest_hash_pinning.hash_status AS hash_status,
+    manifest_hash_pinning.frozen_at AS frozen_at,
+    manifest_hash_pinning.pre_sweep_freeze_required AS pre_sweep_freeze_required,
+    manifest_hash_pinning.post_result_mutation_forbidden AS post_result_mutation_forbidden
+FROM variant_manifests;
+
+-- What amendment and supersession posture is declared by each Variant Manifest?
+CREATE OR REPLACE VIEW v_variant_manifest_supersession AS
+SELECT
+    variant_manifest_id,
+    amendment_and_supersession.amendment_mode AS amendment_mode,
+    amendment_and_supersession.associated_results_state AS associated_results_state,
+    amendment_and_supersession.supersession_allowed AS supersession_allowed,
+    amendment_and_supersession.supersedes.variant_manifest_id AS supersedes_variant_manifest_id,
+    amendment_and_supersession.supersedes.manifest_hash AS supersedes_manifest_hash,
+    amendment_and_supersession.amendment_reason AS amendment_reason,
+    amendment_and_supersession.post_result_change AS post_result_change,
+    amendment_and_supersession.close_only_after_results AS close_only_after_results,
+    amendment_and_supersession.preserve_prior_manifest_required AS preserve_prior_manifest_required,
+    amendment_and_supersession.fresh_denominator_required AS fresh_denominator_required,
+    amendment_and_supersession.does_not_inherit_prior_results AS does_not_inherit_prior_results,
+    list_count(amendment_and_supersession.supersession_lineage) AS supersession_lineage_count
+FROM variant_manifests;
+
+-- What Sweep Plan artifacts are visible to the read-only query layer?
+CREATE OR REPLACE VIEW v_sweep_plan_overview AS
+SELECT
+    sweep_plan_id,
+    status,
+    parent_variant_manifest.variant_manifest_id AS parent_variant_manifest_id,
+    parent_variant_manifest.manifest_hash AS parent_manifest_hash,
+    parent_variant_manifest.manifest_committed_population_count AS manifest_committed_population_count,
+    parent_variant_manifest.manifest_population_cap AS manifest_population_cap,
+    parent_variant_manifest.manifest_pre_registration_status AS manifest_pre_registration_status,
+    test_selection.selection_mode AS selection_mode,
+    list_count(test_selection.selected_variant_ids) AS selected_variant_count,
+    list_count(test_selection.excluded_variant_ids) AS excluded_variant_count,
+    review.approval_scope AS approval_scope
+FROM sweep_plans;
+
+-- Which validation methods are declared by Sweep Plans?
+CREATE OR REPLACE VIEW v_sweep_plan_validation_methods AS
+SELECT
+    sweep_plan_id,
+    validation_methods.backtest.enabled AS backtest_enabled,
+    validation_methods.walk_forward_oos.enabled AS walk_forward_oos_enabled,
+    validation_methods.walk_forward_oos.declares_chronological_separation AS declares_chronological_separation,
+    validation_methods.robustness.enabled AS robustness_enabled,
+    list_count(validation_methods.robustness.families_declared) AS robustness_family_count,
+    validation_methods.dsr_psr_mintrl_accounting.enabled AS dsr_psr_mintrl_enabled,
+    validation_methods.dsr_psr_mintrl_accounting.denominator_ref AS dsr_denominator_ref,
+    validation_methods.dsr_psr_mintrl_accounting.computation_deferred AS dsr_computation_deferred,
+    validation_methods.monte_carlo.enabled AS monte_carlo_enabled,
+    validation_methods.monte_carlo.computation_deferred AS monte_carlo_computation_deferred,
+    validation_methods.declarative_intent_only AS declarative_intent_only,
+    validation_methods.no_runner_hooks AS no_runner_hooks,
+    validation_methods.no_formulas AS no_formulas,
+    validation_methods.no_computation AS no_computation
+FROM sweep_plans;
+
+-- What trial accounting posture is declared by Sweep Plans?
+CREATE OR REPLACE VIEW v_sweep_plan_trial_accounting AS
+SELECT
+    sweep_plan_id,
+    trial_accounting.committed_population_count AS committed_population_count,
+    trial_accounting.selected_variant_count AS selected_variant_count,
+    trial_accounting.executed_variant_count AS executed_variant_count,
+    trial_accounting.successful_variant_count AS successful_variant_count,
+    trial_accounting.failed_variant_count AS failed_variant_count,
+    trial_accounting.errored_variant_count AS errored_variant_count,
+    trial_accounting.aborted_variant_count AS aborted_variant_count,
+    trial_accounting.filtered_variant_count AS filtered_variant_count,
+    trial_accounting.data_unavailable_variant_count AS data_unavailable_variant_count,
+    trial_accounting.excluded_variant_count AS excluded_variant_count,
+    trial_accounting.not_attempted_variant_count AS not_attempted_variant_count,
+    trial_accounting.multiple_testing_denominator AS multiple_testing_denominator,
+    trial_accounting.denominator_basis AS denominator_basis,
+    trial_accounting.denominator_equals_committed_population_count AS denominator_equals_committed_population_count,
+    trial_accounting.executed_only_denominator_forbidden AS executed_only_denominator_forbidden,
+    trial_accounting.successful_only_denominator_forbidden AS successful_only_denominator_forbidden
+FROM sweep_plans;
+
+-- What result-capture expectations are declared by Sweep Plans?
+CREATE OR REPLACE VIEW v_sweep_plan_result_capture_expectations AS
+SELECT
+    sweep_plan_id,
+    result_capture_expectations.result_population_expected AS result_population_expected,
+    result_capture_expectations.expected_result_population_ref AS expected_result_population_ref,
+    result_capture_expectations.must_capture_successful AS must_capture_successful,
+    result_capture_expectations.must_capture_failed AS must_capture_failed,
+    result_capture_expectations.must_capture_invalid AS must_capture_invalid,
+    result_capture_expectations.must_capture_excluded AS must_capture_excluded,
+    result_capture_expectations.must_capture_errored AS must_capture_errored,
+    result_capture_expectations.must_capture_aborted AS must_capture_aborted,
+    result_capture_expectations.must_capture_filtered AS must_capture_filtered,
+    result_capture_expectations.must_capture_data_unavailable AS must_capture_data_unavailable,
+    result_capture_expectations.must_capture_not_attempted AS must_capture_not_attempted,
+    result_capture_expectations.winner_only_retention_forbidden AS winner_only_retention_forbidden,
+    result_capture_expectations.canonical_evidence_mapping_deferred AS canonical_evidence_mapping_deferred
+FROM sweep_plans;
+
+-- Do Variant Manifests preserve visible non-authority flags?
+-- Expected to be empty in healthy state; the validator remains authoritative.
+CREATE OR REPLACE VIEW v_integrity_variant_manifest_non_authority AS
+SELECT
+    'variant_manifest_non_authority_flag_violation' AS issue_type,
+    variant_manifest_id,
+    source_field,
+    expected_value,
+    actual_value
+FROM (
+    SELECT variant_manifest_id, 'non_execution_declaration.not_executable' AS source_field, 'true' AS expected_value, CAST(non_execution_declaration.not_executable AS VARCHAR) AS actual_value FROM variant_manifests WHERE non_execution_declaration.not_executable IS DISTINCT FROM true
+    UNION ALL
+    SELECT variant_manifest_id, 'non_execution_declaration.not_runner_authority', 'true', CAST(non_execution_declaration.not_runner_authority AS VARCHAR) FROM variant_manifests WHERE non_execution_declaration.not_runner_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT variant_manifest_id, 'non_execution_declaration.not_sweep_authority', 'true', CAST(non_execution_declaration.not_sweep_authority AS VARCHAR) FROM variant_manifests WHERE non_execution_declaration.not_sweep_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT variant_manifest_id, 'non_execution_declaration.not_result_authority', 'true', CAST(non_execution_declaration.not_result_authority AS VARCHAR) FROM variant_manifests WHERE non_execution_declaration.not_result_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT variant_manifest_id, 'non_execution_declaration.not_candidate_approval', 'true', CAST(non_execution_declaration.not_candidate_approval AS VARCHAR) FROM variant_manifests WHERE non_execution_declaration.not_candidate_approval IS DISTINCT FROM true
+    UNION ALL
+    SELECT variant_manifest_id, 'non_execution_declaration.not_exp_approval', 'true', CAST(non_execution_declaration.not_exp_approval AS VARCHAR) FROM variant_manifests WHERE non_execution_declaration.not_exp_approval IS DISTINCT FROM true
+    UNION ALL
+    SELECT variant_manifest_id, 'non_execution_declaration.not_ranking_authority', 'true', CAST(non_execution_declaration.not_ranking_authority AS VARCHAR) FROM variant_manifests WHERE non_execution_declaration.not_ranking_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT variant_manifest_id, 'non_execution_declaration.not_recommendation_authority', 'true', CAST(non_execution_declaration.not_recommendation_authority AS VARCHAR) FROM variant_manifests WHERE non_execution_declaration.not_recommendation_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT variant_manifest_id, 'non_execution_declaration.not_readiness_authority', 'true', CAST(non_execution_declaration.not_readiness_authority AS VARCHAR) FROM variant_manifests WHERE non_execution_declaration.not_readiness_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT variant_manifest_id, 'non_execution_declaration.not_transition_authority', 'true', CAST(non_execution_declaration.not_transition_authority AS VARCHAR) FROM variant_manifests WHERE non_execution_declaration.not_transition_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT variant_manifest_id, 'non_execution_declaration.not_runtime_authority', 'true', CAST(non_execution_declaration.not_runtime_authority AS VARCHAR) FROM variant_manifests WHERE non_execution_declaration.not_runtime_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT variant_manifest_id, 'non_execution_declaration.not_paper_live_authority', 'true', CAST(non_execution_declaration.not_paper_live_authority AS VARCHAR) FROM variant_manifests WHERE non_execution_declaration.not_paper_live_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT variant_manifest_id, 'non_execution_declaration.not_gate_authority', 'true', CAST(non_execution_declaration.not_gate_authority AS VARCHAR) FROM variant_manifests WHERE non_execution_declaration.not_gate_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT variant_manifest_id, 'review.non_authority_acknowledgement.not_recommendation_authority', 'true', CAST(review.non_authority_acknowledgement.not_recommendation_authority AS VARCHAR) FROM variant_manifests WHERE review.non_authority_acknowledgement.not_recommendation_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT variant_manifest_id, 'review.non_authority_acknowledgement.not_ranking_authority', 'true', CAST(review.non_authority_acknowledgement.not_ranking_authority AS VARCHAR) FROM variant_manifests WHERE review.non_authority_acknowledgement.not_ranking_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT variant_manifest_id, 'review.non_authority_acknowledgement.not_readiness_authority', 'true', CAST(review.non_authority_acknowledgement.not_readiness_authority AS VARCHAR) FROM variant_manifests WHERE review.non_authority_acknowledgement.not_readiness_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT variant_manifest_id, 'review.non_authority_acknowledgement.not_transition_authority', 'true', CAST(review.non_authority_acknowledgement.not_transition_authority AS VARCHAR) FROM variant_manifests WHERE review.non_authority_acknowledgement.not_transition_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT variant_manifest_id, 'review.non_authority_acknowledgement.not_gate_satisfaction', 'true', CAST(review.non_authority_acknowledgement.not_gate_satisfaction AS VARCHAR) FROM variant_manifests WHERE review.non_authority_acknowledgement.not_gate_satisfaction IS DISTINCT FROM true
+) AS issues;
+
+-- Do Variant Manifests preserve visible denominator posture?
+CREATE OR REPLACE VIEW v_integrity_variant_manifest_denominator AS
+SELECT
+    'variant_manifest_denominator_violation' AS issue_type,
+    variant_manifest_id,
+    source_field,
+    expected_value,
+    actual_value
+FROM (
+    SELECT variant_manifest_id, 'committed_population_count_equals_declared_variant_count' AS source_field, CAST(population_governance.declared_population.declared_variant_count AS VARCHAR) AS expected_value, CAST(population_governance.declared_population.committed_population_count AS VARCHAR) AS actual_value FROM variant_manifests WHERE population_governance.declared_population.committed_population_count IS DISTINCT FROM population_governance.declared_population.declared_variant_count
+    UNION ALL
+    SELECT variant_manifest_id, 'committed_population_count_equals_assignment_count', CAST(list_count(variant_assignments) AS VARCHAR), CAST(population_governance.declared_population.committed_population_count AS VARCHAR) FROM variant_manifests WHERE population_governance.declared_population.committed_population_count IS DISTINCT FROM list_count(variant_assignments)
+    UNION ALL
+    SELECT variant_manifest_id, 'declared_variant_count_within_population_cap', '<=population_cap', CAST(population_governance.declared_population.declared_variant_count AS VARCHAR) FROM variant_manifests WHERE population_governance.declared_population.declared_variant_count > population_governance.population_cap.max_variants
+    UNION ALL
+    SELECT variant_manifest_id, 'declared_status_breakdown_equals_declared_count', CAST(population_governance.declared_population.declared_variant_count AS VARCHAR), CAST(population_governance.declared_population.included_variant_count + population_governance.declared_population.excluded_variant_count + population_governance.declared_population.invalid_variant_count + population_governance.declared_population.not_attempted_variant_count AS VARCHAR) FROM variant_manifests WHERE population_governance.declared_population.declared_variant_count IS DISTINCT FROM population_governance.declared_population.included_variant_count + population_governance.declared_population.excluded_variant_count + population_governance.declared_population.invalid_variant_count + population_governance.declared_population.not_attempted_variant_count
+    UNION ALL
+    SELECT variant_manifest_id, 'trial_budget.trial_budget_denominator', CAST(population_governance.declared_population.committed_population_count AS VARCHAR), CAST(population_governance.trial_budget.trial_budget_denominator AS VARCHAR) FROM variant_manifests WHERE population_governance.trial_budget.trial_budget_denominator IS DISTINCT FROM population_governance.declared_population.committed_population_count
+    UNION ALL
+    SELECT variant_manifest_id, 'trial_budget.denominator_count', CAST(population_governance.declared_population.committed_population_count AS VARCHAR), CAST(population_governance.trial_budget.denominator_count AS VARCHAR) FROM variant_manifests WHERE population_governance.trial_budget.denominator_count IS DISTINCT FROM population_governance.declared_population.committed_population_count
+    UNION ALL
+    SELECT variant_manifest_id, 'trial_budget.denominator_basis', 'committed_pre_registered_population_count', CAST(population_governance.trial_budget.denominator_basis AS VARCHAR) FROM variant_manifests WHERE population_governance.trial_budget.denominator_basis IS DISTINCT FROM 'committed_pre_registered_population_count'
+    UNION ALL
+    SELECT variant_manifest_id, 'multiple_testing_accounting.denominator_type', 'committed_pre_registered_population', CAST(population_governance.multiple_testing_accounting.denominator_type AS VARCHAR) FROM variant_manifests WHERE population_governance.multiple_testing_accounting.denominator_type IS DISTINCT FROM 'committed_pre_registered_population'
+    UNION ALL
+    SELECT variant_manifest_id, 'multiple_testing_accounting.adaptive_search_used', 'false', CAST(population_governance.multiple_testing_accounting.adaptive_search_used AS VARCHAR) FROM variant_manifests WHERE population_governance.multiple_testing_accounting.adaptive_search_used IS DISTINCT FROM false
+    UNION ALL
+    SELECT variant_manifest_id, 'multiple_testing_accounting.winner_only_review_forbidden', 'true', CAST(population_governance.multiple_testing_accounting.winner_only_review_forbidden AS VARCHAR) FROM variant_manifests WHERE population_governance.multiple_testing_accounting.winner_only_review_forbidden IS DISTINCT FROM true
+    UNION ALL
+    SELECT variant_manifest_id, 'trial_budget.executed_only_denominator_forbidden', 'true', CAST(population_governance.trial_budget.executed_only_denominator_forbidden AS VARCHAR) FROM variant_manifests WHERE population_governance.trial_budget.executed_only_denominator_forbidden IS DISTINCT FROM true
+) AS issues;
+
+-- Do Variant Manifests preserve visible hash/pre-registration posture?
+CREATE OR REPLACE VIEW v_integrity_variant_manifest_hash_readiness AS
+SELECT
+    'variant_manifest_hash_readiness_violation' AS issue_type,
+    variant_manifest_id,
+    source_field,
+    expected_value,
+    actual_value
+FROM (
+    SELECT variant_manifest_id, 'manifest_hash_pinning.hash_status' AS source_field, 'computed when frozen' AS expected_value, CAST(manifest_hash_pinning.hash_status AS VARCHAR) AS actual_value FROM variant_manifests WHERE population_governance.pre_registration.pre_registration_status = 'frozen_for_sweep_planning' AND manifest_hash_pinning.hash_status IS DISTINCT FROM 'computed'
+    UNION ALL
+    SELECT variant_manifest_id, 'manifest_hash_pinning.manifest_hash', 'non-empty when frozen', CAST(manifest_hash_pinning.manifest_hash AS VARCHAR) FROM variant_manifests WHERE population_governance.pre_registration.pre_registration_status = 'frozen_for_sweep_planning' AND NULLIF(CAST(manifest_hash_pinning.manifest_hash AS VARCHAR), '') IS NULL
+    UNION ALL
+    SELECT variant_manifest_id, 'manifest_hash_pinning.frozen_at', 'non-empty when frozen', CAST(manifest_hash_pinning.frozen_at AS VARCHAR) FROM variant_manifests WHERE population_governance.pre_registration.pre_registration_status = 'frozen_for_sweep_planning' AND NULLIF(CAST(manifest_hash_pinning.frozen_at AS VARCHAR), '') IS NULL
+    UNION ALL
+    SELECT variant_manifest_id, 'manifest_hash_pinning.hash_algorithm', 'sha256', CAST(manifest_hash_pinning.hash_algorithm AS VARCHAR) FROM variant_manifests WHERE manifest_hash_pinning.hash_algorithm IS DISTINCT FROM 'sha256'
+    UNION ALL
+    SELECT variant_manifest_id, 'manifest_hash_pinning.canonicalization', 'json_canonical_v1', CAST(manifest_hash_pinning.canonicalization AS VARCHAR) FROM variant_manifests WHERE manifest_hash_pinning.canonicalization IS DISTINCT FROM 'json_canonical_v1'
+    UNION ALL
+    SELECT variant_manifest_id, 'manifest_hash_pinning.hash_scope_version', 'variant_manifest_hash_scope_v1', CAST(manifest_hash_pinning.hash_scope_version AS VARCHAR) FROM variant_manifests WHERE manifest_hash_pinning.hash_scope_version IS DISTINCT FROM 'variant_manifest_hash_scope_v1'
+) AS issues;
+
+-- Do Variant Manifests preserve visible no-result-laundering posture?
+CREATE OR REPLACE VIEW v_integrity_variant_manifest_supersession AS
+SELECT
+    'variant_manifest_supersession_violation' AS issue_type,
+    variant_manifest_id,
+    source_field,
+    expected_value,
+    actual_value
+FROM (
+    SELECT variant_manifest_id, 'amendment_and_supersession.amendment_mode' AS source_field, 'closed_after_results when associated results exist' AS expected_value, CAST(amendment_and_supersession.amendment_mode AS VARCHAR) AS actual_value FROM variant_manifests WHERE amendment_and_supersession.associated_results_state = 'associated_results_exist' AND amendment_and_supersession.amendment_mode IS DISTINCT FROM 'closed_after_results'
+    UNION ALL
+    SELECT variant_manifest_id, 'amendment_and_supersession.supersession_allowed', 'false when associated results exist', CAST(amendment_and_supersession.supersession_allowed AS VARCHAR) FROM variant_manifests WHERE amendment_and_supersession.associated_results_state = 'associated_results_exist' AND amendment_and_supersession.supersession_allowed IS DISTINCT FROM false
+    UNION ALL
+    SELECT variant_manifest_id, 'amendment_and_supersession.supersedes', 'null when associated results exist', CAST(amendment_and_supersession.supersedes.variant_manifest_id AS VARCHAR) FROM variant_manifests WHERE amendment_and_supersession.associated_results_state = 'associated_results_exist' AND amendment_and_supersession.supersedes.variant_manifest_id IS NOT NULL
+    UNION ALL
+    SELECT variant_manifest_id, 'amendment_and_supersession.post_result_change', 'false', CAST(amendment_and_supersession.post_result_change AS VARCHAR) FROM variant_manifests WHERE amendment_and_supersession.post_result_change IS DISTINCT FROM false
+    UNION ALL
+    SELECT variant_manifest_id, 'amendment_and_supersession.close_only_after_results', 'true', CAST(amendment_and_supersession.close_only_after_results AS VARCHAR) FROM variant_manifests WHERE amendment_and_supersession.close_only_after_results IS DISTINCT FROM true
+    UNION ALL
+    SELECT variant_manifest_id, 'amendment_and_supersession.preserve_prior_manifest_required', 'true', CAST(amendment_and_supersession.preserve_prior_manifest_required AS VARCHAR) FROM variant_manifests WHERE amendment_and_supersession.preserve_prior_manifest_required IS DISTINCT FROM true
+    UNION ALL
+    SELECT variant_manifest_id, 'amendment_and_supersession.fresh_denominator_required', 'true', CAST(amendment_and_supersession.fresh_denominator_required AS VARCHAR) FROM variant_manifests WHERE amendment_and_supersession.fresh_denominator_required IS DISTINCT FROM true
+    UNION ALL
+    SELECT variant_manifest_id, 'amendment_and_supersession.does_not_inherit_prior_results', 'true', CAST(amendment_and_supersession.does_not_inherit_prior_results AS VARCHAR) FROM variant_manifests WHERE amendment_and_supersession.does_not_inherit_prior_results IS DISTINCT FROM true
+    UNION ALL
+    SELECT variant_manifest_id, 'amendment_and_supersession.supersession_lineage', 'non-empty when superseding before results', CAST(list_count(amendment_and_supersession.supersession_lineage) AS VARCHAR) FROM variant_manifests WHERE amendment_and_supersession.amendment_mode = 'supersedes_prior_manifest' AND list_count(amendment_and_supersession.supersession_lineage) = 0
+    UNION ALL
+    SELECT variant_manifest_id, 'amendment_and_supersession.amendment_reason', 'non-empty when superseding before results', CAST(amendment_and_supersession.amendment_reason AS VARCHAR) FROM variant_manifests WHERE amendment_and_supersession.amendment_mode = 'supersedes_prior_manifest' AND NULLIF(CAST(amendment_and_supersession.amendment_reason AS VARCHAR), '') IS NULL
+) AS issues;
+
+-- Do Sweep Plans preserve visible non-authority flags?
+CREATE OR REPLACE VIEW v_integrity_sweep_plan_non_authority AS
+SELECT
+    'sweep_plan_non_authority_flag_violation' AS issue_type,
+    sweep_plan_id,
+    source_field,
+    expected_value,
+    actual_value
+FROM (
+    SELECT sweep_plan_id, 'non_execution_declaration.not_executable' AS source_field, 'true' AS expected_value, CAST(non_execution_declaration.not_executable AS VARCHAR) AS actual_value FROM sweep_plans WHERE non_execution_declaration.not_executable IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'non_execution_declaration.not_runner_authority', 'true', CAST(non_execution_declaration.not_runner_authority AS VARCHAR) FROM sweep_plans WHERE non_execution_declaration.not_runner_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'non_execution_declaration.not_sweep_authority', 'true', CAST(non_execution_declaration.not_sweep_authority AS VARCHAR) FROM sweep_plans WHERE non_execution_declaration.not_sweep_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'non_execution_declaration.not_result_authority', 'true', CAST(non_execution_declaration.not_result_authority AS VARCHAR) FROM sweep_plans WHERE non_execution_declaration.not_result_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'non_execution_declaration.not_candidate_approval', 'true', CAST(non_execution_declaration.not_candidate_approval AS VARCHAR) FROM sweep_plans WHERE non_execution_declaration.not_candidate_approval IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'non_execution_declaration.not_exp_approval', 'true', CAST(non_execution_declaration.not_exp_approval AS VARCHAR) FROM sweep_plans WHERE non_execution_declaration.not_exp_approval IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'non_execution_declaration.not_ranking_authority', 'true', CAST(non_execution_declaration.not_ranking_authority AS VARCHAR) FROM sweep_plans WHERE non_execution_declaration.not_ranking_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'non_execution_declaration.not_recommendation_authority', 'true', CAST(non_execution_declaration.not_recommendation_authority AS VARCHAR) FROM sweep_plans WHERE non_execution_declaration.not_recommendation_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'non_execution_declaration.not_readiness_authority', 'true', CAST(non_execution_declaration.not_readiness_authority AS VARCHAR) FROM sweep_plans WHERE non_execution_declaration.not_readiness_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'non_execution_declaration.not_transition_authority', 'true', CAST(non_execution_declaration.not_transition_authority AS VARCHAR) FROM sweep_plans WHERE non_execution_declaration.not_transition_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'non_execution_declaration.not_runtime_authority', 'true', CAST(non_execution_declaration.not_runtime_authority AS VARCHAR) FROM sweep_plans WHERE non_execution_declaration.not_runtime_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'non_execution_declaration.not_paper_live_authority', 'true', CAST(non_execution_declaration.not_paper_live_authority AS VARCHAR) FROM sweep_plans WHERE non_execution_declaration.not_paper_live_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'non_execution_declaration.not_gate_authority', 'true', CAST(non_execution_declaration.not_gate_authority AS VARCHAR) FROM sweep_plans WHERE non_execution_declaration.not_gate_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'review.non_authority_acknowledgement.not_recommendation_authority', 'true', CAST(review.non_authority_acknowledgement.not_recommendation_authority AS VARCHAR) FROM sweep_plans WHERE review.non_authority_acknowledgement.not_recommendation_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'review.non_authority_acknowledgement.not_ranking_authority', 'true', CAST(review.non_authority_acknowledgement.not_ranking_authority AS VARCHAR) FROM sweep_plans WHERE review.non_authority_acknowledgement.not_ranking_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'review.non_authority_acknowledgement.not_readiness_authority', 'true', CAST(review.non_authority_acknowledgement.not_readiness_authority AS VARCHAR) FROM sweep_plans WHERE review.non_authority_acknowledgement.not_readiness_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'review.non_authority_acknowledgement.not_transition_authority', 'true', CAST(review.non_authority_acknowledgement.not_transition_authority AS VARCHAR) FROM sweep_plans WHERE review.non_authority_acknowledgement.not_transition_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'review.non_authority_acknowledgement.not_gate_satisfaction', 'true', CAST(review.non_authority_acknowledgement.not_gate_satisfaction AS VARCHAR) FROM sweep_plans WHERE review.non_authority_acknowledgement.not_gate_satisfaction IS DISTINCT FROM true
+) AS issues;
+
+-- Do Sweep Plans preserve visible denominator posture?
+CREATE OR REPLACE VIEW v_integrity_sweep_plan_denominator AS
+SELECT
+    'sweep_plan_denominator_violation' AS issue_type,
+    sweep_plan_id,
+    source_field,
+    expected_value,
+    actual_value
+FROM (
+    SELECT sweep_plan_id, 'trial_accounting.multiple_testing_denominator' AS source_field, CAST(trial_accounting.committed_population_count AS VARCHAR) AS expected_value, CAST(trial_accounting.multiple_testing_denominator AS VARCHAR) AS actual_value FROM sweep_plans WHERE trial_accounting.multiple_testing_denominator IS DISTINCT FROM trial_accounting.committed_population_count
+    UNION ALL
+    SELECT sweep_plan_id, 'trial_accounting.denominator_basis', 'committed_pre_registered_population_count', CAST(trial_accounting.denominator_basis AS VARCHAR) FROM sweep_plans WHERE trial_accounting.denominator_basis IS DISTINCT FROM 'committed_pre_registered_population_count'
+    UNION ALL
+    SELECT sweep_plan_id, 'trial_accounting.denominator_equals_committed_population_count', 'true', CAST(trial_accounting.denominator_equals_committed_population_count AS VARCHAR) FROM sweep_plans WHERE trial_accounting.denominator_equals_committed_population_count IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'trial_accounting.executed_only_denominator_forbidden', 'true', CAST(trial_accounting.executed_only_denominator_forbidden AS VARCHAR) FROM sweep_plans WHERE trial_accounting.executed_only_denominator_forbidden IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'trial_accounting.successful_only_denominator_forbidden', 'true', CAST(trial_accounting.successful_only_denominator_forbidden AS VARCHAR) FROM sweep_plans WHERE trial_accounting.successful_only_denominator_forbidden IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'trial_accounting.failed_variants_remain_in_denominator', 'true', CAST(trial_accounting.failed_variants_remain_in_denominator AS VARCHAR) FROM sweep_plans WHERE trial_accounting.failed_variants_remain_in_denominator IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'trial_accounting.excluded_variants_remain_in_denominator', 'true', CAST(trial_accounting.excluded_variants_remain_in_denominator AS VARCHAR) FROM sweep_plans WHERE trial_accounting.excluded_variants_remain_in_denominator IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'trial_accounting.invalid_variants_remain_in_denominator', 'true', CAST(trial_accounting.invalid_variants_remain_in_denominator AS VARCHAR) FROM sweep_plans WHERE trial_accounting.invalid_variants_remain_in_denominator IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'trial_accounting.errored_variants_remain_in_denominator', 'true', CAST(trial_accounting.errored_variants_remain_in_denominator AS VARCHAR) FROM sweep_plans WHERE trial_accounting.errored_variants_remain_in_denominator IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'trial_accounting.aborted_variants_remain_in_denominator', 'true', CAST(trial_accounting.aborted_variants_remain_in_denominator AS VARCHAR) FROM sweep_plans WHERE trial_accounting.aborted_variants_remain_in_denominator IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'trial_accounting.filtered_variants_remain_in_denominator', 'true', CAST(trial_accounting.filtered_variants_remain_in_denominator AS VARCHAR) FROM sweep_plans WHERE trial_accounting.filtered_variants_remain_in_denominator IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'trial_accounting.data_unavailable_variants_remain_in_denominator', 'true', CAST(trial_accounting.data_unavailable_variants_remain_in_denominator AS VARCHAR) FROM sweep_plans WHERE trial_accounting.data_unavailable_variants_remain_in_denominator IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'trial_accounting.not_attempted_variants_remain_in_denominator', 'true', CAST(trial_accounting.not_attempted_variants_remain_in_denominator AS VARCHAR) FROM sweep_plans WHERE trial_accounting.not_attempted_variants_remain_in_denominator IS DISTINCT FROM true
+) AS issues;
+
+-- Do Sweep Plans preserve visible parent-manifest reference posture?
+CREATE OR REPLACE VIEW v_integrity_sweep_plan_parent_manifest AS
+SELECT
+    'sweep_plan_parent_manifest_violation' AS issue_type,
+    sweep_plan_id,
+    source_field,
+    expected_value,
+    actual_value
+FROM (
+    SELECT sweep_plan_id, 'parent_variant_manifest.mismatch_policy' AS source_field, 'block' AS expected_value, CAST(parent_variant_manifest.mismatch_policy AS VARCHAR) AS actual_value FROM sweep_plans WHERE parent_variant_manifest.mismatch_policy IS DISTINCT FROM 'block'
+    UNION ALL
+    SELECT sweep_plan_id, 'parent_variant_manifest.missing_manifest_policy', 'block', CAST(parent_variant_manifest.missing_manifest_policy AS VARCHAR) FROM sweep_plans WHERE parent_variant_manifest.missing_manifest_policy IS DISTINCT FROM 'block'
+    UNION ALL
+    SELECT sweep_plan_id, 'parent_variant_manifest.one_manifest_only', 'true', CAST(parent_variant_manifest.one_manifest_only AS VARCHAR) FROM sweep_plans WHERE parent_variant_manifest.one_manifest_only IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'parent_variant_manifest.manifest_pre_registration_status', 'frozen_for_sweep_planning', CAST(parent_variant_manifest.manifest_pre_registration_status AS VARCHAR) FROM sweep_plans WHERE parent_variant_manifest.manifest_pre_registration_status IS DISTINCT FROM 'frozen_for_sweep_planning'
+) AS issues;
+
+-- Do Sweep Plans preserve visible declarative/no-computation posture?
+CREATE OR REPLACE VIEW v_integrity_sweep_plan_no_computation AS
+SELECT
+    'sweep_plan_no_computation_violation' AS issue_type,
+    sweep_plan_id,
+    source_field,
+    expected_value,
+    actual_value
+FROM (
+    SELECT sweep_plan_id, 'validation_methods.declarative_intent_only' AS source_field, 'true' AS expected_value, CAST(validation_methods.declarative_intent_only AS VARCHAR) AS actual_value FROM sweep_plans WHERE validation_methods.declarative_intent_only IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'validation_methods.no_runner_hooks', 'true', CAST(validation_methods.no_runner_hooks AS VARCHAR) FROM sweep_plans WHERE validation_methods.no_runner_hooks IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'validation_methods.no_formulas', 'true', CAST(validation_methods.no_formulas AS VARCHAR) FROM sweep_plans WHERE validation_methods.no_formulas IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'validation_methods.no_computation', 'true', CAST(validation_methods.no_computation AS VARCHAR) FROM sweep_plans WHERE validation_methods.no_computation IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'validation_methods.dsr_psr_mintrl_accounting.computation_deferred', 'true', CAST(validation_methods.dsr_psr_mintrl_accounting.computation_deferred AS VARCHAR) FROM sweep_plans WHERE validation_methods.dsr_psr_mintrl_accounting.enabled IS DISTINCT FROM false AND validation_methods.dsr_psr_mintrl_accounting.computation_deferred IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'validation_methods.monte_carlo.computation_deferred', 'true', CAST(validation_methods.monte_carlo.computation_deferred AS VARCHAR) FROM sweep_plans WHERE validation_methods.monte_carlo.enabled IS DISTINCT FROM false AND validation_methods.monte_carlo.computation_deferred IS DISTINCT FROM true
+    UNION ALL
+    SELECT sweep_plan_id, 'result_capture_expectations.winner_only_retention_forbidden', 'true', CAST(result_capture_expectations.winner_only_retention_forbidden AS VARCHAR) FROM sweep_plans WHERE result_capture_expectations.winner_only_retention_forbidden IS DISTINCT FROM true
+) AS issues;

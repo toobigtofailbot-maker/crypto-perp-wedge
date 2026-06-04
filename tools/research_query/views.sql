@@ -4074,3 +4074,153 @@ FROM (
     UNION ALL
     SELECT approval_record_id, candidate_id, 'preservation_confirmation.tier4_boundaries_preserved', 'true', CAST(preservation_confirmation.tier4_boundaries_preserved AS VARCHAR) FROM s2p_approval_records WHERE preservation_confirmation.tier4_boundaries_preserved IS DISTINCT FROM true
 ) AS issues;
+
+-- What Strategy Spec artifacts are visible to the read-only query layer?
+-- This is descriptive visibility only and does not imply approval, readiness,
+-- recommendation, ranking, transition, paper/live, runtime, or gate authority.
+CREATE OR REPLACE VIEW v_strategy_spec_overview AS
+SELECT
+    strategy_spec_id,
+    title,
+    status,
+    provenance.source_type AS source_type,
+    instruments.instrument_family AS instrument_family,
+    instruments.market_type AS market_type,
+    timeframe_and_data.primary_timeframe AS primary_timeframe,
+    entry_logic.direction AS direction,
+    list_count(free_parameters.parameters) AS free_parameter_count,
+    free_parameters.max_free_parameters AS max_free_parameters,
+    max_condition_group_depth,
+    max_condition_group_depth AS operator_depth_bound,
+    hash_pinning.hash_status AS hash_status,
+    pre_registration_support.intended_for_variant_manifest AS intended_for_variant_manifest,
+    review.approval_scope AS approval_scope
+FROM strategy_specs;
+
+-- Which Strategy Spec free parameters are declared?
+-- Parameter visibility supports inspection only; it does not create variants or sweeps.
+CREATE OR REPLACE VIEW v_strategy_spec_parameters AS
+SELECT
+    s.strategy_spec_id,
+    parameter.name AS parameter_name,
+    parameter."type" AS parameter_type,
+    parameter.role,
+    CAST(parameter."default" AS VARCHAR) AS default_value,
+    parameter."range".min AS range_min,
+    parameter."range".max AS range_max,
+    parameter."range".step AS range_step,
+    parameter.included_in_variant_generation,
+    parameter.rationale
+FROM strategy_specs AS s,
+UNNEST(s.free_parameters.parameters) AS parameters(parameter);
+
+-- Which top-level Strategy Spec condition groups are declared?
+-- This intentionally exposes top-level groups only and avoids recursive logic.
+CREATE OR REPLACE VIEW v_strategy_spec_condition_groups AS
+SELECT
+    strategy_spec_id,
+    section,
+    condition_group.group_id AS group_id,
+    condition_group.group_role AS group_role,
+    condition_group.logic AS logic,
+    list_count(condition_group.conditions) AS condition_count,
+    list_count(condition_group.subgroups) AS subgroup_count,
+    1 AS declared_depth
+FROM (
+    SELECT strategy_spec_id, 'entry_logic' AS section, condition_group
+    FROM strategy_specs,
+    UNNEST(entry_logic.groups) AS groups(condition_group)
+    UNION ALL
+    SELECT strategy_spec_id, 'exit_logic' AS section, condition_group
+    FROM strategy_specs,
+    UNNEST(exit_logic.groups) AS groups(condition_group)
+    UNION ALL
+    SELECT strategy_spec_id, 'filters' AS section, condition_group
+    FROM strategy_specs,
+    UNNEST(filters.groups) AS groups(condition_group)
+) AS top_level_groups;
+
+-- Which backtest-realism assumptions are declared by Strategy Specs?
+-- These assumptions are read-only disclosures only.
+CREATE OR REPLACE VIEW v_strategy_spec_backtest_assumptions AS
+SELECT
+    strategy_spec_id,
+    backtest_realism_assumptions.fee_side_assumption AS fee_side_assumption,
+    backtest_realism_assumptions.exchange_constraints_disclosed AS exchange_constraints_disclosed,
+    backtest_realism_assumptions.funding_notional_mode AS funding_notional_mode,
+    backtest_realism_assumptions.slippage_model AS slippage_model,
+    backtest_realism_assumptions.fill_mode AS fill_mode,
+    backtest_realism_assumptions.order_size_assumption AS order_size_assumption,
+    backtest_realism_assumptions.liquidity_capacity_assumption AS liquidity_capacity_assumption,
+    backtest_realism_assumptions.liquidation_mode AS liquidation_mode,
+    backtest_realism_assumptions.maintenance_margin_assumption AS maintenance_margin_assumption,
+    backtest_realism_assumptions.mark_price_source AS mark_price_source,
+    backtest_realism_assumptions.bar_path_assumption AS bar_path_assumption
+FROM strategy_specs;
+
+-- Do Strategy Specs preserve visible non-authority flags?
+-- Expected to be empty in healthy state; the validator remains authoritative.
+CREATE OR REPLACE VIEW v_integrity_strategy_spec_non_authority AS
+SELECT
+    'strategy_spec_non_authority_flag_violation' AS issue_type,
+    strategy_spec_id,
+    source_field,
+    expected_value,
+    actual_value
+FROM (
+    SELECT strategy_spec_id, 'non_execution_declaration.not_executable' AS source_field, 'true' AS expected_value, CAST(non_execution_declaration.not_executable AS VARCHAR) AS actual_value FROM strategy_specs WHERE non_execution_declaration.not_executable IS DISTINCT FROM true
+    UNION ALL
+    SELECT strategy_spec_id, 'non_execution_declaration.not_runtime_authority', 'true', CAST(non_execution_declaration.not_runtime_authority AS VARCHAR) FROM strategy_specs WHERE non_execution_declaration.not_runtime_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT strategy_spec_id, 'non_execution_declaration.not_paper_live_authority', 'true', CAST(non_execution_declaration.not_paper_live_authority AS VARCHAR) FROM strategy_specs WHERE non_execution_declaration.not_paper_live_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT strategy_spec_id, 'non_execution_declaration.not_gate_authority', 'true', CAST(non_execution_declaration.not_gate_authority AS VARCHAR) FROM strategy_specs WHERE non_execution_declaration.not_gate_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT strategy_spec_id, 'review.non_authority_acknowledgement.not_recommendation_authority', 'true', CAST(review.non_authority_acknowledgement.not_recommendation_authority AS VARCHAR) FROM strategy_specs WHERE review.non_authority_acknowledgement.not_recommendation_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT strategy_spec_id, 'review.non_authority_acknowledgement.not_ranking_authority', 'true', CAST(review.non_authority_acknowledgement.not_ranking_authority AS VARCHAR) FROM strategy_specs WHERE review.non_authority_acknowledgement.not_ranking_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT strategy_spec_id, 'review.non_authority_acknowledgement.not_readiness_authority', 'true', CAST(review.non_authority_acknowledgement.not_readiness_authority AS VARCHAR) FROM strategy_specs WHERE review.non_authority_acknowledgement.not_readiness_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT strategy_spec_id, 'review.non_authority_acknowledgement.not_transition_authority', 'true', CAST(review.non_authority_acknowledgement.not_transition_authority AS VARCHAR) FROM strategy_specs WHERE review.non_authority_acknowledgement.not_transition_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT strategy_spec_id, 'review.non_authority_acknowledgement.not_gate_satisfaction', 'true', CAST(review.non_authority_acknowledgement.not_gate_satisfaction AS VARCHAR) FROM strategy_specs WHERE review.non_authority_acknowledgement.not_gate_satisfaction IS DISTINCT FROM true
+) AS issues;
+
+-- Do Strategy Specs preserve visible boundedness fields?
+-- Expected to be empty in healthy state; the validator remains authoritative.
+CREATE OR REPLACE VIEW v_integrity_strategy_spec_bounds AS
+SELECT
+    'strategy_spec_bound_violation' AS issue_type,
+    strategy_spec_id,
+    source_field,
+    expected_value,
+    actual_value
+FROM (
+    SELECT strategy_spec_id, 'max_condition_group_depth' AS source_field, '3' AS expected_value, CAST(max_condition_group_depth AS VARCHAR) AS actual_value FROM strategy_specs WHERE max_condition_group_depth IS DISTINCT FROM 3
+    UNION ALL
+    SELECT strategy_spec_id, 'free_parameters.max_free_parameters', '5', CAST(free_parameters.max_free_parameters AS VARCHAR) FROM strategy_specs WHERE free_parameters.max_free_parameters IS DISTINCT FROM 5
+    UNION ALL
+    SELECT strategy_spec_id, 'free_parameters.parameters.count', '<=5', CAST(list_count(free_parameters.parameters) AS VARCHAR) FROM strategy_specs WHERE list_count(free_parameters.parameters) > 5
+) AS issues;
+
+-- Do Strategy Specs keep visible hash and pre-registration posture internally consistent?
+-- This view does not compute hashes and does not approve any spec.
+CREATE OR REPLACE VIEW v_integrity_strategy_spec_hash_readiness AS
+SELECT
+    'strategy_spec_hash_readiness_violation' AS issue_type,
+    strategy_spec_id,
+    source_field,
+    expected_value,
+    actual_value
+FROM (
+    SELECT strategy_spec_id, 'hash_pinning.canonical_spec_hash' AS source_field, 'non-empty when hash_status=computed' AS expected_value, CAST(hash_pinning.canonical_spec_hash AS VARCHAR) AS actual_value
+    FROM strategy_specs
+    WHERE hash_pinning.hash_status = 'computed'
+      AND NULLIF(CAST(hash_pinning.canonical_spec_hash AS VARCHAR), '') IS NULL
+    UNION ALL
+    SELECT strategy_spec_id, 'hash_pinning.hash_status', 'computed when intended_for_variant_manifest=true', CAST(hash_pinning.hash_status AS VARCHAR)
+    FROM strategy_specs
+    WHERE pre_registration_support.intended_for_variant_manifest IS DISTINCT FROM false
+      AND hash_pinning.hash_status IS DISTINCT FROM 'computed'
+) AS issues;

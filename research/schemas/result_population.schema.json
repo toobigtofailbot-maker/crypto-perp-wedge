@@ -1,0 +1,866 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crypto-perp-wedge.local/research/schemas/result_population.schema.json",
+  "title": "Result Population",
+  "description": "Non-executing complete outcome ledger artifact shape for one future sweep plan over one variant manifest. This schema grants no runner, sweep, result-computation, runtime, paper/live, recommendation, ranking, approval, readiness, transition, gate, canonical-evidence replacement, or human-gate execution authority. Audit-envelope fields are explicitly outside scientific identity hashes.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "result_population_id",
+    "status",
+    "non_authority_declaration",
+    "parent_strategy_spec",
+    "parent_variant_manifest",
+    "parent_sweep_plan",
+    "execution_context",
+    "input_identity_hash",
+    "result_population_identity_hash",
+    "audit_envelope",
+    "committed_denominator_snapshot",
+    "variant_result_rows",
+    "outcome_category_counts",
+    "append_only_ledger",
+    "validation_summary",
+    "error_summary",
+    "data_coverage_summary",
+    "backtest_assumption_summary",
+    "lineage",
+    "review"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "v1" },
+    "result_population_id": { "type": "string", "pattern": "^RP-[0-9]{4}$" },
+    "status": {
+      "description": "Non-authoritative artifact status only; this never means approval, recommendation, ranking, readiness, transition, EXP authority, gate satisfaction, paper/live authority, or runtime authority.",
+      "type": "string",
+      "enum": ["draft", "generated", "validation_passed", "validation_failed", "closed", "superseded", "rejected"]
+    },
+    "non_authority_declaration": { "$ref": "#/definitions/non_authority_declaration" },
+    "parent_strategy_spec": { "$ref": "#/definitions/parent_strategy_spec" },
+    "parent_variant_manifest": { "$ref": "#/definitions/parent_variant_manifest" },
+    "parent_sweep_plan": { "$ref": "#/definitions/parent_sweep_plan" },
+    "execution_context": { "$ref": "#/definitions/execution_context" },
+    "input_identity_hash": { "$ref": "#/definitions/input_identity_hash" },
+    "result_population_identity_hash": { "$ref": "#/definitions/result_population_identity_hash" },
+    "audit_envelope": { "$ref": "#/definitions/audit_envelope" },
+    "committed_denominator_snapshot": { "$ref": "#/definitions/committed_denominator_snapshot" },
+    "variant_result_rows": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/variant_result_row" }
+    },
+    "outcome_category_counts": { "$ref": "#/definitions/outcome_category_counts" },
+    "append_only_ledger": { "$ref": "#/definitions/append_only_ledger" },
+    "validation_summary": { "$ref": "#/definitions/validation_summary" },
+    "error_summary": { "$ref": "#/definitions/error_summary" },
+    "data_coverage_summary": { "$ref": "#/definitions/data_coverage_summary" },
+    "backtest_assumption_summary": { "$ref": "#/definitions/backtest_assumption_summary" },
+    "lineage": { "$ref": "#/definitions/lineage" },
+    "review": { "$ref": "#/definitions/review" }
+  },
+  "definitions": {
+    "non_empty_string": { "type": "string", "minLength": 1 },
+    "nullable_string": { "type": ["string", "null"] },
+    "date_time_or_null": { "type": ["string", "null"], "format": "date-time" },
+    "sha256_hash": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "sha256_or_null": { "type": ["string", "null"], "pattern": "^sha256:[a-f0-9]{64}$" },
+    "string_array": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "outcome_category": {
+      "type": "string",
+      "enum": [
+        "successful",
+        "failed",
+        "invalid",
+        "excluded",
+        "errored",
+        "aborted",
+        "filtered",
+        "data_unavailable",
+        "not_attempted"
+      ]
+    },
+    "non_authority_declaration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "not_executable",
+        "not_runner_authority",
+        "not_sweep_authority",
+        "not_result_authority",
+        "not_candidate_approval",
+        "not_exp_approval",
+        "not_ranking_authority",
+        "not_recommendation_authority",
+        "not_readiness_authority",
+        "not_transition_authority",
+        "not_runtime_authority",
+        "not_paper_live_authority",
+        "not_gate_authority",
+        "not_canonical_evidence_replacement",
+        "not_trial_log_replacement",
+        "not_outcome_ledger_replacement",
+        "not_reconciliation_authority",
+        "not_decision_authority",
+        "not_exp_replacement",
+        "not_rep_replacement",
+        "not_ol_replacement",
+        "not_rec_replacement",
+        "not_dec_replacement",
+        "canonical_evidence_relationship"
+      ],
+      "properties": {
+        "not_executable": { "type": "boolean", "const": true },
+        "not_runner_authority": { "type": "boolean", "const": true },
+        "not_sweep_authority": { "type": "boolean", "const": true },
+        "not_result_authority": { "type": "boolean", "const": true },
+        "not_candidate_approval": { "type": "boolean", "const": true },
+        "not_exp_approval": { "type": "boolean", "const": true },
+        "not_ranking_authority": { "type": "boolean", "const": true },
+        "not_recommendation_authority": { "type": "boolean", "const": true },
+        "not_readiness_authority": { "type": "boolean", "const": true },
+        "not_transition_authority": { "type": "boolean", "const": true },
+        "not_runtime_authority": { "type": "boolean", "const": true },
+        "not_paper_live_authority": { "type": "boolean", "const": true },
+        "not_gate_authority": { "type": "boolean", "const": true },
+        "not_canonical_evidence_replacement": { "type": "boolean", "const": true },
+        "not_trial_log_replacement": { "type": "boolean", "const": true },
+        "not_outcome_ledger_replacement": { "type": "boolean", "const": true },
+        "not_reconciliation_authority": { "type": "boolean", "const": true },
+        "not_decision_authority": { "type": "boolean", "const": true },
+        "not_exp_replacement": { "type": "boolean", "const": true },
+        "not_rep_replacement": { "type": "boolean", "const": true },
+        "not_ol_replacement": { "type": "boolean", "const": true },
+        "not_rec_replacement": { "type": "boolean", "const": true },
+        "not_dec_replacement": { "type": "boolean", "const": true },
+        "canonical_evidence_relationship": {
+          "type": "string",
+          "const": "reference_only"
+        }
+      }
+    },
+    "parent_strategy_spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "strategy_spec_id",
+        "strategy_spec_schema_version",
+        "strategy_spec_hash",
+        "hash_algorithm",
+        "hash_scope_version",
+        "strategy_spec_ref",
+        "mismatch_policy",
+        "missing_parent_policy"
+      ],
+      "properties": {
+        "strategy_spec_id": { "type": "string", "pattern": "^STRAT-SPEC-[0-9]{4}$" },
+        "strategy_spec_schema_version": { "$ref": "#/definitions/non_empty_string" },
+        "strategy_spec_hash": { "$ref": "#/definitions/sha256_hash" },
+        "hash_algorithm": { "type": "string", "enum": ["sha256"] },
+        "hash_scope_version": { "$ref": "#/definitions/non_empty_string" },
+        "strategy_spec_ref": { "$ref": "#/definitions/nullable_string" },
+        "mismatch_policy": { "type": "string", "const": "block" },
+        "missing_parent_policy": { "type": "string", "const": "block" }
+      }
+    },
+    "parent_variant_manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "variant_manifest_id",
+        "variant_manifest_schema_version",
+        "manifest_hash",
+        "hash_algorithm",
+        "hash_scope_version",
+        "manifest_ref",
+        "manifest_pre_registration_status",
+        "committed_population_count",
+        "mismatch_policy",
+        "missing_manifest_policy"
+      ],
+      "properties": {
+        "variant_manifest_id": { "type": "string", "pattern": "^VM-[0-9]{4}$" },
+        "variant_manifest_schema_version": { "$ref": "#/definitions/non_empty_string" },
+        "manifest_hash": { "$ref": "#/definitions/sha256_hash" },
+        "hash_algorithm": { "type": "string", "enum": ["sha256"] },
+        "hash_scope_version": { "$ref": "#/definitions/non_empty_string" },
+        "manifest_ref": { "$ref": "#/definitions/nullable_string" },
+        "manifest_pre_registration_status": { "type": "string", "const": "frozen_for_sweep_planning" },
+        "committed_population_count": { "type": "integer", "minimum": 0 },
+        "mismatch_policy": { "type": "string", "const": "block" },
+        "missing_manifest_policy": { "type": "string", "const": "block" }
+      }
+    },
+    "parent_sweep_plan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sweep_plan_id",
+        "sweep_plan_schema_version",
+        "sweep_plan_identity_hash",
+        "hash_algorithm",
+        "hash_scope_version",
+        "sweep_plan_ref",
+        "manifest_id",
+        "manifest_hash",
+        "committed_population_count",
+        "selected_variant_count",
+        "mismatch_policy",
+        "missing_sweep_plan_policy"
+      ],
+      "properties": {
+        "sweep_plan_id": { "type": "string", "pattern": "^SWEEP-PLAN-[0-9]{4}$" },
+        "sweep_plan_schema_version": { "$ref": "#/definitions/non_empty_string" },
+        "sweep_plan_identity_hash": { "$ref": "#/definitions/sha256_hash" },
+        "hash_algorithm": { "type": "string", "enum": ["sha256"] },
+        "hash_scope_version": { "$ref": "#/definitions/non_empty_string" },
+        "sweep_plan_ref": { "$ref": "#/definitions/nullable_string" },
+        "manifest_id": { "type": "string", "pattern": "^VM-[0-9]{4}$" },
+        "manifest_hash": { "$ref": "#/definitions/sha256_hash" },
+        "committed_population_count": { "type": "integer", "minimum": 0 },
+        "selected_variant_count": { "type": "integer", "minimum": 0 },
+        "mismatch_policy": { "type": "string", "const": "block" },
+        "missing_sweep_plan_policy": { "type": "string", "const": "block" }
+      }
+    },
+    "execution_context": {
+      "description": "Future recording-only offline context. This object contains no commands and does not execute anything.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runner_id",
+        "runner_version",
+        "runner_code_ref",
+        "repo_commit",
+        "environment_summary",
+        "dependency_summary",
+        "determinism_seed",
+        "execution_mode",
+        "offline_only",
+        "no_runtime_contact",
+        "no_paper_live_contact",
+        "no_broker_exchange_order_contact",
+        "no_protected_path_contact"
+      ],
+      "properties": {
+        "runner_id": { "$ref": "#/definitions/nullable_string" },
+        "runner_version": { "$ref": "#/definitions/nullable_string" },
+        "runner_code_ref": { "$ref": "#/definitions/nullable_string" },
+        "repo_commit": { "$ref": "#/definitions/nullable_string" },
+        "environment_summary": { "$ref": "#/definitions/string_array" },
+        "dependency_summary": { "$ref": "#/definitions/string_array" },
+        "determinism_seed": { "type": ["integer", "null"] },
+        "execution_mode": { "type": "string", "const": "offline_research" },
+        "offline_only": { "type": "boolean", "const": true },
+        "no_runtime_contact": { "type": "boolean", "const": true },
+        "no_paper_live_contact": { "type": "boolean", "const": true },
+        "no_broker_exchange_order_contact": { "type": "boolean", "const": true },
+        "no_protected_path_contact": { "type": "boolean", "const": true }
+      }
+    },
+    "input_identity_hash": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hash",
+        "hash_algorithm",
+        "canonicalization",
+        "hash_scope_version",
+        "hash_scope",
+        "audit_envelope_excluded",
+        "audit_envelope_exclusion_reason"
+      ],
+      "properties": {
+        "hash": { "$ref": "#/definitions/sha256_or_null" },
+        "hash_algorithm": { "type": "string", "enum": ["sha256"] },
+        "canonicalization": { "type": "string", "const": "json_canonical_v1" },
+        "hash_scope_version": { "$ref": "#/definitions/non_empty_string" },
+        "hash_scope": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "parent_strategy_spec.strategy_spec_hash",
+              "parent_variant_manifest.manifest_hash",
+              "parent_sweep_plan.sweep_plan_identity_hash",
+              "parent_variant_manifest.committed_population_count",
+              "parent_sweep_plan.committed_population_count",
+              "execution_context.runner_code_ref",
+              "execution_context.repo_commit",
+              "data_coverage_summary.data_catalog_ref",
+              "data_coverage_summary.data_slice_identity",
+              "backtest_assumption_summary"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "audit_envelope_excluded": { "type": "boolean", "const": true },
+        "audit_envelope_exclusion_reason": {
+          "type": "string",
+          "const": "administrative_audit_metadata_is_excluded_from_scientific_identity"
+        }
+      }
+    },
+    "result_population_identity_hash": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hash",
+        "hash_algorithm",
+        "canonicalization",
+        "hash_scope_version",
+        "hash_scope",
+        "audit_envelope_excluded",
+        "audit_envelope_exclusion_reason"
+      ],
+      "properties": {
+        "hash": { "$ref": "#/definitions/sha256_or_null" },
+        "hash_algorithm": { "type": "string", "enum": ["sha256"] },
+        "canonicalization": { "type": "string", "const": "json_canonical_v1" },
+        "hash_scope_version": { "$ref": "#/definitions/non_empty_string" },
+        "hash_scope": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "parent_strategy_spec.strategy_spec_hash",
+              "parent_variant_manifest.manifest_hash",
+              "parent_sweep_plan.sweep_plan_identity_hash",
+              "parent_variant_manifest.committed_population_count",
+              "parent_sweep_plan.committed_population_count",
+              "execution_context.runner_code_ref",
+              "execution_context.repo_commit",
+              "data_coverage_summary.data_catalog_ref",
+              "data_coverage_summary.data_slice_identity",
+              "backtest_assumption_summary",
+              "committed_denominator_snapshot",
+              "variant_result_rows",
+              "outcome_category_counts",
+              "append_only_ledger.creation_event_ref",
+              "validation_summary.validator_identity"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "audit_envelope_excluded": { "type": "boolean", "const": true },
+        "audit_envelope_exclusion_reason": {
+          "type": "string",
+          "const": "administrative_audit_metadata_is_excluded_from_scientific_identity"
+        }
+      }
+    },
+    "audit_envelope": {
+      "description": "Administrative-only metadata excluded from input_identity_hash and result_population_identity_hash. Audit fields must not contain scientific content.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "excluded_from_input_identity_hash",
+        "excluded_from_result_population_identity_hash",
+        "may_contain_scientific_content",
+        "administrative_only",
+        "created_at",
+        "created_by",
+        "review_notes",
+        "operator_notes",
+        "validation_run_logs",
+        "administrative_lineage"
+      ],
+      "properties": {
+        "excluded_from_input_identity_hash": { "type": "boolean", "const": true },
+        "excluded_from_result_population_identity_hash": { "type": "boolean", "const": true },
+        "may_contain_scientific_content": { "type": "boolean", "const": false },
+        "administrative_only": { "type": "boolean", "const": true },
+        "created_at": { "$ref": "#/definitions/date_time_or_null" },
+        "created_by": { "$ref": "#/definitions/nullable_string" },
+        "review_notes": { "$ref": "#/definitions/string_array" },
+        "operator_notes": { "$ref": "#/definitions/string_array" },
+        "validation_run_logs": { "$ref": "#/definitions/string_array" },
+        "administrative_lineage": { "$ref": "#/definitions/string_array" }
+      }
+    },
+    "committed_denominator_snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "denominator_basis",
+        "parent_manifest_committed_population_count",
+        "parent_sweep_plan_committed_population_count",
+        "selected_variant_count",
+        "result_row_count",
+        "outcome_counts_sum",
+        "committed_denominator",
+        "denominator_equals_parent_manifest_committed_population_count",
+        "denominator_equals_parent_sweep_plan_committed_population_count",
+        "outcome_counts_sum_equals_committed_denominator",
+        "result_row_count_equals_committed_denominator",
+        "executed_only_denominator_forbidden",
+        "successful_only_denominator_forbidden",
+        "winner_only_retention_forbidden",
+        "post_hoc_cleanup_forbidden",
+        "failed_variants_remain_in_denominator",
+        "invalid_variants_remain_in_denominator",
+        "excluded_variants_remain_in_denominator",
+        "errored_variants_remain_in_denominator",
+        "aborted_variants_remain_in_denominator",
+        "filtered_variants_remain_in_denominator",
+        "data_unavailable_variants_remain_in_denominator",
+        "not_attempted_variants_remain_in_denominator"
+      ],
+      "properties": {
+        "denominator_basis": { "type": "string", "const": "committed_pre_registered_population_count" },
+        "parent_manifest_committed_population_count": { "type": "integer", "minimum": 0 },
+        "parent_sweep_plan_committed_population_count": { "type": "integer", "minimum": 0 },
+        "selected_variant_count": { "type": "integer", "minimum": 0 },
+        "result_row_count": { "type": "integer", "minimum": 0 },
+        "outcome_counts_sum": { "type": "integer", "minimum": 0 },
+        "committed_denominator": { "type": "integer", "minimum": 0 },
+        "denominator_equals_parent_manifest_committed_population_count": { "type": "boolean", "const": true },
+        "denominator_equals_parent_sweep_plan_committed_population_count": { "type": "boolean", "const": true },
+        "outcome_counts_sum_equals_committed_denominator": { "type": "boolean", "const": true },
+        "result_row_count_equals_committed_denominator": { "type": "boolean", "const": true },
+        "executed_only_denominator_forbidden": { "type": "boolean", "const": true },
+        "successful_only_denominator_forbidden": { "type": "boolean", "const": true },
+        "winner_only_retention_forbidden": { "type": "boolean", "const": true },
+        "post_hoc_cleanup_forbidden": { "type": "boolean", "const": true },
+        "failed_variants_remain_in_denominator": { "type": "boolean", "const": true },
+        "invalid_variants_remain_in_denominator": { "type": "boolean", "const": true },
+        "excluded_variants_remain_in_denominator": { "type": "boolean", "const": true },
+        "errored_variants_remain_in_denominator": { "type": "boolean", "const": true },
+        "aborted_variants_remain_in_denominator": { "type": "boolean", "const": true },
+        "filtered_variants_remain_in_denominator": { "type": "boolean", "const": true },
+        "data_unavailable_variants_remain_in_denominator": { "type": "boolean", "const": true },
+        "not_attempted_variants_remain_in_denominator": { "type": "boolean", "const": true }
+      }
+    },
+    "outcome_category_counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "successful",
+        "failed",
+        "invalid",
+        "excluded",
+        "errored",
+        "aborted",
+        "filtered",
+        "data_unavailable",
+        "not_attempted",
+        "counts_sum",
+        "counts_sum_equals_committed_denominator"
+      ],
+      "properties": {
+        "successful": { "type": "integer", "minimum": 0 },
+        "failed": { "type": "integer", "minimum": 0 },
+        "invalid": { "type": "integer", "minimum": 0 },
+        "excluded": { "type": "integer", "minimum": 0 },
+        "errored": { "type": "integer", "minimum": 0 },
+        "aborted": { "type": "integer", "minimum": 0 },
+        "filtered": { "type": "integer", "minimum": 0 },
+        "data_unavailable": { "type": "integer", "minimum": 0 },
+        "not_attempted": { "type": "integer", "minimum": 0 },
+        "counts_sum": { "type": "integer", "minimum": 0 },
+        "counts_sum_equals_committed_denominator": { "type": "boolean", "const": true }
+      }
+    },
+    "variant_result_row": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "variant_id",
+        "row_id",
+        "row_identity_hash",
+        "assignment_hash",
+        "assignment_ref",
+        "outcome_category",
+        "attempted",
+        "metrics",
+        "non_success",
+        "error",
+        "data_coverage",
+        "backtest_assumption_ref",
+        "lineage",
+        "row_mutation_policy"
+      ],
+      "properties": {
+        "variant_id": { "type": "string", "pattern": "^VAR-[0-9]{6}$" },
+        "row_id": { "type": "string", "pattern": "^RP-[0-9]{4}-ROW-[0-9]{6}$" },
+        "row_identity_hash": { "$ref": "#/definitions/sha256_or_null" },
+        "assignment_hash": { "$ref": "#/definitions/sha256_or_null" },
+        "assignment_ref": { "$ref": "#/definitions/nullable_string" },
+        "outcome_category": { "$ref": "#/definitions/outcome_category" },
+        "attempted": { "type": "boolean" },
+        "metrics": { "$ref": "#/definitions/metrics" },
+        "non_success": { "$ref": "#/definitions/non_success" },
+        "error": { "$ref": "#/definitions/error" },
+        "data_coverage": { "$ref": "#/definitions/row_data_coverage" },
+        "backtest_assumption_ref": { "$ref": "#/definitions/nullable_string" },
+        "lineage": { "$ref": "#/definitions/row_lineage" },
+        "row_mutation_policy": { "$ref": "#/definitions/row_mutation_policy" }
+      }
+    },
+    "metrics": {
+      "description": "Recorded outputs only; metrics grant no ranking, recommendation, readiness, transition, approval, or gate authority.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pnl",
+        "return_pct",
+        "drawdown",
+        "trade_count",
+        "win_rate",
+        "sharpe",
+        "fees",
+        "funding",
+        "slippage",
+        "exposure"
+      ],
+      "properties": {
+        "pnl": { "type": ["number", "null"] },
+        "return_pct": { "type": ["number", "null"] },
+        "drawdown": { "type": ["number", "null"] },
+        "trade_count": { "type": ["integer", "null"], "minimum": 0 },
+        "win_rate": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "sharpe": { "type": ["number", "null"] },
+        "fees": { "type": ["number", "null"] },
+        "funding": { "type": ["number", "null"] },
+        "slippage": { "type": ["number", "null"] },
+        "exposure": { "type": ["number", "null"] }
+      }
+    },
+    "non_success": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reason", "rule_ref", "declared_before_results", "counts_in_denominator"],
+      "properties": {
+        "reason": { "$ref": "#/definitions/nullable_string" },
+        "rule_ref": { "$ref": "#/definitions/nullable_string" },
+        "declared_before_results": { "type": ["boolean", "null"] },
+        "counts_in_denominator": { "type": "boolean", "const": true }
+      }
+    },
+    "error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "error_category",
+        "error_message_class",
+        "is_infrastructure_error",
+        "is_strategy_underperformance",
+        "counts_in_denominator"
+      ],
+      "properties": {
+        "error_category": { "type": ["string", "null"], "enum": ["runner_error", "data_error", "validation_error", "strategy_underperformance", "other", null] },
+        "error_message_class": { "$ref": "#/definitions/nullable_string" },
+        "is_infrastructure_error": { "type": ["boolean", "null"] },
+        "is_strategy_underperformance": { "type": ["boolean", "null"] },
+        "counts_in_denominator": { "type": "boolean", "const": true }
+      }
+    },
+    "row_data_coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "data_catalog_ref",
+        "data_slice_identity",
+        "timeframe",
+        "data_stream",
+        "missing_data_policy",
+        "irreparable_gap",
+        "counts_in_denominator"
+      ],
+      "properties": {
+        "data_catalog_ref": { "$ref": "#/definitions/nullable_string" },
+        "data_slice_identity": { "$ref": "#/definitions/nullable_string" },
+        "timeframe": { "type": ["string", "null"], "enum": ["15m", "30m", "1h", "4h", "1d", null] },
+        "data_stream": { "type": ["string", "null"], "enum": ["ohlcv", "funding", "mark", "index", "premium", "indicator_catalog", null] },
+        "missing_data_policy": { "$ref": "#/definitions/nullable_string" },
+        "irreparable_gap": { "type": ["boolean", "null"] },
+        "counts_in_denominator": { "type": "boolean", "const": true }
+      }
+    },
+    "row_lineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "parent_variant_id",
+        "parent_variant_assignment_hash",
+        "parent_variant_assignment_ref",
+        "parent_sweep_plan_id",
+        "parent_manifest_id"
+      ],
+      "properties": {
+        "parent_variant_id": { "type": "string", "pattern": "^VAR-[0-9]{6}$" },
+        "parent_variant_assignment_hash": { "$ref": "#/definitions/sha256_or_null" },
+        "parent_variant_assignment_ref": { "$ref": "#/definitions/nullable_string" },
+        "parent_sweep_plan_id": { "type": "string", "pattern": "^SWEEP-PLAN-[0-9]{4}$" },
+        "parent_manifest_id": { "type": "string", "pattern": "^VM-[0-9]{4}$" }
+      }
+    },
+    "row_mutation_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scientific_row_identity_immutable_after_commit",
+        "corrections_require_append_only_event",
+        "post_commit_in_place_mutation_forbidden",
+        "post_hoc_cleanup_forbidden"
+      ],
+      "properties": {
+        "scientific_row_identity_immutable_after_commit": { "type": "boolean", "const": true },
+        "corrections_require_append_only_event": { "type": "boolean", "const": true },
+        "post_commit_in_place_mutation_forbidden": { "type": "boolean", "const": true },
+        "post_hoc_cleanup_forbidden": { "type": "boolean", "const": true }
+      }
+    },
+    "append_only_ledger": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ledger_required",
+        "append_only",
+        "post_commit_in_place_mutation_forbidden",
+        "scientific_identity_mutation_forbidden_after_finalization",
+        "corrections_require_append_only_event",
+        "supersession_preserves_prior_result_population",
+        "creation_event_ref",
+        "events"
+      ],
+      "properties": {
+        "ledger_required": { "type": "boolean", "const": true },
+        "append_only": { "type": "boolean", "const": true },
+        "post_commit_in_place_mutation_forbidden": { "type": "boolean", "const": true },
+        "scientific_identity_mutation_forbidden_after_finalization": { "type": "boolean", "const": true },
+        "corrections_require_append_only_event": { "type": "boolean", "const": true },
+        "supersession_preserves_prior_result_population": { "type": "boolean", "const": true },
+        "creation_event_ref": { "$ref": "#/definitions/nullable_string" },
+        "events": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ledger_event" }
+        }
+      }
+    },
+    "ledger_event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_id",
+        "event_type",
+        "event_timestamp",
+        "actor_or_tool",
+        "related_artifact_refs",
+        "notes"
+      ],
+      "properties": {
+        "event_id": { "$ref": "#/definitions/non_empty_string" },
+        "event_type": {
+          "type": "string",
+          "enum": ["created", "validated", "reviewed", "amendment_referenced", "supersession_referenced", "correction_referenced", "closed"]
+        },
+        "event_timestamp": { "$ref": "#/definitions/date_time_or_null" },
+        "actor_or_tool": { "$ref": "#/definitions/nullable_string" },
+        "related_artifact_refs": { "$ref": "#/definitions/string_array" },
+        "notes": { "$ref": "#/definitions/string_array" }
+      }
+    },
+    "validation_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_validation_status",
+        "validator_status",
+        "validator_version",
+        "validator_identity",
+        "validation_timestamp",
+        "blocking_errors",
+        "non_blocking_warnings",
+        "validator_authority_boundary",
+        "validator_does_not_approve",
+        "validator_does_not_recommend",
+        "validator_does_not_rank",
+        "validator_does_not_execute",
+        "validator_does_not_contact_runtime"
+      ],
+      "properties": {
+        "schema_validation_status": { "type": "string", "enum": ["not_run", "passed", "failed"] },
+        "validator_status": { "type": "string", "enum": ["not_available", "not_run", "passed", "failed"] },
+        "validator_version": { "$ref": "#/definitions/nullable_string" },
+        "validator_identity": { "$ref": "#/definitions/nullable_string" },
+        "validation_timestamp": { "$ref": "#/definitions/date_time_or_null" },
+        "blocking_errors": { "$ref": "#/definitions/string_array" },
+        "non_blocking_warnings": { "$ref": "#/definitions/string_array" },
+        "validator_authority_boundary": {
+          "type": "string",
+          "const": "evidence_only_no_approval_no_execution"
+        },
+        "validator_does_not_approve": { "type": "boolean", "const": true },
+        "validator_does_not_recommend": { "type": "boolean", "const": true },
+        "validator_does_not_rank": { "type": "boolean", "const": true },
+        "validator_does_not_execute": { "type": "boolean", "const": true },
+        "validator_does_not_contact_runtime": { "type": "boolean", "const": true }
+      }
+    },
+    "error_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "failed",
+        "errored",
+        "aborted",
+        "filtered",
+        "data_unavailable",
+        "not_attempted",
+        "invalid",
+        "excluded",
+        "all_error_categories_counted_in_denominator",
+        "error_rows_preserved"
+      ],
+      "properties": {
+        "failed": { "type": "integer", "minimum": 0 },
+        "errored": { "type": "integer", "minimum": 0 },
+        "aborted": { "type": "integer", "minimum": 0 },
+        "filtered": { "type": "integer", "minimum": 0 },
+        "data_unavailable": { "type": "integer", "minimum": 0 },
+        "not_attempted": { "type": "integer", "minimum": 0 },
+        "invalid": { "type": "integer", "minimum": 0 },
+        "excluded": { "type": "integer", "minimum": 0 },
+        "all_error_categories_counted_in_denominator": { "type": "boolean", "const": true },
+        "error_rows_preserved": { "type": "boolean", "const": true }
+      }
+    },
+    "data_coverage_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "data_catalog_ref",
+        "data_slice_identity",
+        "timeframe",
+        "data_stream",
+        "missing_data_policy",
+        "irreparable_gap_count",
+        "data_unavailable_count",
+        "data_coverage_notes"
+      ],
+      "properties": {
+        "data_catalog_ref": { "$ref": "#/definitions/nullable_string" },
+        "data_slice_identity": { "$ref": "#/definitions/nullable_string" },
+        "timeframe": { "type": ["string", "null"], "enum": ["15m", "30m", "1h", "4h", "1d", null] },
+        "data_stream": { "type": ["string", "null"], "enum": ["ohlcv", "funding", "mark", "index", "premium", "indicator_catalog", null] },
+        "missing_data_policy": { "$ref": "#/definitions/nullable_string" },
+        "irreparable_gap_count": { "type": "integer", "minimum": 0 },
+        "data_unavailable_count": { "type": "integer", "minimum": 0 },
+        "data_coverage_notes": { "$ref": "#/definitions/string_array" }
+      }
+    },
+    "backtest_assumption_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fee_side_assumption",
+        "exchange_constraint_disclosure",
+        "funding_notional",
+        "slippage_model",
+        "fill_mode",
+        "order_size_assumption",
+        "liquidity_capacity_assumption",
+        "liquidation_mode",
+        "maintenance_margin_assumption",
+        "mark_price_source",
+        "bar_path_assumption",
+        "records_assumptions_only"
+      ],
+      "properties": {
+        "fee_side_assumption": { "$ref": "#/definitions/nullable_string" },
+        "exchange_constraint_disclosure": { "$ref": "#/definitions/nullable_string" },
+        "funding_notional": { "type": ["string", "null"], "enum": ["entry_price", "mark_price", "unspecified", null] },
+        "slippage_model": { "type": ["string", "null"], "enum": ["fixed_bps", "unspecified", null] },
+        "fill_mode": { "type": ["string", "null"], "enum": ["complete", "unspecified", null] },
+        "order_size_assumption": { "$ref": "#/definitions/nullable_string" },
+        "liquidity_capacity_assumption": { "$ref": "#/definitions/nullable_string" },
+        "liquidation_mode": { "type": ["string", "null"], "enum": ["zero_equity", "maintenance_margin", "unspecified", null] },
+        "maintenance_margin_assumption": { "$ref": "#/definitions/nullable_string" },
+        "mark_price_source": { "type": ["string", "null"], "enum": ["close", "unspecified", null] },
+        "bar_path_assumption": { "type": ["string", "null"], "enum": ["next_open_close_mark", "unspecified", null] },
+        "records_assumptions_only": { "type": "boolean", "const": true }
+      }
+    },
+    "lineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "strategy_spec_id",
+        "variant_manifest_id",
+        "sweep_plan_id",
+        "result_population_id",
+        "parent_hash_chain",
+        "created_from_validated_inputs",
+        "complete_population_lineage_preserved"
+      ],
+      "properties": {
+        "strategy_spec_id": { "type": "string", "pattern": "^STRAT-SPEC-[0-9]{4}$" },
+        "variant_manifest_id": { "type": "string", "pattern": "^VM-[0-9]{4}$" },
+        "sweep_plan_id": { "type": "string", "pattern": "^SWEEP-PLAN-[0-9]{4}$" },
+        "result_population_id": { "type": "string", "pattern": "^RP-[0-9]{4}$" },
+        "parent_hash_chain": { "$ref": "#/definitions/parent_hash_chain" },
+        "created_from_validated_inputs": { "type": "boolean" },
+        "complete_population_lineage_preserved": { "type": "boolean", "const": true }
+      }
+    },
+    "parent_hash_chain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "strategy_spec_hash",
+        "variant_manifest_hash",
+        "sweep_plan_identity_hash",
+        "input_identity_hash"
+      ],
+      "properties": {
+        "strategy_spec_hash": { "$ref": "#/definitions/sha256_hash" },
+        "variant_manifest_hash": { "$ref": "#/definitions/sha256_hash" },
+        "sweep_plan_identity_hash": { "$ref": "#/definitions/sha256_hash" },
+        "input_identity_hash": { "$ref": "#/definitions/sha256_or_null" }
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "review_status",
+        "review_scope",
+        "review_notes",
+        "non_authority_acknowledgement"
+      ],
+      "properties": {
+        "review_status": { "type": "string", "enum": ["not_reviewed", "review_requested", "reviewed", "rejected"] },
+        "review_scope": { "type": "string", "enum": ["none", "research_visibility_only"] },
+        "review_notes": { "$ref": "#/definitions/string_array" },
+        "non_authority_acknowledgement": { "$ref": "#/definitions/review_non_authority_acknowledgement" }
+      }
+    },
+    "review_non_authority_acknowledgement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "not_approval",
+        "not_recommendation",
+        "not_readiness",
+        "not_transition",
+        "not_gate_satisfaction",
+        "not_runtime_authority",
+        "not_paper_live_authority"
+      ],
+      "properties": {
+        "not_approval": { "type": "boolean", "const": true },
+        "not_recommendation": { "type": "boolean", "const": true },
+        "not_readiness": { "type": "boolean", "const": true },
+        "not_transition": { "type": "boolean", "const": true },
+        "not_gate_satisfaction": { "type": "boolean", "const": true },
+        "not_runtime_authority": { "type": "boolean", "const": true },
+        "not_paper_live_authority": { "type": "boolean", "const": true }
+      }
+    }
+  }
+}

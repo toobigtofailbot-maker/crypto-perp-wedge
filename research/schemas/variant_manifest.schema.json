@@ -1,0 +1,567 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crypto-perp-wedge.local/research/schemas/variant_manifest.schema.json",
+  "title": "Variant Manifest",
+  "description": "Non-executing bounded pre-registration artifact shape for future Strategy Research Lab variant populations generated from one parent Strategy Spec. This schema grants no validator, query, runner, sweep, result, runtime, paper/live, recommendation, ranking, approval, readiness, transition, or human-gate execution authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "variant_manifest_id",
+    "status",
+    "non_execution_declaration",
+    "parent_strategy_spec",
+    "population_governance",
+    "parameter_axes",
+    "invalid_combination_rules",
+    "exclusion_rules",
+    "variant_assignments",
+    "manifest_hash_pinning",
+    "amendment_and_supersession",
+    "lineage",
+    "review"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "v1" },
+    "variant_manifest_id": { "type": "string", "pattern": "^VM-[0-9]{4}$" },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "review_requested", "approved_for_sweep_planning", "closed", "superseded", "rejected"]
+    },
+    "non_execution_declaration": { "$ref": "#/definitions/non_execution_declaration" },
+    "parent_strategy_spec": { "$ref": "#/definitions/parent_strategy_spec" },
+    "population_governance": { "$ref": "#/definitions/population_governance" },
+    "parameter_axes": {
+      "type": "array",
+      "maxItems": 5,
+      "items": { "$ref": "#/definitions/parameter_axis" }
+    },
+    "invalid_combination_rules": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/invalid_combination_rule" }
+    },
+    "exclusion_rules": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/exclusion_rule" }
+    },
+    "variant_assignments": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/variant_assignment" }
+    },
+    "manifest_hash_pinning": { "$ref": "#/definitions/manifest_hash_pinning" },
+    "amendment_and_supersession": { "$ref": "#/definitions/amendment_and_supersession" },
+    "lineage": { "$ref": "#/definitions/lineage" },
+    "review": { "$ref": "#/definitions/review" }
+  },
+  "definitions": {
+    "non_empty_string": { "type": "string", "minLength": 1 },
+    "nullable_string": { "type": ["string", "null"] },
+    "date_time_or_null": { "type": ["string", "null"], "format": "date-time" },
+    "sha256_or_null": { "type": ["string", "null"], "pattern": "^sha256:[a-f0-9]{64}$" },
+    "sha256_hash": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "string_array": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "non_execution_declaration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "planning_surface_only",
+        "not_executable",
+        "not_runner_authority",
+        "not_sweep_authority",
+        "not_result_authority",
+        "not_candidate_approval",
+        "not_exp_approval",
+        "not_ranking_authority",
+        "not_recommendation_authority",
+        "not_readiness_authority",
+        "not_transition_authority",
+        "not_runtime_authority",
+        "not_paper_live_authority",
+        "not_gate_authority"
+      ],
+      "properties": {
+        "planning_surface_only": { "type": "boolean", "const": true },
+        "not_executable": { "type": "boolean", "const": true },
+        "not_runner_authority": { "type": "boolean", "const": true },
+        "not_sweep_authority": { "type": "boolean", "const": true },
+        "not_result_authority": { "type": "boolean", "const": true },
+        "not_candidate_approval": { "type": "boolean", "const": true },
+        "not_exp_approval": { "type": "boolean", "const": true },
+        "not_ranking_authority": { "type": "boolean", "const": true },
+        "not_recommendation_authority": { "type": "boolean", "const": true },
+        "not_readiness_authority": { "type": "boolean", "const": true },
+        "not_transition_authority": { "type": "boolean", "const": true },
+        "not_runtime_authority": { "type": "boolean", "const": true },
+        "not_paper_live_authority": { "type": "boolean", "const": true },
+        "not_gate_authority": { "type": "boolean", "const": true }
+      }
+    },
+    "parent_strategy_spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "strategy_spec_id",
+        "strategy_spec_schema_version",
+        "strategy_spec_hash",
+        "hash_algorithm",
+        "hash_scope_version",
+        "strategy_spec_review_status",
+        "strategy_spec_ref",
+        "mismatch_policy",
+        "missing_parent_policy",
+        "does_not_mutate_parent_strategy_spec"
+      ],
+      "properties": {
+        "strategy_spec_id": { "type": "string", "pattern": "^STRAT-SPEC-[0-9]{4}$" },
+        "strategy_spec_schema_version": { "$ref": "#/definitions/non_empty_string" },
+        "strategy_spec_hash": { "$ref": "#/definitions/sha256_or_null" },
+        "hash_algorithm": { "type": "string", "enum": ["sha256"] },
+        "hash_scope_version": { "$ref": "#/definitions/non_empty_string" },
+        "strategy_spec_review_status": { "type": "string", "enum": ["approved_for_variant_planning"] },
+        "strategy_spec_ref": { "$ref": "#/definitions/nullable_string" },
+        "mismatch_policy": { "type": "string", "const": "block" },
+        "missing_parent_policy": { "type": "string", "const": "block" },
+        "does_not_mutate_parent_strategy_spec": { "type": "boolean", "const": true }
+      }
+    },
+    "population_governance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["population_cap", "declared_population", "trial_budget", "multiple_testing_accounting", "pre_registration"],
+      "properties": {
+        "population_cap": { "$ref": "#/definitions/population_cap" },
+        "declared_population": { "$ref": "#/definitions/declared_population" },
+        "trial_budget": { "$ref": "#/definitions/trial_budget" },
+        "multiple_testing_accounting": { "$ref": "#/definitions/multiple_testing_accounting" },
+        "pre_registration": { "$ref": "#/definitions/pre_registration" }
+      }
+    },
+    "population_cap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_variants", "cap_basis", "cap_source", "cap_exception_authorized", "cap_exception_ref"],
+      "properties": {
+        "max_variants": { "type": "integer", "minimum": 1 },
+        "cap_basis": { "type": "string", "enum": ["manual_grid", "constrained_random", "other_later_authorized"] },
+        "cap_source": { "type": "string", "enum": ["human_declared", "policy_default", "later_authorized_exception"] },
+        "cap_exception_authorized": { "type": "boolean", "const": false },
+        "cap_exception_ref": { "type": "null" }
+      }
+    },
+    "declared_population": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "committed_population_count",
+        "declared_variant_count",
+        "included_variant_count",
+        "excluded_variant_count",
+        "invalid_variant_count",
+        "not_attempted_variant_count"
+      ],
+      "properties": {
+        "committed_population_count": { "type": "integer", "minimum": 0 },
+        "declared_variant_count": { "type": "integer", "minimum": 0 },
+        "included_variant_count": { "type": "integer", "minimum": 0 },
+        "excluded_variant_count": { "type": "integer", "minimum": 0 },
+        "invalid_variant_count": { "type": "integer", "minimum": 0 },
+        "not_attempted_variant_count": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "trial_budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "planned_trial_count",
+        "trial_budget_denominator",
+        "denominator_basis",
+        "denominator_count",
+        "denominator_includes_failed",
+        "denominator_includes_excluded",
+        "denominator_includes_invalid",
+        "denominator_includes_errored",
+        "denominator_includes_aborted",
+        "denominator_includes_filtered",
+        "denominator_includes_data_unavailable",
+        "denominator_includes_not_attempted",
+        "executed_only_denominator_forbidden"
+      ],
+      "properties": {
+        "planned_trial_count": { "type": "integer", "minimum": 0 },
+        "trial_budget_denominator": { "type": "integer", "minimum": 0 },
+        "denominator_basis": { "type": "string", "const": "committed_pre_registered_population_count" },
+        "denominator_count": { "type": "integer", "minimum": 0 },
+        "denominator_includes_failed": { "type": "boolean", "const": true },
+        "denominator_includes_excluded": { "type": "boolean", "const": true },
+        "denominator_includes_invalid": { "type": "boolean", "const": true },
+        "denominator_includes_errored": { "type": "boolean", "const": true },
+        "denominator_includes_aborted": { "type": "boolean", "const": true },
+        "denominator_includes_filtered": { "type": "boolean", "const": true },
+        "denominator_includes_data_unavailable": { "type": "boolean", "const": true },
+        "denominator_includes_not_attempted": { "type": "boolean", "const": true },
+        "executed_only_denominator_forbidden": { "type": "boolean", "const": true }
+      }
+    },
+    "multiple_testing_accounting": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "denominator_required",
+        "denominator_type",
+        "search_family_id",
+        "search_family_method",
+        "adaptive_search_used",
+        "adaptive_search_authorization_ref",
+        "all_trials_visible_required",
+        "winner_only_review_forbidden"
+      ],
+      "properties": {
+        "denominator_required": { "type": "boolean", "const": true },
+        "denominator_type": { "type": "string", "const": "committed_pre_registered_population" },
+        "search_family_id": { "$ref": "#/definitions/non_empty_string" },
+        "search_family_method": { "type": "string", "enum": ["manual_grid", "constrained_random"] },
+        "adaptive_search_used": { "type": "boolean", "const": false },
+        "adaptive_search_authorization_ref": { "type": "null" },
+        "all_trials_visible_required": { "type": "boolean", "const": true },
+        "winner_only_review_forbidden": { "type": "boolean", "const": true }
+      }
+    },
+    "pre_registration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pre_registered",
+        "pre_registration_status",
+        "pre_registration_scope",
+        "freeze_required_before_sweep",
+        "post_hoc_addition_forbidden",
+        "post_result_mutation_forbidden",
+        "allowed_change_mode"
+      ],
+      "properties": {
+        "pre_registered": { "type": "boolean" },
+        "pre_registration_status": { "type": "string", "enum": ["draft", "frozen_for_sweep_planning", "closed", "superseded"] },
+        "pre_registration_scope": { "type": "string", "const": "full_variant_population" },
+        "freeze_required_before_sweep": { "type": "boolean", "const": true },
+        "post_hoc_addition_forbidden": { "type": "boolean", "const": true },
+        "post_result_mutation_forbidden": { "type": "boolean", "const": true },
+        "allowed_change_mode": { "type": "string", "enum": ["supersede_before_results_only", "close_after_results"] }
+      }
+    },
+    "parameter_value": {
+      "anyOf": [{ "type": "string" }, { "type": "number" }, { "type": "boolean" }]
+    },
+    "parameter_range": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["min", "max", "step", "inclusive_min", "inclusive_max"],
+      "properties": {
+        "min": { "type": ["number", "null"] },
+        "max": { "type": ["number", "null"] },
+        "step": { "type": ["number", "null"], "exclusiveMinimum": 0 },
+        "inclusive_min": { "type": "boolean" },
+        "inclusive_max": { "type": "boolean" }
+      }
+    },
+    "parameter_axis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "axis_id",
+        "parameter_name",
+        "parent_strategy_spec_parameter_ref",
+        "parameter_type",
+        "units",
+        "axis_kind",
+        "generator_method",
+        "allowed_values",
+        "range",
+        "counts_toward_parent_free_parameter_cap",
+        "is_declared_in_parent_strategy_spec",
+        "invalid_combination_rule_refs",
+        "notes"
+      ],
+      "properties": {
+        "axis_id": { "type": "string", "pattern": "^AXIS-[0-9]{3}$" },
+        "parameter_name": { "$ref": "#/definitions/non_empty_string" },
+        "parent_strategy_spec_parameter_ref": { "$ref": "#/definitions/non_empty_string" },
+        "parameter_type": { "type": "string", "enum": ["integer", "number", "boolean", "enum"] },
+        "units": { "$ref": "#/definitions/nullable_string" },
+        "axis_kind": { "type": "string", "const": "free_parameter" },
+        "generator_method": { "type": "string", "enum": ["manual_grid", "constrained_random"] },
+        "allowed_values": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/parameter_value" },
+          "uniqueItems": true
+        },
+        "range": { "anyOf": [{ "$ref": "#/definitions/parameter_range" }, { "type": "null" }] },
+        "counts_toward_parent_free_parameter_cap": { "type": "boolean", "const": true },
+        "is_declared_in_parent_strategy_spec": { "type": "boolean", "const": true },
+        "invalid_combination_rule_refs": { "$ref": "#/definitions/string_array" },
+        "notes": { "$ref": "#/definitions/nullable_string" }
+      }
+    },
+    "invalid_combination_rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rule_id", "description", "affected_axes", "rule_type", "declared_before_results", "notes"],
+      "properties": {
+        "rule_id": { "$ref": "#/definitions/non_empty_string" },
+        "description": { "$ref": "#/definitions/non_empty_string" },
+        "affected_axes": { "$ref": "#/definitions/string_array" },
+        "rule_type": { "type": "string", "const": "declarative_constraint" },
+        "declared_before_results": { "type": "boolean", "const": true },
+        "notes": { "$ref": "#/definitions/nullable_string" }
+      }
+    },
+    "exclusion_rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rule_id", "description", "affected_variants", "reason", "declared_before_results", "notes"],
+      "properties": {
+        "rule_id": { "$ref": "#/definitions/non_empty_string" },
+        "description": { "$ref": "#/definitions/non_empty_string" },
+        "affected_variants": { "$ref": "#/definitions/string_array" },
+        "reason": { "type": "string", "enum": ["data_unavailable", "invalid_combination", "out_of_scope", "duplicate", "other"] },
+        "declared_before_results": { "type": "boolean", "const": true },
+        "notes": { "$ref": "#/definitions/nullable_string" }
+      }
+    },
+    "variant_assignment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "variant_id",
+        "assignment_status",
+        "parameter_values",
+        "parameter_value_hash",
+        "axis_refs",
+        "exclusion_rule_refs",
+        "invalid_combination_rule_refs",
+        "status_reason",
+        "lineage"
+      ],
+      "properties": {
+        "variant_id": { "type": "string", "pattern": "^VAR-[0-9]{6}$" },
+        "assignment_status": { "type": "string", "enum": ["included", "excluded", "invalid", "not_attempted"] },
+        "parameter_values": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/definitions/parameter_value" }
+        },
+        "parameter_value_hash": { "$ref": "#/definitions/sha256_or_null" },
+        "axis_refs": { "$ref": "#/definitions/string_array" },
+        "exclusion_rule_refs": { "$ref": "#/definitions/string_array" },
+        "invalid_combination_rule_refs": { "$ref": "#/definitions/string_array" },
+        "status_reason": { "$ref": "#/definitions/nullable_string" },
+        "lineage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["generated_by_rule", "generation_order"],
+          "properties": {
+            "generated_by_rule": { "$ref": "#/definitions/non_empty_string" },
+            "generation_order": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "manifest_hash_pinning": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "manifest_hash",
+        "hash_algorithm",
+        "canonicalization",
+        "hash_scope_version",
+        "hash_scope",
+        "hash_status",
+        "frozen_at",
+        "pre_sweep_freeze_required",
+        "post_result_mutation_forbidden"
+      ],
+      "properties": {
+        "manifest_hash": { "$ref": "#/definitions/sha256_or_null" },
+        "hash_algorithm": { "type": "string", "enum": ["sha256"] },
+        "canonicalization": { "type": "string", "const": "json_canonical_v1" },
+        "hash_scope_version": { "type": "string", "const": "variant_manifest_hash_scope_v1" },
+        "hash_scope": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "schema_version",
+              "variant_manifest_id",
+              "parent_strategy_spec.strategy_spec_id",
+              "parent_strategy_spec.strategy_spec_hash",
+              "population_governance",
+              "parameter_axes",
+              "invalid_combination_rules",
+              "exclusion_rules",
+              "variant_assignments"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "hash_status": { "type": "string", "enum": ["not_computed", "computed", "superseded"] },
+        "frozen_at": { "$ref": "#/definitions/date_time_or_null" },
+        "pre_sweep_freeze_required": { "type": "boolean", "const": true },
+        "post_result_mutation_forbidden": { "type": "boolean", "const": true }
+      }
+    },
+    "supersedes_manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["variant_manifest_id", "manifest_hash", "reason", "superseded_at"],
+      "properties": {
+        "variant_manifest_id": { "type": "string", "pattern": "^VM-[0-9]{4}$" },
+        "manifest_hash": { "$ref": "#/definitions/sha256_hash" },
+        "reason": { "$ref": "#/definitions/non_empty_string" },
+        "superseded_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "supersession_lineage_entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "superseded_variant_manifest_id",
+        "superseded_manifest_hash",
+        "supersession_reason",
+        "superseded_at",
+        "prior_manifest_preserved_immutably"
+      ],
+      "properties": {
+        "superseded_variant_manifest_id": { "type": "string", "pattern": "^VM-[0-9]{4}$" },
+        "superseded_manifest_hash": { "$ref": "#/definitions/sha256_hash" },
+        "supersession_reason": { "$ref": "#/definitions/non_empty_string" },
+        "superseded_at": { "type": "string", "format": "date-time" },
+        "prior_manifest_preserved_immutably": { "type": "boolean", "const": true }
+      }
+    },
+    "amendment_and_supersession": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "amendment_mode",
+        "supersedes",
+        "supersession_lineage",
+        "amendment_reason",
+        "associated_results_state",
+        "supersession_allowed",
+        "close_only_after_results",
+        "post_result_change",
+        "preserve_prior_manifest_required",
+        "fresh_denominator_required",
+        "does_not_inherit_prior_results"
+      ],
+      "properties": {
+        "amendment_mode": { "type": "string", "enum": ["none", "supersedes_prior_manifest", "closed_after_results"] },
+        "supersedes": { "anyOf": [{ "$ref": "#/definitions/supersedes_manifest" }, { "type": "null" }] },
+        "supersession_lineage": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/supersession_lineage_entry" }
+        },
+        "amendment_reason": { "$ref": "#/definitions/nullable_string" },
+        "associated_results_state": { "type": "string", "enum": ["no_associated_results", "associated_results_exist"] },
+        "supersession_allowed": { "type": "boolean" },
+        "close_only_after_results": { "type": "boolean", "const": true },
+        "post_result_change": { "type": "boolean", "const": false },
+        "preserve_prior_manifest_required": { "type": "boolean", "const": true },
+        "fresh_denominator_required": { "type": "boolean", "const": true },
+        "does_not_inherit_prior_results": { "type": "boolean", "const": true }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "associated_results_state": { "const": "associated_results_exist" } },
+            "required": ["associated_results_state"]
+          },
+          "then": {
+            "properties": {
+              "amendment_mode": { "const": "closed_after_results" },
+              "supersession_allowed": { "const": false },
+              "supersedes": { "type": "null" }
+            }
+          }
+        }
+      ]
+    },
+    "lineage_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ref_type", "ref_id", "ref_path", "ref_hash"],
+      "properties": {
+        "ref_type": { "type": "string", "enum": ["strategy_spec", "concept", "research_note", "manual_review", "search_family", "other"] },
+        "ref_id": { "$ref": "#/definitions/non_empty_string" },
+        "ref_path": { "$ref": "#/definitions/nullable_string" },
+        "ref_hash": { "$ref": "#/definitions/sha256_or_null" }
+      }
+    },
+    "lineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["parent_refs", "source_refs", "created_at", "updated_at", "audit_notes", "hash_refs"],
+      "properties": {
+        "parent_refs": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/lineage_ref" }
+        },
+        "source_refs": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/lineage_ref" }
+        },
+        "created_at": { "$ref": "#/definitions/date_time_or_null" },
+        "updated_at": { "$ref": "#/definitions/date_time_or_null" },
+        "audit_notes": { "$ref": "#/definitions/string_array" },
+        "hash_refs": { "$ref": "#/definitions/string_array" }
+      }
+    },
+    "review_non_authority_acknowledgement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "not_candidate_approval",
+        "not_exp_approval",
+        "not_sweep_authority",
+        "not_runner_authority",
+        "not_result_authority",
+        "not_ranking_authority",
+        "not_recommendation_authority",
+        "not_readiness_authority",
+        "not_transition_authority",
+        "not_runtime_authority",
+        "not_paper_live_authority",
+        "not_gate_satisfaction"
+      ],
+      "properties": {
+        "not_candidate_approval": { "type": "boolean", "const": true },
+        "not_exp_approval": { "type": "boolean", "const": true },
+        "not_sweep_authority": { "type": "boolean", "const": true },
+        "not_runner_authority": { "type": "boolean", "const": true },
+        "not_result_authority": { "type": "boolean", "const": true },
+        "not_ranking_authority": { "type": "boolean", "const": true },
+        "not_recommendation_authority": { "type": "boolean", "const": true },
+        "not_readiness_authority": { "type": "boolean", "const": true },
+        "not_transition_authority": { "type": "boolean", "const": true },
+        "not_runtime_authority": { "type": "boolean", "const": true },
+        "not_paper_live_authority": { "type": "boolean", "const": true },
+        "not_gate_satisfaction": { "type": "boolean", "const": true }
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["human_review_required", "reviewer", "reviewed_at", "review_notes", "approval_scope", "non_authority_acknowledgement"],
+      "properties": {
+        "human_review_required": { "type": "boolean", "const": true },
+        "reviewer": { "$ref": "#/definitions/nullable_string" },
+        "reviewed_at": { "$ref": "#/definitions/date_time_or_null" },
+        "review_notes": { "$ref": "#/definitions/string_array" },
+        "approval_scope": { "type": "string", "enum": ["none", "sweep_planning_only"] },
+        "non_authority_acknowledgement": { "$ref": "#/definitions/review_non_authority_acknowledgement" }
+      }
+    }
+  }
+}

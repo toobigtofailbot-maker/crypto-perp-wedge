@@ -29,6 +29,7 @@ SHADOW_SIGNAL_SUMMARIES_V2_DIR = REPO_ROOT / "research" / "shadow_signal_summari
 R2S_APPROVAL_RECORDS_DIR = REPO_ROOT / "research" / "r2s_approval_records"
 SHADOW_EVIDENCE_RETENTION_DIR = REPO_ROOT / "research" / "shadow_evidence_retention"
 S2P_APPROVAL_RECORDS_DIR = REPO_ROOT / "research" / "s2p_approval_records"
+STRATEGY_SPECS_DIR = REPO_ROOT / "research" / "strategy_specs"
 TRIAL_LOG_PATH = REPO_ROOT / "research" / "trial_log.jsonl"
 VIEWS_PATH = Path(__file__).resolve().with_name("views.sql")
 
@@ -1031,6 +1032,205 @@ def _register_s2p_approval_records(conn: duckdb.DuckDBPyConnection) -> None:
     )
 
 
+def _register_strategy_specs(conn: duckdb.DuckDBPyConnection) -> None:
+    strategy_spec_files = (
+        sorted(STRATEGY_SPECS_DIR.glob("*.strategy_spec.json"))
+        if STRATEGY_SPECS_DIR.exists()
+        else []
+    )
+    if strategy_spec_files:
+        conn.execute(
+            f"""
+            CREATE VIEW strategy_specs AS
+            SELECT * FROM read_json_auto('{_sql_path(STRATEGY_SPECS_DIR / "*.strategy_spec.json")}')
+            """
+        )
+        return
+
+    conn.execute(
+        """
+        CREATE VIEW strategy_specs AS
+        SELECT
+            CAST(NULL AS VARCHAR) AS schema_version,
+            CAST(NULL AS VARCHAR) AS strategy_spec_id,
+            CAST(NULL AS VARCHAR) AS title,
+            CAST(NULL AS VARCHAR) AS short_name,
+            CAST(NULL AS VARCHAR) AS status,
+            CAST(NULL AS STRUCT(
+                human_review_surface_only BOOLEAN,
+                not_executable BOOLEAN,
+                not_runtime_authority BOOLEAN,
+                not_paper_live_authority BOOLEAN,
+                not_gate_authority BOOLEAN,
+                not_candidate_approval BOOLEAN,
+                not_exp_approval BOOLEAN,
+                not_sweep_authority BOOLEAN,
+                not_ranking_authority BOOLEAN,
+                not_recommendation_authority BOOLEAN,
+                not_readiness_authority BOOLEAN,
+                not_transition_authority BOOLEAN
+            )) AS non_execution_declaration,
+            CAST(NULL AS STRUCT(
+                source_type VARCHAR,
+                source_refs VARCHAR[],
+                prepared_by VARCHAR,
+                created_at VARCHAR,
+                updated_at VARCHAR,
+                rationale VARCHAR,
+                source_constraints VARCHAR[],
+                unresolved_claims VARCHAR[]
+            )) AS provenance,
+            CAST(NULL AS STRUCT(
+                symbols VARCHAR[],
+                instrument_family VARCHAR,
+                venue_assumption VARCHAR,
+                market_type VARCHAR,
+                directions_allowed VARCHAR[],
+                leverage_assumption DOUBLE,
+                exchange_constraint_refs VARCHAR[],
+                blockers VARCHAR[]
+            )) AS instruments,
+            CAST(NULL AS STRUCT(
+                primary_timeframe VARCHAR,
+                confirmation_timeframes VARCHAR[],
+                host_data_refs STRUCT(stream VARCHAR, timeframe VARCHAR, field VARCHAR, availability VARCHAR)[],
+                gap_handling_assumption VARCHAR,
+                missing_data_blockers VARCHAR[]
+            )) AS timeframe_and_data,
+            CAST(NULL AS STRUCT(
+                direction VARCHAR,
+                groups STRUCT(
+                    group_id VARCHAR,
+                    group_role VARCHAR,
+                    logic VARCHAR,
+                    conditions STRUCT(condition_id VARCHAR)[],
+                    subgroups STRUCT(group_id VARCHAR)[],
+                    notes VARCHAR
+                )[],
+                notes VARCHAR
+            )) AS entry_logic,
+            CAST(NULL AS STRUCT(
+                groups STRUCT(
+                    group_id VARCHAR,
+                    group_role VARCHAR,
+                    logic VARCHAR,
+                    conditions STRUCT(condition_id VARCHAR)[],
+                    subgroups STRUCT(group_id VARCHAR)[],
+                    notes VARCHAR
+                )[],
+                max_holding_period STRUCT(enabled BOOLEAN, bars BIGINT),
+                notes VARCHAR
+            )) AS exit_logic,
+            CAST(NULL AS STRUCT(
+                sizing_intent VARCHAR,
+                exposure_limits VARCHAR[],
+                stop_distance JSON,
+                target_distance JSON,
+                leverage_visibility VARCHAR,
+                liquidation_sensitivity_notes VARCHAR
+            )) AS risk_model,
+            CAST(NULL AS STRUCT(
+                groups STRUCT(
+                    group_id VARCHAR,
+                    group_role VARCHAR,
+                    logic VARCHAR,
+                    conditions STRUCT(condition_id VARCHAR)[],
+                    subgroups STRUCT(group_id VARCHAR)[],
+                    notes VARCHAR
+                )[],
+                none_declared BOOLEAN
+            )) AS filters,
+            CAST(NULL AS STRUCT(
+                max_free_parameters BIGINT,
+                counting_rule VARCHAR,
+                parameters STRUCT(
+                    name VARCHAR,
+                    label VARCHAR,
+                    description VARCHAR,
+                    "type" VARCHAR,
+                    units VARCHAR,
+                    "default" JSON,
+                    "range" STRUCT(
+                        min DOUBLE,
+                        max DOUBLE,
+                        step DOUBLE,
+                        inclusive_min BOOLEAN,
+                        inclusive_max BOOLEAN
+                    ),
+                    allowed_values JSON[],
+                    is_free_parameter BOOLEAN,
+                    included_in_variant_generation BOOLEAN,
+                    role VARCHAR,
+                    rationale VARCHAR,
+                    constraints VARCHAR[]
+                )[],
+                no_free_parameters_declared BOOLEAN
+            )) AS free_parameters,
+            CAST(NULL AS STRUCT(
+                invalid_parameter_combinations STRUCT(
+                    constraint_id VARCHAR,
+                    description VARCHAR,
+                    affected_parameters VARCHAR[]
+                )[],
+                unavailable_data_blockers VARCHAR[],
+                deferred_pattern_blockers VARCHAR[],
+                none_declared BOOLEAN
+            )) AS constraints,
+            CAST(NULL AS STRUCT(
+                human_review_required BOOLEAN,
+                reviewer VARCHAR,
+                reviewed_at VARCHAR,
+                review_notes VARCHAR[],
+                approval_scope VARCHAR,
+                non_authority_acknowledgement STRUCT(
+                    not_candidate_approval BOOLEAN,
+                    not_exp_approval BOOLEAN,
+                    not_sweep_authority BOOLEAN,
+                    not_ranking_authority BOOLEAN,
+                    not_recommendation_authority BOOLEAN,
+                    not_readiness_authority BOOLEAN,
+                    not_transition_authority BOOLEAN,
+                    not_runtime_authority BOOLEAN,
+                    not_paper_live_authority BOOLEAN,
+                    not_gate_satisfaction BOOLEAN
+                )
+            )) AS review,
+            CAST(NULL AS STRUCT(
+                parent_refs STRUCT(ref_type VARCHAR, ref_id VARCHAR, ref_path VARCHAR, ref_hash VARCHAR)[],
+                supersedes STRUCT(strategy_spec_id VARCHAR, spec_hash VARCHAR)[],
+                amendment_of STRUCT(strategy_spec_id VARCHAR, spec_hash VARCHAR, reason VARCHAR)
+            )) AS lineage,
+            CAST(NULL AS STRUCT(
+                canonical_spec_hash VARCHAR,
+                hash_algorithm VARCHAR,
+                hash_scope_version VARCHAR,
+                hash_scope VARCHAR[],
+                hash_status VARCHAR
+            )) AS hash_pinning,
+            CAST(NULL AS STRUCT(
+                intended_for_variant_manifest BOOLEAN,
+                variant_manifest_ref VARCHAR,
+                frozen_snapshot_ref VARCHAR
+            )) AS pre_registration_support,
+            CAST(NULL AS STRUCT(
+                fee_side_assumption VARCHAR,
+                exchange_constraints_disclosed BOOLEAN,
+                funding_notional_mode VARCHAR,
+                slippage_model VARCHAR,
+                fill_mode VARCHAR,
+                order_size_assumption VARCHAR,
+                liquidity_capacity_assumption VARCHAR,
+                liquidation_mode VARCHAR,
+                maintenance_margin_assumption VARCHAR,
+                mark_price_source VARCHAR,
+                bar_path_assumption VARCHAR
+            )) AS backtest_realism_assumptions,
+            CAST(NULL AS BIGINT) AS max_condition_group_depth
+        WHERE FALSE
+        """
+    )
+
+
 def _rows_as_dicts(cursor: duckdb.DuckDBPyConnection) -> list[dict[str, Any]]:
     columns = [description[0] for description in cursor.description or []]
     return [dict(zip(columns, row, strict=True)) for row in cursor.fetchall()]
@@ -1193,6 +1393,7 @@ def init_duckdb(read_only: bool = True) -> duckdb.DuckDBPyConnection:
     _register_r2s_approval_records(conn)
     _register_shadow_evidence_retention(conn)
     _register_s2p_approval_records(conn)
+    _register_strategy_specs(conn)
     load_views(conn)
     return conn
 

@@ -4662,3 +4662,544 @@ FROM (
     UNION ALL
     SELECT sweep_plan_id, 'result_capture_expectations.winner_only_retention_forbidden', 'true', CAST(result_capture_expectations.winner_only_retention_forbidden AS VARCHAR) FROM sweep_plans WHERE result_capture_expectations.winner_only_retention_forbidden IS DISTINCT FROM true
 ) AS issues;
+
+-- What Result Population artifacts are visible to the read-only query layer?
+-- This is descriptive visibility only and does not approve, recommend, rank,
+-- transition, execute gates, or create paper/live/runtime authority.
+CREATE OR REPLACE VIEW v_result_population_overview AS
+SELECT
+    result_population_id,
+    schema_version,
+    status,
+    parent_strategy_spec.strategy_spec_id AS parent_strategy_spec_id,
+    parent_variant_manifest.variant_manifest_id AS parent_variant_manifest_id,
+    parent_sweep_plan.sweep_plan_id AS parent_sweep_plan_id,
+    committed_denominator_snapshot.committed_denominator AS committed_denominator,
+    committed_denominator_snapshot.result_row_count AS result_row_count,
+    outcome_category_counts.counts_sum AS outcome_counts_sum,
+    execution_context.execution_mode AS execution_mode,
+    execution_context.offline_only AS offline_only,
+    review.review_status AS review_status,
+    review.review_scope AS review_scope
+FROM result_populations;
+
+-- Which parent hashes and lineage fields are recorded by Result Populations?
+CREATE OR REPLACE VIEW v_result_population_parent_lineage AS
+SELECT
+    result_population_id,
+    parent_strategy_spec.strategy_spec_id AS parent_strategy_spec_id,
+    parent_strategy_spec.strategy_spec_hash AS parent_strategy_spec_hash,
+    parent_variant_manifest.variant_manifest_id AS parent_variant_manifest_id,
+    parent_variant_manifest.manifest_hash AS parent_manifest_hash,
+    parent_sweep_plan.sweep_plan_id AS parent_sweep_plan_id,
+    parent_sweep_plan.sweep_plan_identity_hash AS parent_sweep_plan_identity_hash,
+    input_identity_hash.hash AS input_identity_hash,
+    lineage.parent_hash_chain.strategy_spec_hash AS lineage_strategy_spec_hash,
+    lineage.parent_hash_chain.variant_manifest_hash AS lineage_variant_manifest_hash,
+    lineage.parent_hash_chain.sweep_plan_identity_hash AS lineage_sweep_plan_identity_hash,
+    lineage.parent_hash_chain.input_identity_hash AS lineage_input_identity_hash,
+    lineage.complete_population_lineage_preserved AS complete_population_lineage_preserved
+FROM result_populations;
+
+-- What committed denominator posture is recorded?
+CREATE OR REPLACE VIEW v_result_population_denominator AS
+SELECT
+    result_population_id,
+    committed_denominator_snapshot.denominator_basis AS denominator_basis,
+    committed_denominator_snapshot.parent_manifest_committed_population_count AS parent_manifest_committed_population_count,
+    committed_denominator_snapshot.parent_sweep_plan_committed_population_count AS parent_sweep_plan_committed_population_count,
+    committed_denominator_snapshot.selected_variant_count AS selected_variant_count,
+    committed_denominator_snapshot.result_row_count AS result_row_count,
+    committed_denominator_snapshot.outcome_counts_sum AS outcome_counts_sum,
+    committed_denominator_snapshot.committed_denominator AS committed_denominator,
+    committed_denominator_snapshot.executed_only_denominator_forbidden AS executed_only_denominator_forbidden,
+    committed_denominator_snapshot.successful_only_denominator_forbidden AS successful_only_denominator_forbidden,
+    committed_denominator_snapshot.winner_only_retention_forbidden AS winner_only_retention_forbidden,
+    committed_denominator_snapshot.post_hoc_cleanup_forbidden AS post_hoc_cleanup_forbidden
+FROM result_populations;
+
+-- What outcome-category counts are recorded?
+CREATE OR REPLACE VIEW v_result_population_outcome_counts AS
+SELECT
+    result_population_id,
+    outcome_category_counts.successful AS successful,
+    outcome_category_counts.failed AS failed,
+    outcome_category_counts.invalid AS invalid,
+    outcome_category_counts.excluded AS excluded,
+    outcome_category_counts.errored AS errored,
+    outcome_category_counts.aborted AS aborted,
+    outcome_category_counts.filtered AS filtered,
+    outcome_category_counts.data_unavailable AS data_unavailable,
+    outcome_category_counts.not_attempted AS not_attempted,
+    outcome_category_counts.counts_sum AS counts_sum,
+    outcome_category_counts.counts_sum_equals_committed_denominator AS counts_sum_equals_committed_denominator
+FROM result_populations;
+
+-- Which per-variant result rows are recorded?
+CREATE OR REPLACE VIEW v_result_population_variant_rows AS
+SELECT
+    r.result_population_id,
+    row.variant_id,
+    row.row_id,
+    row.outcome_category,
+    row.attempted,
+    row.metrics.pnl AS pnl,
+    row.metrics.return_pct AS return_pct,
+    row.metrics.drawdown AS drawdown,
+    row.metrics.trade_count AS trade_count,
+    row.metrics.sharpe AS sharpe,
+    row.non_success.reason AS non_success_reason,
+    row.error.error_category AS error_category,
+    row.data_coverage.data_slice_identity AS data_slice_identity,
+    row.lineage.parent_variant_id AS parent_variant_id,
+    row.lineage.parent_sweep_plan_id AS parent_sweep_plan_id,
+    row.lineage.parent_manifest_id AS parent_manifest_id
+FROM result_populations AS r,
+UNNEST(r.variant_result_rows) AS rows(row);
+
+-- What non-success and error summary is recorded?
+CREATE OR REPLACE VIEW v_result_population_error_summary AS
+SELECT
+    result_population_id,
+    error_summary.failed AS failed,
+    error_summary.errored AS errored,
+    error_summary.aborted AS aborted,
+    error_summary.filtered AS filtered,
+    error_summary.data_unavailable AS data_unavailable,
+    error_summary.not_attempted AS not_attempted,
+    error_summary.invalid AS invalid,
+    error_summary.excluded AS excluded,
+    error_summary.all_error_categories_counted_in_denominator AS all_error_categories_counted_in_denominator,
+    error_summary.error_rows_preserved AS error_rows_preserved
+FROM result_populations;
+
+-- What data coverage summary is recorded?
+CREATE OR REPLACE VIEW v_result_population_data_coverage AS
+SELECT
+    result_population_id,
+    data_coverage_summary.data_catalog_ref AS data_catalog_ref,
+    data_coverage_summary.data_slice_identity AS data_slice_identity,
+    data_coverage_summary.timeframe AS timeframe,
+    data_coverage_summary.data_stream AS data_stream,
+    data_coverage_summary.missing_data_policy AS missing_data_policy,
+    data_coverage_summary.irreparable_gap_count AS irreparable_gap_count,
+    data_coverage_summary.data_unavailable_count AS data_unavailable_count,
+    list_count(data_coverage_summary.data_coverage_notes) AS data_coverage_note_count
+FROM result_populations;
+
+-- What backtest assumptions are recorded as descriptive metadata?
+CREATE OR REPLACE VIEW v_result_population_backtest_assumptions AS
+SELECT
+    result_population_id,
+    backtest_assumption_summary.fee_side_assumption AS fee_side_assumption,
+    backtest_assumption_summary.exchange_constraint_disclosure AS exchange_constraint_disclosure,
+    backtest_assumption_summary.funding_notional AS funding_notional,
+    backtest_assumption_summary.slippage_model AS slippage_model,
+    backtest_assumption_summary.fill_mode AS fill_mode,
+    backtest_assumption_summary.order_size_assumption AS order_size_assumption,
+    backtest_assumption_summary.liquidity_capacity_assumption AS liquidity_capacity_assumption,
+    backtest_assumption_summary.liquidation_mode AS liquidation_mode,
+    backtest_assumption_summary.maintenance_margin_assumption AS maintenance_margin_assumption,
+    backtest_assumption_summary.mark_price_source AS mark_price_source,
+    backtest_assumption_summary.bar_path_assumption AS bar_path_assumption,
+    backtest_assumption_summary.records_assumptions_only AS records_assumptions_only
+FROM result_populations;
+
+-- What identity-hash and audit-envelope split is recorded?
+CREATE OR REPLACE VIEW v_result_population_identity_audit AS
+SELECT
+    result_population_id,
+    input_identity_hash.hash AS input_hash,
+    input_identity_hash.hash_algorithm AS input_hash_algorithm,
+    input_identity_hash.hash_scope_version AS input_hash_scope_version,
+    list_count(input_identity_hash.hash_scope) AS input_hash_scope_count,
+    input_identity_hash.audit_envelope_excluded AS input_audit_envelope_excluded,
+    result_population_identity_hash.hash AS result_hash,
+    result_population_identity_hash.hash_algorithm AS result_hash_algorithm,
+    result_population_identity_hash.hash_scope_version AS result_hash_scope_version,
+    list_count(result_population_identity_hash.hash_scope) AS result_hash_scope_count,
+    result_population_identity_hash.audit_envelope_excluded AS result_audit_envelope_excluded,
+    audit_envelope.excluded_from_input_identity_hash AS audit_excluded_from_input_identity_hash,
+    audit_envelope.excluded_from_result_population_identity_hash AS audit_excluded_from_result_identity_hash,
+    audit_envelope.administrative_only AS audit_administrative_only,
+    audit_envelope.may_contain_scientific_content AS audit_may_contain_scientific_content
+FROM result_populations;
+
+-- What append-only ledger posture is recorded?
+CREATE OR REPLACE VIEW v_result_population_append_only_ledger AS
+SELECT
+    result_population_id,
+    append_only_ledger.ledger_required AS ledger_required,
+    append_only_ledger.append_only AS append_only,
+    append_only_ledger.post_commit_in_place_mutation_forbidden AS post_commit_in_place_mutation_forbidden,
+    append_only_ledger.scientific_identity_mutation_forbidden_after_finalization AS scientific_identity_mutation_forbidden_after_finalization,
+    append_only_ledger.corrections_require_append_only_event AS corrections_require_append_only_event,
+    append_only_ledger.supersession_preserves_prior_result_population AS supersession_preserves_prior_result_population,
+    append_only_ledger.creation_event_ref AS creation_event_ref,
+    list_count(append_only_ledger.events) AS event_count
+FROM result_populations;
+
+-- Which append-only ledger events are recorded?
+CREATE OR REPLACE VIEW v_result_population_ledger_events AS
+SELECT
+    r.result_population_id,
+    event.event_id,
+    event.event_type,
+    event.event_timestamp,
+    event.actor_or_tool,
+    list_count(event.related_artifact_refs) AS related_artifact_ref_count,
+    list_count(event.notes) AS note_count
+FROM result_populations AS r,
+UNNEST(r.append_only_ledger.events) AS events(event);
+
+-- What non-authority declarations are visible?
+CREATE OR REPLACE VIEW v_result_population_non_authority AS
+SELECT
+    result_population_id,
+    non_authority_declaration.not_executable AS not_executable,
+    non_authority_declaration.not_runner_authority AS not_runner_authority,
+    non_authority_declaration.not_sweep_authority AS not_sweep_authority,
+    non_authority_declaration.not_result_authority AS not_result_authority,
+    non_authority_declaration.not_ranking_authority AS not_ranking_authority,
+    non_authority_declaration.not_recommendation_authority AS not_recommendation_authority,
+    non_authority_declaration.not_readiness_authority AS not_readiness_authority,
+    non_authority_declaration.not_transition_authority AS not_transition_authority,
+    non_authority_declaration.not_runtime_authority AS not_runtime_authority,
+    non_authority_declaration.not_paper_live_authority AS not_paper_live_authority,
+    non_authority_declaration.not_gate_authority AS not_gate_authority,
+    non_authority_declaration.not_canonical_evidence_replacement AS not_canonical_evidence_replacement,
+    non_authority_declaration.canonical_evidence_relationship AS canonical_evidence_relationship,
+    review.non_authority_acknowledgement.not_approval AS review_not_approval,
+    review.non_authority_acknowledgement.not_recommendation AS review_not_recommendation,
+    review.non_authority_acknowledgement.not_readiness AS review_not_readiness,
+    review.non_authority_acknowledgement.not_transition AS review_not_transition,
+    review.non_authority_acknowledgement.not_gate_satisfaction AS review_not_gate_satisfaction,
+    review.non_authority_acknowledgement.not_runtime_authority AS review_not_runtime_authority,
+    review.non_authority_acknowledgement.not_paper_live_authority AS review_not_paper_live_authority
+FROM result_populations;
+
+-- What offline execution-context metadata is recorded?
+CREATE OR REPLACE VIEW v_result_population_execution_context AS
+SELECT
+    result_population_id,
+    execution_context.runner_id AS runner_id,
+    execution_context.runner_version AS runner_version,
+    execution_context.runner_code_ref AS runner_code_ref,
+    execution_context.repo_commit AS repo_commit,
+    execution_context.determinism_seed AS determinism_seed,
+    execution_context.execution_mode AS execution_mode,
+    execution_context.offline_only AS offline_only,
+    execution_context.no_runtime_contact AS no_runtime_contact,
+    execution_context.no_paper_live_contact AS no_paper_live_contact,
+    execution_context.no_broker_exchange_order_contact AS no_broker_exchange_order_contact,
+    execution_context.no_protected_path_contact AS no_protected_path_contact,
+    list_count(execution_context.environment_summary) AS environment_summary_count,
+    list_count(execution_context.dependency_summary) AS dependency_summary_count
+FROM result_populations;
+
+-- Do Result Populations preserve denominator equality and anti-denominator-shrink flags?
+CREATE OR REPLACE VIEW v_integrity_result_population_denominator_mismatch AS
+SELECT
+    'result_population_denominator_mismatch' AS issue_type,
+    result_population_id,
+    source_field,
+    expected_value,
+    actual_value
+FROM (
+    SELECT result_population_id, 'committed_denominator_snapshot.denominator_basis' AS source_field, 'committed_pre_registered_population_count' AS expected_value, CAST(committed_denominator_snapshot.denominator_basis AS VARCHAR) AS actual_value FROM result_populations WHERE committed_denominator_snapshot.denominator_basis IS DISTINCT FROM 'committed_pre_registered_population_count'
+    UNION ALL
+    SELECT result_population_id, 'committed_denominator_snapshot.parent_manifest_committed_population_count', CAST(committed_denominator_snapshot.committed_denominator AS VARCHAR), CAST(committed_denominator_snapshot.parent_manifest_committed_population_count AS VARCHAR) FROM result_populations WHERE committed_denominator_snapshot.parent_manifest_committed_population_count IS DISTINCT FROM committed_denominator_snapshot.committed_denominator
+    UNION ALL
+    SELECT result_population_id, 'committed_denominator_snapshot.parent_sweep_plan_committed_population_count', CAST(committed_denominator_snapshot.committed_denominator AS VARCHAR), CAST(committed_denominator_snapshot.parent_sweep_plan_committed_population_count AS VARCHAR) FROM result_populations WHERE committed_denominator_snapshot.parent_sweep_plan_committed_population_count IS DISTINCT FROM committed_denominator_snapshot.committed_denominator
+    UNION ALL
+    SELECT result_population_id, 'committed_denominator_snapshot.outcome_counts_sum', CAST(committed_denominator_snapshot.committed_denominator AS VARCHAR), CAST(committed_denominator_snapshot.outcome_counts_sum AS VARCHAR) FROM result_populations WHERE committed_denominator_snapshot.outcome_counts_sum IS DISTINCT FROM committed_denominator_snapshot.committed_denominator
+    UNION ALL
+    SELECT result_population_id, 'committed_denominator_snapshot.result_row_count', CAST(committed_denominator_snapshot.committed_denominator AS VARCHAR), CAST(committed_denominator_snapshot.result_row_count AS VARCHAR) FROM result_populations WHERE committed_denominator_snapshot.result_row_count IS DISTINCT FROM committed_denominator_snapshot.committed_denominator
+    UNION ALL
+    SELECT result_population_id, 'parent_variant_manifest.committed_population_count', CAST(committed_denominator_snapshot.committed_denominator AS VARCHAR), CAST(parent_variant_manifest.committed_population_count AS VARCHAR) FROM result_populations WHERE parent_variant_manifest.committed_population_count IS DISTINCT FROM committed_denominator_snapshot.committed_denominator
+    UNION ALL
+    SELECT result_population_id, 'parent_sweep_plan.committed_population_count', CAST(committed_denominator_snapshot.committed_denominator AS VARCHAR), CAST(parent_sweep_plan.committed_population_count AS VARCHAR) FROM result_populations WHERE parent_sweep_plan.committed_population_count IS DISTINCT FROM committed_denominator_snapshot.committed_denominator
+    UNION ALL
+    SELECT result_population_id, 'committed_denominator_snapshot.executed_only_denominator_forbidden', 'true', CAST(committed_denominator_snapshot.executed_only_denominator_forbidden AS VARCHAR) FROM result_populations WHERE committed_denominator_snapshot.executed_only_denominator_forbidden IS DISTINCT FROM true
+    UNION ALL
+    SELECT result_population_id, 'committed_denominator_snapshot.successful_only_denominator_forbidden', 'true', CAST(committed_denominator_snapshot.successful_only_denominator_forbidden AS VARCHAR) FROM result_populations WHERE committed_denominator_snapshot.successful_only_denominator_forbidden IS DISTINCT FROM true
+    UNION ALL
+    SELECT result_population_id, 'committed_denominator_snapshot.winner_only_retention_forbidden', 'true', CAST(committed_denominator_snapshot.winner_only_retention_forbidden AS VARCHAR) FROM result_populations WHERE committed_denominator_snapshot.winner_only_retention_forbidden IS DISTINCT FROM true
+    UNION ALL
+    SELECT result_population_id, 'committed_denominator_snapshot.post_hoc_cleanup_forbidden', 'true', CAST(committed_denominator_snapshot.post_hoc_cleanup_forbidden AS VARCHAR) FROM result_populations WHERE committed_denominator_snapshot.post_hoc_cleanup_forbidden IS DISTINCT FROM true
+) AS issues;
+
+-- Do outcome counts reconcile to row outcomes and committed denominator?
+CREATE OR REPLACE VIEW v_integrity_result_population_outcome_count_mismatch AS
+WITH row_counts AS (
+    SELECT
+        r.result_population_id,
+        SUM(CASE WHEN row.outcome_category = 'successful' THEN 1 ELSE 0 END) AS successful,
+        SUM(CASE WHEN row.outcome_category = 'failed' THEN 1 ELSE 0 END) AS failed,
+        SUM(CASE WHEN row.outcome_category = 'invalid' THEN 1 ELSE 0 END) AS invalid,
+        SUM(CASE WHEN row.outcome_category = 'excluded' THEN 1 ELSE 0 END) AS excluded,
+        SUM(CASE WHEN row.outcome_category = 'errored' THEN 1 ELSE 0 END) AS errored,
+        SUM(CASE WHEN row.outcome_category = 'aborted' THEN 1 ELSE 0 END) AS aborted,
+        SUM(CASE WHEN row.outcome_category = 'filtered' THEN 1 ELSE 0 END) AS filtered,
+        SUM(CASE WHEN row.outcome_category = 'data_unavailable' THEN 1 ELSE 0 END) AS data_unavailable,
+        SUM(CASE WHEN row.outcome_category = 'not_attempted' THEN 1 ELSE 0 END) AS not_attempted,
+        COUNT(*) AS row_count
+    FROM result_populations AS r,
+    UNNEST(r.variant_result_rows) AS rows(row)
+    GROUP BY r.result_population_id
+)
+SELECT
+    'result_population_outcome_count_mismatch' AS issue_type,
+    r.result_population_id,
+    source_field,
+    expected_value,
+    actual_value
+FROM result_populations AS r
+LEFT JOIN row_counts AS c
+  ON r.result_population_id = c.result_population_id,
+LATERAL (
+    SELECT 'outcome_category_counts.successful' AS source_field, CAST(COALESCE(c.successful, 0) AS VARCHAR) AS expected_value, CAST(r.outcome_category_counts.successful AS VARCHAR) AS actual_value WHERE r.outcome_category_counts.successful IS DISTINCT FROM COALESCE(c.successful, 0)
+    UNION ALL
+    SELECT 'outcome_category_counts.failed', CAST(COALESCE(c.failed, 0) AS VARCHAR), CAST(r.outcome_category_counts.failed AS VARCHAR) WHERE r.outcome_category_counts.failed IS DISTINCT FROM COALESCE(c.failed, 0)
+    UNION ALL
+    SELECT 'outcome_category_counts.invalid', CAST(COALESCE(c.invalid, 0) AS VARCHAR), CAST(r.outcome_category_counts.invalid AS VARCHAR) WHERE r.outcome_category_counts.invalid IS DISTINCT FROM COALESCE(c.invalid, 0)
+    UNION ALL
+    SELECT 'outcome_category_counts.excluded', CAST(COALESCE(c.excluded, 0) AS VARCHAR), CAST(r.outcome_category_counts.excluded AS VARCHAR) WHERE r.outcome_category_counts.excluded IS DISTINCT FROM COALESCE(c.excluded, 0)
+    UNION ALL
+    SELECT 'outcome_category_counts.errored', CAST(COALESCE(c.errored, 0) AS VARCHAR), CAST(r.outcome_category_counts.errored AS VARCHAR) WHERE r.outcome_category_counts.errored IS DISTINCT FROM COALESCE(c.errored, 0)
+    UNION ALL
+    SELECT 'outcome_category_counts.aborted', CAST(COALESCE(c.aborted, 0) AS VARCHAR), CAST(r.outcome_category_counts.aborted AS VARCHAR) WHERE r.outcome_category_counts.aborted IS DISTINCT FROM COALESCE(c.aborted, 0)
+    UNION ALL
+    SELECT 'outcome_category_counts.filtered', CAST(COALESCE(c.filtered, 0) AS VARCHAR), CAST(r.outcome_category_counts.filtered AS VARCHAR) WHERE r.outcome_category_counts.filtered IS DISTINCT FROM COALESCE(c.filtered, 0)
+    UNION ALL
+    SELECT 'outcome_category_counts.data_unavailable', CAST(COALESCE(c.data_unavailable, 0) AS VARCHAR), CAST(r.outcome_category_counts.data_unavailable AS VARCHAR) WHERE r.outcome_category_counts.data_unavailable IS DISTINCT FROM COALESCE(c.data_unavailable, 0)
+    UNION ALL
+    SELECT 'outcome_category_counts.not_attempted', CAST(COALESCE(c.not_attempted, 0) AS VARCHAR), CAST(r.outcome_category_counts.not_attempted AS VARCHAR) WHERE r.outcome_category_counts.not_attempted IS DISTINCT FROM COALESCE(c.not_attempted, 0)
+    UNION ALL
+    SELECT 'outcome_category_counts.counts_sum', CAST(r.committed_denominator_snapshot.committed_denominator AS VARCHAR), CAST(r.outcome_category_counts.counts_sum AS VARCHAR) WHERE r.outcome_category_counts.counts_sum IS DISTINCT FROM r.committed_denominator_snapshot.committed_denominator
+    UNION ALL
+    SELECT 'outcome_category_counts.counts_sum_equals_committed_denominator', 'true', CAST(r.outcome_category_counts.counts_sum_equals_committed_denominator AS VARCHAR) WHERE r.outcome_category_counts.counts_sum_equals_committed_denominator IS DISTINCT FROM true
+) AS issues;
+
+-- Are any committed variant result rows missing?
+CREATE OR REPLACE VIEW v_integrity_result_population_missing_variant_rows AS
+SELECT
+    'result_population_missing_variant_rows' AS issue_type,
+    result_population_id,
+    'variant_result_rows' AS source_field,
+    CAST(committed_denominator_snapshot.committed_denominator AS VARCHAR) AS expected_value,
+    CAST(list_count(variant_result_rows) AS VARCHAR) AS actual_value
+FROM result_populations
+WHERE list_count(variant_result_rows) IS DISTINCT FROM committed_denominator_snapshot.committed_denominator;
+
+-- Are row outcome categories inside the closed enum?
+CREATE OR REPLACE VIEW v_integrity_result_population_unknown_outcome_category AS
+SELECT
+    'result_population_unknown_outcome_category' AS issue_type,
+    r.result_population_id,
+    row.row_id,
+    row.variant_id,
+    row.outcome_category
+FROM result_populations AS r,
+UNNEST(r.variant_result_rows) AS rows(row)
+WHERE row.outcome_category NOT IN (
+    'successful',
+    'failed',
+    'invalid',
+    'excluded',
+    'errored',
+    'aborted',
+    'filtered',
+    'data_unavailable',
+    'not_attempted'
+);
+
+-- Does any identity-hash scope include the audit envelope?
+CREATE OR REPLACE VIEW v_integrity_result_population_audit_in_identity_scope AS
+WITH input_scope AS (
+    SELECT result_population_id, 'input_identity_hash.hash_scope' AS source_field, CAST(scope_item AS VARCHAR) AS scope_item
+    FROM result_populations,
+    UNNEST(input_identity_hash.hash_scope) AS scope(scope_item)
+),
+result_scope AS (
+    SELECT result_population_id, 'result_population_identity_hash.hash_scope' AS source_field, CAST(scope_item AS VARCHAR) AS scope_item
+    FROM result_populations,
+    UNNEST(result_population_identity_hash.hash_scope) AS scope(scope_item)
+)
+SELECT
+    'result_population_audit_in_identity_scope' AS issue_type,
+    result_population_id,
+    source_field,
+    scope_item
+FROM (
+    SELECT * FROM input_scope
+    UNION ALL
+    SELECT * FROM result_scope
+) AS scopes
+WHERE scope_item = 'audit_envelope'
+   OR starts_with(scope_item, 'audit_envelope.');
+
+-- Do Result Populations preserve visible non-authority flags?
+CREATE OR REPLACE VIEW v_integrity_result_population_non_authority_violation AS
+SELECT
+    'result_population_non_authority_violation' AS issue_type,
+    result_population_id,
+    source_field,
+    expected_value,
+    actual_value
+FROM (
+    SELECT result_population_id, 'non_authority_declaration.not_executable' AS source_field, 'true' AS expected_value, CAST(non_authority_declaration.not_executable AS VARCHAR) AS actual_value FROM result_populations WHERE non_authority_declaration.not_executable IS DISTINCT FROM true
+    UNION ALL
+    SELECT result_population_id, 'non_authority_declaration.not_runner_authority', 'true', CAST(non_authority_declaration.not_runner_authority AS VARCHAR) FROM result_populations WHERE non_authority_declaration.not_runner_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT result_population_id, 'non_authority_declaration.not_sweep_authority', 'true', CAST(non_authority_declaration.not_sweep_authority AS VARCHAR) FROM result_populations WHERE non_authority_declaration.not_sweep_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT result_population_id, 'non_authority_declaration.not_result_authority', 'true', CAST(non_authority_declaration.not_result_authority AS VARCHAR) FROM result_populations WHERE non_authority_declaration.not_result_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT result_population_id, 'non_authority_declaration.not_ranking_authority', 'true', CAST(non_authority_declaration.not_ranking_authority AS VARCHAR) FROM result_populations WHERE non_authority_declaration.not_ranking_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT result_population_id, 'non_authority_declaration.not_recommendation_authority', 'true', CAST(non_authority_declaration.not_recommendation_authority AS VARCHAR) FROM result_populations WHERE non_authority_declaration.not_recommendation_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT result_population_id, 'non_authority_declaration.not_readiness_authority', 'true', CAST(non_authority_declaration.not_readiness_authority AS VARCHAR) FROM result_populations WHERE non_authority_declaration.not_readiness_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT result_population_id, 'non_authority_declaration.not_transition_authority', 'true', CAST(non_authority_declaration.not_transition_authority AS VARCHAR) FROM result_populations WHERE non_authority_declaration.not_transition_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT result_population_id, 'non_authority_declaration.not_runtime_authority', 'true', CAST(non_authority_declaration.not_runtime_authority AS VARCHAR) FROM result_populations WHERE non_authority_declaration.not_runtime_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT result_population_id, 'non_authority_declaration.not_paper_live_authority', 'true', CAST(non_authority_declaration.not_paper_live_authority AS VARCHAR) FROM result_populations WHERE non_authority_declaration.not_paper_live_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT result_population_id, 'non_authority_declaration.not_gate_authority', 'true', CAST(non_authority_declaration.not_gate_authority AS VARCHAR) FROM result_populations WHERE non_authority_declaration.not_gate_authority IS DISTINCT FROM true
+    UNION ALL
+    SELECT result_population_id, 'non_authority_declaration.canonical_evidence_relationship', 'reference_only', CAST(non_authority_declaration.canonical_evidence_relationship AS VARCHAR) FROM result_populations WHERE non_authority_declaration.canonical_evidence_relationship IS DISTINCT FROM 'reference_only'
+    UNION ALL
+    SELECT result_population_id, 'review.non_authority_acknowledgement.not_approval', 'true', CAST(review.non_authority_acknowledgement.not_approval AS VARCHAR) FROM result_populations WHERE review.non_authority_acknowledgement.not_approval IS DISTINCT FROM true
+    UNION ALL
+    SELECT result_population_id, 'review.non_authority_acknowledgement.not_recommendation', 'true', CAST(review.non_authority_acknowledgement.not_recommendation AS VARCHAR) FROM result_populations WHERE review.non_authority_acknowledgement.not_recommendation IS DISTINCT FROM true
+    UNION ALL
+    SELECT result_population_id, 'review.non_authority_acknowledgement.not_readiness', 'true', CAST(review.non_authority_acknowledgement.not_readiness AS VARCHAR) FROM result_populations WHERE review.non_authority_acknowledgement.not_readiness IS DISTINCT FROM true
+    UNION ALL
+    SELECT result_population_id, 'review.non_authority_acknowledgement.not_transition', 'true', CAST(review.non_authority_acknowledgement.not_transition AS VARCHAR) FROM result_populations WHERE review.non_authority_acknowledgement.not_transition IS DISTINCT FROM true
+    UNION ALL
+    SELECT result_population_id, 'review.non_authority_acknowledgement.not_gate_satisfaction', 'true', CAST(review.non_authority_acknowledgement.not_gate_satisfaction AS VARCHAR) FROM result_populations WHERE review.non_authority_acknowledgement.not_gate_satisfaction IS DISTINCT FROM true
+) AS issues;
+
+-- Do Result Populations keep canonical evidence as reference-only?
+CREATE OR REPLACE VIEW v_integrity_result_population_canonical_evidence_violation AS
+SELECT
+    'result_population_canonical_evidence_violation' AS issue_type,
+    result_population_id,
+    'non_authority_declaration.canonical_evidence_relationship' AS source_field,
+    'reference_only' AS expected_value,
+    CAST(non_authority_declaration.canonical_evidence_relationship AS VARCHAR) AS actual_value
+FROM result_populations
+WHERE non_authority_declaration.canonical_evidence_relationship IS DISTINCT FROM 'reference_only'
+   OR non_authority_declaration.not_canonical_evidence_replacement IS DISTINCT FROM true;
+
+-- Do Result Populations preserve append-only ledger flags and events?
+CREATE OR REPLACE VIEW v_integrity_result_population_append_only_violation AS
+SELECT
+    'result_population_append_only_violation' AS issue_type,
+    result_population_id,
+    source_field,
+    expected_value,
+    actual_value
+FROM (
+    SELECT result_population_id, 'append_only_ledger.ledger_required' AS source_field, 'true' AS expected_value, CAST(append_only_ledger.ledger_required AS VARCHAR) AS actual_value FROM result_populations WHERE append_only_ledger.ledger_required IS DISTINCT FROM true
+    UNION ALL
+    SELECT result_population_id, 'append_only_ledger.append_only', 'true', CAST(append_only_ledger.append_only AS VARCHAR) FROM result_populations WHERE append_only_ledger.append_only IS DISTINCT FROM true
+    UNION ALL
+    SELECT result_population_id, 'append_only_ledger.post_commit_in_place_mutation_forbidden', 'true', CAST(append_only_ledger.post_commit_in_place_mutation_forbidden AS VARCHAR) FROM result_populations WHERE append_only_ledger.post_commit_in_place_mutation_forbidden IS DISTINCT FROM true
+    UNION ALL
+    SELECT result_population_id, 'append_only_ledger.scientific_identity_mutation_forbidden_after_finalization', 'true', CAST(append_only_ledger.scientific_identity_mutation_forbidden_after_finalization AS VARCHAR) FROM result_populations WHERE append_only_ledger.scientific_identity_mutation_forbidden_after_finalization IS DISTINCT FROM true
+    UNION ALL
+    SELECT result_population_id, 'append_only_ledger.corrections_require_append_only_event', 'true', CAST(append_only_ledger.corrections_require_append_only_event AS VARCHAR) FROM result_populations WHERE append_only_ledger.corrections_require_append_only_event IS DISTINCT FROM true
+    UNION ALL
+    SELECT result_population_id, 'append_only_ledger.supersession_preserves_prior_result_population', 'true', CAST(append_only_ledger.supersession_preserves_prior_result_population AS VARCHAR) FROM result_populations WHERE append_only_ledger.supersession_preserves_prior_result_population IS DISTINCT FROM true
+    UNION ALL
+    SELECT result_population_id, 'append_only_ledger.events', 'created event present', CAST(list_count(append_only_ledger.events) AS VARCHAR) FROM result_populations WHERE NOT list_contains(list_transform(append_only_ledger.events, event -> event.event_type), 'created')
+) AS issues;
+
+-- Does execution context stay offline and avoid protected-boundary contact?
+CREATE OR REPLACE VIEW v_integrity_result_population_offline_boundary_violation AS
+SELECT
+    'result_population_offline_boundary_violation' AS issue_type,
+    result_population_id,
+    source_field,
+    expected_value,
+    actual_value
+FROM (
+    SELECT result_population_id, 'execution_context.execution_mode' AS source_field, 'offline_research' AS expected_value, CAST(execution_context.execution_mode AS VARCHAR) AS actual_value FROM result_populations WHERE execution_context.execution_mode IS DISTINCT FROM 'offline_research'
+    UNION ALL
+    SELECT result_population_id, 'execution_context.offline_only', 'true', CAST(execution_context.offline_only AS VARCHAR) FROM result_populations WHERE execution_context.offline_only IS DISTINCT FROM true
+    UNION ALL
+    SELECT result_population_id, 'execution_context.no_runtime_contact', 'true', CAST(execution_context.no_runtime_contact AS VARCHAR) FROM result_populations WHERE execution_context.no_runtime_contact IS DISTINCT FROM true
+    UNION ALL
+    SELECT result_population_id, 'execution_context.no_paper_live_contact', 'true', CAST(execution_context.no_paper_live_contact AS VARCHAR) FROM result_populations WHERE execution_context.no_paper_live_contact IS DISTINCT FROM true
+    UNION ALL
+    SELECT result_population_id, 'execution_context.no_broker_exchange_order_contact', 'true', CAST(execution_context.no_broker_exchange_order_contact AS VARCHAR) FROM result_populations WHERE execution_context.no_broker_exchange_order_contact IS DISTINCT FROM true
+    UNION ALL
+    SELECT result_population_id, 'execution_context.no_protected_path_contact', 'true', CAST(execution_context.no_protected_path_contact AS VARCHAR) FROM result_populations WHERE execution_context.no_protected_path_contact IS DISTINCT FROM true
+) AS issues;
+
+-- Does any Result Population indicate canonical repo output?
+CREATE OR REPLACE VIEW v_integrity_result_population_canonical_write_violation AS
+SELECT
+    'result_population_canonical_write_violation' AS issue_type,
+    result_population_id,
+    'payload_text' AS source_field,
+    'no canonical research/result_populations output reference' AS expected_value,
+    'canonical reference present' AS actual_value
+FROM result_populations AS rp
+WHERE contains(lower(CAST(to_json(rp) AS VARCHAR)), 'research/result_populations')
+   OR contains(lower(CAST(to_json(rp) AS VARCHAR)), 'canonical_result_population')
+   OR contains(lower(CAST(to_json(rp) AS VARCHAR)), 'canonical sweep');
+
+-- Does any Result Population carry executable or authority-like key/value markers?
+CREATE OR REPLACE VIEW v_integrity_result_population_authority_key_violation AS
+SELECT
+    'result_population_authority_key_violation' AS issue_type,
+    result_population_id,
+    token AS source_field,
+    'absent' AS expected_value,
+    'present' AS actual_value
+FROM result_populations AS rp,
+(VALUES
+    ('approval_action'),
+    ('ranking_score'),
+    ('readiness_update'),
+    ('transition_trigger'),
+    ('runtime_action'),
+    ('paper_action'),
+    ('live_action'),
+    ('order_instruction'),
+    ('broker_instruction'),
+    ('exchange_instruction'),
+    ('gate_action'),
+    ('runner_command'),
+    ('sweep_execution'),
+    ('result_computation'),
+    ('canonical_sweep_run')
+) AS forbidden(token)
+WHERE contains(lower(CAST(to_json(rp) AS VARCHAR)), token);
+
+-- Do recorded parent hash-chain fields agree internally?
+CREATE OR REPLACE VIEW v_integrity_result_population_parent_hash_chain_mismatch AS
+SELECT
+    'result_population_parent_hash_chain_mismatch' AS issue_type,
+    result_population_id,
+    source_field,
+    expected_value,
+    actual_value
+FROM (
+    SELECT result_population_id, 'lineage.parent_hash_chain.strategy_spec_hash' AS source_field, CAST(parent_strategy_spec.strategy_spec_hash AS VARCHAR) AS expected_value, CAST(lineage.parent_hash_chain.strategy_spec_hash AS VARCHAR) AS actual_value FROM result_populations WHERE lineage.parent_hash_chain.strategy_spec_hash IS DISTINCT FROM parent_strategy_spec.strategy_spec_hash
+    UNION ALL
+    SELECT result_population_id, 'lineage.parent_hash_chain.variant_manifest_hash', CAST(parent_variant_manifest.manifest_hash AS VARCHAR), CAST(lineage.parent_hash_chain.variant_manifest_hash AS VARCHAR) FROM result_populations WHERE lineage.parent_hash_chain.variant_manifest_hash IS DISTINCT FROM parent_variant_manifest.manifest_hash
+    UNION ALL
+    SELECT result_population_id, 'lineage.parent_hash_chain.sweep_plan_identity_hash', CAST(parent_sweep_plan.sweep_plan_identity_hash AS VARCHAR), CAST(lineage.parent_hash_chain.sweep_plan_identity_hash AS VARCHAR) FROM result_populations WHERE lineage.parent_hash_chain.sweep_plan_identity_hash IS DISTINCT FROM parent_sweep_plan.sweep_plan_identity_hash
+    UNION ALL
+    SELECT result_population_id, 'lineage.parent_hash_chain.input_identity_hash', CAST(input_identity_hash.hash AS VARCHAR), CAST(lineage.parent_hash_chain.input_identity_hash AS VARCHAR) FROM result_populations WHERE lineage.parent_hash_chain.input_identity_hash IS DISTINCT FROM input_identity_hash.hash
+    UNION ALL
+    SELECT result_population_id, 'parent_sweep_plan.manifest_hash', CAST(parent_variant_manifest.manifest_hash AS VARCHAR), CAST(parent_sweep_plan.manifest_hash AS VARCHAR) FROM result_populations WHERE parent_sweep_plan.manifest_hash IS DISTINCT FROM parent_variant_manifest.manifest_hash
+    UNION ALL
+    SELECT result_population_id, 'parent_sweep_plan.manifest_id', CAST(parent_variant_manifest.variant_manifest_id AS VARCHAR), CAST(parent_sweep_plan.manifest_id AS VARCHAR) FROM result_populations WHERE parent_sweep_plan.manifest_id IS DISTINCT FROM parent_variant_manifest.variant_manifest_id
+) AS issues;

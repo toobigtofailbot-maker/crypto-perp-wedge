@@ -556,6 +556,39 @@ def test_missing_required_schema_field_fails(tmp_path):
     assert any("review" in error for error in _validate(tmp_path))
 
 
+def test_missing_nested_committed_population_count_returns_errors_without_raising(tmp_path):
+    _, manifest, _, _, variant_manifests_dir, _ = _write_valid_fixture(tmp_path)
+    del manifest["population_governance"]["declared_population"]["committed_population_count"]
+    _write_json(variant_manifests_dir / "VM-0001.variant_manifest.json", manifest)
+
+    errors = _validate(tmp_path)
+
+    assert errors
+    assert any("committed_population_count" in error for error in errors)
+
+
+def test_missing_nested_population_cap_returns_errors_without_raising(tmp_path):
+    _, manifest, _, _, variant_manifests_dir, _ = _write_valid_fixture(tmp_path)
+    del manifest["population_governance"]["population_cap"]["max_variants"]
+    _write_json(variant_manifests_dir / "VM-0001.variant_manifest.json", manifest)
+
+    errors = _validate(tmp_path)
+
+    assert errors
+    assert any("max_variants" in error for error in errors)
+
+
+def test_missing_nested_sweep_committed_population_count_returns_errors_without_raising(tmp_path):
+    _, _, sweep, _, _, sweep_plans_dir = _write_valid_fixture(tmp_path)
+    del sweep["trial_accounting"]["committed_population_count"]
+    _write_json(sweep_plans_dir / "SWEEP-PLAN-0001.sweep_plan.json", sweep)
+
+    errors = _validate(tmp_path)
+
+    assert errors
+    assert any("committed_population_count" in error for error in errors)
+
+
 def test_manifest_filename_id_mismatch_fails(tmp_path):
     _, manifest, _, _, variant_manifests_dir, _ = _write_valid_fixture(tmp_path)
     (variant_manifests_dir / "VM-0001.variant_manifest.json").unlink()
@@ -635,7 +668,10 @@ def test_supersession_after_associated_results_fails_for_manifest(tmp_path):
     }
     _write_json(variant_manifests_dir / "VM-0001.variant_manifest.json", manifest)
 
-    assert any("associated results" in error for error in _validate(tmp_path))
+    errors = _validate(tmp_path)
+
+    assert errors
+    assert any("amendment_mode" in error for error in errors)
 
 
 def test_supersession_after_associated_results_fails_for_sweep_plan(tmp_path):
@@ -651,7 +687,10 @@ def test_supersession_after_associated_results_fails_for_sweep_plan(tmp_path):
     }
     _write_json(sweep_plans_dir / "SWEEP-PLAN-0001.sweep_plan.json", sweep)
 
-    assert any("associated results" in error for error in _validate(tmp_path))
+    errors = _validate(tmp_path)
+
+    assert errors
+    assert any("amendment_mode" in error for error in errors)
 
 
 def test_supersession_without_append_only_lineage_or_reason_fails(tmp_path):
@@ -809,7 +848,10 @@ def test_forbidden_executable_key_fails(tmp_path):
     manifest["code"] = "print('unsafe')"
     _write_json(variant_manifests_dir / "VM-0001.variant_manifest.json", manifest)
 
-    assert any("forbidden executable key name" in error for error in _validate(tmp_path))
+    errors = _validate(tmp_path)
+
+    assert errors
+    assert any("Additional properties are not allowed" in error for error in errors)
 
 
 def test_non_authority_flag_false_fails(tmp_path):

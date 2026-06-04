@@ -888,6 +888,8 @@ def validate_variant_sweep_artifacts(
         errors.extend(file_errors)
         if payload is None:
             continue
+        if file_errors:
+            continue
 
         variant_manifest_id = payload.get("variant_manifest_id")
         if isinstance(variant_manifest_id, str):
@@ -919,6 +921,8 @@ def validate_variant_sweep_artifacts(
         payload, file_errors = _validate_json_file(path, sweep_validator)
         errors.extend(file_errors)
         if payload is None:
+            continue
+        if file_errors:
             continue
 
         sweep_plan_id = payload.get("sweep_plan_id")

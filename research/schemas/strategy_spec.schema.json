@@ -1,0 +1,1091 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crypto-perp-wedge.local/research/schemas/strategy_spec.schema.json",
+  "title": "Strategy Spec",
+  "description": "Non-executing Strategy Spec artifact shape for human-review planning only. This schema grants no parser, compiler, runtime, paper/live, recommendation, ranking, approval, readiness, transition, or human-gate execution authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "strategy_spec_id",
+    "title",
+    "status",
+    "non_execution_declaration",
+    "provenance",
+    "instruments",
+    "timeframe_and_data",
+    "entry_logic",
+    "exit_logic",
+    "risk_model",
+    "filters",
+    "free_parameters",
+    "constraints",
+    "review",
+    "lineage",
+    "hash_pinning",
+    "pre_registration_support",
+    "backtest_realism_assumptions",
+    "max_condition_group_depth"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "v1"
+    },
+    "strategy_spec_id": {
+      "type": "string",
+      "pattern": "^STRAT-SPEC-[0-9]{4}$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "short_name": {
+      "type": ["string", "null"],
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "review_requested",
+        "approved_for_variant_planning",
+        "rejected",
+        "superseded"
+      ]
+    },
+    "non_execution_declaration": {
+      "$ref": "#/definitions/non_execution_declaration"
+    },
+    "provenance": {
+      "$ref": "#/definitions/provenance"
+    },
+    "instruments": {
+      "$ref": "#/definitions/instruments"
+    },
+    "timeframe_and_data": {
+      "$ref": "#/definitions/timeframe_and_data"
+    },
+    "entry_logic": {
+      "$ref": "#/definitions/entry_logic"
+    },
+    "exit_logic": {
+      "$ref": "#/definitions/exit_logic"
+    },
+    "risk_model": {
+      "$ref": "#/definitions/risk_model"
+    },
+    "filters": {
+      "$ref": "#/definitions/filters"
+    },
+    "free_parameters": {
+      "$ref": "#/definitions/free_parameters"
+    },
+    "constraints": {
+      "$ref": "#/definitions/constraints"
+    },
+    "review": {
+      "$ref": "#/definitions/review"
+    },
+    "lineage": {
+      "$ref": "#/definitions/lineage"
+    },
+    "hash_pinning": {
+      "$ref": "#/definitions/hash_pinning"
+    },
+    "pre_registration_support": {
+      "$ref": "#/definitions/pre_registration_support"
+    },
+    "backtest_realism_assumptions": {
+      "$ref": "#/definitions/backtest_realism_assumptions"
+    },
+    "max_condition_group_depth": {
+      "description": "Schema-enforced maximum condition-group depth.",
+      "type": "integer",
+      "const": 3
+    }
+  },
+  "definitions": {
+    "non_empty_string": {
+      "type": "string",
+      "minLength": 1
+    },
+    "nullable_string": {
+      "type": ["string", "null"]
+    },
+    "date_time_or_null": {
+      "type": ["string", "null"],
+      "format": "date-time"
+    },
+    "string_array": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "non_empty_string_array": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/non_empty_string"
+      },
+      "uniqueItems": true
+    },
+    "non_execution_declaration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "human_review_surface_only",
+        "not_executable",
+        "not_runtime_authority",
+        "not_paper_live_authority",
+        "not_gate_authority",
+        "not_candidate_approval",
+        "not_exp_approval",
+        "not_sweep_authority",
+        "not_ranking_authority",
+        "not_recommendation_authority",
+        "not_readiness_authority",
+        "not_transition_authority"
+      ],
+      "properties": {
+        "human_review_surface_only": { "type": "boolean", "const": true },
+        "not_executable": { "type": "boolean", "const": true },
+        "not_runtime_authority": { "type": "boolean", "const": true },
+        "not_paper_live_authority": { "type": "boolean", "const": true },
+        "not_gate_authority": { "type": "boolean", "const": true },
+        "not_candidate_approval": { "type": "boolean", "const": true },
+        "not_exp_approval": { "type": "boolean", "const": true },
+        "not_sweep_authority": { "type": "boolean", "const": true },
+        "not_ranking_authority": { "type": "boolean", "const": true },
+        "not_recommendation_authority": { "type": "boolean", "const": true },
+        "not_readiness_authority": { "type": "boolean", "const": true },
+        "not_transition_authority": { "type": "boolean", "const": true }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_type",
+        "source_refs",
+        "prepared_by",
+        "created_at",
+        "updated_at",
+        "rationale",
+        "source_constraints",
+        "unresolved_claims"
+      ],
+      "properties": {
+        "source_type": {
+          "type": "string",
+          "enum": ["manual_idea", "research_note", "prior_spec", "external_source", "other"]
+        },
+        "source_refs": {
+          "$ref": "#/definitions/non_empty_string_array"
+        },
+        "prepared_by": {
+          "$ref": "#/definitions/nullable_string"
+        },
+        "created_at": {
+          "$ref": "#/definitions/date_time_or_null"
+        },
+        "updated_at": {
+          "$ref": "#/definitions/date_time_or_null"
+        },
+        "rationale": {
+          "$ref": "#/definitions/non_empty_string"
+        },
+        "source_constraints": {
+          "$ref": "#/definitions/string_array"
+        },
+        "unresolved_claims": {
+          "$ref": "#/definitions/string_array"
+        }
+      }
+    },
+    "instruments": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "symbols",
+        "instrument_family",
+        "venue_assumption",
+        "market_type",
+        "directions_allowed",
+        "leverage_assumption",
+        "exchange_constraint_refs",
+        "blockers"
+      ],
+      "properties": {
+        "symbols": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/non_empty_string"
+          },
+          "uniqueItems": true
+        },
+        "instrument_family": {
+          "type": "string",
+          "enum": ["crypto_perp", "spot", "futures", "other"]
+        },
+        "venue_assumption": {
+          "$ref": "#/definitions/nullable_string"
+        },
+        "market_type": {
+          "type": "string",
+          "enum": ["perpetual", "spot", "futures", "other"]
+        },
+        "directions_allowed": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "enum": ["long", "short"]
+          },
+          "uniqueItems": true
+        },
+        "leverage_assumption": {
+          "type": ["number", "null"],
+          "exclusiveMinimum": 0
+        },
+        "exchange_constraint_refs": {
+          "$ref": "#/definitions/string_array"
+        },
+        "blockers": {
+          "$ref": "#/definitions/string_array"
+        }
+      }
+    },
+    "timeframe_and_data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "primary_timeframe",
+        "confirmation_timeframes",
+        "host_data_refs",
+        "gap_handling_assumption",
+        "missing_data_blockers"
+      ],
+      "properties": {
+        "primary_timeframe": {
+          "$ref": "#/definitions/non_empty_string"
+        },
+        "confirmation_timeframes": {
+          "$ref": "#/definitions/string_array"
+        },
+        "host_data_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/host_data_ref"
+          }
+        },
+        "gap_handling_assumption": {
+          "$ref": "#/definitions/nullable_string"
+        },
+        "missing_data_blockers": {
+          "$ref": "#/definitions/string_array"
+        }
+      }
+    },
+    "host_data_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stream", "timeframe", "field", "availability"],
+      "properties": {
+        "stream": {
+          "type": "string",
+          "enum": ["ohlcv", "funding", "mark", "index", "premium", "indicator_catalog"]
+        },
+        "timeframe": {
+          "$ref": "#/definitions/nullable_string"
+        },
+        "field": {
+          "$ref": "#/definitions/non_empty_string"
+        },
+        "availability": {
+          "type": "string",
+          "enum": ["required", "optional", "blocker_if_missing"]
+        }
+      }
+    },
+    "operator": {
+      "type": "string",
+      "enum": [
+        "gt",
+        "gte",
+        "lt",
+        "lte",
+        "eq",
+        "neq",
+        "crosses_above",
+        "crosses_below",
+        "in_set",
+        "is_true",
+        "is_false"
+      ]
+    },
+    "lookback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bars"],
+      "properties": {
+        "bars": {
+          "type": ["integer", "null"],
+          "minimum": 1
+        }
+      }
+    },
+    "operand_ref": {
+      "anyOf": [
+        { "type": "string" },
+        { "type": "number" },
+        { "type": "boolean" },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "type": "string" },
+              { "type": "number" },
+              { "type": "boolean" },
+              { "type": "null" }
+            ]
+          }
+        },
+        { "type": "null" }
+      ]
+    },
+    "operand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["operand_type", "ref", "field", "timeframe", "lookback"],
+      "properties": {
+        "operand_type": {
+          "type": "string",
+          "enum": ["data_ref", "indicator_ref", "parameter_ref", "constant"]
+        },
+        "ref": {
+          "$ref": "#/definitions/operand_ref"
+        },
+        "field": {
+          "$ref": "#/definitions/nullable_string"
+        },
+        "timeframe": {
+          "$ref": "#/definitions/nullable_string"
+        },
+        "lookback": {
+          "anyOf": [
+            { "$ref": "#/definitions/lookback" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "condition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "condition_id",
+        "condition_role",
+        "left_operand",
+        "operator",
+        "right_operand",
+        "units",
+        "notes"
+      ],
+      "properties": {
+        "condition_id": {
+          "$ref": "#/definitions/non_empty_string"
+        },
+        "condition_role": {
+          "type": "string",
+          "enum": ["required", "confirming", "blocking", "exit", "invalidation", "filter"]
+        },
+        "left_operand": {
+          "$ref": "#/definitions/operand"
+        },
+        "operator": {
+          "$ref": "#/definitions/operator"
+        },
+        "right_operand": {
+          "$ref": "#/definitions/operand"
+        },
+        "units": {
+          "$ref": "#/definitions/nullable_string"
+        },
+        "notes": {
+          "$ref": "#/definitions/nullable_string"
+        }
+      }
+    },
+    "group_role": {
+      "type": "string",
+      "enum": [
+        "required",
+        "confirming",
+        "blocking",
+        "exit",
+        "invalidation",
+        "time_stop",
+        "risk_exit",
+        "regime",
+        "no_trade",
+        "cooldown",
+        "session",
+        "funding",
+        "volatility",
+        "other"
+      ]
+    },
+    "condition_group_depth_1": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["group_id", "group_role", "logic", "conditions", "subgroups", "notes"],
+      "properties": {
+        "group_id": {
+          "$ref": "#/definitions/non_empty_string"
+        },
+        "group_role": {
+          "$ref": "#/definitions/group_role"
+        },
+        "logic": {
+          "type": "string",
+          "enum": ["all", "any"]
+        },
+        "conditions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/condition"
+          }
+        },
+        "subgroups": {
+          "type": "array",
+          "maxItems": 0
+        },
+        "notes": {
+          "$ref": "#/definitions/nullable_string"
+        }
+      }
+    },
+    "condition_group_depth_2": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["group_id", "group_role", "logic", "conditions", "subgroups", "notes"],
+      "properties": {
+        "group_id": {
+          "$ref": "#/definitions/non_empty_string"
+        },
+        "group_role": {
+          "$ref": "#/definitions/group_role"
+        },
+        "logic": {
+          "type": "string",
+          "enum": ["all", "any"]
+        },
+        "conditions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/condition"
+          }
+        },
+        "subgroups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/condition_group_depth_1"
+          }
+        },
+        "notes": {
+          "$ref": "#/definitions/nullable_string"
+        }
+      }
+    },
+    "condition_group_depth_3": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["group_id", "group_role", "logic", "conditions", "subgroups", "notes"],
+      "properties": {
+        "group_id": {
+          "$ref": "#/definitions/non_empty_string"
+        },
+        "group_role": {
+          "$ref": "#/definitions/group_role"
+        },
+        "logic": {
+          "type": "string",
+          "enum": ["all", "any"]
+        },
+        "conditions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/condition"
+          }
+        },
+        "subgroups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/condition_group_depth_2"
+          }
+        },
+        "notes": {
+          "$ref": "#/definitions/nullable_string"
+        }
+      }
+    },
+    "entry_logic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["direction", "groups", "notes"],
+      "properties": {
+        "direction": {
+          "type": "string",
+          "enum": ["long", "short", "both"]
+        },
+        "groups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/condition_group_depth_3"
+          }
+        },
+        "notes": {
+          "$ref": "#/definitions/nullable_string"
+        }
+      }
+    },
+    "max_holding_period": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "bars"],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "bars": {
+          "type": ["integer", "null"],
+          "minimum": 1
+        }
+      }
+    },
+    "exit_logic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["groups", "max_holding_period", "notes"],
+      "properties": {
+        "groups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/condition_group_depth_3"
+          }
+        },
+        "max_holding_period": {
+          "$ref": "#/definitions/max_holding_period"
+        },
+        "notes": {
+          "$ref": "#/definitions/nullable_string"
+        }
+      }
+    },
+    "distance_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ref_type", "ref"],
+      "properties": {
+        "ref_type": {
+          "type": "string",
+          "enum": ["parameter_ref", "condition_ref", "review_note"]
+        },
+        "ref": {
+          "$ref": "#/definitions/non_empty_string"
+        }
+      }
+    },
+    "distance_value": {
+      "anyOf": [
+        { "type": "string" },
+        { "type": "number" },
+        { "$ref": "#/definitions/distance_ref" },
+        { "type": "null" }
+      ]
+    },
+    "risk_model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sizing_intent",
+        "exposure_limits",
+        "stop_distance",
+        "target_distance",
+        "leverage_visibility",
+        "liquidation_sensitivity_notes"
+      ],
+      "properties": {
+        "sizing_intent": {
+          "type": "string",
+          "enum": ["fixed_size", "parameterized_size", "review_only"]
+        },
+        "exposure_limits": {
+          "$ref": "#/definitions/string_array"
+        },
+        "stop_distance": {
+          "$ref": "#/definitions/distance_value"
+        },
+        "target_distance": {
+          "$ref": "#/definitions/distance_value"
+        },
+        "leverage_visibility": {
+          "$ref": "#/definitions/nullable_string"
+        },
+        "liquidation_sensitivity_notes": {
+          "$ref": "#/definitions/nullable_string"
+        }
+      }
+    },
+    "filters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["groups", "none_declared"],
+      "properties": {
+        "groups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/condition_group_depth_3"
+          }
+        },
+        "none_declared": {
+          "type": "boolean"
+        }
+      }
+    },
+    "parameter_range": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["min", "max", "step", "inclusive_min", "inclusive_max"],
+      "properties": {
+        "min": {
+          "type": ["number", "null"]
+        },
+        "max": {
+          "type": ["number", "null"]
+        },
+        "step": {
+          "type": ["number", "null"],
+          "exclusiveMinimum": 0
+        },
+        "inclusive_min": {
+          "type": "boolean"
+        },
+        "inclusive_max": {
+          "type": "boolean"
+        }
+      }
+    },
+    "parameter_default": {
+      "anyOf": [
+        { "type": "integer" },
+        { "type": "number" },
+        { "type": "boolean" },
+        { "type": "string" }
+      ]
+    },
+    "parameter_allowed_value": {
+      "anyOf": [
+        { "type": "string" },
+        { "type": "number" },
+        { "type": "boolean" }
+      ]
+    },
+    "parameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "label",
+        "description",
+        "type",
+        "units",
+        "default",
+        "range",
+        "allowed_values",
+        "is_free_parameter",
+        "included_in_variant_generation",
+        "role",
+        "rationale",
+        "constraints"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "#/definitions/non_empty_string"
+        },
+        "label": {
+          "$ref": "#/definitions/nullable_string"
+        },
+        "description": {
+          "$ref": "#/definitions/nullable_string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["integer", "number", "boolean", "enum"]
+        },
+        "units": {
+          "$ref": "#/definitions/nullable_string"
+        },
+        "default": {
+          "$ref": "#/definitions/parameter_default"
+        },
+        "range": {
+          "anyOf": [
+            { "$ref": "#/definitions/parameter_range" },
+            { "type": "null" }
+          ]
+        },
+        "allowed_values": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/parameter_allowed_value"
+          },
+          "uniqueItems": true
+        },
+        "is_free_parameter": {
+          "type": "boolean",
+          "const": true
+        },
+        "included_in_variant_generation": {
+          "type": "boolean"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["entry", "exit", "risk", "filter", "assumption", "other"]
+        },
+        "rationale": {
+          "$ref": "#/definitions/non_empty_string"
+        },
+        "constraints": {
+          "$ref": "#/definitions/string_array"
+        }
+      }
+    },
+    "free_parameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_free_parameters",
+        "counting_rule",
+        "parameters",
+        "no_free_parameters_declared"
+      ],
+      "properties": {
+        "max_free_parameters": {
+          "type": "integer",
+          "const": 5
+        },
+        "counting_rule": {
+          "type": "string",
+          "const": "parameters contains only entries where is_free_parameter=true; maxItems 5 enforces the D2-006-style MVP free-parameter cap"
+        },
+        "parameters": {
+          "type": "array",
+          "maxItems": 5,
+          "items": {
+            "$ref": "#/definitions/parameter"
+          }
+        },
+        "no_free_parameters_declared": {
+          "type": "boolean"
+        }
+      }
+    },
+    "invalid_parameter_combination": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["constraint_id", "description", "affected_parameters"],
+      "properties": {
+        "constraint_id": {
+          "$ref": "#/definitions/non_empty_string"
+        },
+        "description": {
+          "$ref": "#/definitions/non_empty_string"
+        },
+        "affected_parameters": {
+          "$ref": "#/definitions/non_empty_string_array"
+        }
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "invalid_parameter_combinations",
+        "unavailable_data_blockers",
+        "deferred_pattern_blockers",
+        "none_declared"
+      ],
+      "properties": {
+        "invalid_parameter_combinations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/invalid_parameter_combination"
+          }
+        },
+        "unavailable_data_blockers": {
+          "$ref": "#/definitions/string_array"
+        },
+        "deferred_pattern_blockers": {
+          "$ref": "#/definitions/string_array"
+        },
+        "none_declared": {
+          "type": "boolean"
+        }
+      }
+    },
+    "review_non_authority_acknowledgement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "not_candidate_approval",
+        "not_exp_approval",
+        "not_sweep_authority",
+        "not_ranking_authority",
+        "not_recommendation_authority",
+        "not_readiness_authority",
+        "not_transition_authority",
+        "not_runtime_authority",
+        "not_paper_live_authority",
+        "not_gate_satisfaction"
+      ],
+      "properties": {
+        "not_candidate_approval": { "type": "boolean", "const": true },
+        "not_exp_approval": { "type": "boolean", "const": true },
+        "not_sweep_authority": { "type": "boolean", "const": true },
+        "not_ranking_authority": { "type": "boolean", "const": true },
+        "not_recommendation_authority": { "type": "boolean", "const": true },
+        "not_readiness_authority": { "type": "boolean", "const": true },
+        "not_transition_authority": { "type": "boolean", "const": true },
+        "not_runtime_authority": { "type": "boolean", "const": true },
+        "not_paper_live_authority": { "type": "boolean", "const": true },
+        "not_gate_satisfaction": { "type": "boolean", "const": true }
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "human_review_required",
+        "reviewer",
+        "reviewed_at",
+        "review_notes",
+        "approval_scope",
+        "non_authority_acknowledgement"
+      ],
+      "properties": {
+        "human_review_required": {
+          "type": "boolean",
+          "const": true
+        },
+        "reviewer": {
+          "$ref": "#/definitions/nullable_string"
+        },
+        "reviewed_at": {
+          "$ref": "#/definitions/date_time_or_null"
+        },
+        "review_notes": {
+          "$ref": "#/definitions/string_array"
+        },
+        "approval_scope": {
+          "type": "string",
+          "enum": ["none", "variant_planning_only"]
+        },
+        "non_authority_acknowledgement": {
+          "$ref": "#/definitions/review_non_authority_acknowledgement"
+        }
+      }
+    },
+    "parent_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ref_type", "ref_id", "ref_path", "ref_hash"],
+      "properties": {
+        "ref_type": {
+          "type": "string",
+          "enum": ["concept", "prior_strategy_spec", "research_note", "external_source", "manual_review"]
+        },
+        "ref_id": {
+          "$ref": "#/definitions/non_empty_string"
+        },
+        "ref_path": {
+          "$ref": "#/definitions/nullable_string"
+        },
+        "ref_hash": {
+          "$ref": "#/definitions/nullable_string"
+        }
+      }
+    },
+    "supersedes_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["strategy_spec_id", "spec_hash"],
+      "properties": {
+        "strategy_spec_id": {
+          "type": "string",
+          "pattern": "^STRAT-SPEC-[0-9]{4}$"
+        },
+        "spec_hash": {
+          "$ref": "#/definitions/nullable_string"
+        }
+      }
+    },
+    "amendment_of": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["strategy_spec_id", "spec_hash", "reason"],
+      "properties": {
+        "strategy_spec_id": {
+          "type": "string",
+          "pattern": "^STRAT-SPEC-[0-9]{4}$"
+        },
+        "spec_hash": {
+          "$ref": "#/definitions/nullable_string"
+        },
+        "reason": {
+          "$ref": "#/definitions/non_empty_string"
+        }
+      }
+    },
+    "lineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["parent_refs", "supersedes", "amendment_of"],
+      "properties": {
+        "parent_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/parent_ref"
+          }
+        },
+        "supersedes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/supersedes_ref"
+          }
+        },
+        "amendment_of": {
+          "anyOf": [
+            { "$ref": "#/definitions/amendment_of" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "hash_pinning": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canonical_spec_hash",
+        "hash_algorithm",
+        "hash_scope_version",
+        "hash_scope",
+        "hash_status"
+      ],
+      "properties": {
+        "canonical_spec_hash": {
+          "$ref": "#/definitions/nullable_string"
+        },
+        "hash_algorithm": {
+          "$ref": "#/definitions/nullable_string"
+        },
+        "hash_scope_version": {
+          "$ref": "#/definitions/nullable_string"
+        },
+        "hash_scope": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["identity", "strategy_body", "free_parameters", "constraints", "assumptions"]
+          },
+          "uniqueItems": true
+        },
+        "hash_status": {
+          "type": "string",
+          "enum": ["not_computed", "computed", "superseded"]
+        }
+      }
+    },
+    "pre_registration_support": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "intended_for_variant_manifest",
+        "variant_manifest_ref",
+        "frozen_snapshot_ref"
+      ],
+      "properties": {
+        "intended_for_variant_manifest": {
+          "type": "boolean"
+        },
+        "variant_manifest_ref": {
+          "$ref": "#/definitions/nullable_string"
+        },
+        "frozen_snapshot_ref": {
+          "$ref": "#/definitions/nullable_string"
+        }
+      }
+    },
+    "backtest_realism_assumptions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fee_side_assumption",
+        "exchange_constraints_disclosed",
+        "funding_notional_mode",
+        "slippage_model",
+        "fill_mode",
+        "order_size_assumption",
+        "liquidity_capacity_assumption",
+        "liquidation_mode",
+        "maintenance_margin_assumption",
+        "mark_price_source",
+        "bar_path_assumption"
+      ],
+      "properties": {
+        "fee_side_assumption": {
+          "$ref": "#/definitions/nullable_string"
+        },
+        "exchange_constraints_disclosed": {
+          "type": "boolean"
+        },
+        "funding_notional_mode": {
+          "type": "string",
+          "enum": ["entry_price", "mark_price", "unspecified"]
+        },
+        "slippage_model": {
+          "type": "string",
+          "enum": ["fixed_bps", "unspecified"]
+        },
+        "fill_mode": {
+          "type": "string",
+          "enum": ["complete", "unspecified"]
+        },
+        "order_size_assumption": {
+          "$ref": "#/definitions/nullable_string"
+        },
+        "liquidity_capacity_assumption": {
+          "$ref": "#/definitions/nullable_string"
+        },
+        "liquidation_mode": {
+          "type": "string",
+          "enum": ["zero_equity", "maintenance_margin", "unspecified"]
+        },
+        "maintenance_margin_assumption": {
+          "$ref": "#/definitions/nullable_string"
+        },
+        "mark_price_source": {
+          "type": "string",
+          "enum": ["close", "unspecified"]
+        },
+        "bar_path_assumption": {
+          "type": "string",
+          "enum": ["next_open_close_mark", "unspecified"]
+        }
+      }
+    }
+  }
+}

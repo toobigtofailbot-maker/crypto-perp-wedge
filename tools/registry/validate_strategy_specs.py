@@ -26,6 +26,10 @@ CLOSED_OPERATOR_ENUM = {
     "is_true",
     "is_false",
 }
+COMPOSED_OPERAND_TYPE = "composed_operand"
+COMPOSITION_TYPE = "scale_by_one_minus_parameter"
+COMPOSED_BASE_OPERAND_TYPES = {"data_ref", "indicator_ref"}
+COMPOSED_PARAMETER_OPERAND_TYPE = "parameter_ref"
 MAX_CONDITION_GROUP_DEPTH = 3
 MAX_FREE_PARAMETERS = 5
 FORBIDDEN_EXECUTABLE_KEYS = {
@@ -34,6 +38,7 @@ FORBIDDEN_EXECUTABLE_KEYS = {
     "code",
     "script",
     "eval",
+    "exec",
     "function",
     "callback",
     "lambda",
@@ -55,6 +60,11 @@ FORBIDDEN_EXECUTABLE_KEYS = {
     "approval_action",
     "ranking_score",
     "recommendation",
+    "lookahead",
+    "forward_fill",
+    "backfill",
+    "interpolation",
+    "future_value",
 }
 NON_EXECUTION_TRUE_FLAGS = {
     "human_review_surface_only",
@@ -247,6 +257,172 @@ def _validate_forbidden_keys(path: Path, payload: dict[str, Any]) -> list[str]:
     return errors
 
 
+def _walk_composed_operands(value: Any, path_parts: list[str]) -> list[tuple[str, dict[str, Any]]]:
+    composed_operands: list[tuple[str, dict[str, Any]]] = []
+    if isinstance(value, dict):
+        if value.get("operand_type") == COMPOSED_OPERAND_TYPE:
+            composed_operands.append((_path_label(path_parts), value))
+        for key, child in value.items():
+            composed_operands.extend(_walk_composed_operands(child, [*path_parts, str(key)]))
+    elif isinstance(value, list):
+        for index, child in enumerate(value):
+            composed_operands.extend(_walk_composed_operands(child, [*path_parts, str(index)]))
+    return composed_operands
+
+
+def _parameter_declarations(payload: dict[str, Any]) -> dict[str, list[tuple[int, dict[str, Any]]]]:
+    declarations: dict[str, list[tuple[int, dict[str, Any]]]] = {}
+    free_parameters = payload.get("free_parameters")
+    if not isinstance(free_parameters, dict):
+        return declarations
+    parameters = free_parameters.get("parameters")
+    if not isinstance(parameters, list):
+        return declarations
+    for index, parameter in enumerate(parameters):
+        if not isinstance(parameter, dict):
+            continue
+        name = parameter.get("name")
+        if isinstance(name, str):
+            declarations.setdefault(name, []).append((index, parameter))
+    return declarations
+
+
+def _is_condition_operand_path(composed_path: str, condition_path: str) -> bool:
+    return composed_path in {
+        f"{condition_path}.left_operand",
+        f"{condition_path}.right_operand",
+    }
+
+
+def _validate_composed_parameter(
+    path: Path,
+    operand_path: str,
+    parameter_name: Any,
+    declarations: dict[str, list[tuple[int, dict[str, Any]]]],
+) -> list[str]:
+    errors: list[str] = []
+    if not isinstance(parameter_name, str) or not parameter_name:
+        return [f"{path}: {operand_path}.parameter_operand.ref must bind a non-empty parameter name"]
+
+    matches = declarations.get(parameter_name, [])
+    if len(matches) != 1:
+        errors.append(
+            f"{path}: {operand_path}.parameter_operand.ref {parameter_name!r} must match exactly "
+            f"one free_parameters.parameters[].name; found {len(matches)}"
+        )
+        return errors
+
+    parameter_index, parameter = matches[0]
+    parameter_path = f"free_parameters.parameters.{parameter_index}"
+    if parameter.get("type") != "number":
+        errors.append(f"{path}: {operand_path} bound parameter {parameter_path}.type must be 'number'")
+    if parameter.get("role") != "entry":
+        errors.append(f"{path}: {operand_path} bound parameter {parameter_path}.role must be 'entry'")
+    if parameter.get("is_free_parameter") is not True:
+        errors.append(f"{path}: {operand_path} bound parameter {parameter_path}.is_free_parameter must be true")
+    if parameter.get("included_in_variant_generation") is not True:
+        errors.append(
+            f"{path}: {operand_path} bound parameter "
+            f"{parameter_path}.included_in_variant_generation must be true"
+        )
+
+    range_value = parameter.get("range")
+    if not isinstance(range_value, dict):
+        errors.append(f"{path}: {operand_path} bound parameter {parameter_path}.range must be bounded")
+    else:
+        range_min = range_value.get("min")
+        range_max = range_value.get("max")
+        if not isinstance(range_min, (int, float)) or isinstance(range_min, bool) or range_min <= 0:
+            errors.append(f"{path}: {operand_path} bound parameter {parameter_path}.range.min must be > 0")
+        if not isinstance(range_max, (int, float)) or isinstance(range_max, bool) or range_max >= 1:
+            errors.append(f"{path}: {operand_path} bound parameter {parameter_path}.range.max must be < 1")
+
+    allowed_values = parameter.get("allowed_values")
+    if isinstance(allowed_values, list):
+        for index, value in enumerate(allowed_values):
+            if not isinstance(value, (int, float)) or isinstance(value, bool) or not (0 < value < 1):
+                errors.append(
+                    f"{path}: {operand_path} bound parameter "
+                    f"{parameter_path}.allowed_values.{index} must be numeric and in (0, 1)"
+                )
+    return errors
+
+
+def _validate_composed_operands(path: Path, payload: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    declarations = _parameter_declarations(payload)
+    condition_operand_paths: set[str] = set()
+
+    for root_path, group in _logic_roots(payload):
+        for condition_path, condition in _walk_conditions(group, root_path.split(".")):
+            for operand_key in ("left_operand", "right_operand"):
+                operand = condition.get(operand_key)
+                operand_path = f"{condition_path}.{operand_key}"
+                if isinstance(operand, dict):
+                    condition_operand_paths.add(operand_path)
+                    if operand.get("operand_type") != COMPOSED_OPERAND_TYPE:
+                        continue
+
+                    if operand.get("composition_type") != COMPOSITION_TYPE:
+                        errors.append(
+                            f"{path}: {operand_path}.composition_type must be {COMPOSITION_TYPE!r}"
+                        )
+                    if set(operand) != {
+                        "operand_type",
+                        "composition_type",
+                        "base_operand",
+                        "parameter_operand",
+                    }:
+                        errors.append(f"{path}: {operand_path} has invalid composed_operand properties")
+
+                    base_operand = operand.get("base_operand")
+                    if not isinstance(base_operand, dict):
+                        errors.append(f"{path}: {operand_path}.base_operand must be an object")
+                    else:
+                        base_type = base_operand.get("operand_type")
+                        if base_type == COMPOSED_OPERAND_TYPE:
+                            errors.append(f"{path}: {operand_path}.base_operand must not be composed_operand")
+                        if base_type not in COMPOSED_BASE_OPERAND_TYPES:
+                            errors.append(
+                                f"{path}: {operand_path}.base_operand.operand_type must be one of "
+                                f"{sorted(COMPOSED_BASE_OPERAND_TYPES)}"
+                            )
+
+                    parameter_operand = operand.get("parameter_operand")
+                    if not isinstance(parameter_operand, dict):
+                        errors.append(f"{path}: {operand_path}.parameter_operand must be an object")
+                    else:
+                        parameter_type = parameter_operand.get("operand_type")
+                        if parameter_type == COMPOSED_OPERAND_TYPE:
+                            errors.append(
+                                f"{path}: {operand_path}.parameter_operand must not be composed_operand"
+                            )
+                        if parameter_type != COMPOSED_PARAMETER_OPERAND_TYPE:
+                            errors.append(
+                                f"{path}: {operand_path}.parameter_operand.operand_type must be "
+                                f"{COMPOSED_PARAMETER_OPERAND_TYPE!r}"
+                            )
+                        errors.extend(
+                            _validate_composed_parameter(
+                                path,
+                                operand_path,
+                                parameter_operand.get("ref"),
+                                declarations,
+                            )
+                        )
+
+    for composed_path, _ in _walk_composed_operands(payload, []):
+        if composed_path not in condition_operand_paths:
+            if any(
+                _is_condition_operand_path(composed_path, condition_path)
+                for root_path, group in _logic_roots(payload)
+                for condition_path, _condition in _walk_conditions(group, root_path.split("."))
+            ):
+                continue
+            errors.append(f"{path}: {composed_path} nested or unauthorized composed_operand is forbidden")
+    return errors
+
+
 def _validate_true_flags(
     path: Path,
     payload: dict[str, Any],
@@ -375,6 +551,7 @@ def validate_strategy_specs(
         errors.extend(_validate_condition_group_depth(path, payload))
         errors.extend(_validate_free_parameters(path, payload))
         errors.extend(_validate_forbidden_keys(path, payload))
+        errors.extend(_validate_composed_operands(path, payload))
         errors.extend(_validate_non_authority_flags(path, payload))
         errors.extend(_validate_host_data_ref_safety(path, payload))
 

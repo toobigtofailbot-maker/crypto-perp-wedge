@@ -356,7 +356,7 @@
         { "type": "null" }
       ]
     },
-    "operand": {
+    "standard_operand": {
       "type": "object",
       "additionalProperties": false,
       "required": ["operand_type", "ref", "field", "timeframe", "lookback"],
@@ -381,6 +381,64 @@
           ]
         }
       }
+    },
+    "composed_base_operand": {
+      "allOf": [
+        { "$ref": "#/definitions/standard_operand" },
+        {
+          "properties": {
+            "operand_type": {
+              "type": "string",
+              "enum": ["data_ref", "indicator_ref"]
+            }
+          }
+        }
+      ]
+    },
+    "composed_parameter_operand": {
+      "allOf": [
+        { "$ref": "#/definitions/standard_operand" },
+        {
+          "properties": {
+            "operand_type": {
+              "type": "string",
+              "const": "parameter_ref"
+            }
+          }
+        }
+      ]
+    },
+    "composed_operand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operand_type",
+        "composition_type",
+        "base_operand",
+        "parameter_operand"
+      ],
+      "properties": {
+        "operand_type": {
+          "type": "string",
+          "const": "composed_operand"
+        },
+        "composition_type": {
+          "type": "string",
+          "const": "scale_by_one_minus_parameter"
+        },
+        "base_operand": {
+          "$ref": "#/definitions/composed_base_operand"
+        },
+        "parameter_operand": {
+          "$ref": "#/definitions/composed_parameter_operand"
+        }
+      }
+    },
+    "operand": {
+      "oneOf": [
+        { "$ref": "#/definitions/standard_operand" },
+        { "$ref": "#/definitions/composed_operand" }
+      ]
     },
     "condition": {
       "type": "object",

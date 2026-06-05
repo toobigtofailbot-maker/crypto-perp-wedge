@@ -41,6 +41,9 @@ ENTRY_GROUP_ROLES = {
 }
 BLOCKING_GROUP_ROLES = {"blocking", "no_trade", "cooldown"}
 EXIT_GROUP_ROLES = {"exit", "invalidation", "risk_exit", "time_stop"}
+ENTRY_CONDITION_ROLES = {"required", "confirming", "filter"}
+BLOCKING_CONDITION_ROLES = {"blocking"}
+EXIT_CONDITION_ROLES = {"exit", "invalidation"}
 FORBIDDEN_PAYLOAD_KEYS = {
     "expression",
     "formula",
@@ -265,9 +268,9 @@ def _entry_allowed(groups: list[Mapping[str, Any]], context: _CompileContext, ti
             raise UnsupportedSpecSignalCompilerFeature(f"unsupported entry/filter group role: {role!r}")
     if not entry_groups:
         return False
-    if any(_evaluate_group(group, context, timestamp) for group in blocking_groups):
+    if any(_evaluate_group(group, context, timestamp, BLOCKING_CONDITION_ROLES) for group in blocking_groups):
         return False
-    return all(_evaluate_group(group, context, timestamp) for group in entry_groups)
+    return all(_evaluate_group(group, context, timestamp, ENTRY_CONDITION_ROLES) for group in entry_groups)
 
 
 def _any_group_true(
@@ -283,10 +286,15 @@ def _any_group_true(
             relevant.append(group)
         else:
             raise UnsupportedSpecSignalCompilerFeature(f"unsupported exit group role: {role!r}")
-    return any(_evaluate_group(group, context, timestamp) for group in relevant)
+    return any(_evaluate_group(group, context, timestamp, EXIT_CONDITION_ROLES) for group in relevant)
 
 
-def _evaluate_group(group: Mapping[str, Any], context: _CompileContext, timestamp: Any) -> bool:
+def _evaluate_group(
+    group: Mapping[str, Any],
+    context: _CompileContext,
+    timestamp: Any,
+    allowed_condition_roles: set[str],
+) -> bool:
     logic = group.get("logic")
     if logic not in {"all", "any"}:
         raise SpecSignalCompilerError(f"unsupported condition group logic: {logic!r}")
@@ -295,11 +303,21 @@ def _evaluate_group(group: Mapping[str, Any], context: _CompileContext, timestam
     if not isinstance(conditions, list) or not isinstance(subgroups, list):
         raise SpecSignalCompilerError("condition group conditions/subgroups must be arrays")
     values = [
-        _evaluate_condition(_require_mapping(condition, "condition"), context, timestamp)
+        _evaluate_condition(
+            _require_mapping(condition, "condition"),
+            context,
+            timestamp,
+            allowed_condition_roles,
+        )
         for condition in conditions
     ]
     values.extend(
-        _evaluate_group(_require_mapping(subgroup, "condition subgroup"), context, timestamp)
+        _evaluate_group(
+            _require_mapping(subgroup, "condition subgroup"),
+            context,
+            timestamp,
+            allowed_condition_roles,
+        )
         for subgroup in subgroups
     )
     if not values:
@@ -307,10 +325,19 @@ def _evaluate_group(group: Mapping[str, Any], context: _CompileContext, timestam
     return all(values) if logic == "all" else any(values)
 
 
-def _evaluate_condition(condition: Mapping[str, Any], context: _CompileContext, timestamp: Any) -> bool:
+def _evaluate_condition(
+    condition: Mapping[str, Any],
+    context: _CompileContext,
+    timestamp: Any,
+    allowed_condition_roles: set[str],
+) -> bool:
     role = condition.get("condition_role")
     if role not in {"required", "confirming", "blocking", "exit", "invalidation", "filter"}:
         raise UnsupportedSpecSignalCompilerFeature(f"unsupported condition role: {role!r}")
+    if role not in allowed_condition_roles:
+        raise UnsupportedSpecSignalCompilerFeature(
+            f"condition role {role!r} is incompatible with this group context"
+        )
     operator = condition.get("operator")
     if operator in UNSUPPORTED_OPERATORS:
         raise UnsupportedSpecSignalCompilerFeature(f"operator {operator!r} is not supported in WP-S2c-199")

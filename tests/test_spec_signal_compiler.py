@@ -362,6 +362,164 @@ def test_rejects_unsupported_closed_operators() -> None:
         compile_signal(spec, _default_variant(), ohlcv)
 
 
+def test_true_blocking_condition_prevents_entry() -> None:
+    ohlcv = _ohlcv()
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "lt",
+                        _operand("constant", 14.0),
+                    )
+                ],
+            ),
+            _group(
+                "blocking",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "gt",
+                        _operand("constant", 9.0),
+                        role="blocking",
+                    )
+                ],
+            ),
+        ]
+    )
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [0.0] * len(ohlcv)
+
+
+def test_blocking_condition_inside_entry_group_fails_closed() -> None:
+    ohlcv = _ohlcv()
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "gt",
+                        _operand("constant", 9.0),
+                        role="blocking",
+                    )
+                ],
+            )
+        ]
+    )
+
+    with pytest.raises(UnsupportedSpecSignalCompilerFeature, match="incompatible"):
+        compile_signal(spec, _default_variant(), ohlcv)
+
+
+def test_exit_or_invalidation_condition_inside_entry_group_fails_closed() -> None:
+    ohlcv = _ohlcv()
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "gt",
+                        _operand("constant", 9.0),
+                        role="exit",
+                    )
+                ],
+            )
+        ]
+    )
+
+    with pytest.raises(UnsupportedSpecSignalCompilerFeature, match="incompatible"):
+        compile_signal(spec, _default_variant(), ohlcv)
+
+    spec["entry_logic"]["groups"][0]["conditions"][0]["condition_role"] = "invalidation"
+    with pytest.raises(UnsupportedSpecSignalCompilerFeature, match="incompatible"):
+        compile_signal(spec, _default_variant(), ohlcv)
+
+
+def test_valid_invalidation_condition_exits_position() -> None:
+    ohlcv = _ohlcv()
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "lt",
+                        _operand("constant", 14.0),
+                    )
+                ],
+            )
+        ],
+        exit_groups=[
+            _group(
+                "invalidation",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "gt",
+                        _operand("constant", 13.0),
+                        role="invalidation",
+                    )
+                ],
+            )
+        ],
+    )
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 0.0]
+
+
+def test_supported_entry_condition_roles_still_work() -> None:
+    ohlcv = _ohlcv()
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "gte",
+                        _operand("constant", 10.0),
+                        role="required",
+                    ),
+                    _condition(
+                        _operand("data_ref", "volume", "volume"),
+                        "eq",
+                        _operand("constant", 1000.0),
+                        role="confirming",
+                    ),
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "neq",
+                        _operand("constant", 0.0),
+                        role="filter",
+                    ),
+                ],
+            )
+        ]
+    )
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [1.0] * len(ohlcv)
+
+
 def test_evaluates_nested_all_any_groups_deterministically() -> None:
     ohlcv = _ohlcv()
     nested = _group(

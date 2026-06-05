@@ -1,0 +1,625 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crypto-perp-wedge.local/research/schemas/indicator_catalog.schema.json",
+  "title": "Indicator Catalog",
+  "description": "Closed, non-executing indicator catalog interface schema for future Strategy Spec computation binding. The catalog declares reviewed indicator interfaces only; compiler code owns implementations. This schema grants no compiler, runner, runtime, paper/live, recommendation, ranking, approval, readiness, transition, gate, order, broker, exchange, or human-gate execution authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+  "required": [
+    "schema_version",
+    "catalog_id",
+    "catalog_status",
+    "non_execution_declaration",
+    "provenance",
+    "entries",
+    "review",
+    "lineage",
+    "hash_pinning"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "v1" },
+    "catalog_id": { "type": "string", "pattern": "^IND-CATALOG-[0-9]{4}$" },
+    "catalog_status": { "type": "string", "enum": ["draft", "review_requested", "active", "superseded", "rejected"] },
+    "non_execution_declaration": { "$ref": "#/definitions/non_execution_declaration" },
+    "provenance": { "$ref": "#/definitions/provenance" },
+    "entries": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "uniqueItems": true,
+      "items": { "$ref": "#/definitions/indicator_entry" },
+      "allOf": [
+        { "contains": { "type": "object", "required": ["indicator_id"], "properties": { "indicator_id": { "const": "sma" } } } },
+        { "contains": { "type": "object", "required": ["indicator_id"], "properties": { "indicator_id": { "const": "ema" } } } },
+        { "contains": { "type": "object", "required": ["indicator_id"], "properties": { "indicator_id": { "const": "atr" } } } },
+        { "contains": { "type": "object", "required": ["indicator_id"], "properties": { "indicator_id": { "const": "stddev" } } } }
+      ]
+    },
+    "review": { "$ref": "#/definitions/review" },
+    "lineage": { "$ref": "#/definitions/lineage" },
+    "hash_pinning": { "$ref": "#/definitions/hash_pinning" }
+  },
+  "definitions": {
+    "safe_property_name": {
+      "type": "string",
+      "not": {
+        "enum": [
+          "expression",
+          "formula",
+          "code",
+          "script",
+          "eval",
+          "function",
+          "callback",
+          "lambda",
+          "sql",
+          "shell",
+          "python",
+          "javascript",
+          "url",
+          "file_path",
+          "command",
+          "runtime_action",
+          "order_instruction",
+          "broker_instruction",
+          "exchange_instruction",
+          "live_action",
+          "paper_action",
+          "readiness_update",
+          "transition_trigger",
+          "approval_action",
+          "ranking_score",
+          "recommendation"
+        ]
+      }
+    },
+    "non_empty_string": { "type": "string", "minLength": 1 },
+    "nullable_string": { "type": ["string", "null"] },
+    "date_time_or_null": { "type": ["string", "null"], "format": "date-time" },
+    "sha256_or_null": { "type": ["string", "null"], "pattern": "^sha256:[a-f0-9]{64}$" },
+    "string_array": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "non_execution_declaration": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": [
+        "interface_declaration_only",
+        "not_executable",
+        "not_compiler_implementation",
+        "not_runner_authority",
+        "not_sweep_authority",
+        "not_result_authority",
+        "not_runtime_authority",
+        "not_paper_live_authority",
+        "not_recommendation_authority",
+        "not_ranking_authority",
+        "not_readiness_authority",
+        "not_transition_authority",
+        "not_gate_authority",
+        "not_order_authority",
+        "not_broker_exchange_authority"
+      ],
+      "properties": {
+        "interface_declaration_only": { "type": "boolean", "const": true },
+        "not_executable": { "type": "boolean", "const": true },
+        "not_compiler_implementation": { "type": "boolean", "const": true },
+        "not_runner_authority": { "type": "boolean", "const": true },
+        "not_sweep_authority": { "type": "boolean", "const": true },
+        "not_result_authority": { "type": "boolean", "const": true },
+        "not_runtime_authority": { "type": "boolean", "const": true },
+        "not_paper_live_authority": { "type": "boolean", "const": true },
+        "not_recommendation_authority": { "type": "boolean", "const": true },
+        "not_ranking_authority": { "type": "boolean", "const": true },
+        "not_readiness_authority": { "type": "boolean", "const": true },
+        "not_transition_authority": { "type": "boolean", "const": true },
+        "not_gate_authority": { "type": "boolean", "const": true },
+        "not_order_authority": { "type": "boolean", "const": true },
+        "not_broker_exchange_authority": { "type": "boolean", "const": true }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["source_type", "source_refs", "prepared_by", "created_at", "updated_at", "rationale"],
+      "properties": {
+        "source_type": { "type": "string", "enum": ["manual_review", "research_note", "design_doc", "other"] },
+        "source_refs": { "$ref": "#/definitions/string_array" },
+        "prepared_by": { "$ref": "#/definitions/nullable_string" },
+        "created_at": { "$ref": "#/definitions/date_time_or_null" },
+        "updated_at": { "$ref": "#/definitions/date_time_or_null" },
+        "rationale": { "$ref": "#/definitions/non_empty_string" }
+      }
+    },
+    "indicator_entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": [
+        "indicator_id",
+        "version",
+        "display_name",
+        "catalog_status",
+        "implementation_binding",
+        "input_contract",
+        "parameter_contract",
+        "output_contract",
+        "warmup_contract",
+        "null_handling",
+        "non_authority"
+      ],
+      "properties": {
+        "indicator_id": { "type": "string", "enum": ["sma", "ema", "atr", "stddev"] },
+        "version": { "type": "string", "const": "v1" },
+        "display_name": { "$ref": "#/definitions/non_empty_string" },
+        "catalog_status": { "type": "string", "enum": ["draft", "review_requested", "active", "superseded", "rejected"] },
+        "implementation_binding": { "$ref": "#/definitions/implementation_binding" },
+        "input_contract": { "$ref": "#/definitions/input_contract" },
+        "parameter_contract": { "$ref": "#/definitions/parameter_contract" },
+        "output_contract": { "$ref": "#/definitions/output_contract" },
+        "warmup_contract": { "$ref": "#/definitions/warmup_contract" },
+        "null_handling": { "$ref": "#/definitions/null_handling" },
+        "non_authority": { "$ref": "#/definitions/entry_non_authority" }
+      },
+      "oneOf": [
+        { "$ref": "#/definitions/sma_entry_constraints" },
+        { "$ref": "#/definitions/ema_entry_constraints" },
+        { "$ref": "#/definitions/atr_entry_constraints" },
+        { "$ref": "#/definitions/stddev_entry_constraints" }
+      ]
+    },
+    "sma_entry_constraints": {
+      "type": "object",
+      "required": ["indicator_id", "implementation_binding", "input_contract", "parameter_contract"],
+      "properties": {
+        "indicator_id": { "const": "sma" },
+        "implementation_binding": { "properties": { "builtin_key": { "const": "sma_v1" } } },
+        "input_contract": { "$ref": "#/definitions/single_source_input_contract" },
+        "parameter_contract": { "$ref": "#/definitions/sma_parameter_contract" }
+      }
+    },
+    "ema_entry_constraints": {
+      "type": "object",
+      "required": ["indicator_id", "implementation_binding", "input_contract", "parameter_contract"],
+      "properties": {
+        "indicator_id": { "const": "ema" },
+        "implementation_binding": { "properties": { "builtin_key": { "const": "ema_v1" } } },
+        "input_contract": { "$ref": "#/definitions/single_source_input_contract" },
+        "parameter_contract": { "$ref": "#/definitions/ema_parameter_contract" }
+      }
+    },
+    "atr_entry_constraints": {
+      "type": "object",
+      "required": ["indicator_id", "implementation_binding", "input_contract", "parameter_contract"],
+      "properties": {
+        "indicator_id": { "const": "atr" },
+        "implementation_binding": { "properties": { "builtin_key": { "const": "atr_v1" } } },
+        "input_contract": { "$ref": "#/definitions/atr_input_contract" },
+        "parameter_contract": { "$ref": "#/definitions/atr_parameter_contract" }
+      }
+    },
+    "stddev_entry_constraints": {
+      "type": "object",
+      "required": ["indicator_id", "implementation_binding", "input_contract", "parameter_contract"],
+      "properties": {
+        "indicator_id": { "const": "stddev" },
+        "implementation_binding": { "properties": { "builtin_key": { "const": "stddev_v1" } } },
+        "input_contract": { "$ref": "#/definitions/single_source_input_contract" },
+        "parameter_contract": { "$ref": "#/definitions/stddev_parameter_contract" }
+      }
+    },
+    "implementation_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["binding_type", "builtin_key", "implementation_owner", "computation_defined_in_catalog", "arbitrary_expression_allowed"],
+      "properties": {
+        "binding_type": { "type": "string", "const": "compiler_builtin_closed_set" },
+        "builtin_key": { "type": "string", "enum": ["sma_v1", "ema_v1", "atr_v1", "stddev_v1"] },
+        "implementation_owner": { "type": "string", "const": "spec_signal_compiler" },
+        "computation_defined_in_catalog": { "type": "boolean", "const": false },
+        "arbitrary_expression_allowed": { "type": "boolean", "const": false }
+      }
+    },
+    "input_contract": { "oneOf": [{ "$ref": "#/definitions/single_source_input_contract" }, { "$ref": "#/definitions/atr_input_contract" }] },
+    "single_source_input_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["input_mode", "inputs"],
+      "properties": {
+        "input_mode": { "type": "string", "const": "single_source" },
+        "inputs": { "type": "array", "minItems": 1, "maxItems": 1, "items": { "$ref": "#/definitions/source_input" } }
+      }
+    },
+    "atr_input_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["input_mode", "inputs"],
+      "properties": {
+        "input_mode": { "type": "string", "const": "fixed_ohlcv_high_low_close" },
+        "inputs": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": [
+            { "$ref": "#/definitions/fixed_high_input" },
+            { "$ref": "#/definitions/fixed_low_input" },
+            { "$ref": "#/definitions/fixed_close_input" }
+          ],
+          "additionalItems": false
+        }
+      }
+    },
+    "source_input": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["input_id", "frame", "field", "default_field", "series_type"],
+      "properties": {
+        "input_id": { "type": "string", "const": "source" },
+        "frame": { "type": "string", "const": "ohlcv" },
+        "field": { "type": "string", "enum": ["open", "high", "low", "close", "volume"] },
+        "default_field": { "type": "string", "const": "close" },
+        "series_type": { "type": "string", "const": "numeric" }
+      }
+    },
+    "fixed_high_input": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["input_id", "frame", "field", "series_type"],
+      "properties": {
+        "input_id": { "type": "string", "const": "high" },
+        "frame": { "type": "string", "const": "ohlcv" },
+        "field": { "type": "string", "const": "high" },
+        "series_type": { "type": "string", "const": "numeric" }
+      }
+    },
+    "fixed_low_input": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["input_id", "frame", "field", "series_type"],
+      "properties": {
+        "input_id": { "type": "string", "const": "low" },
+        "frame": { "type": "string", "const": "ohlcv" },
+        "field": { "type": "string", "const": "low" },
+        "series_type": { "type": "string", "const": "numeric" }
+      }
+    },
+    "fixed_close_input": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["input_id", "frame", "field", "series_type"],
+      "properties": {
+        "input_id": { "type": "string", "const": "close" },
+        "frame": { "type": "string", "const": "ohlcv" },
+        "field": { "type": "string", "const": "close" },
+        "series_type": { "type": "string", "const": "numeric" }
+      }
+    },
+    "parameter_contract": {
+      "oneOf": [
+        { "$ref": "#/definitions/sma_parameter_contract" },
+        { "$ref": "#/definitions/ema_parameter_contract" },
+        { "$ref": "#/definitions/atr_parameter_contract" },
+        { "$ref": "#/definitions/stddev_parameter_contract" }
+      ]
+    },
+    "sma_parameter_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["parameters"],
+      "properties": {
+        "parameters": { "type": "array", "minItems": 1, "maxItems": 1, "items": [{ "$ref": "#/definitions/lookback_bars_min_1_required" }], "additionalItems": false }
+      }
+    },
+    "ema_parameter_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["parameters"],
+      "properties": {
+        "parameters": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": [
+            { "$ref": "#/definitions/lookback_bars_min_1_required" },
+            { "$ref": "#/definitions/ema_smoothing_convention_parameter" },
+            { "$ref": "#/definitions/ema_initialization_convention_parameter" }
+          ],
+          "additionalItems": false
+        }
+      }
+    },
+    "atr_parameter_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["parameters"],
+      "properties": {
+        "parameters": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": [
+            { "$ref": "#/definitions/lookback_bars_min_1_required" },
+            { "$ref": "#/definitions/atr_true_range_convention_parameter" },
+            { "$ref": "#/definitions/atr_smoothing_convention_parameter" }
+          ],
+          "additionalItems": false
+        }
+      }
+    },
+    "stddev_parameter_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["parameters"],
+      "properties": {
+        "parameters": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": [
+            { "$ref": "#/definitions/lookback_bars_min_2_required" },
+            { "$ref": "#/definitions/stddev_ddof_parameter" }
+          ],
+          "additionalItems": false
+        }
+      }
+    },
+    "lookback_bars_min_1_required": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["name", "type", "minimum", "required", "may_bind_strategy_parameter"],
+      "properties": {
+        "name": { "type": "string", "const": "lookback_bars" },
+        "type": { "type": "string", "const": "integer" },
+        "minimum": { "type": "integer", "const": 1 },
+        "required": { "type": "boolean", "const": true },
+        "may_bind_strategy_parameter": { "type": "boolean", "const": true }
+      }
+    },
+    "lookback_bars_min_2_required": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["name", "type", "minimum", "required", "may_bind_strategy_parameter"],
+      "properties": {
+        "name": { "type": "string", "const": "lookback_bars" },
+        "type": { "type": "string", "const": "integer" },
+        "minimum": { "type": "integer", "const": 2 },
+        "required": { "type": "boolean", "const": true },
+        "may_bind_strategy_parameter": { "type": "boolean", "const": true }
+      }
+    },
+    "ema_smoothing_convention_parameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["name", "type", "allowed_values", "required", "may_bind_strategy_parameter"],
+      "properties": {
+        "name": { "type": "string", "const": "smoothing_convention" },
+        "type": { "type": "string", "const": "enum" },
+        "allowed_values": { "type": "array", "minItems": 1, "maxItems": 1, "items": [{ "type": "string", "const": "standard_ema_alpha_2_over_n_plus_1" }], "additionalItems": false },
+        "required": { "type": "boolean", "const": true },
+        "may_bind_strategy_parameter": { "type": "boolean", "const": false }
+      }
+    },
+    "ema_initialization_convention_parameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["name", "type", "allowed_values", "required", "may_bind_strategy_parameter"],
+      "properties": {
+        "name": { "type": "string", "const": "initialization_convention" },
+        "type": { "type": "string", "const": "enum" },
+        "allowed_values": { "type": "array", "minItems": 1, "maxItems": 1, "items": [{ "type": "string", "const": "sma_seed_after_full_lookback" }], "additionalItems": false },
+        "required": { "type": "boolean", "const": true },
+        "may_bind_strategy_parameter": { "type": "boolean", "const": false }
+      }
+    },
+    "atr_true_range_convention_parameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["name", "type", "allowed_values", "required", "may_bind_strategy_parameter"],
+      "properties": {
+        "name": { "type": "string", "const": "true_range_convention" },
+        "type": { "type": "string", "const": "enum" },
+        "allowed_values": { "type": "array", "minItems": 1, "maxItems": 1, "items": [{ "type": "string", "const": "wilder_true_range" }], "additionalItems": false },
+        "required": { "type": "boolean", "const": true },
+        "may_bind_strategy_parameter": { "type": "boolean", "const": false }
+      }
+    },
+    "atr_smoothing_convention_parameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["name", "type", "allowed_values", "required", "may_bind_strategy_parameter"],
+      "properties": {
+        "name": { "type": "string", "const": "smoothing_convention" },
+        "type": { "type": "string", "const": "enum" },
+        "allowed_values": { "type": "array", "minItems": 1, "maxItems": 1, "items": [{ "type": "string", "const": "wilder_rma" }], "additionalItems": false },
+        "required": { "type": "boolean", "const": true },
+        "may_bind_strategy_parameter": { "type": "boolean", "const": false }
+      }
+    },
+    "stddev_ddof_parameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["name", "type", "allowed_values", "default", "required", "may_bind_strategy_parameter"],
+      "properties": {
+        "name": { "type": "string", "const": "ddof" },
+        "type": { "type": "string", "const": "integer" },
+        "allowed_values": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "type": "integer", "enum": [0, 1] }, "uniqueItems": true },
+        "default": { "type": "integer", "const": 0 },
+        "required": { "type": "boolean", "const": false },
+        "may_bind_strategy_parameter": { "type": "boolean", "const": false }
+      }
+    },
+    "output_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["outputs"],
+      "properties": {
+        "outputs": { "type": "array", "minItems": 1, "maxItems": 1, "items": [{ "$ref": "#/definitions/value_output" }], "additionalItems": false }
+      }
+    },
+    "value_output": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["field", "type", "index_alignment"],
+      "properties": {
+        "field": { "type": "string", "const": "value" },
+        "type": { "type": "string", "const": "numeric_series" },
+        "index_alignment": { "type": "string", "const": "primary_ohlcv_index" }
+      }
+    },
+    "warmup_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["no_lookahead", "warmup_output"],
+      "properties": {
+        "no_lookahead": { "type": "boolean", "const": true },
+        "warmup_output": { "type": "string", "const": "null_until_ready" }
+      }
+    },
+    "null_handling": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["signal_generation_policy"],
+      "properties": {
+        "signal_generation_policy": { "type": "string", "const": "null_operand_never_true" }
+      }
+    },
+    "entry_non_authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": [
+        "not_runtime_authority",
+        "not_paper_live_authority",
+        "not_recommendation_authority",
+        "not_ranking_authority",
+        "not_readiness_authority",
+        "not_transition_authority",
+        "not_gate_authority",
+        "not_order_authority",
+        "not_broker_exchange_authority"
+      ],
+      "properties": {
+        "not_runtime_authority": { "type": "boolean", "const": true },
+        "not_paper_live_authority": { "type": "boolean", "const": true },
+        "not_recommendation_authority": { "type": "boolean", "const": true },
+        "not_ranking_authority": { "type": "boolean", "const": true },
+        "not_readiness_authority": { "type": "boolean", "const": true },
+        "not_transition_authority": { "type": "boolean", "const": true },
+        "not_gate_authority": { "type": "boolean", "const": true },
+        "not_order_authority": { "type": "boolean", "const": true },
+        "not_broker_exchange_authority": { "type": "boolean", "const": true }
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["human_review_required", "reviewer", "reviewed_at", "review_notes", "approval_scope", "non_authority_acknowledgement"],
+      "properties": {
+        "human_review_required": { "type": "boolean", "const": true },
+        "reviewer": { "$ref": "#/definitions/nullable_string" },
+        "reviewed_at": { "$ref": "#/definitions/date_time_or_null" },
+        "review_notes": { "$ref": "#/definitions/string_array" },
+        "approval_scope": { "type": "string", "enum": ["none", "catalog_interface_only"] },
+        "non_authority_acknowledgement": { "$ref": "#/definitions/review_non_authority_acknowledgement" }
+      }
+    },
+    "review_non_authority_acknowledgement": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": [
+        "not_compiler_approval",
+        "not_runner_authority",
+        "not_sweep_authority",
+        "not_result_authority",
+        "not_runtime_authority",
+        "not_paper_live_authority",
+        "not_gate_satisfaction",
+        "not_recommendation_authority",
+        "not_ranking_authority",
+        "not_readiness_authority",
+        "not_transition_authority"
+      ],
+      "properties": {
+        "not_compiler_approval": { "type": "boolean", "const": true },
+        "not_runner_authority": { "type": "boolean", "const": true },
+        "not_sweep_authority": { "type": "boolean", "const": true },
+        "not_result_authority": { "type": "boolean", "const": true },
+        "not_runtime_authority": { "type": "boolean", "const": true },
+        "not_paper_live_authority": { "type": "boolean", "const": true },
+        "not_gate_satisfaction": { "type": "boolean", "const": true },
+        "not_recommendation_authority": { "type": "boolean", "const": true },
+        "not_ranking_authority": { "type": "boolean", "const": true },
+        "not_readiness_authority": { "type": "boolean", "const": true },
+        "not_transition_authority": { "type": "boolean", "const": true }
+      }
+    },
+    "lineage_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["ref_type", "ref_id", "ref_path", "ref_hash"],
+      "properties": {
+        "ref_type": { "type": "string", "enum": ["design_doc", "manual_review", "prior_catalog", "strategy_spec", "other"] },
+        "ref_id": { "$ref": "#/definitions/non_empty_string" },
+        "ref_path": { "$ref": "#/definitions/nullable_string" },
+        "ref_hash": { "$ref": "#/definitions/sha256_or_null" }
+      }
+    },
+    "lineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["parent_refs", "source_refs", "created_at", "updated_at", "audit_notes"],
+      "properties": {
+        "parent_refs": { "type": "array", "items": { "$ref": "#/definitions/lineage_ref" } },
+        "source_refs": { "type": "array", "items": { "$ref": "#/definitions/lineage_ref" } },
+        "created_at": { "$ref": "#/definitions/date_time_or_null" },
+        "updated_at": { "$ref": "#/definitions/date_time_or_null" },
+        "audit_notes": { "$ref": "#/definitions/string_array" }
+      }
+    },
+    "hash_pinning": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["catalog_hash", "hash_algorithm", "canonicalization", "hash_scope_version", "hash_scope", "hash_status"],
+      "properties": {
+        "catalog_hash": { "$ref": "#/definitions/sha256_or_null" },
+        "hash_algorithm": { "type": "string", "enum": ["sha256"] },
+        "canonicalization": { "type": "string", "const": "json_canonical_v1" },
+        "hash_scope_version": { "type": "string", "const": "indicator_catalog_hash_scope_v1" },
+        "hash_scope": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["schema_version", "catalog_id", "catalog_status", "entries", "non_execution_declaration"] },
+          "uniqueItems": true
+        },
+        "hash_status": { "type": "string", "enum": ["not_computed", "computed", "superseded"] }
+      }
+    }
+  }
+}

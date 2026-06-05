@@ -1,0 +1,687 @@
+{
+  "append_only_ledger": {
+    "append_only": true,
+    "corrections_require_append_only_event": true,
+    "creation_event_ref": "RP-2134-EVENT-001",
+    "events": [
+      {
+        "actor_or_tool": "tools.research_runner.run_offline_sweep",
+        "event_id": "RP-2134-EVENT-001",
+        "event_timestamp": "2026-06-01T00:00:00Z",
+        "event_type": "created",
+        "notes": [
+          "build-and-test-only synthetic runner output"
+        ],
+        "related_artifact_refs": []
+      }
+    ],
+    "ledger_required": true,
+    "post_commit_in_place_mutation_forbidden": true,
+    "scientific_identity_mutation_forbidden_after_finalization": true,
+    "supersession_preserves_prior_result_population": true
+  },
+  "audit_envelope": {
+    "administrative_lineage": [],
+    "administrative_only": true,
+    "created_at": "2026-06-01T00:00:00Z",
+    "created_by": "tools.research_runner.run_offline_sweep",
+    "excluded_from_input_identity_hash": true,
+    "excluded_from_result_population_identity_hash": true,
+    "may_contain_scientific_content": false,
+    "operator_notes": [
+      "run_label=canonical-candidate"
+    ],
+    "review_notes": [],
+    "validation_run_logs": []
+  },
+  "backtest_assumption_summary": {
+    "bar_path_assumption": "next_open_close_mark",
+    "exchange_constraint_disclosure": "True",
+    "fee_side_assumption": "taker_entry_taker_exit",
+    "fill_mode": "complete",
+    "funding_notional": "entry_price",
+    "liquidation_mode": "zero_equity",
+    "liquidity_capacity_assumption": null,
+    "maintenance_margin_assumption": null,
+    "mark_price_source": "close",
+    "order_size_assumption": "future offline runner assumption only; no execution here",
+    "records_assumptions_only": true,
+    "slippage_model": "fixed_bps"
+  },
+  "committed_denominator_snapshot": {
+    "aborted_variants_remain_in_denominator": true,
+    "committed_denominator": 7,
+    "data_unavailable_variants_remain_in_denominator": true,
+    "denominator_basis": "committed_pre_registered_population_count",
+    "denominator_equals_parent_manifest_committed_population_count": true,
+    "denominator_equals_parent_sweep_plan_committed_population_count": true,
+    "errored_variants_remain_in_denominator": true,
+    "excluded_variants_remain_in_denominator": true,
+    "executed_only_denominator_forbidden": true,
+    "failed_variants_remain_in_denominator": true,
+    "filtered_variants_remain_in_denominator": true,
+    "invalid_variants_remain_in_denominator": true,
+    "not_attempted_variants_remain_in_denominator": true,
+    "outcome_counts_sum": 7,
+    "outcome_counts_sum_equals_committed_denominator": true,
+    "parent_manifest_committed_population_count": 7,
+    "parent_sweep_plan_committed_population_count": 7,
+    "post_hoc_cleanup_forbidden": true,
+    "result_row_count": 7,
+    "result_row_count_equals_committed_denominator": true,
+    "selected_variant_count": 7,
+    "successful_only_denominator_forbidden": true,
+    "winner_only_retention_forbidden": true
+  },
+  "data_coverage_summary": {
+    "data_catalog_ref": "synthetic_fixture_only",
+    "data_coverage_notes": [
+      "fixture/synthetic data only"
+    ],
+    "data_slice_identity": "synthetic-offline-runner-v1",
+    "data_stream": "ohlcv",
+    "data_unavailable_count": 0,
+    "irreparable_gap_count": 0,
+    "missing_data_policy": "block_if_missing",
+    "timeframe": "1h"
+  },
+  "error_summary": {
+    "aborted": 0,
+    "all_error_categories_counted_in_denominator": true,
+    "data_unavailable": 0,
+    "error_rows_preserved": true,
+    "errored": 0,
+    "excluded": 0,
+    "failed": 0,
+    "filtered": 0,
+    "invalid": 0,
+    "not_attempted": 0
+  },
+  "execution_context": {
+    "dependency_summary": [
+      "pandas",
+      "jsonschema"
+    ],
+    "determinism_seed": 0,
+    "environment_summary": [
+      "synthetic_fixture_only"
+    ],
+    "execution_mode": "offline_research",
+    "no_broker_exchange_order_contact": true,
+    "no_paper_live_contact": true,
+    "no_protected_path_contact": true,
+    "no_runtime_contact": true,
+    "offline_only": true,
+    "repo_commit": "build-test-only",
+    "runner_code_ref": "tools.research_runner.run_offline_sweep",
+    "runner_id": "offline-research-runner",
+    "runner_version": "wp-s2c-190-build-test-v1"
+  },
+  "input_identity_hash": {
+    "audit_envelope_excluded": true,
+    "audit_envelope_exclusion_reason": "administrative_audit_metadata_is_excluded_from_scientific_identity",
+    "canonicalization": "json_canonical_v1",
+    "hash": "sha256:7160b8ea7d601b7cfb1c087dc6eae83d63cb61bc18fa16e7c9b3904f8252b534",
+    "hash_algorithm": "sha256",
+    "hash_scope": [
+      "parent_strategy_spec.strategy_spec_hash",
+      "parent_variant_manifest.manifest_hash",
+      "parent_sweep_plan.sweep_plan_identity_hash",
+      "parent_variant_manifest.committed_population_count",
+      "parent_sweep_plan.committed_population_count",
+      "execution_context.runner_code_ref",
+      "execution_context.repo_commit",
+      "data_coverage_summary.data_catalog_ref",
+      "data_coverage_summary.data_slice_identity",
+      "backtest_assumption_summary"
+    ],
+    "hash_scope_version": "input_identity_hash_scope_v1"
+  },
+  "lineage": {
+    "complete_population_lineage_preserved": true,
+    "created_from_validated_inputs": true,
+    "parent_hash_chain": {
+      "input_identity_hash": "sha256:7160b8ea7d601b7cfb1c087dc6eae83d63cb61bc18fa16e7c9b3904f8252b534",
+      "strategy_spec_hash": "sha256:de5f96f7bb13ef19ced4b76229b6186833729e38b0fd4dc40dcabb1f2567f849",
+      "sweep_plan_identity_hash": "sha256:c867f2e7e2fc55e3207c0c6ac413d81385479f95a7a2c6097a5598d372bcd6a8",
+      "variant_manifest_hash": "sha256:1a1de4328870b51b98f9c9b4e9be88258c4a0d19f0e1f041c389e0a596db1a6e"
+    },
+    "result_population_id": "RP-2134",
+    "strategy_spec_id": "STRAT-SPEC-0001",
+    "sweep_plan_id": "SWEEP-PLAN-0001",
+    "variant_manifest_id": "VM-0001"
+  },
+  "non_authority_declaration": {
+    "canonical_evidence_relationship": "reference_only",
+    "not_candidate_approval": true,
+    "not_canonical_evidence_replacement": true,
+    "not_dec_replacement": true,
+    "not_decision_authority": true,
+    "not_executable": true,
+    "not_exp_approval": true,
+    "not_exp_replacement": true,
+    "not_gate_authority": true,
+    "not_ol_replacement": true,
+    "not_outcome_ledger_replacement": true,
+    "not_paper_live_authority": true,
+    "not_ranking_authority": true,
+    "not_readiness_authority": true,
+    "not_rec_replacement": true,
+    "not_recommendation_authority": true,
+    "not_reconciliation_authority": true,
+    "not_rep_replacement": true,
+    "not_result_authority": true,
+    "not_runner_authority": true,
+    "not_runtime_authority": true,
+    "not_sweep_authority": true,
+    "not_transition_authority": true,
+    "not_trial_log_replacement": true
+  },
+  "outcome_category_counts": {
+    "aborted": 0,
+    "counts_sum": 7,
+    "counts_sum_equals_committed_denominator": true,
+    "data_unavailable": 0,
+    "errored": 0,
+    "excluded": 0,
+    "failed": 0,
+    "filtered": 0,
+    "invalid": 0,
+    "not_attempted": 0,
+    "successful": 7
+  },
+  "parent_strategy_spec": {
+    "hash_algorithm": "sha256",
+    "hash_scope_version": "strategy_spec_hash_scope_v1",
+    "mismatch_policy": "block",
+    "missing_parent_policy": "block",
+    "strategy_spec_hash": "sha256:de5f96f7bb13ef19ced4b76229b6186833729e38b0fd4dc40dcabb1f2567f849",
+    "strategy_spec_id": "STRAT-SPEC-0001",
+    "strategy_spec_ref": null,
+    "strategy_spec_schema_version": "v1"
+  },
+  "parent_sweep_plan": {
+    "committed_population_count": 7,
+    "hash_algorithm": "sha256",
+    "hash_scope_version": "sweep_plan_identity_hash_scope_v1",
+    "manifest_hash": "sha256:1a1de4328870b51b98f9c9b4e9be88258c4a0d19f0e1f041c389e0a596db1a6e",
+    "manifest_id": "VM-0001",
+    "mismatch_policy": "block",
+    "missing_sweep_plan_policy": "block",
+    "selected_variant_count": 7,
+    "sweep_plan_id": "SWEEP-PLAN-0001",
+    "sweep_plan_identity_hash": "sha256:c867f2e7e2fc55e3207c0c6ac413d81385479f95a7a2c6097a5598d372bcd6a8",
+    "sweep_plan_ref": null,
+    "sweep_plan_schema_version": "v1"
+  },
+  "parent_variant_manifest": {
+    "committed_population_count": 7,
+    "hash_algorithm": "sha256",
+    "hash_scope_version": "variant_manifest_hash_scope_v1",
+    "manifest_hash": "sha256:1a1de4328870b51b98f9c9b4e9be88258c4a0d19f0e1f041c389e0a596db1a6e",
+    "manifest_pre_registration_status": "frozen_for_sweep_planning",
+    "manifest_ref": null,
+    "mismatch_policy": "block",
+    "missing_manifest_policy": "block",
+    "variant_manifest_id": "VM-0001",
+    "variant_manifest_schema_version": "v1"
+  },
+  "result_population_id": "RP-2134",
+  "result_population_identity_hash": {
+    "audit_envelope_excluded": true,
+    "audit_envelope_exclusion_reason": "administrative_audit_metadata_is_excluded_from_scientific_identity",
+    "canonicalization": "json_canonical_v1",
+    "hash": "sha256:8c14e482facc8b03e6cfa61b1bc1a0bf8b110ba690ac55ae49f1a139e96d13bb",
+    "hash_algorithm": "sha256",
+    "hash_scope": [
+      "parent_strategy_spec.strategy_spec_hash",
+      "parent_variant_manifest.manifest_hash",
+      "parent_sweep_plan.sweep_plan_identity_hash",
+      "parent_variant_manifest.committed_population_count",
+      "parent_sweep_plan.committed_population_count",
+      "execution_context.runner_code_ref",
+      "execution_context.repo_commit",
+      "data_coverage_summary.data_catalog_ref",
+      "data_coverage_summary.data_slice_identity",
+      "backtest_assumption_summary",
+      "committed_denominator_snapshot",
+      "variant_result_rows",
+      "outcome_category_counts",
+      "append_only_ledger.creation_event_ref",
+      "validation_summary.validator_identity"
+    ],
+    "hash_scope_version": "result_population_identity_hash_scope_v1"
+  },
+  "review": {
+    "non_authority_acknowledgement": {
+      "not_approval": true,
+      "not_gate_satisfaction": true,
+      "not_paper_live_authority": true,
+      "not_readiness": true,
+      "not_recommendation": true,
+      "not_runtime_authority": true,
+      "not_transition": true
+    },
+    "review_notes": [],
+    "review_scope": "none",
+    "review_status": "not_reviewed"
+  },
+  "schema_version": "v1",
+  "status": "generated",
+  "validation_summary": {
+    "blocking_errors": [],
+    "non_blocking_warnings": [],
+    "schema_validation_status": "passed",
+    "validation_timestamp": "2026-06-01T00:00:00Z",
+    "validator_authority_boundary": "evidence_only_no_approval_no_execution",
+    "validator_does_not_approve": true,
+    "validator_does_not_contact_runtime": true,
+    "validator_does_not_execute": true,
+    "validator_does_not_rank": true,
+    "validator_does_not_recommend": true,
+    "validator_identity": "tools.registry.validate_result_populations",
+    "validator_status": "passed",
+    "validator_version": "wp-s2c-189"
+  },
+  "variant_result_rows": [
+    {
+      "assignment_hash": "sha256:0da497523f5bb79e0fa759431a94da7b32fe94e23f013b2e70c4bd076a56c034",
+      "assignment_ref": null,
+      "attempted": true,
+      "backtest_assumption_ref": "backtest_assumption_summary",
+      "data_coverage": {
+        "counts_in_denominator": true,
+        "data_catalog_ref": "synthetic_fixture_only",
+        "data_slice_identity": "synthetic-offline-runner-v1",
+        "data_stream": "ohlcv",
+        "irreparable_gap": false,
+        "missing_data_policy": "block_if_missing",
+        "timeframe": "1h"
+      },
+      "error": {
+        "counts_in_denominator": true,
+        "error_category": null,
+        "error_message_class": null,
+        "is_infrastructure_error": null,
+        "is_strategy_underperformance": null
+      },
+      "lineage": {
+        "parent_manifest_id": "VM-0001",
+        "parent_sweep_plan_id": "SWEEP-PLAN-0001",
+        "parent_variant_assignment_hash": "sha256:0da497523f5bb79e0fa759431a94da7b32fe94e23f013b2e70c4bd076a56c034",
+        "parent_variant_assignment_ref": null,
+        "parent_variant_id": "VAR-000001"
+      },
+      "metrics": {
+        "drawdown": 3.350000006321352e-08,
+        "exposure": 1.0,
+        "fees": 0.082036,
+        "funding": 0.0,
+        "pnl": 3.6474550000002637,
+        "return_pct": 0.0003647455000000264,
+        "sharpe": 84.10434088920897,
+        "slippage": 0.020509,
+        "trade_count": 1,
+        "win_rate": 1.0
+      },
+      "non_success": {
+        "counts_in_denominator": true,
+        "declared_before_results": null,
+        "reason": null,
+        "rule_ref": null
+      },
+      "outcome_category": "successful",
+      "row_id": "RP-2134-ROW-000001",
+      "row_identity_hash": "sha256:fc4543cd1e8b03e5755ec409cba10e0cc13e6221242b91e8a5e8a138397b13b5",
+      "row_mutation_policy": {
+        "corrections_require_append_only_event": true,
+        "post_commit_in_place_mutation_forbidden": true,
+        "post_hoc_cleanup_forbidden": true,
+        "scientific_row_identity_immutable_after_commit": true
+      },
+      "variant_id": "VAR-000001"
+    },
+    {
+      "assignment_hash": "sha256:ea4baff5116e8037a6f11d921b3c745d89ba8d9eb5f8399833c5d65236bf5950",
+      "assignment_ref": null,
+      "attempted": true,
+      "backtest_assumption_ref": "backtest_assumption_summary",
+      "data_coverage": {
+        "counts_in_denominator": true,
+        "data_catalog_ref": "synthetic_fixture_only",
+        "data_slice_identity": "synthetic-offline-runner-v1",
+        "data_stream": "ohlcv",
+        "irreparable_gap": false,
+        "missing_data_policy": "block_if_missing",
+        "timeframe": "1h"
+      },
+      "error": {
+        "counts_in_denominator": true,
+        "error_category": null,
+        "error_message_class": null,
+        "is_infrastructure_error": null,
+        "is_strategy_underperformance": null
+      },
+      "lineage": {
+        "parent_manifest_id": "VM-0001",
+        "parent_sweep_plan_id": "SWEEP-PLAN-0001",
+        "parent_variant_assignment_hash": "sha256:ea4baff5116e8037a6f11d921b3c745d89ba8d9eb5f8399833c5d65236bf5950",
+        "parent_variant_assignment_ref": null,
+        "parent_variant_id": "VAR-000002"
+      },
+      "metrics": {
+        "drawdown": 0.00038625449999999545,
+        "exposure": 1.0,
+        "fees": 0.090036,
+        "funding": 0.0,
+        "pnl": -3.8625449999999546,
+        "return_pct": -0.00038625449999999545,
+        "sharpe": -88.32997207141561,
+        "slippage": 0.022509,
+        "trade_count": 1,
+        "win_rate": 0.0
+      },
+      "non_success": {
+        "counts_in_denominator": true,
+        "declared_before_results": null,
+        "reason": null,
+        "rule_ref": null
+      },
+      "outcome_category": "successful",
+      "row_id": "RP-2134-ROW-000002",
+      "row_identity_hash": "sha256:e8e7e9bd70b11a4ccc0de7bedf65d93fa3fab68e295096973a84c70b0c48e172",
+      "row_mutation_policy": {
+        "corrections_require_append_only_event": true,
+        "post_commit_in_place_mutation_forbidden": true,
+        "post_hoc_cleanup_forbidden": true,
+        "scientific_row_identity_immutable_after_commit": true
+      },
+      "variant_id": "VAR-000002"
+    },
+    {
+      "assignment_hash": "sha256:466029b9b0d9fcf4fed90998b30cbe941c2c1ea7abd7b23c2c3c100d1b68baec",
+      "assignment_ref": null,
+      "attempted": true,
+      "backtest_assumption_ref": "backtest_assumption_summary",
+      "data_coverage": {
+        "counts_in_denominator": true,
+        "data_catalog_ref": "synthetic_fixture_only",
+        "data_slice_identity": "synthetic-offline-runner-v1",
+        "data_stream": "ohlcv",
+        "irreparable_gap": false,
+        "missing_data_policy": "block_if_missing",
+        "timeframe": "1h"
+      },
+      "error": {
+        "counts_in_denominator": true,
+        "error_category": null,
+        "error_message_class": null,
+        "is_infrastructure_error": null,
+        "is_strategy_underperformance": null
+      },
+      "lineage": {
+        "parent_manifest_id": "VM-0001",
+        "parent_sweep_plan_id": "SWEEP-PLAN-0001",
+        "parent_variant_assignment_hash": "sha256:466029b9b0d9fcf4fed90998b30cbe941c2c1ea7abd7b23c2c3c100d1b68baec",
+        "parent_variant_assignment_ref": null,
+        "parent_variant_id": "VAR-000003"
+      },
+      "metrics": {
+        "drawdown": 0.0003860545000001366,
+        "exposure": 1.0,
+        "fees": 0.088436,
+        "funding": 0.0,
+        "pnl": -3.860545000001366,
+        "return_pct": -0.0003860545000001366,
+        "sharpe": -88.31646071847307,
+        "slippage": 0.022109,
+        "trade_count": 1,
+        "win_rate": 0.0
+      },
+      "non_success": {
+        "counts_in_denominator": true,
+        "declared_before_results": null,
+        "reason": null,
+        "rule_ref": null
+      },
+      "outcome_category": "successful",
+      "row_id": "RP-2134-ROW-000003",
+      "row_identity_hash": "sha256:40ab25ffc0b6f0573143d4ba2c10f993cbc73dd91b92c02832a5a03f0646b7f6",
+      "row_mutation_policy": {
+        "corrections_require_append_only_event": true,
+        "post_commit_in_place_mutation_forbidden": true,
+        "post_hoc_cleanup_forbidden": true,
+        "scientific_row_identity_immutable_after_commit": true
+      },
+      "variant_id": "VAR-000003"
+    },
+    {
+      "assignment_hash": "sha256:a30dc94c67efb9a619de729983c9f2b83497f8a6777d93fd3c400a9abbd49aa1",
+      "assignment_ref": null,
+      "attempted": true,
+      "backtest_assumption_ref": "backtest_assumption_summary",
+      "data_coverage": {
+        "counts_in_denominator": true,
+        "data_catalog_ref": "synthetic_fixture_only",
+        "data_slice_identity": "synthetic-offline-runner-v1",
+        "data_stream": "ohlcv",
+        "irreparable_gap": false,
+        "missing_data_policy": "block_if_missing",
+        "timeframe": "1h"
+      },
+      "error": {
+        "counts_in_denominator": true,
+        "error_category": null,
+        "error_message_class": null,
+        "is_infrastructure_error": null,
+        "is_strategy_underperformance": null
+      },
+      "lineage": {
+        "parent_manifest_id": "VM-0001",
+        "parent_sweep_plan_id": "SWEEP-PLAN-0001",
+        "parent_variant_assignment_hash": "sha256:a30dc94c67efb9a619de729983c9f2b83497f8a6777d93fd3c400a9abbd49aa1",
+        "parent_variant_assignment_ref": null,
+        "parent_variant_id": "VAR-000004"
+      },
+      "metrics": {
+        "drawdown": 3.350000006321352e-08,
+        "exposure": 1.0,
+        "fees": 0.082036,
+        "funding": 0.0,
+        "pnl": 3.6474550000002637,
+        "return_pct": 0.0003647455000000264,
+        "sharpe": 84.10434088920897,
+        "slippage": 0.020509,
+        "trade_count": 1,
+        "win_rate": 1.0
+      },
+      "non_success": {
+        "counts_in_denominator": true,
+        "declared_before_results": null,
+        "reason": null,
+        "rule_ref": null
+      },
+      "outcome_category": "successful",
+      "row_id": "RP-2134-ROW-000004",
+      "row_identity_hash": "sha256:b10165c15bbcf274e32195c29c026feb0f9a7c09c5547cd4deae6319b5708ed7",
+      "row_mutation_policy": {
+        "corrections_require_append_only_event": true,
+        "post_commit_in_place_mutation_forbidden": true,
+        "post_hoc_cleanup_forbidden": true,
+        "scientific_row_identity_immutable_after_commit": true
+      },
+      "variant_id": "VAR-000004"
+    },
+    {
+      "assignment_hash": "sha256:e8de4984c3661948db8cb6372bdcdb1ce37b9f5fc96da504a348769207932bf8",
+      "assignment_ref": null,
+      "attempted": true,
+      "backtest_assumption_ref": "backtest_assumption_summary",
+      "data_coverage": {
+        "counts_in_denominator": true,
+        "data_catalog_ref": "synthetic_fixture_only",
+        "data_slice_identity": "synthetic-offline-runner-v1",
+        "data_stream": "ohlcv",
+        "irreparable_gap": false,
+        "missing_data_policy": "block_if_missing",
+        "timeframe": "1h"
+      },
+      "error": {
+        "counts_in_denominator": true,
+        "error_category": null,
+        "error_message_class": null,
+        "is_infrastructure_error": null,
+        "is_strategy_underperformance": null
+      },
+      "lineage": {
+        "parent_manifest_id": "VM-0001",
+        "parent_sweep_plan_id": "SWEEP-PLAN-0001",
+        "parent_variant_assignment_hash": "sha256:e8de4984c3661948db8cb6372bdcdb1ce37b9f5fc96da504a348769207932bf8",
+        "parent_variant_assignment_ref": null,
+        "parent_variant_id": "VAR-000005"
+      },
+      "metrics": {
+        "drawdown": 2.835000001141452e-07,
+        "exposure": 1.0,
+        "fees": 0.086036,
+        "funding": 0.0,
+        "pnl": 3.642454999999245,
+        "return_pct": 0.0003642454999999245,
+        "sharpe": 83.94002385764138,
+        "slippage": 0.021509,
+        "trade_count": 1,
+        "win_rate": 1.0
+      },
+      "non_success": {
+        "counts_in_denominator": true,
+        "declared_before_results": null,
+        "reason": null,
+        "rule_ref": null
+      },
+      "outcome_category": "successful",
+      "row_id": "RP-2134-ROW-000005",
+      "row_identity_hash": "sha256:03fecbbc3748b38dd5a2bd9e979f628c3c51d5dd838e763d52b029d7dcfa740b",
+      "row_mutation_policy": {
+        "corrections_require_append_only_event": true,
+        "post_commit_in_place_mutation_forbidden": true,
+        "post_hoc_cleanup_forbidden": true,
+        "scientific_row_identity_immutable_after_commit": true
+      },
+      "variant_id": "VAR-000005"
+    },
+    {
+      "assignment_hash": "sha256:927cedddfbf1b7be981811b30129c35a3de7bc363b97531b4c0220420cd96bf2",
+      "assignment_ref": null,
+      "attempted": true,
+      "backtest_assumption_ref": "backtest_assumption_summary",
+      "data_coverage": {
+        "counts_in_denominator": true,
+        "data_catalog_ref": "synthetic_fixture_only",
+        "data_slice_identity": "synthetic-offline-runner-v1",
+        "data_stream": "ohlcv",
+        "irreparable_gap": false,
+        "missing_data_policy": "block_if_missing",
+        "timeframe": "1h"
+      },
+      "error": {
+        "counts_in_denominator": true,
+        "error_category": null,
+        "error_message_class": null,
+        "is_infrastructure_error": null,
+        "is_strategy_underperformance": null
+      },
+      "lineage": {
+        "parent_manifest_id": "VM-0001",
+        "parent_sweep_plan_id": "SWEEP-PLAN-0001",
+        "parent_variant_assignment_hash": "sha256:927cedddfbf1b7be981811b30129c35a3de7bc363b97531b4c0220420cd96bf2",
+        "parent_variant_assignment_ref": null,
+        "parent_variant_id": "VAR-000006"
+      },
+      "metrics": {
+        "drawdown": 0.00038625449999999545,
+        "exposure": 1.0,
+        "fees": 0.090036,
+        "funding": 0.0,
+        "pnl": -3.8625449999999546,
+        "return_pct": -0.00038625449999999545,
+        "sharpe": -88.32997207141561,
+        "slippage": 0.022509,
+        "trade_count": 1,
+        "win_rate": 0.0
+      },
+      "non_success": {
+        "counts_in_denominator": true,
+        "declared_before_results": null,
+        "reason": null,
+        "rule_ref": null
+      },
+      "outcome_category": "successful",
+      "row_id": "RP-2134-ROW-000006",
+      "row_identity_hash": "sha256:477c045786dfbda502d9b59a2a097cb73b40a58c4595918f8282f79f3b8e4a6e",
+      "row_mutation_policy": {
+        "corrections_require_append_only_event": true,
+        "post_commit_in_place_mutation_forbidden": true,
+        "post_hoc_cleanup_forbidden": true,
+        "scientific_row_identity_immutable_after_commit": true
+      },
+      "variant_id": "VAR-000006"
+    },
+    {
+      "assignment_hash": "sha256:4ceb502950b9e805360151feb0393b69b2daf848cef6c5c368031033d208ccbc",
+      "assignment_ref": null,
+      "attempted": true,
+      "backtest_assumption_ref": "backtest_assumption_summary",
+      "data_coverage": {
+        "counts_in_denominator": true,
+        "data_catalog_ref": "synthetic_fixture_only",
+        "data_slice_identity": "synthetic-offline-runner-v1",
+        "data_stream": "ohlcv",
+        "irreparable_gap": false,
+        "missing_data_policy": "block_if_missing",
+        "timeframe": "1h"
+      },
+      "error": {
+        "counts_in_denominator": true,
+        "error_category": null,
+        "error_message_class": null,
+        "is_infrastructure_error": null,
+        "is_strategy_underperformance": null
+      },
+      "lineage": {
+        "parent_manifest_id": "VM-0001",
+        "parent_sweep_plan_id": "SWEEP-PLAN-0001",
+        "parent_variant_assignment_hash": "sha256:4ceb502950b9e805360151feb0393b69b2daf848cef6c5c368031033d208ccbc",
+        "parent_variant_assignment_ref": null,
+        "parent_variant_id": "VAR-000007"
+      },
+      "metrics": {
+        "drawdown": 0.0003858545000000959,
+        "exposure": 1.0,
+        "fees": 0.086836,
+        "funding": 0.0,
+        "pnl": -3.8585450000009587,
+        "return_pct": -0.0003858545000000959,
+        "sharpe": -88.30246581423341,
+        "slippage": 0.021709,
+        "trade_count": 1,
+        "win_rate": 0.0
+      },
+      "non_success": {
+        "counts_in_denominator": true,
+        "declared_before_results": null,
+        "reason": null,
+        "rule_ref": null
+      },
+      "outcome_category": "successful",
+      "row_id": "RP-2134-ROW-000007",
+      "row_identity_hash": "sha256:01c20893eaeeb882f77901a0828f4a4d1acc4448bf751fbd1a2b23f7344fe5f9",
+      "row_mutation_policy": {
+        "corrections_require_append_only_event": true,
+        "post_commit_in_place_mutation_forbidden": true,
+        "post_hoc_cleanup_forbidden": true,
+        "scientific_row_identity_immutable_after_commit": true
+      },
+      "variant_id": "VAR-000007"
+    }
+  ]
+}

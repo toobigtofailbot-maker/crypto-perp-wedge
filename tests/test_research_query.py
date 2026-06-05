@@ -2177,24 +2177,95 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
     ]
 
 
-def test_result_population_views_still_zero_rows_under_first_parent_instances(conn):
-    assert conn.execute("SELECT * FROM result_populations").fetchall() == []
-    for view_name in [
-        "v_result_population_overview",
-        "v_result_population_parent_lineage",
-        "v_result_population_denominator",
-        "v_result_population_outcome_counts",
-        "v_result_population_variant_rows",
-        "v_result_population_error_summary",
-        "v_result_population_data_coverage",
-        "v_result_population_backtest_assumptions",
-        "v_result_population_identity_audit",
-        "v_result_population_append_only_ledger",
-        "v_result_population_ledger_events",
-        "v_result_population_non_authority",
-        "v_result_population_execution_context",
-    ]:
-        assert conn.execute(f'SELECT * FROM "{view_name}"').fetchall() == []
+def test_result_population_views_expose_first_result_population(conn):
+    result_populations = conn.execute(
+        """
+        SELECT
+            result_population_id,
+            parent_strategy_spec.strategy_spec_id,
+            parent_variant_manifest.variant_manifest_id,
+            parent_sweep_plan.sweep_plan_id,
+            committed_denominator_snapshot.committed_denominator,
+            committed_denominator_snapshot.result_row_count,
+            outcome_category_counts.counts_sum
+        FROM result_populations
+        """
+    ).fetchall()
+    assert result_populations == [
+        ("RP-2134", "STRAT-SPEC-0001", "VM-0001", "SWEEP-PLAN-0001", 7, 7, 7)
+    ]
+
+    overview = conn.execute(
+        """
+        SELECT
+            result_population_id,
+            parent_strategy_spec_id,
+            parent_variant_manifest_id,
+            parent_sweep_plan_id,
+            committed_denominator,
+            result_row_count,
+            outcome_counts_sum
+        FROM v_result_population_overview
+        """
+    ).fetchall()
+    assert overview == [
+        ("RP-2134", "STRAT-SPEC-0001", "VM-0001", "SWEEP-PLAN-0001", 7, 7, 7)
+    ]
+
+    parent_lineage = conn.execute(
+        """
+        SELECT
+            result_population_id,
+            parent_strategy_spec_id,
+            parent_variant_manifest_id,
+            parent_sweep_plan_id
+        FROM v_result_population_parent_lineage
+        """
+    ).fetchall()
+    assert parent_lineage == [
+        ("RP-2134", "STRAT-SPEC-0001", "VM-0001", "SWEEP-PLAN-0001")
+    ]
+
+    denominator = conn.execute(
+        """
+        SELECT
+            result_population_id,
+            committed_denominator,
+            result_row_count,
+            outcome_counts_sum,
+            selected_variant_count
+        FROM v_result_population_denominator
+        """
+    ).fetchall()
+    assert denominator == [("RP-2134", 7, 7, 7, 7)]
+
+    outcome_counts = conn.execute(
+        """
+        SELECT result_population_id, counts_sum
+        FROM v_result_population_outcome_counts
+        """
+    ).fetchall()
+    assert outcome_counts == [("RP-2134", 7)]
+
+    variant_rows = conn.execute(
+        """
+        SELECT result_population_id, variant_id, parent_variant_id
+        FROM v_result_population_variant_rows
+        ORDER BY variant_id
+        """
+    ).fetchall()
+    expected_variant_ids = [
+        "VAR-000001",
+        "VAR-000002",
+        "VAR-000003",
+        "VAR-000004",
+        "VAR-000005",
+        "VAR-000006",
+        "VAR-000007",
+    ]
+    assert variant_rows == [
+        ("RP-2134", variant_id, variant_id) for variant_id in expected_variant_ids
+    ]
 
 
 def test_variant_sweep_integrity_views_empty_under_current_zero_instance_state(conn):

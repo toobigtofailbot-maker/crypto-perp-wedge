@@ -1,0 +1,328 @@
+{
+    "schema_version": "v1",
+    "variant_manifest_id": "VM-0001",
+    "status": "approved_for_sweep_planning",
+    "non_execution_declaration": {
+        "planning_surface_only": true,
+        "not_executable": true,
+        "not_runner_authority": true,
+        "not_sweep_authority": true,
+        "not_result_authority": true,
+        "not_candidate_approval": true,
+        "not_exp_approval": true,
+        "not_ranking_authority": true,
+        "not_recommendation_authority": true,
+        "not_readiness_authority": true,
+        "not_transition_authority": true,
+        "not_runtime_authority": true,
+        "not_paper_live_authority": true,
+        "not_gate_authority": true
+    },
+    "parent_strategy_spec": {
+        "strategy_spec_id": "STRAT-SPEC-0001",
+        "strategy_spec_schema_version": "v1",
+        "strategy_spec_hash": "sha256:de5f96f7bb13ef19ced4b76229b6186833729e38b0fd4dc40dcabb1f2567f849",
+        "hash_algorithm": "sha256",
+        "hash_scope_version": "strategy_spec_hash_scope_v1",
+        "strategy_spec_review_status": "approved_for_variant_planning",
+        "strategy_spec_ref": null,
+        "mismatch_policy": "block",
+        "missing_parent_policy": "block",
+        "does_not_mutate_parent_strategy_spec": true
+    },
+    "population_governance": {
+        "population_cap": {
+            "max_variants": 7,
+            "cap_basis": "manual_grid",
+            "cap_source": "human_declared",
+            "cap_exception_authorized": false,
+            "cap_exception_ref": null
+        },
+        "declared_population": {
+            "committed_population_count": 7,
+            "declared_variant_count": 7,
+            "included_variant_count": 7,
+            "excluded_variant_count": 0,
+            "invalid_variant_count": 0,
+            "not_attempted_variant_count": 0
+        },
+        "trial_budget": {
+            "planned_trial_count": 7,
+            "trial_budget_denominator": 7,
+            "denominator_basis": "committed_pre_registered_population_count",
+            "denominator_count": 7,
+            "denominator_includes_failed": true,
+            "denominator_includes_excluded": true,
+            "denominator_includes_invalid": true,
+            "denominator_includes_errored": true,
+            "denominator_includes_aborted": true,
+            "denominator_includes_filtered": true,
+            "denominator_includes_data_unavailable": true,
+            "denominator_includes_not_attempted": true,
+            "executed_only_denominator_forbidden": true
+        },
+        "multiple_testing_accounting": {
+            "denominator_required": true,
+            "denominator_type": "committed_pre_registered_population",
+            "search_family_id": "SF-SMA-DISTANCE-15M-0001",
+            "search_family_method": "manual_grid",
+            "adaptive_search_used": false,
+            "adaptive_search_authorization_ref": null,
+            "all_trials_visible_required": true,
+            "winner_only_review_forbidden": true
+        },
+        "pre_registration": {
+            "pre_registered": true,
+            "pre_registration_status": "frozen_for_sweep_planning",
+            "pre_registration_scope": "full_variant_population",
+            "freeze_required_before_sweep": true,
+            "post_hoc_addition_forbidden": true,
+            "post_result_mutation_forbidden": true,
+            "allowed_change_mode": "supersede_before_results_only"
+        }
+    },
+    "parameter_axes": [
+        {
+            "axis_id": "AXIS-001",
+            "parameter_name": "entry_distance_threshold",
+            "parent_strategy_spec_parameter_ref": "free_parameters.parameters.entry_distance_threshold",
+            "parameter_type": "number",
+            "units": "ratio",
+            "axis_kind": "free_parameter",
+            "generator_method": "manual_grid",
+            "allowed_values": [
+                0.005,
+                0.01,
+                0.015,
+                0.02,
+                0.03,
+                0.04,
+                0.05
+            ],
+            "range": {
+                "min": 0.005,
+                "max": 0.05,
+                "step": 0.005,
+                "inclusive_min": true,
+                "inclusive_max": true
+            },
+            "counts_toward_parent_free_parameter_cap": true,
+            "is_declared_in_parent_strategy_spec": true,
+            "invalid_combination_rule_refs": [],
+            "notes": "Accepted first canonical grid: 0.005, 0.010, 0.015, 0.020, 0.030, 0.040, 0.050."
+        }
+    ],
+    "invalid_combination_rules": [],
+    "exclusion_rules": [],
+    "variant_assignments": [
+        {
+            "variant_id": "VAR-000001",
+            "assignment_status": "included",
+            "parameter_values": {
+                "entry_distance_threshold": 0.005
+            },
+            "parameter_value_hash": "sha256:0da497523f5bb79e0fa759431a94da7b32fe94e23f013b2e70c4bd076a56c034",
+            "axis_refs": [
+                "AXIS-001"
+            ],
+            "exclusion_rule_refs": [],
+            "invalid_combination_rule_refs": [],
+            "status_reason": null,
+            "lineage": {
+                "generated_by_rule": "manual-grid",
+                "generation_order": 1
+            }
+        },
+        {
+            "variant_id": "VAR-000002",
+            "assignment_status": "included",
+            "parameter_values": {
+                "entry_distance_threshold": 0.01
+            },
+            "parameter_value_hash": "sha256:ea4baff5116e8037a6f11d921b3c745d89ba8d9eb5f8399833c5d65236bf5950",
+            "axis_refs": [
+                "AXIS-001"
+            ],
+            "exclusion_rule_refs": [],
+            "invalid_combination_rule_refs": [],
+            "status_reason": null,
+            "lineage": {
+                "generated_by_rule": "manual-grid",
+                "generation_order": 2
+            }
+        },
+        {
+            "variant_id": "VAR-000003",
+            "assignment_status": "included",
+            "parameter_values": {
+                "entry_distance_threshold": 0.015
+            },
+            "parameter_value_hash": "sha256:466029b9b0d9fcf4fed90998b30cbe941c2c1ea7abd7b23c2c3c100d1b68baec",
+            "axis_refs": [
+                "AXIS-001"
+            ],
+            "exclusion_rule_refs": [],
+            "invalid_combination_rule_refs": [],
+            "status_reason": null,
+            "lineage": {
+                "generated_by_rule": "manual-grid",
+                "generation_order": 3
+            }
+        },
+        {
+            "variant_id": "VAR-000004",
+            "assignment_status": "included",
+            "parameter_values": {
+                "entry_distance_threshold": 0.02
+            },
+            "parameter_value_hash": "sha256:a30dc94c67efb9a619de729983c9f2b83497f8a6777d93fd3c400a9abbd49aa1",
+            "axis_refs": [
+                "AXIS-001"
+            ],
+            "exclusion_rule_refs": [],
+            "invalid_combination_rule_refs": [],
+            "status_reason": null,
+            "lineage": {
+                "generated_by_rule": "manual-grid",
+                "generation_order": 4
+            }
+        },
+        {
+            "variant_id": "VAR-000005",
+            "assignment_status": "included",
+            "parameter_values": {
+                "entry_distance_threshold": 0.03
+            },
+            "parameter_value_hash": "sha256:e8de4984c3661948db8cb6372bdcdb1ce37b9f5fc96da504a348769207932bf8",
+            "axis_refs": [
+                "AXIS-001"
+            ],
+            "exclusion_rule_refs": [],
+            "invalid_combination_rule_refs": [],
+            "status_reason": null,
+            "lineage": {
+                "generated_by_rule": "manual-grid",
+                "generation_order": 5
+            }
+        },
+        {
+            "variant_id": "VAR-000006",
+            "assignment_status": "included",
+            "parameter_values": {
+                "entry_distance_threshold": 0.04
+            },
+            "parameter_value_hash": "sha256:927cedddfbf1b7be981811b30129c35a3de7bc363b97531b4c0220420cd96bf2",
+            "axis_refs": [
+                "AXIS-001"
+            ],
+            "exclusion_rule_refs": [],
+            "invalid_combination_rule_refs": [],
+            "status_reason": null,
+            "lineage": {
+                "generated_by_rule": "manual-grid",
+                "generation_order": 6
+            }
+        },
+        {
+            "variant_id": "VAR-000007",
+            "assignment_status": "included",
+            "parameter_values": {
+                "entry_distance_threshold": 0.05
+            },
+            "parameter_value_hash": "sha256:4ceb502950b9e805360151feb0393b69b2daf848cef6c5c368031033d208ccbc",
+            "axis_refs": [
+                "AXIS-001"
+            ],
+            "exclusion_rule_refs": [],
+            "invalid_combination_rule_refs": [],
+            "status_reason": null,
+            "lineage": {
+                "generated_by_rule": "manual-grid",
+                "generation_order": 7
+            }
+        }
+    ],
+    "manifest_hash_pinning": {
+        "manifest_hash": "sha256:1a1de4328870b51b98f9c9b4e9be88258c4a0d19f0e1f041c389e0a596db1a6e",
+        "hash_algorithm": "sha256",
+        "canonicalization": "json_canonical_v1",
+        "hash_scope_version": "variant_manifest_hash_scope_v1",
+        "hash_scope": [
+            "schema_version",
+            "variant_manifest_id",
+            "parent_strategy_spec.strategy_spec_id",
+            "parent_strategy_spec.strategy_spec_hash",
+            "population_governance",
+            "parameter_axes",
+            "invalid_combination_rules",
+            "exclusion_rules",
+            "variant_assignments"
+        ],
+        "hash_status": "computed",
+        "frozen_at": "2026-06-05T00:00:00Z",
+        "pre_sweep_freeze_required": true,
+        "post_result_mutation_forbidden": true
+    },
+    "amendment_and_supersession": {
+        "amendment_mode": "none",
+        "supersedes": null,
+        "supersession_lineage": [],
+        "amendment_reason": null,
+        "associated_results_state": "no_associated_results",
+        "supersession_allowed": false,
+        "close_only_after_results": true,
+        "post_result_change": false,
+        "preserve_prior_manifest_required": true,
+        "fresh_denominator_required": true,
+        "does_not_inherit_prior_results": true
+    },
+    "lineage": {
+        "parent_refs": [
+            {
+                "ref_type": "strategy_spec",
+                "ref_id": "STRAT-SPEC-0001",
+                "ref_path": "research/strategy_specs/STRAT-SPEC-0001.strategy_spec.json",
+                "ref_hash": "sha256:de5f96f7bb13ef19ced4b76229b6186833729e38b0fd4dc40dcabb1f2567f849"
+            }
+        ],
+        "source_refs": [
+            {
+                "ref_type": "research_note",
+                "ref_id": "WP-S2c-208",
+                "ref_path": "docs/research_pipeline/2026-06-revised_first_canonical_sma_distance_spec_design.md",
+                "ref_hash": null
+            }
+        ],
+        "created_at": "2026-06-05T00:00:00Z",
+        "updated_at": "2026-06-05T00:00:00Z",
+        "audit_notes": [
+            "First canonical Variant Manifest freezes exactly seven included variants and denominator 7."
+        ],
+        "hash_refs": [
+            "sha256:de5f96f7bb13ef19ced4b76229b6186833729e38b0fd4dc40dcabb1f2567f849"
+        ]
+    },
+    "review": {
+        "human_review_required": true,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_notes": [
+            "No sweep run or result population is authorized by this manifest."
+        ],
+        "approval_scope": "sweep_planning_only",
+        "non_authority_acknowledgement": {
+            "not_candidate_approval": true,
+            "not_exp_approval": true,
+            "not_sweep_authority": true,
+            "not_runner_authority": true,
+            "not_result_authority": true,
+            "not_ranking_authority": true,
+            "not_recommendation_authority": true,
+            "not_readiness_authority": true,
+            "not_transition_authority": true,
+            "not_runtime_authority": true,
+            "not_paper_live_authority": true,
+            "not_gate_satisfaction": true
+        }
+    }
+}

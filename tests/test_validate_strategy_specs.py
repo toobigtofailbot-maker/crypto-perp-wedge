@@ -1,9 +1,11 @@
 import json
+import inspect
 import sys
 from pathlib import Path
 
 from jsonschema import Draft7Validator
 
+from tools.registry import validate_strategy_specs as validator_module
 from tools.registry.validate_strategy_specs import (
     DEFAULT_SCHEMA_PATH,
     main,
@@ -27,6 +29,36 @@ def _operand(ref="close") -> dict:
         "field": "close",
         "timeframe": "1h",
         "lookback": {"bars": 1},
+    }
+
+
+def _standard_operand(operand_type: str, ref, field=None, lookback=None) -> dict:
+    return {
+        "operand_type": operand_type,
+        "ref": ref,
+        "field": field,
+        "timeframe": None,
+        "lookback": lookback,
+    }
+
+
+def _composed_operand(
+    *,
+    base_operand_type: str = "indicator_ref",
+    parameter_operand_type: str = "parameter_ref",
+    composition_type: str = "scale_by_one_minus_parameter",
+    parameter_ref: str = "entry_distance_threshold",
+) -> dict:
+    return {
+        "operand_type": "composed_operand",
+        "composition_type": composition_type,
+        "base_operand": _standard_operand(
+            base_operand_type,
+            "sma" if base_operand_type == "indicator_ref" else "close",
+            "value" if base_operand_type == "indicator_ref" else "close",
+            {"bars": 20} if base_operand_type == "indicator_ref" else None,
+        ),
+        "parameter_operand": _standard_operand(parameter_operand_type, parameter_ref),
     }
 
 
@@ -81,6 +113,38 @@ def _parameter(name: str = "lookback") -> dict:
         "rationale": "Pytest fixture parameter.",
         "constraints": [],
     }
+
+
+def _threshold_parameter(
+    *,
+    name: str = "entry_distance_threshold",
+    parameter_type: str = "number",
+    role: str = "entry",
+    included_in_variant_generation: bool = True,
+    range_value: dict | None = None,
+    allowed_values: list | None = None,
+) -> dict:
+    parameter = _parameter(name)
+    parameter.update(
+        {
+            "type": parameter_type,
+            "units": "ratio",
+            "default": 0.05,
+            "range": {
+                "min": 0.01,
+                "max": 0.20,
+                "step": 0.01,
+                "inclusive_min": True,
+                "inclusive_max": True,
+            }
+            if range_value is None
+            else range_value,
+            "allowed_values": [] if allowed_values is None else allowed_values,
+            "included_in_variant_generation": included_in_variant_generation,
+            "role": role,
+        }
+    )
+    return parameter
 
 
 def _true_flags(*names: str) -> dict:
@@ -231,6 +295,16 @@ def _base_strategy_spec(strategy_spec_id: str = "STRAT-SPEC-9001") -> dict:
     }
 
 
+def _strategy_spec_with_composed_operand(**operand_kwargs) -> dict:
+    payload = _base_strategy_spec()
+    payload["entry_logic"]["groups"][0]["conditions"][0]["right_operand"] = _composed_operand(
+        **operand_kwargs
+    )
+    payload["free_parameters"]["parameters"] = [_threshold_parameter()]
+    payload["free_parameters"]["no_free_parameters_declared"] = False
+    return payload
+
+
 def _validate(
     tmp_path: Path,
     payload: dict,
@@ -262,6 +336,250 @@ def test_strategy_spec_validator_noops_when_directory_empty(tmp_path):
 
 def test_valid_temp_strategy_spec_passes(tmp_path):
     assert _validate(tmp_path, _base_strategy_spec()) == []
+
+
+def test_valid_composed_operand_passes_schema_and_validator(tmp_path):
+    payload = _strategy_spec_with_composed_operand()
+    schema = _load_schema()
+
+    assert Draft7Validator(schema).is_valid(payload)
+    assert _validate(tmp_path, payload) == []
+
+
+def test_composed_operand_base_data_ref_passes(tmp_path):
+    payload = _strategy_spec_with_composed_operand(base_operand_type="data_ref")
+
+    assert _validate(tmp_path, payload) == []
+
+
+def test_composed_operand_base_indicator_ref_passes(tmp_path):
+    payload = _strategy_spec_with_composed_operand(base_operand_type="indicator_ref")
+
+    assert _validate(tmp_path, payload) == []
+
+
+def test_composed_operand_rejects_unclosed_composition_types(tmp_path):
+    for composition_type in (
+        "scale_by_one_plus_parameter",
+        "offset_minus_parameter",
+        "offset_plus_parameter",
+        "multiply",
+        "expression",
+    ):
+        payload = _strategy_spec_with_composed_operand(composition_type=composition_type)
+
+        errors = _validate(tmp_path, payload)
+
+        assert any("composition_type" in error for error in errors), composition_type
+
+
+def test_composed_operand_base_parameter_ref_fails(tmp_path):
+    payload = _strategy_spec_with_composed_operand(base_operand_type="parameter_ref")
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("base_operand.operand_type" in error for error in errors)
+
+
+def test_composed_operand_base_composed_operand_fails(tmp_path):
+    payload = _strategy_spec_with_composed_operand()
+    payload["entry_logic"]["groups"][0]["conditions"][0]["right_operand"]["base_operand"] = (
+        _composed_operand()
+    )
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("base_operand must not be composed_operand" in error for error in errors)
+    assert any("nested or unauthorized composed_operand is forbidden" in error for error in errors)
+
+
+def test_composed_operand_parameter_ref_passes(tmp_path):
+    payload = _strategy_spec_with_composed_operand(parameter_operand_type="parameter_ref")
+
+    assert _validate(tmp_path, payload) == []
+
+
+def test_composed_operand_parameter_data_ref_fails(tmp_path):
+    payload = _strategy_spec_with_composed_operand(parameter_operand_type="data_ref")
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("parameter_operand.operand_type" in error for error in errors)
+
+
+def test_composed_operand_parameter_indicator_ref_fails(tmp_path):
+    payload = _strategy_spec_with_composed_operand(parameter_operand_type="indicator_ref")
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("parameter_operand.operand_type" in error for error in errors)
+
+
+def test_composed_operand_parameter_composed_operand_fails(tmp_path):
+    payload = _strategy_spec_with_composed_operand()
+    payload["entry_logic"]["groups"][0]["conditions"][0]["right_operand"]["parameter_operand"] = (
+        _composed_operand()
+    )
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("parameter_operand must not be composed_operand" in error for error in errors)
+    assert any("nested or unauthorized composed_operand is forbidden" in error for error in errors)
+
+
+def test_composed_operand_extra_property_fails(tmp_path):
+    payload = _strategy_spec_with_composed_operand()
+    payload["entry_logic"]["groups"][0]["conditions"][0]["right_operand"]["operator"] = "multiply"
+
+    errors = _validate(tmp_path, payload)
+
+    assert errors
+    assert any("invalid composed_operand properties" in error for error in errors)
+
+
+def test_forbidden_key_inside_composed_operand_fails(tmp_path):
+    payload = _strategy_spec_with_composed_operand()
+    payload["entry_logic"]["groups"][0]["conditions"][0]["right_operand"]["formula"] = "x"
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("forbidden executable key name" in error and "formula" in error for error in errors)
+
+
+def test_forbidden_key_inside_composed_base_operand_fails(tmp_path):
+    payload = _strategy_spec_with_composed_operand()
+    payload["entry_logic"]["groups"][0]["conditions"][0]["right_operand"]["base_operand"][
+        "eval"
+    ] = "x"
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("forbidden executable key name" in error and "eval" in error for error in errors)
+
+
+def test_forbidden_key_inside_composed_parameter_operand_fails(tmp_path):
+    payload = _strategy_spec_with_composed_operand()
+    payload["entry_logic"]["groups"][0]["conditions"][0]["right_operand"]["parameter_operand"][
+        "lookahead"
+    ] = True
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("forbidden executable key name" in error and "lookahead" in error for error in errors)
+
+
+def test_composed_operand_missing_bound_parameter_fails(tmp_path):
+    payload = _strategy_spec_with_composed_operand()
+    payload["free_parameters"]["parameters"] = []
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("must match exactly one" in error and "found 0" in error for error in errors)
+
+
+def test_composed_operand_duplicate_bound_parameter_fails(tmp_path):
+    payload = _strategy_spec_with_composed_operand()
+    payload["free_parameters"]["parameters"] = [
+        _threshold_parameter(),
+        _threshold_parameter(),
+    ]
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("must match exactly one" in error and "found 2" in error for error in errors)
+
+
+def test_composed_operand_bound_parameter_type_number_required(tmp_path):
+    payload = _strategy_spec_with_composed_operand()
+    payload["free_parameters"]["parameters"] = [_threshold_parameter(parameter_type="integer")]
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("type must be 'number'" in error for error in errors)
+
+
+def test_composed_operand_bound_parameter_role_entry_required(tmp_path):
+    payload = _strategy_spec_with_composed_operand()
+    payload["free_parameters"]["parameters"] = [_threshold_parameter(role="exit")]
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("role must be 'entry'" in error for error in errors)
+
+
+def test_composed_operand_bound_parameter_included_in_variants_required(tmp_path):
+    payload = _strategy_spec_with_composed_operand()
+    payload["free_parameters"]["parameters"] = [
+        _threshold_parameter(included_in_variant_generation=False)
+    ]
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("included_in_variant_generation must be true" in error for error in errors)
+
+
+def test_composed_operand_bound_parameter_range_required(tmp_path):
+    payload = _strategy_spec_with_composed_operand()
+    payload["free_parameters"]["parameters"] = [_threshold_parameter(range_value=None)]
+    payload["free_parameters"]["parameters"][0]["range"] = None
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("range must be bounded" in error for error in errors)
+
+
+def test_composed_operand_bound_parameter_range_min_must_be_positive(tmp_path):
+    payload = _strategy_spec_with_composed_operand()
+    payload["free_parameters"]["parameters"] = [
+        _threshold_parameter(range_value={
+            "min": 0,
+            "max": 0.20,
+            "step": 0.01,
+            "inclusive_min": True,
+            "inclusive_max": True,
+        })
+    ]
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("range.min must be > 0" in error for error in errors)
+
+
+def test_composed_operand_bound_parameter_range_max_must_be_less_than_one(tmp_path):
+    payload = _strategy_spec_with_composed_operand()
+    payload["free_parameters"]["parameters"] = [
+        _threshold_parameter(range_value={
+            "min": 0.01,
+            "max": 1,
+            "step": 0.01,
+            "inclusive_min": True,
+            "inclusive_max": True,
+        })
+    ]
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("range.max must be < 1" in error for error in errors)
+
+
+def test_composed_operand_bound_parameter_allowed_values_must_be_in_open_unit_interval(tmp_path):
+    payload = _strategy_spec_with_composed_operand()
+    payload["free_parameters"]["parameters"] = [
+        _threshold_parameter(allowed_values=[0.01, 1.0])
+    ]
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("allowed_values.1 must be numeric and in (0, 1)" in error for error in errors)
+
+
+def test_strategy_spec_validator_does_not_import_compiler_runner_or_lib_modules():
+    source = inspect.getsource(validator_module)
+
+    assert "spec_signal_compiler" not in source
+    assert "run_offline_sweep" not in source
+    assert "from lib.backtest" not in source
+    assert "from lib.evaluation" not in source
 
 
 def test_invalid_json_fails(tmp_path):

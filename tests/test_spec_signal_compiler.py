@@ -44,6 +44,39 @@ def _operand(operand_type: str, ref, field=None, lookback=None) -> dict:
     }
 
 
+def _composed_operand(
+    *,
+    base_operand: dict | None = None,
+    parameter_operand: dict | None = None,
+    composition_type: str = "scale_by_one_minus_parameter",
+) -> dict:
+    return {
+        "operand_type": "composed_operand",
+        "composition_type": composition_type,
+        "base_operand": base_operand
+        if base_operand is not None
+        else _operand("indicator_ref", "sma", "value", {"bars": 20}),
+        "parameter_operand": parameter_operand
+        if parameter_operand is not None
+        else _operand("parameter_ref", "entry_distance_threshold"),
+    }
+
+
+def _distance_ohlcv() -> pd.DataFrame:
+    index = pd.date_range("2026-01-01", periods=25, freq="h", tz="UTC")
+    close = ([100.0] * 20) + [94.0, 98.0, 90.0, 102.0, 94.0]
+    return pd.DataFrame(
+        {
+            "open": close,
+            "high": [value + 1.0 for value in close],
+            "low": [value - 1.0 for value in close],
+            "close": close,
+            "volume": [1000.0] * len(index),
+        },
+        index=index,
+    )
+
+
 def _condition(left: dict, operator: str, right: dict, role: str = "required") -> dict:
     return {
         "condition_id": f"C-{operator}-{role}",
@@ -221,6 +254,474 @@ def test_fails_closed_when_required_parameter_ref_is_missing() -> None:
 
     with pytest.raises(SpecSignalCompilerError, match="missing required parameter_ref"):
         compile_signal(spec, _default_variant(), ohlcv)
+
+
+def test_compiles_long_only_sma_distance_composed_operand_signal() -> None:
+    ohlcv = _distance_ohlcv()
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "lt",
+                        _composed_operand(),
+                    )
+                ],
+            )
+        ],
+        exit_groups=[
+            _group(
+                "exit",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "gt",
+                        _operand("constant", 0.0),
+                        role="exit",
+                    )
+                ],
+            )
+        ],
+    )
+
+    signal = compile_signal(
+        spec,
+        _default_variant(entry_distance_threshold=0.05),
+        ohlcv,
+    )
+    plain_threshold = compiler._sma_v1(ohlcv["close"], 20)
+    plain_condition = (ohlcv["close"] < plain_threshold).fillna(False)
+
+    assert signal.tolist()[-5:] == [1.0, 0.0, 1.0, 0.0, 0.0]
+    assert plain_condition.tolist()[-5:] == [True, True, True, False, True]
+
+
+def test_composed_operand_result_equals_manual_sma_scaled_series() -> None:
+    ohlcv = _distance_ohlcv()
+    context = compiler._CompileContext(
+        strategy_spec={},
+        variant_assignment=_default_variant(entry_distance_threshold=0.05),
+        ohlcv=ohlcv,
+        catalog=compiler._load_default_catalog(),
+    )
+
+    result = compiler._resolve_operand(_composed_operand(), context)
+    expected = compiler._sma_v1(ohlcv["close"], 20) * (1.0 - 0.05)
+
+    pd.testing.assert_series_equal(result, expected)
+
+
+def test_composed_operand_repeated_calls_are_deterministic() -> None:
+    ohlcv = _distance_ohlcv()
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "lt",
+                        _composed_operand(),
+                    )
+                ],
+            )
+        ],
+    )
+
+    first = compile_signal(spec, _default_variant(entry_distance_threshold=0.05), ohlcv)
+    second = compile_signal(spec, _default_variant(entry_distance_threshold=0.05), ohlcv)
+
+    pd.testing.assert_series_equal(first, second)
+
+
+def test_composed_operand_warmup_null_produces_false_condition() -> None:
+    ohlcv = _distance_ohlcv()
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "lt",
+                        _composed_operand(),
+                    )
+                ],
+            )
+        ],
+    )
+
+    signal = compile_signal(spec, _default_variant(entry_distance_threshold=0.05), ohlcv)
+    composed = compiler._resolve_operand(
+        _composed_operand(),
+        compiler._CompileContext(
+            strategy_spec={},
+            variant_assignment=_default_variant(entry_distance_threshold=0.05),
+            ohlcv=ohlcv,
+            catalog=compiler._load_default_catalog(),
+        ),
+    )
+
+    assert composed.iloc[:19].isna().all()
+    assert signal.iloc[:20].tolist() == [0.0] * 20
+
+
+def test_composed_operand_preserves_base_series_nulls_without_fill() -> None:
+    ohlcv = _distance_ohlcv()
+    ohlcv.loc[ohlcv.index[20], "close"] = math.nan
+    context = compiler._CompileContext(
+        strategy_spec={},
+        variant_assignment=_default_variant(entry_distance_threshold=0.05),
+        ohlcv=ohlcv,
+        catalog=compiler._load_default_catalog(),
+    )
+
+    result = compiler._resolve_operand(
+        _composed_operand(base_operand=_operand("data_ref", "close", "close")),
+        context,
+    )
+
+    assert math.isnan(result.loc[ohlcv.index[20]])
+    assert result.loc[ohlcv.index[19]] == pytest.approx(95.0)
+    assert result.loc[ohlcv.index[21]] == pytest.approx(93.1)
+
+
+def test_composed_operand_has_no_lookahead_for_past_signal_decisions() -> None:
+    ohlcv = _distance_ohlcv()
+    mutated = ohlcv.copy()
+    mutated.loc[mutated.index[23:], "close"] = [500.0, 600.0]
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "lt",
+                        _composed_operand(),
+                    )
+                ],
+            )
+        ],
+    )
+
+    base_signal = compile_signal(spec, _default_variant(entry_distance_threshold=0.05), ohlcv)
+    mutated_signal = compile_signal(spec, _default_variant(entry_distance_threshold=0.05), mutated)
+
+    pd.testing.assert_series_equal(base_signal.iloc[:23], mutated_signal.iloc[:23])
+
+
+def test_composed_operand_uses_variant_assignment_parameter_value() -> None:
+    ohlcv = _distance_ohlcv()
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "lt",
+                        _composed_operand(),
+                    )
+                ],
+            )
+        ],
+    )
+
+    loose = compile_signal(spec, _default_variant(entry_distance_threshold=0.01), ohlcv)
+    strict = compile_signal(spec, _default_variant(entry_distance_threshold=0.10), ohlcv)
+
+    assert loose.tolist()[-5:] == [1.0, 1.0, 1.0, 1.0, 1.0]
+    assert strict.tolist()[-5:] == [0.0, 0.0, 0.0, 0.0, 0.0]
+    assert loose.sum() > strict.sum()
+
+
+@pytest.mark.parametrize(
+    "variant, match",
+    [
+        (_default_variant(), "missing required parameter_ref"),
+        (_default_variant(entry_distance_threshold="0.05"), "must be numeric"),
+        (_default_variant(entry_distance_threshold=True), "must be numeric"),
+        (_default_variant(entry_distance_threshold=0.0), "must be in \\(0, 1\\)"),
+        (_default_variant(entry_distance_threshold=-0.1), "must be in \\(0, 1\\)"),
+        (_default_variant(entry_distance_threshold=1.0), "must be in \\(0, 1\\)"),
+        (_default_variant(entry_distance_threshold=1.2), "must be in \\(0, 1\\)"),
+    ],
+)
+def test_composed_operand_parameter_value_fails_closed(variant: dict, match: str) -> None:
+    ohlcv = _distance_ohlcv()
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "lt",
+                        _composed_operand(),
+                    )
+                ],
+            )
+        ],
+    )
+
+    with pytest.raises(SpecSignalCompilerError, match=match):
+        compile_signal(spec, variant, ohlcv)
+
+
+def test_composed_operand_scale_by_one_minus_parameter_passes() -> None:
+    ohlcv = _distance_ohlcv()
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "lt",
+                        _composed_operand(composition_type="scale_by_one_minus_parameter"),
+                    )
+                ],
+            )
+        ],
+    )
+
+    signal = compile_signal(spec, _default_variant(entry_distance_threshold=0.05), ohlcv)
+
+    assert set(signal.unique()) <= {0.0, 1.0}
+
+
+@pytest.mark.parametrize(
+    "composition_type",
+    [
+        "scale_by_one_plus_parameter",
+        "offset_minus_parameter",
+        "offset_plus_parameter",
+        "multiply",
+        "expression",
+    ],
+)
+def test_composed_operand_unapproved_composition_types_fail_closed(composition_type: str) -> None:
+    ohlcv = _distance_ohlcv()
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "lt",
+                        _composed_operand(composition_type=composition_type),
+                    )
+                ],
+            )
+        ],
+    )
+
+    with pytest.raises(UnsupportedSpecSignalCompilerFeature, match="unsupported composition_type"):
+        compile_signal(spec, _default_variant(entry_distance_threshold=0.05), ohlcv)
+
+
+def test_composed_operand_base_data_ref_passes() -> None:
+    ohlcv = _distance_ohlcv()
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "lt",
+                        _composed_operand(
+                            base_operand=_operand("data_ref", "close", "close"),
+                        ),
+                    )
+                ],
+            )
+        ],
+    )
+
+    signal = compile_signal(spec, _default_variant(entry_distance_threshold=0.05), ohlcv)
+
+    assert signal.tolist() == [0.0] * len(ohlcv)
+
+
+def test_composed_operand_base_indicator_ref_passes() -> None:
+    ohlcv = _distance_ohlcv()
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "lt",
+                        _composed_operand(
+                            base_operand=_operand("indicator_ref", "sma", "value", {"bars": 20}),
+                        ),
+                    )
+                ],
+            )
+        ],
+    )
+
+    signal = compile_signal(spec, _default_variant(entry_distance_threshold=0.05), ohlcv)
+
+    assert signal.iloc[20] == 1.0
+
+
+@pytest.mark.parametrize(
+    "base_operand",
+    [
+        _operand("parameter_ref", "entry_distance_threshold"),
+        _composed_operand(),
+    ],
+)
+def test_composed_operand_unapproved_base_operand_types_fail_closed(base_operand: dict) -> None:
+    ohlcv = _distance_ohlcv()
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "lt",
+                        _composed_operand(base_operand=base_operand),
+                    )
+                ],
+            )
+        ],
+    )
+
+    with pytest.raises(UnsupportedSpecSignalCompilerFeature):
+        compile_signal(spec, _default_variant(entry_distance_threshold=0.05), ohlcv)
+
+
+def test_composed_operand_parameter_ref_passes() -> None:
+    ohlcv = _distance_ohlcv()
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "lt",
+                        _composed_operand(
+                            parameter_operand=_operand("parameter_ref", "entry_distance_threshold"),
+                        ),
+                    )
+                ],
+            )
+        ],
+    )
+
+    signal = compile_signal(spec, _default_variant(entry_distance_threshold=0.05), ohlcv)
+
+    assert signal.iloc[20] == 1.0
+
+
+@pytest.mark.parametrize(
+    "parameter_operand",
+    [
+        _operand("data_ref", "close", "close"),
+        _operand("indicator_ref", "sma", "value", {"bars": 20}),
+        _composed_operand(),
+    ],
+)
+def test_composed_operand_unapproved_parameter_operand_types_fail_closed(
+    parameter_operand: dict,
+) -> None:
+    ohlcv = _distance_ohlcv()
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "lt",
+                        _composed_operand(parameter_operand=parameter_operand),
+                    )
+                ],
+            )
+        ],
+    )
+
+    with pytest.raises(UnsupportedSpecSignalCompilerFeature):
+        compile_signal(spec, _default_variant(entry_distance_threshold=0.05), ohlcv)
+
+
+def test_nested_composed_operand_fails_closed_when_schema_is_bypassed() -> None:
+    ohlcv = _distance_ohlcv()
+    nested = _composed_operand(base_operand=_composed_operand())
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "lt",
+                        nested,
+                    )
+                ],
+            )
+        ],
+    )
+
+    with pytest.raises(UnsupportedSpecSignalCompilerFeature, match="nested composed_operand"):
+        compile_signal(spec, _default_variant(entry_distance_threshold=0.05), ohlcv)
+
+
+@pytest.mark.parametrize(
+    "mutator",
+    [
+        lambda operand: operand.update({"formula": "close < sma"}),
+        lambda operand: operand["base_operand"].update({"eval": "x"}),
+        lambda operand: operand["parameter_operand"].update({"lookahead": True}),
+    ],
+)
+def test_forbidden_keys_inside_composed_payload_fail_closed(mutator) -> None:
+    ohlcv = _distance_ohlcv()
+    composed = _composed_operand()
+    mutator(composed)
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "lt",
+                        composed,
+                    )
+                ],
+            )
+        ],
+    )
+
+    with pytest.raises(SpecSignalCompilerError, match="forbidden executable"):
+        compile_signal(spec, _default_variant(entry_distance_threshold=0.05), ohlcv)
 
 
 def test_sma_v1_has_no_lookahead_and_null_warmup() -> None:

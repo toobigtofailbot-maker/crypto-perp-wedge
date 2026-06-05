@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import math
+from numbers import Real
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -21,6 +22,10 @@ APPROVED_BUILTINS = {
     "atr": "atr_v1",
     "stddev": "stddev_v1",
 }
+COMPOSED_OPERAND_TYPE = "composed_operand"
+COMPOSITION_TYPE_SCALE_BY_ONE_MINUS_PARAMETER = "scale_by_one_minus_parameter"
+COMPOSED_BASE_OPERAND_TYPES = {"data_ref", "indicator_ref"}
+COMPOSED_PARAMETER_OPERAND_TYPE = "parameter_ref"
 SUPPORTED_OPERATORS = {"gt", "gte", "lt", "lte", "eq", "neq"}
 UNSUPPORTED_OPERATORS = {
     "crosses_above",
@@ -50,6 +55,7 @@ FORBIDDEN_PAYLOAD_KEYS = {
     "code",
     "script",
     "eval",
+    "exec",
     "function",
     "callback",
     "lambda",
@@ -80,6 +86,11 @@ FORBIDDEN_PAYLOAD_KEYS = {
     "credentials",
     "private_key",
     "tier_4",
+    "lookahead",
+    "forward_fill",
+    "backfill",
+    "interpolation",
+    "future_value",
 }
 
 
@@ -374,7 +385,56 @@ def _resolve_operand(operand: Mapping[str, Any], context: _CompileContext) -> An
         return _resolve_parameter_ref(operand, context.variant_assignment)
     if operand_type == "constant":
         return operand.get("ref")
+    if operand_type == COMPOSED_OPERAND_TYPE:
+        return _resolve_composed_operand(operand, context)
     raise SpecSignalCompilerError(f"unknown operand_type: {operand_type!r}")
+
+
+def _resolve_composed_operand(operand: Mapping[str, Any], context: _CompileContext) -> Any:
+    expected_keys = {
+        "operand_type",
+        "composition_type",
+        "base_operand",
+        "parameter_operand",
+    }
+    if set(operand) != expected_keys:
+        raise SpecSignalCompilerError("composed_operand has invalid properties")
+
+    composition_type = operand.get("composition_type")
+    if composition_type != COMPOSITION_TYPE_SCALE_BY_ONE_MINUS_PARAMETER:
+        raise UnsupportedSpecSignalCompilerFeature(
+            f"unsupported composition_type: {composition_type!r}"
+        )
+
+    base_operand = operand.get("base_operand")
+    parameter_operand = operand.get("parameter_operand")
+    if not isinstance(base_operand, Mapping):
+        raise SpecSignalCompilerError("composed_operand.base_operand must be an object")
+    if not isinstance(parameter_operand, Mapping):
+        raise SpecSignalCompilerError("composed_operand.parameter_operand must be an object")
+
+    base_type = base_operand.get("operand_type")
+    parameter_type = parameter_operand.get("operand_type")
+    if base_type == COMPOSED_OPERAND_TYPE or parameter_type == COMPOSED_OPERAND_TYPE:
+        raise UnsupportedSpecSignalCompilerFeature("nested composed_operand is not supported")
+    if base_type not in COMPOSED_BASE_OPERAND_TYPES:
+        raise UnsupportedSpecSignalCompilerFeature(
+            f"composed_operand base_operand.operand_type must be one of "
+            f"{sorted(COMPOSED_BASE_OPERAND_TYPES)}"
+        )
+    if parameter_type != COMPOSED_PARAMETER_OPERAND_TYPE:
+        raise UnsupportedSpecSignalCompilerFeature(
+            "composed_operand parameter_operand.operand_type must be 'parameter_ref'"
+        )
+
+    base_value = _resolve_operand(base_operand, context)
+    parameter_value = _resolve_operand(parameter_operand, context)
+    if not isinstance(parameter_value, Real) or isinstance(parameter_value, bool):
+        raise SpecSignalCompilerError("composed_operand parameter value must be numeric")
+    parameter_float = float(parameter_value)
+    if not math.isfinite(parameter_float) or not (0.0 < parameter_float < 1.0):
+        raise SpecSignalCompilerError("composed_operand parameter value must be in (0, 1)")
+    return base_value * (1.0 - parameter_float)
 
 
 def _resolve_data_ref(operand: Mapping[str, Any], ohlcv: pd.DataFrame) -> pd.Series:

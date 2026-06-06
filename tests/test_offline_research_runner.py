@@ -642,6 +642,12 @@ def test_canonical_15m_scratch_result_population_validates(tmp_path):
     strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
     ohlcv_path = _write_15m_ohlcv_fixture(tmp_path)
     output_dir = tmp_path / "scratch_result_populations"
+    expected_canonical_files = [runner.CANONICAL_RESULT_POPULATIONS_DIR / "RP-2134.result_population.json"]
+    canonical_files_before = (
+        sorted(runner.CANONICAL_RESULT_POPULATIONS_DIR.glob("*.result_population.json"))
+        if runner.CANONICAL_RESULT_POPULATIONS_DIR.exists()
+        else []
+    )
 
     result = _run(
         strategy_path,
@@ -664,12 +670,14 @@ def test_canonical_15m_scratch_result_population_validates(tmp_path):
         variant_manifests_dir=manifest_path.parent,
         sweep_plans_dir=sweep_path.parent,
     ) == []
-    canonical_files = (
-        list(runner.CANONICAL_RESULT_POPULATIONS_DIR.glob("*.result_population.json"))
+    canonical_files_after = (
+        sorted(runner.CANONICAL_RESULT_POPULATIONS_DIR.glob("*.result_population.json"))
         if runner.CANONICAL_RESULT_POPULATIONS_DIR.exists()
         else []
     )
-    assert canonical_files == []
+    assert canonical_files_before == expected_canonical_files
+    assert canonical_files_after == expected_canonical_files
+    assert written[0].parent == output_dir
 
 
 def test_canonical_15m_output_is_deterministic_for_same_fixture(tmp_path):

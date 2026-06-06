@@ -115,6 +115,36 @@ def _parameter(name: str = "lookback") -> dict:
     }
 
 
+def _lookback_parameter(
+    *,
+    name: str = "lookback_n",
+    parameter_type: str = "integer",
+    default=20,
+    range_value: dict | None = None,
+    allowed_values: list | None = None,
+    included_in_variant_generation: bool = True,
+) -> dict:
+    parameter = _parameter(name)
+    parameter.update(
+        {
+            "type": parameter_type,
+            "default": default,
+            "range": {
+                "min": 5,
+                "max": 50,
+                "step": 5,
+                "inclusive_min": True,
+                "inclusive_max": True,
+            }
+            if range_value is None
+            else range_value,
+            "allowed_values": [] if allowed_values is None else allowed_values,
+            "included_in_variant_generation": included_in_variant_generation,
+        }
+    )
+    return parameter
+
+
 def _threshold_parameter(
     *,
     name: str = "entry_distance_threshold",
@@ -305,6 +335,30 @@ def _strategy_spec_with_composed_operand(**operand_kwargs) -> dict:
     return payload
 
 
+def _strategy_spec_with_parameter_bound_lookback(*, inside_composed_base: bool = False) -> dict:
+    payload = _base_strategy_spec()
+    indicator_operand = _standard_operand(
+        "indicator_ref",
+        "sma",
+        "value",
+        {"bars_parameter_ref": "lookback_n"},
+    )
+    if inside_composed_base:
+        payload["entry_logic"]["groups"][0]["conditions"][0]["right_operand"] = _composed_operand()
+        payload["entry_logic"]["groups"][0]["conditions"][0]["right_operand"]["base_operand"] = (
+            indicator_operand
+        )
+        payload["free_parameters"]["parameters"] = [
+            _threshold_parameter(),
+            _lookback_parameter(),
+        ]
+    else:
+        payload["entry_logic"]["groups"][0]["conditions"][0]["right_operand"] = indicator_operand
+        payload["free_parameters"]["parameters"] = [_lookback_parameter()]
+    payload["free_parameters"]["no_free_parameters_declared"] = False
+    return payload
+
+
 def _validate(
     tmp_path: Path,
     payload: dict,
@@ -336,6 +390,142 @@ def test_strategy_spec_validator_noops_when_directory_empty(tmp_path):
 
 def test_valid_temp_strategy_spec_passes(tmp_path):
     assert _validate(tmp_path, _base_strategy_spec()) == []
+
+
+def test_valid_literal_lookback_still_passes_schema_and_validator(tmp_path):
+    payload = _base_strategy_spec()
+    schema = _load_schema()
+
+    assert Draft7Validator(schema).is_valid(payload)
+    assert _validate(tmp_path, payload) == []
+
+
+def test_valid_parameter_bound_indicator_lookback_passes(tmp_path):
+    payload = _strategy_spec_with_parameter_bound_lookback()
+    schema = _load_schema()
+
+    assert Draft7Validator(schema).is_valid(payload)
+    assert _validate(tmp_path, payload) == []
+
+
+def test_valid_parameter_bound_lookback_inside_composed_base_operand_passes(tmp_path):
+    payload = _strategy_spec_with_parameter_bound_lookback(inside_composed_base=True)
+    schema = _load_schema()
+
+    assert Draft7Validator(schema).is_valid(payload)
+    assert _validate(tmp_path, payload) == []
+
+
+def test_data_ref_parameter_bound_lookback_fails_schema_and_validator(tmp_path):
+    payload = _base_strategy_spec()
+    payload["entry_logic"]["groups"][0]["conditions"][0]["left_operand"]["lookback"] = {
+        "bars_parameter_ref": "lookback_n"
+    }
+    payload["free_parameters"]["parameters"] = [_lookback_parameter()]
+    payload["free_parameters"]["no_free_parameters_declared"] = False
+
+    assert not Draft7Validator(_load_schema()).is_valid(payload)
+    errors = _validate(tmp_path, payload)
+    assert any("bars_parameter_ref" in error for error in errors)
+
+
+def test_parameter_bound_lookback_unknown_parameter_fails(tmp_path):
+    payload = _strategy_spec_with_parameter_bound_lookback()
+    payload["free_parameters"]["parameters"] = []
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("must match exactly one" in error and "found 0" in error for error in errors)
+
+
+def test_parameter_bound_lookback_float_parameter_fails(tmp_path):
+    payload = _strategy_spec_with_parameter_bound_lookback()
+    payload["free_parameters"]["parameters"] = [_lookback_parameter(parameter_type="number")]
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("type must be 'integer'" in error for error in errors)
+
+
+def test_parameter_bound_lookback_unbounded_parameter_fails(tmp_path):
+    payload = _strategy_spec_with_parameter_bound_lookback()
+    payload["free_parameters"]["parameters"] = [_lookback_parameter(range_value=None)]
+    payload["free_parameters"]["parameters"][0]["range"] = None
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("range must be bounded" in error for error in errors)
+
+
+def test_parameter_bound_lookback_range_min_less_than_one_fails(tmp_path):
+    payload = _strategy_spec_with_parameter_bound_lookback()
+    payload["free_parameters"]["parameters"] = [
+        _lookback_parameter(range_value={
+            "min": 0,
+            "max": 50,
+            "step": 5,
+            "inclusive_min": True,
+            "inclusive_max": True,
+        })
+    ]
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("range.min must be an integer >= 1" in error for error in errors)
+
+
+def test_parameter_bound_lookback_non_integer_grid_fails(tmp_path):
+    payload = _strategy_spec_with_parameter_bound_lookback()
+    payload["free_parameters"]["parameters"] = [
+        _lookback_parameter(allowed_values=[5, 10.5])
+    ]
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("allowed_values.1 must be an integer >= 1" in error for error in errors)
+
+
+def test_parameter_bound_lookback_mixed_literal_and_parameter_ref_fails(tmp_path):
+    payload = _strategy_spec_with_parameter_bound_lookback()
+    payload["entry_logic"]["groups"][0]["conditions"][0]["right_operand"]["lookback"] = {
+        "bars": 20,
+        "bars_parameter_ref": "lookback_n",
+    }
+
+    errors = _validate(tmp_path, payload)
+
+    assert any(
+        "not valid under any" in error or "not valid under any of the given schemas" in error
+        for error in errors
+    )
+
+
+def test_parameter_bound_lookback_expression_string_fails_schema(tmp_path):
+    payload = _strategy_spec_with_parameter_bound_lookback()
+    payload["entry_logic"]["groups"][0]["conditions"][0]["right_operand"]["lookback"] = (
+        "lookback_n * 2"
+    )
+
+    errors = _validate(tmp_path, payload)
+
+    assert any(
+        "not valid under any" in error or "not valid under any of the given schemas" in error
+        for error in errors
+    )
+
+
+def test_parameter_bound_lookback_nested_compound_fails_schema(tmp_path):
+    payload = _strategy_spec_with_parameter_bound_lookback()
+    payload["entry_logic"]["groups"][0]["conditions"][0]["right_operand"]["lookback"] = {
+        "bars_parameter_ref": {"parameter_ref": "lookback_n"}
+    }
+
+    errors = _validate(tmp_path, payload)
+
+    assert any(
+        "not valid under any" in error or "not valid under any of the given schemas" in error
+        for error in errors
+    )
 
 
 def test_valid_composed_operand_passes_schema_and_validator(tmp_path):

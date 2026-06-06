@@ -2177,24 +2177,126 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
     ]
 
 
-def test_result_population_views_still_zero_rows_under_first_parent_instances(conn):
-    assert conn.execute("SELECT * FROM result_populations").fetchall() == []
-    for view_name in [
-        "v_result_population_overview",
-        "v_result_population_parent_lineage",
-        "v_result_population_denominator",
-        "v_result_population_outcome_counts",
-        "v_result_population_variant_rows",
-        "v_result_population_error_summary",
-        "v_result_population_data_coverage",
-        "v_result_population_backtest_assumptions",
-        "v_result_population_identity_audit",
-        "v_result_population_append_only_ledger",
-        "v_result_population_ledger_events",
-        "v_result_population_non_authority",
-        "v_result_population_execution_context",
-    ]:
-        assert conn.execute(f'SELECT * FROM "{view_name}"').fetchall() == []
+def test_first_canonical_15m_result_population_views_under_first_parent_instances(conn):
+    assert conn.execute("SELECT COUNT(*) FROM result_populations").fetchone()[0] == 1
+
+    overview = conn.execute(
+        """
+        SELECT result_population_id, parent_strategy_spec_id,
+               parent_variant_manifest_id, parent_sweep_plan_id,
+               committed_denominator, result_row_count, outcome_counts_sum,
+               execution_mode, offline_only
+        FROM v_result_population_overview
+        """
+    ).fetchall()
+    lineage = conn.execute(
+        """
+        SELECT result_population_id, parent_strategy_spec_id,
+               parent_variant_manifest_id, parent_sweep_plan_id,
+               complete_population_lineage_preserved
+        FROM v_result_population_parent_lineage
+        """
+    ).fetchall()
+    denominator = conn.execute(
+        """
+        SELECT result_population_id, committed_denominator, result_row_count,
+               outcome_counts_sum, executed_only_denominator_forbidden,
+               successful_only_denominator_forbidden, winner_only_retention_forbidden
+        FROM v_result_population_denominator
+        """
+    ).fetchall()
+    counts = conn.execute(
+        """
+        SELECT result_population_id, successful, failed, invalid, excluded,
+               errored, aborted, filtered, data_unavailable, not_attempted,
+               counts_sum, counts_sum_equals_committed_denominator
+        FROM v_result_population_outcome_counts
+        """
+    ).fetchall()
+    rows = conn.execute(
+        """
+        SELECT result_population_id, variant_id, outcome_category, attempted,
+               data_slice_identity, parent_sweep_plan_id, parent_manifest_id
+        FROM v_result_population_variant_rows
+        ORDER BY variant_id
+        """
+    ).fetchall()
+    coverage = conn.execute(
+        """
+        SELECT result_population_id, data_catalog_ref, data_slice_identity,
+               timeframe, data_stream, missing_data_policy
+        FROM v_result_population_data_coverage
+        """
+    ).fetchall()
+    execution_context = conn.execute(
+        """
+        SELECT result_population_id, runner_code_ref, determinism_seed,
+               execution_mode, offline_only, no_runtime_contact,
+               no_paper_live_contact, no_broker_exchange_order_contact,
+               no_protected_path_contact
+        FROM v_result_population_execution_context
+        """
+    ).fetchall()
+    non_authority = conn.execute(
+        """
+        SELECT result_population_id, not_runtime_authority, not_paper_live_authority,
+               canonical_evidence_relationship, review_not_approval
+        FROM v_result_population_non_authority
+        """
+    ).fetchall()
+
+    assert overview == [
+        (
+            "RP-2134",
+            "STRAT-SPEC-0001",
+            "VM-0001",
+            "SWEEP-PLAN-0001",
+            7,
+            7,
+            7,
+            "offline_research",
+            True,
+        )
+    ]
+    assert lineage == [("RP-2134", "STRAT-SPEC-0001", "VM-0001", "SWEEP-PLAN-0001", True)]
+    assert denominator == [("RP-2134", 7, 7, 7, True, True, True)]
+    assert counts == [("RP-2134", 7, 0, 0, 0, 0, 0, 0, 0, 0, 7, True)]
+    assert rows == [
+        (
+            "RP-2134",
+            f"VAR-{index:06d}",
+            "successful",
+            True,
+            "csv_fixture:sha256:90c38fd1fe4f2e86ee0a2ad1a4efaca4af7fde0f8f5bc75d8b1cfe54c16dabd0",
+            "SWEEP-PLAN-0001",
+            "VM-0001",
+        )
+        for index in range(1, 8)
+    ]
+    assert coverage == [
+        (
+            "RP-2134",
+            "15m_ohlcv_test_fixture_offline_only",
+            "csv_fixture:sha256:90c38fd1fe4f2e86ee0a2ad1a4efaca4af7fde0f8f5bc75d8b1cfe54c16dabd0",
+            "15m",
+            "ohlcv",
+            "block_if_missing",
+        )
+    ]
+    assert execution_context == [
+        (
+            "RP-2134",
+            "tools.research_runner.run_offline_sweep",
+            7,
+            "offline_research",
+            True,
+            True,
+            True,
+            True,
+            True,
+        )
+    ]
+    assert non_authority == [("RP-2134", True, True, "reference_only", True)]
 
 
 def test_variant_sweep_integrity_views_empty_under_current_zero_instance_state(conn):

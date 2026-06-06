@@ -6,6 +6,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pandas as pd
 import pytest
 
 from tests.test_validate_variant_sweep_artifacts import (
@@ -18,6 +19,7 @@ from tests.test_validate_variant_sweep_artifacts import (
 )
 from tools.registry.validate_result_populations import OUTCOME_CATEGORIES, validate_result_populations
 from tools.research_runner import run_offline_sweep as runner
+from tools.research_runner.spec_signal_compiler import compile_signal as real_compile_signal
 
 
 def _fixture_dirs(tmp_path: Path) -> tuple[Path, Path, Path]:
@@ -138,6 +140,37 @@ def _run(strategy_path: Path, manifest_path: Path, sweep_path: Path, **kwargs):
         sweep_path,
         **kwargs,
     )
+
+
+def _canonical_parent_paths() -> tuple[Path, Path, Path]:
+    root = runner.REPO_ROOT
+    return (
+        root / "research" / "strategy_specs" / "STRAT-SPEC-0001.strategy_spec.json",
+        root / "research" / "variant_manifests" / "VM-0001.variant_manifest.json",
+        root / "research" / "sweep_plans" / "SWEEP-PLAN-0001.sweep_plan.json",
+    )
+
+
+def _write_15m_ohlcv_fixture(tmp_path: Path) -> Path:
+    path = tmp_path / "canonical_15m_ohlcv_fixture.csv"
+    index = pd.date_range("2026-01-01T00:00:00Z", periods=96, freq="15min")
+    close = []
+    pattern = [100.0] * 20 + [94.0, 98.0, 101.0, 90.0, 96.0, 102.0, 88.0, 100.0]
+    while len(close) < len(index):
+        close.extend(pattern)
+    close = close[: len(index)]
+    frame = pd.DataFrame(
+        {
+            "timestamp": index,
+            "open": [value + 0.1 for value in close],
+            "high": [value + 1.0 for value in close],
+            "low": [value - 1.0 for value in close],
+            "close": close,
+            "volume": [1000.0] * len(index),
+        }
+    )
+    frame.to_csv(path, index=False)
+    return path
 
 
 def _identity_payload(result: dict) -> dict:
@@ -531,3 +564,136 @@ def test_adapter_does_not_modify_backtest_or_evaluation_files(tmp_path):
     _run(strategy_path, manifest_path, sweep_path, deterministic_seed=7)
 
     assert {path: path.read_bytes() for path in watched} == before
+
+
+def test_canonical_15m_path_compiles_frozen_variants_and_uses_15m_input(tmp_path, monkeypatch):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(tmp_path)
+    compile_calls = []
+    backtest_calls = []
+    real_backtest = runner.run_backtest
+
+    def recording_compile(strategy_spec, variant_assignment, ohlcv, funding=None, indicator_catalog=None):
+        compile_calls.append((strategy_spec, variant_assignment, ohlcv.copy(), funding.copy()))
+        return real_compile_signal(
+            strategy_spec,
+            variant_assignment,
+            ohlcv,
+            funding=funding,
+            indicator_catalog=indicator_catalog,
+        )
+
+    def recording_backtest(*args, **kwargs):
+        backtest_calls.append((args, kwargs))
+        return real_backtest(*args, **kwargs)
+
+    monkeypatch.setattr(runner, "compile_signal", recording_compile)
+    monkeypatch.setattr(runner, "_run_synthetic_backtest", lambda *args, **kwargs: pytest.fail("synthetic path used"))
+    monkeypatch.setattr(runner, "run_backtest", recording_backtest)
+
+    result = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        deterministic_seed=7,
+    )
+    payload = result["result_population"]
+
+    assert result["dry_run"] is True
+    assert result["wrote"] is False
+    assert len(compile_calls) == 7
+    assert len(backtest_calls) == 7
+    assert [call[1]["variant_id"] for call in compile_calls] == [f"VAR-{index:06d}" for index in range(1, 8)]
+    assert [call[1]["parameter_values"]["entry_distance_threshold"] for call in compile_calls] == [
+        0.005,
+        0.01,
+        0.015,
+        0.02,
+        0.03,
+        0.04,
+        0.05,
+    ]
+    entry_condition = compile_calls[0][0]["entry_logic"]["groups"][0]["conditions"][0]
+    exit_condition = compile_calls[0][0]["exit_logic"]["groups"][0]["conditions"][0]
+    assert entry_condition["left_operand"]["ref"] == "close"
+    assert entry_condition["operator"] == "lt"
+    assert entry_condition["right_operand"]["operand_type"] == "composed_operand"
+    assert entry_condition["right_operand"]["composition_type"] == "scale_by_one_minus_parameter"
+    assert exit_condition["left_operand"]["ref"] == "close"
+    assert exit_condition["operator"] == "gte"
+    assert exit_condition["right_operand"]["ref"] == "sma"
+    assert all(call[2].index.to_series().diff().dropna().eq(pd.Timedelta(minutes=15)).all() for call in compile_calls)
+    assert all(kwargs["interval"] == "15m" for _, kwargs in backtest_calls)
+    assert payload["data_coverage_summary"]["timeframe"] == "15m"
+    assert payload["data_coverage_summary"]["data_catalog_ref"] == runner.CANONICAL_15M_DATA_CATALOG_REF
+    assert payload["data_coverage_summary"]["data_slice_identity"].startswith("csv_fixture:sha256:")
+    assert {row["data_coverage"]["timeframe"] for row in payload["variant_result_rows"]} == {"15m"}
+    assert payload["parent_strategy_spec"]["strategy_spec_id"] == "STRAT-SPEC-0001"
+    assert payload["parent_variant_manifest"]["variant_manifest_id"] == "VM-0001"
+    assert payload["parent_sweep_plan"]["sweep_plan_id"] == "SWEEP-PLAN-0001"
+    assert payload["committed_denominator_snapshot"]["committed_denominator"] == 7
+    assert payload["outcome_category_counts"]["counts_sum"] == 7
+    assert len(payload["variant_result_rows"]) == 7
+
+
+def test_canonical_15m_scratch_result_population_validates(tmp_path):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(tmp_path)
+    output_dir = tmp_path / "scratch_result_populations"
+
+    result = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        output_dir=output_dir,
+        write_result_population=True,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        deterministic_seed=7,
+    )
+
+    written = list(output_dir.glob("*.result_population.json"))
+    assert result["wrote"] is True
+    assert len(written) == 1
+    assert result["result_population"]["data_coverage_summary"]["timeframe"] == "15m"
+    assert validate_result_populations(
+        result_populations_dir=output_dir,
+        strategy_specs_dir=strategy_path.parent,
+        variant_manifests_dir=manifest_path.parent,
+        sweep_plans_dir=sweep_path.parent,
+    ) == []
+    canonical_files = (
+        list(runner.CANONICAL_RESULT_POPULATIONS_DIR.glob("*.result_population.json"))
+        if runner.CANONICAL_RESULT_POPULATIONS_DIR.exists()
+        else []
+    )
+    assert canonical_files == []
+
+
+def test_canonical_15m_output_is_deterministic_for_same_fixture(tmp_path):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(tmp_path)
+
+    first = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        run_label="first",
+        deterministic_seed=7,
+    )
+    second = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        run_label="second",
+        deterministic_seed=7,
+    )
+
+    assert first["result_population_id"] == second["result_population_id"]
+    assert _identity_payload(first) == _identity_payload(second)

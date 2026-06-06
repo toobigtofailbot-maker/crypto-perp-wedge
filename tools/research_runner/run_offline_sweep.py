@@ -8,6 +8,7 @@ import json
 import math
 import sys
 from collections import Counter
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -32,6 +33,7 @@ from tools.registry.validate_variant_sweep_artifacts import (
     DEFAULT_VARIANT_MANIFEST_SCHEMA_PATH,
     validate_variant_sweep_artifacts,
 )
+from tools.research_runner.spec_signal_compiler import compile_signal
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -51,6 +53,7 @@ OUTCOME_CATEGORIES = (
 RUNNER_VERSION = "wp-s2c-190-build-test-v1"
 RUNNER_CODE_REF = "tools.research_runner.run_offline_sweep"
 FIXED_AUDIT_TIMESTAMP = "2026-06-01T00:00:00Z"
+CANONICAL_15M_DATA_CATALOG_REF = "15m_ohlcv_test_fixture_offline_only"
 
 
 class OfflineSweepError(RuntimeError):
@@ -59,6 +62,18 @@ class OfflineSweepError(RuntimeError):
 
 class OfflineSweepAbort(RuntimeError):
     """Raised for deterministic fixture infrastructure aborts."""
+
+
+@dataclass(frozen=True)
+class _ExecutionInput:
+    mode: str
+    ohlcv: pd.DataFrame
+    funding: pd.DataFrame
+    timeframe: str
+    data_catalog_ref: str
+    data_slice_identity: str
+    environment_summary: list[str]
+    data_coverage_notes: list[str]
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -77,6 +92,10 @@ def _canonical_json_bytes(value: Any) -> bytes:
 
 def _sha256_prefixed(value: Any) -> str:
     return "sha256:" + hashlib.sha256(_canonical_json_bytes(value)).hexdigest()
+
+
+def _sha256_file(path: Path) -> str:
+    return "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def _get_path(payload: dict[str, Any], dotted_path: str) -> Any:
@@ -276,7 +295,97 @@ def _run_synthetic_backtest(variant_id: str, deterministic_seed: int) -> Any:
     )
 
 
-def _metrics_from_backtest(result: Any) -> dict[str, Any]:
+def _load_15m_ohlcv_input(path: Path) -> pd.DataFrame:
+    if not path.exists():
+        raise OfflineSweepError(f"15m OHLCV input does not exist: {path}")
+    if path.suffix.lower() != ".csv":
+        raise OfflineSweepError("canonical 15m OHLCV input must be a CSV fixture/input")
+    frame = pd.read_csv(path)
+    if "timestamp" not in frame.columns:
+        raise OfflineSweepError("15m OHLCV input must include a timestamp column")
+    required_columns = {"open", "high", "low", "close", "volume"}
+    missing = required_columns - set(frame.columns)
+    if missing:
+        raise OfflineSweepError(f"15m OHLCV input missing columns: {sorted(missing)}")
+    frame["timestamp"] = pd.to_datetime(frame["timestamp"], utc=True)
+    frame = frame.set_index("timestamp").sort_index()
+    frame = frame[["open", "high", "low", "close", "volume"]].astype(float)
+    if frame.index.has_duplicates:
+        raise OfflineSweepError("15m OHLCV input must have no duplicate timestamps")
+    if len(frame.index) < 20:
+        raise OfflineSweepError("15m OHLCV input must contain at least 20 rows for SMA(20)")
+    deltas = frame.index.to_series().diff().dropna().unique()
+    if len(deltas) != 1 or deltas[0] != pd.Timedelta(minutes=15):
+        raise OfflineSweepError("canonical OHLCV input must be exactly 15m-spaced")
+    return frame
+
+
+def _zero_funding_for_ohlcv(ohlcv: pd.DataFrame) -> pd.DataFrame:
+    funding_index = pd.date_range(ohlcv.index[0], ohlcv.index[-1], freq="8h", tz="UTC")
+    if len(funding_index) == 0:
+        funding_index = pd.DatetimeIndex([ohlcv.index[0]])
+    return pd.DataFrame({"funding_rate": [0.0] * len(funding_index)}, index=funding_index)
+
+
+def _canonical_15m_execution_input(ohlcv_input_path: Path | None) -> _ExecutionInput:
+    if ohlcv_input_path is None:
+        raise OfflineSweepError("--ohlcv-input is required with --canonical-15m")
+    resolved = ohlcv_input_path.resolve()
+    ohlcv = _load_15m_ohlcv_input(resolved)
+    digest = _sha256_file(resolved)
+    return _ExecutionInput(
+        mode="canonical_15m_fixture",
+        ohlcv=ohlcv,
+        funding=_zero_funding_for_ohlcv(ohlcv),
+        timeframe="15m",
+        data_catalog_ref=CANONICAL_15M_DATA_CATALOG_REF,
+        data_slice_identity=f"csv_fixture:{digest}",
+        environment_summary=["canonical_15m_ohlcv_fixture_input", "offline_only_no_exchange_api"],
+        data_coverage_notes=[
+            "15m OHLCV test fixture/input",
+            "offline only",
+            "no exchange/API contact",
+            "not production data",
+            "not live/paper input",
+        ],
+    )
+
+
+def _run_canonical_15m_backtest(
+    strategy_spec: dict[str, Any],
+    variant: dict[str, Any],
+    execution_input: _ExecutionInput,
+) -> Any:
+    signal = compile_signal(
+        strategy_spec,
+        variant,
+        execution_input.ohlcv,
+        funding=execution_input.funding,
+    )
+    return run_backtest(
+        signal=signal,
+        ohlcv=execution_input.ohlcv,
+        funding=execution_input.funding,
+        fee_bps_taker=4.0,
+        fee_bps_maker=2.0,
+        slippage_bps=1.0,
+        initial_equity=10_000.0,
+        stream="klines",
+        interval="15m",
+        gaps_path=REPO_ROOT / "tools" / "research_runner" / "_nonexistent_empty_gaps.json",
+        entry_fee_side="taker",
+        exit_fee_side="taker",
+        funding_notional_mode="entry_price",
+        order_size=1.0,
+        fill_mode="complete",
+        slippage_model="fixed_bps",
+        liquidation_mode="zero_equity",
+        mark_price_source="close",
+        bar_path_assumption="next_open_close_mark",
+    )
+
+
+def _metrics_from_backtest(result: Any, freq: str) -> dict[str, Any]:
     returns = result.equity_curve.pct_change().dropna()
     drawdown, _, _ = max_drawdown(result.equity_curve)
     final_equity = float(result.equity_curve.iloc[-1])
@@ -291,7 +400,7 @@ def _metrics_from_backtest(result: Any) -> dict[str, Any]:
         "drawdown": float(drawdown),
         "trade_count": trade_count,
         "win_rate": win_rate,
-        "sharpe": float(sharpe(returns, "1h")),
+        "sharpe": float(sharpe(returns, freq)),
         "fees": float(result.fees_paid),
         "funding": float(result.funding_paid),
         "slippage": float(result.slippage_paid),
@@ -340,8 +449,18 @@ def _error(outcome: str, message_class: str | None, infrastructure: bool = False
     }
 
 
-def _data_coverage(outcome: str) -> dict[str, Any]:
+def _data_coverage(outcome: str, execution_input: _ExecutionInput | None = None) -> dict[str, Any]:
     unavailable = outcome == "data_unavailable"
+    if execution_input is not None:
+        return {
+            "data_catalog_ref": execution_input.data_catalog_ref,
+            "data_slice_identity": execution_input.data_slice_identity,
+            "timeframe": execution_input.timeframe,
+            "data_stream": "ohlcv",
+            "missing_data_policy": "block_if_missing",
+            "irreparable_gap": unavailable,
+            "counts_in_denominator": True,
+        }
     return {
         "data_catalog_ref": "synthetic_fixture_only",
         "data_slice_identity": "synthetic-offline-runner-v1",
@@ -364,6 +483,7 @@ def _row(
     reason: str | None = None,
     error_message_class: str | None = None,
     infrastructure_error: bool = False,
+    execution_input: _ExecutionInput | None = None,
 ) -> dict[str, Any]:
     variant_id = variant["variant_id"]
     row = {
@@ -377,7 +497,7 @@ def _row(
         "metrics": metrics if outcome == "successful" else _empty_metrics(),
         "non_success": _non_success(outcome, reason),
         "error": _error(outcome, error_message_class, infrastructure_error),
-        "data_coverage": _data_coverage(outcome),
+        "data_coverage": _data_coverage(outcome, execution_input),
         "backtest_assumption_ref": "backtest_assumption_summary",
         "lineage": {
             "parent_variant_id": variant_id,
@@ -447,9 +567,11 @@ def _backtest_assumption_summary(sweep_plan: dict[str, Any]) -> dict[str, Any]:
 
 def _execute_rows(
     result_population_id: str,
+    strategy_spec: dict[str, Any],
     manifest: dict[str, Any],
     sweep_plan: dict[str, Any],
     deterministic_seed: int,
+    execution_input: _ExecutionInput | None,
 ) -> tuple[list[dict[str, Any]], bool]:
     rows: list[dict[str, Any]] = []
     aborted = False
@@ -465,6 +587,7 @@ def _execute_rows(
                     sweep_plan,
                     "not_attempted",
                     reason="infrastructure abort before variant attempt",
+                    execution_input=execution_input,
                 )
             )
             continue
@@ -473,12 +596,30 @@ def _execute_rows(
         status = variant["assignment_status"]
         if status == "invalid":
             rows.append(
-                _row(result_population_id, index, variant, manifest, sweep_plan, "invalid", reason=status)
+                _row(
+                    result_population_id,
+                    index,
+                    variant,
+                    manifest,
+                    sweep_plan,
+                    "invalid",
+                    reason=status,
+                    execution_input=execution_input,
+                )
             )
             continue
         if status == "excluded":
             rows.append(
-                _row(result_population_id, index, variant, manifest, sweep_plan, "excluded", reason=status)
+                _row(
+                    result_population_id,
+                    index,
+                    variant,
+                    manifest,
+                    sweep_plan,
+                    "excluded",
+                    reason=status,
+                    execution_input=execution_input,
+                )
             )
             continue
         if status == "not_attempted":
@@ -491,6 +632,7 @@ def _execute_rows(
                     sweep_plan,
                     "not_attempted",
                     reason=status,
+                    execution_input=execution_input,
                 )
             )
             continue
@@ -505,6 +647,7 @@ def _execute_rows(
                     "data_unavailable",
                     reason="fixture declared missing synthetic data",
                     error_message_class="FixtureDataUnavailable",
+                    execution_input=execution_input,
                 )
             )
             continue
@@ -521,14 +664,19 @@ def _execute_rows(
                     reason="fixture infrastructure abort",
                     error_message_class="OfflineSweepAbort",
                     infrastructure_error=True,
+                    execution_input=execution_input,
                 )
             )
             continue
         try:
             if mode == "errored":
                 raise RuntimeError("fixture variant error")
-            result = _run_synthetic_backtest(variant["variant_id"], deterministic_seed)
-            metrics = _metrics_from_backtest(result)
+            if execution_input is None:
+                result = _run_synthetic_backtest(variant["variant_id"], deterministic_seed)
+                metrics = _metrics_from_backtest(result, "1h")
+            else:
+                result = _run_canonical_15m_backtest(strategy_spec, variant, execution_input)
+                metrics = _metrics_from_backtest(result, execution_input.timeframe)
             outcome = "successful" if math.isfinite(metrics["return_pct"]) else "failed"
             rows.append(
                 _row(
@@ -540,6 +688,7 @@ def _execute_rows(
                     outcome,
                     metrics=metrics,
                     reason=None if outcome == "successful" else "non-finite return",
+                    execution_input=execution_input,
                 )
             )
         except Exception as exc:
@@ -553,6 +702,7 @@ def _execute_rows(
                     "errored",
                     reason="per-variant runner error",
                     error_message_class=exc.__class__.__name__,
+                    execution_input=execution_input,
                 )
             )
     return rows, aborted
@@ -564,6 +714,7 @@ def _build_result_population(
     sweep_plan: dict[str, Any],
     run_label: str | None,
     deterministic_seed: int,
+    execution_input: _ExecutionInput | None,
 ) -> tuple[dict[str, Any], bool]:
     strategy_hash = _sha256_prefixed(strategy_spec)
     manifest_hash = manifest["manifest_hash_pinning"]["manifest_hash"]
@@ -576,7 +727,14 @@ def _build_result_population(
     result_population_id = _deterministic_result_population_id(
         strategy_hash, manifest_hash, sweep_hash, backtest_assumptions
     )
-    rows, aborted = _execute_rows(result_population_id, manifest, sweep_plan, deterministic_seed)
+    rows, aborted = _execute_rows(
+        result_population_id,
+        strategy_spec,
+        manifest,
+        sweep_plan,
+        deterministic_seed,
+        execution_input,
+    )
     counts = {category: 0 for category in OUTCOME_CATEGORIES}
     counts.update(Counter(row["outcome_category"] for row in rows))
     counts["counts_sum"] = sum(counts[category] for category in OUTCOME_CATEGORIES)
@@ -629,7 +787,11 @@ def _build_result_population(
             "runner_version": RUNNER_VERSION,
             "runner_code_ref": RUNNER_CODE_REF,
             "repo_commit": "build-test-only",
-            "environment_summary": ["synthetic_fixture_only"],
+            "environment_summary": (
+                execution_input.environment_summary
+                if execution_input is not None
+                else ["synthetic_fixture_only"]
+            ),
             "dependency_summary": ["pandas", "jsonschema"],
             "determinism_seed": deterministic_seed,
             "execution_mode": "offline_research",
@@ -683,7 +845,11 @@ def _build_result_population(
                     "event_timestamp": FIXED_AUDIT_TIMESTAMP,
                     "actor_or_tool": "tools.research_runner.run_offline_sweep",
                     "related_artifact_refs": [],
-                    "notes": ["build-and-test-only synthetic runner output"],
+                    "notes": [
+                        "build-and-test-only canonical 15m runner output"
+                        if execution_input is not None
+                        else "build-and-test-only synthetic runner output"
+                    ],
                 }
             ],
         },
@@ -715,14 +881,26 @@ def _build_result_population(
             "error_rows_preserved": True,
         },
         "data_coverage_summary": {
-            "data_catalog_ref": "synthetic_fixture_only",
-            "data_slice_identity": "synthetic-offline-runner-v1",
-            "timeframe": "1h",
+            "data_catalog_ref": (
+                execution_input.data_catalog_ref
+                if execution_input is not None
+                else "synthetic_fixture_only"
+            ),
+            "data_slice_identity": (
+                execution_input.data_slice_identity
+                if execution_input is not None
+                else "synthetic-offline-runner-v1"
+            ),
+            "timeframe": execution_input.timeframe if execution_input is not None else "1h",
             "data_stream": "ohlcv",
             "missing_data_policy": "block_if_missing",
             "irreparable_gap_count": counts["data_unavailable"],
             "data_unavailable_count": counts["data_unavailable"],
-            "data_coverage_notes": ["fixture/synthetic data only"],
+            "data_coverage_notes": (
+                execution_input.data_coverage_notes
+                if execution_input is not None
+                else ["fixture/synthetic data only"]
+            ),
         },
         "backtest_assumption_summary": backtest_assumptions,
         "lineage": {
@@ -897,6 +1075,8 @@ def run_offline_sweep(
     write_result_population: bool = False,
     run_label: str | None = None,
     deterministic_seed: int = 0,
+    canonical_15m: bool = False,
+    ohlcv_input_path: Path | None = None,
 ) -> dict[str, Any]:
     """Run a deterministic build-and-test-only offline research sweep."""
     if deterministic_seed is None:
@@ -907,12 +1087,20 @@ def run_offline_sweep(
         variant_manifest_path,
         sweep_plan_path,
     )
+    execution_input = None
+    if canonical_15m:
+        primary_timeframe = strategy_spec.get("timeframe_and_data", {}).get("primary_timeframe")
+        sweep_timeframe = sweep_plan.get("data_and_timeframe_assumptions", {}).get("primary_timeframe")
+        if primary_timeframe != "15m" or sweep_timeframe != "15m":
+            raise OfflineSweepError("canonical_15m requires 15m Strategy Spec and Sweep Plan")
+        execution_input = _canonical_15m_execution_input(ohlcv_input_path)
     payload, aborted = _build_result_population(
         strategy_spec,
         manifest,
         sweep_plan,
         run_label,
         deterministic_seed,
+        execution_input,
     )
     _validate_in_memory_payload(payload)
 
@@ -950,6 +1138,8 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--write-result-population", action="store_true")
     parser.add_argument("--run-label")
     parser.add_argument("--deterministic-seed", type=int, default=0)
+    parser.add_argument("--canonical-15m", action="store_true")
+    parser.add_argument("--ohlcv-input", type=Path)
     return parser
 
 
@@ -965,6 +1155,8 @@ def main(argv: list[str] | None = None) -> int:
             write_result_population=args.write_result_population,
             run_label=args.run_label,
             deterministic_seed=args.deterministic_seed,
+            canonical_15m=args.canonical_15m,
+            ohlcv_input_path=args.ohlcv_input,
         )
     except Exception as exc:
         print(f"ERROR: {exc}", file=sys.stderr)

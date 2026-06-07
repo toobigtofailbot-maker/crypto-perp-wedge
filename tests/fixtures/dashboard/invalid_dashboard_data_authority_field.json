@@ -1,0 +1,117 @@
+{
+  "schema_version": "dashboard_data.v1",
+  "generated_at_utc": "2026-06-07T12:00:00Z",
+  "source_commit": "01367e6",
+  "source_branch": "codex/dashboard-f2-data-contract-validator",
+  "dirty_state": "clean",
+  "system_posture": "research_only",
+  "ready_for_live": true,
+  "non_authority_declaration": {
+    "read_only_mirror": true,
+    "renderer_must_not_invent_facts": true,
+    "not_executable": true,
+    "not_runtime_authority": true,
+    "not_paper_live_authority": true,
+    "not_order_authority": true,
+    "not_broker_exchange_authority": true,
+    "not_ranking_authority": true,
+    "not_recommendation_authority": true,
+    "not_readiness_authority": true,
+    "not_promotion_authority": true,
+    "not_transition_authority": true,
+    "not_gate_authority": true
+  },
+  "pages": {
+    "overview": {
+      "status": "UNKNOWN",
+      "source_refs": [],
+      "status_cards": [],
+      "warnings": [],
+      "latest_data_slice": {
+        "status": "NOT_AVAILABLE",
+        "d4_catalog_ref": null,
+        "d4_slice_identity": null,
+        "freshness": {
+          "staleness_status": "NOT_APPLICABLE",
+          "staleness_reason": null,
+          "source_artifact_mtime_utc": null
+        },
+        "source_refs": []
+      },
+      "latest_validation": {
+        "status": "NOT_AVAILABLE",
+        "validation_report_ref": null,
+        "validation_report_sha256": null,
+        "freshness": {
+          "staleness_status": "NOT_APPLICABLE",
+          "staleness_reason": null,
+          "source_artifact_mtime_utc": null
+        },
+        "source_refs": []
+      },
+      "latest_result_population_empty_state": {
+        "status": "NOT_AVAILABLE",
+        "message": "No D5 result population yet.",
+        "source_refs": []
+      },
+      "paper_runtime_empty_state": {
+        "status": "NOT_AVAILABLE",
+        "message": "No paper runtime yet.",
+        "source_refs": []
+      },
+      "live_mode_empty_state": {
+        "status": "NOT_AVAILABLE",
+        "message": "No live mode.",
+        "source_refs": []
+      },
+      "open_gates_summary": {
+        "status": "UNKNOWN",
+        "total_gates": 0,
+        "counts_by_status": {
+          "PASS": 0,
+          "WARN": 0,
+          "FAIL": 0,
+          "BLOCKED": 0,
+          "UNKNOWN": 0,
+          "NOT_AVAILABLE": 0
+        },
+        "source_refs": []
+      }
+    },
+    "data_provenance": {
+      "status": "NOT_AVAILABLE",
+      "source_refs": [],
+      "d4_slice": {
+        "status": "NOT_AVAILABLE",
+        "catalog_ref": null,
+        "data_slice_identity": null,
+        "catalog_artifact_sha256": null,
+        "dataset_id": null,
+        "venue": null,
+        "symbol": null,
+        "market_type": null,
+        "stream": null,
+        "timeframe": null,
+        "row_count": null,
+        "expected_row_count": null,
+        "timestamp_range": { "start_utc": null, "end_utc": null },
+        "gap_facts": { "gap_count": null, "missing_bar_count": null, "gaps": [], "policy": null },
+        "duplicate_facts": { "duplicate_group_count": null, "duplicate_row_count": null, "duplicates": [], "policy": null },
+        "raw_source_sha256": null,
+        "normalized_sha256": null,
+        "source_refs": []
+      },
+      "d3_validation_report": { "status": "NOT_AVAILABLE", "path": null, "sha256": null, "source_refs": [] },
+      "d2_import_report": { "status": "NOT_AVAILABLE", "path": null, "sha256": null, "source_refs": [] },
+      "artifact_paths": [],
+      "freshness": {
+        "staleness_status": "NOT_APPLICABLE",
+        "staleness_reason": null,
+        "source_artifact_mtime_utc": null
+      }
+    },
+    "gates": { "status": "UNKNOWN", "source_refs": [], "gates": [] }
+  },
+  "warnings": [],
+  "source_refs": []
+}

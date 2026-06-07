@@ -1,0 +1,439 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crypto-perp-wedge.local/research/schemas/dashboard_data.schema.json",
+  "title": "Dashboard Data",
+  "description": "Versioned read-only dashboard_data contract for local static dashboard rendering. This schema grants no renderer, runner, runtime, paper/live, ranking, recommendation, approval, readiness, promotion, transition, gate, order, broker, exchange, or human-gate execution authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+  "required": [
+    "schema_version",
+    "generated_at_utc",
+    "source_commit",
+    "source_branch",
+    "dirty_state",
+    "system_posture",
+    "non_authority_declaration",
+    "pages",
+    "warnings",
+    "source_refs"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "dashboard_data.v1" },
+    "generated_at_utc": { "$ref": "#/definitions/date_time" },
+    "source_commit": { "$ref": "#/definitions/non_empty_string" },
+    "source_branch": { "$ref": "#/definitions/non_empty_string" },
+    "dirty_state": { "type": "string", "enum": ["clean", "dirty", "unknown"] },
+    "system_posture": {
+      "type": "string",
+      "enum": ["research_only", "paper_disabled", "paper_sandbox_only", "live_disabled", "unknown"]
+    },
+    "non_authority_declaration": { "$ref": "#/definitions/non_authority_declaration" },
+    "pages": { "$ref": "#/definitions/pages" },
+    "warnings": { "$ref": "#/definitions/warnings" },
+    "source_refs": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/source_ref" },
+      "uniqueItems": true
+    }
+  },
+  "definitions": {
+    "safe_property_name": {
+      "type": "string",
+      "not": {
+        "enum": [
+          "best_variant",
+          "recommended_variant",
+          "approved_strategy",
+          "ready_for_live",
+          "ready_for_paper",
+          "promote",
+          "promotion_status",
+          "execute",
+          "place_order",
+          "cancel_order",
+          "start_paper_run",
+          "start_live_run",
+          "approve_button",
+          "promote_to_paper",
+          "live_enabled"
+        ]
+      }
+    },
+    "non_empty_string": { "type": "string", "minLength": 1 },
+    "nullable_string": { "type": ["string", "null"] },
+    "date_time": { "type": "string", "format": "date-time" },
+    "date_time_or_null": { "type": ["string", "null"], "format": "date-time" },
+    "sha256_or_null": {
+      "type": ["string", "null"],
+      "pattern": "^(sha256:)?[a-f0-9]{64}$"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["PASS", "WARN", "FAIL", "BLOCKED", "UNKNOWN", "NOT_AVAILABLE"]
+    },
+    "staleness_status": {
+      "type": "string",
+      "enum": ["FRESH", "STALE", "UNKNOWN", "NOT_APPLICABLE"]
+    },
+    "source_ref_id": { "type": "string", "pattern": "^[A-Za-z0-9_.:-]+$" },
+    "source_ref_ids": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/source_ref_id" },
+      "uniqueItems": true
+    },
+    "warnings": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/warning" }
+    },
+    "warning": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["warning_id", "status", "message", "source_refs"],
+      "properties": {
+        "warning_id": { "$ref": "#/definitions/non_empty_string" },
+        "status": { "$ref": "#/definitions/status" },
+        "message": { "$ref": "#/definitions/non_empty_string" },
+        "source_refs": { "$ref": "#/definitions/source_ref_ids" }
+      }
+    },
+    "freshness": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["staleness_status", "staleness_reason", "source_artifact_mtime_utc"],
+      "properties": {
+        "staleness_status": { "$ref": "#/definitions/staleness_status" },
+        "staleness_reason": { "$ref": "#/definitions/nullable_string" },
+        "source_artifact_mtime_utc": { "$ref": "#/definitions/date_time_or_null" }
+      }
+    },
+    "source_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["ref_id", "ref_type", "path", "sha256", "description"],
+      "properties": {
+        "ref_id": { "$ref": "#/definitions/source_ref_id" },
+        "ref_type": {
+          "type": "string",
+          "enum": ["doc", "status_entry", "data_artifact", "validation_report", "import_report", "catalog_slice", "git", "query_view", "other"]
+        },
+        "path": { "$ref": "#/definitions/non_empty_string" },
+        "sha256": { "$ref": "#/definitions/sha256_or_null" },
+        "description": { "$ref": "#/definitions/non_empty_string" }
+      }
+    },
+    "non_authority_declaration": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": [
+        "read_only_mirror",
+        "renderer_must_not_invent_facts",
+        "not_executable",
+        "not_runtime_authority",
+        "not_paper_live_authority",
+        "not_order_authority",
+        "not_broker_exchange_authority",
+        "not_ranking_authority",
+        "not_recommendation_authority",
+        "not_readiness_authority",
+        "not_promotion_authority",
+        "not_transition_authority",
+        "not_gate_authority"
+      ],
+      "properties": {
+        "read_only_mirror": { "type": "boolean", "const": true },
+        "renderer_must_not_invent_facts": { "type": "boolean", "const": true },
+        "not_executable": { "type": "boolean", "const": true },
+        "not_runtime_authority": { "type": "boolean", "const": true },
+        "not_paper_live_authority": { "type": "boolean", "const": true },
+        "not_order_authority": { "type": "boolean", "const": true },
+        "not_broker_exchange_authority": { "type": "boolean", "const": true },
+        "not_ranking_authority": { "type": "boolean", "const": true },
+        "not_recommendation_authority": { "type": "boolean", "const": true },
+        "not_readiness_authority": { "type": "boolean", "const": true },
+        "not_promotion_authority": { "type": "boolean", "const": true },
+        "not_transition_authority": { "type": "boolean", "const": true },
+        "not_gate_authority": { "type": "boolean", "const": true }
+      }
+    },
+    "pages": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["overview", "data_provenance", "gates"],
+      "properties": {
+        "overview": { "$ref": "#/definitions/overview_page" },
+        "data_provenance": { "$ref": "#/definitions/data_provenance_page" },
+        "gates": { "$ref": "#/definitions/gates_page" }
+      }
+    },
+    "overview_page": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": [
+        "status",
+        "source_refs",
+        "status_cards",
+        "warnings",
+        "latest_data_slice",
+        "latest_validation",
+        "latest_result_population_empty_state",
+        "paper_runtime_empty_state",
+        "live_mode_empty_state",
+        "open_gates_summary"
+      ],
+      "properties": {
+        "status": { "$ref": "#/definitions/status" },
+        "source_refs": { "$ref": "#/definitions/source_ref_ids" },
+        "status_cards": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/status_card" }
+        },
+        "warnings": { "$ref": "#/definitions/warnings" },
+        "latest_data_slice": { "$ref": "#/definitions/latest_data_slice" },
+        "latest_validation": { "$ref": "#/definitions/latest_validation" },
+        "latest_result_population_empty_state": { "$ref": "#/definitions/empty_state" },
+        "paper_runtime_empty_state": { "$ref": "#/definitions/empty_state" },
+        "live_mode_empty_state": { "$ref": "#/definitions/empty_state" },
+        "open_gates_summary": { "$ref": "#/definitions/open_gates_summary" }
+      }
+    },
+    "status_card": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["card_id", "title", "status", "summary", "source_refs"],
+      "properties": {
+        "card_id": { "$ref": "#/definitions/non_empty_string" },
+        "title": { "$ref": "#/definitions/non_empty_string" },
+        "status": { "$ref": "#/definitions/status" },
+        "summary": { "$ref": "#/definitions/non_empty_string" },
+        "source_refs": { "$ref": "#/definitions/source_ref_ids" }
+      }
+    },
+    "latest_data_slice": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["status", "d4_catalog_ref", "d4_slice_identity", "freshness", "source_refs"],
+      "properties": {
+        "status": { "$ref": "#/definitions/status" },
+        "d4_catalog_ref": { "$ref": "#/definitions/nullable_string" },
+        "d4_slice_identity": { "$ref": "#/definitions/nullable_string" },
+        "freshness": { "$ref": "#/definitions/freshness" },
+        "source_refs": { "$ref": "#/definitions/source_ref_ids" }
+      }
+    },
+    "latest_validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["status", "validation_report_ref", "validation_report_sha256", "freshness", "source_refs"],
+      "properties": {
+        "status": { "$ref": "#/definitions/status" },
+        "validation_report_ref": { "$ref": "#/definitions/nullable_string" },
+        "validation_report_sha256": { "$ref": "#/definitions/sha256_or_null" },
+        "freshness": { "$ref": "#/definitions/freshness" },
+        "source_refs": { "$ref": "#/definitions/source_ref_ids" }
+      }
+    },
+    "empty_state": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["status", "message", "source_refs"],
+      "properties": {
+        "status": { "$ref": "#/definitions/status" },
+        "message": {
+          "type": "string",
+          "enum": ["No D5 result population yet.", "No paper runtime yet.", "No live mode."]
+        },
+        "source_refs": { "$ref": "#/definitions/source_ref_ids" }
+      }
+    },
+    "open_gates_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["status", "total_gates", "counts_by_status", "source_refs"],
+      "properties": {
+        "status": { "$ref": "#/definitions/status" },
+        "total_gates": { "type": "integer", "minimum": 0 },
+        "counts_by_status": { "$ref": "#/definitions/counts_by_status" },
+        "source_refs": { "$ref": "#/definitions/source_ref_ids" }
+      }
+    },
+    "counts_by_status": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["PASS", "WARN", "FAIL", "BLOCKED", "UNKNOWN", "NOT_AVAILABLE"],
+      "properties": {
+        "PASS": { "type": "integer", "minimum": 0 },
+        "WARN": { "type": "integer", "minimum": 0 },
+        "FAIL": { "type": "integer", "minimum": 0 },
+        "BLOCKED": { "type": "integer", "minimum": 0 },
+        "UNKNOWN": { "type": "integer", "minimum": 0 },
+        "NOT_AVAILABLE": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "data_provenance_page": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["status", "source_refs", "d4_slice", "d3_validation_report", "d2_import_report", "artifact_paths", "freshness"],
+      "properties": {
+        "status": { "$ref": "#/definitions/status" },
+        "source_refs": { "$ref": "#/definitions/source_ref_ids" },
+        "d4_slice": { "$ref": "#/definitions/d4_slice" },
+        "d3_validation_report": { "$ref": "#/definitions/report_identity" },
+        "d2_import_report": { "$ref": "#/definitions/report_identity" },
+        "artifact_paths": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/artifact_path" }
+        },
+        "freshness": { "$ref": "#/definitions/freshness" }
+      }
+    },
+    "d4_slice": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": [
+        "status",
+        "catalog_ref",
+        "data_slice_identity",
+        "catalog_artifact_sha256",
+        "dataset_id",
+        "venue",
+        "symbol",
+        "market_type",
+        "stream",
+        "timeframe",
+        "row_count",
+        "expected_row_count",
+        "timestamp_range",
+        "gap_facts",
+        "duplicate_facts",
+        "raw_source_sha256",
+        "normalized_sha256",
+        "source_refs"
+      ],
+      "properties": {
+        "status": { "$ref": "#/definitions/status" },
+        "catalog_ref": { "$ref": "#/definitions/nullable_string" },
+        "data_slice_identity": { "$ref": "#/definitions/nullable_string" },
+        "catalog_artifact_sha256": { "$ref": "#/definitions/sha256_or_null" },
+        "dataset_id": { "$ref": "#/definitions/nullable_string" },
+        "venue": { "$ref": "#/definitions/nullable_string" },
+        "symbol": { "$ref": "#/definitions/nullable_string" },
+        "market_type": { "$ref": "#/definitions/nullable_string" },
+        "stream": { "$ref": "#/definitions/nullable_string" },
+        "timeframe": { "$ref": "#/definitions/nullable_string" },
+        "row_count": { "type": ["integer", "null"], "minimum": 0 },
+        "expected_row_count": { "type": ["integer", "null"], "minimum": 0 },
+        "timestamp_range": { "$ref": "#/definitions/timestamp_range" },
+        "gap_facts": { "$ref": "#/definitions/gap_facts" },
+        "duplicate_facts": { "$ref": "#/definitions/duplicate_facts" },
+        "raw_source_sha256": { "$ref": "#/definitions/sha256_or_null" },
+        "normalized_sha256": { "$ref": "#/definitions/sha256_or_null" },
+        "source_refs": { "$ref": "#/definitions/source_ref_ids" }
+      }
+    },
+    "timestamp_range": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["start_utc", "end_utc"],
+      "properties": {
+        "start_utc": { "$ref": "#/definitions/date_time_or_null" },
+        "end_utc": { "$ref": "#/definitions/date_time_or_null" }
+      }
+    },
+    "gap_facts": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["gap_count", "missing_bar_count", "gaps", "policy"],
+      "properties": {
+        "gap_count": { "type": ["integer", "null"], "minimum": 0 },
+        "missing_bar_count": { "type": ["integer", "null"], "minimum": 0 },
+        "gaps": { "type": "array", "items": { "type": "object" } },
+        "policy": { "$ref": "#/definitions/nullable_string" }
+      }
+    },
+    "duplicate_facts": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["duplicate_group_count", "duplicate_row_count", "duplicates", "policy"],
+      "properties": {
+        "duplicate_group_count": { "type": ["integer", "null"], "minimum": 0 },
+        "duplicate_row_count": { "type": ["integer", "null"], "minimum": 0 },
+        "duplicates": { "type": "array", "items": { "type": "object" } },
+        "policy": { "$ref": "#/definitions/nullable_string" }
+      }
+    },
+    "report_identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["status", "path", "sha256", "source_refs"],
+      "properties": {
+        "status": { "$ref": "#/definitions/status" },
+        "path": { "$ref": "#/definitions/nullable_string" },
+        "sha256": { "$ref": "#/definitions/sha256_or_null" },
+        "source_refs": { "$ref": "#/definitions/source_ref_ids" }
+      }
+    },
+    "artifact_path": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["artifact_id", "artifact_type", "path", "sha256", "source_refs"],
+      "properties": {
+        "artifact_id": { "$ref": "#/definitions/non_empty_string" },
+        "artifact_type": {
+          "type": "string",
+          "enum": ["catalog_slice", "validation_report", "import_report", "normalized_data", "raw_source", "other"]
+        },
+        "path": { "$ref": "#/definitions/nullable_string" },
+        "sha256": { "$ref": "#/definitions/sha256_or_null" },
+        "source_refs": { "$ref": "#/definitions/source_ref_ids" }
+      }
+    },
+    "gates_page": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["status", "source_refs", "gates"],
+      "properties": {
+        "status": { "$ref": "#/definitions/status" },
+        "source_refs": { "$ref": "#/definitions/source_ref_ids" },
+        "gates": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/gate" }
+        }
+      }
+    },
+    "gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["gate_id", "title", "status", "why_it_matters", "required_human_action", "source_refs", "non_authority_note"],
+      "properties": {
+        "gate_id": { "$ref": "#/definitions/non_empty_string" },
+        "title": { "$ref": "#/definitions/non_empty_string" },
+        "status": { "$ref": "#/definitions/status" },
+        "why_it_matters": { "$ref": "#/definitions/non_empty_string" },
+        "required_human_action": { "$ref": "#/definitions/non_empty_string" },
+        "source_refs": { "$ref": "#/definitions/source_ref_ids" },
+        "non_authority_note": { "$ref": "#/definitions/non_empty_string" }
+      }
+    }
+  }
+}

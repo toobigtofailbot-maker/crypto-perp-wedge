@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import inspect
+import json
 import math
 from pathlib import Path
 
@@ -792,6 +793,327 @@ def test_resolves_indicator_ref_through_committed_catalog() -> None:
     signal = compile_signal(spec, _default_variant(), ohlcv)
 
     assert signal.tolist() == [0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+
+
+def test_literal_indicator_lookback_still_compiles_unchanged() -> None:
+    ohlcv = _ohlcv()
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("indicator_ref", "sma", "value", {"bars": 3}),
+                        "gte",
+                        _operand("constant", 11.0),
+                    )
+                ],
+            )
+        ],
+    )
+
+    first = compile_signal(spec, _default_variant(lookback_n=4), ohlcv)
+    second = compile_signal(spec, _default_variant(lookback_n=7), ohlcv)
+
+    assert first.tolist() == [0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+    pd.testing.assert_series_equal(first, second)
+
+
+def test_resolves_parameterized_sma_lookback_from_variant_assignment() -> None:
+    ohlcv = _ohlcv()
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand(
+                            "indicator_ref",
+                            "sma",
+                            "value",
+                            {"bars_parameter_ref": "lookback_n"},
+                        ),
+                        "gte",
+                        _operand("constant", 11.0),
+                    )
+                ],
+            )
+        ],
+    )
+
+    signal = compile_signal(spec, _default_variant(lookback_n=3), ohlcv)
+
+    assert signal.tolist() == [0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+
+
+def test_resolves_parameterized_ema_atr_and_stddev_lookbacks() -> None:
+    ohlcv = _ohlcv()
+    context = compiler._CompileContext(
+        strategy_spec={},
+        variant_assignment=_default_variant(lookback_n=3),
+        ohlcv=ohlcv,
+        catalog=compiler._load_default_catalog(),
+    )
+
+    ema = compiler._resolve_operand(
+        _operand("indicator_ref", "ema", "value", {"bars_parameter_ref": "lookback_n"}),
+        context,
+    )
+    atr = compiler._resolve_operand(
+        _operand("indicator_ref", "atr", "value", {"bars_parameter_ref": "lookback_n"}),
+        context,
+    )
+    stddev = compiler._resolve_operand(
+        _operand("indicator_ref", "stddev", "value", {"bars_parameter_ref": "lookback_n"}),
+        context,
+    )
+
+    pd.testing.assert_series_equal(ema, compiler._ema_v1(ohlcv["close"], 3))
+    pd.testing.assert_series_equal(atr, compiler._atr_v1(ohlcv, 3))
+    pd.testing.assert_series_equal(stddev, compiler._stddev_v1(ohlcv["close"], 3, ddof=0))
+
+
+def test_parameterized_lookback_inside_composed_base_operand_compiles() -> None:
+    ohlcv = _distance_ohlcv()
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "lt",
+                        _composed_operand(
+                            base_operand=_operand(
+                                "indicator_ref",
+                                "sma",
+                                "value",
+                                {"bars_parameter_ref": "lookback_n"},
+                            ),
+                        ),
+                    )
+                ],
+            )
+        ],
+    )
+
+    signal = compile_signal(
+        spec,
+        _default_variant(entry_distance_threshold=0.05, lookback_n=20),
+        ohlcv,
+    )
+
+    assert signal.iloc[20] == 1.0
+
+
+def test_different_parameterized_lookbacks_change_warmup_and_signals() -> None:
+    ohlcv = _ohlcv()
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand(
+                            "indicator_ref",
+                            "sma",
+                            "value",
+                            {"bars_parameter_ref": "lookback_n"},
+                        ),
+                        "gte",
+                        _operand("constant", 11.0),
+                    )
+                ],
+            )
+        ],
+    )
+
+    lookback_3 = compile_signal(spec, _default_variant(lookback_n=3), ohlcv)
+    lookback_5 = compile_signal(spec, _default_variant(lookback_n=5), ohlcv)
+
+    assert lookback_3.tolist() == [0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+    assert lookback_5.tolist() == [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0]
+    assert lookback_3.sum() > lookback_5.sum()
+
+
+@pytest.mark.parametrize(
+    "variant, match",
+    [
+        (_default_variant(), "missing required lookback parameter_ref"),
+        (_default_variant(lookback_n=3.0), "must resolve to an integer"),
+        (_default_variant(lookback_n=True), "must resolve to an integer"),
+        (_default_variant(lookback_n=None), "must resolve to an integer"),
+        (_default_variant(lookback_n="3"), "must resolve to an integer"),
+        (_default_variant(lookback_n=0), "must resolve to an integer"),
+        (_default_variant(lookback_n=-3), "must resolve to an integer"),
+    ],
+)
+def test_parameterized_lookback_invalid_assignment_values_fail_closed(
+    variant: dict,
+    match: str,
+) -> None:
+    ohlcv = _ohlcv()
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand(
+                            "indicator_ref",
+                            "sma",
+                            "value",
+                            {"bars_parameter_ref": "lookback_n"},
+                        ),
+                        "gte",
+                        _operand("constant", 11.0),
+                    )
+                ],
+            )
+        ],
+    )
+
+    with pytest.raises(SpecSignalCompilerError, match=match):
+        compile_signal(spec, variant, ohlcv)
+
+
+def test_parameterized_lookback_mixed_literal_and_parameter_form_fails_closed() -> None:
+    ohlcv = _ohlcv()
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand(
+                            "indicator_ref",
+                            "sma",
+                            "value",
+                            {"bars": 3, "bars_parameter_ref": "lookback_n"},
+                        ),
+                        "gte",
+                        _operand("constant", 11.0),
+                    )
+                ],
+            )
+        ],
+    )
+
+    with pytest.raises(UnsupportedSpecSignalCompilerFeature, match="exactly one"):
+        compile_signal(spec, _default_variant(lookback_n=3), ohlcv)
+
+
+def test_parameterized_lookback_outside_indicator_ref_fails_closed() -> None:
+    ohlcv = _ohlcv()
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand(
+                            "data_ref",
+                            "close",
+                            "close",
+                            {"bars_parameter_ref": "lookback_n"},
+                        ),
+                        "gt",
+                        _operand("constant", 11.0),
+                    )
+                ],
+            )
+        ],
+    )
+
+    with pytest.raises(UnsupportedSpecSignalCompilerFeature, match="only supported for indicator_ref"):
+        compile_signal(spec, _default_variant(lookback_n=3), ohlcv)
+
+
+def test_parameterized_lookback_repeated_compilation_is_deterministic() -> None:
+    ohlcv = _ohlcv()
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand(
+                            "indicator_ref",
+                            "sma",
+                            "value",
+                            {"bars_parameter_ref": "lookback_n"},
+                        ),
+                        "gte",
+                        _operand("constant", 11.0),
+                    )
+                ],
+            )
+        ],
+    )
+
+    first = compile_signal(spec, _default_variant(lookback_n=4), ohlcv)
+    second = compile_signal(spec, _default_variant(lookback_n=4), ohlcv)
+
+    pd.testing.assert_series_equal(first, second)
+
+
+def test_parameterized_lookback_has_no_lookahead_for_past_signal_decisions() -> None:
+    ohlcv = _distance_ohlcv()
+    mutated = ohlcv.copy()
+    mutated.loc[mutated.index[23:], "close"] = [500.0, 600.0]
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "lt",
+                        _operand(
+                            "indicator_ref",
+                            "sma",
+                            "value",
+                            {"bars_parameter_ref": "lookback_n"},
+                        ),
+                    )
+                ],
+            )
+        ],
+    )
+
+    base_signal = compile_signal(spec, _default_variant(lookback_n=20), ohlcv)
+    mutated_signal = compile_signal(spec, _default_variant(lookback_n=20), mutated)
+
+    pd.testing.assert_series_equal(base_signal.iloc[:23], mutated_signal.iloc[:23])
+
+
+def test_existing_strat_spec_0001_still_compiles_with_literal_lookbacks() -> None:
+    spec_path = (
+        Path(__file__).resolve().parents[1]
+        / "research"
+        / "strategy_specs"
+        / "STRAT-SPEC-0001.strategy_spec.json"
+    )
+    spec = json.loads(spec_path.read_text(encoding="utf-8"))
+    ohlcv = _distance_ohlcv()
+
+    signal = compile_signal(
+        spec,
+        _default_variant(entry_distance_threshold=0.05),
+        ohlcv,
+    )
+
+    assert signal.index.equals(ohlcv.index)
+    assert set(signal.unique()) <= {0.0, 1.0}
 
 
 def test_rejects_unknown_indicator_ref() -> None:

@@ -179,7 +179,74 @@ If full pytest fails only because a gitignored local data file is absent in the 
 
 For T1 docs-only WPs, full pytest is not required unless the package or repo guidance explicitly requires it. For T3/code WPs, follow the package validation requirements and report environment-only failures separately.
 
-## 10. Invalid-Data Output Rule
+## 10. Usage-Efficient Validation Rule
+
+Run validation in stages. Do not run full pytest repeatedly after every small edit.
+
+Universal rule:
+
+- use focused tests first;
+- use adjacent subsystem tests second;
+- run package validators / registry validators next;
+- run query views / integrity checks where relevant;
+- run `tools/dev/diff_scope_summary.py` before full pytest where available;
+- run full pytest once, final only, for implementation WPs;
+- run the final rebase / GitHub mergeability gate after validation.
+
+If focused tests fail, fix using focused tests first. Do not proceed to full pytest until focused tests pass. Do not rerun full pytest after every small edit. Run full pytest once at the end unless a full-suite failure specifically requires another full-suite confirmation. If validation exposes a broader architecture issue or unscoped file requirement, stop and report instead of continuing exploratory edits.
+
+Concise-output rule:
+
+- prefer `pytest -q`;
+- for passing commands, report command + pass/fail + short count only;
+- if a command fails, report the failing command, failing test name, and relevant error only;
+- do not paste full passing logs;
+- do not paste large unrelated stack traces.
+
+Recommended T1 docs/design/process validation profile:
+
+```powershell
+git diff --check
+python -m tools.registry.validate_result_populations
+python -m tools.research_query.run --list-views
+# run all discovered v_integrity_* views and confirm clean / zero rows
+python tools/dev/diff_scope_summary.py
+git diff --cached --check
+git diff --cached --name-only
+# final rebase / GitHub mergeability gate
+```
+
+Full pytest is not required for T1 docs/design/process WPs unless explicitly required by the WP or repo guidance.
+
+Recommended T3 implementation validation profile:
+
+```powershell
+python -m pytest <changed/new test file> -q
+python -m pytest <adjacent subsystem tests> -q
+python -m <relevant validators>
+python -m tools.research_query.run --list-views
+# run all discovered v_integrity_* views and confirm clean / zero rows
+python tools/dev/diff_scope_summary.py
+python -m pytest -q
+git diff --cached --check
+git diff --cached --name-only
+# final rebase / GitHub mergeability gate
+```
+
+For data WPs, run focused data tests first, adjacent importer / validator / catalog tests second, invalid-data output tests where relevant, validators and integrity checks, then full pytest once final when the data WP is implementation-scoped.
+
+For compiler WPs, run focused compiler tests first, adjacent validator / compiler-probe tests second, determinism / fail-closed / no-lookahead tests where relevant, validators and integrity checks, then full pytest once final when the compiler WP is implementation-scoped.
+
+Environment-only full-pytest failures:
+
+- if full pytest fails only because a gitignored local data file is absent in the isolated worktree, report it explicitly as environment-only;
+- do not commit gitignored local data;
+- do not expand the WP to data-file handling;
+- for T1 docs-only packages, full pytest is not required unless explicitly required;
+- for T3/code WPs, follow the package validation requirements and report any environment-only full-pytest failure separately;
+- do not weaken real validation failures. If full pytest fails for a non-environment reason in a T3 package, that remains a blocker unless the active WP explicitly defines a different stop condition.
+
+## 11. Invalid-Data Output Rule
 
 Permanent data rule: invalid data may write validation/provenance reports only. Invalid data must not write normalized downstream-consumable outputs. Report-only means report-only.
 
@@ -212,7 +279,7 @@ Can invalid data produce a file that downstream code might consume as valid?
 
 If yes, the PR is not merge-ready.
 
-## 11. Universal WP Skeleton
+## 12. Universal WP Skeleton
 
 ```text
 # <WP id> - <title>
@@ -302,7 +369,7 @@ If yes, the PR is not merge-ready.
 - Mergeability:
 ```
 
-## 12. Type-Specific Templates
+## 13. Type-Specific Templates
 
 ### T1 Doc / Design WP
 
@@ -318,6 +385,8 @@ Required emphasis:
 
 Validation should include changed-file scope, forbidden-path check, `git diff --check`, and package-required validators.
 
+Full pytest is not required for T1 docs/design/process WPs unless explicitly required by the WP or repo guidance. Use the T1 docs/design/process profile from the Usage-Efficient Validation Rule by default.
+
 ### T3 Implementation WP
 
 Use for scoped code/test implementation packages.
@@ -325,6 +394,7 @@ Use for scoped code/test implementation packages.
 Required emphasis:
 
 - code/tests allowed only in scoped files;
+- focused tests first, adjacent tests second, validators / integrity / diff-scope next, full pytest once at the end;
 - full pytest unless the WP explicitly defines a stricter or narrower approved profile;
 - run `tools/dev/diff_scope_summary.py` where available;
 - run relevant integrity views;
@@ -357,6 +427,9 @@ Required content:
 - deterministic normalization;
 - source and output hashes;
 - gap and duplicate tests;
+- focused data tests first;
+- adjacent importer / validator / catalog tests second;
+- invalid-data output tests where relevant;
 - full pytest unless a stricter WP-specific validation profile applies.
 
 ### Schema / Validator WP
@@ -383,6 +456,9 @@ Required content:
 - determinism;
 - no-lookahead behavior;
 - null/warmup behavior;
+- focused compiler tests first;
+- adjacent validator / compiler-probe tests second;
+- determinism / fail-closed / no-lookahead tests where relevant;
 - full pytest.
 
 ### Runner / Canonical-Artifact WP
@@ -477,7 +553,7 @@ Reviewers should verify:
 - PR body stale-claim check;
 - follow-up prompt if not merge-ready.
 
-## 13. Future WP Reference Rule
+## 14. Future WP Reference Rule
 
 Future WPs may say:
 

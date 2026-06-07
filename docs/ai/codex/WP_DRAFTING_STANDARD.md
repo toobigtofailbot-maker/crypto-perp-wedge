@@ -92,10 +92,14 @@ Protected/runtime/canonical/schema/tooling overlaps are stop conditions unless e
 
 ## 6. Parallel Status-Entry Rule
 
-If multiple parallel WPs are running, `docs/project_status.md` conflicts are expected. Before final push, rebase onto current `origin/main` and resolve `docs/project_status.md` by preserving:
+For future parallel WPs, prefer per-WP status fragments under `docs/status_entries/<WP_ID>.md`. Use the process in `docs/status_entries/README.md` for fragment naming, required fields, update posture, and review checks.
+
+After WP-G2, `docs/project_status.md` should be used as a milestone summary, major accepted-decision ledger, current runway pointer, and startup anchor. Update `docs/project_status.md` only for milestone summaries, major runway changes, major accepted decisions, or when the active WP explicitly requires it.
+
+If a WP still modifies `docs/project_status.md`, conflicts may still occur. Before final push, rebase onto current `origin/main` and resolve `docs/project_status.md` by preserving:
 
 - all already-merged status entries;
-- this WP's status entry;
+- this WP's scoped status entry;
 - chronological and status-log consistency.
 
 Do not broadly rewrite `docs/project_status.md` during conflict resolution. Do not remove another WP's merged status entry. Do not add entries for PRs that are not merged yet unless the WP explicitly owns that branch-state entry.
@@ -103,7 +107,7 @@ Do not broadly rewrite `docs/project_status.md` during conflict resolution. Do n
 Allowed conflict-resolution behavior:
 
 - preserve all merged entries;
-- append or retain this WP's entry;
+- append or retain this WP's scoped entry;
 - fix ordering or local context around the conflict only.
 
 Forbidden during conflict resolution:
@@ -114,7 +118,7 @@ Forbidden during conflict resolution:
 - changing another WP's meaning;
 - using conflict resolution to expand package scope.
 
-Future option, not the current default: if `docs/project_status.md` conflicts become repeated friction, propose a separate repo-process WP to move per-WP status fragments into separate files such as `docs/status_entries/<WP_ID>.md`, while keeping `docs/project_status.md` as a milestone summary only.
+The final rebase / GitHub mergeability gate remains mandatory even when status fragments are used.
 
 ## 7. Final Rebase / GitHub Mergeability Gate
 

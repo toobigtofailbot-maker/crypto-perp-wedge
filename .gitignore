@@ -40,3 +40,7 @@ Thumbs.db
 /reports/**
 !/reports/g4_api_smoke_test/
 !/reports/g4_api_smoke_test/g4_api_smoke_test_report.json
+
+# --- Dashboard outputs ---
+/dashboard_build/
+/dashboard_data/

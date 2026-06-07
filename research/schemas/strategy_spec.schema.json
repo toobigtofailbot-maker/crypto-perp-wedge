@@ -326,7 +326,7 @@
         "is_false"
       ]
     },
-    "lookback": {
+    "literal_lookback": {
       "type": "object",
       "additionalProperties": false,
       "required": ["bars"],
@@ -336,6 +336,25 @@
           "minimum": 1
         }
       }
+    },
+    "parameter_bound_lookback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bars_parameter_ref"],
+      "properties": {
+        "bars_parameter_ref": {
+          "$ref": "#/definitions/non_empty_string"
+        }
+      }
+    },
+    "indicator_lookback": {
+      "oneOf": [
+        { "$ref": "#/definitions/literal_lookback" },
+        { "$ref": "#/definitions/parameter_bound_lookback" }
+      ]
+    },
+    "non_indicator_lookback": {
+      "$ref": "#/definitions/literal_lookback"
     },
     "operand_ref": {
       "anyOf": [
@@ -360,6 +379,36 @@
       "type": "object",
       "additionalProperties": false,
       "required": ["operand_type", "ref", "field", "timeframe", "lookback"],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "operand_type": { "const": "indicator_ref" }
+            },
+            "required": ["operand_type"]
+          },
+          "then": {
+            "properties": {
+              "lookback": {
+                "anyOf": [
+                  { "$ref": "#/definitions/indicator_lookback" },
+                  { "type": "null" }
+                ]
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "lookback": {
+                "anyOf": [
+                  { "$ref": "#/definitions/non_indicator_lookback" },
+                  { "type": "null" }
+                ]
+              }
+            }
+          }
+        }
+      ],
       "properties": {
         "operand_type": {
           "type": "string",
@@ -376,7 +425,7 @@
         },
         "lookback": {
           "anyOf": [
-            { "$ref": "#/definitions/lookback" },
+            { "$ref": "#/definitions/indicator_lookback" },
             { "type": "null" }
           ]
         }

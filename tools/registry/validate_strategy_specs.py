@@ -32,6 +32,7 @@ COMPOSED_BASE_OPERAND_TYPES = {"data_ref", "indicator_ref"}
 COMPOSED_PARAMETER_OPERAND_TYPE = "parameter_ref"
 MAX_CONDITION_GROUP_DEPTH = 3
 MAX_FREE_PARAMETERS = 5
+LOOKBACK_PARAMETER_REF_KEY = "bars_parameter_ref"
 FORBIDDEN_EXECUTABLE_KEYS = {
     "expression",
     "formula",
@@ -270,6 +271,19 @@ def _walk_composed_operands(value: Any, path_parts: list[str]) -> list[tuple[str
     return composed_operands
 
 
+def _walk_operands(value: Any, path_parts: list[str]) -> list[tuple[str, dict[str, Any]]]:
+    operands: list[tuple[str, dict[str, Any]]] = []
+    if isinstance(value, dict):
+        if "operand_type" in value:
+            operands.append((_path_label(path_parts), value))
+        for key, child in value.items():
+            operands.extend(_walk_operands(child, [*path_parts, str(key)]))
+    elif isinstance(value, list):
+        for index, child in enumerate(value):
+            operands.extend(_walk_operands(child, [*path_parts, str(index)]))
+    return operands
+
+
 def _parameter_declarations(payload: dict[str, Any]) -> dict[str, list[tuple[int, dict[str, Any]]]]:
     declarations: dict[str, list[tuple[int, dict[str, Any]]]] = {}
     free_parameters = payload.get("free_parameters")
@@ -423,6 +437,144 @@ def _validate_composed_operands(path: Path, payload: dict[str, Any]) -> list[str
     return errors
 
 
+def _is_non_bool_int(value: Any) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool)
+
+
+def _validate_integer_lookback_parameter(
+    path: Path,
+    operand_path: str,
+    parameter_name: Any,
+    declarations: dict[str, list[tuple[int, dict[str, Any]]]],
+) -> list[str]:
+    errors: list[str] = []
+    if not isinstance(parameter_name, str) or not parameter_name:
+        return [f"{path}: {operand_path}.lookback.bars_parameter_ref must be a non-empty string"]
+
+    matches = declarations.get(parameter_name, [])
+    if len(matches) != 1:
+        errors.append(
+            f"{path}: {operand_path}.lookback.bars_parameter_ref {parameter_name!r} must match "
+            f"exactly one free_parameters.parameters[].name; found {len(matches)}"
+        )
+        return errors
+
+    parameter_index, parameter = matches[0]
+    parameter_path = f"free_parameters.parameters.{parameter_index}"
+    if parameter.get("type") != "integer":
+        errors.append(
+            f"{path}: {operand_path} lookback parameter {parameter_path}.type "
+            "must be 'integer'"
+        )
+    if parameter.get("is_free_parameter") is not True:
+        errors.append(
+            f"{path}: {operand_path} lookback parameter {parameter_path}.is_free_parameter must be true"
+        )
+    if parameter.get("included_in_variant_generation") is not True:
+        errors.append(
+            f"{path}: {operand_path} lookback parameter "
+            f"{parameter_path}.included_in_variant_generation must be true"
+        )
+
+    range_value = parameter.get("range")
+    range_min: Any = None
+    range_max: Any = None
+    if not isinstance(range_value, dict):
+        errors.append(
+            f"{path}: {operand_path} lookback parameter {parameter_path}.range "
+            "must be bounded"
+        )
+    else:
+        range_min = range_value.get("min")
+        range_max = range_value.get("max")
+        range_step = range_value.get("step")
+        if not _is_non_bool_int(range_min) or range_min < 1:
+            errors.append(
+                f"{path}: {operand_path} lookback parameter {parameter_path}.range.min "
+                "must be an integer >= 1"
+            )
+        if not _is_non_bool_int(range_max):
+            errors.append(
+                f"{path}: {operand_path} lookback parameter {parameter_path}.range.max "
+                "must be a finite integer"
+            )
+        elif _is_non_bool_int(range_min) and range_max < range_min:
+            errors.append(
+                f"{path}: {operand_path} lookback parameter {parameter_path}.range.max "
+                "must be >= range.min"
+            )
+        if not _is_non_bool_int(range_step) or range_step < 1:
+            errors.append(
+                f"{path}: {operand_path} lookback parameter {parameter_path}.range.step "
+                "must be an integer >= 1"
+            )
+
+    default = parameter.get("default")
+    allowed_values = parameter.get("allowed_values")
+    if not _is_non_bool_int(default) or default < 1:
+        errors.append(
+            f"{path}: {operand_path} lookback parameter {parameter_path}.default "
+            "must be an integer >= 1"
+        )
+    elif (
+        _is_non_bool_int(range_min)
+        and _is_non_bool_int(range_max)
+        and not (range_min <= default <= range_max)
+    ):
+        errors.append(
+            f"{path}: {operand_path} lookback parameter {parameter_path}.default "
+            "must be within range"
+        )
+
+    if isinstance(allowed_values, list):
+        for index, value in enumerate(allowed_values):
+            if not _is_non_bool_int(value) or value < 1:
+                errors.append(
+                    f"{path}: {operand_path} lookback parameter "
+                    f"{parameter_path}.allowed_values.{index} must be an integer >= 1"
+                )
+            elif _is_non_bool_int(range_min) and _is_non_bool_int(range_max) and not (
+                range_min <= value <= range_max
+            ):
+                errors.append(
+                    f"{path}: {operand_path} lookback parameter "
+                    f"{parameter_path}.allowed_values.{index} must be within range"
+                )
+        if allowed_values and _is_non_bool_int(default) and default not in allowed_values:
+            errors.append(
+                f"{path}: {operand_path} lookback parameter {parameter_path}.default "
+                "must be in allowed_values"
+            )
+    return errors
+
+
+def _validate_parameter_bound_lookbacks(path: Path, payload: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    declarations = _parameter_declarations(payload)
+    for operand_path, operand in _walk_operands(payload, []):
+        lookback = operand.get("lookback")
+        if not isinstance(lookback, dict) or LOOKBACK_PARAMETER_REF_KEY not in lookback:
+            continue
+        if set(lookback) != {LOOKBACK_PARAMETER_REF_KEY}:
+            errors.append(f"{path}: {operand_path}.lookback has invalid parameter-bound properties")
+            continue
+        if operand.get("operand_type") != "indicator_ref":
+            errors.append(
+                f"{path}: {operand_path}.lookback.bars_parameter_ref is only allowed for "
+                "indicator_ref.lookback"
+            )
+            continue
+        errors.extend(
+            _validate_integer_lookback_parameter(
+                path,
+                operand_path,
+                lookback.get(LOOKBACK_PARAMETER_REF_KEY),
+                declarations,
+            )
+        )
+    return errors
+
+
 def _validate_true_flags(
     path: Path,
     payload: dict[str, Any],
@@ -552,6 +704,7 @@ def validate_strategy_specs(
         errors.extend(_validate_free_parameters(path, payload))
         errors.extend(_validate_forbidden_keys(path, payload))
         errors.extend(_validate_composed_operands(path, payload))
+        errors.extend(_validate_parameter_bound_lookbacks(path, payload))
         errors.extend(_validate_non_authority_flags(path, payload))
         errors.extend(_validate_host_data_ref_safety(path, payload))
 

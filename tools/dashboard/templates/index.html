@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Crypto Perp Wedge Dashboard</title>
+    <link rel="stylesheet" href="assets/dashboard.css">
+  </head>
+  <body>
+    <aside class="sidebar" aria-label="Dashboard navigation">
+      <div class="brand">Crypto Perp Wedge</div>
+      <nav>
+        <a href="#overview">Overview</a>
+        <a href="#data-provenance">Data / Provenance</a>
+        <a href="#gates">Gates</a>
+      </nav>
+    </aside>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <strong>Static dashboard</strong>
+          <span>Generated {{ generated_at }}</span>
+        </div>
+        <div class="topbar-meta">
+          {{ overall_status }}
+          <code>{{ source_branch }}</code>
+          <code>{{ source_commit }}</code>
+          <span>{{ dirty_state }}</span>
+        </div>
+      </header>
+
+      <section id="overview" class="page-section">
+        <div class="title-row">
+          <h1>Overview</h1>
+          <p>Research-only / paper disabled / live disabled</p>
+        </div>
+        <div class="cards">
+          {{ cards }}
+        </div>
+        <div class="two-column">
+          <section class="panel">
+            <h2>Expected Empty States</h2>
+            <ul class="empty-list">
+              {{ empty_states }}
+            </ul>
+          </section>
+          <section class="panel">
+            <h2>Warnings</h2>
+            <ul class="warning-list">
+              {{ warnings }}
+            </ul>
+          </section>
+        </div>
+        <section class="panel">
+          <h2>Current Slice</h2>
+          <table class="fact-table">
+            <tr><th>D4 catalog ref</th><td><code>{{ d4_catalog_ref }}</code></td></tr>
+            <tr><th>D4 slice identity</th><td><code>{{ d4_slice_identity }}</code></td></tr>
+            <tr><th>Gate counts</th><td><code>{{ gate_counts }}</code></td></tr>
+          </table>
+        </section>
+      </section>
+
+      <section id="data-provenance" class="page-section">
+        <h1>Data / Provenance</h1>
+        <section class="panel">
+          {{ data_provenance }}
+        </section>
+      </section>
+
+      <section id="gates" class="page-section">
+        <div class="title-row">
+          <h1>Gates</h1>
+          <p>Dashboard displays gates; dashboard does not satisfy gates.</p>
+        </div>
+        <section class="panel">
+          <table class="compact-table">
+            <thead>
+              <tr>
+                <th>Gate</th>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Why It Matters</th>
+                <th>Human Action</th>
+                <th>Dashboard Note</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{ gates }}
+            </tbody>
+          </table>
+        </section>
+      </section>
+    </main>
+    <script src="assets/dashboard.js"></script>
+  </body>
+</html>

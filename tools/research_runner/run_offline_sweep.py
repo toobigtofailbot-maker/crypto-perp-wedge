@@ -54,6 +54,7 @@ RUNNER_VERSION = "wp-s2c-190-build-test-v1"
 RUNNER_CODE_REF = "tools.research_runner.run_offline_sweep"
 FIXED_AUDIT_TIMESTAMP = "2026-06-01T00:00:00Z"
 CANONICAL_15M_DATA_CATALOG_REF = "15m_ohlcv_test_fixture_offline_only"
+D4_PROVENANCE_MODE_NOTE = "provenance_mode=d4_catalog_slice"
 
 
 class OfflineSweepError(RuntimeError):
@@ -96,6 +97,10 @@ def _sha256_prefixed(value: Any) -> str:
 
 def _sha256_file(path: Path) -> str:
     return "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _sha256_file_hex(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def _get_path(payload: dict[str, Any], dotted_path: str) -> Any:
@@ -347,6 +352,118 @@ def _canonical_15m_execution_input(ohlcv_input_path: Path | None) -> _ExecutionI
             "no exchange/API contact",
             "not production data",
             "not live/paper input",
+        ],
+    )
+
+
+def _required_non_empty_string(payload: dict[str, Any], dotted_path: str) -> str:
+    value = _get_path(payload, dotted_path)
+    if not isinstance(value, str) or not value:
+        raise OfflineSweepError(f"missing or malformed required D4 provenance path: {dotted_path}")
+    return value
+
+
+def _required_int(payload: dict[str, Any], dotted_path: str) -> int:
+    value = _get_path(payload, dotted_path)
+    if not isinstance(value, int) or value < 0:
+        raise OfflineSweepError(f"missing or malformed required D4 provenance path: {dotted_path}")
+    return value
+
+
+def _required_list(payload: dict[str, Any], dotted_path: str) -> list[Any]:
+    value = _get_path(payload, dotted_path)
+    if not isinstance(value, list):
+        raise OfflineSweepError(f"missing or malformed required D4 provenance path: {dotted_path}")
+    return value
+
+
+def _d4_catalog_execution_input(
+    ohlcv_input_path: Path | None,
+    d4_catalog_slice_path: Path | None,
+    d2_import_report_path: Path | None,
+) -> _ExecutionInput:
+    if d4_catalog_slice_path is None:
+        raise OfflineSweepError("--d4-catalog-slice is required for D4 provenance mode")
+    if d2_import_report_path is None:
+        raise OfflineSweepError("--d2-import-report is required for D4 provenance mode")
+    if not d4_catalog_slice_path.exists():
+        raise OfflineSweepError(f"D4 catalog slice does not exist: {d4_catalog_slice_path}")
+    if not d2_import_report_path.exists():
+        raise OfflineSweepError(f"D2 import report does not exist: {d2_import_report_path}")
+
+    catalog = _load_json(d4_catalog_slice_path)
+    import_report = _load_json(d2_import_report_path)
+    catalog_ref = _required_non_empty_string(catalog, "catalog_ref")
+    data_slice_identity = _required_non_empty_string(catalog, "slice_identity.data_slice_identity")
+    d3_validation_report_sha256 = _required_non_empty_string(catalog, "validation_report.sha256")
+    validation_status = _required_non_empty_string(catalog, "validation_report.status")
+    row_count = _required_int(catalog, "range.row_count")
+    expected_row_count = _required_int(catalog, "range.expected_row_count")
+    start_utc = _required_non_empty_string(catalog, "range.start_utc")
+    end_utc = _required_non_empty_string(catalog, "range.end_utc")
+    gap_count = _required_int(catalog, "gap_summary.gap_count")
+    missing_bar_count = _required_int(catalog, "gap_summary.missing_bar_count")
+    gaps = _required_list(catalog, "gap_summary.gaps")
+    duplicate_group_count = _required_int(catalog, "duplicate_summary.duplicate_group_count")
+    duplicate_row_count = _required_int(catalog, "duplicate_summary.duplicate_row_count")
+    duplicates = _required_list(catalog, "duplicate_summary.duplicates")
+    raw_source_sha256 = _required_non_empty_string(catalog, "source.raw_source_sha256")
+    normalized_sha256 = _required_non_empty_string(catalog, "normalized.sha256")
+    import_raw_sha256 = _required_non_empty_string(import_report, "source.sha256")
+    import_normalized_sha256 = _required_non_empty_string(import_report, "normalized.sha256")
+
+    if catalog_ref == CANONICAL_15M_DATA_CATALOG_REF:
+        raise OfflineSweepError("D4 provenance mode cannot use fixture data_catalog_ref")
+    if data_slice_identity.startswith("csv_fixture:"):
+        raise OfflineSweepError("D4 provenance mode cannot use fixture data_slice_identity")
+    if validation_status != "PASS":
+        raise OfflineSweepError("D4 provenance mode requires D3 validation status PASS")
+    if row_count != expected_row_count:
+        raise OfflineSweepError("D4 provenance mode requires row_count to equal expected_row_count")
+    if gap_count != 0 or missing_bar_count != 0 or gaps:
+        raise OfflineSweepError("D4 provenance mode requires gap-free D4 catalog facts")
+    if duplicate_group_count != 0 or duplicate_row_count != 0 or duplicates:
+        raise OfflineSweepError("D4 provenance mode requires duplicate-free D4 catalog facts")
+    if import_raw_sha256 != raw_source_sha256:
+        raise OfflineSweepError("D2 import report raw source SHA256 does not match D4 catalog")
+    if import_normalized_sha256 != normalized_sha256:
+        raise OfflineSweepError("D2 import report normalized SHA256 does not match D4 catalog")
+
+    d2_import_report_sha256 = _sha256_file_hex(d2_import_report_path)
+    d4_catalog_artifact_sha256 = _sha256_file_hex(d4_catalog_slice_path)
+    execution_input = _canonical_15m_execution_input(ohlcv_input_path)
+    return _ExecutionInput(
+        mode="canonical_15m_d4_provenance",
+        ohlcv=execution_input.ohlcv,
+        funding=execution_input.funding,
+        timeframe=execution_input.timeframe,
+        data_catalog_ref=catalog_ref,
+        data_slice_identity=data_slice_identity,
+        environment_summary=[
+            "canonical_15m_ohlcv_input",
+            "d4_catalog_slice_provenance",
+            "offline_only_no_exchange_api",
+        ],
+        data_coverage_notes=[
+            D4_PROVENANCE_MODE_NOTE,
+            "offline only",
+            "no exchange/API contact",
+            "not live/paper input",
+            f"d3_validation_report_sha256={d3_validation_report_sha256}",
+            f"d2_import_report_sha256={d2_import_report_sha256}",
+            f"d4_catalog_artifact_sha256={d4_catalog_artifact_sha256}",
+            f"row_count={row_count}",
+            f"expected_row_count={expected_row_count}",
+            f"start_utc={start_utc}",
+            f"end_utc={end_utc}",
+            f"gap_count={gap_count}",
+            f"missing_bar_count={missing_bar_count}",
+            f"gaps={json.dumps(gaps, sort_keys=True, separators=(',', ':'))}",
+            f"duplicate_group_count={duplicate_group_count}",
+            f"duplicate_row_count={duplicate_row_count}",
+            f"duplicates={json.dumps(duplicates, sort_keys=True, separators=(',', ':'))}",
+            f"raw_source_sha256={raw_source_sha256}",
+            f"normalized_sha256={normalized_sha256}",
         ],
     )
 
@@ -1077,6 +1194,8 @@ def run_offline_sweep(
     deterministic_seed: int = 0,
     canonical_15m: bool = False,
     ohlcv_input_path: Path | None = None,
+    d4_catalog_slice_path: Path | None = None,
+    d2_import_report_path: Path | None = None,
 ) -> dict[str, Any]:
     """Run a deterministic build-and-test-only offline research sweep."""
     if deterministic_seed is None:
@@ -1093,7 +1212,16 @@ def run_offline_sweep(
         sweep_timeframe = sweep_plan.get("data_and_timeframe_assumptions", {}).get("primary_timeframe")
         if primary_timeframe != "15m" or sweep_timeframe != "15m":
             raise OfflineSweepError("canonical_15m requires 15m Strategy Spec and Sweep Plan")
-        execution_input = _canonical_15m_execution_input(ohlcv_input_path)
+        if d4_catalog_slice_path is not None or d2_import_report_path is not None:
+            execution_input = _d4_catalog_execution_input(
+                ohlcv_input_path,
+                d4_catalog_slice_path,
+                d2_import_report_path,
+            )
+        else:
+            execution_input = _canonical_15m_execution_input(ohlcv_input_path)
+    elif d4_catalog_slice_path is not None or d2_import_report_path is not None:
+        raise OfflineSweepError("D4 provenance mode requires --canonical-15m")
     payload, aborted = _build_result_population(
         strategy_spec,
         manifest,
@@ -1140,6 +1268,8 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--deterministic-seed", type=int, default=0)
     parser.add_argument("--canonical-15m", action="store_true")
     parser.add_argument("--ohlcv-input", type=Path)
+    parser.add_argument("--d4-catalog-slice", type=Path)
+    parser.add_argument("--d2-import-report", type=Path)
     return parser
 
 
@@ -1157,6 +1287,8 @@ def main(argv: list[str] | None = None) -> int:
             deterministic_seed=args.deterministic_seed,
             canonical_15m=args.canonical_15m,
             ohlcv_input_path=args.ohlcv_input,
+            d4_catalog_slice_path=args.d4_catalog_slice,
+            d2_import_report_path=args.d2_import_report,
         )
     except Exception as exc:
         print(f"ERROR: {exc}", file=sys.stderr)

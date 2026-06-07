@@ -22,6 +22,19 @@ from tools.research_runner import run_offline_sweep as runner
 from tools.research_runner.spec_signal_compiler import compile_signal as real_compile_signal
 
 
+D4_CATALOG_REF = (
+    "binance_usdtm_btcusdt_ohlcv_15m.offline_local.15m."
+    "20200101T000000Z.20260411T234500Z.sha256_3daace53d727599b"
+)
+D4_SLICE_IDENTITY = (
+    "binance_usdtm_btcusdt_ohlcv_15m:sha256:"
+    "3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664"
+)
+D3_VALIDATION_REPORT_SHA256 = "785a8d53797155dcc80e646e8610db8d510825b9fa3dbccd21e79aa2700a6c1c"
+D2_IMPORT_REPORT_SHA256 = "543c944f727b2b9a7ad06742946ecefc91aa8b94723f46509e4041f622ef57ad"
+D4_CATALOG_ARTIFACT_SHA256 = "f7b98c4d7759b6ba0c9bf8559bcea5e3311d3abe877930da254aeca96f53105a"
+
+
 def _fixture_dirs(tmp_path: Path) -> tuple[Path, Path, Path]:
     root = tmp_path / "research"
     return root / "strategy_specs", root / "variant_manifests", root / "sweep_plans"
@@ -148,6 +161,19 @@ def _canonical_parent_paths() -> tuple[Path, Path, Path]:
         root / "research" / "strategy_specs" / "STRAT-SPEC-0001.strategy_spec.json",
         root / "research" / "variant_manifests" / "VM-0001.variant_manifest.json",
         root / "research" / "sweep_plans" / "SWEEP-PLAN-0001.sweep_plan.json",
+    )
+
+
+def _d4_artifact_paths() -> tuple[Path, Path]:
+    root = (
+        runner.REPO_ROOT
+        / "research"
+        / "data_slices"
+        / "binance_usdtm_btcusdt_15m"
+    )
+    return (
+        root / "binance_usdtm_btcusdt_15m_20200101_20260411.catalog_slice.json",
+        root / "binance_usdtm_btcusdt_15m_20200101_20260411.import_report.json",
     )
 
 
@@ -629,6 +655,7 @@ def test_canonical_15m_path_compiles_frozen_variants_and_uses_15m_input(tmp_path
     assert payload["data_coverage_summary"]["timeframe"] == "15m"
     assert payload["data_coverage_summary"]["data_catalog_ref"] == runner.CANONICAL_15M_DATA_CATALOG_REF
     assert payload["data_coverage_summary"]["data_slice_identity"].startswith("csv_fixture:sha256:")
+    assert runner.D4_PROVENANCE_MODE_NOTE not in payload["data_coverage_summary"]["data_coverage_notes"]
     assert {row["data_coverage"]["timeframe"] for row in payload["variant_result_rows"]} == {"15m"}
     assert payload["parent_strategy_spec"]["strategy_spec_id"] == "STRAT-SPEC-0001"
     assert payload["parent_variant_manifest"]["variant_manifest_id"] == "VM-0001"
@@ -636,6 +663,140 @@ def test_canonical_15m_path_compiles_frozen_variants_and_uses_15m_input(tmp_path
     assert payload["committed_denominator_snapshot"]["committed_denominator"] == 7
     assert payload["outcome_category_counts"]["counts_sum"] == 7
     assert len(payload["variant_result_rows"]) == 7
+
+
+def test_canonical_15m_d4_provenance_records_d4_catalog_and_slice_identity(tmp_path):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(tmp_path)
+    catalog_path, import_report_path = _d4_artifact_paths()
+
+    result = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        d4_catalog_slice_path=catalog_path,
+        d2_import_report_path=import_report_path,
+        deterministic_seed=7,
+    )
+    payload = result["result_population"]
+    coverage = payload["data_coverage_summary"]
+    notes = set(coverage["data_coverage_notes"])
+
+    assert coverage["data_catalog_ref"] == D4_CATALOG_REF
+    assert coverage["data_slice_identity"] == D4_SLICE_IDENTITY
+    assert runner.D4_PROVENANCE_MODE_NOTE in notes
+    assert f"d3_validation_report_sha256={D3_VALIDATION_REPORT_SHA256}" in notes
+    assert f"d2_import_report_sha256={D2_IMPORT_REPORT_SHA256}" in notes
+    assert f"d4_catalog_artifact_sha256={D4_CATALOG_ARTIFACT_SHA256}" in notes
+    assert "row_count=220128" in notes
+    assert "expected_row_count=220128" in notes
+    assert "start_utc=2020-01-01T00:00:00Z" in notes
+    assert "end_utc=2026-04-11T23:45:00Z" in notes
+    assert "gap_count=0" in notes
+    assert "missing_bar_count=0" in notes
+    assert "gaps=[]" in notes
+    assert "duplicate_group_count=0" in notes
+    assert "duplicate_row_count=0" in notes
+    assert "duplicates=[]" in notes
+    assert "raw_source_sha256=343b639e35ce79824d26bddf6d70af2641c9d76003301e303f83cdf61d4feab4" in notes
+    assert "normalized_sha256=c30fd7f07fdf513cdaf234b1bee4eff03b430a479cc572a2cc8b57394f22e0ab" in notes
+    assert {row["data_coverage"]["data_catalog_ref"] for row in payload["variant_result_rows"]} == {
+        D4_CATALOG_REF
+    }
+    assert {row["data_coverage"]["data_slice_identity"] for row in payload["variant_result_rows"]} == {
+        D4_SLICE_IDENTITY
+    }
+
+
+def test_canonical_15m_d4_provenance_fails_closed_without_catalog_ref(tmp_path):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(tmp_path)
+    catalog_path, import_report_path = _d4_artifact_paths()
+    broken_catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+    del broken_catalog["catalog_ref"]
+    broken_path = tmp_path / "broken_catalog.json"
+    _write_json(broken_path, broken_catalog)
+
+    with pytest.raises(runner.OfflineSweepError, match="catalog_ref"):
+        _run(
+            strategy_path,
+            manifest_path,
+            sweep_path,
+            canonical_15m=True,
+            ohlcv_input_path=ohlcv_path,
+            d4_catalog_slice_path=broken_path,
+            d2_import_report_path=import_report_path,
+            deterministic_seed=7,
+        )
+
+
+def test_canonical_15m_d4_provenance_fails_closed_without_slice_identity(tmp_path):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(tmp_path)
+    catalog_path, import_report_path = _d4_artifact_paths()
+    broken_catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+    del broken_catalog["slice_identity"]["data_slice_identity"]
+    broken_path = tmp_path / "broken_catalog.json"
+    _write_json(broken_path, broken_catalog)
+
+    with pytest.raises(runner.OfflineSweepError, match="slice_identity.data_slice_identity"):
+        _run(
+            strategy_path,
+            manifest_path,
+            sweep_path,
+            canonical_15m=True,
+            ohlcv_input_path=ohlcv_path,
+            d4_catalog_slice_path=broken_path,
+            d2_import_report_path=import_report_path,
+            deterministic_seed=7,
+        )
+
+
+def test_canonical_15m_d4_provenance_fails_closed_without_d3_identity(tmp_path):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(tmp_path)
+    catalog_path, import_report_path = _d4_artifact_paths()
+    broken_catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+    del broken_catalog["validation_report"]["sha256"]
+    broken_path = tmp_path / "broken_catalog.json"
+    _write_json(broken_path, broken_catalog)
+
+    with pytest.raises(runner.OfflineSweepError, match="validation_report.sha256"):
+        _run(
+            strategy_path,
+            manifest_path,
+            sweep_path,
+            canonical_15m=True,
+            ohlcv_input_path=ohlcv_path,
+            d4_catalog_slice_path=broken_path,
+            d2_import_report_path=import_report_path,
+            deterministic_seed=7,
+        )
+
+
+def test_canonical_15m_d4_provenance_rejects_fixture_disguised_as_d4(tmp_path):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(tmp_path)
+    catalog_path, import_report_path = _d4_artifact_paths()
+    broken_catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+    broken_catalog["catalog_ref"] = runner.CANONICAL_15M_DATA_CATALOG_REF
+    broken_catalog["slice_identity"]["data_slice_identity"] = "csv_fixture:sha256:" + "0" * 64
+    broken_path = tmp_path / "broken_catalog.json"
+    _write_json(broken_path, broken_catalog)
+
+    with pytest.raises(runner.OfflineSweepError, match="fixture data_catalog_ref"):
+        _run(
+            strategy_path,
+            manifest_path,
+            sweep_path,
+            canonical_15m=True,
+            ohlcv_input_path=ohlcv_path,
+            d4_catalog_slice_path=broken_path,
+            d2_import_report_path=import_report_path,
+            deterministic_seed=7,
+        )
 
 
 def test_canonical_15m_scratch_result_population_validates(tmp_path):
@@ -705,3 +866,37 @@ def test_canonical_15m_output_is_deterministic_for_same_fixture(tmp_path):
 
     assert first["result_population_id"] == second["result_population_id"]
     assert _identity_payload(first) == _identity_payload(second)
+
+
+def test_canonical_15m_d4_provenance_output_is_deterministic(tmp_path):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(tmp_path)
+    catalog_path, import_report_path = _d4_artifact_paths()
+
+    first = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        d4_catalog_slice_path=catalog_path,
+        d2_import_report_path=import_report_path,
+        run_label="first",
+        deterministic_seed=7,
+    )
+    second = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        d4_catalog_slice_path=catalog_path,
+        d2_import_report_path=import_report_path,
+        run_label="second",
+        deterministic_seed=7,
+    )
+
+    assert first["result_population_id"] == second["result_population_id"]
+    assert _identity_payload(first) == _identity_payload(second)
+    assert first["result_population"]["data_coverage_summary"]["data_catalog_ref"] == D4_CATALOG_REF
+    assert first["result_population"]["data_coverage_summary"]["data_slice_identity"] == D4_SLICE_IDENTITY

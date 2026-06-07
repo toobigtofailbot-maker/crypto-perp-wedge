@@ -459,9 +459,9 @@ def import_file(
         normalized, facts, errors = normalize_frame(source_frame)
         normalized_bytes = deterministic_csv_bytes(normalized)
         normalized_sha256 = sha256_bytes(normalized_bytes)
-        if errors and not allow_invalid_report_only:
+        if errors:
             output_path = None
-        if output_path is not None and (not errors or allow_invalid_report_only):
+        if output_path is not None:
             output_path.parent.mkdir(parents=True, exist_ok=True)
             output_path.write_bytes(normalized_bytes)
             normalized_path = output_path

@@ -184,7 +184,29 @@ def test_cli_returns_nonzero_for_invalid_source_unless_report_only(tmp_path: Pat
             "--allow-invalid-report-only",
         ]
     ) == 0
-    assert output.exists() is True
+    assert output.exists() is False
+    report_payload = json.loads(report.read_text(encoding="utf-8"))
+    assert report_payload["validation"]["status"] == "FAIL"
+    assert report_payload["validation"]["errors"]
+    assert report_payload["normalized"]["path"] is None
+
+
+def test_report_only_invalid_import_does_not_write_normalized_output(tmp_path: Path):
+    rows = _rows()
+    rows[2][0] = rows[1][0]
+    source = _write_csv(tmp_path / "source.csv", rows)
+    output = tmp_path / "normalized.csv"
+    report = tmp_path / "report.json"
+
+    result = import_file(source, output, report, allow_invalid_report_only=True)
+    report_payload = json.loads(report.read_text(encoding="utf-8"))
+
+    assert result.ok is False
+    assert result.normalized_path is None
+    assert output.exists() is False
+    assert report_payload["ok"] is False
+    assert report_payload["normalized"]["path"] is None
+    assert report_payload["duplicate_summary"]["duplicate_group_count"] == 1
 
 
 def test_no_live_api_or_credential_path_is_used(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):

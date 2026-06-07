@@ -26,6 +26,7 @@ COMPOSED_OPERAND_TYPE = "composed_operand"
 COMPOSITION_TYPE_SCALE_BY_ONE_MINUS_PARAMETER = "scale_by_one_minus_parameter"
 COMPOSED_BASE_OPERAND_TYPES = {"data_ref", "indicator_ref"}
 COMPOSED_PARAMETER_OPERAND_TYPE = "parameter_ref"
+LOOKBACK_PARAMETER_REF_KEY = "bars_parameter_ref"
 SUPPORTED_OPERATORS = {"gt", "gte", "lt", "lte", "eq", "neq"}
 UNSUPPORTED_OPERATORS = {
     "crosses_above",
@@ -438,6 +439,11 @@ def _resolve_composed_operand(operand: Mapping[str, Any], context: _CompileConte
 
 
 def _resolve_data_ref(operand: Mapping[str, Any], ohlcv: pd.DataFrame) -> pd.Series:
+    lookback = operand.get("lookback")
+    if isinstance(lookback, Mapping) and LOOKBACK_PARAMETER_REF_KEY in lookback:
+        raise UnsupportedSpecSignalCompilerFeature(
+            "bars_parameter_ref is only supported for indicator_ref.lookback"
+        )
     field = operand.get("field") or operand.get("ref")
     if field not in ALLOWED_DATA_FIELDS:
         raise SpecSignalCompilerError(f"unsupported data_ref field: {field!r}")
@@ -457,14 +463,7 @@ def _resolve_indicator_ref(operand: Mapping[str, Any], context: _CompileContext)
     timeframe = operand.get("timeframe")
     if timeframe not in (None, ""):
         raise UnsupportedSpecSignalCompilerFeature("indicator_ref timeframe resampling is not supported")
-    lookback = operand.get("lookback")
-    if not isinstance(lookback, Mapping) or not isinstance(lookback.get("bars"), int):
-        raise UnsupportedSpecSignalCompilerFeature(
-            "indicator lookback must be literal operand.lookback.bars in WP-S2c-199"
-        )
-    lookback_bars = lookback["bars"]
-    if lookback_bars < 1:
-        raise SpecSignalCompilerError("indicator lookback.bars must be >= 1")
+    lookback_bars = _resolve_indicator_lookback_bars(operand, context.variant_assignment)
 
     builtin_key = context.catalog_entries[str(indicator_id)]["implementation_binding"]["builtin_key"]
     cache_key = (str(indicator_id), lookback_bars, builtin_key)
@@ -482,6 +481,46 @@ def _resolve_indicator_ref(operand: Mapping[str, Any], context: _CompileContext)
         raise SpecSignalCompilerError(f"unknown builtin key: {builtin_key!r}")
     context.indicator_cache[cache_key] = result
     return result
+
+
+def _resolve_indicator_lookback_bars(
+    operand: Mapping[str, Any],
+    variant_assignment: Mapping[str, Any],
+) -> int:
+    lookback = operand.get("lookback")
+    if not isinstance(lookback, Mapping):
+        raise UnsupportedSpecSignalCompilerFeature(
+            "indicator lookback must be literal bars or bars_parameter_ref"
+        )
+    if set(lookback) == {"bars"}:
+        lookback_bars = lookback["bars"]
+        if not isinstance(lookback_bars, int) or isinstance(lookback_bars, bool):
+            raise SpecSignalCompilerError("indicator lookback.bars must be an integer >= 1")
+        if lookback_bars < 1:
+            raise SpecSignalCompilerError("indicator lookback.bars must be >= 1")
+        return lookback_bars
+    if set(lookback) == {LOOKBACK_PARAMETER_REF_KEY}:
+        parameter_name = lookback[LOOKBACK_PARAMETER_REF_KEY]
+        if not isinstance(parameter_name, str) or not parameter_name:
+            raise SpecSignalCompilerError("indicator lookback.bars_parameter_ref must be a non-empty string")
+        parameter_values = variant_assignment.get("parameter_values")
+        if not isinstance(parameter_values, Mapping):
+            raise SpecSignalCompilerError("variant_assignment.parameter_values must be an object")
+        if parameter_name not in parameter_values:
+            raise SpecSignalCompilerError(f"missing required lookback parameter_ref: {parameter_name}")
+        lookback_bars = parameter_values[parameter_name]
+        if not isinstance(lookback_bars, int) or isinstance(lookback_bars, bool):
+            raise SpecSignalCompilerError(
+                f"lookback parameter {parameter_name!r} must resolve to an integer >= 1"
+            )
+        if lookback_bars < 1:
+            raise SpecSignalCompilerError(
+                f"lookback parameter {parameter_name!r} must resolve to an integer >= 1"
+            )
+        return lookback_bars
+    raise UnsupportedSpecSignalCompilerFeature(
+        "indicator lookback must use exactly one of bars or bars_parameter_ref"
+    )
 
 
 def _resolve_parameter_ref(operand: Mapping[str, Any], variant_assignment: Mapping[str, Any]) -> Any:

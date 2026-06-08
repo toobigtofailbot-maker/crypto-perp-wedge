@@ -8,12 +8,18 @@
   </head>
   <body>
     <aside class="sidebar" aria-label="Dashboard navigation">
-      <div class="brand">Crypto Perp Wedge</div>
+      <div class="brand">
+        <span>Crypto Perp Wedge</span>
+        <small>Static operator view</small>
+      </div>
       <nav>
         <a href="#overview">Overview</a>
         <a href="#data-provenance">Data / Provenance</a>
         <a href="#gates">Gates</a>
       </nav>
+      <div class="sidebar-posture">
+        {{ posture_flags }}
+      </div>
     </aside>
     <main class="shell">
       <header class="topbar">
@@ -31,8 +37,15 @@
 
       <section id="overview" class="page-section">
         <div class="title-row">
-          <h1>Overview</h1>
-          <p>Research-only / paper disabled / live disabled</p>
+          <div>
+            <h1>Overview</h1>
+            <p>Research-only / paper disabled / live disabled</p>
+          </div>
+          <div class="status-summary" aria-label="Gate status counts">
+            <ul>
+              {{ gate_status_summary }}
+            </ul>
+          </div>
         </div>
         <div class="cards">
           {{ cards }}
@@ -52,17 +65,51 @@
           </section>
         </div>
         <section class="panel">
-          <h2>Current Slice</h2>
-          <table class="fact-table">
-            <tr><th>D4 catalog ref</th><td><code>{{ d4_catalog_ref }}</code></td></tr>
-            <tr><th>D4 slice identity</th><td><code>{{ d4_slice_identity }}</code></td></tr>
-            <tr><th>Gate counts</th><td><code>{{ gate_counts }}</code></td></tr>
-          </table>
+          <div class="section-head">
+            <div>
+              <span>Current Slice</span>
+              <p>Contract-valid D4A identity and freshness facts.</p>
+            </div>
+          </div>
+          <div class="slice-grid">
+            <div>
+              <span class="mini-label">D4 catalog ref</span>
+              <code>{{ d4_catalog_ref }}</code>
+            </div>
+            <div>
+              <span class="mini-label">D4 slice identity</span>
+              <code>{{ d4_slice_identity }}</code>
+            </div>
+            <div>
+              <span class="mini-label">Gate counts</span>
+              <code>{{ gate_counts }}</code>
+            </div>
+          </div>
+          <div class="table-wrap compact-wrap">
+            <table class="compact-table">
+              <thead>
+                <tr>
+                  <th>Source</th>
+                  <th>Status</th>
+                  <th>Staleness</th>
+                  <th>Reason</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{ freshness_rows }}
+              </tbody>
+            </table>
+          </div>
         </section>
       </section>
 
       <section id="data-provenance" class="page-section">
-        <h1>Data / Provenance</h1>
+        <div class="title-row">
+          <div>
+            <h1>Data / Provenance</h1>
+            <p>Committed D2/D3/D4A artifact identity only; generated output remains local.</p>
+          </div>
+        </div>
         <section class="panel">
           {{ data_provenance }}
         </section>
@@ -74,21 +121,27 @@
           <p>Dashboard displays gates; dashboard does not satisfy gates.</p>
         </div>
         <section class="panel">
-          <table class="compact-table">
-            <thead>
-              <tr>
-                <th>Gate</th>
-                <th>Title</th>
-                <th>Status</th>
-                <th>Why It Matters</th>
-                <th>Human Action</th>
-                <th>Dashboard Note</th>
-              </tr>
-            </thead>
-            <tbody>
-              {{ gates }}
-            </tbody>
-          </table>
+          <div class="table-toolbar">
+            <h2>Gate Inventory</h2>
+            <label class="search-label">Filter <input type="search" data-filter-target="gate-table" placeholder="Gate, status, source text"></label>
+          </div>
+          <div class="table-wrap">
+            <table class="compact-table">
+              <thead>
+                <tr>
+                  <th>Gate</th>
+                  <th>Title</th>
+                  <th>Status</th>
+                  <th>Why It Matters</th>
+                  <th>Human Action</th>
+                  <th>Dashboard Note</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{ gates }}
+              </tbody>
+            </table>
+          </div>
         </section>
       </section>
     </main>

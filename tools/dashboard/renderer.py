@@ -21,7 +21,7 @@ def _esc(value: Any) -> str:
 
 def _badge(status: str) -> str:
     safe = _esc(status)
-    return f'<span class="badge badge-{safe.lower().replace("_", "-")}">{safe}</span>'
+    return f'<span class="badge badge-{safe.lower().replace("_", "-")}" data-status="{safe}">{safe}</span>'
 
 
 def _source_links(data: dict[str, Any], ref_ids: list[str]) -> str:
@@ -40,12 +40,15 @@ def _source_links(data: dict[str, Any], ref_ids: list[str]) -> str:
 def _cards(data: dict[str, Any]) -> str:
     cards = []
     for card in data["pages"]["overview"]["status_cards"]:
+        status_class = _esc(card["status"].lower().replace("_", "-"))
         cards.append(
             "\n".join(
                 [
-                    '<article class="card">',
-                    f'<div class="card-top">{_badge(card["status"])}</div>',
+                    f'<article class="card status-card status-card-{status_class}">',
+                    '<div class="card-top">',
                     f'<h3>{_esc(card["title"])}</h3>',
+                    f'{_badge(card["status"])}',
+                    "</div>",
                     f'<p>{_esc(card["summary"])}</p>',
                     f'<p class="source-line">Sources: {_source_links(data, card["source_refs"])}</p>',
                     "</article>",
@@ -65,10 +68,12 @@ def _empty_states(data: dict[str, Any]) -> str:
     rows = []
     for state in states:
         rows.append(
-            "<li>"
+            '<li class="empty-state-item">'
             f"{_badge(state['status'])}"
+            '<div class="empty-state-copy">'
             f"<span>{_esc(state['message'])}</span>"
             f'<small>{_source_links(data, state["source_refs"])}</small>'
+            "</div>"
             "</li>"
         )
     return "\n".join(rows)
@@ -110,7 +115,7 @@ def _data_provenance(data: dict[str, Any]) -> str:
     artifact_rows = []
     for artifact in page["artifact_paths"]:
         artifact_rows.append(
-            "<tr>"
+            '<tr class="filter-row">'
             f"<td>{_esc(artifact['artifact_id'])}</td>"
             f"<td>{_esc(artifact['artifact_type'])}</td>"
             f"<td><code>{_esc(artifact['path'])}</code></td>"
@@ -119,14 +124,27 @@ def _data_provenance(data: dict[str, Any]) -> str:
         )
     return "\n".join(
         [
-            f'<div class="section-head">{_badge(page["status"])}<span>Data / Provenance</span></div>',
+            '<div class="section-head">',
+            "<div>",
+            "<span>Data / Provenance</span>",
+            '<p>Committed artifact identities and local generated-output posture.</p>',
+            "</div>",
+            f'{_badge(page["status"])}',
+            "</div>",
+            '<div class="table-wrap">',
             '<table class="fact-table">',
             _facts_table(rows),
             "</table>",
+            "</div>",
+            '<div class="table-toolbar">',
             "<h3>Source Artifacts</h3>",
+            '<label class="search-label">Filter <input type="search" data-filter-target="artifact-table" placeholder="Artifact, type, path, hash"></label>',
+            "</div>",
+            '<div class="table-wrap">',
             '<table class="compact-table"><thead><tr><th>ID</th><th>Type</th><th>Path</th><th>SHA256</th></tr></thead><tbody>',
             "\n".join(artifact_rows),
             "</tbody></table>",
+            "</div>",
         ]
     )
 
@@ -136,7 +154,7 @@ def _gates(data: dict[str, Any]) -> str:
     rows = []
     for gate in gates:
         rows.append(
-            "<tr>"
+            '<tr class="filter-row">'
             f"<td><code>{_esc(gate['gate_id'])}</code></td>"
             f"<td>{_esc(gate['title'])}</td>"
             f"<td>{_badge(gate['status'])}</td>"
@@ -153,7 +171,55 @@ def _warnings(data: dict[str, Any]) -> str:
     if not warnings:
         return '<p class="muted">No dashboard warnings.</p>'
     return "\n".join(
-        f"<li>{_badge(item['status'])}<span>{_esc(item['message'])}</span></li>" for item in warnings
+        f'<li class="warning-item">{_badge(item["status"])}<span>{_esc(item["message"])}</span></li>'
+        for item in warnings
+    )
+
+
+def _gate_status_summary(counts: dict[str, int]) -> str:
+    items = []
+    for status in ["PASS", "WARN", "FAIL", "BLOCKED", "UNKNOWN", "NOT_AVAILABLE"]:
+        items.append(
+            '<li class="status-count">'
+            f"{_badge(status)}"
+            f'<strong>{_esc(counts.get(status, 0))}</strong>'
+            "</li>"
+        )
+    return "\n".join(items)
+
+
+def _posture_flags() -> str:
+    flags = [
+        ("Research", "only"),
+        ("Paper", "disabled"),
+        ("Live", "disabled"),
+    ]
+    return "\n".join(
+        f'<span class="posture-flag"><strong>{_esc(label)}</strong>{_esc(value)}</span>' for label, value in flags
+    )
+
+
+def _freshness_rows(data: dict[str, Any]) -> str:
+    overview = data["pages"]["overview"]
+    data_freshness = overview["latest_data_slice"]["freshness"]
+    validation_freshness = overview["latest_validation"]["freshness"]
+    rows = [
+        ("Data slice", overview["latest_data_slice"]["status"], data_freshness["staleness_status"], data_freshness["staleness_reason"]),
+        (
+            "Validation",
+            overview["latest_validation"]["status"],
+            validation_freshness["staleness_status"],
+            validation_freshness["staleness_reason"],
+        ),
+    ]
+    return "\n".join(
+        "<tr>"
+        f"<th>{_esc(label)}</th>"
+        f"<td>{_badge(status)}</td>"
+        f"<td><code>{_esc(staleness)}</code></td>"
+        f"<td>{_esc(reason)}</td>"
+        "</tr>"
+        for label, status, staleness, reason in rows
     )
 
 
@@ -180,11 +246,14 @@ def render_dashboard(data: dict[str, Any], output_dir: Path | str) -> Path:
         "source_branch": _esc(data["source_branch"]),
         "dirty_state": _esc(data["dirty_state"]),
         "overall_status": _badge(overview["status"]),
+        "posture_flags": _posture_flags(),
         "cards": _cards(data),
         "empty_states": _empty_states(data),
         "warnings": _warnings(data),
         "data_provenance": _data_provenance(data),
         "gates": _gates(data),
+        "gate_status_summary": _gate_status_summary(counts),
+        "freshness_rows": _freshness_rows(data),
         "gate_counts": _esc(json.dumps(counts, sort_keys=True)),
         "d4_catalog_ref": _esc(overview["latest_data_slice"]["d4_catalog_ref"]),
         "d4_slice_identity": _esc(overview["latest_data_slice"]["d4_slice_identity"]),

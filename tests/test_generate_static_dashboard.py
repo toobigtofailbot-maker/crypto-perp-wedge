@@ -23,6 +23,16 @@ FORBIDDEN_CONTROL_SNIPPETS = [
     "approval button",
 ]
 
+NETWORK_OR_BUILD_SNIPPETS = [
+    "https://",
+    "http://",
+    "cdn.",
+    "unpkg",
+    "vite",
+    "react",
+    "type=\"module\"",
+]
+
 
 def test_generator_creates_valid_dashboard_data_and_index(tmp_path):
     data_dir = tmp_path / "dashboard_data"
@@ -57,6 +67,10 @@ def test_index_contains_required_pages_empty_states_and_gate_phrase(tmp_path):
     assert "Overview" in html
     assert "Data / Provenance" in html
     assert "Gates" in html
+    assert html.count('class="page-section"') == 3
+    assert 'href="#overview"' in html
+    assert 'href="#data-provenance"' in html
+    assert 'href="#gates"' in html
     assert "No D5 result population yet." in html
     assert "No paper runtime yet." in html
     assert "No live mode." in html
@@ -126,6 +140,34 @@ def test_no_forbidden_authority_controls_are_rendered(tmp_path):
 
     for snippet in FORBIDDEN_CONTROL_SNIPPETS:
         assert snippet not in html
+
+
+def test_static_assets_are_local_only_without_network_or_build_references(tmp_path):
+    _, index_path = generate_dashboard(Path("."), tmp_path / "data", tmp_path / "build")
+    html = index_path.read_text(encoding="utf-8").lower()
+    css = (index_path.parent / "assets" / "dashboard.css").read_text(encoding="utf-8").lower()
+    js = (index_path.parent / "assets" / "dashboard.js").read_text(encoding="utf-8").lower()
+
+    assert 'href="assets/dashboard.css"' in html
+    assert 'src="assets/dashboard.js"' in html
+    for snippet in NETWORK_OR_BUILD_SNIPPETS:
+        assert snippet not in html
+        assert snippet not in css
+        assert snippet not in js
+
+
+def test_polish_structure_and_inert_filters_render(tmp_path):
+    _, index_path = generate_dashboard(Path("."), tmp_path / "data", tmp_path / "build")
+    html = index_path.read_text(encoding="utf-8")
+    js = (index_path.parent / "assets" / "dashboard.js").read_text(encoding="utf-8")
+
+    assert 'class="status-summary"' in html
+    assert 'class="slice-grid"' in html
+    assert 'class="table-wrap"' in html
+    assert 'data-filter-target="artifact-table"' in html
+    assert 'data-filter-target="gate-table"' in html
+    assert 'class="filter-row"' in html
+    assert "query !== \"\"" in js
 
 
 def test_cli_prints_generated_paths(tmp_path, capsys):

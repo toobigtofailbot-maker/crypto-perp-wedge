@@ -1,6 +1,6 @@
-# Static Dashboard MVP
+# Static Dashboard
 
-WP-F3 adds a local/offline static dashboard generator for three pages:
+The dashboard is a local/offline static operator view with three pages:
 
 - Overview
 - Data / Provenance
@@ -20,3 +20,8 @@ from the validated contract data.
 gitignored. The dashboard is display-only: it mirrors validated repo facts,
 shows empty states for missing D5, paper runtime, and live mode, and cannot
 satisfy gates or mutate artifacts.
+
+The polished static UI keeps the same contract boundary. Search fields on the
+Data / Provenance and Gates pages are local browser filters only. They do not
+sort by quality, call a server, fetch network resources, write artifacts, or
+change any gate state.

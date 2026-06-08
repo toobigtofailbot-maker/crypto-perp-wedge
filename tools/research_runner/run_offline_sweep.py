@@ -68,6 +68,7 @@ class OfflineSweepAbort(RuntimeError):
 @dataclass(frozen=True)
 class _ExecutionInput:
     mode: str
+    execution_provenance_class: str
     ohlcv: pd.DataFrame
     funding: pd.DataFrame
     timeframe: str
@@ -372,12 +373,17 @@ def _canonical_15m_execution_input(ohlcv_input_path: Path | None) -> _ExecutionI
     digest = _sha256_file(resolved)
     return _ExecutionInput(
         mode="canonical_15m_fixture",
+        execution_provenance_class="fixture_offline",
         ohlcv=ohlcv,
         funding=_zero_funding_for_ohlcv(ohlcv),
         timeframe="15m",
         data_catalog_ref=CANONICAL_15M_DATA_CATALOG_REF,
         data_slice_identity=f"csv_fixture:{digest}",
-        environment_summary=["canonical_15m_ohlcv_fixture_input", "offline_only_no_exchange_api"],
+        environment_summary=[
+            "canonical_15m_ohlcv_fixture_input",
+            "execution_provenance_class=fixture_offline",
+            "offline_only_no_exchange_api",
+        ],
         data_coverage_notes=[
             "15m OHLCV test fixture/input",
             "offline only",
@@ -466,6 +472,7 @@ def _d4_catalog_execution_input(
     execution_input = _canonical_15m_execution_input(ohlcv_input_path)
     return _ExecutionInput(
         mode="canonical_15m_d4_provenance",
+        execution_provenance_class="canonical_real_data",
         ohlcv=execution_input.ohlcv,
         funding=execution_input.funding,
         timeframe=execution_input.timeframe,
@@ -474,6 +481,7 @@ def _d4_catalog_execution_input(
         environment_summary=[
             "canonical_15m_ohlcv_input",
             "d4_catalog_slice_provenance",
+            "execution_provenance_class=canonical_real_data",
             "offline_only_no_exchange_api",
         ],
         data_coverage_notes=[
@@ -682,6 +690,9 @@ def _deterministic_result_population_id(
     manifest_hash: str,
     sweep_hash: str,
     backtest_assumption_summary: dict[str, Any],
+    data_slice_identity: str,
+    d3_validation_identity: str | None,
+    execution_provenance_class: str,
 ) -> str:
     digest = hashlib.sha256(
         _canonical_json_bytes(
@@ -690,10 +701,32 @@ def _deterministic_result_population_id(
                 "manifest_hash": manifest_hash,
                 "sweep_hash": sweep_hash,
                 "backtest_assumption_summary": backtest_assumption_summary,
+                "data_slice_identity": data_slice_identity,
+                "d3_validation_identity": d3_validation_identity,
+                "execution_provenance_class": execution_provenance_class,
             }
         )
     ).hexdigest()
     return f"RP-{int(digest[:8], 16) % 10000:04d}"
+
+
+def _execution_provenance_identity(execution_input: _ExecutionInput | None) -> dict[str, str | None]:
+    if execution_input is None:
+        return {
+            "data_slice_identity": "synthetic-offline-runner-v1",
+            "d3_validation_identity": None,
+            "execution_provenance_class": "fixture_offline",
+        }
+    d3_validation_identity = None
+    for note in execution_input.data_coverage_notes:
+        if note.startswith("d3_validation_report_sha256="):
+            d3_validation_identity = note.split("=", 1)[1]
+            break
+    return {
+        "data_slice_identity": execution_input.data_slice_identity,
+        "d3_validation_identity": d3_validation_identity,
+        "execution_provenance_class": execution_input.execution_provenance_class,
+    }
 
 
 def _backtest_assumption_summary(sweep_plan: dict[str, Any]) -> dict[str, Any]:
@@ -873,8 +906,15 @@ def _build_result_population(
     ]
     selected_count = sweep_plan["trial_accounting"]["selected_variant_count"]
     backtest_assumptions = _backtest_assumption_summary(sweep_plan)
+    provenance_identity = _execution_provenance_identity(execution_input)
     result_population_id = _deterministic_result_population_id(
-        strategy_hash, manifest_hash, sweep_hash, backtest_assumptions
+        strategy_hash,
+        manifest_hash,
+        sweep_hash,
+        backtest_assumptions,
+        provenance_identity["data_slice_identity"],
+        provenance_identity["d3_validation_identity"],
+        provenance_identity["execution_provenance_class"],
     )
     rows, aborted = _execute_rows(
         result_population_id,

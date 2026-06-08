@@ -177,24 +177,67 @@ def _d4_artifact_paths() -> tuple[Path, Path]:
     )
 
 
-def _write_15m_ohlcv_fixture(tmp_path: Path) -> Path:
+def _write_15m_ohlcv_fixture(
+    tmp_path: Path,
+    *,
+    timestamp_column: str = "timestamp",
+    include_timestamp: bool = True,
+    include_open_time: bool = False,
+    include_open_time_ms: bool = False,
+    timestamp_offset_minutes: int = 0,
+    open_time_offset_minutes: int = 0,
+    open_time_ms_offset_minutes: int = 0,
+) -> Path:
     path = tmp_path / "canonical_15m_ohlcv_fixture.csv"
     index = pd.date_range("2026-01-01T00:00:00Z", periods=96, freq="15min")
+    timestamp_index = index + pd.Timedelta(minutes=timestamp_offset_minutes)
+    open_time_index = index + pd.Timedelta(minutes=open_time_offset_minutes)
+    open_time_ms_index = index + pd.Timedelta(minutes=open_time_ms_offset_minutes)
     close = []
     pattern = [100.0] * 20 + [94.0, 98.0, 101.0, 90.0, 96.0, 102.0, 88.0, 100.0]
     while len(close) < len(index):
         close.extend(pattern)
     close = close[: len(index)]
-    frame = pd.DataFrame(
-        {
-            "timestamp": index,
-            "open": [value + 0.1 for value in close],
-            "high": [value + 1.0 for value in close],
-            "low": [value - 1.0 for value in close],
-            "close": close,
-            "volume": [1000.0] * len(index),
-        }
-    )
+    rows = {
+        "open": [value + 0.1 for value in close],
+        "high": [value + 1.0 for value in close],
+        "low": [value - 1.0 for value in close],
+        "close": close,
+        "volume": [1000.0] * len(index),
+    }
+    if include_timestamp:
+        rows[timestamp_column] = timestamp_index
+    if include_open_time:
+        rows["open_time"] = open_time_index
+    if include_open_time_ms:
+        rows["open_time_ms"] = [int(timestamp.timestamp() * 1000) for timestamp in open_time_ms_index]
+        rows["close_time_ms"] = [value + 899_999 for value in rows["open_time_ms"]]
+        rows["quote_asset_volume"] = [0.0] * len(index)
+        rows["num_trades"] = [1] * len(index)
+        rows["taker_buy_base_vol"] = [0.0] * len(index)
+        rows["taker_buy_quote_vol"] = [0.0] * len(index)
+        rows["ignore"] = [0] * len(index)
+    ordered_columns = [
+        column
+        for column in (
+            "timestamp",
+            "open_time_ms",
+            "open_time",
+            "open",
+            "high",
+            "low",
+            "close",
+            "volume",
+            "close_time_ms",
+            "quote_asset_volume",
+            "num_trades",
+            "taker_buy_base_vol",
+            "taker_buy_quote_vol",
+            "ignore",
+        )
+        if column in rows
+    ]
+    frame = pd.DataFrame(rows)[ordered_columns]
     frame.to_csv(path, index=False)
     return path
 
@@ -663,6 +706,175 @@ def test_canonical_15m_path_compiles_frozen_variants_and_uses_15m_input(tmp_path
     assert payload["committed_denominator_snapshot"]["committed_denominator"] == 7
     assert payload["outcome_category_counts"]["counts_sum"] == 7
     assert len(payload["variant_result_rows"]) == 7
+
+
+def test_canonical_15m_accepts_open_time_without_timestamp(tmp_path):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(
+        tmp_path,
+        include_timestamp=False,
+        include_open_time=True,
+    )
+
+    result = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        deterministic_seed=7,
+    )
+
+    assert result["dry_run"] is True
+    assert result["wrote"] is False
+    assert result["result_population"]["data_coverage_summary"]["timeframe"] == "15m"
+    assert result["result_population"]["outcome_category_counts"]["counts_sum"] == 7
+
+
+def test_canonical_15m_accepts_open_time_ms_without_timestamp_or_open_time(tmp_path):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(
+        tmp_path,
+        include_timestamp=False,
+        include_open_time_ms=True,
+    )
+
+    result = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        deterministic_seed=7,
+    )
+
+    assert result["dry_run"] is True
+    assert result["wrote"] is False
+    assert result["result_population"]["data_coverage_summary"]["timeframe"] == "15m"
+    assert result["result_population"]["outcome_category_counts"]["counts_sum"] == 7
+
+
+def test_canonical_15m_fails_closed_without_supported_timestamp_column(tmp_path):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(tmp_path, include_timestamp=False)
+
+    with pytest.raises(runner.OfflineSweepError, match="timestamp, open_time, open_time_ms"):
+        _run(
+            strategy_path,
+            manifest_path,
+            sweep_path,
+            canonical_15m=True,
+            ohlcv_input_path=ohlcv_path,
+            deterministic_seed=7,
+        )
+
+
+def test_canonical_15m_fails_closed_on_conflicting_timestamp_and_open_time(tmp_path):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(
+        tmp_path,
+        include_open_time=True,
+        open_time_offset_minutes=15,
+    )
+
+    with pytest.raises(runner.OfflineSweepError, match="conflicting timestamp columns"):
+        _run(
+            strategy_path,
+            manifest_path,
+            sweep_path,
+            canonical_15m=True,
+            ohlcv_input_path=ohlcv_path,
+            deterministic_seed=7,
+        )
+
+
+@pytest.mark.parametrize("timestamp_column", ["timestamp", "open_time"])
+def test_canonical_15m_fails_closed_on_invalid_timestamp_strings(tmp_path, timestamp_column):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(
+        tmp_path,
+        include_timestamp=timestamp_column == "timestamp",
+        include_open_time=timestamp_column == "open_time",
+    )
+    frame = pd.read_csv(ohlcv_path)
+    frame.loc[0, timestamp_column] = "not-a-timestamp"
+    frame.to_csv(ohlcv_path, index=False)
+    output_dir = tmp_path / "scratch_result_populations"
+
+    with pytest.raises(runner.OfflineSweepError, match="invalid timestamps"):
+        _run(
+            strategy_path,
+            manifest_path,
+            sweep_path,
+            output_dir=output_dir,
+            write_result_population=True,
+            canonical_15m=True,
+            ohlcv_input_path=ohlcv_path,
+            deterministic_seed=7,
+        )
+
+    assert not output_dir.exists()
+
+
+@pytest.mark.parametrize("bad_open_time_ms", ["not-ms", "1704067200000.5"])
+def test_canonical_15m_fails_closed_on_invalid_open_time_ms_values(tmp_path, bad_open_time_ms):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(
+        tmp_path,
+        include_timestamp=False,
+        include_open_time_ms=True,
+    )
+    frame = pd.read_csv(ohlcv_path)
+    frame["open_time_ms"] = frame["open_time_ms"].astype("object")
+    frame.loc[0, "open_time_ms"] = bad_open_time_ms
+    frame.to_csv(ohlcv_path, index=False)
+    output_dir = tmp_path / "scratch_result_populations"
+
+    with pytest.raises(
+        runner.OfflineSweepError,
+        match="open_time_ms contains invalid epoch milliseconds",
+    ):
+        _run(
+            strategy_path,
+            manifest_path,
+            sweep_path,
+            output_dir=output_dir,
+            write_result_population=True,
+            canonical_15m=True,
+            ohlcv_input_path=ohlcv_path,
+            deterministic_seed=7,
+        )
+
+    assert not output_dir.exists()
+
+
+def test_canonical_15m_d4_style_open_time_columns_preserve_d4_provenance(tmp_path):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(
+        tmp_path,
+        include_timestamp=False,
+        include_open_time=True,
+        include_open_time_ms=True,
+    )
+    catalog_path, import_report_path = _d4_artifact_paths()
+
+    result = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        d4_catalog_slice_path=catalog_path,
+        d2_import_report_path=import_report_path,
+        deterministic_seed=7,
+    )
+    coverage = result["result_population"]["data_coverage_summary"]
+
+    assert result["dry_run"] is True
+    assert result["wrote"] is False
+    assert coverage["data_catalog_ref"] == D4_CATALOG_REF
+    assert coverage["data_slice_identity"] == D4_SLICE_IDENTITY
+    assert runner.D4_PROVENANCE_MODE_NOTE in coverage["data_coverage_notes"]
 
 
 def test_canonical_15m_d4_provenance_records_d4_catalog_and_slice_identity(tmp_path):

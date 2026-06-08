@@ -306,13 +306,12 @@ def _load_15m_ohlcv_input(path: Path) -> pd.DataFrame:
     if path.suffix.lower() != ".csv":
         raise OfflineSweepError("canonical 15m OHLCV input must be a CSV fixture/input")
     frame = pd.read_csv(path)
-    if "timestamp" not in frame.columns:
-        raise OfflineSweepError("15m OHLCV input must include a timestamp column")
+    timestamp = _select_ohlcv_timestamp(frame)
     required_columns = {"open", "high", "low", "close", "volume"}
     missing = required_columns - set(frame.columns)
     if missing:
         raise OfflineSweepError(f"15m OHLCV input missing columns: {sorted(missing)}")
-    frame["timestamp"] = pd.to_datetime(frame["timestamp"], utc=True)
+    frame["timestamp"] = timestamp
     frame = frame.set_index("timestamp").sort_index()
     frame = frame[["open", "high", "low", "close", "volume"]].astype(float)
     if frame.index.has_duplicates:
@@ -323,6 +322,39 @@ def _load_15m_ohlcv_input(path: Path) -> pd.DataFrame:
     if len(deltas) != 1 or deltas[0] != pd.Timedelta(minutes=15):
         raise OfflineSweepError("canonical OHLCV input must be exactly 15m-spaced")
     return frame
+
+
+def _parse_ohlcv_timestamp_series(frame: pd.DataFrame, column: str) -> pd.Series:
+    if column == "open_time_ms":
+        numeric = pd.to_numeric(frame[column], errors="coerce")
+        if numeric.isna().any() or not numeric.map(lambda value: float(value).is_integer()).all():
+            raise OfflineSweepError("15m OHLCV input open_time_ms contains invalid epoch milliseconds")
+        parsed = pd.to_datetime(numeric.astype("int64"), unit="ms", utc=True, errors="coerce")
+    else:
+        parsed = pd.to_datetime(frame[column], utc=True, errors="coerce")
+    if pd.Series(parsed).isna().any():
+        raise OfflineSweepError(f"15m OHLCV input {column} contains invalid timestamps")
+    return pd.Series(parsed, index=frame.index)
+
+
+def _select_ohlcv_timestamp(frame: pd.DataFrame) -> pd.Series:
+    ordered_columns = ("timestamp", "open_time", "open_time_ms")
+    present = [column for column in ordered_columns if column in frame.columns]
+    if not present:
+        raise OfflineSweepError(
+            "15m OHLCV input must include one of: timestamp, open_time, open_time_ms"
+        )
+    parsed = {column: _parse_ohlcv_timestamp_series(frame, column) for column in present}
+    selected_column = present[0]
+    selected = parsed[selected_column]
+    for column, candidate in parsed.items():
+        if column == selected_column:
+            continue
+        if (selected != candidate).any():
+            raise OfflineSweepError(
+                f"15m OHLCV input conflicting timestamp columns: {selected_column} and {column}"
+            )
+    return selected
 
 
 def _zero_funding_for_ohlcv(ohlcv: pd.DataFrame) -> pd.DataFrame:

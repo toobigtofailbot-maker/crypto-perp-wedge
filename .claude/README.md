@@ -1,6 +1,10 @@
-# Claude Code / Codex Operating Rules
+# Claude Code / Coding-Agent Operating Rules
 
-This file defines operating constraints for Claude Code and Codex sessions working in this repository.
+This file is a thin Claude-specific entrypoint and local asset folder. It does not duplicate the shared coding-agent workflow standard. Claude Code follows the shared coding-agent workflow documented in `AGENTS.md` and `docs/ai/codex/` unless a Claude-specific local asset or execution brief explicitly says otherwise.
+
+Shared coding-agent guidance layer: `AGENTS.md` and `docs/ai/codex/` (current shared path; directory name is historical).
+
+This file defines operating constraints for Claude Code sessions working in this repository.
 
 ## Current-State Anchor
 

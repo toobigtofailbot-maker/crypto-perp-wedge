@@ -1,14 +1,14 @@
-# Compact Codex WP Template Guidance
+# Compact Coding-Agent WP Template Guidance
 
 ## Scope and non-authority
 
-This document is guidance-only for drafting shorter Codex work-package prompts. It does not replace active WP scope, reduce validation, authorize implementation or tooling, resume WP-S2c-30, apply R1/R2, or create runtime, paper/live, OMS, risk, safe-mode, config, dependency, schema, validator, query-layer, evidence, policy, approval, readiness, lifecycle, promotion/demotion, or downstream authority.
+This document is guidance-only for drafting shorter coding-agent work-package prompts (Claude Code or Codex). It does not replace active WP scope, reduce validation, authorize implementation or tooling, resume WP-S2c-30, apply R1/R2, or create runtime, paper/live, OMS, risk, safe-mode, config, dependency, schema, validator, query-layer, evidence, policy, approval, readiness, lifecycle, promotion/demotion, or downstream authority.
 
 Repo truth and active package scope always win over this guidance. Compact prompts are safe only when they preserve executable scope control.
 
 ## When to use this template
 
-Use this template for future Side/Codex WPs when stable repo guidance can be referenced instead of repeated. A compact WP must remain executable without guessing.
+Use this template for future Side/coding-agent WPs when stable repo guidance can be referenced instead of repeated. A compact WP must remain executable without guessing.
 
 Do not use compact drafting to omit decisions, protected-boundary facts, validation gates, manual-step requirements, or package-specific stop triggers.
 
@@ -44,7 +44,7 @@ Every compact WP must include:
 ## Compact package skeleton
 
 ```text
-# WP-[id] / WP-S2c-[id] — CODEX EXECUTION PACKAGE
+# WP-[id] / WP-S2c-[id] — CODING-AGENT EXECUTION PACKAGE
 [Title]
 
 ## 1. Package Identity

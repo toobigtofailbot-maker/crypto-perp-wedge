@@ -1,8 +1,10 @@
-# Codex Token Efficiency and Context Hygiene
+# Coding-Agent Token Efficiency and Context Hygiene
+
+This guidance applies to Claude Code and Codex. File name is retained for historical reference; Codex-specific notes inside remain Codex-specific.
 
 ## Scope and non-authority
 
-This document is guidance-only for Codex token efficiency, prompt size, and context hygiene. It does not create implementation authority, validation-tier authority, evidence authority, runtime authority, or downstream decision authority.
+This document is guidance-only for coding-agent token efficiency, prompt size, and context hygiene. It does not create implementation authority, validation-tier authority, evidence authority, runtime authority, or downstream decision authority.
 
 Token efficiency cannot justify skipping repo-truth inspection, refreshed-main preflight, changed-file inspection, integrity views, registry validators, full pytest, package-specific validation, or package-specific stop conditions. It also cannot justify protected-path, runtime, paper/live, OMS, risk, safe-mode, config, dependency, schema, validator, query-layer, data, or implementation drift.
 
@@ -13,7 +15,7 @@ Use the active package's precedence order when one is provided. Otherwise:
 1. Current merged repo truth, including actual changed files and live merged state.
 2. Active work package scope and constraints.
 3. `AGENTS.md`.
-4. Supporting Codex workflow docs under `docs/ai/codex/`.
+4. Supporting coding-agent workflow docs under `docs/ai/codex/`.
 5. Chat memory, prior summaries, Agent Mode research, and generic best practice.
 
 Repo truth and active WP scope always win. Cached status, memory, summaries, or compressed notes never replace current repo inspection.

@@ -1078,6 +1078,73 @@ def test_canonical_15m_output_is_deterministic_for_same_fixture(tmp_path):
 
     assert first["result_population_id"] == second["result_population_id"]
     assert _identity_payload(first) == _identity_payload(second)
+    assert "execution_provenance_class=fixture_offline" in first["result_population"][
+        "execution_context"
+    ]["environment_summary"]
+
+
+def test_canonical_15m_fixture_and_d4_provenance_have_distinct_result_population_ids(tmp_path):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(tmp_path)
+    catalog_path, import_report_path = _d4_artifact_paths()
+
+    fixture = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        deterministic_seed=7,
+    )
+    d4 = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        d4_catalog_slice_path=catalog_path,
+        d2_import_report_path=import_report_path,
+        deterministic_seed=7,
+    )
+
+    assert fixture["result_population_id"] != d4["result_population_id"]
+    assert fixture["result_population"]["data_coverage_summary"]["data_catalog_ref"] == (
+        runner.CANONICAL_15M_DATA_CATALOG_REF
+    )
+    assert fixture["result_population"]["data_coverage_summary"]["data_slice_identity"].startswith(
+        "csv_fixture:sha256:"
+    )
+    assert d4["result_population"]["data_coverage_summary"]["data_catalog_ref"] == D4_CATALOG_REF
+    assert d4["result_population"]["data_coverage_summary"]["data_slice_identity"] == D4_SLICE_IDENTITY
+    assert "execution_provenance_class=fixture_offline" in fixture["result_population"][
+        "execution_context"
+    ]["environment_summary"]
+    assert "execution_provenance_class=canonical_real_data" in d4["result_population"][
+        "execution_context"
+    ]["environment_summary"]
+
+
+def test_result_population_id_basis_uses_provenance_identity_components():
+    parent_args = {
+        "strategy_hash": "sha256:" + "1" * 64,
+        "manifest_hash": "sha256:" + "2" * 64,
+        "sweep_hash": "sha256:" + "3" * 64,
+        "backtest_assumption_summary": {"records_assumptions_only": True},
+        "data_slice_identity": D4_SLICE_IDENTITY,
+        "d3_validation_identity": D3_VALIDATION_REPORT_SHA256,
+        "execution_provenance_class": "canonical_real_data",
+    }
+
+    baseline = runner._deterministic_result_population_id(**parent_args)
+
+    for key, replacement in (
+        ("data_slice_identity", D4_SLICE_IDENTITY + ":changed"),
+        ("d3_validation_identity", "0" * 64),
+        ("execution_provenance_class", "fixture_offline"),
+    ):
+        changed = dict(parent_args)
+        changed[key] = replacement
+        assert runner._deterministic_result_population_id(**changed) != baseline
 
 
 def test_canonical_15m_d4_provenance_output_is_deterministic(tmp_path):
@@ -1112,3 +1179,6 @@ def test_canonical_15m_d4_provenance_output_is_deterministic(tmp_path):
     assert _identity_payload(first) == _identity_payload(second)
     assert first["result_population"]["data_coverage_summary"]["data_catalog_ref"] == D4_CATALOG_REF
     assert first["result_population"]["data_coverage_summary"]["data_slice_identity"] == D4_SLICE_IDENTITY
+    assert "execution_provenance_class=canonical_real_data" in first["result_population"][
+        "execution_context"
+    ]["environment_summary"]

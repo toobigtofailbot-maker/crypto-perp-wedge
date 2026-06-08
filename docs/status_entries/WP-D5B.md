@@ -40,6 +40,7 @@ the provenance source for later D5 retry work:
   absent, with deterministic UTC epoch-millisecond conversion.
 - If supported timestamp columns are absent, the runner fails closed.
 - If present supported timestamp columns disagree, the runner fails closed.
+- Invalid `timestamp` / `open_time` string values fail closed.
 - Invalid or non-integer `open_time_ms` values fail closed.
 
 ## D4A Column Support
@@ -57,13 +58,13 @@ the default when D4 provenance paths are not supplied.
 ## Validation Summary
 
 - `git diff --check`: pass.
-- `python -m pytest tests/test_offline_research_runner.py -q`: pass, 35 tests.
+- `python -m pytest tests/test_offline_research_runner.py -q`: pass, 39 tests.
 - `python -m pytest tests/test_validate_result_populations.py -q`: pass, 42 tests.
 - `python -m tools.registry.validate_result_populations`: pass.
 - `python -m tools.research_query.run --list-views`: pass.
 - `v_integrity_*`: clean, 55 views.
 - `python tools/dev/diff_scope_summary.py`: pass; no forbidden-path matches.
-- `python -m pytest -q`: environment-only failure after 1,219 passed tests
+- `python -m pytest -q`: environment-only failure after 1,223 passed tests
   because the isolated worktree lacks gitignored local fixture
   `data/processed/binance_um_perp_BTCUSDT_4h_2020-01-01_2026-04-11_2026-04-12T1655Z.parquet`
   required by

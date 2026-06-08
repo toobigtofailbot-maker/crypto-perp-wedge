@@ -788,6 +788,66 @@ def test_canonical_15m_fails_closed_on_conflicting_timestamp_and_open_time(tmp_p
         )
 
 
+@pytest.mark.parametrize("timestamp_column", ["timestamp", "open_time"])
+def test_canonical_15m_fails_closed_on_invalid_timestamp_strings(tmp_path, timestamp_column):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(
+        tmp_path,
+        include_timestamp=timestamp_column == "timestamp",
+        include_open_time=timestamp_column == "open_time",
+    )
+    frame = pd.read_csv(ohlcv_path)
+    frame.loc[0, timestamp_column] = "not-a-timestamp"
+    frame.to_csv(ohlcv_path, index=False)
+    output_dir = tmp_path / "scratch_result_populations"
+
+    with pytest.raises(runner.OfflineSweepError, match="invalid timestamps"):
+        _run(
+            strategy_path,
+            manifest_path,
+            sweep_path,
+            output_dir=output_dir,
+            write_result_population=True,
+            canonical_15m=True,
+            ohlcv_input_path=ohlcv_path,
+            deterministic_seed=7,
+        )
+
+    assert not output_dir.exists()
+
+
+@pytest.mark.parametrize("bad_open_time_ms", ["not-ms", "1704067200000.5"])
+def test_canonical_15m_fails_closed_on_invalid_open_time_ms_values(tmp_path, bad_open_time_ms):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(
+        tmp_path,
+        include_timestamp=False,
+        include_open_time_ms=True,
+    )
+    frame = pd.read_csv(ohlcv_path)
+    frame["open_time_ms"] = frame["open_time_ms"].astype("object")
+    frame.loc[0, "open_time_ms"] = bad_open_time_ms
+    frame.to_csv(ohlcv_path, index=False)
+    output_dir = tmp_path / "scratch_result_populations"
+
+    with pytest.raises(
+        runner.OfflineSweepError,
+        match="open_time_ms contains invalid epoch milliseconds",
+    ):
+        _run(
+            strategy_path,
+            manifest_path,
+            sweep_path,
+            output_dir=output_dir,
+            write_result_population=True,
+            canonical_15m=True,
+            ohlcv_input_path=ohlcv_path,
+            deterministic_seed=7,
+        )
+
+    assert not output_dir.exists()
+
+
 def test_canonical_15m_d4_style_open_time_columns_preserve_d4_provenance(tmp_path):
     strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
     ohlcv_path = _write_15m_ohlcv_fixture(

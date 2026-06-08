@@ -7,7 +7,7 @@ WP-D5 / Data Block 1 - First real-data canonical sweep.
 ## Branch / PR
 
 - Branch: `codex/data-block-1-d5-first-real-data-canonical-sweep`
-- PR: pending
+- PR: `#415`
 
 ## Package Class
 
@@ -29,6 +29,12 @@ surfaces.
 - `research/result_populations/RP-4492.result_population.json`
 - `docs/status_entries/WP-D5.md`
 - `docs/project_status.md`
+- `tests/test_offline_research_runner.py`
+- `tests/test_research_query.py`
+
+The test changes are stale corpus assertion updates for the now two-entry
+result-population corpus: `RP-2134` fixture-backed and `RP-4492` canonical
+real-data.
 
 ## Result Population
 

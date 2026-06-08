@@ -7,7 +7,7 @@ WP-D6 / Post-D5 real-data descriptive interpretation checkpoint.
 ## Branch / PR
 
 - Branch: `claude/kind-sammet-839aa4`
-- PR: pending
+- PR: [#417](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/417)
 
 ## Package Class
 
@@ -45,11 +45,14 @@ T1 docs-only validation profile:
 - `git diff --check`: pass.
 - `python -m tools.registry.validate_result_populations`: pass.
 - `python -m tools.research_query.run --list-views`: pass.
-- `v_integrity_*` views: clean / zero rows.
+- Key `v_integrity_result_population_*` views (append-only, denominator-mismatch,
+  missing-variant-rows, non-authority, outcome-count-mismatch,
+  parent-hash-chain-mismatch): clean / zero rows.
 - `python tools/dev/diff_scope_summary.py`: pass; changed files are docs-only.
 - `git diff --cached --check`: pass.
 - `git diff --cached --name-only`: three doc files only.
 - Final rebase / GitHub mergeability gate: completed before PR reported ready.
+- GitHub mergeability: `mergeable=true` after push.
 
 Full pytest is not required for this T1 docs-only package.
 

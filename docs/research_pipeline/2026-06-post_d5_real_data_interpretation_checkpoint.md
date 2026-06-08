@@ -80,8 +80,7 @@ occurred.
 ## 5. Descriptive Result Table
 
 The table below is presented in variant ID order only. It is not sorted by any
-performance metric. No row is ranked, bolded as best, or labeled as a winner
-or loser. No recommendation is made.
+performance metric. No row is ranked, emphasized, selected, or singled out. No recommendation is made.
 
 Values are taken directly from `RP-4492.variant_result_rows[*].metrics` and
 `outcome_category` fields. Reasonable rounding is applied for readability; the

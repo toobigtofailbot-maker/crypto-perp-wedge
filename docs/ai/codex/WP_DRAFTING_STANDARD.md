@@ -1,15 +1,17 @@
-# Codex WP Drafting Standard
+# Coding-Agent WP Drafting Standard
+
+This standard applies to Claude Code and Codex. Tool-specific notes are marked explicitly; all other rules are shared.
 
 ## 1. Purpose and Authority
 
-This document is the repo-standard for drafting Codex work packages (WPs). It standardizes WP structure, delivery format, parallel execution, scope control, forbidden scope, validation, stop conditions, report-back formats, review checklists, and type-specific templates.
+This document is the repo-standard for drafting coding-agent work packages (WPs). It standardizes WP structure, delivery format, parallel execution, scope control, forbidden scope, validation, stop conditions, report-back formats, review checklists, and type-specific templates.
 
 Repo truth, current merged state, and explicit Main/Karl authorization still override generic templates. This standard is guidance for drafting and execution discipline; it does not create implementation, evidence, runtime, policy, promotion, approval, or downstream authority.
 
 The standard exists to prevent recurring failures:
 
 - uncommitted files from another WP leaking into a new WP;
-- Codex editing `main` or the root checkout during parallel work;
+- a coding agent editing `main` or the root checkout during parallel work;
 - parallel WPs colliding on `docs/project_status.md`;
 - PRs being called merge-ready while GitHub reports `mergeable=false`;
 - detached-HEAD confusion after manual or rebase conflict resolution;
@@ -36,7 +38,7 @@ Every WP must include:
 
 ## 3. Mandatory Delivery Rule
 
-Every drafted WP delivered from Side/Main to Codex must be delivered as a `.txt` file. Do not deliver only in chat.
+Every drafted WP delivered from Side/Main to a coding agent must be delivered as a `.txt` file. Do not deliver only in chat.
 
 The filename must include the WP id and a short title, for example:
 
@@ -284,7 +286,7 @@ If yes, the PR is not merge-ready.
 ```text
 # <WP id> - <title>
 
-## Codex instruction
+## Coding-agent instruction
 - Open the PR ready for review unless explicitly authorized as draft.
 - Do not work outside this WP.
 
@@ -352,7 +354,7 @@ If yes, the PR is not merge-ready.
 - Boundary check:
 - Ready-for-review status:
 
-## Codex report-back format
+## Coding-agent report-back format
 - Branch/base:
 - Repo-truth discovery:
 - Delivered changes:
@@ -555,7 +557,7 @@ Reviewers should verify:
 
 ## 14. Future WP Reference Rule
 
-Future WPs may say:
+Future WPs (for Claude Code or Codex) may say:
 
 ```text
 Follow docs/ai/codex/WP_DRAFTING_STANDARD.md.

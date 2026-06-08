@@ -1,4 +1,6 @@
-# Codex Repo Operating Rules
+# Coding-Agent Repo Operating Rules
+
+These rules apply to Claude Code and Codex unless a rule is explicitly marked as tool-specific. `docs/ai/codex/` is the current shared coding-agent guidance path despite the historical directory name.
 
 Read first:
 
@@ -11,7 +13,7 @@ Precedence order:
 1. Current merged repo truth, including actual changed files and live merged state.
 2. The active work package or task-specific scope and constraints.
 3. `AGENTS.md`.
-4. Supporting Codex workflow docs under `docs/ai/codex/`.
+4. Supporting coding-agent workflow docs under `docs/ai/codex/`.
 5. Chat memory, prior summaries, and generic best practice.
 
 Precedence notes:
@@ -38,7 +40,7 @@ Core rules:
 Workflow efficiency lock:
 
 - Read `docs/research_pipeline/2026-05-stage2c_workflow_efficiency_operating_model_lock.md` when package scope involves workflow, parallel tranches, `docs/project_status.md` updates, report-back format, efficiency policy, or tiered execution.
-- Use `docs/ai/codex/CODEX_TOKEN_EFFICIENCY.md` as canonical Codex token-efficiency and context-hygiene guidance; it is guidance-only and cannot weaken repo truth, active package scope, validation, or protected boundaries.
+- Use `docs/ai/codex/CODEX_TOKEN_EFFICIENCY.md` as canonical coding-agent token-efficiency and context-hygiene guidance; it is guidance-only and cannot weaken repo truth, active package scope, validation, or protected boundaries.
 - Do not create simultaneous open PRs that modify `docs/project_status.md`; start any package touching it from refreshed `main` and stop if another open PR already edits it.
 - Package-specific scope and current repo truth still outrank general workflow guidance.
 
@@ -55,4 +57,4 @@ Validation and report-back:
 - Report branch/base, repo-truth discovery, delivered changes, validation results, forbidden-scope check, PR/push status, and open escalations.
 - Focus PR review on diff-to-objective fit, boundary violations, stale assumptions, and missing validation evidence.
 
-Detailed Codex workflow guidance lives under `docs/ai/codex/`.
+Detailed shared coding-agent workflow guidance lives under `docs/ai/codex/`.

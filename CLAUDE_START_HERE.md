@@ -1,4 +1,4 @@
-# Claude Pro - Project Start Here
+# Claude Code / Coding Agent - Project Start Here
 
 ## What This Repo Is
 
@@ -43,7 +43,7 @@ Stop and report when a task requires a decision not present in repo truth, confl
 - Current-state anchor: `docs/project_status.md`
 - Runbook: `docs/runbook.md`
 - Stage 2c workflow-efficiency lock: `docs/research_pipeline/2026-05-stage2c_workflow_efficiency_operating_model_lock.md` for Main/Side/Codex authority, tiered workflow, project-status overlap, reporting, and standing efficiency authorization; current merged repo truth still wins.
-- Codex token-efficiency guidance: `docs/ai/codex/CODEX_TOKEN_EFFICIENCY.md` for Codex/Side context hygiene and prompt/reporting efficiency; it is guidance-only and does not weaken the hard startup sequence, repo truth, validation, or protected boundaries.
+- Coding-agent token-efficiency guidance: `docs/ai/codex/CODEX_TOKEN_EFFICIENCY.md` for Claude Code/Codex context hygiene and prompt/reporting efficiency; it is guidance-only and does not weaken the hard startup sequence, repo truth, validation, or protected boundaries. Shared coding-agent workflow guidance lives under `docs/ai/codex/` (current shared path; directory name is historical).
 - Long-term architecture scope: `docs/architecture/LONG_TERM_SCOPE.md` when clarifying longer-horizon roadmap, automation, agent, dashboard, or self-improvement scope
 - Phase map: `docs/onboarding/PHASES.md`
 - Phase 2 baseline: `docs/onboarding/PHASE2_BASELINE.md`

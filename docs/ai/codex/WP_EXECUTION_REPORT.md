@@ -1,6 +1,6 @@
 # Work Package Execution Report
 
-Use this report-back structure for Codex execution packages:
+Use this report-back structure for coding-agent execution packages (Claude Code or Codex):
 
 - A. Branch / base
 - B. Repo-truth discovery

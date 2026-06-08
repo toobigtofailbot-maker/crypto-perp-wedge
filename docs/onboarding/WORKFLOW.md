@@ -59,7 +59,7 @@ Anything execution-critical must be deterministic and auditable. AI can accelera
 
 Canonical lock: `docs/research_pipeline/2026-05-stage2c_workflow_efficiency_operating_model_lock.md`.
 
-Codex token-efficiency and context-hygiene guidance lives at `docs/ai/codex/CODEX_TOKEN_EFFICIENCY.md`. It is guidance-only and cannot weaken the tier model, authority split, validation discipline, H-005 preservation, project-status overlap guardrail, or active package scope.
+Coding-agent token-efficiency and context-hygiene guidance lives at `docs/ai/codex/CODEX_TOKEN_EFFICIENCY.md`. It applies to Claude Code and Codex. It is guidance-only and cannot weaken the tier model, authority split, validation discipline, H-005 preservation, project-status overlap guardrail, or active package scope.
 
 Repo truth and active package scope still outrank this summary.
 

@@ -2,7 +2,7 @@
 
 - **Package class:** T3 dashboard data-prep / collector
 - **Branch:** `dashboard/f5b-results-collector`
-- **PR:** (to be set after push)
+- **PR:** https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/424
 - **Scope summary:** Updates `tools/dashboard/collector.py` so `collect_dashboard_data(repo_root)` populates the optional `pages.results` section of `dashboard_data.v1` from `RP-4492` and D6 read-only evidence. Adds F5B-specific tests to `tests/test_generate_static_dashboard.py`. Narrows `docs/dashboard/README.md` to note Results collector output. Appends compact pointer to `docs/project_status.md`.
 
 ## Changed files
@@ -126,7 +126,7 @@ No drift requiring rewording found. No changed or generated text implies a selec
 
 ## Merge status
 
-Branch `dashboard/f5b-results-collector` — PR not yet opened. Status fragment PR URL to be updated after push.
+Branch `dashboard/f5b-results-collector` — draft PR open: https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/424
 
 ## Next dependency / runway note
 

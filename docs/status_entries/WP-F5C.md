@@ -2,7 +2,7 @@
 
 - **Package class:** T3 dashboard renderer / static presentation
 - **Branch:** `dashboard/f5c-results-renderer`
-- **PR:** (to be filled after PR creation)
+- **PR:** https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/425
 - **Scope summary:** Adds a display-only Results page renderer to the local static dashboard, consuming only validated `dashboard_data.v1` from F5B. Adds Results nav entry and page section to the template, `_results()` renderer function, narrow CSS additions, updated and new tests, narrow README update, and project status pointer. No collector/schema/validator/query-layer/data-artifact changes.
 
 ## Changed files
@@ -142,6 +142,6 @@ No drift requiring rewording. No changed or generated text implies a selected/pr
 
 ## Merge status
 
-Branch `dashboard/f5c-results-renderer` — **merge-ready after PR creation**.
-PR: (to be filled after PR creation)
+Branch `dashboard/f5c-results-renderer` — **merge-ready**.
+PR: https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/425
 No open blockers.

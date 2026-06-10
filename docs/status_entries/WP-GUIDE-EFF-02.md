@@ -2,7 +2,7 @@
 
 - Package class: T1 docs / shared coding-agent guidance
 - Branch: docs/guide-eff-02-report-status-compression
-- PR: TBD (pending push)
+- PR: https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/419
 - Scope summary: Tightened shared coding-agent guidance for compact tier-aware report-backs, PR-body minimums, validation-output summarization, status-fragment-first reporting, compact project-status usage, and parallel-PR collision safeguards.
 - Changed files:
   - `docs/ai/codex/WP_EXECUTION_REPORT.md`

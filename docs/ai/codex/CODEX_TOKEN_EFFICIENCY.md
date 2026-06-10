@@ -54,25 +54,33 @@ Brevity must not omit material authority facts, stop-trigger facts, protected-bo
 
 ## Concise report-backs
 
-Default concise report-backs should use:
+Default concise report-backs should use the compact tier-aware shape from `docs/ai/codex/WP_EXECUTION_REPORT.md`:
 
 ```text
 A. Scope
 B. Changed files
 C. Validation
 D. Boundary check
-E. Decision
+E. PR status / decision
 ```
 
-Longer report-backs remain required for Tier 2/3/4 packages, artifact packages, stop triggers, validation failures, nontrivial semantics, or package-specific report formats.
+Longer report-backs remain required for T2/T3/T4 packages, artifact packages, stop triggers, validation failures, nontrivial semantics, package-specific report formats, or any case where compression would hide a failed command, skipped required validation, unexpected changed file, forbidden-scope touch, mergeability failure, or unresolved escalation. See `docs/ai/codex/WP_EXECUTION_REPORT.md` for the full expanded shape, tier-aware expectations, and failure evidence rule.
+
+PR bodies must use the compact minimum shape. They must not restate the entire WP or paste large passing logs.
 
 ## Validation-output summarization
 
-Do not dump long logs into PR bodies or report-backs when a precise count/result summary is enough. Include enough detail to prove the command actually ran and passed.
+Prefer concise passing-output summaries: command + pass/fail + short count. Do not paste full passing logs.
 
-`v_integrity_*: clean (N)` is allowed only if all discovered integrity views actually ran with JSON output and returned `[]`. Integrity views must still be discovered and executed.
+For integrity views, summarize clean results as count + clean/no rows where repo convention allows. `v_integrity_*: clean (N)` is allowed only if all discovered integrity views actually ran with JSON output and returned `[]`. Integrity views must still be discovered and executed.
 
 Registry validators and pytest results may be summarized by exact command class and pass count when the underlying commands actually ran. Summaries do not replace command execution.
+
+For failures, include the failing command, failing test or view name, and relevant error only. Compression must never hide a failed command, skipped required validation, unexpected changed file, forbidden-scope touch, mergeability failure, or unresolved escalation.
+
+Token efficiency cannot skip validation, changed-file inspection, final rebase, GitHub mergeability, or stop conditions.
+
+Do not add or endorse validation wrappers, RTK integration, generated summaries, generated current-state files, or generated code indexes.
 
 ## Optional manual command-output compression
 

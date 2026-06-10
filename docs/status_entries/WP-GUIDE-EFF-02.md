@@ -1,0 +1,24 @@
+# WP-GUIDE-EFF-02 — Report-back compression and status layering
+
+- Package class: T1 docs / shared coding-agent guidance
+- Branch: docs/guide-eff-02-report-status-compression
+- PR: https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/419
+- Scope summary: Tightened shared coding-agent guidance for compact tier-aware report-backs, PR-body minimums, validation-output summarization, status-fragment-first reporting, compact project-status usage, and parallel-PR collision safeguards.
+- Changed files:
+  - `docs/ai/codex/WP_EXECUTION_REPORT.md`
+  - `docs/ai/codex/CODEX_TOKEN_EFFICIENCY.md`
+  - `docs/status_entries/README.md`
+  - `docs/ai/codex/WP_DRAFTING_STANDARD.md`
+  - `docs/status_entries/WP-GUIDE-EFF-02.md` (this file)
+  - `docs/project_status.md`
+- Validation summary: T1 docs-only. `git diff --check`: pass. `python -m tools.registry.validate_result_populations`: pass. `python -m tools.research_query.run --list-views`: pass. All 55 discovered `v_integrity_*` views: clean / no rows. `python tools/dev/diff_scope_summary.py`: no forbidden-path matches, no allowed-file violations. Full pytest: not required for T1 docs-only package.
+- Boundary summary:
+  - Docs/guidance only; no runtime, paper/live, OMS, risk, or execution path changed.
+  - No helper implementation; no startup-order change; no validation weakening.
+  - No F5A/dashboard change; no strategy-promotion or artifact-authority change.
+  - `AGENTS.md`, `CLAUDE_START_HERE.md`, `.claude/README.md`, and `docs/runbook.md` not modified.
+  - No current-state capsule, truth-replacement summary, or runbook conditionality created.
+  - Compression guidance explicitly preserves failure evidence, skipped validation reporting, unexpected changed-file reporting, and forbidden-scope reporting.
+  - Status fragments remain process records only; `docs/project_status.md` remains the startup/current-state anchor.
+- Merge status: PR open, pending review
+- Next dependency note: None required; this package only tightens shared coding-agent guidance. The H-005/H-006 strict runway and all other active work tracks are unaffected.

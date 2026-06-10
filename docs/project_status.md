@@ -352,6 +352,8 @@ The accepted next architecture tranche is candidate-agnostic research machine fo
 
 - WP-GUIDE-EFF-01 branch-state: WP-GUIDE-EFF-01 opened/updated shared coding-agent guidance for package-class read routing, Context Budget, compact WP defaults, and delta-from-defaults. It adds the package-class read-path router (T1/T2/T3/T4) to `docs/ai/codex/README.md`, adds `Context Budget / Files to Inspect`, compact WP default, and `Delta from defaults` sections to `docs/ai/codex/COMPACT_WP_TEMPLATE.md`, adds required Context Budget and package-class fields to `docs/ai/codex/WP_DRAFTING_STANDARD.md`, and adds a cross-reference in `docs/ai/codex/CODEX_TOKEN_EFFICIENCY.md`. Docs/guidance only; no runtime, paper/live, protected-path, validation, helper implementation, dashboard, strategy-promotion, or artifact-authority change. Detailed branch-state lives in `docs/status_entries/WP-GUIDE-EFF-01.md`.
 
+- WP-GUIDE-EFF-02 branch-state: WP-GUIDE-EFF-02 updated shared coding-agent guidance for compact tier-aware report-backs, PR-body minimums, validation-output summarization, status-fragment-first reporting, compact project-status usage, and parallel-PR collision safeguards. Docs/guidance only; no runtime, paper/live, protected-path, validation, helper implementation, dashboard, strategy-promotion, startup-order, or artifact-authority change. Detailed branch-state lives in `docs/status_entries/WP-GUIDE-EFF-02.md`.
+
 ## Update Discipline
 
 - Read this file first.

@@ -46,11 +46,28 @@ For future parallel WPs, prefer creating or updating the WP-specific fragment in
 
 Fragments may be drafted while a PR is open. After merge, update the fragment's merge status if the package owns that update. Do not edit another WP's fragment unless the active package explicitly scopes that maintenance.
 
+## Status Fragments Are Preferred for Per-WP Detail
+
+Status fragments under `docs/status_entries/<WP_ID>.md` are the preferred surface for per-WP branch-state detail. Write or update the WP-specific fragment rather than adding full branch-state detail to `docs/project_status.md`.
+
 ## Project Status Posture
 
-`docs/project_status.md` remains the current-state anchor, milestone summary, major accepted-decision ledger, current runway pointer, and startup entrypoint.
+`docs/project_status.md` remains the current-state anchor, milestone summary, major accepted-decision ledger, current runway pointer, and startup entrypoint. It is read at the start of every session and must not be demoted or bypassed.
 
-After WP-G2, `docs/project_status.md` should not be the default place for every branch-state detail from parallel WPs. Update it when a package creates a milestone, changes the runway, changes major accepted decisions, or is explicitly scoped to update it. Otherwise, link or summarize the relevant status fragment.
+`docs/project_status.md` should receive compact updates only when a package:
+
+- creates a milestone;
+- changes the runway or current runway pointer;
+- records a major accepted decision; or
+- is explicitly scoped to update it.
+
+If a WP modifies `docs/project_status.md`, it must complete the final rebase and GitHub mergeability checks before the PR is called merge-ready.
+
+For per-WP branch-state detail, link or summarize the relevant status fragment rather than expanding `docs/project_status.md`.
+
+## Parallel-PR Collision Safeguard
+
+Parallel open PRs should avoid overlapping `docs/project_status.md` edits when possible. If two PRs both need `docs/project_status.md`, the later PR must refresh and rebase onto the current `origin/main` after the earlier PR merges before it is called merge-ready. Do not call a PR merge-ready if GitHub reports `docs/project_status.md` conflicts or `mergeable=false`.
 
 ## Conflict Reduction
 
@@ -64,7 +81,9 @@ Status fragments must not:
 - promote research, advisory, shadow, or report artifacts into execution authority;
 - change schemas, validators, query-layer behavior, tools, tests, data artifacts, dependencies, or CI unless the active WP explicitly authorizes those changes;
 - rewrite historical project status entries broadly;
-- remove or reinterpret another merged WP's status.
+- remove or reinterpret another merged WP's status;
+- serve as a replacement for repo truth, `docs/project_status.md`, or the startup read order;
+- create execution, research, promotion, policy, runtime, paper/live, or artifact authority.
 
 ## Review Checklist
 

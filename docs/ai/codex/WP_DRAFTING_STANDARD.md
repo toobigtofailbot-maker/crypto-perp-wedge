@@ -32,7 +32,8 @@ Every WP must include:
 - validation: exact commands and expected evidence;
 - stop conditions: conditions that require halting and reporting;
 - commit / PR instructions: branch, commit message, PR title, draft status, and body requirements;
-- report-back format: required sections and evidence;
+- report-back format: required sections and evidence. Report-backs may use the compact tier-aware shape from `docs/ai/codex/WP_EXECUTION_REPORT.md` when the package is clean; expanded detail is required when validation fails, scope differs, forbidden files are touched, GitHub mergeability is not clean, or the package is T2/T3/T4 with material semantic risk;
+- whether `docs/project_status.md` will be modified: state this explicitly so reviewers can anticipate parallel-PR collision risk and confirm the final rebase and mergeability gate was completed (see `docs/status_entries/README.md`);
 - review checklist: how Side/Main should inspect merge readiness;
 - PR status: ready for review / not draft unless explicitly authorized otherwise.
 
@@ -204,6 +205,20 @@ Concise-output rule:
 - if a command fails, report the failing command, failing test name, and relevant error only;
 - do not paste full passing logs;
 - do not paste large unrelated stack traces.
+
+PR-body minimum rule:
+
+PR bodies must include the following minimum sections and must not restate the entire WP or paste large passing logs:
+
+```text
+A. Scope
+B. Changed files
+C. Validation
+D. Boundary check
+E. PR status / ready-for-review status
+```
+
+See `docs/ai/codex/WP_EXECUTION_REPORT.md` for the compact and expanded report-back shapes and tier-aware expectations.
 
 Recommended T1 docs/design/process validation profile:
 

@@ -2,13 +2,13 @@
 
 - Package class: T1 docs / shared coding-agent guidance
 - Branch: docs/guide-eff-03-startup-anchor-clarity
-- PR: pending
+- PR: https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/420
 - Scope summary: Narrow docs-only clarification in shared coding-agent guidance. Adds a "Shared vs tool-specific startup anchors" subsection to `docs/ai/codex/README.md` and fixes the Package-Class Read-Path Router sentence that previously listed `.claude/README.md` as a required startup anchor. `CLAUDE_START_HERE.md` remains the shared startup anchor referenced by `AGENTS.md`; `.claude/README.md` remains Claude-specific and is not a universal Codex startup requirement.
 - Changed files:
   - `docs/ai/codex/README.md`
   - `docs/status_entries/WP-GUIDE-EFF-03.md` (this file)
   - `docs/project_status.md`
-- Validation summary: T1 docs-only. `git diff --check`: pass. `python -m tools.registry.validate_result_populations`: pass. `python -m tools.research_query.run --list-views`: pass. All discovered `v_integrity_*` views: clean / no rows. `python tools/dev/diff_scope_summary.py`: no forbidden-path matches, no allowed-file violations. Full pytest: not required for T1 docs-only package.
+- Validation summary: T1 docs-only. `git diff --check`: pass. `python -m tools.registry.validate_result_populations`: pass. `python -m tools.research_query.run --list-views`: pass. All 55 discovered `v_integrity_*` views: clean / no rows. `python tools/dev/diff_scope_summary.py`: no forbidden-path matches, no allowed-file violations. Full pytest: not required for T1 docs-only package.
 - Boundary summary:
   - Docs/guidance only; no runtime, paper/live, OMS, risk, or execution path changed.
   - `CLAUDE_START_HERE.md` remains the shared startup anchor referenced by `AGENTS.md`; no filename or directory rename.

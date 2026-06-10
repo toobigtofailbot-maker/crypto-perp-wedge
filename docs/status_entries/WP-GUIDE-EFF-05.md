@@ -2,7 +2,7 @@
 
 **Package class:** T1 — docs/process/guidance
 **Branch:** `docs/guide-eff-05-final-pr-readiness-gate`
-**PR:** TBD (will be updated after PR is opened)
+**PR:** https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/423
 
 ## Scope summary
 
@@ -59,7 +59,7 @@ WP-GUIDE-EFF-05 does **not**:
 
 ## Merge status
 
-Open PR — TBD (will be updated after PR is opened).
+Open PR: https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/423
 
 ## Next dependency / runway note
 

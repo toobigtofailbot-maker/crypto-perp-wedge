@@ -555,7 +555,17 @@ Reviewers should verify:
 - PR body stale-claim check;
 - follow-up prompt if not merge-ready.
 
-## 14. Future WP Reference Rule
+## 14. Required Context Budget and Package-Class Fields
+
+Every future WP must include:
+
+- `Context Budget / Files to Inspect` with the five required fields: `Read first`, `Read for this package`, `Read only if blocked`, `Do not read / do not touch`, `Search terms if paths changed`. See `docs/ai/codex/COMPACT_WP_TEMPLATE.md` for the full Context Budget requirements.
+- `Delta from defaults` when using compact WP format, stating what differs from standard guidance for validation, forbidden paths, manual steps, stop triggers, and report-back. The delta section must not skip required startup anchors, validation, or protected-boundary checks.
+- Package-class classification: T1 (docs/guidance/design), T2 (research artifacts/query/evidence), T3 (implementation/tooling/dashboard/schema/validator), or T4 (runtime/paper/live/OMS/risk/protected). See `docs/ai/codex/README.md` for the read-path guidance per class.
+
+These requirements do not reduce or replace the universal WP requirements in Section 2, the validation requirements in Sections 9–10, the isolated-worktree rule in Section 4, or any other standard in this document.
+
+## 15. Future WP Reference Rule
 
 Future WPs (for Claude Code or Codex) may say:
 

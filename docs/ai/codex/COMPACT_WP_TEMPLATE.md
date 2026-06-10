@@ -23,6 +23,37 @@ Compact prompts may reference:
 
 References do not override current merged repo truth. Cached status, memory, summaries, compressed notes, and old handoffs do not replace current branch inspection.
 
+## Context Budget / Files to Inspect
+
+Every compact WP must include a `Context Budget / Files to Inspect` section with these required fields:
+
+```text
+Read first:
+Read for this package:
+Read only if blocked:
+Do not read / do not touch:
+Search terms if paths changed:
+```
+
+The Context Budget is package-specific. It may use file counts, line ranges, named sections, or search terms where useful, but it is not a global numeric cap and cannot override repo-truth inspection, validation, changed-file inspection, or stop-condition investigation.
+
+## Compact WP Default
+
+Use compact WP form by default when stable repo guidance can be referenced instead of repeated, but do not omit package-specific objective, dependencies, allowed files, forbidden files, validation, stop conditions, report-back, manual steps, or next-step authority.
+
+## Delta from Defaults
+
+Every compact WP should state what differs from standard guidance:
+
+- additional files to inspect;
+- narrower or broader validation;
+- special forbidden paths;
+- manual steps;
+- package-specific stop triggers;
+- unusual report-back requirements.
+
+The `Delta from defaults` section must not be used to skip required startup anchors, validation, or protected-boundary checks.
+
 ## Minimum WP sections
 
 Every compact WP must include:
@@ -31,6 +62,7 @@ Every compact WP must include:
 - objective;
 - why now;
 - dependencies and repo-truth checks;
+- `Context Budget / Files to Inspect` with all five required fields;
 - repo files to inspect;
 - allowed changed files;
 - forbidden scope;
@@ -39,7 +71,8 @@ Every compact WP must include:
 - stop and escalation conditions;
 - Codex report-back format;
 - next-step authority;
-- manual-step disclosure.
+- manual-step disclosure;
+- `Delta from defaults` (when using compact WP format).
 
 ## Compact package skeleton
 

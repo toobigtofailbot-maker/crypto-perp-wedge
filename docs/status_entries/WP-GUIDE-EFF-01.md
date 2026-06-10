@@ -1,0 +1,23 @@
+# WP-GUIDE-EFF-01 — Shared read-path router and compact WP defaults
+
+- Package class: T1 docs / shared coding-agent guidance
+- Branch: docs/guide-eff-01-readpath-compact-wp
+- PR: (pending)
+- Scope summary: Added package-class read-path router to `docs/ai/codex/README.md`; added `Context Budget / Files to Inspect` section, compact WP default, and `Delta from defaults` guidance to `docs/ai/codex/COMPACT_WP_TEMPLATE.md`; added required Context Budget, Delta from defaults, and T1/T2/T3/T4 classification fields to `docs/ai/codex/WP_DRAFTING_STANDARD.md`; added cross-reference to read-path router and Context Budget in `docs/ai/codex/CODEX_TOKEN_EFFICIENCY.md`.
+- Changed files:
+  - `docs/ai/codex/README.md`
+  - `docs/ai/codex/COMPACT_WP_TEMPLATE.md`
+  - `docs/ai/codex/WP_DRAFTING_STANDARD.md`
+  - `docs/ai/codex/CODEX_TOKEN_EFFICIENCY.md`
+  - `docs/status_entries/WP-GUIDE-EFF-01.md` (this file)
+  - `docs/project_status.md`
+- Validation summary: T1 docs-only; `git diff --check` pass; `git status --short` clean; result-population validator and research-query list-views checked; diff scope confirmed within allowed docs/status paths; no protected prefixes touched.
+- Boundary summary:
+  - Docs/guidance only; no runtime, paper/live, OMS, risk, or execution path changed.
+  - No helper implementation; no startup-order change; no validation weakening.
+  - No F5A/dashboard change; no strategy-promotion or artifact-authority change.
+  - `AGENTS.md`, `CLAUDE_START_HERE.md`, `.claude/README.md`, and `docs/runbook.md` not modified.
+  - No new current-state capsule, no truth-replacement summary.
+  - Router and Context Budget reduce wrong-file reading but do not reduce repo-truth or validation obligations.
+- Merge status: PR open, pending review
+- Next dependency note: None required; this package only tightens shared coding-agent guidance and improves every later WP. The H-005/H-006 strict runway and all other active work tracks are unaffected.

@@ -31,6 +31,49 @@ This directory is the current shared coding-agent guidance path for `crypto-perp
 - `docs/project_status.md` is the current-state anchor.
 - Memory, chat summaries, handoffs, and generic best practice are advisory only and must be re-verified.
 
+## Package-Class Read-Path Router
+
+This router applies **after** required startup anchors (`AGENTS.md`, `CLAUDE_START_HERE.md`, `.claude/README.md`, `docs/runbook.md`, `docs/project_status.md`) and after the active WP instructions. It does not change those startup anchors, make any of them optional, or reduce repo-truth obligations, validation, changed-file inspection, or stop-condition investigation. It reduces wrong-file reading only.
+
+**T1 docs / guidance / design:**
+- Startup anchors.
+- Active WP.
+- Target docs and status files.
+- Relevant shared guidance.
+- Avoid code, artifacts, runtime, data, tests unless conflict/stop investigation requires it.
+
+**T2 research artifacts / query / evidence:**
+- Startup anchors.
+- Active WP.
+- Parent artifacts and schemas.
+- Validators and query/integrity surfaces.
+- Status fragments and project status.
+- Verify IDs, denominators, lineage, hashes, outcome counts, failed/skipped/not-attempted preservation.
+
+**T3 implementation / tooling / dashboard / schema / validator:**
+- Startup anchors.
+- Active WP.
+- Changed modules and adjacent subsystem files.
+- Relevant schemas/validators/tests.
+- Focused tests first, then required broader validation.
+- No helper output replaces direct inspection.
+
+**T4 runtime / paper/live / OMS / risk / protected:**
+- Stop unless the active WP explicitly authorizes the boundary.
+- Follow protected-path review and full validation posture.
+
+**Context Budget field model for future WPs:**
+
+```text
+Read first:
+Read for this package:
+Read only if blocked:
+Do not read / do not touch:
+Search terms if paths changed:
+```
+
+See `docs/ai/codex/COMPACT_WP_TEMPLATE.md` for the full Context Budget requirements.
+
 ## Boundaries
 
 - Protected runtime and live-trading-adjacent paths stay protected unless a package explicitly opens them.

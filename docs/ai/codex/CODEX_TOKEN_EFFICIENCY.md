@@ -20,6 +20,14 @@ Use the active package's precedence order when one is provided. Otherwise:
 
 Repo truth and active WP scope always win. Cached status, memory, summaries, or compressed notes never replace current repo inspection.
 
+## Read-Path Router and Context Budget
+
+The package-class read-path router in `docs/ai/codex/README.md` provides T1/T2/T3/T4 class-specific file-reading guidance. Apply it after required startup anchors and after the active WP instructions.
+
+Every WP should include a `Context Budget / Files to Inspect` section with the five required fields (`Read first`, `Read for this package`, `Read only if blocked`, `Do not read / do not touch`, `Search terms if paths changed`). See `docs/ai/codex/COMPACT_WP_TEMPLATE.md` for the full requirements.
+
+The read-path router and Context Budget reduce wrong-file reading. They do not reduce startup-anchor obligations, repo-truth inspection, validation, changed-file inspection, or stop-condition investigation.
+
 ## Context hygiene rules
 
 Read required startup anchors first, then read only task-relevant files or slices. Prefer targeted searches, exact file reads, and current diffs over broad context ingestion.

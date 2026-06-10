@@ -81,8 +81,8 @@ python -m pytest -q (full suite)
     test_spec_signal_compiler, test_validate_binance_usdtm_15m)
   ModuleNotFoundError: binance (scripts/g4_api_smoke_test)
   No F5A-caused failures. No tests weakened.
-  Full installable-environment pytest (pandas/numpy/binance excluded):
-    Not run; not used as merge evidence.
+  Full installable-environment pytest (pandas/numpy/binance-dependent tests excluded):
+    992 passed in 1672.20s (0:27:52) — exit 0, no failures.
 ```
 
 ## Boundary summary

@@ -2,7 +2,7 @@
 
 - **Package class:** T1 docs/process/guidance
 - **Branch:** claude/practical-neumann-ca75f4
-- **PR:** TBD (to be updated after PR is opened)
+- **PR:** [#426](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/426)
 - **Scope summary:** Aligns Claude-specific local prompts and skills with the current shared coding-agent guidance after F5A/F5B/F5C exposed repeated finality and stale-template drift. Edits stale local files in place; does not delete any file. Adds requirement-compatibility/impossibility gate and follow-up blocker-resolution contradiction scan to shared guidance.
 
 ---
@@ -117,7 +117,7 @@ No stale terms remain in an instructional position. All removals verified in rep
 
 ## Merge Status
 
-PR: TBD — to be updated after PR is opened.
+PR: [#426](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/426) — open, non-draft, `mergeable: MERGEABLE`. Ready for review.
 
 ---
 

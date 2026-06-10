@@ -2,7 +2,7 @@
 
 - Package class: T1 docs / shared coding-agent guidance
 - Branch: docs/guide-eff-04-close-efficiency-gaps
-- PR: pending
+- PR: https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/421
 - Scope summary: Final narrow docs-only closure of the workflow-efficiency guidance runway. Codifies package-label PR-title prefix rule in `docs/ai/codex/WP_DRAFTING_STANDARD.md` and `docs/ai/codex/WP_EXECUTION_REPORT.md`; adds explicit advisory-only helper posture and deferred-item closure in `docs/ai/codex/CODEX_TOKEN_EFFICIENCY.md`; adds historical project-status cleanup deferral note in `docs/status_entries/README.md`; adds compact pointer in `docs/project_status.md`.
 - Changed files:
   - `docs/ai/codex/WP_DRAFTING_STANDARD.md`

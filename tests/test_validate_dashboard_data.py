@@ -7,6 +7,7 @@ from jsonschema import Draft7Validator
 
 from tools.dashboard.validate_dashboard_data import (
     DEFAULT_SCHEMA_PATH,
+    _validate_results_page,
     main,
     validate_dashboard_data_file,
 )
@@ -189,6 +190,18 @@ def test_results_authority_field_or_value_fails():
     errors = validate_dashboard_data_file(path)
 
     assert any("forbidden" in error.lower() or "best_variant" in error.lower() for error in errors)
+
+
+def test_results_specific_forbidden_key_fails():
+    payload = _load_results()
+    payload["pages"]["results"]["variant_table"]["leaderboard"] = "display_only_note"
+
+    errors = _validate_results_page(Path("test_doc.json"), payload)
+
+    assert any(
+        "leaderboard" in error.lower() and "forbidden" in error.lower()
+        for error in errors
+    )
 
 
 def test_cli_validates_results_fixture(monkeypatch, capsys):

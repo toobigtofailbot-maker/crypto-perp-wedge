@@ -250,8 +250,9 @@
         "observations": [
           "All 7 variants completed with outcome_category=successful.",
           "VAR-000001 through VAR-000003 show negative PnL; VAR-000004 through VAR-000007 show positive PnL.",
-          "VAR-000007 has the fewest trades (64) and highest Sharpe (1.25) in this population.",
-          "These observations are descriptive facts from D6 checkpoint evidence. They confer no ranking authority."
+          "Trade count decreases across the variant ID sequence from 970 to 64 in this population.",
+          "Sharpe values range from approximately -0.28 to 1.25 across the population under this backtest assumption set.",
+          "These observations are descriptive population-level facts from D6 checkpoint evidence. They confer no ranking authority."
         ],
         "caveats": [
           "Backtest results are offline only and do not reflect live or paper trading.",

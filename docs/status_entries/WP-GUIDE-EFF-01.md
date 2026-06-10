@@ -2,7 +2,7 @@
 
 - Package class: T1 docs / shared coding-agent guidance
 - Branch: docs/guide-eff-01-readpath-compact-wp
-- PR: (pending)
+- PR: https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/418
 - Scope summary: Added package-class read-path router to `docs/ai/codex/README.md`; added `Context Budget / Files to Inspect` section, compact WP default, and `Delta from defaults` guidance to `docs/ai/codex/COMPACT_WP_TEMPLATE.md`; added required Context Budget, Delta from defaults, and T1/T2/T3/T4 classification fields to `docs/ai/codex/WP_DRAFTING_STANDARD.md`; added cross-reference to read-path router and Context Budget in `docs/ai/codex/CODEX_TOKEN_EFFICIENCY.md`.
 - Changed files:
   - `docs/ai/codex/README.md`

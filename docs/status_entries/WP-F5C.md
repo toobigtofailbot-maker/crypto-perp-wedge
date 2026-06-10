@@ -32,15 +32,19 @@
 
 ```
 git status --short
- M docs/dashboard/README.md
- M tests/test_generate_static_dashboard.py
- M tools/dashboard/renderer.py
- M tools/dashboard/static/dashboard.css
- M tools/dashboard/templates/index.html
-(docs/status_entries/WP-F5C.md and docs/project_status.md added before commit)
+(clean — no output after commit)
 
 git diff --check
 (clean)
+
+git diff --name-only origin/main...HEAD
+docs/dashboard/README.md
+docs/project_status.md
+docs/status_entries/WP-F5C.md
+tests/test_generate_static_dashboard.py
+tools/dashboard/renderer.py
+tools/dashboard/static/dashboard.css
+tools/dashboard/templates/index.html
 
 python -m tools.dashboard.validate_dashboard_data tests/fixtures/dashboard/valid_dashboard_data_minimal.json
 OK: tests\fixtures\dashboard\valid_dashboard_data_minimal.json validates as dashboard_data.v1
@@ -48,11 +52,8 @@ OK: tests\fixtures\dashboard\valid_dashboard_data_minimal.json validates as dash
 python -m tools.dashboard.validate_dashboard_data tests/fixtures/dashboard/valid_dashboard_data_with_results.json
 OK: tests\fixtures\dashboard\valid_dashboard_data_with_results.json validates as dashboard_data.v1
 
-python -m pytest tests/test_validate_dashboard_data.py -q
-21 passed
-
-python -m pytest tests/test_generate_static_dashboard.py -q
-24 passed
+python -m pytest tests/test_validate_dashboard_data.py tests/test_generate_static_dashboard.py -q
+45 passed
 
 python -m tools.dashboard.generate_static_dashboard --output-dir dashboard_build --data-dir dashboard_data --repo-root .
 dashboard_data: dashboard_data\dashboard_data.json
@@ -69,10 +70,8 @@ OK: result-population artifacts validate
 v_integrity_result_population_* views (6): all (no rows) — clean
 
 python tools/dev/diff_scope_summary.py
-Tracked changed files: docs/dashboard/README.md, tests/test_generate_static_dashboard.py,
-  tools/dashboard/renderer.py, tools/dashboard/static/dashboard.css,
-  tools/dashboard/templates/index.html
 Forbidden-path matches: none
+(run against clean working tree after commit; changed files vs main: see git diff --name-only above)
 
 python -m pytest -q (full suite)
 17 collection errors — pre-existing environment issues, not caused by F5C:
@@ -87,11 +86,13 @@ python -m pytest -q (full suite)
   ModuleNotFoundError: binance — scripts/g4_api_smoke_test
   Classification: pre-existing, environment-only, identical to WP-F5B.
   No F5C-caused failures. No tests weakened.
-  Installable-environment tests: (see full run results — expected to match F5B's 999 passed)
+  Installable-environment tests: 1005 passed
 
 git check-ignore dashboard_data/dashboard_data.json dashboard_build/index.html
 dashboard_data/dashboard_data.json  (gitignored)
 dashboard_build/index.html  (gitignored)
+
+GitHub PR #425: isDraft false, mergeable MERGEABLE
 ```
 
 ## Semantic text audit
@@ -144,4 +145,5 @@ No drift requiring rewording. No changed or generated text implies a selected/pr
 
 Branch `dashboard/f5c-results-renderer` — **merge-ready**.
 PR: https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/425
+GitHub API: `isDraft: false`, `mergeable: MERGEABLE`.
 No open blockers.

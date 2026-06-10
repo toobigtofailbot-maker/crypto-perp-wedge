@@ -288,6 +288,11 @@ def _build_missing_data(
     gates = _gate_entries()
 
     rp_empty_status = "PASS" if rp is not None else "NOT_AVAILABLE"
+    rp_empty_message = (
+        "D5 result population RP-4492 is available for display-only Results data."
+        if rp is not None
+        else "No D5 result population yet."
+    )
     overview_source_refs = ["project-status"]
     if rp is not None:
         overview_source_refs += ["rp-4492", "status-wp-d6"]
@@ -341,7 +346,7 @@ def _build_missing_data(
             },
             "latest_result_population_empty_state": {
                 "status": rp_empty_status,
-                "message": "No D5 result population yet.",
+                "message": rp_empty_message,
                 "source_refs": ["project-status"],
             },
             "paper_runtime_empty_state": _empty_state("No paper runtime yet.", "project-status"),
@@ -560,6 +565,11 @@ def collect_dashboard_data(repo_root: Path | str = ".") -> dict[str, Any]:
     validation_ref = catalog["validation_report"]
 
     rp_empty_status = "PASS" if rp is not None else "NOT_AVAILABLE"
+    rp_empty_message = (
+        "D5 result population RP-4492 is available for display-only Results data."
+        if rp is not None
+        else "No D5 result population yet."
+    )
     overview_source_refs = ["project-status", "status-wp-f1", "status-wp-f2"]
     if rp is not None:
         overview_source_refs += ["rp-4492", "status-wp-d6"]
@@ -641,7 +651,7 @@ def collect_dashboard_data(repo_root: Path | str = ".") -> dict[str, Any]:
             },
             "latest_result_population_empty_state": {
                 "status": rp_empty_status,
-                "message": "No D5 result population yet.",
+                "message": rp_empty_message,
                 "source_refs": ["status-wp-d5a"],
             },
             "paper_runtime_empty_state": _empty_state("No paper runtime yet.", "project-status"),

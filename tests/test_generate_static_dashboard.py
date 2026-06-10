@@ -71,7 +71,7 @@ def test_index_contains_required_pages_empty_states_and_gate_phrase(tmp_path):
     assert 'href="#overview"' in html
     assert 'href="#data-provenance"' in html
     assert 'href="#gates"' in html
-    assert "No D5 result population yet." in html
+    assert "D5 result population RP-4492 is available for display-only Results data." in html
     assert "No paper runtime yet." in html
     assert "No live mode." in html
     assert "Dashboard displays gates; dashboard does not satisfy gates." in html
@@ -261,6 +261,10 @@ def test_results_overview_no_stale_empty_state_warning_when_rp4492_present(tmp_p
 
     rp_state = overview["latest_result_population_empty_state"]
     assert rp_state["status"] == "PASS"
+    expected_msg = "D5 result population RP-4492 is available for display-only Results data."
+    assert rp_state["message"] == expected_msg
+    raw = json.dumps(payload)
+    assert "No D5 result population yet." not in raw
 
 
 def test_results_renderer_unchanged_no_results_page_in_html(tmp_path):

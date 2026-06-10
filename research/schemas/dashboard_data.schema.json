@@ -252,7 +252,7 @@
         "status": { "$ref": "#/definitions/status" },
         "message": {
           "type": "string",
-          "enum": ["No D5 result population yet.", "No paper runtime yet.", "No live mode."]
+          "enum": ["No D5 result population yet.", "No paper runtime yet.", "No live mode.", "D5 result population RP-4492 is available for display-only Results data."]
         },
         "source_refs": { "$ref": "#/definitions/source_ref_ids" }
       }

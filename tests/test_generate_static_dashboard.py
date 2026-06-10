@@ -71,7 +71,7 @@ def test_index_contains_required_pages_empty_states_and_gate_phrase(tmp_path):
     assert 'href="#overview"' in html
     assert 'href="#data-provenance"' in html
     assert 'href="#gates"' in html
-    assert "No D5 result population yet." in html
+    assert "D5 result population RP-4492 is available for display-only Results data." in html
     assert "No paper runtime yet." in html
     assert "No live mode." in html
     assert "Dashboard displays gates; dashboard does not satisfy gates." in html
@@ -186,3 +186,102 @@ def test_cli_prints_generated_paths(tmp_path, capsys):
     out = capsys.readouterr().out
     assert "dashboard_data:" in out
     assert "dashboard_html:" in out
+
+
+# ---------------------------------------------------------------------------
+# WP-F5B: Results collector tests
+# ---------------------------------------------------------------------------
+
+def test_collect_includes_results_page_when_rp4492_present():
+    from tools.dashboard.collector import collect_dashboard_data
+    payload = collect_dashboard_data(Path("."))
+    assert "results" in payload["pages"]
+    results = payload["pages"]["results"]
+    assert results is not None
+    assert results["status"] == "PASS"
+
+
+def test_generated_dashboard_data_includes_valid_results_page(tmp_path):
+    dashboard_data_path, _ = generate_dashboard(Path("."), tmp_path / "data", tmp_path / "build")
+    errors = validate_dashboard_data_file(dashboard_data_path)
+    assert errors == []
+
+    payload = json.loads(dashboard_data_path.read_text(encoding="utf-8"))
+    results = payload["pages"]["results"]
+
+    assert results["result_population"]["result_population_id"] == "RP-4492"
+    assert results["complete_population"]["committed_denominator"] == 7
+    assert results["complete_population"]["result_row_count"] == 7
+    assert results["complete_population"]["outcome_counts_sum"] == 7
+    assert len(results["variant_table"]["rows"]) == 7
+    assert [r["variant_id"] for r in results["variant_table"]["rows"]] == [
+        "VAR-000001", "VAR-000002", "VAR-000003",
+        "VAR-000004", "VAR-000005", "VAR-000006", "VAR-000007",
+    ]
+    assert results["variant_table"]["variant_order_policy"] == "variant_id_ascending_only_not_quality_order"
+    assert results["descriptive_summary"]["variant_order_policy"] == "variant_id_ascending_only_not_quality_order"
+
+    nan = results["non_authority_notes"]
+    assert nan["no_ranking_as_authority"] is True
+    assert nan["no_recommendation"] is True
+    assert nan["no_readiness"] is True
+    assert nan["no_promotion"] is True
+    assert nan["no_execution"] is True
+
+
+def test_results_page_has_no_forbidden_authority_keys_or_values(tmp_path):
+    dashboard_data_path, _ = generate_dashboard(Path("."), tmp_path / "data", tmp_path / "build")
+    payload = json.loads(dashboard_data_path.read_text(encoding="utf-8"))
+    results = payload["pages"]["results"]
+    results_text = json.dumps(results).lower()
+
+    # Exact authority/action terms that must not appear as standalone values or key names
+    # (not substring checks — checked as distinct tokens to avoid false positives from
+    #  negation fields like "no_readiness" or descriptive caveats).
+    forbidden_substrings = [
+        "best_variant", "recommended_variant", "approved_strategy",
+        "ready_for_live", "ready_for_paper", "leaderboard",
+        "promote_to_paper", "live_enabled",
+    ]
+    for term in forbidden_substrings:
+        assert term not in results_text, f"Forbidden term {term!r} found in results page"
+
+    # Validator already catches FORBIDDEN_AUTHORITY_KEYS; confirm no validator errors
+    from tools.dashboard.validate_dashboard_data import validate_dashboard_data_file
+    assert validate_dashboard_data_file(dashboard_data_path) == []
+
+
+def test_results_overview_no_stale_empty_state_warning_when_rp4492_present(tmp_path):
+    dashboard_data_path, _ = generate_dashboard(Path("."), tmp_path / "data", tmp_path / "build")
+    payload = json.loads(dashboard_data_path.read_text(encoding="utf-8"))
+    overview = payload["pages"]["overview"]
+
+    warning_ids = [w["warning_id"] for w in overview["warnings"]]
+    assert "no-d5-results" not in warning_ids
+
+    rp_state = overview["latest_result_population_empty_state"]
+    assert rp_state["status"] == "PASS"
+    expected_msg = "D5 result population RP-4492 is available for display-only Results data."
+    assert rp_state["message"] == expected_msg
+    raw = json.dumps(payload)
+    assert "No D5 result population yet." not in raw
+
+
+def test_results_renderer_unchanged_no_results_page_in_html(tmp_path):
+    _, index_path = generate_dashboard(Path("."), tmp_path / "data", tmp_path / "build")
+    html = index_path.read_text(encoding="utf-8")
+    assert html.count('class="page-section"') == 3
+
+
+def test_generator_validates_before_rendering_still_passes(tmp_path):
+    dashboard_data_path, index_path = generate_dashboard(
+        Path("."), tmp_path / "data", tmp_path / "build"
+    )
+    assert validate_dashboard_data_file(dashboard_data_path) == []
+    assert index_path.exists()
+
+
+def test_generated_output_gitignore_patterns_cover_dashboard_dirs():
+    gitignore = Path(".gitignore").read_text(encoding="utf-8")
+    assert "/dashboard_build/" in gitignore
+    assert "/dashboard_data/" in gitignore

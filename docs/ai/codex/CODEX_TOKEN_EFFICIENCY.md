@@ -111,6 +111,25 @@ Validation command-running wrapper modes are deferred / not implemented for now.
 
 The current efficiency/tooling tranche is complete enough to resume project work after explicit user/Karl instruction. Each future helper or tooling idea still requires its own package scope and validation. The implemented guidance, helper, and design surfaces are advisory only and do not replace package scope, raw logs, command execution, direct changed-file inspection, integrity views, registry validators, scoped pytest, full pytest, repo-truth file inspection, `docs/project_status.md`, branch/PR checks, artifact/count verification, or semantic review. This document does not implement RTK/RTX/TRS/manual compression tooling, command-running validation wrappers, generated committed indexes, generated committed memory/status snapshots, memory files, automation, schemas, validators, query-layer changes, or runtime behavior.
 
+## Workflow-Efficiency Guidance Closure
+
+This workflow-efficiency guidance cleanup is complete enough to return to project work. Future helper or tooling ideas still require their own explicit WP scope and validation.
+
+Advisory posture of helper outputs:
+
+- `diff_scope_summary.py`, `validation_summary.py`, `code_index.py`, and `status_snapshot.py` outputs are advisory only.
+- These helpers do not replace repo truth, raw logs, command execution, direct changed-file inspection, validators, integrity views, tests, `docs/project_status.md`, branch/PR checks, artifact/count verification, or semantic review.
+- Generated helper outputs are not committed unless the active WP explicitly scopes that commit.
+
+Deferred items — not implemented here:
+
+- Current-state capsule creation is deferred / not implemented here.
+- No `docs/current_state.md` or truth-replacement summary is created by this closure package.
+- Startup/runbook conditionality is deferred and requires a future explicit design package before any change to the hard startup sequence or `docs/runbook.md` can be made.
+- `docs/runbook.md` remains part of the hard startup sequence unless a future authorized package changes that.
+- Historical `docs/project_status.md` cleanup is not authorized by this closure package.
+- This closure does not implement RTK/RTX/TRS tooling, validation-summary command-running wrappers, generated committed indexes or snapshots, memory files, automation, schemas, validators, query-layer changes, or runtime behavior.
+
 ## R1/R2 and H-005 boundaries
 
 R1 paired-source reuse and R2 batched-cycle methodology remain design-only unless later approved and locked into repo truth. This guidance does not apply R1 or R2.

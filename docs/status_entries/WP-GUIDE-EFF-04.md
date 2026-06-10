@@ -1,0 +1,27 @@
+# WP-GUIDE-EFF-04 — Close workflow-efficiency guidance gaps
+
+- Package class: T1 docs / shared coding-agent guidance
+- Branch: docs/guide-eff-04-close-efficiency-gaps
+- PR: https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/421
+- Scope summary: Final narrow docs-only closure of the workflow-efficiency guidance runway. Codifies package-label PR-title prefix rule in `docs/ai/codex/WP_DRAFTING_STANDARD.md` and `docs/ai/codex/WP_EXECUTION_REPORT.md`; adds explicit advisory-only helper posture and deferred-item closure in `docs/ai/codex/CODEX_TOKEN_EFFICIENCY.md`; adds historical project-status cleanup deferral note in `docs/status_entries/README.md`; adds compact pointer in `docs/project_status.md`.
+- Changed files:
+  - `docs/ai/codex/WP_DRAFTING_STANDARD.md`
+  - `docs/ai/codex/WP_EXECUTION_REPORT.md`
+  - `docs/ai/codex/CODEX_TOKEN_EFFICIENCY.md`
+  - `docs/status_entries/README.md`
+  - `docs/status_entries/WP-GUIDE-EFF-04.md` (this file)
+  - `docs/project_status.md`
+- Validation summary: T1 docs-only. `git diff --check`: pass. `python -m tools.registry.validate_result_populations`: pass. `python -m tools.research_query.run --list-views`: pass. All discovered `v_integrity_*` views: clean / no rows. `python tools/dev/diff_scope_summary.py`: no forbidden-path matches, no allowed-file violations. Full pytest: not required for T1 docs-only package.
+- Boundary summary:
+  - Docs/guidance only; no runtime, paper/live, OMS, risk, or execution path changed.
+  - PR title package-label prefix rule added; advisory-only helper posture codified; deferred items enumerated.
+  - Generated helper outputs are not committed unless explicitly scoped by the active WP.
+  - No current-state capsule, `docs/current_state.md`, truth-replacement summary, or status-snapshot authority created.
+  - Startup/runbook conditionality remains deferred; `docs/runbook.md` remains part of the hard startup sequence.
+  - No historical `docs/project_status.md` cleanup.
+  - No startup-order change.
+  - `AGENTS.md`, `CLAUDE_START_HERE.md`, `.claude/README.md`, and `docs/runbook.md` not modified.
+  - No helper implementation; no validation weakening; no F5A/dashboard change.
+  - No runtime/paper/live/protected-path change.
+- Merge status: PR open, pending review
+- Next dependency note: None required; this package only closes the workflow-efficiency guidance cleanup. All other active work tracks are unaffected.

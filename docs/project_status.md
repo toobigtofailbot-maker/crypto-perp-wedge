@@ -356,6 +356,8 @@ The accepted next architecture tranche is candidate-agnostic research machine fo
 
 - WP-GUIDE-EFF-03 branch-state: WP-GUIDE-EFF-03 clarified shared vs Claude-specific startup-anchor wording in shared coding-agent guidance. `CLAUDE_START_HERE.md` remains the shared startup anchor referenced by `AGENTS.md`; `.claude/README.md` remains Claude-specific and is not a universal Codex startup requirement. Docs/guidance only; no startup-order, filename/path, AGENTS, runbook, validation, helper implementation, runtime, paper/live, dashboard, strategy-promotion, or artifact-authority change. Detailed branch-state lives in `docs/status_entries/WP-GUIDE-EFF-03.md`.
 
+- WP-GUIDE-EFF-04 branch-state: WP-GUIDE-EFF-04 closed the workflow-efficiency guidance cleanup by codifying package-label PR-title prefixes, reaffirming advisory-only helper/status-snapshot posture, deferring current-state capsule and startup/runbook conditionality changes, and reaffirming compact project-status plus status-fragment layering without rewriting historical project_status entries. Docs/guidance only; no startup-order, filename/path, AGENTS, runbook, validation, helper implementation, runtime, paper/live, dashboard, strategy-promotion, current-state-file, or artifact-authority change. Detailed branch-state lives in `docs/status_entries/WP-GUIDE-EFF-04.md`.
+
 ## Update Discipline
 
 - Read this file first.

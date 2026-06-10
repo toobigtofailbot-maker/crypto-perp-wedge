@@ -37,6 +37,12 @@ Every WP must include:
 - review checklist: how Side/Main should inspect merge readiness;
 - PR status: ready for review / not draft unless explicitly authorized otherwise.
 
+PR title package-label prefix rule:
+
+- The expected PR title must begin with the package label followed by a colon and a space. Example: `WP-GUIDE-EFF-04: Close workflow-efficiency guidance gaps`.
+- If a package has both a local ID and a roadmap ID, the local/package ID comes first in the PR title unless the active WP explicitly says otherwise.
+- A PR title that does not begin with the package label is a review hygiene issue and should be corrected before merge-readiness unless Main/Karl explicitly authorizes a different naming convention.
+
 ## 3. Mandatory Delivery Rule
 
 Every drafted WP delivered from Side/Main to a coding agent must be delivered as a `.txt` file. Do not deliver only in chat.
@@ -309,7 +315,7 @@ If yes, the PR is not merge-ready.
 - WP id:
 - Title:
 - Suggested branch:
-- Expected PR title:
+- Expected PR title: (must begin with the package label, e.g. `WP-EXAMPLE-ID: Title`)
 - Package class:
 - Execution mode:
 

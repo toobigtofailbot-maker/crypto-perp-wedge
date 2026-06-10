@@ -3,14 +3,15 @@
 - **Package class:** T3 dashboard data-prep / collector
 - **Branch:** `dashboard/f5b-results-collector`
 - **PR:** https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/424
-- **Scope summary:** Updates `tools/dashboard/collector.py` so `collect_dashboard_data(repo_root)` populates the optional `pages.results` section of `dashboard_data.v1` from `RP-4492` and D6 read-only evidence. Adds F5B-specific tests to `tests/test_generate_static_dashboard.py`. Narrows `docs/dashboard/README.md` to note Results collector output. Appends compact pointer to `docs/project_status.md`.
+- **Scope summary:** Updates `tools/dashboard/collector.py` so `collect_dashboard_data(repo_root)` populates the optional `pages.results` section of `dashboard_data.v1` from `RP-4492` and D6 read-only evidence. Adds fourth `empty_state.message` enum value (Option A blocker resolution) to `research/schemas/dashboard_data.schema.json`. Adds F5B-specific tests to `tests/test_generate_static_dashboard.py`. Narrows `docs/dashboard/README.md` to note Results collector output. Appends compact pointer to `docs/project_status.md`.
 
 ## Changed files
 
 | File | Change |
 |---|---|
-| `tools/dashboard/collector.py` | Added `_results_source_ref_entries`, `_collect_results_page`; updated `collect_dashboard_data` and `_build_missing_data` to populate `pages.results` when RP-4492 is present; added RP-4492 status card, removed stale "no-d5-results" warning; updated `latest_result_population_empty_state.status` to PASS when RP-4492 is present (schema constrains message text — see schema constraint note below). |
-| `tests/test_generate_static_dashboard.py` | Added 7 F5B tests covering Results presence, validator pass, contract fields, non-authority flags, absent stale warning, renderer unchanged, gitignore patterns. |
+| `research/schemas/dashboard_data.schema.json` | Added fourth `empty_state.message` enum value for the result-population-present case (Option A blocker resolution). |
+| `tools/dashboard/collector.py` | Added `_results_source_ref_entries`, `_collect_results_page`; updated `collect_dashboard_data` and `_build_missing_data` to populate `pages.results` when RP-4492 is present; added RP-4492 status card; removed stale "no-d5-results" warning; set `latest_result_population_empty_state.status` to PASS and `message` to the accurate fourth enum value when RP-4492 is present. |
+| `tests/test_generate_static_dashboard.py` | Added 7 F5B tests covering Results presence, validator pass, contract fields, non-authority flags, absent stale warning, accurate empty-state message, stale-message absence, renderer unchanged, gitignore patterns. |
 | `docs/dashboard/README.md` | Added narrow Results data section noting F5B collector output, F5C renderer gate, gitignore posture, and non-authority boundary. |
 | `docs/project_status.md` | Appended compact WP-F5B pointer. |
 | `docs/status_entries/WP-F5B.md` | This file. |
@@ -23,7 +24,24 @@
 - variant order policy: `variant_id_ascending_only_not_quality_order`
 - variant IDs: `VAR-000001` through `VAR-000007` (ascending)
 - non-authority flags: `no_ranking_as_authority`, `no_recommendation`, `no_readiness`, `no_promotion`, `no_execution` — all `true`
+- `overview.latest_result_population_empty_state.status`: `PASS`
+- `overview.latest_result_population_empty_state.message`: `"D5 result population RP-4492 is available for display-only Results data."`
+- generated `dashboard_data.json` does not contain `"No D5 result population yet."` when RP-4492 is present
 - generated `dashboard_data.json` validator result: **OK** (no errors)
+
+## Blocker resolution
+
+**Option A chosen by User/Side.**
+
+The prior blocker was that the F5A schema constrained `overview_page.latest_result_population_empty_state.message` to a hard enum of three stale values, preventing F5B from emitting accurate text when RP-4492 is present.
+
+Resolution:
+- Added exactly one new enum value to `research/schemas/dashboard_data.schema.json`:
+  `"D5 result population RP-4492 is available for display-only Results data."`
+- Old three enum values preserved (existing minimal fixtures and no-results states still validate).
+- Collector now emits this accurate message when RP-4492 is present.
+- Tests lock the exact message and assert `"No D5 result population yet."` is absent from generated data when RP-4492 exists.
+- No renderer, template, or generated-output changes were needed.
 
 ## Validation summary
 
@@ -38,6 +56,7 @@ git diff --name-only origin/main...HEAD
 docs/dashboard/README.md
 docs/project_status.md
 docs/status_entries/WP-F5B.md
+research/schemas/dashboard_data.schema.json
 tests/test_generate_static_dashboard.py
 tools/dashboard/collector.py
 
@@ -57,17 +76,24 @@ dashboard_html: dashboard_build\index.html
 python -m tools.dashboard.validate_dashboard_data dashboard_data/dashboard_data.json
 OK: dashboard_data\dashboard_data.json validates as dashboard_data.v1
 
-python -c "... inline results data checks ..."
-generated results data checks: PASS
+python - (inline generated-data checks)
+overview.latest_result_population_empty_state.status == "PASS"  ✓
+overview.latest_result_population_empty_state.message == "D5 result population RP-4492 is available for display-only Results data."  ✓
+"No D5 result population yet." not in json.dumps(payload)  ✓
+results.result_population.result_population_id == "RP-4492"  ✓
+denominator / row count / outcome count == 7 / 7 / 7  ✓
+variant IDs ordered VAR-000001 through VAR-000007  ✓
+all non-authority flags true  ✓
+F5B blocker-resolution generated-data checks: PASS
 
 python -m tools.registry.validate_result_populations
 OK: result-population artifacts validate
 
-v_integrity_result_population_* views (12): all (no rows) — clean
+v_integrity_result_population_* views (6): all (no rows) — clean
 
 python tools/dev/diff_scope_summary.py
-Tracked changed files: tests/test_generate_static_dashboard.py, tools/dashboard/collector.py
-Forbidden-path matches: none
+Tracked changed files: research/schemas/dashboard_data.schema.json, tests/test_generate_static_dashboard.py, tools/dashboard/collector.py
+Forbidden-path matches: research/schemas/dashboard_data.schema.json matched research/ (advisory only — file is explicitly authorized for this follow-up)
 
 python -m pytest -q (full suite)
 17 collection errors — pre-existing environment issues, not caused by F5B:
@@ -88,31 +114,6 @@ git check-ignore dashboard_data/dashboard_data.json dashboard_build/index.html
 dashboard_data/dashboard_data.json  (gitignored)
 dashboard_build/index.html  (gitignored)
 ```
-
-## Blocker — schema-constrained stale empty-state message
-
-**F5B is not ready for merge.** The WP requires removing/replacing misleading `"No D5 result population yet."` text when RP-4492 is present. The F5A schema (`research/schemas/dashboard_data.schema.json`) constrains `overview_page.latest_result_population_empty_state.message` to a hard enum of exactly three values:
-
-```
-"No D5 result population yet." | "No paper runtime yet." | "No live mode."
-```
-
-Updating the message to reflect RP-4492 availability requires adding a new enum value — a schema/validator change that is **forbidden by the WP-F5B scope**.
-
-**What F5B did instead (within scope):**
-- Changed `latest_result_population_empty_state.status` from `NOT_AVAILABLE` to `PASS` when RP-4492 is present (schema permits any status value).
-- Removed the stale `"no-d5-results"` warning from `overview.warnings`.
-- Added a new `rp-4492-results-data` status card with `PASS` status to `overview.status_cards`.
-
-**What remains unresolved:**
-The generated `dashboard_data.json` still contains `"message": "No D5 result population yet."` in `overview.latest_result_population_empty_state` even when `pages.results` is fully populated from RP-4492. This is stale/misleading text that the WP required removing, but the schema blocks the fix.
-
-**Decision required from Main/Side — two options:**
-
-- **Option A:** Authorize a narrow schema/validator follow-up package to add a fourth enum value (e.g., `"D5 result population RP-4492 is available for display-only Results data."`) and a corresponding validator pass for that message. F5B can then fully satisfy the requirement.
-- **Option B:** Accept the stale enum message as known contract debt to be resolved in F5C or a future contract-maintenance package. F5B merges with the blocker documented and F5C or a later package resolves it.
-
-Until Main/Side decides, this PR remains draft.
 
 ## Semantic text audit
 
@@ -138,6 +139,8 @@ All hits classified:
 | `order` | `not_order_authority` | non-authority flag |
 | `broker` / `exchange` | `not_broker_exchange_authority` | non-authority flag |
 
+New fourth enum value `"D5 result population RP-4492 is available for display-only Results data."` — classified: factual availability statement with `display-only` qualifier, no ranking/recommendation/readiness/promotion/execution implication.
+
 No drift requiring rewording found. No changed or generated text implies a selected/preferred/ranked/ready/promoted/executable variant.
 
 ## Boundary summary
@@ -145,7 +148,8 @@ No drift requiring rewording found. No changed or generated text implies a selec
 - Consumes `RP-4492` read-only — no result-population mutation.
 - No renderer implementation — `tools/dashboard/renderer.py` unchanged.
 - No generated-output commit — `dashboard_data/` and `dashboard_build/` remain gitignored.
-- No dashboard schema/validator changes — `research/schemas/dashboard_data.schema.json` and `tools/dashboard/validate_dashboard_data.py` unchanged.
+- Schema change scoped exactly: one new `empty_state.message` enum value, no other schema modification.
+- Validator unchanged — existing validator accepts any value in the `status` enum; no new validator logic needed.
 - No query-layer implementation change.
 - No strategy spec / variant manifest / sweep plan changes.
 - No runtime/paper/live/OMS/risk/protected-path changes.
@@ -153,11 +157,10 @@ No drift requiring rewording found. No changed or generated text implies a selec
 
 ## Merge status
 
-Branch `dashboard/f5b-results-collector` — **draft / not ready for merge**.  
+Branch `dashboard/f5b-results-collector` — **ready for review / merge-ready**.  
 PR: https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/424  
-Blocked on: schema-constrained stale empty-state message (see Blocker section above).  
-No schema/renderer change was made because both are forbidden by WP-F5B scope.
+No open blockers. Schema constraint resolved via Option A.
 
 ## Next dependency / runway note
 
-F5C (Results renderer) remains gated on F5B merge. The blocker decision (Option A or B above) must be resolved before F5B can be marked ready for review. Do not ask Main for the post-F5 strategic direction in this F5B report-back — that direction-change question must be included in the post-F5 report-back after F5B, F5C, and F5D if needed.
+F5C (Results renderer) remains gated on F5B merge. Do not ask Main for the post-F5 strategic direction in this F5B report-back — that direction-change question must be included in the post-F5 report-back after F5B, F5C, and F5D if needed.

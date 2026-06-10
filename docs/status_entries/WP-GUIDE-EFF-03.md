@@ -1,0 +1,22 @@
+# WP-GUIDE-EFF-03 — Shared vs Claude-specific startup-anchor clarification
+
+- Package class: T1 docs / shared coding-agent guidance
+- Branch: docs/guide-eff-03-startup-anchor-clarity
+- PR: pending
+- Scope summary: Narrow docs-only clarification in shared coding-agent guidance. Adds a "Shared vs tool-specific startup anchors" subsection to `docs/ai/codex/README.md` and fixes the Package-Class Read-Path Router sentence that previously listed `.claude/README.md` as a required startup anchor. `CLAUDE_START_HERE.md` remains the shared startup anchor referenced by `AGENTS.md`; `.claude/README.md` remains Claude-specific and is not a universal Codex startup requirement.
+- Changed files:
+  - `docs/ai/codex/README.md`
+  - `docs/status_entries/WP-GUIDE-EFF-03.md` (this file)
+  - `docs/project_status.md`
+- Validation summary: T1 docs-only. `git diff --check`: pass. `python -m tools.registry.validate_result_populations`: pass. `python -m tools.research_query.run --list-views`: pass. All discovered `v_integrity_*` views: clean / no rows. `python tools/dev/diff_scope_summary.py`: no forbidden-path matches, no allowed-file violations. Full pytest: not required for T1 docs-only package.
+- Boundary summary:
+  - Docs/guidance only; no runtime, paper/live, OMS, risk, or execution path changed.
+  - `CLAUDE_START_HERE.md` remains the shared startup anchor referenced by `AGENTS.md`; no filename or directory rename.
+  - `.claude/README.md` remains Claude-specific; not promoted to a universal Codex startup requirement.
+  - No neutral wrapper created; no startup-order change; no validation weakening.
+  - No F5A/dashboard change; no strategy-promotion or artifact-authority change.
+  - `AGENTS.md`, `CLAUDE_START_HERE.md`, `.claude/README.md`, and `docs/runbook.md` not modified.
+  - No helper implementation; no generated output committed.
+  - No runtime/paper/live/protected-path change.
+- Merge status: PR open, pending review
+- Next dependency note: None required; this package only clarifies shared coding-agent startup-anchor wording. All other active work tracks are unaffected.

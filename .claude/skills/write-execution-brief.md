@@ -1,159 +1,174 @@
 # SKILL: write-execution-brief
 
-**Purpose:** Produce a complete, self-contained execution brief that an
-Execution chat can pick up and execute without consulting any other document.
+**Purpose:** Produce a complete, self-contained execution WP aligned to current shared repo guidance that a coding agent can pick up and execute without consulting any other document.
 
-**When to use:** Any time Main or Architecture chat needs to hand a bounded
-unit of work to an Execution agent.  See `prompts/execution_brief.md` for the
-canonical template this skill produces.
+**Canonical sources (in authority order):**
 
----
+1. `docs/ai/codex/WP_DRAFTING_STANDARD.md` — repo-standard for WP structure, validation, stop conditions, and review.
+2. `docs/ai/codex/COMPACT_WP_TEMPLATE.md` — compact WP form and context-budget requirements.
+3. Active Main/Karl authorization and current repo truth.
+4. `prompts/execution_brief.md` — compatibility wrapper only; not canonical by itself.
 
-## Required sections (in order)
-
-Every execution brief must contain all of the following sections.  Do not omit
-any section even if it seems obvious.
-
-### 1. Package header block
-
-```
-PACKAGE ID: <WP-X.Y or similar identifier>
-IMPLEMENTS: <D2-XXX decision IDs this package delivers>
-PARTIAL:    <D2-XXX items partially addressed (optional)>
-```
-
-### 2. Objective
-
-One paragraph.  State what will exist after execution that does not exist now,
-and why it matters to the research pipeline.  Be concrete about deliverables.
-
-### 3. Why it comes next
-
-One paragraph.  State the dependency rationale.  Name the packages that must
-have landed first, the packages blocked until this one lands, and why no
-reordering is valid.
-
-### 4. Scope — IN vs OUT
-
-Two explicit bulleted lists:
-
-- **IN SCOPE** — every file create/update allowed
-- **OUT OF SCOPE** — every deferred item that might be tempting
-
-If an item is not explicitly IN SCOPE it is OUT OF SCOPE.
-
-### 5. Pre-flight checklist
-
-Shell commands the Execution chat must run and pass **before editing any file**:
-
-- `git status` / `git branch --show-current`
-- `git checkout main && git pull --ff-only`
-- `git checkout -b <branch-name>`
-- baseline test run (e.g. `.venv/Scripts/python.exe -m pytest -q`)
-- any dataset / file presence checks
-
-If any pre-flight item fails, the Execution chat must STOP and report the
-blocker before editing.
-
-### 6. File specifications
-
-For every file in ALLOWED SCOPE, provide:
-
-- **Path** (exact)
-- **Action** (`CREATE` or `UPDATE — append only` or `UPDATE — specific section`)
-- **Public surface** or structural description (for code files: function
-  signatures, dataclass fields, return types)
-- **Hard rules / invariants** (asserts, no-lookahead, no-mock, etc.)
-
-Reference `prompts/execution_brief.md` for the template format.
-
-### 7. Allowed scope (exhaustive list)
-
-List every file path that may be touched.  Nothing else.
-
-### 8. Forbidden scope (exhaustive list)
-
-List every file or directory that must not be touched.  Group by:
-
-- Phase 1 protected (`src/**`, `configs/**`, existing tests)
-- Phase 2 locked truth (`docs/decisions.md`, `docs/onboarding/**`, etc.)
-- Out-of-scope items (deferred packages, external installs, etc.)
-
-### 9. Validation gates
-
-Numbered list.  For each gate:
-
-- **Gate N — Short name**
-- Command to run
-- Expected output (exit code, keyword in stdout, etc.)
-- What FAIL means (stop vs. warn)
-
-### 10. Done criteria
-
-Bullet list.  All validation gates pass, PR approved, merged to main.
-Include tag requirement (or "No tag").
-
-### 11. Branch / PR block
-
-```
-Branch: <branch-name>
-PR title: <title>
-Approver: <name>
-Base: main
-```
-
-### 12. Report-back format
-
-Paste the exact report-back template the Execution chat must fill in.
-See `prompts/report_back.md` for the canonical template.
-
-### 13. Stop and escalation conditions
-
-Numbered list of conditions that require the Execution chat to STOP
-immediately and escalate rather than attempting a workaround.
+When producing a WP, follow the shared drafting standard, not the local wrapper prompt.
 
 ---
 
-## Writing rules
+## Required Sections (In Order)
 
-1. **No ambiguity about scope.**  If a file is not in the explicit ALLOWED list,
-   it is forbidden.  Write the forbidden list so completely that an over-eager
-   agent cannot rationalise touching anything extra.
+Every execution WP must contain all of the following sections. Do not omit any section even if it seems obvious.
 
-2. **Pre-flight must be runnable as written.**  Copy-pasteable shell commands only.
-   Test them mentally against the actual repo state before including them.
+### 1. Package Identity
 
-3. **Validation gates must be automatable.**  Every gate must produce a machine-
-   readable pass/fail signal (exit code or expected string in stdout).  Do not
-   write gates that require human judgement.
+```text
+WP id:
+Title:
+Suggested branch:
+Effective base: main
+Package class: T1 / T2 / T3 / T4
+Execution mode:
+Expected PR title: (must begin with package label followed by `:`)
+```
 
-4. **File specs must be complete.**  For code files: every public function,
-   every dataclass field, every invariant.  The Execution chat should not need
-   to infer anything.
+### 2. Authorization Source
 
-5. **Stop conditions must be unambiguous.**  "Any pre-flight failure" is a
-   valid stop condition.  "Something feels wrong" is not.
+Who authorized the package and what was authorized. Name the Main/Karl context, decision, or explicit request.
 
-6. **Advisor / executor model for complex decisions.**  If the brief involves a
-   design decision that requires architecture-level reasoning, note in the
-   brief that the Execution chat should pause and escalate rather than guess.
-   See `.claude/README.md` → Advisor Strategy for the model selection policy.
+### 3. Objective
+
+One short paragraph. State the exact deliverable, what exists after execution that did not exist before, and the non-authority posture (what this package does not create authority for).
+
+### 4. Why Now
+
+One short paragraph. State the dependency rationale: required prior merges, packages blocked until this lands, and why no reordering is valid.
+
+### 5. Hard Dependencies
+
+Explicit list:
+
+- Required prior merged PRs or artifacts.
+- Required file existence checks.
+- Required absence checks (no open conflicting PR on shared files).
+- Already-done check: if the objective is already met in current repo state, stop and report instead of duplicating.
+
+### 6. Requirement Compatibility / Impossibility Check
+
+**Mandatory for dashboard, schema, validator, collector, renderer, and T3 packages. Recommended for all T2+ packages.**
+
+Before implementation, verify each material behavior is compatible with current repo mechanisms and allowed changed-file scope:
+
+| Required behavior | Controlling repo mechanism | Files likely needed | Allowed in this WP? | Compatible? | Action |
+|---|---|---:|---:|---:|---|
+| `<behavior>` | `<mechanism>` | `<paths>` | yes/no | yes/no | implement / stop / split / ask Main |
+
+Stop before implementation if any row is not compatible under allowed scope. Do not broaden scope silently.
+
+### 7. Preflight
+
+Mandatory isolated-worktree setup. See `docs/ai/codex/WP_DRAFTING_STANDARD.md` §4 for required commands and clean-start-state check.
+
+### 8. Context Budget / Files to Inspect
+
+Five required fields (see `docs/ai/codex/COMPACT_WP_TEMPLATE.md`):
+
+```text
+Read first:
+Read for this package:
+Read only if blocked:
+Do not read / do not touch:
+Search terms if paths changed:
+```
+
+### 9. Scope
+
+Exhaustive list of files to create or modify. Nothing not on this list may be touched.
+
+### 10. Forbidden Scope
+
+Exhaustive list of:
+
+- Forbidden file paths and directories.
+- Forbidden behavior and authority changes (no runtime/paper/live/OMS/risk drift, no schema/validator/query changes unless explicitly scoped, etc.).
+
+### 11. Implementation Requirements
+
+Package-specific edits only. Required wording, artifact fields, or doc sections. For code files: function signatures, dataclass fields, invariants. The coding agent should not need to infer anything.
+
+### 12. Validation Requirements
+
+Exact commands and expected evidence, using the package-class validation profile:
+
+- T1 docs: `git diff --check`, registry validators, `diff_scope_summary.py`, no full pytest unless explicitly required.
+- T3 implementation: focused tests, adjacent subsystem tests, validators, integrity views, full pytest once final.
+- See `docs/ai/codex/WP_DRAFTING_STANDARD.md` §10 for the full validation profile by class.
+
+Do not require baseline full pytest as a pre-flight gate for T1 docs packages unless the active package explicitly requires it.
+
+### 13. Stop / Escalation Conditions
+
+Numbered list. Unambiguous conditions: "any forbidden file touched" is valid; "something feels wrong" is not.
+
+Always include:
+
+- open conflicting PR;
+- worktree dirty before start;
+- forbidden file or path touched;
+- validation failure for non-environment reason;
+- repo truth contradicts brief scope.
+
+### 14. Final Rebase / GitHub Mergeability Gate
+
+Rebase commands and confirmation that GitHub reports `mergeable=true` before calling the PR merge-ready.
+
+### 15. Final PR Readiness Gate
+
+Before reporting ready-for-review, confirm:
+
+- PR title begins with the package label followed by `:`.
+- PR body has no GitHub template placeholders, unchecked template checkboxes, or stale `TBD` / `pending` / `to be added` / `background run` text.
+- Status fragment contains the actual PR URL.
+- Status fragment validation summary is final.
+- Contradiction scan completed for follow-up or blocker-resolution packages: search PR body, status fragment, and changed docs for stale blocked/draft/pending/not-ready/prior-option language. Every hit must be removed or classified before ready-for-review.
+- Semantic text audit completed for non-authority packages (see `docs/ai/codex/COMPACT_WP_TEMPLATE.md`).
+- GitHub `isDraft=false` and `mergeable=true` for normal non-blocked PRs.
+
+### 16. Draft-State Rule
+
+Normal clean PRs must be opened non-draft (ready for review) unless the active WP explicitly authorizes draft/blocked state. Blocked PRs must keep GitHub draft-state, PR body, and status fragment consistent.
+
+### 17. Commit / PR / Report-Back
+
+```text
+Commit message: <message>
+PR title: <WP-id: title>
+PR body sections: A. Scope, B. Changed files, C. Validation, D. Boundary check, E. PR status
+Report-back format: see docs/ai/codex/WP_EXECUTION_REPORT.md
+```
+
+### 18. Manual Steps
+
+State `None` or list exact user steps, timing, optional/required status, and repo dependency effect.
 
 ---
 
-## Anti-patterns to avoid
+## Writing Rules
 
-- Vague scope ("update as needed", "improve the code")
-- Missing forbidden list
-- Gates that depend on external state not present in CI
-- Briefs that require the Execution chat to read other documents to understand
-  what to do
-- Allowing CCXT, Graphify, Superpowers, or any deferred Phase 2 item
+1. No ambiguity about scope. If a file is not in the explicit allowed list, it is forbidden.
+2. Pre-flight commands must be copy-pasteable and runnable as written.
+3. Validation gates must produce a machine-readable pass/fail signal.
+4. File specs must be complete for code files: every public function, every dataclass field, every invariant.
+5. Stop conditions must be unambiguous.
+6. Compatibility/impossibility check must be present for T2+ packages.
+7. Final PR readiness gate and contradiction scan must be included for follow-up packages.
 
 ---
 
-## Example reference
+## Anti-Patterns to Avoid
 
-See `prompts/execution_brief.md` for a complete, annotated example of the
-execution brief format.  All briefs produced by this skill should follow that
-template exactly.
+- Vague scope ("update as needed", "improve the code").
+- Missing forbidden list.
+- Gates that depend on external state not present in the validation environment.
+- Briefs that require the coding agent to read other documents to understand what to do.
+- Calling `prompts/execution_brief.md` canonical — it is a compatibility wrapper only.
+- Requiring baseline full pytest as mandatory preflight for T1 docs-only packages.
+- Missing compatibility/impossibility check for schema, validator, or dashboard packages.
+- Missing contradiction scan for follow-up or blocker-resolution packages.

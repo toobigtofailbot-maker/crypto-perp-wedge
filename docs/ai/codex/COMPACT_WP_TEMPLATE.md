@@ -139,6 +139,33 @@ Before reporting ready-for-review, confirm:
 - State `None` or list exact user steps, timing, optional/required status, repo dependency effect, and what Codex must not do before completion.
 ```
 
+## Requirement Compatibility / Impossibility Check
+
+**Mandatory for dashboard, schema, validator, collector, and renderer packages. Recommended for all T3 implementation packages.**
+
+Before implementation, include a compatibility matrix in the compact WP:
+
+```text
+| Required behavior | Controlling repo mechanism | Files likely needed | Allowed in this WP? | Compatible? | Action |
+|---|---|---:|---:|---:|---|
+| <behavior> | <schema/validator/collector/renderer/test/doc> | <paths> | yes/no | yes/no | implement / stop / split / ask Main |
+```
+
+If any required behavior is not compatible under allowed scope, the WP must either split a prior unblock package, explicitly accept the limitation as known debt, or define a stop condition. Do not broaden scope silently.
+
+## Follow-Up / Blocker Resolution Contradiction Scan
+
+For follow-up WPs and blocker-resolution packages, the compact WP must include the contradiction scan requirement in its final PR readiness gate section:
+
+When a follow-up resolves a blocker or changes earlier package scope, the coding agent must search PR body, status fragment, and changed docs for stale claims from the prior state:
+
+```text
+blocked, draft, decision required, pending, to be added, background run, not ready,
+no schema change, no validator change, old error text, prior Option A/B language, TBD
+```
+
+Every hit must be removed or classified (removed / historical note / required reference) before the PR is reported ready-for-review.
+
 ## What may be referenced instead of repeated
 
 Stable guidance can be referenced rather than pasted when the active WP still states the package-specific effect. Examples:

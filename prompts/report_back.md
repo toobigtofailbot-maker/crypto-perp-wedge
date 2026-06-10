@@ -1,56 +1,87 @@
-# Report-Back Template
+# Report-Back Wrapper
 
-Use this stable order for execution package report-backs.
+This file is a compatibility wrapper only. It is not the authority for report-back format.
 
-## Status
+**Precedence:**
 
-`[COMPLETE | BLOCKED | FAILED]`
+1. Active WP report-back format wins if the WP specifies one.
+2. If the active WP is silent, use `docs/ai/codex/WP_EXECUTION_REPORT.md` as the authority.
+3. This file provides a fallback compact shape for reference only.
 
-## Branch
+---
 
-`[branch-name]`
+## Default Compact Report-Back
 
-## PR URL Or Compare URL
+Use this compact shape by default for clean T1 packages when the active WP specifies no stricter format:
 
-`[URL]`
+```text
+A. Scope
+B. Changed files
+C. Validation
+D. Boundary check
+E. PR status / decision
+```
 
-## Base Commit
+Each section must be concrete and audit-friendly:
 
-`[sha]`
+- A. State what changed and what did not change.
+- B. List exact created and modified files.
+- C. State commands run, pass/fail result, and short counts. Do not paste full passing logs.
+- D. Confirm protected paths remained untouched and no forbidden-scope files were touched.
+- E. State branch, PR number/URL, actual PR title, GitHub `isDraft`, GitHub `mergeable`, and whether the PR is ready for review.
 
-## Changed Files
+---
 
-- `[path]`
+## Expanded Report-Back Shape
 
-## Summary
+Use the expanded shape when any of the following apply:
 
-- `[short item]`
+- validation failed or was skipped;
+- GitHub mergeability is not clean;
+- scope differs from the expected changed-file list;
+- forbidden or protected files were touched;
+- repo truth changed the package scope;
+- manual recovery, rebase, detached HEAD, or conflict resolution occurred;
+- the package is T2, T3, or T4 and has material semantic risk.
 
-## Validation Gates
+```text
+A. Branch / base
+B. Repo-truth discovery
+C. Delivered changes
+D. Validation results
+E. Failed or skipped validation detail
+F. Forbidden-scope check
+G. PR / push status
+H. Open escalations
+I. Ready for review
+```
 
-Include raw evidence or exact summaries for every gate:
+---
 
-- **Gate 1:** `[command/check]` -> `[output/result]`
-- **Gate 2:** `[command/check]` -> `[output/result]`
+## Final PR Readiness Evidence
 
-## Forbidden-Scope Confirmation
+Include these fields in section E (compact) or G (expanded) before reporting ready-for-review:
 
-- `[confirmed no forbidden paths touched / list exception and escalation]`
+- Actual PR title (must begin with the package label followed by `:`).
+- GitHub `isDraft`: must be `false` for normal non-blocked PRs.
+- GitHub `mergeable`: must be clean/true.
+- PR body placeholder scan: no GitHub template placeholders, unchecked template checkboxes, or stale `TBD` / `pending` / `to be added` / `background run` text.
+- Status-fragment PR URL: must be the actual PR URL, not a placeholder.
+- Status-fragment validation finality: validation summary is final; skipped validation marked `Not run; not used as merge evidence.`
+- Contradiction scan result: when a follow-up resolves a prior blocker, confirm stale blocked/draft/pending/not-ready/prior-option language was removed from PR body, status fragment, and changed docs.
+- Semantic audit result: required for non-authority packages (see `docs/ai/codex/COMPACT_WP_TEMPLATE.md`).
 
-## No-Data / No-Artifact Confirmation
+---
 
-- `[NONE changed / explicit list]`
+## If Not Merge-Ready
 
-## Dependencies Added
+If the PR is not merge-ready, the report-back must include:
 
-`NONE`
+- exact reason the PR is not ready;
+- a paste-ready follow-up prompt that resolves the blocker.
 
-## Open Escalations
+---
 
-`NONE` or:
+## Authority Reference
 
-- `[item]`
-
-## Ready For Merge
-
-`[YES | NO]`
+Full tier-aware report-back guidance lives in `docs/ai/codex/WP_EXECUTION_REPORT.md`.

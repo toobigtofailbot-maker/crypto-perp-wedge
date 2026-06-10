@@ -587,7 +587,56 @@ Every future WP must include:
 
 These requirements do not reduce or replace the universal WP requirements in Section 2, the validation requirements in Sections 9–10, the isolated-worktree rule in Section 4, or any other standard in this document.
 
-## 15. Final PR Readiness Gate
+## 15. Requirement Compatibility / Impossibility Check
+
+Before an execution WP sends a coding agent to implement a non-trivial behavior, the drafter must verify that the behavior is compatible with current repo mechanisms and the allowed changed-file scope.
+
+For each material behavior, identify:
+
+- required behavior;
+- controlling repo mechanism (schema, validator, collector, renderer, test, doc, etc.);
+- files likely needed to deliver the behavior;
+- whether those files are in the allowed scope for this WP;
+- whether schema/validator/tests/contracts already permit the behavior without changes outside scope;
+- action: implement / stop / split package / ask Main/Karl.
+
+Required format:
+
+```text
+| Required behavior | Controlling repo mechanism | Files likely needed | Allowed in this WP? | Compatible? | Action |
+|---|---|---:|---:|---:|---|
+| <behavior> | <mechanism> | <paths> | yes/no | yes/no | implement / stop / split / ask Main |
+```
+
+If a required behavior is impossible under the allowed scope, the WP must not ask the agent to implement it. It must either:
+
+- split a prior unblock package;
+- explicitly accept the limitation as known debt;
+- or define a stop condition and decision request.
+
+This gate is mandatory for dashboard, schema, validator, collector, and renderer packages and recommended for all T3 implementation packages.
+
+## 16. Follow-Up / Blocker Resolution Contradiction Scan
+
+When a follow-up WP resolves a blocker or changes earlier package scope, the coding agent must search the PR body, status fragment, and changed docs for stale claims from the prior state.
+
+Search for:
+
+```text
+blocked, draft, decision required, pending, to be added, background run, not ready,
+no schema change, no validator change, old error text, prior Option A/B language,
+TBD, placeholder
+```
+
+Every hit must be removed or classified before the PR is reported ready-for-review. Classification options:
+
+- removed (stale language deleted);
+- historical note (clearly marked as past state, not current state);
+- required reference (neutral, not stale).
+
+This scan is mandatory for follow-up WPs and for any package that resolves a prior blocker. Include the scan result in the report-back under the final PR readiness gate.
+
+## 17. Final PR Readiness Gate
 
 Every coding agent must complete this gate before reporting a PR ready for review or asking Side/Main for merge-readiness review.
 
@@ -609,7 +658,7 @@ For packages whose changed text includes non-authority, anti-ranking, no-readine
 
 This gate applies to every WP that opens a PR, including T1 docs-only packages. Active WPs that include a `Final PR Readiness Gate` section must apply the gate to their own PR before reporting ready-for-review.
 
-## 16. Future WP Reference Rule
+## 18. Future WP Reference Rule
 
 Future WPs (for Claude Code or Codex) may say:
 

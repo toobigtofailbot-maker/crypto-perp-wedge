@@ -1,6 +1,15 @@
 # Claude Code / Coding-Agent Operating Rules
 
-This file is a thin Claude-specific entrypoint and local asset folder. It does not duplicate the shared coding-agent workflow standard. Claude Code follows the shared coding-agent workflow documented in `AGENTS.md` and `docs/ai/codex/` unless a Claude-specific local asset or execution brief explicitly says otherwise.
+This file is a thin Claude-specific entrypoint and local asset folder. It does not duplicate the shared coding-agent workflow standard. Claude Code follows the shared coding-agent workflow documented in `AGENTS.md` and `docs/ai/codex/`.
+
+`.claude/*` and `prompts/*` are local wrappers and assets only. They cannot override:
+
+- current merged repo truth;
+- active WP scope, forbidden scope, or validation requirements;
+- `AGENTS.md`;
+- `docs/ai/codex/*` shared guidance.
+
+When a Claude-specific local asset or execution brief conflicts with shared guidance or repo truth, prefer shared guidance and repo truth. Report the conflict rather than improvising.
 
 Shared coding-agent guidance layer: `AGENTS.md` and `docs/ai/codex/` (current shared path; directory name is historical).
 
@@ -54,7 +63,26 @@ Run the validation gates from the execution brief before reporting complete. Rep
 - Dependencies added: `NONE` or an explicit list.
 - Open escalations.
 
-Use `prompts/report_back.md` unless the brief supplies a stricter format.
+Report-back format precedence:
+
+1. Active WP report-back format wins if the WP specifies one.
+2. If the active WP is silent, use `docs/ai/codex/WP_EXECUTION_REPORT.md` as the authority.
+3. `prompts/report_back.md` is a compatibility wrapper only; it cannot override shared guidance or an active WP's format.
+
+Claude final-readiness discipline — before reporting any PR ready for review, confirm:
+
+- Actual GitHub `isDraft` is `false` for normal (non-blocked) PRs.
+- GitHub `mergeable` is clean/true.
+- PR body contains no GitHub template placeholders, unchecked template checkboxes, or stale `TBD` / `pending` / `to be added` / `background run` text.
+- Status fragment contains the actual PR URL (not a placeholder).
+- Status fragment validation summary is final.
+- Contradiction scan completed when a follow-up resolves a prior blocker: search PR body, status fragment, and changed docs for stale blocked/draft/pending/not-ready/prior-option language.
+- Semantic text audit completed for non-authority packages (see `docs/ai/codex/COMPACT_WP_TEMPLATE.md`).
+
+Draft-state consistency discipline:
+
+- Normal clean PRs must be opened non-draft (ready for review) unless the active WP explicitly authorizes draft/blocked state.
+- Blocked PRs must keep GitHub draft-state, PR body, and status fragment consistent — do not call a draft PR ready for review, and do not leave a non-draft PR with body/status text that says blocked, draft, or not ready.
 
 ## Token Efficiency And Model Use
 

@@ -1,146 +1,104 @@
-# PR Review Checklist
+# PR Merge-Readiness Review Checklist
 
-Use this template when reviewing a pull request produced by an execution brief.
-Fill in every checkbox.  Do not merge until all blocking items are checked.
+This file is a compatibility wrapper aligned to `docs/ai/codex/WP_DRAFTING_STANDARD.md` and `docs/ai/codex/WP_EXECUTION_REPORT.md`. The former WP-1b-specific content (backtest/evaluation/Gate 8/DSR/promotion-gates checks) has been removed. Use this checklist for any current WP merge-readiness review.
 
 ---
 
-## PR Metadata
+## Section 1 — PR Metadata
 
 - **PR Title:**
+- **Package label prefix present** (title begins with `WP-<id>:` or similar):
 - **Branch:**
 - **Base:**
-- **Execution Brief reference:**
-- **Reviewer:**
-- **Date:**
+- **Actual `isDraft`** (from `gh pr view --json isDraft`):
+- **Actual `mergeable`** (from `gh pr view --json mergeable`):
+- **PR URL:**
+- **Status fragment URL / path:**
 
 ---
 
-## Section 1 — Scope compliance
+## Section 2 — Scope
 
-For each changed file, verify it is in the brief's ALLOWED SCOPE list.
+Verify changed files match the active WP's allowed scope.
 
-```bash
-git diff --stat main
+```powershell
+git diff --name-only origin/main...HEAD
 ```
 
-| File | In ALLOWED SCOPE? | Notes |
-|------|------------------|-------|
-| _(paste diff --stat output here)_ | | |
+| Changed file | In WP allowed scope? | Notes |
+|---|---|---|
+| _(paste diff output)_ | | |
 
-- [ ] All changed files are in ALLOWED SCOPE
-- [ ] No `src/**` files touched
-- [ ] No `configs/**` files touched
-- [ ] No `docs/architecture/**` files touched
-- [ ] No `docs/onboarding/**` files touched
-- [ ] `docs/decisions.md` not touched
-- [ ] Existing test files not modified (only new additive tests)
-- [ ] Existing prompt templates not modified
+- [ ] All changed files are in the WP's allowed scope.
+- [ ] No forbidden files touched (runtime, paper/live, OMS, risk, schemas, validators, tests, tools, scripts, configs, data, CI unless explicitly allowed by active WP).
+- [ ] No untracked or generated outputs committed.
 
-**BLOCKING** — any violation here must be corrected before merge.
+**BLOCKING** — any scope violation must be corrected before merge.
 
 ---
 
-## Section 2 — Dependency hygiene
+## Section 3 — Validation
 
-- [ ] `requirements.txt` contains only the explicitly allowed additions
-- [ ] CCXT is absent from `requirements.txt` and all import statements
-- [ ] No Parquet / ZIP / CSV files committed
-- [ ] No data files in `data/processed/` committed
+- [ ] Package-required validation commands ran.
+- [ ] All required commands passed, or failures are correctly classified.
+- [ ] Skipped or unavailable validation is explicitly marked `Not run; not used as merge evidence.` or classified with exact environment-only failure details.
+- [ ] No real validation failure is hidden or reclassified as environment-only without justification.
 
-```bash
-git ls-files data/
-git diff --name-only main | grep -E "\.(parquet|csv|zip)$" || echo "CLEAN"
-grep -r "ccxt\|CCXT" --include="*.py" --include="*.txt" . || echo "CLEAN"
+Paste validation evidence or summary:
+
+```text
+<validation output / counts>
 ```
 
-**BLOCKING** — CCXT present or data files committed must block merge.
+**BLOCKING** — any unclassified validation failure blocks merge.
 
 ---
 
-## Section 3 — Validation gates
+## Section 4 — Semantic Fit
 
-Paste the gate outputs from the report-back and mark each:
-
-| Gate | Name | Expected | Actual | PASS? |
-|------|------|----------|--------|-------|
-| 1 | pip install | exit 0 | | |
-| 2 | pytest -q | exit 0, all green | | |
-| 3 | SMA hand-check | PASS | | |
-| 4 | no-lookahead | PASS | | |
-| 5 | irreparable-skip | PASS | | |
-| 6 | DSR | PASS | | |
-| 7 | promotion gates | PASS | | |
-| 8 | smoke end-to-end | well-formed GateReport | | |
-| 9 | py_compile | exit 0 | | |
-| 10 | forbidden-scope | only allowed files | | |
-| 11 | no data | no Parquet/CSV/ZIP | | |
-
-**BLOCKING** — any gate FAIL blocks merge.
+- [ ] Objective stated in the WP is satisfied by the changed files.
+- [ ] No architecture redesign outside WP scope.
+- [ ] No stale blocked/draft/pending claims in PR body or status fragment.
+- [ ] No placeholders, unchecked template checkboxes, or `TBD` / `pending` / `to be added` / `background run` text remaining in PR body or status fragment.
 
 ---
 
-## Section 4 — Code quality spot checks
+## Section 5 — Boundary Check
 
-For `lib/backtest.py`:
-- [ ] `BacktestResult` is a frozen dataclass with all required fields
-- [ ] `run_backtest` signature matches spec (signal, ohlcv, funding, *, kwargs)
-- [ ] Asserts on UTC index, monotonic, no duplicates
-- [ ] Signal at bar t → fill at open of t+1 (no lookahead)
-- [ ] Irreparable bars skipped with state carry-forward
-- [ ] Funding cashflows applied at exact event timestamps
-- [ ] `skipped_bars` count returned for auditability
-
-For `lib/evaluation.py`:
-- [ ] All 13 public functions present with correct signatures
-- [ ] `GateReport.to_dict()` produces JSON-serialisable output
-- [ ] `TrialEntry` has all required schema fields
-- [ ] `append_trial` is atomic (no partial writes on failure)
-- [ ] `check_promotion_gates` returns results for all 8 gates
+- [ ] No protected runtime/paper/live/OMS/risk path changes.
+- [ ] No unauthorized schema/validator/query-layer/artifact/data changes.
+- [ ] No dependency additions unless explicitly scoped by active WP.
+- [ ] No data files committed (Parquet, ZIP, CSV) unless explicitly scoped.
 
 ---
 
-## Section 5 — Test coverage
+## Section 6 — Authority Check
 
-- [ ] `tests/test_backtest.py` — four required tests present and named correctly
-- [ ] `tests/test_evaluation.py` — four required tests present and named correctly
-- [ ] All new tests are **additive** (no modification to existing test files)
+- [ ] No ranking, recommendation, readiness, promotion, or execution authority introduced unless explicitly scoped by active WP.
+- [ ] Non-authority packages include appropriate non-authority / display-only language where required.
 
-Verify test names:
-```bash
-grep "^def test_" tests/test_backtest.py
-grep "^def test_" tests/test_evaluation.py
-```
-
-Expected names (minimum):
-- `test_sma2_hand_computed`
-- `test_no_lookahead`
-- `test_irreparable_gap_skip`
-- `test_funding_cashflow`
-- `test_sharpe_known_value` (or similar Sharpe/Sortino/Calmar tests)
-- `test_dsr_overfit_case`
-- `test_promotion_gates_pass_and_fail`
-- `test_append_trial_roundtrip`
+For non-authority packages, verify semantic text audit was completed (search for terms such as `best`, `highest`, `winner`, `recommended`, `readiness`, `promotion`, `approved`, `execute`, `trade`). Each hit must be classified as a fixture negative, forbidden-wording doc, neutral required reference, or drift requiring rewording.
 
 ---
 
-## Section 6 — Documentation
+## Section 7 — Final Readiness Gate
 
-- [ ] `research/TRIAL_LOG_SCHEMA.md` documents all `TrialEntry` fields
-- [ ] `docs/runbook.md` has new "Phase 2 research workbench" section
-- [ ] `.claude/README.md` has "Advisor Strategy" operating note appended
-- [ ] `.claude/skills/write-execution-brief.md` present
-- [ ] `.claude/skills/review-report-back.md` present
-- [ ] `prompts/pr_review.md` present
-- [ ] `prompts/contradiction_sweep.md` present
+- [ ] PR body placeholder scan: no GitHub template placeholders, unchecked template checkboxes, or stale pending/TBD text.
+- [ ] Status fragment contains the actual PR URL (not `TBD` or `pending`).
+- [ ] Status fragment validation summary is final.
+- [ ] Contradiction scan completed (for follow-up or blocker-resolution packages): stale blocked/draft/not-ready/prior-option language removed from PR body, status fragment, and changed docs.
+- [ ] GitHub `isDraft: false` for normal non-blocked PRs (or draft state is consistent with blocked status everywhere).
+- [ ] GitHub `mergeable: true` / clean.
+
+**Do not merge** when PR body or status fragment contradicts GitHub state (e.g., PR body says "blocked" but GitHub `isDraft=false`; or PR is draft but body says ready for review).
 
 ---
 
-## Decision
+## Section 8 — Decision
 
-- [ ] **APPROVE AND MERGE** — all blocking checks passed
-- [ ] **REQUEST CHANGES** — list specific required fixes below
-- [ ] **ESCALATE** — scope violation or protected boundary touched; do not merge
+- [ ] **APPROVE** — all sections pass; merge is safe.
+- [ ] **REQUEST CHANGES** — list specific required fixes below, and provide a paste-ready follow-up prompt.
+- [ ] **ESCALATE** — forbidden scope touched or protected boundary violated; do not merge; escalate to Main.
 
 ### Required changes (if any):
 
@@ -148,6 +106,12 @@ Expected names (minimum):
 2.
 3.
 
+### Paste-ready follow-up prompt (if REQUEST CHANGES):
+
+```text
+<paste-ready prompt here>
+```
+
 ---
 
-*Generated by `prompts/pr_review.md` — WP-1b execution review*
+*Aligned to `docs/ai/codex/WP_DRAFTING_STANDARD.md` and `docs/ai/codex/WP_EXECUTION_REPORT.md`.*

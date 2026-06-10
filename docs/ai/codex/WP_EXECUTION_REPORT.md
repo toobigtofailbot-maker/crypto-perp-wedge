@@ -101,6 +101,41 @@ D. Boundary check
 E. PR status / ready-for-review status
 ```
 
+## Draft-State Consistency Rule
+
+Final readiness evidence must include the actual GitHub `isDraft` value (from `gh pr view --json isDraft`).
+
+- Blocked or draft PRs must be consistent across GitHub state, PR body, and status fragment: if GitHub `isDraft=true`, the PR body and status fragment must not say ready for review or complete.
+- Non-draft, mergeable PRs must not have PR body or status fragment language that says draft, blocked, or not ready.
+- Do not call a PR merge-ready if GitHub state and PR body/status fragment contradict each other.
+
+## Follow-Up / Blocker Resolution Contradiction Scan
+
+When a follow-up WP resolves a blocker or changes earlier package scope, the report-back must include a contradiction scan result.
+
+Scan the PR body, status fragment, and changed docs for stale claims from the prior blocked/draft state:
+
+```text
+blocked, draft, decision required, pending, to be added, background run, not ready,
+no schema change, no validator change, old error text, prior Option A/B language,
+TBD, placeholder
+```
+
+Report the scan result in the final PR readiness gate section of the report-back:
+
+- terms searched;
+- hits found;
+- disposition of each hit (removed / historical note / required reference).
+
+If any hit remains without classification, the PR is not merge-ready.
+
+## If Not Merge-Ready
+
+If a PR is not merge-ready, the report-back must include:
+
+- exact reason the PR is not ready;
+- a paste-ready follow-up prompt that resolves the blocker.
+
 ## Failure Evidence Rule
 
 Compression must never hide:

@@ -1,87 +1,127 @@
-# Execution Brief Template
+# Execution Brief Wrapper
 
-Copy this template for each work package. Keep it repo-first, scoped, and testable.
+This file is a compatibility wrapper only. It is not canonical by itself.
 
-## Package
+**Canonical sources for WP drafting:**
 
-- **ID:** `[WP-X]`
-- **Title:** `[Short name]`
-- **Base branch:** `main`
-- **Working branch:** `[branch-name]`
-- **PR title:** `[PR title]`
+- `docs/ai/codex/WP_DRAFTING_STANDARD.md` — the repo-standard for coding-agent WP drafting, validation, stop conditions, and review.
+- `docs/ai/codex/COMPACT_WP_TEMPLATE.md` — compact WP form for future Side/coding-agent packages.
+- Active Main/Karl authorization and current repo truth always override templates.
 
-## Repo-First Startup
+---
 
-Before editing:
+## Modern WP Skeleton (Quick Reference)
 
-1. Read `docs/project_status.md`.
-2. Read only the additional files needed for this package.
-3. If repo truth conflicts with stale chat wording, stop and report the conflict.
-4. Do not improvise outside this brief.
+Every execution WP must include all of the following sections. For full requirements see `docs/ai/codex/WP_DRAFTING_STANDARD.md`.
 
-## Objective
+### 1. Package Identity
 
-[One paragraph describing what this package accomplishes and what it intentionally does not do.]
+- WP id, title, suggested branch, effective base, package class, execution mode.
+- Expected PR title: must begin with the package label followed by `:`.
 
-## Allowed Scope
+### 2. Authorization Source
 
-Create or update only:
+- Who authorized the package and what was authorized.
 
-| Path | Allowed action | Purpose |
-|---|---|---|
-| `[path]` | `[create/update]` | `[why]` |
+### 3. Objective
 
-## Forbidden Scope
+- Exact deliverable and non-authority posture.
 
-Do not modify:
+### 4. Why Now
 
-- `[specific files/directories]`
+- Dependency rationale; required prior merges; packages blocked until this one lands.
 
-Do not:
+### 5. Hard Dependencies
 
-- Add dependencies unless explicitly listed.
-- Change runtime behavior unless explicitly listed.
-- Touch generated data/artifacts unless explicitly listed.
-- Make architecture decisions.
+- Required prior merges; required file/artifact existence checks; required absence checks.
 
-## File Specifications
+### 6. Requirement Compatibility / Impossibility Check
 
-### `[path]`
+Before implementation, verify each material behavior is compatible with current repo mechanisms and allowed changed-file scope:
 
-- **Required change:** `[content or behavior required]`
-- **Must preserve:** `[constraints]`
-- **Must not do:** `[negative constraints]`
+| Required behavior | Controlling repo mechanism | Files likely needed | Allowed in this WP? | Compatible? | Action |
+|---|---|---:|---:|---:|---|
+| `<behavior>` | `<schema/validator/collector/renderer/test/doc>` | `<paths>` | yes/no | yes/no | implement / stop / split |
 
-## Validation Gates
+Stop before implementation if any required behavior is not compatible under allowed scope. Do not broaden scope silently.
 
-All gates must pass before reporting complete:
+### 7. Preflight
 
-| Gate | Command / check | Expected |
-|---|---|---|
-| 1 | `[exact command]` | `[expected result]` |
-| 2 | `[manual check]` | `[expected result]` |
+- Mandatory isolated-worktree setup commands (see `docs/ai/codex/WP_DRAFTING_STANDARD.md` §4).
+- Required clean start state: branch = WP branch, `git status --short` = clean.
 
-## Stop Conditions
+### 8. Context Budget / Files to Inspect
 
-Stop and escalate if:
+Five required fields:
 
-- Repo truth contradicts this brief in a way that affects scope, locked decisions, or validation.
-- Required work would touch forbidden files.
-- Baseline validation fails before edits.
-- Any uncertainty remains about current repo truth versus outdated wording.
+```text
+Read first:
+Read for this package:
+Read only if blocked:
+Do not read / do not touch:
+Search terms if paths changed:
+```
 
-## Done Criteria
+### 9. Scope
 
-- All required files updated.
-- All validation gates pass.
-- Only allowed files changed.
-- No forbidden runtime/data/test/config/dependency drift.
-- PR is ready for review or blocker is reported clearly.
+- Files to create or modify (exhaustive list).
 
-## Manual Tasks
+### 10. Forbidden Scope
 
-[None / list any required human-only checks or follow-up actions.]
+- Forbidden files/paths; forbidden behavior/authority.
 
-## Report-Back Format
+### 11. Implementation Requirements
 
-Use `prompts/report_back.md` unless this package supplies a stricter format.
+- Package-specific edits only.
+- Required wording, artifact fields, or doc sections.
+
+### 12. Validation Requirements
+
+- Exact commands or validators.
+- For T1 docs packages, use the T1 validation profile from `docs/ai/codex/WP_DRAFTING_STANDARD.md` §10.
+- For T3 implementation packages, follow the T3 profile: focused tests, adjacent subsystem tests, validators, integrity checks, full pytest once final.
+- Full pytest is not required for T1 docs-only packages unless explicitly required.
+
+### 13. Stop / Escalation Conditions
+
+- Dependency failures; scope expansion; validation failure; protected-boundary tension.
+
+### 14. Final Rebase / GitHub Mergeability Gate
+
+- Rebase onto `origin/main`.
+- Rerun required validation.
+- Confirm GitHub `mergeable=true`.
+
+### 15. Final PR Readiness Gate
+
+Before reporting ready-for-review, confirm:
+
+- PR title begins with the package label followed by `:`.
+- PR body has no GitHub template placeholders, unchecked template checkboxes, or stale `TBD` / `pending` / `to be added` / `background run` text.
+- Status fragment contains the actual PR URL.
+- Status fragment validation summary is final.
+- Contradiction scan completed for follow-up/blocker-resolution packages.
+- Semantic text audit completed for non-authority packages.
+- GitHub reports PR `mergeable=true` and `isDraft=false` for normal (non-blocked) PRs.
+
+### 16. Draft-State Rule
+
+- Normal clean PRs must be opened non-draft (ready for review) unless the active WP explicitly authorizes draft/blocked state.
+- Blocked PRs must keep GitHub draft-state, PR body, and status fragment consistent.
+
+### 17. Commit / PR / Report-Back
+
+- Commit message; PR title; PR body sections (A. Scope, B. Changed files, C. Validation, D. Boundary check, E. PR status).
+- Report-back format: see `docs/ai/codex/WP_EXECUTION_REPORT.md`.
+
+### 18. Manual Steps
+
+- State `None` or list exact user steps, timing, optional/required status, and repo dependency effect.
+
+---
+
+## Authority Reference
+
+Full WP drafting standard: `docs/ai/codex/WP_DRAFTING_STANDARD.md`
+Compact WP guidance: `docs/ai/codex/COMPACT_WP_TEMPLATE.md`
+Report-back shapes: `docs/ai/codex/WP_EXECUTION_REPORT.md`

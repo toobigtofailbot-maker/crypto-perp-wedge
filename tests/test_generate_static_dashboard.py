@@ -21,6 +21,9 @@ FORBIDDEN_CONTROL_SNIPPETS = [
     "start paper run",
     "start live run",
     "approval button",
+    "leaderboard",
+    "winner",
+    "promote",
 ]
 
 NETWORK_OR_BUILD_SNIPPETS = [
@@ -67,10 +70,13 @@ def test_index_contains_required_pages_empty_states_and_gate_phrase(tmp_path):
     assert "Overview" in html
     assert "Data / Provenance" in html
     assert "Gates" in html
-    assert html.count('class="page-section"') == 3
+    assert "Results" in html
+    assert html.count('class="page-section"') == 4
     assert 'href="#overview"' in html
     assert 'href="#data-provenance"' in html
     assert 'href="#gates"' in html
+    assert 'href="#results"' in html
+    assert 'id="results"' in html
     assert "D5 result population RP-4492 is available for display-only Results data." in html
     assert "No paper runtime yet." in html
     assert "No live mode." in html
@@ -267,10 +273,13 @@ def test_results_overview_no_stale_empty_state_warning_when_rp4492_present(tmp_p
     assert "No D5 result population yet." not in raw
 
 
-def test_results_renderer_unchanged_no_results_page_in_html(tmp_path):
+def test_results_page_now_renders_in_html(tmp_path):
+    # F5C: renderer now includes Results page (replaces F5B's renderer-unchanged assertion)
     _, index_path = generate_dashboard(Path("."), tmp_path / "data", tmp_path / "build")
     html = index_path.read_text(encoding="utf-8")
-    assert html.count('class="page-section"') == 3
+    assert html.count('class="page-section"') == 4
+    assert 'id="results"' in html
+    assert 'href="#results"' in html
 
 
 def test_generator_validates_before_rendering_still_passes(tmp_path):
@@ -285,3 +294,83 @@ def test_generated_output_gitignore_patterns_cover_dashboard_dirs():
     gitignore = Path(".gitignore").read_text(encoding="utf-8")
     assert "/dashboard_build/" in gitignore
     assert "/dashboard_data/" in gitignore
+
+
+# ---------------------------------------------------------------------------
+# WP-F5C: Results renderer tests
+# ---------------------------------------------------------------------------
+
+def test_results_page_renders_rp4492_and_variant_table(tmp_path):
+    _, index_path = generate_dashboard(Path("."), tmp_path / "data", tmp_path / "build")
+    html = index_path.read_text(encoding="utf-8")
+
+    assert "RP-4492" in html
+    assert "variant_id_ascending_only_not_quality_order" in html
+    for var_id in ["VAR-000001", "VAR-000002", "VAR-000003",
+                   "VAR-000004", "VAR-000005", "VAR-000006", "VAR-000007"]:
+        assert var_id in html
+
+    # Variant IDs must appear in ascending order
+    positions = [html.index(v) for v in
+                 ["VAR-000001", "VAR-000002", "VAR-000003",
+                  "VAR-000004", "VAR-000005", "VAR-000006", "VAR-000007"]]
+    assert positions == sorted(positions)
+
+    assert "Rows are displayed in variant ID order only" in html
+
+
+def test_results_page_no_authority_banner(tmp_path):
+    _, index_path = generate_dashboard(Path("."), tmp_path / "data", tmp_path / "build")
+    html_lower = index_path.read_text(encoding="utf-8").lower()
+
+    # Required non-authority declarations
+    assert "no ranking authority" in html_lower
+    assert "no recommendation" in html_lower
+    assert "no readiness authority" in html_lower
+    assert "no promotion authority" in html_lower
+    assert "no execution authority" in html_lower
+
+
+def test_results_page_no_extended_forbidden_snippets(tmp_path):
+    _, index_path = generate_dashboard(Path("."), tmp_path / "data", tmp_path / "build")
+    html_lower = index_path.read_text(encoding="utf-8").lower()
+
+    # All FORBIDDEN_CONTROL_SNIPPETS including F5C additions
+    for snippet in FORBIDDEN_CONTROL_SNIPPETS:
+        assert snippet not in html_lower, f"Forbidden snippet found in HTML: {snippet!r}"
+
+
+def test_results_page_variant_ids_in_ascending_order(tmp_path):
+    _, index_path = generate_dashboard(Path("."), tmp_path / "data", tmp_path / "build")
+    html = index_path.read_text(encoding="utf-8")
+
+    ids = ["VAR-000001", "VAR-000002", "VAR-000003",
+           "VAR-000004", "VAR-000005", "VAR-000006", "VAR-000007"]
+    positions = [html.index(var_id) for var_id in ids]
+    assert positions == sorted(positions), "Variant IDs are not in ascending order in HTML"
+
+
+def test_results_absent_renders_gracefully(tmp_path):
+    # renderer must not crash if pages.results is absent
+    payload = collect_dashboard_data(Path("."))
+    payload["pages"].pop("results", None)
+
+    index_path = render_dashboard(payload, tmp_path / "build")
+    html = index_path.read_text(encoding="utf-8")
+
+    assert index_path.exists()
+    assert 'id="results"' in html
+    assert "Results data is not available" in html
+    # Absent state must not imply failure, readiness, or approval
+    assert "does not imply failure, readiness, or approval" in html
+
+
+def test_results_renderer_uses_supplied_payload_only(tmp_path):
+    # Renderer takes the data dict directly and must not re-read source artifacts
+    payload = collect_dashboard_data(Path("."))
+    index_path = render_dashboard(payload, tmp_path / "build")
+    html = index_path.read_text(encoding="utf-8")
+
+    assert index_path.exists()
+    assert "RP-4492" in html
+    assert 'id="results"' in html

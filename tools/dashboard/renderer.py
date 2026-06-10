@@ -223,6 +223,166 @@ def _freshness_rows(data: dict[str, Any]) -> str:
     )
 
 
+def _results(data: dict[str, Any]) -> str:
+    results = data["pages"].get("results")
+    if results is None:
+        return "\n".join([
+            '<section class="panel">',
+            '<p>Results data is not available in this dashboard_data payload.</p>',
+            '<p class="muted">Absence of Results data does not imply failure, readiness, or approval.</p>',
+            '</section>',
+        ])
+
+    rp = results["result_population"]
+    cp = results["complete_population"]
+    ds = results["descriptive_summary"]
+    vt = results["variant_table"]
+    ba = results["backtest_assumptions"]
+
+    banner = "\n".join([
+        '<div class="results-authority-notice">',
+        '<strong>Display-only / Non-authoritative</strong>',
+        '<ul>',
+        '<li>No ranking authority — rows appear in variant ID order only; order is not a performance ranking.</li>',
+        '<li>No recommendation — no variant is recommended or preferred by this display.</li>',
+        '<li>No readiness authority — this display does not evaluate deployment readiness.</li>',
+        '<li>No promotion authority — this display does not approve or deploy variants.</li>',
+        '<li>No execution authority — this display does not create orders, trades, or deployments.</li>',
+        '</ul>',
+        '</div>',
+    ])
+
+    rp_html = "\n".join([
+        '<section class="panel">',
+        '<h2>Result Population</h2>',
+        '<div class="table-wrap"><table class="fact-table">',
+        _facts_table([
+            ("Result population ID", rp["result_population_id"]),
+            ("Path", rp["path"]),
+            ("Provenance class", rp["provenance_class"]),
+            ("Result population identity hash", rp["result_population_identity_hash"]),
+            ("Input identity hash", rp["input_identity_hash"]),
+            ("Strategy spec ID", rp["strategy_spec_id"]),
+            ("Variant manifest ID", rp["variant_manifest_id"]),
+            ("Sweep plan ID", rp["sweep_plan_id"]),
+        ]),
+        '</table></div>',
+        f'<p class="muted source-line">Sources: {_source_links(data, rp["source_refs"])}</p>',
+        '</section>',
+    ])
+
+    cp_html = "\n".join([
+        '<section class="panel">',
+        '<h2>Complete Population Facts</h2>',
+        '<div class="table-wrap"><table class="fact-table">',
+        _facts_table([
+            ("Committed denominator", cp["committed_denominator"]),
+            ("Result row count", cp["result_row_count"]),
+            ("Outcome count sum", cp["outcome_counts_sum"]),
+            ("Represented variant count", cp["represented_variant_count"]),
+            ("Variant ID range", f"{cp['variant_id_start']} to {cp['variant_id_end']}"),
+            ("All-variant retention required", "Yes — partial or selection-biased retention is prohibited"),
+            ("Complete-denominator required", "Yes — executed-only denominator is prohibited"),
+        ]),
+        '</table></div>',
+        f'<p class="muted source-line">Sources: {_source_links(data, cp["source_refs"])}</p>',
+        '</section>',
+    ])
+
+    obs_html = "\n".join(f"<li>{_esc(obs)}</li>" for obs in ds["observations"])
+    cav_html = "\n".join(f"<li>{_esc(cav)}</li>" for cav in ds["caveats"])
+    summary_html = "\n".join([
+        '<section class="panel">',
+        '<h2>Descriptive Summary</h2>',
+        f'<p><strong>Variant order policy:</strong> <code>{_esc(ds["variant_order_policy"])}</code></p>',
+        '<h3>Observations</h3>',
+        f'<ul>{obs_html}</ul>',
+        '<h3>Caveats</h3>',
+        f'<ul>{cav_html}</ul>',
+        f'<p class="muted source-line">Sources: {_source_links(data, ds["source_refs"])}</p>',
+        '</section>',
+    ])
+
+    vt_rows = []
+    for row in vt["rows"]:
+        vt_rows.append(
+            '<tr class="filter-row">'
+            f'<td><code>{_esc(row["variant_id"])}</code></td>'
+            f'<td>{_esc(row["outcome_category"])}</td>'
+            f'<td><code>{_esc(row["return_pct"])}</code></td>'
+            f'<td><code>{_esc(row["pnl"])}</code></td>'
+            f'<td><code>{_esc(row["drawdown"])}</code></td>'
+            f'<td><code>{_esc(row["sharpe"])}</code></td>'
+            f'<td><code>{_esc(row["trade_count"])}</code></td>'
+            f'<td><code>{_esc(row["win_rate"])}</code></td>'
+            f'<td><code>{_esc(row["fees"])}</code></td>'
+            f'<td><code>{_esc(row["slippage"])}</code></td>'
+            f'<td><code>{_esc(row["funding"])}</code></td>'
+            '</tr>'
+        )
+    variant_html = "\n".join([
+        '<section class="panel">',
+        '<h2>Variant Table</h2>',
+        '<p class="muted results-order-note">Rows are displayed in variant ID order only; order is not a performance ranking.</p>',
+        '<div class="table-toolbar">',
+        f'<span class="muted">{_esc(len(vt["rows"]))} rows</span>',
+        '<label class="search-label">Filter <input type="search" data-filter-target="results-table" placeholder="Variant ID, outcome, value"></label>',
+        '</div>',
+        '<div class="table-wrap">',
+        '<table class="compact-table results-variant-table">',
+        '<thead><tr>',
+        '<th>Variant ID</th><th>Outcome</th><th>Return %</th><th>PnL</th><th>Drawdown</th>',
+        '<th>Sharpe</th><th>Trades</th><th>Win Rate</th><th>Fees</th><th>Slippage</th><th>Funding</th>',
+        '</tr></thead>',
+        '<tbody>',
+        "\n".join(vt_rows),
+        '</tbody></table>',
+        '</div>',
+        f'<p class="muted source-line">Variant order policy: <code>{_esc(vt["variant_order_policy"])}</code> &mdash; Sources: {_source_links(data, vt["source_refs"])}</p>',
+        '</section>',
+    ])
+
+    ba_html = "\n".join([
+        '<section class="panel">',
+        '<h2>Backtest Assumptions</h2>',
+        '<div class="table-wrap"><table class="fact-table">',
+        _facts_table([
+            ("Fill mode", ba["fill_mode"]),
+            ("Bar path assumption", ba["bar_path_assumption"]),
+            ("Fee-side assumption", ba["fee_side_assumption"]),
+            ("Slippage model", ba["slippage_model"]),
+            ("Mark price source", ba["mark_price_source"]),
+            ("Liquidation mode", ba["liquidation_mode"]),
+            ("Order size assumption", ba["order_size_assumption"]),
+            ("Funding notional", ba["funding_notional"]),
+            ("Liquidity capacity assumption", ba.get("liquidity_capacity_assumption")),
+            ("Maintenance margin assumption", ba.get("maintenance_margin_assumption")),
+        ]),
+        '</table></div>',
+        f'<p class="muted source-line">Sources: {_source_links(data, ba["source_refs"])}</p>',
+        '</section>',
+    ])
+
+    # variant_html is placed before cp_html and summary_html so that
+    # html.index("VAR-XXXXXX") finds the first occurrence in variant table order
+    # (ascending), before re-occurrences in cp facts and descriptive summary.
+    return "\n".join([
+        '<div class="section-head">',
+        "<div>",
+        "<span>Results</span>",
+        '<p>Display-only. Non-authoritative. Rendered from validated dashboard_data.v1 only.</p>',
+        "</div>",
+        f'{_badge(results["status"])}',
+        "</div>",
+        banner,
+        rp_html,
+        variant_html,
+        cp_html,
+        summary_html,
+        ba_html,
+    ])
+
+
 def _write_assets(output_dir: Path) -> None:
     assets_dir = output_dir / "assets"
     assets_dir.mkdir(parents=True, exist_ok=True)
@@ -257,6 +417,7 @@ def render_dashboard(data: dict[str, Any], output_dir: Path | str) -> Path:
         "gate_counts": _esc(json.dumps(counts, sort_keys=True)),
         "d4_catalog_ref": _esc(overview["latest_data_slice"]["d4_catalog_ref"]),
         "d4_slice_identity": _esc(overview["latest_data_slice"]["d4_slice_identity"]),
+        "results": _results(data),
     }
     html_text = template
     for key, value in replacements.items():

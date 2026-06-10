@@ -11,7 +11,7 @@
   - `docs/ai/codex/CODEX_TOKEN_EFFICIENCY.md`
   - `docs/status_entries/WP-GUIDE-EFF-01.md` (this file)
   - `docs/project_status.md`
-- Validation summary: T1 docs-only; `git diff --check` pass; `git status --short` clean; result-population validator and research-query list-views checked; diff scope confirmed within allowed docs/status paths; no protected prefixes touched.
+- Validation summary: T1 docs-only. `git diff --check`: pass. `python -m tools.registry.validate_result_populations`: pass. `python -m tools.research_query.run --list-views`: pass. All 55 discovered `v_integrity_*` views: clean / no rows. `python tools/dev/diff_scope_summary.py`: no forbidden-path matches, no allowed-file violations. Full pytest: not required for T1 docs-only package.
 - Boundary summary:
   - Docs/guidance only; no runtime, paper/live, OMS, risk, or execution path changed.
   - No helper implementation; no startup-order change; no validation weakening.

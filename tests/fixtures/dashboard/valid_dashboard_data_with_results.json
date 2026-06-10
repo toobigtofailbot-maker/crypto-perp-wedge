@@ -1,0 +1,478 @@
+{
+  "schema_version": "dashboard_data.v1",
+  "generated_at_utc": "2026-06-10T12:00:00Z",
+  "source_commit": "04e432f",
+  "source_branch": "dashboard/f5a-results-contract-validator",
+  "dirty_state": "clean",
+  "system_posture": "research_only",
+  "non_authority_declaration": {
+    "read_only_mirror": true,
+    "renderer_must_not_invent_facts": true,
+    "not_executable": true,
+    "not_runtime_authority": true,
+    "not_paper_live_authority": true,
+    "not_order_authority": true,
+    "not_broker_exchange_authority": true,
+    "not_ranking_authority": true,
+    "not_recommendation_authority": true,
+    "not_readiness_authority": true,
+    "not_promotion_authority": true,
+    "not_transition_authority": true,
+    "not_gate_authority": true
+  },
+  "pages": {
+    "overview": {
+      "status": "WARN",
+      "source_refs": ["status-wp-d4a"],
+      "status_cards": [
+        {
+          "card_id": "data-slice",
+          "title": "15m D4 slice",
+          "status": "PASS",
+          "summary": "D4A committed a valid offline validated Binance USDT-M BTCUSDT 15m slice.",
+          "source_refs": ["d4a-catalog"]
+        },
+        {
+          "card_id": "paper-runtime",
+          "title": "Paper runtime",
+          "status": "NOT_AVAILABLE",
+          "summary": "Paper runtime is not available to dashboard_data.",
+          "source_refs": ["status-wp-e1"]
+        }
+      ],
+      "warnings": [
+        {
+          "warning_id": "f2-before-f3",
+          "status": "WARN",
+          "message": "F2 report-back is required before F3 renderer implementation.",
+          "source_refs": ["status-wp-f2"]
+        }
+      ],
+      "latest_data_slice": {
+        "status": "PASS",
+        "d4_catalog_ref": "binance_usdtm_btcusdt_ohlcv_15m.offline_local.15m.20200101T000000Z.20260411T234500Z.sha256_3daace53d727599b",
+        "d4_slice_identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+        "freshness": {
+          "staleness_status": "FRESH",
+          "staleness_reason": "Committed D4A catalog slice artifact is present on the source commit.",
+          "source_artifact_mtime_utc": null
+        },
+        "source_refs": ["d4a-catalog"]
+      },
+      "latest_validation": {
+        "status": "PASS",
+        "validation_report_ref": "research/data_slices/binance_usdtm_btcusdt_15m/binance_usdtm_btcusdt_15m_20200101_20260411.validation_report.json",
+        "validation_report_sha256": "785a8d53797155dcc80e646e8610db8d510825b9fa3dbccd21e79aa2700a6c1c",
+        "freshness": {
+          "staleness_status": "FRESH",
+          "staleness_reason": "Validation report is the D4A source artifact.",
+          "source_artifact_mtime_utc": null
+        },
+        "source_refs": ["d4a-validation"]
+      },
+      "latest_result_population_empty_state": {
+        "status": "NOT_AVAILABLE",
+        "message": "No D5 result population yet.",
+        "source_refs": ["status-wp-d4a"]
+      },
+      "paper_runtime_empty_state": {
+        "status": "NOT_AVAILABLE",
+        "message": "No paper runtime yet.",
+        "source_refs": ["status-wp-e1"]
+      },
+      "live_mode_empty_state": {
+        "status": "NOT_AVAILABLE",
+        "message": "No live mode.",
+        "source_refs": ["status-wp-e1"]
+      },
+      "open_gates_summary": {
+        "status": "BLOCKED",
+        "total_gates": 5,
+        "counts_by_status": {
+          "PASS": 1,
+          "WARN": 1,
+          "FAIL": 0,
+          "BLOCKED": 3,
+          "UNKNOWN": 0,
+          "NOT_AVAILABLE": 0
+        },
+        "source_refs": ["status-wp-d4a", "status-wp-f2"]
+      }
+    },
+    "data_provenance": {
+      "status": "PASS",
+      "source_refs": ["d4a-catalog", "d4a-validation", "d4a-import"],
+      "d4_slice": {
+        "status": "PASS",
+        "catalog_ref": "binance_usdtm_btcusdt_ohlcv_15m.offline_local.15m.20200101T000000Z.20260411T234500Z.sha256_3daace53d727599b",
+        "data_slice_identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+        "catalog_artifact_sha256": "80a080336853ca96c81e2033a381527caec3737c1a817c111fc61d4e8c685327",
+        "dataset_id": "binance_usdtm_btcusdt_ohlcv_15m",
+        "venue": "Binance",
+        "symbol": "BTCUSDT",
+        "market_type": "USDT-M perpetual",
+        "stream": "ohlcv",
+        "timeframe": "15m",
+        "row_count": 220128,
+        "expected_row_count": 220128,
+        "timestamp_range": {
+          "start_utc": "2020-01-01T00:00:00Z",
+          "end_utc": "2026-04-11T23:45:00Z"
+        },
+        "gap_facts": {
+          "gap_count": 0,
+          "missing_bar_count": 0,
+          "gaps": [],
+          "policy": "detect_report_do_not_fill_or_interpolate"
+        },
+        "duplicate_facts": {
+          "duplicate_group_count": 0,
+          "duplicate_row_count": 0,
+          "duplicates": [],
+          "policy": "detect_report_do_not_deduplicate"
+        },
+        "raw_source_sha256": "343b639e35ce79824d26bddf6d70af2641c9d76003301e303f83cdf61d4feab4",
+        "normalized_sha256": "c30fd7f07fdf513cdaf234b1bee4eff03b430a479cc572a2cc8b57394f22e0ab",
+        "source_refs": ["d4a-catalog"]
+      },
+      "d3_validation_report": {
+        "status": "PASS",
+        "path": "research/data_slices/binance_usdtm_btcusdt_15m/binance_usdtm_btcusdt_15m_20200101_20260411.validation_report.json",
+        "sha256": "785a8d53797155dcc80e646e8610db8d510825b9fa3dbccd21e79aa2700a6c1c",
+        "source_refs": ["d4a-validation"]
+      },
+      "d2_import_report": {
+        "status": "PASS",
+        "path": "research/data_slices/binance_usdtm_btcusdt_15m/binance_usdtm_btcusdt_15m_20200101_20260411.import_report.json",
+        "sha256": "553c320d6639ceca4422f0f08620550c558e05162eb16aff30854db76a7246d3",
+        "source_refs": ["d4a-import"]
+      },
+      "artifact_paths": [
+        {
+          "artifact_id": "D4A-CATALOG",
+          "artifact_type": "catalog_slice",
+          "path": "research/data_slices/binance_usdtm_btcusdt_15m/binance_usdtm_btcusdt_15m_20200101_20260411.catalog_slice.json",
+          "sha256": "80a080336853ca96c81e2033a381527caec3737c1a817c111fc61d4e8c685327",
+          "source_refs": ["d4a-catalog"]
+        },
+        {
+          "artifact_id": "D4A-NORMALIZED-DATA",
+          "artifact_type": "normalized_data",
+          "path": "data/processed/d4a/binance_um_perp_BTCUSDT_15m_2020-01-01_2026-04-11_d4a_normalized.csv",
+          "sha256": "c30fd7f07fdf513cdaf234b1bee4eff03b430a479cc572a2cc8b57394f22e0ab",
+          "source_refs": ["d4a-catalog"]
+        }
+      ],
+      "freshness": {
+        "staleness_status": "FRESH",
+        "staleness_reason": "D4A artifacts are committed under the current base.",
+        "source_artifact_mtime_utc": null
+      }
+    },
+    "gates": {
+      "status": "BLOCKED",
+      "source_refs": ["status-wp-d4a", "status-wp-f2"],
+      "gates": [
+        {
+          "gate_id": "D5A_RUNNER_PROVENANCE_ALIGNMENT",
+          "title": "D5A runner provenance alignment",
+          "status": "BLOCKED",
+          "why_it_matters": "D4A reports the current runner still records fixture-style 15m provenance.",
+          "required_human_action": "Authorize and merge a bounded D5A package before any D5 real-data result population.",
+          "source_refs": ["status-wp-d4a"],
+          "non_authority_note": "This gate is display-only and cannot mutate runner, sweep, paper, or live state."
+        },
+        {
+          "gate_id": "D5_KARL_GATE",
+          "title": "D5 Karl gate",
+          "status": "PASS",
+          "why_it_matters": "D5 requires Karl-gated authorization after honest D4 provenance is available.",
+          "required_human_action": "Record the Karl gate decision in a later approved path.",
+          "source_refs": ["status-wp-d5"],
+          "non_authority_note": "Dashboard data only mirrors the gate state and does not approve D5."
+        },
+        {
+          "gate_id": "F2_REPORT_BACK_BEFORE_F3",
+          "title": "F2 report-back before F3",
+          "status": "WARN",
+          "why_it_matters": "The renderer must wait for this contract and validator report-back.",
+          "required_human_action": "Report F2 contract behavior to Main before drafting F3 renderer work.",
+          "source_refs": ["status-wp-f2"],
+          "non_authority_note": "This entry creates no renderer authority."
+        },
+        {
+          "gate_id": "PAPER_RUNTIME_IMPLEMENTATION_AUTHORIZATION",
+          "title": "Paper-runtime implementation authorization",
+          "status": "BLOCKED",
+          "why_it_matters": "Paper runtime remains protected until a scoped sandbox package authorizes it.",
+          "required_human_action": "Use a later approved paper-risk package if paper runtime implementation is wanted.",
+          "source_refs": ["status-wp-e1"],
+          "non_authority_note": "This gate cannot start, schedule, or configure paper runtime."
+        },
+        {
+          "gate_id": "LIVE_GATE_PAPER_TO_LIVE_KARL_GATE",
+          "title": "Live gate / paper-to-live Karl gate",
+          "status": "BLOCKED",
+          "why_it_matters": "Live trading remains outside dashboard authority and requires future human gates.",
+          "required_human_action": "Keep live mode disabled unless a future approved live-path package changes repo truth.",
+          "source_refs": ["status-wp-e1"],
+          "non_authority_note": "This gate cannot enable live mode, place orders, or alter broker state."
+        }
+      ]
+    },
+    "results": {
+      "status": "PASS",
+      "source_refs": ["rp-4492", "d6-checkpoint", "status-wp-d5", "status-wp-d6", "status-wp-f5a"],
+      "result_population": {
+        "result_population_id": "RP-4492",
+        "path": "research/result_populations/RP-4492.result_population.json",
+        "provenance_class": "canonical_real_data",
+        "result_population_identity_hash": "sha256:2a9cee1b1ba32d9f98f879aa4c1ef95e2f5b75b7348e1084e66afe80f77bb32c",
+        "input_identity_hash": "sha256:8fca9c6f6238f4fd5712420921faa649a1a182866adb22f1d5f3680b850a535c",
+        "strategy_spec_id": "STRAT-SPEC-0001",
+        "variant_manifest_id": "VM-0001",
+        "sweep_plan_id": "SWEEP-PLAN-0001",
+        "source_refs": ["rp-4492"]
+      },
+      "complete_population": {
+        "committed_denominator": 7,
+        "result_row_count": 7,
+        "outcome_counts_sum": 7,
+        "variant_id_start": "VAR-000001",
+        "variant_id_end": "VAR-000007",
+        "represented_variant_count": 7,
+        "winner_only_retention_forbidden": true,
+        "executed_only_denominator_forbidden": true,
+        "source_refs": ["rp-4492"]
+      },
+      "descriptive_summary": {
+        "variant_order_policy": "variant_id_ascending_only_not_quality_order",
+        "observations": [
+          "All 7 variants completed with outcome_category=successful.",
+          "VAR-000001 through VAR-000003 show negative PnL; VAR-000004 through VAR-000007 show positive PnL.",
+          "Trade count decreases across the variant ID sequence from 970 to 64 in this population.",
+          "Sharpe values range from approximately -0.28 to 1.25 across the population under this backtest assumption set.",
+          "These observations are descriptive population-level facts from D6 checkpoint evidence. They confer no ranking authority."
+        ],
+        "caveats": [
+          "Backtest results are offline only and do not reflect live or paper trading.",
+          "No variant is selected, recommended, approved, or ranked as best by this display.",
+          "D6 checkpoint is evidence-not-authority; no gate-satisfaction or promotion authority is implied."
+        ],
+        "source_refs": ["rp-4492", "d6-checkpoint"]
+      },
+      "variant_table": {
+        "variant_order_policy": "variant_id_ascending_only_not_quality_order",
+        "rows": [
+          {
+            "variant_id": "VAR-000001",
+            "outcome_category": "successful",
+            "return_pct": -1.0,
+            "pnl": -10000.0,
+            "drawdown": 1.0,
+            "sharpe": 0.6403693870200411,
+            "trade_count": 970,
+            "win_rate": 0.7010309278350515,
+            "fees": 17915.00389999999,
+            "slippage": 4478.750974999997,
+            "funding": 0.0,
+            "source_refs": ["rp-4492"]
+          },
+          {
+            "variant_id": "VAR-000002",
+            "outcome_category": "successful",
+            "return_pct": -1.0,
+            "pnl": -10000.0,
+            "drawdown": 1.0,
+            "sharpe": -0.1400289041936822,
+            "trade_count": 935,
+            "win_rate": 0.6491978609625668,
+            "fees": 25367.514335999993,
+            "slippage": 6341.878583999998,
+            "funding": 0.0,
+            "source_refs": ["rp-4492"]
+          },
+          {
+            "variant_id": "VAR-000003",
+            "outcome_category": "successful",
+            "return_pct": -1.0,
+            "pnl": -10000.0,
+            "drawdown": 1.0,
+            "sharpe": -0.28001251148886824,
+            "trade_count": 888,
+            "win_rate": 0.6306306306306306,
+            "fees": 24590.501728000017,
+            "slippage": 6147.625432000004,
+            "funding": 0.0,
+            "source_refs": ["rp-4492"]
+          },
+          {
+            "variant_id": "VAR-000004",
+            "outcome_category": "successful",
+            "return_pct": 0.6125286940000017,
+            "pnl": 6125.286940000016,
+            "drawdown": 0.7731093575381347,
+            "sharpe": 0.5568185187924719,
+            "trade_count": 624,
+            "win_rate": 0.6169871794871795,
+            "fees": 21218.506447999967,
+            "slippage": 5304.626611999992,
+            "funding": 0.0,
+            "source_refs": ["rp-4492"]
+          },
+          {
+            "variant_id": "VAR-000005",
+            "outcome_category": "successful",
+            "return_pct": 4.224430059000006,
+            "pnl": 42244.30059000006,
+            "drawdown": 0.46298853187386024,
+            "sharpe": 0.7859415058014496,
+            "trade_count": 243,
+            "win_rate": 0.6337448559670782,
+            "fees": 7462.783528000001,
+            "slippage": 1865.6958820000002,
+            "funding": 0.0,
+            "source_refs": ["rp-4492"]
+          },
+          {
+            "variant_id": "VAR-000006",
+            "outcome_category": "successful",
+            "return_pct": 3.684917429500002,
+            "pnl": 36849.17429500002,
+            "drawdown": 0.2905476288882672,
+            "sharpe": 0.8564528094717576,
+            "trade_count": 113,
+            "win_rate": 0.6371681415929203,
+            "fees": 3159.500563999999,
+            "slippage": 789.8751409999998,
+            "funding": 0.0,
+            "source_refs": ["rp-4492"]
+          },
+          {
+            "variant_id": "VAR-000007",
+            "outcome_category": "successful",
+            "return_pct": 5.047211195000001,
+            "pnl": 50472.111950000006,
+            "drawdown": 0.26897770904466234,
+            "sharpe": 1.24765689915331,
+            "trade_count": 64,
+            "win_rate": 0.75,
+            "fees": 1773.1104400000008,
+            "slippage": 443.2776100000002,
+            "funding": 0.0,
+            "source_refs": ["rp-4492"]
+          }
+        ],
+        "source_refs": ["rp-4492"]
+      },
+      "backtest_assumptions": {
+        "fill_mode": "complete",
+        "bar_path_assumption": "next_open_close_mark",
+        "fee_side_assumption": "taker_entry_taker_exit",
+        "slippage_model": "fixed_bps",
+        "mark_price_source": "close",
+        "liquidation_mode": "zero_equity",
+        "order_size_assumption": "future offline runner assumption only; no execution here",
+        "funding_notional": "entry_price",
+        "liquidity_capacity_assumption": null,
+        "maintenance_margin_assumption": null,
+        "source_refs": ["rp-4492"]
+      },
+      "non_authority_notes": {
+        "no_ranking_as_authority": true,
+        "no_recommendation": true,
+        "no_readiness": true,
+        "no_promotion": true,
+        "no_execution": true,
+        "source_refs": ["status-wp-f5a"]
+      }
+    }
+  },
+  "warnings": [
+    {
+      "warning_id": "no-renderer",
+      "status": "WARN",
+      "message": "F5A contains contract data only; renderer implementation remains out of scope.",
+      "source_refs": ["status-wp-f5a"]
+    }
+  ],
+  "source_refs": [
+    {
+      "ref_id": "status-wp-d4a",
+      "ref_type": "status_entry",
+      "path": "docs/status_entries/WP-D4A.md",
+      "sha256": null,
+      "description": "D4A status entry and D5A runway note."
+    },
+    {
+      "ref_id": "status-wp-e1",
+      "ref_type": "status_entry",
+      "path": "docs/project_status.md",
+      "sha256": null,
+      "description": "Current project status entries for read-only operator surface and sandbox wall."
+    },
+    {
+      "ref_id": "status-wp-f2",
+      "ref_type": "status_entry",
+      "path": "docs/status_entries/WP-F2.md",
+      "sha256": null,
+      "description": "F2 status fragment."
+    },
+    {
+      "ref_id": "d4a-catalog",
+      "ref_type": "catalog_slice",
+      "path": "research/data_slices/binance_usdtm_btcusdt_15m/binance_usdtm_btcusdt_15m_20200101_20260411.catalog_slice.json",
+      "sha256": "80a080336853ca96c81e2033a381527caec3737c1a817c111fc61d4e8c685327",
+      "description": "D4A catalog/slice JSON."
+    },
+    {
+      "ref_id": "d4a-validation",
+      "ref_type": "validation_report",
+      "path": "research/data_slices/binance_usdtm_btcusdt_15m/binance_usdtm_btcusdt_15m_20200101_20260411.validation_report.json",
+      "sha256": "785a8d53797155dcc80e646e8610db8d510825b9fa3dbccd21e79aa2700a6c1c",
+      "description": "D3 PASS validation report."
+    },
+    {
+      "ref_id": "d4a-import",
+      "ref_type": "import_report",
+      "path": "research/data_slices/binance_usdtm_btcusdt_15m/binance_usdtm_btcusdt_15m_20200101_20260411.import_report.json",
+      "sha256": "553c320d6639ceca4422f0f08620550c558e05162eb16aff30854db76a7246d3",
+      "description": "D2 import/provenance report."
+    },
+    {
+      "ref_id": "rp-4492",
+      "ref_type": "data_artifact",
+      "path": "research/result_populations/RP-4492.result_population.json",
+      "sha256": null,
+      "description": "RP-4492 canonical result population (7 variants, all successful, STRAT-SPEC-0001/VM-0001/SWEEP-PLAN-0001)."
+    },
+    {
+      "ref_id": "d6-checkpoint",
+      "ref_type": "doc",
+      "path": "docs/research_pipeline/2026-06-offline_runner_result_population_tranche_checkpoint.md",
+      "sha256": null,
+      "description": "D6 post-D5 descriptive interpretation checkpoint. Evidence-not-authority."
+    },
+    {
+      "ref_id": "status-wp-d5",
+      "ref_type": "status_entry",
+      "path": "docs/project_status.md",
+      "sha256": null,
+      "description": "D5 offline runner result population work packages status entries."
+    },
+    {
+      "ref_id": "status-wp-d6",
+      "ref_type": "status_entry",
+      "path": "docs/project_status.md",
+      "sha256": null,
+      "description": "D6 checkpoint status entries."
+    },
+    {
+      "ref_id": "status-wp-f5a",
+      "ref_type": "status_entry",
+      "path": "docs/status_entries/WP-F5A.md",
+      "sha256": null,
+      "description": "F5A status entry: Results contract and validator extension."
+    }
+  ]
+}

@@ -73,6 +73,13 @@ FORBIDDEN_AUTHORITY_VALUES = {
 COMMAND_LIKE_GATE_ACTION_RE = re.compile(
     r"(?i)(https?://|\b(?:python|powershell|pwsh|bash|curl|git|gh)\b|(?:POST|PUT|PATCH|DELETE)\s+/)"
 )
+RESULTS_ADDITIONAL_FORBIDDEN_KEYS = {
+    "rank",
+    "leaderboard",
+    "readiness",
+    "ranking_authority",
+}
+RESULTS_REQUIRED_ORDER_POLICY = "variant_id_ascending_only_not_quality_order"
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -242,6 +249,75 @@ def _validate_gate_actions(path: Path, payload: Mapping[str, Any]) -> list[str]:
     return errors
 
 
+def _validate_results_page(path: Path, payload: Mapping[str, Any]) -> list[str]:
+    found, results = _get_path(payload, "pages.results")
+    if not found or not isinstance(results, Mapping):
+        return []
+    errors: list[str] = []
+
+    found_cp, cp = _get_path(results, "complete_population")
+    found_vt, vt = _get_path(results, "variant_table")
+    if found_cp and isinstance(cp, Mapping) and found_vt and isinstance(vt, Mapping):
+        committed = cp.get("committed_denominator")
+        row_count = cp.get("result_row_count")
+        counts_sum = cp.get("outcome_counts_sum")
+        rows = vt.get("rows")
+        if isinstance(rows, list):
+            table_len = len(rows)
+            if all(v is not None for v in [committed, row_count, counts_sum]):
+                if not (committed == row_count == counts_sum == table_len):
+                    errors.append(
+                        f"{path}: pages.results denominator mismatch: "
+                        f"committed_denominator={committed}, result_row_count={row_count}, "
+                        f"outcome_counts_sum={counts_sum}, variant_table.rows count={table_len}"
+                    )
+
+    found_vt2, vt2 = _get_path(results, "variant_table")
+    if found_vt2 and isinstance(vt2, Mapping):
+        policy = vt2.get("variant_order_policy")
+        if policy != RESULTS_REQUIRED_ORDER_POLICY:
+            errors.append(
+                f"{path}: pages.results.variant_table.variant_order_policy must be "
+                f"{RESULTS_REQUIRED_ORDER_POLICY!r}, got {policy!r}"
+            )
+        rows = vt2.get("rows")
+        if isinstance(rows, list):
+            variant_ids = [
+                row.get("variant_id") for row in rows
+                if isinstance(row, Mapping) and row.get("variant_id") is not None
+            ]
+            for i in range(1, len(variant_ids)):
+                if variant_ids[i] <= variant_ids[i - 1]:
+                    errors.append(
+                        f"{path}: pages.results.variant_table rows are not in ascending variant_id "
+                        f"order: {variant_ids[i - 1]!r} >= {variant_ids[i]!r} at index {i}"
+                    )
+                    break
+
+    for key_path, key in _walk_keys(results, ["pages", "results"]):
+        normalized = _normalize_key(key)
+        if normalized in RESULTS_ADDITIONAL_FORBIDDEN_KEYS:
+            errors.append(
+                f"{path}: forbidden Results authority/ranking key at {key_path}: {key}"
+            )
+
+    found_nan, nan = _get_path(results, "non_authority_notes")
+    if found_nan and isinstance(nan, Mapping):
+        required_flags = {
+            "no_ranking_as_authority",
+            "no_recommendation",
+            "no_readiness",
+            "no_promotion",
+            "no_execution",
+        }
+        for flag in sorted(required_flags):
+            if nan.get(flag) is not True:
+                errors.append(
+                    f"{path}: pages.results.non_authority_notes.{flag} must be true"
+                )
+    return errors
+
+
 def validate_dashboard_data_file(path: Path, schema_path: Path = DEFAULT_SCHEMA_PATH) -> list[str]:
     """Return validation errors for one dashboard_data JSON file, or [] when valid."""
 
@@ -260,6 +336,7 @@ def validate_dashboard_data_file(path: Path, schema_path: Path = DEFAULT_SCHEMA_
     errors.extend(_validate_status_vocab(path, payload))
     errors.extend(_validate_source_refs(path, payload))
     errors.extend(_validate_gate_actions(path, payload))
+    errors.extend(_validate_results_page(path, payload))
     return errors
 
 

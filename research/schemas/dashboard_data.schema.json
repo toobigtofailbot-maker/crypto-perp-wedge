@@ -168,7 +168,8 @@
       "properties": {
         "overview": { "$ref": "#/definitions/overview_page" },
         "data_provenance": { "$ref": "#/definitions/data_provenance_page" },
-        "gates": { "$ref": "#/definitions/gates_page" }
+        "gates": { "$ref": "#/definitions/gates_page" },
+        "results": { "$ref": "#/definitions/results_page" }
       }
     },
     "overview_page": {
@@ -433,6 +434,208 @@
         "required_human_action": { "$ref": "#/definitions/non_empty_string" },
         "source_refs": { "$ref": "#/definitions/source_ref_ids" },
         "non_authority_note": { "$ref": "#/definitions/non_empty_string" }
+      }
+    },
+    "results_page": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": [
+        "status",
+        "source_refs",
+        "result_population",
+        "complete_population",
+        "descriptive_summary",
+        "variant_table",
+        "backtest_assumptions",
+        "non_authority_notes"
+      ],
+      "properties": {
+        "status": { "$ref": "#/definitions/status" },
+        "source_refs": { "$ref": "#/definitions/source_ref_ids" },
+        "result_population": { "$ref": "#/definitions/results_result_population" },
+        "complete_population": { "$ref": "#/definitions/results_complete_population" },
+        "descriptive_summary": { "$ref": "#/definitions/results_descriptive_summary" },
+        "variant_table": { "$ref": "#/definitions/results_variant_table" },
+        "backtest_assumptions": { "$ref": "#/definitions/results_backtest_assumptions" },
+        "non_authority_notes": { "$ref": "#/definitions/results_non_authority_notes" }
+      }
+    },
+    "results_result_population": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": [
+        "result_population_id",
+        "path",
+        "provenance_class",
+        "result_population_identity_hash",
+        "input_identity_hash",
+        "strategy_spec_id",
+        "variant_manifest_id",
+        "sweep_plan_id",
+        "source_refs"
+      ],
+      "properties": {
+        "result_population_id": { "$ref": "#/definitions/non_empty_string" },
+        "path": { "$ref": "#/definitions/non_empty_string" },
+        "provenance_class": { "$ref": "#/definitions/non_empty_string" },
+        "result_population_identity_hash": { "$ref": "#/definitions/non_empty_string" },
+        "input_identity_hash": { "$ref": "#/definitions/non_empty_string" },
+        "strategy_spec_id": { "$ref": "#/definitions/non_empty_string" },
+        "variant_manifest_id": { "$ref": "#/definitions/non_empty_string" },
+        "sweep_plan_id": { "$ref": "#/definitions/non_empty_string" },
+        "source_refs": { "$ref": "#/definitions/source_ref_ids" }
+      }
+    },
+    "results_complete_population": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": [
+        "committed_denominator",
+        "result_row_count",
+        "outcome_counts_sum",
+        "variant_id_start",
+        "variant_id_end",
+        "represented_variant_count",
+        "winner_only_retention_forbidden",
+        "executed_only_denominator_forbidden",
+        "source_refs"
+      ],
+      "properties": {
+        "committed_denominator": { "type": "integer", "minimum": 1 },
+        "result_row_count": { "type": "integer", "minimum": 1 },
+        "outcome_counts_sum": { "type": "integer", "minimum": 1 },
+        "variant_id_start": { "$ref": "#/definitions/non_empty_string" },
+        "variant_id_end": { "$ref": "#/definitions/non_empty_string" },
+        "represented_variant_count": { "type": "integer", "minimum": 1 },
+        "winner_only_retention_forbidden": { "type": "boolean", "const": true },
+        "executed_only_denominator_forbidden": { "type": "boolean", "const": true },
+        "source_refs": { "$ref": "#/definitions/source_ref_ids" }
+      }
+    },
+    "results_descriptive_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["variant_order_policy", "observations", "caveats", "source_refs"],
+      "properties": {
+        "variant_order_policy": {
+          "type": "string",
+          "const": "variant_id_ascending_only_not_quality_order"
+        },
+        "observations": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/non_empty_string" }
+        },
+        "caveats": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/non_empty_string" }
+        },
+        "source_refs": { "$ref": "#/definitions/source_ref_ids" }
+      }
+    },
+    "results_variant_table": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["variant_order_policy", "rows", "source_refs"],
+      "properties": {
+        "variant_order_policy": {
+          "type": "string",
+          "const": "variant_id_ascending_only_not_quality_order"
+        },
+        "rows": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/results_variant_row" }
+        },
+        "source_refs": { "$ref": "#/definitions/source_ref_ids" }
+      }
+    },
+    "results_variant_row": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": [
+        "variant_id",
+        "outcome_category",
+        "return_pct",
+        "pnl",
+        "drawdown",
+        "sharpe",
+        "trade_count",
+        "win_rate",
+        "fees",
+        "slippage",
+        "funding",
+        "source_refs"
+      ],
+      "properties": {
+        "variant_id": { "$ref": "#/definitions/non_empty_string" },
+        "outcome_category": { "$ref": "#/definitions/non_empty_string" },
+        "return_pct": { "type": "number" },
+        "pnl": { "type": "number" },
+        "drawdown": { "type": "number" },
+        "sharpe": { "type": "number" },
+        "trade_count": { "type": "integer", "minimum": 0 },
+        "win_rate": { "type": "number" },
+        "fees": { "type": "number" },
+        "slippage": { "type": "number" },
+        "funding": { "type": "number" },
+        "source_refs": { "$ref": "#/definitions/source_ref_ids" }
+      }
+    },
+    "results_backtest_assumptions": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": [
+        "fill_mode",
+        "bar_path_assumption",
+        "fee_side_assumption",
+        "slippage_model",
+        "mark_price_source",
+        "liquidation_mode",
+        "order_size_assumption",
+        "funding_notional",
+        "liquidity_capacity_assumption",
+        "maintenance_margin_assumption",
+        "source_refs"
+      ],
+      "properties": {
+        "fill_mode": { "$ref": "#/definitions/non_empty_string" },
+        "bar_path_assumption": { "$ref": "#/definitions/non_empty_string" },
+        "fee_side_assumption": { "$ref": "#/definitions/non_empty_string" },
+        "slippage_model": { "$ref": "#/definitions/non_empty_string" },
+        "mark_price_source": { "$ref": "#/definitions/non_empty_string" },
+        "liquidation_mode": { "$ref": "#/definitions/non_empty_string" },
+        "order_size_assumption": { "$ref": "#/definitions/non_empty_string" },
+        "funding_notional": { "$ref": "#/definitions/non_empty_string" },
+        "liquidity_capacity_assumption": { "$ref": "#/definitions/nullable_string" },
+        "maintenance_margin_assumption": { "$ref": "#/definitions/nullable_string" },
+        "source_refs": { "$ref": "#/definitions/source_ref_ids" }
+      }
+    },
+    "results_non_authority_notes": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": [
+        "no_ranking_as_authority",
+        "no_recommendation",
+        "no_readiness",
+        "no_promotion",
+        "no_execution",
+        "source_refs"
+      ],
+      "properties": {
+        "no_ranking_as_authority": { "type": "boolean", "const": true },
+        "no_recommendation": { "type": "boolean", "const": true },
+        "no_readiness": { "type": "boolean", "const": true },
+        "no_promotion": { "type": "boolean", "const": true },
+        "no_execution": { "type": "boolean", "const": true },
+        "source_refs": { "$ref": "#/definitions/source_ref_ids" }
       }
     }
   }

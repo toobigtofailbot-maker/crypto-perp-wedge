@@ -29,12 +29,17 @@
 
 ```
 git status --short
- M tests/test_generate_static_dashboard.py
- M tools/dashboard/collector.py
- (docs/ files also modified; generated outputs gitignored)
+(clean — committed; no uncommitted changes)
 
 git diff --check
 (clean — exit 0)
+
+git diff --name-only origin/main...HEAD
+docs/dashboard/README.md
+docs/project_status.md
+docs/status_entries/WP-F5B.md
+tests/test_generate_static_dashboard.py
+tools/dashboard/collector.py
 
 python -m tools.dashboard.validate_dashboard_data tests/fixtures/dashboard/valid_dashboard_data_minimal.json
 OK: tests\fixtures\dashboard\valid_dashboard_data_minimal.json validates as dashboard_data.v1
@@ -65,27 +70,49 @@ Tracked changed files: tests/test_generate_static_dashboard.py, tools/dashboard/
 Forbidden-path matches: none
 
 python -m pytest -q (full suite)
-17 collection errors — all pre-existing environment issues identical to WP-F5A:
-  ModuleNotFoundError: numpy (test_backtest, test_backtest_liquidation,
+17 collection errors — pre-existing environment issues, not caused by F5B:
+  ModuleNotFoundError: numpy — test_backtest, test_backtest_liquidation,
     test_binance_perp_realism, test_evaluation, test_evaluation_cost_drag,
-    test_offline_research_runner, test_spec_signal_compiler, ...)
-  ModuleNotFoundError: binance (scripts/g4_api_smoke_test)
+    test_offline_research_runner, test_spec_signal_compiler,
+    test_catalog_binance_usdtm_15m, test_import_binance_usdtm_15m,
+    test_validate_binance_usdtm_15m, test_paper_scheduler,
+    test_paper_trader_once, test_paper_trader_position_flow,
+    test_paper_trader_price_ref_flow, test_paper_trader_signal_flow,
+    test_price_ref_provider
+  ModuleNotFoundError: binance — scripts/g4_api_smoke_test
+  Classification: pre-existing, environment-only, identical to WP-F5A.
   No F5B-caused failures. No tests weakened.
-  Full installable-environment tests (excluding pandas/numpy/binance-dependent):
-    pass — see below for count after final run.
+  Installable-environment tests (excludes 17 above): 999 passed
 
 git check-ignore dashboard_data/dashboard_data.json dashboard_build/index.html
 dashboard_data/dashboard_data.json  (gitignored)
 dashboard_build/index.html  (gitignored)
 ```
 
-## Schema constraint note
+## Blocker — schema-constrained stale empty-state message
 
-The `overview_page.latest_result_population_empty_state.message` field is constrained by the F5A schema to one of three exact enum values: `"No D5 result population yet."`, `"No paper runtime yet."`, or `"No live mode."`. The message text therefore cannot be updated to reflect RP-4492 availability without a schema change, which is out of scope for F5B. Instead:
-- The `status` field is changed from `NOT_AVAILABLE` to `PASS` when RP-4492 is present (schema permits all status values).
-- The stale "no-d5-results" warning is removed from `overview.warnings` when RP-4492 is present.
-- A new `rp-4492-results-data` status card is added to `overview.status_cards` with `PASS` status.
-- The schema constraint is documented here. The constraint is visible in `test_results_overview_no_stale_empty_state_warning_when_rp4492_present`.
+**F5B is not ready for merge.** The WP requires removing/replacing misleading `"No D5 result population yet."` text when RP-4492 is present. The F5A schema (`research/schemas/dashboard_data.schema.json`) constrains `overview_page.latest_result_population_empty_state.message` to a hard enum of exactly three values:
+
+```
+"No D5 result population yet." | "No paper runtime yet." | "No live mode."
+```
+
+Updating the message to reflect RP-4492 availability requires adding a new enum value — a schema/validator change that is **forbidden by the WP-F5B scope**.
+
+**What F5B did instead (within scope):**
+- Changed `latest_result_population_empty_state.status` from `NOT_AVAILABLE` to `PASS` when RP-4492 is present (schema permits any status value).
+- Removed the stale `"no-d5-results"` warning from `overview.warnings`.
+- Added a new `rp-4492-results-data` status card with `PASS` status to `overview.status_cards`.
+
+**What remains unresolved:**
+The generated `dashboard_data.json` still contains `"message": "No D5 result population yet."` in `overview.latest_result_population_empty_state` even when `pages.results` is fully populated from RP-4492. This is stale/misleading text that the WP required removing, but the schema blocks the fix.
+
+**Decision required from Main/Side — two options:**
+
+- **Option A:** Authorize a narrow schema/validator follow-up package to add a fourth enum value (e.g., `"D5 result population RP-4492 is available for display-only Results data."`) and a corresponding validator pass for that message. F5B can then fully satisfy the requirement.
+- **Option B:** Accept the stale enum message as known contract debt to be resolved in F5C or a future contract-maintenance package. F5B merges with the blocker documented and F5C or a later package resolves it.
+
+Until Main/Side decides, this PR remains draft.
 
 ## Semantic text audit
 
@@ -126,8 +153,11 @@ No drift requiring rewording found. No changed or generated text implies a selec
 
 ## Merge status
 
-Branch `dashboard/f5b-results-collector` — draft PR open: https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/424
+Branch `dashboard/f5b-results-collector` — **draft / not ready for merge**.  
+PR: https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/424  
+Blocked on: schema-constrained stale empty-state message (see Blocker section above).  
+No schema/renderer change was made because both are forbidden by WP-F5B scope.
 
 ## Next dependency / runway note
 
-F5C (Results renderer) remains gated on F5B merge. Do not ask Main for the post-F5 strategic direction in this F5B report-back. That explicit direction-change question must be included in the post-F5 report-back after F5B, F5C, and F5D if needed.
+F5C (Results renderer) remains gated on F5B merge. The blocker decision (Option A or B above) must be resolved before F5B can be marked ready for review. Do not ask Main for the post-F5 strategic direction in this F5B report-back — that direction-change question must be included in the post-F5 report-back after F5B, F5C, and F5D if needed.

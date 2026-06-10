@@ -73,6 +73,8 @@ Parallel open PRs should avoid overlapping `docs/project_status.md` edits when p
 
 Fragment files reduce merge conflicts because unrelated parallel WPs can write separate status files. If a WP still edits `docs/project_status.md`, the final rebase and GitHub mergeability gate remains mandatory.
 
+Historical `docs/project_status.md` entries should not be rewritten just to reduce token count unless a future explicit package authorizes a targeted cleanup. Forward-looking bloat control is handled by compact project-status updates plus per-WP status fragments. Status fragments are not repo-truth replacements and do not replace startup reading of `docs/project_status.md`.
+
 ## Forbidden Scope
 
 Status fragments must not:

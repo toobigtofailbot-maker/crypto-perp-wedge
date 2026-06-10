@@ -20,7 +20,7 @@ Each section must be concrete and audit-friendly:
 - B. List exact created and modified files.
 - C. State commands run, pass/fail result, and short counts. Do not paste full passing logs.
 - D. Confirm protected paths remained untouched and that no forbidden-scope files were touched.
-- E. State branch, PR number/URL, GitHub mergeability status, and whether the PR is ready for review.
+- E. State branch, PR number/URL, actual PR title, GitHub mergeability status, and whether the PR is ready for review. For normal WPs the PR title should begin with the package label; if it does not, correct it or explain why a package-specific exception applies.
 
 ## Expanded Report-Back Shape
 
@@ -46,7 +46,7 @@ Each expanded section must be concrete and audit-friendly:
 - D. Report exact validation run status or explicit non-run reasoning.
 - E. For each failed or skipped validation, include the failing command, failing test or view name, and relevant error.
 - F. Confirm protected paths remained untouched when required.
-- G. State branch, PR number/URL, push result, and GitHub mergeability status.
+- G. State branch, PR number/URL, actual PR title, push result, and GitHub mergeability status. If the PR title does not begin with the package label, correct it or report the exception reason.
 - H. List any open escalations or stop-condition triggers.
 - I. State YES or NO.
 

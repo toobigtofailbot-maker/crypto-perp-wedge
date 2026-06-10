@@ -153,3 +153,46 @@ def test_fixture_mutation_copy_does_not_affect_source():
     copied["pages"]["overview"]["status"] = "FAIL"
 
     assert payload["pages"]["overview"]["status"] == "WARN"
+
+
+RESULTS_FIXTURE = FIXTURE_DIR / "valid_dashboard_data_with_results.json"
+
+
+def _load_results() -> dict:
+    return json.loads(RESULTS_FIXTURE.read_text(encoding="utf-8"))
+
+
+def test_valid_results_fixture_passes():
+    assert validate_dashboard_data_file(RESULTS_FIXTURE) == []
+
+
+def test_results_denominator_mismatch_fails(tmp_path):
+    payload = _load_results()
+    payload["pages"]["results"]["complete_population"]["committed_denominator"] = 5
+
+    errors = _validate_payload(tmp_path, payload)
+
+    assert any("denominator" in error.lower() for error in errors)
+
+
+def test_results_out_of_order_variant_rows_fail():
+    path = FIXTURE_DIR / "invalid_dashboard_data_results_ordering.json"
+
+    errors = validate_dashboard_data_file(path)
+
+    assert any("ascending" in error.lower() or "order" in error.lower() for error in errors)
+
+
+def test_results_authority_field_or_value_fails():
+    path = FIXTURE_DIR / "invalid_dashboard_data_results_authority.json"
+
+    errors = validate_dashboard_data_file(path)
+
+    assert any("forbidden" in error.lower() or "best_variant" in error.lower() for error in errors)
+
+
+def test_cli_validates_results_fixture(monkeypatch, capsys):
+    monkeypatch.setattr(sys, "argv", ["validate_dashboard_data", str(RESULTS_FIXTURE)])
+
+    assert main() == 0
+    assert "OK:" in capsys.readouterr().out

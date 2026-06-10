@@ -160,6 +160,34 @@ Source-reference entries include:
 
 The validator rejects duplicate top-level `ref_id` values and nested references to unknown IDs.
 
+## Results page (`pages.results`)
+
+Added in WP-F5A. Optional — absent until a collector populates it. Does not make `pages.results` required.
+
+### Shape
+
+| Field | Required | Description |
+|---|---|---|
+| `status` | yes | STATUS vocab |
+| `source_refs` | yes | ref_ids |
+| `result_population` | yes | Identity pointers into RP artifact |
+| `complete_population` | yes | Denominator counts and completeness flags |
+| `descriptive_summary` | yes | D6-checkpoint observations/caveats, order policy declaration |
+| `variant_table` | yes | Rows in ascending variant_id order |
+| `backtest_assumptions` | yes | Fill/fee/slippage/liquidation assumptions from RP |
+| `non_authority_notes` | yes | Five `const: true` flags asserting display-only posture |
+
+### Semantic constraints (enforced by validator)
+
+1. **Denominator consistency** — `complete_population.committed_denominator == result_row_count == outcome_counts_sum == len(variant_table.rows)`
+2. **Variant order** — `variant_table.variant_order_policy` must be `"variant_id_ascending_only_not_quality_order"` and rows must be strictly ascending by `variant_id`
+3. **Results-specific forbidden keys** — `rank`, `leaderboard`, `readiness`, `ranking_authority` are banned inside `pages.results`
+4. **Non-authority flags** — `no_ranking_as_authority`, `no_recommendation`, `no_readiness`, `no_promotion`, `no_execution` must all be `true`
+
+### Non-authority posture
+
+The Results page is display-only evidence. It confers no ranking, recommendation, readiness, promotion, execution, or approval authority. All five `non_authority_notes` flags must be `true`. The existing global `FORBIDDEN_AUTHORITY_KEYS` and `FORBIDDEN_AUTHORITY_VALUES` scans also cover the Results page.
+
 ## Boundary
 
 `dashboard_data.v1` is non-executing, read-only, and local/offline. It creates no:

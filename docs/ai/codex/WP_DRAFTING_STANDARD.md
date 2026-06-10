@@ -573,7 +573,8 @@ Reviewers should verify:
 - authority check: no artifact, report, doc, or tool gained unauthorized downstream authority;
 - mergeability check: final branch is rebased and GitHub reports `mergeable=true`;
 - invalid-data downstream-consumption check where relevant;
-- PR body stale-claim check;
+- PR body stale-claim check: no GitHub template placeholders, unchecked boxes, or pending/TBD language;
+- final PR readiness gate: PR title prefix, PR body placeholder scan, status-fragment PR URL and finality check, semantic audit for non-authority packages;
 - follow-up prompt if not merge-ready.
 
 ## 14. Required Context Budget and Package-Class Fields
@@ -586,7 +587,29 @@ Every future WP must include:
 
 These requirements do not reduce or replace the universal WP requirements in Section 2, the validation requirements in Sections 9–10, the isolated-worktree rule in Section 4, or any other standard in this document.
 
-## 15. Future WP Reference Rule
+## 15. Final PR Readiness Gate
+
+Every coding agent must complete this gate before reporting a PR ready for review or asking Side/Main for merge-readiness review.
+
+The gate requires the agent to inspect the actual GitHub PR title, PR body, and the committed status fragment and confirm:
+
+- PR title begins with the package label followed by `:`;
+- PR body uses the required compact or expanded report shape;
+- PR body contains no GitHub template placeholders;
+- PR body contains no unchecked template checkboxes;
+- PR body contains no `TBD`, `pending`, `to be added`, `background run`, `paste output`, or equivalent stale placeholder text;
+- status fragment contains the actual PR URL (not a placeholder);
+- status fragment validation summary is final;
+- status fragment contains no pending/background validation language;
+- skipped or unavailable validation is explicitly marked `Not run; not used as merge evidence.` or classified with exact environment-only failure details;
+- changed-file scope was checked after final metadata/status updates;
+- GitHub reports the PR mergeable/clean unless the package is intentionally draft/blocked.
+
+For packages whose changed text includes non-authority, anti-ranking, no-readiness, no-promotion, no-execution, or dashboard-as-non-authority constraints, a semantic text audit is also required before ready-for-review. See `docs/ai/codex/COMPACT_WP_TEMPLATE.md` for the sample audit block.
+
+This gate applies to every WP that opens a PR, including T1 docs-only packages. Active WPs that include a `Final PR Readiness Gate` section must apply the gate to their own PR before reporting ready-for-review.
+
+## 16. Future WP Reference Rule
 
 Future WPs (for Claude Code or Codex) may say:
 

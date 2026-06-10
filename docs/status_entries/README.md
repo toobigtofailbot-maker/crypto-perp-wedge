@@ -65,6 +65,18 @@ If a WP modifies `docs/project_status.md`, it must complete the final rebase and
 
 For per-WP branch-state detail, link or summarize the relevant status fragment rather than expanding `docs/project_status.md`.
 
+## Status Fragment Finality Rules
+
+Status fragments may be drafted while a PR is open. Before the PR is reported ready-for-review or submitted for merge-readiness review, the fragment must meet all of the following:
+
+- The fragment contains the actual PR URL (not a placeholder such as `TBD` or `pending`).
+- The validation summary is final: it states which commands ran and their results, or states explicitly `Not run; not used as merge evidence.` for commands that were skipped or unavailable.
+- The fragment contains no `pending`, `background run`, `to be added`, `TBD`, or equivalent stale placeholder language anywhere in the validation summary or merge-status fields.
+- Exact validation detail (passing counts, view names, error text) belongs in the status fragment and PR body, not in `docs/project_status.md`.
+- Compact `docs/project_status.md` pointers should avoid fragile detailed validation counts and should link or summarize the status fragment instead.
+
+Status fragments are not a replacement for `docs/project_status.md`. They hold per-WP branch-state detail; `docs/project_status.md` remains the startup anchor, milestone summary, and major-decision ledger.
+
 ## Parallel-PR Collision Safeguard
 
 Parallel open PRs should avoid overlapping `docs/project_status.md` edits when possible. If two PRs both need `docs/project_status.md`, the later PR must refresh and rebase onto the current `origin/main` after the earlier PR merges before it is called merge-ready. Do not call a PR merge-ready if GitHub reports `docs/project_status.md` conflicts or `mergeable=false`.

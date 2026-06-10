@@ -125,6 +125,16 @@ Every compact WP must include:
 - Commit message, PR title/body sections, and required report-back sections.
 - Required validation counts and changed-file evidence.
 
+## 11a. Final PR Readiness Gate
+Before reporting ready-for-review, confirm:
+- PR title begins with the package label followed by `:`.
+- PR body contains no GitHub template placeholders, unchecked template checkboxes, or stale `TBD` / `pending` / `to be added` / `background run` text.
+- Status fragment contains the actual PR URL.
+- Status fragment validation summary is final (no pending/background language; skipped validation marked `Not run; not used as merge evidence.`).
+- Changed-file scope was verified after final status-fragment metadata updates.
+- Semantic text audit completed when package scope includes non-authority, anti-ranking, no-readiness, no-promotion, no-execution, or dashboard-as-non-authority constraints (see audit block below).
+- GitHub reports PR mergeable/clean.
+
 ## 12. Manual Steps
 - State `None` or list exact user steps, timing, optional/required status, repo dependency effect, and what Codex must not do before completion.
 ```
@@ -251,6 +261,24 @@ Compact prompts must not omit or weaken:
 
 Compact prompts must not imply that summaries, compressed logs, cached status, memory, or prior chat can replace command execution or current merged repo truth.
 
+## Semantic Text Audit for Non-Authority Packages
+
+When a package's changed text includes non-authority, anti-ranking, no-readiness, no-promotion, no-execution, or dashboard-as-non-authority constraints, search changed docs, fixtures, and report text for terms such as:
+
+```text
+best, highest, lowest, fewest, winner, top, leaderboard, rank, selected, recommended,
+recommendation, readiness, ready_for, promotion, approved, execute, trade
+```
+
+Every hit must be classified as:
+
+- invalid negative fixture or test (expected to be rejected by the validator);
+- explicit forbidden-wording documentation (describing what is prohibited);
+- neutral reference required by the package; or
+- drift requiring rewording.
+
+Valid descriptive output should be population-level unless row-level emphasis is explicitly authorized. Keep this as guidance; do not introduce a script requirement.
+
 ## Reviewer checklist
 
 Reviewers should verify:
@@ -263,4 +291,5 @@ Reviewers should verify:
 - validation commands are still required;
 - stop triggers are package-specific and complete;
 - manual steps are stated as `None` or fully disclosed;
-- no helper/tooling, R1/R2, H-006, WP-S2c-30, Path B, runtime, policy, readiness, lifecycle, promotion/demotion, or downstream authority is silently introduced.
+- no helper/tooling, R1/R2, H-006, WP-S2c-30, Path B, runtime, policy, readiness, lifecycle, promotion/demotion, or downstream authority is silently introduced;
+- final PR readiness gate was applied: PR body is placeholder-free, status fragment has the actual PR URL, validation summary is final, semantic audit completed for non-authority packages.

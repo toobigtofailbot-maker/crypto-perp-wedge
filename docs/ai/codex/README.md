@@ -33,7 +33,15 @@ This directory is the current shared coding-agent guidance path for `crypto-perp
 
 ## Package-Class Read-Path Router
 
-This router applies **after** required startup anchors (`AGENTS.md`, `CLAUDE_START_HERE.md`, `.claude/README.md`, `docs/runbook.md`, `docs/project_status.md`) and after the active WP instructions. It does not change those startup anchors, make any of them optional, or reduce repo-truth obligations, validation, changed-file inspection, or stop-condition investigation. It reduces wrong-file reading only.
+### Shared vs tool-specific startup anchors
+
+Shared startup anchors are defined by `AGENTS.md`: `docs/project_status.md`, `CLAUDE_START_HERE.md`, and `docs/runbook.md`. Despite its historical filename, `CLAUDE_START_HERE.md` is the shared coding-agent startup anchor referenced by `AGENTS.md`.
+
+`.claude/README.md` is a Claude-specific local entrypoint / asset index. It is not a universal Codex startup requirement unless the active WP, a Claude-specific execution brief, or the relevant task scope explicitly requires it.
+
+This clarification does not change startup order, make any startup anchor optional, or rename `CLAUDE_START_HERE.md` or `docs/ai/codex/`.
+
+This router applies **after** required shared startup anchors (`AGENTS.md`, `CLAUDE_START_HERE.md`, `docs/runbook.md`, `docs/project_status.md`) and after the active WP instructions. It does not change those startup anchors, make any of them optional, or reduce repo-truth obligations, validation, changed-file inspection, or stop-condition investigation. It reduces wrong-file reading only.
 
 **T1 docs / guidance / design:**
 - Startup anchors.

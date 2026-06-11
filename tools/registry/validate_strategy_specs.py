@@ -27,7 +27,10 @@ CLOSED_OPERATOR_ENUM = {
     "is_false",
 }
 COMPOSED_OPERAND_TYPE = "composed_operand"
-COMPOSITION_TYPE = "scale_by_one_minus_parameter"
+COMPOSITION_TYPES = {
+    "scale_by_one_minus_parameter",
+    "scale_by_one_plus_parameter",
+}
 COMPOSED_BASE_OPERAND_TYPES = {"data_ref", "indicator_ref"}
 COMPOSED_PARAMETER_OPERAND_TYPE = "parameter_ref"
 MAX_CONDITION_GROUP_DEPTH = 3
@@ -377,9 +380,10 @@ def _validate_composed_operands(path: Path, payload: dict[str, Any]) -> list[str
                     if operand.get("operand_type") != COMPOSED_OPERAND_TYPE:
                         continue
 
-                    if operand.get("composition_type") != COMPOSITION_TYPE:
+                    if operand.get("composition_type") not in COMPOSITION_TYPES:
                         errors.append(
-                            f"{path}: {operand_path}.composition_type must be {COMPOSITION_TYPE!r}"
+                            f"{path}: {operand_path}.composition_type must be one of "
+                            f"{sorted(COMPOSITION_TYPES)}"
                         )
                     if set(operand) != {
                         "operand_type",

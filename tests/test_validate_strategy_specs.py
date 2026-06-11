@@ -528,7 +528,7 @@ def test_parameter_bound_lookback_nested_compound_fails_schema(tmp_path):
     )
 
 
-def test_valid_composed_operand_passes_schema_and_validator(tmp_path):
+def test_valid_composed_operand_minus_passes_schema_and_validator(tmp_path):
     payload = _strategy_spec_with_composed_operand()
     schema = _load_schema()
 
@@ -536,21 +536,36 @@ def test_valid_composed_operand_passes_schema_and_validator(tmp_path):
     assert _validate(tmp_path, payload) == []
 
 
-def test_composed_operand_base_data_ref_passes(tmp_path):
-    payload = _strategy_spec_with_composed_operand(base_operand_type="data_ref")
+def test_valid_composed_operand_plus_passes_schema_and_validator(tmp_path):
+    payload = _strategy_spec_with_composed_operand(
+        composition_type="scale_by_one_plus_parameter"
+    )
+    schema = _load_schema()
+
+    assert Draft7Validator(schema).is_valid(payload)
+    assert _validate(tmp_path, payload) == []
+
+
+def test_composed_operand_base_data_ref_passes_for_plus(tmp_path):
+    payload = _strategy_spec_with_composed_operand(
+        base_operand_type="data_ref",
+        composition_type="scale_by_one_plus_parameter",
+    )
 
     assert _validate(tmp_path, payload) == []
 
 
-def test_composed_operand_base_indicator_ref_passes(tmp_path):
-    payload = _strategy_spec_with_composed_operand(base_operand_type="indicator_ref")
+def test_composed_operand_base_indicator_ref_passes_for_plus(tmp_path):
+    payload = _strategy_spec_with_composed_operand(
+        base_operand_type="indicator_ref",
+        composition_type="scale_by_one_plus_parameter",
+    )
 
     assert _validate(tmp_path, payload) == []
 
 
 def test_composed_operand_rejects_unclosed_composition_types(tmp_path):
     for composition_type in (
-        "scale_by_one_plus_parameter",
         "offset_minus_parameter",
         "offset_plus_parameter",
         "multiply",
@@ -563,16 +578,21 @@ def test_composed_operand_rejects_unclosed_composition_types(tmp_path):
         assert any("composition_type" in error for error in errors), composition_type
 
 
-def test_composed_operand_base_parameter_ref_fails(tmp_path):
-    payload = _strategy_spec_with_composed_operand(base_operand_type="parameter_ref")
+def test_composed_operand_base_parameter_ref_fails_for_plus(tmp_path):
+    payload = _strategy_spec_with_composed_operand(
+        base_operand_type="parameter_ref",
+        composition_type="scale_by_one_plus_parameter",
+    )
 
     errors = _validate(tmp_path, payload)
 
     assert any("base_operand.operand_type" in error for error in errors)
 
 
-def test_composed_operand_base_composed_operand_fails(tmp_path):
-    payload = _strategy_spec_with_composed_operand()
+def test_composed_operand_base_composed_operand_fails_for_plus(tmp_path):
+    payload = _strategy_spec_with_composed_operand(
+        composition_type="scale_by_one_plus_parameter"
+    )
     payload["entry_logic"]["groups"][0]["conditions"][0]["right_operand"]["base_operand"] = (
         _composed_operand()
     )
@@ -583,30 +603,41 @@ def test_composed_operand_base_composed_operand_fails(tmp_path):
     assert any("nested or unauthorized composed_operand is forbidden" in error for error in errors)
 
 
-def test_composed_operand_parameter_ref_passes(tmp_path):
-    payload = _strategy_spec_with_composed_operand(parameter_operand_type="parameter_ref")
+def test_composed_operand_parameter_ref_passes_for_plus(tmp_path):
+    payload = _strategy_spec_with_composed_operand(
+        parameter_operand_type="parameter_ref",
+        composition_type="scale_by_one_plus_parameter",
+    )
 
     assert _validate(tmp_path, payload) == []
 
 
-def test_composed_operand_parameter_data_ref_fails(tmp_path):
-    payload = _strategy_spec_with_composed_operand(parameter_operand_type="data_ref")
+def test_composed_operand_parameter_data_ref_fails_for_plus(tmp_path):
+    payload = _strategy_spec_with_composed_operand(
+        parameter_operand_type="data_ref",
+        composition_type="scale_by_one_plus_parameter",
+    )
 
     errors = _validate(tmp_path, payload)
 
     assert any("parameter_operand.operand_type" in error for error in errors)
 
 
-def test_composed_operand_parameter_indicator_ref_fails(tmp_path):
-    payload = _strategy_spec_with_composed_operand(parameter_operand_type="indicator_ref")
+def test_composed_operand_parameter_indicator_ref_fails_for_plus(tmp_path):
+    payload = _strategy_spec_with_composed_operand(
+        parameter_operand_type="indicator_ref",
+        composition_type="scale_by_one_plus_parameter",
+    )
 
     errors = _validate(tmp_path, payload)
 
     assert any("parameter_operand.operand_type" in error for error in errors)
 
 
-def test_composed_operand_parameter_composed_operand_fails(tmp_path):
-    payload = _strategy_spec_with_composed_operand()
+def test_composed_operand_parameter_composed_operand_fails_for_plus(tmp_path):
+    payload = _strategy_spec_with_composed_operand(
+        composition_type="scale_by_one_plus_parameter"
+    )
     payload["entry_logic"]["groups"][0]["conditions"][0]["right_operand"]["parameter_operand"] = (
         _composed_operand()
     )
@@ -718,8 +749,10 @@ def test_composed_operand_bound_parameter_range_required(tmp_path):
     assert any("range must be bounded" in error for error in errors)
 
 
-def test_composed_operand_bound_parameter_range_min_must_be_positive(tmp_path):
-    payload = _strategy_spec_with_composed_operand()
+def test_composed_operand_bound_parameter_range_min_must_be_positive_for_plus(tmp_path):
+    payload = _strategy_spec_with_composed_operand(
+        composition_type="scale_by_one_plus_parameter"
+    )
     payload["free_parameters"]["parameters"] = [
         _threshold_parameter(range_value={
             "min": 0,
@@ -735,8 +768,10 @@ def test_composed_operand_bound_parameter_range_min_must_be_positive(tmp_path):
     assert any("range.min must be > 0" in error for error in errors)
 
 
-def test_composed_operand_bound_parameter_range_max_must_be_less_than_one(tmp_path):
-    payload = _strategy_spec_with_composed_operand()
+def test_composed_operand_bound_parameter_range_max_must_be_less_than_one_for_plus(tmp_path):
+    payload = _strategy_spec_with_composed_operand(
+        composition_type="scale_by_one_plus_parameter"
+    )
     payload["free_parameters"]["parameters"] = [
         _threshold_parameter(range_value={
             "min": 0.01,
@@ -752,8 +787,10 @@ def test_composed_operand_bound_parameter_range_max_must_be_less_than_one(tmp_pa
     assert any("range.max must be < 1" in error for error in errors)
 
 
-def test_composed_operand_bound_parameter_allowed_values_must_be_in_open_unit_interval(tmp_path):
-    payload = _strategy_spec_with_composed_operand()
+def test_composed_operand_bound_parameter_allowed_values_must_be_in_open_unit_interval_for_plus(tmp_path):
+    payload = _strategy_spec_with_composed_operand(
+        composition_type="scale_by_one_plus_parameter"
+    )
     payload["free_parameters"]["parameters"] = [
         _threshold_parameter(allowed_values=[0.01, 1.0])
     ]

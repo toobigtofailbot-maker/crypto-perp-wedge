@@ -473,7 +473,10 @@
         },
         "composition_type": {
           "type": "string",
-          "const": "scale_by_one_minus_parameter"
+          "enum": [
+            "scale_by_one_minus_parameter",
+            "scale_by_one_plus_parameter"
+          ]
         },
         "base_operand": {
           "$ref": "#/definitions/composed_base_operand"

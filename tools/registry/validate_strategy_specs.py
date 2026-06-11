@@ -33,6 +33,9 @@ COMPOSITION_TYPES = {
 }
 COMPOSED_BASE_OPERAND_TYPES = {"data_ref", "indicator_ref"}
 COMPOSED_PARAMETER_OPERAND_TYPE = "parameter_ref"
+SIDE_LABELS = {"long", "short"}
+BOTH_DIRECTION = "both"
+SINGLE_DIRECTIONS = {"long", "short"}
 MAX_CONDITION_GROUP_DEPTH = 3
 MAX_FREE_PARAMETERS = 5
 LOOKBACK_PARAMETER_REF_KEY = "bars_parameter_ref"
@@ -658,6 +661,110 @@ def _validate_host_data_ref_safety(path: Path, payload: dict[str, Any]) -> list[
     return errors
 
 
+def _validate_nested_side_labels(
+    path: Path,
+    root_path: str,
+    root_group: Any,
+    root_side: str,
+) -> list[str]:
+    errors: list[str] = []
+    for group_path, group, depth in _walk_groups(root_group, root_path.split("."), 1):
+        if depth == 1 or not isinstance(group, dict) or "side" not in group:
+            continue
+        nested_side = group.get("side")
+        if nested_side not in SIDE_LABELS:
+            errors.append(f"{path}: {group_path}.side invalid side label: {nested_side!r}")
+        elif nested_side != root_side:
+            errors.append(
+                f"{path}: {group_path}.side {nested_side!r} contradicts root side "
+                f"{root_side!r}"
+            )
+    return errors
+
+
+def _validate_no_side_labels(
+    path: Path,
+    roots: list[tuple[str, Any]],
+    reason: str,
+) -> list[str]:
+    errors: list[str] = []
+    for root_path, root_group in roots:
+        for group_path, group, _depth in _walk_groups(root_group, root_path.split("."), 1):
+            if isinstance(group, dict) and "side" in group:
+                errors.append(f"{path}: {group_path}.side is not allowed {reason}")
+    return errors
+
+
+def _section_roots(payload: dict[str, Any], section_name: str) -> list[tuple[str, Any]]:
+    section = payload.get(section_name)
+    if not isinstance(section, dict):
+        return []
+    groups = section.get("groups")
+    if not isinstance(groups, list):
+        return []
+    return [(f"{section_name}.groups.{index}", group) for index, group in enumerate(groups)]
+
+
+def _validate_both_direction_sides(path: Path, payload: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    entry_logic = payload.get("entry_logic")
+    direction = entry_logic.get("direction") if isinstance(entry_logic, dict) else None
+
+    entry_roots = _section_roots(payload, "entry_logic")
+    exit_roots = _section_roots(payload, "exit_logic")
+    filter_roots = _section_roots(payload, "filters")
+
+    errors.extend(_validate_no_side_labels(path, filter_roots, "under filters.groups"))
+
+    if direction in SINGLE_DIRECTIONS:
+        errors.extend(
+            _validate_no_side_labels(
+                path,
+                [*entry_roots, *exit_roots],
+                f"when entry_logic.direction is {direction!r}",
+            )
+        )
+        return errors
+
+    if direction != BOTH_DIRECTION:
+        return errors
+
+    observed_entry_sides: set[str] = set()
+    for root_path, root_group in entry_roots:
+        if not isinstance(root_group, dict):
+            continue
+        side = root_group.get("side")
+        if side not in SIDE_LABELS:
+            errors.append(
+                f"{path}: {root_path}.side must be one of {sorted(SIDE_LABELS)} "
+                "when entry_logic.direction is 'both'"
+            )
+            continue
+        observed_entry_sides.add(side)
+        errors.extend(_validate_nested_side_labels(path, root_path, root_group, side))
+
+    for required_side in sorted(SIDE_LABELS):
+        if required_side not in observed_entry_sides:
+            errors.append(
+                f"{path}: entry_logic.direction 'both' requires at least one "
+                f"{required_side!r} root entry group"
+            )
+
+    for root_path, root_group in exit_roots:
+        if not isinstance(root_group, dict):
+            continue
+        side = root_group.get("side")
+        if side not in SIDE_LABELS:
+            errors.append(
+                f"{path}: {root_path}.side must be one of {sorted(SIDE_LABELS)} "
+                "when entry_logic.direction is 'both'"
+            )
+            continue
+        errors.extend(_validate_nested_side_labels(path, root_path, root_group, side))
+
+    return errors
+
+
 def validate_strategy_specs(
     strategy_specs_dir: Path = DEFAULT_STRATEGY_SPECS_DIR,
     schema_path: Path = DEFAULT_SCHEMA_PATH,
@@ -711,6 +818,7 @@ def validate_strategy_specs(
         errors.extend(_validate_parameter_bound_lookbacks(path, payload))
         errors.extend(_validate_non_authority_flags(path, payload))
         errors.extend(_validate_host_data_ref_safety(path, payload))
+        errors.extend(_validate_both_direction_sides(path, payload))
 
     return errors
 

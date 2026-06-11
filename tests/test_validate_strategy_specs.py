@@ -80,8 +80,8 @@ def _condition(condition_id: str = "COND-1", operator: str = "gt") -> dict:
     }
 
 
-def _group(group_id: str = "GROUP-1", subgroups: list | None = None) -> dict:
-    return {
+def _group(group_id: str = "GROUP-1", subgroups: list | None = None, side: str | None = None) -> dict:
+    group = {
         "group_id": group_id,
         "group_role": "required",
         "logic": "all",
@@ -89,6 +89,9 @@ def _group(group_id: str = "GROUP-1", subgroups: list | None = None) -> dict:
         "subgroups": subgroups or [],
         "notes": None,
     }
+    if side is not None:
+        group["side"] = side
+    return group
 
 
 def _parameter(name: str = "lookback") -> dict:
@@ -325,6 +328,20 @@ def _base_strategy_spec(strategy_spec_id: str = "STRAT-SPEC-9001") -> dict:
     }
 
 
+def _both_direction_strategy_spec() -> dict:
+    payload = _base_strategy_spec()
+    payload["instruments"]["directions_allowed"] = ["long", "short"]
+    payload["entry_logic"] = {
+        "direction": "both",
+        "groups": [
+            _group("GROUP-LONG", side="long"),
+            _group("GROUP-SHORT", side="short"),
+        ],
+        "notes": None,
+    }
+    return payload
+
+
 def _strategy_spec_with_composed_operand(**operand_kwargs) -> dict:
     payload = _base_strategy_spec()
     payload["entry_logic"]["groups"][0]["conditions"][0]["right_operand"] = _composed_operand(
@@ -390,6 +407,174 @@ def test_strategy_spec_validator_noops_when_directory_empty(tmp_path):
 
 def test_valid_temp_strategy_spec_passes(tmp_path):
     assert _validate(tmp_path, _base_strategy_spec()) == []
+
+
+def test_both_direction_accepts_explicit_long_and_short_entry_groups(tmp_path):
+    payload = _both_direction_strategy_spec()
+    schema = _load_schema()
+
+    assert Draft7Validator(schema).is_valid(payload)
+    assert _validate(tmp_path, payload) == []
+
+
+def test_both_direction_accepts_side_specific_exit_groups(tmp_path):
+    payload = _both_direction_strategy_spec()
+    payload["exit_logic"]["groups"] = [
+        _group("EXIT-LONG", side="long"),
+        _group("EXIT-SHORT", side="short"),
+    ]
+
+    assert _validate(tmp_path, payload) == []
+
+
+def test_long_direction_existing_shape_without_side_labels_still_valid(tmp_path):
+    payload = _base_strategy_spec()
+    payload["entry_logic"]["direction"] = "long"
+
+    assert _validate(tmp_path, payload) == []
+
+
+def test_short_direction_existing_shape_without_side_labels_still_valid(tmp_path):
+    payload = _base_strategy_spec()
+    payload["instruments"]["directions_allowed"] = ["short"]
+    payload["entry_logic"]["direction"] = "short"
+
+    assert _validate(tmp_path, payload) == []
+
+
+def test_both_direction_rejects_missing_long_entry_side(tmp_path):
+    payload = _both_direction_strategy_spec()
+    payload["entry_logic"]["groups"] = [_group("GROUP-SHORT", side="short")]
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("requires at least one 'long' root entry group" in error for error in errors)
+
+
+def test_both_direction_rejects_missing_short_entry_side(tmp_path):
+    payload = _both_direction_strategy_spec()
+    payload["entry_logic"]["groups"] = [_group("GROUP-LONG", side="long")]
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("requires at least one 'short' root entry group" in error for error in errors)
+
+
+def test_both_direction_rejects_entry_group_without_side(tmp_path):
+    payload = _both_direction_strategy_spec()
+    del payload["entry_logic"]["groups"][0]["side"]
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("entry_logic.groups.0.side must be one of" in error for error in errors)
+
+
+def test_both_direction_rejects_unknown_side_label(tmp_path):
+    payload = _both_direction_strategy_spec()
+    payload["entry_logic"]["groups"][0]["side"] = "up"
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("entry_logic.groups.0.side" in error and "up" in error for error in errors)
+
+
+def test_both_direction_rejects_unlabeled_exit_group(tmp_path):
+    payload = _both_direction_strategy_spec()
+    payload["exit_logic"]["groups"] = [_group("EXIT-UNLABELED")]
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("exit_logic.groups.0.side must be one of" in error for error in errors)
+
+
+def test_both_direction_rejects_filter_side_label(tmp_path):
+    payload = _both_direction_strategy_spec()
+    payload["filters"]["groups"] = [_group("FILTER-LONG", side="long")]
+    payload["filters"]["none_declared"] = False
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("filters.groups.0.side is not allowed under filters.groups" in error for error in errors)
+
+
+def test_single_direction_rejects_side_labeled_entry_group(tmp_path):
+    payload = _base_strategy_spec()
+    payload["entry_logic"]["groups"][0]["side"] = "long"
+
+    errors = _validate(tmp_path, payload)
+
+    assert any(
+        "entry_logic.groups.0.side is not allowed when entry_logic.direction is 'long'" in error
+        for error in errors
+    )
+
+
+def test_single_direction_rejects_side_labeled_exit_group(tmp_path):
+    payload = _base_strategy_spec()
+    payload["exit_logic"]["groups"] = [_group("EXIT-LONG", side="long")]
+
+    errors = _validate(tmp_path, payload)
+
+    assert any(
+        "exit_logic.groups.0.side is not allowed when entry_logic.direction is 'long'" in error
+        for error in errors
+    )
+
+
+def test_both_direction_rejects_nested_side_contradiction_if_nested_side_labels_are_supported(
+    tmp_path,
+):
+    payload = _both_direction_strategy_spec()
+    payload["entry_logic"]["groups"][0]["subgroups"] = [
+        _group("GROUP-LONG-NESTED", side="short")
+    ]
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("contradicts root side 'long'" in error for error in errors)
+
+
+def test_both_direction_preserves_condition_group_depth_limit(tmp_path):
+    payload = _both_direction_strategy_spec()
+    depth_4 = _group("GROUP-4")
+    depth_3 = _group("GROUP-3", [depth_4])
+    depth_2 = _group("GROUP-2", [depth_3])
+    payload["entry_logic"]["groups"][0]["subgroups"] = [depth_2]
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("condition group depth 4 exceeds 3" in error for error in errors)
+
+
+def test_both_direction_preserves_closed_operator_validation(tmp_path):
+    payload = _both_direction_strategy_spec()
+    payload["entry_logic"]["groups"][0]["conditions"][0]["operator"] = "executes"
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("invalid operator: 'executes'" in error for error in errors)
+
+
+def test_both_direction_preserves_composed_operand_validation(tmp_path):
+    payload = _both_direction_strategy_spec()
+    payload["entry_logic"]["groups"][0]["conditions"][0]["right_operand"] = _composed_operand(
+        composition_type="multiply"
+    )
+    payload["free_parameters"]["parameters"] = [_threshold_parameter()]
+    payload["free_parameters"]["no_free_parameters_declared"] = False
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("composition_type" in error for error in errors)
+
+
+def test_validator_does_not_import_compiler_or_runner_for_both_direction():
+    source = inspect.getsource(validator_module)
+
+    assert "spec_signal_compiler" not in source
+    assert "run_offline_sweep" not in source
+    assert "from lib.backtest" not in source
+    assert "from lib.evaluation" not in source
 
 
 def test_valid_literal_lookback_still_passes_schema_and_validator(tmp_path):

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import math
-from numbers import Real
+from numbers import Integral, Real
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -27,10 +27,9 @@ COMPOSITION_TYPE_SCALE_BY_ONE_MINUS_PARAMETER = "scale_by_one_minus_parameter"
 COMPOSED_BASE_OPERAND_TYPES = {"data_ref", "indicator_ref"}
 COMPOSED_PARAMETER_OPERAND_TYPE = "parameter_ref"
 LOOKBACK_PARAMETER_REF_KEY = "bars_parameter_ref"
-SUPPORTED_OPERATORS = {"gt", "gte", "lt", "lte", "eq", "neq"}
+CROSSOVER_OPERATORS = {"crosses_above", "crosses_below"}
+SUPPORTED_OPERATORS = {"gt", "gte", "lt", "lte", "eq", "neq"} | CROSSOVER_OPERATORS
 UNSUPPORTED_OPERATORS = {
-    "crosses_above",
-    "crosses_below",
     "in_set",
     "is_true",
     "is_false",
@@ -357,6 +356,8 @@ def _evaluate_condition(
         raise SpecSignalCompilerError(f"unknown operator: {operator!r}")
     left = _resolve_operand(_require_mapping(condition.get("left_operand"), "left_operand"), context)
     right = _resolve_operand(_require_mapping(condition.get("right_operand"), "right_operand"), context)
+    if operator in CROSSOVER_OPERATORS:
+        return _evaluate_crossover(operator, left, right, context, timestamp)
     left_value = _value_at(left, timestamp)
     right_value = _value_at(right, timestamp)
     if _is_null(left_value) or _is_null(right_value):
@@ -374,6 +375,41 @@ def _evaluate_condition(
     if operator == "neq":
         return bool(left_value != right_value)
     raise SpecSignalCompilerError(f"unhandled operator: {operator!r}")
+
+
+def _evaluate_crossover(
+    operator: str,
+    left: Any,
+    right: Any,
+    context: _CompileContext,
+    timestamp: Any,
+) -> bool:
+    previous_timestamp = _previous_timestamp(context.ohlcv.index, timestamp)
+    if previous_timestamp is None:
+        return False
+    previous_left = _value_at(left, previous_timestamp)
+    previous_right = _value_at(right, previous_timestamp)
+    current_left = _value_at(left, timestamp)
+    current_right = _value_at(right, timestamp)
+    if any(
+        _is_null(value)
+        for value in (previous_left, previous_right, current_left, current_right)
+    ):
+        return False
+    if operator == "crosses_above":
+        return bool(previous_left <= previous_right and current_left > current_right)
+    if operator == "crosses_below":
+        return bool(previous_left >= previous_right and current_left < current_right)
+    raise SpecSignalCompilerError(f"unhandled crossover operator: {operator!r}")
+
+
+def _previous_timestamp(index: pd.DatetimeIndex, timestamp: Any) -> Any | None:
+    location = index.get_loc(timestamp)
+    if not isinstance(location, Integral):
+        raise SpecSignalCompilerError("ohlcv index timestamps must be unique for crossover operators")
+    if location == 0:
+        return None
+    return index[location - 1]
 
 
 def _resolve_operand(operand: Mapping[str, Any], context: _CompileContext) -> Any:

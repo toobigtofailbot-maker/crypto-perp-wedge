@@ -136,6 +136,40 @@ def _default_variant(**parameter_values) -> dict:
     }
 
 
+def _ohlcv_from_close(close: list[float | None]) -> pd.DataFrame:
+    index = pd.date_range("2026-02-01", periods=len(close), freq="h", tz="UTC")
+    normalized = [math.nan if value is None else float(value) for value in close]
+    return pd.DataFrame(
+        {
+            "open": [0.0 if math.isnan(value) else value for value in normalized],
+            "high": [0.0 if math.isnan(value) else value + 1.0 for value in normalized],
+            "low": [0.0 if math.isnan(value) else value - 1.0 for value in normalized],
+            "close": normalized,
+            "volume": [1000.0] * len(index),
+        },
+        index=index,
+    )
+
+
+def _single_condition_spec(operator: str, left: dict, right: dict, *, max_holding_bars: int | None = None) -> dict:
+    return _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        left,
+                        operator,
+                        right,
+                    )
+                ],
+            )
+        ],
+        max_holding_bars=max_holding_bars,
+    )
+
+
 def test_compiles_long_only_data_ref_threshold_signal() -> None:
     ohlcv = _ohlcv()
     spec = _spec(
@@ -1163,26 +1197,154 @@ def test_rejects_forbidden_executable_keys_recursively() -> None:
         compile_signal(spec, _default_variant(), _ohlcv())
 
 
-def test_rejects_unsupported_closed_operators() -> None:
-    ohlcv = _ohlcv()
-    spec = _spec(
-        entry_groups=[
-            _group(
-                "required",
-                "all",
-                [
-                    _condition(
-                        _operand("data_ref", "close", "close"),
-                        "crosses_above",
-                        _operand("constant", 12.0),
-                    )
-                ],
-            )
-        ],
+def test_crosses_above_data_ref_constant_prior_bar_semantics() -> None:
+    ohlcv = _ohlcv_from_close([8.0, 10.0, 11.0, 12.0, 10.0, 10.0, 11.0, 10.0])
+    spec = _single_condition_spec(
+        "crosses_above",
+        _operand("data_ref", "close", "close"),
+        _operand("constant", 10.0),
+        max_holding_bars=1,
     )
 
-    with pytest.raises(UnsupportedSpecSignalCompilerFeature, match="crosses_above"):
-        compile_signal(spec, _default_variant(), ohlcv)
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0]
+
+
+def test_crosses_below_data_ref_constant_prior_bar_semantics() -> None:
+    ohlcv = _ohlcv_from_close([12.0, 10.0, 9.0, 8.0, 10.0, 10.0, 9.0, 10.0])
+    spec = _single_condition_spec(
+        "crosses_below",
+        _operand("data_ref", "close", "close"),
+        _operand("constant", 10.0),
+        max_holding_bars=1,
+    )
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0]
+
+
+def test_crosses_current_equality_is_false() -> None:
+    ohlcv = _ohlcv_from_close([9.0, 10.0, 10.0, 11.0])
+    spec = _single_condition_spec(
+        "crosses_above",
+        _operand("data_ref", "close", "close"),
+        _operand("constant", 10.0),
+        max_holding_bars=1,
+    )
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [0.0, 0.0, 0.0, 1.0]
+
+
+def test_crosses_first_row_is_false() -> None:
+    ohlcv = _ohlcv_from_close([11.0, 12.0, 13.0])
+    spec = _single_condition_spec(
+        "crosses_above",
+        _operand("data_ref", "close", "close"),
+        _operand("constant", 10.0),
+    )
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [0.0, 0.0, 0.0]
+
+
+def test_crosses_null_prior_or_current_values_are_false() -> None:
+    index = pd.date_range("2026-02-01", periods=8, freq="h", tz="UTC")
+    ohlcv = pd.DataFrame(
+        {
+            "open": [0.0] * len(index),
+            "high": [10.0, 10.0, math.nan, 10.0, 10.0, math.nan, 10.0, math.nan],
+            "low": [0.0] * len(index),
+            "close": [math.nan, 11.0, 9.0, math.nan, 9.0, 11.0, 9.0, 11.0],
+            "volume": [1000.0] * len(index),
+        },
+        index=index,
+    )
+    spec = _single_condition_spec(
+        "crosses_above",
+        _operand("data_ref", "close", "close"),
+        _operand("data_ref", "high", "high"),
+        max_holding_bars=1,
+    )
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [0.0] * len(index)
+
+
+def test_crosses_above_supports_series_vs_series_operand() -> None:
+    ohlcv = _ohlcv_from_close([9.0, 10.0, 11.0, 9.0])
+    ohlcv["open"] = [10.0, 10.0, 10.0, 10.0]
+    spec = _single_condition_spec(
+        "crosses_above",
+        _operand("data_ref", "close", "close"),
+        _operand("data_ref", "open", "open"),
+        max_holding_bars=1,
+    )
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [0.0, 0.0, 1.0, 0.0]
+
+
+def test_crosses_operator_has_no_lookahead() -> None:
+    ohlcv = _ohlcv_from_close([9.0, 10.0, 11.0, 8.0, 9.0, 10.0, 11.0])
+    mutated = ohlcv.copy()
+    cutoff = ohlcv.index[3]
+    mutated.loc[mutated.index[4] :, "close"] = [100.0, 101.0, 102.0]
+    spec = _single_condition_spec(
+        "crosses_above",
+        _operand("data_ref", "close", "close"),
+        _operand("constant", 10.0),
+        max_holding_bars=1,
+    )
+
+    base_signal = compile_signal(spec, _default_variant(), ohlcv)
+    mutated_signal = compile_signal(spec, _default_variant(), mutated)
+
+    pd.testing.assert_series_equal(base_signal.loc[:cutoff], mutated_signal.loc[:cutoff])
+
+
+@pytest.mark.parametrize("operator", ["in_set", "is_true", "is_false"])
+def test_other_unsupported_operators_still_fail_closed(operator: str) -> None:
+    spec = _single_condition_spec(
+        operator,
+        _operand("data_ref", "close", "close"),
+        _operand("constant", 12.0),
+    )
+
+    with pytest.raises(UnsupportedSpecSignalCompilerFeature, match=operator):
+        compile_signal(spec, _default_variant(), _ohlcv())
+
+
+def test_unknown_operator_still_fails_closed() -> None:
+    spec = _single_condition_spec(
+        "crosses_sideways",
+        _operand("data_ref", "close", "close"),
+        _operand("constant", 12.0),
+    )
+
+    with pytest.raises(SpecSignalCompilerError, match="unknown operator"):
+        compile_signal(spec, _default_variant(), _ohlcv())
+
+
+def test_crosses_compiler_repeated_calls_are_deterministic() -> None:
+    ohlcv = _ohlcv_from_close([8.0, 10.0, 11.0, 9.0, 10.0, 11.0])
+    spec = _single_condition_spec(
+        "crosses_above",
+        _operand("data_ref", "close", "close"),
+        _operand("constant", 10.0),
+        max_holding_bars=1,
+    )
+
+    first = compile_signal(spec, _default_variant(), ohlcv)
+    second = compile_signal(spec, _default_variant(), ohlcv)
+
+    pd.testing.assert_series_equal(first, second)
 
 
 def test_true_blocking_condition_prevents_entry() -> None:

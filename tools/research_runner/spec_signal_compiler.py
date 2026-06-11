@@ -54,6 +54,7 @@ EXIT_GROUP_ROLES = {"exit", "invalidation", "risk_exit", "time_stop"}
 ENTRY_CONDITION_ROLES = {"required", "confirming", "filter"}
 BLOCKING_CONDITION_ROLES = {"blocking"}
 EXIT_CONDITION_ROLES = {"exit", "invalidation"}
+SIDE_LABELS = {"long", "short"}
 FORBIDDEN_PAYLOAD_KEYS = {
     "expression",
     "formula",
@@ -126,9 +127,6 @@ def compile_signal(
     direction = strategy_spec.get("entry_logic", {}).get("direction")
     if direction not in {"long", "short", "both"}:
         raise SpecSignalCompilerError(f"unsupported or missing entry direction: {direction!r}")
-    if direction == "both":
-        raise UnsupportedSpecSignalCompilerFeature("entry direction 'both' is not supported in WP-S2c-199")
-    position_value = 1.0 if direction == "long" else -1.0
 
     context = _CompileContext(
         strategy_spec=strategy_spec,
@@ -138,9 +136,21 @@ def compile_signal(
     )
     entry_groups = _collect_groups(strategy_spec.get("entry_logic"))
     filter_groups = _collect_groups(strategy_spec.get("filters"))
-    all_entry_groups = [*entry_groups, *filter_groups]
     exit_groups = _collect_groups(strategy_spec.get("exit_logic"))
     max_holding_bars = _max_holding_bars(strategy_spec)
+
+    if direction == "both":
+        return _compile_both_direction_signal(
+            ohlcv=ohlcv,
+            context=context,
+            entry_groups=entry_groups,
+            filter_groups=filter_groups,
+            exit_groups=exit_groups,
+            max_holding_bars=max_holding_bars,
+        )
+
+    position_value = 1.0 if direction == "long" else -1.0
+    all_entry_groups = [*entry_groups, *filter_groups]
 
     signal = pd.Series(0.0, index=ohlcv.index, name="signal")
     current_position = 0.0
@@ -164,6 +174,88 @@ def compile_signal(
         signal.loc[timestamp] = current_position
         if current_position:
             held_bars += 1
+    return signal
+
+
+def _compile_both_direction_signal(
+    *,
+    ohlcv: pd.DataFrame,
+    context: _CompileContext,
+    entry_groups: list[Mapping[str, Any]],
+    filter_groups: list[Mapping[str, Any]],
+    exit_groups: list[Mapping[str, Any]],
+    max_holding_bars: int | None,
+) -> pd.Series:
+    _guard_no_side_labels(filter_groups, "filters.groups")
+    entry_groups_by_side = _split_root_side_groups(
+        entry_groups,
+        "entry_logic.groups",
+        require_both_sides=True,
+    )
+    exit_groups_by_side = _split_root_side_groups(
+        exit_groups,
+        "exit_logic.groups",
+        require_both_sides=False,
+    )
+
+    signal = pd.Series(0.0, index=ohlcv.index, name="signal")
+    current_side: str | None = None
+    held_bars = 0
+    for timestamp in ohlcv.index:
+        if current_side == "long":
+            should_exit = _any_group_true(
+                exit_groups_by_side["long"],
+                EXIT_GROUP_ROLES,
+                context,
+                timestamp,
+            )
+            if max_holding_bars is not None and held_bars >= max_holding_bars:
+                should_exit = True
+            if should_exit:
+                current_side = None
+                held_bars = 0
+                signal.loc[timestamp] = 0.0
+                continue
+        elif current_side == "short":
+            should_exit = _any_group_true(
+                exit_groups_by_side["short"],
+                EXIT_GROUP_ROLES,
+                context,
+                timestamp,
+            )
+            if max_holding_bars is not None and held_bars >= max_holding_bars:
+                should_exit = True
+            if should_exit:
+                current_side = None
+                held_bars = 0
+                signal.loc[timestamp] = 0.0
+                continue
+        else:
+            long_entry = _entry_allowed(
+                [*entry_groups_by_side["long"], *filter_groups],
+                context,
+                timestamp,
+            )
+            short_entry = _entry_allowed(
+                [*entry_groups_by_side["short"], *filter_groups],
+                context,
+                timestamp,
+            )
+            if long_entry and not short_entry:
+                current_side = "long"
+                held_bars = 0
+            elif short_entry and not long_entry:
+                current_side = "short"
+                held_bars = 0
+
+        if current_side == "long":
+            signal.loc[timestamp] = 1.0
+            held_bars += 1
+        elif current_side == "short":
+            signal.loc[timestamp] = -1.0
+            held_bars += 1
+        else:
+            signal.loc[timestamp] = 0.0
     return signal
 
 
@@ -263,6 +355,65 @@ def _require_mapping(value: Any, label: str) -> Mapping[str, Any]:
     if not isinstance(value, Mapping):
         raise SpecSignalCompilerError(f"{label} must be an object")
     return value
+
+
+def _walk_group_mappings(group: Mapping[str, Any]) -> list[Mapping[str, Any]]:
+    groups = [group]
+    subgroups = group.get("subgroups", [])
+    if not isinstance(subgroups, list):
+        raise SpecSignalCompilerError("condition group conditions/subgroups must be arrays")
+    for subgroup in subgroups:
+        groups.extend(_walk_group_mappings(_require_mapping(subgroup, "condition subgroup")))
+    return groups
+
+
+def _guard_no_side_labels(groups: list[Mapping[str, Any]], label: str) -> None:
+    for index, group in enumerate(groups):
+        for nested_group in _walk_group_mappings(group):
+            if "side" in nested_group:
+                raise SpecSignalCompilerError(f"{label}.{index}.side is not allowed")
+
+
+def _validate_nested_side_labels(
+    root_group: Mapping[str, Any],
+    root_side: str,
+    label: str,
+) -> None:
+    for nested_group in _walk_group_mappings(root_group)[1:]:
+        if "side" not in nested_group:
+            continue
+        nested_side = nested_group.get("side")
+        if nested_side not in SIDE_LABELS:
+            raise SpecSignalCompilerError(f"{label} nested side label is invalid: {nested_side!r}")
+        if nested_side != root_side:
+            raise SpecSignalCompilerError(
+                f"{label} nested side {nested_side!r} contradicts root side {root_side!r}"
+            )
+
+
+def _split_root_side_groups(
+    groups: list[Mapping[str, Any]],
+    label: str,
+    *,
+    require_both_sides: bool,
+) -> dict[str, list[Mapping[str, Any]]]:
+    groups_by_side: dict[str, list[Mapping[str, Any]]] = {"long": [], "short": []}
+    for index, group in enumerate(groups):
+        side = group.get("side")
+        group_label = f"{label}.{index}"
+        if side not in SIDE_LABELS:
+            raise SpecSignalCompilerError(
+                f"{group_label}.side must be one of {sorted(SIDE_LABELS)} for direction 'both'"
+            )
+        _validate_nested_side_labels(group, str(side), group_label)
+        groups_by_side[str(side)].append(group)
+    if require_both_sides:
+        for side in sorted(SIDE_LABELS):
+            if not groups_by_side[side]:
+                raise SpecSignalCompilerError(
+                    f"entry_logic.direction 'both' requires at least one {side!r} root entry group"
+                )
+    return groups_by_side
 
 
 def _max_holding_bars(strategy_spec: Mapping[str, Any]) -> int | None:

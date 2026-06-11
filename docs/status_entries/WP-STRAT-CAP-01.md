@@ -2,7 +2,7 @@
 
 - Package class: T1 docs/design/roadmap
 - Branch: `docs/strat-cap-01-capability-delta-map`
-- PR: not opened at initial draft; final PR URL will replace this line before ready-for-review
+- PR: https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/427
 - Scope summary: Created a design-only strategy-lab capability delta map and
   Main 4 runway closeout inventory. The map reconciles Main 4 post-F5
   authorization against current repo truth, classifies F5D, inventories current
@@ -34,14 +34,25 @@
   TRADE/L2-DATA, SIMULATOR, and PROTECTED-PAPER/LIVE remain design-only,
   not-started, Main-decision-required, Karl-gated, or forbidden as classified in
   the map.
-- Validation summary: Not yet final at initial draft; final command results
-  will replace this line before ready-for-review.
+- Validation summary:
+  - `git status --short`: expected three staged files before commit.
+  - `git diff --check`: pass.
+  - `git diff --cached --check`: pass.
+  - `git diff --cached --name-only`: expected three files before commit.
+  - `python -m tools.registry.validate_result_populations`: pass.
+  - `python -m tools.research_query.run --list-views`: pass.
+  - all discovered `v_integrity_*` views: pass, 55 clean / zero rows.
+  - `python tools/dev/diff_scope_summary.py`: pass; expected three staged
+    files and no forbidden-path matches.
+  - full pytest: not run; not required for this T1 docs/design package and not
+    used as merge evidence.
 - Boundary summary: Docs/design only. No Strategy Spec, candidate, variant
   manifest, sweep plan, result population, data artifact, schema, validator,
   tool, code, test, dashboard implementation, generated output, runtime,
   paper/live, OMS, risk, broker/exchange, order path, protected path, ranking,
   recommendation, readiness, promotion, or execution authority is changed.
-- Merge status: Not yet final at initial draft.
+- Merge status: PR #427 is open and non-draft for Side/Main review after final
+  rebase and GitHub mergeability confirmation.
 - Main 5 activation note: Main 5 should treat this map as a decision surface:
   F5 is closed through F5C, F5D is conditional-not-needed, current repo truth is
   materially beyond the older F5-only onboarding, and the next choice is which
@@ -62,6 +73,6 @@
 | Karl-gated surfaces preserved | STRAT-CAP doc track table and non-authority sections | satisfied |
 | Strategy research remains planning input only | STRAT-CAP doc section `Strategy-Research Input Status` | satisfied |
 | Main 5 activation note included | STRAT-CAP doc section `Main 5 Activation Note`; this status fragment | satisfied |
-| Required validation run | Validation summary in this status fragment | not final at initial draft |
-| PR body/status finality clean | Final PR readiness gate | not final at initial draft |
-| No forbidden paths touched | Diff scope validation | not final at initial draft |
+| Required validation run | Validation summary in this status fragment | satisfied |
+| PR body/status finality clean | Final PR readiness gate | satisfied |
+| No forbidden paths touched | Diff scope validation | satisfied |

@@ -548,6 +548,10 @@
         "other"
       ]
     },
+    "side_label": {
+      "type": "string",
+      "enum": ["long", "short"]
+    },
     "condition_group_depth_1": {
       "type": "object",
       "additionalProperties": false,
@@ -558,6 +562,9 @@
         },
         "group_role": {
           "$ref": "#/definitions/group_role"
+        },
+        "side": {
+          "$ref": "#/definitions/side_label"
         },
         "logic": {
           "type": "string",
@@ -588,6 +595,9 @@
         },
         "group_role": {
           "$ref": "#/definitions/group_role"
+        },
+        "side": {
+          "$ref": "#/definitions/side_label"
         },
         "logic": {
           "type": "string",
@@ -620,6 +630,9 @@
         },
         "group_role": {
           "$ref": "#/definitions/group_role"
+        },
+        "side": {
+          "$ref": "#/definitions/side_label"
         },
         "logic": {
           "type": "string",

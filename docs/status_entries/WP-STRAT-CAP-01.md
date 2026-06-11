@@ -51,8 +51,8 @@
   tool, code, test, dashboard implementation, generated output, runtime,
   paper/live, OMS, risk, broker/exchange, order path, protected path, ranking,
   recommendation, readiness, promotion, or execution authority is changed.
-- Merge status: PR #427 is open and non-draft for Side/Main review after final
-  rebase and GitHub mergeability confirmation.
+- Merge status: PR #427 is open, non-draft, and GitHub reported
+  `mergeable=MERGEABLE` at final readiness check.
 - Main 5 activation note: Main 5 should treat this map as a decision surface:
   F5 is closed through F5C, F5D is conditional-not-needed, current repo truth is
   materially beyond the older F5-only onboarding, and the next choice is which

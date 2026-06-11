@@ -11,6 +11,8 @@
 
 When producing a WP, follow the shared drafting standard, not the local wrapper prompt.
 
+Before drafting any WP, refresh current WP drafting guidance from `docs/ai/codex/WP_DRAFTING_STANDARD.md` and, when compact delivery is relevant, `docs/ai/codex/COMPACT_WP_TEMPLATE.md`. Do not rely only on memory, prior chat summaries, stale local prompts, or older WPs.
+
 ---
 
 ## Required Sections (In Order)
@@ -124,6 +126,9 @@ Rebase commands and confirmation that GitHub reports `mergeable=true` before cal
 Before reporting ready-for-review, confirm:
 
 - PR title begins with the package label followed by `:`.
+- Active-WP Requirement Traceability checklist is present in final report/status/PR body or clearly referenced, with active-WP requirement, source section, evidence location, and status.
+- Required active-WP validation ran unless the active WP explicitly classifies it as optional or not merge evidence.
+- Final console report, PR body, status fragment, and project-status pointer agree on validation, draft state, mergeability, blockers, skipped checks, and changed-file scope.
 - PR body has no GitHub template placeholders, unchecked template checkboxes, or stale `TBD` / `pending` / `to be added` / `background run` text.
 - Status fragment contains the actual PR URL.
 - Status fragment validation summary is final.
@@ -144,6 +149,8 @@ PR body sections: A. Scope, B. Changed files, C. Validation, D. Boundary check, 
 Report-back format: see docs/ai/codex/WP_EXECUTION_REPORT.md
 ```
 
+When drafting correction or follow-up packages, require the report-back or review to include: paste-ready follow-up prompt, self-diagnosis, whether the issue was preventable, what should have caught it, immediate process change, and whether a durable repo/process/WP-guidance package is needed.
+
 ### 18. Manual Steps
 
 State `None` or list exact user steps, timing, optional/required status, and repo dependency effect.
@@ -159,6 +166,8 @@ State `None` or list exact user steps, timing, optional/required status, and rep
 5. Stop conditions must be unambiguous.
 6. Compatibility/impossibility check must be present for T2+ packages.
 7. Final PR readiness gate and contradiction scan must be included for follow-up packages.
+8. Active-WP Requirement Traceability must be included before ready-for-review.
+9. WP drafting must start from refreshed shared guidance, not memory or older packages.
 
 ---
 

@@ -27,6 +27,7 @@ Confirm the report-back contains:
   - [ ] GitHub `isDraft` (actual value from `gh pr view`).
   - [ ] GitHub `mergeable` (actual value from `gh pr view`).
 - [ ] Final PR readiness gate result (see Step 5).
+- [ ] Active-WP Requirement Traceability checklist: active-WP requirement, source section, evidence location, and satisfied / not applicable / blocked status.
 - [ ] Ready-for-review decision: YES or NO.
 
 If any required item is missing → **REQUEST CHANGES**: ask the coding agent to complete the report-back before proceeding.
@@ -47,6 +48,7 @@ Failure modes to watch for:
 - Gate shows non-zero exit code or failure → investigate before accepting.
 - Gate output truncated ("..." or "see logs") → **REQUEST CHANGES**: require explicit output.
 - Skipped validation not classified as `Not run; not used as merge evidence.` → **REQUEST CHANGES**.
+- Validation required by the active WP skipped or downgraded to non-evidence without explicit active-WP permission → **REQUEST CHANGES**.
 
 ---
 
@@ -91,6 +93,11 @@ Any hit on protected paths → **ESCALATE**.
 For follow-up or blocker-resolution packages, also check:
 
 - [ ] Contradiction scan was completed: stale blocked/draft/pending/not-ready/prior-option language removed from PR body, status fragment, and changed docs.
+
+For every PR that is reported ready, check:
+
+- [ ] Active-WP Requirement Traceability rows are all satisfied or explicitly not applicable.
+- [ ] Final console report, PR body, status fragment, and project-status pointer agree on validation, draft state, mergeability, blockers, skipped checks, and changed-file scope.
 
 For non-authority packages:
 
@@ -142,6 +149,8 @@ If the PR is not merge-ready, this review must provide:
    - What should have caught it earlier.
    - Immediate process change.
    - Durable guidance change needed: YES / NO.
+
+If the failure was preventable or likely to recur, Side/Main should draft or request a narrow improvement WP after the immediate blocker is resolved. Do not use the immediate fix to broaden the active package.
 
 Claude Code cannot approve or merge its own PRs. The APPROVE decision here authorizes Side/Main to merge, not the coding agent itself.
 

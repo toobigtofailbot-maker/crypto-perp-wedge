@@ -587,6 +587,13 @@ Every future WP must include:
 
 These requirements do not reduce or replace the universal WP requirements in Section 2, the validation requirements in Sections 9–10, the isolated-worktree rule in Section 4, or any other standard in this document.
 
+Before drafting a WP, the drafter must refresh current WP drafting guidance from:
+
+- `docs/ai/codex/WP_DRAFTING_STANDARD.md`;
+- `docs/ai/codex/COMPACT_WP_TEMPLATE.md`, when relevant.
+
+Do not rely only on memory, prior chat summaries, stale local prompts, or older WPs when drafting execution packages.
+
 ## 15. Requirement Compatibility / Impossibility Check
 
 Before an execution WP sends a coding agent to implement a non-trivial behavior, the drafter must verify that the behavior is compatible with current repo mechanisms and the allowed changed-file scope.
@@ -643,6 +650,9 @@ Every coding agent must complete this gate before reporting a PR ready for revie
 The gate requires the agent to inspect the actual GitHub PR title, PR body, and the committed status fragment and confirm:
 
 - PR title begins with the package label followed by `:`;
+- final report/status/PR body includes or references a compact Active-WP Requirement Traceability checklist with active-WP requirement, source section in active WP, evidence location, and status of satisfied / not applicable / blocked;
+- validation required by the active WP ran unless the active WP explicitly says that validation is optional or not used as merge evidence;
+- final console report, PR body, status fragment, and project-status pointer agree on validation, draft state, mergeability, blockers, skipped checks, and changed-file scope;
 - PR body uses the required compact or expanded report shape;
 - PR body contains no GitHub template placeholders;
 - PR body contains no unchecked template checkboxes;
@@ -657,6 +667,19 @@ The gate requires the agent to inspect the actual GitHub PR title, PR body, and 
 For packages whose changed text includes non-authority, anti-ranking, no-readiness, no-promotion, no-execution, or dashboard-as-non-authority constraints, a semantic text audit is also required before ready-for-review. See `docs/ai/codex/COMPACT_WP_TEMPLATE.md` for the sample audit block.
 
 This gate applies to every WP that opens a PR, including T1 docs-only packages. Active WPs that include a `Final PR Readiness Gate` section must apply the gate to their own PR before reporting ready-for-review.
+
+If a required item is missing, the agent must report not-ready and include a paste-ready follow-up prompt.
+
+When Side/Main review determines a follow-up is needed, the review/report-back must include:
+
+- paste-ready follow-up prompt;
+- self-diagnosis;
+- whether the issue was preventable;
+- what should have caught it;
+- immediate process change;
+- whether a durable repo/process/WP-guidance package is needed.
+
+If the failure was preventable or likely to recur, Side/Main should draft or request a narrow improvement WP after the immediate blocker is resolved.
 
 ## 18. Future WP Reference Rule
 

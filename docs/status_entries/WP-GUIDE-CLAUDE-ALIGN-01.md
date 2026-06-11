@@ -3,7 +3,7 @@
 - **Package class:** T1 docs/process/guidance
 - **Branch:** claude/practical-neumann-ca75f4
 - **PR:** [#426](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/426)
-- **Scope summary:** Aligns Claude-specific local prompts and skills with the current shared coding-agent guidance after F5A/F5B/F5C exposed repeated finality and stale-template drift. Edits stale local files in place; does not delete any file. Adds requirement-compatibility/impossibility gate and follow-up blocker-resolution contradiction scan to shared guidance.
+- **Scope summary:** Aligns Claude-specific local prompts and skills with the current shared coding-agent guidance after F5A/F5B/F5C exposed repeated finality and stale-template drift. Edits stale local files in place; does not delete any file. Adds requirement-compatibility/impossibility, follow-up contradiction scan, follow-up root-cause improvement, WP drafting refresh, and Active-WP Requirement Traceability gates to shared guidance.
 
 ---
 
@@ -59,26 +59,122 @@ Created:
 
 - **`.claude/skills/review-report-back.md`:** Removed stale Gate 8 / DSR / WP-1b / "existing prompt templates not modified" / "existing tests not modified" checks. Added actual PR metadata requirements (isDraft, mergeable, PR URL, branch/base). Added final PR readiness gate step (Step 5) covering placeholder scan, status-fragment URL, isDraft, mergeable, contradiction scan for follow-up packages, and semantic audit for non-authority packages. Added decision rule: when not merge-ready, provide paste-ready follow-up prompt and self-diagnosis. Clarified that Claude Code cannot approve/merge its own PRs.
 
-- **`docs/ai/codex/WP_DRAFTING_STANDARD.md`:** Added §15 (Requirement Compatibility / Impossibility Check) — mandatory for dashboard/schema/validator/collector/renderer packages, recommended for all T3. Added §16 (Follow-Up / Blocker Resolution Contradiction Scan) — mandatory for follow-up WPs. Renumbered old §15 (Final PR Readiness Gate) to §17 and old §16 (Future WP Reference Rule) to §18.
+- **`docs/ai/codex/WP_DRAFTING_STANDARD.md`:** Added §15 (Requirement Compatibility / Impossibility Check) — mandatory for dashboard/schema/validator/collector/renderer packages, recommended for all T3. Added §16 (Follow-Up / Blocker Resolution Contradiction Scan) — mandatory for follow-up WPs. Added WP drafting refresh, Active-WP Requirement Traceability, and follow-up root-cause improvement requirements to the final readiness/reporting guidance. Renumbered old §15 (Final PR Readiness Gate) to §17 and old §16 (Future WP Reference Rule) to §18.
 
-- **`docs/ai/codex/WP_EXECUTION_REPORT.md`:** Added "Draft-State Consistency Rule" section requiring actual GitHub `isDraft` in final readiness evidence and consistency across GitHub state, PR body, and status fragment. Added "Follow-Up / Blocker Resolution Contradiction Scan" section requiring the contradiction scan in report-backs for follow-up packages. Added "If Not Merge-Ready" section requiring paste-ready follow-up prompt.
+- **`docs/ai/codex/WP_EXECUTION_REPORT.md`:** Added "Draft-State Consistency Rule" section requiring actual GitHub `isDraft` in final readiness evidence and consistency across GitHub state, PR body, and status fragment. Added "Active-WP Requirement Traceability Gate" and "Follow-Up / Blocker Resolution Contradiction Scan" sections. Expanded "If Not Merge-Ready" to require paste-ready follow-up prompt, self-diagnosis, preventability, what should have caught it, immediate process change, and durable-guidance assessment.
 
-- **`docs/ai/codex/COMPACT_WP_TEMPLATE.md`:** Added "Requirement Compatibility / Impossibility Check" section with required matrix format. Added "Follow-Up / Blocker Resolution Contradiction Scan" section for compact WPs.
+- **`docs/ai/codex/COMPACT_WP_TEMPLATE.md`:** Added "Requirement Compatibility / Impossibility Check" section with required matrix format. Added WP drafting refresh, follow-up root-cause improvement, "Follow-Up / Blocker Resolution Contradiction Scan", and "Active-WP Requirement Traceability Gate" sections for compact WPs.
 
 ---
 
 ## Validation Summary
 
 ```text
-git status --short: clean (no unexpected files)
+git status --short: modified allowed files only during corrective edit pass:
+  M .claude/README.md
+  M .claude/skills/review-report-back.md
+  M .claude/skills/write-execution-brief.md
+  M docs/ai/codex/COMPACT_WP_TEMPLATE.md
+  M docs/ai/codex/WP_DRAFTING_STANDARD.md
+  M docs/ai/codex/WP_EXECUTION_REPORT.md
+  M docs/project_status.md
+  M docs/status_entries/WP-GUIDE-CLAUDE-ALIGN-01.md
+  M prompts/execution_brief.md
+  M prompts/pr_review.md
+  M prompts/report_back.md
 git diff --check: clean
 git diff --name-only origin/main...HEAD: 11 files within allowed scope
 Stale-term audit: see Stale-Template Audit section below
-python -m tools.registry.validate_result_populations: Not run; not used as merge evidence (T1 docs package).
-python -m tools.research_query.run --list-views: Not run; not used as merge evidence (T1 docs package).
-python tools/dev/diff_scope_summary.py: Not run; not used as merge evidence (T1 docs package).
+python -m tools.registry.validate_result_populations: PASS
+  OK: result-population artifacts under C:\GitHub\crypto-perp-wedge-pr426-codex\research\result_populations validate
+python -m tools.research_query.run --list-views: PASS; discovered 118 named views, including 55 v_integrity_* views.
+v_integrity_* views actually run: all 55 discovered integrity views; PASS, each returned [] with --json.
+python tools/dev/diff_scope_summary.py: PASS; tracked changed files within allowed package scope, staged files none, untracked files none, exit reason ok.
 Full pytest: Not run; not required for T1 docs/process/guidance package.
 ```
+
+Integrity views run:
+
+```text
+v_integrity_agent_output_refs
+v_integrity_bucket_mapping_refs
+v_integrity_candidate_refs
+v_integrity_decision_refs
+v_integrity_lifecycle_approval_completeness
+v_integrity_lifecycle_change_refs
+v_integrity_lifecycle_fast_track_completeness
+v_integrity_lifecycle_transition_graph
+v_integrity_macro_window_agent_output_refs
+v_integrity_outcome_ledger_derivation
+v_integrity_outcome_ledger_refs
+v_integrity_outcome_ledger_scope
+v_integrity_outcome_ledger_window_bounds
+v_integrity_overlay_shadow_refs
+v_integrity_plan_report_pairs
+v_integrity_pre_gate_advisory_snapshot_refs
+v_integrity_r2s_approval_candidate_refs
+v_integrity_r2s_rec5_candidate_consistency
+v_integrity_reconciliation_derivation
+v_integrity_reconciliation_expectation_source
+v_integrity_reconciliation_realized_metrics
+v_integrity_reconciliation_refs
+v_integrity_reconciliation_scope
+v_integrity_release_refs
+v_integrity_result_population_append_only_violation
+v_integrity_result_population_audit_in_identity_scope
+v_integrity_result_population_authority_key_violation
+v_integrity_result_population_canonical_evidence_violation
+v_integrity_result_population_canonical_write_violation
+v_integrity_result_population_denominator_mismatch
+v_integrity_result_population_missing_variant_rows
+v_integrity_result_population_non_authority_violation
+v_integrity_result_population_offline_boundary_violation
+v_integrity_result_population_outcome_count_mismatch
+v_integrity_result_population_parent_hash_chain_mismatch
+v_integrity_result_population_unknown_outcome_category
+v_integrity_s2p_approval_candidate_refs
+v_integrity_s2p_shadow_evidence_candidate_consistency
+v_integrity_s2p_shadow_evidence_refs
+v_integrity_scope6_authority_flags
+v_integrity_scope6_preservation_flags
+v_integrity_shadow_evidence_candidate_refs
+v_integrity_shadow_signal_summary_derivation
+v_integrity_shadow_signal_summary_v2_derivation
+v_integrity_strategy_spec_bounds
+v_integrity_strategy_spec_hash_readiness
+v_integrity_strategy_spec_non_authority
+v_integrity_sweep_plan_denominator
+v_integrity_sweep_plan_no_computation
+v_integrity_sweep_plan_non_authority
+v_integrity_sweep_plan_parent_manifest
+v_integrity_variant_manifest_denominator
+v_integrity_variant_manifest_hash_readiness
+v_integrity_variant_manifest_non_authority
+v_integrity_variant_manifest_supersession
+```
+
+## Active-WP Requirement Traceability
+
+| Requirement | Evidence | Status |
+|---|---|---|
+| Existing PR #426 updated, no new PR | PR [#426](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/426); branch `claude/practical-neumann-ca75f4` | satisfied |
+| Existing PR head branch updated | final push target `origin HEAD:claude/practical-neumann-ca75f4` | satisfied |
+| Changed files remain in allowed docs/process scope | `git diff --name-only origin/main...HEAD` lists the 11 allowed files only | satisfied |
+| No files deleted | `git diff --name-status origin/main...HEAD` has 10 modified files and 1 added status fragment | satisfied |
+| Claude local wrappers cannot override shared guidance | `.claude/README.md`, `.claude/skills/*`, `prompts/*` wrapper wording | satisfied |
+| `prompts/report_back.md` replaced/aligned | `prompts/report_back.md` | satisfied |
+| `prompts/execution_brief.md` replaced/aligned | `prompts/execution_brief.md` | satisfied |
+| `prompts/pr_review.md` replaced/aligned | `prompts/pr_review.md` | satisfied |
+| Claude skills no longer call stale prompts canonical | `.claude/skills/write-execution-brief.md`, `.claude/skills/review-report-back.md` | satisfied |
+| Compatibility/impossibility gate added | `docs/ai/codex/WP_DRAFTING_STANDARD.md`, `docs/ai/codex/COMPACT_WP_TEMPLATE.md`, `.claude/skills/write-execution-brief.md`, `prompts/execution_brief.md` | satisfied |
+| Follow-up contradiction scan added | `docs/ai/codex/WP_DRAFTING_STANDARD.md`, `docs/ai/codex/WP_EXECUTION_REPORT.md`, `docs/ai/codex/COMPACT_WP_TEMPLATE.md`, wrappers | satisfied |
+| Follow-up root-cause improvement rule added | `docs/ai/codex/WP_DRAFTING_STANDARD.md`, `docs/ai/codex/WP_EXECUTION_REPORT.md`, `docs/ai/codex/COMPACT_WP_TEMPLATE.md`, `prompts/report_back.md`, `prompts/pr_review.md`, `.claude/README.md`, `.claude/skills/*` | satisfied |
+| WP drafting refresh rule added | `docs/ai/codex/WP_DRAFTING_STANDARD.md`, `docs/ai/codex/COMPACT_WP_TEMPLATE.md`, `prompts/execution_brief.md`, `.claude/skills/write-execution-brief.md` | satisfied |
+| Active-WP requirement traceability gate added | `docs/ai/codex/WP_DRAFTING_STANDARD.md`, `docs/ai/codex/WP_EXECUTION_REPORT.md`, `docs/ai/codex/COMPACT_WP_TEMPLATE.md`, `prompts/report_back.md`, `prompts/pr_review.md`, `.claude/README.md`, `.claude/skills/*` | satisfied |
+| Required validators run | validation summary above | satisfied |
+| PR body finality fixed | PR body updated through `gh pr edit 426 --body-file ...` | satisfied |
+| Status fragment finality fixed | this file contains final PR URL and validation evidence | satisfied |
+| GitHub `isDraft=false`, `mergeable=MERGEABLE` | final `gh pr view` readiness check | satisfied |
 
 ---
 
@@ -99,6 +195,8 @@ Results:
 
 No stale terms remain in an instructional position. All removals verified in replaced file contents.
 
+Finality scan result: clean for active package finality placeholders and stale validation downgrades. Required active-WP validation above was run.
+
 ---
 
 ## Boundary Summary
@@ -117,7 +215,7 @@ No stale terms remain in an instructional position. All removals verified in rep
 
 ## Merge Status
 
-PR: [#426](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/426) — open, non-draft, `mergeable: MERGEABLE`. Ready for review.
+PR: [#426](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/426) — open, non-draft, `mergeable: MERGEABLE`. Ready for Side/Main merge-readiness review.
 
 ---
 

@@ -73,11 +73,14 @@ Claude final-readiness discipline — before reporting any PR ready for review, 
 
 - Actual GitHub `isDraft` is `false` for normal (non-blocked) PRs.
 - GitHub `mergeable` is clean/true.
+- Active-WP Requirement Traceability is complete: each material active-WP requirement has a source section, evidence location, and status of satisfied / not applicable / blocked.
 - PR body contains no GitHub template placeholders, unchecked template checkboxes, or stale `TBD` / `pending` / `to be added` / `background run` text.
 - Status fragment contains the actual PR URL (not a placeholder).
 - Status fragment validation summary is final.
 - Contradiction scan completed when a follow-up resolves a prior blocker: search PR body, status fragment, and changed docs for stale blocked/draft/pending/not-ready/prior-option language.
 - Semantic text audit completed for non-authority packages (see `docs/ai/codex/COMPACT_WP_TEMPLATE.md`).
+
+When Side/Main review determines a follow-up is needed, the review/report-back must include a paste-ready follow-up prompt, self-diagnosis, whether the issue was preventable, what should have caught it, the immediate process change, and whether a durable repo/process/WP-guidance package is needed. If the failure was preventable or likely to recur, Side/Main should draft or request a narrow improvement WP after the immediate blocker is resolved.
 
 Draft-state consistency discipline:
 

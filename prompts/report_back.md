@@ -65,6 +65,9 @@ Include these fields in section E (compact) or G (expanded) before reporting rea
 - Actual PR title (must begin with the package label followed by `:`).
 - GitHub `isDraft`: must be `false` for normal non-blocked PRs.
 - GitHub `mergeable`: must be clean/true.
+- Active-WP Requirement Traceability: include or reference a compact checklist with active-WP requirement, source section, evidence location, and status of satisfied / not applicable / blocked.
+- Active-WP required validation: required commands ran unless the active WP explicitly classifies them as optional or not merge evidence.
+- Consistency check: final console report, PR body, status fragment, and project-status pointer agree on validation, draft state, mergeability, blockers, skipped checks, and changed-file scope.
 - PR body placeholder scan: no GitHub template placeholders, unchecked template checkboxes, or stale `TBD` / `pending` / `to be added` / `background run` text.
 - Status-fragment PR URL: must be the actual PR URL, not a placeholder.
 - Status-fragment validation finality: validation summary is final; skipped validation marked `Not run; not used as merge evidence.`
@@ -78,7 +81,8 @@ Include these fields in section E (compact) or G (expanded) before reporting rea
 If the PR is not merge-ready, the report-back must include:
 
 - exact reason the PR is not ready;
-- a paste-ready follow-up prompt that resolves the blocker.
+- a paste-ready follow-up prompt that resolves the blocker;
+- self-diagnosis, whether the issue was preventable, what should have caught it, immediate process change, and whether a durable repo/process/WP-guidance package is needed.
 
 ---
 

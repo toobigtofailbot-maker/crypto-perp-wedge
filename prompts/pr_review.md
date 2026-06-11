@@ -60,6 +60,8 @@ Paste validation evidence or summary:
 - [ ] No architecture redesign outside WP scope.
 - [ ] No stale blocked/draft/pending claims in PR body or status fragment.
 - [ ] No placeholders, unchecked template checkboxes, or `TBD` / `pending` / `to be added` / `background run` text remaining in PR body or status fragment.
+- [ ] Active-WP Requirement Traceability checklist exists or is clearly referenced, with active-WP requirement, source section, evidence location, and satisfied / not applicable / blocked status.
+- [ ] Required active-WP validation was not skipped or downgraded unless the active WP explicitly permits it.
 
 ---
 
@@ -87,6 +89,7 @@ For non-authority packages, verify semantic text audit was completed (search for
 - [ ] Status fragment contains the actual PR URL (not `TBD` or `pending`).
 - [ ] Status fragment validation summary is final.
 - [ ] Contradiction scan completed (for follow-up or blocker-resolution packages): stale blocked/draft/not-ready/prior-option language removed from PR body, status fragment, and changed docs.
+- [ ] Final console report, PR body, status fragment, and project-status pointer agree on validation, draft state, mergeability, blockers, skipped checks, and changed-file scope.
 - [ ] GitHub `isDraft: false` for normal non-blocked PRs (or draft state is consistent with blocked status everywhere).
 - [ ] GitHub `mergeable: true` / clean.
 
@@ -110,6 +113,16 @@ For non-authority packages, verify semantic text audit was completed (search for
 
 ```text
 <paste-ready prompt here>
+```
+
+### Self-diagnosis (if REQUEST CHANGES):
+
+```text
+Why it happened:
+Preventable: YES / NO
+What should have caught it:
+Immediate process change:
+Durable guidance change needed: YES / NO
 ```
 
 ---

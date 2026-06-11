@@ -8,6 +8,8 @@ This file is a compatibility wrapper only. It is not canonical by itself.
 - `docs/ai/codex/COMPACT_WP_TEMPLATE.md` — compact WP form for future Side/coding-agent packages.
 - Active Main/Karl authorization and current repo truth always override templates.
 
+Before drafting a WP, refresh `docs/ai/codex/WP_DRAFTING_STANDARD.md` and, when compact delivery is relevant, `docs/ai/codex/COMPACT_WP_TEMPLATE.md`. Do not rely only on memory, prior chat summaries, stale local prompts, or older WPs.
+
 ---
 
 ## Modern WP Skeleton (Quick Reference)
@@ -97,6 +99,9 @@ Search terms if paths changed:
 Before reporting ready-for-review, confirm:
 
 - PR title begins with the package label followed by `:`.
+- Active-WP Requirement Traceability checklist is present in final report/status/PR body or clearly referenced, with active-WP requirement, source section, evidence location, and status.
+- Required active-WP validation ran unless the active WP explicitly classifies it as optional or not merge evidence.
+- Final console report, PR body, status fragment, and project-status pointer agree on validation, draft state, mergeability, blockers, skipped checks, and changed-file scope.
 - PR body has no GitHub template placeholders, unchecked template checkboxes, or stale `TBD` / `pending` / `to be added` / `background run` text.
 - Status fragment contains the actual PR URL.
 - Status fragment validation summary is final.

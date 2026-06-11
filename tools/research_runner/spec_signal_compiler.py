@@ -24,6 +24,11 @@ APPROVED_BUILTINS = {
 }
 COMPOSED_OPERAND_TYPE = "composed_operand"
 COMPOSITION_TYPE_SCALE_BY_ONE_MINUS_PARAMETER = "scale_by_one_minus_parameter"
+COMPOSITION_TYPE_SCALE_BY_ONE_PLUS_PARAMETER = "scale_by_one_plus_parameter"
+COMPOSITION_TYPES = {
+    COMPOSITION_TYPE_SCALE_BY_ONE_MINUS_PARAMETER,
+    COMPOSITION_TYPE_SCALE_BY_ONE_PLUS_PARAMETER,
+}
 COMPOSED_BASE_OPERAND_TYPES = {"data_ref", "indicator_ref"}
 COMPOSED_PARAMETER_OPERAND_TYPE = "parameter_ref"
 LOOKBACK_PARAMETER_REF_KEY = "bars_parameter_ref"
@@ -438,7 +443,7 @@ def _resolve_composed_operand(operand: Mapping[str, Any], context: _CompileConte
         raise SpecSignalCompilerError("composed_operand has invalid properties")
 
     composition_type = operand.get("composition_type")
-    if composition_type != COMPOSITION_TYPE_SCALE_BY_ONE_MINUS_PARAMETER:
+    if composition_type not in COMPOSITION_TYPES:
         raise UnsupportedSpecSignalCompilerFeature(
             f"unsupported composition_type: {composition_type!r}"
         )
@@ -471,7 +476,11 @@ def _resolve_composed_operand(operand: Mapping[str, Any], context: _CompileConte
     parameter_float = float(parameter_value)
     if not math.isfinite(parameter_float) or not (0.0 < parameter_float < 1.0):
         raise SpecSignalCompilerError("composed_operand parameter value must be in (0, 1)")
-    return base_value * (1.0 - parameter_float)
+    if composition_type == COMPOSITION_TYPE_SCALE_BY_ONE_MINUS_PARAMETER:
+        return base_value * (1.0 - parameter_float)
+    if composition_type == COMPOSITION_TYPE_SCALE_BY_ONE_PLUS_PARAMETER:
+        return base_value * (1.0 + parameter_float)
+    raise SpecSignalCompilerError(f"unhandled composition_type: {composition_type!r}")
 
 
 def _resolve_data_ref(operand: Mapping[str, Any], ohlcv: pd.DataFrame) -> pd.Series:

@@ -364,6 +364,8 @@ decision records, schemas, validators, or locked baseline documents.
 - `2026-06-plus_parameter_composition_design.md` - closed
   plus-parameter composition design surface; docs-only and no implementation
   authority.
+- `2026-06-both_direction_semantics_design.md` - both-direction Strategy Spec
+  semantics design surface; docs-only and no implementation authority.
 - `2026-06-strategy_dsl_design_opening.md` - Strategy DSL design opening for
   lab strategy-spec representation; design surface.
 - `2026-06-strategy_dsl_substantive_design.md` - substantive Strategy DSL/spec

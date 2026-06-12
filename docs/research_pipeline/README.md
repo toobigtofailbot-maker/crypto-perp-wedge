@@ -368,6 +368,9 @@ decision records, schemas, validators, or locked baseline documents.
   semantics design surface; docs-only and no implementation authority.
 - `2026-06-both_direction_semantics_lock.md` - Main 5 locked
   both-direction semantics; docs-only and no implementation authority.
+- `2026-06-both_direction_sma_band_spec_design.md` - docs-only first
+  both-direction SMA-band Strategy Spec design; no Strategy Spec instance,
+  variant, sweep, result, or downstream authority.
 - `2026-06-strategy_dsl_design_opening.md` - Strategy DSL design opening for
   lab strategy-spec representation; design surface.
 - `2026-06-strategy_dsl_substantive_design.md` - substantive Strategy DSL/spec

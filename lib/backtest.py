@@ -26,6 +26,12 @@ import pandas as pd
 
 _IRREPARABLE_GAPS_PATH = Path(__file__).parent.parent / "data" / "irreparable_gaps.json"
 
+_SIZING_MODE_FIXED_ORDER_SIZE = "fixed_order_size"
+_SIZING_MODE_DYNAMIC_EQUITY_TARGET_LEVERAGE = "dynamic_equity_target_leverage"
+_SIZING_EQUITY_BASIS_DYNAMIC = "realized_available_equity_at_entry"
+_ENTRY_REFERENCE_PRICE_BASIS_DYNAMIC = "next_bar_open_pre_fee_slippage"
+_SIZING_BASIS_NOT_APPLICABLE = "not_applicable_fixed_order_size"
+
 _INTERVAL_TO_MINUTES: dict[str, int] = {
     "1m": 1,
     "3m": 3,
@@ -182,6 +188,60 @@ def _validate_fill_size_assumptions(
         raise ValueError(f"slippage_model must be 'fixed_bps', got {slippage_model!r}")
 
 
+def _validate_sizing_mode(sizing_mode: str) -> None:
+    """Validate additive sizing mode selection."""
+    if sizing_mode not in {
+        _SIZING_MODE_FIXED_ORDER_SIZE,
+        _SIZING_MODE_DYNAMIC_EQUITY_TARGET_LEVERAGE,
+    }:
+        raise ValueError(
+            "sizing_mode must be 'fixed_order_size' or "
+            f"'dynamic_equity_target_leverage', got {sizing_mode!r}"
+        )
+
+
+def _validate_target_leverage(target_leverage: float) -> float:
+    """Return a finite positive target leverage or raise a deterministic error."""
+    try:
+        leverage = float(target_leverage)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(
+            "target_leverage must be finite and positive for "
+            "dynamic_equity_target_leverage"
+        ) from exc
+
+    if not math.isfinite(leverage) or leverage <= 0:
+        raise ValueError(
+            "target_leverage must be finite and positive for "
+            "dynamic_equity_target_leverage"
+        )
+    return leverage
+
+
+def _dynamic_order_size(
+    *,
+    target_leverage: float,
+    sizing_equity: float,
+    entry_reference_price: float,
+) -> Optional[float]:
+    """Resolve opt-in dynamic quantity, returning None for fail-closed entries."""
+    try:
+        sizing_equity_value = float(sizing_equity)
+        entry_reference_price_value = float(entry_reference_price)
+    except (TypeError, ValueError):
+        return None
+
+    if not math.isfinite(sizing_equity_value) or sizing_equity_value <= 0:
+        return None
+    if not math.isfinite(entry_reference_price_value) or entry_reference_price_value <= 0:
+        return None
+
+    quantity = target_leverage * sizing_equity_value / entry_reference_price_value
+    if not math.isfinite(quantity) or quantity <= 0:
+        return None
+    return quantity
+
+
 def _check_liquidity_capacity(
     *,
     order_size: float,
@@ -265,6 +325,8 @@ def run_backtest(
     min_notional: Optional[float] = None,
     funding_notional_mode: str = "entry_price",
     order_size: float = 1.0,
+    sizing_mode: str = _SIZING_MODE_FIXED_ORDER_SIZE,
+    target_leverage: float = 1.0,
     fill_mode: str = "complete",
     liquidity_cap_fraction: Optional[float] = None,
     slippage_model: str = "fixed_bps",
@@ -311,6 +373,14 @@ def run_backtest(
         applied. No external mark/index data is consumed.
     order_size:
         Deterministic fixed contract size. ``1.0`` preserves existing behavior.
+    sizing_mode:
+        ``"fixed_order_size"`` preserves existing behavior and uses
+        ``order_size`` for every fill. ``"dynamic_equity_target_leverage"`` is
+        opt-in and computes each new entry quantity from current realized
+        equity and the next-bar-open reference price.
+    target_leverage:
+        Finite positive leverage target used only by
+        ``"dynamic_equity_target_leverage"``.
     fill_mode:
         Deterministic fill assumption. Only ``"complete"`` is supported here.
     liquidity_cap_fraction:
@@ -365,6 +435,10 @@ def run_backtest(
         current_close_price=1.0,
         order_size=1.0,
     )
+    _validate_sizing_mode(sizing_mode)
+    dynamic_target_leverage = None
+    if sizing_mode == _SIZING_MODE_DYNAMIC_EQUITY_TARGET_LEVERAGE:
+        dynamic_target_leverage = _validate_target_leverage(target_leverage)
     _validate_fill_size_assumptions(
         order_size=order_size,
         fill_mode=fill_mode,
@@ -448,6 +522,7 @@ def run_backtest(
 
     # We need to track position value for funding calculations.
     entry_fill_price = 0.0
+    position_quantity = 0.0
 
     for i in range(n):
         bar_ts = bars[i]
@@ -474,7 +549,7 @@ def run_backtest(
                         funding_notional_mode,
                         entry_fill_price=entry_fill_price,
                         current_close_price=close_prices[i],
-                        order_size=order_size,
+                        order_size=position_quantity,
                     )
                     funding_cashflow = -position * rate * notional
                     equity += funding_cashflow
@@ -483,7 +558,11 @@ def run_backtest(
         # ---- Unrealized PnL on open position at bar close ----
         unrealized = 0.0
         if position != 0:
-            unrealized = position * (close_prices[i] - entry_fill_price) * order_size
+            unrealized = (
+                position
+                * (close_prices[i] - entry_fill_price)
+                * position_quantity
+            )
 
         # ---- Determine fill for this bar ----
         # Signal at bar i-1 -> fill at open of bar i (next_bar_open)
@@ -491,20 +570,22 @@ def run_backtest(
             desired = int(sig_vals[i - 1])
             if desired != position:
                 fill_price = open_prices[i]
-                _check_liquidity_capacity(
-                    order_size=order_size,
-                    liquidity_cap_fraction=liquidity_cap_fraction,
-                    volume_at_fill_bar=float(volumes[i]),
-                    fill_bar=bar_ts,
-                )
 
                 # ---- Close existing position if any ----
                 if position != 0:
-                    realized_this_trade = (
-                        position * (fill_price - entry_fill_price) * order_size
+                    _check_liquidity_capacity(
+                        order_size=position_quantity,
+                        liquidity_cap_fraction=liquidity_cap_fraction,
+                        volume_at_fill_bar=float(volumes[i]),
+                        fill_bar=bar_ts,
                     )
-                    fee_exit = _bps_cost(fill_price, order_size, exit_fee_bps)
-                    slip_exit = _bps_cost(fill_price, order_size, slippage_bps)
+                    realized_this_trade = (
+                        position
+                        * (fill_price - entry_fill_price)
+                        * position_quantity
+                    )
+                    fee_exit = _bps_cost(fill_price, position_quantity, exit_fee_bps)
+                    slip_exit = _bps_cost(fill_price, position_quantity, slippage_bps)
 
                     equity += realized_this_trade - fee_exit - slip_exit
                     total_fees += fee_exit
@@ -517,10 +598,10 @@ def run_backtest(
                         "direction": position,
                         "entry_price": entry_fill_price,
                         "exit_price": fill_price,
-                        "size": order_size,
-                        "entry_notional": abs(entry_fill_price * order_size),
-                        "exit_notional": abs(fill_price * order_size),
-                        "notional": abs(entry_fill_price * order_size) * 2.0,
+                        "size": position_quantity,
+                        "entry_notional": abs(entry_fill_price * position_quantity),
+                        "exit_notional": abs(fill_price * position_quantity),
+                        "notional": abs(entry_fill_price * position_quantity) * 2.0,
                         "gross_pnl": realized_this_trade,
                         "fees": fee_exit,
                         "slippage": slip_exit,
@@ -528,23 +609,44 @@ def run_backtest(
                     })
                     position = 0
                     entry_fill_price = 0.0
+                    position_quantity = 0.0
 
                 # ---- Open new position if desired != 0 ----
                 if desired != 0:
-                    fee_entry = _bps_cost(fill_price, order_size, entry_fee_bps)
-                    slip_entry = _bps_cost(fill_price, order_size, slippage_bps)
-                    equity -= fee_entry + slip_entry
-                    total_fees += fee_entry
-                    total_slippage += slip_entry
+                    if sizing_mode == _SIZING_MODE_FIXED_ORDER_SIZE:
+                        entry_quantity = order_size
+                    else:
+                        entry_quantity = _dynamic_order_size(
+                            target_leverage=float(dynamic_target_leverage),
+                            sizing_equity=equity,
+                            entry_reference_price=fill_price,
+                        )
+                    if entry_quantity is not None:
+                        _check_liquidity_capacity(
+                            order_size=entry_quantity,
+                            liquidity_cap_fraction=liquidity_cap_fraction,
+                            volume_at_fill_bar=float(volumes[i]),
+                            fill_bar=bar_ts,
+                        )
+                        fee_entry = _bps_cost(fill_price, entry_quantity, entry_fee_bps)
+                        slip_entry = _bps_cost(fill_price, entry_quantity, slippage_bps)
+                        equity -= fee_entry + slip_entry
+                        total_fees += fee_entry
+                        total_slippage += slip_entry
 
-                    position = desired
-                    entry_fill_price = fill_price
-                    entry_price = fill_price
-                    entry_bar_idx = i
+                        position = desired
+                        entry_fill_price = fill_price
+                        position_quantity = entry_quantity
+                        entry_price = fill_price
+                        entry_bar_idx = i
 
         # ---- Recompute unrealized after any fill ----
         if position != 0:
-            unrealized = position * (close_prices[i] - entry_fill_price) * order_size
+            unrealized = (
+                position
+                * (close_prices[i] - entry_fill_price)
+                * position_quantity
+            )
         else:
             unrealized = 0.0
 
@@ -552,7 +654,7 @@ def run_backtest(
         marked_equity = equity + unrealized
         maintenance_margin = 0.0
         if liquidation_mode == "maintenance_margin":
-            maintenance_margin = abs(mark_price * order_size) * float(
+            maintenance_margin = abs(mark_price * position_quantity) * float(
                 maintenance_margin_rate
             )
 
@@ -569,7 +671,7 @@ def run_backtest(
             if position != 0:
                 liquidation_realized = -equity
                 liquidation_price = entry_fill_price + (
-                    liquidation_realized / (position * order_size)
+                    liquidation_realized / (position * position_quantity)
                 )
                 total_realized += liquidation_realized
                 trades.append({
@@ -578,10 +680,10 @@ def run_backtest(
                     "direction": position,
                     "entry_price": entry_fill_price,
                     "exit_price": liquidation_price,
-                    "size": order_size,
-                    "entry_notional": abs(entry_fill_price * order_size),
-                    "exit_notional": abs(liquidation_price * order_size),
-                    "notional": abs(entry_fill_price * order_size) * 2.0,
+                    "size": position_quantity,
+                    "entry_notional": abs(entry_fill_price * position_quantity),
+                    "exit_notional": abs(liquidation_price * position_quantity),
+                    "notional": abs(entry_fill_price * position_quantity) * 2.0,
                     "gross_pnl": liquidation_realized,
                     "fees": 0.0,
                     "slippage": 0.0,
@@ -593,6 +695,7 @@ def run_backtest(
                 })
                 position = 0
                 entry_fill_price = 0.0
+                position_quantity = 0.0
 
             equity = 0.0
             unrealized = 0.0
@@ -612,7 +715,11 @@ def run_backtest(
     final_unrealized = 0.0
     if position != 0:
         last_close = close_prices[-1]
-        final_unrealized = position * (last_close - entry_fill_price) * order_size
+        final_unrealized = (
+            position
+            * (last_close - entry_fill_price)
+            * position_quantity
+        )
 
     equity_series = pd.Series(equity_curve_vals, index=bars, name="equity")
     pnl_series = pd.Series(per_bar_pnl_vals, index=bars, name="pnl")
@@ -635,6 +742,22 @@ def run_backtest(
         "slippage_model": slippage_model,
         "funding_notional_mode": funding_notional_mode,
         "order_size": order_size,
+        "sizing_mode": sizing_mode,
+        "target_leverage": (
+            dynamic_target_leverage
+            if sizing_mode == _SIZING_MODE_DYNAMIC_EQUITY_TARGET_LEVERAGE
+            else target_leverage
+        ),
+        "sizing_equity_basis": (
+            _SIZING_EQUITY_BASIS_DYNAMIC
+            if sizing_mode == _SIZING_MODE_DYNAMIC_EQUITY_TARGET_LEVERAGE
+            else _SIZING_BASIS_NOT_APPLICABLE
+        ),
+        "entry_reference_price_basis": (
+            _ENTRY_REFERENCE_PRICE_BASIS_DYNAMIC
+            if sizing_mode == _SIZING_MODE_DYNAMIC_EQUITY_TARGET_LEVERAGE
+            else _SIZING_BASIS_NOT_APPLICABLE
+        ),
         "fill_mode": fill_mode,
         "liquidity_cap_fraction": liquidity_cap_fraction,
         "liquidation_mode": liquidation_mode,

@@ -378,6 +378,11 @@ decision records, schemas, validators, or locked baseline documents.
   `RP-6688` sizing, leverage, and cost-model mechanics; classifies the uniform
   terminal-zero pattern without mutating artifacts or authorizing follow-on
   behavior.
+- `2026-06-realism_sizing_leverage_design.md` - docs-only design for an
+  equity-relative sizing / leverage-cap realism surface after the `RP-6688`
+  sizing diagnostic; evaluates runner-side fixed-but-equity-aware sizing versus
+  lib-core dynamic compounding sizing without authorizing code or result
+  regeneration.
 - `2026-06-strategy_dsl_design_opening.md` - Strategy DSL design opening for
   lab strategy-spec representation; design surface.
 - `2026-06-strategy_dsl_substantive_design.md` - substantive Strategy DSL/spec

@@ -393,6 +393,10 @@ decision records, schemas, validators, or locked baseline documents.
   resolution; records target leverage, first-open reference-price basis,
   existing-field provenance, drift limitation, and no canonical result
   authority.
+- `2026-06-dynamic_equity_sizing_design.md` - docs-only dynamic
+  equity-relative sizing design and read-only protected-path scope surface;
+  defines an additive opt-in `dynamic_equity_target_leverage` mode while
+  preserving fixed `order_size` defaults and authorizing no code or rerun.
 - `2026-06-strategy_dsl_design_opening.md` - Strategy DSL design opening for
   lab strategy-spec representation; design surface.
 - `2026-06-strategy_dsl_substantive_design.md` - substantive Strategy DSL/spec

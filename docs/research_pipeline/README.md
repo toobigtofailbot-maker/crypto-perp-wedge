@@ -383,6 +383,11 @@ decision records, schemas, validators, or locked baseline documents.
   sizing diagnostic; evaluates runner-side fixed-but-equity-aware sizing versus
   lib-core dynamic compounding sizing without authorizing code or result
   regeneration.
+- `2026-06-realism_sizing_implementation_impact_map.md` - docs-only
+  implementation-readiness and file-level impact map for the 01a sizing-realism
+  design; classifies runner/spec-side, schema/validator, query/dashboard,
+  canonical-artifact, and protected-path surfaces without authorizing code or
+  result regeneration.
 - `2026-06-strategy_dsl_design_opening.md` - Strategy DSL design opening for
   lab strategy-spec representation; design surface.
 - `2026-06-strategy_dsl_substantive_design.md` - substantive Strategy DSL/spec

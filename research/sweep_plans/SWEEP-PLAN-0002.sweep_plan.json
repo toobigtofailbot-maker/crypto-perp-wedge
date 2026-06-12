@@ -1,0 +1,254 @@
+{
+  "schema_version": "v1",
+  "sweep_plan_id": "SWEEP-PLAN-0002",
+  "status": "approved_for_offline_run_planning",
+  "non_execution_declaration": {
+    "planning_surface_only": true,
+    "not_executable": true,
+    "not_runner_authority": true,
+    "not_sweep_authority": true,
+    "not_result_authority": true,
+    "not_candidate_approval": true,
+    "not_exp_approval": true,
+    "not_ranking_authority": true,
+    "not_recommendation_authority": true,
+    "not_readiness_authority": true,
+    "not_transition_authority": true,
+    "not_runtime_authority": true,
+    "not_paper_live_authority": true,
+    "not_gate_authority": true
+  },
+  "parent_variant_manifest": {
+    "variant_manifest_id": "VM-0002",
+    "variant_manifest_schema_version": "v1",
+    "manifest_hash": "sha256:27d89f01b3ec5a7cbb87ad224481f6328727737aa292b7fa332d3474b6bda5bc",
+    "hash_algorithm": "sha256",
+    "manifest_population_count": 10,
+    "manifest_committed_population_count": 10,
+    "manifest_population_cap": 10,
+    "manifest_pre_registration_status": "frozen_for_sweep_planning",
+    "mismatch_policy": "block",
+    "missing_manifest_policy": "block",
+    "one_manifest_only": true
+  },
+  "test_selection": {
+    "selection_mode": "all_manifest_variants",
+    "selected_variant_ids": [
+      "VAR-000001",
+      "VAR-000002",
+      "VAR-000003",
+      "VAR-000004",
+      "VAR-000005",
+      "VAR-000006",
+      "VAR-000007",
+      "VAR-000008",
+      "VAR-000009",
+      "VAR-000010"
+    ],
+    "excluded_variant_ids": [],
+    "subset_selection_rule": null,
+    "declared_before_results": true,
+    "post_hoc_addition_forbidden": true,
+    "outside_manifest_variants_forbidden": true
+  },
+  "validation_methods": {
+    "backtest": {
+      "enabled": true,
+      "method_ref": null,
+      "notes": "Future offline run planning only; no run in this package."
+    },
+    "walk_forward_oos": {
+      "enabled": true,
+      "method_ref": null,
+      "declares_chronological_separation": true,
+      "notes": "Chronological separation remains a future runner/result responsibility."
+    },
+    "robustness": {
+      "enabled": false,
+      "method_ref": null,
+      "families_declared": [],
+      "notes": null
+    },
+    "dsr_psr_mintrl_accounting": {
+      "enabled": true,
+      "denominator_ref": "committed_population_count",
+      "computation_deferred": true,
+      "notes": "Denominator is the full committed pre-registered population of 10."
+    },
+    "monte_carlo": {
+      "enabled": false,
+      "method_ref": null,
+      "computation_deferred": true,
+      "notes": null
+    },
+    "declarative_intent_only": true,
+    "no_runner_hooks": true,
+    "no_formulas": true,
+    "no_computation": true
+  },
+  "data_and_timeframe_assumptions": {
+    "primary_timeframe": "15m",
+    "confirmation_timeframes": [],
+    "data_refs": [
+      {
+        "stream": "ohlcv",
+        "timeframe": "15m",
+        "field": "open",
+        "availability": "required"
+      },
+      {
+        "stream": "ohlcv",
+        "timeframe": "15m",
+        "field": "high",
+        "availability": "required"
+      },
+      {
+        "stream": "ohlcv",
+        "timeframe": "15m",
+        "field": "low",
+        "availability": "required"
+      },
+      {
+        "stream": "ohlcv",
+        "timeframe": "15m",
+        "field": "close",
+        "availability": "required"
+      },
+      {
+        "stream": "ohlcv",
+        "timeframe": "15m",
+        "field": "volume",
+        "availability": "required"
+      }
+    ],
+    "missing_data_posture": "block_if_missing",
+    "gap_handling_assumption": "Use existing BTCUSDT 15m OHLCV D4A catalog/slice facts and existing irreparable-gap policy; no silent interpolation."
+  },
+  "realism_assumptions": {
+    "fee_side_assumption": "taker_entry_taker_exit",
+    "exchange_constraints_disclosed": true,
+    "funding_notional_mode": "entry_price",
+    "slippage_model": "fixed_bps",
+    "fill_mode": "complete",
+    "order_size_assumption": "future offline runner assumption only; no execution here",
+    "liquidity_capacity_assumption": null,
+    "liquidation_mode": "zero_equity",
+    "maintenance_margin_assumption": null,
+    "mark_price_source": "close",
+    "bar_path_assumption": "next_open_close_mark",
+    "declarations_only": true
+  },
+  "result_capture_expectations": {
+    "result_population_expected": true,
+    "expected_result_population_ref": null,
+    "must_capture_successful": true,
+    "must_capture_failed": true,
+    "must_capture_invalid": true,
+    "must_capture_excluded": true,
+    "must_capture_errored": true,
+    "must_capture_aborted": true,
+    "must_capture_filtered": true,
+    "must_capture_data_unavailable": true,
+    "must_capture_not_attempted": true,
+    "winner_only_retention_forbidden": true,
+    "canonical_evidence_mapping_deferred": true
+  },
+  "trial_accounting": {
+    "committed_population_count": 10,
+    "selected_variant_count": 10,
+    "executed_variant_count": 0,
+    "successful_variant_count": 0,
+    "failed_variant_count": 0,
+    "errored_variant_count": 0,
+    "aborted_variant_count": 0,
+    "filtered_variant_count": 0,
+    "data_unavailable_variant_count": 0,
+    "excluded_variant_count": 0,
+    "not_attempted_variant_count": 10,
+    "multiple_testing_denominator": 10,
+    "denominator_basis": "committed_pre_registered_population_count",
+    "denominator_equals_committed_population_count": true,
+    "executed_only_denominator_forbidden": true,
+    "successful_only_denominator_forbidden": true,
+    "failed_variants_remain_in_denominator": true,
+    "excluded_variants_remain_in_denominator": true,
+    "invalid_variants_remain_in_denominator": true,
+    "errored_variants_remain_in_denominator": true,
+    "aborted_variants_remain_in_denominator": true,
+    "filtered_variants_remain_in_denominator": true,
+    "data_unavailable_variants_remain_in_denominator": true,
+    "not_attempted_variants_remain_in_denominator": true
+  },
+  "lineage": {
+    "parent_manifest_ref": {
+      "ref_type": "variant_manifest",
+      "ref_id": "VM-0002",
+      "ref_path": "research/variant_manifests/VM-0002.variant_manifest.json",
+      "ref_hash": "sha256:27d89f01b3ec5a7cbb87ad224481f6328727737aa292b7fa332d3474b6bda5bc"
+    },
+    "parent_strategy_spec_ref": {
+      "ref_type": "strategy_spec",
+      "ref_id": "STRAT-SPEC-0002",
+      "ref_path": "research/strategy_specs/STRAT-SPEC-0002.strategy_spec.json",
+      "ref_hash": "sha256:aa2d05134e788b6b34e2ff03af8d111563dece743e943e134c0b8e46bee429e3"
+    },
+    "search_family_id": "SF-BOTHDIR-SMA-BAND-15M-0001",
+    "source_refs": [
+      {
+        "ref_type": "manual_review",
+        "ref_id": "WP-SPEC-BOTHDIR-01b",
+        "ref_path": null,
+        "ref_hash": null
+      },
+      {
+        "ref_type": "other",
+        "ref_id": "WP-SPEC-BOTHDIR-01a",
+        "ref_path": "docs/research_pipeline/2026-06-both_direction_sma_band_spec_design.md",
+        "ref_hash": null
+      }
+    ],
+    "created_at": "2026-06-12T00:00:00Z",
+    "updated_at": "2026-06-12T00:00:00Z",
+    "audit_notes": [
+      "Frozen sweep plan selects all ten manifest variants and performs no execution.",
+      "DSR / PSR / MinTRL denominator accounting is deferred and pinned to committed count 10."
+    ]
+  },
+  "review": {
+    "human_review_required": true,
+    "reviewer": null,
+    "reviewed_at": null,
+    "review_notes": [
+      "Karl-gated frozen canonical instance package. Frozen-instance report-back to Karl is required before merge.",
+      "No result population exists until a separately authorized run package."
+    ],
+    "approval_scope": "offline_run_planning_only",
+    "non_authority_acknowledgement": {
+      "not_candidate_approval": true,
+      "not_exp_approval": true,
+      "not_runner_authority": true,
+      "not_sweep_authority": true,
+      "not_result_authority": true,
+      "not_ranking_authority": true,
+      "not_recommendation_authority": true,
+      "not_readiness_authority": true,
+      "not_transition_authority": true,
+      "not_runtime_authority": true,
+      "not_paper_live_authority": true,
+      "not_gate_satisfaction": true
+    }
+  },
+  "amendment_and_supersession": {
+    "amendment_mode": "none",
+    "supersedes": null,
+    "supersession_lineage": [],
+    "amendment_reason": null,
+    "associated_results_state": "no_associated_results",
+    "supersession_allowed": false,
+    "close_only_after_results": true,
+    "post_result_change": false,
+    "preserve_prior_sweep_plan_required": true,
+    "does_not_modify_parent_manifest": true,
+    "does_not_modify_manifest_denominator": true
+  }
+}

@@ -16,7 +16,7 @@ import pandas as pd
 import pytest
 
 from lib.backtest import run_backtest, BacktestResult
-from lib.evaluation import cost_drag, turnover
+from lib.evaluation import cost_drag, max_drawdown, turnover
 
 
 # ---------------------------------------------------------------------------
@@ -808,6 +808,292 @@ def test_liquidity_capacity_rejects_without_partial_fill(tmp_path):
             volume_at_entry=5.0,
             liquidity_cap_fraction=0.5,
         )
+
+
+# ---------------------------------------------------------------------------
+# test_dynamic_equity_relative_sizing
+# ---------------------------------------------------------------------------
+
+
+def _dynamic_sizing_fixture(
+    tmp_path: Path,
+    *,
+    opens,
+    signal_values,
+    closes=None,
+    funding=None,
+    fee_bps_taker=0.0,
+    fee_bps_maker=0.0,
+    slippage_bps=0.0,
+    initial_equity=10_000.0,
+    target_leverage=1.0,
+    **kwargs,
+):
+    closes = list(opens) if closes is None else closes
+    dates = pd.date_range("2020-01-01", periods=len(opens), freq="1h", tz="UTC")
+    ohlcv = pd.DataFrame(
+        {
+            "open": opens,
+            "high": [max(o, c) for o, c in zip(opens, closes)],
+            "low": [min(o, c) for o, c in zip(opens, closes)],
+            "close": closes,
+            "volume": [100_000.0] * len(opens),
+        },
+        index=dates,
+    )
+    signal = pd.Series(signal_values, index=dates)
+    funding = _empty_funding() if funding is None else funding
+
+    return run_backtest(
+        signal=signal,
+        ohlcv=ohlcv,
+        funding=funding,
+        fee_bps_taker=fee_bps_taker,
+        fee_bps_maker=fee_bps_maker,
+        slippage_bps=slippage_bps,
+        initial_equity=initial_equity,
+        stream="klines",
+        interval="1h",
+        gaps_path=_no_gaps_path(tmp_path),
+        sizing_mode="dynamic_equity_target_leverage",
+        target_leverage=target_leverage,
+        **kwargs,
+    )
+
+
+def test_fixed_order_size_default_preserved_with_explicit_mode(tmp_path):
+    implicit_default = _size_liquidity_fixture(tmp_path, order_size=2.0)
+    explicit_fixed = _size_liquidity_fixture(
+        tmp_path,
+        order_size=2.0,
+        sizing_mode="fixed_order_size",
+        target_leverage=1.0,
+    )
+
+    _assert_same_outputs_except_params(implicit_default, explicit_fixed)
+    assert implicit_default.params == explicit_fixed.params
+    assert max_drawdown(implicit_default.equity_curve) == max_drawdown(
+        explicit_fixed.equity_curve
+    )
+    assert implicit_default.params["sizing_mode"] == "fixed_order_size"
+    assert implicit_default.params["order_size"] == 2.0
+
+
+def test_dynamic_sizing_formula_records_quantity_and_params(tmp_path):
+    result = _dynamic_sizing_fixture(
+        tmp_path,
+        opens=[10_000.0, 10_000.0, 20_000.0, 21_000.0],
+        signal_values=[0.0, 1.0, 0.0, 0.0],
+        target_leverage=1.0,
+    )
+
+    trade = result.trades_df.loc[0]
+    assert trade["direction"] == 1
+    assert trade["entry_price"] == 20_000.0
+    assert trade["size"] == 0.5
+    assert trade["entry_notional"] == 10_000.0
+    assert trade["gross_pnl"] == 500.0
+    assert result.params["sizing_mode"] == "dynamic_equity_target_leverage"
+    assert result.params["target_leverage"] == 1.0
+    assert result.params["sizing_equity_basis"] == "realized_available_equity_at_entry"
+    assert (
+        result.params["entry_reference_price_basis"]
+        == "next_bar_open_pre_fee_slippage"
+    )
+    assert result.params["order_size"] == 1.0
+
+
+def test_dynamic_sizing_scales_with_updated_realized_equity(tmp_path):
+    result = _dynamic_sizing_fixture(
+        tmp_path,
+        opens=[
+            20_000.0,
+            20_000.0,
+            20_000.0,
+            22_000.0,
+            22_000.0,
+            10_000.0,
+            11_000.0,
+        ],
+        signal_values=[0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0],
+        target_leverage=1.0,
+    )
+
+    sizes = result.trades_df["size"].tolist()
+    assert sizes == [0.5, 1.1]
+    assert result.trades_df.loc[0, "gross_pnl"] == 1_000.0
+    assert result.trades_df.loc[1, "entry_notional"] == 11_000.0
+
+
+def test_dynamic_sizing_long_short_quantity_symmetry(tmp_path):
+    long_result = _dynamic_sizing_fixture(
+        tmp_path,
+        opens=[20_000.0, 20_000.0, 20_000.0, 20_000.0],
+        signal_values=[0.0, 1.0, 0.0, 0.0],
+        target_leverage=1.0,
+    )
+    short_result = _dynamic_sizing_fixture(
+        tmp_path,
+        opens=[20_000.0, 20_000.0, 20_000.0, 20_000.0],
+        signal_values=[0.0, -1.0, 0.0, 0.0],
+        target_leverage=1.0,
+    )
+
+    assert long_result.trades_df.loc[0, "direction"] == 1
+    assert short_result.trades_df.loc[0, "direction"] == -1
+    assert long_result.trades_df.loc[0, "size"] == 0.5
+    assert short_result.trades_df.loc[0, "size"] == 0.5
+
+
+def test_dynamic_sizing_non_positive_equity_fails_closed_before_new_entry(tmp_path):
+    result = _dynamic_sizing_fixture(
+        tmp_path,
+        opens=[100.0, 100.0, 40.0, 40.0],
+        signal_values=[1.0, -1.0, 0.0, 0.0],
+        target_leverage=2.0,
+    )
+
+    assert result.liquidated is True
+    assert result.liquidation_timestamp == result.equity_curve.index[2]
+    assert result.trades_df["direction"].tolist() == [1]
+    assert result.trades_df.loc[0, "size"] == 200.0
+    assert result.trades_df.loc[0, "gross_pnl"] == -12_000.0
+    assert (result.equity_curve.iloc[2:] == 0.0).all()
+
+
+@pytest.mark.parametrize("bad_reference", [0.0, -1.0, np.nan, np.inf])
+def test_dynamic_sizing_invalid_entry_reference_fails_closed(tmp_path, bad_reference):
+    result = _dynamic_sizing_fixture(
+        tmp_path,
+        opens=[100.0, 100.0, bad_reference, 120.0],
+        closes=[100.0, 100.0, 100.0, 120.0],
+        signal_values=[0.0, 1.0, 0.0, 0.0],
+        target_leverage=1.0,
+    )
+
+    assert result.trades_df.empty
+    assert result.liquidated is False
+    assert result.equity_curve.tolist() == [10_000.0] * 4
+
+
+@pytest.mark.parametrize("target_leverage", [None, 0.0, -1.0, np.nan, np.inf])
+def test_dynamic_sizing_invalid_target_leverage_raises(tmp_path, target_leverage):
+    with pytest.raises(ValueError, match="target_leverage"):
+        _dynamic_sizing_fixture(
+            tmp_path,
+            opens=[100.0, 100.0, 100.0],
+            signal_values=[0.0, 1.0, 0.0],
+            target_leverage=target_leverage,
+        )
+
+
+def test_invalid_sizing_mode_raises(tmp_path):
+    with pytest.raises(ValueError, match="sizing_mode"):
+        _size_liquidity_fixture(tmp_path, sizing_mode="equity_percent")
+
+
+def test_dynamic_sizing_uses_no_later_prices_for_entry_quantity(tmp_path):
+    base = _dynamic_sizing_fixture(
+        tmp_path,
+        opens=[10_000.0, 10_000.0, 20_000.0, 20_500.0, 21_000.0],
+        signal_values=[0.0, 1.0, 1.0, 0.0, 0.0],
+        target_leverage=1.0,
+    )
+    changed_later = _dynamic_sizing_fixture(
+        tmp_path,
+        opens=[10_000.0, 10_000.0, 20_000.0, 90_000.0, 95_000.0],
+        signal_values=[0.0, 1.0, 1.0, 0.0, 0.0],
+        target_leverage=1.0,
+    )
+
+    assert base.trades_df.loc[0, "size"] == changed_later.trades_df.loc[0, "size"]
+    assert (
+        base.trades_df.loc[0, "entry_notional"]
+        == changed_later.trades_df.loc[0, "entry_notional"]
+        == 10_000.0
+    )
+
+
+def test_dynamic_sizing_is_deterministic_for_same_input(tmp_path):
+    first = _dynamic_sizing_fixture(
+        tmp_path,
+        opens=[10_000.0, 10_000.0, 20_000.0, 20_500.0, 21_000.0],
+        signal_values=[0.0, 1.0, 1.0, 0.0, 0.0],
+        target_leverage=1.25,
+    )
+    second = _dynamic_sizing_fixture(
+        tmp_path,
+        opens=[10_000.0, 10_000.0, 20_000.0, 20_500.0, 21_000.0],
+        signal_values=[0.0, 1.0, 1.0, 0.0, 0.0],
+        target_leverage=1.25,
+    )
+
+    _assert_same_outputs_except_params(first, second)
+    assert first.params == second.params
+
+
+def test_dynamic_costs_and_funding_use_dynamic_quantity(tmp_path):
+    funding = pd.DataFrame(
+        {"funding_rate": [0.01]},
+        index=pd.DatetimeIndex(
+            [pd.Timestamp("2020-01-01 02:30:00", tz="UTC")],
+            tz="UTC",
+        ),
+    )
+    result = _dynamic_sizing_fixture(
+        tmp_path,
+        opens=[10_000.0, 10_000.0, 20_000.0, 20_500.0, 21_000.0],
+        signal_values=[0.0, 1.0, 1.0, 0.0, 0.0],
+        funding=funding,
+        fee_bps_taker=10.0,
+        fee_bps_maker=2.0,
+        slippage_bps=5.0,
+        target_leverage=1.0,
+    )
+
+    assert result.trades_df.loc[0, "size"] == 0.5
+    assert abs(result.fees_paid - 20.5) < 1e-12
+    assert abs(result.slippage_paid - 10.25) < 1e-12
+    assert result.trades_df.loc[0, "fees"] == 10.5
+    assert result.trades_df.loc[0, "slippage"] == 5.25
+    assert result.funding_paid == 100.0
+    assert result.trades_df.loc[0, "gross_pnl"] == 500.0
+
+
+def test_dynamic_maintenance_margin_uses_dynamic_quantity(tmp_path):
+    result = _dynamic_sizing_fixture(
+        tmp_path,
+        opens=[100.0, 100.0, 100.0],
+        closes=[100.0, 60.0, 60.0],
+        signal_values=[1.0, 1.0, 0.0],
+        target_leverage=2.0,
+        liquidation_mode="maintenance_margin",
+        maintenance_margin_rate=0.2,
+    )
+
+    trade = result.trades_df.iloc[-1]
+    assert result.liquidated is True
+    assert result.liquidation_timestamp == result.equity_curve.index[1]
+    assert trade["size"] == 200.0
+    assert trade["maintenance_margin"] == 2_400.0
+    assert trade["mark_price"] == 60.0
+
+
+def test_dynamic_benign_one_x_maintenance_margin_does_not_liquidate(tmp_path):
+    result = _dynamic_sizing_fixture(
+        tmp_path,
+        opens=[100.0, 100.0, 100.0],
+        closes=[100.0, 99.0, 100.0],
+        signal_values=[1.0, 0.0, 0.0],
+        target_leverage=1.0,
+        liquidation_mode="maintenance_margin",
+        maintenance_margin_rate=0.05,
+    )
+
+    assert result.liquidated is False
+    assert result.liquidation_timestamp is None
+    assert result.trades_df.loc[0, "size"] == 100.0
+    assert result.equity_curve.iloc[1] == 9_900.0
 
 
 # ---------------------------------------------------------------------------

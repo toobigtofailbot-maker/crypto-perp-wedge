@@ -2,6 +2,7 @@ import ast
 import copy
 import importlib
 import json
+import math
 import subprocess
 import sys
 from pathlib import Path
@@ -246,6 +247,276 @@ def _identity_payload(result: dict) -> dict:
     payload = copy.deepcopy(result["result_population"])
     payload.pop("audit_envelope")
     return payload
+
+
+def test_target_leverage_resolution_uses_initial_equity_and_first_open():
+    ohlcv = pd.DataFrame(
+        {
+            "open": [20_000.0, 50_000.0],
+            "high": [20_100.0, 50_100.0],
+            "low": [19_900.0, 49_900.0],
+            "close": [20_050.0, 50_050.0],
+            "volume": [1000.0, 1000.0],
+        }
+    )
+
+    sizing = runner._resolve_order_size(
+        target_leverage=1.0,
+        initial_equity=10_000.0,
+        ohlcv=ohlcv,
+    )
+
+    assert sizing.sizing_model == runner.SIZING_MODEL
+    assert sizing.reference_price_basis == runner.REFERENCE_PRICE_BASIS
+    assert sizing.reference_price == 20_000.0
+    assert sizing.resolved_order_size == 0.5
+
+
+def test_default_target_leverage_is_one_x(tmp_path, monkeypatch):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(tmp_path)
+    calls = []
+    real_backtest = runner.run_backtest
+
+    def recording_backtest(*args, **kwargs):
+        calls.append(kwargs)
+        return real_backtest(*args, **kwargs)
+
+    monkeypatch.setattr(runner, "run_backtest", recording_backtest)
+
+    result = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        deterministic_seed=7,
+    )
+    assumptions = result["result_population"]["backtest_assumption_summary"][
+        "order_size_assumption"
+    ]
+
+    expected = runner.INITIAL_EQUITY / 100.1
+    assert calls
+    assert all(math.isclose(call["order_size"], expected) for call in calls)
+    assert "target_leverage=1" in assumptions
+
+
+@pytest.mark.parametrize("bad_leverage", [0.0, -1.0, float("nan"), float("inf")])
+def test_invalid_target_leverage_rejected_by_api(tmp_path, bad_leverage):
+    strategy_path, manifest_path, sweep_path, *_ = _write_fixture(tmp_path)
+
+    with pytest.raises(runner.OfflineSweepError, match="target-leverage"):
+        _run(
+            strategy_path,
+            manifest_path,
+            sweep_path,
+            deterministic_seed=7,
+            target_leverage=bad_leverage,
+        )
+
+
+@pytest.mark.parametrize("bad_cli_value", ["0", "-1", "nan", "inf", "not-a-number"])
+def test_invalid_target_leverage_rejected_by_cli(tmp_path, bad_cli_value):
+    strategy_path, manifest_path, sweep_path, *_ = _write_fixture(tmp_path)
+
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "tools.research_runner.run_offline_sweep",
+            "--strategy-spec",
+            str(strategy_path),
+            "--variant-manifest",
+            str(manifest_path),
+            "--sweep-plan",
+            str(sweep_path),
+            "--target-leverage",
+            bad_cli_value,
+        ],
+        cwd=runner.REPO_ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert completed.returncode != 0
+    assert "target-leverage" in completed.stderr
+
+
+@pytest.mark.parametrize("bad_open", [None, 0.0, -1.0, float("nan"), float("inf")])
+def test_invalid_reference_price_fails_closed_before_write(tmp_path, bad_open):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(tmp_path)
+    frame = pd.read_csv(ohlcv_path)
+    frame.loc[0, "open"] = bad_open
+    frame.to_csv(ohlcv_path, index=False)
+    output_dir = tmp_path / "scratch_result_populations"
+
+    with pytest.raises(runner.OfflineSweepError, match="first_in_sample_open"):
+        _run(
+            strategy_path,
+            manifest_path,
+            sweep_path,
+            output_dir=output_dir,
+            write_result_population=True,
+            canonical_15m=True,
+            ohlcv_input_path=ohlcv_path,
+            deterministic_seed=7,
+        )
+
+    assert not output_dir.exists()
+
+
+def test_order_size_resolution_uses_no_later_prices():
+    baseline = pd.DataFrame(
+        {
+            "open": [20_000.0, 25_000.0],
+            "high": [20_100.0, 25_100.0],
+            "low": [19_900.0, 24_900.0],
+            "close": [20_050.0, 25_050.0],
+            "volume": [1000.0, 1000.0],
+        }
+    )
+    changed_later = baseline.copy()
+    changed_later.loc[1, ["open", "high", "low", "close"]] = [90_000.0, 91_000.0, 89_000.0, 90_500.0]
+
+    first = runner._resolve_order_size(
+        target_leverage=1.5,
+        initial_equity=10_000.0,
+        ohlcv=baseline,
+    )
+    second = runner._resolve_order_size(
+        target_leverage=1.5,
+        initial_equity=10_000.0,
+        ohlcv=changed_later,
+    )
+
+    assert first.resolved_order_size == second.resolved_order_size
+    assert first.reference_price == second.reference_price == 20_000.0
+
+
+def test_sizing_metadata_is_deterministic_for_same_input(tmp_path):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(tmp_path)
+
+    first = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        deterministic_seed=7,
+        target_leverage=2.0,
+    )
+    second = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        deterministic_seed=7,
+        target_leverage=2.0,
+    )
+
+    first_assumption = first["result_population"]["backtest_assumption_summary"][
+        "order_size_assumption"
+    ]
+    second_assumption = second["result_population"]["backtest_assumption_summary"][
+        "order_size_assumption"
+    ]
+    assert first_assumption == second_assumption
+    assert "sizing_model=runner_resolved_fixed_order_size" in first_assumption
+    assert "reference_price_basis=first_in_sample_open" in first_assumption
+    assert "resolved_order_size=" in first_assumption
+    assert first["result_population_id"] == second["result_population_id"]
+    assert _identity_payload(first) == _identity_payload(second)
+
+
+def test_sizing_dry_run_preserves_no_canonical_write(tmp_path):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(tmp_path)
+    canonical_files_before = sorted(
+        runner.CANONICAL_RESULT_POPULATIONS_DIR.glob("*.result_population.json")
+    )
+
+    result = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        deterministic_seed=7,
+        target_leverage=1.0,
+    )
+
+    canonical_files_after = sorted(
+        runner.CANONICAL_RESULT_POPULATIONS_DIR.glob("*.result_population.json")
+    )
+    assert result["dry_run"] is True
+    assert result["wrote"] is False
+    assert canonical_files_after == canonical_files_before
+
+
+def test_short_real_like_sub_window_sizing_uses_fixture_first_open(tmp_path, monkeypatch):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(tmp_path)
+    frame = pd.read_csv(ohlcv_path)
+    frame.loc[0, "open"] = 20_000.0
+    frame.loc[1:, "open"] = 50_000.0
+    frame.to_csv(ohlcv_path, index=False)
+    calls = []
+    real_backtest = runner.run_backtest
+
+    def recording_backtest(*args, **kwargs):
+        calls.append(kwargs)
+        return real_backtest(*args, **kwargs)
+
+    monkeypatch.setattr(runner, "run_backtest", recording_backtest)
+
+    _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        deterministic_seed=7,
+        target_leverage=1.0,
+    )
+
+    assert calls
+    assert all(call["order_size"] == 0.5 for call in calls)
+
+
+def test_effective_leverage_drift_is_measured_not_solved():
+    ohlcv = pd.DataFrame(
+        {
+            "open": [10_000.0, 50_000.0],
+            "high": [10_100.0, 50_100.0],
+            "low": [9_900.0, 49_900.0],
+            "close": [10_000.0, 50_000.0],
+            "volume": [1000.0, 1000.0],
+        }
+    )
+
+    sizing = runner._resolve_order_size(
+        target_leverage=1.0,
+        initial_equity=10_000.0,
+        ohlcv=ohlcv,
+    )
+    start_effective_leverage = (
+        sizing.resolved_order_size * sizing.reference_price / sizing.initial_equity
+    )
+    end_effective_leverage = (
+        sizing.resolved_order_size * float(ohlcv["close"].iloc[-1]) / sizing.initial_equity
+    )
+
+    assert sizing.resolved_order_size == 1.0
+    assert start_effective_leverage == 1.0
+    assert end_effective_leverage == 5.0
+    assert runner.DRIFT_CAVEAT == (
+        "fixed_order_size_caps_leverage_at_reference_price_only_effective_leverage_can_drift"
+    )
 
 
 def test_runner_api_dry_run_performs_no_file_write(tmp_path):

@@ -55,6 +55,13 @@ RUNNER_CODE_REF = "tools.research_runner.run_offline_sweep"
 FIXED_AUDIT_TIMESTAMP = "2026-06-01T00:00:00Z"
 CANONICAL_15M_DATA_CATALOG_REF = "15m_ohlcv_test_fixture_offline_only"
 D4_PROVENANCE_MODE_NOTE = "provenance_mode=d4_catalog_slice"
+INITIAL_EQUITY = 10_000.0
+DEFAULT_TARGET_LEVERAGE = 1.0
+SIZING_MODEL = "runner_resolved_fixed_order_size"
+REFERENCE_PRICE_BASIS = "first_in_sample_open"
+DRIFT_CAVEAT = (
+    "fixed_order_size_caps_leverage_at_reference_price_only_effective_leverage_can_drift"
+)
 
 
 class OfflineSweepError(RuntimeError):
@@ -76,6 +83,22 @@ class _ExecutionInput:
     data_slice_identity: str
     environment_summary: list[str]
     data_coverage_notes: list[str]
+
+
+@dataclass(frozen=True)
+class _SizingResolution:
+    target_leverage: float
+    initial_equity: float
+    reference_price: float
+    reference_price_basis: str
+    resolved_order_size: float
+    sizing_model: str
+
+
+@dataclass(frozen=True)
+class _SizingContext:
+    target_leverage: float
+    exact_resolution: _SizingResolution | None
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -102,6 +125,75 @@ def _sha256_file(path: Path) -> str:
 
 def _sha256_file_hex(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _validate_target_leverage(value: float) -> float:
+    leverage = float(value)
+    if not math.isfinite(leverage) or leverage <= 0.0:
+        raise OfflineSweepError("--target-leverage must be finite and positive")
+    return leverage
+
+
+def _parse_target_leverage(value: str) -> float:
+    try:
+        return _validate_target_leverage(float(value))
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("--target-leverage must be numeric") from exc
+    except OfflineSweepError as exc:
+        raise argparse.ArgumentTypeError(str(exc)) from exc
+
+
+def _resolve_order_size(
+    *,
+    target_leverage: float,
+    initial_equity: float,
+    ohlcv: pd.DataFrame,
+) -> _SizingResolution:
+    target_leverage = _validate_target_leverage(target_leverage)
+    if "open" not in ohlcv.columns:
+        raise OfflineSweepError("reference price basis requires OHLCV open column")
+    try:
+        reference_price = float(ohlcv["open"].iloc[0])
+    except IndexError as exc:
+        raise OfflineSweepError("reference price basis requires at least one OHLCV row") from exc
+    if not math.isfinite(reference_price) or reference_price <= 0.0:
+        raise OfflineSweepError(
+            "reference price first_in_sample_open must be finite and positive"
+        )
+    if not math.isfinite(initial_equity) or initial_equity <= 0.0:
+        raise OfflineSweepError("initial_equity must be finite and positive")
+    resolved_order_size = target_leverage * initial_equity / reference_price
+    if not math.isfinite(resolved_order_size) or resolved_order_size <= 0.0:
+        raise OfflineSweepError("resolved_order_size must be finite and positive")
+    return _SizingResolution(
+        target_leverage=target_leverage,
+        initial_equity=initial_equity,
+        reference_price=reference_price,
+        reference_price_basis=REFERENCE_PRICE_BASIS,
+        resolved_order_size=resolved_order_size,
+        sizing_model=SIZING_MODEL,
+    )
+
+
+def _sizing_context(
+    execution_input: _ExecutionInput | None,
+    target_leverage: float,
+) -> _SizingContext:
+    target_leverage = _validate_target_leverage(target_leverage)
+    if execution_input is None:
+        return _SizingContext(target_leverage=target_leverage, exact_resolution=None)
+    return _SizingContext(
+        target_leverage=target_leverage,
+        exact_resolution=_resolve_order_size(
+            target_leverage=target_leverage,
+            initial_equity=INITIAL_EQUITY,
+            ohlcv=execution_input.ohlcv,
+        ),
+    )
+
+
+def _format_sizing_value(value: float) -> str:
+    return format(value, ".17g")
 
 
 def _get_path(payload: dict[str, Any], dotted_path: str) -> Any:
@@ -276,8 +368,17 @@ def _synthetic_inputs(variant_id: str, deterministic_seed: int) -> tuple[pd.Seri
     return signal, ohlcv, funding
 
 
-def _run_synthetic_backtest(variant_id: str, deterministic_seed: int) -> Any:
+def _run_synthetic_backtest(
+    variant_id: str,
+    deterministic_seed: int,
+    target_leverage: float,
+) -> Any:
     signal, ohlcv, funding = _synthetic_inputs(variant_id, deterministic_seed)
+    sizing = _resolve_order_size(
+        target_leverage=target_leverage,
+        initial_equity=INITIAL_EQUITY,
+        ohlcv=ohlcv,
+    )
     return run_backtest(
         signal=signal,
         ohlcv=ohlcv,
@@ -285,14 +386,14 @@ def _run_synthetic_backtest(variant_id: str, deterministic_seed: int) -> Any:
         fee_bps_taker=4.0,
         fee_bps_maker=2.0,
         slippage_bps=1.0,
-        initial_equity=10_000.0,
+        initial_equity=INITIAL_EQUITY,
         stream="klines",
         interval="1h",
         gaps_path=REPO_ROOT / "tools" / "research_runner" / "_nonexistent_empty_gaps.json",
         entry_fee_side="taker",
         exit_fee_side="taker",
         funding_notional_mode="entry_price",
-        order_size=1.0,
+        order_size=sizing.resolved_order_size,
         fill_mode="complete",
         slippage_model="fixed_bps",
         liquidation_mode="zero_equity",
@@ -512,6 +613,7 @@ def _run_canonical_15m_backtest(
     strategy_spec: dict[str, Any],
     variant: dict[str, Any],
     execution_input: _ExecutionInput,
+    sizing: _SizingResolution,
 ) -> Any:
     signal = compile_signal(
         strategy_spec,
@@ -526,14 +628,14 @@ def _run_canonical_15m_backtest(
         fee_bps_taker=4.0,
         fee_bps_maker=2.0,
         slippage_bps=1.0,
-        initial_equity=10_000.0,
+        initial_equity=INITIAL_EQUITY,
         stream="klines",
         interval="15m",
         gaps_path=REPO_ROOT / "tools" / "research_runner" / "_nonexistent_empty_gaps.json",
         entry_fee_side="taker",
         exit_fee_side="taker",
         funding_notional_mode="entry_price",
-        order_size=1.0,
+        order_size=sizing.resolved_order_size,
         fill_mode="complete",
         slippage_model="fixed_bps",
         liquidation_mode="zero_equity",
@@ -729,7 +831,44 @@ def _execution_provenance_identity(execution_input: _ExecutionInput | None) -> d
     }
 
 
-def _backtest_assumption_summary(sweep_plan: dict[str, Any]) -> dict[str, Any]:
+def _order_size_assumption(
+    sweep_plan: dict[str, Any],
+    sizing_context: _SizingContext,
+) -> str:
+    base_assumption = (
+        sweep_plan["realism_assumptions"]["order_size_assumption"] or "fixed_1_contract"
+    )
+    parts = [
+        f"sizing_model={SIZING_MODEL}",
+        f"target_leverage={_format_sizing_value(sizing_context.target_leverage)}",
+        f"initial_equity={_format_sizing_value(INITIAL_EQUITY)}",
+        f"reference_price_basis={REFERENCE_PRICE_BASIS}",
+    ]
+    if sizing_context.exact_resolution is None:
+        parts.extend(
+            [
+                "reference_price=per_variant_first_in_sample_open",
+                "resolved_order_size=per_variant_target_leverage_times_initial_equity_over_reference_price",
+                "synthetic_fixture_resolution=per_variant",
+            ]
+        )
+    else:
+        sizing = sizing_context.exact_resolution
+        parts.extend(
+            [
+                f"reference_price={_format_sizing_value(sizing.reference_price)}",
+                f"resolved_order_size={_format_sizing_value(sizing.resolved_order_size)}",
+            ]
+        )
+    parts.append(f"drift_caveat={DRIFT_CAVEAT}")
+    parts.append(f"prior_assumption={base_assumption}")
+    return "; ".join(parts)
+
+
+def _backtest_assumption_summary(
+    sweep_plan: dict[str, Any],
+    sizing_context: _SizingContext,
+) -> dict[str, Any]:
     assumptions = sweep_plan["realism_assumptions"]
     return {
         "fee_side_assumption": assumptions["fee_side_assumption"] or "taker_entry_taker_exit",
@@ -737,7 +876,7 @@ def _backtest_assumption_summary(sweep_plan: dict[str, Any]) -> dict[str, Any]:
         "funding_notional": "entry_price",
         "slippage_model": "fixed_bps",
         "fill_mode": "complete",
-        "order_size_assumption": assumptions["order_size_assumption"] or "fixed_1_contract",
+        "order_size_assumption": _order_size_assumption(sweep_plan, sizing_context),
         "liquidity_capacity_assumption": assumptions["liquidity_capacity_assumption"],
         "liquidation_mode": "zero_equity",
         "maintenance_margin_assumption": assumptions["maintenance_margin_assumption"],
@@ -754,6 +893,7 @@ def _execute_rows(
     sweep_plan: dict[str, Any],
     deterministic_seed: int,
     execution_input: _ExecutionInput | None,
+    sizing_context: _SizingContext,
 ) -> tuple[list[dict[str, Any]], bool]:
     rows: list[dict[str, Any]] = []
     aborted = False
@@ -854,10 +994,20 @@ def _execute_rows(
             if mode == "errored":
                 raise RuntimeError("fixture variant error")
             if execution_input is None:
-                result = _run_synthetic_backtest(variant["variant_id"], deterministic_seed)
+                result = _run_synthetic_backtest(
+                    variant["variant_id"],
+                    deterministic_seed,
+                    sizing_context.target_leverage,
+                )
                 metrics = _metrics_from_backtest(result, "1h")
             else:
-                result = _run_canonical_15m_backtest(strategy_spec, variant, execution_input)
+                assert sizing_context.exact_resolution is not None
+                result = _run_canonical_15m_backtest(
+                    strategy_spec,
+                    variant,
+                    execution_input,
+                    sizing_context.exact_resolution,
+                )
                 metrics = _metrics_from_backtest(result, execution_input.timeframe)
             outcome = "successful" if math.isfinite(metrics["return_pct"]) else "failed"
             rows.append(
@@ -897,6 +1047,7 @@ def _build_result_population(
     run_label: str | None,
     deterministic_seed: int,
     execution_input: _ExecutionInput | None,
+    target_leverage: float,
 ) -> tuple[dict[str, Any], bool]:
     strategy_hash = _sha256_prefixed(strategy_spec)
     manifest_hash = manifest["manifest_hash_pinning"]["manifest_hash"]
@@ -905,7 +1056,8 @@ def _build_result_population(
         "committed_population_count"
     ]
     selected_count = sweep_plan["trial_accounting"]["selected_variant_count"]
-    backtest_assumptions = _backtest_assumption_summary(sweep_plan)
+    sizing_context = _sizing_context(execution_input, target_leverage)
+    backtest_assumptions = _backtest_assumption_summary(sweep_plan, sizing_context)
     provenance_identity = _execution_provenance_identity(execution_input)
     result_population_id = _deterministic_result_population_id(
         strategy_hash,
@@ -923,6 +1075,7 @@ def _build_result_population(
         sweep_plan,
         deterministic_seed,
         execution_input,
+        sizing_context,
     )
     counts = {category: 0 for category in OUTCOME_CATEGORIES}
     counts.update(Counter(row["outcome_category"] for row in rows))
@@ -1268,10 +1421,12 @@ def run_offline_sweep(
     ohlcv_input_path: Path | None = None,
     d4_catalog_slice_path: Path | None = None,
     d2_import_report_path: Path | None = None,
+    target_leverage: float = DEFAULT_TARGET_LEVERAGE,
 ) -> dict[str, Any]:
     """Run a deterministic build-and-test-only offline research sweep."""
     if deterministic_seed is None:
         raise OfflineSweepError("deterministic_seed must be fixed")
+    target_leverage = _validate_target_leverage(target_leverage)
     guarded_output_dir = _guard_output_dir(output_dir, write_result_population)
     strategy_spec, manifest, sweep_plan = _validate_parent_inputs(
         strategy_spec_path,
@@ -1301,6 +1456,7 @@ def run_offline_sweep(
         run_label,
         deterministic_seed,
         execution_input,
+        target_leverage,
     )
     _validate_in_memory_payload(payload)
 
@@ -1342,6 +1498,12 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--ohlcv-input", type=Path)
     parser.add_argument("--d4-catalog-slice", type=Path)
     parser.add_argument("--d2-import-report", type=Path)
+    parser.add_argument(
+        "--target-leverage",
+        type=_parse_target_leverage,
+        default=DEFAULT_TARGET_LEVERAGE,
+        help="Positive finite leverage used to resolve fixed order_size from first in-sample open.",
+    )
     return parser
 
 
@@ -1361,6 +1523,7 @@ def main(argv: list[str] | None = None) -> int:
             ohlcv_input_path=args.ohlcv_input,
             d4_catalog_slice_path=args.d4_catalog_slice,
             d2_import_report_path=args.d2_import_report,
+            target_leverage=args.target_leverage,
         )
     except Exception as exc:
         print(f"ERROR: {exc}", file=sys.stderr)

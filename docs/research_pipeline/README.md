@@ -388,6 +388,11 @@ decision records, schemas, validators, or locked baseline documents.
   design; classifies runner/spec-side, schema/validator, query/dashboard,
   canonical-artifact, and protected-path surfaces without authorizing code or
   result regeneration.
+- `2026-06-realism_sizing_runner_resolution_impl_note.md` - build-and-test-only
+  implementation note for runner-side leverage-aware fixed order-size
+  resolution; records target leverage, first-open reference-price basis,
+  existing-field provenance, drift limitation, and no canonical result
+  authority.
 - `2026-06-strategy_dsl_design_opening.md` - Strategy DSL design opening for
   lab strategy-spec representation; design surface.
 - `2026-06-strategy_dsl_substantive_design.md` - substantive Strategy DSL/spec

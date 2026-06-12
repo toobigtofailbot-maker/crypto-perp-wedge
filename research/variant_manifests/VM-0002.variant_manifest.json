@@ -1,0 +1,433 @@
+{
+  "schema_version": "v1",
+  "variant_manifest_id": "VM-0002",
+  "status": "approved_for_sweep_planning",
+  "non_execution_declaration": {
+    "planning_surface_only": true,
+    "not_executable": true,
+    "not_runner_authority": true,
+    "not_sweep_authority": true,
+    "not_result_authority": true,
+    "not_candidate_approval": true,
+    "not_exp_approval": true,
+    "not_ranking_authority": true,
+    "not_recommendation_authority": true,
+    "not_readiness_authority": true,
+    "not_transition_authority": true,
+    "not_runtime_authority": true,
+    "not_paper_live_authority": true,
+    "not_gate_authority": true
+  },
+  "parent_strategy_spec": {
+    "strategy_spec_id": "STRAT-SPEC-0002",
+    "strategy_spec_schema_version": "v1",
+    "strategy_spec_hash": "sha256:aa2d05134e788b6b34e2ff03af8d111563dece743e943e134c0b8e46bee429e3",
+    "hash_algorithm": "sha256",
+    "hash_scope_version": "strategy_spec_hash_scope_v1",
+    "strategy_spec_review_status": "approved_for_variant_planning",
+    "strategy_spec_ref": "research/strategy_specs/STRAT-SPEC-0002.strategy_spec.json",
+    "mismatch_policy": "block",
+    "missing_parent_policy": "block",
+    "does_not_mutate_parent_strategy_spec": true
+  },
+  "population_governance": {
+    "population_cap": {
+      "max_variants": 10,
+      "cap_basis": "manual_grid",
+      "cap_source": "human_declared",
+      "cap_exception_authorized": false,
+      "cap_exception_ref": null
+    },
+    "declared_population": {
+      "committed_population_count": 10,
+      "declared_variant_count": 10,
+      "included_variant_count": 10,
+      "excluded_variant_count": 0,
+      "invalid_variant_count": 0,
+      "not_attempted_variant_count": 0
+    },
+    "trial_budget": {
+      "planned_trial_count": 10,
+      "trial_budget_denominator": 10,
+      "denominator_basis": "committed_pre_registered_population_count",
+      "denominator_count": 10,
+      "denominator_includes_failed": true,
+      "denominator_includes_excluded": true,
+      "denominator_includes_invalid": true,
+      "denominator_includes_errored": true,
+      "denominator_includes_aborted": true,
+      "denominator_includes_filtered": true,
+      "denominator_includes_data_unavailable": true,
+      "denominator_includes_not_attempted": true,
+      "executed_only_denominator_forbidden": true
+    },
+    "multiple_testing_accounting": {
+      "denominator_required": true,
+      "denominator_type": "committed_pre_registered_population",
+      "search_family_id": "SF-BOTHDIR-SMA-BAND-15M-0001",
+      "search_family_method": "manual_grid",
+      "adaptive_search_used": false,
+      "adaptive_search_authorization_ref": null,
+      "all_trials_visible_required": true,
+      "winner_only_review_forbidden": true
+    },
+    "pre_registration": {
+      "pre_registered": true,
+      "pre_registration_status": "frozen_for_sweep_planning",
+      "pre_registration_scope": "full_variant_population",
+      "freeze_required_before_sweep": true,
+      "post_hoc_addition_forbidden": true,
+      "post_result_mutation_forbidden": true,
+      "allowed_change_mode": "supersede_before_results_only"
+    }
+  },
+  "parameter_axes": [
+    {
+      "axis_id": "AXIS-001",
+      "parameter_name": "sma_lookback_bars",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.sma_lookback_bars",
+      "parameter_type": "integer",
+      "units": "bars",
+      "axis_kind": "free_parameter",
+      "generator_method": "manual_grid",
+      "allowed_values": [
+        20,
+        50
+      ],
+      "range": {
+        "min": 20,
+        "max": 50,
+        "step": 30,
+        "inclusive_min": true,
+        "inclusive_max": true
+      },
+      "counts_toward_parent_free_parameter_cap": true,
+      "is_declared_in_parent_strategy_spec": true,
+      "invalid_combination_rule_refs": [],
+      "notes": "Accepted both-direction SMA-band grid axis: 20 and 50 bars."
+    },
+    {
+      "axis_id": "AXIS-002",
+      "parameter_name": "band_threshold",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.band_threshold",
+      "parameter_type": "number",
+      "units": "ratio",
+      "axis_kind": "free_parameter",
+      "generator_method": "manual_grid",
+      "allowed_values": [
+        0.0025,
+        0.005,
+        0.01,
+        0.015,
+        0.02
+      ],
+      "range": {
+        "min": 0.0025,
+        "max": 0.02,
+        "step": 0.0025,
+        "inclusive_min": true,
+        "inclusive_max": true
+      },
+      "counts_toward_parent_free_parameter_cap": true,
+      "is_declared_in_parent_strategy_spec": true,
+      "invalid_combination_rule_refs": [],
+      "notes": "Accepted both-direction SMA-band grid axis: symmetric band threshold values."
+    }
+  ],
+  "invalid_combination_rules": [],
+  "exclusion_rules": [],
+  "variant_assignments": [
+    {
+      "variant_id": "VAR-000001",
+      "assignment_status": "included",
+      "parameter_values": {
+        "sma_lookback_bars": 20,
+        "band_threshold": 0.0025
+      },
+      "parameter_value_hash": "sha256:c3c7fd98e157eacce13070148c180d022351675267d6fc3101edf94c185ed8ce",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid",
+        "generation_order": 1
+      }
+    },
+    {
+      "variant_id": "VAR-000002",
+      "assignment_status": "included",
+      "parameter_values": {
+        "sma_lookback_bars": 20,
+        "band_threshold": 0.005
+      },
+      "parameter_value_hash": "sha256:a2c7582277abc5d7ccd22b88b5fb3f7b0711ef9ea84d6be43ed662df7ba2498c",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid",
+        "generation_order": 2
+      }
+    },
+    {
+      "variant_id": "VAR-000003",
+      "assignment_status": "included",
+      "parameter_values": {
+        "sma_lookback_bars": 20,
+        "band_threshold": 0.01
+      },
+      "parameter_value_hash": "sha256:1cce9e480212604e56b1d9f5fc740f48a4ce8a205e701bbfcbac721f88b10dff",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid",
+        "generation_order": 3
+      }
+    },
+    {
+      "variant_id": "VAR-000004",
+      "assignment_status": "included",
+      "parameter_values": {
+        "sma_lookback_bars": 20,
+        "band_threshold": 0.015
+      },
+      "parameter_value_hash": "sha256:1966ad9fb9392ffc0b5e79e73f00913be781774ffffef7826ad9f711333f8416",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid",
+        "generation_order": 4
+      }
+    },
+    {
+      "variant_id": "VAR-000005",
+      "assignment_status": "included",
+      "parameter_values": {
+        "sma_lookback_bars": 20,
+        "band_threshold": 0.02
+      },
+      "parameter_value_hash": "sha256:3d9d2f52288483a0f9803df89f7b6ada4a1898e79b4881970b083023b0e111a7",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid",
+        "generation_order": 5
+      }
+    },
+    {
+      "variant_id": "VAR-000006",
+      "assignment_status": "included",
+      "parameter_values": {
+        "sma_lookback_bars": 50,
+        "band_threshold": 0.0025
+      },
+      "parameter_value_hash": "sha256:5751012bd94f87fda73cde5f2000b5f7d48344e5a060962609ec15177695bf3c",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid",
+        "generation_order": 6
+      }
+    },
+    {
+      "variant_id": "VAR-000007",
+      "assignment_status": "included",
+      "parameter_values": {
+        "sma_lookback_bars": 50,
+        "band_threshold": 0.005
+      },
+      "parameter_value_hash": "sha256:10747e6d605af948a1b4ad62feb657554d1e21f63dcf678517e4f12ab6752183",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid",
+        "generation_order": 7
+      }
+    },
+    {
+      "variant_id": "VAR-000008",
+      "assignment_status": "included",
+      "parameter_values": {
+        "sma_lookback_bars": 50,
+        "band_threshold": 0.01
+      },
+      "parameter_value_hash": "sha256:6f4dbf628d16ef412bc5a8f40e49ab757d047d1fc1b2a7a65c652f45f7e724b5",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid",
+        "generation_order": 8
+      }
+    },
+    {
+      "variant_id": "VAR-000009",
+      "assignment_status": "included",
+      "parameter_values": {
+        "sma_lookback_bars": 50,
+        "band_threshold": 0.015
+      },
+      "parameter_value_hash": "sha256:2224f25d12805ca26dd40d1a76da511222cfe5c1a9ec2ffbbb20222a19aec447",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid",
+        "generation_order": 9
+      }
+    },
+    {
+      "variant_id": "VAR-000010",
+      "assignment_status": "included",
+      "parameter_values": {
+        "sma_lookback_bars": 50,
+        "band_threshold": 0.02
+      },
+      "parameter_value_hash": "sha256:77ad19e3089b688567cac73e26de2156a7ffd1b43e0c698c2fb9ec46131cc7c4",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid",
+        "generation_order": 10
+      }
+    }
+  ],
+  "manifest_hash_pinning": {
+    "manifest_hash": "sha256:27d89f01b3ec5a7cbb87ad224481f6328727737aa292b7fa332d3474b6bda5bc",
+    "hash_algorithm": "sha256",
+    "canonicalization": "json_canonical_v1",
+    "hash_scope_version": "variant_manifest_hash_scope_v1",
+    "hash_scope": [
+      "schema_version",
+      "variant_manifest_id",
+      "parent_strategy_spec.strategy_spec_id",
+      "parent_strategy_spec.strategy_spec_hash",
+      "population_governance",
+      "parameter_axes",
+      "invalid_combination_rules",
+      "exclusion_rules",
+      "variant_assignments"
+    ],
+    "hash_status": "computed",
+    "frozen_at": "2026-06-12T00:00:00Z",
+    "pre_sweep_freeze_required": true,
+    "post_result_mutation_forbidden": true
+  },
+  "amendment_and_supersession": {
+    "amendment_mode": "none",
+    "supersedes": null,
+    "supersession_lineage": [],
+    "amendment_reason": null,
+    "associated_results_state": "no_associated_results",
+    "supersession_allowed": false,
+    "close_only_after_results": true,
+    "post_result_change": false,
+    "preserve_prior_manifest_required": true,
+    "fresh_denominator_required": true,
+    "does_not_inherit_prior_results": true
+  },
+  "lineage": {
+    "parent_refs": [
+      {
+        "ref_type": "strategy_spec",
+        "ref_id": "STRAT-SPEC-0002",
+        "ref_path": "research/strategy_specs/STRAT-SPEC-0002.strategy_spec.json",
+        "ref_hash": "sha256:aa2d05134e788b6b34e2ff03af8d111563dece743e943e134c0b8e46bee429e3"
+      }
+    ],
+    "source_refs": [
+      {
+        "ref_type": "research_note",
+        "ref_id": "WP-SPEC-BOTHDIR-01a",
+        "ref_path": "docs/research_pipeline/2026-06-both_direction_sma_band_spec_design.md",
+        "ref_hash": null
+      },
+      {
+        "ref_type": "manual_review",
+        "ref_id": "WP-SPEC-BOTHDIR-01b",
+        "ref_path": null,
+        "ref_hash": null
+      }
+    ],
+    "created_at": "2026-06-12T00:00:00Z",
+    "updated_at": "2026-06-12T00:00:00Z",
+    "audit_notes": [
+      "Frozen both-direction Variant Manifest includes exactly ten variants and denominator 10.",
+      "No adaptive search, post-hoc addition, result-dependent filtering, or winner-only review is authorized."
+    ],
+    "hash_refs": [
+      "sha256:aa2d05134e788b6b34e2ff03af8d111563dece743e943e134c0b8e46bee429e3",
+      "sha256:27d89f01b3ec5a7cbb87ad224481f6328727737aa292b7fa332d3474b6bda5bc"
+    ]
+  },
+  "review": {
+    "human_review_required": true,
+    "reviewer": null,
+    "reviewed_at": null,
+    "review_notes": [
+      "Karl-gated frozen canonical instance package. Frozen-instance report-back to Karl is required before merge.",
+      "No sweep run or result population is authorized by this manifest."
+    ],
+    "approval_scope": "sweep_planning_only",
+    "non_authority_acknowledgement": {
+      "not_candidate_approval": true,
+      "not_exp_approval": true,
+      "not_sweep_authority": true,
+      "not_runner_authority": true,
+      "not_result_authority": true,
+      "not_ranking_authority": true,
+      "not_recommendation_authority": true,
+      "not_readiness_authority": true,
+      "not_transition_authority": true,
+      "not_runtime_authority": true,
+      "not_paper_live_authority": true,
+      "not_gate_satisfaction": true
+    }
+  }
+}

@@ -1714,9 +1714,9 @@ def test_integrity_candidate_refs_empty_under_healthy_state(conn):
 
 
 def test_strategy_spec_relation_first_instance_repo_state(conn):
-    rows = conn.execute("SELECT strategy_spec_id FROM strategy_specs").fetchall()
+    rows = conn.execute("SELECT strategy_spec_id FROM strategy_specs ORDER BY strategy_spec_id").fetchall()
 
-    assert rows == [("STRAT-SPEC-0001",)]
+    assert rows == [("STRAT-SPEC-0001",), ("STRAT-SPEC-0002",)]
 
 
 def test_strategy_spec_views_expose_first_instance_repo_state(conn):
@@ -1726,6 +1726,7 @@ def test_strategy_spec_views_expose_first_instance_repo_state(conn):
                direction, free_parameter_count, max_free_parameters, hash_status,
                intended_for_variant_manifest, approval_scope
         FROM v_strategy_spec_overview
+        ORDER BY strategy_spec_id
         """
     ).fetchall()
     parameters = conn.execute(
@@ -1733,6 +1734,7 @@ def test_strategy_spec_views_expose_first_instance_repo_state(conn):
         SELECT strategy_spec_id, parameter_name, parameter_type, role, range_min,
                range_max, range_step, included_in_variant_generation
         FROM v_strategy_spec_parameters
+        ORDER BY strategy_spec_id, parameter_name
         """
     ).fetchall()
     condition_groups = conn.execute(
@@ -1740,7 +1742,7 @@ def test_strategy_spec_views_expose_first_instance_repo_state(conn):
         SELECT strategy_spec_id, section, group_id, condition_count, subgroup_count,
                declared_depth
         FROM v_strategy_spec_condition_groups
-        ORDER BY section, group_id
+        ORDER BY strategy_spec_id, section, group_id
         """
     ).fetchall()
     assumptions = conn.execute(
@@ -1748,6 +1750,7 @@ def test_strategy_spec_views_expose_first_instance_repo_state(conn):
         SELECT strategy_spec_id, fee_side_assumption, exchange_constraints_disclosed,
                funding_notional_mode, slippage_model, fill_mode
         FROM v_strategy_spec_backtest_assumptions
+        ORDER BY strategy_spec_id
         """
     ).fetchall()
 
@@ -1759,6 +1762,18 @@ def test_strategy_spec_views_expose_first_instance_repo_state(conn):
             "15m",
             "long",
             1,
+            5,
+            "computed",
+            True,
+            "variant_planning_only",
+        ),
+        (
+            "STRAT-SPEC-0002",
+            "crypto_perp",
+            "perpetual",
+            "15m",
+            "both",
+            2,
             5,
             "computed",
             True,
@@ -1775,16 +1790,49 @@ def test_strategy_spec_views_expose_first_instance_repo_state(conn):
             0.05,
             0.005,
             True,
+        ),
+        (
+            "STRAT-SPEC-0002",
+            "band_threshold",
+            "number",
+            "entry",
+            0.0025,
+            0.02,
+            0.0025,
+            True,
+        ),
+        (
+            "STRAT-SPEC-0002",
+            "sma_lookback_bars",
+            "integer",
+            "entry",
+            20.0,
+            50.0,
+            30.0,
+            True,
         )
     ]
     assert condition_groups == [
         ("STRAT-SPEC-0001", "entry_logic", "ENTRY-GROUP-0001", 1, 0, 1),
         ("STRAT-SPEC-0001", "exit_logic", "EXIT-GROUP-0001", 1, 0, 1),
         ("STRAT-SPEC-0001", "filters", "FILTER-TYPING-NO-OP-0001", 0, 0, 1),
+        ("STRAT-SPEC-0002", "entry_logic", "ENTRY-GROUP-LONG-0001", 1, 0, 1),
+        ("STRAT-SPEC-0002", "entry_logic", "ENTRY-GROUP-SHORT-0001", 1, 0, 1),
+        ("STRAT-SPEC-0002", "exit_logic", "EXIT-GROUP-LONG-0001", 1, 0, 1),
+        ("STRAT-SPEC-0002", "exit_logic", "EXIT-GROUP-SHORT-0001", 1, 0, 1),
+        ("STRAT-SPEC-0002", "filters", "FILTER-TYPING-NO-OP-0002", 0, 0, 1),
     ]
     assert assumptions == [
         (
             "STRAT-SPEC-0001",
+            "taker_entry_taker_exit",
+            True,
+            "entry_price",
+            "fixed_bps",
+            "complete",
+        ),
+        (
+            "STRAT-SPEC-0002",
             "taker_entry_taker_exit",
             True,
             "entry_price",
@@ -2029,11 +2077,12 @@ def test_querying_strategy_spec_views_does_not_modify_research_files(conn):
 
 
 def test_variant_sweep_relations_first_instance_repo_state(conn):
-    assert conn.execute("SELECT variant_manifest_id FROM variant_manifests").fetchall() == [
-        ("VM-0001",)
-    ]
-    assert conn.execute("SELECT sweep_plan_id FROM sweep_plans").fetchall() == [
-        ("SWEEP-PLAN-0001",)
+    assert conn.execute(
+        "SELECT variant_manifest_id FROM variant_manifests ORDER BY variant_manifest_id"
+    ).fetchall() == [("VM-0001",), ("VM-0002",)]
+    assert conn.execute("SELECT sweep_plan_id FROM sweep_plans ORDER BY sweep_plan_id").fetchall() == [
+        ("SWEEP-PLAN-0001",),
+        ("SWEEP-PLAN-0002",),
     ]
 
 
@@ -2044,6 +2093,7 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
                declared_variant_count, population_cap, search_family_id,
                pre_registration_status, hash_status, approval_scope
         FROM v_variant_manifest_overview
+        ORDER BY variant_manifest_id
         """
     ).fetchall()
     manifest_population = conn.execute(
@@ -2053,6 +2103,7 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
                denominator_type, adaptive_search_used, winner_only_review_forbidden,
                executed_only_denominator_forbidden
         FROM v_variant_manifest_population
+        ORDER BY variant_manifest_id
         """
     ).fetchall()
     manifest_axes = conn.execute(
@@ -2060,6 +2111,7 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
         SELECT variant_manifest_id, axis_id, parameter_name, parameter_type,
                units, generator_method, counts_toward_parent_free_parameter_cap
         FROM v_variant_manifest_parameter_axes
+        ORDER BY variant_manifest_id, axis_id
         """
     ).fetchall()
     manifest_assignments = conn.execute(
@@ -2068,7 +2120,7 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
                exclusion_rule_count, invalid_combination_rule_count, generated_by_rule,
                generation_order
         FROM v_variant_manifest_assignments
-        ORDER BY variant_id
+        ORDER BY variant_manifest_id, variant_id
         """
     ).fetchall()
     sweep_overview = conn.execute(
@@ -2078,6 +2130,7 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
                manifest_pre_registration_status, selection_mode,
                selected_variant_count, excluded_variant_count, approval_scope
         FROM v_sweep_plan_overview
+        ORDER BY sweep_plan_id
         """
     ).fetchall()
     sweep_accounting = conn.execute(
@@ -2088,6 +2141,7 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
                denominator_equals_committed_population_count,
                executed_only_denominator_forbidden, successful_only_denominator_forbidden
         FROM v_sweep_plan_trial_accounting
+        ORDER BY sweep_plan_id
         """
     ).fetchall()
     result_capture = conn.execute(
@@ -2095,6 +2149,7 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
         SELECT sweep_plan_id, result_population_expected, expected_result_population_ref,
                winner_only_retention_forbidden, canonical_evidence_mapping_deferred
         FROM v_sweep_plan_result_capture_expectations
+        ORDER BY sweep_plan_id
         """
     ).fetchall()
 
@@ -2106,6 +2161,17 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
             7,
             7,
             "SF-SMA-DISTANCE-15M-0001",
+            "frozen_for_sweep_planning",
+            "computed",
+            "sweep_planning_only",
+        ),
+        (
+            "VM-0002",
+            "STRAT-SPEC-0002",
+            10,
+            10,
+            10,
+            "SF-BOTHDIR-SMA-BAND-15M-0001",
             "frozen_for_sweep_planning",
             "computed",
             "sweep_planning_only",
@@ -2123,6 +2189,18 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
             False,
             True,
             True,
+        ),
+        (
+            "VM-0002",
+            10,
+            10,
+            10,
+            10,
+            "committed_pre_registered_population_count",
+            "committed_pre_registered_population",
+            False,
+            True,
+            True,
         )
     ]
     assert manifest_axes == [
@@ -2130,6 +2208,24 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
             "VM-0001",
             "AXIS-001",
             "entry_distance_threshold",
+            "number",
+            "ratio",
+            "manual_grid",
+            True,
+        ),
+        (
+            "VM-0002",
+            "AXIS-001",
+            "sma_lookback_bars",
+            "integer",
+            "bars",
+            "manual_grid",
+            True,
+        ),
+        (
+            "VM-0002",
+            "AXIS-002",
+            "band_threshold",
             "number",
             "ratio",
             "manual_grid",
@@ -2144,6 +2240,16 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
         ("VM-0001", "VAR-000005", "included", 1, 0, 0, "manual-grid", 5),
         ("VM-0001", "VAR-000006", "included", 1, 0, 0, "manual-grid", 6),
         ("VM-0001", "VAR-000007", "included", 1, 0, 0, "manual-grid", 7),
+        ("VM-0002", "VAR-000001", "included", 2, 0, 0, "manual-grid", 1),
+        ("VM-0002", "VAR-000002", "included", 2, 0, 0, "manual-grid", 2),
+        ("VM-0002", "VAR-000003", "included", 2, 0, 0, "manual-grid", 3),
+        ("VM-0002", "VAR-000004", "included", 2, 0, 0, "manual-grid", 4),
+        ("VM-0002", "VAR-000005", "included", 2, 0, 0, "manual-grid", 5),
+        ("VM-0002", "VAR-000006", "included", 2, 0, 0, "manual-grid", 6),
+        ("VM-0002", "VAR-000007", "included", 2, 0, 0, "manual-grid", 7),
+        ("VM-0002", "VAR-000008", "included", 2, 0, 0, "manual-grid", 8),
+        ("VM-0002", "VAR-000009", "included", 2, 0, 0, "manual-grid", 9),
+        ("VM-0002", "VAR-000010", "included", 2, 0, 0, "manual-grid", 10),
     ]
     assert sweep_overview == [
         (
@@ -2154,6 +2260,17 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
             "frozen_for_sweep_planning",
             "all_manifest_variants",
             7,
+            0,
+            "offline_run_planning_only",
+        ),
+        (
+            "SWEEP-PLAN-0002",
+            "VM-0002",
+            10,
+            10,
+            "frozen_for_sweep_planning",
+            "all_manifest_variants",
+            10,
             0,
             "offline_run_planning_only",
         )
@@ -2170,10 +2287,23 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
             True,
             True,
             True,
+        ),
+        (
+            "SWEEP-PLAN-0002",
+            10,
+            10,
+            0,
+            10,
+            10,
+            "committed_pre_registered_population_count",
+            True,
+            True,
+            True,
         )
     ]
     assert result_capture == [
-        ("SWEEP-PLAN-0001", True, None, True, True)
+        ("SWEEP-PLAN-0001", True, None, True, True),
+        ("SWEEP-PLAN-0002", True, None, True, True),
     ]
 
 

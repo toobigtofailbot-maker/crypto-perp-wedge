@@ -371,6 +371,9 @@ decision records, schemas, validators, or locked baseline documents.
 - `2026-06-both_direction_sma_band_spec_design.md` - docs-only first
   both-direction SMA-band Strategy Spec design; no Strategy Spec instance,
   variant, sweep, result, or downstream authority.
+- `2026-06-rp6688_both_direction_sma_band_checkpoint.md` - descriptive
+  checkpoint over `RP-6688`; complete-population, denominator-preserving, and
+  non-authoritative.
 - `2026-06-strategy_dsl_design_opening.md` - Strategy DSL design opening for
   lab strategy-spec representation; design surface.
 - `2026-06-strategy_dsl_substantive_design.md` - substantive Strategy DSL/spec

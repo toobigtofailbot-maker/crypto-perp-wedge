@@ -1018,6 +1018,7 @@ def test_canonical_15m_scratch_result_population_validates(tmp_path):
     expected_canonical_files = [
         runner.CANONICAL_RESULT_POPULATIONS_DIR / "RP-2134.result_population.json",
         runner.CANONICAL_RESULT_POPULATIONS_DIR / "RP-4492.result_population.json",
+        runner.CANONICAL_RESULT_POPULATIONS_DIR / "RP-6688.result_population.json",
     ]
     canonical_files_before = (
         sorted(runner.CANONICAL_RESULT_POPULATIONS_DIR.glob("*.result_population.json"))

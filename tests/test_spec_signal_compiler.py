@@ -90,8 +90,14 @@ def _condition(left: dict, operator: str, right: dict, role: str = "required") -
     }
 
 
-def _group(role: str, logic: str, conditions: list[dict], subgroups: list[dict] | None = None) -> dict:
-    return {
+def _group(
+    role: str,
+    logic: str,
+    conditions: list[dict],
+    subgroups: list[dict] | None = None,
+    side: str | None = None,
+) -> dict:
+    group = {
         "group_id": f"G-{role}-{logic}",
         "group_role": role,
         "logic": logic,
@@ -99,6 +105,9 @@ def _group(role: str, logic: str, conditions: list[dict], subgroups: list[dict] 
         "subgroups": subgroups or [],
         "notes": None,
     }
+    if side is not None:
+        group["side"] = side
+    return group
 
 
 def _spec(
@@ -166,6 +175,56 @@ def _single_condition_spec(operator: str, left: dict, right: dict, *, max_holdin
                 ],
             )
         ],
+        max_holding_bars=max_holding_bars,
+    )
+
+
+def _both_direction_spec(
+    *,
+    long_entry: dict | None = None,
+    short_entry: dict | None = None,
+    long_exit: dict | None = None,
+    short_exit: dict | None = None,
+    filters: list[dict] | None = None,
+    max_holding_bars: int | None = None,
+) -> dict:
+    exit_groups = []
+    if long_exit is not None:
+        exit_groups.append(_group("exit", "all", [long_exit], side="long"))
+    if short_exit is not None:
+        exit_groups.append(_group("exit", "all", [short_exit], side="short"))
+    return _spec(
+        direction="both",
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    long_entry
+                    or _condition(
+                        _operand("data_ref", "close", "close"),
+                        "gt",
+                        _operand("constant", 10.0),
+                    )
+                ],
+                side="long",
+            ),
+            _group(
+                "required",
+                "all",
+                [
+                    short_entry
+                    or _condition(
+                        _operand("data_ref", "close", "close"),
+                        "lt",
+                        _operand("constant", 10.0),
+                    )
+                ],
+                side="short",
+            ),
+        ],
+        exit_groups=exit_groups,
+        filters=filters,
         max_holding_bars=max_holding_bars,
     )
 
@@ -1853,9 +1912,343 @@ def test_applies_max_holding_period_when_enabled() -> None:
     assert signal.tolist() == [1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
 
-def test_rejects_both_direction_in_first_slice() -> None:
-    with pytest.raises(UnsupportedSpecSignalCompilerFeature, match="'both'"):
-        compile_signal(_spec(direction="both"), _default_variant(), _ohlcv())
+def test_both_direction_enters_long_from_long_side_group() -> None:
+    signal = compile_signal(_both_direction_spec(), _default_variant(), _ohlcv_from_close([11.0]))
+
+    assert signal.tolist() == [1.0]
+
+
+def test_both_direction_enters_short_from_short_side_group() -> None:
+    signal = compile_signal(_both_direction_spec(), _default_variant(), _ohlcv_from_close([9.0]))
+
+    assert signal.tolist() == [-1.0]
+
+
+def test_both_direction_emits_single_stream_mutually_exclusive_values() -> None:
+    signal = compile_signal(
+        _both_direction_spec(max_holding_bars=2),
+        _default_variant(),
+        _ohlcv_from_close([11.0, 12.0, 8.0, 8.0]),
+    )
+
+    assert signal.tolist() == [1.0, 1.0, 0.0, -1.0]
+    assert set(signal.unique()) <= {-1.0, 0.0, 1.0}
+
+
+def test_both_direction_simultaneous_long_short_entry_while_flat_stays_flat() -> None:
+    spec = _both_direction_spec(
+        long_entry=_condition(
+            _operand("data_ref", "close", "close"),
+            "gte",
+            _operand("constant", 10.0),
+        ),
+        short_entry=_condition(
+            _operand("data_ref", "close", "close"),
+            "lte",
+            _operand("constant", 10.0),
+        ),
+    )
+
+    signal = compile_signal(spec, _default_variant(), _ohlcv_from_close([10.0, 11.0]))
+
+    assert signal.tolist() == [0.0, 1.0]
+
+
+def test_both_direction_long_exit_only_closes_long() -> None:
+    spec = _both_direction_spec(
+        long_exit=_condition(
+            _operand("data_ref", "close", "close"),
+            "lt",
+            _operand("constant", 10.0),
+            role="exit",
+        ),
+        short_exit=_condition(
+            _operand("data_ref", "close", "close"),
+            "gt",
+            _operand("constant", 0.0),
+            role="exit",
+        ),
+    )
+
+    signal = compile_signal(spec, _default_variant(), _ohlcv_from_close([11.0, 12.0, 9.0]))
+
+    assert signal.tolist() == [1.0, 1.0, 0.0]
+
+
+def test_both_direction_short_exit_only_closes_short() -> None:
+    spec = _both_direction_spec(
+        long_exit=_condition(
+            _operand("data_ref", "close", "close"),
+            "gt",
+            _operand("constant", 0.0),
+            role="exit",
+        ),
+        short_exit=_condition(
+            _operand("data_ref", "close", "close"),
+            "gt",
+            _operand("constant", 10.0),
+            role="exit",
+        ),
+    )
+
+    signal = compile_signal(spec, _default_variant(), _ohlcv_from_close([9.0, 8.0, 11.0]))
+
+    assert signal.tolist() == [-1.0, -1.0, 0.0]
+
+
+def test_both_direction_opposite_entry_while_long_does_not_flip() -> None:
+    signal = compile_signal(
+        _both_direction_spec(),
+        _default_variant(),
+        _ohlcv_from_close([11.0, 8.0, 8.0]),
+    )
+
+    assert signal.tolist() == [1.0, 1.0, 1.0]
+
+
+def test_both_direction_opposite_entry_while_short_does_not_flip() -> None:
+    signal = compile_signal(
+        _both_direction_spec(),
+        _default_variant(),
+        _ohlcv_from_close([9.0, 12.0, 12.0]),
+    )
+
+    assert signal.tolist() == [-1.0, -1.0, -1.0]
+
+
+def test_both_direction_same_bar_exit_and_opposite_entry_goes_flat_not_reversed() -> None:
+    spec = _both_direction_spec(
+        long_exit=_condition(
+            _operand("data_ref", "close", "close"),
+            "lt",
+            _operand("constant", 10.0),
+            role="exit",
+        )
+    )
+
+    signal = compile_signal(spec, _default_variant(), _ohlcv_from_close([11.0, 9.0, 9.0]))
+
+    assert signal.tolist() == [1.0, 0.0, -1.0]
+
+
+def test_both_direction_respects_max_holding_for_current_side() -> None:
+    signal = compile_signal(
+        _both_direction_spec(max_holding_bars=2),
+        _default_variant(),
+        _ohlcv_from_close([11.0, 12.0, 8.0, 8.0, 8.0, 12.0, 12.0]),
+    )
+
+    assert signal.tolist() == [1.0, 1.0, 0.0, -1.0, -1.0, 0.0, 1.0]
+
+
+def test_both_direction_compiler_rejects_unlabeled_entry_group_if_schema_bypassed() -> None:
+    spec = _both_direction_spec()
+    del spec["entry_logic"]["groups"][0]["side"]
+
+    with pytest.raises(SpecSignalCompilerError, match="entry_logic\\.groups\\.0\\.side"):
+        compile_signal(spec, _default_variant(), _ohlcv())
+
+
+def test_both_direction_compiler_rejects_unknown_side_if_schema_bypassed() -> None:
+    spec = _both_direction_spec()
+    spec["entry_logic"]["groups"][0]["side"] = "up"
+
+    with pytest.raises(SpecSignalCompilerError, match="entry_logic\\.groups\\.0\\.side"):
+        compile_signal(spec, _default_variant(), _ohlcv())
+
+
+def test_both_direction_compiler_rejects_unlabeled_exit_group_if_schema_bypassed() -> None:
+    spec = _both_direction_spec(
+        long_exit=_condition(
+            _operand("data_ref", "close", "close"),
+            "lt",
+            _operand("constant", 10.0),
+            role="exit",
+        )
+    )
+    del spec["exit_logic"]["groups"][0]["side"]
+
+    with pytest.raises(SpecSignalCompilerError, match="exit_logic\\.groups\\.0\\.side"):
+        compile_signal(spec, _default_variant(), _ohlcv())
+
+
+def test_both_direction_compiler_rejects_filter_side_label_if_schema_bypassed() -> None:
+    spec = _both_direction_spec(
+        filters=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "volume", "volume"),
+                        "gt",
+                        _operand("constant", 0.0),
+                    )
+                ],
+                side="long",
+            )
+        ]
+    )
+
+    with pytest.raises(SpecSignalCompilerError, match="filters\\.groups\\.0\\.side"):
+        compile_signal(spec, _default_variant(), _ohlcv())
+
+
+def test_both_direction_preserves_no_lookahead() -> None:
+    base = _ohlcv_from_close([9.0, 9.0, 9.0, 9.0, 9.0])
+    mutated = base.copy()
+    mutated.loc[mutated.index[3:], "close"] = [11.0, 8.0]
+
+    base_signal = compile_signal(_both_direction_spec(), _default_variant(), base)
+    mutated_signal = compile_signal(_both_direction_spec(), _default_variant(), mutated)
+
+    pd.testing.assert_series_equal(base_signal.iloc[:3], mutated_signal.iloc[:3])
+
+
+def test_both_direction_repeated_calls_are_deterministic() -> None:
+    spec = _both_direction_spec(max_holding_bars=2)
+    ohlcv = _ohlcv_from_close([11.0, 12.0, 8.0, 8.0, 12.0])
+
+    first = compile_signal(spec, _default_variant(), ohlcv)
+    second = compile_signal(spec, _default_variant(), ohlcv)
+
+    pd.testing.assert_series_equal(first, second)
+
+
+def test_existing_long_direction_signal_unchanged() -> None:
+    ohlcv = _ohlcv()
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "gt",
+                        _operand("constant", 12.0),
+                    )
+                ],
+            )
+        ],
+        exit_groups=[
+            _group(
+                "exit",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "lt",
+                        _operand("constant", 13.0),
+                        role="exit",
+                    )
+                ],
+            )
+        ],
+    )
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0]
+
+
+def test_existing_short_direction_signal_unchanged() -> None:
+    ohlcv = _ohlcv()
+    spec = _spec(
+        direction="short",
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "lt",
+                        _operand("constant", 12.0),
+                    )
+                ],
+            )
+        ],
+        exit_groups=[
+            _group(
+                "exit",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "gt",
+                        _operand("constant", 11.0),
+                        role="exit",
+                    )
+                ],
+            )
+        ],
+    )
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [-1.0, -1.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0]
+
+
+def test_both_direction_supports_crosses_above_below_conditions() -> None:
+    spec = _both_direction_spec(
+        long_entry=_condition(
+            _operand("data_ref", "close", "close"),
+            "crosses_above",
+            _operand("constant", 10.0),
+        ),
+        short_entry=_condition(
+            _operand("data_ref", "close", "close"),
+            "crosses_below",
+            _operand("constant", 10.0),
+        ),
+        max_holding_bars=1,
+    )
+
+    signal = compile_signal(
+        spec,
+        _default_variant(),
+        _ohlcv_from_close([9.0, 10.0, 11.0, 9.0, 10.0, 9.0]),
+    )
+
+    assert signal.tolist() == [0.0, 0.0, 1.0, 0.0, 0.0, -1.0]
+
+
+def test_both_direction_supports_plus_minus_composed_operands() -> None:
+    index = pd.date_range("2026-03-01", periods=4, freq="h", tz="UTC")
+    ohlcv = pd.DataFrame(
+        {
+            "open": [100.0] * len(index),
+            "high": [101.0, 107.0, 101.0, 95.0],
+            "low": [99.0, 105.0, 99.0, 93.0],
+            "close": [100.0, 106.0, 100.0, 94.0],
+            "volume": [1000.0] * len(index),
+        },
+        index=index,
+    )
+    spec = _both_direction_spec(
+        long_entry=_condition(
+            _operand("data_ref", "close", "close"),
+            "gt",
+            _composed_operand(
+                composition_type="scale_by_one_plus_parameter",
+                base_operand=_operand("data_ref", "open", "open"),
+            ),
+        ),
+        short_entry=_condition(
+            _operand("data_ref", "close", "close"),
+            "lt",
+            _composed_operand(
+                composition_type="scale_by_one_minus_parameter",
+                base_operand=_operand("data_ref", "open", "open"),
+            ),
+        ),
+        max_holding_bars=1,
+    )
+
+    signal = compile_signal(spec, _default_variant(entry_distance_threshold=0.05), ohlcv)
+
+    assert signal.tolist() == [0.0, 1.0, 0.0, -1.0]
 
 
 def test_produces_identical_output_on_repeated_calls() -> None:

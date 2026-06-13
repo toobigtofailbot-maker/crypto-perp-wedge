@@ -54,6 +54,7 @@
     "validation_summary": { "$ref": "#/definitions/validation_summary" },
     "error_summary": { "$ref": "#/definitions/error_summary" },
     "data_coverage_summary": { "$ref": "#/definitions/data_coverage_summary" },
+    "sizing_metadata": { "$ref": "#/definitions/sizing_metadata" },
     "backtest_assumption_summary": { "$ref": "#/definitions/backtest_assumption_summary" },
     "lineage": { "$ref": "#/definitions/lineage" },
     "review": { "$ref": "#/definitions/review" }
@@ -292,6 +293,7 @@
               "execution_context.repo_commit",
               "data_coverage_summary.data_catalog_ref",
               "data_coverage_summary.data_slice_identity",
+              "sizing_metadata",
               "backtest_assumption_summary"
             ]
           },
@@ -335,6 +337,7 @@
               "execution_context.repo_commit",
               "data_coverage_summary.data_catalog_ref",
               "data_coverage_summary.data_slice_identity",
+              "sizing_metadata",
               "backtest_assumption_summary",
               "committed_denominator_snapshot",
               "variant_result_rows",
@@ -753,6 +756,55 @@
         "data_unavailable_count": { "type": "integer", "minimum": 0 },
         "data_coverage_notes": { "$ref": "#/definitions/string_array" }
       }
+    },
+    "sizing_metadata": {
+      "description": "Optional structured, identity-bearing sizing metadata for future result populations. Older result populations may omit this object and remain valid under their recorded assumption text.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sizing_mode",
+        "sizing_equity_basis",
+        "entry_reference_price_basis"
+      ],
+      "properties": {
+        "sizing_mode": {
+          "type": "string",
+          "enum": ["fixed_order_size", "dynamic_equity_target_leverage"]
+        },
+        "target_leverage": { "type": "number", "exclusiveMinimum": 0 },
+        "sizing_equity_basis": {
+          "type": "string",
+          "enum": [
+            "not_applicable_fixed_order_size",
+            "realized_available_equity_at_entry"
+          ]
+        },
+        "entry_reference_price_basis": {
+          "type": "string",
+          "enum": [
+            "not_applicable_fixed_order_size",
+            "next_bar_open_pre_fee_slippage"
+          ]
+        },
+        "max_leverage_cap": { "type": "number", "exclusiveMinimum": 0 }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "sizing_mode": { "const": "dynamic_equity_target_leverage" }
+            },
+            "required": ["sizing_mode"]
+          },
+          "then": {
+            "required": [
+              "target_leverage",
+              "sizing_equity_basis",
+              "entry_reference_price_basis"
+            ]
+          }
+        }
+      ]
     },
     "backtest_assumption_summary": {
       "type": "object",

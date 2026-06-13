@@ -407,6 +407,10 @@ decision records, schemas, validators, or locked baseline documents.
   `sizing_mode` / `target_leverage` runner surface, fixed-mode default
   preservation, existing-field sizing provenance, scratch dynamic 1x dry-run
   evidence, identity-hash scope observation, and no canonical-result authority.
+- `2026-06-sizing_metadata_schema_note.md` - result-population schema and
+  validator note for optional structured sizing metadata; records
+  identity-bearing posture, old-RP compatibility, and no canonical-result
+  authority.
 - `2026-06-strategy_dsl_design_opening.md` - Strategy DSL design opening for
   lab strategy-spec representation; design surface.
 - `2026-06-strategy_dsl_substantive_design.md` - substantive Strategy DSL/spec

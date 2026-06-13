@@ -429,6 +429,12 @@ decision records, schemas, validators, or locked baseline documents.
   diagnostic for the D4 validation-report SHA mismatch; classifies the CRLF/LF
   byte drift, RP-6688 provenance impact, D4 slice-identity status, and gated
   reconciliation options without mutating artifacts.
+- `2026-06-validation_report_crlf_reconciliation.md` - content-preserving
+  reconciliation of the BTCUSDT 15m D4 validation-report byte representation;
+  restores the catalog-attested CRLF working-tree hash, pins the artifact path,
+  preserves the D4 catalog identity, and records no catalog, result-population,
+  data-content, code, schema, validator, runtime, paper/live, or canonical-write
+  authority.
 - `2026-06-strategy_dsl_design_opening.md` - Strategy DSL design opening for
   lab strategy-spec representation; design surface.
 - `2026-06-strategy_dsl_substantive_design.md` - substantive Strategy DSL/spec

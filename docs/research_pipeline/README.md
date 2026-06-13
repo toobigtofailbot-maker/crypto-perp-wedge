@@ -425,6 +425,10 @@ decision records, schemas, validators, or locked baseline documents.
   D4A normalized CSV locally at the catalog-referenced gitignored path,
   compares it to the 02e/02f fallback CSV, reruns the canonical runner path in
   temp scratch output, and records no canonical-result authority.
+- `2026-06-d4_validation_report_sha_diagnostic.md` - read-only data-lineage
+  diagnostic for the D4 validation-report SHA mismatch; classifies the CRLF/LF
+  byte drift, RP-6688 provenance impact, D4 slice-identity status, and gated
+  reconciliation options without mutating artifacts.
 - `2026-06-strategy_dsl_design_opening.md` - Strategy DSL design opening for
   lab strategy-spec representation; design surface.
 - `2026-06-strategy_dsl_substantive_design.md` - substantive Strategy DSL/spec

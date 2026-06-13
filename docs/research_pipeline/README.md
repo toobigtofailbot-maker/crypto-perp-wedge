@@ -415,6 +415,11 @@ decision records, schemas, validators, or locked baseline documents.
   audit for STRAT-SPEC-0002 dynamic 1x sizing; records full-D4 per-variant
   scratch metrics, sizing metadata identity-hash proof, non-degeneracy checks,
   and no canonical-result authority.
+- `2026-06-canonical_dynamic_sizing_runner_readiness.md` - build-test/scratch
+  runner-readiness evidence for STRAT-SPEC-0002 dynamic 1x sizing; records
+  direct runner-emitted `sizing_metadata`, identity-hash scope inclusion,
+  full-D4 canonical-runner-path scratch metrics, comparison to 02e scratch,
+  non-degeneracy checks, and no canonical-result authority.
 - `2026-06-strategy_dsl_design_opening.md` - Strategy DSL design opening for
   lab strategy-spec representation; design surface.
 - `2026-06-strategy_dsl_substantive_design.md` - substantive Strategy DSL/spec

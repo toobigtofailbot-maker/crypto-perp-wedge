@@ -34,6 +34,12 @@ D4_SLICE_IDENTITY = (
 D3_VALIDATION_REPORT_SHA256 = "785a8d53797155dcc80e646e8610db8d510825b9fa3dbccd21e79aa2700a6c1c"
 D2_IMPORT_REPORT_SHA256 = "543c944f727b2b9a7ad06742946ecefc91aa8b94723f46509e4041f622ef57ad"
 D4_CATALOG_ARTIFACT_SHA256 = "f7b98c4d7759b6ba0c9bf8559bcea5e3311d3abe877930da254aeca96f53105a"
+DYNAMIC_SIZING_METADATA = {
+    "sizing_mode": runner.SIZING_MODE_DYNAMIC_EQUITY_TARGET_LEVERAGE,
+    "target_leverage": 1.0,
+    "sizing_equity_basis": runner.DYNAMIC_SIZING_EQUITY_BASIS,
+    "entry_reference_price_basis": runner.DYNAMIC_ENTRY_REFERENCE_PRICE_BASIS,
+}
 
 
 def _fixture_dirs(tmp_path: Path) -> tuple[Path, Path, Path]:
@@ -371,7 +377,72 @@ def test_dynamic_sizing_mode_passes_mode_and_target_leverage(tmp_path, monkeypat
     assert "sizing_mode=dynamic_equity_target_leverage" in assumptions
     assert "sizing_equity_basis=realized_available_equity_at_entry" in assumptions
     assert "entry_reference_price_basis=next_bar_open_pre_fee_slippage" in assumptions
-    assert "structured_sizing_schema_fields=not_present_current_schema" in assumptions
+    assert "structured_sizing_metadata=present" in assumptions
+    assert result["result_population"]["sizing_metadata"] == DYNAMIC_SIZING_METADATA
+
+
+def test_dynamic_output_includes_sizing_metadata_in_both_identity_scopes(tmp_path):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(tmp_path)
+
+    result = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        deterministic_seed=7,
+        sizing_mode=runner.SIZING_MODE_DYNAMIC_EQUITY_TARGET_LEVERAGE,
+        target_leverage=1.0,
+    )
+
+    payload = result["result_population"]
+    assert payload["sizing_metadata"] == DYNAMIC_SIZING_METADATA
+    assert "sizing_metadata" in payload["input_identity_hash"]["hash_scope"]
+    assert "sizing_metadata" in payload["result_population_identity_hash"]["hash_scope"]
+
+
+def test_default_fixed_output_does_not_emit_sizing_metadata(tmp_path):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(tmp_path)
+
+    result = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        deterministic_seed=7,
+    )
+
+    payload = result["result_population"]
+    assumptions = payload["backtest_assumption_summary"]["order_size_assumption"]
+    assert "sizing_metadata" not in payload
+    assert "sizing_metadata" not in payload["input_identity_hash"]["hash_scope"]
+    assert "sizing_metadata" not in payload["result_population_identity_hash"]["hash_scope"]
+    assert "sizing_mode=fixed_order_size" in assumptions
+    assert "structured_sizing_metadata=not_emitted_for_fixed_mode" in assumptions
+
+
+def test_explicit_fixed_output_does_not_emit_sizing_metadata(tmp_path):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(tmp_path)
+
+    result = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        deterministic_seed=7,
+        sizing_mode=runner.SIZING_MODE_FIXED_ORDER_SIZE,
+        target_leverage=1.0,
+    )
+
+    payload = result["result_population"]
+    assert "sizing_metadata" not in payload
+    assert "sizing_metadata" not in payload["input_identity_hash"]["hash_scope"]
+    assert "sizing_metadata" not in payload["result_population_identity_hash"]["hash_scope"]
 
 
 def test_invalid_sizing_mode_rejected_by_api(tmp_path):
@@ -573,6 +644,7 @@ def test_dynamic_sizing_dry_run_is_deterministic_for_same_input(tmp_path):
 
     assert first["dry_run"] is True
     assert first["wrote"] is False
+    assert first["result_population"]["sizing_metadata"] == DYNAMIC_SIZING_METADATA
     assert first["result_population_id"] == second["result_population_id"]
     assert _identity_payload(first) == _identity_payload(second)
 
@@ -604,15 +676,56 @@ def test_sizing_mode_provenance_is_identity_bearing(tmp_path):
 
     fixed_payload = fixed["result_population"]
     dynamic_payload = dynamic["result_population"]
+    assert "sizing_metadata" not in fixed_payload
+    assert dynamic_payload["sizing_metadata"] == DYNAMIC_SIZING_METADATA
     assert "backtest_assumption_summary" in fixed_payload["input_identity_hash"]["hash_scope"]
     assert "backtest_assumption_summary" in dynamic_payload["input_identity_hash"]["hash_scope"]
+    assert "sizing_metadata" in dynamic_payload["input_identity_hash"]["hash_scope"]
+    assert "sizing_metadata" in dynamic_payload["result_population_identity_hash"]["hash_scope"]
     assert fixed_payload["input_identity_hash"]["hash"] != dynamic_payload["input_identity_hash"]["hash"]
     assert fixed_payload["result_population_identity_hash"]["hash"] != dynamic_payload[
         "result_population_identity_hash"
     ]["hash"]
 
 
-def test_sizing_dry_run_preserves_no_canonical_write(tmp_path):
+def test_dynamic_target_leverage_changes_identity_hashes(tmp_path):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(tmp_path)
+
+    baseline = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        deterministic_seed=7,
+        sizing_mode=runner.SIZING_MODE_DYNAMIC_EQUITY_TARGET_LEVERAGE,
+        target_leverage=1.0,
+    )
+    changed = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        deterministic_seed=7,
+        sizing_mode=runner.SIZING_MODE_DYNAMIC_EQUITY_TARGET_LEVERAGE,
+        target_leverage=2.0,
+    )
+
+    baseline_payload = baseline["result_population"]
+    changed_payload = changed["result_population"]
+    assert baseline_payload["sizing_metadata"]["target_leverage"] == 1.0
+    assert changed_payload["sizing_metadata"]["target_leverage"] == 2.0
+    assert baseline_payload["input_identity_hash"]["hash"] != changed_payload[
+        "input_identity_hash"
+    ]["hash"]
+    assert baseline_payload["result_population_identity_hash"]["hash"] != changed_payload[
+        "result_population_identity_hash"
+    ]["hash"]
+
+
+def test_dynamic_sizing_dry_run_preserves_no_canonical_write(tmp_path):
     strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
     ohlcv_path = _write_15m_ohlcv_fixture(tmp_path)
     canonical_files_before = sorted(
@@ -626,6 +739,7 @@ def test_sizing_dry_run_preserves_no_canonical_write(tmp_path):
         canonical_15m=True,
         ohlcv_input_path=ohlcv_path,
         deterministic_seed=7,
+        sizing_mode=runner.SIZING_MODE_DYNAMIC_EQUITY_TARGET_LEVERAGE,
         target_leverage=1.0,
     )
 
@@ -634,6 +748,7 @@ def test_sizing_dry_run_preserves_no_canonical_write(tmp_path):
     )
     assert result["dry_run"] is True
     assert result["wrote"] is False
+    assert result["result_population"]["sizing_metadata"] == DYNAMIC_SIZING_METADATA
     assert canonical_files_after == canonical_files_before
 
 
@@ -1504,6 +1619,48 @@ def test_canonical_15m_scratch_result_population_validates(tmp_path):
     )
     assert canonical_files_before == expected_canonical_files
     assert canonical_files_after == expected_canonical_files
+    assert written[0].parent == output_dir
+
+
+def test_dynamic_canonical_15m_scratch_result_population_validates(tmp_path):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(tmp_path)
+    output_dir = tmp_path / "dynamic_scratch_result_populations"
+    canonical_files_before = sorted(
+        runner.CANONICAL_RESULT_POPULATIONS_DIR.glob("*.result_population.json")
+    )
+
+    result = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        output_dir=output_dir,
+        write_result_population=True,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        deterministic_seed=7,
+        sizing_mode=runner.SIZING_MODE_DYNAMIC_EQUITY_TARGET_LEVERAGE,
+        target_leverage=1.0,
+    )
+
+    written = list(output_dir.glob("*.result_population.json"))
+    assert result["wrote"] is True
+    assert len(written) == 1
+    assert result["result_population"]["sizing_metadata"] == DYNAMIC_SIZING_METADATA
+    assert "sizing_metadata" in result["result_population"]["input_identity_hash"]["hash_scope"]
+    assert "sizing_metadata" in result["result_population"][
+        "result_population_identity_hash"
+    ]["hash_scope"]
+    assert validate_result_populations(
+        result_populations_dir=output_dir,
+        strategy_specs_dir=strategy_path.parent,
+        variant_manifests_dir=manifest_path.parent,
+        sweep_plans_dir=sweep_path.parent,
+    ) == []
+    canonical_files_after = sorted(
+        runner.CANONICAL_RESULT_POPULATIONS_DIR.glob("*.result_population.json")
+    )
+    assert canonical_files_after == canonical_files_before
     assert written[0].parent == output_dir
 
 

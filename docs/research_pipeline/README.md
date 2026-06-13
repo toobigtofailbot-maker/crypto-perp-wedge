@@ -435,6 +435,11 @@ decision records, schemas, validators, or locked baseline documents.
   preserves the D4 catalog identity, and records no catalog, result-population,
   data-content, code, schema, validator, runtime, paper/live, or canonical-write
   authority.
+- `2026-06-canonical_dynamic_sizing_result_population.md` - canonical
+  dynamic-sizing result-population evidence for `RP-7520`; records the
+  STRAT-SPEC-0002 / VM-0002 / SWEEP-PLAN-0002 dynamic 1x runner output, required
+  identity hashes, sizing metadata, D4/D3 lineage, per-variant population,
+  non-degeneracy checks, and append-only / non-authority boundary.
 - `2026-06-strategy_dsl_design_opening.md` - Strategy DSL design opening for
   lab strategy-spec representation; design surface.
 - `2026-06-strategy_dsl_substantive_design.md` - substantive Strategy DSL/spec

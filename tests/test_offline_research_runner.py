@@ -299,7 +299,119 @@ def test_default_target_leverage_is_one_x(tmp_path, monkeypatch):
     expected = runner.INITIAL_EQUITY / 100.1
     assert calls
     assert all(math.isclose(call["order_size"], expected) for call in calls)
+    assert all(call["sizing_mode"] == runner.SIZING_MODE_FIXED_ORDER_SIZE for call in calls)
+    assert all(call["target_leverage"] == runner.DEFAULT_TARGET_LEVERAGE for call in calls)
+    assert "sizing_mode=fixed_order_size" in assumptions
     assert "target_leverage=1" in assumptions
+
+
+def test_explicit_fixed_sizing_mode_passes_order_size_and_target_leverage(tmp_path, monkeypatch):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(tmp_path)
+    calls = []
+    real_backtest = runner.run_backtest
+
+    def recording_backtest(*args, **kwargs):
+        calls.append(kwargs)
+        return real_backtest(*args, **kwargs)
+
+    monkeypatch.setattr(runner, "run_backtest", recording_backtest)
+
+    _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        deterministic_seed=7,
+        sizing_mode=runner.SIZING_MODE_FIXED_ORDER_SIZE,
+        target_leverage=1.5,
+    )
+
+    expected = 1.5 * runner.INITIAL_EQUITY / 100.1
+    assert calls
+    assert all(math.isclose(call["order_size"], expected) for call in calls)
+    assert all(call["sizing_mode"] == runner.SIZING_MODE_FIXED_ORDER_SIZE for call in calls)
+    assert all(call["target_leverage"] == 1.5 for call in calls)
+
+
+def test_dynamic_sizing_mode_passes_mode_and_target_leverage(tmp_path, monkeypatch):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(tmp_path)
+    calls = []
+    real_backtest = runner.run_backtest
+
+    def recording_backtest(*args, **kwargs):
+        calls.append(kwargs)
+        return real_backtest(*args, **kwargs)
+
+    monkeypatch.setattr(runner, "run_backtest", recording_backtest)
+
+    result = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        deterministic_seed=7,
+        sizing_mode=runner.SIZING_MODE_DYNAMIC_EQUITY_TARGET_LEVERAGE,
+        target_leverage=1.0,
+    )
+    assumptions = result["result_population"]["backtest_assumption_summary"][
+        "order_size_assumption"
+    ]
+
+    assert calls
+    assert all(
+        call["sizing_mode"] == runner.SIZING_MODE_DYNAMIC_EQUITY_TARGET_LEVERAGE
+        for call in calls
+    )
+    assert all(call["target_leverage"] == 1.0 for call in calls)
+    assert all(call["order_size"] > 0.0 for call in calls)
+    assert "sizing_mode=dynamic_equity_target_leverage" in assumptions
+    assert "sizing_equity_basis=realized_available_equity_at_entry" in assumptions
+    assert "entry_reference_price_basis=next_bar_open_pre_fee_slippage" in assumptions
+    assert "structured_sizing_schema_fields=not_present_current_schema" in assumptions
+
+
+def test_invalid_sizing_mode_rejected_by_api(tmp_path):
+    strategy_path, manifest_path, sweep_path, *_ = _write_fixture(tmp_path)
+
+    with pytest.raises(runner.OfflineSweepError, match="sizing-mode"):
+        _run(
+            strategy_path,
+            manifest_path,
+            sweep_path,
+            deterministic_seed=7,
+            sizing_mode="unknown_mode",
+        )
+
+
+def test_invalid_sizing_mode_rejected_by_cli(tmp_path):
+    strategy_path, manifest_path, sweep_path, *_ = _write_fixture(tmp_path)
+
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "tools.research_runner.run_offline_sweep",
+            "--strategy-spec",
+            str(strategy_path),
+            "--variant-manifest",
+            str(manifest_path),
+            "--sweep-plan",
+            str(sweep_path),
+            "--sizing-mode",
+            "unknown_mode",
+        ],
+        cwd=runner.REPO_ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert completed.returncode != 0
+    assert "invalid choice" in completed.stderr
 
 
 @pytest.mark.parametrize("bad_leverage", [0.0, -1.0, float("nan"), float("inf")])
@@ -426,11 +538,78 @@ def test_sizing_metadata_is_deterministic_for_same_input(tmp_path):
         "order_size_assumption"
     ]
     assert first_assumption == second_assumption
+    assert "sizing_mode=fixed_order_size" in first_assumption
     assert "sizing_model=runner_resolved_fixed_order_size" in first_assumption
     assert "reference_price_basis=first_in_sample_open" in first_assumption
     assert "resolved_order_size=" in first_assumption
     assert first["result_population_id"] == second["result_population_id"]
     assert _identity_payload(first) == _identity_payload(second)
+
+
+def test_dynamic_sizing_dry_run_is_deterministic_for_same_input(tmp_path):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(tmp_path)
+
+    first = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        deterministic_seed=7,
+        sizing_mode=runner.SIZING_MODE_DYNAMIC_EQUITY_TARGET_LEVERAGE,
+        target_leverage=1.0,
+    )
+    second = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        deterministic_seed=7,
+        sizing_mode=runner.SIZING_MODE_DYNAMIC_EQUITY_TARGET_LEVERAGE,
+        target_leverage=1.0,
+    )
+
+    assert first["dry_run"] is True
+    assert first["wrote"] is False
+    assert first["result_population_id"] == second["result_population_id"]
+    assert _identity_payload(first) == _identity_payload(second)
+
+
+def test_sizing_mode_provenance_is_identity_bearing(tmp_path):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(tmp_path)
+
+    fixed = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        deterministic_seed=7,
+        sizing_mode=runner.SIZING_MODE_FIXED_ORDER_SIZE,
+        target_leverage=1.0,
+    )
+    dynamic = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        deterministic_seed=7,
+        sizing_mode=runner.SIZING_MODE_DYNAMIC_EQUITY_TARGET_LEVERAGE,
+        target_leverage=1.0,
+    )
+
+    fixed_payload = fixed["result_population"]
+    dynamic_payload = dynamic["result_population"]
+    assert "backtest_assumption_summary" in fixed_payload["input_identity_hash"]["hash_scope"]
+    assert "backtest_assumption_summary" in dynamic_payload["input_identity_hash"]["hash_scope"]
+    assert fixed_payload["input_identity_hash"]["hash"] != dynamic_payload["input_identity_hash"]["hash"]
+    assert fixed_payload["result_population_identity_hash"]["hash"] != dynamic_payload[
+        "result_population_identity_hash"
+    ]["hash"]
 
 
 def test_sizing_dry_run_preserves_no_canonical_write(tmp_path):

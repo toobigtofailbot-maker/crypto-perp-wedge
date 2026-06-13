@@ -402,6 +402,11 @@ decision records, schemas, validators, or locked baseline documents.
   default-preserving fixed mode, dynamic target-leverage formula, realized
   equity and next-bar-open bases, fail-closed edge cases, cost/funding/
   liquidation interaction, and no runner/canonical-result authority.
+- `2026-06-dynamic_sizing_runner_exposure_impl_note.md` -
+  build-test-only runner exposure note for opt-in dynamic sizing; records the
+  `sizing_mode` / `target_leverage` runner surface, fixed-mode default
+  preservation, existing-field sizing provenance, scratch dynamic 1x dry-run
+  evidence, identity-hash scope observation, and no canonical-result authority.
 - `2026-06-strategy_dsl_design_opening.md` - Strategy DSL design opening for
   lab strategy-spec representation; design surface.
 - `2026-06-strategy_dsl_substantive_design.md` - substantive Strategy DSL/spec

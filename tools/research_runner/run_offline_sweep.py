@@ -57,8 +57,17 @@ CANONICAL_15M_DATA_CATALOG_REF = "15m_ohlcv_test_fixture_offline_only"
 D4_PROVENANCE_MODE_NOTE = "provenance_mode=d4_catalog_slice"
 INITIAL_EQUITY = 10_000.0
 DEFAULT_TARGET_LEVERAGE = 1.0
+SIZING_MODE_FIXED_ORDER_SIZE = "fixed_order_size"
+SIZING_MODE_DYNAMIC_EQUITY_TARGET_LEVERAGE = "dynamic_equity_target_leverage"
+SIZING_MODES = (
+    SIZING_MODE_FIXED_ORDER_SIZE,
+    SIZING_MODE_DYNAMIC_EQUITY_TARGET_LEVERAGE,
+)
 SIZING_MODEL = "runner_resolved_fixed_order_size"
+DYNAMIC_SIZING_MODEL = "dynamic_equity_target_leverage"
 REFERENCE_PRICE_BASIS = "first_in_sample_open"
+DYNAMIC_SIZING_EQUITY_BASIS = "realized_available_equity_at_entry"
+DYNAMIC_ENTRY_REFERENCE_PRICE_BASIS = "next_bar_open_pre_fee_slippage"
 DRIFT_CAVEAT = (
     "fixed_order_size_caps_leverage_at_reference_price_only_effective_leverage_can_drift"
 )
@@ -97,8 +106,17 @@ class _SizingResolution:
 
 @dataclass(frozen=True)
 class _SizingContext:
+    sizing_mode: str
     target_leverage: float
     exact_resolution: _SizingResolution | None
+
+
+def _validate_sizing_mode(value: str) -> str:
+    if value not in SIZING_MODES:
+        raise OfflineSweepError(
+            "--sizing-mode must be 'fixed_order_size' or 'dynamic_equity_target_leverage'"
+        )
+    return value
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -177,12 +195,19 @@ def _resolve_order_size(
 
 def _sizing_context(
     execution_input: _ExecutionInput | None,
+    sizing_mode: str,
     target_leverage: float,
 ) -> _SizingContext:
+    sizing_mode = _validate_sizing_mode(sizing_mode)
     target_leverage = _validate_target_leverage(target_leverage)
     if execution_input is None:
-        return _SizingContext(target_leverage=target_leverage, exact_resolution=None)
+        return _SizingContext(
+            sizing_mode=sizing_mode,
+            target_leverage=target_leverage,
+            exact_resolution=None,
+        )
     return _SizingContext(
+        sizing_mode=sizing_mode,
         target_leverage=target_leverage,
         exact_resolution=_resolve_order_size(
             target_leverage=target_leverage,
@@ -371,6 +396,7 @@ def _synthetic_inputs(variant_id: str, deterministic_seed: int) -> tuple[pd.Seri
 def _run_synthetic_backtest(
     variant_id: str,
     deterministic_seed: int,
+    sizing_mode: str,
     target_leverage: float,
 ) -> Any:
     signal, ohlcv, funding = _synthetic_inputs(variant_id, deterministic_seed)
@@ -394,6 +420,8 @@ def _run_synthetic_backtest(
         exit_fee_side="taker",
         funding_notional_mode="entry_price",
         order_size=sizing.resolved_order_size,
+        sizing_mode=sizing_mode,
+        target_leverage=target_leverage,
         fill_mode="complete",
         slippage_model="fixed_bps",
         liquidation_mode="zero_equity",
@@ -613,6 +641,7 @@ def _run_canonical_15m_backtest(
     strategy_spec: dict[str, Any],
     variant: dict[str, Any],
     execution_input: _ExecutionInput,
+    sizing_context: _SizingContext,
     sizing: _SizingResolution,
 ) -> Any:
     signal = compile_signal(
@@ -636,6 +665,8 @@ def _run_canonical_15m_backtest(
         exit_fee_side="taker",
         funding_notional_mode="entry_price",
         order_size=sizing.resolved_order_size,
+        sizing_mode=sizing_context.sizing_mode,
+        target_leverage=sizing_context.target_leverage,
         fill_mode="complete",
         slippage_model="fixed_bps",
         liquidation_mode="zero_equity",
@@ -838,12 +869,28 @@ def _order_size_assumption(
     base_assumption = (
         sweep_plan["realism_assumptions"]["order_size_assumption"] or "fixed_1_contract"
     )
+    if sizing_context.sizing_mode == SIZING_MODE_FIXED_ORDER_SIZE:
+        sizing_model = SIZING_MODEL
+    else:
+        sizing_model = DYNAMIC_SIZING_MODEL
     parts = [
-        f"sizing_model={SIZING_MODEL}",
+        f"sizing_mode={sizing_context.sizing_mode}",
+        f"sizing_model={sizing_model}",
         f"target_leverage={_format_sizing_value(sizing_context.target_leverage)}",
         f"initial_equity={_format_sizing_value(INITIAL_EQUITY)}",
-        f"reference_price_basis={REFERENCE_PRICE_BASIS}",
+        "dynamic_mode_opt_in_required=True",
+        "structured_sizing_schema_fields=not_present_current_schema",
     ]
+    if sizing_context.sizing_mode == SIZING_MODE_FIXED_ORDER_SIZE:
+        parts.append(f"reference_price_basis={REFERENCE_PRICE_BASIS}")
+    else:
+        parts.extend(
+            [
+                f"sizing_equity_basis={DYNAMIC_SIZING_EQUITY_BASIS}",
+                f"entry_reference_price_basis={DYNAMIC_ENTRY_REFERENCE_PRICE_BASIS}",
+                "fixed_mode_order_size_still_resolved_for_backtest_argument_compatibility",
+            ]
+        )
     if sizing_context.exact_resolution is None:
         parts.extend(
             [
@@ -860,7 +907,8 @@ def _order_size_assumption(
                 f"resolved_order_size={_format_sizing_value(sizing.resolved_order_size)}",
             ]
         )
-    parts.append(f"drift_caveat={DRIFT_CAVEAT}")
+    if sizing_context.sizing_mode == SIZING_MODE_FIXED_ORDER_SIZE:
+        parts.append(f"drift_caveat={DRIFT_CAVEAT}")
     parts.append(f"prior_assumption={base_assumption}")
     return "; ".join(parts)
 
@@ -997,6 +1045,7 @@ def _execute_rows(
                 result = _run_synthetic_backtest(
                     variant["variant_id"],
                     deterministic_seed,
+                    sizing_context.sizing_mode,
                     sizing_context.target_leverage,
                 )
                 metrics = _metrics_from_backtest(result, "1h")
@@ -1006,6 +1055,7 @@ def _execute_rows(
                     strategy_spec,
                     variant,
                     execution_input,
+                    sizing_context,
                     sizing_context.exact_resolution,
                 )
                 metrics = _metrics_from_backtest(result, execution_input.timeframe)
@@ -1047,6 +1097,7 @@ def _build_result_population(
     run_label: str | None,
     deterministic_seed: int,
     execution_input: _ExecutionInput | None,
+    sizing_mode: str,
     target_leverage: float,
 ) -> tuple[dict[str, Any], bool]:
     strategy_hash = _sha256_prefixed(strategy_spec)
@@ -1056,7 +1107,7 @@ def _build_result_population(
         "committed_population_count"
     ]
     selected_count = sweep_plan["trial_accounting"]["selected_variant_count"]
-    sizing_context = _sizing_context(execution_input, target_leverage)
+    sizing_context = _sizing_context(execution_input, sizing_mode, target_leverage)
     backtest_assumptions = _backtest_assumption_summary(sweep_plan, sizing_context)
     provenance_identity = _execution_provenance_identity(execution_input)
     result_population_id = _deterministic_result_population_id(
@@ -1421,11 +1472,13 @@ def run_offline_sweep(
     ohlcv_input_path: Path | None = None,
     d4_catalog_slice_path: Path | None = None,
     d2_import_report_path: Path | None = None,
+    sizing_mode: str = SIZING_MODE_FIXED_ORDER_SIZE,
     target_leverage: float = DEFAULT_TARGET_LEVERAGE,
 ) -> dict[str, Any]:
     """Run a deterministic build-and-test-only offline research sweep."""
     if deterministic_seed is None:
         raise OfflineSweepError("deterministic_seed must be fixed")
+    sizing_mode = _validate_sizing_mode(sizing_mode)
     target_leverage = _validate_target_leverage(target_leverage)
     guarded_output_dir = _guard_output_dir(output_dir, write_result_population)
     strategy_spec, manifest, sweep_plan = _validate_parent_inputs(
@@ -1456,6 +1509,7 @@ def run_offline_sweep(
         run_label,
         deterministic_seed,
         execution_input,
+        sizing_mode,
         target_leverage,
     )
     _validate_in_memory_payload(payload)
@@ -1499,10 +1553,19 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--d4-catalog-slice", type=Path)
     parser.add_argument("--d2-import-report", type=Path)
     parser.add_argument(
+        "--sizing-mode",
+        choices=SIZING_MODES,
+        default=SIZING_MODE_FIXED_ORDER_SIZE,
+        help=(
+            "Backtest sizing mode. Defaults to fixed_order_size; "
+            "dynamic_equity_target_leverage is opt-in."
+        ),
+    )
+    parser.add_argument(
         "--target-leverage",
         type=_parse_target_leverage,
         default=DEFAULT_TARGET_LEVERAGE,
-        help="Positive finite leverage used to resolve fixed order_size from first in-sample open.",
+        help="Positive finite leverage used by fixed resolution or dynamic equity sizing.",
     )
     return parser
 
@@ -1523,6 +1586,7 @@ def main(argv: list[str] | None = None) -> int:
             ohlcv_input_path=args.ohlcv_input,
             d4_catalog_slice_path=args.d4_catalog_slice,
             d2_import_report_path=args.d2_import_report,
+            sizing_mode=args.sizing_mode,
             target_leverage=args.target_leverage,
         )
     except Exception as exc:

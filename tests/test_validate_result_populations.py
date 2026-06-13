@@ -43,6 +43,27 @@ def _canonical_hash(payload: dict, scope: list[str]) -> str:
     return _sha256_prefixed(scoped)
 
 
+def _refresh_identity_hashes(payload: dict) -> None:
+    payload["input_identity_hash"]["hash"] = _canonical_hash(
+        payload,
+        payload["input_identity_hash"]["hash_scope"],
+    )
+    payload["lineage"]["parent_hash_chain"]["input_identity_hash"] = payload["input_identity_hash"]["hash"]
+    payload["result_population_identity_hash"]["hash"] = _canonical_hash(
+        payload,
+        payload["result_population_identity_hash"]["hash_scope"],
+    )
+
+
+def _add_sizing_metadata(payload: dict, sizing_metadata: dict) -> None:
+    payload["sizing_metadata"] = sizing_metadata
+    for identity_key in ("input_identity_hash", "result_population_identity_hash"):
+        scope = payload[identity_key]["hash_scope"]
+        if "sizing_metadata" not in scope:
+            scope.insert(scope.index("backtest_assumption_summary"), "sizing_metadata")
+    _refresh_identity_hashes(payload)
+
+
 def _base_strategy_spec(strategy_spec_id: str = "STRAT-SPEC-9001") -> dict:
     return _base_strategy_spec_for_variant(strategy_spec_id)
 
@@ -493,6 +514,208 @@ def test_validator_noops_when_result_population_directory_empty(tmp_path):
 def test_valid_temp_parent_artifacts_and_result_population_pass(tmp_path):
     _write_valid_fixture(tmp_path)
 
+    assert _validate(tmp_path) == []
+
+
+def test_committed_result_populations_remain_valid():
+    committed_paths = [
+        Path("research/result_populations/RP-2134.result_population.json"),
+        Path("research/result_populations/RP-4492.result_population.json"),
+        Path("research/result_populations/RP-6688.result_population.json"),
+    ]
+
+    for committed_path in committed_paths:
+        assert committed_path.exists()
+
+    assert validate_result_populations() == []
+
+
+def test_old_shape_without_sizing_metadata_remains_valid(tmp_path):
+    *_, result_population, _, _, _, result_populations_dir = _write_valid_fixture(tmp_path)
+
+    assert "sizing_metadata" not in result_population
+    assert "sizing_metadata" not in result_population["input_identity_hash"]["hash_scope"]
+    assert "sizing_metadata" not in result_population["result_population_identity_hash"]["hash_scope"]
+    assert _validate(tmp_path) == []
+
+
+def test_dynamic_sizing_metadata_is_accepted(tmp_path):
+    *_, result_population, _, _, _, result_populations_dir = _write_valid_fixture(tmp_path)
+    _add_sizing_metadata(
+        result_population,
+        {
+            "sizing_mode": "dynamic_equity_target_leverage",
+            "target_leverage": 1.0,
+            "sizing_equity_basis": "realized_available_equity_at_entry",
+            "entry_reference_price_basis": "next_bar_open_pre_fee_slippage",
+        },
+    )
+    _write_json(result_populations_dir / "RP-0001.result_population.json", result_population)
+
+    assert _validate(tmp_path) == []
+
+
+def test_fixed_sizing_metadata_is_accepted_without_target_leverage(tmp_path):
+    *_, result_population, _, _, _, result_populations_dir = _write_valid_fixture(tmp_path)
+    _add_sizing_metadata(
+        result_population,
+        {
+            "sizing_mode": "fixed_order_size",
+            "sizing_equity_basis": "not_applicable_fixed_order_size",
+            "entry_reference_price_basis": "not_applicable_fixed_order_size",
+        },
+    )
+    _write_json(result_populations_dir / "RP-0001.result_population.json", result_population)
+
+    assert _validate(tmp_path) == []
+
+
+def test_invalid_sizing_mode_fails(tmp_path):
+    *_, result_population, _, _, _, result_populations_dir = _write_valid_fixture(tmp_path)
+    _add_sizing_metadata(
+        result_population,
+        {
+            "sizing_mode": "unknown_mode",
+            "target_leverage": 1.0,
+            "sizing_equity_basis": "realized_available_equity_at_entry",
+            "entry_reference_price_basis": "next_bar_open_pre_fee_slippage",
+        },
+    )
+    _write_json(result_populations_dir / "RP-0001.result_population.json", result_population)
+
+    assert any("sizing_mode" in error for error in _validate(tmp_path))
+
+
+def test_invalid_target_leverage_fails(tmp_path):
+    invalid_values = [0, -1, float("nan"), float("inf"), "1.0"]
+
+    for index, target_leverage in enumerate(invalid_values):
+        case_path = tmp_path / f"case-{index}"
+        *_, result_population, _, _, _, result_populations_dir = _write_valid_fixture(case_path)
+        _add_sizing_metadata(
+            result_population,
+            {
+                "sizing_mode": "dynamic_equity_target_leverage",
+                "target_leverage": target_leverage,
+                "sizing_equity_basis": "realized_available_equity_at_entry",
+                "entry_reference_price_basis": "next_bar_open_pre_fee_slippage",
+            },
+        )
+        _write_json(result_populations_dir / "RP-0001.result_population.json", result_population)
+
+        assert any("target_leverage" in error for error in _validate(case_path))
+
+
+def test_missing_dynamic_sizing_fields_fail(tmp_path):
+    for missing_field in (
+        "target_leverage",
+        "sizing_equity_basis",
+        "entry_reference_price_basis",
+    ):
+        case_path = tmp_path / missing_field
+        *_, result_population, _, _, _, result_populations_dir = _write_valid_fixture(case_path)
+        sizing_metadata = {
+            "sizing_mode": "dynamic_equity_target_leverage",
+            "target_leverage": 1.0,
+            "sizing_equity_basis": "realized_available_equity_at_entry",
+            "entry_reference_price_basis": "next_bar_open_pre_fee_slippage",
+        }
+        del sizing_metadata[missing_field]
+        _add_sizing_metadata(result_population, sizing_metadata)
+        _write_json(result_populations_dir / "RP-0001.result_population.json", result_population)
+
+        assert any(missing_field in error for error in _validate(case_path))
+
+
+def test_invalid_sizing_basis_fields_fail(tmp_path):
+    for field_name in ("sizing_equity_basis", "entry_reference_price_basis"):
+        case_path = tmp_path / field_name
+        *_, result_population, _, _, _, result_populations_dir = _write_valid_fixture(case_path)
+        sizing_metadata = {
+            "sizing_mode": "dynamic_equity_target_leverage",
+            "target_leverage": 1.0,
+            "sizing_equity_basis": "realized_available_equity_at_entry",
+            "entry_reference_price_basis": "next_bar_open_pre_fee_slippage",
+        }
+        sizing_metadata[field_name] = "unsupported_basis"
+        _add_sizing_metadata(result_population, sizing_metadata)
+        _write_json(result_populations_dir / "RP-0001.result_population.json", result_population)
+
+        assert any(field_name in error for error in _validate(case_path))
+
+
+def test_optional_max_leverage_cap_validation(tmp_path):
+    *_, result_population, _, _, _, result_populations_dir = _write_valid_fixture(tmp_path / "valid")
+    _add_sizing_metadata(
+        result_population,
+        {
+            "sizing_mode": "dynamic_equity_target_leverage",
+            "target_leverage": 1.0,
+            "sizing_equity_basis": "realized_available_equity_at_entry",
+            "entry_reference_price_basis": "next_bar_open_pre_fee_slippage",
+            "max_leverage_cap": 2.0,
+        },
+    )
+    _write_json(result_populations_dir / "RP-0001.result_population.json", result_population)
+    assert _validate(tmp_path / "valid") == []
+
+    for index, max_leverage_cap in enumerate([0, -1, float("nan"), float("inf"), "2.0"]):
+        case_path = tmp_path / f"invalid-{index}"
+        *_, result_population, _, _, _, result_populations_dir = _write_valid_fixture(case_path)
+        _add_sizing_metadata(
+            result_population,
+            {
+                "sizing_mode": "dynamic_equity_target_leverage",
+                "target_leverage": 1.0,
+                "sizing_equity_basis": "realized_available_equity_at_entry",
+                "entry_reference_price_basis": "next_bar_open_pre_fee_slippage",
+                "max_leverage_cap": max_leverage_cap,
+            },
+        )
+        _write_json(result_populations_dir / "RP-0001.result_population.json", result_population)
+
+        assert any("max_leverage_cap" in error for error in _validate(case_path))
+
+
+def test_sizing_metadata_must_be_identity_scoped(tmp_path):
+    *_, result_population, _, _, _, result_populations_dir = _write_valid_fixture(tmp_path)
+    result_population["sizing_metadata"] = {
+        "sizing_mode": "dynamic_equity_target_leverage",
+        "target_leverage": 1.0,
+        "sizing_equity_basis": "realized_available_equity_at_entry",
+        "entry_reference_price_basis": "next_bar_open_pre_fee_slippage",
+    }
+    _write_json(result_populations_dir / "RP-0001.result_population.json", result_population)
+
+    errors = _validate(tmp_path)
+
+    assert any("input_identity_hash.hash_scope must include sizing_metadata" in error for error in errors)
+    assert any(
+        "result_population_identity_hash.hash_scope must include sizing_metadata" in error
+        for error in errors
+    )
+
+
+def test_sizing_metadata_changes_identity_hashes(tmp_path):
+    *_, result_population, _, _, _, result_populations_dir = _write_valid_fixture(tmp_path)
+    _add_sizing_metadata(
+        result_population,
+        {
+            "sizing_mode": "dynamic_equity_target_leverage",
+            "target_leverage": 1.0,
+            "sizing_equity_basis": "realized_available_equity_at_entry",
+            "entry_reference_price_basis": "next_bar_open_pre_fee_slippage",
+        },
+    )
+    initial_input_hash = result_population["input_identity_hash"]["hash"]
+    initial_result_hash = result_population["result_population_identity_hash"]["hash"]
+
+    result_population["sizing_metadata"]["target_leverage"] = 2.0
+    _refresh_identity_hashes(result_population)
+    _write_json(result_populations_dir / "RP-0001.result_population.json", result_population)
+
+    assert result_population["input_identity_hash"]["hash"] != initial_input_hash
+    assert result_population["result_population_identity_hash"]["hash"] != initial_result_hash
     assert _validate(tmp_path) == []
 
 

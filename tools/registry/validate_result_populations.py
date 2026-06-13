@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -26,6 +27,16 @@ DEFAULT_VARIANT_MANIFEST_SCHEMA_PATH = (
 DEFAULT_SWEEP_PLAN_SCHEMA_PATH = REPO_ROOT / "research" / "schemas" / "sweep_plan.schema.json"
 HASH_ALGORITHM = "sha256"
 RESULT_POPULATION_HASH_SCOPE_VERSION = "result_population_identity_hash_scope_v1"
+SIZING_METADATA_HASH_SCOPE_PATH = "sizing_metadata"
+SIZING_MODES = {"fixed_order_size", "dynamic_equity_target_leverage"}
+SIZING_EQUITY_BASES = {
+    "not_applicable_fixed_order_size",
+    "realized_available_equity_at_entry",
+}
+ENTRY_REFERENCE_PRICE_BASES = {
+    "not_applicable_fixed_order_size",
+    "next_bar_open_pre_fee_slippage",
+}
 OUTCOME_CATEGORIES = (
     "successful",
     "failed",
@@ -455,6 +466,11 @@ def _validate_identity_hash(
     scope = identity.get("hash_scope")
     if not isinstance(scope, list):
         return [*errors, f"{path}: {object_path}.hash_scope must be a list"]
+    if "sizing_metadata" in payload and SIZING_METADATA_HASH_SCOPE_PATH not in scope:
+        errors.append(
+            f"{path}: {object_path}.hash_scope must include "
+            f"{SIZING_METADATA_HASH_SCOPE_PATH} when sizing_metadata is present"
+        )
     for item in scope:
         if isinstance(item, str) and (item == "audit_envelope" or item.startswith("audit_envelope.")):
             errors.append(f"{path}: {object_path}.hash_scope must exclude audit_envelope: {item}")
@@ -472,6 +488,48 @@ def _validate_identity_hash(
                 f"{path}: {object_path}.hash mismatch: declared {declared_hash!r}, "
                 f"computed {computed_hash}"
             )
+    return errors
+
+
+def _is_finite_positive_number(value: Any) -> bool:
+    return (
+        isinstance(value, (int, float))
+        and not isinstance(value, bool)
+        and math.isfinite(value)
+        and value > 0
+    )
+
+
+def _validate_sizing_metadata(path: Path, payload: Mapping[str, Any]) -> list[str]:
+    if "sizing_metadata" not in payload:
+        return []
+
+    sizing = payload.get("sizing_metadata")
+    if not isinstance(sizing, dict):
+        return [f"{path}: sizing_metadata must be an object when present"]
+
+    errors: list[str] = []
+    sizing_mode = sizing.get("sizing_mode")
+    if sizing_mode not in SIZING_MODES:
+        errors.append(f"{path}: sizing_metadata.sizing_mode invalid: {sizing_mode!r}")
+
+    for field_name, allowed_values in (
+        ("sizing_equity_basis", SIZING_EQUITY_BASES),
+        ("entry_reference_price_basis", ENTRY_REFERENCE_PRICE_BASES),
+    ):
+        value = sizing.get(field_name)
+        if value not in allowed_values:
+            errors.append(f"{path}: sizing_metadata.{field_name} invalid: {value!r}")
+
+    target_leverage = sizing.get("target_leverage")
+    if sizing_mode == "dynamic_equity_target_leverage" and "target_leverage" not in sizing:
+        errors.append(f"{path}: sizing_metadata.target_leverage is required for dynamic sizing")
+    if "target_leverage" in sizing and not _is_finite_positive_number(target_leverage):
+        errors.append(f"{path}: sizing_metadata.target_leverage must be finite positive")
+
+    if "max_leverage_cap" in sizing and not _is_finite_positive_number(sizing.get("max_leverage_cap")):
+        errors.append(f"{path}: sizing_metadata.max_leverage_cap must be finite positive")
+
     return errors
 
 
@@ -968,6 +1026,7 @@ def validate_result_populations(
                 require_hash,
             )
         )
+        errors.extend(_validate_sizing_metadata(path, payload))
         errors.extend(_validate_audit_envelope(path, payload))
         parent_errors, _, manifest, sweep_plan = _validate_parent_artifacts(
             path,

@@ -879,13 +879,18 @@ def _order_size_assumption(
         f"target_leverage={_format_sizing_value(sizing_context.target_leverage)}",
         f"initial_equity={_format_sizing_value(INITIAL_EQUITY)}",
         "dynamic_mode_opt_in_required=True",
-        "structured_sizing_schema_fields=not_present_current_schema",
     ]
     if sizing_context.sizing_mode == SIZING_MODE_FIXED_ORDER_SIZE:
-        parts.append(f"reference_price_basis={REFERENCE_PRICE_BASIS}")
+        parts.extend(
+            [
+                "structured_sizing_metadata=not_emitted_for_fixed_mode",
+                f"reference_price_basis={REFERENCE_PRICE_BASIS}",
+            ]
+        )
     else:
         parts.extend(
             [
+                "structured_sizing_metadata=present",
                 f"sizing_equity_basis={DYNAMIC_SIZING_EQUITY_BASIS}",
                 f"entry_reference_price_basis={DYNAMIC_ENTRY_REFERENCE_PRICE_BASIS}",
                 "fixed_mode_order_size_still_resolved_for_backtest_argument_compatibility",
@@ -931,6 +936,17 @@ def _backtest_assumption_summary(
         "mark_price_source": "close",
         "bar_path_assumption": "next_open_close_mark",
         "records_assumptions_only": True,
+    }
+
+
+def _sizing_metadata(sizing_context: _SizingContext) -> dict[str, Any] | None:
+    if sizing_context.sizing_mode != SIZING_MODE_DYNAMIC_EQUITY_TARGET_LEVERAGE:
+        return None
+    return {
+        "sizing_mode": SIZING_MODE_DYNAMIC_EQUITY_TARGET_LEVERAGE,
+        "target_leverage": sizing_context.target_leverage,
+        "sizing_equity_basis": DYNAMIC_SIZING_EQUITY_BASIS,
+        "entry_reference_price_basis": DYNAMIC_ENTRY_REFERENCE_PRICE_BASIS,
     }
 
 
@@ -1109,6 +1125,9 @@ def _build_result_population(
     selected_count = sweep_plan["trial_accounting"]["selected_variant_count"]
     sizing_context = _sizing_context(execution_input, sizing_mode, target_leverage)
     backtest_assumptions = _backtest_assumption_summary(sweep_plan, sizing_context)
+    sizing_metadata = _sizing_metadata(sizing_context)
+    input_scope = _input_scope(include_sizing_metadata=sizing_metadata is not None)
+    result_scope = _result_scope(include_sizing_metadata=sizing_metadata is not None)
     provenance_identity = _execution_provenance_identity(execution_input)
     result_population_id = _deterministic_result_population_id(
         strategy_hash,
@@ -1194,10 +1213,10 @@ def _build_result_population(
             "no_broker_exchange_order_contact": True,
             "no_protected_path_contact": True,
         },
-        "input_identity_hash": _identity_hash_object("input_identity_hash_scope_v1", _input_scope()),
+        "input_identity_hash": _identity_hash_object("input_identity_hash_scope_v1", input_scope),
         "result_population_identity_hash": _identity_hash_object(
             RESULT_POPULATION_HASH_SCOPE_VERSION,
-            _result_scope(),
+            result_scope,
         ),
         "audit_envelope": {
             "excluded_from_input_identity_hash": True,
@@ -1325,11 +1344,13 @@ def _build_result_population(
             },
         },
     }
-    payload["input_identity_hash"]["hash"] = _canonical_hash(payload, _input_scope())
+    if sizing_metadata is not None:
+        payload["sizing_metadata"] = sizing_metadata
+    payload["input_identity_hash"]["hash"] = _canonical_hash(payload, input_scope)
     payload["lineage"]["parent_hash_chain"]["input_identity_hash"] = payload["input_identity_hash"][
         "hash"
     ]
-    payload["result_population_identity_hash"]["hash"] = _canonical_hash(payload, _result_scope())
+    payload["result_population_identity_hash"]["hash"] = _canonical_hash(payload, result_scope)
     return payload, aborted
 
 
@@ -1347,8 +1368,8 @@ def _identity_hash_object(scope_version: str, scope: list[str]) -> dict[str, Any
     }
 
 
-def _input_scope() -> list[str]:
-    return [
+def _input_scope(*, include_sizing_metadata: bool = False) -> list[str]:
+    scope = [
         "parent_strategy_spec.strategy_spec_hash",
         "parent_variant_manifest.manifest_hash",
         "parent_sweep_plan.sweep_plan_identity_hash",
@@ -1360,11 +1381,14 @@ def _input_scope() -> list[str]:
         "data_coverage_summary.data_slice_identity",
         "backtest_assumption_summary",
     ]
+    if include_sizing_metadata:
+        scope.append("sizing_metadata")
+    return scope
 
 
-def _result_scope() -> list[str]:
+def _result_scope(*, include_sizing_metadata: bool = False) -> list[str]:
     return [
-        *_input_scope(),
+        *_input_scope(include_sizing_metadata=include_sizing_metadata),
         "committed_denominator_snapshot",
         "variant_result_rows",
         "outcome_category_counts",

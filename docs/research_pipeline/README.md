@@ -411,6 +411,10 @@ decision records, schemas, validators, or locked baseline documents.
   validator note for optional structured sizing metadata; records
   identity-bearing posture, old-RP compatibility, and no canonical-result
   authority.
+- `2026-06-dynamic_sizing_prererun_audit.md` - scratch/read-only pre-rerun
+  audit for STRAT-SPEC-0002 dynamic 1x sizing; records full-D4 per-variant
+  scratch metrics, sizing metadata identity-hash proof, non-degeneracy checks,
+  and no canonical-result authority.
 - `2026-06-strategy_dsl_design_opening.md` - Strategy DSL design opening for
   lab strategy-spec representation; design surface.
 - `2026-06-strategy_dsl_substantive_design.md` - substantive Strategy DSL/spec

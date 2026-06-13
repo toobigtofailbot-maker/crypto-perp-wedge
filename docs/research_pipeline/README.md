@@ -420,6 +420,11 @@ decision records, schemas, validators, or locked baseline documents.
   direct runner-emitted `sizing_metadata`, identity-hash scope inclusion,
   full-D4 canonical-runner-path scratch metrics, comparison to 02e scratch,
   non-degeneracy checks, and no canonical-result authority.
+- `2026-06-canonical_data_path_provenance_cleanup.md` - data-path readiness
+  evidence for STRAT-SPEC-0002 dynamic 1x sizing; materializes the documented
+  D4A normalized CSV locally at the catalog-referenced gitignored path,
+  compares it to the 02e/02f fallback CSV, reruns the canonical runner path in
+  temp scratch output, and records no canonical-result authority.
 - `2026-06-strategy_dsl_design_opening.md` - Strategy DSL design opening for
   lab strategy-spec representation; design surface.
 - `2026-06-strategy_dsl_substantive_design.md` - substantive Strategy DSL/spec

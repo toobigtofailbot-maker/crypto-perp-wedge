@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import sys
 from pathlib import Path
 from typing import Any
@@ -40,6 +41,13 @@ MISSING_INPUTS = (
     "annualization convention",
     "selection rule",
     "effective number of independent trials",
+)
+
+OOS_IS_EFFICIENCY_MISSING_INPUTS = (
+    "walk-forward window rows",
+    "in-sample Sharpe",
+    "out-of-sample Sharpe",
+    "positive finite in-sample Sharpe denominator",
 )
 
 TRIAL_LOG_REQUIRED_FIELDS = (
@@ -131,6 +139,82 @@ def _format_value(value: Any) -> str:
     if isinstance(value, (str, int, bool)):
         return str(value)
     return json.dumps(value, sort_keys=True)
+
+
+def compute_oos_is_efficiency(in_sample_sharpe: Any, out_of_sample_sharpe: Any) -> dict[str, Any]:
+    """Return descriptive OOS/IS Sharpe efficiency or missing-input warnings."""
+    warnings: list[str] = []
+    if not isinstance(in_sample_sharpe, (int, float)) or isinstance(in_sample_sharpe, bool):
+        warnings.append("in_sample_sharpe_missing_or_non_numeric")
+    if not isinstance(out_of_sample_sharpe, (int, float)) or isinstance(out_of_sample_sharpe, bool):
+        warnings.append("out_of_sample_sharpe_missing_or_non_numeric")
+    if warnings:
+        return {"status": "missing_inputs", "value": None, "missing_input_warnings": warnings}
+
+    is_value = float(in_sample_sharpe)
+    oos_value = float(out_of_sample_sharpe)
+    if not math.isfinite(is_value):
+        warnings.append("in_sample_sharpe_non_finite")
+    if not math.isfinite(oos_value):
+        warnings.append("out_of_sample_sharpe_non_finite")
+    if math.isfinite(is_value) and is_value <= 0.0:
+        warnings.append("in_sample_sharpe_not_positive")
+    if warnings:
+        return {"status": "missing_inputs", "value": None, "missing_input_warnings": warnings}
+
+    return {
+        "status": "computed",
+        "value": oos_value / is_value,
+        "missing_input_warnings": [],
+    }
+
+
+def summarize_oos_is_efficiency(window_rows: list[Any] | None) -> dict[str, Any]:
+    """Summarize descriptive OOS/IS efficiency from supplied walk-forward rows."""
+    if not window_rows:
+        return {
+            "status": "withheld_missing_window_inputs",
+            "metric": "out_of_sample_sharpe / in_sample_sharpe",
+            "computed_count": 0,
+            "values": [],
+            "mean": None,
+            "missing_input_warnings": list(OOS_IS_EFFICIENCY_MISSING_INPUTS),
+            "authority": "descriptive_only_not_ranking_not_promotion",
+        }
+
+    values: list[float] = []
+    warnings: list[str] = []
+    for row in window_rows:
+        if not isinstance(row, dict):
+            warnings.append("window_row_not_object")
+            continue
+        if "oos_is_sharpe_efficiency" in row:
+            value = row.get("oos_is_sharpe_efficiency")
+            if isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(float(value)):
+                values.append(float(value))
+            else:
+                warnings.extend(row.get("missing_input_warnings", []) or ["oos_is_sharpe_efficiency_missing"])
+            continue
+        is_metrics = row.get("in_sample_metrics")
+        oos_metrics = row.get("out_of_sample_metrics")
+        if not isinstance(is_metrics, dict) or not isinstance(oos_metrics, dict):
+            warnings.append("is_or_oos_metrics_missing")
+            continue
+        computed = compute_oos_is_efficiency(is_metrics.get("sharpe"), oos_metrics.get("sharpe"))
+        if computed["status"] == "computed":
+            values.append(float(computed["value"]))
+        else:
+            warnings.extend(computed["missing_input_warnings"])
+
+    return {
+        "status": "computed" if values else "withheld_missing_inputs",
+        "metric": "out_of_sample_sharpe / in_sample_sharpe",
+        "computed_count": len(values),
+        "values": values,
+        "mean": sum(values) / len(values) if values else None,
+        "missing_input_warnings": sorted(set(warnings)),
+        "authority": "descriptive_only_not_ranking_not_promotion",
+    }
 
 
 def _metric_summary(rows: list[Any]) -> list[str]:
@@ -394,6 +478,7 @@ def build_diagnostic_with_trial_log(
                 "declared_selection_rule": False,
             },
         },
+        "oos_is_efficiency": summarize_oos_is_efficiency(None),
         "missing_input_warnings": {item: "absent" for item in MISSING_INPUTS},
         "anti_overfit_threshold_definitions": {
             "committed_population_denominator": "Definition only: use the committed pre-registered population count recorded in the result population; do not shrink to convenient subsets.",
@@ -433,6 +518,7 @@ def format_markdown(diagnostic: dict[str, Any]) -> str:
     rows = diagnostic["observed_summary"]
     missing = diagnostic["missing_input_warnings"]
     assessment = diagnostic["robustness_readiness_assessment"]
+    oos_is_efficiency = diagnostic["oos_is_efficiency"]
     threshold_definitions = diagnostic["anti_overfit_threshold_definitions"]
 
     result_population_id = identity["input_result_population_id"]
@@ -518,6 +604,15 @@ def format_markdown(diagnostic: dict[str, Any]) -> str:
             f"- MinTRL: {assessment['MinTRL']}",
             f"- multiple_testing_inputs_present: {_format_value(assessment['multiple_testing_inputs_present'])}",
             "- No fabricated PSR, DSR, or MinTRL numeric values are emitted.",
+            "",
+            "## OOS / IS Efficiency",
+            "",
+            f"- status: {_format_value(oos_is_efficiency.get('status'))}",
+            f"- metric: {_format_value(oos_is_efficiency.get('metric'))}",
+            f"- computed_count: {_format_value(oos_is_efficiency.get('computed_count'))}",
+            f"- mean: {_format_value(oos_is_efficiency.get('mean'))}",
+            f"- missing_input_warnings: {_format_value(oos_is_efficiency.get('missing_input_warnings'))}",
+            f"- authority: {_format_value(oos_is_efficiency.get('authority'))}",
             "",
             "## Missing Inputs",
             "",

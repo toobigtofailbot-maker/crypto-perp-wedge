@@ -2308,7 +2308,7 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
 
 
 def test_first_canonical_15m_result_population_views_under_first_parent_instances(conn):
-    assert conn.execute("SELECT COUNT(*) FROM result_populations").fetchone()[0] == 3
+    assert conn.execute("SELECT COUNT(*) FROM result_populations").fetchone()[0] == 4
 
     overview = conn.execute(
         """
@@ -2416,21 +2416,35 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
             "offline_research",
             True,
         ),
+        (
+            "RP-7520",
+            "STRAT-SPEC-0002",
+            "VM-0002",
+            "SWEEP-PLAN-0002",
+            10,
+            10,
+            10,
+            "offline_research",
+            True,
+        ),
     ]
     assert lineage == [
         ("RP-2134", "STRAT-SPEC-0001", "VM-0001", "SWEEP-PLAN-0001", True),
         ("RP-4492", "STRAT-SPEC-0001", "VM-0001", "SWEEP-PLAN-0001", True),
         ("RP-6688", "STRAT-SPEC-0002", "VM-0002", "SWEEP-PLAN-0002", True),
+        ("RP-7520", "STRAT-SPEC-0002", "VM-0002", "SWEEP-PLAN-0002", True),
     ]
     assert denominator == [
         ("RP-2134", 7, 7, 7, True, True, True),
         ("RP-4492", 7, 7, 7, True, True, True),
         ("RP-6688", 10, 10, 10, True, True, True),
+        ("RP-7520", 10, 10, 10, True, True, True),
     ]
     assert counts == [
         ("RP-2134", 7, 0, 0, 0, 0, 0, 0, 0, 0, 7, True),
         ("RP-4492", 7, 0, 0, 0, 0, 0, 0, 0, 0, 7, True),
         ("RP-6688", 10, 0, 0, 0, 0, 0, 0, 0, 0, 10, True),
+        ("RP-7520", 10, 0, 0, 0, 0, 0, 0, 0, 0, 10, True),
     ]
     assert rows == [
         (
@@ -2465,6 +2479,17 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
             "VM-0002",
         )
         for index in range(1, 11)
+    ] + [
+        (
+            "RP-7520",
+            f"VAR-{index:06d}",
+            "successful",
+            True,
+            "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+            "SWEEP-PLAN-0002",
+            "VM-0002",
+        )
+        for index in range(1, 11)
     ]
     assert coverage == [
         (
@@ -2485,6 +2510,14 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
         ),
         (
             "RP-6688",
+            "binance_usdtm_btcusdt_ohlcv_15m.offline_local.15m.20200101T000000Z.20260411T234500Z.sha256_3daace53d727599b",
+            "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+            "15m",
+            "ohlcv",
+            "block_if_missing",
+        ),
+        (
+            "RP-7520",
             "binance_usdtm_btcusdt_ohlcv_15m.offline_local.15m.20200101T000000Z.20260411T234500Z.sha256_3daace53d727599b",
             "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
             "15m",
@@ -2526,11 +2559,23 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
             True,
             True,
         ),
+        (
+            "RP-7520",
+            "tools.research_runner.run_offline_sweep",
+            190,
+            "offline_research",
+            True,
+            True,
+            True,
+            True,
+            True,
+        ),
     ]
     assert non_authority == [
         ("RP-2134", True, True, "reference_only", True),
         ("RP-4492", True, True, "reference_only", True),
         ("RP-6688", True, True, "reference_only", True),
+        ("RP-7520", True, True, "reference_only", True),
     ]
 
 

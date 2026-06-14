@@ -577,6 +577,49 @@ def test_trend_filter_gate_forbidden_executable_key_fails_validator(tmp_path):
     assert any("forbidden executable key name" in error and "formula" in error for error in errors)
 
 
+def test_entry_controls_min_bars_between_entries_passes_schema_and_validator(tmp_path):
+    payload = _base_strategy_spec()
+    payload["entry_logic"]["entry_controls"] = {"min_bars_between_entries": 12}
+
+    errors = _validate(tmp_path, payload)
+
+    assert Draft7Validator(_load_schema()).is_valid(payload)
+    assert errors == []
+
+
+def test_entry_controls_unknown_key_fails_schema_and_validator(tmp_path):
+    payload = _base_strategy_spec()
+    payload["entry_logic"]["entry_controls"] = {"cooldown_bars_after_exit": 12}
+
+    errors = _validate(tmp_path, payload)
+
+    assert not Draft7Validator(_load_schema()).is_valid(payload)
+    assert any("entry_controls" in error and "cooldown_bars_after_exit" in error for error in errors)
+
+
+def test_entry_controls_malformed_min_bars_fails_schema_and_validator(tmp_path):
+    for value in (None, 0, 1.5, True, 100001):
+        payload = _base_strategy_spec()
+        payload["entry_logic"]["entry_controls"] = {"min_bars_between_entries": value}
+
+        errors = _validate(tmp_path, payload)
+
+        assert not Draft7Validator(_load_schema()).is_valid(payload)
+        assert errors
+
+
+def test_entry_controls_forbidden_executable_key_fails_validator(tmp_path):
+    payload = _base_strategy_spec()
+    payload["entry_logic"]["entry_controls"] = {
+        "min_bars_between_entries": 12,
+        "lambda": "x",
+    }
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("forbidden executable key name" in error and "lambda" in error for error in errors)
+
+
 def test_single_direction_rejects_side_labeled_entry_group(tmp_path):
     payload = _base_strategy_spec()
     payload["entry_logic"]["groups"][0]["side"] = "long"

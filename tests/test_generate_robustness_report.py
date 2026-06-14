@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 
 from tools.research_runner.generate_robustness_report import (
+    build_diagnostic,
     generate_report,
     main,
 )
@@ -10,6 +11,7 @@ from tools.research_runner.generate_robustness_report import (
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 RP_2134_PATH = REPO_ROOT / "research" / "result_populations" / "RP-2134.result_population.json"
+RP_7520_PATH = REPO_ROOT / "research" / "result_populations" / "RP-7520.result_population.json"
 
 
 def _sha256_file(path: Path) -> str:
@@ -18,6 +20,10 @@ def _sha256_file(path: Path) -> str:
 
 def _load_rp_2134() -> dict:
     return json.loads(RP_2134_PATH.read_text(encoding="utf-8"))
+
+
+def _load_rp_7520() -> dict:
+    return json.loads(RP_7520_PATH.read_text(encoding="utf-8"))
 
 
 def test_report_reads_rp_2134_and_preserves_input_file() -> None:
@@ -31,6 +37,22 @@ def test_report_reads_rp_2134_and_preserves_input_file() -> None:
     assert "counts_sum: 7" in report
     assert "successful: 7" in report
     assert "fixture-based pipeline evidence, not strategy-quality evidence" in report
+
+
+def test_report_reads_rp_7520_and_preserves_input_file() -> None:
+    before = _sha256_file(RP_7520_PATH)
+    report = generate_report(_load_rp_7520(), RP_7520_PATH)
+    after = _sha256_file(RP_7520_PATH)
+
+    assert before == after
+    assert "input_result_population_id: RP-7520" in report
+    assert "committed_denominator: 10" in report
+    assert "counts_sum: 10" in report
+    assert "successful: 10" in report
+    assert "data_posture: committed_offline_result_population_data_posture" in report
+    assert "does not claim strategy edge" in report
+    assert "sharpe" in report
+    assert "VAR-000010" in report
 
 
 def test_report_withholds_numeric_robustness_metrics_and_lists_missing_inputs() -> None:
@@ -65,6 +87,17 @@ def test_report_contains_denominator_policy_and_non_authority_declaration() -> N
     assert "not paper/live/runtime authority" in report
 
 
+def test_diagnostic_json_structure_for_rp_7520() -> None:
+    diagnostic = build_diagnostic(_load_rp_7520(), RP_7520_PATH)
+
+    assert diagnostic["report_identity"]["input_result_population_id"] == "RP-7520"
+    assert diagnostic["committed_denominator_snapshot"]["committed_denominator"] == 10
+    assert diagnostic["outcome_distribution"]["counts_sum"] == 10
+    assert len(diagnostic["observed_summary"]) == 10
+    assert diagnostic["robustness_readiness_assessment"]["numeric_values_emitted"] is False
+    assert diagnostic["missing_input_warnings"]["benchmark Sharpe"] == "absent"
+
+
 def test_cli_writes_report(tmp_path: Path) -> None:
     output = tmp_path / "RP-2134.item6_robustness_report.md"
 
@@ -81,6 +114,27 @@ def test_cli_writes_report(tmp_path: Path) -> None:
     report = output.read_text(encoding="utf-8")
     assert "# Item 6 Robustness Report - RP-2134" in report
     assert "committed_denominator: 7" in report
+
+
+def test_cli_writes_json_report(tmp_path: Path) -> None:
+    output = tmp_path / "RP-7520.item6_robustness_diagnostic.json"
+
+    exit_code = main(
+        [
+            "--result-population",
+            str(RP_7520_PATH),
+            "--format",
+            "json",
+            "--output",
+            str(output),
+        ]
+    )
+
+    assert exit_code == 0
+    diagnostic = json.loads(output.read_text(encoding="utf-8"))
+    assert diagnostic["report_identity"]["input_result_population_id"] == "RP-7520"
+    assert diagnostic["committed_denominator_snapshot"]["committed_denominator"] == 10
+    assert diagnostic["robustness_readiness_assessment"]["numeric_values_emitted"] is False
 
 
 def test_missing_input_fails_cleanly(tmp_path: Path, capsys) -> None:

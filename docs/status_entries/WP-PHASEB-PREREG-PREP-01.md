@@ -4,11 +4,11 @@
 - Title: Pre-registration prep: real-data gate behavior and operational screen
   criteria.
 - Branch: `docs/phaseb-prereg-prep-01`.
-- PR: pending.
+- PR: https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/468
 - Worktree: `C:\GitHub\crypto-perp-wedge-WP-PHASEB-PREREG-PREP-01`.
 - Base: `origin/main` at `1b4955a`, after PR #466 and PR #467 were present.
 - Package class: docs plus read-only real-data probe.
-- Merge status: pending review.
+- Merge status: PR open for review.
 
 ## Scope Summary
 

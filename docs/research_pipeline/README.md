@@ -456,6 +456,11 @@ decision records, schemas, validators, or locked baseline documents.
   hypothesis design draft using merged A1 z-score vocabulary, pending A2/A3
   assumptions, and RP-7520 cost-drag lessons without pre-registration,
   candidate, canonical-result, or implementation authority.
+- `2026-06-phaseb_hypothesis_reconciliation.md` - docs-only reconciliation of
+  the first Phase-B hypothesis design to merged A1/A2/A3 grammar, with a
+  read-only compile probe and C3 trial-accounting interpretation, without
+  pre-registration, canonical artifact, candidate, runtime, or implementation
+  authority.
 - `../architecture/BTC_PERP_FUTURE_CAPABILITY_BACKLOG.md` - non-authoritative
   BTC perpetual capability inventory for future research-lab, crypto/perp
   feature, execution-realism, and later paper/live planning.

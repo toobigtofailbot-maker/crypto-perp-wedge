@@ -444,6 +444,10 @@ decision records, schemas, validators, or locked baseline documents.
   `RP-6688` / `RP-7520`; records dynamic equity target leverage as the
   canonical measurement model for future comparable realism runs unless
   otherwise authorized, with no candidate lifecycle or runtime authority.
+- `2026-06-expressiveness_primitive_design.md` - docs-only expressiveness
+  primitive design after the `RP-7520` cost-drag finding; prioritizes closed
+  non-executable Strategy Spec / compiler primitive families without
+  implementation authority.
 - `../architecture/BTC_PERP_FUTURE_CAPABILITY_BACKLOG.md` - non-authoritative
   BTC perpetual capability inventory for future research-lab, crypto/perp
   feature, execution-realism, and later paper/live planning.

@@ -47,6 +47,7 @@ ENTRY_GROUP_ROLES = {
     "required",
     "confirming",
     "filter",
+    "trend",
     "regime",
     "session",
     "funding",

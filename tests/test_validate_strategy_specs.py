@@ -535,6 +535,48 @@ def test_both_direction_rejects_filter_side_label(tmp_path):
     assert any("filters.groups.0.side is not allowed under filters.groups" in error for error in errors)
 
 
+def test_trend_and_regime_filter_entry_gates_pass_schema_and_validator(tmp_path):
+    schema = _load_schema()
+    for group_role in ("trend", "regime"):
+        payload = _base_strategy_spec(f"STRAT-SPEC-90{len(group_role)}1")
+        payload["filters"]["groups"] = [_group(f"FILTER-{group_role.upper()}")]
+        payload["filters"]["groups"][0]["group_role"] = group_role
+        payload["filters"]["groups"][0]["conditions"][0]["condition_role"] = "filter"
+        payload["filters"]["none_declared"] = False
+
+        assert Draft7Validator(schema).is_valid(payload), group_role
+        assert _validate(
+            tmp_path,
+            payload,
+            filename=f"{payload['strategy_spec_id']}.strategy_spec.json",
+        ) == []
+
+
+def test_unknown_trend_regime_filter_gate_type_fails_schema_and_validator(tmp_path):
+    payload = _base_strategy_spec()
+    payload["filters"]["groups"] = [_group("FILTER-UNKNOWN")]
+    payload["filters"]["groups"][0]["group_role"] = "trend_regime_expression"
+    payload["filters"]["groups"][0]["conditions"][0]["condition_role"] = "filter"
+    payload["filters"]["none_declared"] = False
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("group_role" in error and "trend_regime_expression" in error for error in errors)
+
+
+def test_trend_filter_gate_forbidden_executable_key_fails_validator(tmp_path):
+    payload = _base_strategy_spec()
+    payload["filters"]["groups"] = [_group("FILTER-TREND")]
+    payload["filters"]["groups"][0]["group_role"] = "trend"
+    payload["filters"]["groups"][0]["conditions"][0]["condition_role"] = "filter"
+    payload["filters"]["groups"][0]["conditions"][0]["right_operand"]["formula"] = "sma(close, 20)"
+    payload["filters"]["none_declared"] = False
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("forbidden executable key name" in error and "formula" in error for error in errors)
+
+
 def test_single_direction_rejects_side_labeled_entry_group(tmp_path):
     payload = _base_strategy_spec()
     payload["entry_logic"]["groups"][0]["side"] = "long"

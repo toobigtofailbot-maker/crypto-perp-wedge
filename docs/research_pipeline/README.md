@@ -448,6 +448,10 @@ decision records, schemas, validators, or locked baseline documents.
   primitive design after the `RP-7520` cost-drag finding; prioritizes closed
   non-executable Strategy Spec / compiler primitive families without
   implementation authority.
+- `2026-06-walkforward_oos_windowing_design.md` - docs-only future
+  walk-forward / OOS windowing design; records chronology, no-lookahead,
+  denominator-honesty, artifact, and validation expectations without
+  implementation authority.
 - `../architecture/BTC_PERP_FUTURE_CAPABILITY_BACKLOG.md` - non-authoritative
   BTC perpetual capability inventory for future research-lab, crypto/perp
   feature, execution-realism, and later paper/live planning.

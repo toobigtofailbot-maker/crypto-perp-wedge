@@ -25,12 +25,16 @@ APPROVED_BUILTINS = {
 COMPOSED_OPERAND_TYPE = "composed_operand"
 COMPOSITION_TYPE_SCALE_BY_ONE_MINUS_PARAMETER = "scale_by_one_minus_parameter"
 COMPOSITION_TYPE_SCALE_BY_ONE_PLUS_PARAMETER = "scale_by_one_plus_parameter"
+COMPOSITION_TYPE_Z_SCORE = "z_score"
 COMPOSITION_TYPES = {
     COMPOSITION_TYPE_SCALE_BY_ONE_MINUS_PARAMETER,
     COMPOSITION_TYPE_SCALE_BY_ONE_PLUS_PARAMETER,
+    COMPOSITION_TYPE_Z_SCORE,
 }
 COMPOSED_BASE_OPERAND_TYPES = {"data_ref", "indicator_ref"}
 COMPOSED_PARAMETER_OPERAND_TYPE = "parameter_ref"
+Z_SCORE_OPERAND_TYPES = {"data_ref", "indicator_ref"}
+Z_SCORE_ZERO_SCALE_POLICY = "null_output"
 LOOKBACK_PARAMETER_REF_KEY = "bars_parameter_ref"
 CROSSOVER_OPERATORS = {"crosses_above", "crosses_below"}
 SUPPORTED_OPERATORS = {"gt", "gte", "lt", "lte", "eq", "neq"} | CROSSOVER_OPERATORS
@@ -584,6 +588,14 @@ def _resolve_operand(operand: Mapping[str, Any], context: _CompileContext) -> An
 
 
 def _resolve_composed_operand(operand: Mapping[str, Any], context: _CompileContext) -> Any:
+    composition_type = operand.get("composition_type")
+    if composition_type not in COMPOSITION_TYPES:
+        raise UnsupportedSpecSignalCompilerFeature(
+            f"unsupported composition_type: {composition_type!r}"
+        )
+    if composition_type == COMPOSITION_TYPE_Z_SCORE:
+        return _resolve_z_score_composed_operand(operand, context)
+
     expected_keys = {
         "operand_type",
         "composition_type",
@@ -592,12 +604,6 @@ def _resolve_composed_operand(operand: Mapping[str, Any], context: _CompileConte
     }
     if set(operand) != expected_keys:
         raise SpecSignalCompilerError("composed_operand has invalid properties")
-
-    composition_type = operand.get("composition_type")
-    if composition_type not in COMPOSITION_TYPES:
-        raise UnsupportedSpecSignalCompilerFeature(
-            f"unsupported composition_type: {composition_type!r}"
-        )
 
     base_operand = operand.get("base_operand")
     parameter_operand = operand.get("parameter_operand")
@@ -632,6 +638,44 @@ def _resolve_composed_operand(operand: Mapping[str, Any], context: _CompileConte
     if composition_type == COMPOSITION_TYPE_SCALE_BY_ONE_PLUS_PARAMETER:
         return base_value * (1.0 + parameter_float)
     raise SpecSignalCompilerError(f"unhandled composition_type: {composition_type!r}")
+
+
+def _resolve_z_score_composed_operand(operand: Mapping[str, Any], context: _CompileContext) -> pd.Series:
+    expected_keys = {
+        "operand_type",
+        "composition_type",
+        "value_operand",
+        "center_operand",
+        "scale_operand",
+        "zero_scale_policy",
+    }
+    if set(operand) != expected_keys:
+        raise SpecSignalCompilerError("composed_operand has invalid properties")
+    if operand.get("zero_scale_policy") != Z_SCORE_ZERO_SCALE_POLICY:
+        raise SpecSignalCompilerError(
+            f"z_score zero_scale_policy must be {Z_SCORE_ZERO_SCALE_POLICY!r}"
+        )
+
+    resolved: dict[str, pd.Series] = {}
+    for operand_key in ("value_operand", "center_operand", "scale_operand"):
+        child_operand = operand.get(operand_key)
+        if not isinstance(child_operand, Mapping):
+            raise SpecSignalCompilerError(f"z_score {operand_key} must be an object")
+        child_type = child_operand.get("operand_type")
+        if child_type == COMPOSED_OPERAND_TYPE:
+            raise UnsupportedSpecSignalCompilerFeature("nested composed_operand is not supported")
+        if child_type not in Z_SCORE_OPERAND_TYPES:
+            raise UnsupportedSpecSignalCompilerFeature(
+                f"z_score {operand_key}.operand_type must be one of {sorted(Z_SCORE_OPERAND_TYPES)}"
+            )
+        child_value = _resolve_operand(child_operand, context)
+        if not isinstance(child_value, pd.Series):
+            raise SpecSignalCompilerError(f"z_score {operand_key} must resolve to a numeric series")
+        resolved[operand_key] = child_value.astype(float)
+
+    scale = resolved["scale_operand"]
+    result = (resolved["value_operand"] - resolved["center_operand"]) / scale
+    return result.mask(scale.isna() | (scale == 0.0))
 
 
 def _resolve_data_ref(operand: Mapping[str, Any], ohlcv: pd.DataFrame) -> pd.Series:

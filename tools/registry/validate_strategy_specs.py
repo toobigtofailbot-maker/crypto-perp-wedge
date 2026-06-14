@@ -27,12 +27,16 @@ CLOSED_OPERATOR_ENUM = {
     "is_false",
 }
 COMPOSED_OPERAND_TYPE = "composed_operand"
-COMPOSITION_TYPES = {
+SCALED_PARAMETER_COMPOSITION_TYPES = {
     "scale_by_one_minus_parameter",
     "scale_by_one_plus_parameter",
 }
+COMPOSITION_TYPE_Z_SCORE = "z_score"
+COMPOSITION_TYPES = SCALED_PARAMETER_COMPOSITION_TYPES | {COMPOSITION_TYPE_Z_SCORE}
 COMPOSED_BASE_OPERAND_TYPES = {"data_ref", "indicator_ref"}
 COMPOSED_PARAMETER_OPERAND_TYPE = "parameter_ref"
+Z_SCORE_OPERAND_TYPES = {"data_ref", "indicator_ref"}
+Z_SCORE_ZERO_SCALE_POLICY = "null_output"
 SIDE_LABELS = {"long", "short"}
 BOTH_DIRECTION = "both"
 SINGLE_DIRECTIONS = {"long", "short"}
@@ -383,54 +387,86 @@ def _validate_composed_operands(path: Path, payload: dict[str, Any]) -> list[str
                     if operand.get("operand_type") != COMPOSED_OPERAND_TYPE:
                         continue
 
-                    if operand.get("composition_type") not in COMPOSITION_TYPES:
+                    composition_type = operand.get("composition_type")
+                    if composition_type not in COMPOSITION_TYPES:
                         errors.append(
                             f"{path}: {operand_path}.composition_type must be one of "
                             f"{sorted(COMPOSITION_TYPES)}"
                         )
-                    if set(operand) != {
-                        "operand_type",
-                        "composition_type",
-                        "base_operand",
-                        "parameter_operand",
-                    }:
-                        errors.append(f"{path}: {operand_path} has invalid composed_operand properties")
 
-                    base_operand = operand.get("base_operand")
-                    if not isinstance(base_operand, dict):
-                        errors.append(f"{path}: {operand_path}.base_operand must be an object")
-                    else:
-                        base_type = base_operand.get("operand_type")
-                        if base_type == COMPOSED_OPERAND_TYPE:
-                            errors.append(f"{path}: {operand_path}.base_operand must not be composed_operand")
-                        if base_type not in COMPOSED_BASE_OPERAND_TYPES:
-                            errors.append(
-                                f"{path}: {operand_path}.base_operand.operand_type must be one of "
-                                f"{sorted(COMPOSED_BASE_OPERAND_TYPES)}"
-                            )
+                    if composition_type in SCALED_PARAMETER_COMPOSITION_TYPES:
+                        if set(operand) != {
+                            "operand_type",
+                            "composition_type",
+                            "base_operand",
+                            "parameter_operand",
+                        }:
+                            errors.append(f"{path}: {operand_path} has invalid composed_operand properties")
 
-                    parameter_operand = operand.get("parameter_operand")
-                    if not isinstance(parameter_operand, dict):
-                        errors.append(f"{path}: {operand_path}.parameter_operand must be an object")
-                    else:
-                        parameter_type = parameter_operand.get("operand_type")
-                        if parameter_type == COMPOSED_OPERAND_TYPE:
+                        base_operand = operand.get("base_operand")
+                        if not isinstance(base_operand, dict):
+                            errors.append(f"{path}: {operand_path}.base_operand must be an object")
+                        else:
+                            base_type = base_operand.get("operand_type")
+                            if base_type == COMPOSED_OPERAND_TYPE:
+                                errors.append(f"{path}: {operand_path}.base_operand must not be composed_operand")
+                            if base_type not in COMPOSED_BASE_OPERAND_TYPES:
+                                errors.append(
+                                    f"{path}: {operand_path}.base_operand.operand_type must be one of "
+                                    f"{sorted(COMPOSED_BASE_OPERAND_TYPES)}"
+                                )
+
+                        parameter_operand = operand.get("parameter_operand")
+                        if not isinstance(parameter_operand, dict):
+                            errors.append(f"{path}: {operand_path}.parameter_operand must be an object")
+                        else:
+                            parameter_type = parameter_operand.get("operand_type")
+                            if parameter_type == COMPOSED_OPERAND_TYPE:
+                                errors.append(
+                                    f"{path}: {operand_path}.parameter_operand must not be composed_operand"
+                                )
+                            if parameter_type != COMPOSED_PARAMETER_OPERAND_TYPE:
+                                errors.append(
+                                    f"{path}: {operand_path}.parameter_operand.operand_type must be "
+                                    f"{COMPOSED_PARAMETER_OPERAND_TYPE!r}"
+                                )
+                            errors.extend(
+                                _validate_composed_parameter(
+                                    path,
+                                    operand_path,
+                                    parameter_operand.get("ref"),
+                                    declarations,
+                                )
+                            )
+                    elif composition_type == COMPOSITION_TYPE_Z_SCORE:
+                        if set(operand) != {
+                            "operand_type",
+                            "composition_type",
+                            "value_operand",
+                            "center_operand",
+                            "scale_operand",
+                            "zero_scale_policy",
+                        }:
+                            errors.append(f"{path}: {operand_path} has invalid composed_operand properties")
+                        if operand.get("zero_scale_policy") != Z_SCORE_ZERO_SCALE_POLICY:
                             errors.append(
-                                f"{path}: {operand_path}.parameter_operand must not be composed_operand"
+                                f"{path}: {operand_path}.zero_scale_policy must be "
+                                f"{Z_SCORE_ZERO_SCALE_POLICY!r}"
                             )
-                        if parameter_type != COMPOSED_PARAMETER_OPERAND_TYPE:
-                            errors.append(
-                                f"{path}: {operand_path}.parameter_operand.operand_type must be "
-                                f"{COMPOSED_PARAMETER_OPERAND_TYPE!r}"
-                            )
-                        errors.extend(
-                            _validate_composed_parameter(
-                                path,
-                                operand_path,
-                                parameter_operand.get("ref"),
-                                declarations,
-                            )
-                        )
+                        for operand_key in ("value_operand", "center_operand", "scale_operand"):
+                            child_operand = operand.get(operand_key)
+                            child_path = f"{operand_path}.{operand_key}"
+                            if not isinstance(child_operand, dict):
+                                errors.append(f"{path}: {child_path} must be an object")
+                                continue
+                            child_type = child_operand.get("operand_type")
+                            if child_type == COMPOSED_OPERAND_TYPE:
+                                errors.append(f"{path}: {child_path} must not be composed_operand")
+                            if child_type not in Z_SCORE_OPERAND_TYPES:
+                                errors.append(
+                                    f"{path}: {child_path}.operand_type must be one of "
+                                    f"{sorted(Z_SCORE_OPERAND_TYPES)}"
+                                )
 
     for composed_path, _ in _walk_composed_operands(payload, []):
         if composed_path not in condition_operand_paths:

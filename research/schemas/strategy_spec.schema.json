@@ -457,7 +457,20 @@
         }
       ]
     },
-    "composed_operand": {
+    "composed_normalization_operand": {
+      "allOf": [
+        { "$ref": "#/definitions/standard_operand" },
+        {
+          "properties": {
+            "operand_type": {
+              "type": "string",
+              "enum": ["data_ref", "indicator_ref"]
+            }
+          }
+        }
+      ]
+    },
+    "scaled_parameter_composed_operand": {
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -485,6 +498,47 @@
           "$ref": "#/definitions/composed_parameter_operand"
         }
       }
+    },
+    "z_score_composed_operand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operand_type",
+        "composition_type",
+        "value_operand",
+        "center_operand",
+        "scale_operand",
+        "zero_scale_policy"
+      ],
+      "properties": {
+        "operand_type": {
+          "type": "string",
+          "const": "composed_operand"
+        },
+        "composition_type": {
+          "type": "string",
+          "const": "z_score"
+        },
+        "value_operand": {
+          "$ref": "#/definitions/composed_normalization_operand"
+        },
+        "center_operand": {
+          "$ref": "#/definitions/composed_normalization_operand"
+        },
+        "scale_operand": {
+          "$ref": "#/definitions/composed_normalization_operand"
+        },
+        "zero_scale_policy": {
+          "type": "string",
+          "const": "null_output"
+        }
+      }
+    },
+    "composed_operand": {
+      "oneOf": [
+        { "$ref": "#/definitions/scaled_parameter_composed_operand" },
+        { "$ref": "#/definitions/z_score_composed_operand" }
+      ]
     },
     "operand": {
       "oneOf": [

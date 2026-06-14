@@ -465,6 +465,11 @@ decision records, schemas, validators, or locked baseline documents.
   Phase-B shape; records read-only real-data gate behavior and a proposed
   single-slice GO-to-walk-forward screen without freezing or creating canonical
   evidence.
+- `2026-06-phaseb_prereg_0003.md` - Karl-approved Option A freeze-candidate
+  pre-registration surface for STRAT-SPEC-0003 / VM-0003 / SWEEP-PLAN-0003;
+  fixes `min_bars_between_entries = 8`, freezes an 8-variant denominator, and
+  creates no canonical run, result population, candidate promotion,
+  paper/live readiness, or runtime authority.
 - `../architecture/BTC_PERP_FUTURE_CAPABILITY_BACKLOG.md` - non-authoritative
   BTC perpetual capability inventory for future research-lab, crypto/perp
   feature, execution-realism, and later paper/live planning.

@@ -116,6 +116,8 @@ def test_buy_and_hold_unchanged_on_benign_window():
         data_root
         / "binance_um_perp_BTCUSDT_4h_2020-01-01_2026-04-11_2026-04-12T1655Z.parquet"
     )
+    if not ohlcv_path.exists():
+        pytest.skip(f"requires gitignored local parquet fixture: {ohlcv_path}")
     df = pd.read_parquet(ohlcv_path).copy()
     df.index = pd.to_datetime(df["close_time_ms"].astype("int64"), unit="ms", utc=True)
     ohlcv = df[["open", "high", "low", "close", "volume"]].astype(float).sort_index()

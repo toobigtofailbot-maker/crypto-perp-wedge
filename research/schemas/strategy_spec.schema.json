@@ -725,8 +725,23 @@
             "$ref": "#/definitions/condition_group_depth_3"
           }
         },
+        "entry_controls": {
+          "$ref": "#/definitions/entry_controls"
+        },
         "notes": {
           "$ref": "#/definitions/nullable_string"
+        }
+      }
+    },
+    "entry_controls": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["min_bars_between_entries"],
+      "properties": {
+        "min_bars_between_entries": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100000
         }
       }
     },

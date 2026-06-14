@@ -140,8 +140,9 @@ def _spec(
     exit_groups: list[dict] | None = None,
     filters: list[dict] | None = None,
     max_holding_bars: int | None = None,
+    entry_controls: dict | None = None,
 ) -> dict:
-    return {
+    spec = {
         "entry_logic": {
             "direction": direction,
             "groups": entry_groups or [],
@@ -157,6 +158,9 @@ def _spec(
             "notes": None,
         },
     }
+    if entry_controls is not None:
+        spec["entry_logic"]["entry_controls"] = entry_controls
+    return spec
 
 
 def _default_variant(**parameter_values) -> dict:
@@ -2275,6 +2279,187 @@ def test_applies_max_holding_period_when_enabled() -> None:
     signal = compile_signal(spec, _default_variant(), ohlcv)
 
     assert signal.tolist() == [1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+
+def test_min_bars_between_entries_suppresses_too_frequent_reentry() -> None:
+    ohlcv = _ohlcv_from_close([11.0] * 8)
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "gt",
+                        _operand("constant", 10.0),
+                    )
+                ],
+            )
+        ],
+        max_holding_bars=1,
+        entry_controls={"min_bars_between_entries": 2},
+    )
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0]
+
+
+def test_min_bars_between_entries_allows_first_valid_entry_without_prior_entry() -> None:
+    ohlcv = _ohlcv_from_close([9.0, 11.0, 11.0])
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "gt",
+                        _operand("constant", 10.0),
+                    )
+                ],
+            )
+        ],
+        max_holding_bars=1,
+        entry_controls={"min_bars_between_entries": 5},
+    )
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [0.0, 1.0, 0.0]
+
+
+def test_min_bars_between_entries_does_not_suppress_exit_logic() -> None:
+    ohlcv = _ohlcv_from_close([11.0, 9.0, 12.0])
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "gt",
+                        _operand("constant", 10.0),
+                    )
+                ],
+            )
+        ],
+        exit_groups=[
+            _group(
+                "exit",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "lt",
+                        _operand("constant", 10.0),
+                        role="exit",
+                    )
+                ],
+            )
+        ],
+        entry_controls={"min_bars_between_entries": 5},
+    )
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [1.0, 0.0, 0.0]
+
+
+def test_min_bars_between_entries_null_warmup_before_first_entry_is_safe() -> None:
+    ohlcv = _ohlcv_from_close([None, 11.0, 11.0, 11.0])
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "gt",
+                        _operand("constant", 10.0),
+                    )
+                ],
+            )
+        ],
+        max_holding_bars=1,
+        entry_controls={"min_bars_between_entries": 2},
+    )
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [0.0, 1.0, 0.0, 0.0]
+
+
+def test_min_bars_between_entries_uses_shared_final_stream_for_both_direction() -> None:
+    spec = _both_direction_spec(
+        max_holding_bars=1,
+    )
+    spec["entry_logic"]["entry_controls"] = {"min_bars_between_entries": 2}
+
+    signal = compile_signal(
+        spec,
+        _default_variant(),
+        _ohlcv_from_close([11.0, 9.0, 9.0, 9.0, 12.0]),
+    )
+
+    assert signal.tolist() == [1.0, 0.0, 0.0, -1.0, 0.0]
+    assert set(signal.unique()) <= {-1.0, 0.0, 1.0}
+
+
+def test_min_bars_between_entries_has_no_lookahead_for_past_entry_decisions() -> None:
+    base = _ohlcv_from_close([11.0, 9.0, 9.0, 9.0, 9.0])
+    mutated = base.copy()
+    cutoff = base.index[2]
+    mutated.loc[mutated.index[3] :, "close"] = [11.0, 11.0]
+    spec = _both_direction_spec(max_holding_bars=1)
+    spec["entry_logic"]["entry_controls"] = {"min_bars_between_entries": 2}
+
+    base_signal = compile_signal(spec, _default_variant(), base)
+    mutated_signal = compile_signal(spec, _default_variant(), mutated)
+
+    pd.testing.assert_series_equal(base_signal.loc[:cutoff], mutated_signal.loc[:cutoff])
+
+
+@pytest.mark.parametrize(
+    ("entry_controls", "match"),
+    [
+        (None, "entry_controls must be an object"),
+        ({"min_bars_between_entries": 0}, "requires integer bars"),
+        ({"min_bars_between_entries": True}, "requires integer bars"),
+        ({"min_bars_between_entries": 1.5}, "requires integer bars"),
+        ({"min_bars_between_entries": 100001}, "requires integer bars"),
+        ({"cooldown_bars_after_exit": 2}, "supports only min_bars_between_entries"),
+    ],
+)
+def test_min_bars_between_entries_rejects_malformed_controls(entry_controls, match: str) -> None:
+    spec = _single_condition_spec(
+        "gt",
+        _operand("data_ref", "close", "close"),
+        _operand("constant", 10.0),
+    )
+    spec["entry_logic"]["entry_controls"] = entry_controls
+
+    with pytest.raises(SpecSignalCompilerError, match=match):
+        compile_signal(spec, _default_variant(), _ohlcv())
+
+
+def test_min_bars_between_entries_rejects_forbidden_executable_key() -> None:
+    spec = _single_condition_spec(
+        "gt",
+        _operand("data_ref", "close", "close"),
+        _operand("constant", 10.0),
+    )
+    spec["entry_logic"]["entry_controls"] = {
+        "min_bars_between_entries": 2,
+        "eval": "close > 10",
+    }
+
+    with pytest.raises(SpecSignalCompilerError, match="forbidden executable"):
+        compile_signal(spec, _default_variant(), _ohlcv())
 
 
 def test_both_direction_enters_long_from_long_side_group() -> None:

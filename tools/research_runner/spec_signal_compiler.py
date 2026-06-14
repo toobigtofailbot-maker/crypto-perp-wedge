@@ -143,6 +143,7 @@ def compile_signal(
     filter_groups = _collect_groups(strategy_spec.get("filters"))
     exit_groups = _collect_groups(strategy_spec.get("exit_logic"))
     max_holding_bars = _max_holding_bars(strategy_spec)
+    min_bars_between_entries = _min_bars_between_entries(strategy_spec)
 
     if direction == "both":
         return _compile_both_direction_signal(
@@ -152,6 +153,7 @@ def compile_signal(
             filter_groups=filter_groups,
             exit_groups=exit_groups,
             max_holding_bars=max_holding_bars,
+            min_bars_between_entries=min_bars_between_entries,
         )
 
     position_value = 1.0 if direction == "long" else -1.0
@@ -160,7 +162,8 @@ def compile_signal(
     signal = pd.Series(0.0, index=ohlcv.index, name="signal")
     current_position = 0.0
     held_bars = 0
-    for timestamp in ohlcv.index:
+    last_entry_bar: int | None = None
+    for bar_index, timestamp in enumerate(ohlcv.index):
         should_exit = False
         if current_position:
             should_exit = _any_group_true(exit_groups, EXIT_GROUP_ROLES, context, timestamp)
@@ -172,8 +175,15 @@ def compile_signal(
 
         if not current_position:
             entry_allowed = _entry_allowed(all_entry_groups, context, timestamp)
+            if entry_allowed and not _entry_control_allows_entry(
+                bar_index=bar_index,
+                last_entry_bar=last_entry_bar,
+                min_bars_between_entries=min_bars_between_entries,
+            ):
+                entry_allowed = False
             if entry_allowed:
                 current_position = position_value
+                last_entry_bar = bar_index
                 held_bars = 0
 
         signal.loc[timestamp] = current_position
@@ -190,6 +200,7 @@ def _compile_both_direction_signal(
     filter_groups: list[Mapping[str, Any]],
     exit_groups: list[Mapping[str, Any]],
     max_holding_bars: int | None,
+    min_bars_between_entries: int | None,
 ) -> pd.Series:
     _guard_no_side_labels(filter_groups, "filters.groups")
     entry_groups_by_side = _split_root_side_groups(
@@ -206,7 +217,8 @@ def _compile_both_direction_signal(
     signal = pd.Series(0.0, index=ohlcv.index, name="signal")
     current_side: str | None = None
     held_bars = 0
-    for timestamp in ohlcv.index:
+    last_entry_bar: int | None = None
+    for bar_index, timestamp in enumerate(ohlcv.index):
         if current_side == "long":
             should_exit = _any_group_true(
                 exit_groups_by_side["long"],
@@ -247,11 +259,23 @@ def _compile_both_direction_signal(
                 timestamp,
             )
             if long_entry and not short_entry:
-                current_side = "long"
-                held_bars = 0
+                if _entry_control_allows_entry(
+                    bar_index=bar_index,
+                    last_entry_bar=last_entry_bar,
+                    min_bars_between_entries=min_bars_between_entries,
+                ):
+                    current_side = "long"
+                    last_entry_bar = bar_index
+                    held_bars = 0
             elif short_entry and not long_entry:
-                current_side = "short"
-                held_bars = 0
+                if _entry_control_allows_entry(
+                    bar_index=bar_index,
+                    last_entry_bar=last_entry_bar,
+                    min_bars_between_entries=min_bars_between_entries,
+                ):
+                    current_side = "short"
+                    last_entry_bar = bar_index
+                    held_bars = 0
 
         if current_side == "long":
             signal.loc[timestamp] = 1.0
@@ -429,6 +453,36 @@ def _max_holding_bars(strategy_spec: Mapping[str, Any]) -> int | None:
     if not isinstance(bars, int) or bars < 1:
         raise SpecSignalCompilerError("enabled max_holding_period requires integer bars >= 1")
     return bars
+
+
+def _min_bars_between_entries(strategy_spec: Mapping[str, Any]) -> int | None:
+    entry_logic = strategy_spec.get("entry_logic", {})
+    if not isinstance(entry_logic, Mapping) or "entry_controls" not in entry_logic:
+        return None
+    controls = entry_logic.get("entry_controls")
+    if not isinstance(controls, Mapping):
+        raise SpecSignalCompilerError("entry_controls must be an object when provided")
+    if set(controls) != {"min_bars_between_entries"}:
+        raise SpecSignalCompilerError(
+            "entry_controls supports only min_bars_between_entries"
+        )
+    bars = controls.get("min_bars_between_entries")
+    if isinstance(bars, bool) or not isinstance(bars, Integral) or bars < 1 or bars > 100000:
+        raise SpecSignalCompilerError(
+            "entry_controls.min_bars_between_entries requires integer bars in [1, 100000]"
+        )
+    return int(bars)
+
+
+def _entry_control_allows_entry(
+    *,
+    bar_index: int,
+    last_entry_bar: int | None,
+    min_bars_between_entries: int | None,
+) -> bool:
+    if min_bars_between_entries is None or last_entry_bar is None:
+        return True
+    return bar_index - last_entry_bar > min_bars_between_entries
 
 
 def _entry_allowed(groups: list[Mapping[str, Any]], context: _CompileContext, timestamp: Any) -> bool:

@@ -1948,6 +1948,249 @@ def test_supported_entry_condition_roles_still_work() -> None:
     assert signal.tolist() == [1.0] * len(ohlcv)
 
 
+def test_trend_filter_gate_allows_and_blocks_entries() -> None:
+    ohlcv = _ohlcv_from_close([10.0, 11.0, 12.0, 11.0, 9.0, 8.0])
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "gt",
+                        _operand("constant", 0.0),
+                    )
+                ],
+            )
+        ],
+        filters=[
+            _group(
+                "trend",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "gt",
+                        _operand("indicator_ref", "sma", "value", {"bars": 3}),
+                        role="filter",
+                    )
+                ],
+            )
+        ],
+        max_holding_bars=1,
+    )
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [0.0, 0.0, 1.0, 0.0, 0.0, 0.0]
+
+
+def test_regime_filter_gate_warmup_null_blocks_entries() -> None:
+    ohlcv = _ohlcv_from_close([10.0, 11.0, 12.0, 10.0])
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "gt",
+                        _operand("constant", 0.0),
+                    )
+                ],
+            )
+        ],
+        filters=[
+            _group(
+                "regime",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "gt",
+                        _operand("indicator_ref", "sma", "value", {"bars": 3}),
+                        role="filter",
+                    )
+                ],
+            )
+        ],
+        max_holding_bars=1,
+    )
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.iloc[:2].tolist() == [0.0, 0.0]
+    assert signal.tolist() == [0.0, 0.0, 1.0, 0.0]
+
+
+def test_trend_filter_gate_has_no_lookahead_for_past_signal_decisions() -> None:
+    base = _ohlcv_from_close([10.0, 11.0, 12.0, 11.0, 13.0, 14.0, 12.0])
+    mutated = base.copy()
+    mutated.loc[mutated.index[5:], "close"] = [100.0, 1.0]
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "gt",
+                        _operand("constant", 0.0),
+                    )
+                ],
+            )
+        ],
+        filters=[
+            _group(
+                "trend",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "gt",
+                        _operand("indicator_ref", "ema", "value", {"bars": 3}),
+                        role="filter",
+                    )
+                ],
+            )
+        ],
+        max_holding_bars=1,
+    )
+
+    base_signal = compile_signal(spec, _default_variant(), base)
+    mutated_signal = compile_signal(spec, _default_variant(), mutated)
+
+    pd.testing.assert_series_equal(base_signal.iloc[:5], mutated_signal.iloc[:5])
+
+
+def test_trend_filter_gate_supports_both_direction_specs() -> None:
+    ohlcv = _ohlcv_from_close([11.0, 9.0, 11.0])
+    spec = _both_direction_spec(
+        filters=[
+            _group(
+                "trend",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "volume", "volume"),
+                        "eq",
+                        _operand("constant", 1000.0),
+                        role="filter",
+                    )
+                ],
+            )
+        ],
+        max_holding_bars=1,
+    )
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [1.0, 0.0, 1.0]
+    assert set(signal.unique()) <= {-1.0, 0.0, 1.0}
+
+
+def test_trend_filter_gate_rejects_unknown_or_malformed_gate_config() -> None:
+    ohlcv = _ohlcv()
+    unknown_gate = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "gt",
+                        _operand("constant", 0.0),
+                    )
+                ],
+            )
+        ],
+        filters=[
+            _group(
+                "trend_regime_expression",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "gt",
+                        _operand("constant", 0.0),
+                        role="filter",
+                    )
+                ],
+            )
+        ],
+    )
+    malformed_gate = _spec(
+        entry_groups=unknown_gate["entry_logic"]["groups"],
+        filters=[
+            _group(
+                "trend",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "gt",
+                        _operand("constant", 0.0),
+                        role="filter",
+                    )
+                ],
+            )
+        ],
+    )
+    del malformed_gate["filters"]["groups"][0]["logic"]
+
+    with pytest.raises(UnsupportedSpecSignalCompilerFeature, match="unsupported entry/filter group role"):
+        compile_signal(unknown_gate, _default_variant(), ohlcv)
+    with pytest.raises(SpecSignalCompilerError, match="unsupported condition group logic"):
+        compile_signal(malformed_gate, _default_variant(), ohlcv)
+
+
+def test_trend_filter_gate_rejects_unsupported_operand_and_forbidden_key() -> None:
+    ohlcv = _ohlcv()
+    unsupported_operand = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "gt",
+                        _operand("constant", 0.0),
+                    )
+                ],
+            )
+        ],
+        filters=[
+            _group(
+                "trend",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "gt",
+                        _operand("indicator_ref", "trend_magic", "value", {"bars": 3}),
+                        role="filter",
+                    )
+                ],
+            )
+        ],
+    )
+    forbidden_key = _spec(
+        entry_groups=json.loads(json.dumps(unsupported_operand["entry_logic"]["groups"])),
+        filters=json.loads(json.dumps(unsupported_operand["filters"]["groups"])),
+    )
+    forbidden_key["filters"]["groups"][0]["formula"] = "close > sma(close, 3)"
+
+    with pytest.raises(SpecSignalCompilerError, match="unknown indicator_ref"):
+        compile_signal(unsupported_operand, _default_variant(), ohlcv)
+    with pytest.raises(SpecSignalCompilerError, match="forbidden executable/protected key"):
+        compile_signal(forbidden_key, _default_variant(), ohlcv)
+
+
 def test_evaluates_nested_all_any_groups_deterministically() -> None:
     ohlcv = _ohlcv()
     nested = _group(

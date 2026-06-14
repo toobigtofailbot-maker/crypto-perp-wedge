@@ -593,6 +593,7 @@
         "invalidation",
         "time_stop",
         "risk_exit",
+        "trend",
         "regime",
         "no_trade",
         "cooldown",

@@ -452,6 +452,10 @@ decision records, schemas, validators, or locked baseline documents.
   walk-forward / OOS windowing design; records chronology, no-lookahead,
   denominator-honesty, artifact, and validation expectations without
   implementation authority.
+- `2026-06-phaseb_first_hypothesis_design.md` - docs-only first Phase-B
+  hypothesis design draft using merged A1 z-score vocabulary, pending A2/A3
+  assumptions, and RP-7520 cost-drag lessons without pre-registration,
+  candidate, canonical-result, or implementation authority.
 - `../architecture/BTC_PERP_FUTURE_CAPABILITY_BACKLOG.md` - non-authoritative
   BTC perpetual capability inventory for future research-lab, crypto/perp
   feature, execution-realism, and later paper/live planning.

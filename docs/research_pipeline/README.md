@@ -461,6 +461,10 @@ decision records, schemas, validators, or locked baseline documents.
   read-only compile probe and C3 trial-accounting interpretation, without
   pre-registration, canonical artifact, candidate, runtime, or implementation
   authority.
+- `2026-06-phaseb_prereg_prep.md` - pre-freeze prep over the reconciled
+  Phase-B shape; records read-only real-data gate behavior and a proposed
+  single-slice GO-to-walk-forward screen without freezing or creating canonical
+  evidence.
 - `../architecture/BTC_PERP_FUTURE_CAPABILITY_BACKLOG.md` - non-authoritative
   BTC perpetual capability inventory for future research-lab, crypto/perp
   feature, execution-realism, and later paper/live planning.

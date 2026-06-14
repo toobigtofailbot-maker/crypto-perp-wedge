@@ -1,7 +1,7 @@
 {
   "schema_version": "v1",
   "strategy_spec_id": "STRAT-SPEC-0003",
-  "title": "Draft Phase-B Z-Score Trend-Gated Mean-Reversion Strategy Spec",
+  "title": "Phase-B Z-Score Trend-Gated Mean-Reversion Strategy Spec",
   "short_name": "phaseb-zscore-trend-throttle-15m-both",
   "status": "approved_for_variant_planning",
   "non_execution_declaration": {
@@ -30,17 +30,17 @@
     "prepared_by": "Codex",
     "created_at": "2026-06-14T00:00:00Z",
     "updated_at": "2026-06-14T00:00:00Z",
-    "rationale": "Draft Karl-review surface for the first Phase-B pre-registration candidate: BTCUSDT 15m both-direction z-score mean reversion with a shared trend gate and fixed entry throttle, explicitly dropping the inert regime gate from v1.",
+    "rationale": "Karl-approved PR #469 pre-registration surface for the first Phase-B candidate: BTCUSDT 15m both-direction z-score mean reversion with a shared trend gate and fixed entry throttle, explicitly dropping the inert regime gate from v1.",
     "source_constraints": [
       "Use A1 z-score composed operand with zero_scale_policy null_output.",
       "Use A2 shared trend gate through filters.groups only.",
       "Use A3 entry_logic.entry_controls.min_bars_between_entries as a fixed literal value of 8.",
       "Do not include a regime group, fixed STDDEV > 1.0 gate, or volatility-expansion substitute.",
       "Do not sweep min_bars_between_entries through VM rows under current repo truth.",
-      "No sweep run or result population is authorized by this draft package."
+      "No sweep run or result population is authorized by this pre-registration planning artifact."
     ],
     "unresolved_claims": [
-      "Karl review and explicit finalize authorization remain required before commit, PR, or finalized freeze."
+      "Merge of PR #469 remains required for repo-canonical prereg artifact presence; canonical trial and result population remain separately Karl-gated."
     ]
   },
   "instruments": {
@@ -443,7 +443,7 @@
       "No volatility-expansion substitute.",
       "No compiler mirroring.",
       "No VM-row sweep binding for entry_controls.min_bars_between_entries in this package.",
-      "No sweep run or result population is authorized by this Strategy Spec draft."
+      "No sweep run or result population is authorized by this Strategy Spec planning artifact."
     ],
     "none_declared": false
   },
@@ -452,9 +452,9 @@
     "reviewer": null,
     "reviewed_at": null,
     "review_notes": [
-      "Draft freeze-candidate surface for Karl review only. Do not commit, PR, or finalize until Karl explicitly authorizes.",
+      "Karl approved Option A commit/PR for PR #469; this artifact remains non-execution/non-runtime and does not authorize trial, result population, candidate promotion, paper/live readiness, or runtime authority.",
       "Option A revision keeps min_bars_between_entries fixed at 8 and removes it from VM axes.",
-      "This artifact content is intended to be frozen only after explicit finalize authorization."
+      "Merge of PR #469 records this pre-registration planning artifact; future trial and result-population work remains separately Karl-gated."
     ],
     "approval_scope": "variant_planning_only",
     "non_authority_acknowledgement": {
@@ -519,7 +519,7 @@
     "slippage_model": "fixed_bps",
     "fill_mode": "complete",
     "order_size_assumption": "future offline runner assumption: dynamic_equity_target_leverage at target_leverage=1.0; no run in this package",
-    "liquidity_capacity_assumption": "not active in this draft parent artifact",
+    "liquidity_capacity_assumption": "not active in this prereg parent artifact",
     "liquidation_mode": "zero_equity",
     "maintenance_margin_assumption": null,
     "mark_price_source": "close",

@@ -4,7 +4,7 @@
 - Branch: `prereg/phaseb-0003-draft`.
 - Worktree: `C:\GitHub\crypto-perp-wedge-WP-PHASEB-PREREG-01`.
 - Base: `origin/main` at PR #468 / `17b1dee`.
-- Package class: Karl-gated pre-registration draft and surface.
+- Package class: Karl-gated pre-registration artifact surface.
 - Status: Karl-approved Option A finalization PR scope; no canonical trial,
   result population, or runtime authority.
 
@@ -13,7 +13,7 @@
 This package finalizes the exact candidate content for `STRAT-SPEC-0003`,
 `VM-0003`, and `SWEEP-PLAN-0003` for PR review after Karl approved Option A.
 
-The draft implements Main's selected v1 shape:
+The artifact set implements the selected v1 shape:
 
 - drop the regime gate;
 - do not use `STDDEV(close, vol_lookback_bars) > 1.0`;
@@ -23,7 +23,7 @@ The draft implements Main's selected v1 shape:
   15m posture, and dynamic-equity 1x future measurement posture inherited
   from RP-7520.
 
-## Drafted Artifacts
+## Artifact Set
 
 - `research/strategy_specs/STRAT-SPEC-0003.strategy_spec.json`
 - `research/variant_manifests/VM-0003.variant_manifest.json`
@@ -34,7 +34,7 @@ The draft implements Main's selected v1 shape:
 
 ## Denominator / Grid
 
-The draft manifest declares 8 variants:
+The manifest declares 8 variants:
 
 - `center_lookback_bars in {50, 100}`
 - `vol_lookback_bars in {30, 50}`
@@ -47,7 +47,7 @@ rows under future result-population rules.
 
 Option A repo-truth follow-up: current
 `entry_controls.min_bars_between_entries` is a Strategy Spec literal and the
-current offline runner passes the same spec to every variant row. This draft
+current offline runner passes the same spec to every variant row. This artifact
 therefore fixes the throttle at `8` in `STRAT-SPEC-0003`, does not sweep it,
 and does not count it as a VM free parameter. No implementation, schema,
 compiler, runner, or materialization change is included or authorized.
@@ -55,7 +55,7 @@ compiler, runner, or materialization change is included or authorized.
 ## Finalization PR Scope
 
 - Karl approval: Option A fixed throttle.
-- Commit/PR scope: pre-registration artifacts, draft surface document, status
+- Commit/PR scope: pre-registration artifacts, surface document, status
   fragment, and README navigation pointer only.
 - Exact denominator: `8`, plus retained non-success rows under future
   result-population rules.
@@ -68,8 +68,10 @@ compiler, runner, or materialization change is included or authorized.
 
 ## Boundary Summary
 
-- Commit created: pending this finalization follow-up.
-- PR opened: pending this finalization follow-up.
+- Commit created: YES, on PR #469 branch.
+- PR opened: YES, #469.
+- Repo-canonical prereg artifacts: pending merge of PR #469.
+- PR #469 is the finalization vehicle for this pre-registration artifact set.
 - Freeze finalized: NO.
 - Canonical result population written: NO.
 - Trial or canonical sweep run: NO.

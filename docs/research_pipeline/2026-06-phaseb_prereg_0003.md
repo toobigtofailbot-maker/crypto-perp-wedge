@@ -1,33 +1,33 @@
-# Phase-B Pre-Registration 0003 Draft Surface
+# Phase-B Pre-Registration 0003 Surface
 
 ## Status / Authority Boundary
 
 Status: `Karl-approved Option A freeze-candidate surface for PR review`.
 
-This document surfaces the exact uncommitted candidate artifacts drafted by
-`WP-PHASEB-PREREG-01` for review. It is not a finalized freeze, not canonical
-evidence, not a result population, not a trial-log entry, not candidate
-approval, not readiness, and not paper/live/runtime authority.
+This document records the PR #469 pre-registration artifact surface for
+`WP-PHASEB-PREREG-01`. It is not canonical evidence, not a result population,
+not a trial-log entry, not candidate approval, not readiness, and not
+paper/live/runtime authority.
 
-The drafted JSON artifacts use the schema-required frozen-for-sweep-planning
-fields so the hash-pinned candidate chain can validate. Karl approved the
-Option A fixed-throttle shape for commit and PR review. Merge remains required
-before this surface is repo-canonical.
+The JSON artifacts use the schema-required frozen-for-sweep-planning fields so
+the hash-pinned candidate chain can validate. Karl approved the Option A
+fixed-throttle shape for commit and PR review. Merge of PR #469 makes these
+artifacts repo-canonical for planning.
 
 Follow-up revision: Option A fixes
 `entry_logic.entry_controls.min_bars_between_entries = 8` in the Strategy Spec
 and does not treat it as a Variant Manifest axis or free parameter.
 
-## Draft Artifact Set
+## Artifact Set
 
 - Strategy Spec: `research/strategy_specs/STRAT-SPEC-0003.strategy_spec.json`
 - Variant Manifest: `research/variant_manifests/VM-0003.variant_manifest.json`
 - Sweep Plan: `research/sweep_plans/SWEEP-PLAN-0003.sweep_plan.json`
 
-No commit, PR, canonical sweep, canonical result population, trial, candidate
-registry entry, promotion, paper/live/runtime path, OMS/risk/reconciliation
-path, broker/exchange path, schema, validator, compiler, runner, `lib/`, `src/`,
-data catalog, or data-content change is authorized by this draft.
+No canonical sweep, canonical result population, trial, candidate registry
+entry, promotion, paper/live/runtime path, OMS/risk/reconciliation path,
+broker/exchange path, schema, validator, compiler, runner, `lib/`, `src/`, data
+catalog, or data-content change is authorized by this artifact.
 
 ## Candidate Semantics
 
@@ -74,11 +74,11 @@ Free-parameter count: `3`.
 Committed denominator if finalized unchanged: `8`, plus any retained
 non-success rows required by future result-population rules.
 
-Repo-truth follow-up decision for Karl review: current
+Repo-truth follow-up decision for PR #469 review: current
 `entry_logic.entry_controls.min_bars_between_entries` is a Strategy Spec
 literal, so Option A keeps it fixed at `8` and removes it from the VM grid. No
 implementation, schema, compiler, runner, or materialization change is included
-or authorized by this draft.
+or authorized by this artifact.
 
 The manifest contains all 8 variants in deterministic manual-grid order:
 
@@ -122,7 +122,7 @@ paper/live authority.
 1. Denominator completeness:
    - `committed_denominator_snapshot.committed_denominator` must equal the
      frozen VM Cartesian denominator plus all retained non-success rows.
-   - For the current draft grid, the frozen VM Cartesian denominator is `8`.
+   - For the current grid, the frozen VM Cartesian denominator is `8`.
    - `result_row_count`, `outcome_counts_sum`, and committed denominator must
      agree.
    - Successful, failed, invalid, excluded, errored, aborted, filtered,
@@ -176,7 +176,7 @@ paper/live authority.
 
 7. Sensitivity / non-isolated variant:
    - At least 25% of the committed denominator, at least 2 variants for the
-     current 8-variant draft grid before retained non-success rows, must pass
+     current 8-variant grid before retained non-success rows, must pass
      the core sanity screen: `return_pct > 0`, `sharpe > 0`,
      `drawdown <= 0.35`, `cost_to_initial_equity <= 0.50`, and
      `trade_count <= 1212`.

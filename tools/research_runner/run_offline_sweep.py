@@ -111,6 +111,18 @@ class _SizingContext:
     exact_resolution: _SizingResolution | None
 
 
+@dataclass(frozen=True)
+class _WalkForwardWindow:
+    window_id: str
+    window_index: int
+    in_sample_start: pd.Timestamp
+    in_sample_end_exclusive: pd.Timestamp
+    out_of_sample_start: pd.Timestamp
+    out_of_sample_end_exclusive: pd.Timestamp
+    in_sample_row_count: int
+    out_of_sample_row_count: int
+
+
 def _validate_sizing_mode(value: str) -> str:
     if value not in SIZING_MODES:
         raise OfflineSweepError(
@@ -159,6 +171,19 @@ def _parse_target_leverage(value: str) -> float:
         raise argparse.ArgumentTypeError("--target-leverage must be numeric") from exc
     except OfflineSweepError as exc:
         raise argparse.ArgumentTypeError(str(exc)) from exc
+
+
+def _positive_int_arg(name: str):
+    def parse(value: str) -> int:
+        try:
+            parsed = int(value)
+        except ValueError as exc:
+            raise argparse.ArgumentTypeError(f"{name} must be a positive integer") from exc
+        if parsed <= 0:
+            raise argparse.ArgumentTypeError(f"{name} must be a positive integer")
+        return parsed
+
+    return parse
 
 
 def _resolve_order_size(
@@ -494,6 +519,96 @@ def _zero_funding_for_ohlcv(ohlcv: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame({"funding_rate": [0.0] * len(funding_index)}, index=funding_index)
 
 
+def _slice_funding_for_window(funding: pd.DataFrame, start: pd.Timestamp, end: pd.Timestamp) -> pd.DataFrame:
+    sliced = funding.loc[(funding.index >= start) & (funding.index < end)].copy()
+    if sliced.empty:
+        return pd.DataFrame({"funding_rate": [0.0]}, index=pd.DatetimeIndex([start], tz="UTC"))
+    return sliced
+
+
+def _slice_execution_input(
+    execution_input: _ExecutionInput,
+    *,
+    start: pd.Timestamp,
+    end: pd.Timestamp,
+    window_label: str,
+) -> _ExecutionInput:
+    ohlcv = execution_input.ohlcv.loc[
+        (execution_input.ohlcv.index >= start) & (execution_input.ohlcv.index < end)
+    ].copy()
+    if len(ohlcv) < 2:
+        raise OfflineSweepError(f"{window_label} requires at least two OHLCV rows")
+    return _ExecutionInput(
+        mode=f"{execution_input.mode}:{window_label}",
+        execution_provenance_class=execution_input.execution_provenance_class,
+        ohlcv=ohlcv,
+        funding=_slice_funding_for_window(execution_input.funding, ohlcv.index[0], end),
+        timeframe=execution_input.timeframe,
+        data_catalog_ref=execution_input.data_catalog_ref,
+        data_slice_identity=execution_input.data_slice_identity,
+        environment_summary=execution_input.environment_summary,
+        data_coverage_notes=execution_input.data_coverage_notes,
+    )
+
+
+def _build_walkforward_windows(
+    index: pd.DatetimeIndex,
+    *,
+    in_sample_bars: int,
+    out_of_sample_bars: int,
+    step_bars: int | None = None,
+    max_windows: int | None = None,
+) -> list[_WalkForwardWindow]:
+    if not isinstance(index, pd.DatetimeIndex):
+        raise OfflineSweepError("walk-forward input index must be a DatetimeIndex")
+    if index.tz is None or str(index.tz) not in ("UTC", "utc", "Etc/UTC"):
+        raise OfflineSweepError("walk-forward input index must be UTC-localized")
+    if not index.is_monotonic_increasing or index.has_duplicates:
+        raise OfflineSweepError("walk-forward input index must be monotonic with no duplicates")
+    if in_sample_bars <= 1:
+        raise OfflineSweepError("--walkforward-is-bars must be greater than 1")
+    if out_of_sample_bars <= 1:
+        raise OfflineSweepError("--walkforward-oos-bars must be greater than 1")
+
+    step = step_bars if step_bars is not None else in_sample_bars + out_of_sample_bars
+    if step < in_sample_bars + out_of_sample_bars:
+        raise OfflineSweepError(
+            "--walkforward-step-bars must be at least IS+OOS bars to preserve non-overlap"
+        )
+    if max_windows is not None and max_windows <= 0:
+        raise OfflineSweepError("--walkforward-max-windows must be positive when provided")
+
+    total_required = in_sample_bars + out_of_sample_bars
+    windows: list[_WalkForwardWindow] = []
+    start_pos = 0
+    while start_pos + total_required <= len(index):
+        is_start_pos = start_pos
+        is_end_pos = start_pos + in_sample_bars
+        oos_start_pos = is_end_pos
+        oos_end_pos = oos_start_pos + out_of_sample_bars
+        window_number = len(windows) + 1
+        windows.append(
+            _WalkForwardWindow(
+                window_id=f"WF-{window_number:04d}",
+                window_index=window_number,
+                in_sample_start=index[is_start_pos],
+                in_sample_end_exclusive=index[is_end_pos],
+                out_of_sample_start=index[oos_start_pos],
+                out_of_sample_end_exclusive=(
+                    index[oos_end_pos] if oos_end_pos < len(index) else index[-1] + (index[-1] - index[-2])
+                ),
+                in_sample_row_count=in_sample_bars,
+                out_of_sample_row_count=out_of_sample_bars,
+            )
+        )
+        if max_windows is not None and len(windows) >= max_windows:
+            break
+        start_pos += step
+    if not windows:
+        raise OfflineSweepError("walk-forward input does not contain enough rows for one IS/OOS window")
+    return windows
+
+
 def _canonical_15m_execution_input(ohlcv_input_path: Path | None) -> _ExecutionInput:
     if ohlcv_input_path is None:
         raise OfflineSweepError("--ohlcv-input is required with --canonical-15m")
@@ -695,6 +810,162 @@ def _metrics_from_backtest(result: Any, freq: str) -> dict[str, Any]:
         "funding": float(result.funding_paid),
         "slippage": float(result.slippage_paid),
         "exposure": 1.0 if trade_count else 0.0,
+    }
+
+
+def _window_boundary_payload(window: _WalkForwardWindow) -> dict[str, Any]:
+    return {
+        "window_id": window.window_id,
+        "window_index": window.window_index,
+        "in_sample_start": window.in_sample_start.isoformat().replace("+00:00", "Z"),
+        "in_sample_end_exclusive": window.in_sample_end_exclusive.isoformat().replace("+00:00", "Z"),
+        "out_of_sample_start": window.out_of_sample_start.isoformat().replace("+00:00", "Z"),
+        "out_of_sample_end_exclusive": window.out_of_sample_end_exclusive.isoformat().replace("+00:00", "Z"),
+        "in_sample_row_count": window.in_sample_row_count,
+        "out_of_sample_row_count": window.out_of_sample_row_count,
+        "boundary_semantics": "start_inclusive_end_exclusive",
+        "paired_is_oos_overlap_allowed": False,
+    }
+
+
+def _efficiency_ratio(in_sample_sharpe: Any, out_of_sample_sharpe: Any) -> float | None:
+    if not isinstance(in_sample_sharpe, (int, float)) or isinstance(in_sample_sharpe, bool):
+        return None
+    if not isinstance(out_of_sample_sharpe, (int, float)) or isinstance(out_of_sample_sharpe, bool):
+        return None
+    if not math.isfinite(float(in_sample_sharpe)) or not math.isfinite(float(out_of_sample_sharpe)):
+        return None
+    if float(in_sample_sharpe) <= 0.0:
+        return None
+    return float(out_of_sample_sharpe) / float(in_sample_sharpe)
+
+
+def _run_window_variant_backtest(
+    strategy_spec: dict[str, Any],
+    variant: dict[str, Any],
+    execution_input: _ExecutionInput,
+    sizing_mode: str,
+    target_leverage: float,
+) -> dict[str, Any]:
+    sizing_context = _sizing_context(execution_input, sizing_mode, target_leverage)
+    assert sizing_context.exact_resolution is not None
+    result = _run_canonical_15m_backtest(
+        strategy_spec,
+        variant,
+        execution_input,
+        sizing_context,
+        sizing_context.exact_resolution,
+    )
+    return _metrics_from_backtest(result, execution_input.timeframe)
+
+
+def _run_walkforward_dry_run(
+    *,
+    strategy_spec: dict[str, Any],
+    manifest: dict[str, Any],
+    execution_input: _ExecutionInput,
+    sizing_mode: str,
+    target_leverage: float,
+    in_sample_bars: int,
+    out_of_sample_bars: int,
+    step_bars: int | None,
+    max_windows: int | None,
+) -> dict[str, Any]:
+    windows = _build_walkforward_windows(
+        execution_input.ohlcv.index,
+        in_sample_bars=in_sample_bars,
+        out_of_sample_bars=out_of_sample_bars,
+        step_bars=step_bars,
+        max_windows=max_windows,
+    )
+    selected_variants = [
+        variant
+        for variant in sorted(manifest["variant_assignments"], key=lambda row: row["variant_id"])
+        if variant["assignment_status"] == "included"
+    ]
+    rows: list[dict[str, Any]] = []
+    missing_input_warnings: list[str] = []
+    for window in windows:
+        is_input = _slice_execution_input(
+            execution_input,
+            start=window.in_sample_start,
+            end=window.in_sample_end_exclusive,
+            window_label=f"{window.window_id}:in_sample",
+        )
+        oos_input = _slice_execution_input(
+            execution_input,
+            start=window.out_of_sample_start,
+            end=window.out_of_sample_end_exclusive,
+            window_label=f"{window.window_id}:out_of_sample",
+        )
+        for variant in selected_variants:
+            row: dict[str, Any] = {
+                **_window_boundary_payload(window),
+                "variant_id": variant["variant_id"],
+                "selection_behavior": "no_selection_partition_and_report_all_included_variants",
+                "outcome_category": "successful",
+                "in_sample_metrics": None,
+                "out_of_sample_metrics": None,
+                "oos_is_sharpe_efficiency": None,
+                "missing_input_warnings": [],
+            }
+            try:
+                is_metrics = _run_window_variant_backtest(
+                    strategy_spec,
+                    variant,
+                    is_input,
+                    sizing_mode,
+                    target_leverage,
+                )
+                oos_metrics = _run_window_variant_backtest(
+                    strategy_spec,
+                    variant,
+                    oos_input,
+                    sizing_mode,
+                    target_leverage,
+                )
+                ratio = _efficiency_ratio(is_metrics.get("sharpe"), oos_metrics.get("sharpe"))
+                if ratio is None:
+                    warning = "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+                    row["missing_input_warnings"].append(warning)
+                    missing_input_warnings.append(warning)
+                row["in_sample_metrics"] = is_metrics
+                row["out_of_sample_metrics"] = oos_metrics
+                row["oos_is_sharpe_efficiency"] = ratio
+            except Exception as exc:
+                row["outcome_category"] = "errored"
+                row["missing_input_warnings"].append(f"window_variant_error:{exc.__class__.__name__}")
+                missing_input_warnings.append(f"window_variant_error:{exc.__class__.__name__}")
+            rows.append(row)
+
+    return {
+        "enabled": True,
+        "dry_run_only": True,
+        "canonical_result_population_written": False,
+        "window_protocol": {
+            "window_type": "rolling_non_overlapping_build_test",
+            "boundary_semantics": "start_inclusive_end_exclusive",
+            "timezone": "UTC",
+            "in_sample_bars": in_sample_bars,
+            "out_of_sample_bars": out_of_sample_bars,
+            "step_bars": step_bars if step_bars is not None else in_sample_bars + out_of_sample_bars,
+            "purge_embargo": "not_implemented_deferred_by_design",
+            "selection_behavior": "no_selection_partition_and_report_all_included_variants",
+            "no_lookahead_boundary": "OOS rows are never used to choose variants; each row reports the same predeclared included variants across IS and later OOS windows.",
+        },
+        "window_count": len(windows),
+        "variant_count_per_window": len(selected_variants),
+        "rows": rows,
+        "missing_input_warnings": sorted(set(missing_input_warnings)),
+        "non_authority_declaration": [
+            "build_test_only",
+            "not_canonical_evidence",
+            "not_ranking_authority",
+            "not_recommendation_authority",
+            "not_readiness_authority",
+            "not_promotion_authority",
+            "not_paper_live_runtime_authority",
+        ],
     }
 
 
@@ -1498,10 +1769,21 @@ def run_offline_sweep(
     d2_import_report_path: Path | None = None,
     sizing_mode: str = SIZING_MODE_FIXED_ORDER_SIZE,
     target_leverage: float = DEFAULT_TARGET_LEVERAGE,
+    walkforward: bool = False,
+    walkforward_is_bars: int | None = None,
+    walkforward_oos_bars: int | None = None,
+    walkforward_step_bars: int | None = None,
+    walkforward_max_windows: int | None = None,
 ) -> dict[str, Any]:
     """Run a deterministic build-and-test-only offline research sweep."""
     if deterministic_seed is None:
         raise OfflineSweepError("deterministic_seed must be fixed")
+    if walkforward and write_result_population:
+        raise OfflineSweepError("walk-forward mode is dry-run-only and cannot write result populations")
+    if walkforward and (walkforward_is_bars is None or walkforward_oos_bars is None):
+        raise OfflineSweepError(
+            "walk-forward mode requires --walkforward-is-bars and --walkforward-oos-bars"
+        )
     sizing_mode = _validate_sizing_mode(sizing_mode)
     target_leverage = _validate_target_leverage(target_leverage)
     guarded_output_dir = _guard_output_dir(output_dir, write_result_population)
@@ -1526,6 +1808,8 @@ def run_offline_sweep(
             execution_input = _canonical_15m_execution_input(ohlcv_input_path)
     elif d4_catalog_slice_path is not None or d2_import_report_path is not None:
         raise OfflineSweepError("D4 provenance mode requires --canonical-15m")
+    if walkforward and execution_input is None:
+        raise OfflineSweepError("walk-forward mode currently requires --canonical-15m input data")
     payload, aborted = _build_result_population(
         strategy_spec,
         manifest,
@@ -1548,6 +1832,22 @@ def run_offline_sweep(
             variant_manifest_path,
             sweep_plan_path,
         )
+    walkforward_summary = None
+    if walkforward:
+        assert execution_input is not None
+        assert walkforward_is_bars is not None
+        assert walkforward_oos_bars is not None
+        walkforward_summary = _run_walkforward_dry_run(
+            strategy_spec=strategy_spec,
+            manifest=manifest,
+            execution_input=execution_input,
+            sizing_mode=sizing_mode,
+            target_leverage=target_leverage,
+            in_sample_bars=walkforward_is_bars,
+            out_of_sample_bars=walkforward_oos_bars,
+            step_bars=walkforward_step_bars,
+            max_windows=walkforward_max_windows,
+        )
     return {
         "ok": not aborted,
         "aborted": aborted,
@@ -1560,6 +1860,7 @@ def run_offline_sweep(
             "committed_denominator"
         ],
         "outcome_category_counts": payload["outcome_category_counts"],
+        "walkforward": walkforward_summary,
     }
 
 
@@ -1591,6 +1892,15 @@ def _build_parser() -> argparse.ArgumentParser:
         default=DEFAULT_TARGET_LEVERAGE,
         help="Positive finite leverage used by fixed resolution or dynamic equity sizing.",
     )
+    parser.add_argument(
+        "--walkforward",
+        action="store_true",
+        help="Run dry-run-only build-test walk-forward IS/OOS partition reporting.",
+    )
+    parser.add_argument("--walkforward-is-bars", type=_positive_int_arg("--walkforward-is-bars"))
+    parser.add_argument("--walkforward-oos-bars", type=_positive_int_arg("--walkforward-oos-bars"))
+    parser.add_argument("--walkforward-step-bars", type=_positive_int_arg("--walkforward-step-bars"))
+    parser.add_argument("--walkforward-max-windows", type=_positive_int_arg("--walkforward-max-windows"))
     return parser
 
 
@@ -1612,6 +1922,11 @@ def main(argv: list[str] | None = None) -> int:
             d2_import_report_path=args.d2_import_report,
             sizing_mode=args.sizing_mode,
             target_leverage=args.target_leverage,
+            walkforward=args.walkforward,
+            walkforward_is_bars=args.walkforward_is_bars,
+            walkforward_oos_bars=args.walkforward_oos_bars,
+            walkforward_step_bars=args.walkforward_step_bars,
+            walkforward_max_windows=args.walkforward_max_windows,
         )
     except Exception as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
@@ -1628,6 +1943,7 @@ def main(argv: list[str] | None = None) -> int:
                 "result_population_id": result["result_population_id"],
                 "committed_denominator": result["committed_denominator"],
                 "outcome_category_counts": result["outcome_category_counts"],
+                "walkforward": result["walkforward"],
             },
             indent=2,
             sort_keys=True,

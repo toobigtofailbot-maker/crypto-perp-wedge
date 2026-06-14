@@ -1788,3 +1788,140 @@ def test_canonical_15m_d4_provenance_output_is_deterministic(tmp_path):
     assert "execution_provenance_class=canonical_real_data" in first["result_population"][
         "execution_context"
     ]["environment_summary"]
+
+
+def test_walkforward_window_generation_uses_explicit_non_overlapping_boundaries():
+    index = pd.date_range("2026-01-01T00:00:00Z", periods=96, freq="15min")
+
+    windows = runner._build_walkforward_windows(
+        index,
+        in_sample_bars=24,
+        out_of_sample_bars=24,
+        step_bars=48,
+    )
+
+    assert [window.window_id for window in windows] == ["WF-0001", "WF-0002"]
+    assert windows[0].in_sample_start == index[0]
+    assert windows[0].in_sample_end_exclusive == index[24]
+    assert windows[0].out_of_sample_start == index[24]
+    assert windows[0].out_of_sample_end_exclusive == index[48]
+    assert windows[1].in_sample_start == index[48]
+    assert windows[1].out_of_sample_start == index[72]
+    assert windows[0].out_of_sample_end_exclusive <= windows[1].in_sample_start
+
+
+def test_walkforward_rejects_overlapping_step():
+    index = pd.date_range("2026-01-01T00:00:00Z", periods=96, freq="15min")
+
+    with pytest.raises(runner.OfflineSweepError, match="preserve non-overlap"):
+        runner._build_walkforward_windows(
+            index,
+            in_sample_bars=24,
+            out_of_sample_bars=24,
+            step_bars=24,
+        )
+
+
+def test_walkforward_dry_run_partitions_and_does_not_write(tmp_path, monkeypatch):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(tmp_path)
+    calls = []
+    canonical_files_before = sorted(
+        runner.CANONICAL_RESULT_POPULATIONS_DIR.glob("*.result_population.json")
+    )
+
+    def fake_compile_signal(strategy_spec, variant, ohlcv, funding=None):
+        del strategy_spec, variant, funding
+        signal = pd.Series(0.0, index=ohlcv.index)
+        signal.iloc[1:-1] = 1.0
+        return signal
+
+    def fake_backtest(signal, ohlcv, funding, **kwargs):
+        del signal, funding
+        calls.append(
+            {
+                "start": ohlcv.index[0],
+                "end": ohlcv.index[-1],
+                "rows": len(ohlcv),
+                "order_size": kwargs["order_size"],
+            }
+        )
+        equity = pd.Series(
+            [runner.INITIAL_EQUITY + index for index in range(len(ohlcv))],
+            index=ohlcv.index,
+            name="equity",
+        )
+        return type(
+            "FakeBacktestResult",
+            (),
+            {
+                "equity_curve": equity,
+                "trades_df": pd.DataFrame({"net_pnl": [1.0]}),
+                "fees_paid": 0.0,
+                "funding_paid": 0.0,
+                "slippage_paid": 0.0,
+                "params": {"initial_equity": runner.INITIAL_EQUITY},
+            },
+        )()
+
+    monkeypatch.setattr(runner, "compile_signal", fake_compile_signal)
+    monkeypatch.setattr(runner, "run_backtest", fake_backtest)
+
+    result = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        deterministic_seed=7,
+        walkforward=True,
+        walkforward_is_bars=24,
+        walkforward_oos_bars=24,
+        walkforward_step_bars=48,
+        walkforward_max_windows=2,
+    )
+
+    walkforward = result["walkforward"]
+    assert result["dry_run"] is True
+    assert result["wrote"] is False
+    assert walkforward["dry_run_only"] is True
+    assert walkforward["canonical_result_population_written"] is False
+    assert walkforward["window_count"] == 2
+    assert walkforward["variant_count_per_window"] == 7
+    assert len(walkforward["rows"]) == 14
+    assert all(
+        row["selection_behavior"] == "no_selection_partition_and_report_all_included_variants"
+        for row in walkforward["rows"]
+    )
+    assert all(
+        row["in_sample_end_exclusive"] == row["out_of_sample_start"]
+        for row in walkforward["rows"]
+    )
+    assert all(row["oos_is_sharpe_efficiency"] is not None for row in walkforward["rows"])
+    window_calls = [call for call in calls if call["rows"] == 24]
+    base_calls = [call for call in calls if call["rows"] == 96]
+    assert len(base_calls) == 7
+    assert len(window_calls) == 28
+    canonical_files_after = sorted(
+        runner.CANONICAL_RESULT_POPULATIONS_DIR.glob("*.result_population.json")
+    )
+    assert canonical_files_after == canonical_files_before
+
+
+def test_walkforward_mode_is_dry_run_only(tmp_path):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(tmp_path)
+
+    with pytest.raises(runner.OfflineSweepError, match="dry-run-only"):
+        _run(
+            strategy_path,
+            manifest_path,
+            sweep_path,
+            output_dir=tmp_path / "scratch_result_populations",
+            write_result_population=True,
+            canonical_15m=True,
+            ohlcv_input_path=ohlcv_path,
+            walkforward=True,
+            walkforward_is_bars=24,
+            walkforward_oos_bars=24,
+        )

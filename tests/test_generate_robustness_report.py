@@ -5,8 +5,10 @@ from pathlib import Path
 from tools.research_runner.generate_robustness_report import (
     build_diagnostic,
     build_diagnostic_with_trial_log,
+    compute_oos_is_efficiency,
     generate_report,
     main,
+    summarize_oos_is_efficiency,
 )
 
 
@@ -71,6 +73,45 @@ def test_report_withholds_numeric_robustness_metrics_and_lists_missing_inputs() 
     assert "annualization convention: absent" in report
     assert "selection rule: absent" in report
     assert "effective number of independent trials: absent" in report
+
+
+def test_oos_is_efficiency_computes_sharpe_ratio() -> None:
+    result = compute_oos_is_efficiency(2.0, 1.0)
+
+    assert result["status"] == "computed"
+    assert result["value"] == 0.5
+    assert result["missing_input_warnings"] == []
+
+
+def test_oos_is_efficiency_reports_missing_inputs() -> None:
+    result = compute_oos_is_efficiency(0.0, 1.0)
+
+    assert result["status"] == "missing_inputs"
+    assert result["value"] is None
+    assert "in_sample_sharpe_not_positive" in result["missing_input_warnings"]
+
+
+def test_oos_is_efficiency_summary_handles_window_rows() -> None:
+    summary = summarize_oos_is_efficiency(
+        [
+            {"in_sample_metrics": {"sharpe": 2.0}, "out_of_sample_metrics": {"sharpe": 1.0}},
+            {"oos_is_sharpe_efficiency": 0.25},
+        ]
+    )
+
+    assert summary["status"] == "computed"
+    assert summary["computed_count"] == 2
+    assert summary["mean"] == 0.375
+    assert summary["authority"] == "descriptive_only_not_ranking_not_promotion"
+
+
+def test_oos_is_efficiency_summary_reports_missing_window_inputs() -> None:
+    summary = summarize_oos_is_efficiency(None)
+
+    assert summary["status"] == "withheld_missing_window_inputs"
+    assert summary["computed_count"] == 0
+    assert summary["mean"] is None
+    assert "walk-forward window rows" in summary["missing_input_warnings"]
 
 
 def test_report_contains_denominator_policy_and_non_authority_declaration() -> None:

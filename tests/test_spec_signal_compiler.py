@@ -63,6 +63,29 @@ def _composed_operand(
     }
 
 
+def _z_score_operand(
+    *,
+    value_operand: dict | None = None,
+    center_operand: dict | None = None,
+    scale_operand: dict | None = None,
+    zero_scale_policy: str = "null_output",
+) -> dict:
+    return {
+        "operand_type": "composed_operand",
+        "composition_type": "z_score",
+        "value_operand": value_operand
+        if value_operand is not None
+        else _operand("data_ref", "close", "close"),
+        "center_operand": center_operand
+        if center_operand is not None
+        else _operand("indicator_ref", "sma", "value", {"bars": 3}),
+        "scale_operand": scale_operand
+        if scale_operand is not None
+        else _operand("indicator_ref", "stddev", "value", {"bars": 3}),
+        "zero_scale_policy": zero_scale_policy,
+    }
+
+
 def _distance_ohlcv() -> pd.DataFrame:
     index = pd.date_range("2026-01-01", periods=25, freq="h", tz="UTC")
     close = ([100.0] * 20) + [94.0, 98.0, 90.0, 102.0, 94.0]
@@ -464,6 +487,105 @@ def test_composed_operand_minus_still_compiles_expected_band() -> None:
     expected = compiler._sma_v1(ohlcv["close"], 20) * (1.0 - 0.05)
 
     pd.testing.assert_series_equal(result, expected)
+
+
+def test_z_score_composed_operand_result_equals_manual_pandas_series() -> None:
+    ohlcv = _ohlcv()
+    context = compiler._CompileContext(
+        strategy_spec={},
+        variant_assignment=_default_variant(),
+        ohlcv=ohlcv,
+        catalog=compiler._load_default_catalog(),
+    )
+
+    result = compiler._resolve_operand(_z_score_operand(), context)
+    center = compiler._sma_v1(ohlcv["close"], 3)
+    scale = compiler._stddev_v1(ohlcv["close"], 3, ddof=0)
+    expected = ((ohlcv["close"] - center) / scale).mask(scale.isna() | (scale == 0.0))
+
+    pd.testing.assert_series_equal(result, expected)
+
+
+def test_z_score_composed_operand_warmup_null_produces_false_condition() -> None:
+    ohlcv = _ohlcv()
+    spec = _single_condition_spec("gt", _z_score_operand(), _operand("constant", 0.0))
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+    z_score = compiler._resolve_operand(
+        _z_score_operand(),
+        compiler._CompileContext(
+            strategy_spec={},
+            variant_assignment=_default_variant(),
+            ohlcv=ohlcv,
+            catalog=compiler._load_default_catalog(),
+        ),
+    )
+
+    assert z_score.iloc[:2].isna().all()
+    assert signal.iloc[:2].tolist() == [0.0, 0.0]
+
+
+def test_z_score_composed_operand_zero_scale_policy_outputs_null() -> None:
+    ohlcv = _ohlcv_from_close([10.0, 10.0, 10.0, 11.0])
+    context = compiler._CompileContext(
+        strategy_spec={},
+        variant_assignment=_default_variant(),
+        ohlcv=ohlcv,
+        catalog=compiler._load_default_catalog(),
+    )
+
+    result = compiler._resolve_operand(_z_score_operand(), context)
+
+    assert math.isnan(result.iloc[2])
+    assert math.isfinite(result.iloc[3])
+
+
+def test_z_score_composed_operand_has_no_lookahead_for_past_signal_decisions() -> None:
+    ohlcv = _ohlcv_from_close([10.0, 11.0, 12.0, 11.0, 13.0, 14.0, 12.0, 15.0])
+    mutated = ohlcv.copy()
+    mutated.loc[mutated.index[6:], "close"] = [500.0, 600.0]
+    spec = _single_condition_spec("gt", _z_score_operand(), _operand("constant", 0.0))
+
+    base_signal = compile_signal(spec, _default_variant(), ohlcv)
+    mutated_signal = compile_signal(spec, _default_variant(), mutated)
+
+    pd.testing.assert_series_equal(base_signal.iloc[:6], mutated_signal.iloc[:6])
+
+
+def test_z_score_composed_operand_rejects_unknown_zero_scale_policy() -> None:
+    ohlcv = _ohlcv()
+    context = compiler._CompileContext(
+        strategy_spec={},
+        variant_assignment=_default_variant(),
+        ohlcv=ohlcv,
+        catalog=compiler._load_default_catalog(),
+    )
+
+    with pytest.raises(SpecSignalCompilerError, match="zero_scale_policy"):
+        compiler._resolve_operand(_z_score_operand(zero_scale_policy="epsilon"), context)
+
+
+def test_z_score_composed_operand_rejects_nested_operand() -> None:
+    ohlcv = _ohlcv()
+    context = compiler._CompileContext(
+        strategy_spec={},
+        variant_assignment=_default_variant(entry_distance_threshold=0.05),
+        ohlcv=ohlcv,
+        catalog=compiler._load_default_catalog(),
+    )
+
+    with pytest.raises(UnsupportedSpecSignalCompilerFeature, match="nested composed_operand"):
+        compiler._resolve_operand(_z_score_operand(value_operand=_composed_operand()), context)
+
+
+def test_z_score_composed_operand_rejects_forbidden_executable_key() -> None:
+    ohlcv = _ohlcv()
+    operand = _z_score_operand()
+    operand["formula"] = "x"
+    spec = _single_condition_spec("gt", operand, _operand("constant", 0.0))
+
+    with pytest.raises(SpecSignalCompilerError, match="forbidden executable/protected key"):
+        compile_signal(spec, _default_variant(), ohlcv)
 
 
 def test_composed_operand_repeated_calls_are_deterministic() -> None:
@@ -2249,6 +2371,28 @@ def test_both_direction_supports_plus_minus_composed_operands() -> None:
     signal = compile_signal(spec, _default_variant(entry_distance_threshold=0.05), ohlcv)
 
     assert signal.tolist() == [0.0, 1.0, 0.0, -1.0]
+
+
+def test_both_direction_supports_z_score_composed_operands() -> None:
+    spec = _both_direction_spec(
+        long_entry=_condition(
+            _z_score_operand(),
+            "gt",
+            _operand("constant", 0.5),
+        ),
+        short_entry=_condition(
+            _z_score_operand(),
+            "lt",
+            _operand("constant", -0.5),
+        ),
+        max_holding_bars=1,
+    )
+
+    signal = compile_signal(spec, _default_variant(), _ohlcv())
+
+    assert set(signal.unique()) <= {-1.0, 0.0, 1.0}
+    assert 1.0 in set(signal.tolist())
+    assert -1.0 in set(signal.tolist())
 
 
 def test_produces_identical_output_on_repeated_calls() -> None:

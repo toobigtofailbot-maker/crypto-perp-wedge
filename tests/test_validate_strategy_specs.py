@@ -62,6 +62,31 @@ def _composed_operand(
     }
 
 
+def _z_score_operand(
+    *,
+    value_operand_type: str = "data_ref",
+    center_operand_type: str = "indicator_ref",
+    scale_operand_type: str = "indicator_ref",
+    zero_scale_policy: str = "null_output",
+) -> dict:
+    def child(operand_type: str, ref: str) -> dict:
+        return _standard_operand(
+            operand_type,
+            ref,
+            "value" if operand_type == "indicator_ref" else "close",
+            {"bars": 20} if operand_type == "indicator_ref" else None,
+        )
+
+    return {
+        "operand_type": "composed_operand",
+        "composition_type": "z_score",
+        "value_operand": child(value_operand_type, "sma" if value_operand_type == "indicator_ref" else "close"),
+        "center_operand": child(center_operand_type, "sma" if center_operand_type == "indicator_ref" else "close"),
+        "scale_operand": child(scale_operand_type, "stddev" if scale_operand_type == "indicator_ref" else "close"),
+        "zero_scale_policy": zero_scale_policy,
+    }
+
+
 def _condition(condition_id: str = "COND-1", operator: str = "gt") -> dict:
     return {
         "condition_id": condition_id,
@@ -349,6 +374,19 @@ def _strategy_spec_with_composed_operand(**operand_kwargs) -> dict:
     )
     payload["free_parameters"]["parameters"] = [_threshold_parameter()]
     payload["free_parameters"]["no_free_parameters_declared"] = False
+    return payload
+
+
+def _strategy_spec_with_z_score_operand(**operand_kwargs) -> dict:
+    payload = _base_strategy_spec()
+    payload["entry_logic"]["groups"][0]["conditions"][0]["left_operand"] = _z_score_operand(
+        **operand_kwargs
+    )
+    payload["entry_logic"]["groups"][0]["conditions"][0]["operator"] = "lte"
+    payload["entry_logic"]["groups"][0]["conditions"][0]["right_operand"] = _standard_operand(
+        "constant",
+        -1.0,
+    )
     return payload
 
 
@@ -983,6 +1021,74 @@ def test_composed_operand_bound_parameter_allowed_values_must_be_in_open_unit_in
     errors = _validate(tmp_path, payload)
 
     assert any("allowed_values.1 must be numeric and in (0, 1)" in error for error in errors)
+
+
+def test_valid_z_score_composed_operand_passes_schema_and_validator(tmp_path):
+    payload = _strategy_spec_with_z_score_operand()
+    schema = _load_schema()
+
+    assert Draft7Validator(schema).is_valid(payload)
+    assert _validate(tmp_path, payload) == []
+
+
+def test_z_score_composed_operand_accepts_data_ref_value_and_indicator_refs(tmp_path):
+    payload = _strategy_spec_with_z_score_operand(
+        value_operand_type="data_ref",
+        center_operand_type="indicator_ref",
+        scale_operand_type="indicator_ref",
+    )
+
+    assert _validate(tmp_path, payload) == []
+
+
+def test_z_score_composed_operand_rejects_unknown_zero_scale_policy(tmp_path):
+    payload = _strategy_spec_with_z_score_operand(zero_scale_policy="epsilon")
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("zero_scale_policy" in error for error in errors)
+
+
+def test_z_score_composed_operand_rejects_parameter_ref_operand(tmp_path):
+    payload = _strategy_spec_with_z_score_operand(value_operand_type="parameter_ref")
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("value_operand.operand_type" in error for error in errors)
+
+
+def test_z_score_composed_operand_rejects_nested_composed_operand(tmp_path):
+    payload = _strategy_spec_with_z_score_operand()
+    payload["entry_logic"]["groups"][0]["conditions"][0]["left_operand"]["value_operand"] = (
+        _composed_operand()
+    )
+    payload["free_parameters"]["parameters"] = [_threshold_parameter()]
+    payload["free_parameters"]["no_free_parameters_declared"] = False
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("value_operand must not be composed_operand" in error for error in errors)
+    assert any("nested or unauthorized composed_operand is forbidden" in error for error in errors)
+
+
+def test_z_score_composed_operand_extra_property_fails(tmp_path):
+    payload = _strategy_spec_with_z_score_operand()
+    payload["entry_logic"]["groups"][0]["conditions"][0]["left_operand"]["parameter_operand"] = (
+        _standard_operand("parameter_ref", "threshold")
+    )
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("invalid composed_operand properties" in error for error in errors)
+
+
+def test_forbidden_key_inside_z_score_composed_operand_fails(tmp_path):
+    payload = _strategy_spec_with_z_score_operand()
+    payload["entry_logic"]["groups"][0]["conditions"][0]["left_operand"]["eval"] = "x"
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("forbidden executable key name" in error and "eval" in error for error in errors)
 
 
 def test_strategy_spec_validator_does_not_import_compiler_runner_or_lib_modules():

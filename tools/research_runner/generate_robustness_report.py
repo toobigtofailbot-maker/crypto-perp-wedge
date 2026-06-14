@@ -42,6 +42,19 @@ MISSING_INPUTS = (
     "effective number of independent trials",
 )
 
+TRIAL_LOG_REQUIRED_FIELDS = (
+    "trial_id",
+    "utc",
+    "hypothesis_id",
+    "config_sha256",
+    "dataset_sha256",
+    "params",
+    "in_sample_sharpe",
+    "oos_sharpe",
+    "max_drawdown",
+    "n_obs",
+)
+
 OUTCOME_KEYS = (
     "successful",
     "failed",
@@ -58,6 +71,15 @@ OUTCOME_KEYS = (
 
 class RobustnessReportError(RuntimeError):
     """Raised when a result-population input cannot support a derived report."""
+
+
+def _repo_relative_default_trial_log(input_path: Path) -> Path:
+    repo_root = Path(__file__).resolve().parents[2]
+    try:
+        input_path.resolve().relative_to(repo_root)
+    except ValueError:
+        return Path("research/trial_log.jsonl")
+    return repo_root / "research" / "trial_log.jsonl"
 
 
 def _load_result_population(path: Path) -> dict[str, Any]:
@@ -151,6 +173,102 @@ def _available_metric_keys(rows: list[Any]) -> list[str]:
     return sorted(available)
 
 
+def _load_trial_log(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        return {
+            "trial_log_path": path.as_posix(),
+            "state": "missing",
+            "trial_count_source": "missing_trial_log_file",
+            "countable_trial_denominator": None,
+            "valid_trial_rows": 0,
+            "invalid_trial_rows": 0,
+            "unique_trial_ids": 0,
+            "duplicate_trial_ids": [],
+            "hypothesis_counts": {},
+            "n_obs_min": None,
+            "n_obs_max": None,
+            "missing_required_field_counts": {},
+            "posture_notes": [
+                "No trial-log denominator is available from the configured path.",
+                "DSR and multiple-testing correction inputs remain incomplete.",
+            ],
+        }
+    if not path.is_file():
+        raise RobustnessReportError(f"trial_log path is not a file: {path}")
+
+    valid_rows: list[dict[str, Any]] = []
+    invalid_rows = 0
+    missing_required_field_counts: dict[str, int] = {}
+    seen_trial_ids: set[str] = set()
+    duplicate_trial_ids: list[str] = []
+    hypothesis_counts: dict[str, int] = {}
+    n_obs_values: list[int] = []
+
+    for line_number, line in enumerate(
+        path.read_text(encoding="utf-8").splitlines(), start=1
+    ):
+        if not line.strip():
+            continue
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError as exc:
+            raise RobustnessReportError(
+                f"invalid JSON in trial_log {path} line {line_number}: {exc}"
+            ) from exc
+        if not isinstance(row, dict):
+            invalid_rows += 1
+            continue
+
+        missing = [field for field in TRIAL_LOG_REQUIRED_FIELDS if field not in row]
+        if missing:
+            invalid_rows += 1
+            for field in missing:
+                missing_required_field_counts[field] = (
+                    missing_required_field_counts.get(field, 0) + 1
+                )
+            continue
+
+        valid_rows.append(row)
+        trial_id = row.get("trial_id")
+        if isinstance(trial_id, str):
+            if trial_id in seen_trial_ids:
+                duplicate_trial_ids.append(trial_id)
+            seen_trial_ids.add(trial_id)
+        hypothesis_id = row.get("hypothesis_id")
+        if isinstance(hypothesis_id, str):
+            hypothesis_counts[hypothesis_id] = hypothesis_counts.get(hypothesis_id, 0) + 1
+        n_obs = row.get("n_obs")
+        if isinstance(n_obs, int):
+            n_obs_values.append(n_obs)
+
+    if not valid_rows and invalid_rows == 0:
+        state = "present_empty"
+    elif invalid_rows:
+        state = "present_with_invalid_rows"
+    else:
+        state = "present"
+
+    return {
+        "trial_log_path": path.as_posix(),
+        "state": state,
+        "trial_count_source": "valid_rows_in_committed_trial_log_jsonl",
+        "countable_trial_denominator": len(valid_rows),
+        "valid_trial_rows": len(valid_rows),
+        "invalid_trial_rows": invalid_rows,
+        "unique_trial_ids": len(seen_trial_ids),
+        "duplicate_trial_ids": duplicate_trial_ids,
+        "hypothesis_counts": dict(sorted(hypothesis_counts.items())),
+        "n_obs_min": min(n_obs_values) if n_obs_values else None,
+        "n_obs_max": max(n_obs_values) if n_obs_values else None,
+        "missing_required_field_counts": dict(sorted(missing_required_field_counts.items())),
+        "posture_notes": [
+            "The denominator is the full count of valid trial-log rows, not a winner-only or successful-only subset.",
+            "The trial log does not expose failed, unavailable, aborted, or unlogged attempted trials beyond rows that exist in the JSONL file.",
+            "Duplicate trial_id values, if present, are surfaced as diagnostics rather than silently removed from the denominator.",
+        ],
+    }
+
+
 def _is_fixture_data(data: dict[str, Any]) -> bool:
     values: list[str] = []
     for key in ("data_catalog_ref", "data_slice_identity"):
@@ -203,12 +321,20 @@ def _extract_observed_summary(rows: list[Any]) -> list[dict[str, Any]]:
 
 
 def build_diagnostic(payload: dict[str, Any], input_path: Path) -> dict[str, Any]:
+    trial_log_path = _repo_relative_default_trial_log(input_path)
+    return build_diagnostic_with_trial_log(payload, input_path, trial_log_path)
+
+
+def build_diagnostic_with_trial_log(
+    payload: dict[str, Any], input_path: Path, trial_log_path: Path
+) -> dict[str, Any]:
     result_population_id = payload["result_population_id"]
     lineage = payload["lineage"]
     data = payload["data_coverage_summary"]
     denominator = payload["committed_denominator_snapshot"]
     counts = payload["outcome_category_counts"]
     rows = payload["variant_result_rows"]
+    trial_log = _load_trial_log(trial_log_path)
 
     return {
         "report_identity": {
@@ -252,6 +378,7 @@ def build_diagnostic(payload: dict[str, Any], input_path: Path) -> dict[str, Any
             ],
         },
         "outcome_distribution": {key: counts.get(key) for key in OUTCOME_KEYS},
+        "trial_accounting": trial_log,
         "available_metric_fields": _available_metric_keys(rows),
         "observed_summary": _extract_observed_summary(rows),
         "robustness_readiness_assessment": {
@@ -259,8 +386,22 @@ def build_diagnostic(payload: dict[str, Any], input_path: Path) -> dict[str, Any
             "DSR": "withheld_missing_inputs; rigorous numeric DSR cannot be computed from the available result-population fields.",
             "MinTRL": "withheld_missing_inputs; rigorous numeric MinTRL cannot be computed from the available result-population fields.",
             "numeric_values_emitted": False,
+            "multiple_testing_inputs_present": {
+                "committed_result_population_denominator": denominator.get("committed_denominator") is not None,
+                "trial_log_denominator": trial_log["countable_trial_denominator"] is not None,
+                "effective_independent_trial_count": False,
+                "return_distribution_moments": False,
+                "declared_selection_rule": False,
+            },
         },
         "missing_input_warnings": {item: "absent" for item in MISSING_INPUTS},
+        "anti_overfit_threshold_definitions": {
+            "committed_population_denominator": "Definition only: use the committed pre-registered population count recorded in the result population; do not shrink to convenient subsets.",
+            "trial_log_denominator": "Definition only: use the full valid trial-log row count available at evaluation time when trial-log DSR posture is inspected.",
+            "effective_independent_trials": "Definition only: required for rigorous DSR or multiple-testing correction, but not derivable from current result-population or trial-log fields alone.",
+            "benchmark_sharpe": "Definition only: must be explicit before PSR, DSR, or MinTRL numeric computation.",
+            "minimum_track_record_length": "Definition only: requires observation count, benchmark Sharpe, target confidence, frequency, and distribution assumptions before computation.",
+        },
         "non_authority_declaration": [
             "derived report only",
             "derived diagnostic only",
@@ -288,9 +429,11 @@ def format_markdown(diagnostic: dict[str, Any]) -> str:
     data = diagnostic["data_provenance"]
     denominator = diagnostic["committed_denominator_snapshot"]
     counts = diagnostic["outcome_distribution"]
+    trial_log = diagnostic["trial_accounting"]
     rows = diagnostic["observed_summary"]
     missing = diagnostic["missing_input_warnings"]
     assessment = diagnostic["robustness_readiness_assessment"]
+    threshold_definitions = diagnostic["anti_overfit_threshold_definitions"]
 
     result_population_id = identity["input_result_population_id"]
 
@@ -346,6 +489,22 @@ def format_markdown(diagnostic: dict[str, Any]) -> str:
     report_lines.extend(
         [
             "",
+            "## Trial Accounting",
+            "",
+            f"- trial_log_path: {_format_value(trial_log.get('trial_log_path'))}",
+            f"- trial_log_state: {_format_value(trial_log.get('state'))}",
+            f"- trial_count_source: {_format_value(trial_log.get('trial_count_source'))}",
+            f"- countable_trial_denominator: {_format_value(trial_log.get('countable_trial_denominator'))}",
+            f"- valid_trial_rows: {_format_value(trial_log.get('valid_trial_rows'))}",
+            f"- invalid_trial_rows: {_format_value(trial_log.get('invalid_trial_rows'))}",
+            f"- unique_trial_ids: {_format_value(trial_log.get('unique_trial_ids'))}",
+            f"- duplicate_trial_ids: {_format_value(trial_log.get('duplicate_trial_ids'))}",
+            f"- hypothesis_counts: {_format_value(trial_log.get('hypothesis_counts'))}",
+            f"- n_obs_min: {_format_value(trial_log.get('n_obs_min'))}",
+            f"- n_obs_max: {_format_value(trial_log.get('n_obs_max'))}",
+            f"- missing_required_field_counts: {_format_value(trial_log.get('missing_required_field_counts'))}",
+            *(f"- {item}" for item in trial_log["posture_notes"]),
+            "",
             "## Available Metric Summary",
             "",
             f"- available_metric_fields: {', '.join(diagnostic['available_metric_fields'])}",
@@ -357,6 +516,7 @@ def format_markdown(diagnostic: dict[str, Any]) -> str:
             f"- PSR: {assessment['PSR']}",
             f"- DSR: {assessment['DSR']}",
             f"- MinTRL: {assessment['MinTRL']}",
+            f"- multiple_testing_inputs_present: {_format_value(assessment['multiple_testing_inputs_present'])}",
             "- No fabricated PSR, DSR, or MinTRL numeric values are emitted.",
             "",
             "## Missing Inputs",
@@ -367,6 +527,10 @@ def format_markdown(diagnostic: dict[str, Any]) -> str:
     report_lines.extend(f"- {item}: {status}" for item, status in missing.items())
     report_lines.extend(
         [
+            "",
+            "## Anti-Overfit Threshold Definitions",
+            "",
+            *(f"- {key}: {value}" for key, value in threshold_definitions.items()),
             "",
             "## Non-Authority Declaration",
             "",
@@ -397,13 +561,19 @@ def write_report(report: str, output_path: Path | None) -> None:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--result-population", type=Path, required=True)
+    parser.add_argument("--trial-log", type=Path)
     parser.add_argument("--output", type=Path)
     parser.add_argument("--format", choices=("markdown", "json"), default="markdown")
     args = parser.parse_args(argv)
 
     try:
         payload = _load_result_population(args.result_population)
-        diagnostic = build_diagnostic(payload, args.result_population)
+        trial_log_path = args.trial_log or _repo_relative_default_trial_log(
+            args.result_population
+        )
+        diagnostic = build_diagnostic_with_trial_log(
+            payload, args.result_population, trial_log_path
+        )
         if args.format == "json":
             report = json.dumps(diagnostic, indent=2, sort_keys=True) + "\n"
         else:

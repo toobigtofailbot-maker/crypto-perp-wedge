@@ -60,6 +60,8 @@ Research automation should arrive before heavy managed-agent orchestration. The 
 
 Automation should reduce manual repetition and improve evidence quality. It must not bypass pre-registration, inflate trial counts with non-evidence runs, silently modify promotion gates, or promote candidates without human review.
 
+Future BTC-perp-specific research, data, regime, execution-realism, and paper/live operational capabilities are tracked in `docs/architecture/BTC_PERP_FUTURE_CAPABILITY_BACKLOG.md`. That backlog is planning memory only; each capability still requires an explicit package, validation path, and authorization before implementation.
+
 ## Decision Pipeline
 
 The decision pipeline is advisory first.

@@ -440,6 +440,13 @@ decision records, schemas, validators, or locked baseline documents.
   STRAT-SPEC-0002 / VM-0002 / SWEEP-PLAN-0002 dynamic 1x runner output, required
   identity hashes, sizing metadata, D4/D3 lineage, per-variant population,
   non-degeneracy checks, and append-only / non-authority boundary.
+- `2026-06-realism_runway_conclusion.md` - realism-runway conclusion over
+  `RP-6688` / `RP-7520`; records dynamic equity target leverage as the
+  canonical measurement model for future comparable realism runs unless
+  otherwise authorized, with no candidate lifecycle or runtime authority.
+- `../architecture/BTC_PERP_FUTURE_CAPABILITY_BACKLOG.md` - non-authoritative
+  BTC perpetual capability inventory for future research-lab, crypto/perp
+  feature, execution-realism, and later paper/live planning.
 - `2026-06-strategy_dsl_design_opening.md` - Strategy DSL design opening for
   lab strategy-spec representation; design surface.
 - `2026-06-strategy_dsl_substantive_design.md` - substantive Strategy DSL/spec

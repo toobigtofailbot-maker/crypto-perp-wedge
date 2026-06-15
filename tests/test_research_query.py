@@ -1716,7 +1716,7 @@ def test_integrity_candidate_refs_empty_under_healthy_state(conn):
 def test_strategy_spec_relation_first_instance_repo_state(conn):
     rows = conn.execute("SELECT strategy_spec_id FROM strategy_specs ORDER BY strategy_spec_id").fetchall()
 
-    assert rows == [("STRAT-SPEC-0001",), ("STRAT-SPEC-0002",)]
+    assert rows == [("STRAT-SPEC-0001",), ("STRAT-SPEC-0002",), ("STRAT-SPEC-0003",)]
 
 
 def test_strategy_spec_views_expose_first_instance_repo_state(conn):
@@ -1778,6 +1778,18 @@ def test_strategy_spec_views_expose_first_instance_repo_state(conn):
             "computed",
             True,
             "variant_planning_only",
+        ),
+        (
+            "STRAT-SPEC-0003",
+            "crypto_perp",
+            "perpetual",
+            "15m",
+            "both",
+            3,
+            5,
+            "computed",
+            True,
+            "variant_planning_only",
         )
     ]
     assert parameters == [
@@ -1810,6 +1822,36 @@ def test_strategy_spec_views_expose_first_instance_repo_state(conn):
             50.0,
             30.0,
             True,
+        ),
+        (
+            "STRAT-SPEC-0003",
+            "center_lookback_bars",
+            "integer",
+            "entry",
+            50.0,
+            100.0,
+            50.0,
+            True,
+        ),
+        (
+            "STRAT-SPEC-0003",
+            "trend_lookback_bars",
+            "integer",
+            "filter",
+            100.0,
+            200.0,
+            100.0,
+            True,
+        ),
+        (
+            "STRAT-SPEC-0003",
+            "vol_lookback_bars",
+            "integer",
+            "entry",
+            30.0,
+            50.0,
+            20.0,
+            True,
         )
     ]
     assert condition_groups == [
@@ -1821,6 +1863,11 @@ def test_strategy_spec_views_expose_first_instance_repo_state(conn):
         ("STRAT-SPEC-0002", "exit_logic", "EXIT-GROUP-LONG-0001", 1, 0, 1),
         ("STRAT-SPEC-0002", "exit_logic", "EXIT-GROUP-SHORT-0001", 1, 0, 1),
         ("STRAT-SPEC-0002", "filters", "FILTER-TYPING-NO-OP-0002", 0, 0, 1),
+        ("STRAT-SPEC-0003", "entry_logic", "ENTRY-GROUP-LONG-ZSCORE-0003", 1, 0, 1),
+        ("STRAT-SPEC-0003", "entry_logic", "ENTRY-GROUP-SHORT-ZSCORE-0003", 1, 0, 1),
+        ("STRAT-SPEC-0003", "exit_logic", "EXIT-GROUP-LONG-CENTERLINE-0003", 1, 0, 1),
+        ("STRAT-SPEC-0003", "exit_logic", "EXIT-GROUP-SHORT-CENTERLINE-0003", 1, 0, 1),
+        ("STRAT-SPEC-0003", "filters", "FILTER-GROUP-TREND-0003", 1, 0, 1),
     ]
     assert assumptions == [
         (
@@ -1838,7 +1885,53 @@ def test_strategy_spec_views_expose_first_instance_repo_state(conn):
             "entry_price",
             "fixed_bps",
             "complete",
+        ),
+        (
+            "STRAT-SPEC-0003",
+            "taker_entry_taker_exit",
+            True,
+            "entry_price",
+            "fixed_bps",
+            "complete",
         )
+    ]
+
+
+def test_strategy_spec_condition_groups_handles_current_composed_z_score(conn):
+    composed_operands = conn.execute(
+        """
+        SELECT condition.condition_id, condition.left_operand.operand_type,
+               condition.left_operand.composition_type
+        FROM strategy_specs,
+        UNNEST(entry_logic.groups) AS groups(condition_group),
+        UNNEST(condition_group.conditions) AS conditions(condition)
+        WHERE strategy_spec_id = 'STRAT-SPEC-0003'
+        ORDER BY condition.condition_id
+        """
+    ).fetchall()
+    condition_groups = conn.execute(
+        """
+        SELECT strategy_spec_id, section, group_id, condition_count, subgroup_count,
+               declared_depth
+        FROM v_strategy_spec_condition_groups
+        WHERE strategy_spec_id IN ('STRAT-SPEC-0001', 'STRAT-SPEC-0003')
+        ORDER BY strategy_spec_id, section, group_id
+        """
+    ).fetchall()
+
+    assert composed_operands == [
+        ("LONG-ZSCORE-LT-NEG-1P5", "composed_operand", "z_score"),
+        ("SHORT-ZSCORE-GT-1P5", "composed_operand", "z_score"),
+    ]
+    assert condition_groups == [
+        ("STRAT-SPEC-0001", "entry_logic", "ENTRY-GROUP-0001", 1, 0, 1),
+        ("STRAT-SPEC-0001", "exit_logic", "EXIT-GROUP-0001", 1, 0, 1),
+        ("STRAT-SPEC-0001", "filters", "FILTER-TYPING-NO-OP-0001", 0, 0, 1),
+        ("STRAT-SPEC-0003", "entry_logic", "ENTRY-GROUP-LONG-ZSCORE-0003", 1, 0, 1),
+        ("STRAT-SPEC-0003", "entry_logic", "ENTRY-GROUP-SHORT-ZSCORE-0003", 1, 0, 1),
+        ("STRAT-SPEC-0003", "exit_logic", "EXIT-GROUP-LONG-CENTERLINE-0003", 1, 0, 1),
+        ("STRAT-SPEC-0003", "exit_logic", "EXIT-GROUP-SHORT-CENTERLINE-0003", 1, 0, 1),
+        ("STRAT-SPEC-0003", "filters", "FILTER-GROUP-TREND-0003", 1, 0, 1),
     ]
 
 
@@ -2079,10 +2172,11 @@ def test_querying_strategy_spec_views_does_not_modify_research_files(conn):
 def test_variant_sweep_relations_first_instance_repo_state(conn):
     assert conn.execute(
         "SELECT variant_manifest_id FROM variant_manifests ORDER BY variant_manifest_id"
-    ).fetchall() == [("VM-0001",), ("VM-0002",)]
+    ).fetchall() == [("VM-0001",), ("VM-0002",), ("VM-0003",)]
     assert conn.execute("SELECT sweep_plan_id FROM sweep_plans ORDER BY sweep_plan_id").fetchall() == [
         ("SWEEP-PLAN-0001",),
         ("SWEEP-PLAN-0002",),
+        ("SWEEP-PLAN-0003",),
     ]
 
 
@@ -2175,6 +2269,17 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
             "frozen_for_sweep_planning",
             "computed",
             "sweep_planning_only",
+        ),
+        (
+            "VM-0003",
+            "STRAT-SPEC-0003",
+            8,
+            8,
+            8,
+            "SF-PHASEB-ZSCORE-TREND-15M-0001",
+            "frozen_for_sweep_planning",
+            "computed",
+            "sweep_planning_only",
         )
     ]
     assert manifest_population == [
@@ -2196,6 +2301,18 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
             10,
             10,
             10,
+            "committed_pre_registered_population_count",
+            "committed_pre_registered_population",
+            False,
+            True,
+            True,
+        ),
+        (
+            "VM-0003",
+            8,
+            8,
+            8,
+            8,
             "committed_pre_registered_population_count",
             "committed_pre_registered_population",
             False,
@@ -2230,6 +2347,33 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
             "ratio",
             "manual_grid",
             True,
+        ),
+        (
+            "VM-0003",
+            "AXIS-001",
+            "center_lookback_bars",
+            "integer",
+            "bars",
+            "manual_grid",
+            True,
+        ),
+        (
+            "VM-0003",
+            "AXIS-002",
+            "vol_lookback_bars",
+            "integer",
+            "bars",
+            "manual_grid",
+            True,
+        ),
+        (
+            "VM-0003",
+            "AXIS-003",
+            "trend_lookback_bars",
+            "integer",
+            "bars",
+            "manual_grid",
+            True,
         )
     ]
     assert manifest_assignments == [
@@ -2250,6 +2394,14 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
         ("VM-0002", "VAR-000008", "included", 2, 0, 0, "manual-grid", 8),
         ("VM-0002", "VAR-000009", "included", 2, 0, 0, "manual-grid", 9),
         ("VM-0002", "VAR-000010", "included", 2, 0, 0, "manual-grid", 10),
+        ("VM-0003", "VAR-000001", "included", 3, 0, 0, "manual-grid", 1),
+        ("VM-0003", "VAR-000002", "included", 3, 0, 0, "manual-grid", 2),
+        ("VM-0003", "VAR-000003", "included", 3, 0, 0, "manual-grid", 3),
+        ("VM-0003", "VAR-000004", "included", 3, 0, 0, "manual-grid", 4),
+        ("VM-0003", "VAR-000005", "included", 3, 0, 0, "manual-grid", 5),
+        ("VM-0003", "VAR-000006", "included", 3, 0, 0, "manual-grid", 6),
+        ("VM-0003", "VAR-000007", "included", 3, 0, 0, "manual-grid", 7),
+        ("VM-0003", "VAR-000008", "included", 3, 0, 0, "manual-grid", 8),
     ]
     assert sweep_overview == [
         (
@@ -2271,6 +2423,17 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
             "frozen_for_sweep_planning",
             "all_manifest_variants",
             10,
+            0,
+            "offline_run_planning_only",
+        ),
+        (
+            "SWEEP-PLAN-0003",
+            "VM-0003",
+            8,
+            8,
+            "frozen_for_sweep_planning",
+            "all_manifest_variants",
+            8,
             0,
             "offline_run_planning_only",
         )
@@ -2299,16 +2462,29 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
             True,
             True,
             True,
+        ),
+        (
+            "SWEEP-PLAN-0003",
+            8,
+            8,
+            0,
+            8,
+            8,
+            "committed_pre_registered_population_count",
+            True,
+            True,
+            True,
         )
     ]
     assert result_capture == [
         ("SWEEP-PLAN-0001", True, None, True, True),
         ("SWEEP-PLAN-0002", True, None, True, True),
+        ("SWEEP-PLAN-0003", True, None, True, True),
     ]
 
 
 def test_first_canonical_15m_result_population_views_under_first_parent_instances(conn):
-    assert conn.execute("SELECT COUNT(*) FROM result_populations").fetchone()[0] == 4
+    assert conn.execute("SELECT COUNT(*) FROM result_populations").fetchone()[0] == 5
 
     overview = conn.execute(
         """
@@ -2417,6 +2593,17 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
             True,
         ),
         (
+            "RP-7134",
+            "STRAT-SPEC-0003",
+            "VM-0003",
+            "SWEEP-PLAN-0003",
+            8,
+            8,
+            8,
+            "offline_research",
+            True,
+        ),
+        (
             "RP-7520",
             "STRAT-SPEC-0002",
             "VM-0002",
@@ -2432,18 +2619,21 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
         ("RP-2134", "STRAT-SPEC-0001", "VM-0001", "SWEEP-PLAN-0001", True),
         ("RP-4492", "STRAT-SPEC-0001", "VM-0001", "SWEEP-PLAN-0001", True),
         ("RP-6688", "STRAT-SPEC-0002", "VM-0002", "SWEEP-PLAN-0002", True),
+        ("RP-7134", "STRAT-SPEC-0003", "VM-0003", "SWEEP-PLAN-0003", True),
         ("RP-7520", "STRAT-SPEC-0002", "VM-0002", "SWEEP-PLAN-0002", True),
     ]
     assert denominator == [
         ("RP-2134", 7, 7, 7, True, True, True),
         ("RP-4492", 7, 7, 7, True, True, True),
         ("RP-6688", 10, 10, 10, True, True, True),
+        ("RP-7134", 8, 8, 8, True, True, True),
         ("RP-7520", 10, 10, 10, True, True, True),
     ]
     assert counts == [
         ("RP-2134", 7, 0, 0, 0, 0, 0, 0, 0, 0, 7, True),
         ("RP-4492", 7, 0, 0, 0, 0, 0, 0, 0, 0, 7, True),
         ("RP-6688", 10, 0, 0, 0, 0, 0, 0, 0, 0, 10, True),
+        ("RP-7134", 8, 0, 0, 0, 0, 0, 0, 0, 0, 8, True),
         ("RP-7520", 10, 0, 0, 0, 0, 0, 0, 0, 0, 10, True),
     ]
     assert rows == [
@@ -2481,6 +2671,17 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
         for index in range(1, 11)
     ] + [
         (
+            "RP-7134",
+            f"VAR-{index:06d}",
+            "successful",
+            True,
+            "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+            "SWEEP-PLAN-0003",
+            "VM-0003",
+        )
+        for index in range(1, 9)
+    ] + [
+        (
             "RP-7520",
             f"VAR-{index:06d}",
             "successful",
@@ -2510,6 +2711,14 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
         ),
         (
             "RP-6688",
+            "binance_usdtm_btcusdt_ohlcv_15m.offline_local.15m.20200101T000000Z.20260411T234500Z.sha256_3daace53d727599b",
+            "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+            "15m",
+            "ohlcv",
+            "block_if_missing",
+        ),
+        (
+            "RP-7134",
             "binance_usdtm_btcusdt_ohlcv_15m.offline_local.15m.20200101T000000Z.20260411T234500Z.sha256_3daace53d727599b",
             "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
             "15m",
@@ -2560,6 +2769,17 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
             True,
         ),
         (
+            "RP-7134",
+            "tools.research_runner.run_offline_sweep",
+            190,
+            "offline_research",
+            True,
+            True,
+            True,
+            True,
+            True,
+        ),
+        (
             "RP-7520",
             "tools.research_runner.run_offline_sweep",
             190,
@@ -2575,6 +2795,7 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
         ("RP-2134", True, True, "reference_only", True),
         ("RP-4492", True, True, "reference_only", True),
         ("RP-6688", True, True, "reference_only", True),
+        ("RP-7134", True, True, "reference_only", True),
         ("RP-7520", True, True, "reference_only", True),
     ]
 

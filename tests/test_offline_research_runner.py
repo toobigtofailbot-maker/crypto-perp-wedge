@@ -856,6 +856,77 @@ def test_cli_dry_run_prints_summary_and_writes_nothing(tmp_path):
     assert after == before
 
 
+def test_default_max_workers_uses_sequential_path(tmp_path, monkeypatch):
+    strategy_path, manifest_path, sweep_path, *_ = _write_fixture(tmp_path)
+
+    monkeypatch.setattr(
+        runner,
+        "_execute_rows_parallel",
+        lambda *args, **kwargs: pytest.fail("parallel path should be opt-in"),
+    )
+
+    result = _run(strategy_path, manifest_path, sweep_path, deterministic_seed=7)
+
+    assert result["ok"] is True
+
+
+def test_cli_accepts_max_workers_and_rejects_zero(tmp_path):
+    strategy_path, manifest_path, sweep_path, *_ = _write_fixture(tmp_path)
+
+    accepted = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "tools.research_runner.run_offline_sweep",
+            "--strategy-spec",
+            str(strategy_path),
+            "--variant-manifest",
+            str(manifest_path),
+            "--sweep-plan",
+            str(sweep_path),
+            "--deterministic-seed",
+            "7",
+            "--max-workers",
+            "2",
+        ],
+        cwd=runner.REPO_ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    rejected = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "tools.research_runner.run_offline_sweep",
+            "--strategy-spec",
+            str(strategy_path),
+            "--variant-manifest",
+            str(manifest_path),
+            "--sweep-plan",
+            str(sweep_path),
+            "--max-workers",
+            "0",
+        ],
+        cwd=runner.REPO_ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert accepted.returncode == 0
+    assert json.loads(accepted.stdout)["dry_run"] is True
+    assert rejected.returncode != 0
+    assert "--max-workers must be a positive integer" in rejected.stderr
+
+
+def test_invalid_max_workers_rejected_by_api(tmp_path):
+    strategy_path, manifest_path, sweep_path, *_ = _write_fixture(tmp_path)
+
+    with pytest.raises(runner.OfflineSweepError, match="max_workers"):
+        _run(strategy_path, manifest_path, sweep_path, max_workers=0)
+
+
 def test_write_result_population_writes_one_temp_file_and_validates(tmp_path):
     strategy_path, manifest_path, sweep_path, *_ = _write_fixture(tmp_path)
     output_dir = tmp_path / "output"
@@ -970,6 +1041,59 @@ def test_infrastructure_abort_emits_not_attempted_rows_and_cli_nonzero(tmp_path)
     assert result["outcome_category_counts"]["aborted"] == 1
     assert result["outcome_category_counts"]["not_attempted"] == 2
     assert completed.returncode == 1
+
+
+def test_parallel_synthetic_payload_matches_sequential_with_non_success_rows(tmp_path):
+    def mutate(manifest: dict) -> None:
+        _set_variant_count(manifest, 6)
+        manifest["variant_assignments"][1]["status_reason"] = "runner_fixture:errored"
+        manifest["variant_assignments"][2]["status_reason"] = "runner_fixture:data_unavailable"
+        manifest["variant_assignments"][3]["assignment_status"] = "excluded"
+        manifest["variant_assignments"][3]["status_reason"] = "excluded_fixture"
+        manifest["variant_assignments"][4]["assignment_status"] = "invalid"
+        manifest["variant_assignments"][4]["status_reason"] = "invalid_fixture"
+
+    strategy_path, manifest_path, sweep_path, *_ = _write_fixture(tmp_path, mutate)
+
+    sequential = _run(strategy_path, manifest_path, sweep_path, deterministic_seed=7, max_workers=1)
+    parallel = _run(strategy_path, manifest_path, sweep_path, deterministic_seed=7, max_workers=2)
+
+    rows = parallel["result_population"]["variant_result_rows"]
+    assert _identity_payload(sequential) == _identity_payload(parallel)
+    assert [row["variant_id"] for row in rows] == [f"VAR-{index:06d}" for index in range(1, 7)]
+    assert [row["outcome_category"] for row in rows] == [
+        "successful",
+        "errored",
+        "data_unavailable",
+        "excluded",
+        "invalid",
+        "successful",
+    ]
+    assert parallel["outcome_category_counts"]["counts_sum"] == 6
+
+
+def test_parallel_abort_matches_sequential_and_marks_later_rows_not_attempted(tmp_path):
+    def mutate(manifest: dict) -> None:
+        _set_variant_count(manifest, 4)
+        manifest["variant_assignments"][1]["status_reason"] = "runner_fixture:infra_abort"
+        manifest["variant_assignments"][2]["status_reason"] = "runner_fixture:errored"
+
+    strategy_path, manifest_path, sweep_path, *_ = _write_fixture(tmp_path, mutate)
+
+    sequential = _run(strategy_path, manifest_path, sweep_path, deterministic_seed=7, max_workers=1)
+    parallel = _run(strategy_path, manifest_path, sweep_path, deterministic_seed=7, max_workers=2)
+    rows = parallel["result_population"]["variant_result_rows"]
+
+    assert _identity_payload(sequential) == _identity_payload(parallel)
+    assert parallel["ok"] is False
+    assert [row["outcome_category"] for row in rows] == [
+        "successful",
+        "aborted",
+        "not_attempted",
+        "not_attempted",
+    ]
+    assert parallel["outcome_category_counts"]["aborted"] == 1
+    assert parallel["outcome_category_counts"]["not_attempted"] == 2
 
 
 def test_repeat_run_determinism_identity_hash_scoped_payload(tmp_path):
@@ -1689,6 +1813,39 @@ def test_canonical_15m_output_is_deterministic_for_same_fixture(tmp_path):
     ]["environment_summary"]
 
 
+def test_parallel_canonical_15m_fixture_matches_sequential(tmp_path):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(tmp_path)
+
+    sequential = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        deterministic_seed=7,
+        max_workers=1,
+    )
+    parallel = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        deterministic_seed=7,
+        max_workers=2,
+    )
+
+    assert _identity_payload(sequential) == _identity_payload(parallel)
+    assert [
+        row["row_identity_hash"]
+        for row in sequential["result_population"]["variant_result_rows"]
+    ] == [
+        row["row_identity_hash"]
+        for row in parallel["result_population"]["variant_result_rows"]
+    ]
+
+
 def test_canonical_15m_fixture_and_d4_provenance_have_distinct_result_population_ids(tmp_path):
     strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
     ohlcv_path = _write_15m_ohlcv_fixture(tmp_path)
@@ -1906,6 +2063,50 @@ def test_walkforward_dry_run_partitions_and_does_not_write(tmp_path, monkeypatch
         runner.CANONICAL_RESULT_POPULATIONS_DIR.glob("*.result_population.json")
     )
     assert canonical_files_after == canonical_files_before
+
+
+def test_parallel_walkforward_dry_run_matches_sequential(tmp_path):
+    strategy_path, manifest_path, sweep_path = _canonical_parent_paths()
+    ohlcv_path = _write_15m_ohlcv_fixture(tmp_path)
+
+    sequential = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        deterministic_seed=7,
+        walkforward=True,
+        walkforward_is_bars=24,
+        walkforward_oos_bars=24,
+        walkforward_step_bars=48,
+        walkforward_max_windows=2,
+        max_workers=1,
+    )
+    parallel = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        deterministic_seed=7,
+        walkforward=True,
+        walkforward_is_bars=24,
+        walkforward_oos_bars=24,
+        walkforward_step_bars=48,
+        walkforward_max_windows=2,
+        max_workers=2,
+    )
+
+    assert _identity_payload(sequential) == _identity_payload(parallel)
+    assert sequential["walkforward"] == parallel["walkforward"]
+    assert [
+        (row["window_index"], row["variant_id"])
+        for row in parallel["walkforward"]["rows"]
+    ] == sorted(
+        (row["window_index"], row["variant_id"])
+        for row in parallel["walkforward"]["rows"]
+    )
 
 
 def test_walkforward_mode_is_dry_run_only(tmp_path):

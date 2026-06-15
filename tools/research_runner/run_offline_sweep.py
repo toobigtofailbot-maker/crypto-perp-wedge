@@ -8,6 +8,7 @@ import json
 import math
 import sys
 from collections import Counter
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -57,6 +58,7 @@ CANONICAL_15M_DATA_CATALOG_REF = "15m_ohlcv_test_fixture_offline_only"
 D4_PROVENANCE_MODE_NOTE = "provenance_mode=d4_catalog_slice"
 INITIAL_EQUITY = 10_000.0
 DEFAULT_TARGET_LEVERAGE = 1.0
+DEFAULT_MAX_WORKERS = 1
 SIZING_MODE_FIXED_ORDER_SIZE = "fixed_order_size"
 SIZING_MODE_DYNAMIC_EQUITY_TARGET_LEVERAGE = "dynamic_equity_target_leverage"
 SIZING_MODES = (
@@ -184,6 +186,13 @@ def _positive_int_arg(name: str):
         return parsed
 
     return parse
+
+
+def _validate_max_workers(value: int) -> int:
+    workers = int(value)
+    if workers <= 0:
+        raise OfflineSweepError("max_workers must be a positive integer")
+    return workers
 
 
 def _resolve_order_size(
@@ -859,7 +868,76 @@ def _run_window_variant_backtest(
     return _metrics_from_backtest(result, execution_input.timeframe)
 
 
-def _run_walkforward_dry_run(
+def _walkforward_result_row(
+    window: _WalkForwardWindow,
+    variant: dict[str, Any],
+    outcome_category: str,
+    in_sample_metrics: dict[str, Any] | None,
+    out_of_sample_metrics: dict[str, Any] | None,
+    efficiency: float | None,
+    warnings: list[str],
+) -> dict[str, Any]:
+    return {
+        **_window_boundary_payload(window),
+        "variant_id": variant["variant_id"],
+        "selection_behavior": "no_selection_partition_and_report_all_included_variants",
+        "outcome_category": outcome_category,
+        "in_sample_metrics": in_sample_metrics,
+        "out_of_sample_metrics": out_of_sample_metrics,
+        "oos_is_sharpe_efficiency": efficiency,
+        "missing_input_warnings": warnings,
+    }
+
+
+def _run_walkforward_variant_worker(
+    *,
+    task_index: int,
+    strategy_spec: dict[str, Any],
+    variant: dict[str, Any],
+    in_sample_input: _ExecutionInput,
+    out_of_sample_input: _ExecutionInput,
+    sizing_mode: str,
+    target_leverage: float,
+) -> dict[str, Any]:
+    try:
+        is_metrics = _run_window_variant_backtest(
+            strategy_spec,
+            variant,
+            in_sample_input,
+            sizing_mode,
+            target_leverage,
+        )
+        oos_metrics = _run_window_variant_backtest(
+            strategy_spec,
+            variant,
+            out_of_sample_input,
+            sizing_mode,
+            target_leverage,
+        )
+        ratio = _efficiency_ratio(is_metrics.get("sharpe"), oos_metrics.get("sharpe"))
+        warnings = []
+        if ratio is None:
+            warnings.append("oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe")
+        return {
+            "task_index": task_index,
+            "outcome_category": "successful",
+            "in_sample_metrics": is_metrics,
+            "out_of_sample_metrics": oos_metrics,
+            "oos_is_sharpe_efficiency": ratio,
+            "missing_input_warnings": warnings,
+        }
+    except Exception as exc:
+        return {
+            "task_index": task_index,
+            "outcome_category": "errored",
+            "in_sample_metrics": None,
+            "out_of_sample_metrics": None,
+            "oos_is_sharpe_efficiency": None,
+            "missing_input_warnings": [f"window_variant_error:{exc.__class__.__name__}"],
+        }
+
+
+def _run_walkforward_dry_run_parallel(
     *,
     strategy_spec: dict[str, Any],
     manifest: dict[str, Any],
@@ -870,6 +948,7 @@ def _run_walkforward_dry_run(
     out_of_sample_bars: int,
     step_bars: int | None,
     max_windows: int | None,
+    max_workers: int,
 ) -> dict[str, Any]:
     windows = _build_walkforward_windows(
         execution_input.ohlcv.index,
@@ -883,8 +962,9 @@ def _run_walkforward_dry_run(
         for variant in sorted(manifest["variant_assignments"], key=lambda row: row["variant_id"])
         if variant["assignment_status"] == "included"
     ]
-    rows: list[dict[str, Any]] = []
-    missing_input_warnings: list[str] = []
+    tasks: list[dict[str, Any]] = []
+    windows_by_task: dict[int, _WalkForwardWindow] = {}
+    variants_by_task: dict[int, dict[str, Any]] = {}
     for window in windows:
         is_input = _slice_execution_input(
             execution_input,
@@ -899,45 +979,83 @@ def _run_walkforward_dry_run(
             window_label=f"{window.window_id}:out_of_sample",
         )
         for variant in selected_variants:
-            row: dict[str, Any] = {
-                **_window_boundary_payload(window),
-                "variant_id": variant["variant_id"],
-                "selection_behavior": "no_selection_partition_and_report_all_included_variants",
-                "outcome_category": "successful",
-                "in_sample_metrics": None,
-                "out_of_sample_metrics": None,
-                "oos_is_sharpe_efficiency": None,
-                "missing_input_warnings": [],
-            }
-            try:
-                is_metrics = _run_window_variant_backtest(
-                    strategy_spec,
-                    variant,
-                    is_input,
-                    sizing_mode,
-                    target_leverage,
-                )
-                oos_metrics = _run_window_variant_backtest(
-                    strategy_spec,
-                    variant,
-                    oos_input,
-                    sizing_mode,
-                    target_leverage,
-                )
-                ratio = _efficiency_ratio(is_metrics.get("sharpe"), oos_metrics.get("sharpe"))
-                if ratio is None:
-                    warning = "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
-                    row["missing_input_warnings"].append(warning)
-                    missing_input_warnings.append(warning)
-                row["in_sample_metrics"] = is_metrics
-                row["out_of_sample_metrics"] = oos_metrics
-                row["oos_is_sharpe_efficiency"] = ratio
-            except Exception as exc:
-                row["outcome_category"] = "errored"
-                row["missing_input_warnings"].append(f"window_variant_error:{exc.__class__.__name__}")
-                missing_input_warnings.append(f"window_variant_error:{exc.__class__.__name__}")
-            rows.append(row)
+            task_index = len(tasks)
+            windows_by_task[task_index] = window
+            variants_by_task[task_index] = variant
+            tasks.append(
+                {
+                    "task_index": task_index,
+                    "strategy_spec": strategy_spec,
+                    "variant": variant,
+                    "in_sample_input": is_input,
+                    "out_of_sample_input": oos_input,
+                    "sizing_mode": sizing_mode,
+                    "target_leverage": target_leverage,
+                }
+            )
 
+    results: dict[int, dict[str, Any]] = {}
+    if tasks:
+        worker_count = min(max_workers, len(tasks))
+        with ProcessPoolExecutor(max_workers=worker_count) as executor:
+            future_to_task = {
+                executor.submit(_run_walkforward_variant_worker, **task): task
+                for task in tasks
+            }
+            for future in as_completed(future_to_task):
+                task = future_to_task[future]
+                task_index = task["task_index"]
+                try:
+                    results[task_index] = future.result()
+                except Exception as exc:
+                    results[task_index] = {
+                        "task_index": task_index,
+                        "outcome_category": "errored",
+                        "in_sample_metrics": None,
+                        "out_of_sample_metrics": None,
+                        "oos_is_sharpe_efficiency": None,
+                        "missing_input_warnings": [f"window_variant_error:{exc.__class__.__name__}"],
+                    }
+
+    rows: list[dict[str, Any]] = []
+    missing_input_warnings: list[str] = []
+    for task_index in range(len(tasks)):
+        result = results[task_index]
+        warnings = result["missing_input_warnings"]
+        missing_input_warnings.extend(warnings)
+        rows.append(
+            _walkforward_result_row(
+                windows_by_task[task_index],
+                variants_by_task[task_index],
+                result["outcome_category"],
+                result["in_sample_metrics"],
+                result["out_of_sample_metrics"],
+                result["oos_is_sharpe_efficiency"],
+                warnings,
+            )
+        )
+
+    return _walkforward_summary(
+        in_sample_bars=in_sample_bars,
+        out_of_sample_bars=out_of_sample_bars,
+        step_bars=step_bars,
+        windows=windows,
+        selected_variants=selected_variants,
+        rows=rows,
+        missing_input_warnings=missing_input_warnings,
+    )
+
+
+def _walkforward_summary(
+    *,
+    in_sample_bars: int,
+    out_of_sample_bars: int,
+    step_bars: int | None,
+    windows: list[_WalkForwardWindow],
+    selected_variants: list[dict[str, Any]],
+    rows: list[dict[str, Any]],
+    missing_input_warnings: list[str],
+) -> dict[str, Any]:
     return {
         "enabled": True,
         "dry_run_only": True,
@@ -967,6 +1085,112 @@ def _run_walkforward_dry_run(
             "not_paper_live_runtime_authority",
         ],
     }
+
+
+def _run_walkforward_dry_run(
+    *,
+    strategy_spec: dict[str, Any],
+    manifest: dict[str, Any],
+    execution_input: _ExecutionInput,
+    sizing_mode: str,
+    target_leverage: float,
+    in_sample_bars: int,
+    out_of_sample_bars: int,
+    step_bars: int | None,
+    max_windows: int | None,
+    max_workers: int,
+) -> dict[str, Any]:
+    if max_workers > 1:
+        return _run_walkforward_dry_run_parallel(
+            strategy_spec=strategy_spec,
+            manifest=manifest,
+            execution_input=execution_input,
+            sizing_mode=sizing_mode,
+            target_leverage=target_leverage,
+            in_sample_bars=in_sample_bars,
+            out_of_sample_bars=out_of_sample_bars,
+            step_bars=step_bars,
+            max_windows=max_windows,
+            max_workers=max_workers,
+        )
+    windows = _build_walkforward_windows(
+        execution_input.ohlcv.index,
+        in_sample_bars=in_sample_bars,
+        out_of_sample_bars=out_of_sample_bars,
+        step_bars=step_bars,
+        max_windows=max_windows,
+    )
+    selected_variants = [
+        variant
+        for variant in sorted(manifest["variant_assignments"], key=lambda row: row["variant_id"])
+        if variant["assignment_status"] == "included"
+    ]
+    rows: list[dict[str, Any]] = []
+    missing_input_warnings: list[str] = []
+    for window in windows:
+        is_input = _slice_execution_input(
+            execution_input,
+            start=window.in_sample_start,
+            end=window.in_sample_end_exclusive,
+            window_label=f"{window.window_id}:in_sample",
+        )
+        oos_input = _slice_execution_input(
+            execution_input,
+            start=window.out_of_sample_start,
+            end=window.out_of_sample_end_exclusive,
+            window_label=f"{window.window_id}:out_of_sample",
+        )
+        for variant in selected_variants:
+            outcome_category = "successful"
+            is_metrics = None
+            oos_metrics = None
+            ratio = None
+            warnings: list[str] = []
+            try:
+                is_metrics = _run_window_variant_backtest(
+                    strategy_spec,
+                    variant,
+                    is_input,
+                    sizing_mode,
+                    target_leverage,
+                )
+                oos_metrics = _run_window_variant_backtest(
+                    strategy_spec,
+                    variant,
+                    oos_input,
+                    sizing_mode,
+                    target_leverage,
+                )
+                ratio = _efficiency_ratio(is_metrics.get("sharpe"), oos_metrics.get("sharpe"))
+                if ratio is None:
+                    warning = "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+                    warnings.append(warning)
+                    missing_input_warnings.append(warning)
+            except Exception as exc:
+                outcome_category = "errored"
+                warnings.append(f"window_variant_error:{exc.__class__.__name__}")
+                missing_input_warnings.append(f"window_variant_error:{exc.__class__.__name__}")
+            rows.append(
+                _walkforward_result_row(
+                    window,
+                    variant,
+                    outcome_category,
+                    is_metrics,
+                    oos_metrics,
+                    ratio,
+                    warnings,
+                )
+            )
+
+    return _walkforward_summary(
+        in_sample_bars=in_sample_bars,
+        out_of_sample_bars=out_of_sample_bars,
+        step_bars=step_bars,
+        windows=windows,
+        selected_variants=selected_variants,
+        rows=rows,
+        missing_input_warnings=missing_input_warnings,
+    )
 
 
 def _empty_metrics() -> dict[str, Any]:
@@ -1221,6 +1445,87 @@ def _sizing_metadata(sizing_context: _SizingContext) -> dict[str, Any] | None:
     }
 
 
+def _execute_variant_worker(
+    *,
+    row_number: int,
+    strategy_spec: dict[str, Any],
+    variant: dict[str, Any],
+    deterministic_seed: int,
+    execution_input: _ExecutionInput | None,
+    sizing_context: _SizingContext,
+) -> dict[str, Any]:
+    mode = _variant_fixture_mode(variant)
+    try:
+        if mode == "errored":
+            raise RuntimeError("fixture variant error")
+        if execution_input is None:
+            result = _run_synthetic_backtest(
+                variant["variant_id"],
+                deterministic_seed,
+                sizing_context.sizing_mode,
+                sizing_context.target_leverage,
+            )
+            metrics = _metrics_from_backtest(result, "1h")
+        else:
+            assert sizing_context.exact_resolution is not None
+            result = _run_canonical_15m_backtest(
+                strategy_spec,
+                variant,
+                execution_input,
+                sizing_context,
+                sizing_context.exact_resolution,
+            )
+            metrics = _metrics_from_backtest(result, execution_input.timeframe)
+        outcome = "successful" if math.isfinite(metrics["return_pct"]) else "failed"
+        return {
+            "row_number": row_number,
+            "outcome": outcome,
+            "metrics": metrics,
+            "reason": None if outcome == "successful" else "non-finite return",
+            "error_message_class": None,
+            "infrastructure_error": False,
+        }
+    except Exception as exc:
+        return {
+            "row_number": row_number,
+            "outcome": "errored",
+            "metrics": None,
+            "reason": "per-variant runner error",
+            "error_message_class": exc.__class__.__name__,
+            "infrastructure_error": False,
+        }
+
+
+def _collect_parallel_variant_results(
+    tasks: list[dict[str, Any]],
+    max_workers: int,
+) -> dict[int, dict[str, Any]]:
+    if not tasks:
+        return {}
+    worker_count = min(max_workers, len(tasks))
+    results: dict[int, dict[str, Any]] = {}
+    with ProcessPoolExecutor(max_workers=worker_count) as executor:
+        future_to_task = {
+            executor.submit(_execute_variant_worker, **task): task
+            for task in tasks
+        }
+        for future in as_completed(future_to_task):
+            task = future_to_task[future]
+            row_number = task["row_number"]
+            try:
+                results[row_number] = future.result()
+            except Exception as exc:
+                results[row_number] = {
+                    "row_number": row_number,
+                    "outcome": "errored",
+                    "metrics": None,
+                    "reason": "per-variant runner error",
+                    "error_message_class": exc.__class__.__name__,
+                    "infrastructure_error": False,
+                }
+    return results
+
+
 def _execute_rows(
     result_population_id: str,
     strategy_spec: dict[str, Any],
@@ -1377,6 +1682,137 @@ def _execute_rows(
     return rows, aborted
 
 
+def _execute_rows_parallel(
+    result_population_id: str,
+    strategy_spec: dict[str, Any],
+    manifest: dict[str, Any],
+    sweep_plan: dict[str, Any],
+    deterministic_seed: int,
+    execution_input: _ExecutionInput | None,
+    sizing_context: _SizingContext,
+    max_workers: int,
+) -> tuple[list[dict[str, Any]], bool]:
+    rows_by_number: dict[int, dict[str, Any]] = {}
+    tasks: list[dict[str, Any]] = []
+    aborted = False
+    variants = sorted(manifest["variant_assignments"], key=lambda row: row["variant_id"])
+    for index, variant in enumerate(variants, start=1):
+        if aborted:
+            rows_by_number[index] = _row(
+                result_population_id,
+                index,
+                variant,
+                manifest,
+                sweep_plan,
+                "not_attempted",
+                reason="infrastructure abort before variant attempt",
+                execution_input=execution_input,
+            )
+            continue
+
+        mode = _variant_fixture_mode(variant)
+        status = variant["assignment_status"]
+        if status == "invalid":
+            rows_by_number[index] = _row(
+                result_population_id,
+                index,
+                variant,
+                manifest,
+                sweep_plan,
+                "invalid",
+                reason=status,
+                execution_input=execution_input,
+            )
+            continue
+        if status == "excluded":
+            rows_by_number[index] = _row(
+                result_population_id,
+                index,
+                variant,
+                manifest,
+                sweep_plan,
+                "excluded",
+                reason=status,
+                execution_input=execution_input,
+            )
+            continue
+        if status == "not_attempted":
+            rows_by_number[index] = _row(
+                result_population_id,
+                index,
+                variant,
+                manifest,
+                sweep_plan,
+                "not_attempted",
+                reason=status,
+                execution_input=execution_input,
+            )
+            continue
+        if mode == "data_unavailable":
+            rows_by_number[index] = _row(
+                result_population_id,
+                index,
+                variant,
+                manifest,
+                sweep_plan,
+                "data_unavailable",
+                reason="fixture declared missing synthetic data",
+                error_message_class="FixtureDataUnavailable",
+                execution_input=execution_input,
+            )
+            continue
+        if mode == "infra_abort":
+            aborted = True
+            rows_by_number[index] = _row(
+                result_population_id,
+                index,
+                variant,
+                manifest,
+                sweep_plan,
+                "aborted",
+                reason="fixture infrastructure abort",
+                error_message_class="OfflineSweepAbort",
+                infrastructure_error=True,
+                execution_input=execution_input,
+            )
+            continue
+
+        tasks.append(
+            {
+                "row_number": index,
+                "strategy_spec": strategy_spec,
+                "variant": variant,
+                "deterministic_seed": deterministic_seed,
+                "execution_input": execution_input,
+                "sizing_context": sizing_context,
+            }
+        )
+
+    worker_results = _collect_parallel_variant_results(tasks, max_workers)
+    variants_by_number = {
+        index: variant
+        for index, variant in enumerate(variants, start=1)
+    }
+    for task in tasks:
+        index = task["row_number"]
+        result = worker_results[index]
+        rows_by_number[index] = _row(
+            result_population_id,
+            index,
+            variants_by_number[index],
+            manifest,
+            sweep_plan,
+            result["outcome"],
+            metrics=result["metrics"],
+            reason=result["reason"],
+            error_message_class=result["error_message_class"],
+            infrastructure_error=result["infrastructure_error"],
+            execution_input=execution_input,
+        )
+
+    return [rows_by_number[index] for index in range(1, len(variants) + 1)], aborted
+
+
 def _build_result_population(
     strategy_spec: dict[str, Any],
     manifest: dict[str, Any],
@@ -1386,6 +1822,7 @@ def _build_result_population(
     execution_input: _ExecutionInput | None,
     sizing_mode: str,
     target_leverage: float,
+    max_workers: int,
 ) -> tuple[dict[str, Any], bool]:
     strategy_hash = _sha256_prefixed(strategy_spec)
     manifest_hash = manifest["manifest_hash_pinning"]["manifest_hash"]
@@ -1409,15 +1846,27 @@ def _build_result_population(
         provenance_identity["d3_validation_identity"],
         provenance_identity["execution_provenance_class"],
     )
-    rows, aborted = _execute_rows(
-        result_population_id,
-        strategy_spec,
-        manifest,
-        sweep_plan,
-        deterministic_seed,
-        execution_input,
-        sizing_context,
-    )
+    if max_workers == 1:
+        rows, aborted = _execute_rows(
+            result_population_id,
+            strategy_spec,
+            manifest,
+            sweep_plan,
+            deterministic_seed,
+            execution_input,
+            sizing_context,
+        )
+    else:
+        rows, aborted = _execute_rows_parallel(
+            result_population_id,
+            strategy_spec,
+            manifest,
+            sweep_plan,
+            deterministic_seed,
+            execution_input,
+            sizing_context,
+            max_workers,
+        )
     counts = {category: 0 for category in OUTCOME_CATEGORIES}
     counts.update(Counter(row["outcome_category"] for row in rows))
     counts["counts_sum"] = sum(counts[category] for category in OUTCOME_CATEGORIES)
@@ -1774,6 +2223,7 @@ def run_offline_sweep(
     walkforward_oos_bars: int | None = None,
     walkforward_step_bars: int | None = None,
     walkforward_max_windows: int | None = None,
+    max_workers: int = DEFAULT_MAX_WORKERS,
 ) -> dict[str, Any]:
     """Run a deterministic build-and-test-only offline research sweep."""
     if deterministic_seed is None:
@@ -1786,6 +2236,7 @@ def run_offline_sweep(
         )
     sizing_mode = _validate_sizing_mode(sizing_mode)
     target_leverage = _validate_target_leverage(target_leverage)
+    max_workers = _validate_max_workers(max_workers)
     guarded_output_dir = _guard_output_dir(output_dir, write_result_population)
     strategy_spec, manifest, sweep_plan = _validate_parent_inputs(
         strategy_spec_path,
@@ -1819,6 +2270,7 @@ def run_offline_sweep(
         execution_input,
         sizing_mode,
         target_leverage,
+        max_workers,
     )
     _validate_in_memory_payload(payload)
 
@@ -1847,6 +2299,7 @@ def run_offline_sweep(
             out_of_sample_bars=walkforward_oos_bars,
             step_bars=walkforward_step_bars,
             max_windows=walkforward_max_windows,
+            max_workers=max_workers,
         )
     return {
         "ok": not aborted,
@@ -1901,6 +2354,12 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--walkforward-oos-bars", type=_positive_int_arg("--walkforward-oos-bars"))
     parser.add_argument("--walkforward-step-bars", type=_positive_int_arg("--walkforward-step-bars"))
     parser.add_argument("--walkforward-max-windows", type=_positive_int_arg("--walkforward-max-windows"))
+    parser.add_argument(
+        "--max-workers",
+        type=_positive_int_arg("--max-workers"),
+        default=DEFAULT_MAX_WORKERS,
+        help="Opt-in process worker count for variant/window-level parallelism. Defaults to 1.",
+    )
     return parser
 
 
@@ -1927,6 +2386,7 @@ def main(argv: list[str] | None = None) -> int:
             walkforward_oos_bars=args.walkforward_oos_bars,
             walkforward_step_bars=args.walkforward_step_bars,
             walkforward_max_windows=args.walkforward_max_windows,
+            max_workers=args.max_workers,
         )
     except Exception as exc:
         print(f"ERROR: {exc}", file=sys.stderr)

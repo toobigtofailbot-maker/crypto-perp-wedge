@@ -4117,25 +4117,41 @@ UNNEST(s.free_parameters.parameters) AS parameters(parameter);
 -- Which top-level Strategy Spec condition groups are declared?
 -- This intentionally exposes top-level groups only and avoids recursive logic.
 CREATE OR REPLACE VIEW v_strategy_spec_condition_groups AS
-SELECT
-    strategy_spec_id,
-    section,
-    condition_group.group_id AS group_id,
-    condition_group.group_role AS group_role,
-    condition_group.logic AS logic,
-    list_count(condition_group.conditions) AS condition_count,
-    list_count(condition_group.subgroups) AS subgroup_count,
-    1 AS declared_depth
+SELECT *
 FROM (
-    SELECT strategy_spec_id, 'entry_logic' AS section, condition_group
+    SELECT
+        strategy_spec_id,
+        'entry_logic' AS section,
+        condition_group.group_id AS group_id,
+        condition_group.group_role AS group_role,
+        condition_group.logic AS logic,
+        list_count(condition_group.conditions) AS condition_count,
+        list_count(condition_group.subgroups) AS subgroup_count,
+        1 AS declared_depth
     FROM strategy_specs,
     UNNEST(entry_logic.groups) AS groups(condition_group)
     UNION ALL
-    SELECT strategy_spec_id, 'exit_logic' AS section, condition_group
+    SELECT
+        strategy_spec_id,
+        'exit_logic' AS section,
+        condition_group.group_id AS group_id,
+        condition_group.group_role AS group_role,
+        condition_group.logic AS logic,
+        list_count(condition_group.conditions) AS condition_count,
+        list_count(condition_group.subgroups) AS subgroup_count,
+        1 AS declared_depth
     FROM strategy_specs,
     UNNEST(exit_logic.groups) AS groups(condition_group)
     UNION ALL
-    SELECT strategy_spec_id, 'filters' AS section, condition_group
+    SELECT
+        strategy_spec_id,
+        'filters' AS section,
+        condition_group.group_id AS group_id,
+        condition_group.group_role AS group_role,
+        condition_group.logic AS logic,
+        list_count(condition_group.conditions) AS condition_count,
+        list_count(condition_group.subgroups) AS subgroup_count,
+        1 AS declared_depth
     FROM strategy_specs,
     UNNEST(filters.groups) AS groups(condition_group)
 ) AS top_level_groups;

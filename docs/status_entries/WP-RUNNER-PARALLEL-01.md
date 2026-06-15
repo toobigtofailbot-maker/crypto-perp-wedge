@@ -85,10 +85,78 @@ result-population payloads, identity scopes, or row hashes.
 - Focused tests additionally prove sequential-vs-parallel identity for mixed
   non-success synthetic rows, abort/not-attempted semantics, canonical 15m
   fixture output, and walk-forward dry-run rows.
-- Full D4 RP-7134 and STRAT-SPEC-0004 real-data comparisons were not run
-  because the D4A normalized CSV referenced by the committed catalog is not
-  present under `data/processed/d4a/` in this worktree or the root checkout.
-  This remains a merge-hold proof item, not claimed as complete here.
+- WP-RUNNER-PARALLEL-01A follow-up found the real D4A normalized CSV at
+  `C:\GitHub\crypto-perp-wedge-d4a\data\processed\d4a\binance_um_perp_BTCUSDT_15m_2020-01-01_2026-04-11_d4a_normalized.csv`.
+- The selected CSV matches the committed catalog/import SHA:
+  `c30fd7f07fdf513cdaf234b1bee4eff03b430a479cc572a2cc8b57394f22e0ab`.
+- D4A row count and range: 220,128 rows from `2020-01-01T00:00:00Z` through
+  `2026-04-11T23:45:00Z`, matching the catalog slice range.
+- Full-D4 STRAT-SPEC-0004 / VM-0004 / SWEEP-PLAN-0004 scratch writes were run
+  from this PR branch with `--canonical-15m`, the committed D4 catalog/import
+  files, `--sizing-mode dynamic_equity_target_leverage`, `--target-leverage 1.0`,
+  `--write-result-population`, and `--deterministic-seed 190`.
+- Sequential proof command used `--max-workers 1`, run label
+  `WP-RUNNER-PARALLEL-01A-SEQ`, and output directory
+  `C:\Users\dersu\AppData\Local\Temp\crypto_perp_wedge_runner_parallel_01a\seq\result_populations`.
+- Parallel proof command used `--max-workers 4`, run label
+  `WP-RUNNER-PARALLEL-01A-PAR`, and output directory
+  `C:\Users\dersu\AppData\Local\Temp\crypto_perp_wedge_runner_parallel_01a\par\result_populations`.
+- Sequential full-D4 elapsed time: 2084.585 seconds.
+- Parallel full-D4 elapsed time: 614.727 seconds.
+- Real-D4 speedup ratio: 3.39x.
+- Both runs wrote scratch `RP-2592.result_population.json`; no canonical result
+  population path was written.
+- Full-file byte identity: false, because the administrative `audit_envelope`
+  run label differs (`WP-RUNNER-PARALLEL-01A-SEQ` versus
+  `WP-RUNNER-PARALLEL-01A-PAR`).
+- Sequential file SHA256:
+  `424ef120719df9774cb03f304f40132459391b3aca122ac87b87319a48649a2b`.
+- Parallel file SHA256:
+  `62f8d511f603c6526c904128f36a380bd60af806002ab19cfc90b2541129245a`.
+- Scientific/canonical identity: PASS. `result_population_id`,
+  `input_identity_hash`, `result_population_identity_hash`,
+  `committed_denominator_snapshot`, `outcome_category_counts`,
+  `variant_result_rows`, `sizing_metadata`, `data_coverage_summary`, and
+  `backtest_assumption_summary` were identical.
+- Input identity hash for both runs:
+  `sha256:d6df0801bdff4cd3b63e747677c0bd458ec65c7fbd9ce45dcf363bddcb739080`.
+- Result population identity hash for both runs:
+  `sha256:c146d7880687f363ab2fa258a3b205b63f6ce45ba88c7641d63636186656a0e7`.
+- Row count/order/hash identity: PASS, 8 rows in identical variant order with
+  identical `row_identity_hash` values.
+- Denominator identity: PASS, committed denominator 8, row count 8, outcome
+  counts sum 8.
+- Outcome counts identity: PASS, 8 successful, zero aborted/data_unavailable/
+  errored/excluded/failed/filtered/invalid/not_attempted.
+- No nondeterminism or memory/process concern was observed during the real-D4
+  proof run.
+
+## WP-RUNNER-PARALLEL-01A Validation
+
+- `git diff --check`: PASS.
+- `git diff --cached --check`: PASS.
+- `C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest tests/test_offline_research_runner.py -q`:
+  PASS.
+- `C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest tests/test_research_query.py -q`:
+  PASS.
+- `C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest`:
+  PASS.
+- `C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.registry.validate_strategy_specs`:
+  PASS.
+- `C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.registry.validate_variant_sweep_artifacts`:
+  PASS.
+- `C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.registry.validate_indicator_catalogs`:
+  PASS.
+- `C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.registry.validate_result_populations`:
+  PASS.
+- `C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.research_query.run --list-views`:
+  PASS.
+- `C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe tools/dev/verify.py --help`:
+  PASS.
+- `C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe tools/dev/diff_scope_summary.py --check-forbidden`:
+  PASS, no forbidden-path matches.
+- `C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe tools/dev/verify.py --integrity-views --integrity-max-workers 4 --timeout-seconds 300 --max-output-chars 6000`:
+  PASS.
 
 ## Boundaries
 

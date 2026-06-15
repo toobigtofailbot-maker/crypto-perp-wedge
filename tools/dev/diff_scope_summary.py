@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -29,10 +30,14 @@ REQUIRED_JSON_KEYS = [
     "untracked_files",
     "numstat",
     "forbidden_matches",
+    "authorized_canonical_result_population_writes",
     "allowed_file_violations",
     "trial_log",
     "exit_reason",
 ]
+CANONICAL_RESULT_POPULATION_RE = re.compile(
+    r"^research/result_populations/RP-\d+\.result_population\.json$"
+)
 
 
 @dataclass(frozen=True)
@@ -155,6 +160,42 @@ def _git_failures(results: Sequence[GitResult]) -> list[dict[str, Any]]:
     return failures
 
 
+def _path_exists_in_head(repo_root: Path, path: str) -> bool:
+    result = _run_git(repo_root, ["cat-file", "-e", f"HEAD:{path}"])
+    return result.returncode == 0
+
+
+def _authorized_canonical_result_population_paths(
+    repo_root: Path,
+    changed_files: Sequence[str],
+    authorized_paths: Sequence[str],
+) -> tuple[list[dict[str, Any]], list[dict[str, str]]]:
+    changed_set = {_normalize_path(path) for path in changed_files}
+    authorized: list[dict[str, Any]] = []
+    rejected: list[dict[str, str]] = []
+
+    for raw_path in authorized_paths:
+        path = _normalize_path(raw_path)
+        if path not in changed_set:
+            rejected.append({"path": path, "reason": "path not changed"})
+            continue
+        if not CANONICAL_RESULT_POPULATION_RE.match(path):
+            rejected.append({"path": path, "reason": "path does not match canonical result-population pattern"})
+            continue
+        if _path_exists_in_head(repo_root, path):
+            rejected.append({"path": path, "reason": "path exists in HEAD; existing RP mutation is not authorized"})
+            continue
+        authorized.append(
+            {
+                "path": path,
+                "status": "authorized",
+                "scope": "new canonical result-population write",
+            }
+        )
+
+    return authorized, rejected
+
+
 def build_summary(args: argparse.Namespace) -> dict[str, Any]:
     repo_root = resolve_repo_root(args.repo_root)
 
@@ -170,10 +211,19 @@ def build_summary(args: argparse.Namespace) -> dict[str, Any]:
     changed_files = _unique_paths(tracked_files, staged_files, untracked_files)
 
     forbidden_prefixes = [*DEFAULT_FORBIDDEN_PREFIXES, *args.forbidden_prefix]
+    authorized_canonical_writes, rejected_authorized_canonical_writes = (
+        _authorized_canonical_result_population_paths(
+            repo_root,
+            changed_files,
+            args.authorized_canonical_result_population_write,
+        )
+    )
+    authorized_canonical_paths = {item["path"] for item in authorized_canonical_writes}
     forbidden_matches = [
         {"path": path, "prefix": prefix}
         for path in changed_files
         for prefix in forbidden_prefixes
+        if path not in authorized_canonical_paths
         if _path_matches_prefix(path, prefix)
     ]
 
@@ -219,6 +269,11 @@ def build_summary(args: argparse.Namespace) -> dict[str, Any]:
             "errors": _git_failures([numstat_result, staged_numstat_result]),
         },
         "forbidden_matches": forbidden_matches,
+        "authorized_canonical_result_population_writes": {
+            "package": args.authorized_package,
+            "authorized": authorized_canonical_writes,
+            "rejected": rejected_authorized_canonical_writes,
+        },
         "allowed_file_violations": allowed_file_violations,
         "trial_log": {
             "path": TRIAL_LOG_PATH,
@@ -234,6 +289,7 @@ def build_summary(args: argparse.Namespace) -> dict[str, Any]:
             "base_ref": args.base_ref,
             "base_ref_note": "accepted for future compatibility; current summary uses working tree and staged git diff state",
             "forbidden_prefixes": forbidden_prefixes,
+            "authorized_canonical_result_population_paths": sorted(authorized_canonical_paths),
             "git_errors": failures,
             "advisory_note": (
                 "Advisory only. Does not replace direct changed-file inspection, integrity views, "
@@ -270,6 +326,7 @@ def format_markdown(summary: dict[str, Any]) -> str:
     forbidden_matches = summary["forbidden_matches"]
     allowed_file_violations = summary["allowed_file_violations"]
     trial_log = summary["trial_log"]
+    authorized_canonical = summary["authorized_canonical_result_population_writes"]
     git_errors = meta["git_errors"]
 
     if forbidden_matches:
@@ -278,6 +335,27 @@ def format_markdown(summary: dict[str, Any]) -> str:
         )
     else:
         forbidden_text = "- none"
+
+    authorized_lines = []
+    if authorized_canonical["package"]:
+        authorized_lines.append(f"- package: `{authorized_canonical['package']}`")
+    else:
+        authorized_lines.append("- package: not supplied")
+    if authorized_canonical["authorized"]:
+        authorized_lines.extend(
+            f"- authorized: `{item['path']}` ({item['scope']})"
+            for item in authorized_canonical["authorized"]
+        )
+    else:
+        authorized_lines.append("- authorized: none")
+    if authorized_canonical["rejected"]:
+        authorized_lines.extend(
+            f"- rejected: `{item['path']}` ({item['reason']})"
+            for item in authorized_canonical["rejected"]
+        )
+    else:
+        authorized_lines.append("- rejected: none")
+    authorized_text = "\n".join(authorized_lines)
 
     if trial_log["checked"]:
         trial_log_text = "\n".join(
@@ -322,6 +400,9 @@ def format_markdown(summary: dict[str, Any]) -> str:
             "## Forbidden-path matches",
             forbidden_text,
             "",
+            "## Authorized canonical result-population writes",
+            authorized_text,
+            "",
             "## Allowed-file check",
             _format_path_list(allowed_file_violations),
             "",
@@ -361,6 +442,20 @@ def build_parser() -> argparse.ArgumentParser:
         action="append",
         default=[],
         help="Allowed changed file path; may be repeated",
+    )
+    parser.add_argument(
+        "--authorized-canonical-result-population-write",
+        action="append",
+        default=[],
+        metavar="PATH",
+        help=(
+            "Explicitly authorize one new canonical result-population write path "
+            "matching research/result_populations/RP-<digits>.result_population.json; may be repeated"
+        ),
+    )
+    parser.add_argument(
+        "--authorized-package",
+        help="Optional package id recorded with authorized canonical write evidence",
     )
     parser.add_argument("--repo-root", type=Path, help="Optional repo root override")
     return parser

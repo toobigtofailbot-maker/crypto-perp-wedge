@@ -470,6 +470,10 @@ decision records, schemas, validators, or locked baseline documents.
   fixes `min_bars_between_entries = 8`, freezes an 8-variant denominator, and
   creates no canonical run, result population, candidate promotion,
   paper/live readiness, or runtime authority.
+- `2026-06-phaseb_trial_01_screen_verdict.md` - diagnostic verdict over the
+  first Phase-B canonical single-slice result population `RP-7134`; records
+  valid deterministic evidence and a separate frozen-screen `NO-GO` verdict
+  without walk-forward, candidate, paper/live, or runtime authority.
 - `../architecture/BTC_PERP_FUTURE_CAPABILITY_BACKLOG.md` - non-authoritative
   BTC perpetual capability inventory for future research-lab, crypto/perp
   feature, execution-realism, and later paper/live planning.

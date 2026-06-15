@@ -17,6 +17,9 @@
 # Preserve the catalog-attested CRLF byte form for this D4 validation report.
 research/data_slices/binance_usdtm_btcusdt_15m/binance_usdtm_btcusdt_15m_20200101_20260411.validation_report.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 
+# Preserve the dry-run-attested CRLF byte form for this canonical result population.
+research/result_populations/RP-7134.result_population.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
 # Binary/data artifacts.
 *.parquet binary
 *.png binary

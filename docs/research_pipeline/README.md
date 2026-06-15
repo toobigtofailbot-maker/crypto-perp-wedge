@@ -478,6 +478,10 @@ decision records, schemas, validators, or locked baseline documents.
   decomposition over `RP-7134` compared to `RP-7520`; classifies the dominant
   aggregate failure mode without mutating v1, authorizing v2, walk-forward,
   candidate, paper/live, or runtime authority.
+- `2026-06-phaseb_pivot_design_01.md` - docs-only first non-fade Phase-B
+  trend/momentum pivot design; selects an SMA crossover continuation shape
+  using current closed vocabulary without pre-registration, canonical evidence,
+  candidate, walk-forward, paper/live, runtime, or implementation authority.
 - `../architecture/BTC_PERP_FUTURE_CAPABILITY_BACKLOG.md` - non-authoritative
   BTC perpetual capability inventory for future research-lab, crypto/perp
   feature, execution-realism, and later paper/live planning.

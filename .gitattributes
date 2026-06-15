@@ -20,6 +20,9 @@ research/data_slices/binance_usdtm_btcusdt_15m/binance_usdtm_btcusdt_15m_2020010
 # Preserve the dry-run-attested CRLF byte form for this canonical result population.
 research/result_populations/RP-7134.result_population.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 
+# Preserve the dry-run-attested CRLF byte form for this canonical result population.
+research/result_populations/RP-2592.result_population.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
 # Binary/data artifacts.
 *.parquet binary
 *.png binary

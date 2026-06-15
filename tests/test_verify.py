@@ -158,6 +158,166 @@ def test_integrity_view_rows_fail_closed(monkeypatch, tmp_path, capsys):
     assert payload["integrity_views"][0]["row_count"] == 1
 
 
+def test_integrity_all_zero_mock_views_pass_in_sorted_order(monkeypatch, tmp_path, capsys):
+    repo = _repo(tmp_path)
+    list_result = {
+        "command": "list",
+        "argv": [],
+        "required": True,
+        "status": "pass",
+        "exit_code": 0,
+        "timed_out": False,
+        "timeout_seconds": 5,
+        "elapsed_seconds": 0.01,
+        "stdout": "v_integrity_beta\nv_integrity_alpha\n",
+        "stderr": "",
+        "_stdout_raw": "v_integrity_beta\nv_integrity_alpha\n",
+        "_stderr_raw": "",
+        "stdout_truncated": "false",
+        "stderr_truncated": "false",
+    }
+
+    def fake_run_command(repo_root, spec, max_chars):
+        view = spec.argv[-2]
+        return {
+            **list_result,
+            "command": f"view {view}",
+            "stdout": "[]",
+            "_stdout_raw": "[]",
+        }
+
+    monkeypatch.setattr(helper, "build_standard_commands", lambda args: [])
+    monkeypatch.setattr(
+        helper,
+        "discover_integrity_views",
+        lambda repo_root, timeout, max_chars: (["v_integrity_beta", "v_integrity_alpha"], list_result),
+    )
+    monkeypatch.setattr(helper, "run_command", fake_run_command)
+
+    exit_code, stdout, _ = _run(["--repo-root", str(repo), "--json", "--integrity-views"], capsys)
+
+    payload = json.loads(stdout)
+    assert exit_code == 0
+    assert payload["overall_status"] == "pass"
+    assert [view["name"] for view in payload["integrity_views"]] == [
+        "v_integrity_alpha",
+        "v_integrity_beta",
+    ]
+    assert {view["row_count"] for view in payload["integrity_views"]} == {0}
+
+
+def test_integrity_timeout_fails_closed_and_names_view(monkeypatch, tmp_path, capsys):
+    repo = _repo(tmp_path)
+    list_result = {
+        "command": "list",
+        "argv": [],
+        "required": True,
+        "status": "pass",
+        "exit_code": 0,
+        "timed_out": False,
+        "timeout_seconds": 5,
+        "elapsed_seconds": 0.01,
+        "stdout": "v_integrity_slow\n",
+        "stderr": "",
+        "_stdout_raw": "v_integrity_slow\n",
+        "_stderr_raw": "",
+        "stdout_truncated": "false",
+        "stderr_truncated": "false",
+    }
+    timeout_result = {
+        **list_result,
+        "command": "view v_integrity_slow",
+        "status": "timeout",
+        "exit_code": None,
+        "timed_out": True,
+        "timeout_seconds": 7,
+        "stdout": "",
+        "_stdout_raw": "",
+    }
+
+    monkeypatch.setattr(helper, "build_standard_commands", lambda args: [])
+    monkeypatch.setattr(
+        helper,
+        "discover_integrity_views",
+        lambda repo_root, timeout, max_chars: (["v_integrity_slow"], list_result),
+    )
+    monkeypatch.setattr(helper, "run_command", lambda repo_root, spec, max_chars: timeout_result)
+
+    exit_code, stdout, _ = _run(["--repo-root", str(repo), "--json", "--integrity-views"], capsys)
+
+    payload = json.loads(stdout)
+    assert exit_code == 1
+    assert payload["integrity_views"][0]["name"] == "v_integrity_slow"
+    assert payload["integrity_views"][0]["status"] == "fail"
+    assert "timed out" in payload["integrity_views"][0]["error"]
+    assert any(failure.get("name") == "v_integrity_slow" for failure in payload["failures"])
+
+
+def test_integrity_command_error_fails_closed_and_names_view(monkeypatch, tmp_path, capsys):
+    repo = _repo(tmp_path)
+    list_result = {
+        "command": "list",
+        "argv": [],
+        "required": True,
+        "status": "pass",
+        "exit_code": 0,
+        "timed_out": False,
+        "timeout_seconds": 5,
+        "elapsed_seconds": 0.01,
+        "stdout": "v_integrity_error\n",
+        "stderr": "",
+        "_stdout_raw": "v_integrity_error\n",
+        "_stderr_raw": "",
+        "stdout_truncated": "false",
+        "stderr_truncated": "false",
+    }
+    error_result = {
+        **list_result,
+        "command": "view v_integrity_error",
+        "status": "fail",
+        "exit_code": 1,
+        "stderr": "boom",
+        "_stderr_raw": "boom",
+    }
+
+    monkeypatch.setattr(helper, "build_standard_commands", lambda args: [])
+    monkeypatch.setattr(
+        helper,
+        "discover_integrity_views",
+        lambda repo_root, timeout, max_chars: (["v_integrity_error"], list_result),
+    )
+    monkeypatch.setattr(helper, "run_command", lambda repo_root, spec, max_chars: error_result)
+
+    exit_code, stdout, _ = _run(["--repo-root", str(repo), "--json", "--integrity-views"], capsys)
+
+    payload = json.loads(stdout)
+    assert exit_code == 1
+    assert payload["integrity_views"][0]["name"] == "v_integrity_error"
+    assert payload["integrity_views"][0]["error"] == "boom"
+
+
+def test_verify_passes_authorized_canonical_write_to_diff_scope():
+    parser = helper.build_parser()
+    args = parser.parse_args(
+        [
+            "--authorized-package",
+            "WP-TEST",
+            "--authorized-canonical-result-population-write",
+            "research/result_populations/RP-9001.result_population.json",
+        ]
+    )
+
+    commands = helper.build_standard_commands(args)
+    diff_scope_command = next(
+        command.argv for command in commands if "tools/dev/diff_scope_summary.py" in command.argv
+    )
+
+    assert "--authorized-package" in diff_scope_command
+    assert "WP-TEST" in diff_scope_command
+    assert "--authorized-canonical-result-population-write" in diff_scope_command
+    assert "research/result_populations/RP-9001.result_population.json" in diff_scope_command
+
+
 def test_integrity_discovery_uses_raw_stdout_when_public_output_is_truncated(monkeypatch, tmp_path):
     repo = _repo(tmp_path)
 

@@ -11,6 +11,7 @@ REQUIRED_KEYS = {
     "untracked_files",
     "numstat",
     "forbidden_matches",
+    "authorized_canonical_result_population_writes",
     "allowed_file_violations",
     "trial_log",
     "exit_reason",
@@ -123,6 +124,121 @@ def test_check_forbidden_exits_nonzero_on_forbidden_match(tmp_path, capsys):
 
     assert exit_code == 1
     assert json.loads(stdout)["exit_reason"] == "forbidden path match"
+
+
+def test_unauthorized_result_population_write_is_forbidden(tmp_path, capsys):
+    repo = _repo(tmp_path)
+    path = "research/result_populations/RP-9001.result_population.json"
+    _write(repo / path, "{}\n")
+
+    exit_code, stdout, _ = _run(["--repo-root", str(repo), "--json", "--check-forbidden"], capsys)
+
+    payload = json.loads(stdout)
+    assert exit_code == 1
+    assert payload["forbidden_matches"] == [{"path": path, "prefix": "research/"}]
+
+
+def test_authorized_new_result_population_write_is_not_forbidden(tmp_path, capsys):
+    repo = _repo(tmp_path)
+    path = "research/result_populations/RP-9001.result_population.json"
+    _write(repo / path, "{}\n")
+
+    exit_code, stdout, _ = _run(
+        [
+            "--repo-root",
+            str(repo),
+            "--json",
+            "--check-forbidden",
+            "--authorized-package",
+            "WP-TEST",
+            "--authorized-canonical-result-population-write",
+            path,
+        ],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 0
+    assert payload["forbidden_matches"] == []
+    assert payload["authorized_canonical_result_population_writes"]["package"] == "WP-TEST"
+    assert payload["authorized_canonical_result_population_writes"]["authorized"][0]["path"] == path
+
+
+def test_authorized_mode_does_not_allow_runtime_or_lib_changes(tmp_path, capsys):
+    repo = _repo(tmp_path)
+    rp_path = "research/result_populations/RP-9001.result_population.json"
+    lib_path = "lib/backtest.py"
+    _write(repo / rp_path, "{}\n")
+    _write(repo / lib_path, "changed\n")
+
+    exit_code, stdout, _ = _run(
+        [
+            "--repo-root",
+            str(repo),
+            "--json",
+            "--check-forbidden",
+            "--authorized-canonical-result-population-write",
+            rp_path,
+        ],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 1
+    assert payload["forbidden_matches"] == [{"path": lib_path, "prefix": "lib/"}]
+
+
+def test_authorized_mode_does_not_allow_existing_result_population_mutation(tmp_path, capsys):
+    repo = _repo(tmp_path)
+    path = "research/result_populations/RP-9001.result_population.json"
+    _write(repo / path, "{}\n")
+    _git(repo, "add", path)
+    _git(repo, "commit", "-m", "add rp")
+    _write(repo / path, '{"changed": true}\n')
+
+    exit_code, stdout, _ = _run(
+        [
+            "--repo-root",
+            str(repo),
+            "--json",
+            "--check-forbidden",
+            "--authorized-canonical-result-population-write",
+            path,
+        ],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 1
+    assert payload["forbidden_matches"] == [{"path": path, "prefix": "research/"}]
+    assert payload["authorized_canonical_result_population_writes"]["rejected"] == [
+        {"path": path, "reason": "path exists in HEAD; existing RP mutation is not authorized"}
+    ]
+
+
+def test_mixed_authorized_rp_plus_unauthorized_protected_file_fails(tmp_path, capsys):
+    repo = _repo(tmp_path)
+    rp_path = "research/result_populations/RP-9001.result_population.json"
+    runtime_path = "src/runtime/paper_trader.py"
+    _write(repo / rp_path, "{}\n")
+    _write(repo / runtime_path, "changed\n")
+
+    exit_code, stdout, _ = _run(
+        [
+            "--repo-root",
+            str(repo),
+            "--json",
+            "--check-forbidden",
+            "--authorized-canonical-result-population-write",
+            rp_path,
+        ],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 1
+    assert payload["authorized_canonical_result_population_writes"]["authorized"][0]["path"] == rp_path
+    assert payload["forbidden_matches"] == [{"path": runtime_path, "prefix": "src/"}]
 
 
 def test_allowed_file_reports_violations(tmp_path, capsys):

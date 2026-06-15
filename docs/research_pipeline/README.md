@@ -487,6 +487,11 @@ decision records, schemas, validators, or locked baseline documents.
   SWEEP-PLAN-0004; freezes an 8-variant denominator and operational screen
   without canonical result population, candidate, walk-forward, paper/live, or
   runtime authority.
+- `2026-06-phaseb_momentum_trial_0004_rp2592_screen.md` - diagnostic verdict
+  over the Phase-B momentum canonical single-slice result population
+  `RP-2592`; records valid deterministic evidence and a separate frozen-screen
+  `NO-GO` verdict without walk-forward, candidate, paper/live, or runtime
+  authority.
 - `../architecture/BTC_PERP_FUTURE_CAPABILITY_BACKLOG.md` - non-authoritative
   BTC perpetual capability inventory for future research-lab, crypto/perp
   feature, execution-realism, and later paper/live planning.

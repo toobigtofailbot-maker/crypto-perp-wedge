@@ -804,30 +804,45 @@ Log retention:
 
 ## 18. Live-Readiness Classification
 
+Classification rule:
+
+- Paper/shadow requires a basic, simulated safety layer before any paper or
+  shadow run can produce evidence. That layer includes paper-mode order intent,
+  paper-state reconciliation, basic paper/shadow risk caps, no-new-intent /
+  safe-mode / operator halt behavior, deterministic paper fill/accounting, signal
+  equivalence proof, heartbeat/freshness visibility, and a dedicated
+  paper/shadow state artifact family.
+- Live still requires a separate venue-connected, live-hardened layer before any
+  live operation. Basic paper/shadow controls do not satisfy venue
+  reconciliation, exchange constraint enforcement, live credentials,
+  live flatten/kill-switch behavior, live-like partial-fill lifecycle,
+  quote-aware fill realism, margin/liquidation hardening, or full live incident
+  routing and runbooks.
+
 | Component | Classification | Rationale |
 |---|---|---|
 | Candidate/spec manual selection | Required before candidate | Prevents automatic research-artifact authority. |
-| Backtest-to-paper signal equivalence proof | Required before paper/shadow | Paper/shadow evidence is meaningless if signal semantics drift. |
+| Backtest-to-paper signal-equivalence proof | Required before paper/shadow in basic/simulated form | Paper/shadow evidence is meaningless if signal semantics drift. |
 | Replay mode | Required before paper/shadow | Provides deterministic timing and equivalence debug path. |
-| Paper/shadow state artifact family | Required before paper/shadow | Evidence must be separate, auditable, and non-authoritative. |
-| Paper fill/simulation model v1 | Required before paper/shadow | Paper mode needs explicit deterministic fill/accounting assumptions. |
+| Paper/shadow state artifact family | Required before paper/shadow in basic/simulated form | Evidence must be separate, auditable, and non-authoritative. |
+| Paper-mode order-intent abstraction | Required before paper/shadow in basic/simulated form | Strategies must emit bounded intent through a paper-mode abstraction before paper/shadow evidence is meaningful. |
+| Paper-state reconciliation | Required before paper/shadow in basic/simulated form | Paper ledger, order, fill, position, equity, and PnL state must reconcile against the simulated state before new intent. |
+| Basic paper/shadow risk caps | Required before paper/shadow in basic/simulated form | Position, size, loss, drawdown, and stale-data caps are required safety gates even without venue connectivity. |
+| Safe-mode / no-new-intent / operator halt | Required before paper/shadow in basic/simulated form | Paper/shadow must fail closed, block new risk-increasing intent, and allow operator halt before producing evidence. |
+| Paper fill/accounting model | Required before paper/shadow in basic/simulated form | Paper mode needs explicit deterministic fill, fee, funding, position, and PnL accounting assumptions. |
 | Data-feed freshness gate | Required before paper/shadow | Stale or malformed bars must block new intent. |
 | Operator approval record | Required before paper/shadow | Human selection and run start must be auditable. |
-| Operator halt control | Required before paper/shadow | Operator must be able to stop a paper/shadow run. |
 | Read-only operator status surface | Required before paper/shadow | Operator needs state visibility before running the chassis. |
-| Heartbeat and freshness observability | Required before paper/shadow | Missing runtime health must be visible. |
-| OMS order-intent abstraction | Required before live | Live execution must route through OMS intent, not strategies. |
-| Exchange constraint model | Required before live | Orders must satisfy filters, modes, and rate limits before submission. |
-| Reconciliation against venue state | Required before live | Live state uncertainty must be resolved deterministically. |
-| Risk caps | Required before live | Position, leverage, loss, order-size, drawdown, and stale-data caps are hard gates. |
-| Safe-mode and kill-switch implementation | Required before live | Live operation needs deterministic risk-reduction and frozen-state behavior. |
-| Secrets/key-management procedure | Required before live | Live or read-only credentials require storage, rotation, and revocation controls. |
+| Heartbeat/freshness observability | Required before paper/shadow in basic/simulated form | Missing runtime health must be visible. |
+| Venue reconciliation | Required before live | Live state uncertainty must be resolved against exchange-reported order, fill, position, equity, margin, and funding state. |
+| Exchange constraint enforcement | Required before live | Orders must satisfy venue filters, modes, permissions, and rate limits before submission. |
+| Live secrets/key-management | Required before live | Live or read-only credentials require storage, rotation, revocation, and permission controls. |
 | Deployment/release checklist | Required before live | Release identity, rollback, dry-run, and config freeze are production prerequisites. |
-| Live incident runbooks | Required before live | Human operators need tested procedures for venue and risk incidents. |
-| Alert routing beyond local output | Required before live | Critical live incidents need routed human notification, without execution authority. |
-| Partial-fill simulation | Required before live | Live-like lifecycle evidence needs partial-fill behavior. |
-| Quote-aware fill model | Required before live | Maker/post-only and spread-sensitive behavior need better fill realism. |
-| Account/margin/liquidation model | Required before live | Leverage and margin risks cannot be approximated loosely for live review. |
+| Live kill-switch/flatten behavior | Required before live | Live operation needs authorized cancel, flatten, verification, and frozen-state behavior separate from paper halt semantics. |
+| Partial-fill/live-like order lifecycle | Required before live | Live-like lifecycle evidence needs partial-fill, remaining-quantity, cancel-after-partial, reject, expiry, and terminal-unknown behavior. |
+| Quote-aware fill realism | Required before live | Maker/post-only and spread-sensitive behavior need bid/ask or book-aware fill assumptions. |
+| Account/margin/liquidation hardening | Required before live | Leverage, margin, liquidation, and account-state risks cannot be approximated loosely for live review. |
+| Full incident routing and live runbooks | Required before live | Human operators need tested routed notification and venue/risk/credential procedures before live operation. |
 | Cross-venue support | Deferred / explicitly blocked | Out of current single-venue scope. |
 | Multi-instrument scaling | Deferred / explicitly blocked | BTCUSDT single-instrument scope remains the design basis. |
 | Capital scaling | Deferred / explicitly blocked | No capital authority is created. |

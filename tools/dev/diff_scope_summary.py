@@ -31,6 +31,7 @@ REQUIRED_JSON_KEYS = [
     "numstat",
     "forbidden_matches",
     "authorized_canonical_result_population_writes",
+    "authorized_path_writes",
     "allowed_file_violations",
     "trial_log",
     "exit_reason",
@@ -196,6 +197,59 @@ def _authorized_canonical_result_population_paths(
     return authorized, rejected
 
 
+def _authorized_path_scope_rejection(path: str, scope: str) -> str | None:
+    normalized_scope = scope.strip().lower()
+    if not normalized_scope:
+        return "authorized scope is empty"
+
+    if normalized_scope.endswith("schema") or "schema" in normalized_scope:
+        if path.startswith("research/schemas/") and path.endswith(".schema.json"):
+            return None
+        return "scope requires an exact research/schemas/*.schema.json path"
+
+    if normalized_scope in {"research-compiler", "strategy-spec-compiler", "compiler"}:
+        if path == "tools/research_runner/spec_signal_compiler.py":
+            return None
+        return "compiler scope is limited to tools/research_runner/spec_signal_compiler.py"
+
+    if normalized_scope in {"research-validator", "strategy-spec-validator", "validator"}:
+        if path.startswith("tools/registry/validate_") and path.endswith(".py"):
+            return None
+        return "validator scope is limited to tools/registry/validate_*.py"
+
+    return f"unsupported authorized scope: {scope}"
+
+
+def _authorized_general_paths(
+    changed_files: Sequence[str],
+    authorized_paths: Sequence[str],
+    authorized_scope: str | None,
+) -> tuple[list[dict[str, Any]], list[dict[str, str]]]:
+    changed_set = {_normalize_path(path) for path in changed_files}
+    authorized: list[dict[str, Any]] = []
+    rejected: list[dict[str, str]] = []
+    scope = authorized_scope or ""
+
+    for raw_path in authorized_paths:
+        path = _normalize_path(raw_path)
+        if path not in changed_set:
+            rejected.append({"path": path, "scope": scope, "reason": "path not changed"})
+            continue
+        scope_rejection = _authorized_path_scope_rejection(path, scope)
+        if scope_rejection:
+            rejected.append({"path": path, "scope": scope, "reason": scope_rejection})
+            continue
+        authorized.append(
+            {
+                "path": path,
+                "status": "authorized",
+                "scope": scope,
+            }
+        )
+
+    return authorized, rejected
+
+
 def build_summary(args: argparse.Namespace) -> dict[str, Any]:
     repo_root = resolve_repo_root(args.repo_root)
 
@@ -219,11 +273,18 @@ def build_summary(args: argparse.Namespace) -> dict[str, Any]:
         )
     )
     authorized_canonical_paths = {item["path"] for item in authorized_canonical_writes}
+    authorized_general_writes, rejected_authorized_general_writes = _authorized_general_paths(
+        changed_files,
+        args.authorized_path,
+        args.authorized_scope,
+    )
+    authorized_general_paths = {item["path"] for item in authorized_general_writes}
+    authorized_paths = authorized_canonical_paths | authorized_general_paths
     forbidden_matches = [
         {"path": path, "prefix": prefix}
         for path in changed_files
         for prefix in forbidden_prefixes
-        if path not in authorized_canonical_paths
+        if path not in authorized_paths
         if _path_matches_prefix(path, prefix)
     ]
 
@@ -274,6 +335,12 @@ def build_summary(args: argparse.Namespace) -> dict[str, Any]:
             "authorized": authorized_canonical_writes,
             "rejected": rejected_authorized_canonical_writes,
         },
+        "authorized_path_writes": {
+            "package": args.authorized_package,
+            "scope": args.authorized_scope,
+            "authorized": authorized_general_writes,
+            "rejected": rejected_authorized_general_writes,
+        },
         "allowed_file_violations": allowed_file_violations,
         "trial_log": {
             "path": TRIAL_LOG_PATH,
@@ -290,6 +357,7 @@ def build_summary(args: argparse.Namespace) -> dict[str, Any]:
             "base_ref_note": "accepted for future compatibility; current summary uses working tree and staged git diff state",
             "forbidden_prefixes": forbidden_prefixes,
             "authorized_canonical_result_population_paths": sorted(authorized_canonical_paths),
+            "authorized_general_paths": sorted(authorized_general_paths),
             "git_errors": failures,
             "advisory_note": (
                 "Advisory only. Does not replace direct changed-file inspection, integrity views, "
@@ -327,6 +395,7 @@ def format_markdown(summary: dict[str, Any]) -> str:
     allowed_file_violations = summary["allowed_file_violations"]
     trial_log = summary["trial_log"]
     authorized_canonical = summary["authorized_canonical_result_population_writes"]
+    authorized_general = summary["authorized_path_writes"]
     git_errors = meta["git_errors"]
 
     if forbidden_matches:
@@ -356,6 +425,31 @@ def format_markdown(summary: dict[str, Any]) -> str:
     else:
         authorized_lines.append("- rejected: none")
     authorized_text = "\n".join(authorized_lines)
+
+    authorized_general_lines = []
+    if authorized_general["package"]:
+        authorized_general_lines.append(f"- package: `{authorized_general['package']}`")
+    else:
+        authorized_general_lines.append("- package: not supplied")
+    if authorized_general["scope"]:
+        authorized_general_lines.append(f"- scope: `{authorized_general['scope']}`")
+    else:
+        authorized_general_lines.append("- scope: not supplied")
+    if authorized_general["authorized"]:
+        authorized_general_lines.extend(
+            f"- authorized: `{item['path']}` ({item['scope']})"
+            for item in authorized_general["authorized"]
+        )
+    else:
+        authorized_general_lines.append("- authorized: none")
+    if authorized_general["rejected"]:
+        authorized_general_lines.extend(
+            f"- rejected: `{item['path']}` ({item['reason']})"
+            for item in authorized_general["rejected"]
+        )
+    else:
+        authorized_general_lines.append("- rejected: none")
+    authorized_general_text = "\n".join(authorized_general_lines)
 
     if trial_log["checked"]:
         trial_log_text = "\n".join(
@@ -402,6 +496,9 @@ def format_markdown(summary: dict[str, Any]) -> str:
             "",
             "## Authorized canonical result-population writes",
             authorized_text,
+            "",
+            "## Authorized path writes",
+            authorized_general_text,
             "",
             "## Allowed-file check",
             _format_path_list(allowed_file_violations),
@@ -454,6 +551,23 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
+        "--authorized-path",
+        action="append",
+        default=[],
+        metavar="PATH",
+        help=(
+            "Explicitly authorize one exact changed path within a bounded authorized scope; "
+            "requires --authorized-scope and may be repeated"
+        ),
+    )
+    parser.add_argument(
+        "--authorized-scope",
+        help=(
+            "Bounded scope for --authorized-path, for example strategy-spec-schema, "
+            "research-compiler, or research-validator"
+        ),
+    )
+    parser.add_argument(
         "--authorized-package",
         help="Optional package id recorded with authorized canonical write evidence",
     )
@@ -464,6 +578,10 @@ def build_parser() -> argparse.ArgumentParser:
 def run(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
+    if args.authorized_path and not args.authorized_scope:
+        parser.error("--authorized-path requires --authorized-scope")
+    if args.authorized_scope and not args.authorized_path:
+        parser.error("--authorized-scope requires --authorized-path")
 
     try:
         summary = build_summary(args)

@@ -25,6 +25,7 @@ REQUIRED_JSON_KEYS = [
     "overall_status",
     "commands",
     "integrity_views",
+    "pytest_shards",
     "failures",
     "advisory_note",
 ]
@@ -35,6 +36,8 @@ class CommandSpec:
     argv: list[str]
     required: bool = True
     timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS
+    label: str | None = None
+    metadata: dict[str, Any] | None = None
 
 
 class VerifyError(RuntimeError):
@@ -107,6 +110,8 @@ def run_command(repo_root: Path, spec: CommandSpec, max_chars: int) -> dict[str,
     return {
         "command": _command_text(spec.argv),
         "argv": spec.argv,
+        "label": spec.label,
+        "metadata": spec.metadata or {},
         "required": spec.required,
         "status": status,
         "exit_code": returncode,
@@ -128,6 +133,10 @@ def build_standard_commands(args: argparse.Namespace) -> list[CommandSpec]:
     diff_scope_args = ["tools/dev/diff_scope_summary.py", "--check-forbidden"]
     for path in args.authorized_canonical_result_population_write:
         diff_scope_args.extend(["--authorized-canonical-result-population-write", path])
+    for path in args.authorized_path:
+        diff_scope_args.extend(["--authorized-path", path])
+    if args.authorized_scope:
+        diff_scope_args.extend(["--authorized-scope", args.authorized_scope])
     if args.authorized_package:
         diff_scope_args.extend(["--authorized-package", args.authorized_package])
     commands = [
@@ -137,14 +146,103 @@ def build_standard_commands(args: argparse.Namespace) -> list[CommandSpec]:
         CommandSpec(["git", "diff", "--name-only"], timeout_seconds=timeout),
         CommandSpec(["git", "diff", "--cached", "--name-only"], timeout_seconds=timeout),
         CommandSpec(_python_cmd(diff_scope_args), timeout_seconds=timeout),
-        CommandSpec(_python_cmd(["-m", "tools.registry.validate_result_populations"]), timeout_seconds=timeout),
-        CommandSpec(_python_cmd(["-m", "tools.research_query.run", "--list-views"]), timeout_seconds=timeout),
     ]
+    if args.validation_preset != "docs-only":
+        commands.extend(
+            [
+                CommandSpec(_python_cmd(["-m", "tools.registry.validate_result_populations"]), timeout_seconds=timeout),
+                CommandSpec(_python_cmd(["-m", "tools.research_query.run", "--list-views"]), timeout_seconds=timeout),
+            ]
+        )
     for pytest_target in args.pytest:
         commands.append(CommandSpec(_python_cmd(["-m", "pytest", pytest_target, "-q"]), timeout_seconds=timeout))
-    if args.full_pytest:
+    if args.full_pytest or (args.validation_preset == "full-release" and not args.full_pytest_sharded):
         commands.append(CommandSpec(_python_cmd(["-m", "pytest", "-q"]), timeout_seconds=args.full_pytest_timeout_seconds))
     return commands
+
+
+def discover_pytest_files(repo_root: Path) -> list[str]:
+    completed = subprocess.run(
+        ["git", "ls-files", "tests/test*.py"],
+        cwd=repo_root,
+        check=False,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if completed.returncode != 0:
+        raise VerifyError(completed.stderr.strip() or completed.stdout.strip() or "failed to discover pytest files")
+    return sorted(line.strip().replace("\\", "/") for line in completed.stdout.splitlines() if line.strip())
+
+
+def _partition_by_index(items: Sequence[str], shard_count: int) -> list[list[str]]:
+    return [[item for item_index, item in enumerate(items) if item_index % shard_count == shard_index] for shard_index in range(shard_count)]
+
+
+def run_pytest_shards(
+    repo_root: Path,
+    args: argparse.Namespace,
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    if not args.full_pytest_sharded:
+        return {"enabled": False, "reason": "not requested", "shards": []}, []
+
+    files = discover_pytest_files(repo_root)
+    if args.pytest_shards > len(files):
+        raise VerifyError(
+            f"--pytest-shards ({args.pytest_shards}) exceeds discovered test files ({len(files)})"
+        )
+    partitions = _partition_by_index(files, args.pytest_shards)
+    selected_indices = (
+        [args.pytest_shard_index]
+        if args.pytest_shard_index is not None
+        else list(range(args.pytest_shards))
+    )
+    shard_specs = [
+        CommandSpec(
+            _python_cmd(["-m", "pytest", *partitions[index], "-q"]),
+            timeout_seconds=args.full_pytest_timeout_seconds,
+            label=f"pytest-shard-{index}",
+            metadata={
+                "kind": "pytest_shard",
+                "shard_index": index,
+                "shard_count": args.pytest_shards,
+                "test_file_count": len(partitions[index]),
+            },
+        )
+        for index in selected_indices
+    ]
+
+    worker_count = min(args.pytest_shard_workers, len(shard_specs)) if shard_specs else 0
+    results: list[dict[str, Any]] = []
+    if worker_count:
+        with ThreadPoolExecutor(max_workers=worker_count) as executor:
+            futures = [executor.submit(run_command, repo_root, spec, args.max_output_chars) for spec in shard_specs]
+            for future in as_completed(futures):
+                results.append(future.result())
+
+    results.sort(key=lambda result: result["metadata"]["shard_index"])
+    summary = {
+        "enabled": True,
+        "shard_count": args.pytest_shards,
+        "selected_indices": selected_indices,
+        "workers": worker_count,
+        "test_file_count": len(files),
+        "shards": [
+            {
+                "shard_index": result["metadata"]["shard_index"],
+                "shard_count": result["metadata"]["shard_count"],
+                "test_file_count": result["metadata"]["test_file_count"],
+                "command": result["command"],
+                "status": result["status"],
+                "exit_code": result["exit_code"],
+                "timed_out": result["timed_out"],
+                "timeout_seconds": result["timeout_seconds"],
+                "elapsed_seconds": result["elapsed_seconds"],
+            }
+            for result in results
+        ],
+    }
+    return summary, results
 
 
 def discover_integrity_views(repo_root: Path, timeout_seconds: int, max_chars: int) -> tuple[list[str], dict[str, Any]]:
@@ -235,6 +333,8 @@ def build_summary(args: argparse.Namespace) -> dict[str, Any]:
         run_command(repo_root, command, args.max_output_chars)
         for command in build_standard_commands(args)
     ]
+    pytest_shards, pytest_shard_commands = run_pytest_shards(repo_root, args)
+    command_results.extend(pytest_shard_commands)
     integrity_views: list[dict[str, Any]] = []
     if args.integrity_views:
         integrity_views, integrity_commands = run_integrity_views(
@@ -256,6 +356,7 @@ def build_summary(args: argparse.Namespace) -> dict[str, Any]:
         "overall_status": overall_status,
         "commands": command_results,
         "integrity_views": integrity_views,
+        "pytest_shards": pytest_shards,
         "failures": failures,
         "advisory_note": ADVISORY_NOTE,
     }
@@ -294,6 +395,21 @@ def format_markdown(summary: dict[str, Any]) -> str:
             lines.append(f"- `{view['name']}`: {view['status']} (rows={view['row_count']})")
     else:
         lines.append("- not run; pass `--integrity-views` to execute discovered `v_integrity_*` views")
+    lines.extend(["", "## Pytest shards"])
+    pytest_shards = summary["pytest_shards"]
+    if pytest_shards["enabled"]:
+        lines.append(
+            f"- enabled: {pytest_shards['shard_count']} shards, "
+            f"{pytest_shards['workers']} worker(s), {pytest_shards['test_file_count']} test files"
+        )
+        for shard in pytest_shards["shards"]:
+            lines.append(
+                f"- shard {shard['shard_index']}/{shard['shard_count']}: "
+                f"{shard['status']} (files={shard['test_file_count']}, "
+                f"elapsed={shard['elapsed_seconds']}s, timeout={str(shard['timed_out']).lower()})"
+            )
+    else:
+        lines.append("- not run; pass `--full-pytest-sharded --pytest-shards N` to shard full pytest")
     lines.extend(["", "## Advisory note", ADVISORY_NOTE])
     return "\n".join(lines)
 
@@ -303,8 +419,21 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--repo-root", type=Path, help="Optional repo root override")
     parser.add_argument("--json", action="store_true", help="Output JSON instead of Markdown")
     parser.add_argument("--integrity-views", action="store_true", help="Run all discovered v_integrity_* views")
+    parser.add_argument(
+        "--validation-preset",
+        choices=["standard", "docs-only", "full-release"],
+        default="standard",
+        help=(
+            "Preset command bundle. docs-only runs diff/status/diff-scope checks without full pytest by default; "
+            "full-release includes serial full pytest unless sharded full pytest is also requested."
+        ),
+    )
     parser.add_argument("--pytest", action="append", default=[], help="Targeted pytest path or nodeid; may be repeated")
     parser.add_argument("--full-pytest", action="store_true", help="Run full pytest explicitly")
+    parser.add_argument("--full-pytest-sharded", action="store_true", help="Run full pytest as deterministic test-file shards")
+    parser.add_argument("--pytest-shards", type=int, default=1, help="Number of deterministic pytest file shards")
+    parser.add_argument("--pytest-shard-index", type=int, help="Run only one zero-based pytest shard index")
+    parser.add_argument("--pytest-shard-workers", type=int, default=4, help="Maximum parallel workers for pytest shards")
     parser.add_argument("--timeout-seconds", type=int, default=DEFAULT_TIMEOUT_SECONDS)
     parser.add_argument("--full-pytest-timeout-seconds", type=int, default=1800)
     parser.add_argument("--max-output-chars", type=int, default=4000)
@@ -322,6 +451,17 @@ def build_parser() -> argparse.ArgumentParser:
         help="Pass an explicit new canonical result-population write authorization to diff_scope_summary.py",
     )
     parser.add_argument(
+        "--authorized-path",
+        action="append",
+        default=[],
+        metavar="PATH",
+        help="Pass an explicit bounded path authorization to diff_scope_summary.py; requires --authorized-scope",
+    )
+    parser.add_argument(
+        "--authorized-scope",
+        help="Bounded scope passed with --authorized-path to diff_scope_summary.py",
+    )
+    parser.add_argument(
         "--authorized-package",
         help="Optional package id passed to diff_scope_summary.py with canonical write authorization evidence",
     )
@@ -337,6 +477,18 @@ def run(argv: Sequence[str] | None = None) -> int:
         parser.error("--max-output-chars must be positive")
     if args.integrity_max_workers <= 0:
         parser.error("--integrity-max-workers must be positive")
+    if args.pytest_shards <= 0:
+        parser.error("--pytest-shards must be positive")
+    if args.pytest_shard_workers <= 0:
+        parser.error("--pytest-shard-workers must be positive")
+    if args.pytest_shard_index is not None and not 0 <= args.pytest_shard_index < args.pytest_shards:
+        parser.error("--pytest-shard-index must be between 0 and --pytest-shards - 1")
+    if args.pytest_shard_index is not None and not args.full_pytest_sharded:
+        parser.error("--pytest-shard-index requires --full-pytest-sharded")
+    if args.authorized_path and not args.authorized_scope:
+        parser.error("--authorized-path requires --authorized-scope")
+    if args.authorized_scope and not args.authorized_path:
+        parser.error("--authorized-scope requires --authorized-path")
     try:
         summary = build_summary(args)
     except VerifyError as exc:

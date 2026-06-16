@@ -521,6 +521,10 @@ decision records, schemas, validators, or locked baseline documents.
   assessment for shared online OHLCV pattern primitives; recommends a bounded
   shared primitive design package without implementation, Strategy Specs,
   variants, sweeps, results, candidates, probes, or runtime authority.
+- `../architecture/online_ohlcv_primitive_design.md` - docs-only closed
+  primitive design for online OHLCV pattern strategies; defines future
+  session/ORB and candle-shape implementation splits without implementation,
+  canonical evidence, candidate, paper/live, or runtime authority.
 - `../architecture/BTC_PERP_FUTURE_CAPABILITY_BACKLOG.md` - non-authoritative
   BTC perpetual capability inventory for future research-lab, crypto/perp
   feature, execution-realism, and later paper/live planning.

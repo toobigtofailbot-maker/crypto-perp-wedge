@@ -2908,7 +2908,7 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
 
 
 def test_first_canonical_15m_result_population_views_under_first_parent_instances(conn):
-    assert conn.execute("SELECT COUNT(*) FROM result_populations").fetchone()[0] == 6
+    assert conn.execute("SELECT COUNT(*) FROM result_populations").fetchone()[0] == 7
 
     overview = conn.execute(
         """
@@ -3006,6 +3006,17 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
             True,
         ),
         (
+            "RP-3731",
+            "STRAT-SPEC-0005",
+            "VM-0005",
+            "SWEEP-PLAN-0005",
+            8,
+            8,
+            8,
+            "offline_research",
+            True,
+        ),
+        (
             "RP-4492",
             "STRAT-SPEC-0001",
             "VM-0001",
@@ -3053,6 +3064,7 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
     assert lineage == [
         ("RP-2134", "STRAT-SPEC-0001", "VM-0001", "SWEEP-PLAN-0001", True),
         ("RP-2592", "STRAT-SPEC-0004", "VM-0004", "SWEEP-PLAN-0004", True),
+        ("RP-3731", "STRAT-SPEC-0005", "VM-0005", "SWEEP-PLAN-0005", True),
         ("RP-4492", "STRAT-SPEC-0001", "VM-0001", "SWEEP-PLAN-0001", True),
         ("RP-6688", "STRAT-SPEC-0002", "VM-0002", "SWEEP-PLAN-0002", True),
         ("RP-7134", "STRAT-SPEC-0003", "VM-0003", "SWEEP-PLAN-0003", True),
@@ -3061,6 +3073,7 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
     assert denominator == [
         ("RP-2134", 7, 7, 7, True, True, True),
         ("RP-2592", 8, 8, 8, True, True, True),
+        ("RP-3731", 8, 8, 8, True, True, True),
         ("RP-4492", 7, 7, 7, True, True, True),
         ("RP-6688", 10, 10, 10, True, True, True),
         ("RP-7134", 8, 8, 8, True, True, True),
@@ -3069,6 +3082,7 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
     assert counts == [
         ("RP-2134", 7, 0, 0, 0, 0, 0, 0, 0, 0, 7, True),
         ("RP-2592", 8, 0, 0, 0, 0, 0, 0, 0, 0, 8, True),
+        ("RP-3731", 8, 0, 0, 0, 0, 0, 0, 0, 0, 8, True),
         ("RP-4492", 7, 0, 0, 0, 0, 0, 0, 0, 0, 7, True),
         ("RP-6688", 10, 0, 0, 0, 0, 0, 0, 0, 0, 10, True),
         ("RP-7134", 8, 0, 0, 0, 0, 0, 0, 0, 0, 8, True),
@@ -3094,6 +3108,17 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
             "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
             "SWEEP-PLAN-0004",
             "VM-0004",
+        )
+        for index in range(1, 9)
+    ] + [
+        (
+            "RP-3731",
+            f"VAR-{index:06d}",
+            "successful",
+            True,
+            "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+            "SWEEP-PLAN-0005",
+            "VM-0005",
         )
         for index in range(1, 9)
     ] + [
@@ -3159,6 +3184,14 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
             "block_if_missing",
         ),
         (
+            "RP-3731",
+            "binance_usdtm_btcusdt_ohlcv_15m.offline_local.15m.20200101T000000Z.20260411T234500Z.sha256_3daace53d727599b",
+            "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+            "15m",
+            "ohlcv",
+            "block_if_missing",
+        ),
+        (
             "RP-4492",
             "binance_usdtm_btcusdt_ohlcv_15m.offline_local.15m.20200101T000000Z.20260411T234500Z.sha256_3daace53d727599b",
             "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
@@ -3215,6 +3248,17 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
             True,
         ),
         (
+            "RP-3731",
+            "tools.research_runner.run_offline_sweep",
+            0,
+            "offline_research",
+            True,
+            True,
+            True,
+            True,
+            True,
+        ),
+        (
             "RP-4492",
             "tools.research_runner.run_offline_sweep",
             190,
@@ -3262,6 +3306,7 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
     assert non_authority == [
         ("RP-2134", True, True, "reference_only", True),
         ("RP-2592", True, True, "reference_only", True),
+        ("RP-3731", True, True, "reference_only", True),
         ("RP-4492", True, True, "reference_only", True),
         ("RP-6688", True, True, "reference_only", True),
         ("RP-7134", True, True, "reference_only", True),

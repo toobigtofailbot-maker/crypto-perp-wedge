@@ -23,6 +23,9 @@ research/result_populations/RP-7134.result_population.json -text whitespace=blan
 # Preserve the dry-run-attested CRLF byte form for this canonical result population.
 research/result_populations/RP-2592.result_population.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 
+# Preserve the dry-run-attested CRLF byte form for this canonical result population.
+research/result_populations/RP-3731.result_population.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
 # Binary/data artifacts.
 *.parquet binary
 *.png binary

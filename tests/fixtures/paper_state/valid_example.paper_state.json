@@ -1,0 +1,177 @@
+{
+  "schema_version": "paper_state.v1",
+  "paper_state_id": "PAPER-STATE-EXAMPLE-0001",
+  "snapshot_time_utc": "2026-06-16T00:00:00Z",
+  "mode": "example_fixture",
+  "candidate_ref": null,
+  "strategy_ref": {
+    "artifact_type": "strategy_spec",
+    "artifact_id": "STRAT-SPEC-EXAMPLE-0001",
+    "artifact_path": null,
+    "relationship": "fixture_context",
+    "authority_boundary": "fixture_only",
+    "identity_hash": null,
+    "notes": "Fake strategy reference for paper-state fixture shape only."
+  },
+  "data_context": {
+    "market": "crypto_perpetual",
+    "instrument": "BTCUSDT",
+    "primary_timeframe": "15m",
+    "source_commit": null,
+    "data_feed_ref": {
+      "artifact_type": "test_fixture",
+      "artifact_id": "PAPER-STATE-DATA-FIXTURE",
+      "artifact_path": "tests/fixtures/paper_state/valid_example.paper_state.json",
+      "relationship": "fixture_context",
+      "authority_boundary": "fixture_only",
+      "identity_hash": null,
+      "notes": "Fixture-local data context only."
+    },
+    "latest_bar_time_utc": "2026-06-15T23:45:00Z",
+    "data_freshness_status": "fixture_only",
+    "notes": "No external data source is contacted by this fixture."
+  },
+  "expected_state": {
+    "position": {
+      "side": "long",
+      "quantity": 0.01,
+      "average_entry_price": 65000.0,
+      "notional": 650.0,
+      "leverage_intent": 1.0
+    },
+    "source_signal_refs": [
+      {
+        "artifact_type": "signal",
+        "artifact_id": "SIGNAL-EXAMPLE-0001",
+        "artifact_path": null,
+        "relationship": "expected_state_source",
+        "authority_boundary": "fixture_only",
+        "identity_hash": null,
+        "notes": "Fake expected-position source only."
+      }
+    ],
+    "notes": "Expected state is fixture data only."
+  },
+  "observed_state": {
+    "position": {
+      "side": "long",
+      "quantity": 0.01,
+      "average_entry_price": 65000.0,
+      "notional": 650.0
+    },
+    "venue_account_source": "fixture_only",
+    "simulated_or_fixture_only": true,
+    "notes": "Observed state is not venue state."
+  },
+  "orders": [
+    {
+      "order_id": "ORDER-EXAMPLE-0001",
+      "client_order_id": "CLIENT-ORDER-EXAMPLE-0001",
+      "side": "buy",
+      "order_type": "limit",
+      "status": "filled",
+      "quantity": 0.01,
+      "price": 65000.0,
+      "stop_price": null,
+      "reduce_only": false,
+      "post_only": true,
+      "timestamp_utc": "2026-06-15T23:46:00Z",
+      "mode_source": "fixture_only"
+    }
+  ],
+  "fills": [
+    {
+      "fill_id": "FILL-EXAMPLE-0001",
+      "order_id": "ORDER-EXAMPLE-0001",
+      "client_order_id": "CLIENT-ORDER-EXAMPLE-0001",
+      "side": "buy",
+      "quantity": 0.01,
+      "price": 65000.0,
+      "fee": 0.13,
+      "fee_currency": "USDT",
+      "timestamp_utc": "2026-06-15T23:46:01Z",
+      "liquidity_flag": "maker",
+      "simulated": true
+    }
+  ],
+  "account": {
+    "equity": 10000.0,
+    "cash_balance": 9999.87,
+    "margin_used": 650.0,
+    "available_margin": 9349.87,
+    "realized_pnl": 0.0,
+    "unrealized_pnl": 0.0,
+    "funding_accrued": 0.0,
+    "funding_paid": 0.0,
+    "fees_paid": 0.13,
+    "slippage_estimate": 0.0,
+    "currency": "USDT"
+  },
+  "risk_state": {
+    "safe_mode_state": "fixture_only",
+    "no_new_intent": false,
+    "operator_halt": false,
+    "max_position_cap": {
+      "status": "fixture_only",
+      "limit": 1.0,
+      "observed_value": 0.01,
+      "notes": "Fixture value only."
+    },
+    "daily_loss_cap": {
+      "status": "fixture_only",
+      "limit": 250.0,
+      "observed_value": 0.0,
+      "notes": "Fixture value only."
+    },
+    "stale_data_cap": {
+      "status": "fixture_only",
+      "limit": 900.0,
+      "observed_value": 0.0,
+      "notes": "Fixture value only."
+    },
+    "last_heartbeat_utc": "2026-06-16T00:00:00Z",
+    "bar_freshness": {
+      "status": "fixture_only",
+      "last_seen_utc": "2026-06-15T23:45:00Z",
+      "max_age_seconds": 900,
+      "observed_age_seconds": 900,
+      "notes": "Fixture value only."
+    },
+    "signal_freshness": {
+      "status": "fixture_only",
+      "last_seen_utc": "2026-06-15T23:45:10Z",
+      "max_age_seconds": 900,
+      "observed_age_seconds": 890,
+      "notes": "Fixture value only."
+    }
+  },
+  "drift": {
+    "classification": "none",
+    "severity": "info",
+    "reason": null,
+    "evidence_refs": []
+  },
+  "non_authority_declaration": {
+    "not_paper_engine": true,
+    "not_runtime_authority": true,
+    "not_live_authority": true,
+    "not_broker_exchange_authority": true,
+    "not_capital_authority": true,
+    "not_order_execution_authority": true,
+    "not_candidate_promotion_authority": true,
+    "not_trading_recommendation": true,
+    "notes": "This fixture is schema/validator test data only and creates no paper, runtime, order, live, capital, or promotion authority."
+  },
+  "validation_summary": {
+    "fixture_only": true,
+    "real_paper_state_artifact_committed": false,
+    "paper_engine_implemented": false,
+    "reconciliation_engine_implemented": false,
+    "runtime_authority_created": false,
+    "paper_live_authority_created": false,
+    "broker_exchange_authority_created": false,
+    "capital_authority_created": false,
+    "order_execution_authority_created": false,
+    "notes": "Committed example is fake fixture-only data under tests/fixtures."
+  }
+}

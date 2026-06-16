@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 import json
 import math
 from numbers import Integral, Real
@@ -60,6 +61,19 @@ ENTRY_CONDITION_ROLES = {"required", "confirming", "filter"}
 BLOCKING_CONDITION_ROLES = {"blocking"}
 EXIT_CONDITION_ROLES = {"exit", "invalidation"}
 SIDE_LABELS = {"long", "short"}
+ATR_STOP_ENTRY_REFERENCE_PRICE = "next_bar_open_pre_fee_slippage"
+ATR_STOP_EVALUATION_PRICE = "close"
+ATR_STOP_EVALUATION_TIMING = "bar_close"
+ATR_STOP_ALLOWED_KEYS = {
+    "enabled",
+    "atr_lookback",
+    "atr_multiplier",
+    "entry_reference_price",
+    "evaluation_price",
+    "evaluation_timing",
+}
+ATR_STOP_MAX_LOOKBACK_BARS = 100000
+ATR_STOP_MAX_MULTIPLIER = 1000.0
 FORBIDDEN_PAYLOAD_KEYS = {
     "expression",
     "formula",
@@ -113,6 +127,27 @@ class UnsupportedSpecSignalCompilerFeature(SpecSignalCompilerError):
     """Raised for closed grammar features that this first slice does not implement."""
 
 
+@dataclass(frozen=True)
+class _AtrStopConfig:
+    atr_lookback: int
+    atr_multiplier: float
+    atr_series: pd.Series
+
+
+@dataclass(frozen=True)
+class _PendingAtrStopEntry:
+    side: str
+    signal_bar_index: int
+    atr_at_entry: float
+
+
+@dataclass(frozen=True)
+class _AtrStopState:
+    side: str
+    entry_reference_price: float
+    atr_at_entry: float
+
+
 def compile_signal(
     strategy_spec: dict[str, Any],
     variant_assignment: dict[str, Any],
@@ -144,6 +179,7 @@ def compile_signal(
     exit_groups = _collect_groups(strategy_spec.get("exit_logic"))
     max_holding_bars = _max_holding_bars(strategy_spec)
     min_bars_between_entries = _min_bars_between_entries(strategy_spec)
+    atr_stop_config = _atr_stop_config(strategy_spec, context)
 
     if direction == "both":
         return _compile_both_direction_signal(
@@ -154,6 +190,7 @@ def compile_signal(
             exit_groups=exit_groups,
             max_holding_bars=max_holding_bars,
             min_bars_between_entries=min_bars_between_entries,
+            atr_stop_config=atr_stop_config,
         )
 
     position_value = 1.0 if direction == "long" else -1.0
@@ -163,17 +200,34 @@ def compile_signal(
     current_position = 0.0
     held_bars = 0
     last_entry_bar: int | None = None
+    atr_stop_state: _AtrStopState | None = None
+    pending_atr_stop_entry: _PendingAtrStopEntry | None = None
+    side = "long" if direction == "long" else "short"
     for bar_index, timestamp in enumerate(ohlcv.index):
+        block_same_bar_reentry = False
+        if current_position and pending_atr_stop_entry is not None:
+            atr_stop_state = _capture_atr_stop_state(
+                pending_entry=pending_atr_stop_entry,
+                ohlcv=ohlcv,
+                fill_bar_index=bar_index,
+            )
+            pending_atr_stop_entry = None
+
         should_exit = False
         if current_position:
             should_exit = _any_group_true(exit_groups, EXIT_GROUP_ROLES, context, timestamp)
+            if _atr_stop_triggered(atr_stop_config, atr_stop_state, context, timestamp):
+                should_exit = True
             if max_holding_bars is not None and held_bars >= max_holding_bars:
                 should_exit = True
             if should_exit:
                 current_position = 0.0
                 held_bars = 0
+                atr_stop_state = None
+                pending_atr_stop_entry = None
+                block_same_bar_reentry = atr_stop_config is not None
 
-        if not current_position:
+        if not current_position and not block_same_bar_reentry:
             entry_allowed = _entry_allowed(all_entry_groups, context, timestamp)
             if entry_allowed and not _entry_control_allows_entry(
                 bar_index=bar_index,
@@ -185,6 +239,12 @@ def compile_signal(
                 current_position = position_value
                 last_entry_bar = bar_index
                 held_bars = 0
+                pending_atr_stop_entry = _new_pending_atr_stop_entry(
+                    atr_stop_config,
+                    side,
+                    bar_index,
+                    timestamp,
+                )
 
         signal.loc[timestamp] = current_position
         if current_position:
@@ -201,6 +261,7 @@ def _compile_both_direction_signal(
     exit_groups: list[Mapping[str, Any]],
     max_holding_bars: int | None,
     min_bars_between_entries: int | None,
+    atr_stop_config: _AtrStopConfig | None,
 ) -> pd.Series:
     _guard_no_side_labels(filter_groups, "filters.groups")
     entry_groups_by_side = _split_root_side_groups(
@@ -218,7 +279,17 @@ def _compile_both_direction_signal(
     current_side: str | None = None
     held_bars = 0
     last_entry_bar: int | None = None
+    atr_stop_state: _AtrStopState | None = None
+    pending_atr_stop_entry: _PendingAtrStopEntry | None = None
     for bar_index, timestamp in enumerate(ohlcv.index):
+        if current_side is not None and pending_atr_stop_entry is not None:
+            atr_stop_state = _capture_atr_stop_state(
+                pending_entry=pending_atr_stop_entry,
+                ohlcv=ohlcv,
+                fill_bar_index=bar_index,
+            )
+            pending_atr_stop_entry = None
+
         if current_side == "long":
             should_exit = _any_group_true(
                 exit_groups_by_side["long"],
@@ -226,11 +297,15 @@ def _compile_both_direction_signal(
                 context,
                 timestamp,
             )
+            if _atr_stop_triggered(atr_stop_config, atr_stop_state, context, timestamp):
+                should_exit = True
             if max_holding_bars is not None and held_bars >= max_holding_bars:
                 should_exit = True
             if should_exit:
                 current_side = None
                 held_bars = 0
+                atr_stop_state = None
+                pending_atr_stop_entry = None
                 signal.loc[timestamp] = 0.0
                 continue
         elif current_side == "short":
@@ -240,11 +315,15 @@ def _compile_both_direction_signal(
                 context,
                 timestamp,
             )
+            if _atr_stop_triggered(atr_stop_config, atr_stop_state, context, timestamp):
+                should_exit = True
             if max_holding_bars is not None and held_bars >= max_holding_bars:
                 should_exit = True
             if should_exit:
                 current_side = None
                 held_bars = 0
+                atr_stop_state = None
+                pending_atr_stop_entry = None
                 signal.loc[timestamp] = 0.0
                 continue
         else:
@@ -267,6 +346,12 @@ def _compile_both_direction_signal(
                     current_side = "long"
                     last_entry_bar = bar_index
                     held_bars = 0
+                    pending_atr_stop_entry = _new_pending_atr_stop_entry(
+                        atr_stop_config,
+                        "long",
+                        bar_index,
+                        timestamp,
+                    )
             elif short_entry and not long_entry:
                 if _entry_control_allows_entry(
                     bar_index=bar_index,
@@ -276,6 +361,12 @@ def _compile_both_direction_signal(
                     current_side = "short"
                     last_entry_bar = bar_index
                     held_bars = 0
+                    pending_atr_stop_entry = _new_pending_atr_stop_entry(
+                        atr_stop_config,
+                        "short",
+                        bar_index,
+                        timestamp,
+                    )
 
         if current_side == "long":
             signal.loc[timestamp] = 1.0
@@ -472,6 +563,148 @@ def _min_bars_between_entries(strategy_spec: Mapping[str, Any]) -> int | None:
             "entry_controls.min_bars_between_entries requires integer bars in [1, 100000]"
         )
     return int(bars)
+
+
+def _atr_stop_config(
+    strategy_spec: Mapping[str, Any],
+    context: _CompileContext,
+) -> _AtrStopConfig | None:
+    exit_logic = strategy_spec.get("exit_logic", {})
+    if not isinstance(exit_logic, Mapping) or "atr_stop" not in exit_logic:
+        return None
+    atr_stop = exit_logic.get("atr_stop")
+    if not isinstance(atr_stop, Mapping):
+        raise SpecSignalCompilerError("exit_logic.atr_stop must be an object when provided")
+    if set(atr_stop) != ATR_STOP_ALLOWED_KEYS:
+        raise SpecSignalCompilerError(
+            f"exit_logic.atr_stop supports exactly {sorted(ATR_STOP_ALLOWED_KEYS)}"
+        )
+    if atr_stop.get("enabled") is not True:
+        raise SpecSignalCompilerError("exit_logic.atr_stop.enabled must be true when atr_stop is provided")
+    atr_lookback = atr_stop.get("atr_lookback")
+    if (
+        isinstance(atr_lookback, bool)
+        or not isinstance(atr_lookback, Integral)
+        or atr_lookback < 1
+        or atr_lookback > ATR_STOP_MAX_LOOKBACK_BARS
+    ):
+        raise SpecSignalCompilerError(
+            f"exit_logic.atr_stop.atr_lookback requires integer bars in [1, {ATR_STOP_MAX_LOOKBACK_BARS}]"
+        )
+    multiplier = atr_stop.get("atr_multiplier")
+    if isinstance(multiplier, bool) or not isinstance(multiplier, Real):
+        raise SpecSignalCompilerError("exit_logic.atr_stop.atr_multiplier requires a positive finite number")
+    multiplier_float = float(multiplier)
+    if (
+        not math.isfinite(multiplier_float)
+        or multiplier_float <= 0.0
+        or multiplier_float > ATR_STOP_MAX_MULTIPLIER
+    ):
+        raise SpecSignalCompilerError(
+            f"exit_logic.atr_stop.atr_multiplier requires a positive finite number <= {ATR_STOP_MAX_MULTIPLIER:g}"
+        )
+    if atr_stop.get("entry_reference_price") != ATR_STOP_ENTRY_REFERENCE_PRICE:
+        raise SpecSignalCompilerError(
+            "exit_logic.atr_stop.entry_reference_price must be "
+            f"{ATR_STOP_ENTRY_REFERENCE_PRICE!r}"
+        )
+    if atr_stop.get("evaluation_price") != ATR_STOP_EVALUATION_PRICE:
+        raise SpecSignalCompilerError(
+            f"exit_logic.atr_stop.evaluation_price must be {ATR_STOP_EVALUATION_PRICE!r}"
+        )
+    if atr_stop.get("evaluation_timing") != ATR_STOP_EVALUATION_TIMING:
+        raise SpecSignalCompilerError(
+            f"exit_logic.atr_stop.evaluation_timing must be {ATR_STOP_EVALUATION_TIMING!r}"
+        )
+
+    atr_series = _resolve_indicator_ref(
+        {
+            "operand_type": "indicator_ref",
+            "ref": "atr",
+            "field": "value",
+            "timeframe": None,
+            "lookback": {"bars": int(atr_lookback)},
+        },
+        context,
+    )
+    return _AtrStopConfig(
+        atr_lookback=int(atr_lookback),
+        atr_multiplier=multiplier_float,
+        atr_series=atr_series,
+    )
+
+
+def _new_pending_atr_stop_entry(
+    atr_stop_config: _AtrStopConfig | None,
+    side: str,
+    bar_index: int,
+    timestamp: Any,
+) -> _PendingAtrStopEntry | None:
+    if atr_stop_config is None:
+        return None
+    atr_at_entry = _value_at(atr_stop_config.atr_series, timestamp)
+    if _is_null(atr_at_entry):
+        raise SpecSignalCompilerError("exit_logic.atr_stop ATR is not available at entry signal bar")
+    atr_float = float(atr_at_entry)
+    if not math.isfinite(atr_float) or atr_float <= 0.0:
+        raise SpecSignalCompilerError("exit_logic.atr_stop ATR at entry must be positive and finite")
+    return _PendingAtrStopEntry(
+        side=side,
+        signal_bar_index=bar_index,
+        atr_at_entry=atr_float,
+    )
+
+
+def _capture_atr_stop_state(
+    *,
+    pending_entry: _PendingAtrStopEntry,
+    ohlcv: pd.DataFrame,
+    fill_bar_index: int,
+) -> _AtrStopState:
+    if fill_bar_index <= pending_entry.signal_bar_index:
+        raise SpecSignalCompilerError("exit_logic.atr_stop fill bar must follow entry signal bar")
+    entry_reference_price = ohlcv["open"].iloc[fill_bar_index]
+    if _is_null(entry_reference_price):
+        raise SpecSignalCompilerError("exit_logic.atr_stop entry reference price is null at fill bar")
+    entry_reference_float = float(entry_reference_price)
+    if not math.isfinite(entry_reference_float) or entry_reference_float <= 0.0:
+        raise SpecSignalCompilerError(
+            "exit_logic.atr_stop entry reference price must be positive and finite"
+        )
+    return _AtrStopState(
+        side=pending_entry.side,
+        entry_reference_price=entry_reference_float,
+        atr_at_entry=pending_entry.atr_at_entry,
+    )
+
+
+def _atr_stop_triggered(
+    atr_stop_config: _AtrStopConfig | None,
+    atr_stop_state: _AtrStopState | None,
+    context: _CompileContext,
+    timestamp: Any,
+) -> bool:
+    if atr_stop_config is None or atr_stop_state is None:
+        return False
+    close_value = _value_at(context.ohlcv[ATR_STOP_EVALUATION_PRICE], timestamp)
+    if _is_null(close_value):
+        return False
+    close_float = float(close_value)
+    if not math.isfinite(close_float):
+        return False
+    if atr_stop_state.side == "long":
+        stop_level = (
+            atr_stop_state.entry_reference_price
+            - (atr_stop_config.atr_multiplier * atr_stop_state.atr_at_entry)
+        )
+        return close_float <= stop_level
+    if atr_stop_state.side == "short":
+        stop_level = (
+            atr_stop_state.entry_reference_price
+            + (atr_stop_config.atr_multiplier * atr_stop_state.atr_at_entry)
+        )
+        return close_float >= stop_level
+    raise SpecSignalCompilerError(f"unknown ATR-stop side: {atr_stop_state.side!r}")
 
 
 def _entry_control_allows_entry(

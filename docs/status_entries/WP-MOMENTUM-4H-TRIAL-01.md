@@ -44,6 +44,8 @@ modifying `data/` in the trial worktree.
 - Canonical RP ID/path/hash:
   `RP-6236`;
   `research/result_populations/RP-6236.result_population.json`;
+  `sha256:1b8f4ed5199067629e55fea3fcaf5d544168b03fa99af824d98b22582b1772b9`
+- Runner scratch output SHA before repository line-ending normalization:
   `sha256:9ad2b0f0d3134ae0f29f428deb668e8174ed78f502f6a69c88a08cacf678510b`
 - Input identity hash:
   `sha256:47e5b6f90586159bc8da63e181ad8912c889e1bd637fc63dd68d2d1b08065a95`

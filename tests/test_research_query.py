@@ -3125,7 +3125,7 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
 
 
 def test_first_canonical_15m_result_population_views_under_first_parent_instances(conn):
-    assert conn.execute("SELECT COUNT(*) FROM result_populations").fetchone()[0] == 7
+    assert conn.execute("SELECT COUNT(*) FROM result_populations").fetchone()[0] == 8
 
     overview = conn.execute(
         """
@@ -3245,6 +3245,17 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
             True,
         ),
         (
+            "RP-6236",
+            "STRAT-SPEC-0006",
+            "VM-0006",
+            "SWEEP-PLAN-0006",
+            8,
+            8,
+            8,
+            "offline_research",
+            True,
+        ),
+        (
             "RP-6688",
             "STRAT-SPEC-0002",
             "VM-0002",
@@ -3283,6 +3294,7 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
         ("RP-2592", "STRAT-SPEC-0004", "VM-0004", "SWEEP-PLAN-0004", True),
         ("RP-3731", "STRAT-SPEC-0005", "VM-0005", "SWEEP-PLAN-0005", True),
         ("RP-4492", "STRAT-SPEC-0001", "VM-0001", "SWEEP-PLAN-0001", True),
+        ("RP-6236", "STRAT-SPEC-0006", "VM-0006", "SWEEP-PLAN-0006", True),
         ("RP-6688", "STRAT-SPEC-0002", "VM-0002", "SWEEP-PLAN-0002", True),
         ("RP-7134", "STRAT-SPEC-0003", "VM-0003", "SWEEP-PLAN-0003", True),
         ("RP-7520", "STRAT-SPEC-0002", "VM-0002", "SWEEP-PLAN-0002", True),
@@ -3292,6 +3304,7 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
         ("RP-2592", 8, 8, 8, True, True, True),
         ("RP-3731", 8, 8, 8, True, True, True),
         ("RP-4492", 7, 7, 7, True, True, True),
+        ("RP-6236", 8, 8, 8, True, True, True),
         ("RP-6688", 10, 10, 10, True, True, True),
         ("RP-7134", 8, 8, 8, True, True, True),
         ("RP-7520", 10, 10, 10, True, True, True),
@@ -3301,6 +3314,7 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
         ("RP-2592", 8, 0, 0, 0, 0, 0, 0, 0, 0, 8, True),
         ("RP-3731", 8, 0, 0, 0, 0, 0, 0, 0, 0, 8, True),
         ("RP-4492", 7, 0, 0, 0, 0, 0, 0, 0, 0, 7, True),
+        ("RP-6236", 8, 0, 0, 0, 0, 0, 0, 0, 0, 8, True),
         ("RP-6688", 10, 0, 0, 0, 0, 0, 0, 0, 0, 10, True),
         ("RP-7134", 8, 0, 0, 0, 0, 0, 0, 0, 0, 8, True),
         ("RP-7520", 10, 0, 0, 0, 0, 0, 0, 0, 0, 10, True),
@@ -3349,6 +3363,17 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
             "VM-0001",
         )
         for index in range(1, 8)
+    ] + [
+        (
+            "RP-6236",
+            f"VAR-{index:06d}",
+            "successful",
+            True,
+            "binance_usdtm_btcusdt_ohlcv_4h:sha256:4379d2f0fad5e79bfd5576b308d01fb6134b0f5acf04013e73e00ce33ca96b30",
+            "SWEEP-PLAN-0006",
+            "VM-0006",
+        )
+        for index in range(1, 9)
     ] + [
         (
             "RP-6688",
@@ -3413,6 +3438,14 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
             "binance_usdtm_btcusdt_ohlcv_15m.offline_local.15m.20200101T000000Z.20260411T234500Z.sha256_3daace53d727599b",
             "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
             "15m",
+            "ohlcv",
+            "block_if_missing",
+        ),
+        (
+            "RP-6236",
+            "binance_usdtm_btcusdt_ohlcv_4h.derived_offline_resample.4h.20200101T000000Z.20260411T200000Z.sha256_4379d2f0fad5e79b",
+            "binance_usdtm_btcusdt_ohlcv_4h:sha256:4379d2f0fad5e79bfd5576b308d01fb6134b0f5acf04013e73e00ce33ca96b30",
+            "4h",
             "ohlcv",
             "block_if_missing",
         ),
@@ -3487,6 +3520,17 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
             True,
         ),
         (
+            "RP-6236",
+            "tools.research_runner.run_offline_sweep",
+            0,
+            "offline_research",
+            True,
+            True,
+            True,
+            True,
+            True,
+        ),
+        (
             "RP-6688",
             "tools.research_runner.run_offline_sweep",
             190,
@@ -3525,6 +3569,7 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
         ("RP-2592", True, True, "reference_only", True),
         ("RP-3731", True, True, "reference_only", True),
         ("RP-4492", True, True, "reference_only", True),
+        ("RP-6236", True, True, "reference_only", True),
         ("RP-6688", True, True, "reference_only", True),
         ("RP-7134", True, True, "reference_only", True),
         ("RP-7520", True, True, "reference_only", True),

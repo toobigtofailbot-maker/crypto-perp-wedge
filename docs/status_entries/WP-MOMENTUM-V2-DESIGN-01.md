@@ -60,5 +60,7 @@
 - `v_integrity_*` single-process query check: PASS; 55 integrity views clean.
 - `python tools/dev/diff_scope_summary.py --check-forbidden`: PASS; no
   forbidden-path matches.
-- Full pytest: NOT RUN; package changed docs/status files only and required
-  validation did not require full pytest.
+- `python -m pytest --collect-only -q`: PASS; 1457 tests collected.
+- `python -m pytest -q`: TIMED OUT after 20 minutes with no useful buffered
+  failure output before timeout. No code, schema, validator, runtime, or
+  artifact files changed.

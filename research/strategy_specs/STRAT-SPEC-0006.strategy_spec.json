@@ -1,0 +1,537 @@
+{
+  "schema_version": "v1",
+  "strategy_spec_id": "STRAT-SPEC-0006",
+  "title": "Momentum 4h SMA Crossover ATR-Stop Strategy Spec",
+  "short_name": "momentum-4h-sma-crossover-atr-stop-4h-both",
+  "status": "approved_for_variant_planning",
+  "non_execution_declaration": {
+    "human_review_surface_only": true,
+    "not_executable": true,
+    "not_runtime_authority": true,
+    "not_paper_live_authority": true,
+    "not_gate_authority": true,
+    "not_candidate_approval": true,
+    "not_exp_approval": true,
+    "not_sweep_authority": true,
+    "not_ranking_authority": true,
+    "not_recommendation_authority": true,
+    "not_readiness_authority": true,
+    "not_transition_authority": true
+  },
+  "provenance": {
+    "source_type": "research_note",
+    "source_refs": [
+      "docs/research_pipeline/2026-06-momentum_v2_prereg_0005.md",
+      "docs/research_pipeline/2026-06-momentum_v2_trial_0005_result.md",
+      "docs/data/2026-06-binance_usdtm_4h_resampled_catalog_and_slice_identity.md",
+      "docs/research_pipeline/2026-06-momentum_4h_prereg_0006.md",
+      "research/result_populations/RP-3731.result_population.json"
+    ],
+    "prepared_by": "Codex",
+    "created_at": "2026-06-16T00:00:00Z",
+    "updated_at": "2026-06-16T00:00:00Z",
+    "rationale": "4h momentum preregistration draft surface after RP-3731 rejected the exact 15m 0005 population for drawdown and cost, the derived 4h data lineage landed, and the scratch-only 4h premise probe confirmed materially lower trade count and cost/gross versus RP-3731. The 0006 grid rescales 0005 lookback horizons to 4h bars and preserves the 0005 both-direction SMA crossover plus fixed ATR-stop structure without canonical trial authority.",
+    "source_constraints": [
+      "WP-MOMENTUM-4H-PREREG-01 is a user-authorized draft-and-surface package; merge/finalization remains explicit you/Main gate review.",
+      "Reuse STRAT-SPEC-0005 both-direction SMA crossover trend-continuation structure.",
+      "Retain side-specific long and short entry groups with no compiler mirroring.",
+      "Retain side-specific trend confirmation inside entry groups, not shared filters.groups.",
+      "Retain opposite-signal crossover exits beside ATR-stop exits.",
+      "Use primary_timeframe=4h and derived 4h BTCUSDT OHLCV lineage from WP-DATA-RESAMPLE-4H-01.",
+      "Rescale the 0005 15m lookback horizons to 4h bars as fast [2, 3], slow [6, 12], trend [19, 25].",
+      "Use fixed entry_logic.entry_controls.min_bars_between_entries = 16 and do not sweep throttle; on 4h bars this is a 64h bar-count throttle.",
+      "Retain fixed A6 exit_logic.atr_stop with atr_lookback=14 and atr_multiplier=3.0; these literals are not additional search axes.",
+      "The scratch 4h probe used the 0005 bar-count grid directly on 4h bars; it confirms the higher-timeframe cost/trade-count premise, not canonical evidence for the exact 0006 rescaled grid.",
+      "No canonical sweep, result population, candidate registration, promotion, walk-forward, paper/live/runtime, or capital authority is authorized by this artifact.",
+      "Current 4h probe and current 15m RP path model funding as 0.0 / synthetic zero funding; funding must be modeled before any live-viability judgment."
+    ],
+    "unresolved_claims": [
+      "Explicit you/Main gate review is required before any freeze/finalization beyond this reviewable draft surface.",
+      "Future canonical 0006 trial execution remains separately unauthorized and requires a later explicit package.",
+      "Current official offline runner cannot consume 4h through the canonical path; a future runner/data-path capability package or approved execution route is required before canonical 0006 trial.",
+      "Funding is currently synthetic zero funding and must be modeled before any live-viability judgment.",
+      "ATR-stop and 4h rescaled grid effect on profitability, drawdown, and costs is unproven until a future authorized canonical result population is produced."
+    ]
+  },
+  "instruments": {
+    "symbols": [
+      "BTCUSDT"
+    ],
+    "instrument_family": "crypto_perp",
+    "venue_assumption": "Binance USDT-M perpetual",
+    "market_type": "perpetual",
+    "directions_allowed": [
+      "long",
+      "short"
+    ],
+    "leverage_assumption": 1.0,
+    "exchange_constraint_refs": [],
+    "blockers": []
+  },
+  "timeframe_and_data": {
+    "primary_timeframe": "4h",
+    "confirmation_timeframes": [],
+    "host_data_refs": [
+      {
+        "stream": "ohlcv",
+        "timeframe": "4h",
+        "field": "open",
+        "availability": "required"
+      },
+      {
+        "stream": "ohlcv",
+        "timeframe": "4h",
+        "field": "high",
+        "availability": "required"
+      },
+      {
+        "stream": "ohlcv",
+        "timeframe": "4h",
+        "field": "low",
+        "availability": "required"
+      },
+      {
+        "stream": "ohlcv",
+        "timeframe": "4h",
+        "field": "close",
+        "availability": "required"
+      },
+      {
+        "stream": "ohlcv",
+        "timeframe": "4h",
+        "field": "volume",
+        "availability": "required"
+      },
+      {
+        "stream": "indicator_catalog",
+        "timeframe": null,
+        "field": "sma",
+        "availability": "required"
+      },
+      {
+        "stream": "indicator_catalog",
+        "timeframe": null,
+        "field": "atr",
+        "availability": "required"
+      }
+    ],
+    "gap_handling_assumption": "Use derived BTCUSDT 4h OHLCV catalog/slice facts from WP-DATA-RESAMPLE-4H-01, parent 15m D4A lineage, existing research-workbench gap policy, and no interpolation or silent fill.",
+    "missing_data_blockers": []
+  },
+  "entry_logic": {
+    "direction": "both",
+    "entry_controls": {
+      "min_bars_between_entries": 16
+    },
+    "groups": [
+      {
+        "group_id": "ENTRY-GROUP-LONG-SMA-CROSSOVER-0006",
+        "group_role": "required",
+        "logic": "all",
+        "conditions": [
+          {
+            "condition_id": "LONG-FAST-SMA-CROSSES-ABOVE-SLOW-SMA",
+            "condition_role": "required",
+            "left_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "sma",
+              "field": "value",
+              "timeframe": null,
+              "lookback": {
+                "bars_parameter_ref": "fast_lookback_bars"
+              }
+            },
+            "operator": "crosses_above",
+            "right_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "sma",
+              "field": "value",
+              "timeframe": null,
+              "lookback": {
+                "bars_parameter_ref": "slow_lookback_bars"
+              }
+            },
+            "units": null,
+            "notes": "Long entry event when fast SMA crosses above slow SMA."
+          },
+          {
+            "condition_id": "LONG-CLOSE-GT-TREND-SMA",
+            "condition_role": "confirming",
+            "left_operand": {
+              "operand_type": "data_ref",
+              "ref": "close",
+              "field": "close",
+              "timeframe": null,
+              "lookback": null
+            },
+            "operator": "gt",
+            "right_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "sma",
+              "field": "value",
+              "timeframe": null,
+              "lookback": {
+                "bars_parameter_ref": "trend_lookback_bars"
+              }
+            },
+            "units": null,
+            "notes": "Long-side trend confirmation: close must be above SMA(trend_lookback_bars)."
+          }
+        ],
+        "subgroups": [],
+        "notes": "Explicit long-side momentum entry group; trend confirmation is side-specific and not a shared filter.",
+        "side": "long"
+      },
+      {
+        "group_id": "ENTRY-GROUP-SHORT-SMA-CROSSOVER-0006",
+        "group_role": "required",
+        "logic": "all",
+        "conditions": [
+          {
+            "condition_id": "SHORT-FAST-SMA-CROSSES-BELOW-SLOW-SMA",
+            "condition_role": "required",
+            "left_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "sma",
+              "field": "value",
+              "timeframe": null,
+              "lookback": {
+                "bars_parameter_ref": "fast_lookback_bars"
+              }
+            },
+            "operator": "crosses_below",
+            "right_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "sma",
+              "field": "value",
+              "timeframe": null,
+              "lookback": {
+                "bars_parameter_ref": "slow_lookback_bars"
+              }
+            },
+            "units": null,
+            "notes": "Short entry event when fast SMA crosses below slow SMA."
+          },
+          {
+            "condition_id": "SHORT-CLOSE-LT-TREND-SMA",
+            "condition_role": "confirming",
+            "left_operand": {
+              "operand_type": "data_ref",
+              "ref": "close",
+              "field": "close",
+              "timeframe": null,
+              "lookback": null
+            },
+            "operator": "lt",
+            "right_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "sma",
+              "field": "value",
+              "timeframe": null,
+              "lookback": {
+                "bars_parameter_ref": "trend_lookback_bars"
+              }
+            },
+            "units": null,
+            "notes": "Short-side trend confirmation: close must be below SMA(trend_lookback_bars)."
+          }
+        ],
+        "subgroups": [],
+        "notes": "Explicit short-side momentum entry group; trend confirmation is side-specific and not a shared filter.",
+        "side": "short"
+      }
+    ],
+    "notes": "Both-direction SMA crossover continuation entries use side-specific trend confirmation and fixed min_bars_between_entries=16. On 4h bars this is a 64h bar-count throttle; it is fixed and not part of VM axes."
+  },
+  "exit_logic": {
+    "groups": [
+      {
+        "group_id": "EXIT-GROUP-LONG-OPPOSITE-CROSS-0006",
+        "group_role": "exit",
+        "logic": "all",
+        "conditions": [
+          {
+            "condition_id": "LONG-EXIT-FAST-SMA-CROSSES-BELOW-SLOW-SMA",
+            "condition_role": "exit",
+            "left_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "sma",
+              "field": "value",
+              "timeframe": null,
+              "lookback": {
+                "bars_parameter_ref": "fast_lookback_bars"
+              }
+            },
+            "operator": "crosses_below",
+            "right_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "sma",
+              "field": "value",
+              "timeframe": null,
+              "lookback": {
+                "bars_parameter_ref": "slow_lookback_bars"
+              }
+            },
+            "units": null,
+            "notes": "Long exit on opposite bearish SMA crossover."
+          }
+        ],
+        "subgroups": [],
+        "notes": "Explicit long-side opposite-signal invalidation exit.",
+        "side": "long"
+      },
+      {
+        "group_id": "EXIT-GROUP-SHORT-OPPOSITE-CROSS-0006",
+        "group_role": "exit",
+        "logic": "all",
+        "conditions": [
+          {
+            "condition_id": "SHORT-EXIT-FAST-SMA-CROSSES-ABOVE-SLOW-SMA",
+            "condition_role": "exit",
+            "left_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "sma",
+              "field": "value",
+              "timeframe": null,
+              "lookback": {
+                "bars_parameter_ref": "fast_lookback_bars"
+              }
+            },
+            "operator": "crosses_above",
+            "right_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "sma",
+              "field": "value",
+              "timeframe": null,
+              "lookback": {
+                "bars_parameter_ref": "slow_lookback_bars"
+              }
+            },
+            "units": null,
+            "notes": "Short exit on opposite bullish SMA crossover."
+          }
+        ],
+        "subgroups": [],
+        "notes": "Explicit short-side opposite-signal invalidation exit.",
+        "side": "short"
+      }
+    ],
+    "max_holding_period": {
+      "enabled": false,
+      "bars": null
+    },
+    "notes": "Side-specific opposite-crossover exits are retained; fixed A6 ATR-stop is additive beside those exits. ATR-stop uses next-bar-open pre-fee/slippage entry reference, close evaluation at bar close, and ATR frozen from the entry signal bar. No intrabar stop touch, stop order, target, trailing stop, or max holding period is modeled.",
+    "atr_stop": {
+      "enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "entry_reference_price": "next_bar_open_pre_fee_slippage",
+      "evaluation_price": "close",
+      "evaluation_timing": "bar_close"
+    }
+  },
+  "risk_model": {
+    "sizing_intent": "review_only",
+    "exposure_limits": [
+      "Future comparable offline run is expected to use dynamic_equity_target_leverage at target_leverage 1.0 unless a later package explicitly changes the measurement model.",
+      "ATR-stop is an offline research exit signal only and creates no runtime stop order, OMS instruction, exchange order, or paper/live risk authority.",
+      "4h preregistration creates no paper/live/runtime/capital authority and no candidate or walk-forward authority."
+    ],
+    "stop_distance": "Fixed A6 ATR stop: long stop = entry_ref - 3.0 * ATR(14) from entry signal bar; short stop = entry_ref + 3.0 * ATR(14) from entry signal bar; evaluated on close at bar close.",
+    "target_distance": null,
+    "leverage_visibility": "Dynamic equity target leverage 1.0 is a future offline-run assumption only, inherited from the RP-3731/RP-7520 comparison posture; funding is currently synthetic zero funding.",
+    "liquidation_sensitivity_notes": "Uses existing locked zero-equity liquidation realism declaration; no runtime or execution risk authority is created."
+  },
+  "filters": {
+    "groups": [],
+    "none_declared": true
+  },
+  "free_parameters": {
+    "max_free_parameters": 5,
+    "counting_rule": "parameters contains only entries where is_free_parameter=true; maxItems 5 enforces the D2-006-style MVP free-parameter cap",
+    "parameters": [
+      {
+        "name": "fast_lookback_bars",
+        "label": "Fast SMA lookback bars",
+        "description": "Integer lookback bound into fast sma lookback bars.",
+        "type": "integer",
+        "units": "bars",
+        "default": 2,
+        "range": {
+          "min": 2,
+          "max": 3,
+          "step": 1,
+          "inclusive_min": true,
+          "inclusive_max": true
+        },
+        "allowed_values": [
+          2,
+          3
+        ],
+        "is_free_parameter": true,
+        "included_in_variant_generation": true,
+        "role": "entry",
+        "rationale": "Rescaled from 0005 fast [20, 50] 15m bars, about [5h, 12.5h], to approximately [2, 3] 4h bars.",
+        "constraints": [
+          "Must remain integer and bind only to indicator_ref.lookback via bars_parameter_ref.",
+          "Must be less than slow_lookback_bars for every committed variant."
+        ]
+      },
+      {
+        "name": "slow_lookback_bars",
+        "label": "Slow SMA lookback bars",
+        "description": "Integer lookback bound into slow sma lookback bars.",
+        "type": "integer",
+        "units": "bars",
+        "default": 6,
+        "range": {
+          "min": 6,
+          "max": 12,
+          "step": 6,
+          "inclusive_min": true,
+          "inclusive_max": true
+        },
+        "allowed_values": [
+          6,
+          12
+        ],
+        "is_free_parameter": true,
+        "included_in_variant_generation": true,
+        "role": "entry",
+        "rationale": "Rescaled from 0005 slow [100, 200] 15m bars, about [25h, 50h], to approximately [6, 12] 4h bars.",
+        "constraints": [
+          "Must remain integer and bind only to indicator_ref.lookback via bars_parameter_ref.",
+          "Must be greater than fast_lookback_bars and less than trend_lookback_bars for every committed variant."
+        ]
+      },
+      {
+        "name": "trend_lookback_bars",
+        "label": "Trend SMA lookback bars",
+        "description": "Integer lookback bound into trend sma lookback bars.",
+        "type": "integer",
+        "units": "bars",
+        "default": 19,
+        "range": {
+          "min": 19,
+          "max": 25,
+          "step": 6,
+          "inclusive_min": true,
+          "inclusive_max": true
+        },
+        "allowed_values": [
+          19,
+          25
+        ],
+        "is_free_parameter": true,
+        "included_in_variant_generation": true,
+        "role": "filter",
+        "rationale": "Rescaled from 0005 trend [300, 400] 15m bars, about [75h, 100h], to approximately [19, 25] 4h bars.",
+        "constraints": [
+          "Must remain integer and bind only to indicator_ref.lookback via bars_parameter_ref.",
+          "Must be greater than slow_lookback_bars for every committed variant."
+        ]
+      }
+    ],
+    "no_free_parameters_declared": false
+  },
+  "constraints": {
+    "invalid_parameter_combinations": [],
+    "unavailable_data_blockers": [],
+    "deferred_pattern_blockers": [
+      "No z-score or centerline fade/reversion target.",
+      "No regime gate or shared both-direction trend filter.",
+      "No fixed stop-loss, trailing stop, target distance, max_holding_period, or intrabar/fill-realism stop consumption.",
+      "No slope, breakout channel, rolling high-low, expression language, or new operators.",
+      "No VM-row sweep binding for entry_controls.min_bars_between_entries or ATR-stop literals in this preregistration artifact.",
+      "No 4h-probe winner selection, post-hoc narrowing, canonical sweep, or result population is authorized by this Strategy Spec artifact.",
+      "No current official canonical runner/data-path support for 4h is granted here; future 4h trial execution requires a separate package or approved execution route."
+    ],
+    "none_declared": false
+  },
+  "review": {
+    "human_review_required": true,
+    "reviewer": "you/Main via PR review",
+    "reviewed_at": "2026-06-16T00:00:00Z",
+    "review_notes": [
+      "Surfaced for ready-for-review PR under WP-MOMENTUM-4H-PREREG-01; merge/finalization remains explicit you/Main gate review.",
+      "This planning status is not candidate approval, sweep authority, canonical evidence, walk-forward authority, or runtime authority.",
+      "Future canonical 0006 trial execution remains separately unauthorized.",
+      "Current official offline runner cannot consume 4h through the canonical path; a future runner/data-path capability package or approved execution route is required before canonical trial."
+    ],
+    "approval_scope": "variant_planning_only",
+    "non_authority_acknowledgement": {
+      "not_candidate_approval": true,
+      "not_exp_approval": true,
+      "not_sweep_authority": true,
+      "not_ranking_authority": true,
+      "not_recommendation_authority": true,
+      "not_readiness_authority": true,
+      "not_transition_authority": true,
+      "not_runtime_authority": true,
+      "not_paper_live_authority": true,
+      "not_gate_satisfaction": true
+    }
+  },
+  "lineage": {
+    "parent_refs": [
+      {
+        "ref_type": "prior_strategy_spec",
+        "ref_id": "STRAT-SPEC-0005",
+        "ref_path": "research/strategy_specs/STRAT-SPEC-0005.strategy_spec.json",
+        "ref_hash": "sha256:9a20e64f83e6cbe2360e3be715ad273f2c851aacb6da99fa27d802ee29588141"
+      },
+      {
+        "ref_type": "research_note",
+        "ref_id": "WP-MOMENTUM-V2-TRIAL-01",
+        "ref_path": "docs/research_pipeline/2026-06-momentum_v2_trial_0005_result.md",
+        "ref_hash": null
+      },
+      {
+        "ref_type": "research_note",
+        "ref_id": "WP-DATA-RESAMPLE-4H-01",
+        "ref_path": "docs/data/2026-06-binance_usdtm_4h_resampled_catalog_and_slice_identity.md",
+        "ref_hash": null
+      },
+      {
+        "ref_type": "manual_review",
+        "ref_id": "WP-MOMENTUM-4H-PREREG-01",
+        "ref_path": null,
+        "ref_hash": null
+      }
+    ],
+    "supersedes": [],
+    "amendment_of": null
+  },
+  "hash_pinning": {
+    "canonical_spec_hash": "sha256:5fdbe3fae68ca55274367fd18bffc3f0ed508644ecf92fe7f910cc10ad121b41",
+    "hash_algorithm": "sha256",
+    "hash_scope_version": "strategy_spec_hash_scope_v1",
+    "hash_scope": [
+      "identity",
+      "strategy_body",
+      "free_parameters",
+      "constraints",
+      "assumptions"
+    ],
+    "hash_status": "computed"
+  },
+  "pre_registration_support": {
+    "intended_for_variant_manifest": true,
+    "variant_manifest_ref": "VM-0006",
+    "frozen_snapshot_ref": null
+  },
+  "backtest_realism_assumptions": {
+    "fee_side_assumption": "taker_entry_taker_exit",
+    "exchange_constraints_disclosed": true,
+    "funding_notional_mode": "entry_price",
+    "slippage_model": "fixed_bps",
+    "fill_mode": "complete",
+    "order_size_assumption": "future offline runner assumption: dynamic_equity_target_leverage at target_leverage=1.0; current 4h and 15m RP paths model funding as 0.0 / synthetic zero funding; no run in this draft-and-surface package",
+    "liquidity_capacity_assumption": "not active in this prereg parent artifact",
+    "liquidation_mode": "zero_equity",
+    "maintenance_margin_assumption": null,
+    "mark_price_source": "close",
+    "bar_path_assumption": "next_open_close_mark"
+  },
+  "max_condition_group_depth": 3
+}

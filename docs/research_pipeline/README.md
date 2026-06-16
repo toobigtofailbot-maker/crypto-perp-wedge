@@ -517,6 +517,10 @@ decision records, schemas, validators, or locked baseline documents.
   non-authoritative parameter lock for three online-derived BTCUSDT OHLCV
   hypothesis envelopes; creates no Strategy Spec, variant, sweep, result,
   candidate, implementation, paper/live, runtime, or capital authority.
+- `2026-06-online_ohlcv_primitive_feasibility.md` - docs-only feasibility
+  assessment for shared online OHLCV pattern primitives; recommends a bounded
+  shared primitive design package without implementation, Strategy Specs,
+  variants, sweeps, results, candidates, probes, or runtime authority.
 - `../architecture/BTC_PERP_FUTURE_CAPABILITY_BACKLOG.md` - non-authoritative
   BTC perpetual capability inventory for future research-lab, crypto/perp
   feature, execution-realism, and later paper/live planning.

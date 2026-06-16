@@ -9,6 +9,7 @@ from jsonschema import Draft7Validator
 from tools.registry.validate_candidate_registry import (
     CANDIDATE_LIFECYCLE_REGISTRY_SCHEMA_PATH,
     DEFAULT_CANDIDATE_REGISTRY_FIXTURE_DIR,
+    REPO_ROOT,
     validate_candidate_registries,
 )
 
@@ -52,6 +53,7 @@ def _evidence_ref(artifact_type: str, artifact_id: str = "FIXTURE-EVIDENCE") -> 
 def _event(
     *,
     event_id: str,
+    candidate_id: str = "CANDIDATE-EXAMPLE-0001",
     event_sequence: int,
     event_type: str,
     timestamp_utc: str,
@@ -62,7 +64,7 @@ def _event(
     return {
         "event_id": event_id,
         "event_sequence": event_sequence,
-        "candidate_id": "CANDIDATE-EXAMPLE-0001",
+        "candidate_id": candidate_id,
         "event_type": event_type,
         "timestamp_utc": timestamp_utc,
         "actor": "pytest fixture",
@@ -92,6 +94,22 @@ def _set_events(payload: dict, events: list[dict], candidate_status: str) -> Non
     candidate["lifecycle_event_refs"] = [event["event_id"] for event in events]
 
 
+def _rewrite_candidate_identity(payload: dict, candidate_id: str, event_prefix: str) -> None:
+    candidate = payload["candidates"][0]
+    old_candidate_id = candidate["candidate_id"]
+    event_ids_by_old_id = {
+        event["event_id"]: f"{event_prefix}-{event['event_sequence']:04d}"
+        for event in payload["append_only_ledger"]
+    }
+    candidate["candidate_id"] = candidate_id
+    candidate["lifecycle_event_refs"] = [
+        event_ids_by_old_id[event_id] for event_id in candidate["lifecycle_event_refs"]
+    ]
+    for event in payload["append_only_ledger"]:
+        event["candidate_id"] = candidate_id if event["candidate_id"] == old_candidate_id else event["candidate_id"]
+        event["event_id"] = event_ids_by_old_id[event["event_id"]]
+
+
 def test_candidate_lifecycle_registry_schema_meta_valid():
     Draft7Validator.check_schema(_load_schema())
 
@@ -100,6 +118,68 @@ def test_valid_example_fixture_passes():
     errors = validate_candidate_registries()
 
     assert errors == []
+
+
+def test_real_shaped_non_authoritative_registry_payload_passes(tmp_path):
+    payload = _valid_registry()
+    payload["registry_id"] = "CANDIDATE-REGISTRY-0001"
+    payload["registry_status"] = "candidate_review"
+    payload["validation_summary"]["fixture_only"] = False
+    payload["validation_summary"]["real_candidate_registered"] = True
+    payload["validation_summary"]["notes"] = "Temp real-shaped registry payload for validator coverage only."
+    _rewrite_candidate_identity(payload, "CANDIDATE-0001", "CLE")
+    payload["non_authority_declaration"]["notes"] = "Temp real-shaped registry creates no authority."
+    payload["candidates"][0]["non_authority_declaration"]["notes"] = (
+        "Temp real-shaped candidate record creates no approval or authority."
+    )
+    registry_dir = tmp_path / "candidate_lifecycle_registry"
+    _write_registry(registry_dir, payload)
+
+    errors = validate_candidate_registries(registry_dir=registry_dir)
+
+    assert errors == []
+
+
+def test_real_unpopulated_registry_payload_passes(tmp_path):
+    payload = _valid_registry()
+    payload["registry_id"] = "CANDIDATE-REGISTRY-0002"
+    payload["registry_status"] = "unpopulated"
+    payload["candidates"] = []
+    payload["append_only_ledger"] = []
+    payload["validation_summary"]["fixture_only"] = False
+    payload["validation_summary"]["real_candidate_registered"] = False
+    payload["validation_summary"]["notes"] = "Temp empty real registry payload for validator coverage only."
+    registry_dir = tmp_path / "candidate_lifecycle_registry"
+    _write_registry(registry_dir, payload)
+
+    errors = validate_candidate_registries(registry_dir=registry_dir)
+
+    assert errors == []
+
+
+def test_fake_fixture_identifier_family_remains_allowed(tmp_path):
+    payload = _valid_registry()
+    payload["registry_id"] = "CANDIDATE-REGISTRY-FIXTURE-0001"
+    payload["registry_status"] = "test_fixture"
+    _rewrite_candidate_identity(payload, "CANDIDATE-FIXTURE-0001", "CLE-FIXTURE")
+    registry_dir = tmp_path / "candidate_lifecycle_registry"
+    _write_registry(registry_dir, payload)
+
+    errors = validate_candidate_registries(registry_dir=registry_dir)
+
+    assert errors == []
+
+
+def test_no_real_candidate_lifecycle_registry_artifact_committed():
+    research_registry_dir = REPO_ROOT / "research" / "candidate_lifecycle_registry"
+    committed_registry_artifacts = sorted(
+        path
+        for path in (REPO_ROOT / "research").rglob("*.candidate_lifecycle_registry.json")
+        if "schemas" not in path.parts
+    )
+
+    assert not research_registry_dir.exists()
+    assert committed_registry_artifacts == []
 
 
 def test_invalid_state_rejected(tmp_path):
@@ -162,7 +242,7 @@ def test_missing_rejection_evidence_link_rejected(tmp_path):
     assert any("rejected event CLE-EXAMPLE-0003 requires evidence links" in error for error in errors)
 
 
-def test_promotion_without_paper_evidence_rejected(tmp_path):
+def test_promotion_without_paper_live_evidence_rejected(tmp_path):
     payload = _valid_registry()
     events = [
         _event(
@@ -208,7 +288,7 @@ def test_promotion_without_paper_evidence_rejected(tmp_path):
             timestamp_utc="2026-06-16T00:04:00Z",
             from_status="paper_running",
             to_status="promoted_live",
-            related_evidence_links=[_evidence_ref("live_approval", "LIVE-APPROVAL-EXAMPLE")],
+            related_evidence_links=[],
         ),
     ]
     _set_events(payload, events, "promoted_live")
@@ -218,6 +298,7 @@ def test_promotion_without_paper_evidence_rejected(tmp_path):
     errors = validate_candidate_registries(registry_dir=registry_dir)
 
     assert any("requires paper_shadow evidence" in error for error in errors)
+    assert any("requires live_approval evidence" in error for error in errors)
 
 
 def test_terminal_rejected_and_promoted_conflict_rejected(tmp_path):
@@ -332,4 +413,4 @@ def test_cli_module_invocation_works(tmp_path):
     )
 
     assert result.returncode == 0, result.stdout + result.stderr
-    assert "OK: candidate lifecycle registry fixtures" in result.stdout
+    assert "OK: candidate lifecycle registry artifacts" in result.stdout

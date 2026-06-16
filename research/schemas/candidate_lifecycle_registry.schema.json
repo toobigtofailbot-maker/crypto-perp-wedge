@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://crypto-perp-wedge.local/research/schemas/candidate_lifecycle_registry.schema.json",
   "title": "Candidate Lifecycle Registry",
-  "description": "Fixture-safe candidate lifecycle registry shape. This schema defines review/evidence records only and creates no runtime, paper/live, capital, broker, exchange, OMS, reconciliation, risk, promotion, or trading authority.",
+  "description": "Candidate lifecycle registry shape. This schema defines review/evidence records only and creates no runtime, paper/live, capital, broker, exchange, OMS, reconciliation, risk, promotion, or trading authority.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -22,11 +22,11 @@
     },
     "registry_id": {
       "type": "string",
-      "pattern": "^CANDIDATE-REGISTRY-(EXAMPLE|FIXTURE)-[0-9]{4}$"
+      "pattern": "^CANDIDATE-REGISTRY-(EXAMPLE-|FIXTURE-)?[0-9]{4}$"
     },
     "registry_status": {
       "type": "string",
-      "enum": ["example_fixture", "test_fixture"]
+      "enum": ["example_fixture", "test_fixture", "unpopulated", "candidate_review", "archived"]
     },
     "non_authority_declaration": {
       "$ref": "#/definitions/non_authority_declaration"
@@ -90,8 +90,8 @@
         "capital_authority_created"
       ],
       "properties": {
-        "fixture_only": { "type": "boolean", "const": true },
-        "real_candidate_registered": { "type": "boolean", "const": false },
+        "fixture_only": { "type": "boolean" },
+        "real_candidate_registered": { "type": "boolean" },
         "lifecycle_engine_implemented": { "type": "boolean", "const": false },
         "paper_live_authority_created": { "type": "boolean", "const": false },
         "runtime_authority_created": { "type": "boolean", "const": false },
@@ -286,7 +286,7 @@
       "properties": {
         "candidate_id": {
           "type": "string",
-          "pattern": "^CANDIDATE-EXAMPLE-[0-9]{4}$"
+          "pattern": "^(CANDIDATE-(EXAMPLE-|FIXTURE-)?[0-9]{4}|H-[0-9]{3})$"
         },
         "candidate_status": { "$ref": "#/definitions/candidate_status" },
         "display_name": {
@@ -356,7 +356,7 @@
           "type": "array",
           "items": {
             "type": "string",
-            "pattern": "^CLE-EXAMPLE-[0-9]{4}$"
+            "pattern": "^CLE-(EXAMPLE-|FIXTURE-)?[0-9]{4}$"
           },
           "uniqueItems": true
         },
@@ -393,7 +393,7 @@
       "properties": {
         "event_id": {
           "type": "string",
-          "pattern": "^CLE-EXAMPLE-[0-9]{4}$"
+          "pattern": "^CLE-(EXAMPLE-|FIXTURE-)?[0-9]{4}$"
         },
         "event_sequence": {
           "type": "integer",
@@ -401,7 +401,7 @@
         },
         "candidate_id": {
           "type": "string",
-          "pattern": "^CANDIDATE-EXAMPLE-[0-9]{4}$"
+          "pattern": "^(CANDIDATE-(EXAMPLE-|FIXTURE-)?[0-9]{4}|H-[0-9]{3})$"
         },
         "event_type": {
           "type": "string",

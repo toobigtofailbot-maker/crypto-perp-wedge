@@ -1,4 +1,4 @@
-"""Validate candidate lifecycle registry fixture artifacts."""
+"""Validate candidate lifecycle registry artifacts."""
 
 from __future__ import annotations
 
@@ -237,7 +237,7 @@ def validate_candidate_registries(
     registry_dir: Path = DEFAULT_CANDIDATE_REGISTRY_FIXTURE_DIR,
     schema_path: Path = CANDIDATE_LIFECYCLE_REGISTRY_SCHEMA_PATH,
 ) -> list[str]:
-    """Return validation errors for candidate lifecycle registry fixtures."""
+    """Return validation errors for candidate lifecycle registry artifacts."""
 
     if not schema_path.exists():
         return [f"schema file not found: {schema_path}"]
@@ -278,7 +278,7 @@ def main() -> int:
     if not args.registry_dir.exists():
         print(f"OK: {args.registry_dir} does not exist; nothing to validate")
     else:
-        print(f"OK: candidate lifecycle registry fixtures under {args.registry_dir} validate")
+        print(f"OK: candidate lifecycle registry artifacts under {args.registry_dir} validate")
     return 0
 
 

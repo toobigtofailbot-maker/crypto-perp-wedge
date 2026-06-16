@@ -14,11 +14,20 @@
   - `tests/fixtures/candidate_lifecycle_registry/valid_example.candidate_lifecycle_registry.json`
   - `tests/test_validate_candidate_registry.py`
   - `docs/status_entries/WP-CHASSIS-CANDIDATE-REGISTRY-SCHEMA-01.md`
-- Schema summary: Defines a fixture-safe top-level registry with
+- Schema summary: Defines a real-capable top-level registry with
   `schema_version`, `registry_id`, `registry_status`,
   `non_authority_declaration`, `transition_rules`, `candidates`,
   `append_only_ledger`, and `validation_summary`.
-- Candidate fields: Includes fake-only candidate IDs, lifecycle status,
+- Real-capable correction: The lifecycle schema now accepts real-shaped
+  registry IDs (`CANDIDATE-REGISTRY-0001`), registry statuses
+  (`unpopulated`, `candidate_review`, `archived`), candidate IDs
+  (`CANDIDATE-0001` and `H-001` style), and lifecycle event IDs
+  (`CLE-0001`) while preserving example/fixture identifiers for tests.
+- Validation summary correction: `fixture_only` and
+  `real_candidate_registered` are schema booleans rather than fixture-only
+  constants; paper/live, runtime, lifecycle-engine, and capital authority
+  fields remain hard-false.
+- Candidate fields: Includes real-capable candidate IDs, lifecycle status,
   strategy family, description, BTCUSDT market/timeframe metadata, source refs,
   evidence links, lifecycle event refs, review metadata, blocking/next-review
   fields, and required non-authority declarations.
@@ -34,14 +43,18 @@
 - Audit events: Defines append-only event shape with event ID, sequence,
   candidate ID, event type, timestamp, actor, gate, from/to status, reason,
   related evidence, exception/blocking refs, and non-authority declaration.
-- Validator behavior: Loads the schema, validates fixture registry JSON files,
+- Validator behavior: Loads the schema, validates candidate lifecycle registry
+  JSON files,
   rejects duplicate candidate/event IDs, unknown lifecycle event refs, invalid
   transition order, incoherent event sequence/timestamps, status-history
   mismatches, promotion without paper/live evidence, demotion/rejection without
-  evidence, and false non-authority flags.
+  evidence, and false non-authority flags. It remains validation-only and does
+  not implement a lifecycle engine.
 - Example status: The only committed registry instance is a test fixture under
   `tests/fixtures/candidate_lifecycle_registry/` using fake IDs such as
   `CANDIDATE-EXAMPLE-0001`, `STRAT-SPEC-EXAMPLE`, and `RP-EXAMPLE`.
+- Candidate-registration status: No real candidate is registered and no real
+  candidate lifecycle registry artifact is committed under `research/`.
 - Boundary summary: No real candidate is registered; no canonical
   `research/candidate_registry/` artifact is created; no lifecycle transition
   engine is implemented; no Strategy Spec, Variant Manifest, Sweep Plan, result

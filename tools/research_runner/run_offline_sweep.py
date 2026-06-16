@@ -56,6 +56,33 @@ RUNNER_CODE_REF = "tools.research_runner.run_offline_sweep"
 FIXED_AUDIT_TIMESTAMP = "2026-06-01T00:00:00Z"
 CANONICAL_15M_DATA_CATALOG_REF = "15m_ohlcv_test_fixture_offline_only"
 D4_PROVENANCE_MODE_NOTE = "provenance_mode=d4_catalog_slice"
+D4H_PROVENANCE_MODE_NOTE = "provenance_mode=d4h_derived_catalog_slice"
+DEFAULT_4H_CATALOG_SLICE_PATH = (
+    REPO_ROOT
+    / "research"
+    / "data_slices"
+    / "binance_usdtm_btcusdt_4h"
+    / "binance_usdtm_btcusdt_4h_20200101_20260411.catalog_slice.json"
+)
+DEFAULT_4H_VALIDATION_REPORT_PATH = (
+    REPO_ROOT
+    / "research"
+    / "data_slices"
+    / "binance_usdtm_btcusdt_4h"
+    / "binance_usdtm_btcusdt_4h_20200101_20260411.validation_report.json"
+)
+DEFAULT_4H_DERIVATION_REPORT_PATH = (
+    REPO_ROOT
+    / "research"
+    / "data_slices"
+    / "binance_usdtm_btcusdt_4h"
+    / "binance_usdtm_btcusdt_4h_20200101_20260411.derivation_report.json"
+)
+OFFICIAL_4H_DATA_SLICE_IDENTITY = (
+    "binance_usdtm_btcusdt_ohlcv_4h:sha256:"
+    "4379d2f0fad5e79bfd5576b308d01fb6134b0f5acf04013e73e00ce33ca96b30"
+)
+OFFICIAL_4H_ROW_COUNT = 13_758
 INITIAL_EQUITY = 10_000.0
 DEFAULT_TARGET_LEVERAGE = 1.0
 DEFAULT_MAX_WORKERS = 1
@@ -464,28 +491,54 @@ def _run_synthetic_backtest(
     )
 
 
-def _load_15m_ohlcv_input(path: Path) -> pd.DataFrame:
+def _load_ohlcv_input(
+    path: Path,
+    *,
+    timeframe: str,
+    expected_delta: pd.Timedelta,
+    min_rows: int,
+) -> pd.DataFrame:
     if not path.exists():
-        raise OfflineSweepError(f"15m OHLCV input does not exist: {path}")
+        raise OfflineSweepError(f"{timeframe} OHLCV input does not exist: {path}")
     if path.suffix.lower() != ".csv":
-        raise OfflineSweepError("canonical 15m OHLCV input must be a CSV fixture/input")
+        raise OfflineSweepError(f"canonical {timeframe} OHLCV input must be a CSV fixture/input")
     frame = pd.read_csv(path)
     timestamp = _select_ohlcv_timestamp(frame)
     required_columns = {"open", "high", "low", "close", "volume"}
     missing = required_columns - set(frame.columns)
     if missing:
-        raise OfflineSweepError(f"15m OHLCV input missing columns: {sorted(missing)}")
+        raise OfflineSweepError(f"{timeframe} OHLCV input missing columns: {sorted(missing)}")
     frame["timestamp"] = timestamp
     frame = frame.set_index("timestamp").sort_index()
     frame = frame[["open", "high", "low", "close", "volume"]].astype(float)
     if frame.index.has_duplicates:
-        raise OfflineSweepError("15m OHLCV input must have no duplicate timestamps")
-    if len(frame.index) < 20:
-        raise OfflineSweepError("15m OHLCV input must contain at least 20 rows for SMA(20)")
+        raise OfflineSweepError(f"{timeframe} OHLCV input must have no duplicate timestamps")
+    if len(frame.index) < min_rows:
+        raise OfflineSweepError(
+            f"{timeframe} OHLCV input must contain at least {min_rows} rows"
+        )
     deltas = frame.index.to_series().diff().dropna().unique()
-    if len(deltas) != 1 or deltas[0] != pd.Timedelta(minutes=15):
-        raise OfflineSweepError("canonical OHLCV input must be exactly 15m-spaced")
+    if len(deltas) != 1 or deltas[0] != expected_delta:
+        raise OfflineSweepError(f"canonical OHLCV input must be exactly {timeframe}-spaced")
     return frame
+
+
+def _load_15m_ohlcv_input(path: Path) -> pd.DataFrame:
+    return _load_ohlcv_input(
+        path,
+        timeframe="15m",
+        expected_delta=pd.Timedelta(minutes=15),
+        min_rows=20,
+    )
+
+
+def _load_4h_ohlcv_input(path: Path) -> pd.DataFrame:
+    return _load_ohlcv_input(
+        path,
+        timeframe="4h",
+        expected_delta=pd.Timedelta(hours=4),
+        min_rows=20,
+    )
 
 
 def _parse_ohlcv_timestamp_series(frame: pd.DataFrame, column: str) -> pd.Series:
@@ -668,6 +721,18 @@ def _required_list(payload: dict[str, Any], dotted_path: str) -> list[Any]:
     return value
 
 
+def _require_path_exists(path: Path, flag_name: str) -> None:
+    if not path.exists():
+        raise OfflineSweepError(f"{flag_name} does not exist: {path}")
+
+
+def _parse_metadata_timestamp(value: str, label: str) -> pd.Timestamp:
+    parsed = pd.to_datetime(value, utc=True, errors="coerce")
+    if pd.isna(parsed):
+        raise OfflineSweepError(f"invalid metadata timestamp: {label}")
+    return pd.Timestamp(parsed)
+
+
 def _d4_catalog_execution_input(
     ohlcv_input_path: Path | None,
     d4_catalog_slice_path: Path | None,
@@ -761,6 +826,143 @@ def _d4_catalog_execution_input(
     )
 
 
+def _canonical_4h_execution_input(
+    ohlcv_input_path: Path | None,
+    d4h_catalog_slice_path: Path | None,
+    d4h_validation_report_path: Path | None,
+    d4h_derivation_report_path: Path | None,
+) -> _ExecutionInput:
+    if ohlcv_input_path is None:
+        raise OfflineSweepError("--ohlcv-input is required with --canonical-4h")
+    catalog_path = d4h_catalog_slice_path or DEFAULT_4H_CATALOG_SLICE_PATH
+    validation_path = d4h_validation_report_path or DEFAULT_4H_VALIDATION_REPORT_PATH
+    derivation_path = d4h_derivation_report_path or DEFAULT_4H_DERIVATION_REPORT_PATH
+    _require_path_exists(catalog_path, "--d4h-catalog-slice")
+    _require_path_exists(validation_path, "--d4h-validation-report")
+    _require_path_exists(derivation_path, "--d4h-derivation-report")
+
+    catalog = _load_json(catalog_path)
+    validation_report = _load_json(validation_path)
+    derivation_report = _load_json(derivation_path)
+
+    catalog_ref = _required_non_empty_string(catalog, "catalog_ref")
+    data_slice_identity = _required_non_empty_string(catalog, "slice_identity.data_slice_identity")
+    normalized_sha256 = _required_non_empty_string(catalog, "normalized.sha256")
+    validation_report_sha256 = _required_non_empty_string(catalog, "validation_report.sha256")
+    validation_status = _required_non_empty_string(catalog, "validation_report.status")
+    derivation_report_sha256 = _required_non_empty_string(catalog, "derivation_report.sha256")
+    parent_data_slice_identity = _required_non_empty_string(catalog, "parent.data_slice_identity")
+    parent_normalized_sha256 = _required_non_empty_string(catalog, "parent.normalized_sha256")
+    parent_validation_report_sha256 = _required_non_empty_string(
+        catalog,
+        "parent.validation_report_sha256",
+    )
+    resampling_method = _required_non_empty_string(catalog, "derivation.method")
+    resampling_version = _required_non_empty_string(catalog, "resampling_version")
+    row_count = _required_int(catalog, "range.row_count")
+    expected_row_count = _required_int(catalog, "range.expected_row_count")
+    start_utc = _required_non_empty_string(catalog, "range.start_utc")
+    end_utc = _required_non_empty_string(catalog, "range.end_utc")
+    gap_count = _required_int(catalog, "gap_summary.gap_count")
+    missing_bar_count = _required_int(catalog, "gap_summary.missing_bar_count")
+    gaps = _required_list(catalog, "gap_summary.gaps")
+    duplicate_group_count = _required_int(catalog, "duplicate_summary.duplicate_group_count")
+    duplicate_row_count = _required_int(catalog, "duplicate_summary.duplicate_row_count")
+    duplicates = _required_list(catalog, "duplicate_summary.duplicates")
+    partial_window_count = _required_int(validation_report, "validation.partial_window_count")
+
+    if catalog.get("timeframe") != "4h" or validation_report.get("timeframe") != "4h":
+        raise OfflineSweepError("canonical 4h mode requires 4h catalog and validation metadata")
+    if catalog.get("source_type") != "derived_offline_resample":
+        raise OfflineSweepError("canonical 4h mode requires derived_offline_resample source_type")
+    if validation_status != "PASS" or _get_path(validation_report, "validation.status") != "PASS":
+        raise OfflineSweepError("canonical 4h mode requires validation status PASS")
+    if validation_report.get("ok") is not True or derivation_report.get("ok") is not True:
+        raise OfflineSweepError("canonical 4h mode requires ok=true validation and derivation reports")
+    if row_count != expected_row_count:
+        raise OfflineSweepError("canonical 4h mode requires row_count to equal expected_row_count")
+    if data_slice_identity == OFFICIAL_4H_DATA_SLICE_IDENTITY and row_count != OFFICIAL_4H_ROW_COUNT:
+        raise OfflineSweepError("canonical 4h mode requires row_count 13758")
+    if gap_count != 0 or missing_bar_count != 0 or gaps:
+        raise OfflineSweepError("canonical 4h mode requires gap-free catalog facts")
+    if duplicate_group_count != 0 or duplicate_row_count != 0 or duplicates:
+        raise OfflineSweepError("canonical 4h mode requires duplicate-free catalog facts")
+    if partial_window_count != 0:
+        raise OfflineSweepError("canonical 4h mode requires zero partial windows")
+    if _required_non_empty_string(validation_report, "normalized.sha256") != normalized_sha256:
+        raise OfflineSweepError("4h validation report normalized SHA256 does not match catalog")
+    if _required_non_empty_string(derivation_report, "output.sha256") != normalized_sha256:
+        raise OfflineSweepError("4h derivation report output SHA256 does not match catalog")
+    if _required_non_empty_string(derivation_report, "parent.data_slice_identity") != parent_data_slice_identity:
+        raise OfflineSweepError("4h derivation parent data slice identity does not match catalog")
+    if _required_non_empty_string(derivation_report, "parent.normalized_sha256") != parent_normalized_sha256:
+        raise OfflineSweepError("4h derivation parent normalized SHA256 does not match catalog")
+
+    actual_validation_sha256 = _sha256_file_hex(validation_path)
+    actual_derivation_sha256 = _sha256_file_hex(derivation_path)
+    if actual_validation_sha256 != validation_report_sha256:
+        raise OfflineSweepError("4h validation report SHA256 does not match catalog")
+    if actual_derivation_sha256 != derivation_report_sha256:
+        raise OfflineSweepError("4h derivation report SHA256 does not match catalog")
+
+    resolved = ohlcv_input_path.resolve()
+    actual_csv_sha256 = _sha256_file_hex(resolved)
+    if actual_csv_sha256 != normalized_sha256:
+        raise OfflineSweepError("4h OHLCV CSV SHA256 does not match catalog")
+    ohlcv = _load_4h_ohlcv_input(resolved)
+    if len(ohlcv) != row_count:
+        raise OfflineSweepError("4h OHLCV row count does not match catalog")
+    metadata_start = _parse_metadata_timestamp(start_utc, "range.start_utc")
+    metadata_end = _parse_metadata_timestamp(end_utc, "range.end_utc")
+    if ohlcv.index[0] != metadata_start or ohlcv.index[-1] != metadata_end:
+        raise OfflineSweepError("4h OHLCV range does not match catalog")
+
+    catalog_artifact_sha256 = _sha256_file_hex(catalog_path)
+    return _ExecutionInput(
+        mode="canonical_4h_derived",
+        execution_provenance_class="canonical_derived_real_data",
+        ohlcv=ohlcv,
+        funding=_zero_funding_for_ohlcv(ohlcv),
+        timeframe="4h",
+        data_catalog_ref=catalog_ref,
+        data_slice_identity=data_slice_identity,
+        environment_summary=[
+            "canonical_4h_derived_ohlcv_input",
+            "d4h_catalog_slice_provenance",
+            "execution_provenance_class=canonical_derived_real_data",
+            "offline_only_no_exchange_api",
+        ],
+        data_coverage_notes=[
+            D4H_PROVENANCE_MODE_NOTE,
+            "offline only",
+            "no exchange/API contact",
+            "not live/paper input",
+            "zero_funding_synthetic_current_runner_behavior",
+            f"d4h_validation_report_sha256={validation_report_sha256}",
+            f"d4h_derivation_report_sha256={derivation_report_sha256}",
+            f"d4h_catalog_artifact_sha256={catalog_artifact_sha256}",
+            f"d4h_csv_sha256={normalized_sha256}",
+            f"d4h_validation_status={validation_status}",
+            f"parent_15m_data_slice_identity={parent_data_slice_identity}",
+            f"parent_15m_normalized_sha256={parent_normalized_sha256}",
+            f"parent_15m_validation_report_sha256={parent_validation_report_sha256}",
+            f"resampling_method={resampling_method}",
+            f"resampling_version={resampling_version}",
+            f"row_count={row_count}",
+            f"expected_row_count={expected_row_count}",
+            f"start_utc={start_utc}",
+            f"end_utc={end_utc}",
+            f"gap_count={gap_count}",
+            f"missing_bar_count={missing_bar_count}",
+            f"gaps={json.dumps(gaps, sort_keys=True, separators=(',', ':'))}",
+            f"duplicate_group_count={duplicate_group_count}",
+            f"duplicate_row_count={duplicate_row_count}",
+            f"duplicates={json.dumps(duplicates, sort_keys=True, separators=(',', ':'))}",
+            f"partial_window_count={partial_window_count}",
+        ],
+    )
+
+
 def _run_canonical_15m_backtest(
     strategy_spec: dict[str, Any],
     variant: dict[str, Any],
@@ -783,7 +985,7 @@ def _run_canonical_15m_backtest(
         slippage_bps=1.0,
         initial_equity=INITIAL_EQUITY,
         stream="klines",
-        interval="15m",
+        interval=execution_input.timeframe,
         gaps_path=REPO_ROOT / "tools" / "research_runner" / "_nonexistent_empty_gaps.json",
         entry_fee_side="taker",
         exit_fee_side="taker",
@@ -1347,6 +1549,9 @@ def _execution_provenance_identity(execution_input: _ExecutionInput | None) -> d
         }
     d3_validation_identity = None
     for note in execution_input.data_coverage_notes:
+        if note.startswith("d4h_validation_report_sha256="):
+            d3_validation_identity = note.split("=", 1)[1]
+            break
         if note.startswith("d3_validation_report_sha256="):
             d3_validation_identity = note.split("=", 1)[1]
             break
@@ -2213,9 +2418,13 @@ def run_offline_sweep(
     run_label: str | None = None,
     deterministic_seed: int = 0,
     canonical_15m: bool = False,
+    canonical_4h: bool = False,
     ohlcv_input_path: Path | None = None,
     d4_catalog_slice_path: Path | None = None,
     d2_import_report_path: Path | None = None,
+    d4h_catalog_slice_path: Path | None = None,
+    d4h_validation_report_path: Path | None = None,
+    d4h_derivation_report_path: Path | None = None,
     sizing_mode: str = SIZING_MODE_FIXED_ORDER_SIZE,
     target_leverage: float = DEFAULT_TARGET_LEVERAGE,
     walkforward: bool = False,
@@ -2237,6 +2446,8 @@ def run_offline_sweep(
     sizing_mode = _validate_sizing_mode(sizing_mode)
     target_leverage = _validate_target_leverage(target_leverage)
     max_workers = _validate_max_workers(max_workers)
+    if canonical_15m and canonical_4h:
+        raise OfflineSweepError("--canonical-15m and --canonical-4h are mutually exclusive")
     guarded_output_dir = _guard_output_dir(output_dir, write_result_population)
     strategy_spec, manifest, sweep_plan = _validate_parent_inputs(
         strategy_spec_path,
@@ -2257,10 +2468,29 @@ def run_offline_sweep(
             )
         else:
             execution_input = _canonical_15m_execution_input(ohlcv_input_path)
+    elif canonical_4h:
+        primary_timeframe = strategy_spec.get("timeframe_and_data", {}).get("primary_timeframe")
+        sweep_timeframe = sweep_plan.get("data_and_timeframe_assumptions", {}).get("primary_timeframe")
+        if primary_timeframe != "4h" or sweep_timeframe != "4h":
+            raise OfflineSweepError("canonical_4h requires 4h Strategy Spec and Sweep Plan")
+        if d4_catalog_slice_path is not None or d2_import_report_path is not None:
+            raise OfflineSweepError("D4 15m provenance flags require --canonical-15m")
+        execution_input = _canonical_4h_execution_input(
+            ohlcv_input_path,
+            d4h_catalog_slice_path,
+            d4h_validation_report_path,
+            d4h_derivation_report_path,
+        )
     elif d4_catalog_slice_path is not None or d2_import_report_path is not None:
         raise OfflineSweepError("D4 provenance mode requires --canonical-15m")
+    elif (
+        d4h_catalog_slice_path is not None
+        or d4h_validation_report_path is not None
+        or d4h_derivation_report_path is not None
+    ):
+        raise OfflineSweepError("D4H provenance mode requires --canonical-4h")
     if walkforward and execution_input is None:
-        raise OfflineSweepError("walk-forward mode currently requires --canonical-15m input data")
+        raise OfflineSweepError("walk-forward mode currently requires canonical input data")
     payload, aborted = _build_result_population(
         strategy_spec,
         manifest,
@@ -2327,9 +2557,13 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--run-label")
     parser.add_argument("--deterministic-seed", type=int, default=0)
     parser.add_argument("--canonical-15m", action="store_true")
+    parser.add_argument("--canonical-4h", action="store_true")
     parser.add_argument("--ohlcv-input", type=Path)
     parser.add_argument("--d4-catalog-slice", type=Path)
     parser.add_argument("--d2-import-report", type=Path)
+    parser.add_argument("--d4h-catalog-slice", type=Path)
+    parser.add_argument("--d4h-validation-report", type=Path)
+    parser.add_argument("--d4h-derivation-report", type=Path)
     parser.add_argument(
         "--sizing-mode",
         choices=SIZING_MODES,
@@ -2376,9 +2610,13 @@ def main(argv: list[str] | None = None) -> int:
             run_label=args.run_label,
             deterministic_seed=args.deterministic_seed,
             canonical_15m=args.canonical_15m,
+            canonical_4h=args.canonical_4h,
             ohlcv_input_path=args.ohlcv_input,
             d4_catalog_slice_path=args.d4_catalog_slice,
             d2_import_report_path=args.d2_import_report,
+            d4h_catalog_slice_path=args.d4h_catalog_slice,
+            d4h_validation_report_path=args.d4h_validation_report,
+            d4h_derivation_report_path=args.d4h_derivation_report,
             sizing_mode=args.sizing_mode,
             target_leverage=args.target_leverage,
             walkforward=args.walkforward,

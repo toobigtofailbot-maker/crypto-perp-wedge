@@ -2,6 +2,8 @@ import json
 import subprocess
 from pathlib import Path
 
+import pytest
+
 from tools.dev import verify as helper
 
 
@@ -9,6 +11,7 @@ REQUIRED_KEYS = {
     "overall_status",
     "commands",
     "integrity_views",
+    "pytest_shards",
     "failures",
     "advisory_note",
 }
@@ -316,6 +319,201 @@ def test_verify_passes_authorized_canonical_write_to_diff_scope():
     assert "WP-TEST" in diff_scope_command
     assert "--authorized-canonical-result-population-write" in diff_scope_command
     assert "research/result_populations/RP-9001.result_population.json" in diff_scope_command
+
+
+def test_verify_passes_authorized_path_scope_to_diff_scope():
+    parser = helper.build_parser()
+    args = parser.parse_args(
+        [
+            "--authorized-package",
+            "WP-TEST",
+            "--authorized-path",
+            "research/schemas/strategy_spec.schema.json",
+            "--authorized-scope",
+            "strategy-spec-schema",
+        ]
+    )
+
+    commands = helper.build_standard_commands(args)
+    diff_scope_command = next(
+        command.argv for command in commands if "tools/dev/diff_scope_summary.py" in command.argv
+    )
+
+    assert "--authorized-package" in diff_scope_command
+    assert "WP-TEST" in diff_scope_command
+    assert "--authorized-path" in diff_scope_command
+    assert "research/schemas/strategy_spec.schema.json" in diff_scope_command
+    assert "--authorized-scope" in diff_scope_command
+    assert "strategy-spec-schema" in diff_scope_command
+
+
+def test_docs_only_preset_does_not_add_full_pytest_by_default():
+    parser = helper.build_parser()
+    args = parser.parse_args(["--validation-preset", "docs-only"])
+
+    commands = helper.build_standard_commands(args)
+    command_texts = [helper._command_text(command.argv) for command in commands]
+
+    assert f"{helper.sys.executable} -m pytest -q" not in command_texts
+    assert not any("-m tools.registry.validate_result_populations" in text for text in command_texts)
+    assert any("tools/dev/diff_scope_summary.py --check-forbidden" in text for text in command_texts)
+
+
+def test_full_release_preset_adds_serial_full_pytest():
+    parser = helper.build_parser()
+    args = parser.parse_args(["--validation-preset", "full-release"])
+
+    commands = helper.build_standard_commands(args)
+    command_texts = [helper._command_text(command.argv) for command in commands]
+
+    assert f"{helper.sys.executable} -m pytest -q" in command_texts
+
+
+def test_sharded_full_pytest_reports_each_shard(monkeypatch, tmp_path):
+    repo = _repo(tmp_path)
+    parser = helper.build_parser()
+    args = parser.parse_args(["--full-pytest-sharded", "--pytest-shards", "2"])
+
+    monkeypatch.setattr(
+        helper,
+        "discover_pytest_files",
+        lambda repo_root: [
+            "tests/test_alpha.py",
+            "tests/test_beta.py",
+            "tests/test_gamma.py",
+        ],
+    )
+
+    def fake_run(repo_root, spec, max_chars):
+        return {
+            "command": helper._command_text(spec.argv),
+            "argv": spec.argv,
+            "label": spec.label,
+            "metadata": spec.metadata or {},
+            "required": True,
+            "status": "pass",
+            "exit_code": 0,
+            "timed_out": False,
+            "timeout_seconds": spec.timeout_seconds,
+            "elapsed_seconds": 0.1,
+            "stdout": "",
+            "stderr": "",
+            "_stdout_raw": "",
+            "_stderr_raw": "",
+            "stdout_truncated": "false",
+            "stderr_truncated": "false",
+        }
+
+    monkeypatch.setattr(helper, "run_command", fake_run)
+
+    shard_summary, results = helper.run_pytest_shards(repo, args)
+
+    assert shard_summary["enabled"] is True
+    assert shard_summary["shard_count"] == 2
+    assert shard_summary["test_file_count"] == 3
+    assert [shard["shard_index"] for shard in shard_summary["shards"]] == [0, 1]
+    assert [result["metadata"]["test_file_count"] for result in results] == [2, 1]
+
+
+def test_sharded_full_pytest_rejects_empty_shards(monkeypatch, tmp_path):
+    repo = _repo(tmp_path)
+    parser = helper.build_parser()
+    args = parser.parse_args(["--full-pytest-sharded", "--pytest-shards", "2"])
+
+    monkeypatch.setattr(helper, "discover_pytest_files", lambda repo_root: ["tests/test_alpha.py"])
+
+    with pytest.raises(helper.VerifyError, match="exceeds discovered test files"):
+        helper.run_pytest_shards(repo, args)
+
+
+def test_sharded_full_pytest_failure_fails_summary(monkeypatch, tmp_path, capsys):
+    repo = _repo(tmp_path)
+
+    monkeypatch.setattr(helper, "build_standard_commands", lambda args: [])
+    monkeypatch.setattr(helper, "discover_pytest_files", lambda repo_root: ["tests/test_alpha.py"])
+
+    def fake_run(repo_root, spec, max_chars):
+        return {
+            "command": helper._command_text(spec.argv),
+            "argv": spec.argv,
+            "label": spec.label,
+            "metadata": spec.metadata or {},
+            "required": True,
+            "status": "fail",
+            "exit_code": 1,
+            "timed_out": False,
+            "timeout_seconds": spec.timeout_seconds,
+            "elapsed_seconds": 0.1,
+            "stdout": "failed",
+            "stderr": "",
+            "_stdout_raw": "failed",
+            "_stderr_raw": "",
+            "stdout_truncated": "false",
+            "stderr_truncated": "false",
+        }
+
+    monkeypatch.setattr(helper, "run_command", fake_run)
+
+    exit_code, stdout, _ = _run(
+        ["--repo-root", str(repo), "--json", "--full-pytest-sharded", "--pytest-shards", "1"],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 1
+    assert payload["pytest_shards"]["enabled"] is True
+    assert payload["pytest_shards"]["shards"][0]["status"] == "fail"
+    assert payload["failures"][0]["metadata"]["kind"] == "pytest_shard"
+
+
+def test_sharded_full_pytest_timeout_fails_summary(monkeypatch, tmp_path, capsys):
+    repo = _repo(tmp_path)
+
+    monkeypatch.setattr(helper, "build_standard_commands", lambda args: [])
+    monkeypatch.setattr(helper, "discover_pytest_files", lambda repo_root: ["tests/test_alpha.py"])
+
+    def fake_run(repo_root, spec, max_chars):
+        return {
+            "command": helper._command_text(spec.argv),
+            "argv": spec.argv,
+            "label": spec.label,
+            "metadata": spec.metadata or {},
+            "required": True,
+            "status": "timeout",
+            "exit_code": None,
+            "timed_out": True,
+            "timeout_seconds": spec.timeout_seconds,
+            "elapsed_seconds": 1.0,
+            "stdout": "",
+            "stderr": "",
+            "_stdout_raw": "",
+            "_stderr_raw": "",
+            "stdout_truncated": "false",
+            "stderr_truncated": "false",
+        }
+
+    monkeypatch.setattr(helper, "run_command", fake_run)
+
+    exit_code, stdout, _ = _run(
+        ["--repo-root", str(repo), "--json", "--full-pytest-sharded", "--pytest-shards", "1"],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 1
+    assert payload["pytest_shards"]["shards"][0]["status"] == "timeout"
+    assert payload["failures"][0]["timed_out"] is True
+
+
+def test_docs_only_policy_names_commands_and_status_wording():
+    policy = Path("docs/ai/codex/VALIDATION_POLICY.md").read_text(encoding="utf-8")
+
+    assert "Docs-only packages do not run full pytest by default" in policy
+    assert "git diff --check" in policy
+    assert "git diff --cached --check" in policy
+    assert "python tools/dev/diff_scope_summary.py --check-forbidden" in policy
+    assert "full pytest: NOT RUN - docs-only policy" in policy
+    assert "full pytest: TIMED OUT after <seconds>" in policy
 
 
 def test_integrity_discovery_uses_raw_stdout_when_public_output_is_truncated(monkeypatch, tmp_path):

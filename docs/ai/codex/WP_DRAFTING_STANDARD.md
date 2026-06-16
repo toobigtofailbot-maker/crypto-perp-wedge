@@ -240,6 +240,8 @@ git diff --cached --name-only
 ```
 
 Full pytest is not required for T1 docs/design/process WPs unless explicitly required by the WP or repo guidance.
+Use `docs/ai/codex/VALIDATION_POLICY.md` for the current docs-only wording and
+to distinguish `NOT RUN - docs-only policy` from `TIMED OUT`.
 
 Recommended T3 implementation validation profile:
 
@@ -408,7 +410,7 @@ Required emphasis:
 
 Validation should include changed-file scope, forbidden-path check, `git diff --check`, and package-required validators.
 
-Full pytest is not required for T1 docs/design/process WPs unless explicitly required by the WP or repo guidance. Use the T1 docs/design/process profile from the Usage-Efficient Validation Rule by default.
+Full pytest is not required for T1 docs/design/process WPs unless explicitly required by the WP or repo guidance. Use the T1 docs/design/process profile from the Usage-Efficient Validation Rule by default. Use `docs/ai/codex/VALIDATION_POLICY.md` for the current docs-only wording and to distinguish `NOT RUN - docs-only policy` from `TIMED OUT`.
 
 ### T3 Implementation WP
 

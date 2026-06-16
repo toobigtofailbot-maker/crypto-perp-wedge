@@ -2,6 +2,8 @@ import json
 import subprocess
 from pathlib import Path
 
+import pytest
+
 from tools.dev import diff_scope_summary as helper
 
 
@@ -12,6 +14,7 @@ REQUIRED_KEYS = {
     "numstat",
     "forbidden_matches",
     "authorized_canonical_result_population_writes",
+    "authorized_path_writes",
     "allowed_file_violations",
     "trial_log",
     "exit_reason",
@@ -164,6 +167,165 @@ def test_authorized_new_result_population_write_is_not_forbidden(tmp_path, capsy
     assert payload["authorized_canonical_result_population_writes"]["authorized"][0]["path"] == path
 
 
+def test_authorized_schema_path_is_not_forbidden(tmp_path, capsys):
+    repo = _repo(tmp_path)
+    path = "research/schemas/strategy_spec.schema.json"
+    _write(repo / path, "{}\n")
+
+    exit_code, stdout, _ = _run(
+        [
+            "--repo-root",
+            str(repo),
+            "--json",
+            "--check-forbidden",
+            "--authorized-package",
+            "WP-TEST",
+            "--authorized-path",
+            path,
+            "--authorized-scope",
+            "strategy-spec-schema",
+        ],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 0
+    assert payload["forbidden_matches"] == []
+    assert payload["authorized_path_writes"]["package"] == "WP-TEST"
+    assert payload["authorized_path_writes"]["scope"] == "strategy-spec-schema"
+    assert payload["authorized_path_writes"]["authorized"] == [
+        {"path": path, "status": "authorized", "scope": "strategy-spec-schema"}
+    ]
+
+
+def test_unauthorized_schema_path_remains_forbidden(tmp_path, capsys):
+    repo = _repo(tmp_path)
+    path = "research/schemas/strategy_spec.schema.json"
+    _write(repo / path, "{}\n")
+
+    exit_code, stdout, _ = _run(["--repo-root", str(repo), "--json", "--check-forbidden"], capsys)
+
+    payload = json.loads(stdout)
+    assert exit_code == 1
+    assert payload["forbidden_matches"] == [{"path": path, "prefix": "research/"}]
+
+
+def test_authorized_scope_requires_exact_changed_path(tmp_path, capsys):
+    repo = _repo(tmp_path)
+    changed_path = "research/schemas/strategy_spec.schema.json"
+    authorized_path = "research/schemas/candidate_registry.schema.json"
+    _write(repo / changed_path, "{}\n")
+
+    exit_code, stdout, _ = _run(
+        [
+            "--repo-root",
+            str(repo),
+            "--json",
+            "--check-forbidden",
+            "--authorized-path",
+            authorized_path,
+            "--authorized-scope",
+            "strategy-spec-schema",
+        ],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 1
+    assert payload["authorized_path_writes"]["rejected"] == [
+        {"path": authorized_path, "scope": "strategy-spec-schema", "reason": "path not changed"}
+    ]
+    assert payload["forbidden_matches"] == [{"path": changed_path, "prefix": "research/"}]
+
+
+def test_authorized_schema_scope_does_not_allow_lib_path(tmp_path, capsys):
+    repo = _repo(tmp_path)
+    path = "lib/backtest.py"
+    _write(repo / path, "changed\n")
+
+    exit_code, stdout, _ = _run(
+        [
+            "--repo-root",
+            str(repo),
+            "--json",
+            "--check-forbidden",
+            "--authorized-path",
+            path,
+            "--authorized-scope",
+            "strategy-spec-schema",
+        ],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 1
+    assert payload["authorized_path_writes"]["rejected"] == [
+        {
+            "path": path,
+            "scope": "strategy-spec-schema",
+            "reason": "scope requires an exact research/schemas/*.schema.json path",
+        }
+    ]
+    assert payload["forbidden_matches"] == [{"path": path, "prefix": "lib/"}]
+
+
+def test_authorized_compiler_path_records_evidence(tmp_path, capsys):
+    repo = _repo(tmp_path)
+    path = "tools/research_runner/spec_signal_compiler.py"
+    _write(repo / path, "changed\n")
+
+    exit_code, stdout, _ = _run(
+        [
+            "--repo-root",
+            str(repo),
+            "--json",
+            "--check-forbidden",
+            "--authorized-path",
+            path,
+            "--authorized-scope",
+            "research-compiler",
+        ],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 0
+    assert payload["authorized_path_writes"]["authorized"] == [
+        {"path": path, "status": "authorized", "scope": "research-compiler"}
+    ]
+
+
+def test_compiler_scope_rejects_noncompiler_exact_path(tmp_path, capsys):
+    repo = _repo(tmp_path)
+    path = "research/schemas/strategy_spec.schema.json"
+    _write(repo / path, "{}\n")
+
+    exit_code, stdout, _ = _run(
+        [
+            "--repo-root",
+            str(repo),
+            "--json",
+            "--check-forbidden",
+            "--authorized-path",
+            path,
+            "--authorized-scope",
+            "research-compiler",
+        ],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 1
+    assert payload["authorized_path_writes"]["rejected"] == [
+        {
+            "path": path,
+            "scope": "research-compiler",
+            "reason": "compiler scope is limited to tools/research_runner/spec_signal_compiler.py",
+        }
+    ]
+    assert payload["forbidden_matches"] == [{"path": path, "prefix": "research/"}]
+
+
 def test_authorized_mode_does_not_allow_runtime_or_lib_changes(tmp_path, capsys):
     repo = _repo(tmp_path)
     rp_path = "research/result_populations/RP-9001.result_population.json"
@@ -239,6 +401,46 @@ def test_mixed_authorized_rp_plus_unauthorized_protected_file_fails(tmp_path, ca
     assert exit_code == 1
     assert payload["authorized_canonical_result_population_writes"]["authorized"][0]["path"] == rp_path
     assert payload["forbidden_matches"] == [{"path": runtime_path, "prefix": "src/"}]
+
+
+def test_mixed_authorized_schema_plus_unauthorized_research_file_fails(tmp_path, capsys):
+    repo = _repo(tmp_path)
+    schema_path = "research/schemas/strategy_spec.schema.json"
+    note_path = "research/notes/unapproved.md"
+    _write(repo / schema_path, "{}\n")
+    _write(repo / note_path, "changed\n")
+
+    exit_code, stdout, _ = _run(
+        [
+            "--repo-root",
+            str(repo),
+            "--json",
+            "--check-forbidden",
+            "--authorized-path",
+            schema_path,
+            "--authorized-scope",
+            "strategy-spec-schema",
+        ],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 1
+    assert payload["authorized_path_writes"]["authorized"][0]["path"] == schema_path
+    assert payload["forbidden_matches"] == [{"path": note_path, "prefix": "research/"}]
+
+
+def test_authorized_path_requires_scope(tmp_path, capsys):
+    repo = _repo(tmp_path)
+    path = "research/schemas/strategy_spec.schema.json"
+    _write(repo / path, "{}\n")
+
+    with pytest.raises(SystemExit) as exc_info:
+        helper.run(["--repo-root", str(repo), "--authorized-path", path])
+    stderr = capsys.readouterr().err
+
+    assert exc_info.value.code == 2
+    assert "--authorized-path requires --authorized-scope" in stderr
 
 
 def test_allowed_file_reports_violations(tmp_path, capsys):

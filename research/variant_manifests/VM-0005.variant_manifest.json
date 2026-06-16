@@ -1,0 +1,439 @@
+{
+  "schema_version": "v1",
+  "variant_manifest_id": "VM-0005",
+  "status": "approved_for_sweep_planning",
+  "non_execution_declaration": {
+    "planning_surface_only": true,
+    "not_executable": true,
+    "not_runner_authority": true,
+    "not_sweep_authority": true,
+    "not_result_authority": true,
+    "not_candidate_approval": true,
+    "not_exp_approval": true,
+    "not_ranking_authority": true,
+    "not_recommendation_authority": true,
+    "not_readiness_authority": true,
+    "not_transition_authority": true,
+    "not_runtime_authority": true,
+    "not_paper_live_authority": true,
+    "not_gate_authority": true
+  },
+  "parent_strategy_spec": {
+    "strategy_spec_id": "STRAT-SPEC-0005",
+    "strategy_spec_schema_version": "v1",
+    "strategy_spec_hash": "sha256:9a20e64f83e6cbe2360e3be715ad273f2c851aacb6da99fa27d802ee29588141",
+    "hash_algorithm": "sha256",
+    "hash_scope_version": "strategy_spec_hash_scope_v1",
+    "strategy_spec_review_status": "approved_for_variant_planning",
+    "strategy_spec_ref": "research/strategy_specs/STRAT-SPEC-0005.strategy_spec.json",
+    "mismatch_policy": "block",
+    "missing_parent_policy": "block",
+    "does_not_mutate_parent_strategy_spec": true
+  },
+  "population_governance": {
+    "population_cap": {
+      "max_variants": 8,
+      "cap_basis": "manual_grid",
+      "cap_source": "human_declared",
+      "cap_exception_authorized": false,
+      "cap_exception_ref": null
+    },
+    "declared_population": {
+      "committed_population_count": 8,
+      "declared_variant_count": 8,
+      "included_variant_count": 8,
+      "excluded_variant_count": 0,
+      "invalid_variant_count": 0,
+      "not_attempted_variant_count": 0
+    },
+    "trial_budget": {
+      "planned_trial_count": 8,
+      "trial_budget_denominator": 8,
+      "denominator_basis": "committed_pre_registered_population_count",
+      "denominator_count": 8,
+      "denominator_includes_failed": true,
+      "denominator_includes_excluded": true,
+      "denominator_includes_invalid": true,
+      "denominator_includes_errored": true,
+      "denominator_includes_aborted": true,
+      "denominator_includes_filtered": true,
+      "denominator_includes_data_unavailable": true,
+      "denominator_includes_not_attempted": true,
+      "executed_only_denominator_forbidden": true
+    },
+    "multiple_testing_accounting": {
+      "denominator_required": true,
+      "denominator_type": "committed_pre_registered_population",
+      "search_family_id": "SF-PHASEB-SMA-CROSSOVER-MOMENTUM-ATRSTOP-15M-0002",
+      "search_family_method": "manual_grid",
+      "adaptive_search_used": false,
+      "adaptive_search_authorization_ref": null,
+      "all_trials_visible_required": true,
+      "winner_only_review_forbidden": true
+    },
+    "pre_registration": {
+      "pre_registered": true,
+      "pre_registration_status": "frozen_for_sweep_planning",
+      "pre_registration_scope": "full_variant_population",
+      "freeze_required_before_sweep": true,
+      "post_hoc_addition_forbidden": true,
+      "post_result_mutation_forbidden": true,
+      "allowed_change_mode": "supersede_before_results_only"
+    }
+  },
+  "parameter_axes": [
+    {
+      "axis_id": "AXIS-001",
+      "parameter_name": "fast_lookback_bars",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.fast_lookback_bars",
+      "parameter_type": "integer",
+      "units": "bars",
+      "axis_kind": "free_parameter",
+      "generator_method": "manual_grid",
+      "allowed_values": [
+        20,
+        50
+      ],
+      "range": {
+        "min": 20,
+        "max": 50,
+        "step": 30,
+        "inclusive_min": true,
+        "inclusive_max": true
+      },
+      "counts_toward_parent_free_parameter_cap": true,
+      "is_declared_in_parent_strategy_spec": true,
+      "invalid_combination_rule_refs": [],
+      "notes": "Fast SMA lookback axis: [20, 50]."
+    },
+    {
+      "axis_id": "AXIS-002",
+      "parameter_name": "slow_lookback_bars",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.slow_lookback_bars",
+      "parameter_type": "integer",
+      "units": "bars",
+      "axis_kind": "free_parameter",
+      "generator_method": "manual_grid",
+      "allowed_values": [
+        100,
+        200
+      ],
+      "range": {
+        "min": 100,
+        "max": 200,
+        "step": 100,
+        "inclusive_min": true,
+        "inclusive_max": true
+      },
+      "counts_toward_parent_free_parameter_cap": true,
+      "is_declared_in_parent_strategy_spec": true,
+      "invalid_combination_rule_refs": [],
+      "notes": "Slow SMA lookback axis: [100, 200]."
+    },
+    {
+      "axis_id": "AXIS-003",
+      "parameter_name": "trend_lookback_bars",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.trend_lookback_bars",
+      "parameter_type": "integer",
+      "units": "bars",
+      "axis_kind": "free_parameter",
+      "generator_method": "manual_grid",
+      "allowed_values": [
+        300,
+        400
+      ],
+      "range": {
+        "min": 300,
+        "max": 400,
+        "step": 100,
+        "inclusive_min": true,
+        "inclusive_max": true
+      },
+      "counts_toward_parent_free_parameter_cap": true,
+      "is_declared_in_parent_strategy_spec": true,
+      "invalid_combination_rule_refs": [],
+      "notes": "Trend SMA lookback axis: [300, 400]."
+    }
+  ],
+  "invalid_combination_rules": [],
+  "exclusion_rules": [],
+  "variant_assignments": [
+    {
+      "variant_id": "VAR-000001",
+      "assignment_status": "included",
+      "parameter_values": {
+        "fast_lookback_bars": 20,
+        "slow_lookback_bars": 100,
+        "trend_lookback_bars": 300
+      },
+      "parameter_value_hash": "sha256:5402167463f87083c827f3b7469e6e4bc7edd189550858b5647912b23f174382",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-valid-only-fast-lt-slow-lt-trend",
+        "generation_order": 1
+      }
+    },
+    {
+      "variant_id": "VAR-000002",
+      "assignment_status": "included",
+      "parameter_values": {
+        "fast_lookback_bars": 20,
+        "slow_lookback_bars": 100,
+        "trend_lookback_bars": 400
+      },
+      "parameter_value_hash": "sha256:c68f09f8366c963782db0219d879bca02c71dd3eadcab45562db869beef84447",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-valid-only-fast-lt-slow-lt-trend",
+        "generation_order": 2
+      }
+    },
+    {
+      "variant_id": "VAR-000003",
+      "assignment_status": "included",
+      "parameter_values": {
+        "fast_lookback_bars": 20,
+        "slow_lookback_bars": 200,
+        "trend_lookback_bars": 300
+      },
+      "parameter_value_hash": "sha256:faf1e5fefac9094951bbda379d8d43cc6bbca8e106ee338c85e03df7f86dbc37",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-valid-only-fast-lt-slow-lt-trend",
+        "generation_order": 3
+      }
+    },
+    {
+      "variant_id": "VAR-000004",
+      "assignment_status": "included",
+      "parameter_values": {
+        "fast_lookback_bars": 20,
+        "slow_lookback_bars": 200,
+        "trend_lookback_bars": 400
+      },
+      "parameter_value_hash": "sha256:90828ca5f8f3e57484dc1edec97f2a5b481309d3f2bb2be2e3fe1430336a0585",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-valid-only-fast-lt-slow-lt-trend",
+        "generation_order": 4
+      }
+    },
+    {
+      "variant_id": "VAR-000005",
+      "assignment_status": "included",
+      "parameter_values": {
+        "fast_lookback_bars": 50,
+        "slow_lookback_bars": 100,
+        "trend_lookback_bars": 300
+      },
+      "parameter_value_hash": "sha256:57a8b79b6abe58b5a359bf010a8d5850b46cf774d9716cd3ef8cf17f184de6bf",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-valid-only-fast-lt-slow-lt-trend",
+        "generation_order": 5
+      }
+    },
+    {
+      "variant_id": "VAR-000006",
+      "assignment_status": "included",
+      "parameter_values": {
+        "fast_lookback_bars": 50,
+        "slow_lookback_bars": 100,
+        "trend_lookback_bars": 400
+      },
+      "parameter_value_hash": "sha256:b1bdeda177a32c8c6d7e80ab06dcd6a6d3339738cd8707bc30ad74760f667f9a",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-valid-only-fast-lt-slow-lt-trend",
+        "generation_order": 6
+      }
+    },
+    {
+      "variant_id": "VAR-000007",
+      "assignment_status": "included",
+      "parameter_values": {
+        "fast_lookback_bars": 50,
+        "slow_lookback_bars": 200,
+        "trend_lookback_bars": 300
+      },
+      "parameter_value_hash": "sha256:35c0abe12f9917842e40e194c6a30a20977d09ecf7cf6f3842cd003aa741474f",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-valid-only-fast-lt-slow-lt-trend",
+        "generation_order": 7
+      }
+    },
+    {
+      "variant_id": "VAR-000008",
+      "assignment_status": "included",
+      "parameter_values": {
+        "fast_lookback_bars": 50,
+        "slow_lookback_bars": 200,
+        "trend_lookback_bars": 400
+      },
+      "parameter_value_hash": "sha256:cb7069ef4dec6cf04e4d2c3a402570ef7e82cc362ac86ef4f00b359513add895",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-valid-only-fast-lt-slow-lt-trend",
+        "generation_order": 8
+      }
+    }
+  ],
+  "manifest_hash_pinning": {
+    "manifest_hash": "sha256:db901fa9e3fcf6c0aac6905f175afb2eab3283d1cc8c41d6f8ee28f9887971c1",
+    "hash_algorithm": "sha256",
+    "canonicalization": "json_canonical_v1",
+    "hash_scope_version": "variant_manifest_hash_scope_v1",
+    "hash_scope": [
+      "schema_version",
+      "variant_manifest_id",
+      "parent_strategy_spec.strategy_spec_id",
+      "parent_strategy_spec.strategy_spec_hash",
+      "population_governance",
+      "parameter_axes",
+      "invalid_combination_rules",
+      "exclusion_rules",
+      "variant_assignments"
+    ],
+    "hash_status": "computed",
+    "frozen_at": "2026-06-16T00:00:00Z",
+    "pre_sweep_freeze_required": true,
+    "post_result_mutation_forbidden": true
+  },
+  "amendment_and_supersession": {
+    "amendment_mode": "none",
+    "supersedes": null,
+    "supersession_lineage": [],
+    "amendment_reason": null,
+    "associated_results_state": "no_associated_results",
+    "supersession_allowed": false,
+    "close_only_after_results": true,
+    "post_result_change": false,
+    "preserve_prior_manifest_required": true,
+    "fresh_denominator_required": true,
+    "does_not_inherit_prior_results": true
+  },
+  "lineage": {
+    "parent_refs": [
+      {
+        "ref_type": "strategy_spec",
+        "ref_id": "STRAT-SPEC-0005",
+        "ref_path": "research/strategy_specs/STRAT-SPEC-0005.strategy_spec.json",
+        "ref_hash": "sha256:9a20e64f83e6cbe2360e3be715ad273f2c851aacb6da99fa27d802ee29588141"
+      }
+    ],
+    "source_refs": [
+      {
+        "ref_type": "research_note",
+        "ref_id": "WP-MOMENTUM-V2-DESIGN-01",
+        "ref_path": "docs/research_pipeline/2026-06-momentum_v2_design.md",
+        "ref_hash": null
+      },
+      {
+        "ref_type": "other",
+        "ref_id": "WP-A6-ATRSTOP-01",
+        "ref_path": "docs/status_entries/WP-A6-ATRSTOP-01.md",
+        "ref_hash": null
+      },
+      {
+        "ref_type": "manual_review",
+        "ref_id": "WP-MOMENTUM-V2-PREREG-01",
+        "ref_path": null,
+        "ref_hash": null
+      }
+    ],
+    "created_at": "2026-06-16T00:00:00Z",
+    "updated_at": "2026-06-16T00:00:00Z",
+    "audit_notes": [
+      "Surfaced for ready-for-review PR under WP-MOMENTUM-V2-PREREG-01; merge/finalize remains HOLD pending Karl gate.",
+      "Valid-only denominator includes 8 variants and excludes no cells because every Cartesian combination satisfies fast < slow < trend.",
+      "min_bars_between_entries is fixed in STRAT-SPEC-0005 at 16 and is not a VM axis.",
+      "ATR-stop literals atr_lookback=14 and atr_multiplier=3.0 are fixed in STRAT-SPEC-0005 and are not VM axes.",
+      "No adaptive search, post-hoc addition, result-dependent filtering, winner-only review, sweep run, or result population is authorized."
+    ],
+    "hash_refs": [
+      "sha256:9a20e64f83e6cbe2360e3be715ad273f2c851aacb6da99fa27d802ee29588141",
+      "sha256:db901fa9e3fcf6c0aac6905f175afb2eab3283d1cc8c41d6f8ee28f9887971c1"
+    ]
+  },
+  "review": {
+    "human_review_required": true,
+    "reviewer": "Karl/Main via PR review",
+    "reviewed_at": "2026-06-16T00:00:00Z",
+    "review_notes": [
+      "Surfaced for ready-for-review PR under WP-MOMENTUM-V2-PREREG-01; merge/finalize remains HOLD pending Karl gate.",
+      "Schema-compatible planning fields are present so current validators can evaluate the corpus; package authority remains pre-registration planning only."
+    ],
+    "approval_scope": "sweep_planning_only",
+    "non_authority_acknowledgement": {
+      "not_candidate_approval": true,
+      "not_exp_approval": true,
+      "not_sweep_authority": true,
+      "not_runner_authority": true,
+      "not_result_authority": true,
+      "not_ranking_authority": true,
+      "not_recommendation_authority": true,
+      "not_readiness_authority": true,
+      "not_transition_authority": true,
+      "not_runtime_authority": true,
+      "not_paper_live_authority": true,
+      "not_gate_satisfaction": true
+    }
+  }
+}

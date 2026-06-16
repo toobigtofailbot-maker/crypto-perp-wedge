@@ -1721,6 +1721,7 @@ def test_strategy_spec_relation_first_instance_repo_state(conn):
         ("STRAT-SPEC-0002",),
         ("STRAT-SPEC-0003",),
         ("STRAT-SPEC-0004",),
+        ("STRAT-SPEC-0005",),
     ]
 
 
@@ -1807,7 +1808,19 @@ def test_strategy_spec_views_expose_first_instance_repo_state(conn):
             "computed",
             True,
             "variant_planning_only",
-        )
+        ),
+        (
+            "STRAT-SPEC-0005",
+            "crypto_perp",
+            "perpetual",
+            "15m",
+            "both",
+            3,
+            5,
+            "computed",
+            True,
+            "variant_planning_only",
+        ),
     ]
     assert parameters == [
         (
@@ -1899,7 +1912,37 @@ def test_strategy_spec_views_expose_first_instance_repo_state(conn):
             400.0,
             100.0,
             True,
-        )
+        ),
+        (
+            "STRAT-SPEC-0005",
+            "fast_lookback_bars",
+            "integer",
+            "entry",
+            20.0,
+            50.0,
+            30.0,
+            True,
+        ),
+        (
+            "STRAT-SPEC-0005",
+            "slow_lookback_bars",
+            "integer",
+            "entry",
+            100.0,
+            200.0,
+            100.0,
+            True,
+        ),
+        (
+            "STRAT-SPEC-0005",
+            "trend_lookback_bars",
+            "integer",
+            "filter",
+            300.0,
+            400.0,
+            100.0,
+            True,
+        ),
     ]
     assert condition_groups == [
         ("STRAT-SPEC-0001", "entry_logic", "ENTRY-GROUP-0001", 1, 0, 1),
@@ -1919,6 +1962,10 @@ def test_strategy_spec_views_expose_first_instance_repo_state(conn):
         ("STRAT-SPEC-0004", "entry_logic", "ENTRY-GROUP-SHORT-SMA-CROSSOVER-0004", 2, 0, 1),
         ("STRAT-SPEC-0004", "exit_logic", "EXIT-GROUP-LONG-OPPOSITE-CROSS-0004", 1, 0, 1),
         ("STRAT-SPEC-0004", "exit_logic", "EXIT-GROUP-SHORT-OPPOSITE-CROSS-0004", 1, 0, 1),
+        ("STRAT-SPEC-0005", "entry_logic", "ENTRY-GROUP-LONG-SMA-CROSSOVER-0005", 2, 0, 1),
+        ("STRAT-SPEC-0005", "entry_logic", "ENTRY-GROUP-SHORT-SMA-CROSSOVER-0005", 2, 0, 1),
+        ("STRAT-SPEC-0005", "exit_logic", "EXIT-GROUP-LONG-OPPOSITE-CROSS-0005", 1, 0, 1),
+        ("STRAT-SPEC-0005", "exit_logic", "EXIT-GROUP-SHORT-OPPOSITE-CROSS-0005", 1, 0, 1),
     ]
     assert assumptions == [
         (
@@ -1952,7 +1999,15 @@ def test_strategy_spec_views_expose_first_instance_repo_state(conn):
             "entry_price",
             "fixed_bps",
             "complete",
-        )
+        ),
+        (
+            "STRAT-SPEC-0005",
+            "taker_entry_taker_exit",
+            True,
+            "entry_price",
+            "fixed_bps",
+            "complete",
+        ),
     ]
 
 
@@ -2231,12 +2286,13 @@ def test_querying_strategy_spec_views_does_not_modify_research_files(conn):
 def test_variant_sweep_relations_first_instance_repo_state(conn):
     assert conn.execute(
         "SELECT variant_manifest_id FROM variant_manifests ORDER BY variant_manifest_id"
-    ).fetchall() == [("VM-0001",), ("VM-0002",), ("VM-0003",), ("VM-0004",)]
+    ).fetchall() == [("VM-0001",), ("VM-0002",), ("VM-0003",), ("VM-0004",), ("VM-0005",)]
     assert conn.execute("SELECT sweep_plan_id FROM sweep_plans ORDER BY sweep_plan_id").fetchall() == [
         ("SWEEP-PLAN-0001",),
         ("SWEEP-PLAN-0002",),
         ("SWEEP-PLAN-0003",),
         ("SWEEP-PLAN-0004",),
+        ("SWEEP-PLAN-0005",),
     ]
 
 
@@ -2351,7 +2407,18 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
             "frozen_for_sweep_planning",
             "computed",
             "sweep_planning_only",
-        )
+        ),
+        (
+            "VM-0005",
+            "STRAT-SPEC-0005",
+            8,
+            8,
+            8,
+            "SF-PHASEB-SMA-CROSSOVER-MOMENTUM-ATRSTOP-15M-0002",
+            "frozen_for_sweep_planning",
+            "computed",
+            "sweep_planning_only",
+        ),
     ]
     assert manifest_population == [
         (
@@ -2401,7 +2468,19 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
             False,
             True,
             True,
-        )
+        ),
+        (
+            "VM-0005",
+            8,
+            8,
+            8,
+            8,
+            "committed_pre_registered_population_count",
+            "committed_pre_registered_population",
+            False,
+            True,
+            True,
+        ),
     ]
     assert manifest_axes == [
         (
@@ -2484,7 +2563,34 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
             "bars",
             "manual_grid",
             True,
-        )
+        ),
+        (
+            "VM-0005",
+            "AXIS-001",
+            "fast_lookback_bars",
+            "integer",
+            "bars",
+            "manual_grid",
+            True,
+        ),
+        (
+            "VM-0005",
+            "AXIS-002",
+            "slow_lookback_bars",
+            "integer",
+            "bars",
+            "manual_grid",
+            True,
+        ),
+        (
+            "VM-0005",
+            "AXIS-003",
+            "trend_lookback_bars",
+            "integer",
+            "bars",
+            "manual_grid",
+            True,
+        ),
     ]
     assert manifest_assignments == [
         ("VM-0001", "VAR-000001", "included", 1, 0, 0, "manual-grid", 1),
@@ -2592,6 +2698,86 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
             "manual-grid-valid-only-fast-lt-slow-lt-trend",
             8,
         ),
+        (
+            "VM-0005",
+            "VAR-000001",
+            "included",
+            3,
+            0,
+            0,
+            "manual-grid-valid-only-fast-lt-slow-lt-trend",
+            1,
+        ),
+        (
+            "VM-0005",
+            "VAR-000002",
+            "included",
+            3,
+            0,
+            0,
+            "manual-grid-valid-only-fast-lt-slow-lt-trend",
+            2,
+        ),
+        (
+            "VM-0005",
+            "VAR-000003",
+            "included",
+            3,
+            0,
+            0,
+            "manual-grid-valid-only-fast-lt-slow-lt-trend",
+            3,
+        ),
+        (
+            "VM-0005",
+            "VAR-000004",
+            "included",
+            3,
+            0,
+            0,
+            "manual-grid-valid-only-fast-lt-slow-lt-trend",
+            4,
+        ),
+        (
+            "VM-0005",
+            "VAR-000005",
+            "included",
+            3,
+            0,
+            0,
+            "manual-grid-valid-only-fast-lt-slow-lt-trend",
+            5,
+        ),
+        (
+            "VM-0005",
+            "VAR-000006",
+            "included",
+            3,
+            0,
+            0,
+            "manual-grid-valid-only-fast-lt-slow-lt-trend",
+            6,
+        ),
+        (
+            "VM-0005",
+            "VAR-000007",
+            "included",
+            3,
+            0,
+            0,
+            "manual-grid-valid-only-fast-lt-slow-lt-trend",
+            7,
+        ),
+        (
+            "VM-0005",
+            "VAR-000008",
+            "included",
+            3,
+            0,
+            0,
+            "manual-grid-valid-only-fast-lt-slow-lt-trend",
+            8,
+        ),
     ]
     assert sweep_overview == [
         (
@@ -2637,7 +2823,18 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
             8,
             0,
             "offline_run_planning_only",
-        )
+        ),
+        (
+            "SWEEP-PLAN-0005",
+            "VM-0005",
+            8,
+            8,
+            "frozen_for_sweep_planning",
+            "all_manifest_variants",
+            8,
+            0,
+            "offline_run_planning_only",
+        ),
     ]
     assert sweep_accounting == [
         (
@@ -2687,13 +2884,26 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
             True,
             True,
             True,
-        )
+        ),
+        (
+            "SWEEP-PLAN-0005",
+            8,
+            8,
+            0,
+            8,
+            8,
+            "committed_pre_registered_population_count",
+            True,
+            True,
+            True,
+        ),
     ]
     assert result_capture == [
         ("SWEEP-PLAN-0001", True, None, True, True),
         ("SWEEP-PLAN-0002", True, None, True, True),
         ("SWEEP-PLAN-0003", True, None, True, True),
         ("SWEEP-PLAN-0004", True, None, True, True),
+        ("SWEEP-PLAN-0005", True, None, True, True),
     ]
 
 

@@ -1,0 +1,266 @@
+{
+  "schema_version": "candidate_lifecycle_registry.v1",
+  "registry_id": "CANDIDATE-REGISTRY-EXAMPLE-0001",
+  "registry_status": "example_fixture",
+  "non_authority_declaration": {
+    "not_candidate_approval": true,
+    "not_paper_live_authority": true,
+    "not_runtime_authority": true,
+    "not_promotion_authority": true,
+    "not_trading_recommendation": true,
+    "not_broker_exchange_authority": true,
+    "not_capital_authority": true,
+    "notes": "Fixture-only registry shape; not a real candidate registry."
+  },
+  "transition_rules": {
+    "allowed_edges": [
+      {
+        "from_status": "proposed",
+        "to_status": "validated_research",
+        "required_gate": "canonical_trial_screen",
+        "notes": "Requires immutable research evidence and denominator honesty."
+      },
+      {
+        "from_status": "proposed",
+        "to_status": "rejected",
+        "required_gate": "source_or_research_intake_gate",
+        "notes": "Allowed when source support, data, or boundaries fail."
+      },
+      {
+        "from_status": "proposed",
+        "to_status": "retired",
+        "required_gate": "retirement_gate",
+        "notes": "Preserves the proposed record without continuing review."
+      },
+      {
+        "from_status": "validated_research",
+        "to_status": "paper_candidate",
+        "required_gate": "walk_forward_oos_and_robustness_gate",
+        "notes": "Requires future review evidence before paper candidacy."
+      },
+      {
+        "from_status": "validated_research",
+        "to_status": "rejected",
+        "required_gate": "research_rejection_gate",
+        "notes": "Preserves failed research evidence."
+      },
+      {
+        "from_status": "paper_candidate",
+        "to_status": "paper_running",
+        "required_gate": "paper_shadow_start_gate",
+        "notes": "Requires separately authorized paper/shadow package scope."
+      },
+      {
+        "from_status": "paper_running",
+        "to_status": "promoted_live",
+        "required_gate": "live_gate",
+        "notes": "Requires explicit live authorization and protected-boundary readiness."
+      },
+      {
+        "from_status": "promoted_live",
+        "to_status": "demoted",
+        "required_gate": "halt_or_demotion_gate",
+        "notes": "Preserves live halt or demotion evidence."
+      },
+      {
+        "from_status": "rejected",
+        "to_status": "proposed",
+        "required_gate": "reopen_exception_gate",
+        "notes": "Requires explicit exception event and fresh review scope."
+      },
+      {
+        "from_status": "retired",
+        "to_status": "proposed",
+        "required_gate": "reopen_exception_gate",
+        "notes": "Requires explicit exception event and fresh review scope."
+      }
+    ],
+    "forbidden_principles": [
+      "No direct proposed to paper_candidate, paper_running, or promoted_live transition.",
+      "No direct validated_research to paper_running or promoted_live transition.",
+      "No promoted_live transition without paper_running history and live-gate evidence.",
+      "No evidence link creates approval, ranking, paper/live, runtime, capital, broker, exchange, OMS, reconciliation, or risk authority."
+    ]
+  },
+  "candidates": [
+    {
+      "candidate_id": "CANDIDATE-EXAMPLE-0001",
+      "candidate_status": "validated_research",
+      "display_name": "Fixture lifecycle candidate",
+      "strategy_family": "fixture_only",
+      "description": "Non-canonical fixture used only to exercise candidate lifecycle registry schema validation.",
+      "market": "crypto_perpetual",
+      "instrument": "BTCUSDT",
+      "primary_timeframe": "15m",
+      "allowed_confirmation_timeframes": ["1h"],
+      "source_refs": {
+        "strategy_spec_refs": [
+          {
+            "artifact_type": "strategy_spec",
+            "artifact_id": "STRAT-SPEC-EXAMPLE",
+            "artifact_ref": "STRAT-SPEC-EXAMPLE",
+            "relationship": "source_lineage",
+            "authority_boundary": "review_reference_only",
+            "identity_hash": null,
+            "notes": "Fake fixture reference only."
+          }
+        ],
+        "variant_manifest_refs": [
+          {
+            "artifact_type": "variant_manifest",
+            "artifact_id": "VM-EXAMPLE",
+            "artifact_ref": "VM-EXAMPLE",
+            "relationship": "source_lineage",
+            "authority_boundary": "review_reference_only",
+            "identity_hash": null,
+            "notes": "Fake fixture reference only."
+          }
+        ],
+        "sweep_plan_refs": [
+          {
+            "artifact_type": "sweep_plan",
+            "artifact_id": "SWEEP-PLAN-EXAMPLE",
+            "artifact_ref": "SWEEP-PLAN-EXAMPLE",
+            "relationship": "source_lineage",
+            "authority_boundary": "review_reference_only",
+            "identity_hash": null,
+            "notes": "Fake fixture reference only."
+          }
+        ],
+        "source_design_refs": [
+          {
+            "artifact_type": "design_doc",
+            "artifact_id": "DESIGN-EXAMPLE",
+            "artifact_ref": "docs/example-only/not-canonical.md",
+            "relationship": "context",
+            "authority_boundary": "non_authoritative_context",
+            "identity_hash": null,
+            "notes": "Path is intentionally illustrative and not resolved by this fixture validator."
+          }
+        ],
+        "approval_note_refs": []
+      },
+      "evidence_links": [
+        {
+          "artifact_type": "result_population",
+          "artifact_id": "RP-EXAMPLE",
+          "artifact_ref": "RP-EXAMPLE",
+          "relationship": "canonical_evidence",
+          "authority_boundary": "evidence_link_only",
+          "identity_hash": null,
+          "notes": "Fake result-population reference only."
+        },
+        {
+          "artifact_type": "screen_diagnostic",
+          "artifact_id": "SCREEN-DIAG-EXAMPLE",
+          "artifact_ref": "SCREEN-DIAG-EXAMPLE",
+          "relationship": "validation_evidence",
+          "authority_boundary": "evidence_link_only",
+          "identity_hash": null,
+          "notes": "Fake screen diagnostic reference only."
+        }
+      ],
+      "lifecycle_event_refs": ["CLE-EXAMPLE-0001", "CLE-EXAMPLE-0002"],
+      "review_metadata": {
+        "created_at": "2026-06-16T00:00:00Z",
+        "created_by": "fixture",
+        "review_owner": "fixture reviewer",
+        "gate_owner": "Main/Karl fixture",
+        "review_due_at": null,
+        "decision_notes": "Fixture exercises shape only.",
+        "unresolved_questions": []
+      },
+      "blocking_reason": null,
+      "required_next_review": "fixture-only review would stop before any paper/live authority",
+      "non_authority_declaration": {
+        "not_candidate_approval": true,
+        "not_paper_live_authority": true,
+        "not_runtime_authority": true,
+        "not_promotion_authority": true,
+        "not_trading_recommendation": true,
+        "not_broker_exchange_authority": true,
+        "not_capital_authority": true,
+        "notes": "Candidate fixture is not a real candidate."
+      }
+    }
+  ],
+  "append_only_ledger": [
+    {
+      "event_id": "CLE-EXAMPLE-0001",
+      "event_sequence": 1,
+      "candidate_id": "CANDIDATE-EXAMPLE-0001",
+      "event_type": "proposed",
+      "timestamp_utc": "2026-06-16T00:00:00Z",
+      "actor": "fixture",
+      "gate": "source_or_research_intake_gate",
+      "from_status": null,
+      "to_status": "proposed",
+      "reason": "Fixture candidate lifecycle record opened for schema validation.",
+      "related_evidence_links": [
+        {
+          "artifact_type": "strategy_spec",
+          "artifact_id": "STRAT-SPEC-EXAMPLE",
+          "artifact_ref": "STRAT-SPEC-EXAMPLE",
+          "relationship": "source_lineage",
+          "authority_boundary": "review_reference_only",
+          "identity_hash": null,
+          "notes": "Fake fixture reference only."
+        }
+      ],
+      "blocking_or_exception_refs": [],
+      "non_authority_declaration": {
+        "not_candidate_approval": true,
+        "not_paper_live_authority": true,
+        "not_runtime_authority": true,
+        "not_promotion_authority": true,
+        "not_trading_recommendation": true,
+        "not_broker_exchange_authority": true,
+        "not_capital_authority": true,
+        "notes": "Event fixture is not a lifecycle decision for a real candidate."
+      }
+    },
+    {
+      "event_id": "CLE-EXAMPLE-0002",
+      "event_sequence": 2,
+      "candidate_id": "CANDIDATE-EXAMPLE-0001",
+      "event_type": "validated",
+      "timestamp_utc": "2026-06-16T00:01:00Z",
+      "actor": "fixture",
+      "gate": "canonical_trial_screen",
+      "from_status": "proposed",
+      "to_status": "validated_research",
+      "reason": "Fixture demonstrates a valid proposed to validated_research transition.",
+      "related_evidence_links": [
+        {
+          "artifact_type": "result_population",
+          "artifact_id": "RP-EXAMPLE",
+          "artifact_ref": "RP-EXAMPLE",
+          "relationship": "canonical_evidence",
+          "authority_boundary": "evidence_link_only",
+          "identity_hash": null,
+          "notes": "Fake fixture reference only."
+        }
+      ],
+      "blocking_or_exception_refs": [],
+      "non_authority_declaration": {
+        "not_candidate_approval": true,
+        "not_paper_live_authority": true,
+        "not_runtime_authority": true,
+        "not_promotion_authority": true,
+        "not_trading_recommendation": true,
+        "not_broker_exchange_authority": true,
+        "not_capital_authority": true,
+        "notes": "Event fixture creates no paper/live or runtime authority."
+      }
+    }
+  ],
+  "validation_summary": {
+    "fixture_only": true,
+    "real_candidate_registered": false,
+    "lifecycle_engine_implemented": false,
+    "paper_live_authority_created": false,
+    "runtime_authority_created": false,
+    "capital_authority_created": false,
+    "notes": "This fixture validates artifact shape only."
+  }
+}

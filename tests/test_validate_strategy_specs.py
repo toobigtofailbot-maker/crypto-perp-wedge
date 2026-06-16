@@ -87,6 +87,25 @@ def _z_score_operand(
     }
 
 
+def _atr_stop(
+    *,
+    atr_lookback=14,
+    atr_multiplier=2.5,
+    entry_reference_price="next_bar_open_pre_fee_slippage",
+    evaluation_price="close",
+    evaluation_timing="bar_close",
+    enabled=True,
+) -> dict:
+    return {
+        "enabled": enabled,
+        "atr_lookback": atr_lookback,
+        "atr_multiplier": atr_multiplier,
+        "entry_reference_price": entry_reference_price,
+        "evaluation_price": evaluation_price,
+        "evaluation_timing": evaluation_timing,
+    }
+
+
 def _condition(condition_id: str = "COND-1", operator: str = "gt") -> dict:
     return {
         "condition_id": condition_id,
@@ -618,6 +637,90 @@ def test_entry_controls_forbidden_executable_key_fails_validator(tmp_path):
     errors = _validate(tmp_path, payload)
 
     assert any("forbidden executable key name" in error and "lambda" in error for error in errors)
+
+
+def test_valid_atr_stop_passes_schema_and_validator(tmp_path):
+    payload = _base_strategy_spec()
+    payload["exit_logic"]["atr_stop"] = _atr_stop()
+    schema = _load_schema()
+
+    assert Draft7Validator(schema).is_valid(payload)
+    assert _validate(tmp_path, payload) == []
+
+
+def test_absent_atr_stop_preserves_existing_schema_and_validator(tmp_path):
+    payload = _base_strategy_spec()
+    schema = _load_schema()
+
+    assert "atr_stop" not in payload["exit_logic"]
+    assert Draft7Validator(schema).is_valid(payload)
+    assert _validate(tmp_path, payload) == []
+
+
+def test_atr_stop_invalid_multiplier_fails_schema_and_validator(tmp_path):
+    payload = _base_strategy_spec()
+    payload["exit_logic"]["atr_stop"] = _atr_stop(atr_multiplier=0)
+
+    assert not Draft7Validator(_load_schema()).is_valid(payload)
+    errors = _validate(tmp_path, payload)
+
+    assert any("atr_multiplier" in error for error in errors)
+
+
+def test_atr_stop_nonfinite_multiplier_fails_validator(tmp_path):
+    payload = _base_strategy_spec()
+    payload["exit_logic"]["atr_stop"] = _atr_stop(atr_multiplier=float("nan"))
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("atr_multiplier must be a positive finite number" in error for error in errors)
+
+
+def test_atr_stop_invalid_lookback_fails_schema_and_validator(tmp_path):
+    payload = _base_strategy_spec()
+    payload["exit_logic"]["atr_stop"] = _atr_stop(atr_lookback=0)
+
+    assert not Draft7Validator(_load_schema()).is_valid(payload)
+    errors = _validate(tmp_path, payload)
+
+    assert any("atr_lookback" in error for error in errors)
+
+
+def test_atr_stop_parameter_ref_form_fails_schema_and_validator(tmp_path):
+    payload = _base_strategy_spec()
+    payload["exit_logic"]["atr_stop"] = _atr_stop(atr_multiplier={"parameter_ref": "atr_k"})
+
+    assert not Draft7Validator(_load_schema()).is_valid(payload)
+    errors = _validate(tmp_path, payload)
+
+    assert any("atr_multiplier" in error for error in errors)
+
+
+def test_atr_stop_invalid_reference_and_timing_fail_schema_and_validator(tmp_path):
+    payload = _base_strategy_spec()
+    payload["exit_logic"]["atr_stop"] = _atr_stop(
+        entry_reference_price="close",
+        evaluation_price="open",
+        evaluation_timing="intrabar",
+    )
+
+    assert not Draft7Validator(_load_schema()).is_valid(payload)
+    errors = _validate(tmp_path, payload)
+
+    assert any("entry_reference_price" in error for error in errors)
+    assert any("evaluation_price" in error for error in errors)
+    assert any("evaluation_timing" in error for error in errors)
+
+
+def test_atr_stop_unknown_key_and_executable_key_fail_validator(tmp_path):
+    payload = _base_strategy_spec()
+    payload["exit_logic"]["atr_stop"] = _atr_stop()
+    payload["exit_logic"]["atr_stop"]["lambda"] = "close <= stop"
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("forbidden executable key name" in error and "lambda" in error for error in errors)
+    assert any("exit_logic.atr_stop supports exactly" in error for error in errors)
 
 
 def test_single_direction_rejects_side_labeled_entry_group(tmp_path):

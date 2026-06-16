@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any
 
@@ -43,6 +44,19 @@ SINGLE_DIRECTIONS = {"long", "short"}
 MAX_CONDITION_GROUP_DEPTH = 3
 MAX_FREE_PARAMETERS = 5
 LOOKBACK_PARAMETER_REF_KEY = "bars_parameter_ref"
+ATR_STOP_ALLOWED_KEYS = {
+    "enabled",
+    "atr_lookback",
+    "atr_multiplier",
+    "entry_reference_price",
+    "evaluation_price",
+    "evaluation_timing",
+}
+ATR_STOP_ENTRY_REFERENCE_PRICE = "next_bar_open_pre_fee_slippage"
+ATR_STOP_EVALUATION_PRICE = "close"
+ATR_STOP_EVALUATION_TIMING = "bar_close"
+ATR_STOP_MAX_LOOKBACK_BARS = 100000
+ATR_STOP_MAX_MULTIPLIER = 1000.0
 FORBIDDEN_EXECUTABLE_KEYS = {
     "expression",
     "formula",
@@ -618,6 +632,70 @@ def _validate_parameter_bound_lookbacks(path: Path, payload: dict[str, Any]) -> 
     return errors
 
 
+def _is_finite_non_bool_number(value: Any) -> bool:
+    return (
+        isinstance(value, (int, float))
+        and not isinstance(value, bool)
+        and math.isfinite(float(value))
+    )
+
+
+def _validate_atr_stop(path: Path, payload: dict[str, Any]) -> list[str]:
+    exit_logic = payload.get("exit_logic")
+    if not isinstance(exit_logic, dict) or "atr_stop" not in exit_logic:
+        return []
+    atr_stop = exit_logic.get("atr_stop")
+    if not isinstance(atr_stop, dict):
+        return [f"{path}: exit_logic.atr_stop must be an object when provided"]
+
+    errors: list[str] = []
+    if set(atr_stop) != ATR_STOP_ALLOWED_KEYS:
+        errors.append(
+            f"{path}: exit_logic.atr_stop supports exactly {sorted(ATR_STOP_ALLOWED_KEYS)}"
+        )
+    if atr_stop.get("enabled") is not True:
+        errors.append(f"{path}: exit_logic.atr_stop.enabled must be true")
+
+    atr_lookback = atr_stop.get("atr_lookback")
+    if (
+        not _is_non_bool_int(atr_lookback)
+        or atr_lookback < 1
+        or atr_lookback > ATR_STOP_MAX_LOOKBACK_BARS
+    ):
+        errors.append(
+            f"{path}: exit_logic.atr_stop.atr_lookback must be an integer in "
+            f"[1, {ATR_STOP_MAX_LOOKBACK_BARS}]"
+        )
+
+    atr_multiplier = atr_stop.get("atr_multiplier")
+    if (
+        not _is_finite_non_bool_number(atr_multiplier)
+        or float(atr_multiplier) <= 0.0
+        or float(atr_multiplier) > ATR_STOP_MAX_MULTIPLIER
+    ):
+        errors.append(
+            f"{path}: exit_logic.atr_stop.atr_multiplier must be a positive finite "
+            f"number <= {ATR_STOP_MAX_MULTIPLIER:g}"
+        )
+
+    if atr_stop.get("entry_reference_price") != ATR_STOP_ENTRY_REFERENCE_PRICE:
+        errors.append(
+            f"{path}: exit_logic.atr_stop.entry_reference_price must be "
+            f"{ATR_STOP_ENTRY_REFERENCE_PRICE!r}"
+        )
+    if atr_stop.get("evaluation_price") != ATR_STOP_EVALUATION_PRICE:
+        errors.append(
+            f"{path}: exit_logic.atr_stop.evaluation_price must be "
+            f"{ATR_STOP_EVALUATION_PRICE!r}"
+        )
+    if atr_stop.get("evaluation_timing") != ATR_STOP_EVALUATION_TIMING:
+        errors.append(
+            f"{path}: exit_logic.atr_stop.evaluation_timing must be "
+            f"{ATR_STOP_EVALUATION_TIMING!r}"
+        )
+    return errors
+
+
 def _validate_true_flags(
     path: Path,
     payload: dict[str, Any],
@@ -852,6 +930,7 @@ def validate_strategy_specs(
         errors.extend(_validate_forbidden_keys(path, payload))
         errors.extend(_validate_composed_operands(path, payload))
         errors.extend(_validate_parameter_bound_lookbacks(path, payload))
+        errors.extend(_validate_atr_stop(path, payload))
         errors.extend(_validate_non_authority_flags(path, payload))
         errors.extend(_validate_host_data_ref_safety(path, payload))
         errors.extend(_validate_both_direction_sides(path, payload))

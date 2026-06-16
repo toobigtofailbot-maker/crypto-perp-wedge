@@ -759,6 +759,46 @@
         }
       }
     },
+    "atr_stop": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "atr_lookback",
+        "atr_multiplier",
+        "entry_reference_price",
+        "evaluation_price",
+        "evaluation_timing"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "const": true
+        },
+        "atr_lookback": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100000
+        },
+        "atr_multiplier": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1000
+        },
+        "entry_reference_price": {
+          "type": "string",
+          "const": "next_bar_open_pre_fee_slippage"
+        },
+        "evaluation_price": {
+          "type": "string",
+          "const": "close"
+        },
+        "evaluation_timing": {
+          "type": "string",
+          "const": "bar_close"
+        }
+      }
+    },
     "exit_logic": {
       "type": "object",
       "additionalProperties": false,
@@ -772,6 +812,9 @@
         },
         "max_holding_period": {
           "$ref": "#/definitions/max_holding_period"
+        },
+        "atr_stop": {
+          "$ref": "#/definitions/atr_stop"
         },
         "notes": {
           "$ref": "#/definitions/nullable_string"

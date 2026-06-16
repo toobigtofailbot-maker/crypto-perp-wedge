@@ -86,6 +86,25 @@ def _z_score_operand(
     }
 
 
+def _atr_stop(
+    *,
+    atr_lookback: int | float = 1,
+    atr_multiplier: int | float = 1.0,
+    entry_reference_price: str = "next_bar_open_pre_fee_slippage",
+    evaluation_price: str = "close",
+    evaluation_timing: str = "bar_close",
+    enabled: bool = True,
+) -> dict:
+    return {
+        "enabled": enabled,
+        "atr_lookback": atr_lookback,
+        "atr_multiplier": atr_multiplier,
+        "entry_reference_price": entry_reference_price,
+        "evaluation_price": evaluation_price,
+        "evaluation_timing": evaluation_timing,
+    }
+
+
 def _distance_ohlcv() -> pd.DataFrame:
     index = pd.date_range("2026-01-01", periods=25, freq="h", tz="UTC")
     close = ([100.0] * 20) + [94.0, 98.0, 90.0, 102.0, 94.0]
@@ -161,6 +180,34 @@ def _spec(
     if entry_controls is not None:
         spec["entry_logic"]["entry_controls"] = entry_controls
     return spec
+
+
+def _atr_stop_long_ohlcv(close_at_fill_bar: float = 97.0) -> pd.DataFrame:
+    index = pd.date_range("2026-04-01", periods=4, freq="h", tz="UTC")
+    return pd.DataFrame(
+        {
+            "open": [100.0, 100.0, 100.0, 100.0],
+            "high": [102.0, 101.0, 101.0, 101.0],
+            "low": [100.0, 99.0, 99.0, 99.0],
+            "close": [101.0, close_at_fill_bar, 95.0, 95.0],
+            "volume": [1000.0] * len(index),
+        },
+        index=index,
+    )
+
+
+def _atr_stop_short_ohlcv(close_at_fill_bar: float = 103.0) -> pd.DataFrame:
+    index = pd.date_range("2026-04-01", periods=4, freq="h", tz="UTC")
+    return pd.DataFrame(
+        {
+            "open": [100.0, 100.0, 100.0, 100.0],
+            "high": [100.0, 101.0, 101.0, 101.0],
+            "low": [98.0, 99.0, 99.0, 99.0],
+            "close": [98.0, close_at_fill_bar, 105.0, 105.0],
+            "volume": [1000.0] * len(index),
+        },
+        index=index,
+    )
 
 
 def _default_variant(**parameter_values) -> dict:
@@ -1241,6 +1288,329 @@ def test_atr_v1_uses_wilder_true_range_and_rma() -> None:
     assert math.isnan(result.iloc[1])
     assert result.iloc[2] == pytest.approx((3.0 + 4.0 + 4.0) / 3.0)
     assert result.iloc[3] == pytest.approx(((result.iloc[2] * 2.0) + 4.0) / 3.0)
+
+
+def test_atr_stop_absent_preserves_existing_signal() -> None:
+    ohlcv = _ohlcv()
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "gt",
+                        _operand("constant", 12.0),
+                    )
+                ],
+            )
+        ],
+        exit_groups=[
+            _group(
+                "exit",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "lt",
+                        _operand("constant", 13.0),
+                        role="exit",
+                    )
+                ],
+            )
+        ],
+    )
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert "atr_stop" not in spec["exit_logic"]
+    assert signal.tolist() == [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0]
+
+
+def test_atr_stop_long_fires_from_next_bar_open_reference() -> None:
+    ohlcv = _atr_stop_long_ohlcv(close_at_fill_bar=97.0)
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "gt",
+                        _operand("constant", 100.0),
+                    )
+                ],
+            )
+        ],
+    )
+    spec["exit_logic"]["atr_stop"] = _atr_stop(atr_lookback=1, atr_multiplier=1.0)
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [1.0, 0.0, 0.0, 0.0]
+
+
+def test_atr_stop_short_fires_from_next_bar_open_reference() -> None:
+    ohlcv = _atr_stop_short_ohlcv(close_at_fill_bar=103.0)
+    spec = _spec(
+        direction="short",
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "lt",
+                        _operand("constant", 99.0),
+                    )
+                ],
+            )
+        ],
+    )
+    spec["exit_logic"]["atr_stop"] = _atr_stop(atr_lookback=1, atr_multiplier=1.0)
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [-1.0, 0.0, 0.0, 0.0]
+
+
+def test_atr_stop_preserves_existing_exit_when_opposite_exit_fires_first() -> None:
+    ohlcv = _atr_stop_long_ohlcv(close_at_fill_bar=99.0)
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "gt",
+                        _operand("constant", 100.0),
+                    )
+                ],
+            )
+        ],
+        exit_groups=[
+            _group(
+                "exit",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "lt",
+                        _operand("constant", 100.0),
+                        role="exit",
+                    )
+                ],
+            )
+        ],
+    )
+    spec["exit_logic"]["atr_stop"] = _atr_stop(atr_lookback=1, atr_multiplier=1.0)
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [1.0, 0.0, 0.0, 0.0]
+
+
+def test_atr_stop_fires_when_stop_precedes_opposite_exit() -> None:
+    ohlcv = _atr_stop_long_ohlcv(close_at_fill_bar=97.0)
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "gt",
+                        _operand("constant", 100.0),
+                    )
+                ],
+            )
+        ],
+        exit_groups=[
+            _group(
+                "exit",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "lt",
+                        _operand("constant", 90.0),
+                        role="exit",
+                    )
+                ],
+            )
+        ],
+    )
+    spec["exit_logic"]["atr_stop"] = _atr_stop(atr_lookback=1, atr_multiplier=1.0)
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [1.0, 0.0, 0.0, 0.0]
+
+
+def test_atr_stop_exit_bar_does_not_reenter_when_entry_condition_remains_true() -> None:
+    ohlcv = _atr_stop_long_ohlcv(close_at_fill_bar=97.0)
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "gt",
+                        _operand("constant", 10.0),
+                    )
+                ],
+            )
+        ],
+    )
+    spec["exit_logic"]["atr_stop"] = _atr_stop(atr_lookback=1, atr_multiplier=1.0)
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [1.0, 0.0, 1.0, 0.0]
+
+
+def test_atr_stop_uses_fixed_atr_from_entry_signal_bar() -> None:
+    index = pd.date_range("2026-04-01", periods=5, freq="h", tz="UTC")
+    ohlcv = pd.DataFrame(
+        {
+            "open": [100.0] * len(index),
+            "high": [100.0, 100.0, 102.0, 150.0, 150.0],
+            "low": [99.0, 99.0, 100.0, 50.0, 50.0],
+            "close": [99.0, 99.0, 101.0, 97.0, 97.0],
+            "volume": [1000.0] * len(index),
+        },
+        index=index,
+    )
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "gt",
+                        _operand("constant", 100.0),
+                    )
+                ],
+            )
+        ],
+    )
+    spec["exit_logic"]["atr_stop"] = _atr_stop(atr_lookback=1, atr_multiplier=1.0)
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [0.0, 0.0, 1.0, 0.0, 0.0]
+
+
+def test_atr_stop_repeated_compilation_is_deterministic() -> None:
+    ohlcv = _atr_stop_long_ohlcv(close_at_fill_bar=97.0)
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "gt",
+                        _operand("constant", 100.0),
+                    )
+                ],
+            )
+        ],
+    )
+    spec["exit_logic"]["atr_stop"] = _atr_stop(atr_lookback=1, atr_multiplier=1.0)
+
+    first = compile_signal(spec, _default_variant(), ohlcv)
+    second = compile_signal(spec, _default_variant(), ohlcv)
+
+    pd.testing.assert_series_equal(first, second)
+
+
+def test_atr_stop_both_direction_state_does_not_leak_between_sides() -> None:
+    index = pd.date_range("2026-04-01", periods=5, freq="h", tz="UTC")
+    ohlcv = pd.DataFrame(
+        {
+            "open": [100.0] * len(index),
+            "high": [102.0, 101.0, 98.0, 122.0, 96.0],
+            "low": [100.0, 99.0, 78.0, 120.0, 94.0],
+            "close": [101.0, 97.0, 80.0, 121.0, 95.0],
+            "volume": [1000.0] * len(index),
+        },
+        index=index,
+    )
+    spec = _both_direction_spec(
+        long_entry=_condition(
+            _operand("data_ref", "close", "close"),
+            "gt",
+            _operand("constant", 100.0),
+        ),
+        short_entry=_condition(
+            _operand("data_ref", "close", "close"),
+            "lt",
+            _operand("constant", 90.0),
+        ),
+    )
+    spec["exit_logic"]["atr_stop"] = _atr_stop(atr_lookback=1, atr_multiplier=1.0)
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [1.0, 0.0, -1.0, 0.0, 0.0]
+
+
+@pytest.mark.parametrize(
+    ("mutator", "match"),
+    [
+        (lambda atr_stop: atr_stop.update({"atr_multiplier": 0.0}), "atr_multiplier"),
+        (lambda atr_stop: atr_stop.update({"atr_multiplier": math.inf}), "atr_multiplier"),
+        (lambda atr_stop: atr_stop.update({"atr_lookback": 0}), "atr_lookback"),
+        (lambda atr_stop: atr_stop.update({"atr_lookback": 1.5}), "atr_lookback"),
+        (
+            lambda atr_stop: atr_stop.update({"entry_reference_price": "close"}),
+            "entry_reference_price",
+        ),
+        (lambda atr_stop: atr_stop.update({"evaluation_price": "open"}), "evaluation_price"),
+        (
+            lambda atr_stop: atr_stop.update({"evaluation_timing": "intrabar"}),
+            "evaluation_timing",
+        ),
+        (lambda atr_stop: atr_stop.update({"enabled": False}), "enabled"),
+        (lambda atr_stop: atr_stop.update({"parameter_ref": "atr_k"}), "supports exactly"),
+    ],
+)
+def test_atr_stop_rejects_invalid_closed_grammar(mutator, match: str) -> None:
+    spec = _single_condition_spec(
+        "gt",
+        _operand("data_ref", "close", "close"),
+        _operand("constant", 100.0),
+    )
+    spec["exit_logic"]["atr_stop"] = _atr_stop(atr_lookback=1, atr_multiplier=1.0)
+    mutator(spec["exit_logic"]["atr_stop"])
+
+    with pytest.raises(SpecSignalCompilerError, match=match):
+        compile_signal(spec, _default_variant(), _atr_stop_long_ohlcv())
+
+
+def test_atr_stop_rejects_forbidden_executable_key() -> None:
+    spec = _single_condition_spec(
+        "gt",
+        _operand("data_ref", "close", "close"),
+        _operand("constant", 100.0),
+    )
+    spec["exit_logic"]["atr_stop"] = _atr_stop(atr_lookback=1, atr_multiplier=1.0)
+    spec["exit_logic"]["atr_stop"]["lambda"] = "close <= stop"
+
+    with pytest.raises(SpecSignalCompilerError, match="forbidden executable"):
+        compile_signal(spec, _default_variant(), _atr_stop_long_ohlcv())
 
 
 def test_stddev_v1_uses_locked_ddof_convention() -> None:

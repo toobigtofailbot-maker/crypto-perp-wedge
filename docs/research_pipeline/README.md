@@ -510,6 +510,9 @@ decision records, schemas, validators, or locked baseline documents.
   0005 lookback horizons to 4h bars after scratch premise confirmation and
   creates no canonical trial, result population, candidate, walk-forward,
   paper/live, runtime, or capital authority.
+- `2026-06-probe_methodology_canonical_regrounding.md` - methodology guardrail
+  after the 0006 probe/canonical divergence; defines when premise probes can
+  gate canonical expectations and when they remain exploratory and non-gating.
 - `2026-06-online_ohlcv_hypothesis_param_lock.md` - docs-only
   non-authoritative parameter lock for three online-derived BTCUSDT OHLCV
   hypothesis envelopes; creates no Strategy Spec, variant, sweep, result,

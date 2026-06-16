@@ -492,6 +492,15 @@ decision records, schemas, validators, or locked baseline documents.
   `RP-2592`; records valid deterministic evidence and a separate frozen-screen
   `NO-GO` verdict without walk-forward, candidate, paper/live, or runtime
   authority.
+- `2026-06-momentum_v2_design.md` - docs-only design after `RP-2592`; records
+  the positive-but-risk-failing momentum evidence, mixed cost diagnosis, and
+  ATR-stop / compounding-aware screen dependency before any v2 freeze.
+- `2026-06-momentum_v2_prereg_0005.md` - freeze-candidate momentum v2
+  preregistration surface for STRAT-SPEC-0005 / VM-0005 /
+  SWEEP-PLAN-0005; reuses the 0004 SMA grid, adds fixed A6 ATR-stop literals,
+  proposes a compounding-aware cost and drawdown-primary screen, and remains
+  Karl-gated with no canonical result, candidate, paper/live, or runtime
+  authority.
 - `../architecture/BTC_PERP_FUTURE_CAPABILITY_BACKLOG.md` - non-authoritative
   BTC perpetual capability inventory for future research-lab, crypto/perp
   feature, execution-realism, and later paper/live planning.

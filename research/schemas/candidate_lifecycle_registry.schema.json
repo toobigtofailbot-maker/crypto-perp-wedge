@@ -1,0 +1,458 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crypto-perp-wedge.local/research/schemas/candidate_lifecycle_registry.schema.json",
+  "title": "Candidate Lifecycle Registry",
+  "description": "Candidate lifecycle registry shape. This schema defines review/evidence records only and creates no runtime, paper/live, capital, broker, exchange, OMS, reconciliation, risk, promotion, or trading authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "registry_id",
+    "registry_status",
+    "non_authority_declaration",
+    "transition_rules",
+    "candidates",
+    "append_only_ledger",
+    "validation_summary"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "candidate_lifecycle_registry.v1"
+    },
+    "registry_id": {
+      "type": "string",
+      "pattern": "^CANDIDATE-REGISTRY-(EXAMPLE-|FIXTURE-)?[0-9]{4}$"
+    },
+    "registry_status": {
+      "type": "string",
+      "enum": ["example_fixture", "test_fixture", "unpopulated", "candidate_review", "archived"]
+    },
+    "non_authority_declaration": {
+      "$ref": "#/definitions/non_authority_declaration"
+    },
+    "transition_rules": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["allowed_edges", "forbidden_principles"],
+      "properties": {
+        "allowed_edges": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["from_status", "to_status", "required_gate", "notes"],
+            "properties": {
+              "from_status": { "$ref": "#/definitions/candidate_status" },
+              "to_status": { "$ref": "#/definitions/candidate_status" },
+              "required_gate": {
+                "type": "string",
+                "minLength": 1
+              },
+              "notes": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "forbidden_principles": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "candidates": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/candidate" },
+      "uniqueItems": true
+    },
+    "append_only_ledger": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/audit_event" },
+      "uniqueItems": true
+    },
+    "validation_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fixture_only",
+        "real_candidate_registered",
+        "lifecycle_engine_implemented",
+        "paper_live_authority_created",
+        "runtime_authority_created",
+        "capital_authority_created"
+      ],
+      "properties": {
+        "fixture_only": { "type": "boolean" },
+        "real_candidate_registered": { "type": "boolean" },
+        "lifecycle_engine_implemented": { "type": "boolean", "const": false },
+        "paper_live_authority_created": { "type": "boolean", "const": false },
+        "runtime_authority_created": { "type": "boolean", "const": false },
+        "capital_authority_created": { "type": "boolean", "const": false },
+        "notes": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "candidate_status": {
+      "type": "string",
+      "enum": [
+        "proposed",
+        "validated_research",
+        "paper_candidate",
+        "paper_running",
+        "promoted_live",
+        "rejected",
+        "demoted",
+        "retired"
+      ]
+    },
+    "timeframe": {
+      "type": "string",
+      "enum": ["15m", "30m", "1h", "4h", "1d"]
+    },
+    "non_authority_declaration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "not_candidate_approval",
+        "not_paper_live_authority",
+        "not_runtime_authority",
+        "not_promotion_authority",
+        "not_trading_recommendation",
+        "not_broker_exchange_authority",
+        "not_capital_authority"
+      ],
+      "properties": {
+        "not_candidate_approval": { "type": "boolean", "const": true },
+        "not_paper_live_authority": { "type": "boolean", "const": true },
+        "not_runtime_authority": { "type": "boolean", "const": true },
+        "not_promotion_authority": { "type": "boolean", "const": true },
+        "not_trading_recommendation": { "type": "boolean", "const": true },
+        "not_broker_exchange_authority": { "type": "boolean", "const": true },
+        "not_capital_authority": { "type": "boolean", "const": true },
+        "notes": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "artifact_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_type",
+        "artifact_ref",
+        "relationship",
+        "authority_boundary"
+      ],
+      "properties": {
+        "artifact_type": {
+          "type": "string",
+          "enum": [
+            "strategy_spec",
+            "variant_manifest",
+            "sweep_plan",
+            "result_population",
+            "screen_diagnostic",
+            "experiment_plan",
+            "experiment_report",
+            "trial_log",
+            "decision_record",
+            "lifecycle_change",
+            "walk_forward_oos",
+            "robustness_report",
+            "monte_carlo_bootstrap",
+            "paper_shadow",
+            "live_approval",
+            "rejection_record",
+            "demotion_record",
+            "retirement_record",
+            "design_doc",
+            "status_entry"
+          ]
+        },
+        "artifact_id": {
+          "type": ["string", "null"],
+          "minLength": 1
+        },
+        "artifact_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "relationship": {
+          "type": "string",
+          "enum": [
+            "source_lineage",
+            "canonical_evidence",
+            "validation_evidence",
+            "paper_shadow_evidence",
+            "live_gate_evidence",
+            "decision_evidence",
+            "blocking_evidence",
+            "supersession_evidence",
+            "context"
+          ]
+        },
+        "authority_boundary": {
+          "type": "string",
+          "enum": [
+            "review_reference_only",
+            "evidence_link_only",
+            "non_authoritative_context"
+          ]
+        },
+        "identity_hash": {
+          "type": ["string", "null"],
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "review_metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "created_at",
+        "created_by",
+        "review_owner",
+        "gate_owner",
+        "review_due_at",
+        "unresolved_questions"
+      ],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+        },
+        "created_by": {
+          "type": "string",
+          "minLength": 1
+        },
+        "review_owner": {
+          "type": "string",
+          "minLength": 1
+        },
+        "gate_owner": {
+          "type": "string",
+          "minLength": 1
+        },
+        "review_due_at": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        "decision_notes": {
+          "type": "string"
+        },
+        "unresolved_questions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidate_id",
+        "candidate_status",
+        "display_name",
+        "strategy_family",
+        "description",
+        "market",
+        "instrument",
+        "primary_timeframe",
+        "allowed_confirmation_timeframes",
+        "source_refs",
+        "evidence_links",
+        "lifecycle_event_refs",
+        "review_metadata",
+        "non_authority_declaration"
+      ],
+      "properties": {
+        "candidate_id": {
+          "type": "string",
+          "pattern": "^(CANDIDATE-(EXAMPLE-|FIXTURE-)?[0-9]{4}|H-[0-9]{3})$"
+        },
+        "candidate_status": { "$ref": "#/definitions/candidate_status" },
+        "display_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "strategy_family": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "market": {
+          "type": "string",
+          "const": "crypto_perpetual"
+        },
+        "instrument": {
+          "type": "string",
+          "const": "BTCUSDT"
+        },
+        "primary_timeframe": { "$ref": "#/definitions/timeframe" },
+        "allowed_confirmation_timeframes": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/timeframe" },
+          "uniqueItems": true
+        },
+        "source_refs": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "strategy_spec_refs",
+            "variant_manifest_refs",
+            "sweep_plan_refs",
+            "source_design_refs",
+            "approval_note_refs"
+          ],
+          "properties": {
+            "strategy_spec_refs": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/artifact_ref" }
+            },
+            "variant_manifest_refs": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/artifact_ref" }
+            },
+            "sweep_plan_refs": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/artifact_ref" }
+            },
+            "source_design_refs": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/artifact_ref" }
+            },
+            "approval_note_refs": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/artifact_ref" }
+            }
+          }
+        },
+        "evidence_links": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/artifact_ref" }
+        },
+        "lifecycle_event_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^CLE-(EXAMPLE-|FIXTURE-)?[0-9]{4}$"
+          },
+          "uniqueItems": true
+        },
+        "review_metadata": { "$ref": "#/definitions/review_metadata" },
+        "blocking_reason": {
+          "type": ["string", "null"]
+        },
+        "required_next_review": {
+          "type": ["string", "null"]
+        },
+        "non_authority_declaration": {
+          "$ref": "#/definitions/non_authority_declaration"
+        }
+      }
+    },
+    "audit_event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_id",
+        "event_sequence",
+        "candidate_id",
+        "event_type",
+        "timestamp_utc",
+        "actor",
+        "gate",
+        "from_status",
+        "to_status",
+        "reason",
+        "related_evidence_links",
+        "blocking_or_exception_refs",
+        "non_authority_declaration"
+      ],
+      "properties": {
+        "event_id": {
+          "type": "string",
+          "pattern": "^CLE-(EXAMPLE-|FIXTURE-)?[0-9]{4}$"
+        },
+        "event_sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "candidate_id": {
+          "type": "string",
+          "pattern": "^(CANDIDATE-(EXAMPLE-|FIXTURE-)?[0-9]{4}|H-[0-9]{3})$"
+        },
+        "event_type": {
+          "type": "string",
+          "enum": [
+            "proposed",
+            "validated",
+            "paper_candidate_approved",
+            "paper_started",
+            "paper_completed",
+            "promoted",
+            "rejected",
+            "demoted",
+            "retired",
+            "override_exception"
+          ]
+        },
+        "timestamp_utc": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+        },
+        "actor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "gate": {
+          "type": "string",
+          "minLength": 1
+        },
+        "from_status": {
+          "oneOf": [
+            { "$ref": "#/definitions/candidate_status" },
+            { "type": "null" }
+          ]
+        },
+        "to_status": { "$ref": "#/definitions/candidate_status" },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "related_evidence_links": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/artifact_ref" }
+        },
+        "blocking_or_exception_refs": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/artifact_ref" }
+        },
+        "non_authority_declaration": {
+          "$ref": "#/definitions/non_authority_declaration"
+        }
+      }
+    }
+  }
+}

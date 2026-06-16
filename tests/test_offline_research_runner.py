@@ -34,6 +34,17 @@ D4_SLICE_IDENTITY = (
 D3_VALIDATION_REPORT_SHA256 = "785a8d53797155dcc80e646e8610db8d510825b9fa3dbccd21e79aa2700a6c1c"
 D2_IMPORT_REPORT_SHA256 = "543c944f727b2b9a7ad06742946ecefc91aa8b94723f46509e4041f622ef57ad"
 D4_CATALOG_ARTIFACT_SHA256 = "f7b98c4d7759b6ba0c9bf8559bcea5e3311d3abe877930da254aeca96f53105a"
+D4H_CATALOG_REF = (
+    "binance_usdtm_btcusdt_ohlcv_4h.derived_offline_resample.4h."
+    "20200101T000000Z.20260411T200000Z.sha256_4379d2f0fad5e79b"
+)
+D4H_SLICE_IDENTITY = (
+    "binance_usdtm_btcusdt_ohlcv_4h:sha256:"
+    "4379d2f0fad5e79bfd5576b308d01fb6134b0f5acf04013e73e00ce33ca96b30"
+)
+D4H_CSV_SHA256 = "828ad4a975c157c7ac4d3c873a39a8b6bbfec3cb306e25eb74209c8a01da6ca1"
+D4H_VALIDATION_REPORT_SHA256 = "b995532fe76e5960740ffc86cc4e6bb22e4489c38e0920e611b8a1669814cfd8"
+D4H_DERIVATION_REPORT_SHA256 = "44288299817bd7b11df91ee4335129987980e0e111e49a6ae5635632d1285933"
 DYNAMIC_SIZING_METADATA = {
     "sizing_mode": runner.SIZING_MODE_DYNAMIC_EQUITY_TARGET_LEVERAGE,
     "target_leverage": 1.0,
@@ -171,6 +182,15 @@ def _canonical_parent_paths() -> tuple[Path, Path, Path]:
     )
 
 
+def _canonical_0006_parent_paths() -> tuple[Path, Path, Path]:
+    root = runner.REPO_ROOT
+    return (
+        root / "research" / "strategy_specs" / "STRAT-SPEC-0006.strategy_spec.json",
+        root / "research" / "variant_manifests" / "VM-0006.variant_manifest.json",
+        root / "research" / "sweep_plans" / "SWEEP-PLAN-0006.sweep_plan.json",
+    )
+
+
 def _d4_artifact_paths() -> tuple[Path, Path]:
     root = (
         runner.REPO_ROOT
@@ -181,6 +201,20 @@ def _d4_artifact_paths() -> tuple[Path, Path]:
     return (
         root / "binance_usdtm_btcusdt_15m_20200101_20260411.catalog_slice.json",
         root / "binance_usdtm_btcusdt_15m_20200101_20260411.import_report.json",
+    )
+
+
+def _d4h_artifact_paths() -> tuple[Path, Path, Path]:
+    root = (
+        runner.REPO_ROOT
+        / "research"
+        / "data_slices"
+        / "binance_usdtm_btcusdt_4h"
+    )
+    return (
+        root / "binance_usdtm_btcusdt_4h_20200101_20260411.catalog_slice.json",
+        root / "binance_usdtm_btcusdt_4h_20200101_20260411.validation_report.json",
+        root / "binance_usdtm_btcusdt_4h_20200101_20260411.derivation_report.json",
     )
 
 
@@ -247,6 +281,89 @@ def _write_15m_ohlcv_fixture(
     frame = pd.DataFrame(rows)[ordered_columns]
     frame.to_csv(path, index=False)
     return path
+
+
+def _write_4h_ohlcv_fixture(tmp_path: Path, *, freq: str = "4h", periods: int = 32) -> Path:
+    path = tmp_path / "canonical_4h_ohlcv_fixture.csv"
+    index = pd.date_range("2026-01-01T00:00:00Z", periods=periods, freq=freq)
+    close = [100.0 + index_number for index_number in range(len(index))]
+    frame = pd.DataFrame(
+        {
+            "open_time_ms": [int(timestamp.timestamp() * 1000) for timestamp in index],
+            "open_time": index,
+            "open": [value - 0.1 for value in close],
+            "high": [value + 1.0 for value in close],
+            "low": [value - 1.0 for value in close],
+            "close": close,
+            "volume": [1000.0] * len(index),
+            "close_time_ms": [
+                int((timestamp + pd.Timedelta(hours=4)).timestamp() * 1000) - 1
+                for timestamp in index
+            ],
+            "quote_asset_volume": [0.0] * len(index),
+            "num_trades": [1] * len(index),
+            "taker_buy_base_vol": [0.0] * len(index),
+            "taker_buy_quote_vol": [0.0] * len(index),
+            "ignore": [0] * len(index),
+        }
+    )
+    frame.to_csv(path, index=False)
+    return path
+
+
+def _write_4h_metadata_fixture(
+    tmp_path: Path,
+    ohlcv_path: Path,
+    *,
+    validation_status: str = "PASS",
+    partial_window_count: int = 0,
+    data_slice_identity: str | None = None,
+) -> tuple[Path, Path, Path, dict]:
+    catalog_path, validation_path, derivation_path = _d4h_artifact_paths()
+    catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+    validation = json.loads(validation_path.read_text(encoding="utf-8"))
+    derivation = json.loads(derivation_path.read_text(encoding="utf-8"))
+    frame = pd.read_csv(ohlcv_path)
+    row_count = len(frame)
+    start_utc = str(frame["open_time"].iloc[0])
+    end_utc = str(frame["open_time"].iloc[-1])
+    csv_sha256 = runner._sha256_file_hex(ohlcv_path)
+    synthetic_identity = data_slice_identity or f"test_4h:sha256:{csv_sha256}"
+
+    catalog["catalog_ref"] = f"test_4h_catalog.sha256_{csv_sha256[:16]}"
+    catalog["slice_identity"]["data_slice_identity"] = synthetic_identity
+    catalog["normalized"]["sha256"] = csv_sha256
+    catalog["range"]["row_count"] = row_count
+    catalog["range"]["expected_row_count"] = row_count
+    catalog["range"]["start_utc"] = start_utc
+    catalog["range"]["end_utc"] = end_utc
+    catalog["validation_report"]["status"] = validation_status
+
+    validation["ok"] = validation_status == "PASS"
+    validation["normalized"]["sha256"] = csv_sha256
+    validation["range"]["row_count"] = row_count
+    validation["range"]["expected_row_count"] = row_count
+    validation["range"]["start_utc"] = start_utc
+    validation["range"]["end_utc"] = end_utc
+    validation["validation"]["status"] = validation_status
+    validation["validation"]["partial_window_count"] = partial_window_count
+
+    derivation["ok"] = True
+    derivation["output"]["sha256"] = csv_sha256
+    derivation["output"]["row_count"] = row_count
+    derivation["output"]["expected_row_count"] = row_count
+    derivation["output"]["range"]["start_utc"] = start_utc
+    derivation["output"]["range"]["end_utc"] = end_utc
+
+    out_validation_path = tmp_path / "d4h.validation_report.json"
+    out_derivation_path = tmp_path / "d4h.derivation_report.json"
+    out_catalog_path = tmp_path / "d4h.catalog_slice.json"
+    _write_json(out_validation_path, validation)
+    _write_json(out_derivation_path, derivation)
+    catalog["validation_report"]["sha256"] = runner._sha256_file_hex(out_validation_path)
+    catalog["derivation_report"]["sha256"] = runner._sha256_file_hex(out_derivation_path)
+    _write_json(out_catalog_path, catalog)
+    return out_catalog_path, out_validation_path, out_derivation_path, catalog
 
 
 def _identity_payload(result: dict) -> dict:
@@ -1698,6 +1815,253 @@ def test_canonical_15m_d4_provenance_rejects_fixture_disguised_as_d4(tmp_path):
             d2_import_report_path=import_report_path,
             deterministic_seed=7,
         )
+
+
+def test_canonical_cli_flags_accept_15m_and_4h_modes(tmp_path):
+    strategy_path, manifest_path, sweep_path, *_ = _write_fixture(tmp_path)
+    parser = runner._build_parser()
+
+    parsed_15m = parser.parse_args(
+        [
+            "--strategy-spec",
+            str(strategy_path),
+            "--variant-manifest",
+            str(manifest_path),
+            "--sweep-plan",
+            str(sweep_path),
+            "--canonical-15m",
+            "--ohlcv-input",
+            str(tmp_path / "input.csv"),
+        ]
+    )
+    parsed_4h = parser.parse_args(
+        [
+            "--strategy-spec",
+            str(strategy_path),
+            "--variant-manifest",
+            str(manifest_path),
+            "--sweep-plan",
+            str(sweep_path),
+            "--canonical-4h",
+            "--ohlcv-input",
+            str(tmp_path / "input.csv"),
+        ]
+    )
+
+    assert parsed_15m.canonical_15m is True
+    assert parsed_15m.canonical_4h is False
+    assert parsed_4h.canonical_15m is False
+    assert parsed_4h.canonical_4h is True
+
+
+def test_canonical_4h_path_uses_4h_interval_and_binds_lineage(tmp_path, monkeypatch):
+    strategy_path, manifest_path, sweep_path = _canonical_0006_parent_paths()
+    ohlcv_path = _write_4h_ohlcv_fixture(tmp_path)
+    catalog_path, validation_path, derivation_path, catalog = _write_4h_metadata_fixture(
+        tmp_path,
+        ohlcv_path,
+    )
+    backtest_calls = []
+    canonical_files_before = sorted(
+        runner.CANONICAL_RESULT_POPULATIONS_DIR.glob("*.result_population.json")
+    )
+
+    def fake_compile_signal(strategy_spec, variant_assignment, ohlcv, funding=None):
+        del strategy_spec, variant_assignment, funding
+        signal = pd.Series(0.0, index=ohlcv.index)
+        signal.iloc[2:-2] = 1.0
+        return signal
+
+    def fake_backtest(signal, ohlcv, funding, **kwargs):
+        del signal, funding
+        backtest_calls.append(kwargs)
+        equity = pd.Series(
+            [runner.INITIAL_EQUITY + index for index in range(len(ohlcv))],
+            index=ohlcv.index,
+            name="equity",
+        )
+        return type(
+            "FakeBacktestResult",
+            (),
+            {
+                "equity_curve": equity,
+                "trades_df": pd.DataFrame({"net_pnl": [1.0]}),
+                "fees_paid": 0.0,
+                "funding_paid": 0.0,
+                "slippage_paid": 0.0,
+                "params": {"initial_equity": runner.INITIAL_EQUITY},
+            },
+        )()
+
+    monkeypatch.setattr(runner, "compile_signal", fake_compile_signal)
+    monkeypatch.setattr(runner, "run_backtest", fake_backtest)
+
+    result = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_4h=True,
+        ohlcv_input_path=ohlcv_path,
+        d4h_catalog_slice_path=catalog_path,
+        d4h_validation_report_path=validation_path,
+        d4h_derivation_report_path=derivation_path,
+        deterministic_seed=7,
+    )
+    payload = result["result_population"]
+    coverage = payload["data_coverage_summary"]
+    notes = set(coverage["data_coverage_notes"])
+
+    assert result["dry_run"] is True
+    assert result["wrote"] is False
+    assert sorted(runner.CANONICAL_RESULT_POPULATIONS_DIR.glob("*.result_population.json")) == (
+        canonical_files_before
+    )
+    assert backtest_calls
+    assert all(call["interval"] == "4h" for call in backtest_calls)
+    assert coverage["timeframe"] == "4h"
+    assert coverage["data_catalog_ref"] == catalog["catalog_ref"]
+    assert coverage["data_slice_identity"] == catalog["slice_identity"]["data_slice_identity"]
+    assert runner.D4H_PROVENANCE_MODE_NOTE in notes
+    assert f"d4h_csv_sha256={runner._sha256_file_hex(ohlcv_path)}" in notes
+    assert "d4h_validation_status=PASS" in notes
+    assert f"parent_15m_data_slice_identity={D4_SLICE_IDENTITY}" in notes
+    assert "parent_15m_normalized_sha256=c30fd7f07fdf513cdaf234b1bee4eff03b430a479cc572a2cc8b57394f22e0ab" in notes
+    assert "resampling_version=wp-data-resample-4h-01-v1" in notes
+    assert {row["data_coverage"]["timeframe"] for row in payload["variant_result_rows"]} == {"4h"}
+    assert payload["parent_strategy_spec"]["strategy_spec_id"] == "STRAT-SPEC-0006"
+    assert payload["parent_variant_manifest"]["variant_manifest_id"] == "VM-0006"
+    assert payload["parent_sweep_plan"]["sweep_plan_id"] == "SWEEP-PLAN-0006"
+    assert payload["committed_denominator_snapshot"]["committed_denominator"] == 8
+    assert payload["outcome_category_counts"]["counts_sum"] == 8
+
+
+def test_canonical_4h_rejects_non_4h_spacing(tmp_path):
+    ohlcv_path = _write_4h_ohlcv_fixture(tmp_path, freq="1h")
+
+    with pytest.raises(runner.OfflineSweepError, match="exactly 4h-spaced"):
+        runner._load_4h_ohlcv_input(ohlcv_path)
+
+
+def test_canonical_4h_rejects_csv_sha_mismatch(tmp_path):
+    ohlcv_path = _write_4h_ohlcv_fixture(tmp_path)
+    catalog_path, validation_path, derivation_path, _ = _write_4h_metadata_fixture(
+        tmp_path,
+        ohlcv_path,
+    )
+    frame = pd.read_csv(ohlcv_path)
+    frame.loc[0, "close"] = 999.0
+    frame.to_csv(ohlcv_path, index=False)
+
+    with pytest.raises(runner.OfflineSweepError, match="CSV SHA256"):
+        runner._canonical_4h_execution_input(
+            ohlcv_path,
+            catalog_path,
+            validation_path,
+            derivation_path,
+        )
+
+
+def test_canonical_4h_rejects_validation_status_not_pass(tmp_path):
+    ohlcv_path = _write_4h_ohlcv_fixture(tmp_path)
+    catalog_path, validation_path, derivation_path, _ = _write_4h_metadata_fixture(
+        tmp_path,
+        ohlcv_path,
+        validation_status="FAIL",
+    )
+
+    with pytest.raises(runner.OfflineSweepError, match="validation status PASS"):
+        runner._canonical_4h_execution_input(
+            ohlcv_path,
+            catalog_path,
+            validation_path,
+            derivation_path,
+        )
+
+
+def test_canonical_4h_official_identity_requires_committed_row_count(tmp_path):
+    ohlcv_path = _write_4h_ohlcv_fixture(tmp_path)
+    catalog_path, validation_path, derivation_path, _ = _write_4h_metadata_fixture(
+        tmp_path,
+        ohlcv_path,
+        data_slice_identity=D4H_SLICE_IDENTITY,
+    )
+
+    with pytest.raises(runner.OfflineSweepError, match="row_count 13758"):
+        runner._canonical_4h_execution_input(
+            ohlcv_path,
+            catalog_path,
+            validation_path,
+            derivation_path,
+        )
+
+
+def test_annualization_uses_distinct_15m_and_4h_factors():
+    returns = pd.Series([0.01, -0.005] * 20)
+
+    sharpe_15m = runner.sharpe(returns, "15m")
+    sharpe_4h = runner.sharpe(returns, "4h")
+
+    assert math.isclose(sharpe_15m / sharpe_4h, 4.0)
+
+
+def test_metrics_from_backtest_passes_requested_timeframe_to_sharpe(monkeypatch):
+    calls = []
+
+    def fake_sharpe(returns, freq):
+        del returns
+        calls.append(freq)
+        return {"15m": 35_040.0, "4h": 2_190.0}[freq]
+
+    fake_result = type(
+        "FakeBacktestResult",
+        (),
+        {
+            "equity_curve": pd.Series([10_000.0, 10_010.0, 10_005.0]),
+            "trades_df": pd.DataFrame({"net_pnl": [1.0]}),
+            "fees_paid": 0.0,
+            "funding_paid": 0.0,
+            "slippage_paid": 0.0,
+            "params": {"initial_equity": runner.INITIAL_EQUITY},
+        },
+    )()
+    monkeypatch.setattr(runner, "sharpe", fake_sharpe)
+
+    metrics_15m = runner._metrics_from_backtest(fake_result, "15m")
+    metrics_4h = runner._metrics_from_backtest(fake_result, "4h")
+
+    assert calls == ["15m", "4h"]
+    assert metrics_15m["sharpe"] == 35_040.0
+    assert metrics_4h["sharpe"] == 2_190.0
+
+
+def test_15m_input_identity_scope_remains_unchanged():
+    assert runner._input_scope() == [
+        "parent_strategy_spec.strategy_spec_hash",
+        "parent_variant_manifest.manifest_hash",
+        "parent_sweep_plan.sweep_plan_identity_hash",
+        "parent_variant_manifest.committed_population_count",
+        "parent_sweep_plan.committed_population_count",
+        "execution_context.runner_code_ref",
+        "execution_context.repo_commit",
+        "data_coverage_summary.data_catalog_ref",
+        "data_coverage_summary.data_slice_identity",
+        "backtest_assumption_summary",
+    ]
+
+
+def test_runner_cli_introduces_no_runtime_authority_flags():
+    parser = runner._build_parser()
+    option_strings = {
+        option
+        for action in parser._actions
+        for option in action.option_strings
+    }
+
+    assert not any(
+        forbidden in option
+        for option in option_strings
+        for forbidden in ("runtime", "paper", "live", "oms", "risk", "broker", "exchange")
+    )
 
 
 def test_canonical_15m_scratch_result_population_validates(tmp_path):

@@ -1,0 +1,440 @@
+{
+  "schema_version": "v1",
+  "variant_manifest_id": "VM-0006",
+  "status": "approved_for_sweep_planning",
+  "non_execution_declaration": {
+    "planning_surface_only": true,
+    "not_executable": true,
+    "not_runner_authority": true,
+    "not_sweep_authority": true,
+    "not_result_authority": true,
+    "not_candidate_approval": true,
+    "not_exp_approval": true,
+    "not_ranking_authority": true,
+    "not_recommendation_authority": true,
+    "not_readiness_authority": true,
+    "not_transition_authority": true,
+    "not_runtime_authority": true,
+    "not_paper_live_authority": true,
+    "not_gate_authority": true
+  },
+  "parent_strategy_spec": {
+    "strategy_spec_id": "STRAT-SPEC-0006",
+    "strategy_spec_schema_version": "v1",
+    "strategy_spec_hash": "sha256:6bc6b8232e8517ad97cef05229696e3c3e7a7123ab4ec433d80e0d3c4bb2fe8f",
+    "hash_algorithm": "sha256",
+    "hash_scope_version": "strategy_spec_hash_scope_v1",
+    "strategy_spec_review_status": "approved_for_variant_planning",
+    "strategy_spec_ref": "research/strategy_specs/STRAT-SPEC-0006.strategy_spec.json",
+    "mismatch_policy": "block",
+    "missing_parent_policy": "block",
+    "does_not_mutate_parent_strategy_spec": true
+  },
+  "population_governance": {
+    "population_cap": {
+      "max_variants": 8,
+      "cap_basis": "manual_grid",
+      "cap_source": "human_declared",
+      "cap_exception_authorized": false,
+      "cap_exception_ref": null
+    },
+    "declared_population": {
+      "committed_population_count": 8,
+      "declared_variant_count": 8,
+      "included_variant_count": 8,
+      "excluded_variant_count": 0,
+      "invalid_variant_count": 0,
+      "not_attempted_variant_count": 0
+    },
+    "trial_budget": {
+      "planned_trial_count": 8,
+      "trial_budget_denominator": 8,
+      "denominator_basis": "committed_pre_registered_population_count",
+      "denominator_count": 8,
+      "denominator_includes_failed": true,
+      "denominator_includes_excluded": true,
+      "denominator_includes_invalid": true,
+      "denominator_includes_errored": true,
+      "denominator_includes_aborted": true,
+      "denominator_includes_filtered": true,
+      "denominator_includes_data_unavailable": true,
+      "denominator_includes_not_attempted": true,
+      "executed_only_denominator_forbidden": true
+    },
+    "multiple_testing_accounting": {
+      "denominator_required": true,
+      "denominator_type": "committed_pre_registered_population",
+      "search_family_id": "SF-PHASEB-SMA-CROSSOVER-MOMENTUM-ATRSTOP-4H-0001",
+      "search_family_method": "manual_grid",
+      "adaptive_search_used": false,
+      "adaptive_search_authorization_ref": null,
+      "all_trials_visible_required": true,
+      "winner_only_review_forbidden": true
+    },
+    "pre_registration": {
+      "pre_registered": true,
+      "pre_registration_status": "frozen_for_sweep_planning",
+      "pre_registration_scope": "full_variant_population",
+      "freeze_required_before_sweep": true,
+      "post_hoc_addition_forbidden": true,
+      "post_result_mutation_forbidden": true,
+      "allowed_change_mode": "supersede_before_results_only"
+    }
+  },
+  "parameter_axes": [
+    {
+      "axis_id": "AXIS-001",
+      "parameter_name": "fast_lookback_bars",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.fast_lookback_bars",
+      "parameter_type": "integer",
+      "units": "bars",
+      "axis_kind": "free_parameter",
+      "generator_method": "manual_grid",
+      "allowed_values": [
+        2,
+        3
+      ],
+      "range": {
+        "min": 2,
+        "max": 3,
+        "step": 1,
+        "inclusive_min": true,
+        "inclusive_max": true
+      },
+      "counts_toward_parent_free_parameter_cap": true,
+      "is_declared_in_parent_strategy_spec": true,
+      "invalid_combination_rule_refs": [],
+      "notes": "fast_lookback_bars 4h rescaled axis: [2, 3]."
+    },
+    {
+      "axis_id": "AXIS-002",
+      "parameter_name": "slow_lookback_bars",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.slow_lookback_bars",
+      "parameter_type": "integer",
+      "units": "bars",
+      "axis_kind": "free_parameter",
+      "generator_method": "manual_grid",
+      "allowed_values": [
+        6,
+        12
+      ],
+      "range": {
+        "min": 6,
+        "max": 12,
+        "step": 6,
+        "inclusive_min": true,
+        "inclusive_max": true
+      },
+      "counts_toward_parent_free_parameter_cap": true,
+      "is_declared_in_parent_strategy_spec": true,
+      "invalid_combination_rule_refs": [],
+      "notes": "slow_lookback_bars 4h rescaled axis: [6, 12]."
+    },
+    {
+      "axis_id": "AXIS-003",
+      "parameter_name": "trend_lookback_bars",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.trend_lookback_bars",
+      "parameter_type": "integer",
+      "units": "bars",
+      "axis_kind": "free_parameter",
+      "generator_method": "manual_grid",
+      "allowed_values": [
+        19,
+        25
+      ],
+      "range": {
+        "min": 19,
+        "max": 25,
+        "step": 6,
+        "inclusive_min": true,
+        "inclusive_max": true
+      },
+      "counts_toward_parent_free_parameter_cap": true,
+      "is_declared_in_parent_strategy_spec": true,
+      "invalid_combination_rule_refs": [],
+      "notes": "trend_lookback_bars 4h rescaled axis: [19, 25]."
+    }
+  ],
+  "invalid_combination_rules": [],
+  "exclusion_rules": [],
+  "variant_assignments": [
+    {
+      "variant_id": "VAR-000001",
+      "assignment_status": "included",
+      "parameter_values": {
+        "fast_lookback_bars": 2,
+        "slow_lookback_bars": 6,
+        "trend_lookback_bars": 19
+      },
+      "parameter_value_hash": "sha256:48cfd719628ee792af4e1ee530e66a28df2ee1626a54a57cdd4a9f3960a34b10",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-valid-only-fast-lt-slow-lt-trend",
+        "generation_order": 1
+      }
+    },
+    {
+      "variant_id": "VAR-000002",
+      "assignment_status": "included",
+      "parameter_values": {
+        "fast_lookback_bars": 2,
+        "slow_lookback_bars": 6,
+        "trend_lookback_bars": 25
+      },
+      "parameter_value_hash": "sha256:18e8777b5783176fe8900b370e5921f4a37f73bb74711b5874e39037a6a495c0",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-valid-only-fast-lt-slow-lt-trend",
+        "generation_order": 2
+      }
+    },
+    {
+      "variant_id": "VAR-000003",
+      "assignment_status": "included",
+      "parameter_values": {
+        "fast_lookback_bars": 2,
+        "slow_lookback_bars": 12,
+        "trend_lookback_bars": 19
+      },
+      "parameter_value_hash": "sha256:05dfe3f9d855daf230ce56a980ec203045f6c38e2d2dd33d3f07d083b6a52b36",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-valid-only-fast-lt-slow-lt-trend",
+        "generation_order": 3
+      }
+    },
+    {
+      "variant_id": "VAR-000004",
+      "assignment_status": "included",
+      "parameter_values": {
+        "fast_lookback_bars": 2,
+        "slow_lookback_bars": 12,
+        "trend_lookback_bars": 25
+      },
+      "parameter_value_hash": "sha256:cc64d59c916b903de4d89ff01834d614f6f9cf411fe0153e9ddfcfe58dbfa5de",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-valid-only-fast-lt-slow-lt-trend",
+        "generation_order": 4
+      }
+    },
+    {
+      "variant_id": "VAR-000005",
+      "assignment_status": "included",
+      "parameter_values": {
+        "fast_lookback_bars": 3,
+        "slow_lookback_bars": 6,
+        "trend_lookback_bars": 19
+      },
+      "parameter_value_hash": "sha256:cedb65e4540b497e2a063f536eefcf7b651d2fd2c4fdf051b6733119385abe6c",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-valid-only-fast-lt-slow-lt-trend",
+        "generation_order": 5
+      }
+    },
+    {
+      "variant_id": "VAR-000006",
+      "assignment_status": "included",
+      "parameter_values": {
+        "fast_lookback_bars": 3,
+        "slow_lookback_bars": 6,
+        "trend_lookback_bars": 25
+      },
+      "parameter_value_hash": "sha256:e1265759c858c4d9da08efc86b5e68e6b06edec6587ff83d915eff02331e8d89",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-valid-only-fast-lt-slow-lt-trend",
+        "generation_order": 6
+      }
+    },
+    {
+      "variant_id": "VAR-000007",
+      "assignment_status": "included",
+      "parameter_values": {
+        "fast_lookback_bars": 3,
+        "slow_lookback_bars": 12,
+        "trend_lookback_bars": 19
+      },
+      "parameter_value_hash": "sha256:12f06b5d9691cd61267d62575918c4e4b8bbdfb8bdfb8db5bed2b0319d76876a",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-valid-only-fast-lt-slow-lt-trend",
+        "generation_order": 7
+      }
+    },
+    {
+      "variant_id": "VAR-000008",
+      "assignment_status": "included",
+      "parameter_values": {
+        "fast_lookback_bars": 3,
+        "slow_lookback_bars": 12,
+        "trend_lookback_bars": 25
+      },
+      "parameter_value_hash": "sha256:35a424b0f61f04521f802e0f21685160ee89eeabc1654a17ff1cf93156eeac30",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-valid-only-fast-lt-slow-lt-trend",
+        "generation_order": 8
+      }
+    }
+  ],
+  "manifest_hash_pinning": {
+    "manifest_hash": "sha256:6e9726c91bd97168dd03d03f9411a89fcc80291c34851fbaddbd5dc8b01a7e3c",
+    "hash_algorithm": "sha256",
+    "canonicalization": "json_canonical_v1",
+    "hash_scope_version": "variant_manifest_hash_scope_v1",
+    "hash_scope": [
+      "schema_version",
+      "variant_manifest_id",
+      "parent_strategy_spec.strategy_spec_id",
+      "parent_strategy_spec.strategy_spec_hash",
+      "population_governance",
+      "parameter_axes",
+      "invalid_combination_rules",
+      "exclusion_rules",
+      "variant_assignments"
+    ],
+    "hash_status": "computed",
+    "frozen_at": "2026-06-16T00:00:00Z",
+    "pre_sweep_freeze_required": true,
+    "post_result_mutation_forbidden": true
+  },
+  "amendment_and_supersession": {
+    "amendment_mode": "none",
+    "supersedes": null,
+    "supersession_lineage": [],
+    "amendment_reason": null,
+    "associated_results_state": "no_associated_results",
+    "supersession_allowed": false,
+    "close_only_after_results": true,
+    "post_result_change": false,
+    "preserve_prior_manifest_required": true,
+    "fresh_denominator_required": true,
+    "does_not_inherit_prior_results": true
+  },
+  "lineage": {
+    "parent_refs": [
+      {
+        "ref_type": "strategy_spec",
+        "ref_id": "STRAT-SPEC-0006",
+        "ref_path": "research/strategy_specs/STRAT-SPEC-0006.strategy_spec.json",
+        "ref_hash": "sha256:6bc6b8232e8517ad97cef05229696e3c3e7a7123ab4ec433d80e0d3c4bb2fe8f"
+      }
+    ],
+    "source_refs": [
+      {
+        "ref_type": "strategy_spec",
+        "ref_id": "STRAT-SPEC-0005",
+        "ref_path": "research/strategy_specs/STRAT-SPEC-0005.strategy_spec.json",
+        "ref_hash": "sha256:9a20e64f83e6cbe2360e3be715ad273f2c851aacb6da99fa27d802ee29588141"
+      },
+      {
+        "ref_type": "other",
+        "ref_id": "WP-DATA-RESAMPLE-4H-01",
+        "ref_path": "docs/data/2026-06-binance_usdtm_4h_resampled_catalog_and_slice_identity.md",
+        "ref_hash": null
+      },
+      {
+        "ref_type": "manual_review",
+        "ref_id": "WP-MOMENTUM-4H-PREREG-01",
+        "ref_path": null,
+        "ref_hash": null
+      }
+    ],
+    "created_at": "2026-06-16T00:00:00Z",
+    "updated_at": "2026-06-16T00:00:00Z",
+    "audit_notes": [
+      "Surfaced for ready-for-review PR under WP-MOMENTUM-4H-PREREG-01; merge/finalization remains explicit you/Main gate review.",
+      "Valid-only denominator includes 8 variants and excludes no cells because every Cartesian combination satisfies fast < slow < trend.",
+      "min_bars_between_entries is fixed in STRAT-SPEC-0006 at 16 and is not a VM axis; on 4h bars it is a 64h throttle.",
+      "ATR-stop literals atr_lookback=14 and atr_multiplier=3.0 are fixed in STRAT-SPEC-0006 and are not VM axes.",
+      "No adaptive search, post-hoc addition, result-dependent filtering, 4h-probe winner narrowing, sweep run, or result population is authorized."
+    ],
+    "hash_refs": [
+      "sha256:6bc6b8232e8517ad97cef05229696e3c3e7a7123ab4ec433d80e0d3c4bb2fe8f",
+      "sha256:6e9726c91bd97168dd03d03f9411a89fcc80291c34851fbaddbd5dc8b01a7e3c"
+    ]
+  },
+  "review": {
+    "human_review_required": true,
+    "reviewer": "you/Main via PR review",
+    "reviewed_at": "2026-06-16T00:00:00Z",
+    "review_notes": [
+      "Surfaced for ready-for-review PR under WP-MOMENTUM-4H-PREREG-01; merge/finalization remains explicit you/Main gate review.",
+      "Schema-compatible planning fields are present so current validators can evaluate the corpus; package authority remains preregistration planning only.",
+      "All eight variants are visible and selected from the rescaled 4h grid without probe-performance-based narrowing."
+    ],
+    "approval_scope": "sweep_planning_only",
+    "non_authority_acknowledgement": {
+      "not_candidate_approval": true,
+      "not_exp_approval": true,
+      "not_sweep_authority": true,
+      "not_runner_authority": true,
+      "not_result_authority": true,
+      "not_ranking_authority": true,
+      "not_recommendation_authority": true,
+      "not_readiness_authority": true,
+      "not_transition_authority": true,
+      "not_runtime_authority": true,
+      "not_paper_live_authority": true,
+      "not_gate_satisfaction": true
+    }
+  }
+}

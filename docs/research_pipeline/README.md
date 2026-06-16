@@ -505,6 +505,11 @@ decision records, schemas, validators, or locked baseline documents.
   momentum v2 canonical single-slice result population `RP-3731`; records valid
   deterministic evidence and a separate frozen-screen `NO-GO` verdict without
   walk-forward, candidate, paper/live, runtime, or capital authority.
+- `2026-06-momentum_4h_prereg_0006.md` - draft-and-surface 4h momentum
+  preregistration for STRAT-SPEC-0006 / VM-0006 / SWEEP-PLAN-0006; rescales the
+  0005 lookback horizons to 4h bars after scratch premise confirmation and
+  creates no canonical trial, result population, candidate, walk-forward,
+  paper/live, runtime, or capital authority.
 - `../architecture/BTC_PERP_FUTURE_CAPABILITY_BACKLOG.md` - non-authoritative
   BTC perpetual capability inventory for future research-lab, crypto/perp
   feature, execution-realism, and later paper/live planning.

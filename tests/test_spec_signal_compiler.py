@@ -187,6 +187,43 @@ def _atr_stop(
     }
 
 
+def _session_end_exit(session_ref: str = "UTC_DAILY_0000") -> dict:
+    return {
+        "session_end": {
+            "enabled": True,
+            "session_ref": session_ref,
+            "exit_signal_timing": "last_bar_close_before_session_end",
+            "fill_timing": "next_bar_open",
+            "partial_session_policy": "no_exit",
+        }
+    }
+
+
+def _opening_range_opposite_side(range_ref: str = "OR-1") -> dict:
+    return {
+        "enabled": True,
+        "range_ref": range_ref,
+        "entry_reference_price": "next_bar_open_pre_fee_slippage",
+        "evaluation_price": "close",
+        "evaluation_timing": "bar_close",
+        "long_stop_level": "opening_range.low",
+        "short_stop_level": "opening_range.high",
+        "same_bar_entry_stop_policy": "not_evaluated_until_after_entry_bar",
+    }
+
+
+def _fixed_r_target(r_multiple: float = 2.0) -> dict:
+    return {
+        "enabled": True,
+        "r_multiple": r_multiple,
+        "entry_reference_price": "next_bar_open_pre_fee_slippage",
+        "stop_ref": "opening_range_opposite_side",
+        "evaluation_price": "close",
+        "evaluation_timing": "bar_close",
+        "same_bar_stop_target_policy": "defer_intrabar_realism",
+    }
+
+
 def _distance_ohlcv() -> pd.DataFrame:
     index = pd.date_range("2026-01-01", periods=25, freq="h", tz="UTC")
     close = ([100.0] * 20) + [94.0, 98.0, 90.0, 102.0, 94.0]
@@ -3542,3 +3579,162 @@ def test_composed_depth_three_example_with_primitive_ref_compiles_causally() -> 
 
     assert base_signal.iloc[2] == 1.0
     pd.testing.assert_series_equal(base_signal.iloc[:3], mutated_signal.iloc[:3])
+
+
+def test_session_end_exit_fires_only_on_deterministic_final_session_bar_close() -> None:
+    ohlcv = _orb_ohlcv([100.0] * 24)
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [_condition(_operand("data_ref", "close", "close"), "gt", _operand("constant", 0.0))],
+            )
+        ],
+    )
+    spec["online_ohlcv_primitives"] = _online_primitives()
+    spec["exit_logic"]["time_exit"] = _session_end_exit()
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == ([1.0] * 23) + [0.0]
+
+
+def test_session_end_exit_fails_closed_for_incomplete_session() -> None:
+    ohlcv = _orb_ohlcv([100.0] * 23)
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [_condition(_operand("data_ref", "close", "close"), "gt", _operand("constant", 0.0))],
+            )
+        ],
+    )
+    spec["online_ohlcv_primitives"] = _online_primitives()
+    spec["exit_logic"]["time_exit"] = _session_end_exit()
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [1.0] * 23
+
+
+def test_fixed_r_target_exits_only_on_close_confirmed_reach() -> None:
+    ohlcv = _orb_ohlcv([100.0, 102.0, 100.8, 104.5])
+    spec = _spec(entry_groups=[_group("required", "all", [_primitive_condition("ORB-1", "long")])])
+    spec["online_ohlcv_primitives"] = _online_primitives()
+    spec["exit_logic"]["opening_range_opposite_side"] = _opening_range_opposite_side()
+    spec["exit_logic"]["fixed_R_target"] = _fixed_r_target(r_multiple=2.0)
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [0.0, 1.0, 1.0, 0.0]
+
+
+def test_fixed_r_target_does_not_use_high_low_touch_or_intrabar_ordering() -> None:
+    ohlcv = _orb_ohlcv([100.0, 102.0, 100.8, 100.9])
+    ohlcv.iloc[2, ohlcv.columns.get_loc("high")] = 200.0
+    ohlcv.iloc[3, ohlcv.columns.get_loc("high")] = 200.0
+    spec = _spec(entry_groups=[_group("required", "all", [_primitive_condition("ORB-1", "long")])])
+    spec["online_ohlcv_primitives"] = _online_primitives()
+    spec["exit_logic"]["opening_range_opposite_side"] = _opening_range_opposite_side()
+    spec["exit_logic"]["fixed_R_target"] = _fixed_r_target(r_multiple=2.0)
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [0.0, 1.0, 1.0, 1.0]
+
+
+def test_fixed_r_target_fails_closed_when_r_base_is_non_positive() -> None:
+    ohlcv = _orb_ohlcv([100.0, 102.0, 98.0, 90.0])
+    ohlcv.iloc[3, ohlcv.columns.get_loc("open")] = 102.0
+    spec = _spec(entry_groups=[_group("required", "all", [_primitive_condition("ORB-1", "short")])], direction="short")
+    spec["online_ohlcv_primitives"] = _online_primitives()
+    spec["exit_logic"]["opening_range_opposite_side"] = _opening_range_opposite_side()
+    spec["exit_logic"]["fixed_R_target"] = _fixed_r_target(r_multiple=1.0)
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [0.0, 0.0, -1.0, -1.0]
+
+
+def test_opening_range_opposite_side_stop_is_close_confirmed_only() -> None:
+    ohlcv = _orb_ohlcv([100.0, 102.0, 100.8, 98.9])
+    ohlcv.iloc[2, ohlcv.columns.get_loc("low")] = 1.0
+    spec = _spec(entry_groups=[_group("required", "all", [_primitive_condition("ORB-1", "long")])])
+    spec["online_ohlcv_primitives"] = _online_primitives()
+    spec["exit_logic"]["opening_range_opposite_side"] = _opening_range_opposite_side()
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [0.0, 1.0, 1.0, 0.0]
+
+
+def test_opening_range_opposite_side_stop_handles_short_side() -> None:
+    ohlcv = _orb_ohlcv([100.0, 98.0, 100.2, 101.2])
+    spec = _spec(
+        direction="short",
+        entry_groups=[_group("required", "all", [_primitive_condition("ORB-1", "short")])],
+    )
+    spec["online_ohlcv_primitives"] = _online_primitives()
+    spec["exit_logic"]["opening_range_opposite_side"] = _opening_range_opposite_side()
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [0.0, -1.0, -1.0, 0.0]
+
+
+def test_opening_range_opposite_side_zero_range_fails_closed() -> None:
+    ohlcv = _orb_ohlcv([100.0, 102.0, 98.0], zero_range_first_bar=True)
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [_condition(_operand("data_ref", "close", "close"), "gt", _operand("constant", 0.0))],
+            )
+        ],
+    )
+    spec["online_ohlcv_primitives"] = _online_primitives()
+    spec["exit_logic"]["opening_range_opposite_side"] = _opening_range_opposite_side()
+    spec["exit_logic"]["fixed_R_target"] = _fixed_r_target(r_multiple=1.0)
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [1.0, 1.0, 1.0]
+
+
+def test_close_only_exit_primitives_reject_invalid_closed_grammar() -> None:
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [_condition(_operand("data_ref", "close", "close"), "gt", _operand("constant", 0.0))],
+            )
+        ],
+    )
+    spec["online_ohlcv_primitives"] = _online_primitives()
+    spec["exit_logic"]["time_exit"] = _session_end_exit()
+    spec["exit_logic"]["time_exit"]["session_end"]["fill_timing"] = "intrabar"
+
+    with pytest.raises(SpecSignalCompilerError, match="fill_timing"):
+        compile_signal(spec, _default_variant(), _orb_ohlcv([100.0] * 24))
+
+
+def test_close_only_exit_primitives_reject_forbidden_executable_key() -> None:
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [_condition(_operand("data_ref", "close", "close"), "gt", _operand("constant", 0.0))],
+            )
+        ],
+    )
+    spec["online_ohlcv_primitives"] = _online_primitives()
+    spec["exit_logic"]["opening_range_opposite_side"] = _opening_range_opposite_side()
+    spec["exit_logic"]["opening_range_opposite_side"]["eval"] = "close <= or_low"
+
+    with pytest.raises(SpecSignalCompilerError, match="forbidden executable"):
+        compile_signal(spec, _default_variant(), _orb_ohlcv([100.0, 102.0, 98.0]))

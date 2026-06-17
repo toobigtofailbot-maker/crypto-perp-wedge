@@ -39,6 +39,9 @@ REQUIRED_JSON_KEYS = [
 CANONICAL_RESULT_POPULATION_RE = re.compile(
     r"^research/result_populations/RP-\d+\.result_population\.json$"
 )
+STRATEGY_SPEC_RE = re.compile(r"^research/strategy_specs/STRAT-SPEC-\d+\.strategy_spec\.json$")
+RESEARCH_PIPELINE_DOC_RE = re.compile(r"^docs/research_pipeline/[^/]+\.md$")
+STATUS_ENTRY_RE = re.compile(r"^docs/status_entries/WP-[^/]+\.md$")
 
 
 @dataclass(frozen=True)
@@ -202,20 +205,55 @@ def _authorized_path_scope_rejection(path: str, scope: str) -> str | None:
     if not normalized_scope:
         return "authorized scope is empty"
 
-    if normalized_scope.endswith("schema") or "schema" in normalized_scope:
+    if normalized_scope in {
+        "strategy-spec-schema",
+        "schema",
+        "research-schema",
+        "schema-validator",
+    }:
         if path.startswith("research/schemas/") and path.endswith(".schema.json"):
             return None
         return "scope requires an exact research/schemas/*.schema.json path"
+
+    if normalized_scope in {
+        "strategy-spec",
+        "strategy-spec-prereg",
+        "strategy-spec-preregistration",
+        "strategy-spec-artifact",
+    }:
+        if STRATEGY_SPEC_RE.match(path):
+            return None
+        return "strategy-spec scope is limited to research/strategy_specs/STRAT-SPEC-<digits>.strategy_spec.json"
 
     if normalized_scope in {"research-compiler", "strategy-spec-compiler", "compiler"}:
         if path == "tools/research_runner/spec_signal_compiler.py":
             return None
         return "compiler scope is limited to tools/research_runner/spec_signal_compiler.py"
 
-    if normalized_scope in {"research-validator", "strategy-spec-validator", "validator"}:
+    if normalized_scope in {
+        "research-validator",
+        "strategy-spec-validator",
+        "validator",
+        "schema-validator-tooling",
+    }:
         if path.startswith("tools/registry/validate_") and path.endswith(".py"):
             return None
         return "validator scope is limited to tools/registry/validate_*.py"
+
+    if normalized_scope in {
+        "research-pipeline-prereg",
+        "research-pipeline-preregistration",
+        "prereg-doc",
+    }:
+        path_name = Path(path).name.lower()
+        if RESEARCH_PIPELINE_DOC_RE.match(path) and ("prereg" in path_name or "pre_registration" in path_name):
+            return None
+        return "research-pipeline prereg scope is limited to docs/research_pipeline/*prereg*.md paths"
+
+    if normalized_scope in {"research-pipeline-status", "status-entry", "wp-status"}:
+        if STATUS_ENTRY_RE.match(path):
+            return None
+        return "status scope is limited to docs/status_entries/WP-*.md paths"
 
     return f"unsupported authorized scope: {scope}"
 
@@ -557,7 +595,7 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="PATH",
         help=(
             "Explicitly authorize one exact changed path within a bounded authorized scope; "
-            "requires --authorized-scope and may be repeated"
+            "requires --authorized-package plus --authorized-scope and may be repeated"
         ),
     )
     parser.add_argument(
@@ -569,7 +607,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--authorized-package",
-        help="Optional package id recorded with authorized canonical write evidence",
+        help="Explicit package id recorded with authorized-path evidence",
     )
     parser.add_argument("--repo-root", type=Path, help="Optional repo root override")
     return parser
@@ -582,6 +620,8 @@ def run(argv: Sequence[str] | None = None) -> int:
         parser.error("--authorized-path requires --authorized-scope")
     if args.authorized_scope and not args.authorized_path:
         parser.error("--authorized-scope requires --authorized-path")
+    if args.authorized_path and not args.authorized_package:
+        parser.error("--authorized-path requires --authorized-package")
 
     try:
         summary = build_summary(args)

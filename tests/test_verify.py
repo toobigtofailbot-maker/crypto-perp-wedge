@@ -347,6 +347,38 @@ def test_verify_passes_authorized_path_scope_to_diff_scope():
     assert "strategy-spec-schema" in diff_scope_command
 
 
+def test_verify_diff_scope_command_is_strict_by_default():
+    parser = helper.build_parser()
+    args = parser.parse_args([])
+
+    commands = helper.build_standard_commands(args)
+    diff_scope_command = next(
+        command.argv for command in commands if "tools/dev/diff_scope_summary.py" in command.argv
+    )
+
+    assert diff_scope_command == [
+        helper.sys.executable,
+        "tools/dev/diff_scope_summary.py",
+        "--check-forbidden",
+    ]
+
+
+def test_verify_authorized_path_requires_package(capsys):
+    with pytest.raises(SystemExit) as exc_info:
+        helper.run(
+            [
+                "--authorized-path",
+                "research/schemas/strategy_spec.schema.json",
+                "--authorized-scope",
+                "strategy-spec-schema",
+            ]
+        )
+    stderr = capsys.readouterr().err
+
+    assert exc_info.value.code == 2
+    assert "--authorized-path requires --authorized-package" in stderr
+
+
 def test_docs_only_preset_does_not_add_full_pytest_by_default():
     parser = helper.build_parser()
     args = parser.parse_args(["--validation-preset", "docs-only"])

@@ -455,7 +455,10 @@ def build_parser() -> argparse.ArgumentParser:
         action="append",
         default=[],
         metavar="PATH",
-        help="Pass an explicit bounded path authorization to diff_scope_summary.py; requires --authorized-scope",
+        help=(
+            "Pass an explicit bounded path authorization to diff_scope_summary.py; "
+            "requires --authorized-package plus --authorized-scope"
+        ),
     )
     parser.add_argument(
         "--authorized-scope",
@@ -463,7 +466,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--authorized-package",
-        help="Optional package id passed to diff_scope_summary.py with canonical write authorization evidence",
+        help="Explicit package id passed to diff_scope_summary.py with authorization evidence",
     )
     return parser
 
@@ -489,6 +492,8 @@ def run(argv: Sequence[str] | None = None) -> int:
         parser.error("--authorized-path requires --authorized-scope")
     if args.authorized_scope and not args.authorized_path:
         parser.error("--authorized-scope requires --authorized-path")
+    if args.authorized_path and not args.authorized_package:
+        parser.error("--authorized-path requires --authorized-package")
     try:
         summary = build_summary(args)
     except VerifyError as exc:

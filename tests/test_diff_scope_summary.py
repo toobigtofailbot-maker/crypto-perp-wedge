@@ -198,6 +198,33 @@ def test_authorized_schema_path_is_not_forbidden(tmp_path, capsys):
     ]
 
 
+def test_online_ohlcv_schema_regression_authorized_path_is_not_forbidden(tmp_path, capsys):
+    repo = _repo(tmp_path)
+    path = "research/schemas/strategy_spec.schema.json"
+    _write(repo / path, "{}\n")
+
+    exit_code, stdout, _ = _run(
+        [
+            "--repo-root",
+            str(repo),
+            "--json",
+            "--check-forbidden",
+            "--authorized-package",
+            "WP-ONLINE-OHLCV-PRIMITIVE-IMPL-01",
+            "--authorized-scope",
+            "strategy-spec-schema",
+            "--authorized-path",
+            path,
+        ],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 0
+    assert payload["forbidden_matches"] == []
+    assert payload["authorized_path_writes"]["package"] == "WP-ONLINE-OHLCV-PRIMITIVE-IMPL-01"
+
+
 def test_unauthorized_schema_path_remains_forbidden(tmp_path, capsys):
     repo = _repo(tmp_path)
     path = "research/schemas/strategy_spec.schema.json"
@@ -222,6 +249,8 @@ def test_authorized_scope_requires_exact_changed_path(tmp_path, capsys):
             str(repo),
             "--json",
             "--check-forbidden",
+            "--authorized-package",
+            "WP-TEST",
             "--authorized-path",
             authorized_path,
             "--authorized-scope",
@@ -238,6 +267,35 @@ def test_authorized_scope_requires_exact_changed_path(tmp_path, capsys):
     assert payload["forbidden_matches"] == [{"path": changed_path, "prefix": "research/"}]
 
 
+def test_authorized_schema_path_does_not_allow_different_schema_file(tmp_path, capsys):
+    repo = _repo(tmp_path)
+    authorized_path = "research/schemas/strategy_spec.schema.json"
+    other_schema_path = "research/schemas/result_population.schema.json"
+    _write(repo / authorized_path, "{}\n")
+    _write(repo / other_schema_path, "{}\n")
+
+    exit_code, stdout, _ = _run(
+        [
+            "--repo-root",
+            str(repo),
+            "--json",
+            "--check-forbidden",
+            "--authorized-package",
+            "WP-TEST",
+            "--authorized-path",
+            authorized_path,
+            "--authorized-scope",
+            "strategy-spec-schema",
+        ],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 1
+    assert payload["authorized_path_writes"]["authorized"][0]["path"] == authorized_path
+    assert payload["forbidden_matches"] == [{"path": other_schema_path, "prefix": "research/"}]
+
+
 def test_authorized_schema_scope_does_not_allow_lib_path(tmp_path, capsys):
     repo = _repo(tmp_path)
     path = "lib/backtest.py"
@@ -249,6 +307,8 @@ def test_authorized_schema_scope_does_not_allow_lib_path(tmp_path, capsys):
             str(repo),
             "--json",
             "--check-forbidden",
+            "--authorized-package",
+            "WP-TEST",
             "--authorized-path",
             path,
             "--authorized-scope",
@@ -280,6 +340,8 @@ def test_authorized_compiler_path_records_evidence(tmp_path, capsys):
             str(repo),
             "--json",
             "--check-forbidden",
+            "--authorized-package",
+            "WP-TEST",
             "--authorized-path",
             path,
             "--authorized-scope",
@@ -306,6 +368,8 @@ def test_compiler_scope_rejects_noncompiler_exact_path(tmp_path, capsys):
             str(repo),
             "--json",
             "--check-forbidden",
+            "--authorized-package",
+            "WP-TEST",
             "--authorized-path",
             path,
             "--authorized-scope",
@@ -321,6 +385,68 @@ def test_compiler_scope_rejects_noncompiler_exact_path(tmp_path, capsys):
             "path": path,
             "scope": "research-compiler",
             "reason": "compiler scope is limited to tools/research_runner/spec_signal_compiler.py",
+        }
+    ]
+    assert payload["forbidden_matches"] == [{"path": path, "prefix": "research/"}]
+
+
+def test_authorized_strategy_spec_path_is_not_forbidden(tmp_path, capsys):
+    repo = _repo(tmp_path)
+    path = "research/strategy_specs/STRAT-SPEC-9001.strategy_spec.json"
+    _write(repo / path, "{}\n")
+
+    exit_code, stdout, _ = _run(
+        [
+            "--repo-root",
+            str(repo),
+            "--json",
+            "--check-forbidden",
+            "--authorized-package",
+            "WP-TEST",
+            "--authorized-path",
+            path,
+            "--authorized-scope",
+            "strategy-spec-prereg",
+        ],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 0
+    assert payload["forbidden_matches"] == []
+    assert payload["authorized_path_writes"]["authorized"] == [
+        {"path": path, "status": "authorized", "scope": "strategy-spec-prereg"}
+    ]
+
+
+def test_authorized_strategy_spec_scope_does_not_allow_result_population(tmp_path, capsys):
+    repo = _repo(tmp_path)
+    path = "research/result_populations/RP-9001.result_population.json"
+    _write(repo / path, "{}\n")
+
+    exit_code, stdout, _ = _run(
+        [
+            "--repo-root",
+            str(repo),
+            "--json",
+            "--check-forbidden",
+            "--authorized-package",
+            "WP-TEST",
+            "--authorized-path",
+            path,
+            "--authorized-scope",
+            "strategy-spec-prereg",
+        ],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 1
+    assert payload["authorized_path_writes"]["rejected"] == [
+        {
+            "path": path,
+            "scope": "strategy-spec-prereg",
+            "reason": "strategy-spec scope is limited to research/strategy_specs/STRAT-SPEC-<digits>.strategy_spec.json",
         }
     ]
     assert payload["forbidden_matches"] == [{"path": path, "prefix": "research/"}]
@@ -416,6 +542,8 @@ def test_mixed_authorized_schema_plus_unauthorized_research_file_fails(tmp_path,
             str(repo),
             "--json",
             "--check-forbidden",
+            "--authorized-package",
+            "WP-TEST",
             "--authorized-path",
             schema_path,
             "--authorized-scope",
@@ -441,6 +569,28 @@ def test_authorized_path_requires_scope(tmp_path, capsys):
 
     assert exc_info.value.code == 2
     assert "--authorized-path requires --authorized-scope" in stderr
+
+
+def test_authorized_path_requires_package(tmp_path, capsys):
+    repo = _repo(tmp_path)
+    path = "research/schemas/strategy_spec.schema.json"
+    _write(repo / path, "{}\n")
+
+    with pytest.raises(SystemExit) as exc_info:
+        helper.run(
+            [
+                "--repo-root",
+                str(repo),
+                "--authorized-path",
+                path,
+                "--authorized-scope",
+                "strategy-spec-schema",
+            ]
+        )
+    stderr = capsys.readouterr().err
+
+    assert exc_info.value.code == 2
+    assert "--authorized-path requires --authorized-package" in stderr
 
 
 def test_allowed_file_reports_violations(tmp_path, capsys):

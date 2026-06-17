@@ -124,6 +124,100 @@ def _condition(condition_id: str = "COND-1", operator: str = "gt") -> dict:
     }
 
 
+def _primitive_ref(ref: str, field: str) -> dict:
+    return {
+        "operand_type": "primitive_ref",
+        "ref": ref,
+        "field": field,
+        "timeframe": None,
+        "lookback": None,
+    }
+
+
+def _online_primitives() -> dict:
+    tolerance = {
+        "mode": "atr_multiple",
+        "atr_lookback_bars": 1,
+        "multiple": 0.0,
+        "units": "ATR",
+    }
+    return {
+        "session_windows": [
+            {
+                "session_id": "UTC_DAILY_0000",
+                "timezone": "UTC",
+                "anchor_time": "00:00",
+                "duration": {"value": 1, "units": "day"},
+            }
+        ],
+        "opening_ranges": [
+            {
+                "range_id": "OR-1",
+                "session_ref": "UTC_DAILY_0000",
+                "start_offset": {"value": 0, "units": "bars"},
+                "length": {"value": 1, "units": "bars"},
+                "high_source": "high",
+                "low_source": "low",
+                "close_after_range_required": True,
+                "zero_range_policy": "no_trade_false",
+                "incomplete_range_policy": "no_trade_false",
+            }
+        ],
+        "opening_range_breakouts": [
+            {
+                "breakout_id": "ORB-1",
+                "range_ref": "OR-1",
+                "confirmation_price": "close",
+                "confirmation_timing": "bar_close",
+                "entry_timing": "next_bar_open",
+                "long_operator": "close_gt_range_high_plus_tolerance",
+                "short_operator": "close_lt_range_low_minus_tolerance",
+                "tolerance": tolerance,
+                "breakout_before_range_complete_policy": "false",
+                "simultaneous_long_short_policy": "no_trade",
+            }
+        ],
+        "opening_range_retests": [
+            {
+                "retest_id": "RETEST-1",
+                "breakout_ref": "ORB-1",
+                "window": {"min_bars_after_breakout": 1, "max_bars_after_breakout": 3},
+                "touch_price_source": "close",
+                "entry_timing": "next_bar_open_after_retest_confirmation",
+                "long_retest_level": "opening_range.high",
+                "short_retest_level": "opening_range.low",
+                "tolerance": tolerance,
+                "timeout_policy": "no_trade_false",
+                "opposite_breakout_before_retest_policy": "cancel_session_signal",
+            }
+        ],
+        "candle_shapes": [
+            {
+                "predicate_id": "NO-WICK",
+                "range_source": "high_low",
+                "zero_range_policy": "false",
+                "missing_ohlc_policy": "false",
+                "upper_wick_pct": {
+                    "operator": "lte",
+                    "value": 0.1,
+                    "units": "fraction_of_range",
+                },
+                "lower_wick_pct": {
+                    "operator": "lte",
+                    "value": 0.1,
+                    "units": "fraction_of_range",
+                },
+                "body_pct": {
+                    "operator": "gte",
+                    "value": 0.6,
+                    "units": "fraction_of_range",
+                },
+                "side_mode": "side_specific",
+            }
+        ],
+    }
+
+
 def _group(group_id: str = "GROUP-1", subgroups: list | None = None, side: str | None = None) -> dict:
     group = {
         "group_id": group_id,
@@ -604,6 +698,123 @@ def test_entry_controls_min_bars_between_entries_passes_schema_and_validator(tmp
 
     assert Draft7Validator(_load_schema()).is_valid(payload)
     assert errors == []
+
+
+def test_entry_controls_max_trades_per_session_passes_schema_and_validator(tmp_path):
+    payload = _base_strategy_spec()
+    payload["online_ohlcv_primitives"] = _online_primitives()
+    payload["entry_logic"]["entry_controls"] = {
+        "max_trades_per_session": {
+            "enabled": True,
+            "count_basis": "entries_filled",
+            "max_trades": 1,
+            "session_ref": "UTC_DAILY_0000",
+            "reset": "session_start",
+        }
+    }
+
+    errors = _validate(tmp_path, payload)
+
+    assert Draft7Validator(_load_schema()).is_valid(payload)
+    assert errors == []
+
+
+def test_valid_online_ohlcv_primitives_pass_schema_and_validator(tmp_path):
+    payload = _base_strategy_spec()
+    payload["online_ohlcv_primitives"] = _online_primitives()
+    payload["entry_logic"]["entry_controls"] = {
+        "min_bars_between_entries": 1,
+        "max_trades_per_session": {
+            "enabled": True,
+            "count_basis": "entries_filled",
+            "max_trades": 1,
+            "session_ref": "UTC_DAILY_0000",
+            "reset": "session_start",
+        },
+    }
+    payload["entry_logic"]["groups"][0]["conditions"][0]["left_operand"] = _primitive_ref(
+        "RETEST-1",
+        "long",
+    )
+    payload["entry_logic"]["groups"][0]["conditions"][0]["operator"] = "is_true"
+
+    schema = _load_schema()
+
+    assert Draft7Validator(schema).is_valid(payload)
+    assert _validate(tmp_path, payload) == []
+
+
+def test_online_ohlcv_primitives_reject_invalid_closed_forms(tmp_path):
+    cases = []
+
+    payload = _base_strategy_spec()
+    payload["online_ohlcv_primitives"] = _online_primitives()
+    payload["online_ohlcv_primitives"]["session_windows"][0]["timezone"] = "America/New_York"
+    cases.append((payload, "timezone"))
+
+    payload = _base_strategy_spec()
+    payload["online_ohlcv_primitives"] = _online_primitives()
+    payload["online_ohlcv_primitives"]["session_windows"][0]["anchor_time"] = "24:00"
+    cases.append((payload, "anchor_time"))
+
+    payload = _base_strategy_spec()
+    payload["online_ohlcv_primitives"] = _online_primitives()
+    payload["online_ohlcv_primitives"]["session_windows"][0]["duration"]["units"] = "hour"
+    cases.append((payload, "duration"))
+
+    payload = _base_strategy_spec()
+    payload["online_ohlcv_primitives"] = _online_primitives()
+    payload["online_ohlcv_primitives"]["opening_ranges"][0]["session_ref"] = "MISSING"
+    cases.append((payload, "session_ref"))
+
+    payload = _base_strategy_spec()
+    payload["online_ohlcv_primitives"] = _online_primitives()
+    payload["online_ohlcv_primitives"]["opening_range_breakouts"][0]["tolerance"]["mode"] = "expression"
+    cases.append((payload, "tolerance"))
+
+    payload = _base_strategy_spec()
+    payload["online_ohlcv_primitives"] = _online_primitives()
+    payload["online_ohlcv_primitives"]["opening_range_retests"][0]["window"] = {
+        "min_bars_after_breakout": 4,
+        "max_bars_after_breakout": 2,
+    }
+    cases.append((payload, "max_bars_after_breakout"))
+
+    payload = _base_strategy_spec()
+    payload["online_ohlcv_primitives"] = _online_primitives()
+    payload["entry_logic"]["entry_controls"] = {
+        "min_bars_between_entries": 1,
+        "max_trades_per_session": {
+            "enabled": True,
+            "count_basis": "entries_filled",
+            "max_trades": 0,
+            "session_ref": "UTC_DAILY_0000",
+            "reset": "session_start",
+        },
+    }
+    cases.append((payload, "max_trades"))
+
+    payload = _base_strategy_spec()
+    payload["online_ohlcv_primitives"] = _online_primitives()
+    payload["online_ohlcv_primitives"]["candle_shapes"][0]["upper_wick_pct"]["operator"] = "execute"
+    cases.append((payload, "operator"))
+
+    payload = _base_strategy_spec()
+    payload["online_ohlcv_primitives"] = _online_primitives()
+    payload["online_ohlcv_primitives"]["candle_shapes"][0]["formula"] = "close > open"
+    cases.append((payload, "formula"))
+
+    payload = _base_strategy_spec()
+    payload["online_ohlcv_primitives"] = _online_primitives()
+    payload["entry_logic"]["groups"][0]["conditions"][0]["left_operand"] = _primitive_ref("UNKNOWN", "long")
+    payload["entry_logic"]["groups"][0]["conditions"][0]["operator"] = "is_true"
+    cases.append((payload, "unknown primitive"))
+
+    for index, (case, expected) in enumerate(cases, start=1):
+        case["strategy_spec_id"] = f"STRAT-SPEC-91{index:02d}"
+        errors = _validate(tmp_path, case, filename=f"STRAT-SPEC-91{index:02d}.strategy_spec.json")
+        assert errors, expected
+        assert any(expected in error for error in errors), (expected, errors)
 
 
 def test_entry_controls_unknown_key_fails_schema_and_validator(tmp_path):

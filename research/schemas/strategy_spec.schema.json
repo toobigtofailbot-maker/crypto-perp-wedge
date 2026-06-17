@@ -99,6 +99,9 @@
     "backtest_realism_assumptions": {
       "$ref": "#/definitions/backtest_realism_assumptions"
     },
+    "online_ohlcv_primitives": {
+      "$ref": "#/definitions/online_ohlcv_primitives"
+    },
     "max_condition_group_depth": {
       "description": "Schema-enforced maximum condition-group depth.",
       "type": "integer",
@@ -412,7 +415,7 @@
       "properties": {
         "operand_type": {
           "type": "string",
-          "enum": ["data_ref", "indicator_ref", "parameter_ref", "constant"]
+          "enum": ["data_ref", "indicator_ref", "parameter_ref", "constant", "primitive_ref"]
         },
         "ref": {
           "$ref": "#/definitions/operand_ref"
@@ -545,6 +548,206 @@
         { "$ref": "#/definitions/standard_operand" },
         { "$ref": "#/definitions/composed_operand" }
       ]
+    },
+    "bars_quantity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "units"],
+      "properties": {
+        "value": { "type": "integer", "minimum": 0, "maximum": 100000 },
+        "units": { "type": "string", "const": "bars" }
+      }
+    },
+    "positive_bars_quantity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "units"],
+      "properties": {
+        "value": { "type": "integer", "minimum": 1, "maximum": 100000 },
+        "units": { "type": "string", "const": "bars" }
+      }
+    },
+    "atr_multiple_tolerance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "atr_lookback_bars", "multiple", "units"],
+      "properties": {
+        "mode": { "type": "string", "const": "atr_multiple" },
+        "atr_lookback_bars": { "type": "integer", "minimum": 1, "maximum": 100000 },
+        "multiple": { "type": "number", "minimum": 0, "maximum": 1000 },
+        "units": { "type": "string", "const": "ATR" }
+      }
+    },
+    "session_window": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["session_id", "timezone", "anchor_time", "duration"],
+      "properties": {
+        "session_id": { "$ref": "#/definitions/non_empty_string" },
+        "timezone": { "type": "string", "const": "UTC" },
+        "anchor_time": { "type": "string", "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$" },
+        "duration": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["value", "units"],
+          "properties": {
+            "value": { "type": "integer", "const": 1 },
+            "units": { "type": "string", "const": "day" }
+          }
+        }
+      }
+    },
+    "opening_range": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "range_id",
+        "session_ref",
+        "start_offset",
+        "length",
+        "high_source",
+        "low_source",
+        "close_after_range_required",
+        "zero_range_policy",
+        "incomplete_range_policy"
+      ],
+      "properties": {
+        "range_id": { "$ref": "#/definitions/non_empty_string" },
+        "session_ref": { "$ref": "#/definitions/non_empty_string" },
+        "start_offset": { "$ref": "#/definitions/bars_quantity" },
+        "length": { "$ref": "#/definitions/positive_bars_quantity" },
+        "high_source": { "type": "string", "const": "high" },
+        "low_source": { "type": "string", "const": "low" },
+        "close_after_range_required": { "type": "boolean", "const": true },
+        "zero_range_policy": { "type": "string", "const": "no_trade_false" },
+        "incomplete_range_policy": { "type": "string", "const": "no_trade_false" }
+      }
+    },
+    "opening_range_breakout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "breakout_id",
+        "range_ref",
+        "confirmation_price",
+        "confirmation_timing",
+        "entry_timing",
+        "long_operator",
+        "short_operator",
+        "tolerance",
+        "breakout_before_range_complete_policy",
+        "simultaneous_long_short_policy"
+      ],
+      "properties": {
+        "breakout_id": { "$ref": "#/definitions/non_empty_string" },
+        "range_ref": { "$ref": "#/definitions/non_empty_string" },
+        "confirmation_price": { "type": "string", "const": "close" },
+        "confirmation_timing": { "type": "string", "const": "bar_close" },
+        "entry_timing": { "type": "string", "const": "next_bar_open" },
+        "long_operator": { "type": "string", "const": "close_gt_range_high_plus_tolerance" },
+        "short_operator": { "type": "string", "const": "close_lt_range_low_minus_tolerance" },
+        "tolerance": { "$ref": "#/definitions/atr_multiple_tolerance" },
+        "breakout_before_range_complete_policy": { "type": "string", "const": "false" },
+        "simultaneous_long_short_policy": { "type": "string", "const": "no_trade" }
+      }
+    },
+    "opening_range_retest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "retest_id",
+        "breakout_ref",
+        "window",
+        "touch_price_source",
+        "entry_timing",
+        "long_retest_level",
+        "short_retest_level",
+        "tolerance",
+        "timeout_policy",
+        "opposite_breakout_before_retest_policy"
+      ],
+      "properties": {
+        "retest_id": { "$ref": "#/definitions/non_empty_string" },
+        "breakout_ref": { "$ref": "#/definitions/non_empty_string" },
+        "window": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["min_bars_after_breakout", "max_bars_after_breakout"],
+          "properties": {
+            "min_bars_after_breakout": { "type": "integer", "minimum": 1, "maximum": 100000 },
+            "max_bars_after_breakout": { "type": "integer", "minimum": 1, "maximum": 100000 }
+          }
+        },
+        "touch_price_source": { "type": "string", "const": "close" },
+        "entry_timing": { "type": "string", "const": "next_bar_open_after_retest_confirmation" },
+        "long_retest_level": { "type": "string", "const": "opening_range.high" },
+        "short_retest_level": { "type": "string", "const": "opening_range.low" },
+        "tolerance": { "$ref": "#/definitions/atr_multiple_tolerance" },
+        "timeout_policy": { "type": "string", "const": "no_trade_false" },
+        "opposite_breakout_before_retest_policy": { "type": "string", "const": "cancel_session_signal" }
+      }
+    },
+    "candle_shape_ratio_predicate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["operator", "value", "units"],
+      "properties": {
+        "operator": { "type": "string", "enum": ["lte", "gte"] },
+        "value": { "type": "number", "minimum": 0, "maximum": 1 },
+        "units": { "type": "string", "const": "fraction_of_range" }
+      }
+    },
+    "candle_shape": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "predicate_id",
+        "range_source",
+        "zero_range_policy",
+        "missing_ohlc_policy",
+        "side_mode"
+      ],
+      "properties": {
+        "predicate_id": { "$ref": "#/definitions/non_empty_string" },
+        "range_source": { "type": "string", "const": "high_low" },
+        "zero_range_policy": { "type": "string", "const": "false" },
+        "missing_ohlc_policy": { "type": "string", "const": "false" },
+        "upper_wick_pct": { "$ref": "#/definitions/candle_shape_ratio_predicate" },
+        "lower_wick_pct": { "$ref": "#/definitions/candle_shape_ratio_predicate" },
+        "body_pct": { "$ref": "#/definitions/candle_shape_ratio_predicate" },
+        "side_mode": { "type": "string", "enum": ["neutral", "side_specific"] }
+      },
+      "anyOf": [
+        { "required": ["upper_wick_pct"] },
+        { "required": ["lower_wick_pct"] },
+        { "required": ["body_pct"] }
+      ]
+    },
+    "online_ohlcv_primitives": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "session_windows": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/session_window" }
+        },
+        "opening_ranges": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/opening_range" }
+        },
+        "opening_range_breakouts": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/opening_range_breakout" }
+        },
+        "opening_range_retests": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/opening_range_retest" }
+        },
+        "candle_shapes": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/candle_shape" }
+        }
+      }
     },
     "condition": {
       "type": "object",
@@ -736,12 +939,27 @@
     "entry_controls": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["min_bars_between_entries"],
+      "anyOf": [
+        { "required": ["min_bars_between_entries"] },
+        { "required": ["max_trades_per_session"] }
+      ],
       "properties": {
         "min_bars_between_entries": {
           "type": "integer",
           "minimum": 1,
           "maximum": 100000
+        },
+        "max_trades_per_session": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled", "count_basis", "max_trades", "session_ref", "reset"],
+          "properties": {
+            "enabled": { "type": "boolean", "const": true },
+            "count_basis": { "type": "string", "const": "entries_filled" },
+            "max_trades": { "type": "integer", "minimum": 1, "maximum": 100000 },
+            "session_ref": { "$ref": "#/definitions/non_empty_string" },
+            "reset": { "type": "string", "const": "session_start" }
+          }
         }
       }
     },

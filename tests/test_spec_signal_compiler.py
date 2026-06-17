@@ -45,6 +45,88 @@ def _operand(operand_type: str, ref, field=None, lookback=None) -> dict:
     }
 
 
+def _primitive_ref(ref: str, field: str) -> dict:
+    return {
+        "operand_type": "primitive_ref",
+        "ref": ref,
+        "field": field,
+        "timeframe": None,
+        "lookback": None,
+    }
+
+
+def _online_primitives(*, retest_max: int = 3, tolerance_multiple: float = 0.0) -> dict:
+    tolerance = {
+        "mode": "atr_multiple",
+        "atr_lookback_bars": 1,
+        "multiple": tolerance_multiple,
+        "units": "ATR",
+    }
+    return {
+        "session_windows": [
+            {
+                "session_id": "UTC_DAILY_0000",
+                "timezone": "UTC",
+                "anchor_time": "00:00",
+                "duration": {"value": 1, "units": "day"},
+            }
+        ],
+        "opening_ranges": [
+            {
+                "range_id": "OR-1",
+                "session_ref": "UTC_DAILY_0000",
+                "start_offset": {"value": 0, "units": "bars"},
+                "length": {"value": 1, "units": "bars"},
+                "high_source": "high",
+                "low_source": "low",
+                "close_after_range_required": True,
+                "zero_range_policy": "no_trade_false",
+                "incomplete_range_policy": "no_trade_false",
+            }
+        ],
+        "opening_range_breakouts": [
+            {
+                "breakout_id": "ORB-1",
+                "range_ref": "OR-1",
+                "confirmation_price": "close",
+                "confirmation_timing": "bar_close",
+                "entry_timing": "next_bar_open",
+                "long_operator": "close_gt_range_high_plus_tolerance",
+                "short_operator": "close_lt_range_low_minus_tolerance",
+                "tolerance": tolerance,
+                "breakout_before_range_complete_policy": "false",
+                "simultaneous_long_short_policy": "no_trade",
+            }
+        ],
+        "opening_range_retests": [
+            {
+                "retest_id": "RETEST-1",
+                "breakout_ref": "ORB-1",
+                "window": {"min_bars_after_breakout": 1, "max_bars_after_breakout": retest_max},
+                "touch_price_source": "close",
+                "entry_timing": "next_bar_open_after_retest_confirmation",
+                "long_retest_level": "opening_range.high",
+                "short_retest_level": "opening_range.low",
+                "tolerance": tolerance,
+                "timeout_policy": "no_trade_false",
+                "opposite_breakout_before_retest_policy": "cancel_session_signal",
+            }
+        ],
+        "candle_shapes": [
+            {
+                "predicate_id": "NO-WICK",
+                "range_source": "high_low",
+                "zero_range_policy": "false",
+                "missing_ohlc_policy": "false",
+                "upper_wick_pct": {"operator": "lte", "value": 0.1, "units": "fraction_of_range"},
+                "lower_wick_pct": {"operator": "lte", "value": 0.1, "units": "fraction_of_range"},
+                "body_pct": {"operator": "gte", "value": 0.6, "units": "fraction_of_range"},
+                "side_mode": "side_specific",
+            }
+        ],
+    }
+
+
 def _composed_operand(
     *,
     base_operand: dict | None = None,
@@ -2126,7 +2208,7 @@ def test_crosses_operator_has_no_lookahead() -> None:
     pd.testing.assert_series_equal(base_signal.loc[:cutoff], mutated_signal.loc[:cutoff])
 
 
-@pytest.mark.parametrize("operator", ["in_set", "is_true", "is_false"])
+@pytest.mark.parametrize("operator", ["in_set"])
 def test_other_unsupported_operators_still_fail_closed(operator: str) -> None:
     spec = _single_condition_spec(
         operator,
@@ -3287,3 +3369,176 @@ def test_no_files_are_written_during_compilation(monkeypatch: pytest.MonkeyPatch
     signal = compile_signal(spec, _default_variant(), ohlcv)
 
     assert signal.iloc[-1] == 1.0
+
+
+def _orb_ohlcv(closes: list[float], *, zero_range_first_bar: bool = False) -> pd.DataFrame:
+    index = pd.date_range("2026-01-01T00:00:00Z", periods=len(closes), freq="h")
+    rows = []
+    for i, close in enumerate(closes):
+        if i % 24 == 0:
+            open_, high, low = 100.0, 101.0, 99.0
+            if zero_range_first_bar:
+                high = low = 100.0
+        else:
+            open_, high, low = close, close + 0.5, close - 0.5
+        rows.append({"open": open_, "high": high, "low": low, "close": close, "volume": 1000.0})
+    return pd.DataFrame(rows, index=index)
+
+
+def _primitive_condition(ref: str, field: str) -> dict:
+    return _condition(_primitive_ref(ref, field), "is_true", _operand("constant", True))
+
+
+def test_opening_range_breakout_waits_for_range_completion_and_close_threshold() -> None:
+    ohlcv = _orb_ohlcv([100.0, 100.5, 101.0, 101.1, 100.8])
+    spec = _spec(entry_groups=[_group("required", "all", [_primitive_condition("ORB-1", "long")])])
+    spec["online_ohlcv_primitives"] = _online_primitives()
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+    context = compiler._CompileContext(
+        strategy_spec=spec,
+        variant_assignment=_default_variant(),
+        ohlcv=ohlcv,
+        catalog=compiler._load_default_catalog(),
+    )
+    breakout = compiler._resolve_operand(_primitive_ref("ORB-1", "long"), context)
+
+    assert breakout.tolist() == [False, False, False, True, False]
+    assert signal.tolist() == [0.0, 0.0, 0.0, 1.0, 1.0]
+
+
+def test_opening_range_retest_window_expires_deterministically() -> None:
+    ohlcv = _orb_ohlcv([100.0, 102.0, 103.0, 103.0, 100.8])
+    spec = _spec(entry_groups=[_group("required", "all", [_primitive_condition("RETEST-1", "long")])])
+    spec["online_ohlcv_primitives"] = _online_primitives(retest_max=2)
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [0.0] * len(ohlcv)
+
+
+def test_opening_range_retest_opposite_breakout_cancels_session_signal() -> None:
+    ohlcv = _orb_ohlcv([100.0, 102.0, 98.0, 100.8])
+    spec = _spec(entry_groups=[_group("required", "all", [_primitive_condition("RETEST-1", "long")])])
+    spec["online_ohlcv_primitives"] = _online_primitives()
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [0.0] * len(ohlcv)
+
+
+def test_max_trades_per_session_blocks_second_entry_and_resets_next_session() -> None:
+    closes = [100.0, 102.0, 100.8, 103.0, 100.7] + [100.0] * 19 + [100.0, 102.0, 100.8]
+    ohlcv = _orb_ohlcv(closes)
+    spec = _spec(
+        entry_groups=[_group("required", "all", [_primitive_condition("RETEST-1", "long")])],
+        max_holding_bars=1,
+        entry_controls={
+            "min_bars_between_entries": 1,
+            "max_trades_per_session": {
+                "enabled": True,
+                "count_basis": "entries_filled",
+                "max_trades": 1,
+                "session_ref": "UTC_DAILY_0000",
+                "reset": "session_start",
+            },
+        },
+    )
+    spec["online_ohlcv_primitives"] = _online_primitives()
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.iloc[2] == 1.0
+    assert signal.iloc[4] == 0.0
+    assert signal.iloc[26] == 1.0
+
+
+def test_session_window_blocks_bars_outside_aligned_grid() -> None:
+    ohlcv = _orb_ohlcv([100.0, 102.0, 100.8])
+    ohlcv.index = pd.date_range("2026-01-01T00:30:00Z", periods=3, freq="h")
+    spec = _spec(entry_groups=[_group("required", "all", [_primitive_condition("RETEST-1", "long")])])
+    spec["online_ohlcv_primitives"] = _online_primitives()
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [0.0, 0.0, 0.0]
+
+
+def test_opening_range_zero_range_and_missing_bar_fail_closed() -> None:
+    zero_range = _orb_ohlcv([100.0, 102.0, 100.8], zero_range_first_bar=True)
+    missing_bar = _orb_ohlcv([100.0, 102.0, 100.8])
+    missing_bar = missing_bar.drop(missing_bar.index[1])
+    spec = _spec(entry_groups=[_group("required", "all", [_primitive_condition("RETEST-1", "long")])])
+    spec["online_ohlcv_primitives"] = _online_primitives()
+
+    assert compile_signal(spec, _default_variant(), zero_range).tolist() == [0.0, 0.0, 0.0]
+    assert compile_signal(spec, _default_variant(), missing_bar).tolist() == [0.0, 0.0]
+
+
+def test_candle_shape_ratios_side_specific_and_fail_closed_cases() -> None:
+    index = pd.date_range("2026-01-01", periods=6, freq="h", tz="UTC")
+    ohlcv = pd.DataFrame(
+        {
+            "open": [100.0, 109.0, 100.0, 100.0, 100.0, math.nan],
+            "high": [110.0, 110.0, 110.0, 100.0, 110.0, 110.0],
+            "low": [100.0, 100.0, 100.0, 100.0, 100.0, 100.0],
+            "close": [109.0, 100.0, 100.0, 100.0, 104.0, 109.0],
+            "volume": [1000.0] * 6,
+        },
+        index=index,
+    )
+    spec = _spec(
+        direction="both",
+        entry_groups=[
+            _group("required", "all", [_primitive_condition("NO-WICK", "long")], side="long"),
+            _group("required", "all", [_primitive_condition("NO-WICK", "short")], side="short"),
+        ],
+        max_holding_bars=1,
+    )
+    spec["online_ohlcv_primitives"] = _online_primitives()
+    context = compiler._CompileContext(
+        strategy_spec=spec,
+        variant_assignment=_default_variant(),
+        ohlcv=ohlcv,
+        catalog=compiler._load_default_catalog(),
+    )
+
+    long_shape = compiler._resolve_operand(_primitive_ref("NO-WICK", "long"), context)
+    short_shape = compiler._resolve_operand(_primitive_ref("NO-WICK", "short"), context)
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert long_shape.tolist() == [True, False, False, False, False, False]
+    assert short_shape.tolist() == [False, True, False, False, False, False]
+    assert signal.tolist()[:3] == [1.0, 0.0, 0.0]
+
+
+def test_composed_depth_three_example_with_primitive_ref_compiles_causally() -> None:
+    ohlcv = _orb_ohlcv([100.0, 102.0, 100.8, 100.7])
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [],
+                subgroups=[
+                    _group(
+                        "required",
+                        "all",
+                        [],
+                        subgroups=[
+                            _group("required", "all", [_primitive_condition("RETEST-1", "long")])
+                        ],
+                    )
+                ],
+            )
+        ]
+    )
+    spec["online_ohlcv_primitives"] = _online_primitives()
+
+    base_signal = compile_signal(spec, _default_variant(), ohlcv)
+    mutated = ohlcv.copy()
+    mutated.iloc[3, mutated.columns.get_loc("close")] = 500.0
+    mutated_signal = compile_signal(spec, _default_variant(), mutated)
+
+    assert base_signal.iloc[2] == 1.0
+    pd.testing.assert_series_equal(base_signal.iloc[:3], mutated_signal.iloc[:3])

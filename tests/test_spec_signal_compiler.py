@@ -3739,6 +3739,28 @@ def test_session_end_exit_fires_only_on_deterministic_final_session_bar_close() 
     assert signal.tolist() == ([1.0] * 23) + [0.0]
 
 
+def test_both_direction_session_end_exit_uses_same_signal_values() -> None:
+    ohlcv = _orb_ohlcv([100.0] * 24)
+    spec = _both_direction_spec(
+        long_entry=_condition(
+            _operand("data_ref", "close", "close"),
+            "gt",
+            _operand("constant", 0.0),
+        ),
+        short_entry=_condition(
+            _operand("data_ref", "close", "close"),
+            "lt",
+            _operand("constant", 0.0),
+        ),
+    )
+    spec["online_ohlcv_primitives"] = _online_primitives()
+    spec["exit_logic"]["time_exit"] = _session_end_exit()
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == ([1.0] * 23) + [0.0]
+
+
 def test_session_end_exit_fails_closed_for_incomplete_session() -> None:
     ohlcv = _orb_ohlcv([100.0] * 23)
     spec = _spec(

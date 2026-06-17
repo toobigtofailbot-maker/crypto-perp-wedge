@@ -9,6 +9,7 @@ from numbers import Integral, Real
 from pathlib import Path
 from typing import Any, Mapping
 
+import numpy as np
 import pandas as pd
 
 
@@ -425,7 +426,7 @@ def _compile_both_direction_signal(
         require_both_sides=False,
     )
 
-    signal = pd.Series(0.0, index=ohlcv.index, name="signal")
+    signal_values = np.zeros(len(ohlcv.index), dtype=float)
     current_side: str | None = None
     held_bars = 0
     last_entry_bar: int | None = None
@@ -434,6 +435,14 @@ def _compile_both_direction_signal(
     pending_atr_stop_entry: _PendingAtrStopEntry | None = None
     close_only_exit_state: _CloseOnlyExitState | None = None
     pending_close_only_exit_entry: _PendingCloseOnlyExitEntry | None = None
+    long_entry_values = _entry_allowed_series(
+        [*entry_groups_by_side["long"], *filter_groups],
+        context,
+    ).to_numpy(dtype=bool)
+    short_entry_values = _entry_allowed_series(
+        [*entry_groups_by_side["short"], *filter_groups],
+        context,
+    ).to_numpy(dtype=bool)
     for bar_index, timestamp in enumerate(ohlcv.index):
         if current_side is not None and pending_atr_stop_entry is not None:
             atr_stop_state = _capture_atr_stop_state(
@@ -489,7 +498,6 @@ def _compile_both_direction_signal(
                 pending_atr_stop_entry = None
                 close_only_exit_state = None
                 pending_close_only_exit_entry = None
-                signal.loc[timestamp] = 0.0
                 continue
         elif current_side == "short":
             should_exit = _any_group_true(
@@ -529,19 +537,10 @@ def _compile_both_direction_signal(
                 pending_atr_stop_entry = None
                 close_only_exit_state = None
                 pending_close_only_exit_entry = None
-                signal.loc[timestamp] = 0.0
                 continue
         else:
-            long_entry = _entry_allowed(
-                [*entry_groups_by_side["long"], *filter_groups],
-                context,
-                timestamp,
-            )
-            short_entry = _entry_allowed(
-                [*entry_groups_by_side["short"], *filter_groups],
-                context,
-                timestamp,
-            )
+            long_entry = bool(long_entry_values[bar_index])
+            short_entry = bool(short_entry_values[bar_index])
             if long_entry and not short_entry:
                 if _entry_control_allows_entry(
                     bar_index=bar_index,
@@ -604,14 +603,12 @@ def _compile_both_direction_signal(
                     )
 
         if current_side == "long":
-            signal.loc[timestamp] = 1.0
+            signal_values[bar_index] = 1.0
             held_bars += 1
         elif current_side == "short":
-            signal.loc[timestamp] = -1.0
+            signal_values[bar_index] = -1.0
             held_bars += 1
-        else:
-            signal.loc[timestamp] = 0.0
-    return signal
+    return pd.Series(signal_values, index=ohlcv.index, name="signal")
 
 
 class _CompileContext:
@@ -629,6 +626,10 @@ class _CompileContext:
         self.catalog_entries = _catalog_entries_by_id(catalog)
         self.indicator_cache: dict[tuple[str, int, str], pd.Series] = {}
         self.primitive_cache: dict[tuple[str, str], pd.Series] = {}
+        self.primitive_config_cache: dict[tuple[str, str], dict[str, Mapping[str, Any]]] = {}
+        self.condition_cache: dict[tuple[int, tuple[str, ...]], pd.Series] = {}
+        self.group_cache: dict[tuple[int, tuple[str, ...]], pd.Series] = {}
+        self.bar_delta = _infer_bar_delta(ohlcv.index)
 
 
 def _copy_mapping(value: Mapping[str, Any]) -> dict[str, Any]:
@@ -1260,17 +1261,31 @@ def _session_end_exit_triggered(
 ) -> bool:
     if config is None:
         return False
-    in_session, session_keys = _session_membership(context, config.session_ref)
-    if not bool(in_session.loc[timestamp]):
-        return False
-    bar_delta = _infer_bar_delta(context.ohlcv.index)
+    return bool(_session_end_exit_series(context, config.session_ref).loc[timestamp])
+
+
+def _session_end_exit_series(context: _CompileContext, session_ref: str) -> pd.Series:
+    cache_key = ("session_end_exit", session_ref)
+    if cache_key in context.primitive_cache:
+        return context.primitive_cache[cache_key]
+    in_session, session_keys = _session_membership(context, session_ref)
+    index = context.ohlcv.index
+    result = pd.Series(False, index=index, dtype=bool)
+    bar_delta = context.bar_delta
     if bar_delta is None or bar_delta <= pd.Timedelta(0):
-        return False
-    session_start = session_keys.loc[timestamp]
-    if session_start is None:
-        return False
-    expected_final_bar = pd.Timestamp(session_start) + pd.Timedelta(days=1) - bar_delta
-    return pd.Timestamp(timestamp) == expected_final_bar
+        context.primitive_cache[cache_key] = result
+        return result
+    in_values = in_session.to_numpy(dtype=bool)
+    key_values = session_keys.to_numpy(dtype=object)
+    output = np.zeros(len(index), dtype=bool)
+    for position, session_start in enumerate(key_values):
+        if not in_values[position] or session_start is None:
+            continue
+        expected_final_bar = pd.Timestamp(session_start) + pd.Timedelta(days=1) - bar_delta
+        output[position] = pd.Timestamp(index[position]) == expected_final_bar
+    result = pd.Series(output, index=index, dtype=bool)
+    context.primitive_cache[cache_key] = result
+    return result
 
 
 def _entry_control_allows_entry(
@@ -1312,6 +1327,10 @@ def _record_session_entry(
 
 
 def _entry_allowed(groups: list[Mapping[str, Any]], context: _CompileContext, timestamp: Any) -> bool:
+    return bool(_entry_allowed_series(groups, context).loc[timestamp])
+
+
+def _entry_allowed_series(groups: list[Mapping[str, Any]], context: _CompileContext) -> pd.Series:
     entry_groups = [group for group in groups if group.get("group_role") in ENTRY_GROUP_ROLES]
     blocking_groups = [group for group in groups if group.get("group_role") in BLOCKING_GROUP_ROLES]
     for group in groups:
@@ -1319,10 +1338,13 @@ def _entry_allowed(groups: list[Mapping[str, Any]], context: _CompileContext, ti
         if role not in ENTRY_GROUP_ROLES | BLOCKING_GROUP_ROLES:
             raise UnsupportedSpecSignalCompilerFeature(f"unsupported entry/filter group role: {role!r}")
     if not entry_groups:
-        return False
-    if any(_evaluate_group(group, context, timestamp, BLOCKING_CONDITION_ROLES) for group in blocking_groups):
-        return False
-    return all(_evaluate_group(group, context, timestamp, ENTRY_CONDITION_ROLES) for group in entry_groups)
+        return pd.Series(False, index=context.ohlcv.index, dtype=bool)
+    result = pd.Series(True, index=context.ohlcv.index, dtype=bool)
+    for group in entry_groups:
+        result = result & _evaluate_group_series(group, context, ENTRY_CONDITION_ROLES)
+    for group in blocking_groups:
+        result = result & ~_evaluate_group_series(group, context, BLOCKING_CONDITION_ROLES)
+    return result.fillna(False)
 
 
 def _any_group_true(
@@ -1338,7 +1360,131 @@ def _any_group_true(
             relevant.append(group)
         else:
             raise UnsupportedSpecSignalCompilerFeature(f"unsupported exit group role: {role!r}")
-    return any(_evaluate_group(group, context, timestamp, EXIT_CONDITION_ROLES) for group in relevant)
+    return any(
+        bool(_evaluate_group_series(group, context, EXIT_CONDITION_ROLES).loc[timestamp])
+        for group in relevant
+    )
+
+
+def _evaluate_group_series(
+    group: Mapping[str, Any],
+    context: _CompileContext,
+    allowed_condition_roles: set[str],
+) -> pd.Series:
+    cache_key = (id(group), tuple(sorted(allowed_condition_roles)))
+    if cache_key in context.group_cache:
+        return context.group_cache[cache_key]
+    logic = group.get("logic")
+    if logic not in {"all", "any"}:
+        raise SpecSignalCompilerError(f"unsupported condition group logic: {logic!r}")
+    conditions = group.get("conditions", [])
+    subgroups = group.get("subgroups", [])
+    if not isinstance(conditions, list) or not isinstance(subgroups, list):
+        raise SpecSignalCompilerError("condition group conditions/subgroups must be arrays")
+    values = [
+        _evaluate_condition_series(
+            _require_mapping(condition, "condition"),
+            context,
+            allowed_condition_roles,
+        )
+        for condition in conditions
+    ]
+    values.extend(
+        _evaluate_group_series(
+            _require_mapping(subgroup, "condition subgroup"),
+            context,
+            allowed_condition_roles,
+        )
+        for subgroup in subgroups
+    )
+    if not values:
+        result = pd.Series(False, index=context.ohlcv.index, dtype=bool)
+    elif logic == "all":
+        result = values[0].copy()
+        for value in values[1:]:
+            result = result & value
+    else:
+        result = values[0].copy()
+        for value in values[1:]:
+            result = result | value
+    context.group_cache[cache_key] = result.fillna(False)
+    return context.group_cache[cache_key]
+
+
+def _evaluate_condition_series(
+    condition: Mapping[str, Any],
+    context: _CompileContext,
+    allowed_condition_roles: set[str],
+) -> pd.Series:
+    cache_key = (id(condition), tuple(sorted(allowed_condition_roles)))
+    if cache_key in context.condition_cache:
+        return context.condition_cache[cache_key]
+    role = condition.get("condition_role")
+    if role not in {"required", "confirming", "blocking", "exit", "invalidation", "filter"}:
+        raise UnsupportedSpecSignalCompilerFeature(f"unsupported condition role: {role!r}")
+    if role not in allowed_condition_roles:
+        raise UnsupportedSpecSignalCompilerFeature(
+            f"condition role {role!r} is incompatible with this group context"
+        )
+    operator = condition.get("operator")
+    if operator in UNSUPPORTED_OPERATORS:
+        raise UnsupportedSpecSignalCompilerFeature(f"operator {operator!r} is not supported in WP-S2c-199")
+    if operator not in SUPPORTED_OPERATORS:
+        raise SpecSignalCompilerError(f"unknown operator: {operator!r}")
+    left = _resolve_operand(_require_mapping(condition.get("left_operand"), "left_operand"), context)
+    right = _resolve_operand(_require_mapping(condition.get("right_operand"), "right_operand"), context)
+    if operator in BOOLEAN_OPERATORS:
+        left_series = _as_series(left, context)
+        if operator == "is_true":
+            result = left_series.map(lambda value: bool(value is True or value == 1) if not _is_null(value) else False)
+        else:
+            result = left_series.map(lambda value: bool(value is False or value == 0) if not _is_null(value) else False)
+    elif operator in CROSSOVER_OPERATORS:
+        result = _evaluate_crossover_series(operator, left, right, context)
+    else:
+        left_series = _as_series(left, context)
+        right_series = _as_series(right, context)
+        valid = ~(left_series.isna() | right_series.isna())
+        if operator == "gt":
+            result = valid & (left_series > right_series)
+        elif operator == "gte":
+            result = valid & (left_series >= right_series)
+        elif operator == "lt":
+            result = valid & (left_series < right_series)
+        elif operator == "lte":
+            result = valid & (left_series <= right_series)
+        elif operator == "eq":
+            result = valid & (left_series == right_series)
+        elif operator == "neq":
+            result = valid & (left_series != right_series)
+        else:
+            raise SpecSignalCompilerError(f"unhandled operator: {operator!r}")
+    context.condition_cache[cache_key] = result.fillna(False).astype(bool)
+    return context.condition_cache[cache_key]
+
+
+def _as_series(value: Any, context: _CompileContext) -> pd.Series:
+    if isinstance(value, pd.Series):
+        return value
+    return pd.Series([value] * len(context.ohlcv.index), index=context.ohlcv.index)
+
+
+def _evaluate_crossover_series(
+    operator: str,
+    left: Any,
+    right: Any,
+    context: _CompileContext,
+) -> pd.Series:
+    left_series = _as_series(left, context)
+    right_series = _as_series(right, context)
+    previous_left = left_series.shift(1)
+    previous_right = right_series.shift(1)
+    valid = ~(previous_left.isna() | previous_right.isna() | left_series.isna() | right_series.isna())
+    if operator == "crosses_above":
+        return valid & (previous_left <= previous_right) & (left_series > right_series)
+    if operator == "crosses_below":
+        return valid & (previous_left >= previous_right) & (left_series < right_series)
+    raise SpecSignalCompilerError(f"unhandled crossover operator: {operator!r}")
 
 
 def _evaluate_group(
@@ -1478,6 +1624,9 @@ def _primitive_items(context: _CompileContext, key: str) -> list[Mapping[str, An
 
 
 def _primitive_by_id(context: _CompileContext, key: str, id_key: str) -> dict[str, Mapping[str, Any]]:
+    cache_key = (key, id_key)
+    if cache_key in context.primitive_config_cache:
+        return context.primitive_config_cache[cache_key]
     by_id: dict[str, Mapping[str, Any]] = {}
     for item in _primitive_items(context, key):
         item_id = item.get(id_key)
@@ -1486,6 +1635,7 @@ def _primitive_by_id(context: _CompileContext, key: str, id_key: str) -> dict[st
         if item_id in by_id:
             raise SpecSignalCompilerError(f"duplicate {id_key}: {item_id}")
         by_id[item_id] = item
+    context.primitive_config_cache[cache_key] = by_id
     return by_id
 
 
@@ -1538,20 +1688,25 @@ def _session_membership(context: _CompileContext, session_id: str) -> tuple[pd.S
     index = context.ohlcv.index
     if index.tz is None:
         raise SpecSignalCompilerError("session_window requires UTC-aware OHLCV timestamps")
-    bar_delta = _infer_bar_delta(index)
-    in_session = pd.Series(False, index=index, dtype=bool)
-    keys = pd.Series([None] * len(index), index=index, dtype=object)
+    bar_delta = context.bar_delta
+    in_values = np.zeros(len(index), dtype=bool)
+    key_values = np.empty(len(index), dtype=object)
+    key_values[:] = None
     if bar_delta is None or bar_delta <= pd.Timedelta(0) or pd.Timedelta(days=1) % bar_delta != pd.Timedelta(0):
+        in_session = pd.Series(in_values, index=index, dtype=bool)
+        keys = pd.Series(key_values, index=index, dtype=object)
         context.primitive_cache[cache_key] = in_session
         context.primitive_cache[key_cache] = keys
         return in_session, keys
-    for timestamp in index:
+    for position, timestamp in enumerate(index):
         ts = pd.Timestamp(timestamp)
         session_start = _session_start_for_timestamp(ts, anchor_hour, anchor_minute)
         offset = ts - session_start
         if pd.Timedelta(0) <= offset < pd.Timedelta(days=1) and offset % bar_delta == pd.Timedelta(0):
-            in_session.loc[timestamp] = True
-            keys.loc[timestamp] = session_start
+            in_values[position] = True
+            key_values[position] = session_start
+    in_session = pd.Series(in_values, index=index, dtype=bool)
+    keys = pd.Series(key_values, index=index, dtype=object)
     context.primitive_cache[cache_key] = in_session
     context.primitive_cache[key_cache] = keys
     return in_session, keys
@@ -1594,35 +1749,45 @@ def _opening_range_state(context: _CompileContext, range_id: str) -> dict[str, p
     length = _bars_value(config.get("length"), "opening_range.length", minimum=1)
     in_session, session_keys = _session_membership(context, session_ref)
     index = context.ohlcv.index
-    complete = pd.Series(False, index=index, dtype=bool)
-    valid = pd.Series(False, index=index, dtype=bool)
-    high_out = pd.Series(math.nan, index=index, dtype=float)
-    low_out = pd.Series(math.nan, index=index, dtype=float)
-    by_session: dict[Any, list[Any]] = {}
-    for timestamp in index:
-        if bool(in_session.loc[timestamp]):
-            by_session.setdefault(session_keys.loc[timestamp], []).append(timestamp)
-    bar_delta = _infer_bar_delta(index)
-    for timestamps in by_session.values():
-        if len(timestamps) < start_offset + length or bar_delta is None:
+    complete_values = np.zeros(len(index), dtype=bool)
+    valid_values = np.zeros(len(index), dtype=bool)
+    high_values = np.full(len(index), math.nan, dtype=float)
+    low_values = np.full(len(index), math.nan, dtype=float)
+    by_session: dict[Any, list[int]] = {}
+    in_values = in_session.to_numpy(dtype=bool)
+    key_values = session_keys.to_numpy(dtype=object)
+    for position, session_key in enumerate(key_values):
+        if in_values[position]:
+            by_session.setdefault(session_key, []).append(position)
+    bar_delta = context.bar_delta
+    high_source = context.ohlcv["high"].to_numpy(dtype=float)
+    low_source = context.ohlcv["low"].to_numpy(dtype=float)
+    for positions in by_session.values():
+        if len(positions) < start_offset + length or bar_delta is None:
             continue
-        range_timestamps = timestamps[start_offset : start_offset + length]
+        range_positions = positions[start_offset : start_offset + length]
+        range_timestamps = index[range_positions]
         expected = pd.date_range(range_timestamps[0], periods=length, freq=bar_delta)
         if list(expected) != list(range_timestamps):
             continue
-        range_frame = context.ohlcv.loc[range_timestamps, ["high", "low"]]
-        if range_frame.isna().any().any():
+        range_high = high_source[range_positions]
+        range_low = low_source[range_positions]
+        if np.isnan(range_high).any() or np.isnan(range_low).any():
             continue
-        high = float(range_frame["high"].max())
-        low = float(range_frame["low"].min())
+        high = float(np.max(range_high))
+        low = float(np.min(range_low))
         if not math.isfinite(high) or not math.isfinite(low) or high <= low:
             continue
         ready_from_index = start_offset + length
-        for timestamp in timestamps[ready_from_index:]:
-            complete.loc[timestamp] = True
-            valid.loc[timestamp] = True
-            high_out.loc[timestamp] = high
-            low_out.loc[timestamp] = low
+        ready_positions = positions[ready_from_index:]
+        complete_values[ready_positions] = True
+        valid_values[ready_positions] = True
+        high_values[ready_positions] = high
+        low_values[ready_positions] = low
+    complete = pd.Series(complete_values, index=index, dtype=bool)
+    valid = pd.Series(valid_values, index=index, dtype=bool)
+    high_out = pd.Series(high_values, index=index, dtype=float)
+    low_out = pd.Series(low_values, index=index, dtype=float)
     context.primitive_cache[("opening_range_complete", range_id)] = complete
     context.primitive_cache[("opening_range_valid", range_id)] = valid
     context.primitive_cache[("opening_range_high", range_id)] = high_out
@@ -1693,24 +1858,29 @@ def _breakout_state(context: _CompileContext, breakout_id: str) -> dict[str, pd.
     simultaneous = long & short
     long = long & ~simultaneous
     short = short & ~simultaneous
-    side = pd.Series([None] * len(close), index=close.index, dtype=object)
-    bar_index = pd.Series(math.nan, index=close.index, dtype=float)
+    side_values = np.empty(len(close), dtype=object)
+    side_values[:] = None
+    bar_index_values = np.full(len(close), math.nan, dtype=float)
     active_session: Any = None
     seen_side: str | None = None
     _, session_keys = _session_membership(context, _range_session_ref(context, range_ref))
-    for index_number, timestamp in enumerate(close.index):
-        session_key = session_keys.loc[timestamp]
+    session_values = session_keys.to_numpy(dtype=object)
+    long_values = long.to_numpy(dtype=bool)
+    short_values = short.to_numpy(dtype=bool)
+    for index_number, session_key in enumerate(session_values):
         if session_key != active_session:
             active_session = session_key
             seen_side = None
         if seen_side is None:
-            if bool(long.loc[timestamp]):
+            if bool(long_values[index_number]):
                 seen_side = "long"
-                bar_index.loc[timestamp] = float(index_number)
-            elif bool(short.loc[timestamp]):
+                bar_index_values[index_number] = float(index_number)
+            elif bool(short_values[index_number]):
                 seen_side = "short"
-                bar_index.loc[timestamp] = float(index_number)
-        side.loc[timestamp] = seen_side
+                bar_index_values[index_number] = float(index_number)
+        side_values[index_number] = seen_side
+    side = pd.Series(side_values, index=close.index, dtype=object)
+    bar_index = pd.Series(bar_index_values, index=close.index, dtype=float)
     context.primitive_cache[("breakout_long", breakout_id)] = long
     context.primitive_cache[("breakout_short", breakout_id)] = short
     context.primitive_cache[("breakout_side", breakout_id)] = side
@@ -1774,16 +1944,22 @@ def _retest_state(context: _CompileContext, retest_id: str) -> dict[str, pd.Seri
     breakout = _breakout_state(context, breakout_ref)
     tolerance = _atr_tolerance(context, config.get("tolerance"))
     close = context.ohlcv["close"].astype(float)
-    long = pd.Series(False, index=close.index, dtype=bool)
-    short = pd.Series(False, index=close.index, dtype=bool)
+    long_values = np.zeros(len(close), dtype=bool)
+    short_values = np.zeros(len(close), dtype=bool)
     _, session_keys = _session_membership(context, _range_session_ref(context, range_ref))
     session_side: str | None = None
     breakout_index: int | None = None
     cancelled = False
     active_session: Any = None
     emitted = False
-    for index_number, timestamp in enumerate(close.index):
-        session_key = session_keys.loc[timestamp]
+    session_values = session_keys.to_numpy(dtype=object)
+    breakout_long = breakout["long"].to_numpy(dtype=bool)
+    breakout_short = breakout["short"].to_numpy(dtype=bool)
+    tolerance_values = tolerance.to_numpy(dtype=float)
+    close_values = close.to_numpy(dtype=float)
+    range_high_values = range_state["high"].to_numpy(dtype=float)
+    range_low_values = range_state["low"].to_numpy(dtype=float)
+    for index_number, session_key in enumerate(session_values):
         if session_key != active_session:
             active_session = session_key
             session_side = None
@@ -1791,19 +1967,19 @@ def _retest_state(context: _CompileContext, retest_id: str) -> dict[str, pd.Seri
             cancelled = False
             emitted = False
         if session_side is None:
-            if bool(breakout["long"].loc[timestamp]):
+            if bool(breakout_long[index_number]):
                 session_side = "long"
                 breakout_index = index_number
-            elif bool(breakout["short"].loc[timestamp]):
+            elif bool(breakout_short[index_number]):
                 session_side = "short"
                 breakout_index = index_number
             continue
         if emitted or cancelled or breakout_index is None:
             continue
-        if session_side == "long" and bool(breakout["short"].loc[timestamp]):
+        if session_side == "long" and bool(breakout_short[index_number]):
             cancelled = True
             continue
-        if session_side == "short" and bool(breakout["long"].loc[timestamp]):
+        if session_side == "short" and bool(breakout_long[index_number]):
             cancelled = True
             continue
         bars_after = index_number - breakout_index
@@ -1811,16 +1987,18 @@ def _retest_state(context: _CompileContext, retest_id: str) -> dict[str, pd.Seri
             continue
         if bars_after < int(min_after):
             continue
-        tolerance_value = tolerance.loc[timestamp]
-        close_value = close.loc[timestamp]
-        if _is_null(tolerance_value) or _is_null(close_value):
+        tolerance_value = tolerance_values[index_number]
+        close_value = close_values[index_number]
+        if not math.isfinite(tolerance_value) or not math.isfinite(close_value):
             continue
-        if session_side == "long" and close_value <= range_state["high"].loc[timestamp] + tolerance_value:
-            long.loc[timestamp] = True
+        if session_side == "long" and close_value <= range_high_values[index_number] + tolerance_value:
+            long_values[index_number] = True
             emitted = True
-        elif session_side == "short" and close_value >= range_state["low"].loc[timestamp] - tolerance_value:
-            short.loc[timestamp] = True
+        elif session_side == "short" and close_value >= range_low_values[index_number] - tolerance_value:
+            short_values[index_number] = True
             emitted = True
+    long = pd.Series(long_values, index=close.index, dtype=bool)
+    short = pd.Series(short_values, index=close.index, dtype=bool)
     context.primitive_cache[("retest_long", retest_id)] = long
     context.primitive_cache[("retest_short", retest_id)] = short
     return {"long": long, "short": short}

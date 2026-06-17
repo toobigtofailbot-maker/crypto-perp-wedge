@@ -57,6 +57,15 @@ ATR_STOP_EVALUATION_PRICE = "close"
 ATR_STOP_EVALUATION_TIMING = "bar_close"
 ATR_STOP_MAX_LOOKBACK_BARS = 100000
 ATR_STOP_MAX_MULTIPLIER = 1000.0
+ONLINE_OHLCV_PRIMITIVES_KEY = "online_ohlcv_primitives"
+PRIMITIVE_REF_OPERAND_TYPE = "primitive_ref"
+PRIMITIVE_COLLECTIONS = {
+    "session_windows": "session_id",
+    "opening_ranges": "range_id",
+    "opening_range_breakouts": "breakout_id",
+    "opening_range_retests": "retest_id",
+    "candle_shapes": "predicate_id",
+}
 FORBIDDEN_EXECUTABLE_KEYS = {
     "expression",
     "formula",
@@ -696,6 +705,114 @@ def _validate_atr_stop(path: Path, payload: dict[str, Any]) -> list[str]:
     return errors
 
 
+def _online_primitives(payload: dict[str, Any]) -> dict[str, Any]:
+    value = payload.get(ONLINE_OHLCV_PRIMITIVES_KEY)
+    return value if isinstance(value, dict) else {}
+
+
+def _primitive_ids(payload: dict[str, Any], collection: str) -> set[str]:
+    id_key = PRIMITIVE_COLLECTIONS[collection]
+    items = _online_primitives(payload).get(collection, [])
+    if not isinstance(items, list):
+        return set()
+    return {
+        item[id_key]
+        for item in items
+        if isinstance(item, dict) and isinstance(item.get(id_key), str)
+    }
+
+
+def _validate_online_ohlcv_primitives(path: Path, payload: dict[str, Any]) -> list[str]:
+    primitives = payload.get(ONLINE_OHLCV_PRIMITIVES_KEY)
+    if primitives is None:
+        return []
+    if not isinstance(primitives, dict):
+        return [f"{path}: online_ohlcv_primitives must be an object"]
+
+    errors: list[str] = []
+    seen_ids: dict[str, str] = {}
+    for collection, id_key in PRIMITIVE_COLLECTIONS.items():
+        items = primitives.get(collection, [])
+        if not isinstance(items, list):
+            continue
+        local: set[str] = set()
+        for index, item in enumerate(items):
+            if not isinstance(item, dict):
+                continue
+            item_id = item.get(id_key)
+            item_path = f"online_ohlcv_primitives.{collection}.{index}"
+            if not isinstance(item_id, str) or not item_id:
+                continue
+            if item_id in local:
+                errors.append(f"{path}: duplicate {id_key} in {collection}: {item_id}")
+            local.add(item_id)
+            if item_id in seen_ids:
+                errors.append(
+                    f"{path}: primitive id {item_id!r} reused by {collection} and {seen_ids[item_id]}"
+                )
+            seen_ids[item_id] = collection
+            if any(token in item_id.lower() for token in ("eval", "lambda", "code", "formula")):
+                errors.append(f"{path}: {item_path}.{id_key} contains executable-looking text")
+
+    session_ids = _primitive_ids(payload, "session_windows")
+    range_ids = _primitive_ids(payload, "opening_ranges")
+    breakout_ids = _primitive_ids(payload, "opening_range_breakouts")
+
+    for index, item in enumerate(primitives.get("opening_ranges", []) or []):
+        if isinstance(item, dict) and item.get("session_ref") not in session_ids:
+            errors.append(
+                f"{path}: online_ohlcv_primitives.opening_ranges.{index}.session_ref "
+                "must reference a declared session_window"
+            )
+
+    for index, item in enumerate(primitives.get("opening_range_breakouts", []) or []):
+        if isinstance(item, dict) and item.get("range_ref") not in range_ids:
+            errors.append(
+                f"{path}: online_ohlcv_primitives.opening_range_breakouts.{index}.range_ref "
+                "must reference a declared opening_range"
+            )
+
+    for index, item in enumerate(primitives.get("opening_range_retests", []) or []):
+        if not isinstance(item, dict):
+            continue
+        if item.get("breakout_ref") not in breakout_ids:
+            errors.append(
+                f"{path}: online_ohlcv_primitives.opening_range_retests.{index}.breakout_ref "
+                "must reference a declared opening_range_breakout"
+            )
+        window = item.get("window")
+        if isinstance(window, dict):
+            min_after = window.get("min_bars_after_breakout")
+            max_after = window.get("max_bars_after_breakout")
+            if isinstance(min_after, int) and isinstance(max_after, int) and max_after < min_after:
+                errors.append(
+                    f"{path}: online_ohlcv_primitives.opening_range_retests.{index}.window "
+                    "max_bars_after_breakout must be >= min_bars_after_breakout"
+                )
+
+    declared_primitive_ids = set(seen_ids)
+    for operand_path, operand in _walk_operands(payload, []):
+        if operand.get("operand_type") != PRIMITIVE_REF_OPERAND_TYPE:
+            continue
+        ref = operand.get("ref")
+        if ref not in declared_primitive_ids:
+            errors.append(f"{path}: {operand_path}.ref references unknown primitive {ref!r}")
+        if operand.get("timeframe") not in (None, ""):
+            errors.append(f"{path}: {operand_path}.timeframe must be null for primitive_ref")
+        if operand.get("lookback") is not None:
+            errors.append(f"{path}: {operand_path}.lookback must be null for primitive_ref")
+
+    controls = payload.get("entry_logic", {}).get("entry_controls")
+    if isinstance(controls, dict) and isinstance(controls.get("max_trades_per_session"), dict):
+        session_ref = controls["max_trades_per_session"].get("session_ref")
+        if session_ref not in session_ids:
+            errors.append(
+                f"{path}: entry_logic.entry_controls.max_trades_per_session.session_ref "
+                "must reference a declared session_window"
+            )
+    return errors
+
+
 def _validate_true_flags(
     path: Path,
     payload: dict[str, Any],
@@ -931,6 +1048,7 @@ def validate_strategy_specs(
         errors.extend(_validate_composed_operands(path, payload))
         errors.extend(_validate_parameter_bound_lookbacks(path, payload))
         errors.extend(_validate_atr_stop(path, payload))
+        errors.extend(_validate_online_ohlcv_primitives(path, payload))
         errors.extend(_validate_non_authority_flags(path, payload))
         errors.extend(_validate_host_data_ref_safety(path, payload))
         errors.extend(_validate_both_direction_sides(path, payload))

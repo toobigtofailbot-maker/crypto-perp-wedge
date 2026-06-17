@@ -38,11 +38,10 @@ Z_SCORE_OPERAND_TYPES = {"data_ref", "indicator_ref"}
 Z_SCORE_ZERO_SCALE_POLICY = "null_output"
 LOOKBACK_PARAMETER_REF_KEY = "bars_parameter_ref"
 CROSSOVER_OPERATORS = {"crosses_above", "crosses_below"}
-SUPPORTED_OPERATORS = {"gt", "gte", "lt", "lte", "eq", "neq"} | CROSSOVER_OPERATORS
+BOOLEAN_OPERATORS = {"is_true", "is_false"}
+SUPPORTED_OPERATORS = {"gt", "gte", "lt", "lte", "eq", "neq"} | CROSSOVER_OPERATORS | BOOLEAN_OPERATORS
 UNSUPPORTED_OPERATORS = {
     "in_set",
-    "is_true",
-    "is_false",
 }
 ENTRY_GROUP_ROLES = {
     "required",
@@ -74,6 +73,13 @@ ATR_STOP_ALLOWED_KEYS = {
 }
 ATR_STOP_MAX_LOOKBACK_BARS = 100000
 ATR_STOP_MAX_MULTIPLIER = 1000.0
+PRIMITIVE_REF_OPERAND_TYPE = "primitive_ref"
+ONLINE_OHLCV_PRIMITIVES_KEY = "online_ohlcv_primitives"
+SESSION_WINDOWS_KEY = "session_windows"
+OPENING_RANGES_KEY = "opening_ranges"
+OPENING_RANGE_BREAKOUTS_KEY = "opening_range_breakouts"
+OPENING_RANGE_RETESTS_KEY = "opening_range_retests"
+CANDLE_SHAPES_KEY = "candle_shapes"
 FORBIDDEN_PAYLOAD_KEYS = {
     "expression",
     "formula",
@@ -148,6 +154,13 @@ class _AtrStopState:
     atr_at_entry: float
 
 
+@dataclass(frozen=True)
+class _EntryControls:
+    min_bars_between_entries: int | None
+    max_trades_per_session: int | None
+    session_ref: str | None
+
+
 def compile_signal(
     strategy_spec: dict[str, Any],
     variant_assignment: dict[str, Any],
@@ -178,7 +191,7 @@ def compile_signal(
     filter_groups = _collect_groups(strategy_spec.get("filters"))
     exit_groups = _collect_groups(strategy_spec.get("exit_logic"))
     max_holding_bars = _max_holding_bars(strategy_spec)
-    min_bars_between_entries = _min_bars_between_entries(strategy_spec)
+    entry_controls = _entry_controls(strategy_spec)
     atr_stop_config = _atr_stop_config(strategy_spec, context)
 
     if direction == "both":
@@ -189,7 +202,7 @@ def compile_signal(
             filter_groups=filter_groups,
             exit_groups=exit_groups,
             max_holding_bars=max_holding_bars,
-            min_bars_between_entries=min_bars_between_entries,
+            entry_controls=entry_controls,
             atr_stop_config=atr_stop_config,
         )
 
@@ -200,6 +213,7 @@ def compile_signal(
     current_position = 0.0
     held_bars = 0
     last_entry_bar: int | None = None
+    session_trade_counts: dict[Any, int] = {}
     atr_stop_state: _AtrStopState | None = None
     pending_atr_stop_entry: _PendingAtrStopEntry | None = None
     side = "long" if direction == "long" else "short"
@@ -232,12 +246,21 @@ def compile_signal(
             if entry_allowed and not _entry_control_allows_entry(
                 bar_index=bar_index,
                 last_entry_bar=last_entry_bar,
-                min_bars_between_entries=min_bars_between_entries,
+                entry_controls=entry_controls,
+                context=context,
+                timestamp=timestamp,
+                session_trade_counts=session_trade_counts,
             ):
                 entry_allowed = False
             if entry_allowed:
                 current_position = position_value
                 last_entry_bar = bar_index
+                _record_session_entry(
+                    entry_controls=entry_controls,
+                    context=context,
+                    timestamp=timestamp,
+                    session_trade_counts=session_trade_counts,
+                )
                 held_bars = 0
                 pending_atr_stop_entry = _new_pending_atr_stop_entry(
                     atr_stop_config,
@@ -260,7 +283,7 @@ def _compile_both_direction_signal(
     filter_groups: list[Mapping[str, Any]],
     exit_groups: list[Mapping[str, Any]],
     max_holding_bars: int | None,
-    min_bars_between_entries: int | None,
+    entry_controls: _EntryControls,
     atr_stop_config: _AtrStopConfig | None,
 ) -> pd.Series:
     _guard_no_side_labels(filter_groups, "filters.groups")
@@ -279,6 +302,7 @@ def _compile_both_direction_signal(
     current_side: str | None = None
     held_bars = 0
     last_entry_bar: int | None = None
+    session_trade_counts: dict[Any, int] = {}
     atr_stop_state: _AtrStopState | None = None
     pending_atr_stop_entry: _PendingAtrStopEntry | None = None
     for bar_index, timestamp in enumerate(ohlcv.index):
@@ -341,10 +365,19 @@ def _compile_both_direction_signal(
                 if _entry_control_allows_entry(
                     bar_index=bar_index,
                     last_entry_bar=last_entry_bar,
-                    min_bars_between_entries=min_bars_between_entries,
+                    entry_controls=entry_controls,
+                    context=context,
+                    timestamp=timestamp,
+                    session_trade_counts=session_trade_counts,
                 ):
                     current_side = "long"
                     last_entry_bar = bar_index
+                    _record_session_entry(
+                        entry_controls=entry_controls,
+                        context=context,
+                        timestamp=timestamp,
+                        session_trade_counts=session_trade_counts,
+                    )
                     held_bars = 0
                     pending_atr_stop_entry = _new_pending_atr_stop_entry(
                         atr_stop_config,
@@ -356,10 +389,19 @@ def _compile_both_direction_signal(
                 if _entry_control_allows_entry(
                     bar_index=bar_index,
                     last_entry_bar=last_entry_bar,
-                    min_bars_between_entries=min_bars_between_entries,
+                    entry_controls=entry_controls,
+                    context=context,
+                    timestamp=timestamp,
+                    session_trade_counts=session_trade_counts,
                 ):
                     current_side = "short"
                     last_entry_bar = bar_index
+                    _record_session_entry(
+                        entry_controls=entry_controls,
+                        context=context,
+                        timestamp=timestamp,
+                        session_trade_counts=session_trade_counts,
+                    )
                     held_bars = 0
                     pending_atr_stop_entry = _new_pending_atr_stop_entry(
                         atr_stop_config,
@@ -393,6 +435,7 @@ class _CompileContext:
         self.ohlcv = ohlcv
         self.catalog_entries = _catalog_entries_by_id(catalog)
         self.indicator_cache: dict[tuple[str, int, str], pd.Series] = {}
+        self.primitive_cache: dict[tuple[str, str], pd.Series] = {}
 
 
 def _copy_mapping(value: Mapping[str, Any]) -> dict[str, Any]:
@@ -546,23 +589,61 @@ def _max_holding_bars(strategy_spec: Mapping[str, Any]) -> int | None:
     return bars
 
 
-def _min_bars_between_entries(strategy_spec: Mapping[str, Any]) -> int | None:
+def _entry_controls(strategy_spec: Mapping[str, Any]) -> _EntryControls:
     entry_logic = strategy_spec.get("entry_logic", {})
     if not isinstance(entry_logic, Mapping) or "entry_controls" not in entry_logic:
-        return None
+        return _EntryControls(None, None, None)
     controls = entry_logic.get("entry_controls")
     if not isinstance(controls, Mapping):
         raise SpecSignalCompilerError("entry_controls must be an object when provided")
-    if set(controls) != {"min_bars_between_entries"}:
+    allowed_keys = {"min_bars_between_entries", "max_trades_per_session"}
+    if not set(controls) <= allowed_keys:
         raise SpecSignalCompilerError(
-            "entry_controls supports only min_bars_between_entries"
+            "entry_controls supports only min_bars_between_entries and max_trades_per_session"
         )
-    bars = controls.get("min_bars_between_entries")
-    if isinstance(bars, bool) or not isinstance(bars, Integral) or bars < 1 or bars > 100000:
-        raise SpecSignalCompilerError(
-            "entry_controls.min_bars_between_entries requires integer bars in [1, 100000]"
-        )
-    return int(bars)
+    min_bars_between_entries = None
+    if "min_bars_between_entries" in controls:
+        bars = controls.get("min_bars_between_entries")
+        if isinstance(bars, bool) or not isinstance(bars, Integral) or bars < 1 or bars > 100000:
+            raise SpecSignalCompilerError(
+                "entry_controls.min_bars_between_entries requires integer bars in [1, 100000]"
+            )
+        min_bars_between_entries = int(bars)
+
+    max_trades_per_session = None
+    session_ref = None
+    if "max_trades_per_session" in controls:
+        max_control = controls.get("max_trades_per_session")
+        if not isinstance(max_control, Mapping):
+            raise SpecSignalCompilerError("entry_controls.max_trades_per_session must be an object")
+        expected_keys = {"enabled", "count_basis", "max_trades", "session_ref", "reset"}
+        if set(max_control) != expected_keys:
+            raise SpecSignalCompilerError(
+                f"entry_controls.max_trades_per_session supports exactly {sorted(expected_keys)}"
+            )
+        if max_control.get("enabled") is not True:
+            raise SpecSignalCompilerError("entry_controls.max_trades_per_session.enabled must be true")
+        if max_control.get("count_basis") != "entries_filled":
+            raise SpecSignalCompilerError(
+                "entry_controls.max_trades_per_session.count_basis must be 'entries_filled'"
+            )
+        max_trades = max_control.get("max_trades")
+        if isinstance(max_trades, bool) or not isinstance(max_trades, Integral) or max_trades < 1:
+            raise SpecSignalCompilerError(
+                "entry_controls.max_trades_per_session.max_trades requires a positive integer"
+            )
+        if max_control.get("reset") != "session_start":
+            raise SpecSignalCompilerError(
+                "entry_controls.max_trades_per_session.reset must be 'session_start'"
+            )
+        raw_session_ref = max_control.get("session_ref")
+        if not isinstance(raw_session_ref, str) or not raw_session_ref:
+            raise SpecSignalCompilerError(
+                "entry_controls.max_trades_per_session.session_ref must be non-empty"
+            )
+        max_trades_per_session = int(max_trades)
+        session_ref = raw_session_ref
+    return _EntryControls(min_bars_between_entries, max_trades_per_session, session_ref)
 
 
 def _atr_stop_config(
@@ -711,11 +792,38 @@ def _entry_control_allows_entry(
     *,
     bar_index: int,
     last_entry_bar: int | None,
-    min_bars_between_entries: int | None,
+    entry_controls: _EntryControls,
+    context: _CompileContext,
+    timestamp: Any,
+    session_trade_counts: dict[Any, int],
 ) -> bool:
-    if min_bars_between_entries is None or last_entry_bar is None:
+    if (
+        entry_controls.min_bars_between_entries is not None
+        and last_entry_bar is not None
+        and bar_index - last_entry_bar <= entry_controls.min_bars_between_entries
+    ):
+        return False
+    if entry_controls.max_trades_per_session is None:
         return True
-    return bar_index - last_entry_bar > min_bars_between_entries
+    session_key = _session_key_for_ref(context, entry_controls.session_ref, timestamp)
+    if session_key is None:
+        return False
+    return session_trade_counts.get(session_key, 0) < entry_controls.max_trades_per_session
+
+
+def _record_session_entry(
+    *,
+    entry_controls: _EntryControls,
+    context: _CompileContext,
+    timestamp: Any,
+    session_trade_counts: dict[Any, int],
+) -> None:
+    if entry_controls.max_trades_per_session is None:
+        return
+    session_key = _session_key_for_ref(context, entry_controls.session_ref, timestamp)
+    if session_key is None:
+        return
+    session_trade_counts[session_key] = session_trade_counts.get(session_key, 0) + 1
 
 
 def _entry_allowed(groups: list[Mapping[str, Any]], context: _CompileContext, timestamp: Any) -> bool:
@@ -804,6 +912,14 @@ def _evaluate_condition(
         raise SpecSignalCompilerError(f"unknown operator: {operator!r}")
     left = _resolve_operand(_require_mapping(condition.get("left_operand"), "left_operand"), context)
     right = _resolve_operand(_require_mapping(condition.get("right_operand"), "right_operand"), context)
+    if operator in BOOLEAN_OPERATORS:
+        left_value = _value_at(left, timestamp)
+        if _is_null(left_value):
+            return False
+        if operator == "is_true":
+            return bool(left_value is True or left_value == 1)
+        if operator == "is_false":
+            return bool(left_value is False or left_value == 0)
     if operator in CROSSOVER_OPERATORS:
         return _evaluate_crossover(operator, left, right, context, timestamp)
     left_value = _value_at(left, timestamp)
@@ -860,6 +976,465 @@ def _previous_timestamp(index: pd.DatetimeIndex, timestamp: Any) -> Any | None:
     return index[location - 1]
 
 
+def _online_primitives(context: _CompileContext) -> Mapping[str, Any]:
+    primitives = context.strategy_spec.get(ONLINE_OHLCV_PRIMITIVES_KEY, {})
+    if primitives in ({}, None):
+        return {}
+    if not isinstance(primitives, Mapping):
+        raise SpecSignalCompilerError("online_ohlcv_primitives must be an object when provided")
+    return primitives
+
+
+def _primitive_items(context: _CompileContext, key: str) -> list[Mapping[str, Any]]:
+    value = _online_primitives(context).get(key, [])
+    if not isinstance(value, list):
+        raise SpecSignalCompilerError(f"online_ohlcv_primitives.{key} must be an array")
+    return [_require_mapping(item, f"online_ohlcv_primitives.{key} item") for item in value]
+
+
+def _primitive_by_id(context: _CompileContext, key: str, id_key: str) -> dict[str, Mapping[str, Any]]:
+    by_id: dict[str, Mapping[str, Any]] = {}
+    for item in _primitive_items(context, key):
+        item_id = item.get(id_key)
+        if not isinstance(item_id, str) or not item_id:
+            raise SpecSignalCompilerError(f"{key} item missing {id_key}")
+        if item_id in by_id:
+            raise SpecSignalCompilerError(f"duplicate {id_key}: {item_id}")
+        by_id[item_id] = item
+    return by_id
+
+
+def _session_windows(context: _CompileContext) -> dict[str, Mapping[str, Any]]:
+    return _primitive_by_id(context, SESSION_WINDOWS_KEY, "session_id")
+
+
+def _parse_hhmm(value: Any, label: str) -> tuple[int, int]:
+    if not isinstance(value, str):
+        raise SpecSignalCompilerError(f"{label} must be HH:MM UTC")
+    parts = value.split(":")
+    if len(parts) != 2 or not all(part.isdigit() and len(part) == 2 for part in parts):
+        raise SpecSignalCompilerError(f"{label} must be HH:MM UTC")
+    hour, minute = int(parts[0]), int(parts[1])
+    if hour > 23 or minute > 59:
+        raise SpecSignalCompilerError(f"{label} must be HH:MM UTC")
+    return hour, minute
+
+
+def _session_start_for_timestamp(timestamp: pd.Timestamp, anchor_hour: int, anchor_minute: int) -> pd.Timestamp:
+    anchor = timestamp.normalize() + pd.Timedelta(hours=anchor_hour, minutes=anchor_minute)
+    if timestamp < anchor:
+        anchor -= pd.Timedelta(days=1)
+    return anchor
+
+
+def _infer_bar_delta(index: pd.DatetimeIndex) -> pd.Timedelta | None:
+    if len(index) < 2:
+        return None
+    deltas = index.to_series().diff().dropna().unique()
+    if len(deltas) != 1:
+        return None
+    return pd.Timedelta(deltas[0])
+
+
+def _session_membership(context: _CompileContext, session_id: str) -> tuple[pd.Series, pd.Series]:
+    cache_key = ("session", session_id)
+    key_cache = ("session_key", session_id)
+    if cache_key in context.primitive_cache and key_cache in context.primitive_cache:
+        return context.primitive_cache[cache_key], context.primitive_cache[key_cache]
+    session = _session_windows(context).get(session_id)
+    if session is None:
+        raise SpecSignalCompilerError(f"unknown session_window ref: {session_id}")
+    if session.get("timezone") != "UTC":
+        raise SpecSignalCompilerError("session_window.timezone must be 'UTC'")
+    duration = session.get("duration")
+    if not isinstance(duration, Mapping) or duration.get("value") != 1 or duration.get("units") != "day":
+        raise SpecSignalCompilerError("session_window.duration must be {value: 1, units: 'day'}")
+    anchor_hour, anchor_minute = _parse_hhmm(session.get("anchor_time"), "session_window.anchor_time")
+    index = context.ohlcv.index
+    if index.tz is None:
+        raise SpecSignalCompilerError("session_window requires UTC-aware OHLCV timestamps")
+    bar_delta = _infer_bar_delta(index)
+    in_session = pd.Series(False, index=index, dtype=bool)
+    keys = pd.Series([None] * len(index), index=index, dtype=object)
+    if bar_delta is None or bar_delta <= pd.Timedelta(0) or pd.Timedelta(days=1) % bar_delta != pd.Timedelta(0):
+        context.primitive_cache[cache_key] = in_session
+        context.primitive_cache[key_cache] = keys
+        return in_session, keys
+    for timestamp in index:
+        ts = pd.Timestamp(timestamp)
+        session_start = _session_start_for_timestamp(ts, anchor_hour, anchor_minute)
+        offset = ts - session_start
+        if pd.Timedelta(0) <= offset < pd.Timedelta(days=1) and offset % bar_delta == pd.Timedelta(0):
+            in_session.loc[timestamp] = True
+            keys.loc[timestamp] = session_start
+    context.primitive_cache[cache_key] = in_session
+    context.primitive_cache[key_cache] = keys
+    return in_session, keys
+
+
+def _session_key_for_ref(
+    context: _CompileContext,
+    session_ref: str | None,
+    timestamp: Any,
+) -> Any | None:
+    if session_ref is None:
+        return None
+    in_session, session_keys = _session_membership(context, session_ref)
+    if not bool(in_session.loc[timestamp]):
+        return None
+    return session_keys.loc[timestamp]
+
+
+def _opening_range_state(context: _CompileContext, range_id: str) -> dict[str, pd.Series]:
+    cache_key = ("opening_range_complete", range_id)
+    if cache_key in context.primitive_cache:
+        return {
+            "complete": context.primitive_cache[("opening_range_complete", range_id)],
+            "valid": context.primitive_cache[("opening_range_valid", range_id)],
+            "high": context.primitive_cache[("opening_range_high", range_id)],
+            "low": context.primitive_cache[("opening_range_low", range_id)],
+        }
+    ranges = _primitive_by_id(context, OPENING_RANGES_KEY, "range_id")
+    config = ranges.get(range_id)
+    if config is None:
+        raise SpecSignalCompilerError(f"unknown opening_range ref: {range_id}")
+    session_ref = config.get("session_ref")
+    if not isinstance(session_ref, str) or not session_ref:
+        raise SpecSignalCompilerError("opening_range.session_ref is required")
+    if config.get("high_source") != "high" or config.get("low_source") != "low":
+        raise SpecSignalCompilerError("opening_range high_source/low_source must be high/low")
+    if config.get("close_after_range_required") is not True:
+        raise SpecSignalCompilerError("opening_range.close_after_range_required must be true")
+    start_offset = _bars_value(config.get("start_offset"), "opening_range.start_offset", minimum=0)
+    length = _bars_value(config.get("length"), "opening_range.length", minimum=1)
+    in_session, session_keys = _session_membership(context, session_ref)
+    index = context.ohlcv.index
+    complete = pd.Series(False, index=index, dtype=bool)
+    valid = pd.Series(False, index=index, dtype=bool)
+    high_out = pd.Series(math.nan, index=index, dtype=float)
+    low_out = pd.Series(math.nan, index=index, dtype=float)
+    by_session: dict[Any, list[Any]] = {}
+    for timestamp in index:
+        if bool(in_session.loc[timestamp]):
+            by_session.setdefault(session_keys.loc[timestamp], []).append(timestamp)
+    bar_delta = _infer_bar_delta(index)
+    for timestamps in by_session.values():
+        if len(timestamps) < start_offset + length or bar_delta is None:
+            continue
+        range_timestamps = timestamps[start_offset : start_offset + length]
+        expected = pd.date_range(range_timestamps[0], periods=length, freq=bar_delta)
+        if list(expected) != list(range_timestamps):
+            continue
+        range_frame = context.ohlcv.loc[range_timestamps, ["high", "low"]]
+        if range_frame.isna().any().any():
+            continue
+        high = float(range_frame["high"].max())
+        low = float(range_frame["low"].min())
+        if not math.isfinite(high) or not math.isfinite(low) or high <= low:
+            continue
+        ready_from_index = start_offset + length
+        for timestamp in timestamps[ready_from_index:]:
+            complete.loc[timestamp] = True
+            valid.loc[timestamp] = True
+            high_out.loc[timestamp] = high
+            low_out.loc[timestamp] = low
+    context.primitive_cache[("opening_range_complete", range_id)] = complete
+    context.primitive_cache[("opening_range_valid", range_id)] = valid
+    context.primitive_cache[("opening_range_high", range_id)] = high_out
+    context.primitive_cache[("opening_range_low", range_id)] = low_out
+    return {"complete": complete, "valid": valid, "high": high_out, "low": low_out}
+
+
+def _bars_value(value: Any, label: str, *, minimum: int) -> int:
+    if not isinstance(value, Mapping) or value.get("units") != "bars":
+        raise SpecSignalCompilerError(f"{label} must be a bars object")
+    raw = value.get("value")
+    if isinstance(raw, bool) or not isinstance(raw, Integral) or raw < minimum:
+        raise SpecSignalCompilerError(f"{label}.value must be an integer >= {minimum}")
+    return int(raw)
+
+
+def _atr_tolerance(context: _CompileContext, tolerance: Any) -> pd.Series:
+    if not isinstance(tolerance, Mapping):
+        raise SpecSignalCompilerError("tolerance must be an object")
+    if tolerance.get("mode") != "atr_multiple" or tolerance.get("units") != "ATR":
+        raise SpecSignalCompilerError("tolerance.mode must be atr_multiple with units ATR")
+    lookback = tolerance.get("atr_lookback_bars")
+    multiple = tolerance.get("multiple")
+    if isinstance(lookback, bool) or not isinstance(lookback, Integral) or lookback < 1:
+        raise SpecSignalCompilerError("tolerance.atr_lookback_bars must be an integer >= 1")
+    if isinstance(multiple, bool) or not isinstance(multiple, Real):
+        raise SpecSignalCompilerError("tolerance.multiple must be a positive finite number")
+    multiple_float = float(multiple)
+    if not math.isfinite(multiple_float) or multiple_float < 0.0:
+        raise SpecSignalCompilerError("tolerance.multiple must be finite and non-negative")
+    atr = _resolve_indicator_ref(
+        {
+            "operand_type": "indicator_ref",
+            "ref": "atr",
+            "field": "value",
+            "timeframe": None,
+            "lookback": {"bars": int(lookback)},
+        },
+        context,
+    )
+    return atr * multiple_float
+
+
+def _breakout_state(context: _CompileContext, breakout_id: str) -> dict[str, pd.Series]:
+    if ("breakout_long", breakout_id) in context.primitive_cache:
+        return {
+            "long": context.primitive_cache[("breakout_long", breakout_id)],
+            "short": context.primitive_cache[("breakout_short", breakout_id)],
+            "side": context.primitive_cache[("breakout_side", breakout_id)],
+            "bar_index": context.primitive_cache[("breakout_bar_index", breakout_id)],
+        }
+    breakouts = _primitive_by_id(context, OPENING_RANGE_BREAKOUTS_KEY, "breakout_id")
+    config = breakouts.get(breakout_id)
+    if config is None:
+        raise SpecSignalCompilerError(f"unknown opening_range_breakout ref: {breakout_id}")
+    if config.get("confirmation_price") != "close" or config.get("confirmation_timing") != "bar_close":
+        raise SpecSignalCompilerError("opening_range_breakout must be close/bar_close confirmed")
+    if config.get("entry_timing") != "next_bar_open":
+        raise SpecSignalCompilerError("opening_range_breakout.entry_timing must be next_bar_open")
+    range_ref = config.get("range_ref")
+    if not isinstance(range_ref, str) or not range_ref:
+        raise SpecSignalCompilerError("opening_range_breakout.range_ref is required")
+    range_state = _opening_range_state(context, range_ref)
+    tolerance = _atr_tolerance(context, config.get("tolerance"))
+    close = context.ohlcv["close"].astype(float)
+    long = (range_state["valid"] & (close > (range_state["high"] + tolerance))).fillna(False)
+    short = (range_state["valid"] & (close < (range_state["low"] - tolerance))).fillna(False)
+    simultaneous = long & short
+    long = long & ~simultaneous
+    short = short & ~simultaneous
+    side = pd.Series([None] * len(close), index=close.index, dtype=object)
+    bar_index = pd.Series(math.nan, index=close.index, dtype=float)
+    active_session: Any = None
+    seen_side: str | None = None
+    _, session_keys = _session_membership(context, _range_session_ref(context, range_ref))
+    for index_number, timestamp in enumerate(close.index):
+        session_key = session_keys.loc[timestamp]
+        if session_key != active_session:
+            active_session = session_key
+            seen_side = None
+        if seen_side is None:
+            if bool(long.loc[timestamp]):
+                seen_side = "long"
+                bar_index.loc[timestamp] = float(index_number)
+            elif bool(short.loc[timestamp]):
+                seen_side = "short"
+                bar_index.loc[timestamp] = float(index_number)
+        side.loc[timestamp] = seen_side
+    context.primitive_cache[("breakout_long", breakout_id)] = long
+    context.primitive_cache[("breakout_short", breakout_id)] = short
+    context.primitive_cache[("breakout_side", breakout_id)] = side
+    context.primitive_cache[("breakout_bar_index", breakout_id)] = bar_index
+    return {"long": long, "short": short, "side": side, "bar_index": bar_index}
+
+
+def _range_session_ref(context: _CompileContext, range_id: str) -> str:
+    config = _primitive_by_id(context, OPENING_RANGES_KEY, "range_id").get(range_id)
+    if config is None or not isinstance(config.get("session_ref"), str):
+        raise SpecSignalCompilerError(f"unknown opening_range ref: {range_id}")
+    return str(config["session_ref"])
+
+
+def _retest_state(context: _CompileContext, retest_id: str) -> dict[str, pd.Series]:
+    if ("retest_long", retest_id) in context.primitive_cache:
+        return {
+            "long": context.primitive_cache[("retest_long", retest_id)],
+            "short": context.primitive_cache[("retest_short", retest_id)],
+        }
+    retests = _primitive_by_id(context, OPENING_RANGE_RETESTS_KEY, "retest_id")
+    config = retests.get(retest_id)
+    if config is None:
+        raise SpecSignalCompilerError(f"unknown opening_range_retest ref: {retest_id}")
+    if config.get("touch_price_source") != "close":
+        raise SpecSignalCompilerError("opening_range_retest.touch_price_source must be close")
+    if config.get("entry_timing") != "next_bar_open_after_retest_confirmation":
+        raise SpecSignalCompilerError("opening_range_retest.entry_timing is invalid")
+    breakout_ref = config.get("breakout_ref")
+    if not isinstance(breakout_ref, str) or not breakout_ref:
+        raise SpecSignalCompilerError("opening_range_retest.breakout_ref is required")
+    window = config.get("window")
+    if not isinstance(window, Mapping):
+        raise SpecSignalCompilerError("opening_range_retest.window is required")
+    min_after = window.get("min_bars_after_breakout")
+    max_after = window.get("max_bars_after_breakout")
+    if (
+        isinstance(min_after, bool)
+        or isinstance(max_after, bool)
+        or not isinstance(min_after, Integral)
+        or not isinstance(max_after, Integral)
+        or min_after < 1
+        or max_after < min_after
+    ):
+        raise SpecSignalCompilerError("opening_range_retest window is invalid")
+    breakout_config = _primitive_by_id(context, OPENING_RANGE_BREAKOUTS_KEY, "breakout_id").get(breakout_ref)
+    if breakout_config is None:
+        raise SpecSignalCompilerError(f"unknown opening_range_breakout ref: {breakout_ref}")
+    range_ref = breakout_config.get("range_ref")
+    if not isinstance(range_ref, str):
+        raise SpecSignalCompilerError("opening_range_breakout.range_ref is required")
+    range_state = _opening_range_state(context, range_ref)
+    breakout = _breakout_state(context, breakout_ref)
+    tolerance = _atr_tolerance(context, config.get("tolerance"))
+    close = context.ohlcv["close"].astype(float)
+    long = pd.Series(False, index=close.index, dtype=bool)
+    short = pd.Series(False, index=close.index, dtype=bool)
+    _, session_keys = _session_membership(context, _range_session_ref(context, range_ref))
+    session_side: str | None = None
+    breakout_index: int | None = None
+    cancelled = False
+    active_session: Any = None
+    emitted = False
+    for index_number, timestamp in enumerate(close.index):
+        session_key = session_keys.loc[timestamp]
+        if session_key != active_session:
+            active_session = session_key
+            session_side = None
+            breakout_index = None
+            cancelled = False
+            emitted = False
+        if session_side is None:
+            if bool(breakout["long"].loc[timestamp]):
+                session_side = "long"
+                breakout_index = index_number
+            elif bool(breakout["short"].loc[timestamp]):
+                session_side = "short"
+                breakout_index = index_number
+            continue
+        if emitted or cancelled or breakout_index is None:
+            continue
+        if session_side == "long" and bool(breakout["short"].loc[timestamp]):
+            cancelled = True
+            continue
+        if session_side == "short" and bool(breakout["long"].loc[timestamp]):
+            cancelled = True
+            continue
+        bars_after = index_number - breakout_index
+        if bars_after > int(max_after):
+            continue
+        if bars_after < int(min_after):
+            continue
+        tolerance_value = tolerance.loc[timestamp]
+        close_value = close.loc[timestamp]
+        if _is_null(tolerance_value) or _is_null(close_value):
+            continue
+        if session_side == "long" and close_value <= range_state["high"].loc[timestamp] + tolerance_value:
+            long.loc[timestamp] = True
+            emitted = True
+        elif session_side == "short" and close_value >= range_state["low"].loc[timestamp] - tolerance_value:
+            short.loc[timestamp] = True
+            emitted = True
+    context.primitive_cache[("retest_long", retest_id)] = long
+    context.primitive_cache[("retest_short", retest_id)] = short
+    return {"long": long, "short": short}
+
+
+def _candle_shape_state(context: _CompileContext, predicate_id: str) -> dict[str, pd.Series]:
+    if ("candle_shape_long", predicate_id) in context.primitive_cache:
+        return {
+            "long": context.primitive_cache[("candle_shape_long", predicate_id)],
+            "short": context.primitive_cache[("candle_shape_short", predicate_id)],
+            "value": context.primitive_cache[("candle_shape_value", predicate_id)],
+        }
+    shapes = _primitive_by_id(context, CANDLE_SHAPES_KEY, "predicate_id")
+    config = shapes.get(predicate_id)
+    if config is None:
+        raise SpecSignalCompilerError(f"unknown candle_shape ref: {predicate_id}")
+    if config.get("range_source") != "high_low":
+        raise SpecSignalCompilerError("candle_shape.range_source must be high_low")
+    if config.get("zero_range_policy") != "false" or config.get("missing_ohlc_policy") != "false":
+        raise SpecSignalCompilerError("candle_shape fail-closed policies must be false")
+    ohlc = context.ohlcv[["open", "high", "low", "close"]].astype(float)
+    candle_range = ohlc["high"] - ohlc["low"]
+    finite = ohlc.apply(lambda col: col.map(lambda value: math.isfinite(float(value)))).all(axis=1)
+    valid = finite & (candle_range > 0.0)
+    upper = (ohlc["high"] - pd.concat([ohlc["open"], ohlc["close"]], axis=1).max(axis=1)) / candle_range
+    lower = (pd.concat([ohlc["open"], ohlc["close"]], axis=1).min(axis=1) - ohlc["low"]) / candle_range
+    body = (ohlc["close"] - ohlc["open"]).abs() / candle_range
+    predicate = valid.copy()
+    for key, values in (
+        ("upper_wick_pct", upper),
+        ("lower_wick_pct", lower),
+        ("body_pct", body),
+    ):
+        if key in config:
+            predicate = predicate & _ratio_predicate(values, config.get(key), f"candle_shape.{key}")
+    predicate = predicate.fillna(False)
+    side_mode = config.get("side_mode", "neutral")
+    if side_mode == "side_specific":
+        long = predicate & (ohlc["close"] > ohlc["open"])
+        short = predicate & (ohlc["close"] < ohlc["open"])
+    elif side_mode == "neutral":
+        long = predicate
+        short = predicate
+    else:
+        raise SpecSignalCompilerError("candle_shape.side_mode must be neutral or side_specific")
+    context.primitive_cache[("candle_shape_long", predicate_id)] = long.fillna(False)
+    context.primitive_cache[("candle_shape_short", predicate_id)] = short.fillna(False)
+    context.primitive_cache[("candle_shape_value", predicate_id)] = predicate.fillna(False)
+    return {"long": long.fillna(False), "short": short.fillna(False), "value": predicate.fillna(False)}
+
+
+def _ratio_predicate(values: pd.Series, config: Any, label: str) -> pd.Series:
+    if not isinstance(config, Mapping):
+        raise SpecSignalCompilerError(f"{label} must be an object")
+    operator = config.get("operator")
+    threshold = config.get("value")
+    if operator not in {"lte", "gte"}:
+        raise SpecSignalCompilerError(f"{label}.operator must be lte or gte")
+    if isinstance(threshold, bool) or not isinstance(threshold, Real):
+        raise SpecSignalCompilerError(f"{label}.value must be numeric")
+    threshold_float = float(threshold)
+    if not math.isfinite(threshold_float) or threshold_float < 0.0 or threshold_float > 1.0:
+        raise SpecSignalCompilerError(f"{label}.value must be in [0, 1]")
+    if config.get("units") != "fraction_of_range":
+        raise SpecSignalCompilerError(f"{label}.units must be fraction_of_range")
+    if operator == "lte":
+        return values <= threshold_float
+    return values >= threshold_float
+
+
+def _resolve_primitive_ref(operand: Mapping[str, Any], context: _CompileContext) -> pd.Series:
+    ref = operand.get("ref")
+    field = operand.get("field")
+    if not isinstance(ref, str) or not ref:
+        raise SpecSignalCompilerError("primitive_ref.ref must be non-empty")
+    if not isinstance(field, str) or not field:
+        raise SpecSignalCompilerError("primitive_ref.field must be non-empty")
+    if operand.get("timeframe") not in (None, "") or operand.get("lookback") is not None:
+        raise SpecSignalCompilerError("primitive_ref does not support timeframe or lookback")
+    if ref in _session_windows(context):
+        in_session, _ = _session_membership(context, ref)
+        if field != "in_session":
+            raise SpecSignalCompilerError("session_window primitive_ref.field must be in_session")
+        return in_session
+    if ref in _primitive_by_id(context, OPENING_RANGES_KEY, "range_id"):
+        state = _opening_range_state(context, ref)
+        if field not in state:
+            raise SpecSignalCompilerError("opening_range primitive_ref.field is invalid")
+        return state[field]
+    if ref in _primitive_by_id(context, OPENING_RANGE_BREAKOUTS_KEY, "breakout_id"):
+        state = _breakout_state(context, ref)
+        if field not in {"long", "short"}:
+            raise SpecSignalCompilerError("opening_range_breakout primitive_ref.field must be long or short")
+        return state[field]
+    if ref in _primitive_by_id(context, OPENING_RANGE_RETESTS_KEY, "retest_id"):
+        state = _retest_state(context, ref)
+        if field not in {"long", "short"}:
+            raise SpecSignalCompilerError("opening_range_retest primitive_ref.field must be long or short")
+        return state[field]
+    if ref in _primitive_by_id(context, CANDLE_SHAPES_KEY, "predicate_id"):
+        state = _candle_shape_state(context, ref)
+        if field not in {"long", "short", "value"}:
+            raise SpecSignalCompilerError("candle_shape primitive_ref.field must be long, short, or value")
+        return state[field]
+    raise SpecSignalCompilerError(f"unknown primitive_ref: {ref}")
+
+
 def _resolve_operand(operand: Mapping[str, Any], context: _CompileContext) -> Any:
     operand_type = operand.get("operand_type")
     if operand_type == "data_ref":
@@ -870,6 +1445,8 @@ def _resolve_operand(operand: Mapping[str, Any], context: _CompileContext) -> An
         return _resolve_parameter_ref(operand, context.variant_assignment)
     if operand_type == "constant":
         return operand.get("ref")
+    if operand_type == PRIMITIVE_REF_OPERAND_TYPE:
+        return _resolve_primitive_ref(operand, context)
     if operand_type == COMPOSED_OPERAND_TYPE:
         return _resolve_composed_operand(operand, context)
     raise SpecSignalCompilerError(f"unknown operand_type: {operand_type!r}")

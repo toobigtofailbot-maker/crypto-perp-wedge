@@ -57,6 +57,33 @@ ATR_STOP_EVALUATION_PRICE = "close"
 ATR_STOP_EVALUATION_TIMING = "bar_close"
 ATR_STOP_MAX_LOOKBACK_BARS = 100000
 ATR_STOP_MAX_MULTIPLIER = 1000.0
+SESSION_END_ALLOWED_KEYS = {
+    "enabled",
+    "session_ref",
+    "exit_signal_timing",
+    "fill_timing",
+    "partial_session_policy",
+}
+OR_OPPOSITE_SIDE_ALLOWED_KEYS = {
+    "enabled",
+    "range_ref",
+    "entry_reference_price",
+    "evaluation_price",
+    "evaluation_timing",
+    "long_stop_level",
+    "short_stop_level",
+    "same_bar_entry_stop_policy",
+}
+FIXED_R_TARGET_ALLOWED_KEYS = {
+    "enabled",
+    "r_multiple",
+    "entry_reference_price",
+    "stop_ref",
+    "evaluation_price",
+    "evaluation_timing",
+    "same_bar_stop_target_policy",
+}
+FIXED_R_TARGET_MAX_MULTIPLE = 1000.0
 ONLINE_OHLCV_PRIMITIVES_KEY = "online_ohlcv_primitives"
 PRIMITIVE_REF_OPERAND_TYPE = "primitive_ref"
 PRIMITIVE_COLLECTIONS = {
@@ -705,6 +732,120 @@ def _validate_atr_stop(path: Path, payload: dict[str, Any]) -> list[str]:
     return errors
 
 
+def _validate_close_only_exit_primitives(path: Path, payload: dict[str, Any]) -> list[str]:
+    exit_logic = payload.get("exit_logic")
+    if not isinstance(exit_logic, dict):
+        return []
+
+    errors: list[str] = []
+    session_ids = _primitive_ids(payload, "session_windows")
+    range_ids = _primitive_ids(payload, "opening_ranges")
+
+    if "time_exit" in exit_logic:
+        time_exit = exit_logic.get("time_exit")
+        if not isinstance(time_exit, dict):
+            errors.append(f"{path}: exit_logic.time_exit must be an object when provided")
+        elif set(time_exit) != {"session_end"}:
+            errors.append(f"{path}: exit_logic.time_exit supports exactly ['session_end']")
+        else:
+            session_end = time_exit.get("session_end")
+            if not isinstance(session_end, dict):
+                errors.append(f"{path}: exit_logic.time_exit.session_end must be an object")
+            else:
+                if set(session_end) != SESSION_END_ALLOWED_KEYS:
+                    errors.append(
+                        f"{path}: exit_logic.time_exit.session_end supports exactly "
+                        f"{sorted(SESSION_END_ALLOWED_KEYS)}"
+                    )
+                if session_end.get("session_ref") not in session_ids:
+                    errors.append(
+                        f"{path}: exit_logic.time_exit.session_end.session_ref must reference "
+                        "a declared session_window"
+                    )
+                if session_end.get("exit_signal_timing") != "last_bar_close_before_session_end":
+                    errors.append(
+                        f"{path}: exit_logic.time_exit.session_end.exit_signal_timing invalid: "
+                        f"{session_end.get('exit_signal_timing')!r}"
+                    )
+                if session_end.get("fill_timing") != "next_bar_open":
+                    errors.append(
+                        f"{path}: exit_logic.time_exit.session_end.fill_timing invalid: "
+                        f"{session_end.get('fill_timing')!r}"
+                    )
+                if session_end.get("partial_session_policy") != "no_exit":
+                    errors.append(
+                        f"{path}: exit_logic.time_exit.session_end.partial_session_policy invalid: "
+                        f"{session_end.get('partial_session_policy')!r}"
+                    )
+
+    if "opening_range_opposite_side" in exit_logic:
+        stop = exit_logic.get("opening_range_opposite_side")
+        if not isinstance(stop, dict):
+            errors.append(f"{path}: exit_logic.opening_range_opposite_side must be an object")
+        else:
+            if set(stop) != OR_OPPOSITE_SIDE_ALLOWED_KEYS:
+                errors.append(
+                    f"{path}: exit_logic.opening_range_opposite_side supports exactly "
+                    f"{sorted(OR_OPPOSITE_SIDE_ALLOWED_KEYS)}"
+                )
+            if stop.get("range_ref") not in range_ids:
+                errors.append(
+                    f"{path}: exit_logic.opening_range_opposite_side.range_ref must reference "
+                    "a declared opening_range"
+                )
+            if stop.get("evaluation_price") != "close":
+                errors.append(
+                    f"{path}: exit_logic.opening_range_opposite_side.evaluation_price invalid: "
+                    f"{stop.get('evaluation_price')!r}"
+                )
+            if stop.get("evaluation_timing") != "bar_close":
+                errors.append(
+                    f"{path}: exit_logic.opening_range_opposite_side.evaluation_timing invalid: "
+                    f"{stop.get('evaluation_timing')!r}"
+                )
+
+    if "fixed_R_target" in exit_logic:
+        target = exit_logic.get("fixed_R_target")
+        if not isinstance(target, dict):
+            errors.append(f"{path}: exit_logic.fixed_R_target must be an object")
+        else:
+            if set(target) != FIXED_R_TARGET_ALLOWED_KEYS:
+                errors.append(
+                    f"{path}: exit_logic.fixed_R_target supports exactly "
+                    f"{sorted(FIXED_R_TARGET_ALLOWED_KEYS)}"
+                )
+            multiple = target.get("r_multiple")
+            if (
+                not _is_finite_non_bool_number(multiple)
+                or float(multiple) <= 0.0
+                or float(multiple) > FIXED_R_TARGET_MAX_MULTIPLE
+            ):
+                errors.append(
+                    f"{path}: exit_logic.fixed_R_target.r_multiple must be a positive finite "
+                    f"number <= {FIXED_R_TARGET_MAX_MULTIPLE:g}"
+                )
+            if target.get("stop_ref") != "opening_range_opposite_side":
+                errors.append(
+                    f"{path}: exit_logic.fixed_R_target.stop_ref must be "
+                    "'opening_range_opposite_side'"
+                )
+            if target.get("evaluation_price") != "close":
+                errors.append(
+                    f"{path}: exit_logic.fixed_R_target.evaluation_price invalid: "
+                    f"{target.get('evaluation_price')!r}"
+                )
+            if target.get("evaluation_timing") != "bar_close":
+                errors.append(
+                    f"{path}: exit_logic.fixed_R_target.evaluation_timing invalid: "
+                    f"{target.get('evaluation_timing')!r}"
+                )
+            if "opening_range_opposite_side" not in exit_logic:
+                errors.append(
+                    f"{path}: exit_logic.fixed_R_target requires exit_logic.opening_range_opposite_side"
+                )
+    return errors
+
+
 def _online_primitives(payload: dict[str, Any]) -> dict[str, Any]:
     value = payload.get(ONLINE_OHLCV_PRIMITIVES_KEY)
     return value if isinstance(value, dict) else {}
@@ -1048,6 +1189,7 @@ def validate_strategy_specs(
         errors.extend(_validate_composed_operands(path, payload))
         errors.extend(_validate_parameter_bound_lookbacks(path, payload))
         errors.extend(_validate_atr_stop(path, payload))
+        errors.extend(_validate_close_only_exit_primitives(path, payload))
         errors.extend(_validate_online_ohlcv_primitives(path, payload))
         errors.extend(_validate_non_authority_flags(path, payload))
         errors.extend(_validate_host_data_ref_safety(path, payload))

@@ -1017,6 +1017,123 @@
         }
       }
     },
+    "time_exit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["session_end"],
+      "properties": {
+        "session_end": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enabled",
+            "session_ref",
+            "exit_signal_timing",
+            "fill_timing",
+            "partial_session_policy"
+          ],
+          "properties": {
+            "enabled": { "type": "boolean", "const": true },
+            "session_ref": { "$ref": "#/definitions/non_empty_string" },
+            "exit_signal_timing": {
+              "type": "string",
+              "const": "last_bar_close_before_session_end"
+            },
+            "fill_timing": {
+              "type": "string",
+              "const": "next_bar_open"
+            },
+            "partial_session_policy": {
+              "type": "string",
+              "const": "no_exit"
+            }
+          }
+        }
+      }
+    },
+    "opening_range_opposite_side": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "range_ref",
+        "entry_reference_price",
+        "evaluation_price",
+        "evaluation_timing",
+        "long_stop_level",
+        "short_stop_level",
+        "same_bar_entry_stop_policy"
+      ],
+      "properties": {
+        "enabled": { "type": "boolean", "const": true },
+        "range_ref": { "$ref": "#/definitions/non_empty_string" },
+        "entry_reference_price": {
+          "type": "string",
+          "const": "next_bar_open_pre_fee_slippage"
+        },
+        "evaluation_price": {
+          "type": "string",
+          "const": "close"
+        },
+        "evaluation_timing": {
+          "type": "string",
+          "const": "bar_close"
+        },
+        "long_stop_level": {
+          "type": "string",
+          "const": "opening_range.low"
+        },
+        "short_stop_level": {
+          "type": "string",
+          "const": "opening_range.high"
+        },
+        "same_bar_entry_stop_policy": {
+          "type": "string",
+          "const": "not_evaluated_until_after_entry_bar"
+        }
+      }
+    },
+    "fixed_R_target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "r_multiple",
+        "entry_reference_price",
+        "stop_ref",
+        "evaluation_price",
+        "evaluation_timing",
+        "same_bar_stop_target_policy"
+      ],
+      "properties": {
+        "enabled": { "type": "boolean", "const": true },
+        "r_multiple": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1000
+        },
+        "entry_reference_price": {
+          "type": "string",
+          "const": "next_bar_open_pre_fee_slippage"
+        },
+        "stop_ref": {
+          "type": "string",
+          "const": "opening_range_opposite_side"
+        },
+        "evaluation_price": {
+          "type": "string",
+          "const": "close"
+        },
+        "evaluation_timing": {
+          "type": "string",
+          "const": "bar_close"
+        },
+        "same_bar_stop_target_policy": {
+          "type": "string",
+          "const": "defer_intrabar_realism"
+        }
+      }
+    },
     "exit_logic": {
       "type": "object",
       "additionalProperties": false,
@@ -1033,6 +1150,15 @@
         },
         "atr_stop": {
           "$ref": "#/definitions/atr_stop"
+        },
+        "time_exit": {
+          "$ref": "#/definitions/time_exit"
+        },
+        "opening_range_opposite_side": {
+          "$ref": "#/definitions/opening_range_opposite_side"
+        },
+        "fixed_R_target": {
+          "$ref": "#/definitions/fixed_R_target"
         },
         "notes": {
           "$ref": "#/definitions/nullable_string"

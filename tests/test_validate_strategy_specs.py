@@ -106,6 +106,43 @@ def _atr_stop(
     }
 
 
+def _session_end_exit(session_ref: str = "UTC_DAILY_0000") -> dict:
+    return {
+        "session_end": {
+            "enabled": True,
+            "session_ref": session_ref,
+            "exit_signal_timing": "last_bar_close_before_session_end",
+            "fill_timing": "next_bar_open",
+            "partial_session_policy": "no_exit",
+        }
+    }
+
+
+def _opening_range_opposite_side(range_ref: str = "OR-1") -> dict:
+    return {
+        "enabled": True,
+        "range_ref": range_ref,
+        "entry_reference_price": "next_bar_open_pre_fee_slippage",
+        "evaluation_price": "close",
+        "evaluation_timing": "bar_close",
+        "long_stop_level": "opening_range.low",
+        "short_stop_level": "opening_range.high",
+        "same_bar_entry_stop_policy": "not_evaluated_until_after_entry_bar",
+    }
+
+
+def _fixed_r_target(r_multiple=2.0) -> dict:
+    return {
+        "enabled": True,
+        "r_multiple": r_multiple,
+        "entry_reference_price": "next_bar_open_pre_fee_slippage",
+        "stop_ref": "opening_range_opposite_side",
+        "evaluation_price": "close",
+        "evaluation_timing": "bar_close",
+        "same_bar_stop_target_policy": "defer_intrabar_realism",
+    }
+
+
 def _condition(condition_id: str = "COND-1", operator: str = "gt") -> dict:
     return {
         "condition_id": condition_id,
@@ -742,6 +779,61 @@ def test_valid_online_ohlcv_primitives_pass_schema_and_validator(tmp_path):
 
     assert Draft7Validator(schema).is_valid(payload)
     assert _validate(tmp_path, payload) == []
+
+
+def test_valid_close_only_exit_primitives_pass_schema_and_validator(tmp_path):
+    payload = _base_strategy_spec()
+    payload["online_ohlcv_primitives"] = _online_primitives()
+    payload["exit_logic"]["time_exit"] = _session_end_exit()
+    payload["exit_logic"]["opening_range_opposite_side"] = _opening_range_opposite_side()
+    payload["exit_logic"]["fixed_R_target"] = _fixed_r_target()
+
+    assert Draft7Validator(_load_schema()).is_valid(payload)
+    assert _validate(tmp_path, payload) == []
+
+
+def test_close_only_exit_primitives_reject_missing_refs_and_invalid_multiple(tmp_path):
+    cases = []
+
+    payload = _base_strategy_spec()
+    payload["online_ohlcv_primitives"] = _online_primitives()
+    payload["exit_logic"]["time_exit"] = _session_end_exit("MISSING")
+    cases.append((payload, "session_ref must reference a declared session_window"))
+
+    payload = _base_strategy_spec()
+    payload["online_ohlcv_primitives"] = _online_primitives()
+    payload["exit_logic"]["opening_range_opposite_side"] = _opening_range_opposite_side("MISSING")
+    cases.append((payload, "range_ref must reference a declared opening_range"))
+
+    payload = _base_strategy_spec()
+    payload["online_ohlcv_primitives"] = _online_primitives()
+    payload["exit_logic"]["fixed_R_target"] = _fixed_r_target(0)
+    cases.append((payload, "r_multiple must be a positive finite number"))
+
+    payload = _base_strategy_spec()
+    payload["online_ohlcv_primitives"] = _online_primitives()
+    payload["exit_logic"]["fixed_R_target"] = _fixed_r_target()
+    cases.append((payload, "requires exit_logic.opening_range_opposite_side"))
+
+    for index, (case, expected) in enumerate(cases, start=1):
+        case["strategy_spec_id"] = f"STRAT-SPEC-92{index:02d}"
+        errors = _validate(tmp_path, case, filename=f"STRAT-SPEC-92{index:02d}.strategy_spec.json")
+        assert any(expected in error for error in errors), (expected, errors)
+
+
+def test_close_only_exit_primitives_reject_unknown_units_and_executable_keys(tmp_path):
+    payload = _base_strategy_spec()
+    payload["online_ohlcv_primitives"] = _online_primitives()
+    payload["exit_logic"]["time_exit"] = _session_end_exit()
+    payload["exit_logic"]["time_exit"]["session_end"]["fill_timing"] = "intrabar"
+    payload["exit_logic"]["opening_range_opposite_side"] = _opening_range_opposite_side()
+    payload["exit_logic"]["opening_range_opposite_side"]["lambda"] = "close <= or_low"
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("intrabar" in error for error in errors)
+    assert any("forbidden executable key name" in error and "lambda" in error for error in errors)
+    assert any("opening_range_opposite_side supports exactly" in error for error in errors)
 
 
 def test_online_ohlcv_primitives_reject_invalid_closed_forms(tmp_path):

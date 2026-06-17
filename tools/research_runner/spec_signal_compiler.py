@@ -80,6 +80,48 @@ OPENING_RANGES_KEY = "opening_ranges"
 OPENING_RANGE_BREAKOUTS_KEY = "opening_range_breakouts"
 OPENING_RANGE_RETESTS_KEY = "opening_range_retests"
 CANDLE_SHAPES_KEY = "candle_shapes"
+TIME_EXIT_ALLOWED_KEYS = {"session_end"}
+SESSION_END_ALLOWED_KEYS = {
+    "enabled",
+    "session_ref",
+    "exit_signal_timing",
+    "fill_timing",
+    "partial_session_policy",
+}
+SESSION_END_EXIT_SIGNAL_TIMING = "last_bar_close_before_session_end"
+SESSION_END_FILL_TIMING = "next_bar_open"
+SESSION_END_PARTIAL_SESSION_POLICY = "no_exit"
+OR_OPPOSITE_SIDE_ALLOWED_KEYS = {
+    "enabled",
+    "range_ref",
+    "entry_reference_price",
+    "evaluation_price",
+    "evaluation_timing",
+    "long_stop_level",
+    "short_stop_level",
+    "same_bar_entry_stop_policy",
+}
+OR_OPPOSITE_SIDE_ENTRY_REFERENCE_PRICE = "next_bar_open_pre_fee_slippage"
+OR_OPPOSITE_SIDE_EVALUATION_PRICE = "close"
+OR_OPPOSITE_SIDE_EVALUATION_TIMING = "bar_close"
+OR_OPPOSITE_SIDE_LONG_STOP_LEVEL = "opening_range.low"
+OR_OPPOSITE_SIDE_SHORT_STOP_LEVEL = "opening_range.high"
+OR_OPPOSITE_SIDE_SAME_BAR_POLICY = "not_evaluated_until_after_entry_bar"
+FIXED_R_TARGET_ALLOWED_KEYS = {
+    "enabled",
+    "r_multiple",
+    "entry_reference_price",
+    "stop_ref",
+    "evaluation_price",
+    "evaluation_timing",
+    "same_bar_stop_target_policy",
+}
+FIXED_R_TARGET_ENTRY_REFERENCE_PRICE = "next_bar_open_pre_fee_slippage"
+FIXED_R_TARGET_STOP_REF = "opening_range_opposite_side"
+FIXED_R_TARGET_EVALUATION_PRICE = "close"
+FIXED_R_TARGET_EVALUATION_TIMING = "bar_close"
+FIXED_R_TARGET_SAME_BAR_POLICY = "defer_intrabar_realism"
+FIXED_R_TARGET_MAX_MULTIPLE = 1000.0
 FORBIDDEN_PAYLOAD_KEYS = {
     "expression",
     "formula",
@@ -155,6 +197,35 @@ class _AtrStopState:
 
 
 @dataclass(frozen=True)
+class _SessionEndExitConfig:
+    session_ref: str
+
+
+@dataclass(frozen=True)
+class _OpeningRangeOppositeSideConfig:
+    range_ref: str
+
+
+@dataclass(frozen=True)
+class _FixedRTargetConfig:
+    r_multiple: float
+
+
+@dataclass(frozen=True)
+class _PendingCloseOnlyExitEntry:
+    side: str
+    signal_bar_index: int
+
+
+@dataclass(frozen=True)
+class _CloseOnlyExitState:
+    side: str
+    entry_reference_price: float
+    long_stop_level: float
+    short_stop_level: float
+
+
+@dataclass(frozen=True)
 class _EntryControls:
     min_bars_between_entries: int | None
     max_trades_per_session: int | None
@@ -193,6 +264,9 @@ def compile_signal(
     max_holding_bars = _max_holding_bars(strategy_spec)
     entry_controls = _entry_controls(strategy_spec)
     atr_stop_config = _atr_stop_config(strategy_spec, context)
+    session_end_exit_config = _session_end_exit_config(strategy_spec)
+    or_opposite_side_config = _opening_range_opposite_side_config(strategy_spec)
+    fixed_r_target_config = _fixed_r_target_config(strategy_spec, or_opposite_side_config)
 
     if direction == "both":
         return _compile_both_direction_signal(
@@ -204,6 +278,9 @@ def compile_signal(
             max_holding_bars=max_holding_bars,
             entry_controls=entry_controls,
             atr_stop_config=atr_stop_config,
+            session_end_exit_config=session_end_exit_config,
+            or_opposite_side_config=or_opposite_side_config,
+            fixed_r_target_config=fixed_r_target_config,
         )
 
     position_value = 1.0 if direction == "long" else -1.0
@@ -216,6 +293,8 @@ def compile_signal(
     session_trade_counts: dict[Any, int] = {}
     atr_stop_state: _AtrStopState | None = None
     pending_atr_stop_entry: _PendingAtrStopEntry | None = None
+    close_only_exit_state: _CloseOnlyExitState | None = None
+    pending_close_only_exit_entry: _PendingCloseOnlyExitEntry | None = None
     side = "long" if direction == "long" else "short"
     for bar_index, timestamp in enumerate(ohlcv.index):
         block_same_bar_reentry = False
@@ -226,11 +305,39 @@ def compile_signal(
                 fill_bar_index=bar_index,
             )
             pending_atr_stop_entry = None
+        if current_position and pending_close_only_exit_entry is not None:
+            close_only_exit_state = _capture_close_only_exit_state(
+                pending_entry=pending_close_only_exit_entry,
+                config=or_opposite_side_config,
+                context=context,
+                fill_bar_index=bar_index,
+            )
+            pending_close_only_exit_entry = None
 
         should_exit = False
         if current_position:
             should_exit = _any_group_true(exit_groups, EXIT_GROUP_ROLES, context, timestamp)
             if _atr_stop_triggered(atr_stop_config, atr_stop_state, context, timestamp):
+                should_exit = True
+            if _opening_range_opposite_side_triggered(
+                or_opposite_side_config,
+                close_only_exit_state,
+                context,
+                timestamp,
+            ):
+                should_exit = True
+            if _fixed_r_target_triggered(
+                fixed_r_target_config,
+                close_only_exit_state,
+                context,
+                timestamp,
+            ):
+                should_exit = True
+            if _session_end_exit_triggered(
+                session_end_exit_config,
+                context,
+                timestamp,
+            ):
                 should_exit = True
             if max_holding_bars is not None and held_bars >= max_holding_bars:
                 should_exit = True
@@ -239,7 +346,17 @@ def compile_signal(
                 held_bars = 0
                 atr_stop_state = None
                 pending_atr_stop_entry = None
-                block_same_bar_reentry = atr_stop_config is not None
+                close_only_exit_state = None
+                pending_close_only_exit_entry = None
+                block_same_bar_reentry = any(
+                    config is not None
+                    for config in (
+                        atr_stop_config,
+                        session_end_exit_config,
+                        or_opposite_side_config,
+                        fixed_r_target_config,
+                    )
+                )
 
         if not current_position and not block_same_bar_reentry:
             entry_allowed = _entry_allowed(all_entry_groups, context, timestamp)
@@ -268,6 +385,12 @@ def compile_signal(
                     bar_index,
                     timestamp,
                 )
+                pending_close_only_exit_entry = _new_pending_close_only_exit_entry(
+                    or_opposite_side_config,
+                    fixed_r_target_config,
+                    side,
+                    bar_index,
+                )
 
         signal.loc[timestamp] = current_position
         if current_position:
@@ -285,6 +408,9 @@ def _compile_both_direction_signal(
     max_holding_bars: int | None,
     entry_controls: _EntryControls,
     atr_stop_config: _AtrStopConfig | None,
+    session_end_exit_config: _SessionEndExitConfig | None,
+    or_opposite_side_config: _OpeningRangeOppositeSideConfig | None,
+    fixed_r_target_config: _FixedRTargetConfig | None,
 ) -> pd.Series:
     _guard_no_side_labels(filter_groups, "filters.groups")
     entry_groups_by_side = _split_root_side_groups(
@@ -305,6 +431,8 @@ def _compile_both_direction_signal(
     session_trade_counts: dict[Any, int] = {}
     atr_stop_state: _AtrStopState | None = None
     pending_atr_stop_entry: _PendingAtrStopEntry | None = None
+    close_only_exit_state: _CloseOnlyExitState | None = None
+    pending_close_only_exit_entry: _PendingCloseOnlyExitEntry | None = None
     for bar_index, timestamp in enumerate(ohlcv.index):
         if current_side is not None and pending_atr_stop_entry is not None:
             atr_stop_state = _capture_atr_stop_state(
@@ -313,6 +441,14 @@ def _compile_both_direction_signal(
                 fill_bar_index=bar_index,
             )
             pending_atr_stop_entry = None
+        if current_side is not None and pending_close_only_exit_entry is not None:
+            close_only_exit_state = _capture_close_only_exit_state(
+                pending_entry=pending_close_only_exit_entry,
+                config=or_opposite_side_config,
+                context=context,
+                fill_bar_index=bar_index,
+            )
+            pending_close_only_exit_entry = None
 
         if current_side == "long":
             should_exit = _any_group_true(
@@ -323,6 +459,26 @@ def _compile_both_direction_signal(
             )
             if _atr_stop_triggered(atr_stop_config, atr_stop_state, context, timestamp):
                 should_exit = True
+            if _opening_range_opposite_side_triggered(
+                or_opposite_side_config,
+                close_only_exit_state,
+                context,
+                timestamp,
+            ):
+                should_exit = True
+            if _fixed_r_target_triggered(
+                fixed_r_target_config,
+                close_only_exit_state,
+                context,
+                timestamp,
+            ):
+                should_exit = True
+            if _session_end_exit_triggered(
+                session_end_exit_config,
+                context,
+                timestamp,
+            ):
+                should_exit = True
             if max_holding_bars is not None and held_bars >= max_holding_bars:
                 should_exit = True
             if should_exit:
@@ -330,6 +486,8 @@ def _compile_both_direction_signal(
                 held_bars = 0
                 atr_stop_state = None
                 pending_atr_stop_entry = None
+                close_only_exit_state = None
+                pending_close_only_exit_entry = None
                 signal.loc[timestamp] = 0.0
                 continue
         elif current_side == "short":
@@ -341,6 +499,26 @@ def _compile_both_direction_signal(
             )
             if _atr_stop_triggered(atr_stop_config, atr_stop_state, context, timestamp):
                 should_exit = True
+            if _opening_range_opposite_side_triggered(
+                or_opposite_side_config,
+                close_only_exit_state,
+                context,
+                timestamp,
+            ):
+                should_exit = True
+            if _fixed_r_target_triggered(
+                fixed_r_target_config,
+                close_only_exit_state,
+                context,
+                timestamp,
+            ):
+                should_exit = True
+            if _session_end_exit_triggered(
+                session_end_exit_config,
+                context,
+                timestamp,
+            ):
+                should_exit = True
             if max_holding_bars is not None and held_bars >= max_holding_bars:
                 should_exit = True
             if should_exit:
@@ -348,6 +526,8 @@ def _compile_both_direction_signal(
                 held_bars = 0
                 atr_stop_state = None
                 pending_atr_stop_entry = None
+                close_only_exit_state = None
+                pending_close_only_exit_entry = None
                 signal.loc[timestamp] = 0.0
                 continue
         else:
@@ -385,6 +565,12 @@ def _compile_both_direction_signal(
                         bar_index,
                         timestamp,
                     )
+                    pending_close_only_exit_entry = _new_pending_close_only_exit_entry(
+                        or_opposite_side_config,
+                        fixed_r_target_config,
+                        "long",
+                        bar_index,
+                    )
             elif short_entry and not long_entry:
                 if _entry_control_allows_entry(
                     bar_index=bar_index,
@@ -408,6 +594,12 @@ def _compile_both_direction_signal(
                         "short",
                         bar_index,
                         timestamp,
+                    )
+                    pending_close_only_exit_entry = _new_pending_close_only_exit_entry(
+                        or_opposite_side_config,
+                        fixed_r_target_config,
+                        "short",
+                        bar_index,
                     )
 
         if current_side == "long":
@@ -715,6 +907,152 @@ def _atr_stop_config(
     )
 
 
+def _session_end_exit_config(strategy_spec: Mapping[str, Any]) -> _SessionEndExitConfig | None:
+    exit_logic = strategy_spec.get("exit_logic", {})
+    if not isinstance(exit_logic, Mapping) or "time_exit" not in exit_logic:
+        return None
+    time_exit = exit_logic.get("time_exit")
+    if not isinstance(time_exit, Mapping):
+        raise SpecSignalCompilerError("exit_logic.time_exit must be an object when provided")
+    if set(time_exit) != TIME_EXIT_ALLOWED_KEYS:
+        raise SpecSignalCompilerError(f"exit_logic.time_exit supports exactly {sorted(TIME_EXIT_ALLOWED_KEYS)}")
+    session_end = time_exit.get("session_end")
+    if not isinstance(session_end, Mapping):
+        raise SpecSignalCompilerError("exit_logic.time_exit.session_end must be an object")
+    if set(session_end) != SESSION_END_ALLOWED_KEYS:
+        raise SpecSignalCompilerError(
+            f"exit_logic.time_exit.session_end supports exactly {sorted(SESSION_END_ALLOWED_KEYS)}"
+        )
+    if session_end.get("enabled") is not True:
+        raise SpecSignalCompilerError("exit_logic.time_exit.session_end.enabled must be true")
+    session_ref = session_end.get("session_ref")
+    if not isinstance(session_ref, str) or not session_ref:
+        raise SpecSignalCompilerError("exit_logic.time_exit.session_end.session_ref must be non-empty")
+    if session_end.get("exit_signal_timing") != SESSION_END_EXIT_SIGNAL_TIMING:
+        raise SpecSignalCompilerError(
+            "exit_logic.time_exit.session_end.exit_signal_timing must be "
+            f"{SESSION_END_EXIT_SIGNAL_TIMING!r}"
+        )
+    if session_end.get("fill_timing") != SESSION_END_FILL_TIMING:
+        raise SpecSignalCompilerError(
+            f"exit_logic.time_exit.session_end.fill_timing must be {SESSION_END_FILL_TIMING!r}"
+        )
+    if session_end.get("partial_session_policy") != SESSION_END_PARTIAL_SESSION_POLICY:
+        raise SpecSignalCompilerError(
+            "exit_logic.time_exit.session_end.partial_session_policy must be "
+            f"{SESSION_END_PARTIAL_SESSION_POLICY!r}"
+        )
+    return _SessionEndExitConfig(session_ref=session_ref)
+
+
+def _opening_range_opposite_side_config(
+    strategy_spec: Mapping[str, Any],
+) -> _OpeningRangeOppositeSideConfig | None:
+    exit_logic = strategy_spec.get("exit_logic", {})
+    if not isinstance(exit_logic, Mapping) or "opening_range_opposite_side" not in exit_logic:
+        return None
+    config = exit_logic.get("opening_range_opposite_side")
+    if not isinstance(config, Mapping):
+        raise SpecSignalCompilerError("exit_logic.opening_range_opposite_side must be an object")
+    if set(config) != OR_OPPOSITE_SIDE_ALLOWED_KEYS:
+        raise SpecSignalCompilerError(
+            "exit_logic.opening_range_opposite_side supports exactly "
+            f"{sorted(OR_OPPOSITE_SIDE_ALLOWED_KEYS)}"
+        )
+    if config.get("enabled") is not True:
+        raise SpecSignalCompilerError("exit_logic.opening_range_opposite_side.enabled must be true")
+    range_ref = config.get("range_ref")
+    if not isinstance(range_ref, str) or not range_ref:
+        raise SpecSignalCompilerError("exit_logic.opening_range_opposite_side.range_ref must be non-empty")
+    if config.get("entry_reference_price") != OR_OPPOSITE_SIDE_ENTRY_REFERENCE_PRICE:
+        raise SpecSignalCompilerError(
+            "exit_logic.opening_range_opposite_side.entry_reference_price must be "
+            f"{OR_OPPOSITE_SIDE_ENTRY_REFERENCE_PRICE!r}"
+        )
+    if config.get("evaluation_price") != OR_OPPOSITE_SIDE_EVALUATION_PRICE:
+        raise SpecSignalCompilerError(
+            "exit_logic.opening_range_opposite_side.evaluation_price must be "
+            f"{OR_OPPOSITE_SIDE_EVALUATION_PRICE!r}"
+        )
+    if config.get("evaluation_timing") != OR_OPPOSITE_SIDE_EVALUATION_TIMING:
+        raise SpecSignalCompilerError(
+            "exit_logic.opening_range_opposite_side.evaluation_timing must be "
+            f"{OR_OPPOSITE_SIDE_EVALUATION_TIMING!r}"
+        )
+    if config.get("long_stop_level") != OR_OPPOSITE_SIDE_LONG_STOP_LEVEL:
+        raise SpecSignalCompilerError(
+            "exit_logic.opening_range_opposite_side.long_stop_level must be "
+            f"{OR_OPPOSITE_SIDE_LONG_STOP_LEVEL!r}"
+        )
+    if config.get("short_stop_level") != OR_OPPOSITE_SIDE_SHORT_STOP_LEVEL:
+        raise SpecSignalCompilerError(
+            "exit_logic.opening_range_opposite_side.short_stop_level must be "
+            f"{OR_OPPOSITE_SIDE_SHORT_STOP_LEVEL!r}"
+        )
+    if config.get("same_bar_entry_stop_policy") != OR_OPPOSITE_SIDE_SAME_BAR_POLICY:
+        raise SpecSignalCompilerError(
+            "exit_logic.opening_range_opposite_side.same_bar_entry_stop_policy must be "
+            f"{OR_OPPOSITE_SIDE_SAME_BAR_POLICY!r}"
+        )
+    return _OpeningRangeOppositeSideConfig(range_ref=str(range_ref))
+
+
+def _fixed_r_target_config(
+    strategy_spec: Mapping[str, Any],
+    or_opposite_side_config: _OpeningRangeOppositeSideConfig | None,
+) -> _FixedRTargetConfig | None:
+    exit_logic = strategy_spec.get("exit_logic", {})
+    if not isinstance(exit_logic, Mapping) or "fixed_R_target" not in exit_logic:
+        return None
+    config = exit_logic.get("fixed_R_target")
+    if not isinstance(config, Mapping):
+        raise SpecSignalCompilerError("exit_logic.fixed_R_target must be an object")
+    if set(config) != FIXED_R_TARGET_ALLOWED_KEYS:
+        raise SpecSignalCompilerError(
+            f"exit_logic.fixed_R_target supports exactly {sorted(FIXED_R_TARGET_ALLOWED_KEYS)}"
+        )
+    if config.get("enabled") is not True:
+        raise SpecSignalCompilerError("exit_logic.fixed_R_target.enabled must be true")
+    if or_opposite_side_config is None:
+        raise SpecSignalCompilerError(
+            "exit_logic.fixed_R_target requires exit_logic.opening_range_opposite_side"
+        )
+    multiple = config.get("r_multiple")
+    if isinstance(multiple, bool) or not isinstance(multiple, Real):
+        raise SpecSignalCompilerError("exit_logic.fixed_R_target.r_multiple requires a positive finite number")
+    multiple_float = float(multiple)
+    if (
+        not math.isfinite(multiple_float)
+        or multiple_float <= 0.0
+        or multiple_float > FIXED_R_TARGET_MAX_MULTIPLE
+    ):
+        raise SpecSignalCompilerError(
+            "exit_logic.fixed_R_target.r_multiple requires a positive finite number "
+            f"<= {FIXED_R_TARGET_MAX_MULTIPLE:g}"
+        )
+    if config.get("entry_reference_price") != FIXED_R_TARGET_ENTRY_REFERENCE_PRICE:
+        raise SpecSignalCompilerError(
+            "exit_logic.fixed_R_target.entry_reference_price must be "
+            f"{FIXED_R_TARGET_ENTRY_REFERENCE_PRICE!r}"
+        )
+    if config.get("stop_ref") != FIXED_R_TARGET_STOP_REF:
+        raise SpecSignalCompilerError(f"exit_logic.fixed_R_target.stop_ref must be {FIXED_R_TARGET_STOP_REF!r}")
+    if config.get("evaluation_price") != FIXED_R_TARGET_EVALUATION_PRICE:
+        raise SpecSignalCompilerError(
+            f"exit_logic.fixed_R_target.evaluation_price must be {FIXED_R_TARGET_EVALUATION_PRICE!r}"
+        )
+    if config.get("evaluation_timing") != FIXED_R_TARGET_EVALUATION_TIMING:
+        raise SpecSignalCompilerError(
+            f"exit_logic.fixed_R_target.evaluation_timing must be {FIXED_R_TARGET_EVALUATION_TIMING!r}"
+        )
+    if config.get("same_bar_stop_target_policy") != FIXED_R_TARGET_SAME_BAR_POLICY:
+        raise SpecSignalCompilerError(
+            "exit_logic.fixed_R_target.same_bar_stop_target_policy must be "
+            f"{FIXED_R_TARGET_SAME_BAR_POLICY!r}"
+        )
+    return _FixedRTargetConfig(r_multiple=multiple_float)
+
+
 def _new_pending_atr_stop_entry(
     atr_stop_config: _AtrStopConfig | None,
     side: str,
@@ -759,6 +1097,66 @@ def _capture_atr_stop_state(
     )
 
 
+def _new_pending_close_only_exit_entry(
+    or_opposite_side_config: _OpeningRangeOppositeSideConfig | None,
+    fixed_r_target_config: _FixedRTargetConfig | None,
+    side: str,
+    bar_index: int,
+) -> _PendingCloseOnlyExitEntry | None:
+    if or_opposite_side_config is None and fixed_r_target_config is None:
+        return None
+    return _PendingCloseOnlyExitEntry(side=side, signal_bar_index=bar_index)
+
+
+def _open_price_at_bar(ohlcv: pd.DataFrame, bar_index: int, label: str) -> float:
+    price = ohlcv["open"].iloc[bar_index]
+    if _is_null(price):
+        raise SpecSignalCompilerError(f"{label} entry reference price is null at fill bar")
+    price_float = float(price)
+    if not math.isfinite(price_float) or price_float <= 0.0:
+        raise SpecSignalCompilerError(f"{label} entry reference price must be positive and finite")
+    return price_float
+
+
+def _capture_close_only_exit_state(
+    *,
+    pending_entry: _PendingCloseOnlyExitEntry,
+    config: _OpeningRangeOppositeSideConfig | None,
+    context: _CompileContext,
+    fill_bar_index: int,
+) -> _CloseOnlyExitState | None:
+    if config is None or fill_bar_index >= len(context.ohlcv):
+        return None
+    if fill_bar_index <= pending_entry.signal_bar_index:
+        raise SpecSignalCompilerError("close-only exit fill bar must follow entry signal bar")
+    entry_reference_price = _open_price_at_bar(
+        context.ohlcv,
+        fill_bar_index,
+        "close-only exit",
+    )
+    range_state = _opening_range_state(context, config.range_ref)
+    signal_timestamp = context.ohlcv.index[pending_entry.signal_bar_index]
+    long_stop_level = range_state["low"].loc[signal_timestamp]
+    short_stop_level = range_state["high"].loc[signal_timestamp]
+    values = (long_stop_level, short_stop_level)
+    if any(_is_null(value) for value in values):
+        return None
+    long_stop_float = float(long_stop_level)
+    short_stop_float = float(short_stop_level)
+    if (
+        not math.isfinite(long_stop_float)
+        or not math.isfinite(short_stop_float)
+        or short_stop_float <= long_stop_float
+    ):
+        return None
+    return _CloseOnlyExitState(
+        side=pending_entry.side,
+        entry_reference_price=entry_reference_price,
+        long_stop_level=long_stop_float,
+        short_stop_level=short_stop_float,
+    )
+
+
 def _atr_stop_triggered(
     atr_stop_config: _AtrStopConfig | None,
     atr_stop_state: _AtrStopState | None,
@@ -786,6 +1184,74 @@ def _atr_stop_triggered(
         )
         return close_float >= stop_level
     raise SpecSignalCompilerError(f"unknown ATR-stop side: {atr_stop_state.side!r}")
+
+
+def _opening_range_opposite_side_triggered(
+    config: _OpeningRangeOppositeSideConfig | None,
+    state: _CloseOnlyExitState | None,
+    context: _CompileContext,
+    timestamp: Any,
+) -> bool:
+    if config is None or state is None:
+        return False
+    close_value = _value_at(context.ohlcv[OR_OPPOSITE_SIDE_EVALUATION_PRICE], timestamp)
+    if _is_null(close_value):
+        return False
+    close_float = float(close_value)
+    if not math.isfinite(close_float):
+        return False
+    if state.side == "long":
+        return close_float <= state.long_stop_level
+    if state.side == "short":
+        return close_float >= state.short_stop_level
+    raise SpecSignalCompilerError(f"unknown close-only exit side: {state.side!r}")
+
+
+def _fixed_r_target_triggered(
+    config: _FixedRTargetConfig | None,
+    state: _CloseOnlyExitState | None,
+    context: _CompileContext,
+    timestamp: Any,
+) -> bool:
+    if config is None or state is None:
+        return False
+    close_value = _value_at(context.ohlcv[FIXED_R_TARGET_EVALUATION_PRICE], timestamp)
+    if _is_null(close_value):
+        return False
+    close_float = float(close_value)
+    if not math.isfinite(close_float):
+        return False
+    if state.side == "long":
+        r_base = state.entry_reference_price - state.long_stop_level
+        if not math.isfinite(r_base) or r_base <= 0.0:
+            return False
+        return close_float >= state.entry_reference_price + (config.r_multiple * r_base)
+    if state.side == "short":
+        r_base = state.short_stop_level - state.entry_reference_price
+        if not math.isfinite(r_base) or r_base <= 0.0:
+            return False
+        return close_float <= state.entry_reference_price - (config.r_multiple * r_base)
+    raise SpecSignalCompilerError(f"unknown fixed-R target side: {state.side!r}")
+
+
+def _session_end_exit_triggered(
+    config: _SessionEndExitConfig | None,
+    context: _CompileContext,
+    timestamp: Any,
+) -> bool:
+    if config is None:
+        return False
+    in_session, session_keys = _session_membership(context, config.session_ref)
+    if not bool(in_session.loc[timestamp]):
+        return False
+    bar_delta = _infer_bar_delta(context.ohlcv.index)
+    if bar_delta is None or bar_delta <= pd.Timedelta(0):
+        return False
+    session_start = session_keys.loc[timestamp]
+    if session_start is None:
+        return False
+    expected_final_bar = pd.Timestamp(session_start) + pd.Timedelta(days=1) - bar_delta
+    return pd.Timestamp(timestamp) == expected_final_bar
 
 
 def _entry_control_allows_entry(

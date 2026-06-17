@@ -44,6 +44,7 @@ SINGLE_DIRECTIONS = {"long", "short"}
 MAX_CONDITION_GROUP_DEPTH = 3
 MAX_FREE_PARAMETERS = 5
 LOOKBACK_PARAMETER_REF_KEY = "bars_parameter_ref"
+VALUE_PARAMETER_REF_KEY = "parameter_ref"
 ATR_STOP_ALLOWED_KEYS = {
     "enabled",
     "atr_lookback",
@@ -676,6 +677,175 @@ def _is_finite_non_bool_number(value: Any) -> bool:
     )
 
 
+def _is_parameter_value_ref(value: Any) -> bool:
+    return isinstance(value, dict) and set(value) == {VALUE_PARAMETER_REF_KEY}
+
+
+def _literal_or_bound_values(
+    path: Path,
+    payload: dict[str, Any],
+    field_path: str,
+    value: Any,
+    *,
+    parameter_type: str,
+    minimum: float,
+    maximum: float,
+    inclusive_min: bool,
+    inclusive_max: bool,
+) -> tuple[list[Any], list[str]]:
+    if not isinstance(value, dict):
+        return [value], []
+    if not _is_parameter_value_ref(value):
+        return [], [f"{path}: {field_path} parameter binding must use only parameter_ref"]
+    parameter_name = value.get(VALUE_PARAMETER_REF_KEY)
+    declarations = _parameter_declarations(payload)
+    if not isinstance(parameter_name, str) or not parameter_name:
+        return [], [f"{path}: {field_path}.parameter_ref must be a non-empty string"]
+    matches = declarations.get(parameter_name, [])
+    if len(matches) != 1:
+        return [], [
+            f"{path}: {field_path}.parameter_ref {parameter_name!r} must match exactly "
+            f"one free_parameters.parameters[].name; found {len(matches)}"
+        ]
+    parameter_index, parameter = matches[0]
+    parameter_path = f"free_parameters.parameters.{parameter_index}"
+    errors: list[str] = []
+    if parameter.get("type") != parameter_type:
+        errors.append(f"{path}: {field_path} bound parameter {parameter_path}.type must be {parameter_type!r}")
+    if parameter.get("is_free_parameter") is not True:
+        errors.append(f"{path}: {field_path} bound parameter {parameter_path}.is_free_parameter must be true")
+    if parameter.get("included_in_variant_generation") is not True:
+        errors.append(
+            f"{path}: {field_path} bound parameter "
+            f"{parameter_path}.included_in_variant_generation must be true"
+        )
+    allowed_values = parameter.get("allowed_values")
+    if not isinstance(allowed_values, list) or not allowed_values:
+        errors.append(f"{path}: {field_path} bound parameter {parameter_path}.allowed_values must be non-empty")
+        return [], errors
+    for index, allowed_value in enumerate(allowed_values):
+        errors.extend(
+            _validate_bound_literal(
+                path,
+                f"{field_path} bound parameter {parameter_path}.allowed_values.{index}",
+                allowed_value,
+                parameter_type=parameter_type,
+                minimum=minimum,
+                maximum=maximum,
+                inclusive_min=inclusive_min,
+                inclusive_max=inclusive_max,
+            )
+        )
+    return allowed_values, errors
+
+
+def _validate_bound_literal(
+    path: Path,
+    field_path: str,
+    value: Any,
+    *,
+    parameter_type: str,
+    minimum: float,
+    maximum: float,
+    inclusive_min: bool,
+    inclusive_max: bool,
+) -> list[str]:
+    errors: list[str] = []
+    if parameter_type == "integer":
+        if not _is_non_bool_int(value):
+            return [f"{path}: {field_path} must be an integer"]
+        comparable = int(value)
+    else:
+        if not _is_finite_non_bool_number(value):
+            return [f"{path}: {field_path} must be a finite number"]
+        comparable = float(value)
+    if inclusive_min:
+        if comparable < minimum:
+            errors.append(f"{path}: {field_path} must be >= {minimum:g}")
+    elif comparable <= minimum:
+        errors.append(f"{path}: {field_path} must be > {minimum:g}")
+    if inclusive_max:
+        if comparable > maximum:
+            errors.append(f"{path}: {field_path} must be <= {maximum:g}")
+    elif comparable >= maximum:
+        errors.append(f"{path}: {field_path} must be < {maximum:g}")
+    return errors
+
+
+def _validate_literal_or_bound_number(
+    path: Path,
+    payload: dict[str, Any],
+    field_path: str,
+    value: Any,
+    *,
+    minimum: float,
+    maximum: float,
+    inclusive_min: bool = True,
+    inclusive_max: bool = True,
+) -> tuple[list[Any], list[str]]:
+    values, errors = _literal_or_bound_values(
+        path,
+        payload,
+        field_path,
+        value,
+        parameter_type="number",
+        minimum=minimum,
+        maximum=maximum,
+        inclusive_min=inclusive_min,
+        inclusive_max=inclusive_max,
+    )
+    if not isinstance(value, dict):
+        errors.extend(
+            _validate_bound_literal(
+                path,
+                field_path,
+                value,
+                parameter_type="number",
+                minimum=minimum,
+                maximum=maximum,
+                inclusive_min=inclusive_min,
+                inclusive_max=inclusive_max,
+            )
+        )
+    return values, errors
+
+
+def _validate_literal_or_bound_integer(
+    path: Path,
+    payload: dict[str, Any],
+    field_path: str,
+    value: Any,
+    *,
+    minimum: int,
+    maximum: int,
+) -> tuple[list[Any], list[str]]:
+    values, errors = _literal_or_bound_values(
+        path,
+        payload,
+        field_path,
+        value,
+        parameter_type="integer",
+        minimum=minimum,
+        maximum=maximum,
+        inclusive_min=True,
+        inclusive_max=True,
+    )
+    if not isinstance(value, dict):
+        errors.extend(
+            _validate_bound_literal(
+                path,
+                field_path,
+                value,
+                parameter_type="integer",
+                minimum=minimum,
+                maximum=maximum,
+                inclusive_min=True,
+                inclusive_max=True,
+            )
+        )
+    return values, errors
+
+
 def _validate_atr_stop(path: Path, payload: dict[str, Any]) -> list[str]:
     exit_logic = payload.get("exit_logic")
     if not isinstance(exit_logic, dict) or "atr_stop" not in exit_logic:
@@ -703,16 +873,17 @@ def _validate_atr_stop(path: Path, payload: dict[str, Any]) -> list[str]:
             f"[1, {ATR_STOP_MAX_LOOKBACK_BARS}]"
         )
 
-    atr_multiplier = atr_stop.get("atr_multiplier")
-    if (
-        not _is_finite_non_bool_number(atr_multiplier)
-        or float(atr_multiplier) <= 0.0
-        or float(atr_multiplier) > ATR_STOP_MAX_MULTIPLIER
-    ):
-        errors.append(
-            f"{path}: exit_logic.atr_stop.atr_multiplier must be a positive finite "
-            f"number <= {ATR_STOP_MAX_MULTIPLIER:g}"
-        )
+    _, multiplier_errors = _validate_literal_or_bound_number(
+        path,
+        payload,
+        "exit_logic.atr_stop.atr_multiplier",
+        atr_stop.get("atr_multiplier"),
+        minimum=0.0,
+        maximum=ATR_STOP_MAX_MULTIPLIER,
+        inclusive_min=False,
+        inclusive_max=True,
+    )
+    errors.extend(multiplier_errors)
 
     if atr_stop.get("entry_reference_price") != ATR_STOP_ENTRY_REFERENCE_PRICE:
         errors.append(
@@ -814,16 +985,17 @@ def _validate_close_only_exit_primitives(path: Path, payload: dict[str, Any]) ->
                     f"{path}: exit_logic.fixed_R_target supports exactly "
                     f"{sorted(FIXED_R_TARGET_ALLOWED_KEYS)}"
                 )
-            multiple = target.get("r_multiple")
-            if (
-                not _is_finite_non_bool_number(multiple)
-                or float(multiple) <= 0.0
-                or float(multiple) > FIXED_R_TARGET_MAX_MULTIPLE
-            ):
-                errors.append(
-                    f"{path}: exit_logic.fixed_R_target.r_multiple must be a positive finite "
-                    f"number <= {FIXED_R_TARGET_MAX_MULTIPLE:g}"
-                )
+            _, multiple_errors = _validate_literal_or_bound_number(
+                path,
+                payload,
+                "exit_logic.fixed_R_target.r_multiple",
+                target.get("r_multiple"),
+                minimum=0.0,
+                maximum=FIXED_R_TARGET_MAX_MULTIPLE,
+                inclusive_min=False,
+                inclusive_max=True,
+            )
+            errors.extend(multiple_errors)
             if target.get("stop_ref") != "opening_range_opposite_side":
                 errors.append(
                     f"{path}: exit_logic.fixed_R_target.stop_ref must be "
@@ -861,6 +1033,36 @@ def _primitive_ids(payload: dict[str, Any], collection: str) -> set[str]:
         for item in items
         if isinstance(item, dict) and isinstance(item.get(id_key), str)
     }
+
+
+def _validate_atr_multiple_tolerance(
+    path: Path,
+    payload: dict[str, Any],
+    field_path: str,
+    tolerance: Any,
+) -> list[str]:
+    if not isinstance(tolerance, dict):
+        return [f"{path}: {field_path} must be an object"]
+    errors: list[str] = []
+    if tolerance.get("mode") != "atr_multiple":
+        errors.append(f"{path}: {field_path}.mode must be 'atr_multiple'")
+    lookback = tolerance.get("atr_lookback_bars")
+    if not _is_non_bool_int(lookback) or lookback < 1 or lookback > 100000:
+        errors.append(f"{path}: {field_path}.atr_lookback_bars must be an integer in [1, 100000]")
+    _, multiple_errors = _validate_literal_or_bound_number(
+        path,
+        payload,
+        f"{field_path}.multiple",
+        tolerance.get("multiple"),
+        minimum=0.0,
+        maximum=1000.0,
+        inclusive_min=True,
+        inclusive_max=True,
+    )
+    errors.extend(multiple_errors)
+    if tolerance.get("units") != "ATR":
+        errors.append(f"{path}: {field_path}.units must be 'ATR'")
+    return errors
 
 
 def _validate_online_ohlcv_primitives(path: Path, payload: dict[str, Any]) -> list[str]:
@@ -912,6 +1114,15 @@ def _validate_online_ohlcv_primitives(path: Path, payload: dict[str, Any]) -> li
                 f"{path}: online_ohlcv_primitives.opening_range_breakouts.{index}.range_ref "
                 "must reference a declared opening_range"
             )
+        if isinstance(item, dict):
+            errors.extend(
+                _validate_atr_multiple_tolerance(
+                    path,
+                    payload,
+                    f"online_ohlcv_primitives.opening_range_breakouts.{index}.tolerance",
+                    item.get("tolerance"),
+                )
+            )
 
     for index, item in enumerate(primitives.get("opening_range_retests", []) or []):
         if not isinstance(item, dict):
@@ -923,13 +1134,68 @@ def _validate_online_ohlcv_primitives(path: Path, payload: dict[str, Any]) -> li
             )
         window = item.get("window")
         if isinstance(window, dict):
-            min_after = window.get("min_bars_after_breakout")
-            max_after = window.get("max_bars_after_breakout")
-            if isinstance(min_after, int) and isinstance(max_after, int) and max_after < min_after:
+            min_values, min_errors = _validate_literal_or_bound_integer(
+                path,
+                payload,
+                f"online_ohlcv_primitives.opening_range_retests.{index}.window.min_bars_after_breakout",
+                window.get("min_bars_after_breakout"),
+                minimum=1,
+                maximum=100000,
+            )
+            max_values, max_errors = _validate_literal_or_bound_integer(
+                path,
+                payload,
+                f"online_ohlcv_primitives.opening_range_retests.{index}.window.max_bars_after_breakout",
+                window.get("max_bars_after_breakout"),
+                minimum=1,
+                maximum=100000,
+            )
+            errors.extend(min_errors)
+            errors.extend(max_errors)
+            if (
+                min_values
+                and max_values
+                and max(int(value) for value in min_values) > min(int(value) for value in max_values)
+            ):
                 errors.append(
                     f"{path}: online_ohlcv_primitives.opening_range_retests.{index}.window "
                     "max_bars_after_breakout must be >= min_bars_after_breakout"
                 )
+        errors.extend(
+            _validate_atr_multiple_tolerance(
+                path,
+                payload,
+                f"online_ohlcv_primitives.opening_range_retests.{index}.tolerance",
+                item.get("tolerance"),
+            )
+        )
+
+    for index, item in enumerate(primitives.get("candle_shapes", []) or []):
+        if not isinstance(item, dict):
+            continue
+        for key in ("upper_wick_pct", "lower_wick_pct", "body_pct"):
+            predicate = item.get(key)
+            if predicate is None:
+                continue
+            field_path = f"online_ohlcv_primitives.candle_shapes.{index}.{key}"
+            if not isinstance(predicate, dict):
+                errors.append(f"{path}: {field_path} must be an object")
+                continue
+            if predicate.get("operator") not in {"lte", "gte"}:
+                errors.append(f"{path}: {field_path}.operator must be lte or gte")
+            _, value_errors = _validate_literal_or_bound_number(
+                path,
+                payload,
+                f"{field_path}.value",
+                predicate.get("value"),
+                minimum=0.0,
+                maximum=1.0,
+                inclusive_min=True,
+                inclusive_max=True,
+            )
+            errors.extend(value_errors)
+            if predicate.get("units") != "fraction_of_range":
+                errors.append(f"{path}: {field_path}.units must be fraction_of_range")
 
     declared_primitive_ids = set(seen_ids)
     for operand_path, operand in _walk_operands(payload, []):
@@ -945,12 +1211,22 @@ def _validate_online_ohlcv_primitives(path: Path, payload: dict[str, Any]) -> li
 
     controls = payload.get("entry_logic", {}).get("entry_controls")
     if isinstance(controls, dict) and isinstance(controls.get("max_trades_per_session"), dict):
-        session_ref = controls["max_trades_per_session"].get("session_ref")
+        max_control = controls["max_trades_per_session"]
+        session_ref = max_control.get("session_ref")
         if session_ref not in session_ids:
             errors.append(
                 f"{path}: entry_logic.entry_controls.max_trades_per_session.session_ref "
                 "must reference a declared session_window"
             )
+        _, max_trades_errors = _validate_literal_or_bound_integer(
+            path,
+            payload,
+            "entry_logic.entry_controls.max_trades_per_session.max_trades",
+            max_control.get("max_trades"),
+            minimum=1,
+            maximum=100000,
+        )
+        errors.extend(max_trades_errors)
     return errors
 
 

@@ -781,6 +781,115 @@ def test_valid_online_ohlcv_primitives_pass_schema_and_validator(tmp_path):
     assert _validate(tmp_path, payload) == []
 
 
+def test_online_ohlcv_primitive_parameter_refs_pass_schema_and_validator(tmp_path):
+    payload = _base_strategy_spec()
+    payload["online_ohlcv_primitives"] = _online_primitives()
+    payload["free_parameters"]["parameters"] = [
+        _threshold_parameter(name="wick_threshold", allowed_values=[0.05, 0.1]),
+        _threshold_parameter(name="body_threshold", allowed_values=[0.6, 0.8]),
+        _threshold_parameter(name="orb_tolerance", allowed_values=[0.0, 0.25]),
+        _lookback_parameter(name="retest_window", allowed_values=[2, 3]),
+        _threshold_parameter(name="target_r", role="exit", range_value={"min": 1.0, "max": 3.0, "step": 1.0, "inclusive_min": True, "inclusive_max": True}, allowed_values=[1.0, 2.0]),
+    ]
+    payload["free_parameters"]["no_free_parameters_declared"] = False
+    primitives = payload["online_ohlcv_primitives"]
+    primitives["candle_shapes"][0]["upper_wick_pct"]["value"] = {"parameter_ref": "wick_threshold"}
+    primitives["candle_shapes"][0]["lower_wick_pct"]["value"] = {"parameter_ref": "wick_threshold"}
+    primitives["candle_shapes"][0]["body_pct"]["value"] = {"parameter_ref": "body_threshold"}
+    primitives["opening_range_breakouts"][0]["tolerance"]["multiple"] = {"parameter_ref": "orb_tolerance"}
+    primitives["opening_range_retests"][0]["window"]["max_bars_after_breakout"] = {"parameter_ref": "retest_window"}
+    primitives["opening_range_retests"][0]["tolerance"]["multiple"] = {"parameter_ref": "orb_tolerance"}
+    payload["entry_logic"]["entry_controls"] = {
+        "max_trades_per_session": {
+            "enabled": True,
+            "count_basis": "entries_filled",
+            "max_trades": {"parameter_ref": "retest_window"},
+            "session_ref": "UTC_DAILY_0000",
+            "reset": "session_start",
+        }
+    }
+    payload["exit_logic"]["opening_range_opposite_side"] = _opening_range_opposite_side()
+    payload["exit_logic"]["fixed_R_target"] = _fixed_r_target({"parameter_ref": "target_r"})
+
+    errors = _validate(tmp_path, payload)
+
+    assert Draft7Validator(_load_schema()).is_valid(payload)
+    assert errors == []
+
+
+def test_online_ohlcv_primitive_parameter_refs_reject_invalid_sources(tmp_path):
+    cases = []
+
+    payload = _base_strategy_spec()
+    payload["online_ohlcv_primitives"] = _online_primitives()
+    payload["online_ohlcv_primitives"]["candle_shapes"][0]["upper_wick_pct"]["value"] = {
+        "parameter_ref": "missing"
+    }
+    cases.append((payload, "must match exactly one free_parameters"))
+
+    payload = _base_strategy_spec()
+    payload["online_ohlcv_primitives"] = _online_primitives()
+    payload["free_parameters"]["parameters"] = [_threshold_parameter(name="wick_threshold")]
+    payload["free_parameters"]["no_free_parameters_declared"] = False
+    payload["online_ohlcv_primitives"]["candle_shapes"][0]["upper_wick_pct"]["value"] = {
+        "parameter_ref": "wick_threshold"
+    }
+    cases.append((payload, "allowed_values must be non-empty"))
+
+    payload = _base_strategy_spec()
+    payload["online_ohlcv_primitives"] = _online_primitives()
+    payload["free_parameters"]["parameters"] = [
+        _threshold_parameter(name="wick_threshold", allowed_values=[0.1])
+    ]
+    payload["free_parameters"]["no_free_parameters_declared"] = False
+    payload["online_ohlcv_primitives"]["candle_shapes"][0]["upper_wick_pct"]["value"] = {
+        "parameter_ref": "wick_threshold",
+        "expression": "x + 1",
+    }
+    cases.append((payload, "expression"))
+
+    payload = _base_strategy_spec()
+    payload["online_ohlcv_primitives"] = _online_primitives()
+    payload["free_parameters"]["parameters"] = [
+        _threshold_parameter(name="wick_threshold", parameter_type="integer", allowed_values=[1])
+    ]
+    payload["free_parameters"]["no_free_parameters_declared"] = False
+    payload["online_ohlcv_primitives"]["candle_shapes"][0]["upper_wick_pct"]["value"] = {
+        "parameter_ref": "wick_threshold"
+    }
+    cases.append((payload, "type must be 'number'"))
+
+    payload = _base_strategy_spec()
+    payload["online_ohlcv_primitives"] = _online_primitives()
+    payload["free_parameters"]["parameters"] = [
+        _threshold_parameter(name="wick_threshold", allowed_values=[1.5])
+    ]
+    payload["free_parameters"]["no_free_parameters_declared"] = False
+    payload["online_ohlcv_primitives"]["candle_shapes"][0]["upper_wick_pct"]["value"] = {
+        "parameter_ref": "wick_threshold"
+    }
+    cases.append((payload, "must be <= 1"))
+
+    payload = _base_strategy_spec()
+    payload["online_ohlcv_primitives"] = _online_primitives()
+    payload["free_parameters"]["parameters"] = [
+        _lookback_parameter(name="retest_min", allowed_values=[4]),
+        _lookback_parameter(name="retest_max", allowed_values=[2]),
+    ]
+    payload["free_parameters"]["no_free_parameters_declared"] = False
+    payload["online_ohlcv_primitives"]["opening_range_retests"][0]["window"] = {
+        "min_bars_after_breakout": {"parameter_ref": "retest_min"},
+        "max_bars_after_breakout": {"parameter_ref": "retest_max"},
+    }
+    cases.append((payload, "max_bars_after_breakout must be >= min_bars_after_breakout"))
+
+    for index, (case, expected) in enumerate(cases, start=1):
+        case["strategy_spec_id"] = f"STRAT-SPEC-93{index:02d}"
+        errors = _validate(tmp_path, case, filename=f"STRAT-SPEC-93{index:02d}.strategy_spec.json")
+        assert errors, expected
+        assert any(expected in error for error in errors), (expected, errors)
+
+
 def test_valid_close_only_exit_primitives_pass_schema_and_validator(tmp_path):
     payload = _base_strategy_spec()
     payload["online_ohlcv_primitives"] = _online_primitives()
@@ -808,7 +917,7 @@ def test_close_only_exit_primitives_reject_missing_refs_and_invalid_multiple(tmp
     payload = _base_strategy_spec()
     payload["online_ohlcv_primitives"] = _online_primitives()
     payload["exit_logic"]["fixed_R_target"] = _fixed_r_target(0)
-    cases.append((payload, "r_multiple must be a positive finite number"))
+    cases.append((payload, "exit_logic.fixed_R_target.r_multiple must be > 0"))
 
     payload = _base_strategy_spec()
     payload["online_ohlcv_primitives"] = _online_primitives()
@@ -976,7 +1085,7 @@ def test_atr_stop_nonfinite_multiplier_fails_validator(tmp_path):
 
     errors = _validate(tmp_path, payload)
 
-    assert any("atr_multiplier must be a positive finite number" in error for error in errors)
+    assert any("atr_multiplier must be a finite number" in error for error in errors)
 
 
 def test_atr_stop_invalid_lookback_fails_schema_and_validator(tmp_path):
@@ -989,14 +1098,14 @@ def test_atr_stop_invalid_lookback_fails_schema_and_validator(tmp_path):
     assert any("atr_lookback" in error for error in errors)
 
 
-def test_atr_stop_parameter_ref_form_fails_schema_and_validator(tmp_path):
+def test_atr_stop_parameter_ref_requires_declared_parameter(tmp_path):
     payload = _base_strategy_spec()
     payload["exit_logic"]["atr_stop"] = _atr_stop(atr_multiplier={"parameter_ref": "atr_k"})
 
-    assert not Draft7Validator(_load_schema()).is_valid(payload)
+    assert Draft7Validator(_load_schema()).is_valid(payload)
     errors = _validate(tmp_path, payload)
 
-    assert any("atr_multiplier" in error for error in errors)
+    assert any("atr_multiplier.parameter_ref 'atr_k' must match exactly" in error for error in errors)
 
 
 def test_atr_stop_invalid_reference_and_timing_fail_schema_and_validator(tmp_path):

@@ -5,7 +5,7 @@ from pathlib import Path
 
 from jsonschema import Draft7Validator
 
-from tests.test_validate_strategy_specs import _base_strategy_spec
+from tests.test_validate_strategy_specs import _base_strategy_spec, _online_primitives, _threshold_parameter
 from tools.registry.validate_variant_sweep_artifacts import (
     DEFAULT_STRATEGY_SPEC_SCHEMA_PATH,
     DEFAULT_SWEEP_PLAN_SCHEMA_PATH,
@@ -528,6 +528,79 @@ def test_validator_noops_when_directories_empty(tmp_path):
 
 def test_valid_parent_manifest_and_sweep_plan_pass(tmp_path):
     _write_valid_fixture(tmp_path)
+
+    assert _validate(tmp_path) == []
+
+
+def test_manifest_must_include_axis_for_parent_strategy_value_parameter_ref(tmp_path):
+    strategy_specs_dir, variant_manifests_dir, sweep_plans_dir = _fixture_paths(tmp_path)
+    strategy_spec = _base_strategy_spec_for_variant()
+    strategy_spec["online_ohlcv_primitives"] = _online_primitives()
+    strategy_spec["online_ohlcv_primitives"]["candle_shapes"][0]["upper_wick_pct"]["value"] = {
+        "parameter_ref": "wick_threshold"
+    }
+    strategy_spec["free_parameters"]["parameters"].append(
+        _threshold_parameter(name="wick_threshold", allowed_values=[0.05, 0.10])
+    )
+    strategy_hash = sha256_prefixed(strategy_spec)
+    manifest = _base_variant_manifest(strategy_hash)
+    manifest["parent_strategy_spec"]["strategy_spec_hash"] = strategy_hash
+    sweep = _base_sweep_plan(manifest)
+    _write_json(strategy_specs_dir / "STRAT-SPEC-9001.strategy_spec.json", strategy_spec)
+    _write_json(variant_manifests_dir / "VM-0001.variant_manifest.json", manifest)
+    _write_json(sweep_plans_dir / "SWEEP-PLAN-0001.sweep_plan.json", sweep)
+
+    errors = _validate(tmp_path)
+
+    assert any("parameter_ref 'wick_threshold' must be present in parameter_axes" in error for error in errors)
+
+
+def test_manifest_accepts_axis_for_parent_strategy_value_parameter_ref(tmp_path):
+    strategy_specs_dir, variant_manifests_dir, sweep_plans_dir = _fixture_paths(tmp_path)
+    strategy_spec = _base_strategy_spec_for_variant()
+    strategy_spec["online_ohlcv_primitives"] = _online_primitives()
+    strategy_spec["online_ohlcv_primitives"]["candle_shapes"][0]["upper_wick_pct"]["value"] = {
+        "parameter_ref": "wick_threshold"
+    }
+    strategy_spec["free_parameters"]["parameters"].append(
+        _threshold_parameter(name="wick_threshold", allowed_values=[0.05, 0.10])
+    )
+    strategy_hash = sha256_prefixed(strategy_spec)
+    manifest = _base_variant_manifest(strategy_hash)
+    manifest["parent_strategy_spec"]["strategy_spec_hash"] = strategy_hash
+    manifest["parameter_axes"].append(
+        {
+            "axis_id": "AXIS-002",
+            "parameter_name": "wick_threshold",
+            "parent_strategy_spec_parameter_ref": "free_parameters.parameters.wick_threshold",
+            "parameter_type": "number",
+            "units": "ratio",
+            "axis_kind": "free_parameter",
+            "generator_method": "manual_grid",
+            "allowed_values": [0.05, 0.10],
+            "range": {
+                "min": 0.05,
+                "max": 0.10,
+                "step": 0.05,
+                "inclusive_min": True,
+                "inclusive_max": True,
+            },
+            "counts_toward_parent_free_parameter_cap": True,
+            "is_declared_in_parent_strategy_spec": True,
+            "invalid_combination_rule_refs": [],
+            "notes": None,
+        }
+    )
+    for index, variant in enumerate(manifest["variant_assignments"]):
+        variant["parameter_values"]["wick_threshold"] = [0.05, 0.10][index]
+        variant["axis_refs"].append("AXIS-002")
+    manifest["manifest_hash_pinning"]["manifest_hash"] = sha256_prefixed(
+        _hash_scope_payload(manifest, manifest["manifest_hash_pinning"]["hash_scope"])
+    )
+    sweep = _base_sweep_plan(manifest)
+    _write_json(strategy_specs_dir / "STRAT-SPEC-9001.strategy_spec.json", strategy_spec)
+    _write_json(variant_manifests_dir / "VM-0001.variant_manifest.json", manifest)
+    _write_json(sweep_plans_dir / "SWEEP-PLAN-0001.sweep_plan.json", sweep)
 
     assert _validate(tmp_path) == []
 

@@ -37,6 +37,7 @@ COMPOSED_PARAMETER_OPERAND_TYPE = "parameter_ref"
 Z_SCORE_OPERAND_TYPES = {"data_ref", "indicator_ref"}
 Z_SCORE_ZERO_SCALE_POLICY = "null_output"
 LOOKBACK_PARAMETER_REF_KEY = "bars_parameter_ref"
+VALUE_PARAMETER_REF_KEY = "parameter_ref"
 CROSSOVER_OPERATORS = {"crosses_above", "crosses_below"}
 BOOLEAN_OPERATORS = {"is_true", "is_false"}
 SUPPORTED_OPERATORS = {"gt", "gte", "lt", "lte", "eq", "neq"} | CROSSOVER_OPERATORS | BOOLEAN_OPERATORS
@@ -262,11 +263,11 @@ def compile_signal(
     filter_groups = _collect_groups(strategy_spec.get("filters"))
     exit_groups = _collect_groups(strategy_spec.get("exit_logic"))
     max_holding_bars = _max_holding_bars(strategy_spec)
-    entry_controls = _entry_controls(strategy_spec)
+    entry_controls = _entry_controls(strategy_spec, context)
     atr_stop_config = _atr_stop_config(strategy_spec, context)
     session_end_exit_config = _session_end_exit_config(strategy_spec)
     or_opposite_side_config = _opening_range_opposite_side_config(strategy_spec)
-    fixed_r_target_config = _fixed_r_target_config(strategy_spec, or_opposite_side_config)
+    fixed_r_target_config = _fixed_r_target_config(strategy_spec, or_opposite_side_config, context)
 
     if direction == "both":
         return _compile_both_direction_signal(
@@ -781,7 +782,7 @@ def _max_holding_bars(strategy_spec: Mapping[str, Any]) -> int | None:
     return bars
 
 
-def _entry_controls(strategy_spec: Mapping[str, Any]) -> _EntryControls:
+def _entry_controls(strategy_spec: Mapping[str, Any], context: _CompileContext) -> _EntryControls:
     entry_logic = strategy_spec.get("entry_logic", {})
     if not isinstance(entry_logic, Mapping) or "entry_controls" not in entry_logic:
         return _EntryControls(None, None, None)
@@ -819,10 +820,19 @@ def _entry_controls(strategy_spec: Mapping[str, Any]) -> _EntryControls:
             raise SpecSignalCompilerError(
                 "entry_controls.max_trades_per_session.count_basis must be 'entries_filled'"
             )
-        max_trades = max_control.get("max_trades")
-        if isinstance(max_trades, bool) or not isinstance(max_trades, Integral) or max_trades < 1:
+        max_trades = _resolve_parameter_bound_value(
+            max_control.get("max_trades"),
+            context,
+            "entry_controls.max_trades_per_session.max_trades",
+        )
+        if (
+            isinstance(max_trades, bool)
+            or not isinstance(max_trades, Integral)
+            or max_trades < 1
+            or max_trades > 100000
+        ):
             raise SpecSignalCompilerError(
-                "entry_controls.max_trades_per_session.max_trades requires a positive integer"
+                "entry_controls.max_trades_per_session.max_trades requires integer in [1, 100000]"
             )
         if max_control.get("reset") != "session_start":
             raise SpecSignalCompilerError(
@@ -864,7 +874,11 @@ def _atr_stop_config(
         raise SpecSignalCompilerError(
             f"exit_logic.atr_stop.atr_lookback requires integer bars in [1, {ATR_STOP_MAX_LOOKBACK_BARS}]"
         )
-    multiplier = atr_stop.get("atr_multiplier")
+    multiplier = _resolve_parameter_bound_value(
+        atr_stop.get("atr_multiplier"),
+        context,
+        "exit_logic.atr_stop.atr_multiplier",
+    )
     if isinstance(multiplier, bool) or not isinstance(multiplier, Real):
         raise SpecSignalCompilerError("exit_logic.atr_stop.atr_multiplier requires a positive finite number")
     multiplier_float = float(multiplier)
@@ -1000,6 +1014,7 @@ def _opening_range_opposite_side_config(
 def _fixed_r_target_config(
     strategy_spec: Mapping[str, Any],
     or_opposite_side_config: _OpeningRangeOppositeSideConfig | None,
+    context: _CompileContext,
 ) -> _FixedRTargetConfig | None:
     exit_logic = strategy_spec.get("exit_logic", {})
     if not isinstance(exit_logic, Mapping) or "fixed_R_target" not in exit_logic:
@@ -1017,7 +1032,11 @@ def _fixed_r_target_config(
         raise SpecSignalCompilerError(
             "exit_logic.fixed_R_target requires exit_logic.opening_range_opposite_side"
         )
-    multiple = config.get("r_multiple")
+    multiple = _resolve_parameter_bound_value(
+        config.get("r_multiple"),
+        context,
+        "exit_logic.fixed_R_target.r_multiple",
+    )
     if isinstance(multiple, bool) or not isinstance(multiple, Real):
         raise SpecSignalCompilerError("exit_logic.fixed_R_target.r_multiple requires a positive finite number")
     multiple_float = float(multiple)
@@ -1626,7 +1645,7 @@ def _atr_tolerance(context: _CompileContext, tolerance: Any) -> pd.Series:
     if tolerance.get("mode") != "atr_multiple" or tolerance.get("units") != "ATR":
         raise SpecSignalCompilerError("tolerance.mode must be atr_multiple with units ATR")
     lookback = tolerance.get("atr_lookback_bars")
-    multiple = tolerance.get("multiple")
+    multiple = _resolve_parameter_bound_value(tolerance.get("multiple"), context, "tolerance.multiple")
     if isinstance(lookback, bool) or not isinstance(lookback, Integral) or lookback < 1:
         raise SpecSignalCompilerError("tolerance.atr_lookback_bars must be an integer >= 1")
     if isinstance(multiple, bool) or not isinstance(multiple, Real):
@@ -1726,8 +1745,16 @@ def _retest_state(context: _CompileContext, retest_id: str) -> dict[str, pd.Seri
     window = config.get("window")
     if not isinstance(window, Mapping):
         raise SpecSignalCompilerError("opening_range_retest.window is required")
-    min_after = window.get("min_bars_after_breakout")
-    max_after = window.get("max_bars_after_breakout")
+    min_after = _resolve_parameter_bound_value(
+        window.get("min_bars_after_breakout"),
+        context,
+        "opening_range_retest.window.min_bars_after_breakout",
+    )
+    max_after = _resolve_parameter_bound_value(
+        window.get("max_bars_after_breakout"),
+        context,
+        "opening_range_retest.window.max_bars_after_breakout",
+    )
     if (
         isinstance(min_after, bool)
         or isinstance(max_after, bool)
@@ -1828,7 +1855,7 @@ def _candle_shape_state(context: _CompileContext, predicate_id: str) -> dict[str
         ("body_pct", body),
     ):
         if key in config:
-            predicate = predicate & _ratio_predicate(values, config.get(key), f"candle_shape.{key}")
+            predicate = predicate & _ratio_predicate(values, config.get(key), context, f"candle_shape.{key}")
     predicate = predicate.fillna(False)
     side_mode = config.get("side_mode", "neutral")
     if side_mode == "side_specific":
@@ -1845,11 +1872,16 @@ def _candle_shape_state(context: _CompileContext, predicate_id: str) -> dict[str
     return {"long": long.fillna(False), "short": short.fillna(False), "value": predicate.fillna(False)}
 
 
-def _ratio_predicate(values: pd.Series, config: Any, label: str) -> pd.Series:
+def _ratio_predicate(
+    values: pd.Series,
+    config: Any,
+    context: _CompileContext,
+    label: str,
+) -> pd.Series:
     if not isinstance(config, Mapping):
         raise SpecSignalCompilerError(f"{label} must be an object")
     operator = config.get("operator")
-    threshold = config.get("value")
+    threshold = _resolve_parameter_bound_value(config.get("value"), context, f"{label}.value")
     if operator not in {"lte", "gte"}:
         raise SpecSignalCompilerError(f"{label}.operator must be lte or gte")
     if isinstance(threshold, bool) or not isinstance(threshold, Real):
@@ -2099,6 +2131,26 @@ def _resolve_parameter_ref(operand: Mapping[str, Any], variant_assignment: Mappi
     if not isinstance(ref, str) or not ref:
         raise SpecSignalCompilerError("parameter_ref ref must be a non-empty string")
     parameter_values = variant_assignment.get("parameter_values")
+    if not isinstance(parameter_values, Mapping):
+        raise SpecSignalCompilerError("variant_assignment.parameter_values must be an object")
+    if ref not in parameter_values:
+        raise SpecSignalCompilerError(f"missing required parameter_ref: {ref}")
+    return parameter_values[ref]
+
+
+def _resolve_parameter_bound_value(
+    value: Any,
+    context: _CompileContext,
+    label: str,
+) -> Any:
+    if not isinstance(value, Mapping):
+        return value
+    if set(value) != {VALUE_PARAMETER_REF_KEY}:
+        raise SpecSignalCompilerError(f"{label} parameter binding must use only parameter_ref")
+    ref = value.get(VALUE_PARAMETER_REF_KEY)
+    if not isinstance(ref, str) or not ref:
+        raise SpecSignalCompilerError(f"{label}.parameter_ref must be a non-empty string")
+    parameter_values = context.variant_assignment.get("parameter_values")
     if not isinstance(parameter_values, Mapping):
         raise SpecSignalCompilerError("variant_assignment.parameter_values must be an object")
     if ref not in parameter_values:

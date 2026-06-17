@@ -25,6 +25,7 @@ DEFAULT_STRATEGY_SPEC_SCHEMA_PATH = (
 HASH_ALGORITHM = "sha256"
 VARIANT_MANIFEST_HASH_SCOPE_VERSION = "variant_manifest_hash_scope_v1"
 MAX_PARAMETER_AXES = 5
+VALUE_PARAMETER_REF_KEY = "parameter_ref"
 FORBIDDEN_EXECUTABLE_KEYS = {
     "expression",
     "formula",
@@ -287,6 +288,61 @@ def _validate_parent_strategy_spec_hash(
         errors.append(
             f"{path}: parent_strategy_spec.strategy_spec_hash mismatch for "
             f"{strategy_spec_id}: declared {declared_hash!r}, computed {computed_hash}"
+        )
+    return errors
+
+
+def _collect_value_parameter_refs(value: Any) -> set[str]:
+    refs: set[str] = set()
+    if isinstance(value, dict):
+        if set(value) == {VALUE_PARAMETER_REF_KEY} and isinstance(value.get(VALUE_PARAMETER_REF_KEY), str):
+            refs.add(value[VALUE_PARAMETER_REF_KEY])
+        for child in value.values():
+            refs.update(_collect_value_parameter_refs(child))
+    elif isinstance(value, list):
+        for child in value:
+            refs.update(_collect_value_parameter_refs(child))
+    return refs
+
+
+def _validate_manifest_bound_parameter_axes(
+    path: Path,
+    payload: dict[str, Any],
+    strategy_specs_dir: Path,
+) -> list[str]:
+    parent = payload.get("parent_strategy_spec")
+    if not isinstance(parent, dict):
+        return []
+    strategy_spec_id = parent.get("strategy_spec_id")
+    if not isinstance(strategy_spec_id, str) or not strategy_specs_dir.exists():
+        return []
+    parent_path = _discover_by_id(
+        strategy_specs_dir,
+        "*.strategy_spec.json",
+        "strategy_spec_id",
+        strategy_spec_id,
+    )
+    if parent_path is None:
+        return []
+    try:
+        parent_payload = load_json(parent_path)
+    except json.JSONDecodeError:
+        return []
+
+    bound_refs = _collect_value_parameter_refs(parent_payload)
+    if not bound_refs:
+        return []
+    axes = payload.get("parameter_axes")
+    axis_parameters = {
+        axis.get("parameter_name")
+        for axis in axes
+        if isinstance(axis, dict)
+    } if isinstance(axes, list) else set()
+    errors: list[str] = []
+    for parameter_name in sorted(bound_refs - axis_parameters):
+        errors.append(
+            f"{path}: parent Strategy Spec parameter_ref {parameter_name!r} must be present "
+            "in parameter_axes before sweep planning"
         )
     return errors
 
@@ -908,6 +964,7 @@ def validate_variant_sweep_artifacts(
             errors.append(f"{path}: missing valid variant_manifest_id")
 
         errors.extend(_validate_parent_strategy_spec_hash(path, payload, strategy_specs_dir))
+        errors.extend(_validate_manifest_bound_parameter_axes(path, payload, strategy_specs_dir))
         errors.extend(_validate_manifest_hash(path, payload))
         errors.extend(_validate_manifest_amendment(path, payload))
         errors.extend(_validate_manifest_population(path, payload))

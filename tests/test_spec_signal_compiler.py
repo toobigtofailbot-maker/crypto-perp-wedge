@@ -3426,6 +3426,10 @@ def _primitive_condition(ref: str, field: str) -> dict:
     return _condition(_primitive_ref(ref, field), "is_true", _operand("constant", True))
 
 
+def _param_ref(name: str) -> dict:
+    return {"parameter_ref": name}
+
+
 def test_opening_range_breakout_waits_for_range_completion_and_close_threshold() -> None:
     ohlcv = _orb_ohlcv([100.0, 100.5, 101.0, 101.1, 100.8])
     spec = _spec(entry_groups=[_group("required", "all", [_primitive_condition("ORB-1", "long")])])
@@ -3488,6 +3492,141 @@ def test_max_trades_per_session_blocks_second_entry_and_resets_next_session() ->
     assert signal.iloc[2] == 1.0
     assert signal.iloc[4] == 0.0
     assert signal.iloc[26] == 1.0
+
+
+def test_max_trades_per_session_accepts_parameter_ref_binding() -> None:
+    closes = [100.0, 102.0, 103.0, 104.0]
+    ohlcv = _orb_ohlcv(closes)
+    spec = _spec(
+        entry_groups=[_group("required", "all", [_primitive_condition("ORB-1", "long")])],
+        max_holding_bars=1,
+        entry_controls={
+            "max_trades_per_session": {
+                "enabled": True,
+                "count_basis": "entries_filled",
+                "max_trades": _param_ref("max_session_trades"),
+                "session_ref": "UTC_DAILY_0000",
+                "reset": "session_start",
+            },
+        },
+    )
+    spec["online_ohlcv_primitives"] = _online_primitives()
+
+    capped = compile_signal(spec, _default_variant(max_session_trades=1), ohlcv)
+    uncapped = compile_signal(spec, _default_variant(max_session_trades=2), ohlcv)
+
+    assert capped.tolist() == [0.0, 1.0, 0.0, 0.0]
+    assert uncapped.tolist() == [0.0, 1.0, 1.0, 0.0]
+
+
+def test_online_primitive_thresholds_accept_parameter_ref_bindings() -> None:
+    ohlcv = _orb_ohlcv([100.0, 101.25, 102.0, 100.9])
+    primitives = _online_primitives(retest_max=3, tolerance_multiple=0.0)
+    primitives["opening_range_breakouts"][0]["tolerance"]["multiple"] = _param_ref("orb_atr_tolerance")
+    primitives["opening_range_retests"][0]["window"]["max_bars_after_breakout"] = _param_ref("retest_window")
+    primitives["opening_range_retests"][0]["tolerance"]["multiple"] = _param_ref("retest_atr_tolerance")
+    spec = _spec(entry_groups=[_group("required", "all", [_primitive_condition("RETEST-1", "long")])])
+    spec["online_ohlcv_primitives"] = primitives
+
+    permissive = compile_signal(
+        spec,
+        _default_variant(orb_atr_tolerance=0.0, retest_window=2, retest_atr_tolerance=0.2),
+        ohlcv,
+    )
+    strict = compile_signal(
+        spec,
+        _default_variant(orb_atr_tolerance=0.3, retest_window=1, retest_atr_tolerance=0.0),
+        ohlcv,
+    )
+
+    assert permissive.iloc[3] == 1.0
+    assert strict.tolist() == [0.0] * len(ohlcv)
+
+
+def test_candle_shape_thresholds_accept_parameter_ref_bindings() -> None:
+    index = pd.date_range("2026-01-01", periods=3, freq="h", tz="UTC")
+    ohlcv = pd.DataFrame(
+        {
+            "open": [100.0, 100.0, 100.0],
+            "high": [110.0, 110.0, 110.0],
+            "low": [100.0, 100.0, 100.0],
+            "close": [109.0, 105.0, 101.0],
+            "volume": [1000.0, 1000.0, 1000.0],
+        },
+        index=index,
+    )
+    primitives = _online_primitives()
+    shape = primitives["candle_shapes"][0]
+    shape["upper_wick_pct"]["value"] = _param_ref("wick_threshold")
+    shape["lower_wick_pct"]["value"] = _param_ref("wick_threshold")
+    shape["body_pct"]["value"] = _param_ref("body_threshold")
+    spec = _spec(entry_groups=[_group("required", "all", [_primitive_condition("NO-WICK", "long")])])
+    spec["online_ohlcv_primitives"] = primitives
+
+    loose = compile_signal(spec, _default_variant(wick_threshold=0.1, body_threshold=0.8), ohlcv)
+    strict = compile_signal(spec, _default_variant(wick_threshold=0.05, body_threshold=0.95), ohlcv)
+
+    assert loose.tolist() == [1.0, 1.0, 1.0]
+    assert strict.tolist() == [0.0, 0.0, 0.0]
+
+
+def test_exit_thresholds_accept_parameter_ref_bindings() -> None:
+    ohlcv = _atr_stop_long_ohlcv(close_at_fill_bar=100.0)
+    spec = _spec(entry_groups=[_group("required", "all", [_condition(_operand("data_ref", "close", "close"), "gt", _operand("constant", 0.0))])])
+    spec["exit_logic"]["atr_stop"] = _atr_stop(atr_multiplier=_param_ref("atr_stop_multiple"))
+    context = compiler._CompileContext(
+        strategy_spec=spec,
+        variant_assignment=_default_variant(atr_stop_multiple=1.75),
+        ohlcv=ohlcv,
+        catalog=compiler._load_default_catalog(),
+    )
+    atr_config = compiler._atr_stop_config(spec, context)
+
+    assert atr_config is not None
+    assert atr_config.atr_multiplier == 1.75
+
+    target_spec = _spec(entry_groups=[_group("required", "all", [_primitive_condition("ORB-1", "long")])])
+    target_spec["online_ohlcv_primitives"] = _online_primitives()
+    target_spec["exit_logic"]["opening_range_opposite_side"] = _opening_range_opposite_side()
+    target_spec["exit_logic"]["fixed_R_target"] = _fixed_r_target(r_multiple=_param_ref("target_r"))
+    target_context = compiler._CompileContext(
+        strategy_spec=target_spec,
+        variant_assignment=_default_variant(target_r=2.5),
+        ohlcv=_orb_ohlcv([100.0, 102.0, 104.0, 105.0]),
+        catalog=compiler._load_default_catalog(),
+    )
+    target_config = compiler._fixed_r_target_config(
+        target_spec,
+        compiler._opening_range_opposite_side_config(target_spec),
+        target_context,
+    )
+
+    assert target_config is not None
+    assert target_config.r_multiple == 2.5
+
+
+@pytest.mark.parametrize(
+    ("value", "parameter_values", "match"),
+    [
+        ({"parameter_ref": "missing"}, {}, "missing required parameter_ref"),
+        ({"parameter_ref": "wick_threshold", "expression": "x + 1"}, {"wick_threshold": 0.1}, "forbidden executable/protected key"),
+        ({"lambda": "x"}, {"wick_threshold": 0.1}, "forbidden executable/protected key"),
+        ({"parameter_ref": "wick_threshold"}, {"wick_threshold": "0.1"}, "must be numeric"),
+        ({"parameter_ref": "wick_threshold"}, {"wick_threshold": 2.0}, "must be in \\[0, 1\\]"),
+    ],
+)
+def test_parameter_bound_primitive_thresholds_reject_invalid_bindings(
+    value: dict,
+    parameter_values: dict,
+    match: str,
+) -> None:
+    primitives = _online_primitives()
+    primitives["candle_shapes"][0]["upper_wick_pct"]["value"] = value
+    spec = _spec(entry_groups=[_group("required", "all", [_primitive_condition("NO-WICK", "long")])])
+    spec["online_ohlcv_primitives"] = primitives
+
+    with pytest.raises(SpecSignalCompilerError, match=match):
+        compile_signal(spec, _default_variant(**parameter_values), _ohlcv())
 
 
 def test_session_window_blocks_bars_outside_aligned_grid() -> None:

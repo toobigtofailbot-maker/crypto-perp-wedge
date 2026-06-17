@@ -567,6 +567,14 @@
         "units": { "type": "string", "const": "bars" }
       }
     },
+    "parameter_value_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["parameter_ref"],
+      "properties": {
+        "parameter_ref": { "$ref": "#/definitions/non_empty_string" }
+      }
+    },
     "atr_multiple_tolerance": {
       "type": "object",
       "additionalProperties": false,
@@ -574,7 +582,12 @@
       "properties": {
         "mode": { "type": "string", "const": "atr_multiple" },
         "atr_lookback_bars": { "type": "integer", "minimum": 1, "maximum": 100000 },
-        "multiple": { "type": "number", "minimum": 0, "maximum": 1000 },
+        "multiple": {
+          "anyOf": [
+            { "type": "number", "minimum": 0, "maximum": 1000 },
+            { "$ref": "#/definitions/parameter_value_ref" }
+          ]
+        },
         "units": { "type": "string", "const": "ATR" }
       }
     },
@@ -674,8 +687,18 @@
           "additionalProperties": false,
           "required": ["min_bars_after_breakout", "max_bars_after_breakout"],
           "properties": {
-            "min_bars_after_breakout": { "type": "integer", "minimum": 1, "maximum": 100000 },
-            "max_bars_after_breakout": { "type": "integer", "minimum": 1, "maximum": 100000 }
+            "min_bars_after_breakout": {
+              "anyOf": [
+                { "type": "integer", "minimum": 1, "maximum": 100000 },
+                { "$ref": "#/definitions/parameter_value_ref" }
+              ]
+            },
+            "max_bars_after_breakout": {
+              "anyOf": [
+                { "type": "integer", "minimum": 1, "maximum": 100000 },
+                { "$ref": "#/definitions/parameter_value_ref" }
+              ]
+            }
           }
         },
         "touch_price_source": { "type": "string", "const": "close" },
@@ -693,7 +716,12 @@
       "required": ["operator", "value", "units"],
       "properties": {
         "operator": { "type": "string", "enum": ["lte", "gte"] },
-        "value": { "type": "number", "minimum": 0, "maximum": 1 },
+        "value": {
+          "anyOf": [
+            { "type": "number", "minimum": 0, "maximum": 1 },
+            { "$ref": "#/definitions/parameter_value_ref" }
+          ]
+        },
         "units": { "type": "string", "const": "fraction_of_range" }
       }
     },
@@ -956,7 +984,12 @@
           "properties": {
             "enabled": { "type": "boolean", "const": true },
             "count_basis": { "type": "string", "const": "entries_filled" },
-            "max_trades": { "type": "integer", "minimum": 1, "maximum": 100000 },
+            "max_trades": {
+              "anyOf": [
+                { "type": "integer", "minimum": 1, "maximum": 100000 },
+                { "$ref": "#/definitions/parameter_value_ref" }
+              ]
+            },
             "session_ref": { "$ref": "#/definitions/non_empty_string" },
             "reset": { "type": "string", "const": "session_start" }
           }
@@ -999,9 +1032,10 @@
           "maximum": 100000
         },
         "atr_multiplier": {
-          "type": "number",
-          "exclusiveMinimum": 0,
-          "maximum": 1000
+          "anyOf": [
+            { "type": "number", "exclusiveMinimum": 0, "maximum": 1000 },
+            { "$ref": "#/definitions/parameter_value_ref" }
+          ]
         },
         "entry_reference_price": {
           "type": "string",
@@ -1108,9 +1142,10 @@
       "properties": {
         "enabled": { "type": "boolean", "const": true },
         "r_multiple": {
-          "type": "number",
-          "exclusiveMinimum": 0,
-          "maximum": 1000
+          "anyOf": [
+            { "type": "number", "exclusiveMinimum": 0, "maximum": 1000 },
+            { "$ref": "#/definitions/parameter_value_ref" }
+          ]
         },
         "entry_reference_price": {
           "type": "string",

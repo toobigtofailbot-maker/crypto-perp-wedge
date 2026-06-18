@@ -3,7 +3,7 @@
 ## Branch / PR
 
 - Branch: `ext/vectorbt-sweep-comparator-pilot-01`
-- PR: not opened in this status fragment.
+- PR: `https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/508`
 
 ## Package Class
 
@@ -120,7 +120,9 @@ or as a runner replacement from this package.
 
 ## Merge Status
 
-Validation complete on branch. PR not opened yet in this fragment.
+Validation complete on branch. Draft PR #508 opened. GitHub connector reported
+`mergeable=false` immediately after creation; this may be transient, but it is
+not called ready-to-merge from this fragment.
 
 ## Next Dependency / Runway Note
 

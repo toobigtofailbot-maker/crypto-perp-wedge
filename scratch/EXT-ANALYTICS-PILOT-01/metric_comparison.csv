@@ -1,0 +1,7 @@
+metric_name,fixture_formula_value,external_value,delta,tolerance,status,notes
+cumulative_return,-1.0,,,1e-12,external_unavailable,
+max_drawdown,1.0,,,1e-12,external_unavailable,
+tail_ratio,0.9904383695637042,,,1e-12,external_unavailable,
+annualized_sharpe,,,,1e-12,unsupported,"Unsupported for this pilot fixture: committed Result Population rows expose per-variant metrics, not a chronological strategy return series. The pilot does not invent an annualization or period assumption for row-level fixture data."
+sortino,,,,1e-12,unsupported,"Unsupported for this pilot fixture: committed Result Population rows expose per-variant metrics, not a chronological strategy return series. The pilot does not invent an annualization or period assumption for row-level fixture data."
+calmar,,,,1e-12,unsupported,"Unsupported for this pilot fixture: committed Result Population rows expose per-variant metrics, not a chronological strategy return series. The pilot does not invent an annualization or period assumption for row-level fixture data."

@@ -1,0 +1,156 @@
+{
+  "determinism_hash": "sha256:afe22d9fbc2aa7889370f57b6268132c50a29d98cd0b73c194c0ddeb060cb6dd",
+  "engine": "vectorbt",
+  "labels": [
+    "NON-CANONICAL EXTERNAL SIDECAR OUTPUT",
+    "NOT A RESULT POPULATION",
+    "NOT STRATEGY AUTHORITY",
+    "NOT VM/SWEEP AUTHORITY",
+    "NOT CANDIDATE EVIDENCE",
+    "NOT PAPER/LIVE/RUNTIME AUTHORITY"
+  ],
+  "run_hash": "sha256:c92bd5a1448bf43155ba0e02379202ea9a39597492f22e27fdd7c25cd3045e9c",
+  "semantics": {
+    "execution_price": "bar open aligned to repo next-bar-open fill by shifting desired signal one bar",
+    "known_limitations": [
+      "vectorbt accounting is not the canonical repo backtester",
+      "zero-equity liquidation semantics are not modeled as repo-equivalent",
+      "funding cashflows are not modeled in this sidecar run",
+      "report is scratch comparator output only"
+    ],
+    "signal_source": "repo compiler output from tools.research_runner.spec_signal_compiler",
+    "sizing": "vectorbt size_type=percent size=1.0 approximate 1x dynamic equity exposure"
+  },
+  "variant_rows": [
+    {
+      "metrics": {
+        "drawdown": 0.7122088596486857,
+        "final_equity": 5703.464832133617,
+        "return_pct": -0.42965351678663827,
+        "sharpe": -0.01998278548061986,
+        "trade_count": 1274
+      },
+      "parameter_values": {
+        "fast_lookback_bars": 20,
+        "slow_lookback_bars": 100,
+        "trend_lookback_bars": 300
+      },
+      "signal_hash": "sha256:a6727939d0b11b74c8c57592de89f10a85755ceb274cb253a94265c08224bdf5",
+      "variant_id": "VAR-000001"
+    },
+    {
+      "metrics": {
+        "drawdown": 0.6287567514053404,
+        "final_equity": 11698.060761526125,
+        "return_pct": 0.1698060761526125,
+        "sharpe": 0.2666668993889724,
+        "trade_count": 1301
+      },
+      "parameter_values": {
+        "fast_lookback_bars": 20,
+        "slow_lookback_bars": 100,
+        "trend_lookback_bars": 400
+      },
+      "signal_hash": "sha256:dcd38c9b007874a5c0c7df8eded3315840dae4133f30e9eaed34277b5f56efce",
+      "variant_id": "VAR-000002"
+    },
+    {
+      "metrics": {
+        "drawdown": 0.6923569649839074,
+        "final_equity": 14834.644035546899,
+        "return_pct": 0.48346440355468984,
+        "sharpe": 0.3581293390955653,
+        "trade_count": 819
+      },
+      "parameter_values": {
+        "fast_lookback_bars": 20,
+        "slow_lookback_bars": 200,
+        "trend_lookback_bars": 300
+      },
+      "signal_hash": "sha256:9f40a86be80f430d0eecf6ed153d0b0b2ba75ce6cde8b7c87e4c38758a3b6cdd",
+      "variant_id": "VAR-000003"
+    },
+    {
+      "metrics": {
+        "drawdown": 0.5653069539695565,
+        "final_equity": 16440.04926963847,
+        "return_pct": 0.6440049269638471,
+        "sharpe": 0.39784871668079086,
+        "trade_count": 801
+      },
+      "parameter_values": {
+        "fast_lookback_bars": 20,
+        "slow_lookback_bars": 200,
+        "trend_lookback_bars": 400
+      },
+      "signal_hash": "sha256:92be2e2f25ed3ff3a6183f6f99ec77225122cc5bcd4ab4bb5bc708627e8b0ea8",
+      "variant_id": "VAR-000004"
+    },
+    {
+      "metrics": {
+        "drawdown": 0.6572388928223688,
+        "final_equity": 18107.913450250606,
+        "return_pct": 0.8107913450250606,
+        "sharpe": 0.43545109189135633,
+        "trade_count": 1026
+      },
+      "parameter_values": {
+        "fast_lookback_bars": 50,
+        "slow_lookback_bars": 100,
+        "trend_lookback_bars": 300
+      },
+      "signal_hash": "sha256:1d3f857a32dd8742e43cdb1a618da914f45e97d98562bf1bfbfac23bf28c1bc3",
+      "variant_id": "VAR-000005"
+    },
+    {
+      "metrics": {
+        "drawdown": 0.6142091869570009,
+        "final_equity": 19541.79924080049,
+        "return_pct": 0.954179924080049,
+        "sharpe": 0.4644132881102334,
+        "trade_count": 1043
+      },
+      "parameter_values": {
+        "fast_lookback_bars": 50,
+        "slow_lookback_bars": 100,
+        "trend_lookback_bars": 400
+      },
+      "signal_hash": "sha256:3d141aa2544dde3bd6577c57f558556a7ee8f90bfa5b2a0bd7615bd97d9cd5c8",
+      "variant_id": "VAR-000006"
+    },
+    {
+      "metrics": {
+        "drawdown": 0.675603886968185,
+        "final_equity": 8207.980093020435,
+        "return_pct": -0.17920199069795653,
+        "sharpe": 0.13423647627272225,
+        "trade_count": 602
+      },
+      "parameter_values": {
+        "fast_lookback_bars": 50,
+        "slow_lookback_bars": 200,
+        "trend_lookback_bars": 300
+      },
+      "signal_hash": "sha256:5415d1b70210e622fe306eb8f6291e857ed60c1fb9577dd9f7aa86d5478d6e7e",
+      "variant_id": "VAR-000007"
+    },
+    {
+      "metrics": {
+        "drawdown": 0.5701754175739372,
+        "final_equity": 9434.918466709238,
+        "return_pct": -0.05650815332907623,
+        "sharpe": 0.17976192303881272,
+        "trade_count": 578
+      },
+      "parameter_values": {
+        "fast_lookback_bars": 50,
+        "slow_lookback_bars": 200,
+        "trend_lookback_bars": 400
+      },
+      "signal_hash": "sha256:10bd4e219121fb182f346c92aa393d3895e41b4e7b985bad6b50139c8631b9c7",
+      "variant_id": "VAR-000008"
+    }
+  ],
+  "vectorbt_version": "1.0.0",
+  "wall_clock_seconds": 37.47685239999555
+}

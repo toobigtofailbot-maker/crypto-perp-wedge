@@ -1,0 +1,216 @@
+{
+  "determinism_match": true,
+  "determinism_run_1_hash": "sha256:afe22d9fbc2aa7889370f57b6268132c50a29d98cd0b73c194c0ddeb060cb6dd",
+  "determinism_run_2_hash": "sha256:afe22d9fbc2aa7889370f57b6268132c50a29d98cd0b73c194c0ddeb060cb6dd",
+  "explained_difference_variants": [
+    "VAR-000001",
+    "VAR-000002",
+    "VAR-000003",
+    "VAR-000004",
+    "VAR-000005",
+    "VAR-000006",
+    "VAR-000007",
+    "VAR-000008"
+  ],
+  "fixture": {
+    "data_slice_identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+    "rp_comparator_id": "RP-2592",
+    "strategy_spec_id": "STRAT-SPEC-0004",
+    "sweep_plan_id": "SWEEP-PLAN-0004",
+    "variant_manifest_id": "VM-0004"
+  },
+  "labels": [
+    "NON-CANONICAL EXTERNAL SIDECAR OUTPUT",
+    "NOT A RESULT POPULATION",
+    "NOT STRATEGY AUTHORITY",
+    "NOT VM/SWEEP AUTHORITY",
+    "NOT CANDIDATE EVIDENCE",
+    "NOT PAPER/LIVE/RUNTIME AUTHORITY"
+  ],
+  "matched_variants": [],
+  "package": "EXT-VECTORBT-SWEEP-COMPARATOR-PILOT-01",
+  "recommendation": "EXPLORATION_ONLY",
+  "recommendation_rationale": "vectorbt is deterministic and useful as an exploration-only sidecar, but this pilot does not establish repo-equivalent accounting or canonical evidence parity.",
+  "repo_runner_wall_clock_seconds": 222.9266459000064,
+  "speed_ratio_vectorbt_over_repo": 0.1681129335108992,
+  "unexplained_difference_variants": [],
+  "variant_comparisons": [
+    {
+      "equity_curve_match_status": "not_compared_not_exported_by_sidecar",
+      "explained_difference_notes": [
+        "vectorbt uses non-canonical portfolio accounting",
+        "vectorbt percent sizing is only an approximate analogue for repo dynamic_equity_target_leverage",
+        "zero-equity liquidation and repo funding accounting are not modeled as repo-equivalent"
+      ],
+      "final_return_delta": 9.209162017115302e-05,
+      "final_return_repo": -0.4297456084068094,
+      "final_return_vectorbt": -0.42965351678663827,
+      "max_drawdown_delta": -0.00012399980727384463,
+      "max_drawdown_repo": 0.7123328594559596,
+      "max_drawdown_vectorbt": 0.7122088596486857,
+      "sharpe_delta": -9.437933287172184e-05,
+      "sharpe_repo": -0.019888406147748137,
+      "sharpe_vectorbt": -0.01998278548061986,
+      "trade_count_delta": 1.0,
+      "trade_count_repo": 1273,
+      "trade_count_vectorbt": 1274,
+      "unexplained_difference_notes": [],
+      "variant_id": "VAR-000001"
+    },
+    {
+      "equity_curve_match_status": "not_compared_not_exported_by_sidecar",
+      "explained_difference_notes": [
+        "vectorbt uses non-canonical portfolio accounting",
+        "vectorbt percent sizing is only an approximate analogue for repo dynamic_equity_target_leverage",
+        "zero-equity liquidation and repo funding accounting are not modeled as repo-equivalent"
+      ],
+      "final_return_delta": -0.00011688714146129708,
+      "final_return_repo": 0.1699229632940738,
+      "final_return_vectorbt": 0.1698060761526125,
+      "max_drawdown_delta": -0.00016387756273616993,
+      "max_drawdown_repo": 0.6289206289680765,
+      "max_drawdown_vectorbt": 0.6287567514053404,
+      "sharpe_delta": -9.349727803592556e-05,
+      "sharpe_repo": 0.26676039666700835,
+      "sharpe_vectorbt": 0.2666668993889724,
+      "trade_count_delta": 1.0,
+      "trade_count_repo": 1300,
+      "trade_count_vectorbt": 1301,
+      "unexplained_difference_notes": [],
+      "variant_id": "VAR-000002"
+    },
+    {
+      "equity_curve_match_status": "not_compared_not_exported_by_sidecar",
+      "explained_difference_notes": [
+        "vectorbt uses non-canonical portfolio accounting",
+        "vectorbt percent sizing is only an approximate analogue for repo dynamic_equity_target_leverage",
+        "zero-equity liquidation and repo funding accounting are not modeled as repo-equivalent"
+      ],
+      "final_return_delta": -0.00022910668615716556,
+      "final_return_repo": 0.483693510240847,
+      "final_return_vectorbt": 0.48346440355468984,
+      "max_drawdown_delta": -0.00013198415699033905,
+      "max_drawdown_repo": 0.6924889491408978,
+      "max_drawdown_vectorbt": 0.6923569649839074,
+      "sharpe_delta": -7.970318996741721e-05,
+      "sharpe_repo": 0.35820904228553274,
+      "sharpe_vectorbt": 0.3581293390955653,
+      "trade_count_delta": 1.0,
+      "trade_count_repo": 818,
+      "trade_count_vectorbt": 819,
+      "unexplained_difference_notes": [],
+      "variant_id": "VAR-000003"
+    },
+    {
+      "equity_curve_match_status": "not_compared_not_exported_by_sidecar",
+      "explained_difference_notes": [
+        "vectorbt uses non-canonical portfolio accounting",
+        "vectorbt percent sizing is only an approximate analogue for repo dynamic_equity_target_leverage",
+        "zero-equity liquidation and repo funding accounting are not modeled as repo-equivalent"
+      ],
+      "final_return_delta": -0.00036721954653839983,
+      "final_return_repo": 0.6443721465103855,
+      "final_return_vectorbt": 0.6440049269638471,
+      "max_drawdown_delta": -0.00013696210845282053,
+      "max_drawdown_repo": 0.5654439160780094,
+      "max_drawdown_vectorbt": 0.5653069539695565,
+      "sharpe_delta": -9.107787807544065e-05,
+      "sharpe_repo": 0.3979397945588663,
+      "sharpe_vectorbt": 0.39784871668079086,
+      "trade_count_delta": 1.0,
+      "trade_count_repo": 800,
+      "trade_count_vectorbt": 801,
+      "unexplained_difference_notes": [],
+      "variant_id": "VAR-000004"
+    },
+    {
+      "equity_curve_match_status": "not_compared_not_exported_by_sidecar",
+      "explained_difference_notes": [
+        "vectorbt uses non-canonical portfolio accounting",
+        "vectorbt percent sizing is only an approximate analogue for repo dynamic_equity_target_leverage",
+        "zero-equity liquidation and repo funding accounting are not modeled as repo-equivalent"
+      ],
+      "final_return_delta": -0.0005303951758597325,
+      "final_return_repo": 0.8113217402009203,
+      "final_return_vectorbt": 0.8107913450250606,
+      "max_drawdown_delta": -0.00015300876696966448,
+      "max_drawdown_repo": 0.6573919015893385,
+      "max_drawdown_vectorbt": 0.6572388928223688,
+      "sharpe_delta": -0.00010377887057294588,
+      "sharpe_repo": 0.4355548707619293,
+      "sharpe_vectorbt": 0.43545109189135633,
+      "trade_count_delta": 1.0,
+      "trade_count_repo": 1025,
+      "trade_count_vectorbt": 1026,
+      "unexplained_difference_notes": [],
+      "variant_id": "VAR-000005"
+    },
+    {
+      "equity_curve_match_status": "not_compared_not_exported_by_sidecar",
+      "explained_difference_notes": [
+        "vectorbt uses non-canonical portfolio accounting",
+        "vectorbt percent sizing is only an approximate analogue for repo dynamic_equity_target_leverage",
+        "zero-equity liquidation and repo funding accounting are not modeled as repo-equivalent"
+      ],
+      "final_return_delta": -0.0005476804238186972,
+      "final_return_repo": 0.9547276045038677,
+      "final_return_vectorbt": 0.954179924080049,
+      "max_drawdown_delta": -0.0001549215749386823,
+      "max_drawdown_repo": 0.6143641085319396,
+      "max_drawdown_vectorbt": 0.6142091869570009,
+      "sharpe_delta": -8.86965720968691e-05,
+      "sharpe_repo": 0.4645019846823303,
+      "sharpe_vectorbt": 0.4644132881102334,
+      "trade_count_delta": 1.0,
+      "trade_count_repo": 1042,
+      "trade_count_vectorbt": 1043,
+      "unexplained_difference_notes": [],
+      "variant_id": "VAR-000006"
+    },
+    {
+      "equity_curve_match_status": "not_compared_not_exported_by_sidecar",
+      "explained_difference_notes": [
+        "vectorbt uses non-canonical portfolio accounting",
+        "vectorbt percent sizing is only an approximate analogue for repo dynamic_equity_target_leverage",
+        "zero-equity liquidation and repo funding accounting are not modeled as repo-equivalent"
+      ],
+      "final_return_delta": 8.409392288558082e-05,
+      "final_return_repo": -0.1792860846208421,
+      "final_return_vectorbt": -0.17920199069795653,
+      "max_drawdown_delta": -0.00015615427154669348,
+      "max_drawdown_repo": 0.6757600412397317,
+      "max_drawdown_vectorbt": 0.675603886968185,
+      "sharpe_delta": -6.933977384473988e-05,
+      "sharpe_repo": 0.134305816046567,
+      "sharpe_vectorbt": 0.13423647627272225,
+      "trade_count_delta": 1.0,
+      "trade_count_repo": 601,
+      "trade_count_vectorbt": 602,
+      "unexplained_difference_notes": [],
+      "variant_id": "VAR-000007"
+    },
+    {
+      "equity_curve_match_status": "not_compared_not_exported_by_sidecar",
+      "explained_difference_notes": [
+        "vectorbt uses non-canonical portfolio accounting",
+        "vectorbt percent sizing is only an approximate analogue for repo dynamic_equity_target_leverage",
+        "zero-equity liquidation and repo funding accounting are not modeled as repo-equivalent"
+      ],
+      "final_return_delta": -8.424212936189446e-06,
+      "final_return_repo": -0.05649972911614004,
+      "final_return_vectorbt": -0.05650815332907623,
+      "max_drawdown_delta": -0.00012626300933249457,
+      "max_drawdown_repo": 0.5703016805832697,
+      "max_drawdown_vectorbt": 0.5701754175739372,
+      "sharpe_delta": -8.861664425097171e-05,
+      "sharpe_repo": 0.1798505396830637,
+      "sharpe_vectorbt": 0.17976192303881272,
+      "trade_count_delta": 1.0,
+      "trade_count_repo": 577,
+      "trade_count_vectorbt": 578,
+      "unexplained_difference_notes": [],
+      "variant_id": "VAR-000008"
+    }
+  ],
+  "vectorbt_wall_clock_seconds": 37.47685239999555
+}

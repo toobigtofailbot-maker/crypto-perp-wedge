@@ -1,0 +1,488 @@
+{
+  "dry_run": true,
+  "engine": "repo_runner_dry_run",
+  "labels": [
+    "NON-CANONICAL EXTERNAL SIDECAR OUTPUT",
+    "NOT A RESULT POPULATION",
+    "NOT STRATEGY AUTHORITY",
+    "NOT VM/SWEEP AUTHORITY",
+    "NOT CANDIDATE EVIDENCE",
+    "NOT PAPER/LIVE/RUNTIME AUTHORITY"
+  ],
+  "outcome_category_counts": {
+    "aborted": 0,
+    "counts_sum": 8,
+    "counts_sum_equals_committed_denominator": true,
+    "data_unavailable": 0,
+    "errored": 0,
+    "excluded": 0,
+    "failed": 0,
+    "filtered": 0,
+    "invalid": 0,
+    "not_attempted": 0,
+    "successful": 8
+  },
+  "result_population_id": "RP-2592",
+  "result_population_identity_hash": "sha256:c146d7880687f363ab2fa258a3b205b63f6ce45ba88c7641d63636186656a0e7",
+  "run_hash": "sha256:74091a128fa7913e23cb7bc963139004fcb79a2ebb7a09823fcb5aa05947ca3a",
+  "variant_rows": [
+    {
+      "assignment_hash": "sha256:5402167463f87083c827f3b7469e6e4bc7edd189550858b5647912b23f174382",
+      "assignment_ref": null,
+      "attempted": true,
+      "backtest_assumption_ref": "backtest_assumption_summary",
+      "data_coverage": {
+        "counts_in_denominator": true,
+        "data_catalog_ref": "binance_usdtm_btcusdt_ohlcv_15m.offline_local.15m.20200101T000000Z.20260411T234500Z.sha256_3daace53d727599b",
+        "data_slice_identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+        "data_stream": "ohlcv",
+        "irreparable_gap": false,
+        "missing_data_policy": "block_if_missing",
+        "timeframe": "15m"
+      },
+      "error": {
+        "counts_in_denominator": true,
+        "error_category": null,
+        "error_message_class": null,
+        "is_infrastructure_error": null,
+        "is_strategy_underperformance": null
+      },
+      "lineage": {
+        "parent_manifest_id": "VM-0004",
+        "parent_sweep_plan_id": "SWEEP-PLAN-0004",
+        "parent_variant_assignment_hash": "sha256:5402167463f87083c827f3b7469e6e4bc7edd189550858b5647912b23f174382",
+        "parent_variant_assignment_ref": null,
+        "parent_variant_id": "VAR-000001"
+      },
+      "metrics": {
+        "drawdown": 0.7123328594559596,
+        "exposure": 1.0,
+        "fees": 7954.733742994211,
+        "funding": 0.0,
+        "pnl": -4297.456084068094,
+        "return_pct": -0.4297456084068094,
+        "sharpe": -0.019888406147748137,
+        "slippage": 1988.6834357485527,
+        "trade_count": 1273,
+        "win_rate": 0.3040062843676355
+      },
+      "non_success": {
+        "counts_in_denominator": true,
+        "declared_before_results": null,
+        "reason": null,
+        "rule_ref": null
+      },
+      "outcome_category": "successful",
+      "row_id": "RP-2592-ROW-000001",
+      "row_identity_hash": "sha256:ed50ae6368f1ffd231024f4f5bb5c4f41b39dc14bd866620717c709eaa0773cd",
+      "row_mutation_policy": {
+        "corrections_require_append_only_event": true,
+        "post_commit_in_place_mutation_forbidden": true,
+        "post_hoc_cleanup_forbidden": true,
+        "scientific_row_identity_immutable_after_commit": true
+      },
+      "variant_id": "VAR-000001"
+    },
+    {
+      "assignment_hash": "sha256:c68f09f8366c963782db0219d879bca02c71dd3eadcab45562db869beef84447",
+      "assignment_ref": null,
+      "attempted": true,
+      "backtest_assumption_ref": "backtest_assumption_summary",
+      "data_coverage": {
+        "counts_in_denominator": true,
+        "data_catalog_ref": "binance_usdtm_btcusdt_ohlcv_15m.offline_local.15m.20200101T000000Z.20260411T234500Z.sha256_3daace53d727599b",
+        "data_slice_identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+        "data_stream": "ohlcv",
+        "irreparable_gap": false,
+        "missing_data_policy": "block_if_missing",
+        "timeframe": "15m"
+      },
+      "error": {
+        "counts_in_denominator": true,
+        "error_category": null,
+        "error_message_class": null,
+        "is_infrastructure_error": null,
+        "is_strategy_underperformance": null
+      },
+      "lineage": {
+        "parent_manifest_id": "VM-0004",
+        "parent_sweep_plan_id": "SWEEP-PLAN-0004",
+        "parent_variant_assignment_hash": "sha256:c68f09f8366c963782db0219d879bca02c71dd3eadcab45562db869beef84447",
+        "parent_variant_assignment_ref": null,
+        "parent_variant_id": "VAR-000002"
+      },
+      "metrics": {
+        "drawdown": 0.6289206289680765,
+        "exposure": 1.0,
+        "fees": 14164.011949999416,
+        "funding": 0.0,
+        "pnl": 1699.2296329407382,
+        "return_pct": 0.1699229632940738,
+        "sharpe": 0.26676039666700835,
+        "slippage": 3541.002987499854,
+        "trade_count": 1300,
+        "win_rate": 0.30846153846153845
+      },
+      "non_success": {
+        "counts_in_denominator": true,
+        "declared_before_results": null,
+        "reason": null,
+        "rule_ref": null
+      },
+      "outcome_category": "successful",
+      "row_id": "RP-2592-ROW-000002",
+      "row_identity_hash": "sha256:3921785c6a5a45a2c9f88223431ce6327c6ba98d6fed2e3d5eb76c37deae9ef3",
+      "row_mutation_policy": {
+        "corrections_require_append_only_event": true,
+        "post_commit_in_place_mutation_forbidden": true,
+        "post_hoc_cleanup_forbidden": true,
+        "scientific_row_identity_immutable_after_commit": true
+      },
+      "variant_id": "VAR-000002"
+    },
+    {
+      "assignment_hash": "sha256:faf1e5fefac9094951bbda379d8d43cc6bbca8e106ee338c85e03df7f86dbc37",
+      "assignment_ref": null,
+      "attempted": true,
+      "backtest_assumption_ref": "backtest_assumption_summary",
+      "data_coverage": {
+        "counts_in_denominator": true,
+        "data_catalog_ref": "binance_usdtm_btcusdt_ohlcv_15m.offline_local.15m.20200101T000000Z.20260411T234500Z.sha256_3daace53d727599b",
+        "data_slice_identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+        "data_stream": "ohlcv",
+        "irreparable_gap": false,
+        "missing_data_policy": "block_if_missing",
+        "timeframe": "15m"
+      },
+      "error": {
+        "counts_in_denominator": true,
+        "error_category": null,
+        "error_message_class": null,
+        "is_infrastructure_error": null,
+        "is_strategy_underperformance": null
+      },
+      "lineage": {
+        "parent_manifest_id": "VM-0004",
+        "parent_sweep_plan_id": "SWEEP-PLAN-0004",
+        "parent_variant_assignment_hash": "sha256:faf1e5fefac9094951bbda379d8d43cc6bbca8e106ee338c85e03df7f86dbc37",
+        "parent_variant_assignment_ref": null,
+        "parent_variant_id": "VAR-000003"
+      },
+      "metrics": {
+        "drawdown": 0.6924889491408978,
+        "exposure": 1.0,
+        "fees": 14054.281097280875,
+        "funding": 0.0,
+        "pnl": 4836.93510240847,
+        "return_pct": 0.483693510240847,
+        "sharpe": 0.35820904228553274,
+        "slippage": 3513.5702743202187,
+        "trade_count": 818,
+        "win_rate": 0.2787286063569682
+      },
+      "non_success": {
+        "counts_in_denominator": true,
+        "declared_before_results": null,
+        "reason": null,
+        "rule_ref": null
+      },
+      "outcome_category": "successful",
+      "row_id": "RP-2592-ROW-000003",
+      "row_identity_hash": "sha256:23c6aa96ed12b34ff9fa0a078264d7337584d4d6f89719259d439b04778dca48",
+      "row_mutation_policy": {
+        "corrections_require_append_only_event": true,
+        "post_commit_in_place_mutation_forbidden": true,
+        "post_hoc_cleanup_forbidden": true,
+        "scientific_row_identity_immutable_after_commit": true
+      },
+      "variant_id": "VAR-000003"
+    },
+    {
+      "assignment_hash": "sha256:90828ca5f8f3e57484dc1edec97f2a5b481309d3f2bb2be2e3fe1430336a0585",
+      "assignment_ref": null,
+      "attempted": true,
+      "backtest_assumption_ref": "backtest_assumption_summary",
+      "data_coverage": {
+        "counts_in_denominator": true,
+        "data_catalog_ref": "binance_usdtm_btcusdt_ohlcv_15m.offline_local.15m.20200101T000000Z.20260411T234500Z.sha256_3daace53d727599b",
+        "data_slice_identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+        "data_stream": "ohlcv",
+        "irreparable_gap": false,
+        "missing_data_policy": "block_if_missing",
+        "timeframe": "15m"
+      },
+      "error": {
+        "counts_in_denominator": true,
+        "error_category": null,
+        "error_message_class": null,
+        "is_infrastructure_error": null,
+        "is_strategy_underperformance": null
+      },
+      "lineage": {
+        "parent_manifest_id": "VM-0004",
+        "parent_sweep_plan_id": "SWEEP-PLAN-0004",
+        "parent_variant_assignment_hash": "sha256:90828ca5f8f3e57484dc1edec97f2a5b481309d3f2bb2be2e3fe1430336a0585",
+        "parent_variant_assignment_ref": null,
+        "parent_variant_id": "VAR-000004"
+      },
+      "metrics": {
+        "drawdown": 0.5654439160780094,
+        "exposure": 1.0,
+        "fees": 13729.885992251733,
+        "funding": 0.0,
+        "pnl": 6443.721465103856,
+        "return_pct": 0.6443721465103855,
+        "sharpe": 0.3979397945588663,
+        "slippage": 3432.4714980629333,
+        "trade_count": 800,
+        "win_rate": 0.27
+      },
+      "non_success": {
+        "counts_in_denominator": true,
+        "declared_before_results": null,
+        "reason": null,
+        "rule_ref": null
+      },
+      "outcome_category": "successful",
+      "row_id": "RP-2592-ROW-000004",
+      "row_identity_hash": "sha256:b6c0e847ae2601570f93b48917a83a57d1899bebc5f8e01e5e0d0ffc78631bfa",
+      "row_mutation_policy": {
+        "corrections_require_append_only_event": true,
+        "post_commit_in_place_mutation_forbidden": true,
+        "post_hoc_cleanup_forbidden": true,
+        "scientific_row_identity_immutable_after_commit": true
+      },
+      "variant_id": "VAR-000004"
+    },
+    {
+      "assignment_hash": "sha256:57a8b79b6abe58b5a359bf010a8d5850b46cf774d9716cd3ef8cf17f184de6bf",
+      "assignment_ref": null,
+      "attempted": true,
+      "backtest_assumption_ref": "backtest_assumption_summary",
+      "data_coverage": {
+        "counts_in_denominator": true,
+        "data_catalog_ref": "binance_usdtm_btcusdt_ohlcv_15m.offline_local.15m.20200101T000000Z.20260411T234500Z.sha256_3daace53d727599b",
+        "data_slice_identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+        "data_stream": "ohlcv",
+        "irreparable_gap": false,
+        "missing_data_policy": "block_if_missing",
+        "timeframe": "15m"
+      },
+      "error": {
+        "counts_in_denominator": true,
+        "error_category": null,
+        "error_message_class": null,
+        "is_infrastructure_error": null,
+        "is_strategy_underperformance": null
+      },
+      "lineage": {
+        "parent_manifest_id": "VM-0004",
+        "parent_sweep_plan_id": "SWEEP-PLAN-0004",
+        "parent_variant_assignment_hash": "sha256:57a8b79b6abe58b5a359bf010a8d5850b46cf774d9716cd3ef8cf17f184de6bf",
+        "parent_variant_assignment_ref": null,
+        "parent_variant_id": "VAR-000005"
+      },
+      "metrics": {
+        "drawdown": 0.6573919015893385,
+        "exposure": 1.0,
+        "fees": 12900.229351921926,
+        "funding": 0.0,
+        "pnl": 8113.2174020092025,
+        "return_pct": 0.8113217402009203,
+        "sharpe": 0.4355548707619293,
+        "slippage": 3225.0573379804814,
+        "trade_count": 1025,
+        "win_rate": 0.3336585365853659
+      },
+      "non_success": {
+        "counts_in_denominator": true,
+        "declared_before_results": null,
+        "reason": null,
+        "rule_ref": null
+      },
+      "outcome_category": "successful",
+      "row_id": "RP-2592-ROW-000005",
+      "row_identity_hash": "sha256:4911f61c2d0a2e2831107335c5eacf3eeb8aed75513845cbefc019e6a4b1612b",
+      "row_mutation_policy": {
+        "corrections_require_append_only_event": true,
+        "post_commit_in_place_mutation_forbidden": true,
+        "post_hoc_cleanup_forbidden": true,
+        "scientific_row_identity_immutable_after_commit": true
+      },
+      "variant_id": "VAR-000005"
+    },
+    {
+      "assignment_hash": "sha256:b1bdeda177a32c8c6d7e80ab06dcd6a6d3339738cd8707bc30ad74760f667f9a",
+      "assignment_ref": null,
+      "attempted": true,
+      "backtest_assumption_ref": "backtest_assumption_summary",
+      "data_coverage": {
+        "counts_in_denominator": true,
+        "data_catalog_ref": "binance_usdtm_btcusdt_ohlcv_15m.offline_local.15m.20200101T000000Z.20260411T234500Z.sha256_3daace53d727599b",
+        "data_slice_identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+        "data_stream": "ohlcv",
+        "irreparable_gap": false,
+        "missing_data_policy": "block_if_missing",
+        "timeframe": "15m"
+      },
+      "error": {
+        "counts_in_denominator": true,
+        "error_category": null,
+        "error_message_class": null,
+        "is_infrastructure_error": null,
+        "is_strategy_underperformance": null
+      },
+      "lineage": {
+        "parent_manifest_id": "VM-0004",
+        "parent_sweep_plan_id": "SWEEP-PLAN-0004",
+        "parent_variant_assignment_hash": "sha256:b1bdeda177a32c8c6d7e80ab06dcd6a6d3339738cd8707bc30ad74760f667f9a",
+        "parent_variant_assignment_ref": null,
+        "parent_variant_id": "VAR-000006"
+      },
+      "metrics": {
+        "drawdown": 0.6143641085319396,
+        "exposure": 1.0,
+        "fees": 16776.409937273624,
+        "funding": 0.0,
+        "pnl": 9547.276045038678,
+        "return_pct": 0.9547276045038677,
+        "sharpe": 0.4645019846823303,
+        "slippage": 4194.102484318406,
+        "trade_count": 1042,
+        "win_rate": 0.3272552783109405
+      },
+      "non_success": {
+        "counts_in_denominator": true,
+        "declared_before_results": null,
+        "reason": null,
+        "rule_ref": null
+      },
+      "outcome_category": "successful",
+      "row_id": "RP-2592-ROW-000006",
+      "row_identity_hash": "sha256:e1ef7086723f68b7158a1d756566b4cf1976b0ca33856fd1a4f3316d66151607",
+      "row_mutation_policy": {
+        "corrections_require_append_only_event": true,
+        "post_commit_in_place_mutation_forbidden": true,
+        "post_hoc_cleanup_forbidden": true,
+        "scientific_row_identity_immutable_after_commit": true
+      },
+      "variant_id": "VAR-000006"
+    },
+    {
+      "assignment_hash": "sha256:35c0abe12f9917842e40e194c6a30a20977d09ecf7cf6f3842cd003aa741474f",
+      "assignment_ref": null,
+      "attempted": true,
+      "backtest_assumption_ref": "backtest_assumption_summary",
+      "data_coverage": {
+        "counts_in_denominator": true,
+        "data_catalog_ref": "binance_usdtm_btcusdt_ohlcv_15m.offline_local.15m.20200101T000000Z.20260411T234500Z.sha256_3daace53d727599b",
+        "data_slice_identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+        "data_stream": "ohlcv",
+        "irreparable_gap": false,
+        "missing_data_policy": "block_if_missing",
+        "timeframe": "15m"
+      },
+      "error": {
+        "counts_in_denominator": true,
+        "error_category": null,
+        "error_message_class": null,
+        "is_infrastructure_error": null,
+        "is_strategy_underperformance": null
+      },
+      "lineage": {
+        "parent_manifest_id": "VM-0004",
+        "parent_sweep_plan_id": "SWEEP-PLAN-0004",
+        "parent_variant_assignment_hash": "sha256:35c0abe12f9917842e40e194c6a30a20977d09ecf7cf6f3842cd003aa741474f",
+        "parent_variant_assignment_ref": null,
+        "parent_variant_id": "VAR-000007"
+      },
+      "metrics": {
+        "drawdown": 0.6757600412397317,
+        "exposure": 1.0,
+        "fees": 5604.614571128319,
+        "funding": 0.0,
+        "pnl": -1792.8608462084212,
+        "return_pct": -0.1792860846208421,
+        "sharpe": 0.134305816046567,
+        "slippage": 1401.1536427820797,
+        "trade_count": 601,
+        "win_rate": 0.34775374376039936
+      },
+      "non_success": {
+        "counts_in_denominator": true,
+        "declared_before_results": null,
+        "reason": null,
+        "rule_ref": null
+      },
+      "outcome_category": "successful",
+      "row_id": "RP-2592-ROW-000007",
+      "row_identity_hash": "sha256:236e97a288ab403afe63c6bd8f0bd949d6853714da06379a914bf70073b11752",
+      "row_mutation_policy": {
+        "corrections_require_append_only_event": true,
+        "post_commit_in_place_mutation_forbidden": true,
+        "post_hoc_cleanup_forbidden": true,
+        "scientific_row_identity_immutable_after_commit": true
+      },
+      "variant_id": "VAR-000007"
+    },
+    {
+      "assignment_hash": "sha256:cb7069ef4dec6cf04e4d2c3a402570ef7e82cc362ac86ef4f00b359513add895",
+      "assignment_ref": null,
+      "attempted": true,
+      "backtest_assumption_ref": "backtest_assumption_summary",
+      "data_coverage": {
+        "counts_in_denominator": true,
+        "data_catalog_ref": "binance_usdtm_btcusdt_ohlcv_15m.offline_local.15m.20200101T000000Z.20260411T234500Z.sha256_3daace53d727599b",
+        "data_slice_identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+        "data_stream": "ohlcv",
+        "irreparable_gap": false,
+        "missing_data_policy": "block_if_missing",
+        "timeframe": "15m"
+      },
+      "error": {
+        "counts_in_denominator": true,
+        "error_category": null,
+        "error_message_class": null,
+        "is_infrastructure_error": null,
+        "is_strategy_underperformance": null
+      },
+      "lineage": {
+        "parent_manifest_id": "VM-0004",
+        "parent_sweep_plan_id": "SWEEP-PLAN-0004",
+        "parent_variant_assignment_hash": "sha256:cb7069ef4dec6cf04e4d2c3a402570ef7e82cc362ac86ef4f00b359513add895",
+        "parent_variant_assignment_ref": null,
+        "parent_variant_id": "VAR-000008"
+      },
+      "metrics": {
+        "drawdown": 0.5703016805832697,
+        "exposure": 1.0,
+        "fees": 6075.479578941226,
+        "funding": 0.0,
+        "pnl": -564.9972911614004,
+        "return_pct": -0.05649972911614004,
+        "sharpe": 0.1798505396830637,
+        "slippage": 1518.8698947353064,
+        "trade_count": 577,
+        "win_rate": 0.35008665511265163
+      },
+      "non_success": {
+        "counts_in_denominator": true,
+        "declared_before_results": null,
+        "reason": null,
+        "rule_ref": null
+      },
+      "outcome_category": "successful",
+      "row_id": "RP-2592-ROW-000008",
+      "row_identity_hash": "sha256:0c5c7e6b18c004278025596bf98ef724192b3a80aa81eb90e108a3b4768583ed",
+      "row_mutation_policy": {
+        "corrections_require_append_only_event": true,
+        "post_commit_in_place_mutation_forbidden": true,
+        "post_hoc_cleanup_forbidden": true,
+        "scientific_row_identity_immutable_after_commit": true
+      },
+      "variant_id": "VAR-000008"
+    }
+  ],
+  "wall_clock_seconds": 222.9266459000064,
+  "wrote": false
+}

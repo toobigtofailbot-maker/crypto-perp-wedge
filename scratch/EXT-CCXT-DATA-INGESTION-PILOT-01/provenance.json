@@ -1,0 +1,132 @@
+{
+  "ccxt_exchange_id": "binanceusdm",
+  "ccxt_public_method_allowlist": [
+    "fapiPublicGetFundingRate"
+  ],
+  "ccxt_version": "4.5.59",
+  "credentials_used": false,
+  "data_type": "funding_rate",
+  "exchange": "binance",
+  "fetch_timestamp_utc": "2026-06-18T23:14:36.452897Z",
+  "labels": [
+    "NON-CANONICAL EXTERNAL PUBLIC-DATA PILOT OUTPUT",
+    "NOT A RESULT POPULATION",
+    "NOT STRATEGY / VM / SWEEP AUTHORITY",
+    "NOT BACKTEST COST-MODEL AUTHORITY",
+    "NOT PAPER / LIVE / RUNTIME AUTHORITY",
+    "FUNDING-INTO-BACKTEST REQUIRES A SEPARATE GATED WP"
+  ],
+  "market_type": "USDT-M perpetual",
+  "output_files": {
+    "checksum_file": "sha256:958eafc601e40a523cfb92238a2cf35f09b06ad838f46322eb75da72636f49bf",
+    "normalized_snapshot": "sha256:58cab557e1a35d7832dc8d23424a5c3969706d516de9a9d3c2ed786b224c4666",
+    "raw_snapshot": "sha256:40fec43d3b43bc0124fb4610f9220798b76d235b8b7b548bc8b3387765482d05"
+  },
+  "package": "EXT-CCXT-DATA-INGESTION-PILOT-01",
+  "pagination": [
+    {
+      "first_funding_time_utc": "2020-01-01T00:00:00Z",
+      "last_funding_time_utc": "2020-11-29T00:00:00.007000Z",
+      "page_index": 0,
+      "request": {
+        "endTime": 1775951100000,
+        "limit": 1000,
+        "startTime": 1577836800000,
+        "symbol": "BTCUSDT"
+      },
+      "row_count": 1000
+    },
+    {
+      "first_funding_time_utc": "2020-11-29T08:00:00Z",
+      "last_funding_time_utc": "2021-10-28T08:00:00Z",
+      "page_index": 1,
+      "request": {
+        "endTime": 1775951100000,
+        "limit": 1000,
+        "startTime": 1606608000008,
+        "symbol": "BTCUSDT"
+      },
+      "row_count": 1000
+    },
+    {
+      "first_funding_time_utc": "2021-10-28T16:00:00.005000Z",
+      "last_funding_time_utc": "2022-09-26T16:00:00Z",
+      "page_index": 2,
+      "request": {
+        "endTime": 1775951100000,
+        "limit": 1000,
+        "startTime": 1635408000001,
+        "symbol": "BTCUSDT"
+      },
+      "row_count": 1000
+    },
+    {
+      "first_funding_time_utc": "2022-09-27T00:00:00.026000Z",
+      "last_funding_time_utc": "2023-08-26T00:00:00Z",
+      "page_index": 3,
+      "request": {
+        "endTime": 1775951100000,
+        "limit": 1000,
+        "startTime": 1664208000001,
+        "symbol": "BTCUSDT"
+      },
+      "row_count": 1000
+    },
+    {
+      "first_funding_time_utc": "2023-08-26T08:00:00Z",
+      "last_funding_time_utc": "2024-07-24T08:00:00Z",
+      "page_index": 4,
+      "request": {
+        "endTime": 1775951100000,
+        "limit": 1000,
+        "startTime": 1693008000001,
+        "symbol": "BTCUSDT"
+      },
+      "row_count": 1000
+    },
+    {
+      "first_funding_time_utc": "2024-07-24T16:00:00Z",
+      "last_funding_time_utc": "2025-06-22T16:00:00.003000Z",
+      "page_index": 5,
+      "request": {
+        "endTime": 1775951100000,
+        "limit": 1000,
+        "startTime": 1721808000001,
+        "symbol": "BTCUSDT"
+      },
+      "row_count": 1000
+    },
+    {
+      "first_funding_time_utc": "2025-06-23T00:00:00Z",
+      "last_funding_time_utc": "2026-04-11T16:00:00.003000Z",
+      "page_index": 6,
+      "request": {
+        "endTime": 1775951100000,
+        "limit": 1000,
+        "startTime": 1750608000004,
+        "symbol": "BTCUSDT"
+      },
+      "row_count": 879
+    },
+    {
+      "first_funding_time_utc": null,
+      "last_funding_time_utc": null,
+      "page_index": 7,
+      "request": {
+        "endTime": 1775951100000,
+        "limit": 1000,
+        "startTime": 1775923200004,
+        "symbol": "BTCUSDT"
+      },
+      "row_count": 0
+    }
+  ],
+  "private_or_account_methods_used": false,
+  "runtime_paper_live_contact": false,
+  "source_method": "ccxt.binanceusdm.fapiPublicGetFundingRate",
+  "symbol": "BTCUSDT",
+  "target_window": {
+    "end_utc": "2026-04-11T23:45:00Z",
+    "start_utc": "2020-01-01T00:00:00Z"
+  }
+}

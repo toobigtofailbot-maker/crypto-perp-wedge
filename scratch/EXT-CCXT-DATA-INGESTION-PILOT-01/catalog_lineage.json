@@ -1,0 +1,41 @@
+{
+  "backtest_cost_model_authority": false,
+  "canonical_data_authority": false,
+  "catalog_status": "non_canonical_external_public_data_pilot",
+  "ccxt_exchange_id": "binanceusdm",
+  "ccxt_version": "4.5.59",
+  "checksum": "sha256:58cab557e1a35d7832dc8d23424a5c3969706d516de9a9d3c2ed786b224c4666",
+  "data_type": "funding_rate",
+  "dataset_name": "ccxt_public_binance_usdtm_btcusdt_funding_rate_8h_pilot",
+  "duplicate_timestamps": {
+    "duplicate_group_count": 0,
+    "duplicate_timestamps_utc": []
+  },
+  "exchange": "Binance",
+  "labels": [
+    "NON-CANONICAL EXTERNAL PUBLIC-DATA PILOT OUTPUT",
+    "NOT A RESULT POPULATION",
+    "NOT STRATEGY / VM / SWEEP AUTHORITY",
+    "NOT BACKTEST COST-MODEL AUTHORITY",
+    "NOT PAPER / LIVE / RUNTIME AUTHORITY",
+    "FUNDING-INTO-BACKTEST REQUIRES A SEPARATE GATED WP"
+  ],
+  "market_type": "USDT-M perpetual",
+  "missing_intervals": {
+    "gap_count": 0,
+    "gaps": [],
+    "missing_event_count": 0
+  },
+  "normalized_snapshot_path": "C:\\GitHub\\crypto-perp-wedge\\scratch\\EXT-CCXT-DATA-INGESTION-PILOT-01\\funding_snapshot.normalized.jsonl",
+  "observed_end_utc": "2026-04-11T16:00:00Z",
+  "observed_start_utc": "2020-01-01T00:00:00Z",
+  "pilot_package_id": "EXT-CCXT-DATA-INGESTION-PILOT-01",
+  "provenance_path": "C:\\GitHub\\crypto-perp-wedge\\scratch\\EXT-CCXT-DATA-INGESTION-PILOT-01\\provenance.json",
+  "row_count": 6879,
+  "runtime_authority": false,
+  "source_method": "ccxt.binanceusdm.fapiPublicGetFundingRate",
+  "symbol": "BTCUSDT",
+  "timeframe": "8h funding events",
+  "window_end_utc": "2026-04-11T23:45:00Z",
+  "window_start_utc": "2020-01-01T00:00:00Z"
+}

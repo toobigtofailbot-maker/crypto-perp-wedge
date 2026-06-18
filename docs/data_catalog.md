@@ -302,3 +302,21 @@
 - SHA256: 5cd7f1150ab34ed6b41dbe759165ea7750a0036a900809fefd4b389931079f4b
 - Storage path: data/processed/binance_um_perp_BTCUSDT_premium_index_1d_2019-12-24_2026-04-11_2026-04-13T0226Z.parquet
 - Known irreparable gaps: 0 bar(s), largest window 0 bar(s); see data/irreparable_gaps.json
+
+## Dataset: BTCUSDT funding rates CCXT public-data pilot (Binance USDT-M Perp) - JSONL
+- Source: CCXT `binanceusdm` public REST method `fapiPublicGetFundingRate`
+- Symbol/Contract: BTCUSDT (USDT-M Perpetual)
+- Data type: funding_rate
+- Timeframe: 8h funding events
+- Range (target): 2020-01-01T00:00:00Z / 2026-04-11T23:45:00Z
+- Range (observed): 2020-01-01T00:00:00Z / 2026-04-11T16:00:00Z
+- Created (UTC): 2026-06-18
+- SHA256: sha256:58cab557e1a35d7832dc8d23424a5c3969706d516de9a9d3c2ed786b224c4666
+- Storage path: scratch/EXT-CCXT-DATA-INGESTION-PILOT-01/funding_snapshot.normalized.jsonl
+- Raw snapshot path: scratch/EXT-CCXT-DATA-INGESTION-PILOT-01/funding_snapshot.raw.jsonl
+- Provenance path: scratch/EXT-CCXT-DATA-INGESTION-PILOT-01/provenance.json
+- Validation path: scratch/EXT-CCXT-DATA-INGESTION-PILOT-01/validation_report.json
+- Catalog lineage path: scratch/EXT-CCXT-DATA-INGESTION-PILOT-01/catalog_lineage.json
+- Row count: 6879
+- Validation summary: PASS; zero missing 8h events, zero duplicate timestamps, zero outside-window rows; exact exchange timestamps are preserved in `exchange_funding_time_*`, while nominal 8h event timestamps are stored in `funding_time_*`.
+- Authority: NON-CANONICAL EXTERNAL PUBLIC-DATA PILOT OUTPUT; not a Result Population, Strategy Spec, Variant Manifest, Sweep Plan, backtest cost-model input, paper/live/runtime input, or canonical trading evidence.

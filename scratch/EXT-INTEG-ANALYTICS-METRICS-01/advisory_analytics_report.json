@@ -1,0 +1,119 @@
+{
+  "cross_sectional_variant_summary": {
+    "basis": "successful attempted Result Population rows; aggregate variants, not periods",
+    "drawdown": {
+      "available_row_count": 8,
+      "maximum": 0.9978576249633361,
+      "mean": 0.9928150959564543,
+      "minimum": 0.9866499456631055
+    },
+    "return_pct": {
+      "available_row_count": 8,
+      "maximum": -0.9860418641538062,
+      "mean": -0.9924409016729479,
+      "mean_negative_row_return": -0.9924409016729479,
+      "minimum": -0.9977200963702111,
+      "negative_row_count": 8,
+      "negative_row_frequency": 1.0
+    },
+    "row_count": 8
+  },
+  "decision_label": "FORMULA_ADAPT_REPO_NATIVE",
+  "fixture": {
+    "data_slice_identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+    "path": "research/result_populations/RP-7134.result_population.json",
+    "result_population_id": "RP-7134",
+    "sha256": "sha256:9813afd65c946ceaac23804fd485b4452d2451bec31a726eb86667926741e524",
+    "strategy_spec_id": "STRAT-SPEC-0003",
+    "successful_attempted_rows": 8,
+    "sweep_plan_id": "SWEEP-PLAN-0003",
+    "timeframe": "15m",
+    "variant_manifest_id": "VM-0003"
+  },
+  "formula_surface": {
+    "module": "tools.analytics.advisory_metrics",
+    "requires_real_chronological_input": true,
+    "supported": [
+      "equity_and_return_normalization",
+      "maximum_drawdown_and_episode_decomposition",
+      "underwater_curve",
+      "rolling_return_volatility_drawdown",
+      "calmar_style",
+      "worst_period_and_downside_tail_summary"
+    ]
+  },
+  "input_classification": {
+    "aggregate_variant_metrics_available": true,
+    "chronological_equity_available": false,
+    "chronological_returns_available": false,
+    "periods_per_year_available": false
+  },
+  "labels": [
+    "ADVISORY ANALYTICS OUTPUT",
+    "NOT A SCREEN GATE",
+    "NOT CANDIDATE READINESS",
+    "NOT PROMOTION AUTHORITY",
+    "NOT RUNTIME/PAPER/LIVE AUTHORITY"
+  ],
+  "package_id": "EXT-INTEG-ANALYTICS-METRICS-01",
+  "path_metrics": {
+    "calmar_style": {
+      "available": false,
+      "reason": "The committed Result Population exposes aggregate per-variant metrics, not a chronological equity or return series. No variant ordering, return path, period frequency, rolling window, or annualization assumption is invented.",
+      "value": null
+    },
+    "drawdown_episodes": {
+      "available": false,
+      "reason": "The committed Result Population exposes aggregate per-variant metrics, not a chronological equity or return series. No variant ordering, return path, period frequency, rolling window, or annualization assumption is invented.",
+      "value": null
+    },
+    "max_drawdown": {
+      "available": false,
+      "reason": "The committed Result Population exposes aggregate per-variant metrics, not a chronological equity or return series. No variant ordering, return path, period frequency, rolling window, or annualization assumption is invented.",
+      "value": null
+    },
+    "period_downside_summary": {
+      "available": false,
+      "reason": "The committed Result Population exposes aggregate per-variant metrics, not a chronological equity or return series. No variant ordering, return path, period frequency, rolling window, or annualization assumption is invented.",
+      "value": null
+    },
+    "rolling_drawdown": {
+      "available": false,
+      "reason": "The committed Result Population exposes aggregate per-variant metrics, not a chronological equity or return series. No variant ordering, return path, period frequency, rolling window, or annualization assumption is invented.",
+      "value": null
+    },
+    "rolling_return": {
+      "available": false,
+      "reason": "The committed Result Population exposes aggregate per-variant metrics, not a chronological equity or return series. No variant ordering, return path, period frequency, rolling window, or annualization assumption is invented.",
+      "value": null
+    },
+    "rolling_volatility": {
+      "available": false,
+      "reason": "The committed Result Population exposes aggregate per-variant metrics, not a chronological equity or return series. No variant ordering, return path, period frequency, rolling window, or annualization assumption is invented.",
+      "value": null
+    },
+    "total_return": {
+      "available": false,
+      "reason": "The committed Result Population exposes aggregate per-variant metrics, not a chronological equity or return series. No variant ordering, return path, period frequency, rolling window, or annualization assumption is invented.",
+      "value": null
+    },
+    "underwater_curve": {
+      "available": false,
+      "reason": "The committed Result Population exposes aggregate per-variant metrics, not a chronological equity or return series. No variant ordering, return path, period frequency, rolling window, or annualization assumption is invented.",
+      "value": null
+    },
+    "worst_period": {
+      "available": false,
+      "reason": "The committed Result Population exposes aggregate per-variant metrics, not a chronological equity or return series. No variant ordering, return path, period frequency, rolling window, or annualization assumption is invented.",
+      "value": null
+    }
+  },
+  "provenance": {
+    "canonical_write": false,
+    "external_dependency_required": false,
+    "network_required": false,
+    "report_scope": "advisory_only",
+    "source_type": "committed_result_population_fixture"
+  },
+  "report_checksum": "sha256:be9fcf133397aeb141178445e713e359da1d37d0945cceeb23faefcb3cee48f7"
+}

@@ -1,0 +1,89 @@
+{
+  "package_id": "EXT-INTEG-WORKFLOW-GEN-01",
+  "materialization_kind": "repo_native_vm_sweep_parameter_space_v1",
+  "source_strategy_spec_ref": "research/strategy_specs/STRAT-SPEC-0003.strategy_spec.json",
+  "generated_strategy_spec_id": "STRAT-SPEC-9101",
+  "generated_variant_manifest_id": "VM-9101",
+  "generated_sweep_plan_id": "SWEEP-PLAN-9101",
+  "search_family_id": "SF-EXT-INTEG-WORKFLOW-GEN-9101",
+  "created_at": "2026-06-19T00:00:00Z",
+  "axis_order": [
+    "center_lookback_bars",
+    "vol_lookback_bars",
+    "trend_lookback_bars"
+  ],
+  "parameters": [
+    {
+      "name": "center_lookback_bars",
+      "type": "integer",
+      "units": "bars",
+      "values": [
+        50,
+        60,
+        70,
+        80,
+        90,
+        100
+      ],
+      "description": "SMA centerline lookback draft grid.",
+      "rationale": "Dense authoring demo within the source Strategy Spec's declared bounds.",
+      "bounds": {
+        "min": 50,
+        "max": 100,
+        "inclusive_min": true,
+        "inclusive_max": true
+      }
+    },
+    {
+      "name": "vol_lookback_bars",
+      "type": "integer",
+      "units": "bars",
+      "values": [
+        30,
+        35,
+        40,
+        45,
+        50
+      ],
+      "description": "STDDEV scale lookback draft grid.",
+      "rationale": "Dense authoring demo within the source Strategy Spec's declared bounds.",
+      "bounds": {
+        "min": 30,
+        "max": 50,
+        "inclusive_min": true,
+        "inclusive_max": true
+      }
+    },
+    {
+      "name": "trend_lookback_bars",
+      "type": "integer",
+      "units": "bars",
+      "values": [
+        100,
+        125,
+        150,
+        175,
+        200
+      ],
+      "description": "Trend SMA lookback draft grid.",
+      "rationale": "Dense authoring demo within the source Strategy Spec's declared bounds.",
+      "bounds": {
+        "min": 100,
+        "max": 200,
+        "inclusive_min": true,
+        "inclusive_max": true
+      }
+    }
+  ],
+  "authority": {
+    "scratch_only": true,
+    "canonical_preregistration": false,
+    "canonical_strategy_spec_mutation": false,
+    "canonical_variant_manifest_mutation": false,
+    "canonical_sweep_plan_mutation": false,
+    "candidate_evidence_authority": false,
+    "screen_gate_authority": false,
+    "promotion_readiness_authority": false,
+    "runtime_authority": false
+  }
+}

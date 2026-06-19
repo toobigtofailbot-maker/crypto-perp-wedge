@@ -1,0 +1,81 @@
+{
+  "labels": [
+    "DRAFT WORKFLOW OUTPUT",
+    "NOT CANONICAL PREREGISTRATION",
+    "NOT CANDIDATE EVIDENCE",
+    "NOT SCREEN-GATE OR PROMOTION AUTHORITY",
+    "VALIDATED ONLY AGAINST STRUCTURAL REPO VALIDATORS",
+    "NOT PAPER / LIVE / RUNTIME AUTHORITY"
+  ],
+  "package_id": "EXT-INTEG-WORKFLOW-GEN-01",
+  "tool_identity": "tools.research_workflow.draft_grid_generator",
+  "materialization_kind": "repo_native_vm_sweep_parameter_space_v1",
+  "source_strategy_spec_ref": "research/strategy_specs/STRAT-SPEC-0003.strategy_spec.json",
+  "generated_strategy_spec_id": "STRAT-SPEC-9101",
+  "generated_variant_manifest_id": "VM-9101",
+  "generated_sweep_plan_id": "SWEEP-PLAN-9101",
+  "generated_variant_count": 150,
+  "axis_order": [
+    "center_lookback_bars",
+    "vol_lookback_bars",
+    "trend_lookback_bars"
+  ],
+  "axis_count": 3,
+  "deterministic_ordering": "axis_order_then_itertools_product_left_to_right",
+  "seed_used": null,
+  "generated_artifacts": {
+    "parameter_space": {
+      "path": "scratch/EXT-INTEG-WORKFLOW-GEN-01/parameter_space.json",
+      "checksum": "sha256:57d1ca1cde437d2c542c7dac57af0c43683692b5d666d8d83dda2493a29d898c"
+    },
+    "strategy_spec": {
+      "path": "scratch/EXT-INTEG-WORKFLOW-GEN-01/generated_strategy_specs/STRAT-SPEC-9101.strategy_spec.json",
+      "checksum": "sha256:d388e0639c1b5bb90db34a1b7e1a636b7b6fbc7b129806e36a21ca0a23fa5710"
+    },
+    "variant_manifest": {
+      "path": "scratch/EXT-INTEG-WORKFLOW-GEN-01/generated_variant_manifests/VM-9101.variant_manifest.json",
+      "checksum": "sha256:596b4aa0ca1355a80401362f27f5cc05e196a16af27145c7a21a6795b41cd8d4"
+    },
+    "sweep_plan": {
+      "path": "scratch/EXT-INTEG-WORKFLOW-GEN-01/generated_sweep_plans/SWEEP-PLAN-9101.sweep_plan.json",
+      "checksum": "sha256:39b40576258200d19d096066cebb3fd6571644344abf3f3c04159e10f349c8dc"
+    }
+  },
+  "deterministic_artifact_checksum": "sha256:35b394113dc302ec5f0832c660e6a2a1980e96fd899729f77d1b2e7665dd6188",
+  "validator_authority": {
+    "strategy_spec_validator": {
+      "command": "python -m tools.registry.validate_strategy_specs --strategy-specs-dir scratch/EXT-INTEG-WORKFLOW-GEN-01/generated_strategy_specs",
+      "passed": true,
+      "errors": []
+    },
+    "variant_sweep_validator": {
+      "command": "python -m tools.registry.validate_variant_sweep_artifacts --variant-manifests-dir scratch/EXT-INTEG-WORKFLOW-GEN-01/generated_variant_manifests --sweep-plans-dir scratch/EXT-INTEG-WORKFLOW-GEN-01/generated_sweep_plans --strategy-specs-dir scratch/EXT-INTEG-WORKFLOW-GEN-01/generated_strategy_specs",
+      "passed": true,
+      "errors": []
+    }
+  },
+  "generation_posture": {
+    "repo_owned_generator": true,
+    "scratch_only": true,
+    "existing_structural_validators_only": true,
+    "external_dependency_added": false,
+    "external_runtime_tool_invoked": false,
+    "optimizer_or_ranking_authority": false
+  },
+  "boundary_statement": {
+    "canonical_result_population_write": false,
+    "canonical_preregistration_created": false,
+    "canonical_strategy_spec_mutation": false,
+    "canonical_variant_manifest_mutation": false,
+    "canonical_sweep_plan_mutation": false,
+    "screen_gate_authority_created": false,
+    "promotion_readiness_authority_created": false,
+    "candidate_evidence_authority_created": false,
+    "runner_backtester_changed": false,
+    "runtime_paper_live_touched": false,
+    "oms_risk_reconciliation_credentials_order_paths_touched": false
+  },
+  "decision_recommendation": "ADOPT_AS_WORKFLOW_ACCELERATOR",
+  "next_gated_wp_suggestion": "Future draft-to-canonical promotion requires a separate human-gated package; this generator creates no promotion authority.",
+  "output_checksum": "sha256:6c97b8aed780e98b3565df1c4f545ca22ee31b5a3193394bfdc79899ff3a3047"
+}

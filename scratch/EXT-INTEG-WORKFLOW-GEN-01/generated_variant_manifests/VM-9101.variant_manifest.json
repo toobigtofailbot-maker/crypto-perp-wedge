@@ -1,0 +1,3564 @@
+{
+  "schema_version": "v1",
+  "variant_manifest_id": "VM-9101",
+  "status": "approved_for_sweep_planning",
+  "non_execution_declaration": {
+    "planning_surface_only": true,
+    "not_executable": true,
+    "not_runner_authority": true,
+    "not_sweep_authority": true,
+    "not_result_authority": true,
+    "not_candidate_approval": true,
+    "not_exp_approval": true,
+    "not_ranking_authority": true,
+    "not_recommendation_authority": true,
+    "not_readiness_authority": true,
+    "not_transition_authority": true,
+    "not_runtime_authority": true,
+    "not_paper_live_authority": true,
+    "not_gate_authority": true
+  },
+  "parent_strategy_spec": {
+    "strategy_spec_id": "STRAT-SPEC-9101",
+    "strategy_spec_schema_version": "v1",
+    "strategy_spec_hash": "sha256:5536a8c239054c8140c2b52d2bbc36cffd07d577b9a03dcdf1ea6a9140a12e86",
+    "hash_algorithm": "sha256",
+    "hash_scope_version": "strategy_spec_hash_scope_v1",
+    "strategy_spec_review_status": "approved_for_variant_planning",
+    "strategy_spec_ref": "scratch/EXT-INTEG-WORKFLOW-GEN-01/generated_strategy_specs/STRAT-SPEC-9101.strategy_spec.json",
+    "mismatch_policy": "block",
+    "missing_parent_policy": "block",
+    "does_not_mutate_parent_strategy_spec": true
+  },
+  "population_governance": {
+    "population_cap": {
+      "max_variants": 150,
+      "cap_basis": "manual_grid",
+      "cap_source": "human_declared",
+      "cap_exception_authorized": false,
+      "cap_exception_ref": null
+    },
+    "declared_population": {
+      "committed_population_count": 150,
+      "declared_variant_count": 150,
+      "included_variant_count": 150,
+      "excluded_variant_count": 0,
+      "invalid_variant_count": 0,
+      "not_attempted_variant_count": 0
+    },
+    "trial_budget": {
+      "planned_trial_count": 150,
+      "trial_budget_denominator": 150,
+      "denominator_basis": "committed_pre_registered_population_count",
+      "denominator_count": 150,
+      "denominator_includes_failed": true,
+      "denominator_includes_excluded": true,
+      "denominator_includes_invalid": true,
+      "denominator_includes_errored": true,
+      "denominator_includes_aborted": true,
+      "denominator_includes_filtered": true,
+      "denominator_includes_data_unavailable": true,
+      "denominator_includes_not_attempted": true,
+      "executed_only_denominator_forbidden": true
+    },
+    "multiple_testing_accounting": {
+      "denominator_required": true,
+      "denominator_type": "committed_pre_registered_population",
+      "search_family_id": "SF-EXT-INTEG-WORKFLOW-GEN-9101",
+      "search_family_method": "manual_grid",
+      "adaptive_search_used": false,
+      "adaptive_search_authorization_ref": null,
+      "all_trials_visible_required": true,
+      "winner_only_review_forbidden": true
+    },
+    "pre_registration": {
+      "pre_registered": true,
+      "pre_registration_status": "frozen_for_sweep_planning",
+      "pre_registration_scope": "full_variant_population",
+      "freeze_required_before_sweep": true,
+      "post_hoc_addition_forbidden": true,
+      "post_result_mutation_forbidden": true,
+      "allowed_change_mode": "supersede_before_results_only"
+    }
+  },
+  "parameter_axes": [
+    {
+      "axis_id": "AXIS-001",
+      "parameter_name": "center_lookback_bars",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.center_lookback_bars",
+      "parameter_type": "integer",
+      "units": "bars",
+      "axis_kind": "free_parameter",
+      "generator_method": "manual_grid",
+      "allowed_values": [
+        50,
+        60,
+        70,
+        80,
+        90,
+        100
+      ],
+      "range": {
+        "min": 50,
+        "max": 100,
+        "step": 10,
+        "inclusive_min": true,
+        "inclusive_max": true
+      },
+      "counts_toward_parent_free_parameter_cap": true,
+      "is_declared_in_parent_strategy_spec": true,
+      "invalid_combination_rule_refs": [],
+      "notes": "SMA centerline lookback draft grid."
+    },
+    {
+      "axis_id": "AXIS-002",
+      "parameter_name": "vol_lookback_bars",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.vol_lookback_bars",
+      "parameter_type": "integer",
+      "units": "bars",
+      "axis_kind": "free_parameter",
+      "generator_method": "manual_grid",
+      "allowed_values": [
+        30,
+        35,
+        40,
+        45,
+        50
+      ],
+      "range": {
+        "min": 30,
+        "max": 50,
+        "step": 5,
+        "inclusive_min": true,
+        "inclusive_max": true
+      },
+      "counts_toward_parent_free_parameter_cap": true,
+      "is_declared_in_parent_strategy_spec": true,
+      "invalid_combination_rule_refs": [],
+      "notes": "STDDEV scale lookback draft grid."
+    },
+    {
+      "axis_id": "AXIS-003",
+      "parameter_name": "trend_lookback_bars",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.trend_lookback_bars",
+      "parameter_type": "integer",
+      "units": "bars",
+      "axis_kind": "free_parameter",
+      "generator_method": "manual_grid",
+      "allowed_values": [
+        100,
+        125,
+        150,
+        175,
+        200
+      ],
+      "range": {
+        "min": 100,
+        "max": 200,
+        "step": 25,
+        "inclusive_min": true,
+        "inclusive_max": true
+      },
+      "counts_toward_parent_free_parameter_cap": true,
+      "is_declared_in_parent_strategy_spec": true,
+      "invalid_combination_rule_refs": [],
+      "notes": "Trend SMA lookback draft grid."
+    }
+  ],
+  "invalid_combination_rules": [],
+  "exclusion_rules": [],
+  "variant_assignments": [
+    {
+      "variant_id": "VAR-000001",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 50,
+        "vol_lookback_bars": 30,
+        "trend_lookback_bars": 100
+      },
+      "parameter_value_hash": "sha256:57d2bf6371e893ddfb981035bfde7f4765239056863910da830cc40230af3db8",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 1
+      }
+    },
+    {
+      "variant_id": "VAR-000002",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 50,
+        "vol_lookback_bars": 30,
+        "trend_lookback_bars": 125
+      },
+      "parameter_value_hash": "sha256:761b1cb7092e86689cef6b88d2e8e17d6b252d4b88e5d4447e3987ca0a9254ae",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 2
+      }
+    },
+    {
+      "variant_id": "VAR-000003",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 50,
+        "vol_lookback_bars": 30,
+        "trend_lookback_bars": 150
+      },
+      "parameter_value_hash": "sha256:79a2567f0f814c9781549e46dd5927e0fc7694e0c4ca9eec7356bfaa57b87d72",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 3
+      }
+    },
+    {
+      "variant_id": "VAR-000004",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 50,
+        "vol_lookback_bars": 30,
+        "trend_lookback_bars": 175
+      },
+      "parameter_value_hash": "sha256:bef20dcd47095ced7e4aa4181d19fa49a114beb46d8dce8e49e98b602d428378",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 4
+      }
+    },
+    {
+      "variant_id": "VAR-000005",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 50,
+        "vol_lookback_bars": 30,
+        "trend_lookback_bars": 200
+      },
+      "parameter_value_hash": "sha256:4e18bd531930bb293c694c950a272ef98eede71cfaef728169669e7a518a6c65",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 5
+      }
+    },
+    {
+      "variant_id": "VAR-000006",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 50,
+        "vol_lookback_bars": 35,
+        "trend_lookback_bars": 100
+      },
+      "parameter_value_hash": "sha256:96b9fac270c3f3baca44da54a2f94084239f9a52f151f50e112154dd6894f40b",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 6
+      }
+    },
+    {
+      "variant_id": "VAR-000007",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 50,
+        "vol_lookback_bars": 35,
+        "trend_lookback_bars": 125
+      },
+      "parameter_value_hash": "sha256:6d4cd6975b0257216c79b91aa4d6416400bfbeb2b57c80d36be54e5899a4105d",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 7
+      }
+    },
+    {
+      "variant_id": "VAR-000008",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 50,
+        "vol_lookback_bars": 35,
+        "trend_lookback_bars": 150
+      },
+      "parameter_value_hash": "sha256:240fee69037df043bae73e850c892d55e611cb8b124ff104204fda07e0038524",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 8
+      }
+    },
+    {
+      "variant_id": "VAR-000009",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 50,
+        "vol_lookback_bars": 35,
+        "trend_lookback_bars": 175
+      },
+      "parameter_value_hash": "sha256:8ad769e9843809aaccc69959fe6466a40d220acee7d0a2c6168d24e009f47bc1",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 9
+      }
+    },
+    {
+      "variant_id": "VAR-000010",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 50,
+        "vol_lookback_bars": 35,
+        "trend_lookback_bars": 200
+      },
+      "parameter_value_hash": "sha256:0a2ea815e105eb4ab6cee529f1737d868dfe502b9faa0ed26472beaf8516f1d2",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 10
+      }
+    },
+    {
+      "variant_id": "VAR-000011",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 50,
+        "vol_lookback_bars": 40,
+        "trend_lookback_bars": 100
+      },
+      "parameter_value_hash": "sha256:e8b5ab29cab338b7314d8b8e999d895cb6f161d17f0fdfe3800c7ed64127b82d",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 11
+      }
+    },
+    {
+      "variant_id": "VAR-000012",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 50,
+        "vol_lookback_bars": 40,
+        "trend_lookback_bars": 125
+      },
+      "parameter_value_hash": "sha256:c9573cf4cb39d85d58ec472d92d1c9e2dc707ba8ba671cb4322553f7c5a64b27",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 12
+      }
+    },
+    {
+      "variant_id": "VAR-000013",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 50,
+        "vol_lookback_bars": 40,
+        "trend_lookback_bars": 150
+      },
+      "parameter_value_hash": "sha256:b952cf4ff4a471840ab4b812c8d419d81e1944749e92c8ecb8eea8f13f2fcfc8",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 13
+      }
+    },
+    {
+      "variant_id": "VAR-000014",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 50,
+        "vol_lookback_bars": 40,
+        "trend_lookback_bars": 175
+      },
+      "parameter_value_hash": "sha256:cbc5c8a6ebfe9eb5364aaab94b3d1a95d2c1a7c39a4d2fae0adaae44022e74d6",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 14
+      }
+    },
+    {
+      "variant_id": "VAR-000015",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 50,
+        "vol_lookback_bars": 40,
+        "trend_lookback_bars": 200
+      },
+      "parameter_value_hash": "sha256:55cded95079a0e4ea0a230bd63d80560a327dfa0c4cec6e938fe49328c70626e",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 15
+      }
+    },
+    {
+      "variant_id": "VAR-000016",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 50,
+        "vol_lookback_bars": 45,
+        "trend_lookback_bars": 100
+      },
+      "parameter_value_hash": "sha256:eb8935bdb20c39ec139777fc52d86e3dc37126ce026798c09f67d61f97bc0802",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 16
+      }
+    },
+    {
+      "variant_id": "VAR-000017",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 50,
+        "vol_lookback_bars": 45,
+        "trend_lookback_bars": 125
+      },
+      "parameter_value_hash": "sha256:344d3fac95559026cd36e154ffbd8420d818af4c356f46d7e551a478281df9d6",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 17
+      }
+    },
+    {
+      "variant_id": "VAR-000018",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 50,
+        "vol_lookback_bars": 45,
+        "trend_lookback_bars": 150
+      },
+      "parameter_value_hash": "sha256:7c4f02f3bf2df4d3dacd4c5f9fc748ae5554ee40718c8226c73e44848fab084d",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 18
+      }
+    },
+    {
+      "variant_id": "VAR-000019",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 50,
+        "vol_lookback_bars": 45,
+        "trend_lookback_bars": 175
+      },
+      "parameter_value_hash": "sha256:07e80018bbdb18a0757c378f97bfcb074f65a17855bc07ad81c5def57d641492",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 19
+      }
+    },
+    {
+      "variant_id": "VAR-000020",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 50,
+        "vol_lookback_bars": 45,
+        "trend_lookback_bars": 200
+      },
+      "parameter_value_hash": "sha256:6039391aeba510d566f517045a24dfa5c27b6178b265916774b073ecad80ad17",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 20
+      }
+    },
+    {
+      "variant_id": "VAR-000021",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 50,
+        "vol_lookback_bars": 50,
+        "trend_lookback_bars": 100
+      },
+      "parameter_value_hash": "sha256:81cb3777db4669d4e1f052372afcab22f756fd31592c9ab85b891aff6f943045",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 21
+      }
+    },
+    {
+      "variant_id": "VAR-000022",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 50,
+        "vol_lookback_bars": 50,
+        "trend_lookback_bars": 125
+      },
+      "parameter_value_hash": "sha256:dc094cede166c407cf4f0ca37fcce5db05caa9a724f31b7c3f9fe517cb3ecf8f",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 22
+      }
+    },
+    {
+      "variant_id": "VAR-000023",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 50,
+        "vol_lookback_bars": 50,
+        "trend_lookback_bars": 150
+      },
+      "parameter_value_hash": "sha256:37c4f55fa88350da8e7c241a601a87fccac4f510ffc0fdd5bc370c68d87324ff",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 23
+      }
+    },
+    {
+      "variant_id": "VAR-000024",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 50,
+        "vol_lookback_bars": 50,
+        "trend_lookback_bars": 175
+      },
+      "parameter_value_hash": "sha256:d4cae4133332d5d02c81e367ca62888ff2983ffe3bac6b386fbf19ab87c47de9",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 24
+      }
+    },
+    {
+      "variant_id": "VAR-000025",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 50,
+        "vol_lookback_bars": 50,
+        "trend_lookback_bars": 200
+      },
+      "parameter_value_hash": "sha256:4bd9fef400e9c1afc09bf335156009de13fd452a42bef7b7b0dba5a6db1d516e",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 25
+      }
+    },
+    {
+      "variant_id": "VAR-000026",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 60,
+        "vol_lookback_bars": 30,
+        "trend_lookback_bars": 100
+      },
+      "parameter_value_hash": "sha256:e93a06f3f213976b6ea1587a76b35354b2ae927dd9195b790af75d373cabe637",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 26
+      }
+    },
+    {
+      "variant_id": "VAR-000027",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 60,
+        "vol_lookback_bars": 30,
+        "trend_lookback_bars": 125
+      },
+      "parameter_value_hash": "sha256:7db1ae3af441aec1228ab64623ba51c15229b9c0316b0a8b7a5b4ec4bd8dd35d",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 27
+      }
+    },
+    {
+      "variant_id": "VAR-000028",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 60,
+        "vol_lookback_bars": 30,
+        "trend_lookback_bars": 150
+      },
+      "parameter_value_hash": "sha256:ea942958b1abc1cb0691af2836615caa7a59660acf66b64fb6284cddf3707771",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 28
+      }
+    },
+    {
+      "variant_id": "VAR-000029",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 60,
+        "vol_lookback_bars": 30,
+        "trend_lookback_bars": 175
+      },
+      "parameter_value_hash": "sha256:b63d3371c1cee9f429d2166e8226697a675125a839f80ce3fe7cce48d8416061",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 29
+      }
+    },
+    {
+      "variant_id": "VAR-000030",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 60,
+        "vol_lookback_bars": 30,
+        "trend_lookback_bars": 200
+      },
+      "parameter_value_hash": "sha256:40c273637904f33ec842ba6c83059f156257ed258236ad0edaa3aa71706f1d5f",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 30
+      }
+    },
+    {
+      "variant_id": "VAR-000031",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 60,
+        "vol_lookback_bars": 35,
+        "trend_lookback_bars": 100
+      },
+      "parameter_value_hash": "sha256:50678c3f01dcd6fb0f801252439ba232d7608de9d333ec192949fcc56d8d7f38",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 31
+      }
+    },
+    {
+      "variant_id": "VAR-000032",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 60,
+        "vol_lookback_bars": 35,
+        "trend_lookback_bars": 125
+      },
+      "parameter_value_hash": "sha256:2fc0811e2a2a62dede24247940f4e03b260831b4869183a0913d6181969c0c18",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 32
+      }
+    },
+    {
+      "variant_id": "VAR-000033",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 60,
+        "vol_lookback_bars": 35,
+        "trend_lookback_bars": 150
+      },
+      "parameter_value_hash": "sha256:6bb62ffd5a77981a4b6e980f678bfc30e45ed5f7eecad9ceb8c05e4478a9dc3d",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 33
+      }
+    },
+    {
+      "variant_id": "VAR-000034",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 60,
+        "vol_lookback_bars": 35,
+        "trend_lookback_bars": 175
+      },
+      "parameter_value_hash": "sha256:3df64d63feec0204c1e4a25c08dc804c379afc37ee6c9894d1216cd053254426",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 34
+      }
+    },
+    {
+      "variant_id": "VAR-000035",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 60,
+        "vol_lookback_bars": 35,
+        "trend_lookback_bars": 200
+      },
+      "parameter_value_hash": "sha256:61c06f545880cb93952912167469fdb05175a2bdfe45d8728a35123fe2837a4c",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 35
+      }
+    },
+    {
+      "variant_id": "VAR-000036",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 60,
+        "vol_lookback_bars": 40,
+        "trend_lookback_bars": 100
+      },
+      "parameter_value_hash": "sha256:2da389d2ef4a3651baaf6d661db910f570ca83e3a16707a70dca7d4a84eb1dd2",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 36
+      }
+    },
+    {
+      "variant_id": "VAR-000037",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 60,
+        "vol_lookback_bars": 40,
+        "trend_lookback_bars": 125
+      },
+      "parameter_value_hash": "sha256:b75b84148019544e81d810804fb6092963db429ff3481dcc113a862aa7dc2bd2",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 37
+      }
+    },
+    {
+      "variant_id": "VAR-000038",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 60,
+        "vol_lookback_bars": 40,
+        "trend_lookback_bars": 150
+      },
+      "parameter_value_hash": "sha256:f30e544efc6aaf63526f9b1e037ead45f2e9ce18b720c68a363386834c14192a",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 38
+      }
+    },
+    {
+      "variant_id": "VAR-000039",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 60,
+        "vol_lookback_bars": 40,
+        "trend_lookback_bars": 175
+      },
+      "parameter_value_hash": "sha256:dddcf5255622c23d6025c71d689c4d80abf9d78c147f5c25b8a72f7455b11fe6",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 39
+      }
+    },
+    {
+      "variant_id": "VAR-000040",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 60,
+        "vol_lookback_bars": 40,
+        "trend_lookback_bars": 200
+      },
+      "parameter_value_hash": "sha256:48045073b7a402084765dd446d26bc67cea41ac4a67a3b336971782c69b65e50",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 40
+      }
+    },
+    {
+      "variant_id": "VAR-000041",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 60,
+        "vol_lookback_bars": 45,
+        "trend_lookback_bars": 100
+      },
+      "parameter_value_hash": "sha256:40e52d0c6a3c122c0751fea2995705f4c1073afd6a234073b4cb32fedf3fb809",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 41
+      }
+    },
+    {
+      "variant_id": "VAR-000042",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 60,
+        "vol_lookback_bars": 45,
+        "trend_lookback_bars": 125
+      },
+      "parameter_value_hash": "sha256:43a145b088afe72c5936c57ca3693fe9c05519b0a8aaf75674ce259731149675",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 42
+      }
+    },
+    {
+      "variant_id": "VAR-000043",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 60,
+        "vol_lookback_bars": 45,
+        "trend_lookback_bars": 150
+      },
+      "parameter_value_hash": "sha256:a21418c3ed0cce00a06bedb7f2ccf8a3f5bc9bb17d100e622459f35656e55811",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 43
+      }
+    },
+    {
+      "variant_id": "VAR-000044",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 60,
+        "vol_lookback_bars": 45,
+        "trend_lookback_bars": 175
+      },
+      "parameter_value_hash": "sha256:a968424d905981c0018423c44499a189ff282b52a0f742e200c1d7adc8ff237b",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 44
+      }
+    },
+    {
+      "variant_id": "VAR-000045",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 60,
+        "vol_lookback_bars": 45,
+        "trend_lookback_bars": 200
+      },
+      "parameter_value_hash": "sha256:83013ee19f7fede6851baafff76b0db7522883577f0b9296dc7929135ad1c681",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 45
+      }
+    },
+    {
+      "variant_id": "VAR-000046",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 60,
+        "vol_lookback_bars": 50,
+        "trend_lookback_bars": 100
+      },
+      "parameter_value_hash": "sha256:5a3d4dcdf9e5af02cbbe57d8f2f5c5f9f3772b848943e4a61fb7b6310d39d802",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 46
+      }
+    },
+    {
+      "variant_id": "VAR-000047",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 60,
+        "vol_lookback_bars": 50,
+        "trend_lookback_bars": 125
+      },
+      "parameter_value_hash": "sha256:45ea215750df731cecb78f37d493b293e1aaaf673707221634bcbd4357ae6904",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 47
+      }
+    },
+    {
+      "variant_id": "VAR-000048",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 60,
+        "vol_lookback_bars": 50,
+        "trend_lookback_bars": 150
+      },
+      "parameter_value_hash": "sha256:9199f8908d1813337f3292abafa6e5cbfc136a93defe3e7116c446175395008f",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 48
+      }
+    },
+    {
+      "variant_id": "VAR-000049",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 60,
+        "vol_lookback_bars": 50,
+        "trend_lookback_bars": 175
+      },
+      "parameter_value_hash": "sha256:0057cd0f48f63d71f994be54091b5a5a702ce1080434e307b9403904e12f43cf",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 49
+      }
+    },
+    {
+      "variant_id": "VAR-000050",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 60,
+        "vol_lookback_bars": 50,
+        "trend_lookback_bars": 200
+      },
+      "parameter_value_hash": "sha256:549744756d98cdafe6e415027e91a910d8074276d71a1369211c39917d7014d1",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 50
+      }
+    },
+    {
+      "variant_id": "VAR-000051",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 70,
+        "vol_lookback_bars": 30,
+        "trend_lookback_bars": 100
+      },
+      "parameter_value_hash": "sha256:d8b6a4a1c48bf67c022f63fcfaf2d39eb2e5dabe8fce998c562de35be3d98c72",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 51
+      }
+    },
+    {
+      "variant_id": "VAR-000052",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 70,
+        "vol_lookback_bars": 30,
+        "trend_lookback_bars": 125
+      },
+      "parameter_value_hash": "sha256:db8ce9d52bbb8895bc7bd7f9915c942c8aa2ab1f017620d7805b5785bfb32d7a",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 52
+      }
+    },
+    {
+      "variant_id": "VAR-000053",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 70,
+        "vol_lookback_bars": 30,
+        "trend_lookback_bars": 150
+      },
+      "parameter_value_hash": "sha256:3cc5a2cf602452e35f47ae4c79df74c3c7b09ffa7ac089d7553800ee9da699f3",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 53
+      }
+    },
+    {
+      "variant_id": "VAR-000054",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 70,
+        "vol_lookback_bars": 30,
+        "trend_lookback_bars": 175
+      },
+      "parameter_value_hash": "sha256:7eb9e02538945b733ceb35d5ce33b0ec60f2d07da6c1e8d3a58f7ff84c2ba3d2",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 54
+      }
+    },
+    {
+      "variant_id": "VAR-000055",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 70,
+        "vol_lookback_bars": 30,
+        "trend_lookback_bars": 200
+      },
+      "parameter_value_hash": "sha256:c85c7044c8c386a1ce1df1fa9342085d67c5bc8fdef6ccc192e145ba1b36b4f6",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 55
+      }
+    },
+    {
+      "variant_id": "VAR-000056",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 70,
+        "vol_lookback_bars": 35,
+        "trend_lookback_bars": 100
+      },
+      "parameter_value_hash": "sha256:33a5ab84821c391dbfa9681af2018ae37139be2d7cb31986de18bdb039d8ee28",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 56
+      }
+    },
+    {
+      "variant_id": "VAR-000057",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 70,
+        "vol_lookback_bars": 35,
+        "trend_lookback_bars": 125
+      },
+      "parameter_value_hash": "sha256:74693a4b13f05cb81929ace20d15070335464622f7cc25eac04a5f34ed7ac278",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 57
+      }
+    },
+    {
+      "variant_id": "VAR-000058",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 70,
+        "vol_lookback_bars": 35,
+        "trend_lookback_bars": 150
+      },
+      "parameter_value_hash": "sha256:4ae08f4e906e63e7b4cdcb3cb493649417524f629cde40a195bd395569fcba40",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 58
+      }
+    },
+    {
+      "variant_id": "VAR-000059",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 70,
+        "vol_lookback_bars": 35,
+        "trend_lookback_bars": 175
+      },
+      "parameter_value_hash": "sha256:3bcd16b1db9e1d5b32278db018b002b94f635d13bc84f8ca3540760609ad3281",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 59
+      }
+    },
+    {
+      "variant_id": "VAR-000060",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 70,
+        "vol_lookback_bars": 35,
+        "trend_lookback_bars": 200
+      },
+      "parameter_value_hash": "sha256:b0a1372da33950a1ef03c07dce1f9794d82fef8e16fe005ef3dd83a2921eb702",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 60
+      }
+    },
+    {
+      "variant_id": "VAR-000061",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 70,
+        "vol_lookback_bars": 40,
+        "trend_lookback_bars": 100
+      },
+      "parameter_value_hash": "sha256:4bd62f953b19b42a4b4c6c84b1c6e8832ed59a2a0b2d17c0017d56339864e366",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 61
+      }
+    },
+    {
+      "variant_id": "VAR-000062",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 70,
+        "vol_lookback_bars": 40,
+        "trend_lookback_bars": 125
+      },
+      "parameter_value_hash": "sha256:8d0549f9fb79d19aafabff82ad13397d81360235b71153ea43e2d2e0aa7d509e",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 62
+      }
+    },
+    {
+      "variant_id": "VAR-000063",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 70,
+        "vol_lookback_bars": 40,
+        "trend_lookback_bars": 150
+      },
+      "parameter_value_hash": "sha256:2d154585512472c4fa22b1599e25aa7f3930e12b3f742c7ddb34da2d50f1e82a",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 63
+      }
+    },
+    {
+      "variant_id": "VAR-000064",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 70,
+        "vol_lookback_bars": 40,
+        "trend_lookback_bars": 175
+      },
+      "parameter_value_hash": "sha256:75b21fc0d103043d28b8458255ed05b55259232d1c568ac2db7e86d77a7974cd",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 64
+      }
+    },
+    {
+      "variant_id": "VAR-000065",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 70,
+        "vol_lookback_bars": 40,
+        "trend_lookback_bars": 200
+      },
+      "parameter_value_hash": "sha256:7d23afff508622d4d6ef016d172943399290bef236f26d55086dbe46df58da8e",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 65
+      }
+    },
+    {
+      "variant_id": "VAR-000066",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 70,
+        "vol_lookback_bars": 45,
+        "trend_lookback_bars": 100
+      },
+      "parameter_value_hash": "sha256:6fdea7a3681a2d9d2853018547dadc9db4375a90cf2b32fde71148cdb91f5dfc",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 66
+      }
+    },
+    {
+      "variant_id": "VAR-000067",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 70,
+        "vol_lookback_bars": 45,
+        "trend_lookback_bars": 125
+      },
+      "parameter_value_hash": "sha256:7fc4b4ce13f5239863a76936408d8b48cea5731ae39b437cde625a59bad08df3",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 67
+      }
+    },
+    {
+      "variant_id": "VAR-000068",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 70,
+        "vol_lookback_bars": 45,
+        "trend_lookback_bars": 150
+      },
+      "parameter_value_hash": "sha256:547ded11c5b2efdc756a3528b46010fbb288779959c87a436ad596ce95a5ba58",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 68
+      }
+    },
+    {
+      "variant_id": "VAR-000069",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 70,
+        "vol_lookback_bars": 45,
+        "trend_lookback_bars": 175
+      },
+      "parameter_value_hash": "sha256:8c8ee96a785c6ed2827d56d9df48115b84c2ae038a029914564dd89fc569d263",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 69
+      }
+    },
+    {
+      "variant_id": "VAR-000070",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 70,
+        "vol_lookback_bars": 45,
+        "trend_lookback_bars": 200
+      },
+      "parameter_value_hash": "sha256:3ca3c99fdfadb8f3be1c24d204c01c00b453e36acc73aba31218336ee8e1575f",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 70
+      }
+    },
+    {
+      "variant_id": "VAR-000071",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 70,
+        "vol_lookback_bars": 50,
+        "trend_lookback_bars": 100
+      },
+      "parameter_value_hash": "sha256:7ed9d2717e50c6489dd438378d10e76ca604a5de8ab7104fa3818cf1258e8750",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 71
+      }
+    },
+    {
+      "variant_id": "VAR-000072",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 70,
+        "vol_lookback_bars": 50,
+        "trend_lookback_bars": 125
+      },
+      "parameter_value_hash": "sha256:7106ddfdb4ffbebc82d7105f4430fa3bbb43d28feabcaf2952ac7358aee0b98e",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 72
+      }
+    },
+    {
+      "variant_id": "VAR-000073",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 70,
+        "vol_lookback_bars": 50,
+        "trend_lookback_bars": 150
+      },
+      "parameter_value_hash": "sha256:71a4d803e75958dce8f2c5e5a01422c3f49d112fb53ff03b7a5a25a6594c0a25",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 73
+      }
+    },
+    {
+      "variant_id": "VAR-000074",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 70,
+        "vol_lookback_bars": 50,
+        "trend_lookback_bars": 175
+      },
+      "parameter_value_hash": "sha256:51208781abb566cbdbbf8177459f80976f8e566543730b35f3872cfa61ab12d0",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 74
+      }
+    },
+    {
+      "variant_id": "VAR-000075",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 70,
+        "vol_lookback_bars": 50,
+        "trend_lookback_bars": 200
+      },
+      "parameter_value_hash": "sha256:33df6e5f22d486f8ed98034adf731117736f4b04ad075616ba06da75eb4ae29b",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 75
+      }
+    },
+    {
+      "variant_id": "VAR-000076",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 80,
+        "vol_lookback_bars": 30,
+        "trend_lookback_bars": 100
+      },
+      "parameter_value_hash": "sha256:2dbc51e7c4bee64a29d7b2576a1577cc7b8051977cc0472316eb46810d3f2e9b",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 76
+      }
+    },
+    {
+      "variant_id": "VAR-000077",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 80,
+        "vol_lookback_bars": 30,
+        "trend_lookback_bars": 125
+      },
+      "parameter_value_hash": "sha256:fdb8e3f6bd5b9669d32fefe4f1d298a5472e6fcfffffbdd5559162b6a82ae357",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 77
+      }
+    },
+    {
+      "variant_id": "VAR-000078",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 80,
+        "vol_lookback_bars": 30,
+        "trend_lookback_bars": 150
+      },
+      "parameter_value_hash": "sha256:96ccc7c3814b5da73931a559bb0d06acd4d27b22db5db51703a8d612d41d563a",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 78
+      }
+    },
+    {
+      "variant_id": "VAR-000079",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 80,
+        "vol_lookback_bars": 30,
+        "trend_lookback_bars": 175
+      },
+      "parameter_value_hash": "sha256:01655844ce3e8ab4c0dc4cb7d73b65a4a81179977a239c874ada6666af761780",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 79
+      }
+    },
+    {
+      "variant_id": "VAR-000080",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 80,
+        "vol_lookback_bars": 30,
+        "trend_lookback_bars": 200
+      },
+      "parameter_value_hash": "sha256:8fd13a6638c5b60be87c525688826b0952219b51c6488a158ccd1fae3aadc768",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 80
+      }
+    },
+    {
+      "variant_id": "VAR-000081",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 80,
+        "vol_lookback_bars": 35,
+        "trend_lookback_bars": 100
+      },
+      "parameter_value_hash": "sha256:e54234aebe8329c15fba06faa210b9c819bae9c980812f2b18c030cca945a193",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 81
+      }
+    },
+    {
+      "variant_id": "VAR-000082",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 80,
+        "vol_lookback_bars": 35,
+        "trend_lookback_bars": 125
+      },
+      "parameter_value_hash": "sha256:5e5743b58280689adb7482fae97f90a45659e9e8b5dc30f5fab0fffe9b851ab8",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 82
+      }
+    },
+    {
+      "variant_id": "VAR-000083",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 80,
+        "vol_lookback_bars": 35,
+        "trend_lookback_bars": 150
+      },
+      "parameter_value_hash": "sha256:99459f2d492c2540c31428a23cb7fde50577eb97723045c1a8808636453db736",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 83
+      }
+    },
+    {
+      "variant_id": "VAR-000084",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 80,
+        "vol_lookback_bars": 35,
+        "trend_lookback_bars": 175
+      },
+      "parameter_value_hash": "sha256:afda2ebac30912207050fe8a3808e7b1a98d8baa1e97a96c376646e1933d96d3",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 84
+      }
+    },
+    {
+      "variant_id": "VAR-000085",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 80,
+        "vol_lookback_bars": 35,
+        "trend_lookback_bars": 200
+      },
+      "parameter_value_hash": "sha256:5bd1d61732f1c3c1d3788f129c0bd0bac84ced1602e9f19505be93208b3bb458",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 85
+      }
+    },
+    {
+      "variant_id": "VAR-000086",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 80,
+        "vol_lookback_bars": 40,
+        "trend_lookback_bars": 100
+      },
+      "parameter_value_hash": "sha256:4abf785ed99c1092daca7d7996da46257f079d8b252bb9e6d890b002cec6c70d",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 86
+      }
+    },
+    {
+      "variant_id": "VAR-000087",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 80,
+        "vol_lookback_bars": 40,
+        "trend_lookback_bars": 125
+      },
+      "parameter_value_hash": "sha256:8d41dd718d5bc0e497d54fded7834887c0165f454100fe0989f9e3edea924438",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 87
+      }
+    },
+    {
+      "variant_id": "VAR-000088",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 80,
+        "vol_lookback_bars": 40,
+        "trend_lookback_bars": 150
+      },
+      "parameter_value_hash": "sha256:fa8116564a7fd180c770c321ea772ff00e66244f3b01346454ec7fd68b41a943",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 88
+      }
+    },
+    {
+      "variant_id": "VAR-000089",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 80,
+        "vol_lookback_bars": 40,
+        "trend_lookback_bars": 175
+      },
+      "parameter_value_hash": "sha256:ae1768c8aa571e9b7ccfbc1c0bf02cac8a9925d03a1199dc99ed12834116d3a1",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 89
+      }
+    },
+    {
+      "variant_id": "VAR-000090",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 80,
+        "vol_lookback_bars": 40,
+        "trend_lookback_bars": 200
+      },
+      "parameter_value_hash": "sha256:cfb5c91993e78d55e43c2da85901452c06f8c820f74d81ba998d1470b8af927d",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 90
+      }
+    },
+    {
+      "variant_id": "VAR-000091",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 80,
+        "vol_lookback_bars": 45,
+        "trend_lookback_bars": 100
+      },
+      "parameter_value_hash": "sha256:35e9488380290e03ef21ab71d15fbe20377adcb6662d0f82adef8c90ce3c77a5",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 91
+      }
+    },
+    {
+      "variant_id": "VAR-000092",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 80,
+        "vol_lookback_bars": 45,
+        "trend_lookback_bars": 125
+      },
+      "parameter_value_hash": "sha256:0d665b4ffe57b2317944809a20c08e4b6e117f942783e58299f9d26aa8494828",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 92
+      }
+    },
+    {
+      "variant_id": "VAR-000093",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 80,
+        "vol_lookback_bars": 45,
+        "trend_lookback_bars": 150
+      },
+      "parameter_value_hash": "sha256:340f338e9ec24a099ed558b02f0e97cbe0acb845799f0335d2ddc5f658a6ca6b",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 93
+      }
+    },
+    {
+      "variant_id": "VAR-000094",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 80,
+        "vol_lookback_bars": 45,
+        "trend_lookback_bars": 175
+      },
+      "parameter_value_hash": "sha256:b77a4073451ae9c8f7e63e18b8212f9abb433352472c51478ccc990eb77bab3b",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 94
+      }
+    },
+    {
+      "variant_id": "VAR-000095",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 80,
+        "vol_lookback_bars": 45,
+        "trend_lookback_bars": 200
+      },
+      "parameter_value_hash": "sha256:9f26f4e62527241838ebeb8377a7392c25405376dd5891d223a6c3635c9b06ce",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 95
+      }
+    },
+    {
+      "variant_id": "VAR-000096",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 80,
+        "vol_lookback_bars": 50,
+        "trend_lookback_bars": 100
+      },
+      "parameter_value_hash": "sha256:64df626dff9efa7bd61e5aaf486a3cbd5f6970b09943a546a0b875b415392741",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 96
+      }
+    },
+    {
+      "variant_id": "VAR-000097",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 80,
+        "vol_lookback_bars": 50,
+        "trend_lookback_bars": 125
+      },
+      "parameter_value_hash": "sha256:eb4fa2a280a2ed543abff0b9948dfd771d262b0c82bfa540d0f0efc9368ef8f0",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 97
+      }
+    },
+    {
+      "variant_id": "VAR-000098",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 80,
+        "vol_lookback_bars": 50,
+        "trend_lookback_bars": 150
+      },
+      "parameter_value_hash": "sha256:3324b6d7b0f9c63ce79ad84829167e7b51eaa43efd291a091d40489fa21b6cab",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 98
+      }
+    },
+    {
+      "variant_id": "VAR-000099",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 80,
+        "vol_lookback_bars": 50,
+        "trend_lookback_bars": 175
+      },
+      "parameter_value_hash": "sha256:4db152ed51c73c826220bdede04c4cc2431c5d365d2930d9463558c00d9575b6",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 99
+      }
+    },
+    {
+      "variant_id": "VAR-000100",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 80,
+        "vol_lookback_bars": 50,
+        "trend_lookback_bars": 200
+      },
+      "parameter_value_hash": "sha256:9d1e7ecf82e50ea86f04a8e8132613be30bd4021048bd3aafcc3ae06ea680268",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 100
+      }
+    },
+    {
+      "variant_id": "VAR-000101",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 90,
+        "vol_lookback_bars": 30,
+        "trend_lookback_bars": 100
+      },
+      "parameter_value_hash": "sha256:1896c5a82d7bcc5b90cc8d6c1843a63a9818a4bc4638cb4203c893be44e10f63",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 101
+      }
+    },
+    {
+      "variant_id": "VAR-000102",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 90,
+        "vol_lookback_bars": 30,
+        "trend_lookback_bars": 125
+      },
+      "parameter_value_hash": "sha256:d5ee538c308d853788a62af6eb73b5e268d1af79d4530dc78ec74d56eb51844c",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 102
+      }
+    },
+    {
+      "variant_id": "VAR-000103",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 90,
+        "vol_lookback_bars": 30,
+        "trend_lookback_bars": 150
+      },
+      "parameter_value_hash": "sha256:a25c71efd8d8fb461f1a8b707db11cb7a3682940436a4dc01447206f8319db6a",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 103
+      }
+    },
+    {
+      "variant_id": "VAR-000104",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 90,
+        "vol_lookback_bars": 30,
+        "trend_lookback_bars": 175
+      },
+      "parameter_value_hash": "sha256:1eef0e74e7f910a11e87b6e7cba05489f4725b61eeed1a4a99f9d708fb483040",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 104
+      }
+    },
+    {
+      "variant_id": "VAR-000105",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 90,
+        "vol_lookback_bars": 30,
+        "trend_lookback_bars": 200
+      },
+      "parameter_value_hash": "sha256:b8706289837e41f60aa60926b654cd86743669ee7145ae4a88467abf96adb1dc",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 105
+      }
+    },
+    {
+      "variant_id": "VAR-000106",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 90,
+        "vol_lookback_bars": 35,
+        "trend_lookback_bars": 100
+      },
+      "parameter_value_hash": "sha256:7f646aa72dd4ee0d81f2a226af4d16e9cb7b8583b9404921398db686bf99cab4",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 106
+      }
+    },
+    {
+      "variant_id": "VAR-000107",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 90,
+        "vol_lookback_bars": 35,
+        "trend_lookback_bars": 125
+      },
+      "parameter_value_hash": "sha256:389a8b42d488cef67d897916a31a8176b8b9652bc754efb6c57d18a487d8e2b5",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 107
+      }
+    },
+    {
+      "variant_id": "VAR-000108",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 90,
+        "vol_lookback_bars": 35,
+        "trend_lookback_bars": 150
+      },
+      "parameter_value_hash": "sha256:7cb24f300dc78755e2d9eab374ea4ea264cba3a6130f04f0558e7862a4c9f39f",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 108
+      }
+    },
+    {
+      "variant_id": "VAR-000109",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 90,
+        "vol_lookback_bars": 35,
+        "trend_lookback_bars": 175
+      },
+      "parameter_value_hash": "sha256:250710e1b7bc2cd16a6ba895b74e0a9d5a28bf51133860a642580ac8e68a1ef5",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 109
+      }
+    },
+    {
+      "variant_id": "VAR-000110",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 90,
+        "vol_lookback_bars": 35,
+        "trend_lookback_bars": 200
+      },
+      "parameter_value_hash": "sha256:bf62168db0f36810028193ae98e84ca8f3672824f417b35262e56bbebe907bfa",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 110
+      }
+    },
+    {
+      "variant_id": "VAR-000111",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 90,
+        "vol_lookback_bars": 40,
+        "trend_lookback_bars": 100
+      },
+      "parameter_value_hash": "sha256:7fcbaf28fa4d5bb88d7d18d7b5e16b55e4504ad17b4e05a24492b287136162e3",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 111
+      }
+    },
+    {
+      "variant_id": "VAR-000112",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 90,
+        "vol_lookback_bars": 40,
+        "trend_lookback_bars": 125
+      },
+      "parameter_value_hash": "sha256:707d43271b7d025f5c2cd7d8444b410d97b89e17fbc74b551ca4879c0835c9f6",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 112
+      }
+    },
+    {
+      "variant_id": "VAR-000113",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 90,
+        "vol_lookback_bars": 40,
+        "trend_lookback_bars": 150
+      },
+      "parameter_value_hash": "sha256:8673ba93193006d8ae0db0b4b55ea949815700aaa6975ff770596e3def003970",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 113
+      }
+    },
+    {
+      "variant_id": "VAR-000114",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 90,
+        "vol_lookback_bars": 40,
+        "trend_lookback_bars": 175
+      },
+      "parameter_value_hash": "sha256:375d46bdb6ba67f227df0c87edb6787c7bf97e49dfde6e4b0025c398b063faee",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 114
+      }
+    },
+    {
+      "variant_id": "VAR-000115",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 90,
+        "vol_lookback_bars": 40,
+        "trend_lookback_bars": 200
+      },
+      "parameter_value_hash": "sha256:0b629e5a249d44fc4bb527a3c17fb3e25e51d8bdb0aa21f619a22ef5745afac8",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 115
+      }
+    },
+    {
+      "variant_id": "VAR-000116",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 90,
+        "vol_lookback_bars": 45,
+        "trend_lookback_bars": 100
+      },
+      "parameter_value_hash": "sha256:1baa845678c52dcbc427be2052f61f5a3025fc00086f7be37876b8b27728c6a2",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 116
+      }
+    },
+    {
+      "variant_id": "VAR-000117",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 90,
+        "vol_lookback_bars": 45,
+        "trend_lookback_bars": 125
+      },
+      "parameter_value_hash": "sha256:8f3457789ab0d139ed55b4a58f1a28eba7ee1f19d54c6cffd412422470f5a177",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 117
+      }
+    },
+    {
+      "variant_id": "VAR-000118",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 90,
+        "vol_lookback_bars": 45,
+        "trend_lookback_bars": 150
+      },
+      "parameter_value_hash": "sha256:ba5f6cc818812aaafba597c68d269352efdcba0e5bc514fda34c790d08068167",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 118
+      }
+    },
+    {
+      "variant_id": "VAR-000119",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 90,
+        "vol_lookback_bars": 45,
+        "trend_lookback_bars": 175
+      },
+      "parameter_value_hash": "sha256:9de21a67f7fb23a2f4a2a24f66ade833a6e96dd530f8e0dcd12a36eaf4b1fc84",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 119
+      }
+    },
+    {
+      "variant_id": "VAR-000120",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 90,
+        "vol_lookback_bars": 45,
+        "trend_lookback_bars": 200
+      },
+      "parameter_value_hash": "sha256:3ce6277b48eceb9a65cac05322e7df2ec048c38785f09333c13df7df6f9c2747",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 120
+      }
+    },
+    {
+      "variant_id": "VAR-000121",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 90,
+        "vol_lookback_bars": 50,
+        "trend_lookback_bars": 100
+      },
+      "parameter_value_hash": "sha256:5d98918a417ac4c7ec3d4ffd4ba8a4e2931b658552b8b27c067dd666b146c73b",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 121
+      }
+    },
+    {
+      "variant_id": "VAR-000122",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 90,
+        "vol_lookback_bars": 50,
+        "trend_lookback_bars": 125
+      },
+      "parameter_value_hash": "sha256:7d7c4ac78bc0c54fc89eb142fe74647e376702748fbf35a94666db3e09ae3f5a",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 122
+      }
+    },
+    {
+      "variant_id": "VAR-000123",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 90,
+        "vol_lookback_bars": 50,
+        "trend_lookback_bars": 150
+      },
+      "parameter_value_hash": "sha256:644a8940a071e6bf9105e3276dfe6bc1739342e24cd0398ed631dedebea89794",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 123
+      }
+    },
+    {
+      "variant_id": "VAR-000124",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 90,
+        "vol_lookback_bars": 50,
+        "trend_lookback_bars": 175
+      },
+      "parameter_value_hash": "sha256:115634b833e20ff4aa75bd08bb3d8bc19010a63841831441a36778e31b5d26b5",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 124
+      }
+    },
+    {
+      "variant_id": "VAR-000125",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 90,
+        "vol_lookback_bars": 50,
+        "trend_lookback_bars": 200
+      },
+      "parameter_value_hash": "sha256:87980347c916881be838cfc0bf5989d2642e0ec035da3f1e2ee1b8fc9472c1c5",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 125
+      }
+    },
+    {
+      "variant_id": "VAR-000126",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 100,
+        "vol_lookback_bars": 30,
+        "trend_lookback_bars": 100
+      },
+      "parameter_value_hash": "sha256:915c3e4fa66b08511c49541c8ec55aaab67e726ba811dc313671abc4322f71a1",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 126
+      }
+    },
+    {
+      "variant_id": "VAR-000127",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 100,
+        "vol_lookback_bars": 30,
+        "trend_lookback_bars": 125
+      },
+      "parameter_value_hash": "sha256:acb9a920a8b786d88e362812f0c24e6c514e620cee52b5e5ef8c9e834f9d5895",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 127
+      }
+    },
+    {
+      "variant_id": "VAR-000128",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 100,
+        "vol_lookback_bars": 30,
+        "trend_lookback_bars": 150
+      },
+      "parameter_value_hash": "sha256:82513e14c128d83dd1e69cbbbc3236740bd5062b1763fcccd8925de8b5a9aac5",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 128
+      }
+    },
+    {
+      "variant_id": "VAR-000129",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 100,
+        "vol_lookback_bars": 30,
+        "trend_lookback_bars": 175
+      },
+      "parameter_value_hash": "sha256:66743153beb59da75a45bca9d6f5c7d226c76c0bc00bbd98fbdc407bba0331be",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 129
+      }
+    },
+    {
+      "variant_id": "VAR-000130",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 100,
+        "vol_lookback_bars": 30,
+        "trend_lookback_bars": 200
+      },
+      "parameter_value_hash": "sha256:8ac4d2a1de5170b8439edc7911add5fb61437c8a26b95e538dbf5c8f9bf5d5b5",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 130
+      }
+    },
+    {
+      "variant_id": "VAR-000131",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 100,
+        "vol_lookback_bars": 35,
+        "trend_lookback_bars": 100
+      },
+      "parameter_value_hash": "sha256:0e03641ed701f0892249b78a49b8fabfd3ef4301d6f775605ca6f243dfd9e6ac",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 131
+      }
+    },
+    {
+      "variant_id": "VAR-000132",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 100,
+        "vol_lookback_bars": 35,
+        "trend_lookback_bars": 125
+      },
+      "parameter_value_hash": "sha256:22a9701f1c2225c8b977bca4b29818c616e47e0314e4e5f1cc7b8dee3c0e65b8",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 132
+      }
+    },
+    {
+      "variant_id": "VAR-000133",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 100,
+        "vol_lookback_bars": 35,
+        "trend_lookback_bars": 150
+      },
+      "parameter_value_hash": "sha256:601cafa0a80f124dfb3a8b6e48f5e912ce7646aae54875c736b0012aba24ebd7",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 133
+      }
+    },
+    {
+      "variant_id": "VAR-000134",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 100,
+        "vol_lookback_bars": 35,
+        "trend_lookback_bars": 175
+      },
+      "parameter_value_hash": "sha256:928254c75c429b20d3ce57651c6c715c5030f3bd127a79863dba725a1d45688f",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 134
+      }
+    },
+    {
+      "variant_id": "VAR-000135",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 100,
+        "vol_lookback_bars": 35,
+        "trend_lookback_bars": 200
+      },
+      "parameter_value_hash": "sha256:16cd8a82fbd5820b12511396158ae8612ab51a831e82a52bb9c8401a3a052f4f",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 135
+      }
+    },
+    {
+      "variant_id": "VAR-000136",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 100,
+        "vol_lookback_bars": 40,
+        "trend_lookback_bars": 100
+      },
+      "parameter_value_hash": "sha256:58b7c15e61aa4bb75918f986d61b7da233d56733f00263250dad05429772e022",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 136
+      }
+    },
+    {
+      "variant_id": "VAR-000137",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 100,
+        "vol_lookback_bars": 40,
+        "trend_lookback_bars": 125
+      },
+      "parameter_value_hash": "sha256:89c5508124e3c57975454d0c362cb6f570410e98036709064a654f1608b9149b",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 137
+      }
+    },
+    {
+      "variant_id": "VAR-000138",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 100,
+        "vol_lookback_bars": 40,
+        "trend_lookback_bars": 150
+      },
+      "parameter_value_hash": "sha256:361d7afebf9c911fb3cf39b82a7d8ac99a1d72f22e11757933ba72fe1d566d40",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 138
+      }
+    },
+    {
+      "variant_id": "VAR-000139",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 100,
+        "vol_lookback_bars": 40,
+        "trend_lookback_bars": 175
+      },
+      "parameter_value_hash": "sha256:f8e19f603b5344fed3d20296a2d7b6a0ab42e72e91d15d9dd86348981d1c5d65",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 139
+      }
+    },
+    {
+      "variant_id": "VAR-000140",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 100,
+        "vol_lookback_bars": 40,
+        "trend_lookback_bars": 200
+      },
+      "parameter_value_hash": "sha256:e16da3692561e2e0ceb0d08a3f6d0b55c6b43fbcbe30751da0032624830ee916",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 140
+      }
+    },
+    {
+      "variant_id": "VAR-000141",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 100,
+        "vol_lookback_bars": 45,
+        "trend_lookback_bars": 100
+      },
+      "parameter_value_hash": "sha256:5cfb5dfecd75b5580f99686501093afead39a10afe90cdbb97910906332a751f",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 141
+      }
+    },
+    {
+      "variant_id": "VAR-000142",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 100,
+        "vol_lookback_bars": 45,
+        "trend_lookback_bars": 125
+      },
+      "parameter_value_hash": "sha256:0289bec8ec2ff8db20f2629dcf2a7fde2d9991c220e0a18143c1f97b238a24f7",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 142
+      }
+    },
+    {
+      "variant_id": "VAR-000143",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 100,
+        "vol_lookback_bars": 45,
+        "trend_lookback_bars": 150
+      },
+      "parameter_value_hash": "sha256:3702b8a3d7279475af0523052f2c036ca1479545578005c5ec74ebdb852eb50d",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 143
+      }
+    },
+    {
+      "variant_id": "VAR-000144",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 100,
+        "vol_lookback_bars": 45,
+        "trend_lookback_bars": 175
+      },
+      "parameter_value_hash": "sha256:eeef72bc6a81500f5c42ed555d5be1807418724c7c86862a2002f9eba8d460d8",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 144
+      }
+    },
+    {
+      "variant_id": "VAR-000145",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 100,
+        "vol_lookback_bars": 45,
+        "trend_lookback_bars": 200
+      },
+      "parameter_value_hash": "sha256:0d1d34d6a2aca8e607ce4a3252bdba356590f8f85eacff32c1224957b6abf976",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 145
+      }
+    },
+    {
+      "variant_id": "VAR-000146",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 100,
+        "vol_lookback_bars": 50,
+        "trend_lookback_bars": 100
+      },
+      "parameter_value_hash": "sha256:d9f4c95256e1008d821bfd8e0aba21fef07520b29cbec4bc89d9d65b9e9f80a1",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 146
+      }
+    },
+    {
+      "variant_id": "VAR-000147",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 100,
+        "vol_lookback_bars": 50,
+        "trend_lookback_bars": 125
+      },
+      "parameter_value_hash": "sha256:39590ddc2fe9bfc44cd60c34fd4c869300862435602aaa9ff5a53565ce9da9c7",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 147
+      }
+    },
+    {
+      "variant_id": "VAR-000148",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 100,
+        "vol_lookback_bars": 50,
+        "trend_lookback_bars": 150
+      },
+      "parameter_value_hash": "sha256:c55a3f17eb7126cbd0223f49a7b295de16dfa6d29d9694fc877fcdfc0ba66599",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 148
+      }
+    },
+    {
+      "variant_id": "VAR-000149",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 100,
+        "vol_lookback_bars": 50,
+        "trend_lookback_bars": 175
+      },
+      "parameter_value_hash": "sha256:78d8d700e394224f98f5e0e4de79edbaf17c4c93945b8a4cb2f6162e05f33847",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 149
+      }
+    },
+    {
+      "variant_id": "VAR-000150",
+      "assignment_status": "included",
+      "parameter_values": {
+        "center_lookback_bars": 100,
+        "vol_lookback_bars": 50,
+        "trend_lookback_bars": 200
+      },
+      "parameter_value_hash": "sha256:7d61efa642093abce0d89add76bd8022c4823b6b83da24a737d82054869a475b",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "repo-native-draft-grid-generator-manual-grid",
+        "generation_order": 150
+      }
+    }
+  ],
+  "manifest_hash_pinning": {
+    "manifest_hash": "sha256:55b42659a2ffe442d78131d9ab5b01ace80d2cbd95ac6d8966653579a88285a0",
+    "hash_algorithm": "sha256",
+    "canonicalization": "json_canonical_v1",
+    "hash_scope_version": "variant_manifest_hash_scope_v1",
+    "hash_scope": [
+      "schema_version",
+      "variant_manifest_id",
+      "parent_strategy_spec.strategy_spec_id",
+      "parent_strategy_spec.strategy_spec_hash",
+      "population_governance",
+      "parameter_axes",
+      "invalid_combination_rules",
+      "exclusion_rules",
+      "variant_assignments"
+    ],
+    "hash_status": "computed",
+    "frozen_at": "2026-06-19T00:00:00Z",
+    "pre_sweep_freeze_required": true,
+    "post_result_mutation_forbidden": true
+  },
+  "amendment_and_supersession": {
+    "amendment_mode": "none",
+    "supersedes": null,
+    "supersession_lineage": [],
+    "amendment_reason": null,
+    "associated_results_state": "no_associated_results",
+    "supersession_allowed": false,
+    "close_only_after_results": true,
+    "post_result_change": false,
+    "preserve_prior_manifest_required": true,
+    "fresh_denominator_required": true,
+    "does_not_inherit_prior_results": true
+  },
+  "lineage": {
+    "parent_refs": [
+      {
+        "ref_type": "strategy_spec",
+        "ref_id": "STRAT-SPEC-9101",
+        "ref_path": "scratch/EXT-INTEG-WORKFLOW-GEN-01/generated_strategy_specs/STRAT-SPEC-9101.strategy_spec.json",
+        "ref_hash": "sha256:7668f2e942bf0d5145d83dea17d0bf3366da27387bc817a769f94ddf809ebfe3"
+      }
+    ],
+    "source_refs": [
+      {
+        "ref_type": "manual_review",
+        "ref_id": "EXT-INTEG-WORKFLOW-GEN-01",
+        "ref_path": "docs/status_entries/EXT-INTEG-WORKFLOW-GEN-01.md",
+        "ref_hash": null
+      }
+    ],
+    "created_at": "2026-06-19T00:00:00Z",
+    "updated_at": "2026-06-19T00:00:00Z",
+    "audit_notes": [
+      "DRAFT WORKFLOW OUTPUT",
+      "NOT CANONICAL PREREGISTRATION",
+      "NOT CANDIDATE EVIDENCE",
+      "NOT SCREEN-GATE OR PROMOTION AUTHORITY",
+      "VALIDATED ONLY AGAINST STRUCTURAL REPO VALIDATORS",
+      "NOT PAPER / LIVE / RUNTIME AUTHORITY",
+      "Generated from an explicit deterministic Cartesian grid; no adaptive search is used.",
+      "Scratch placement prevents this artifact from becoming canonical VM authority."
+    ],
+    "hash_refs": [
+      "sha256:7668f2e942bf0d5145d83dea17d0bf3366da27387bc817a769f94ddf809ebfe3",
+      "sha256:5ec72797c8bae1ffc0e5bb1605589d07dfc57230850a69726ddb544244a3f86d"
+    ]
+  },
+  "review": {
+    "human_review_required": true,
+    "reviewer": null,
+    "reviewed_at": null,
+    "review_notes": [
+      "Draft workflow generator artifact only; explicit future adoption is required before canonical use.",
+      "No sweep execution, result population write, ranking, gate, or promotion authority is created."
+    ],
+    "approval_scope": "sweep_planning_only",
+    "non_authority_acknowledgement": {
+      "not_candidate_approval": true,
+      "not_exp_approval": true,
+      "not_sweep_authority": true,
+      "not_runner_authority": true,
+      "not_result_authority": true,
+      "not_ranking_authority": true,
+      "not_recommendation_authority": true,
+      "not_readiness_authority": true,
+      "not_transition_authority": true,
+      "not_runtime_authority": true,
+      "not_paper_live_authority": true,
+      "not_gate_satisfaction": true
+    }
+  }
+}

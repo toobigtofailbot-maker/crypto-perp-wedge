@@ -74,7 +74,7 @@ adapter scope; this package uses RP-2592 per the package fixture-selection rule.
 - Bootstrap sample checksum:
   `sha256:fc762b525e4b65046a337ec626a9f38be61f4829b8f527362c2eff76a213de49`
 - Output checksum:
-  `sha256:9032398944c06d1d9e112ba699ca75997c53538a11a383b54d38d91715a5bc09`
+  `sha256:5c08c31bdf5130c75be573923b3280a1e60e947a6bef2d13fdbdb21adfdfef30`
 
 Bootstrap CI summary over RP-2592 row metrics:
 

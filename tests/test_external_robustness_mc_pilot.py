@@ -228,6 +228,23 @@ def test_default_run_outputs_do_not_embed_local_repo_paths(tmp_path):
         assert f"/{root.name}/" not in text
 
 
+def test_committed_report_checksums_match_status_entry():
+    report_json = (
+        pilot.REPO_ROOT
+        / "scratch"
+        / pilot.PACKAGE_ID
+        / "robustness_report.json"
+    )
+    report_md = pilot.REPO_ROOT / "scratch" / pilot.PACKAGE_ID / "robustness_report.md"
+    status_entry = pilot.REPO_ROOT / "docs" / "status_entries" / f"{pilot.PACKAGE_ID}.md"
+
+    payload = json.loads(report_json.read_text(encoding="utf-8"))
+    checksum = payload["output_checksum"]
+
+    assert checksum in report_md.read_text(encoding="utf-8")
+    assert checksum in status_entry.read_text(encoding="utf-8")
+
+
 def test_source_does_not_use_network_or_canonical_writes():
     source = (pilot.REPO_ROOT / "tools/external_pilots/robustness_mc_pilot.py").read_text(
         encoding="utf-8"

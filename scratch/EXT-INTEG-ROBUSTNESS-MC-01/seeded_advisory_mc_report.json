@@ -1,0 +1,539 @@
+{
+  "bootstrap_ci": {
+    "drawdown": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 0.6398843941516353,
+      "ci_lower": 0.6048597429260648,
+      "ci_upper": 0.6726167974730358,
+      "confidence_level": 0.95,
+      "metric": "drawdown",
+      "observed_mean": 0.6396255106984028,
+      "row_count": 8,
+      "sample_count": 1000
+    },
+    "exposure": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 1.0,
+      "ci_lower": 1.0,
+      "ci_upper": 1.0,
+      "confidence_level": 0.95,
+      "metric": "exposure",
+      "observed_mean": 1.0,
+      "row_count": 8,
+      "sample_count": 1000
+    },
+    "fees": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 11430.876014197538,
+      "ci_lower": 8526.300997597984,
+      "ci_upper": 14012.12492335079,
+      "confidence_level": 0.95,
+      "metric": "fees",
+      "observed_mean": 11407.455777723917,
+      "row_count": 8,
+      "sample_count": 1000
+    },
+    "funding": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 0.0,
+      "ci_lower": 0.0,
+      "ci_upper": 0.0,
+      "confidence_level": 0.95,
+      "metric": "funding",
+      "observed_mean": 0.0,
+      "row_count": 8,
+      "sample_count": 1000
+    },
+    "pnl": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 3013.226643928187,
+      "ci_lower": -382.0206479433184,
+      "ci_upper": 6223.171444929774,
+      "confidence_level": 0.95,
+      "metric": "pnl",
+      "observed_mean": 2998.133178257878,
+      "row_count": 8,
+      "sample_count": 1000
+    },
+    "return_pct": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 0.3099893028479074,
+      "ci_lower": -0.01241983410590339,
+      "ci_upper": 0.6130195217702804,
+      "confidence_level": 0.95,
+      "metric": "return_pct",
+      "observed_mean": 0.29981331782578785,
+      "row_count": 8,
+      "sample_count": 1000
+    },
+    "sharpe": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 0.2785580942071443,
+      "ci_lower": 0.15439503079711975,
+      "ci_upper": 0.37941753734026207,
+      "confidence_level": 0.95,
+      "metric": "sharpe",
+      "observed_mean": 0.2771542548171937,
+      "row_count": 8,
+      "sample_count": 1000
+    },
+    "slippage": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 2832.346766349415,
+      "ci_lower": 2123.0916355749896,
+      "ci_upper": 3462.6804309018253,
+      "confidence_level": 0.95,
+      "metric": "slippage",
+      "observed_mean": 2851.8639444309792,
+      "row_count": 8,
+      "sample_count": 1000
+    },
+    "trade_count": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 932.801375,
+      "ci_lower": 763.3468750000001,
+      "ci_upper": 1103.8875,
+      "confidence_level": 0.95,
+      "metric": "trade_count",
+      "observed_mean": 929.5,
+      "row_count": 8,
+      "sample_count": 1000
+    },
+    "win_rate": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 0.31510196214772884,
+      "ci_lower": 0.2955022468779247,
+      "ci_upper": 0.3339298478391354,
+      "confidence_level": 0.95,
+      "metric": "win_rate",
+      "observed_mean": 0.3149938303694375,
+      "row_count": 8,
+      "sample_count": 1000
+    }
+  },
+  "bootstrap_sample_count": 1000,
+  "bootstrap_samples_checksum": "sha256:6c7434602cc8235fadec0b75f13548e77cb7f7684e40e8884f52eef286a52121",
+  "boundary_statement": {
+    "candidate_evidence_authority_created": false,
+    "canonical_result_population_write": false,
+    "fabricated_per_trade_data": false,
+    "promotion_readiness_authority_created": false,
+    "runner_backtester_touched": false,
+    "runtime_paper_live_touched": false,
+    "screen_gate_authority_created": false,
+    "strategy_spec_vm_sweep_write": false
+  },
+  "confidence_level": 0.95,
+  "decision_label": "ADOPT_AS_ROBUSTNESS_LAYER",
+  "fixture": {
+    "checksum": "sha256:d548bfe884b8ad3ec749627da60f54fff9d54d58032eb779342fa56111c713b8",
+    "data_slice_identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+    "path": "research/result_populations/RP-2592.result_population.json",
+    "result_population_id": "RP-2592",
+    "row_count": 8,
+    "row_filter": "attempted_true_and_outcome_category_successful",
+    "source_fields_used": [
+      "variant_result_rows[].variant_id",
+      "variant_result_rows[].metrics.return_pct",
+      "variant_result_rows[].metrics.pnl",
+      "variant_result_rows[].metrics.drawdown",
+      "variant_result_rows[].metrics.sharpe",
+      "variant_result_rows[].metrics.trade_count",
+      "variant_result_rows[].metrics.win_rate",
+      "variant_result_rows[].metrics.fees",
+      "variant_result_rows[].metrics.funding",
+      "variant_result_rows[].metrics.slippage",
+      "variant_result_rows[].metrics.exposure"
+    ],
+    "strategy_spec_id": "STRAT-SPEC-0004",
+    "sweep_plan_id": "SWEEP-PLAN-0004",
+    "timeframe": "15m",
+    "variant_manifest_id": "VM-0004"
+  },
+  "fixture_validation": {
+    "input_checksum": "sha256:d548bfe884b8ad3ec749627da60f54fff9d54d58032eb779342fa56111c713b8",
+    "input_path": "research/result_populations/RP-2592.result_population.json",
+    "result_population_id": "RP-2592",
+    "row_count": 8,
+    "status": "passed",
+    "validation_scope": "advisory_fixture_shape_only",
+    "warnings": []
+  },
+  "labels": [
+    "ADVISORY ROBUSTNESS / SEEDED MONTE CARLO OUTPUT",
+    "NON-CANONICAL REPORT",
+    "NOT A RESULT POPULATION",
+    "NOT SCREEN-GATE AUTHORITY",
+    "NOT STRATEGY / VM / SWEEP AUTHORITY",
+    "NOT CANDIDATE EVIDENCE AUTHORITY",
+    "NOT PROMOTION / READINESS AUTHORITY",
+    "NOT PAPER / LIVE / RUNTIME AUTHORITY",
+    "PER-TRADE MONTE CARLO USES ONLY REAL PER-TRADE DATA IF AVAILABLE",
+    "MISSING PER-TRADE DATA MUST BE REPORTED, NOT FABRICATED"
+  ],
+  "metrics_skipped": [],
+  "metrics_used": [
+    "drawdown",
+    "exposure",
+    "fees",
+    "funding",
+    "pnl",
+    "return_pct",
+    "sharpe",
+    "slippage",
+    "trade_count",
+    "win_rate"
+  ],
+  "missing_data_notes": [
+    "Only finite numeric values from existing Result Population row metrics are bootstrapped.",
+    "Per-trade rows are not present in committed Result Populations and were not fabricated.",
+    "The report is advisory and non-canonical; it is not a screen gate or promotion input by itself."
+  ],
+  "output_checksum": "sha256:5a400437ed6df521184dc372a42ad640baeb5c42e79190f10704634174c4f672",
+  "package_id": "EXT-INTEG-ROBUSTNESS-MC-01",
+  "parameter_sensitivity": {
+    "authority": "advisory_only_not_ranking_not_gate",
+    "parameter_count": 3,
+    "parameters": [
+      {
+        "parameter_name": "fast_lookback_bars",
+        "value_count": 2,
+        "values": [
+          {
+            "metrics": {
+              "drawdown": {
+                "count": 4,
+                "mean": 0.6497965884107357
+              },
+              "exposure": {
+                "count": 4,
+                "mean": 1.0
+              },
+              "fees": {
+                "count": 4,
+                "mean": 12475.72819563156
+              },
+              "funding": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "pnl": {
+                "count": 4,
+                "mean": 2170.6075290962426
+              },
+              "return_pct": {
+                "count": 4,
+                "mean": 0.21706075290962423
+              },
+              "sharpe": {
+                "count": 4,
+                "mean": 0.2507552068409148
+              },
+              "slippage": {
+                "count": 4,
+                "mean": 3118.93204890789
+              },
+              "trade_count": {
+                "count": 4,
+                "mean": 1047.75
+              },
+              "win_rate": {
+                "count": 4,
+                "mean": 0.2902991072965356
+              }
+            },
+            "parameter_value": "20",
+            "variant_ids": [
+              "VAR-000001",
+              "VAR-000002",
+              "VAR-000003",
+              "VAR-000004"
+            ]
+          },
+          {
+            "metrics": {
+              "drawdown": {
+                "count": 4,
+                "mean": 0.6294544329860698
+              },
+              "exposure": {
+                "count": 4,
+                "mean": 1.0
+              },
+              "fees": {
+                "count": 4,
+                "mean": 10339.183359816272
+              },
+              "funding": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "pnl": {
+                "count": 4,
+                "mean": 3825.6588274195146
+              },
+              "return_pct": {
+                "count": 4,
+                "mean": 0.38256588274195147
+              },
+              "sharpe": {
+                "count": 4,
+                "mean": 0.3035533027934726
+              },
+              "slippage": {
+                "count": 4,
+                "mean": 2584.795839954068
+              },
+              "trade_count": {
+                "count": 4,
+                "mean": 811.25
+              },
+              "win_rate": {
+                "count": 4,
+                "mean": 0.33968855344233934
+              }
+            },
+            "parameter_value": "50",
+            "variant_ids": [
+              "VAR-000005",
+              "VAR-000006",
+              "VAR-000007",
+              "VAR-000008"
+            ]
+          }
+        ]
+      },
+      {
+        "parameter_name": "slow_lookback_bars",
+        "value_count": 2,
+        "values": [
+          {
+            "metrics": {
+              "drawdown": {
+                "count": 4,
+                "mean": 0.6532523746363286
+              },
+              "exposure": {
+                "count": 4,
+                "mean": 1.0
+              },
+              "fees": {
+                "count": 4,
+                "mean": 12948.846245547295
+              },
+              "funding": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "pnl": {
+                "count": 4,
+                "mean": 3765.566748980131
+              },
+              "return_pct": {
+                "count": 4,
+                "mean": 0.3765566748980131
+              },
+              "sharpe": {
+                "count": 4,
+                "mean": 0.2867322114908799
+              },
+              "slippage": {
+                "count": 4,
+                "mean": 3237.2115613868236
+              },
+              "trade_count": {
+                "count": 4,
+                "mean": 1160.0
+              },
+              "win_rate": {
+                "count": 4,
+                "mean": 0.31834540943137013
+              }
+            },
+            "parameter_value": "100",
+            "variant_ids": [
+              "VAR-000001",
+              "VAR-000002",
+              "VAR-000005",
+              "VAR-000006"
+            ]
+          },
+          {
+            "metrics": {
+              "drawdown": {
+                "count": 4,
+                "mean": 0.625998646760477
+              },
+              "exposure": {
+                "count": 4,
+                "mean": 1.0
+              },
+              "fees": {
+                "count": 4,
+                "mean": 9866.065309900538
+              },
+              "funding": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "pnl": {
+                "count": 4,
+                "mean": 2230.699607535626
+              },
+              "return_pct": {
+                "count": 4,
+                "mean": 0.2230699607535626
+              },
+              "sharpe": {
+                "count": 4,
+                "mean": 0.2675762981435074
+              },
+              "slippage": {
+                "count": 4,
+                "mean": 2466.5163274751344
+              },
+              "trade_count": {
+                "count": 4,
+                "mean": 699.0
+              },
+              "win_rate": {
+                "count": 4,
+                "mean": 0.31164225130750484
+              }
+            },
+            "parameter_value": "200",
+            "variant_ids": [
+              "VAR-000003",
+              "VAR-000004",
+              "VAR-000007",
+              "VAR-000008"
+            ]
+          }
+        ]
+      },
+      {
+        "parameter_name": "trend_lookback_bars",
+        "value_count": 2,
+        "values": [
+          {
+            "metrics": {
+              "drawdown": {
+                "count": 4,
+                "mean": 0.6844934378564819
+              },
+              "exposure": {
+                "count": 4,
+                "mean": 1.0
+              },
+              "fees": {
+                "count": 4,
+                "mean": 10128.464690831332
+              },
+              "funding": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "pnl": {
+                "count": 4,
+                "mean": 1714.958893535289
+              },
+              "return_pct": {
+                "count": 4,
+                "mean": 0.17149588935352894
+              },
+              "sharpe": {
+                "count": 4,
+                "mean": 0.2270453307365702
+              },
+              "slippage": {
+                "count": 4,
+                "mean": 2532.116172707833
+              },
+              "trade_count": {
+                "count": 4,
+                "mean": 929.25
+              },
+              "win_rate": {
+                "count": 4,
+                "mean": 0.3160367927675922
+              }
+            },
+            "parameter_value": "300",
+            "variant_ids": [
+              "VAR-000001",
+              "VAR-000003",
+              "VAR-000005",
+              "VAR-000007"
+            ]
+          },
+          {
+            "metrics": {
+              "drawdown": {
+                "count": 4,
+                "mean": 0.5947575835403238
+              },
+              "exposure": {
+                "count": 4,
+                "mean": 1.0
+              },
+              "fees": {
+                "count": 4,
+                "mean": 12686.446864616499
+              },
+              "funding": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "pnl": {
+                "count": 4,
+                "mean": 4281.307462980467
+              },
+              "return_pct": {
+                "count": 4,
+                "mean": 0.42813074629804676
+              },
+              "sharpe": {
+                "count": 4,
+                "mean": 0.32726317889781714
+              },
+              "slippage": {
+                "count": 4,
+                "mean": 3171.6117161541247
+              },
+              "trade_count": {
+                "count": 4,
+                "mean": 929.75
+              },
+              "win_rate": {
+                "count": 4,
+                "mean": 0.31395086797128263
+              }
+            },
+            "parameter_value": "400",
+            "variant_ids": [
+              "VAR-000002",
+              "VAR-000004",
+              "VAR-000006",
+              "VAR-000008"
+            ]
+          }
+        ]
+      }
+    ],
+    "source_path": "research/variant_manifests/VM-0004.variant_manifest.json",
+    "source_type": "variant_manifest",
+    "status": "performed"
+  },
+  "per_trade_monte_carlo": {
+    "fabricated_per_trade_data": false,
+    "finding": "PER_TRADE_DATA_MISSING",
+    "follow_up_label": "QUEUE_PER_TRADE_INSTRUMENTATION",
+    "performed": false,
+    "reason": "Committed Result Population rows expose aggregate per-variant metrics only; no real per-trade rows were found or supplied.",
+    "source_checksum": null,
+    "source_path": null,
+    "status": "QUEUE_PER_TRADE_INSTRUMENTATION"
+  },
+  "report_type": "seeded_advisory_robustness_mc",
+  "seed": 20260619
+}

@@ -98,8 +98,8 @@ dependency files.
 
 PR #517 is open as ready for review. The branch was rebased on current
 `origin/main` at `c095c88`; GitHub reported `MERGEABLE` with merge state
-`CLEAN` after the implementation push. Final status-fragment synchronization
-is included on the same package branch.
+`CLEAN` after implementation and status-fragment synchronization. Required
+validation was rerun after the final rebase.
 
 ## Next Dependency / Runway Note
 

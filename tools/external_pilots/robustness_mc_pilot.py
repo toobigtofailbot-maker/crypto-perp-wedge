@@ -77,6 +77,14 @@ def _sha256_file(path: Path) -> str:
     return _sha256_bytes(path.read_bytes())
 
 
+def _portable_report_path(path: Path) -> str:
+    resolved = path.resolve()
+    try:
+        return resolved.relative_to(REPO_ROOT.resolve()).as_posix()
+    except ValueError:
+        return f"external:{path.name}"
+
+
 def _finite_number(value: Any) -> float | None:
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         return None
@@ -253,7 +261,7 @@ def _parameter_sensitivity(
     if unavailable_reason is not None:
         return {
             "status": "insufficient_mapping",
-            "source_path": path.as_posix() if path else None,
+            "source_path": _portable_report_path(path) if path else None,
             "reason": unavailable_reason,
             "authority": "advisory_only_not_ranking_not_gate",
         }
@@ -299,7 +307,7 @@ def _parameter_sensitivity(
 
     return {
         "status": "performed",
-        "source_path": path.as_posix() if path else None,
+        "source_path": _portable_report_path(path) if path else None,
         "parameter_count": len(parameters),
         "parameters": parameters,
         "authority": "advisory_only_not_ranking_not_gate",
@@ -349,7 +357,7 @@ def _fixture_summary(path: Path, result_population: dict[str, Any], rows: list[d
     data = result_population.get("data_coverage_summary", {})
     return {
         "result_population_id": result_population.get("result_population_id"),
-        "path": path.as_posix(),
+        "path": _portable_report_path(path),
         "checksum": _sha256_file(path),
         "row_count": len(rows),
         "strategy_spec_id": lineage.get("strategy_spec_id"),

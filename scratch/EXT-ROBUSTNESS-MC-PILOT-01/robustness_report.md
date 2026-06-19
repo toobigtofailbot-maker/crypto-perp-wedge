@@ -14,12 +14,12 @@ Recommendation: `ADOPT_AS_ROBUSTNESS_LAYER`
 Seed: `20260618`
 Bootstrap samples: `1000`
 Confidence level: `0.95`
-Output checksum: `sha256:9032398944c06d1d9e112ba699ca75997c53538a11a383b54d38d91715a5bc09`
+Output checksum: `sha256:5c08c31bdf5130c75be573923b3280a1e60e947a6bef2d13fdbdb21adfdfef30`
 
 ## Fixture
 
 - Result Population: `RP-2592`
-- Path: `C:/GitHub/crypto-perp-wedge/research/result_populations/RP-2592.result_population.json`
+- Path: `research/result_populations/RP-2592.result_population.json`
 - Checksum: `sha256:d548bfe884b8ad3ec749627da60f54fff9d54d58032eb779342fa56111c713b8`
 - Rows used: `8`
 - VM: `VM-0004`

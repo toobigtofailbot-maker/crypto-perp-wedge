@@ -98,7 +98,7 @@
   "fixture": {
     "checksum": "sha256:d548bfe884b8ad3ec749627da60f54fff9d54d58032eb779342fa56111c713b8",
     "data_slice_identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
-    "path": "C:/GitHub/crypto-perp-wedge/research/result_populations/RP-2592.result_population.json",
+    "path": "research/result_populations/RP-2592.result_population.json",
     "result_population_id": "RP-2592",
     "row_count": 8,
     "source_fields_used": [
@@ -153,7 +153,7 @@
     "status": "unavailable",
     "version": null
   },
-  "output_checksum": "sha256:9032398944c06d1d9e112ba699ca75997c53538a11a383b54d38d91715a5bc09",
+  "output_checksum": "sha256:5c08c31bdf5130c75be573923b3280a1e60e947a6bef2d13fdbdb21adfdfef30",
   "package_id": "EXT-ROBUSTNESS-MC-PILOT-01",
   "parameter_sensitivity": {
     "authority": "advisory_only_not_ranking_not_gate",
@@ -436,7 +436,7 @@
         ]
       }
     ],
-    "source_path": "C:/GitHub/crypto-perp-wedge/research/variant_manifests/VM-0004.variant_manifest.json",
+    "source_path": "research/variant_manifests/VM-0004.variant_manifest.json",
     "status": "performed"
   },
   "seed": 20260618,

@@ -1,5 +1,6 @@
 import json
 import math
+import re
 from pathlib import Path
 
 import pytest
@@ -169,8 +170,13 @@ def test_default_rp_2592_has_parameter_sensitivity_mapping():
     report, _samples = pilot.build_report(bootstrap_samples=10)
 
     assert report["fixture"]["result_population_id"] == "RP-2592"
+    assert report["fixture"]["path"] == "research/result_populations/RP-2592.result_population.json"
     assert report["fixture"]["variant_manifest_id"] == "VM-0004"
     assert report["parameter_sensitivity"]["status"] == "performed"
+    assert (
+        report["parameter_sensitivity"]["source_path"]
+        == "research/variant_manifests/VM-0004.variant_manifest.json"
+    )
     assert report["parameter_sensitivity"]["parameter_count"] == 3
     assert report["trade_order_resampling"]["status"] == "PER_TRADE_DATA_MISSING"
     assert "return_pct" in report["metrics_used"]
@@ -200,6 +206,26 @@ def test_run_pilot_writes_expected_scratch_outputs(tmp_path):
     markdown = (output_dir / "robustness_report.md").read_text(encoding="utf-8")
     assert "NON-CANONICAL ROBUSTNESS / MONTE CARLO PILOT OUTPUT" in markdown
     assert "NOT SCREEN-GATE AUTHORITY" in markdown
+
+
+def test_default_run_outputs_do_not_embed_local_repo_paths(tmp_path):
+    output_dir = tmp_path / "scratch"
+
+    report = pilot.run_pilot(output_dir=output_dir, bootstrap_samples=10)
+
+    assert report["fixture"]["path"] == "research/result_populations/RP-2592.result_population.json"
+    assert (
+        report["parameter_sensitivity"]["source_path"]
+        == "research/variant_manifests/VM-0004.variant_manifest.json"
+    )
+
+    root = pilot.REPO_ROOT.resolve()
+    bad_tokens = {str(root), str(root).replace("\\", "/"), "C:/", "C:\\"}
+    for path in (output_dir / "robustness_report.json", output_dir / "robustness_report.md"):
+        text = path.read_text(encoding="utf-8")
+        assert not any(token and token in text for token in bad_tokens)
+        assert not re.search(r"\b[A-Za-z]:[\\/]", text)
+        assert f"/{root.name}/" not in text
 
 
 def test_source_does_not_use_network_or_canonical_writes():

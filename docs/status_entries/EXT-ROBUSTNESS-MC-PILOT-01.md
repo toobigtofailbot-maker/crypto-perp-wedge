@@ -105,7 +105,7 @@ Bootstrap CI summary over RP-2592 row metrics:
 ## Validation Summary
 
 - `.\.venv\Scripts\python.exe -m pytest tests/test_external_robustness_mc_pilot.py -q`:
-  `PASS`, 11 passed.
+  `PASS`, 13 passed.
 - `.\.venv\Scripts\python.exe -m pytest tests/test_external_analytics_pilot.py -q`:
   `PASS`, 7 passed.
 - `.\.venv\Scripts\python.exe -m pytest tests/test_research_query.py -q`:
@@ -115,7 +115,7 @@ Bootstrap CI summary over RP-2592 row metrics:
   under `scratch/EXT-ROBUSTNESS-MC-PILOT-01/`.
 - `.\.venv\Scripts\python.exe tools\dev\verify.py --integrity-views --full-pytest-sharded --pytest-shards 4 --pytest-shard-workers 4 --full-pytest-timeout-seconds 900`:
   `PASS`; diff checks, forbidden-scope check, result-population validator,
-  query view listing, 4 pytest shards over 73 test files, and all discovered
+  query view listing, 4 pytest shards over 74 test files, and all discovered
   integrity views passed/clean.
 
 ## Boundary Summary

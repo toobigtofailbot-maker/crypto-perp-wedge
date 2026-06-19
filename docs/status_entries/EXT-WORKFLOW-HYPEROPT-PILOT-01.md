@@ -3,7 +3,7 @@
 ## Branch / PR
 
 - Branch: `ext/workflow-hyperopt-pilot-01`
-- PR: pending
+- PR: `https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/512`
 
 ## Package Class
 

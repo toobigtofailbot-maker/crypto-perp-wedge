@@ -1,0 +1,240 @@
+{
+  "boundary_statement": {
+    "candidate_evidence_authority_created": false,
+    "canonical_result_population_write": false,
+    "external_dependency_added_to_repo": false,
+    "machine_local_absolute_paths_in_outputs": false,
+    "oms_risk_reconciliation_changed": false,
+    "promotion_readiness_authority_created": false,
+    "runner_backtester_changed": false,
+    "runtime_paper_live_touched": false,
+    "screen_gate_authority_created": false,
+    "strategy_spec_mutation": false,
+    "sweep_plan_mutation": false,
+    "variant_manifest_mutation": false
+  },
+  "broader_adoption_taxonomy": "blocked",
+  "decision_recommendation": "BLOCKED",
+  "determinism": {
+    "byte_identical": false,
+    "checksum": null,
+    "normalized_identical": false,
+    "reason": "NautilusTrader offline backtest did not execute.",
+    "repeated_runs": false,
+    "result": "not_established"
+  },
+  "fixture": {
+    "bar_timing_assumption": "next_open_close_mark",
+    "data_catalog_path": "research/data_slices/binance_usdtm_btcusdt_15m/binance_usdtm_btcusdt_15m_20200101_20260411.catalog_slice.json",
+    "data_slice_identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+    "fee_assumption": "taker_entry_taker_exit",
+    "fill_assumption": "complete",
+    "funding_assumption": "RP-2592 metrics record funding=0.0 for all rows",
+    "liquidation_assumption": "zero_equity",
+    "normalized_data_local_exists": true,
+    "normalized_data_path": "data/processed/d4a/binance_um_perp_BTCUSDT_15m_2020-01-01_2026-04-11_d4a_normalized.csv",
+    "result_population_checksum": "sha256:d548bfe884b8ad3ec749627da60f54fff9d54d58032eb779342fa56111c713b8",
+    "result_population_id": "RP-2592",
+    "result_population_path": "research/result_populations/RP-2592.result_population.json",
+    "rp_metric_summary": {
+      "drawdown": {
+        "max": 0.7123328594559596,
+        "mean": 0.6396255106984028,
+        "min": 0.5654439160780094
+      },
+      "fees": {
+        "max": 16776.409937273624,
+        "mean": 11407.455777723917,
+        "min": 5604.614571128319
+      },
+      "funding": {
+        "max": 0.0,
+        "mean": 0.0,
+        "min": 0.0
+      },
+      "return_pct": {
+        "max": 0.9547276045038677,
+        "mean": 0.29981331782578785,
+        "min": -0.4297456084068094
+      },
+      "sharpe": {
+        "max": 0.4645019846823303,
+        "mean": 0.2771542548171937,
+        "min": -0.019888406147748137
+      },
+      "slippage": {
+        "max": 4194.102484318406,
+        "mean": 2851.8639444309792,
+        "min": 1401.1536427820797
+      },
+      "trade_count": {
+        "max": 1300,
+        "mean": 929.5,
+        "min": 577
+      }
+    },
+    "rp_row_count": 8,
+    "rp_successful_row_count": 8,
+    "selected_variant_count": 8,
+    "selected_variant_ids": [
+      "VAR-000001",
+      "VAR-000002",
+      "VAR-000003",
+      "VAR-000004",
+      "VAR-000005",
+      "VAR-000006",
+      "VAR-000007",
+      "VAR-000008"
+    ],
+    "sizing_assumption": "future offline runner assumption: dynamic_equity_target_leverage at target_leverage=1.0, inherited as the comparable RP-7520/RP-7134 realism surface; no execution here",
+    "slippage_assumption": "fixed_bps",
+    "strategy_spec_id": "STRAT-SPEC-0004",
+    "strategy_spec_path": "research/strategy_specs/STRAT-SPEC-0004.strategy_spec.json",
+    "sweep_plan_id": "SWEEP-PLAN-0004",
+    "sweep_plan_path": "research/sweep_plans/SWEEP-PLAN-0004.sweep_plan.json",
+    "timeframe": "15m",
+    "variant_manifest_id": "VM-0004",
+    "variant_manifest_path": "research/variant_manifests/VM-0004.variant_manifest.json",
+    "variant_parameters": {
+      "VAR-000001": {
+        "fast_lookback_bars": 20,
+        "slow_lookback_bars": 100,
+        "trend_lookback_bars": 300
+      },
+      "VAR-000002": {
+        "fast_lookback_bars": 20,
+        "slow_lookback_bars": 100,
+        "trend_lookback_bars": 400
+      },
+      "VAR-000003": {
+        "fast_lookback_bars": 20,
+        "slow_lookback_bars": 200,
+        "trend_lookback_bars": 300
+      },
+      "VAR-000004": {
+        "fast_lookback_bars": 20,
+        "slow_lookback_bars": 200,
+        "trend_lookback_bars": 400
+      },
+      "VAR-000005": {
+        "fast_lookback_bars": 50,
+        "slow_lookback_bars": 100,
+        "trend_lookback_bars": 300
+      },
+      "VAR-000006": {
+        "fast_lookback_bars": 50,
+        "slow_lookback_bars": 100,
+        "trend_lookback_bars": 400
+      },
+      "VAR-000007": {
+        "fast_lookback_bars": 50,
+        "slow_lookback_bars": 200,
+        "trend_lookback_bars": 300
+      },
+      "VAR-000008": {
+        "fast_lookback_bars": 50,
+        "slow_lookback_bars": 200,
+        "trend_lookback_bars": 400
+      }
+    }
+  },
+  "jesse_concept_source": {
+    "installed_or_executed": false,
+    "reason": "Jesse was not installed or needed after Nautilus execution was blocked.",
+    "status": "deferred",
+    "used": false
+  },
+  "labels": [
+    "NON-CANONICAL EXTERNAL SIMULATOR PILOT OUTPUT",
+    "NOT A RESULT POPULATION",
+    "NOT STRATEGY / VM / SWEEP AUTHORITY",
+    "NOT CANONICAL RUNNER AUTHORITY",
+    "NOT BACKTEST REPLACEMENT AUTHORITY",
+    "NOT PAPER / LIVE / RUNTIME AUTHORITY",
+    "NOT OMS / RISK / RECONCILIATION AUTHORITY",
+    "CANONICAL-EVIDENCE USE REQUIRES SEPARATE MAPPING, VALIDATION, DETERMINISM, AUDITABILITY, PROVENANCE, AND MAIN/KARL APPROVAL"
+  ],
+  "next_gated_wp_suggestion": "Narrow environment-compatibility and minimal Nautilus offline backtest spike on a machine where the optional binary modules are allowed to load; no repo dependency mutation.",
+  "offline_guard": {
+    "credentials_used": false,
+    "exchange_sandbox_live_connection_used": false,
+    "private_order_account_methods_used": false,
+    "source_guard": {
+      "active_forbidden_pattern_hits": [],
+      "checked": true,
+      "no_network_or_exchange_adapter_calls": true,
+      "pattern_constants_present": [
+        "api_secret",
+        "open_orders",
+        "place_order",
+        "private_key",
+        "query_order"
+      ],
+      "source_path": "tools/external_pilots/simulator_pilot.py"
+    }
+  },
+  "output_checksum": "sha256:6f3eff7bfb26ca57c792813a56e4847b3011b3161b371836be300c8f15c3b4e0",
+  "package_id": "EXT-SIMULATOR-PILOT-01",
+  "recommendation_rationale": "NautilusTrader installed in isolation and source inspection found relevant simulator concepts, but no offline backtest produced simulator metrics in this package, so offline-only execution, reconciliation, and determinism are not established.",
+  "reconciliation": {
+    "bar_timing_differences": [
+      "Repo fixture records next_open_close_mark assumptions; Nautilus bar processing order was source-inspected only."
+    ],
+    "cost_model_differences": [
+      "Nautilus source exposes fee_model, but no run established repo fee parity."
+    ],
+    "fill_model_differences": [
+      "Nautilus source exposes bar_execution/fill_model/bar path controls; no run established repo next-open parity."
+    ],
+    "final_equity_return_comparison": "not_performed",
+    "funding_differences": [
+      "RP-2592 funding metrics are zero; no Nautilus funding cashflow mapping was executed."
+    ],
+    "integration_burden": "unmeasured_until_safe_offline_backtest_mapping_is_implemented",
+    "margin_liquidation_differences": [
+      "Nautilus source exposes margin_model and liquidation_enabled controls; no run established repo zero-equity parity."
+    ],
+    "rp_variants_available": 8,
+    "trade_count_comparison": "not_performed",
+    "unexplained_differences": [
+      "No simulator metrics were produced because no Nautilus offline backtest executed."
+    ],
+    "variants_attempted": 0,
+    "variants_expressible": 0
+  },
+  "simulator_candidate": {
+    "backtest_api_import_error": null,
+    "backtest_api_importable": true,
+    "candidate": "NautilusTrader",
+    "dependency_files_changed": false,
+    "isolated_environment_used": true,
+    "isolated_install_command": "python -m pip install nautilus_trader",
+    "metadata_available": true,
+    "offline_backtest_blocked_reason": "Safe repo-specific Nautilus strategy/data mapping was not implemented in this blocked pilot.",
+    "offline_backtest_executed": false,
+    "platform": "Windows",
+    "python_version": "3.14.3",
+    "source_inspection": {
+      "concepts": {
+        "bar_adaptive_high_low_ordering": true,
+        "bar_execution": true,
+        "default_leverage": true,
+        "fee_model": true,
+        "fill_model": true,
+        "liquidation_enabled": true,
+        "liquidation_trigger_ratio": true,
+        "liquidity_consumption": true,
+        "margin_model": true,
+        "queue_position": true
+      },
+      "notes": [
+        "Source inspection is advisory only and does not import exchange adapters.",
+        "The inspected config source exposes simulator knobs relevant to fill, bar path, margin, and liquidation review."
+      ],
+      "source_path": "external:nautilus_trader/backtest/config.py",
+      "source_read": true,
+      "status": "performed"
+    },
+    "version": "1.228.0"
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "labels": [
+    "DRAFT WORKFLOW PILOT OUTPUT",
+    "NOT CANONICAL RESULT POPULATION",
+    "NOT STRATEGY / VM / SWEEP AUTHORITY UNLESS VALIDATED AND EXPLICITLY ADOPTED",
+    "NOT CANDIDATE EVIDENCE AUTHORITY",
+    "NOT SCREEN-GATE AUTHORITY",
+    "NOT PROMOTION / READINESS AUTHORITY",
+    "NOT PAPER / LIVE / RUNTIME AUTHORITY"
+  ],
+  "package_id": "EXT-WORKFLOW-HYPEROPT-PILOT-01",
+  "materialization_kind": "repo_native_vm_sweep_parameter_space_v1",
+  "source_strategy_spec_ref": "research/strategy_specs/STRAT-SPEC-0003.strategy_spec.json",
+  "generated_strategy_spec_id": "STRAT-SPEC-9001",
+  "generated_variant_manifest_id": "VM-9001",
+  "generated_sweep_plan_id": "SWEEP-PLAN-9001",
+  "generated_variant_count": 150,
+  "axis_order": [
+    "center_lookback_bars",
+    "vol_lookback_bars",
+    "trend_lookback_bars"
+  ],
+  "axis_count": 3,
+  "deterministic_ordering": "axis_order_then_itertools_product_left_to_right",
+  "seed_used": null,
+  "generated_artifacts": {
+    "parameter_space": {
+      "path": "scratch/EXT-WORKFLOW-HYPEROPT-PILOT-01/parameter_space.json",
+      "checksum": "sha256:0a1d9b70fed66c7769367c77fce902e3efbddc5d3c7226dd7c54c451f6fbac5b"
+    },
+    "strategy_spec": {
+      "path": "scratch/EXT-WORKFLOW-HYPEROPT-PILOT-01/generated_strategy_specs/STRAT-SPEC-9001.strategy_spec.json",
+      "checksum": "sha256:8a5a53309ea48e35e20aafb8ae739219b0f6bd458381a3ccf9e888b234a6ade5"
+    },
+    "variant_manifest": {
+      "path": "scratch/EXT-WORKFLOW-HYPEROPT-PILOT-01/generated_variant_manifests/VM-9001.variant_manifest.json",
+      "checksum": "sha256:1e82471dab2c95ba762ab99ef595d9d075fab09a1c29ae76ace6d689d9c22aa4"
+    },
+    "sweep_plan": {
+      "path": "scratch/EXT-WORKFLOW-HYPEROPT-PILOT-01/generated_sweep_plans/SWEEP-PLAN-9001.sweep_plan.json",
+      "checksum": "sha256:f4597df363c13b3ba80b7033e2326660e9a9919c3cb27db1714305c34fde0a9c"
+    }
+  },
+  "deterministic_artifact_checksum": "sha256:53d157b29821c086eaab477bc5205920a42b1f2959d686969cede3bd76a93ea2",
+  "validator_authority": {
+    "strategy_spec_validator": {
+      "command": "python -m tools.registry.validate_strategy_specs --strategy-specs-dir scratch/EXT-WORKFLOW-HYPEROPT-PILOT-01/generated_strategy_specs",
+      "passed": true,
+      "errors": []
+    },
+    "variant_sweep_validator": {
+      "command": "python -m tools.registry.validate_variant_sweep_artifacts --variant-manifests-dir scratch/EXT-WORKFLOW-HYPEROPT-PILOT-01/generated_variant_manifests --sweep-plans-dir scratch/EXT-WORKFLOW-HYPEROPT-PILOT-01/generated_sweep_plans --strategy-specs-dir scratch/EXT-WORKFLOW-HYPEROPT-PILOT-01/generated_strategy_specs",
+      "passed": true,
+      "errors": []
+    }
+  },
+  "external_source_posture": {
+    "freqtrade_source_inspection": "not_inspected_no_network_needed",
+    "qlib_source_inspection": "not_inspected_no_network_needed",
+    "repo_native_concepts_only": true,
+    "external_dependency_added": false,
+    "external_runtime_tool_invoked": false
+  },
+  "experiment_tracking_concept": {
+    "status": "docs_only_concept_in_report",
+    "concept": "Future non-canonical trial indexes could group parameter-space specs, generated draft artifacts, validator results, and later run evidence by search_family_id without ranking or promotion authority.",
+    "canonical_trial_log_mutated": false,
+    "candidate_ranking_authority": false
+  },
+  "boundary_statement": {
+    "canonical_result_population_write": false,
+    "canonical_strategy_spec_mutation": false,
+    "canonical_variant_manifest_mutation": false,
+    "canonical_sweep_plan_mutation": false,
+    "screen_gate_authority_created": false,
+    "promotion_readiness_authority_created": false,
+    "candidate_evidence_authority_created": false,
+    "runner_backtester_changed": false,
+    "runtime_paper_live_touched": false,
+    "oms_risk_reconciliation_credentials_order_paths_touched": false
+  },
+  "decision_recommendation": "ADOPT_AS_WORKFLOW_ACCELERATOR",
+  "broader_adoption_taxonomy": "adopt",
+  "next_gated_wp_suggestion": "Narrow design for promoting scratch-generated draft VM/Sweep artifacts into canonical pre-registration only after explicit human ID assignment and validator gates.",
+  "output_checksum": "sha256:054cf0109bb7da55a63dab852161848bbe0f28aa5e8e7bf696990b25209bf1d1"
+}

@@ -1,0 +1,50 @@
+{
+  "adapter_package_id": "EXT-INTEG-CCXT-FUNDING-ADAPTER-01",
+  "backtest_cost_model_authority": false,
+  "canonical_data_authority": false,
+  "catalog_status": "repo_owned_public_data_adapter_snapshot",
+  "ccxt_exchange_id": "binanceusdm",
+  "ccxt_version": "4.5.59",
+  "checksum": "sha256:58cab557e1a35d7832dc8d23424a5c3969706d516de9a9d3c2ed786b224c4666",
+  "data_type": "funding_rate",
+  "dataset_name": "ccxt_public_binance_usdtm_btcusdt_funding_rate_8h_adapter",
+  "decision_label": "ADOPT_AS_PUBLIC_DATA_ADAPTER",
+  "duplicate_timestamps": {
+    "dedupe_report": {
+      "raw_duplicate_group_count_removed": 0,
+      "raw_duplicate_row_count_removed": 0,
+      "raw_duplicate_timestamps_utc": []
+    },
+    "duplicate_group_count": 0,
+    "duplicate_timestamps_utc": []
+  },
+  "exchange": "Binance",
+  "labels": [
+    "REPO-OWNED CCXT PUBLIC-DATA ADAPTER OUTPUT",
+    "NOT CANONICAL DATA AUTHORITY WITHOUT SEPARATE PROMOTION",
+    "NOT A RESULT POPULATION",
+    "NOT STRATEGY / VM / SWEEP AUTHORITY",
+    "NOT BACKTEST COST-MODEL AUTHORITY",
+    "NOT PAPER / LIVE / RUNTIME AUTHORITY",
+    "FUNDING-INTO-BACKTEST REQUIRES A SEPARATE GATED WP"
+  ],
+  "market_type": "USDT-M perpetual",
+  "missing_intervals": {
+    "gap_count": 0,
+    "gaps": [],
+    "missing_event_count": 0
+  },
+  "normalized_snapshot_path": "scratch/EXT-INTEG-CCXT-FUNDING-ADAPTER-01/funding_snapshot.normalized.jsonl",
+  "observed_end_utc": "2026-04-11T16:00:00Z",
+  "observed_start_utc": "2020-01-01T00:00:00Z",
+  "provenance_path": "scratch/EXT-INTEG-CCXT-FUNDING-ADAPTER-01/provenance.json",
+  "row_count": 6879,
+  "runtime_authority": false,
+  "source_method": "ccxt.binanceusdm.fapiPublicGetFundingRate",
+  "symbol": "BTCUSDT",
+  "timeframe": "8h funding events",
+  "validation_report_path": "scratch/EXT-INTEG-CCXT-FUNDING-ADAPTER-01/validation_report.json",
+  "validation_report_sha256": "sha256:844d1ec304d348f2f7528f2b82c585ac1f74b3fbffb265622056781f1160ae3b",
+  "window_end_utc": "2026-04-11T23:45:00Z",
+  "window_start_utc": "2020-01-01T00:00:00Z"
+}

@@ -320,3 +320,23 @@
 - Row count: 6879
 - Validation summary: PASS; zero missing 8h events, zero duplicate timestamps, zero outside-window rows; exact exchange timestamps are preserved in `exchange_funding_time_*`, while nominal 8h event timestamps are stored in `funding_time_*`.
 - Authority: NON-CANONICAL EXTERNAL PUBLIC-DATA PILOT OUTPUT; not a Result Population, Strategy Spec, Variant Manifest, Sweep Plan, backtest cost-model input, paper/live/runtime input, or canonical trading evidence.
+
+## Dataset: BTCUSDT funding rates CCXT public-data adapter (Binance USDT-M Perp) - JSONL
+- Source: CCXT `binanceusdm` public REST method `fapiPublicGetFundingRate`
+- Symbol/Contract: BTCUSDT (USDT-M Perpetual)
+- Data type: funding_rate
+- Timeframe: 8h funding events
+- Range (target): 2020-01-01T00:00:00Z / 2026-04-11T23:45:00Z
+- Range (observed): 2020-01-01T00:00:00Z / 2026-04-11T16:00:00Z
+- Created (UTC): 2026-06-19
+- SHA256: sha256:58cab557e1a35d7832dc8d23424a5c3969706d516de9a9d3c2ed786b224c4666
+- Storage path: scratch/EXT-INTEG-CCXT-FUNDING-ADAPTER-01/funding_snapshot.normalized.jsonl
+- Raw snapshot path: scratch/EXT-INTEG-CCXT-FUNDING-ADAPTER-01/funding_snapshot.raw.jsonl
+- Checksum path: scratch/EXT-INTEG-CCXT-FUNDING-ADAPTER-01/funding_snapshot.sha256
+- Provenance path: scratch/EXT-INTEG-CCXT-FUNDING-ADAPTER-01/provenance.json
+- Validation path: scratch/EXT-INTEG-CCXT-FUNDING-ADAPTER-01/validation_report.json
+- Catalog lineage path: scratch/EXT-INTEG-CCXT-FUNDING-ADAPTER-01/catalog_lineage.json
+- Row count: 6879
+- Validation summary: PASS; zero missing 8h events, zero normalized duplicate timestamps, zero raw duplicate rows removed, zero outside-window rows, required fields present, exact exchange timestamps preserved in `exchange_funding_time_*`, and nominal 8h event timestamps stored in `funding_time_*`.
+- Decision label: ADOPT_AS_PUBLIC_DATA_ADAPTER
+- Authority: REPO-OWNED CCXT PUBLIC-DATA ADAPTER OUTPUT; not canonical data authority without separate promotion, not a Result Population, Strategy Spec, Variant Manifest, Sweep Plan, backtest cost-model input, paper/live/runtime input, or canonical trading evidence.

@@ -1,0 +1,85 @@
+{
+  "checksum": {
+    "normalized_payload_sha256": "sha256:58cab557e1a35d7832dc8d23424a5c3969706d516de9a9d3c2ed786b224c4666",
+    "stable": true
+  },
+  "coverage": {
+    "expected_event_count": 6879,
+    "observed_end_utc": "2026-04-11T16:00:00Z",
+    "observed_event_count": 6879,
+    "observed_start_utc": "2020-01-01T00:00:00Z",
+    "outside_target_count": 0,
+    "target_end_utc": "2026-04-11T23:45:00Z",
+    "target_start_utc": "2020-01-01T00:00:00Z",
+    "unexpected_cadence_count": 0
+  },
+  "credentials_used": false,
+  "duplicates": {
+    "dedupe_report": {
+      "raw_duplicate_group_count_removed": 0,
+      "raw_duplicate_row_count_removed": 0,
+      "raw_duplicate_timestamps_utc": []
+    },
+    "duplicate_group_count": 0,
+    "duplicate_timestamps_utc": []
+  },
+  "errors": [],
+  "gaps": {
+    "gap_count": 0,
+    "gaps": [],
+    "missing_event_count": 0
+  },
+  "labels": [
+    "REPO-OWNED CCXT PUBLIC-DATA ADAPTER OUTPUT",
+    "NOT CANONICAL DATA AUTHORITY WITHOUT SEPARATE PROMOTION",
+    "NOT A RESULT POPULATION",
+    "NOT STRATEGY / VM / SWEEP AUTHORITY",
+    "NOT BACKTEST COST-MODEL AUTHORITY",
+    "NOT PAPER / LIVE / RUNTIME AUTHORITY",
+    "FUNDING-INTO-BACKTEST REQUIRES A SEPARATE GATED WP"
+  ],
+  "numeric": {
+    "funding_values_parse": true,
+    "numeric_error_count": 0
+  },
+  "provenance_complete": true,
+  "public_only_confirmed": true,
+  "public_only_method_used": "ccxt.binanceusdm.fapiPublicGetFundingRate",
+  "required_fields": {
+    "fields": [
+      "exchange",
+      "market_type",
+      "symbol",
+      "data_type",
+      "funding_time_utc",
+      "funding_time_ms",
+      "exchange_funding_time_utc",
+      "exchange_funding_time_ms",
+      "exchange_funding_time_offset_ms",
+      "funding_rate",
+      "mark_price",
+      "source_method",
+      "raw_symbol",
+      "raw_page_index",
+      "raw_row_index"
+    ],
+    "missing_field_counts": {},
+    "pass": true
+  },
+  "sorted": {
+    "pass": true
+  },
+  "status": "PASS",
+  "utc_alignment": {
+    "exchange_timestamp_offset_ms": {
+      "exceeds_tolerance_count": 0,
+      "max_abs": 47,
+      "tolerance_ms": 1000,
+      "within_tolerance_count": 6879
+    },
+    "expected_interval": "8h",
+    "misaligned_count": 0,
+    "pass": true,
+    "timestamp_basis": "funding_time_ms is the nominal 8h UTC funding boundary; exchange_funding_time_ms preserves the exact raw CCXT/Binance timestamp"
+  }
+}

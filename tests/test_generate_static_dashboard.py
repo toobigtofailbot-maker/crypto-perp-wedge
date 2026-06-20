@@ -70,11 +70,13 @@ def test_index_contains_required_pages_empty_states_and_gate_phrase(tmp_path):
     assert "Overview" in html
     assert "Data / Provenance" in html
     assert "Gates" in html
+    assert "Operator Review" in html
     assert "Results" in html
-    assert html.count('class="page-section"') == 4
+    assert html.count('class="page-section"') == 5
     assert 'href="#overview"' in html
     assert 'href="#data-provenance"' in html
     assert 'href="#gates"' in html
+    assert 'href="#operator-review"' in html
     assert 'href="#results"' in html
     assert 'id="results"' in html
     assert "D5 result population RP-4492 is available for display-only Results data." in html
@@ -277,7 +279,7 @@ def test_results_page_now_renders_in_html(tmp_path):
     # F5C: renderer now includes Results page (replaces F5B's renderer-unchanged assertion)
     _, index_path = generate_dashboard(Path("."), tmp_path / "data", tmp_path / "build")
     html = index_path.read_text(encoding="utf-8")
-    assert html.count('class="page-section"') == 4
+    assert html.count('class="page-section"') == 5
     assert 'id="results"' in html
     assert 'href="#results"' in html
 
@@ -408,3 +410,80 @@ def test_lab_registry_renders_without_quality_order_or_authority(tmp_path):
     assert "vectorbt_triage_report.json" in html
     assert "quality ranking" in html_lower
     assert "leaderboard" not in html_lower
+
+
+# ---------------------------------------------------------------------------
+# WP-LAB-DASHBOARD-EXPANSION-01: operator review surface
+# ---------------------------------------------------------------------------
+
+def test_generated_dashboard_data_includes_operator_review_summary(tmp_path):
+    dashboard_data_path, _ = generate_dashboard(Path("."), tmp_path / "data", tmp_path / "build")
+    payload = json.loads(dashboard_data_path.read_text(encoding="utf-8"))
+    review = payload["pages"]["operator_review"]
+
+    assert review["status"] == "BLOCKED"
+    assert review["active_and_recent_jobs"]["status"] == "NOT_AVAILABLE"
+    assert review["active_and_recent_jobs"]["active_count"] is None
+    assert review["active_and_recent_jobs"]["recent_job_count"] == 8
+    assert review["population_summary"]["population_count"] == 8
+    assert review["population_summary"]["complete_population_count"] == 8
+    assert review["population_summary"]["committed_denominator"] == 66
+    assert review["population_summary"]["result_row_count"] == 66
+    assert review["population_summary"]["outcome_counts"] == {
+        "successful": 66,
+        "failed": 0,
+        "invalid": 0,
+        "excluded": 0,
+        "errored": 0,
+        "aborted": 0,
+        "data_unavailable": 0,
+        "unknown": 0,
+    }
+
+
+def test_operator_review_exposes_uncertainty_and_manual_posture(tmp_path):
+    dashboard_data_path, _ = generate_dashboard(Path("."), tmp_path / "data", tmp_path / "build")
+    review = json.loads(dashboard_data_path.read_text(encoding="utf-8"))["pages"]["operator_review"]
+
+    assert review["evidence_summary"]["walkforward_oos"]["available_count"] == 0
+    assert review["evidence_summary"]["walkforward_oos"]["unavailable_count"] == 8
+    assert review["evidence_summary"]["robustness"]["available_count"] == 1
+    assert review["evidence_summary"]["robustness"]["unavailable_count"] == 7
+    assert review["lifecycle_summary"]["state"] == "not_available"
+    assert review["approval_summary"]["state"] == "manual_approval_required"
+    assert review["approval_summary"]["pending_count"] is None
+    assert review["non_authority_notes"]["not_ranking_authority"] is True
+    assert review["non_authority_notes"]["not_approval"] is True
+    assert review["non_authority_notes"]["not_execution"] is True
+
+
+def test_operator_candidate_reviews_are_stable_and_include_caveats(tmp_path):
+    dashboard_data_path, _ = generate_dashboard(Path("."), tmp_path / "data", tmp_path / "build")
+    candidates = json.loads(dashboard_data_path.read_text(encoding="utf-8"))["pages"]["operator_review"]["candidate_reviews"]
+
+    assert len(candidates) == 8
+    assert [item["review_id"] for item in candidates] == sorted(item["review_id"] for item in candidates)
+    assert all(item["caveats"] for item in candidates)
+    assert all(item["candidate_lifecycle_state"] == "not_available" for item in candidates)
+    assert all(item["approval_state"] == "manual_approval_required" for item in candidates)
+    assert all(item["evidence_links"] for item in candidates)
+
+
+def test_operator_review_renders_blockers_without_controls(tmp_path):
+    _, index_path = generate_dashboard(Path("."), tmp_path / "data", tmp_path / "build")
+    html = index_path.read_text(encoding="utf-8")
+    html_lower = html.lower()
+
+    assert 'id="operator-review"' in html
+    assert "Candidates with Caveats" in html
+    assert "Blockers and Missing Prerequisites" in html
+    assert "Blocked by OOS / walk-forward not run" in html
+    assert "Blocked by robustness not run" in html
+    assert "Blocked by funding realism" in html
+    assert "Manual approval required" in html
+    assert "not a ranking" in html_lower
+    assert "<button" not in html_lower
+    assert "deploy now" not in html_lower
+    assert "safe to trade" not in html_lower
+    assert "recommended variant" not in html_lower
+    assert "best strategy" not in html_lower

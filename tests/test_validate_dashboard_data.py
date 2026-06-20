@@ -7,6 +7,7 @@ from jsonschema import Draft7Validator
 
 from tools.dashboard.validate_dashboard_data import (
     DEFAULT_SCHEMA_PATH,
+    _validate_operator_review,
     _validate_results_page,
     main,
     validate_dashboard_data_file,
@@ -209,3 +210,40 @@ def test_cli_validates_results_fixture(monkeypatch, capsys):
 
     assert main() == 0
     assert "OK:" in capsys.readouterr().out
+
+
+OPERATOR_FIXTURE = FIXTURE_DIR / "valid_dashboard_data_operator_review.json"
+
+
+def test_valid_operator_review_fixture_passes():
+    assert validate_dashboard_data_file(OPERATOR_FIXTURE) == []
+
+
+def test_operator_review_authority_fixture_fails():
+    path = FIXTURE_DIR / "invalid_dashboard_data_operator_authority.json"
+
+    errors = validate_dashboard_data_file(path)
+
+    assert any("execution_control" in error or "deploy_now" in error for error in errors)
+
+
+def test_operator_review_outcome_counts_must_reconcile():
+    payload = json.loads(OPERATOR_FIXTURE.read_text(encoding="utf-8"))
+    payload["pages"]["operator_review"]["population_summary"]["outcome_counts"]["failed"] = 1
+
+    errors = _validate_operator_review(Path("operator_review.json"), payload)
+
+    assert any("outcome counts" in error for error in errors)
+
+
+def test_operator_review_deterministic_job_order_enforced():
+    payload = json.loads(OPERATOR_FIXTURE.read_text(encoding="utf-8"))
+    jobs = payload["pages"]["operator_review"]["active_and_recent_jobs"]
+    second = copy.deepcopy(jobs["jobs"][0])
+    second["run_id"] = "RP-FIXTURE-0002"
+    jobs["jobs"].insert(0, second)
+    jobs["recent_job_count"] = 2
+
+    errors = _validate_operator_review(Path("operator_review.json"), payload)
+
+    assert any("deterministic order" in error for error in errors)

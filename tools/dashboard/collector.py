@@ -25,6 +25,19 @@ RP_4492_PATH = Path("research/result_populations/RP-4492.result_population.json"
 D6_CHECKPOINT_PATH = Path("docs/research_pipeline/2026-06-post_d5_real_data_interpretation_checkpoint.md")
 WP_D6_STATUS_PATH = Path("docs/status_entries/WP-D6.md")
 WP_F5A_STATUS_PATH = Path("docs/status_entries/WP-F5A.md")
+WP_LAB_RESULTS_STATUS_PATH = Path("docs/status_entries/WP-LAB-RESULTS-SURFACE-01.md")
+WP_LAB_WALKFORWARD_STATUS_PATH = Path("docs/status_entries/WP-LAB-WALKFORWARD-CANONICAL-01.md")
+WP_LAB_DASHBOARD_STATUS_PATH = Path("docs/status_entries/WP-LAB-DASHBOARD-EXPANSION-01.md")
+OPERATOR_OUTCOME_BUCKETS = (
+    "successful",
+    "failed",
+    "invalid",
+    "excluded",
+    "errored",
+    "aborted",
+    "data_unavailable",
+    "unknown",
+)
 
 
 def _utc_now() -> str:
@@ -276,8 +289,7 @@ def _registry_report_path(report_ref: dict[str, Any] | None) -> str | None:
     return report_ref.get("path")
 
 
-def _collect_lab_registry_page(repo_root: Path) -> dict[str, Any]:
-    registry = build_lab_run_registry(repo_root)
+def _collect_lab_registry_page(registry: dict[str, Any]) -> dict[str, Any]:
     records = sorted(registry["records"], key=lambda record: record["run_id"])
     return {
         "schema_version": registry["schema_version"],
@@ -289,6 +301,7 @@ def _collect_lab_registry_page(repo_root: Path) -> dict[str, Any]:
                 "run_id": record["run_id"],
                 "run_type": record["run_type"],
                 "status": record["status"],
+                "created_at_utc": record["created_at_utc"],
                 "strategy_spec_id": record["strategy_spec_id"],
                 "variant_manifest_id": record["variant_manifest_id"],
                 "sweep_plan_id": record["sweep_plan_id"],
@@ -321,6 +334,229 @@ def _collect_lab_registry_page(repo_root: Path) -> dict[str, Any]:
     }
 
 
+def _normalized_outcome(value: str) -> str:
+    normalized = value.strip().lower().replace("-", "_").replace(" ", "_")
+    aliases = {"error": "errored", "unavailable": "data_unavailable"}
+    normalized = aliases.get(normalized, normalized)
+    return normalized if normalized in OPERATOR_OUTCOME_BUCKETS else "unknown"
+
+
+def _funding_realism_blocked(record: dict[str, Any]) -> bool:
+    funding = record["result_summary"]["metric_summary"].get("funding", {})
+    if not funding.get("available"):
+        return True
+    return funding.get("min") == 0 and funding.get("max") == 0
+
+
+def _collect_operator_review(registry: dict[str, Any]) -> dict[str, Any]:
+    records = sorted(registry["records"], key=lambda record: record["run_id"])
+    recent_records = sorted(records, key=lambda record: record["run_id"])
+    recent_records.sort(key=lambda record: record["created_at_utc"], reverse=True)
+
+    outcome_counts = {bucket: 0 for bucket in OPERATOR_OUTCOME_BUCKETS}
+    committed_denominator = 0
+    result_row_count = 0
+    complete_population_count = 0
+    for record in records:
+        summary = record["result_summary"]
+        denominator = summary["committed_denominator"]
+        row_count = summary["result_row_count"]
+        committed_denominator += denominator or 0
+        result_row_count += row_count
+        if denominator == row_count and row_count > 0:
+            complete_population_count += 1
+        for outcome, count in summary["outcome_counts"].items():
+            outcome_counts[_normalized_outcome(outcome)] += count
+
+    robustness_available = sum(record.get("robustness_report_ref") is not None for record in records)
+    walkforward_available = sum(record.get("walkforward_manifest_ref") is not None for record in records)
+    funding_blocked = sum(_funding_realism_blocked(record) for record in records)
+
+    candidate_reviews = []
+    for record in records:
+        caveats = list(record["warnings"])
+        if record.get("walkforward_manifest_ref") is None:
+            caveats.append("Walk-forward / OOS evidence is not available or not yet run for this review item.")
+        if record.get("robustness_report_ref") is None:
+            caveats.append("Robustness evidence is not available or not yet run for this review item.")
+        if _funding_realism_blocked(record):
+            caveats.append("Blocked by funding realism: separate non-zero or validated funding evidence is not available here.")
+        caveats.extend([
+            "Canonical candidate lifecycle state is not available.",
+            "Manual approval is required; this dashboard cannot grant or record approval.",
+        ])
+        evidence_links = [record["result_population_path"]]
+        for field in ["analytics_report_ref", "robustness_report_ref", "triage_sidecar_report_ref", "walkforward_manifest_ref"]:
+            report = record.get(field)
+            if isinstance(report, dict):
+                evidence_links.append(report["path"])
+        candidate_reviews.append({
+            "review_id": record["run_id"],
+            "result_status": record["status"],
+            "strategy_spec_id": record["strategy_spec_id"],
+            "variant_manifest_id": record["variant_manifest_id"],
+            "sweep_plan_id": record["sweep_plan_id"],
+            "result_population_id": record["result_population_id"],
+            "walkforward_oos_status": "PASS" if record.get("walkforward_manifest_ref") else "NOT_AVAILABLE",
+            "robustness_status": "PASS" if record.get("robustness_report_ref") else "NOT_AVAILABLE",
+            "funding_realism_status": "BLOCKED" if _funding_realism_blocked(record) else "PASS",
+            "candidate_lifecycle_state": "not_available",
+            "approval_state": "manual_approval_required",
+            "caveats": caveats,
+            "evidence_links": evidence_links,
+            "source_refs": ["status-wp-lab-results-surface-01", "status-wp-lab-dashboard-expansion-01"],
+        })
+
+    unavailable_robustness = len(records) - robustness_available
+    unavailable_walkforward = len(records) - walkforward_available
+    blockers = [
+        {
+            "blocker_id": "active-jobs-not-available",
+            "status": "WARN",
+            "message": "Active job state is not available because no canonical active-job snapshot is committed.",
+            "affected_count": None,
+            "source_refs": ["status-wp-lab-dashboard-expansion-01"],
+        },
+        {
+            "blocker_id": "walkforward-oos-not-run",
+            "status": "BLOCKED" if unavailable_walkforward else "PASS",
+            "message": "Blocked by OOS / walk-forward not run or not attached to the lab registry.",
+            "affected_count": unavailable_walkforward,
+            "source_refs": ["status-wp-lab-walkforward-canonical-01"],
+        },
+        {
+            "blocker_id": "robustness-not-run",
+            "status": "BLOCKED" if unavailable_robustness else "PASS",
+            "message": "Blocked by robustness not run or not attached to the lab registry.",
+            "affected_count": unavailable_robustness,
+            "source_refs": ["status-wp-lab-results-surface-01"],
+        },
+        {
+            "blocker_id": "funding-realism",
+            "status": "BLOCKED" if funding_blocked else "PASS",
+            "message": "Blocked by funding realism where separate non-zero or validated funding evidence is unavailable.",
+            "affected_count": funding_blocked,
+            "source_refs": ["status-wp-lab-results-surface-01"],
+        },
+        {
+            "blocker_id": "candidate-lifecycle-not-available",
+            "status": "BLOCKED",
+            "message": "Candidate lifecycle state is not available; only a fixture contract exists in repo truth.",
+            "affected_count": len(records),
+            "source_refs": ["status-wp-lab-dashboard-expansion-01"],
+        },
+        {
+            "blocker_id": "manual-approval-required",
+            "status": "BLOCKED",
+            "message": "Manual approval required; pending approval count is not available from a canonical source.",
+            "affected_count": len(records),
+            "source_refs": ["status-wp-lab-dashboard-expansion-01"],
+        },
+    ]
+
+    return {
+        "status": "BLOCKED" if records else "NOT_AVAILABLE",
+        "source_refs": [
+            "status-wp-lab-results-surface-01",
+            "status-wp-lab-walkforward-canonical-01",
+            "status-wp-lab-dashboard-expansion-01",
+        ],
+        "non_authority_notes": {
+            "display_only": True,
+            "not_ranking_authority": True,
+            "not_recommendation": True,
+            "not_readiness": True,
+            "not_promotion": True,
+            "not_approval": True,
+            "not_execution": True,
+            "manual_approval_required": True,
+            "source_refs": ["status-wp-lab-dashboard-expansion-01"],
+        },
+        "active_and_recent_jobs": {
+            "status": "NOT_AVAILABLE",
+            "active_count": None,
+            "active_state_note": "Not available: no canonical active-job snapshot is committed.",
+            "recent_job_count": len(recent_records),
+            "job_order_policy": "created_at_desc_then_run_id_ascending_not_quality_order",
+            "jobs": [
+                {
+                    "run_id": record["run_id"],
+                    "job_state": "completed" if record["status"] == "PASS" else "invalid",
+                    "created_at_utc": record["created_at_utc"],
+                    "strategy_spec_id": record["strategy_spec_id"],
+                    "variant_manifest_id": record["variant_manifest_id"],
+                    "sweep_plan_id": record["sweep_plan_id"],
+                    "result_population_id": record["result_population_id"],
+                    "source_refs": ["status-wp-lab-results-surface-01"],
+                }
+                for record in recent_records
+            ],
+            "source_refs": ["status-wp-lab-results-surface-01", "status-wp-lab-dashboard-expansion-01"],
+        },
+        "population_summary": {
+            "status": "PASS" if records and complete_population_count == len(records) else "WARN",
+            "population_count": len(records),
+            "complete_population_count": complete_population_count,
+            "incomplete_population_count": len(records) - complete_population_count,
+            "committed_denominator": committed_denominator,
+            "result_row_count": result_row_count,
+            "outcome_counts": outcome_counts,
+            "source_refs": ["status-wp-lab-results-surface-01"],
+        },
+        "evidence_summary": {
+            "walkforward_oos": {
+                "status": "PASS" if records and unavailable_walkforward == 0 else "NOT_AVAILABLE",
+                "available_count": walkforward_available,
+                "unavailable_count": unavailable_walkforward,
+                "message": "Not yet run or not attached where unavailable.",
+            },
+            "robustness": {
+                "status": "PASS" if records and unavailable_robustness == 0 else "WARN",
+                "available_count": robustness_available,
+                "unavailable_count": unavailable_robustness,
+                "message": "Not yet run or not attached where unavailable.",
+            },
+            "funding_realism": {
+                "status": "BLOCKED" if funding_blocked else "PASS",
+                "available_count": len(records) - funding_blocked,
+                "unavailable_count": funding_blocked,
+                "message": "Zero-only or missing funding evidence remains blocked for separate review.",
+            },
+            "source_refs": ["status-wp-lab-results-surface-01", "status-wp-lab-walkforward-canonical-01"],
+        },
+        "candidate_reviews": candidate_reviews,
+        "lifecycle_summary": {
+            "status": "NOT_AVAILABLE",
+            "canonical_candidate_count": 0,
+            "state": "not_available",
+            "reason": "No canonical candidate lifecycle registry instance is committed; the existing example is fixture-only.",
+            "source_refs": ["status-wp-lab-dashboard-expansion-01"],
+        },
+        "approval_summary": {
+            "status": "BLOCKED",
+            "state": "manual_approval_required",
+            "pending_count": None,
+            "reason": "Pending approval count is not available from a canonical source; human review remains required.",
+            "source_refs": ["status-wp-lab-dashboard-expansion-01"],
+        },
+        "blockers": blockers,
+        "warnings": [
+            {
+                "warning_id": "operator-review-not-ranking",
+                "status": "WARN",
+                "message": "Stable ID or timestamp ordering is deterministic display order only, not a ranking.",
+                "source_refs": ["status-wp-lab-dashboard-expansion-01"],
+            },
+            {
+                "warning_id": "operator-review-missing-evidence",
+                "status": "WARN",
+                "message": "Missing evidence remains visible and must not be interpreted as a favorable result.",
+                "source_refs": ["status-wp-lab-dashboard-expansion-01"],
+            },
+        ],
+    }
+
+
 def _build_missing_data(
     repo_root: Path,
     rp: dict[str, Any] | None = None,
@@ -330,18 +566,30 @@ def _build_missing_data(
     source_refs: list[dict[str, Any]] = [
         _source_ref("project-status", "doc", "docs/project_status.md", None, "Current project status anchor."),
         _source_ref("status-wp-f2", "status_entry", "docs/status_entries/WP-F2.md", None, "F2 status fragment."),
+        _source_ref(
+            "status-wp-lab-results-surface-01",
+            "status_entry",
+            WP_LAB_RESULTS_STATUS_PATH.as_posix(),
+            None,
+            "Lab run/result registry and dashboard Results surface status.",
+        ),
+        _source_ref(
+            "status-wp-lab-walkforward-canonical-01",
+            "status_entry",
+            WP_LAB_WALKFORWARD_STATUS_PATH.as_posix(),
+            None,
+            "Walk-forward canonical contract status; no canonical manifest instance is claimed.",
+        ),
+        _source_ref(
+            "status-wp-lab-dashboard-expansion-01",
+            "status_entry",
+            WP_LAB_DASHBOARD_STATUS_PATH.as_posix(),
+            None,
+            "Operator review surface status and non-authority boundary.",
+        ),
     ]
     if rp is not None:
         source_refs.extend(_results_source_ref_entries(rp_sha, d6_sha))
-        source_refs.append(
-            _source_ref(
-                "status-wp-lab-results-surface-01",
-                "status_entry",
-                "docs/status_entries/WP-LAB-RESULTS-SURFACE-01.md",
-                None,
-                "WP-LAB-RESULTS-SURFACE-01 lab run/result registry and dashboard results surface.",
-            )
-        )
 
     empty_freshness = {
         "staleness_status": "UNKNOWN",
@@ -387,6 +635,7 @@ def _build_missing_data(
         }
     ]
 
+    registry = build_lab_run_registry(repo_root)
     pages: dict[str, Any] = {
         "overview": {
             "status": "WARN",
@@ -423,11 +672,12 @@ def _build_missing_data(
         },
         "data_provenance": _empty_data_provenance(),
         "gates": {"status": "BLOCKED", "source_refs": ["project-status", "status-wp-f2"], "gates": gates},
+        "operator_review": _collect_operator_review(registry),
     }
 
     if rp is not None:
         pages["results"] = _collect_results_page(rp)
-        pages["results"]["lab_registry"] = _collect_lab_registry_page(repo_root)
+        pages["results"]["lab_registry"] = _collect_lab_registry_page(registry)
 
     top_warnings = [
         {
@@ -617,18 +867,30 @@ def collect_dashboard_data(repo_root: Path | str = ".") -> dict[str, Any]:
         _source_ref("d4a-catalog", "catalog_slice", D4A_CATALOG.as_posix(), catalog_sha, "D4A catalog/slice JSON."),
         _source_ref("d4a-validation", "validation_report", D4A_VALIDATION.as_posix(), validation_sha, "D3 PASS validation report."),
         _source_ref("d4a-import", "import_report", D4A_IMPORT.as_posix(), import_sha, "D2 import/provenance report."),
+        _source_ref(
+            "status-wp-lab-results-surface-01",
+            "status_entry",
+            WP_LAB_RESULTS_STATUS_PATH.as_posix(),
+            None,
+            "Lab run/result registry and dashboard Results surface status.",
+        ),
+        _source_ref(
+            "status-wp-lab-walkforward-canonical-01",
+            "status_entry",
+            WP_LAB_WALKFORWARD_STATUS_PATH.as_posix(),
+            None,
+            "Walk-forward canonical contract status; no canonical manifest instance is claimed.",
+        ),
+        _source_ref(
+            "status-wp-lab-dashboard-expansion-01",
+            "status_entry",
+            WP_LAB_DASHBOARD_STATUS_PATH.as_posix(),
+            None,
+            "Operator review surface status and non-authority boundary.",
+        ),
     ]
     if rp is not None:
         source_refs.extend(_results_source_ref_entries(rp_sha, d6_sha))
-        source_refs.append(
-            _source_ref(
-                "status-wp-lab-results-surface-01",
-                "status_entry",
-                "docs/status_entries/WP-LAB-RESULTS-SURFACE-01.md",
-                None,
-                "WP-LAB-RESULTS-SURFACE-01 lab run/result registry and dashboard results surface.",
-            )
-        )
 
     range_facts = catalog["range"]
     gap_facts = catalog["gap_summary"]
@@ -702,6 +964,7 @@ def collect_dashboard_data(repo_root: Path | str = ".") -> dict[str, Any]:
             "source_refs": ["status-wp-d5a"],
         })
 
+    registry = build_lab_run_registry(root)
     pages: dict[str, Any] = {
         "overview": {
             "status": overall_status,
@@ -828,11 +1091,12 @@ def collect_dashboard_data(repo_root: Path | str = ".") -> dict[str, Any]:
             "source_refs": ["project-status", "status-wp-f2", "status-wp-d5a"],
             "gates": gates,
         },
+        "operator_review": _collect_operator_review(registry),
     }
 
     if rp is not None:
         pages["results"] = _collect_results_page(rp)
-        pages["results"]["lab_registry"] = _collect_lab_registry_page(root)
+        pages["results"]["lab_registry"] = _collect_lab_registry_page(registry)
 
     return {
         "schema_version": "dashboard_data.v1",

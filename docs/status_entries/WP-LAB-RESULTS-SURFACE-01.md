@@ -8,7 +8,7 @@
 ## Branch / PR
 
 - Branch: `lab/results-surface-01`
-- PR: not opened yet; final URL will be added after PR creation
+- PR: https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/521
 
 ## Package class
 
@@ -69,7 +69,7 @@ or execution authority.
 
 ## Merge status
 
-- Branch validation complete except full-suite timeout classification above; PR not opened yet.
+- PR #521 is open and ready for review with the full-suite timeout classification above.
 
 ## Next dependency / runway note
 

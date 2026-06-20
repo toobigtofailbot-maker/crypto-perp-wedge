@@ -1,0 +1,46 @@
+{
+  "idea_id": "IDEA-ORDERBOOK-001",
+  "schema_version": "v1",
+  "created_at_utc": "2026-06-20T00:00:00Z",
+  "source_type": "imported_research",
+  "plain_language_idea": "Test whether persistent order-book imbalance predicts short-horizon BTCUSDT continuation.",
+  "market_hypothesis": {
+    "claim": "Persistent bid-ask depth imbalance predicts short-horizon continuation.",
+    "causal_rationale": "Queued liquidity asymmetry can reveal near-term supply-demand pressure.",
+    "observable_prediction": "Completed snapshots with persistent imbalance precede directionally aligned returns."
+  },
+  "instrument_universe": {"symbols": ["BTCUSDT"], "market_type": "perpetual", "venue": "Binance USDT-M"},
+  "timeframe": {"primary": "15m", "confirmations": [], "decision_timing": "completed_bar_close", "entry_timing": "next_bar_open"},
+  "required_data": [
+    {"stream": "external", "fields": ["bid_depth", "ask_depth", "snapshot_time"], "availability": "upgrade_required"}
+  ],
+  "required_indicators_features": [
+    {"feature_id": "orderbook_imbalance", "description": "Causal depth imbalance from timestamped snapshots.", "availability": "upgrade_required"}
+  ],
+  "entry_exit_concept": {
+    "entry": "Enter at next bar open after completed-snapshot imbalance persists for the configured observation window.",
+    "exit": "Exit after the bounded holding period or on an opposite completed-snapshot signal.",
+    "position_directions": ["long", "short"]
+  },
+  "risk_logic_concept": {"exit_risk_logic": "Bound the research holding period and report gap sensitivity.", "sizing_posture": "research_assumption_only"},
+  "parameter_ranges": [
+    {"name": "imbalance_threshold", "value_type": "number", "units": "ratio", "minimum": 0.55, "maximum": 0.7, "values": [0.55, 0.6, 0.65, 0.7], "rationale": "Small preregistered threshold grid."},
+    {"name": "observation_bars", "value_type": "integer", "units": "bars", "minimum": 2, "maximum": 4, "values": [2, 3, 4], "rationale": "Short persistence window."}
+  ],
+  "expected_edge_mechanism": "Persistent queued-liquidity asymmetry precedes short-horizon price adjustment.",
+  "failure_modes": ["Displayed depth may cancel before execution.", "Snapshot gaps may bias persistence estimates."],
+  "overfit_risks": ["Threshold selection may fit transient microstructure regimes."],
+  "validation_requirements": ["Acquire timestamped order-book snapshots with gap provenance before testing."],
+  "stop_conditions": ["Stop if snapshot coverage cannot support causal alignment."],
+  "current_lab_compatibility": {"is_testable": false, "known_capabilities": [], "missing_capabilities": ["order_book_snapshots", "orderbook_imbalance"]},
+  "upgrade_dependencies": [
+    {"dependency_type": "data", "description": "Timestamped order-book snapshot dataset with provenance and gap policy.", "blocking": true}
+  ],
+  "classification": "upgrade_dependent_data",
+  "rejection_reasons": [],
+  "non_authority_flags": {
+    "draft_only": true, "not_canonical": true, "not_preregistered": true,
+    "not_candidate_evidence": true, "not_promotion": true, "not_paper_live": true,
+    "human_gate_required_for_draft_to_prereg": true
+  }
+}

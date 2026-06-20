@@ -1,0 +1,236 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crypto-perp-wedge.local/research/schemas/research_idea.schema.json",
+  "title": "Research Idea Intake",
+  "description": "Draft-only structured research idea. It is not a Strategy Spec, preregistration, candidate, evidence, promotion, or execution authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "idea_id",
+    "schema_version",
+    "created_at_utc",
+    "source_type",
+    "plain_language_idea",
+    "market_hypothesis",
+    "instrument_universe",
+    "timeframe",
+    "required_data",
+    "required_indicators_features",
+    "entry_exit_concept",
+    "risk_logic_concept",
+    "parameter_ranges",
+    "expected_edge_mechanism",
+    "failure_modes",
+    "overfit_risks",
+    "validation_requirements",
+    "stop_conditions",
+    "current_lab_compatibility",
+    "upgrade_dependencies",
+    "classification",
+    "rejection_reasons",
+    "non_authority_flags"
+  ],
+  "properties": {
+    "idea_id": {"type": "string", "pattern": "^IDEA-[A-Z0-9][A-Z0-9_-]{2,63}$"},
+    "schema_version": {"type": "string", "const": "v1"},
+    "created_at_utc": {"type": "string", "format": "date-time"},
+    "source_type": {
+      "type": "string",
+      "enum": ["human", "agent", "imported_research"]
+    },
+    "plain_language_idea": {"$ref": "#/definitions/non_empty_string"},
+    "market_hypothesis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claim", "causal_rationale", "observable_prediction"],
+      "properties": {
+        "claim": {"$ref": "#/definitions/non_empty_string"},
+        "causal_rationale": {"$ref": "#/definitions/non_empty_string"},
+        "observable_prediction": {"$ref": "#/definitions/non_empty_string"}
+      }
+    },
+    "instrument_universe": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["symbols", "market_type", "venue"],
+      "properties": {
+        "symbols": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^[A-Z0-9_-]{2,30}$"}
+        },
+        "market_type": {"type": "string", "enum": ["perpetual", "spot", "futures"]},
+        "venue": {"$ref": "#/definitions/non_empty_string"}
+      }
+    },
+    "timeframe": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primary", "confirmations", "decision_timing", "entry_timing"],
+      "properties": {
+        "primary": {"$ref": "#/definitions/timeframe"},
+        "confirmations": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/definitions/timeframe"}
+        },
+        "decision_timing": {"type": "string", "const": "completed_bar_close"},
+        "entry_timing": {"type": "string", "const": "next_bar_open"}
+      }
+    },
+    "required_data": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["stream", "fields", "availability"],
+        "properties": {
+          "stream": {"type": "string", "enum": ["ohlcv", "funding", "mark", "index", "premium", "external"]},
+          "fields": {"$ref": "#/definitions/non_empty_string_array"},
+          "availability": {"type": "string", "enum": ["current_lab", "upgrade_required"]}
+        }
+      }
+    },
+    "required_indicators_features": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["feature_id", "description", "availability"],
+        "properties": {
+          "feature_id": {"type": "string", "pattern": "^[a-z][a-z0-9_]{1,63}$"},
+          "description": {"$ref": "#/definitions/non_empty_string"},
+          "availability": {"type": "string", "enum": ["current_lab", "upgrade_required", "unknown"]}
+        }
+      }
+    },
+    "entry_exit_concept": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entry", "exit", "position_directions"],
+      "properties": {
+        "entry": {"$ref": "#/definitions/non_empty_string"},
+        "exit": {"$ref": "#/definitions/non_empty_string"},
+        "position_directions": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "enum": ["long", "short"]}
+        }
+      }
+    },
+    "risk_logic_concept": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["exit_risk_logic", "sizing_posture"],
+      "properties": {
+        "exit_risk_logic": {"$ref": "#/definitions/non_empty_string"},
+        "sizing_posture": {"type": "string", "const": "research_assumption_only"}
+      }
+    },
+    "parameter_ranges": {
+      "type": "array",
+      "maxItems": 5,
+      "items": {"$ref": "#/definitions/parameter_range"}
+    },
+    "expected_edge_mechanism": {"$ref": "#/definitions/non_empty_string"},
+    "failure_modes": {"$ref": "#/definitions/non_empty_string_array"},
+    "overfit_risks": {"$ref": "#/definitions/non_empty_string_array"},
+    "validation_requirements": {"$ref": "#/definitions/non_empty_string_array"},
+    "stop_conditions": {"$ref": "#/definitions/non_empty_string_array"},
+    "current_lab_compatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["is_testable", "known_capabilities", "missing_capabilities"],
+      "properties": {
+        "is_testable": {"type": "boolean"},
+        "known_capabilities": {"$ref": "#/definitions/string_array"},
+        "missing_capabilities": {"$ref": "#/definitions/string_array"}
+      }
+    },
+    "upgrade_dependencies": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["dependency_type", "description", "blocking"],
+        "properties": {
+          "dependency_type": {"type": "string", "enum": ["data", "simulator", "indicator", "research"]},
+          "description": {"$ref": "#/definitions/non_empty_string"},
+          "blocking": {"type": "boolean", "const": true}
+        }
+      }
+    },
+    "classification": {
+      "type": "string",
+      "enum": [
+        "current_lab_testable",
+        "near_term_minor_upgrade",
+        "upgrade_dependent_data",
+        "upgrade_dependent_simulator",
+        "needs_research",
+        "rejected_non_causal",
+        "rejected_untestable"
+      ]
+    },
+    "rejection_reasons": {"$ref": "#/definitions/string_array"},
+    "non_authority_flags": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "draft_only", "not_canonical", "not_preregistered", "not_candidate_evidence",
+        "not_promotion", "not_paper_live", "human_gate_required_for_draft_to_prereg"
+      ],
+      "properties": {
+        "draft_only": {"type": "boolean", "const": true},
+        "not_canonical": {"type": "boolean", "const": true},
+        "not_preregistered": {"type": "boolean", "const": true},
+        "not_candidate_evidence": {"type": "boolean", "const": true},
+        "not_promotion": {"type": "boolean", "const": true},
+        "not_paper_live": {"type": "boolean", "const": true},
+        "human_gate_required_for_draft_to_prereg": {"type": "boolean", "const": true}
+      }
+    }
+  },
+  "definitions": {
+    "non_empty_string": {"type": "string", "minLength": 1, "maxLength": 2000},
+    "string_array": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string"}
+    },
+    "non_empty_string_array": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/definitions/non_empty_string"}
+    },
+    "timeframe": {"type": "string", "enum": ["15m", "30m", "1h", "4h", "1d"]},
+    "parameter_range": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "value_type", "units", "minimum", "maximum", "values", "rationale"],
+      "properties": {
+        "name": {"type": "string", "pattern": "^[a-z][a-z0-9_]{1,63}$"},
+        "value_type": {"type": "string", "enum": ["integer", "number"]},
+        "units": {"$ref": "#/definitions/non_empty_string"},
+        "minimum": {"type": "number"},
+        "maximum": {"type": "number"},
+        "values": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 50,
+          "uniqueItems": true,
+          "items": {"type": "number"}
+        },
+        "rationale": {"$ref": "#/definitions/non_empty_string"}
+      }
+    }
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "idea_id": "IDEA-SMA-DISTANCE-001",
+  "schema_version": "v1",
+  "created_at_utc": "2026-06-20T00:00:00Z",
+  "source_type": "human",
+  "plain_language_idea": "Test whether BTCUSDT distance from a slow SMA mean reverts when volatility is elevated and the longer trend filter agrees.",
+  "market_hypothesis": {
+    "claim": "Large normalized deviations from a slow BTCUSDT centerline tend to mean revert conditionally.",
+    "causal_rationale": "Short-lived positioning pressure can dislocate price from a slow centerline before liquidity normalizes.",
+    "observable_prediction": "Extreme completed-bar deviations followed by next-bar entries have positive out-of-sample expectancy after costs."
+  },
+  "instrument_universe": {
+    "symbols": [
+      "BTCUSDT"
+    ],
+    "market_type": "perpetual",
+    "venue": "Binance USDT-M"
+  },
+  "timeframe": {
+    "primary": "4h",
+    "confirmations": [],
+    "decision_timing": "completed_bar_close",
+    "entry_timing": "next_bar_open"
+  },
+  "required_data": [
+    {
+      "stream": "ohlcv",
+      "fields": [
+        "open",
+        "high",
+        "low",
+        "close",
+        "volume"
+      ],
+      "availability": "current_lab"
+    }
+  ],
+  "required_indicators_features": [
+    {
+      "feature_id": "sma",
+      "description": "Centerline and trend moving averages.",
+      "availability": "current_lab"
+    },
+    {
+      "feature_id": "stddev",
+      "description": "Rolling deviation scale.",
+      "availability": "current_lab"
+    }
+  ],
+  "entry_exit_concept": {
+    "entry": "At a completed bar, enter against an extreme normalized deviation when the trend filter agrees; fill at next bar open.",
+    "exit": "Exit when price returns to the completed-bar centerline or a preregistered maximum holding period expires.",
+    "position_directions": [
+      "long",
+      "short"
+    ]
+  },
+  "risk_logic_concept": {
+    "exit_risk_logic": "Use only preregistered research exit assumptions and report adverse excursion.",
+    "sizing_posture": "research_assumption_only"
+  },
+  "parameter_ranges": [
+    {
+      "name": "center_lookback_bars",
+      "value_type": "integer",
+      "units": "bars",
+      "minimum": 50,
+      "maximum": 100,
+      "values": [
+        50,
+        75,
+        100
+      ],
+      "rationale": "Bounded around slow centerlines supported by the source Strategy Spec family."
+    },
+    {
+      "name": "vol_lookback_bars",
+      "value_type": "integer",
+      "units": "bars",
+      "minimum": 30,
+      "maximum": 50,
+      "values": [
+        30,
+        40,
+        50
+      ],
+      "rationale": "Bounded volatility estimation window."
+    },
+    {
+      "name": "trend_lookback_bars",
+      "value_type": "integer",
+      "units": "bars",
+      "minimum": 100,
+      "maximum": 200,
+      "values": [
+        100,
+        150,
+        200
+      ],
+      "rationale": "Bounded slow trend context."
+    }
+  ],
+  "expected_edge_mechanism": "Temporary positioning pressure mean reverts after a completed-bar extreme while a slow trend filter limits adverse regimes.",
+  "failure_modes": [
+    "Persistent trends can continue through the deviation threshold.",
+    "Trading costs can consume a weak gross edge."
+  ],
+  "overfit_risks": [
+    "Choosing a narrow lookback combination after observing OOS results.",
+    "Treating nearby grid points as independent hypotheses."
+  ],
+  "validation_requirements": [
+    "Pre-register the complete bounded grid and multiple-testing denominator.",
+    "Use walk-forward OOS evaluation with costs and sensitivity review."
+  ],
+  "stop_conditions": [
+    "Stop if the complete bounded grid fails preregistered OOS thresholds.",
+    "Stop if results depend on one isolated parameter point."
+  ],
+  "current_lab_compatibility": {
+    "is_testable": true,
+    "known_capabilities": [
+      "ohlcv",
+      "sma",
+      "stddev",
+      "next_bar_open"
+    ],
+    "missing_capabilities": []
+  },
+  "upgrade_dependencies": [],
+  "classification": "current_lab_testable",
+  "rejection_reasons": [],
+  "non_authority_flags": {
+    "draft_only": true,
+    "not_canonical": true,
+    "not_preregistered": true,
+    "not_candidate_evidence": true,
+    "not_promotion": true,
+    "not_paper_live": true,
+    "human_gate_required_for_draft_to_prereg": true
+  }
+}

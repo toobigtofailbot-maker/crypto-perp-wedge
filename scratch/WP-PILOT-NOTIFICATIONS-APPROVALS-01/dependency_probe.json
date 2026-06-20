@@ -1,0 +1,6 @@
+{
+  "behavior_exercised": false,
+  "dependency": "apprise",
+  "exercise_reason": "No package-scoped local/no-op Apprise URL is configured; real outbound notification credentials and URLs are forbidden for this WP.",
+  "import_available": false
+}

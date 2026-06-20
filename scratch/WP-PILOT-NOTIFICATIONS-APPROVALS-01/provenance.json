@@ -1,0 +1,55 @@
+{
+  "artifacts": [
+    {
+      "path": "scratch/WP-PILOT-NOTIFICATIONS-APPROVALS-01/README.md",
+      "sha256": "sha256:0e0778cdc57e035b4a3b1f3abc19ce5822f86116bba6bcaf4c8e90987d822cd2"
+    },
+    {
+      "path": "scratch/WP-PILOT-NOTIFICATIONS-APPROVALS-01/notification_log.jsonl",
+      "sha256": "sha256:e10130a151af96a741002030eb5f7af56ced85c032587143dab3dc55af9dcad0"
+    },
+    {
+      "path": "scratch/WP-PILOT-NOTIFICATIONS-APPROVALS-01/approval_queue_sample.json",
+      "sha256": "sha256:2ea3cd7bb6f0cbd97b61462cdf8960573eb775977cb806c9398c0c664087acb6"
+    },
+    {
+      "path": "scratch/WP-PILOT-NOTIFICATIONS-APPROVALS-01/issueops_dry_run_payload.json",
+      "sha256": "sha256:5e38ae507d3ad6acee1a505d1f7cc5a01209361cfb31f3890e033f5620581567"
+    },
+    {
+      "path": "scratch/WP-PILOT-NOTIFICATIONS-APPROVALS-01/blocked_action_report.json",
+      "sha256": "sha256:5bbf15cf2f3a943ef680c2cea59ec681c3172fd408787e087405c7c284a3dc07"
+    },
+    {
+      "path": "scratch/WP-PILOT-NOTIFICATIONS-APPROVALS-01/recommendation_report.md",
+      "sha256": "sha256:7768ed09e52bbac4c6a37c17bfa3e649c99f3c2a9c8b967717072ed94b282649"
+    },
+    {
+      "path": "scratch/WP-PILOT-NOTIFICATIONS-APPROVALS-01/dependency_probe.json",
+      "sha256": "sha256:8af9b596f51a3471ed24a594c811452f0902f2e4b3a3c84291ffccc04fe8a35d"
+    },
+    {
+      "path": "scratch/WP-PILOT-NOTIFICATIONS-APPROVALS-01/requirements.poc.txt",
+      "sha256": "sha256:aea1240662a632142b74d979406b5b3864c85afa8d396fc3300701b98f92d015"
+    }
+  ],
+  "created_at_utc": "2026-06-20T00:00:00Z",
+  "credential_access_attempted": false,
+  "dry_run": true,
+  "github_write_performed": false,
+  "non_authority_flags": {
+    "dry_run": true,
+    "manual_approval_required": true,
+    "not_auto_approval": true,
+    "not_candidate_promotion": true,
+    "not_canonical_write": true,
+    "not_execution": true,
+    "not_paper_live": true,
+    "one_way_notification": true,
+    "scratch_only": true
+  },
+  "package_id": "WP-PILOT-NOTIFICATIONS-APPROVALS-01",
+  "real_notification_sent": false,
+  "source_branch": "pilot/notifications-approvals-01",
+  "source_commit": "4da388a289fb0df4547d204e17b05b151f1cb595"
+}

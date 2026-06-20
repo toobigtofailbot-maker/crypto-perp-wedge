@@ -52,6 +52,13 @@ FORBIDDEN_AUTHORITY_KEYS = {
     "approve_button",
     "promote_to_paper",
     "live_enabled",
+    "deploy_now",
+    "safe_to_trade",
+    "approved",
+    "best_strategy",
+    "execution_control",
+    "capital_control",
+    "risk_control",
 }
 FORBIDDEN_AUTHORITY_VALUES = {
     "best_variant",
@@ -69,6 +76,13 @@ FORBIDDEN_AUTHORITY_VALUES = {
     "approve_button",
     "promote_to_paper",
     "live_enabled",
+    "deploy_now",
+    "safe_to_trade",
+    "approved",
+    "best_strategy",
+    "execution_control",
+    "capital_control",
+    "risk_control",
 }
 COMMAND_LIKE_GATE_ACTION_RE = re.compile(
     r"(?i)(https?://|\b(?:python|powershell|pwsh|bash|curl|git|gh)\b|(?:POST|PUT|PATCH|DELETE)\s+/)"
@@ -365,6 +379,94 @@ def _validate_results_page(path: Path, payload: Mapping[str, Any]) -> list[str]:
     return errors
 
 
+def _validate_operator_review(path: Path, payload: Mapping[str, Any]) -> list[str]:
+    found, review = _get_path(payload, "pages.operator_review")
+    if not found or not isinstance(review, Mapping):
+        return []
+    errors: list[str] = []
+
+    flags = review.get("non_authority_notes")
+    if isinstance(flags, Mapping):
+        for flag in [
+            "display_only",
+            "not_ranking_authority",
+            "not_recommendation",
+            "not_readiness",
+            "not_promotion",
+            "not_approval",
+            "not_execution",
+            "manual_approval_required",
+        ]:
+            if flags.get(flag) is not True:
+                errors.append(f"{path}: pages.operator_review.non_authority_notes.{flag} must be true")
+
+    jobs = review.get("active_and_recent_jobs")
+    if isinstance(jobs, Mapping):
+        rows = jobs.get("jobs")
+        if isinstance(rows, list):
+            if jobs.get("recent_job_count") != len(rows):
+                errors.append(
+                    f"{path}: pages.operator_review.active_and_recent_jobs.recent_job_count "
+                    "does not match jobs count"
+                )
+            expected = sorted(rows, key=lambda row: str(row.get("run_id", "")))
+            expected.sort(key=lambda row: str(row.get("created_at_utc", "")), reverse=True)
+            if rows != expected:
+                errors.append(
+                    f"{path}: pages.operator_review active/recent jobs must use timestamp-desc, "
+                    "run-id-ascending deterministic order"
+                )
+
+    population = review.get("population_summary")
+    population_count = None
+    if isinstance(population, Mapping):
+        population_count = population.get("population_count")
+        complete = population.get("complete_population_count")
+        incomplete = population.get("incomplete_population_count")
+        if all(isinstance(value, int) for value in [population_count, complete, incomplete]):
+            if complete + incomplete != population_count:
+                errors.append(f"{path}: pages.operator_review population completeness counts do not reconcile")
+        outcome_counts = population.get("outcome_counts")
+        row_count = population.get("result_row_count")
+        if isinstance(outcome_counts, Mapping) and isinstance(row_count, int):
+            if sum(value for value in outcome_counts.values() if isinstance(value, int)) != row_count:
+                errors.append(f"{path}: pages.operator_review outcome counts do not match result_row_count")
+
+    candidates = review.get("candidate_reviews")
+    if isinstance(candidates, list):
+        review_ids = [item.get("review_id") for item in candidates if isinstance(item, Mapping)]
+        if review_ids != sorted(review_ids) or len(review_ids) != len(set(review_ids)):
+            errors.append(
+                f"{path}: pages.operator_review candidate reviews must be unique and ascending by review_id"
+            )
+        if isinstance(population_count, int) and len(candidates) != population_count:
+            errors.append(
+                f"{path}: pages.operator_review candidate review count does not match population_count"
+            )
+
+    evidence = review.get("evidence_summary")
+    if isinstance(evidence, Mapping) and isinstance(population_count, int):
+        for evidence_id in ["walkforward_oos", "robustness", "funding_realism"]:
+            item = evidence.get(evidence_id)
+            if not isinstance(item, Mapping):
+                continue
+            available = item.get("available_count")
+            unavailable = item.get("unavailable_count")
+            if isinstance(available, int) and isinstance(unavailable, int):
+                if available + unavailable != population_count:
+                    errors.append(
+                        f"{path}: pages.operator_review.evidence_summary.{evidence_id} "
+                        "counts do not match population_count"
+                    )
+
+    blockers = review.get("blockers")
+    if isinstance(blockers, list):
+        blocker_ids = [item.get("blocker_id") for item in blockers if isinstance(item, Mapping)]
+        if len(blocker_ids) != len(set(blocker_ids)):
+            errors.append(f"{path}: pages.operator_review blocker_id values must be unique")
+    return errors
+
+
 def validate_dashboard_data_file(path: Path, schema_path: Path = DEFAULT_SCHEMA_PATH) -> list[str]:
     """Return validation errors for one dashboard_data JSON file, or [] when valid."""
 
@@ -384,6 +486,7 @@ def validate_dashboard_data_file(path: Path, schema_path: Path = DEFAULT_SCHEMA_
     errors.extend(_validate_source_refs(path, payload))
     errors.extend(_validate_gate_actions(path, payload))
     errors.extend(_validate_results_page(path, payload))
+    errors.extend(_validate_operator_review(path, payload))
     return errors
 
 

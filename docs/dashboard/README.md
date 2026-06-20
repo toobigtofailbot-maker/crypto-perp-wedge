@@ -1,10 +1,11 @@
 # Static Dashboard
 
-The dashboard is a local/offline static operator view with four pages:
+The dashboard is a local/offline static operator view with five pages:
 
 - Overview
 - Data / Provenance
 - Gates
+- Operator Review
 - Results
 
 Generate it from the repo root:
@@ -62,3 +63,28 @@ The lab registry surface is built from committed Result Populations and adopted
 advisory reports only. It is read-only and display-only. It does not rank,
 recommend, approve, promote, declare readiness, or create paper/live or
 execution authority.
+
+## Operator Review page
+
+The Operator Review page expands the validated dashboard contract without
+creating a control surface. It displays:
+
+- active-job availability and committed recent-job records;
+- population completeness and explicit successful, failed, invalid, excluded,
+  errored, aborted, data-unavailable, and unknown counts;
+- candidate review rows with strategy / variant / sweep lineage, caveats, and
+  evidence links;
+- walk-forward / OOS, robustness, and funding-realism evidence coverage;
+- candidate-lifecycle and pending-human-approval posture;
+- blockers, missing prerequisites, warnings, and uncertainty.
+
+Current repo truth has no canonical active-job snapshot, no canonical
+walk-forward manifest instance, and no real candidate-lifecycle registry
+instance. The page therefore shows those states as unavailable or blocked. It
+does not infer favorable evidence from absence. Committed job rows use timestamp
+and stable-ID ordering, while candidate review rows use stable IDs; neither is a
+quality ranking.
+
+Manual approval remains required outside the dashboard. The page has no
+executable controls and grants no ranking, recommendation, readiness,
+promotion, approval, paper/live, capital, risk, or execution authority.

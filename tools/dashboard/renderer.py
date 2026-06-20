@@ -223,6 +223,138 @@ def _freshness_rows(data: dict[str, Any]) -> str:
     )
 
 
+def _operator_review(data: dict[str, Any]) -> str:
+    review = data["pages"].get("operator_review")
+    if review is None:
+        return '<section class="panel"><p>Operator review data is not available.</p></section>'
+
+    jobs = review["active_and_recent_jobs"]
+    population = review["population_summary"]
+    outcomes = population["outcome_counts"]
+    evidence = review["evidence_summary"]
+    lifecycle = review["lifecycle_summary"]
+    approval = review["approval_summary"]
+
+    summary_cards = [
+        ("Active jobs", jobs["status"], jobs["active_state_note"]),
+        (
+            "Population completeness",
+            population["status"],
+            f'{population["complete_population_count"]}/{population["population_count"]} complete; '
+            f'{population["result_row_count"]}/{population["committed_denominator"]} rows',
+        ),
+        (
+            "Walk-forward / OOS",
+            evidence["walkforward_oos"]["status"],
+            f'{evidence["walkforward_oos"]["available_count"]} available; '
+            f'{evidence["walkforward_oos"]["unavailable_count"]} unavailable',
+        ),
+        (
+            "Robustness",
+            evidence["robustness"]["status"],
+            f'{evidence["robustness"]["available_count"]} available; '
+            f'{evidence["robustness"]["unavailable_count"]} unavailable',
+        ),
+        ("Candidate lifecycle", lifecycle["status"], lifecycle["reason"]),
+        ("Human approval posture", approval["status"], approval["reason"]),
+    ]
+    card_html = "\n".join(
+        '<article class="card status-card">'
+        f'<div class="card-top"><h3>{_esc(title)}</h3>{_badge(status)}</div>'
+        f'<p>{_esc(summary)}</p></article>'
+        for title, status, summary in summary_cards
+    )
+
+    outcome_rows = "\n".join(
+        f'<tr><th>{_esc(name.replace("_", " ").title())}</th><td><code>{_esc(count)}</code></td></tr>'
+        for name, count in outcomes.items()
+    )
+
+    job_rows = "\n".join(
+        '<tr class="filter-row">'
+        f'<td><code>{_esc(job["run_id"])}</code></td>'
+        f'<td>{_esc(job["job_state"])}</td>'
+        f'<td><code>{_esc(job["created_at_utc"])}</code></td>'
+        f'<td><code>{_esc(job["strategy_spec_id"])}</code></td>'
+        f'<td><code>{_esc(job["variant_manifest_id"])}</code></td>'
+        f'<td><code>{_esc(job["sweep_plan_id"])}</code></td>'
+        f'<td><code>{_esc(job["result_population_id"])}</code></td>'
+        '</tr>'
+        for job in jobs["jobs"]
+    )
+
+    candidate_rows = []
+    for candidate in review["candidate_reviews"]:
+        caveats = "<ul>" + "".join(f'<li>{_esc(item)}</li>' for item in candidate["caveats"]) + "</ul>"
+        links = ", ".join(
+            f'<a href="../{_esc(path)}">{_esc(Path(path).name)}</a>' for path in candidate["evidence_links"]
+        )
+        candidate_rows.append(
+            '<tr class="filter-row">'
+            f'<td><code>{_esc(candidate["review_id"])}</code></td>'
+            f'<td>{_badge(candidate["result_status"])}</td>'
+            f'<td><code>{_esc(candidate["strategy_spec_id"])}</code></td>'
+            f'<td>{_badge(candidate["walkforward_oos_status"])}</td>'
+            f'<td>{_badge(candidate["robustness_status"])}</td>'
+            f'<td>{_badge(candidate["funding_realism_status"])}</td>'
+            f'<td>{_esc(candidate["candidate_lifecycle_state"])}</td>'
+            f'<td>{_esc(candidate["approval_state"])}</td>'
+            f'<td>{caveats}</td>'
+            f'<td>{links}</td>'
+            '</tr>'
+        )
+
+    blocker_rows = "\n".join(
+        '<tr class="filter-row">'
+        f'<td><code>{_esc(blocker["blocker_id"])}</code></td>'
+        f'<td>{_badge(blocker["status"])}</td>'
+        f'<td>{_esc(blocker["message"])}</td>'
+        f'<td><code>{_esc(blocker["affected_count"])}</code></td>'
+        f'<td>{_source_links(data, blocker["source_refs"])}</td>'
+        '</tr>'
+        for blocker in review["blockers"]
+    )
+    warning_items = "\n".join(
+        f'<li class="warning-item">{_badge(item["status"])}<span>{_esc(item["message"])}</span></li>'
+        for item in review["warnings"]
+    )
+
+    return "\n".join([
+        '<div class="section-head"><div><span>Operator Review</span>',
+        '<p>Evidence, caveats, uncertainty, and blockers. Deterministic display order is not a ranking.</p>',
+        f'</div>{_badge(review["status"])}</div>',
+        '<div class="results-authority-notice"><strong>Display-only / advisory</strong>',
+        '<p>No ranking, recommendation, readiness, promotion, approval, or execution authority. Manual approval remains required.</p></div>',
+        f'<div class="cards">{card_html}</div>',
+        '<div class="two-column"><section class="panel"><h2>Outcome Counts</h2>',
+        f'<div class="table-wrap"><table class="fact-table">{outcome_rows}</table></div></section>',
+        '<section class="panel"><h2>Evidence Coverage</h2><div class="table-wrap"><table class="fact-table">',
+        _facts_table([
+            ("Walk-forward / OOS", evidence["walkforward_oos"]["message"]),
+            ("Robustness", evidence["robustness"]["message"]),
+            ("Funding realism", evidence["funding_realism"]["message"]),
+            ("Lifecycle state", lifecycle["state"]),
+            ("Approval state", approval["state"]),
+        ]),
+        '</table></div></section></div>',
+        '<section class="panel"><div class="table-toolbar"><h2>Active / Recent Research Jobs</h2>',
+        '<label class="search-label">Filter <input type="search" data-filter-target="operator-jobs-table" placeholder="Run, strategy, result"></label></div>',
+        f'<p class="muted">Order policy: <code>{_esc(jobs["job_order_policy"])}</code></p>',
+        '<div class="table-wrap"><table class="compact-table"><thead><tr><th>Run</th><th>State</th><th>Created</th><th>Strategy</th><th>VM</th><th>Sweep</th><th>Result</th></tr></thead>',
+        f'<tbody>{job_rows}</tbody></table></div></section>',
+        '<section class="panel"><div class="table-toolbar"><h2>Candidates with Caveats</h2>',
+        '<label class="search-label">Filter <input type="search" data-filter-target="candidate-review-table" placeholder="Review, evidence, blocker"></label></div>',
+        '<p class="muted">Rows use ascending review IDs only; order is not a quality ranking.</p>',
+        '<div class="table-wrap"><table class="compact-table"><thead><tr><th>Review</th><th>Result</th><th>Strategy</th><th>WF/OOS</th><th>Robustness</th><th>Funding</th><th>Lifecycle</th><th>Approval</th><th>Caveats</th><th>Evidence</th></tr></thead>',
+        f'<tbody>{"".join(candidate_rows)}</tbody></table></div></section>',
+        '<section class="panel"><div class="table-toolbar"><h2>Blockers and Missing Prerequisites</h2>',
+        '<label class="search-label">Filter <input type="search" data-filter-target="operator-blockers-table" placeholder="Blocker, status, message"></label></div>',
+        '<div class="table-wrap"><table class="compact-table"><thead><tr><th>Blocker</th><th>Status</th><th>Reason</th><th>Affected</th><th>Evidence</th></tr></thead>',
+        f'<tbody>{blocker_rows}</tbody></table></div></section>',
+        f'<section class="panel"><h2>Warnings and Uncertainty</h2><ul class="warning-list">{warning_items}</ul></section>',
+    ])
+
+
 def _results(data: dict[str, Any]) -> str:
     results = data["pages"].get("results")
     if results is None:
@@ -467,6 +599,7 @@ def render_dashboard(data: dict[str, Any], output_dir: Path | str) -> Path:
         "gate_counts": _esc(json.dumps(counts, sort_keys=True)),
         "d4_catalog_ref": _esc(overview["latest_data_slice"]["d4_catalog_ref"]),
         "d4_slice_identity": _esc(overview["latest_data_slice"]["d4_slice_identity"]),
+        "operator_review": _operator_review(data),
         "results": _results(data),
     }
     html_text = template

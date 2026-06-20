@@ -5,13 +5,13 @@
 - No winner-only reporting is allowed.
 - Pruned/failed trials remain part of search lineage.
 
-Execution status: `PARTIAL_BLOCKED_OPTIONAL_DEPENDENCY_UNAVAILABLE`
-Recommendation: `preserve`
-Real Optuna exercised: `False`
-Blocked reason: `Optuna is not importable in the execution environment.`
+Execution status: `COMPLETED_REAL_OPTUNA_SIDECAR_PILOT`
+Recommendation: `sidecar`
+Real Optuna exercised: `True`
+Blocked reason: `None`
 Total trials: `20`
 Complete / pruned / fail: `16 / 2 / 2`
-Best observed trial: `OPTUNA-PILOT-A280088184549D2E:0`
+Best observed trial: `OPTUNA-PILOT-A280088184549D2E:17`
 
 ## Non-Authority
 
@@ -28,13 +28,13 @@ Best observed trial: `OPTUNA-PILOT-A280088184549D2E:0`
 
 ## Repo Fit
 
-Real Optuna behavior was not exercised; this is partial blocked evidence covering only wrapper, export, and guardrail behavior.
+Optuna can fit only as a bounded non-canonical sidecar suggester with full trial-state export and repo-owned rescreen handoff.
 
 ## Dependency
 
-- Optuna available: `False`
-- Optuna version: `None`
-- Import error: `ModuleNotFoundError: No module named 'optuna'`
+- Optuna available: `True`
+- Optuna version: `4.9.0`
+- Import error: `None`
 
 ## Boundary
 

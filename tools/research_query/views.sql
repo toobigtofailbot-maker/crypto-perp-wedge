@@ -4010,6 +4010,158 @@ FROM (
     SELECT approval_record_id, candidate_id, 'authority_flags.tier4_authority', 'false', CAST(authority_flags.tier4_authority AS VARCHAR) FROM s2p_approval_records WHERE authority_flags.tier4_authority IS DISTINCT FROM false
 ) AS issues;
 
+-- What walk-forward fold manifests exist?
+-- Descriptive only: this exposes declared boundaries and lineage counts but creates no
+-- strategy approval, readiness, ranking, promotion, runner, or result-population write authority.
+CREATE OR REPLACE VIEW v_walkforward_manifest_overview AS
+SELECT
+    manifest_id,
+    schema_version,
+    CAST(created_at_utc AS VARCHAR) AS created_at_utc,
+    source_commit,
+    strategy_spec_id,
+    variant_manifest_id,
+    sweep_plan_id,
+    data_slice_id,
+    timeframe,
+    timezone,
+    boundary_semantics,
+    window_policy.policy_id AS window_policy_id,
+    window_policy.window_type AS window_type,
+    selection_rule.rule_id AS selection_rule_id,
+    selection_rule.rule_type AS selection_rule_type,
+    list_count(folds) AS fold_count
+FROM walkforward_fold_manifests;
+
+-- What fold boundaries and denominator fields are declared?
+-- Keeps per-fold lineage visible without computing winners or recommendation state.
+CREATE OR REPLACE VIEW v_walkforward_fold_boundaries AS
+SELECT
+    w.manifest_id,
+    w.strategy_spec_id,
+    w.variant_manifest_id,
+    w.sweep_plan_id,
+    fold.fold_id,
+    fold.fold_order,
+    CAST(fold.selection_window_start_utc AS VARCHAR) AS selection_window_start_utc,
+    CAST(fold.selection_window_end_utc AS VARCHAR) AS selection_window_end_utc,
+    CAST(fold.evaluation_window_start_utc AS VARCHAR) AS evaluation_window_start_utc,
+    CAST(fold.evaluation_window_end_utc AS VARCHAR) AS evaluation_window_end_utc,
+    CAST(fold.warmup_window_start_utc AS VARCHAR) AS warmup_window_start_utc,
+    CAST(fold.warmup_window_end_utc AS VARCHAR) AS warmup_window_end_utc,
+    fold.purge.mode AS purge_mode,
+    fold.purge.bars AS purge_bars,
+    fold.purge.duration AS purge_duration,
+    fold.embargo.mode AS embargo_mode,
+    fold.embargo.bars AS embargo_bars,
+    fold.embargo.duration AS embargo_duration,
+    fold.result_population_ref,
+    fold.planned_result_population_ref,
+    fold.declared_variant_count,
+    fold.successful_count,
+    fold.failed_count,
+    fold.errored_count,
+    fold.invalid_count,
+    fold.data_unavailable_count,
+    fold.not_attempted_count,
+    fold.gap_posture.missing_data_policy AS missing_data_policy,
+    fold.gap_posture.irreparable_gap_policy AS irreparable_gap_policy,
+    list_count(fold.lineage_refs) AS lineage_ref_count
+FROM walkforward_fold_manifests AS w,
+UNNEST(w.folds) AS folds(fold);
+
+-- Are any fold windows reversed or overlapping?
+-- Expected to be empty for schema-validated manifests.
+CREATE OR REPLACE VIEW v_integrity_walkforward_fold_chronology AS
+SELECT
+    manifest_id,
+    fold_id,
+    issue_type,
+    selection_window_start_utc,
+    selection_window_end_utc,
+    evaluation_window_start_utc,
+    evaluation_window_end_utc
+FROM (
+    SELECT
+        manifest_id,
+        fold_id,
+        'selection_window_reversed' AS issue_type,
+        selection_window_start_utc,
+        selection_window_end_utc,
+        evaluation_window_start_utc,
+        evaluation_window_end_utc
+    FROM v_walkforward_fold_boundaries
+    WHERE selection_window_start_utc >= selection_window_end_utc
+    UNION ALL
+    SELECT
+        manifest_id,
+        fold_id,
+        'evaluation_window_reversed' AS issue_type,
+        selection_window_start_utc,
+        selection_window_end_utc,
+        evaluation_window_start_utc,
+        evaluation_window_end_utc
+    FROM v_walkforward_fold_boundaries
+    WHERE evaluation_window_start_utc >= evaluation_window_end_utc
+    UNION ALL
+    SELECT
+        manifest_id,
+        fold_id,
+        'selection_evaluation_overlap' AS issue_type,
+        selection_window_start_utc,
+        selection_window_end_utc,
+        evaluation_window_start_utc,
+        evaluation_window_end_utc
+    FROM v_walkforward_fold_boundaries
+    WHERE evaluation_window_start_utc < selection_window_end_utc
+);
+
+-- Are known per-fold outcome counts denominator-honest?
+-- Unknown counts stay visible as null and are not treated as shrinkage.
+CREATE OR REPLACE VIEW v_integrity_walkforward_fold_denominator AS
+SELECT
+    manifest_id,
+    fold_id,
+    declared_variant_count,
+    successful_count,
+    failed_count,
+    errored_count,
+    invalid_count,
+    data_unavailable_count,
+    not_attempted_count,
+    successful_count + failed_count + errored_count + invalid_count
+        + data_unavailable_count + not_attempted_count AS known_count_sum
+FROM v_walkforward_fold_boundaries
+WHERE successful_count IS NOT NULL
+  AND failed_count IS NOT NULL
+  AND errored_count IS NOT NULL
+  AND invalid_count IS NOT NULL
+  AND data_unavailable_count IS NOT NULL
+  AND not_attempted_count IS NOT NULL
+  AND successful_count + failed_count + errored_count + invalid_count
+        + data_unavailable_count + not_attempted_count != declared_variant_count;
+
+-- Are manifest-level non-authority flags intact?
+-- Expected to be empty for schema-validated manifests.
+CREATE OR REPLACE VIEW v_integrity_walkforward_non_authority AS
+SELECT
+    manifest_id,
+    'non_authority_flag_violation' AS issue_type
+FROM walkforward_fold_manifests
+WHERE non_authority_declaration.not_executable IS DISTINCT FROM TRUE
+   OR non_authority_declaration.not_runner_authority IS DISTINCT FROM TRUE
+   OR non_authority_declaration.not_result_population_write_authority IS DISTINCT FROM TRUE
+   OR non_authority_declaration.not_canonical_result_population IS DISTINCT FROM TRUE
+   OR non_authority_declaration.not_candidate_approval IS DISTINCT FROM TRUE
+   OR non_authority_declaration.not_ranking_authority IS DISTINCT FROM TRUE
+   OR non_authority_declaration.not_recommendation_authority IS DISTINCT FROM TRUE
+   OR non_authority_declaration.not_readiness_authority IS DISTINCT FROM TRUE
+   OR non_authority_declaration.not_promotion_authority IS DISTINCT FROM TRUE
+   OR non_authority_declaration.not_gate_authority IS DISTINCT FROM TRUE
+   OR non_authority_declaration.not_runtime_authority IS DISTINCT FROM TRUE
+   OR non_authority_declaration.not_paper_live_authority IS DISTINCT FROM TRUE
+   OR non_authority_declaration.not_broker_exchange_order_authority IS DISTINCT FROM TRUE;
+
 -- Do Scope 6 records preserve required boundary-confirmation flags?
 -- Expected to be empty in healthy state.
 CREATE OR REPLACE VIEW v_integrity_scope6_preservation_flags AS

@@ -1,0 +1,204 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crypto-perp-wedge.local/research/schemas/walkforward_fold_manifest.schema.json",
+  "title": "Walk-Forward Fold Manifest",
+  "description": "Non-executing canonical evidence contract for explicit walk-forward / OOS fold boundaries and lineage. This schema grants no runner, result-population write, strategy approval, ranking, recommendation, readiness, promotion, paper/live, runtime, OMS, risk, broker, exchange, order, or gate authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "manifest_id",
+    "created_at_utc",
+    "source_commit",
+    "non_authority_declaration",
+    "strategy_spec_id",
+    "variant_manifest_id",
+    "sweep_plan_id",
+    "data_slice_id",
+    "timeframe",
+    "timezone",
+    "boundary_semantics",
+    "window_policy",
+    "selection_rule",
+    "folds"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "v1" },
+    "manifest_id": { "type": "string", "pattern": "^WFM-[0-9]{4}$" },
+    "created_at_utc": { "type": "string", "format": "date-time" },
+    "source_commit": { "type": "string", "minLength": 7 },
+    "non_authority_declaration": { "$ref": "#/definitions/non_authority_declaration" },
+    "strategy_spec_id": { "type": "string", "pattern": "^STRAT-SPEC-[0-9]{4}$" },
+    "variant_manifest_id": { "type": "string", "pattern": "^VM-[0-9]{4}$" },
+    "sweep_plan_id": { "type": "string", "pattern": "^SWEEP-PLAN-[0-9]{4}$" },
+    "data_slice_id": { "type": "string", "minLength": 1 },
+    "timeframe": { "type": "string", "enum": ["15m", "30m", "1h", "4h", "1d"] },
+    "timezone": { "type": "string", "const": "UTC" },
+    "boundary_semantics": { "type": "string", "const": "start_inclusive_end_exclusive" },
+    "window_policy": { "$ref": "#/definitions/window_policy" },
+    "selection_rule": { "$ref": "#/definitions/selection_rule" },
+    "folds": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/definitions/fold" }
+    }
+  },
+  "definitions": {
+    "nullable_string": { "type": ["string", "null"] },
+    "date_time_or_null": { "type": ["string", "null"], "format": "date-time" },
+    "count_or_null": { "type": ["integer", "null"], "minimum": 0 },
+    "non_authority_declaration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "not_executable",
+        "not_runner_authority",
+        "not_result_population_write_authority",
+        "not_canonical_result_population",
+        "not_candidate_approval",
+        "not_ranking_authority",
+        "not_recommendation_authority",
+        "not_readiness_authority",
+        "not_promotion_authority",
+        "not_gate_authority",
+        "not_runtime_authority",
+        "not_paper_live_authority",
+        "not_broker_exchange_order_authority"
+      ],
+      "properties": {
+        "not_executable": { "type": "boolean", "const": true },
+        "not_runner_authority": { "type": "boolean", "const": true },
+        "not_result_population_write_authority": { "type": "boolean", "const": true },
+        "not_canonical_result_population": { "type": "boolean", "const": true },
+        "not_candidate_approval": { "type": "boolean", "const": true },
+        "not_ranking_authority": { "type": "boolean", "const": true },
+        "not_recommendation_authority": { "type": "boolean", "const": true },
+        "not_readiness_authority": { "type": "boolean", "const": true },
+        "not_promotion_authority": { "type": "boolean", "const": true },
+        "not_gate_authority": { "type": "boolean", "const": true },
+        "not_runtime_authority": { "type": "boolean", "const": true },
+        "not_paper_live_authority": { "type": "boolean", "const": true },
+        "not_broker_exchange_order_authority": { "type": "boolean", "const": true }
+      }
+    },
+    "window_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policy_id", "window_type", "fold_construction", "overlap_policy", "declared_before_evaluation"],
+      "properties": {
+        "policy_id": { "type": "string", "minLength": 1 },
+        "window_type": { "type": "string", "enum": ["rolling", "expanding", "anchored_expanding", "custom_explicit"] },
+        "fold_construction": { "type": "string", "const": "explicit_manifest_boundaries" },
+        "overlap_policy": { "type": "string", "const": "selection_evaluation_overlap_forbidden" },
+        "declared_before_evaluation": { "type": "boolean", "const": true }
+      }
+    },
+    "selection_rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rule_id",
+        "rule_type",
+        "description",
+        "declared_before_evaluation",
+        "winner_only_selection_forbidden",
+        "denominator_preservation"
+      ],
+      "properties": {
+        "rule_id": { "type": "string", "minLength": 1 },
+        "rule_type": { "type": "string", "enum": ["carry_full_population", "predeclared_subset", "predeclared_selection_rule"] },
+        "description": { "type": "string", "minLength": 1 },
+        "declared_before_evaluation": { "type": "boolean", "const": true },
+        "winner_only_selection_forbidden": { "type": "boolean", "const": true },
+        "denominator_preservation": { "type": "string", "const": "all_declared_variants_remain_visible" }
+      }
+    },
+    "gap_posture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["missing_data_policy", "irreparable_gap_policy", "silent_interpolation_forbidden"],
+      "properties": {
+        "missing_data_policy": { "type": "string", "enum": ["block_if_missing", "mark_data_unavailable", "explicit_skip_with_count"] },
+        "irreparable_gap_policy": { "type": "string", "enum": ["consult_irreparable_gaps_manifest", "not_applicable"] },
+        "silent_interpolation_forbidden": { "type": "boolean", "const": true }
+      }
+    },
+    "lineage_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ref_id", "ref_type", "ref"],
+      "properties": {
+        "ref_id": { "type": "string", "minLength": 1 },
+        "ref_type": {
+          "type": "string",
+          "enum": ["strategy_spec", "variant_manifest", "sweep_plan", "data_slice", "result_population", "planned_result_population", "status_doc", "run_manifest", "other"]
+        },
+        "ref": { "type": "string", "minLength": 1 }
+      }
+    },
+    "fold": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fold_id",
+        "fold_order",
+        "selection_window_start_utc",
+        "selection_window_end_utc",
+        "evaluation_window_start_utc",
+        "evaluation_window_end_utc",
+        "warmup_window_start_utc",
+        "warmup_window_end_utc",
+        "purge",
+        "embargo",
+        "result_population_ref",
+        "planned_result_population_ref",
+        "declared_variant_count",
+        "successful_count",
+        "failed_count",
+        "errored_count",
+        "invalid_count",
+        "data_unavailable_count",
+        "not_attempted_count",
+        "gap_posture",
+        "lineage_refs"
+      ],
+      "properties": {
+        "fold_id": { "type": "string", "pattern": "^FOLD-[0-9]{3}$" },
+        "fold_order": { "type": "integer", "minimum": 1 },
+        "selection_window_start_utc": { "type": "string", "format": "date-time" },
+        "selection_window_end_utc": { "type": "string", "format": "date-time" },
+        "evaluation_window_start_utc": { "type": "string", "format": "date-time" },
+        "evaluation_window_end_utc": { "type": "string", "format": "date-time" },
+        "warmup_window_start_utc": { "$ref": "#/definitions/date_time_or_null" },
+        "warmup_window_end_utc": { "$ref": "#/definitions/date_time_or_null" },
+        "purge": { "$ref": "#/definitions/bar_or_duration_gap" },
+        "embargo": { "$ref": "#/definitions/bar_or_duration_gap" },
+        "result_population_ref": { "$ref": "#/definitions/nullable_string" },
+        "planned_result_population_ref": { "$ref": "#/definitions/nullable_string" },
+        "declared_variant_count": { "type": "integer", "minimum": 0 },
+        "successful_count": { "$ref": "#/definitions/count_or_null" },
+        "failed_count": { "$ref": "#/definitions/count_or_null" },
+        "errored_count": { "$ref": "#/definitions/count_or_null" },
+        "invalid_count": { "$ref": "#/definitions/count_or_null" },
+        "data_unavailable_count": { "$ref": "#/definitions/count_or_null" },
+        "not_attempted_count": { "$ref": "#/definitions/count_or_null" },
+        "gap_posture": { "$ref": "#/definitions/gap_posture" },
+        "lineage_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/definitions/lineage_ref" }
+        }
+      }
+    },
+    "bar_or_duration_gap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "bars", "duration"],
+      "properties": {
+        "mode": { "type": "string", "enum": ["none", "bars", "duration"] },
+        "bars": { "type": ["integer", "null"], "minimum": 0 },
+        "duration": { "$ref": "#/definitions/nullable_string" }
+      }
+    }
+  }
+}

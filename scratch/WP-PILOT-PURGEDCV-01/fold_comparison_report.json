@@ -1,0 +1,420 @@
+{
+  "comparison_summary": {
+    "fold_count": 4,
+    "folds_with_boundary_gap": 4,
+    "folds_with_embargo_shifted_selection_start": 3,
+    "material_difference_observed": true,
+    "rows": [
+      {
+        "embargo_bars_after_evaluation": 8,
+        "evaluation_start_utc": "2026-01-05T00:00:00Z",
+        "fold_id": "FOLD-001",
+        "naive_selection_bars": 384,
+        "naive_selection_end_utc": "2026-01-05T00:00:00Z",
+        "naive_selection_start_utc": "2026-01-01T00:00:00Z",
+        "purge_gap_bars": 12,
+        "purged_selection_bars": 372,
+        "purged_selection_end_utc": "2026-01-04T21:00:00Z",
+        "purged_selection_start_utc": "2026-01-01T00:00:00Z",
+        "selection_bars_removed": 12
+      },
+      {
+        "embargo_bars_after_evaluation": 8,
+        "evaluation_start_utc": "2026-01-10T00:00:00Z",
+        "fold_id": "FOLD-002",
+        "naive_selection_bars": 384,
+        "naive_selection_end_utc": "2026-01-10T00:00:00Z",
+        "naive_selection_start_utc": "2026-01-06T00:00:00Z",
+        "purge_gap_bars": 12,
+        "purged_selection_bars": 364,
+        "purged_selection_end_utc": "2026-01-09T21:00:00Z",
+        "purged_selection_start_utc": "2026-01-06T02:00:00Z",
+        "selection_bars_removed": 20
+      },
+      {
+        "embargo_bars_after_evaluation": 8,
+        "evaluation_start_utc": "2026-01-15T00:00:00Z",
+        "fold_id": "FOLD-003",
+        "naive_selection_bars": 384,
+        "naive_selection_end_utc": "2026-01-15T00:00:00Z",
+        "naive_selection_start_utc": "2026-01-11T00:00:00Z",
+        "purge_gap_bars": 12,
+        "purged_selection_bars": 364,
+        "purged_selection_end_utc": "2026-01-14T21:00:00Z",
+        "purged_selection_start_utc": "2026-01-11T02:00:00Z",
+        "selection_bars_removed": 20
+      },
+      {
+        "embargo_bars_after_evaluation": 8,
+        "evaluation_start_utc": "2026-01-20T00:00:00Z",
+        "fold_id": "FOLD-004",
+        "naive_selection_bars": 384,
+        "naive_selection_end_utc": "2026-01-20T00:00:00Z",
+        "naive_selection_start_utc": "2026-01-16T00:00:00Z",
+        "purge_gap_bars": 12,
+        "purged_selection_bars": 364,
+        "purged_selection_end_utc": "2026-01-19T21:00:00Z",
+        "purged_selection_start_utc": "2026-01-16T02:00:00Z",
+        "selection_bars_removed": 20
+      }
+    ],
+    "total_selection_bars_naive": 1536,
+    "total_selection_bars_purged_embargoed": 1464,
+    "total_selection_bars_removed": 72
+  },
+  "created_at_utc": "2026-06-20T12:00:00Z",
+  "dependency_status": {
+    "available": false,
+    "error": "No module named 'purgedcv'",
+    "error_type": "ModuleNotFoundError",
+    "import_attempted": true,
+    "notes": [
+      "Dependency import failed in the current environment; pilot uses a transparent repo-owned sketch."
+    ],
+    "package": "purgedcv",
+    "probe_result": "unavailable",
+    "used_for_fold_construction": false,
+    "version": null
+  },
+  "input_fixture_description": {
+    "bar_count": 1920,
+    "boundary_semantics": "start_inclusive_end_exclusive",
+    "embargo_bars": 8,
+    "end_utc_exclusive": "2026-01-21T00:00:00Z",
+    "evaluation_bars_per_fold": 96,
+    "kind": "deterministic_15m_like_timestamp_fixture",
+    "no_market_data_or_private_api_used": true,
+    "purge_bars": 12,
+    "selection_bars_per_nominal_fold": 384,
+    "start_utc": "2026-01-01T00:00:00Z",
+    "symbol_context": "BTCUSDT Binance USDT-M perpetual research posture only",
+    "timeframe": "15m"
+  },
+  "leakage_risks_addressed": [
+    "adjacent training labels with horizons that overlap the first evaluation bars",
+    "feature warmup or rolling-stat lookback contamination at the IS/OOS boundary",
+    "post-test bleed where rows immediately after an evaluation window enter the next selection window",
+    "implicit zero-gap assumptions that are hard to audit once fold boundaries are materialized"
+  ],
+  "naive_folds": [
+    {
+      "construction": "naive_adjacent_walkforward",
+      "embargo": {
+        "bars": 0,
+        "mode": "none"
+      },
+      "evaluation_window": {
+        "bar_count": 96,
+        "end_pos_exclusive": 480,
+        "end_utc_exclusive": "2026-01-06T00:00:00Z",
+        "start_pos": 384,
+        "start_utc": "2026-01-05T00:00:00Z"
+      },
+      "fold_id": "FOLD-001",
+      "fold_order": 1,
+      "gap_between_selection_and_evaluation_bars": 0,
+      "purge": {
+        "bars": 0,
+        "mode": "none"
+      },
+      "selection_window": {
+        "bar_count": 384,
+        "end_pos_exclusive": 384,
+        "end_utc_exclusive": "2026-01-05T00:00:00Z",
+        "start_pos": 0,
+        "start_utc": "2026-01-01T00:00:00Z"
+      }
+    },
+    {
+      "construction": "naive_adjacent_walkforward",
+      "embargo": {
+        "bars": 0,
+        "mode": "none"
+      },
+      "evaluation_window": {
+        "bar_count": 96,
+        "end_pos_exclusive": 960,
+        "end_utc_exclusive": "2026-01-11T00:00:00Z",
+        "start_pos": 864,
+        "start_utc": "2026-01-10T00:00:00Z"
+      },
+      "fold_id": "FOLD-002",
+      "fold_order": 2,
+      "gap_between_selection_and_evaluation_bars": 0,
+      "purge": {
+        "bars": 0,
+        "mode": "none"
+      },
+      "selection_window": {
+        "bar_count": 384,
+        "end_pos_exclusive": 864,
+        "end_utc_exclusive": "2026-01-10T00:00:00Z",
+        "start_pos": 480,
+        "start_utc": "2026-01-06T00:00:00Z"
+      }
+    },
+    {
+      "construction": "naive_adjacent_walkforward",
+      "embargo": {
+        "bars": 0,
+        "mode": "none"
+      },
+      "evaluation_window": {
+        "bar_count": 96,
+        "end_pos_exclusive": 1440,
+        "end_utc_exclusive": "2026-01-16T00:00:00Z",
+        "start_pos": 1344,
+        "start_utc": "2026-01-15T00:00:00Z"
+      },
+      "fold_id": "FOLD-003",
+      "fold_order": 3,
+      "gap_between_selection_and_evaluation_bars": 0,
+      "purge": {
+        "bars": 0,
+        "mode": "none"
+      },
+      "selection_window": {
+        "bar_count": 384,
+        "end_pos_exclusive": 1344,
+        "end_utc_exclusive": "2026-01-15T00:00:00Z",
+        "start_pos": 960,
+        "start_utc": "2026-01-11T00:00:00Z"
+      }
+    },
+    {
+      "construction": "naive_adjacent_walkforward",
+      "embargo": {
+        "bars": 0,
+        "mode": "none"
+      },
+      "evaluation_window": {
+        "bar_count": 96,
+        "end_pos_exclusive": 1920,
+        "end_utc_exclusive": "2026-01-21T00:00:00Z",
+        "start_pos": 1824,
+        "start_utc": "2026-01-20T00:00:00Z"
+      },
+      "fold_id": "FOLD-004",
+      "fold_order": 4,
+      "gap_between_selection_and_evaluation_bars": 0,
+      "purge": {
+        "bars": 0,
+        "mode": "none"
+      },
+      "selection_window": {
+        "bar_count": 384,
+        "end_pos_exclusive": 1824,
+        "end_utc_exclusive": "2026-01-20T00:00:00Z",
+        "start_pos": 1440,
+        "start_utc": "2026-01-16T00:00:00Z"
+      }
+    }
+  ],
+  "non_authority_flags": [
+    "scratch_only",
+    "non_canonical",
+    "not_walkforward_contract",
+    "not_canonical_evidence",
+    "not_runner_change",
+    "not_promotion",
+    "not_readiness",
+    "not_paper_live"
+  ],
+  "pilot_id": "WP-PILOT-PURGEDCV-01",
+  "purged_embargoed_folds": [
+    {
+      "construction": "repo_native_purged_embargoed_sketch",
+      "embargo": {
+        "bars": 8,
+        "mode": "bars",
+        "reason": "exclude immediate post-evaluation rows from later selection windows",
+        "window_after_evaluation": {
+          "bar_count": 8,
+          "end_pos_exclusive": 488,
+          "end_utc_exclusive": "2026-01-06T02:00:00Z",
+          "start_pos": 480,
+          "start_utc": "2026-01-06T00:00:00Z"
+        }
+      },
+      "evaluation_window": {
+        "bar_count": 96,
+        "end_pos_exclusive": 480,
+        "end_utc_exclusive": "2026-01-06T00:00:00Z",
+        "start_pos": 384,
+        "start_utc": "2026-01-05T00:00:00Z"
+      },
+      "fold_id": "FOLD-001",
+      "fold_order": 1,
+      "gap_between_selection_and_evaluation_bars": 12,
+      "purge": {
+        "bars": 12,
+        "mode": "bars",
+        "reason": "remove training labels/features whose horizon can overlap the evaluation boundary",
+        "window": {
+          "bar_count": 12,
+          "end_pos_exclusive": 384,
+          "end_utc_exclusive": "2026-01-05T00:00:00Z",
+          "start_pos": 372,
+          "start_utc": "2026-01-04T21:00:00Z"
+        }
+      },
+      "selection_bars_removed_vs_naive": 12,
+      "selection_window": {
+        "bar_count": 372,
+        "end_pos_exclusive": 372,
+        "end_utc_exclusive": "2026-01-04T21:00:00Z",
+        "start_pos": 0,
+        "start_utc": "2026-01-01T00:00:00Z"
+      }
+    },
+    {
+      "construction": "repo_native_purged_embargoed_sketch",
+      "embargo": {
+        "bars": 8,
+        "mode": "bars",
+        "reason": "exclude immediate post-evaluation rows from later selection windows",
+        "window_after_evaluation": {
+          "bar_count": 8,
+          "end_pos_exclusive": 968,
+          "end_utc_exclusive": "2026-01-11T02:00:00Z",
+          "start_pos": 960,
+          "start_utc": "2026-01-11T00:00:00Z"
+        }
+      },
+      "evaluation_window": {
+        "bar_count": 96,
+        "end_pos_exclusive": 960,
+        "end_utc_exclusive": "2026-01-11T00:00:00Z",
+        "start_pos": 864,
+        "start_utc": "2026-01-10T00:00:00Z"
+      },
+      "fold_id": "FOLD-002",
+      "fold_order": 2,
+      "gap_between_selection_and_evaluation_bars": 12,
+      "purge": {
+        "bars": 12,
+        "mode": "bars",
+        "reason": "remove training labels/features whose horizon can overlap the evaluation boundary",
+        "window": {
+          "bar_count": 12,
+          "end_pos_exclusive": 864,
+          "end_utc_exclusive": "2026-01-10T00:00:00Z",
+          "start_pos": 852,
+          "start_utc": "2026-01-09T21:00:00Z"
+        }
+      },
+      "selection_bars_removed_vs_naive": 20,
+      "selection_window": {
+        "bar_count": 364,
+        "end_pos_exclusive": 852,
+        "end_utc_exclusive": "2026-01-09T21:00:00Z",
+        "start_pos": 488,
+        "start_utc": "2026-01-06T02:00:00Z"
+      }
+    },
+    {
+      "construction": "repo_native_purged_embargoed_sketch",
+      "embargo": {
+        "bars": 8,
+        "mode": "bars",
+        "reason": "exclude immediate post-evaluation rows from later selection windows",
+        "window_after_evaluation": {
+          "bar_count": 8,
+          "end_pos_exclusive": 1448,
+          "end_utc_exclusive": "2026-01-16T02:00:00Z",
+          "start_pos": 1440,
+          "start_utc": "2026-01-16T00:00:00Z"
+        }
+      },
+      "evaluation_window": {
+        "bar_count": 96,
+        "end_pos_exclusive": 1440,
+        "end_utc_exclusive": "2026-01-16T00:00:00Z",
+        "start_pos": 1344,
+        "start_utc": "2026-01-15T00:00:00Z"
+      },
+      "fold_id": "FOLD-003",
+      "fold_order": 3,
+      "gap_between_selection_and_evaluation_bars": 12,
+      "purge": {
+        "bars": 12,
+        "mode": "bars",
+        "reason": "remove training labels/features whose horizon can overlap the evaluation boundary",
+        "window": {
+          "bar_count": 12,
+          "end_pos_exclusive": 1344,
+          "end_utc_exclusive": "2026-01-15T00:00:00Z",
+          "start_pos": 1332,
+          "start_utc": "2026-01-14T21:00:00Z"
+        }
+      },
+      "selection_bars_removed_vs_naive": 20,
+      "selection_window": {
+        "bar_count": 364,
+        "end_pos_exclusive": 1332,
+        "end_utc_exclusive": "2026-01-14T21:00:00Z",
+        "start_pos": 968,
+        "start_utc": "2026-01-11T02:00:00Z"
+      }
+    },
+    {
+      "construction": "repo_native_purged_embargoed_sketch",
+      "embargo": {
+        "bars": 8,
+        "mode": "bars",
+        "reason": "exclude immediate post-evaluation rows from later selection windows",
+        "window_after_evaluation": null
+      },
+      "evaluation_window": {
+        "bar_count": 96,
+        "end_pos_exclusive": 1920,
+        "end_utc_exclusive": "2026-01-21T00:00:00Z",
+        "start_pos": 1824,
+        "start_utc": "2026-01-20T00:00:00Z"
+      },
+      "fold_id": "FOLD-004",
+      "fold_order": 4,
+      "gap_between_selection_and_evaluation_bars": 12,
+      "purge": {
+        "bars": 12,
+        "mode": "bars",
+        "reason": "remove training labels/features whose horizon can overlap the evaluation boundary",
+        "window": {
+          "bar_count": 12,
+          "end_pos_exclusive": 1824,
+          "end_utc_exclusive": "2026-01-20T00:00:00Z",
+          "start_pos": 1812,
+          "start_utc": "2026-01-19T21:00:00Z"
+        }
+      },
+      "selection_bars_removed_vs_naive": 20,
+      "selection_window": {
+        "bar_count": 364,
+        "end_pos_exclusive": 1812,
+        "end_utc_exclusive": "2026-01-19T21:00:00Z",
+        "start_pos": 1448,
+        "start_utc": "2026-01-16T02:00:00Z"
+      }
+    }
+  ],
+  "recommendation": "borrow",
+  "recommendation_rationale": "Borrow the purged/embargoed approach into a small repo-native helper. Do not adopt purgedcv as a required dependency or canonical sidecar from this pilot alone.",
+  "repo_fit_assessment": {
+    "can_improve_fold_rigor": true,
+    "dependency_fit": "Import unavailable in this environment; dependency adoption cannot be justified by this pilot.",
+    "future_wp": "WP-WALKFORWARD-PURGE-EMBARGO-HELPER-01: implement a repo-native helper and focused validator strengthening without changing runner/backtester semantics",
+    "keep_purgedcv_as_dependency_or_sidecar": false,
+    "should_borrow_repo_native": true,
+    "smallest_future_integration_surface": "a pure fold-boundary helper that emits explicit purge/embargo fields for walkforward_fold_manifest instances, plus validator checks that evaluation starts after selection end plus required purge",
+    "unknowns": [
+      "whether purgedcv's exact API and maintenance posture match the repo's explicit manifest grammar",
+      "the correct purge horizon for each future label/feature family",
+      "whether multi-timeframe or overlapping-label candidates require fold-level or sample-level purging",
+      "how validator checks should encode purge/embargo without changing existing zero-instance compatibility",
+      "whether any future canonical runner path should consume manifest purge/embargo fields directly"
+    ]
+  },
+  "schema_version": "v1",
+  "source_commit": "0ca18b9e07c19750497a74bba8ed7cbd66be7f67",
+  "tool_candidate": "purgedcv"
+}

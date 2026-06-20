@@ -1,0 +1,2 @@
+# Scratch-only probe candidate; do not promote into repo dependency files from this pilot.
+purgedcv

@@ -363,6 +363,55 @@ def _results(data: dict[str, Any]) -> str:
         '</section>',
     ])
 
+    registry = results.get("lab_registry")
+    registry_html = ""
+    if registry is not None:
+        registry_rows = []
+        for record in registry["records"]:
+            adopted_reports = [
+                ref for ref in [
+                    record.get("analytics_report_ref"),
+                    record.get("robustness_report_ref"),
+                    record.get("triage_sidecar_report_ref"),
+                ]
+                if ref
+            ]
+            registry_rows.append(
+                '<tr class="filter-row">'
+                f'<td><code>{_esc(record["run_id"])}</code></td>'
+                f'<td>{_badge(record["status"])}</td>'
+                f'<td><code>{_esc(record["strategy_spec_id"])}</code></td>'
+                f'<td><code>{_esc(record["variant_manifest_id"])}</code></td>'
+                f'<td><code>{_esc(record["sweep_plan_id"])}</code></td>'
+                f'<td><code>{_esc(record["result_population_id"])}</code></td>'
+                f'<td><code>{_esc(record["result_row_count"])}/{_esc(record["committed_denominator"])}</code></td>'
+                f'<td><code>{_esc(record["return_pct_min"])} to {_esc(record["return_pct_max"])}</code></td>'
+                f'<td><code>{_esc(record["sharpe_min"])} to {_esc(record["sharpe_max"])}</code></td>'
+                f'<td>{_esc(", ".join(adopted_reports) if adopted_reports else "Not available")}</td>'
+                '</tr>'
+            )
+        registry_html = "\n".join([
+            '<section class="panel">',
+            '<h2>Lab Run / Result Registry</h2>',
+            '<p class="muted results-order-note">Runs are displayed in run ID order only; order is not a quality ranking.</p>',
+            '<div class="table-toolbar">',
+            f'<span class="muted">{_esc(registry["record_count"])} records</span>',
+            '<label class="search-label">Filter <input type="search" data-filter-target="lab-registry-table" placeholder="Run, strategy, result, report"></label>',
+            '</div>',
+            '<div class="table-wrap">',
+            '<table class="compact-table results-variant-table">',
+            '<thead><tr>',
+            '<th>Run</th><th>Status</th><th>Strategy</th><th>VM</th><th>Sweep</th><th>Result Population</th>',
+            '<th>Rows</th><th>Return % Range</th><th>Sharpe Range</th><th>Adopted Reports</th>',
+            '</tr></thead>',
+            '<tbody>',
+            "\n".join(registry_rows),
+            '</tbody></table>',
+            '</div>',
+            f'<p class="muted source-line">Run order policy: <code>{_esc(registry["run_order_policy"])}</code> &mdash; Sources: {_source_links(data, registry["source_refs"])}</p>',
+            '</section>',
+        ])
+
     # variant_html is placed before cp_html and summary_html so that
     # html.index("VAR-XXXXXX") finds the first occurrence in variant table order
     # (ascending), before re-occurrences in cp facts and descriptive summary.
@@ -377,6 +426,7 @@ def _results(data: dict[str, Any]) -> str:
         banner,
         rp_html,
         variant_html,
+        registry_html,
         cp_html,
         summary_html,
         ba_html,

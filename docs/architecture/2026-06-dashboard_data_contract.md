@@ -176,6 +176,7 @@ Added in WP-F5A. Optional — absent until a collector populates it. Does not ma
 | `variant_table` | yes | Rows in ascending variant_id order |
 | `backtest_assumptions` | yes | Fill/fee/slippage/liquidation assumptions from RP |
 | `non_authority_notes` | yes | Five `const: true` flags asserting display-only posture |
+| `lab_registry` | optional | Validated lab run/result registry projection in run ID order only |
 
 ### Semantic constraints (enforced by validator)
 
@@ -183,10 +184,16 @@ Added in WP-F5A. Optional — absent until a collector populates it. Does not ma
 2. **Variant order** — `variant_table.variant_order_policy` must be `"variant_id_ascending_only_not_quality_order"` and rows must be strictly ascending by `variant_id`
 3. **Results-specific forbidden keys** — `rank`, `leaderboard`, `readiness`, `ranking_authority` are banned inside `pages.results`
 4. **Non-authority flags** — `no_ranking_as_authority`, `no_recommendation`, `no_readiness`, `no_promotion`, `no_execution` must all be `true`
+5. **Lab registry order** — when present, `lab_registry.run_order_policy` must be `"run_id_ascending_only_not_quality_order"` and records must be sorted by `run_id`
 
 ### Non-authority posture
 
 The Results page is display-only evidence. It confers no ranking, recommendation, readiness, promotion, execution, or approval authority. All five `non_authority_notes` flags must be `true`. The existing global `FORBIDDEN_AUTHORITY_KEYS` and `FORBIDDEN_AUTHORITY_VALUES` scans also cover the Results page.
+
+The optional lab registry projection is also display-only. It indexes committed
+Result Populations and adopted advisory report links for human lab review. It
+does not create a leaderboard, quality order, recommendation, readiness,
+promotion, approval, paper/live, runtime, or execution authority.
 
 ## Boundary
 

@@ -315,6 +315,53 @@ def _validate_results_page(path: Path, payload: Mapping[str, Any]) -> list[str]:
                 errors.append(
                     f"{path}: pages.results.non_authority_notes.{flag} must be true"
                 )
+
+    found_registry, registry = _get_path(results, "lab_registry")
+    if found_registry and isinstance(registry, Mapping):
+        records = registry.get("records")
+        record_count = registry.get("record_count")
+        if isinstance(records, list) and record_count != len(records):
+            errors.append(
+                f"{path}: pages.results.lab_registry.record_count={record_count} "
+                f"does not match records count={len(records)}"
+            )
+        run_ids = [
+            record.get("run_id")
+            for record in records
+            if isinstance(record, Mapping) and record.get("run_id") is not None
+        ] if isinstance(records, list) else []
+        for i in range(1, len(run_ids)):
+            if run_ids[i] <= run_ids[i - 1]:
+                errors.append(
+                    f"{path}: pages.results.lab_registry records are not in ascending run_id order"
+                )
+                break
+        if isinstance(records, list):
+            for index, record in enumerate(records):
+                if not isinstance(record, Mapping):
+                    continue
+                variant_ids = record.get("variant_ids")
+                if isinstance(variant_ids, list):
+                    for pos in range(1, len(variant_ids)):
+                        if str(variant_ids[pos]) <= str(variant_ids[pos - 1]):
+                            errors.append(
+                                f"{path}: pages.results.lab_registry.records.{index}.variant_ids "
+                                "must be ascending variant_id order"
+                            )
+                            break
+        found_flags, flags = _get_path(registry, "non_authority_notes")
+        if found_flags and isinstance(flags, Mapping):
+            for flag in [
+                "no_ranking_as_authority",
+                "no_recommendation",
+                "no_readiness",
+                "no_promotion",
+                "no_execution",
+            ]:
+                if flags.get(flag) is not True:
+                    errors.append(
+                        f"{path}: pages.results.lab_registry.non_authority_notes.{flag} must be true"
+                    )
     return errors
 
 

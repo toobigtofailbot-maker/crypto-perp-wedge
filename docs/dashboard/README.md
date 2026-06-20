@@ -27,7 +27,7 @@ Data / Provenance and Gates pages are local browser filters only. They do not
 sort by quality, call a server, fetch network resources, write artifacts, or
 change any gate state.
 
-## Results page (F5B collector + F5C renderer)
+## Results page (F5B collector + F5C renderer + lab registry)
 
 When `research/result_populations/RP-4492.result_population.json` is present,
 the collector (F5B) populates the optional `pages.results` section of the
@@ -43,6 +43,8 @@ The Results page includes:
 - Complete population facts (denominator, row count, variant range)
 - Descriptive summary (observations and caveats from D6 checkpoint evidence)
 - Variant table — seven rows in ascending variant ID order only
+- Lab run / result registry — committed Result Populations in run ID order only
+- Adopted advisory report links where source data exists
 - Backtest assumptions
 - Source refs
 - Explicit no-authority framing
@@ -55,3 +57,8 @@ deploy, or execute variants.
 
 `dashboard_data/` and `dashboard_build/` are generated local outputs and
 remain gitignored.
+
+The lab registry surface is built from committed Result Populations and adopted
+advisory reports only. It is read-only and display-only. It does not rank,
+recommend, approve, promote, declare readiness, or create paper/live or
+execution authority.

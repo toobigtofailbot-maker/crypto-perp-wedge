@@ -1,0 +1,9 @@
+{
+  "available": true,
+  "dependency": "optuna",
+  "dependency_file_mutation": false,
+  "import_error": null,
+  "package_id": "WP-PILOT-OPTUNA-SEARCH-SIDECAR-01",
+  "probe_posture": "scratch_metadata_only",
+  "version": "4.9.0"
+}

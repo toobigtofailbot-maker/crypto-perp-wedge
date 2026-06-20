@@ -1,0 +1,56 @@
+{
+  "forced_state_rules": {
+    "complete": "all other trials",
+    "fail": "trial_number % 13 == 5 after parameter suggestion",
+    "pruned": "trial_number % 11 == 3 after parameter suggestion"
+  },
+  "guardrails": [
+    "Optuna suggestions are not winners.",
+    "Any suggested params must be re-screened through the repo-owned honest full-population / OOS / robustness pipeline.",
+    "No winner-only reporting is allowed.",
+    "Pruned/failed trials remain part of search lineage."
+  ],
+  "non_authority_flags": [
+    "scratch_only",
+    "non_canonical",
+    "not_full_population_evidence",
+    "not_oos_evidence",
+    "not_robustness_evidence",
+    "not_candidate_evidence",
+    "not_promotion",
+    "not_readiness",
+    "not_paper_live",
+    "requires_repo_owned_rescreen"
+  ],
+  "objective_description": "Toy deterministic objective over a bounded synthetic parameter space; no market data, canonical runner, backtester, OOS, robustness, or candidate evidence path is invoked.",
+  "objective_direction": "maximize",
+  "package_id": "WP-PILOT-OPTUNA-SEARCH-SIDECAR-01",
+  "parameters": {
+    "entry_threshold": {
+      "high": 2.0,
+      "low": 0.1,
+      "type": "float"
+    },
+    "fast_window": {
+      "high": 24,
+      "low": 4,
+      "step": 1,
+      "type": "int"
+    },
+    "slow_window": {
+      "high": 80,
+      "low": 25,
+      "step": 1,
+      "type": "int"
+    },
+    "trade_direction": {
+      "choices": [
+        "long",
+        "short"
+      ],
+      "type": "categorical"
+    }
+  },
+  "schema_version": "optuna_search_space_pilot.v1",
+  "search_space_id": "OPTUNA-SEARCH-SPACE-0001"
+}

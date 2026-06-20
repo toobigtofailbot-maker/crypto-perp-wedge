@@ -1,0 +1,46 @@
+{
+  "artifacts": {
+    "dependency_probe": {
+      "path": "scratch/WP-PILOT-OPTUNA-SEARCH-SIDECAR-01/dependency_probe.json",
+      "sha256": "sha256:64d43a65ff8b939fe7e859acf253a49a9526661176b5979990329887c71bb8b7"
+    },
+    "search_space": {
+      "path": "scratch/WP-PILOT-OPTUNA-SEARCH-SIDECAR-01/search_space.json",
+      "sha256": "sha256:a6956efe360fa39ae59cf733ea74308507189d2f65ce2c1b3e607857b758e3b1"
+    },
+    "trial_population": {
+      "path": "scratch/WP-PILOT-OPTUNA-SEARCH-SIDECAR-01/trial_population.jsonl",
+      "sha256": "sha256:ed450cc595a642e565794b07ffe7d86deab3884d37c04c304df74eaa2f69c987"
+    },
+    "trial_summary": {
+      "path": "scratch/WP-PILOT-OPTUNA-SEARCH-SIDECAR-01/trial_summary.json",
+      "sha256": "sha256:b628978c559fae8c296e9f8c54873beccdc54be4b4c2862a850a2c40ebdec846"
+    }
+  },
+  "boundary_statement": {
+    "candidate_readiness_or_promotion_authority": false,
+    "canonical_result_population_write": false,
+    "canonical_runner_or_backtester_invoked": false,
+    "canonical_strategy_spec_vm_sweep_mutation": false,
+    "canonical_trial_log_write": false,
+    "dependency_files_mutated": false,
+    "private_credentials_used": false,
+    "runtime_paper_live_touched": false,
+    "winner_selection_authority": false
+  },
+  "command": "python -m tools.sidecars.optuna_search_pilot.run_optuna_search_pilot --output-dir scratch/WP-PILOT-OPTUNA-SEARCH-SIDECAR-01 --trials 20 --seed 1729",
+  "created_at_utc": "2026-06-20T00:00:49Z",
+  "dependency": {
+    "available": true,
+    "dependency": "optuna",
+    "dependency_file_mutation": false,
+    "import_error": null,
+    "package_id": "WP-PILOT-OPTUNA-SEARCH-SIDECAR-01",
+    "probe_posture": "scratch_metadata_only",
+    "version": "4.9.0"
+  },
+  "package_id": "WP-PILOT-OPTUNA-SEARCH-SIDECAR-01",
+  "source_branch": "pilot/optuna-search-sidecar-01",
+  "source_commit": "7234650a700557f79dbcc5c8cdee93b4ba92037d",
+  "tool_identity": "tools.sidecars.optuna_search_pilot.run_optuna_search_pilot"
+}

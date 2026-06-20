@@ -1,0 +1,841 @@
+{
+  "aggregate_degradation": {
+    "comparable_variant_pairs": 16,
+    "fold_count": 2,
+    "mean_drawdown_delta": -0.2151037887939073,
+    "mean_return_pct_delta": 0.1628773660061899,
+    "mean_sharpe_delta": 1.011229891295206,
+    "mean_sharpe_efficiency": 9.412525634000296,
+    "partial_fold_count": 0,
+    "successful_fold_count": 2,
+    "unavailable_or_errored_fold_count": 0
+  },
+  "assumptions": {
+    "funding": "existing runner input posture; D4 OHLCV loader supplies zero funding",
+    "output_posture": "scratch-only; no canonical or trial-log write",
+    "runner_path": "tools.research_runner.run_offline_sweep._run_window_variant_backtest",
+    "selection_behavior": "carry all included variants; no winner selection",
+    "sizing_mode": "dynamic_equity_target_leverage",
+    "target_leverage": 1.0
+  },
+  "blockers": [],
+  "canonical_authority": false,
+  "created_at_utc": "2026-06-20T12:00:00Z",
+  "data_slice": {
+    "boundary_semantics": "start_inclusive_end_exclusive",
+    "data_catalog_ref": "binance_usdtm_btcusdt_ohlcv_15m.offline_local.15m.20200101T000000Z.20260411T234500Z.sha256_3daace53d727599b",
+    "data_slice_id": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+    "timeframe": "15m"
+  },
+  "fold_results": [
+    {
+      "degradation_metrics": {
+        "comparable_variant_count": 8,
+        "mean_drawdown_delta": -0.2105299643222917,
+        "mean_return_pct_delta": 0.3276320282264676,
+        "mean_sharpe_delta": 2.183017758711217,
+        "mean_sharpe_efficiency": 8.98540197315084,
+        "mean_trade_count_delta": -114.625,
+        "sharpe_efficiency_available_count": 2
+      },
+      "evaluation_window": {
+        "end_utc": "2023-04-01T00:00:00Z",
+        "start_utc": "2023-01-01T00:00:00Z"
+      },
+      "fold_id": "FOLD-001",
+      "fold_order": 1,
+      "is_metrics": {
+        "metrics": {
+          "drawdown": {
+            "maximum": 0.44081811488479244,
+            "mean": 0.35976983547412317,
+            "minimum": 0.30177384632160087
+          },
+          "exposure": {
+            "maximum": 1.0,
+            "mean": 1.0,
+            "minimum": 1.0
+          },
+          "fees": {
+            "maximum": 1419.4606993994662,
+            "mean": 1103.0075690775607,
+            "minimum": 721.8147281322852
+          },
+          "funding": {
+            "maximum": 0.0,
+            "mean": 0.0,
+            "minimum": 0.0
+          },
+          "pnl": {
+            "maximum": 399.29942854358706,
+            "mean": -1620.5245368348362,
+            "minimum": -3522.888663462859
+          },
+          "return_pct": {
+            "maximum": 0.039929942854358705,
+            "mean": -0.1620524536834836,
+            "minimum": -0.35228886634628587
+          },
+          "sharpe": {
+            "maximum": 0.30218074051448335,
+            "mean": -0.28074954976137184,
+            "minimum": -0.9171384355293523
+          },
+          "slippage": {
+            "maximum": 354.86517484986655,
+            "mean": 275.75189226939017,
+            "minimum": 180.4536820330713
+          },
+          "trade_count": {
+            "maximum": 194.0,
+            "mean": 146.0,
+            "minimum": 99.0
+          },
+          "win_rate": {
+            "maximum": 0.3434343434343434,
+            "mean": 0.2751170979071176,
+            "minimum": 0.21897810218978103
+          }
+        },
+        "successful_variant_count": 8
+      },
+      "oos_metrics": {
+        "metrics": {
+          "drawdown": {
+            "maximum": 0.1720463768047926,
+            "mean": 0.14923987115183146,
+            "minimum": 0.137180115070126
+          },
+          "exposure": {
+            "maximum": 1.0,
+            "mean": 1.0,
+            "minimum": 1.0
+          },
+          "fees": {
+            "maximum": 402.9507588610185,
+            "mean": 296.3318844633961,
+            "minimum": 227.3099399923226
+          },
+          "funding": {
+            "maximum": 0.0,
+            "mean": 0.0,
+            "minimum": 0.0
+          },
+          "pnl": {
+            "maximum": 3724.2779087874915,
+            "mean": 1655.7957454298398,
+            "minimum": 138.05648531754014
+          },
+          "return_pct": {
+            "maximum": 0.37242779087874917,
+            "mean": 0.165579574542984,
+            "minimum": 0.013805648531754014
+          },
+          "sharpe": {
+            "maximum": 3.6958711255287486,
+            "mean": 1.902268208949845,
+            "minimum": 0.3338077223532832
+          },
+          "slippage": {
+            "maximum": 100.73768971525463,
+            "mean": 74.08297111584902,
+            "minimum": 56.82748499808065
+          },
+          "trade_count": {
+            "maximum": 44.0,
+            "mean": 31.375,
+            "minimum": 21.0
+          },
+          "win_rate": {
+            "maximum": 0.38095238095238093,
+            "mean": 0.2865718019061042,
+            "minimum": 0.2
+          }
+        },
+        "successful_variant_count": 8
+      },
+      "result_population_ref_or_null": null,
+      "selection_window": {
+        "end_utc": "2023-01-01T00:00:00Z",
+        "start_utc": "2022-01-01T00:00:00Z"
+      },
+      "status": "successful",
+      "variant_count_posture": {
+        "attempted": 8,
+        "data_unavailable": 0,
+        "declared": 8,
+        "denominator_preserved": true,
+        "errored": 0,
+        "not_attempted": 0,
+        "successful": 8
+      },
+      "variant_results": [
+        {
+          "is_metrics": {
+            "drawdown": 0.44081811488479244,
+            "exposure": 1.0,
+            "fees": 1313.9002810175737,
+            "funding": 0.0,
+            "pnl": -3522.091363626453,
+            "return_pct": -0.35220913636264534,
+            "sharpe": -0.8946162006091826,
+            "slippage": 328.4750702543934,
+            "trade_count": 190,
+            "win_rate": 0.23157894736842105
+          },
+          "oos_metrics": {
+            "drawdown": 0.1720463768047926,
+            "exposure": 1.0,
+            "fees": 377.64631647374836,
+            "funding": 0.0,
+            "pnl": 138.05648531754014,
+            "return_pct": 0.013805648531754014,
+            "sharpe": 0.3338077223532832,
+            "slippage": 94.41157911843709,
+            "trade_count": 43,
+            "win_rate": 0.2558139534883721
+          },
+          "sharpe_efficiency": null,
+          "status": "successful",
+          "variant_id": "VAR-000001",
+          "warnings": [
+            "sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+          ]
+        },
+        {
+          "is_metrics": {
+            "drawdown": 0.3736948173264003,
+            "exposure": 1.0,
+            "fees": 1419.4606993994662,
+            "funding": 0.0,
+            "pnl": -2526.029706618422,
+            "return_pct": -0.25260297066184223,
+            "sharpe": -0.523681932777288,
+            "slippage": 354.86517484986655,
+            "trade_count": 194,
+            "win_rate": 0.24742268041237114
+          },
+          "oos_metrics": {
+            "drawdown": 0.1538740435724704,
+            "exposure": 1.0,
+            "fees": 402.9507588610185,
+            "funding": 0.0,
+            "pnl": 1573.9847808372087,
+            "return_pct": 0.15739847808372087,
+            "sharpe": 1.9456334409684577,
+            "slippage": 100.73768971525463,
+            "trade_count": 44,
+            "win_rate": 0.2727272727272727
+          },
+          "sharpe_efficiency": null,
+          "status": "successful",
+          "variant_id": "VAR-000002",
+          "warnings": [
+            "sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+          ]
+        },
+        {
+          "is_metrics": {
+            "drawdown": 0.40014201045579884,
+            "exposure": 1.0,
+            "fees": 927.674612230628,
+            "funding": 0.0,
+            "pnl": -3522.888663462859,
+            "return_pct": -0.35228886634628587,
+            "sharpe": -0.9171384355293523,
+            "slippage": 231.918653057657,
+            "trade_count": 144,
+            "win_rate": 0.2222222222222222
+          },
+          "oos_metrics": {
+            "drawdown": 0.14196543540110987,
+            "exposure": 1.0,
+            "fees": 235.13462481926882,
+            "funding": 0.0,
+            "pnl": 981.4701279188484,
+            "return_pct": 0.09814701279188484,
+            "sharpe": 1.3470666246208292,
+            "slippage": 58.783656204817206,
+            "trade_count": 25,
+            "win_rate": 0.2
+          },
+          "sharpe_efficiency": null,
+          "status": "successful",
+          "variant_id": "VAR-000003",
+          "warnings": [
+            "sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+          ]
+        },
+        {
+          "is_metrics": {
+            "drawdown": 0.32954195630191363,
+            "exposure": 1.0,
+            "fees": 1034.556184185766,
+            "funding": 0.0,
+            "pnl": -1575.1175218147855,
+            "return_pct": -0.15751175218147856,
+            "sharpe": -0.22878994767854094,
+            "slippage": 258.6390460464415,
+            "trade_count": 137,
+            "win_rate": 0.21897810218978103
+          },
+          "oos_metrics": {
+            "drawdown": 0.1486485482619176,
+            "exposure": 1.0,
+            "fees": 227.3099399923226,
+            "funding": 0.0,
+            "pnl": 911.9680600638949,
+            "return_pct": 0.09119680600638949,
+            "sharpe": 1.2724523212966912,
+            "slippage": 56.82748499808065,
+            "trade_count": 24,
+            "win_rate": 0.20833333333333334
+          },
+          "sharpe_efficiency": null,
+          "status": "successful",
+          "variant_id": "VAR-000004",
+          "warnings": [
+            "sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+          ]
+        },
+        {
+          "is_metrics": {
+            "drawdown": 0.3575988587158807,
+            "exposure": 1.0,
+            "fees": 1182.2878634781248,
+            "funding": 0.0,
+            "pnl": -1139.099934851698,
+            "return_pct": -0.1139099934851698,
+            "sharpe": -0.08653025356736975,
+            "slippage": 295.5719658695312,
+            "trade_count": 152,
+            "win_rate": 0.3092105263157895
+          },
+          "oos_metrics": {
+            "drawdown": 0.14621194236609467,
+            "exposure": 1.0,
+            "fees": 331.7202624697399,
+            "funding": 0.0,
+            "pnl": 1170.5805407005682,
+            "return_pct": 0.11705805407005683,
+            "sharpe": 1.544104887818854,
+            "slippage": 82.93006561743498,
+            "trade_count": 36,
+            "win_rate": 0.3055555555555556
+          },
+          "sharpe_efficiency": null,
+          "status": "successful",
+          "variant_id": "VAR-000005",
+          "warnings": [
+            "sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+          ]
+        },
+        {
+          "is_metrics": {
+            "drawdown": 0.30177384632160087,
+            "exposure": 1.0,
+            "fees": 1367.8921179360025,
+            "funding": 0.0,
+            "pnl": 399.29942854358706,
+            "return_pct": 0.039929942854358705,
+            "sharpe": 0.30218074051448335,
+            "slippage": 341.9730294840006,
+            "trade_count": 151,
+            "win_rate": 0.31125827814569534
+          },
+          "oos_metrics": {
+            "drawdown": 0.15681239266801433,
+            "exposure": 1.0,
+            "fees": 331.9010902771792,
+            "funding": 0.0,
+            "pnl": 1055.6026388016326,
+            "return_pct": 0.10556026388016326,
+            "sharpe": 1.418140632382418,
+            "slippage": 82.9752725692948,
+            "trade_count": 36,
+            "win_rate": 0.3055555555555556
+          },
+          "sharpe_efficiency": 4.693021236124899,
+          "status": "successful",
+          "variant_id": "VAR-000006",
+          "warnings": []
+        },
+        {
+          "is_metrics": {
+            "drawdown": 0.3427923014226505,
+            "exposure": 1.0,
+            "fees": 721.8147281322852,
+            "funding": 0.0,
+            "pnl": -1400.2359123447677,
+            "return_pct": -0.14002359123447677,
+            "sharpe": -0.17577039165174413,
+            "slippage": 180.4536820330713,
+            "trade_count": 101,
+            "win_rate": 0.31683168316831684
+          },
+          "oos_metrics": {
+            "drawdown": 0.13718011507012615,
+            "exposure": 1.0,
+            "fees": 235.7115668231101,
+            "funding": 0.0,
+            "pnl": 3690.425421011534,
+            "return_pct": 0.3690425421011534,
+            "sharpe": 3.6610689166294796,
+            "slippage": 58.927891705777526,
+            "trade_count": 22,
+            "win_rate": 0.36363636363636365
+          },
+          "sharpe_efficiency": null,
+          "status": "successful",
+          "variant_id": "VAR-000007",
+          "warnings": [
+            "sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+          ]
+        },
+        {
+          "is_metrics": {
+            "drawdown": 0.3317967783639477,
+            "exposure": 1.0,
+            "fees": 856.4740662406389,
+            "funding": 0.0,
+            "pnl": 321.9673794967093,
+            "return_pct": 0.032196737949670935,
+            "sharpe": 0.27835002320801966,
+            "slippage": 214.11851656015972,
+            "trade_count": 99,
+            "win_rate": 0.3434343434343434
+          },
+          "oos_metrics": {
+            "drawdown": 0.137180115070126,
+            "exposure": 1.0,
+            "fees": 228.2805159907812,
+            "funding": 0.0,
+            "pnl": 3724.2779087874915,
+            "return_pct": 0.37242779087874917,
+            "sharpe": 3.6958711255287486,
+            "slippage": 57.0701289976953,
+            "trade_count": 21,
+            "win_rate": 0.38095238095238093
+          },
+          "sharpe_efficiency": 13.27778271017678,
+          "status": "successful",
+          "variant_id": "VAR-000008",
+          "warnings": []
+        }
+      ],
+      "warnings": [
+        "sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+      ]
+    },
+    {
+      "degradation_metrics": {
+        "comparable_variant_count": 8,
+        "mean_drawdown_delta": -0.2196776132655229,
+        "mean_return_pct_delta": -0.0018772962140878,
+        "mean_sharpe_delta": -0.16055797612080497,
+        "mean_sharpe_efficiency": 9.554900187616783,
+        "mean_trade_count_delta": -112.25,
+        "sharpe_efficiency_available_count": 6
+      },
+      "evaluation_window": {
+        "end_utc": "2023-07-01T00:00:00Z",
+        "start_utc": "2023-04-01T00:00:00Z"
+      },
+      "fold_id": "FOLD-002",
+      "fold_order": 2,
+      "is_metrics": {
+        "metrics": {
+          "drawdown": {
+            "maximum": 0.4477663619849612,
+            "mean": 0.3628009273125108,
+            "minimum": 0.31464573927962036
+          },
+          "exposure": {
+            "maximum": 1.0,
+            "mean": 1.0,
+            "minimum": 1.0
+          },
+          "fees": {
+            "maximum": 1448.915581706283,
+            "mean": 1127.2850472754699,
+            "minimum": 748.894199058067
+          },
+          "funding": {
+            "maximum": 0.0,
+            "mean": 0.0,
+            "minimum": 0.0
+          },
+          "pnl": {
+            "maximum": 1595.8668528796788,
+            "mean": -68.46640998718499,
+            "minimum": -2948.2375291067656
+          },
+          "return_pct": {
+            "maximum": 0.15958668528796788,
+            "mean": -0.006846640998718508,
+            "minimum": -0.2948237529106766
+          },
+          "sharpe": {
+            "maximum": 0.5776937361388093,
+            "mean": 0.11727571404297907,
+            "minimum": -0.7886578772482984
+          },
+          "slippage": {
+            "maximum": 362.2288954265708,
+            "mean": 281.82126181886747,
+            "minimum": 187.22354976451675
+          },
+          "trade_count": {
+            "maximum": 190.0,
+            "mean": 143.0,
+            "minimum": 99.0
+          },
+          "win_rate": {
+            "maximum": 0.3333333333333333,
+            "mean": 0.2706262288414374,
+            "minimum": 0.22058823529411764
+          }
+        },
+        "successful_variant_count": 8
+      },
+      "oos_metrics": {
+        "metrics": {
+          "drawdown": {
+            "maximum": 0.1692878157334045,
+            "mean": 0.14312331404698792,
+            "minimum": 0.0985678697311217
+          },
+          "exposure": {
+            "maximum": 1.0,
+            "mean": 1.0,
+            "minimum": 1.0
+          },
+          "fees": {
+            "maximum": 347.0867947374321,
+            "mean": 239.28970002131234,
+            "minimum": 143.20991287002778
+          },
+          "funding": {
+            "maximum": 0.0,
+            "mean": 0.0,
+            "minimum": 0.0
+          },
+          "pnl": {
+            "maximum": 820.4330463049992,
+            "mean": -87.239372128063,
+            "minimum": -527.1169439026871
+          },
+          "return_pct": {
+            "maximum": 0.08204330463049991,
+            "mean": -0.008723937212806301,
+            "minimum": -0.05271169439026871
+          },
+          "sharpe": {
+            "maximum": 1.380377697383022,
+            "mean": -0.04328226207782594,
+            "minimum": -0.8577893662410264
+          },
+          "slippage": {
+            "maximum": 86.77169868435803,
+            "mean": 59.822425005328085,
+            "minimum": 35.802478217506945
+          },
+          "trade_count": {
+            "maximum": 43.0,
+            "mean": 30.75,
+            "minimum": 19.0
+          },
+          "win_rate": {
+            "maximum": 0.3684210526315789,
+            "mean": 0.29597225317435555,
+            "minimum": 0.24
+          }
+        },
+        "successful_variant_count": 8
+      },
+      "result_population_ref_or_null": null,
+      "selection_window": {
+        "end_utc": "2023-04-01T00:00:00Z",
+        "start_utc": "2022-04-01T00:00:00Z"
+      },
+      "status": "successful",
+      "variant_count_posture": {
+        "attempted": 8,
+        "data_unavailable": 0,
+        "declared": 8,
+        "denominator_preserved": true,
+        "errored": 0,
+        "not_attempted": 0,
+        "successful": 8
+      },
+      "variant_results": [
+        {
+          "is_metrics": {
+            "drawdown": 0.4477663619849612,
+            "exposure": 1.0,
+            "fees": 1323.9922671479617,
+            "funding": 0.0,
+            "pnl": -2797.1652007289613,
+            "return_pct": -0.2797165200728961,
+            "sharpe": -0.6795631671367489,
+            "slippage": 330.9980667869904,
+            "trade_count": 186,
+            "win_rate": 0.23118279569892472
+          },
+          "oos_metrics": {
+            "drawdown": 0.09972934032811169,
+            "exposure": 1.0,
+            "fees": 335.1173943097736,
+            "funding": 0.0,
+            "pnl": -527.1169439026871,
+            "return_pct": -0.05271169439026871,
+            "sharpe": -0.8577893662410264,
+            "slippage": 83.7793485774434,
+            "trade_count": 42,
+            "win_rate": 0.35714285714285715
+          },
+          "sharpe_efficiency": null,
+          "status": "successful",
+          "variant_id": "VAR-000001",
+          "warnings": [
+            "sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+          ]
+        },
+        {
+          "is_metrics": {
+            "drawdown": 0.3814771208758717,
+            "exposure": 1.0,
+            "fees": 1448.915581706283,
+            "funding": 0.0,
+            "pnl": -631.1840149507552,
+            "return_pct": -0.06311840149507553,
+            "sharpe": 0.023518594178129362,
+            "slippage": 362.2288954265708,
+            "trade_count": 190,
+            "win_rate": 0.24736842105263157
+          },
+          "oos_metrics": {
+            "drawdown": 0.0985678697311217,
+            "exposure": 1.0,
+            "fees": 347.0867947374321,
+            "funding": 0.0,
+            "pnl": 820.4330463049992,
+            "return_pct": 0.08204330463049991,
+            "sharpe": 1.380377697383022,
+            "slippage": 86.77169868435803,
+            "trade_count": 43,
+            "win_rate": 0.3488372093023256
+          },
+          "sharpe_efficiency": 58.69303611126026,
+          "status": "successful",
+          "variant_id": "VAR-000002",
+          "warnings": []
+        },
+        {
+          "is_metrics": {
+            "drawdown": 0.3919360508956501,
+            "exposure": 1.0,
+            "fees": 832.7568227523899,
+            "funding": 0.0,
+            "pnl": -2948.2375291067656,
+            "return_pct": -0.2948237529106766,
+            "sharpe": -0.7886578772482984,
+            "slippage": 208.18920568809747,
+            "trade_count": 136,
+            "win_rate": 0.22058823529411764
+          },
+          "oos_metrics": {
+            "drawdown": 0.16917502264167958,
+            "exposure": 1.0,
+            "fees": 197.80447154118932,
+            "funding": 0.0,
+            "pnl": -407.7167576439115,
+            "return_pct": -0.04077167576439115,
+            "sharpe": -0.5258677297544418,
+            "slippage": 49.45111788529733,
+            "trade_count": 27,
+            "win_rate": 0.25925925925925924
+          },
+          "sharpe_efficiency": null,
+          "status": "successful",
+          "variant_id": "VAR-000003",
+          "warnings": [
+            "sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+          ]
+        },
+        {
+          "is_metrics": {
+            "drawdown": 0.33439420696150446,
+            "exposure": 1.0,
+            "fees": 1140.7182185132535,
+            "funding": 0.0,
+            "pnl": 387.7242267669935,
+            "return_pct": 0.03877242267669935,
+            "sharpe": 0.2897937611367511,
+            "slippage": 285.1795546283134,
+            "trade_count": 131,
+            "win_rate": 0.22900763358778625
+          },
+          "oos_metrics": {
+            "drawdown": 0.15557604452906407,
+            "exposure": 1.0,
+            "fees": 185.91640297414997,
+            "funding": 0.0,
+            "pnl": -321.92317883512624,
+            "return_pct": -0.03219231788351262,
+            "sharpe": -0.41805496531651015,
+            "slippage": 46.479100743537494,
+            "trade_count": 25,
+            "win_rate": 0.24
+          },
+          "sharpe_efficiency": -1.442594773871732,
+          "status": "successful",
+          "variant_id": "VAR-000004",
+          "warnings": []
+        },
+        {
+          "is_metrics": {
+            "drawdown": 0.35759885871587976,
+            "exposure": 1.0,
+            "fees": 1333.0838140723217,
+            "funding": 0.0,
+            "pnl": 867.2985792200961,
+            "return_pct": 0.08672985792200961,
+            "sharpe": 0.4082441803545673,
+            "slippage": 333.27095351808043,
+            "trade_count": 150,
+            "win_rate": 0.2866666666666667
+          },
+          "oos_metrics": {
+            "drawdown": 0.14621626985472505,
+            "exposure": 1.0,
+            "fees": 267.35671894999837,
+            "funding": 0.0,
+            "pnl": -100.05468684977313,
+            "return_pct": -0.010005468684977313,
+            "sharpe": -0.032357103969093554,
+            "slippage": 66.83917973749959,
+            "trade_count": 34,
+            "win_rate": 0.29411764705882354
+          },
+          "sharpe_efficiency": -0.0792591922338999,
+          "status": "successful",
+          "variant_id": "VAR-000005",
+          "warnings": []
+        },
+        {
+          "is_metrics": {
+            "drawdown": 0.31464573927962036,
+            "exposure": 1.0,
+            "fees": 1434.4393099686965,
+            "funding": 0.0,
+            "pnl": 1438.8834754158634,
+            "return_pct": 0.14388834754158633,
+            "sharpe": 0.5379768577964286,
+            "slippage": 358.60982749217413,
+            "trade_count": 150,
+            "win_rate": 0.29333333333333333
+          },
+          "oos_metrics": {
+            "drawdown": 0.16726465888349915,
+            "exposure": 1.0,
+            "fees": 283.70789447514903,
+            "funding": 0.0,
+            "pnl": -246.35377800075366,
+            "return_pct": -0.024635377800075367,
+            "sharpe": -0.28291195305887684,
+            "slippage": 70.92697361878726,
+            "trade_count": 36,
+            "win_rate": 0.25
+          },
+          "sharpe_efficiency": -0.525881269721701,
+          "status": "successful",
+          "variant_id": "VAR-000006",
+          "warnings": []
+        },
+        {
+          "is_metrics": {
+            "drawdown": 0.3427923014226508,
+            "exposure": 1.0,
+            "fees": 755.4801649847867,
+            "funding": 0.0,
+            "pnl": 1595.8668528796788,
+            "return_pct": 0.15958668528796788,
+            "sharpe": 0.5776937361388093,
+            "slippage": 188.87004124619668,
+            "trade_count": 102,
+            "win_rate": 0.3235294117647059
+          },
+          "oos_metrics": {
+            "drawdown": 0.1692878157334045,
+            "exposure": 1.0,
+            "fees": 154.11801031277858,
+            "funding": 0.0,
+            "pnl": -41.70365743709226,
+            "return_pct": -0.004170365743709226,
+            "sharpe": 0.06499936650497277,
+            "slippage": 38.529502578194645,
+            "trade_count": 20,
+            "win_rate": 0.25
+          },
+          "sharpe_efficiency": 0.11251526966419212,
+          "status": "successful",
+          "variant_id": "VAR-000007",
+          "warnings": []
+        },
+        {
+          "is_metrics": {
+            "drawdown": 0.3317967783639481,
+            "exposure": 1.0,
+            "fees": 748.894199058067,
+            "funding": 0.0,
+            "pnl": 1539.0823306063703,
+            "return_pct": 0.15390823306063703,
+            "sharpe": 0.5691996271241941,
+            "slippage": 187.22354976451675,
+            "trade_count": 99,
+            "win_rate": 0.3333333333333333
+          },
+          "oos_metrics": {
+            "drawdown": 0.13916949067429749,
+            "exposure": 1.0,
+            "fees": 143.20991287002778,
+            "funding": 0.0,
+            "pnl": 126.52097933984078,
+            "return_pct": 0.012652097933984079,
+            "sharpe": 0.3253459578293466,
+            "slippage": 35.802478217506945,
+            "trade_count": 19,
+            "win_rate": 0.3684210526315789
+          },
+          "sharpe_efficiency": 0.5715849806035784,
+          "status": "successful",
+          "variant_id": "VAR-000008",
+          "warnings": []
+        }
+      ],
+      "warnings": [
+        "sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+      ]
+    }
+  ],
+  "non_authority_flags": [
+    "not canonical evidence",
+    "not promotion evidence",
+    "not ranking authority",
+    "not readiness authority",
+    "not paper/live authority",
+    "not candidate registration"
+  ],
+  "run_id": "WF-RUN-840F8B9582759D04",
+  "schema_version": "v1",
+  "scratch_only": true,
+  "source_commit": "bdb50a5df621adf6e07b725c74d405fd62744e8b",
+  "strategy_spec_id": "STRAT-SPEC-0004",
+  "sweep_plan_id": "SWEEP-PLAN-0004",
+  "variant_manifest_id": "VM-0004",
+  "walkforward_manifest_ref": "scratch/WP-LAB-WALKFORWARD-RUN-01/walkforward_fold_manifest.input.json",
+  "warnings": [
+    "sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+  ]
+}

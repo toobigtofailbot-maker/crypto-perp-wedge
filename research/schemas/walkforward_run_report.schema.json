@@ -1,0 +1,232 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crypto-perp-wedge.local/research/schemas/walkforward_run_report.schema.json",
+  "title": "Scratch Walk-Forward Run Report",
+  "description": "Deterministic scratch-only IS/OOS metrics report. This report is not canonical evidence and grants no ranking, readiness, promotion, candidate, paper/live, runtime, or execution authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "created_at_utc",
+    "source_commit",
+    "canonical_authority",
+    "scratch_only",
+    "strategy_spec_id",
+    "variant_manifest_id",
+    "sweep_plan_id",
+    "walkforward_manifest_ref",
+    "data_slice",
+    "assumptions",
+    "fold_results",
+    "aggregate_degradation",
+    "warnings",
+    "blockers",
+    "non_authority_flags"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "v1" },
+    "run_id": { "type": "string", "pattern": "^WF-RUN-[A-F0-9]{16}$" },
+    "created_at_utc": { "type": "string", "format": "date-time" },
+    "source_commit": { "type": "string", "pattern": "^[a-f0-9]{7,40}$" },
+    "canonical_authority": { "type": "boolean", "const": false },
+    "scratch_only": { "type": "boolean", "const": true },
+    "strategy_spec_id": { "type": "string", "pattern": "^STRAT-SPEC-[0-9]{4}$" },
+    "variant_manifest_id": { "type": "string", "pattern": "^VM-[0-9]{4}$" },
+    "sweep_plan_id": { "type": "string", "pattern": "^SWEEP-PLAN-[0-9]{4}$" },
+    "walkforward_manifest_ref": { "type": "string", "pattern": "^scratch/" },
+    "data_slice": { "$ref": "#/definitions/data_slice" },
+    "assumptions": { "$ref": "#/definitions/assumptions" },
+    "fold_results": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/definitions/fold_result" }
+    },
+    "aggregate_degradation": { "$ref": "#/definitions/aggregate_degradation" },
+    "warnings": { "$ref": "#/definitions/string_array" },
+    "blockers": { "$ref": "#/definitions/string_array" },
+    "non_authority_flags": {
+      "type": "array",
+      "minItems": 6,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "not canonical evidence",
+          "not promotion evidence",
+          "not ranking authority",
+          "not readiness authority",
+          "not paper/live authority",
+          "not candidate registration"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "nullable_number": { "type": ["number", "null"] },
+    "nullable_string": { "type": ["string", "null"] },
+    "string_array": { "type": "array", "items": { "type": "string" } },
+    "window": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start_utc", "end_utc"],
+      "properties": {
+        "start_utc": { "type": "string", "format": "date-time" },
+        "end_utc": { "type": "string", "format": "date-time" }
+      }
+    },
+    "metric_range": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["mean", "minimum", "maximum"],
+      "properties": {
+        "mean": { "type": "number" },
+        "minimum": { "type": "number" },
+        "maximum": { "type": "number" }
+      }
+    },
+    "raw_metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pnl", "return_pct", "drawdown", "trade_count", "win_rate", "sharpe", "fees", "funding", "slippage", "exposure"],
+      "properties": {
+        "pnl": { "$ref": "#/definitions/nullable_number" },
+        "return_pct": { "$ref": "#/definitions/nullable_number" },
+        "drawdown": { "$ref": "#/definitions/nullable_number" },
+        "trade_count": { "$ref": "#/definitions/nullable_number" },
+        "win_rate": { "$ref": "#/definitions/nullable_number" },
+        "sharpe": { "$ref": "#/definitions/nullable_number" },
+        "fees": { "$ref": "#/definitions/nullable_number" },
+        "funding": { "$ref": "#/definitions/nullable_number" },
+        "slippage": { "$ref": "#/definitions/nullable_number" },
+        "exposure": { "$ref": "#/definitions/nullable_number" }
+      }
+    },
+    "metric_summary": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["successful_variant_count", "metrics"],
+      "properties": {
+        "successful_variant_count": { "type": "integer", "minimum": 1 },
+        "metrics": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["pnl", "return_pct", "drawdown", "trade_count", "win_rate", "sharpe", "fees", "funding", "slippage", "exposure"],
+          "properties": {
+            "pnl": { "$ref": "#/definitions/metric_range" },
+            "return_pct": { "$ref": "#/definitions/metric_range" },
+            "drawdown": { "$ref": "#/definitions/metric_range" },
+            "trade_count": { "$ref": "#/definitions/metric_range" },
+            "win_rate": { "$ref": "#/definitions/metric_range" },
+            "sharpe": { "$ref": "#/definitions/metric_range" },
+            "fees": { "$ref": "#/definitions/metric_range" },
+            "funding": { "$ref": "#/definitions/metric_range" },
+            "slippage": { "$ref": "#/definitions/metric_range" },
+            "exposure": { "$ref": "#/definitions/metric_range" }
+          }
+        }
+      }
+    },
+    "degradation_metrics": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["comparable_variant_count", "mean_sharpe_delta", "mean_return_pct_delta", "mean_drawdown_delta", "mean_trade_count_delta", "sharpe_efficiency_available_count", "mean_sharpe_efficiency"],
+      "properties": {
+        "comparable_variant_count": { "type": "integer", "minimum": 1 },
+        "mean_sharpe_delta": { "$ref": "#/definitions/nullable_number" },
+        "mean_return_pct_delta": { "$ref": "#/definitions/nullable_number" },
+        "mean_drawdown_delta": { "$ref": "#/definitions/nullable_number" },
+        "mean_trade_count_delta": { "$ref": "#/definitions/nullable_number" },
+        "sharpe_efficiency_available_count": { "type": "integer", "minimum": 0 },
+        "mean_sharpe_efficiency": { "$ref": "#/definitions/nullable_number" }
+      }
+    },
+    "variant_count_posture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["declared", "attempted", "successful", "errored", "data_unavailable", "not_attempted", "denominator_preserved"],
+      "properties": {
+        "declared": { "type": "integer", "minimum": 0 },
+        "attempted": { "type": "integer", "minimum": 0 },
+        "successful": { "type": "integer", "minimum": 0 },
+        "errored": { "type": "integer", "minimum": 0 },
+        "data_unavailable": { "type": "integer", "minimum": 0 },
+        "not_attempted": { "type": "integer", "minimum": 0 },
+        "denominator_preserved": { "type": "boolean" }
+      }
+    },
+    "variant_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["variant_id", "status", "is_metrics", "oos_metrics", "sharpe_efficiency", "warnings"],
+      "properties": {
+        "variant_id": { "type": "string", "pattern": "^VAR-[0-9]{6}$" },
+        "status": { "type": "string", "enum": ["successful", "errored"] },
+        "is_metrics": { "oneOf": [{ "$ref": "#/definitions/raw_metrics" }, { "type": "null" }] },
+        "oos_metrics": { "oneOf": [{ "$ref": "#/definitions/raw_metrics" }, { "type": "null" }] },
+        "sharpe_efficiency": { "$ref": "#/definitions/nullable_number" },
+        "warnings": { "$ref": "#/definitions/string_array" }
+      }
+    },
+    "fold_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fold_id", "fold_order", "selection_window", "evaluation_window", "is_metrics", "oos_metrics", "degradation_metrics", "variant_count_posture", "result_population_ref_or_null", "status", "warnings", "variant_results"],
+      "properties": {
+        "fold_id": { "type": "string", "pattern": "^FOLD-[0-9]{3}$" },
+        "fold_order": { "type": "integer", "minimum": 1 },
+        "selection_window": { "$ref": "#/definitions/window" },
+        "evaluation_window": { "$ref": "#/definitions/window" },
+        "is_metrics": { "$ref": "#/definitions/metric_summary" },
+        "oos_metrics": { "$ref": "#/definitions/metric_summary" },
+        "degradation_metrics": { "$ref": "#/definitions/degradation_metrics" },
+        "variant_count_posture": { "$ref": "#/definitions/variant_count_posture" },
+        "result_population_ref_or_null": { "$ref": "#/definitions/nullable_string" },
+        "status": { "type": "string", "enum": ["successful", "partial", "data_unavailable", "errored"] },
+        "warnings": { "$ref": "#/definitions/string_array" },
+        "variant_results": { "type": "array", "items": { "$ref": "#/definitions/variant_result" } }
+      }
+    },
+    "aggregate_degradation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fold_count", "successful_fold_count", "partial_fold_count", "unavailable_or_errored_fold_count", "comparable_variant_pairs", "mean_sharpe_delta", "mean_return_pct_delta", "mean_drawdown_delta", "mean_sharpe_efficiency"],
+      "properties": {
+        "fold_count": { "type": "integer", "minimum": 1 },
+        "successful_fold_count": { "type": "integer", "minimum": 0 },
+        "partial_fold_count": { "type": "integer", "minimum": 0 },
+        "unavailable_or_errored_fold_count": { "type": "integer", "minimum": 0 },
+        "comparable_variant_pairs": { "type": "integer", "minimum": 0 },
+        "mean_sharpe_delta": { "$ref": "#/definitions/nullable_number" },
+        "mean_return_pct_delta": { "$ref": "#/definitions/nullable_number" },
+        "mean_drawdown_delta": { "$ref": "#/definitions/nullable_number" },
+        "mean_sharpe_efficiency": { "$ref": "#/definitions/nullable_number" }
+      }
+    },
+    "data_slice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["data_slice_id", "data_catalog_ref", "timeframe", "boundary_semantics"],
+      "properties": {
+        "data_slice_id": { "type": "string", "minLength": 1 },
+        "data_catalog_ref": { "type": "string", "minLength": 1 },
+        "timeframe": { "type": "string", "enum": ["15m", "30m", "1h", "4h", "1d"] },
+        "boundary_semantics": { "type": "string", "const": "start_inclusive_end_exclusive" }
+      }
+    },
+    "assumptions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["runner_path", "funding", "sizing_mode", "target_leverage", "selection_behavior", "output_posture"],
+      "properties": {
+        "runner_path": { "type": "string", "minLength": 1 },
+        "funding": { "type": "string", "minLength": 1 },
+        "sizing_mode": { "type": "string", "enum": ["fixed_order_size", "dynamic_equity_target_leverage"] },
+        "target_leverage": { "type": "number", "exclusiveMinimum": 0 },
+        "selection_behavior": { "type": "string", "minLength": 1 },
+        "output_posture": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}
+

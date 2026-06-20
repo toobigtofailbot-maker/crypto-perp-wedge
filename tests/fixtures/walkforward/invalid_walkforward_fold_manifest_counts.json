@@ -1,0 +1,74 @@
+{
+  "schema_version": "v1",
+  "manifest_id": "WFM-0003",
+  "created_at_utc": "2026-06-20T00:00:00Z",
+  "source_commit": "2348f89",
+  "non_authority_declaration": {
+    "not_executable": true,
+    "not_runner_authority": true,
+    "not_result_population_write_authority": true,
+    "not_canonical_result_population": true,
+    "not_candidate_approval": true,
+    "not_ranking_authority": true,
+    "not_recommendation_authority": true,
+    "not_readiness_authority": true,
+    "not_promotion_authority": true,
+    "not_gate_authority": true,
+    "not_runtime_authority": true,
+    "not_paper_live_authority": true,
+    "not_broker_exchange_order_authority": true
+  },
+  "strategy_spec_id": "STRAT-SPEC-0002",
+  "variant_manifest_id": "VM-0002",
+  "sweep_plan_id": "SWEEP-PLAN-0002",
+  "data_slice_id": "BTCUSDT-15m-D4",
+  "timeframe": "15m",
+  "timezone": "UTC",
+  "boundary_semantics": "start_inclusive_end_exclusive",
+  "window_policy": {
+    "policy_id": "invalid",
+    "window_type": "rolling",
+    "fold_construction": "explicit_manifest_boundaries",
+    "overlap_policy": "selection_evaluation_overlap_forbidden",
+    "declared_before_evaluation": true
+  },
+  "selection_rule": {
+    "rule_id": "carry_full_population",
+    "rule_type": "carry_full_population",
+    "description": "Carry the complete declared population.",
+    "declared_before_evaluation": true,
+    "winner_only_selection_forbidden": true,
+    "denominator_preservation": "all_declared_variants_remain_visible"
+  },
+  "folds": [
+    {
+      "fold_id": "FOLD-001",
+      "fold_order": 1,
+      "selection_window_start_utc": "2022-01-01T00:00:00Z",
+      "selection_window_end_utc": "2023-01-01T00:00:00Z",
+      "evaluation_window_start_utc": "2023-01-01T00:00:00Z",
+      "evaluation_window_end_utc": "2023-04-01T00:00:00Z",
+      "warmup_window_start_utc": null,
+      "warmup_window_end_utc": null,
+      "purge": { "mode": "none", "bars": null, "duration": null },
+      "embargo": { "mode": "none", "bars": null, "duration": null },
+      "result_population_ref": "RP-7520",
+      "planned_result_population_ref": null,
+      "declared_variant_count": 10,
+      "successful_count": 3,
+      "failed_count": 1,
+      "errored_count": 0,
+      "invalid_count": 0,
+      "data_unavailable_count": 0,
+      "not_attempted_count": 0,
+      "gap_posture": {
+        "missing_data_policy": "mark_data_unavailable",
+        "irreparable_gap_policy": "consult_irreparable_gaps_manifest",
+        "silent_interpolation_forbidden": true
+      },
+      "lineage_refs": [
+        { "ref_id": "rp", "ref_type": "result_population", "ref": "research/result_populations/RP-7520.result_population.json" }
+      ]
+    }
+  ]
+}

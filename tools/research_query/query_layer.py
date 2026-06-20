@@ -33,6 +33,7 @@ STRATEGY_SPECS_DIR = REPO_ROOT / "research" / "strategy_specs"
 VARIANT_MANIFESTS_DIR = REPO_ROOT / "research" / "variant_manifests"
 SWEEP_PLANS_DIR = REPO_ROOT / "research" / "sweep_plans"
 RESULT_POPULATIONS_DIR = REPO_ROOT / "research" / "result_populations"
+WALKFORWARD_FOLD_MANIFESTS_DIR = REPO_ROOT / "research" / "walkforward_fold_manifests"
 TRIAL_LOG_PATH = REPO_ROOT / "research" / "trial_log.jsonl"
 VIEWS_PATH = Path(__file__).resolve().with_name("views.sql")
 
@@ -1987,6 +1988,98 @@ def _register_result_populations(conn: duckdb.DuckDBPyConnection) -> None:
     )
 
 
+def _register_walkforward_fold_manifests(conn: duckdb.DuckDBPyConnection) -> None:
+    manifest_files = (
+        sorted(WALKFORWARD_FOLD_MANIFESTS_DIR.glob("*.walkforward_fold_manifest.json"))
+        if WALKFORWARD_FOLD_MANIFESTS_DIR.exists()
+        else []
+    )
+    if manifest_files:
+        conn.execute(
+            f"""
+            CREATE VIEW walkforward_fold_manifests AS
+            SELECT * FROM read_json_auto('{_sql_path(WALKFORWARD_FOLD_MANIFESTS_DIR / "*.walkforward_fold_manifest.json")}')
+            """
+        )
+        return
+
+    conn.execute(
+        """
+        CREATE VIEW walkforward_fold_manifests AS
+        SELECT
+            CAST(NULL AS VARCHAR) AS schema_version,
+            CAST(NULL AS VARCHAR) AS manifest_id,
+            CAST(NULL AS VARCHAR) AS created_at_utc,
+            CAST(NULL AS VARCHAR) AS source_commit,
+            CAST(NULL AS STRUCT(
+                not_executable BOOLEAN,
+                not_runner_authority BOOLEAN,
+                not_result_population_write_authority BOOLEAN,
+                not_canonical_result_population BOOLEAN,
+                not_candidate_approval BOOLEAN,
+                not_ranking_authority BOOLEAN,
+                not_recommendation_authority BOOLEAN,
+                not_readiness_authority BOOLEAN,
+                not_promotion_authority BOOLEAN,
+                not_gate_authority BOOLEAN,
+                not_runtime_authority BOOLEAN,
+                not_paper_live_authority BOOLEAN,
+                not_broker_exchange_order_authority BOOLEAN
+            )) AS non_authority_declaration,
+            CAST(NULL AS VARCHAR) AS strategy_spec_id,
+            CAST(NULL AS VARCHAR) AS variant_manifest_id,
+            CAST(NULL AS VARCHAR) AS sweep_plan_id,
+            CAST(NULL AS VARCHAR) AS data_slice_id,
+            CAST(NULL AS VARCHAR) AS timeframe,
+            CAST(NULL AS VARCHAR) AS timezone,
+            CAST(NULL AS VARCHAR) AS boundary_semantics,
+            CAST(NULL AS STRUCT(
+                policy_id VARCHAR,
+                window_type VARCHAR,
+                fold_construction VARCHAR,
+                overlap_policy VARCHAR,
+                declared_before_evaluation BOOLEAN
+            )) AS window_policy,
+            CAST(NULL AS STRUCT(
+                rule_id VARCHAR,
+                rule_type VARCHAR,
+                description VARCHAR,
+                declared_before_evaluation BOOLEAN,
+                winner_only_selection_forbidden BOOLEAN,
+                denominator_preservation VARCHAR
+            )) AS selection_rule,
+            CAST([] AS STRUCT(
+                fold_id VARCHAR,
+                fold_order BIGINT,
+                selection_window_start_utc VARCHAR,
+                selection_window_end_utc VARCHAR,
+                evaluation_window_start_utc VARCHAR,
+                evaluation_window_end_utc VARCHAR,
+                warmup_window_start_utc VARCHAR,
+                warmup_window_end_utc VARCHAR,
+                purge STRUCT(mode VARCHAR, bars BIGINT, duration VARCHAR),
+                embargo STRUCT(mode VARCHAR, bars BIGINT, duration VARCHAR),
+                result_population_ref VARCHAR,
+                planned_result_population_ref VARCHAR,
+                declared_variant_count BIGINT,
+                successful_count BIGINT,
+                failed_count BIGINT,
+                errored_count BIGINT,
+                invalid_count BIGINT,
+                data_unavailable_count BIGINT,
+                not_attempted_count BIGINT,
+                gap_posture STRUCT(
+                    missing_data_policy VARCHAR,
+                    irreparable_gap_policy VARCHAR,
+                    silent_interpolation_forbidden BOOLEAN
+                ),
+                lineage_refs STRUCT(ref_id VARCHAR, ref_type VARCHAR, ref VARCHAR)[]
+            )[]) AS folds
+        WHERE FALSE
+        """
+    )
+
+
 def _rows_as_dicts(cursor: duckdb.DuckDBPyConnection) -> list[dict[str, Any]]:
     columns = [description[0] for description in cursor.description or []]
     return [dict(zip(columns, row, strict=True)) for row in cursor.fetchall()]
@@ -2153,6 +2246,7 @@ def init_duckdb(read_only: bool = True) -> duckdb.DuckDBPyConnection:
     _register_variant_manifests(conn)
     _register_sweep_plans(conn)
     _register_result_populations(conn)
+    _register_walkforward_fold_manifests(conn)
     load_views(conn)
     return conn
 

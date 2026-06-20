@@ -1,0 +1,3 @@
+# Scratch-only proof-of-concept dependency note.
+# Do not add this to repo dependency files without a later approved package.
+optuna

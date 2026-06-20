@@ -1,0 +1,44 @@
+{
+  "best_observed_trial_id_or_null": "OPTUNA-PILOT-A280088184549D2E:0",
+  "blocked_reason_or_null": "Optuna is not importable in the execution environment.",
+  "complete_count": 16,
+  "dependency": {
+    "available": false,
+    "dependency": "optuna",
+    "dependency_file_mutation": false,
+    "import_error": "ModuleNotFoundError: No module named 'optuna'",
+    "package_id": "WP-PILOT-OPTUNA-SEARCH-SIDECAR-01",
+    "probe_posture": "scratch_metadata_only",
+    "version": null
+  },
+  "execution_status": "PARTIAL_BLOCKED_OPTIONAL_DEPENDENCY_UNAVAILABLE",
+  "fail_count": 2,
+  "guardrail_statements": [
+    "Optuna suggestions are not winners.",
+    "Any suggested params must be re-screened through the repo-owned honest full-population / OOS / robustness pipeline.",
+    "No winner-only reporting is allowed.",
+    "Pruned/failed trials remain part of search lineage."
+  ],
+  "handoff_required": "repo_owned_full_population_oos_robustness_rescreen_required",
+  "non_authority_flags": [
+    "scratch_only",
+    "non_canonical",
+    "not_full_population_evidence",
+    "not_oos_evidence",
+    "not_robustness_evidence",
+    "not_candidate_evidence",
+    "not_promotion",
+    "not_readiness",
+    "not_paper_live",
+    "requires_repo_owned_rescreen"
+  ],
+  "objective_description": "Toy deterministic objective over a bounded synthetic parameter space; no market data, canonical runner, backtester, OOS, robustness, or candidate evidence path is invoked.",
+  "output_checksum": "sha256:1d7fd9acf3d4e887aab49dd9149d244e2c28fbd1d88ccc1666467e6eaaacc0cc",
+  "pruned_count": 2,
+  "real_optuna_exercised": false,
+  "recommendation": "preserve",
+  "repo_fit_assessment": "Real Optuna behavior was not exercised; this is partial blocked evidence covering only wrapper, export, and guardrail behavior.",
+  "search_space_hash": "sha256:daedc1604d83ad1cfa9ce8a71b3cef2ad5aa73a10985d9534ead981653414b7f",
+  "total_trials": 20,
+  "trial_population_hash": "sha256:872df20f2a6039a2fad1daf00ad6076ac93c134aef265c88489ee6fe9045816c"
+}

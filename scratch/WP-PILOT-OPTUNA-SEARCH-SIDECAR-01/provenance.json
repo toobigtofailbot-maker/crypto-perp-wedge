@@ -1,0 +1,46 @@
+{
+  "artifacts": {
+    "dependency_probe": {
+      "path": "scratch/WP-PILOT-OPTUNA-SEARCH-SIDECAR-01/dependency_probe.json",
+      "sha256": "sha256:70870bc8c667f6812280724ea9b91706c9051be47e8bce066e89b83c438633c8"
+    },
+    "search_space": {
+      "path": "scratch/WP-PILOT-OPTUNA-SEARCH-SIDECAR-01/search_space.json",
+      "sha256": "sha256:a6956efe360fa39ae59cf733ea74308507189d2f65ce2c1b3e607857b758e3b1"
+    },
+    "trial_population": {
+      "path": "scratch/WP-PILOT-OPTUNA-SEARCH-SIDECAR-01/trial_population.jsonl",
+      "sha256": "sha256:6394e58508817a204fa62020213aed9964261bf7eaaf1cb0cc7703092b09d292"
+    },
+    "trial_summary": {
+      "path": "scratch/WP-PILOT-OPTUNA-SEARCH-SIDECAR-01/trial_summary.json",
+      "sha256": "sha256:ebd2b408accb6bf2291d55693c3cd873bcdfe71b95b1ed22376e465099047766"
+    }
+  },
+  "boundary_statement": {
+    "candidate_readiness_or_promotion_authority": false,
+    "canonical_result_population_write": false,
+    "canonical_runner_or_backtester_invoked": false,
+    "canonical_strategy_spec_vm_sweep_mutation": false,
+    "canonical_trial_log_write": false,
+    "dependency_files_mutated": false,
+    "private_credentials_used": false,
+    "runtime_paper_live_touched": false,
+    "winner_selection_authority": false
+  },
+  "command": "python -m tools.sidecars.optuna_search_pilot.run_optuna_search_pilot --output-dir scratch/WP-PILOT-OPTUNA-SEARCH-SIDECAR-01 --trials 20 --seed 1729",
+  "created_at_utc": "2026-06-20T00:00:49Z",
+  "dependency": {
+    "available": false,
+    "dependency": "optuna",
+    "dependency_file_mutation": false,
+    "import_error": "ModuleNotFoundError: No module named 'optuna'",
+    "package_id": "WP-PILOT-OPTUNA-SEARCH-SIDECAR-01",
+    "probe_posture": "scratch_metadata_only",
+    "version": null
+  },
+  "package_id": "WP-PILOT-OPTUNA-SEARCH-SIDECAR-01",
+  "source_branch": "pilot/optuna-search-sidecar-01",
+  "source_commit": "0ca18b9e07c19750497a74bba8ed7cbd66be7f67",
+  "tool_identity": "tools.sidecars.optuna_search_pilot.run_optuna_search_pilot"
+}

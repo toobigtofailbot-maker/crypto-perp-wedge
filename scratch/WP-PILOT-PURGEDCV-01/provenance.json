@@ -1,0 +1,26 @@
+{
+  "canonical_write_paths": [],
+  "created_at_utc": "2026-06-20T12:00:00Z",
+  "generated_files": {
+    "README.md": "sha256:e785b5c2a654997700f3f0eb63cc68b6413a21b185981863aecb831fd6dc38e7",
+    "dependency_probe.json": "sha256:f62103e0c03cd64c8c228f507dd5382780d704c0d58ab7ce21592527973c6a69",
+    "fold_comparison_report.json": "sha256:53ae849b0371299ef52e180288f01db1055279cf74ba363c4e2225a5bb449eb4",
+    "fold_comparison_report.md": "sha256:f5556686a8ae9807b33c008301e1a32f2cd2ddcf8c4cd411b56c4d609817a378",
+    "requirements.poc.txt": "sha256:2f8243a581f0604f01d35d553a4edb88d797b6a122db2125c33a538ba42e3cab"
+  },
+  "non_authority_flags": [
+    "scratch_only",
+    "non_canonical",
+    "not_walkforward_contract",
+    "not_canonical_evidence",
+    "not_runner_change",
+    "not_promotion",
+    "not_readiness",
+    "not_paper_live"
+  ],
+  "output_dir": "scratch/WP-PILOT-PURGEDCV-01",
+  "pilot_id": "WP-PILOT-PURGEDCV-01",
+  "report_payload_sha256": "sha256:d51c084fa0848f1d6d193fa30f7e8a82d49766e2a2b75c7cd616ecd53cf27ec4",
+  "schema_version": "v1",
+  "source_commit": "0ca18b9e07c19750497a74bba8ed7cbd66be7f67"
+}

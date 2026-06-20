@@ -1,0 +1,13 @@
+{
+  "available": false,
+  "error": "No module named 'purgedcv'",
+  "error_type": "ModuleNotFoundError",
+  "import_attempted": true,
+  "notes": [
+    "Dependency import failed in the current environment; pilot uses a transparent repo-owned sketch."
+  ],
+  "package": "purgedcv",
+  "probe_result": "unavailable",
+  "used_for_fold_construction": false,
+  "version": null
+}

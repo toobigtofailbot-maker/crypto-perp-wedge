@@ -1,0 +1,41 @@
+{
+  "package_id": "WP-LAB-IDEA-INTAKE-FORMALIZATION-01",
+  "input_kind": "json",
+  "status": "formalized",
+  "rejection_reasons": [],
+  "non_authority_flags": {
+    "draft_only": true,
+    "not_canonical": true,
+    "not_preregistered": true,
+    "not_candidate_evidence": true,
+    "not_promotion": true,
+    "not_paper_live": true,
+    "human_gate_required_for_draft_to_prereg": true
+  },
+  "llm_assist": {
+    "available": false,
+    "used": false,
+    "reason": "no repo-owned live LLM/API abstraction exists; future adapter requires separate approval"
+  },
+  "research_idea_path": "scratch/WP-LAB-IDEA-INTAKE-FORMALIZATION-01/example_research_idea.json",
+  "workflow_generator": {
+    "eligible": true,
+    "invoked": false,
+    "input_path": "scratch/WP-LAB-IDEA-INTAKE-FORMALIZATION-01/draft_workflow_parameter_space.json",
+    "output_dir": null,
+    "ineligibility_reasons": []
+  },
+  "classification": "current_lab_testable",
+  "capability_mapping": {
+    "known_data_streams": [
+      "ohlcv"
+    ],
+    "missing_data_streams": [],
+    "known_features": [
+      "sma",
+      "stddev"
+    ],
+    "missing_features": [],
+    "lab_testable": true
+  }
+}

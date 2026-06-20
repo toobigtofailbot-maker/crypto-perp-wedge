@@ -67,6 +67,19 @@ or execution authority.
 - Dependencies: not touched.
 - Authority posture: display-only, no ranking, no recommendation, no readiness, no promotion, no approval, no execution, no paper/live authority.
 
+## Active-WP requirement traceability
+
+| Active-WP requirement | Source section | Evidence location | Status |
+|---|---|---|---|
+| Build lab run/result registry with config/status/evidence/lineage fields | Implementation requirements | `research/schemas/lab_run_registry.schema.json`, `tools/lab_registry/build_lab_run_registry.py`, `tests/fixtures/lab_registry/valid_lab_run_registry.json` | satisfied |
+| Validate registry and reject authority/ranking/order drift | Implementation requirements / Validation | `tools/lab_registry/validate_lab_run_registry.py`, `tests/test_lab_run_registry.py` | satisfied |
+| Extend dashboard/results surface from validated data only | Dashboard/results surface | `research/schemas/dashboard_data.schema.json`, `tools/dashboard/collector.py`, `tools/dashboard/renderer.py`, `tools/dashboard/validate_dashboard_data.py` | satisfied |
+| Show per-strategy/per-variant summaries and adopted report links where available | Dashboard/results surface | `tools/dashboard/collector.py`, `tools/dashboard/renderer.py`, `tests/test_generate_static_dashboard.py` | satisfied |
+| Preserve variant/result ordering without quality ranking | Dashboard/results surface / Additional forbidden scope | `tools/dashboard/validate_dashboard_data.py`, `tests/test_lab_run_registry.py`, `tests/test_generate_static_dashboard.py` | satisfied |
+| Avoid source artifact mutation and protected runtime paths | Files forbidden to modify / Global forbidden scope | `git diff --name-only`, `python tools/dev/diff_scope_summary.py`, boundary summary above | satisfied |
+| Keep generated dashboard outputs uncommitted | Validation | `git status --short` after generation; `dashboard_data/` and `dashboard_build/` absent from status | satisfied |
+| Record package status in per-WP status fragment, not `docs/project_status.md` | Parallel collision note | `docs/status_entries/WP-LAB-RESULTS-SURFACE-01.md`; `docs/project_status.md` unchanged | satisfied |
+
 ## Merge status
 
 - PR #521 is open and ready for review with the full-suite timeout classification above.

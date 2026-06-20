@@ -1,0 +1,572 @@
+{
+  "boundary": {
+    "canonical_artifacts_mutated": false,
+    "dependency_files_mutated": false,
+    "external_dependency_isolated": true,
+    "private_apis_credentials_orders_used": false,
+    "promotion_readiness_screen_gate_authority_created": false,
+    "runner_backtester_mutated": false,
+    "runtime_paper_live_touched": false
+  },
+  "decision_label": "VIABLE_CANONICAL_GRADE_SIMULATOR_CANDIDATE",
+  "determinism": {
+    "checksum_run_1": "d5a42698d41d45b6f138a29b348321805636f09b4016bd9801525426b00c6ce5",
+    "checksum_run_2": "d5a42698d41d45b6f138a29b348321805636f09b4016bd9801525426b00c6ce5",
+    "normalized_identical": true,
+    "repeated_runs": true
+  },
+  "fixture": {
+    "data_slice_identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+    "normalized_data_path": "data/processed/d4a/binance_um_perp_BTCUSDT_15m_2020-01-01_2026-04-11_d4a_normalized.csv",
+    "normalized_data_sha256": "c30fd7f07fdf513cdaf234b1bee4eff03b430a479cc572a2cc8b57394f22e0ab",
+    "result_population_id": "RP-2592",
+    "row_count": 220128,
+    "strategy_spec_id": "STRAT-SPEC-0004",
+    "sweep_plan_id": "SWEEP-PLAN-0004",
+    "variant_manifest_id": "VM-0004",
+    "variants_attempted": 8,
+    "variants_available": 8,
+    "variants_expressible": 8
+  },
+  "labels": [
+    "NON-CANONICAL NAUTILUS MAPPING SPIKE",
+    "NOT CANONICAL EVIDENCE",
+    "NOT RUNNER REPLACEMENT",
+    "NOT PAPER/LIVE/RUNTIME AUTHORITY",
+    "CANONICAL USE REQUIRES SEPARATE MAPPING, VALIDATION, DETERMINISM, AUDITABILITY, PROVENANCE, AND MAIN APPROVAL"
+  ],
+  "mapping": {
+    "combined_cost_equivalence": "RP-2592 computes 4 bps taker fee plus 1 bps slippage as separate additive cash costs on the same fill notional; Nautilus applies an equivalent 5 bps taker commission.",
+    "combined_cost_rate_bps": 5.0,
+    "dynamic_equity_target_leverage": 1.0,
+    "funding": "zero, matching every RP-2592 row",
+    "next_open_execution": true,
+    "offline_only": true,
+    "signal_source": "read-only compile_signal output for STRAT-SPEC-0004",
+    "unsupported_semantics": [
+      "Nautilus 1.221.0 does not expose the RP zero-equity liquidation rule through this low-level bounded mapping; no RP-2592 variant liquidated.",
+      "Continuous canonical quantities are rounded to 8 decimal places by the synthetic offline instrument."
+    ]
+  },
+  "package_id": "EXT-EVAL-NAUTILUS-MAPPING-SPIKE-01",
+  "reconciliation": [
+    {
+      "delta": {
+        "fees": -24.49583040221114,
+        "return_pct": -0.0018762877131905942,
+        "slippage": -6.123957600552785,
+        "trade_count": 0
+      },
+      "nautilus": {
+        "allocated_fees": 7930.237912592,
+        "allocated_slippage": 1982.559478148,
+        "final_equity": 5683.7810388,
+        "funding": 0.0,
+        "return_pct": -0.43162189612,
+        "trade_count": 1273
+      },
+      "rp": {
+        "fees": 7954.733742994211,
+        "funding": 0.0,
+        "return_pct": -0.4297456084068094,
+        "slippage": 1988.6834357485527,
+        "trade_count": 1273
+      },
+      "variant_id": "VAR-000001"
+    },
+    {
+      "delta": {
+        "fees": -50.99379701541693,
+        "return_pct": -0.004382623128073526,
+        "slippage": -12.748449253854233,
+        "trade_count": 0
+      },
+      "nautilus": {
+        "allocated_fees": 14113.018152984,
+        "allocated_slippage": 3528.254538246,
+        "final_equity": 11655.403401660002,
+        "funding": 0.0,
+        "return_pct": 0.16554034016600028,
+        "trade_count": 1300
+      },
+      "rp": {
+        "fees": 14164.011949999416,
+        "funding": 0.0,
+        "return_pct": 0.1699229632940738,
+        "slippage": 3541.002987499854,
+        "trade_count": 1300
+      },
+      "variant_id": "VAR-000002"
+    },
+    {
+      "delta": {
+        "fees": -0.6994580728733126,
+        "return_pct": -0.0009599721468471212,
+        "slippage": -0.17486451821832816,
+        "trade_count": 0
+      },
+      "nautilus": {
+        "allocated_fees": 14053.581639208001,
+        "allocated_slippage": 3513.3954098020004,
+        "final_equity": 14827.33538094,
+        "funding": 0.0,
+        "return_pct": 0.4827335380939999,
+        "trade_count": 818
+      },
+      "rp": {
+        "fees": 14054.281097280875,
+        "funding": 0.0,
+        "return_pct": 0.483693510240847,
+        "slippage": 3513.5702743202187,
+        "trade_count": 818
+      },
+      "variant_id": "VAR-000003"
+    },
+    {
+      "delta": {
+        "fees": 1.977797572268173,
+        "return_pct": -0.0007405875483854629,
+        "slippage": 0.4944493930670433,
+        "trade_count": 0
+      },
+      "nautilus": {
+        "allocated_fees": 13731.863789824001,
+        "allocated_slippage": 3432.9659474560003,
+        "final_equity": 16436.31558962,
+        "funding": 0.0,
+        "return_pct": 0.6436315589620001,
+        "trade_count": 800
+      },
+      "rp": {
+        "fees": 13729.885992251733,
+        "funding": 0.0,
+        "return_pct": 0.6443721465103855,
+        "slippage": 3432.4714980629333,
+        "trade_count": 800
+      },
+      "variant_id": "VAR-000004"
+    },
+    {
+      "delta": {
+        "fees": -4.230295905925232,
+        "return_pct": -0.000798940747920307,
+        "slippage": -1.057573976481308,
+        "trade_count": 0
+      },
+      "nautilus": {
+        "allocated_fees": 12895.999056016,
+        "allocated_slippage": 3223.999764004,
+        "final_equity": 18105.22799453,
+        "funding": 0.0,
+        "return_pct": 0.810522799453,
+        "trade_count": 1025
+      },
+      "rp": {
+        "fees": 12900.229351921926,
+        "funding": 0.0,
+        "return_pct": 0.8113217402009203,
+        "slippage": 3225.0573379804814,
+        "trade_count": 1025
+      },
+      "variant_id": "VAR-000005"
+    },
+    {
+      "delta": {
+        "fees": -7.648579609623994,
+        "return_pct": -0.0010722108918679307,
+        "slippage": -1.9121449024059984,
+        "trade_count": 0
+      },
+      "nautilus": {
+        "allocated_fees": 16768.761357664,
+        "allocated_slippage": 4192.190339416,
+        "final_equity": 19536.55393612,
+        "funding": 0.0,
+        "return_pct": 0.9536553936119998,
+        "trade_count": 1042
+      },
+      "rp": {
+        "fees": 16776.409937273624,
+        "funding": 0.0,
+        "return_pct": 0.9547276045038677,
+        "slippage": 4194.102484318406,
+        "trade_count": 1042
+      },
+      "variant_id": "VAR-000006"
+    },
+    {
+      "delta": {
+        "fees": -0.0873750643186213,
+        "return_pct": 0.00010047552484210298,
+        "slippage": -0.021843766079655325,
+        "trade_count": 0
+      },
+      "nautilus": {
+        "allocated_fees": 5604.527196064,
+        "allocated_slippage": 1401.131799016,
+        "final_equity": 8208.14390904,
+        "funding": 0.0,
+        "return_pct": -0.179185609096,
+        "trade_count": 601
+      },
+      "rp": {
+        "fees": 5604.614571128319,
+        "funding": 0.0,
+        "return_pct": -0.1792860846208421,
+        "slippage": 1401.1536427820797,
+        "trade_count": 601
+      },
+      "variant_id": "VAR-000007"
+    },
+    {
+      "delta": {
+        "fees": -0.04526818122576515,
+        "return_pct": 0.00017220612114016154,
+        "slippage": -0.011317045306441287,
+        "trade_count": 0
+      },
+      "nautilus": {
+        "allocated_fees": 6075.43431076,
+        "allocated_slippage": 1518.85857769,
+        "final_equity": 9436.724770050001,
+        "funding": 0.0,
+        "return_pct": -0.05632752299499988,
+        "trade_count": 577
+      },
+      "rp": {
+        "fees": 6075.479578941226,
+        "funding": 0.0,
+        "return_pct": -0.05649972911614004,
+        "slippage": 1518.8698947353064,
+        "trade_count": 577
+      },
+      "variant_id": "VAR-000008"
+    }
+  ],
+  "reconciliation_summary": {
+    "bounded_spike_return_tolerance": 0.005,
+    "exact_trade_counts": true,
+    "max_abs_return_delta": 0.004382623128073526,
+    "not_canonical_acceptance_threshold": true,
+    "sufficient_for_candidate_label": true
+  },
+  "report_checksum": "4c3d84f639c4da9e20c064cc5e6b6f15cbe4110693d23aa6e48f11c1739772a5",
+  "run_1": {
+    "VAR-000001": {
+      "allocated_fees": 7930.237912592,
+      "allocated_slippage": 1982.559478148,
+      "combined_fee_slippage_cost": 9912.79739074,
+      "final_equity": 5683.7810388,
+      "funding": 0.0,
+      "nautilus_closed_position_objects": 0,
+      "open_position_count": 1,
+      "parameters": {
+        "fast_lookback_bars": 20,
+        "slow_lookback_bars": 100,
+        "trend_lookback_bars": 300
+      },
+      "return_pct": -0.43162189612,
+      "total_orders": 2547,
+      "total_positions": 1,
+      "trade_count": 1273,
+      "variant_id": "VAR-000001"
+    },
+    "VAR-000002": {
+      "allocated_fees": 14113.018152984,
+      "allocated_slippage": 3528.254538246,
+      "combined_fee_slippage_cost": 17641.27269123,
+      "final_equity": 11655.403401660002,
+      "funding": 0.0,
+      "nautilus_closed_position_objects": 0,
+      "open_position_count": 1,
+      "parameters": {
+        "fast_lookback_bars": 20,
+        "slow_lookback_bars": 100,
+        "trend_lookback_bars": 400
+      },
+      "return_pct": 0.16554034016600028,
+      "total_orders": 2601,
+      "total_positions": 1,
+      "trade_count": 1300,
+      "variant_id": "VAR-000002"
+    },
+    "VAR-000003": {
+      "allocated_fees": 14053.581639208001,
+      "allocated_slippage": 3513.3954098020004,
+      "combined_fee_slippage_cost": 17566.97704901,
+      "final_equity": 14827.33538094,
+      "funding": 0.0,
+      "nautilus_closed_position_objects": 0,
+      "open_position_count": 1,
+      "parameters": {
+        "fast_lookback_bars": 20,
+        "slow_lookback_bars": 200,
+        "trend_lookback_bars": 300
+      },
+      "return_pct": 0.4827335380939999,
+      "total_orders": 1637,
+      "total_positions": 1,
+      "trade_count": 818,
+      "variant_id": "VAR-000003"
+    },
+    "VAR-000004": {
+      "allocated_fees": 13731.863789824001,
+      "allocated_slippage": 3432.9659474560003,
+      "combined_fee_slippage_cost": 17164.82973728,
+      "final_equity": 16436.31558962,
+      "funding": 0.0,
+      "nautilus_closed_position_objects": 0,
+      "open_position_count": 1,
+      "parameters": {
+        "fast_lookback_bars": 20,
+        "slow_lookback_bars": 200,
+        "trend_lookback_bars": 400
+      },
+      "return_pct": 0.6436315589620001,
+      "total_orders": 1601,
+      "total_positions": 1,
+      "trade_count": 800,
+      "variant_id": "VAR-000004"
+    },
+    "VAR-000005": {
+      "allocated_fees": 12895.999056016,
+      "allocated_slippage": 3223.999764004,
+      "combined_fee_slippage_cost": 16119.99882002,
+      "final_equity": 18105.22799453,
+      "funding": 0.0,
+      "nautilus_closed_position_objects": 0,
+      "open_position_count": 1,
+      "parameters": {
+        "fast_lookback_bars": 50,
+        "slow_lookback_bars": 100,
+        "trend_lookback_bars": 300
+      },
+      "return_pct": 0.810522799453,
+      "total_orders": 2051,
+      "total_positions": 1,
+      "trade_count": 1025,
+      "variant_id": "VAR-000005"
+    },
+    "VAR-000006": {
+      "allocated_fees": 16768.761357664,
+      "allocated_slippage": 4192.190339416,
+      "combined_fee_slippage_cost": 20960.95169708,
+      "final_equity": 19536.55393612,
+      "funding": 0.0,
+      "nautilus_closed_position_objects": 0,
+      "open_position_count": 1,
+      "parameters": {
+        "fast_lookback_bars": 50,
+        "slow_lookback_bars": 100,
+        "trend_lookback_bars": 400
+      },
+      "return_pct": 0.9536553936119998,
+      "total_orders": 2085,
+      "total_positions": 1,
+      "trade_count": 1042,
+      "variant_id": "VAR-000006"
+    },
+    "VAR-000007": {
+      "allocated_fees": 5604.527196064,
+      "allocated_slippage": 1401.131799016,
+      "combined_fee_slippage_cost": 7005.65899508,
+      "final_equity": 8208.14390904,
+      "funding": 0.0,
+      "nautilus_closed_position_objects": 0,
+      "open_position_count": 1,
+      "parameters": {
+        "fast_lookback_bars": 50,
+        "slow_lookback_bars": 200,
+        "trend_lookback_bars": 300
+      },
+      "return_pct": -0.179185609096,
+      "total_orders": 1203,
+      "total_positions": 1,
+      "trade_count": 601,
+      "variant_id": "VAR-000007"
+    },
+    "VAR-000008": {
+      "allocated_fees": 6075.43431076,
+      "allocated_slippage": 1518.85857769,
+      "combined_fee_slippage_cost": 7594.29288845,
+      "final_equity": 9436.724770050001,
+      "funding": 0.0,
+      "nautilus_closed_position_objects": 0,
+      "open_position_count": 1,
+      "parameters": {
+        "fast_lookback_bars": 50,
+        "slow_lookback_bars": 200,
+        "trend_lookback_bars": 400
+      },
+      "return_pct": -0.05632752299499988,
+      "total_orders": 1155,
+      "total_positions": 1,
+      "trade_count": 577,
+      "variant_id": "VAR-000008"
+    },
+    "_environment": {
+      "nautilus_version": "1.221.0",
+      "platform": "Windows",
+      "python_version": "3.11.9"
+    }
+  },
+  "run_2": {
+    "VAR-000001": {
+      "allocated_fees": 7930.237912592,
+      "allocated_slippage": 1982.559478148,
+      "combined_fee_slippage_cost": 9912.79739074,
+      "final_equity": 5683.7810388,
+      "funding": 0.0,
+      "nautilus_closed_position_objects": 0,
+      "open_position_count": 1,
+      "parameters": {
+        "fast_lookback_bars": 20,
+        "slow_lookback_bars": 100,
+        "trend_lookback_bars": 300
+      },
+      "return_pct": -0.43162189612,
+      "total_orders": 2547,
+      "total_positions": 1,
+      "trade_count": 1273,
+      "variant_id": "VAR-000001"
+    },
+    "VAR-000002": {
+      "allocated_fees": 14113.018152984,
+      "allocated_slippage": 3528.254538246,
+      "combined_fee_slippage_cost": 17641.27269123,
+      "final_equity": 11655.403401660002,
+      "funding": 0.0,
+      "nautilus_closed_position_objects": 0,
+      "open_position_count": 1,
+      "parameters": {
+        "fast_lookback_bars": 20,
+        "slow_lookback_bars": 100,
+        "trend_lookback_bars": 400
+      },
+      "return_pct": 0.16554034016600028,
+      "total_orders": 2601,
+      "total_positions": 1,
+      "trade_count": 1300,
+      "variant_id": "VAR-000002"
+    },
+    "VAR-000003": {
+      "allocated_fees": 14053.581639208001,
+      "allocated_slippage": 3513.3954098020004,
+      "combined_fee_slippage_cost": 17566.97704901,
+      "final_equity": 14827.33538094,
+      "funding": 0.0,
+      "nautilus_closed_position_objects": 0,
+      "open_position_count": 1,
+      "parameters": {
+        "fast_lookback_bars": 20,
+        "slow_lookback_bars": 200,
+        "trend_lookback_bars": 300
+      },
+      "return_pct": 0.4827335380939999,
+      "total_orders": 1637,
+      "total_positions": 1,
+      "trade_count": 818,
+      "variant_id": "VAR-000003"
+    },
+    "VAR-000004": {
+      "allocated_fees": 13731.863789824001,
+      "allocated_slippage": 3432.9659474560003,
+      "combined_fee_slippage_cost": 17164.82973728,
+      "final_equity": 16436.31558962,
+      "funding": 0.0,
+      "nautilus_closed_position_objects": 0,
+      "open_position_count": 1,
+      "parameters": {
+        "fast_lookback_bars": 20,
+        "slow_lookback_bars": 200,
+        "trend_lookback_bars": 400
+      },
+      "return_pct": 0.6436315589620001,
+      "total_orders": 1601,
+      "total_positions": 1,
+      "trade_count": 800,
+      "variant_id": "VAR-000004"
+    },
+    "VAR-000005": {
+      "allocated_fees": 12895.999056016,
+      "allocated_slippage": 3223.999764004,
+      "combined_fee_slippage_cost": 16119.99882002,
+      "final_equity": 18105.22799453,
+      "funding": 0.0,
+      "nautilus_closed_position_objects": 0,
+      "open_position_count": 1,
+      "parameters": {
+        "fast_lookback_bars": 50,
+        "slow_lookback_bars": 100,
+        "trend_lookback_bars": 300
+      },
+      "return_pct": 0.810522799453,
+      "total_orders": 2051,
+      "total_positions": 1,
+      "trade_count": 1025,
+      "variant_id": "VAR-000005"
+    },
+    "VAR-000006": {
+      "allocated_fees": 16768.761357664,
+      "allocated_slippage": 4192.190339416,
+      "combined_fee_slippage_cost": 20960.95169708,
+      "final_equity": 19536.55393612,
+      "funding": 0.0,
+      "nautilus_closed_position_objects": 0,
+      "open_position_count": 1,
+      "parameters": {
+        "fast_lookback_bars": 50,
+        "slow_lookback_bars": 100,
+        "trend_lookback_bars": 400
+      },
+      "return_pct": 0.9536553936119998,
+      "total_orders": 2085,
+      "total_positions": 1,
+      "trade_count": 1042,
+      "variant_id": "VAR-000006"
+    },
+    "VAR-000007": {
+      "allocated_fees": 5604.527196064,
+      "allocated_slippage": 1401.131799016,
+      "combined_fee_slippage_cost": 7005.65899508,
+      "final_equity": 8208.14390904,
+      "funding": 0.0,
+      "nautilus_closed_position_objects": 0,
+      "open_position_count": 1,
+      "parameters": {
+        "fast_lookback_bars": 50,
+        "slow_lookback_bars": 200,
+        "trend_lookback_bars": 300
+      },
+      "return_pct": -0.179185609096,
+      "total_orders": 1203,
+      "total_positions": 1,
+      "trade_count": 601,
+      "variant_id": "VAR-000007"
+    },
+    "VAR-000008": {
+      "allocated_fees": 6075.43431076,
+      "allocated_slippage": 1518.85857769,
+      "combined_fee_slippage_cost": 7594.29288845,
+      "final_equity": 9436.724770050001,
+      "funding": 0.0,
+      "nautilus_closed_position_objects": 0,
+      "open_position_count": 1,
+      "parameters": {
+        "fast_lookback_bars": 50,
+        "slow_lookback_bars": 200,
+        "trend_lookback_bars": 400
+      },
+      "return_pct": -0.05632752299499988,
+      "total_orders": 1155,
+      "total_positions": 1,
+      "trade_count": 577,
+      "variant_id": "VAR-000008"
+    },
+    "_environment": {
+      "nautilus_version": "1.221.0",
+      "platform": "Windows",
+      "python_version": "3.11.9"
+    }
+  }
+}

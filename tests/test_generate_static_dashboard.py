@@ -374,3 +374,37 @@ def test_results_renderer_uses_supplied_payload_only(tmp_path):
     assert index_path.exists()
     assert "RP-4492" in html
     assert 'id="results"' in html
+
+
+# ---------------------------------------------------------------------------
+# WP-LAB-RESULTS-SURFACE-01: lab registry dashboard surface
+# ---------------------------------------------------------------------------
+
+def test_generated_dashboard_data_includes_lab_registry(tmp_path):
+    dashboard_data_path, _ = generate_dashboard(Path("."), tmp_path / "data", tmp_path / "build")
+    payload = json.loads(dashboard_data_path.read_text(encoding="utf-8"))
+    registry = payload["pages"]["results"]["lab_registry"]
+
+    assert registry["schema_version"] == "lab_run_registry.v1"
+    assert registry["record_count"] == 8
+    assert registry["run_order_policy"] == "run_id_ascending_only_not_quality_order"
+    assert [record["run_id"] for record in registry["records"]] == sorted(
+        record["run_id"] for record in registry["records"]
+    )
+    assert registry["non_authority_notes"]["no_ranking_as_authority"] is True
+    assert registry["non_authority_notes"]["no_execution"] is True
+
+
+def test_lab_registry_renders_without_quality_order_or_authority(tmp_path):
+    _, index_path = generate_dashboard(Path("."), tmp_path / "data", tmp_path / "build")
+    html = index_path.read_text(encoding="utf-8")
+    html_lower = html.lower()
+
+    assert "Lab Run / Result Registry" in html
+    assert "Runs are displayed in run ID order only" in html
+    assert "RP-7520" in html
+    assert "advisory_analytics_report.json" in html
+    assert "seeded_advisory_mc_report.json" in html
+    assert "vectorbt_triage_report.json" in html
+    assert "quality ranking" in html_lower
+    assert "leaderboard" not in html_lower

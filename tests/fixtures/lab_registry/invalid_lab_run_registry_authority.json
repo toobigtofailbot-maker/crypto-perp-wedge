@@ -1,0 +1,67 @@
+{
+  "schema_version": "lab_run_registry.v1",
+  "generated_at_utc": "2026-06-20T00:00:00Z",
+  "source_commit": "test",
+  "source_branch": "test",
+  "status": "PASS",
+  "registry_posture": {
+    "read_only_over_canonical_evidence": true,
+    "append_only_posture": true,
+    "display_only": true,
+    "not_ranking_authority": true,
+    "not_recommendation": true,
+    "not_readiness": true,
+    "not_promotion": true,
+    "not_approval": true,
+    "not_execution": true,
+    "not_paper_live": true
+  },
+  "records": [
+    {
+      "run_id": "RP-TEST",
+      "run_type": "canonical_result_population",
+      "source_commit": "test",
+      "source_branch": "test",
+      "created_at_utc": "2026-06-20T00:00:00Z",
+      "status": "PASS",
+      "strategy_spec_id": "STRAT-SPEC-TEST",
+      "strategy_spec_path": null,
+      "variant_manifest_id": "VM-TEST",
+      "variant_manifest_path": null,
+      "sweep_plan_id": "SWEEP-PLAN-TEST",
+      "sweep_plan_path": null,
+      "result_population_id": "RP-TEST",
+      "result_population_path": "research/result_populations/RP-TEST.result_population.json",
+      "dashboard_data_ref": null,
+      "analytics_report_ref": null,
+      "robustness_report_ref": null,
+      "triage_sidecar_report_ref": null,
+      "walkforward_manifest_ref": null,
+      "data_slice_refs": [],
+      "validation_refs": [],
+      "lineage_refs": [],
+      "warnings": [],
+      "non_authority_flags": {
+        "display_only": true,
+        "not_ranking_authority": true,
+        "not_recommendation": true,
+        "not_readiness": true,
+        "not_promotion": true,
+        "not_approval": true,
+        "not_execution": true,
+        "not_paper_live": true
+      },
+      "result_summary": {
+        "committed_denominator": 1,
+        "result_row_count": 1,
+        "outcome_counts": { "successful": 1 },
+        "variant_order_policy": "variant_id_ascending_only_not_quality_order",
+        "variant_ids": ["VAR-000001"],
+        "metric_summary": {},
+        "backtest_assumptions": {}
+      },
+      "leaderboard": "forbidden"
+    }
+  ],
+  "warnings": []
+}

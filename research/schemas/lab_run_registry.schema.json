@@ -1,0 +1,176 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crypto-perp-wedge.local/research/schemas/lab_run_registry.schema.json",
+  "title": "Lab Run Registry",
+  "description": "Read-only lab run/result registry for local dashboard review. This schema grants no ranking, recommendation, readiness, promotion, approval, execution, paper/live, runtime, broker, exchange, or order authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "generated_at_utc", "source_commit", "source_branch", "status", "registry_posture", "records", "warnings"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "lab_run_registry.v1" },
+    "generated_at_utc": { "type": "string", "format": "date-time" },
+    "source_commit": { "type": "string", "minLength": 1 },
+    "source_branch": { "type": "string", "minLength": 1 },
+    "status": { "$ref": "#/definitions/status" },
+    "registry_posture": { "$ref": "#/definitions/non_authority_flags" },
+    "records": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/record" }
+    },
+    "warnings": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "definitions": {
+    "status": {
+      "type": "string",
+      "enum": ["PASS", "WARN", "FAIL", "BLOCKED", "UNKNOWN", "NOT_AVAILABLE"]
+    },
+    "nullable_string": { "type": ["string", "null"] },
+    "path_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ref_id", "path"],
+      "properties": {
+        "ref_id": { "type": "string", "minLength": 1 },
+        "path": { "$ref": "#/definitions/nullable_string" },
+        "artifact_id": { "$ref": "#/definitions/nullable_string" },
+        "identity": { "$ref": "#/definitions/nullable_string" },
+        "sha256": { "$ref": "#/definitions/nullable_string" }
+      }
+    },
+    "report_ref": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["path", "sha256", "status", "authority"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "sha256": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "status": { "$ref": "#/definitions/status" },
+        "authority": { "type": "string", "const": "advisory_display_only_not_gate_not_ranking" }
+      }
+    },
+    "non_authority_flags": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "display_only",
+        "not_ranking_authority",
+        "not_recommendation",
+        "not_readiness",
+        "not_promotion",
+        "not_approval",
+        "not_execution",
+        "not_paper_live"
+      ],
+      "properties": {
+        "read_only_over_canonical_evidence": { "type": "boolean", "const": true },
+        "append_only_posture": { "type": "boolean", "const": true },
+        "display_only": { "type": "boolean", "const": true },
+        "not_ranking_authority": { "type": "boolean", "const": true },
+        "not_recommendation": { "type": "boolean", "const": true },
+        "not_readiness": { "type": "boolean", "const": true },
+        "not_promotion": { "type": "boolean", "const": true },
+        "not_approval": { "type": "boolean", "const": true },
+        "not_execution": { "type": "boolean", "const": true },
+        "not_paper_live": { "type": "boolean", "const": true }
+      }
+    },
+    "metric_stat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["available", "min", "max", "mean"],
+      "properties": {
+        "available": { "type": "boolean" },
+        "min": { "type": ["number", "null"] },
+        "max": { "type": ["number", "null"] },
+        "mean": { "type": ["number", "null"] }
+      }
+    },
+    "result_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["committed_denominator", "result_row_count", "outcome_counts", "variant_order_policy", "variant_ids", "metric_summary", "backtest_assumptions"],
+      "properties": {
+        "committed_denominator": { "type": ["integer", "null"], "minimum": 0 },
+        "result_row_count": { "type": "integer", "minimum": 0 },
+        "outcome_counts": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        },
+        "variant_order_policy": { "type": "string", "const": "variant_id_ascending_only_not_quality_order" },
+        "variant_ids": {
+          "type": "array",
+          "items": { "type": ["string", "null"] }
+        },
+        "metric_summary": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/definitions/metric_stat" }
+        },
+        "backtest_assumptions": {
+          "type": "object",
+          "additionalProperties": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "run_id",
+        "run_type",
+        "source_commit",
+        "source_branch",
+        "created_at_utc",
+        "status",
+        "strategy_spec_id",
+        "strategy_spec_path",
+        "variant_manifest_id",
+        "variant_manifest_path",
+        "sweep_plan_id",
+        "sweep_plan_path",
+        "result_population_id",
+        "result_population_path",
+        "dashboard_data_ref",
+        "analytics_report_ref",
+        "robustness_report_ref",
+        "triage_sidecar_report_ref",
+        "walkforward_manifest_ref",
+        "data_slice_refs",
+        "validation_refs",
+        "lineage_refs",
+        "warnings",
+        "non_authority_flags",
+        "result_summary"
+      ],
+      "properties": {
+        "run_id": { "type": "string", "minLength": 1 },
+        "run_type": { "type": "string", "enum": ["canonical_result_population"] },
+        "source_commit": { "type": "string", "minLength": 1 },
+        "source_branch": { "type": "string", "minLength": 1 },
+        "created_at_utc": { "type": "string", "minLength": 1 },
+        "status": { "$ref": "#/definitions/status" },
+        "strategy_spec_id": { "$ref": "#/definitions/nullable_string" },
+        "strategy_spec_path": { "$ref": "#/definitions/nullable_string" },
+        "variant_manifest_id": { "$ref": "#/definitions/nullable_string" },
+        "variant_manifest_path": { "$ref": "#/definitions/nullable_string" },
+        "sweep_plan_id": { "$ref": "#/definitions/nullable_string" },
+        "sweep_plan_path": { "$ref": "#/definitions/nullable_string" },
+        "result_population_id": { "$ref": "#/definitions/nullable_string" },
+        "result_population_path": { "$ref": "#/definitions/nullable_string" },
+        "dashboard_data_ref": { "$ref": "#/definitions/report_ref" },
+        "analytics_report_ref": { "$ref": "#/definitions/report_ref" },
+        "robustness_report_ref": { "$ref": "#/definitions/report_ref" },
+        "triage_sidecar_report_ref": { "$ref": "#/definitions/report_ref" },
+        "walkforward_manifest_ref": { "$ref": "#/definitions/report_ref" },
+        "data_slice_refs": { "type": "array", "items": { "$ref": "#/definitions/path_ref" } },
+        "validation_refs": { "type": "array", "items": { "$ref": "#/definitions/path_ref" } },
+        "lineage_refs": { "type": "array", "items": { "$ref": "#/definitions/path_ref" } },
+        "warnings": { "type": "array", "items": { "type": "string" } },
+        "non_authority_flags": { "$ref": "#/definitions/non_authority_flags" },
+        "result_summary": { "$ref": "#/definitions/result_summary" }
+      }
+    }
+  }
+}

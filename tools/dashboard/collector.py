@@ -13,6 +13,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from tools.lab_registry.build_lab_run_registry import build_lab_run_registry
+
 
 D4A_DIR = Path("research/data_slices/binance_usdtm_btcusdt_15m")
 D4A_CATALOG = D4A_DIR / "binance_usdtm_btcusdt_15m_20200101_20260411.catalog_slice.json"
@@ -180,7 +182,7 @@ def _collect_results_page(rp: dict[str, Any]) -> dict[str, Any]:
     rows = sorted(rp["variant_result_rows"], key=lambda r: r["variant_id"])
     variant_ids = [r["variant_id"] for r in rows]
 
-    return {
+    page = {
         "status": "PASS",
         "source_refs": ["rp-4492", "d6-checkpoint", "status-wp-d5", "status-wp-d6", "status-wp-f5a"],
         "result_population": {
@@ -265,6 +267,58 @@ def _collect_results_page(rp: dict[str, Any]) -> dict[str, Any]:
             "source_refs": ["status-wp-f5a"],
         },
     }
+    return page
+
+
+def _registry_report_path(report_ref: dict[str, Any] | None) -> str | None:
+    if not isinstance(report_ref, dict):
+        return None
+    return report_ref.get("path")
+
+
+def _collect_lab_registry_page(repo_root: Path) -> dict[str, Any]:
+    registry = build_lab_run_registry(repo_root)
+    records = sorted(registry["records"], key=lambda record: record["run_id"])
+    return {
+        "schema_version": registry["schema_version"],
+        "status": registry["status"],
+        "record_count": len(records),
+        "run_order_policy": "run_id_ascending_only_not_quality_order",
+        "records": [
+            {
+                "run_id": record["run_id"],
+                "run_type": record["run_type"],
+                "status": record["status"],
+                "strategy_spec_id": record["strategy_spec_id"],
+                "variant_manifest_id": record["variant_manifest_id"],
+                "sweep_plan_id": record["sweep_plan_id"],
+                "result_population_id": record["result_population_id"],
+                "result_population_path": record["result_population_path"],
+                "committed_denominator": record["result_summary"]["committed_denominator"],
+                "result_row_count": record["result_summary"]["result_row_count"],
+                "variant_order_policy": record["result_summary"]["variant_order_policy"],
+                "variant_ids": record["result_summary"]["variant_ids"],
+                "return_pct_min": record["result_summary"]["metric_summary"]["return_pct"]["min"],
+                "return_pct_max": record["result_summary"]["metric_summary"]["return_pct"]["max"],
+                "sharpe_min": record["result_summary"]["metric_summary"]["sharpe"]["min"],
+                "sharpe_max": record["result_summary"]["metric_summary"]["sharpe"]["max"],
+                "analytics_report_ref": _registry_report_path(record.get("analytics_report_ref")),
+                "robustness_report_ref": _registry_report_path(record.get("robustness_report_ref")),
+                "triage_sidecar_report_ref": _registry_report_path(record.get("triage_sidecar_report_ref")),
+                "warnings": record["warnings"],
+            }
+            for record in records
+        ],
+        "non_authority_notes": {
+            "no_ranking_as_authority": True,
+            "no_recommendation": True,
+            "no_readiness": True,
+            "no_promotion": True,
+            "no_execution": True,
+            "source_refs": ["status-wp-lab-results-surface-01"],
+        },
+        "source_refs": ["status-wp-lab-results-surface-01"],
+    }
 
 
 def _build_missing_data(
@@ -279,6 +333,15 @@ def _build_missing_data(
     ]
     if rp is not None:
         source_refs.extend(_results_source_ref_entries(rp_sha, d6_sha))
+        source_refs.append(
+            _source_ref(
+                "status-wp-lab-results-surface-01",
+                "status_entry",
+                "docs/status_entries/WP-LAB-RESULTS-SURFACE-01.md",
+                None,
+                "WP-LAB-RESULTS-SURFACE-01 lab run/result registry and dashboard results surface.",
+            )
+        )
 
     empty_freshness = {
         "staleness_status": "UNKNOWN",
@@ -364,6 +427,7 @@ def _build_missing_data(
 
     if rp is not None:
         pages["results"] = _collect_results_page(rp)
+        pages["results"]["lab_registry"] = _collect_lab_registry_page(repo_root)
 
     top_warnings = [
         {
@@ -556,6 +620,15 @@ def collect_dashboard_data(repo_root: Path | str = ".") -> dict[str, Any]:
     ]
     if rp is not None:
         source_refs.extend(_results_source_ref_entries(rp_sha, d6_sha))
+        source_refs.append(
+            _source_ref(
+                "status-wp-lab-results-surface-01",
+                "status_entry",
+                "docs/status_entries/WP-LAB-RESULTS-SURFACE-01.md",
+                None,
+                "WP-LAB-RESULTS-SURFACE-01 lab run/result registry and dashboard results surface.",
+            )
+        )
 
     range_facts = catalog["range"]
     gap_facts = catalog["gap_summary"]
@@ -759,6 +832,7 @@ def collect_dashboard_data(repo_root: Path | str = ".") -> dict[str, Any]:
 
     if rp is not None:
         pages["results"] = _collect_results_page(rp)
+        pages["results"]["lab_registry"] = _collect_lab_registry_page(root)
 
     return {
         "schema_version": "dashboard_data.v1",

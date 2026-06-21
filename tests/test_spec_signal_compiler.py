@@ -460,6 +460,111 @@ def test_compiles_long_only_data_ref_threshold_signal() -> None:
     assert signal.index.equals(ohlcv.index)
 
 
+DATA_DERIVED_FIELD_VALUES = {
+    "funding_rate": [-0.01, 0.01, -0.02, 0.02, -0.03, 0.03, -0.04, 0.04],
+    "funding_mark_price": [9.0, 11.0, 9.0, 11.0, 9.0, 11.0, 9.0, 11.0],
+    "mark_price": [9.0, 11.0, 9.0, 11.0, 9.0, 11.0, 9.0, 11.0],
+    "index_price": [9.0, 11.0, 9.0, 11.0, 9.0, 11.0, 9.0, 11.0],
+    "premium_index": [-0.01, 0.01, -0.02, 0.02, -0.03, 0.03, -0.04, 0.04],
+    "open_interest": [9.0, 11.0, 9.0, 11.0, 9.0, 11.0, 9.0, 11.0],
+    "open_interest_value": [9.0, 11.0, 9.0, 11.0, 9.0, 11.0, 9.0, 11.0],
+    "top_trader_position_long_short_ratio": [0.9, 1.1, 0.9, 1.1, 0.9, 1.1, 0.9, 1.1],
+    "top_trader_account_long_short_ratio": [0.9, 1.1, 0.9, 1.1, 0.9, 1.1, 0.9, 1.1],
+    "global_long_short_account_ratio": [0.9, 1.1, 0.9, 1.1, 0.9, 1.1, 0.9, 1.1],
+    "taker_buy_sell_ratio": [0.9, 1.1, 0.9, 1.1, 0.9, 1.1, 0.9, 1.1],
+    "taker_buy_volume": [9.0, 11.0, 9.0, 11.0, 9.0, 11.0, 9.0, 11.0],
+    "taker_sell_volume": [9.0, 11.0, 9.0, 11.0, 9.0, 11.0, 9.0, 11.0],
+}
+
+
+@pytest.mark.parametrize("field", sorted(DATA_DERIVED_FIELD_VALUES))
+def test_allowed_data_derived_field_compiles_through_data_ref(field: str) -> None:
+    ohlcv = _ohlcv()
+    ohlcv[field] = DATA_DERIVED_FIELD_VALUES[field]
+    threshold = (
+        0.0
+        if field in {"funding_rate", "premium_index"}
+        else 1.0 if "ratio" in field else 10.0
+    )
+    spec = _single_condition_spec(
+        "gt",
+        _operand("data_ref", field, field),
+        _operand("constant", threshold),
+        max_holding_bars=1,
+    )
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0]
+
+
+def test_unknown_data_derived_field_fails_closed() -> None:
+    ohlcv = _ohlcv()
+    ohlcv["liquidation_notional"] = 1.0
+    spec = _single_condition_spec(
+        "gt",
+        _operand("data_ref", "liquidation_notional", "liquidation_notional"),
+        _operand("constant", 0.0),
+    )
+
+    with pytest.raises(SpecSignalCompilerError, match="unsupported data_ref field"):
+        compile_signal(spec, _default_variant(), ohlcv)
+
+
+def test_missing_allowed_data_derived_field_fails_closed() -> None:
+    spec = _single_condition_spec(
+        "gt",
+        _operand("data_ref", "funding_rate", "funding_rate"),
+        _operand("constant", 0.0),
+    )
+
+    with pytest.raises(
+        SpecSignalCompilerError,
+        match="missing referenced data_ref field: 'funding_rate'",
+    ):
+        compile_signal(spec, _default_variant(), _ohlcv())
+
+
+@pytest.mark.parametrize("field", ["funding_rate", "open_interest", "taker_buy_sell_ratio"])
+def test_data_derived_field_future_mutation_has_no_lookahead(field: str) -> None:
+    ohlcv = _ohlcv()
+    ohlcv[field] = DATA_DERIVED_FIELD_VALUES[field]
+    mutated = ohlcv.copy()
+    cutoff = ohlcv.index[3]
+    mutated.loc[mutated.index[4] :, field] = 1_000_000.0
+    threshold = 0.0 if field == "funding_rate" else 1.0 if "ratio" in field else 10.0
+    spec = _single_condition_spec(
+        "gt",
+        _operand("data_ref", field, field),
+        _operand("constant", threshold),
+        max_holding_bars=1,
+    )
+
+    base_signal = compile_signal(spec, _default_variant(), ohlcv)
+    mutated_signal = compile_signal(spec, _default_variant(), mutated)
+
+    pd.testing.assert_series_equal(base_signal.loc[:cutoff], mutated_signal.loc[:cutoff])
+
+
+def test_data_derived_field_preserves_null_without_fill_or_interpolation() -> None:
+    ohlcv = _ohlcv()
+    ohlcv["open_interest"] = [9.0, math.nan, 11.0, math.nan, 9.0, 11.0, 9.0, 11.0]
+    context = compiler._CompileContext(
+        strategy_spec={},
+        variant_assignment=_default_variant(),
+        ohlcv=ohlcv,
+        catalog=compiler._load_default_catalog(),
+    )
+
+    resolved = compiler._resolve_operand(
+        _operand("data_ref", "open_interest", "open_interest"),
+        context,
+    )
+
+    pd.testing.assert_series_equal(resolved, ohlcv["open_interest"])
+    assert resolved.isna().tolist() == [False, True, False, True, False, False, False, False]
+
+
 def test_compiles_short_only_data_ref_threshold_signal() -> None:
     ohlcv = _ohlcv()
     spec = _spec(

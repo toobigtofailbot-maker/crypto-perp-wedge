@@ -1,0 +1,21 @@
+{
+  "auto_promotion": false,
+  "canonical_writes": false,
+  "created_at_utc": "2026-06-20T12:00:00Z",
+  "dependency_files_changed": false,
+  "engine_id": "WP-LAB-CANDIDATE-LIFECYCLE-ENGINE-01",
+  "input_path": "tests/fixtures/candidate_lifecycle_engine/valid_candidate_inputs.json",
+  "input_sha256": "sha256:5d9d14c35919f58b524f31e48338e1dd74e52c4963d7f6ab2d1ccd0d5203c505",
+  "non_authority_flags": [
+    "human_gated",
+    "not_auto_promotion",
+    "not_readiness_authority",
+    "not_paper_live",
+    "not_canonical_evidence_mutation",
+    "not_execution_authority"
+  ],
+  "paper_live_actions": false,
+  "report_identity_hash": "sha256:0ec36309eab60d4bd7651eda991adf945b2ab21699f566be01b36d7ac70c92aa",
+  "schema_version": "candidate_lifecycle_engine_provenance.v1",
+  "source_commit": "4da388a289fb0df4547d204e17b05b151f1cb595"
+}

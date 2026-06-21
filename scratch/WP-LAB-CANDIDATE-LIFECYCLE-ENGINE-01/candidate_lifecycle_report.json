@@ -1,0 +1,75 @@
+{
+  "aggregate": {
+    "auto_promotions": 0,
+    "blocked_count": 0,
+    "canonical_evidence_mutations": 0,
+    "human_approval_required_count": 1,
+    "paper_live_actions": 0
+  },
+  "candidate_count": 1,
+  "candidate_reports": [
+    {
+      "blockers": [],
+      "candidate_id": "CANDIDATE-FIXTURE-0001",
+      "candidate_name": "Fixture lifecycle candidate",
+      "caveats": [
+        "Scratch lifecycle report only.",
+        "Evidence links are references only and are not mutated.",
+        "Promotion and paper/live decisions remain human-gated outside this engine."
+      ],
+      "current_state": "research_concluded",
+      "evidence_links": {
+        "dashboard_review_ref": "scratch/WP-LAB-DASHBOARD-EXPANSION-01/static_dashboard_review.json",
+        "idea_intake_ref": "tests/fixtures/candidate_lifecycle_engine/valid_candidate_inputs.json",
+        "result_population_ref": "RP-FIXTURE-0001",
+        "robustness_report_ref": null,
+        "walkforward_run_ref": "scratch/WP-LAB-WALKFORWARD-RUN-01/walkforward_run_report.json"
+      },
+      "manual_approval_requirement": "A human gate owner must make any promotion, paper, live, or readiness decision outside this engine.",
+      "missing_evidence": [],
+      "next_allowed_human_decisions": [
+        "record paper eligibility by separate human lifecycle change",
+        "reject",
+        "archive"
+      ],
+      "non_authority_flags": [
+        "human_gated",
+        "not_auto_promotion",
+        "not_readiness_authority",
+        "not_paper_live",
+        "not_canonical_evidence_mutation",
+        "not_execution_authority"
+      ],
+      "notes": [
+        "Fixture exercises human-gated packet preparation only and does not register a real candidate.",
+        "Robustness-depth status entry is not merged in current repo truth."
+      ],
+      "pending_state": "human_approval_required",
+      "requested_transition": {
+        "allowed_by_vocab": true,
+        "from_state": "research_concluded",
+        "to_state": "paper_eligible",
+        "transition_edge": "research_concluded->paper_eligible"
+      },
+      "unavailable_optional_evidence": [
+        "robustness_report_ref"
+      ]
+    }
+  ],
+  "canonical_authority": false,
+  "created_at_utc": "2026-06-20T12:00:00Z",
+  "engine_id": "WP-LAB-CANDIDATE-LIFECYCLE-ENGINE-01",
+  "input_ref": "tests/fixtures/candidate_lifecycle_engine/valid_candidate_inputs.json",
+  "non_authority_flags": [
+    "human_gated",
+    "not_auto_promotion",
+    "not_readiness_authority",
+    "not_paper_live",
+    "not_canonical_evidence_mutation",
+    "not_execution_authority"
+  ],
+  "report_identity_hash": "sha256:0ec36309eab60d4bd7651eda991adf945b2ab21699f566be01b36d7ac70c92aa",
+  "schema_version": "candidate_lifecycle_engine_report.v1",
+  "scratch_only": true,
+  "source_commit": "4da388a289fb0df4547d204e17b05b151f1cb595"
+}

@@ -1,0 +1,28 @@
+{
+  "schema_version": "candidate_lifecycle_engine_input.v1",
+  "created_at_utc": "2026-06-20T12:00:00Z",
+  "candidates": [
+    {
+      "candidate_id": "CANDIDATE-FIXTURE-0001",
+      "candidate_name": "Fixture lifecycle candidate",
+      "current_state": "paper_concluded",
+      "requested_transition": {
+        "to_state": "live_active",
+        "requested_by": "fixture unsafe automation"
+      },
+      "evidence_refs": {
+        "result_population_ref": "RP-FIXTURE-0001",
+        "walkforward_run_ref": "scratch/WP-LAB-WALKFORWARD-RUN-01/walkforward_run_report.json",
+        "robustness_report_ref": null,
+        "dashboard_review_ref": "scratch/WP-LAB-DASHBOARD-EXPANSION-01/static_dashboard_review.json",
+        "idea_intake_ref": "tests/fixtures/candidate_lifecycle_engine/invalid_auto_promotion.json"
+      },
+      "auto_promote": true,
+      "mark_ready_for_live": true,
+      "notes": [
+        "Fixture must be blocked by the lifecycle engine."
+      ],
+      "blockers": []
+    }
+  ]
+}

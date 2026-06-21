@@ -1,0 +1,1167 @@
+{
+  "blockers": [],
+  "canonical_artifact_mutation": false,
+  "cost_stress_results": {
+    "authority": "advisory_only_not_gate_not_canonical_mutation",
+    "baseline_metrics_preserved": true,
+    "dimension": "fees",
+    "input_metric": "variant_result_rows[].metrics.fees",
+    "scenarios": [
+      {
+        "multiplier": 1.0,
+        "rows": [
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": -4297.456084068094,
+            "baseline_return_pct": -0.4297456084068094,
+            "observed_metric": 7954.733742994211,
+            "row_id": "RP-2592-ROW-000001",
+            "stressed_pnl": -4297.456084068094,
+            "stressed_return_pct": -0.4297456084068094,
+            "variant_id": "VAR-000001"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": 1699.2296329407382,
+            "baseline_return_pct": 0.1699229632940738,
+            "observed_metric": 14164.011949999416,
+            "row_id": "RP-2592-ROW-000002",
+            "stressed_pnl": 1699.2296329407382,
+            "stressed_return_pct": 0.1699229632940738,
+            "variant_id": "VAR-000002"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": 4836.93510240847,
+            "baseline_return_pct": 0.483693510240847,
+            "observed_metric": 14054.281097280875,
+            "row_id": "RP-2592-ROW-000003",
+            "stressed_pnl": 4836.93510240847,
+            "stressed_return_pct": 0.483693510240847,
+            "variant_id": "VAR-000003"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": 6443.721465103856,
+            "baseline_return_pct": 0.6443721465103855,
+            "observed_metric": 13729.885992251733,
+            "row_id": "RP-2592-ROW-000004",
+            "stressed_pnl": 6443.721465103856,
+            "stressed_return_pct": 0.6443721465103855,
+            "variant_id": "VAR-000004"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": 8113.2174020092025,
+            "baseline_return_pct": 0.8113217402009203,
+            "observed_metric": 12900.229351921926,
+            "row_id": "RP-2592-ROW-000005",
+            "stressed_pnl": 8113.2174020092025,
+            "stressed_return_pct": 0.8113217402009203,
+            "variant_id": "VAR-000005"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": 9547.276045038678,
+            "baseline_return_pct": 0.9547276045038677,
+            "observed_metric": 16776.409937273624,
+            "row_id": "RP-2592-ROW-000006",
+            "stressed_pnl": 9547.276045038678,
+            "stressed_return_pct": 0.9547276045038677,
+            "variant_id": "VAR-000006"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": -1792.8608462084212,
+            "baseline_return_pct": -0.1792860846208421,
+            "observed_metric": 5604.614571128319,
+            "row_id": "RP-2592-ROW-000007",
+            "stressed_pnl": -1792.8608462084212,
+            "stressed_return_pct": -0.1792860846208421,
+            "variant_id": "VAR-000007"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": -564.9972911614004,
+            "baseline_return_pct": -0.05649972911614004,
+            "observed_metric": 6075.479578941226,
+            "row_id": "RP-2592-ROW-000008",
+            "stressed_pnl": -564.9972911614004,
+            "stressed_return_pct": -0.05649972911614004,
+            "variant_id": "VAR-000008"
+          }
+        ],
+        "summary": {
+          "max_stressed_return_pct": 0.9547276045038677,
+          "mean_stressed_pnl": 2998.133178257878,
+          "mean_stressed_return_pct": 0.29981331782578785,
+          "min_stressed_return_pct": -0.4297456084068094,
+          "row_count": 8,
+          "rows_with_stressed_pnl": 8,
+          "rows_with_stressed_return_pct": 8
+        }
+      },
+      {
+        "multiplier": 1.25,
+        "rows": [
+          {
+            "additional_cost_native": 1988.6834357485527,
+            "baseline_pnl": -4297.456084068094,
+            "baseline_return_pct": -0.4297456084068094,
+            "observed_metric": 7954.733742994211,
+            "row_id": "RP-2592-ROW-000001",
+            "stressed_pnl": -6286.1395198166465,
+            "stressed_return_pct": -0.6286139519816647,
+            "variant_id": "VAR-000001"
+          },
+          {
+            "additional_cost_native": 3541.002987499854,
+            "baseline_pnl": 1699.2296329407382,
+            "baseline_return_pct": 0.1699229632940738,
+            "observed_metric": 14164.011949999416,
+            "row_id": "RP-2592-ROW-000002",
+            "stressed_pnl": -1841.773354559116,
+            "stressed_return_pct": -0.18417733545591158,
+            "variant_id": "VAR-000002"
+          },
+          {
+            "additional_cost_native": 3513.5702743202187,
+            "baseline_pnl": 4836.93510240847,
+            "baseline_return_pct": 0.483693510240847,
+            "observed_metric": 14054.281097280875,
+            "row_id": "RP-2592-ROW-000003",
+            "stressed_pnl": 1323.3648280882512,
+            "stressed_return_pct": 0.13233648280882515,
+            "variant_id": "VAR-000003"
+          },
+          {
+            "additional_cost_native": 3432.4714980629333,
+            "baseline_pnl": 6443.721465103856,
+            "baseline_return_pct": 0.6443721465103855,
+            "observed_metric": 13729.885992251733,
+            "row_id": "RP-2592-ROW-000004",
+            "stressed_pnl": 3011.2499670409225,
+            "stressed_return_pct": 0.3011249967040922,
+            "variant_id": "VAR-000004"
+          },
+          {
+            "additional_cost_native": 3225.0573379804814,
+            "baseline_pnl": 8113.2174020092025,
+            "baseline_return_pct": 0.8113217402009203,
+            "observed_metric": 12900.229351921926,
+            "row_id": "RP-2592-ROW-000005",
+            "stressed_pnl": 4888.1600640287215,
+            "stressed_return_pct": 0.48881600640287215,
+            "variant_id": "VAR-000005"
+          },
+          {
+            "additional_cost_native": 4194.102484318406,
+            "baseline_pnl": 9547.276045038678,
+            "baseline_return_pct": 0.9547276045038677,
+            "observed_metric": 16776.409937273624,
+            "row_id": "RP-2592-ROW-000006",
+            "stressed_pnl": 5353.173560720272,
+            "stressed_return_pct": 0.5353173560720271,
+            "variant_id": "VAR-000006"
+          },
+          {
+            "additional_cost_native": 1401.1536427820797,
+            "baseline_pnl": -1792.8608462084212,
+            "baseline_return_pct": -0.1792860846208421,
+            "observed_metric": 5604.614571128319,
+            "row_id": "RP-2592-ROW-000007",
+            "stressed_pnl": -3194.014488990501,
+            "stressed_return_pct": -0.3194014488990501,
+            "variant_id": "VAR-000007"
+          },
+          {
+            "additional_cost_native": 1518.8698947353064,
+            "baseline_pnl": -564.9972911614004,
+            "baseline_return_pct": -0.05649972911614004,
+            "observed_metric": 6075.479578941226,
+            "row_id": "RP-2592-ROW-000008",
+            "stressed_pnl": -2083.867185896707,
+            "stressed_return_pct": -0.20838671858967067,
+            "variant_id": "VAR-000008"
+          }
+        ],
+        "summary": {
+          "max_stressed_return_pct": 0.5353173560720271,
+          "mean_stressed_pnl": 146.2692338268996,
+          "mean_stressed_return_pct": 0.014626923382689956,
+          "min_stressed_return_pct": -0.6286139519816647,
+          "row_count": 8,
+          "rows_with_stressed_pnl": 8,
+          "rows_with_stressed_return_pct": 8
+        }
+      },
+      {
+        "multiplier": 1.5,
+        "rows": [
+          {
+            "additional_cost_native": 3977.3668714971054,
+            "baseline_pnl": -4297.456084068094,
+            "baseline_return_pct": -0.4297456084068094,
+            "observed_metric": 7954.733742994211,
+            "row_id": "RP-2592-ROW-000001",
+            "stressed_pnl": -8274.8229555652,
+            "stressed_return_pct": -0.82748229555652,
+            "variant_id": "VAR-000001"
+          },
+          {
+            "additional_cost_native": 7082.005974999708,
+            "baseline_pnl": 1699.2296329407382,
+            "baseline_return_pct": 0.1699229632940738,
+            "observed_metric": 14164.011949999416,
+            "row_id": "RP-2592-ROW-000002",
+            "stressed_pnl": -5382.77634205897,
+            "stressed_return_pct": -0.538277634205897,
+            "variant_id": "VAR-000002"
+          },
+          {
+            "additional_cost_native": 7027.140548640437,
+            "baseline_pnl": 4836.93510240847,
+            "baseline_return_pct": 0.483693510240847,
+            "observed_metric": 14054.281097280875,
+            "row_id": "RP-2592-ROW-000003",
+            "stressed_pnl": -2190.2054462319675,
+            "stressed_return_pct": -0.2190205446231967,
+            "variant_id": "VAR-000003"
+          },
+          {
+            "additional_cost_native": 6864.942996125867,
+            "baseline_pnl": 6443.721465103856,
+            "baseline_return_pct": 0.6443721465103855,
+            "observed_metric": 13729.885992251733,
+            "row_id": "RP-2592-ROW-000004",
+            "stressed_pnl": -421.2215310220108,
+            "stressed_return_pct": -0.04212215310220113,
+            "variant_id": "VAR-000004"
+          },
+          {
+            "additional_cost_native": 6450.114675960963,
+            "baseline_pnl": 8113.2174020092025,
+            "baseline_return_pct": 0.8113217402009203,
+            "observed_metric": 12900.229351921926,
+            "row_id": "RP-2592-ROW-000005",
+            "stressed_pnl": 1663.1027260482397,
+            "stressed_return_pct": 0.166310272604824,
+            "variant_id": "VAR-000005"
+          },
+          {
+            "additional_cost_native": 8388.204968636812,
+            "baseline_pnl": 9547.276045038678,
+            "baseline_return_pct": 0.9547276045038677,
+            "observed_metric": 16776.409937273624,
+            "row_id": "RP-2592-ROW-000006",
+            "stressed_pnl": 1159.0710764018659,
+            "stressed_return_pct": 0.11590710764018652,
+            "variant_id": "VAR-000006"
+          },
+          {
+            "additional_cost_native": 2802.3072855641594,
+            "baseline_pnl": -1792.8608462084212,
+            "baseline_return_pct": -0.1792860846208421,
+            "observed_metric": 5604.614571128319,
+            "row_id": "RP-2592-ROW-000007",
+            "stressed_pnl": -4595.168131772581,
+            "stressed_return_pct": -0.45951681317725807,
+            "variant_id": "VAR-000007"
+          },
+          {
+            "additional_cost_native": 3037.739789470613,
+            "baseline_pnl": -564.9972911614004,
+            "baseline_return_pct": -0.05649972911614004,
+            "observed_metric": 6075.479578941226,
+            "row_id": "RP-2592-ROW-000008",
+            "stressed_pnl": -3602.737080632013,
+            "stressed_return_pct": -0.3602737080632013,
+            "variant_id": "VAR-000008"
+          }
+        ],
+        "summary": {
+          "max_stressed_return_pct": 0.166310272604824,
+          "mean_stressed_pnl": -2705.59471060408,
+          "mean_stressed_return_pct": -0.27055947106040795,
+          "min_stressed_return_pct": -0.82748229555652,
+          "row_count": 8,
+          "rows_with_stressed_pnl": 8,
+          "rows_with_stressed_return_pct": 8
+        }
+      },
+      {
+        "multiplier": 2.0,
+        "rows": [
+          {
+            "additional_cost_native": 7954.733742994211,
+            "baseline_pnl": -4297.456084068094,
+            "baseline_return_pct": -0.4297456084068094,
+            "observed_metric": 7954.733742994211,
+            "row_id": "RP-2592-ROW-000001",
+            "stressed_pnl": -12252.189827062306,
+            "stressed_return_pct": -1.2252189827062305,
+            "variant_id": "VAR-000001"
+          },
+          {
+            "additional_cost_native": 14164.011949999416,
+            "baseline_pnl": 1699.2296329407382,
+            "baseline_return_pct": 0.1699229632940738,
+            "observed_metric": 14164.011949999416,
+            "row_id": "RP-2592-ROW-000002",
+            "stressed_pnl": -12464.782317058678,
+            "stressed_return_pct": -1.2464782317058678,
+            "variant_id": "VAR-000002"
+          },
+          {
+            "additional_cost_native": 14054.281097280875,
+            "baseline_pnl": 4836.93510240847,
+            "baseline_return_pct": 0.483693510240847,
+            "observed_metric": 14054.281097280875,
+            "row_id": "RP-2592-ROW-000003",
+            "stressed_pnl": -9217.345994872405,
+            "stressed_return_pct": -0.9217345994872403,
+            "variant_id": "VAR-000003"
+          },
+          {
+            "additional_cost_native": 13729.885992251733,
+            "baseline_pnl": 6443.721465103856,
+            "baseline_return_pct": 0.6443721465103855,
+            "observed_metric": 13729.885992251733,
+            "row_id": "RP-2592-ROW-000004",
+            "stressed_pnl": -7286.164527147877,
+            "stressed_return_pct": -0.7286164527147878,
+            "variant_id": "VAR-000004"
+          },
+          {
+            "additional_cost_native": 12900.229351921926,
+            "baseline_pnl": 8113.2174020092025,
+            "baseline_return_pct": 0.8113217402009203,
+            "observed_metric": 12900.229351921926,
+            "row_id": "RP-2592-ROW-000005",
+            "stressed_pnl": -4787.011949912723,
+            "stressed_return_pct": -0.4787011949912723,
+            "variant_id": "VAR-000005"
+          },
+          {
+            "additional_cost_native": 16776.409937273624,
+            "baseline_pnl": 9547.276045038678,
+            "baseline_return_pct": 0.9547276045038677,
+            "observed_metric": 16776.409937273624,
+            "row_id": "RP-2592-ROW-000006",
+            "stressed_pnl": -7229.133892234946,
+            "stressed_return_pct": -0.7229133892234947,
+            "variant_id": "VAR-000006"
+          },
+          {
+            "additional_cost_native": 5604.614571128319,
+            "baseline_pnl": -1792.8608462084212,
+            "baseline_return_pct": -0.1792860846208421,
+            "observed_metric": 5604.614571128319,
+            "row_id": "RP-2592-ROW-000007",
+            "stressed_pnl": -7397.47541733674,
+            "stressed_return_pct": -0.7397475417336741,
+            "variant_id": "VAR-000007"
+          },
+          {
+            "additional_cost_native": 6075.479578941226,
+            "baseline_pnl": -564.9972911614004,
+            "baseline_return_pct": -0.05649972911614004,
+            "observed_metric": 6075.479578941226,
+            "row_id": "RP-2592-ROW-000008",
+            "stressed_pnl": -6640.476870102626,
+            "stressed_return_pct": -0.6640476870102625,
+            "variant_id": "VAR-000008"
+          }
+        ],
+        "summary": {
+          "max_stressed_return_pct": -0.4787011949912723,
+          "mean_stressed_pnl": -8409.322599466039,
+          "mean_stressed_return_pct": -0.8409322599466038,
+          "min_stressed_return_pct": -1.2464782317058678,
+          "row_count": 8,
+          "rows_with_stressed_pnl": 8,
+          "rows_with_stressed_return_pct": 8
+        }
+      }
+    ],
+    "status": "exercised",
+    "stress_method": "subtract_additional_absolute_observed_cost_from_aggregate_pnl",
+    "warnings": []
+  },
+  "created_at_utc": "2026-06-01T00:00:00Z",
+  "dimensions_exercised": [
+    "cost",
+    "funding",
+    "slippage"
+  ],
+  "funding_stress_results": {
+    "authority": "advisory_only_not_gate_not_canonical_mutation",
+    "baseline_metrics_preserved": true,
+    "dimension": "funding",
+    "input_metric": "variant_result_rows[].metrics.funding",
+    "scenarios": [
+      {
+        "multiplier": 1.0,
+        "rows": [
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": -4297.456084068094,
+            "baseline_return_pct": -0.4297456084068094,
+            "observed_metric": 0.0,
+            "row_id": "RP-2592-ROW-000001",
+            "stressed_pnl": -4297.456084068094,
+            "stressed_return_pct": -0.4297456084068094,
+            "variant_id": "VAR-000001"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": 1699.2296329407382,
+            "baseline_return_pct": 0.1699229632940738,
+            "observed_metric": 0.0,
+            "row_id": "RP-2592-ROW-000002",
+            "stressed_pnl": 1699.2296329407382,
+            "stressed_return_pct": 0.1699229632940738,
+            "variant_id": "VAR-000002"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": 4836.93510240847,
+            "baseline_return_pct": 0.483693510240847,
+            "observed_metric": 0.0,
+            "row_id": "RP-2592-ROW-000003",
+            "stressed_pnl": 4836.93510240847,
+            "stressed_return_pct": 0.483693510240847,
+            "variant_id": "VAR-000003"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": 6443.721465103856,
+            "baseline_return_pct": 0.6443721465103855,
+            "observed_metric": 0.0,
+            "row_id": "RP-2592-ROW-000004",
+            "stressed_pnl": 6443.721465103856,
+            "stressed_return_pct": 0.6443721465103855,
+            "variant_id": "VAR-000004"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": 8113.2174020092025,
+            "baseline_return_pct": 0.8113217402009203,
+            "observed_metric": 0.0,
+            "row_id": "RP-2592-ROW-000005",
+            "stressed_pnl": 8113.2174020092025,
+            "stressed_return_pct": 0.8113217402009203,
+            "variant_id": "VAR-000005"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": 9547.276045038678,
+            "baseline_return_pct": 0.9547276045038677,
+            "observed_metric": 0.0,
+            "row_id": "RP-2592-ROW-000006",
+            "stressed_pnl": 9547.276045038678,
+            "stressed_return_pct": 0.9547276045038677,
+            "variant_id": "VAR-000006"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": -1792.8608462084212,
+            "baseline_return_pct": -0.1792860846208421,
+            "observed_metric": 0.0,
+            "row_id": "RP-2592-ROW-000007",
+            "stressed_pnl": -1792.8608462084212,
+            "stressed_return_pct": -0.1792860846208421,
+            "variant_id": "VAR-000007"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": -564.9972911614004,
+            "baseline_return_pct": -0.05649972911614004,
+            "observed_metric": 0.0,
+            "row_id": "RP-2592-ROW-000008",
+            "stressed_pnl": -564.9972911614004,
+            "stressed_return_pct": -0.05649972911614004,
+            "variant_id": "VAR-000008"
+          }
+        ],
+        "summary": {
+          "max_stressed_return_pct": 0.9547276045038677,
+          "mean_stressed_pnl": 2998.133178257878,
+          "mean_stressed_return_pct": 0.29981331782578785,
+          "min_stressed_return_pct": -0.4297456084068094,
+          "row_count": 8,
+          "rows_with_stressed_pnl": 8,
+          "rows_with_stressed_return_pct": 8
+        }
+      },
+      {
+        "multiplier": 1.5,
+        "rows": [
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": -4297.456084068094,
+            "baseline_return_pct": -0.4297456084068094,
+            "observed_metric": 0.0,
+            "row_id": "RP-2592-ROW-000001",
+            "stressed_pnl": -4297.456084068094,
+            "stressed_return_pct": -0.4297456084068094,
+            "variant_id": "VAR-000001"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": 1699.2296329407382,
+            "baseline_return_pct": 0.1699229632940738,
+            "observed_metric": 0.0,
+            "row_id": "RP-2592-ROW-000002",
+            "stressed_pnl": 1699.2296329407382,
+            "stressed_return_pct": 0.1699229632940738,
+            "variant_id": "VAR-000002"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": 4836.93510240847,
+            "baseline_return_pct": 0.483693510240847,
+            "observed_metric": 0.0,
+            "row_id": "RP-2592-ROW-000003",
+            "stressed_pnl": 4836.93510240847,
+            "stressed_return_pct": 0.483693510240847,
+            "variant_id": "VAR-000003"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": 6443.721465103856,
+            "baseline_return_pct": 0.6443721465103855,
+            "observed_metric": 0.0,
+            "row_id": "RP-2592-ROW-000004",
+            "stressed_pnl": 6443.721465103856,
+            "stressed_return_pct": 0.6443721465103855,
+            "variant_id": "VAR-000004"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": 8113.2174020092025,
+            "baseline_return_pct": 0.8113217402009203,
+            "observed_metric": 0.0,
+            "row_id": "RP-2592-ROW-000005",
+            "stressed_pnl": 8113.2174020092025,
+            "stressed_return_pct": 0.8113217402009203,
+            "variant_id": "VAR-000005"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": 9547.276045038678,
+            "baseline_return_pct": 0.9547276045038677,
+            "observed_metric": 0.0,
+            "row_id": "RP-2592-ROW-000006",
+            "stressed_pnl": 9547.276045038678,
+            "stressed_return_pct": 0.9547276045038677,
+            "variant_id": "VAR-000006"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": -1792.8608462084212,
+            "baseline_return_pct": -0.1792860846208421,
+            "observed_metric": 0.0,
+            "row_id": "RP-2592-ROW-000007",
+            "stressed_pnl": -1792.8608462084212,
+            "stressed_return_pct": -0.1792860846208421,
+            "variant_id": "VAR-000007"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": -564.9972911614004,
+            "baseline_return_pct": -0.05649972911614004,
+            "observed_metric": 0.0,
+            "row_id": "RP-2592-ROW-000008",
+            "stressed_pnl": -564.9972911614004,
+            "stressed_return_pct": -0.05649972911614004,
+            "variant_id": "VAR-000008"
+          }
+        ],
+        "summary": {
+          "max_stressed_return_pct": 0.9547276045038677,
+          "mean_stressed_pnl": 2998.133178257878,
+          "mean_stressed_return_pct": 0.29981331782578785,
+          "min_stressed_return_pct": -0.4297456084068094,
+          "row_count": 8,
+          "rows_with_stressed_pnl": 8,
+          "rows_with_stressed_return_pct": 8
+        }
+      },
+      {
+        "multiplier": 2.0,
+        "rows": [
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": -4297.456084068094,
+            "baseline_return_pct": -0.4297456084068094,
+            "observed_metric": 0.0,
+            "row_id": "RP-2592-ROW-000001",
+            "stressed_pnl": -4297.456084068094,
+            "stressed_return_pct": -0.4297456084068094,
+            "variant_id": "VAR-000001"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": 1699.2296329407382,
+            "baseline_return_pct": 0.1699229632940738,
+            "observed_metric": 0.0,
+            "row_id": "RP-2592-ROW-000002",
+            "stressed_pnl": 1699.2296329407382,
+            "stressed_return_pct": 0.1699229632940738,
+            "variant_id": "VAR-000002"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": 4836.93510240847,
+            "baseline_return_pct": 0.483693510240847,
+            "observed_metric": 0.0,
+            "row_id": "RP-2592-ROW-000003",
+            "stressed_pnl": 4836.93510240847,
+            "stressed_return_pct": 0.483693510240847,
+            "variant_id": "VAR-000003"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": 6443.721465103856,
+            "baseline_return_pct": 0.6443721465103855,
+            "observed_metric": 0.0,
+            "row_id": "RP-2592-ROW-000004",
+            "stressed_pnl": 6443.721465103856,
+            "stressed_return_pct": 0.6443721465103855,
+            "variant_id": "VAR-000004"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": 8113.2174020092025,
+            "baseline_return_pct": 0.8113217402009203,
+            "observed_metric": 0.0,
+            "row_id": "RP-2592-ROW-000005",
+            "stressed_pnl": 8113.2174020092025,
+            "stressed_return_pct": 0.8113217402009203,
+            "variant_id": "VAR-000005"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": 9547.276045038678,
+            "baseline_return_pct": 0.9547276045038677,
+            "observed_metric": 0.0,
+            "row_id": "RP-2592-ROW-000006",
+            "stressed_pnl": 9547.276045038678,
+            "stressed_return_pct": 0.9547276045038677,
+            "variant_id": "VAR-000006"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": -1792.8608462084212,
+            "baseline_return_pct": -0.1792860846208421,
+            "observed_metric": 0.0,
+            "row_id": "RP-2592-ROW-000007",
+            "stressed_pnl": -1792.8608462084212,
+            "stressed_return_pct": -0.1792860846208421,
+            "variant_id": "VAR-000007"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": -564.9972911614004,
+            "baseline_return_pct": -0.05649972911614004,
+            "observed_metric": 0.0,
+            "row_id": "RP-2592-ROW-000008",
+            "stressed_pnl": -564.9972911614004,
+            "stressed_return_pct": -0.05649972911614004,
+            "variant_id": "VAR-000008"
+          }
+        ],
+        "summary": {
+          "max_stressed_return_pct": 0.9547276045038677,
+          "mean_stressed_pnl": 2998.133178257878,
+          "mean_stressed_return_pct": 0.29981331782578785,
+          "min_stressed_return_pct": -0.4297456084068094,
+          "row_count": 8,
+          "rows_with_stressed_pnl": 8,
+          "rows_with_stressed_return_pct": 8
+        }
+      }
+    ],
+    "status": "exercised",
+    "stress_method": "subtract_additional_absolute_observed_cost_from_aggregate_pnl",
+    "warnings": [
+      {
+        "reason": "all_metrics.funding_values_are_zero",
+        "rows": []
+      }
+    ]
+  },
+  "gate_or_readiness_authority_created": false,
+  "input_refs": [
+    {
+      "path": "research/result_populations/RP-2592.result_population.json",
+      "ref_id": "result_population_or_fixture",
+      "result_population_id": "RP-2592",
+      "sha256": "sha256:d548bfe884b8ad3ec749627da60f54fff9d54d58032eb779342fa56111c713b8"
+    },
+    {
+      "path": null,
+      "ref_id": "lineage",
+      "strategy_spec_id": "STRAT-SPEC-0004",
+      "sweep_plan_id": "SWEEP-PLAN-0004",
+      "variant_manifest_id": "VM-0004"
+    }
+  ],
+  "missing_inputs": [
+    "per_trade_rows",
+    "variant_result_rows[].regime_label_or_equivalent"
+  ],
+  "non_authority_flags": [
+    "advisory_only",
+    "scratch_only",
+    "non_canonical",
+    "not_screen_gate",
+    "not_promotion",
+    "not_readiness",
+    "not_candidate_evidence",
+    "not_paper_live",
+    "missing_inputs_not_fabricated"
+  ],
+  "output_checksum": "sha256:2a062e32df42e9566a187ee7415b66b52c6ca31d75b0b5f1ff775daaf4857d16",
+  "package_id": "WP-LAB-ROBUSTNESS-DEPTH-01",
+  "per_trade_resampling_status": {
+    "authority": "advisory_only_not_gate_not_canonical_mutation",
+    "fabricated_per_trade_data": false,
+    "future_input_schema_requirement": "provide real per_trade_rows/trade_rows/trades with finite pnl, realized_pnl, net_pnl, or return_pct",
+    "no_fabricated_trade_rows": true,
+    "performed": false,
+    "reason": "per-trade resampling not exercised",
+    "status": "unavailable_missing_per_trade_rows"
+  },
+  "recommendation_scope": "diagnostic_advisory_only_no_strategy_decision_no_gate_no_readiness_no_canonical_mutation",
+  "regime_stress_results": {
+    "authority": "advisory_only_not_gate_not_canonical_mutation",
+    "labels_checked": [
+      "regime",
+      "regime_label",
+      "market_regime",
+      "data_coverage.regime"
+    ],
+    "reason": "no real regime labels found on variant rows",
+    "status": "blocked_input_gap",
+    "stress_method": "not_exercised_missing_regime_labels"
+  },
+  "schema_version": "robustness_depth.v1",
+  "seed": 1729,
+  "slippage_stress_results": {
+    "authority": "advisory_only_not_gate_not_canonical_mutation",
+    "baseline_metrics_preserved": true,
+    "dimension": "slippage",
+    "input_metric": "variant_result_rows[].metrics.slippage",
+    "scenarios": [
+      {
+        "multiplier": 1.0,
+        "rows": [
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": -4297.456084068094,
+            "baseline_return_pct": -0.4297456084068094,
+            "observed_metric": 1988.6834357485527,
+            "row_id": "RP-2592-ROW-000001",
+            "stressed_pnl": -4297.456084068094,
+            "stressed_return_pct": -0.4297456084068094,
+            "variant_id": "VAR-000001"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": 1699.2296329407382,
+            "baseline_return_pct": 0.1699229632940738,
+            "observed_metric": 3541.002987499854,
+            "row_id": "RP-2592-ROW-000002",
+            "stressed_pnl": 1699.2296329407382,
+            "stressed_return_pct": 0.1699229632940738,
+            "variant_id": "VAR-000002"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": 4836.93510240847,
+            "baseline_return_pct": 0.483693510240847,
+            "observed_metric": 3513.5702743202187,
+            "row_id": "RP-2592-ROW-000003",
+            "stressed_pnl": 4836.93510240847,
+            "stressed_return_pct": 0.483693510240847,
+            "variant_id": "VAR-000003"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": 6443.721465103856,
+            "baseline_return_pct": 0.6443721465103855,
+            "observed_metric": 3432.4714980629333,
+            "row_id": "RP-2592-ROW-000004",
+            "stressed_pnl": 6443.721465103856,
+            "stressed_return_pct": 0.6443721465103855,
+            "variant_id": "VAR-000004"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": 8113.2174020092025,
+            "baseline_return_pct": 0.8113217402009203,
+            "observed_metric": 3225.0573379804814,
+            "row_id": "RP-2592-ROW-000005",
+            "stressed_pnl": 8113.2174020092025,
+            "stressed_return_pct": 0.8113217402009203,
+            "variant_id": "VAR-000005"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": 9547.276045038678,
+            "baseline_return_pct": 0.9547276045038677,
+            "observed_metric": 4194.102484318406,
+            "row_id": "RP-2592-ROW-000006",
+            "stressed_pnl": 9547.276045038678,
+            "stressed_return_pct": 0.9547276045038677,
+            "variant_id": "VAR-000006"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": -1792.8608462084212,
+            "baseline_return_pct": -0.1792860846208421,
+            "observed_metric": 1401.1536427820797,
+            "row_id": "RP-2592-ROW-000007",
+            "stressed_pnl": -1792.8608462084212,
+            "stressed_return_pct": -0.1792860846208421,
+            "variant_id": "VAR-000007"
+          },
+          {
+            "additional_cost_native": 0.0,
+            "baseline_pnl": -564.9972911614004,
+            "baseline_return_pct": -0.05649972911614004,
+            "observed_metric": 1518.8698947353064,
+            "row_id": "RP-2592-ROW-000008",
+            "stressed_pnl": -564.9972911614004,
+            "stressed_return_pct": -0.05649972911614004,
+            "variant_id": "VAR-000008"
+          }
+        ],
+        "summary": {
+          "max_stressed_return_pct": 0.9547276045038677,
+          "mean_stressed_pnl": 2998.133178257878,
+          "mean_stressed_return_pct": 0.29981331782578785,
+          "min_stressed_return_pct": -0.4297456084068094,
+          "row_count": 8,
+          "rows_with_stressed_pnl": 8,
+          "rows_with_stressed_return_pct": 8
+        }
+      },
+      {
+        "multiplier": 1.25,
+        "rows": [
+          {
+            "additional_cost_native": 497.1708589371382,
+            "baseline_pnl": -4297.456084068094,
+            "baseline_return_pct": -0.4297456084068094,
+            "observed_metric": 1988.6834357485527,
+            "row_id": "RP-2592-ROW-000001",
+            "stressed_pnl": -4794.6269430052325,
+            "stressed_return_pct": -0.47946269430052324,
+            "variant_id": "VAR-000001"
+          },
+          {
+            "additional_cost_native": 885.2507468749635,
+            "baseline_pnl": 1699.2296329407382,
+            "baseline_return_pct": 0.1699229632940738,
+            "observed_metric": 3541.002987499854,
+            "row_id": "RP-2592-ROW-000002",
+            "stressed_pnl": 813.9788860657746,
+            "stressed_return_pct": 0.08139788860657746,
+            "variant_id": "VAR-000002"
+          },
+          {
+            "additional_cost_native": 878.3925685800547,
+            "baseline_pnl": 4836.93510240847,
+            "baseline_return_pct": 0.483693510240847,
+            "observed_metric": 3513.5702743202187,
+            "row_id": "RP-2592-ROW-000003",
+            "stressed_pnl": 3958.5425338284153,
+            "stressed_return_pct": 0.3958542533828415,
+            "variant_id": "VAR-000003"
+          },
+          {
+            "additional_cost_native": 858.1178745157333,
+            "baseline_pnl": 6443.721465103856,
+            "baseline_return_pct": 0.6443721465103855,
+            "observed_metric": 3432.4714980629333,
+            "row_id": "RP-2592-ROW-000004",
+            "stressed_pnl": 5585.603590588123,
+            "stressed_return_pct": 0.5585603590588122,
+            "variant_id": "VAR-000004"
+          },
+          {
+            "additional_cost_native": 806.2643344951204,
+            "baseline_pnl": 8113.2174020092025,
+            "baseline_return_pct": 0.8113217402009203,
+            "observed_metric": 3225.0573379804814,
+            "row_id": "RP-2592-ROW-000005",
+            "stressed_pnl": 7306.953067514082,
+            "stressed_return_pct": 0.7306953067514083,
+            "variant_id": "VAR-000005"
+          },
+          {
+            "additional_cost_native": 1048.5256210796015,
+            "baseline_pnl": 9547.276045038678,
+            "baseline_return_pct": 0.9547276045038677,
+            "observed_metric": 4194.102484318406,
+            "row_id": "RP-2592-ROW-000006",
+            "stressed_pnl": 8498.750423959076,
+            "stressed_return_pct": 0.8498750423959076,
+            "variant_id": "VAR-000006"
+          },
+          {
+            "additional_cost_native": 350.28841069551993,
+            "baseline_pnl": -1792.8608462084212,
+            "baseline_return_pct": -0.1792860846208421,
+            "observed_metric": 1401.1536427820797,
+            "row_id": "RP-2592-ROW-000007",
+            "stressed_pnl": -2143.149256903941,
+            "stressed_return_pct": -0.21431492569039412,
+            "variant_id": "VAR-000007"
+          },
+          {
+            "additional_cost_native": 379.7174736838266,
+            "baseline_pnl": -564.9972911614004,
+            "baseline_return_pct": -0.05649972911614004,
+            "observed_metric": 1518.8698947353064,
+            "row_id": "RP-2592-ROW-000008",
+            "stressed_pnl": -944.714764845227,
+            "stressed_return_pct": -0.0944714764845227,
+            "variant_id": "VAR-000008"
+          }
+        ],
+        "summary": {
+          "max_stressed_return_pct": 0.8498750423959076,
+          "mean_stressed_pnl": 2285.1671921501343,
+          "mean_stressed_return_pct": 0.2285167192150134,
+          "min_stressed_return_pct": -0.47946269430052324,
+          "row_count": 8,
+          "rows_with_stressed_pnl": 8,
+          "rows_with_stressed_return_pct": 8
+        }
+      },
+      {
+        "multiplier": 1.5,
+        "rows": [
+          {
+            "additional_cost_native": 994.3417178742764,
+            "baseline_pnl": -4297.456084068094,
+            "baseline_return_pct": -0.4297456084068094,
+            "observed_metric": 1988.6834357485527,
+            "row_id": "RP-2592-ROW-000001",
+            "stressed_pnl": -5291.797801942371,
+            "stressed_return_pct": -0.5291797801942371,
+            "variant_id": "VAR-000001"
+          },
+          {
+            "additional_cost_native": 1770.501493749927,
+            "baseline_pnl": 1699.2296329407382,
+            "baseline_return_pct": 0.1699229632940738,
+            "observed_metric": 3541.002987499854,
+            "row_id": "RP-2592-ROW-000002",
+            "stressed_pnl": -71.27186080918887,
+            "stressed_return_pct": -0.00712718608091889,
+            "variant_id": "VAR-000002"
+          },
+          {
+            "additional_cost_native": 1756.7851371601093,
+            "baseline_pnl": 4836.93510240847,
+            "baseline_return_pct": 0.483693510240847,
+            "observed_metric": 3513.5702743202187,
+            "row_id": "RP-2592-ROW-000003",
+            "stressed_pnl": 3080.149965248361,
+            "stressed_return_pct": 0.3080149965248361,
+            "variant_id": "VAR-000003"
+          },
+          {
+            "additional_cost_native": 1716.2357490314666,
+            "baseline_pnl": 6443.721465103856,
+            "baseline_return_pct": 0.6443721465103855,
+            "observed_metric": 3432.4714980629333,
+            "row_id": "RP-2592-ROW-000004",
+            "stressed_pnl": 4727.48571607239,
+            "stressed_return_pct": 0.4727485716072389,
+            "variant_id": "VAR-000004"
+          },
+          {
+            "additional_cost_native": 1612.5286689902407,
+            "baseline_pnl": 8113.2174020092025,
+            "baseline_return_pct": 0.8113217402009203,
+            "observed_metric": 3225.0573379804814,
+            "row_id": "RP-2592-ROW-000005",
+            "stressed_pnl": 6500.688733018962,
+            "stressed_return_pct": 0.6500688733018962,
+            "variant_id": "VAR-000005"
+          },
+          {
+            "additional_cost_native": 2097.051242159203,
+            "baseline_pnl": 9547.276045038678,
+            "baseline_return_pct": 0.9547276045038677,
+            "observed_metric": 4194.102484318406,
+            "row_id": "RP-2592-ROW-000006",
+            "stressed_pnl": 7450.224802879475,
+            "stressed_return_pct": 0.7450224802879475,
+            "variant_id": "VAR-000006"
+          },
+          {
+            "additional_cost_native": 700.5768213910399,
+            "baseline_pnl": -1792.8608462084212,
+            "baseline_return_pct": -0.1792860846208421,
+            "observed_metric": 1401.1536427820797,
+            "row_id": "RP-2592-ROW-000007",
+            "stressed_pnl": -2493.437667599461,
+            "stressed_return_pct": -0.2493437667599461,
+            "variant_id": "VAR-000007"
+          },
+          {
+            "additional_cost_native": 759.4349473676532,
+            "baseline_pnl": -564.9972911614004,
+            "baseline_return_pct": -0.05649972911614004,
+            "observed_metric": 1518.8698947353064,
+            "row_id": "RP-2592-ROW-000008",
+            "stressed_pnl": -1324.4322385290536,
+            "stressed_return_pct": -0.13244322385290536,
+            "variant_id": "VAR-000008"
+          }
+        ],
+        "summary": {
+          "max_stressed_return_pct": 0.7450224802879475,
+          "mean_stressed_pnl": 1572.201206042389,
+          "mean_stressed_return_pct": 0.1572201206042389,
+          "min_stressed_return_pct": -0.5291797801942371,
+          "row_count": 8,
+          "rows_with_stressed_pnl": 8,
+          "rows_with_stressed_return_pct": 8
+        }
+      },
+      {
+        "multiplier": 2.0,
+        "rows": [
+          {
+            "additional_cost_native": 1988.6834357485527,
+            "baseline_pnl": -4297.456084068094,
+            "baseline_return_pct": -0.4297456084068094,
+            "observed_metric": 1988.6834357485527,
+            "row_id": "RP-2592-ROW-000001",
+            "stressed_pnl": -6286.1395198166465,
+            "stressed_return_pct": -0.6286139519816647,
+            "variant_id": "VAR-000001"
+          },
+          {
+            "additional_cost_native": 3541.002987499854,
+            "baseline_pnl": 1699.2296329407382,
+            "baseline_return_pct": 0.1699229632940738,
+            "observed_metric": 3541.002987499854,
+            "row_id": "RP-2592-ROW-000002",
+            "stressed_pnl": -1841.773354559116,
+            "stressed_return_pct": -0.18417733545591158,
+            "variant_id": "VAR-000002"
+          },
+          {
+            "additional_cost_native": 3513.5702743202187,
+            "baseline_pnl": 4836.93510240847,
+            "baseline_return_pct": 0.483693510240847,
+            "observed_metric": 3513.5702743202187,
+            "row_id": "RP-2592-ROW-000003",
+            "stressed_pnl": 1323.3648280882512,
+            "stressed_return_pct": 0.13233648280882515,
+            "variant_id": "VAR-000003"
+          },
+          {
+            "additional_cost_native": 3432.4714980629333,
+            "baseline_pnl": 6443.721465103856,
+            "baseline_return_pct": 0.6443721465103855,
+            "observed_metric": 3432.4714980629333,
+            "row_id": "RP-2592-ROW-000004",
+            "stressed_pnl": 3011.2499670409225,
+            "stressed_return_pct": 0.3011249967040922,
+            "variant_id": "VAR-000004"
+          },
+          {
+            "additional_cost_native": 3225.0573379804814,
+            "baseline_pnl": 8113.2174020092025,
+            "baseline_return_pct": 0.8113217402009203,
+            "observed_metric": 3225.0573379804814,
+            "row_id": "RP-2592-ROW-000005",
+            "stressed_pnl": 4888.1600640287215,
+            "stressed_return_pct": 0.48881600640287215,
+            "variant_id": "VAR-000005"
+          },
+          {
+            "additional_cost_native": 4194.102484318406,
+            "baseline_pnl": 9547.276045038678,
+            "baseline_return_pct": 0.9547276045038677,
+            "observed_metric": 4194.102484318406,
+            "row_id": "RP-2592-ROW-000006",
+            "stressed_pnl": 5353.173560720272,
+            "stressed_return_pct": 0.5353173560720271,
+            "variant_id": "VAR-000006"
+          },
+          {
+            "additional_cost_native": 1401.1536427820797,
+            "baseline_pnl": -1792.8608462084212,
+            "baseline_return_pct": -0.1792860846208421,
+            "observed_metric": 1401.1536427820797,
+            "row_id": "RP-2592-ROW-000007",
+            "stressed_pnl": -3194.014488990501,
+            "stressed_return_pct": -0.3194014488990501,
+            "variant_id": "VAR-000007"
+          },
+          {
+            "additional_cost_native": 1518.8698947353064,
+            "baseline_pnl": -564.9972911614004,
+            "baseline_return_pct": -0.05649972911614004,
+            "observed_metric": 1518.8698947353064,
+            "row_id": "RP-2592-ROW-000008",
+            "stressed_pnl": -2083.867185896707,
+            "stressed_return_pct": -0.20838671858967067,
+            "variant_id": "VAR-000008"
+          }
+        ],
+        "summary": {
+          "max_stressed_return_pct": 0.5353173560720271,
+          "mean_stressed_pnl": 146.2692338268996,
+          "mean_stressed_return_pct": 0.014626923382689956,
+          "min_stressed_return_pct": -0.6286139519816647,
+          "row_count": 8,
+          "rows_with_stressed_pnl": 8,
+          "rows_with_stressed_return_pct": 8
+        }
+      }
+    ],
+    "status": "exercised",
+    "stress_method": "subtract_additional_absolute_observed_cost_from_aggregate_pnl",
+    "warnings": []
+  },
+  "source_commit": "4da388a289fb0df4547d204e17b05b151f1cb595",
+  "stress_config": {
+    "cost_fee_multipliers": [
+      1.0,
+      1.25,
+      1.5,
+      2.0
+    ],
+    "funding_multipliers": [
+      1.0,
+      1.5,
+      2.0
+    ],
+    "per_trade_bootstrap_samples": 250,
+    "regime_label_fields": [
+      "regime",
+      "regime_label",
+      "market_regime"
+    ],
+    "slippage_multipliers": [
+      1.0,
+      1.25,
+      1.5,
+      2.0
+    ],
+    "stress_output_posture": "advisory_only_does_not_mutate_canonical_metrics"
+  },
+  "warnings": []
+}

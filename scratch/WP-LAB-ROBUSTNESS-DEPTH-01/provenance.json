@@ -1,0 +1,13 @@
+{
+  "canonical_artifact_mutation": false,
+  "dependency_files_touched": false,
+  "output_dir": "scratch/WP-LAB-ROBUSTNESS-DEPTH-01",
+  "package_id": "WP-LAB-ROBUSTNESS-DEPTH-01",
+  "report_checksum": "sha256:2a062e32df42e9566a187ee7415b66b52c6ca31d75b0b5f1ff775daaf4857d16",
+  "report_json": "scratch/WP-LAB-ROBUSTNESS-DEPTH-01/robustness_depth_report.json",
+  "report_markdown": "scratch/WP-LAB-ROBUSTNESS-DEPTH-01/robustness_depth_report.md",
+  "runner_backtester_touched": false,
+  "runtime_paper_live_touched": false,
+  "source_branch": "lab/robustness-depth-01",
+  "source_commit": "4da388a289fb0df4547d204e17b05b151f1cb595"
+}

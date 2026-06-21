@@ -1,0 +1,81 @@
+{
+  "created_at_utc": "2026-06-20T00:00:00Z",
+  "result_population_id": "RP-DEPTH-FIXTURE",
+  "lineage": {
+    "strategy_spec_id": "STRAT-SPEC-DEPTH",
+    "variant_manifest_id": "VM-DEPTH",
+    "sweep_plan_id": "SWEEP-PLAN-DEPTH"
+  },
+  "data_coverage_summary": {
+    "data_slice_identity": "fixture:sha256:depth",
+    "timeframe": "15m"
+  },
+  "committed_denominator_snapshot": {
+    "committed_denominator": 3,
+    "result_row_count": 3
+  },
+  "variant_result_rows": [
+    {
+      "variant_id": "VAR-000001",
+      "row_id": "RP-DEPTH-FIXTURE-ROW-000001",
+      "attempted": true,
+      "outcome_category": "successful",
+      "regime_label": "trend_up",
+      "metrics": {
+        "return_pct": 0.1,
+        "pnl": 1000.0,
+        "drawdown": 0.08,
+        "sharpe": 0.9,
+        "trade_count": 4,
+        "win_rate": 0.5,
+        "fees": 40.0,
+        "funding": 8.0,
+        "slippage": 10.0,
+        "exposure": 1.0
+      }
+    },
+    {
+      "variant_id": "VAR-000002",
+      "row_id": "RP-DEPTH-FIXTURE-ROW-000002",
+      "attempted": true,
+      "outcome_category": "successful",
+      "regime_label": "chop",
+      "metrics": {
+        "return_pct": -0.05,
+        "pnl": -500.0,
+        "drawdown": 0.12,
+        "sharpe": -0.3,
+        "trade_count": 5,
+        "win_rate": 0.4,
+        "fees": 50.0,
+        "funding": -6.0,
+        "slippage": 12.0,
+        "exposure": 1.0
+      }
+    },
+    {
+      "variant_id": "VAR-000003",
+      "row_id": "RP-DEPTH-FIXTURE-ROW-000003",
+      "attempted": false,
+      "outcome_category": "not_attempted",
+      "metrics": {}
+    }
+  ],
+  "per_trade_rows": [
+    {
+      "trade_id": "T-001",
+      "variant_id": "VAR-000001",
+      "pnl": 120.0
+    },
+    {
+      "trade_id": "T-002",
+      "variant_id": "VAR-000001",
+      "pnl": -20.0
+    },
+    {
+      "trade_id": "T-003",
+      "variant_id": "VAR-000002",
+      "pnl": -50.0
+    }
+  ]
+}

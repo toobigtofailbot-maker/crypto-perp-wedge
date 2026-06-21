@@ -21,6 +21,8 @@ APPROVED_INDICATOR_BUILTINS = {
     "rsi": "rsi_v1",
     "donchian": "donchian_v1",
     "ma_distance": "ma_distance_v1",
+    "rvol": "rvol_v1",
+    "rolling_vwap": "rolling_vwap_v1",
 }
 REQUIRED_CONTRACT_OBJECTS = {
     "implementation_binding",
@@ -403,6 +405,22 @@ def _validate_conventions(path: Path, payload: Mapping[str, Any]) -> list[str]:
         errors.append(
             f"{path}: entries.ma_distance output fields must be exactly "
             f"{sorted(expected_ma_distance_outputs)}: {sorted(ma_distance_outputs)}"
+        )
+
+    rvol_outputs = set(_outputs_by_field(entries.get("rvol", {})))
+    expected_rvol_outputs = {"rvol", "volume_ma"}
+    if rvol_outputs != expected_rvol_outputs:
+        errors.append(
+            f"{path}: entries.rvol output fields must be exactly "
+            f"{sorted(expected_rvol_outputs)}: {sorted(rvol_outputs)}"
+        )
+
+    rolling_vwap_outputs = set(_outputs_by_field(entries.get("rolling_vwap", {})))
+    expected_rolling_vwap_outputs = {"rolling_vwap"}
+    if rolling_vwap_outputs != expected_rolling_vwap_outputs:
+        errors.append(
+            f"{path}: entries.rolling_vwap output fields must be exactly "
+            f"{sorted(expected_rolling_vwap_outputs)}: {sorted(rolling_vwap_outputs)}"
         )
     return errors
 

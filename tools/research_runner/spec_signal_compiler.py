@@ -26,6 +26,8 @@ APPROVED_BUILTINS = {
     "rsi": "rsi_v1",
     "donchian": "donchian_v1",
     "ma_distance": "ma_distance_v1",
+    "rvol": "rvol_v1",
+    "rolling_vwap": "rolling_vwap_v1",
 }
 COMPOSED_OPERAND_TYPE = "composed_operand"
 COMPOSITION_TYPE_SCALE_BY_ONE_MINUS_PARAMETER = "scale_by_one_minus_parameter"
@@ -2264,6 +2266,10 @@ def _resolve_indicator_ref(operand: Mapping[str, Any], context: _CompileContext)
             result = _donchian_v1(context.ohlcv, lookback_bars)
         elif builtin_key == "ma_distance_v1":
             result = _ma_distance_v1(context.ohlcv["close"], lookback_bars)
+        elif builtin_key == "rvol_v1":
+            result = _rvol_v1(context.ohlcv["volume"], lookback_bars)
+        elif builtin_key == "rolling_vwap_v1":
+            result = _rolling_vwap_v1(context.ohlcv, lookback_bars)
         else:
             raise SpecSignalCompilerError(f"unknown builtin key: {builtin_key!r}")
         context.indicator_cache[cache_key] = result
@@ -2520,3 +2526,32 @@ def _ma_distance_v1(series: pd.Series, lookback_bars: int) -> dict[str, pd.Serie
         "distance_ratio": distance_ratio,
         "distance_pct": distance_pct,
     }
+
+
+def _rvol_v1(series: pd.Series, lookback_bars: int) -> dict[str, pd.Series]:
+    if lookback_bars < 1:
+        raise SpecSignalCompilerError("rvol_v1 lookback_bars must be >= 1")
+    volume = series.astype(float)
+    volume_ma = volume.rolling(lookback_bars, min_periods=lookback_bars).mean()
+    rvol = (volume / volume_ma).mask(volume_ma.isna() | (volume_ma == 0.0))
+    return {"rvol": rvol, "volume_ma": volume_ma}
+
+
+def _rolling_vwap_v1(ohlcv: pd.DataFrame, lookback_bars: int) -> dict[str, pd.Series]:
+    """Return rolling candle-VWAP; this is not true trade-level VWAP."""
+    if lookback_bars < 1:
+        raise SpecSignalCompilerError("rolling_vwap_v1 lookback_bars must be >= 1")
+    high = ohlcv["high"].astype(float)
+    low = ohlcv["low"].astype(float)
+    close = ohlcv["close"].astype(float)
+    volume = ohlcv["volume"].astype(float)
+    typical_price = (high + low + close) / 3.0
+    weighted_price = typical_price * volume
+    rolling_weighted_price = weighted_price.rolling(
+        lookback_bars, min_periods=lookback_bars
+    ).sum()
+    rolling_volume = volume.rolling(lookback_bars, min_periods=lookback_bars).sum()
+    rolling_vwap = (rolling_weighted_price / rolling_volume).mask(
+        rolling_volume.isna() | (rolling_volume == 0.0)
+    )
+    return {"rolling_vwap": rolling_vwap}

@@ -1,0 +1,166 @@
+{
+  "aggregate_normalized_sample_sha256": "sha256:273b7fd8d1a51dd89993a1d1a67e3f4905c62818594b622048a03b107d268fdd",
+  "canonical_data_authority": false,
+  "catalog_status": "sample_public_perp_data_lineage_noncanonical",
+  "labels": [
+    "REPO-OWNED PUBLIC PERP-DATA COVERAGE OUTPUT",
+    "NOT CANONICAL DATA AUTHORITY WITHOUT SEPARATE PROMOTION",
+    "NOT A RESULT POPULATION",
+    "NOT STRATEGY / VM / SWEEP AUTHORITY",
+    "NOT BACKTEST COST-MODEL AUTHORITY",
+    "NOT PAPER / LIVE / RUNTIME AUTHORITY",
+    "PUBLIC-ONLY SAMPLE PARSING; NO NETWORK CALLS IN DEFAULT MODE"
+  ],
+  "market_type": "USDT-M perpetual",
+  "package": "WP-LAB-DATA-EXPANSION-01",
+  "promotion_readiness_authority": false,
+  "runtime_authority": false,
+  "sample_dir": "tests/fixtures/data_ingestion/perp_public_data",
+  "sample_outputs": {
+    "aggregate_trades_rest": {
+      "first_event_time_utc": "2020-01-01T00:00:00.123000Z",
+      "fixture_path": "tests/fixtures/data_ingestion/perp_public_data/agg_trades.json",
+      "last_event_time_utc": "2020-01-01T00:00:00.123000Z",
+      "lineage_key": "binance_usds_m_btcusdt_agg_trades_rest_public",
+      "normalized_sample_sha256": "sha256:ee420a8c1e155cfd84323d758c6afd32afc34d67ff1cf1be39084e9d6f4dc4de",
+      "record_count": 1,
+      "status": "PASS"
+    },
+    "current_open_interest": {
+      "first_event_time_utc": "2020-01-01T00:00:00.123000Z",
+      "fixture_path": "tests/fixtures/data_ingestion/perp_public_data/open_interest.json",
+      "last_event_time_utc": "2020-01-01T00:00:00.123000Z",
+      "lineage_key": "binance_usds_m_btcusdt_current_open_interest_public",
+      "normalized_sample_sha256": "sha256:e8fd2eb7cb5e34f1b017c8c206a101c2ed89b4ff0992f0f6c2c5c6a2b6303d05",
+      "record_count": 1,
+      "status": "PASS"
+    },
+    "exchange_metadata": {
+      "first_event_time_utc": "2020-01-01T00:00:00.123000Z",
+      "fixture_path": "tests/fixtures/data_ingestion/perp_public_data/exchange_info.json",
+      "last_event_time_utc": "2020-01-01T00:00:00.123000Z",
+      "lineage_key": "binance_usds_m_exchange_info_btcusdt_public",
+      "normalized_sample_sha256": "sha256:e2b98504264c4dce0d3bc63a10d3d68e6825a5d6bda0ecb280b4f84b557f9c8e",
+      "record_count": 1,
+      "status": "PASS"
+    },
+    "funding_history_preserved": {
+      "first_event_time_utc": "2020-01-01T00:00:00Z",
+      "fixture_path": "tests/fixtures/data_ingestion/perp_public_data/funding_history.json",
+      "last_event_time_utc": "2020-01-01T00:00:00Z",
+      "lineage_key": "binance_usds_m_btcusdt_funding_history_public_preserved",
+      "normalized_sample_sha256": "sha256:161a597aa5a2227593d067d2729058f541caec69582b023d740eda99de6f1310",
+      "record_count": 1,
+      "status": "PASS"
+    },
+    "futures_um_agg_trades_archive": {
+      "first_event_time_utc": "2020-01-01T00:00:00.123000Z",
+      "fixture_path": "tests/fixtures/data_ingestion/perp_public_data/data_vision_agg_trades.csv",
+      "last_event_time_utc": "2020-01-01T00:00:00.123000Z",
+      "lineage_key": "binance_usds_m_btcusdt_agg_trades_archive_public",
+      "normalized_sample_sha256": "sha256:b7314bd9eced2103693f18b72b8bb8e372c8d5a422cf79a5b6afaf86acc9d13a",
+      "record_count": 1,
+      "status": "PASS"
+    },
+    "futures_um_trades_archive": {
+      "first_event_time_utc": "2020-01-01T00:00:00.123000Z",
+      "fixture_path": "tests/fixtures/data_ingestion/perp_public_data/data_vision_trades.csv",
+      "last_event_time_utc": "2020-01-01T00:00:00.123000Z",
+      "lineage_key": "binance_usds_m_btcusdt_trades_archive_public",
+      "normalized_sample_sha256": "sha256:bbfa92604e97e99780d2e49caad86e8004a49035a52dd0b7957b4faf48a456e9",
+      "record_count": 1,
+      "status": "PASS"
+    },
+    "global_long_short_account_ratio": {
+      "first_event_time_utc": "2020-01-01T00:00:00Z",
+      "fixture_path": "tests/fixtures/data_ingestion/perp_public_data/global_long_short_account_ratio.json",
+      "last_event_time_utc": "2020-01-01T00:00:00Z",
+      "lineage_key": "binance_usds_m_btcusdt_global_account_ratio_public",
+      "normalized_sample_sha256": "sha256:c83a5c3276628e0673cb41cf1438f82612140b69e4b77de18c3888dfa0a2e417",
+      "record_count": 1,
+      "status": "PASS"
+    },
+    "index_price_klines_preserved": {
+      "first_event_time_utc": "2020-01-01T00:00:00Z",
+      "fixture_path": "tests/fixtures/data_ingestion/perp_public_data/index_price_klines.json",
+      "last_event_time_utc": "2020-01-01T00:00:00Z",
+      "lineage_key": "binance_usds_m_btcusdt_index_price_klines_public_preserved",
+      "normalized_sample_sha256": "sha256:48229d7fdf4f5edf4cb50152d6a4532b6e87861939287f309f82f1cc5807f6d2",
+      "record_count": 1,
+      "status": "PASS"
+    },
+    "mark_price_klines_preserved": {
+      "first_event_time_utc": "2020-01-01T00:00:00Z",
+      "fixture_path": "tests/fixtures/data_ingestion/perp_public_data/mark_price_klines.json",
+      "last_event_time_utc": "2020-01-01T00:00:00Z",
+      "lineage_key": "binance_usds_m_btcusdt_mark_price_klines_public_preserved",
+      "normalized_sample_sha256": "sha256:60cde40c1a50e36715bc1a1ece51d93cbcdb8c8c0ff2e534dd3f84a09cd2ffb4",
+      "record_count": 1,
+      "status": "PASS"
+    },
+    "mark_price_snapshot": {
+      "first_event_time_utc": "2020-01-01T00:00:00.123000Z",
+      "fixture_path": "tests/fixtures/data_ingestion/perp_public_data/mark_price_snapshot.json",
+      "last_event_time_utc": "2020-01-01T00:00:00.123000Z",
+      "lineage_key": "binance_usds_m_btcusdt_mark_price_snapshot_public",
+      "normalized_sample_sha256": "sha256:faa9113ed8b5314000aba61c21ca692d9ef691722bfb21f8776f826f93221440",
+      "record_count": 1,
+      "status": "PASS"
+    },
+    "open_interest_statistics": {
+      "first_event_time_utc": "2020-01-01T00:00:00Z",
+      "fixture_path": "tests/fixtures/data_ingestion/perp_public_data/open_interest_hist.json",
+      "last_event_time_utc": "2020-01-01T00:15:00Z",
+      "lineage_key": "binance_usds_m_btcusdt_open_interest_statistics_public",
+      "normalized_sample_sha256": "sha256:7736c5d03b757082767cc344ca87da12591aa77b859265f20dd7bdb127524e34",
+      "record_count": 2,
+      "status": "PASS"
+    },
+    "premium_index_klines_preserved": {
+      "first_event_time_utc": "2020-01-01T00:00:00Z",
+      "fixture_path": "tests/fixtures/data_ingestion/perp_public_data/premium_index_klines.json",
+      "last_event_time_utc": "2020-01-01T00:00:00Z",
+      "lineage_key": "binance_usds_m_btcusdt_premium_index_klines_public_preserved",
+      "normalized_sample_sha256": "sha256:25c8bb3aa6f85b0dbc1b3b5b2d8fdbbe8ea81a621d8f6081d15f8755ffe59dc3",
+      "record_count": 1,
+      "status": "PASS"
+    },
+    "recent_trades_rest": {
+      "first_event_time_utc": "2020-01-01T00:00:00.123000Z",
+      "fixture_path": "tests/fixtures/data_ingestion/perp_public_data/recent_trades.json",
+      "last_event_time_utc": "2020-01-01T00:00:00.123000Z",
+      "lineage_key": "binance_usds_m_btcusdt_recent_trades_rest_public",
+      "normalized_sample_sha256": "sha256:710b4e39cc7448095b2ff4f3757aa6291d4da2cc74612a85611c4236d4411622",
+      "record_count": 1,
+      "status": "PASS"
+    },
+    "taker_buy_sell_volume_ratio": {
+      "first_event_time_utc": "2020-01-01T00:00:00Z",
+      "fixture_path": "tests/fixtures/data_ingestion/perp_public_data/taker_long_short_ratio.json",
+      "last_event_time_utc": "2020-01-01T00:00:00Z",
+      "lineage_key": "binance_usds_m_btcusdt_taker_buy_sell_ratio_public",
+      "normalized_sample_sha256": "sha256:e9631e07357cba00528167c623fb8c1efc0563c66482476771914e0fb575e157",
+      "record_count": 1,
+      "status": "PASS"
+    },
+    "top_trader_long_short_account_ratio": {
+      "first_event_time_utc": "2020-01-01T00:00:00Z",
+      "fixture_path": "tests/fixtures/data_ingestion/perp_public_data/top_long_short_account_ratio.json",
+      "last_event_time_utc": "2020-01-01T00:00:00Z",
+      "lineage_key": "binance_usds_m_btcusdt_top_trader_account_ratio_public",
+      "normalized_sample_sha256": "sha256:e5110cc8c0b6dd16520be6fb97db3fbffa2c94a222398249722a47e12ae39160",
+      "record_count": 1,
+      "status": "PASS"
+    },
+    "top_trader_long_short_position_ratio": {
+      "first_event_time_utc": "2020-01-01T00:00:00Z",
+      "fixture_path": "tests/fixtures/data_ingestion/perp_public_data/top_long_short_position_ratio.json",
+      "last_event_time_utc": "2020-01-01T00:00:00Z",
+      "lineage_key": "binance_usds_m_btcusdt_top_trader_position_ratio_public",
+      "normalized_sample_sha256": "sha256:fd29a9173167f505d081c0ab8374f18e1fffdae118d164573cf1ac53b5e5d856",
+      "record_count": 1,
+      "status": "PASS"
+    }
+  },
+  "symbol": "BTCUSDT"
+}

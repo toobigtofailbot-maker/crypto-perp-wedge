@@ -1,0 +1,29 @@
+{
+  "canonical_artifacts_written": false,
+  "credentials_used": false,
+  "generated_mode": "coverage_only_offline",
+  "labels": [
+    "REPO-OWNED PUBLIC PERP-DATA COVERAGE OUTPUT",
+    "NOT CANONICAL DATA AUTHORITY WITHOUT SEPARATE PROMOTION",
+    "NOT A RESULT POPULATION",
+    "NOT STRATEGY / VM / SWEEP AUTHORITY",
+    "NOT BACKTEST COST-MODEL AUTHORITY",
+    "NOT PAPER / LIVE / RUNTIME AUTHORITY",
+    "PUBLIC-ONLY SAMPLE PARSING; NO NETWORK CALLS IN DEFAULT MODE"
+  ],
+  "network_calls_performed": false,
+  "package": "WP-LAB-DATA-EXPANSION-01",
+  "private_or_account_methods_used": false,
+  "public_sources": [
+    "binance_usds_m_public_rest",
+    "ccxt_public_funding_adapter",
+    "data.binance.vision_public_archive"
+  ],
+  "repo_truth_preserved": [
+    "tools/data_ingestion/ccxt_public_funding_adapter.py",
+    "docs/data_catalog.md existing funding/mark/index/premium entries"
+  ],
+  "runtime_paper_live_contact": false,
+  "sample_dir": "tests/fixtures/data_ingestion/perp_public_data",
+  "source_docs_checked_utc": "2026-06-21"
+}

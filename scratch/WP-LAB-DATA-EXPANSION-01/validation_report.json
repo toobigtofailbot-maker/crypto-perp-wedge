@@ -1,0 +1,51 @@
+{
+  "aggregate_normalized_sample_sha256": "sha256:273b7fd8d1a51dd89993a1d1a67e3f4905c62818594b622048a03b107d268fdd",
+  "canonical_write": false,
+  "coverage_fields": [
+    "source_name",
+    "endpoint_or_method",
+    "data_fields",
+    "symbol_scope",
+    "timeframe_period_support",
+    "public_private_classification",
+    "requires_credentials",
+    "rate_limit_notes",
+    "pagination_support",
+    "history_depth_class",
+    "known_history_limit",
+    "timestamp_field",
+    "timezone_policy",
+    "lineage_key",
+    "feature_families_unlocked",
+    "status",
+    "blocker_reason"
+  ],
+  "credentials_used": false,
+  "dependency_files_changed": false,
+  "endpoint_definition_count": 16,
+  "errors": [],
+  "history_depth_classes": [
+    "backfillable",
+    "blocked",
+    "recent_only",
+    "streaming_only",
+    "unknown",
+    "vendor_likely"
+  ],
+  "labels": [
+    "REPO-OWNED PUBLIC PERP-DATA COVERAGE OUTPUT",
+    "NOT CANONICAL DATA AUTHORITY WITHOUT SEPARATE PROMOTION",
+    "NOT A RESULT POPULATION",
+    "NOT STRATEGY / VM / SWEEP AUTHORITY",
+    "NOT BACKTEST COST-MODEL AUTHORITY",
+    "NOT PAPER / LIVE / RUNTIME AUTHORITY",
+    "PUBLIC-ONLY SAMPLE PARSING; NO NETWORK CALLS IN DEFAULT MODE"
+  ],
+  "network_calls_performed": false,
+  "package": "WP-LAB-DATA-EXPANSION-01",
+  "public_only_confirmed": true,
+  "runtime_paper_live_contact": false,
+  "sample_endpoint_count": 16,
+  "sample_record_count": 17,
+  "status": "PASS"
+}

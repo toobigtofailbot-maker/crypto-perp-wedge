@@ -1,0 +1,490 @@
+{
+  "coverage": [
+    {
+      "blocker_reason": null,
+      "data_fields": [
+        "symbol",
+        "fundingTime",
+        "fundingRate",
+        "markPrice"
+      ],
+      "endpoint_or_method": "ccxt.binanceusdm.fapiPublicGetFundingRate -> /fapi/v1/fundingRate",
+      "feature_families_unlocked": [
+        "funding_carry",
+        "perp_cost_context"
+      ],
+      "history_depth_class": "backfillable",
+      "known_history_limit": "Existing repo adapter validated target D4 window; endpoint returns startTime + limit when larger than limit",
+      "lineage_key": "binance_usds_m_btcusdt_funding_history_public_preserved",
+      "pagination_support": "startTime/endTime/limit; ascending windows",
+      "public_private_classification": "public market data",
+      "rate_limit_notes": "Binance docs: shared 500 requests / 5 minutes / IP with fundingInfo",
+      "requires_credentials": false,
+      "source_name": "ccxt_public_funding_adapter",
+      "status": "preserved",
+      "symbol_scope": "BTCUSDT in existing adapter; Binance endpoint also supports omitted symbol",
+      "timeframe_period_support": "8h funding events",
+      "timestamp_field": "fundingTime",
+      "timezone_policy": "millisecond epoch normalized to UTC"
+    },
+    {
+      "blocker_reason": null,
+      "data_fields": [
+        "open_time",
+        "open",
+        "high",
+        "low",
+        "close",
+        "close_time"
+      ],
+      "endpoint_or_method": "GET /fapi/v1/markPriceKlines",
+      "feature_families_unlocked": [
+        "basis",
+        "premium_dislocation",
+        "mark_price_mechanics"
+      ],
+      "history_depth_class": "backfillable",
+      "known_history_limit": "Repo catalog already records full history via data.binance.vision + REST repair",
+      "lineage_key": "binance_usds_m_btcusdt_mark_price_klines_public_preserved",
+      "pagination_support": "startTime/endTime/limit; max 1500",
+      "public_private_classification": "public market data",
+      "rate_limit_notes": "Binance docs: weight based on LIMIT, 1/2/5/10 tiers",
+      "requires_credentials": false,
+      "source_name": "binance_usds_m_public_rest",
+      "status": "preserved",
+      "symbol_scope": "symbol, BTCUSDT sample; repo catalog has locked timeframe set",
+      "timeframe_period_support": "1m through 1M per Binance kline interval family; repo catalog has 15m/30m/1h/4h/1d",
+      "timestamp_field": "open_time",
+      "timezone_policy": "millisecond epoch normalized to UTC"
+    },
+    {
+      "blocker_reason": null,
+      "data_fields": [
+        "open_time",
+        "open",
+        "high",
+        "low",
+        "close",
+        "close_time"
+      ],
+      "endpoint_or_method": "GET /fapi/v1/indexPriceKlines",
+      "feature_families_unlocked": [
+        "basis",
+        "fair_value_reference",
+        "premium_dislocation"
+      ],
+      "history_depth_class": "backfillable",
+      "known_history_limit": "Repo catalog already records full history via data.binance.vision + REST repair",
+      "lineage_key": "binance_usds_m_btcusdt_index_price_klines_public_preserved",
+      "pagination_support": "startTime/endTime/limit; max 1500",
+      "public_private_classification": "public market data",
+      "rate_limit_notes": "Binance docs: weight based on LIMIT, 1/2/5/10 tiers",
+      "requires_credentials": false,
+      "source_name": "binance_usds_m_public_rest",
+      "status": "preserved",
+      "symbol_scope": "pair, BTCUSDT sample; repo catalog has locked timeframe set",
+      "timeframe_period_support": "1m through 1M per Binance kline interval family; repo catalog has 15m/30m/1h/4h/1d",
+      "timestamp_field": "open_time",
+      "timezone_policy": "millisecond epoch normalized to UTC"
+    },
+    {
+      "blocker_reason": null,
+      "data_fields": [
+        "open_time",
+        "open",
+        "high",
+        "low",
+        "close",
+        "close_time"
+      ],
+      "endpoint_or_method": "GET /fapi/v1/premiumIndexKlines",
+      "feature_families_unlocked": [
+        "premium_pressure",
+        "basis",
+        "perp_dislocation"
+      ],
+      "history_depth_class": "backfillable",
+      "known_history_limit": "Repo catalog already records full history via data.binance.vision + REST repair",
+      "lineage_key": "binance_usds_m_btcusdt_premium_index_klines_public_preserved",
+      "pagination_support": "startTime/endTime/limit; max 1500",
+      "public_private_classification": "public market data",
+      "rate_limit_notes": "Binance docs: weight based on LIMIT, 1/2/5/10 tiers",
+      "requires_credentials": false,
+      "source_name": "binance_usds_m_public_rest",
+      "status": "preserved",
+      "symbol_scope": "symbol, BTCUSDT sample; repo catalog has locked timeframe set",
+      "timeframe_period_support": "1m through 1M per Binance kline interval family; repo catalog has 15m/30m/1h/4h/1d",
+      "timestamp_field": "open_time",
+      "timezone_policy": "millisecond epoch normalized to UTC"
+    },
+    {
+      "blocker_reason": null,
+      "data_fields": [
+        "symbol",
+        "markPrice",
+        "indexPrice",
+        "estimatedSettlePrice",
+        "lastFundingRate",
+        "interestRate",
+        "nextFundingTime",
+        "time"
+      ],
+      "endpoint_or_method": "GET /fapi/v1/premiumIndex",
+      "feature_families_unlocked": [
+        "current_basis",
+        "funding_context",
+        "mark_price_mechanics"
+      ],
+      "history_depth_class": "recent_only",
+      "known_history_limit": "current snapshot only via REST",
+      "lineage_key": "binance_usds_m_btcusdt_mark_price_snapshot_public",
+      "pagination_support": "none; current snapshot only",
+      "public_private_classification": "public market data",
+      "rate_limit_notes": "Binance docs: weight 1 with symbol, 10 without symbol",
+      "requires_credentials": false,
+      "source_name": "binance_usds_m_public_rest",
+      "status": "adopted",
+      "symbol_scope": "symbol optional; BTCUSDT sample",
+      "timeframe_period_support": "current snapshot",
+      "timestamp_field": "time",
+      "timezone_policy": "millisecond epoch normalized to UTC"
+    },
+    {
+      "blocker_reason": null,
+      "data_fields": [
+        "symbol",
+        "openInterest",
+        "time"
+      ],
+      "endpoint_or_method": "GET /fapi/v1/openInterest",
+      "feature_families_unlocked": [
+        "open_interest_context",
+        "positioning_pressure"
+      ],
+      "history_depth_class": "recent_only",
+      "known_history_limit": "current open interest only",
+      "lineage_key": "binance_usds_m_btcusdt_current_open_interest_public",
+      "pagination_support": "none; current snapshot only",
+      "public_private_classification": "public market data",
+      "rate_limit_notes": "Binance docs: weight 1",
+      "requires_credentials": false,
+      "source_name": "binance_usds_m_public_rest",
+      "status": "adopted",
+      "symbol_scope": "single symbol; BTCUSDT sample",
+      "timeframe_period_support": "current snapshot",
+      "timestamp_field": "time",
+      "timezone_policy": "millisecond epoch normalized to UTC"
+    },
+    {
+      "blocker_reason": null,
+      "data_fields": [
+        "symbol",
+        "sumOpenInterest",
+        "sumOpenInterestValue",
+        "CMCCirculatingSupply",
+        "timestamp"
+      ],
+      "endpoint_or_method": "GET /futures/data/openInterestHist",
+      "feature_families_unlocked": [
+        "open_interest_trend",
+        "crowding",
+        "positioning_pressure"
+      ],
+      "history_depth_class": "recent_only",
+      "known_history_limit": "latest 1 month per Binance docs",
+      "lineage_key": "binance_usds_m_btcusdt_open_interest_statistics_public",
+      "pagination_support": "startTime/endTime/limit; max 500",
+      "public_private_classification": "public market data",
+      "rate_limit_notes": "Binance docs: request weight 0; IP limit 1000 requests / 5 minutes",
+      "requires_credentials": false,
+      "source_name": "binance_usds_m_public_rest",
+      "status": "adopted",
+      "symbol_scope": "single symbol; BTCUSDT sample",
+      "timeframe_period_support": "5m,15m,30m,1h,2h,4h,6h,12h,1d",
+      "timestamp_field": "timestamp",
+      "timezone_policy": "millisecond epoch normalized to UTC"
+    },
+    {
+      "blocker_reason": null,
+      "data_fields": [
+        "symbol",
+        "longShortRatio",
+        "longAccount",
+        "shortAccount",
+        "timestamp"
+      ],
+      "endpoint_or_method": "GET /futures/data/topLongShortPositionRatio",
+      "feature_families_unlocked": [
+        "top_trader_crowding",
+        "positioning_pressure"
+      ],
+      "history_depth_class": "recent_only",
+      "known_history_limit": "latest 30 days per Binance docs",
+      "lineage_key": "binance_usds_m_btcusdt_top_trader_position_ratio_public",
+      "pagination_support": "startTime/endTime/limit; max 500",
+      "public_private_classification": "public market data",
+      "rate_limit_notes": "Binance docs: request weight 0; IP limit 1000 requests / 5 minutes",
+      "requires_credentials": false,
+      "source_name": "binance_usds_m_public_rest",
+      "status": "adopted",
+      "symbol_scope": "single symbol; BTCUSDT sample",
+      "timeframe_period_support": "5m,15m,30m,1h,2h,4h,6h,12h,1d",
+      "timestamp_field": "timestamp",
+      "timezone_policy": "millisecond epoch normalized to UTC"
+    },
+    {
+      "blocker_reason": null,
+      "data_fields": [
+        "symbol",
+        "longShortRatio",
+        "longAccount",
+        "shortAccount",
+        "timestamp"
+      ],
+      "endpoint_or_method": "GET /futures/data/topLongShortAccountRatio",
+      "feature_families_unlocked": [
+        "top_trader_crowding",
+        "account_positioning"
+      ],
+      "history_depth_class": "recent_only",
+      "known_history_limit": "latest 30 days per Binance docs",
+      "lineage_key": "binance_usds_m_btcusdt_top_trader_account_ratio_public",
+      "pagination_support": "startTime/endTime/limit; max 500",
+      "public_private_classification": "public market data",
+      "rate_limit_notes": "Binance docs: IP limit 1000 requests / 5 minutes",
+      "requires_credentials": false,
+      "source_name": "binance_usds_m_public_rest",
+      "status": "adopted",
+      "symbol_scope": "single symbol; BTCUSDT sample",
+      "timeframe_period_support": "5m,15m,30m,1h,2h,4h,6h,12h,1d",
+      "timestamp_field": "timestamp",
+      "timezone_policy": "millisecond epoch normalized to UTC"
+    },
+    {
+      "blocker_reason": null,
+      "data_fields": [
+        "symbol",
+        "longShortRatio",
+        "longAccount",
+        "shortAccount",
+        "timestamp"
+      ],
+      "endpoint_or_method": "GET /futures/data/globalLongShortAccountRatio",
+      "feature_families_unlocked": [
+        "global_crowding",
+        "account_positioning"
+      ],
+      "history_depth_class": "recent_only",
+      "known_history_limit": "latest 30 days per Binance docs",
+      "lineage_key": "binance_usds_m_btcusdt_global_account_ratio_public",
+      "pagination_support": "startTime/endTime/limit; max 500",
+      "public_private_classification": "public market data",
+      "rate_limit_notes": "Binance docs: request weight 0; IP limit 1000 requests / 5 minutes",
+      "requires_credentials": false,
+      "source_name": "binance_usds_m_public_rest",
+      "status": "adopted",
+      "symbol_scope": "single symbol; BTCUSDT sample",
+      "timeframe_period_support": "5m,15m,30m,1h,2h,4h,6h,12h,1d",
+      "timestamp_field": "timestamp",
+      "timezone_policy": "millisecond epoch normalized to UTC"
+    },
+    {
+      "blocker_reason": null,
+      "data_fields": [
+        "buySellRatio",
+        "buyVol",
+        "sellVol",
+        "timestamp"
+      ],
+      "endpoint_or_method": "GET /futures/data/takerlongshortRatio",
+      "feature_families_unlocked": [
+        "taker_flow",
+        "microstructure_pressure"
+      ],
+      "history_depth_class": "recent_only",
+      "known_history_limit": "latest 30 days per Binance docs",
+      "lineage_key": "binance_usds_m_btcusdt_taker_buy_sell_ratio_public",
+      "pagination_support": "startTime/endTime/limit; max 500",
+      "public_private_classification": "public market data",
+      "rate_limit_notes": "Binance docs: request weight 0; IP limit 1000 requests / 5 minutes",
+      "requires_credentials": false,
+      "source_name": "binance_usds_m_public_rest",
+      "status": "adopted",
+      "symbol_scope": "single symbol; BTCUSDT sample",
+      "timeframe_period_support": "5m,15m,30m,1h,2h,4h,6h,12h,1d",
+      "timestamp_field": "timestamp",
+      "timezone_policy": "millisecond epoch normalized to UTC"
+    },
+    {
+      "blocker_reason": null,
+      "data_fields": [
+        "a",
+        "p",
+        "q",
+        "f",
+        "l",
+        "T",
+        "m"
+      ],
+      "endpoint_or_method": "GET /fapi/v1/aggTrades",
+      "feature_families_unlocked": [
+        "trade_flow",
+        "approx_vwap",
+        "microstructure_pressure"
+      ],
+      "history_depth_class": "recent_only",
+      "known_history_limit": "REST query futures trade histories not older than 24 hours per Binance docs",
+      "lineage_key": "binance_usds_m_btcusdt_agg_trades_rest_public",
+      "pagination_support": "fromId or startTime/endTime/limit; max 1000",
+      "public_private_classification": "public market data",
+      "rate_limit_notes": "Binance docs: request weight 20",
+      "requires_credentials": false,
+      "source_name": "binance_usds_m_public_rest",
+      "status": "adopted",
+      "symbol_scope": "single symbol; BTCUSDT sample",
+      "timeframe_period_support": "trade events; request window under 1 hour when startTime/endTime are used",
+      "timestamp_field": "T",
+      "timezone_policy": "millisecond epoch normalized to UTC"
+    },
+    {
+      "blocker_reason": null,
+      "data_fields": [
+        "id",
+        "price",
+        "qty",
+        "quoteQty",
+        "time",
+        "isBuyerMaker"
+      ],
+      "endpoint_or_method": "GET /fapi/v1/trades",
+      "feature_families_unlocked": [
+        "trade_flow",
+        "approx_vwap",
+        "microstructure_pressure"
+      ],
+      "history_depth_class": "recent_only",
+      "known_history_limit": "recent market trades only",
+      "lineage_key": "binance_usds_m_btcusdt_recent_trades_rest_public",
+      "pagination_support": "limit only; max 1000",
+      "public_private_classification": "public market data",
+      "rate_limit_notes": "Binance docs: request weight 5",
+      "requires_credentials": false,
+      "source_name": "binance_usds_m_public_rest",
+      "status": "adopted",
+      "symbol_scope": "single symbol; BTCUSDT sample",
+      "timeframe_period_support": "recent trade events",
+      "timestamp_field": "time",
+      "timezone_policy": "millisecond epoch normalized to UTC"
+    },
+    {
+      "blocker_reason": null,
+      "data_fields": [
+        "agg_trade_id",
+        "price",
+        "quantity",
+        "first_trade_id",
+        "last_trade_id",
+        "transact_time",
+        "is_buyer_maker"
+      ],
+      "endpoint_or_method": "https://data.binance.vision/data/futures/um/{daily,monthly}/aggTrades/{symbol}/",
+      "feature_families_unlocked": [
+        "trade_flow",
+        "approx_vwap",
+        "microstructure_pressure"
+      ],
+      "history_depth_class": "backfillable",
+      "known_history_limit": "public archive availability must be verified per requested file before canonical use",
+      "lineage_key": "binance_usds_m_btcusdt_agg_trades_archive_public",
+      "pagination_support": "file partition by date/month",
+      "public_private_classification": "public market data archive",
+      "rate_limit_notes": "static public archive; download behavior should be throttled by future fetcher",
+      "requires_credentials": false,
+      "source_name": "data.binance.vision_public_archive",
+      "status": "adopted",
+      "symbol_scope": "public archive by symbol; BTCUSDT sample",
+      "timeframe_period_support": "daily and monthly archive files",
+      "timestamp_field": "transact_time",
+      "timezone_policy": "millisecond epoch normalized to UTC"
+    },
+    {
+      "blocker_reason": null,
+      "data_fields": [
+        "trade_id",
+        "price",
+        "qty",
+        "quote_qty",
+        "time",
+        "is_buyer_maker"
+      ],
+      "endpoint_or_method": "https://data.binance.vision/data/futures/um/{daily,monthly}/trades/{symbol}/",
+      "feature_families_unlocked": [
+        "trade_flow",
+        "approx_vwap",
+        "microstructure_pressure"
+      ],
+      "history_depth_class": "backfillable",
+      "known_history_limit": "public archive availability must be verified per requested file before canonical use",
+      "lineage_key": "binance_usds_m_btcusdt_trades_archive_public",
+      "pagination_support": "file partition by date/month",
+      "public_private_classification": "public market data archive",
+      "rate_limit_notes": "static public archive; download behavior should be throttled by future fetcher",
+      "requires_credentials": false,
+      "source_name": "data.binance.vision_public_archive",
+      "status": "adopted",
+      "symbol_scope": "public archive by symbol; BTCUSDT sample",
+      "timeframe_period_support": "daily and monthly archive files",
+      "timestamp_field": "time",
+      "timezone_policy": "millisecond epoch normalized to UTC"
+    },
+    {
+      "blocker_reason": null,
+      "data_fields": [
+        "symbols",
+        "filters",
+        "contractType",
+        "status",
+        "pricePrecision",
+        "quantityPrecision"
+      ],
+      "endpoint_or_method": "GET /fapi/v1/exchangeInfo",
+      "feature_families_unlocked": [
+        "symbol_constraints",
+        "exchange_metadata",
+        "backtest_realism_context"
+      ],
+      "history_depth_class": "recent_only",
+      "known_history_limit": "current exchange rules only",
+      "lineage_key": "binance_usds_m_exchange_info_btcusdt_public",
+      "pagination_support": "none; full exchange info snapshot",
+      "public_private_classification": "public market data",
+      "rate_limit_notes": "Binance docs: request weight 1",
+      "requires_credentials": false,
+      "source_name": "binance_usds_m_public_rest",
+      "status": "adopted",
+      "symbol_scope": "all symbols response; BTCUSDT normalized sample",
+      "timeframe_period_support": "current symbol/rule snapshot",
+      "timestamp_field": "serverTime",
+      "timezone_policy": "millisecond epoch normalized to UTC"
+    }
+  ],
+  "history_depth_class_policy": [
+    "backfillable",
+    "blocked",
+    "recent_only",
+    "streaming_only",
+    "unknown",
+    "vendor_likely"
+  ],
+  "labels": [
+    "REPO-OWNED PUBLIC PERP-DATA COVERAGE OUTPUT",
+    "NOT CANONICAL DATA AUTHORITY WITHOUT SEPARATE PROMOTION",
+    "NOT A RESULT POPULATION",
+    "NOT STRATEGY / VM / SWEEP AUTHORITY",
+    "NOT BACKTEST COST-MODEL AUTHORITY",
+    "NOT PAPER / LIVE / RUNTIME AUTHORITY",
+    "PUBLIC-ONLY SAMPLE PARSING; NO NETWORK CALLS IN DEFAULT MODE"
+  ],
+  "package": "WP-LAB-DATA-EXPANSION-01",
+  "source_docs_checked_utc": "2026-06-21"
+}

@@ -1,0 +1,36 @@
+{
+  "approval_ref": "APR-PILOT-0001",
+  "created_at_utc": "2026-06-20T00:00:00Z",
+  "dry_run": true,
+  "github_write_performed": false,
+  "issue": {
+    "assignees": [],
+    "body": "Scratch-only dry-run IssueOps approval request.\nNo GitHub issue was created by this pilot.\nHuman approval remains pending outside this artifact.",
+    "labels": [
+      "approval-request",
+      "manual-review-required",
+      "dry-run",
+      "scratch-only"
+    ],
+    "title": "WP-PILOT-NOTIFICATIONS-APPROVALS-01: manual approval required for candidate review"
+  },
+  "issueops_model": "dry_run_issue_payload_v1",
+  "non_authority_flags": {
+    "dry_run": true,
+    "manual_approval_required": true,
+    "not_auto_approval": true,
+    "not_candidate_promotion": true,
+    "not_canonical_write": true,
+    "not_execution": true,
+    "not_paper_live": true,
+    "one_way_notification": true,
+    "scratch_only": true
+  },
+  "package_id": "WP-PILOT-NOTIFICATIONS-APPROVALS-01",
+  "status_transition_policy": {
+    "agent_can_approve": false,
+    "label_alone_is_not_execution_authority": true,
+    "no_auto_approval": true,
+    "pending_to_approved_requires_human_comment": true
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "apprise_delivery_mode": "local_no_network_no_credentials",
+  "apprise_import_available": true,
+  "apprise_version": "1.11.0",
+  "artifacts": [
+    {
+      "path": "scratch/WP-PILOT-NOTIFICATIONS-APPROVALS-01/README.md",
+      "sha256": "sha256:c5835fd96ee63de5597d00f7a04fea62ee40cea7ed3d4256013ac0295da2d279"
+    },
+    {
+      "path": "scratch/WP-PILOT-NOTIFICATIONS-APPROVALS-01/notification_log.jsonl",
+      "sha256": "sha256:e10130a151af96a741002030eb5f7af56ced85c032587143dab3dc55af9dcad0"
+    },
+    {
+      "path": "scratch/WP-PILOT-NOTIFICATIONS-APPROVALS-01/approval_queue_sample.json",
+      "sha256": "sha256:2ea3cd7bb6f0cbd97b61462cdf8960573eb775977cb806c9398c0c664087acb6"
+    },
+    {
+      "path": "scratch/WP-PILOT-NOTIFICATIONS-APPROVALS-01/issueops_dry_run_payload.json",
+      "sha256": "sha256:5e38ae507d3ad6acee1a505d1f7cc5a01209361cfb31f3890e033f5620581567"
+    },
+    {
+      "path": "scratch/WP-PILOT-NOTIFICATIONS-APPROVALS-01/blocked_action_report.json",
+      "sha256": "sha256:5bbf15cf2f3a943ef680c2cea59ec681c3172fd408787e087405c7c284a3dc07"
+    },
+    {
+      "path": "scratch/WP-PILOT-NOTIFICATIONS-APPROVALS-01/recommendation_report.md",
+      "sha256": "sha256:aed8240caa54e237795946c7800de6ef86526824a55778703deefc0678dbeda8"
+    },
+    {
+      "path": "scratch/WP-PILOT-NOTIFICATIONS-APPROVALS-01/dependency_probe.json",
+      "sha256": "sha256:ba5e7e92d68748d7ab6b642c909f0b06e85a79ed7e5ee9a46f8be20403f81664"
+    },
+    {
+      "path": "scratch/WP-PILOT-NOTIFICATIONS-APPROVALS-01/requirements.poc.txt",
+      "sha256": "sha256:aea1240662a632142b74d979406b5b3864c85afa8d396fc3300701b98f92d015"
+    }
+  ],
+  "created_at_utc": "2026-06-20T00:00:00Z",
+  "credential_access_attempted": false,
+  "credentials_used": false,
+  "dependency_files_touched": false,
+  "dry_run": true,
+  "external_notification_sent": false,
+  "github_write_performed": false,
+  "non_authority_flags": {
+    "dry_run": true,
+    "manual_approval_required": true,
+    "not_auto_approval": true,
+    "not_candidate_promotion": true,
+    "not_canonical_write": true,
+    "not_execution": true,
+    "not_paper_live": true,
+    "one_way_notification": true,
+    "scratch_only": true
+  },
+  "package_id": "WP-PILOT-NOTIFICATIONS-APPROVALS-01",
+  "real_apprise_exercised": true,
+  "real_notification_sent": false,
+  "recommendation": "conditional_adopt_candidate",
+  "source_branch": "pilot/notifications-approvals-01",
+  "source_commit": "4d2197408910a73384f1c9019a3828d18c6068a5"
+}

@@ -1,0 +1,51 @@
+{
+  "blocked_action_count": 4,
+  "blocked_actions": [
+    {
+      "attempt_id": "canonical-write-attempt",
+      "attempt_kind": "canonical write attempt",
+      "authority_granted": false,
+      "block_reason": "blocked_not_canonical_write",
+      "created_at_utc": "2026-06-20T00:00:00Z",
+      "status": "blocked"
+    },
+    {
+      "attempt_id": "candidate-promotion-attempt",
+      "attempt_kind": "candidate promotion attempt",
+      "authority_granted": false,
+      "block_reason": "blocked_not_candidate_promotion",
+      "created_at_utc": "2026-06-20T00:00:00Z",
+      "status": "blocked"
+    },
+    {
+      "attempt_id": "paper-live-activation-attempt",
+      "attempt_kind": "paper/live activation attempt",
+      "authority_granted": false,
+      "block_reason": "blocked_not_paper_live",
+      "created_at_utc": "2026-06-20T00:00:00Z",
+      "status": "blocked"
+    },
+    {
+      "attempt_id": "private-credential-api-attempt",
+      "attempt_kind": "private credential/API attempt",
+      "authority_granted": false,
+      "block_reason": "blocked_no_credentials_or_api",
+      "created_at_utc": "2026-06-20T00:00:00Z",
+      "status": "blocked"
+    }
+  ],
+  "created_at_utc": "2026-06-20T00:00:00Z",
+  "dry_run": true,
+  "non_authority_flags": {
+    "dry_run": true,
+    "manual_approval_required": true,
+    "not_auto_approval": true,
+    "not_candidate_promotion": true,
+    "not_canonical_write": true,
+    "not_execution": true,
+    "not_paper_live": true,
+    "one_way_notification": true,
+    "scratch_only": true
+  },
+  "package_id": "WP-PILOT-NOTIFICATIONS-APPROVALS-01"
+}

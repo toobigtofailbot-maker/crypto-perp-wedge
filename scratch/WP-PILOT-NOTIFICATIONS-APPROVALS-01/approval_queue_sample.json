@@ -1,0 +1,26 @@
+{
+  "approval_id": "APR-PILOT-0001",
+  "created_at_utc": "2026-06-20T00:00:00Z",
+  "evidence_links": [
+    "docs/status_entries/WP-LAB-DASHBOARD-EXPANSION-01.md",
+    "docs/status_entries/WP-LAB-IDEA-INTAKE-FORMALIZATION-01.md",
+    "scratch/WP-PILOT-NOTIFICATIONS-APPROVALS-01/blocked_action_report.json",
+    "scratch/WP-PILOT-NOTIFICATIONS-APPROVALS-01/issueops_dry_run_payload.json"
+  ],
+  "non_authority_flags": [
+    "scratch_only",
+    "dry_run",
+    "one_way_notification",
+    "manual_approval_required",
+    "not_auto_approval",
+    "not_execution",
+    "not_paper_live",
+    "not_candidate_promotion",
+    "not_canonical_write"
+  ],
+  "request_type": "candidate_manual_review",
+  "requested_by": "WP-PILOT-NOTIFICATIONS-APPROVALS-01",
+  "required_human": true,
+  "status": "pending",
+  "updated_at_utc": "2026-06-20T00:00:00Z"
+}

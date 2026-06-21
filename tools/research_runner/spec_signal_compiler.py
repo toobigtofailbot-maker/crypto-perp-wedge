@@ -33,7 +33,16 @@ ALLOWED_DATA_DERIVED_FIELDS = {
     "taker_buy_volume",
     "taker_sell_volume",
 }
-ALLOWED_DATA_FIELDS = ALLOWED_OHLCV_FIELDS | ALLOWED_DATA_DERIVED_FIELDS
+ALLOWED_TIMESTAMP_DERIVED_FIELDS = {
+    "hour_of_day_utc",
+    "day_of_week_utc",
+    "is_weekend_utc",
+}
+ALLOWED_DATA_FIELDS = (
+    ALLOWED_OHLCV_FIELDS
+    | ALLOWED_DATA_DERIVED_FIELDS
+    | ALLOWED_TIMESTAMP_DERIVED_FIELDS
+)
 APPROVED_BUILTINS = {
     "sma": "sma_v1",
     "ema": "ema_v1",
@@ -2252,9 +2261,33 @@ def _resolve_data_ref(operand: Mapping[str, Any], ohlcv: pd.DataFrame) -> pd.Ser
     timeframe = operand.get("timeframe")
     if timeframe not in (None, ""):
         raise UnsupportedSpecSignalCompilerFeature("data_ref timeframe resampling is not supported")
+    if field in ALLOWED_TIMESTAMP_DERIVED_FIELDS:
+        return _resolve_timestamp_data_ref(str(field), ohlcv.index)
     if field not in ohlcv.columns:
         raise SpecSignalCompilerError(f"ohlcv missing referenced data_ref field: {field!r}")
     return ohlcv[str(field)]
+
+
+def _resolve_timestamp_data_ref(field: str, index: pd.Index) -> pd.Series:
+    if not isinstance(index, pd.DatetimeIndex):
+        raise SpecSignalCompilerError(
+            f"timestamp-derived data_ref {field!r} requires a UTC DatetimeIndex"
+        )
+    if index.tz is None or str(index.tz) != "UTC":
+        raise SpecSignalCompilerError(
+            f"timestamp-derived data_ref {field!r} requires a timezone-aware UTC DatetimeIndex"
+        )
+    if index.hasnans:
+        raise SpecSignalCompilerError(
+            f"timestamp-derived data_ref {field!r} does not allow missing timestamps"
+        )
+    if field == "hour_of_day_utc":
+        return pd.Series(index.hour, index=index, dtype="int64", name=field)
+    if field == "day_of_week_utc":
+        return pd.Series(index.dayofweek, index=index, dtype="int64", name=field)
+    if field == "is_weekend_utc":
+        return pd.Series(index.dayofweek >= 5, index=index, dtype=bool, name=field)
+    raise SpecSignalCompilerError(f"unsupported timestamp-derived data_ref field: {field!r}")
 
 
 def _resolve_indicator_ref(operand: Mapping[str, Any], context: _CompileContext) -> pd.Series:

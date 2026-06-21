@@ -565,6 +565,144 @@ def test_data_derived_field_preserves_null_without_fill_or_interpolation() -> No
     assert resolved.isna().tolist() == [False, True, False, True, False, False, False, False]
 
 
+def _resolve_timestamp_field(ohlcv: pd.DataFrame, field: str) -> pd.Series:
+    context = compiler._CompileContext(
+        strategy_spec={},
+        variant_assignment=_default_variant(),
+        ohlcv=ohlcv,
+        catalog=compiler._load_default_catalog(),
+    )
+    return compiler._resolve_operand(_operand("data_ref", field, field), context)
+
+
+def test_timestamp_derived_fields_use_current_utc_bar_timestamp() -> None:
+    index = pd.DatetimeIndex(
+        [
+            "2026-06-15T00:00:00Z",  # Monday
+            "2026-06-16T01:00:00Z",  # Tuesday
+            "2026-06-17T02:00:00Z",  # Wednesday
+            "2026-06-18T03:00:00Z",  # Thursday
+            "2026-06-19T04:00:00Z",  # Friday
+            "2026-06-20T08:00:00Z",  # Saturday
+            "2026-06-21T23:45:00Z",  # Sunday
+        ]
+    )
+    ohlcv = _ohlcv().iloc[:7].set_axis(index)
+
+    hour = _resolve_timestamp_field(ohlcv, "hour_of_day_utc")
+    day = _resolve_timestamp_field(ohlcv, "day_of_week_utc")
+    weekend = _resolve_timestamp_field(ohlcv, "is_weekend_utc")
+
+    assert hour.tolist() == [0, 1, 2, 3, 4, 8, 23]
+    assert day.tolist() == [0, 1, 2, 3, 4, 5, 6]
+    assert weekend.tolist() == [False, False, False, False, False, True, True]
+    assert hour.index.equals(index)
+    assert day.index.equals(index)
+    assert weekend.index.equals(index)
+
+
+def test_timestamp_derived_session_gate_uses_inclusive_start_exclusive_end() -> None:
+    index = pd.date_range("2026-06-15T06:00:00Z", periods=16, freq="h")
+    close = [10.0] * len(index)
+    ohlcv = pd.DataFrame(
+        {
+            "open": close,
+            "high": close,
+            "low": close,
+            "close": close,
+            "volume": [1000.0] * len(index),
+        },
+        index=index,
+    )
+    spec = _spec(
+        entry_groups=[
+            _group(
+                "required",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "close", "close"),
+                        "gt",
+                        _operand("constant", 0.0),
+                    )
+                ],
+            )
+        ],
+        filters=[
+            _group(
+                "session",
+                "all",
+                [
+                    _condition(
+                        _operand("data_ref", "hour_of_day_utc", "hour_of_day_utc"),
+                        "gte",
+                        _operand("constant", 8),
+                        role="filter",
+                    ),
+                    _condition(
+                        _operand("data_ref", "hour_of_day_utc", "hour_of_day_utc"),
+                        "lt",
+                        _operand("constant", 20),
+                        role="filter",
+                    ),
+                ],
+            )
+        ],
+        max_holding_bars=1,
+    )
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    entry_hours = signal.index[signal == 1.0].hour.tolist()
+    assert entry_hours == list(range(8, 20))
+
+
+@pytest.mark.parametrize(
+    ("index", "error"),
+    [
+        (pd.RangeIndex(3), "requires a UTC DatetimeIndex"),
+        (pd.date_range("2026-06-15", periods=3, freq="h"), "timezone-aware UTC"),
+        (
+            pd.date_range("2026-06-15", periods=3, freq="h", tz="America/New_York"),
+            "timezone-aware UTC",
+        ),
+        (
+            pd.DatetimeIndex(["2026-06-15T00:00:00Z", pd.NaT, "2026-06-15T02:00:00Z"]),
+            "does not allow missing timestamps",
+        ),
+    ],
+)
+def test_timestamp_derived_fields_fail_closed_for_invalid_index(
+    index: pd.Index,
+    error: str,
+) -> None:
+    ohlcv = _ohlcv().iloc[:3].set_axis(index)
+
+    with pytest.raises(SpecSignalCompilerError, match=error):
+        _resolve_timestamp_field(ohlcv, "hour_of_day_utc")
+
+
+def test_timestamp_derived_fields_have_no_future_lookahead_or_interpolation() -> None:
+    base = _ohlcv()
+    mutated = base.copy()
+    mutated.index = base.index[:5].append(
+        pd.date_range("2026-01-10T20:00:00Z", periods=3, freq="2h")
+    )
+    mutated.loc[mutated.index[5]:, "close"] = 1_000_000.0
+
+    for field in compiler.ALLOWED_TIMESTAMP_DERIVED_FIELDS:
+        base_value = _resolve_timestamp_field(base, field)
+        mutated_value = _resolve_timestamp_field(mutated, field)
+
+        pd.testing.assert_series_equal(
+            base_value.iloc[:5],
+            mutated_value.iloc[:5],
+            check_freq=False,
+        )
+        assert mutated_value.index.equals(mutated.index)
+        assert len(mutated_value) == len(mutated)
+
+
 def test_compiles_short_only_data_ref_threshold_signal() -> None:
     ohlcv = _ohlcv()
     spec = _spec(

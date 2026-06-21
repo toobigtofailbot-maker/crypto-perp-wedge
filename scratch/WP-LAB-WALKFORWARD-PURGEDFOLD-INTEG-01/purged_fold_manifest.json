@@ -1,0 +1,157 @@
+{
+  "boundary_semantics": "start_inclusive_end_exclusive",
+  "created_at_utc": "2026-06-20T12:00:00Z",
+  "data_slice_id": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+  "folds": [
+    {
+      "data_unavailable_count": null,
+      "declared_variant_count": 8,
+      "embargo": {
+        "bars": 32,
+        "duration": null,
+        "mode": "bars"
+      },
+      "errored_count": null,
+      "evaluation_window_end_utc": "2023-04-01T00:00:00Z",
+      "evaluation_window_start_utc": "2023-01-01T00:00:00Z",
+      "failed_count": null,
+      "fold_id": "FOLD-001",
+      "fold_order": 1,
+      "gap_posture": {
+        "irreparable_gap_policy": "consult_irreparable_gaps_manifest",
+        "missing_data_policy": "mark_data_unavailable",
+        "silent_interpolation_forbidden": true
+      },
+      "invalid_count": null,
+      "lineage_refs": [
+        {
+          "ref": "research/strategy_specs/STRAT-SPEC-0004.strategy_spec.json",
+          "ref_id": "spec",
+          "ref_type": "strategy_spec"
+        },
+        {
+          "ref": "research/variant_manifests/VM-0004.variant_manifest.json",
+          "ref_id": "vm",
+          "ref_type": "variant_manifest"
+        },
+        {
+          "ref": "research/sweep_plans/SWEEP-PLAN-0004.sweep_plan.json",
+          "ref_id": "sweep",
+          "ref_type": "sweep_plan"
+        },
+        {
+          "ref": "research/result_populations/RP-2592.result_population.json",
+          "ref_id": "rp-comparator",
+          "ref_type": "result_population"
+        }
+      ],
+      "not_attempted_count": null,
+      "planned_result_population_ref": "scratch:not-created:WFM-9002:FOLD-001",
+      "purge": {
+        "bars": 96,
+        "duration": null,
+        "mode": "bars"
+      },
+      "result_population_ref": null,
+      "selection_window_end_utc": "2022-12-31T00:00:00Z",
+      "selection_window_start_utc": "2022-01-01T00:00:00Z",
+      "successful_count": null,
+      "warmup_window_end_utc": null,
+      "warmup_window_start_utc": null
+    },
+    {
+      "data_unavailable_count": null,
+      "declared_variant_count": 8,
+      "embargo": {
+        "bars": 32,
+        "duration": null,
+        "mode": "bars"
+      },
+      "errored_count": null,
+      "evaluation_window_end_utc": "2024-06-29T00:00:00Z",
+      "evaluation_window_start_utc": "2024-03-31T00:00:00Z",
+      "failed_count": null,
+      "fold_id": "FOLD-002",
+      "fold_order": 2,
+      "gap_posture": {
+        "irreparable_gap_policy": "consult_irreparable_gaps_manifest",
+        "missing_data_policy": "mark_data_unavailable",
+        "silent_interpolation_forbidden": true
+      },
+      "invalid_count": null,
+      "lineage_refs": [
+        {
+          "ref": "research/strategy_specs/STRAT-SPEC-0004.strategy_spec.json",
+          "ref_id": "spec",
+          "ref_type": "strategy_spec"
+        },
+        {
+          "ref": "research/variant_manifests/VM-0004.variant_manifest.json",
+          "ref_id": "vm",
+          "ref_type": "variant_manifest"
+        },
+        {
+          "ref": "research/sweep_plans/SWEEP-PLAN-0004.sweep_plan.json",
+          "ref_id": "sweep",
+          "ref_type": "sweep_plan"
+        },
+        {
+          "ref": "research/result_populations/RP-2592.result_population.json",
+          "ref_id": "rp-comparator",
+          "ref_type": "result_population"
+        }
+      ],
+      "not_attempted_count": null,
+      "planned_result_population_ref": "scratch:not-created:WFM-9002:FOLD-002",
+      "purge": {
+        "bars": 96,
+        "duration": null,
+        "mode": "bars"
+      },
+      "result_population_ref": null,
+      "selection_window_end_utc": "2024-03-30T00:00:00Z",
+      "selection_window_start_utc": "2023-04-01T08:00:00Z",
+      "successful_count": null,
+      "warmup_window_end_utc": null,
+      "warmup_window_start_utc": null
+    }
+  ],
+  "manifest_id": "WFM-9002",
+  "non_authority_declaration": {
+    "not_broker_exchange_order_authority": true,
+    "not_candidate_approval": true,
+    "not_canonical_result_population": true,
+    "not_executable": true,
+    "not_gate_authority": true,
+    "not_paper_live_authority": true,
+    "not_promotion_authority": true,
+    "not_ranking_authority": true,
+    "not_readiness_authority": true,
+    "not_recommendation_authority": true,
+    "not_result_population_write_authority": true,
+    "not_runner_authority": true,
+    "not_runtime_authority": true
+  },
+  "schema_version": "v1",
+  "selection_rule": {
+    "declared_before_evaluation": true,
+    "denominator_preservation": "all_declared_variants_remain_visible",
+    "description": "Carry all included variants through each purged/embargoed scratch IS/OOS fold without winner selection.",
+    "rule_id": "carry_full_population",
+    "rule_type": "carry_full_population",
+    "winner_only_selection_forbidden": true
+  },
+  "source_commit": "4da388a289fb0df4547d204e17b05b151f1cb595",
+  "strategy_spec_id": "STRAT-SPEC-0004",
+  "sweep_plan_id": "SWEEP-PLAN-0004",
+  "timeframe": "15m",
+  "timezone": "UTC",
+  "variant_manifest_id": "VM-0004",
+  "window_policy": {
+    "declared_before_evaluation": true,
+    "fold_construction": "explicit_manifest_boundaries",
+    "overlap_policy": "selection_evaluation_overlap_forbidden",
+    "policy_id": "purged_embargoed_explicit_15m_sel35040_eval8640_purge96_embargo32",
+    "window_type": "custom_explicit"
+  }
+}

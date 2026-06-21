@@ -1,0 +1,70 @@
+{
+  "aggregate_degradation": {
+    "comparable_variant_pairs": 16,
+    "fold_count": 2,
+    "mean_drawdown_delta": -0.1352295328461466,
+    "mean_return_pct_delta": 0.05303762646674898,
+    "mean_sharpe_delta": 0.44655263432592573,
+    "mean_sharpe_efficiency": 2.21527766643491,
+    "partial_fold_count": 0,
+    "successful_fold_count": 2,
+    "unavailable_or_errored_fold_count": 0
+  },
+  "blockers": [],
+  "canonical_authority": false,
+  "created_at_utc": "2026-06-20T12:00:00Z",
+  "fold_statuses": [
+    {
+      "degradation_metrics": {
+        "comparable_variant_count": 8,
+        "mean_drawdown_delta": -0.21026039319108628,
+        "mean_return_pct_delta": 0.3265167450108465,
+        "mean_sharpe_delta": 2.1795655332777235,
+        "mean_sharpe_efficiency": 8.927104778673872,
+        "mean_trade_count_delta": -113.625,
+        "sharpe_efficiency_available_count": 2
+      },
+      "fold_id": "FOLD-001",
+      "fold_order": 1,
+      "status": "successful",
+      "warnings": [
+        "sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+      ]
+    },
+    {
+      "degradation_metrics": {
+        "comparable_variant_count": 8,
+        "mean_drawdown_delta": -0.060198672501206946,
+        "mean_return_pct_delta": -0.22044149207734853,
+        "mean_sharpe_delta": -1.286460264625872,
+        "mean_sharpe_efficiency": -0.4694531784606749,
+        "mean_trade_count_delta": -120.875,
+        "sharpe_efficiency_available_count": 5
+      },
+      "fold_id": "FOLD-002",
+      "fold_order": 2,
+      "status": "successful",
+      "warnings": [
+        "sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+      ]
+    }
+  ],
+  "non_authority_flags": [
+    "not canonical evidence",
+    "not promotion evidence",
+    "not ranking authority",
+    "not readiness authority",
+    "not paper/live authority",
+    "not candidate registration"
+  ],
+  "run_id": "WF-RUN-40BB0B209274054B",
+  "schema_version": "v1",
+  "scratch_only": true,
+  "source_report_ref": "scratch/WP-LAB-WALKFORWARD-PURGEDFOLD-INTEG-01/walkforward_run_report.json",
+  "strategy_spec_id": "STRAT-SPEC-0004",
+  "sweep_plan_id": "SWEEP-PLAN-0004",
+  "variant_manifest_id": "VM-0004",
+  "warnings": [
+    "sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+  ]
+}

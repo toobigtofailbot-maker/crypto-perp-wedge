@@ -17,7 +17,23 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_INDICATOR_CATALOG_PATH = (
     REPO_ROOT / "research" / "indicator_catalogs" / "IND-CATALOG-0001.indicator_catalog.json"
 )
-ALLOWED_DATA_FIELDS = {"open", "high", "low", "close", "volume"}
+ALLOWED_OHLCV_FIELDS = {"open", "high", "low", "close", "volume"}
+ALLOWED_DATA_DERIVED_FIELDS = {
+    "funding_rate",
+    "funding_mark_price",
+    "mark_price",
+    "index_price",
+    "premium_index",
+    "open_interest",
+    "open_interest_value",
+    "top_trader_position_long_short_ratio",
+    "top_trader_account_long_short_ratio",
+    "global_long_short_account_ratio",
+    "taker_buy_sell_ratio",
+    "taker_buy_volume",
+    "taker_sell_volume",
+}
+ALLOWED_DATA_FIELDS = ALLOWED_OHLCV_FIELDS | ALLOWED_DATA_DERIVED_FIELDS
 APPROVED_BUILTINS = {
     "sma": "sma_v1",
     "ema": "ema_v1",
@@ -697,7 +713,7 @@ def _catalog_entries_by_id(catalog: Mapping[str, Any]) -> dict[str, Mapping[str,
 def _validate_ohlcv(ohlcv: pd.DataFrame) -> None:
     if not isinstance(ohlcv.index, pd.DatetimeIndex):
         raise SpecSignalCompilerError("ohlcv index must be a pandas DatetimeIndex")
-    missing = ALLOWED_DATA_FIELDS - set(ohlcv.columns)
+    missing = ALLOWED_OHLCV_FIELDS - set(ohlcv.columns)
     if missing:
         raise SpecSignalCompilerError(f"ohlcv missing required fields: {sorted(missing)}")
 
@@ -2236,6 +2252,8 @@ def _resolve_data_ref(operand: Mapping[str, Any], ohlcv: pd.DataFrame) -> pd.Ser
     timeframe = operand.get("timeframe")
     if timeframe not in (None, ""):
         raise UnsupportedSpecSignalCompilerFeature("data_ref timeframe resampling is not supported")
+    if field not in ohlcv.columns:
+        raise SpecSignalCompilerError(f"ohlcv missing referenced data_ref field: {field!r}")
     return ohlcv[str(field)]
 
 

@@ -1,0 +1,34 @@
+{
+  "artifact_hashes": {
+    "purged_fold_comparison_report": "sha256:1a749609049a220717769d17f6b656478841557d6dfe8284ca40a898ab40d1ee",
+    "purged_fold_manifest": "sha256:0a466e00b3371776b4cdf798fe597ccbfd5fe1ebf4b7da0427af31bfa7fd0f70",
+    "purged_walkforward_run_report_file": "sha256:745ccc44b223ea085ebc18ce363b6dbce1fff5049feceb30c837aa7d8e972874",
+    "walkforward_dashboard_fragment_file": "sha256:3722a6f3d11ccb4e784702652ffef117769e67725e01e76012bfc02a56fb7d74"
+  },
+  "contract_validation": {
+    "passed": true,
+    "validator": "tools.registry.validate_walkforward_fold_manifest"
+  },
+  "created_at_utc": "2026-06-20T12:00:00Z",
+  "dependency_posture": "repo-native; no purgedcv dependency used",
+  "generated_files": {
+    "purged_fold_comparison_report": "scratch/WP-LAB-WALKFORWARD-PURGEDFOLD-INTEG-01/purged_fold_comparison_report.json",
+    "purged_fold_manifest": "scratch/WP-LAB-WALKFORWARD-PURGEDFOLD-INTEG-01/purged_fold_manifest.json",
+    "purged_walkforward_run_report": "scratch/WP-LAB-WALKFORWARD-PURGEDFOLD-INTEG-01/purged_walkforward_run_report.json",
+    "walkforward_dashboard_fragment": "scratch/WP-LAB-WALKFORWARD-PURGEDFOLD-INTEG-01/walkforward_dashboard_fragment.json"
+  },
+  "generation_tool": "tools.walkforward.purged_folds",
+  "non_authority_flags": [
+    "scratch_only",
+    "non_canonical",
+    "not_canonical_evidence",
+    "not_runner_change",
+    "not_backtester_change",
+    "not_promotion",
+    "not_readiness",
+    "not_paper_live"
+  ],
+  "schema_version": "v1",
+  "source_commit": "4da388a289fb0df4547d204e17b05b151f1cb595",
+  "wp_id": "WP-LAB-WALKFORWARD-PURGEDFOLD-INTEG-01"
+}

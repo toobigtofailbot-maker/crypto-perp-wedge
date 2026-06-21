@@ -1,0 +1,74 @@
+{
+  "comparison_id": "WP-LAB-WALKFORWARD-PURGEDFOLD-INTEG-01",
+  "comparison_summary": {
+    "fold_count": 2,
+    "folds_with_boundary_gap": 2,
+    "folds_with_embargo_shifted_selection_start": 1,
+    "material_difference_observed": true,
+    "total_selection_bars_naive": 70080,
+    "total_selection_bars_purged_embargoed": 69856,
+    "total_selection_bars_removed": 224
+  },
+  "created_at_utc": "2026-06-20T12:00:00Z",
+  "fold_parameters": {
+    "boundary_semantics": "start_inclusive_end_exclusive",
+    "embargo_bars": 32,
+    "evaluation_bars": 8640,
+    "fold_count": 2,
+    "purge_bars": 96,
+    "selection_bars": 35040,
+    "start_utc": "2022-01-01T00:00:00Z"
+  },
+  "leakage_risks_addressed": [
+    "adjacent training labels with horizons that overlap first evaluation bars",
+    "rolling feature or warmup contamination at the IS/OOS boundary",
+    "post-evaluation bleed where rows immediately after one OOS window enter a later selection window",
+    "implicit zero-gap fold assumptions that are hard to audit after materialization"
+  ],
+  "manifest_id": "WFM-9002",
+  "non_authority_flags": [
+    "scratch_only",
+    "non_canonical",
+    "not_canonical_evidence",
+    "not_runner_change",
+    "not_backtester_change",
+    "not_promotion",
+    "not_readiness",
+    "not_paper_live"
+  ],
+  "rows": [
+    {
+      "embargo_bars_after_previous_evaluation": 0,
+      "evaluation_end_utc": "2023-04-01T00:00:00Z",
+      "evaluation_start_utc": "2023-01-01T00:00:00Z",
+      "fold_id": "FOLD-001",
+      "fold_order": 1,
+      "naive_selection_bars": 35040,
+      "naive_selection_end_utc": "2023-01-01T00:00:00Z",
+      "naive_selection_start_utc": "2022-01-01T00:00:00Z",
+      "purge_gap_bars": 96,
+      "purged_selection_bars": 34944,
+      "purged_selection_end_utc": "2022-12-31T00:00:00Z",
+      "purged_selection_start_utc": "2022-01-01T00:00:00Z",
+      "selection_bars_removed": 96
+    },
+    {
+      "embargo_bars_after_previous_evaluation": 32,
+      "evaluation_end_utc": "2024-06-29T00:00:00Z",
+      "evaluation_start_utc": "2024-03-31T00:00:00Z",
+      "fold_id": "FOLD-002",
+      "fold_order": 2,
+      "naive_selection_bars": 35040,
+      "naive_selection_end_utc": "2024-03-31T00:00:00Z",
+      "naive_selection_start_utc": "2023-04-01T00:00:00Z",
+      "purge_gap_bars": 96,
+      "purged_selection_bars": 34912,
+      "purged_selection_end_utc": "2024-03-30T00:00:00Z",
+      "purged_selection_start_utc": "2023-04-01T08:00:00Z",
+      "selection_bars_removed": 128
+    }
+  ],
+  "schema_version": "v1",
+  "source_commit": "4da388a289fb0df4547d204e17b05b151f1cb595",
+  "timeframe": "15m"
+}

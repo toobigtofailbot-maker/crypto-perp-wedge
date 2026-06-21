@@ -23,6 +23,9 @@ APPROVED_BUILTINS = {
     "ema": "ema_v1",
     "atr": "atr_v1",
     "stddev": "stddev_v1",
+    "rsi": "rsi_v1",
+    "donchian": "donchian_v1",
+    "ma_distance": "ma_distance_v1",
 }
 COMPOSED_OPERAND_TYPE = "composed_operand"
 COMPOSITION_TYPE_SCALE_BY_ONE_MINUS_PARAMETER = "scale_by_one_minus_parameter"
@@ -624,7 +627,7 @@ class _CompileContext:
         self.variant_assignment = variant_assignment
         self.ohlcv = ohlcv
         self.catalog_entries = _catalog_entries_by_id(catalog)
-        self.indicator_cache: dict[tuple[str, int, str], pd.Series] = {}
+        self.indicator_cache: dict[tuple[str, int, str], pd.Series | dict[str, pd.Series]] = {}
         self.primitive_cache: dict[tuple[str, str], pd.Series] = {}
         self.primitive_config_cache: dict[tuple[str, str], dict[str, Mapping[str, Any]]] = {}
         self.condition_cache: dict[tuple[int, tuple[str, ...]], pd.Series] = {}
@@ -2239,8 +2242,6 @@ def _resolve_indicator_ref(operand: Mapping[str, Any], context: _CompileContext)
     if indicator_id not in APPROVED_BUILTINS:
         raise SpecSignalCompilerError(f"unknown indicator_ref: {indicator_id!r}")
     output_field = operand.get("field")
-    if output_field not in (None, "", "value"):
-        raise SpecSignalCompilerError(f"unsupported indicator output field: {output_field!r}")
     timeframe = operand.get("timeframe")
     if timeframe not in (None, ""):
         raise UnsupportedSpecSignalCompilerFeature("indicator_ref timeframe resampling is not supported")
@@ -2248,20 +2249,36 @@ def _resolve_indicator_ref(operand: Mapping[str, Any], context: _CompileContext)
 
     builtin_key = context.catalog_entries[str(indicator_id)]["implementation_binding"]["builtin_key"]
     cache_key = (str(indicator_id), lookback_bars, builtin_key)
-    if cache_key in context.indicator_cache:
-        return context.indicator_cache[cache_key]
-    if builtin_key == "sma_v1":
-        result = _sma_v1(context.ohlcv["close"], lookback_bars)
-    elif builtin_key == "ema_v1":
-        result = _ema_v1(context.ohlcv["close"], lookback_bars)
-    elif builtin_key == "atr_v1":
-        result = _atr_v1(context.ohlcv, lookback_bars)
-    elif builtin_key == "stddev_v1":
-        result = _stddev_v1(context.ohlcv["close"], lookback_bars, ddof=0)
-    else:
-        raise SpecSignalCompilerError(f"unknown builtin key: {builtin_key!r}")
-    context.indicator_cache[cache_key] = result
-    return result
+    if cache_key not in context.indicator_cache:
+        if builtin_key == "sma_v1":
+            result: pd.Series | dict[str, pd.Series] = _sma_v1(context.ohlcv["close"], lookback_bars)
+        elif builtin_key == "ema_v1":
+            result = _ema_v1(context.ohlcv["close"], lookback_bars)
+        elif builtin_key == "atr_v1":
+            result = _atr_v1(context.ohlcv, lookback_bars)
+        elif builtin_key == "stddev_v1":
+            result = _stddev_v1(context.ohlcv["close"], lookback_bars, ddof=0)
+        elif builtin_key == "rsi_v1":
+            result = _rsi_v1(context.ohlcv["close"], lookback_bars)
+        elif builtin_key == "donchian_v1":
+            result = _donchian_v1(context.ohlcv, lookback_bars)
+        elif builtin_key == "ma_distance_v1":
+            result = _ma_distance_v1(context.ohlcv["close"], lookback_bars)
+        else:
+            raise SpecSignalCompilerError(f"unknown builtin key: {builtin_key!r}")
+        context.indicator_cache[cache_key] = result
+
+    cached = context.indicator_cache[cache_key]
+    if isinstance(cached, pd.Series):
+        if output_field not in (None, "", "value"):
+            raise SpecSignalCompilerError(f"unsupported indicator output field: {output_field!r}")
+        return cached
+
+    if output_field in (None, "", "value"):
+        raise SpecSignalCompilerError(f"indicator_ref {indicator_id!r} requires an explicit output field")
+    if output_field not in cached:
+        raise SpecSignalCompilerError(f"unsupported indicator output field: {output_field!r}")
+    return cached[str(output_field)]
 
 
 def _resolve_indicator_lookback_bars(
@@ -2422,3 +2439,84 @@ def _stddev_v1(series: pd.Series, lookback_bars: int, *, ddof: int = 0) -> pd.Se
     if ddof not in {0, 1}:
         raise SpecSignalCompilerError("stddev_v1 ddof must be 0 or 1")
     return series.astype(float).rolling(lookback_bars, min_periods=lookback_bars).std(ddof=ddof)
+
+
+def _rsi_value(avg_gain: float, avg_loss: float) -> float:
+    if avg_gain == 0.0 and avg_loss == 0.0:
+        return 50.0
+    if avg_loss == 0.0:
+        return 100.0
+    if avg_gain == 0.0:
+        return 0.0
+    relative_strength = avg_gain / avg_loss
+    return 100.0 - (100.0 / (1.0 + relative_strength))
+
+
+def _rsi_v1(series: pd.Series, lookback_bars: int) -> pd.Series:
+    if lookback_bars < 1:
+        raise SpecSignalCompilerError("rsi_v1 lookback_bars must be >= 1")
+    source = series.astype(float)
+    result = pd.Series(math.nan, index=series.index, dtype=float)
+    if len(source) <= lookback_bars:
+        return result
+
+    index = 0
+    while index < len(source):
+        while index < len(source) and pd.isna(source.iloc[index]):
+            index += 1
+        segment_start = index
+        while index < len(source) and not pd.isna(source.iloc[index]):
+            index += 1
+        segment_end = index
+        if segment_end - segment_start <= lookback_bars:
+            continue
+
+        close_values = source.iloc[segment_start:segment_end].to_numpy(dtype=float)
+        deltas = np.diff(close_values)
+        gains = np.where(deltas > 0.0, deltas, 0.0)
+        losses = np.where(deltas < 0.0, -deltas, 0.0)
+        avg_gain = float(np.mean(gains[:lookback_bars]))
+        avg_loss = float(np.mean(losses[:lookback_bars]))
+        output_index = segment_start + lookback_bars
+        result.iloc[output_index] = _rsi_value(avg_gain, avg_loss)
+
+        for offset in range(lookback_bars, len(deltas)):
+            avg_gain = ((avg_gain * (lookback_bars - 1)) + float(gains[offset])) / lookback_bars
+            avg_loss = ((avg_loss * (lookback_bars - 1)) + float(losses[offset])) / lookback_bars
+            result.iloc[segment_start + offset + 1] = _rsi_value(avg_gain, avg_loss)
+    return result
+
+
+def _donchian_v1(ohlcv: pd.DataFrame, lookback_bars: int) -> dict[str, pd.Series]:
+    if lookback_bars < 1:
+        raise SpecSignalCompilerError("donchian_v1 lookback_bars must be >= 1")
+    upper = ohlcv["high"].astype(float).rolling(lookback_bars, min_periods=lookback_bars).max()
+    lower = ohlcv["low"].astype(float).rolling(lookback_bars, min_periods=lookback_bars).min()
+    mid = (upper + lower) / 2.0
+    width = upper - lower
+    return {
+        "upper": upper,
+        "lower": lower,
+        "mid": mid,
+        "width": width,
+        "upper_lag1": upper.shift(1),
+        "lower_lag1": lower.shift(1),
+        "mid_lag1": mid.shift(1),
+        "width_lag1": width.shift(1),
+    }
+
+
+def _ma_distance_v1(series: pd.Series, lookback_bars: int) -> dict[str, pd.Series]:
+    if lookback_bars < 1:
+        raise SpecSignalCompilerError("ma_distance_v1 lookback_bars must be >= 1")
+    price = series.astype(float)
+    ma = _sma_v1(price, lookback_bars)
+    distance_abs = price - ma
+    distance_ratio = distance_abs / ma
+    distance_ratio = distance_ratio.mask(ma.isna() | (ma == 0.0))
+    distance_pct = distance_ratio * 100.0
+    return {
+        "distance_abs": distance_abs,
+        "distance_ratio": distance_ratio,
+        "distance_pct": distance_pct,
+    }

@@ -1742,6 +1742,108 @@ def test_stddev_v1_uses_locked_ddof_convention() -> None:
     assert result_ddof1.iloc[2] == pytest.approx(1.0)
 
 
+def test_rsi_v1_uses_wilder_smoothing_and_locked_zero_policy() -> None:
+    result = compiler._rsi_v1(pd.Series([1.0, 2.0, 3.0, 2.0, 2.0, 5.0]), 3)
+
+    assert math.isnan(result.iloc[0])
+    assert math.isnan(result.iloc[1])
+    assert math.isnan(result.iloc[2])
+    assert result.iloc[3] == pytest.approx(100.0 - (100.0 / (1.0 + 2.0)))
+    assert result.iloc[4] == pytest.approx(result.iloc[3])
+    assert result.iloc[5] == pytest.approx(89.74358974358975)
+
+    assert compiler._rsi_v1(pd.Series([1.0, 2.0, 3.0, 4.0]), 3).iloc[3] == 100.0
+    assert compiler._rsi_v1(pd.Series([4.0, 3.0, 2.0, 1.0]), 3).iloc[3] == 0.0
+    assert compiler._rsi_v1(pd.Series([5.0, 5.0, 5.0, 5.0]), 3).iloc[3] == 50.0
+
+
+def test_rsi_v1_resets_after_missing_data_and_has_no_lookahead() -> None:
+    base = pd.Series([1.0, 2.0, 3.0, 4.0, math.nan, 5.0, 6.0, 7.0, 8.0])
+    result = compiler._rsi_v1(base, 3)
+
+    assert result.iloc[3] == 100.0
+    assert result.iloc[4:8].isna().all()
+    assert result.iloc[8] == 100.0
+
+    mutated = base.copy()
+    mutated.iloc[8] = 100.0
+    mutated_result = compiler._rsi_v1(mutated, 3)
+
+    pd.testing.assert_series_equal(result.iloc[:8], mutated_result.iloc[:8])
+
+
+def test_donchian_v1_includes_current_bar_and_exposes_lagged_breakout_fields() -> None:
+    index = pd.date_range("2026-01-01", periods=4, freq="h", tz="UTC")
+    ohlcv = pd.DataFrame(
+        {
+            "open": [7.0, 8.0, 7.0, 12.0],
+            "high": [10.0, 11.0, 9.0, 13.0],
+            "low": [5.0, 6.0, 4.0, 8.0],
+            "close": [7.0, 8.0, 7.0, 12.0],
+            "volume": [1.0] * 4,
+        },
+        index=index,
+    )
+
+    result = compiler._donchian_v1(ohlcv, 3)
+
+    assert result["upper"].iloc[:2].isna().all()
+    assert result["upper"].iloc[2:].tolist() == [11.0, 13.0]
+    assert result["lower"].iloc[2:].tolist() == [4.0, 4.0]
+    assert result["mid"].iloc[2:].tolist() == [7.5, 8.5]
+    assert result["width"].iloc[2:].tolist() == [7.0, 9.0]
+    assert math.isnan(result["upper_lag1"].iloc[2])
+    assert result["upper_lag1"].iloc[3] == 11.0
+
+
+def test_donchian_lagged_field_supports_breakout_safe_comparison() -> None:
+    index = pd.date_range("2026-01-01", periods=4, freq="h", tz="UTC")
+    ohlcv = pd.DataFrame(
+        {
+            "open": [7.0, 8.0, 7.0, 12.0],
+            "high": [10.0, 11.0, 9.0, 13.0],
+            "low": [5.0, 6.0, 4.0, 8.0],
+            "close": [7.0, 8.0, 7.0, 12.0],
+            "volume": [1.0] * 4,
+        },
+        index=index,
+    )
+    spec = _single_condition_spec(
+        "gt",
+        _operand("data_ref", "close", "close"),
+        _operand("indicator_ref", "donchian", "upper_lag1", {"bars": 3}),
+    )
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+    current_channel = compiler._donchian_v1(ohlcv, 3)["upper"]
+
+    assert signal.tolist() == [0.0, 0.0, 0.0, 1.0]
+    assert bool((ohlcv["close"] > current_channel).fillna(False).iloc[3]) is False
+
+
+def test_donchian_v1_has_no_lookahead_future_mutation() -> None:
+    ohlcv = _ohlcv()
+    result = compiler._donchian_v1(ohlcv, 3)["upper_lag1"]
+    mutated = ohlcv.copy()
+    mutated.iloc[7, mutated.columns.get_loc("high")] = 1000.0
+    mutated_result = compiler._donchian_v1(mutated, 3)["upper_lag1"]
+
+    pd.testing.assert_series_equal(result.iloc[:7], mutated_result.iloc[:7])
+
+
+def test_ma_distance_v1_outputs_abs_ratio_pct_and_masks_zero_ma() -> None:
+    close = pd.Series([0.0, 0.0, 2.0, 4.0])
+
+    result = compiler._ma_distance_v1(close, 2)
+
+    assert math.isnan(result["distance_abs"].iloc[0])
+    assert result["distance_abs"].iloc[1:].tolist() == [0.0, 1.0, 1.0]
+    assert math.isnan(result["distance_ratio"].iloc[1])
+    assert result["distance_ratio"].iloc[2] == pytest.approx(1.0)
+    assert result["distance_ratio"].iloc[3] == pytest.approx(1.0 / 3.0)
+    assert result["distance_pct"].iloc[2] == pytest.approx(100.0)
+
+
 def test_resolves_indicator_ref_through_committed_catalog() -> None:
     ohlcv = _ohlcv()
     spec = _spec(
@@ -1843,6 +1945,62 @@ def test_resolves_parameterized_ema_atr_and_stddev_lookbacks() -> None:
     pd.testing.assert_series_equal(ema, compiler._ema_v1(ohlcv["close"], 3))
     pd.testing.assert_series_equal(atr, compiler._atr_v1(ohlcv, 3))
     pd.testing.assert_series_equal(stddev, compiler._stddev_v1(ohlcv["close"], 3, ddof=0))
+
+
+def test_resolves_new_indicator_refs_and_rejects_implicit_multi_output_field() -> None:
+    ohlcv = _ohlcv()
+    context = compiler._CompileContext(
+        strategy_spec={},
+        variant_assignment=_default_variant(lookback_n=3),
+        ohlcv=ohlcv,
+        catalog=compiler._load_default_catalog(),
+    )
+
+    rsi = compiler._resolve_operand(
+        _operand("indicator_ref", "rsi", "value", {"bars_parameter_ref": "lookback_n"}),
+        context,
+    )
+    donchian_upper = compiler._resolve_operand(
+        _operand("indicator_ref", "donchian", "upper_lag1", {"bars_parameter_ref": "lookback_n"}),
+        context,
+    )
+    ma_distance_ratio = compiler._resolve_operand(
+        _operand("indicator_ref", "ma_distance", "distance_ratio", {"bars_parameter_ref": "lookback_n"}),
+        context,
+    )
+
+    pd.testing.assert_series_equal(rsi, compiler._rsi_v1(ohlcv["close"], 3))
+    pd.testing.assert_series_equal(donchian_upper, compiler._donchian_v1(ohlcv, 3)["upper_lag1"])
+    pd.testing.assert_series_equal(ma_distance_ratio, compiler._ma_distance_v1(ohlcv["close"], 3)["distance_ratio"])
+
+    with pytest.raises(SpecSignalCompilerError, match="requires an explicit output field"):
+        compiler._resolve_operand(
+            _operand("indicator_ref", "donchian", "value", {"bars": 3}),
+            context,
+        )
+
+
+def test_new_indicator_refs_work_in_both_direction_specs() -> None:
+    ohlcv = _ohlcv()
+    long_entry = _condition(
+        _operand("indicator_ref", "rsi", "value", {"bars": 3}),
+        "gt",
+        _operand("constant", 50.0),
+    )
+    short_entry = _condition(
+        _operand("indicator_ref", "ma_distance", "distance_ratio", {"bars": 3}),
+        "lt",
+        _operand("constant", -0.05),
+    )
+    spec = _both_direction_spec(
+        long_entry=long_entry,
+        short_entry=short_entry,
+        max_holding_bars=1,
+    )
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0]
 
 
 def test_parameterized_lookback_inside_composed_base_operand_compiles() -> None:

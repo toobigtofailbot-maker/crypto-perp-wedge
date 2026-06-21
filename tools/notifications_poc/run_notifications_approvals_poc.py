@@ -174,13 +174,23 @@ def _notification_event(created_at_utc: str, output_dir: Path) -> NotificationEv
 
 
 def _recommendation_report(dependency_probe: dict[str, Any]) -> str:
-    apprise_available = dependency_probe["import_available"]
-    apprise_answer = (
-        "Conditional yes. Apprise is importable in this environment, but this pilot did not "
-        "exercise delivery because no package-scoped local/no-op URL is configured."
-        if apprise_available
-        else "Conditional yes, subject to a later dependency decision. Apprise is not importable here, so behavior was not exercised."
-    )
+    if dependency_probe["real_apprise_exercised"]:
+        apprise_answer = (
+            "Conditional yes. Apprise was imported and exercised through a real "
+            "apprise.Apprise object using a local in-process decorator target. "
+            "No external notification, network service URL, credential, or "
+            "GitHub write was used."
+        )
+    elif dependency_probe["import_available"]:
+        apprise_answer = (
+            "Conditional yes. Apprise is importable in this environment, but "
+            "real behavior was not requested in this default local JSONL run."
+        )
+    else:
+        apprise_answer = (
+            "Conditional yes, subject to a later dependency decision. Apprise "
+            "is not importable here, so behavior was not exercised."
+        )
     return "\n".join(
         [
             f"# {PACKAGE_ID} Recommendation Report",
@@ -189,6 +199,13 @@ def _recommendation_report(dependency_probe: dict[str, Any]) -> str:
             "",
             "- Recommendation: `ADOPT_CANDIDATE_CONDITIONAL` for notification transport and IssueOps-shaped approval queues.",
             "- Scope: scratch-only, advisory, dry-run.",
+            f"- Apprise version: `{dependency_probe['apprise_version']}`.",
+            f"- Real Apprise exercised: `{str(dependency_probe['real_apprise_exercised']).lower()}`.",
+            f"- Apprise delivery mode: `{dependency_probe['apprise_delivery_mode']}`.",
+            "- External notification sent: `false`.",
+            "- Credentials used: `false`.",
+            "- GitHub write performed: `false`.",
+            "- Dependency files touched: `false`.",
             "",
             "## Required Questions",
             "",
@@ -220,6 +237,7 @@ def _readme() -> str:
             "",
             "```powershell",
             "python -m tools.notifications_poc.run_notifications_approvals_poc --output-dir scratch/WP-PILOT-NOTIFICATIONS-APPROVALS-01 --dry-run",
+            "python -m tools.notifications_poc.run_notifications_approvals_poc --output-dir scratch/WP-PILOT-NOTIFICATIONS-APPROVALS-01 --dry-run --exercise-apprise",
             "```",
             "",
             "All outputs are local dry-run artifacts. The pilot does not send real notifications, create GitHub issues, use credentials, write canonical state, approve candidates, or touch paper/live/runtime paths.",
@@ -233,6 +251,7 @@ def run_pilot(
     output_dir: Path = DEFAULT_OUTPUT_DIR,
     dry_run: bool = True,
     created_at_utc: str = DEFAULT_CREATED_AT_UTC,
+    exercise_apprise: bool = False,
 ) -> dict[str, Any]:
     if dry_run is not True:
         raise NotificationsApprovalsPilotError("this pilot only supports --dry-run")
@@ -243,7 +262,7 @@ def run_pilot(
     if notification_log.exists():
         notification_log.unlink()
 
-    dependency_probe = probe_apprise()
+    dependency_probe = probe_apprise(exercise=exercise_apprise)
     approval = _approval_request(created_at_utc, output_dir).to_dict()
     blocked_report = _blocked_action_report(created_at_utc)
     issueops_payload = _issueops_payload(approval, created_at_utc)
@@ -286,7 +305,15 @@ def run_pilot(
         "dry_run": True,
         "github_write_performed": False,
         "real_notification_sent": False,
+        "external_notification_sent": False,
         "credential_access_attempted": False,
+        "credentials_used": False,
+        "dependency_files_touched": False,
+        "apprise_import_available": dependency_probe["apprise_import_available"],
+        "apprise_version": dependency_probe["apprise_version"],
+        "real_apprise_exercised": dependency_probe["real_apprise_exercised"],
+        "apprise_delivery_mode": dependency_probe["apprise_delivery_mode"],
+        "recommendation": dependency_probe["recommendation"],
         "non_authority_flags": non_authority_flag_map(),
         "artifacts": [
             {"path": _repo_relative(path), "sha256": _sha256_file(path)}
@@ -302,6 +329,14 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument("--dry-run", action="store_true", required=True)
     parser.add_argument("--created-at-utc", default=DEFAULT_CREATED_AT_UTC)
+    parser.add_argument(
+        "--exercise-apprise",
+        action="store_true",
+        help=(
+            "Exercise real Apprise through a local in-process no-network target; "
+            "requires Apprise to be importable in the active Python environment."
+        ),
+    )
     return parser
 
 
@@ -313,6 +348,7 @@ def main(argv: list[str] | None = None) -> int:
             output_dir=args.output_dir,
             dry_run=args.dry_run,
             created_at_utc=args.created_at_utc,
+            exercise_apprise=args.exercise_apprise,
         )
     except Exception as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
@@ -326,6 +362,8 @@ def main(argv: list[str] | None = None) -> int:
                 "dry_run": provenance["dry_run"],
                 "github_write_performed": provenance["github_write_performed"],
                 "real_notification_sent": provenance["real_notification_sent"],
+                "real_apprise_exercised": provenance["real_apprise_exercised"],
+                "apprise_delivery_mode": provenance["apprise_delivery_mode"],
             },
             indent=2,
             sort_keys=True,

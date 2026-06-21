@@ -1,6 +1,22 @@
 {
-  "behavior_exercised": false,
+  "apprise_callback_count": 1,
+  "apprise_callback_schema": "codexlocalpoc",
+  "apprise_callback_url": "codexlocalpoc://",
+  "apprise_delivery_mode": "local_no_network_no_credentials",
+  "apprise_import_available": true,
+  "apprise_notify_result": true,
+  "apprise_object_constructed": true,
+  "apprise_target_added": true,
+  "apprise_version": "1.11.0",
+  "behavior_exercised": true,
+  "credentials_used": false,
   "dependency": "apprise",
-  "exercise_reason": "No package-scoped local/no-op Apprise URL is configured; real outbound notification credentials and URLs are forbidden for this WP.",
-  "import_available": false
+  "dependency_files_touched": false,
+  "exercise_reason": "Real Apprise imported, constructed an apprise.Apprise object, registered a local in-process decorator target, added its URL, and called notify without credentials or external delivery.",
+  "external_notification_sent": false,
+  "github_write_performed": false,
+  "import_available": true,
+  "network_delivery_attempted": false,
+  "real_apprise_exercised": true,
+  "recommendation": "conditional_adopt_candidate"
 }

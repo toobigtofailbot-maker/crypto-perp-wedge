@@ -30,6 +30,10 @@ def test_pilot_writes_dry_run_artifacts(tmp_path, monkeypatch):
     assert provenance["dry_run"] is True
     assert provenance["github_write_performed"] is False
     assert provenance["real_notification_sent"] is False
+    assert provenance["external_notification_sent"] is False
+    assert provenance["credentials_used"] is False
+    assert provenance["dependency_files_touched"] is False
+    assert provenance["real_apprise_exercised"] is False
 
 
 def test_approval_queue_remains_pending_and_non_authoritative(tmp_path, monkeypatch):
@@ -93,6 +97,45 @@ def test_issueops_payload_is_dry_run_only(tmp_path, monkeypatch):
     assert payload["github_write_performed"] is False
     assert payload["status_transition_policy"]["agent_can_approve"] is False
     assert payload["status_transition_policy"]["no_auto_approval"] is True
+
+
+def test_explicit_apprise_exercise_records_real_probe_result(tmp_path, monkeypatch):
+    monkeypatch.setattr(subject, "REPO_ROOT", tmp_path)
+    output_dir = tmp_path / "scratch" / subject.PACKAGE_ID
+
+    def fake_probe_apprise(*, exercise: bool = False):
+        assert exercise is True
+        return {
+            "dependency": "apprise",
+            "import_available": True,
+            "apprise_import_available": True,
+            "apprise_version": "1.2.3-test",
+            "behavior_exercised": True,
+            "real_apprise_exercised": True,
+            "apprise_delivery_mode": "local_no_network_no_credentials",
+            "external_notification_sent": False,
+            "network_delivery_attempted": False,
+            "credentials_used": False,
+            "github_write_performed": False,
+            "dependency_files_touched": False,
+            "recommendation": "conditional_adopt_candidate",
+            "exercise_reason": "test probe",
+        }
+
+    monkeypatch.setattr(subject, "probe_apprise", fake_probe_apprise)
+
+    provenance = subject.run_pilot(
+        output_dir=output_dir,
+        dry_run=True,
+        exercise_apprise=True,
+    )
+    dependency_probe = json.loads((output_dir / "dependency_probe.json").read_text())
+
+    assert provenance["real_apprise_exercised"] is True
+    assert provenance["apprise_version"] == "1.2.3-test"
+    assert provenance["apprise_delivery_mode"] == "local_no_network_no_credentials"
+    assert dependency_probe["real_apprise_exercised"] is True
+    assert dependency_probe["external_notification_sent"] is False
 
 
 def test_rejects_non_dry_run_and_non_scratch_output(tmp_path, monkeypatch):

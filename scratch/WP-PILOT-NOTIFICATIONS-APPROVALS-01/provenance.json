@@ -1,8 +1,11 @@
 {
+  "apprise_delivery_mode": "local_no_network_no_credentials",
+  "apprise_import_available": true,
+  "apprise_version": "1.11.0",
   "artifacts": [
     {
       "path": "scratch/WP-PILOT-NOTIFICATIONS-APPROVALS-01/README.md",
-      "sha256": "sha256:0e0778cdc57e035b4a3b1f3abc19ce5822f86116bba6bcaf4c8e90987d822cd2"
+      "sha256": "sha256:c5835fd96ee63de5597d00f7a04fea62ee40cea7ed3d4256013ac0295da2d279"
     },
     {
       "path": "scratch/WP-PILOT-NOTIFICATIONS-APPROVALS-01/notification_log.jsonl",
@@ -22,11 +25,11 @@
     },
     {
       "path": "scratch/WP-PILOT-NOTIFICATIONS-APPROVALS-01/recommendation_report.md",
-      "sha256": "sha256:7768ed09e52bbac4c6a37c17bfa3e649c99f3c2a9c8b967717072ed94b282649"
+      "sha256": "sha256:aed8240caa54e237795946c7800de6ef86526824a55778703deefc0678dbeda8"
     },
     {
       "path": "scratch/WP-PILOT-NOTIFICATIONS-APPROVALS-01/dependency_probe.json",
-      "sha256": "sha256:8af9b596f51a3471ed24a594c811452f0902f2e4b3a3c84291ffccc04fe8a35d"
+      "sha256": "sha256:ba5e7e92d68748d7ab6b642c909f0b06e85a79ed7e5ee9a46f8be20403f81664"
     },
     {
       "path": "scratch/WP-PILOT-NOTIFICATIONS-APPROVALS-01/requirements.poc.txt",
@@ -35,7 +38,10 @@
   ],
   "created_at_utc": "2026-06-20T00:00:00Z",
   "credential_access_attempted": false,
+  "credentials_used": false,
+  "dependency_files_touched": false,
   "dry_run": true,
+  "external_notification_sent": false,
   "github_write_performed": false,
   "non_authority_flags": {
     "dry_run": true,
@@ -49,7 +55,9 @@
     "scratch_only": true
   },
   "package_id": "WP-PILOT-NOTIFICATIONS-APPROVALS-01",
+  "real_apprise_exercised": true,
   "real_notification_sent": false,
+  "recommendation": "conditional_adopt_candidate",
   "source_branch": "pilot/notifications-approvals-01",
-  "source_commit": "4da388a289fb0df4547d204e17b05b151f1cb595"
+  "source_commit": "4d2197408910a73384f1c9019a3828d18c6068a5"
 }

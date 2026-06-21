@@ -31,9 +31,15 @@ This package adds a standalone dry-run pilot under `tools/notifications_poc`.
 It models one local JSONL notification event, a pending manual approval request,
 a dry-run GitHub IssueOps payload, and blocked forbidden action attempts.
 
-The pilot probes whether `apprise` is importable but does not exercise real
-delivery because no package-scoped local/no-op Apprise URL is configured.
-No GitHub write API is called.
+Follow-up `WP-PILOT-NOTIFICATIONS-APPROVALS-01-FOLLOWUP-01` adds an explicit
+`--exercise-apprise` mode. In an external temp venv, Apprise `1.11.0` was
+installed/imported, a real `apprise.Apprise` object was constructed, a local
+in-process decorator target was registered and added as `codexlocalpoc://`, and
+`notify` returned true with exactly one local callback invocation. The delivery
+mode is recorded as `local_no_network_no_credentials`; no external notification,
+credential, GitHub write API, repo dependency-file mutation, approval, or
+runtime/paper/live path was used. Default repo mode remains local JSONL only and
+safe without Apprise installed.
 
 ## Changed files
 
@@ -64,12 +70,13 @@ No GitHub write API is called.
 
 ## Validation summary
 
-- `python -m pytest tests/test_notifications_approvals_poc.py -q`: PASS, 6 tests.
+- `python -m pytest tests/test_notifications_approvals_poc.py -q`: PASS, 7 tests.
 - `python -m tools.notifications_poc.run_notifications_approvals_poc --output-dir scratch/WP-PILOT-NOTIFICATIONS-APPROVALS-01 --dry-run`: PASS.
+- External Apprise venv `python -m pytest tests/test_notifications_approvals_poc.py -q`: PASS, 7 tests.
+- External Apprise venv `python -m tools.notifications_poc.run_notifications_approvals_poc --output-dir scratch/WP-PILOT-NOTIFICATIONS-APPROVALS-01 --dry-run --exercise-apprise`: PASS; `real_apprise_exercised=true`, delivery mode `local_no_network_no_credentials`.
 - `python tools/dev/diff_scope_summary.py`: PASS; no forbidden-path matches.
 - `git diff --check`: PASS.
 - `python -m pytest tests/test_generate_static_dashboard.py tests/test_validate_dashboard_data.py -q`: PASS, 55 tests.
 - `python -m tools.research_query.run --list-views`: PASS.
 - Ambient Python 3.14 `python -m pytest -q`: collection failed in 2.46 seconds because the environment lacks `binance`, `pandas`, and `numpy`; no package-specific failure surfaced.
-- Repo virtualenv `C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest -q`: TIMED OUT after 15 minutes with no visible output; not claimed as passing evidence.
-- Repo virtualenv `C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest -vv --maxfail=1`: FAIL in 114.35 seconds, 518 passed / 1 skipped before first failure; first failure was `tests/test_external_simulator_pilot.py::test_default_fixture_mapping_uses_rp_2592_lineage` because `fixture["normalized_data_local_exists"]` was `False` in this isolated worktree. This is the known gitignored local normalized-data-file limitation and is not caused by the notification/approval pilot.
+- Repo virtualenv `C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest -q --maxfail=1 -ra`: FAIL in 48.88 seconds, 518 passed / 1 skipped before first failure; first failure was `tests/test_external_simulator_pilot.py::test_default_fixture_mapping_uses_rp_2592_lineage` because `fixture["normalized_data_local_exists"]` was `False` in this isolated worktree. This is the known gitignored local normalized-data-file limitation and is not caused by the notification/approval pilot.

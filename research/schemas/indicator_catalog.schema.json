@@ -25,15 +25,18 @@
     "provenance": { "$ref": "#/definitions/provenance" },
     "entries": {
       "type": "array",
-      "minItems": 4,
-      "maxItems": 4,
+      "minItems": 7,
+      "maxItems": 7,
       "uniqueItems": true,
       "items": { "$ref": "#/definitions/indicator_entry" },
       "allOf": [
         { "contains": { "type": "object", "required": ["indicator_id"], "properties": { "indicator_id": { "const": "sma" } } } },
         { "contains": { "type": "object", "required": ["indicator_id"], "properties": { "indicator_id": { "const": "ema" } } } },
         { "contains": { "type": "object", "required": ["indicator_id"], "properties": { "indicator_id": { "const": "atr" } } } },
-        { "contains": { "type": "object", "required": ["indicator_id"], "properties": { "indicator_id": { "const": "stddev" } } } }
+        { "contains": { "type": "object", "required": ["indicator_id"], "properties": { "indicator_id": { "const": "stddev" } } } },
+        { "contains": { "type": "object", "required": ["indicator_id"], "properties": { "indicator_id": { "const": "rsi" } } } },
+        { "contains": { "type": "object", "required": ["indicator_id"], "properties": { "indicator_id": { "const": "donchian" } } } },
+        { "contains": { "type": "object", "required": ["indicator_id"], "properties": { "indicator_id": { "const": "ma_distance" } } } }
       ]
     },
     "review": { "$ref": "#/definitions/review" },
@@ -150,7 +153,7 @@
         "non_authority"
       ],
       "properties": {
-        "indicator_id": { "type": "string", "enum": ["sma", "ema", "atr", "stddev"] },
+        "indicator_id": { "type": "string", "enum": ["sma", "ema", "atr", "stddev", "rsi", "donchian", "ma_distance"] },
         "version": { "type": "string", "const": "v1" },
         "display_name": { "$ref": "#/definitions/non_empty_string" },
         "catalog_status": { "type": "string", "enum": ["draft", "review_requested", "active", "superseded", "rejected"] },
@@ -166,7 +169,10 @@
         { "$ref": "#/definitions/sma_entry_constraints" },
         { "$ref": "#/definitions/ema_entry_constraints" },
         { "$ref": "#/definitions/atr_entry_constraints" },
-        { "$ref": "#/definitions/stddev_entry_constraints" }
+        { "$ref": "#/definitions/stddev_entry_constraints" },
+        { "$ref": "#/definitions/rsi_entry_constraints" },
+        { "$ref": "#/definitions/donchian_entry_constraints" },
+        { "$ref": "#/definitions/ma_distance_entry_constraints" }
       ]
     },
     "sma_entry_constraints": {
@@ -209,6 +215,39 @@
         "parameter_contract": { "$ref": "#/definitions/stddev_parameter_contract" }
       }
     },
+    "rsi_entry_constraints": {
+      "type": "object",
+      "required": ["indicator_id", "implementation_binding", "input_contract", "parameter_contract", "output_contract"],
+      "properties": {
+        "indicator_id": { "const": "rsi" },
+        "implementation_binding": { "properties": { "builtin_key": { "const": "rsi_v1" } } },
+        "input_contract": { "$ref": "#/definitions/single_source_input_contract" },
+        "parameter_contract": { "$ref": "#/definitions/rsi_parameter_contract" },
+        "output_contract": { "$ref": "#/definitions/value_only_output_contract" }
+      }
+    },
+    "donchian_entry_constraints": {
+      "type": "object",
+      "required": ["indicator_id", "implementation_binding", "input_contract", "parameter_contract", "output_contract"],
+      "properties": {
+        "indicator_id": { "const": "donchian" },
+        "implementation_binding": { "properties": { "builtin_key": { "const": "donchian_v1" } } },
+        "input_contract": { "$ref": "#/definitions/donchian_input_contract" },
+        "parameter_contract": { "$ref": "#/definitions/donchian_parameter_contract" },
+        "output_contract": { "$ref": "#/definitions/donchian_output_contract" }
+      }
+    },
+    "ma_distance_entry_constraints": {
+      "type": "object",
+      "required": ["indicator_id", "implementation_binding", "input_contract", "parameter_contract", "output_contract"],
+      "properties": {
+        "indicator_id": { "const": "ma_distance" },
+        "implementation_binding": { "properties": { "builtin_key": { "const": "ma_distance_v1" } } },
+        "input_contract": { "$ref": "#/definitions/single_source_input_contract" },
+        "parameter_contract": { "$ref": "#/definitions/ma_distance_parameter_contract" },
+        "output_contract": { "$ref": "#/definitions/ma_distance_output_contract" }
+      }
+    },
     "implementation_binding": {
       "type": "object",
       "additionalProperties": false,
@@ -216,13 +255,19 @@
       "required": ["binding_type", "builtin_key", "implementation_owner", "computation_defined_in_catalog", "arbitrary_expression_allowed"],
       "properties": {
         "binding_type": { "type": "string", "const": "compiler_builtin_closed_set" },
-        "builtin_key": { "type": "string", "enum": ["sma_v1", "ema_v1", "atr_v1", "stddev_v1"] },
+        "builtin_key": { "type": "string", "enum": ["sma_v1", "ema_v1", "atr_v1", "stddev_v1", "rsi_v1", "donchian_v1", "ma_distance_v1"] },
         "implementation_owner": { "type": "string", "const": "spec_signal_compiler" },
         "computation_defined_in_catalog": { "type": "boolean", "const": false },
         "arbitrary_expression_allowed": { "type": "boolean", "const": false }
       }
     },
-    "input_contract": { "oneOf": [{ "$ref": "#/definitions/single_source_input_contract" }, { "$ref": "#/definitions/atr_input_contract" }] },
+    "input_contract": {
+      "oneOf": [
+        { "$ref": "#/definitions/single_source_input_contract" },
+        { "$ref": "#/definitions/atr_input_contract" },
+        { "$ref": "#/definitions/donchian_input_contract" }
+      ]
+    },
     "single_source_input_contract": {
       "type": "object",
       "additionalProperties": false,
@@ -248,6 +293,25 @@
             { "$ref": "#/definitions/fixed_high_input" },
             { "$ref": "#/definitions/fixed_low_input" },
             { "$ref": "#/definitions/fixed_close_input" }
+          ],
+          "additionalItems": false
+        }
+      }
+    },
+    "donchian_input_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["input_mode", "inputs"],
+      "properties": {
+        "input_mode": { "type": "string", "const": "fixed_ohlcv_high_low" },
+        "inputs": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": [
+            { "$ref": "#/definitions/fixed_high_input" },
+            { "$ref": "#/definitions/fixed_low_input" }
           ],
           "additionalItems": false
         }
@@ -303,11 +367,14 @@
       }
     },
     "parameter_contract": {
-      "oneOf": [
+      "anyOf": [
         { "$ref": "#/definitions/sma_parameter_contract" },
         { "$ref": "#/definitions/ema_parameter_contract" },
         { "$ref": "#/definitions/atr_parameter_contract" },
-        { "$ref": "#/definitions/stddev_parameter_contract" }
+        { "$ref": "#/definitions/stddev_parameter_contract" },
+        { "$ref": "#/definitions/rsi_parameter_contract" },
+        { "$ref": "#/definitions/donchian_parameter_contract" },
+        { "$ref": "#/definitions/ma_distance_parameter_contract" }
       ]
     },
     "sma_parameter_contract": {
@@ -370,6 +437,52 @@
           "items": [
             { "$ref": "#/definitions/lookback_bars_min_2_required" },
             { "$ref": "#/definitions/stddev_ddof_parameter" }
+          ],
+          "additionalItems": false
+        }
+      }
+    },
+    "rsi_parameter_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["parameters"],
+      "properties": {
+        "parameters": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": [
+            { "$ref": "#/definitions/lookback_bars_min_1_required" },
+            { "$ref": "#/definitions/rsi_smoothing_convention_parameter" },
+            { "$ref": "#/definitions/rsi_zero_movement_policy_parameter" }
+          ],
+          "additionalItems": false
+        }
+      }
+    },
+    "donchian_parameter_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["parameters"],
+      "properties": {
+        "parameters": { "type": "array", "minItems": 1, "maxItems": 1, "items": [{ "$ref": "#/definitions/lookback_bars_min_1_required" }], "additionalItems": false }
+      }
+    },
+    "ma_distance_parameter_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["parameters"],
+      "properties": {
+        "parameters": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": [
+            { "$ref": "#/definitions/lookback_bars_min_1_required" },
+            { "$ref": "#/definitions/ma_distance_ma_kind_parameter" }
           ],
           "additionalItems": false
         }
@@ -453,6 +566,38 @@
         "may_bind_strategy_parameter": { "type": "boolean", "const": false }
       }
     },
+    "rsi_smoothing_convention_parameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["name", "type", "allowed_values", "required", "may_bind_strategy_parameter"],
+      "properties": {
+        "name": { "type": "string", "const": "smoothing_convention" },
+        "type": { "type": "string", "const": "enum" },
+        "allowed_values": { "type": "array", "minItems": 1, "maxItems": 1, "items": [{ "type": "string", "const": "wilder_rma" }], "additionalItems": false },
+        "required": { "type": "boolean", "const": true },
+        "may_bind_strategy_parameter": { "type": "boolean", "const": false }
+      }
+    },
+    "rsi_zero_movement_policy_parameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["name", "type", "allowed_values", "required", "may_bind_strategy_parameter"],
+      "properties": {
+        "name": { "type": "string", "const": "zero_movement_policy" },
+        "type": { "type": "string", "const": "enum" },
+        "allowed_values": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "items": [{ "type": "string", "const": "loss_zero_gain_positive_100_gain_zero_loss_positive_0_both_zero_50" }],
+          "additionalItems": false
+        },
+        "required": { "type": "boolean", "const": true },
+        "may_bind_strategy_parameter": { "type": "boolean", "const": false }
+      }
+    },
     "stddev_ddof_parameter": {
       "type": "object",
       "additionalProperties": false,
@@ -467,13 +612,77 @@
         "may_bind_strategy_parameter": { "type": "boolean", "const": false }
       }
     },
+    "ma_distance_ma_kind_parameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["name", "type", "allowed_values", "default", "required", "may_bind_strategy_parameter"],
+      "properties": {
+        "name": { "type": "string", "const": "ma_kind" },
+        "type": { "type": "string", "const": "enum" },
+        "allowed_values": { "type": "array", "minItems": 1, "maxItems": 1, "items": [{ "type": "string", "const": "sma" }], "additionalItems": false },
+        "default": { "type": "string", "const": "sma" },
+        "required": { "type": "boolean", "const": false },
+        "may_bind_strategy_parameter": { "type": "boolean", "const": false }
+      }
+    },
     "output_contract": {
+      "oneOf": [
+        { "$ref": "#/definitions/value_only_output_contract" },
+        { "$ref": "#/definitions/donchian_output_contract" },
+        { "$ref": "#/definitions/ma_distance_output_contract" }
+      ]
+    },
+    "value_only_output_contract": {
       "type": "object",
       "additionalProperties": false,
       "propertyNames": { "$ref": "#/definitions/safe_property_name" },
       "required": ["outputs"],
       "properties": {
         "outputs": { "type": "array", "minItems": 1, "maxItems": 1, "items": [{ "$ref": "#/definitions/value_output" }], "additionalItems": false }
+      }
+    },
+    "donchian_output_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["outputs"],
+      "properties": {
+        "outputs": {
+          "type": "array",
+          "minItems": 8,
+          "maxItems": 8,
+          "items": [
+            { "$ref": "#/definitions/donchian_upper_output" },
+            { "$ref": "#/definitions/donchian_lower_output" },
+            { "$ref": "#/definitions/donchian_mid_output" },
+            { "$ref": "#/definitions/donchian_width_output" },
+            { "$ref": "#/definitions/donchian_upper_lag1_output" },
+            { "$ref": "#/definitions/donchian_lower_lag1_output" },
+            { "$ref": "#/definitions/donchian_mid_lag1_output" },
+            { "$ref": "#/definitions/donchian_width_lag1_output" }
+          ],
+          "additionalItems": false
+        }
+      }
+    },
+    "ma_distance_output_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["outputs"],
+      "properties": {
+        "outputs": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": [
+            { "$ref": "#/definitions/ma_distance_abs_output" },
+            { "$ref": "#/definitions/ma_distance_ratio_output" },
+            { "$ref": "#/definitions/ma_distance_pct_output" }
+          ],
+          "additionalItems": false
+        }
       }
     },
     "value_output": {
@@ -487,6 +696,28 @@
         "index_alignment": { "type": "string", "const": "primary_ohlcv_index" }
       }
     },
+    "numeric_output_base": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/safe_property_name" },
+      "required": ["field", "type", "index_alignment"],
+      "properties": {
+        "field": { "type": "string" },
+        "type": { "type": "string", "const": "numeric_series" },
+        "index_alignment": { "type": "string", "const": "primary_ohlcv_index" }
+      }
+    },
+    "donchian_upper_output": { "allOf": [{ "$ref": "#/definitions/numeric_output_base" }, { "properties": { "field": { "const": "upper" } } }] },
+    "donchian_lower_output": { "allOf": [{ "$ref": "#/definitions/numeric_output_base" }, { "properties": { "field": { "const": "lower" } } }] },
+    "donchian_mid_output": { "allOf": [{ "$ref": "#/definitions/numeric_output_base" }, { "properties": { "field": { "const": "mid" } } }] },
+    "donchian_width_output": { "allOf": [{ "$ref": "#/definitions/numeric_output_base" }, { "properties": { "field": { "const": "width" } } }] },
+    "donchian_upper_lag1_output": { "allOf": [{ "$ref": "#/definitions/numeric_output_base" }, { "properties": { "field": { "const": "upper_lag1" } } }] },
+    "donchian_lower_lag1_output": { "allOf": [{ "$ref": "#/definitions/numeric_output_base" }, { "properties": { "field": { "const": "lower_lag1" } } }] },
+    "donchian_mid_lag1_output": { "allOf": [{ "$ref": "#/definitions/numeric_output_base" }, { "properties": { "field": { "const": "mid_lag1" } } }] },
+    "donchian_width_lag1_output": { "allOf": [{ "$ref": "#/definitions/numeric_output_base" }, { "properties": { "field": { "const": "width_lag1" } } }] },
+    "ma_distance_abs_output": { "allOf": [{ "$ref": "#/definitions/numeric_output_base" }, { "properties": { "field": { "const": "distance_abs" } } }] },
+    "ma_distance_ratio_output": { "allOf": [{ "$ref": "#/definitions/numeric_output_base" }, { "properties": { "field": { "const": "distance_ratio" } } }] },
+    "ma_distance_pct_output": { "allOf": [{ "$ref": "#/definitions/numeric_output_base" }, { "properties": { "field": { "const": "distance_pct" } } }] },
     "warmup_contract": {
       "type": "object",
       "additionalProperties": false,

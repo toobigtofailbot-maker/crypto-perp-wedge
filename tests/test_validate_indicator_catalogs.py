@@ -136,16 +136,45 @@ def test_validator_rejects_stddev_ddof_outside_closed_set(tmp_path):
     assert any("entries.stddev parameter ddof allowed_values" in error for error in errors)
 
 
+def test_validator_rejects_unapproved_rsi_zero_movement_policy(tmp_path):
+    payload = _load_committed_catalog()
+    policy = _parameter(_entry(payload, "rsi"), "zero_movement_policy")
+    policy["allowed_values"] = ["epsilon"]
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("entries.rsi parameter zero_movement_policy allowed_values" in error for error in errors)
+
+
+def test_validator_rejects_mutated_donchian_output_set(tmp_path):
+    payload = _load_committed_catalog()
+    _entry(payload, "donchian")["output_contract"]["outputs"].pop()
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("entries.donchian output fields" in error for error in errors)
+
+
+def test_validator_rejects_unapproved_ma_distance_ma_kind(tmp_path):
+    payload = _load_committed_catalog()
+    ma_kind = _parameter(_entry(payload, "ma_distance"), "ma_kind")
+    ma_kind["allowed_values"] = ["sma", "ema"]
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("entries.ma_distance parameter ma_kind allowed_values" in error for error in errors)
+
+
 def test_validator_rejects_extra_catalog_entry(tmp_path):
     payload = _load_committed_catalog()
     extra = copy.deepcopy(_entry(payload, "sma"))
-    extra["indicator_id"] = "rsi"
-    extra["implementation_binding"]["builtin_key"] = "rsi_v1"
+    extra["indicator_id"] = "mfi"
+    extra["implementation_binding"]["builtin_key"] = "mfi_v1"
     payload["entries"].append(extra)
 
     errors = _validate(tmp_path, payload)
 
-    assert any("entries must contain exactly 4 entries" in error for error in errors)
+    assert any("entries must contain exactly 7 entries" in error for error in errors)
 
 
 def test_validator_rejects_missing_required_contract_objects(tmp_path):

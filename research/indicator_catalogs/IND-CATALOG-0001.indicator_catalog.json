@@ -27,8 +27,8 @@
     ],
     "prepared_by": "Codex",
     "created_at": "2026-06-05T00:00:00Z",
-    "updated_at": "2026-06-05T00:00:00Z",
-    "rationale": "First closed indicator catalog instance for SMA, EMA, ATR, and StdDev interface declarations only."
+    "updated_at": "2026-06-21T00:00:00Z",
+    "rationale": "Closed indicator catalog instance for SMA, EMA, ATR, StdDev, RSI, Donchian channel, and SMA-distance interface declarations only."
   },
   "entries": [
     {
@@ -340,6 +340,273 @@
         "not_order_authority": true,
         "not_broker_exchange_authority": true
       }
+    },
+    {
+      "indicator_id": "rsi",
+      "version": "v1",
+      "display_name": "Relative Strength Index",
+      "catalog_status": "active",
+      "implementation_binding": {
+        "binding_type": "compiler_builtin_closed_set",
+        "builtin_key": "rsi_v1",
+        "implementation_owner": "spec_signal_compiler",
+        "computation_defined_in_catalog": false,
+        "arbitrary_expression_allowed": false
+      },
+      "input_contract": {
+        "input_mode": "single_source",
+        "inputs": [
+          {
+            "input_id": "source",
+            "frame": "ohlcv",
+            "field": "close",
+            "default_field": "close",
+            "series_type": "numeric"
+          }
+        ]
+      },
+      "parameter_contract": {
+        "parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "integer",
+            "minimum": 1,
+            "required": true,
+            "may_bind_strategy_parameter": true
+          },
+          {
+            "name": "smoothing_convention",
+            "type": "enum",
+            "allowed_values": [
+              "wilder_rma"
+            ],
+            "required": true,
+            "may_bind_strategy_parameter": false
+          },
+          {
+            "name": "zero_movement_policy",
+            "type": "enum",
+            "allowed_values": [
+              "loss_zero_gain_positive_100_gain_zero_loss_positive_0_both_zero_50"
+            ],
+            "required": true,
+            "may_bind_strategy_parameter": false
+          }
+        ]
+      },
+      "output_contract": {
+        "outputs": [
+          {
+            "field": "value",
+            "type": "numeric_series",
+            "index_alignment": "primary_ohlcv_index"
+          }
+        ]
+      },
+      "warmup_contract": {
+        "no_lookahead": true,
+        "warmup_output": "null_until_ready"
+      },
+      "null_handling": {
+        "signal_generation_policy": "null_operand_never_true"
+      },
+      "non_authority": {
+        "not_runtime_authority": true,
+        "not_paper_live_authority": true,
+        "not_recommendation_authority": true,
+        "not_ranking_authority": true,
+        "not_readiness_authority": true,
+        "not_transition_authority": true,
+        "not_gate_authority": true,
+        "not_order_authority": true,
+        "not_broker_exchange_authority": true
+      }
+    },
+    {
+      "indicator_id": "donchian",
+      "version": "v1",
+      "display_name": "Donchian Channel",
+      "catalog_status": "active",
+      "implementation_binding": {
+        "binding_type": "compiler_builtin_closed_set",
+        "builtin_key": "donchian_v1",
+        "implementation_owner": "spec_signal_compiler",
+        "computation_defined_in_catalog": false,
+        "arbitrary_expression_allowed": false
+      },
+      "input_contract": {
+        "input_mode": "fixed_ohlcv_high_low",
+        "inputs": [
+          {
+            "input_id": "high",
+            "frame": "ohlcv",
+            "field": "high",
+            "series_type": "numeric"
+          },
+          {
+            "input_id": "low",
+            "frame": "ohlcv",
+            "field": "low",
+            "series_type": "numeric"
+          }
+        ]
+      },
+      "parameter_contract": {
+        "parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "integer",
+            "minimum": 1,
+            "required": true,
+            "may_bind_strategy_parameter": true
+          }
+        ]
+      },
+      "output_contract": {
+        "outputs": [
+          {
+            "field": "upper",
+            "type": "numeric_series",
+            "index_alignment": "primary_ohlcv_index"
+          },
+          {
+            "field": "lower",
+            "type": "numeric_series",
+            "index_alignment": "primary_ohlcv_index"
+          },
+          {
+            "field": "mid",
+            "type": "numeric_series",
+            "index_alignment": "primary_ohlcv_index"
+          },
+          {
+            "field": "width",
+            "type": "numeric_series",
+            "index_alignment": "primary_ohlcv_index"
+          },
+          {
+            "field": "upper_lag1",
+            "type": "numeric_series",
+            "index_alignment": "primary_ohlcv_index"
+          },
+          {
+            "field": "lower_lag1",
+            "type": "numeric_series",
+            "index_alignment": "primary_ohlcv_index"
+          },
+          {
+            "field": "mid_lag1",
+            "type": "numeric_series",
+            "index_alignment": "primary_ohlcv_index"
+          },
+          {
+            "field": "width_lag1",
+            "type": "numeric_series",
+            "index_alignment": "primary_ohlcv_index"
+          }
+        ]
+      },
+      "warmup_contract": {
+        "no_lookahead": true,
+        "warmup_output": "null_until_ready"
+      },
+      "null_handling": {
+        "signal_generation_policy": "null_operand_never_true"
+      },
+      "non_authority": {
+        "not_runtime_authority": true,
+        "not_paper_live_authority": true,
+        "not_recommendation_authority": true,
+        "not_ranking_authority": true,
+        "not_readiness_authority": true,
+        "not_transition_authority": true,
+        "not_gate_authority": true,
+        "not_order_authority": true,
+        "not_broker_exchange_authority": true
+      }
+    },
+    {
+      "indicator_id": "ma_distance",
+      "version": "v1",
+      "display_name": "SMA Distance",
+      "catalog_status": "active",
+      "implementation_binding": {
+        "binding_type": "compiler_builtin_closed_set",
+        "builtin_key": "ma_distance_v1",
+        "implementation_owner": "spec_signal_compiler",
+        "computation_defined_in_catalog": false,
+        "arbitrary_expression_allowed": false
+      },
+      "input_contract": {
+        "input_mode": "single_source",
+        "inputs": [
+          {
+            "input_id": "source",
+            "frame": "ohlcv",
+            "field": "close",
+            "default_field": "close",
+            "series_type": "numeric"
+          }
+        ]
+      },
+      "parameter_contract": {
+        "parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "integer",
+            "minimum": 1,
+            "required": true,
+            "may_bind_strategy_parameter": true
+          },
+          {
+            "name": "ma_kind",
+            "type": "enum",
+            "allowed_values": [
+              "sma"
+            ],
+            "default": "sma",
+            "required": false,
+            "may_bind_strategy_parameter": false
+          }
+        ]
+      },
+      "output_contract": {
+        "outputs": [
+          {
+            "field": "distance_abs",
+            "type": "numeric_series",
+            "index_alignment": "primary_ohlcv_index"
+          },
+          {
+            "field": "distance_ratio",
+            "type": "numeric_series",
+            "index_alignment": "primary_ohlcv_index"
+          },
+          {
+            "field": "distance_pct",
+            "type": "numeric_series",
+            "index_alignment": "primary_ohlcv_index"
+          }
+        ]
+      },
+      "warmup_contract": {
+        "no_lookahead": true,
+        "warmup_output": "null_until_ready"
+      },
+      "null_handling": {
+        "signal_generation_policy": "null_operand_never_true"
+      },
+      "non_authority": {
+        "not_runtime_authority": true,
+        "not_paper_live_authority": true,
+        "not_recommendation_authority": true,
+        "not_ranking_authority": true,
+        "not_readiness_authority": true,
+        "not_transition_authority": true,
+        "not_gate_authority": true,
+        "not_order_authority": true,
+        "not_broker_exchange_authority": true
+      }
     }
   ],
   "review": {
@@ -347,7 +614,8 @@
     "reviewer": null,
     "reviewed_at": null,
     "review_notes": [
-      "WP-S2c-198 catalog instance declares interface and binding metadata only."
+      "WP-S2c-198 catalog instance declares interface and binding metadata only.",
+      "WP-COMPILER-INDICATORS-OSCILLATOR-CHANNEL-01 adds RSI, Donchian, and SMA-distance interfaces; compiler code owns all computations."
     ],
     "approval_scope": "catalog_interface_only",
     "non_authority_acknowledgement": {
@@ -381,9 +649,11 @@
       }
     ],
     "created_at": "2026-06-05T00:00:00Z",
-    "updated_at": "2026-06-05T00:00:00Z",
+    "updated_at": "2026-06-21T00:00:00Z",
     "audit_notes": [
-      "No computation, compiler implementation, runner action, runtime authority, or paper/live authority is encoded."
+      "No computation, compiler implementation, runner action, runtime authority, or paper/live authority is encoded.",
+      "Donchian upper/lower/mid/width include the current bar; lagged *_lag1 fields are declared for breakout-safe previous-channel comparisons.",
+      "MA-distance v1 uses the current Strategy Spec idiom's default close source and SMA moving average; existing plus/minus composed bands remain preserved."
     ]
   },
   "hash_pinning": {

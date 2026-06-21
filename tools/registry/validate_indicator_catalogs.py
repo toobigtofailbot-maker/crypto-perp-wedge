@@ -18,6 +18,9 @@ APPROVED_INDICATOR_BUILTINS = {
     "ema": "ema_v1",
     "atr": "atr_v1",
     "stddev": "stddev_v1",
+    "rsi": "rsi_v1",
+    "donchian": "donchian_v1",
+    "ma_distance": "ma_distance_v1",
 }
 REQUIRED_CONTRACT_OBJECTS = {
     "implementation_binding",
@@ -207,6 +210,17 @@ def _parameters_by_name(entry: Mapping[str, Any]) -> dict[str, Mapping[str, Any]
     }
 
 
+def _outputs_by_field(entry: Mapping[str, Any]) -> dict[str, Mapping[str, Any]]:
+    outputs = entry.get("output_contract", {}).get("outputs", [])
+    if not isinstance(outputs, list):
+        return {}
+    return {
+        output["field"]: output
+        for output in outputs
+        if isinstance(output, Mapping) and isinstance(output.get("field"), str)
+    }
+
+
 def _entry_path(entry_index_by_id: Mapping[str, int], indicator_id: str) -> str:
     index = entry_index_by_id.get(indicator_id)
     if index is None:
@@ -336,6 +350,60 @@ def _validate_conventions(path: Path, payload: Mapping[str, Any]) -> list[str]:
             errors.append(f"{path}: entries.stddev parameter ddof default must be 0")
         if ddof.get("may_bind_strategy_parameter") is not False:
             errors.append(f"{path}: entries.stddev parameter ddof may_bind_strategy_parameter must be false")
+
+    rsi_parameters = _parameters_by_name(entries.get("rsi", {}))
+    rsi_expected = {
+        "smoothing_convention": ["wilder_rma"],
+        "zero_movement_policy": ["loss_zero_gain_positive_100_gain_zero_loss_positive_0_both_zero_50"],
+    }
+    for name, allowed_values in rsi_expected.items():
+        parameter = rsi_parameters.get(name)
+        if parameter is None:
+            errors.append(f"{path}: entries.rsi parameter {name} is required")
+            continue
+        if parameter.get("allowed_values") != allowed_values:
+            errors.append(f"{path}: entries.rsi parameter {name} allowed_values must be {allowed_values!r}")
+        if parameter.get("may_bind_strategy_parameter") is not False:
+            errors.append(f"{path}: entries.rsi parameter {name} may_bind_strategy_parameter must be false")
+
+    donchian_outputs = set(_outputs_by_field(entries.get("donchian", {})))
+    expected_donchian_outputs = {
+        "upper",
+        "lower",
+        "mid",
+        "width",
+        "upper_lag1",
+        "lower_lag1",
+        "mid_lag1",
+        "width_lag1",
+    }
+    if donchian_outputs != expected_donchian_outputs:
+        errors.append(
+            f"{path}: entries.donchian output fields must be exactly "
+            f"{sorted(expected_donchian_outputs)}: {sorted(donchian_outputs)}"
+        )
+
+    ma_distance_parameters = _parameters_by_name(entries.get("ma_distance", {}))
+    ma_kind = ma_distance_parameters.get("ma_kind")
+    if ma_kind is None:
+        errors.append(f"{path}: entries.ma_distance parameter ma_kind is required")
+    else:
+        if ma_kind.get("allowed_values") != ["sma"]:
+            errors.append(f"{path}: entries.ma_distance parameter ma_kind allowed_values must be ['sma']")
+        if ma_kind.get("default") != "sma":
+            errors.append(f"{path}: entries.ma_distance parameter ma_kind default must be 'sma'")
+        if ma_kind.get("may_bind_strategy_parameter") is not False:
+            errors.append(
+                f"{path}: entries.ma_distance parameter ma_kind may_bind_strategy_parameter must be false"
+            )
+
+    ma_distance_outputs = set(_outputs_by_field(entries.get("ma_distance", {})))
+    expected_ma_distance_outputs = {"distance_abs", "distance_ratio", "distance_pct"}
+    if ma_distance_outputs != expected_ma_distance_outputs:
+        errors.append(
+            f"{path}: entries.ma_distance output fields must be exactly "
+            f"{sorted(expected_ma_distance_outputs)}: {sorted(ma_distance_outputs)}"
+        )
     return errors
 
 

@@ -28,7 +28,7 @@
     "prepared_by": "Codex",
     "created_at": "2026-06-05T00:00:00Z",
     "updated_at": "2026-06-21T00:00:00Z",
-    "rationale": "Closed indicator catalog instance for SMA, EMA, ATR, StdDev, RSI, Donchian channel, and SMA-distance interface declarations only."
+    "rationale": "Closed indicator catalog instance for SMA, EMA, ATR, StdDev, RSI, Donchian channel, SMA-distance, relative-volume, and rolling candle-VWAP interface declarations only."
   },
   "entries": [
     {
@@ -607,6 +607,153 @@
         "not_order_authority": true,
         "not_broker_exchange_authority": true
       }
+    },
+    {
+      "indicator_id": "rvol",
+      "version": "v1",
+      "display_name": "Relative Volume",
+      "catalog_status": "active",
+      "implementation_binding": {
+        "binding_type": "compiler_builtin_closed_set",
+        "builtin_key": "rvol_v1",
+        "implementation_owner": "spec_signal_compiler",
+        "computation_defined_in_catalog": false,
+        "arbitrary_expression_allowed": false
+      },
+      "input_contract": {
+        "input_mode": "fixed_ohlcv_volume",
+        "inputs": [
+          {
+            "input_id": "volume",
+            "frame": "ohlcv",
+            "field": "volume",
+            "series_type": "numeric"
+          }
+        ]
+      },
+      "parameter_contract": {
+        "parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "integer",
+            "minimum": 1,
+            "required": true,
+            "may_bind_strategy_parameter": true
+          }
+        ]
+      },
+      "output_contract": {
+        "outputs": [
+          {
+            "field": "rvol",
+            "type": "numeric_series",
+            "index_alignment": "primary_ohlcv_index"
+          },
+          {
+            "field": "volume_ma",
+            "type": "numeric_series",
+            "index_alignment": "primary_ohlcv_index"
+          }
+        ]
+      },
+      "warmup_contract": {
+        "no_lookahead": true,
+        "warmup_output": "null_until_ready"
+      },
+      "null_handling": {
+        "signal_generation_policy": "null_operand_never_true"
+      },
+      "non_authority": {
+        "not_runtime_authority": true,
+        "not_paper_live_authority": true,
+        "not_recommendation_authority": true,
+        "not_ranking_authority": true,
+        "not_readiness_authority": true,
+        "not_transition_authority": true,
+        "not_gate_authority": true,
+        "not_order_authority": true,
+        "not_broker_exchange_authority": true
+      }
+    },
+    {
+      "indicator_id": "rolling_vwap",
+      "version": "v1",
+      "display_name": "Rolling Candle VWAP Approximation",
+      "catalog_status": "active",
+      "implementation_binding": {
+        "binding_type": "compiler_builtin_closed_set",
+        "builtin_key": "rolling_vwap_v1",
+        "implementation_owner": "spec_signal_compiler",
+        "computation_defined_in_catalog": false,
+        "arbitrary_expression_allowed": false
+      },
+      "input_contract": {
+        "input_mode": "fixed_ohlcv_high_low_close_volume",
+        "inputs": [
+          {
+            "input_id": "high",
+            "frame": "ohlcv",
+            "field": "high",
+            "series_type": "numeric"
+          },
+          {
+            "input_id": "low",
+            "frame": "ohlcv",
+            "field": "low",
+            "series_type": "numeric"
+          },
+          {
+            "input_id": "close",
+            "frame": "ohlcv",
+            "field": "close",
+            "series_type": "numeric"
+          },
+          {
+            "input_id": "volume",
+            "frame": "ohlcv",
+            "field": "volume",
+            "series_type": "numeric"
+          }
+        ]
+      },
+      "parameter_contract": {
+        "parameters": [
+          {
+            "name": "lookback_bars",
+            "type": "integer",
+            "minimum": 1,
+            "required": true,
+            "may_bind_strategy_parameter": true
+          }
+        ]
+      },
+      "output_contract": {
+        "outputs": [
+          {
+            "field": "rolling_vwap",
+            "type": "numeric_series",
+            "index_alignment": "primary_ohlcv_index"
+          }
+        ]
+      },
+      "warmup_contract": {
+        "no_lookahead": true,
+        "warmup_output": "null_until_ready"
+      },
+      "null_handling": {
+        "signal_generation_policy": "null_operand_never_true"
+      },
+      "non_authority": {
+        "not_runtime_authority": true,
+        "not_paper_live_authority": true,
+        "not_recommendation_authority": true,
+        "not_ranking_authority": true,
+        "not_readiness_authority": true,
+        "not_transition_authority": true,
+        "not_gate_authority": true,
+        "not_order_authority": true,
+        "not_broker_exchange_authority": true
+      }
     }
   ],
   "review": {
@@ -615,7 +762,8 @@
     "reviewed_at": null,
     "review_notes": [
       "WP-S2c-198 catalog instance declares interface and binding metadata only.",
-      "WP-COMPILER-INDICATORS-OSCILLATOR-CHANNEL-01 adds RSI, Donchian, and SMA-distance interfaces; compiler code owns all computations."
+      "WP-COMPILER-INDICATORS-OSCILLATOR-CHANNEL-01 adds RSI, Donchian, and SMA-distance interfaces; compiler code owns all computations.",
+      "WP-COMPILER-INDICATORS-VOLUME-01 adds relative-volume and rolling candle-VWAP interfaces; compiler code owns all computations."
     ],
     "approval_scope": "catalog_interface_only",
     "non_authority_acknowledgement": {
@@ -653,7 +801,8 @@
     "audit_notes": [
       "No computation, compiler implementation, runner action, runtime authority, or paper/live authority is encoded.",
       "Donchian upper/lower/mid/width include the current bar; lagged *_lag1 fields are declared for breakout-safe previous-channel comparisons.",
-      "MA-distance v1 uses the current Strategy Spec idiom's default close source and SMA moving average; existing plus/minus composed bands remain preserved."
+      "MA-distance v1 uses the current Strategy Spec idiom's default close source and SMA moving average; existing plus/minus composed bands remain preserved.",
+      "Rolling VWAP v1 is a candle approximation from OHLCV typical price and volume, not true trade-level VWAP."
     ]
   },
   "hash_pinning": {

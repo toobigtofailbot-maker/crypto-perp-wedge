@@ -3,6 +3,7 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
 from jsonschema import Draft7Validator
 
 from tools.registry.validate_indicator_catalogs import (
@@ -59,6 +60,20 @@ def test_committed_indicator_catalog_validates():
     assert validate_indicator_catalogs() == []
 
 
+def test_committed_catalog_contains_closed_volume_indicators():
+    payload = _load_committed_catalog()
+
+    assert _entry(payload, "rvol")["implementation_binding"]["builtin_key"] == "rvol_v1"
+    assert _entry(payload, "rolling_vwap")["implementation_binding"]["builtin_key"] == "rolling_vwap_v1"
+    assert {
+        output["field"] for output in _entry(payload, "rvol")["output_contract"]["outputs"]
+    } == {"rvol", "volume_ma"}
+    assert [
+        output["field"]
+        for output in _entry(payload, "rolling_vwap")["output_contract"]["outputs"]
+    ] == ["rolling_vwap"]
+
+
 def test_schema_rejects_indicator_id_builtin_key_mismatch():
     payload = _load_committed_catalog()
     _entry(payload, "sma")["implementation_binding"]["builtin_key"] = "ema_v1"
@@ -104,6 +119,17 @@ def test_validator_rejects_forbidden_keys_recursively(tmp_path):
 
     assert any("forbidden executable/authority key name" in error for error in errors)
     assert any("formula" in error for error in errors)
+
+
+@pytest.mark.parametrize("indicator_id", ["rvol", "rolling_vwap"])
+def test_volume_indicator_entries_reject_forbidden_executable_keys(tmp_path, indicator_id):
+    payload = _load_committed_catalog()
+    _entry(payload, indicator_id)["implementation_binding"]["eval"] = "external_indicator()"
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("forbidden executable/authority key name" in error for error in errors)
+    assert any("eval" in error for error in errors)
 
 
 def test_validator_rejects_unapproved_ema_convention_value(tmp_path):
@@ -165,6 +191,24 @@ def test_validator_rejects_unapproved_ma_distance_ma_kind(tmp_path):
     assert any("entries.ma_distance parameter ma_kind allowed_values" in error for error in errors)
 
 
+@pytest.mark.parametrize(
+    ("indicator_id", "expected_error"),
+    [
+        ("rvol", "entries.rvol output fields"),
+        ("rolling_vwap", "entries.rolling_vwap output fields"),
+    ],
+)
+def test_validator_rejects_mutated_volume_indicator_output_sets(
+    tmp_path, indicator_id, expected_error
+):
+    payload = _load_committed_catalog()
+    _entry(payload, indicator_id)["output_contract"]["outputs"].pop()
+
+    errors = _validate(tmp_path, payload)
+
+    assert any(expected_error in error for error in errors)
+
+
 def test_validator_rejects_extra_catalog_entry(tmp_path):
     payload = _load_committed_catalog()
     extra = copy.deepcopy(_entry(payload, "sma"))
@@ -174,7 +218,7 @@ def test_validator_rejects_extra_catalog_entry(tmp_path):
 
     errors = _validate(tmp_path, payload)
 
-    assert any("entries must contain exactly 7 entries" in error for error in errors)
+    assert any("entries must contain exactly 9 entries" in error for error in errors)
 
 
 def test_validator_rejects_missing_required_contract_objects(tmp_path):

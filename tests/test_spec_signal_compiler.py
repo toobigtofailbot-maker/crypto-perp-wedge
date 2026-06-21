@@ -1844,6 +1844,73 @@ def test_ma_distance_v1_outputs_abs_ratio_pct_and_masks_zero_ma() -> None:
     assert result["distance_pct"].iloc[2] == pytest.approx(100.0)
 
 
+def test_rvol_v1_warmup_missing_volume_and_zero_denominator() -> None:
+    result = compiler._rvol_v1(pd.Series([1.0, math.nan, 3.0, 4.0, 5.0]), 3)
+
+    assert result["rvol"].iloc[:4].isna().all()
+    assert result["volume_ma"].iloc[:4].isna().all()
+    assert result["volume_ma"].iloc[4] == pytest.approx(4.0)
+    assert result["rvol"].iloc[4] == pytest.approx(1.25)
+
+    zero_result = compiler._rvol_v1(pd.Series([0.0, 0.0, 0.0, 3.0]), 3)
+    assert math.isnan(zero_result["rvol"].iloc[2])
+    assert zero_result["rvol"].iloc[3] == pytest.approx(3.0)
+
+
+def test_rvol_v1_has_no_lookahead_future_mutation() -> None:
+    volume = pd.Series([1.0, 2.0, 3.0, 4.0, 5.0])
+    result = compiler._rvol_v1(volume, 3)
+    mutated = volume.copy()
+    mutated.iloc[4] = 5000.0
+    mutated_result = compiler._rvol_v1(mutated, 3)
+
+    pd.testing.assert_series_equal(result["rvol"].iloc[:4], mutated_result["rvol"].iloc[:4])
+    pd.testing.assert_series_equal(
+        result["volume_ma"].iloc[:4], mutated_result["volume_ma"].iloc[:4]
+    )
+
+
+def test_rolling_vwap_v1_warmup_missing_ohlcv_and_zero_volume() -> None:
+    index = pd.date_range("2026-01-01", periods=5, freq="h", tz="UTC")
+    ohlcv = pd.DataFrame(
+        {
+            "high": [3.0, 4.0, 5.0, 6.0, 7.0],
+            "low": [1.0, 2.0, 3.0, 4.0, 5.0],
+            "close": [2.0, 3.0, 4.0, 5.0, 6.0],
+            "volume": [1.0, 1.0, 1.0, 1.0, 1.0],
+        },
+        index=index,
+    )
+    result = compiler._rolling_vwap_v1(ohlcv, 3)["rolling_vwap"]
+
+    assert result.iloc[:2].isna().all()
+    assert result.iloc[2:].tolist() == pytest.approx([3.0, 4.0, 5.0])
+
+    for field in ("high", "low", "close", "volume"):
+        missing = ohlcv.copy()
+        missing.iloc[1, missing.columns.get_loc(field)] = math.nan
+        missing_result = compiler._rolling_vwap_v1(missing, 3)["rolling_vwap"]
+        assert missing_result.iloc[:4].isna().all()
+        assert missing_result.iloc[4] == pytest.approx(5.0)
+
+    zero_volume = ohlcv.iloc[:4].copy()
+    zero_volume["volume"] = [0.0, 0.0, 0.0, 1.0]
+    zero_result = compiler._rolling_vwap_v1(zero_volume, 3)["rolling_vwap"]
+    assert math.isnan(zero_result.iloc[2])
+    assert zero_result.iloc[3] == pytest.approx(5.0)
+
+
+def test_rolling_vwap_v1_has_no_lookahead_future_mutation() -> None:
+    ohlcv = _ohlcv()
+    result = compiler._rolling_vwap_v1(ohlcv, 3)["rolling_vwap"]
+    mutated = ohlcv.copy()
+    mutated.iloc[7, mutated.columns.get_loc("high")] = 10000.0
+    mutated.iloc[7, mutated.columns.get_loc("volume")] = 10000.0
+    mutated_result = compiler._rolling_vwap_v1(mutated, 3)["rolling_vwap"]
+
+    pd.testing.assert_series_equal(result.iloc[:7], mutated_result.iloc[:7])
+
+
 def test_resolves_indicator_ref_through_committed_catalog() -> None:
     ohlcv = _ohlcv()
     spec = _spec(
@@ -1968,10 +2035,27 @@ def test_resolves_new_indicator_refs_and_rejects_implicit_multi_output_field() -
         _operand("indicator_ref", "ma_distance", "distance_ratio", {"bars_parameter_ref": "lookback_n"}),
         context,
     )
+    rvol = compiler._resolve_operand(
+        _operand("indicator_ref", "rvol", "rvol", {"bars_parameter_ref": "lookback_n"}),
+        context,
+    )
+    rolling_vwap = compiler._resolve_operand(
+        _operand(
+            "indicator_ref",
+            "rolling_vwap",
+            "rolling_vwap",
+            {"bars_parameter_ref": "lookback_n"},
+        ),
+        context,
+    )
 
     pd.testing.assert_series_equal(rsi, compiler._rsi_v1(ohlcv["close"], 3))
     pd.testing.assert_series_equal(donchian_upper, compiler._donchian_v1(ohlcv, 3)["upper_lag1"])
     pd.testing.assert_series_equal(ma_distance_ratio, compiler._ma_distance_v1(ohlcv["close"], 3)["distance_ratio"])
+    pd.testing.assert_series_equal(rvol, compiler._rvol_v1(ohlcv["volume"], 3)["rvol"])
+    pd.testing.assert_series_equal(
+        rolling_vwap, compiler._rolling_vwap_v1(ohlcv, 3)["rolling_vwap"]
+    )
 
     with pytest.raises(SpecSignalCompilerError, match="requires an explicit output field"):
         compiler._resolve_operand(

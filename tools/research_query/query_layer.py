@@ -33,6 +33,12 @@ STRATEGY_SPECS_DIR = REPO_ROOT / "research" / "strategy_specs"
 VARIANT_MANIFESTS_DIR = REPO_ROOT / "research" / "variant_manifests"
 SWEEP_PLANS_DIR = REPO_ROOT / "research" / "sweep_plans"
 RESULT_POPULATIONS_DIR = REPO_ROOT / "research" / "result_populations"
+DATA_FEATURE_AVAILABILITY_CATALOG_PATH = (
+    REPO_ROOT
+    / "research"
+    / "data_feature_availability"
+    / "PERP-DERIVED-FEATURE-AVAILABILITY-0001.json"
+)
 WALKFORWARD_FOLD_MANIFESTS_DIR = REPO_ROOT / "research" / "walkforward_fold_manifests"
 TRIAL_LOG_PATH = REPO_ROOT / "research" / "trial_log.jsonl"
 VIEWS_PATH = Path(__file__).resolve().with_name("views.sql")
@@ -1663,6 +1669,16 @@ def _register_sweep_plans(conn: duckdb.DuckDBPyConnection) -> None:
     )
 
 
+def _register_data_feature_availability(conn: duckdb.DuckDBPyConnection) -> None:
+    _require_file(DATA_FEATURE_AVAILABILITY_CATALOG_PATH, "data feature availability catalog")
+    conn.execute(
+        f"""
+        CREATE VIEW data_feature_availability_catalog AS
+        SELECT * FROM read_json_auto('{_sql_path(DATA_FEATURE_AVAILABILITY_CATALOG_PATH)}')
+        """
+    )
+
+
 def _register_result_populations(conn: duckdb.DuckDBPyConnection) -> None:
     result_population_files = (
         sorted(RESULT_POPULATIONS_DIR.glob("*.result_population.json"))
@@ -2243,6 +2259,7 @@ def init_duckdb(read_only: bool = True) -> duckdb.DuckDBPyConnection:
     _register_shadow_evidence_retention(conn)
     _register_s2p_approval_records(conn)
     _register_strategy_specs(conn)
+    _register_data_feature_availability(conn)
     _register_variant_manifests(conn)
     _register_sweep_plans(conn)
     _register_result_populations(conn)

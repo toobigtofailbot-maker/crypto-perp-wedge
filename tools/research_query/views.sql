@@ -5371,3 +5371,19 @@ FROM (
     UNION ALL
     SELECT result_population_id, 'parent_sweep_plan.manifest_id', CAST(parent_variant_manifest.variant_manifest_id AS VARCHAR), CAST(parent_sweep_plan.manifest_id AS VARCHAR) FROM result_populations WHERE parent_sweep_plan.manifest_id IS DISTINCT FROM parent_variant_manifest.variant_manifest_id
 ) AS issues;
+-- What historical coverage is available for each compiler-visible perp-derived feature/source?
+CREATE OR REPLACE VIEW v_data_feature_availability AS
+SELECT
+    catalog.catalog_id,
+    entry.feature_name,
+    entry.compiler_visible,
+    entry.coverage_class,
+    entry.source_class,
+    entry.history_limitation,
+    entry.canonical_full_history_allowed,
+    entry.requires_vendor_or_captured_data,
+    entry.conditions,
+    entry.notes
+FROM data_feature_availability_catalog AS catalog,
+UNNEST(catalog.entries) AS availability(entry)
+ORDER BY entry.feature_name, entry.source_class;

@@ -11,6 +11,14 @@ from typing import Any, Mapping
 
 from jsonschema import Draft7Validator
 
+from tools.registry.validate_data_feature_availability import (
+    DEFAULT_CATALOG_PATH as DEFAULT_DATA_FEATURE_AVAILABILITY_CATALOG_PATH,
+    DEFAULT_SCHEMA_PATH as DEFAULT_DATA_FEATURE_AVAILABILITY_SCHEMA_PATH,
+    build_catalog_index,
+    load_json as load_availability_json,
+    validate_data_feature_availability,
+)
+
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_RESULT_POPULATIONS_DIR = REPO_ROOT / "research" / "result_populations"
@@ -28,6 +36,8 @@ DEFAULT_SWEEP_PLAN_SCHEMA_PATH = REPO_ROOT / "research" / "schemas" / "sweep_pla
 HASH_ALGORITHM = "sha256"
 RESULT_POPULATION_HASH_SCOPE_VERSION = "result_population_identity_hash_scope_v1"
 SIZING_METADATA_HASH_SCOPE_PATH = "sizing_metadata"
+DATA_AVAILABILITY_CLAIM_HASH_SCOPE_PATH = "data_availability_claim"
+OHLCV_DATA_FIELDS = {"open", "high", "low", "close", "volume"}
 SIZING_MODES = {"fixed_order_size", "dynamic_equity_target_leverage"}
 SIZING_EQUITY_BASES = {
     "not_applicable_fixed_order_size",
@@ -879,6 +889,162 @@ def _validate_result_rows(path: Path, payload: Mapping[str, Any]) -> list[str]:
     return errors
 
 
+def _collect_strategy_data_ref_features(value: Any) -> set[str]:
+    features: set[str] = set()
+    if isinstance(value, Mapping):
+        if value.get("operand_type") == "data_ref":
+            field = value.get("field")
+            if isinstance(field, str) and field not in OHLCV_DATA_FIELDS:
+                features.add(field)
+        for child in value.values():
+            features.update(_collect_strategy_data_ref_features(child))
+    elif isinstance(value, list):
+        for child in value:
+            features.update(_collect_strategy_data_ref_features(child))
+    return features
+
+
+def _collect_strategy_host_data_features(strategy_spec: Mapping[str, Any]) -> set[str]:
+    timeframe_and_data = strategy_spec.get("timeframe_and_data")
+    host_data_refs = (
+        timeframe_and_data.get("host_data_refs")
+        if isinstance(timeframe_and_data, Mapping)
+        else None
+    )
+    if not isinstance(host_data_refs, list):
+        return set()
+    features: set[str] = set()
+    for host_ref in host_data_refs:
+        if not isinstance(host_ref, Mapping) or host_ref.get("stream") == "indicator_catalog":
+            continue
+        field = host_ref.get("field")
+        if isinstance(field, str) and field not in OHLCV_DATA_FIELDS:
+            features.add(field)
+    return features
+
+
+def _validate_data_availability_claim(
+    path: Path,
+    payload: Mapping[str, Any],
+    strategy_spec: Mapping[str, Any] | None,
+    catalog: Mapping[str, Any],
+) -> list[str]:
+    claim = payload.get("data_availability_claim")
+    if claim is None:
+        return []
+    if not isinstance(claim, Mapping):
+        return []
+
+    errors: list[str] = []
+    for identity_key in ("input_identity_hash", "result_population_identity_hash"):
+        scope = payload.get(identity_key, {}).get("hash_scope")
+        if isinstance(scope, list) and DATA_AVAILABILITY_CLAIM_HASH_SCOPE_PATH not in scope:
+            errors.append(
+                f"{path}: {identity_key}.hash_scope must include data_availability_claim when present"
+            )
+
+    if strategy_spec is None:
+        errors.append(f"{path}: data_availability_claim requires a resolvable parent Strategy Spec")
+        return errors
+
+    referenced_features = _collect_strategy_data_ref_features(strategy_spec)
+    referenced_features.update(_collect_strategy_host_data_features(strategy_spec))
+    feature_sources = claim.get("feature_sources")
+    overrides = claim.get("historical_dataset_overrides")
+    if not isinstance(feature_sources, list) or not isinstance(overrides, list):
+        return errors
+
+    source_bindings: dict[str, Mapping[str, Any]] = {}
+    for index, binding in enumerate(feature_sources):
+        if not isinstance(binding, Mapping):
+            continue
+        feature = binding.get("feature_name")
+        if not isinstance(feature, str):
+            continue
+        if feature in source_bindings:
+            errors.append(
+                f"{path}: data_availability_claim.feature_sources.{index} duplicates {feature}"
+            )
+        source_bindings[feature] = binding
+
+    override_bindings: dict[str, Mapping[str, Any]] = {}
+    for index, override in enumerate(overrides):
+        if not isinstance(override, Mapping):
+            continue
+        feature = override.get("feature_name")
+        if not isinstance(feature, str):
+            continue
+        if feature in override_bindings:
+            errors.append(
+                f"{path}: data_availability_claim.historical_dataset_overrides.{index} "
+                f"duplicates {feature}"
+            )
+        override_bindings[feature] = override
+
+    missing_bindings = sorted(referenced_features - source_bindings.keys())
+    extra_bindings = sorted(source_bindings.keys() - referenced_features)
+    extra_overrides = sorted(override_bindings.keys() - referenced_features)
+    if missing_bindings:
+        errors.append(
+            f"{path}: full-history claim missing source bindings for: {', '.join(missing_bindings)}"
+        )
+    if extra_bindings:
+        errors.append(
+            f"{path}: full-history claim has unreferenced feature bindings: {', '.join(extra_bindings)}"
+        )
+    if extra_overrides:
+        errors.append(
+            f"{path}: full-history claim has unreferenced dataset overrides: "
+            f"{', '.join(extra_overrides)}"
+        )
+
+    catalog_index = build_catalog_index(catalog)
+    catalog_features = {
+        key[0]
+        for key in catalog_index
+    }
+    for feature in sorted(referenced_features):
+        binding = source_bindings.get(feature)
+        if binding is None:
+            if feature not in catalog_features:
+                errors.append(f"{path}: unknown data-derived feature availability label: {feature}")
+            continue
+        source_class = binding.get("source_class")
+        entry = catalog_index.get((feature, source_class)) if isinstance(source_class, str) else None
+        if entry is None:
+            errors.append(
+                f"{path}: unknown availability source binding for {feature}: {source_class!r}"
+            )
+            continue
+
+        if entry.get("canonical_full_history_allowed") == "conditional":
+            assertions = binding.get("condition_assertions")
+            if not isinstance(assertions, list) or not assertions:
+                errors.append(
+                    f"{path}: conditional full-history source {feature}/{source_class} "
+                    "requires condition_assertions"
+                )
+
+        if entry.get("coverage_class") == "FULL_HISTORY_PUBLIC_ARCHIVE":
+            continue
+
+        override = override_bindings.get(feature)
+        if override is None:
+            errors.append(
+                f"{path}: {feature}/{source_class} is {entry.get('coverage_class')} and cannot "
+                "support FULL_HISTORY without an explicit historical dataset override/provenance"
+            )
+            continue
+        if entry.get("requires_vendor_or_captured_data") is True and override.get(
+            "override_type"
+        ) not in {"VENDOR_HISTORICAL_DATASET", "CAPTURED_HISTORICAL_DATASET"}:
+            errors.append(
+                f"{path}: {feature} requires a vendor or captured historical dataset override"
+            )
+
+    return errors
+
+
 def _validate_append_only_ledger(path: Path, payload: Mapping[str, Any]) -> list[str]:
     errors = _validate_true_flags(path, payload, "append_only_ledger", APPEND_ONLY_TRUE_FLAGS)
     ledger = payload.get("append_only_ledger")
@@ -977,6 +1143,8 @@ def validate_result_populations(
     variant_manifest_schema_path: Path = DEFAULT_VARIANT_MANIFEST_SCHEMA_PATH,
     sweep_plan_schema_path: Path = DEFAULT_SWEEP_PLAN_SCHEMA_PATH,
     repo_root: Path = REPO_ROOT,
+    data_feature_availability_catalog_path: Path = DEFAULT_DATA_FEATURE_AVAILABILITY_CATALOG_PATH,
+    data_feature_availability_schema_path: Path = DEFAULT_DATA_FEATURE_AVAILABILITY_SCHEMA_PATH,
 ) -> list[str]:
     """Return validation errors for result-population artifacts, or [] when valid."""
 
@@ -989,6 +1157,14 @@ def validate_result_populations(
     )
     if not result_population_files:
         return []
+
+    availability_errors = validate_data_feature_availability(
+        data_feature_availability_catalog_path,
+        data_feature_availability_schema_path,
+    )
+    if availability_errors:
+        return [f"data feature availability: {error}" for error in availability_errors]
+    availability_catalog = load_availability_json(data_feature_availability_catalog_path)
 
     result_population_schema = load_json(result_population_schema_path)
     strategy_spec_schema = load_json(strategy_spec_schema_path)
@@ -1028,7 +1204,7 @@ def validate_result_populations(
         )
         errors.extend(_validate_sizing_metadata(path, payload))
         errors.extend(_validate_audit_envelope(path, payload))
-        parent_errors, _, manifest, sweep_plan = _validate_parent_artifacts(
+        parent_errors, strategy_spec, manifest, sweep_plan = _validate_parent_artifacts(
             path,
             payload,
             strategy_specs_dir,
@@ -1039,6 +1215,9 @@ def validate_result_populations(
         errors.extend(_validate_denominator_integrity(path, payload, manifest, sweep_plan))
         errors.extend(_validate_complete_population(path, payload, manifest))
         errors.extend(_validate_result_rows(path, payload))
+        errors.extend(
+            _validate_data_availability_claim(path, payload, strategy_spec, availability_catalog)
+        )
         errors.extend(_validate_append_only_ledger(path, payload))
         errors.extend(_validate_non_authority(path, payload))
         errors.extend(_validate_forbidden_keys(path, payload))
@@ -1064,6 +1243,16 @@ def main() -> int:
         default=DEFAULT_VARIANT_MANIFEST_SCHEMA_PATH,
     )
     parser.add_argument("--sweep-plan-schema", type=Path, default=DEFAULT_SWEEP_PLAN_SCHEMA_PATH)
+    parser.add_argument(
+        "--data-feature-availability-catalog",
+        type=Path,
+        default=DEFAULT_DATA_FEATURE_AVAILABILITY_CATALOG_PATH,
+    )
+    parser.add_argument(
+        "--data-feature-availability-schema",
+        type=Path,
+        default=DEFAULT_DATA_FEATURE_AVAILABILITY_SCHEMA_PATH,
+    )
     args = parser.parse_args()
 
     errors = validate_result_populations(
@@ -1076,6 +1265,8 @@ def main() -> int:
         variant_manifest_schema_path=args.variant_manifest_schema,
         sweep_plan_schema_path=args.sweep_plan_schema,
         repo_root=REPO_ROOT,
+        data_feature_availability_catalog_path=args.data_feature_availability_catalog,
+        data_feature_availability_schema_path=args.data_feature_availability_schema,
     )
     if errors:
         for error in errors:

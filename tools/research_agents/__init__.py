@@ -5,6 +5,7 @@ from .experiment_runner_agent import (
     ExperimentRunnerConfig,
     FixtureExperimentExecutor,
 )
+from .formalizer_runner_bridge import FormalizerRunnerBridge, FormalizerRunnerBridgeConfig
 from .idea_formalizer_agent import IdeaFormalizerAgent, IdeaFormalizerConfig
 from .reasoning_providers import (
     ChatGPTAccountPacketProvider,
@@ -20,6 +21,8 @@ __all__ = [
     "ExperimentRunnerConfig",
     "FakeOfflineProvider",
     "FixtureExperimentExecutor",
+    "FormalizerRunnerBridge",
+    "FormalizerRunnerBridgeConfig",
     "IdeaFormalizerAgent",
     "IdeaFormalizerConfig",
     "ReasoningProvider",

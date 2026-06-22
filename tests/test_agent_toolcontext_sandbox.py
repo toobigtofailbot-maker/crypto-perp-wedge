@@ -71,6 +71,7 @@ def test_repo_truth_role_taxonomy_and_role_specific_permissions_are_enforced():
         "idea_formalizer",
         "draft_generator",
         "experiment_runner",
+        "formalizer_runner_bridge",
         "non_canonical_runner",
         "robustness_diagnostician",
         "candidate_review_packet_preparer",

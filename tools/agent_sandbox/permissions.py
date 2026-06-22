@@ -14,6 +14,7 @@ WRITE_SCRATCH = "write_scratch"
 RUN_READ_ONLY_VALIDATION = "run_read_only_validation"
 RUN_SCRATCH_TOOL = "run_scratch_tool"
 RUN_NONCANONICAL_EXPERIMENT = "noncanonical_experiment_run"
+RUN_NONCANONICAL_OFFLINE_SWEEP = "noncanonical_offline_sweep_run"
 
 
 ROLE_PERMISSIONS: dict[str, frozenset[str]] = {
@@ -36,6 +37,14 @@ ROLE_PERMISSIONS: dict[str, frozenset[str]] = {
             READ_NON_SECRET,
             WRITE_SCRATCH,
             RUN_NONCANONICAL_EXPERIMENT,
+        }
+    ),
+    "formalizer_runner_bridge": frozenset(
+        {
+            READ_NON_SECRET,
+            WRITE_SCRATCH,
+            RUN_READ_ONLY_VALIDATION,
+            RUN_NONCANONICAL_OFFLINE_SWEEP,
         }
     ),
     "robustness_diagnostician": frozenset(
@@ -86,6 +95,7 @@ HARD_BLOCKED_ACTIONS = frozenset(
         "provider_memory_as_truth",
         "gate_bypass",
         "approval_gate_bypass",
+        "data_availability_bypass",
     }
 )
 
@@ -212,11 +222,11 @@ def decide(role: str, wp_id: str, action_type: str, target_path: str) -> PolicyD
         action_type == READ_NON_SECRET
         and not _matches_prefix(target_path, NON_SECRET_READ_PREFIXES)
         and not (
-            role in {"idea_formalizer", "experiment_runner"}
+            role in {"idea_formalizer", "experiment_runner", "formalizer_runner_bridge"}
             and target_path.startswith(f"scratch/{wp_id.casefold()}/")
         )
         and not (
-            role == "experiment_runner"
+            role in {"experiment_runner", "formalizer_runner_bridge"}
             and target_path.startswith("scratch/wp-agent-idea-formalizer-01/")
         )
     ):
@@ -239,6 +249,13 @@ def decide(role: str, wp_id: str, action_type: str, target_path: str) -> PolicyD
             return PolicyDecision(
                 False,
                 f"non-canonical experiment target is outside active outputs prefix={allowed_prefix}",
+            )
+    if action_type == RUN_NONCANONICAL_OFFLINE_SWEEP:
+        allowed_prefix = f"scratch/{wp_id.casefold()}/outputs/"
+        if not target_path.startswith(allowed_prefix):
+            return PolicyDecision(
+                False,
+                f"non-canonical offline sweep target is outside active outputs prefix={allowed_prefix}",
             )
 
     return PolicyDecision(True, f"allowed by role={role} under policy={POLICY_ID}")

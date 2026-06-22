@@ -5,7 +5,7 @@ Design rules:
   - Signal at bar t -> fill at open of t+1 (no lookahead)
   - Irreparable bars (D2-003A) are skipped; trade state carried forward
   - Fees and slippage are modeled parametrically in bps
-  - Funding cashflows applied at exact funding-event timestamps
+  - Funding cashflows are opt-in and applied at exact funding-event timestamps
   - All inputs must be UTC-indexed, monotonic, no duplicates (asserted)
 """
 
@@ -31,6 +31,8 @@ _SIZING_MODE_DYNAMIC_EQUITY_TARGET_LEVERAGE = "dynamic_equity_target_leverage"
 _SIZING_EQUITY_BASIS_DYNAMIC = "realized_available_equity_at_entry"
 _ENTRY_REFERENCE_PRICE_BASIS_DYNAMIC = "next_bar_open_pre_fee_slippage"
 _SIZING_BASIS_NOT_APPLICABLE = "not_applicable_fixed_order_size"
+_FUNDING_COST_MODE_OFF = "off"
+_FUNDING_COST_MODE_ON = "on"
 
 _INTERVAL_TO_MINUTES: dict[str, int] = {
     "1m": 1,
@@ -168,6 +170,15 @@ def _funding_notional(
         "funding_notional_mode must be 'entry_price' or 'mark_price', "
         f"got {mode!r}"
     )
+
+
+def _validate_funding_cost_mode(funding_cost_mode: str) -> None:
+    """Validate the explicit default-off funding-cost selection."""
+    if funding_cost_mode not in {_FUNDING_COST_MODE_OFF, _FUNDING_COST_MODE_ON}:
+        raise ValueError(
+            "funding_cost_mode must be 'off' or 'on', "
+            f"got {funding_cost_mode!r}"
+        )
 
 
 def _validate_fill_size_assumptions(
@@ -323,6 +334,7 @@ def run_backtest(
     tick_size: Optional[float] = None,
     lot_size: Optional[float] = None,
     min_notional: Optional[float] = None,
+    funding_cost_mode: str = _FUNDING_COST_MODE_OFF,
     funding_notional_mode: str = "entry_price",
     order_size: float = 1.0,
     sizing_mode: str = _SIZING_MODE_FIXED_ORDER_SIZE,
@@ -366,6 +378,10 @@ def run_backtest(
     tick_size, lot_size, min_notional:
         Optional positive exchange-constraint disclosures. They are recorded in
         params only and do not alter fills, rounding, rejection, or outcomes.
+    funding_cost_mode:
+        Explicit deterministic funding-cost selection. ``"off"`` is the
+        default and applies no funding cashflows. ``"on"`` preserves the
+        existing funding sign, alignment, and notional behavior.
     funding_notional_mode:
         Explicit deterministic funding notional assumption. ``"entry_price"``
         preserves existing behavior by using the entry fill price.
@@ -429,6 +445,7 @@ def run_backtest(
     _validate_positive_optional(tick_size, "tick_size")
     _validate_positive_optional(lot_size, "lot_size")
     _validate_positive_optional(min_notional, "min_notional")
+    _validate_funding_cost_mode(funding_cost_mode)
     _funding_notional(
         funding_notional_mode,
         entry_fill_price=1.0,
@@ -537,7 +554,7 @@ def run_backtest(
             continue
 
         # ---- Apply funding cashflows that fall in (prev_bar_ts, bar_ts] ----
-        if i > 0 and position != 0:
+        if funding_cost_mode == _FUNDING_COST_MODE_ON and i > 0 and position != 0:
             prev_bar_ts = bars[i - 1]
             for f_ts, rate in funding_events.items():
                 if not isinstance(f_ts, pd.Timestamp):
@@ -740,6 +757,7 @@ def run_backtest(
         "exit_fee_side": exit_fee_side,
         "slippage_bps": slippage_bps,
         "slippage_model": slippage_model,
+        "funding_cost_mode": funding_cost_mode,
         "funding_notional_mode": funding_notional_mode,
         "order_size": order_size,
         "sizing_mode": sizing_mode,

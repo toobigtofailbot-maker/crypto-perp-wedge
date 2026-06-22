@@ -484,6 +484,7 @@ def test_funding_cashflow(tmp_path):
         stream="klines",
         interval="1h",
         gaps_path=gaps_path,
+        funding_cost_mode="on",
     )
 
     expected_funding_paid = rate * price  # 0.0001 * 50_000 = 5.0
@@ -497,7 +498,14 @@ def test_funding_cashflow(tmp_path):
     )
 
 
-def _funding_notional_fixture(tmp_path: Path, *, signal_values=None, **kwargs):
+def _funding_notional_fixture(
+    tmp_path: Path,
+    *,
+    signal_values=None,
+    funding_frame=None,
+    funding_cost_mode="on",
+    **kwargs,
+):
     """Run a compact deterministic funding fixture with changing closes."""
     dates = pd.date_range("2020-01-01", periods=5, freq="1h", tz="UTC")
     ohlcv = pd.DataFrame(
@@ -514,16 +522,20 @@ def _funding_notional_fixture(tmp_path: Path, *, signal_values=None, **kwargs):
         signal_values if signal_values is not None else [0.0, 1.0, 1.0, 1.0, 1.0],
         index=dates,
     )
-    funding = pd.DataFrame(
-        {"funding_rate": [0.01, 0.02]},
-        index=pd.DatetimeIndex(
-            [
-                pd.Timestamp("2020-01-01 02:00:00", tz="UTC"),
-                pd.Timestamp("2020-01-01 02:30:00", tz="UTC"),
-            ],
-            tz="UTC",
-        ),
-    )
+    funding = funding_frame
+    if funding is None:
+        funding = pd.DataFrame(
+            {"funding_rate": [0.01, 0.02]},
+            index=pd.DatetimeIndex(
+                [
+                    pd.Timestamp("2020-01-01 02:00:00", tz="UTC"),
+                    pd.Timestamp("2020-01-01 02:30:00", tz="UTC"),
+                ],
+                tz="UTC",
+            ),
+        )
+    if funding_cost_mode is not None:
+        kwargs["funding_cost_mode"] = funding_cost_mode
     return run_backtest(
         signal=signal,
         ohlcv=ohlcv,
@@ -537,6 +549,26 @@ def _funding_notional_fixture(tmp_path: Path, *, signal_values=None, **kwargs):
         gaps_path=_no_gaps_path(tmp_path),
         **kwargs,
     )
+
+
+def test_omitted_and_explicit_off_funding_modes_apply_no_funding(tmp_path):
+    omitted = _funding_notional_fixture(tmp_path, funding_cost_mode=None)
+    explicit_off = _funding_notional_fixture(tmp_path, funding_cost_mode="off")
+    empty_funding = _funding_notional_fixture(
+        tmp_path,
+        funding_frame=_empty_funding(),
+        funding_cost_mode=None,
+    )
+
+    _assert_same_outputs_except_params(omitted, explicit_off)
+    _assert_same_outputs_except_params(omitted, empty_funding)
+    assert omitted.params == explicit_off.params
+    assert omitted.params == empty_funding.params
+    assert omitted.funding_paid == explicit_off.funding_paid == 0.0
+    assert omitted.equity_curve.iloc[3] == explicit_off.equity_curve.iloc[3] == 10_030.0
+    assert omitted.params["funding_cost_mode"] == "off"
+    assert explicit_off.params["funding_cost_mode"] == "off"
+    assert omitted.params["funding_notional_mode"] == "entry_price"
 
 
 def test_default_funding_notional_mode_preserves_entry_price_behavior(tmp_path):
@@ -565,6 +597,8 @@ def test_default_funding_notional_mode_preserves_entry_price_behavior(tmp_path):
     assert implicit_default.liquidated is explicit_default.liquidated is False
     assert implicit_default.params["funding_notional_mode"] == "entry_price"
     assert explicit_default.params["funding_notional_mode"] == "entry_price"
+    assert implicit_default.params["funding_cost_mode"] == "on"
+    assert explicit_default.params["funding_cost_mode"] == "on"
 
 
 def test_mark_price_funding_uses_current_bar_close_and_updates_cost_drag(tmp_path):
@@ -646,6 +680,7 @@ def test_multiple_funding_events_in_one_interval_use_same_current_close(tmp_path
         stream="klines",
         interval="1h",
         gaps_path=_no_gaps_path(tmp_path),
+        funding_cost_mode="on",
         funding_notional_mode="mark_price",
     )
 
@@ -663,6 +698,35 @@ def test_funding_event_at_entry_bar_timestamp_remains_excluded(tmp_path):
     # The 02:00 event is at the same bar timestamp where the position opens,
     # so the existing open-position rule excludes it; only 02:30 is applied.
     assert abs(result.funding_paid - (0.02 * 130.0)) < 1e-12
+
+
+def test_funding_event_at_current_bar_timestamp_remains_included(tmp_path):
+    funding = pd.DataFrame(
+        {"funding_rate": [0.02]},
+        index=pd.DatetimeIndex(
+            [pd.Timestamp("2020-01-01 03:00:00", tz="UTC")],
+            tz="UTC",
+        ),
+    )
+    result = _funding_notional_fixture(tmp_path, funding_frame=funding)
+
+    assert abs(result.funding_paid - (0.02 * 100.0)) < 1e-12
+
+
+def test_flat_position_accrues_zero_funding_when_enabled(tmp_path):
+    result = _funding_notional_fixture(
+        tmp_path,
+        signal_values=[0.0, 0.0, 0.0, 0.0, 0.0],
+    )
+
+    assert result.funding_paid == 0.0
+    assert result.equity_curve.tolist() == [10_000.0] * 5
+    assert result.params["funding_cost_mode"] == "on"
+
+
+def test_invalid_funding_cost_mode_raises(tmp_path):
+    with pytest.raises(ValueError, match="funding_cost_mode"):
+        _funding_notional_fixture(tmp_path, funding_cost_mode="automatic")
 
 
 def test_invalid_funding_notional_mode_raises(tmp_path):
@@ -696,6 +760,7 @@ def _size_liquidity_fixture(tmp_path: Path, *, volume_at_entry=1_000.0, **kwargs
             tz="UTC",
         ),
     )
+    kwargs.setdefault("funding_cost_mode", "on")
     return run_backtest(
         signal=signal,
         ohlcv=ohlcv,
@@ -1045,6 +1110,7 @@ def test_dynamic_costs_and_funding_use_dynamic_quantity(tmp_path):
         opens=[10_000.0, 10_000.0, 20_000.0, 20_500.0, 21_000.0],
         signal_values=[0.0, 1.0, 1.0, 0.0, 0.0],
         funding=funding,
+        funding_cost_mode="on",
         fee_bps_taker=10.0,
         fee_bps_maker=2.0,
         slippage_bps=5.0,
@@ -1178,6 +1244,7 @@ def test_default_funding_bar_path_behavior_preserved(tmp_path):
     result = _funding_notional_fixture(tmp_path)
 
     assert result.params["bar_path_assumption"] == "next_open_close_mark"
+    assert result.params["funding_cost_mode"] == "on"
     assert result.funding_paid == 2.0
     assert result.equity_curve.iloc[3] == 10_028.0
     assert result.fees_paid == 0.0
@@ -1273,6 +1340,7 @@ def test_consolidated_realism_assumptions_are_deterministic(tmp_path):
         tick_size=0.1,
         lot_size=0.001,
         min_notional=5.0,
+        funding_cost_mode="on",
         funding_notional_mode="mark_price",
         order_size=2.0,
         fill_mode="complete",
@@ -1304,6 +1372,7 @@ def test_consolidated_realism_assumptions_are_deterministic(tmp_path):
     assert result.liquidated is False
     assert result.params["entry_fee_side"] == "maker"
     assert result.params["exit_fee_side"] == "taker"
+    assert result.params["funding_cost_mode"] == "on"
     assert result.params["funding_notional_mode"] == "mark_price"
     assert result.params["order_size"] == 2.0
     assert result.params["fill_mode"] == "complete"

@@ -54,6 +54,7 @@
     "validation_summary": { "$ref": "#/definitions/validation_summary" },
     "error_summary": { "$ref": "#/definitions/error_summary" },
     "data_coverage_summary": { "$ref": "#/definitions/data_coverage_summary" },
+    "data_availability_claim": { "$ref": "#/definitions/data_availability_claim" },
     "sizing_metadata": { "$ref": "#/definitions/sizing_metadata" },
     "backtest_assumption_summary": { "$ref": "#/definitions/backtest_assumption_summary" },
     "lineage": { "$ref": "#/definitions/lineage" },
@@ -293,6 +294,7 @@
               "execution_context.repo_commit",
               "data_coverage_summary.data_catalog_ref",
               "data_coverage_summary.data_slice_identity",
+              "data_availability_claim",
               "sizing_metadata",
               "backtest_assumption_summary"
             ]
@@ -337,6 +339,7 @@
               "execution_context.repo_commit",
               "data_coverage_summary.data_catalog_ref",
               "data_coverage_summary.data_slice_identity",
+              "data_availability_claim",
               "sizing_metadata",
               "backtest_assumption_summary",
               "committed_denominator_snapshot",
@@ -755,6 +758,70 @@
         "irreparable_gap_count": { "type": "integer", "minimum": 0 },
         "data_unavailable_count": { "type": "integer", "minimum": 0 },
         "data_coverage_notes": { "$ref": "#/definitions/string_array" }
+      }
+    },
+    "data_availability_claim": {
+      "description": "Optional identity-bearing evidence-integrity declaration. Existing Result Populations may omit it. When present, the validator binds every non-OHLCV data_ref in the parent Strategy Spec to this catalog/source metadata and blocks unsupported full-history claims.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "coverage_claim",
+        "feature_sources",
+        "historical_dataset_overrides",
+        "claim_notes"
+      ],
+      "properties": {
+        "coverage_claim": { "type": "string", "const": "FULL_HISTORY" },
+        "feature_sources": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/data_availability_feature_source" }
+        },
+        "historical_dataset_overrides": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/historical_dataset_override" }
+        },
+        "claim_notes": { "$ref": "#/definitions/string_array" }
+      }
+    },
+    "data_availability_feature_source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["feature_name", "source_class", "condition_assertions"],
+      "properties": {
+        "feature_name": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "source_class": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
+        "condition_assertions": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        }
+      }
+    },
+    "historical_dataset_override": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "feature_name",
+        "override_type",
+        "dataset_ref",
+        "provenance_ref",
+        "alignment_assertion",
+        "full_history_coverage_assertion"
+      ],
+      "properties": {
+        "feature_name": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "override_type": {
+          "type": "string",
+          "enum": [
+            "VENDOR_HISTORICAL_DATASET",
+            "CAPTURED_HISTORICAL_DATASET",
+            "EXPLICIT_ALIGNED_HISTORICAL_DATASET"
+          ]
+        },
+        "dataset_ref": { "type": "string", "minLength": 1 },
+        "provenance_ref": { "type": "string", "minLength": 1 },
+        "alignment_assertion": { "type": "boolean", "const": true },
+        "full_history_coverage_assertion": { "type": "boolean", "const": true }
       }
     },
     "sizing_metadata": {

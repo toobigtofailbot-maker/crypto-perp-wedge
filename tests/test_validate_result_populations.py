@@ -489,6 +489,63 @@ def _validate(tmp_path: Path) -> list[str]:
     )
 
 
+def _replace_first_data_ref_field(value: object, feature_name: str) -> bool:
+    if isinstance(value, dict):
+        if value.get("operand_type") == "data_ref":
+            value["ref"] = feature_name
+            value["field"] = feature_name
+            return True
+        return any(_replace_first_data_ref_field(child, feature_name) for child in value.values())
+    if isinstance(value, list):
+        return any(_replace_first_data_ref_field(child, feature_name) for child in value)
+    return False
+
+
+def _write_full_history_claim_fixture(
+    tmp_path: Path,
+    feature_name: str,
+    source_class: str,
+    *,
+    condition_assertions: list[str] | None = None,
+    override: dict | None = None,
+    host_data_ref_only: bool = False,
+) -> None:
+    strategy_specs_dir, variant_manifests_dir, sweep_plans_dir, result_populations_dir = _fixture_paths(
+        tmp_path
+    )
+    strategy_spec = _base_strategy_spec()
+    if host_data_ref_only:
+        host_ref = strategy_spec["timeframe_and_data"]["host_data_refs"][0]
+        host_ref["stream"] = "funding"
+        host_ref["field"] = feature_name
+    else:
+        assert _replace_first_data_ref_field(strategy_spec, feature_name)
+    strategy_hash = _sha256_prefixed(strategy_spec)
+    manifest = _base_variant_manifest(strategy_hash)
+    sweep_plan = _base_sweep_plan(manifest)
+    result_population = _base_result_population(strategy_hash, manifest, sweep_plan)
+    result_population["data_availability_claim"] = {
+        "coverage_claim": "FULL_HISTORY",
+        "feature_sources": [
+            {
+                "feature_name": feature_name,
+                "source_class": source_class,
+                "condition_assertions": condition_assertions or [],
+            }
+        ],
+        "historical_dataset_overrides": [] if override is None else [override],
+        "claim_notes": [],
+    }
+    for identity_key in ("input_identity_hash", "result_population_identity_hash"):
+        scope = result_population[identity_key]["hash_scope"]
+        scope.insert(scope.index("backtest_assumption_summary"), "data_availability_claim")
+    _refresh_identity_hashes(result_population)
+    _write_json(strategy_specs_dir / "STRAT-SPEC-9001.strategy_spec.json", strategy_spec)
+    _write_json(variant_manifests_dir / "VM-0001.variant_manifest.json", manifest)
+    _write_json(sweep_plans_dir / "SWEEP-PLAN-0001.sweep_plan.json", sweep_plan)
+    _write_json(result_populations_dir / "RP-0001.result_population.json", result_population)
+
+
 def test_result_population_schema_meta_valid():
     Draft7Validator.check_schema(_load_schema(DEFAULT_RESULT_POPULATION_SCHEMA_PATH))
     Draft7Validator.check_schema(_load_schema(DEFAULT_STRATEGY_SPEC_SCHEMA_PATH))
@@ -528,6 +585,100 @@ def test_committed_result_populations_remain_valid():
         assert committed_path.exists()
 
     assert validate_result_populations() == []
+
+
+def test_open_interest_full_history_claim_requires_historical_override(tmp_path):
+    _write_full_history_claim_fixture(
+        tmp_path,
+        "open_interest",
+        "PUBLIC_REST_CURRENT_OPEN_INTEREST",
+    )
+    assert any("cannot support FULL_HISTORY" in error for error in _validate(tmp_path))
+
+
+def test_declared_host_data_ref_is_included_in_full_history_guard(tmp_path):
+    _write_full_history_claim_fixture(
+        tmp_path,
+        "open_interest",
+        "PUBLIC_REST_CURRENT_OPEN_INTEREST",
+        host_data_ref_only=True,
+    )
+    assert any("cannot support FULL_HISTORY" in error for error in _validate(tmp_path))
+
+
+def test_long_short_ratio_full_history_claim_requires_historical_override(tmp_path):
+    _write_full_history_claim_fixture(
+        tmp_path,
+        "global_long_short_account_ratio",
+        "PUBLIC_REST_GLOBAL_ACCOUNT_RATIO",
+    )
+    assert any("cannot support FULL_HISTORY" in error for error in _validate(tmp_path))
+
+
+def test_vendor_only_feature_requires_vendor_or_captured_provenance(tmp_path):
+    _write_full_history_claim_fixture(
+        tmp_path,
+        "liquidation_volume",
+        "VENDOR_HISTORICAL_DATASET",
+        override={
+            "feature_name": "liquidation_volume",
+            "override_type": "EXPLICIT_ALIGNED_HISTORICAL_DATASET",
+            "dataset_ref": "fixture-liquidations",
+            "provenance_ref": "fixture-provenance",
+            "alignment_assertion": True,
+            "full_history_coverage_assertion": True,
+        },
+    )
+    assert any("requires a vendor or captured" in error for error in _validate(tmp_path))
+
+
+def test_open_interest_full_history_claim_accepts_explicit_vendor_override(tmp_path):
+    _write_full_history_claim_fixture(
+        tmp_path,
+        "open_interest",
+        "PUBLIC_REST_CURRENT_OPEN_INTEREST",
+        override={
+            "feature_name": "open_interest",
+            "override_type": "VENDOR_HISTORICAL_DATASET",
+            "dataset_ref": "vendor://fixture/open-interest",
+            "provenance_ref": "docs/fixture-open-interest-provenance.md",
+            "alignment_assertion": True,
+            "full_history_coverage_assertion": True,
+        },
+    )
+    assert _validate(tmp_path) == []
+
+
+def test_taker_flow_archive_source_may_claim_conditional_full_history(tmp_path):
+    _write_full_history_claim_fixture(
+        tmp_path,
+        "taker_buy_volume",
+        "PUBLIC_TRADE_ARCHIVE_DERIVATION",
+        condition_assertions=[
+            "Archive files cover the claimed window.",
+            "Buy volume is deterministically reconstructed from aligned trade records.",
+        ],
+    )
+    assert _validate(tmp_path) == []
+
+
+def test_taker_ratio_rest_source_remains_recent_only(tmp_path):
+    _write_full_history_claim_fixture(
+        tmp_path,
+        "taker_buy_sell_ratio",
+        "PUBLIC_REST_TAKER_RATIO",
+    )
+    assert any("RECENT_ONLY_PUBLIC_REST" in error for error in _validate(tmp_path))
+
+
+def test_unknown_data_ref_feature_fails_closed(tmp_path):
+    _write_full_history_claim_fixture(
+        tmp_path,
+        "unknown_perp_feature",
+        "UNKNOWN_SOURCE",
+    )
+    errors = _validate(tmp_path)
+    assert any("unknown" in error.lower() for error in errors)
 
 
 def test_old_shape_without_sizing_metadata_remains_valid(tmp_path):

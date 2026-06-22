@@ -1,0 +1,95 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crypto-perp-wedge.local/research/schemas/data_feature_availability.schema.json",
+  "title": "Data Feature Availability Catalog",
+  "description": "Evidence-integrity metadata only. This catalog grants no ingestion, execution, canonical-write, promotion, or runtime authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "catalog_id",
+    "coverage_classes",
+    "entries",
+    "non_authority"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "v1" },
+    "catalog_id": { "type": "string", "const": "PERP-DERIVED-FEATURE-AVAILABILITY-0001" },
+    "coverage_classes": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/coverage_class" },
+      "minItems": 6,
+      "maxItems": 6,
+      "uniqueItems": true
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/definitions/entry" }
+    },
+    "non_authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "metadata_only",
+        "not_ingestion_authority",
+        "not_execution_authority",
+        "not_canonical_write_authority",
+        "not_promotion_authority"
+      ],
+      "properties": {
+        "metadata_only": { "type": "boolean", "const": true },
+        "not_ingestion_authority": { "type": "boolean", "const": true },
+        "not_execution_authority": { "type": "boolean", "const": true },
+        "not_canonical_write_authority": { "type": "boolean", "const": true },
+        "not_promotion_authority": { "type": "boolean", "const": true }
+      }
+    }
+  },
+  "definitions": {
+    "coverage_class": {
+      "type": "string",
+      "enum": [
+        "FULL_HISTORY_PUBLIC_ARCHIVE",
+        "RECENT_ONLY_PUBLIC_REST",
+        "STREAMING_ONLY_PUBLIC_WS",
+        "VENDOR_ONLY_FOR_HISTORY",
+        "PUBLIC_SNAPSHOT_ONLY",
+        "UNKNOWN_OR_BLOCKED"
+      ]
+    },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "feature_name",
+        "compiler_visible",
+        "coverage_class",
+        "source_class",
+        "history_limitation",
+        "canonical_full_history_allowed",
+        "requires_vendor_or_captured_data",
+        "conditions",
+        "notes"
+      ],
+      "properties": {
+        "feature_name": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "compiler_visible": { "type": "boolean" },
+        "coverage_class": { "$ref": "#/definitions/coverage_class" },
+        "source_class": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
+        "history_limitation": { "type": "string", "minLength": 1 },
+        "canonical_full_history_allowed": {
+          "type": "string",
+          "enum": ["yes", "no", "conditional"]
+        },
+        "requires_vendor_or_captured_data": { "type": "boolean" },
+        "conditions": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "notes": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

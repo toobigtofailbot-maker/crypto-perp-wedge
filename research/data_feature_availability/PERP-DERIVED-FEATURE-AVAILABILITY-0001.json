@@ -1,0 +1,241 @@
+{
+  "schema_version": "v1",
+  "catalog_id": "PERP-DERIVED-FEATURE-AVAILABILITY-0001",
+  "coverage_classes": [
+    "FULL_HISTORY_PUBLIC_ARCHIVE",
+    "RECENT_ONLY_PUBLIC_REST",
+    "STREAMING_ONLY_PUBLIC_WS",
+    "VENDOR_ONLY_FOR_HISTORY",
+    "PUBLIC_SNAPSHOT_ONLY",
+    "UNKNOWN_OR_BLOCKED"
+  ],
+  "entries": [
+    {
+      "feature_name": "funding_rate",
+      "compiler_visible": true,
+      "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+      "source_class": "PUBLIC_FUNDING_ARCHIVE",
+      "history_limitation": "Full-history use is limited to preserved, aligned public funding records.",
+      "canonical_full_history_allowed": "conditional",
+      "requires_vendor_or_captured_data": false,
+      "conditions": ["Aligned funding records cover the claimed evidence window."],
+      "notes": "Feature availability does not add funding PnL or cost semantics."
+    },
+    {
+      "feature_name": "funding_mark_price",
+      "compiler_visible": true,
+      "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+      "source_class": "PUBLIC_FUNDING_ARCHIVE",
+      "history_limitation": "Available only where preserved funding-history markPrice values align to the evidence window.",
+      "canonical_full_history_allowed": "conditional",
+      "requires_vendor_or_captured_data": false,
+      "conditions": ["Aligned funding-history markPrice records cover the claimed evidence window."],
+      "notes": "This is distinct from aligned mark-price kline values."
+    },
+    {
+      "feature_name": "mark_price",
+      "compiler_visible": true,
+      "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+      "source_class": "PUBLIC_MARK_KLINE_ARCHIVE",
+      "history_limitation": "Public archive history is subject to the repo irreparable-gap policy and explicit alignment.",
+      "canonical_full_history_allowed": "conditional",
+      "requires_vendor_or_captured_data": false,
+      "conditions": ["The aligned mark-price dataset covers the claim and applies the irreparable-gap policy."],
+      "notes": "A current mark-price REST snapshot is not equivalent to this archive source."
+    },
+    {
+      "feature_name": "index_price",
+      "compiler_visible": true,
+      "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+      "source_class": "PUBLIC_INDEX_KLINE_ARCHIVE",
+      "history_limitation": "Public archive history is subject to the repo irreparable-gap policy and explicit alignment.",
+      "canonical_full_history_allowed": "conditional",
+      "requires_vendor_or_captured_data": false,
+      "conditions": ["The aligned index-price dataset covers the claim and applies the irreparable-gap policy."],
+      "notes": "Coverage follows the preserved index-price kline history."
+    },
+    {
+      "feature_name": "premium_index",
+      "compiler_visible": true,
+      "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+      "source_class": "PUBLIC_PREMIUM_KLINE_ARCHIVE",
+      "history_limitation": "Public archive history is subject to the repo irreparable-gap policy and explicit alignment.",
+      "canonical_full_history_allowed": "conditional",
+      "requires_vendor_or_captured_data": false,
+      "conditions": ["The aligned premium-index dataset covers the claim and applies the irreparable-gap policy."],
+      "notes": "Coverage follows the preserved premium-index kline history."
+    },
+    {
+      "feature_name": "open_interest",
+      "compiler_visible": true,
+      "coverage_class": "PUBLIC_SNAPSHOT_ONLY",
+      "source_class": "PUBLIC_REST_CURRENT_OPEN_INTEREST",
+      "history_limitation": "The public endpoint provides current open interest, not full historical open interest.",
+      "canonical_full_history_allowed": "no",
+      "requires_vendor_or_captured_data": true,
+      "conditions": [],
+      "notes": "Trades and aggregate trades cannot reconstruct true open interest. Historical use requires an explicit vendor or captured dataset."
+    },
+    {
+      "feature_name": "open_interest_value",
+      "compiler_visible": true,
+      "coverage_class": "RECENT_ONLY_PUBLIC_REST",
+      "source_class": "PUBLIC_REST_OPEN_INTEREST_STATISTICS",
+      "history_limitation": "Binance public open-interest statistics have limited recent retention.",
+      "canonical_full_history_allowed": "no",
+      "requires_vendor_or_captured_data": true,
+      "conditions": [],
+      "notes": "Historical coverage beyond public retention requires explicit vendor or captured provenance."
+    },
+    {
+      "feature_name": "top_trader_position_long_short_ratio",
+      "compiler_visible": true,
+      "coverage_class": "RECENT_ONLY_PUBLIC_REST",
+      "source_class": "PUBLIC_REST_TOP_TRADER_POSITION_RATIO",
+      "history_limitation": "The public endpoint is limited to recent history (latest 30 days per source documentation).",
+      "canonical_full_history_allowed": "no",
+      "requires_vendor_or_captured_data": true,
+      "conditions": [],
+      "notes": "Public REST retention is not full-history evidence."
+    },
+    {
+      "feature_name": "top_trader_account_long_short_ratio",
+      "compiler_visible": true,
+      "coverage_class": "RECENT_ONLY_PUBLIC_REST",
+      "source_class": "PUBLIC_REST_TOP_TRADER_ACCOUNT_RATIO",
+      "history_limitation": "The public endpoint is limited to recent history (latest 30 days per source documentation).",
+      "canonical_full_history_allowed": "no",
+      "requires_vendor_or_captured_data": true,
+      "conditions": [],
+      "notes": "Public REST retention is not full-history evidence."
+    },
+    {
+      "feature_name": "global_long_short_account_ratio",
+      "compiler_visible": true,
+      "coverage_class": "RECENT_ONLY_PUBLIC_REST",
+      "source_class": "PUBLIC_REST_GLOBAL_ACCOUNT_RATIO",
+      "history_limitation": "The public endpoint is limited to recent history (latest 30 days per source documentation).",
+      "canonical_full_history_allowed": "no",
+      "requires_vendor_or_captured_data": true,
+      "conditions": [],
+      "notes": "Public REST retention is not full-history evidence."
+    },
+    {
+      "feature_name": "taker_buy_sell_ratio",
+      "compiler_visible": true,
+      "coverage_class": "RECENT_ONLY_PUBLIC_REST",
+      "source_class": "PUBLIC_REST_TAKER_RATIO",
+      "history_limitation": "The Binance taker buy/sell ratio endpoint is limited to recent history.",
+      "canonical_full_history_allowed": "no",
+      "requires_vendor_or_captured_data": true,
+      "conditions": [],
+      "notes": "The REST ratio source cannot support a public full-history claim."
+    },
+    {
+      "feature_name": "taker_buy_sell_ratio",
+      "compiler_visible": true,
+      "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+      "source_class": "PUBLIC_TRADE_ARCHIVE_DERIVATION",
+      "history_limitation": "Coverage depends on verified trade or aggregate-trade archive files and deterministic reconstruction.",
+      "canonical_full_history_allowed": "conditional",
+      "requires_vendor_or_captured_data": false,
+      "conditions": ["Archive files cover the claimed window.", "The ratio is deterministically reconstructed from aligned trade or aggregate-trade records."],
+      "notes": "This archive derivation is trade-flow evidence and does not reconstruct open interest."
+    },
+    {
+      "feature_name": "taker_buy_volume",
+      "compiler_visible": true,
+      "coverage_class": "RECENT_ONLY_PUBLIC_REST",
+      "source_class": "PUBLIC_REST_TAKER_RATIO",
+      "history_limitation": "The Binance taker buy/sell ratio endpoint is limited to recent history.",
+      "canonical_full_history_allowed": "no",
+      "requires_vendor_or_captured_data": true,
+      "conditions": [],
+      "notes": "REST endpoint volume fields remain recent-only."
+    },
+    {
+      "feature_name": "taker_buy_volume",
+      "compiler_visible": true,
+      "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+      "source_class": "PUBLIC_TRADE_ARCHIVE_DERIVATION",
+      "history_limitation": "Coverage depends on verified trade or aggregate-trade archive files and deterministic reconstruction.",
+      "canonical_full_history_allowed": "conditional",
+      "requires_vendor_or_captured_data": false,
+      "conditions": ["Archive files cover the claimed window.", "Buy volume is deterministically reconstructed from aligned trade or aggregate-trade records."],
+      "notes": "Trade archives can backfill taker-flow features but not true open interest."
+    },
+    {
+      "feature_name": "taker_sell_volume",
+      "compiler_visible": true,
+      "coverage_class": "RECENT_ONLY_PUBLIC_REST",
+      "source_class": "PUBLIC_REST_TAKER_RATIO",
+      "history_limitation": "The Binance taker buy/sell ratio endpoint is limited to recent history.",
+      "canonical_full_history_allowed": "no",
+      "requires_vendor_or_captured_data": true,
+      "conditions": [],
+      "notes": "REST endpoint volume fields remain recent-only."
+    },
+    {
+      "feature_name": "taker_sell_volume",
+      "compiler_visible": true,
+      "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+      "source_class": "PUBLIC_TRADE_ARCHIVE_DERIVATION",
+      "history_limitation": "Coverage depends on verified trade or aggregate-trade archive files and deterministic reconstruction.",
+      "canonical_full_history_allowed": "conditional",
+      "requires_vendor_or_captured_data": false,
+      "conditions": ["Archive files cover the claimed window.", "Sell volume is deterministically reconstructed from aligned trade or aggregate-trade records."],
+      "notes": "Trade archives can backfill taker-flow features but not true open interest."
+    },
+    {
+      "feature_name": "hour_of_day_utc",
+      "compiler_visible": true,
+      "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+      "source_class": "DERIVED_FROM_BAR_TIMESTAMP",
+      "history_limitation": "Full history is available only where the aligned source bars exist.",
+      "canonical_full_history_allowed": "conditional",
+      "requires_vendor_or_captured_data": false,
+      "conditions": ["Source bars cover the claimed evidence window."],
+      "notes": "Deterministically derived from the UTC bar timestamp."
+    },
+    {
+      "feature_name": "day_of_week_utc",
+      "compiler_visible": true,
+      "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+      "source_class": "DERIVED_FROM_BAR_TIMESTAMP",
+      "history_limitation": "Full history is available only where the aligned source bars exist.",
+      "canonical_full_history_allowed": "conditional",
+      "requires_vendor_or_captured_data": false,
+      "conditions": ["Source bars cover the claimed evidence window."],
+      "notes": "Deterministically derived from the UTC bar timestamp."
+    },
+    {
+      "feature_name": "is_weekend_utc",
+      "compiler_visible": true,
+      "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+      "source_class": "DERIVED_FROM_BAR_TIMESTAMP",
+      "history_limitation": "Full history is available only where the aligned source bars exist.",
+      "canonical_full_history_allowed": "conditional",
+      "requires_vendor_or_captured_data": false,
+      "conditions": ["Source bars cover the claimed evidence window."],
+      "notes": "Deterministically derived from the UTC bar timestamp."
+    },
+    {
+      "feature_name": "liquidation_volume",
+      "compiler_visible": false,
+      "coverage_class": "VENDOR_ONLY_FOR_HISTORY",
+      "source_class": "VENDOR_HISTORICAL_DATASET",
+      "history_limitation": "No adopted public full-history source exists in repo truth.",
+      "canonical_full_history_allowed": "no",
+      "requires_vendor_or_captured_data": true,
+      "conditions": [],
+      "notes": "Not compiler-visible; included only to fail closed for future vendor-history claims."
+    }
+  ],
+  "non_authority": {
+    "metadata_only": true,
+    "not_ingestion_authority": true,
+    "not_execution_authority": true,
+    "not_canonical_write_authority": true,
+    "not_promotion_authority": true
+  }
+}

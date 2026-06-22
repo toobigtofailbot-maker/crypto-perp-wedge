@@ -17,7 +17,9 @@ RUN_SCRATCH_TOOL = "run_scratch_tool"
 
 ROLE_PERMISSIONS: dict[str, frozenset[str]] = {
     "research_scout": frozenset({READ_DOCS, READ_NON_SECRET}),
-    "idea_formalizer": frozenset({READ_DOCS, READ_NON_SECRET, WRITE_SCRATCH}),
+    "idea_formalizer": frozenset(
+        {READ_DOCS, READ_NON_SECRET, WRITE_SCRATCH, RUN_READ_ONLY_VALIDATION}
+    ),
     "draft_generator": frozenset({READ_DOCS, READ_NON_SECRET, WRITE_SCRATCH}),
     "non_canonical_runner": frozenset(
         {
@@ -67,6 +69,14 @@ HARD_BLOCKED_ACTIONS = frozenset(
         "dependency_mutation",
         "project_status_mutation",
         "network_access",
+        "backtest_execution",
+        "sweep_execution",
+        "funding_mode_mutation",
+        "evidence_suppression",
+        "evidence_deletion",
+        "toolcontext_bypass",
+        "provider_memory_as_truth",
+        "gate_bypass",
     }
 )
 
@@ -189,8 +199,13 @@ def decide(role: str, wp_id: str, action_type: str, target_path: str) -> PolicyD
 
     if action_type == READ_DOCS and not _matches_prefix(target_path, DOC_READ_PREFIXES):
         return PolicyDecision(False, "path is outside the documentation read allowlist")
-    if action_type == READ_NON_SECRET and not _matches_prefix(
-        target_path, NON_SECRET_READ_PREFIXES
+    if (
+        action_type == READ_NON_SECRET
+        and not _matches_prefix(target_path, NON_SECRET_READ_PREFIXES)
+        and not (
+            role == "idea_formalizer"
+            and target_path.startswith(f"scratch/{wp_id.casefold()}/")
+        )
     ):
         return PolicyDecision(False, "path is outside the non-sensitive read allowlist")
     if action_type == WRITE_SCRATCH:

@@ -1,0 +1,4 @@
+agg_trade_id,price,quantity,first_trade_id,last_trade_id,transact_time,is_buyer_maker
+10,100,2,100,102,1704067200000,true
+11,101,1,103,103,1704067230000,false
+12,102,3,104,105,1704068100000,false

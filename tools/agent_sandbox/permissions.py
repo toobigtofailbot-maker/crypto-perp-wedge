@@ -13,6 +13,7 @@ READ_NON_SECRET = "read_non_secret_files"
 WRITE_SCRATCH = "write_scratch"
 RUN_READ_ONLY_VALIDATION = "run_read_only_validation"
 RUN_SCRATCH_TOOL = "run_scratch_tool"
+RUN_NONCANONICAL_EXPERIMENT = "noncanonical_experiment_run"
 
 
 ROLE_PERMISSIONS: dict[str, frozenset[str]] = {
@@ -28,6 +29,13 @@ ROLE_PERMISSIONS: dict[str, frozenset[str]] = {
             WRITE_SCRATCH,
             RUN_READ_ONLY_VALIDATION,
             RUN_SCRATCH_TOOL,
+        }
+    ),
+    "experiment_runner": frozenset(
+        {
+            READ_NON_SECRET,
+            WRITE_SCRATCH,
+            RUN_NONCANONICAL_EXPERIMENT,
         }
     ),
     "robustness_diagnostician": frozenset(
@@ -77,6 +85,7 @@ HARD_BLOCKED_ACTIONS = frozenset(
         "toolcontext_bypass",
         "provider_memory_as_truth",
         "gate_bypass",
+        "approval_gate_bypass",
     }
 )
 
@@ -203,8 +212,12 @@ def decide(role: str, wp_id: str, action_type: str, target_path: str) -> PolicyD
         action_type == READ_NON_SECRET
         and not _matches_prefix(target_path, NON_SECRET_READ_PREFIXES)
         and not (
-            role == "idea_formalizer"
+            role in {"idea_formalizer", "experiment_runner"}
             and target_path.startswith(f"scratch/{wp_id.casefold()}/")
+        )
+        and not (
+            role == "experiment_runner"
+            and target_path.startswith("scratch/wp-agent-idea-formalizer-01/")
         )
     ):
         return PolicyDecision(False, "path is outside the non-sensitive read allowlist")
@@ -220,5 +233,12 @@ def decide(role: str, wp_id: str, action_type: str, target_path: str) -> PolicyD
         target_path, SCRATCH_TOOL_PREFIXES
     ):
         return PolicyDecision(False, "target is outside the scratch-tool allowlist")
+    if action_type == RUN_NONCANONICAL_EXPERIMENT:
+        allowed_prefix = f"scratch/{wp_id.casefold()}/outputs/"
+        if not target_path.startswith(allowed_prefix):
+            return PolicyDecision(
+                False,
+                f"non-canonical experiment target is outside active outputs prefix={allowed_prefix}",
+            )
 
     return PolicyDecision(True, f"allowed by role={role} under policy={POLICY_ID}")

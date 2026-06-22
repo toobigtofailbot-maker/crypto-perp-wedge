@@ -257,9 +257,7 @@ class FormalizerRunnerBridge:
             )
         return draft
 
-    def _availability_blockers(
-        self, formalized: Mapping[str, Any], fixture_path: str
-    ) -> list[str]:
+    def _availability_blockers(self, formalized: Mapping[str, Any]) -> list[str]:
         assessment = formalized.get("capability_assessment")
         rows = assessment.get("feature_assessments", []) if isinstance(assessment, Mapping) else []
         blockers: list[str] = []
@@ -270,9 +268,15 @@ class FormalizerRunnerBridge:
             coverage = str(row.get("coverage_class", ""))
             source = str(row.get("source_class", ""))
             testability = str(row.get("historical_testability", ""))
+            if feature not in {"sma", "stddev"}:
+                blockers.append(
+                    f"{feature} is not encoded by the supported STRAT-SPEC-0003 draft adapter"
+                )
             if feature == "taker_buy_sell_ratio" and source == "PUBLIC_TRADE_ARCHIVE_DERIVATION":
-                if not fixture_path:
-                    blockers.append("taker flow requires a present archive-derived fixture/source")
+                blockers.append(
+                    "taker flow requires a distinct referenced archive-derived fixture/source; "
+                    "the OHLCV runner fixture is insufficient"
+                )
                 continue
             constrained = coverage in {
                 "PUBLIC_SNAPSHOT_ONLY",
@@ -660,7 +664,7 @@ class FormalizerRunnerBridge:
         )
         self._validate_derived_inputs(input_paths)
         manifest = self._read_json(input_paths["variant_manifest"])
-        blockers = self._availability_blockers(formalized, ohlcv_path)
+        blockers = self._availability_blockers(formalized)
         if blockers:
             record = self.tool_context.authorize(
                 ToolAction("data_availability_bypass", formalizer_path)

@@ -98,7 +98,8 @@ global funding setting is changed.
 Full-history public runs block recent-only, snapshot-only, streaming-only,
 vendor-only, and unknown features. Open interest is never reconstructed from
 trades; liquidation history requires vendor/captured data; archive-derived taker
-flow requires a referenced present local source.
+flow cannot use the OHLCV fixture and remains blocked because it is not encoded
+by the first SMA/stddev draft adapter.
 
 ## Review Packet
 
@@ -120,7 +121,7 @@ attempt produces a blocked audit record.
 ## Validation Status
 
 - Bridge, formalizer, experiment-runner, and ToolContext regressions: PASS,
-  168 tests.
+  169 tests.
 - Strategy Spec, Result Population, data-availability, and VM/Sweep validator
   tests: PASS, 213 tests.
 - Strategy Spec validator: PASS.
@@ -133,7 +134,7 @@ attempt produces a blocked audit record.
   `test_default_fixture_mapping_uses_rp_2592_lineage`, because its gitignored
   D4A normalized CSV was absent. After copying that existing local fixture from
   the root checkout into the same gitignored worktree path for validation only,
-  the final full run passed: 2,069 passed, 1 skipped, 6 warnings.
+  the final full run passed: 2,071 passed, 1 skipped, 6 warnings.
 - Diff-scope summary: PASS; intended files only and no forbidden-path match.
 - `git diff --check`: PASS.
 - Ambient Python 3.14 cannot collect runner tests because `pandas` is absent;

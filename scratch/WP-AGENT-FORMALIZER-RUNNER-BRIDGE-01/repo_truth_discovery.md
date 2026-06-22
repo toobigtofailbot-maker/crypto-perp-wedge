@@ -73,7 +73,8 @@
   labels. Recent/snapshot/streaming/vendor constrained features block a
   full-history public run. Open interest is never reconstructed from trades.
   Liquidation history requires vendor/captured data. Public archive taker flow
-  requires a referenced present local source.
+  cannot use the OHLCV fixture; it remains blocked in this first bridge because
+  the SMA/stddev draft adapter does not encode taker-flow semantics.
 
 ## Local data requirement
 

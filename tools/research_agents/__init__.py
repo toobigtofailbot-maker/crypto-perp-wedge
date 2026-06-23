@@ -13,6 +13,10 @@ from .reasoning_providers import (
     FakeOfflineProvider,
     ReasoningProvider,
 )
+from .robustness_diagnostician_agent import (
+    RobustnessDiagnosticianAgent,
+    RobustnessDiagnosticianConfig,
+)
 
 __all__ = [
     "ChatGPTAccountPacketProvider",
@@ -26,4 +30,6 @@ __all__ = [
     "IdeaFormalizerAgent",
     "IdeaFormalizerConfig",
     "ReasoningProvider",
+    "RobustnessDiagnosticianAgent",
+    "RobustnessDiagnosticianConfig",
 ]

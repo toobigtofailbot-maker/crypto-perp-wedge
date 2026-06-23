@@ -1,0 +1,603 @@
+{
+  "approval_marker_hash": "sha256:e9280753ceb54b138346d656033d7404320c4338741606c3373976f2a31cb69d",
+  "approval_marker_path": "scratch/WP-AGENT-ROBUSTNESS-DIAGNOSTICIAN-01/inputs/operator_robustness_approval.json",
+  "approval_metadata": {
+    "approval_scope": "noncanonical_scratch_robustness_only",
+    "approval_timestamp_utc": "2026-06-22T06:00:00Z",
+    "approved_by": "operator",
+    "approved_for_noncanonical_robustness_diagnostics": true,
+    "source_bridge_run_id": "fd63eb89897d9dc5"
+  },
+  "bootstrap_mc_summary": {
+    "drawdown": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 0.0,
+      "ci_lower": 0.0,
+      "ci_upper": 0.0,
+      "confidence_level": 0.95,
+      "metric": "drawdown",
+      "observed_mean": 0.0,
+      "row_count": 8,
+      "sample_count": 50
+    },
+    "exposure": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 0.0,
+      "ci_lower": 0.0,
+      "ci_upper": 0.0,
+      "confidence_level": 0.95,
+      "metric": "exposure",
+      "observed_mean": 0.0,
+      "row_count": 8,
+      "sample_count": 50
+    },
+    "fees": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 0.0,
+      "ci_lower": 0.0,
+      "ci_upper": 0.0,
+      "confidence_level": 0.95,
+      "metric": "fees",
+      "observed_mean": 0.0,
+      "row_count": 8,
+      "sample_count": 50
+    },
+    "funding": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 0.0,
+      "ci_lower": 0.0,
+      "ci_upper": 0.0,
+      "confidence_level": 0.95,
+      "metric": "funding",
+      "observed_mean": 0.0,
+      "row_count": 8,
+      "sample_count": 50
+    },
+    "pnl": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 0.0,
+      "ci_lower": 0.0,
+      "ci_upper": 0.0,
+      "confidence_level": 0.95,
+      "metric": "pnl",
+      "observed_mean": 0.0,
+      "row_count": 8,
+      "sample_count": 50
+    },
+    "return_pct": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 0.0,
+      "ci_lower": 0.0,
+      "ci_upper": 0.0,
+      "confidence_level": 0.95,
+      "metric": "return_pct",
+      "observed_mean": 0.0,
+      "row_count": 8,
+      "sample_count": 50
+    },
+    "sharpe": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 0.0,
+      "ci_lower": 0.0,
+      "ci_upper": 0.0,
+      "confidence_level": 0.95,
+      "metric": "sharpe",
+      "observed_mean": 0.0,
+      "row_count": 8,
+      "sample_count": 50
+    },
+    "slippage": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 0.0,
+      "ci_lower": 0.0,
+      "ci_upper": 0.0,
+      "confidence_level": 0.95,
+      "metric": "slippage",
+      "observed_mean": 0.0,
+      "row_count": 8,
+      "sample_count": 50
+    },
+    "trade_count": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 0.0,
+      "ci_lower": 0.0,
+      "ci_upper": 0.0,
+      "confidence_level": 0.95,
+      "metric": "trade_count",
+      "observed_mean": 0.0,
+      "row_count": 8,
+      "sample_count": 50
+    },
+    "win_rate": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 0.0,
+      "ci_lower": 0.0,
+      "ci_upper": 0.0,
+      "confidence_level": 0.95,
+      "metric": "win_rate",
+      "observed_mean": 0.0,
+      "row_count": 8,
+      "sample_count": 50
+    }
+  },
+  "data_availability_blockers": [],
+  "data_availability_warnings": [],
+  "denominator_integrity_status": {
+    "all_source_rows_preserved": true,
+    "result_row_count": 8,
+    "row_disposition": [
+      {
+        "eligible_for_metrics": true,
+        "status_reason": "runner successful",
+        "trial_status": "completed",
+        "variant_id": "VAR-000001"
+      },
+      {
+        "eligible_for_metrics": true,
+        "status_reason": "runner successful",
+        "trial_status": "completed",
+        "variant_id": "VAR-000002"
+      },
+      {
+        "eligible_for_metrics": true,
+        "status_reason": "runner successful",
+        "trial_status": "completed",
+        "variant_id": "VAR-000003"
+      },
+      {
+        "eligible_for_metrics": true,
+        "status_reason": "runner successful",
+        "trial_status": "completed",
+        "variant_id": "VAR-000004"
+      },
+      {
+        "eligible_for_metrics": true,
+        "status_reason": "runner successful",
+        "trial_status": "completed",
+        "variant_id": "VAR-000005"
+      },
+      {
+        "eligible_for_metrics": true,
+        "status_reason": "runner successful",
+        "trial_status": "completed",
+        "variant_id": "VAR-000006"
+      },
+      {
+        "eligible_for_metrics": true,
+        "status_reason": "runner successful",
+        "trial_status": "completed",
+        "variant_id": "VAR-000007"
+      },
+      {
+        "eligible_for_metrics": true,
+        "status_reason": "runner successful",
+        "trial_status": "completed",
+        "variant_id": "VAR-000008"
+      }
+    ],
+    "source_declared_trial_count": 8,
+    "source_status_counts": {
+      "blocked": 0,
+      "completed": 8,
+      "failed": 0,
+      "invalid": 0,
+      "pruned": 0
+    },
+    "status": "passed"
+  },
+  "diagnostics_attempted": [
+    "seeded_variant_metric_bootstrap",
+    "metric_confidence_intervals",
+    "parameter_sensitivity",
+    "denominator_integrity",
+    "source_lineage_hash_preservation",
+    "oos_walkforward",
+    "per_trade_resampling",
+    "funding_stress",
+    "data_availability_propagation"
+  ],
+  "diagnostics_completed": [
+    "seeded_variant_metric_bootstrap",
+    "metric_confidence_intervals",
+    "parameter_sensitivity",
+    "denominator_integrity",
+    "source_lineage_hash_preservation",
+    "funding_mode_visibility",
+    "data_availability_propagation"
+  ],
+  "diagnostics_skipped": [
+    {
+      "diagnostic": "oos_walkforward_status",
+      "reason": "missing_fold_inputs"
+    },
+    {
+      "diagnostic": "per_trade_status",
+      "reason": "QUEUE_PER_TRADE_INSTRUMENTATION"
+    },
+    {
+      "diagnostic": "funding_stress_status",
+      "reason": "not_applicable_funding_mode_off"
+    }
+  ],
+  "funding_stress_status": {
+    "performed": false,
+    "status": "not_applicable_funding_mode_off"
+  },
+  "non_authority_flags": [
+    "not canonical",
+    "not evidence",
+    "not candidate authority",
+    "not promotion authority",
+    "not paper/live readiness",
+    "human review required",
+    "not ranking authority"
+  ],
+  "oos_walkforward_status": {
+    "queued_follow_up": true,
+    "status": "missing_fold_inputs"
+  },
+  "parameter_sensitivity_summary": {
+    "authority": "advisory_only_not_ranking_not_gate",
+    "parameter_count": 3,
+    "parameters": [
+      {
+        "parameter_name": "center_lookback_bars",
+        "value_count": 2,
+        "values": [
+          {
+            "metrics": {
+              "drawdown": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "exposure": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "fees": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "funding": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "pnl": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "return_pct": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "sharpe": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "slippage": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "trade_count": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "win_rate": {
+                "count": 4,
+                "mean": 0.0
+              }
+            },
+            "parameter_value": "100",
+            "variant_ids": [
+              "VAR-000005",
+              "VAR-000006",
+              "VAR-000007",
+              "VAR-000008"
+            ]
+          },
+          {
+            "metrics": {
+              "drawdown": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "exposure": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "fees": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "funding": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "pnl": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "return_pct": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "sharpe": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "slippage": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "trade_count": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "win_rate": {
+                "count": 4,
+                "mean": 0.0
+              }
+            },
+            "parameter_value": "50",
+            "variant_ids": [
+              "VAR-000001",
+              "VAR-000002",
+              "VAR-000003",
+              "VAR-000004"
+            ]
+          }
+        ]
+      },
+      {
+        "parameter_name": "trend_lookback_bars",
+        "value_count": 2,
+        "values": [
+          {
+            "metrics": {
+              "drawdown": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "exposure": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "fees": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "funding": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "pnl": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "return_pct": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "sharpe": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "slippage": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "trade_count": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "win_rate": {
+                "count": 4,
+                "mean": 0.0
+              }
+            },
+            "parameter_value": "100",
+            "variant_ids": [
+              "VAR-000001",
+              "VAR-000003",
+              "VAR-000005",
+              "VAR-000007"
+            ]
+          },
+          {
+            "metrics": {
+              "drawdown": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "exposure": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "fees": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "funding": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "pnl": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "return_pct": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "sharpe": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "slippage": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "trade_count": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "win_rate": {
+                "count": 4,
+                "mean": 0.0
+              }
+            },
+            "parameter_value": "200",
+            "variant_ids": [
+              "VAR-000002",
+              "VAR-000004",
+              "VAR-000006",
+              "VAR-000008"
+            ]
+          }
+        ]
+      },
+      {
+        "parameter_name": "vol_lookback_bars",
+        "value_count": 2,
+        "values": [
+          {
+            "metrics": {
+              "drawdown": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "exposure": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "fees": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "funding": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "pnl": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "return_pct": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "sharpe": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "slippage": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "trade_count": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "win_rate": {
+                "count": 4,
+                "mean": 0.0
+              }
+            },
+            "parameter_value": "30",
+            "variant_ids": [
+              "VAR-000001",
+              "VAR-000002",
+              "VAR-000005",
+              "VAR-000006"
+            ]
+          },
+          {
+            "metrics": {
+              "drawdown": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "exposure": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "fees": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "funding": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "pnl": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "return_pct": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "sharpe": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "slippage": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "trade_count": {
+                "count": 4,
+                "mean": 0.0
+              },
+              "win_rate": {
+                "count": 4,
+                "mean": 0.0
+              }
+            },
+            "parameter_value": "50",
+            "variant_ids": [
+              "VAR-000003",
+              "VAR-000004",
+              "VAR-000007",
+              "VAR-000008"
+            ]
+          }
+        ]
+      }
+    ],
+    "source_path": null,
+    "source_type": "variant_result_rows",
+    "status": "performed"
+  },
+  "per_trade_status": {
+    "fabricated_per_trade_data": false,
+    "finding": "PER_TRADE_DATA_MISSING",
+    "follow_up_label": "QUEUE_PER_TRADE_INSTRUMENTATION",
+    "performed": false,
+    "reason": "Committed Result Population rows expose aggregate per-variant metrics only; no real per-trade rows were found or supplied.",
+    "source_checksum": null,
+    "source_path": null,
+    "status": "QUEUE_PER_TRADE_INSTRUMENTATION"
+  },
+  "recommended_follow_up_evidence_gaps": [
+    "missing_fold_inputs",
+    "QUEUE_PER_TRADE_INSTRUMENTATION",
+    "not_applicable_funding_mode_off"
+  ],
+  "result_population_validation": {
+    "errors": [],
+    "status": "passed"
+  },
+  "robustness_diagnostics_path": "scratch/WP-AGENT-ROBUSTNESS-DIAGNOSTICIAN-01/outputs/9309de71e35fc40f/robustness_diagnostics.json",
+  "run_id": "9309de71e35fc40f",
+  "schema_version": "robustness_diagnostician_review_packet_v1",
+  "source_bridge_metadata": {
+    "review_packet_hash": "sha256:bc222c21a89863d57d0139422c66389339276a74dc5688fb2a7e0832568496db",
+    "review_packet_path": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/human_review_packet.json",
+    "run_id": "fd63eb89897d9dc5"
+  },
+  "source_denominator_ledger_hash": "sha256:84f8199aea9b78753c8a570c26696991e0f9cc4a078cb358749aaba80059d540",
+  "source_denominator_ledger_path": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/denominator_ledger.json",
+  "source_runner_artifact_hash": "sha256:cb1ef40634679166c141b801702df2a67acb6039ddddf1b63ef60ca8b912382d",
+  "source_runner_artifact_path": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/runner_artifacts/RP-4664.result_population.json"
+}

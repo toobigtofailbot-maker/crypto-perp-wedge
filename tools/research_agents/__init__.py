@@ -11,6 +11,7 @@ from .experiment_runner_agent import (
 )
 from .formalizer_runner_bridge import FormalizerRunnerBridge, FormalizerRunnerBridgeConfig
 from .idea_formalizer_agent import IdeaFormalizerAgent, IdeaFormalizerConfig
+from .langgraph_pilot import LangGraphPilot, LangGraphPilotConfig, ProhibitedActionProbe
 from .reasoning_providers import (
     ChatGPTAccountPacketProvider,
     DisabledProvider,
@@ -35,6 +36,9 @@ __all__ = [
     "FormalizerRunnerBridgeConfig",
     "IdeaFormalizerAgent",
     "IdeaFormalizerConfig",
+    "LangGraphPilot",
+    "LangGraphPilotConfig",
+    "ProhibitedActionProbe",
     "ReasoningProvider",
     "RobustnessDiagnosticianAgent",
     "RobustnessDiagnosticianConfig",

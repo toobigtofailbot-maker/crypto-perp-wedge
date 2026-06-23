@@ -1,0 +1,25 @@
+{
+  "approval_marker_hash": "sha256:c0690ca56732fbcc922e2de104499a3dbe151043ee530a47d548cb405270e5a9",
+  "approval_marker_path": "scratch/WP-AGENT-IDEA-FORMALIZER-01/outputs/3a32f0bf02d2/operator_bridge_approval.json",
+  "bridge_tool_version": "formalizer-runner-bridge-v1",
+  "compatibility_status_not_authority": true,
+  "created_at_utc": "2026-06-22T06:00:00Z",
+  "data_assumptions": {
+    "experiment_scope": "full_history_public",
+    "ohlcv_input_path": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/fixtures/canonical_15m_ohlcv.csv",
+    "runner_mode": "canonical_15m_fixture_offline"
+  },
+  "funding_cost_mode": "off",
+  "non_authority_flags": [
+    "not canonical",
+    "not evidence",
+    "not candidate authority",
+    "not promotion authority",
+    "not paper/live readiness",
+    "human review required"
+  ],
+  "schema_version": "formalizer_runner_bridge_input_metadata_v1",
+  "source_draft_strategy_spec_path": "scratch/WP-AGENT-IDEA-FORMALIZER-01/outputs/3a32f0bf02d2/STRAT-SPEC-9959.strategy_spec.json",
+  "source_formalized_idea_path": "scratch/WP-AGENT-IDEA-FORMALIZER-01/outputs/3a32f0bf02d2/formalized_idea.json",
+  "source_formalizer_run_id": "3a32f0bf02d2"
+}

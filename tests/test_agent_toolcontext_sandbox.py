@@ -75,6 +75,7 @@ def test_repo_truth_role_taxonomy_and_role_specific_permissions_are_enforced():
         "non_canonical_runner",
         "robustness_diagnostician",
         "candidate_review_packet_preparer",
+        "langgraph_pilot_orchestrator",
         "notification_assistant",
     }
     scout_context, scout_sink = make_context("research_scout")

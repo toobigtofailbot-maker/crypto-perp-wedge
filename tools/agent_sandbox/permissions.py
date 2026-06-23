@@ -17,6 +17,7 @@ RUN_NONCANONICAL_EXPERIMENT = "noncanonical_experiment_run"
 RUN_NONCANONICAL_OFFLINE_SWEEP = "noncanonical_offline_sweep_run"
 RUN_SCRATCH_ROBUSTNESS_DIAGNOSTIC = "run_scratch_robustness_diagnostic"
 BUILD_SCRATCH_CANDIDATE_REVIEW_PACKET = "build_scratch_candidate_review_packet"
+RUN_SCRATCH_LANGGRAPH_PILOT = "run_scratch_langgraph_pilot"
 
 
 ROLE_PERMISSIONS: dict[str, frozenset[str]] = {
@@ -60,6 +61,9 @@ ROLE_PERMISSIONS: dict[str, frozenset[str]] = {
     ),
     "candidate_review_packet_preparer": frozenset(
         {READ_DOCS, READ_NON_SECRET, WRITE_SCRATCH, BUILD_SCRATCH_CANDIDATE_REVIEW_PACKET}
+    ),
+    "langgraph_pilot_orchestrator": frozenset(
+        {READ_DOCS, READ_NON_SECRET, WRITE_SCRATCH, RUN_SCRATCH_LANGGRAPH_PILOT}
     ),
     "notification_assistant": frozenset({READ_DOCS, WRITE_SCRATCH}),
 }
@@ -306,6 +310,13 @@ def decide(role: str, wp_id: str, action_type: str, target_path: str) -> PolicyD
             return PolicyDecision(
                 False,
                 f"scratch candidate-review target is outside active outputs prefix={allowed_prefix}",
+            )
+    if action_type == RUN_SCRATCH_LANGGRAPH_PILOT:
+        allowed_prefix = f"scratch/{wp_id.casefold()}/outputs/"
+        if not target_path.startswith(allowed_prefix):
+            return PolicyDecision(
+                False,
+                f"scratch LangGraph pilot target is outside active outputs prefix={allowed_prefix}",
             )
 
     return PolicyDecision(True, f"allowed by role={role} under policy={POLICY_ID}")

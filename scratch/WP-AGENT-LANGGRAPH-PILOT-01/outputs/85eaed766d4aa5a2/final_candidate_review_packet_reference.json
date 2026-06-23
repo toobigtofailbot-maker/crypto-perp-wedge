@@ -1,0 +1,19 @@
+{
+  "candidate_review_packet_sha256": "sha256:b7bf2ac51e19053978fffc4c77eb574d13216bd8577529cde35edcdf8a62eb41",
+  "non_authority_flags": [
+    "scratch-only",
+    "non-canonical",
+    "not evidence",
+    "not candidate authority",
+    "not promotion authority",
+    "not ranking authority",
+    "not paper/live readiness",
+    "not a trading signal",
+    "human review required"
+  ],
+  "paths": {
+    "candidate_review_packet_json": "scratch/WP-AGENT-CANDIDATE-REVIEW-PACKET-01/outputs/dba42387c2e4f679/candidate_review_packet.json",
+    "candidate_review_packet_markdown": "scratch/WP-AGENT-CANDIDATE-REVIEW-PACKET-01/outputs/dba42387c2e4f679/candidate_review_packet.md"
+  },
+  "status": "produced"
+}

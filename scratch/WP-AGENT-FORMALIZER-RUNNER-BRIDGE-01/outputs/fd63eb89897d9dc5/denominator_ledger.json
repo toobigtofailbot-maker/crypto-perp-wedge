@@ -1,0 +1,423 @@
+{
+  "declared_trial_count": 8,
+  "denominator_preserved": true,
+  "non_authority_flags": [
+    "not canonical",
+    "not evidence",
+    "not candidate authority",
+    "not promotion authority",
+    "not paper/live readiness",
+    "human review required"
+  ],
+  "rows": [
+    {
+      "approval_scope": "noncanonical_scratch_runner_bridge_only",
+      "bridge_input_paths": {
+        "bridge_metadata": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/bridge_metadata.json",
+        "strategy_spec": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/STRAT-SPEC-9959.strategy_spec.json",
+        "sweep_plan": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/SWEEP-PLAN-9009.sweep_plan.json",
+        "variant_manifest": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/VM-9009.variant_manifest.json"
+      },
+      "finished_at_utc": "2026-06-22T06:00:00Z",
+      "funding_cost_mode": "off",
+      "input_hash": "sha256:e7381c8c7c34661435170c672c4f78b29df6fdc956f8ae5726511752de776cdf",
+      "metrics_summary": {
+        "drawdown": 0.0,
+        "exposure": 0.0,
+        "fees": 0.0,
+        "funding": 0.0,
+        "pnl": 0.0,
+        "return_pct": 0.0,
+        "sharpe": 0.0,
+        "slippage": 0.0,
+        "trade_count": 0,
+        "win_rate": 0.0
+      },
+      "non_authority_flags": [
+        "not canonical",
+        "not evidence",
+        "not candidate authority",
+        "not promotion authority",
+        "not paper/live readiness",
+        "human review required"
+      ],
+      "output_hash": "sha256:85789519a6e116d37ef7a50dced8cea339e8e3802fd6aeab708e19c8da4cd53d",
+      "params": {
+        "center_lookback_bars": 50,
+        "trend_lookback_bars": 100,
+        "vol_lookback_bars": 30
+      },
+      "run_id": "fd63eb89897d9dc5",
+      "runner_artifact_path": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/runner_artifacts/RP-4664.result_population.json",
+      "runner_invocation_id": "d7642795e43d70c7",
+      "runner_outcome_category": "successful",
+      "source_formalizer_artifact_path": "scratch/WP-AGENT-IDEA-FORMALIZER-01/outputs/3a32f0bf02d2/formalized_idea.json",
+      "source_formalizer_run_id": "3a32f0bf02d2",
+      "started_at_utc": "2026-06-22T06:00:00Z",
+      "status_reason": "runner successful",
+      "strategy_family": "strat-spec-0003-sma-stddev-mean-reversion",
+      "trial_id": "fd63eb89897d9dc5-TRIAL-001",
+      "trial_status": "completed",
+      "variant_id": "VAR-000001"
+    },
+    {
+      "approval_scope": "noncanonical_scratch_runner_bridge_only",
+      "bridge_input_paths": {
+        "bridge_metadata": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/bridge_metadata.json",
+        "strategy_spec": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/STRAT-SPEC-9959.strategy_spec.json",
+        "sweep_plan": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/SWEEP-PLAN-9009.sweep_plan.json",
+        "variant_manifest": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/VM-9009.variant_manifest.json"
+      },
+      "finished_at_utc": "2026-06-22T06:00:00Z",
+      "funding_cost_mode": "off",
+      "input_hash": "sha256:2da464d42065381375837a48c06b7b5df97daaea47a907b88ffd3762f745609a",
+      "metrics_summary": {
+        "drawdown": 0.0,
+        "exposure": 0.0,
+        "fees": 0.0,
+        "funding": 0.0,
+        "pnl": 0.0,
+        "return_pct": 0.0,
+        "sharpe": 0.0,
+        "slippage": 0.0,
+        "trade_count": 0,
+        "win_rate": 0.0
+      },
+      "non_authority_flags": [
+        "not canonical",
+        "not evidence",
+        "not candidate authority",
+        "not promotion authority",
+        "not paper/live readiness",
+        "human review required"
+      ],
+      "output_hash": "sha256:508bd8a53324f94195d0b90d0875db86197270e81f45d6a1e44d62efa10175c9",
+      "params": {
+        "center_lookback_bars": 50,
+        "trend_lookback_bars": 200,
+        "vol_lookback_bars": 30
+      },
+      "run_id": "fd63eb89897d9dc5",
+      "runner_artifact_path": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/runner_artifacts/RP-4664.result_population.json",
+      "runner_invocation_id": "d7642795e43d70c7",
+      "runner_outcome_category": "successful",
+      "source_formalizer_artifact_path": "scratch/WP-AGENT-IDEA-FORMALIZER-01/outputs/3a32f0bf02d2/formalized_idea.json",
+      "source_formalizer_run_id": "3a32f0bf02d2",
+      "started_at_utc": "2026-06-22T06:00:00Z",
+      "status_reason": "runner successful",
+      "strategy_family": "strat-spec-0003-sma-stddev-mean-reversion",
+      "trial_id": "fd63eb89897d9dc5-TRIAL-002",
+      "trial_status": "completed",
+      "variant_id": "VAR-000002"
+    },
+    {
+      "approval_scope": "noncanonical_scratch_runner_bridge_only",
+      "bridge_input_paths": {
+        "bridge_metadata": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/bridge_metadata.json",
+        "strategy_spec": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/STRAT-SPEC-9959.strategy_spec.json",
+        "sweep_plan": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/SWEEP-PLAN-9009.sweep_plan.json",
+        "variant_manifest": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/VM-9009.variant_manifest.json"
+      },
+      "finished_at_utc": "2026-06-22T06:00:00Z",
+      "funding_cost_mode": "off",
+      "input_hash": "sha256:ca5f00d4361c2836ec8e049afbc5d6053f860064e5acd0ea84aceb60e6f037b2",
+      "metrics_summary": {
+        "drawdown": 0.0,
+        "exposure": 0.0,
+        "fees": 0.0,
+        "funding": 0.0,
+        "pnl": 0.0,
+        "return_pct": 0.0,
+        "sharpe": 0.0,
+        "slippage": 0.0,
+        "trade_count": 0,
+        "win_rate": 0.0
+      },
+      "non_authority_flags": [
+        "not canonical",
+        "not evidence",
+        "not candidate authority",
+        "not promotion authority",
+        "not paper/live readiness",
+        "human review required"
+      ],
+      "output_hash": "sha256:5ce840949a2638f16a9e00303a054f7e850ea33c931b47fb9856748f9ae83712",
+      "params": {
+        "center_lookback_bars": 50,
+        "trend_lookback_bars": 100,
+        "vol_lookback_bars": 50
+      },
+      "run_id": "fd63eb89897d9dc5",
+      "runner_artifact_path": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/runner_artifacts/RP-4664.result_population.json",
+      "runner_invocation_id": "d7642795e43d70c7",
+      "runner_outcome_category": "successful",
+      "source_formalizer_artifact_path": "scratch/WP-AGENT-IDEA-FORMALIZER-01/outputs/3a32f0bf02d2/formalized_idea.json",
+      "source_formalizer_run_id": "3a32f0bf02d2",
+      "started_at_utc": "2026-06-22T06:00:00Z",
+      "status_reason": "runner successful",
+      "strategy_family": "strat-spec-0003-sma-stddev-mean-reversion",
+      "trial_id": "fd63eb89897d9dc5-TRIAL-003",
+      "trial_status": "completed",
+      "variant_id": "VAR-000003"
+    },
+    {
+      "approval_scope": "noncanonical_scratch_runner_bridge_only",
+      "bridge_input_paths": {
+        "bridge_metadata": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/bridge_metadata.json",
+        "strategy_spec": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/STRAT-SPEC-9959.strategy_spec.json",
+        "sweep_plan": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/SWEEP-PLAN-9009.sweep_plan.json",
+        "variant_manifest": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/VM-9009.variant_manifest.json"
+      },
+      "finished_at_utc": "2026-06-22T06:00:00Z",
+      "funding_cost_mode": "off",
+      "input_hash": "sha256:1708fa716616c008ebc2b11162f6375143262b7a8b3d1eb55776db0176c723f0",
+      "metrics_summary": {
+        "drawdown": 0.0,
+        "exposure": 0.0,
+        "fees": 0.0,
+        "funding": 0.0,
+        "pnl": 0.0,
+        "return_pct": 0.0,
+        "sharpe": 0.0,
+        "slippage": 0.0,
+        "trade_count": 0,
+        "win_rate": 0.0
+      },
+      "non_authority_flags": [
+        "not canonical",
+        "not evidence",
+        "not candidate authority",
+        "not promotion authority",
+        "not paper/live readiness",
+        "human review required"
+      ],
+      "output_hash": "sha256:e7d675eb269d98aabc2149db0857a50c6872410e1de28dfe54fe855eaba76c6a",
+      "params": {
+        "center_lookback_bars": 50,
+        "trend_lookback_bars": 200,
+        "vol_lookback_bars": 50
+      },
+      "run_id": "fd63eb89897d9dc5",
+      "runner_artifact_path": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/runner_artifacts/RP-4664.result_population.json",
+      "runner_invocation_id": "d7642795e43d70c7",
+      "runner_outcome_category": "successful",
+      "source_formalizer_artifact_path": "scratch/WP-AGENT-IDEA-FORMALIZER-01/outputs/3a32f0bf02d2/formalized_idea.json",
+      "source_formalizer_run_id": "3a32f0bf02d2",
+      "started_at_utc": "2026-06-22T06:00:00Z",
+      "status_reason": "runner successful",
+      "strategy_family": "strat-spec-0003-sma-stddev-mean-reversion",
+      "trial_id": "fd63eb89897d9dc5-TRIAL-004",
+      "trial_status": "completed",
+      "variant_id": "VAR-000004"
+    },
+    {
+      "approval_scope": "noncanonical_scratch_runner_bridge_only",
+      "bridge_input_paths": {
+        "bridge_metadata": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/bridge_metadata.json",
+        "strategy_spec": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/STRAT-SPEC-9959.strategy_spec.json",
+        "sweep_plan": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/SWEEP-PLAN-9009.sweep_plan.json",
+        "variant_manifest": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/VM-9009.variant_manifest.json"
+      },
+      "finished_at_utc": "2026-06-22T06:00:00Z",
+      "funding_cost_mode": "off",
+      "input_hash": "sha256:291384d50f75624897598b4419d76c71811a9482d86ddccf9a49e9ac09f8e76d",
+      "metrics_summary": {
+        "drawdown": 0.0,
+        "exposure": 0.0,
+        "fees": 0.0,
+        "funding": 0.0,
+        "pnl": 0.0,
+        "return_pct": 0.0,
+        "sharpe": 0.0,
+        "slippage": 0.0,
+        "trade_count": 0,
+        "win_rate": 0.0
+      },
+      "non_authority_flags": [
+        "not canonical",
+        "not evidence",
+        "not candidate authority",
+        "not promotion authority",
+        "not paper/live readiness",
+        "human review required"
+      ],
+      "output_hash": "sha256:bec97b3ea3dbb38a3a76e4ad1d085631ebe5048b768a8978504a9d3d6995cc13",
+      "params": {
+        "center_lookback_bars": 100,
+        "trend_lookback_bars": 100,
+        "vol_lookback_bars": 30
+      },
+      "run_id": "fd63eb89897d9dc5",
+      "runner_artifact_path": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/runner_artifacts/RP-4664.result_population.json",
+      "runner_invocation_id": "d7642795e43d70c7",
+      "runner_outcome_category": "successful",
+      "source_formalizer_artifact_path": "scratch/WP-AGENT-IDEA-FORMALIZER-01/outputs/3a32f0bf02d2/formalized_idea.json",
+      "source_formalizer_run_id": "3a32f0bf02d2",
+      "started_at_utc": "2026-06-22T06:00:00Z",
+      "status_reason": "runner successful",
+      "strategy_family": "strat-spec-0003-sma-stddev-mean-reversion",
+      "trial_id": "fd63eb89897d9dc5-TRIAL-005",
+      "trial_status": "completed",
+      "variant_id": "VAR-000005"
+    },
+    {
+      "approval_scope": "noncanonical_scratch_runner_bridge_only",
+      "bridge_input_paths": {
+        "bridge_metadata": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/bridge_metadata.json",
+        "strategy_spec": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/STRAT-SPEC-9959.strategy_spec.json",
+        "sweep_plan": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/SWEEP-PLAN-9009.sweep_plan.json",
+        "variant_manifest": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/VM-9009.variant_manifest.json"
+      },
+      "finished_at_utc": "2026-06-22T06:00:00Z",
+      "funding_cost_mode": "off",
+      "input_hash": "sha256:b14a3c5d59e2e86c4217b09d5ba7297e04d0517eeb8b9666dd271be189e1a20a",
+      "metrics_summary": {
+        "drawdown": 0.0,
+        "exposure": 0.0,
+        "fees": 0.0,
+        "funding": 0.0,
+        "pnl": 0.0,
+        "return_pct": 0.0,
+        "sharpe": 0.0,
+        "slippage": 0.0,
+        "trade_count": 0,
+        "win_rate": 0.0
+      },
+      "non_authority_flags": [
+        "not canonical",
+        "not evidence",
+        "not candidate authority",
+        "not promotion authority",
+        "not paper/live readiness",
+        "human review required"
+      ],
+      "output_hash": "sha256:1a29a3c406cec73e1201e22bd3a06e73256a795b50d10eff0e889cb634a7885a",
+      "params": {
+        "center_lookback_bars": 100,
+        "trend_lookback_bars": 200,
+        "vol_lookback_bars": 30
+      },
+      "run_id": "fd63eb89897d9dc5",
+      "runner_artifact_path": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/runner_artifacts/RP-4664.result_population.json",
+      "runner_invocation_id": "d7642795e43d70c7",
+      "runner_outcome_category": "successful",
+      "source_formalizer_artifact_path": "scratch/WP-AGENT-IDEA-FORMALIZER-01/outputs/3a32f0bf02d2/formalized_idea.json",
+      "source_formalizer_run_id": "3a32f0bf02d2",
+      "started_at_utc": "2026-06-22T06:00:00Z",
+      "status_reason": "runner successful",
+      "strategy_family": "strat-spec-0003-sma-stddev-mean-reversion",
+      "trial_id": "fd63eb89897d9dc5-TRIAL-006",
+      "trial_status": "completed",
+      "variant_id": "VAR-000006"
+    },
+    {
+      "approval_scope": "noncanonical_scratch_runner_bridge_only",
+      "bridge_input_paths": {
+        "bridge_metadata": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/bridge_metadata.json",
+        "strategy_spec": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/STRAT-SPEC-9959.strategy_spec.json",
+        "sweep_plan": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/SWEEP-PLAN-9009.sweep_plan.json",
+        "variant_manifest": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/VM-9009.variant_manifest.json"
+      },
+      "finished_at_utc": "2026-06-22T06:00:00Z",
+      "funding_cost_mode": "off",
+      "input_hash": "sha256:b9b5b97c0d882c75a6cb35feb58448cb8c19043ee3e7b10b2a29624a991c66f5",
+      "metrics_summary": {
+        "drawdown": 0.0,
+        "exposure": 0.0,
+        "fees": 0.0,
+        "funding": 0.0,
+        "pnl": 0.0,
+        "return_pct": 0.0,
+        "sharpe": 0.0,
+        "slippage": 0.0,
+        "trade_count": 0,
+        "win_rate": 0.0
+      },
+      "non_authority_flags": [
+        "not canonical",
+        "not evidence",
+        "not candidate authority",
+        "not promotion authority",
+        "not paper/live readiness",
+        "human review required"
+      ],
+      "output_hash": "sha256:c13f7c37fc13020d3fd29cba15aca7e5e696fc578e1016dabfb9d338e79ce1b2",
+      "params": {
+        "center_lookback_bars": 100,
+        "trend_lookback_bars": 100,
+        "vol_lookback_bars": 50
+      },
+      "run_id": "fd63eb89897d9dc5",
+      "runner_artifact_path": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/runner_artifacts/RP-4664.result_population.json",
+      "runner_invocation_id": "d7642795e43d70c7",
+      "runner_outcome_category": "successful",
+      "source_formalizer_artifact_path": "scratch/WP-AGENT-IDEA-FORMALIZER-01/outputs/3a32f0bf02d2/formalized_idea.json",
+      "source_formalizer_run_id": "3a32f0bf02d2",
+      "started_at_utc": "2026-06-22T06:00:00Z",
+      "status_reason": "runner successful",
+      "strategy_family": "strat-spec-0003-sma-stddev-mean-reversion",
+      "trial_id": "fd63eb89897d9dc5-TRIAL-007",
+      "trial_status": "completed",
+      "variant_id": "VAR-000007"
+    },
+    {
+      "approval_scope": "noncanonical_scratch_runner_bridge_only",
+      "bridge_input_paths": {
+        "bridge_metadata": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/bridge_metadata.json",
+        "strategy_spec": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/STRAT-SPEC-9959.strategy_spec.json",
+        "sweep_plan": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/SWEEP-PLAN-9009.sweep_plan.json",
+        "variant_manifest": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/VM-9009.variant_manifest.json"
+      },
+      "finished_at_utc": "2026-06-22T06:00:00Z",
+      "funding_cost_mode": "off",
+      "input_hash": "sha256:bd207fb58ceb896cb99dc54b355d1c144acb8e4cf990621b77cb4424c8053a50",
+      "metrics_summary": {
+        "drawdown": 0.0,
+        "exposure": 0.0,
+        "fees": 0.0,
+        "funding": 0.0,
+        "pnl": 0.0,
+        "return_pct": 0.0,
+        "sharpe": 0.0,
+        "slippage": 0.0,
+        "trade_count": 0,
+        "win_rate": 0.0
+      },
+      "non_authority_flags": [
+        "not canonical",
+        "not evidence",
+        "not candidate authority",
+        "not promotion authority",
+        "not paper/live readiness",
+        "human review required"
+      ],
+      "output_hash": "sha256:c8769fb038b399fd48557b9d1b643b2bb41a3207e7f68e7f445e7a90acd7ab21",
+      "params": {
+        "center_lookback_bars": 100,
+        "trend_lookback_bars": 200,
+        "vol_lookback_bars": 50
+      },
+      "run_id": "fd63eb89897d9dc5",
+      "runner_artifact_path": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/runner_artifacts/RP-4664.result_population.json",
+      "runner_invocation_id": "d7642795e43d70c7",
+      "runner_outcome_category": "successful",
+      "source_formalizer_artifact_path": "scratch/WP-AGENT-IDEA-FORMALIZER-01/outputs/3a32f0bf02d2/formalized_idea.json",
+      "source_formalizer_run_id": "3a32f0bf02d2",
+      "started_at_utc": "2026-06-22T06:00:00Z",
+      "status_reason": "runner successful",
+      "strategy_family": "strat-spec-0003-sma-stddev-mean-reversion",
+      "trial_id": "fd63eb89897d9dc5-TRIAL-008",
+      "trial_status": "completed",
+      "variant_id": "VAR-000008"
+    }
+  ],
+  "run_id": "fd63eb89897d9dc5",
+  "schema_version": "formalizer_runner_bridge_denominator_ledger_v1",
+  "trial_status_counts": {
+    "blocked": 0,
+    "completed": 8,
+    "failed": 0,
+    "invalid": 0,
+    "pruned": 0
+  }
+}

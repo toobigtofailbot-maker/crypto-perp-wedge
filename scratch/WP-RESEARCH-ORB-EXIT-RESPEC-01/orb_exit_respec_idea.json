@@ -1,0 +1,38 @@
+{
+  "package": "WP-RESEARCH-ORB-EXIT-RESPEC-01",
+  "artifact_type": "scratch_research_idea_input",
+  "created_at_utc": "2026-06-23T00:00:00Z",
+  "idea": "Because opening range breakout entries may give back favorable excursion, test BTCUSDT 15m ORB exit re-spec using OHLCV price, ATR tolerance, opposite opening-range stop, tighter stop, fixed-R target, session time exit, and trailing or ride logic only if existing repo grammar supports it.",
+  "operator_context_not_repo_fact": [
+    "Prior ORB behavior appears to give back favorable excursion.",
+    "+1.1R median MFE is operator-provided context only unless later verified in committed repo artifacts."
+  ],
+  "symbol": "BTCUSDT",
+  "timeframe": "15m",
+  "allowed_exit_variants_if_supported": [
+    "baseline opposite opening-range stop",
+    "tighter stop variant",
+    "trailing stop or ride variant",
+    "time/session exit variant",
+    "profit-protect or break-even variant only if grammar-supported"
+  ],
+  "hard_boundaries": {
+    "canonical_artifacts_allowed": false,
+    "canonical_crossing_allowed": false,
+    "candidate_registration_allowed": false,
+    "promotion_allowed": false,
+    "paper_live_runtime_allowed": false,
+    "oms_risk_reconciliation_capital_allowed": false,
+    "private_endpoint_or_credentials_allowed": false,
+    "provider_api_or_network_code_allowed": false
+  },
+  "non_authority": {
+    "scratch_only": true,
+    "not_canonical": true,
+    "not_evidence": true,
+    "not_candidate_authority": true,
+    "not_promotion_authority": true,
+    "not_paper_live_runtime_authority": true,
+    "human_review_required": true
+  }
+}

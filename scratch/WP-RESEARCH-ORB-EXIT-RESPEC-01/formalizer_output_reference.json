@@ -1,0 +1,36 @@
+{
+  "package": "WP-RESEARCH-ORB-EXIT-RESPEC-01",
+  "artifact_type": "formalizer_output_reference",
+  "source_tool": "tools.research_agents.idea_formalizer_agent",
+  "source_run_id": "7877e7d33e3f",
+  "source_generated_path": "scratch/WP-AGENT-IDEA-FORMALIZER-01/outputs/7877e7d33e3f/formalized_idea.json",
+  "source_generated_sha256": "sha256:76db6a88af6d6fee7a46a3c6c465c7d30f122fa8d7cdb369ed720ce5737b3f7e",
+  "committed_source_copy": false,
+  "committed_source_copy_reason": "The active package required its output packet under scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01; this reference records the generated formalizer result without promoting upstream agent scratch as canonical evidence.",
+  "formalizer_status": "accepted",
+  "provider_mode": "fake_offline",
+  "provider_id": "fake-rule-v1",
+  "api_call_made": false,
+  "detected_features": [
+    "atr",
+    "ohlcv"
+  ],
+  "historically_testable_now": true,
+  "draft_strategy_spec": {
+    "produced": false,
+    "path": null,
+    "blockers": [
+      "no validated draft adapter exists for this exact primitive family"
+    ]
+  },
+  "machine_path_disposition": "accepted idea, blocked before draft Strategy Spec generation",
+  "non_authority": {
+    "scratch_only": true,
+    "not_canonical": true,
+    "not_evidence": true,
+    "not_candidate_authority": true,
+    "not_promotion_authority": true,
+    "not_paper_live_runtime_authority": true,
+    "human_review_required": true
+  }
+}

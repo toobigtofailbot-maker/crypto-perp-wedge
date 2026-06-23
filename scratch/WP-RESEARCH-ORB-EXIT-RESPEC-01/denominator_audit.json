@@ -1,0 +1,36 @@
+{
+  "package": "WP-RESEARCH-ORB-EXIT-RESPEC-01",
+  "artifact_type": "denominator_audit",
+  "status": "blocked_before_variant_denominator",
+  "formalizer_attempts": 1,
+  "formalizer_status_counts": {
+    "accepted": 1,
+    "rejected": 0,
+    "needs_data": 0,
+    "awaiting_provider_response": 0
+  },
+  "draft_strategy_specs_produced": 0,
+  "bridge_eligible_formalizer_outputs": 0,
+  "bridge_runs_attempted": 0,
+  "runner_variant_denominator": 0,
+  "runner_outcome_counts": {
+    "successful": 0,
+    "failed": 0,
+    "invalid": 0,
+    "excluded": 0,
+    "errored": 0,
+    "aborted": 0,
+    "filtered": 0,
+    "data_unavailable": 0,
+    "not_attempted": 0
+  },
+  "blocked_items": [
+    {
+      "item": "ORB exit re-spec bridge path",
+      "count": 1,
+      "reason": "No validated ORB formalizer draft adapter and no bridge support for ORB primitive family."
+    }
+  ],
+  "winner_only_reporting_used": false,
+  "failed_or_blocked_items_hidden": false
+}

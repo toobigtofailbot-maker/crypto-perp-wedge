@@ -1,0 +1,27 @@
+{
+  "package": "WP-RESEARCH-ORB-EXIT-RESPEC-01",
+  "artifact_type": "blocked_bridge_reason",
+  "blocked_step": "formalizer_runner_bridge",
+  "status": "blocked",
+  "reason": "The formalizer did not produce a draft Strategy Spec for the ORB primitive family, and the current formalizer-runner bridge supports only accepted BTCUSDT 15m SMA/stddev formalizer outputs with a validated STRAT-SPEC-0003-family draft.",
+  "repo_truth_support": [
+    "tools/research_agents/idea_formalizer_agent.py: only _draft_family_supported for {'sma','stddev'}",
+    "tools/research_agents/formalizer_runner_bridge.py: _validate_formalizer_contract requires {'sma','stddev'} and draft_strategy_spec.produced=true",
+    "formalizer output run 7877e7d33e3f: draft_strategy_spec.produced=false"
+  ],
+  "bridge_run_attempted": false,
+  "strategy_spec_created": false,
+  "variant_manifest_created": false,
+  "sweep_plan_created": false,
+  "canonical_result_population_written": false,
+  "canonical_crossing_executed": false,
+  "denominator_disposition": {
+    "declared_variants": 0,
+    "completed": 0,
+    "failed": 0,
+    "invalid": 0,
+    "pruned": 0,
+    "blocked": 1,
+    "blocked_reason": "No bridge-compatible draft Strategy Spec exists for this ORB formalizer result."
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "package": "WP-RESEARCH-ORB-EXIT-RESPEC-01",
+  "artifact_type": "orb_exit_respec_result_packet",
+  "status": "blocked",
+  "outcome": "BLOCKED",
+  "follow_up_needed": true,
+  "reason": "The idea formalizer accepted the ORB exit re-spec idea but could not produce a draft Strategy Spec because no validated adapter exists for the ORB primitive family. The bridge only supports the SMA/stddev family, so no real runner, robustness, or candidate-review packet could be run honestly through the completed machine path.",
+  "repo_truth_summary": {
+    "orb_artifacts_exist": true,
+    "prior_orb_scratch_dry_run_exists_in_docs": true,
+    "prior_orb_canonical_artifacts_committed": false,
+    "strategy_grammar_supports_orb": true,
+    "compiler_supports_orb": true,
+    "formalizer_supports_orb_adapter": false,
+    "bridge_supports_orb": false,
+    "mfe_mae_exit_reason_supported": false,
+    "plus_1_1r_median_mfe_repo_evidence": false,
+    "data_availability_sufficient_for_15m_ohlcv": true
+  },
+  "machine_path": {
+    "idea_input_created": true,
+    "formalizer_run": "accepted_without_draft_strategy_spec",
+    "strategy_spec_vm_sweep_created": false,
+    "bridge_run": "blocked",
+    "robustness_run": "blocked",
+    "candidate_review_packet": "blocked"
+  },
+  "decision_language": {
+    "allowed_outcome": "BLOCKED",
+    "forbidden_outcomes_used": []
+  },
+  "boundary": {
+    "canonical_artifacts_written": false,
+    "canonical_crossing_executed": false,
+    "candidate_registered": false,
+    "candidate_promoted_or_frozen": false,
+    "paper_live_runtime_touched": false,
+    "oms_risk_reconciliation_capital_touched": false,
+    "private_endpoints_or_credentials_accessed": false,
+    "provider_api_or_network_code_added": false,
+    "existing_canonical_artifacts_touched": false
+  }
+}

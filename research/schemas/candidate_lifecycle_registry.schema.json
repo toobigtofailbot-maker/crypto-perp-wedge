@@ -178,7 +178,15 @@
             "demotion_record",
             "retirement_record",
             "design_doc",
-            "status_entry"
+            "status_entry",
+            "candidate_review_packet",
+            "formalizer_artifact",
+            "bridge_review_packet",
+            "denominator_ledger",
+            "robustness_diagnostics",
+            "robustness_review_packet",
+            "operator_approval",
+            "crossing_approval"
           ]
         },
         "artifact_id": {
@@ -372,6 +380,300 @@
         }
       }
     },
+    "sha256_hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "source_lineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidate_review_packet_path",
+        "candidate_review_packet_hash",
+        "formalizer_artifact_path",
+        "formalizer_artifact_hash",
+        "bridge_artifact_path",
+        "bridge_artifact_hash",
+        "robustness_artifact_path",
+        "robustness_artifact_hash",
+        "denominator_ledger_path",
+        "denominator_ledger_hash"
+      ],
+      "properties": {
+        "candidate_review_packet_path": { "type": "string", "minLength": 1 },
+        "candidate_review_packet_hash": { "$ref": "#/definitions/sha256_hash" },
+        "formalizer_artifact_path": { "type": "string", "minLength": 1 },
+        "formalizer_artifact_hash": { "$ref": "#/definitions/sha256_hash" },
+        "formalizer_draft_strategy_spec_path": { "type": ["string", "null"], "minLength": 1 },
+        "formalizer_draft_strategy_spec_hash": {
+          "oneOf": [
+            { "$ref": "#/definitions/sha256_hash" },
+            { "type": "null" }
+          ]
+        },
+        "bridge_artifact_path": { "type": "string", "minLength": 1 },
+        "bridge_artifact_hash": { "$ref": "#/definitions/sha256_hash" },
+        "bridge_runner_artifact_path": { "type": ["string", "null"], "minLength": 1 },
+        "bridge_runner_artifact_hash": {
+          "oneOf": [
+            { "$ref": "#/definitions/sha256_hash" },
+            { "type": "null" }
+          ]
+        },
+        "robustness_artifact_path": { "type": "string", "minLength": 1 },
+        "robustness_artifact_hash": { "$ref": "#/definitions/sha256_hash" },
+        "robustness_review_packet_path": { "type": ["string", "null"], "minLength": 1 },
+        "robustness_review_packet_hash": {
+          "oneOf": [
+            { "$ref": "#/definitions/sha256_hash" },
+            { "type": "null" }
+          ]
+        },
+        "denominator_ledger_path": { "type": "string", "minLength": 1 },
+        "denominator_ledger_hash": { "$ref": "#/definitions/sha256_hash" },
+        "operator_approval_path": { "type": ["string", "null"], "minLength": 1 },
+        "operator_approval_hash": {
+          "oneOf": [
+            { "$ref": "#/definitions/sha256_hash" },
+            { "type": "null" }
+          ]
+        },
+        "crossing_approval_path": { "type": ["string", "null"], "minLength": 1 },
+        "crossing_approval_hash": {
+          "oneOf": [
+            { "$ref": "#/definitions/sha256_hash" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "denominator_row_disposition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["variant_id", "trial_status", "status_reason"],
+      "properties": {
+        "variant_id": { "type": "string", "minLength": 1 },
+        "trial_status": {
+          "type": "string",
+          "enum": ["completed", "failed", "invalid", "pruned", "blocked"]
+        },
+        "status_reason": { "type": "string", "minLength": 1 }
+      }
+    },
+    "denominator_snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "completed_count",
+        "failed_count",
+        "invalid_count",
+        "pruned_count",
+        "blocked_count",
+        "declared_trial_count",
+        "all_source_rows_preserved",
+        "full_ledger_path",
+        "full_ledger_hash",
+        "row_disposition"
+      ],
+      "properties": {
+        "completed_count": { "type": "integer", "minimum": 0 },
+        "failed_count": { "type": "integer", "minimum": 0 },
+        "invalid_count": { "type": "integer", "minimum": 0 },
+        "pruned_count": { "type": "integer", "minimum": 0 },
+        "blocked_count": { "type": "integer", "minimum": 0 },
+        "declared_trial_count": { "type": "integer", "minimum": 0 },
+        "all_source_rows_preserved": { "type": "boolean", "const": true },
+        "full_ledger_path": { "type": "string", "minLength": 1 },
+        "full_ledger_hash": { "$ref": "#/definitions/sha256_hash" },
+        "row_disposition": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/definitions/denominator_row_disposition" }
+        }
+      }
+    },
+    "diagnostic_skip": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["diagnostic", "reason"],
+      "properties": {
+        "diagnostic": { "type": "string", "minLength": 1 },
+        "reason": { "type": "string", "minLength": 1 }
+      }
+    },
+    "missing_diagnostic_state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "performed"],
+      "properties": {
+        "status": { "type": "string", "minLength": 1 },
+        "performed": { "type": "boolean" },
+        "reason": { "type": ["string", "null"] },
+        "queued_follow_up": { "type": "boolean" },
+        "fabricated_per_trade_data": { "type": "boolean", "const": false }
+      }
+    },
+    "diagnostics_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "completed_diagnostics",
+        "skipped_diagnostics",
+        "skipped_reasons",
+        "missing_diagnostics",
+        "unsupported_diagnostics"
+      ],
+      "properties": {
+        "completed_diagnostics": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "skipped_diagnostics": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/diagnostic_skip" }
+        },
+        "skipped_reasons": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "missing_diagnostics": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["per_trade", "oos_walkforward", "funding_stress"],
+          "properties": {
+            "per_trade": { "$ref": "#/definitions/missing_diagnostic_state" },
+            "oos_walkforward": { "$ref": "#/definitions/missing_diagnostic_state" },
+            "funding_stress": { "$ref": "#/definitions/missing_diagnostic_state" }
+          }
+        },
+        "unsupported_diagnostics": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        }
+      }
+    },
+    "data_availability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["warnings", "blockers", "coverage_classes", "constraint_classes", "caveats"],
+      "properties": {
+        "warnings": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "blockers": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "coverage_classes": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "constraint_classes": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "caveats": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        }
+      }
+    },
+    "funding_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["funding_cost_mode", "funding_stress_status"],
+      "properties": {
+        "funding_cost_mode": {
+          "type": "string",
+          "enum": ["off", "on", "not_run", "unknown"]
+        },
+        "funding_stress_status": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "performed"],
+          "properties": {
+            "status": { "type": "string", "minLength": 1 },
+            "performed": { "type": "boolean" },
+            "skipped_reason": { "type": ["string", "null"] }
+          }
+        }
+      }
+    },
+    "crossing_non_authority_flags": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "not_evidence",
+        "not_candidate_authority",
+        "not_promotion_authority",
+        "not_ranking_authority",
+        "not_paper_live_readiness",
+        "not_trading_signal",
+        "human_review_required"
+      ],
+      "properties": {
+        "not_evidence": { "type": "boolean", "const": true },
+        "not_candidate_authority": { "type": "boolean", "const": true },
+        "not_promotion_authority": { "type": "boolean", "const": true },
+        "not_ranking_authority": { "type": "boolean", "const": true },
+        "not_paper_live_readiness": { "type": "boolean", "const": true },
+        "not_trading_signal": { "type": "boolean", "const": true },
+        "human_review_required": { "type": "boolean", "const": true }
+      }
+    },
+    "append_only_semantics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "append_only",
+        "new_event_only",
+        "no_overwrite",
+        "correction_requires_supersession_event",
+        "source_hashes_preserved",
+        "denominator_snapshot_preserved",
+        "caveats_preserved",
+        "missing_diagnostics_preserved"
+      ],
+      "properties": {
+        "append_only": { "type": "boolean", "const": true },
+        "new_event_only": { "type": "boolean", "const": true },
+        "no_overwrite": { "type": "boolean", "const": true },
+        "correction_requires_supersession_event": { "type": "boolean", "const": true },
+        "source_hashes_preserved": { "type": "boolean", "const": true },
+        "denominator_snapshot_preserved": { "type": "boolean", "const": true },
+        "caveats_preserved": { "type": "boolean", "const": true },
+        "missing_diagnostics_preserved": { "type": "boolean", "const": true }
+      }
+    },
+    "candidate_review_packet_crossing_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_lineage",
+        "denominator_snapshot",
+        "diagnostics_summary",
+        "data_availability",
+        "funding",
+        "non_authority_flags",
+        "append_only_semantics"
+      ],
+      "properties": {
+        "source_lineage": { "$ref": "#/definitions/source_lineage" },
+        "denominator_snapshot": { "$ref": "#/definitions/denominator_snapshot" },
+        "diagnostics_summary": { "$ref": "#/definitions/diagnostics_summary" },
+        "data_availability": { "$ref": "#/definitions/data_availability" },
+        "funding": { "$ref": "#/definitions/funding_summary" },
+        "non_authority_flags": { "$ref": "#/definitions/crossing_non_authority_flags" },
+        "append_only_semantics": { "$ref": "#/definitions/append_only_semantics" }
+      }
+    },
     "audit_event": {
       "type": "object",
       "additionalProperties": false,
@@ -411,6 +713,7 @@
             "paper_candidate_approved",
             "paper_started",
             "paper_completed",
+            "candidate_review_packet_crossed",
             "promoted",
             "rejected",
             "demoted",
@@ -451,8 +754,36 @@
         },
         "non_authority_declaration": {
           "$ref": "#/definitions/non_authority_declaration"
+        },
+        "crossing_evidence": {
+          "$ref": "#/definitions/candidate_review_packet_crossing_evidence"
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "event_type": { "const": "candidate_review_packet_crossed" }
+            }
+          },
+          "then": {
+            "required": ["crossing_evidence"],
+            "properties": {
+              "from_status": { "type": "null" },
+              "to_status": { "const": "proposed" }
+            }
+          }
+        },
+        {
+          "if": { "required": ["crossing_evidence"] },
+          "then": {
+            "required": ["event_type"],
+            "properties": {
+              "event_type": { "const": "candidate_review_packet_crossed" }
+            }
+          }
+        }
+      ]
     }
   }
 }

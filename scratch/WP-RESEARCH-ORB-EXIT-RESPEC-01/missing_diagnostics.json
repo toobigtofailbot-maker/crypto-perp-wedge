@@ -1,0 +1,38 @@
+{
+  "package": "WP-RESEARCH-ORB-EXIT-RESPEC-01",
+  "artifact_type": "missing_diagnostics",
+  "status": "missing_or_unavailable",
+  "diagnostics": [
+    {
+      "name": "MFE",
+      "status": "missing",
+      "reason": "Repo search found no committed MFE field for current runner outputs or ORB result rows."
+    },
+    {
+      "name": "MAE",
+      "status": "missing",
+      "reason": "Repo search found no committed MAE field for current runner outputs or ORB result rows."
+    },
+    {
+      "name": "exit_reason",
+      "status": "missing",
+      "reason": "Current Result Population row fields do not expose exit reason; repo hits for exit_reason are unrelated tooling/test fields."
+    },
+    {
+      "name": "per_trade_rows",
+      "status": "missing_for_orb",
+      "reason": "Only robustness fixture files expose per_trade_rows; committed ORB dry-run rows do not."
+    },
+    {
+      "name": "gross_pnl_or_cost_gross",
+      "status": "missing_for_orb",
+      "reason": "Prior ORB preregistration record states gross PnL and cost/gross are unavailable from current Result Population row fields."
+    },
+    {
+      "name": "+1.1R median MFE evidence",
+      "status": "operator_context_only",
+      "reason": "Repo search found no committed +1.1R median MFE evidence."
+    }
+  ],
+  "fabricated": false
+}

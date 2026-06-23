@@ -1,0 +1,13 @@
+{
+  "package": "WP-RESEARCH-ORB-EXIT-RESPEC-01",
+  "artifact_type": "blocked_candidate_review_reason",
+  "blocked_step": "candidate_review_packet",
+  "status": "blocked",
+  "reason": "Candidate-review packet construction requires formalizer, bridge, denominator ledger, robustness diagnostics, and robustness review packet lineage. Bridge and robustness outputs do not exist for this blocked ORB attempt.",
+  "candidate_review_packet_run_attempted": false,
+  "source_formalizer_available": true,
+  "source_bridge_available": false,
+  "source_robustness_available": false,
+  "candidate_registration_attempted": false,
+  "promotion_or_readiness_attempted": false
+}

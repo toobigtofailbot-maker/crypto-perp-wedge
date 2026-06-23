@@ -1,0 +1,18 @@
+{
+  "package": "WP-RESEARCH-ORB-EXIT-RESPEC-01",
+  "artifact_type": "blocked_robustness_reason",
+  "blocked_step": "robustness_diagnostician",
+  "status": "blocked",
+  "reason": "Robustness diagnostics require bridge outputs, a scratch Result Population artifact, and a denominator ledger. The bridge was blocked before any runner artifact or ledger existed.",
+  "robustness_run_attempted": false,
+  "source_bridge_outputs_available": false,
+  "source_result_population_available": false,
+  "source_denominator_ledger_available": false,
+  "unsupported_or_missing_diagnostics": [
+    "MFE",
+    "MAE",
+    "exit_reason",
+    "real per-trade rows",
+    "fold/OOS fields for this blocked run"
+  ]
+}

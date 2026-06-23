@@ -16,6 +16,7 @@ RUN_SCRATCH_TOOL = "run_scratch_tool"
 RUN_NONCANONICAL_EXPERIMENT = "noncanonical_experiment_run"
 RUN_NONCANONICAL_OFFLINE_SWEEP = "noncanonical_offline_sweep_run"
 RUN_SCRATCH_ROBUSTNESS_DIAGNOSTIC = "run_scratch_robustness_diagnostic"
+BUILD_SCRATCH_CANDIDATE_REVIEW_PACKET = "build_scratch_candidate_review_packet"
 
 
 ROLE_PERMISSIONS: dict[str, frozenset[str]] = {
@@ -58,7 +59,7 @@ ROLE_PERMISSIONS: dict[str, frozenset[str]] = {
         }
     ),
     "candidate_review_packet_preparer": frozenset(
-        {READ_DOCS, READ_NON_SECRET, WRITE_SCRATCH}
+        {READ_DOCS, READ_NON_SECRET, WRITE_SCRATCH, BUILD_SCRATCH_CANDIDATE_REVIEW_PACKET}
     ),
     "notification_assistant": frozenset({READ_DOCS, WRITE_SCRATCH}),
 }
@@ -104,6 +105,9 @@ HARD_BLOCKED_ACTIONS = frozenset(
         "approval_gate_bypass",
         "data_availability_bypass",
         "fabricated_per_trade_data",
+        "fabricated_robustness_diagnostic",
+        "ranking_as_promotion_ready",
+        "provider_api_call",
     }
 )
 
@@ -246,6 +250,21 @@ def decide(role: str, wp_id: str, action_type: str, target_path: str) -> PolicyD
                 )
             )
         )
+        and not (
+            role == "candidate_review_packet_preparer"
+            and (
+                target_path.startswith(f"scratch/{wp_id.casefold()}/")
+                or target_path.startswith("scratch/wp-agent-idea-formalizer-01/outputs/")
+                or target_path.startswith(
+                    "scratch/wp-agent-formalizer-runner-bridge-01/outputs/"
+                )
+                or target_path.startswith(
+                    "scratch/wp-agent-robustness-diagnostician-01/outputs/"
+                )
+                or target_path.startswith("scratch/wp-lab-candidate-lifecycle-engine-01/")
+                or target_path.startswith("tools/candidate_lifecycle/")
+            )
+        )
     ):
         return PolicyDecision(False, "path is outside the non-sensitive read allowlist")
     if action_type == WRITE_SCRATCH:
@@ -280,6 +299,13 @@ def decide(role: str, wp_id: str, action_type: str, target_path: str) -> PolicyD
             return PolicyDecision(
                 False,
                 f"scratch robustness target is outside active outputs prefix={allowed_prefix}",
+            )
+    if action_type == BUILD_SCRATCH_CANDIDATE_REVIEW_PACKET:
+        allowed_prefix = f"scratch/{wp_id.casefold()}/outputs/"
+        if not target_path.startswith(allowed_prefix):
+            return PolicyDecision(
+                False,
+                f"scratch candidate-review target is outside active outputs prefix={allowed_prefix}",
             )
 
     return PolicyDecision(True, f"allowed by role={role} under policy={POLICY_ID}")

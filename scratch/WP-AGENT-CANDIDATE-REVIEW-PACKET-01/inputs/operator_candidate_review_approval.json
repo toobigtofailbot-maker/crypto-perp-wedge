@@ -1,0 +1,8 @@
+{
+  "approval_scope": "noncanonical_scratch_candidate_review_only",
+  "approval_timestamp_utc": "2026-06-22T06:00:00Z",
+  "approved_by": "operator",
+  "approved_for_noncanonical_candidate_review_packet": true,
+  "source_bridge_run_id": "fd63eb89897d9dc5",
+  "source_robustness_run_id": "9309de71e35fc40f"
+}

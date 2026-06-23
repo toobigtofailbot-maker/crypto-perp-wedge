@@ -1,0 +1,511 @@
+{
+  "backtest_realism_assumptions": {
+    "bar_path_assumption": "next_open_close_mark",
+    "exchange_constraints_disclosed": true,
+    "fee_side_assumption": "taker_entry_taker_exit",
+    "fill_mode": "complete",
+    "funding_notional_mode": "entry_price",
+    "liquidation_mode": "zero_equity",
+    "liquidity_capacity_assumption": "not active in this prereg parent artifact",
+    "maintenance_margin_assumption": null,
+    "mark_price_source": "close",
+    "order_size_assumption": "future offline runner assumption: dynamic_equity_target_leverage at target_leverage=1.0; no run in this package",
+    "slippage_model": "fixed_bps"
+  },
+  "constraints": {
+    "deferred_pattern_blockers": [
+      "No expression language.",
+      "No new operators.",
+      "No regime group.",
+      "No fixed STDDEV greater than 1.0 regime gate.",
+      "No volatility-expansion substitute.",
+      "No compiler mirroring.",
+      "No VM-row sweep binding for entry_controls.min_bars_between_entries in this package.",
+      "No sweep run or result population is authorized by this Strategy Spec planning artifact."
+    ],
+    "invalid_parameter_combinations": [],
+    "none_declared": false,
+    "unavailable_data_blockers": []
+  },
+  "entry_logic": {
+    "direction": "both",
+    "entry_controls": {
+      "min_bars_between_entries": 8
+    },
+    "groups": [
+      {
+        "conditions": [
+          {
+            "condition_id": "LONG-ZSCORE-LT-NEG-1P5",
+            "condition_role": "required",
+            "left_operand": {
+              "center_operand": {
+                "field": "value",
+                "lookback": {
+                  "bars_parameter_ref": "center_lookback_bars"
+                },
+                "operand_type": "indicator_ref",
+                "ref": "sma",
+                "timeframe": null
+              },
+              "composition_type": "z_score",
+              "operand_type": "composed_operand",
+              "scale_operand": {
+                "field": "value",
+                "lookback": {
+                  "bars_parameter_ref": "vol_lookback_bars"
+                },
+                "operand_type": "indicator_ref",
+                "ref": "stddev",
+                "timeframe": null
+              },
+              "value_operand": {
+                "field": "close",
+                "lookback": null,
+                "operand_type": "data_ref",
+                "ref": "close",
+                "timeframe": null
+              },
+              "zero_scale_policy": "null_output"
+            },
+            "notes": "Long entry when close is more than 1.5 rolling standard deviations below SMA(center_lookback_bars).",
+            "operator": "lt",
+            "right_operand": {
+              "field": null,
+              "lookback": null,
+              "operand_type": "constant",
+              "ref": -1.5,
+              "timeframe": null
+            },
+            "units": "z_score"
+          }
+        ],
+        "group_id": "ENTRY-GROUP-LONG-ZSCORE-0003",
+        "group_role": "required",
+        "logic": "all",
+        "notes": "Explicit long-side z-score entry group; no compiler mirroring.",
+        "side": "long",
+        "subgroups": []
+      },
+      {
+        "conditions": [
+          {
+            "condition_id": "SHORT-ZSCORE-GT-1P5",
+            "condition_role": "required",
+            "left_operand": {
+              "center_operand": {
+                "field": "value",
+                "lookback": {
+                  "bars_parameter_ref": "center_lookback_bars"
+                },
+                "operand_type": "indicator_ref",
+                "ref": "sma",
+                "timeframe": null
+              },
+              "composition_type": "z_score",
+              "operand_type": "composed_operand",
+              "scale_operand": {
+                "field": "value",
+                "lookback": {
+                  "bars_parameter_ref": "vol_lookback_bars"
+                },
+                "operand_type": "indicator_ref",
+                "ref": "stddev",
+                "timeframe": null
+              },
+              "value_operand": {
+                "field": "close",
+                "lookback": null,
+                "operand_type": "data_ref",
+                "ref": "close",
+                "timeframe": null
+              },
+              "zero_scale_policy": "null_output"
+            },
+            "notes": "Short entry when close is more than 1.5 rolling standard deviations above SMA(center_lookback_bars).",
+            "operator": "gt",
+            "right_operand": {
+              "field": null,
+              "lookback": null,
+              "operand_type": "constant",
+              "ref": 1.5,
+              "timeframe": null
+            },
+            "units": "z_score"
+          }
+        ],
+        "group_id": "ENTRY-GROUP-SHORT-ZSCORE-0003",
+        "group_role": "required",
+        "logic": "all",
+        "notes": "Explicit short-side z-score entry group; no compiler mirroring.",
+        "side": "short",
+        "subgroups": []
+      }
+    ],
+    "notes": "Both-direction mean-reversion entries use fixed z-score thresholds and a fixed shared min_bars_between_entries throttle of 8 bars. Thresholds and throttle are not swept."
+  },
+  "exit_logic": {
+    "groups": [
+      {
+        "conditions": [
+          {
+            "condition_id": "LONG-CLOSE-GTE-SMA-CENTER",
+            "condition_role": "exit",
+            "left_operand": {
+              "field": "close",
+              "lookback": null,
+              "operand_type": "data_ref",
+              "ref": "close",
+              "timeframe": null
+            },
+            "notes": "Long exit when close returns to or above the SMA centerline.",
+            "operator": "gte",
+            "right_operand": {
+              "field": "value",
+              "lookback": {
+                "bars_parameter_ref": "center_lookback_bars"
+              },
+              "operand_type": "indicator_ref",
+              "ref": "sma",
+              "timeframe": null
+            },
+            "units": null
+          }
+        ],
+        "group_id": "EXIT-GROUP-LONG-CENTERLINE-0003",
+        "group_role": "exit",
+        "logic": "all",
+        "notes": "Explicit long-side centerline exit group.",
+        "side": "long",
+        "subgroups": []
+      },
+      {
+        "conditions": [
+          {
+            "condition_id": "SHORT-CLOSE-LTE-SMA-CENTER",
+            "condition_role": "exit",
+            "left_operand": {
+              "field": "close",
+              "lookback": null,
+              "operand_type": "data_ref",
+              "ref": "close",
+              "timeframe": null
+            },
+            "notes": "Short exit when close returns to or below the SMA centerline.",
+            "operator": "lte",
+            "right_operand": {
+              "field": "value",
+              "lookback": {
+                "bars_parameter_ref": "center_lookback_bars"
+              },
+              "operand_type": "indicator_ref",
+              "ref": "sma",
+              "timeframe": null
+            },
+            "units": null
+          }
+        ],
+        "group_id": "EXIT-GROUP-SHORT-CENTERLINE-0003",
+        "group_role": "exit",
+        "logic": "all",
+        "notes": "Explicit short-side centerline exit group.",
+        "side": "short",
+        "subgroups": []
+      }
+    ],
+    "max_holding_period": {
+      "bars": null,
+      "enabled": false
+    },
+    "notes": "Side-specific SMA centerline exits only; no max holding period."
+  },
+  "filters": {
+    "groups": [
+      {
+        "conditions": [
+          {
+            "condition_id": "TREND-CLOSE-GT-SMA",
+            "condition_role": "filter",
+            "left_operand": {
+              "field": "close",
+              "lookback": null,
+              "operand_type": "data_ref",
+              "ref": "close",
+              "timeframe": null
+            },
+            "notes": "Shared trend gate: entries require close above SMA(trend_lookback_bars).",
+            "operator": "gt",
+            "right_operand": {
+              "field": "value",
+              "lookback": {
+                "bars_parameter_ref": "trend_lookback_bars"
+              },
+              "operand_type": "indicator_ref",
+              "ref": "sma",
+              "timeframe": null
+            },
+            "units": null
+          }
+        ],
+        "group_id": "FILTER-GROUP-TREND-0003",
+        "group_role": "trend",
+        "logic": "all",
+        "notes": "Shared A2 trend entry gate. No regime, volatility, no-trade, session, or funding gate is declared.",
+        "subgroups": []
+      }
+    ],
+    "none_declared": false
+  },
+  "free_parameters": {
+    "counting_rule": "parameters contains only entries where is_free_parameter=true; maxItems 5 enforces the D2-006-style MVP free-parameter cap",
+    "max_free_parameters": 5,
+    "no_free_parameters_declared": false,
+    "parameters": [
+      {
+        "allowed_values": [
+          50,
+          100
+        ],
+        "constraints": [
+          "Must remain integer and bind only to indicator_ref.lookback via bars_parameter_ref."
+        ],
+        "default": 50,
+        "description": "Integer lookback bound into SMA centerline for z-score center and exits.",
+        "included_in_variant_generation": true,
+        "is_free_parameter": true,
+        "label": "Center SMA lookback bars",
+        "name": "center_lookback_bars",
+        "range": {
+          "inclusive_max": true,
+          "inclusive_min": true,
+          "max": 100,
+          "min": 50,
+          "step": 50
+        },
+        "rationale": "Frozen finite centerline lookback axis for Phase-B z-score mean reversion.",
+        "role": "entry",
+        "type": "integer",
+        "units": "bars"
+      },
+      {
+        "allowed_values": [
+          30,
+          50
+        ],
+        "constraints": [
+          "Must remain integer and bind only to indicator_ref.lookback via bars_parameter_ref."
+        ],
+        "default": 30,
+        "description": "Integer lookback bound into STDDEV scale for the z-score operand.",
+        "included_in_variant_generation": true,
+        "is_free_parameter": true,
+        "label": "Volatility lookback bars",
+        "name": "vol_lookback_bars",
+        "range": {
+          "inclusive_max": true,
+          "inclusive_min": true,
+          "max": 50,
+          "min": 30,
+          "step": 20
+        },
+        "rationale": "Frozen finite z-score scale lookback axis for Phase-B volatility-normalized entries.",
+        "role": "entry",
+        "type": "integer",
+        "units": "bars"
+      },
+      {
+        "allowed_values": [
+          100,
+          200
+        ],
+        "constraints": [
+          "Must remain integer and bind only to indicator_ref.lookback via bars_parameter_ref."
+        ],
+        "default": 100,
+        "description": "Integer lookback bound into the shared trend gate SMA.",
+        "included_in_variant_generation": true,
+        "is_free_parameter": true,
+        "label": "Trend SMA lookback bars",
+        "name": "trend_lookback_bars",
+        "range": {
+          "inclusive_max": true,
+          "inclusive_min": true,
+          "max": 200,
+          "min": 100,
+          "step": 100
+        },
+        "rationale": "Frozen finite trend-gate lookback axis retained after Main selected no regime gate for v1.",
+        "role": "filter",
+        "type": "integer",
+        "units": "bars"
+      }
+    ]
+  },
+  "hash_pinning": {
+    "canonical_spec_hash": null,
+    "hash_algorithm": "sha256",
+    "hash_scope": [
+      "identity",
+      "strategy_body",
+      "free_parameters",
+      "constraints",
+      "assumptions"
+    ],
+    "hash_scope_version": "strategy_spec_hash_scope_v1",
+    "hash_status": "not_computed"
+  },
+  "instruments": {
+    "blockers": [],
+    "directions_allowed": [
+      "long",
+      "short"
+    ],
+    "exchange_constraint_refs": [],
+    "instrument_family": "crypto_perp",
+    "leverage_assumption": 1.0,
+    "market_type": "perpetual",
+    "symbols": [
+      "BTCUSDT"
+    ],
+    "venue_assumption": "Binance USDT-M perpetual"
+  },
+  "lineage": {
+    "amendment_of": null,
+    "parent_refs": [
+      {
+        "ref_hash": null,
+        "ref_id": "IDEA-3A32F0BF02D2",
+        "ref_path": "scratch/WP-AGENT-IDEA-FORMALIZER-01/outputs/3a32f0bf02d2/formalized_idea.json",
+        "ref_type": "concept"
+      }
+    ],
+    "supersedes": []
+  },
+  "max_condition_group_depth": 3,
+  "non_execution_declaration": {
+    "human_review_surface_only": true,
+    "not_candidate_approval": true,
+    "not_executable": true,
+    "not_exp_approval": true,
+    "not_gate_authority": true,
+    "not_paper_live_authority": true,
+    "not_ranking_authority": true,
+    "not_readiness_authority": true,
+    "not_recommendation_authority": true,
+    "not_runtime_authority": true,
+    "not_sweep_authority": true,
+    "not_transition_authority": true
+  },
+  "pre_registration_support": {
+    "frozen_snapshot_ref": null,
+    "intended_for_variant_manifest": false,
+    "variant_manifest_ref": null
+  },
+  "provenance": {
+    "created_at": null,
+    "prepared_by": "bounded idea_formalizer agent",
+    "rationale": "BTCUSDT 15m SMA and stddev mean revert because temporary liquidity pressure dislocates returns; center_lookback_bars from 50 to 100; vol_lookback_bars from 30 to 50; trend_lookback_bars from 100 to 200.",
+    "source_constraints": [
+      "provider_mode=fake_offline",
+      "provider_id=fake-rule-v1",
+      "request_id=3a32f0bf02d2",
+      "response_source=deterministic_fake",
+      "Scratch-only draft adapted from the merged STRAT-SPEC-0003 capability family."
+    ],
+    "source_refs": [
+      "scratch/WP-AGENT-IDEA-FORMALIZER-01/outputs/3a32f0bf02d2/formalized_idea.json"
+    ],
+    "source_type": "manual_idea",
+    "unresolved_claims": [
+      "Provider output is advisory and requires human review.",
+      "No preregistration, sweep, evidence, or execution is authorized."
+    ],
+    "updated_at": null
+  },
+  "review": {
+    "approval_scope": "none",
+    "human_review_required": true,
+    "non_authority_acknowledgement": {
+      "not_candidate_approval": true,
+      "not_exp_approval": true,
+      "not_gate_satisfaction": true,
+      "not_paper_live_authority": true,
+      "not_ranking_authority": true,
+      "not_readiness_authority": true,
+      "not_recommendation_authority": true,
+      "not_runtime_authority": true,
+      "not_sweep_authority": true,
+      "not_transition_authority": true
+    },
+    "review_notes": [
+      "Scratch-only provider-assisted draft; validator success is not approval."
+    ],
+    "reviewed_at": null,
+    "reviewer": null
+  },
+  "risk_model": {
+    "exposure_limits": [
+      "Future comparable offline run is expected to use dynamic_equity_target_leverage at target_leverage 1.0 unless a later package explicitly changes the measurement model."
+    ],
+    "leverage_visibility": "Dynamic equity target leverage 1.0 is a future offline-run assumption only, inherited from RP-7520 comparison posture.",
+    "liquidation_sensitivity_notes": "Uses existing locked zero-equity liquidation realism declaration; no runtime or execution risk authority is created.",
+    "sizing_intent": "review_only",
+    "stop_distance": null,
+    "target_distance": null
+  },
+  "schema_version": "v1",
+  "short_name": "draft-idea-3a32f0bf02d2",
+  "status": "draft",
+  "strategy_spec_id": "STRAT-SPEC-9959",
+  "timeframe_and_data": {
+    "confirmation_timeframes": [],
+    "gap_handling_assumption": "Use existing cataloged BTCUSDT 15m OHLCV and the merged research-workbench gap policy; do not interpolate or silently fill gaps.",
+    "host_data_refs": [
+      {
+        "availability": "required",
+        "field": "open",
+        "stream": "ohlcv",
+        "timeframe": "15m"
+      },
+      {
+        "availability": "required",
+        "field": "high",
+        "stream": "ohlcv",
+        "timeframe": "15m"
+      },
+      {
+        "availability": "required",
+        "field": "low",
+        "stream": "ohlcv",
+        "timeframe": "15m"
+      },
+      {
+        "availability": "required",
+        "field": "close",
+        "stream": "ohlcv",
+        "timeframe": "15m"
+      },
+      {
+        "availability": "required",
+        "field": "volume",
+        "stream": "ohlcv",
+        "timeframe": "15m"
+      },
+      {
+        "availability": "required",
+        "field": "sma",
+        "stream": "indicator_catalog",
+        "timeframe": null
+      },
+      {
+        "availability": "required",
+        "field": "stddev",
+        "stream": "indicator_catalog",
+        "timeframe": null
+      }
+    ],
+    "missing_data_blockers": [],
+    "primary_timeframe": "15m"
+  },
+  "title": "Draft provider-assisted SMA/stddev mean-reversion Strategy Spec"
+}

@@ -1,0 +1,24 @@
+{
+  "trace": [
+    {
+      "detail": "3a32f0bf02d2",
+      "node": "idea_formalizer_node",
+      "status": "completed"
+    },
+    {
+      "detail": "fd63eb89897d9dc5",
+      "node": "formalizer_runner_bridge_node",
+      "status": "completed"
+    },
+    {
+      "detail": "9309de71e35fc40f",
+      "node": "robustness_diagnostician_node",
+      "status": "completed"
+    },
+    {
+      "detail": "dba42387c2e4f679",
+      "node": "candidate_review_packet_node",
+      "status": "completed"
+    }
+  ]
+}

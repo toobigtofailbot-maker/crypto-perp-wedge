@@ -1,0 +1,750 @@
+{
+  "append_only_ledger": {
+    "append_only": true,
+    "corrections_require_append_only_event": true,
+    "creation_event_ref": "RP-4664-EVENT-001",
+    "events": [
+      {
+        "actor_or_tool": "tools.research_runner.run_offline_sweep",
+        "event_id": "RP-4664-EVENT-001",
+        "event_timestamp": "2026-06-01T00:00:00Z",
+        "event_type": "created",
+        "notes": [
+          "build-and-test-only canonical 15m runner output"
+        ],
+        "related_artifact_refs": []
+      }
+    ],
+    "ledger_required": true,
+    "post_commit_in_place_mutation_forbidden": true,
+    "scientific_identity_mutation_forbidden_after_finalization": true,
+    "supersession_preserves_prior_result_population": true
+  },
+  "audit_envelope": {
+    "administrative_lineage": [],
+    "administrative_only": true,
+    "created_at": "2026-06-01T00:00:00Z",
+    "created_by": "tools.research_runner.run_offline_sweep",
+    "excluded_from_input_identity_hash": true,
+    "excluded_from_result_population_identity_hash": true,
+    "may_contain_scientific_content": false,
+    "operator_notes": [
+      "run_label=bridged"
+    ],
+    "review_notes": [],
+    "validation_run_logs": []
+  },
+  "backtest_assumption_summary": {
+    "bar_path_assumption": "next_open_close_mark",
+    "exchange_constraint_disclosure": "True",
+    "fee_side_assumption": "taker_entry_taker_exit",
+    "fill_mode": "complete",
+    "funding_notional": "entry_price",
+    "liquidation_mode": "zero_equity",
+    "liquidity_capacity_assumption": null,
+    "maintenance_margin_assumption": null,
+    "mark_price_source": "close",
+    "order_size_assumption": "sizing_mode=fixed_order_size; sizing_model=runner_resolved_fixed_order_size; target_leverage=1; initial_equity=10000; dynamic_mode_opt_in_required=True; structured_sizing_metadata=not_emitted_for_fixed_mode; reference_price_basis=first_in_sample_open; reference_price=100.09999999999999; resolved_order_size=99.900099900099903; drift_caveat=fixed_order_size_caps_leverage_at_reference_price_only_effective_leverage_can_drift; prior_assumption=future offline runner assumption: dynamic_equity_target_leverage at target_leverage=1.0, inherited as the comparable RP-7520 realism surface; no execution here",
+    "records_assumptions_only": true,
+    "slippage_model": "fixed_bps"
+  },
+  "committed_denominator_snapshot": {
+    "aborted_variants_remain_in_denominator": true,
+    "committed_denominator": 8,
+    "data_unavailable_variants_remain_in_denominator": true,
+    "denominator_basis": "committed_pre_registered_population_count",
+    "denominator_equals_parent_manifest_committed_population_count": true,
+    "denominator_equals_parent_sweep_plan_committed_population_count": true,
+    "errored_variants_remain_in_denominator": true,
+    "excluded_variants_remain_in_denominator": true,
+    "executed_only_denominator_forbidden": true,
+    "failed_variants_remain_in_denominator": true,
+    "filtered_variants_remain_in_denominator": true,
+    "invalid_variants_remain_in_denominator": true,
+    "not_attempted_variants_remain_in_denominator": true,
+    "outcome_counts_sum": 8,
+    "outcome_counts_sum_equals_committed_denominator": true,
+    "parent_manifest_committed_population_count": 8,
+    "parent_sweep_plan_committed_population_count": 8,
+    "post_hoc_cleanup_forbidden": true,
+    "result_row_count": 8,
+    "result_row_count_equals_committed_denominator": true,
+    "selected_variant_count": 8,
+    "successful_only_denominator_forbidden": true,
+    "winner_only_retention_forbidden": true
+  },
+  "data_coverage_summary": {
+    "data_catalog_ref": "15m_ohlcv_test_fixture_offline_only",
+    "data_coverage_notes": [
+      "15m OHLCV test fixture/input",
+      "offline only",
+      "no exchange/API contact",
+      "not production data",
+      "not live/paper input"
+    ],
+    "data_slice_identity": "csv_fixture:sha256:1792cf36cc57197d3de6872a39b41cf54f0a22de64a41587e5a16d8d597bd933",
+    "data_stream": "ohlcv",
+    "data_unavailable_count": 0,
+    "irreparable_gap_count": 0,
+    "missing_data_policy": "block_if_missing",
+    "timeframe": "15m"
+  },
+  "error_summary": {
+    "aborted": 0,
+    "all_error_categories_counted_in_denominator": true,
+    "data_unavailable": 0,
+    "error_rows_preserved": true,
+    "errored": 0,
+    "excluded": 0,
+    "failed": 0,
+    "filtered": 0,
+    "invalid": 0,
+    "not_attempted": 0
+  },
+  "execution_context": {
+    "dependency_summary": [
+      "pandas",
+      "jsonschema"
+    ],
+    "determinism_seed": 0,
+    "environment_summary": [
+      "canonical_15m_ohlcv_fixture_input",
+      "execution_provenance_class=fixture_offline",
+      "offline_only_no_exchange_api"
+    ],
+    "execution_mode": "offline_research",
+    "no_broker_exchange_order_contact": true,
+    "no_paper_live_contact": true,
+    "no_protected_path_contact": true,
+    "no_runtime_contact": true,
+    "offline_only": true,
+    "repo_commit": "build-test-only",
+    "runner_code_ref": "tools.research_runner.run_offline_sweep",
+    "runner_id": "offline-research-runner",
+    "runner_version": "wp-s2c-190-build-test-v1"
+  },
+  "input_identity_hash": {
+    "audit_envelope_excluded": true,
+    "audit_envelope_exclusion_reason": "administrative_audit_metadata_is_excluded_from_scientific_identity",
+    "canonicalization": "json_canonical_v1",
+    "hash": "sha256:54b7f603a3649820a0bab6fadc389450c2b9e3c166a43b919a0748129b930253",
+    "hash_algorithm": "sha256",
+    "hash_scope": [
+      "parent_strategy_spec.strategy_spec_hash",
+      "parent_variant_manifest.manifest_hash",
+      "parent_sweep_plan.sweep_plan_identity_hash",
+      "parent_variant_manifest.committed_population_count",
+      "parent_sweep_plan.committed_population_count",
+      "execution_context.runner_code_ref",
+      "execution_context.repo_commit",
+      "data_coverage_summary.data_catalog_ref",
+      "data_coverage_summary.data_slice_identity",
+      "backtest_assumption_summary"
+    ],
+    "hash_scope_version": "input_identity_hash_scope_v1"
+  },
+  "lineage": {
+    "complete_population_lineage_preserved": true,
+    "created_from_validated_inputs": true,
+    "parent_hash_chain": {
+      "input_identity_hash": "sha256:54b7f603a3649820a0bab6fadc389450c2b9e3c166a43b919a0748129b930253",
+      "strategy_spec_hash": "sha256:6a4f66bf02f4c9105dc61b2aace2e095321c5db794f760d0573005e4e881ae83",
+      "sweep_plan_identity_hash": "sha256:af218ea5da615e03bf14b42f41f1e63d1125bed53c6dd7bc8092031780c3121f",
+      "variant_manifest_hash": "sha256:14a41e19a4814376ceb87b2209f4af13ad514c109da645da65c1374fca07e1b8"
+    },
+    "result_population_id": "RP-4664",
+    "strategy_spec_id": "STRAT-SPEC-9959",
+    "sweep_plan_id": "SWEEP-PLAN-9009",
+    "variant_manifest_id": "VM-9009"
+  },
+  "non_authority_declaration": {
+    "canonical_evidence_relationship": "reference_only",
+    "not_candidate_approval": true,
+    "not_canonical_evidence_replacement": true,
+    "not_dec_replacement": true,
+    "not_decision_authority": true,
+    "not_executable": true,
+    "not_exp_approval": true,
+    "not_exp_replacement": true,
+    "not_gate_authority": true,
+    "not_ol_replacement": true,
+    "not_outcome_ledger_replacement": true,
+    "not_paper_live_authority": true,
+    "not_ranking_authority": true,
+    "not_readiness_authority": true,
+    "not_rec_replacement": true,
+    "not_recommendation_authority": true,
+    "not_reconciliation_authority": true,
+    "not_rep_replacement": true,
+    "not_result_authority": true,
+    "not_runner_authority": true,
+    "not_runtime_authority": true,
+    "not_sweep_authority": true,
+    "not_transition_authority": true,
+    "not_trial_log_replacement": true
+  },
+  "outcome_category_counts": {
+    "aborted": 0,
+    "counts_sum": 8,
+    "counts_sum_equals_committed_denominator": true,
+    "data_unavailable": 0,
+    "errored": 0,
+    "excluded": 0,
+    "failed": 0,
+    "filtered": 0,
+    "invalid": 0,
+    "not_attempted": 0,
+    "successful": 8
+  },
+  "parent_strategy_spec": {
+    "hash_algorithm": "sha256",
+    "hash_scope_version": "strategy_spec_hash_scope_v1",
+    "mismatch_policy": "block",
+    "missing_parent_policy": "block",
+    "strategy_spec_hash": "sha256:6a4f66bf02f4c9105dc61b2aace2e095321c5db794f760d0573005e4e881ae83",
+    "strategy_spec_id": "STRAT-SPEC-9959",
+    "strategy_spec_ref": null,
+    "strategy_spec_schema_version": "v1"
+  },
+  "parent_sweep_plan": {
+    "committed_population_count": 8,
+    "hash_algorithm": "sha256",
+    "hash_scope_version": "sweep_plan_identity_hash_scope_v1",
+    "manifest_hash": "sha256:14a41e19a4814376ceb87b2209f4af13ad514c109da645da65c1374fca07e1b8",
+    "manifest_id": "VM-9009",
+    "mismatch_policy": "block",
+    "missing_sweep_plan_policy": "block",
+    "selected_variant_count": 8,
+    "sweep_plan_id": "SWEEP-PLAN-9009",
+    "sweep_plan_identity_hash": "sha256:af218ea5da615e03bf14b42f41f1e63d1125bed53c6dd7bc8092031780c3121f",
+    "sweep_plan_ref": null,
+    "sweep_plan_schema_version": "v1"
+  },
+  "parent_variant_manifest": {
+    "committed_population_count": 8,
+    "hash_algorithm": "sha256",
+    "hash_scope_version": "variant_manifest_hash_scope_v1",
+    "manifest_hash": "sha256:14a41e19a4814376ceb87b2209f4af13ad514c109da645da65c1374fca07e1b8",
+    "manifest_pre_registration_status": "frozen_for_sweep_planning",
+    "manifest_ref": null,
+    "mismatch_policy": "block",
+    "missing_manifest_policy": "block",
+    "variant_manifest_id": "VM-9009",
+    "variant_manifest_schema_version": "v1"
+  },
+  "result_population_id": "RP-4664",
+  "result_population_identity_hash": {
+    "audit_envelope_excluded": true,
+    "audit_envelope_exclusion_reason": "administrative_audit_metadata_is_excluded_from_scientific_identity",
+    "canonicalization": "json_canonical_v1",
+    "hash": "sha256:73be35d31b9c2830254306fa5a98451ce576a8a9df0a9a43b9c8672ffa999148",
+    "hash_algorithm": "sha256",
+    "hash_scope": [
+      "parent_strategy_spec.strategy_spec_hash",
+      "parent_variant_manifest.manifest_hash",
+      "parent_sweep_plan.sweep_plan_identity_hash",
+      "parent_variant_manifest.committed_population_count",
+      "parent_sweep_plan.committed_population_count",
+      "execution_context.runner_code_ref",
+      "execution_context.repo_commit",
+      "data_coverage_summary.data_catalog_ref",
+      "data_coverage_summary.data_slice_identity",
+      "backtest_assumption_summary",
+      "committed_denominator_snapshot",
+      "variant_result_rows",
+      "outcome_category_counts",
+      "append_only_ledger.creation_event_ref",
+      "validation_summary.validator_identity"
+    ],
+    "hash_scope_version": "result_population_identity_hash_scope_v1"
+  },
+  "review": {
+    "non_authority_acknowledgement": {
+      "not_approval": true,
+      "not_gate_satisfaction": true,
+      "not_paper_live_authority": true,
+      "not_readiness": true,
+      "not_recommendation": true,
+      "not_runtime_authority": true,
+      "not_transition": true
+    },
+    "review_notes": [],
+    "review_scope": "none",
+    "review_status": "not_reviewed"
+  },
+  "schema_version": "v1",
+  "status": "generated",
+  "validation_summary": {
+    "blocking_errors": [],
+    "non_blocking_warnings": [],
+    "schema_validation_status": "passed",
+    "validation_timestamp": "2026-06-01T00:00:00Z",
+    "validator_authority_boundary": "evidence_only_no_approval_no_execution",
+    "validator_does_not_approve": true,
+    "validator_does_not_contact_runtime": true,
+    "validator_does_not_execute": true,
+    "validator_does_not_rank": true,
+    "validator_does_not_recommend": true,
+    "validator_identity": "tools.registry.validate_result_populations",
+    "validator_status": "passed",
+    "validator_version": "wp-s2c-189"
+  },
+  "variant_result_rows": [
+    {
+      "assignment_hash": "sha256:57d2bf6371e893ddfb981035bfde7f4765239056863910da830cc40230af3db8",
+      "assignment_ref": null,
+      "attempted": true,
+      "backtest_assumption_ref": "backtest_assumption_summary",
+      "data_coverage": {
+        "counts_in_denominator": true,
+        "data_catalog_ref": "15m_ohlcv_test_fixture_offline_only",
+        "data_slice_identity": "csv_fixture:sha256:1792cf36cc57197d3de6872a39b41cf54f0a22de64a41587e5a16d8d597bd933",
+        "data_stream": "ohlcv",
+        "irreparable_gap": false,
+        "missing_data_policy": "block_if_missing",
+        "timeframe": "15m"
+      },
+      "error": {
+        "counts_in_denominator": true,
+        "error_category": null,
+        "error_message_class": null,
+        "is_infrastructure_error": null,
+        "is_strategy_underperformance": null
+      },
+      "lineage": {
+        "parent_manifest_id": "VM-9009",
+        "parent_sweep_plan_id": "SWEEP-PLAN-9009",
+        "parent_variant_assignment_hash": "sha256:57d2bf6371e893ddfb981035bfde7f4765239056863910da830cc40230af3db8",
+        "parent_variant_assignment_ref": null,
+        "parent_variant_id": "VAR-000001"
+      },
+      "metrics": {
+        "drawdown": 0.0,
+        "exposure": 0.0,
+        "fees": 0.0,
+        "funding": 0.0,
+        "pnl": 0.0,
+        "return_pct": 0.0,
+        "sharpe": 0.0,
+        "slippage": 0.0,
+        "trade_count": 0,
+        "win_rate": 0.0
+      },
+      "non_success": {
+        "counts_in_denominator": true,
+        "declared_before_results": null,
+        "reason": null,
+        "rule_ref": null
+      },
+      "outcome_category": "successful",
+      "row_id": "RP-4664-ROW-000001",
+      "row_identity_hash": "sha256:85789519a6e116d37ef7a50dced8cea339e8e3802fd6aeab708e19c8da4cd53d",
+      "row_mutation_policy": {
+        "corrections_require_append_only_event": true,
+        "post_commit_in_place_mutation_forbidden": true,
+        "post_hoc_cleanup_forbidden": true,
+        "scientific_row_identity_immutable_after_commit": true
+      },
+      "variant_id": "VAR-000001"
+    },
+    {
+      "assignment_hash": "sha256:4e18bd531930bb293c694c950a272ef98eede71cfaef728169669e7a518a6c65",
+      "assignment_ref": null,
+      "attempted": true,
+      "backtest_assumption_ref": "backtest_assumption_summary",
+      "data_coverage": {
+        "counts_in_denominator": true,
+        "data_catalog_ref": "15m_ohlcv_test_fixture_offline_only",
+        "data_slice_identity": "csv_fixture:sha256:1792cf36cc57197d3de6872a39b41cf54f0a22de64a41587e5a16d8d597bd933",
+        "data_stream": "ohlcv",
+        "irreparable_gap": false,
+        "missing_data_policy": "block_if_missing",
+        "timeframe": "15m"
+      },
+      "error": {
+        "counts_in_denominator": true,
+        "error_category": null,
+        "error_message_class": null,
+        "is_infrastructure_error": null,
+        "is_strategy_underperformance": null
+      },
+      "lineage": {
+        "parent_manifest_id": "VM-9009",
+        "parent_sweep_plan_id": "SWEEP-PLAN-9009",
+        "parent_variant_assignment_hash": "sha256:4e18bd531930bb293c694c950a272ef98eede71cfaef728169669e7a518a6c65",
+        "parent_variant_assignment_ref": null,
+        "parent_variant_id": "VAR-000002"
+      },
+      "metrics": {
+        "drawdown": 0.0,
+        "exposure": 0.0,
+        "fees": 0.0,
+        "funding": 0.0,
+        "pnl": 0.0,
+        "return_pct": 0.0,
+        "sharpe": 0.0,
+        "slippage": 0.0,
+        "trade_count": 0,
+        "win_rate": 0.0
+      },
+      "non_success": {
+        "counts_in_denominator": true,
+        "declared_before_results": null,
+        "reason": null,
+        "rule_ref": null
+      },
+      "outcome_category": "successful",
+      "row_id": "RP-4664-ROW-000002",
+      "row_identity_hash": "sha256:508bd8a53324f94195d0b90d0875db86197270e81f45d6a1e44d62efa10175c9",
+      "row_mutation_policy": {
+        "corrections_require_append_only_event": true,
+        "post_commit_in_place_mutation_forbidden": true,
+        "post_hoc_cleanup_forbidden": true,
+        "scientific_row_identity_immutable_after_commit": true
+      },
+      "variant_id": "VAR-000002"
+    },
+    {
+      "assignment_hash": "sha256:81cb3777db4669d4e1f052372afcab22f756fd31592c9ab85b891aff6f943045",
+      "assignment_ref": null,
+      "attempted": true,
+      "backtest_assumption_ref": "backtest_assumption_summary",
+      "data_coverage": {
+        "counts_in_denominator": true,
+        "data_catalog_ref": "15m_ohlcv_test_fixture_offline_only",
+        "data_slice_identity": "csv_fixture:sha256:1792cf36cc57197d3de6872a39b41cf54f0a22de64a41587e5a16d8d597bd933",
+        "data_stream": "ohlcv",
+        "irreparable_gap": false,
+        "missing_data_policy": "block_if_missing",
+        "timeframe": "15m"
+      },
+      "error": {
+        "counts_in_denominator": true,
+        "error_category": null,
+        "error_message_class": null,
+        "is_infrastructure_error": null,
+        "is_strategy_underperformance": null
+      },
+      "lineage": {
+        "parent_manifest_id": "VM-9009",
+        "parent_sweep_plan_id": "SWEEP-PLAN-9009",
+        "parent_variant_assignment_hash": "sha256:81cb3777db4669d4e1f052372afcab22f756fd31592c9ab85b891aff6f943045",
+        "parent_variant_assignment_ref": null,
+        "parent_variant_id": "VAR-000003"
+      },
+      "metrics": {
+        "drawdown": 0.0,
+        "exposure": 0.0,
+        "fees": 0.0,
+        "funding": 0.0,
+        "pnl": 0.0,
+        "return_pct": 0.0,
+        "sharpe": 0.0,
+        "slippage": 0.0,
+        "trade_count": 0,
+        "win_rate": 0.0
+      },
+      "non_success": {
+        "counts_in_denominator": true,
+        "declared_before_results": null,
+        "reason": null,
+        "rule_ref": null
+      },
+      "outcome_category": "successful",
+      "row_id": "RP-4664-ROW-000003",
+      "row_identity_hash": "sha256:5ce840949a2638f16a9e00303a054f7e850ea33c931b47fb9856748f9ae83712",
+      "row_mutation_policy": {
+        "corrections_require_append_only_event": true,
+        "post_commit_in_place_mutation_forbidden": true,
+        "post_hoc_cleanup_forbidden": true,
+        "scientific_row_identity_immutable_after_commit": true
+      },
+      "variant_id": "VAR-000003"
+    },
+    {
+      "assignment_hash": "sha256:4bd9fef400e9c1afc09bf335156009de13fd452a42bef7b7b0dba5a6db1d516e",
+      "assignment_ref": null,
+      "attempted": true,
+      "backtest_assumption_ref": "backtest_assumption_summary",
+      "data_coverage": {
+        "counts_in_denominator": true,
+        "data_catalog_ref": "15m_ohlcv_test_fixture_offline_only",
+        "data_slice_identity": "csv_fixture:sha256:1792cf36cc57197d3de6872a39b41cf54f0a22de64a41587e5a16d8d597bd933",
+        "data_stream": "ohlcv",
+        "irreparable_gap": false,
+        "missing_data_policy": "block_if_missing",
+        "timeframe": "15m"
+      },
+      "error": {
+        "counts_in_denominator": true,
+        "error_category": null,
+        "error_message_class": null,
+        "is_infrastructure_error": null,
+        "is_strategy_underperformance": null
+      },
+      "lineage": {
+        "parent_manifest_id": "VM-9009",
+        "parent_sweep_plan_id": "SWEEP-PLAN-9009",
+        "parent_variant_assignment_hash": "sha256:4bd9fef400e9c1afc09bf335156009de13fd452a42bef7b7b0dba5a6db1d516e",
+        "parent_variant_assignment_ref": null,
+        "parent_variant_id": "VAR-000004"
+      },
+      "metrics": {
+        "drawdown": 0.0,
+        "exposure": 0.0,
+        "fees": 0.0,
+        "funding": 0.0,
+        "pnl": 0.0,
+        "return_pct": 0.0,
+        "sharpe": 0.0,
+        "slippage": 0.0,
+        "trade_count": 0,
+        "win_rate": 0.0
+      },
+      "non_success": {
+        "counts_in_denominator": true,
+        "declared_before_results": null,
+        "reason": null,
+        "rule_ref": null
+      },
+      "outcome_category": "successful",
+      "row_id": "RP-4664-ROW-000004",
+      "row_identity_hash": "sha256:e7d675eb269d98aabc2149db0857a50c6872410e1de28dfe54fe855eaba76c6a",
+      "row_mutation_policy": {
+        "corrections_require_append_only_event": true,
+        "post_commit_in_place_mutation_forbidden": true,
+        "post_hoc_cleanup_forbidden": true,
+        "scientific_row_identity_immutable_after_commit": true
+      },
+      "variant_id": "VAR-000004"
+    },
+    {
+      "assignment_hash": "sha256:915c3e4fa66b08511c49541c8ec55aaab67e726ba811dc313671abc4322f71a1",
+      "assignment_ref": null,
+      "attempted": true,
+      "backtest_assumption_ref": "backtest_assumption_summary",
+      "data_coverage": {
+        "counts_in_denominator": true,
+        "data_catalog_ref": "15m_ohlcv_test_fixture_offline_only",
+        "data_slice_identity": "csv_fixture:sha256:1792cf36cc57197d3de6872a39b41cf54f0a22de64a41587e5a16d8d597bd933",
+        "data_stream": "ohlcv",
+        "irreparable_gap": false,
+        "missing_data_policy": "block_if_missing",
+        "timeframe": "15m"
+      },
+      "error": {
+        "counts_in_denominator": true,
+        "error_category": null,
+        "error_message_class": null,
+        "is_infrastructure_error": null,
+        "is_strategy_underperformance": null
+      },
+      "lineage": {
+        "parent_manifest_id": "VM-9009",
+        "parent_sweep_plan_id": "SWEEP-PLAN-9009",
+        "parent_variant_assignment_hash": "sha256:915c3e4fa66b08511c49541c8ec55aaab67e726ba811dc313671abc4322f71a1",
+        "parent_variant_assignment_ref": null,
+        "parent_variant_id": "VAR-000005"
+      },
+      "metrics": {
+        "drawdown": 0.0,
+        "exposure": 0.0,
+        "fees": 0.0,
+        "funding": 0.0,
+        "pnl": 0.0,
+        "return_pct": 0.0,
+        "sharpe": 0.0,
+        "slippage": 0.0,
+        "trade_count": 0,
+        "win_rate": 0.0
+      },
+      "non_success": {
+        "counts_in_denominator": true,
+        "declared_before_results": null,
+        "reason": null,
+        "rule_ref": null
+      },
+      "outcome_category": "successful",
+      "row_id": "RP-4664-ROW-000005",
+      "row_identity_hash": "sha256:bec97b3ea3dbb38a3a76e4ad1d085631ebe5048b768a8978504a9d3d6995cc13",
+      "row_mutation_policy": {
+        "corrections_require_append_only_event": true,
+        "post_commit_in_place_mutation_forbidden": true,
+        "post_hoc_cleanup_forbidden": true,
+        "scientific_row_identity_immutable_after_commit": true
+      },
+      "variant_id": "VAR-000005"
+    },
+    {
+      "assignment_hash": "sha256:8ac4d2a1de5170b8439edc7911add5fb61437c8a26b95e538dbf5c8f9bf5d5b5",
+      "assignment_ref": null,
+      "attempted": true,
+      "backtest_assumption_ref": "backtest_assumption_summary",
+      "data_coverage": {
+        "counts_in_denominator": true,
+        "data_catalog_ref": "15m_ohlcv_test_fixture_offline_only",
+        "data_slice_identity": "csv_fixture:sha256:1792cf36cc57197d3de6872a39b41cf54f0a22de64a41587e5a16d8d597bd933",
+        "data_stream": "ohlcv",
+        "irreparable_gap": false,
+        "missing_data_policy": "block_if_missing",
+        "timeframe": "15m"
+      },
+      "error": {
+        "counts_in_denominator": true,
+        "error_category": null,
+        "error_message_class": null,
+        "is_infrastructure_error": null,
+        "is_strategy_underperformance": null
+      },
+      "lineage": {
+        "parent_manifest_id": "VM-9009",
+        "parent_sweep_plan_id": "SWEEP-PLAN-9009",
+        "parent_variant_assignment_hash": "sha256:8ac4d2a1de5170b8439edc7911add5fb61437c8a26b95e538dbf5c8f9bf5d5b5",
+        "parent_variant_assignment_ref": null,
+        "parent_variant_id": "VAR-000006"
+      },
+      "metrics": {
+        "drawdown": 0.0,
+        "exposure": 0.0,
+        "fees": 0.0,
+        "funding": 0.0,
+        "pnl": 0.0,
+        "return_pct": 0.0,
+        "sharpe": 0.0,
+        "slippage": 0.0,
+        "trade_count": 0,
+        "win_rate": 0.0
+      },
+      "non_success": {
+        "counts_in_denominator": true,
+        "declared_before_results": null,
+        "reason": null,
+        "rule_ref": null
+      },
+      "outcome_category": "successful",
+      "row_id": "RP-4664-ROW-000006",
+      "row_identity_hash": "sha256:1a29a3c406cec73e1201e22bd3a06e73256a795b50d10eff0e889cb634a7885a",
+      "row_mutation_policy": {
+        "corrections_require_append_only_event": true,
+        "post_commit_in_place_mutation_forbidden": true,
+        "post_hoc_cleanup_forbidden": true,
+        "scientific_row_identity_immutable_after_commit": true
+      },
+      "variant_id": "VAR-000006"
+    },
+    {
+      "assignment_hash": "sha256:d9f4c95256e1008d821bfd8e0aba21fef07520b29cbec4bc89d9d65b9e9f80a1",
+      "assignment_ref": null,
+      "attempted": true,
+      "backtest_assumption_ref": "backtest_assumption_summary",
+      "data_coverage": {
+        "counts_in_denominator": true,
+        "data_catalog_ref": "15m_ohlcv_test_fixture_offline_only",
+        "data_slice_identity": "csv_fixture:sha256:1792cf36cc57197d3de6872a39b41cf54f0a22de64a41587e5a16d8d597bd933",
+        "data_stream": "ohlcv",
+        "irreparable_gap": false,
+        "missing_data_policy": "block_if_missing",
+        "timeframe": "15m"
+      },
+      "error": {
+        "counts_in_denominator": true,
+        "error_category": null,
+        "error_message_class": null,
+        "is_infrastructure_error": null,
+        "is_strategy_underperformance": null
+      },
+      "lineage": {
+        "parent_manifest_id": "VM-9009",
+        "parent_sweep_plan_id": "SWEEP-PLAN-9009",
+        "parent_variant_assignment_hash": "sha256:d9f4c95256e1008d821bfd8e0aba21fef07520b29cbec4bc89d9d65b9e9f80a1",
+        "parent_variant_assignment_ref": null,
+        "parent_variant_id": "VAR-000007"
+      },
+      "metrics": {
+        "drawdown": 0.0,
+        "exposure": 0.0,
+        "fees": 0.0,
+        "funding": 0.0,
+        "pnl": 0.0,
+        "return_pct": 0.0,
+        "sharpe": 0.0,
+        "slippage": 0.0,
+        "trade_count": 0,
+        "win_rate": 0.0
+      },
+      "non_success": {
+        "counts_in_denominator": true,
+        "declared_before_results": null,
+        "reason": null,
+        "rule_ref": null
+      },
+      "outcome_category": "successful",
+      "row_id": "RP-4664-ROW-000007",
+      "row_identity_hash": "sha256:c13f7c37fc13020d3fd29cba15aca7e5e696fc578e1016dabfb9d338e79ce1b2",
+      "row_mutation_policy": {
+        "corrections_require_append_only_event": true,
+        "post_commit_in_place_mutation_forbidden": true,
+        "post_hoc_cleanup_forbidden": true,
+        "scientific_row_identity_immutable_after_commit": true
+      },
+      "variant_id": "VAR-000007"
+    },
+    {
+      "assignment_hash": "sha256:7d61efa642093abce0d89add76bd8022c4823b6b83da24a737d82054869a475b",
+      "assignment_ref": null,
+      "attempted": true,
+      "backtest_assumption_ref": "backtest_assumption_summary",
+      "data_coverage": {
+        "counts_in_denominator": true,
+        "data_catalog_ref": "15m_ohlcv_test_fixture_offline_only",
+        "data_slice_identity": "csv_fixture:sha256:1792cf36cc57197d3de6872a39b41cf54f0a22de64a41587e5a16d8d597bd933",
+        "data_stream": "ohlcv",
+        "irreparable_gap": false,
+        "missing_data_policy": "block_if_missing",
+        "timeframe": "15m"
+      },
+      "error": {
+        "counts_in_denominator": true,
+        "error_category": null,
+        "error_message_class": null,
+        "is_infrastructure_error": null,
+        "is_strategy_underperformance": null
+      },
+      "lineage": {
+        "parent_manifest_id": "VM-9009",
+        "parent_sweep_plan_id": "SWEEP-PLAN-9009",
+        "parent_variant_assignment_hash": "sha256:7d61efa642093abce0d89add76bd8022c4823b6b83da24a737d82054869a475b",
+        "parent_variant_assignment_ref": null,
+        "parent_variant_id": "VAR-000008"
+      },
+      "metrics": {
+        "drawdown": 0.0,
+        "exposure": 0.0,
+        "fees": 0.0,
+        "funding": 0.0,
+        "pnl": 0.0,
+        "return_pct": 0.0,
+        "sharpe": 0.0,
+        "slippage": 0.0,
+        "trade_count": 0,
+        "win_rate": 0.0
+      },
+      "non_success": {
+        "counts_in_denominator": true,
+        "declared_before_results": null,
+        "reason": null,
+        "rule_ref": null
+      },
+      "outcome_category": "successful",
+      "row_id": "RP-4664-ROW-000008",
+      "row_identity_hash": "sha256:c8769fb038b399fd48557b9d1b643b2bb41a3207e7f68e7f445e7a90acd7ab21",
+      "row_mutation_policy": {
+        "corrections_require_append_only_event": true,
+        "post_commit_in_place_mutation_forbidden": true,
+        "post_hoc_cleanup_forbidden": true,
+        "scientific_row_identity_immutable_after_commit": true
+      },
+      "variant_id": "VAR-000008"
+    }
+  ]
+}

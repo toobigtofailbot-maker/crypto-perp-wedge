@@ -5,3 +5,4 @@ polars
 
 binance-futures-connector
 jsonschema
+langgraph

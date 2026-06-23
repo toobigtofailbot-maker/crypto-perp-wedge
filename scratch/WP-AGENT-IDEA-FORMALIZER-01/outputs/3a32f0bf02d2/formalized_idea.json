@@ -1,0 +1,98 @@
+{
+  "blocked_action": null,
+  "capability_assessment": {
+    "blocking_features": [],
+    "detected_features": [
+      "sma",
+      "stddev"
+    ],
+    "distinction": "compiler field existence is separate from historical testability",
+    "feature_assessments": [
+      {
+        "compiler_field_exists": true,
+        "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+        "feature": "sma",
+        "historical_testability": "available_when_source_bars_exist",
+        "source_class": "INDICATOR_DERIVED_FROM_OHLCV",
+        "warnings": []
+      },
+      {
+        "compiler_field_exists": true,
+        "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+        "feature": "stddev",
+        "historical_testability": "available_when_source_bars_exist",
+        "source_class": "INDICATOR_DERIVED_FROM_OHLCV",
+        "warnings": []
+      }
+    ],
+    "historically_testable_now": true
+  },
+  "draft_strategy_spec": {
+    "blockers": [],
+    "path": "scratch/WP-AGENT-IDEA-FORMALIZER-01/outputs/3a32f0bf02d2/STRAT-SPEC-9959.strategy_spec.json",
+    "produced": true,
+    "validator": "tools/registry/validate_strategy_specs.py"
+  },
+  "input": {
+    "constraints": [],
+    "idea": "BTCUSDT 15m SMA and stddev mean revert because temporary liquidity pressure dislocates returns; center_lookback_bars from 50 to 100; vol_lookback_bars from 30 to 50; trend_lookback_bars from 100 to 200.",
+    "symbol": "BTCUSDT",
+    "timeframe": "15m"
+  },
+  "non_authority": {
+    "draft_only": true,
+    "human_review_required": true,
+    "not_candidate_authority": true,
+    "not_canonical": true,
+    "not_evidence": true,
+    "not_paper_live_runtime_authority": true,
+    "not_promotion_authority": true,
+    "scratch_only": true
+  },
+  "provider_metadata": {
+    "api_call_made": false,
+    "provider_id": "fake-rule-v1",
+    "provider_mode": "fake_offline",
+    "request_id": "3a32f0bf02d2",
+    "response_source": "deterministic_fake"
+  },
+  "rejection_reasons": [],
+  "research_object": {
+    "causal_rationale": "BTCUSDT 15m SMA and stddev mean revert because temporary liquidity pressure dislocates returns; center_lookback_bars from 50 to 100; vol_lookback_bars from 30 to 50; trend_lookback_bars from 100 to 200.",
+    "entry_concept": "Evaluate on completed bars and enter at the next bar open.",
+    "exit_concept": "Exit on the declared signal reversal or bounded holding limit.",
+    "falsifiable_prediction": "The completed-bar signal has positive out-of-sample expectancy after costs.",
+    "features": [
+      "sma",
+      "stddev"
+    ],
+    "parameter_bounds": [
+      {
+        "maximum": 100.0,
+        "minimum": 50.0,
+        "name": "center_lookback_bars"
+      },
+      {
+        "maximum": 50.0,
+        "minimum": 30.0,
+        "name": "vol_lookback_bars"
+      },
+      {
+        "maximum": 200.0,
+        "minimum": 100.0,
+        "name": "trend_lookback_bars"
+      }
+    ],
+    "stop_conditions": [
+      "Stop if preregistered out-of-sample thresholds fail."
+    ],
+    "summary": "BTCUSDT 15m SMA and stddev mean revert because temporary liquidity pressure dislocates returns; center_lookback_bars from 50 to 100; vol_lookback_bars from 30 to 50; trend_lookback_bars from 100 to 200.",
+    "symbols": [
+      "BTCUSDT"
+    ],
+    "timeframe": "15m"
+  },
+  "run_id": "3a32f0bf02d2",
+  "schema_version": "agent_formalized_idea_v1",
+  "status": "accepted"
+}

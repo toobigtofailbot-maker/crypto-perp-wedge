@@ -1,0 +1,432 @@
+{
+  "amendment_and_supersession": {
+    "amendment_mode": "none",
+    "amendment_reason": null,
+    "associated_results_state": "no_associated_results",
+    "close_only_after_results": true,
+    "does_not_inherit_prior_results": true,
+    "fresh_denominator_required": true,
+    "post_result_change": false,
+    "preserve_prior_manifest_required": true,
+    "supersedes": null,
+    "supersession_allowed": false,
+    "supersession_lineage": []
+  },
+  "exclusion_rules": [],
+  "invalid_combination_rules": [],
+  "lineage": {
+    "audit_notes": [
+      "Scratch-only compatibility copy of merged VM-0003 semantics.",
+      "frozen_for_sweep_planning is required by the runner contract and grants no canonical freeze authority.",
+      "Human approval is scoped only to this non-canonical scratch bridge run."
+    ],
+    "created_at": "2026-06-22T06:00:00Z",
+    "hash_refs": [
+      "sha256:6a4f66bf02f4c9105dc61b2aace2e095321c5db794f760d0573005e4e881ae83",
+      "sha256:e19cd2a83c396fa16c7e8e88c2240dcc0e115ac219f70e00ccabca634d89ed60",
+      "sha256:c0690ca56732fbcc922e2de104499a3dbe151043ee530a47d548cb405270e5a9"
+    ],
+    "parent_refs": [
+      {
+        "ref_hash": "sha256:6a4f66bf02f4c9105dc61b2aace2e095321c5db794f760d0573005e4e881ae83",
+        "ref_id": "STRAT-SPEC-9959",
+        "ref_path": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/STRAT-SPEC-9959.strategy_spec.json",
+        "ref_type": "strategy_spec"
+      }
+    ],
+    "source_refs": [
+      {
+        "ref_hash": "sha256:e19cd2a83c396fa16c7e8e88c2240dcc0e115ac219f70e00ccabca634d89ed60",
+        "ref_id": "FORMALIZER-3a32f0bf02d2",
+        "ref_path": "scratch/WP-AGENT-IDEA-FORMALIZER-01/outputs/3a32f0bf02d2/formalized_idea.json",
+        "ref_type": "concept"
+      },
+      {
+        "ref_hash": "sha256:c0690ca56732fbcc922e2de104499a3dbe151043ee530a47d548cb405270e5a9",
+        "ref_id": "OPERATOR-BRIDGE-APPROVAL",
+        "ref_path": "scratch/WP-AGENT-IDEA-FORMALIZER-01/outputs/3a32f0bf02d2/operator_bridge_approval.json",
+        "ref_type": "manual_review"
+      }
+    ],
+    "updated_at": "2026-06-22T06:00:00Z"
+  },
+  "manifest_hash_pinning": {
+    "canonicalization": "json_canonical_v1",
+    "frozen_at": "2026-06-22T06:00:00Z",
+    "hash_algorithm": "sha256",
+    "hash_scope": [
+      "schema_version",
+      "variant_manifest_id",
+      "parent_strategy_spec.strategy_spec_id",
+      "parent_strategy_spec.strategy_spec_hash",
+      "population_governance",
+      "parameter_axes",
+      "invalid_combination_rules",
+      "exclusion_rules",
+      "variant_assignments"
+    ],
+    "hash_scope_version": "variant_manifest_hash_scope_v1",
+    "hash_status": "computed",
+    "manifest_hash": "sha256:14a41e19a4814376ceb87b2209f4af13ad514c109da645da65c1374fca07e1b8",
+    "post_result_mutation_forbidden": true,
+    "pre_sweep_freeze_required": true
+  },
+  "non_execution_declaration": {
+    "not_candidate_approval": true,
+    "not_executable": true,
+    "not_exp_approval": true,
+    "not_gate_authority": true,
+    "not_paper_live_authority": true,
+    "not_ranking_authority": true,
+    "not_readiness_authority": true,
+    "not_recommendation_authority": true,
+    "not_result_authority": true,
+    "not_runner_authority": true,
+    "not_runtime_authority": true,
+    "not_sweep_authority": true,
+    "not_transition_authority": true,
+    "planning_surface_only": true
+  },
+  "parameter_axes": [
+    {
+      "allowed_values": [
+        50,
+        100
+      ],
+      "axis_id": "AXIS-001",
+      "axis_kind": "free_parameter",
+      "counts_toward_parent_free_parameter_cap": true,
+      "generator_method": "manual_grid",
+      "invalid_combination_rule_refs": [],
+      "is_declared_in_parent_strategy_spec": true,
+      "notes": "Phase-B Option A manual grid axis for center_lookback_bars: [50, 100].",
+      "parameter_name": "center_lookback_bars",
+      "parameter_type": "integer",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.center_lookback_bars",
+      "range": {
+        "inclusive_max": true,
+        "inclusive_min": true,
+        "max": 100,
+        "min": 50,
+        "step": 50
+      },
+      "units": "bars"
+    },
+    {
+      "allowed_values": [
+        30,
+        50
+      ],
+      "axis_id": "AXIS-002",
+      "axis_kind": "free_parameter",
+      "counts_toward_parent_free_parameter_cap": true,
+      "generator_method": "manual_grid",
+      "invalid_combination_rule_refs": [],
+      "is_declared_in_parent_strategy_spec": true,
+      "notes": "Phase-B Option A manual grid axis for vol_lookback_bars: [30, 50].",
+      "parameter_name": "vol_lookback_bars",
+      "parameter_type": "integer",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.vol_lookback_bars",
+      "range": {
+        "inclusive_max": true,
+        "inclusive_min": true,
+        "max": 50,
+        "min": 30,
+        "step": 20
+      },
+      "units": "bars"
+    },
+    {
+      "allowed_values": [
+        100,
+        200
+      ],
+      "axis_id": "AXIS-003",
+      "axis_kind": "free_parameter",
+      "counts_toward_parent_free_parameter_cap": true,
+      "generator_method": "manual_grid",
+      "invalid_combination_rule_refs": [],
+      "is_declared_in_parent_strategy_spec": true,
+      "notes": "Phase-B Option A manual grid axis for trend_lookback_bars: [100, 200].",
+      "parameter_name": "trend_lookback_bars",
+      "parameter_type": "integer",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.trend_lookback_bars",
+      "range": {
+        "inclusive_max": true,
+        "inclusive_min": true,
+        "max": 200,
+        "min": 100,
+        "step": 100
+      },
+      "units": "bars"
+    }
+  ],
+  "parent_strategy_spec": {
+    "does_not_mutate_parent_strategy_spec": true,
+    "hash_algorithm": "sha256",
+    "hash_scope_version": "strategy_spec_hash_scope_v1",
+    "mismatch_policy": "block",
+    "missing_parent_policy": "block",
+    "strategy_spec_hash": "sha256:6a4f66bf02f4c9105dc61b2aace2e095321c5db794f760d0573005e4e881ae83",
+    "strategy_spec_id": "STRAT-SPEC-9959",
+    "strategy_spec_ref": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/STRAT-SPEC-9959.strategy_spec.json",
+    "strategy_spec_review_status": "approved_for_variant_planning",
+    "strategy_spec_schema_version": "v1"
+  },
+  "population_governance": {
+    "declared_population": {
+      "committed_population_count": 8,
+      "declared_variant_count": 8,
+      "excluded_variant_count": 0,
+      "included_variant_count": 8,
+      "invalid_variant_count": 0,
+      "not_attempted_variant_count": 0
+    },
+    "multiple_testing_accounting": {
+      "adaptive_search_authorization_ref": null,
+      "adaptive_search_used": false,
+      "all_trials_visible_required": true,
+      "denominator_required": true,
+      "denominator_type": "committed_pre_registered_population",
+      "search_family_id": "SF-PHASEB-ZSCORE-TREND-15M-0001",
+      "search_family_method": "manual_grid",
+      "winner_only_review_forbidden": true
+    },
+    "population_cap": {
+      "cap_basis": "manual_grid",
+      "cap_exception_authorized": false,
+      "cap_exception_ref": null,
+      "cap_source": "human_declared",
+      "max_variants": 8
+    },
+    "pre_registration": {
+      "allowed_change_mode": "supersede_before_results_only",
+      "freeze_required_before_sweep": true,
+      "post_hoc_addition_forbidden": true,
+      "post_result_mutation_forbidden": true,
+      "pre_registered": true,
+      "pre_registration_scope": "full_variant_population",
+      "pre_registration_status": "frozen_for_sweep_planning"
+    },
+    "trial_budget": {
+      "denominator_basis": "committed_pre_registered_population_count",
+      "denominator_count": 8,
+      "denominator_includes_aborted": true,
+      "denominator_includes_data_unavailable": true,
+      "denominator_includes_errored": true,
+      "denominator_includes_excluded": true,
+      "denominator_includes_failed": true,
+      "denominator_includes_filtered": true,
+      "denominator_includes_invalid": true,
+      "denominator_includes_not_attempted": true,
+      "executed_only_denominator_forbidden": true,
+      "planned_trial_count": 8,
+      "trial_budget_denominator": 8
+    }
+  },
+  "review": {
+    "approval_scope": "sweep_planning_only",
+    "human_review_required": true,
+    "non_authority_acknowledgement": {
+      "not_candidate_approval": true,
+      "not_exp_approval": true,
+      "not_gate_satisfaction": true,
+      "not_paper_live_authority": true,
+      "not_ranking_authority": true,
+      "not_readiness_authority": true,
+      "not_recommendation_authority": true,
+      "not_result_authority": true,
+      "not_runner_authority": true,
+      "not_runtime_authority": true,
+      "not_sweep_authority": true,
+      "not_transition_authority": true
+    },
+    "review_notes": [
+      "Scratch-only runner compatibility artifact; not canonical approval or freeze.",
+      "Human review remains required after execution."
+    ],
+    "reviewed_at": null,
+    "reviewer": null
+  },
+  "schema_version": "v1",
+  "status": "approved_for_sweep_planning",
+  "variant_assignments": [
+    {
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "manual-grid",
+        "generation_order": 1
+      },
+      "parameter_value_hash": "sha256:57d2bf6371e893ddfb981035bfde7f4765239056863910da830cc40230af3db8",
+      "parameter_values": {
+        "center_lookback_bars": 50,
+        "trend_lookback_bars": 100,
+        "vol_lookback_bars": 30
+      },
+      "status_reason": null,
+      "variant_id": "VAR-000001"
+    },
+    {
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "manual-grid",
+        "generation_order": 2
+      },
+      "parameter_value_hash": "sha256:4e18bd531930bb293c694c950a272ef98eede71cfaef728169669e7a518a6c65",
+      "parameter_values": {
+        "center_lookback_bars": 50,
+        "trend_lookback_bars": 200,
+        "vol_lookback_bars": 30
+      },
+      "status_reason": null,
+      "variant_id": "VAR-000002"
+    },
+    {
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "manual-grid",
+        "generation_order": 3
+      },
+      "parameter_value_hash": "sha256:81cb3777db4669d4e1f052372afcab22f756fd31592c9ab85b891aff6f943045",
+      "parameter_values": {
+        "center_lookback_bars": 50,
+        "trend_lookback_bars": 100,
+        "vol_lookback_bars": 50
+      },
+      "status_reason": null,
+      "variant_id": "VAR-000003"
+    },
+    {
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "manual-grid",
+        "generation_order": 4
+      },
+      "parameter_value_hash": "sha256:4bd9fef400e9c1afc09bf335156009de13fd452a42bef7b7b0dba5a6db1d516e",
+      "parameter_values": {
+        "center_lookback_bars": 50,
+        "trend_lookback_bars": 200,
+        "vol_lookback_bars": 50
+      },
+      "status_reason": null,
+      "variant_id": "VAR-000004"
+    },
+    {
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "manual-grid",
+        "generation_order": 5
+      },
+      "parameter_value_hash": "sha256:915c3e4fa66b08511c49541c8ec55aaab67e726ba811dc313671abc4322f71a1",
+      "parameter_values": {
+        "center_lookback_bars": 100,
+        "trend_lookback_bars": 100,
+        "vol_lookback_bars": 30
+      },
+      "status_reason": null,
+      "variant_id": "VAR-000005"
+    },
+    {
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "manual-grid",
+        "generation_order": 6
+      },
+      "parameter_value_hash": "sha256:8ac4d2a1de5170b8439edc7911add5fb61437c8a26b95e538dbf5c8f9bf5d5b5",
+      "parameter_values": {
+        "center_lookback_bars": 100,
+        "trend_lookback_bars": 200,
+        "vol_lookback_bars": 30
+      },
+      "status_reason": null,
+      "variant_id": "VAR-000006"
+    },
+    {
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "manual-grid",
+        "generation_order": 7
+      },
+      "parameter_value_hash": "sha256:d9f4c95256e1008d821bfd8e0aba21fef07520b29cbec4bc89d9d65b9e9f80a1",
+      "parameter_values": {
+        "center_lookback_bars": 100,
+        "trend_lookback_bars": 100,
+        "vol_lookback_bars": 50
+      },
+      "status_reason": null,
+      "variant_id": "VAR-000007"
+    },
+    {
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "manual-grid",
+        "generation_order": 8
+      },
+      "parameter_value_hash": "sha256:7d61efa642093abce0d89add76bd8022c4823b6b83da24a737d82054869a475b",
+      "parameter_values": {
+        "center_lookback_bars": 100,
+        "trend_lookback_bars": 200,
+        "vol_lookback_bars": 50
+      },
+      "status_reason": null,
+      "variant_id": "VAR-000008"
+    }
+  ],
+  "variant_manifest_id": "VM-9009"
+}

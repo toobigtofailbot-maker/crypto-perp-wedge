@@ -1,0 +1,118 @@
+{
+  "approval_metadata": {
+    "approval_scope": "noncanonical_scratch_runner_bridge_only",
+    "approval_timestamp_utc": "2026-06-22T06:00:00Z",
+    "approved_by": "operator",
+    "approved_for_noncanonical_runner_bridge": true,
+    "source_formalizer_run_id": "3a32f0bf02d2"
+  },
+  "blocked_trial_count": 0,
+  "completed_trial_count": 8,
+  "data_availability_blockers": [],
+  "data_availability_warnings": [],
+  "denominator_counts": {
+    "blocked": 0,
+    "completed": 8,
+    "failed": 0,
+    "invalid": 0,
+    "pruned": 0
+  },
+  "derived_input_artifact_paths": {
+    "bridge_metadata": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/bridge_metadata.json",
+    "strategy_spec": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/STRAT-SPEC-9959.strategy_spec.json",
+    "sweep_plan": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/SWEEP-PLAN-9009.sweep_plan.json",
+    "variant_manifest": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/inputs/VM-9009.variant_manifest.json"
+  },
+  "failed_trial_count": 0,
+  "full_ledger_path": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/denominator_ledger.json",
+  "funding_mode": {
+    "default_off": true,
+    "effective": "off",
+    "global_mode_mutated": false,
+    "requested": "off"
+  },
+  "invalid_trial_count": 0,
+  "manual_reconciliation_result": {
+    "comparisons": {
+      "committed_denominator": true,
+      "core_metrics": true,
+      "outcomes": true,
+      "result_identity": true,
+      "status_counts": true,
+      "trial_count": true,
+      "variant_ids": true
+    },
+    "passed": true
+  },
+  "non_authority_flags": [
+    "not canonical",
+    "not evidence",
+    "not candidate authority",
+    "not promotion authority",
+    "not paper/live readiness",
+    "human review required"
+  ],
+  "pruned_trial_count": 0,
+  "run_id": "fd63eb89897d9dc5",
+  "runner_artifact_paths": [
+    "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/runner_artifacts/RP-4664.result_population.json"
+  ],
+  "runner_invocation_metadata": {
+    "deterministic_seed": 0,
+    "mode": "canonical_15m_fixture_offline",
+    "network": false,
+    "ohlcv_input_hash": "sha256:1792cf36cc57197d3de6872a39b41cf54f0a22de64a41587e5a16d8d597bd933",
+    "ohlcv_input_path": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/fixtures/canonical_15m_ohlcv.csv",
+    "runner": "tools.research_runner.run_offline_sweep",
+    "runner_invocation_id": "d7642795e43d70c7"
+  },
+  "schema_version": "formalizer_runner_bridge_human_review_packet_v1",
+  "source_idea_formalizer_summary": {
+    "causal_rationale": "BTCUSDT 15m SMA and stddev mean revert because temporary liquidity pressure dislocates returns; center_lookback_bars from 50 to 100; vol_lookback_bars from 30 to 50; trend_lookback_bars from 100 to 200.",
+    "entry_concept": "Evaluate on completed bars and enter at the next bar open.",
+    "exit_concept": "Exit on the declared signal reversal or bounded holding limit.",
+    "falsifiable_prediction": "The completed-bar signal has positive out-of-sample expectancy after costs.",
+    "features": [
+      "sma",
+      "stddev"
+    ],
+    "parameter_bounds": [
+      {
+        "maximum": 100.0,
+        "minimum": 50.0,
+        "name": "center_lookback_bars"
+      },
+      {
+        "maximum": 50.0,
+        "minimum": 30.0,
+        "name": "vol_lookback_bars"
+      },
+      {
+        "maximum": 200.0,
+        "minimum": 100.0,
+        "name": "trend_lookback_bars"
+      }
+    ],
+    "stop_conditions": [
+      "Stop if preregistered out-of-sample thresholds fail."
+    ],
+    "summary": "BTCUSDT 15m SMA and stddev mean revert because temporary liquidity pressure dislocates returns; center_lookback_bars from 50 to 100; vol_lookback_bars from 30 to 50; trend_lookback_bars from 100 to 200.",
+    "symbols": [
+      "BTCUSDT"
+    ],
+    "timeframe": "15m"
+  },
+  "top_metrics": {
+    "drawdown": 0.0,
+    "exposure": 0.0,
+    "fees": 0.0,
+    "funding": 0.0,
+    "pnl": 0.0,
+    "return_pct": 0.0,
+    "sharpe": 0.0,
+    "slippage": 0.0,
+    "trade_count": 0,
+    "win_rate": 0.0
+  },
+  "validation_status": "passed"
+}

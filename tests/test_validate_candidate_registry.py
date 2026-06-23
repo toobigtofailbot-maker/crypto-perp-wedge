@@ -17,6 +17,10 @@ from tools.registry.validate_candidate_registry import (
 VALID_FIXTURE_PATH = (
     DEFAULT_CANDIDATE_REGISTRY_FIXTURE_DIR / "valid_example.candidate_lifecycle_registry.json"
 )
+CROSSING_FIXTURE_PATH = (
+    DEFAULT_CANDIDATE_REGISTRY_FIXTURE_DIR
+    / "valid_candidate_review_packet_crossing.candidate_lifecycle_registry.json"
+)
 
 
 def _load_json(path: Path) -> dict:
@@ -29,6 +33,10 @@ def _load_schema(path: Path = CANDIDATE_LIFECYCLE_REGISTRY_SCHEMA_PATH) -> dict:
 
 def _valid_registry() -> dict:
     return _load_json(VALID_FIXTURE_PATH)
+
+
+def _valid_crossing_registry() -> dict:
+    return _load_json(CROSSING_FIXTURE_PATH)
 
 
 def _write_registry(registry_dir: Path, payload: dict) -> Path:
@@ -168,6 +176,98 @@ def test_fake_fixture_identifier_family_remains_allowed(tmp_path):
     errors = validate_candidate_registries(registry_dir=registry_dir)
 
     assert errors == []
+
+
+def test_candidate_review_packet_crossing_fixture_preserves_required_packet_fields(tmp_path):
+    payload = _valid_crossing_registry()
+    registry_dir = tmp_path / "candidate_lifecycle_registry"
+    _write_registry(registry_dir, payload)
+
+    errors = validate_candidate_registries(registry_dir=registry_dir)
+
+    assert errors == []
+    event = payload["append_only_ledger"][0]
+    crossing = event["crossing_evidence"]
+    denominator = crossing["denominator_snapshot"]
+    diagnostics = crossing["diagnostics_summary"]
+    data_availability = crossing["data_availability"]
+    funding = crossing["funding"]
+    non_authority = crossing["non_authority_flags"]
+    assert event["event_type"] == "candidate_review_packet_crossed"
+    assert denominator["completed_count"] == 8
+    assert {
+        key for key in denominator if key.endswith("_count") and key != "declared_trial_count"
+    } == {
+        "completed_count",
+        "failed_count",
+        "invalid_count",
+        "pruned_count",
+        "blocked_count",
+    }
+    assert denominator["full_ledger_hash"].startswith("sha256:")
+    assert diagnostics["skipped_diagnostics"]
+    assert diagnostics["missing_diagnostics"]["per_trade"]["fabricated_per_trade_data"] is False
+    assert diagnostics["missing_diagnostics"]["oos_walkforward"]["status"] == "missing_fold_inputs"
+    assert diagnostics["missing_diagnostics"]["funding_stress"]["status"] == (
+        "not_applicable_funding_mode_off"
+    )
+    assert data_availability["warnings"]
+    assert data_availability["blockers"]
+    assert "vendor_or_capture_constrained" in data_availability["constraint_classes"]
+    assert funding["funding_cost_mode"] == "off"
+    assert funding["funding_stress_status"]["performed"] is False
+    assert all(non_authority.values())
+
+
+def test_crossing_event_rejects_incomplete_denominator_snapshot(tmp_path):
+    payload = _valid_crossing_registry()
+    del payload["append_only_ledger"][0]["crossing_evidence"]["denominator_snapshot"][
+        "completed_count"
+    ]
+    registry_dir = tmp_path / "candidate_lifecycle_registry"
+    _write_registry(registry_dir, payload)
+
+    errors = validate_candidate_registries(registry_dir=registry_dir)
+
+    assert any("'completed_count' is a required property" in error for error in errors)
+
+
+def test_crossing_event_rejects_missing_non_authority_flags(tmp_path):
+    payload = _valid_crossing_registry()
+    del payload["append_only_ledger"][0]["crossing_evidence"]["non_authority_flags"][
+        "not_evidence"
+    ]
+    registry_dir = tmp_path / "candidate_lifecycle_registry"
+    _write_registry(registry_dir, payload)
+
+    errors = validate_candidate_registries(registry_dir=registry_dir)
+
+    assert any("'not_evidence' is a required property" in error for error in errors)
+
+
+def test_crossing_event_rejects_promotion_or_readiness_implication(tmp_path):
+    payload = _valid_crossing_registry()
+    candidate = payload["candidates"][0]
+    event = payload["append_only_ledger"][0]
+    candidate["candidate_status"] = "paper_candidate"
+    event["to_status"] = "paper_candidate"
+    registry_dir = tmp_path / "candidate_lifecycle_registry"
+    _write_registry(registry_dir, payload)
+
+    errors = validate_candidate_registries(registry_dir=registry_dir)
+
+    assert any("'proposed' was expected" in error for error in errors)
+
+
+def test_crossing_evidence_rejects_missing_crossing_event_type(tmp_path):
+    payload = _valid_crossing_registry()
+    payload["append_only_ledger"][0]["event_type"] = "validated"
+    registry_dir = tmp_path / "candidate_lifecycle_registry"
+    _write_registry(registry_dir, payload)
+
+    errors = validate_candidate_registries(registry_dir=registry_dir)
+
+    assert any("'candidate_review_packet_crossed' was expected" in error for error in errors)
 
 
 def test_no_real_candidate_lifecycle_registry_artifact_committed():

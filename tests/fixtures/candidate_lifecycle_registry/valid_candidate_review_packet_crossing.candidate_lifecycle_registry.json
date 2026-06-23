@@ -1,0 +1,329 @@
+{
+  "schema_version": "candidate_lifecycle_registry.v1",
+  "registry_id": "CANDIDATE-REGISTRY-FIXTURE-0002",
+  "registry_status": "test_fixture",
+  "non_authority_declaration": {
+    "not_candidate_approval": true,
+    "not_paper_live_authority": true,
+    "not_runtime_authority": true,
+    "not_promotion_authority": true,
+    "not_trading_recommendation": true,
+    "not_broker_exchange_authority": true,
+    "not_capital_authority": true,
+    "notes": "Fixture-only registry shape for candidate-review packet crossing evidence; not a real candidate registry."
+  },
+  "transition_rules": {
+    "allowed_edges": [
+      {
+        "from_status": "proposed",
+        "to_status": "validated_research",
+        "required_gate": "future_human_review_gate",
+        "notes": "Requires separate future review and evidence; the packet crossing event alone does not validate research."
+      }
+    ],
+    "forbidden_principles": [
+      "Candidate-review packet crossing creates no evidence, ranking, readiness, promotion, paper/live, runtime, capital, broker, exchange, OMS, reconciliation, or risk authority.",
+      "Corrections require an explicit append-only correction or supersession event."
+    ]
+  },
+  "candidates": [
+    {
+      "candidate_id": "CANDIDATE-FIXTURE-0002",
+      "candidate_status": "proposed",
+      "display_name": "Fixture crossed candidate-review packet",
+      "strategy_family": "strat-spec-0003-sma-stddev-mean-reversion",
+      "description": "Non-canonical fixture proving a future crossing event can preserve candidate-review packet caveats without promotion or readiness authority.",
+      "market": "crypto_perpetual",
+      "instrument": "BTCUSDT",
+      "primary_timeframe": "15m",
+      "allowed_confirmation_timeframes": [],
+      "source_refs": {
+        "strategy_spec_refs": [
+          {
+            "artifact_type": "strategy_spec",
+            "artifact_id": "STRAT-SPEC-9959",
+            "artifact_ref": "scratch/WP-AGENT-IDEA-FORMALIZER-01/outputs/3a32f0bf02d2/STRAT-SPEC-9959.strategy_spec.json",
+            "relationship": "source_lineage",
+            "authority_boundary": "review_reference_only",
+            "identity_hash": "sha256:c513c3bad5e39921779cd7479cdb8e55bdbf665b695ef174188c468f7809300d",
+            "notes": "Scratch draft Strategy Spec reference only; not canonical evidence."
+          }
+        ],
+        "variant_manifest_refs": [],
+        "sweep_plan_refs": [],
+        "source_design_refs": [
+          {
+            "artifact_type": "candidate_review_packet",
+            "artifact_id": "CANDIDATE-REVIEW-PACKET-FIXTURE",
+            "artifact_ref": "scratch/WP-AGENT-CANDIDATE-REVIEW-PACKET-01/outputs/dba42387c2e4f679/candidate_review_packet.json",
+            "relationship": "source_lineage",
+            "authority_boundary": "review_reference_only",
+            "identity_hash": "sha256:b7bf2ac51e19053978fffc4c77eb574d13216bd8577529cde35edcdf8a62eb41",
+            "notes": "Scratch candidate-review packet reference only."
+          }
+        ],
+        "approval_note_refs": []
+      },
+      "evidence_links": [
+        {
+          "artifact_type": "candidate_review_packet",
+          "artifact_id": "CANDIDATE-REVIEW-PACKET-FIXTURE",
+          "artifact_ref": "scratch/WP-AGENT-CANDIDATE-REVIEW-PACKET-01/outputs/dba42387c2e4f679/candidate_review_packet.json",
+          "relationship": "source_lineage",
+          "authority_boundary": "review_reference_only",
+          "identity_hash": "sha256:b7bf2ac51e19053978fffc4c77eb574d13216bd8577529cde35edcdf8a62eb41",
+          "notes": "Source packet is preserved for review only."
+        }
+      ],
+      "lifecycle_event_refs": ["CLE-FIXTURE-0001"],
+      "review_metadata": {
+        "created_at": "2026-06-23T00:00:00Z",
+        "created_by": "fixture",
+        "review_owner": "Main/Karl fixture",
+        "gate_owner": "Main/Karl fixture",
+        "review_due_at": null,
+        "decision_notes": "Fixture event records source packet evidence shape only.",
+        "unresolved_questions": [
+          "Which missing diagnostics must be collected before any stronger claim?",
+          "Does the funding-off posture require a separately authorized package?"
+        ]
+      },
+      "blocking_reason": null,
+      "required_next_review": "human review required before any canonical evidence, ranking, promotion, readiness, paper/live, or runtime decision",
+      "non_authority_declaration": {
+        "not_candidate_approval": true,
+        "not_paper_live_authority": true,
+        "not_runtime_authority": true,
+        "not_promotion_authority": true,
+        "not_trading_recommendation": true,
+        "not_broker_exchange_authority": true,
+        "not_capital_authority": true,
+        "notes": "Candidate fixture is not a real candidate and does not imply readiness."
+      }
+    }
+  ],
+  "append_only_ledger": [
+    {
+      "event_id": "CLE-FIXTURE-0001",
+      "event_sequence": 1,
+      "candidate_id": "CANDIDATE-FIXTURE-0002",
+      "event_type": "candidate_review_packet_crossed",
+      "timestamp_utc": "2026-06-23T00:00:00Z",
+      "actor": "fixture",
+      "gate": "schema_alignment_fixture_gate",
+      "from_status": null,
+      "to_status": "proposed",
+      "reason": "Fixture-only append-only crossing event that preserves candidate-review packet evidence and caveats.",
+      "related_evidence_links": [
+        {
+          "artifact_type": "candidate_review_packet",
+          "artifact_id": "CANDIDATE-REVIEW-PACKET-FIXTURE",
+          "artifact_ref": "scratch/WP-AGENT-CANDIDATE-REVIEW-PACKET-01/outputs/dba42387c2e4f679/candidate_review_packet.json",
+          "relationship": "source_lineage",
+          "authority_boundary": "review_reference_only",
+          "identity_hash": "sha256:b7bf2ac51e19053978fffc4c77eb574d13216bd8577529cde35edcdf8a62eb41",
+          "notes": "Scratch source packet only; not canonical evidence."
+        }
+      ],
+      "blocking_or_exception_refs": [],
+      "crossing_evidence": {
+        "source_lineage": {
+          "candidate_review_packet_path": "scratch/WP-AGENT-CANDIDATE-REVIEW-PACKET-01/outputs/dba42387c2e4f679/candidate_review_packet.json",
+          "candidate_review_packet_hash": "sha256:b7bf2ac51e19053978fffc4c77eb574d13216bd8577529cde35edcdf8a62eb41",
+          "formalizer_artifact_path": "scratch/WP-AGENT-IDEA-FORMALIZER-01/outputs/3a32f0bf02d2/formalized_idea.json",
+          "formalizer_artifact_hash": "sha256:e19cd2a83c396fa16c7e8e88c2240dcc0e115ac219f70e00ccabca634d89ed60",
+          "formalizer_draft_strategy_spec_path": "scratch/WP-AGENT-IDEA-FORMALIZER-01/outputs/3a32f0bf02d2/STRAT-SPEC-9959.strategy_spec.json",
+          "formalizer_draft_strategy_spec_hash": "sha256:c513c3bad5e39921779cd7479cdb8e55bdbf665b695ef174188c468f7809300d",
+          "bridge_artifact_path": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/human_review_packet.json",
+          "bridge_artifact_hash": "sha256:bc222c21a89863d57d0139422c66389339276a74dc5688fb2a7e0832568496db",
+          "bridge_runner_artifact_path": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/runner_artifacts/RP-4664.result_population.json",
+          "bridge_runner_artifact_hash": "sha256:cb1ef40634679166c141b801702df2a67acb6039ddddf1b63ef60ca8b912382d",
+          "robustness_artifact_path": "scratch/WP-AGENT-ROBUSTNESS-DIAGNOSTICIAN-01/outputs/9309de71e35fc40f/robustness_diagnostics.json",
+          "robustness_artifact_hash": "sha256:3b47f445b447ccaa97f35dffe09d4026396953f73173cec962f093f15d8b09c4",
+          "robustness_review_packet_path": "scratch/WP-AGENT-ROBUSTNESS-DIAGNOSTICIAN-01/outputs/9309de71e35fc40f/robustness_review_packet.json",
+          "robustness_review_packet_hash": "sha256:857154c5a25a33914f96e34684b3d85882d3efcb6ea6db6cb6a5cecdd4cc6762",
+          "denominator_ledger_path": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/denominator_ledger.json",
+          "denominator_ledger_hash": "sha256:84f8199aea9b78753c8a570c26696991e0f9cc4a078cb358749aaba80059d540",
+          "operator_approval_path": "scratch/WP-AGENT-CANDIDATE-REVIEW-PACKET-01/inputs/operator_candidate_review_approval.json",
+          "operator_approval_hash": "sha256:b6d69a686cd4924b9a23860125e45f2e72b15abf4ef7a5f6e04269163e2263ac",
+          "crossing_approval_path": null,
+          "crossing_approval_hash": null
+        },
+        "denominator_snapshot": {
+          "completed_count": 8,
+          "failed_count": 0,
+          "invalid_count": 0,
+          "pruned_count": 0,
+          "blocked_count": 0,
+          "declared_trial_count": 8,
+          "all_source_rows_preserved": true,
+          "full_ledger_path": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/fd63eb89897d9dc5/denominator_ledger.json",
+          "full_ledger_hash": "sha256:84f8199aea9b78753c8a570c26696991e0f9cc4a078cb358749aaba80059d540",
+          "row_disposition": [
+            {
+              "variant_id": "VAR-000001",
+              "trial_status": "completed",
+              "status_reason": "runner successful"
+            },
+            {
+              "variant_id": "VAR-000002",
+              "trial_status": "completed",
+              "status_reason": "runner successful"
+            },
+            {
+              "variant_id": "VAR-000003",
+              "trial_status": "completed",
+              "status_reason": "runner successful"
+            },
+            {
+              "variant_id": "VAR-000004",
+              "trial_status": "completed",
+              "status_reason": "runner successful"
+            },
+            {
+              "variant_id": "VAR-000005",
+              "trial_status": "completed",
+              "status_reason": "runner successful"
+            },
+            {
+              "variant_id": "VAR-000006",
+              "trial_status": "completed",
+              "status_reason": "runner successful"
+            },
+            {
+              "variant_id": "VAR-000007",
+              "trial_status": "completed",
+              "status_reason": "runner successful"
+            },
+            {
+              "variant_id": "VAR-000008",
+              "trial_status": "completed",
+              "status_reason": "runner successful"
+            }
+          ]
+        },
+        "diagnostics_summary": {
+          "completed_diagnostics": [
+            "seeded_variant_metric_bootstrap",
+            "metric_confidence_intervals",
+            "parameter_sensitivity",
+            "denominator_integrity",
+            "source_lineage_hash_preservation",
+            "funding_mode_visibility",
+            "data_availability_propagation"
+          ],
+          "skipped_diagnostics": [
+            {
+              "diagnostic": "oos_walkforward_status",
+              "reason": "missing_fold_inputs"
+            },
+            {
+              "diagnostic": "per_trade_status",
+              "reason": "QUEUE_PER_TRADE_INSTRUMENTATION"
+            },
+            {
+              "diagnostic": "funding_stress_status",
+              "reason": "not_applicable_funding_mode_off"
+            }
+          ],
+          "skipped_reasons": [
+            "missing_fold_inputs",
+            "QUEUE_PER_TRADE_INSTRUMENTATION",
+            "not_applicable_funding_mode_off"
+          ],
+          "missing_diagnostics": {
+            "per_trade": {
+              "status": "QUEUE_PER_TRADE_INSTRUMENTATION",
+              "performed": false,
+              "reason": "Committed rows expose aggregate per-variant metrics only; no real per-trade rows were supplied.",
+              "fabricated_per_trade_data": false
+            },
+            "oos_walkforward": {
+              "status": "missing_fold_inputs",
+              "performed": false,
+              "reason": "No fold/OOS inputs were supplied.",
+              "queued_follow_up": true
+            },
+            "funding_stress": {
+              "status": "not_applicable_funding_mode_off",
+              "performed": false,
+              "reason": "Funding mode was off, so funding stress was not run."
+            }
+          },
+          "unsupported_diagnostics": [
+            "per_trade_without_real_trade_rows",
+            "walk_forward_oos_without_fold_inputs"
+          ]
+        },
+        "data_availability": {
+          "warnings": [
+            "open_interest_recent_only_not_reconstructable_from_trades",
+            "liquidation_history_requires_vendor_or_captured_history"
+          ],
+          "blockers": [
+            "no full-history public liquidation history available in packet evidence"
+          ],
+          "coverage_classes": [
+            "RECENT_ONLY_PUBLIC_REST",
+            "VENDOR_OR_CAPTURE_CONSTRAINED"
+          ],
+          "constraint_classes": [
+            "recent_only",
+            "vendor_or_capture_constrained"
+          ],
+          "caveats": [
+            "open interest cannot be reconstructed from trades",
+            "liquidation history requires vendor or captured history",
+            "streaming-only or recent-only features remain noncanonical caveats"
+          ]
+        },
+        "funding": {
+          "funding_cost_mode": "off",
+          "funding_stress_status": {
+            "status": "not_applicable_funding_mode_off",
+            "performed": false,
+            "skipped_reason": "funding stress not run because source funding mode was off"
+          }
+        },
+        "non_authority_flags": {
+          "not_evidence": true,
+          "not_candidate_authority": true,
+          "not_promotion_authority": true,
+          "not_ranking_authority": true,
+          "not_paper_live_readiness": true,
+          "not_trading_signal": true,
+          "human_review_required": true
+        },
+        "append_only_semantics": {
+          "append_only": true,
+          "new_event_only": true,
+          "no_overwrite": true,
+          "correction_requires_supersession_event": true,
+          "source_hashes_preserved": true,
+          "denominator_snapshot_preserved": true,
+          "caveats_preserved": true,
+          "missing_diagnostics_preserved": true
+        }
+      },
+      "non_authority_declaration": {
+        "not_candidate_approval": true,
+        "not_paper_live_authority": true,
+        "not_runtime_authority": true,
+        "not_promotion_authority": true,
+        "not_trading_recommendation": true,
+        "not_broker_exchange_authority": true,
+        "not_capital_authority": true,
+        "notes": "Crossing event fixture preserves source packet content only; it creates no evidence, ranking, readiness, promotion, paper/live, runtime, or execution authority."
+      }
+    }
+  ],
+  "validation_summary": {
+    "fixture_only": true,
+    "real_candidate_registered": false,
+    "lifecycle_engine_implemented": false,
+    "paper_live_authority_created": false,
+    "runtime_authority_created": false,
+    "capital_authority_created": false,
+    "notes": "This fake fixture validates candidate-review packet crossing evidence shape only."
+  }
+}

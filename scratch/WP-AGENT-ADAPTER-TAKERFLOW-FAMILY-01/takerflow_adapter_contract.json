@@ -1,0 +1,99 @@
+{
+  "adapter_family_id": "takerflow_imbalance_v1",
+  "compiler_support": {
+    "allowed_data_fields_present": true
+  },
+  "data_support": {
+    "availability_catalog_entries": [
+      {
+        "canonical_full_history_allowed": "no",
+        "compiler_visible": true,
+        "conditions": [],
+        "coverage_class": "RECENT_ONLY_PUBLIC_REST",
+        "feature_name": "taker_buy_sell_ratio",
+        "history_limitation": "The Binance taker buy/sell ratio endpoint is limited to recent history.",
+        "notes": "The REST ratio source cannot support a public full-history claim.",
+        "requires_vendor_or_captured_data": true,
+        "source_class": "PUBLIC_REST_TAKER_RATIO"
+      },
+      {
+        "canonical_full_history_allowed": "conditional",
+        "compiler_visible": true,
+        "conditions": [
+          "Archive files cover the claimed window.",
+          "The ratio is deterministically reconstructed from aligned trade or aggregate-trade records."
+        ],
+        "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+        "feature_name": "taker_buy_sell_ratio",
+        "history_limitation": "Coverage depends on verified trade or aggregate-trade archive files and deterministic reconstruction.",
+        "notes": "This archive derivation is trade-flow evidence and does not reconstruct open interest.",
+        "requires_vendor_or_captured_data": false,
+        "source_class": "PUBLIC_TRADE_ARCHIVE_DERIVATION"
+      },
+      {
+        "canonical_full_history_allowed": "no",
+        "compiler_visible": true,
+        "conditions": [],
+        "coverage_class": "RECENT_ONLY_PUBLIC_REST",
+        "feature_name": "taker_buy_volume",
+        "history_limitation": "The Binance taker buy/sell ratio endpoint is limited to recent history.",
+        "notes": "REST endpoint volume fields remain recent-only.",
+        "requires_vendor_or_captured_data": true,
+        "source_class": "PUBLIC_REST_TAKER_RATIO"
+      },
+      {
+        "canonical_full_history_allowed": "conditional",
+        "compiler_visible": true,
+        "conditions": [
+          "Archive files cover the claimed window.",
+          "Buy volume is deterministically reconstructed from aligned trade or aggregate-trade records."
+        ],
+        "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+        "feature_name": "taker_buy_volume",
+        "history_limitation": "Coverage depends on verified trade or aggregate-trade archive files and deterministic reconstruction.",
+        "notes": "Trade archives can backfill taker-flow features but not true open interest.",
+        "requires_vendor_or_captured_data": false,
+        "source_class": "PUBLIC_TRADE_ARCHIVE_DERIVATION"
+      },
+      {
+        "canonical_full_history_allowed": "no",
+        "compiler_visible": true,
+        "conditions": [],
+        "coverage_class": "RECENT_ONLY_PUBLIC_REST",
+        "feature_name": "taker_sell_volume",
+        "history_limitation": "The Binance taker buy/sell ratio endpoint is limited to recent history.",
+        "notes": "REST endpoint volume fields remain recent-only.",
+        "requires_vendor_or_captured_data": true,
+        "source_class": "PUBLIC_REST_TAKER_RATIO"
+      },
+      {
+        "canonical_full_history_allowed": "conditional",
+        "compiler_visible": true,
+        "conditions": [
+          "Archive files cover the claimed window.",
+          "Sell volume is deterministically reconstructed from aligned trade or aggregate-trade records."
+        ],
+        "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+        "feature_name": "taker_sell_volume",
+        "history_limitation": "Coverage depends on verified trade or aggregate-trade archive files and deterministic reconstruction.",
+        "notes": "Trade archives can backfill taker-flow features but not true open interest.",
+        "requires_vendor_or_captured_data": false,
+        "source_class": "PUBLIC_TRADE_ARCHIVE_DERIVATION"
+      }
+    ],
+    "committed_runner_consumable_dataset_present": false
+  },
+  "forbidden_alternative": "do not substitute OHLCV/price-only proxy fields for taker-flow",
+  "non_authority": true,
+  "package": "WP-AGENT-ADAPTER-TAKERFLOW-FAMILY-01",
+  "reason": "current offline runner/data input support cannot consume archive-derived taker-flow fields without out-of-scope runner/data-source changes",
+  "required_future_authority": "separate approved runner/data-source package that preserves archive-derived taker-flow columns through offline runner compilation",
+  "runner_support": {
+    "evidence": "run_offline_sweep._load_ohlcv_input narrows input frame to open/high/low/close/volume",
+    "non_ohlcv_fields_preserved": false
+  },
+  "schema_support": {
+    "strategy_spec_data_ref": true
+  },
+  "status": "blocked"
+}

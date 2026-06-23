@@ -1,0 +1,9 @@
+{
+  "artifact": "blocked_variant_manifest_reason.json",
+  "forbidden_alternative": "do not substitute OHLCV/price-only proxy fields for taker-flow",
+  "non_authority": true,
+  "package": "WP-AGENT-ADAPTER-TAKERFLOW-FAMILY-01",
+  "reason": "current offline runner/data input support cannot consume archive-derived taker-flow fields without out-of-scope runner/data-source changes",
+  "required_future_authority": "separate approved runner/data-source package that preserves archive-derived taker-flow columns through offline runner compilation",
+  "status": "blocked"
+}

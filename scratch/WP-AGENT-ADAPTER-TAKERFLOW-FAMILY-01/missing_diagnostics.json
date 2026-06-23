@@ -1,0 +1,23 @@
+{
+  "fabricated": false,
+  "missing_diagnostics": [
+    {
+      "diagnostic": "runner_result_population",
+      "reason": "runner cannot consume taker-flow fields in current input path"
+    },
+    {
+      "diagnostic": "robustness",
+      "reason": "no valid taker-flow runner Result Population exists"
+    },
+    {
+      "diagnostic": "candidate_review",
+      "reason": "no valid taker-flow robustness packet exists"
+    },
+    {
+      "diagnostic": "per_trade_mfe_mae_exit_reason",
+      "reason": "not available and not fabricated"
+    }
+  ],
+  "package": "WP-AGENT-ADAPTER-TAKERFLOW-FAMILY-01",
+  "status": "blocked"
+}

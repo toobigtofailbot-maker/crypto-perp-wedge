@@ -1,0 +1,7 @@
+{
+  "artifact_type": "blocked_sweep_plan_reason",
+  "package": "WP-RESEARCH-EDGE-SMA-FAMILY-01",
+  "status": "blocked",
+  "reason": "No fresh Variant Manifest exists. The only bridge-compatible Sweep Plan would copy SWEEP-PLAN-0003 and select the same eight already-concluded variants.",
+  "post_hoc_narrowing_attempted": false
+}

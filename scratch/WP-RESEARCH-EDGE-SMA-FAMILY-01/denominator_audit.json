@@ -1,0 +1,27 @@
+{
+  "artifact_type": "denominator_audit",
+  "package": "WP-RESEARCH-EDGE-SMA-FAMILY-01",
+  "formalizer_attempts": 1,
+  "formalizer_accepted": 1,
+  "fresh_strategy_specs": 0,
+  "bridge_eligible_fresh_populations": 0,
+  "runner_attempted_variants": 0,
+  "runner_status_counts": {
+    "completed": 0,
+    "failed": 0,
+    "invalid": 0,
+    "pruned": 0,
+    "blocked": 0
+  },
+  "machine_path_blocked_items": 1,
+  "machine_path_blocked_reason": "only supported eight-variant population duplicates concluded RP-7134 family",
+  "prior_population_context": {
+    "result_population_id": "RP-7134",
+    "committed_denominator": 8,
+    "successful_rows": 8,
+    "screen_verdict": "NO-GO",
+    "included_as_new_denominator": false
+  },
+  "denominator_preserved": true,
+  "winner_only_reporting": false
+}

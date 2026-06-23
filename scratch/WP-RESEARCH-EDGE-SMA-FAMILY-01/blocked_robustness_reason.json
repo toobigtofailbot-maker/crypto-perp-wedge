@@ -1,0 +1,7 @@
+{
+  "artifact_type": "blocked_robustness_reason",
+  "package": "WP-RESEARCH-EDGE-SMA-FAMILY-01",
+  "status": "blocked",
+  "reason": "No fresh bridge Result Population-shaped artifact or denominator ledger exists, so the robustness diagnostician has no valid source contract for this attempt.",
+  "diagnostics_fabricated": false
+}

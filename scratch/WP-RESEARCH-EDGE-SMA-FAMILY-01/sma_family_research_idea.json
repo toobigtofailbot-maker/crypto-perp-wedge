@@ -1,0 +1,23 @@
+{
+  "artifact_type": "scratch_research_idea_input",
+  "created_at_utc": "2026-06-23T00:00:00Z",
+  "hypothesis": "Because short-horizon price overextension relative to a rolling SMA and rolling standard deviation may mean revert, test BTCUSDT 15m both-direction SMA/stddev z-score entries with centerline exits and the existing supported trend gate and entry throttle.",
+  "economic_rationale": "Local dispersion may give a more stable scale for short-horizon overextension than raw moving-average direction or an unnormalized percentage band.",
+  "package": "WP-RESEARCH-EDGE-SMA-FAMILY-01",
+  "pre_registered_before_formalizer_run": true,
+  "symbol": "BTCUSDT",
+  "timeframe": "15m",
+  "boundaries": {
+    "canonical_artifacts_allowed": false,
+    "canonical_crossing_allowed": false,
+    "new_adapter_or_primitives_allowed": false,
+    "paper_live_runtime_allowed": false,
+    "provider_api_or_network_allowed": false
+  },
+  "non_authority": {
+    "scratch_only": true,
+    "not_canonical": true,
+    "not_evidence": true,
+    "human_review_required": true
+  }
+}

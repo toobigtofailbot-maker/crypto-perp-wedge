@@ -1,0 +1,10 @@
+{
+  "constraints": [
+    "scratch-only",
+    "no edge conclusion",
+    "funding_cost_mode=off"
+  ],
+  "idea": "Taker flow predicts BTCUSDT because aggressive buy pressure persists using archive-derived taker buy/sell imbalance.",
+  "symbol": "BTCUSDT",
+  "timeframe": "15m"
+}

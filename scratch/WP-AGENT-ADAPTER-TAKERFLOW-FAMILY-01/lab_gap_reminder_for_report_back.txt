@@ -1,0 +1,19 @@
+This WP is part of research-lab completion, not proof that the research lab is finished.
+
+Still-missing Side 12 / operator target-state items include:
+- always-on research queue / scheduler
+- autonomous research scout
+- broader family adapter coverage
+- generic downstream robustness/candidate-review reach across supported families
+- full data-derived family support
+- per-trade / MFE / MAE / exit_reason diagnostics
+- walk-forward/OOS integration as a standard candidate gate
+- Monte Carlo / robustness as a standard candidate gate
+- dashboard pages for jobs, strategies, sweeps, walk-forward, robustness, candidates, data provenance, and agent activity
+- daily brief
+- weekly report
+- operator notifications / approval queue
+- regime / parameter advisor
+- live/paper performance monitor
+- first real canonical crossing
+- paper/live/runtime execution-machine phase

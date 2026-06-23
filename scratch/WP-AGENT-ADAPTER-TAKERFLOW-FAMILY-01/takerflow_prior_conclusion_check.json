@@ -1,0 +1,24 @@
+{
+  "equivalent_canonical_result_population_exists": false,
+  "notes": [
+    "Search found taker-flow data/availability/reconstruction support, not a concluded strategy family RP/REP equivalent.",
+    "No edge-discovery WP was executed and no novelty or edge conclusion is claimed."
+  ],
+  "package": "WP-AGENT-ADAPTER-TAKERFLOW-FAMILY-01",
+  "prior_takerflow_conclusion_status": "no committed GO/NO-GO taker-flow strategy conclusion found by bounded search; taker-flow data infrastructure/status artifacts exist",
+  "representative_paths": [
+    "docs/status_entries/WP-AGENT-EXPERIMENT-RUNNER-01.md",
+    "docs/status_entries/WP-AGENT-IDEA-FORMALIZER-01.md",
+    "docs/status_entries/WP-COMPILER-FEATURES-DATA-DERIVED-01.md",
+    "docs/status_entries/WP-DATA-AVAILABILITY-LABELS-01.md",
+    "docs/status_entries/WP-DATA-TAKERFLOW-ARCHIVE-RECON-01.md",
+    "research/data_feature_availability/PERP-DERIVED-FEATURE-AVAILABILITY-0001.json",
+    "scratch/WP-AGENT-EXPERIMENT-RUNNER-01/repo_truth_discovery.md",
+    "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/repo_truth_discovery.md",
+    "scratch/WP-AGENT-IDEA-FORMALIZER-01/repo_truth_discovery.md",
+    "scratch/WP-LAB-DATA-EXPANSION-01/coverage_matrix.json",
+    "scratch/WP-LAB-DATA-EXPANSION-01/sample_catalog_lineage.json"
+  ],
+  "status": "blocked_before_adapter_implementation",
+  "takerflow_related_paths_inspected_count": 11
+}

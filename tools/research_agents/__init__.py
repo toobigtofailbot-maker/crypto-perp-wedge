@@ -1,5 +1,9 @@
 """Bounded, non-authoritative research-agent helpers."""
 
+from .candidate_review_packet_agent import (
+    CandidateReviewPacketAgent,
+    CandidateReviewPacketConfig,
+)
 from .experiment_runner_agent import (
     ExperimentRunnerAgent,
     ExperimentRunnerConfig,
@@ -19,6 +23,8 @@ from .robustness_diagnostician_agent import (
 )
 
 __all__ = [
+    "CandidateReviewPacketAgent",
+    "CandidateReviewPacketConfig",
     "ChatGPTAccountPacketProvider",
     "DisabledProvider",
     "ExperimentRunnerAgent",

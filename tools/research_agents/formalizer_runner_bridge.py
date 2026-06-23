@@ -24,9 +24,13 @@ from tools.research_runner.run_offline_sweep import run_offline_sweep
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 WP_ID = "WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01"
+DONCHIAN_ADAPTER_WP_ID = "WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01"
 ROLE = "formalizer_runner_bridge"
 OUTPUT_ROOT = Path("scratch") / WP_ID / "outputs"
 FORMALIZER_OUTPUT_PREFIX = "scratch/WP-AGENT-IDEA-FORMALIZER-01/outputs/"
+DONCHIAN_FORMALIZER_OUTPUT_PREFIX = (
+    "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/formalizer/outputs/"
+)
 APPROVAL_SCOPE = "noncanonical_scratch_runner_bridge_only"
 BRIDGE_VERSION = "formalizer-runner-bridge-v1"
 VARIANT_TEMPLATE_PATH = Path("research/variant_manifests/VM-0003.variant_manifest.json")
@@ -110,7 +114,7 @@ def _refresh_manifest_hash(manifest: dict[str, Any]) -> str:
 
 
 class FormalizerRunnerBridge:
-    """ToolContext-routed bridge for one approved SMA/stddev formalizer family."""
+    """ToolContext-routed bridge for the bounded supported formalizer families."""
 
     def __init__(
         self,
@@ -119,11 +123,15 @@ class FormalizerRunnerBridge:
         tool_context: ToolContext,
         repo_root: Path = REPO_ROOT,
     ) -> None:
-        if tool_context.role != ROLE or tool_context.wp_id != WP_ID:
+        if tool_context.role != ROLE or tool_context.wp_id not in {
+            WP_ID,
+            DONCHIAN_ADAPTER_WP_ID,
+        }:
             raise ValueError("FormalizerRunnerBridge requires its exact ToolContext role and WP")
         self.config = config
         self.tool_context = tool_context
         self.repo_root = repo_root.resolve()
+        self.output_root = Path("scratch") / tool_context.wp_id / "outputs"
 
     def _repo_relative(self, path: Path | str) -> str:
         candidate = Path(path)
@@ -169,11 +177,15 @@ class FormalizerRunnerBridge:
         self.tool_context.run_allowed(ToolAction(WRITE_SCRATCH, relative), operation)
         return relative
 
-    @staticmethod
-    def _validate_formalizer_contract(path: str, payload: Mapping[str, Any]) -> None:
-        if not path.startswith(FORMALIZER_OUTPUT_PREFIX) or not path.endswith(
-            "/formalized_idea.json"
-        ):
+    def _validate_formalizer_contract(
+        self, path: str, payload: Mapping[str, Any]
+    ) -> str:
+        expected_prefix = (
+            DONCHIAN_FORMALIZER_OUTPUT_PREFIX
+            if self.tool_context.wp_id == DONCHIAN_ADAPTER_WP_ID
+            else FORMALIZER_OUTPUT_PREFIX
+        )
+        if not path.startswith(expected_prefix) or not path.endswith("/formalized_idea.json"):
             raise FormalizerRunnerBridgeError(
                 "formalizer output must be the scoped scratch artifact"
             )
@@ -190,9 +202,22 @@ class FormalizerRunnerBridge:
             "timeframe"
         ) != "15m":
             raise FormalizerRunnerBridgeError("bridge supports only BTCUSDT 15m")
-        if not {"sma", "stddev"}.issubset(set(research_object.get("features", []))):
+        features = set(research_object.get("features", []))
+        if "donchian" in features and not features.intersection({"sma", "stddev"}):
+            family_id = "donchian_channel_breakout_v1"
+        elif {"sma", "stddev"}.issubset(features) and "donchian" not in features:
+            family_id = "sma_stddev_mean_reversion_v1"
+        else:
             raise FormalizerRunnerBridgeError(
-                "bridge supports only the formalizer SMA/stddev mean-reversion family"
+                "bridge requires an unambiguous supported formalizer family; "
+                "Donchian cannot resolve through the SMA/stddev adapter"
+            )
+        if (
+            self.tool_context.wp_id == DONCHIAN_ADAPTER_WP_ID
+            and family_id != "donchian_channel_breakout_v1"
+        ):
+            raise FormalizerRunnerBridgeError(
+                "Donchian adapter WP accepts only donchian_channel_breakout_v1"
             )
         draft = payload.get("draft_strategy_spec")
         if not isinstance(draft, Mapping) or draft.get("produced") is not True or not draft.get(
@@ -204,6 +229,12 @@ class FormalizerRunnerBridge:
         non_authority = payload.get("non_authority")
         if not isinstance(non_authority, Mapping) or not non_authority.get("scratch_only"):
             raise FormalizerRunnerBridgeError("formalizer non-authority contract is missing")
+        metadata = payload.get("adapter_metadata")
+        if family_id == "donchian_channel_breakout_v1" and (
+            not isinstance(metadata, Mapping) or metadata.get("family_id") != family_id
+        ):
+            raise FormalizerRunnerBridgeError("Donchian adapter metadata is missing or mismatched")
+        return family_id
 
     def _require_approval(
         self,
@@ -233,8 +264,13 @@ class FormalizerRunnerBridge:
             raise
         raise AssertionError("unapproved bridge was unexpectedly allowed")
 
-    def _validate_draft(self, draft_path: str) -> dict[str, Any]:
-        if not draft_path.startswith(FORMALIZER_OUTPUT_PREFIX):
+    def _validate_draft(self, draft_path: str, *, family_id: str) -> dict[str, Any]:
+        expected_prefix = (
+            DONCHIAN_FORMALIZER_OUTPUT_PREFIX
+            if family_id == "donchian_channel_breakout_v1"
+            else FORMALIZER_OUTPUT_PREFIX
+        )
+        if not draft_path.startswith(expected_prefix):
             raise FormalizerRunnerBridgeError(
                 "draft Strategy Spec must remain in formalizer scratch"
             )
@@ -251,13 +287,28 @@ class FormalizerRunnerBridge:
                 "draft Strategy Spec validation failed: " + "; ".join(errors)
             )
         constraints = draft.get("provenance", {}).get("source_constraints", [])
-        if not any("STRAT-SPEC-0003 capability family" in str(item) for item in constraints):
+        expected_marker = (
+            "donchian_channel_breakout_v1 adapter"
+            if family_id == "donchian_channel_breakout_v1"
+            else "STRAT-SPEC-0003 capability family"
+        )
+        if not any(expected_marker in str(item) for item in constraints):
             raise FormalizerRunnerBridgeError(
-                "draft does not declare the supported STRAT-SPEC-0003 adapter"
+                f"draft does not declare the supported {family_id} adapter"
             )
+        serialized = json.dumps(draft, sort_keys=True)
+        if family_id == "donchian_channel_breakout_v1":
+            if '"ref": "donchian"' not in serialized or any(
+                token in serialized for token in ('"ref": "sma"', '"ref": "stddev"')
+            ):
+                raise FormalizerRunnerBridgeError(
+                    "Donchian draft must use only Donchian indicator references"
+                )
         return draft
 
-    def _availability_blockers(self, formalized: Mapping[str, Any]) -> list[str]:
+    def _availability_blockers(
+        self, formalized: Mapping[str, Any], *, family_id: str
+    ) -> list[str]:
         assessment = formalized.get("capability_assessment")
         rows = assessment.get("feature_assessments", []) if isinstance(assessment, Mapping) else []
         blockers: list[str] = []
@@ -268,9 +319,14 @@ class FormalizerRunnerBridge:
             coverage = str(row.get("coverage_class", ""))
             source = str(row.get("source_class", ""))
             testability = str(row.get("historical_testability", ""))
-            if feature not in {"sma", "stddev"}:
+            allowed_features = (
+                {"donchian", "ohlcv"}
+                if family_id == "donchian_channel_breakout_v1"
+                else {"sma", "stddev"}
+            )
+            if feature not in allowed_features:
                 blockers.append(
-                    f"{feature} is not encoded by the supported STRAT-SPEC-0003 draft adapter"
+                    f"{feature} is not encoded by the supported {family_id} draft adapter"
                 )
             if feature == "taker_buy_sell_ratio" and source == "PUBLIC_TRADE_ARCHIVE_DERIVATION":
                 blockers.append(
@@ -312,6 +368,7 @@ class FormalizerRunnerBridge:
         approval_path: str,
         approval_hash: str,
         draft: Mapping[str, Any],
+        family_id: str,
     ) -> dict[str, str]:
         inputs_dir = run_dir / "inputs"
         spec = copy.deepcopy(dict(draft))
@@ -378,6 +435,8 @@ class FormalizerRunnerBridge:
                 "approval_scope": "sweep_planning_only",
             }
         )
+        if family_id == "donchian_channel_breakout_v1":
+            self._apply_donchian_manifest(manifest)
         manifest_hash = _refresh_manifest_hash(manifest)
 
         sweep = copy.deepcopy(self._read_json(SWEEP_TEMPLATE_PATH))
@@ -434,6 +493,8 @@ class FormalizerRunnerBridge:
                 "approval_scope": "offline_run_planning_only",
             }
         )
+        if family_id == "donchian_channel_breakout_v1":
+            self._apply_donchian_sweep(sweep)
 
         written = {
             "strategy_spec": self._write_json(spec_path, spec),
@@ -448,6 +509,7 @@ class FormalizerRunnerBridge:
             "approval_marker_path": approval_path,
             "approval_marker_hash": approval_hash,
             "bridge_tool_version": BRIDGE_VERSION,
+            "strategy_family": family_id,
             "created_at_utc": self.config.timestamp_utc,
             "funding_cost_mode": self.config.funding_cost_mode,
             "data_assumptions": {
@@ -460,6 +522,150 @@ class FormalizerRunnerBridge:
         }
         written["bridge_metadata"] = self._write_json(inputs_dir / "bridge_metadata.json", metadata)
         return written
+
+    @staticmethod
+    def _apply_donchian_manifest(manifest: dict[str, Any]) -> None:
+        population = manifest["population_governance"]
+        population["population_cap"]["max_variants"] = 2
+        population["declared_population"].update(
+            {
+                "committed_population_count": 2,
+                "declared_variant_count": 2,
+                "included_variant_count": 2,
+                "excluded_variant_count": 0,
+                "invalid_variant_count": 0,
+                "not_attempted_variant_count": 0,
+            }
+        )
+        population["trial_budget"].update(
+            {
+                "planned_trial_count": 2,
+                "trial_budget_denominator": 2,
+                "denominator_count": 2,
+            }
+        )
+        population["multiple_testing_accounting"].update(
+            {
+                "search_family_id": "SF-DONCHIAN-CHANNEL-BREAKOUT-15M-SCRATCH-0001",
+                "search_family_method": "manual_grid",
+                "adaptive_search_used": False,
+            }
+        )
+        manifest["parameter_axes"] = [
+            {
+                "axis_id": "AXIS-001",
+                "parameter_name": "channel_lookback_bars",
+                "parent_strategy_spec_parameter_ref": (
+                    "free_parameters.parameters.channel_lookback_bars"
+                ),
+                "parameter_type": "integer",
+                "units": "bars",
+                "axis_kind": "free_parameter",
+                "generator_method": "manual_grid",
+                "allowed_values": [20, 55],
+                "range": {
+                    "min": 20,
+                    "max": 55,
+                    "step": 35,
+                    "inclusive_min": True,
+                    "inclusive_max": True,
+                },
+                "counts_toward_parent_free_parameter_cap": True,
+                "is_declared_in_parent_strategy_spec": True,
+                "invalid_combination_rule_refs": [],
+                "notes": "Bounded non-adaptive Donchian adapter validation grid [20, 55].",
+            }
+        ]
+        manifest["invalid_combination_rules"] = []
+        manifest["exclusion_rules"] = []
+        manifest["variant_assignments"] = []
+        for index, value in enumerate((20, 55), start=1):
+            parameter_values = {"channel_lookback_bars": value}
+            manifest["variant_assignments"].append(
+                {
+                    "variant_id": f"VAR-{index:06d}",
+                    "assignment_status": "included",
+                    "parameter_values": parameter_values,
+                    "parameter_value_hash": _sha256(parameter_values),
+                    "axis_refs": ["AXIS-001"],
+                    "exclusion_rule_refs": [],
+                    "invalid_combination_rule_refs": [],
+                    "status_reason": None,
+                    "lineage": {
+                        "generated_by_rule": "manual-grid",
+                        "generation_order": index,
+                    },
+                }
+            )
+        manifest["lineage"]["audit_notes"] = [
+            "Scratch-only Donchian channel-breakout manual grid [20, 55].",
+            "No post-hoc narrowing, canonical freeze, or research conclusion authority.",
+            "All included, failed, invalid, excluded, and blocked rows remain in the denominator.",
+        ]
+        manifest["review"]["review_notes"] = [
+            "Scratch-only Donchian runner compatibility artifact; not canonical approval or freeze.",
+            "Prior Donchian evidence exists in REP-0003 and REP-0032; no novelty is claimed.",
+        ]
+
+    @staticmethod
+    def _apply_donchian_sweep(sweep: dict[str, Any]) -> None:
+        sweep["parent_variant_manifest"].update(
+            {
+                "manifest_population_count": 2,
+                "manifest_committed_population_count": 2,
+                "manifest_population_cap": 2,
+            }
+        )
+        sweep["test_selection"].update(
+            {
+                "selected_variant_ids": ["VAR-000001", "VAR-000002"],
+                "excluded_variant_ids": [],
+            }
+        )
+        sweep["validation_methods"]["backtest"]["notes"] = (
+            "Scratch-only real offline runner smoke for the Donchian adapter."
+        )
+        sweep["realism_assumptions"]["order_size_assumption"] = (
+            "Scratch offline runner validation uses dynamic_equity_target_leverage at "
+            "target_leverage=1.0; no runtime or canonical authority."
+        )
+        sweep["validation_methods"]["dsr_psr_mintrl_accounting"].update(
+            {
+                "denominator_ref": "committed_population_count",
+                "computation_deferred": True,
+                "notes": (
+                    "Denominator is the full bounded scratch population of 2; "
+                    "no research conclusion."
+                ),
+            }
+        )
+        sweep["trial_accounting"].update(
+            {
+                "committed_population_count": 2,
+                "selected_variant_count": 2,
+                "executed_variant_count": 0,
+                "successful_variant_count": 0,
+                "failed_variant_count": 0,
+                "errored_variant_count": 0,
+                "aborted_variant_count": 0,
+                "filtered_variant_count": 0,
+                "data_unavailable_variant_count": 0,
+                "excluded_variant_count": 0,
+                "not_attempted_variant_count": 2,
+                "multiple_testing_denominator": 2,
+            }
+        )
+        sweep["lineage"]["search_family_id"] = (
+            "SF-DONCHIAN-CHANNEL-BREAKOUT-15M-SCRATCH-0001"
+        )
+        sweep["lineage"]["audit_notes"] = [
+            "Scratch-only Donchian adapter smoke; no canonical sweep or evidence authority.",
+            "The full two-row denominator is retained regardless of runner outcome.",
+        ]
+        sweep["review"]["review_notes"] = [
+            "Scratch-only Donchian runner compatibility artifact; not canonical approval.",
+            "Metrics, if produced, are adapter validation only and carry no GO/NO-GO meaning.",
+        ]
 
     def _validate_derived_inputs(self, paths: Mapping[str, str]) -> None:
         inputs_dir = (self.repo_root / paths["strategy_spec"]).parent
@@ -553,6 +759,7 @@ class FormalizerRunnerBridge:
         blockers: Sequence[str],
         funding_cost_mode: str,
         timestamp_utc: str,
+        strategy_family: str = "sma_stddev_mean_reversion_v1",
     ) -> list[dict[str, Any]]:
         variants = {row["variant_id"]: row for row in manifest["variant_assignments"]}
         if runner_result is None:
@@ -583,7 +790,7 @@ class FormalizerRunnerBridge:
                     "approval_scope": approval_scope,
                     "bridge_input_paths": dict(input_paths),
                     "runner_invocation_id": runner_invocation_id,
-                    "strategy_family": "strat-spec-0003-sma-stddev-mean-reversion",
+                    "strategy_family": strategy_family,
                     "variant_id": runner_row["variant_id"],
                     "trial_id": f"{run_id}-TRIAL-{index:03d}",
                     "trial_status": trial_status,
@@ -627,7 +834,7 @@ class FormalizerRunnerBridge:
         approval_relative = self._repo_relative(approval_path)
         formalizer_bytes = self._read_bytes(formalizer_path)
         formalized = json.loads(formalizer_bytes)
-        self._validate_formalizer_contract(formalizer_path, formalized)
+        family_id = self._validate_formalizer_contract(formalizer_path, formalized)
         approval_bytes = self._read_bytes(approval_relative)
         approval = json.loads(approval_bytes)
         if not isinstance(approval, dict):
@@ -638,7 +845,9 @@ class FormalizerRunnerBridge:
             approval_path=approval_relative,
             formalizer_path=formalizer_path,
         )
-        draft = self._validate_draft(str(formalized["draft_strategy_spec"]["path"]))
+        draft = self._validate_draft(
+            str(formalized["draft_strategy_spec"]["path"]), family_id=family_id
+        )
         ohlcv_path = self._repo_relative(self.config.ohlcv_input_path)
         ohlcv_hash = _sha256_bytes(self._read_bytes(ohlcv_path))
 
@@ -651,7 +860,7 @@ class FormalizerRunnerBridge:
             "bridge_version": BRIDGE_VERSION,
         }
         run_id = hashlib.sha256(_canonical_bytes(run_identity)).hexdigest()[:16]
-        run_dir = OUTPUT_ROOT / run_id
+        run_dir = self.output_root / run_id
         input_paths = self._derive_inputs(
             run_id=run_id,
             run_dir=run_dir,
@@ -661,10 +870,11 @@ class FormalizerRunnerBridge:
             approval_path=approval_relative,
             approval_hash=run_identity["approval_hash"],
             draft=draft,
+            family_id=family_id,
         )
         self._validate_derived_inputs(input_paths)
         manifest = self._read_json(input_paths["variant_manifest"])
-        blockers = self._availability_blockers(formalized)
+        blockers = self._availability_blockers(formalized, family_id=family_id)
         if blockers:
             record = self.tool_context.authorize(
                 ToolAction("data_availability_bypass", formalizer_path)
@@ -716,6 +926,7 @@ class FormalizerRunnerBridge:
             blockers=blockers,
             funding_cost_mode=self.config.funding_cost_mode,
             timestamp_utc=self.config.timestamp_utc,
+            strategy_family=family_id,
         )
         self._assert_denominator(
             ledger_rows,

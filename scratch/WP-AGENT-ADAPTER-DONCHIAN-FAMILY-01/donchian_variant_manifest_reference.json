@@ -1,0 +1,18 @@
+{
+  "schema_version": "donchian_variant_manifest_reference_v1",
+  "variant_manifest_id": "VM-9771",
+  "validator_clean": true,
+  "artifact_path": "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/outputs/7f62785b9cd2a5d2/inputs/VM-9771.variant_manifest.json",
+  "artifact_sha256": "sha256:c5a15bd9eaa33413042282bcec24442887af74ac3b823208dd14c91562967c4e",
+  "distinct_from_variant_manifest_id": "VM-0003",
+  "parameter_grid": {
+    "channel_lookback_bars": [20, 55]
+  },
+  "committed_population_count": 2,
+  "post_hoc_narrowing": false,
+  "non_authority": {
+    "scratch_only": true,
+    "not_canonical": true,
+    "not_evidence": true
+  }
+}

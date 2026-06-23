@@ -1,0 +1,107 @@
+{
+  "adapter_metadata": {
+    "family_id": "donchian_channel_breakout_v1",
+    "freshness_distinct_from": [
+      "STRAT-SPEC-0003",
+      "VM-0003",
+      "SWEEP-PLAN-0003",
+      "RP-7134"
+    ],
+    "prior_family_evidence": [
+      "H-002/REP-0003",
+      "H-012/REP-0032"
+    ],
+    "unsupported_capabilities": [
+      "intrabar breakout",
+      "ATR stop/target",
+      "session/time exit",
+      "funding signal"
+    ]
+  },
+  "blocked_action": null,
+  "capability_assessment": {
+    "blocking_features": [],
+    "detected_features": [
+      "donchian",
+      "ohlcv"
+    ],
+    "distinction": "compiler field existence is separate from historical testability",
+    "feature_assessments": [
+      {
+        "compiler_field_exists": true,
+        "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+        "feature": "donchian",
+        "historical_testability": "available_when_source_bars_exist",
+        "source_class": "INDICATOR_DERIVED_FROM_OHLCV",
+        "warnings": []
+      },
+      {
+        "compiler_field_exists": true,
+        "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+        "feature": "ohlcv",
+        "historical_testability": "available_public_archive",
+        "source_class": "PUBLIC_OHLCV_ARCHIVE",
+        "warnings": []
+      }
+    ],
+    "historically_testable_now": true
+  },
+  "draft_strategy_spec": {
+    "blockers": [],
+    "path": "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/formalizer/outputs/cb9be3bae086/STRAT-SPEC-9226.strategy_spec.json",
+    "produced": true,
+    "validator": "tools/registry/validate_strategy_specs.py"
+  },
+  "input": {
+    "constraints": [],
+    "idea": "Because range expansion momentum persists, test BTCUSDT 15m price with a Donchian channel breakout; channel_lookback_bars from 20 to 55.",
+    "symbol": "BTCUSDT",
+    "timeframe": "15m"
+  },
+  "non_authority": {
+    "draft_only": true,
+    "human_review_required": true,
+    "not_candidate_authority": true,
+    "not_canonical": true,
+    "not_evidence": true,
+    "not_paper_live_runtime_authority": true,
+    "not_promotion_authority": true,
+    "scratch_only": true
+  },
+  "provider_metadata": {
+    "api_call_made": false,
+    "provider_id": "fake-rule-v1",
+    "provider_mode": "fake_offline",
+    "request_id": "cb9be3bae086",
+    "response_source": "deterministic_fake"
+  },
+  "rejection_reasons": [],
+  "research_object": {
+    "causal_rationale": "Because range expansion momentum persists, test BTCUSDT 15m price with a Donchian channel breakout; channel_lookback_bars from 20 to 55.",
+    "entry_concept": "Evaluate on completed bars and enter at the next bar open.",
+    "exit_concept": "Exit on the declared signal reversal or bounded holding limit.",
+    "falsifiable_prediction": "The completed-bar signal has positive out-of-sample expectancy after costs.",
+    "features": [
+      "donchian",
+      "ohlcv"
+    ],
+    "parameter_bounds": [
+      {
+        "maximum": 55.0,
+        "minimum": 20.0,
+        "name": "channel_lookback_bars"
+      }
+    ],
+    "stop_conditions": [
+      "Stop if preregistered out-of-sample thresholds fail."
+    ],
+    "summary": "Because range expansion momentum persists, test BTCUSDT 15m price with a Donchian channel breakout; channel_lookback_bars from 20 to 55.",
+    "symbols": [
+      "BTCUSDT"
+    ],
+    "timeframe": "15m"
+  },
+  "run_id": "cb9be3bae086",
+  "schema_version": "agent_formalized_idea_v1",
+  "status": "accepted"
+}

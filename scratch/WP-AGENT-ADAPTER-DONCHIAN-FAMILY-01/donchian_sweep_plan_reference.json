@@ -1,0 +1,16 @@
+{
+  "schema_version": "donchian_sweep_plan_reference_v1",
+  "sweep_plan_id": "SWEEP-PLAN-9771",
+  "validator_clean": true,
+  "artifact_path": "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/outputs/7f62785b9cd2a5d2/inputs/SWEEP-PLAN-9771.sweep_plan.json",
+  "artifact_sha256": "sha256:f96bc938b4c70134afd0a076782535c9cc3d6227f640d75cb1b4af799b762212",
+  "distinct_from_sweep_plan_id": "SWEEP-PLAN-0003",
+  "selected_variant_ids": ["VAR-000001", "VAR-000002"],
+  "multiple_testing_denominator": 2,
+  "funding_cost_mode": "off",
+  "non_authority": {
+    "scratch_only": true,
+    "not_canonical": true,
+    "not_evidence": true
+  }
+}

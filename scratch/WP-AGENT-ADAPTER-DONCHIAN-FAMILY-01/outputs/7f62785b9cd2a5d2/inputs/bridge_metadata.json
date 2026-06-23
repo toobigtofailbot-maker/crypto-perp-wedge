@@ -1,0 +1,26 @@
+{
+  "approval_marker_hash": "sha256:807764c23eb9bf1074f492c767054ec9467bd254d7466cef6c49bd2456fdd3df",
+  "approval_marker_path": "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/formalizer/outputs/cb9be3bae086/bridge_approval.json",
+  "bridge_tool_version": "formalizer-runner-bridge-v1",
+  "compatibility_status_not_authority": true,
+  "created_at_utc": "2026-06-23T12:00:00Z",
+  "data_assumptions": {
+    "experiment_scope": "full_history_public",
+    "ohlcv_input_path": "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/fixtures/donchian_15m_ohlcv.csv",
+    "runner_mode": "canonical_15m_fixture_offline"
+  },
+  "funding_cost_mode": "off",
+  "non_authority_flags": [
+    "not canonical",
+    "not evidence",
+    "not candidate authority",
+    "not promotion authority",
+    "not paper/live readiness",
+    "human review required"
+  ],
+  "schema_version": "formalizer_runner_bridge_input_metadata_v1",
+  "source_draft_strategy_spec_path": "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/formalizer/outputs/cb9be3bae086/STRAT-SPEC-9226.strategy_spec.json",
+  "source_formalized_idea_path": "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/formalizer/outputs/cb9be3bae086/formalized_idea.json",
+  "source_formalizer_run_id": "cb9be3bae086",
+  "strategy_family": "donchian_channel_breakout_v1"
+}

@@ -1,0 +1,372 @@
+{
+  "backtest_realism_assumptions": {
+    "bar_path_assumption": "next_open_close_mark",
+    "exchange_constraints_disclosed": true,
+    "fee_side_assumption": "taker_entry_taker_exit",
+    "fill_mode": "complete",
+    "funding_notional_mode": "entry_price",
+    "liquidation_mode": "zero_equity",
+    "liquidity_capacity_assumption": "Not active in this scratch adapter-validation artifact.",
+    "maintenance_margin_assumption": null,
+    "mark_price_source": "close",
+    "order_size_assumption": "Scratch offline runner validation uses the existing dynamic_equity_target_leverage model at target_leverage=1.0.",
+    "slippage_model": "fixed_bps"
+  },
+  "constraints": {
+    "deferred_pattern_blockers": [
+      "No new indicator or compiler operator.",
+      "No intrabar breakout semantics.",
+      "No ATR stop, target, session exit, funding signal, or post-hoc narrowing.",
+      "Distinct from STRAT-SPEC-0003 and RP-7134; this is not a novelty claim because prior Donchian experiment reports exist."
+    ],
+    "invalid_parameter_combinations": [],
+    "none_declared": false,
+    "unavailable_data_blockers": []
+  },
+  "entry_logic": {
+    "direction": "both",
+    "groups": [
+      {
+        "conditions": [
+          {
+            "condition_id": "LONG-CLOSE-GT-DONCHIAN-UPPER-LAG1",
+            "condition_role": "required",
+            "left_operand": {
+              "field": "close",
+              "lookback": null,
+              "operand_type": "data_ref",
+              "ref": "close",
+              "timeframe": null
+            },
+            "notes": "Long entry when completed-bar close exceeds the prior Donchian upper channel.",
+            "operator": "gt",
+            "right_operand": {
+              "field": "upper_lag1",
+              "lookback": {
+                "bars_parameter_ref": "channel_lookback_bars"
+              },
+              "operand_type": "indicator_ref",
+              "ref": "donchian",
+              "timeframe": null
+            },
+            "units": null
+          }
+        ],
+        "group_id": "ENTRY-GROUP-LONG-DONCHIAN",
+        "group_role": "required",
+        "logic": "all",
+        "notes": "Explicit long channel-breakout entry; no compiler mirroring.",
+        "side": "long",
+        "subgroups": []
+      },
+      {
+        "conditions": [
+          {
+            "condition_id": "SHORT-CLOSE-LT-DONCHIAN-LOWER-LAG1",
+            "condition_role": "required",
+            "left_operand": {
+              "field": "close",
+              "lookback": null,
+              "operand_type": "data_ref",
+              "ref": "close",
+              "timeframe": null
+            },
+            "notes": "Short entry when completed-bar close falls below the prior Donchian lower channel.",
+            "operator": "lt",
+            "right_operand": {
+              "field": "lower_lag1",
+              "lookback": {
+                "bars_parameter_ref": "channel_lookback_bars"
+              },
+              "operand_type": "indicator_ref",
+              "ref": "donchian",
+              "timeframe": null
+            },
+            "units": null
+          }
+        ],
+        "group_id": "ENTRY-GROUP-SHORT-DONCHIAN",
+        "group_role": "required",
+        "logic": "all",
+        "notes": "Explicit short channel-breakout entry; no compiler mirroring.",
+        "side": "short",
+        "subgroups": []
+      }
+    ],
+    "notes": "Both-direction close-confirmed breakout against lagged channel fields."
+  },
+  "exit_logic": {
+    "groups": [
+      {
+        "conditions": [
+          {
+            "condition_id": "LONG-CLOSE-LT-DONCHIAN-LOWER-LAG1",
+            "condition_role": "exit",
+            "left_operand": {
+              "field": "close",
+              "lookback": null,
+              "operand_type": "data_ref",
+              "ref": "close",
+              "timeframe": null
+            },
+            "notes": "Long exit on a completed-bar break below the prior lower channel.",
+            "operator": "lt",
+            "right_operand": {
+              "field": "lower_lag1",
+              "lookback": {
+                "bars_parameter_ref": "channel_lookback_bars"
+              },
+              "operand_type": "indicator_ref",
+              "ref": "donchian",
+              "timeframe": null
+            },
+            "units": null
+          }
+        ],
+        "group_id": "EXIT-GROUP-LONG-OPPOSITE-CHANNEL",
+        "group_role": "exit",
+        "logic": "all",
+        "notes": "Opposite-channel long exit.",
+        "side": "long",
+        "subgroups": []
+      },
+      {
+        "conditions": [
+          {
+            "condition_id": "SHORT-CLOSE-GT-DONCHIAN-UPPER-LAG1",
+            "condition_role": "exit",
+            "left_operand": {
+              "field": "close",
+              "lookback": null,
+              "operand_type": "data_ref",
+              "ref": "close",
+              "timeframe": null
+            },
+            "notes": "Short exit on a completed-bar break above the prior upper channel.",
+            "operator": "gt",
+            "right_operand": {
+              "field": "upper_lag1",
+              "lookback": {
+                "bars_parameter_ref": "channel_lookback_bars"
+              },
+              "operand_type": "indicator_ref",
+              "ref": "donchian",
+              "timeframe": null
+            },
+            "units": null
+          }
+        ],
+        "group_id": "EXIT-GROUP-SHORT-OPPOSITE-CHANNEL",
+        "group_role": "exit",
+        "logic": "all",
+        "notes": "Opposite-channel short exit.",
+        "side": "short",
+        "subgroups": []
+      }
+    ],
+    "max_holding_period": {
+      "bars": null,
+      "enabled": false
+    },
+    "notes": "Opposite-channel exits only; no invented stop or time-exit semantics."
+  },
+  "filters": {
+    "groups": [],
+    "none_declared": true
+  },
+  "free_parameters": {
+    "counting_rule": "parameters contains only entries where is_free_parameter=true; maxItems 5 enforces the D2-006-style MVP free-parameter cap",
+    "max_free_parameters": 5,
+    "no_free_parameters_declared": false,
+    "parameters": [
+      {
+        "allowed_values": [
+          20,
+          55
+        ],
+        "constraints": [
+          "Binds only to donchian indicator_ref lookback via bars_parameter_ref."
+        ],
+        "default": 20,
+        "description": "Integer lookback for lagged Donchian upper/lower channels.",
+        "included_in_variant_generation": true,
+        "is_free_parameter": true,
+        "label": "Donchian channel lookback bars",
+        "name": "channel_lookback_bars",
+        "range": {
+          "inclusive_max": true,
+          "inclusive_min": true,
+          "max": 55,
+          "min": 20,
+          "step": 35
+        },
+        "rationale": "Bounded non-adaptive channel horizon grid for adapter validation.",
+        "role": "entry",
+        "type": "integer",
+        "units": "bars"
+      }
+    ]
+  },
+  "hash_pinning": {
+    "canonical_spec_hash": null,
+    "hash_algorithm": "sha256",
+    "hash_scope": [
+      "identity",
+      "strategy_body",
+      "free_parameters",
+      "constraints",
+      "assumptions"
+    ],
+    "hash_scope_version": "strategy_spec_hash_scope_v1",
+    "hash_status": "not_computed"
+  },
+  "instruments": {
+    "blockers": [],
+    "directions_allowed": [
+      "long",
+      "short"
+    ],
+    "exchange_constraint_refs": [],
+    "instrument_family": "crypto_perp",
+    "leverage_assumption": 1.0,
+    "market_type": "perpetual",
+    "symbols": [
+      "BTCUSDT"
+    ],
+    "venue_assumption": "Binance USDT-M perpetual"
+  },
+  "lineage": {
+    "amendment_of": null,
+    "parent_refs": [
+      {
+        "ref_hash": null,
+        "ref_id": "IDEA-CB9BE3BAE086",
+        "ref_path": "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/formalizer/outputs/cb9be3bae086/formalized_idea.json",
+        "ref_type": "concept"
+      }
+    ],
+    "supersedes": []
+  },
+  "max_condition_group_depth": 3,
+  "non_execution_declaration": {
+    "human_review_surface_only": true,
+    "not_candidate_approval": true,
+    "not_executable": true,
+    "not_exp_approval": true,
+    "not_gate_authority": true,
+    "not_paper_live_authority": true,
+    "not_ranking_authority": true,
+    "not_readiness_authority": true,
+    "not_recommendation_authority": true,
+    "not_runtime_authority": true,
+    "not_sweep_authority": true,
+    "not_transition_authority": true
+  },
+  "pre_registration_support": {
+    "frozen_snapshot_ref": null,
+    "intended_for_variant_manifest": false,
+    "variant_manifest_ref": null
+  },
+  "provenance": {
+    "created_at": null,
+    "prepared_by": "bounded idea_formalizer agent",
+    "rationale": "Because range expansion momentum persists, test BTCUSDT 15m price with a Donchian channel breakout; channel_lookback_bars from 20 to 55.",
+    "source_constraints": [
+      "provider_mode=fake_offline",
+      "provider_id=fake-rule-v1",
+      "request_id=cb9be3bae086",
+      "response_source=deterministic_fake",
+      "Scratch-only draft produced by the bounded donchian_channel_breakout_v1 adapter."
+    ],
+    "source_refs": [
+      "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/formalizer/outputs/cb9be3bae086/formalized_idea.json"
+    ],
+    "source_type": "manual_idea",
+    "unresolved_claims": [
+      "Adapter output is scratch-only and is not a research conclusion.",
+      "H-002/REP-0003 and H-012/REP-0032 are prior Donchian evidence; no novelty is claimed.",
+      "No canonical Donchian Result Population was found at adapter implementation time."
+    ],
+    "updated_at": null
+  },
+  "review": {
+    "approval_scope": "none",
+    "human_review_required": true,
+    "non_authority_acknowledgement": {
+      "not_candidate_approval": true,
+      "not_exp_approval": true,
+      "not_gate_satisfaction": true,
+      "not_paper_live_authority": true,
+      "not_ranking_authority": true,
+      "not_readiness_authority": true,
+      "not_recommendation_authority": true,
+      "not_runtime_authority": true,
+      "not_sweep_authority": true,
+      "not_transition_authority": true
+    },
+    "review_notes": [
+      "Scratch-only provider-assisted draft; validator success is not approval."
+    ],
+    "reviewed_at": null,
+    "reviewer": null
+  },
+  "risk_model": {
+    "exposure_limits": [
+      "Scratch runner validation uses the existing 1.0 target-leverage realism surface."
+    ],
+    "leverage_visibility": "No runtime, paper/live, or capital authority.",
+    "liquidation_sensitivity_notes": "No dedicated stop is encoded because this adapter may use only existing validated grammar; opposite-channel exit is the bounded invalidation.",
+    "sizing_intent": "review_only",
+    "stop_distance": null,
+    "target_distance": null
+  },
+  "schema_version": "v1",
+  "short_name": "draft-donchian-breakout-15m",
+  "status": "draft",
+  "strategy_spec_id": "STRAT-SPEC-9226",
+  "timeframe_and_data": {
+    "confirmation_timeframes": [],
+    "gap_handling_assumption": "Use existing cataloged BTCUSDT 15m OHLCV and the merged research-workbench gap policy; do not interpolate or silently fill gaps.",
+    "host_data_refs": [
+      {
+        "availability": "required",
+        "field": "open",
+        "stream": "ohlcv",
+        "timeframe": "15m"
+      },
+      {
+        "availability": "required",
+        "field": "high",
+        "stream": "ohlcv",
+        "timeframe": "15m"
+      },
+      {
+        "availability": "required",
+        "field": "low",
+        "stream": "ohlcv",
+        "timeframe": "15m"
+      },
+      {
+        "availability": "required",
+        "field": "close",
+        "stream": "ohlcv",
+        "timeframe": "15m"
+      },
+      {
+        "availability": "required",
+        "field": "volume",
+        "stream": "ohlcv",
+        "timeframe": "15m"
+      },
+      {
+        "availability": "required",
+        "field": "donchian",
+        "stream": "indicator_catalog",
+        "timeframe": null
+      }
+    ],
+    "missing_data_blockers": [],
+    "primary_timeframe": "15m"
+  },
+  "title": "Draft deterministic Donchian channel-breakout Strategy Spec"
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": "donchian_formalizer_fixture_input_v1",
+  "idea": "Because range expansion momentum persists, test BTCUSDT 15m price with a Donchian channel breakout; channel_lookback_bars from 20 to 55.",
+  "symbol": "BTCUSDT",
+  "timeframe": "15m",
+  "provider_mode": "fake_offline",
+  "provider_id": "fake-rule-v1",
+  "expected_family_id": "donchian_channel_breakout_v1",
+  "non_authority": {
+    "scratch_only": true,
+    "not_canonical": true,
+    "not_evidence": true
+  }
+}

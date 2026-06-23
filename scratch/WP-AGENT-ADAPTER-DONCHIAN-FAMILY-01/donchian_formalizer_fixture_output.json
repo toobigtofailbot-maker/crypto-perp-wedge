@@ -1,0 +1,17 @@
+{
+  "schema_version": "donchian_formalizer_fixture_output_reference_v1",
+  "run_id": "cb9be3bae086",
+  "status": "accepted",
+  "family_id": "donchian_channel_breakout_v1",
+  "deterministic": true,
+  "draft_strategy_spec_produced": true,
+  "validation_errors": [],
+  "artifact_path": "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/formalizer/outputs/cb9be3bae086/formalized_idea.json",
+  "artifact_sha256": "sha256:cb7028dde9f6657680cae741d948bac53a18b73bf9d556d90350d7f7cfce0e24",
+  "api_call_made": false,
+  "non_authority": {
+    "scratch_only": true,
+    "not_canonical": true,
+    "not_evidence": true
+  }
+}

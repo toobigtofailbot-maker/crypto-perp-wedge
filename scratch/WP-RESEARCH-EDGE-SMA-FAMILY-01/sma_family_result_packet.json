@@ -1,0 +1,28 @@
+{
+  "artifact_type": "scratch_research_result_packet",
+  "package": "WP-RESEARCH-EDGE-SMA-FAMILY-01",
+  "outcome": "BLOCKED",
+  "reason": "The completed agent path supports only the exact already-concluded STRAT-SPEC-0003 / VM-0003 / SWEEP-PLAN-0003 family. A bridge run would duplicate RP-7134 rather than test a fresh hypothesis.",
+  "machine_path": {
+    "formalizer": "completed_accepted",
+    "strategy_spec": "produced_but_semantically_duplicate",
+    "variant_manifest": "blocked",
+    "sweep_plan": "blocked",
+    "real_runner_bridge": "not_run",
+    "robustness": "blocked_no_source_population",
+    "candidate_review_packet": "blocked_no_source_packets"
+  },
+  "data": {
+    "symbol": "BTCUSDT",
+    "timeframe": "15m",
+    "available_committed_slice_identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+    "fresh_slice_run_performed": false
+  },
+  "funding": {"requested_mode": "off", "executed": false},
+  "canonical_artifacts_written": false,
+  "canonical_crossing_executed": false,
+  "human_review_required": true,
+  "not_evidence": true,
+  "not_candidate_authority": true,
+  "not_paper_live_runtime_authority": true
+}

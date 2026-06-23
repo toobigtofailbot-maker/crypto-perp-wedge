@@ -1,0 +1,11 @@
+{
+  "artifact_type": "blocked_bridge_reason",
+  "package": "WP-RESEARCH-EDGE-SMA-FAMILY-01",
+  "status": "blocked",
+  "bridge_supported_family": "exact STRAT-SPEC-0003 plus VM-0003 and SWEEP-PLAN-0003 semantics",
+  "reason": "Bridge execution would rerun an already-concluded canonical NO-GO family and would use the bridge's repo-local fixture context, not create fresh D4A evidence. The package forbids adapter changes and duplicate concluded work.",
+  "real_runner_invoked": false,
+  "canonical_crossing_executed": false,
+  "canonical_result_population_written": false,
+  "funding_cost_mode": "off_not_executed"
+}

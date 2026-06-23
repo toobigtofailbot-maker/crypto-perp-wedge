@@ -1,0 +1,15 @@
+{
+  "artifact_type": "missing_diagnostics",
+  "package": "WP-RESEARCH-EDGE-SMA-FAMILY-01",
+  "missing": [
+    {"diagnostic": "fresh runner metrics", "reason": "bridge stopped before duplicate run"},
+    {"diagnostic": "realized R-equivalent", "reason": "unsupported by current bridge output contract"},
+    {"diagnostic": "MFE/MAE and exit reason", "reason": "real per-trade rows are absent"},
+    {"diagnostic": "per-trade distribution", "reason": "real trade rows are absent"},
+    {"diagnostic": "fold/OOS and walk-forward", "reason": "fold inputs are absent"},
+    {"diagnostic": "PSR/DSR/MinTRL", "reason": "required return-series/statistical inputs are absent"},
+    {"diagnostic": "funding stress", "reason": "funding mode would be off and no run occurred"},
+    {"diagnostic": "fresh robustness summary", "reason": "no fresh bridge population exists"}
+  ],
+  "fabricated_values": false
+}

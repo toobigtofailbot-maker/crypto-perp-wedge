@@ -1,0 +1,8 @@
+{
+  "artifact_type": "blocked_candidate_review_reason",
+  "package": "WP-RESEARCH-EDGE-SMA-FAMILY-01",
+  "status": "blocked",
+  "reason": "Bridge and robustness source packets do not exist for a fresh attempt; candidate-review packet generation cannot satisfy lineage and denominator checks.",
+  "candidate_registered": false,
+  "approval_or_readiness_claimed": false
+}

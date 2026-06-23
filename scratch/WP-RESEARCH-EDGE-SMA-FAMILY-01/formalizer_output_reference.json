@@ -1,0 +1,23 @@
+{
+  "artifact_type": "formalizer_output_reference",
+  "package": "WP-RESEARCH-EDGE-SMA-FAMILY-01",
+  "source_tool": "tools.research_agents.idea_formalizer_agent",
+  "source_run_id": "c5787d184e1c",
+  "source_generated_path": "scratch/WP-AGENT-IDEA-FORMALIZER-01/outputs/c5787d184e1c/formalized_idea.json",
+  "source_generated_sha256": "sha256:11a3c4bfea74c29ff9a5300522ba472b6d32ff5d570b0758a61fa287d9bd7b8e",
+  "committed_source_copy": false,
+  "formalizer_status": "accepted",
+  "provider_mode": "fake_offline",
+  "provider_id": "fake-rule-v1",
+  "api_call_made": false,
+  "detected_features": ["sma", "stddev", "ohlcv"],
+  "historically_testable_now": true,
+  "draft_strategy_spec_produced": true,
+  "machine_path_disposition": "accepted and validator-clean draft produced; stopped before bridge after duplicate-family check",
+  "non_authority": {
+    "scratch_only": true,
+    "not_canonical": true,
+    "not_evidence": true,
+    "human_review_required": true
+  }
+}

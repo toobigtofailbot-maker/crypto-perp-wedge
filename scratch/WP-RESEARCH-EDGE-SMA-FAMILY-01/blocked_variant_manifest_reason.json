@@ -1,0 +1,9 @@
+{
+  "artifact_type": "blocked_variant_manifest_reason",
+  "package": "WP-RESEARCH-EDGE-SMA-FAMILY-01",
+  "status": "blocked",
+  "earliest_honest_boundary": "variant manifest derivation",
+  "reason": "The bridge can derive only a scratch copy of VM-0003 semantics. Its eight parameter assignments were already executed with the same strategy body in canonical RP-7134, so derivation would duplicate a concluded NO-GO rather than define a fresh hypothesis.",
+  "adapter_change_attempted": false,
+  "denominator_hidden": false
+}

@@ -1,0 +1,408 @@
+{
+  "append_only_ledger": {
+    "append_only": true,
+    "corrections_require_append_only_event": true,
+    "creation_event_ref": "RP-3248-EVENT-001",
+    "events": [
+      {
+        "actor_or_tool": "tools.research_runner.run_offline_sweep",
+        "event_id": "RP-3248-EVENT-001",
+        "event_timestamp": "2026-06-01T00:00:00Z",
+        "event_type": "created",
+        "notes": [
+          "build-and-test-only canonical 15m runner output"
+        ],
+        "related_artifact_refs": []
+      }
+    ],
+    "ledger_required": true,
+    "post_commit_in_place_mutation_forbidden": true,
+    "scientific_identity_mutation_forbidden_after_finalization": true,
+    "supersession_preserves_prior_result_population": true
+  },
+  "audit_envelope": {
+    "administrative_lineage": [],
+    "administrative_only": true,
+    "created_at": "2026-06-01T00:00:00Z",
+    "created_by": "tools.research_runner.run_offline_sweep",
+    "excluded_from_input_identity_hash": true,
+    "excluded_from_result_population_identity_hash": true,
+    "may_contain_scientific_content": false,
+    "operator_notes": [
+      "run_label=bridged"
+    ],
+    "review_notes": [],
+    "validation_run_logs": []
+  },
+  "backtest_assumption_summary": {
+    "bar_path_assumption": "next_open_close_mark",
+    "exchange_constraint_disclosure": "True",
+    "fee_side_assumption": "taker_entry_taker_exit",
+    "fill_mode": "complete",
+    "funding_notional": "entry_price",
+    "liquidation_mode": "zero_equity",
+    "liquidity_capacity_assumption": null,
+    "maintenance_margin_assumption": null,
+    "mark_price_source": "close",
+    "order_size_assumption": "sizing_mode=fixed_order_size; sizing_model=runner_resolved_fixed_order_size; target_leverage=1; initial_equity=10000; dynamic_mode_opt_in_required=True; structured_sizing_metadata=not_emitted_for_fixed_mode; reference_price_basis=first_in_sample_open; reference_price=99.900000000000006; resolved_order_size=100.10010010010009; drift_caveat=fixed_order_size_caps_leverage_at_reference_price_only_effective_leverage_can_drift; prior_assumption=Scratch offline runner validation uses dynamic_equity_target_leverage at target_leverage=1.0; no runtime or canonical authority.",
+    "records_assumptions_only": true,
+    "slippage_model": "fixed_bps"
+  },
+  "committed_denominator_snapshot": {
+    "aborted_variants_remain_in_denominator": true,
+    "committed_denominator": 2,
+    "data_unavailable_variants_remain_in_denominator": true,
+    "denominator_basis": "committed_pre_registered_population_count",
+    "denominator_equals_parent_manifest_committed_population_count": true,
+    "denominator_equals_parent_sweep_plan_committed_population_count": true,
+    "errored_variants_remain_in_denominator": true,
+    "excluded_variants_remain_in_denominator": true,
+    "executed_only_denominator_forbidden": true,
+    "failed_variants_remain_in_denominator": true,
+    "filtered_variants_remain_in_denominator": true,
+    "invalid_variants_remain_in_denominator": true,
+    "not_attempted_variants_remain_in_denominator": true,
+    "outcome_counts_sum": 2,
+    "outcome_counts_sum_equals_committed_denominator": true,
+    "parent_manifest_committed_population_count": 2,
+    "parent_sweep_plan_committed_population_count": 2,
+    "post_hoc_cleanup_forbidden": true,
+    "result_row_count": 2,
+    "result_row_count_equals_committed_denominator": true,
+    "selected_variant_count": 2,
+    "successful_only_denominator_forbidden": true,
+    "winner_only_retention_forbidden": true
+  },
+  "data_coverage_summary": {
+    "data_catalog_ref": "15m_ohlcv_test_fixture_offline_only",
+    "data_coverage_notes": [
+      "15m OHLCV test fixture/input",
+      "offline only",
+      "no exchange/API contact",
+      "not production data",
+      "not live/paper input"
+    ],
+    "data_slice_identity": "csv_fixture:sha256:856459768461d930b9bcc0ba1951de3e619c0e79b1b8bbfc26a1451915780922",
+    "data_stream": "ohlcv",
+    "data_unavailable_count": 0,
+    "irreparable_gap_count": 0,
+    "missing_data_policy": "block_if_missing",
+    "timeframe": "15m"
+  },
+  "error_summary": {
+    "aborted": 0,
+    "all_error_categories_counted_in_denominator": true,
+    "data_unavailable": 0,
+    "error_rows_preserved": true,
+    "errored": 0,
+    "excluded": 0,
+    "failed": 0,
+    "filtered": 0,
+    "invalid": 0,
+    "not_attempted": 0
+  },
+  "execution_context": {
+    "dependency_summary": [
+      "pandas",
+      "jsonschema"
+    ],
+    "determinism_seed": 0,
+    "environment_summary": [
+      "canonical_15m_ohlcv_fixture_input",
+      "execution_provenance_class=fixture_offline",
+      "offline_only_no_exchange_api"
+    ],
+    "execution_mode": "offline_research",
+    "no_broker_exchange_order_contact": true,
+    "no_paper_live_contact": true,
+    "no_protected_path_contact": true,
+    "no_runtime_contact": true,
+    "offline_only": true,
+    "repo_commit": "build-test-only",
+    "runner_code_ref": "tools.research_runner.run_offline_sweep",
+    "runner_id": "offline-research-runner",
+    "runner_version": "wp-s2c-190-build-test-v1"
+  },
+  "input_identity_hash": {
+    "audit_envelope_excluded": true,
+    "audit_envelope_exclusion_reason": "administrative_audit_metadata_is_excluded_from_scientific_identity",
+    "canonicalization": "json_canonical_v1",
+    "hash": "sha256:5269f228d750efb0ef94d8c506af23f541fdcc0ab5c64726010c93295d1981c2",
+    "hash_algorithm": "sha256",
+    "hash_scope": [
+      "parent_strategy_spec.strategy_spec_hash",
+      "parent_variant_manifest.manifest_hash",
+      "parent_sweep_plan.sweep_plan_identity_hash",
+      "parent_variant_manifest.committed_population_count",
+      "parent_sweep_plan.committed_population_count",
+      "execution_context.runner_code_ref",
+      "execution_context.repo_commit",
+      "data_coverage_summary.data_catalog_ref",
+      "data_coverage_summary.data_slice_identity",
+      "backtest_assumption_summary"
+    ],
+    "hash_scope_version": "input_identity_hash_scope_v1"
+  },
+  "lineage": {
+    "complete_population_lineage_preserved": true,
+    "created_from_validated_inputs": true,
+    "parent_hash_chain": {
+      "input_identity_hash": "sha256:5269f228d750efb0ef94d8c506af23f541fdcc0ab5c64726010c93295d1981c2",
+      "strategy_spec_hash": "sha256:7e29ac24566be9ad282c6e9384d26ca18ec78f3e9f11cd6bc2035a74ba474e80",
+      "sweep_plan_identity_hash": "sha256:e1b46c39fa59269b0ec07b442a2ef6bc80f78db7cb773244b76a5b5216930561",
+      "variant_manifest_hash": "sha256:e05e863577a82e1d1161746288e1fae46cf21b8c4507374a7c21f8db71f74820"
+    },
+    "result_population_id": "RP-3248",
+    "strategy_spec_id": "STRAT-SPEC-9226",
+    "sweep_plan_id": "SWEEP-PLAN-9771",
+    "variant_manifest_id": "VM-9771"
+  },
+  "non_authority_declaration": {
+    "canonical_evidence_relationship": "reference_only",
+    "not_candidate_approval": true,
+    "not_canonical_evidence_replacement": true,
+    "not_dec_replacement": true,
+    "not_decision_authority": true,
+    "not_executable": true,
+    "not_exp_approval": true,
+    "not_exp_replacement": true,
+    "not_gate_authority": true,
+    "not_ol_replacement": true,
+    "not_outcome_ledger_replacement": true,
+    "not_paper_live_authority": true,
+    "not_ranking_authority": true,
+    "not_readiness_authority": true,
+    "not_rec_replacement": true,
+    "not_recommendation_authority": true,
+    "not_reconciliation_authority": true,
+    "not_rep_replacement": true,
+    "not_result_authority": true,
+    "not_runner_authority": true,
+    "not_runtime_authority": true,
+    "not_sweep_authority": true,
+    "not_transition_authority": true,
+    "not_trial_log_replacement": true
+  },
+  "outcome_category_counts": {
+    "aborted": 0,
+    "counts_sum": 2,
+    "counts_sum_equals_committed_denominator": true,
+    "data_unavailable": 0,
+    "errored": 0,
+    "excluded": 0,
+    "failed": 0,
+    "filtered": 0,
+    "invalid": 0,
+    "not_attempted": 0,
+    "successful": 2
+  },
+  "parent_strategy_spec": {
+    "hash_algorithm": "sha256",
+    "hash_scope_version": "strategy_spec_hash_scope_v1",
+    "mismatch_policy": "block",
+    "missing_parent_policy": "block",
+    "strategy_spec_hash": "sha256:7e29ac24566be9ad282c6e9384d26ca18ec78f3e9f11cd6bc2035a74ba474e80",
+    "strategy_spec_id": "STRAT-SPEC-9226",
+    "strategy_spec_ref": null,
+    "strategy_spec_schema_version": "v1"
+  },
+  "parent_sweep_plan": {
+    "committed_population_count": 2,
+    "hash_algorithm": "sha256",
+    "hash_scope_version": "sweep_plan_identity_hash_scope_v1",
+    "manifest_hash": "sha256:e05e863577a82e1d1161746288e1fae46cf21b8c4507374a7c21f8db71f74820",
+    "manifest_id": "VM-9771",
+    "mismatch_policy": "block",
+    "missing_sweep_plan_policy": "block",
+    "selected_variant_count": 2,
+    "sweep_plan_id": "SWEEP-PLAN-9771",
+    "sweep_plan_identity_hash": "sha256:e1b46c39fa59269b0ec07b442a2ef6bc80f78db7cb773244b76a5b5216930561",
+    "sweep_plan_ref": null,
+    "sweep_plan_schema_version": "v1"
+  },
+  "parent_variant_manifest": {
+    "committed_population_count": 2,
+    "hash_algorithm": "sha256",
+    "hash_scope_version": "variant_manifest_hash_scope_v1",
+    "manifest_hash": "sha256:e05e863577a82e1d1161746288e1fae46cf21b8c4507374a7c21f8db71f74820",
+    "manifest_pre_registration_status": "frozen_for_sweep_planning",
+    "manifest_ref": null,
+    "mismatch_policy": "block",
+    "missing_manifest_policy": "block",
+    "variant_manifest_id": "VM-9771",
+    "variant_manifest_schema_version": "v1"
+  },
+  "result_population_id": "RP-3248",
+  "result_population_identity_hash": {
+    "audit_envelope_excluded": true,
+    "audit_envelope_exclusion_reason": "administrative_audit_metadata_is_excluded_from_scientific_identity",
+    "canonicalization": "json_canonical_v1",
+    "hash": "sha256:0f95b515cf241f4511ab94594c973a09f5905260519e882a13059f466186c3f4",
+    "hash_algorithm": "sha256",
+    "hash_scope": [
+      "parent_strategy_spec.strategy_spec_hash",
+      "parent_variant_manifest.manifest_hash",
+      "parent_sweep_plan.sweep_plan_identity_hash",
+      "parent_variant_manifest.committed_population_count",
+      "parent_sweep_plan.committed_population_count",
+      "execution_context.runner_code_ref",
+      "execution_context.repo_commit",
+      "data_coverage_summary.data_catalog_ref",
+      "data_coverage_summary.data_slice_identity",
+      "backtest_assumption_summary",
+      "committed_denominator_snapshot",
+      "variant_result_rows",
+      "outcome_category_counts",
+      "append_only_ledger.creation_event_ref",
+      "validation_summary.validator_identity"
+    ],
+    "hash_scope_version": "result_population_identity_hash_scope_v1"
+  },
+  "review": {
+    "non_authority_acknowledgement": {
+      "not_approval": true,
+      "not_gate_satisfaction": true,
+      "not_paper_live_authority": true,
+      "not_readiness": true,
+      "not_recommendation": true,
+      "not_runtime_authority": true,
+      "not_transition": true
+    },
+    "review_notes": [],
+    "review_scope": "none",
+    "review_status": "not_reviewed"
+  },
+  "schema_version": "v1",
+  "status": "generated",
+  "validation_summary": {
+    "blocking_errors": [],
+    "non_blocking_warnings": [],
+    "schema_validation_status": "passed",
+    "validation_timestamp": "2026-06-01T00:00:00Z",
+    "validator_authority_boundary": "evidence_only_no_approval_no_execution",
+    "validator_does_not_approve": true,
+    "validator_does_not_contact_runtime": true,
+    "validator_does_not_execute": true,
+    "validator_does_not_rank": true,
+    "validator_does_not_recommend": true,
+    "validator_identity": "tools.registry.validate_result_populations",
+    "validator_status": "passed",
+    "validator_version": "wp-s2c-189"
+  },
+  "variant_result_rows": [
+    {
+      "assignment_hash": "sha256:c3929dee7caa4841cd2f28bd128a630944a61ab5f6a111765a825d95b62e86ae",
+      "assignment_ref": null,
+      "attempted": true,
+      "backtest_assumption_ref": "backtest_assumption_summary",
+      "data_coverage": {
+        "counts_in_denominator": true,
+        "data_catalog_ref": "15m_ohlcv_test_fixture_offline_only",
+        "data_slice_identity": "csv_fixture:sha256:856459768461d930b9bcc0ba1951de3e619c0e79b1b8bbfc26a1451915780922",
+        "data_stream": "ohlcv",
+        "irreparable_gap": false,
+        "missing_data_policy": "block_if_missing",
+        "timeframe": "15m"
+      },
+      "error": {
+        "counts_in_denominator": true,
+        "error_category": null,
+        "error_message_class": null,
+        "is_infrastructure_error": null,
+        "is_strategy_underperformance": null
+      },
+      "lineage": {
+        "parent_manifest_id": "VM-9771",
+        "parent_sweep_plan_id": "SWEEP-PLAN-9771",
+        "parent_variant_assignment_hash": "sha256:c3929dee7caa4841cd2f28bd128a630944a61ab5f6a111765a825d95b62e86ae",
+        "parent_variant_assignment_ref": null,
+        "parent_variant_id": "VAR-000001"
+      },
+      "metrics": {
+        "drawdown": 0.13103442175983815,
+        "exposure": 1.0,
+        "fees": 39.04304304304304,
+        "funding": 0.0,
+        "pnl": 8369.61461461461,
+        "return_pct": 0.8369614614614609,
+        "sharpe": 33.31497107583273,
+        "slippage": 9.76076076076076,
+        "trade_count": 4,
+        "win_rate": 1.0
+      },
+      "non_success": {
+        "counts_in_denominator": true,
+        "declared_before_results": null,
+        "reason": null,
+        "rule_ref": null
+      },
+      "outcome_category": "successful",
+      "row_id": "RP-3248-ROW-000001",
+      "row_identity_hash": "sha256:6ca0f0dd8dd9717d698da77e67e9dda673512c2aa842d4045f0abdfd6957d8e9",
+      "row_mutation_policy": {
+        "corrections_require_append_only_event": true,
+        "post_commit_in_place_mutation_forbidden": true,
+        "post_hoc_cleanup_forbidden": true,
+        "scientific_row_identity_immutable_after_commit": true
+      },
+      "variant_id": "VAR-000001"
+    },
+    {
+      "assignment_hash": "sha256:00eea0b6163f4a698a865bda6c731ea4f777261eb4aaa2a4bfefd9294ab713d1",
+      "assignment_ref": null,
+      "attempted": true,
+      "backtest_assumption_ref": "backtest_assumption_summary",
+      "data_coverage": {
+        "counts_in_denominator": true,
+        "data_catalog_ref": "15m_ohlcv_test_fixture_offline_only",
+        "data_slice_identity": "csv_fixture:sha256:856459768461d930b9bcc0ba1951de3e619c0e79b1b8bbfc26a1451915780922",
+        "data_stream": "ohlcv",
+        "irreparable_gap": false,
+        "missing_data_policy": "block_if_missing",
+        "timeframe": "15m"
+      },
+      "error": {
+        "counts_in_denominator": true,
+        "error_category": null,
+        "error_message_class": null,
+        "is_infrastructure_error": null,
+        "is_strategy_underperformance": null
+      },
+      "lineage": {
+        "parent_manifest_id": "VM-9771",
+        "parent_sweep_plan_id": "SWEEP-PLAN-9771",
+        "parent_variant_assignment_hash": "sha256:00eea0b6163f4a698a865bda6c731ea4f777261eb4aaa2a4bfefd9294ab713d1",
+        "parent_variant_assignment_ref": null,
+        "parent_variant_id": "VAR-000002"
+      },
+      "metrics": {
+        "drawdown": 0.22043023666935935,
+        "exposure": 1.0,
+        "fees": 36.56056056056056,
+        "funding": 0.0,
+        "pnl": 965.3103103103113,
+        "return_pct": 0.09653103103103113,
+        "sharpe": 4.868217844399407,
+        "slippage": 9.14014014014014,
+        "trade_count": 4,
+        "win_rate": 0.0
+      },
+      "non_success": {
+        "counts_in_denominator": true,
+        "declared_before_results": null,
+        "reason": null,
+        "rule_ref": null
+      },
+      "outcome_category": "successful",
+      "row_id": "RP-3248-ROW-000002",
+      "row_identity_hash": "sha256:d7df0a53e7625c08b8427fe7394a1eab217b4a8a1876cbab8a2f008e4dfd1553",
+      "row_mutation_policy": {
+        "corrections_require_append_only_event": true,
+        "post_commit_in_place_mutation_forbidden": true,
+        "post_hoc_cleanup_forbidden": true,
+        "scientific_row_identity_immutable_after_commit": true
+      },
+      "variant_id": "VAR-000002"
+    }
+  ]
+}

@@ -1,0 +1,119 @@
+{
+  "declared_trial_count": 2,
+  "denominator_preserved": true,
+  "non_authority_flags": [
+    "not canonical",
+    "not evidence",
+    "not candidate authority",
+    "not promotion authority",
+    "not paper/live readiness",
+    "human review required"
+  ],
+  "rows": [
+    {
+      "approval_scope": "noncanonical_scratch_runner_bridge_only",
+      "bridge_input_paths": {
+        "bridge_metadata": "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/outputs/7f62785b9cd2a5d2/inputs/bridge_metadata.json",
+        "strategy_spec": "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/outputs/7f62785b9cd2a5d2/inputs/STRAT-SPEC-9226.strategy_spec.json",
+        "sweep_plan": "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/outputs/7f62785b9cd2a5d2/inputs/SWEEP-PLAN-9771.sweep_plan.json",
+        "variant_manifest": "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/outputs/7f62785b9cd2a5d2/inputs/VM-9771.variant_manifest.json"
+      },
+      "finished_at_utc": "2026-06-23T12:00:00Z",
+      "funding_cost_mode": "off",
+      "input_hash": "sha256:fd84957daa70d04b3ae36da8f51455664a5ee4e53c4466666eaf73882c164287",
+      "metrics_summary": {
+        "drawdown": 0.13103442175983815,
+        "exposure": 1.0,
+        "fees": 39.04304304304304,
+        "funding": 0.0,
+        "pnl": 8369.61461461461,
+        "return_pct": 0.8369614614614609,
+        "sharpe": 33.31497107583273,
+        "slippage": 9.76076076076076,
+        "trade_count": 4,
+        "win_rate": 1.0
+      },
+      "non_authority_flags": [
+        "not canonical",
+        "not evidence",
+        "not candidate authority",
+        "not promotion authority",
+        "not paper/live readiness",
+        "human review required"
+      ],
+      "output_hash": "sha256:6ca0f0dd8dd9717d698da77e67e9dda673512c2aa842d4045f0abdfd6957d8e9",
+      "params": {
+        "channel_lookback_bars": 20
+      },
+      "run_id": "7f62785b9cd2a5d2",
+      "runner_artifact_path": "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/outputs/7f62785b9cd2a5d2/runner_artifacts/RP-3248.result_population.json",
+      "runner_invocation_id": "08bcbabacb08c4c9",
+      "runner_outcome_category": "successful",
+      "source_formalizer_artifact_path": "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/formalizer/outputs/cb9be3bae086/formalized_idea.json",
+      "source_formalizer_run_id": "cb9be3bae086",
+      "started_at_utc": "2026-06-23T12:00:00Z",
+      "status_reason": "runner successful",
+      "strategy_family": "donchian_channel_breakout_v1",
+      "trial_id": "7f62785b9cd2a5d2-TRIAL-001",
+      "trial_status": "completed",
+      "variant_id": "VAR-000001"
+    },
+    {
+      "approval_scope": "noncanonical_scratch_runner_bridge_only",
+      "bridge_input_paths": {
+        "bridge_metadata": "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/outputs/7f62785b9cd2a5d2/inputs/bridge_metadata.json",
+        "strategy_spec": "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/outputs/7f62785b9cd2a5d2/inputs/STRAT-SPEC-9226.strategy_spec.json",
+        "sweep_plan": "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/outputs/7f62785b9cd2a5d2/inputs/SWEEP-PLAN-9771.sweep_plan.json",
+        "variant_manifest": "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/outputs/7f62785b9cd2a5d2/inputs/VM-9771.variant_manifest.json"
+      },
+      "finished_at_utc": "2026-06-23T12:00:00Z",
+      "funding_cost_mode": "off",
+      "input_hash": "sha256:c0ff1fa8a90431b8716c1735503959277dd10b98c708acca2066e60e773c6282",
+      "metrics_summary": {
+        "drawdown": 0.22043023666935935,
+        "exposure": 1.0,
+        "fees": 36.56056056056056,
+        "funding": 0.0,
+        "pnl": 965.3103103103113,
+        "return_pct": 0.09653103103103113,
+        "sharpe": 4.868217844399407,
+        "slippage": 9.14014014014014,
+        "trade_count": 4,
+        "win_rate": 0.0
+      },
+      "non_authority_flags": [
+        "not canonical",
+        "not evidence",
+        "not candidate authority",
+        "not promotion authority",
+        "not paper/live readiness",
+        "human review required"
+      ],
+      "output_hash": "sha256:d7df0a53e7625c08b8427fe7394a1eab217b4a8a1876cbab8a2f008e4dfd1553",
+      "params": {
+        "channel_lookback_bars": 55
+      },
+      "run_id": "7f62785b9cd2a5d2",
+      "runner_artifact_path": "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/outputs/7f62785b9cd2a5d2/runner_artifacts/RP-3248.result_population.json",
+      "runner_invocation_id": "08bcbabacb08c4c9",
+      "runner_outcome_category": "successful",
+      "source_formalizer_artifact_path": "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/formalizer/outputs/cb9be3bae086/formalized_idea.json",
+      "source_formalizer_run_id": "cb9be3bae086",
+      "started_at_utc": "2026-06-23T12:00:00Z",
+      "status_reason": "runner successful",
+      "strategy_family": "donchian_channel_breakout_v1",
+      "trial_id": "7f62785b9cd2a5d2-TRIAL-002",
+      "trial_status": "completed",
+      "variant_id": "VAR-000002"
+    }
+  ],
+  "run_id": "7f62785b9cd2a5d2",
+  "schema_version": "formalizer_runner_bridge_denominator_ledger_v1",
+  "trial_status_counts": {
+    "blocked": 0,
+    "completed": 2,
+    "failed": 0,
+    "invalid": 0,
+    "pruned": 0
+  }
+}

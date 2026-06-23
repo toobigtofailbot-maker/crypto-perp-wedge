@@ -1,0 +1,26 @@
+{
+  "schema_version": "donchian_bridge_smoke_reference_v1",
+  "run_id": "7f62785b9cd2a5d2",
+  "status": "completed",
+  "runner": "tools.research_runner.run_offline_sweep",
+  "real_runner_invoked": true,
+  "manual_reconciliation_passed": true,
+  "runner_artifact_path": "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/outputs/7f62785b9cd2a5d2/runner_artifacts/RP-3248.result_population.json",
+  "runner_artifact_sha256": "sha256:5760727ecc24e976375952087c81ed76cd5e29d13cbab3ef62300bba4d931245",
+  "trial_status_counts": {
+    "completed": 2,
+    "failed": 0,
+    "invalid": 0,
+    "pruned": 0,
+    "blocked": 0
+  },
+  "metrics_interpretation": "Adapter-validation only; no GO/NO-GO or novelty conclusion.",
+  "network": false,
+  "funding_cost_mode": "off",
+  "non_authority": {
+    "scratch_only": true,
+    "not_canonical": true,
+    "not_evidence": true,
+    "not_research_conclusion": true
+  }
+}

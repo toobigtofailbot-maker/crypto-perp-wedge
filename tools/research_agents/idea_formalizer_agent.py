@@ -38,6 +38,7 @@ from .reasoning_providers import (
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 WP_ID = "WP-AGENT-IDEA-FORMALIZER-01"
+DONCHIAN_ADAPTER_WP_ID = "WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01"
 ROLE = "idea_formalizer"
 OUTPUT_ROOT = Path("scratch") / WP_ID
 INDICATOR_CATALOG_PATH = Path("research/indicator_catalogs/IND-CATALOG-0001.indicator_catalog.json")
@@ -209,6 +210,9 @@ class IdeaFormalizerAgent:
         self.tool_context = tool_context
         self.provider = provider
         self.repo_root = repo_root.resolve()
+        self.output_root = Path("scratch") / tool_context.wp_id
+        if tool_context.wp_id == DONCHIAN_ADAPTER_WP_ID:
+            self.output_root /= "formalizer"
 
     def _repo_relative(self, path: Path | str) -> str:
         candidate = Path(path)
@@ -416,6 +420,7 @@ class IdeaFormalizerAgent:
         spec = copy.deepcopy(self._read_json(STRATEGY_TEMPLATE_PATH))
         numeric_id = 9000 + (int(run_id[:8], 16) % 1000)
         timeframe = str(draft["timeframe"])
+        family_id = self._draft_family_id(draft)
 
         def replace_timeframe(value: Any) -> Any:
             if isinstance(value, dict):
@@ -428,7 +433,11 @@ class IdeaFormalizerAgent:
 
         spec = replace_timeframe(spec)
         spec["strategy_spec_id"] = f"STRAT-SPEC-{numeric_id:04d}"
-        spec["title"] = "Draft provider-assisted SMA/stddev mean-reversion Strategy Spec"
+        spec["title"] = (
+            "Draft deterministic Donchian channel-breakout Strategy Spec"
+            if family_id == "donchian_channel_breakout_v1"
+            else "Draft provider-assisted SMA/stddev mean-reversion Strategy Spec"
+        )
         spec["short_name"] = f"draft-idea-{run_id}"
         spec["status"] = "draft"
         spec["instruments"]["symbols"] = list(draft["symbols"])
@@ -448,7 +457,13 @@ class IdeaFormalizerAgent:
                 f"provider_id={provider_metadata['provider_id']}",
                 f"request_id={provider_metadata['request_id']}",
                 f"response_source={provider_metadata['response_source']}",
-                "Scratch-only draft adapted from the merged STRAT-SPEC-0003 capability family.",
+                (
+                    "Scratch-only draft produced by the bounded "
+                    "donchian_channel_breakout_v1 adapter."
+                    if family_id == "donchian_channel_breakout_v1"
+                    else "Scratch-only draft adapted from the merged "
+                    "STRAT-SPEC-0003 capability family."
+                ),
             ],
             "unresolved_claims": [
                 "Provider output is advisory and requires human review.",
@@ -483,7 +498,223 @@ class IdeaFormalizerAgent:
             "variant_manifest_ref": None,
             "frozen_snapshot_ref": None,
         }
+        if family_id == "donchian_channel_breakout_v1":
+            self._apply_donchian_strategy_body(spec)
         return spec
+
+    @staticmethod
+    def _indicator_operand(field: str) -> dict[str, Any]:
+        return {
+            "operand_type": "indicator_ref",
+            "ref": "donchian",
+            "field": field,
+            "timeframe": None,
+            "lookback": {"bars_parameter_ref": "channel_lookback_bars"},
+        }
+
+    @staticmethod
+    def _close_operand() -> dict[str, Any]:
+        return {
+            "operand_type": "data_ref",
+            "ref": "close",
+            "field": "close",
+            "timeframe": None,
+            "lookback": None,
+        }
+
+    @classmethod
+    def _donchian_condition(
+        cls, condition_id: str, operator: str, field: str, role: str, notes: str
+    ) -> dict[str, Any]:
+        return {
+            "condition_id": condition_id,
+            "condition_role": role,
+            "left_operand": cls._close_operand(),
+            "operator": operator,
+            "right_operand": cls._indicator_operand(field),
+            "units": None,
+            "notes": notes,
+        }
+
+    @classmethod
+    def _apply_donchian_strategy_body(cls, spec: dict[str, Any]) -> None:
+        timeframe = spec["timeframe_and_data"]["primary_timeframe"]
+        spec["short_name"] = f"draft-donchian-breakout-{timeframe}"
+        spec["timeframe_and_data"]["host_data_refs"] = [
+            {
+                "stream": "ohlcv",
+                "timeframe": timeframe,
+                "field": field,
+                "availability": "required",
+            }
+            for field in ("open", "high", "low", "close", "volume")
+        ] + [
+            {
+                "stream": "indicator_catalog",
+                "timeframe": None,
+                "field": "donchian",
+                "availability": "required",
+            }
+        ]
+        spec["entry_logic"] = {
+            "direction": "both",
+            "groups": [
+                {
+                    "group_id": "ENTRY-GROUP-LONG-DONCHIAN",
+                    "group_role": "required",
+                    "logic": "all",
+                    "conditions": [
+                        cls._donchian_condition(
+                            "LONG-CLOSE-GT-DONCHIAN-UPPER-LAG1",
+                            "gt",
+                            "upper_lag1",
+                            "required",
+                            "Long entry when completed-bar close exceeds the prior Donchian upper channel.",
+                        )
+                    ],
+                    "subgroups": [],
+                    "notes": "Explicit long channel-breakout entry; no compiler mirroring.",
+                    "side": "long",
+                },
+                {
+                    "group_id": "ENTRY-GROUP-SHORT-DONCHIAN",
+                    "group_role": "required",
+                    "logic": "all",
+                    "conditions": [
+                        cls._donchian_condition(
+                            "SHORT-CLOSE-LT-DONCHIAN-LOWER-LAG1",
+                            "lt",
+                            "lower_lag1",
+                            "required",
+                            "Short entry when completed-bar close falls below the prior Donchian lower channel.",
+                        )
+                    ],
+                    "subgroups": [],
+                    "notes": "Explicit short channel-breakout entry; no compiler mirroring.",
+                    "side": "short",
+                },
+            ],
+            "notes": "Both-direction close-confirmed breakout against lagged channel fields.",
+        }
+        spec["exit_logic"] = {
+            "groups": [
+                {
+                    "group_id": "EXIT-GROUP-LONG-OPPOSITE-CHANNEL",
+                    "group_role": "exit",
+                    "logic": "all",
+                    "conditions": [
+                        cls._donchian_condition(
+                            "LONG-CLOSE-LT-DONCHIAN-LOWER-LAG1",
+                            "lt",
+                            "lower_lag1",
+                            "exit",
+                            "Long exit on a completed-bar break below the prior lower channel.",
+                        )
+                    ],
+                    "subgroups": [],
+                    "notes": "Opposite-channel long exit.",
+                    "side": "long",
+                },
+                {
+                    "group_id": "EXIT-GROUP-SHORT-OPPOSITE-CHANNEL",
+                    "group_role": "exit",
+                    "logic": "all",
+                    "conditions": [
+                        cls._donchian_condition(
+                            "SHORT-CLOSE-GT-DONCHIAN-UPPER-LAG1",
+                            "gt",
+                            "upper_lag1",
+                            "exit",
+                            "Short exit on a completed-bar break above the prior upper channel.",
+                        )
+                    ],
+                    "subgroups": [],
+                    "notes": "Opposite-channel short exit.",
+                    "side": "short",
+                },
+            ],
+            "max_holding_period": {"enabled": False, "bars": None},
+            "notes": "Opposite-channel exits only; no invented stop or time-exit semantics.",
+        }
+        spec["risk_model"].update(
+            {
+                "stop_distance": None,
+                "target_distance": None,
+                "exposure_limits": [
+                    "Scratch runner validation uses the existing 1.0 target-leverage realism surface."
+                ],
+                "leverage_visibility": "No runtime, paper/live, or capital authority.",
+                "liquidation_sensitivity_notes": (
+                    "No dedicated stop is encoded because this adapter may use only existing "
+                    "validated grammar; opposite-channel exit is the bounded invalidation."
+                ),
+            }
+        )
+        spec["filters"] = {
+            "groups": [],
+            "none_declared": True,
+        }
+        spec["free_parameters"] = {
+            "max_free_parameters": 5,
+            "counting_rule": (
+                "parameters contains only entries where is_free_parameter=true; maxItems 5 "
+                "enforces the D2-006-style MVP free-parameter cap"
+            ),
+            "parameters": [
+                {
+                    "name": "channel_lookback_bars",
+                    "label": "Donchian channel lookback bars",
+                    "description": "Integer lookback for lagged Donchian upper/lower channels.",
+                    "type": "integer",
+                    "units": "bars",
+                    "default": 20,
+                    "range": {
+                        "min": 20,
+                        "max": 55,
+                        "step": 35,
+                        "inclusive_min": True,
+                        "inclusive_max": True,
+                    },
+                    "allowed_values": [20, 55],
+                    "is_free_parameter": True,
+                    "included_in_variant_generation": True,
+                    "role": "entry",
+                    "rationale": "Bounded non-adaptive channel horizon grid for adapter validation.",
+                    "constraints": [
+                        "Binds only to donchian indicator_ref lookback via bars_parameter_ref."
+                    ],
+                }
+            ],
+            "no_free_parameters_declared": False,
+        }
+        spec["constraints"] = {
+            "invalid_parameter_combinations": [],
+            "unavailable_data_blockers": [],
+            "deferred_pattern_blockers": [
+                "No new indicator or compiler operator.",
+                "No intrabar breakout semantics.",
+                "No ATR stop, target, session exit, funding signal, or post-hoc narrowing.",
+                "Distinct from STRAT-SPEC-0003 and RP-7134; this is not a novelty claim because prior Donchian experiment reports exist.",
+            ],
+            "none_declared": False,
+        }
+        spec["provenance"]["unresolved_claims"] = [
+            "Adapter output is scratch-only and is not a research conclusion.",
+            "H-002/REP-0003 and H-012/REP-0032 are prior Donchian evidence; no novelty is claimed.",
+            "No canonical Donchian Result Population was found at adapter implementation time.",
+        ]
+        spec["backtest_realism_assumptions"].update(
+            {
+                "order_size_assumption": (
+                    "Scratch offline runner validation uses the existing "
+                    "dynamic_equity_target_leverage model at target_leverage=1.0."
+                ),
+                "liquidity_capacity_assumption": (
+                    "Not active in this scratch adapter-validation artifact."
+                ),
+            }
+        )
+
 
     def _validate_draft_dir(self, path: Path) -> list[str]:
         return self.tool_context.run_allowed(
@@ -496,9 +727,19 @@ class IdeaFormalizerAgent:
         )
 
     @staticmethod
-    def _draft_family_supported(draft: Mapping[str, Any], assessment: Mapping[str, Any]) -> bool:
+    def _draft_family_id(draft: Mapping[str, Any]) -> str | None:
         features = set(draft.get("features", []))
-        return {"sma", "stddev"}.issubset(features) and bool(
+        if "donchian" in features and not features.intersection({"sma", "stddev"}):
+            return "donchian_channel_breakout_v1"
+        if {"sma", "stddev"}.issubset(features) and "donchian" not in features:
+            return "sma_stddev_mean_reversion_v1"
+        return None
+
+    @classmethod
+    def _draft_family_supported(
+        cls, draft: Mapping[str, Any], assessment: Mapping[str, Any]
+    ) -> bool:
+        return cls._draft_family_id(draft) is not None and bool(
             assessment.get("historically_testable_now")
         )
 
@@ -519,8 +760,8 @@ class IdeaFormalizerAgent:
             raise ValueError(f"timeframe must be one of {sorted(LOCKED_TIMEFRAMES)}")
         constraints = constraints or []
         run_id = self._run_id(idea, symbol, timeframe, self.config, constraints)
-        run_dir = OUTPUT_ROOT / "outputs" / run_id
-        provider_dir = OUTPUT_ROOT / "provider_packets"
+        run_dir = self.output_root / "outputs" / run_id
+        provider_dir = self.output_root / "provider_packets"
         base_result: dict[str, Any] = {
             "schema_version": "agent_formalized_idea_v1",
             "run_id": run_id,
@@ -543,6 +784,11 @@ class IdeaFormalizerAgent:
             "rejection_reasons": [],
             "blocked_action": None,
             "draft_strategy_spec": {"produced": False, "path": None, "blockers": []},
+            "adapter_metadata": {
+                "family_id": None,
+                "freshness_distinct_from": [],
+                "unsupported_capabilities": [],
+            },
             "non_authority": copy.deepcopy(NON_AUTHORITY),
         }
 
@@ -618,19 +864,52 @@ class IdeaFormalizerAgent:
                 self._write_json(run_dir / "human_review_packet.json", base_result)
                 return base_result
 
+        adapted_draft = copy.deepcopy(parsed.draft)
+        if (
+            adapted_draft is not None
+            and self._draft_family_id(adapted_draft) == "donchian_channel_breakout_v1"
+        ):
+            adapted_draft["parameter_bounds"] = [
+                {"name": "channel_lookback_bars", "minimum": 20.0, "maximum": 55.0}
+            ]
+
         if parsed.decision == "rejected" or parsed.draft is None:
             base_result["status"] = "rejected"
             base_result["rejection_reasons"] = list(parsed.rejection_reasons)
         else:
             base_result["status"] = "accepted"
-            base_result["research_object"] = copy.deepcopy(parsed.draft)
+            base_result["research_object"] = copy.deepcopy(adapted_draft)
+            family_id = self._draft_family_id(adapted_draft)
+            base_result["adapter_metadata"] = {
+                "family_id": family_id,
+                "freshness_distinct_from": (
+                    ["STRAT-SPEC-0003", "VM-0003", "SWEEP-PLAN-0003", "RP-7134"]
+                    if family_id == "donchian_channel_breakout_v1"
+                    else []
+                ),
+                "unsupported_capabilities": (
+                    [
+                        "intrabar breakout",
+                        "ATR stop/target",
+                        "session/time exit",
+                        "funding signal",
+                    ]
+                    if family_id == "donchian_channel_breakout_v1"
+                    else []
+                ),
+                "prior_family_evidence": (
+                    ["H-002/REP-0003", "H-012/REP-0032"]
+                    if family_id == "donchian_channel_breakout_v1"
+                    else []
+                ),
+            }
             blockers = list(assessment["blocking_features"])
             if blockers:
                 base_result["status"] = "needs_data"
                 base_result["draft_strategy_spec"]["blockers"] = [
                     f"missing historical/compiler support: {item}" for item in blockers
                 ]
-            elif not self._draft_family_supported(parsed.draft, assessment):
+            elif not self._draft_family_supported(adapted_draft, assessment):
                 base_result["draft_strategy_spec"]["blockers"] = [
                     "no validated draft adapter exists for this exact primitive family"
                 ]
@@ -638,12 +917,12 @@ class IdeaFormalizerAgent:
         formalized_path = self._write_json(run_dir / "formalized_idea.json", base_result)
         if (
             base_result["status"] == "accepted"
-            and parsed.draft is not None
-            and self._draft_family_supported(parsed.draft, assessment)
+            and adapted_draft is not None
+            and self._draft_family_supported(adapted_draft, assessment)
         ):
             spec = self._build_strategy_spec(
                 run_id=run_id,
-                draft=parsed.draft,
+                draft=adapted_draft,
                 provider_metadata=base_result["provider_metadata"],
                 formalized_path=formalized_path,
             )

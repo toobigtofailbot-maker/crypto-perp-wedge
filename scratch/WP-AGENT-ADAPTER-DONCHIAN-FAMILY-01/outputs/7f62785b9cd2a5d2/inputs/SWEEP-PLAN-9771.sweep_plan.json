@@ -1,0 +1,246 @@
+{
+  "amendment_and_supersession": {
+    "amendment_mode": "none",
+    "amendment_reason": null,
+    "associated_results_state": "no_associated_results",
+    "close_only_after_results": true,
+    "does_not_modify_manifest_denominator": true,
+    "does_not_modify_parent_manifest": true,
+    "post_result_change": false,
+    "preserve_prior_sweep_plan_required": true,
+    "supersedes": null,
+    "supersession_allowed": false,
+    "supersession_lineage": []
+  },
+  "data_and_timeframe_assumptions": {
+    "confirmation_timeframes": [],
+    "data_refs": [
+      {
+        "availability": "required",
+        "field": "open",
+        "stream": "ohlcv",
+        "timeframe": "15m"
+      },
+      {
+        "availability": "required",
+        "field": "high",
+        "stream": "ohlcv",
+        "timeframe": "15m"
+      },
+      {
+        "availability": "required",
+        "field": "low",
+        "stream": "ohlcv",
+        "timeframe": "15m"
+      },
+      {
+        "availability": "required",
+        "field": "close",
+        "stream": "ohlcv",
+        "timeframe": "15m"
+      },
+      {
+        "availability": "required",
+        "field": "volume",
+        "stream": "ohlcv",
+        "timeframe": "15m"
+      }
+    ],
+    "gap_handling_assumption": "Use existing BTCUSDT 15m D4/D4A catalog/slice facts and existing irreparable-gap policy; no silent interpolation.",
+    "missing_data_posture": "block_if_missing",
+    "primary_timeframe": "15m"
+  },
+  "lineage": {
+    "audit_notes": [
+      "Scratch-only Donchian adapter smoke; no canonical sweep or evidence authority.",
+      "The full two-row denominator is retained regardless of runner outcome."
+    ],
+    "created_at": "2026-06-23T12:00:00Z",
+    "parent_manifest_ref": {
+      "ref_hash": "sha256:e05e863577a82e1d1161746288e1fae46cf21b8c4507374a7c21f8db71f74820",
+      "ref_id": "VM-9771",
+      "ref_path": "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/outputs/7f62785b9cd2a5d2/inputs/VM-9771.variant_manifest.json",
+      "ref_type": "variant_manifest"
+    },
+    "parent_strategy_spec_ref": {
+      "ref_hash": "sha256:7e29ac24566be9ad282c6e9384d26ca18ec78f3e9f11cd6bc2035a74ba474e80",
+      "ref_id": "STRAT-SPEC-9226",
+      "ref_path": "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/outputs/7f62785b9cd2a5d2/inputs/STRAT-SPEC-9226.strategy_spec.json",
+      "ref_type": "strategy_spec"
+    },
+    "search_family_id": "SF-DONCHIAN-CHANNEL-BREAKOUT-15M-SCRATCH-0001",
+    "source_refs": [
+      {
+        "ref_hash": "sha256:cb7028dde9f6657680cae741d948bac53a18b73bf9d556d90350d7f7cfce0e24",
+        "ref_id": "FORMALIZER-cb9be3bae086",
+        "ref_path": "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/formalizer/outputs/cb9be3bae086/formalized_idea.json",
+        "ref_type": "other"
+      },
+      {
+        "ref_hash": "sha256:807764c23eb9bf1074f492c767054ec9467bd254d7466cef6c49bd2456fdd3df",
+        "ref_id": "OPERATOR-BRIDGE-APPROVAL",
+        "ref_path": "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/formalizer/outputs/cb9be3bae086/bridge_approval.json",
+        "ref_type": "manual_review"
+      }
+    ],
+    "updated_at": "2026-06-23T12:00:00Z"
+  },
+  "non_execution_declaration": {
+    "not_candidate_approval": true,
+    "not_executable": true,
+    "not_exp_approval": true,
+    "not_gate_authority": true,
+    "not_paper_live_authority": true,
+    "not_ranking_authority": true,
+    "not_readiness_authority": true,
+    "not_recommendation_authority": true,
+    "not_result_authority": true,
+    "not_runner_authority": true,
+    "not_runtime_authority": true,
+    "not_sweep_authority": true,
+    "not_transition_authority": true,
+    "planning_surface_only": true
+  },
+  "parent_variant_manifest": {
+    "hash_algorithm": "sha256",
+    "manifest_committed_population_count": 2,
+    "manifest_hash": "sha256:e05e863577a82e1d1161746288e1fae46cf21b8c4507374a7c21f8db71f74820",
+    "manifest_population_cap": 2,
+    "manifest_population_count": 2,
+    "manifest_pre_registration_status": "frozen_for_sweep_planning",
+    "mismatch_policy": "block",
+    "missing_manifest_policy": "block",
+    "one_manifest_only": true,
+    "variant_manifest_id": "VM-9771",
+    "variant_manifest_schema_version": "v1"
+  },
+  "realism_assumptions": {
+    "bar_path_assumption": "next_open_close_mark",
+    "declarations_only": true,
+    "exchange_constraints_disclosed": true,
+    "fee_side_assumption": "taker_entry_taker_exit",
+    "fill_mode": "complete",
+    "funding_notional_mode": "entry_price",
+    "liquidation_mode": "zero_equity",
+    "liquidity_capacity_assumption": null,
+    "maintenance_margin_assumption": null,
+    "mark_price_source": "close",
+    "order_size_assumption": "Scratch offline runner validation uses dynamic_equity_target_leverage at target_leverage=1.0; no runtime or canonical authority.",
+    "slippage_model": "fixed_bps"
+  },
+  "result_capture_expectations": {
+    "canonical_evidence_mapping_deferred": true,
+    "expected_result_population_ref": null,
+    "must_capture_aborted": true,
+    "must_capture_data_unavailable": true,
+    "must_capture_errored": true,
+    "must_capture_excluded": true,
+    "must_capture_failed": true,
+    "must_capture_filtered": true,
+    "must_capture_invalid": true,
+    "must_capture_not_attempted": true,
+    "must_capture_successful": true,
+    "result_population_expected": true,
+    "winner_only_retention_forbidden": true
+  },
+  "review": {
+    "approval_scope": "offline_run_planning_only",
+    "human_review_required": true,
+    "non_authority_acknowledgement": {
+      "not_candidate_approval": true,
+      "not_exp_approval": true,
+      "not_gate_satisfaction": true,
+      "not_paper_live_authority": true,
+      "not_ranking_authority": true,
+      "not_readiness_authority": true,
+      "not_recommendation_authority": true,
+      "not_result_authority": true,
+      "not_runner_authority": true,
+      "not_runtime_authority": true,
+      "not_sweep_authority": true,
+      "not_transition_authority": true
+    },
+    "review_notes": [
+      "Scratch-only Donchian runner compatibility artifact; not canonical approval.",
+      "Metrics, if produced, are adapter validation only and carry no GO/NO-GO meaning."
+    ],
+    "reviewed_at": null,
+    "reviewer": null
+  },
+  "schema_version": "v1",
+  "status": "approved_for_offline_run_planning",
+  "sweep_plan_id": "SWEEP-PLAN-9771",
+  "test_selection": {
+    "declared_before_results": true,
+    "excluded_variant_ids": [],
+    "outside_manifest_variants_forbidden": true,
+    "post_hoc_addition_forbidden": true,
+    "selected_variant_ids": [
+      "VAR-000001",
+      "VAR-000002"
+    ],
+    "selection_mode": "all_manifest_variants",
+    "subset_selection_rule": null
+  },
+  "trial_accounting": {
+    "aborted_variant_count": 0,
+    "aborted_variants_remain_in_denominator": true,
+    "committed_population_count": 2,
+    "data_unavailable_variant_count": 0,
+    "data_unavailable_variants_remain_in_denominator": true,
+    "denominator_basis": "committed_pre_registered_population_count",
+    "denominator_equals_committed_population_count": true,
+    "errored_variant_count": 0,
+    "errored_variants_remain_in_denominator": true,
+    "excluded_variant_count": 0,
+    "excluded_variants_remain_in_denominator": true,
+    "executed_only_denominator_forbidden": true,
+    "executed_variant_count": 0,
+    "failed_variant_count": 0,
+    "failed_variants_remain_in_denominator": true,
+    "filtered_variant_count": 0,
+    "filtered_variants_remain_in_denominator": true,
+    "invalid_variants_remain_in_denominator": true,
+    "multiple_testing_denominator": 2,
+    "not_attempted_variant_count": 2,
+    "not_attempted_variants_remain_in_denominator": true,
+    "selected_variant_count": 2,
+    "successful_only_denominator_forbidden": true,
+    "successful_variant_count": 0
+  },
+  "validation_methods": {
+    "backtest": {
+      "enabled": true,
+      "method_ref": null,
+      "notes": "Scratch-only real offline runner smoke for the Donchian adapter."
+    },
+    "declarative_intent_only": true,
+    "dsr_psr_mintrl_accounting": {
+      "computation_deferred": true,
+      "denominator_ref": "committed_population_count",
+      "enabled": true,
+      "notes": "Denominator is the full bounded scratch population of 2; no research conclusion."
+    },
+    "monte_carlo": {
+      "computation_deferred": true,
+      "enabled": false,
+      "method_ref": null,
+      "notes": null
+    },
+    "no_computation": true,
+    "no_formulas": true,
+    "no_runner_hooks": true,
+    "robustness": {
+      "enabled": false,
+      "families_declared": [],
+      "method_ref": null,
+      "notes": null
+    },
+    "walk_forward_oos": {
+      "declares_chronological_separation": false,
+      "enabled": false,
+      "method_ref": null,
+      "notes": "Walk-forward is the possible next step only if the future single-slice result population passes the pre-registered operational screen."
+    }
+  }
+}

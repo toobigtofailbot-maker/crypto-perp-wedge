@@ -1,0 +1,57 @@
+{
+  "schema_version": "donchian_adapter_contract_v1",
+  "wp_id": "WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01",
+  "family_id": "donchian_channel_breakout_v1",
+  "status": "scratch_adapter_validation_only",
+  "inputs": {
+    "symbol": "BTCUSDT",
+    "timeframe": "15m",
+    "data": ["ohlcv.open", "ohlcv.high", "ohlcv.low", "ohlcv.close", "ohlcv.volume"]
+  },
+  "indicator": {
+    "indicator_id": "donchian",
+    "builtin_key": "donchian_v1",
+    "lookback_parameter": "channel_lookback_bars",
+    "fields": ["upper_lag1", "lower_lag1"]
+  },
+  "semantics": {
+    "long_entry": "close gt donchian.upper_lag1",
+    "short_entry": "close lt donchian.lower_lag1",
+    "long_exit": "close lt donchian.lower_lag1",
+    "short_exit": "close gt donchian.upper_lag1",
+    "evaluation": "completed_bar_next_bar_open"
+  },
+  "bounded_grid": {
+    "channel_lookback_bars": [20, 55],
+    "committed_population_count": 2,
+    "adaptive_search": false,
+    "post_hoc_narrowing": false
+  },
+  "funding_cost_mode": {
+    "default": "off",
+    "global_mode_mutated": false
+  },
+  "freshness": {
+    "forbidden_indicator_refs": ["sma", "stddev"],
+    "distinct_from": ["STRAT-SPEC-0003", "VM-0003", "SWEEP-PLAN-0003", "RP-7134"],
+    "novelty_claim": false,
+    "prior_family_evidence": ["H-002/REP-0003", "H-012/REP-0032"]
+  },
+  "unsupported": [
+    "intrabar breakout",
+    "ATR stop or target",
+    "session or time exit",
+    "funding signal",
+    "new compiler operators",
+    "new indicators"
+  ],
+  "non_authority": {
+    "scratch_only": true,
+    "not_canonical": true,
+    "not_evidence": true,
+    "not_research_conclusion": true,
+    "not_candidate_authority": true,
+    "not_promotion_authority": true,
+    "not_paper_live_runtime_authority": true
+  }
+}

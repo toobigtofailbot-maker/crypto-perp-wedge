@@ -1,0 +1,244 @@
+{
+  "amendment_and_supersession": {
+    "amendment_mode": "none",
+    "amendment_reason": null,
+    "associated_results_state": "no_associated_results",
+    "close_only_after_results": true,
+    "does_not_inherit_prior_results": true,
+    "fresh_denominator_required": true,
+    "post_result_change": false,
+    "preserve_prior_manifest_required": true,
+    "supersedes": null,
+    "supersession_allowed": false,
+    "supersession_lineage": []
+  },
+  "exclusion_rules": [],
+  "invalid_combination_rules": [],
+  "lineage": {
+    "audit_notes": [
+      "Scratch-only Donchian channel-breakout manual grid [20, 55].",
+      "No post-hoc narrowing, canonical freeze, or research conclusion authority.",
+      "All included, failed, invalid, excluded, and blocked rows remain in the denominator."
+    ],
+    "created_at": "2026-06-23T12:00:00Z",
+    "hash_refs": [
+      "sha256:7e29ac24566be9ad282c6e9384d26ca18ec78f3e9f11cd6bc2035a74ba474e80",
+      "sha256:cb7028dde9f6657680cae741d948bac53a18b73bf9d556d90350d7f7cfce0e24",
+      "sha256:807764c23eb9bf1074f492c767054ec9467bd254d7466cef6c49bd2456fdd3df"
+    ],
+    "parent_refs": [
+      {
+        "ref_hash": "sha256:7e29ac24566be9ad282c6e9384d26ca18ec78f3e9f11cd6bc2035a74ba474e80",
+        "ref_id": "STRAT-SPEC-9226",
+        "ref_path": "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/outputs/7f62785b9cd2a5d2/inputs/STRAT-SPEC-9226.strategy_spec.json",
+        "ref_type": "strategy_spec"
+      }
+    ],
+    "source_refs": [
+      {
+        "ref_hash": "sha256:cb7028dde9f6657680cae741d948bac53a18b73bf9d556d90350d7f7cfce0e24",
+        "ref_id": "FORMALIZER-cb9be3bae086",
+        "ref_path": "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/formalizer/outputs/cb9be3bae086/formalized_idea.json",
+        "ref_type": "concept"
+      },
+      {
+        "ref_hash": "sha256:807764c23eb9bf1074f492c767054ec9467bd254d7466cef6c49bd2456fdd3df",
+        "ref_id": "OPERATOR-BRIDGE-APPROVAL",
+        "ref_path": "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/formalizer/outputs/cb9be3bae086/bridge_approval.json",
+        "ref_type": "manual_review"
+      }
+    ],
+    "updated_at": "2026-06-23T12:00:00Z"
+  },
+  "manifest_hash_pinning": {
+    "canonicalization": "json_canonical_v1",
+    "frozen_at": "2026-06-23T12:00:00Z",
+    "hash_algorithm": "sha256",
+    "hash_scope": [
+      "schema_version",
+      "variant_manifest_id",
+      "parent_strategy_spec.strategy_spec_id",
+      "parent_strategy_spec.strategy_spec_hash",
+      "population_governance",
+      "parameter_axes",
+      "invalid_combination_rules",
+      "exclusion_rules",
+      "variant_assignments"
+    ],
+    "hash_scope_version": "variant_manifest_hash_scope_v1",
+    "hash_status": "computed",
+    "manifest_hash": "sha256:e05e863577a82e1d1161746288e1fae46cf21b8c4507374a7c21f8db71f74820",
+    "post_result_mutation_forbidden": true,
+    "pre_sweep_freeze_required": true
+  },
+  "non_execution_declaration": {
+    "not_candidate_approval": true,
+    "not_executable": true,
+    "not_exp_approval": true,
+    "not_gate_authority": true,
+    "not_paper_live_authority": true,
+    "not_ranking_authority": true,
+    "not_readiness_authority": true,
+    "not_recommendation_authority": true,
+    "not_result_authority": true,
+    "not_runner_authority": true,
+    "not_runtime_authority": true,
+    "not_sweep_authority": true,
+    "not_transition_authority": true,
+    "planning_surface_only": true
+  },
+  "parameter_axes": [
+    {
+      "allowed_values": [
+        20,
+        55
+      ],
+      "axis_id": "AXIS-001",
+      "axis_kind": "free_parameter",
+      "counts_toward_parent_free_parameter_cap": true,
+      "generator_method": "manual_grid",
+      "invalid_combination_rule_refs": [],
+      "is_declared_in_parent_strategy_spec": true,
+      "notes": "Bounded non-adaptive Donchian adapter validation grid [20, 55].",
+      "parameter_name": "channel_lookback_bars",
+      "parameter_type": "integer",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.channel_lookback_bars",
+      "range": {
+        "inclusive_max": true,
+        "inclusive_min": true,
+        "max": 55,
+        "min": 20,
+        "step": 35
+      },
+      "units": "bars"
+    }
+  ],
+  "parent_strategy_spec": {
+    "does_not_mutate_parent_strategy_spec": true,
+    "hash_algorithm": "sha256",
+    "hash_scope_version": "strategy_spec_hash_scope_v1",
+    "mismatch_policy": "block",
+    "missing_parent_policy": "block",
+    "strategy_spec_hash": "sha256:7e29ac24566be9ad282c6e9384d26ca18ec78f3e9f11cd6bc2035a74ba474e80",
+    "strategy_spec_id": "STRAT-SPEC-9226",
+    "strategy_spec_ref": "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/outputs/7f62785b9cd2a5d2/inputs/STRAT-SPEC-9226.strategy_spec.json",
+    "strategy_spec_review_status": "approved_for_variant_planning",
+    "strategy_spec_schema_version": "v1"
+  },
+  "population_governance": {
+    "declared_population": {
+      "committed_population_count": 2,
+      "declared_variant_count": 2,
+      "excluded_variant_count": 0,
+      "included_variant_count": 2,
+      "invalid_variant_count": 0,
+      "not_attempted_variant_count": 0
+    },
+    "multiple_testing_accounting": {
+      "adaptive_search_authorization_ref": null,
+      "adaptive_search_used": false,
+      "all_trials_visible_required": true,
+      "denominator_required": true,
+      "denominator_type": "committed_pre_registered_population",
+      "search_family_id": "SF-DONCHIAN-CHANNEL-BREAKOUT-15M-SCRATCH-0001",
+      "search_family_method": "manual_grid",
+      "winner_only_review_forbidden": true
+    },
+    "population_cap": {
+      "cap_basis": "manual_grid",
+      "cap_exception_authorized": false,
+      "cap_exception_ref": null,
+      "cap_source": "human_declared",
+      "max_variants": 2
+    },
+    "pre_registration": {
+      "allowed_change_mode": "supersede_before_results_only",
+      "freeze_required_before_sweep": true,
+      "post_hoc_addition_forbidden": true,
+      "post_result_mutation_forbidden": true,
+      "pre_registered": true,
+      "pre_registration_scope": "full_variant_population",
+      "pre_registration_status": "frozen_for_sweep_planning"
+    },
+    "trial_budget": {
+      "denominator_basis": "committed_pre_registered_population_count",
+      "denominator_count": 2,
+      "denominator_includes_aborted": true,
+      "denominator_includes_data_unavailable": true,
+      "denominator_includes_errored": true,
+      "denominator_includes_excluded": true,
+      "denominator_includes_failed": true,
+      "denominator_includes_filtered": true,
+      "denominator_includes_invalid": true,
+      "denominator_includes_not_attempted": true,
+      "executed_only_denominator_forbidden": true,
+      "planned_trial_count": 2,
+      "trial_budget_denominator": 2
+    }
+  },
+  "review": {
+    "approval_scope": "sweep_planning_only",
+    "human_review_required": true,
+    "non_authority_acknowledgement": {
+      "not_candidate_approval": true,
+      "not_exp_approval": true,
+      "not_gate_satisfaction": true,
+      "not_paper_live_authority": true,
+      "not_ranking_authority": true,
+      "not_readiness_authority": true,
+      "not_recommendation_authority": true,
+      "not_result_authority": true,
+      "not_runner_authority": true,
+      "not_runtime_authority": true,
+      "not_sweep_authority": true,
+      "not_transition_authority": true
+    },
+    "review_notes": [
+      "Scratch-only Donchian runner compatibility artifact; not canonical approval or freeze.",
+      "Prior Donchian evidence exists in REP-0003 and REP-0032; no novelty is claimed."
+    ],
+    "reviewed_at": null,
+    "reviewer": null
+  },
+  "schema_version": "v1",
+  "status": "approved_for_sweep_planning",
+  "variant_assignments": [
+    {
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "manual-grid",
+        "generation_order": 1
+      },
+      "parameter_value_hash": "sha256:c3929dee7caa4841cd2f28bd128a630944a61ab5f6a111765a825d95b62e86ae",
+      "parameter_values": {
+        "channel_lookback_bars": 20
+      },
+      "status_reason": null,
+      "variant_id": "VAR-000001"
+    },
+    {
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "manual-grid",
+        "generation_order": 2
+      },
+      "parameter_value_hash": "sha256:00eea0b6163f4a698a865bda6c731ea4f777261eb4aaa2a4bfefd9294ab713d1",
+      "parameter_values": {
+        "channel_lookback_bars": 55
+      },
+      "status_reason": null,
+      "variant_id": "VAR-000002"
+    }
+  ],
+  "variant_manifest_id": "VM-9771"
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": "donchian_strategy_spec_reference_v1",
+  "strategy_spec_id": "STRAT-SPEC-9226",
+  "family_id": "donchian_channel_breakout_v1",
+  "status": "draft",
+  "validator_clean": true,
+  "artifact_path": "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/formalizer/outputs/cb9be3bae086/STRAT-SPEC-9226.strategy_spec.json",
+  "artifact_sha256": "sha256:ebbdb60d833856891d5f149bd4c29be3935cd7f5bb649f2c27c086e00792c09b",
+  "distinct_from_strategy_spec_id": "STRAT-SPEC-0003",
+  "indicator_refs": ["donchian"],
+  "forbidden_indicator_refs_present": [],
+  "non_authority": {
+    "scratch_only": true,
+    "not_canonical": true,
+    "not_evidence": true
+  }
+}

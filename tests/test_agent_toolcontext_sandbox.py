@@ -75,6 +75,7 @@ def test_repo_truth_role_taxonomy_and_role_specific_permissions_are_enforced():
         "non_canonical_runner",
         "robustness_diagnostician",
         "candidate_review_packet_preparer",
+        "canonical_crossing_builder_fixture",
         "langgraph_pilot_orchestrator",
         "notification_assistant",
     }

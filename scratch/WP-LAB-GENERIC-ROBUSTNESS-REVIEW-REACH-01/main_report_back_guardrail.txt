@@ -1,0 +1,8 @@
+WP-LAB-GENERIC-ROBUSTNESS-REVIEW-REACH-01 report-back guardrail
+
+- Report branch/base and PR #563 merge-base discovery.
+- Report touched-file forecast decision.
+- Report delivered docs, scratch fixtures, and isolated tests only.
+- Report no edits to tools/robustness, tools/candidate_review, replay/normalization, OOS gate, candidate lifecycle, result populations, runtime, paper/live, OMS, risk, reconciliation, capital, funding P&L, provider/API/network, dashboard, scheduler, or large data paths.
+- Report whether unmerged replay/OOS dependency was avoided or blocked.
+- Report exact validation commands and failures if any.

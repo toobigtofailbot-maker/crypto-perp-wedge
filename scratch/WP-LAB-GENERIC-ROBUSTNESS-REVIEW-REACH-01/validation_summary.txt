@@ -1,0 +1,34 @@
+WP-LAB-GENERIC-ROBUSTNESS-REVIEW-REACH-01 validation summary
+
+Interpreter note:
+- Initial `python -m pytest -q` under system Python 3.14 failed during collection because repo dependencies including pandas, numpy, and binance were unavailable in that interpreter.
+- Required validations were rerun with repo venv interpreter `C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe` / Python 3.11.9.
+
+Commands:
+
+- `C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest tests/test_generic_robustness_review_reach.py -q`
+  - PASS: 6 passed in 0.13s
+
+- `C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest tests/test_validate_result_populations.py tests/test_validate_candidate_registry.py -q`
+  - PASS: 80 passed in 9.58s
+
+- `C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.registry.validate_result_populations`
+  - PASS: result-population artifacts validate
+
+- `C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.registry.validate_candidate_registry`
+  - PASS: candidate lifecycle registry fixture artifacts validate
+
+- `C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.registry.validate_registry`
+  - PASS: research/candidate_registry.jsonl validates against research/schemas/candidate_registry.schema.json
+
+- `C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.research_query.run --list-views`
+  - PASS: listed query views successfully
+
+- `python tools/dev/diff_scope_summary.py`
+  - PASS: only intended new docs/scratch/test files reported; no forbidden-path matches
+
+- `git diff --check`
+  - PASS: no whitespace errors
+
+- `C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest -q`
+  - ATTEMPTED / TIMED OUT: command exceeded 10 minutes with no final pytest result.

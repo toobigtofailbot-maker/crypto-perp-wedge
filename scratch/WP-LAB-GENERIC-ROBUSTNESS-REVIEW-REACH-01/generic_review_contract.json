@@ -1,0 +1,214 @@
+{
+  "schema_version": "generic_robustness_review_reach_contract_v1",
+  "authority_boundary": {
+    "candidate_lifecycle_write": false,
+    "canonical_crossing": false,
+    "paper_live_runtime_authority": false,
+    "ranking_or_recommendation_authority": false,
+    "funding_pnl_accounting_change": false
+  },
+  "required_input_fields": [
+    "strategy_family_label",
+    "evidence_class",
+    "result_population_identity",
+    "denominator_manifest",
+    "primary_risk_screen",
+    "drawdown_screen",
+    "return_sharpe_metrics",
+    "oos_gate_status",
+    "robustness_status",
+    "unavailable_stat_reason_codes",
+    "candidate_review_eligibility_reason_codes",
+    "noncanonical_canonical_state"
+  ],
+  "required_output_fields": [
+    "candidate_review_packet_created",
+    "no_candidate_review_packet_reason",
+    "blocked_review_reason",
+    "advisory_only_summary"
+  ],
+  "reason_codes": {
+    "no_packet": [
+      "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+      "NO_GO_DRAWDOWN_SCREEN_FAILED",
+      "NO_GO_RETURN_SHARPE_SCREEN_FAILED",
+      "NO_GO_DENOMINATOR_INTEGRITY_FAILED"
+    ],
+    "blocked": [
+      "BLOCKED_REPLAY_CONTRACT_UNAVAILABLE",
+      "BLOCKED_OOS_GATE_UNAVAILABLE",
+      "BLOCKED_DENOMINATOR_MANIFEST_UNAVAILABLE",
+      "BLOCKED_RESULT_POPULATION_UNAVAILABLE",
+      "BLOCKED_REQUIRED_STAT_INPUTS_UNAVAILABLE",
+      "BLOCKED_PARALLEL_SEQUENCE"
+    ],
+    "unavailable_stats": [
+      "UNAVAILABLE_PSR_MISSING_RETURN_SERIES",
+      "UNAVAILABLE_DSR_MISSING_TRIAL_CONTEXT",
+      "UNAVAILABLE_MINTRL_MISSING_METHOD_CONTRACT",
+      "UNAVAILABLE_PER_TRADE_ROWS_MISSING",
+      "UNAVAILABLE_OOS_FOLDS_MISSING",
+      "UNAVAILABLE_FUNDING_PNL_NOT_AUTHORIZED"
+    ]
+  },
+  "examples": [
+    {
+      "example_id": "funding_rate_positioning_fade_no_go",
+      "strategy_family_label": "funding_rate_positioning_fade",
+      "evidence_class": "noncanonical_scratch_result_population",
+      "result_population_identity": {
+        "ids": [
+          "RP-2009",
+          "RP-7592"
+        ],
+        "canonical": false,
+        "source": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144"
+      },
+      "denominator_manifest": {
+        "planned": 36,
+        "completed": 36,
+        "failed": 0,
+        "invalid": 0,
+        "pruned": 0,
+        "blocked": 0,
+        "denominator_preserved": true
+      },
+      "primary_risk_screen": {
+        "screen_id": "max_drawdown_lte_20pct",
+        "status": "failed",
+        "source": "docs/status_entries/WP-RESEARCH-FUNDING-CARRY-02.md"
+      },
+      "drawdown_screen": {
+        "status": "failed",
+        "observed": "all_36_rows_fail_primary_drawdown_screen"
+      },
+      "return_sharpe_metrics": {
+        "status": "available_aggregate_only",
+        "ranking_authority": false
+      },
+      "oos_gate_status": {
+        "status": "available_noncanonical_scratch",
+        "gate_authority": false
+      },
+      "robustness_status": {
+        "status": "available_advisory",
+        "withheld_stats": [
+          "PSR",
+          "DSR",
+          "MinTRL"
+        ],
+        "fabricated_inputs": false
+      },
+      "unavailable_stat_reason_codes": [
+        "UNAVAILABLE_PSR_MISSING_RETURN_SERIES",
+        "UNAVAILABLE_DSR_MISSING_TRIAL_CONTEXT",
+        "UNAVAILABLE_MINTRL_MISSING_METHOD_CONTRACT",
+        "UNAVAILABLE_PER_TRADE_ROWS_MISSING",
+        "UNAVAILABLE_FUNDING_PNL_NOT_AUTHORIZED"
+      ],
+      "candidate_review_eligibility_reason_codes": [
+        "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+        "NO_GO_DRAWDOWN_SCREEN_FAILED"
+      ],
+      "noncanonical_canonical_state": "noncanonical_scratch",
+      "candidate_review_packet_created": false,
+      "no_candidate_review_packet_reason": {
+        "code": "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+        "source": "docs/status_entries/WP-RESEARCH-FUNDING-CARRY-02.md",
+        "detail": "All 36 scratch funding rows failed the primary drawdown screen; no candidate-review packet was generated."
+      },
+      "blocked_review_reason": null,
+      "advisory_only_summary": "Scratch funding-rate positioning-fade evidence is NO-GO under the primary drawdown screen and creates no candidate authority."
+    },
+    {
+      "example_id": "donchian_oos_gate_blocked",
+      "strategy_family_label": "donchian_breakout",
+      "evidence_class": "blocked_unavailable",
+      "result_population_identity": null,
+      "denominator_manifest": null,
+      "primary_risk_screen": {
+        "status": "not_evaluated"
+      },
+      "drawdown_screen": {
+        "status": "not_evaluated"
+      },
+      "return_sharpe_metrics": {
+        "status": "not_evaluated"
+      },
+      "oos_gate_status": {
+        "status": "unavailable",
+        "reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE"
+      },
+      "robustness_status": {
+        "status": "blocked",
+        "fabricated_inputs": false
+      },
+      "unavailable_stat_reason_codes": [
+        "UNAVAILABLE_OOS_FOLDS_MISSING",
+        "UNAVAILABLE_MINTRL_MISSING_METHOD_CONTRACT"
+      ],
+      "candidate_review_eligibility_reason_codes": [
+        "BLOCKED_OOS_GATE_UNAVAILABLE",
+        "BLOCKED_RESULT_POPULATION_UNAVAILABLE"
+      ],
+      "noncanonical_canonical_state": "blocked_unavailable",
+      "candidate_review_packet_created": false,
+      "no_candidate_review_packet_reason": null,
+      "blocked_review_reason": {
+        "code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+        "source": "generic_contract_example",
+        "detail": "Review reach is blocked until OOS gate evidence and Result Population identity are available."
+      },
+      "advisory_only_summary": "Family metadata can be recorded, but review is blocked by unavailable OOS/Result Population inputs."
+    },
+    {
+      "example_id": "sma_review_packet_shape",
+      "strategy_family_label": "sma_crossover",
+      "evidence_class": "canonical_result_population",
+      "result_population_identity": {
+        "ids": [
+          "RP-7520"
+        ],
+        "canonical": true,
+        "source": "research/result_populations/RP-7520.result_population.json"
+      },
+      "denominator_manifest": {
+        "planned": 10,
+        "completed": 10,
+        "failed": 0,
+        "invalid": 0,
+        "pruned": 0,
+        "blocked": 0,
+        "denominator_preserved": true
+      },
+      "primary_risk_screen": {
+        "status": "available"
+      },
+      "drawdown_screen": {
+        "status": "available"
+      },
+      "return_sharpe_metrics": {
+        "status": "available_aggregate_only",
+        "ranking_authority": false
+      },
+      "oos_gate_status": {
+        "status": "unavailable",
+        "reason_code": "UNAVAILABLE_OOS_FOLDS_MISSING"
+      },
+      "robustness_status": {
+        "status": "advisory_only",
+        "fabricated_inputs": false
+      },
+      "unavailable_stat_reason_codes": [
+        "UNAVAILABLE_OOS_FOLDS_MISSING",
+        "UNAVAILABLE_PER_TRADE_ROWS_MISSING"
+      ],
+      "candidate_review_eligibility_reason_codes": [],
+      "noncanonical_canonical_state": "canonical",
+      "candidate_review_packet_created": true,
+      "no_candidate_review_packet_reason": null,
+      "blocked_review_reason": null,
+      "advisory_only_summary": "Example of a generic packet-created shape; creation is not lifecycle registration, ranking, readiness, promotion, paper/live authority, or gate satisfaction."
+    }
+  ]
+}

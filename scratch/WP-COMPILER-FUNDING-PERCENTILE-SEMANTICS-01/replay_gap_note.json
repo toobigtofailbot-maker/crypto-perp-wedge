@@ -1,0 +1,5 @@
+{
+  "repo_native_exact_result_population_replay_command_found": false,
+  "action": "none",
+  "reason": "The current repo still has no committed reusable exact RP reconstruction and normalized-hash comparison command; this package does not broaden into replay infrastructure."
+}

@@ -1,0 +1,14 @@
+{
+  "name": "rolling_empirical_percentile_v1",
+  "catalog_mechanism": "closed_schema_validator_compiler_composition_set",
+  "input": "declared data_ref",
+  "lookback": ["literal_integer_bars", "bars_parameter_ref"],
+  "formula": "count(trailing_window_value <= current_value) / trailing_window_count",
+  "window_includes_current_bar": true,
+  "min_periods_policy": "full_window",
+  "tie_policy": "weak_rank",
+  "nan_policy": "null_output",
+  "future_rows_used": false,
+  "whole_sample_used": false,
+  "arbitrary_expression_allowed": false
+}

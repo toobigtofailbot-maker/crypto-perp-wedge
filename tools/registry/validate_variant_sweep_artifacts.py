@@ -297,6 +297,8 @@ def _collect_value_parameter_refs(value: Any) -> set[str]:
     if isinstance(value, dict):
         if set(value) == {VALUE_PARAMETER_REF_KEY} and isinstance(value.get(VALUE_PARAMETER_REF_KEY), str):
             refs.add(value[VALUE_PARAMETER_REF_KEY])
+        if set(value) == {"bars_parameter_ref"} and isinstance(value.get("bars_parameter_ref"), str):
+            refs.add(value["bars_parameter_ref"])
         for child in value.values():
             refs.update(_collect_value_parameter_refs(child))
     elif isinstance(value, list):

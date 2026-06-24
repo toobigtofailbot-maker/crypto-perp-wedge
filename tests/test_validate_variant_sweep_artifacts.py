@@ -5,7 +5,12 @@ from pathlib import Path
 
 from jsonschema import Draft7Validator
 
-from tests.test_validate_strategy_specs import _base_strategy_spec, _online_primitives, _threshold_parameter
+from tests.test_validate_strategy_specs import (
+    _base_strategy_spec,
+    _lookback_parameter,
+    _online_primitives,
+    _threshold_parameter,
+)
 from tools.registry.validate_variant_sweep_artifacts import (
     DEFAULT_STRATEGY_SPEC_SCHEMA_PATH,
     DEFAULT_SWEEP_PLAN_SCHEMA_PATH,
@@ -553,6 +558,39 @@ def test_manifest_must_include_axis_for_parent_strategy_value_parameter_ref(tmp_
     errors = _validate(tmp_path)
 
     assert any("parameter_ref 'wick_threshold' must be present in parameter_axes" in error for error in errors)
+
+
+def test_manifest_must_include_axis_for_max_hold_parameter_ref(tmp_path):
+    strategy_specs_dir, variant_manifests_dir, sweep_plans_dir = _fixture_paths(tmp_path)
+    strategy_spec = _base_strategy_spec_for_variant()
+    strategy_spec["exit_logic"]["max_holding_period"] = {
+        "enabled": True,
+        "bars": {"parameter_ref": "max_hold_bars"},
+    }
+    max_hold = _lookback_parameter(
+        name="max_hold_bars",
+        default=16,
+        range_value={
+            "min": 16,
+            "max": 96,
+            "step": 16,
+            "inclusive_min": True,
+            "inclusive_max": True,
+        },
+        allowed_values=[16, 32, 96],
+    )
+    max_hold["role"] = "exit"
+    strategy_spec["free_parameters"]["parameters"].append(max_hold)
+    strategy_hash = sha256_prefixed(strategy_spec)
+    manifest = _base_variant_manifest(strategy_hash)
+    sweep = _base_sweep_plan(manifest)
+    _write_json(strategy_specs_dir / "STRAT-SPEC-9001.strategy_spec.json", strategy_spec)
+    _write_json(variant_manifests_dir / "VM-0001.variant_manifest.json", manifest)
+    _write_json(sweep_plans_dir / "SWEEP-PLAN-0001.sweep_plan.json", sweep)
+
+    errors = _validate(tmp_path)
+
+    assert any("parameter_ref 'max_hold_bars' must be present in parameter_axes" in error for error in errors)
 
 
 def test_manifest_accepts_axis_for_parent_strategy_value_parameter_ref(tmp_path):

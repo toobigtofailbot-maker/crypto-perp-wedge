@@ -1,0 +1,29 @@
+Package: WP-COMPILER-FUNDING-PERCENTILE-SEMANTICS-01
+Base: a713a39386114e01f5c06cbdfe518a666d33aa36
+
+Focused compiler/schema/validator:
+- tests/test_spec_signal_compiler.py + tests/test_validate_strategy_specs.py + tests/test_validate_variant_sweep_artifacts.py: 392 passed
+- tests/test_offline_research_runner.py: 101 passed, 2 warnings
+- tests/test_validate_result_populations.py + tests/test_validate_data_feature_availability.py + tests/test_validate_candidate_registry.py: 88 passed
+
+Validators and views:
+- validate_strategy_specs: PASS
+- validate_variant_sweep_artifacts: PASS
+- validate_candidate_registry: PASS
+- validate_result_populations: PASS
+- validate_data_feature_availability: PASS
+- research query --list-views: PASS, 124 views listed
+- all discovered v_integrity_* views: clean
+
+Full suite:
+- Serial `pytest -q`: TIMED OUT after 1204 seconds; not a pass.
+- First 4-shard run: three shards passed; one shard had only the known isolated-worktree missing ignored D4A CSV failure.
+- Root D4A file SHA256 matched catalog: c30fd7f07fdf513cdaf234b1bee4eff03b430a479cc572a2cc8b57394f22e0ab.
+- The ignored file was copied for validation only.
+- Final sharded full pytest: PASS, all 4 deterministic shards / 107 test files passed.
+- The validation-only ignored file was removed afterward.
+
+Scope and whitespace:
+- diff_scope_summary.py with package-authorized strategy-spec-schema path: PASS; no forbidden matches.
+- git diff --check: PASS.
+- Exact repo-native RP replay command: not present; no replay claim.

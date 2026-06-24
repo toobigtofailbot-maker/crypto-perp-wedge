@@ -33,7 +33,11 @@ SCALED_PARAMETER_COMPOSITION_TYPES = {
     "scale_by_one_plus_parameter",
 }
 COMPOSITION_TYPE_Z_SCORE = "z_score"
-COMPOSITION_TYPES = SCALED_PARAMETER_COMPOSITION_TYPES | {COMPOSITION_TYPE_Z_SCORE}
+COMPOSITION_TYPE_ROLLING_EMPIRICAL_PERCENTILE = "rolling_empirical_percentile_v1"
+COMPOSITION_TYPES = SCALED_PARAMETER_COMPOSITION_TYPES | {
+    COMPOSITION_TYPE_Z_SCORE,
+    COMPOSITION_TYPE_ROLLING_EMPIRICAL_PERCENTILE,
+}
 COMPOSED_BASE_OPERAND_TYPES = {"data_ref", "indicator_ref"}
 COMPOSED_PARAMETER_OPERAND_TYPE = "parameter_ref"
 Z_SCORE_OPERAND_TYPES = {"data_ref", "indicator_ref"}
@@ -518,6 +522,44 @@ def _validate_composed_operands(path: Path, payload: dict[str, Any]) -> list[str
                                     f"{path}: {child_path}.operand_type must be one of "
                                     f"{sorted(Z_SCORE_OPERAND_TYPES)}"
                                 )
+                    elif composition_type == COMPOSITION_TYPE_ROLLING_EMPIRICAL_PERCENTILE:
+                        expected_keys = {
+                            "operand_type",
+                            "composition_type",
+                            "source_operand",
+                            "lookback",
+                            "min_periods_policy",
+                            "tie_policy",
+                            "nan_policy",
+                        }
+                        if set(operand) != expected_keys:
+                            errors.append(f"{path}: {operand_path} has invalid composed_operand properties")
+                        source_operand = operand.get("source_operand")
+                        if not isinstance(source_operand, dict):
+                            errors.append(f"{path}: {operand_path}.source_operand must be an object")
+                        elif source_operand.get("operand_type") != "data_ref":
+                            errors.append(
+                                f"{path}: {operand_path}.source_operand.operand_type must be 'data_ref'"
+                            )
+                        else:
+                            field = source_operand.get("field") or source_operand.get("ref")
+                            timeframe_and_data = payload.get("timeframe_and_data")
+                            host_data_refs = (
+                                timeframe_and_data.get("host_data_refs")
+                                if isinstance(timeframe_and_data, dict)
+                                else []
+                            )
+                            declared_fields = {
+                                host_ref.get("field")
+                                for host_ref in host_data_refs
+                                if isinstance(host_data_refs, list)
+                                and isinstance(host_ref, dict)
+                            }
+                            if field not in declared_fields:
+                                errors.append(
+                                    f"{path}: {operand_path}.source_operand data_ref field {field!r} "
+                                    "must be declared in timeframe_and_data.host_data_refs"
+                                )
 
     for composed_path, _ in _walk_composed_operands(payload, []):
         if composed_path not in condition_operand_paths:
@@ -652,10 +694,15 @@ def _validate_parameter_bound_lookbacks(path: Path, payload: dict[str, Any]) -> 
         if set(lookback) != {LOOKBACK_PARAMETER_REF_KEY}:
             errors.append(f"{path}: {operand_path}.lookback has invalid parameter-bound properties")
             continue
-        if operand.get("operand_type") != "indicator_ref":
+        is_indicator = operand.get("operand_type") == "indicator_ref"
+        is_percentile_transform = (
+            operand.get("operand_type") == COMPOSED_OPERAND_TYPE
+            and operand.get("composition_type") == COMPOSITION_TYPE_ROLLING_EMPIRICAL_PERCENTILE
+        )
+        if not (is_indicator or is_percentile_transform):
             errors.append(
                 f"{path}: {operand_path}.lookback.bars_parameter_ref is only allowed for "
-                "indicator_ref.lookback"
+                "indicator_ref.lookback or rolling_empirical_percentile_v1.lookback"
             )
             continue
         errors.extend(
@@ -844,6 +891,22 @@ def _validate_literal_or_bound_integer(
             )
         )
     return values, errors
+
+
+def _validate_max_holding_period(path: Path, payload: dict[str, Any]) -> list[str]:
+    exit_logic = payload.get("exit_logic")
+    max_holding = exit_logic.get("max_holding_period") if isinstance(exit_logic, dict) else None
+    if not isinstance(max_holding, dict) or max_holding.get("enabled") is not True:
+        return []
+    _, errors = _validate_literal_or_bound_integer(
+        path,
+        payload,
+        "exit_logic.max_holding_period.bars",
+        max_holding.get("bars"),
+        minimum=1,
+        maximum=100000,
+    )
+    return errors
 
 
 def _validate_atr_stop(path: Path, payload: dict[str, Any]) -> list[str]:
@@ -1464,6 +1527,7 @@ def validate_strategy_specs(
         errors.extend(_validate_forbidden_keys(path, payload))
         errors.extend(_validate_composed_operands(path, payload))
         errors.extend(_validate_parameter_bound_lookbacks(path, payload))
+        errors.extend(_validate_max_holding_period(path, payload))
         errors.extend(_validate_atr_stop(path, payload))
         errors.extend(_validate_close_only_exit_primitives(path, payload))
         errors.extend(_validate_online_ohlcv_primitives(path, payload))

@@ -1,0 +1,11 @@
+{
+  "causal_current_window": "passed",
+  "future_mutation_prefix_invariance": "passed",
+  "window_boundary": "passed",
+  "tie_handling": "passed",
+  "missing_declared_column": "passed",
+  "undeclared_column_reference": "passed",
+  "recent_only_availability": "covered_by_existing_offline_runner_tests",
+  "ohlcv_only_regression": "passed",
+  "test_file": "tests/test_spec_signal_compiler.py"
+}

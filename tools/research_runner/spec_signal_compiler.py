@@ -58,10 +58,12 @@ COMPOSED_OPERAND_TYPE = "composed_operand"
 COMPOSITION_TYPE_SCALE_BY_ONE_MINUS_PARAMETER = "scale_by_one_minus_parameter"
 COMPOSITION_TYPE_SCALE_BY_ONE_PLUS_PARAMETER = "scale_by_one_plus_parameter"
 COMPOSITION_TYPE_Z_SCORE = "z_score"
+COMPOSITION_TYPE_ROLLING_EMPIRICAL_PERCENTILE = "rolling_empirical_percentile_v1"
 COMPOSITION_TYPES = {
     COMPOSITION_TYPE_SCALE_BY_ONE_MINUS_PARAMETER,
     COMPOSITION_TYPE_SCALE_BY_ONE_PLUS_PARAMETER,
     COMPOSITION_TYPE_Z_SCORE,
+    COMPOSITION_TYPE_ROLLING_EMPIRICAL_PERCENTILE,
 }
 COMPOSED_BASE_OPERAND_TYPES = {"data_ref", "indicator_ref"}
 COMPOSED_PARAMETER_OPERAND_TYPE = "parameter_ref"
@@ -293,7 +295,7 @@ def compile_signal(
     entry_groups = _collect_groups(strategy_spec.get("entry_logic"))
     filter_groups = _collect_groups(strategy_spec.get("filters"))
     exit_groups = _collect_groups(strategy_spec.get("exit_logic"))
-    max_holding_bars = _max_holding_bars(strategy_spec)
+    max_holding_bars = _max_holding_bars(strategy_spec, context)
     entry_controls = _entry_controls(strategy_spec, context)
     atr_stop_config = _atr_stop_config(strategy_spec, context)
     session_end_exit_config = _session_end_exit_config(strategy_spec)
@@ -803,14 +805,21 @@ def _split_root_side_groups(
     return groups_by_side
 
 
-def _max_holding_bars(strategy_spec: Mapping[str, Any]) -> int | None:
+def _max_holding_bars(
+    strategy_spec: Mapping[str, Any],
+    context: _CompileContext,
+) -> int | None:
     max_holding = strategy_spec.get("exit_logic", {}).get("max_holding_period")
     if not isinstance(max_holding, Mapping) or max_holding.get("enabled") is not True:
         return None
-    bars = max_holding.get("bars")
-    if not isinstance(bars, int) or bars < 1:
+    bars = _resolve_parameter_bound_value(
+        max_holding.get("bars"),
+        context,
+        "exit_logic.max_holding_period.bars",
+    )
+    if isinstance(bars, bool) or not isinstance(bars, Integral) or bars < 1 or bars > 100000:
         raise SpecSignalCompilerError("enabled max_holding_period requires integer bars >= 1")
-    return bars
+    return int(bars)
 
 
 def _entry_controls(strategy_spec: Mapping[str, Any], context: _CompileContext) -> _EntryControls:
@@ -2144,7 +2153,7 @@ def _resolve_primitive_ref(operand: Mapping[str, Any], context: _CompileContext)
 def _resolve_operand(operand: Mapping[str, Any], context: _CompileContext) -> Any:
     operand_type = operand.get("operand_type")
     if operand_type == "data_ref":
-        return _resolve_data_ref(operand, context.ohlcv)
+        return _resolve_data_ref(operand, context)
     if operand_type == "indicator_ref":
         return _resolve_indicator_ref(operand, context)
     if operand_type == "parameter_ref":
@@ -2166,6 +2175,8 @@ def _resolve_composed_operand(operand: Mapping[str, Any], context: _CompileConte
         )
     if composition_type == COMPOSITION_TYPE_Z_SCORE:
         return _resolve_z_score_composed_operand(operand, context)
+    if composition_type == COMPOSITION_TYPE_ROLLING_EMPIRICAL_PERCENTILE:
+        return _resolve_rolling_empirical_percentile_composed_operand(operand, context)
 
     expected_keys = {
         "operand_type",
@@ -2249,7 +2260,85 @@ def _resolve_z_score_composed_operand(operand: Mapping[str, Any], context: _Comp
     return result.mask(scale.isna() | (scale == 0.0))
 
 
-def _resolve_data_ref(operand: Mapping[str, Any], ohlcv: pd.DataFrame) -> pd.Series:
+def _resolve_rolling_empirical_percentile_composed_operand(
+    operand: Mapping[str, Any],
+    context: _CompileContext,
+) -> pd.Series:
+    expected_keys = {
+        "operand_type",
+        "composition_type",
+        "source_operand",
+        "lookback",
+        "min_periods_policy",
+        "tie_policy",
+        "nan_policy",
+    }
+    if set(operand) != expected_keys:
+        raise SpecSignalCompilerError(
+            "rolling_empirical_percentile_v1 composed_operand has invalid properties"
+        )
+    if operand.get("min_periods_policy") != "full_window":
+        raise SpecSignalCompilerError(
+            "rolling_empirical_percentile_v1 min_periods_policy must be 'full_window'"
+        )
+    if operand.get("tie_policy") != "weak_rank":
+        raise SpecSignalCompilerError(
+            "rolling_empirical_percentile_v1 tie_policy must be 'weak_rank'"
+        )
+    if operand.get("nan_policy") != "null_output":
+        raise SpecSignalCompilerError(
+            "rolling_empirical_percentile_v1 nan_policy must be 'null_output'"
+        )
+    source_operand = operand.get("source_operand")
+    if not isinstance(source_operand, Mapping) or source_operand.get("operand_type") != "data_ref":
+        raise SpecSignalCompilerError(
+            "rolling_empirical_percentile_v1 source_operand must be a data_ref"
+        )
+    if source_operand.get("lookback") is not None:
+        raise SpecSignalCompilerError(
+            "rolling_empirical_percentile_v1 source_operand.lookback must be null"
+        )
+    field = source_operand.get("field") or source_operand.get("ref")
+    if field not in _declared_host_data_fields(context.strategy_spec):
+        raise SpecSignalCompilerError(
+            f"rolling_empirical_percentile_v1 data_ref field is not declared in host_data_refs: {field!r}"
+        )
+    source = _resolve_data_ref(source_operand, context).astype(float)
+    lookback_bars = _resolve_indicator_lookback_bars(operand, context.variant_assignment)
+    return _rolling_empirical_percentile_v1(source, lookback_bars)
+
+
+def _declared_host_data_fields(strategy_spec: Mapping[str, Any]) -> set[str]:
+    timeframe_and_data = strategy_spec.get("timeframe_and_data")
+    if not isinstance(timeframe_and_data, Mapping):
+        return set()
+    host_data_refs = timeframe_and_data.get("host_data_refs")
+    if not isinstance(host_data_refs, list):
+        return set()
+    return {
+        str(host_ref["field"])
+        for host_ref in host_data_refs
+        if isinstance(host_ref, Mapping)
+        and isinstance(host_ref.get("field"), str)
+        and host_ref.get("stream") != "indicator_catalog"
+    }
+
+
+def _rolling_empirical_percentile_v1(source: pd.Series, lookback_bars: int) -> pd.Series:
+    def weak_rank(window: np.ndarray) -> float:
+        current = window[-1]
+        return float(np.count_nonzero(window <= current) / len(window))
+
+    result = source.rolling(window=lookback_bars, min_periods=lookback_bars).apply(
+        weak_rank,
+        raw=True,
+    )
+    result.name = source.name
+    return result
+
+
+def _resolve_data_ref(operand: Mapping[str, Any], context: _CompileContext) -> pd.Series:
+    ohlcv = context.ohlcv
     lookback = operand.get("lookback")
     if isinstance(lookback, Mapping) and LOOKBACK_PARAMETER_REF_KEY in lookback:
         raise UnsupportedSpecSignalCompilerFeature(

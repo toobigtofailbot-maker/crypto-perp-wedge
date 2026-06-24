@@ -564,6 +564,77 @@ def _strategy_spec_with_parameter_bound_lookback(*, inside_composed_base: bool =
     return payload
 
 
+def _funding_percentile_strategy_spec(*, declare_funding: bool = True) -> dict:
+    payload = _base_strategy_spec()
+    percentile = {
+        "operand_type": "composed_operand",
+        "composition_type": "rolling_empirical_percentile_v1",
+        "source_operand": _standard_operand("data_ref", "funding_rate", "funding_rate"),
+        "lookback": {"bars_parameter_ref": "funding_lookback_bars"},
+        "min_periods_policy": "full_window",
+        "tie_policy": "weak_rank",
+        "nan_policy": "null_output",
+    }
+    payload["entry_logic"]["groups"][0]["conditions"][0]["left_operand"] = percentile
+    payload["entry_logic"]["groups"][0]["conditions"][0]["operator"] = "gte"
+    payload["entry_logic"]["groups"][0]["conditions"][0]["right_operand"] = _standard_operand(
+        "parameter_ref", "entry_percentile"
+    )
+    if declare_funding:
+        payload["timeframe_and_data"]["host_data_refs"].append(
+            {
+                "stream": "funding",
+                "timeframe": "15m",
+                "field": "funding_rate",
+                "availability": "required",
+            }
+        )
+    lookback = _lookback_parameter(
+        name="funding_lookback_bars",
+        default=2880,
+        range_value={
+            "min": 2880,
+            "max": 17280,
+            "step": 5760,
+            "inclusive_min": True,
+            "inclusive_max": True,
+        },
+        allowed_values=[2880, 8640, 17280],
+    )
+    threshold = _threshold_parameter(
+        name="entry_percentile",
+        range_value={
+            "min": 0.90,
+            "max": 0.95,
+            "step": 0.05,
+            "inclusive_min": True,
+            "inclusive_max": True,
+        },
+        allowed_values=[0.90, 0.95],
+    )
+    threshold["default"] = 0.90
+    max_hold = _lookback_parameter(
+        name="max_hold_bars",
+        default=16,
+        range_value={
+            "min": 16,
+            "max": 96,
+            "step": 16,
+            "inclusive_min": True,
+            "inclusive_max": True,
+        },
+        allowed_values=[16, 32, 96],
+    )
+    max_hold["role"] = "exit"
+    payload["free_parameters"]["parameters"] = [lookback, threshold, max_hold]
+    payload["free_parameters"]["no_free_parameters_declared"] = False
+    payload["exit_logic"]["max_holding_period"] = {
+        "enabled": True,
+        "bars": {"parameter_ref": "max_hold_bars"},
+    }
+    return payload
+
+
 def _validate(
     tmp_path: Path,
     payload: dict,
@@ -1870,3 +1941,29 @@ def test_cli_returns_failure_for_invalid_temp_fixture(tmp_path, monkeypatch, cap
 
     assert main() == 1
     assert "ERROR:" in capsys.readouterr().out
+
+
+def test_funding_percentile_and_max_hold_bindings_pass_schema_and_validator(tmp_path):
+    payload = _funding_percentile_strategy_spec()
+
+    schema_errors = list(Draft7Validator(_load_schema()).iter_errors(payload))
+
+    assert schema_errors == []
+    assert _validate(tmp_path, payload) == []
+
+
+def test_funding_percentile_rejects_undeclared_data_ref(tmp_path):
+    payload = _funding_percentile_strategy_spec(declare_funding=False)
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("must be declared in timeframe_and_data.host_data_refs" in error for error in errors)
+
+
+def test_max_hold_binding_rejects_non_integer_parameter(tmp_path):
+    payload = _funding_percentile_strategy_spec()
+    payload["free_parameters"]["parameters"][2]["type"] = "number"
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("exit_logic.max_holding_period.bars" in error and "integer" in error for error in errors)

@@ -35,6 +35,10 @@ from tools.registry.validate_variant_sweep_artifacts import (
     validate_variant_sweep_artifacts,
 )
 from tools.research_runner.spec_signal_compiler import compile_signal
+from tools.research_runner.spec_signal_compiler import (
+    ALLOWED_OHLCV_FIELDS,
+    ALLOWED_TIMESTAMP_DERIVED_FIELDS,
+)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -86,6 +90,13 @@ OFFICIAL_4H_ROW_COUNT = 13_758
 INITIAL_EQUITY = 10_000.0
 DEFAULT_TARGET_LEVERAGE = 1.0
 DEFAULT_MAX_WORKERS = 1
+REQUIRED_OHLCV_COLUMNS = ("open", "high", "low", "close", "volume")
+DATA_FEATURE_AVAILABILITY_CATALOG_PATH = (
+    REPO_ROOT
+    / "research"
+    / "data_feature_availability"
+    / "PERP-DERIVED-FEATURE-AVAILABILITY-0001.json"
+)
 SIZING_MODE_FIXED_ORDER_SIZE = "fixed_order_size"
 SIZING_MODE_DYNAMIC_EQUITY_TARGET_LEVERAGE = "dynamic_equity_target_leverage"
 SIZING_MODES = (
@@ -427,6 +438,121 @@ def _guard_output_dir(output_dir: Path | None, write_result_population: bool) ->
     return resolved
 
 
+def _collect_declared_data_ref_fields(value: Any) -> set[str]:
+    fields: set[str] = set()
+    if isinstance(value, dict):
+        if value.get("operand_type") == "data_ref":
+            field = value.get("field") or value.get("ref")
+            if (
+                isinstance(field, str)
+                and field not in ALLOWED_OHLCV_FIELDS
+                and field not in ALLOWED_TIMESTAMP_DERIVED_FIELDS
+            ):
+                fields.add(field)
+        for child in value.values():
+            fields.update(_collect_declared_data_ref_fields(child))
+    elif isinstance(value, list):
+        for child in value:
+            fields.update(_collect_declared_data_ref_fields(child))
+    return fields
+
+
+def _collect_declared_host_data_fields(strategy_spec: dict[str, Any]) -> set[str]:
+    timeframe_and_data = strategy_spec.get("timeframe_and_data")
+    host_data_refs = (
+        timeframe_and_data.get("host_data_refs")
+        if isinstance(timeframe_and_data, dict)
+        else None
+    )
+    if not isinstance(host_data_refs, list):
+        return set()
+    fields: set[str] = set()
+    for host_ref in host_data_refs:
+        if not isinstance(host_ref, dict) or host_ref.get("stream") == "indicator_catalog":
+            continue
+        field = host_ref.get("field")
+        if (
+            isinstance(field, str)
+            and field not in ALLOWED_OHLCV_FIELDS
+            and field not in ALLOWED_TIMESTAMP_DERIVED_FIELDS
+        ):
+            fields.add(field)
+    return fields
+
+
+def _declared_non_ohlcv_columns(strategy_spec: dict[str, Any]) -> tuple[str, ...]:
+    fields = _collect_declared_data_ref_fields(strategy_spec)
+    fields.update(_collect_declared_host_data_fields(strategy_spec))
+    return tuple(sorted(fields))
+
+
+def _availability_catalog_entries() -> dict[str, list[dict[str, Any]]]:
+    catalog = _load_json(DATA_FEATURE_AVAILABILITY_CATALOG_PATH)
+    entries: dict[str, list[dict[str, Any]]] = {}
+    for entry in catalog.get("entries", []):
+        if not isinstance(entry, dict):
+            continue
+        feature_name = entry.get("feature_name")
+        if isinstance(feature_name, str):
+            entries.setdefault(feature_name, []).append(entry)
+    return entries
+
+
+def _availability_entry_for_feature(feature_name: str) -> dict[str, Any]:
+    entries = _availability_catalog_entries().get(feature_name, [])
+    if not entries:
+        raise OfflineSweepError(f"unknown data-derived feature availability label: {feature_name}")
+    full_history = [
+        entry
+        for entry in entries
+        if entry.get("coverage_class") == "FULL_HISTORY_PUBLIC_ARCHIVE"
+        and entry.get("compiler_visible") is True
+    ]
+    if full_history:
+        return full_history[0]
+    source_classes = sorted(
+        str(entry.get("source_class"))
+        for entry in entries
+        if isinstance(entry.get("source_class"), str)
+    )
+    raise OfflineSweepError(
+        f"{feature_name} has no FULL_HISTORY_PUBLIC_ARCHIVE availability source; "
+        f"available_sources={source_classes}"
+    )
+
+
+def _data_availability_claim(strategy_spec: dict[str, Any]) -> dict[str, Any] | None:
+    declared_fields = _declared_non_ohlcv_columns(strategy_spec)
+    if not declared_fields:
+        return None
+    feature_sources = []
+    for field in declared_fields:
+        entry = _availability_entry_for_feature(field)
+        source_class = entry.get("source_class")
+        if not isinstance(source_class, str):
+            raise OfflineSweepError(f"availability entry for {field} missing source_class")
+        feature_sources.append(
+            {
+                "feature_name": field,
+                "source_class": source_class,
+                "condition_assertions": [
+                    condition
+                    for condition in entry.get("conditions", [])
+                    if isinstance(condition, str) and condition
+                ],
+            }
+        )
+    return {
+        "coverage_claim": "FULL_HISTORY",
+        "feature_sources": feature_sources,
+        "historical_dataset_overrides": [],
+        "claim_notes": [
+            "Generated by offline runner from declared non-OHLCV data_ref/host_data_refs.",
+            "Claim is metadata only and does not authorize canonical evidence or execution.",
+        ],
+    }
+
+
 def _variant_fixture_mode(variant: dict[str, Any]) -> str | None:
     reason = variant.get("status_reason")
     if isinstance(reason, str) and reason.startswith("runner_fixture:"):
@@ -497,6 +623,7 @@ def _load_ohlcv_input(
     timeframe: str,
     expected_delta: pd.Timedelta,
     min_rows: int,
+    additional_columns: tuple[str, ...] = (),
 ) -> pd.DataFrame:
     if not path.exists():
         raise OfflineSweepError(f"{timeframe} OHLCV input does not exist: {path}")
@@ -504,13 +631,19 @@ def _load_ohlcv_input(
         raise OfflineSweepError(f"canonical {timeframe} OHLCV input must be a CSV fixture/input")
     frame = pd.read_csv(path)
     timestamp = _select_ohlcv_timestamp(frame)
-    required_columns = {"open", "high", "low", "close", "volume"}
+    required_columns = set(REQUIRED_OHLCV_COLUMNS)
     missing = required_columns - set(frame.columns)
     if missing:
         raise OfflineSweepError(f"{timeframe} OHLCV input missing columns: {sorted(missing)}")
+    missing_declared = set(additional_columns) - set(frame.columns)
+    if missing_declared:
+        raise OfflineSweepError(
+            f"{timeframe} input missing declared non-OHLCV columns: {sorted(missing_declared)}"
+        )
     frame["timestamp"] = timestamp
     frame = frame.set_index("timestamp").sort_index()
-    frame = frame[["open", "high", "low", "close", "volume"]].astype(float)
+    retained_columns = [*REQUIRED_OHLCV_COLUMNS, *additional_columns]
+    frame = frame[retained_columns].astype(float)
     if frame.index.has_duplicates:
         raise OfflineSweepError(f"{timeframe} OHLCV input must have no duplicate timestamps")
     if len(frame.index) < min_rows:
@@ -523,21 +656,29 @@ def _load_ohlcv_input(
     return frame
 
 
-def _load_15m_ohlcv_input(path: Path) -> pd.DataFrame:
+def _load_15m_ohlcv_input(
+    path: Path,
+    additional_columns: tuple[str, ...] = (),
+) -> pd.DataFrame:
     return _load_ohlcv_input(
         path,
         timeframe="15m",
         expected_delta=pd.Timedelta(minutes=15),
         min_rows=20,
+        additional_columns=additional_columns,
     )
 
 
-def _load_4h_ohlcv_input(path: Path) -> pd.DataFrame:
+def _load_4h_ohlcv_input(
+    path: Path,
+    additional_columns: tuple[str, ...] = (),
+) -> pd.DataFrame:
     return _load_ohlcv_input(
         path,
         timeframe="4h",
         expected_delta=pd.Timedelta(hours=4),
         min_rows=20,
+        additional_columns=additional_columns,
     )
 
 
@@ -671,12 +812,20 @@ def _build_walkforward_windows(
     return windows
 
 
-def _canonical_15m_execution_input(ohlcv_input_path: Path | None) -> _ExecutionInput:
+def _canonical_15m_execution_input(
+    ohlcv_input_path: Path | None,
+    additional_columns: tuple[str, ...] = (),
+) -> _ExecutionInput:
     if ohlcv_input_path is None:
         raise OfflineSweepError("--ohlcv-input is required with --canonical-15m")
     resolved = ohlcv_input_path.resolve()
-    ohlcv = _load_15m_ohlcv_input(resolved)
+    ohlcv = _load_15m_ohlcv_input(resolved, additional_columns)
     digest = _sha256_file(resolved)
+    declared_note = (
+        [f"declared_non_ohlcv_columns={','.join(additional_columns)}"]
+        if additional_columns
+        else []
+    )
     return _ExecutionInput(
         mode="canonical_15m_fixture",
         execution_provenance_class="fixture_offline",
@@ -692,6 +841,7 @@ def _canonical_15m_execution_input(ohlcv_input_path: Path | None) -> _ExecutionI
         ],
         data_coverage_notes=[
             "15m OHLCV test fixture/input",
+            *declared_note,
             "offline only",
             "no exchange/API contact",
             "not production data",
@@ -737,6 +887,7 @@ def _d4_catalog_execution_input(
     ohlcv_input_path: Path | None,
     d4_catalog_slice_path: Path | None,
     d2_import_report_path: Path | None,
+    additional_columns: tuple[str, ...] = (),
 ) -> _ExecutionInput:
     if d4_catalog_slice_path is None:
         raise OfflineSweepError("--d4-catalog-slice is required for D4 provenance mode")
@@ -787,7 +938,7 @@ def _d4_catalog_execution_input(
 
     d2_import_report_sha256 = _sha256_file_hex(d2_import_report_path)
     d4_catalog_artifact_sha256 = _sha256_file_hex(d4_catalog_slice_path)
-    execution_input = _canonical_15m_execution_input(ohlcv_input_path)
+    execution_input = _canonical_15m_execution_input(ohlcv_input_path, additional_columns)
     return _ExecutionInput(
         mode="canonical_15m_d4_provenance",
         execution_provenance_class="canonical_real_data",
@@ -804,6 +955,11 @@ def _d4_catalog_execution_input(
         ],
         data_coverage_notes=[
             D4_PROVENANCE_MODE_NOTE,
+            *(
+                [f"declared_non_ohlcv_columns={','.join(additional_columns)}"]
+                if additional_columns
+                else []
+            ),
             "offline only",
             "no exchange/API contact",
             "not live/paper input",
@@ -831,6 +987,7 @@ def _canonical_4h_execution_input(
     d4h_catalog_slice_path: Path | None,
     d4h_validation_report_path: Path | None,
     d4h_derivation_report_path: Path | None,
+    additional_columns: tuple[str, ...] = (),
 ) -> _ExecutionInput:
     if ohlcv_input_path is None:
         raise OfflineSweepError("--ohlcv-input is required with --canonical-4h")
@@ -909,7 +1066,7 @@ def _canonical_4h_execution_input(
     actual_csv_sha256 = _sha256_file_hex(resolved)
     if actual_csv_sha256 != normalized_sha256:
         raise OfflineSweepError("4h OHLCV CSV SHA256 does not match catalog")
-    ohlcv = _load_4h_ohlcv_input(resolved)
+    ohlcv = _load_4h_ohlcv_input(resolved, additional_columns)
     if len(ohlcv) != row_count:
         raise OfflineSweepError("4h OHLCV row count does not match catalog")
     metadata_start = _parse_metadata_timestamp(start_utc, "range.start_utc")
@@ -934,6 +1091,11 @@ def _canonical_4h_execution_input(
         ],
         data_coverage_notes=[
             D4H_PROVENANCE_MODE_NOTE,
+            *(
+                [f"declared_non_ohlcv_columns={','.join(additional_columns)}"]
+                if additional_columns
+                else []
+            ),
             "offline only",
             "no exchange/API contact",
             "not live/paper input",
@@ -2039,8 +2201,15 @@ def _build_result_population(
     sizing_context = _sizing_context(execution_input, sizing_mode, target_leverage)
     backtest_assumptions = _backtest_assumption_summary(sweep_plan, sizing_context)
     sizing_metadata = _sizing_metadata(sizing_context)
-    input_scope = _input_scope(include_sizing_metadata=sizing_metadata is not None)
-    result_scope = _result_scope(include_sizing_metadata=sizing_metadata is not None)
+    data_availability_claim = _data_availability_claim(strategy_spec)
+    input_scope = _input_scope(
+        include_sizing_metadata=sizing_metadata is not None,
+        include_data_availability_claim=data_availability_claim is not None,
+    )
+    result_scope = _result_scope(
+        include_sizing_metadata=sizing_metadata is not None,
+        include_data_availability_claim=data_availability_claim is not None,
+    )
     provenance_identity = _execution_provenance_identity(execution_input)
     result_population_id = _deterministic_result_population_id(
         strategy_hash,
@@ -2271,6 +2440,8 @@ def _build_result_population(
     }
     if sizing_metadata is not None:
         payload["sizing_metadata"] = sizing_metadata
+    if data_availability_claim is not None:
+        payload["data_availability_claim"] = data_availability_claim
     payload["input_identity_hash"]["hash"] = _canonical_hash(payload, input_scope)
     payload["lineage"]["parent_hash_chain"]["input_identity_hash"] = payload["input_identity_hash"][
         "hash"
@@ -2293,7 +2464,11 @@ def _identity_hash_object(scope_version: str, scope: list[str]) -> dict[str, Any
     }
 
 
-def _input_scope(*, include_sizing_metadata: bool = False) -> list[str]:
+def _input_scope(
+    *,
+    include_sizing_metadata: bool = False,
+    include_data_availability_claim: bool = False,
+) -> list[str]:
     scope = [
         "parent_strategy_spec.strategy_spec_hash",
         "parent_variant_manifest.manifest_hash",
@@ -2306,14 +2481,23 @@ def _input_scope(*, include_sizing_metadata: bool = False) -> list[str]:
         "data_coverage_summary.data_slice_identity",
         "backtest_assumption_summary",
     ]
+    if include_data_availability_claim:
+        scope.insert(scope.index("backtest_assumption_summary"), "data_availability_claim")
     if include_sizing_metadata:
         scope.append("sizing_metadata")
     return scope
 
 
-def _result_scope(*, include_sizing_metadata: bool = False) -> list[str]:
+def _result_scope(
+    *,
+    include_sizing_metadata: bool = False,
+    include_data_availability_claim: bool = False,
+) -> list[str]:
     return [
-        *_input_scope(include_sizing_metadata=include_sizing_metadata),
+        *_input_scope(
+            include_sizing_metadata=include_sizing_metadata,
+            include_data_availability_claim=include_data_availability_claim,
+        ),
         "committed_denominator_snapshot",
         "variant_result_rows",
         "outcome_category_counts",
@@ -2454,6 +2638,7 @@ def run_offline_sweep(
         variant_manifest_path,
         sweep_plan_path,
     )
+    declared_non_ohlcv_columns = _declared_non_ohlcv_columns(strategy_spec)
     execution_input = None
     if canonical_15m:
         primary_timeframe = strategy_spec.get("timeframe_and_data", {}).get("primary_timeframe")
@@ -2465,9 +2650,13 @@ def run_offline_sweep(
                 ohlcv_input_path,
                 d4_catalog_slice_path,
                 d2_import_report_path,
+                declared_non_ohlcv_columns,
             )
         else:
-            execution_input = _canonical_15m_execution_input(ohlcv_input_path)
+            execution_input = _canonical_15m_execution_input(
+                ohlcv_input_path,
+                declared_non_ohlcv_columns,
+            )
     elif canonical_4h:
         primary_timeframe = strategy_spec.get("timeframe_and_data", {}).get("primary_timeframe")
         sweep_timeframe = sweep_plan.get("data_and_timeframe_assumptions", {}).get("primary_timeframe")
@@ -2480,6 +2669,7 @@ def run_offline_sweep(
             d4h_catalog_slice_path,
             d4h_validation_report_path,
             d4h_derivation_report_path,
+            declared_non_ohlcv_columns,
         )
     elif d4_catalog_slice_path is not None or d2_import_report_path is not None:
         raise OfflineSweepError("D4 provenance mode requires --canonical-15m")

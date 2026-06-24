@@ -1,0 +1,18 @@
+{
+  "package": "WP-RUNNER-DATA-PATH-NONOHLCV-01",
+  "status": "passed",
+  "implementation": "Runner emits optional result_population.data_availability_claim for declared non-OHLCV fields.",
+  "identity_bearing": true,
+  "full_history_source_required": true,
+  "verified_by_tests": [
+    "tests/test_offline_research_runner.py::test_declared_non_ohlcv_column_is_retained_for_compiler",
+    "tests/test_offline_research_runner.py::test_multiple_declared_non_ohlcv_columns_are_retained",
+    "tests/test_offline_research_runner.py::test_recent_only_declared_non_ohlcv_field_fails_closed"
+  ],
+  "example_feature_source": {
+    "feature_name": "taker_buy_sell_ratio",
+    "source_class": "PUBLIC_TRADE_ARCHIVE_DERIVATION",
+    "condition_assertions_preserved": true
+  },
+  "recent_only_not_erased": true
+}

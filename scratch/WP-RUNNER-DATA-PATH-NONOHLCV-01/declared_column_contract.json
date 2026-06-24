@@ -1,0 +1,24 @@
+{
+  "package": "WP-RUNNER-DATA-PATH-NONOHLCV-01",
+  "required_ohlcv_columns": ["open", "high", "low", "close", "volume"],
+  "declared_extra_column_sources": [
+    "Strategy Spec data_ref operands",
+    "Strategy Spec timeframe_and_data.host_data_refs"
+  ],
+  "timestamp_derived_fields_required_as_columns": false,
+  "undeclared_extra_columns": "dropped_before_compilation",
+  "missing_declared_non_ohlcv_columns": "fail_closed",
+  "recent_only_or_snapshot_only_fields": "fail_closed_for_full_history_runner_claim",
+  "availability_claim": {
+    "emitted_when": "declared_non_ohlcv_fields_non_empty",
+    "coverage_claim": "FULL_HISTORY",
+    "required_source_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+    "identity_bearing": true
+  },
+  "ohlcv_only_default_path": {
+    "retained_columns": ["open", "high", "low", "close", "volume"],
+    "data_availability_claim_emitted": false,
+    "input_scope_changed": false
+  },
+  "protected_boundaries_changed": false
+}

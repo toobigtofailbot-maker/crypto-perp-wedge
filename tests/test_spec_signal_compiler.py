@@ -168,6 +168,31 @@ def _z_score_operand(
     }
 
 
+def _rolling_percentile_operand(field: str = "funding_rate", lookback=None) -> dict:
+    return {
+        "operand_type": "composed_operand",
+        "composition_type": "rolling_empirical_percentile_v1",
+        "source_operand": _operand("data_ref", field, field),
+        "lookback": lookback if lookback is not None else {"bars": 3},
+        "min_periods_policy": "full_window",
+        "tie_policy": "weak_rank",
+        "nan_policy": "null_output",
+    }
+
+
+def _declare_host_data_ref(spec: dict, field: str = "funding_rate") -> None:
+    spec["timeframe_and_data"] = {
+        "host_data_refs": [
+            {
+                "stream": "funding",
+                "timeframe": "15m",
+                "field": field,
+                "availability": "required",
+            }
+        ]
+    }
+
+
 def _atr_stop(
     *,
     atr_lookback: int | float = 1,
@@ -4384,3 +4409,119 @@ def test_close_only_exit_primitives_reject_forbidden_executable_key() -> None:
 
     with pytest.raises(SpecSignalCompilerError, match="forbidden executable"):
         compile_signal(spec, _default_variant(), _orb_ohlcv([100.0, 102.0, 98.0]))
+
+
+def test_rolling_empirical_percentile_contract_window_ties_and_warmup() -> None:
+    source = pd.Series([1.0, 2.0, 2.0, 0.0, math.nan, 3.0])
+
+    result = compiler._rolling_empirical_percentile_v1(source, 3)
+
+    expected = pd.Series([math.nan, math.nan, 1.0, 1.0 / 3.0, math.nan, math.nan])
+    pd.testing.assert_series_equal(result, expected)
+
+
+def test_rolling_empirical_percentile_future_mutation_does_not_change_prefix() -> None:
+    source = pd.Series([1.0, 3.0, 2.0, 4.0, 5.0, 6.0])
+    mutated = source.copy()
+    mutated.iloc[4:] = [-1000.0, 1000.0]
+
+    base = compiler._rolling_empirical_percentile_v1(source, 3)
+    changed = compiler._rolling_empirical_percentile_v1(mutated, 3)
+
+    pd.testing.assert_series_equal(base.iloc[:4], changed.iloc[:4])
+
+
+def test_rolling_empirical_percentile_requires_declared_present_data_ref() -> None:
+    ohlcv = _ohlcv()
+    ohlcv["funding_rate"] = DATA_DERIVED_FIELD_VALUES["funding_rate"]
+    spec = _single_condition_spec(
+        "gte",
+        _rolling_percentile_operand(),
+        _operand("constant", 0.9),
+    )
+
+    with pytest.raises(SpecSignalCompilerError, match="not declared in host_data_refs"):
+        compile_signal(spec, _default_variant(), ohlcv)
+
+    _declare_host_data_ref(spec)
+    without_column = ohlcv.drop(columns=["funding_rate"])
+    with pytest.raises(SpecSignalCompilerError, match="missing referenced data_ref field"):
+        compile_signal(spec, _default_variant(), without_column)
+
+
+def test_rolling_empirical_percentile_parameter_bound_lookback() -> None:
+    ohlcv = _ohlcv()
+    ohlcv["funding_rate"] = DATA_DERIVED_FIELD_VALUES["funding_rate"]
+    spec = _single_condition_spec(
+        "gte",
+        _rolling_percentile_operand(lookback={"bars_parameter_ref": "funding_lookback_bars"}),
+        _operand("constant", 0.9),
+        max_holding_bars=1,
+    )
+    _declare_host_data_ref(spec)
+
+    signal = compile_signal(spec, _default_variant(funding_lookback_bars=3), ohlcv)
+
+    assert signal.tolist() == [0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0]
+
+
+@pytest.mark.parametrize("value", [0, -1, 1.5, True])
+def test_max_holding_period_parameter_binding_rejects_invalid_values(value) -> None:
+    spec = _single_condition_spec(
+        "gt",
+        _operand("data_ref", "close", "close"),
+        _operand("constant", 0.0),
+    )
+    spec["exit_logic"]["max_holding_period"] = {
+        "enabled": True,
+        "bars": {"parameter_ref": "max_hold_bars"},
+    }
+
+    with pytest.raises(SpecSignalCompilerError, match="integer bars"):
+        compile_signal(spec, _default_variant(max_hold_bars=value), _ohlcv())
+
+
+def test_max_holding_period_parameter_binding_rejects_missing_value() -> None:
+    spec = _single_condition_spec(
+        "gt",
+        _operand("data_ref", "close", "close"),
+        _operand("constant", 0.0),
+    )
+    spec["exit_logic"]["max_holding_period"] = {
+        "enabled": True,
+        "bars": {"parameter_ref": "max_hold_bars"},
+    }
+
+    with pytest.raises(SpecSignalCompilerError, match="missing required parameter_ref"):
+        compile_signal(spec, _default_variant(), _ohlcv())
+
+
+def test_funding_family_fixture_is_contrarian_and_binds_max_hold() -> None:
+    ohlcv = _ohlcv()
+    ohlcv["funding_rate"] = [-3.0, -2.0, -1.0, 3.0, 2.0, 1.0, -4.0, 4.0]
+    percentile = _rolling_percentile_operand(
+        lookback={"bars_parameter_ref": "funding_lookback_bars"}
+    )
+    spec = _both_direction_spec(
+        long_entry=_condition(percentile, "lte", _operand("parameter_ref", "lower_entry")),
+        short_entry=_condition(percentile, "gte", _operand("parameter_ref", "upper_entry")),
+    )
+    spec["exit_logic"]["max_holding_period"] = {
+        "enabled": True,
+        "bars": {"parameter_ref": "max_hold_bars"},
+    }
+    _declare_host_data_ref(spec)
+
+    signal = compile_signal(
+        spec,
+        _default_variant(
+            funding_lookback_bars=3,
+            lower_entry=0.34,
+            upper_entry=0.9,
+            max_hold_bars=2,
+        ),
+        ohlcv,
+    )
+
+    assert signal.iloc[3] == -1.0
+    assert signal.iloc[6] == 1.0

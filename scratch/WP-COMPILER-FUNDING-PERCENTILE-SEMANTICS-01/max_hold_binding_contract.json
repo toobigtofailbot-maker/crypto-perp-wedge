@@ -1,0 +1,12 @@
+{
+  "field": "exit_logic.max_holding_period.bars",
+  "literal_integer_preserved": true,
+  "binding_shape": {"parameter_ref": "declared_parameter_name"},
+  "resolved_type": "non_boolean_integer",
+  "minimum": 1,
+  "maximum": 100000,
+  "strategy_parameter_declaration_required": true,
+  "variant_manifest_axis_required": true,
+  "missing_parameter_policy": "fail_closed",
+  "runtime_or_backtester_change": false
+}

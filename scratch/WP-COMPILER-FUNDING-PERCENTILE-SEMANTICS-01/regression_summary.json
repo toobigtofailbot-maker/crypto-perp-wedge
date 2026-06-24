@@ -1,0 +1,13 @@
+{
+  "spec_signal_compiler_tests": "244 passed as part of focused compiler suite",
+  "offline_runner_tests": "101 passed",
+  "strategy_spec_and_variant_validator_focus": "392 passed combined with compiler tests",
+  "result_population_availability_candidate_tests": "88 passed",
+  "registry_validators": "passed",
+  "integrity_views": "all discovered v_integrity_* views clean",
+  "full_pytest": "4 deterministic shards / 107 test files passed after catalog-hash-verified validation-only copy of the ignored D4A CSV",
+  "serial_full_pytest": "timed out after 1204 seconds; not counted as a pass",
+  "exact_result_population_replay": "not available in current repo",
+  "ohlcv_only_behavior": "existing compiler and runner suites passed",
+  "git_diff_check": "passed"
+}

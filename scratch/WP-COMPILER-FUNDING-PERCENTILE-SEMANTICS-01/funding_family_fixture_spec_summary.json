@@ -1,0 +1,15 @@
+{
+  "classification": "fixture_only_non_canonical",
+  "hypothesis_id": "H-FUNDING-RATE-POSITIONING-FADE-01",
+  "data_ref": "funding_rate",
+  "transform": "rolling_empirical_percentile_v1",
+  "lookback_bars_15m": [2880, 8640, 17280],
+  "entry_percentiles": [0.9, 0.95],
+  "symmetric_lower_percentiles": [0.1, 0.05],
+  "exit_percentile": 0.5,
+  "max_hold_bars": [16, 32, 96],
+  "direction": {"positive_extreme": "short", "negative_extreme": "long"},
+  "schema_and_validator_fixture": "tests/test_validate_strategy_specs.py::_funding_percentile_strategy_spec",
+  "compiler_fixture": "tests/test_spec_signal_compiler.py::test_funding_family_fixture_is_contrarian_and_binds_max_hold",
+  "research_run_executed": false
+}

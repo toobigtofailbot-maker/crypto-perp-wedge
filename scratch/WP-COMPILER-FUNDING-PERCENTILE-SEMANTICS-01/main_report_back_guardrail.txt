@@ -1,0 +1,12 @@
+Main report-back must be a .txt file.
+Address Main only.
+Neutral factual handoff only.
+No recommendations.
+No preferred option.
+No “I recommend / I do not recommend.”
+No “should / best / proceed / I would.”
+State whether rolling data_ref percentile semantics landed, blocked, or partially landed.
+State whether variant-bindable max_holding_period.bars landed, blocked, or partially landed.
+State whether the funding-rate positioning-fade family is now expressible as a validated fixture.
+State that no funding research run was executed in this WP.
+State that Side 12 / operator research-lab target state remains incomplete unless repo truth proves otherwise.

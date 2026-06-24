@@ -537,10 +537,60 @@
         }
       }
     },
+    "rolling_empirical_percentile_composed_operand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operand_type",
+        "composition_type",
+        "source_operand",
+        "lookback",
+        "min_periods_policy",
+        "tie_policy",
+        "nan_policy"
+      ],
+      "properties": {
+        "operand_type": {
+          "type": "string",
+          "const": "composed_operand"
+        },
+        "composition_type": {
+          "type": "string",
+          "const": "rolling_empirical_percentile_v1"
+        },
+        "source_operand": {
+          "allOf": [
+            { "$ref": "#/definitions/standard_operand" },
+            {
+              "properties": {
+                "operand_type": { "type": "string", "const": "data_ref" },
+                "lookback": { "type": "null" }
+              }
+            }
+          ]
+        },
+        "lookback": {
+          "$ref": "#/definitions/indicator_lookback"
+        },
+        "min_periods_policy": {
+          "type": "string",
+          "const": "full_window"
+        },
+        "tie_policy": {
+          "type": "string",
+          "const": "weak_rank"
+        },
+        "nan_policy": {
+          "type": "string",
+          "const": "null_output"
+        }
+      }
+    },
     "composed_operand": {
       "oneOf": [
         { "$ref": "#/definitions/scaled_parameter_composed_operand" },
-        { "$ref": "#/definitions/z_score_composed_operand" }
+        { "$ref": "#/definitions/z_score_composed_operand" },
+        { "$ref": "#/definitions/rolling_empirical_percentile_composed_operand" }
       ]
     },
     "operand": {
@@ -1005,8 +1055,11 @@
           "type": "boolean"
         },
         "bars": {
-          "type": ["integer", "null"],
-          "minimum": 1
+          "anyOf": [
+            { "type": "integer", "minimum": 1, "maximum": 100000 },
+            { "$ref": "#/definitions/parameter_value_ref" },
+            { "type": "null" }
+          ]
         }
       }
     },

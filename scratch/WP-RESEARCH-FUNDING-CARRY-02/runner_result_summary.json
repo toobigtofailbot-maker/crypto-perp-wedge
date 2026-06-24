@@ -1,0 +1,12 @@
+{
+  "classification": "NO-GO",
+  "interpretation": "price-P&L funding-rate signal test",
+  "funding_pnl_wired": false,
+  "costs_enabled": true,
+  "populations": {
+    "fixed_max_hold_only": {"result_population_id": "RP-2009", "rows": 18, "successful": 18, "sha256": "d6e5e6c46c38208b308b2c5aaa34b3a65176831b61b5026229c857ba08914076"},
+    "midline_reversion_or_max_hold": {"result_population_id": "RP-7592", "rows": 18, "successful": 18, "sha256": "18bfe97d571b3e5debf675a103e736ff29ce17287847a4b673cc4cbe68480d37"}
+  },
+  "combined_rows": 36,
+  "canonical_result_population_written": false
+}

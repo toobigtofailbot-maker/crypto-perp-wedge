@@ -1,0 +1,10 @@
+{
+  "status": "seeded_advisory_bootstrap_completed",
+  "seed": 20260624,
+  "samples_per_population": 1000,
+  "fixed_max_hold_only": {"output_checksum": "sha256:3803071a6752a65835caee258c6ec3712cb79b92e81078a8b81cdf3b59598f8a", "drawdown_observed_mean": 0.9920421483488876, "drawdown_ci_95": [0.9761264450466628, 1.0], "pnl_observed_mean": -6614.049010916809, "pnl_ci_95": [-10000.0, 157.85296724957394], "sharpe_observed_mean": -0.5047856832056071, "sharpe_ci_95": [-1.0969163557430623, 0.03851940208666206]},
+  "midline_reversion_or_max_hold": {"output_checksum": "sha256:65106df86941182232213881b9bfe2c136a0e0095f7b0644d9ea402ff117018a", "drawdown_observed_mean": 0.9837178117673359, "drawdown_ci_95": [0.9571486615052753, 1.0], "pnl_observed_mean": -4901.7435213918325, "pnl_ci_95": [-10000.0, 3252.1212903294254], "sharpe_observed_mean": -0.19295855678505316, "sharpe_ci_95": [-0.5488219950108814, 0.13229296590418027]},
+  "per_trade_monte_carlo": "blocked_missing_real_per_trade_rows_not_fabricated",
+  "parameter_sensitivity": "insufficient_mapping_in_result_population_lineage",
+  "authority": "advisory_only_not_gate_not_ranking"
+}

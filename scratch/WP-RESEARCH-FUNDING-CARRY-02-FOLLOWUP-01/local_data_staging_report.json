@@ -1,0 +1,14 @@
+{
+  "route_used": "copy_existing_materialized_csv",
+  "source_path": "C:\\GitHub\\crypto-perp-wedge-worktrees\\data-materialize-funding-feature-01\\data\\processed\\d4a\\binance_um_perp_BTCUSDT_15m_2020-01-01_2026-04-11_funding_feature_v1.csv",
+  "destination_path": "C:\\GitHub\\crypto-perp-wedge-worktrees\\research-funding-carry-02-retry-01\\data\\processed\\d4a\\binance_um_perp_BTCUSDT_15m_2020-01-01_2026-04-11_funding_feature_v1.csv",
+  "source_hash": "70cbe2040c8fb5987b2971a13c8bd4f66e91152331d5b641d684673364be3931",
+  "destination_hash": "70cbe2040c8fb5987b2971a13c8bd4f66e91152331d5b641d684673364be3931",
+  "row_count_check": {"expected": 220128, "actual": 220128, "passed": true},
+  "date_range_check": {"expected_start": "2020-01-01T00:00:00Z", "actual_start": "2020-01-01T00:00:00Z", "expected_end": "2026-04-11T23:45:00Z", "actual_end": "2026-04-11T23:45:00Z", "passed": true},
+  "columns_check": {"actual": ["timestamp", "open", "high", "low", "close", "volume", "funding_rate"], "passed": true},
+  "gitignored_status_check": {"passed": true, "rule": ".gitignore:14:/data/processed/**"},
+  "validation_only_parent_ohlcv_copy": {"path": "data/processed/d4a/binance_um_perp_BTCUSDT_15m_2020-01-01_2026-04-11_d4a_normalized.csv", "sha256": "c30fd7f07fdf513cdaf234b1bee4eff03b430a479cc572a2cc8b57394f22e0ab", "gitignored": true, "purpose": "satisfy existing full-suite external-simulator fixture"},
+  "network_or_api_used": false,
+  "synthetic_data_used": false
+}

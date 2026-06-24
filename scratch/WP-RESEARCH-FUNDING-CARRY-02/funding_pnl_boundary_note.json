@@ -1,0 +1,8 @@
+{
+  "result_interpretation": "price-P&L funding-rate signal test",
+  "funding_payments_wired": false,
+  "funding_cost_mode": "off",
+  "funding_metric": 0.0,
+  "complete_carry_pnl_claimed": false,
+  "funding_accounting_changed": false
+}

@@ -1,0 +1,9 @@
+{
+  "status": "completed_dry_run_only",
+  "window_protocol": {"window_type": "rolling_non_overlapping_build_test", "in_sample_bars": 105120, "out_of_sample_bars": 35040, "step_bars": 140160, "window_count": 1, "boundary_semantics": "start_inclusive_end_exclusive", "selection_behavior": "no_selection_partition_and_report_all_included_variants", "purge_embargo": "not_implemented_deferred_by_design"},
+  "fixed_max_hold_only": {"rows": 18, "successful_rows": 18, "oos_positive_pnl_rows": 4, "oos_drawdown_min": 0.25927325081740143, "oos_drawdown_max": 1.0, "oos_sharpe_min": -2.9410252556504592, "oos_sharpe_max": 2.4613410834314315, "efficiency_computed_rows": 8},
+  "midline_reversion_or_max_hold": {"rows": 18, "successful_rows": 18, "oos_positive_pnl_rows": 3, "oos_drawdown_min": 0.2925639535273751, "oos_drawdown_max": 1.0, "oos_sharpe_min": -1.9708070889822997, "oos_sharpe_max": 1.8398624038090126, "efficiency_computed_rows": 9},
+  "classification": "NO-GO",
+  "canonical_result_population_written": false,
+  "authority": "build_test_only_not_canonical_evidence"
+}

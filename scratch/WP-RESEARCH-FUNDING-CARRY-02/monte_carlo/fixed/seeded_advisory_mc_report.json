@@ -1,0 +1,213 @@
+{
+  "bootstrap_ci": {
+    "drawdown": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 0.9923286310083368,
+      "ci_lower": 0.9761264450466628,
+      "ci_upper": 1.0,
+      "confidence_level": 0.95,
+      "metric": "drawdown",
+      "observed_mean": 0.9920421483488876,
+      "row_count": 18,
+      "sample_count": 1000
+    },
+    "exposure": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 1.0,
+      "ci_lower": 1.0,
+      "ci_upper": 1.0,
+      "confidence_level": 0.95,
+      "metric": "exposure",
+      "observed_mean": 1.0,
+      "row_count": 18,
+      "sample_count": 1000
+    },
+    "fees": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 9107.08651322102,
+      "ci_lower": 4126.224944505722,
+      "ci_upper": 15733.239175072915,
+      "confidence_level": 0.95,
+      "metric": "fees",
+      "observed_mean": 9020.659346661232,
+      "row_count": 18,
+      "sample_count": 1000
+    },
+    "funding": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 0.0,
+      "ci_lower": 0.0,
+      "ci_upper": 0.0,
+      "confidence_level": 0.95,
+      "metric": "funding",
+      "observed_mean": 0.0,
+      "row_count": 18,
+      "sample_count": 1000
+    },
+    "pnl": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": -6627.592814873078,
+      "ci_lower": -10000.0,
+      "ci_upper": 157.85296724957394,
+      "confidence_level": 0.95,
+      "metric": "pnl",
+      "observed_mean": -6614.049010916809,
+      "row_count": 18,
+      "sample_count": 1000
+    },
+    "return_pct": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": -0.6532786187178794,
+      "ci_lower": -1.0,
+      "ci_upper": 0.01578529672495736,
+      "confidence_level": 0.95,
+      "metric": "return_pct",
+      "observed_mean": -0.6614049010916809,
+      "row_count": 18,
+      "sample_count": 1000
+    },
+    "sharpe": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": -0.49449683482645207,
+      "ci_lower": -1.0969163557430623,
+      "ci_upper": 0.03851940208666206,
+      "confidence_level": 0.95,
+      "metric": "sharpe",
+      "observed_mean": -0.5047856832056071,
+      "row_count": 18,
+      "sample_count": 1000
+    },
+    "slippage": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 2215.0376605760125,
+      "ci_lower": 1044.8652226775973,
+      "ci_upper": 3867.196655765634,
+      "confidence_level": 0.95,
+      "metric": "slippage",
+      "observed_mean": 2255.164836665308,
+      "row_count": 18,
+      "sample_count": 1000
+    },
+    "trade_count": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 341.39383333333365,
+      "ci_lower": 230.88333333333333,
+      "ci_upper": 460.3902777777778,
+      "confidence_level": 0.95,
+      "metric": "trade_count",
+      "observed_mean": 340.3888888888889,
+      "row_count": 18,
+      "sample_count": 1000
+    },
+    "win_rate": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 0.4919451086707302,
+      "ci_lower": 0.4717105889429022,
+      "ci_upper": 0.5139512377472575,
+      "confidence_level": 0.95,
+      "metric": "win_rate",
+      "observed_mean": 0.49191584406338074,
+      "row_count": 18,
+      "sample_count": 1000
+    }
+  },
+  "bootstrap_sample_count": 1000,
+  "bootstrap_samples_checksum": "sha256:e09e9ac6a5d87a338aafb81db2ad296397554e7ad98fd7fc92e5e768907ee3f5",
+  "boundary_statement": {
+    "candidate_evidence_authority_created": false,
+    "canonical_result_population_write": false,
+    "fabricated_per_trade_data": false,
+    "promotion_readiness_authority_created": false,
+    "runner_backtester_touched": false,
+    "runtime_paper_live_touched": false,
+    "screen_gate_authority_created": false,
+    "strategy_spec_vm_sweep_write": false
+  },
+  "confidence_level": 0.95,
+  "decision_label": "ADOPT_AS_ROBUSTNESS_LAYER",
+  "fixture": {
+    "checksum": "sha256:d6e5e6c46c38208b308b2c5aaa34b3a65176831b61b5026229c857ba08914076",
+    "data_slice_identity": "csv_fixture:sha256:70cbe2040c8fb5987b2971a13c8bd4f66e91152331d5b641d684673364be3931",
+    "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/fixed_max_hold_only/runner_artifacts/RP-2009.result_population.json",
+    "result_population_id": "RP-2009",
+    "row_count": 18,
+    "row_filter": "attempted_true_and_outcome_category_successful",
+    "source_fields_used": [
+      "variant_result_rows[].variant_id",
+      "variant_result_rows[].metrics.return_pct",
+      "variant_result_rows[].metrics.pnl",
+      "variant_result_rows[].metrics.drawdown",
+      "variant_result_rows[].metrics.sharpe",
+      "variant_result_rows[].metrics.trade_count",
+      "variant_result_rows[].metrics.win_rate",
+      "variant_result_rows[].metrics.fees",
+      "variant_result_rows[].metrics.funding",
+      "variant_result_rows[].metrics.slippage",
+      "variant_result_rows[].metrics.exposure"
+    ],
+    "strategy_spec_id": "STRAT-SPEC-9478",
+    "sweep_plan_id": "SWEEP-PLAN-9933",
+    "timeframe": "15m",
+    "variant_manifest_id": "VM-9933"
+  },
+  "fixture_validation": {
+    "input_checksum": "sha256:d6e5e6c46c38208b308b2c5aaa34b3a65176831b61b5026229c857ba08914076",
+    "input_path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/fixed_max_hold_only/runner_artifacts/RP-2009.result_population.json",
+    "result_population_id": "RP-2009",
+    "row_count": 18,
+    "status": "passed",
+    "validation_scope": "advisory_fixture_shape_only",
+    "warnings": []
+  },
+  "labels": [
+    "ADVISORY ROBUSTNESS / SEEDED MONTE CARLO OUTPUT",
+    "NON-CANONICAL REPORT",
+    "NOT A RESULT POPULATION",
+    "NOT SCREEN-GATE AUTHORITY",
+    "NOT STRATEGY / VM / SWEEP AUTHORITY",
+    "NOT CANDIDATE EVIDENCE AUTHORITY",
+    "NOT PROMOTION / READINESS AUTHORITY",
+    "NOT PAPER / LIVE / RUNTIME AUTHORITY",
+    "PER-TRADE MONTE CARLO USES ONLY REAL PER-TRADE DATA IF AVAILABLE",
+    "MISSING PER-TRADE DATA MUST BE REPORTED, NOT FABRICATED"
+  ],
+  "metrics_skipped": [],
+  "metrics_used": [
+    "drawdown",
+    "exposure",
+    "fees",
+    "funding",
+    "pnl",
+    "return_pct",
+    "sharpe",
+    "slippage",
+    "trade_count",
+    "win_rate"
+  ],
+  "missing_data_notes": [
+    "Only finite numeric values from existing Result Population row metrics are bootstrapped.",
+    "Per-trade rows are not present in committed Result Populations and were not fabricated.",
+    "The report is advisory and non-canonical; it is not a screen gate or promotion input by itself."
+  ],
+  "output_checksum": "sha256:3803071a6752a65835caee258c6ec3712cb79b92e81078a8b81cdf3b59598f8a",
+  "package_id": "EXT-INTEG-ROBUSTNESS-MC-01",
+  "parameter_sensitivity": {
+    "authority": "advisory_only_not_ranking_not_gate",
+    "reason": "variant_manifest_not_found_from_result_population_lineage",
+    "source_path": null,
+    "source_type": "variant_manifest",
+    "status": "insufficient_mapping"
+  },
+  "per_trade_monte_carlo": {
+    "fabricated_per_trade_data": false,
+    "finding": "PER_TRADE_DATA_MISSING",
+    "follow_up_label": "QUEUE_PER_TRADE_INSTRUMENTATION",
+    "performed": false,
+    "reason": "Committed Result Population rows expose aggregate per-variant metrics only; no real per-trade rows were found or supplied.",
+    "source_checksum": null,
+    "source_path": null,
+    "status": "QUEUE_PER_TRADE_INSTRUMENTATION"
+  },
+  "report_type": "seeded_advisory_robustness_mc",
+  "seed": 20260624
+}

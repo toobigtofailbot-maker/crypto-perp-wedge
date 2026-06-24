@@ -1,0 +1,12 @@
+{
+  "status": "completed_with_withheld_statistics",
+  "classification": "NO-GO",
+  "inputs": ["RP-2009", "RP-7592"],
+  "reports": ["scratch/WP-RESEARCH-FUNDING-CARRY-02/robustness_fixed.json", "scratch/WP-RESEARCH-FUNDING-CARRY-02/robustness_midline.json"],
+  "psr_status": "withheld_missing_inputs",
+  "dsr_status": "withheld_missing_inputs",
+  "min_trl_status": "withheld_missing_inputs",
+  "denominator_preserved": true,
+  "drawdown_finding": "All 36 full-history rows exceed the 20% drawdown screen.",
+  "authority": "descriptive_noncanonical_only"
+}

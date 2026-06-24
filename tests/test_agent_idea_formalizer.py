@@ -13,6 +13,7 @@ from tools.research_agents.idea_formalizer_agent import (
     AVAILABILITY_CATALOG_PATH,
     INDICATOR_CATALOG_PATH,
     STRATEGY_TEMPLATE_PATH,
+    FUNDING_RESEARCH_WP_ID,
     IdeaFormalizerAgent,
     IdeaFormalizerConfig,
 )
@@ -89,6 +90,47 @@ def test_fake_provider_is_deterministic_and_produces_valid_scratch_draft(agent_r
     assert "provider_mode=fake_offline" in spec["provenance"]["source_constraints"]
     assert spec_path.is_relative_to(agent_repo / "scratch" / WP_ID)
     assert any(record.action_type == "run_read_only_validation" for record in sink.records)
+
+
+def test_funding_positioning_fade_adapter_emits_both_valid_exit_mode_specs(agent_repo: Path):
+    sink = MemoryAuditSink()
+    context = ToolContext(
+        wp_id=FUNDING_RESEARCH_WP_ID,
+        role="idea_formalizer",
+        audit_sink=sink,
+        clock=lambda: FIXED_TIME,
+    )
+    agent = IdeaFormalizerAgent(
+        config=IdeaFormalizerConfig(),
+        tool_context=context,
+        provider=FakeOfflineProvider(),
+        repo_root=agent_repo,
+    )
+
+    result = agent.run(
+        idea=(
+            "BTCUSDT 15m funding_rate extremes mean revert because crowded perpetual "
+            "positioning unwinds."
+        )
+    )
+
+    assert result["status"] == "accepted"
+    assert result["draft_strategy_spec"]["produced"] is True
+    assert result["adapter_metadata"]["family_id"] == "funding_rate_positioning_fade_v1"
+    paths = result["adapter_metadata"]["strategy_spec_paths"]
+    assert set(paths) == {"midline_reversion_or_max_hold", "fixed_max_hold_only"}
+    specs = {
+        mode: json.loads((agent_repo / path).read_text(encoding="utf-8"))
+        for mode, path in paths.items()
+    }
+    assert all("funding_rate" in json.dumps(spec) for spec in specs.values())
+    assert all(
+        spec["exit_logic"]["max_holding_period"]["bars"]
+        == {"parameter_ref": "max_hold_bars"}
+        for spec in specs.values()
+    )
+    assert len(specs["midline_reversion_or_max_hold"]["exit_logic"]["groups"]) == 2
+    assert len(specs["fixed_max_hold_only"]["exit_logic"]["groups"]) == 0
 
 
 def test_plain_ohlcv_indicator_idea_is_allowed_without_inventing_adapter(agent_repo: Path):

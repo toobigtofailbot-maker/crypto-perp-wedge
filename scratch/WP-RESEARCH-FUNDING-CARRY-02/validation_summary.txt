@@ -1,0 +1,37 @@
+WP-RESEARCH-FUNDING-CARRY-02 validation summary
+
+Local funding data:
+- SHA256: PASS, 70cbe2040c8fb5987b2971a13c8bd4f66e91152331d5b641d684673364be3931
+- Rows/range/columns: PASS, 220128 rows, 2020-01-01T00:00:00Z through 2026-04-11T23:45:00Z, funding_rate present
+- git check-ignore: PASS, .gitignore:14:/data/processed/**
+
+Research execution:
+- Formalizer Strategy Specs: PASS, both frozen exit modes validate
+- Bridge VM/Sweep sets: PASS, 18 rows each / 36 combined
+- Runner: PASS, 36 complete / 0 failed / 0 invalid / 0 blocked / 0 pruned
+- Replay reconciliation: PASS for both exit modes across trial count, variant IDs, outcomes, metrics, status counts, denominator, and result identity
+- Walk-forward dry run: PASS, one 105120 IS / 35040 OOS window over all 36 rows
+- Seeded advisory Monte Carlo: PASS, 1000 samples per 18-row population; per-trade MC explicitly blocked for missing real trade rows
+
+Tests:
+- python -m pytest tests/test_agent_idea_formalizer.py tests/test_agent_formalizer_runner_bridge.py -q: PASS, 72 passed
+- python -m pytest tests/test_spec_signal_compiler.py -q: PASS, 244 passed
+- python -m pytest tests/test_offline_research_runner.py -q: PASS, 101 passed, 2 warnings
+- python -m pytest tests/test_validate_strategy_specs.py tests/test_validate_variant_sweep_artifacts.py -q: PASS, 148 passed
+- python -m pytest tests/test_validate_result_populations.py tests/test_validate_data_feature_availability.py tests/test_validate_candidate_registry.py -q: PASS, 88 passed
+- Initial full pytest: 2243 passed, 1 skipped, 1 failed because the isolated worktree lacked the ignored normalized D4A fixture expected by test_external_simulator_pilot.py
+- Hash-verified validation-only D4A copy staged locally; failed test rerun: PASS, 1 passed
+- Final python -m pytest -q: PASS, 2244 passed, 1 skipped, 6 warnings
+
+Validators and views:
+- python -m tools.registry.validate_candidate_registry: PASS
+- python -m tools.registry.validate_result_populations: PASS
+- python -m tools.registry.validate_data_feature_availability: PASS
+- python -m tools.research_query.run --list-views: PASS, 124 views listed
+- python tools/dev/verify.py --integrity-views: PASS, all 58 discovered integrity views clean
+
+Scope/integrity:
+- JSON parse and required-output presence: PASS
+- python tools/dev/diff_scope_summary.py: PASS, no forbidden-path matches
+- git diff --check: PASS
+- No canonical artifact, candidate lifecycle, crossing, funding P&L, runner/backtester semantic, runtime, paper/live, OMS, risk, reconciliation, capital, credential, provider/API/network, adoption-PoC, or large tracked-data changes.

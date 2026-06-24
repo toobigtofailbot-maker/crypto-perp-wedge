@@ -1,0 +1,15 @@
+{
+  "family_id": "funding_rate_positioning_fade_v1",
+  "hypothesis_id": "H-FUNDING-RATE-POSITIONING-FADE-01",
+  "input_feature": "funding_rate",
+  "transform": "rolling_empirical_percentile_v1",
+  "lookbacks": [2880, 8640, 17280],
+  "tail_pairs": [{"lower": 0.1, "upper": 0.9}, {"lower": 0.05, "upper": 0.95}],
+  "exit_modes": ["midline_reversion_or_max_hold", "fixed_max_hold_only"],
+  "midline": 0.5,
+  "max_holding_period_bars": [16, 32, 96],
+  "direction": "contrarian_only",
+  "artifact_shape": "two validated 18-row Strategy Spec/VM/Sweep sets; combined denominator 36",
+  "funding_cost_mode": "off",
+  "canonical": false
+}

@@ -25,12 +25,14 @@ from tools.research_runner.run_offline_sweep import run_offline_sweep
 REPO_ROOT = Path(__file__).resolve().parents[2]
 WP_ID = "WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01"
 DONCHIAN_ADAPTER_WP_ID = "WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01"
+FUNDING_RESEARCH_WP_ID = "WP-RESEARCH-FUNDING-CARRY-02"
 ROLE = "formalizer_runner_bridge"
 OUTPUT_ROOT = Path("scratch") / WP_ID / "outputs"
 FORMALIZER_OUTPUT_PREFIX = "scratch/WP-AGENT-IDEA-FORMALIZER-01/outputs/"
 DONCHIAN_FORMALIZER_OUTPUT_PREFIX = (
     "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/formalizer/outputs/"
 )
+FUNDING_FORMALIZER_OUTPUT_PREFIX = "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/"
 APPROVAL_SCOPE = "noncanonical_scratch_runner_bridge_only"
 BRIDGE_VERSION = "formalizer-runner-bridge-v1"
 VARIANT_TEMPLATE_PATH = Path("research/variant_manifests/VM-0003.variant_manifest.json")
@@ -126,6 +128,7 @@ class FormalizerRunnerBridge:
         if tool_context.role != ROLE or tool_context.wp_id not in {
             WP_ID,
             DONCHIAN_ADAPTER_WP_ID,
+            FUNDING_RESEARCH_WP_ID,
         }:
             raise ValueError("FormalizerRunnerBridge requires its exact ToolContext role and WP")
         self.config = config
@@ -180,11 +183,10 @@ class FormalizerRunnerBridge:
     def _validate_formalizer_contract(
         self, path: str, payload: Mapping[str, Any]
     ) -> str:
-        expected_prefix = (
-            DONCHIAN_FORMALIZER_OUTPUT_PREFIX
-            if self.tool_context.wp_id == DONCHIAN_ADAPTER_WP_ID
-            else FORMALIZER_OUTPUT_PREFIX
-        )
+        expected_prefix = {
+            DONCHIAN_ADAPTER_WP_ID: DONCHIAN_FORMALIZER_OUTPUT_PREFIX,
+            FUNDING_RESEARCH_WP_ID: FUNDING_FORMALIZER_OUTPUT_PREFIX,
+        }.get(self.tool_context.wp_id, FORMALIZER_OUTPUT_PREFIX)
         if not path.startswith(expected_prefix) or not path.endswith("/formalized_idea.json"):
             raise FormalizerRunnerBridgeError(
                 "formalizer output must be the scoped scratch artifact"
@@ -203,7 +205,9 @@ class FormalizerRunnerBridge:
         ) != "15m":
             raise FormalizerRunnerBridgeError("bridge supports only BTCUSDT 15m")
         features = set(research_object.get("features", []))
-        if "donchian" in features and not features.intersection({"sma", "stddev"}):
+        if "funding_rate" in features and not features.intersection({"sma", "stddev", "donchian"}):
+            family_id = "funding_rate_positioning_fade_v1"
+        elif "donchian" in features and not features.intersection({"sma", "stddev"}):
             family_id = "donchian_channel_breakout_v1"
         elif {"sma", "stddev"}.issubset(features) and "donchian" not in features:
             family_id = "sma_stddev_mean_reversion_v1"
@@ -219,6 +223,13 @@ class FormalizerRunnerBridge:
             raise FormalizerRunnerBridgeError(
                 "Donchian adapter WP accepts only donchian_channel_breakout_v1"
             )
+        if (
+            self.tool_context.wp_id == FUNDING_RESEARCH_WP_ID
+            and family_id != "funding_rate_positioning_fade_v1"
+        ):
+            raise FormalizerRunnerBridgeError(
+                "funding research WP accepts only funding_rate_positioning_fade_v1"
+            )
         draft = payload.get("draft_strategy_spec")
         if not isinstance(draft, Mapping) or draft.get("produced") is not True or not draft.get(
             "path"
@@ -230,10 +241,10 @@ class FormalizerRunnerBridge:
         if not isinstance(non_authority, Mapping) or not non_authority.get("scratch_only"):
             raise FormalizerRunnerBridgeError("formalizer non-authority contract is missing")
         metadata = payload.get("adapter_metadata")
-        if family_id == "donchian_channel_breakout_v1" and (
+        if family_id in {"donchian_channel_breakout_v1", "funding_rate_positioning_fade_v1"} and (
             not isinstance(metadata, Mapping) or metadata.get("family_id") != family_id
         ):
-            raise FormalizerRunnerBridgeError("Donchian adapter metadata is missing or mismatched")
+            raise FormalizerRunnerBridgeError("family adapter metadata is missing or mismatched")
         return family_id
 
     def _require_approval(
@@ -268,6 +279,8 @@ class FormalizerRunnerBridge:
         expected_prefix = (
             DONCHIAN_FORMALIZER_OUTPUT_PREFIX
             if family_id == "donchian_channel_breakout_v1"
+            else FUNDING_FORMALIZER_OUTPUT_PREFIX
+            if family_id == "funding_rate_positioning_fade_v1"
             else FORMALIZER_OUTPUT_PREFIX
         )
         if not draft_path.startswith(expected_prefix):
@@ -290,6 +303,8 @@ class FormalizerRunnerBridge:
         expected_marker = (
             "donchian_channel_breakout_v1 adapter"
             if family_id == "donchian_channel_breakout_v1"
+            else "funding_rate_positioning_fade_v1 adapter"
+            if family_id == "funding_rate_positioning_fade_v1"
             else "STRAT-SPEC-0003 capability family"
         )
         if not any(expected_marker in str(item) for item in constraints):
@@ -304,6 +319,11 @@ class FormalizerRunnerBridge:
                 raise FormalizerRunnerBridgeError(
                     "Donchian draft must use only Donchian indicator references"
                 )
+        elif family_id == "funding_rate_positioning_fade_v1":
+            if '"composition_type": "rolling_empirical_percentile_v1"' not in serialized:
+                raise FormalizerRunnerBridgeError("funding draft must use rolling empirical percentile")
+            if '"ref": "funding_rate"' not in serialized:
+                raise FormalizerRunnerBridgeError("funding draft must reference funding_rate")
         return draft
 
     def _availability_blockers(
@@ -322,6 +342,8 @@ class FormalizerRunnerBridge:
             allowed_features = (
                 {"donchian", "ohlcv"}
                 if family_id == "donchian_channel_breakout_v1"
+                else {"funding_rate"}
+                if family_id == "funding_rate_positioning_fade_v1"
                 else {"sma", "stddev"}
             )
             if feature not in allowed_features:
@@ -369,6 +391,8 @@ class FormalizerRunnerBridge:
         approval_hash: str,
         draft: Mapping[str, Any],
         family_id: str,
+        funding_exit_mode: str | None = None,
+        numeric_offset: int = 0,
     ) -> dict[str, str]:
         inputs_dir = run_dir / "inputs"
         spec = copy.deepcopy(dict(draft))
@@ -377,7 +401,7 @@ class FormalizerRunnerBridge:
         spec_hash = _sha256(spec)
 
         manifest = copy.deepcopy(self._read_json(VARIANT_TEMPLATE_PATH))
-        numeric_id = 9000 + (int(run_id[:8], 16) % 1000)
+        numeric_id = 9000 + ((int(run_id[:8], 16) + numeric_offset) % 1000)
         manifest_id = f"VM-{numeric_id:04d}"
         manifest_path = (inputs_dir / f"{manifest_id}.variant_manifest.json").as_posix()
         manifest["variant_manifest_id"] = manifest_id
@@ -437,6 +461,14 @@ class FormalizerRunnerBridge:
         )
         if family_id == "donchian_channel_breakout_v1":
             self._apply_donchian_manifest(manifest)
+        elif family_id == "funding_rate_positioning_fade_v1":
+            if funding_exit_mode is None:
+                raise FormalizerRunnerBridgeError("funding exit mode is required")
+            self._apply_funding_manifest(
+                manifest,
+                exit_mode=funding_exit_mode,
+                variant_start=1 if funding_exit_mode == "midline_reversion_or_max_hold" else 19,
+            )
         manifest_hash = _refresh_manifest_hash(manifest)
 
         sweep = copy.deepcopy(self._read_json(SWEEP_TEMPLATE_PATH))
@@ -495,6 +527,14 @@ class FormalizerRunnerBridge:
         )
         if family_id == "donchian_channel_breakout_v1":
             self._apply_donchian_sweep(sweep)
+        elif family_id == "funding_rate_positioning_fade_v1":
+            if funding_exit_mode is None:
+                raise FormalizerRunnerBridgeError("funding exit mode is required")
+            self._apply_funding_sweep(
+                sweep,
+                exit_mode=funding_exit_mode,
+                variant_start=1 if funding_exit_mode == "midline_reversion_or_max_hold" else 19,
+            )
 
         written = {
             "strategy_spec": self._write_json(spec_path, spec),
@@ -510,6 +550,7 @@ class FormalizerRunnerBridge:
             "approval_marker_hash": approval_hash,
             "bridge_tool_version": BRIDGE_VERSION,
             "strategy_family": family_id,
+            "funding_exit_mode": funding_exit_mode,
             "created_at_utc": self.config.timestamp_utc,
             "funding_cost_mode": self.config.funding_cost_mode,
             "data_assumptions": {
@@ -665,6 +706,164 @@ class FormalizerRunnerBridge:
         sweep["review"]["review_notes"] = [
             "Scratch-only Donchian runner compatibility artifact; not canonical approval.",
             "Metrics, if produced, are adapter validation only and carry no GO/NO-GO meaning.",
+        ]
+
+    @staticmethod
+    def _apply_funding_manifest(
+        manifest: dict[str, Any], *, exit_mode: str, variant_start: int
+    ) -> None:
+        count = 18
+        population = manifest["population_governance"]
+        population["population_cap"]["max_variants"] = count
+        population["declared_population"].update(
+            {
+                "committed_population_count": count,
+                "declared_variant_count": count,
+                "included_variant_count": count,
+                "excluded_variant_count": 0,
+                "invalid_variant_count": 0,
+                "not_attempted_variant_count": 0,
+            }
+        )
+        population["trial_budget"].update(
+            {
+                "planned_trial_count": count,
+                "trial_budget_denominator": count,
+                "denominator_count": count,
+            }
+        )
+        population["multiple_testing_accounting"].update(
+            {
+                "search_family_id": f"SF-FUNDING-POSITIONING-FADE-{exit_mode.upper()}-0001",
+                "search_family_method": "manual_grid",
+                "adaptive_search_used": False,
+            }
+        )
+        axes = (
+            ("funding_lookback_bars", "integer", "bars", [2880, 8640, 17280]),
+            ("lower_entry_percentile", "number", "ratio", [0.05, 0.10]),
+            ("upper_entry_percentile", "number", "ratio", [0.90, 0.95]),
+            ("max_hold_bars", "integer", "bars", [16, 32, 96]),
+        )
+        manifest["parameter_axes"] = []
+        for index, (name, parameter_type, units, values) in enumerate(axes, start=1):
+            numeric = [float(value) for value in values]
+            manifest["parameter_axes"].append(
+                {
+                    "axis_id": f"AXIS-{index:03d}",
+                    "parameter_name": name,
+                    "parent_strategy_spec_parameter_ref": f"free_parameters.parameters.{name}",
+                    "parameter_type": parameter_type,
+                    "units": units,
+                    "axis_kind": "free_parameter",
+                    "generator_method": "manual_grid",
+                    "allowed_values": values,
+                    "range": {
+                        "min": min(values),
+                        "max": max(values),
+                        "step": min(b - a for a, b in zip(numeric, numeric[1:])),
+                        "inclusive_min": True,
+                        "inclusive_max": True,
+                    },
+                    "counts_toward_parent_free_parameter_cap": True,
+                    "is_declared_in_parent_strategy_spec": True,
+                    "invalid_combination_rule_refs": [],
+                    "notes": "Frozen H-FUNDING-RATE-POSITIONING-FADE-01 axis.",
+                }
+            )
+        manifest["invalid_combination_rules"] = []
+        manifest["exclusion_rules"] = []
+        manifest["variant_assignments"] = []
+        generation_order = 0
+        for lookback in (2880, 8640, 17280):
+            for lower, upper in ((0.10, 0.90), (0.05, 0.95)):
+                for max_hold in (16, 32, 96):
+                    generation_order += 1
+                    values = {
+                        "funding_lookback_bars": lookback,
+                        "lower_entry_percentile": lower,
+                        "upper_entry_percentile": upper,
+                        "max_hold_bars": max_hold,
+                    }
+                    manifest["variant_assignments"].append(
+                        {
+                            "variant_id": f"VAR-{variant_start + generation_order - 1:06d}",
+                            "assignment_status": "included",
+                            "parameter_values": values,
+                            "parameter_value_hash": _sha256(values),
+                            "axis_refs": ["AXIS-001", "AXIS-002", "AXIS-003", "AXIS-004"],
+                            "exclusion_rule_refs": [],
+                            "invalid_combination_rule_refs": [],
+                            "status_reason": None,
+                            "lineage": {
+                                "generated_by_rule": "frozen-manual-grid",
+                                "generation_order": generation_order,
+                            },
+                        }
+                    )
+        manifest["lineage"]["audit_notes"] = [
+            f"Scratch-only funding positioning-fade exit_mode={exit_mode}.",
+            "Entry-tail pairs are frozen as 0.10/0.90 and 0.05/0.95.",
+            "Funding payments remain off; price-P&L funding-rate signal test only.",
+            "All denominator outcomes remain visible.",
+        ]
+        manifest["review"]["review_notes"] = [
+            "Non-canonical preregistered funding-family research input.",
+            "No crossing, candidate, promotion, paper, live, or runtime authority.",
+        ]
+
+    @staticmethod
+    def _apply_funding_sweep(
+        sweep: dict[str, Any], *, exit_mode: str, variant_start: int
+    ) -> None:
+        count = 18
+        variant_ids = [f"VAR-{value:06d}" for value in range(variant_start, variant_start + count)]
+        sweep["parent_variant_manifest"].update(
+            {
+                "manifest_population_count": count,
+                "manifest_committed_population_count": count,
+                "manifest_population_cap": count,
+            }
+        )
+        sweep["test_selection"].update(
+            {"selected_variant_ids": variant_ids, "excluded_variant_ids": []}
+        )
+        sweep["validation_methods"]["backtest"]["notes"] = (
+            f"Price-P&L funding-rate signal test; exit_mode={exit_mode}; costs enabled by runner convention."
+        )
+        sweep["validation_methods"]["dsr_psr_mintrl_accounting"].update(
+            {
+                "denominator_ref": "committed_population_count",
+                "computation_deferred": True,
+                "notes": "One frozen 18-row half of the combined 36-row funding denominator.",
+            }
+        )
+        sweep["trial_accounting"].update(
+            {
+                "committed_population_count": count,
+                "selected_variant_count": count,
+                "executed_variant_count": 0,
+                "successful_variant_count": 0,
+                "failed_variant_count": 0,
+                "errored_variant_count": 0,
+                "aborted_variant_count": 0,
+                "filtered_variant_count": 0,
+                "data_unavailable_variant_count": 0,
+                "excluded_variant_count": 0,
+                "not_attempted_variant_count": count,
+                "multiple_testing_denominator": count,
+            }
+        )
+        sweep["lineage"]["search_family_id"] = (
+            f"SF-FUNDING-POSITIONING-FADE-{exit_mode.upper()}-0001"
+        )
+        sweep["lineage"]["audit_notes"] = [
+            "Scratch-only, non-canonical funding research sweep.",
+            "Funding P&L is not wired; funding_cost_mode remains off.",
+            "Combined family denominator is 36 across the two frozen exit modes.",
+        ]
+        sweep["review"]["review_notes"] = [
+            "Human review required; no candidate or crossing authority.",
         ]
 
     def _validate_derived_inputs(self, paths: Mapping[str, str]) -> None:
@@ -845,35 +1044,33 @@ class FormalizerRunnerBridge:
             approval_path=approval_relative,
             formalizer_path=formalizer_path,
         )
-        draft = self._validate_draft(
-            str(formalized["draft_strategy_spec"]["path"]), family_id=family_id
-        )
+        draft_paths: dict[str, str] = {
+            "default": str(formalized["draft_strategy_spec"]["path"])
+        }
+        if family_id == "funding_rate_positioning_fade_v1":
+            metadata = formalized.get("adapter_metadata")
+            declared_paths = metadata.get("strategy_spec_paths") if isinstance(metadata, Mapping) else None
+            expected_modes = {"midline_reversion_or_max_hold", "fixed_max_hold_only"}
+            if not isinstance(declared_paths, Mapping) or set(declared_paths) != expected_modes:
+                raise FormalizerRunnerBridgeError("funding adapter must declare both frozen exit-mode specs")
+            draft_paths = {str(mode): str(path) for mode, path in declared_paths.items()}
+        drafts = {
+            mode: self._validate_draft(path, family_id=family_id)
+            for mode, path in draft_paths.items()
+        }
         ohlcv_path = self._repo_relative(self.config.ohlcv_input_path)
         ohlcv_hash = _sha256_bytes(self._read_bytes(ohlcv_path))
 
         run_identity = {
             "formalizer_hash": _sha256_bytes(formalizer_bytes),
             "approval_hash": _sha256_bytes(approval_bytes),
-            "draft_hash": _sha256(draft),
+            "draft_hashes": {mode: _sha256(draft) for mode, draft in drafts.items()},
             "ohlcv_hash": ohlcv_hash,
             "config": self.config.__dict__,
             "bridge_version": BRIDGE_VERSION,
         }
         run_id = hashlib.sha256(_canonical_bytes(run_identity)).hexdigest()[:16]
         run_dir = self.output_root / run_id
-        input_paths = self._derive_inputs(
-            run_id=run_id,
-            run_dir=run_dir,
-            formalized=formalized,
-            formalizer_path=formalizer_path,
-            formalizer_hash=run_identity["formalizer_hash"],
-            approval_path=approval_relative,
-            approval_hash=run_identity["approval_hash"],
-            draft=draft,
-            family_id=family_id,
-        )
-        self._validate_derived_inputs(input_paths)
-        manifest = self._read_json(input_paths["variant_manifest"])
         blockers = self._availability_blockers(formalized, family_id=family_id)
         if blockers:
             record = self.tool_context.authorize(
@@ -881,58 +1078,105 @@ class FormalizerRunnerBridge:
             )
             if record.decision != "blocked":
                 raise AssertionError("data-availability bypass was unexpectedly allowed")
-        runner_invocation_id = hashlib.sha256(
-            _canonical_bytes(
-                {
-                    "run_id": run_id,
-                    "inputs": input_paths,
-                    "seed": self.config.deterministic_seed,
-                }
+        all_input_paths: dict[str, dict[str, str]] = {}
+        runner_artifact_paths: dict[str, str] = {}
+        reconciliations: dict[str, dict[str, Any]] = {}
+        ledger_rows: list[dict[str, Any]] = []
+        runner_invocation_ids: dict[str, str] = {}
+        for index, (mode, draft) in enumerate(drafts.items()):
+            mode_dir = run_dir if mode == "default" else run_dir / mode
+            input_paths = self._derive_inputs(
+                run_id=run_id,
+                run_dir=mode_dir,
+                formalized=formalized,
+                formalizer_path=formalizer_path,
+                formalizer_hash=run_identity["formalizer_hash"],
+                approval_path=approval_relative,
+                approval_hash=run_identity["approval_hash"],
+                draft=draft,
+                family_id=family_id,
+                funding_exit_mode=None if mode == "default" else mode,
+                numeric_offset=index,
             )
-        ).hexdigest()[:16]
-        runner_result: dict[str, Any] | None = None
-        reconciliation = {"passed": False, "not_run_reasons": blockers}
-        runner_artifact_path = None
-        if not blockers:
-            runner_result = self._invoke_runner(
-                run_dir=run_dir,
+            self._validate_derived_inputs(input_paths)
+            all_input_paths[mode] = input_paths
+            manifest = self._read_json(input_paths["variant_manifest"])
+            runner_invocation_id = hashlib.sha256(
+                _canonical_bytes(
+                    {"run_id": run_id, "mode": mode, "inputs": input_paths, "seed": self.config.deterministic_seed}
+                )
+            ).hexdigest()[:16]
+            runner_invocation_ids[mode] = runner_invocation_id
+            runner_result: dict[str, Any] | None = None
+            runner_artifact_path: str | None = None
+            reconciliation: dict[str, Any] = {"passed": False, "not_run_reasons": blockers}
+            if not blockers:
+                runner_result = self._invoke_runner(
+                    run_dir=mode_dir,
+                    input_paths=input_paths,
+                    ohlcv_path=ohlcv_path,
+                    write_result_population=True,
+                    invocation_name="bridged",
+                )
+                direct_result = self._invoke_runner(
+                    run_dir=mode_dir,
+                    input_paths=input_paths,
+                    ohlcv_path=ohlcv_path,
+                    write_result_population=False,
+                    invocation_name="direct-manual-equivalent",
+                )
+                reconciliation = self._reconcile(runner_result, direct_result)
+                if not reconciliation["passed"]:
+                    raise FormalizerRunnerBridgeError(f"manual runner reconciliation failed for {mode}")
+                runner_artifact_path = self._repo_relative(str(runner_result["output_path"]))
+                runner_artifact_paths[mode] = runner_artifact_path
+            reconciliations[mode] = reconciliation
+            mode_rows = self._ledger_rows(
+                run_id=run_id,
+                runner_invocation_id=runner_invocation_id,
+                formalizer_run_id=formalized["run_id"],
+                formalizer_path=formalizer_path,
+                approval_scope=approval["approval_scope"],
                 input_paths=input_paths,
-                ohlcv_path=ohlcv_path,
-                write_result_population=True,
-                invocation_name="bridged",
+                manifest=manifest,
+                runner_result=runner_result,
+                runner_artifact_path=runner_artifact_path,
+                blockers=blockers,
+                funding_cost_mode=self.config.funding_cost_mode,
+                timestamp_utc=self.config.timestamp_utc,
+                strategy_family=family_id,
             )
-            direct_result = self._invoke_runner(
-                run_dir=run_dir,
-                input_paths=input_paths,
-                ohlcv_path=ohlcv_path,
-                write_result_population=False,
-                invocation_name="direct-manual-equivalent",
+            if family_id == "funding_rate_positioning_fade_v1":
+                for row in mode_rows:
+                    row["exit_mode"] = mode
+            self._assert_denominator(
+                mode_rows,
+                manifest,
+                target_path=(mode_dir / "denominator_ledger.json").as_posix(),
             )
-            reconciliation = self._reconcile(runner_result, direct_result)
-            if not reconciliation["passed"]:
-                raise FormalizerRunnerBridgeError("manual runner reconciliation failed")
-            runner_artifact_path = self._repo_relative(str(runner_result["output_path"]))
-
-        ledger_rows = self._ledger_rows(
-            run_id=run_id,
-            runner_invocation_id=runner_invocation_id,
-            formalizer_run_id=formalized["run_id"],
-            formalizer_path=formalizer_path,
-            approval_scope=approval["approval_scope"],
-            input_paths=input_paths,
-            manifest=manifest,
-            runner_result=runner_result,
-            runner_artifact_path=runner_artifact_path,
-            blockers=blockers,
-            funding_cost_mode=self.config.funding_cost_mode,
-            timestamp_utc=self.config.timestamp_utc,
-            strategy_family=family_id,
-        )
-        self._assert_denominator(
-            ledger_rows,
-            manifest,
-            target_path=(run_dir / "denominator_ledger.json").as_posix(),
-        )
+            ledger_rows.extend(mode_rows)
+        expected_count = 36 if family_id == "funding_rate_positioning_fade_v1" else len(ledger_rows)
+        if len(ledger_rows) != expected_count or len({row["variant_id"] for row in ledger_rows}) != expected_count:
+            self.tool_context.require_allowed(
+                ToolAction("evidence_suppression", (run_dir / "denominator_ledger.json").as_posix())
+            )
+            raise AssertionError("combined denominator suppression was unexpectedly allowed")
+        if family_id == "funding_rate_positioning_fade_v1":
+            reconciliation = {
+                "passed": bool(reconciliations)
+                and all(item.get("passed") for item in reconciliations.values()),
+                "by_exit_mode": reconciliations,
+            }
+            review_input_paths: Mapping[str, Any] = all_input_paths
+            invocation_identity: dict[str, Any] = {
+                "runner_invocation_ids": runner_invocation_ids
+            }
+        else:
+            reconciliation = reconciliations["default"]
+            review_input_paths = all_input_paths["default"]
+            invocation_identity = {
+                "runner_invocation_id": runner_invocation_ids["default"]
+            }
         counts = Counter(row["trial_status"] for row in ledger_rows)
         count_packet = {status: counts.get(status, 0) for status in TRIAL_STATUSES}
         ledger = {
@@ -951,10 +1195,10 @@ class FormalizerRunnerBridge:
             "run_id": run_id,
             "source_idea_formalizer_summary": copy.deepcopy(formalized["research_object"]),
             "approval_metadata": copy.deepcopy(approval),
-            "derived_input_artifact_paths": input_paths,
+            "derived_input_artifact_paths": review_input_paths,
             "runner_invocation_metadata": {
                 "runner": "tools.research_runner.run_offline_sweep",
-                "runner_invocation_id": runner_invocation_id,
+                **invocation_identity,
                 "mode": "canonical_15m_fixture_offline",
                 "deterministic_seed": self.config.deterministic_seed,
                 "ohlcv_input_path": ohlcv_path,
@@ -970,7 +1214,7 @@ class FormalizerRunnerBridge:
             "manual_reconciliation_result": reconciliation,
             "top_metrics": completed[0]["metrics_summary"] if completed else None,
             "full_ledger_path": ledger_path,
-            "runner_artifact_paths": [runner_artifact_path] if runner_artifact_path else [],
+            "runner_artifact_paths": list(runner_artifact_paths.values()),
             "validation_status": "blocked" if blockers else "passed",
             "data_availability_blockers": blockers,
             "data_availability_warnings": [],
@@ -991,8 +1235,10 @@ class FormalizerRunnerBridge:
             "artifact_paths": {
                 "denominator_ledger": ledger_path,
                 "human_review_packet": review_path,
-                "runner_result": runner_artifact_path,
-                **input_paths,
+                "runner_result": next(iter(runner_artifact_paths.values()), None),
+                "runner_results": runner_artifact_paths,
+                "input_sets": all_input_paths,
+                **(all_input_paths.get("default") or {}),
             },
             "blockers": blockers,
             "non_authority_flags": list(NON_AUTHORITY_FLAGS),

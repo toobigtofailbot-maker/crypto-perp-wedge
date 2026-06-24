@@ -1,0 +1,13 @@
+{
+  "status": "completed",
+  "run_id": "813c51adc1879144",
+  "trial_status_counts": {"complete": 36, "failed": 0, "invalid": 0, "blocked": 0, "pruned": 0},
+  "manual_reconciliation_passed": true,
+  "exit_mode_reconciliations": {"fixed_max_hold_only": true, "midline_reversion_or_max_hold": true},
+  "denominator_ledger": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/denominator_ledger.json",
+  "runner_results": {
+    "fixed_max_hold_only": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/fixed_max_hold_only/runner_artifacts/RP-2009.result_population.json",
+    "midline_reversion_or_max_hold": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/midline_reversion_or_max_hold/runner_artifacts/RP-7592.result_population.json"
+  },
+  "canonical": false
+}

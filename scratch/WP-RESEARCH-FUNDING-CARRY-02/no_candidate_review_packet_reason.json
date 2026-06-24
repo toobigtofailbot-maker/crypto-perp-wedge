@@ -1,0 +1,9 @@
+{
+  "packet_generated": false,
+  "reason": "Existing review-trigger criteria are not satisfied: every completed full-history row has drawdown above the 20% primary screen.",
+  "minimum_observed_full_history_drawdown": 0.8071689767737391,
+  "drawdown_screen": 0.2,
+  "classification": "NO-GO",
+  "canonical": false,
+  "crossing_executed": false
+}

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import json
+import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -9,7 +10,7 @@ import pandas as pd
 import pytest
 
 from tools.agent_sandbox import BlockedActionError, MemoryAuditSink, ToolAction, ToolContext
-from tools.agent_sandbox.permissions import RUN_NONCANONICAL_OFFLINE_SWEEP
+from tools.agent_sandbox.permissions import READ_NON_SECRET, RUN_NONCANONICAL_OFFLINE_SWEEP
 from tools.registry.validate_strategy_specs import validate_strategy_specs
 from tools.registry.validate_variant_sweep_artifacts import validate_variant_sweep_artifacts
 from tools.research_agents.formalizer_runner_bridge import (
@@ -21,7 +22,17 @@ from tools.research_agents.formalizer_runner_bridge import (
     WP_ID,
     FormalizerRunnerBridge,
     FormalizerRunnerBridgeConfig,
+    FUNDING_RESEARCH_WP_ID,
 )
+from tools.research_agents.idea_formalizer_agent import (
+    AVAILABILITY_CATALOG_PATH,
+    INDICATOR_CATALOG_PATH,
+    STRATEGY_TEMPLATE_PATH,
+    IdeaFormalizerAgent,
+    IdeaFormalizerConfig,
+)
+from tools.research_agents.reasoning_providers import FakeOfflineProvider
+from tools.research_runner.spec_signal_compiler import compile_signal
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -252,6 +263,93 @@ def test_approved_bridge_runs_real_runner_and_reconciles(tmp_path: Path):
         record.action_type == RUN_NONCANONICAL_OFFLINE_SWEEP and record.decision == "allowed"
         for record in sink.records
     )
+
+
+def test_funding_bridge_emits_valid_18_row_halves_and_compiles(tmp_path: Path):
+    _copy_templates(tmp_path)
+    for relative in (INDICATOR_CATALOG_PATH, AVAILABILITY_CATALOG_PATH, STRATEGY_TEMPLATE_PATH):
+        target = tmp_path / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(REPO_ROOT / relative, target)
+    sink = MemoryAuditSink()
+    formalizer_context = ToolContext(
+        wp_id=FUNDING_RESEARCH_WP_ID,
+        role="idea_formalizer",
+        audit_sink=sink,
+        clock=lambda: FIXED_TIME,
+    )
+    formalizer = IdeaFormalizerAgent(
+        config=IdeaFormalizerConfig(),
+        tool_context=formalizer_context,
+        provider=FakeOfflineProvider(),
+        repo_root=tmp_path,
+    )
+    formalized = formalizer.run(
+        idea=(
+            "BTCUSDT 15m funding_rate extremes mean revert because crowded perpetual "
+            "positioning unwinds."
+        )
+    )
+    bridge_context = ToolContext(
+        wp_id=FUNDING_RESEARCH_WP_ID,
+        role=ROLE,
+        audit_sink=MemoryAuditSink(),
+        clock=lambda: FIXED_TIME,
+    )
+    bridge = FormalizerRunnerBridge(
+        config=FormalizerRunnerBridgeConfig(ohlcv_input_path="unused.csv"),
+        tool_context=bridge_context,
+        repo_root=tmp_path,
+    )
+    for index, mode in enumerate(("midline_reversion_or_max_hold", "fixed_max_hold_only")):
+        draft_path = formalized["adapter_metadata"]["strategy_spec_paths"][mode]
+        draft = json.loads((tmp_path / draft_path).read_text(encoding="utf-8"))
+        paths = bridge._derive_inputs(
+            run_id="abcdef0123456789",
+            run_dir=Path(f"scratch/{FUNDING_RESEARCH_WP_ID}/outputs/test/{mode}"),
+            formalized=formalized,
+            formalizer_path=f"scratch/{FUNDING_RESEARCH_WP_ID}/outputs/source/formalized_idea.json",
+            formalizer_hash="sha256:" + "1" * 64,
+            approval_path=f"scratch/{FUNDING_RESEARCH_WP_ID}/outputs/source/operator_bridge_approval.json",
+            approval_hash="sha256:" + "2" * 64,
+            draft=draft,
+            family_id="funding_rate_positioning_fade_v1",
+            funding_exit_mode=mode,
+            numeric_offset=index,
+        )
+        bridge._validate_derived_inputs(paths)
+        manifest = json.loads((tmp_path / paths["variant_manifest"]).read_text(encoding="utf-8"))
+        assert len(manifest["variant_assignments"]) == 18
+        index_values = pd.date_range("2020-01-01T00:00:00Z", periods=18000, freq="15min")
+        frame = pd.DataFrame(
+            {
+                "open": 100.0,
+                "high": 101.0,
+                "low": 99.0,
+                "close": 100.0,
+                "volume": 1000.0,
+                "funding_rate": [((value % 19) - 9) / 100000 for value in range(18000)],
+            },
+            index=index_values,
+        )
+        signal = compile_signal(draft, manifest["variant_assignments"][0], frame)
+        assert len(signal) == len(frame)
+
+
+def test_funding_bridge_data_read_allowance_is_exact():
+    context = ToolContext(
+        wp_id=FUNDING_RESEARCH_WP_ID,
+        role=ROLE,
+        audit_sink=MemoryAuditSink(),
+        clock=lambda: FIXED_TIME,
+    )
+    exact = (
+        "data/processed/d4a/"
+        "binance_um_perp_BTCUSDT_15m_2020-01-01_2026-04-11_funding_feature_v1.csv"
+    )
+    context.require_allowed(ToolAction(READ_NON_SECRET, exact))
+    with pytest.raises(BlockedActionError):
+        context.require_allowed(ToolAction(READ_NON_SECRET, exact.replace("funding_feature_v1", "other")))
 
 
 def test_missing_bridge_approval_is_blocked_and_audited(tmp_path: Path):

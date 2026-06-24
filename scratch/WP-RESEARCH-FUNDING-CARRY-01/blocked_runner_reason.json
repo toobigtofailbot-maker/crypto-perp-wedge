@@ -1,0 +1,9 @@
+{
+  "status": "blocked",
+  "classification": "non_canonical_research_evidence",
+  "funding_rate_input_available": true,
+  "input_sha256": "70cbe2040c8fb5987b2971a13c8bd4f66e91152331d5b641d684673364be3931",
+  "reason": "No validated Strategy Spec / VM / Sweep can represent the pre-registered rolling-percentile family without changing compiler grammar semantics.",
+  "result_population_written": false,
+  "funding_cost_mode_changed": false
+}

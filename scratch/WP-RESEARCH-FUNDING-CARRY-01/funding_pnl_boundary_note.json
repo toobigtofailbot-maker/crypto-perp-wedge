@@ -1,0 +1,8 @@
+{
+  "feature_use": "signal_generation_only",
+  "result_label_if_run": "price-P&L funding-rate signal test",
+  "funding_cost_mode": "off",
+  "funding_payments_included": false,
+  "funding_pnl_semantics_changed": false,
+  "complete_carry_pnl_claim": false
+}

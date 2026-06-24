@@ -1,0 +1,9 @@
+{
+  "status": "blocked",
+  "existing_repo_native_replay_command_found": false,
+  "historical_targets_checked": ["RP-2592", "RP-3731", "RP-7134"],
+  "reason": "No reusable committed reconstruction/normalization harness exists, and no funding scratch population can be produced until the strategy semantics gap is resolved.",
+  "input_data_sha256": "70cbe2040c8fb5987b2971a13c8bd4f66e91152331d5b641d684673364be3931",
+  "runner_commit": "8384a6610f7fb73b03e5cb1c592f57b0894bcf0d",
+  "output_hash": null
+}

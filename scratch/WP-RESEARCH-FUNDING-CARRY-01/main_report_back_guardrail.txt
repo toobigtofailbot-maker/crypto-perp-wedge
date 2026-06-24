@@ -1,0 +1,11 @@
+Main report-back must be a .txt file.
+Address Main only.
+Neutral factual handoff only.
+No recommendations.
+No preferred option.
+No “I recommend / I do not recommend.”
+No “should / best / proceed / I would.”
+List open decision surfaces only.
+Funding-rate research produced BLOCKED evidence; it produced no GO-worthy review evidence, NO-GO strategy evidence, or completed strategy evidence.
+No candidate-review packet was created; any future packet remains non-canonical and not crossed.
+Side 12 / operator research-lab target state remains incomplete.

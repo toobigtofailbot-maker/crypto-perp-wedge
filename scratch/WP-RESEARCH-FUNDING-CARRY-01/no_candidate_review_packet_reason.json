@@ -1,0 +1,6 @@
+{
+  "status": "not_generated",
+  "reason": "No completed result or robustness evidence exists, so existing review-trigger conditions cannot be evaluated or satisfied.",
+  "candidate_registered": false,
+  "canonical_crossing_executed": false
+}

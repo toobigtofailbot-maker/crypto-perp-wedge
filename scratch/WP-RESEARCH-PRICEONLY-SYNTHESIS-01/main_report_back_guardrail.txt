@@ -1,0 +1,9 @@
+Main report-back must be a .txt file.
+Address Main only.
+Neutral factual handoff only.
+No recommendations.
+No preferred option.
+No "I recommend / I do not recommend."
+No "should / best / proceed / I would."
+List open decision surfaces only.
+Include that the Side 12 / operator research-lab target state remains incomplete.

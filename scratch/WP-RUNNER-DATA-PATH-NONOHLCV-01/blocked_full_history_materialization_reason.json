@@ -1,0 +1,24 @@
+{
+  "package": "WP-RUNNER-DATA-PATH-NONOHLCV-01",
+  "status": "blocked",
+  "materialization_target": [
+    "taker_buy_sell_ratio",
+    "taker_buy_volume",
+    "taker_sell_volume"
+  ],
+  "reason": "The isolated worktree contains only small taker-flow reconstruction fixtures and no full-history local Binance trade or aggTrade archive inputs covering the runner evidence window.",
+  "repo_truth": {
+    "offline_reconstruction_tool_exists": "tools/data_ingestion/takerflow_archive_recon.py",
+    "fixture_only_sources": [
+      "tests/fixtures/takerflow_archive_recon/trades_hand_calc.csv",
+      "tests/fixtures/takerflow_archive_recon/aggtrades_hand_calc.csv"
+    ],
+    "worktree_data_processed_files": [
+      "data/processed/.gitkeep"
+    ],
+    "network_download_used": false,
+    "private_endpoint_used": false,
+    "vendor_data_used": false
+  },
+  "decision": "Do not fabricate full-history taker-flow or funding materialization. Land declared-column preservation fixtures only."
+}

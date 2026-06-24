@@ -1,0 +1,15 @@
+{
+  "package": "WP-RUNNER-DATA-PATH-NONOHLCV-01",
+  "smoke_status": "passed",
+  "test_reference": "tests/test_offline_research_runner.py::test_declared_non_ohlcv_runner_smoke_reaches_backtester",
+  "declared_field": "taker_buy_sell_ratio",
+  "path_verified": [
+    "Strategy Spec declares non-OHLCV data_ref",
+    "CSV loader retains declared column",
+    "compiler receives retained column",
+    "runner reaches run_backtest"
+  ],
+  "canonical_evidence": false,
+  "edge_claim": false,
+  "candidate_claim": false
+}

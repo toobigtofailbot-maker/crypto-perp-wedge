@@ -1,0 +1,31 @@
+WP-RUNNER-DATA-PATH-NONOHLCV-01 validation summary
+
+Passed:
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest tests/test_offline_research_runner.py -q
+  Result: 100 passed, 2 warnings.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest tests/test_spec_signal_compiler.py -q
+  Result: 234 passed.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest tests/test_validate_result_populations.py tests/test_validate_data_feature_availability.py tests/test_validate_candidate_registry.py -q
+  Result: 88 passed.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.registry.validate_candidate_registry
+  Result: OK.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.registry.validate_result_populations
+  Result: OK.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.registry.validate_data_feature_availability
+  Result: OK.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.research_query.run --list-views
+  Result: listed views successfully.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe tools/dev/diff_scope_summary.py
+  Result: ok; final diff contains tools/research_runner/run_offline_sweep.py, tests/test_offline_research_runner.py, docs/status_entries/WP-RUNNER-DATA-PATH-NONOHLCV-01.md, and required scratch outputs under scratch/WP-RUNNER-DATA-PATH-NONOHLCV-01/.
+- git diff --check
+  Result: passed.
+- Scratch JSON parse check with C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe
+  Result: passed for all scratch/WP-RUNNER-DATA-PATH-NONOHLCV-01/*.json files.
+
+Not run:
+- Full pytest. Not run due package-scope validation already covering changed runner/compiler/validator surfaces and time cost.
+- Byte-identical RP replay for RP-2592/RP-3731/RP-7134. Not claimed; no committed repo-native exact replay command found.
+
+Initial failed validation attempts:
+- System Python `python -m pytest ...` failed because pandas was not installed in that interpreter.
+- Worktree-local `.venv` did not exist. Root checkout virtualenv was used for all passing validation.

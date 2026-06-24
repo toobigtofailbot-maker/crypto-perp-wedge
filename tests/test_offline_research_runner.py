@@ -145,9 +145,15 @@ def _rebuild_sweep(manifest: dict) -> dict:
     return sweep
 
 
-def _write_fixture(tmp_path: Path, manifest_mutator=None) -> tuple[Path, Path, Path, dict, dict, dict]:
+def _write_fixture(
+    tmp_path: Path,
+    manifest_mutator=None,
+    strategy_mutator=None,
+) -> tuple[Path, Path, Path, dict, dict, dict]:
     strategy_specs_dir, variant_manifests_dir, sweep_plans_dir = _fixture_dirs(tmp_path)
     strategy_spec = _base_strategy_spec_for_variant()
+    if strategy_mutator is not None:
+        strategy_mutator(strategy_spec)
     strategy_hash = sha256_prefixed(strategy_spec)
     manifest = _base_variant_manifest(strategy_hash)
     if manifest_mutator is not None:
@@ -155,6 +161,9 @@ def _write_fixture(tmp_path: Path, manifest_mutator=None) -> tuple[Path, Path, P
         _apply_status_counts(manifest)
         _refresh_manifest_hash(manifest)
     sweep_plan = _rebuild_sweep(manifest)
+    sweep_plan["data_and_timeframe_assumptions"]["primary_timeframe"] = strategy_spec[
+        "timeframe_and_data"
+    ]["primary_timeframe"]
     strategy_path = strategy_specs_dir / "STRAT-SPEC-9001.strategy_spec.json"
     manifest_path = variant_manifests_dir / "VM-0001.variant_manifest.json"
     sweep_path = sweep_plans_dir / "SWEEP-PLAN-0001.sweep_plan.json"
@@ -228,6 +237,7 @@ def _write_15m_ohlcv_fixture(
     timestamp_offset_minutes: int = 0,
     open_time_offset_minutes: int = 0,
     open_time_ms_offset_minutes: int = 0,
+    extra_columns: dict[str, list[float]] | None = None,
 ) -> Path:
     path = tmp_path / "canonical_15m_ohlcv_fixture.csv"
     index = pd.date_range("2026-01-01T00:00:00Z", periods=96, freq="15min")
@@ -246,6 +256,8 @@ def _write_15m_ohlcv_fixture(
         "close": close,
         "volume": [1000.0] * len(index),
     }
+    if extra_columns:
+        rows.update(extra_columns)
     if include_timestamp:
         rows[timestamp_column] = timestamp_index
     if include_open_time:
@@ -275,6 +287,7 @@ def _write_15m_ohlcv_fixture(
             "taker_buy_base_vol",
             "taker_buy_quote_vol",
             "ignore",
+            *(extra_columns or {}).keys(),
         )
         if column in rows
     ]
@@ -370,6 +383,57 @@ def _identity_payload(result: dict) -> dict:
     payload = copy.deepcopy(result["result_population"])
     payload.pop("audit_envelope")
     return payload
+
+
+def _replace_first_data_ref_field(payload: object, field: str) -> bool:
+    if isinstance(payload, dict):
+        if payload.get("operand_type") == "data_ref":
+            payload["ref"] = field
+            payload["field"] = field
+            return True
+        return any(_replace_first_data_ref_field(child, field) for child in payload.values())
+    if isinstance(payload, list):
+        return any(_replace_first_data_ref_field(child, field) for child in payload)
+    return False
+
+
+def _append_required_data_ref_filter(strategy_spec: dict, field: str, threshold: float) -> None:
+    strategy_spec["filters"]["groups"].append(
+        {
+            "group_id": f"G-{field}",
+            "group_role": "funding",
+            "logic": "all",
+            "conditions": [
+                {
+                    "condition_id": f"C-{field}",
+                    "condition_role": "filter",
+                    "left_operand": {
+                        "operand_type": "data_ref",
+                        "ref": field,
+                        "field": field,
+                        "timeframe": None,
+                        "lookback": None,
+                    },
+                    "operator": "gt",
+                    "right_operand": {
+                        "operand_type": "constant",
+                        "ref": threshold,
+                        "field": None,
+                        "timeframe": None,
+                        "lookback": None,
+                    },
+                    "units": None,
+                    "notes": None,
+                }
+            ],
+            "subgroups": [],
+            "notes": None,
+        }
+    )
+
+
+def _set_primary_timeframe(strategy_spec: dict, timeframe: str) -> None:
+    strategy_spec["timeframe_and_data"]["primary_timeframe"] = timeframe
 
 
 def test_target_leverage_resolution_uses_initial_equity_and_first_open():
@@ -2047,6 +2111,220 @@ def test_15m_input_identity_scope_remains_unchanged():
         "data_coverage_summary.data_slice_identity",
         "backtest_assumption_summary",
     ]
+
+
+def test_declared_non_ohlcv_column_is_retained_for_compiler(tmp_path, monkeypatch):
+    strategy_path, manifest_path, sweep_path, *_ = _write_fixture(
+        tmp_path,
+        strategy_mutator=lambda strategy: (
+            _set_primary_timeframe(strategy, "15m"),
+            _replace_first_data_ref_field(strategy, "taker_buy_sell_ratio"),
+        ),
+    )
+    ohlcv_path = _write_15m_ohlcv_fixture(
+        tmp_path,
+        extra_columns={"taker_buy_sell_ratio": [1.1] * 96},
+    )
+    observed_columns = []
+
+    def fake_compile_signal(strategy_spec, variant, ohlcv, funding=None):
+        del strategy_spec, variant, funding
+        observed_columns.append(list(ohlcv.columns))
+        return pd.Series(0.0, index=ohlcv.index)
+
+    monkeypatch.setattr(runner, "compile_signal", fake_compile_signal)
+
+    result = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        deterministic_seed=7,
+    )
+
+    assert observed_columns
+    assert all("taker_buy_sell_ratio" in columns for columns in observed_columns)
+    assert result["result_population"]["data_availability_claim"]["feature_sources"] == [
+        {
+            "feature_name": "taker_buy_sell_ratio",
+            "source_class": "PUBLIC_TRADE_ARCHIVE_DERIVATION",
+            "condition_assertions": [
+                "Archive files cover the claimed window.",
+                "The ratio is deterministically reconstructed from aligned trade or aggregate-trade records.",
+            ],
+        }
+    ]
+    assert "data_availability_claim" in result["result_population"]["input_identity_hash"][
+        "hash_scope"
+    ]
+
+
+def test_multiple_declared_non_ohlcv_columns_are_retained(tmp_path, monkeypatch):
+    def mutate(strategy: dict) -> None:
+        _set_primary_timeframe(strategy, "15m")
+        assert _replace_first_data_ref_field(strategy, "taker_buy_sell_ratio")
+        _append_required_data_ref_filter(strategy, "taker_buy_volume", 10.0)
+
+    strategy_path, manifest_path, sweep_path, *_ = _write_fixture(
+        tmp_path,
+        strategy_mutator=mutate,
+    )
+    ohlcv_path = _write_15m_ohlcv_fixture(
+        tmp_path,
+        extra_columns={
+            "taker_buy_sell_ratio": [1.1] * 96,
+            "taker_buy_volume": [11.0] * 96,
+            "undeclared_extra": [999.0] * 96,
+        },
+    )
+    observed_columns = []
+
+    def fake_compile_signal(strategy_spec, variant, ohlcv, funding=None):
+        del strategy_spec, variant, funding
+        observed_columns.append(list(ohlcv.columns))
+        return pd.Series(0.0, index=ohlcv.index)
+
+    monkeypatch.setattr(runner, "compile_signal", fake_compile_signal)
+
+    result = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        deterministic_seed=7,
+    )
+
+    assert observed_columns
+    assert all("taker_buy_sell_ratio" in columns for columns in observed_columns)
+    assert all("taker_buy_volume" in columns for columns in observed_columns)
+    assert all("undeclared_extra" not in columns for columns in observed_columns)
+    assert [
+        source["feature_name"]
+        for source in result["result_population"]["data_availability_claim"]["feature_sources"]
+    ] == ["taker_buy_sell_ratio", "taker_buy_volume"]
+
+
+def test_missing_declared_non_ohlcv_column_fails_closed(tmp_path):
+    strategy_path, manifest_path, sweep_path, *_ = _write_fixture(
+        tmp_path,
+        strategy_mutator=lambda strategy: (
+            _set_primary_timeframe(strategy, "15m"),
+            _replace_first_data_ref_field(strategy, "taker_sell_volume"),
+        ),
+    )
+    ohlcv_path = _write_15m_ohlcv_fixture(tmp_path)
+
+    with pytest.raises(runner.OfflineSweepError, match="missing declared non-OHLCV columns"):
+        _run(
+            strategy_path,
+            manifest_path,
+            sweep_path,
+            canonical_15m=True,
+            ohlcv_input_path=ohlcv_path,
+            deterministic_seed=7,
+        )
+
+
+def test_recent_only_declared_non_ohlcv_field_fails_closed(tmp_path):
+    strategy_path, manifest_path, sweep_path, *_ = _write_fixture(
+        tmp_path,
+        strategy_mutator=lambda strategy: (
+            _set_primary_timeframe(strategy, "15m"),
+            _replace_first_data_ref_field(strategy, "open_interest"),
+        ),
+    )
+    ohlcv_path = _write_15m_ohlcv_fixture(
+        tmp_path,
+        extra_columns={"open_interest": [100.0] * 96},
+    )
+
+    with pytest.raises(runner.OfflineSweepError, match="no FULL_HISTORY_PUBLIC_ARCHIVE"):
+        _run(
+            strategy_path,
+            manifest_path,
+            sweep_path,
+            canonical_15m=True,
+            ohlcv_input_path=ohlcv_path,
+            deterministic_seed=7,
+        )
+
+
+def test_undeclared_extra_input_column_is_not_retained(tmp_path, monkeypatch):
+    strategy_path, manifest_path, sweep_path, *_ = _write_fixture(
+        tmp_path,
+        strategy_mutator=lambda strategy: _set_primary_timeframe(strategy, "15m"),
+    )
+    ohlcv_path = _write_15m_ohlcv_fixture(
+        tmp_path,
+        extra_columns={"taker_buy_sell_ratio": [1.1] * 96},
+    )
+    observed_columns = []
+
+    def fake_compile_signal(strategy_spec, variant, ohlcv, funding=None):
+        del strategy_spec, variant, funding
+        observed_columns.append(list(ohlcv.columns))
+        return pd.Series(0.0, index=ohlcv.index)
+
+    monkeypatch.setattr(runner, "compile_signal", fake_compile_signal)
+
+    result = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        deterministic_seed=7,
+    )
+
+    assert observed_columns
+    assert all(columns == list(runner.REQUIRED_OHLCV_COLUMNS) for columns in observed_columns)
+    assert "data_availability_claim" not in result["result_population"]
+
+
+def test_declared_non_ohlcv_runner_smoke_reaches_backtester(tmp_path, monkeypatch):
+    strategy_path, manifest_path, sweep_path, *_ = _write_fixture(
+        tmp_path,
+        strategy_mutator=lambda strategy: (
+            _set_primary_timeframe(strategy, "15m"),
+            _replace_first_data_ref_field(strategy, "taker_buy_sell_ratio"),
+        ),
+    )
+    ohlcv_path = _write_15m_ohlcv_fixture(
+        tmp_path,
+        extra_columns={"taker_buy_sell_ratio": [1.1] * 96},
+    )
+    calls = []
+    real_backtest = runner.run_backtest
+
+    def fake_compile_signal(strategy_spec, variant, ohlcv, funding=None):
+        del strategy_spec, variant, funding
+        assert "taker_buy_sell_ratio" in ohlcv.columns
+        signal = pd.Series(0.0, index=ohlcv.index)
+        signal.iloc[2:6] = 1.0
+        return signal
+
+    def recording_backtest(signal, ohlcv, funding, **kwargs):
+        calls.append({"columns": list(ohlcv.columns), "signal_rows": len(signal)})
+        return real_backtest(signal, ohlcv, funding, **kwargs)
+
+    monkeypatch.setattr(runner, "compile_signal", fake_compile_signal)
+    monkeypatch.setattr(runner, "run_backtest", recording_backtest)
+
+    result = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        deterministic_seed=7,
+    )
+
+    assert result["ok"] is True
+    assert calls
+    assert all("taker_buy_sell_ratio" in call["columns"] for call in calls)
+    assert all(call["signal_rows"] == 96 for call in calls)
 
 
 def test_runner_cli_introduces_no_runtime_authority_flags():

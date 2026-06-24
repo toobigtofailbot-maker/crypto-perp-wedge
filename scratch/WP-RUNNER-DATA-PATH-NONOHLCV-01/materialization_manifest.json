@@ -1,0 +1,10 @@
+{
+  "package": "WP-RUNNER-DATA-PATH-NONOHLCV-01",
+  "materialized_dataset_written": false,
+  "blocked_reason_ref": "scratch/WP-RUNNER-DATA-PATH-NONOHLCV-01/blocked_full_history_materialization_reason.json",
+  "small_fixture_coverage": {
+    "test_module": "tests/test_offline_research_runner.py",
+    "fixture_scope": "deterministic runner data-path only",
+    "full_history_claim": false
+  }
+}

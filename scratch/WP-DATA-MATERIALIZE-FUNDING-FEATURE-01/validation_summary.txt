@@ -1,0 +1,15 @@
+WP-DATA-MATERIALIZE-FUNDING-FEATURE-01 validation summary
+
+Focused materialization and runner tests: PASS — 106 passed.
+Full materialization: PASS — 220128 rows, 0 uncovered rows, 0 gaps over threshold.
+Runner full-file load: PASS — funding_rate retained, 0 missing values.
+Result-population / availability / candidate-registry tests: PASS — 88 passed.
+Candidate registry validator: PASS.
+Result Population validator: PASS.
+Data feature availability validator: PASS.
+Research query view discovery: PASS — 124 views listed.
+Diff scope summary: PASS — no forbidden-path matches.
+git diff --check: PASS.
+Initial full pytest: 2226 passed, 1 skipped, 1 known isolated-worktree D4A absence failure.
+Known caveat confirmation after copying the root-local ignored D4A file into the conventional worktree path: PASS — 1 passed.
+Full pytest sharded rerun: PASS — 4 shards / 106 test files, all shard exit codes 0.

@@ -1,0 +1,8 @@
+{
+  "status": "BLOCKED",
+  "scope": ["RP-2592", "RP-3731", "RP-7134"],
+  "reason": "No committed repo-native command deterministically reconstructs these exact Result Populations from committed Strategy Spec, Variant Manifest, Sweep Plan, and local data inputs.",
+  "narrow_harness_added": false,
+  "why_not_added": "A reliable harness requires a separately defined canonical replay and normalization contract; inventing one here would broaden the package and risk changing evidence semantics.",
+  "fallback_evidence": "OHLCV-only runner regression remains covered by tests/test_offline_research_runner.py and unchanged default identity scope."
+}

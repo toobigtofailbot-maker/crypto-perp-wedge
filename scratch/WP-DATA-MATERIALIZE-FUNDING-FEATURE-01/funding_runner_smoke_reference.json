@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "test": "tests/test_offline_research_runner.py::test_declared_funding_rate_runner_smoke_reaches_backtester",
+  "result": "funding feature data-path smoke passed",
+  "declared_column": "funding_rate",
+  "availability_source_class": "PUBLIC_FUNDING_ARCHIVE",
+  "conclusion_limits": "No edge, GO/NO-GO, candidate, canonical evidence, promotion, or readiness conclusion."
+}

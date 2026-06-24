@@ -1,0 +1,21 @@
+Decision: complete
+
+Package: WP-RESEARCH-FUNDING-FADE-CONCLUDE-01
+
+Funding-rate hypothesis result:
+H-FUNDING-RATE-POSITIONING-FADE-01 produced NO-GO evidence under the tested price-P&L funding-rate signal interpretation.
+
+Evidence boundary:
+The evidence is scratch-only, non-canonical, not crossed, not candidate authority, not paper-ready, and not live-ready.
+
+Funding P&L boundary:
+The result is a price-P&L funding-rate signal test. Funding P&L is not wired, funding payments were not tested, and funding_cost_mode remained off.
+
+Candidate-review and crossing:
+No candidate-review packet was generated. Any future packet remains non-canonical unless separately authorized and crossed through a later approved path.
+
+Drift guardrail:
+This NO-GO does not automatically authorize another edge-search cycle. Additional data-derived families or funding variants require separate Main/operator authorization. Near-term lab-completion work is separate from new hypothesis search.
+
+Lab state:
+Side 12 / operator research-lab target state remains incomplete.

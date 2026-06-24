@@ -1,0 +1,10 @@
+{
+  "classification": "NO-GO",
+  "primary_screen": "drawdown",
+  "primary_screen_threshold": 0.2,
+  "all_rows_fail_primary_screen": true,
+  "fixed_max_hold_only": {"sharpe_min": -3.5825310801247765, "sharpe_max": 1.2009838330382099, "return_pct_min": -1.0, "return_pct_max": 5.094711780349744, "drawdown_min": 0.8567586702799771, "drawdown_max": 1.0, "trade_count_min": 42, "trade_count_max": 939},
+  "midline_reversion_or_max_hold": {"sharpe_min": -1.8166474928340586, "sharpe_max": 0.7690513052286926, "return_pct_min": -1.0, "return_pct_max": 4.960503245737131, "drawdown_min": 0.8071689767737391, "drawdown_max": 1.0, "trade_count_min": 42, "trade_count_max": 992},
+  "funding_metric_all_rows": 0.0,
+  "interpretation": "price-P&L funding-rate signal test; funding payments not included"
+}

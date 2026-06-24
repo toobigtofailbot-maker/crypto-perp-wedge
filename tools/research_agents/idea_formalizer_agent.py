@@ -39,6 +39,7 @@ from .reasoning_providers import (
 REPO_ROOT = Path(__file__).resolve().parents[2]
 WP_ID = "WP-AGENT-IDEA-FORMALIZER-01"
 DONCHIAN_ADAPTER_WP_ID = "WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01"
+FUNDING_RESEARCH_WP_ID = "WP-RESEARCH-FUNDING-CARRY-02"
 ROLE = "idea_formalizer"
 OUTPUT_ROOT = Path("scratch") / WP_ID
 INDICATOR_CATALOG_PATH = Path("research/indicator_catalogs/IND-CATALOG-0001.indicator_catalog.json")
@@ -284,6 +285,8 @@ class IdeaFormalizerAgent:
             features.append("open_interest")
         if "long/short ratio" in lower or "long short ratio" in lower:
             features.append("global_long_short_account_ratio")
+        if "funding_rate" in lower or "funding rate" in lower:
+            features.append("funding_rate")
         if "liquidation" in lower:
             features.append("liquidation_volume")
         if any(term in lower for term in ("ohlcv", "price", "close", "volume")):
@@ -433,11 +436,10 @@ class IdeaFormalizerAgent:
 
         spec = replace_timeframe(spec)
         spec["strategy_spec_id"] = f"STRAT-SPEC-{numeric_id:04d}"
-        spec["title"] = (
-            "Draft deterministic Donchian channel-breakout Strategy Spec"
-            if family_id == "donchian_channel_breakout_v1"
-            else "Draft provider-assisted SMA/stddev mean-reversion Strategy Spec"
-        )
+        spec["title"] = {
+            "donchian_channel_breakout_v1": "Draft deterministic Donchian channel-breakout Strategy Spec",
+            "funding_rate_positioning_fade_v1": "Draft funding-rate positioning-fade Strategy Spec",
+        }.get(family_id, "Draft provider-assisted SMA/stddev mean-reversion Strategy Spec")
         spec["short_name"] = f"draft-idea-{run_id}"
         spec["status"] = "draft"
         spec["instruments"]["symbols"] = list(draft["symbols"])
@@ -457,12 +459,18 @@ class IdeaFormalizerAgent:
                 f"provider_id={provider_metadata['provider_id']}",
                 f"request_id={provider_metadata['request_id']}",
                 f"response_source={provider_metadata['response_source']}",
-                (
-                    "Scratch-only draft produced by the bounded "
-                    "donchian_channel_breakout_v1 adapter."
-                    if family_id == "donchian_channel_breakout_v1"
-                    else "Scratch-only draft adapted from the merged "
-                    "STRAT-SPEC-0003 capability family."
+                {
+                    "donchian_channel_breakout_v1": (
+                        "Scratch-only draft produced by the bounded "
+                        "donchian_channel_breakout_v1 adapter."
+                    ),
+                    "funding_rate_positioning_fade_v1": (
+                        "Scratch-only draft produced by the bounded "
+                        "funding_rate_positioning_fade_v1 adapter."
+                    ),
+                }.get(
+                    family_id,
+                    "Scratch-only draft adapted from the merged STRAT-SPEC-0003 capability family.",
                 ),
             ],
             "unresolved_claims": [
@@ -500,7 +508,237 @@ class IdeaFormalizerAgent:
         }
         if family_id == "donchian_channel_breakout_v1":
             self._apply_donchian_strategy_body(spec)
+        elif family_id == "funding_rate_positioning_fade_v1":
+            self._apply_funding_strategy_body(spec, exit_mode="midline_reversion_or_max_hold")
         return spec
+
+    @staticmethod
+    def _funding_percentile_operand() -> dict[str, Any]:
+        return {
+            "operand_type": "composed_operand",
+            "composition_type": "rolling_empirical_percentile_v1",
+            "source_operand": {
+                "operand_type": "data_ref",
+                "ref": "funding_rate",
+                "field": "funding_rate",
+                "timeframe": None,
+                "lookback": None,
+            },
+            "lookback": {"bars_parameter_ref": "funding_lookback_bars"},
+            "min_periods_policy": "full_window",
+            "tie_policy": "weak_rank",
+            "nan_policy": "null_output",
+        }
+
+    @staticmethod
+    def _parameter_operand(name: str) -> dict[str, Any]:
+        return {
+            "operand_type": "parameter_ref",
+            "ref": name,
+            "field": None,
+            "timeframe": None,
+            "lookback": None,
+        }
+
+    @staticmethod
+    def _constant_operand(value: float) -> dict[str, Any]:
+        return {
+            "operand_type": "constant",
+            "ref": value,
+            "field": None,
+            "timeframe": None,
+            "lookback": None,
+        }
+
+    @classmethod
+    def _funding_condition(
+        cls, condition_id: str, operator: str, right_operand: dict[str, Any], role: str
+    ) -> dict[str, Any]:
+        return {
+            "condition_id": condition_id,
+            "condition_role": role,
+            "left_operand": cls._funding_percentile_operand(),
+            "operator": operator,
+            "right_operand": right_operand,
+            "units": "percentile",
+            "notes": "Trailing full-window funding-rate empirical percentile; no future fitting.",
+        }
+
+    @staticmethod
+    def _funding_parameter(
+        name: str,
+        *,
+        label: str,
+        parameter_type: str,
+        units: str,
+        default: int | float,
+        allowed_values: list[int | float],
+        role: str,
+    ) -> dict[str, Any]:
+        numeric = [float(value) for value in allowed_values]
+        positive_steps = [b - a for a, b in zip(numeric, numeric[1:]) if b > a]
+        step: int | float = min(positive_steps) if positive_steps else 1
+        if parameter_type == "integer":
+            step = int(step)
+        return {
+            "name": name,
+            "label": label,
+            "description": f"Closed preregistered funding-family parameter: {name}.",
+            "type": parameter_type,
+            "units": units,
+            "default": default,
+            "range": {
+                "min": min(allowed_values),
+                "max": max(allowed_values),
+                "step": step,
+                "inclusive_min": True,
+                "inclusive_max": True,
+            },
+            "allowed_values": allowed_values,
+            "is_free_parameter": True,
+            "included_in_variant_generation": True,
+            "role": role,
+            "rationale": "Frozen H-FUNDING-RATE-POSITIONING-FADE-01 denominator axis.",
+            "constraints": ["No post-hoc values or adaptive fitting."],
+        }
+
+    @classmethod
+    def _apply_funding_strategy_body(
+        cls, spec: dict[str, Any], *, exit_mode: str
+    ) -> None:
+        timeframe = spec["timeframe_and_data"]["primary_timeframe"]
+        spec["short_name"] = f"funding-positioning-fade-{exit_mode}-15m"
+        spec["instruments"]["directions_allowed"] = ["long", "short"]
+        spec["timeframe_and_data"]["host_data_refs"] = [
+            {
+                "stream": "ohlcv",
+                "timeframe": timeframe,
+                "field": field,
+                "availability": "required",
+            }
+            for field in ("open", "high", "low", "close", "volume")
+        ] + [
+            {
+                "stream": "funding",
+                "timeframe": timeframe,
+                "field": "funding_rate",
+                "availability": "required",
+            }
+        ]
+        spec["entry_logic"] = {
+            "direction": "both",
+            "groups": [
+                {
+                    "group_id": "ENTRY-LONG-FUNDING-LOW-TAIL",
+                    "group_role": "required",
+                    "logic": "all",
+                    "conditions": [cls._funding_condition(
+                        "LONG-FUNDING-PERCENTILE-LTE-LOWER",
+                        "lte",
+                        cls._parameter_operand("lower_entry_percentile"),
+                        "required",
+                    )],
+                    "subgroups": [],
+                    "notes": "Contrarian long entry at the preregistered lower tail.",
+                    "side": "long",
+                },
+                {
+                    "group_id": "ENTRY-SHORT-FUNDING-HIGH-TAIL",
+                    "group_role": "required",
+                    "logic": "all",
+                    "conditions": [cls._funding_condition(
+                        "SHORT-FUNDING-PERCENTILE-GTE-UPPER",
+                        "gte",
+                        cls._parameter_operand("upper_entry_percentile"),
+                        "required",
+                    )],
+                    "subgroups": [],
+                    "notes": "Contrarian short entry at the preregistered upper tail.",
+                    "side": "short",
+                },
+            ],
+            "notes": "Funding-rate positioning fade; contrarian direction only.",
+        }
+        exit_groups: list[dict[str, Any]] = []
+        if exit_mode == "midline_reversion_or_max_hold":
+            exit_groups = [
+                {
+                    "group_id": "EXIT-LONG-FUNDING-MIDLINE",
+                    "group_role": "exit",
+                    "logic": "all",
+                    "conditions": [cls._funding_condition(
+                        "LONG-FUNDING-PERCENTILE-GTE-MIDLINE",
+                        "gte",
+                        cls._constant_operand(0.5),
+                        "exit",
+                    )],
+                    "subgroups": [],
+                    "notes": "Long exits when funding percentile reverts to the midline.",
+                    "side": "long",
+                },
+                {
+                    "group_id": "EXIT-SHORT-FUNDING-MIDLINE",
+                    "group_role": "exit",
+                    "logic": "all",
+                    "conditions": [cls._funding_condition(
+                        "SHORT-FUNDING-PERCENTILE-LTE-MIDLINE",
+                        "lte",
+                        cls._constant_operand(0.5),
+                        "exit",
+                    )],
+                    "subgroups": [],
+                    "notes": "Short exits when funding percentile reverts to the midline.",
+                    "side": "short",
+                },
+            ]
+        spec["exit_logic"] = {
+            "groups": exit_groups,
+            "max_holding_period": {
+                "enabled": True,
+                "bars": {"parameter_ref": "max_hold_bars"},
+            },
+            "notes": f"Frozen exit_mode={exit_mode}; max hold is always active.",
+        }
+        spec["filters"] = {"groups": [], "none_declared": True}
+        spec["free_parameters"] = {
+            "max_free_parameters": 5,
+            "counting_rule": (
+                "parameters contains only entries where is_free_parameter=true; maxItems 5 "
+                "enforces the D2-006-style MVP free-parameter cap"
+            ),
+            "parameters": [
+                cls._funding_parameter(
+                    "funding_lookback_bars", label="Funding percentile lookback", parameter_type="integer",
+                    units="bars", default=2880, allowed_values=[2880, 8640, 17280], role="entry"
+                ),
+                cls._funding_parameter(
+                    "lower_entry_percentile", label="Lower entry percentile", parameter_type="number",
+                    units="ratio", default=0.1, allowed_values=[0.05, 0.1], role="entry"
+                ),
+                cls._funding_parameter(
+                    "upper_entry_percentile", label="Upper entry percentile", parameter_type="number",
+                    units="ratio", default=0.9, allowed_values=[0.9, 0.95], role="entry"
+                ),
+                cls._funding_parameter(
+                    "max_hold_bars", label="Maximum holding period", parameter_type="integer",
+                    units="bars", default=16, allowed_values=[16, 32, 96], role="exit"
+                ),
+            ],
+            "no_free_parameters_declared": False,
+        }
+        spec["constraints"] = {
+            "invalid_parameter_combinations": [],
+            "unavailable_data_blockers": [],
+            "deferred_pattern_blockers": [
+                "Funding payments are not wired; funding_cost_mode remains off.",
+                "This is a price-P&L funding-rate signal test.",
+            ],
+            "none_declared": False,
+        }
+        spec["provenance"]["unresolved_claims"] = [
+            "Scratch-only non-canonical research artifact.",
+            "Funding payments are excluded; this is not complete carry P&L.",
+        ]
 
     @staticmethod
     def _indicator_operand(field: str) -> dict[str, Any]:
@@ -729,6 +967,8 @@ class IdeaFormalizerAgent:
     @staticmethod
     def _draft_family_id(draft: Mapping[str, Any]) -> str | None:
         features = set(draft.get("features", []))
+        if "funding_rate" in features and not features.intersection({"sma", "stddev", "donchian"}):
+            return "funding_rate_positioning_fade_v1"
         if "donchian" in features and not features.intersection({"sma", "stddev"}):
             return "donchian_channel_breakout_v1"
         if {"sma", "stddev"}.issubset(features) and "donchian" not in features:
@@ -928,6 +1168,17 @@ class IdeaFormalizerAgent:
             )
             spec_path = run_dir / f"{spec['strategy_spec_id']}.strategy_spec.json"
             self._write_json(spec_path, spec)
+            if family_id == "funding_rate_positioning_fade_v1":
+                fixed_spec = copy.deepcopy(spec)
+                fixed_spec["strategy_spec_id"] = f"STRAT-SPEC-{int(spec['strategy_spec_id'][-4:]) + 1:04d}"
+                fixed_spec["title"] = "Draft funding-rate positioning-fade fixed-max-hold Strategy Spec"
+                self._apply_funding_strategy_body(fixed_spec, exit_mode="fixed_max_hold_only")
+                fixed_path = run_dir / f"{fixed_spec['strategy_spec_id']}.strategy_spec.json"
+                self._write_json(fixed_path, fixed_spec)
+                base_result["adapter_metadata"]["strategy_spec_paths"] = {
+                    "midline_reversion_or_max_hold": spec_path.as_posix(),
+                    "fixed_max_hold_only": fixed_path.as_posix(),
+                }
             validation_errors = self._validate_draft_dir(run_dir)
             base_result["draft_strategy_spec"] = {
                 "produced": not validation_errors,

@@ -1,0 +1,11 @@
+{
+  "expected_rows": 36,
+  "planned_rows": 36,
+  "sets": {
+    "fixed_max_hold_only": {"rows": 18, "sweep_plan": "SWEEP-PLAN-9933", "sha256": "0e8675e3fa7b9d57dbf4a9dbf184f9c640bad581a9f15055b86b52c4224c091e"},
+    "midline_reversion_or_max_hold": {"rows": 18, "sweep_plan": "SWEEP-PLAN-9934", "sha256": "73acbb8b67a6b5b268e1938142c9c79e3939a4516e85c95fa3bbbc3499a228e8"}
+  },
+  "tail_pairs_coupled": true,
+  "adaptive_search_used": false,
+  "post_hoc_narrowing": false
+}

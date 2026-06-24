@@ -1,0 +1,146 @@
+{
+  "approval_metadata": {
+    "approval_scope": "noncanonical_scratch_runner_bridge_only",
+    "approval_timestamp_utc": "2026-06-24T00:00:00Z",
+    "approved_by": "operator",
+    "approved_for_noncanonical_runner_bridge": true,
+    "source_formalizer_run_id": "b191967d3aff"
+  },
+  "blocked_trial_count": 0,
+  "completed_trial_count": 36,
+  "data_availability_blockers": [],
+  "data_availability_warnings": [],
+  "denominator_counts": {
+    "blocked": 0,
+    "completed": 36,
+    "failed": 0,
+    "invalid": 0,
+    "pruned": 0
+  },
+  "derived_input_artifact_paths": {
+    "fixed_max_hold_only": {
+      "bridge_metadata": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/fixed_max_hold_only/inputs/bridge_metadata.json",
+      "strategy_spec": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/fixed_max_hold_only/inputs/STRAT-SPEC-9478.strategy_spec.json",
+      "sweep_plan": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/fixed_max_hold_only/inputs/SWEEP-PLAN-9933.sweep_plan.json",
+      "variant_manifest": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/fixed_max_hold_only/inputs/VM-9933.variant_manifest.json"
+    },
+    "midline_reversion_or_max_hold": {
+      "bridge_metadata": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/midline_reversion_or_max_hold/inputs/bridge_metadata.json",
+      "strategy_spec": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/midline_reversion_or_max_hold/inputs/STRAT-SPEC-9477.strategy_spec.json",
+      "sweep_plan": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/midline_reversion_or_max_hold/inputs/SWEEP-PLAN-9934.sweep_plan.json",
+      "variant_manifest": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/midline_reversion_or_max_hold/inputs/VM-9934.variant_manifest.json"
+    }
+  },
+  "failed_trial_count": 0,
+  "full_ledger_path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/denominator_ledger.json",
+  "funding_mode": {
+    "default_off": true,
+    "effective": "off",
+    "global_mode_mutated": false,
+    "requested": "off"
+  },
+  "invalid_trial_count": 0,
+  "manual_reconciliation_result": {
+    "by_exit_mode": {
+      "fixed_max_hold_only": {
+        "comparisons": {
+          "committed_denominator": true,
+          "core_metrics": true,
+          "outcomes": true,
+          "result_identity": true,
+          "status_counts": true,
+          "trial_count": true,
+          "variant_ids": true
+        },
+        "passed": true
+      },
+      "midline_reversion_or_max_hold": {
+        "comparisons": {
+          "committed_denominator": true,
+          "core_metrics": true,
+          "outcomes": true,
+          "result_identity": true,
+          "status_counts": true,
+          "trial_count": true,
+          "variant_ids": true
+        },
+        "passed": true
+      }
+    },
+    "passed": true
+  },
+  "non_authority_flags": [
+    "not canonical",
+    "not evidence",
+    "not candidate authority",
+    "not promotion authority",
+    "not paper/live readiness",
+    "human review required"
+  ],
+  "pruned_trial_count": 0,
+  "run_id": "813c51adc1879144",
+  "runner_artifact_paths": [
+    "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/fixed_max_hold_only/runner_artifacts/RP-2009.result_population.json",
+    "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/midline_reversion_or_max_hold/runner_artifacts/RP-7592.result_population.json"
+  ],
+  "runner_invocation_metadata": {
+    "deterministic_seed": 0,
+    "mode": "canonical_15m_fixture_offline",
+    "network": false,
+    "ohlcv_input_hash": "sha256:70cbe2040c8fb5987b2971a13c8bd4f66e91152331d5b641d684673364be3931",
+    "ohlcv_input_path": "data/processed/d4a/binance_um_perp_BTCUSDT_15m_2020-01-01_2026-04-11_funding_feature_v1.csv",
+    "runner": "tools.research_runner.run_offline_sweep",
+    "runner_invocation_ids": {
+      "fixed_max_hold_only": "66c417bfd73d868d",
+      "midline_reversion_or_max_hold": "aa26e228213c651f"
+    }
+  },
+  "schema_version": "formalizer_runner_bridge_human_review_packet_v1",
+  "source_idea_formalizer_summary": {
+    "causal_rationale": "BTCUSDT 15m funding_rate extremes mean revert because crowded perpetual positioning unwinds.",
+    "entry_concept": "Evaluate on completed bars and enter at the next bar open.",
+    "exit_concept": "Exit on the declared signal reversal or bounded holding limit.",
+    "falsifiable_prediction": "The completed-bar signal has positive out-of-sample expectancy after costs.",
+    "features": [
+      "funding_rate"
+    ],
+    "parameter_bounds": [
+      {
+        "maximum": 100,
+        "minimum": 50,
+        "name": "center_lookback_bars"
+      },
+      {
+        "maximum": 50,
+        "minimum": 30,
+        "name": "vol_lookback_bars"
+      },
+      {
+        "maximum": 200,
+        "minimum": 100,
+        "name": "trend_lookback_bars"
+      }
+    ],
+    "stop_conditions": [
+      "Stop if preregistered out-of-sample thresholds fail."
+    ],
+    "summary": "BTCUSDT 15m funding_rate extremes mean revert because crowded perpetual positioning unwinds.",
+    "symbols": [
+      "BTCUSDT"
+    ],
+    "timeframe": "15m"
+  },
+  "top_metrics": {
+    "drawdown": 1.0,
+    "exposure": 1.0,
+    "fees": 6870.88534696075,
+    "funding": 0.0,
+    "pnl": -10000.0,
+    "return_pct": -1.0,
+    "sharpe": -3.5825310801247765,
+    "slippage": 1717.7213367401876,
+    "trade_count": 653,
+    "win_rate": 0.4165390505359878
+  },
+  "validation_status": "passed"
+}

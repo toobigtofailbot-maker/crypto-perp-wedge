@@ -1,0 +1,13 @@
+{
+  "status": "accepted",
+  "run_id": "b191967d3aff",
+  "family_id": "funding_rate_positioning_fade_v1",
+  "source_path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/b191967d3aff/formalized_idea.json",
+  "source_sha256": "5b0baea9d520132db0d452a6a68db60509c6725d93fd8e787a65bf92d0b3b757",
+  "strategy_specs": {
+    "midline_reversion_or_max_hold": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/b191967d3aff/STRAT-SPEC-9477.strategy_spec.json",
+    "fixed_max_hold_only": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/b191967d3aff/STRAT-SPEC-9478.strategy_spec.json"
+  },
+  "validation": "passed",
+  "canonical": false
+}

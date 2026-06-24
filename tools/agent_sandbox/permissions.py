@@ -246,6 +246,15 @@ def decide(role: str, wp_id: str, action_type: str, target_path: str) -> PolicyD
             and target_path.startswith("scratch/wp-agent-idea-formalizer-01/")
         )
         and not (
+            role == "formalizer_runner_bridge"
+            and wp_id.casefold() == "wp-research-funding-carry-02"
+            and target_path
+            == (
+                "data/processed/d4a/"
+                "binance_um_perp_btcusdt_15m_2020-01-01_2026-04-11_funding_feature_v1.csv"
+            )
+        )
+        and not (
             role == "robustness_diagnostician"
             and (
                 target_path.startswith(f"scratch/{wp_id.casefold()}/")

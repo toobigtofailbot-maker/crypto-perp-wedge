@@ -1,0 +1,12 @@
+{
+  "status": "passed_scratch_only",
+  "runner_commit": "d08da05a6c1bff77a054c619d9aeebc61f401af5",
+  "input_data_sha256": "70cbe2040c8fb5987b2971a13c8bd4f66e91152331d5b641d684673364be3931",
+  "strategy_spec_hashes": {"fixed_max_hold_only": "9c7c53d9fbbea8c71244d39ced89b4618052aa5c560f027f35402ef07dc0504b", "midline_reversion_or_max_hold": "2c0dafb9c36ba3018c27f4e4b118ef3d80daa06bc37bf3e0f9f96ef26f1e7e20"},
+  "variant_manifest_hashes": {"fixed_max_hold_only": "a5a6f6b80666cb1429d2200fbb4a4785c5547f406d7fa4735bd5b71cefdf4541", "midline_reversion_or_max_hold": "95d264bb2ffa62aae4b7861980f054489e189a02f8049566fb45a366a0fd3e5d"},
+  "sweep_plan_hashes": {"fixed_max_hold_only": "0e8675e3fa7b9d57dbf4a9dbf184f9c640bad581a9f15055b86b52c4224c091e", "midline_reversion_or_max_hold": "73acbb8b67a6b5b268e1938142c9c79e3939a4516e85c95fa3bbbc3499a228e8"},
+  "result_population_hashes": {"fixed_max_hold_only": "d6e5e6c46c38208b308b2c5aaa34b3a65176831b61b5026229c857ba08914076", "midline_reversion_or_max_hold": "18bfe97d571b3e5debf675a103e736ff29ce17287847a4b673cc4cbe68480d37"},
+  "normalized_stable_metrics_sha256": "0778461360081ef348419346cf05c43db404d8234658be0fe28156893c3c72f8",
+  "proof": "Bridge invocation ran each exit-mode population twice (written bridged run plus dry-run manual equivalent); trial count, variant IDs, outcomes, metrics, status counts, denominator, and result identity matched for both.",
+  "canonical_replay_authority": false
+}

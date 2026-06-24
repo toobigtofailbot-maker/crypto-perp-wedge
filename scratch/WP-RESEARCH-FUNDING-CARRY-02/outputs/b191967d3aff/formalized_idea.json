@@ -1,0 +1,103 @@
+{
+  "adapter_metadata": {
+    "family_id": "funding_rate_positioning_fade_v1",
+    "freshness_distinct_from": [],
+    "prior_family_evidence": [],
+    "strategy_spec_paths": {
+      "fixed_max_hold_only": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/b191967d3aff/STRAT-SPEC-9478.strategy_spec.json",
+      "midline_reversion_or_max_hold": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/b191967d3aff/STRAT-SPEC-9477.strategy_spec.json"
+    },
+    "unsupported_capabilities": []
+  },
+  "blocked_action": null,
+  "capability_assessment": {
+    "blocking_features": [],
+    "detected_features": [
+      "funding_rate"
+    ],
+    "distinction": "compiler field existence is separate from historical testability",
+    "feature_assessments": [
+      {
+        "compiler_field_exists": true,
+        "conditions": [
+          "Aligned funding records cover the claimed evidence window."
+        ],
+        "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+        "feature": "funding_rate",
+        "historical_testability": "conditionally_public_archive_backfillable",
+        "source_class": "PUBLIC_FUNDING_ARCHIVE",
+        "warnings": [
+          "Full-history use is limited to preserved, aligned public funding records."
+        ]
+      }
+    ],
+    "historically_testable_now": true
+  },
+  "draft_strategy_spec": {
+    "blockers": [],
+    "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/b191967d3aff/STRAT-SPEC-9477.strategy_spec.json",
+    "produced": true,
+    "validator": "tools/registry/validate_strategy_specs.py"
+  },
+  "input": {
+    "constraints": [],
+    "idea": "BTCUSDT 15m funding_rate extremes mean revert because crowded perpetual positioning unwinds.",
+    "symbol": "BTCUSDT",
+    "timeframe": "15m"
+  },
+  "non_authority": {
+    "draft_only": true,
+    "human_review_required": true,
+    "not_candidate_authority": true,
+    "not_canonical": true,
+    "not_evidence": true,
+    "not_paper_live_runtime_authority": true,
+    "not_promotion_authority": true,
+    "scratch_only": true
+  },
+  "provider_metadata": {
+    "api_call_made": false,
+    "provider_id": "fake-rule-v1",
+    "provider_mode": "fake_offline",
+    "request_id": "b191967d3aff",
+    "response_source": "deterministic_fake"
+  },
+  "rejection_reasons": [],
+  "research_object": {
+    "causal_rationale": "BTCUSDT 15m funding_rate extremes mean revert because crowded perpetual positioning unwinds.",
+    "entry_concept": "Evaluate on completed bars and enter at the next bar open.",
+    "exit_concept": "Exit on the declared signal reversal or bounded holding limit.",
+    "falsifiable_prediction": "The completed-bar signal has positive out-of-sample expectancy after costs.",
+    "features": [
+      "funding_rate"
+    ],
+    "parameter_bounds": [
+      {
+        "maximum": 100,
+        "minimum": 50,
+        "name": "center_lookback_bars"
+      },
+      {
+        "maximum": 50,
+        "minimum": 30,
+        "name": "vol_lookback_bars"
+      },
+      {
+        "maximum": 200,
+        "minimum": 100,
+        "name": "trend_lookback_bars"
+      }
+    ],
+    "stop_conditions": [
+      "Stop if preregistered out-of-sample thresholds fail."
+    ],
+    "summary": "BTCUSDT 15m funding_rate extremes mean revert because crowded perpetual positioning unwinds.",
+    "symbols": [
+      "BTCUSDT"
+    ],
+    "timeframe": "15m"
+  },
+  "run_id": "b191967d3aff",
+  "schema_version": "agent_formalized_idea_v1",
+  "status": "accepted"
+}

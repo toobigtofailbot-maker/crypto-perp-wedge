@@ -1,0 +1,715 @@
+{
+  "amendment_and_supersession": {
+    "amendment_mode": "none",
+    "amendment_reason": null,
+    "associated_results_state": "no_associated_results",
+    "close_only_after_results": true,
+    "does_not_inherit_prior_results": true,
+    "fresh_denominator_required": true,
+    "post_result_change": false,
+    "preserve_prior_manifest_required": true,
+    "supersedes": null,
+    "supersession_allowed": false,
+    "supersession_lineage": []
+  },
+  "exclusion_rules": [],
+  "invalid_combination_rules": [],
+  "lineage": {
+    "audit_notes": [
+      "Scratch-only funding positioning-fade exit_mode=fixed_max_hold_only.",
+      "Entry-tail pairs are frozen as 0.10/0.90 and 0.05/0.95.",
+      "Funding payments remain off; price-P&L funding-rate signal test only.",
+      "All denominator outcomes remain visible."
+    ],
+    "created_at": "2026-06-24T00:00:00Z",
+    "hash_refs": [
+      "sha256:7d74b6efe70aef04ab6565c51a00b7032ebc37c9882a73ac85a3e340d5ca4e81",
+      "sha256:5b0baea9d520132db0d452a6a68db60509c6725d93fd8e787a65bf92d0b3b757",
+      "sha256:5191f9822732987598204aa26212d6b19d10de4db9b2d8ac996a1b66c03ee1f2"
+    ],
+    "parent_refs": [
+      {
+        "ref_hash": "sha256:7d74b6efe70aef04ab6565c51a00b7032ebc37c9882a73ac85a3e340d5ca4e81",
+        "ref_id": "STRAT-SPEC-9478",
+        "ref_path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/fixed_max_hold_only/inputs/STRAT-SPEC-9478.strategy_spec.json",
+        "ref_type": "strategy_spec"
+      }
+    ],
+    "source_refs": [
+      {
+        "ref_hash": "sha256:5b0baea9d520132db0d452a6a68db60509c6725d93fd8e787a65bf92d0b3b757",
+        "ref_id": "FORMALIZER-b191967d3aff",
+        "ref_path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/b191967d3aff/formalized_idea.json",
+        "ref_type": "concept"
+      },
+      {
+        "ref_hash": "sha256:5191f9822732987598204aa26212d6b19d10de4db9b2d8ac996a1b66c03ee1f2",
+        "ref_id": "OPERATOR-BRIDGE-APPROVAL",
+        "ref_path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/b191967d3aff/operator_bridge_approval.json",
+        "ref_type": "manual_review"
+      }
+    ],
+    "updated_at": "2026-06-24T00:00:00Z"
+  },
+  "manifest_hash_pinning": {
+    "canonicalization": "json_canonical_v1",
+    "frozen_at": "2026-06-24T00:00:00Z",
+    "hash_algorithm": "sha256",
+    "hash_scope": [
+      "schema_version",
+      "variant_manifest_id",
+      "parent_strategy_spec.strategy_spec_id",
+      "parent_strategy_spec.strategy_spec_hash",
+      "population_governance",
+      "parameter_axes",
+      "invalid_combination_rules",
+      "exclusion_rules",
+      "variant_assignments"
+    ],
+    "hash_scope_version": "variant_manifest_hash_scope_v1",
+    "hash_status": "computed",
+    "manifest_hash": "sha256:16b02a1ae03ac8a3c894fa415ea976ecaead67f0269197d9fc1fc6a213669b4e",
+    "post_result_mutation_forbidden": true,
+    "pre_sweep_freeze_required": true
+  },
+  "non_execution_declaration": {
+    "not_candidate_approval": true,
+    "not_executable": true,
+    "not_exp_approval": true,
+    "not_gate_authority": true,
+    "not_paper_live_authority": true,
+    "not_ranking_authority": true,
+    "not_readiness_authority": true,
+    "not_recommendation_authority": true,
+    "not_result_authority": true,
+    "not_runner_authority": true,
+    "not_runtime_authority": true,
+    "not_sweep_authority": true,
+    "not_transition_authority": true,
+    "planning_surface_only": true
+  },
+  "parameter_axes": [
+    {
+      "allowed_values": [
+        2880,
+        8640,
+        17280
+      ],
+      "axis_id": "AXIS-001",
+      "axis_kind": "free_parameter",
+      "counts_toward_parent_free_parameter_cap": true,
+      "generator_method": "manual_grid",
+      "invalid_combination_rule_refs": [],
+      "is_declared_in_parent_strategy_spec": true,
+      "notes": "Frozen H-FUNDING-RATE-POSITIONING-FADE-01 axis.",
+      "parameter_name": "funding_lookback_bars",
+      "parameter_type": "integer",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.funding_lookback_bars",
+      "range": {
+        "inclusive_max": true,
+        "inclusive_min": true,
+        "max": 17280,
+        "min": 2880,
+        "step": 5760.0
+      },
+      "units": "bars"
+    },
+    {
+      "allowed_values": [
+        0.05,
+        0.1
+      ],
+      "axis_id": "AXIS-002",
+      "axis_kind": "free_parameter",
+      "counts_toward_parent_free_parameter_cap": true,
+      "generator_method": "manual_grid",
+      "invalid_combination_rule_refs": [],
+      "is_declared_in_parent_strategy_spec": true,
+      "notes": "Frozen H-FUNDING-RATE-POSITIONING-FADE-01 axis.",
+      "parameter_name": "lower_entry_percentile",
+      "parameter_type": "number",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.lower_entry_percentile",
+      "range": {
+        "inclusive_max": true,
+        "inclusive_min": true,
+        "max": 0.1,
+        "min": 0.05,
+        "step": 0.05
+      },
+      "units": "ratio"
+    },
+    {
+      "allowed_values": [
+        0.9,
+        0.95
+      ],
+      "axis_id": "AXIS-003",
+      "axis_kind": "free_parameter",
+      "counts_toward_parent_free_parameter_cap": true,
+      "generator_method": "manual_grid",
+      "invalid_combination_rule_refs": [],
+      "is_declared_in_parent_strategy_spec": true,
+      "notes": "Frozen H-FUNDING-RATE-POSITIONING-FADE-01 axis.",
+      "parameter_name": "upper_entry_percentile",
+      "parameter_type": "number",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.upper_entry_percentile",
+      "range": {
+        "inclusive_max": true,
+        "inclusive_min": true,
+        "max": 0.95,
+        "min": 0.9,
+        "step": 0.04999999999999993
+      },
+      "units": "ratio"
+    },
+    {
+      "allowed_values": [
+        16,
+        32,
+        96
+      ],
+      "axis_id": "AXIS-004",
+      "axis_kind": "free_parameter",
+      "counts_toward_parent_free_parameter_cap": true,
+      "generator_method": "manual_grid",
+      "invalid_combination_rule_refs": [],
+      "is_declared_in_parent_strategy_spec": true,
+      "notes": "Frozen H-FUNDING-RATE-POSITIONING-FADE-01 axis.",
+      "parameter_name": "max_hold_bars",
+      "parameter_type": "integer",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.max_hold_bars",
+      "range": {
+        "inclusive_max": true,
+        "inclusive_min": true,
+        "max": 96,
+        "min": 16,
+        "step": 16.0
+      },
+      "units": "bars"
+    }
+  ],
+  "parent_strategy_spec": {
+    "does_not_mutate_parent_strategy_spec": true,
+    "hash_algorithm": "sha256",
+    "hash_scope_version": "strategy_spec_hash_scope_v1",
+    "mismatch_policy": "block",
+    "missing_parent_policy": "block",
+    "strategy_spec_hash": "sha256:7d74b6efe70aef04ab6565c51a00b7032ebc37c9882a73ac85a3e340d5ca4e81",
+    "strategy_spec_id": "STRAT-SPEC-9478",
+    "strategy_spec_ref": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/fixed_max_hold_only/inputs/STRAT-SPEC-9478.strategy_spec.json",
+    "strategy_spec_review_status": "approved_for_variant_planning",
+    "strategy_spec_schema_version": "v1"
+  },
+  "population_governance": {
+    "declared_population": {
+      "committed_population_count": 18,
+      "declared_variant_count": 18,
+      "excluded_variant_count": 0,
+      "included_variant_count": 18,
+      "invalid_variant_count": 0,
+      "not_attempted_variant_count": 0
+    },
+    "multiple_testing_accounting": {
+      "adaptive_search_authorization_ref": null,
+      "adaptive_search_used": false,
+      "all_trials_visible_required": true,
+      "denominator_required": true,
+      "denominator_type": "committed_pre_registered_population",
+      "search_family_id": "SF-FUNDING-POSITIONING-FADE-FIXED_MAX_HOLD_ONLY-0001",
+      "search_family_method": "manual_grid",
+      "winner_only_review_forbidden": true
+    },
+    "population_cap": {
+      "cap_basis": "manual_grid",
+      "cap_exception_authorized": false,
+      "cap_exception_ref": null,
+      "cap_source": "human_declared",
+      "max_variants": 18
+    },
+    "pre_registration": {
+      "allowed_change_mode": "supersede_before_results_only",
+      "freeze_required_before_sweep": true,
+      "post_hoc_addition_forbidden": true,
+      "post_result_mutation_forbidden": true,
+      "pre_registered": true,
+      "pre_registration_scope": "full_variant_population",
+      "pre_registration_status": "frozen_for_sweep_planning"
+    },
+    "trial_budget": {
+      "denominator_basis": "committed_pre_registered_population_count",
+      "denominator_count": 18,
+      "denominator_includes_aborted": true,
+      "denominator_includes_data_unavailable": true,
+      "denominator_includes_errored": true,
+      "denominator_includes_excluded": true,
+      "denominator_includes_failed": true,
+      "denominator_includes_filtered": true,
+      "denominator_includes_invalid": true,
+      "denominator_includes_not_attempted": true,
+      "executed_only_denominator_forbidden": true,
+      "planned_trial_count": 18,
+      "trial_budget_denominator": 18
+    }
+  },
+  "review": {
+    "approval_scope": "sweep_planning_only",
+    "human_review_required": true,
+    "non_authority_acknowledgement": {
+      "not_candidate_approval": true,
+      "not_exp_approval": true,
+      "not_gate_satisfaction": true,
+      "not_paper_live_authority": true,
+      "not_ranking_authority": true,
+      "not_readiness_authority": true,
+      "not_recommendation_authority": true,
+      "not_result_authority": true,
+      "not_runner_authority": true,
+      "not_runtime_authority": true,
+      "not_sweep_authority": true,
+      "not_transition_authority": true
+    },
+    "review_notes": [
+      "Non-canonical preregistered funding-family research input.",
+      "No crossing, candidate, promotion, paper, live, or runtime authority."
+    ],
+    "reviewed_at": null,
+    "reviewer": null
+  },
+  "schema_version": "v1",
+  "status": "approved_for_sweep_planning",
+  "variant_assignments": [
+    {
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 1
+      },
+      "parameter_value_hash": "sha256:fc579092e8246388ff1543dbf06abbdd1a8adc7de033672563a9dbf5c97b820d",
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.1,
+        "max_hold_bars": 16,
+        "upper_entry_percentile": 0.9
+      },
+      "status_reason": null,
+      "variant_id": "VAR-000019"
+    },
+    {
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 2
+      },
+      "parameter_value_hash": "sha256:e960268406d95ec229ce707961031c1213401edd74b8db7bffdc8587f38d0c16",
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.1,
+        "max_hold_bars": 32,
+        "upper_entry_percentile": 0.9
+      },
+      "status_reason": null,
+      "variant_id": "VAR-000020"
+    },
+    {
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 3
+      },
+      "parameter_value_hash": "sha256:818c9346368b8b6b4c723348d21e0b895544f77e0a9a81bc052bfe94579440fb",
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.1,
+        "max_hold_bars": 96,
+        "upper_entry_percentile": 0.9
+      },
+      "status_reason": null,
+      "variant_id": "VAR-000021"
+    },
+    {
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 4
+      },
+      "parameter_value_hash": "sha256:2c9cc2ef9b3127be4262531d7ecb029441003daa830e10eeba59a849c1bcd61c",
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.05,
+        "max_hold_bars": 16,
+        "upper_entry_percentile": 0.95
+      },
+      "status_reason": null,
+      "variant_id": "VAR-000022"
+    },
+    {
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 5
+      },
+      "parameter_value_hash": "sha256:ae46b58b7f60284e40e8de5358a20dfbd6b5489951cbc44a94cbd3a61e3f8862",
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.05,
+        "max_hold_bars": 32,
+        "upper_entry_percentile": 0.95
+      },
+      "status_reason": null,
+      "variant_id": "VAR-000023"
+    },
+    {
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 6
+      },
+      "parameter_value_hash": "sha256:ef09d5edb1c648eb29a53b02fe929702836066d4fb82af0fe06b1f8cd5af64ea",
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.05,
+        "max_hold_bars": 96,
+        "upper_entry_percentile": 0.95
+      },
+      "status_reason": null,
+      "variant_id": "VAR-000024"
+    },
+    {
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 7
+      },
+      "parameter_value_hash": "sha256:2e660352c2b79d6e00138dd89084897e70a9a69af5f73effd9db2d26e3b4a2c0",
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.1,
+        "max_hold_bars": 16,
+        "upper_entry_percentile": 0.9
+      },
+      "status_reason": null,
+      "variant_id": "VAR-000025"
+    },
+    {
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 8
+      },
+      "parameter_value_hash": "sha256:72f5468077fd132d34cf26905c9f7f0841154b02985219587c61f1f21a5fda0b",
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.1,
+        "max_hold_bars": 32,
+        "upper_entry_percentile": 0.9
+      },
+      "status_reason": null,
+      "variant_id": "VAR-000026"
+    },
+    {
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 9
+      },
+      "parameter_value_hash": "sha256:b56b4e1818e9f010b94a1932b9671fc2d28360f267e87ba404822d7ab579bc95",
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.1,
+        "max_hold_bars": 96,
+        "upper_entry_percentile": 0.9
+      },
+      "status_reason": null,
+      "variant_id": "VAR-000027"
+    },
+    {
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 10
+      },
+      "parameter_value_hash": "sha256:e3b3dc32e7a161676700bde94671c518ac3b9ac3fa0ebdf809be4ac9c06ac4ec",
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.05,
+        "max_hold_bars": 16,
+        "upper_entry_percentile": 0.95
+      },
+      "status_reason": null,
+      "variant_id": "VAR-000028"
+    },
+    {
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 11
+      },
+      "parameter_value_hash": "sha256:a2ac2379188ecdc530bb360520c75290afc01f51ebce0f3e589ba3ff69abea6d",
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.05,
+        "max_hold_bars": 32,
+        "upper_entry_percentile": 0.95
+      },
+      "status_reason": null,
+      "variant_id": "VAR-000029"
+    },
+    {
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 12
+      },
+      "parameter_value_hash": "sha256:066faebe750a7352493e00e336994c701076d75cc6b3b40a54214ca0150588d6",
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.05,
+        "max_hold_bars": 96,
+        "upper_entry_percentile": 0.95
+      },
+      "status_reason": null,
+      "variant_id": "VAR-000030"
+    },
+    {
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 13
+      },
+      "parameter_value_hash": "sha256:fecd03921e39247855997957af726ec7aba55a53b083583bc541f46705274142",
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.1,
+        "max_hold_bars": 16,
+        "upper_entry_percentile": 0.9
+      },
+      "status_reason": null,
+      "variant_id": "VAR-000031"
+    },
+    {
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 14
+      },
+      "parameter_value_hash": "sha256:084c1a35f373db760b65919dfb6a4cd46df99d3cc85b904d054186e31a345955",
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.1,
+        "max_hold_bars": 32,
+        "upper_entry_percentile": 0.9
+      },
+      "status_reason": null,
+      "variant_id": "VAR-000032"
+    },
+    {
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 15
+      },
+      "parameter_value_hash": "sha256:fd4f23e08cd0affd4055d33f3e2ced7f2dd816f549fa577755bbca441e368da8",
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.1,
+        "max_hold_bars": 96,
+        "upper_entry_percentile": 0.9
+      },
+      "status_reason": null,
+      "variant_id": "VAR-000033"
+    },
+    {
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 16
+      },
+      "parameter_value_hash": "sha256:e9859e9cd65dfc065b3b5e7951d0106aba2c475d49b55a2e82a844a9116c21e4",
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.05,
+        "max_hold_bars": 16,
+        "upper_entry_percentile": 0.95
+      },
+      "status_reason": null,
+      "variant_id": "VAR-000034"
+    },
+    {
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 17
+      },
+      "parameter_value_hash": "sha256:300b78529c7664f50e54142f399258b1da5851e1704cd5c62ad5208094d8e1b1",
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.05,
+        "max_hold_bars": 32,
+        "upper_entry_percentile": 0.95
+      },
+      "status_reason": null,
+      "variant_id": "VAR-000035"
+    },
+    {
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 18
+      },
+      "parameter_value_hash": "sha256:4cdd4848dec7ed2580ce367867ee6569f27c15344c85a4f411e7fc7eb8d28751",
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.05,
+        "max_hold_bars": 96,
+        "upper_entry_percentile": 0.95
+      },
+      "status_reason": null,
+      "variant_id": "VAR-000036"
+    }
+  ],
+  "variant_manifest_id": "VM-9933"
+}

@@ -1,0 +1,51 @@
+{
+  "package_label": "WP-LAB-RP-REPLAY-NORMALIZATION-CONTRACT-01",
+  "contract_version": "result_population_replay_normalization_contract_v1",
+  "source_wp": "WP-RESEARCH-FUNDING-CARRY-02",
+  "fixtures": [
+    {
+      "label": "fixed_max_hold_only",
+      "result_population_id": "RP-2009",
+      "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/fixed_max_hold_only/runner_artifacts/RP-2009.result_population.json",
+      "raw_sha256": "sha256:971a87dd03f0e77e0ec4cd91874af8c6f7e03b2133c7a7091c48bc164387e732",
+      "input_identity_hash": "sha256:ec3bd9fbd962852683ed6efa223a568ffc49972e93f5b66e54dba1e887399177",
+      "result_population_identity_hash": "sha256:3968fe198f6dea2483668d87def033d22c67400e0b61a16a7d86acec228f2109",
+      "normalized_stable_hash": "sha256:9b3efb61a77f59fdb8bb830b233594fa48c2aaab9e880e67424ff0d7e7c1963a",
+      "trial_count": 18,
+      "successful_count": 18,
+      "variant_id_first": "VAR-000019",
+      "variant_id_last": "VAR-000036"
+    },
+    {
+      "label": "midline_reversion_or_max_hold",
+      "result_population_id": "RP-7592",
+      "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/midline_reversion_or_max_hold/runner_artifacts/RP-7592.result_population.json",
+      "raw_sha256": "sha256:9a2aeafa5ab40a1ef78ecdf2187f64e2afb75b66261cdeac7ceda7cf73f0e726",
+      "input_identity_hash": "sha256:71af61b68524dcd3f0954e84c4e0eb404c4f7857ca7cfc3e0bd0ab8c2e0d68f2",
+      "result_population_identity_hash": "sha256:3cb2ac535b432ffbdecd6cc47e601710583f06bb87a060e2b01d9200452431ca",
+      "normalized_stable_hash": "sha256:630cd5eb6a411d20c09d81ce2936eaf24de33543aec7055c6e3ef15e47acbac0",
+      "trial_count": 18,
+      "successful_count": 18,
+      "variant_id_first": "VAR-000001",
+      "variant_id_last": "VAR-000018"
+    }
+  ],
+  "cross_fixture_comparison": {
+    "normalized_stable_hash_match": false,
+    "trial_count_match": true,
+    "status_counts_match": true,
+    "denominator_counts_match": true,
+    "metric_set_match": true,
+    "data_identity_match": true,
+    "runner_identity_match": true,
+    "parent_identities_match": false,
+    "variant_ids_match": false,
+    "variant_result_rows_match": false
+  },
+  "authority_boundary": {
+    "scratch_only": true,
+    "canonical_replay_authority": false,
+    "canonical_result_population_written": false,
+    "strategy_run_executed": false
+  }
+}

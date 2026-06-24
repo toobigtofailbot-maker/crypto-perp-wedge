@@ -1,0 +1,37 @@
+WP-LAB-RP-REPLAY-NORMALIZATION-CONTRACT-01 validation summary
+
+Environment note:
+- Initial `python -m pytest tests/test_offline_research_runner.py -q` under system Python failed during collection because `pandas` was not installed.
+- Rerun used repo venv Python: `C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe`.
+
+Tests:
+- `python -m pytest tests/test_research_replay_normalization.py -q`: PASS, 8 passed
+- `python -m pytest tests/test_validate_result_populations.py -q`: PASS, 61 passed
+- `C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest tests/test_research_replay_normalization.py tests/test_validate_result_populations.py -q`: PASS, 69 passed
+- `C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest tests/test_offline_research_runner.py -q`: PASS, 101 passed, 2 warnings
+
+Validators and query:
+- `python -m tools.registry.validate_result_populations`: PASS
+- `C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.registry.validate_result_populations`: PASS
+- `python -m tools.research_query.run --list-views`: PASS, 124 views listed
+- `C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.research_query.run --list-views`: PASS, 124 views listed
+
+Replay helper smoke:
+- `python -m tools.research_replay scratch\WP-RESEARCH-FUNDING-CARRY-02\outputs\813c51adc1879144\fixed_max_hold_only\runner_artifacts\RP-2009.result_population.json`: PASS
+- `python -m tools.research_replay scratch\WP-RESEARCH-FUNDING-CARRY-02\outputs\813c51adc1879144\midline_reversion_or_max_hold\runner_artifacts\RP-7592.result_population.json`: PASS
+- `python -m tools.research_replay ...RP-2009... --compare-to ...RP-7592...`: PASS; normalized hashes intentionally differ
+
+Scope and diff:
+- `python tools/dev/diff_scope_summary.py`: PASS, no forbidden-path matches
+- `git diff --check`: PASS
+
+Full pytest:
+- Not run. Targeted package-required validation passed.
+
+Boundary:
+- No strategy run.
+- No canonical crossing.
+- No canonical Result Population write.
+- No candidate lifecycle write.
+- No conditional validator/test file edit.
+- No runtime, paper/live, OMS, risk, reconciliation, capital, funding P&L/accounting, provider/API/network, dashboard, scheduler, scout, or coordinator path touched.

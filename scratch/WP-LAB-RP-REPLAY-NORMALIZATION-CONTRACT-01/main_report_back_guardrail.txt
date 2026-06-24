@@ -1,0 +1,11 @@
+WP-LAB-RP-REPLAY-NORMALIZATION-CONTRACT-01 guardrail
+
+Decision: complete if validation passes.
+No strategy run was executed.
+No canonical crossing was performed.
+No canonical Result Population was written.
+No candidate lifecycle artifact was written.
+No conditional result-population validator file was touched.
+No runtime, paper/live, OMS, risk, reconciliation, capital, broker/exchange, provider/API/network, dashboard, scheduler, scout, or coordinator path was touched.
+
+Report-back must include branch/base, parallel forecast, delivered files, validation, forbidden-scope check, PR status, and open escalations.

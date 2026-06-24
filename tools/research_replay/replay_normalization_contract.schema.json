@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crypto-perp-wedge.local/tools/research_replay/replay_normalization_contract.schema.json",
+  "title": "Result Population Replay Normalization Contract Summary",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_version",
+    "hash_algorithm",
+    "source",
+    "normalized_stable_hash",
+    "normalized_payload"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "const": "result_population_replay_normalization_contract_v1"
+    },
+    "hash_algorithm": {
+      "type": "string",
+      "const": "sha256"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "raw_sha256", "result_population_id"],
+      "properties": {
+        "path": { "type": ["string", "null"] },
+        "raw_sha256": {
+          "type": ["string", "null"],
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "result_population_id": {
+          "type": ["string", "null"],
+          "pattern": "^RP-[0-9]{4}$"
+        }
+      }
+    },
+    "normalized_stable_hash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "normalized_payload": {
+      "type": "object",
+      "required": [
+        "contract_version",
+        "artifact_type",
+        "result_population_id",
+        "parent_identities",
+        "runner_identity",
+        "data_identity",
+        "declared_identity_hashes",
+        "trial_count",
+        "variant_ids",
+        "metric_set",
+        "status_counts",
+        "denominator_counts",
+        "variant_result_rows"
+      ],
+      "properties": {
+        "contract_version": {
+          "type": "string",
+          "const": "result_population_replay_normalization_contract_v1"
+        },
+        "artifact_type": {
+          "type": "string",
+          "const": "result_population_replay_normalization"
+        },
+        "result_population_id": {
+          "type": ["string", "null"],
+          "pattern": "^RP-[0-9]{4}$"
+        },
+        "trial_count": { "type": "integer", "minimum": 0 },
+        "variant_ids": {
+          "type": "array",
+          "items": { "type": ["string", "null"] }
+        },
+        "metric_set": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

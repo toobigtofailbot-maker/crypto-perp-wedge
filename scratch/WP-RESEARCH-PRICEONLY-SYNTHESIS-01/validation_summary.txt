@@ -1,0 +1,27 @@
+Validation summary for WP-RESEARCH-PRICEONLY-SYNTHESIS-01.
+
+Required validation:
+
+- `python -m tools.research_query.run --list-views`: PASS, 124 views listed.
+- `python -m tools.registry.validate_candidate_registry`: PASS.
+- `python -m tools.registry.validate_result_populations`: PASS.
+- `python -m tools.registry.validate_data_feature_availability`: PASS.
+- `python tools/dev/diff_scope_summary.py`: PASS; only intended untracked docs/scratch files, no forbidden-path matches.
+- `git diff --check`: PASS.
+
+Additional checks:
+
+- `python -m json.tool` over `evidence_index.json`, `priceonly_synthesis_source_audit.json`, and `lab_gap_checklist.json`: PASS.
+- Open Decision Surfaces phrase scan: PASS; no forbidden recommendation phrasing in `open_decision_surfaces.txt`.
+
+Full pytest:
+
+- Ambient `python -m pytest -q`: FAIL during collection because ambient Python lacks `binance`, `pandas`, and `numpy`; not package evidence.
+- Repo virtualenv `C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest -q`: TIMED OUT after 20 minutes with no failure details emitted before timeout; not counted as a pass.
+
+Boundary validation:
+
+- No strategy run or backtest was executed.
+- No canonical Result Population was written or modified.
+- No canonical Strategy Spec, Variant Manifest, Sweep Plan, trial log, candidate registry, lifecycle artifact, or crossing output was written or modified.
+- No runtime, paper/live, OMS, risk, reconciliation, capital, broker/exchange/order, provider/API/network, compiler, runner, backtester, data ingestion, schema, validator, or query behavior changed.

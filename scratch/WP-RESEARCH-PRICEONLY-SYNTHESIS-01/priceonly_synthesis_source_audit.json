@@ -1,0 +1,79 @@
+{
+  "package": "WP-RESEARCH-PRICEONLY-SYNTHESIS-01",
+  "audit_type": "source_audit",
+  "base": "origin/main at 1e85394 after PR #557 merge",
+  "queries": [
+    "python -m tools.research_query.run --list-views",
+    "python -m tools.research_query.run --view v_result_population_overview --json",
+    "python -m tools.research_query.run --view v_concluded_candidates --json",
+    "python -m tools.research_query.run --view v_candidate_overview --json",
+    "python -m tools.research_query.run --view v_strategy_spec_overview --json",
+    "python -m tools.research_query.run --view v_result_population_backtest_assumptions --json",
+    "python -m tools.research_query.run --view v_result_population_outcome_counts --json",
+    "python -m tools.research_query.run --view v_data_feature_availability --json"
+  ],
+  "status_entries_inspected": [
+    "docs/status_entries/WP-RESEARCH-ORB-EXIT-RESPEC-01.md",
+    "docs/status_entries/WP-RESEARCH-EDGE-SMA-FAMILY-01.md",
+    "docs/status_entries/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01.md",
+    "docs/status_entries/WP-AGENT-ADAPTER-TAKERFLOW-FAMILY-01.md",
+    "docs/status_entries/WP-AGENT-CANONICAL-CROSSING-BUILD-01.md",
+    "docs/status_entries/WP-DATA-TAKERFLOW-ARCHIVE-RECON-01.md",
+    "docs/status_entries/WP-COMPILER-FEATURES-DATA-DERIVED-01.md",
+    "docs/status_entries/WP-DATA-AVAILABILITY-LABELS-01.md",
+    "docs/status_entries/WP-LAB-FUNDING-BACKTEST-DEFAULT-OFF-RECONCILIATION-01.md",
+    "docs/status_entries/WP-AGENT-CANDIDATE-REVIEW-PACKET-01.md",
+    "docs/status_entries/WP-LAB-CANDIDATE-LIFECYCLE-ENGINE-01.md",
+    "docs/status_entries/WP-LAB-DASHBOARD-EXPANSION-01.md",
+    "docs/status_entries/WP-LAB-WALKFORWARD-CANONICAL-01.md",
+    "docs/status_entries/WP-LAB-WALKFORWARD-RUN-01.md",
+    "docs/status_entries/WP-LAB-ROBUSTNESS-DEPTH-01.md",
+    "docs/status_entries/WP-PILOT-NOTIFICATIONS-APPROVALS-01.md",
+    "docs/status_entries/WP-PHASEB-TRIAL-01.md",
+    "docs/status_entries/WP-REALISM-SIZING-03a.md"
+  ],
+  "research_docs_inspected": [
+    "docs/research_pipeline/2026-06-post_d5_real_data_interpretation_checkpoint.md",
+    "docs/research_pipeline/2026-06-rp6688_both_direction_sma_band_checkpoint.md",
+    "docs/research_pipeline/2026-06-canonical_dynamic_sizing_result_population.md",
+    "docs/research_pipeline/2026-06-realism_runway_conclusion.md",
+    "docs/research_pipeline/2026-06-phaseb_trial_01_screen_verdict.md",
+    "docs/research_pipeline/2026-06-phaseb_v1_failure_decomposition.md",
+    "docs/research_pipeline/2026-06-phaseb_momentum_trial_0004_rp2592_screen.md",
+    "docs/research_pipeline/2026-06-momentum_v2_trial_0005_result.md",
+    "docs/research_pipeline/2026-06-momentum_4h_trial_0006_result.md",
+    "docs/architecture/BTC_PERP_FUTURE_CAPABILITY_BACKLOG.md"
+  ],
+  "scratch_artifacts_inspected": [
+    "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/repo_truth_discovery.md",
+    "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/denominator_audit.json",
+    "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/missing_diagnostics.json",
+    "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/repo_truth_discovery.md",
+    "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/sma_family_result_packet.json",
+    "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/repo_truth_discovery.md",
+    "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/donchian_bridge_smoke_reference.json",
+    "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/denominator_audit.json",
+    "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/adapter_validation_summary.md",
+    "scratch/WP-AGENT-ADAPTER-TAKERFLOW-FAMILY-01/repo_truth_discovery.md",
+    "scratch/WP-AGENT-ADAPTER-TAKERFLOW-FAMILY-01/blocked_bridge_smoke_reason.json",
+    "scratch/WP-AGENT-ADAPTER-TAKERFLOW-FAMILY-01/lab_gap_reminder_for_report_back.txt"
+  ],
+  "not_found_or_corrected_assumptions": [
+    {"claim_or_path":"docs/research directory convention","finding":"No existing docs/research directory was found; package-preferred docs/research/PRICEONLY_SYNTHESIS_2026-06.md path is used."},
+    {"claim_or_path":"Donchian as not-yet-concluded archetype","finding":"Stale premise. H-002/REP-0003 and H-012/REP-0032 are concluded NO-GO Donchian-related evidence."},
+    {"claim_or_path":"+1.1R median MFE ORB evidence","finding":"Operator context only; no committed repo evidence found."},
+    {"claim_or_path":"taker-flow strategy conclusion","finding":"No committed equivalent taker-flow canonical RP/REP or GO/NO-GO strategy conclusion found."},
+    {"claim_or_path":"momentum screen guessed filenames","finding":"Guessed paths were not found; actual files are docs/research_pipeline/2026-06-phaseb_momentum_trial_0004_rp2592_screen.md, docs/research_pipeline/2026-06-momentum_v2_trial_0005_result.md, and docs/research_pipeline/2026-06-momentum_4h_trial_0006_result.md."}
+  ],
+  "boundary_check": {
+    "strategy_run_performed": false,
+    "backtest_run_performed": false,
+    "canonical_result_population_written": false,
+    "canonical_artifact_modified": false,
+    "compiler_runner_backtester_changed": false,
+    "data_ingestion_changed": false,
+    "runtime_paper_live_touched": false,
+    "oms_risk_reconciliation_capital_touched": false,
+    "provider_api_network_call_added": false
+  }
+}

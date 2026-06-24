@@ -1,0 +1,5 @@
+Main may choose whether to commit to runner/data-path work for data-derived families.
+Main may choose whether to resume taker-flow/funding adapter work after runner/data-path support exists.
+Main may choose whether to add more price-only adapters despite the current synthesis.
+Main may choose whether to expand dashboards/reporting/operator surfaces before additional research execution.
+Main may choose whether to hold canonical crossing until a real candidate-review packet exists.

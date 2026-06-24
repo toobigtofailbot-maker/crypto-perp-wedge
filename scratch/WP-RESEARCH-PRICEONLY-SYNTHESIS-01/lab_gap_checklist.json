@@ -1,0 +1,21 @@
+[
+  {"item":"always-on research queue / scheduler","status":"not built","evidence":"No scheduler/always-on queue authority found; notification and walk-forward helpers are manual/scratch or pilot surfaces."},
+  {"item":"autonomous research scout","status":"not built","evidence":"Bounded research agents exist, but no autonomous scout authority or implementation is recorded."},
+  {"item":"Karl-requested idea intake path","status":"partial","evidence":"Idea intake/formalization surfaces exist, but they remain bounded and do not provide full research-lab target-state coverage."},
+  {"item":"broader family adapter coverage","status":"partial","evidence":"SMA/stddev and Donchian paths exist; ORB and taker-flow are blocked; broad adapter coverage is not complete."},
+  {"item":"generic downstream robustness/candidate-review reach across supported families","status":"built for one path only","evidence":"Candidate-review and robustness agents are currently bound to specific upstream packet contracts; taker-flow discovery records non-generic downstream limitations."},
+  {"item":"full data-derived family support","status":"blocked by current infrastructure","evidence":"Data-derived refs and availability labels exist, but taker-flow adapter reach is blocked by runner/data input support."},
+  {"item":"runner/data path for non-OHLCV data-derived columns","status":"blocked by current infrastructure","evidence":"PR #557 discovery records the offline runner narrows input to OHLCV columns before compilation."},
+  {"item":"per-trade / MFE / MAE / exit_reason diagnostics","status":"partial","evidence":"Some tooling exposes per-trade handling in limited contexts, but ORB/SMA/taker-flow current attempts lack committed per-trade, MFE, MAE, and exit_reason diagnostics."},
+  {"item":"walk-forward/OOS integration as a standard candidate gate","status":"partial","evidence":"Walk-forward contracts and scratch run capability exist; first canonical walk-forward run remains separately gated and not standard for all candidates."},
+  {"item":"Monte Carlo / robustness as a standard candidate gate","status":"partial","evidence":"Advisory robustness and MC surfaces exist, but standard gate integration across candidate review is incomplete."},
+  {"item":"candidate lifecycle from real agent-produced packet","status":"not built","evidence":"Lifecycle engine and candidate-review packet agents are scratch/non-canonical; no real agent-produced packet has been crossed into canonical lifecycle."},
+  {"item":"first real canonical crossing","status":"not built","evidence":"Canonical crossing build is fixture-only; no real crossing executed."},
+  {"item":"dashboard pages for jobs, strategies, sweeps, walk-forward, robustness, candidates, data provenance, and agent activity","status":"partial","evidence":"Operator Review dashboard surface exists, but full page breadth listed here is not complete."},
+  {"item":"daily brief","status":"not built","evidence":"No daily brief implementation found in inspected repo truth."},
+  {"item":"weekly report","status":"not built","evidence":"No weekly report implementation found in inspected repo truth."},
+  {"item":"operator notifications / approval queue","status":"partial","evidence":"Notification/approval pilot exists as local dry-run/pilot plumbing, not integrated authority-bearing queue."},
+  {"item":"regime / parameter advisor","status":"partial","evidence":"Bounded advisory regime/scoring and mapping surfaces exist, but no integrated parameter advisor target state is complete."},
+  {"item":"live/paper performance monitor","status":"not built","evidence":"Paper/live/runtime performance monitoring remains outside current research-lab artifacts."},
+  {"item":"paper/live/runtime execution-machine phase","status":"not built","evidence":"Protected runtime and paper/live paths remain explicitly out of scope."}
+]

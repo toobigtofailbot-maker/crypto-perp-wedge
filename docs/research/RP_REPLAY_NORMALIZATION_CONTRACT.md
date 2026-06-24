@@ -50,6 +50,17 @@ Only deterministic, explicitly allowed fields may be normalized:
 
 The helper does not round floating metrics. Current repo truth has no general Result Population metric-precision convention beyond JSON canonicalization, so metric values are preserved exactly as parsed from JSON.
 
+## Fail-Closed Behavior
+
+Identity-bearing path fields and Result Population rows are normalized fail-closed:
+
+- Absolute paths under the repo root are normalized to repo-relative paths.
+- Relative paths normalize path separators only.
+- Absolute paths outside the repo root fail closed unless a future separately authorized contract explicitly supports preserving them. They are not collapsed to a shared placeholder, because that would hide identity-bearing differences between distinct external paths.
+- Malformed or non-object Result Population rows fail closed. Every entry in `variant_result_rows` must be an object; non-object entries are not silently skipped, because skipping would corrupt the trial count and row identity.
+
+The helper must not normalize away row count, trial count, metrics, variant IDs, outcomes, failure reasons, denominator counts, or identity-bearing paths.
+
 ## Forbidden Normalization
 
 The helper must not normalize away:

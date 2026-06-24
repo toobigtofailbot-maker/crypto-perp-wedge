@@ -42,6 +42,12 @@
       "risk/capital/runtime state"
     ]
   },
+  "fail_closed_behavior": {
+    "absolute_paths_under_repo_root": "normalized to repo-relative POSIX path",
+    "relative_paths": "path separators normalized only",
+    "absolute_paths_outside_repo_root": "raise ReplayNormalizationError (no shared placeholder collapse)",
+    "non_object_variant_result_rows": "raise ReplayNormalizationError (no silent skip / trial-count corruption)"
+  },
   "conditional_files_touched": [],
   "runtime_authority_added": false,
   "canonical_result_population_written": false,

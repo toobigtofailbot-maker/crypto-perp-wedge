@@ -51,6 +51,18 @@ Both PR #563 scratch Result Populations normalize successfully:
 
 They intentionally do not match each other because they represent different exit-mode populations with different parent identities, variant IDs, row identities, and metrics.
 
+## FOLLOWUP-01 Hardening (PR #565 review)
+
+After review, replay normalization was hardened to fail closed on two unsafe paths. The branch was rebased onto `origin/main` after the sibling PR #566/#567 merges (clean, no conflicts).
+
+- `_normalize_portable_path` now raises `ReplayNormalizationError` for absolute paths outside the repo root instead of collapsing them to a shared `<absolute-path-outside-repo>` placeholder, which previously hid identity-bearing differences between distinct external paths. Absolute paths under the repo root and relative paths are unchanged.
+- `normalized_payload` now raises `ReplayNormalizationError` for any non-object entry in `variant_result_rows` instead of silently skipping it, which previously could corrupt the trial count.
+- Added tests `test_repo_root_absolute_path_matches_relative_path`, `test_external_absolute_paths_fail_closed`, and `test_non_object_variant_result_row_fails_closed`.
+- Contract doc gained a "Fail-Closed Behavior" section.
+- PR #563 scratch populations (`RP-2009`, `RP-7592`) still normalize.
+
+Follow-up validation is recorded in `scratch/WP-LAB-RP-REPLAY-NORMALIZATION-CONTRACT-01/followup_01_review_fix_summary.json` and appended to `validation_summary.txt`.
+
 ## Boundary Summary
 
 No strategy run, edge search, funding-with-stops rerun, canonical crossing, candidate lifecycle write, canonical Result Population write, runtime/paper/live, OMS, risk, reconciliation, capital, funding P&L/accounting, provider/API/network fetch, dashboard/scheduler/scout/coordinator implementation, external adoption PoC, or large tracked data change was made.

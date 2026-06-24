@@ -81,7 +81,12 @@ def _normalize_portable_path(value: Any, repo_root: Path) -> Any:
     candidate = Path(value)
     if candidate.is_absolute():
         relative = _repo_relative_path(candidate, repo_root)
-        return relative if relative is not None else "<absolute-path-outside-repo>"
+        if relative is None:
+            raise ReplayNormalizationError(
+                "absolute path is outside repo root and cannot be normalized safely: "
+                f"{value}"
+            )
+        return relative
 
     repo_prefix = repo_root.as_posix().rstrip("/") + "/"
     if normalized.startswith(repo_prefix):
@@ -169,11 +174,13 @@ def normalized_payload(
     validation_summary = _required_mapping(payload, "validation_summary")
     rows = _required_list(payload, "variant_result_rows")
 
-    row_projections = [
-        _row_projection(row, repo_root)
-        for row in rows
-        if isinstance(row, Mapping)
-    ]
+    row_projections = []
+    for index, row in enumerate(rows):
+        if not isinstance(row, Mapping):
+            raise ReplayNormalizationError(
+                f"variant_result_rows[{index}] must be an object"
+            )
+        row_projections.append(_row_projection(row, repo_root))
     variant_ids = [row.get("variant_id") for row in row_projections]
     metric_set = sorted(
         key

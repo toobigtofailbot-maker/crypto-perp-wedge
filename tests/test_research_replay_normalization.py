@@ -4,9 +4,12 @@ from pathlib import Path
 
 from jsonschema import Draft7Validator
 
+import pytest
+
 from tests.test_validate_result_populations import _write_valid_fixture
 from tools.research_replay.normalization import (
     CONTRACT_VERSION,
+    ReplayNormalizationError,
     build_contract_summary,
     compare_result_populations,
     normalized_stable_hash,
@@ -91,6 +94,40 @@ def test_path_portable_normalization_does_not_hide_semantic_path_difference(tmp_
         different,
         repo_root=tmp_path,
     )
+
+
+def test_repo_root_absolute_path_matches_relative_path(tmp_path):
+    payload = _fixture_payload(tmp_path)
+    absolute = copy.deepcopy(payload)
+    relative = copy.deepcopy(payload)
+
+    rel_ref = "research/strategy_specs/STRAT-SPEC-9001.strategy_spec.json"
+    absolute["parent_strategy_spec"]["strategy_spec_ref"] = str(tmp_path / rel_ref)
+    relative["parent_strategy_spec"]["strategy_spec_ref"] = rel_ref
+
+    assert normalized_stable_hash(absolute, repo_root=tmp_path) == normalized_stable_hash(
+        relative,
+        repo_root=tmp_path,
+    )
+
+
+def test_external_absolute_paths_fail_closed(tmp_path):
+    payload = _fixture_payload(tmp_path)
+    changed = copy.deepcopy(payload)
+    changed["parent_strategy_spec"]["strategy_spec_ref"] = (
+        "C:\\outside-repo\\strategy_spec.json"
+    )
+
+    with pytest.raises(ReplayNormalizationError):
+        normalized_stable_hash(changed, repo_root=tmp_path)
+
+
+def test_non_object_variant_result_row_fails_closed(tmp_path):
+    payload = _fixture_payload(tmp_path)
+    payload["variant_result_rows"].append("malformed-row")
+
+    with pytest.raises(ReplayNormalizationError):
+        normalized_stable_hash(payload, repo_root=tmp_path)
 
 
 def test_contract_summary_validates_against_owned_schema(tmp_path):

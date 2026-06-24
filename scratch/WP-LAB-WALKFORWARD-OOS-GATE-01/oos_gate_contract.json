@@ -1,0 +1,65 @@
+{
+  "canonical_status": "non_canonical",
+  "created_at_utc": "2026-06-24T00:00:00Z",
+  "gate_decision": "fail",
+  "gate_id": "OOS-GATE-0001",
+  "non_authority_declaration": {
+    "not_candidate_approval": true,
+    "not_candidate_lifecycle_write_authority": true,
+    "not_paper_live_authority": true,
+    "not_promotion_authority": true,
+    "not_ranking_authority": true,
+    "not_readiness_authority": true,
+    "not_recommendation_authority": true,
+    "not_result_population_write_authority": true,
+    "not_runtime_authority": true
+  },
+  "oos_metrics": {
+    "maximum_oos_drawdown": 0.19348187517613988,
+    "mean_oos_sharpe": 0.5598644387897742,
+    "minimum_oos_sharpe": -0.7825393313702965
+  },
+  "reason_codes": [
+    "minimum_oos_sharpe_below_threshold",
+    "second_window_negative_mean_oos_sharpe",
+    "non_canonical_scratch_evidence_only"
+  ],
+  "row_variant_mapping": {
+    "declared_variant_count": 8,
+    "denominator_preserved": true,
+    "mapping_basis": "walkforward_run_report.variant_results",
+    "per_window_variant_rows": 16
+  },
+  "schema_version": "oos_gate_contract.v1",
+  "source_result_population": {
+    "input_identity_hash": "sha256:d6df0801bdff4cd3b63e747677c0bd458ec65c7fbd9ce45dcf363bddcb739080",
+    "result_population_id": "RP-2592",
+    "result_population_identity_hash": "sha256:c146d7880687f363ab2fa258a3b205b63f6ce45ba88c7641d63636186656a0e7",
+    "result_population_ref": "research/result_populations/RP-2592.result_population.json"
+  },
+  "source_walkforward_run": {
+    "report_ref": "scratch/WP-LAB-WALKFORWARD-PURGEDFOLD-INTEG-01/purged_walkforward_run_report.json",
+    "run_id": "WF-RUN-40BB0B209274054B"
+  },
+  "split": {
+    "embargo": {
+      "bars": 32,
+      "mode": "bars"
+    },
+    "in_sample_period": {
+      "end_utc": "2024-03-30T00:00:00Z",
+      "start_utc": "2022-01-01T00:00:00Z"
+    },
+    "method": "purged_embargoed_explicit_walkforward",
+    "minimum_required_windows": 2,
+    "out_of_sample_period": {
+      "end_utc": "2024-06-29T00:00:00Z",
+      "start_utc": "2023-01-01T00:00:00Z"
+    },
+    "purge": {
+      "bars": 96,
+      "mode": "bars"
+    },
+    "window_count": 2
+  }
+}

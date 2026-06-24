@@ -1,0 +1,54 @@
+{
+  "schema_version": "generic_review_family_fixture_summary_v1",
+  "source_repo_commit": "2b2c3d886fde7e5ed01eed87bba3dbf0ea10c94a",
+  "families_observed": [
+    {
+      "strategy_family_label": "funding_rate_positioning_fade",
+      "source": "docs/status_entries/WP-RESEARCH-FUNDING-CARRY-02.md",
+      "evidence_class": "noncanonical_scratch_result_population",
+      "result_population_ids": [
+        "RP-2009",
+        "RP-7592"
+      ],
+      "review_reach_status": "no_packet_no_go",
+      "reason_codes": [
+        "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+        "NO_GO_DRAWDOWN_SCREEN_FAILED",
+        "UNAVAILABLE_PSR_MISSING_RETURN_SERIES",
+        "UNAVAILABLE_DSR_MISSING_TRIAL_CONTEXT",
+        "UNAVAILABLE_MINTRL_MISSING_METHOD_CONTRACT"
+      ]
+    },
+    {
+      "strategy_family_label": "sma_crossover",
+      "source": "research/result_populations/RP-7520.result_population.json",
+      "evidence_class": "canonical_result_population",
+      "result_population_ids": [
+        "RP-7520"
+      ],
+      "review_reach_status": "generic_shape_supported",
+      "reason_codes": [
+        "UNAVAILABLE_OOS_FOLDS_MISSING",
+        "UNAVAILABLE_PER_TRADE_ROWS_MISSING"
+      ]
+    },
+    {
+      "strategy_family_label": "donchian_breakout",
+      "source": "research/candidate_registry.jsonl:H-002",
+      "evidence_class": "blocked_unavailable",
+      "result_population_ids": [],
+      "review_reach_status": "blocked_until_required_inputs_exist",
+      "reason_codes": [
+        "BLOCKED_OOS_GATE_UNAVAILABLE",
+        "BLOCKED_RESULT_POPULATION_UNAVAILABLE"
+      ]
+    }
+  ],
+  "family_neutral_assertions": {
+    "family_label_is_metadata_not_dispatch": true,
+    "missing_statistics_are_withheld_not_fabricated": true,
+    "candidate_lifecycle_write_created": false,
+    "paper_live_runtime_authority_created": false,
+    "ranking_or_recommendation_authority_created": false
+  }
+}

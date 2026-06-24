@@ -1,0 +1,55 @@
+{
+  "package_label": "WP-LAB-RP-REPLAY-NORMALIZATION-CONTRACT-01",
+  "contract_version": "result_population_replay_normalization_contract_v1",
+  "helper_module": "tools.research_replay.normalization",
+  "summary_schema": "tools/research_replay/replay_normalization_contract.schema.json",
+  "normalization_scope": {
+    "included": [
+      "data identity",
+      "Strategy Spec identity and hash",
+      "Variant Manifest identity and hash",
+      "Sweep Plan identity and hash",
+      "runner identity and optional recorded command",
+      "declared Result Population identity hashes",
+      "trial count",
+      "variant IDs",
+      "outcome/status counts",
+      "denominator counts",
+      "metric set",
+      "variant result row metrics and outcomes",
+      "sizing metadata when present",
+      "backtest assumption summary"
+    ],
+    "excluded_from_normalized_hash_but_recorded": [
+      "raw Result Population file hash"
+    ],
+    "allowed_normalizations": [
+      "administrative timestamps excluded from scientific identity",
+      "absolute paths under repo root converted to repo-relative paths",
+      "path separator normalization",
+      "JSON object key ordering"
+    ],
+    "forbidden_normalizations": [
+      "metrics",
+      "variant IDs",
+      "trial outcomes",
+      "row counts",
+      "denominator counts",
+      "failure reasons",
+      "input data identity or hashes",
+      "Strategy Spec / Variant Manifest / Sweep Plan content hashes",
+      "candidate state",
+      "risk/capital/runtime state"
+    ]
+  },
+  "fail_closed_behavior": {
+    "absolute_paths_under_repo_root": "normalized to repo-relative POSIX path",
+    "relative_paths": "path separators normalized only",
+    "absolute_paths_outside_repo_root": "raise ReplayNormalizationError (no shared placeholder collapse)",
+    "non_object_variant_result_rows": "raise ReplayNormalizationError (no silent skip / trial-count corruption)"
+  },
+  "conditional_files_touched": [],
+  "runtime_authority_added": false,
+  "canonical_result_population_written": false,
+  "strategy_run_executed": false
+}

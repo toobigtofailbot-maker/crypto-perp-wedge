@@ -1,0 +1,46 @@
+{
+  "package_label": "WP-LAB-RP-REPLAY-NORMALIZATION-CONTRACT-01-FOLLOWUP-01",
+  "target_pr": 565,
+  "target_branch": "lab/rp-replay-normalization-contract-01",
+  "class": "review follow-up / replay-contract hardening",
+  "discovered_problems": [
+    {
+      "id": "external-absolute-path-collapse",
+      "location": "tools/research_replay/normalization.py:_normalize_portable_path",
+      "before": "Absolute paths outside repo root collapsed to the shared placeholder '<absolute-path-outside-repo>', hiding identity-bearing differences between distinct external paths.",
+      "after": "Absolute paths outside repo root raise ReplayNormalizationError (fail closed). Absolute paths under repo root still normalize to repo-relative POSIX paths; relative paths still normalize separators only."
+    },
+    {
+      "id": "malformed-row-silent-skip",
+      "location": "tools/research_replay/normalization.py:normalized_payload",
+      "before": "Row projection used a list comprehension guarded by 'if isinstance(row, Mapping)', silently dropping malformed non-object rows and reducing trial_count.",
+      "after": "Every entry in variant_result_rows is validated; a non-object entry raises ReplayNormalizationError with its index (fail closed)."
+    }
+  ],
+  "tests_added": [
+    "test_repo_root_absolute_path_matches_relative_path",
+    "test_external_absolute_paths_fail_closed",
+    "test_non_object_variant_result_row_fails_closed"
+  ],
+  "validation": {
+    "replay_normalization_tests": "PASS, 11 passed",
+    "result_population_tests": "PASS, 61 passed",
+    "offline_runner_tests": "PASS, 101 passed",
+    "result_population_validator": "PASS",
+    "research_query_list_views": "PASS",
+    "diff_scope_summary": "PASS, no forbidden-path matches",
+    "git_diff_check": "PASS",
+    "python_used": "C:/GitHub/crypto-perp-wedge/.venv/Scripts/python.exe"
+  },
+  "pr563_scratch_populations_still_normalize": true,
+  "boundary": {
+    "strategy_run": false,
+    "canonical_write": false,
+    "candidate_lifecycle": false,
+    "oos_robustness_packages_touched": false,
+    "runtime_paper_live": false,
+    "protected_paths": false,
+    "provider_api_network": false,
+    "large_tracked_data": false
+  }
+}

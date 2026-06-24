@@ -1,0 +1,36 @@
+WP-RESEARCH-FUNDING-FADE-CONCLUDE-01 validation summary
+
+Base:
+- branch: research/funding-fade-conclude-01
+- base: origin/main at 2b2c3d8 (PR #563 merge)
+
+Commands run:
+- python -m tools.research_query.run --list-views
+  Result: PASS. Listed research query views successfully. Final rerun completed after files were marked intent-to-add.
+
+- python tools/dev/diff_scope_summary.py
+  Result: PASS. Exit reason ok. Final rerun reported the seven intended package files and no forbidden-path matches.
+
+- git diff --check
+  Result: PASS. No whitespace errors reported after files were marked intent-to-add.
+
+- python -m json.tool scratch/WP-RESEARCH-FUNDING-FADE-CONCLUDE-01/conclusion_traceability.json > $null
+  Result: PASS. JSON parsed successfully.
+
+- rg -n -i "all funding signals are dead|funding has no predictive value|funding carry / funding-payment P&L was tested" docs/research/FUNDING_POSITIONING_FADE_SYNTHESIS_2026-06.md docs/status_entries/WP-RESEARCH-FUNDING-FADE-CONCLUDE-01.md scratch/WP-RESEARCH-FUNDING-FADE-CONCLUDE-01
+  Result: PASS. No matches found for the forbidden overclaim phrases.
+
+Additional validator discovery:
+- Searched repo tooling for a dedicated docs/research markdown validator.
+- No dedicated docs/research validator was identified.
+
+Full pytest:
+- Not run. Package required docs/evidence synthesis validation only and did not request a full test-suite run.
+
+Boundary validation:
+- No new research run.
+- No canonical write.
+- No candidate registry write.
+- No candidate-review packet.
+- No canonical crossing.
+- No code, schema, validator, query-layer, runtime, paper/live, OMS, risk, reconciliation, capital, broker/exchange, provider/API/network, dashboard, scheduler, or large tracked data changes.

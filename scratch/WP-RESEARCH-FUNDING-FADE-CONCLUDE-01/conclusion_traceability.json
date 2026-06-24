@@ -1,0 +1,95 @@
+{
+  "package_label": "WP-RESEARCH-FUNDING-FADE-CONCLUDE-01",
+  "base": {
+    "ref": "origin/main",
+    "merge_commit": "2b2c3d8",
+    "upstream_pr": 563
+  },
+  "hypothesis_id": "H-FUNDING-RATE-POSITIONING-FADE-01",
+  "conclusion": "NO-GO",
+  "conclusion_wording": "H-FUNDING-RATE-POSITIONING-FADE-01 = NO-GO under the tested price-P&L funding-rate signal interpretation.",
+  "evidence_class": [
+    "scratch-only",
+    "non-canonical",
+    "not crossed",
+    "not candidate authority",
+    "not paper-ready",
+    "not live-ready"
+  ],
+  "data": {
+    "market": "BTCUSDT",
+    "timeframe": "15m",
+    "bars": 220128,
+    "feature": "funding_rate",
+    "feature_source": "PR #560 local ignored data",
+    "input_data_sha256": "70cbe2040c8fb5987b2971a13c8bd4f66e91152331d5b641d684673364be3931"
+  },
+  "result_populations": [
+    {
+      "result_population_id": "RP-2009",
+      "exit_mode": "fixed_max_hold_only",
+      "rows": 18,
+      "sha256": "d6e5e6c46c38208b308b2c5aaa34b3a65176831b61b5026229c857ba08914076"
+    },
+    {
+      "result_population_id": "RP-7592",
+      "exit_mode": "midline_reversion_or_max_hold",
+      "rows": 18,
+      "sha256": "18bfe97d571b3e5debf675a103e736ff29ce17287847a4b673cc4cbe68480d37"
+    }
+  ],
+  "denominator": {
+    "planned": 36,
+    "complete": 36,
+    "failed": 0,
+    "invalid": 0,
+    "blocked": 0,
+    "pruned": 0,
+    "preserved": true
+  },
+  "primary_failure": {
+    "screen": "drawdown",
+    "threshold": 0.2,
+    "all_rows_failed": true,
+    "fixed_max_hold_only_drawdown_range": [0.8567586702799771, 1.0],
+    "midline_reversion_or_max_hold_drawdown_range": [0.8071689767737391, 1.0]
+  },
+  "oos": {
+    "status": "completed_dry_run_only",
+    "rescued_result": false,
+    "fixed_max_hold_only_oos_drawdown_range": [0.25927325081740143, 1.0],
+    "midline_reversion_or_max_hold_oos_drawdown_range": [0.2925639535273751, 1.0],
+    "positive_pnl_rows": 7,
+    "canonical_result_population_written": false
+  },
+  "robustness": {
+    "descriptive_reports_produced": true,
+    "withheld_statistics": ["PSR", "DSR", "MinTRL"],
+    "per_trade_monte_carlo": "blocked_missing_real_per_trade_rows_not_fabricated"
+  },
+  "interpretation_caveats": {
+    "price_pnl_funding_rate_signal_test": true,
+    "funding_payments_wired": false,
+    "funding_cost_mode": "off",
+    "complete_funding_carry_pnl_test": false,
+    "top_return_outliers_override_drawdown_failure": false,
+    "statement_about_all_funding_strategies": false
+  },
+  "candidate_and_crossing": {
+    "candidate_review_packet_generated": false,
+    "candidate_registered": false,
+    "canonical_crossing_executed": false
+  },
+  "drift_guardrail": "This NO-GO does not automatically authorize another edge-search cycle. Additional data-derived families or funding variants require separate Main/operator authorization. Near-term lab-completion work is separate from new hypothesis search.",
+  "source_artifacts": [
+    "docs/status_entries/WP-RESEARCH-FUNDING-CARRY-02.md",
+    "scratch/WP-RESEARCH-FUNDING-CARRY-02/denominator_manifest.json",
+    "scratch/WP-RESEARCH-FUNDING-CARRY-02/runner_result_summary.json",
+    "scratch/WP-RESEARCH-FUNDING-CARRY-02/metrics_summary.json",
+    "scratch/WP-RESEARCH-FUNDING-CARRY-02/robustness_summary.json",
+    "scratch/WP-RESEARCH-FUNDING-CARRY-02/monte_carlo_summary.json",
+    "scratch/WP-RESEARCH-FUNDING-CARRY-02/walk_forward_summary.json",
+    "scratch/WP-RESEARCH-FUNDING-CARRY-02/no_candidate_review_packet_reason.json",
+    "scratch/WP-RESEARCH-FUNDING-CARRY-02/rp_replay_harness_report.json"
+  ]
+}

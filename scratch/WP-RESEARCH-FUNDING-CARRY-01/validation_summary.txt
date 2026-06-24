@@ -1,0 +1,26 @@
+WP-RESEARCH-FUNDING-CARRY-01 validation summary
+
+Outcome: BLOCKED before code implementation or strategy execution.
+Base: 8384a6610f7fb73b03e5cb1c592f57b0894bcf0d
+Data SHA256: 70cbe2040c8fb5987b2971a13c8bd4f66e91152331d5b641d684673364be3931
+
+JSON parse: PASS (10 files)
+Offline runner tests: PASS (101 passed; 2 warnings)
+Spec signal compiler tests: PASS (234 passed)
+Result-population / data-availability / candidate-registry tests: PASS (88 passed)
+Candidate lifecycle registry validator: PASS
+Result Population validator: PASS
+Data feature availability validator: PASS
+Research query view listing: PASS (124 views listed)
+Diff scope summary --check-forbidden: PASS
+git diff --check: PASS
+
+Full pytest:
+- The monolithic command exceeded bounded outer command windows without reporting an assertion failure.
+- The repo sharded verifier covered all 107 tracked test files across 4 deterministic shards.
+- Initial sharded run: shards 0, 1, and 3 passed; shard 2 had one environment-only failure because the fresh worktree lacked the ignored normalized D4A CSV.
+- The existing root-local ignored D4A CSV was copied byte-for-byte into the conventional worktree path (SHA256 c30fd7f07fdf513cdaf234b1bee4eff03b430a479cc572a2cc8b57394f22e0ab).
+- The failed test then passed (1 passed), and shard 2 passed on rerun.
+- Final coverage status: PASS, all 4 shards / 107 test files passed; no tracked data file was added.
+
+No new code tests were added because the package stopped before implementation.

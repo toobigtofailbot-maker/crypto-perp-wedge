@@ -1,0 +1,6 @@
+{
+  "status": "blocked",
+  "reason": "Robustness diagnostics require completed result rows; the full 36-row denominator is blocked before execution.",
+  "diagnostics_run": false,
+  "rows_omitted": 0
+}

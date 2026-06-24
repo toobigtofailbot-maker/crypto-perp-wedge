@@ -1,0 +1,6 @@
+{
+  "status": "blocked",
+  "reason": "A bridge adapter cannot emit executable VM/Sweep rows until rolling funding percentile and variant-bound maximum-hold semantics exist in the validated Strategy Spec/compiler contract.",
+  "denominator_rows_suppressed": 0,
+  "canonical_write": false
+}

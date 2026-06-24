@@ -1,0 +1,6 @@
+{
+  "status": "blocked",
+  "reason": "The formalizer has no funding-percentile family adapter, and current Strategy Spec grammar cannot express a rolling percentile over funding_rate or variant-bind max_holding_period.bars.",
+  "safe_substitution_available": false,
+  "canonical_write": false
+}

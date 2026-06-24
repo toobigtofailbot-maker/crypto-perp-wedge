@@ -1,0 +1,10 @@
+{
+  "classification": "scratch_result_population",
+  "lookback_days": [30, 90, 180],
+  "entry_percentiles": [0.9, 0.95],
+  "exit_modes": ["absolute_percentile_below_0.50", "fixed_max_hold"],
+  "max_hold_bars": [16, 32, 96],
+  "planned_rows": 36,
+  "status": "blocked_before_vm_or_sweep_materialization",
+  "reason": "Missing validated rolling-percentile and variant-bound max-hold semantics."
+}

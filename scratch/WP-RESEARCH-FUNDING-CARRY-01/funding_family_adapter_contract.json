@@ -1,0 +1,18 @@
+{
+  "classification": "non_canonical_research_evidence",
+  "family_id": "funding_rate_positioning_fade_v1",
+  "hypothesis_id": "H-FUNDING-RATE-POSITIONING-FADE-01",
+  "input_feature": "funding_rate",
+  "required_semantics": {
+    "direction": "contrarian",
+    "entry": "rolling empirical percentile >= 0.90 or <= 0.10, and >= 0.95 or <= 0.05",
+    "exit": "absolute percentile below 0.50 or fixed maximum hold",
+    "lookback_days": [30, 90, 180],
+    "max_hold_bars": [16, 32, 96],
+    "observation_rule": "latest funding event at or before completed 15m bar close"
+  },
+  "planned_denominator": 36,
+  "funding_cost_mode": "off",
+  "pnl_label": "price-P&L funding-rate signal test",
+  "status": "blocked_missing_strategy_grammar_and_compiler_semantics"
+}

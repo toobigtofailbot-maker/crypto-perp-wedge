@@ -1,0 +1,18 @@
+{
+  "candidate_review_integration": {
+    "failed_oos_gate_blocks_candidate_review_pass": true,
+    "missing_oos_gate_ref_blocks_candidate_review_pass": true,
+    "read_only": true
+  },
+  "created_at_utc": "2026-06-24T00:00:00Z",
+  "fixture_gate_artifact": "scratch/WP-LAB-WALKFORWARD-OOS-GATE-01/oos_gate_contract.json",
+  "gate_decision": "fail",
+  "no_strategy_run": true,
+  "source_walkforward_run": "scratch/WP-LAB-WALKFORWARD-PURGEDFOLD-INTEG-01/purged_walkforward_run_report.json",
+  "summary": {
+    "maximum_oos_drawdown": 0.19348187517613988,
+    "mean_oos_sharpe": 0.5598644387897742,
+    "minimum_oos_sharpe": -0.7825393313702965,
+    "reason": "second OOS window has negative mean Sharpe"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "authority": "non_canonical_gate_contract_only",
+  "created_at_utc": "2026-06-24T00:00:00Z",
+  "embargo": {
+    "bars": 32,
+    "mode": "bars",
+    "source": "scratch/WP-LAB-WALKFORWARD-PURGEDFOLD-INTEG-01/purged_fold_manifest.json"
+  },
+  "purge": {
+    "bars": 96,
+    "mode": "bars",
+    "source": "scratch/WP-LAB-WALKFORWARD-PURGEDFOLD-INTEG-01/purged_fold_manifest.json"
+  },
+  "validation_rule": "mode must be bars and bars must be non-negative integer",
+  "window_policy_id": "purged_embargoed_explicit_15m_sel35040_eval8640_purge96_embargo32"
+}

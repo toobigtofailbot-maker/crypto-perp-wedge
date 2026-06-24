@@ -1,0 +1,38 @@
+WP-LAB-WALKFORWARD-OOS-GATE-01 validation summary
+
+Base:
+- origin/main at 1e6f26131216175be320cf09e9cb7d9c19d59e08 after clean rebase from the original PR #563 start point 2b2c3d886fde7e5ed01eed87bba3dbf0ea10c94a
+
+Focused package checks:
+- python -m pytest tests/test_oos_gate.py -q
+  PASS, 7 passed.
+- python -m tools.oos_gate.evaluate --gate-artifact scratch\WP-LAB-WALKFORWARD-OOS-GATE-01\oos_gate_contract.json
+  PASS, OOS gate artifact validates.
+
+Package-required checks:
+- python -m pytest tests/test_validate_result_populations.py tests/test_validate_candidate_registry.py tests/test_oos_gate.py -q
+  PASS, 87 passed.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest tests/test_validate_result_populations.py tests/test_validate_candidate_registry.py tests/test_oos_gate.py -q
+  PASS, 87 passed; rerun after clean rebase onto origin/main at 1e6f261.
+- python -m tools.registry.validate_result_populations
+  PASS.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.registry.validate_result_populations
+  PASS; rerun after clean rebase.
+- python -m tools.registry.validate_candidate_registry
+  PASS.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.registry.validate_candidate_registry
+  PASS; rerun after clean rebase.
+- python -m tools.research_query.run --list-views
+  PASS, listed views successfully.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.research_query.run --list-views
+  PASS, listed views successfully; rerun after clean rebase.
+- python tools/dev/diff_scope_summary.py
+  PASS, no forbidden-path matches.
+- git diff --check
+  PASS.
+
+Full pytest:
+- python -m pytest -q
+  FAIL under system Python, collection interrupted because pandas, numpy, binance were unavailable in the unactivated interpreter.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest -q
+  TIMED OUT after approximately 904 seconds. Full pytest is not counted as a pass.

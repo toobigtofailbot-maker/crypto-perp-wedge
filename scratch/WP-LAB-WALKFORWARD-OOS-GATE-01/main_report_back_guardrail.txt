@@ -1,0 +1,7 @@
+WP-LAB-WALKFORWARD-OOS-GATE-01 report-back guardrail:
+
+- Report this package as a non-canonical OOS candidate-gate infrastructure package.
+- Do not imply Strategy Spec, Variant Manifest, Sweep Plan, Result Population, trial-log, candidate lifecycle, runtime, paper/live, OMS, risk, reconciliation, broker, exchange, or execution authority.
+- State that no new strategy run, edge search, funding rerun, canonical crossing, provider/API/network fetch, or protected-path change occurred.
+- State that the fixture OOS gate decision is fail because the second purged OOS window has negative mean Sharpe.
+- State that candidate-review integration is read-only and blocks missing, invalid, failed, blocked, or advisory-only OOS gate evidence.

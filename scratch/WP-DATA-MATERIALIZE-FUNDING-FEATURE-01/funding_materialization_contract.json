@@ -1,0 +1,20 @@
+{
+  "materialization_version": "funding-feature-15m-v1",
+  "symbol": "BTCUSDT",
+  "timeframe": "15m",
+  "parent_ohlcv_identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+  "feature_columns": ["funding_rate"],
+  "alignment_rule": "latest funding event timestamp at or before each bar close",
+  "carry_rule": "forward from an observed event until the next observed event",
+  "lookahead_allowed": false,
+  "missing_source_behavior": "fail_closed",
+  "missing_coverage_behavior": "fail_closed",
+  "duplicate_timestamp_behavior": "fail_closed",
+  "availability_requirement": {
+    "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+    "source_class": "PUBLIC_FUNDING_ARCHIVE",
+    "source_identity_required": true
+  },
+  "funding_pnl_application": false,
+  "network_access": false
+}

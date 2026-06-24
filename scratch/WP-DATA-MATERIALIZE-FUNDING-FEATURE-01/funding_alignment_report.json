@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "rule": "latest funding event timestamp at or before each 15m bar close",
+  "row_count": 220128,
+  "funding_event_count_in_window": 6879,
+  "uncovered_row_count": 0,
+  "lookahead_violation_count": 0,
+  "gap_threshold": "8h plus 1m timestamp-jitter tolerance",
+  "gap_count_over_threshold": 0,
+  "first_bar_utc": "2020-01-01T00:00:00Z",
+  "last_bar_utc": "2026-04-11T23:45:00Z"
+}

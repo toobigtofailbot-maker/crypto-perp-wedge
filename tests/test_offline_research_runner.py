@@ -2327,6 +2327,57 @@ def test_declared_non_ohlcv_runner_smoke_reaches_backtester(tmp_path, monkeypatc
     assert all(call["signal_rows"] == 96 for call in calls)
 
 
+def test_declared_funding_rate_runner_smoke_reaches_backtester(tmp_path, monkeypatch):
+    strategy_path, manifest_path, sweep_path, *_ = _write_fixture(
+        tmp_path,
+        strategy_mutator=lambda strategy: (
+            _set_primary_timeframe(strategy, "15m"),
+            _replace_first_data_ref_field(strategy, "funding_rate"),
+        ),
+    )
+    ohlcv_path = _write_15m_ohlcv_fixture(
+        tmp_path,
+        extra_columns={"funding_rate": [0.0001] * 96},
+    )
+    calls = []
+    real_backtest = runner.run_backtest
+
+    def fake_compile_signal(strategy_spec, variant, ohlcv, funding=None):
+        del strategy_spec, variant, funding
+        assert "funding_rate" in ohlcv.columns
+        signal = pd.Series(0.0, index=ohlcv.index)
+        signal.iloc[2:6] = 1.0
+        return signal
+
+    def recording_backtest(signal, ohlcv, funding, **kwargs):
+        calls.append(list(ohlcv.columns))
+        return real_backtest(signal, ohlcv, funding, **kwargs)
+
+    monkeypatch.setattr(runner, "compile_signal", fake_compile_signal)
+    monkeypatch.setattr(runner, "run_backtest", recording_backtest)
+
+    result = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_15m=True,
+        ohlcv_input_path=ohlcv_path,
+        deterministic_seed=7,
+    )
+
+    assert result["ok"] is True
+    assert calls and all("funding_rate" in columns for columns in calls)
+    assert result["result_population"]["data_availability_claim"]["feature_sources"] == [
+        {
+            "feature_name": "funding_rate",
+            "source_class": "PUBLIC_FUNDING_ARCHIVE",
+            "condition_assertions": [
+                "Aligned funding records cover the claimed evidence window."
+            ],
+        }
+    ]
+
+
 def test_runner_cli_introduces_no_runtime_authority_flags():
     parser = runner._build_parser()
     option_strings = {

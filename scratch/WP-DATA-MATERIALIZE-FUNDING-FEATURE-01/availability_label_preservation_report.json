@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "feature": "funding_rate",
+  "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+  "source_class": "PUBLIC_FUNDING_ARCHIVE",
+  "conditions": ["Aligned funding records cover the claimed evidence window."],
+  "manifest_preserves_label": true,
+  "runner_claim_preserves_label": true,
+  "recent_only_fails_closed_test": "tests/test_funding_feature_materialization.py::test_recent_only_availability_fails_closed",
+  "missing_identity_fails_closed_test": "tests/test_funding_feature_materialization.py::test_missing_source_identity_fails_closed",
+  "incomplete_coverage_fails_closed_test": "tests/test_funding_feature_materialization.py::test_incomplete_funding_coverage_fails_closed"
+}

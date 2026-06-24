@@ -1,0 +1,6 @@
+{
+  "funding_feature_column_materialized": true,
+  "funding_pnl_semantics_changed": false,
+  "funding_cost_mode_changed": false,
+  "status": "Funding P&L remains separate and default-off; this WP supplies a signal feature column only."
+}

@@ -1,0 +1,62 @@
+WP-LAB-RESULTS-DASHBOARD-01 — Validation Summary
+================================================
+
+Dependency
+----------
+WP-LAB-COORDINATOR-STATE-MODEL-01 merged (PR #568, 2026-06-25T18:28:35Z,
+merge commit 5107b86). Worktree rebased onto post-merge origin/main.
+Dependency present: tools/lab_state/, docs/research/LAB_COORDINATOR_STATE_MODEL.md.
+Not blocked.
+
+Dashboard tests
+---------------
+$ python -m pytest tests/test_lab_dashboard*.py -q
+9 passed.
+
+Dashboard + lab state tests
+---------------------------
+$ python -m pytest tests/test_lab_dashboard*.py tests/test_lab_state*.py -q
+29 passed.
+
+Research query views
+--------------------
+$ python -m tools.research_query.run --list-views
+124 views listed (read-only; unrelated to this surface). OK.
+
+Diff scope summary
+------------------
+$ python tools/dev/diff_scope_summary.py
+Forbidden-path matches: none. All changes confined to the allowed scope:
+  docs/research/LAB_RESULTS_DASHBOARD_SURFACE.md
+  docs/status_entries/WP-LAB-RESULTS-DASHBOARD-01.md
+  tools/lab_dashboard/**
+  tests/test_lab_dashboard.py
+  scratch/WP-LAB-RESULTS-DASHBOARD-01/**
+
+git diff --check
+----------------
+$ git diff --cached --check
+Clean (no whitespace errors; fixtures written with LF).
+
+Determinism
+-----------
+build_dashboard_data + render_html + render_markdown are byte-identical across
+two independent builds (test_render_is_deterministic_across_two_builds), and two
+CLI runs produce identical sha256:
+  data sha e1f34310fa15b3c2a11472413d9c6da2d9e5ffd9899b16350c074c1a25860778
+  html sha 1af93f9ec5e0f32017a13af6adf331626167744dfca88435f047eb5a58e746de
+  md   sha 0612bec9a17871ec5f4dd09ddd357924ca266602632565596ffa466b405a5b6f
+
+No executable controls
+----------------------
+Rendered HTML contains no <script>, <button>, <form>, <input>, onclick, or
+meta-refresh (test_rendered_html_has_no_controls_or_scripts). Data model
+non_authority_declaration sets renders_executable_control, has_run_button,
+has_approve_button, has_promote_button, has_retry_button, has_scheduler_toggle,
+fetches_live_data, auto_refreshes_from_network all false
+(test_non_authority_declares_no_executable_controls).
+
+Full pytest
+-----------
+Not run to completion; not claimed as passed. New code is stdlib-only and its
+targeted suite passes.

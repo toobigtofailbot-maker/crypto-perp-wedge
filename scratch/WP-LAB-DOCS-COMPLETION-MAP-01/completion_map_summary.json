@@ -1,0 +1,68 @@
+{
+  "package": "WP-LAB-DOCS-COMPLETION-MAP-01",
+  "decision": "complete",
+  "class": "documentation/phase-completion-map",
+  "implementation_files": false,
+  "phase": "human-driven no-edge-search research lab (autonomy posture L0/L1)",
+  "effective_base": "main @ 9e8ed40 after PRs #568,#569,#570,#571,#572 merged",
+  "built_complete": [
+    "compiler/primitives + deterministic research runner",
+    "Result Populations and validators",
+    "query layer (tools/research_query)",
+    "replay-normalization contract",
+    "walk-forward / OOS gate",
+    "robustness / candidate-review reach",
+    "funding NO-GO conclusion (H-FUNDING-RATE-POSITIONING-FADE-01)",
+    "coordinator state model (#568)",
+    "results dashboard (#569)",
+    "daily brief / weekly report (#570)",
+    "approval / gate queue (#572)",
+    "scheduler shell default-off (#571)"
+  ],
+  "in_flight_not_claimed": [
+    "WP-LAB-OPERATOR-SURFACE-INTEGRATION-01 (#573)",
+    "WP-LAB-STATE-MODEL-COVERAGE-AUDIT-01 (#574)"
+  ],
+  "inert_default_off": [
+    "scheduler shell (no executor; no-op only)",
+    "approval/gate queue (read-only)"
+  ],
+  "deferred_b": [
+    "autonomous scheduling / run triggering",
+    "research scout",
+    "notification firing",
+    "approval queue writes",
+    "candidate lifecycle writes",
+    "coordinator transition execution",
+    "first real canonical crossing",
+    "live candidate-flow dependent behavior"
+  ],
+  "deferred_b_activation_requires": "separate operator authorization AND real candidate flow",
+  "go_gated_execution_machine": [
+    "paper/shadow/live execution",
+    "runtime monitoring",
+    "execution machine",
+    "broker/exchange/order paths",
+    "OMS/risk/reconciliation/capital",
+    "safe-mode/kill-switch operational authority"
+  ],
+  "edge_search": "held; not resumed; not recommended",
+  "buildable_now_in_phase": "read-only legibility / audit / docs only",
+  "not_buildable_without_edge_search_or_live_candidate_flow": [
+    "new strategy hypotheses / families / variants / sweeps / backtests",
+    "candidate-flow-dependent surface behavior",
+    "autonomous scheduling/scout/notification behavior"
+  ],
+  "definition_of_done": "legible evidence + enforced rigor + honest conclusions + inert default-off autonomy + this completion map pinning boundaries",
+  "outputs": {
+    "completion_map": "docs/research/LAB_COMPLETION_MAP.md",
+    "status_entry": "docs/status_entries/WP-LAB-DOCS-COMPLETION-MAP-01.md",
+    "repo_truth_discovery": "scratch/WP-LAB-DOCS-COMPLETION-MAP-01/repo_truth_discovery.md"
+  },
+  "validation": {
+    "research_query_list_views": "ran",
+    "diff_scope_summary": "only allowed new files; no forbidden-path matches",
+    "git_diff_check": "clean (exit 0)",
+    "full_pytest": "not run (docs-only)"
+  }
+}

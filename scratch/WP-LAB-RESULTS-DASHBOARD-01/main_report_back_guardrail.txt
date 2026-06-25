@@ -1,0 +1,32 @@
+WP-LAB-RESULTS-DASHBOARD-01 — Main Report-Back Guardrail
+========================================================
+
+This package built a READ-ONLY operator visibility surface only. It does NOT
+authorize, request, or perform any of the following. They remain held and
+require separate, explicit operator authorization:
+
+- No strategy run or generation; no resumed edge-search.
+- No new family work (funding-with-stops / funding-with-risk-management /
+  taker-flow / OI / any new family).
+- No backtest beyond reading committed tiny fixtures for read-only surface
+  validation.
+- No creation/mutation of Strategy Specs, Variant Manifests, Sweep Plans,
+  canonical Result Populations, trial logs, or candidate lifecycle records.
+- No canonical crossing; no candidate approval or promotion.
+- No runtime, paper/live, OMS, risk, reconciliation, capital, or
+  broker/exchange/order paths.
+- No funding P&L / accounting change.
+- No provider/API/network fetch; no external adoption PoC behavior.
+- No autonomous scheduler/scout/coordinator behavior.
+- No dashboard controls that trigger execution (no run/approve/promote/retry
+  button, no scheduler toggle, no live fetch, no auto-refresh).
+- No large tracked data commit.
+
+Edge-search hold remains in force: no further edge-search is authorized by this
+surface. Strategy generation/search stays held until separate operator
+authorization.
+
+The surface reads merged repo truth (tools/lab_state coordinator state model and
+the committed scratch artifacts it references) and renders a deterministic
+static HTML / markdown / JSON projection. It introduces no new state vocabulary
+and confers no ranking, recommendation, readiness, or promotion authority.

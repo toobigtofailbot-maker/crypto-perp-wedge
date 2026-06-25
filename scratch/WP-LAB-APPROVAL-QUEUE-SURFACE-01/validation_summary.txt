@@ -1,0 +1,47 @@
+WP-LAB-APPROVAL-QUEUE-SURFACE-01 — Validation summary
+======================================================
+
+Run from worktree:
+  C:\GitHub\crypto-perp-wedge\.claude\worktrees\romantic-jackson-974707
+
+1. Scoped pytest (approval queue):
+   python -m pytest tests/test_lab_approval_queue.py -q
+   -> 11 passed
+
+2. Scoped pytest (consuming lab state + approval queue, package §7):
+   python -m pytest tests/test_lab_state*.py tests/test_lab_approval_queue*.py -q
+   -> 31 passed
+
+3. Regression check on the shared lab_state consumer (dashboard):
+   python -m pytest tests/test_lab_dashboard.py -q
+   -> 9 passed
+
+4. Candidate registry validator:
+   python -m tools.registry.validate_candidate_registry
+   -> OK: candidate lifecycle registry artifacts validate
+
+5. Research query views:
+   python -m tools.research_query.run --list-views
+   -> succeeds; lists existing v_* views (unchanged)
+
+6. Diff scope summary:
+   python tools/dev/diff_scope_summary.py
+   -> Forbidden-path matches: none. exit reason: ok.
+
+7. Whitespace / conflict check:
+   git diff --cached --check
+   -> clean
+
+8. Determinism:
+   Two `--data-json` runs produce identical sha256
+   (dd7234cfab0e4c1d4cf756b7fa1c1d97ac8ceeb64ecb4f215816bd13e5eb7013).
+
+Full repo pytest:
+   NOT run to completion; not claimed as passed. The new code is stdlib-only and
+   its scoped suite (plus the lab_state and lab_dashboard suites that share the
+   consumed module) passes.
+
+Honest state asserted by tests:
+   operator_gate_pending_count == 0, candidate_review_packet_created_count == 0,
+   nothing_candidate_ready == true. Only NO-GO / blocked / advisory-only lanes
+   are populated. No fake candidate-ready entries.

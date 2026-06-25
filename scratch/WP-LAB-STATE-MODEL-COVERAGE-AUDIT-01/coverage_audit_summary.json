@@ -1,0 +1,162 @@
+{
+  "by_category": {
+    "blocked_or_no_go_evidence": 17,
+    "candidate_or_crossing_evidence": 15,
+    "coordinator_subject_covered": 4,
+    "intentionally_out_of_scope": 736,
+    "known_fixture": 0,
+    "known_supporting_artifact": 264,
+    "orphan_research_artifact": 4,
+    "requires_followup_mapping": 66,
+    "status_entry_only": 168,
+    "surface_visible": 4,
+    "synthesis_or_report": 3
+  },
+  "by_coverage_status": {
+    "covered": 8,
+    "malformed": 0,
+    "out_of_scope": 1174,
+    "unmapped_gap": 99
+  },
+  "coordinator_subjects": [
+    "funding_positioning_fade_no_go",
+    "oos_gate_fail_demo"
+  ],
+  "findings": [
+    {
+      "artifact_count": 1,
+      "detail": "Committed research conclusion not bound to any coordinator subject; not represented in dashboard/report/approval/scheduler.",
+      "example_paths": [
+        "docs/research/PRICEONLY_SYNTHESIS_2026-06.md"
+      ],
+      "kind": "unmapped_committed_conclusion",
+      "subject_group": "docs/research/PRICEONLY_SYNTHESIS_2026-06.md"
+    },
+    {
+      "artifact_count": 1,
+      "detail": "Committed research conclusion not bound to any coordinator subject; not represented in dashboard/report/approval/scheduler.",
+      "example_paths": [
+        "research/candidate_registry.jsonl"
+      ],
+      "kind": "unmapped_committed_conclusion",
+      "subject_group": "research/candidate_registry.jsonl"
+    },
+    {
+      "artifact_count": 8,
+      "detail": "Committed research conclusion not bound to any coordinator subject; not represented in dashboard/report/approval/scheduler.",
+      "example_paths": [
+        "research/result_populations/RP-2134.result_population.json",
+        "research/result_populations/RP-2592.result_population.json",
+        "research/result_populations/RP-3731.result_population.json",
+        "research/result_populations/RP-4492.result_population.json",
+        "research/result_populations/RP-6236.result_population.json"
+      ],
+      "kind": "unmapped_committed_conclusion",
+      "subject_group": "research/result_populations"
+    },
+    {
+      "artifact_count": 13,
+      "detail": "Committed research conclusion not bound to any coordinator subject; not represented in dashboard/report/approval/scheduler.",
+      "example_paths": [
+        "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/blocked_bridge_reason.json",
+        "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/blocked_candidate_review_reason.json",
+        "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/blocked_robustness_reason.json",
+        "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/blocked_sweep_plan_reason.json",
+        "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/blocked_variant_manifest_reason.json"
+      ],
+      "kind": "unmapped_committed_conclusion",
+      "subject_group": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01"
+    },
+    {
+      "artifact_count": 14,
+      "detail": "Committed research conclusion not bound to any coordinator subject; not represented in dashboard/report/approval/scheduler.",
+      "example_paths": [
+        "scratch/WP-RESEARCH-FUNDING-CARRY-01/blocked_bridge_reason.json",
+        "scratch/WP-RESEARCH-FUNDING-CARRY-01/blocked_formalizer_reason.json",
+        "scratch/WP-RESEARCH-FUNDING-CARRY-01/blocked_robustness_reason.json",
+        "scratch/WP-RESEARCH-FUNDING-CARRY-01/blocked_rp_replay_harness_reason.json",
+        "scratch/WP-RESEARCH-FUNDING-CARRY-01/blocked_runner_reason.json"
+      ],
+      "kind": "unmapped_committed_conclusion",
+      "subject_group": "scratch/WP-RESEARCH-FUNDING-CARRY-01"
+    },
+    {
+      "artifact_count": 42,
+      "detail": "Committed research conclusion not bound to any coordinator subject; not represented in dashboard/report/approval/scheduler.",
+      "example_paths": [
+        "scratch/WP-RESEARCH-FUNDING-CARRY-02/bridge_output.json",
+        "scratch/WP-RESEARCH-FUNDING-CARRY-02/denominator_manifest.json",
+        "scratch/WP-RESEARCH-FUNDING-CARRY-02/formalizer_output.json",
+        "scratch/WP-RESEARCH-FUNDING-CARRY-02/funding_family_adapter_contract.json",
+        "scratch/WP-RESEARCH-FUNDING-CARRY-02/funding_pnl_boundary_note.json"
+      ],
+      "kind": "unmapped_committed_conclusion",
+      "subject_group": "scratch/WP-RESEARCH-FUNDING-CARRY-02"
+    },
+    {
+      "artifact_count": 3,
+      "detail": "Committed research conclusion not bound to any coordinator subject; not represented in dashboard/report/approval/scheduler.",
+      "example_paths": [
+        "scratch/WP-RESEARCH-FUNDING-CARRY-02-FOLLOWUP-01/local_data_staging_report.json",
+        "scratch/WP-RESEARCH-FUNDING-CARRY-02-FOLLOWUP-01/repo_truth_data_contract.md",
+        "scratch/WP-RESEARCH-FUNDING-CARRY-02-FOLLOWUP-01/retry_decision.md"
+      ],
+      "kind": "unmapped_committed_conclusion",
+      "subject_group": "scratch/WP-RESEARCH-FUNDING-CARRY-02-FOLLOWUP-01"
+    },
+    {
+      "artifact_count": 10,
+      "detail": "Committed research conclusion not bound to any coordinator subject; not represented in dashboard/report/approval/scheduler.",
+      "example_paths": [
+        "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/blocked_bridge_reason.json",
+        "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/blocked_candidate_review_reason.json",
+        "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/blocked_robustness_reason.json",
+        "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/denominator_audit.json",
+        "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/formalizer_output_reference.json"
+      ],
+      "kind": "unmapped_committed_conclusion",
+      "subject_group": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01"
+    },
+    {
+      "artifact_count": 7,
+      "detail": "Committed research conclusion not bound to any coordinator subject; not represented in dashboard/report/approval/scheduler.",
+      "example_paths": [
+        "scratch/WP-RESEARCH-PRICEONLY-SYNTHESIS-01/evidence_index.json",
+        "scratch/WP-RESEARCH-PRICEONLY-SYNTHESIS-01/lab_gap_checklist.json",
+        "scratch/WP-RESEARCH-PRICEONLY-SYNTHESIS-01/main_report_back_guardrail.txt",
+        "scratch/WP-RESEARCH-PRICEONLY-SYNTHESIS-01/open_decision_surfaces.txt",
+        "scratch/WP-RESEARCH-PRICEONLY-SYNTHESIS-01/priceonly_synthesis_source_audit.json"
+      ],
+      "kind": "unmapped_committed_conclusion",
+      "subject_group": "scratch/WP-RESEARCH-PRICEONLY-SYNTHESIS-01"
+    }
+  ],
+  "gaps_found": true,
+  "non_authority_declaration": "Read-only coverage audit. Mutates no artifact, runs no strategy, fetches no data, changes no coordinator/candidate bindings, and resumes no edge-search. Gaps are reported, never fixed here.",
+  "recommended_follow_up_packages": [
+    {
+      "authority_note": "Requires editing tools/lab_state/run.py SUBJECTS \u2014 out of scope for this audit-only package.",
+      "intent": "Bind the unmapped committed research conclusions as additional read-only coordinator subjects so the operator view stops omitting them. No new research; mapping only.",
+      "package": "WP-LAB-COORDINATOR-SUBJECT-COVERAGE-EXTENSION-01",
+      "subject_groups": [
+        "docs/research/PRICEONLY_SYNTHESIS_2026-06.md",
+        "research/candidate_registry.jsonl",
+        "research/result_populations",
+        "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01",
+        "scratch/WP-RESEARCH-FUNDING-CARRY-01",
+        "scratch/WP-RESEARCH-FUNDING-CARRY-02",
+        "scratch/WP-RESEARCH-FUNDING-CARRY-02-FOLLOWUP-01",
+        "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01",
+        "scratch/WP-RESEARCH-PRICEONLY-SYNTHESIS-01"
+      ]
+    }
+  ],
+  "schema_version": "lab_state_coverage_audit/v1",
+  "totals": {
+    "covered_coordinator_artifacts": 8,
+    "malformed_or_unreadable_artifacts": 0,
+    "surface_visible_artifacts": 4,
+    "total_discovered_artifacts": 1281,
+    "unmapped_gap_artifacts": 99
+  }
+}

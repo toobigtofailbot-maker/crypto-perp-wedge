@@ -1,0 +1,46 @@
+WP-LAB-STATE-MODEL-COVERAGE-AUDIT-01 — validation summary
+=========================================================
+
+Base: 9e8ed40 (deps #568,#569,#570,#571,#572 all merged; #572 ancestor of HEAD).
+All new code is stdlib-only (argparse, json, subprocess, dataclasses, pathlib).
+
+Coverage audit tests
+  python -m pytest tests/test_lab_state_coverage_audit.py -q
+  -> 17 passed.
+
+Dependent surface / state tests
+  python -m pytest tests/test_lab_state*.py tests/test_lab_dashboard*.py \
+      tests/test_lab_reporting*.py tests/test_lab_approval_queue*.py \
+      tests/test_lab_scheduler_shell*.py -q
+  -> 90 passed.
+
+Research query
+  python -m tools.research_query.run --list-views
+  -> OK (exit 0), 20+ views listed, unchanged.
+
+Registry validators (relevant: audit references result_populations + candidate_registry)
+  python -m tools.registry.validate_result_populations   -> OK
+  python -m tools.registry.validate_candidate_registry   -> OK
+
+Diff scope
+  python tools/dev/diff_scope_summary.py
+  -> exit reason: ok; no forbidden-path matches.
+
+git diff --check
+  -> clean.
+
+Full pytest
+  python -m pytest -q
+  -> NOT completed: 31 collection errors, all pre-existing missing optional
+     third-party deps (pandas, binance, vectorbt, etc.) in this environment;
+     none reference the new tools/lab_state_coverage_audit module. Full pass is
+     therefore NOT claimed. The new code is stdlib-only and its scoped suite and
+     all dependent surface/state suites pass.
+
+Audit outputs regenerated read-only (no repo state mutated):
+  artifact_inventory.json (1281 items)
+  coverage_audit_summary.json
+  coverage_audit_report.md
+
+Headline numbers: total=1281, covered=8, surface_visible=4, unmapped_gap=99,
+malformed=0. Gaps found: yes (99 unmapped committed conclusions).

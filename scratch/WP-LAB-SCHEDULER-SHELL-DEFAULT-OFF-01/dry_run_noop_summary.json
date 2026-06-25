@@ -1,0 +1,52 @@
+{
+  "all_actions_noop": true,
+  "config_default_off": true,
+  "dry_run": true,
+  "executed_any_action": false,
+  "noop_action_count": 4,
+  "noop_reason_code": "SCHED_AUTONOMY_DISABLED",
+  "note": "Dry-run plan only. No run was created, no strategy generated, no retry executed, no notification fired, no candidate-lifecycle or approval record written, and no runtime/paper/live path contacted.",
+  "planned_action_count": 4,
+  "planned_actions": [
+    {
+      "action_kind": "no_op",
+      "executed": false,
+      "noop_reason_code": "SCHED_AUTONOMY_DISABLED",
+      "run_id": "RUNQ-0001",
+      "skipped_terminal": false,
+      "subject_id": "H-FUNDING-RATE-POSITIONING-FADE-01",
+      "target_stage": "robustness",
+      "would_be_action": "plan_stage:robustness"
+    },
+    {
+      "action_kind": "no_op",
+      "executed": false,
+      "noop_reason_code": "SCHED_AUTONOMY_DISABLED",
+      "run_id": "RUNQ-0002",
+      "skipped_terminal": false,
+      "subject_id": "OOS-GATE-FIXTURE-RP-2592",
+      "target_stage": "walkforward_oos_gate",
+      "would_be_action": "plan_stage:walkforward_oos_gate"
+    },
+    {
+      "action_kind": "no_op",
+      "executed": false,
+      "noop_reason_code": "SCHED_AUTONOMY_DISABLED",
+      "run_id": "RUNQ-0003",
+      "skipped_terminal": true,
+      "subject_id": "OOS-GATE-FIXTURE-RP-2592",
+      "target_stage": "reporting",
+      "would_be_action": "none"
+    },
+    {
+      "action_kind": "no_op",
+      "executed": false,
+      "noop_reason_code": "SCHED_AUTONOMY_DISABLED",
+      "run_id": "RUNQ-0004",
+      "skipped_terminal": true,
+      "subject_id": "H-FUNDING-RATE-POSITIONING-FADE-01",
+      "target_stage": "operator_gate",
+      "would_be_action": "none"
+    }
+  ]
+}

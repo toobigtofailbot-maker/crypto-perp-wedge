@@ -1,0 +1,33 @@
+WP-LAB-SCHEDULER-SHELL-DEFAULT-OFF-01 — Main Report-Back Guardrail
+=================================================================
+
+This work package delivered a SHELL ONLY. Read this before describing the
+package upstream, so the report stays accurate and does not overclaim.
+
+What this IS:
+  - An inert control-plane structure (data model + contract) for a future
+    always-on research lab: run-queue schema, run-status model, artifact-link
+    model, retry/block-state visibility, default-off config, dry-run/no-op
+    planner, and a read-only CLI.
+  - A consumer of tools/lab_state truth (PR #568). It invents no new lab state
+    vocabulary and reads only committed read-only subjects/artifacts.
+
+What this is NOT (do not claim any of these):
+  - NOT a scheduler service, cron job, GitHub Action, or background daemon.
+  - NOT a run creator. It triggers/generates/executes no runs and no strategies.
+  - NOT an edge-search resumption. edge_search_enabled is False; the
+    coordinator state model's edge-search hold note is carried verbatim.
+  - NOT a retry executor. Retries are recorded for visibility only.
+  - NOT a notifier. It fires nothing.
+  - NOT an approval / candidate-lifecycle / canonical-evidence writer.
+  - NOT a runtime / paper / live / OMS / risk / broker / order touchpoint.
+  - NOT a backtest, sweep, crossing, or P&L/accounting change.
+  - NOT a dashboard control that triggers execution.
+
+Default-off is the contract: every autonomous capability defaults to False and
+the shell has no executor, so the only action it can emit is a planned no-op.
+Any real run, retry, approval, or transition requires separate, explicit
+operator authorization and machinery that this package deliberately does not add.
+
+Report the package as: "built the default-off scheduler/run-queue SHELL; no
+autonomous behavior enabled; no edge-search; validated inert via scoped tests."

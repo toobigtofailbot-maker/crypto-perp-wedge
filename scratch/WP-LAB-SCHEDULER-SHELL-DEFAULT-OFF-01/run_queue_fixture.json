@@ -1,0 +1,92 @@
+{
+  "schema_version": "lab_scheduler_shell_v1",
+  "description": "Static, inert run-queue fixture for the default-off scheduler shell. Entries reference committed read-only lab_state subjects. Nothing here triggers, creates, or executes a run; in the default-off posture every entry is held and every planned action is a no-op.",
+  "entries": [
+    {
+      "run_id": "RUNQ-0001",
+      "subject_id": "H-FUNDING-RATE-POSITIONING-FADE-01",
+      "target_stage": "robustness",
+      "priority": 10,
+      "status": "held_default_off",
+      "requested_by": "shell_fixture",
+      "retry": {
+        "state": "none",
+        "attempts": 0,
+        "max_attempts": 3,
+        "block_reason_code": null,
+        "block_detail": ""
+      },
+      "artifact_links": [
+        {
+          "role": "conclusion_traceability",
+          "path": "scratch/WP-RESEARCH-FUNDING-FADE-CONCLUDE-01/conclusion_traceability.json",
+          "present": true,
+          "note": "read-only display reference only"
+        }
+      ],
+      "depends_on": [],
+      "note": "Would-be robustness pass for a concluded NO-GO subject; held because autonomy is disabled."
+    },
+    {
+      "run_id": "RUNQ-0002",
+      "subject_id": "OOS-GATE-FIXTURE-RP-2592",
+      "target_stage": "walkforward_oos_gate",
+      "priority": 20,
+      "status": "queued",
+      "requested_by": "shell_fixture",
+      "retry": {
+        "state": "none",
+        "attempts": 0,
+        "max_attempts": 2,
+        "block_reason_code": null,
+        "block_detail": ""
+      },
+      "artifact_links": [
+        {
+          "role": "oos_gate_summary",
+          "path": "scratch/WP-LAB-WALKFORWARD-OOS-GATE-01/fixture_gate_summary.json",
+          "present": true,
+          "note": "read-only display reference only"
+        }
+      ],
+      "depends_on": [],
+      "note": "Queued OOS-gate target; not actioned because the shell has no executor."
+    },
+    {
+      "run_id": "RUNQ-0003",
+      "subject_id": "OOS-GATE-FIXTURE-RP-2592",
+      "target_stage": "reporting",
+      "priority": 30,
+      "status": "blocked",
+      "requested_by": "shell_fixture",
+      "retry": {
+        "state": "scheduled",
+        "attempts": 1,
+        "max_attempts": 2,
+        "block_reason_code": "SCHED_DEPENDENCY_UNRESOLVED",
+        "block_detail": "Reporting target depends on RUNQ-0002, which is not actioned in the inert shell."
+      },
+      "artifact_links": [],
+      "depends_on": ["RUNQ-0002"],
+      "note": "Demonstrates retry/block visibility: a recorded (never executed) retry behind an unresolved dependency."
+    },
+    {
+      "run_id": "RUNQ-0004",
+      "subject_id": "H-FUNDING-RATE-POSITIONING-FADE-01",
+      "target_stage": "operator_gate",
+      "priority": 40,
+      "status": "blocked",
+      "requested_by": "shell_fixture",
+      "retry": {
+        "state": "exhausted",
+        "attempts": 2,
+        "max_attempts": 2,
+        "block_reason_code": "SCHED_RETRY_BUDGET_EXHAUSTED",
+        "block_detail": "Recorded retry budget spent; an operator gate is human-owned and is never auto-actioned."
+      },
+      "artifact_links": [],
+      "depends_on": [],
+      "note": "Demonstrates an exhausted retry budget; the operator gate stays human-owned."
+    }
+  ]
+}

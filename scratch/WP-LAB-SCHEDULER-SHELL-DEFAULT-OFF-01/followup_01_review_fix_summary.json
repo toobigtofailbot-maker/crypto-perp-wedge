@@ -1,0 +1,57 @@
+{
+  "package": "WP-LAB-SCHEDULER-SHELL-DEFAULT-OFF-01-FOLLOWUP-01",
+  "target_pr": 571,
+  "target_branch": "claude/musing-kalam-4fd3ce",
+  "review_finding": "shell.py::_noop_reason could emit SCHED_NO_EXECUTOR_PRESENT, a reason code not declared in model.BLOCK_REASON_CODES; a tool must not emit a code absent from its contract vocabulary.",
+  "fix": {
+    "model_change": "Declared SCHED_NO_EXECUTOR_PRESENT in BLOCK_REASON_CODES and added an explicit NOOP_REASON_CODES subset for the dry-run planner.",
+    "block_reason_codes": [
+      "SCHED_AUTONOMY_DISABLED",
+      "SCHED_RUN_TRIGGERING_DISABLED",
+      "SCHED_NO_EXECUTOR_PRESENT",
+      "SCHED_DEPENDENCY_UNRESOLVED",
+      "SCHED_SUBJECT_NOT_FOUND",
+      "SCHED_ARTIFACT_MISSING",
+      "SCHED_RETRY_BUDGET_EXHAUSTED",
+      "SCHED_MANUAL_HOLD"
+    ],
+    "noop_reason_codes": [
+      "SCHED_AUTONOMY_DISABLED",
+      "SCHED_RUN_TRIGGERING_DISABLED",
+      "SCHED_NO_EXECUTOR_PRESENT"
+    ],
+    "shell_py_changed": false,
+    "shell_py_note": "_noop_reason logic unchanged; it already only emitted the three NOOP_REASON_CODES values, which are now all declared."
+  },
+  "tests": {
+    "added": [
+      "test_no_executor_present_reason_is_declared",
+      "test_noop_reason_codes_are_declared"
+    ],
+    "strengthened": [
+      "test_dry_run_is_noop_even_if_a_config_were_enabled (now asserts noop_reason_code is in NOOP_REASON_CODES and BLOCK_REASON_CODES)"
+    ],
+    "result": "18 passed"
+  },
+  "files_changed": [
+    "tools/lab_scheduler_shell/model.py",
+    "tests/test_lab_scheduler_shell.py",
+    "docs/research/LAB_SCHEDULER_SHELL_DEFAULT_OFF.md",
+    "docs/status_entries/WP-LAB-SCHEDULER-SHELL-DEFAULT-OFF-01.md",
+    "scratch/WP-LAB-SCHEDULER-SHELL-DEFAULT-OFF-01/scheduler_shell_contract.json",
+    "scratch/WP-LAB-SCHEDULER-SHELL-DEFAULT-OFF-01/validation_summary.txt",
+    "scratch/WP-LAB-SCHEDULER-SHELL-DEFAULT-OFF-01/followup_01_review_fix_summary.json"
+  ],
+  "dry_run_noop_summary_changed": false,
+  "dry_run_noop_summary_note": "Default-off dry-run output is unchanged (noop_reason_code stays SCHED_AUTONOMY_DISABLED); not re-staged.",
+  "boundary": {
+    "edge_search": "none",
+    "strategy_run_or_generation": "none",
+    "run_creation_or_scheduler_service": "none",
+    "retry_execution": "none",
+    "notification_firing": "none",
+    "approval_or_candidate_lifecycle_writes": "none",
+    "runtime_paper_live": "none",
+    "protected_paths": "untouched (only model.py + tests + docs/status + scratch edited)"
+  }
+}

@@ -45,13 +45,19 @@
     "block_reason_codes": [
       "SCHED_AUTONOMY_DISABLED",
       "SCHED_RUN_TRIGGERING_DISABLED",
+      "SCHED_NO_EXECUTOR_PRESENT",
       "SCHED_DEPENDENCY_UNRESOLVED",
       "SCHED_SUBJECT_NOT_FOUND",
       "SCHED_ARTIFACT_MISSING",
       "SCHED_RETRY_BUDGET_EXHAUSTED",
       "SCHED_MANUAL_HOLD"
     ],
-    "note": "Retries are recorded for visibility only and are never executed."
+    "noop_reason_codes": [
+      "SCHED_AUTONOMY_DISABLED",
+      "SCHED_RUN_TRIGGERING_DISABLED",
+      "SCHED_NO_EXECUTOR_PRESENT"
+    ],
+    "note": "Retries are recorded for visibility only and are never executed. noop_reason_codes is the subset plan_dry_run may emit; every value is also a declared block_reason_code."
   },
   "queue_entry_schema": {
     "run_id": "string (unique)",

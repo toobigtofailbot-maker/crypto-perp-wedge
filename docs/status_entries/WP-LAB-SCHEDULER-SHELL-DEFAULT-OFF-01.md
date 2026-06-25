@@ -53,7 +53,7 @@ deliberately does not add one.
   render status, dry-run no-op planner; no executor.
 - `tools/lab_scheduler_shell/run.py` — read-only CLI.
 - `tools/lab_scheduler_shell/__init__.py`.
-- `tests/test_lab_scheduler_shell.py` — 16 tests.
+- `tests/test_lab_scheduler_shell.py` — 18 tests.
 - `scratch/WP-LAB-SCHEDULER-SHELL-DEFAULT-OFF-01/repo_truth_discovery.md`
 - `scratch/WP-LAB-SCHEDULER-SHELL-DEFAULT-OFF-01/scheduler_shell_contract.json`
 - `scratch/WP-LAB-SCHEDULER-SHELL-DEFAULT-OFF-01/run_queue_fixture.json`
@@ -78,10 +78,22 @@ model's edge-search hold note is carried verbatim and `edge_search_enabled` is
 
 ## Validation
 
-- `python -m pytest tests/test_lab_scheduler_shell.py -q` → **16 passed**.
+- `python -m pytest tests/test_lab_scheduler_shell.py -q` → **18 passed**.
 - `python -m tools.research_query.run --list-views` → OK (unchanged; the shell
   registers no view).
 - `python tools/dev/diff_scope_summary.py` → `exit reason: ok`,
   `forbidden_matches: []`; changes confined to the allowed scope.
 - `git diff --check` → clean (no whitespace errors).
 - Full pytest not run as part of this entry; the scoped suite was run and passed.
+
+## Follow-up 01 — no-op reason-code contract alignment
+
+Review of PR #571 found `shell.py::_noop_reason` could emit
+`SCHED_NO_EXECUTOR_PRESENT`, which was not declared in
+`model.BLOCK_REASON_CODES`. Fix: declared `SCHED_NO_EXECUTOR_PRESENT` in
+`BLOCK_REASON_CODES` and added an explicit `NOOP_REASON_CODES` subset
+(`SCHED_AUTONOMY_DISABLED`, `SCHED_RUN_TRIGGERING_DISABLED`,
+`SCHED_NO_EXECUTOR_PRESENT`) so every value `plan_dry_run` can emit is
+contract-declared. New tests `test_noop_reason_codes_are_declared` and
+`test_no_executor_present_reason_is_declared`; `shell.py` logic unchanged.
+Details in `scratch/.../followup_01_review_fix_summary.json`.

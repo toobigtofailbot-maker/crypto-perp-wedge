@@ -7,7 +7,7 @@ Base: origin/main @ 335eaac (after PR #568 state model + PR #569 dashboard merge
 1. Scheduler-shell tests
 ------------------------
 $ python -m pytest tests/test_lab_scheduler_shell.py -q
-16 passed in 0.09s
+18 passed in 0.15s
 
 Coverage of the required proofs (package §7):
   - default config disables all autonomous behavior
@@ -25,6 +25,9 @@ Coverage of the required proofs (package §7):
       test_no_write_capable_action_is_exposed
   - runtime / paper / live flags remain false
       test_runtime_and_paper_live_flags_remain_false
+  - no-op reason codes are contract-declared (follow-up 01)
+      test_noop_reason_codes_are_declared
+      test_no_executor_present_reason_is_declared
 
 2. Research query views
 -----------------------
@@ -65,3 +68,10 @@ executor; the dry-run planner returns no-op descriptions only.
 
 No edge-search: the edge-search hold note from the coordinator state model is
 carried verbatim and edge_search_enabled is False.
+
+Follow-up 01 (no-op reason-code contract alignment):
+  - SCHED_NO_EXECUTOR_PRESENT declared in model.BLOCK_REASON_CODES.
+  - Added model.NOOP_REASON_CODES = (SCHED_AUTONOMY_DISABLED,
+    SCHED_RUN_TRIGGERING_DISABLED, SCHED_NO_EXECUTOR_PRESENT) — the exact subset
+    plan_dry_run may emit; every value is also a declared BLOCK_REASON_CODES entry.
+  - shell.py logic unchanged; it already emitted only these three codes.

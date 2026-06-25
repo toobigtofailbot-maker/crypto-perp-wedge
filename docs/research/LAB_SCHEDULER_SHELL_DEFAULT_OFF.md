@@ -86,6 +86,7 @@ vocabularies; `depends_on` resolves within the same queue.
 
 Retry states: `none`, `scheduled`, `exhausted`. Block reason codes are
 namespaced `SCHED_*` (e.g. `SCHED_AUTONOMY_DISABLED`,
+`SCHED_RUN_TRIGGERING_DISABLED`, `SCHED_NO_EXECUTOR_PRESENT`,
 `SCHED_DEPENDENCY_UNRESOLVED`, `SCHED_RETRY_BUDGET_EXHAUSTED`). Retries are
 **recorded for visibility only and never executed**.
 
@@ -103,6 +104,12 @@ asserts `executed_any_action: false` and `all_actions_noop: true`. The no-op
 reason is `SCHED_AUTONOMY_DISABLED` under the default config (and
 `SCHED_NO_EXECUTOR_PRESENT` even if flags were hypothetically flipped, because
 the shell has no executor). The dry-run output is a *description*, not an effect.
+
+Every value the planner can emit for `noop_reason_code` is declared in the
+`NOOP_REASON_CODES` contract subset (`SCHED_AUTONOMY_DISABLED`,
+`SCHED_RUN_TRIGGERING_DISABLED`, `SCHED_NO_EXECUTOR_PRESENT`), each of which is
+also a declared `BLOCK_REASON_CODES` entry, so the tool never emits an
+undeclared reason code.
 
 ## Non-authority declaration
 

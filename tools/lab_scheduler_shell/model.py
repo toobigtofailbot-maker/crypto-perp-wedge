@@ -53,11 +53,21 @@ RETRY_STATES: Final[tuple[str, ...]] = (
 BLOCK_REASON_CODES: Final[tuple[str, ...]] = (
     "SCHED_AUTONOMY_DISABLED",          # default-off posture holds the entry
     "SCHED_RUN_TRIGGERING_DISABLED",    # run creation disabled
+    "SCHED_NO_EXECUTOR_PRESENT",        # the shell has no executor (always inert)
     "SCHED_DEPENDENCY_UNRESOLVED",      # an upstream queue dependency is unmet
     "SCHED_SUBJECT_NOT_FOUND",          # bound subject_id not in lab_state
     "SCHED_ARTIFACT_MISSING",           # a referenced artifact is absent
     "SCHED_RETRY_BUDGET_EXHAUSTED",     # recorded retry budget spent
     "SCHED_MANUAL_HOLD",                # explicitly held by an operator note
+)
+
+# The subset of reason codes the dry-run planner may emit as a no-op reason.
+# Every value ``plan_dry_run`` can return for ``noop_reason_code`` is declared
+# here (and in ``BLOCK_REASON_CODES``); the planner emits nothing outside it.
+NOOP_REASON_CODES: Final[tuple[str, ...]] = (
+    "SCHED_AUTONOMY_DISABLED",
+    "SCHED_RUN_TRIGGERING_DISABLED",
+    "SCHED_NO_EXECUTOR_PRESENT",
 )
 
 

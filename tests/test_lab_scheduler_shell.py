@@ -185,6 +185,39 @@ def test_dry_run_is_noop_even_if_a_config_were_enabled() -> None:
     assert plan["all_actions_noop"] is True
     assert plan["config_default_off"] is False
     assert plan["noop_reason_code"] == "SCHED_NO_EXECUTOR_PRESENT"
+    # The emitted reason is a declared contract code.
+    assert plan["noop_reason_code"] in model.NOOP_REASON_CODES
+    assert plan["noop_reason_code"] in model.BLOCK_REASON_CODES
+
+
+def test_no_executor_present_reason_is_declared() -> None:
+    # The no-executor no-op reason must be part of the reason-code contract.
+    assert "SCHED_NO_EXECUTOR_PRESENT" in model.BLOCK_REASON_CODES
+    assert "SCHED_NO_EXECUTOR_PRESENT" in model.NOOP_REASON_CODES
+
+
+def test_noop_reason_codes_are_declared() -> None:
+    # Every noop_reason_code plan_dry_run can emit must be declared in the
+    # scheduler-shell reason-code contract, across all config postures.
+    shell = SchedulerShell.from_fixture(FIXTURE)
+    postures = [
+        SchedulerShellConfig(),  # default-off
+        SchedulerShellConfig(autonomous_enabled=True),  # run-triggering still off
+        SchedulerShellConfig(
+            autonomous_enabled=True, run_triggering_enabled=True
+        ),  # both on -> no-executor
+    ]
+    emitted = {plan_dry_run(shell.queue, p)["noop_reason_code"] for p in postures}
+    assert emitted == {
+        "SCHED_AUTONOMY_DISABLED",
+        "SCHED_RUN_TRIGGERING_DISABLED",
+        "SCHED_NO_EXECUTOR_PRESENT",
+    }
+    # Contract: the emitted set is exactly the declared NOOP subset, and each is
+    # also a declared block reason code.
+    assert emitted == set(model.NOOP_REASON_CODES)
+    for code in emitted:
+        assert code in model.BLOCK_REASON_CODES
 
 
 def test_terminal_entries_plan_no_action() -> None:

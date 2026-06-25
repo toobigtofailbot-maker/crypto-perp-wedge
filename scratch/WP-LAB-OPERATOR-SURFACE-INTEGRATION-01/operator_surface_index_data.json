@@ -1,0 +1,223 @@
+{
+  "as_of": "2026-06-25",
+  "batch_boundary": {
+    "blocked_count": 0,
+    "by_overall_state": {
+      "blocked": 0,
+      "candidate_ready_for_human_review": 0,
+      "candidate_review_blocked": 0,
+      "experiment_complete": 0,
+      "formalized": 0,
+      "no_go": 1,
+      "not_started": 0,
+      "oos_gate_blocked": 0,
+      "oos_gate_fail": 1,
+      "operator_gate_pending": 0,
+      "replay_checked": 0,
+      "reported": 0,
+      "robustness_advisory": 0
+    },
+    "candidate_ready_count": 0,
+    "completed_experiment_run_count": 2,
+    "distinct_result_population_sets": 1,
+    "no_go_count": 1,
+    "operator_gate_pending_count": 0,
+    "subject_count": 2,
+    "trial_denominator_over_distinct_sets": {
+      "blocked": 0,
+      "complete": 36,
+      "failed": 0,
+      "invalid": 0,
+      "planned": 36,
+      "pruned": 0
+    }
+  },
+  "caveats": [
+    "This is a read-only index of where to look; it is not a control panel and holds no execution authority.",
+    "Every state value is taken verbatim from the surface that owns it (ultimately the coordinator state model); this index re-ranks nothing and adds no new state vocabulary.",
+    "The denominator is the full population (every run and state), shown by the dashboard and brief/report \u2014 not winners only.",
+    "Honest current state: no candidate is ready for human review unless the approval queue's committed evidence records it.",
+    "The scheduler shell is inert and default-off; its dry-run actions are all no-ops and it has no executor.",
+    "Any real transition, approval, promotion, or run requires separate human action through the human-gated candidate lifecycle engine; this index cannot grant it."
+  ],
+  "edge_search_hold": "No further edge-search is authorized by the coordinator state model. Strategy generation/search remains held until separate operator authorization.",
+  "honest_state": {
+    "candidate_ready_count": 0,
+    "note": "No candidate is ready for human review and no operator gate is pending. The queue correctly shows only NO-GO / blocked / advisory-only items. This is the honest current state, not an error.",
+    "nothing_candidate_ready": true,
+    "operator_gate_pending_count": 0
+  },
+  "non_authority_declaration": {
+    "authorizes_edge_search": false,
+    "authorizes_paper_live_runtime": false,
+    "auto_refreshes": false,
+    "enables_autonomous_behavior": false,
+    "executes_canonical_crossing": false,
+    "executes_transition": false,
+    "fetches_live_data": false,
+    "has_approve_button": false,
+    "has_promote_button": false,
+    "has_reject_button": false,
+    "has_retry_button": false,
+    "has_run_button": false,
+    "has_scheduler_toggle": false,
+    "introduces_new_state_vocabulary": false,
+    "is_an_integration_index_only": true,
+    "ranks_or_recommends": false,
+    "read_only": true,
+    "renders_executable_control": false,
+    "writes_candidate_lifecycle": false,
+    "writes_canonical_evidence": false
+  },
+  "period": "2026-W26",
+  "related_docs": [
+    {
+      "path": "docs/research/LAB_OPERATOR_SURFACE_INTEGRATION.md",
+      "present": true,
+      "role": "integration"
+    },
+    {
+      "path": "docs/research/LAB_COORDINATOR_STATE_MODEL.md",
+      "present": true,
+      "role": "state_model"
+    },
+    {
+      "path": "docs/research/LAB_RESULTS_DASHBOARD_SURFACE.md",
+      "present": true,
+      "role": "dashboard"
+    },
+    {
+      "path": "docs/research/LAB_OPERATOR_BRIEF_REPORT_SURFACE.md",
+      "present": true,
+      "role": "brief_report"
+    },
+    {
+      "path": "docs/research/LAB_APPROVAL_QUEUE_SURFACE.md",
+      "present": true,
+      "role": "approval_queue"
+    },
+    {
+      "path": "docs/research/LAB_SCHEDULER_SHELL_DEFAULT_OFF.md",
+      "present": true,
+      "role": "scheduler_shell"
+    }
+  ],
+  "schema_version": "lab_operator_surface_integration_v1",
+  "surface_kind": "read_only_operator_surface_index",
+  "surfaces": [
+    {
+      "cli": "python -m tools.lab_state.run --snapshot",
+      "doc": "docs/research/LAB_COORDINATOR_STATE_MODEL.md",
+      "key": "coordinator_state",
+      "module": "tools/lab_state",
+      "package": "WP-LAB-COORDINATOR-STATE-MODEL-01",
+      "summary": {
+        "by_overall_state": {
+          "blocked": 0,
+          "candidate_ready_for_human_review": 0,
+          "candidate_review_blocked": 0,
+          "experiment_complete": 0,
+          "formalized": 0,
+          "no_go": 1,
+          "not_started": 0,
+          "oos_gate_blocked": 0,
+          "oos_gate_fail": 1,
+          "operator_gate_pending": 0,
+          "replay_checked": 0,
+          "reported": 0,
+          "robustness_advisory": 0
+        },
+        "subject_count": 2
+      },
+      "title": "Coordinator state snapshot"
+    },
+    {
+      "cli": "python -m tools.lab_dashboard.run --markdown",
+      "doc": "docs/research/LAB_RESULTS_DASHBOARD_SURFACE.md",
+      "key": "results_dashboard",
+      "module": "tools/lab_dashboard",
+      "package": "WP-LAB-RESULTS-DASHBOARD-01",
+      "summary": {
+        "blocked_count": 0,
+        "candidate_ready_count": 0,
+        "completed_experiment_run_count": 2,
+        "distinct_result_population_sets": 1,
+        "no_go_count": 1,
+        "operator_gate_pending_count": 0
+      },
+      "title": "Results dashboard"
+    },
+    {
+      "cli": "python -m tools.lab_reporting.run --daily-brief --as-of <label>",
+      "doc": "docs/research/LAB_OPERATOR_BRIEF_REPORT_SURFACE.md",
+      "key": "daily_brief",
+      "module": "tools/lab_reporting",
+      "package": "WP-LAB-OPERATOR-BRIEF-REPORT-01",
+      "summary": {
+        "as_of": "2026-06-25",
+        "blocked_runs": 0,
+        "completed_runs": 2,
+        "no_gos": 1,
+        "open_decision_surfaces": 0
+      },
+      "title": "Latest daily brief"
+    },
+    {
+      "cli": "python -m tools.lab_reporting.run --weekly-report --period <label>",
+      "doc": "docs/research/LAB_OPERATOR_BRIEF_REPORT_SURFACE.md",
+      "key": "weekly_report",
+      "module": "tools/lab_reporting",
+      "package": "WP-LAB-OPERATOR-BRIEF-REPORT-01",
+      "summary": {
+        "candidate_review_evidence": 0,
+        "period": "2026-W26",
+        "subjects": 2,
+        "withheld_statistics": [
+          "DSR",
+          "MinTRL",
+          "PSR"
+        ]
+      },
+      "title": "Latest weekly report"
+    },
+    {
+      "cli": "python -m tools.lab_approval_queue.run --markdown",
+      "doc": "docs/research/LAB_APPROVAL_QUEUE_SURFACE.md",
+      "key": "approval_queue",
+      "module": "tools/lab_approval_queue",
+      "package": "WP-LAB-APPROVAL-QUEUE-SURFACE-01",
+      "summary": {
+        "blocked_validation_count": 1,
+        "by_queue_status": {
+          "advisory_only": 0,
+          "blocked_validation": 1,
+          "no_go": 1,
+          "not_actionable": 0,
+          "operator_gate_pending": 0
+        },
+        "candidate_review_packet_created_count": 0,
+        "honest_state_note": "No candidate is ready for human review and no operator gate is pending. The queue correctly shows only NO-GO / blocked / advisory-only items. This is the honest current state, not an error.",
+        "no_go_count": 1,
+        "nothing_candidate_ready": true,
+        "operator_gate_pending_count": 0
+      },
+      "title": "Approval / gate queue"
+    },
+    {
+      "cli": "python -m tools.lab_scheduler_shell.run --snapshot",
+      "doc": "docs/research/LAB_SCHEDULER_SHELL_DEFAULT_OFF.md",
+      "key": "scheduler_shell",
+      "module": "tools/lab_scheduler_shell",
+      "package": "WP-LAB-SCHEDULER-SHELL-DEFAULT-OFF-01",
+      "summary": {
+        "all_default_off": true,
+        "dry_run_all_actions_noop": true,
+        "dry_run_executed_any_action": false,
+        "dry_run_noop_reason_code": "SCHED_AUTONOMY_DISABLED",
+        "enabled_flags": [],
+        "queue_entry_count": 4
+      },
+      "title": "Scheduler shell (inert, default-off)"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+WP-LAB-OPERATOR-SURFACE-INTEGRATION-01 — Main report-back guardrail
+===================================================================
+
+This package built a READ-ONLY unified operator-surface INDEX. It integrates the
+five already-merged read-only surfaces (coordinator state model, results
+dashboard, daily brief / weekly report, approval / gate queue, inert scheduler
+shell) into one top-level entry point. It is WHERE TO LOOK, not a control panel.
+
+NOT done by this package (forbidden scope — none performed):
+- no new lab state logic, no new state vocabulary, no new status names
+- no execution control of any kind (no run / approve / reject / promote / retry
+  button, no scheduler toggle, no live fetch, no auto-refresh, no hidden ranking
+  or recommendation)
+- no approval write, no candidate-lifecycle write / mutation
+- no notification firing
+- no canonical crossing, no promotion, no readiness declaration
+- no strategy run / generation, no edge-search resume
+- no new strategy family / funding-with-stops / taker-flow / OI / ratio work
+- no backtest / sweep (reads committed JSON/markdown + one committed scheduler
+  fixture only; CLI runs are read-only surface builds)
+- no Strategy Spec / Variant Manifest / Sweep Plan / canonical Result Population
+  / trial log / candidate registry write
+- no autonomous scheduler / scout / coordinator behavior enabled
+- no runtime, paper/live, OMS, risk, reconciliation, capital, broker/exchange/
+  order path, funding P&L/accounting change
+- no provider/API/network fetch
+- no large tracked data committed
+
+Honest state reported: nothing candidate-ready. The index re-states the approval
+queue's verdict verbatim — only NO-GO / blocked / advisory-only items exist
+across the committed batch. No fake candidate-ready entries created; no readiness
+invented.
+
+State truth is taken verbatim from the merged surfaces (ultimately
+tools/lab_state); this index re-ranks nothing and adds no state vocabulary.
+
+Edge-search remains held until separate operator authorization.

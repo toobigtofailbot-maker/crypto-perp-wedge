@@ -1,0 +1,32 @@
+WP-LAB-COORDINATOR-STATE-MODEL-01 — Main Report-Back Guardrail
+
+This package defined a read-only research-lab coordinator state model. It did not
+and must not be read as having done any of the following:
+
+- No strategy run or generation; no edge-search resumed.
+- No new funding-with-stops / funding-with-risk-management / taker-flow / OI /
+  new-family work.
+- No backtest run (the resolver only reads committed scratch/research JSON+md).
+- No Strategy Spec, Variant Manifest, Sweep Plan, canonical Result Population,
+  trial log, or candidate lifecycle record created or mutated.
+- No canonical crossing executed.
+- No candidate approval or promotion written.
+- No transition executed; the model is descriptive-only and never auto-promotes.
+- No runtime, paper/live, OMS, risk, reconciliation, capital, broker, exchange,
+  or order-path change.
+- No funding P&L / accounting change.
+- No provider/API/network fetch.
+- No autonomous scheduler/scout/coordinator behavior enabled.
+- No dashboard controls that trigger execution added.
+- No large tracked data committed.
+
+EDGE-SEARCH HOLD (required status note):
+No further edge-search is authorized by the coordinator state model. Strategy
+generation/search remains held until separate operator authorization.
+
+What the model IS: one canonical, read-only status vocabulary plus a resolver
+that maps existing repo/scratch/research artifacts into per-stage states and one
+overall lab-state snapshot, so the dashboard, brief/report surface, approval
+queue, and scheduler shell can read one coherent model. Operator gate decisions
+and candidate lifecycle transitions remain owned by the existing human-gated
+lifecycle engine and require separate authorization.

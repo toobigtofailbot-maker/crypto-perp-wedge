@@ -1,0 +1,138 @@
+{
+  "schema_version": "lab_coordinator_state_model_v1",
+  "subject_id": "H-FUNDING-RATE-POSITIONING-FADE-01",
+  "subject_label": "funding_rate_positioning_fade",
+  "overall_state": "no_go",
+  "stages": [
+    {
+      "stage": "idea_intake",
+      "state": "formalized",
+      "reason_code": "STATE_FORMALIZED_FROM_STATUS_ENTRY",
+      "detail": "Idea intake recorded for the hypothesis.",
+      "artifact_refs": [
+        {
+          "role": "formalization_status_entry",
+          "path": "docs/status_entries/WP-LAB-IDEA-INTAKE-FORMALIZATION-01.md",
+          "present": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "stage": "formalization",
+      "state": "formalized",
+      "reason_code": "STATE_FORMALIZED_FROM_STATUS_ENTRY",
+      "detail": "Hypothesis formalized in a repo status entry.",
+      "artifact_refs": [
+        {
+          "role": "formalization_status_entry",
+          "path": "docs/status_entries/WP-LAB-IDEA-INTAKE-FORMALIZATION-01.md",
+          "present": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "stage": "experiment_run",
+      "state": "experiment_complete",
+      "reason_code": "STATE_EXPERIMENT_DENOMINATOR_PRESERVED",
+      "detail": "2 Result Population(s); denominator 36/36 preserved.",
+      "artifact_refs": [
+        {
+          "role": "conclusion_traceability",
+          "path": "scratch/WP-RESEARCH-FUNDING-FADE-CONCLUDE-01/conclusion_traceability.json",
+          "present": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "stage": "replay_normalization",
+      "state": "replay_checked",
+      "reason_code": "STATE_REPLAY_NORMALIZED",
+      "detail": "2 Result Population(s) normalized under the replay contract (equivalence only, not approval).",
+      "artifact_refs": [
+        {
+          "role": "replay_fixture_summary",
+          "path": "scratch/WP-LAB-RP-REPLAY-NORMALIZATION-CONTRACT-01/replay_fixture_summary.json",
+          "present": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "stage": "walkforward_oos_gate",
+      "state": "oos_gate_blocked",
+      "reason_code": "STATE_OOS_DRY_RUN_ONLY",
+      "detail": "OOS evidence is dry-run-only with deferred purge/embargo; not a rigorous gate pass.",
+      "artifact_refs": [
+        {
+          "role": "oos_gate_summary",
+          "path": "",
+          "present": false,
+          "note": "not configured"
+        }
+      ]
+    },
+    {
+      "stage": "robustness",
+      "state": "robustness_advisory",
+      "reason_code": "STATE_ROBUSTNESS_ADVISORY_ONLY",
+      "detail": "Descriptive robustness reports produced; withheld PSR, DSR, MinTRL statistics rather than fabricating inputs.",
+      "artifact_refs": [
+        {
+          "role": "conclusion_traceability",
+          "path": "scratch/WP-RESEARCH-FUNDING-FADE-CONCLUDE-01/conclusion_traceability.json",
+          "present": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "stage": "candidate_review_reach",
+      "state": "candidate_review_not_created",
+      "reason_code": "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+      "detail": "All 36 scratch funding rows failed the primary drawdown screen; no candidate-review packet was generated.",
+      "artifact_refs": [
+        {
+          "role": "generic_review_contract",
+          "path": "scratch/WP-LAB-GENERIC-ROBUSTNESS-REVIEW-REACH-01/generic_review_contract.json",
+          "present": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "stage": "reporting",
+      "state": "reported",
+      "reason_code": "STATE_REPORTED_FROM_SYNTHESIS",
+      "detail": "Conclusion recorded in a synthesis doc / status entry.",
+      "artifact_refs": [
+        {
+          "role": "reporting_doc",
+          "path": "docs/research/FUNDING_POSITIONING_FADE_SYNTHESIS_2026-06.md",
+          "present": true,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "stage": "operator_gate",
+      "state": "not_started",
+      "reason_code": "STATE_NO_CANDIDATE_PRODUCED",
+      "detail": "No candidate produced; nothing for the operator to gate.",
+      "artifact_refs": []
+    }
+  ],
+  "non_authority_declaration": {
+    "read_only": true,
+    "executes_transition": false,
+    "writes_canonical_evidence": false,
+    "writes_candidate_lifecycle": false,
+    "executes_canonical_crossing": false,
+    "ranks_or_recommends": false,
+    "authorizes_edge_search": false,
+    "authorizes_paper_live_runtime": false
+  },
+  "edge_search_hold": "No further edge-search is authorized by the coordinator state model. Strategy generation/search remains held until separate operator authorization."
+}

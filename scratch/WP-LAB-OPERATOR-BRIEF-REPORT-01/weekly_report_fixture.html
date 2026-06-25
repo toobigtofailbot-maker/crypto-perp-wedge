@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<title>Lab Weekly Research Report (read-only)</title>
+<style>:root { color-scheme: light dark; }
+body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+       margin: 2rem; line-height: 1.45; }
+h1 { font-size: 1.4rem; margin-bottom: 0.2rem; }
+h2 { font-size: 1.1rem; margin-top: 1.6rem;
+     border-bottom: 1px solid #8884; padding-bottom: 0.2rem; }
+table { border-collapse: collapse; margin: 0.4rem 0 1rem; width: 100%; }
+th, td { border: 1px solid #8884; padding: 0.3rem 0.5rem;
+         text-align: left; vertical-align: top; font-size: 0.9rem; }
+th { background: #8881; }
+.banner { border: 1px solid #c93; background: #fc31; padding: 0.5rem 0.75rem;
+          border-radius: 6px; margin: 0.6rem 0; font-size: 0.9rem; }
+.state { font-family: ui-monospace, monospace; }
+.caveat { font-size: 0.9rem; }
+code { font-family: ui-monospace, monospace; font-size: 0.85rem; }</style>
+</head>
+<body>
+<h1>Lab Weekly Research Report</h1>
+<p>schema <code>lab_operator_brief_report_v1</code> &mdash; period 2026-W26</p>
+<div class='banner'>Read-only operator surface. Descriptive only: no recommendation, ranking, promotion/decision label, readiness verdict, edge-search suggestion, auto-send, notification, or scheduler.</div>
+<div class='banner'>No further edge-search is authorized by the coordinator state model. Strategy generation/search remains held until separate operator authorization.</div>
+<h2>Summary counts</h2>
+<table><thead><tr><th>metric</th><th>count</th></tr></thead><tbody><tr><td>subjects</td><td>2</td></tr><tr><td>completed runs</td><td>2</td></tr><tr><td>blocked runs</td><td>0</td></tr><tr><td>NO-GOs</td><td>1</td></tr><tr><td>open decision surfaces</td><td>0</td></tr><tr><td>candidate-review evidence</td><td>0</td></tr></tbody></table>
+<h2>Subjects by overall state (full population)</h2>
+<table><thead><tr><th>overall state</th><th>count</th></tr></thead><tbody><tr><td class='state'>not_started</td><td>0</td></tr><tr><td class='state'>formalized</td><td>0</td></tr><tr><td class='state'>experiment_complete</td><td>0</td></tr><tr><td class='state'>replay_checked</td><td>0</td></tr><tr><td class='state'>oos_gate_fail</td><td>1</td></tr><tr><td class='state'>oos_gate_blocked</td><td>0</td></tr><tr><td class='state'>candidate_review_blocked</td><td>0</td></tr><tr><td class='state'>robustness_advisory</td><td>0</td></tr><tr><td class='state'>no_go</td><td>1</td></tr><tr><td class='state'>blocked</td><td>0</td></tr><tr><td class='state'>candidate_ready_for_human_review</td><td>0</td></tr><tr><td class='state'>operator_gate_pending</td><td>0</td></tr><tr><td class='state'>reported</td><td>0</td></tr></tbody></table>
+<p class='caveat'>Charting deferred: Charting deferred: weekly report is table-based static output only; no safe dependency-light static-chart path is adopted.</p>
+<h2>Completed runs</h2>
+<table><thead><tr><th>subject</th><th>overall state</th><th>evidence</th></tr></thead><tbody><tr><td><code>H-FUNDING-RATE-POSITIONING-FADE-01</code></td><td class='state'>no_go</td><td>non_canonical</td></tr><tr><td><code>OOS-GATE-FIXTURE-RP-2592</code></td><td class='state'>oos_gate_fail</td><td>non_canonical</td></tr></tbody></table>
+<h2>Blocked runs</h2>
+<table><thead><tr><th>subject</th><th>overall state</th><th>evidence</th></tr></thead><tbody><tr><td colspan='3'>none</td></tr></tbody></table>
+<h2>NO-GOs</h2>
+<table><thead><tr><th>subject</th><th>overall state</th><th>evidence</th></tr></thead><tbody><tr><td><code>H-FUNDING-RATE-POSITIONING-FADE-01</code></td><td class='state'>no_go</td><td>non_canonical</td></tr></tbody></table>
+<h2>Open decision surfaces</h2>
+<table><thead><tr><th>subject</th><th>overall state</th><th>evidence</th></tr></thead><tbody><tr><td colspan='3'>none</td></tr></tbody></table>
+<h2>Validation status</h2>
+<table><thead><tr><th>subject</th><th>replay</th><th>OOS gate</th><th>OOS evidence</th><th>robustness</th><th>withheld</th></tr></thead><tbody><tr><td><code>H-FUNDING-RATE-POSITIONING-FADE-01</code></td><td class='state'>replay_checked</td><td class='state'>oos_gate_blocked</td><td>completed_dry_run_only</td><td class='state'>robustness_advisory</td><td>PSR, DSR, MinTRL</td></tr><tr><td><code>OOS-GATE-FIXTURE-RP-2592</code></td><td class='state'>replay_checked</td><td class='state'>oos_gate_fail</td><td>completed_dry_run_only</td><td class='state'>robustness_advisory</td><td>PSR, DSR, MinTRL</td></tr></tbody></table>
+<h2>Candidate-review readiness</h2>
+<p class='caveat'>Surfaced only when packet evidence exists; never a readiness verdict or promotion.</p>
+<table><thead><tr><th>subject</th><th>evidence</th><th>state</th><th>detail</th></tr></thead><tbody><tr><td><code>H-FUNDING-RATE-POSITIONING-FADE-01</code></td><td>no evidence</td><td class='state'>candidate_review_not_created</td><td>No candidate-review packet evidence to surface (state `candidate_review_not_created`).</td></tr><tr><td><code>OOS-GATE-FIXTURE-RP-2592</code></td><td>no evidence</td><td class='state'>candidate_review_blocked</td><td>No candidate-review packet evidence to surface (state `candidate_review_blocked`).</td></tr></tbody></table>
+<h2>Artifact links</h2>
+<table><thead><tr><th>subject</th><th>role</th><th>path</th><th>present</th></tr></thead><tbody><tr><td><code>H-FUNDING-RATE-POSITIONING-FADE-01</code></td><td>reporting_doc</td><td><code>docs/research/FUNDING_POSITIONING_FADE_SYNTHESIS_2026-06.md</code></td><td>present</td></tr><tr><td><code>H-FUNDING-RATE-POSITIONING-FADE-01</code></td><td>formalization_status_entry</td><td><code>docs/status_entries/WP-LAB-IDEA-INTAKE-FORMALIZATION-01.md</code></td><td>present</td></tr><tr><td><code>H-FUNDING-RATE-POSITIONING-FADE-01</code></td><td>generic_review_contract</td><td><code>scratch/WP-LAB-GENERIC-ROBUSTNESS-REVIEW-REACH-01/generic_review_contract.json</code></td><td>present</td></tr><tr><td><code>H-FUNDING-RATE-POSITIONING-FADE-01</code></td><td>replay_fixture_summary</td><td><code>scratch/WP-LAB-RP-REPLAY-NORMALIZATION-CONTRACT-01/replay_fixture_summary.json</code></td><td>present</td></tr><tr><td><code>H-FUNDING-RATE-POSITIONING-FADE-01</code></td><td>conclusion_traceability</td><td><code>scratch/WP-RESEARCH-FUNDING-FADE-CONCLUDE-01/conclusion_traceability.json</code></td><td>present</td></tr><tr><td><code>OOS-GATE-FIXTURE-RP-2592</code></td><td>reporting_doc</td><td><code>docs/research/WALKFORWARD_OOS_GATE_CONTRACT.md</code></td><td>present</td></tr><tr><td><code>OOS-GATE-FIXTURE-RP-2592</code></td><td>formalization_status_entry</td><td><code>docs/status_entries/WP-LAB-WALKFORWARD-OOS-GATE-01.md</code></td><td>present</td></tr><tr><td><code>OOS-GATE-FIXTURE-RP-2592</code></td><td>generic_review_contract</td><td><code>scratch/WP-LAB-GENERIC-ROBUSTNESS-REVIEW-REACH-01/generic_review_contract.json</code></td><td>present</td></tr><tr><td><code>OOS-GATE-FIXTURE-RP-2592</code></td><td>replay_fixture_summary</td><td><code>scratch/WP-LAB-RP-REPLAY-NORMALIZATION-CONTRACT-01/replay_fixture_summary.json</code></td><td>present</td></tr><tr><td><code>OOS-GATE-FIXTURE-RP-2592</code></td><td>oos_gate_summary</td><td><code>scratch/WP-LAB-WALKFORWARD-OOS-GATE-01/fixture_gate_summary.json</code></td><td>present</td></tr><tr><td><code>OOS-GATE-FIXTURE-RP-2592</code></td><td>conclusion_traceability</td><td><code>scratch/WP-RESEARCH-FUNDING-FADE-CONCLUDE-01/conclusion_traceability.json</code></td><td>present</td></tr></tbody></table>
+<h2>Withheld statistics and caveats</h2>
+<p>Withheld statistics: DSR, MinTRL, PSR.</p>
+<ul><li>This surface shows the full denominator (every run and state), not winners only.</li><li>Evidence shown is non-canonical / scratch-only unless a row&#x27;s evidence class says otherwise; nothing here is crossed, candidate-registered, paper-ready, or live-ready.</li><li>Dry-run-only OOS evidence is not a rigorous gate pass.</li><li>Withheld statistics (e.g. PSR / DSR / MinTRL) are shown explicitly rather than fabricated.</li><li>Ordering is deterministic display order only and confers no ranking, recommendation, readiness, or promotion authority.</li><li>Any real transition or approval requires separate human action through the candidate lifecycle engine; this dashboard cannot grant it.</li></ul>
+</body>
+</html>

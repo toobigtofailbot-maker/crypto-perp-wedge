@@ -1,0 +1,52 @@
+WP-LAB-OPERATOR-SURFACE-INTEGRATION-01 — Validation summary
+============================================================
+
+Run from worktree:
+  C:\GitHub\crypto-perp-wedge\.claude\worktrees\fervent-curie-e055da
+
+1. Scoped pytest (operator surface index):
+   python -m pytest tests/test_lab_operator_surface.py -q
+   -> 11 passed
+
+2. Dependent surface suite (package §8):
+   python -m pytest tests/test_lab_state*.py tests/test_lab_dashboard*.py \
+       tests/test_lab_reporting*.py tests/test_lab_approval_queue*.py \
+       tests/test_lab_scheduler_shell*.py -q
+   -> 73 passed
+
+3. Research query views:
+   python -m tools.research_query.run --list-views
+   -> succeeds; lists existing v_* views (unchanged, 124 lines)
+
+4. Diff scope summary:
+   python tools/dev/diff_scope_summary.py
+   -> Forbidden-path matches: none. exit reason: ok.
+
+5. Whitespace / conflict check:
+   git add -A && git diff --cached --check
+   -> clean (scratch artifacts normalized to LF; no CRLF / trailing / conflict)
+
+6. HTML control scan (package §8 — static HTML asserts):
+   scanned scratch/.../operator_surface_index.html for:
+     <script  <button  <form  <input  onclick  http-equiv="refresh"  meta refresh
+   -> 0 matches (none present)
+
+7. Determinism:
+   Two CLI builds (--data-json / --html / --markdown) over the same checkout and
+   the same descriptive labels are byte-identical (asserted by
+   test_render_is_deterministic_across_two_builds).
+   Committed LF index-data artifact (labels as-of 2026-06-25 / period 2026-W26):
+   sha256 d4d2ff3059a4ecda7344f03559dbba951ccbc1fc513e692d2155af086342af4d
+
+Full repo pytest:
+   NOT run to completion; not claimed as passed. The new code is stdlib-only and
+   its scoped suite plus the full dependent-surface suite (73 passed) pass.
+
+Honest state asserted by tests:
+   nothing_candidate_ready == true, candidate_ready_count == 0,
+   operator_gate_pending_count == 0. The index re-states the approval queue's
+   honest verdict verbatim; no fake candidate-ready entries created.
+
+No new state vocabulary:
+   batch by_overall_state keys are a subset of tools.lab_state.model.OVERALL_STATES
+   (asserted by test_batch_boundary_matches_dashboard_denominator).

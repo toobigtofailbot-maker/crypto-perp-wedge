@@ -1,0 +1,111 @@
+{
+  "schema_version": "lab_scheduler_shell_v1",
+  "package": "WP-LAB-SCHEDULER-SHELL-DEFAULT-OFF-01",
+  "surface_kind": "inert_scheduler_shell",
+  "purpose": "Define the control-plane structure for a future always-on research lab (run queue, run status, artifact links, retry/block visibility, default-off config, dry-run/no-op behavior) without enabling any autonomous execution.",
+  "state_truth_source": "tools/lab_state (WP-LAB-COORDINATOR-STATE-MODEL-01, PR #568). No new lab state vocabulary is invented.",
+  "modules": {
+    "config": "tools/lab_scheduler_shell/config.py",
+    "model": "tools/lab_scheduler_shell/model.py",
+    "shell": "tools/lab_scheduler_shell/shell.py",
+    "cli": "tools/lab_scheduler_shell/run.py"
+  },
+  "default_off_flags": [
+    "autonomous_enabled",
+    "edge_search_enabled",
+    "run_triggering_enabled",
+    "notification_firing_enabled",
+    "candidate_lifecycle_writes_enabled",
+    "runtime_contact_enabled",
+    "paper_live_contact_enabled"
+  ],
+  "default_off_values": {
+    "autonomous_enabled": false,
+    "edge_search_enabled": false,
+    "run_triggering_enabled": false,
+    "notification_firing_enabled": false,
+    "candidate_lifecycle_writes_enabled": false,
+    "runtime_contact_enabled": false,
+    "paper_live_contact_enabled": false
+  },
+  "run_status_model": {
+    "statuses": [
+      "queued",
+      "held_default_off",
+      "blocked",
+      "retry_scheduled",
+      "planned_noop",
+      "cancelled"
+    ],
+    "terminal_statuses": ["blocked", "cancelled"],
+    "note": "No 'running' / 'succeeded' status exists; nothing executes."
+  },
+  "retry_block_model": {
+    "retry_states": ["none", "scheduled", "exhausted"],
+    "block_reason_codes": [
+      "SCHED_AUTONOMY_DISABLED",
+      "SCHED_RUN_TRIGGERING_DISABLED",
+      "SCHED_DEPENDENCY_UNRESOLVED",
+      "SCHED_SUBJECT_NOT_FOUND",
+      "SCHED_ARTIFACT_MISSING",
+      "SCHED_RETRY_BUDGET_EXHAUSTED",
+      "SCHED_MANUAL_HOLD"
+    ],
+    "note": "Retries are recorded for visibility only and are never executed."
+  },
+  "queue_entry_schema": {
+    "run_id": "string (unique)",
+    "subject_id": "string (must bind to a committed tools/lab_state subject)",
+    "target_stage": "string (must be a tools/lab_state stage)",
+    "priority": "int (lower sorts first)",
+    "status": "one of run_status_model.statuses",
+    "requested_by": "string",
+    "retry": {
+      "state": "one of retry_states",
+      "attempts": "int >= 0",
+      "max_attempts": "int >= 0",
+      "block_reason_code": "one of block_reason_codes or null",
+      "block_detail": "string"
+    },
+    "artifact_links": [
+      {"role": "string", "path": "string", "present": "bool", "note": "string"}
+    ],
+    "depends_on": "list of run_id values within the same queue",
+    "note": "string"
+  },
+  "artifact_link_model": {
+    "shape": "reuses the tools/lab_state ArtifactRef shape: role/path/present/note",
+    "io": "the model performs no I/O; 'present' is a static fixture-supplied flag"
+  },
+  "dry_run_contract": {
+    "executes_any_action": false,
+    "all_actions_noop": true,
+    "action_kind": "no_op",
+    "noop_reason_when_default_off": "SCHED_AUTONOMY_DISABLED",
+    "noop_reason_when_run_triggering_off": "SCHED_RUN_TRIGGERING_DISABLED",
+    "noop_reason_when_flags_hypothetically_on": "SCHED_NO_EXECUTOR_PRESENT",
+    "note": "The dry-run output describes the action a future authorized scheduler would consider; it is a description, not an effect. The shell has no executor."
+  },
+  "non_authority_declaration": {
+    "read_only": true,
+    "executes_transition": false,
+    "writes_canonical_evidence": false,
+    "writes_candidate_lifecycle": false,
+    "executes_canonical_crossing": false,
+    "ranks_or_recommends": false,
+    "authorizes_edge_search": false,
+    "authorizes_paper_live_runtime": false,
+    "is_a_scheduler_service": false,
+    "has_cron_or_ci_trigger": false,
+    "has_background_daemon": false,
+    "creates_runs": false,
+    "generates_strategies": false,
+    "executes_retries": false,
+    "fires_notifications": false,
+    "writes_approval_or_candidate_lifecycle": false,
+    "contacts_runtime": false,
+    "contacts_paper_or_live": false,
+    "has_executor": false
+  },
+  "edge_search_hold": "No further edge-search is authorized by the coordinator state model. Strategy generation/search remains held until separate operator authorization."
+}

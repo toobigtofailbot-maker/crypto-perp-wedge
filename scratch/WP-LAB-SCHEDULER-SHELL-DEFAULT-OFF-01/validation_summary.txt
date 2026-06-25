@@ -1,0 +1,67 @@
+WP-LAB-SCHEDULER-SHELL-DEFAULT-OFF-01 — Validation Summary
+==========================================================
+
+Scope: inert, default-off research-lab scheduler / run-queue shell.
+Base: origin/main @ 335eaac (after PR #568 state model + PR #569 dashboard merge).
+
+1. Scheduler-shell tests
+------------------------
+$ python -m pytest tests/test_lab_scheduler_shell.py -q
+16 passed in 0.09s
+
+Coverage of the required proofs (package §7):
+  - default config disables all autonomous behavior
+      test_default_config_disables_all_autonomous_behavior
+      test_validate_default_off_passes_for_default
+  - dry-run produces a no-op summary only
+      test_dry_run_produces_noop_summary_only
+      test_dry_run_is_noop_even_if_a_config_were_enabled
+      test_terminal_entries_plan_no_action
+  - queue fixture validates
+      test_committed_queue_fixture_validates
+      test_run_queue_fixture_file_is_well_formed_json
+      (+ negative cases: unknown status / subject / dependency / schema)
+  - no write-capable action is exposed
+      test_no_write_capable_action_is_exposed
+  - runtime / paper / live flags remain false
+      test_runtime_and_paper_live_flags_remain_false
+
+2. Research query views
+-----------------------
+$ python -m tools.research_query.run --list-views
+OK (view list emitted; unchanged by this package — the shell registers no view).
+
+3. Diff scope
+-------------
+$ python tools/dev/diff_scope_summary.py
+exit reason: ok
+forbidden_matches: []   (no writes outside allowed scope)
+All changes confined to:
+  docs/research/LAB_SCHEDULER_SHELL_DEFAULT_OFF.md
+  docs/status_entries/WP-LAB-SCHEDULER-SHELL-DEFAULT-OFF-01.md
+  tools/lab_scheduler_shell/**
+  tests/test_lab_scheduler_shell.py
+  scratch/WP-LAB-SCHEDULER-SHELL-DEFAULT-OFF-01/**
+
+4. git diff --check
+-------------------
+$ git diff --cached --check
+clean (no whitespace errors).
+
+5. Full pytest
+--------------
+Not run as part of this summary (the scoped scheduler-shell suite was run and
+passed). Run `python -m pytest -q` for the whole suite if required before merge.
+
+Default-off guarantees asserted (all False by default):
+  autonomous_enabled, edge_search_enabled, run_triggering_enabled,
+  notification_firing_enabled, candidate_lifecycle_writes_enabled,
+  runtime_contact_enabled, paper_live_contact_enabled.
+
+No autonomous behavior: no scheduler service, cron/CI trigger, background daemon,
+run creation, strategy generation, retry execution, notification firing, approval
+or candidate-lifecycle write, or runtime/paper/live contact. The shell has no
+executor; the dry-run planner returns no-op descriptions only.
+
+No edge-search: the edge-search hold note from the coordinator state model is
+carried verbatim and edge_search_enabled is False.

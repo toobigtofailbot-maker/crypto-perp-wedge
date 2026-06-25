@@ -1,0 +1,258 @@
+{
+  "artifact_links": [
+    {
+      "path": "docs/research/FUNDING_POSITIONING_FADE_SYNTHESIS_2026-06.md",
+      "present": true,
+      "role": "reporting_doc",
+      "subject_id": "H-FUNDING-RATE-POSITIONING-FADE-01"
+    },
+    {
+      "path": "docs/status_entries/WP-LAB-IDEA-INTAKE-FORMALIZATION-01.md",
+      "present": true,
+      "role": "formalization_status_entry",
+      "subject_id": "H-FUNDING-RATE-POSITIONING-FADE-01"
+    },
+    {
+      "path": "scratch/WP-LAB-GENERIC-ROBUSTNESS-REVIEW-REACH-01/generic_review_contract.json",
+      "present": true,
+      "role": "generic_review_contract",
+      "subject_id": "H-FUNDING-RATE-POSITIONING-FADE-01"
+    },
+    {
+      "path": "scratch/WP-LAB-RP-REPLAY-NORMALIZATION-CONTRACT-01/replay_fixture_summary.json",
+      "present": true,
+      "role": "replay_fixture_summary",
+      "subject_id": "H-FUNDING-RATE-POSITIONING-FADE-01"
+    },
+    {
+      "path": "scratch/WP-RESEARCH-FUNDING-FADE-CONCLUDE-01/conclusion_traceability.json",
+      "present": true,
+      "role": "conclusion_traceability",
+      "subject_id": "H-FUNDING-RATE-POSITIONING-FADE-01"
+    },
+    {
+      "path": "docs/research/WALKFORWARD_OOS_GATE_CONTRACT.md",
+      "present": true,
+      "role": "reporting_doc",
+      "subject_id": "OOS-GATE-FIXTURE-RP-2592"
+    },
+    {
+      "path": "docs/status_entries/WP-LAB-WALKFORWARD-OOS-GATE-01.md",
+      "present": true,
+      "role": "formalization_status_entry",
+      "subject_id": "OOS-GATE-FIXTURE-RP-2592"
+    },
+    {
+      "path": "scratch/WP-LAB-GENERIC-ROBUSTNESS-REVIEW-REACH-01/generic_review_contract.json",
+      "present": true,
+      "role": "generic_review_contract",
+      "subject_id": "OOS-GATE-FIXTURE-RP-2592"
+    },
+    {
+      "path": "scratch/WP-LAB-RP-REPLAY-NORMALIZATION-CONTRACT-01/replay_fixture_summary.json",
+      "present": true,
+      "role": "replay_fixture_summary",
+      "subject_id": "OOS-GATE-FIXTURE-RP-2592"
+    },
+    {
+      "path": "scratch/WP-LAB-WALKFORWARD-OOS-GATE-01/fixture_gate_summary.json",
+      "present": true,
+      "role": "oos_gate_summary",
+      "subject_id": "OOS-GATE-FIXTURE-RP-2592"
+    },
+    {
+      "path": "scratch/WP-RESEARCH-FUNDING-FADE-CONCLUDE-01/conclusion_traceability.json",
+      "present": true,
+      "role": "conclusion_traceability",
+      "subject_id": "OOS-GATE-FIXTURE-RP-2592"
+    }
+  ],
+  "as_of": "2026-06-25",
+  "blocked_runs": [],
+  "candidate_review_readiness": [
+    {
+      "candidate_review_reason_code": "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+      "candidate_review_state": "candidate_review_not_created",
+      "detail": "No candidate-review packet evidence to surface (state `candidate_review_not_created`).",
+      "has_candidate_review_evidence": false,
+      "subject_id": "H-FUNDING-RATE-POSITIONING-FADE-01"
+    },
+    {
+      "candidate_review_reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+      "candidate_review_state": "candidate_review_blocked",
+      "detail": "No candidate-review packet evidence to surface (state `candidate_review_blocked`).",
+      "has_candidate_review_evidence": false,
+      "subject_id": "OOS-GATE-FIXTURE-RP-2592"
+    }
+  ],
+  "caveats": [
+    "This surface shows the full denominator (every run and state), not winners only.",
+    "Evidence shown is non-canonical / scratch-only unless a row's evidence class says otherwise; nothing here is crossed, candidate-registered, paper-ready, or live-ready.",
+    "Dry-run-only OOS evidence is not a rigorous gate pass.",
+    "Withheld statistics (e.g. PSR / DSR / MinTRL) are shown explicitly rather than fabricated.",
+    "Ordering is deterministic display order only and confers no ranking, recommendation, readiness, or promotion authority.",
+    "Any real transition or approval requires separate human action through the candidate lifecycle engine; this dashboard cannot grant it."
+  ],
+  "charting": {
+    "enabled": false,
+    "note": "Charting deferred: weekly report is table-based static output only; no safe dependency-light static-chart path is adopted."
+  },
+  "completed_runs": [
+    {
+      "candidate_review_reason_code": "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+      "candidate_review_state": "candidate_review_not_created",
+      "evidence_class": "non_canonical",
+      "no_go_caveats": [
+        "NO-GO on the primary drawdown screen (threshold 0.2).",
+        "Funding payments were not wired; this is a price/PnL signal test, not a complete funding-carry PnL test.",
+        "The NO-GO is about this hypothesis only, not a statement about all funding strategies."
+      ],
+      "oos_evidence_status": "completed_dry_run_only",
+      "oos_gate_reason_code": "STATE_OOS_DRY_RUN_ONLY",
+      "oos_gate_state": "oos_gate_blocked",
+      "operator_gate_state": "not_started",
+      "overall_state": "no_go",
+      "replay_state": "replay_checked",
+      "reporting_state": "reported",
+      "robustness_state": "robustness_advisory",
+      "subject_id": "H-FUNDING-RATE-POSITIONING-FADE-01",
+      "subject_label": "funding_rate_positioning_fade",
+      "withheld_statistics": [
+        "PSR",
+        "DSR",
+        "MinTRL"
+      ]
+    },
+    {
+      "candidate_review_reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+      "candidate_review_state": "candidate_review_blocked",
+      "evidence_class": "non_canonical",
+      "no_go_caveats": [],
+      "oos_evidence_status": "completed_dry_run_only",
+      "oos_gate_reason_code": "OOS_GATE_FAIL",
+      "oos_gate_state": "oos_gate_fail",
+      "operator_gate_state": "not_started",
+      "overall_state": "oos_gate_fail",
+      "replay_state": "replay_checked",
+      "reporting_state": "reported",
+      "robustness_state": "robustness_advisory",
+      "subject_id": "OOS-GATE-FIXTURE-RP-2592",
+      "subject_label": "walkforward_oos_gate_fixture",
+      "withheld_statistics": [
+        "PSR",
+        "DSR",
+        "MinTRL"
+      ]
+    }
+  ],
+  "counts": {
+    "blocked_runs": 0,
+    "by_overall_state": {
+      "blocked": 0,
+      "candidate_ready_for_human_review": 0,
+      "candidate_review_blocked": 0,
+      "experiment_complete": 0,
+      "formalized": 0,
+      "no_go": 1,
+      "not_started": 0,
+      "oos_gate_blocked": 0,
+      "oos_gate_fail": 1,
+      "operator_gate_pending": 0,
+      "replay_checked": 0,
+      "reported": 0,
+      "robustness_advisory": 0
+    },
+    "candidate_review_evidence": 0,
+    "completed_runs": 2,
+    "no_gos": 1,
+    "open_decision_surfaces": 0,
+    "subjects": 2
+  },
+  "edge_search_hold": "No further edge-search is authorized by the coordinator state model. Strategy generation/search remains held until separate operator authorization.",
+  "no_gos": [
+    {
+      "candidate_review_reason_code": "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+      "candidate_review_state": "candidate_review_not_created",
+      "evidence_class": "non_canonical",
+      "no_go_caveats": [
+        "NO-GO on the primary drawdown screen (threshold 0.2).",
+        "Funding payments were not wired; this is a price/PnL signal test, not a complete funding-carry PnL test.",
+        "The NO-GO is about this hypothesis only, not a statement about all funding strategies."
+      ],
+      "oos_evidence_status": "completed_dry_run_only",
+      "oos_gate_reason_code": "STATE_OOS_DRY_RUN_ONLY",
+      "oos_gate_state": "oos_gate_blocked",
+      "operator_gate_state": "not_started",
+      "overall_state": "no_go",
+      "replay_state": "replay_checked",
+      "reporting_state": "reported",
+      "robustness_state": "robustness_advisory",
+      "subject_id": "H-FUNDING-RATE-POSITIONING-FADE-01",
+      "subject_label": "funding_rate_positioning_fade",
+      "withheld_statistics": [
+        "PSR",
+        "DSR",
+        "MinTRL"
+      ]
+    }
+  ],
+  "non_authority_declaration": {
+    "applies_decision_labels": false,
+    "applies_promotion_labels": false,
+    "authorizes_edge_search": false,
+    "authorizes_paper_live_runtime": false,
+    "auto_sends": false,
+    "declares_readiness_verdict": false,
+    "descriptive_only": true,
+    "emits_recommendations": false,
+    "executes_canonical_crossing": false,
+    "executes_transition": false,
+    "fires_notifications": false,
+    "integrates_scheduler": false,
+    "ranks_as_authority": false,
+    "ranks_or_recommends": false,
+    "read_only": true,
+    "suggests_edge_search": false,
+    "writes_candidate_lifecycle": false,
+    "writes_canonical_evidence": false
+  },
+  "open_decision_surfaces": [],
+  "period": "2026-W26",
+  "schema_version": "lab_operator_brief_report_v1",
+  "surface_kind": "read_only_operator_brief_report",
+  "validation_status": [
+    {
+      "oos_evidence_status": "completed_dry_run_only",
+      "oos_gate_reason_code": "STATE_OOS_DRY_RUN_ONLY",
+      "oos_gate_state": "oos_gate_blocked",
+      "replay_reason_code": "STATE_REPLAY_NORMALIZED",
+      "replay_state": "replay_checked",
+      "robustness_state": "robustness_advisory",
+      "subject_id": "H-FUNDING-RATE-POSITIONING-FADE-01",
+      "withheld_statistics": [
+        "PSR",
+        "DSR",
+        "MinTRL"
+      ]
+    },
+    {
+      "oos_evidence_status": "completed_dry_run_only",
+      "oos_gate_reason_code": "OOS_GATE_FAIL",
+      "oos_gate_state": "oos_gate_fail",
+      "replay_reason_code": "STATE_REPLAY_NORMALIZED",
+      "replay_state": "replay_checked",
+      "robustness_state": "robustness_advisory",
+      "subject_id": "OOS-GATE-FIXTURE-RP-2592",
+      "withheld_statistics": [
+        "PSR",
+        "DSR",
+        "MinTRL"
+      ]
+    }
+  ],
+  "withheld_statistics": [
+    "DSR",
+    "MinTRL",
+    "PSR"
+  ]
+}

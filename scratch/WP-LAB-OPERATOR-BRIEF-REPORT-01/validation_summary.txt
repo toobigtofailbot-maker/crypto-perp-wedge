@@ -1,0 +1,40 @@
+WP-LAB-OPERATOR-BRIEF-REPORT-01 — Validation summary
+====================================================
+
+All commands run from the package worktree on branch
+lab/operator-brief-report-01.
+
+1. Scoped reporting pytest
+   python -m pytest tests/test_lab_reporting.py -q
+   => 15 passed.
+
+2. Reporting + lab-state pytest (reporting consumes lab state)
+   python -m pytest tests/test_lab_reporting.py tests/test_lab_state_model.py \
+       tests/test_lab_state_resolver.py -q
+   => 35 passed.
+   (Also ran with tests/test_lab_dashboard.py: 44 passed.)
+
+3. Research query views
+   python -m tools.research_query.run --list-views
+   => exit 0; view list printed (unchanged by this package).
+
+4. Diff scope summary
+   python tools/dev/diff_scope_summary.py
+   => Forbidden-path matches: none. Only allowed paths changed
+      (docs/research/, docs/status_entries/, tools/lab_reporting/,
+      tests/test_lab_reporting.py, scratch/WP-LAB-OPERATOR-BRIEF-REPORT-01/).
+
+5. git diff --check
+   => clean (exit 0). Fixtures normalized to LF.
+
+6. Determinism
+   Two CLI runs of each output produced identical sha256:
+     --daily-brief --as-of 2026-06-25
+     --weekly-report --period 2026-W26
+     --weekly-report-html --period 2026-W26
+   Also asserted by
+   tests/test_lab_reporting.py::test_render_is_deterministic_across_two_builds.
+
+Full repo pytest: NOT run to completion; not claimed as passed. The new code is
+stdlib-only and its targeted suite (plus the lab-state and dashboard suites it
+consumes) passes.

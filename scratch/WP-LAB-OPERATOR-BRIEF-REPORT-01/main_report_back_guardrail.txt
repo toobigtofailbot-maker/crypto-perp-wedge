@@ -1,0 +1,29 @@
+WP-LAB-OPERATOR-BRIEF-REPORT-01 — Main report-back guardrail
+============================================================
+
+This package delivered a READ-ONLY, DESCRIPTIVE operator daily brief / weekly
+report surface. It did NOT and CANNOT:
+
+- run or generate a strategy; resume edge-search; create any new family work
+- run a backtest (it reads committed JSON/markdown only, via the dashboard
+  projection over the coordinator state model)
+- create or mutate Strategy Specs, Variant Manifests, Sweep Plans, canonical
+  Result Populations, trial logs, or candidate lifecycle records
+- execute canonical crossing; write candidate approvals or promotions
+- touch runtime, paper/live, OMS, risk, reconciliation, capital, or
+  broker/exchange/order paths; change funding P&L/accounting
+- fetch provider/API/network data
+- emit a recommendation, ranking-as-authority, promotion label, decision label,
+  or readiness verdict
+- auto-send, email/slack/apprise, fire notifications, or integrate a scheduler
+- suggest edge-search
+
+State is taken VERBATIM from tools/lab_dashboard (which takes it verbatim from
+tools/lab_state). No new state vocabulary was introduced. Candidate-review
+readiness is surfaced ONLY when packet evidence exists; otherwise it is recorded
+descriptively as "no candidate-review evidence". Charting is DEFERRED; the weekly
+report is table-based static output only.
+
+The edge_search_hold note is carried on every output: no further edge-search is
+authorized by this surface; strategy generation/search remains held until
+separate operator authorization.

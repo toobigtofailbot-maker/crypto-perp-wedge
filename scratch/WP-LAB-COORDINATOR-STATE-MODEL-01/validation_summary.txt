@@ -1,0 +1,65 @@
+WP-LAB-COORDINATOR-STATE-MODEL-01 — Validation Summary
+
+Environment:
+- Python 3.14.3, pytest 9.0.3 (system interpreter).
+- tools/lab_state is stdlib-only (json, pathlib, dataclasses); no pandas/numpy/binance dependency.
+
+Package-required checks (all PASS):
+
+1. python -m pytest tests/test_lab_state*.py -q
+   -> 15 passed in ~0.1s.
+   (test_lab_state_model.py: 7 tests; test_lab_state_resolver.py: 8 tests.)
+
+2. python -m tools.research_query.run --list-views
+   -> exit 0; views listed (DuckDB read-only query layer unaffected).
+
+3. python tools/dev/diff_scope_summary.py
+   -> exit reason: ok. The only forbidden-path match was a harness-added line in
+      .claude/settings.local.json, which was reverted. After revert the changed
+      set is limited to package-allowed paths (tools/lab_state/**,
+      tests/test_lab_state*.py, docs/research/LAB_COORDINATOR_STATE_MODEL.md,
+      docs/status_entries/WP-LAB-COORDINATOR-STATE-MODEL-01.md,
+      scratch/WP-LAB-COORDINATOR-STATE-MODEL-01/**).
+
+4. git diff --check
+   -> clean (no whitespace/conflict errors).
+
+Conditional registry validators (resolver reads scratch summaries + docs, not
+the canonical registry surfaces, so these are not strictly required; run anyway):
+
+5. python -m tools.registry.validate_result_populations
+   -> OK: result-population artifacts validate.
+
+6. python -m tools.registry.validate_candidate_registry
+   -> OK: candidate lifecycle registry artifacts validate.
+
+Snapshot smoke checks:
+
+7. python -m tools.lab_state.run --snapshot
+   -> funding subject resolves overall_state=no_go end-to-end.
+8. python -m tools.lab_state.run --snapshot --subject oos_gate_fail_demo
+   -> overall_state=oos_gate_fail (exercises OOS gate_decision=fail).
+
+Full pytest disclosure:
+- Full repo pytest was NOT run to completion in this package. Prior lab packages
+  recorded that the unactivated system interpreter lacks heavy repo dependencies
+  and that a venv full run is long/timeout-prone. This package's code is
+  stdlib-only and its targeted suite passes; full pytest is therefore NOT
+  claimed as passed.
+
+--------------------------------------------------------------------------------
+FOLLOW-UP 01 (WP-LAB-COORDINATOR-STATE-MODEL-01-FOLLOWUP-01) re-validation:
+
+1. python -m pytest tests/test_lab_state*.py -q
+   -> 20 passed (was 15; +5 follow-up tests).
+2. python -m tools.research_query.run --list-views          -> exit 0.
+3. python tools/dev/diff_scope_summary.py                   -> exit reason ok;
+   no forbidden-path matches.
+4. git diff --check                                         -> clean.
+5. python -m tools.registry.validate_result_populations     -> OK.
+6. python -m tools.registry.validate_candidate_registry     -> OK.
+
+Changes: candidate_review_blocked added to OVERALL_STATES + contract json;
+unreadable/malformed JSON now fails closed to blocked / STATE_ARTIFACT_UNREADABLE
+instead of not_started. state_snapshot_fixture.json output unchanged (funding
+subject has no unreadable inputs). Full pytest still not claimed.

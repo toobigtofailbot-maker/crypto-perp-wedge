@@ -1,0 +1,157 @@
+{
+  "description": "Canonical read-only research-lab coordinator state model. No transition execution; composes existing merged repo vocabularies (replay #565, OOS gate #567, robustness reach #566, lifecycle human gate).",
+  "edge_search_hold": "No further edge-search is authorized by the coordinator state model. Strategy generation/search remains held until separate operator authorization.",
+  "non_authority_declaration": {
+    "authorizes_edge_search": false,
+    "authorizes_paper_live_runtime": false,
+    "executes_canonical_crossing": false,
+    "executes_transition": false,
+    "ranks_or_recommends": false,
+    "read_only": true,
+    "writes_candidate_lifecycle": false,
+    "writes_canonical_evidence": false
+  },
+  "oos_decision_to_state": {
+    "advisory_only": "oos_gate_blocked",
+    "blocked": "oos_gate_blocked",
+    "fail": "oos_gate_fail",
+    "pass": "oos_gate_pass"
+  },
+  "oos_gate_decisions": [
+    "pass",
+    "fail",
+    "blocked",
+    "advisory_only"
+  ],
+  "overall_states": [
+    "not_started",
+    "formalized",
+    "experiment_complete",
+    "replay_checked",
+    "oos_gate_fail",
+    "oos_gate_blocked",
+    "candidate_review_blocked",
+    "robustness_advisory",
+    "no_go",
+    "blocked",
+    "candidate_ready_for_human_review",
+    "operator_gate_pending",
+    "reported"
+  ],
+  "reason_codes": {
+    "blocked": [
+      "BLOCKED_REPLAY_CONTRACT_UNAVAILABLE",
+      "BLOCKED_OOS_GATE_UNAVAILABLE",
+      "BLOCKED_DENOMINATOR_MANIFEST_UNAVAILABLE",
+      "BLOCKED_RESULT_POPULATION_UNAVAILABLE",
+      "BLOCKED_REQUIRED_STAT_INPUTS_UNAVAILABLE",
+      "BLOCKED_PARALLEL_SEQUENCE"
+    ],
+    "no_packet": [
+      "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+      "NO_GO_DRAWDOWN_SCREEN_FAILED",
+      "NO_GO_RETURN_SHARPE_SCREEN_FAILED",
+      "NO_GO_DENOMINATOR_INTEGRITY_FAILED"
+    ],
+    "state_legibility": [
+      "STATE_ARTIFACT_MISSING",
+      "STATE_ARTIFACT_UNREADABLE",
+      "STATE_STAGE_NOT_REACHED",
+      "STATE_FORMALIZED_FROM_STATUS_ENTRY",
+      "STATE_EXPERIMENT_DENOMINATOR_PRESERVED",
+      "STATE_REPLAY_NORMALIZED",
+      "STATE_OOS_DRY_RUN_ONLY",
+      "STATE_ROBUSTNESS_ADVISORY_ONLY",
+      "STATE_REPORTED_FROM_SYNTHESIS",
+      "STATE_OPERATOR_GATE_HELD",
+      "STATE_NO_CANDIDATE_PRODUCED"
+    ]
+  },
+  "repo_truth_sources": {
+    "candidate_lifecycle": "tools/candidate_lifecycle/lifecycle_engine.py",
+    "replay_normalization": "docs/research/RP_REPLAY_NORMALIZATION_CONTRACT.md",
+    "robustness_review_reach": "docs/research/GENERIC_ROBUSTNESS_REVIEW_REACH_CONTRACT.md",
+    "walkforward_oos_gate": "docs/research/WALKFORWARD_OOS_GATE_CONTRACT.md"
+  },
+  "schema_version": "lab_coordinator_state_model_v1",
+  "stage_allowed_states": {
+    "candidate_review_reach": [
+      "not_started",
+      "candidate_review_blocked",
+      "candidate_review_not_created",
+      "candidate_ready_for_human_review",
+      "blocked"
+    ],
+    "experiment_run": [
+      "not_started",
+      "experiment_complete",
+      "no_go",
+      "blocked"
+    ],
+    "formalization": [
+      "not_started",
+      "formalized",
+      "blocked"
+    ],
+    "idea_intake": [
+      "not_started",
+      "formalized",
+      "blocked"
+    ],
+    "operator_gate": [
+      "not_started",
+      "operator_gate_pending",
+      "blocked"
+    ],
+    "replay_normalization": [
+      "not_started",
+      "replay_checked",
+      "blocked"
+    ],
+    "reporting": [
+      "not_started",
+      "reported",
+      "blocked"
+    ],
+    "robustness": [
+      "not_started",
+      "robustness_advisory",
+      "blocked"
+    ],
+    "walkforward_oos_gate": [
+      "not_started",
+      "oos_gate_pass",
+      "oos_gate_fail",
+      "oos_gate_blocked",
+      "blocked"
+    ]
+  },
+  "stages": [
+    "idea_intake",
+    "formalization",
+    "experiment_run",
+    "replay_normalization",
+    "walkforward_oos_gate",
+    "robustness",
+    "candidate_review_reach",
+    "reporting",
+    "operator_gate"
+  ],
+  "states": [
+    "not_started",
+    "formalized",
+    "experiment_complete",
+    "blocked",
+    "no_go",
+    "replay_checked",
+    "oos_gate_pass",
+    "oos_gate_fail",
+    "oos_gate_blocked",
+    "robustness_advisory",
+    "candidate_review_blocked",
+    "candidate_review_not_created",
+    "candidate_ready_for_human_review",
+    "reported",
+    "operator_gate_pending"
+  ]
+}

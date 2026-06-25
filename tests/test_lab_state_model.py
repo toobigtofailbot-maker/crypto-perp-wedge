@@ -77,3 +77,19 @@ def test_non_authority_declaration_is_read_only() -> None:
 
 def test_edge_search_hold_note_present() -> None:
     assert "No further edge-search is authorized" in model.EDGE_SEARCH_HOLD_NOTE
+
+
+def test_overall_precedence_states_are_declared_overall_states() -> None:
+    # Every state the resolver's overall precedence can emit must be declared in
+    # the contracted OVERALL_STATES (and therefore in state_model_contract.json).
+    from tools.lab_state import resolver
+
+    emittable = set(resolver._OVERALL_PRECEDENCE)
+    # overall_state() also normalizes a NO-GO no-packet review into no_go/blocked.
+    emittable.update({"no_go", "blocked"})
+    undeclared = emittable - set(model.OVERALL_STATES)
+    assert not undeclared, f"resolver can emit undeclared overall states: {undeclared}"
+
+
+def test_candidate_review_blocked_is_declared_overall_state() -> None:
+    assert "candidate_review_blocked" in model.OVERALL_STATES

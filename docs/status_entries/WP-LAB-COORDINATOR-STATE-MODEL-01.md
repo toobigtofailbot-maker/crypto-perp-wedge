@@ -87,6 +87,32 @@ local settings line), and `git diff --check`. Conditional registry validators
 repo pytest was not run to completion and is not claimed as passed; the new code
 is stdlib-only and its targeted suite passes.
 
+## Follow-up 01 — review hardening
+
+`WP-LAB-COORDINATOR-STATE-MODEL-01-FOLLOWUP-01` addressed two review findings on
+PR #568:
+
+1. **Overall-state contract alignment.** `candidate_review_blocked` could be
+   emitted by `resolver.overall_state(...)` but was absent from
+   `model.OVERALL_STATES` and `state_model_contract.json`. It is now declared in
+   both. A test (`test_overall_precedence_states_are_declared_overall_states`)
+   proves every state the precedence can emit is a declared overall state, and
+   `test_candidate_review_blocked_can_be_overall_state` proves a blocked-review
+   subject resolves to that overall state.
+
+2. **Unreadable-artifact fail-closed.** `_read_json` now returns an
+   `ArtifactLoad` distinguishing a missing artifact (→ `not_started` /
+   `STATE_ARTIFACT_MISSING`) from an existing-but-malformed one (→ `blocked` /
+   `STATE_ARTIFACT_UNREADABLE`) across the experiment_run, replay_normalization,
+   walkforward_oos_gate, robustness, and candidate_review_reach read paths.
+   `test_unreadable_configured_artifact_blocks_not_not_started` proves malformed
+   JSON does not resolve as `not_started`.
+
+Stage vocabularies gained `blocked` for `walkforward_oos_gate` and
+`candidate_review_reach` to carry the unreadable case. Scoped suite is now 20
+tests. The follow-up changeset is recorded in
+`scratch/WP-LAB-COORDINATOR-STATE-MODEL-01/followup_01_review_fix_summary.json`.
+
 ## Merge Status
 
 Ready for review after push.

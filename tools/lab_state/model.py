@@ -82,6 +82,7 @@ STAGE_ALLOWED_STATES: Final[dict[str, tuple[str, ...]]] = {
         "oos_gate_pass",
         "oos_gate_fail",
         "oos_gate_blocked",
+        "blocked",
     ),
     "robustness": ("not_started", "robustness_advisory", "blocked"),
     "candidate_review_reach": (
@@ -89,6 +90,7 @@ STAGE_ALLOWED_STATES: Final[dict[str, tuple[str, ...]]] = {
         "candidate_review_blocked",
         "candidate_review_not_created",
         "candidate_ready_for_human_review",
+        "blocked",
     ),
     "reporting": ("not_started", "reported", "blocked"),
     "operator_gate": ("not_started", "operator_gate_pending", "blocked"),
@@ -102,6 +104,7 @@ OVERALL_STATES: Final[tuple[str, ...]] = (
     "replay_checked",
     "oos_gate_fail",
     "oos_gate_blocked",
+    "candidate_review_blocked",
     "robustness_advisory",
     "no_go",
     "blocked",

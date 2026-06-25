@@ -448,11 +448,42 @@ def overall_state(stage_states: list[StageState]) -> str:
     return "not_started"
 
 
-def _read_json(path: Path) -> dict[str, Any] | None:
+@dataclass
+class ArtifactLoad:
+    """Result of a read-only artifact read.
+
+    Distinguishes an absent artifact (``payload is None`` and not ``unreadable``)
+    from one that exists but cannot be parsed (``unreadable`` true). The latter
+    must fail closed to a blocked state rather than be mistaken for "not reached".
+    """
+
+    payload: dict[str, Any] | None = None
+    unreadable: bool = False
+    error: str = ""
+
+
+def _read_json(path: Path | None) -> ArtifactLoad:
+    if path is None or not path.exists():
+        return ArtifactLoad(payload=None, unreadable=False)
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return None
+        return ArtifactLoad(payload=json.loads(path.read_text(encoding="utf-8")))
+    except json.JSONDecodeError as exc:
+        return ArtifactLoad(payload=None, unreadable=True, error=str(exc))
+    except OSError as exc:
+        return ArtifactLoad(payload=None, unreadable=True, error=str(exc))
+
+
+def _blocked_unreadable(stage: str, load: ArtifactLoad, refs: list[ArtifactRef]) -> StageState:
+    """Fail-closed state for an existing-but-unreadable / malformed artifact."""
+    return _check(
+        StageState(
+            stage=stage,
+            state="blocked",
+            reason_code="STATE_ARTIFACT_UNREADABLE",
+            detail=f"Configured artifact exists but could not be parsed: {load.error}",
+            artifact_refs=refs,
+        )
+    )
 
 
 def build_snapshot(subject: dict[str, Any], repo_root: Path = REPO_ROOT) -> dict[str, Any]:
@@ -478,39 +509,58 @@ def build_snapshot(subject: dict[str, Any], repo_root: Path = REPO_ROOT) -> dict
         status_entry_present=f_ref.present, refs=[f_ref]
     )
 
-    # experiment_run
+    # experiment_run (existing-but-unreadable artifacts fail closed to blocked).
     e_ref, e_path = ref("conclusion_traceability", "experiment_run")
-    conclusion = _read_json(e_path) if e_path and e_path.exists() else None
-    experiment = resolve_experiment_run(conclusion=conclusion, refs=[e_ref])
+    e_load = _read_json(e_path)
+    conclusion = e_load.payload
+    if e_load.unreadable:
+        experiment = _blocked_unreadable("experiment_run", e_load, [e_ref])
+    else:
+        experiment = resolve_experiment_run(conclusion=conclusion, refs=[e_ref])
 
     # replay_normalization
     r_ref, r_path = ref("replay_fixture_summary", "replay_normalization")
-    replay_summary = _read_json(r_path) if r_path and r_path.exists() else None
-    replay = resolve_replay_normalization(replay_summary=replay_summary, refs=[r_ref])
+    r_load = _read_json(r_path)
+    if r_load.unreadable:
+        replay = _blocked_unreadable("replay_normalization", r_load, [r_ref])
+    else:
+        replay = resolve_replay_normalization(replay_summary=r_load.payload, refs=[r_ref])
 
     # walkforward_oos_gate
     o_ref, o_path = ref("oos_gate_summary", "walkforward_oos_gate")
-    oos_summary = _read_json(o_path) if o_path and o_path.exists() else None
-    gate_decision = oos_summary.get("gate_decision") if oos_summary else None
-    oos_dry_run = (
-        (conclusion or {}).get("oos") if subject.get("oos_from_conclusion") else None
-    )
-    oos = resolve_oos_gate(
-        gate_decision=gate_decision, oos_dry_run=oos_dry_run, refs=[o_ref]
-    )
+    o_load = _read_json(o_path)
+    if o_load.unreadable:
+        oos = _blocked_unreadable("walkforward_oos_gate", o_load, [o_ref])
+    else:
+        oos_summary = o_load.payload
+        gate_decision = oos_summary.get("gate_decision") if oos_summary else None
+        oos_dry_run = (
+            (conclusion or {}).get("oos") if subject.get("oos_from_conclusion") else None
+        )
+        oos = resolve_oos_gate(
+            gate_decision=gate_decision, oos_dry_run=oos_dry_run, refs=[o_ref]
+        )
 
-    # robustness
+    # robustness (shares the conclusion artifact; unreadable there blocks here too).
     rb_ref, _ = ref("conclusion_traceability", "experiment_run")
-    robustness_payload = (conclusion or {}).get("robustness")
-    robustness = resolve_robustness(robustness=robustness_payload, refs=[rb_ref])
+    if e_load.unreadable:
+        robustness = _blocked_unreadable("robustness", e_load, [rb_ref])
+    else:
+        robustness_payload = (conclusion or {}).get("robustness")
+        robustness = resolve_robustness(robustness=robustness_payload, refs=[rb_ref])
 
     # candidate_review_reach
     cr_ref, cr_path = ref("generic_review_contract", "candidate_review_reach")
-    review_doc = _read_json(cr_path) if cr_path and cr_path.exists() else None
-    review_record = _select_review_example(review_doc, subject.get("review_example_id"))
-    candidate_review = resolve_candidate_review_reach(
-        review=review_record, refs=[cr_ref]
-    )
+    cr_load = _read_json(cr_path)
+    if cr_load.unreadable:
+        candidate_review = _blocked_unreadable("candidate_review_reach", cr_load, [cr_ref])
+    else:
+        review_record = _select_review_example(
+            cr_load.payload, subject.get("review_example_id")
+        )
+        candidate_review = resolve_candidate_review_reach(
+            review=review_record, refs=[cr_ref]
+        )
 
     # reporting
     rp_ref, rp_path = ref("reporting_doc", "reporting")

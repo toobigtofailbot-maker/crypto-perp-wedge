@@ -1,0 +1,66 @@
+{
+  "package_label": "WP-LAB-COORDINATOR-STATE-MODEL-01-FOLLOWUP-01",
+  "target_pr": 568,
+  "target_branch": "lab/coordinator-state-model-01",
+  "findings_addressed": [
+    {
+      "id": "issue_1_overall_state_contract_mismatch",
+      "problem": "resolver._OVERALL_PRECEDENCE could emit candidate_review_blocked, which was absent from model.OVERALL_STATES and state_model_contract.json overall_states; downstream surfaces validating against the contract could reject a legitimate resolver output.",
+      "fix": [
+        "Added candidate_review_blocked to tools/lab_state/model.py::OVERALL_STATES.",
+        "Regenerated scratch/WP-LAB-COORDINATOR-STATE-MODEL-01/state_model_contract.json overall_states from the model.",
+        "docs/research/LAB_COORDINATOR_STATE_MODEL.md already listed candidate_review_blocked in the overall-state table and precedence chain."
+      ],
+      "tests": [
+        "test_overall_precedence_states_are_declared_overall_states",
+        "test_candidate_review_blocked_is_declared_overall_state",
+        "test_candidate_review_blocked_can_be_overall_state"
+      ]
+    },
+    {
+      "id": "issue_2_unreadable_artifacts_silently_missing",
+      "problem": "_read_json returned None on both OSError and JSONDecodeError, so an existing-but-malformed artifact resolved as missing/not_started instead of blocked.",
+      "fix": [
+        "Introduced ArtifactLoad dataclass distinguishing missing (payload None, unreadable False) from existing-but-unreadable (unreadable True, error captured).",
+        "_read_json now returns ArtifactLoad; missing/non-existent paths are not unreadable.",
+        "Added _blocked_unreadable helper resolving existing-but-unreadable artifacts to state=blocked, reason_code=STATE_ARTIFACT_UNREADABLE.",
+        "Applied across experiment_run, replay_normalization, walkforward_oos_gate, robustness (shares conclusion artifact), and candidate_review_reach read paths.",
+        "Added 'blocked' to STAGE_ALLOWED_STATES for walkforward_oos_gate and candidate_review_reach so the unreadable case is in-vocabulary."
+      ],
+      "tests": [
+        "test_unreadable_configured_artifact_blocks_not_not_started",
+        "test_unreadable_helper_distinguishes_missing_from_malformed"
+      ]
+    }
+  ],
+  "files_changed": [
+    "tools/lab_state/model.py",
+    "tools/lab_state/resolver.py",
+    "tests/test_lab_state_model.py",
+    "tests/test_lab_state_resolver.py",
+    "docs/research/LAB_COORDINATOR_STATE_MODEL.md",
+    "docs/status_entries/WP-LAB-COORDINATOR-STATE-MODEL-01.md",
+    "scratch/WP-LAB-COORDINATOR-STATE-MODEL-01/state_model_contract.json",
+    "scratch/WP-LAB-COORDINATOR-STATE-MODEL-01/validation_summary.txt",
+    "scratch/WP-LAB-COORDINATOR-STATE-MODEL-01/followup_01_review_fix_summary.json"
+  ],
+  "state_snapshot_fixture_changed": false,
+  "validation": {
+    "lab_state_tests": "20 passed",
+    "research_query_list_views": "ok (exit 0)",
+    "diff_scope_summary": "exit reason ok; no forbidden-path matches",
+    "git_diff_check": "clean",
+    "validate_result_populations": "OK",
+    "validate_candidate_registry": "OK",
+    "full_pytest": "not run to completion; not claimed"
+  },
+  "boundary": {
+    "edge_search": false,
+    "strategy_run_or_generation": false,
+    "canonical_or_candidate_lifecycle_writes": false,
+    "runtime_paper_live": false,
+    "protected_paths": false,
+    "provider_api_network": false,
+    "dashboard_surface_scheduler_implementation": false
+  }
+}

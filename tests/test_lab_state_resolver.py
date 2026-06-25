@@ -105,3 +105,56 @@ def test_overall_precedence_no_go_outranks_oos_blocked() -> None:
         ),
     ]
     assert resolver.overall_state(stages) == "no_go"
+
+
+def test_candidate_review_blocked_can_be_overall_state() -> None:
+    # A subject whose only non-routine outcome is a blocked candidate review must
+    # surface candidate_review_blocked as the overall state (and it must be a
+    # declared OVERALL_STATES value).
+    stages = [
+        resolver.StageState(stage="idea_intake", state="formalized"),
+        resolver.StageState(stage="formalization", state="formalized"),
+        resolver.StageState(stage="experiment_run", state="experiment_complete"),
+        resolver.StageState(stage="replay_normalization", state="replay_checked"),
+        resolver.StageState(stage="walkforward_oos_gate", state="oos_gate_pass"),
+        resolver.StageState(stage="robustness", state="robustness_advisory"),
+        resolver.StageState(
+            stage="candidate_review_reach",
+            state="candidate_review_blocked",
+            reason_code="BLOCKED_OOS_GATE_UNAVAILABLE",
+        ),
+        resolver.StageState(stage="reporting", state="reported"),
+        resolver.StageState(stage="operator_gate", state="not_started"),
+    ]
+    overall = resolver.overall_state(stages)
+    assert overall == "candidate_review_blocked"
+    assert overall in model.OVERALL_STATES
+
+
+def test_unreadable_configured_artifact_blocks_not_not_started(tmp_path) -> None:
+    # An existing-but-malformed JSON artifact must fail closed to blocked /
+    # STATE_ARTIFACT_UNREADABLE, never be mistaken for "not reached".
+    bad = tmp_path / "scratch" / "bad_replay.json"
+    bad.parent.mkdir(parents=True)
+    bad.write_text("{ this is : not valid json", encoding="utf-8")
+
+    subject = {
+        "subject_id": "UNREADABLE-DEMO",
+        "subject_label": "unreadable_demo",
+        "artifacts": {"replay_normalization": "scratch/bad_replay.json"},
+    }
+    snapshot = build_snapshot(subject, tmp_path)
+    replay = _stage(snapshot, "replay_normalization")
+    assert replay["state"] != "not_started"
+    assert replay["state"] == "blocked"
+    assert replay["reason_code"] == "STATE_ARTIFACT_UNREADABLE"
+
+
+def test_unreadable_helper_distinguishes_missing_from_malformed(tmp_path) -> None:
+    missing = resolver._read_json(tmp_path / "does_not_exist.json")
+    assert missing.payload is None and missing.unreadable is False
+
+    bad = tmp_path / "bad.json"
+    bad.write_text("not json at all", encoding="utf-8")
+    load = resolver._read_json(bad)
+    assert load.payload is None and load.unreadable is True and load.error

@@ -30,6 +30,7 @@
     "replay_checked",
     "oos_gate_fail",
     "oos_gate_blocked",
+    "candidate_review_blocked",
     "robustness_advisory",
     "no_go",
     "blocked",
@@ -78,7 +79,8 @@
       "not_started",
       "candidate_review_blocked",
       "candidate_review_not_created",
-      "candidate_ready_for_human_review"
+      "candidate_ready_for_human_review",
+      "blocked"
     ],
     "experiment_run": [
       "not_started",
@@ -120,7 +122,8 @@
       "not_started",
       "oos_gate_pass",
       "oos_gate_fail",
-      "oos_gate_blocked"
+      "oos_gate_blocked",
+      "blocked"
     ]
   },
   "stages": [

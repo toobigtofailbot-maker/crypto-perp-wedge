@@ -76,9 +76,13 @@ does*, never a judgement about a strategy.
 
 Every resolved stage carries `artifact_refs`: read-only pointers to the repo
 artifacts consulted, each recording `role`, repo-relative `path`, and a
-`present` flag. The resolver never fabricates progress: a missing or unreadable
-artifact resolves fail-closed to `not_started` / `blocked` with an explicit
-`STATE_*` reason code.
+`present` flag. The resolver never fabricates progress and distinguishes two
+fail-closed cases:
+
+- a **missing / not-configured** artifact resolves to `not_started` /
+  `STATE_ARTIFACT_MISSING` (the stage was simply not reached);
+- an **existing-but-unreadable / malformed** artifact resolves to `blocked` /
+  `STATE_ARTIFACT_UNREADABLE` — it is never mistaken for "not reached".
 
 ## Resolver Semantics
 

@@ -1,0 +1,25 @@
+WP-LAB-DOCS-COMPLETION-MAP-01 — Validation summary
+===================================================
+
+1. python -m tools.research_query.run --list-views
+   -> ran successfully; emitted the read-only view list
+      (v_candidate_overview, v_gate_results_flat, v_integrity_*, ...).
+
+2. python tools/dev/diff_scope_summary.py
+   -> Untracked files: docs/research/LAB_COMPLETION_MAP.md,
+      scratch/WP-LAB-DOCS-COMPLETION-MAP-01/* only.
+   -> Forbidden-path matches: none.
+   -> exit reason: ok.
+
+3. git diff --check
+   -> clean, exit 0 (no whitespace/conflict errors).
+
+4. Full pytest: NOT RUN.
+   -> Docs-only change; no code, schema, or test files touched.
+      Not claimed as passed.
+
+Allowed-scope confirmation:
+   docs/research/LAB_COMPLETION_MAP.md            -> allowed
+   docs/status_entries/WP-LAB-DOCS-COMPLETION-MAP-01.md -> allowed
+   scratch/WP-LAB-DOCS-COMPLETION-MAP-01/**       -> allowed
+   No implementation files created or modified.

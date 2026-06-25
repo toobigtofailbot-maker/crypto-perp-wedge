@@ -1,0 +1,23 @@
+WP-LAB-STATE-MODEL-COVERAGE-AUDIT-01 — main report-back guardrail
+=================================================================
+
+This package is a READ-ONLY coverage audit. It did NOT:
+  - resume edge-search or generate/run any strategy, backtest, or sweep
+  - mutate, clean, normalize, or delete any artifact or historical evidence
+  - change any coordinator subject binding or candidate/state binding
+  - write Strategy Specs, Variant Manifests, Sweep Plans, canonical Result
+    Populations, trial logs, candidate registry, or candidate lifecycle records
+  - execute canonical crossing, approvals, promotions, or readiness declarations
+  - enable scheduler/scout/coordinator autonomy or fire notifications
+  - contact provider/API/network/data, or touch paper/live/runtime, OMS, risk,
+    reconciliation, capital, broker, exchange, or order paths
+  - change funding P&L / accounting, or commit large tracked data
+
+It ONLY added read-only audit tooling + docs within the authorized allowed-files
+scope, enumerated git-tracked artifacts, classified them, emitted static
+JSON/markdown, and recorded coverage gaps as findings + recommended follow-up
+packages (NOT implemented here).
+
+Coverage gaps were found (99 unmapped committed conclusions). Fixing them means
+editing tools/lab_state/run.py SUBJECTS, which is OUT OF SCOPE for this audit and
+is recorded as follow-up WP-LAB-COORDINATOR-SUBJECT-COVERAGE-EXTENSION-01.

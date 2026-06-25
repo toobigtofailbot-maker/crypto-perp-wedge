@@ -1,0 +1,97 @@
+{
+  "schema_version": "lab_approval_queue_surface_v1",
+  "surface_kind": "read_only_operator_gate_queue",
+  "purpose": "Display pending human gates, blocked validation states, and candidate-review readiness when committed evidence exists. Displays gates; never executes them.",
+  "depends_on": {
+    "package": "WP-LAB-COORDINATOR-STATE-MODEL-01",
+    "module": "tools/lab_state",
+    "state_source": "single source of state truth; this surface adds no new state vocabulary"
+  },
+  "queue_status_vocabulary": [
+    "operator_gate_pending",
+    "no_go",
+    "blocked_validation",
+    "advisory_only",
+    "not_actionable"
+  ],
+  "blocker_kinds": [
+    "validation_blocker",
+    "replay_blocker",
+    "oos_gate_blocker",
+    "robustness_blocker",
+    "candidate_review_blocker"
+  ],
+  "blocker_states_from_coordinator_model": [
+    "blocked",
+    "oos_gate_fail",
+    "oos_gate_blocked",
+    "candidate_review_blocked"
+  ],
+  "entry_fields": [
+    "subject_id",
+    "subject_label",
+    "overall_state",
+    "queue_status",
+    "actionable_by_operator",
+    "human_decision_pending",
+    "human_decision",
+    "candidate_review_packet_created",
+    "no_candidate_review_packet_reason",
+    "blocked_review_reason",
+    "operator_gate",
+    "blockers",
+    "artifact_refs"
+  ],
+  "reason_code_families_reused": {
+    "no_candidate_review_packet": [
+      "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+      "NO_GO_DRAWDOWN_SCREEN_FAILED",
+      "NO_GO_RETURN_SHARPE_SCREEN_FAILED",
+      "NO_GO_DENOMINATOR_INTEGRITY_FAILED"
+    ],
+    "blocked_review": [
+      "BLOCKED_REPLAY_CONTRACT_UNAVAILABLE",
+      "BLOCKED_OOS_GATE_UNAVAILABLE",
+      "BLOCKED_DENOMINATOR_MANIFEST_UNAVAILABLE",
+      "BLOCKED_RESULT_POPULATION_UNAVAILABLE",
+      "BLOCKED_REQUIRED_STAT_INPUTS_UNAVAILABLE",
+      "BLOCKED_PARALLEL_SEQUENCE"
+    ],
+    "source": "docs/research/GENERIC_ROBUSTNESS_REVIEW_REACH_CONTRACT.md and tools/lab_state/model.py (verbatim, not re-invented)"
+  },
+  "candidate_review_packet_created_rule": "Surfaced True ONLY when the committed candidate-review reach evidence records candidate_review_packet_created == true. A NO-GO / blocked / not-created review surfaces False. The queue never fabricates a candidate-ready item.",
+  "human_decision_surface_rule": "Present only when the operator_gate stage resolves to operator_gate_pending (i.e. a candidate is ready for human review). The surface marks the decision pending and executable_here=false; the human-gated candidate lifecycle engine owns the actual transition.",
+  "determinism": "No clock, no git, no network. JSON emitted with sorted keys; HTML/markdown are pure functions of the data model. Two builds over the same checkout are byte-identical.",
+  "non_authority_declaration": {
+    "read_only": true,
+    "executes_transition": false,
+    "writes_canonical_evidence": false,
+    "writes_candidate_lifecycle": false,
+    "executes_canonical_crossing": false,
+    "executes_approval": false,
+    "writes_approval": false,
+    "fires_notification": false,
+    "executes_promotion": false,
+    "declares_readiness": false,
+    "ranks_or_recommends": false,
+    "authorizes_edge_search": false,
+    "authorizes_paper_live_runtime": false,
+    "renders_executable_control": false,
+    "has_approve_button": false,
+    "has_reject_button": false,
+    "has_promote_button": false,
+    "has_run_button": false,
+    "fetches_live_data": false,
+    "auto_refreshes_from_network": false
+  },
+  "forbidden_behavior": [
+    "no approval write",
+    "no candidate lifecycle write",
+    "no notification firing",
+    "no crossing",
+    "no promotion",
+    "no readiness declaration",
+    "no execution authority",
+    "no edge-search"
+  ]
+}

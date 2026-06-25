@@ -1,0 +1,32 @@
+WP-LAB-APPROVAL-QUEUE-SURFACE-01 — Main report-back guardrail
+=============================================================
+
+This package built a READ-ONLY research-lab approval / gate queue surface.
+It DISPLAYS gates; it does NOT execute them.
+
+NOT done by this package (forbidden scope — none performed):
+- no approval write
+- no candidate lifecycle write / mutation
+- no notification firing
+- no canonical crossing
+- no promotion
+- no readiness declaration
+- no execution authority of any kind
+- no strategy run / generation, no edge-search resume
+- no new strategy family / funding-with-stops / taker-flow / OI work
+- no backtest (reads committed JSON/markdown only; one CLI run over the two
+  committed coordinator-state subjects for read-only surface validation)
+- no Strategy Spec / Variant Manifest / Sweep Plan / canonical Result Population
+  / trial log / candidate registry write
+- no runtime, paper/live, OMS, risk, reconciliation, capital, broker/exchange/
+  order path, funding P&L/accounting change
+- no provider/API/network fetch
+- no scheduler/scout/coordinator autonomy enabled
+- no dashboard/queue control that triggers execution (no approve/reject/promote/
+  run button, no scheduler toggle, no live fetch, no auto-refresh)
+- no large tracked data committed
+
+Honest state reported: nothing candidate-ready. The queue shows only NO-GO /
+blocked / advisory-only items, which is correct. No fake queue entries created.
+
+Edge-search remains held until separate operator authorization.

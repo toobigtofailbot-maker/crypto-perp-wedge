@@ -1,0 +1,179 @@
+{
+  "caveats": [
+    "This queue displays pending human gates and blockers; it does not execute any gate.",
+    "No approval, promotion, crossing, notification, candidate-lifecycle write, or readiness declaration is performed by this surface.",
+    "candidate_review_packet_created is shown True only when committed evidence records it; a NO-GO / blocked review surfaces False.",
+    "Blocked / NO-GO / advisory-only items are first-class queue contents, not failures of the queue.",
+    "Any real operator decision requires separate human action through the human-gated candidate lifecycle engine; this queue cannot grant it.",
+    "Ordering is deterministic display order only and confers no ranking, recommendation, readiness, or promotion authority."
+  ],
+  "edge_search_hold": "No further edge-search is authorized by the coordinator state model. Strategy generation/search remains held until separate operator authorization.",
+  "entries": [
+    {
+      "actionable_by_operator": false,
+      "artifact_refs": [
+        {
+          "path": "docs/research/FUNDING_POSITIONING_FADE_SYNTHESIS_2026-06.md",
+          "present": true,
+          "role": "reporting_doc"
+        },
+        {
+          "path": "docs/status_entries/WP-LAB-IDEA-INTAKE-FORMALIZATION-01.md",
+          "present": true,
+          "role": "formalization_status_entry"
+        },
+        {
+          "path": "scratch/WP-LAB-GENERIC-ROBUSTNESS-REVIEW-REACH-01/generic_review_contract.json",
+          "present": true,
+          "role": "generic_review_contract"
+        },
+        {
+          "path": "scratch/WP-LAB-RP-REPLAY-NORMALIZATION-CONTRACT-01/replay_fixture_summary.json",
+          "present": true,
+          "role": "replay_fixture_summary"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-FUNDING-FADE-CONCLUDE-01/conclusion_traceability.json",
+          "present": true,
+          "role": "conclusion_traceability"
+        }
+      ],
+      "blocked_review_reason": null,
+      "blockers": [
+        {
+          "blocker_kind": "oos_gate_blocker",
+          "detail": "OOS evidence is dry-run-only with deferred purge/embargo; not a rigorous gate pass.",
+          "reason_code": "STATE_OOS_DRY_RUN_ONLY",
+          "stage": "walkforward_oos_gate",
+          "state": "oos_gate_blocked"
+        }
+      ],
+      "candidate_review_packet_created": false,
+      "human_decision": null,
+      "human_decision_pending": false,
+      "no_candidate_review_packet_reason": {
+        "code": "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+        "detail": "All 36 scratch funding rows failed the primary drawdown screen; no candidate-review packet was generated.",
+        "source": "docs/status_entries/WP-RESEARCH-FUNDING-CARRY-02.md"
+      },
+      "operator_gate": {
+        "detail": "No candidate produced; nothing for the operator to gate.",
+        "reason_code": "STATE_NO_CANDIDATE_PRODUCED",
+        "state": "not_started"
+      },
+      "overall_state": "no_go",
+      "queue_status": "no_go",
+      "subject_id": "H-FUNDING-RATE-POSITIONING-FADE-01",
+      "subject_label": "funding_rate_positioning_fade"
+    },
+    {
+      "actionable_by_operator": false,
+      "artifact_refs": [
+        {
+          "path": "docs/research/WALKFORWARD_OOS_GATE_CONTRACT.md",
+          "present": true,
+          "role": "reporting_doc"
+        },
+        {
+          "path": "docs/status_entries/WP-LAB-WALKFORWARD-OOS-GATE-01.md",
+          "present": true,
+          "role": "formalization_status_entry"
+        },
+        {
+          "path": "scratch/WP-LAB-GENERIC-ROBUSTNESS-REVIEW-REACH-01/generic_review_contract.json",
+          "present": true,
+          "role": "generic_review_contract"
+        },
+        {
+          "path": "scratch/WP-LAB-RP-REPLAY-NORMALIZATION-CONTRACT-01/replay_fixture_summary.json",
+          "present": true,
+          "role": "replay_fixture_summary"
+        },
+        {
+          "path": "scratch/WP-LAB-WALKFORWARD-OOS-GATE-01/fixture_gate_summary.json",
+          "present": true,
+          "role": "oos_gate_summary"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-FUNDING-FADE-CONCLUDE-01/conclusion_traceability.json",
+          "present": true,
+          "role": "conclusion_traceability"
+        }
+      ],
+      "blocked_review_reason": {
+        "code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+        "detail": "Review reach is blocked until OOS gate evidence and Result Population identity are available.",
+        "source": "generic_contract_example"
+      },
+      "blockers": [
+        {
+          "blocker_kind": "oos_gate_blocker",
+          "detail": "OOS gate decision: fail.",
+          "reason_code": "OOS_GATE_FAIL",
+          "stage": "walkforward_oos_gate",
+          "state": "oos_gate_fail"
+        },
+        {
+          "blocker_kind": "candidate_review_blocker",
+          "detail": "Review reach is blocked until OOS gate evidence and Result Population identity are available.",
+          "reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+          "stage": "candidate_review_reach",
+          "state": "candidate_review_blocked"
+        }
+      ],
+      "candidate_review_packet_created": false,
+      "human_decision": null,
+      "human_decision_pending": false,
+      "no_candidate_review_packet_reason": null,
+      "operator_gate": {
+        "detail": "No candidate produced; nothing for the operator to gate.",
+        "reason_code": "STATE_NO_CANDIDATE_PRODUCED",
+        "state": "not_started"
+      },
+      "overall_state": "oos_gate_fail",
+      "queue_status": "blocked_validation",
+      "subject_id": "OOS-GATE-FIXTURE-RP-2592",
+      "subject_label": "walkforward_oos_gate_fixture"
+    }
+  ],
+  "non_authority_declaration": {
+    "authorizes_edge_search": false,
+    "authorizes_paper_live_runtime": false,
+    "auto_refreshes_from_network": false,
+    "declares_readiness": false,
+    "executes_approval": false,
+    "executes_canonical_crossing": false,
+    "executes_promotion": false,
+    "executes_transition": false,
+    "fetches_live_data": false,
+    "fires_notification": false,
+    "has_approve_button": false,
+    "has_promote_button": false,
+    "has_reject_button": false,
+    "has_run_button": false,
+    "ranks_or_recommends": false,
+    "read_only": true,
+    "renders_executable_control": false,
+    "writes_approval": false,
+    "writes_candidate_lifecycle": false,
+    "writes_canonical_evidence": false
+  },
+  "queue_summary": {
+    "blocked_validation_count": 1,
+    "by_queue_status": {
+      "advisory_only": 0,
+      "blocked_validation": 1,
+      "no_go": 1,
+      "not_actionable": 0,
+      "operator_gate_pending": 0
+    },
+    "candidate_review_packet_created_count": 0,
+    "honest_state_note": "No candidate is ready for human review and no operator gate is pending. The queue correctly shows only NO-GO / blocked / advisory-only items. This is the honest current state, not an error.",
+    "no_go_count": 1,
+    "nothing_candidate_ready": true,
+    "operator_gate_pending_count": 0,
+    "subject_count": 2
+  },
+  "schema_version": "lab_approval_queue_surface_v1",
+  "surface_kind": "read_only_operator_gate_queue"
+}

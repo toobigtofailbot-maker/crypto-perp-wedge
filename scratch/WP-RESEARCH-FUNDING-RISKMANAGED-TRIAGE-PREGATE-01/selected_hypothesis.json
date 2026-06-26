@@ -1,0 +1,17 @@
+{
+  "hypothesis_id": "H-FUNDING-FADE-RISKMANAGED-01",
+  "status": "pre_run_approval_required",
+  "selected_from_repo_truth": true,
+  "strategy_family": "funding_positioning_fade_with_risk_management",
+  "signal_parameters": "frozen_from_prior_concluded_family",
+  "signal_retuning_allowed": false,
+  "new_free_parameters": ["risk_control_only"],
+  "rationale_summary": "The prior funding positioning-fade family preserved its full 36-row denominator and failed primarily through extreme drawdown. A bounded, a-priori risk layer tests that failure mode without changing the funding signal, direction, timeframe, or entry thresholds.",
+  "prior_failure_mode": "All 36 prior price-PnL funding-fade rows failed the 20% drawdown screen; full-history drawdown ranged from 80.72% to 100% depending on exit mode.",
+  "why_other_lanes_are_not_first": {
+    "price_only": "Current price-only repo truth contains multiple canonical NO-GO populations and blocked attempts; it does not surface a cleaner first resumed edge-search run than testing a risk layer against the already isolated funding-fade drawdown failure.",
+    "taker_flow": "Current synthesis records taker-flow as blocked by runner/data support, so it is not the first Stage 1 run without separate infrastructure work.",
+    "open_interest": "Current inspected repo truth does not contain a runner-ready full-history open-interest hypothesis path with frozen denominator and pre-run approval materials."
+  },
+  "strategy_agnostic_guardrail": "This is test traffic for the generic Side 12 lab, not a funding-specific lab pivot."
+}

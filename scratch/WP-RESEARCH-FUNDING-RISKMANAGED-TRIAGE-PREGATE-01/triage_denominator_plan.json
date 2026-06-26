@@ -1,0 +1,26 @@
+{
+  "denominator_preservation_required": true,
+  "planned_variant_count": 108,
+  "grid_dimensions": {
+    "funding_lookback_bars": [2880, 8640, 17280],
+    "entry_tail_pair": [
+      {"lower_entry_percentile": 0.1, "upper_entry_percentile": 0.9},
+      {"lower_entry_percentile": 0.05, "upper_entry_percentile": 0.95}
+    ],
+    "exit_mode": ["fixed_max_hold_only", "midline_reversion_or_max_hold"],
+    "max_hold_bars": [16, 32, 96],
+    "risk_control_state": [
+      {"atr_stop_enabled": false, "label": "same_window_control"},
+      {"atr_stop_enabled": true, "atr_lookback_bars": 14, "atr_multiplier": 2.0},
+      {"atr_stop_enabled": true, "atr_lookback_bars": 14, "atr_multiplier": 3.0}
+    ],
+    "sizing_mode": ["dynamic_equity_target_leverage"],
+    "target_leverage": [1.0]
+  },
+  "count_formula": "3 funding lookbacks x 2 entry tail pairs x 2 exit modes x 3 max holds x 3 risk-control states = 108 planned rows",
+  "risk_managed_rows": 72,
+  "same_window_control_rows": 36,
+  "all_cells_reported": true,
+  "winner_only_reporting_forbidden": true,
+  "isolated_single_cell_success_is_overfit_signature": true
+}

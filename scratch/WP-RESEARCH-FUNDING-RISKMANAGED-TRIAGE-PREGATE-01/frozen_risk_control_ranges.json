@@ -1,0 +1,43 @@
+{
+  "risk_layer_status": "frozen_before_execution",
+  "signal_parameters_frozen": true,
+  "risk_controls": [
+    "same_window_no_atr_control",
+    "bar_close_atr_stop",
+    "existing_max_hold_preserved",
+    "fixed_dynamic_equity_target_leverage_measurement"
+  ],
+  "parameter_ranges": {
+    "same_window_control": {
+      "atr_stop_enabled": false,
+      "rows": 36
+    },
+    "atr_stop": {
+      "enabled": true,
+      "atr_lookback_bars": [14],
+      "atr_multiplier": [2.0, 3.0],
+      "entry_reference_price": "next_bar_open_pre_fee_slippage",
+      "evaluation_price": "close",
+      "evaluation_timing": "bar_close"
+    },
+    "max_hold_bars": {
+      "allowed_values": [16, 32, 96],
+      "status": "frozen_from_prior_signal_family_not_retuned"
+    },
+    "sizing": {
+      "sizing_mode": "dynamic_equity_target_leverage",
+      "target_leverage": [1.0],
+      "status": "fixed_measurement_setting_not_swept"
+    }
+  },
+  "range_rationale": {
+    "same_window_control": "A same-window no-ATR comparison is required so drawdown improvement is not inferred from prior full-history results.",
+    "atr_stop": "ATR stop is selected because current compiler and validator support a closed bar-close ATR stop. Multipliers 2.0 and 3.0 are narrow, standard volatility-stop distances that test tighter versus looser risk control without a broad optimizer grid.",
+    "max_hold_bars": "The prior max-hold values remain part of the frozen signal/exit denominator and are not retuned.",
+    "sizing": "Dynamic equity target leverage at 1.0 is the repo's current comparable offline measurement mode; leverage is not swept to avoid mechanical drawdown reduction being mistaken for edge."
+  },
+  "chosen_without_outcome_peeking": true,
+  "requires_new_code": false,
+  "requires_funding_pnl_accounting": false,
+  "requires_runtime_or_paper_live": false
+}

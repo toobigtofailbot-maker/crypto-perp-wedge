@@ -1,0 +1,40 @@
+{
+  "package": "WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-RUN-01",
+  "status": "blocked",
+  "strategy_run_executed": false,
+  "blocked_reason_type": [
+    "manual Strategy Spec / VM / Sweep Plan cannot express the frozen denominator through one exact validated runner route",
+    "data/warmup unavailable"
+  ],
+  "primary_blocker": "The current repo-owned offline runner has no authorized same-run route that compiles the signal with the required warmup prefix while restricting reported metrics to the frozen 2024 evaluation window. Running on only the 2024 CSV would violate the required 180-day funding-percentile warmup; running on a warmup-plus-2024 CSV would score warmup rows as part of the result; the existing walk-forward path slices OOS before compiling the signal, so it does not preserve warmup state for the OOS signal.",
+  "secondary_blockers": [
+    "The current Strategy Spec schema binds exit_logic.atr_stop at the parent spec level, so the 108-row denominator would require multiple scratch parent spec/manifest/sweep-plan sets or a separately authorized adapter/windowing wrapper to preserve the single frozen denominator table honestly.",
+    "The active worktree does not contain the ignored runner-consumable BTCUSDT 15m funding-feature CSV required by the current canonical-15m runner path for declared funding_rate. The main checkout contains base 15m D4A OHLCV and raw funding Parquets, but this package forbids data materialization/code changes and allows writes only under the package scratch output root."
+  ],
+  "repo_truth_evidence": {
+    "runner": "tools/research_runner/run_offline_sweep.py",
+    "runner_observation": [
+      "The normal canonical-15m sweep path evaluates the full supplied OHLCV frame.",
+      "The runner CLI has no evaluation-window start/end arguments.",
+      "The walk-forward path constructs IS/OOS slices and compiles/backtests each sliced execution input separately, which does not satisfy the required warmup-prefix-for-2024 evaluation semantics."
+    ],
+    "compiler": "tools/research_runner/spec_signal_compiler.py",
+    "compiler_observation": [
+      "The compiler supports declared funding_rate data_ref and rolling_empirical_percentile_v1.",
+      "The compiler supports atr_stop when present in the parent Strategy Spec."
+    ],
+    "local_data_observation": [
+      "data/processed/d4a/binance_um_perp_BTCUSDT_15m_2020-01-01_2026-04-11_d4a_normalized.csv was not present in the isolated worktree.",
+      "C:/GitHub/crypto-perp-wedge/data/processed/d4a/binance_um_perp_BTCUSDT_15m_2020-01-01_2026-04-11_d4a_normalized.csv was present in the main checkout.",
+      "No runner-consumable *funding*feature*.csv was found under C:/GitHub/crypto-perp-wedge/data/processed."
+    ]
+  },
+  "forbidden_unblock_actions_not_taken": [
+    "No code changes were made to runner, compiler, schemas, validators, backtester, data tooling, or protected paths.",
+    "No data materialization was performed.",
+    "No partial, synthetic, sidecar-only, winner-only, or warmup-contaminated run was substituted for the frozen Stage-1 run."
+  ],
+  "canonical_artifact_written": false,
+  "candidate_lifecycle_write": false,
+  "stage2_authorized": false
+}

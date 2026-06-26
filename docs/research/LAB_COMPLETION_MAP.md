@@ -107,10 +107,13 @@ The following are built, merged, and complete for this phase.
   (`docs/research/LAB_SCHEDULER_SHELL_DEFAULT_OFF.md`,
   `tools/lab_scheduler_shell/`, PR #571).
 
-> In-flight at time of writing (not claimed complete here):
-> `WP-LAB-OPERATOR-SURFACE-INTEGRATION-01` (#573, unified read-only surface
-> index) and `WP-LAB-STATE-MODEL-COVERAGE-AUDIT-01` (#574, read-only coverage
-> audit). Both are read-only and stay within this phase's boundaries.
+`WP-LAB-OPERATOR-SURFACE-INTEGRATION-01` (#573) and
+`WP-LAB-STATE-MODEL-COVERAGE-AUDIT-01` (#574) are merged. The follow-up
+`WP-LAB-COVERAGE-GAP-CLOSE-01` binds the audit-discovered historical evidence
+gaps into read-only coordinator/operator visibility: eight coordinator subjects,
+107 covered coordinator artifacts, 103 surface-visible artifact references, and
+zero unmapped gap artifacts. Candidate-ready remains zero and operator-gate
+pending remains zero.
 
 ## 3. Inert / default-off surfaces (structurally present, not live)
 

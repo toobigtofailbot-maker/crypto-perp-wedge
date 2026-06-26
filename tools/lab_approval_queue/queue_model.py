@@ -112,6 +112,26 @@ def _reason(reason: dict[str, Any] | None) -> dict[str, Any] | None:
     }
 
 
+def _legacy_review_reason(review: dict[str, Any] | None) -> dict[str, Any] | None:
+    """Normalize older flat review records into queue-display reason objects."""
+    if not isinstance(review, dict):
+        return None
+    status = str(review.get("status", "")).lower()
+    if review.get("packet_generated") is False or status == "not_generated":
+        return {
+            "code": "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+            "detail": str(review.get("reason", "No candidate-review packet generated.")),
+            "source": str(review.get("source", "legacy_review_record")),
+        }
+    if status == "blocked":
+        return {
+            "code": "BLOCKED_RESULT_POPULATION_UNAVAILABLE",
+            "detail": str(review.get("reason", "Candidate-review packet blocked.")),
+            "source": str(review.get("source", "legacy_review_record")),
+        }
+    return None
+
+
 def _review_record(
     subject: dict[str, Any], repo_root: Path
 ) -> dict[str, Any] | None:
@@ -161,6 +181,15 @@ def _artifact_refs(snapshot: dict[str, Any]) -> list[dict[str, Any]]:
                 "path": path,
                 "present": bool(ref.get("present")),
             }
+    for ref in snapshot.get("supplemental_artifact_refs", []):
+        path = ref.get("path") or ""
+        if not path or path in seen:
+            continue
+        seen[path] = {
+            "role": ref.get("role"),
+            "path": path,
+            "present": bool(ref.get("present")),
+        }
     return [seen[path] for path in sorted(seen)]
 
 
@@ -206,6 +235,11 @@ def build_queue_entry(
     blocked_review_reason = (
         _reason(review.get("blocked_review_reason")) if review else None
     )
+    legacy_reason = _legacy_review_reason(review)
+    if legacy_reason and legacy_reason["code"].startswith("NO_GO_"):
+        no_packet_reason = legacy_reason
+    if legacy_reason and legacy_reason["code"].startswith("BLOCKED_"):
+        blocked_review_reason = legacy_reason
 
     blockers = _blockers(snapshot)
     queue_status = _queue_status(overall, human_decision_pending, blockers)

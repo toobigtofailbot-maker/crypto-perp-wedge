@@ -90,6 +90,16 @@ def test_honest_state_taken_verbatim_from_approval_queue() -> None:
     assert honest["operator_gate_pending_count"] == 0
 
 
+def test_batch_boundary_reflects_coverage_gap_closure() -> None:
+    data = build_index_data(repo_root=REPO_ROOT)
+    batch = data["batch_boundary"]
+    assert batch["subject_count"] == 8
+    assert batch["no_go_count"] == 3
+    assert batch["blocked_count"] == 2
+    assert batch["candidate_ready_count"] == 0
+    assert batch["operator_gate_pending_count"] == 0
+
+
 def test_scheduler_tile_is_inert_and_default_off() -> None:
     data = build_index_data(repo_root=REPO_ROOT)
     sched = _tile(data, "scheduler_shell")["summary"]

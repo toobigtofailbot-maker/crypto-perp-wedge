@@ -1,0 +1,27 @@
+WP-LAB-COVERAGE-GAP-CLOSE-01 validation summary
+
+Base / branch:
+- branch: lab/coverage-gap-close-01
+- base: origin/main b64c4f2 after PRs #573, #574, and #575
+
+Coverage:
+- pre-binding refreshed audit: 1303 discovered, 8 covered, 4 surface-visible, 99 unmapped gaps, 0 malformed
+- post-binding audit: 1303 discovered, 107 covered, 103 surface-visible, 0 unmapped gaps, 0 malformed
+- candidate-ready invented: no (0)
+- operator-gate-pending invented: no (0)
+
+Validation run so far:
+- python -m pytest tests/test_lab_state_model.py tests/test_lab_state_resolver.py tests/test_lab_state_coverage_audit.py -q: PASS, 39 passed
+- python -m pytest tests/test_lab_dashboard.py tests/test_lab_reporting.py tests/test_lab_approval_queue.py tests/test_lab_operator_surface.py -q: PASS, 51 passed
+- python -m tools.research_query.run --list-views: PASS
+- python -m tools.registry.validate_result_populations: PASS
+- python -m tools.registry.validate_candidate_registry: PASS
+- python tools/dev/diff_scope_summary.py: PASS / no forbidden-path matches
+- git diff --check: PASS
+
+Note:
+- The package-specified pytest glob commands do not expand under this PowerShell invocation, so equivalent explicit file lists were used for actual test execution.
+- Full pytest status is recorded separately if run after this file is created.
+
+Full pytest:
+- python -m pytest -q: FAIL during collection before package tests run; 31 import errors for missing local optional dependencies including binance, pandas, and numpy. No error references tools/lab_state, tools/lab_dashboard, tools/lab_reporting, tools/lab_approval_queue, tools/lab_operator_surface, tools/lab_state_coverage_audit, or this package's docs/scratch outputs.

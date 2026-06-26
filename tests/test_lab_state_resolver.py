@@ -158,3 +158,34 @@ def test_unreadable_helper_distinguishes_missing_from_malformed(tmp_path) -> Non
     bad.write_text("not json at all", encoding="utf-8")
     load = resolver._read_json(bad)
     assert load.payload is None and load.unreadable is True and load.error
+
+
+def test_legacy_no_packet_and_blocked_review_shapes_resolve() -> None:
+    no_packet = resolver.resolve_candidate_review_reach(
+        review={
+            "packet_generated": False,
+            "reason": "primary screen failed",
+            "classification": "NO-GO",
+        },
+        refs=[],
+    )
+    assert no_packet.state == "candidate_review_not_created"
+    assert no_packet.reason_code == "NO_GO_PRIMARY_RISK_SCREEN_FAILED"
+
+    blocked = resolver.resolve_candidate_review_reach(
+        review={"status": "blocked", "reason": "missing source population"},
+        refs=[],
+    )
+    assert blocked.state == "candidate_review_blocked"
+    assert blocked.reason_code == "BLOCKED_RESULT_POPULATION_UNAVAILABLE"
+
+
+def test_supplemental_artifact_refs_are_carried_in_snapshot() -> None:
+    snapshot = build_snapshot(SUBJECTS["historical_canonical_evidence_bundle"], REPO_ROOT)
+    refs = snapshot["supplemental_artifact_refs"]
+    assert snapshot["overall_state"] == "experiment_complete"
+    assert any(ref["path"] == "research/candidate_registry.jsonl" for ref in refs)
+    assert any(
+        ref["path"] == "research/result_populations/RP-7520.result_population.json"
+        for ref in refs
+    )

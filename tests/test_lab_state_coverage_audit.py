@@ -90,33 +90,35 @@ def test_malformed_fails_closed(ctx: CoverageContext) -> None:
     assert result.requires_followup is True
 
 
-def test_unbound_no_go_conclusion_is_gap(ctx: CoverageContext) -> None:
+def test_former_no_go_conclusion_is_now_covered(ctx: CoverageContext) -> None:
     path = "scratch/WP-RESEARCH-FUNDING-CARRY-01/no_candidate_review_packet_reason.json"
     result = classify_artifact(path, ctx)
-    assert result.coverage_status == "unmapped_gap"
-    assert result.category == "blocked_or_no_go_evidence"
-    assert result.requires_followup is True
+    assert result.coverage_status == "covered"
+    assert result.category == "surface_visible"
+    assert result.requires_followup is False
 
 
-def test_unbound_result_packet_is_candidate_evidence_gap(ctx: CoverageContext) -> None:
+def test_former_result_packet_gap_is_now_covered(ctx: CoverageContext) -> None:
     path = "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/sma_family_result_packet.json"
     result = classify_artifact(path, ctx)
-    assert result.coverage_status == "unmapped_gap"
-    assert result.category == "candidate_or_crossing_evidence"
+    assert result.coverage_status == "covered"
+    assert result.category == "surface_visible"
 
 
-def test_unbound_canonical_result_population_is_gap(ctx: CoverageContext) -> None:
+def test_former_canonical_result_population_gap_is_now_covered(
+    ctx: CoverageContext,
+) -> None:
     path = "research/result_populations/RP-2592.result_population.json"
     result = classify_artifact(path, ctx)
-    assert result.coverage_status == "unmapped_gap"
-    assert result.category == "candidate_or_crossing_evidence"
+    assert result.coverage_status == "covered"
+    assert result.category == "surface_visible"
 
 
-def test_unbound_synthesis_doc_is_gap(ctx: CoverageContext) -> None:
+def test_former_synthesis_doc_gap_is_now_covered(ctx: CoverageContext) -> None:
     path = "docs/research/PRICEONLY_SYNTHESIS_2026-06.md"
     result = classify_artifact(path, ctx)
-    assert result.coverage_status == "unmapped_gap"
-    assert result.category == "synthesis_or_report"
+    assert result.coverage_status == "covered"
+    assert result.category == "surface_visible"
 
 
 # ---------------------------------------------------------------------------
@@ -150,18 +152,18 @@ def test_build_audit_counts_and_findings(ctx: CoverageContext) -> None:
     paths = [
         "docs/research/FUNDING_POSITIONING_FADE_SYNTHESIS_2026-06.md",  # covered/surface
         "docs/status_entries/WP-LAB-IDEA-INTAKE-FORMALIZATION-01.md",  # covered/consulted
-        "scratch/WP-RESEARCH-FUNDING-CARRY-01/no_candidate_review_packet_reason.json",  # gap
+        "scratch/WP-RESEARCH-FUNDING-CARRY-01/no_candidate_review_packet_reason.json",  # former gap, covered
         "research/briefs/2026-04-foo/outputs/Q01.json",  # oos
     ]
     classifications = [classify_artifact(p, ctx) for p in paths]
     summary = build_audit(classifications, subjects=SUBJECTS)
     assert summary["totals"]["total_discovered_artifacts"] == 4
-    assert summary["totals"]["covered_coordinator_artifacts"] == 2
-    assert summary["totals"]["surface_visible_artifacts"] == 1
-    assert summary["totals"]["unmapped_gap_artifacts"] == 1
-    assert summary["gaps_found"] is True
-    assert summary["findings"]
-    assert summary["recommended_follow_up_packages"]
+    assert summary["totals"]["covered_coordinator_artifacts"] == 3
+    assert summary["totals"]["surface_visible_artifacts"] == 2
+    assert summary["totals"]["unmapped_gap_artifacts"] == 0
+    assert summary["gaps_found"] is False
+    assert summary["findings"] == []
+    assert summary["recommended_follow_up_packages"] == []
 
 
 def test_build_audit_rejects_unknown_category(ctx: CoverageContext) -> None:
@@ -190,9 +192,10 @@ def test_every_category_and_status_is_in_vocabulary() -> None:
 def test_build_coverage_audit_over_repo_covers_bound_paths() -> None:
     payload = run.build_coverage_audit()
     summary = payload["summary"]
-    # All eight coordinator-referenced paths resolve to covered.
-    assert summary["totals"]["covered_coordinator_artifacts"] == 8
-    assert summary["totals"]["surface_visible_artifacts"] == 4
+    # All coordinator-referenced and supplemental historical paths resolve to covered.
+    assert summary["totals"]["covered_coordinator_artifacts"] == 107
+    assert summary["totals"]["surface_visible_artifacts"] == 103
+    assert summary["totals"]["unmapped_gap_artifacts"] == 0
     # The repo is large; the audit must enumerate a substantial universe.
     assert summary["totals"]["total_discovered_artifacts"] > 1000
     # No category count is negative and they sum to the total.
@@ -205,11 +208,11 @@ def test_build_coverage_audit_over_repo_covers_bound_paths() -> None:
         assert item["coverage_status"] in COVERAGE_STATUSES
 
 
-def test_build_coverage_audit_flags_known_gaps() -> None:
+def test_build_coverage_audit_covers_former_known_gaps() -> None:
     payload = run.build_coverage_audit()
     inv = {i["path"]: i for i in payload["inventory"]}
-    gap = "docs/research/PRICEONLY_SYNTHESIS_2026-06.md"
-    assert inv[gap]["coverage_status"] == "unmapped_gap"
+    former_gap = "docs/research/PRICEONLY_SYNTHESIS_2026-06.md"
+    assert inv[former_gap]["coverage_status"] == "covered"
     # The bound funding-fade conclusion is covered, not a gap.
     bound = "scratch/WP-RESEARCH-FUNDING-FADE-CONCLUDE-01/conclusion_traceability.json"
     assert inv[bound]["coverage_status"] == "covered"

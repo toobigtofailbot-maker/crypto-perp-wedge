@@ -145,6 +145,45 @@ def resolve_experiment_run(
                 artifact_refs=refs,
             )
         )
+    if conclusion.get("status") == "blocked_before_variant_denominator":
+        return _check(
+            StageState(
+                stage="experiment_run",
+                state="blocked",
+                reason_code="BLOCKED_RESULT_POPULATION_UNAVAILABLE",
+                detail="Legacy denominator audit blocked before variant denominator.",
+                artifact_refs=refs,
+            )
+        )
+    if conclusion.get("denominator_preserved") is True:
+        planned = conclusion.get("planned_rows") or conclusion.get("expected_rows")
+        complete = conclusion.get("complete_rows")
+        blocked = conclusion.get("blocked_rows")
+        if complete:
+            return _check(
+                StageState(
+                    stage="experiment_run",
+                    state="experiment_complete",
+                    reason_code="STATE_EXPERIMENT_DENOMINATOR_PRESERVED",
+                    detail=(
+                        f"Legacy denominator preserved: {complete}/{planned} "
+                        "complete."
+                    ),
+                    artifact_refs=refs,
+                )
+            )
+        return _check(
+            StageState(
+                stage="experiment_run",
+                state="blocked",
+                reason_code="BLOCKED_RESULT_POPULATION_UNAVAILABLE",
+                detail=(
+                    f"Legacy denominator preserved but no completed Result "
+                    f"Population rows (blocked {blocked}/{planned})."
+                ),
+                artifact_refs=refs,
+            )
+        )
     denominator = conclusion.get("denominator") or {}
     populations = conclusion.get("result_populations") or []
     if not populations or not denominator.get("preserved", False):
@@ -318,6 +357,29 @@ def resolve_candidate_review_reach(
                 state="not_started",
                 reason_code="STATE_ARTIFACT_MISSING",
                 detail="No candidate-review reach record available.",
+                artifact_refs=refs,
+            )
+        )
+    if (
+        review.get("packet_generated") is False
+        or review.get("status") == "not_generated"
+    ):
+        return _check(
+            StageState(
+                stage="candidate_review_reach",
+                state="candidate_review_not_created",
+                reason_code="NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+                detail=str(review.get("reason", "No candidate-review packet generated.")),
+                artifact_refs=refs,
+            )
+        )
+    if str(review.get("status", "")).lower() == "blocked":
+        return _check(
+            StageState(
+                stage="candidate_review_reach",
+                state="candidate_review_blocked",
+                reason_code="BLOCKED_RESULT_POPULATION_UNAVAILABLE",
+                detail=str(review.get("reason", "Candidate-review packet blocked.")),
                 artifact_refs=refs,
             )
         )
@@ -495,6 +557,17 @@ def build_snapshot(subject: dict[str, Any], repo_root: Path = REPO_ROOT) -> dict
     """
 
     paths = subject.get("artifacts", {})
+    supplemental_refs = [
+        ArtifactRef(
+            role=str(item.get("role", "supplemental_evidence")),
+            path=str(item.get("path", "")),
+            present=(repo_root / str(item.get("path", ""))).exists()
+            if item.get("path")
+            else False,
+            note=str(item.get("note", "")),
+        )
+        for item in subject.get("supplemental_artifacts", [])
+    ]
 
     def ref(role: str, key: str) -> tuple[ArtifactRef, Path | None]:
         rel = paths.get(key)
@@ -601,7 +674,13 @@ def build_snapshot(subject: dict[str, Any], repo_root: Path = REPO_ROOT) -> dict
     )
     ordered = [idea_intake, *stage_states]
 
-    overall = overall_state(ordered)
+    override = subject.get("overall_override")
+    if override is not None:
+        if override not in model.OVERALL_STATES:
+            raise LabStateResolverError(f"unknown overall_override: {override}")
+        overall = override
+    else:
+        overall = overall_state(ordered)
 
     return {
         "schema_version": model.SCHEMA_VERSION,
@@ -609,6 +688,7 @@ def build_snapshot(subject: dict[str, Any], repo_root: Path = REPO_ROOT) -> dict
         "subject_label": subject.get("subject_label"),
         "overall_state": overall,
         "stages": [s.to_dict() for s in ordered],
+        "supplemental_artifact_refs": [ref.to_dict() for ref in supplemental_refs],
         "non_authority_declaration": dict(model.NON_AUTHORITY_DECLARATION),
         "edge_search_hold": model.EDGE_SEARCH_HOLD_NOTE,
     }
@@ -620,7 +700,11 @@ def _select_review_example(
     if review_doc is None:
         return None
     # A flat review record.
-    if "candidate_review_packet_created" in review_doc:
+    if (
+        "candidate_review_packet_created" in review_doc
+        or "packet_generated" in review_doc
+        or review_doc.get("status") in {"not_generated", "blocked"}
+    ):
         return review_doc
     examples = review_doc.get("examples") or []
     if example_id:

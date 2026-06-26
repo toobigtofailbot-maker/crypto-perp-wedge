@@ -33,6 +33,8 @@ def test_queue_data_schema_and_subjects() -> None:
     ids = {e["subject_id"] for e in data["entries"]}
     assert "H-FUNDING-RATE-POSITIONING-FADE-01" in ids
     assert "OOS-GATE-FIXTURE-RP-2592" in ids
+    assert "WP-RESEARCH-FUNDING-CARRY-02" in ids
+    assert "HISTORICAL-CANONICAL-EVIDENCE" in ids
 
 
 def test_summary_lists_every_queue_status_including_zero_buckets() -> None:
@@ -71,6 +73,19 @@ def test_no_go_entry_exposes_no_candidate_review_packet_reason() -> None:
     assert entry["human_decision"] is None
 
 
+def test_legacy_no_go_entries_do_not_create_gate_pending() -> None:
+    data = build_queue_data(repo_root=REPO_ROOT)
+    for subject_id in (
+        "WP-RESEARCH-FUNDING-CARRY-01",
+        "WP-RESEARCH-FUNDING-CARRY-02",
+    ):
+        entry = _entry(data, subject_id)
+        assert entry["queue_status"] == "no_go"
+        assert entry["candidate_review_packet_created"] is False
+        assert entry["human_decision_pending"] is False
+        assert entry["no_candidate_review_packet_reason"] is not None
+
+
 def test_blocked_entry_exposes_blocked_review_reason_and_blockers() -> None:
     data = build_queue_data(repo_root=REPO_ROOT)
     entry = _entry(data, "OOS-GATE-FIXTURE-RP-2592")
@@ -82,6 +97,20 @@ def test_blocked_entry_exposes_blocked_review_reason_and_blockers() -> None:
     kinds = {b["blocker_kind"] for b in entry["blockers"]}
     assert "oos_gate_blocker" in kinds
     assert "candidate_review_blocker" in kinds
+
+
+def test_legacy_blocked_entries_surface_blocked_review_reason() -> None:
+    data = build_queue_data(repo_root=REPO_ROOT)
+    for subject_id in (
+        "WP-RESEARCH-EDGE-SMA-FAMILY-01",
+        "WP-RESEARCH-ORB-EXIT-RESPEC-01",
+    ):
+        entry = _entry(data, subject_id)
+        assert entry["queue_status"] == "blocked_validation"
+        assert entry["blocked_review_reason"] is not None
+        assert entry["blocked_review_reason"]["code"] == (
+            "BLOCKED_RESULT_POPULATION_UNAVAILABLE"
+        )
 
 
 def test_candidate_ready_path_only_when_evidence_records_it() -> None:

@@ -25,10 +25,13 @@ def test_dashboard_data_schema_and_subjects() -> None:
     data = build_dashboard_data(repo_root=REPO_ROOT)
     assert data["schema_version"] == data_model.SCHEMA_VERSION
     assert data["surface_kind"] == "read_only_operator_visibility"
-    # Both committed coordinator-state subjects are projected.
+    # The committed coordinator-state subjects plus historical evidence bundles
+    # are projected.
     ids = {s["subject_id"] for s in data["subjects"]}
     assert "H-FUNDING-RATE-POSITIONING-FADE-01" in ids
     assert "OOS-GATE-FIXTURE-RP-2592" in ids
+    assert "WP-RESEARCH-FUNDING-CARRY-02" in ids
+    assert "HISTORICAL-CANONICAL-EVIDENCE" in ids
 
 
 def test_denominator_summary_shows_full_population_not_winners_only() -> None:
@@ -74,6 +77,26 @@ def test_oos_fail_subject_surfaces_failed_gate() -> None:
     assert view["oos_gate_status"]["state"] == "oos_gate_fail"
     assert view["oos_gate_status"]["reason_code"] == "OOS_GATE_FAIL"
     assert view["overall_state"] == "oos_gate_fail"
+
+
+def test_historical_gap_subjects_are_visible_without_candidate_readiness() -> None:
+    data = build_dashboard_data(repo_root=REPO_ROOT)
+    funding_retry = _subject(data, "WP-RESEARCH-FUNDING-CARRY-02")
+    assert funding_retry["overall_state"] == "no_go"
+    assert funding_retry["denominator"]["planned"] == 36
+    assert funding_retry["denominator"]["complete"] == 36
+    rp_ids = {rp["result_population_id"] for rp in funding_retry["result_populations"]}
+    assert {"RP-2009", "RP-7592"} <= rp_ids
+
+    canonical = _subject(data, "HISTORICAL-CANONICAL-EVIDENCE")
+    assert canonical["overall_state"] == "experiment_complete"
+    paths = {ref["path"] for ref in canonical["artifact_drilldown"]}
+    assert "research/candidate_registry.jsonl" in paths
+    assert "research/result_populations/RP-7520.result_population.json" in paths
+
+    summary = data["denominator_summary"]
+    assert summary["candidate_ready_count"] == 0
+    assert summary["operator_gate_pending_count"] == 0
 
 
 def test_artifact_drilldown_dedups_and_flags_presence() -> None:

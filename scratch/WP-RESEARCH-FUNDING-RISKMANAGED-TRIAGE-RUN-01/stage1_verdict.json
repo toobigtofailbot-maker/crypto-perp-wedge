@@ -1,0 +1,44 @@
+{
+  "package": "WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-RUN-01",
+  "hypothesis_id": "H-FUNDING-FADE-RISKMANAGED-01",
+  "stage": "stage_1_fast_triage_kill_or_continue_only",
+  "evidence_status": "triage_only_never_candidate_evidence",
+  "strategy_run_executed": false,
+  "canonical_artifact_written": false,
+  "candidate_lifecycle_write": false,
+  "denominator": {
+    "planned_rows": 108,
+    "complete_rows": 0,
+    "failed_rows": 0,
+    "invalid_rows": 0,
+    "blocked_rows": 108,
+    "missing_rows": 0,
+    "winner_only_reporting": false
+  },
+  "go_criteria": {
+    "all_satisfied": false,
+    "satisfied": [
+      "Frozen packet integrity matched required package facts.",
+      "No canonical artifact or candidate lifecycle record was written.",
+      "No vectorbt sidecar preview contradicted the real runner because no sidecar was used."
+    ],
+    "failed": [
+      "The 108-row denominator was not executed through the real runner.",
+      "No ATR-stop multiplier slice metrics are available.",
+      "No same-window no-ATR comparison metrics are available.",
+      "No positive-return, drawdown, or axis-span evidence is available."
+    ]
+  },
+  "no_go_criteria": {
+    "any_triggered": false,
+    "triggered": []
+  },
+  "decision": "blocked",
+  "decision_reason": "Current runner/data surfaces cannot execute the exact frozen Stage-1 route without unauthorized code or data-path work: no warmup-preserving 2024-only scoring route exists, and the local runner-consumable funding-feature CSV is unavailable in the active worktree.",
+  "stage2_authorized": false,
+  "notes": [
+    "Blocked status is not a NO-GO on the hypothesis.",
+    "Stage 2 remains unauthorized.",
+    "A future package would need to authorize the minimum runner/windowing or adapter/data-materialization path before retrying the frozen Stage-1 denominator."
+  ]
+}

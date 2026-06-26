@@ -1,0 +1,97 @@
+{
+  "package": "WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-RUN-01",
+  "base": {
+    "branch": "research/funding-riskmanaged-triage-run-01",
+    "base_ref": "origin/main",
+    "base_commit": "5cdc2289311d6ee45ff6b04c68815c939e154d11",
+    "base_note": "origin/main after PR #577 merge"
+  },
+  "frozen_packet_source": {
+    "package": "WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-PREGATE-01",
+    "source_pr": 577,
+    "source_files": [
+      {
+        "path": "docs/research/H_FUNDING_FADE_RISKMANAGED_TRIAGE_PREGATE.md",
+        "sha256": "0cda96aeb7a0da161830bdbd6804e88dc26d51f68028f4a5f1dca008da44fe95"
+      },
+      {
+        "path": "docs/status_entries/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-PREGATE-01.md",
+        "sha256": "4e4fc2a35c8dfc4f8384623d22b6773cfe712fc8f65d15698c4a04e51ff7a072"
+      },
+      {
+        "path": "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-PREGATE-01/selected_hypothesis.json",
+        "sha256": "5b98e81c3400cef6d15bcc58d9413d5e895d13d3df453be063f329d7069ab463"
+      },
+      {
+        "path": "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-PREGATE-01/triage_window_selection.json",
+        "sha256": "e8bd9462c718bcab0f9a6806a09fba235fe9c640ce83de79d1b0926779ba2670"
+      },
+      {
+        "path": "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-PREGATE-01/frozen_risk_control_ranges.json",
+        "sha256": "8354b14e5915117a86b7da69a8d8a2bafda667e84cae9123098ec3864fa273bc"
+      },
+      {
+        "path": "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-PREGATE-01/triage_denominator_plan.json",
+        "sha256": "fcdff90b47215b181416b5e50a9520fb70aa7b7f6eb2fd6e397a7c789301c7ca"
+      },
+      {
+        "path": "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-PREGATE-01/real_runner_reconciliation_plan.md",
+        "sha256": "a66ad060cb89b8d83c16b2827bfb53bd5be2cc93c24d9620b512fcafcba13b38"
+      },
+      {
+        "path": "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-PREGATE-01/stop_go_criteria.json",
+        "sha256": "86f3cf7ab517a2d00bf7cff3475fe08748d1566688e20beda88840cc58e90b50"
+      },
+      {
+        "path": "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-PREGATE-01/no_outcome_peeking_attestation.md",
+        "sha256": "c108c357753934a8216cb0cb94efd7559332b2a617fc07879a235c743855d630"
+      },
+      {
+        "path": "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-PREGATE-01/karl_signoff_packet.md",
+        "sha256": "6fddcd827a18f5c5fd05336b199fd527250a205c98d5d77aed50819464c14c94"
+      }
+    ]
+  },
+  "required_fact_checks": {
+    "hypothesis_id": {
+      "expected": "H-FUNDING-FADE-RISKMANAGED-01",
+      "observed": "H-FUNDING-FADE-RISKMANAGED-01",
+      "matches": true
+    },
+    "window_start": {
+      "expected": "2024-01-01T00:00:00Z",
+      "observed": "2024-01-01T00:00:00Z",
+      "matches": true
+    },
+    "window_end": {
+      "expected": "2025-01-01T00:00:00Z",
+      "observed": "2025-01-01T00:00:00Z",
+      "matches": true
+    },
+    "warmup_starts_no_later_than": {
+      "expected_latest_allowed": "2023-07-05T00:00:00Z",
+      "observed_required_no_later_than": "2023-07-05T00:00:00Z",
+      "matches": true
+    },
+    "planned_denominator": {
+      "expected": 108,
+      "observed": 108,
+      "matches": true
+    },
+    "signal_retuning_allowed": {
+      "expected": false,
+      "observed": false,
+      "matches": true
+    },
+    "risk_layer_status": {
+      "expected": "frozen_before_execution",
+      "observed": "frozen_before_execution",
+      "matches": true
+    }
+  },
+  "integrity_check_passed": true,
+  "notes": [
+    "The frozen packet matched all package-required headline facts.",
+    "This integrity check does not execute a strategy run and does not authorize Stage 2."
+  ]
+}

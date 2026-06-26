@@ -1,0 +1,39 @@
+{
+  "stage": "stage_1_fast_triage_kill_or_continue_only",
+  "go_to_stage_2_only_if_all": [
+    "The planned 108-row denominator is complete or every missing row is explicitly accounted for as failed, invalid, errored, data_unavailable, or blocked.",
+    "At least one ATR-stop multiplier slice has median drawdown <= 0.35 across its 36 risk-managed rows.",
+    "The same ATR-stop multiplier slice has worst-row drawdown < 0.50.",
+    "The same ATR-stop multiplier slice improves median drawdown by at least 0.20 absolute versus the same-window no-ATR comparison slice for matching signal cells.",
+    "The same ATR-stop multiplier slice has positive median net return.",
+    "At least 4 rows in the same ATR-stop multiplier slice have positive net return.",
+    "The positive effect appears across at least two funding_lookback_bars values and both entry tail pairs.",
+    "No single isolated parameter cell is the only evidence for continuation.",
+    "Real-runner reconciliation does not materially contradict any vectorbt sidecar preview.",
+    "Funding-PnL/accounting changes are not required to interpret the result."
+  ],
+  "no_go_if_any": [
+    "The denominator is incomplete or winner-only reporting occurs.",
+    "All ATR-stop multiplier slices have median drawdown > 0.35 or worst-row drawdown >= 0.50.",
+    "Drawdown improves only because returns are killed, defined as non-positive median net return for every ATR-stop multiplier slice.",
+    "Only one isolated row passes the net-return and drawdown thresholds.",
+    "The apparent effect is confined to one funding lookback or one entry tail pair.",
+    "Vectorbt and real-runner results materially diverge and the divergence is not resolved before decision.",
+    "The run requires funding payment/accounting changes, runtime/paper/live paths, or protected OMS/risk/reconciliation/order/exchange paths.",
+    "The Stage 1 output writes canonical evidence or candidate lifecycle records without later explicit authorization."
+  ],
+  "material_divergence_definition": {
+    "return_direction_mismatch": "matching variant has opposite net-return sign between sidecar and real runner",
+    "drawdown_bucket_mismatch": "matching variant differs across <=0.35, 0.35-0.50, >0.50 drawdown buckets",
+    "trade_count_order_mismatch": "matching variant differs by more than 2x trade count without explained semantic reason",
+    "missing_matching_variant": "variant present in one engine output and absent from the other without denominator accounting"
+  },
+  "decision_outputs_required": [
+    "complete denominator table",
+    "same-window no-ATR comparison summary",
+    "ATR multiplier slice summary",
+    "neighboring-cell / axis-span check",
+    "real-runner reconciliation note",
+    "protected-boundary statement"
+  ]
+}

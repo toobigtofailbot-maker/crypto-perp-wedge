@@ -1,0 +1,29 @@
+Validation summary for WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-PREGATE-01
+
+Base:
+- Branch: research/funding-riskmanaged-triage-pregate-01
+- Refreshed origin/main: 2249e6e
+
+Commands:
+- python -m tools.research_query.run --list-views
+  Result: PASS. Listed research query views successfully.
+- python -m tools.registry.validate_result_populations
+  Result: PASS. Result-population artifacts validate.
+- python -m tools.registry.validate_candidate_registry
+  Result: PASS. Candidate lifecycle registry fixtures validate.
+- python tools/dev/diff_scope_summary.py
+  Result: PASS. Helper reported only expected new docs/scratch files and no forbidden-path matches.
+- git diff --check
+  Result: PASS. No whitespace errors reported.
+
+Full pytest:
+- Not run. Package is docs/scratch-only and the active package explicitly did not require full pytest unless code changed. No code was changed.
+
+Execution statement:
+- Strategy run executed: no.
+- Backtest executed: no.
+- Sweep executed: no.
+- Sidecar triage executed: no.
+- Canonical artifact written: no.
+- Candidate lifecycle write: no.
+- Protected runtime/paper/live paths touched: no.

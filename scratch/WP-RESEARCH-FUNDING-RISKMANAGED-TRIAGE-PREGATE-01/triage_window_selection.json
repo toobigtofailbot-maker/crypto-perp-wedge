@@ -1,0 +1,28 @@
+{
+  "window_role": "stage_1_fast_triage_kill_or_continue_only",
+  "window_start": "2024-01-01T00:00:00Z",
+  "window_end": "2025-01-01T00:00:00Z",
+  "duration": "approximately_1_year",
+  "selection_method": "Completed calendar-year BTCUSDT 15m evaluation window chosen from non-strategy market-regime coverage, with a required warmup prefix for the 180-day funding percentile lookback.",
+  "selection_rationale": "Calendar year 2024 is a completed mixed BTC market year in the available full-history era: it contains strong directional movement, mid-year range/chop, and renewed late-year trend conditions. It is not the most recent year by default and was not selected from any H-FUNDING-FADE-RISKMANAGED-01 performance result.",
+  "not_selected_by_strategy_performance": true,
+  "not_most_recent_by_default": true,
+  "not_favorable_by_backtest_result": true,
+  "allowed_inputs_for_selection": [
+    "calendar boundaries",
+    "locked BTCUSDT 15m data availability",
+    "funding_rate feature availability",
+    "known market-regime variety from price/funding chronology",
+    "warmup requirement for 180-day funding percentile"
+  ],
+  "forbidden_inputs_for_selection": [
+    "strategy_return",
+    "strategy_sharpe",
+    "strategy_drawdown",
+    "variant_pnl",
+    "winner_cells"
+  ],
+  "input_warmup_start_required_no_later_than": "2023-07-05T00:00:00Z",
+  "evaluation_boundary_semantics": "start_inclusive_end_exclusive",
+  "evidence_status": "triage_only_never_candidate_evidence"
+}

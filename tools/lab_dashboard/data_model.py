@@ -103,6 +103,18 @@ def _evidence_class(conclusion: dict[str, Any] | None) -> str:
 def _denominator(conclusion: dict[str, Any] | None) -> dict[str, Any]:
     """Full denominator breakdown — never winners only (package §5)."""
     if not conclusion or "denominator" not in conclusion:
+        if conclusion and conclusion.get("denominator_preserved") is True:
+            return {
+                "available": True,
+                "planned": conclusion.get("planned_rows")
+                or conclusion.get("expected_rows"),
+                "complete": conclusion.get("complete_rows"),
+                "failed": conclusion.get("failed_rows"),
+                "invalid": conclusion.get("invalid_rows"),
+                "blocked": conclusion.get("blocked_rows"),
+                "pruned": conclusion.get("pruned_rows"),
+                "preserved": True,
+            }
         return {"available": False}
     d = conclusion["denominator"]
     return {
@@ -121,7 +133,7 @@ def _result_populations(conclusion: dict[str, Any] | None) -> list[dict[str, Any
     if not conclusion:
         return []
     rows = conclusion.get("result_populations") or []
-    return [
+    result_populations = [
         {
             "result_population_id": rp.get("result_population_id"),
             "exit_mode": rp.get("exit_mode"),
@@ -130,6 +142,22 @@ def _result_populations(conclusion: dict[str, Any] | None) -> list[dict[str, Any
         }
         for rp in rows
     ]
+    artifact_hashes = conclusion.get("artifact_paths_and_hashes") or {}
+    for key, value in sorted(artifact_hashes.items()):
+        if not isinstance(value, dict) or "result" not in key:
+            continue
+        path = str(value.get("path", ""))
+        filename = path.rsplit("/", 1)[-1]
+        result_id = filename.split(".", 1)[0] if filename.startswith("RP-") else key
+        result_populations.append(
+            {
+                "result_population_id": result_id,
+                "exit_mode": key.replace("_result", ""),
+                "rows": None,
+                "sha256": value.get("sha256"),
+            }
+        )
+    return result_populations
 
 
 def _robustness_facts(
@@ -202,6 +230,15 @@ def _artifact_drilldown(snapshot: dict[str, Any]) -> list[dict[str, Any]]:
                     "path": path,
                     "present": bool(ref.get("present")),
                 }
+    for ref in snapshot.get("supplemental_artifact_refs", []):
+        path = ref.get("path") or ""
+        if not path or path in seen:
+            continue
+        seen[path] = {
+            "role": ref.get("role"),
+            "path": path,
+            "present": bool(ref.get("present")),
+        }
     return [seen[path] for path in sorted(seen)]
 
 

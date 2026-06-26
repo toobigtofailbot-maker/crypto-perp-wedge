@@ -126,6 +126,27 @@ The committed end-to-end binding is `H-FUNDING-RATE-POSITIONING-FADE-01`:
 A second binding (OOS gate fixture `RP-2592` / `WF-RUN-40BB0B209274054B`,
 `gate_decision=fail`) exercises `oos_gate_fail`.
 
+`WP-LAB-COVERAGE-GAP-CLOSE-01` extends the read-only binding set so historical
+committed research evidence no longer sits outside operator visibility. The
+added subjects are descriptive bundles only:
+
+- `WP-RESEARCH-FUNDING-CARRY-01` — historical funding-carry attempt, overall
+  `no_go` after a blocked experiment path and no candidate-review packet;
+- `WP-RESEARCH-FUNDING-CARRY-02` — funding-carry retry evidence, overall
+  `no_go` with preserved 36/36 denominator and no candidate-review packet;
+- `WP-RESEARCH-EDGE-SMA-FAMILY-01` — blocked SMA-family research path, overall
+  `blocked`;
+- `WP-RESEARCH-ORB-EXIT-RESPEC-01` — blocked ORB exit re-spec path, overall
+  `blocked`;
+- `WP-RESEARCH-PRICEONLY-SYNTHESIS-01` — price-only synthesis report bundle,
+  overall `reported`;
+- `HISTORICAL-CANONICAL-EVIDENCE` — candidate registry and committed Result
+  Population reference bundle, overall `experiment_complete`.
+
+Supplemental artifact references are read-only drill-down links. They do not
+execute transitions, change historical artifacts, create candidate readiness,
+create operator-gate pending state, or grant approval/promotion authority.
+
 The static snapshot is printed by:
 
 ```

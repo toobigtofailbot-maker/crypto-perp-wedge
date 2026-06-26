@@ -1,0 +1,60 @@
+{
+  "base": "origin/main b64c4f2 after PRs #573-#575",
+  "by_category": {
+    "blocked_or_no_go_evidence": 0,
+    "candidate_or_crossing_evidence": 0,
+    "coordinator_subject_covered": 4,
+    "intentionally_out_of_scope": 736,
+    "known_fixture": 0,
+    "known_supporting_artifact": 283,
+    "orphan_research_artifact": 4,
+    "requires_followup_mapping": 0,
+    "status_entry_only": 171,
+    "surface_visible": 103,
+    "synthesis_or_report": 2
+  },
+  "by_coverage_status": {
+    "covered": 107,
+    "malformed": 0,
+    "out_of_scope": 1196,
+    "unmapped_gap": 0
+  },
+  "candidate_ready_count": 0,
+  "coordinator_subjects": [
+    "edge_sma_family_blocked",
+    "funding_carry_01_blocked_no_go",
+    "funding_carry_02_no_go",
+    "funding_positioning_fade_no_go",
+    "historical_canonical_evidence_bundle",
+    "oos_gate_fail_demo",
+    "orb_exit_respec_blocked",
+    "priceonly_synthesis_reported"
+  ],
+  "operator_gate_pending_count": 0,
+  "package": "WP-LAB-COVERAGE-GAP-CLOSE-01",
+  "post_unmapped_gap_count": 0,
+  "post_unmapped_gaps": [],
+  "queue_summary": {
+    "blocked_validation_count": 3,
+    "by_queue_status": {
+      "advisory_only": 2,
+      "blocked_validation": 3,
+      "no_go": 3,
+      "not_actionable": 0,
+      "operator_gate_pending": 0
+    },
+    "candidate_review_packet_created_count": 0,
+    "honest_state_note": "No candidate is ready for human review and no operator gate is pending. The queue correctly shows only NO-GO / blocked / advisory-only items. This is the honest current state, not an error.",
+    "no_go_count": 3,
+    "nothing_candidate_ready": true,
+    "operator_gate_pending_count": 0,
+    "subject_count": 8
+  },
+  "totals": {
+    "covered_coordinator_artifacts": 107,
+    "malformed_or_unreadable_artifacts": 0,
+    "surface_visible_artifacts": 103,
+    "total_discovered_artifacts": 1303,
+    "unmapped_gap_artifacts": 0
+  }
+}

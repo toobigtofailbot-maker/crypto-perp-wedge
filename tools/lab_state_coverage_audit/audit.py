@@ -63,6 +63,12 @@ _SURFACE_RENDERED_ROLES: frozenset[str] = frozenset(
 _CONSULTED_ROLES: frozenset[str] = frozenset(
     {"formalization", "replay_normalization", "walkforward_oos_gate"}
 )
+_SUPPLEMENTAL_RENDERED_ROLE_PREFIXES: tuple[str, ...] = (
+    "supplemental_",
+    "legacy_",
+    "canonical_",
+    "bundle_",
+)
 
 # Operator-relevant conclusions that are NOT bound to any coordinator subject.
 # These are the silent-evidence gap set: committed conclusions an operator would
@@ -180,6 +186,14 @@ def coordinator_paths_from_subjects(
                 consulted.add(rel)
             else:  # pragma: no cover - guards against an unmodelled role
                 raise AuditError(f"unknown subject artifact role: {role}")
+        for item in subject.get("supplemental_artifacts", []):
+            rel = item.get("path")
+            role = str(item.get("role", "supplemental_evidence"))
+            if not rel:
+                continue
+            if not role.startswith(_SUPPLEMENTAL_RENDERED_ROLE_PREFIXES):
+                raise AuditError(f"unknown supplemental artifact role: {role}")
+            surface.add(str(rel))
     # A path that is rendered for one subject dominates a consulted-only use.
     consulted -= surface
     return frozenset(surface), frozenset(consulted)

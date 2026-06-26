@@ -59,9 +59,12 @@ def test_no_go_subject_is_categorized_and_carries_caveats() -> None:
 def test_completed_runs_include_reached_experiments() -> None:
     data = _data()
     ids = {line["subject_id"] for line in data["completed_runs"]}
-    # Both committed subjects reached at least experiment_complete.
+    # The original committed subjects and historical bundles that reached
+    # experiment evidence are visible.
     assert "H-FUNDING-RATE-POSITIONING-FADE-01" in ids
     assert "OOS-GATE-FIXTURE-RP-2592" in ids
+    assert "WP-RESEARCH-FUNDING-CARRY-02" in ids
+    assert "HISTORICAL-CANONICAL-EVIDENCE" in ids
 
 
 def test_validation_status_surfaces_oos_and_withheld() -> None:
@@ -88,6 +91,17 @@ def test_candidate_review_readiness_only_when_evidence_exists() -> None:
     for c in data["candidate_review_readiness"]:
         assert c["has_candidate_review_evidence"] is False
         assert "No candidate-review packet evidence" in c["detail"]
+
+
+def test_historical_no_go_and_blocked_subjects_are_reported() -> None:
+    data = _data()
+    no_go_ids = {line["subject_id"] for line in data["no_gos"]}
+    blocked_ids = {line["subject_id"] for line in data["blocked_runs"]}
+    assert "WP-RESEARCH-FUNDING-CARRY-01" in no_go_ids
+    assert "WP-RESEARCH-FUNDING-CARRY-02" in no_go_ids
+    assert "WP-RESEARCH-EDGE-SMA-FAMILY-01" in blocked_ids
+    assert "WP-RESEARCH-ORB-EXIT-RESPEC-01" in blocked_ids
+    assert data["counts"]["open_decision_surfaces"] == 0
 
 
 def test_counts_use_full_population_by_overall_state() -> None:

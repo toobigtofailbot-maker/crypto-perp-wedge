@@ -1,0 +1,93 @@
+{
+  "package": "WP-RESEARCH-FUNDING-TRIAGE-DATAPREP-01",
+  "hypothesis_id": "H-FUNDING-FADE-RISKMANAGED-01",
+  "date": "2026-06-27",
+  "stage1_execution_authorized_here": false,
+  "funding_feature_data_ready": true,
+  "funding_feature_csv_path": "data/processed/d4a/binance_um_perp_BTCUSDT_15m_2020-01-01_2026-04-11_d4a_normalized_with_funding_rate.csv",
+  "funding_feature_csv_sha256": "70cbe2040c8fb5987b2971a13c8bd4f66e91152331d5b641d684673364be3931",
+  "funding_feature_data_committed": false,
+  "funding_feature_data_gitignored": true,
+  "scratch_parent_specs_created": true,
+  "parent_specs": [
+    {
+      "risk_state": "no_atr",
+      "spec_id": "STRAT-SPEC-9601",
+      "path": "scratch/WP-RESEARCH-FUNDING-TRIAGE-DATAPREP-01/inputs/no_atr/strategy_spec.json",
+      "validates": true
+    },
+    {
+      "risk_state": "atr_20",
+      "spec_id": "STRAT-SPEC-9602",
+      "path": "scratch/WP-RESEARCH-FUNDING-TRIAGE-DATAPREP-01/inputs/atr_20/strategy_spec.json",
+      "validates": true
+    },
+    {
+      "risk_state": "atr_30",
+      "spec_id": "STRAT-SPEC-9603",
+      "path": "scratch/WP-RESEARCH-FUNDING-TRIAGE-DATAPREP-01/inputs/atr_30/strategy_spec.json",
+      "validates": true
+    }
+  ],
+  "variant_manifests_created": true,
+  "variant_manifests": [
+    {
+      "risk_state": "no_atr",
+      "vm_id": "VM-9601",
+      "path": "scratch/WP-RESEARCH-FUNDING-TRIAGE-DATAPREP-01/inputs/no_atr/variant_manifest.json",
+      "row_count": 36
+    },
+    {
+      "risk_state": "atr_20",
+      "vm_id": "VM-9602",
+      "path": "scratch/WP-RESEARCH-FUNDING-TRIAGE-DATAPREP-01/inputs/atr_20/variant_manifest.json",
+      "row_count": 36
+    },
+    {
+      "risk_state": "atr_30",
+      "vm_id": "VM-9603",
+      "path": "scratch/WP-RESEARCH-FUNDING-TRIAGE-DATAPREP-01/inputs/atr_30/variant_manifest.json",
+      "row_count": 36
+    }
+  ],
+  "sweep_plans_created": true,
+  "sweep_plans": [
+    {
+      "risk_state": "no_atr",
+      "sp_id": "SWEEP-PLAN-9601",
+      "path": "scratch/WP-RESEARCH-FUNDING-TRIAGE-DATAPREP-01/inputs/no_atr/sweep_plan.json",
+      "selected_variants": 36
+    },
+    {
+      "risk_state": "atr_20",
+      "sp_id": "SWEEP-PLAN-9602",
+      "path": "scratch/WP-RESEARCH-FUNDING-TRIAGE-DATAPREP-01/inputs/atr_20/sweep_plan.json",
+      "selected_variants": 36
+    },
+    {
+      "risk_state": "atr_30",
+      "sp_id": "SWEEP-PLAN-9603",
+      "path": "scratch/WP-RESEARCH-FUNDING-TRIAGE-DATAPREP-01/inputs/atr_30/sweep_plan.json",
+      "selected_variants": 36
+    }
+  ],
+  "denominator_manifest_rows": 108,
+  "denominator_manifest_path": "scratch/WP-RESEARCH-FUNDING-TRIAGE-DATAPREP-01/denominator_manifest.json",
+  "frozen_fidelity_pass": true,
+  "frozen_fidelity_check_path": "scratch/WP-RESEARCH-FUNDING-TRIAGE-DATAPREP-01/frozen_fidelity_check.json",
+  "karl_signoff_packet_created": true,
+  "karl_signoff_packet_path": "scratch/WP-RESEARCH-FUNDING-TRIAGE-DATAPREP-01/karl_frozen_content_signoff_packet.md",
+  "karl_signoff_obtained": false,
+  "execution_route_notes": [
+    "At execution time, each parent spec must be decomposed to two runner invocations (one per exit mode: fixed_max_hold_only and midline_reversion_or_max_hold).",
+    "Runner command: python -m tools.research_runner.run_offline_sweep --canonical-15m --evaluation-start 2024-01-01T00:00:00Z --evaluation-end 2025-01-01T00:00:00Z",
+    "After running all six sub-specs (3 risk states x 2 exit modes), use atr_denominator_bundler to assemble the 108-row denominator.",
+    "The bundler (tools/research_runner/atr_denominator_bundler.py) combines three 36-row slices and assigns composite_row_id."
+  ],
+  "ready_for_stage1_execution_after_karl_signoff": true,
+  "remaining_blockers": [
+    "Karl sign-off on frozen content not yet obtained — required before Stage-1 execution."
+  ],
+  "next_package_if_signed_off": "WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01",
+  "next_package_if_blocked": ""
+}

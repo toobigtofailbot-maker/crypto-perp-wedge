@@ -166,4 +166,4 @@ The packet surfaces:
 
 ## PR
 
-See PR for this branch (research/funding-triage-dataprep-01).
+[PR #580](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/580) — open, ready for review, not draft.

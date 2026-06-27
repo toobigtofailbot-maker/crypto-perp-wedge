@@ -1,0 +1,87 @@
+WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-UNBLOCK-01 — Validation Summary
+=======================================================================
+Date: 2026-06-27 (updated: PR #579 follow-up patch)
+
+TARGETED TESTS
+--------------
+Command: /c/GitHub/crypto-perp-wedge/.venv/Scripts/python -m pytest tests/test_evaluation_window.py -q
+Result:  20 passed in 2.46s  (15 original + 5 patch)
+Status:  PASS
+
+Test coverage (original):
+  test_invalid_evaluation_window_fails_closed_start_equals_end
+  test_invalid_evaluation_window_fails_closed_start_after_end
+  test_invalid_evaluation_window_fails_closed_start_before_first_bar
+  test_invalid_evaluation_window_fails_closed_too_few_bars
+  test_valid_evaluation_window_does_not_raise
+  test_evaluation_window_blocks_or_masks_pre_window_trades
+  test_mask_signal_does_not_mutate_original
+  test_evaluation_window_end_is_exclusive
+  test_evaluation_window_uses_warmup_for_features_but_excludes_warmup_metrics
+  test_no_evaluation_window_preserves_existing_runner_behavior
+  test_windowed_metrics_fewer_than_2_points_fails_closed
+  test_atr_parent_spec_route_preserves_108_expected_variant_ids
+  test_no_atr_and_atr_states_do_not_collapse_or_overwrite_each_other
+  test_bundler_rejects_wrong_row_count
+  test_bundle_integrity_validator_catches_errors
+
+Test coverage (patch — evaluation_end fail-closed + post-window truncation):
+  test_evaluation_end_after_last_input_bar_fails_closed
+  test_evaluation_end_exactly_one_period_past_last_bar_is_allowed
+  test_windowed_backtest_truncates_post_window_rows_before_run
+  test_windowed_trade_count_and_costs_exclude_post_window_activity
+  test_windowed_mode_no_window_mode_behavior_unchanged
+
+EXISTING RUNNER / COMPILER TESTS
+---------------------------------
+Command: /c/GitHub/crypto-perp-wedge/.venv/Scripts/python -m pytest tests/test_offline_research_runner.py -q
+Result:  101 passed, 2 warnings in 83.18s
+Status:  PASS (no regressions)
+
+Command: /c/GitHub/crypto-perp-wedge/.venv/Scripts/python -m pytest tests/test_funding_feature_materialization.py -q
+Result:  5 passed in 1.86s
+Status:  PASS
+
+RESEARCH QUERY
+--------------
+Command: python -m tools.research_query.run --list-views
+Result:  Listed 30+ views successfully
+Status:  PASS
+
+RESULT-POPULATION VALIDATOR
+----------------------------
+Command: python -m tools.registry.validate_result_populations
+Result:  OK: result-population artifacts under .../research/result_populations validate
+Status:  PASS
+
+CANDIDATE-REGISTRY VALIDATOR
+------------------------------
+Command: python -m tools.registry.validate_candidate_registry
+Result:  OK: candidate lifecycle registry artifacts validate
+Status:  PASS
+
+DIFF SCOPE SUMMARY (post-patch)
+--------------------------------
+Command: python tools/dev/diff_scope_summary.py
+Result:
+  Tracked changed files:
+    tests/test_evaluation_window.py       (+108 / -0)
+    tools/research_runner/run_offline_sweep.py  (+51 / -3)
+  Untracked files: none
+  Forbidden-path matches: none
+Status:  PASS — all changes within allowed scope (tools/research_runner/**, tests/**)
+
+GIT DIFF --CHECK
+----------------
+Command: git diff --check
+Result:  (no output — no whitespace errors)
+Status:  PASS
+
+FULL PYTEST
+-----------
+Not run for this patch. The patch touched only:
+  tools/research_runner/run_offline_sweep.py
+  tests/test_evaluation_window.py
+
+Targeted tests + existing runner tests provide sufficient coverage. Full pytest
+would trigger network-touching or platform-specific tests outside this scope.

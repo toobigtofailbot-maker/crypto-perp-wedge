@@ -1,0 +1,61 @@
+{
+  "package": "WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-UNBLOCK-01",
+  "source_blocked_package": "WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-RUN-01",
+  "frozen_hypothesis": "H-FUNDING-FADE-RISKMANAGED-01",
+  "stage1_retry_authorized_here": false,
+
+  "evaluation_window_route_ready": true,
+  "evaluation_window_route_notes": [
+    "run_offline_sweep now accepts --evaluation-start and --evaluation-end parameters.",
+    "_mask_signal_before_window forces signal to 0.0 before evaluation_start.",
+    "Signal compiler still runs on full frame (warmup + evaluation) for indicator state.",
+    "_metrics_from_backtest_windowed restricts metrics to [evaluation_start, evaluation_end).",
+    "_validate_evaluation_window fails closed on invalid/missing windows.",
+    "15 targeted tests pass. 101 existing runner tests pass without regression."
+  ],
+
+  "pre_window_position_guard_ready": true,
+  "pre_window_position_guard_notes": [
+    "Guard approach: signal masking before evaluation_start.",
+    "Backtest receives signal=0.0 for all warmup bars, so no position can open before evaluation_start.",
+    "No pre-window trade can contaminate evaluation-window equity curve or trade count."
+  ],
+
+  "atr_parent_spec_route_ready": true,
+  "atr_parent_spec_route_notes": [
+    "Route plan documented in atr_parent_spec_route_plan.md.",
+    "tools/research_runner/atr_denominator_bundler.py implements bundle_atr_denominator().",
+    "Bundler assigns risk_control_state and composite_row_id to prevent cross-state collision.",
+    "validate_bundle_denominator_integrity() verifies 108-row denominator integrity.",
+    "7 bundler tests pass.",
+    "Three scratch parent Strategy Specs NOT yet created (deferred to Stage-1 retry package).",
+    "atr_parent_spec_route_ready=true means the infrastructure is in place; specs are next."
+  ],
+
+  "funding_feature_data_ready": false,
+  "funding_feature_data_notes": [
+    "Runner-consumable funding-feature CSV (OHLCV + funding_rate column) is MISSING.",
+    "Source files are present in main checkout: base OHLCV CSV and raw funding Parquet.",
+    "Materialization command documented in funding_feature_data_preflight.json.",
+    "Materialization requires running tools.data.materialize_funding_feature locally.",
+    "No private API or credentials required — local files only.",
+    "Output must not be git-committed (local ignored derived file)."
+  ],
+
+  "ready_for_stage1_retry": false,
+  "remaining_blockers": [
+    "funding_feature_data: runner-consumable funding-feature CSV is missing; materialize locally using the command in funding_feature_data_preflight.json",
+    "scratch_parent_specs: three scratch parent Strategy Specs (no_atr, atr_20, atr_30) with 36-variant manifests and sweep plans are not yet created; deferred to Stage-1 retry package"
+  ],
+
+  "next_required_wp": "WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-STAGE1-RETRY-01",
+  "next_wp_must": [
+    "Authorize Stage-1 retry execution",
+    "Create three scratch parent Strategy Specs for no_atr / atr_20 / atr_30 risk control states",
+    "Create 36-variant manifests and sweep plans for each spec",
+    "Verify funding-feature CSV is materialized and present in the run environment",
+    "Run each spec through run_offline_sweep --canonical-15m --evaluation-start 2024-01-01T00:00:00Z --evaluation-end 2025-01-01T00:00:00Z",
+    "Bundle the three 36-row result populations into one 108-row denominator using atr_denominator_bundler",
+    "Apply stop/go criteria from scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-PREGATE-01/stop_go_criteria.json"
+  ]
+}

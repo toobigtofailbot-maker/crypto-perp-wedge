@@ -1131,6 +1131,8 @@ def _run_canonical_15m_backtest(
     execution_input: _ExecutionInput,
     sizing_context: _SizingContext,
     sizing: _SizingResolution,
+    evaluation_start: pd.Timestamp | None = None,
+    evaluation_end: pd.Timestamp | None = None,
 ) -> Any:
     signal = compile_signal(
         strategy_spec,
@@ -1138,6 +1140,8 @@ def _run_canonical_15m_backtest(
         execution_input.ohlcv,
         funding=execution_input.funding,
     )
+    if evaluation_start is not None:
+        signal = _mask_signal_before_window(signal, evaluation_start)
     return run_backtest(
         signal=signal,
         ohlcv=execution_input.ohlcv,
@@ -1175,6 +1179,99 @@ def _metrics_from_backtest(result: Any, freq: str) -> dict[str, Any]:
     return {
         "pnl": float(final_equity - initial_equity),
         "return_pct": float((final_equity - initial_equity) / initial_equity),
+        "drawdown": float(drawdown),
+        "trade_count": trade_count,
+        "win_rate": win_rate,
+        "sharpe": float(sharpe(returns, freq)),
+        "fees": float(result.fees_paid),
+        "funding": float(result.funding_paid),
+        "slippage": float(result.slippage_paid),
+        "exposure": 1.0 if trade_count else 0.0,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Evaluation-window support (warmup-preserving, offline-only)
+# ---------------------------------------------------------------------------
+
+
+def _validate_evaluation_window(
+    evaluation_start: pd.Timestamp,
+    evaluation_end: pd.Timestamp,
+    ohlcv: pd.DataFrame,
+) -> None:
+    """Fail closed if the evaluation window is invalid or leaves no evaluable bars."""
+    if evaluation_start >= evaluation_end:
+        raise OfflineSweepError(
+            "evaluation_start must be strictly before evaluation_end"
+        )
+    if ohlcv.empty:
+        raise OfflineSweepError("OHLCV frame is empty — cannot validate evaluation window")
+    first_bar = ohlcv.index[0]
+    if evaluation_start < first_bar:
+        raise OfflineSweepError(
+            f"evaluation_start ({evaluation_start.isoformat()}) is before the first OHLCV bar "
+            f"({first_bar.isoformat()}) — warmup prefix is missing from the input frame"
+        )
+    eval_rows = ohlcv.loc[
+        (ohlcv.index >= evaluation_start) & (ohlcv.index < evaluation_end)
+    ]
+    if len(eval_rows) < 2:
+        raise OfflineSweepError(
+            "evaluation window contains fewer than 2 OHLCV bars — no evaluable data"
+        )
+
+
+def _mask_signal_before_window(
+    signal: pd.Series,
+    evaluation_start: pd.Timestamp,
+) -> pd.Series:
+    """Force signal to 0.0 for all bars before evaluation_start.
+
+    Prevents any position from opening during the warmup prefix so no
+    pre-window trade can contaminate evaluation-window metrics.  The signal
+    compiler still runs on the full frame (warmup + evaluation), so rolling
+    indicator state is correctly established before the window opens.
+    """
+    masked = signal.copy()
+    masked.loc[masked.index < evaluation_start] = 0.0
+    return masked
+
+
+def _metrics_from_backtest_windowed(
+    result: Any,
+    freq: str,
+    evaluation_start: pd.Timestamp,
+    evaluation_end: pd.Timestamp,
+) -> dict[str, Any]:
+    """Compute metrics restricted to the evaluation window [start, end).
+
+    Because _mask_signal_before_window is applied before the backtest, no
+    positions open during the warmup prefix.  The full-run fees/funding/
+    slippage therefore belong to evaluation-window trades only.
+    """
+    eval_curve = result.equity_curve.loc[
+        (result.equity_curve.index >= evaluation_start)
+        & (result.equity_curve.index < evaluation_end)
+    ]
+    if len(eval_curve) < 2:
+        raise OfflineSweepError(
+            "evaluation window produced fewer than 2 equity curve points — "
+            "cannot compute windowed metrics"
+        )
+    returns = eval_curve.pct_change().dropna()
+    drawdown, _, _ = max_drawdown(eval_curve)
+    window_initial = float(eval_curve.iloc[0])
+    final_equity = float(eval_curve.iloc[-1])
+    pnl = final_equity - window_initial
+    return_pct = pnl / window_initial if window_initial != 0.0 else 0.0
+    trade_count = int(len(result.trades_df))
+    win_rate = 0.0
+    if trade_count and "net_pnl" in result.trades_df.columns:
+        win_rate = float((result.trades_df["net_pnl"] > 0).sum() / trade_count)
+    return {
+        "pnl": float(pnl),
+        "return_pct": float(return_pct),
         "drawdown": float(drawdown),
         "trade_count": trade_count,
         "win_rate": win_rate,
@@ -1820,6 +1917,8 @@ def _execute_variant_worker(
     deterministic_seed: int,
     execution_input: _ExecutionInput | None,
     sizing_context: _SizingContext,
+    evaluation_start: pd.Timestamp | None = None,
+    evaluation_end: pd.Timestamp | None = None,
 ) -> dict[str, Any]:
     mode = _variant_fixture_mode(variant)
     try:
@@ -1841,8 +1940,15 @@ def _execute_variant_worker(
                 execution_input,
                 sizing_context,
                 sizing_context.exact_resolution,
+                evaluation_start=evaluation_start,
+                evaluation_end=evaluation_end,
             )
-            metrics = _metrics_from_backtest(result, execution_input.timeframe)
+            if evaluation_start is not None and evaluation_end is not None:
+                metrics = _metrics_from_backtest_windowed(
+                    result, execution_input.timeframe, evaluation_start, evaluation_end
+                )
+            else:
+                metrics = _metrics_from_backtest(result, execution_input.timeframe)
         outcome = "successful" if math.isfinite(metrics["return_pct"]) else "failed"
         return {
             "row_number": row_number,
@@ -1901,6 +2007,8 @@ def _execute_rows(
     deterministic_seed: int,
     execution_input: _ExecutionInput | None,
     sizing_context: _SizingContext,
+    evaluation_start: pd.Timestamp | None = None,
+    evaluation_end: pd.Timestamp | None = None,
 ) -> tuple[list[dict[str, Any]], bool]:
     rows: list[dict[str, Any]] = []
     aborted = False
@@ -2016,8 +2124,15 @@ def _execute_rows(
                     execution_input,
                     sizing_context,
                     sizing_context.exact_resolution,
+                    evaluation_start=evaluation_start,
+                    evaluation_end=evaluation_end,
                 )
-                metrics = _metrics_from_backtest(result, execution_input.timeframe)
+                if evaluation_start is not None and evaluation_end is not None:
+                    metrics = _metrics_from_backtest_windowed(
+                        result, execution_input.timeframe, evaluation_start, evaluation_end
+                    )
+                else:
+                    metrics = _metrics_from_backtest(result, execution_input.timeframe)
             outcome = "successful" if math.isfinite(metrics["return_pct"]) else "failed"
             rows.append(
                 _row(
@@ -2058,6 +2173,8 @@ def _execute_rows_parallel(
     execution_input: _ExecutionInput | None,
     sizing_context: _SizingContext,
     max_workers: int,
+    evaluation_start: pd.Timestamp | None = None,
+    evaluation_end: pd.Timestamp | None = None,
 ) -> tuple[list[dict[str, Any]], bool]:
     rows_by_number: dict[int, dict[str, Any]] = {}
     tasks: list[dict[str, Any]] = []
@@ -2152,6 +2269,8 @@ def _execute_rows_parallel(
                 "deterministic_seed": deterministic_seed,
                 "execution_input": execution_input,
                 "sizing_context": sizing_context,
+                "evaluation_start": evaluation_start,
+                "evaluation_end": evaluation_end,
             }
         )
 
@@ -2190,6 +2309,8 @@ def _build_result_population(
     sizing_mode: str,
     target_leverage: float,
     max_workers: int,
+    evaluation_start: pd.Timestamp | None = None,
+    evaluation_end: pd.Timestamp | None = None,
 ) -> tuple[dict[str, Any], bool]:
     strategy_hash = _sha256_prefixed(strategy_spec)
     manifest_hash = manifest["manifest_hash_pinning"]["manifest_hash"]
@@ -2229,6 +2350,8 @@ def _build_result_population(
             deterministic_seed,
             execution_input,
             sizing_context,
+            evaluation_start=evaluation_start,
+            evaluation_end=evaluation_end,
         )
     else:
         rows, aborted = _execute_rows_parallel(
@@ -2240,6 +2363,8 @@ def _build_result_population(
             execution_input,
             sizing_context,
             max_workers,
+            evaluation_start=evaluation_start,
+            evaluation_end=evaluation_end,
         )
     counts = {category: 0 for category in OUTCOME_CATEGORIES}
     counts.update(Counter(row["outcome_category"] for row in rows))
@@ -2403,7 +2528,19 @@ def _build_result_population(
             "irreparable_gap_count": counts["data_unavailable"],
             "data_unavailable_count": counts["data_unavailable"],
             "data_coverage_notes": (
-                execution_input.data_coverage_notes
+                [
+                    *execution_input.data_coverage_notes,
+                    *(
+                        [
+                            f"evaluation_window_start={evaluation_start.isoformat().replace('+00:00', 'Z')}",
+                            f"evaluation_window_end={evaluation_end.isoformat().replace('+00:00', 'Z')}",
+                            "evaluation_window_warmup_masked=true",
+                            "pre_window_entries_blocked_by_signal_mask",
+                        ]
+                        if evaluation_start is not None and evaluation_end is not None
+                        else []
+                    ),
+                ]
                 if execution_input is not None
                 else ["fixture/synthetic data only"]
             ),
@@ -2617,6 +2754,8 @@ def run_offline_sweep(
     walkforward_step_bars: int | None = None,
     walkforward_max_windows: int | None = None,
     max_workers: int = DEFAULT_MAX_WORKERS,
+    evaluation_start: pd.Timestamp | None = None,
+    evaluation_end: pd.Timestamp | None = None,
 ) -> dict[str, Any]:
     """Run a deterministic build-and-test-only offline research sweep."""
     if deterministic_seed is None:
@@ -2681,6 +2820,16 @@ def run_offline_sweep(
         raise OfflineSweepError("D4H provenance mode requires --canonical-4h")
     if walkforward and execution_input is None:
         raise OfflineSweepError("walk-forward mode currently requires canonical input data")
+    if evaluation_start is not None or evaluation_end is not None:
+        if evaluation_start is None or evaluation_end is None:
+            raise OfflineSweepError(
+                "--evaluation-start and --evaluation-end must both be provided together"
+            )
+        if execution_input is None:
+            raise OfflineSweepError(
+                "evaluation window requires canonical input data (--canonical-15m or --canonical-4h)"
+            )
+        _validate_evaluation_window(evaluation_start, evaluation_end, execution_input.ohlcv)
     payload, aborted = _build_result_population(
         strategy_spec,
         manifest,
@@ -2691,6 +2840,8 @@ def run_offline_sweep(
         sizing_mode,
         target_leverage,
         max_workers,
+        evaluation_start=evaluation_start,
+        evaluation_end=evaluation_end,
     )
     _validate_in_memory_payload(payload)
 
@@ -2784,6 +2935,22 @@ def _build_parser() -> argparse.ArgumentParser:
         default=DEFAULT_MAX_WORKERS,
         help="Opt-in process worker count for variant/window-level parallelism. Defaults to 1.",
     )
+    parser.add_argument(
+        "--evaluation-start",
+        help=(
+            "Warmup-preserving evaluation window start (UTC ISO-8601, inclusive). "
+            "Indicators are compiled on the full input frame starting from the first bar; "
+            "only bars from evaluation_start onward are scored. "
+            "Must be paired with --evaluation-end."
+        ),
+    )
+    parser.add_argument(
+        "--evaluation-end",
+        help=(
+            "Evaluation window end (UTC ISO-8601, exclusive). "
+            "Must be paired with --evaluation-start."
+        ),
+    )
     return parser
 
 
@@ -2791,6 +2958,16 @@ def main(argv: list[str] | None = None) -> int:
     parser = _build_parser()
     args = parser.parse_args(argv)
     try:
+        evaluation_start = (
+            _parse_metadata_timestamp(args.evaluation_start, "--evaluation-start")
+            if args.evaluation_start
+            else None
+        )
+        evaluation_end = (
+            _parse_metadata_timestamp(args.evaluation_end, "--evaluation-end")
+            if args.evaluation_end
+            else None
+        )
         result = run_offline_sweep(
             args.strategy_spec,
             args.variant_manifest,
@@ -2815,6 +2992,8 @@ def main(argv: list[str] | None = None) -> int:
             walkforward_step_bars=args.walkforward_step_bars,
             walkforward_max_windows=args.walkforward_max_windows,
             max_workers=args.max_workers,
+            evaluation_start=evaluation_start,
+            evaluation_end=evaluation_end,
         )
     except Exception as exc:
         print(f"ERROR: {exc}", file=sys.stderr)

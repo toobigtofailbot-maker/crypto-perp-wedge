@@ -25,17 +25,24 @@ worktree or main checkout processed directory.
 
 ## Implementation Summary
 
-### 1. Evaluation-window support (primary blocker resolved)
+### 1. Evaluation-window support (primary blocker resolved; patched in PR #579 follow-up)
 
-Added to `tools/research_runner/run_offline_sweep.py`:
+Added/patched in `tools/research_runner/run_offline_sweep.py`:
 
 - `_validate_evaluation_window(evaluation_start, evaluation_end, ohlcv)` — fails closed
-  on invalid/outside/too-narrow windows.
+  on invalid/outside/too-narrow windows, **including when `evaluation_end` extends beyond
+  last available bar + one inferred period** (partial window guard — added in follow-up patch).
+- `_slice_execution_input_for_evaluation_end(execution_input, evaluation_end)` — **new**:
+  truncates OHLCV and funding frames to rows strictly before `evaluation_end`, eliminating
+  any post-window trades, fees, funding, or slippage contamination.
 - `_mask_signal_before_window(signal, evaluation_start)` — forces signal to 0.0 for all
   bars before `evaluation_start`, preventing pre-window entries.
 - `_metrics_from_backtest_windowed(result, freq, evaluation_start, evaluation_end)` —
-  restricts equity-curve metrics to `[evaluation_start, evaluation_end)`.
-- Modified `_run_canonical_15m_backtest` to accept and apply the evaluation window.
+  restricts equity-curve metrics to `[evaluation_start, evaluation_end)`; trade_count,
+  win_rate, fees, funding, slippage are window-scoped because backtest was truncated.
+- Modified `_run_canonical_15m_backtest` to: (1) truncate via
+  `_slice_execution_input_for_evaluation_end` before compiling signal; (2) apply signal
+  mask; (3) run backtest on truncated frame only.
 - Threaded `evaluation_start`/`evaluation_end` through `_execute_variant_worker`,
   `_execute_rows`, `_execute_rows_parallel`, `_build_result_population`,
   `run_offline_sweep`.
@@ -66,7 +73,7 @@ Created `tools/research_runner/atr_denominator_bundler.py`:
 
 | Test suite | Result |
 |---|---|
-| `tests/test_evaluation_window.py` (15 new tests) | 15 passed |
+| `tests/test_evaluation_window.py` (20 tests: 15 original + 5 patch) | 20 passed |
 | `tests/test_offline_research_runner.py` (101 existing tests) | 101 passed, 0 failures |
 | `tests/test_funding_feature_materialization.py` | 5 passed |
 | `tools.research_query.run --list-views` | OK |

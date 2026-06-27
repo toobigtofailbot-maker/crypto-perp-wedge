@@ -330,3 +330,111 @@ def test_bundle_integrity_validator_catches_errors():
     truncated = bundle[:107]
     errors = validate_bundle_denominator_integrity(truncated)
     assert any("107" in e or "108" in e for e in errors)
+
+
+# ---------------------------------------------------------------------------
+# evaluation_end fail-closed and post-window truncation
+# ---------------------------------------------------------------------------
+
+
+def test_evaluation_end_after_last_input_bar_fails_closed():
+    """_validate_evaluation_window must raise when evaluation_end extends beyond the input frame."""
+    ohlcv = _make_ohlcv("2024-01-01", periods=20, freq="15min")
+    start = pd.Timestamp("2024-01-01 01:00:00", tz="UTC")
+    # evaluation_end is far beyond the last bar
+    end = pd.Timestamp("2025-01-01", tz="UTC")
+    with pytest.raises(runner.OfflineSweepError, match="extends beyond"):
+        runner._validate_evaluation_window(start, end, ohlcv)
+
+
+def test_evaluation_end_exactly_one_period_past_last_bar_is_allowed():
+    """evaluation_end = last_bar + one_period is the natural exclusive boundary — must not raise."""
+    ohlcv = _make_ohlcv("2024-01-01", periods=20, freq="15min")
+    start = pd.Timestamp("2024-01-01 01:00:00", tz="UTC")
+    # last bar is at 2024-01-01 04:45:00; one period later is 05:00:00
+    last_bar = ohlcv.index[-1]
+    end = last_bar + pd.Timedelta(minutes=15)
+    runner._validate_evaluation_window(start, end, ohlcv)  # must not raise
+
+
+def test_windowed_backtest_truncates_post_window_rows_before_run():
+    """_slice_execution_input_for_evaluation_end must remove all rows >= evaluation_end."""
+    import dataclasses
+
+    ohlcv_full = _make_ohlcv("2024-01-01", periods=40, freq="15min")
+    eval_end = ohlcv_full.index[20]  # exclusive: keep bars 0..19
+
+    funding_index = pd.date_range(ohlcv_full.index[0], ohlcv_full.index[-1], freq="8h", tz="UTC")
+    funding = pd.DataFrame({"funding_rate": [0.0] * len(funding_index)}, index=funding_index)
+
+    execution_input = runner._ExecutionInput(
+        mode="test",
+        execution_provenance_class="test",
+        ohlcv=ohlcv_full,
+        funding=funding,
+        timeframe="15m",
+        data_catalog_ref="test",
+        data_slice_identity="test",
+        environment_summary=[],
+        data_coverage_notes=[],
+    )
+
+    truncated = runner._slice_execution_input_for_evaluation_end(execution_input, eval_end)
+
+    assert (truncated.ohlcv.index < eval_end).all(), "truncated OHLCV must have no rows >= evaluation_end"
+    assert len(truncated.ohlcv) == 20, f"expected 20 rows, got {len(truncated.ohlcv)}"
+    assert (truncated.funding.index < eval_end).all(), "truncated funding must have no entries >= evaluation_end"
+
+
+def test_windowed_trade_count_and_costs_exclude_post_window_activity():
+    """After truncation, trade_count and costs in windowed metrics are window-scoped.
+
+    Simulates a full-frame mock result (pre-fix) versus a truncated-frame mock result
+    (post-fix) to confirm that post-window trades do not contaminate the windowed metrics.
+    The post-fix path: backtest only sees bars < evaluation_end, so result.trades_df
+    and fees/funding/slippage are already restricted.
+    """
+    index_full = pd.date_range("2024-01-01", periods=40, freq="15min", tz="UTC")
+    eval_start = index_full[10]
+    eval_end = index_full[20]  # exclusive
+
+    # Post-fix path: result from truncated run (bars 0..19 only)
+    index_truncated = index_full[:20]
+    equity_truncated = _make_equity_curve(index_truncated, initial=10_000.0, daily_drift=10.0)
+    # Only 2 window-period trades in the truncated run
+    trades_window = [{"net_pnl": 50.0}, {"net_pnl": -10.0}]
+    result_truncated = _mock_backtest_result(
+        equity_truncated,
+        trades=trades_window,
+        fees=3.0,
+        funding=1.0,
+        slippage=0.5,
+    )
+
+    metrics = runner._metrics_from_backtest_windowed(
+        result_truncated, "15m", eval_start, eval_end
+    )
+
+    assert metrics["trade_count"] == 2, "trade_count must be window-scoped (2 trades)"
+    assert metrics["fees"] == pytest.approx(3.0), "fees must be window-scoped"
+    assert metrics["funding"] == pytest.approx(1.0), "funding must be window-scoped"
+    assert metrics["slippage"] == pytest.approx(0.5), "slippage must be window-scoped"
+    # win_rate: 1 winner out of 2
+    assert metrics["win_rate"] == pytest.approx(0.5)
+    assert metrics["exposure"] == 1.0, "exposure must be 1.0 when there are trades"
+
+
+def test_windowed_mode_no_window_mode_behavior_unchanged():
+    """Omitting evaluation_start/end must leave _metrics_from_backtest behavior unchanged."""
+    index = pd.date_range("2024-01-01", periods=10, freq="15min", tz="UTC")
+    equity = _make_equity_curve(index, initial=10_000.0, daily_drift=100.0)
+    result = _mock_backtest_result(equity, fees=2.0, funding=0.5, slippage=0.25)
+    result.params = {"initial_equity": 10_000.0}
+
+    metrics = runner._metrics_from_backtest(result, "15m")
+
+    expected_pnl = float(equity.iloc[-1] - 10_000.0)
+    assert metrics["pnl"] == pytest.approx(expected_pnl, rel=1e-6)
+    assert metrics["fees"] == pytest.approx(2.0)
+    assert metrics["funding"] == pytest.approx(0.5)
+    assert metrics["slippage"] == pytest.approx(0.25)

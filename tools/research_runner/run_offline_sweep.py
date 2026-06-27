@@ -754,6 +754,37 @@ def _slice_execution_input(
     )
 
 
+def _slice_execution_input_for_evaluation_end(
+    execution_input: _ExecutionInput,
+    evaluation_end: pd.Timestamp,
+) -> _ExecutionInput:
+    """Truncate execution input to bars strictly before evaluation_end.
+
+    Eliminates post-window OHLCV bars and funding entries so the backtest
+    cannot open trades or accumulate costs after the evaluation boundary.
+    The warmup prefix (bars before evaluation_start) is preserved in full
+    so that rolling indicator state is correctly established before the
+    evaluation window opens.
+    """
+    ohlcv = execution_input.ohlcv.loc[execution_input.ohlcv.index < evaluation_end].copy()
+    if len(ohlcv) < 2:
+        raise OfflineSweepError(
+            f"after truncating to evaluation_end ({evaluation_end.isoformat()}), "
+            "fewer than 2 OHLCV rows remain — cannot run backtest"
+        )
+    return _ExecutionInput(
+        mode=execution_input.mode,
+        execution_provenance_class=execution_input.execution_provenance_class,
+        ohlcv=ohlcv,
+        funding=_slice_funding_for_window(execution_input.funding, ohlcv.index[0], evaluation_end),
+        timeframe=execution_input.timeframe,
+        data_catalog_ref=execution_input.data_catalog_ref,
+        data_slice_identity=execution_input.data_slice_identity,
+        environment_summary=execution_input.environment_summary,
+        data_coverage_notes=execution_input.data_coverage_notes,
+    )
+
+
 def _build_walkforward_windows(
     index: pd.DatetimeIndex,
     *,
@@ -1134,6 +1165,8 @@ def _run_canonical_15m_backtest(
     evaluation_start: pd.Timestamp | None = None,
     evaluation_end: pd.Timestamp | None = None,
 ) -> Any:
+    if evaluation_end is not None:
+        execution_input = _slice_execution_input_for_evaluation_end(execution_input, evaluation_end)
     signal = compile_signal(
         strategy_spec,
         variant,
@@ -1208,10 +1241,18 @@ def _validate_evaluation_window(
     if ohlcv.empty:
         raise OfflineSweepError("OHLCV frame is empty — cannot validate evaluation window")
     first_bar = ohlcv.index[0]
+    last_bar = ohlcv.index[-1]
     if evaluation_start < first_bar:
         raise OfflineSweepError(
             f"evaluation_start ({evaluation_start.isoformat()}) is before the first OHLCV bar "
             f"({first_bar.isoformat()}) — warmup prefix is missing from the input frame"
+        )
+    inferred_period = (ohlcv.index[1] - ohlcv.index[0]) if len(ohlcv) >= 2 else pd.Timedelta(minutes=15)
+    if evaluation_end > last_bar + inferred_period:
+        raise OfflineSweepError(
+            f"evaluation_end ({evaluation_end.isoformat()}) extends beyond the last available OHLCV bar "
+            f"({last_bar.isoformat()}) — partial evaluation window not allowed; "
+            "supply a frame that covers the full evaluation period"
         )
     eval_rows = ohlcv.loc[
         (ohlcv.index >= evaluation_start) & (ohlcv.index < evaluation_end)
@@ -1246,9 +1287,16 @@ def _metrics_from_backtest_windowed(
 ) -> dict[str, Any]:
     """Compute metrics restricted to the evaluation window [start, end).
 
-    Because _mask_signal_before_window is applied before the backtest, no
-    positions open during the warmup prefix.  The full-run fees/funding/
-    slippage therefore belong to evaluation-window trades only.
+    Callers must ensure the backtest was run on a frame truncated to
+    rows strictly before evaluation_end (via
+    _slice_execution_input_for_evaluation_end) and that the signal was
+    masked to 0.0 before evaluation_start (via _mask_signal_before_window).
+    Under those preconditions:
+      - result.trades_df contains only evaluation-window trades
+      - result.fees_paid / funding_paid / slippage_paid are window-scoped
+      - trade_count, win_rate, and exposure reflect only window activity
+    The equity curve is still sliced to [evaluation_start, evaluation_end)
+    to compute returns, drawdown, and Sharpe correctly.
     """
     eval_curve = result.equity_curve.loc[
         (result.equity_curve.index >= evaluation_start)

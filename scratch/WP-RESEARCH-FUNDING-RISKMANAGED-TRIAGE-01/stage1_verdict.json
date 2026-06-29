@@ -1,0 +1,21 @@
+{
+  "package": "WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01",
+  "hypothesis_id": "H-FUNDING-FADE-RISKMANAGED-01",
+  "stage": "stage_1_2024_triage",
+  "stage1_execution_authorized_here": true,
+  "stage2_authorized_here": false,
+  "stage2_execution_authorized": false,
+  "canonical_evidence_written": false,
+  "candidate_lifecycle_written": false,
+  "denominator_rows": 108,
+  "executed_rows": 108,
+  "blocked_rows": 0,
+  "errored_rows": 0,
+  "invalid_rows": 0,
+  "data_unavailable_rows": 0,
+  "verdict": "no_go",
+  "reason": "all ATR slices have median drawdown > 35% or worst-row drawdown >= 50%; drawdown improves only with non-positive median net return for every ATR slice",
+  "next_package_if_continue": "",
+  "next_package_if_no_go": "",
+  "next_package_if_blocked": ""
+}

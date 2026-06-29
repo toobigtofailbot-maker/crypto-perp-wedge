@@ -1,0 +1,19 @@
+{
+  "package": "WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01",
+  "checks": {
+    "atr_20": {
+      "qualifying_rows_positive_return_and_dd_lte_35": 0,
+      "funding_lookback_bars": [],
+      "entry_tail_pairs": [],
+      "exit_modes": [],
+      "not_single_isolated_cell": false
+    },
+    "atr_30": {
+      "qualifying_rows_positive_return_and_dd_lte_35": 0,
+      "funding_lookback_bars": [],
+      "entry_tail_pairs": [],
+      "exit_modes": [],
+      "not_single_isolated_cell": false
+    }
+  }
+}

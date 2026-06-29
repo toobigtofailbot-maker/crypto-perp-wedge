@@ -1,0 +1,137 @@
+{
+  "package": "WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01",
+  "subruns": [
+    {
+      "risk_state": "no_atr",
+      "exit_mode": "fixed_max_hold_only",
+      "result_population_path": "scratch\\WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01\\runner_outputs\\no_atr\\fixed_max_hold_only\\RP-9600.result_population.json",
+      "result_population_id": "RP-9600",
+      "rows_total": 36,
+      "successful_rows": 18,
+      "excluded_rows": 18,
+      "outcome_category_counts": {
+        "aborted": 0,
+        "counts_sum": 36,
+        "counts_sum_equals_committed_denominator": true,
+        "data_unavailable": 0,
+        "errored": 0,
+        "excluded": 18,
+        "failed": 0,
+        "filtered": 0,
+        "invalid": 0,
+        "not_attempted": 0,
+        "successful": 18
+      }
+    },
+    {
+      "risk_state": "no_atr",
+      "exit_mode": "midline_reversion_or_max_hold",
+      "result_population_path": "scratch\\WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01\\runner_outputs\\no_atr\\midline_reversion_or_max_hold\\RP-8978.result_population.json",
+      "result_population_id": "RP-8978",
+      "rows_total": 36,
+      "successful_rows": 18,
+      "excluded_rows": 18,
+      "outcome_category_counts": {
+        "aborted": 0,
+        "counts_sum": 36,
+        "counts_sum_equals_committed_denominator": true,
+        "data_unavailable": 0,
+        "errored": 0,
+        "excluded": 18,
+        "failed": 0,
+        "filtered": 0,
+        "invalid": 0,
+        "not_attempted": 0,
+        "successful": 18
+      }
+    },
+    {
+      "risk_state": "atr_20",
+      "exit_mode": "fixed_max_hold_only",
+      "result_population_path": "scratch\\WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01\\runner_outputs\\atr_20\\fixed_max_hold_only\\RP-0844.result_population.json",
+      "result_population_id": "RP-0844",
+      "rows_total": 36,
+      "successful_rows": 18,
+      "excluded_rows": 18,
+      "outcome_category_counts": {
+        "aborted": 0,
+        "counts_sum": 36,
+        "counts_sum_equals_committed_denominator": true,
+        "data_unavailable": 0,
+        "errored": 0,
+        "excluded": 18,
+        "failed": 0,
+        "filtered": 0,
+        "invalid": 0,
+        "not_attempted": 0,
+        "successful": 18
+      }
+    },
+    {
+      "risk_state": "atr_20",
+      "exit_mode": "midline_reversion_or_max_hold",
+      "result_population_path": "scratch\\WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01\\runner_outputs\\atr_20\\midline_reversion_or_max_hold\\RP-5195.result_population.json",
+      "result_population_id": "RP-5195",
+      "rows_total": 36,
+      "successful_rows": 18,
+      "excluded_rows": 18,
+      "outcome_category_counts": {
+        "aborted": 0,
+        "counts_sum": 36,
+        "counts_sum_equals_committed_denominator": true,
+        "data_unavailable": 0,
+        "errored": 0,
+        "excluded": 18,
+        "failed": 0,
+        "filtered": 0,
+        "invalid": 0,
+        "not_attempted": 0,
+        "successful": 18
+      }
+    },
+    {
+      "risk_state": "atr_30",
+      "exit_mode": "fixed_max_hold_only",
+      "result_population_path": "scratch\\WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01\\runner_outputs\\atr_30\\fixed_max_hold_only\\RP-7993.result_population.json",
+      "result_population_id": "RP-7993",
+      "rows_total": 36,
+      "successful_rows": 18,
+      "excluded_rows": 18,
+      "outcome_category_counts": {
+        "aborted": 0,
+        "counts_sum": 36,
+        "counts_sum_equals_committed_denominator": true,
+        "data_unavailable": 0,
+        "errored": 0,
+        "excluded": 18,
+        "failed": 0,
+        "filtered": 0,
+        "invalid": 0,
+        "not_attempted": 0,
+        "successful": 18
+      }
+    },
+    {
+      "risk_state": "atr_30",
+      "exit_mode": "midline_reversion_or_max_hold",
+      "result_population_path": "scratch\\WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01\\runner_outputs\\atr_30\\midline_reversion_or_max_hold\\RP-4488.result_population.json",
+      "result_population_id": "RP-4488",
+      "rows_total": 36,
+      "successful_rows": 18,
+      "excluded_rows": 18,
+      "outcome_category_counts": {
+        "aborted": 0,
+        "counts_sum": 36,
+        "counts_sum_equals_committed_denominator": true,
+        "data_unavailable": 0,
+        "errored": 0,
+        "excluded": 18,
+        "failed": 0,
+        "filtered": 0,
+        "invalid": 0,
+        "not_attempted": 0,
+        "successful": 18
+      }
+    }
+  ]
+}

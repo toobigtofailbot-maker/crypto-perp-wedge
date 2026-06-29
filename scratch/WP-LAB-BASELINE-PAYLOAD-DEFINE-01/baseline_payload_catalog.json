@@ -1,0 +1,79 @@
+{
+  "package": "WP-LAB-BASELINE-PAYLOAD-DEFINE-01",
+  "purpose": "define non-promotable construction payloads for research-lab validation",
+  "execution_authorized_here": false,
+  "canonical_writes_authorized_here": false,
+  "candidate_lifecycle_authorized_here": false,
+  "baseline_count": 3,
+  "selected_primitive_family": "SMA / StdDev price-only closed-condition vocabulary",
+  "contract_only_route_used": true,
+  "baselines": [
+    {
+      "baseline_id": "known_losing_baseline",
+      "label": "Known losing SMA churn baseline",
+      "known_property": "High-turnover opposite-direction SMA crossover construction intended to produce cost-drag and gate-failure behavior when a later package executes it.",
+      "strategy_family": "sma_crossover_price_only",
+      "uses_existing_supported_primitives_only": true,
+      "construction_payload": true,
+      "non_promotable": true,
+      "candidate_eligible": false,
+      "promotion_eligible": false,
+      "paper_live_eligible": false,
+      "canonical_crossing_allowed": false,
+      "expected_gate_result": "fail",
+      "expected_candidate_review_result": "negative_fixture_rejected",
+      "expected_crossing_result": "reject_by_construction",
+      "schema_valid_artifacts_created": false,
+      "artifact_paths": []
+    },
+    {
+      "baseline_id": "known_neutral_or_no_trade_baseline",
+      "label": "Known no-trade unreachable-threshold baseline",
+      "known_property": "Closed-condition SMA / StdDev construction whose declared entry threshold should remain unreachable or no-trade in later execution, validating empty-result and denominator behavior.",
+      "strategy_family": "sma_stddev_zscore_price_only",
+      "uses_existing_supported_primitives_only": true,
+      "construction_payload": true,
+      "non_promotable": true,
+      "candidate_eligible": false,
+      "promotion_eligible": false,
+      "paper_live_eligible": false,
+      "canonical_crossing_allowed": false,
+      "expected_gate_result": "blocked_or_fail_no_signal",
+      "expected_candidate_review_result": "no_candidate_review_packet",
+      "expected_crossing_result": "reject_by_construction",
+      "schema_valid_artifacts_created": false,
+      "artifact_paths": []
+    },
+    {
+      "baseline_id": "known_degenerate_or_invalid_baseline",
+      "label": "Known invalid denominator-preservation baseline",
+      "known_property": "Declarative invalid-parameter construction using existing SMA lookback semantics, intended to preserve invalid/blocked rows without strategy execution.",
+      "strategy_family": "sma_parameter_constraint_fixture",
+      "uses_existing_supported_primitives_only": true,
+      "construction_payload": true,
+      "non_promotable": true,
+      "candidate_eligible": false,
+      "promotion_eligible": false,
+      "paper_live_eligible": false,
+      "canonical_crossing_allowed": false,
+      "expected_gate_result": "blocked_invalid",
+      "expected_candidate_review_result": "invalid_fixture_rejected",
+      "expected_crossing_result": "reject_by_construction",
+      "schema_valid_artifacts_created": false,
+      "artifact_paths": []
+    }
+  ],
+  "blocked_or_deferred_requirements": [
+    {
+      "requirement_id": "DEFERRED-SCHEMA-PROVENANCE-001",
+      "summary": "Strategy Spec / Variant Manifest / Sweep Plan schemas do not currently accept exact construction_payload and non_promotable provenance fields.",
+      "required_before_schema_valid_payload_drafts": true
+    },
+    {
+      "requirement_id": "DEFERRED-GUARD-CONSUMERS-001",
+      "summary": "Later gate, agent-loop, dashboard, and crossing consumers must implement explicit hard rejection of construction payloads before exercising these baselines.",
+      "required_before_execution_or_crossing_guard_tests": true
+    }
+  ],
+  "status": "ready"
+}

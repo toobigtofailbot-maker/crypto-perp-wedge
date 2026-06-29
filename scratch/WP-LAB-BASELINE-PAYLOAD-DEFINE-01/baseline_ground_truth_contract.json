@@ -1,0 +1,122 @@
+{
+  "package": "WP-LAB-BASELINE-PAYLOAD-DEFINE-01",
+  "execution_authorized_here": false,
+  "global_rules": {
+    "can_validate_lab_plumbing": true,
+    "can_validate_denominator_preservation": true,
+    "can_validate_negative_or_no_candidate_review_packets": true,
+    "can_validate_dashboard_report_rendering": true,
+    "can_validate_promotion_crossing_rejection": true,
+    "can_become_candidate": false,
+    "can_support_paper_live": false,
+    "can_claim_edge": false,
+    "can_authorize_real_canonical_crossing": false
+  },
+  "baselines": [
+    {
+      "baseline_id": "known_losing_baseline",
+      "purpose": "Exercise lab handling of a deliberately non-edge, high-cost, gate-failing reference signal.",
+      "known_property": "Later execution should report losing or materially gate-failing behavior, especially under cost and drawdown gates.",
+      "expected_denominator_behavior": "All declared variants remain in the denominator, including failed and losing rows; winner-only retention is forbidden.",
+      "expected_execution_status_behavior": "If later executed, rows should be recorded as completed or failed according to actual runner status, but the payload remains construction-only regardless of numeric output.",
+      "expected_gate_result": "Overall gate failure; any accidental passing metric must not create promotion eligibility.",
+      "expected_oos_behavior": "Expected negative or insufficient OOS behavior; do not reinterpret as edge if a small sample is favorable.",
+      "expected_robustness_behavior": "Robustness should classify as insufficient or failing; no robustness result may override construction-only provenance.",
+      "expected_candidate_review_behavior": "Negative fixture review only; no candidate-review packet that implies eligibility.",
+      "expected_crossing_behavior": "Reject by construction before any real crossing or promotion action.",
+      "expected_dashboard_labeling": "Fixture / construction payload / non-promotable / not a candidate.",
+      "expected_agent_loop_result": "Agent loop records lab plumbing behavior and must not propose rescue, retuning, ranking, or promotion.",
+      "forbidden_interpretations": [
+        "profitable strategy candidate",
+        "edge evidence",
+        "promotion-ready signal",
+        "paper/live trial input",
+        "retuning opportunity"
+      ],
+      "allowed_later_consumers": [
+        "gate-hardening tests",
+        "walk-forward and robustness plumbing tests",
+        "negative candidate-review rendering",
+        "dashboard/operator fixture rendering",
+        "crossing-rejection guard tests"
+      ],
+      "blocked_later_consumers": [
+        "candidate lifecycle promotion",
+        "real canonical crossing",
+        "paper/live runtime",
+        "OMS/risk/order/exchange paths",
+        "edge ranking"
+      ]
+    },
+    {
+      "baseline_id": "known_neutral_or_no_trade_baseline",
+      "purpose": "Exercise lab handling of no-trade, empty, or near-neutral outputs without creating candidate authority.",
+      "known_property": "Later execution should produce no trades or insufficient signal activity under unreachable or near-unreachable SMA / StdDev threshold logic.",
+      "expected_denominator_behavior": "All declared variants remain in the denominator, including no-trade, filtered, data-unavailable, and not-attempted rows.",
+      "expected_execution_status_behavior": "If later executed, no-trade rows should be explicit, not silently dropped.",
+      "expected_gate_result": "Blocked or failed for insufficient evidence/no signal; no pass-through due to absence of losses.",
+      "expected_oos_behavior": "No valid edge inference; near-zero PnL or no observations is not a positive result.",
+      "expected_robustness_behavior": "Robustness should withhold or mark insufficient rather than fabricate PSR/DSR/MC confidence.",
+      "expected_candidate_review_behavior": "No candidate-review packet or a negative no-candidate packet only.",
+      "expected_crossing_behavior": "Reject by construction before crossing and also reject for insufficient/no-signal evidence.",
+      "expected_dashboard_labeling": "Fixture / no-trade construction payload / non-promotable / not a candidate.",
+      "expected_agent_loop_result": "Agent loop records no-signal behavior and must not transform the absence of trades into a strategy opportunity.",
+      "forbidden_interpretations": [
+        "low-risk profitable strategy",
+        "evidence of robustness",
+        "promotion readiness",
+        "paper/live readiness",
+        "authorization to loosen thresholds"
+      ],
+      "allowed_later_consumers": [
+        "denominator preservation tests",
+        "no-candidate review rendering",
+        "dashboard empty-state rendering",
+        "agent-loop blocked/no-signal handling",
+        "gate insufficiency tests"
+      ],
+      "blocked_later_consumers": [
+        "candidate lifecycle promotion",
+        "canonical crossing",
+        "paper/live runtime",
+        "edge ranking",
+        "automatic retuning"
+      ]
+    },
+    {
+      "baseline_id": "known_degenerate_or_invalid_baseline",
+      "purpose": "Exercise invalid/blocked/fail-closed row accounting without strategy execution.",
+      "known_property": "Declared invalid parameter relation, such as fast SMA lookback greater than or equal to slow SMA lookback, must be preserved as invalid/blocked rather than executed or dropped.",
+      "expected_denominator_behavior": "Invalid/blocked rows remain in the committed denominator and are visible in all downstream accounting.",
+      "expected_execution_status_behavior": "Fail closed before execution; no backtest run should occur for invalid rows.",
+      "expected_gate_result": "Blocked invalid; no gate pass, no metric synthesis.",
+      "expected_oos_behavior": "No OOS metrics should be claimed for invalid rows.",
+      "expected_robustness_behavior": "Robustness must preserve invalid status and withhold derived confidence metrics.",
+      "expected_candidate_review_behavior": "Invalid fixture rejected; no candidate-review packet with eligibility semantics.",
+      "expected_crossing_behavior": "Reject by construction and by invalid status.",
+      "expected_dashboard_labeling": "Fixture / invalid construction payload / non-promotable / not a candidate.",
+      "expected_agent_loop_result": "Agent loop reports invalid denominator preservation and must not repair, mutate, or reroute the payload.",
+      "forbidden_interpretations": [
+        "strategy failure evidence from an executed run",
+        "edge evidence",
+        "candidate opportunity after parameter repair",
+        "authorization to change compiler or validator behavior",
+        "permission to remove invalid rows from denominator"
+      ],
+      "allowed_later_consumers": [
+        "invalid-row denominator tests",
+        "fail-closed accounting tests",
+        "dashboard invalid-state rendering",
+        "agent-loop blocked-state tests",
+        "crossing guard tests"
+      ],
+      "blocked_later_consumers": [
+        "runner execution",
+        "candidate lifecycle promotion",
+        "canonical crossing",
+        "paper/live runtime",
+        "automatic strategy repair"
+      ]
+    }
+  ]
+}

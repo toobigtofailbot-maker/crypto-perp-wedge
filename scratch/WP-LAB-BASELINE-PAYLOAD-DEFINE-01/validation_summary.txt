@@ -1,0 +1,63 @@
+WP-LAB-BASELINE-PAYLOAD-DEFINE-01 validation summary
+
+Base commit:
+- b060059fcd09de790344e8c3336ef27711527162
+
+Package class:
+- docs/specification + scratch fixture-definition only
+- definition-only, no run, no canonical writes, no promotion authority
+
+Commands run:
+
+1. python -m tools.research_query.run --list-views
+Result: PASS
+Notes: command listed research query views successfully.
+
+2. python -m tools.registry.validate_result_populations
+Result: PASS
+Output: OK: result-population artifacts under C:\GitHub\crypto-perp-wedge\research\result_populations validate
+
+3. python -m tools.registry.validate_candidate_registry
+Result: PASS
+Output: OK: candidate lifecycle registry artifacts under C:\GitHub\crypto-perp-wedge\tests\fixtures\candidate_lifecycle_registry validate
+
+4. python tools/dev/diff_scope_summary.py
+Result: PASS
+Notes: initial run before staging reported no forbidden-path matches and no tracked changed files. Package files were still untracked at that time. After staging package files, rerun reported only the allowed status-entry and scratch package files staged, no forbidden-path matches, and pre-existing untracked build/ files still out of scope.
+
+5. python -m json.tool scratch\WP-LAB-BASELINE-PAYLOAD-DEFINE-01\baseline_payload_catalog.json
+Result: PASS
+
+6. python -m json.tool scratch\WP-LAB-BASELINE-PAYLOAD-DEFINE-01\baseline_ground_truth_contract.json
+Result: PASS
+
+7. python -m json.tool scratch\WP-LAB-BASELINE-PAYLOAD-DEFINE-01\blocked_or_deferred_requirements.json
+Result: PASS
+
+8. git diff --check
+Result: PASS
+Notes: `git diff --cached --check` also passed after staging.
+
+9. git status --short
+Result: PASS with expected package files untracked before staging and pre-existing untracked build/ out of scope.
+
+Strategy / Variant / Sweep validators:
+- Not run for new scratch inputs because this package intentionally creates no scratch Strategy Spec, Variant Manifest, or Sweep Plan drafts.
+- Reason: current schemas cannot carry the exact required construction_payload / non_promotable provenance fields without schema changes, and schema changes are forbidden here.
+
+Full pytest:
+- Not run.
+- Reason: definition-only package and no code changes are authorized.
+
+Boundary check:
+- Strategy run executed: no
+- Backtest run executed: no
+- Canonical Result Population written: no
+- Candidate lifecycle write: no
+- Candidate-review packet created: no
+- Crossing/promotion: no
+- Paper/live/runtime touched: no
+- OMS/risk/reconciliation/order/exchange touched: no
+- Private provider/API access: no
+- Data committed: no
+- Code/schema/validator/query/dashboard/lab-state behavior changed: no

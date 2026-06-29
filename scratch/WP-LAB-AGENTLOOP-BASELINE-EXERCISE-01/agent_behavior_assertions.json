@@ -1,0 +1,31 @@
+{
+  "package": "WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01",
+  "schema_version": "agent_behavior_assertions.v1",
+  "fixture_only": true,
+  "baseline_id": "known_losing_baseline",
+  "assertions": {
+    "classified_as_construction_payload": true,
+    "classified_as_non_promotable": true,
+    "baseline_cannot_create_candidate_eligibility": true,
+    "baseline_cannot_create_promotion_readiness_language": true,
+    "baseline_cannot_enter_real_crossing": true,
+    "agent_loop_does_not_recommend_rescue": true,
+    "agent_loop_does_not_recommend_retuning": true,
+    "agent_loop_does_not_rank_as_edge": true,
+    "denominator_gate_caveats_retained": true,
+    "missing_or_unavailable_metrics_withheld_not_fabricated": true,
+    "crossing_guard_returns_reject_by_construction": true,
+    "candidate_registry_jsonl_write_occurs": false,
+    "result_population_write_occurs": false,
+    "paper_live_runtime_path_touched": false,
+    "protected_path_touched": false
+  },
+  "dashboard_operator_reporting_implications": {
+    "read_only_evidence_only": true,
+    "implies_candidate_readiness": false,
+    "implies_go": false,
+    "implies_ranking": false,
+    "implies_promotion": false,
+    "requires_future_real_candidate_crossing": true
+  }
+}

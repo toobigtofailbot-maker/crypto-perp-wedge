@@ -1,0 +1,43 @@
+{
+  "package": "WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01",
+  "schema_version": "no_candidate_review_result.v1",
+  "status": "no_candidate",
+  "fixture_only": true,
+  "baseline_id": "known_losing_baseline",
+  "review_outcome": "negative_fixture_no_candidate",
+  "candidate_eligible": false,
+  "candidate_review_packet_created": false,
+  "promotion_eligible": false,
+  "paper_live_eligible": false,
+  "ranking_eligible": false,
+  "edge_claim_allowed": false,
+  "primary_reasons": [
+    "construction_payload=true",
+    "non_promotable=true",
+    "candidate_eligible=false",
+    "PR #584 numeric override is not allowed",
+    "PR #584 retuning is not allowed"
+  ],
+  "denominator_and_gate_caveats": {
+    "denominator_retained": true,
+    "declared_rows": 3,
+    "completed_rows": 0,
+    "failed_rows": 1,
+    "invalid_rows": 1,
+    "blocked_rows": 1,
+    "wfo_oos_status": "insufficient_or_withheld_fixture_only",
+    "robustness_mc_status": "insufficient_or_withheld_fixture_only",
+    "statistical_diagnostics_status": "withheld_unless_real_inputs_exist",
+    "missing_or_unavailable_metrics_fabricated": false
+  },
+  "agent_loop_behavior": {
+    "recommended_rescue": false,
+    "recommended_retuning": false,
+    "ranked_as_edge": false,
+    "proposed_promotion": false,
+    "proposed_readiness": false,
+    "proposed_paper_live": false,
+    "proposed_real_crossing": false
+  },
+  "operator_implication": "Dashboard/operator/reporting implication is evidence-only: this fixture terminates as no-candidate and cannot imply GO, readiness, ranking, or promotion."
+}

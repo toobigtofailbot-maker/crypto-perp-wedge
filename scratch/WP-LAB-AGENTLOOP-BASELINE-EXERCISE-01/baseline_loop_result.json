@@ -1,0 +1,31 @@
+{
+  "package": "WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01",
+  "status": "completed",
+  "fixture_only": true,
+  "baseline_id": "known_losing_baseline",
+  "construction_payload": true,
+  "non_promotable": true,
+  "candidate_eligible": false,
+  "promotion_eligible": false,
+  "paper_live_eligible": false,
+  "canonical_crossing_allowed": false,
+  "edge_claim_allowed": false,
+  "agent_recommended_rescue": false,
+  "agent_recommended_retuning": false,
+  "agent_ranked_as_edge": false,
+  "candidate_review_created": false,
+  "no_candidate_result_created": true,
+  "crossing_rejection_observed": true,
+  "crossing_rejection_reason_code": "reject_by_construction",
+  "canonical_result_population_written": false,
+  "candidate_registry_written": false,
+  "paper_live_runtime_touched": false,
+  "protected_paths_touched": false,
+  "exercise_route": "temporary_fixture_root_against_existing_crossing_guard",
+  "result_refs": {
+    "fixture_input": "scratch/WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01/baseline_loop_fixture_input.json",
+    "no_candidate_review_result": "scratch/WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01/no_candidate_review_result.json",
+    "crossing_rejection_result": "scratch/WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01/crossing_rejection_result.json",
+    "agent_behavior_assertions": "scratch/WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01/agent_behavior_assertions.json"
+  }
+}

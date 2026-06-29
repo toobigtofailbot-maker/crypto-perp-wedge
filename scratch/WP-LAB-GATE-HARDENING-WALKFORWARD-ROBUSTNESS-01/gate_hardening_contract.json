@@ -1,0 +1,142 @@
+{
+  "package": "WP-LAB-GATE-HARDENING-WALKFORWARD-ROBUSTNESS-01",
+  "purpose": "harden WFO/OOS and robustness/MC as standard non-promoting candidate gate semantics",
+  "execution_authorized_here": false,
+  "canonical_writes_authorized_here": false,
+  "candidate_lifecycle_authorized_here": false,
+  "crossing_or_promotion_authorized_here": false,
+  "allowed_outcomes": [
+    "pass",
+    "fail",
+    "blocked",
+    "insufficient",
+    "withheld",
+    "not_applicable",
+    "reject_by_construction"
+  ],
+  "global_rules": {
+    "construction_payload_or_non_promotable_dominates_numeric_results": true,
+    "fabricated_metrics_allowed": false,
+    "winner_only_denominators_allowed": false,
+    "missing_statistical_inputs_withheld_or_insufficient": true,
+    "baseline_payloads_can_validate_plumbing_only": true,
+    "baseline_payloads_can_create_candidate_eligibility": false,
+    "baseline_payloads_can_cross_or_promote": false
+  },
+  "gates": [
+    {
+      "gate_id": "wfo_oos_gate",
+      "standard_candidate_gate": true,
+      "allowed_outcomes": [
+        "pass",
+        "fail",
+        "blocked",
+        "insufficient",
+        "withheld",
+        "not_applicable",
+        "reject_by_construction"
+      ],
+      "construction_payload_behavior": "reject_by_construction",
+      "fabricated_metrics_allowed": false,
+      "requirements": [
+        "chronological ordering",
+        "declared train/test split identity",
+        "declared purge/embargo posture",
+        "full fold denominator preservation",
+        "visible failed/blocked/invalid/no-trade folds"
+      ]
+    },
+    {
+      "gate_id": "robustness_mc_gate",
+      "standard_candidate_gate": true,
+      "allowed_outcomes": [
+        "pass",
+        "fail",
+        "blocked",
+        "insufficient",
+        "withheld",
+        "not_applicable",
+        "reject_by_construction"
+      ],
+      "construction_payload_behavior": "reject_by_construction",
+      "fabricated_metrics_allowed": false,
+      "requirements": [
+        "full population review",
+        "no winner-only robustness",
+        "withhold missing MC/bootstrap/per-trade inputs",
+        "no provenance override"
+      ]
+    },
+    {
+      "gate_id": "statistical_diagnostics_gate",
+      "standard_candidate_gate": true,
+      "allowed_outcomes": [
+        "pass",
+        "fail",
+        "blocked",
+        "insufficient",
+        "withheld",
+        "not_applicable",
+        "reject_by_construction"
+      ],
+      "construction_payload_behavior": "reject_by_construction",
+      "fabricated_metrics_allowed": false,
+      "diagnostic_families": [
+        "PSR",
+        "DSR",
+        "MinTRL",
+        "bootstrap",
+        "Monte Carlo"
+      ]
+    },
+    {
+      "gate_id": "denominator_integrity_gate",
+      "standard_candidate_gate": true,
+      "allowed_outcomes": [
+        "pass",
+        "fail",
+        "blocked",
+        "insufficient",
+        "withheld",
+        "not_applicable",
+        "reject_by_construction"
+      ],
+      "construction_payload_behavior": "reject_by_construction",
+      "fabricated_metrics_allowed": false,
+      "winner_only_review_allowed": false
+    },
+    {
+      "gate_id": "construction_payload_provenance_gate",
+      "standard_candidate_gate": true,
+      "allowed_outcomes": [
+        "pass",
+        "fail",
+        "blocked",
+        "insufficient",
+        "withheld",
+        "not_applicable",
+        "reject_by_construction"
+      ],
+      "construction_payload_behavior": "reject_by_construction",
+      "dominates_numeric_results": true
+    },
+    {
+      "gate_id": "candidate_eligibility_gate",
+      "standard_candidate_gate": true,
+      "allowed_outcomes": [
+        "pass",
+        "fail",
+        "blocked",
+        "insufficient",
+        "withheld",
+        "not_applicable",
+        "reject_by_construction"
+      ],
+      "construction_payload_behavior": "reject_by_construction",
+      "baseline_payload_eligibility": false,
+      "crossing_or_promotion_authority": false
+    }
+  ],
+  "baseline_expectations_source": "scratch/WP-LAB-BASELINE-PAYLOAD-DEFINE-01/baseline_ground_truth_contract.json",
+  "status": "ready"
+}

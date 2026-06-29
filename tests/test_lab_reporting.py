@@ -55,6 +55,12 @@ def test_no_go_subject_is_categorized_and_carries_caveats() -> None:
     # A NO-GO is a conclusion, not a block.
     assert _line(data["blocked_runs"], "H-FUNDING-RATE-POSITIONING-FADE-01") is None
 
+    riskmanaged = _line(data["no_gos"], "H-FUNDING-FADE-RISKMANAGED-01")
+    assert riskmanaged is not None
+    assert riskmanaged["overall_state"] == "no_go"
+    assert riskmanaged["evidence_class"] == "non_canonical"
+    assert _line(data["blocked_runs"], "H-FUNDING-FADE-RISKMANAGED-01") is None
+
 
 def test_completed_runs_include_reached_experiments() -> None:
     data = _data()
@@ -62,6 +68,7 @@ def test_completed_runs_include_reached_experiments() -> None:
     # The original committed subjects and historical bundles that reached
     # experiment evidence are visible.
     assert "H-FUNDING-RATE-POSITIONING-FADE-01" in ids
+    assert "H-FUNDING-FADE-RISKMANAGED-01" in ids
     assert "OOS-GATE-FIXTURE-RP-2592" in ids
     assert "WP-RESEARCH-FUNDING-CARRY-02" in ids
     assert "HISTORICAL-CANONICAL-EVIDENCE" in ids

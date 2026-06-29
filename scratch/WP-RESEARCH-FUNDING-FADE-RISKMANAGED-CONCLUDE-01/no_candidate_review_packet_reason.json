@@ -1,0 +1,9 @@
+{
+  "package": "WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01",
+  "hypothesis_id": "H-FUNDING-FADE-RISKMANAGED-01",
+  "packet_generated": false,
+  "classification": "NO-GO",
+  "reason": "Risk-managed Stage-1 triage failed the frozen stop/go criteria: all three risk-control states were gross-negative, all had worst drawdown above 50%, and all had zero positive-return rows.",
+  "candidate_claim_exists": false,
+  "promotion_or_readiness_language_added": false
+}

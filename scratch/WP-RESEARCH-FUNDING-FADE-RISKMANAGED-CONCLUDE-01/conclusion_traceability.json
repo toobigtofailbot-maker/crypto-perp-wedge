@@ -1,0 +1,52 @@
+{
+  "package": "WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01",
+  "hypothesis_id": "H-FUNDING-FADE-RISKMANAGED-01",
+  "status": "concluded_no_go",
+  "evidence_class": [
+    "scratch-only",
+    "non-canonical",
+    "triage-only"
+  ],
+  "denominator_preserved": true,
+  "planned_rows": 108,
+  "complete_rows": 108,
+  "failed_rows": 0,
+  "invalid_rows": 0,
+  "blocked_rows": 0,
+  "pruned_rows": 0,
+  "denominator": {
+    "planned": 108,
+    "complete": 108,
+    "failed": 0,
+    "invalid": 0,
+    "blocked": 0,
+    "pruned": 0,
+    "preserved": true
+  },
+  "result_populations": [],
+  "primary_failure": {
+    "screen": "risk-managed Stage-1 frozen stop/go criteria",
+    "threshold": "ATR slice median drawdown <= 0.35, worst drawdown < 0.50, positive median net return, and at least 4 positive-return rows",
+    "observed": "all three risk states had negative median net return, worst drawdown above 0.50, and zero positive-return rows"
+  },
+  "interpretation_caveats": {
+    "funding_payments_wired": false,
+    "statement_about_all_funding_strategies": false,
+    "canonical_full_history_candidate_test": false,
+    "paper_live_implication": false
+  },
+  "source_artifacts": [
+    "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/stage1_verdict.json",
+    "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/stop_go_evaluation.json",
+    "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/row_accounting.json",
+    "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/complete_108_row_denominator.json",
+    "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/complete_108_row_denominator.csv",
+    "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/no_atr_slice_summary.json",
+    "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/atr_20_slice_summary.json",
+    "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/atr_30_slice_summary.json"
+  ],
+  "canonical_evidence_written": false,
+  "candidate_lifecycle_written": false,
+  "paper_live_runtime_touched": false,
+  "protected_paths_touched": false
+}

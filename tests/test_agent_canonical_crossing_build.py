@@ -300,6 +300,35 @@ def _run_valid(root: Path) -> tuple[dict, CanonicalCrossingFixtureBuilder, Memor
     return result, builder, sink
 
 
+def _rewrite_packet_and_approval(root: Path, paths: dict[str, str], packet: dict, approval: dict) -> None:
+    _write_json(root, paths["packet"], packet)
+    approval["content_reviewed_hash"] = _hash_path(root, paths["packet"])
+    approval["source_candidate_review_packet_hash"] = _hash_path(root, paths["packet"])
+    _write_json(root, paths["approval"], approval)
+
+
+def _assert_rejected_without_crossing(root: Path, paths: dict[str, str], sink: MemoryAuditSink) -> dict:
+    output_dir = root / "scratch" / WP_ID / "outputs" / "fixture-crossing-run"
+    result_packet = json.loads((output_dir / "crossing_result_packet.json").read_text(encoding="utf-8"))
+    audit_payload = json.loads((output_dir / "crossing_audit_log.json").read_text(encoding="utf-8"))
+
+    assert result_packet["status"] == "rejected"
+    assert result_packet["reason_code"] == "reject_by_construction"
+    assert result_packet["candidate_lifecycle_written"] is False
+    assert result_packet["canonical_crossing_written"] is False
+    assert result_packet["promotion_or_readiness_created"] is False
+    assert result_packet["paper_live_eligible"] is False
+    assert result_packet["operator_gate_pending"] is False
+    assert result_packet["edge_claim_allowed"] is False
+    assert not (output_dir / "fake_registry_after.candidate_lifecycle_registry.json").exists()
+    assert not (root / "research" / "candidate_registry.jsonl").exists()
+    assert not (root / "research" / "result_populations").exists()
+    assert (root / paths["registry"]).exists()
+    assert any(item["decision"] == "rejected" for item in audit_payload["decisions"])
+    assert not any(record.action_type == BUILD_FIXTURE_CANONICAL_CROSSING for record in sink.records)
+    return result_packet
+
+
 def test_valid_fixture_crosses_into_fake_registry_copy(tmp_path: Path):
     result, _builder, sink = _run_valid(tmp_path)
 
@@ -331,6 +360,119 @@ def test_valid_fixture_crosses_into_fake_registry_copy(tmp_path: Path):
         for record in sink.records
     )
     assert not (tmp_path / "research" / "candidate_lifecycle_registry").exists()
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("construction_payload", True),
+        ("non_promotable", True),
+        ("candidate_eligible", False),
+        ("promotion_eligible", False),
+        ("paper_live_eligible", False),
+        ("canonical_crossing_allowed", False),
+        ("edge_claim_allowed", False),
+    ],
+)
+def test_nonpromotable_guard_rejects_eligibility_flags_before_crossing(tmp_path: Path, field: str, value: bool):
+    paths = _make_fixture_tree(tmp_path)
+    packet = json.loads((tmp_path / paths["packet"]).read_text(encoding="utf-8"))
+    approval = json.loads((tmp_path / paths["approval"]).read_text(encoding="utf-8"))
+    packet["construction_provenance"] = {field: value}
+    packet["performance_summary"] = {
+        "sharpe": 99.0,
+        "max_drawdown": 0.001,
+        "net_pnl": 1_000_000.0,
+        "interpretation": "favorable metrics are fixture data and cannot override provenance",
+    }
+    _rewrite_packet_and_approval(tmp_path, paths, packet, approval)
+    before_registry = (tmp_path / paths["registry"]).read_text(encoding="utf-8")
+    builder, sink = _make_builder(tmp_path)
+
+    with pytest.raises(CanonicalCrossingBuildError, match="construction or non-promotable"):
+        builder.run(
+            candidate_review_packet_path=paths["packet"],
+            crossing_approval_path=paths["approval"],
+            fake_registry_input_path=paths["registry"],
+        )
+
+    assert (tmp_path / paths["registry"]).read_text(encoding="utf-8") == before_registry
+    result_packet = _assert_rejected_without_crossing(tmp_path, paths, sink)
+    assert f"{field}={str(value).lower()}" in result_packet["details"]["triggers"]
+
+
+@pytest.mark.parametrize(
+    "baseline_id",
+    [
+        "known_losing_baseline",
+        "known_neutral_or_no_trade_baseline",
+        "known_degenerate_or_invalid_baseline",
+    ],
+)
+def test_pr583_baseline_fixtures_reject_even_with_required_nonpromotable_semantics(
+    tmp_path: Path, baseline_id: str
+):
+    paths = _make_fixture_tree(tmp_path)
+    packet = json.loads((tmp_path / paths["packet"]).read_text(encoding="utf-8"))
+    approval = json.loads((tmp_path / paths["approval"]).read_text(encoding="utf-8"))
+    packet["construction_provenance"] = {
+        "baseline_id": baseline_id,
+        "construction_payload": True,
+        "non_promotable": True,
+        "candidate_eligible": False,
+        "promotion_eligible": False,
+        "paper_live_eligible": False,
+        "canonical_crossing_allowed": False,
+        "edge_claim_allowed": False,
+    }
+    packet["performance_summary"] = {
+        "sharpe": 42.0,
+        "sortino": 42.0,
+        "net_pnl": 42_000.0,
+    }
+    _rewrite_packet_and_approval(tmp_path, paths, packet, approval)
+    before_registry = (tmp_path / paths["registry"]).read_text(encoding="utf-8")
+    builder, sink = _make_builder(tmp_path)
+
+    with pytest.raises(CanonicalCrossingBuildError, match="construction or non-promotable"):
+        builder.run(
+            candidate_review_packet_path=paths["packet"],
+            crossing_approval_path=paths["approval"],
+            fake_registry_input_path=paths["registry"],
+        )
+
+    assert (tmp_path / paths["registry"]).read_text(encoding="utf-8") == before_registry
+    result_packet = _assert_rejected_without_crossing(tmp_path, paths, sink)
+    assert baseline_id in result_packet["details"]["baseline_ids"]
+    assert "pr583_baseline_reference" in result_packet["details"]["triggers"]
+
+
+def test_baseline_catalog_reference_without_provenance_rejects_not_passes(tmp_path: Path):
+    paths = _make_fixture_tree(tmp_path)
+    packet = json.loads((tmp_path / paths["packet"]).read_text(encoding="utf-8"))
+    approval = json.loads((tmp_path / paths["approval"]).read_text(encoding="utf-8"))
+    packet["source_catalog_refs"] = [
+        {
+            "path": "scratch/WP-LAB-BASELINE-PAYLOAD-DEFINE-01/baseline_payload_catalog.json",
+            "baseline_id": "known_losing_baseline",
+        }
+    ]
+    _rewrite_packet_and_approval(tmp_path, paths, packet, approval)
+    before_registry = (tmp_path / paths["registry"]).read_text(encoding="utf-8")
+    builder, sink = _make_builder(tmp_path)
+
+    with pytest.raises(CanonicalCrossingBuildError, match="missing required non-promotable"):
+        builder.run(
+            candidate_review_packet_path=paths["packet"],
+            crossing_approval_path=paths["approval"],
+            fake_registry_input_path=paths["registry"],
+        )
+
+    assert (tmp_path / paths["registry"]).read_text(encoding="utf-8") == before_registry
+    result_packet = _assert_rejected_without_crossing(tmp_path, paths, sink)
+    assert result_packet["check"] == "baseline_provenance_missing_or_weakened"
+    assert "known_losing_baseline" in result_packet["details"]["baseline_ids"]
+    assert "construction_payload" in result_packet["details"]["missing_or_weakened_fields"]
 
 
 @pytest.mark.parametrize(

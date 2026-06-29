@@ -1,0 +1,58 @@
+{
+  "package": "WP-LAB-CROSSING-NONPROMOTABLE-GUARD-01",
+  "guard_id": "nonpromotable_construction_crossing_guard.v1",
+  "status": "implemented",
+  "implementation_surface": "tools/candidate_lifecycle/canonical_crossing_build.py",
+  "protected_before_action": "BUILD_FIXTURE_CANONICAL_CROSSING",
+  "rejection_reason_code": "reject_by_construction",
+  "reject_if": {
+    "construction_payload": true,
+    "non_promotable": true,
+    "candidate_eligible": false,
+    "promotion_eligible": false,
+    "paper_live_eligible": false,
+    "canonical_crossing_allowed": false,
+    "edge_claim_allowed": false,
+    "payload_source_is_pr583_baseline": true,
+    "baseline_catalog_id_reference_without_nonpromotable_semantics": true
+  },
+  "rejection_output": {
+    "status": "rejected",
+    "reason_code": "reject_by_construction",
+    "candidate_lifecycle_written": false,
+    "canonical_crossing_written": false,
+    "promotion_or_readiness_created": false,
+    "paper_live_eligible": false,
+    "operator_gate_pending": false,
+    "edge_claim_allowed": false
+  },
+  "pr583_baseline_ids": [
+    "known_losing_baseline",
+    "known_neutral_or_no_trade_baseline",
+    "known_degenerate_or_invalid_baseline"
+  ],
+  "required_pr583_baseline_semantics": {
+    "construction_payload": true,
+    "non_promotable": true,
+    "candidate_eligible": false,
+    "promotion_eligible": false,
+    "paper_live_eligible": false,
+    "canonical_crossing_allowed": false,
+    "edge_claim_allowed": false
+  },
+  "allowed_writes": [
+    "scratch/WP-AGENT-CANONICAL-CROSSING-BUILD-01/outputs/** for fixture crossing outputs after the guard passes",
+    "scratch/WP-LAB-CROSSING-NONPROMOTABLE-GUARD-01/** for this package evidence"
+  ],
+  "forbidden_writes": [
+    "research/candidate_registry.jsonl",
+    "research/result_populations/**",
+    "paper/live/runtime paths",
+    "OMS/risk/reconciliation/order/exchange/broker paths"
+  ],
+  "code_paths_changed": [
+    "tools/candidate_lifecycle/canonical_crossing_build.py",
+    "tests/test_agent_canonical_crossing_build.py"
+  ]
+}
+

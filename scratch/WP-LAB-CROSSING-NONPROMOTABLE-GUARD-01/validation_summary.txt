@@ -1,0 +1,46 @@
+WP-LAB-CROSSING-NONPROMOTABLE-GUARD-01 validation summary
+
+Base commit: 63b5b1646bf1b2913491266c062e3ead9b2e818e
+Branch: lab/crossing-nonpromotable-guard-01
+
+Implemented:
+- Non-promotable construction crossing guard in tools/candidate_lifecycle/canonical_crossing_build.py.
+- Guard runs before BUILD_FIXTURE_CANONICAL_CROSSING authorization.
+- Rejection output records status=rejected and reason_code=reject_by_construction with no candidate lifecycle write, no crossing write, no promotion/readiness, no paper/live eligibility, no operator gate, and no edge claim.
+- Adversarial tests cover explicit flags, all three PR #583 baseline IDs, favorable-metrics override, and missing provenance on a baseline catalog reference.
+
+Validation:
+- python -m pytest tests\test_agent_canonical_crossing_build.py tests\test_candidate_lifecycle_engine.py tests\test_validate_candidate_registry.py -q
+  Result: PASS, 69 passed.
+- python -m tools.research_query.run --list-views
+  Result: PASS, listed query views.
+- python -m tools.registry.validate_result_populations
+  Result: PASS.
+- python -m tools.registry.validate_candidate_registry
+  Result: PASS.
+- python -m json.tool scratch\WP-LAB-CROSSING-NONPROMOTABLE-GUARD-01\guard_contract.json
+  Result: PASS.
+- python -m json.tool scratch\WP-LAB-CROSSING-NONPROMOTABLE-GUARD-01\adversarial_fixture_matrix.json
+  Result: PASS.
+- python -m json.tool scratch\WP-LAB-CROSSING-NONPROMOTABLE-GUARD-01\guard_validation_summary.json
+  Result: PASS.
+- python tools\dev\diff_scope_summary.py
+  Result: PASS; forbidden-path matches: none.
+- git diff --check
+  Result: PASS.
+- git status --short
+  Result before staging: expected package changes only.
+
+Boundary:
+- Strategy run executed: no.
+- Backtest executed: no.
+- Canonical Result Population written: no.
+- Candidate lifecycle write: no.
+- Real crossing/promotion: no.
+- Paper/live/runtime: no.
+- OMS/risk/reconciliation/order/exchange/broker: no.
+- Private provider/API: no.
+- Data committed: no.
+
+Full pytest:
+- Not run; package scope is the fixture-only crossing builder plus nearest tests.

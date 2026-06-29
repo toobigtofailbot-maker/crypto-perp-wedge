@@ -84,4 +84,4 @@ Code changed: no.
 
 ## PR URL
 
-Pending PR creation.
+https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/581

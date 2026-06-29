@@ -1,0 +1,1227 @@
+{
+  "schema_version": "v1",
+  "variant_manifest_id": "VM-9602",
+  "amendment_and_supersession": {
+    "amendment_mode": "none",
+    "amendment_reason": null,
+    "associated_results_state": "no_associated_results",
+    "close_only_after_results": true,
+    "does_not_inherit_prior_results": true,
+    "fresh_denominator_required": true,
+    "post_result_change": false,
+    "preserve_prior_manifest_required": true,
+    "supersedes": null,
+    "supersession_allowed": false,
+    "supersession_lineage": []
+  },
+  "exclusion_rules": [],
+  "invalid_combination_rules": [],
+  "lineage": {
+    "audit_notes": [
+      "Scratch-only funding-riskmanaged triage input: risk_control_state=atr_20.",
+      "Signal axes frozen from H-FUNDING-RATE-POSITIONING-FADE-01.",
+      "Funding payments remain off; price-P&L signal test.",
+      "All 36 denominator rows visible per risk state.",
+      "Karl sign-off required before Stage-1 execution.",
+      "exit_mode is encoded as VM axis; at execution, decompose to two 18-row runner invocations."
+    ],
+    "created_at": "2026-06-27T00:00:00Z",
+    "hash_refs": [],
+    "parent_refs": [
+      {
+        "ref_hash": null,
+        "ref_id": "STRAT-SPEC-9602",
+        "ref_path": "scratch/WP-RESEARCH-FUNDING-TRIAGE-DATAPREP-01/inputs/atr_20/strategy_spec.json",
+        "ref_type": "strategy_spec"
+      }
+    ],
+    "source_refs": [
+      {
+        "ref_hash": null,
+        "ref_id": "H-FUNDING-FADE-RISKMANAGED-01",
+        "ref_path": "docs/research/H_FUNDING_FADE_RISKMANAGED_TRIAGE_PREGATE.md",
+        "ref_type": "research_note"
+      }
+    ],
+    "updated_at": "2026-06-27T00:00:00Z"
+  },
+  "manifest_hash_pinning": {
+    "canonicalization": "json_canonical_v1",
+    "frozen_at": "2026-06-27T00:00:00Z",
+    "hash_algorithm": "sha256",
+    "hash_scope": [
+      "schema_version",
+      "variant_manifest_id",
+      "parent_strategy_spec.strategy_spec_id",
+      "population_governance",
+      "parameter_axes",
+      "variant_assignments"
+    ],
+    "hash_scope_version": "variant_manifest_hash_scope_v1",
+    "hash_status": "computed",
+    "manifest_hash": "sha256:7f41605108e11af5af1d52130360e1f3df3581d2e9fea5aa7c8802612def693e",
+    "post_result_mutation_forbidden": true,
+    "pre_sweep_freeze_required": true
+  },
+  "non_execution_declaration": {
+    "not_candidate_approval": true,
+    "not_executable": true,
+    "not_exp_approval": true,
+    "not_gate_authority": true,
+    "not_paper_live_authority": true,
+    "not_ranking_authority": true,
+    "not_readiness_authority": true,
+    "not_recommendation_authority": true,
+    "not_result_authority": true,
+    "not_runner_authority": true,
+    "not_runtime_authority": true,
+    "not_sweep_authority": true,
+    "not_transition_authority": true,
+    "planning_surface_only": true
+  },
+  "parameter_axes": [
+    {
+      "axis_id": "AXIS-001",
+      "axis_kind": "free_parameter",
+      "parameter_name": "funding_lookback_bars",
+      "parameter_type": "integer",
+      "allowed_values": [
+        2880,
+        8640,
+        17280
+      ],
+      "generator_method": "manual_grid",
+      "counts_toward_parent_free_parameter_cap": true,
+      "is_declared_in_parent_strategy_spec": true,
+      "invalid_combination_rule_refs": [],
+      "notes": "Frozen H-FUNDING-RATE-POSITIONING-FADE-01 axis. 2880=30d, 8640=90d, 17280=180d.",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.funding_lookback_bars",
+      "range": {
+        "inclusive_max": true,
+        "inclusive_min": true,
+        "max": 17280,
+        "min": 2880,
+        "step": 5760
+      },
+      "units": "bars"
+    },
+    {
+      "axis_id": "AXIS-002",
+      "axis_kind": "free_parameter",
+      "parameter_name": "lower_entry_percentile",
+      "parameter_type": "number",
+      "allowed_values": [
+        0.05,
+        0.1
+      ],
+      "generator_method": "manual_grid",
+      "counts_toward_parent_free_parameter_cap": true,
+      "is_declared_in_parent_strategy_spec": true,
+      "invalid_combination_rule_refs": [],
+      "notes": "Frozen H-FUNDING-RATE-POSITIONING-FADE-01 axis.",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.lower_entry_percentile",
+      "range": {
+        "inclusive_max": true,
+        "inclusive_min": true,
+        "max": 0.1,
+        "min": 0.05,
+        "step": 0.05
+      },
+      "units": "ratio"
+    },
+    {
+      "axis_id": "AXIS-003",
+      "axis_kind": "free_parameter",
+      "parameter_name": "upper_entry_percentile",
+      "parameter_type": "number",
+      "allowed_values": [
+        0.9,
+        0.95
+      ],
+      "generator_method": "manual_grid",
+      "counts_toward_parent_free_parameter_cap": true,
+      "is_declared_in_parent_strategy_spec": true,
+      "invalid_combination_rule_refs": [],
+      "notes": "Frozen H-FUNDING-RATE-POSITIONING-FADE-01 axis.",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.upper_entry_percentile",
+      "range": {
+        "inclusive_max": true,
+        "inclusive_min": true,
+        "max": 0.95,
+        "min": 0.9,
+        "step": 0.05
+      },
+      "units": "ratio"
+    },
+    {
+      "axis_id": "AXIS-004",
+      "axis_kind": "free_parameter",
+      "parameter_name": "exit_mode",
+      "parameter_type": "enum",
+      "allowed_values": [
+        "fixed_max_hold_only",
+        "midline_reversion_or_max_hold"
+      ],
+      "generator_method": "manual_grid",
+      "counts_toward_parent_free_parameter_cap": true,
+      "is_declared_in_parent_strategy_spec": true,
+      "invalid_combination_rule_refs": [],
+      "notes": "Frozen H-FUNDING-RATE-POSITIONING-FADE-01 axis. Decompose to two runner invocations at execution.",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.exit_mode",
+      "range": null,
+      "units": null
+    },
+    {
+      "axis_id": "AXIS-005",
+      "axis_kind": "free_parameter",
+      "parameter_name": "max_hold_bars",
+      "parameter_type": "integer",
+      "allowed_values": [
+        16,
+        32,
+        96
+      ],
+      "generator_method": "manual_grid",
+      "counts_toward_parent_free_parameter_cap": true,
+      "is_declared_in_parent_strategy_spec": true,
+      "invalid_combination_rule_refs": [],
+      "notes": "Frozen H-FUNDING-RATE-POSITIONING-FADE-01 axis.",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.max_hold_bars",
+      "range": {
+        "inclusive_max": true,
+        "inclusive_min": true,
+        "max": 96,
+        "min": 16,
+        "step": 16
+      },
+      "units": "bars"
+    }
+  ],
+  "parent_strategy_spec": {
+    "does_not_mutate_parent_strategy_spec": true,
+    "hash_algorithm": "sha256",
+    "hash_scope_version": "strategy_spec_hash_scope_v1",
+    "mismatch_policy": "block",
+    "missing_parent_policy": "block",
+    "strategy_spec_hash": "sha256:e6cd81e85b57044596cd3db39fb8bee12f6a8e5c3dc1c31a25cde5f7928450d1",
+    "strategy_spec_id": "STRAT-SPEC-9602",
+    "strategy_spec_ref": "scratch/WP-RESEARCH-FUNDING-TRIAGE-DATAPREP-01/inputs/atr_20/strategy_spec.json",
+    "strategy_spec_review_status": "approved_for_variant_planning",
+    "strategy_spec_schema_version": "v1"
+  },
+  "population_governance": {
+    "declared_population": {
+      "committed_population_count": 36,
+      "declared_variant_count": 36,
+      "excluded_variant_count": 18,
+      "included_variant_count": 18,
+      "invalid_variant_count": 0,
+      "not_attempted_variant_count": 0
+    },
+    "multiple_testing_accounting": {
+      "adaptive_search_authorization_ref": null,
+      "adaptive_search_used": false,
+      "all_trials_visible_required": true,
+      "denominator_required": true,
+      "denominator_type": "committed_pre_registered_population",
+      "search_family_id": "SF-FUNDING-FADE-RISKMANAGED-ATR_20-0001",
+      "search_family_method": "manual_grid",
+      "winner_only_review_forbidden": true
+    },
+    "population_cap": {
+      "cap_basis": "manual_grid",
+      "cap_exception_authorized": false,
+      "cap_exception_ref": null,
+      "cap_source": "human_declared",
+      "max_variants": 36
+    },
+    "pre_registration": {
+      "allowed_change_mode": "supersede_before_results_only",
+      "freeze_required_before_sweep": true,
+      "post_hoc_addition_forbidden": true,
+      "post_result_mutation_forbidden": true,
+      "pre_registered": true,
+      "pre_registration_scope": "full_variant_population",
+      "pre_registration_status": "frozen_for_sweep_planning"
+    },
+    "trial_budget": {
+      "denominator_basis": "committed_pre_registered_population_count",
+      "denominator_count": 36,
+      "denominator_includes_aborted": true,
+      "denominator_includes_data_unavailable": true,
+      "denominator_includes_errored": true,
+      "denominator_includes_excluded": true,
+      "denominator_includes_failed": true,
+      "denominator_includes_filtered": true,
+      "denominator_includes_invalid": true,
+      "denominator_includes_not_attempted": true,
+      "executed_only_denominator_forbidden": true,
+      "planned_trial_count": 36,
+      "trial_budget_denominator": 36
+    }
+  },
+  "review": {
+    "approval_scope": "sweep_planning_only",
+    "human_review_required": true,
+    "non_authority_acknowledgement": {
+      "not_candidate_approval": true,
+      "not_exp_approval": true,
+      "not_gate_satisfaction": true,
+      "not_paper_live_authority": true,
+      "not_ranking_authority": true,
+      "not_readiness_authority": true,
+      "not_recommendation_authority": true,
+      "not_result_authority": true,
+      "not_runner_authority": true,
+      "not_runtime_authority": true,
+      "not_sweep_authority": true,
+      "not_transition_authority": true
+    },
+    "review_notes": [
+      "Scratch-only triage input prep artifact for risk_control_state=atr_20.",
+      "Karl sign-off required before Stage-1 execution.",
+      "No crossing, candidate, promotion, paper, live, or runtime authority."
+    ],
+    "reviewed_at": null,
+    "reviewer": null
+  },
+  "status": "approved_for_sweep_planning",
+  "variant_assignments": [
+    {
+      "variant_id": "VAR-000001",
+      "assignment_status": "excluded",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 1
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 16
+      },
+      "status_reason": "excluded_by_stage1_exit_mode_decomposition:midline_reversion_or_max_hold"
+    },
+    {
+      "variant_id": "VAR-000002",
+      "assignment_status": "excluded",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 2
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 32
+      },
+      "status_reason": "excluded_by_stage1_exit_mode_decomposition:midline_reversion_or_max_hold"
+    },
+    {
+      "variant_id": "VAR-000003",
+      "assignment_status": "excluded",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 3
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 96
+      },
+      "status_reason": "excluded_by_stage1_exit_mode_decomposition:midline_reversion_or_max_hold"
+    },
+    {
+      "variant_id": "VAR-000004",
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 4
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 16
+      },
+      "status_reason": null
+    },
+    {
+      "variant_id": "VAR-000005",
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 5
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 32
+      },
+      "status_reason": null
+    },
+    {
+      "variant_id": "VAR-000006",
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 6
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 96
+      },
+      "status_reason": null
+    },
+    {
+      "variant_id": "VAR-000007",
+      "assignment_status": "excluded",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 7
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 16
+      },
+      "status_reason": "excluded_by_stage1_exit_mode_decomposition:midline_reversion_or_max_hold"
+    },
+    {
+      "variant_id": "VAR-000008",
+      "assignment_status": "excluded",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 8
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 32
+      },
+      "status_reason": "excluded_by_stage1_exit_mode_decomposition:midline_reversion_or_max_hold"
+    },
+    {
+      "variant_id": "VAR-000009",
+      "assignment_status": "excluded",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 9
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 96
+      },
+      "status_reason": "excluded_by_stage1_exit_mode_decomposition:midline_reversion_or_max_hold"
+    },
+    {
+      "variant_id": "VAR-000010",
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 10
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 16
+      },
+      "status_reason": null
+    },
+    {
+      "variant_id": "VAR-000011",
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 11
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 32
+      },
+      "status_reason": null
+    },
+    {
+      "variant_id": "VAR-000012",
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 12
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 96
+      },
+      "status_reason": null
+    },
+    {
+      "variant_id": "VAR-000013",
+      "assignment_status": "excluded",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 13
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 16
+      },
+      "status_reason": "excluded_by_stage1_exit_mode_decomposition:midline_reversion_or_max_hold"
+    },
+    {
+      "variant_id": "VAR-000014",
+      "assignment_status": "excluded",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 14
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 32
+      },
+      "status_reason": "excluded_by_stage1_exit_mode_decomposition:midline_reversion_or_max_hold"
+    },
+    {
+      "variant_id": "VAR-000015",
+      "assignment_status": "excluded",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 15
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 96
+      },
+      "status_reason": "excluded_by_stage1_exit_mode_decomposition:midline_reversion_or_max_hold"
+    },
+    {
+      "variant_id": "VAR-000016",
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 16
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 16
+      },
+      "status_reason": null
+    },
+    {
+      "variant_id": "VAR-000017",
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 17
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 32
+      },
+      "status_reason": null
+    },
+    {
+      "variant_id": "VAR-000018",
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 18
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 96
+      },
+      "status_reason": null
+    },
+    {
+      "variant_id": "VAR-000019",
+      "assignment_status": "excluded",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 19
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 16
+      },
+      "status_reason": "excluded_by_stage1_exit_mode_decomposition:midline_reversion_or_max_hold"
+    },
+    {
+      "variant_id": "VAR-000020",
+      "assignment_status": "excluded",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 20
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 32
+      },
+      "status_reason": "excluded_by_stage1_exit_mode_decomposition:midline_reversion_or_max_hold"
+    },
+    {
+      "variant_id": "VAR-000021",
+      "assignment_status": "excluded",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 21
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 96
+      },
+      "status_reason": "excluded_by_stage1_exit_mode_decomposition:midline_reversion_or_max_hold"
+    },
+    {
+      "variant_id": "VAR-000022",
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 22
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 16
+      },
+      "status_reason": null
+    },
+    {
+      "variant_id": "VAR-000023",
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 23
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 32
+      },
+      "status_reason": null
+    },
+    {
+      "variant_id": "VAR-000024",
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 24
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 96
+      },
+      "status_reason": null
+    },
+    {
+      "variant_id": "VAR-000025",
+      "assignment_status": "excluded",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 25
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 16
+      },
+      "status_reason": "excluded_by_stage1_exit_mode_decomposition:midline_reversion_or_max_hold"
+    },
+    {
+      "variant_id": "VAR-000026",
+      "assignment_status": "excluded",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 26
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 32
+      },
+      "status_reason": "excluded_by_stage1_exit_mode_decomposition:midline_reversion_or_max_hold"
+    },
+    {
+      "variant_id": "VAR-000027",
+      "assignment_status": "excluded",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 27
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 96
+      },
+      "status_reason": "excluded_by_stage1_exit_mode_decomposition:midline_reversion_or_max_hold"
+    },
+    {
+      "variant_id": "VAR-000028",
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 28
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 16
+      },
+      "status_reason": null
+    },
+    {
+      "variant_id": "VAR-000029",
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 29
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 32
+      },
+      "status_reason": null
+    },
+    {
+      "variant_id": "VAR-000030",
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 30
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 96
+      },
+      "status_reason": null
+    },
+    {
+      "variant_id": "VAR-000031",
+      "assignment_status": "excluded",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 31
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 16
+      },
+      "status_reason": "excluded_by_stage1_exit_mode_decomposition:midline_reversion_or_max_hold"
+    },
+    {
+      "variant_id": "VAR-000032",
+      "assignment_status": "excluded",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 32
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 32
+      },
+      "status_reason": "excluded_by_stage1_exit_mode_decomposition:midline_reversion_or_max_hold"
+    },
+    {
+      "variant_id": "VAR-000033",
+      "assignment_status": "excluded",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 33
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 96
+      },
+      "status_reason": "excluded_by_stage1_exit_mode_decomposition:midline_reversion_or_max_hold"
+    },
+    {
+      "variant_id": "VAR-000034",
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 34
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 16
+      },
+      "status_reason": null
+    },
+    {
+      "variant_id": "VAR-000035",
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 35
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 32
+      },
+      "status_reason": null
+    },
+    {
+      "variant_id": "VAR-000036",
+      "assignment_status": "included",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "lineage": {
+        "generated_by_rule": "frozen-manual-grid",
+        "generation_order": 36
+      },
+      "parameter_value_hash": null,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 96
+      },
+      "status_reason": null
+    }
+  ]
+}

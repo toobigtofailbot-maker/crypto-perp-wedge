@@ -1,0 +1,12 @@
+{
+  "risk_control_state": "atr_20",
+  "row_count": 36,
+  "executed_rows": 36,
+  "median_drawdown": 0.4814108403440701,
+  "worst_drawdown": 0.7296376923839575,
+  "median_net_return": -0.440942602845076,
+  "positive_net_return_rows": 0,
+  "median_sharpe": -1.8664272050016777,
+  "total_trades": 19186,
+  "median_drawdown_improvement_vs_no_atr_abs": 0.008671994590397636
+}

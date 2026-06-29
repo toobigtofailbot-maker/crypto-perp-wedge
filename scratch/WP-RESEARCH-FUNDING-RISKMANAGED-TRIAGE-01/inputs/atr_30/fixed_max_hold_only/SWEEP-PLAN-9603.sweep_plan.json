@@ -1,0 +1,283 @@
+{
+  "schema_version": "v1",
+  "sweep_plan_id": "SWEEP-PLAN-9603",
+  "amendment_and_supersession": {
+    "amendment_mode": "none",
+    "amendment_reason": null,
+    "associated_results_state": "no_associated_results",
+    "close_only_after_results": true,
+    "does_not_modify_manifest_denominator": true,
+    "does_not_modify_parent_manifest": true,
+    "post_result_change": false,
+    "preserve_prior_sweep_plan_required": true,
+    "supersedes": null,
+    "supersession_allowed": false,
+    "supersession_lineage": []
+  },
+  "data_and_timeframe_assumptions": {
+    "confirmation_timeframes": [],
+    "data_refs": [
+      {
+        "availability": "required",
+        "field": "open",
+        "stream": "ohlcv",
+        "timeframe": "15m"
+      },
+      {
+        "availability": "required",
+        "field": "high",
+        "stream": "ohlcv",
+        "timeframe": "15m"
+      },
+      {
+        "availability": "required",
+        "field": "low",
+        "stream": "ohlcv",
+        "timeframe": "15m"
+      },
+      {
+        "availability": "required",
+        "field": "close",
+        "stream": "ohlcv",
+        "timeframe": "15m"
+      },
+      {
+        "availability": "required",
+        "field": "volume",
+        "stream": "ohlcv",
+        "timeframe": "15m"
+      },
+      {
+        "availability": "required",
+        "field": "funding_rate",
+        "stream": "funding",
+        "timeframe": "15m"
+      }
+    ],
+    "gap_handling_assumption": "Use existing BTCUSDT 15m D4A catalog/slice facts and existing gap policy; no silent interpolation.",
+    "missing_data_posture": "block_if_missing",
+    "primary_timeframe": "15m"
+  },
+  "lineage": {
+    "audit_notes": [
+      "Scratch-only sweep plan for risk_control_state=atr_30.",
+      "Funding P&L is not wired; funding_cost_mode remains off.",
+      "Combined per-state denominator is 36 rows.",
+      "Karl sign-off required before Stage-1 execution."
+    ],
+    "created_at": "2026-06-27T00:00:00Z",
+    "parent_manifest_ref": {
+      "ref_hash": null,
+      "ref_id": "VM-9603",
+      "ref_path": "scratch/WP-RESEARCH-FUNDING-TRIAGE-DATAPREP-01/inputs/atr_30/variant_manifest.json",
+      "ref_type": "variant_manifest"
+    },
+    "parent_strategy_spec_ref": {
+      "ref_hash": null,
+      "ref_id": "STRAT-SPEC-9603",
+      "ref_path": "scratch/WP-RESEARCH-FUNDING-TRIAGE-DATAPREP-01/inputs/atr_30/strategy_spec.json",
+      "ref_type": "strategy_spec"
+    },
+    "search_family_id": "SF-FUNDING-FADE-RISKMANAGED-ATR_30-0001",
+    "source_refs": [
+      {
+        "ref_hash": null,
+        "ref_id": "H-FUNDING-FADE-RISKMANAGED-01",
+        "ref_path": "docs/research/H_FUNDING_FADE_RISKMANAGED_TRIAGE_PREGATE.md",
+        "ref_type": "other"
+      }
+    ],
+    "updated_at": "2026-06-27T00:00:00Z"
+  },
+  "non_execution_declaration": {
+    "not_candidate_approval": true,
+    "not_executable": true,
+    "not_exp_approval": true,
+    "not_gate_authority": true,
+    "not_paper_live_authority": true,
+    "not_ranking_authority": true,
+    "not_readiness_authority": true,
+    "not_recommendation_authority": true,
+    "not_result_authority": true,
+    "not_runner_authority": true,
+    "not_runtime_authority": true,
+    "not_sweep_authority": true,
+    "not_transition_authority": true,
+    "planning_surface_only": true
+  },
+  "parent_variant_manifest": {
+    "hash_algorithm": "sha256",
+    "manifest_committed_population_count": 36,
+    "manifest_hash": "sha256:dc17be98fd4e93fd8bcdeb43a258e74e3f3f592f86649a527223d647695d005e",
+    "manifest_population_cap": 36,
+    "manifest_population_count": 36,
+    "manifest_pre_registration_status": "frozen_for_sweep_planning",
+    "mismatch_policy": "block",
+    "missing_manifest_policy": "block",
+    "one_manifest_only": true,
+    "variant_manifest_id": "VM-9603",
+    "variant_manifest_schema_version": "v1"
+  },
+  "realism_assumptions": {
+    "bar_path_assumption": "next_open_close_mark",
+    "declarations_only": true,
+    "exchange_constraints_disclosed": true,
+    "fee_side_assumption": "taker_entry_taker_exit",
+    "fill_mode": "complete",
+    "funding_notional_mode": "entry_price",
+    "liquidation_mode": "zero_equity",
+    "liquidity_capacity_assumption": null,
+    "maintenance_margin_assumption": null,
+    "mark_price_source": "close",
+    "order_size_assumption": "offline runner: dynamic_equity_target_leverage at target_leverage=1.0; execution not yet authorized",
+    "slippage_model": "fixed_bps"
+  },
+  "result_capture_expectations": {
+    "canonical_evidence_mapping_deferred": true,
+    "expected_result_population_ref": null,
+    "must_capture_aborted": true,
+    "must_capture_data_unavailable": true,
+    "must_capture_errored": true,
+    "must_capture_excluded": true,
+    "must_capture_failed": true,
+    "must_capture_filtered": true,
+    "must_capture_invalid": true,
+    "must_capture_not_attempted": true,
+    "must_capture_successful": true,
+    "result_population_expected": true,
+    "winner_only_retention_forbidden": true
+  },
+  "review": {
+    "approval_scope": "offline_run_planning_only",
+    "human_review_required": true,
+    "non_authority_acknowledgement": {
+      "not_candidate_approval": true,
+      "not_exp_approval": true,
+      "not_gate_satisfaction": true,
+      "not_paper_live_authority": true,
+      "not_ranking_authority": true,
+      "not_readiness_authority": true,
+      "not_recommendation_authority": true,
+      "not_result_authority": true,
+      "not_runner_authority": true,
+      "not_runtime_authority": true,
+      "not_sweep_authority": true,
+      "not_transition_authority": true
+    },
+    "review_notes": [
+      "Human review required; no candidate or crossing authority.",
+      "Karl sign-off required before Stage-1 execution."
+    ],
+    "reviewed_at": null,
+    "reviewer": null
+  },
+  "status": "approved_for_offline_run_planning",
+  "test_selection": {
+    "declared_before_results": true,
+    "excluded_variant_ids": [
+      "VAR-000004",
+      "VAR-000005",
+      "VAR-000006",
+      "VAR-000010",
+      "VAR-000011",
+      "VAR-000012",
+      "VAR-000016",
+      "VAR-000017",
+      "VAR-000018",
+      "VAR-000022",
+      "VAR-000023",
+      "VAR-000024",
+      "VAR-000028",
+      "VAR-000029",
+      "VAR-000030",
+      "VAR-000034",
+      "VAR-000035",
+      "VAR-000036"
+    ],
+    "outside_manifest_variants_forbidden": true,
+    "post_hoc_addition_forbidden": true,
+    "selected_variant_ids": [
+      "VAR-000001",
+      "VAR-000002",
+      "VAR-000003",
+      "VAR-000007",
+      "VAR-000008",
+      "VAR-000009",
+      "VAR-000013",
+      "VAR-000014",
+      "VAR-000015",
+      "VAR-000019",
+      "VAR-000020",
+      "VAR-000021",
+      "VAR-000025",
+      "VAR-000026",
+      "VAR-000027",
+      "VAR-000031",
+      "VAR-000032",
+      "VAR-000033"
+    ],
+    "selection_mode": "pre_registered_subset",
+    "subset_selection_rule": null
+  },
+  "trial_accounting": {
+    "aborted_variant_count": 0,
+    "aborted_variants_remain_in_denominator": true,
+    "committed_population_count": 36,
+    "data_unavailable_variant_count": 0,
+    "data_unavailable_variants_remain_in_denominator": true,
+    "denominator_basis": "committed_pre_registered_population_count",
+    "denominator_equals_committed_population_count": true,
+    "errored_variant_count": 0,
+    "errored_variants_remain_in_denominator": true,
+    "excluded_variant_count": 18,
+    "excluded_variants_remain_in_denominator": true,
+    "executed_only_denominator_forbidden": true,
+    "executed_variant_count": 0,
+    "failed_variant_count": 0,
+    "failed_variants_remain_in_denominator": true,
+    "filtered_variant_count": 0,
+    "filtered_variants_remain_in_denominator": true,
+    "invalid_variants_remain_in_denominator": true,
+    "multiple_testing_denominator": 36,
+    "not_attempted_variant_count": 0,
+    "not_attempted_variants_remain_in_denominator": true,
+    "selected_variant_count": 18,
+    "successful_only_denominator_forbidden": true,
+    "successful_variant_count": 0
+  },
+  "validation_methods": {
+    "backtest": {
+      "enabled": true,
+      "method_ref": null,
+      "notes": "Price-P&L funding-rate signal test; risk_control_state=atr_30; costs enabled by runner convention. Evaluation window 2024-01-01 to 2025-01-01 (exclusive). Warmup prefix from 2023-07-05."
+    },
+    "declarative_intent_only": true,
+    "dsr_psr_mintrl_accounting": {
+      "computation_deferred": true,
+      "denominator_ref": "committed_population_count",
+      "enabled": true,
+      "notes": "36-row atr_30 slice of the combined 108-row denominator."
+    },
+    "monte_carlo": {
+      "computation_deferred": true,
+      "enabled": false,
+      "method_ref": null,
+      "notes": null
+    },
+    "no_computation": true,
+    "no_formulas": true,
+    "no_runner_hooks": true,
+    "robustness": {
+      "enabled": false,
+      "families_declared": [],
+      "method_ref": null,
+      "notes": null
+    },
+    "walk_forward_oos": {
+      "declares_chronological_separation": false,
+      "enabled": false,
+      "method_ref": null,
+      "notes": "Walk-forward is a possible next step only if Stage-1 results satisfy stop/go criteria."
+    }
+  }
+}

@@ -1,0 +1,150 @@
+{
+  "risk_state": "atr_30",
+  "exit_mode": "midline_reversion_or_max_hold",
+  "map": [
+    {
+      "runner_variant_id": "VAR-000001",
+      "frozen_variant_id": "fl2880_tail10_90_exitfixed_hold16"
+    },
+    {
+      "runner_variant_id": "VAR-000002",
+      "frozen_variant_id": "fl2880_tail10_90_exitfixed_hold32"
+    },
+    {
+      "runner_variant_id": "VAR-000003",
+      "frozen_variant_id": "fl2880_tail10_90_exitfixed_hold96"
+    },
+    {
+      "runner_variant_id": "VAR-000004",
+      "frozen_variant_id": "fl2880_tail10_90_exitmidline_hold16"
+    },
+    {
+      "runner_variant_id": "VAR-000005",
+      "frozen_variant_id": "fl2880_tail10_90_exitmidline_hold32"
+    },
+    {
+      "runner_variant_id": "VAR-000006",
+      "frozen_variant_id": "fl2880_tail10_90_exitmidline_hold96"
+    },
+    {
+      "runner_variant_id": "VAR-000007",
+      "frozen_variant_id": "fl2880_tail05_95_exitfixed_hold16"
+    },
+    {
+      "runner_variant_id": "VAR-000008",
+      "frozen_variant_id": "fl2880_tail05_95_exitfixed_hold32"
+    },
+    {
+      "runner_variant_id": "VAR-000009",
+      "frozen_variant_id": "fl2880_tail05_95_exitfixed_hold96"
+    },
+    {
+      "runner_variant_id": "VAR-000010",
+      "frozen_variant_id": "fl2880_tail05_95_exitmidline_hold16"
+    },
+    {
+      "runner_variant_id": "VAR-000011",
+      "frozen_variant_id": "fl2880_tail05_95_exitmidline_hold32"
+    },
+    {
+      "runner_variant_id": "VAR-000012",
+      "frozen_variant_id": "fl2880_tail05_95_exitmidline_hold96"
+    },
+    {
+      "runner_variant_id": "VAR-000013",
+      "frozen_variant_id": "fl8640_tail10_90_exitfixed_hold16"
+    },
+    {
+      "runner_variant_id": "VAR-000014",
+      "frozen_variant_id": "fl8640_tail10_90_exitfixed_hold32"
+    },
+    {
+      "runner_variant_id": "VAR-000015",
+      "frozen_variant_id": "fl8640_tail10_90_exitfixed_hold96"
+    },
+    {
+      "runner_variant_id": "VAR-000016",
+      "frozen_variant_id": "fl8640_tail10_90_exitmidline_hold16"
+    },
+    {
+      "runner_variant_id": "VAR-000017",
+      "frozen_variant_id": "fl8640_tail10_90_exitmidline_hold32"
+    },
+    {
+      "runner_variant_id": "VAR-000018",
+      "frozen_variant_id": "fl8640_tail10_90_exitmidline_hold96"
+    },
+    {
+      "runner_variant_id": "VAR-000019",
+      "frozen_variant_id": "fl8640_tail05_95_exitfixed_hold16"
+    },
+    {
+      "runner_variant_id": "VAR-000020",
+      "frozen_variant_id": "fl8640_tail05_95_exitfixed_hold32"
+    },
+    {
+      "runner_variant_id": "VAR-000021",
+      "frozen_variant_id": "fl8640_tail05_95_exitfixed_hold96"
+    },
+    {
+      "runner_variant_id": "VAR-000022",
+      "frozen_variant_id": "fl8640_tail05_95_exitmidline_hold16"
+    },
+    {
+      "runner_variant_id": "VAR-000023",
+      "frozen_variant_id": "fl8640_tail05_95_exitmidline_hold32"
+    },
+    {
+      "runner_variant_id": "VAR-000024",
+      "frozen_variant_id": "fl8640_tail05_95_exitmidline_hold96"
+    },
+    {
+      "runner_variant_id": "VAR-000025",
+      "frozen_variant_id": "fl17280_tail10_90_exitfixed_hold16"
+    },
+    {
+      "runner_variant_id": "VAR-000026",
+      "frozen_variant_id": "fl17280_tail10_90_exitfixed_hold32"
+    },
+    {
+      "runner_variant_id": "VAR-000027",
+      "frozen_variant_id": "fl17280_tail10_90_exitfixed_hold96"
+    },
+    {
+      "runner_variant_id": "VAR-000028",
+      "frozen_variant_id": "fl17280_tail10_90_exitmidline_hold16"
+    },
+    {
+      "runner_variant_id": "VAR-000029",
+      "frozen_variant_id": "fl17280_tail10_90_exitmidline_hold32"
+    },
+    {
+      "runner_variant_id": "VAR-000030",
+      "frozen_variant_id": "fl17280_tail10_90_exitmidline_hold96"
+    },
+    {
+      "runner_variant_id": "VAR-000031",
+      "frozen_variant_id": "fl17280_tail05_95_exitfixed_hold16"
+    },
+    {
+      "runner_variant_id": "VAR-000032",
+      "frozen_variant_id": "fl17280_tail05_95_exitfixed_hold32"
+    },
+    {
+      "runner_variant_id": "VAR-000033",
+      "frozen_variant_id": "fl17280_tail05_95_exitfixed_hold96"
+    },
+    {
+      "runner_variant_id": "VAR-000034",
+      "frozen_variant_id": "fl17280_tail05_95_exitmidline_hold16"
+    },
+    {
+      "runner_variant_id": "VAR-000035",
+      "frozen_variant_id": "fl17280_tail05_95_exitmidline_hold32"
+    },
+    {
+      "runner_variant_id": "VAR-000036",
+      "frozen_variant_id": "fl17280_tail05_95_exitmidline_hold96"
+    }
+  ]
+}

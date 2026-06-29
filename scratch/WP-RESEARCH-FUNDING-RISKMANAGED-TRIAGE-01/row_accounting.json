@@ -1,0 +1,21 @@
+{
+  "package": "WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01",
+  "planned_rows": 108,
+  "denominator_rows": 108,
+  "by_execution_status": {
+    "executed": 108
+  },
+  "by_risk_control_state": {
+    "no_atr": 36,
+    "atr_20": 36,
+    "atr_30": 36
+  },
+  "executed": 108,
+  "blocked": 0,
+  "errored": 0,
+  "invalid": 0,
+  "data_unavailable": 0,
+  "not_attempted_due_blocker": 0,
+  "all_rows_accounted": true,
+  "subrun_payload_semantics": "Each sub-run payload has 36 committed rows: 18 selected/successful for its exit_mode and 18 explicitly excluded for the paired exit_mode. Final denominator uses the six selected/successful halves to reconstruct the frozen 108 unique rows."
+}

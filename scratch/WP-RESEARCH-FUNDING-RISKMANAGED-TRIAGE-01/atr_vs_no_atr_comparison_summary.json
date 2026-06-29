@@ -1,0 +1,762 @@
+{
+  "package": "WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01",
+  "state_summaries": {
+    "no_atr": {
+      "risk_control_state": "no_atr",
+      "row_count": 36,
+      "executed_rows": 36,
+      "median_drawdown": 0.49772147071693695,
+      "worst_drawdown": 0.7375824885045507,
+      "median_net_return": -0.4597150220911428,
+      "positive_net_return_rows": 0,
+      "median_sharpe": -1.7065533966820325,
+      "total_trades": 14078
+    },
+    "atr_20": {
+      "risk_control_state": "atr_20",
+      "row_count": 36,
+      "executed_rows": 36,
+      "median_drawdown": 0.4814108403440701,
+      "worst_drawdown": 0.7296376923839575,
+      "median_net_return": -0.440942602845076,
+      "positive_net_return_rows": 0,
+      "median_sharpe": -1.8664272050016777,
+      "total_trades": 19186,
+      "median_drawdown_improvement_vs_no_atr_abs": 0.008671994590397636
+    },
+    "atr_30": {
+      "risk_control_state": "atr_30",
+      "row_count": 36,
+      "executed_rows": 36,
+      "median_drawdown": 0.5070594339921375,
+      "worst_drawdown": 0.7162779480319459,
+      "median_net_return": -0.4640670308747342,
+      "positive_net_return_rows": 0,
+      "median_sharpe": -1.767256057699817,
+      "total_trades": 16856,
+      "median_drawdown_improvement_vs_no_atr_abs": -0.01206179152424991
+    }
+  },
+  "matched_cell_comparisons": [
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl2880_tail05_95_exitfixed_hold16",
+      "drawdown_improvement_abs": 0.024528194522503655,
+      "net_return_delta": 0.03201378530756793,
+      "atr_drawdown": 0.5932619695496603,
+      "no_atr_drawdown": 0.6177901640721639,
+      "atr_net_return": -0.5656670036059479,
+      "no_atr_net_return": -0.5976807889135158
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl2880_tail05_95_exitfixed_hold32",
+      "drawdown_improvement_abs": 0.020715559907508674,
+      "net_return_delta": 0.013175154107705589,
+      "atr_drawdown": 0.4847686680245992,
+      "no_atr_drawdown": 0.5054842279321079,
+      "atr_net_return": -0.4504826442998539,
+      "no_atr_net_return": -0.4636577984075595
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl2880_tail05_95_exitfixed_hold96",
+      "drawdown_improvement_abs": 0.025287442210621736,
+      "net_return_delta": -0.012316536855349836,
+      "atr_drawdown": 0.36835255156875923,
+      "no_atr_drawdown": 0.39363999377938097,
+      "atr_net_return": -0.3388934003458911,
+      "no_atr_net_return": -0.32657686349054127
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl2880_tail05_95_exitmidline_hold16",
+      "drawdown_improvement_abs": 0.024528194522503655,
+      "net_return_delta": 0.03201378530756793,
+      "atr_drawdown": 0.5932619695496603,
+      "no_atr_drawdown": 0.6177901640721639,
+      "atr_net_return": -0.5656670036059479,
+      "no_atr_net_return": -0.5976807889135158
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl2880_tail05_95_exitmidline_hold32",
+      "drawdown_improvement_abs": 0.020715559907508674,
+      "net_return_delta": 0.013175154107705589,
+      "atr_drawdown": 0.4847686680245992,
+      "no_atr_drawdown": 0.5054842279321079,
+      "atr_net_return": -0.4504826442998539,
+      "no_atr_net_return": -0.4636577984075595
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl2880_tail05_95_exitmidline_hold96",
+      "drawdown_improvement_abs": 0.025287442210621736,
+      "net_return_delta": -0.012316536855349836,
+      "atr_drawdown": 0.36835255156875923,
+      "no_atr_drawdown": 0.39363999377938097,
+      "atr_net_return": -0.3388934003458911,
+      "no_atr_net_return": -0.32657686349054127
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl2880_tail10_90_exitfixed_hold16",
+      "drawdown_improvement_abs": 0.007944796120593178,
+      "net_return_delta": 0.005313457398871346,
+      "atr_drawdown": 0.7296376923839575,
+      "no_atr_drawdown": 0.7375824885045507,
+      "atr_net_return": -0.7252857905438591,
+      "no_atr_net_return": -0.7305992479427305
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl2880_tail10_90_exitfixed_hold32",
+      "drawdown_improvement_abs": -0.012056910618547523,
+      "net_return_delta": -0.022971669442416576,
+      "atr_drawdown": 0.620034191322395,
+      "no_atr_drawdown": 0.6079772807038475,
+      "atr_net_return": -0.6076743813272628,
+      "no_atr_net_return": -0.5847027118848462
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl2880_tail10_90_exitfixed_hold96",
+      "drawdown_improvement_abs": 0.0770605598376059,
+      "net_return_delta": 0.05591393685565016,
+      "atr_drawdown": 0.45833585877079025,
+      "no_atr_drawdown": 0.5353964186083962,
+      "atr_net_return": -0.43090491026994204,
+      "no_atr_net_return": -0.4868188471255922
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl2880_tail10_90_exitmidline_hold16",
+      "drawdown_improvement_abs": 0.007944796120593178,
+      "net_return_delta": 0.005313457398871346,
+      "atr_drawdown": 0.7296376923839575,
+      "no_atr_drawdown": 0.7375824885045507,
+      "atr_net_return": -0.7252857905438591,
+      "no_atr_net_return": -0.7305992479427305
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl2880_tail10_90_exitmidline_hold32",
+      "drawdown_improvement_abs": -0.012056910618547523,
+      "net_return_delta": -0.022971669442416576,
+      "atr_drawdown": 0.620034191322395,
+      "no_atr_drawdown": 0.6079772807038475,
+      "atr_net_return": -0.6076743813272628,
+      "no_atr_net_return": -0.5847027118848462
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl2880_tail10_90_exitmidline_hold96",
+      "drawdown_improvement_abs": 0.0770605598376059,
+      "net_return_delta": 0.05591393685565016,
+      "atr_drawdown": 0.45833585877079025,
+      "no_atr_drawdown": 0.5353964186083962,
+      "atr_net_return": -0.43090491026994204,
+      "no_atr_net_return": -0.4868188471255922
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl8640_tail05_95_exitfixed_hold16",
+      "drawdown_improvement_abs": 0.010252375348453746,
+      "net_return_delta": 0.0012038411495638446,
+      "atr_drawdown": 0.47805301266354105,
+      "no_atr_drawdown": 0.4883053880119948,
+      "atr_net_return": -0.4314025613902981,
+      "no_atr_net_return": -0.43260640253986193
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl8640_tail05_95_exitfixed_hold32",
+      "drawdown_improvement_abs": 0.05700213732403048,
+      "net_return_delta": 0.04038526714639856,
+      "atr_drawdown": 0.37032599340578365,
+      "no_atr_drawdown": 0.4273281307298141,
+      "atr_net_return": -0.19145030684462463,
+      "no_atr_net_return": -0.2318355739910232
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl8640_tail05_95_exitfixed_hold96",
+      "drawdown_improvement_abs": -0.021877632314655338,
+      "net_return_delta": -0.08057059445299639,
+      "atr_drawdown": 0.40122269648529774,
+      "no_atr_drawdown": 0.3793450641706424,
+      "atr_net_return": -0.27699903527206,
+      "no_atr_net_return": -0.1964284408190636
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl8640_tail05_95_exitmidline_hold16",
+      "drawdown_improvement_abs": 0.010252375348453746,
+      "net_return_delta": 0.0012038411495638446,
+      "atr_drawdown": 0.47805301266354105,
+      "no_atr_drawdown": 0.4883053880119948,
+      "atr_net_return": -0.4314025613902981,
+      "no_atr_net_return": -0.43260640253986193
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl8640_tail05_95_exitmidline_hold32",
+      "drawdown_improvement_abs": 0.05700213732403048,
+      "net_return_delta": 0.04038526714639856,
+      "atr_drawdown": 0.37032599340578365,
+      "no_atr_drawdown": 0.4273281307298141,
+      "atr_net_return": -0.19145030684462463,
+      "no_atr_net_return": -0.2318355739910232
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl8640_tail05_95_exitmidline_hold96",
+      "drawdown_improvement_abs": -0.021877632314655338,
+      "net_return_delta": -0.08057059445299639,
+      "atr_drawdown": 0.40122269648529774,
+      "no_atr_drawdown": 0.3793450641706424,
+      "atr_net_return": -0.27699903527206,
+      "no_atr_net_return": -0.1964284408190636
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl8640_tail10_90_exitfixed_hold16",
+      "drawdown_improvement_abs": 0.009399193060202093,
+      "net_return_delta": 0.009247163603233743,
+      "atr_drawdown": 0.5325922638884083,
+      "no_atr_drawdown": 0.5419914569486104,
+      "atr_net_return": -0.5035804182147664,
+      "no_atr_net_return": -0.5128275818180001
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl8640_tail10_90_exitfixed_hold32",
+      "drawdown_improvement_abs": 0.05898613964605709,
+      "net_return_delta": -0.034460622152007625,
+      "atr_drawdown": 0.41551525035049053,
+      "no_atr_drawdown": 0.4745013899965476,
+      "atr_net_return": -0.35008711955898714,
+      "no_atr_net_return": -0.3156264974069795
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl8640_tail10_90_exitfixed_hold96",
+      "drawdown_improvement_abs": -0.0007048501079948699,
+      "net_return_delta": -0.11388192133307695,
+      "atr_drawdown": 0.43886603620624426,
+      "no_atr_drawdown": 0.4381611860982494,
+      "atr_net_return": -0.35746626560553807,
+      "no_atr_net_return": -0.24358434427246112
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl8640_tail10_90_exitmidline_hold16",
+      "drawdown_improvement_abs": 0.009399193060202093,
+      "net_return_delta": 0.009247163603233743,
+      "atr_drawdown": 0.5325922638884083,
+      "no_atr_drawdown": 0.5419914569486104,
+      "atr_net_return": -0.5035804182147664,
+      "no_atr_net_return": -0.5128275818180001
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl8640_tail10_90_exitmidline_hold32",
+      "drawdown_improvement_abs": 0.05898613964605709,
+      "net_return_delta": -0.034460622152007625,
+      "atr_drawdown": 0.41551525035049053,
+      "no_atr_drawdown": 0.4745013899965476,
+      "atr_net_return": -0.35008711955898714,
+      "no_atr_net_return": -0.3156264974069795
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl8640_tail10_90_exitmidline_hold96",
+      "drawdown_improvement_abs": -0.0007048501079948699,
+      "net_return_delta": -0.11388192133307695,
+      "atr_drawdown": 0.43886603620624426,
+      "no_atr_drawdown": 0.4381611860982494,
+      "atr_net_return": -0.35746626560553807,
+      "no_atr_net_return": -0.24358434427246112
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl17280_tail05_95_exitfixed_hold16",
+      "drawdown_improvement_abs": -0.011598180435705041,
+      "net_return_delta": -0.01888864449393357,
+      "atr_drawdown": 0.5573798656563209,
+      "no_atr_drawdown": 0.5457816852206159,
+      "atr_net_return": -0.5286446061038397,
+      "no_atr_net_return": -0.5097559616099061
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl17280_tail05_95_exitfixed_hold32",
+      "drawdown_improvement_abs": -0.026846572721928752,
+      "net_return_delta": -0.03808893439623767,
+      "atr_drawdown": 0.4516727853621448,
+      "no_atr_drawdown": 0.424826212640216,
+      "atr_net_return": -0.4085015846391495,
+      "no_atr_net_return": -0.3704126502429118
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl17280_tail05_95_exitfixed_hold96",
+      "drawdown_improvement_abs": -0.09975011726306476,
+      "net_return_delta": -0.10170158958851305,
+      "atr_drawdown": 0.5030655886630472,
+      "no_atr_drawdown": 0.4033154713999824,
+      "atr_net_return": -0.45108843160308343,
+      "no_atr_net_return": -0.3493868420145704
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl17280_tail05_95_exitmidline_hold16",
+      "drawdown_improvement_abs": -0.011598180435705041,
+      "net_return_delta": -0.01888864449393357,
+      "atr_drawdown": 0.5573798656563209,
+      "no_atr_drawdown": 0.5457816852206159,
+      "atr_net_return": -0.5286446061038397,
+      "no_atr_net_return": -0.5097559616099061
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl17280_tail05_95_exitmidline_hold32",
+      "drawdown_improvement_abs": -0.026846572721928752,
+      "net_return_delta": -0.03808893439623767,
+      "atr_drawdown": 0.4516727853621448,
+      "no_atr_drawdown": 0.424826212640216,
+      "atr_net_return": -0.4085015846391495,
+      "no_atr_net_return": -0.3704126502429118
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl17280_tail05_95_exitmidline_hold96",
+      "drawdown_improvement_abs": -0.09975011726306476,
+      "net_return_delta": -0.10170158958851305,
+      "atr_drawdown": 0.5030655886630472,
+      "no_atr_drawdown": 0.4033154713999824,
+      "atr_net_return": -0.45108843160308343,
+      "no_atr_net_return": -0.3493868420145704
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl17280_tail10_90_exitfixed_hold16",
+      "drawdown_improvement_abs": 0.005183841541507861,
+      "net_return_delta": 0.004721826793158579,
+      "atr_drawdown": 0.6630049079750548,
+      "no_atr_drawdown": 0.6681887495165627,
+      "atr_net_return": -0.6458550825899132,
+      "no_atr_net_return": -0.6505769093830718
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl17280_tail10_90_exitfixed_hold32",
+      "drawdown_improvement_abs": -0.03490766516300692,
+      "net_return_delta": -0.024542284669611725,
+      "atr_drawdown": 0.5400252039074657,
+      "no_atr_drawdown": 0.5051175387444587,
+      "atr_net_return": -0.5100698008804839,
+      "no_atr_net_return": -0.4855275162108722
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl17280_tail10_90_exitfixed_hold96",
+      "drawdown_improvement_abs": 0.061825338568449684,
+      "net_return_delta": 0.08386390180217829,
+      "atr_drawdown": 0.4285000641209655,
+      "no_atr_drawdown": 0.49032540268941516,
+      "atr_net_return": -0.37190834397254785,
+      "no_atr_net_return": -0.45577224577472614
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl17280_tail10_90_exitmidline_hold16",
+      "drawdown_improvement_abs": 0.005183841541507861,
+      "net_return_delta": 0.004721826793158579,
+      "atr_drawdown": 0.6630049079750548,
+      "no_atr_drawdown": 0.6681887495165627,
+      "atr_net_return": -0.6458550825899132,
+      "no_atr_net_return": -0.6505769093830718
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl17280_tail10_90_exitmidline_hold32",
+      "drawdown_improvement_abs": -0.03490766516300692,
+      "net_return_delta": -0.024542284669611725,
+      "atr_drawdown": 0.5400252039074657,
+      "no_atr_drawdown": 0.5051175387444587,
+      "atr_net_return": -0.5100698008804839,
+      "no_atr_net_return": -0.4855275162108722
+    },
+    {
+      "risk_control_state": "atr_20",
+      "variant_id": "fl17280_tail10_90_exitmidline_hold96",
+      "drawdown_improvement_abs": 0.061825338568449684,
+      "net_return_delta": 0.08386390180217829,
+      "atr_drawdown": 0.4285000641209655,
+      "no_atr_drawdown": 0.49032540268941516,
+      "atr_net_return": -0.37190834397254785,
+      "no_atr_net_return": -0.45577224577472614
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl2880_tail05_95_exitfixed_hold16",
+      "drawdown_improvement_abs": 0.03759885808851693,
+      "net_return_delta": 0.05057523437462408,
+      "atr_drawdown": 0.580191305983647,
+      "no_atr_drawdown": 0.6177901640721639,
+      "atr_net_return": -0.5471055545388918,
+      "no_atr_net_return": -0.5976807889135158
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl2880_tail05_95_exitfixed_hold32",
+      "drawdown_improvement_abs": -0.009849159184904588,
+      "net_return_delta": -0.018971073820507833,
+      "atr_drawdown": 0.5153333871170125,
+      "no_atr_drawdown": 0.5054842279321079,
+      "atr_net_return": -0.48262887222806733,
+      "no_atr_net_return": -0.4636577984075595
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl2880_tail05_95_exitfixed_hold96",
+      "drawdown_improvement_abs": -0.040579793161378386,
+      "net_return_delta": -0.0686507786167943,
+      "atr_drawdown": 0.43421978694075936,
+      "no_atr_drawdown": 0.39363999377938097,
+      "atr_net_return": -0.3952276421073356,
+      "no_atr_net_return": -0.32657686349054127
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl2880_tail05_95_exitmidline_hold16",
+      "drawdown_improvement_abs": 0.03759885808851693,
+      "net_return_delta": 0.05057523437462408,
+      "atr_drawdown": 0.580191305983647,
+      "no_atr_drawdown": 0.6177901640721639,
+      "atr_net_return": -0.5471055545388918,
+      "no_atr_net_return": -0.5976807889135158
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl2880_tail05_95_exitmidline_hold32",
+      "drawdown_improvement_abs": -0.009849159184904588,
+      "net_return_delta": -0.018971073820507833,
+      "atr_drawdown": 0.5153333871170125,
+      "no_atr_drawdown": 0.5054842279321079,
+      "atr_net_return": -0.48262887222806733,
+      "no_atr_net_return": -0.4636577984075595
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl2880_tail05_95_exitmidline_hold96",
+      "drawdown_improvement_abs": -0.040579793161378386,
+      "net_return_delta": -0.0686507786167943,
+      "atr_drawdown": 0.43421978694075936,
+      "no_atr_drawdown": 0.39363999377938097,
+      "atr_net_return": -0.3952276421073356,
+      "no_atr_net_return": -0.32657686349054127
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl2880_tail10_90_exitfixed_hold16",
+      "drawdown_improvement_abs": 0.02130454047260477,
+      "net_return_delta": 0.017446881745035392,
+      "atr_drawdown": 0.7162779480319459,
+      "no_atr_drawdown": 0.7375824885045507,
+      "atr_net_return": -0.7131523661976951,
+      "no_atr_net_return": -0.7305992479427305
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl2880_tail10_90_exitfixed_hold32",
+      "drawdown_improvement_abs": -0.0176495151907754,
+      "net_return_delta": -0.024775740943349445,
+      "atr_drawdown": 0.6256267958946229,
+      "no_atr_drawdown": 0.6079772807038475,
+      "atr_net_return": -0.6094784528281957,
+      "no_atr_net_return": -0.5847027118848462
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl2880_tail10_90_exitfixed_hold96",
+      "drawdown_improvement_abs": 0.016244717618454696,
+      "net_return_delta": 0.00605492142239078,
+      "atr_drawdown": 0.5191517009899415,
+      "no_atr_drawdown": 0.5353964186083962,
+      "atr_net_return": -0.4807639257032014,
+      "no_atr_net_return": -0.4868188471255922
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl2880_tail10_90_exitmidline_hold16",
+      "drawdown_improvement_abs": 0.02130454047260477,
+      "net_return_delta": 0.017446881745035392,
+      "atr_drawdown": 0.7162779480319459,
+      "no_atr_drawdown": 0.7375824885045507,
+      "atr_net_return": -0.7131523661976951,
+      "no_atr_net_return": -0.7305992479427305
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl2880_tail10_90_exitmidline_hold32",
+      "drawdown_improvement_abs": -0.0176495151907754,
+      "net_return_delta": -0.024775740943349445,
+      "atr_drawdown": 0.6256267958946229,
+      "no_atr_drawdown": 0.6079772807038475,
+      "atr_net_return": -0.6094784528281957,
+      "no_atr_net_return": -0.5847027118848462
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl2880_tail10_90_exitmidline_hold96",
+      "drawdown_improvement_abs": 0.016244717618454696,
+      "net_return_delta": 0.00605492142239078,
+      "atr_drawdown": 0.5191517009899415,
+      "no_atr_drawdown": 0.5353964186083962,
+      "atr_net_return": -0.4807639257032014,
+      "no_atr_net_return": -0.4868188471255922
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl8640_tail05_95_exitfixed_hold16",
+      "drawdown_improvement_abs": 0.01779656089067494,
+      "net_return_delta": 0.03875056656909409,
+      "atr_drawdown": 0.47050882712131986,
+      "no_atr_drawdown": 0.4883053880119948,
+      "atr_net_return": -0.39385583597076784,
+      "no_atr_net_return": -0.43260640253986193
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl8640_tail05_95_exitfixed_hold32",
+      "drawdown_improvement_abs": 0.013319869248120009,
+      "net_return_delta": -0.001519000399159004,
+      "atr_drawdown": 0.4140082614816941,
+      "no_atr_drawdown": 0.4273281307298141,
+      "atr_net_return": -0.2333545743901822,
+      "no_atr_net_return": -0.2318355739910232
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl8640_tail05_95_exitfixed_hold96",
+      "drawdown_improvement_abs": -0.039911995915893506,
+      "net_return_delta": -0.13851071070602913,
+      "atr_drawdown": 0.4192570600865359,
+      "no_atr_drawdown": 0.3793450641706424,
+      "atr_net_return": -0.33493915152509274,
+      "no_atr_net_return": -0.1964284408190636
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl8640_tail05_95_exitmidline_hold16",
+      "drawdown_improvement_abs": 0.01779656089067494,
+      "net_return_delta": 0.03875056656909409,
+      "atr_drawdown": 0.47050882712131986,
+      "no_atr_drawdown": 0.4883053880119948,
+      "atr_net_return": -0.39385583597076784,
+      "no_atr_net_return": -0.43260640253986193
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl8640_tail05_95_exitmidline_hold32",
+      "drawdown_improvement_abs": 0.013319869248120009,
+      "net_return_delta": -0.001519000399159004,
+      "atr_drawdown": 0.4140082614816941,
+      "no_atr_drawdown": 0.4273281307298141,
+      "atr_net_return": -0.2333545743901822,
+      "no_atr_net_return": -0.2318355739910232
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl8640_tail05_95_exitmidline_hold96",
+      "drawdown_improvement_abs": -0.039911995915893506,
+      "net_return_delta": -0.13851071070602913,
+      "atr_drawdown": 0.4192570600865359,
+      "no_atr_drawdown": 0.3793450641706424,
+      "atr_net_return": -0.33493915152509274,
+      "no_atr_net_return": -0.1964284408190636
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl8640_tail10_90_exitfixed_hold16",
+      "drawdown_improvement_abs": -0.0010690145957604757,
+      "net_return_delta": -0.009731723206013787,
+      "atr_drawdown": 0.5430604715443709,
+      "no_atr_drawdown": 0.5419914569486104,
+      "atr_net_return": -0.5225593050240139,
+      "no_atr_net_return": -0.5128275818180001
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl8640_tail10_90_exitfixed_hold32",
+      "drawdown_improvement_abs": -0.01758755625377517,
+      "net_return_delta": -0.09167879225215947,
+      "atr_drawdown": 0.4920889462503228,
+      "no_atr_drawdown": 0.4745013899965476,
+      "atr_net_return": -0.407305289659139,
+      "no_atr_net_return": -0.3156264974069795
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl8640_tail10_90_exitfixed_hold96",
+      "drawdown_improvement_abs": -0.026487650300166476,
+      "net_return_delta": -0.1075587960821357,
+      "atr_drawdown": 0.46464883639841587,
+      "no_atr_drawdown": 0.4381611860982494,
+      "atr_net_return": -0.3511431403545968,
+      "no_atr_net_return": -0.24358434427246112
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl8640_tail10_90_exitmidline_hold16",
+      "drawdown_improvement_abs": -0.0010690145957604757,
+      "net_return_delta": -0.009731723206013787,
+      "atr_drawdown": 0.5430604715443709,
+      "no_atr_drawdown": 0.5419914569486104,
+      "atr_net_return": -0.5225593050240139,
+      "no_atr_net_return": -0.5128275818180001
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl8640_tail10_90_exitmidline_hold32",
+      "drawdown_improvement_abs": -0.01758755625377517,
+      "net_return_delta": -0.09167879225215947,
+      "atr_drawdown": 0.4920889462503228,
+      "no_atr_drawdown": 0.4745013899965476,
+      "atr_net_return": -0.407305289659139,
+      "no_atr_net_return": -0.3156264974069795
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl8640_tail10_90_exitmidline_hold96",
+      "drawdown_improvement_abs": -0.026487650300166476,
+      "net_return_delta": -0.1075587960821357,
+      "atr_drawdown": 0.46464883639841587,
+      "no_atr_drawdown": 0.4381611860982494,
+      "atr_net_return": -0.3511431403545968,
+      "no_atr_net_return": -0.24358434427246112
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl17280_tail05_95_exitfixed_hold16",
+      "drawdown_improvement_abs": -0.01263531936218465,
+      "net_return_delta": -0.017914732109005183,
+      "atr_drawdown": 0.5584170045828005,
+      "no_atr_drawdown": 0.5457816852206159,
+      "atr_net_return": -0.5276706937189113,
+      "no_atr_net_return": -0.5097559616099061
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl17280_tail05_95_exitfixed_hold32",
+      "drawdown_improvement_abs": -0.03172303430435963,
+      "net_return_delta": -0.04016873955274991,
+      "atr_drawdown": 0.45654924694457566,
+      "no_atr_drawdown": 0.424826212640216,
+      "atr_net_return": -0.4105813897956617,
+      "no_atr_net_return": -0.3704126502429118
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl17280_tail05_95_exitfixed_hold96",
+      "drawdown_improvement_abs": -0.09547000946728007,
+      "net_return_delta": -0.0979832940316967,
+      "atr_drawdown": 0.4987854808672625,
+      "no_atr_drawdown": 0.4033154713999824,
+      "atr_net_return": -0.4473701360462671,
+      "no_atr_net_return": -0.3493868420145704
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl17280_tail05_95_exitmidline_hold16",
+      "drawdown_improvement_abs": -0.01263531936218465,
+      "net_return_delta": -0.017914732109005183,
+      "atr_drawdown": 0.5584170045828005,
+      "no_atr_drawdown": 0.5457816852206159,
+      "atr_net_return": -0.5276706937189113,
+      "no_atr_net_return": -0.5097559616099061
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl17280_tail05_95_exitmidline_hold32",
+      "drawdown_improvement_abs": -0.03172303430435963,
+      "net_return_delta": -0.04016873955274991,
+      "atr_drawdown": 0.45654924694457566,
+      "no_atr_drawdown": 0.424826212640216,
+      "atr_net_return": -0.4105813897956617,
+      "no_atr_net_return": -0.3704126502429118
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl17280_tail05_95_exitmidline_hold96",
+      "drawdown_improvement_abs": -0.09547000946728007,
+      "net_return_delta": -0.0979832940316967,
+      "atr_drawdown": 0.4987854808672625,
+      "no_atr_drawdown": 0.4033154713999824,
+      "atr_net_return": -0.4473701360462671,
+      "no_atr_net_return": -0.3493868420145704
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl17280_tail10_90_exitfixed_hold16",
+      "drawdown_improvement_abs": -0.01148826368631517,
+      "net_return_delta": -0.009148448946150856,
+      "atr_drawdown": 0.6796770132028779,
+      "no_atr_drawdown": 0.6681887495165627,
+      "atr_net_return": -0.6597253583292226,
+      "no_atr_net_return": -0.6505769093830718
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl17280_tail10_90_exitfixed_hold32",
+      "drawdown_improvement_abs": -0.07075686869115438,
+      "net_return_delta": -0.07062993270028206,
+      "atr_drawdown": 0.5758744074356131,
+      "no_atr_drawdown": 0.5051175387444587,
+      "atr_net_return": -0.5561574489111543,
+      "no_atr_net_return": -0.4855275162108722
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl17280_tail10_90_exitfixed_hold96",
+      "drawdown_improvement_abs": 0.04018034194366521,
+      "net_return_delta": 0.04854574432373743,
+      "atr_drawdown": 0.45014506074574995,
+      "no_atr_drawdown": 0.49032540268941516,
+      "atr_net_return": -0.4072265014509887,
+      "no_atr_net_return": -0.45577224577472614
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl17280_tail10_90_exitmidline_hold16",
+      "drawdown_improvement_abs": -0.01148826368631517,
+      "net_return_delta": -0.009148448946150856,
+      "atr_drawdown": 0.6796770132028779,
+      "no_atr_drawdown": 0.6681887495165627,
+      "atr_net_return": -0.6597253583292226,
+      "no_atr_net_return": -0.6505769093830718
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl17280_tail10_90_exitmidline_hold32",
+      "drawdown_improvement_abs": -0.07075686869115438,
+      "net_return_delta": -0.07062993270028206,
+      "atr_drawdown": 0.5758744074356131,
+      "no_atr_drawdown": 0.5051175387444587,
+      "atr_net_return": -0.5561574489111543,
+      "no_atr_net_return": -0.4855275162108722
+    },
+    {
+      "risk_control_state": "atr_30",
+      "variant_id": "fl17280_tail10_90_exitmidline_hold96",
+      "drawdown_improvement_abs": 0.04018034194366521,
+      "net_return_delta": 0.04854574432373743,
+      "atr_drawdown": 0.45014506074574995,
+      "no_atr_drawdown": 0.49032540268941516,
+      "atr_net_return": -0.4072265014509887,
+      "no_atr_net_return": -0.45577224577472614
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+strategy_spec_validators: PASS using repo-native --strategy-specs-dir for no_atr, atr_20, atr_30; package-suggested positional path syntax is not supported by repo truth
+runner_data_tests: PASS: tests/test_evaluation_window.py 20 passed; tests/test_offline_research_runner.py 101 passed, 2 warnings; tests/test_funding_feature_materialization.py 5 passed
+research_query: PASS: python -m tools.research_query.run --list-views
+result_population_validator: PASS: python -m tools.registry.validate_result_populations
+candidate_registry_validator: PASS: python -m tools.registry.validate_candidate_registry
+diff_scope: PASS: python tools/dev/diff_scope_summary.py; no tracked changes at time of run, no forbidden-path matches; unrelated pre-existing build/ remains untracked
+git_diff_check: PASS
+git_status_short: PASS before staging: only unrelated pre-existing build/ plus this package's allowed docs/status and scratch outputs were untracked
+full_pytest: not run; package has no code changes and full pytest is not required

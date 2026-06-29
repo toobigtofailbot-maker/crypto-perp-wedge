@@ -1,0 +1,1903 @@
+{
+  "package": "WP-RESEARCH-FUNDING-TRIAGE-DATAPREP-01",
+  "hypothesis_id": "H-FUNDING-FADE-RISKMANAGED-01",
+  "stage": "stage_1_triage_input_prep_only",
+  "execution_authorized": false,
+  "total_rows": 108,
+  "rows_per_state": {
+    "no_atr": 36,
+    "atr_20": 36,
+    "atr_30": 36
+  },
+  "composite_id_convention": "{risk_state}:{signal_variant_id}",
+  "signal_axes": {
+    "funding_lookback_bars": [
+      2880,
+      8640,
+      17280
+    ],
+    "entry_tail_pairs": [
+      {
+        "lower": 0.1,
+        "upper": 0.9
+      },
+      {
+        "lower": 0.05,
+        "upper": 0.95
+      }
+    ],
+    "exit_modes": [
+      "fixed_max_hold_only",
+      "midline_reversion_or_max_hold"
+    ],
+    "max_hold_bars": [
+      16,
+      32,
+      96
+    ],
+    "formula": "3 funding lookbacks x 2 entry tail pairs x 2 exit modes x 3 max holds = 36 rows per state"
+  },
+  "risk_control_states": [
+    {
+      "state": "no_atr",
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "rows": 36
+    },
+    {
+      "state": "atr_20",
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "rows": 36
+    },
+    {
+      "state": "atr_30",
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "rows": 36
+    }
+  ],
+  "winner_only_reporting_forbidden": true,
+  "all_rows_must_be_reported": true,
+  "rows": [
+    {
+      "composite_row_id": "no_atr:fl2880_tail10_90_exitfixed_hold16",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl2880_tail10_90_exitfixed_hold16",
+      "generation_order_within_state": 1,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl2880_tail10_90_exitfixed_hold32",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl2880_tail10_90_exitfixed_hold32",
+      "generation_order_within_state": 2,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl2880_tail10_90_exitfixed_hold96",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl2880_tail10_90_exitfixed_hold96",
+      "generation_order_within_state": 3,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl2880_tail10_90_exitmidline_hold16",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl2880_tail10_90_exitmidline_hold16",
+      "generation_order_within_state": 4,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl2880_tail10_90_exitmidline_hold32",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl2880_tail10_90_exitmidline_hold32",
+      "generation_order_within_state": 5,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl2880_tail10_90_exitmidline_hold96",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl2880_tail10_90_exitmidline_hold96",
+      "generation_order_within_state": 6,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl2880_tail05_95_exitfixed_hold16",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl2880_tail05_95_exitfixed_hold16",
+      "generation_order_within_state": 7,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl2880_tail05_95_exitfixed_hold32",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl2880_tail05_95_exitfixed_hold32",
+      "generation_order_within_state": 8,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl2880_tail05_95_exitfixed_hold96",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl2880_tail05_95_exitfixed_hold96",
+      "generation_order_within_state": 9,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl2880_tail05_95_exitmidline_hold16",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl2880_tail05_95_exitmidline_hold16",
+      "generation_order_within_state": 10,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl2880_tail05_95_exitmidline_hold32",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl2880_tail05_95_exitmidline_hold32",
+      "generation_order_within_state": 11,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl2880_tail05_95_exitmidline_hold96",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl2880_tail05_95_exitmidline_hold96",
+      "generation_order_within_state": 12,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl8640_tail10_90_exitfixed_hold16",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl8640_tail10_90_exitfixed_hold16",
+      "generation_order_within_state": 13,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl8640_tail10_90_exitfixed_hold32",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl8640_tail10_90_exitfixed_hold32",
+      "generation_order_within_state": 14,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl8640_tail10_90_exitfixed_hold96",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl8640_tail10_90_exitfixed_hold96",
+      "generation_order_within_state": 15,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl8640_tail10_90_exitmidline_hold16",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl8640_tail10_90_exitmidline_hold16",
+      "generation_order_within_state": 16,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl8640_tail10_90_exitmidline_hold32",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl8640_tail10_90_exitmidline_hold32",
+      "generation_order_within_state": 17,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl8640_tail10_90_exitmidline_hold96",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl8640_tail10_90_exitmidline_hold96",
+      "generation_order_within_state": 18,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl8640_tail05_95_exitfixed_hold16",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl8640_tail05_95_exitfixed_hold16",
+      "generation_order_within_state": 19,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl8640_tail05_95_exitfixed_hold32",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl8640_tail05_95_exitfixed_hold32",
+      "generation_order_within_state": 20,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl8640_tail05_95_exitfixed_hold96",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl8640_tail05_95_exitfixed_hold96",
+      "generation_order_within_state": 21,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl8640_tail05_95_exitmidline_hold16",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl8640_tail05_95_exitmidline_hold16",
+      "generation_order_within_state": 22,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl8640_tail05_95_exitmidline_hold32",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl8640_tail05_95_exitmidline_hold32",
+      "generation_order_within_state": 23,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl8640_tail05_95_exitmidline_hold96",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl8640_tail05_95_exitmidline_hold96",
+      "generation_order_within_state": 24,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl17280_tail10_90_exitfixed_hold16",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl17280_tail10_90_exitfixed_hold16",
+      "generation_order_within_state": 25,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl17280_tail10_90_exitfixed_hold32",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl17280_tail10_90_exitfixed_hold32",
+      "generation_order_within_state": 26,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl17280_tail10_90_exitfixed_hold96",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl17280_tail10_90_exitfixed_hold96",
+      "generation_order_within_state": 27,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl17280_tail10_90_exitmidline_hold16",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl17280_tail10_90_exitmidline_hold16",
+      "generation_order_within_state": 28,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl17280_tail10_90_exitmidline_hold32",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl17280_tail10_90_exitmidline_hold32",
+      "generation_order_within_state": 29,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl17280_tail10_90_exitmidline_hold96",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl17280_tail10_90_exitmidline_hold96",
+      "generation_order_within_state": 30,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl17280_tail05_95_exitfixed_hold16",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl17280_tail05_95_exitfixed_hold16",
+      "generation_order_within_state": 31,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl17280_tail05_95_exitfixed_hold32",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl17280_tail05_95_exitfixed_hold32",
+      "generation_order_within_state": 32,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl17280_tail05_95_exitfixed_hold96",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl17280_tail05_95_exitfixed_hold96",
+      "generation_order_within_state": 33,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl17280_tail05_95_exitmidline_hold16",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl17280_tail05_95_exitmidline_hold16",
+      "generation_order_within_state": 34,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl17280_tail05_95_exitmidline_hold32",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl17280_tail05_95_exitmidline_hold32",
+      "generation_order_within_state": 35,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "no_atr:fl17280_tail05_95_exitmidline_hold96",
+      "risk_control_state": "no_atr",
+      "variant_id": "fl17280_tail05_95_exitmidline_hold96",
+      "generation_order_within_state": 36,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl2880_tail10_90_exitfixed_hold16",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl2880_tail10_90_exitfixed_hold16",
+      "generation_order_within_state": 1,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl2880_tail10_90_exitfixed_hold32",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl2880_tail10_90_exitfixed_hold32",
+      "generation_order_within_state": 2,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl2880_tail10_90_exitfixed_hold96",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl2880_tail10_90_exitfixed_hold96",
+      "generation_order_within_state": 3,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl2880_tail10_90_exitmidline_hold16",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl2880_tail10_90_exitmidline_hold16",
+      "generation_order_within_state": 4,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl2880_tail10_90_exitmidline_hold32",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl2880_tail10_90_exitmidline_hold32",
+      "generation_order_within_state": 5,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl2880_tail10_90_exitmidline_hold96",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl2880_tail10_90_exitmidline_hold96",
+      "generation_order_within_state": 6,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl2880_tail05_95_exitfixed_hold16",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl2880_tail05_95_exitfixed_hold16",
+      "generation_order_within_state": 7,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl2880_tail05_95_exitfixed_hold32",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl2880_tail05_95_exitfixed_hold32",
+      "generation_order_within_state": 8,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl2880_tail05_95_exitfixed_hold96",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl2880_tail05_95_exitfixed_hold96",
+      "generation_order_within_state": 9,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl2880_tail05_95_exitmidline_hold16",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl2880_tail05_95_exitmidline_hold16",
+      "generation_order_within_state": 10,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl2880_tail05_95_exitmidline_hold32",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl2880_tail05_95_exitmidline_hold32",
+      "generation_order_within_state": 11,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl2880_tail05_95_exitmidline_hold96",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl2880_tail05_95_exitmidline_hold96",
+      "generation_order_within_state": 12,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl8640_tail10_90_exitfixed_hold16",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl8640_tail10_90_exitfixed_hold16",
+      "generation_order_within_state": 13,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl8640_tail10_90_exitfixed_hold32",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl8640_tail10_90_exitfixed_hold32",
+      "generation_order_within_state": 14,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl8640_tail10_90_exitfixed_hold96",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl8640_tail10_90_exitfixed_hold96",
+      "generation_order_within_state": 15,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl8640_tail10_90_exitmidline_hold16",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl8640_tail10_90_exitmidline_hold16",
+      "generation_order_within_state": 16,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl8640_tail10_90_exitmidline_hold32",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl8640_tail10_90_exitmidline_hold32",
+      "generation_order_within_state": 17,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl8640_tail10_90_exitmidline_hold96",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl8640_tail10_90_exitmidline_hold96",
+      "generation_order_within_state": 18,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl8640_tail05_95_exitfixed_hold16",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl8640_tail05_95_exitfixed_hold16",
+      "generation_order_within_state": 19,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl8640_tail05_95_exitfixed_hold32",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl8640_tail05_95_exitfixed_hold32",
+      "generation_order_within_state": 20,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl8640_tail05_95_exitfixed_hold96",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl8640_tail05_95_exitfixed_hold96",
+      "generation_order_within_state": 21,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl8640_tail05_95_exitmidline_hold16",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl8640_tail05_95_exitmidline_hold16",
+      "generation_order_within_state": 22,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl8640_tail05_95_exitmidline_hold32",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl8640_tail05_95_exitmidline_hold32",
+      "generation_order_within_state": 23,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl8640_tail05_95_exitmidline_hold96",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl8640_tail05_95_exitmidline_hold96",
+      "generation_order_within_state": 24,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl17280_tail10_90_exitfixed_hold16",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl17280_tail10_90_exitfixed_hold16",
+      "generation_order_within_state": 25,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl17280_tail10_90_exitfixed_hold32",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl17280_tail10_90_exitfixed_hold32",
+      "generation_order_within_state": 26,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl17280_tail10_90_exitfixed_hold96",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl17280_tail10_90_exitfixed_hold96",
+      "generation_order_within_state": 27,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl17280_tail10_90_exitmidline_hold16",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl17280_tail10_90_exitmidline_hold16",
+      "generation_order_within_state": 28,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl17280_tail10_90_exitmidline_hold32",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl17280_tail10_90_exitmidline_hold32",
+      "generation_order_within_state": 29,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl17280_tail10_90_exitmidline_hold96",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl17280_tail10_90_exitmidline_hold96",
+      "generation_order_within_state": 30,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl17280_tail05_95_exitfixed_hold16",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl17280_tail05_95_exitfixed_hold16",
+      "generation_order_within_state": 31,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl17280_tail05_95_exitfixed_hold32",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl17280_tail05_95_exitfixed_hold32",
+      "generation_order_within_state": 32,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl17280_tail05_95_exitfixed_hold96",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl17280_tail05_95_exitfixed_hold96",
+      "generation_order_within_state": 33,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl17280_tail05_95_exitmidline_hold16",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl17280_tail05_95_exitmidline_hold16",
+      "generation_order_within_state": 34,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl17280_tail05_95_exitmidline_hold32",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl17280_tail05_95_exitmidline_hold32",
+      "generation_order_within_state": 35,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_20:fl17280_tail05_95_exitmidline_hold96",
+      "risk_control_state": "atr_20",
+      "variant_id": "fl17280_tail05_95_exitmidline_hold96",
+      "generation_order_within_state": 36,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl2880_tail10_90_exitfixed_hold16",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl2880_tail10_90_exitfixed_hold16",
+      "generation_order_within_state": 1,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl2880_tail10_90_exitfixed_hold32",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl2880_tail10_90_exitfixed_hold32",
+      "generation_order_within_state": 2,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl2880_tail10_90_exitfixed_hold96",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl2880_tail10_90_exitfixed_hold96",
+      "generation_order_within_state": 3,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl2880_tail10_90_exitmidline_hold16",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl2880_tail10_90_exitmidline_hold16",
+      "generation_order_within_state": 4,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl2880_tail10_90_exitmidline_hold32",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl2880_tail10_90_exitmidline_hold32",
+      "generation_order_within_state": 5,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl2880_tail10_90_exitmidline_hold96",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl2880_tail10_90_exitmidline_hold96",
+      "generation_order_within_state": 6,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl2880_tail05_95_exitfixed_hold16",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl2880_tail05_95_exitfixed_hold16",
+      "generation_order_within_state": 7,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl2880_tail05_95_exitfixed_hold32",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl2880_tail05_95_exitfixed_hold32",
+      "generation_order_within_state": 8,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl2880_tail05_95_exitfixed_hold96",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl2880_tail05_95_exitfixed_hold96",
+      "generation_order_within_state": 9,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl2880_tail05_95_exitmidline_hold16",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl2880_tail05_95_exitmidline_hold16",
+      "generation_order_within_state": 10,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl2880_tail05_95_exitmidline_hold32",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl2880_tail05_95_exitmidline_hold32",
+      "generation_order_within_state": 11,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl2880_tail05_95_exitmidline_hold96",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl2880_tail05_95_exitmidline_hold96",
+      "generation_order_within_state": 12,
+      "parameter_values": {
+        "funding_lookback_bars": 2880,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl8640_tail10_90_exitfixed_hold16",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl8640_tail10_90_exitfixed_hold16",
+      "generation_order_within_state": 13,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl8640_tail10_90_exitfixed_hold32",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl8640_tail10_90_exitfixed_hold32",
+      "generation_order_within_state": 14,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl8640_tail10_90_exitfixed_hold96",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl8640_tail10_90_exitfixed_hold96",
+      "generation_order_within_state": 15,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl8640_tail10_90_exitmidline_hold16",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl8640_tail10_90_exitmidline_hold16",
+      "generation_order_within_state": 16,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl8640_tail10_90_exitmidline_hold32",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl8640_tail10_90_exitmidline_hold32",
+      "generation_order_within_state": 17,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl8640_tail10_90_exitmidline_hold96",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl8640_tail10_90_exitmidline_hold96",
+      "generation_order_within_state": 18,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl8640_tail05_95_exitfixed_hold16",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl8640_tail05_95_exitfixed_hold16",
+      "generation_order_within_state": 19,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl8640_tail05_95_exitfixed_hold32",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl8640_tail05_95_exitfixed_hold32",
+      "generation_order_within_state": 20,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl8640_tail05_95_exitfixed_hold96",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl8640_tail05_95_exitfixed_hold96",
+      "generation_order_within_state": 21,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl8640_tail05_95_exitmidline_hold16",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl8640_tail05_95_exitmidline_hold16",
+      "generation_order_within_state": 22,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl8640_tail05_95_exitmidline_hold32",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl8640_tail05_95_exitmidline_hold32",
+      "generation_order_within_state": 23,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl8640_tail05_95_exitmidline_hold96",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl8640_tail05_95_exitmidline_hold96",
+      "generation_order_within_state": 24,
+      "parameter_values": {
+        "funding_lookback_bars": 8640,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl17280_tail10_90_exitfixed_hold16",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl17280_tail10_90_exitfixed_hold16",
+      "generation_order_within_state": 25,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl17280_tail10_90_exitfixed_hold32",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl17280_tail10_90_exitfixed_hold32",
+      "generation_order_within_state": 26,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl17280_tail10_90_exitfixed_hold96",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl17280_tail10_90_exitfixed_hold96",
+      "generation_order_within_state": 27,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl17280_tail10_90_exitmidline_hold16",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl17280_tail10_90_exitmidline_hold16",
+      "generation_order_within_state": 28,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl17280_tail10_90_exitmidline_hold32",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl17280_tail10_90_exitmidline_hold32",
+      "generation_order_within_state": 29,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl17280_tail10_90_exitmidline_hold96",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl17280_tail10_90_exitmidline_hold96",
+      "generation_order_within_state": 30,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.1,
+        "upper_entry_percentile": 0.9,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl17280_tail05_95_exitfixed_hold16",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl17280_tail05_95_exitfixed_hold16",
+      "generation_order_within_state": 31,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl17280_tail05_95_exitfixed_hold32",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl17280_tail05_95_exitfixed_hold32",
+      "generation_order_within_state": 32,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl17280_tail05_95_exitfixed_hold96",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl17280_tail05_95_exitfixed_hold96",
+      "generation_order_within_state": 33,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "fixed_max_hold_only",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl17280_tail05_95_exitmidline_hold16",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl17280_tail05_95_exitmidline_hold16",
+      "generation_order_within_state": 34,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 16
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl17280_tail05_95_exitmidline_hold32",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl17280_tail05_95_exitmidline_hold32",
+      "generation_order_within_state": 35,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 32
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    },
+    {
+      "composite_row_id": "atr_30:fl17280_tail05_95_exitmidline_hold96",
+      "risk_control_state": "atr_30",
+      "variant_id": "fl17280_tail05_95_exitmidline_hold96",
+      "generation_order_within_state": 36,
+      "parameter_values": {
+        "funding_lookback_bars": 17280,
+        "lower_entry_percentile": 0.05,
+        "upper_entry_percentile": 0.95,
+        "exit_mode": "midline_reversion_or_max_hold",
+        "max_hold_bars": 96
+      },
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "result_status": "not_attempted"
+    }
+  ]
+}

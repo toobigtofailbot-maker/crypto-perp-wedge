@@ -1,0 +1,129 @@
+{
+  "package": "WP-RESEARCH-FUNDING-TRIAGE-DATAPREP-01",
+  "hypothesis_id": "H-FUNDING-FADE-RISKMANAGED-01",
+  "check_date": "2026-06-27",
+  "signal_frozen_identical": true,
+  "risk_axis_only_difference": true,
+  "no_atr_rows": 36,
+  "atr_20_rows": 36,
+  "atr_30_rows": 36,
+  "combined_rows": 108,
+  "signal_axis_comparison": {
+    "funding_lookback_bars": {
+      "no_atr": [2880, 8640, 17280],
+      "atr_20": [2880, 8640, 17280],
+      "atr_30": [2880, 8640, 17280],
+      "identical": true
+    },
+    "entry_tail_pairs": {
+      "no_atr": [[0.1, 0.9], [0.05, 0.95]],
+      "atr_20": [[0.1, 0.9], [0.05, 0.95]],
+      "atr_30": [[0.1, 0.9], [0.05, 0.95]],
+      "identical": true
+    },
+    "exit_modes": {
+      "no_atr": ["fixed_max_hold_only", "midline_reversion_or_max_hold"],
+      "atr_20": ["fixed_max_hold_only", "midline_reversion_or_max_hold"],
+      "atr_30": ["fixed_max_hold_only", "midline_reversion_or_max_hold"],
+      "identical": true
+    },
+    "max_hold_bars": {
+      "no_atr": [16, 32, 96],
+      "atr_20": [16, 32, 96],
+      "atr_30": [16, 32, 96],
+      "identical": true
+    },
+    "direction": {
+      "no_atr": "both",
+      "atr_20": "both",
+      "atr_30": "both",
+      "identical": true
+    },
+    "symbol": {
+      "no_atr": "BTCUSDT",
+      "atr_20": "BTCUSDT",
+      "atr_30": "BTCUSDT",
+      "identical": true
+    },
+    "timeframe": {
+      "no_atr": "15m",
+      "atr_20": "15m",
+      "atr_30": "15m",
+      "identical": true
+    },
+    "funding_payments": {
+      "no_atr": "off",
+      "atr_20": "off",
+      "atr_30": "off",
+      "identical": true
+    },
+    "sizing_mode": {
+      "no_atr": "dynamic_equity_target_leverage",
+      "atr_20": "dynamic_equity_target_leverage",
+      "atr_30": "dynamic_equity_target_leverage",
+      "identical": true
+    },
+    "target_leverage": {
+      "no_atr": 1.0,
+      "atr_20": 1.0,
+      "atr_30": 1.0,
+      "identical": true
+    }
+  },
+  "risk_control_differences": {
+    "no_atr": {
+      "atr_stop_enabled": false,
+      "atr_lookback": null,
+      "atr_multiplier": null
+    },
+    "atr_20": {
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "entry_reference_price": "next_bar_open_pre_fee_slippage",
+      "evaluation_price": "close",
+      "evaluation_timing": "bar_close"
+    },
+    "atr_30": {
+      "atr_stop_enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 3.0,
+      "entry_reference_price": "next_bar_open_pre_fee_slippage",
+      "evaluation_price": "close",
+      "evaluation_timing": "bar_close"
+    }
+  },
+  "variant_id_sets_identical": true,
+  "variant_ids_no_atr_count": 36,
+  "variant_ids_atr_20_count": 36,
+  "variant_ids_atr_30_count": 36,
+  "all_variant_ids_match_across_states": true,
+  "unexpected_signal_differences": [],
+  "unexpected_risk_differences": [],
+  "forbidden_changes_detected": [],
+  "forbidden_change_checks": {
+    "funding_lookbacks_changed": false,
+    "tail_thresholds_changed": false,
+    "direction_changed": false,
+    "timeframe_changed": false,
+    "symbol_changed": false,
+    "filters_added": false,
+    "signal_rows_dropped": false,
+    "new_signal_parameters_added": false,
+    "leverage_swept": false,
+    "funding_accounting_changed": false,
+    "additional_atr_multipliers_added": false,
+    "take_profit_logic_added": false,
+    "additional_stop_variants_added": false,
+    "additional_sizing_variants_added": false
+  },
+  "spec_validation_results": {
+    "no_atr_spec_validates": true,
+    "atr_20_spec_validates": true,
+    "atr_30_spec_validates": true,
+    "validator_used": "tools.registry.validate_strategy_specs"
+  },
+  "status": "pass",
+  "blocked_reason": "",
+  "conclusion": "Signal axes are frozen-identical across all three parent specs. The only differences are ATR-stop risk-control settings and required spec metadata/IDs. No forbidden changes detected. Combined denominator is exactly 108 rows (36 per state). Frozen fidelity check: PASS."
+}

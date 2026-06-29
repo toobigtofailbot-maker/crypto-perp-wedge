@@ -1,0 +1,447 @@
+{
+  "non_canonical": true,
+  "stage": "stage_1_triage_input_prep_only",
+  "execution_authorized": false,
+  "risk_control_state": "no_atr",
+  "backtest_realism_assumptions": {
+    "bar_path_assumption": "next_open_close_mark",
+    "exchange_constraints_disclosed": true,
+    "fee_side_assumption": "taker_entry_taker_exit",
+    "fill_mode": "complete",
+    "funding_notional_mode": "entry_price",
+    "liquidation_mode": "zero_equity",
+    "liquidity_capacity_assumption": "not active in this triage input artifact",
+    "maintenance_margin_assumption": null,
+    "mark_price_source": "close",
+    "order_size_assumption": "offline runner: dynamic_equity_target_leverage at target_leverage=1.0; Stage-1 execution not yet authorized",
+    "slippage_model": "fixed_bps"
+  },
+  "constraints": {
+    "deferred_pattern_blockers": [
+      "Funding payments are not wired; funding_cost_mode remains off.",
+      "This is a price-P&L funding-rate signal test.",
+      "ATR stop is not active in this no_atr parent spec.",
+      "Stage-1 execution requires Karl sign-off before any run."
+    ],
+    "invalid_parameter_combinations": [],
+    "none_declared": false,
+    "unavailable_data_blockers": []
+  },
+  "entry_logic": {
+    "direction": "both",
+    "groups": [
+      {
+        "conditions": [
+          {
+            "condition_id": "LONG-FUNDING-PERCENTILE-LTE-LOWER",
+            "condition_role": "required",
+            "left_operand": {
+              "composition_type": "rolling_empirical_percentile_v1",
+              "lookback": {
+                "bars_parameter_ref": "funding_lookback_bars"
+              },
+              "min_periods_policy": "full_window",
+              "nan_policy": "null_output",
+              "operand_type": "composed_operand",
+              "source_operand": {
+                "field": "funding_rate",
+                "lookback": null,
+                "operand_type": "data_ref",
+                "ref": "funding_rate",
+                "timeframe": null
+              },
+              "tie_policy": "weak_rank"
+            },
+            "notes": "Trailing full-window funding-rate empirical percentile; no future fitting. Frozen from H-FUNDING-RATE-POSITIONING-FADE-01.",
+            "operator": "lte",
+            "right_operand": {
+              "field": null,
+              "lookback": null,
+              "operand_type": "parameter_ref",
+              "ref": "lower_entry_percentile",
+              "timeframe": null
+            },
+            "units": "percentile"
+          }
+        ],
+        "group_id": "ENTRY-LONG-FUNDING-LOW-TAIL",
+        "group_role": "required",
+        "logic": "all",
+        "notes": "Contrarian long entry at the preregistered lower tail.",
+        "side": "long",
+        "subgroups": []
+      },
+      {
+        "conditions": [
+          {
+            "condition_id": "SHORT-FUNDING-PERCENTILE-GTE-UPPER",
+            "condition_role": "required",
+            "left_operand": {
+              "composition_type": "rolling_empirical_percentile_v1",
+              "lookback": {
+                "bars_parameter_ref": "funding_lookback_bars"
+              },
+              "min_periods_policy": "full_window",
+              "nan_policy": "null_output",
+              "operand_type": "composed_operand",
+              "source_operand": {
+                "field": "funding_rate",
+                "lookback": null,
+                "operand_type": "data_ref",
+                "ref": "funding_rate",
+                "timeframe": null
+              },
+              "tie_policy": "weak_rank"
+            },
+            "notes": "Trailing full-window funding-rate empirical percentile; no future fitting. Frozen from H-FUNDING-RATE-POSITIONING-FADE-01.",
+            "operator": "gte",
+            "right_operand": {
+              "field": null,
+              "lookback": null,
+              "operand_type": "parameter_ref",
+              "ref": "upper_entry_percentile",
+              "timeframe": null
+            },
+            "units": "percentile"
+          }
+        ],
+        "group_id": "ENTRY-SHORT-FUNDING-HIGH-TAIL",
+        "group_role": "required",
+        "logic": "all",
+        "notes": "Contrarian short entry at the preregistered upper tail.",
+        "side": "short",
+        "subgroups": []
+      }
+    ],
+    "notes": "Funding-rate positioning fade; contrarian direction only. Signal axes frozen from H-FUNDING-RATE-POSITIONING-FADE-01."
+  },
+  "exit_logic": {
+    "groups": [
+      {
+        "conditions": [
+          {
+            "condition_id": "LONG-FUNDING-PERCENTILE-GTE-MIDLINE",
+            "condition_role": "exit",
+            "left_operand": {
+              "composition_type": "rolling_empirical_percentile_v1",
+              "lookback": {
+                "bars_parameter_ref": "funding_lookback_bars"
+              },
+              "min_periods_policy": "full_window",
+              "nan_policy": "null_output",
+              "operand_type": "composed_operand",
+              "source_operand": {
+                "field": "funding_rate",
+                "lookback": null,
+                "operand_type": "data_ref",
+                "ref": "funding_rate",
+                "timeframe": null
+              },
+              "tie_policy": "weak_rank"
+            },
+            "notes": "Long exits when funding percentile reverts to the midline. Active only when exit_mode=midline_reversion_or_max_hold.",
+            "operator": "gte",
+            "right_operand": {
+              "field": null,
+              "lookback": null,
+              "operand_type": "constant",
+              "ref": 0.5,
+              "timeframe": null
+            },
+            "units": "percentile"
+          }
+        ],
+        "group_id": "EXIT-LONG-FUNDING-MIDLINE",
+        "group_role": "exit",
+        "logic": "all",
+        "notes": "Midline reversion exit for longs. Active only when exit_mode=midline_reversion_or_max_hold; suppressed when exit_mode=fixed_max_hold_only.",
+        "side": "long",
+        "subgroups": []
+      },
+      {
+        "conditions": [
+          {
+            "condition_id": "SHORT-FUNDING-PERCENTILE-LTE-MIDLINE",
+            "condition_role": "exit",
+            "left_operand": {
+              "composition_type": "rolling_empirical_percentile_v1",
+              "lookback": {
+                "bars_parameter_ref": "funding_lookback_bars"
+              },
+              "min_periods_policy": "full_window",
+              "nan_policy": "null_output",
+              "operand_type": "composed_operand",
+              "source_operand": {
+                "field": "funding_rate",
+                "lookback": null,
+                "operand_type": "data_ref",
+                "ref": "funding_rate",
+                "timeframe": null
+              },
+              "tie_policy": "weak_rank"
+            },
+            "notes": "Short exits when funding percentile reverts to the midline. Active only when exit_mode=midline_reversion_or_max_hold.",
+            "operator": "lte",
+            "right_operand": {
+              "field": null,
+              "lookback": null,
+              "operand_type": "constant",
+              "ref": 0.5,
+              "timeframe": null
+            },
+            "units": "percentile"
+          }
+        ],
+        "group_id": "EXIT-SHORT-FUNDING-MIDLINE",
+        "group_role": "exit",
+        "logic": "all",
+        "notes": "Midline reversion exit for shorts. Active only when exit_mode=midline_reversion_or_max_hold; suppressed when exit_mode=fixed_max_hold_only.",
+        "side": "short",
+        "subgroups": []
+      }
+    ],
+    "max_holding_period": {
+      "bars": {
+        "parameter_ref": "max_hold_bars"
+      },
+      "enabled": true
+    },
+    "notes": "Exit mode is controlled by the exit_mode free parameter. fixed_max_hold_only suppresses midline groups; midline_reversion_or_max_hold activates them. Max hold is always active. No ATR stop in this no_atr parent spec. At execution time, use one runner invocation per exit mode (decompose to two 18-row sub-specs)."
+  },
+  "filters": {
+    "groups": [],
+    "none_declared": true
+  },
+  "free_parameters": {
+    "counting_rule": "parameters contains only entries where is_free_parameter=true; maxItems 5 enforces the D2-006-style MVP free-parameter cap",
+    "max_free_parameters": 5,
+    "no_free_parameters_declared": false,
+    "parameters": [
+      {
+        "allowed_values": [2880, 8640, 17280],
+        "constraints": ["No post-hoc values or adaptive fitting. Frozen from H-FUNDING-RATE-POSITIONING-FADE-01."],
+        "default": 2880,
+        "description": "Frozen funding-family parameter: rolling funding-percentile lookback in 15m bars.",
+        "included_in_variant_generation": true,
+        "is_free_parameter": true,
+        "label": "Funding percentile lookback",
+        "name": "funding_lookback_bars",
+        "range": {
+          "inclusive_max": true,
+          "inclusive_min": true,
+          "max": 17280,
+          "min": 2880,
+          "step": 5760
+        },
+        "rationale": "Frozen H-FUNDING-RATE-POSITIONING-FADE-01 denominator axis. 2880=30d, 8640=90d, 17280=180d at 15m bars.",
+        "role": "entry",
+        "type": "integer",
+        "units": "bars"
+      },
+      {
+        "allowed_values": [0.05, 0.1],
+        "constraints": ["No post-hoc values or adaptive fitting. Frozen from H-FUNDING-RATE-POSITIONING-FADE-01."],
+        "default": 0.1,
+        "description": "Frozen funding-family parameter: lower entry percentile tail threshold.",
+        "included_in_variant_generation": true,
+        "is_free_parameter": true,
+        "label": "Lower entry percentile",
+        "name": "lower_entry_percentile",
+        "range": {
+          "inclusive_max": true,
+          "inclusive_min": true,
+          "max": 0.1,
+          "min": 0.05,
+          "step": 0.05
+        },
+        "rationale": "Frozen H-FUNDING-RATE-POSITIONING-FADE-01 denominator axis. Pair with upper_entry_percentile: 0.10/0.90 or 0.05/0.95.",
+        "role": "entry",
+        "type": "number",
+        "units": "ratio"
+      },
+      {
+        "allowed_values": [0.9, 0.95],
+        "constraints": ["No post-hoc values or adaptive fitting. Frozen from H-FUNDING-RATE-POSITIONING-FADE-01."],
+        "default": 0.9,
+        "description": "Frozen funding-family parameter: upper entry percentile tail threshold.",
+        "included_in_variant_generation": true,
+        "is_free_parameter": true,
+        "label": "Upper entry percentile",
+        "name": "upper_entry_percentile",
+        "range": {
+          "inclusive_max": true,
+          "inclusive_min": true,
+          "max": 0.95,
+          "min": 0.9,
+          "step": 0.05
+        },
+        "rationale": "Frozen H-FUNDING-RATE-POSITIONING-FADE-01 denominator axis. Pair with lower_entry_percentile: 0.10/0.90 or 0.05/0.95.",
+        "role": "entry",
+        "type": "number",
+        "units": "ratio"
+      },
+      {
+        "allowed_values": ["fixed_max_hold_only", "midline_reversion_or_max_hold"],
+        "constraints": ["No post-hoc values or adaptive fitting. Frozen from H-FUNDING-RATE-POSITIONING-FADE-01."],
+        "default": "fixed_max_hold_only",
+        "description": "Frozen funding-family parameter: exit mode selector. Determines whether midline exit groups are active.",
+        "included_in_variant_generation": true,
+        "is_free_parameter": true,
+        "label": "Exit mode",
+        "name": "exit_mode",
+        "range": null,
+        "rationale": "Frozen H-FUNDING-RATE-POSITIONING-FADE-01 denominator axis. At execution time, decompose to two runner invocations (one per mode).",
+        "role": "exit",
+        "type": "enum",
+        "units": null
+      },
+      {
+        "allowed_values": [16, 32, 96],
+        "constraints": ["No post-hoc values or adaptive fitting. Frozen from H-FUNDING-RATE-POSITIONING-FADE-01."],
+        "default": 16,
+        "description": "Frozen funding-family parameter: maximum position holding period in 15m bars.",
+        "included_in_variant_generation": true,
+        "is_free_parameter": true,
+        "label": "Maximum holding period",
+        "name": "max_hold_bars",
+        "range": {
+          "inclusive_max": true,
+          "inclusive_min": true,
+          "max": 96,
+          "min": 16,
+          "step": 16
+        },
+        "rationale": "Frozen H-FUNDING-RATE-POSITIONING-FADE-01 denominator axis.",
+        "role": "exit",
+        "type": "integer",
+        "units": "bars"
+      }
+    ]
+  },
+  "hash_pinning": {
+    "canonical_spec_hash": null,
+    "hash_algorithm": "sha256",
+    "hash_scope": ["identity", "strategy_body", "free_parameters", "constraints", "assumptions"],
+    "hash_scope_version": "strategy_spec_hash_scope_v1",
+    "hash_status": "not_computed"
+  },
+  "instruments": {
+    "blockers": [],
+    "directions_allowed": ["long", "short"],
+    "exchange_constraint_refs": [],
+    "instrument_family": "crypto_perp",
+    "leverage_assumption": 1.0,
+    "market_type": "perpetual",
+    "symbols": ["BTCUSDT"],
+    "venue_assumption": "Binance USDT-M perpetual"
+  },
+  "lineage": {
+    "amendment_of": null,
+    "parent_refs": [
+      {
+        "ref_hash": null,
+        "ref_id": "H-FUNDING-FADE-RISKMANAGED-01",
+        "ref_path": "docs/research/H_FUNDING_FADE_RISKMANAGED_TRIAGE_PREGATE.md",
+        "ref_type": "hypothesis"
+      }
+    ],
+    "supersedes": []
+  },
+  "max_condition_group_depth": 3,
+  "non_execution_declaration": {
+    "human_review_surface_only": true,
+    "not_candidate_approval": true,
+    "not_executable": true,
+    "not_exp_approval": true,
+    "not_gate_authority": true,
+    "not_paper_live_authority": true,
+    "not_ranking_authority": true,
+    "not_readiness_authority": true,
+    "not_recommendation_authority": true,
+    "not_runtime_authority": true,
+    "not_sweep_authority": true,
+    "not_transition_authority": true
+  },
+  "pre_registration_support": {
+    "frozen_snapshot_ref": null,
+    "intended_for_variant_manifest": true,
+    "variant_manifest_ref": null
+  },
+  "provenance": {
+    "created_at": "2026-06-27T00:00:00Z",
+    "prepared_by": "WP-RESEARCH-FUNDING-TRIAGE-DATAPREP-01",
+    "rationale": "Scratch-only no-ATR parent spec for H-FUNDING-FADE-RISKMANAGED-01 Stage-1 triage. Signal axes frozen from prior concluded family. Risk control: no ATR stop.",
+    "source_constraints": [
+      "scratch-only non-canonical research artifact",
+      "signal-frozen from H-FUNDING-RATE-POSITIONING-FADE-01",
+      "no ATR stop in this parent spec",
+      "execution_authorized=false pending Karl sign-off",
+      "funding payments remain off"
+    ],
+    "source_refs": [
+      "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-PREGATE-01/frozen_risk_control_ranges.json",
+      "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-UNBLOCK-01/atr_parent_spec_route_plan.md"
+    ],
+    "source_type": "manual_triage_input",
+    "unresolved_claims": [
+      "Scratch-only non-canonical research artifact.",
+      "Funding payments are excluded; this is not complete carry P&L.",
+      "exit_mode enum parameter requires decomposition to two runner invocations at execution time.",
+      "Karl sign-off required before Stage-1 execution."
+    ],
+    "updated_at": "2026-06-27T00:00:00Z"
+  },
+  "review": {
+    "approval_scope": "none",
+    "human_review_required": true,
+    "non_authority_acknowledgement": {
+      "not_candidate_approval": true,
+      "not_exp_approval": true,
+      "not_gate_satisfaction": true,
+      "not_paper_live_authority": true,
+      "not_ranking_authority": true,
+      "not_readiness_authority": true,
+      "not_recommendation_authority": true,
+      "not_runtime_authority": true,
+      "not_sweep_authority": true,
+      "not_transition_authority": true
+    },
+    "review_notes": [
+      "Scratch-only triage input prep artifact. Karl sign-off required before any run.",
+      "Validator success is not approval.",
+      "exit_mode is encoded as a free parameter for planning purposes; execution requires decomposition."
+    ],
+    "reviewed_at": null,
+    "reviewer": null
+  },
+  "risk_model": {
+    "exposure_limits": [
+      "Offline run will use dynamic_equity_target_leverage at target_leverage=1.0.",
+      "No ATR stop in this no_atr parent spec."
+    ],
+    "leverage_visibility": "Dynamic equity target leverage 1.0 is a fixed offline measurement setting, not swept.",
+    "liquidation_sensitivity_notes": "Uses zero-equity liquidation realism declaration; no runtime or execution risk authority created.",
+    "sizing_intent": "review_only",
+    "stop_distance": null,
+    "target_distance": null
+  },
+  "schema_version": "v1",
+  "short_name": "funding-fade-riskmanaged-no-atr-stage1-triage",
+  "status": "draft",
+  "strategy_spec_id": "STRAT-SPEC-9601",
+  "timeframe_and_data": {
+    "confirmation_timeframes": [],
+    "gap_handling_assumption": "Use existing cataloged BTCUSDT 15m OHLCV and the merged research-workbench gap policy; do not interpolate or silently fill gaps.",
+    "host_data_refs": [
+      {"availability": "required", "field": "open", "stream": "ohlcv", "timeframe": "15m"},
+      {"availability": "required", "field": "high", "stream": "ohlcv", "timeframe": "15m"},
+      {"availability": "required", "field": "low", "stream": "ohlcv", "timeframe": "15m"},
+      {"availability": "required", "field": "close", "stream": "ohlcv", "timeframe": "15m"},
+      {"availability": "required", "field": "volume", "stream": "ohlcv", "timeframe": "15m"},
+      {"availability": "required", "field": "funding_rate", "stream": "funding", "timeframe": "15m"}
+    ],
+    "missing_data_blockers": [],
+    "primary_timeframe": "15m"
+  },
+  "title": "Scratch no-ATR parent Strategy Spec — H-FUNDING-FADE-RISKMANAGED-01 Stage-1 triage"
+}

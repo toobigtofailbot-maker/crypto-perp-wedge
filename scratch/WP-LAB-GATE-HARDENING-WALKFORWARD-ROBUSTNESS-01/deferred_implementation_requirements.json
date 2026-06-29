@@ -1,0 +1,54 @@
+{
+  "package": "WP-LAB-GATE-HARDENING-WALKFORWARD-ROBUSTNESS-01",
+  "status": "ready_with_deferred_implementation",
+  "deferred_requirements": [
+    {
+      "requirement_id": "DEFERRED-SCHEMA-PROVENANCE-001",
+      "summary": "Schema-level construction_payload and non_promotable provenance fields remain unavailable in executable Strategy Spec / Variant Manifest / Sweep Plan artifacts.",
+      "why_deferred": "Schema changes are not authorized in this package.",
+      "needed_later": "Explicitly authorized schema or dedicated fixture-artifact support that preserves construction_payload, non_promotable, candidate_eligible=false, promotion_eligible=false, paper_live_eligible=false, edge_claim_allowed=false, and canonical_crossing_allowed=false semantics."
+    },
+    {
+      "requirement_id": "DEFERRED-FIXTURE-ARTIFACT-001",
+      "summary": "A dedicated construction-payload artifact type or equivalent fixture carrier does not yet exist.",
+      "why_deferred": "Creating artifact schemas or validators is outside this package.",
+      "needed_later": "Fixture artifact format and validator if future packages want executable/readable baseline fixtures without mutating Strategy Spec or candidate schemas."
+    },
+    {
+      "requirement_id": "DEFERRED-WFO-RUNNER-001",
+      "summary": "Actual WFO/OOS runner execution against baseline fixtures is not performed.",
+      "why_deferred": "Strategy execution, backtests, sweeps, and runner behavior changes are forbidden here.",
+      "needed_later": "Separately authorized WFO/OOS fixture exercise that preserves chronology, purge/embargo, denominator honesty, and non-promotable provenance."
+    },
+    {
+      "requirement_id": "DEFERRED-ROBUSTNESS-COMPUTE-001",
+      "summary": "Actual MC/bootstrap/PSR/DSR/MinTRL compute integration for baseline fixtures is not performed.",
+      "why_deferred": "No robustness statistics may be fabricated, and actual compute integration is outside this package.",
+      "needed_later": "Separately authorized robustness diagnostic package with real required inputs or explicit withheld/insufficient states."
+    },
+    {
+      "requirement_id": "DEFERRED-CANDIDATE-REVIEW-001",
+      "summary": "Candidate-review packet generation using baseline fixtures is not implemented.",
+      "why_deferred": "Candidate lifecycle and review packet behavior changes are outside this package.",
+      "needed_later": "A negative/no-candidate fixture review package that proves baselines cannot imply candidate eligibility."
+    },
+    {
+      "requirement_id": "DEFERRED-CROSSING-GUARD-001",
+      "summary": "Crossing guard implementation for construction payloads is not changed.",
+      "why_deferred": "Crossing implementation and candidate lifecycle writes are outside this package.",
+      "needed_later": "A fixture-only crossing guard package proving reject_by_construction before any real crossing path."
+    },
+    {
+      "requirement_id": "DEFERRED-AGENT-LOOP-001",
+      "summary": "Agent-loop exercise over baseline payloads is not performed.",
+      "why_deferred": "Agent loop behavior changes and scheduling/prioritization are outside this package.",
+      "needed_later": "A bounded agent-loop package proving agents classify baselines as fixtures and do not propose rescue, retuning, ranking, or promotion."
+    },
+    {
+      "requirement_id": "DEFERRED-DASHBOARD-REPORTING-001",
+      "summary": "Dashboard/reporting proof for baseline fixture display is not implemented.",
+      "why_deferred": "Existing surfaces are read-only, but adding fixture-specific display assertions is not necessary for this gate-contract package.",
+      "needed_later": "Read-only dashboard/reporting proof that labels baselines as fixture / construction payload / non-promotable / not candidate."
+    }
+  ]
+}

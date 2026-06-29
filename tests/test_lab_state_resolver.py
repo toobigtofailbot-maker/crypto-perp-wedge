@@ -32,6 +32,21 @@ def test_funding_subject_resolves_to_no_go_end_to_end() -> None:
     assert _stage(snapshot, "operator_gate")["state"] == "not_started"
 
 
+def test_riskmanaged_funding_subject_resolves_to_no_go_without_readiness() -> None:
+    snapshot = build_snapshot(SUBJECTS["funding_fade_riskmanaged_no_go"], REPO_ROOT)
+    assert snapshot["schema_version"] == model.SCHEMA_VERSION
+    assert snapshot["subject_id"] == "H-FUNDING-FADE-RISKMANAGED-01"
+    assert snapshot["overall_state"] == "no_go"
+
+    assert _stage(snapshot, "formalization")["state"] == "formalized"
+    assert _stage(snapshot, "experiment_run")["state"] == "experiment_complete"
+    review = _stage(snapshot, "candidate_review_reach")
+    assert review["state"] == "candidate_review_not_created"
+    assert review["reason_code"] == "NO_GO_PRIMARY_RISK_SCREEN_FAILED"
+    assert _stage(snapshot, "reporting")["state"] == "reported"
+    assert _stage(snapshot, "operator_gate")["state"] == "not_started"
+
+
 def test_oos_gate_fail_demo_surfaces_failed_gate() -> None:
     snapshot = build_snapshot(SUBJECTS["oos_gate_fail_demo"], REPO_ROOT)
     assert _stage(snapshot, "walkforward_oos_gate")["state"] == "oos_gate_fail"

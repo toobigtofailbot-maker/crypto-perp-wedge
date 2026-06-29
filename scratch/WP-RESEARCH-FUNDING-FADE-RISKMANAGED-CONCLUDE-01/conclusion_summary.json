@@ -1,0 +1,44 @@
+{
+  "package": "WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01",
+  "hypothesis_id": "H-FUNDING-FADE-RISKMANAGED-01",
+  "conclusion": "no_go",
+  "source_stage1_package": "WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01",
+  "source_stage1_pr": 581,
+  "stage1_rows_planned": 108,
+  "stage1_rows_executed": 108,
+  "stage1_rows_accounted": 108,
+  "positive_return_rows_total": 0,
+  "risk_states": {
+    "no_atr": {
+      "rows": 36,
+      "median_drawdown": 0.49772147071693695,
+      "worst_drawdown": 0.7375824885045507,
+      "median_net_return": -0.4597150220911428,
+      "positive_return_rows": 0
+    },
+    "atr_20": {
+      "rows": 36,
+      "median_drawdown": 0.4814108403440701,
+      "worst_drawdown": 0.7296376923839575,
+      "median_net_return": -0.440942602845076,
+      "positive_return_rows": 0
+    },
+    "atr_30": {
+      "rows": 36,
+      "median_drawdown": 0.5070594339921375,
+      "worst_drawdown": 0.7162779480319459,
+      "median_net_return": -0.4640670308747342,
+      "positive_return_rows": 0
+    }
+  },
+  "interpretation": "risk management did not reveal a positive-expectancy signal; ATR stops barely improved drawdown and did not produce positive median return",
+  "no_retuning_loop_authorized": true,
+  "stage2_prereg_authorized": false,
+  "stage2_execution_authorized": false,
+  "canonical_evidence_written": false,
+  "candidate_lifecycle_written": false,
+  "paper_live_runtime_touched": false,
+  "protected_paths_touched": false,
+  "data_committed": false,
+  "code_changed": true
+}

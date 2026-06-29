@@ -1,0 +1,32 @@
+Validation summary for WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01
+
+Base:
+- Branch: research/funding-fade-riskmanaged-conclude-01
+- Base commit: 788f46c90498f6179d1d875ab9155b16e80505c7
+- PR #581 state: MERGED
+- PR #581 merge commit: 788f46c90498f6179d1d875ab9155b16e80505c7
+
+Commands:
+- python -m json.tool scratch\WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01\conclusion_summary.json > $null: PASS
+- python -m json.tool scratch\WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01\conclusion_traceability.json > $null: PASS
+- python -m json.tool scratch\WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01\no_candidate_review_packet_reason.json > $null: PASS
+- python -m json.tool scratch\WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01\operator_visibility_binding.json > $null: PASS
+- python -m tools.lab_state.run --snapshot --subject funding_fade_riskmanaged_no_go --json: PASS; overall_state no_go, experiment_complete 108/108, candidate_review_not_created, operator_gate not_started.
+- python -m pytest tests/test_lab_state_resolver.py tests/test_lab_dashboard.py tests/test_lab_reporting.py -q: PASS; 41 passed.
+- python -m tools.research_query.run --list-views: PASS; listed research query views.
+- python -m tools.registry.validate_result_populations: PASS; result-population artifacts validate.
+- python -m tools.registry.validate_candidate_registry: PASS; candidate lifecycle registry artifacts validate.
+- python tools/dev/diff_scope_summary.py: PASS; no forbidden-path matches.
+
+Scope findings:
+- New run executed: no
+- Canonical Result Population written: no
+- Candidate lifecycle write: no
+- Paper/live/runtime path touched: no
+- OMS/risk/reconciliation/order/exchange path touched: no
+- Private provider/API touched: no
+- Data committed: no
+- Code changes: yes, read-only lab_state subject binding plus focused lab visibility tests only.
+
+Full pytest:
+- Not run; code changes were limited to read-only lab/operator visibility binding, and the nearest lab-state/dashboard/reporting tests were run.

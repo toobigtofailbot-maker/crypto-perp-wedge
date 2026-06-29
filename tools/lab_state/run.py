@@ -104,6 +104,24 @@ FUNDING_CARRY_02_PATHS: list[str] = [
     "scratch/WP-RESEARCH-FUNDING-CARRY-02/walk_forward_summary.json",
 ]
 
+FUNDING_FADE_RISKMANAGED_CONCLUDE_PATHS: list[str] = [
+    "docs/status_entries/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01.md",
+    "docs/status_entries/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01.md",
+    "docs/research/FUNDING_POSITIONING_FADE_SYNTHESIS_2026-06.md",
+    "scratch/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01/conclusion_summary.json",
+    "scratch/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01/conclusion_summary.md",
+    "scratch/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01/no_retuning_attestation.md",
+    "scratch/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01/operator_visibility_binding.json",
+    "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/stage1_verdict.json",
+    "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/stop_go_evaluation.json",
+    "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/row_accounting.json",
+    "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/complete_108_row_denominator.json",
+    "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/complete_108_row_denominator.csv",
+    "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/no_atr_slice_summary.json",
+    "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/atr_20_slice_summary.json",
+    "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/atr_30_slice_summary.json",
+]
+
 EDGE_SMA_PATHS: list[str] = [
     "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/blocked_bridge_reason.json",
     "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/blocked_candidate_review_reason.json",
@@ -218,6 +236,21 @@ SUBJECTS: dict[str, dict[str, Any]] = {
             FUNDING_CARRY_02_PATHS,
             "legacy_research_evidence",
             "Funding-carry retry evidence bundle, including follow-up staging.",
+        ),
+    },
+    "funding_fade_riskmanaged_no_go": {
+        "subject_id": "H-FUNDING-FADE-RISKMANAGED-01",
+        "subject_label": "funding_fade_riskmanaged_stage1_no_go",
+        "artifacts": {
+            "formalization": "docs/status_entries/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01.md",
+            "experiment_run": "scratch/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01/conclusion_traceability.json",
+            "candidate_review_reach": "scratch/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01/no_candidate_review_packet_reason.json",
+            "reporting": "docs/research/FUNDING_POSITIONING_FADE_SYNTHESIS_2026-06.md",
+        },
+        "supplemental_artifacts": _supplemental(
+            FUNDING_FADE_RISKMANAGED_CONCLUDE_PATHS,
+            "riskmanaged_conclusion_evidence",
+            "Risk-managed funding-fade Stage-1 NO-GO conclusion bundle.",
         ),
     },
     "edge_sma_family_blocked": {

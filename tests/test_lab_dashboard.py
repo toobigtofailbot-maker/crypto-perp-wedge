@@ -29,6 +29,7 @@ def test_dashboard_data_schema_and_subjects() -> None:
     # are projected.
     ids = {s["subject_id"] for s in data["subjects"]}
     assert "H-FUNDING-RATE-POSITIONING-FADE-01" in ids
+    assert "H-FUNDING-FADE-RISKMANAGED-01" in ids
     assert "OOS-GATE-FIXTURE-RP-2592" in ids
     assert "WP-RESEARCH-FUNDING-CARRY-02" in ids
     assert "HISTORICAL-CANONICAL-EVIDENCE" in ids
@@ -69,6 +70,20 @@ def test_funding_subject_surfaces_no_go_caveats_and_withheld_stats() -> None:
     # Result Populations enumerated for drill-down.
     rp_ids = {rp["result_population_id"] for rp in view["result_populations"]}
     assert rp_ids == {"RP-2009", "RP-7592"}
+
+
+def test_riskmanaged_funding_subject_is_operator_visible_without_readiness() -> None:
+    data = build_dashboard_data(repo_root=REPO_ROOT)
+    view = _subject(data, "H-FUNDING-FADE-RISKMANAGED-01")
+    assert view["overall_state"] == "no_go"
+    assert view["evidence_class"] == "non_canonical"
+    assert view["denominator"]["preserved"] is True
+    assert view["denominator"]["planned"] == 108
+    assert view["denominator"]["complete"] == 108
+    assert view["result_populations"] == []
+    assert view["candidate_review_status"]["state"] == "candidate_review_not_created"
+    assert view["operator_gate_status"]["state"] == "not_started"
+    assert any("Stage-1" in c or "funding" in c for c in view["no_go_caveats"])
 
 
 def test_oos_fail_subject_surfaces_failed_gate() -> None:

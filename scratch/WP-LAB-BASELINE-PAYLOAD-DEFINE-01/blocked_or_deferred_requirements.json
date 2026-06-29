@@ -1,0 +1,28 @@
+{
+  "package": "WP-LAB-BASELINE-PAYLOAD-DEFINE-01",
+  "status": "ready_with_deferred_requirements",
+  "blocked": false,
+  "deferred_requirements": [
+    {
+      "requirement_id": "DEFERRED-SCHEMA-PROVENANCE-001",
+      "title": "Schema-level construction payload provenance",
+      "fact": "Current Strategy Spec, Variant Manifest, and Sweep Plan schemas use additionalProperties=false and do not define exact construction_payload/non_promotable eligibility fields.",
+      "decision": "Do not create scratch schema artifacts in this package.",
+      "needed_later": "Add an explicitly authorized schema or fixture-artifact surface that can carry permanent construction_payload, non_promotable, candidate_eligible=false, promotion_eligible=false, paper_live_eligible=false, edge_claim_allowed=false, and canonical_crossing_allowed=false semantics."
+    },
+    {
+      "requirement_id": "DEFERRED-CONSUMER-GUARDS-001",
+      "title": "Downstream hard rejection implementation",
+      "fact": "This package defines contracts only and changes no gates, crossing code, dashboard code, lab state code, agent code, runner code, schemas, or validators.",
+      "decision": "Later consumer packages must implement or validate rejection behavior separately.",
+      "needed_later": "Gate, agent-loop, dashboard/reporting, and crossing guard packages must prove these payloads cannot become candidates or crossing inputs."
+    }
+  ],
+  "not_deferred": [
+    "baseline catalog definition",
+    "ground-truth behavior contract",
+    "non-promotable provenance contract",
+    "later consumer map",
+    "status entry"
+  ]
+}

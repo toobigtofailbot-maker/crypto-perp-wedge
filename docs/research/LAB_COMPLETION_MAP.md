@@ -16,6 +16,14 @@ accounting path. It introduces no new architecture decision. Its purpose is to
 make the current phase state explicit so "finish the lab" cannot silently drift
 into edge-search, execution-machine work, or speculative autonomous behavior.
 
+Baseline-proven update: PRs #583 through #586 demonstrated the core research
+pipe at fixture/plumbing level using deliberately non-promotable construction
+payloads. That proof covers baseline payload definition, non-promoting WFO/OOS
+and robustness/MC gate semantics, non-promotable crossing rejection, and bounded
+agent/lab-loop behavior for a no-candidate baseline. It does not create
+candidate authority, real crossing authority, edge-search authority, always-on
+factory completion, paper/live/runtime authority, or execution-machine scope.
+
 ## 1. Current phase definition
 
 The current phase is a **human-driven, no-edge-search research lab**. Its job is
@@ -115,6 +123,26 @@ gaps into read-only coordinator/operator visibility: eight coordinator subjects,
 zero unmapped gap artifacts. Candidate-ready remains zero and operator-gate
 pending remains zero.
 
+### 2.5 Baseline-proven core pipe fixture/plumbing proof
+
+PRs #583 through #586 prove the baseline construction sequence at
+fixture/plumbing level:
+
+- baseline construction payloads are defined as construction-only and
+  non-promotable;
+- WFO/OOS and robustness/MC gate semantics are hardened as non-promoting gates;
+- baseline payloads cannot create candidate eligibility, promotion readiness,
+  paper/live eligibility, edge claims, or canonical crossing authority;
+- the non-promotable crossing guard rejects construction payloads with
+  `reason_code=reject_by_construction`;
+- the bounded baseline agent/lab loop observed a no-candidate result and did
+  not recommend rescue, retuning, ranking as edge, readiness, promotion, real
+  crossing, or paper/live action.
+
+This is a core pipe fixture/plumbing proof only. It is not full always-on
+factory completion, not real candidate flow, and not a promotion or execution
+authorization.
+
 ## 3. Inert / default-off surfaces (structurally present, not live)
 
 These are committed and structurally complete but produce **no effect**:
@@ -143,6 +171,10 @@ operator authorization and real candidate flow** before it could be activated.
 | Coordinator transition execution | The state model is descriptive; executing a transition is owned by the human-gated candidate lifecycle engine, not the model. |
 | First real canonical crossing | No candidate has passed human review; crossing is a separately authorized package and has not occurred. |
 | Live candidate-flow-dependent behavior | All of the above depend on a real candidate reaching `candidate_ready_for_human_review`; the only committed conclusion to date is NO-GO, so no candidate flow exists yet. |
+| At-scale continuous sweeps | Meaningful scale requires authorized real edge-search / real research traffic; baseline fixtures prove plumbing only. |
+| At-scale WFO/OOS and robustness/MC execution volume | Gate semantics are hardened, but volume execution over real candidates is held until real research traffic exists. |
+| Agent scheduling / prioritization / autonomy | Baseline loop behavior is proven only for bounded fixture plumbing; autonomous operation over a real queue is held until real candidate flow and separate authorization exist. |
+| Notification firing over real jobs | Notification firing requires real jobs/events plus separate authorization; baseline fixtures do not create either. |
 
 Activation of any deferred-B behavior **requires separate operator
 authorization and real candidate flow**. This document does not grant it.
@@ -174,16 +206,12 @@ authorization.
 
 ## 7. What remains buildable now (within phase)
 
-Without resuming edge-search or touching runtime, the in-phase buildable surface
-is limited to further **read-only legibility and operator-ergonomics** work over
-existing evidence, for example:
-
-- read-only integration / index surfaces that unify the existing surfaces
-  (e.g. the in-flight #573);
-- read-only coverage / consistency audits over the state model (e.g. #574);
-- documentation and traceability improvements.
-
-All such work must remain read-only, deterministic, and non-authoritative.
+After the baseline-proven sequence, no further non-edge-search lab-build work is
+currently identified as both buildable-now and value-adding, other than narrow
+completion-state documentation such as this update. Any later read-only
+legibility or traceability package must still prove that it is based on existing
+evidence, remains deterministic and non-authoritative, and does not imply
+at-scale factory, real candidate, or execution authority.
 
 ## 8. What is not buildable without edge-search / live candidate flow
 
@@ -191,6 +219,10 @@ All such work must remain read-only, deterministic, and non-authoritative.
 - Any candidate-flow-dependent surface behavior (real approval queue entries,
   candidate lifecycle writes, canonical crossing, transition execution).
 - Autonomous scheduling/scout/notification behavior.
+- At-scale continuous sweeps, at-scale WFO/OOS volume, and at-scale
+  robustness/MC volume.
+- Autonomous agent scheduling, prioritization, or factory operation over a real
+  research queue.
 
 These cannot be built or demonstrated meaningfully because there is no
 authorized edge-search and no live candidate flow.
@@ -209,7 +241,8 @@ authorized edge-search and no live candidate flow.
 
 ## 10. Definition of done — no-edge-search lab scope
 
-The lab is "finished as intended" for this phase when:
+The lab is "finished as intended" for this no-edge-search, human-driven phase
+when:
 
 1. Completed research evidence is legible through a coherent read-only state
    model and operator surfaces (dashboard, brief/report, approval queue). ✅
@@ -223,8 +256,23 @@ The lab is "finished as intended" for this phase when:
 5. This completion map exists and pins the phase boundaries. ✅
 
 "Done" for this phase explicitly **excludes** generating new edges, promoting a
-candidate, or running anything live. Those are future, separately authorized
-phases, not unfinished business of this one.
+candidate, running anything live, or declaring an always-on autonomous research
+factory complete. Those are future, separately authorized phases or held-B
+layers, not unfinished business of this one.
+
+Current decision state after the baseline-proven sequence:
+
+- core pipe fixture/plumbing proof: true;
+- lab declared finished without qualification: false;
+- always-on factory completed: false;
+- at-scale/autonomous layers: held-B until real edge-search / real candidate
+  flow;
+- first real crossing: held until a real GO candidate and explicit gate exist;
+- paper/live/runtime: GO-gated and protected;
+- next real fork: resume deliberate edge-search, or pause/accept the proven
+  core machine with held-B layers deferred.
+
+This map does not recommend which fork to choose.
 
 ## 11. Drift guardrails
 

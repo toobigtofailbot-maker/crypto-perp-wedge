@@ -1,0 +1,58 @@
+{
+  "package": "WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01",
+  "schema_version": "baseline_agent_loop_fixture_input.v1",
+  "fixture_only": true,
+  "baseline_id": "known_losing_baseline",
+  "baseline_label": "Known losing SMA churn baseline",
+  "source_contracts": {
+    "baseline_catalog_path": "scratch/WP-LAB-BASELINE-PAYLOAD-DEFINE-01/baseline_payload_catalog.json",
+    "gate_expectations_path": "scratch/WP-LAB-GATE-HARDENING-WALKFORWARD-ROBUSTNESS-01/baseline_gate_expectations.json",
+    "crossing_guard_contract_path": "scratch/WP-LAB-CROSSING-NONPROMOTABLE-GUARD-01/guard_contract.json"
+  },
+  "classification": {
+    "construction_payload": true,
+    "non_promotable": true,
+    "candidate_eligible": false,
+    "promotion_eligible": false,
+    "paper_live_eligible": false,
+    "canonical_crossing_allowed": false,
+    "edge_claim_allowed": false
+  },
+  "gate_expectations": {
+    "wfo_oos_gate_expected": "fail_or_insufficient",
+    "robustness_mc_gate_expected": "fail_or_insufficient_or_withheld",
+    "statistical_diagnostics_gate_expected": "insufficient_or_withheld_unless_real_inputs_exist",
+    "denominator_integrity_expected": "all_declared_rows_retained",
+    "candidate_eligibility_expected": "reject_by_construction",
+    "crossing_expected": "reject_by_construction",
+    "numeric_override_allowed": false,
+    "retuning_allowed": false
+  },
+  "denominator_caveat_fixture": {
+    "declared_rows": 3,
+    "completed": 0,
+    "failed": 1,
+    "invalid": 1,
+    "pruned": 0,
+    "blocked": 1,
+    "all_declared_rows_retained": true
+  },
+  "metrics_policy": {
+    "real_strategy_execution": false,
+    "real_backtest": false,
+    "real_wfo_oos": false,
+    "real_robustness_mc": false,
+    "fabricated_metrics_allowed": false,
+    "unavailable_metrics_status": "withheld_or_insufficient"
+  },
+  "non_authority_flags": [
+    "not canonical",
+    "not evidence",
+    "not candidate authority",
+    "not promotion authority",
+    "not ranking authority",
+    "not paper/live readiness",
+    "not a trading signal",
+    "human review required"
+  ]
+}

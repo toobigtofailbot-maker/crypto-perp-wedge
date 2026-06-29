@@ -1,0 +1,52 @@
+{
+  "package": "WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01",
+  "status": "completed",
+  "base_commit": "849da960a81c93381cf150a61ae2cf0278882e00",
+  "route": "acceptable_fixture_only_route",
+  "selected_baseline_id": "known_losing_baseline",
+  "source_contracts": {
+    "baseline_payload_catalog": "scratch/WP-LAB-BASELINE-PAYLOAD-DEFINE-01/baseline_payload_catalog.json",
+    "baseline_gate_expectations": "scratch/WP-LAB-GATE-HARDENING-WALKFORWARD-ROBUSTNESS-01/baseline_gate_expectations.json",
+    "crossing_guard_contract": "scratch/WP-LAB-CROSSING-NONPROMOTABLE-GUARD-01/guard_contract.json",
+    "crossing_guard_implementation": "tools/candidate_lifecycle/canonical_crossing_build.py"
+  },
+  "exercise_steps": [
+    {
+      "step": 1,
+      "action": "Classify the baseline fixture using PR #583 construction/non-promotable semantics.",
+      "expected_result": "construction_payload=true and non_promotable=true"
+    },
+    {
+      "step": 2,
+      "action": "Apply PR #584 gate expectations without running WFO/OOS or robustness/MC compute.",
+      "expected_result": "metrics remain insufficient or withheld; no retuning or numeric override"
+    },
+    {
+      "step": 3,
+      "action": "Produce a scratch-only no-candidate review result.",
+      "expected_result": "candidate_eligible=false and no promotion/readiness language"
+    },
+    {
+      "step": 4,
+      "action": "Exercise the PR #585 crossing guard in a temporary fixture root.",
+      "expected_result": "reject_by_construction before any fixture crossing action"
+    }
+  ],
+  "writes_authorized": [
+    "scratch/WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01/**",
+    "docs/status_entries/WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01.md"
+  ],
+  "forbidden_actions": {
+    "real_strategy_execution": false,
+    "real_backtest": false,
+    "real_sweep": false,
+    "real_wfo_oos": false,
+    "real_robustness_mc": false,
+    "canonical_result_population_write": false,
+    "candidate_registry_write": false,
+    "real_crossing": false,
+    "promotion_or_readiness": false,
+    "paper_live_runtime": false,
+    "protected_path_contact": false
+  }
+}

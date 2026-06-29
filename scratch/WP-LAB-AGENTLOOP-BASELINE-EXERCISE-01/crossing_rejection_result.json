@@ -1,0 +1,41 @@
+{
+  "package": "WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01",
+  "schema_version": "crossing_rejection_result.v1",
+  "status": "rejected",
+  "fixture_only": true,
+  "exercise_surface": "tools/candidate_lifecycle/canonical_crossing_build.py",
+  "exercise_location": "temporary_fixture_root_only",
+  "baseline_id": "known_losing_baseline",
+  "reason_code": "reject_by_construction",
+  "reason": "construction or non-promotable payload cannot enter candidate crossing",
+  "check": "nonpromotable_construction_guard",
+  "details": {
+    "baseline_ids": [
+      "known_losing_baseline"
+    ],
+    "triggers": [
+      "candidate_eligible=false",
+      "canonical_crossing_allowed=false",
+      "construction_payload=true",
+      "edge_claim_allowed=false",
+      "non_promotable=true",
+      "paper_live_eligible=false",
+      "pr583_baseline_reference",
+      "promotion_eligible=false"
+    ]
+  },
+  "candidate_lifecycle_written": false,
+  "canonical_crossing_written": false,
+  "promotion_or_readiness_created": false,
+  "paper_live_eligible": false,
+  "operator_gate_pending": false,
+  "edge_claim_allowed": false,
+  "real_canonical_evidence_written": false,
+  "first_real_crossing_remains_karl_gated": true,
+  "crossing_action_authorized": false,
+  "observed_audit_summary": {
+    "read_non_secret_files_allowed": 3,
+    "write_scratch_allowed_in_temporary_root": 3,
+    "build_fixture_canonical_crossing_allowed": 0
+  }
+}

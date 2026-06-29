@@ -1,0 +1,47 @@
+WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01 validation summary
+
+Base commit: 849da960a81c93381cf150a61ae2cf0278882e00
+Branch: lab/agentloop-baseline-exercise-01
+
+Exercise result:
+- Baseline fixture: known_losing_baseline
+- Fixture-only: true
+- Construction payload: true
+- Non-promotable: true
+- No-candidate result created: true
+- Crossing rejection observed: true
+- Rejection reason code: reject_by_construction
+- Candidate registry write: false
+- Canonical Result Population write: false
+- Paper/live/runtime touch: false
+- Protected-path touch: false
+
+Validation commands run:
+- python -m tools.research_query.run --list-views
+  - PASS: listed query views successfully.
+- python -m tools.registry.validate_result_populations
+  - PASS: result-population artifacts validate.
+- python -m tools.registry.validate_candidate_registry
+  - PASS: candidate lifecycle registry fixture artifacts validate.
+- python -m json.tool scratch\WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01\exercise_plan.json
+  - PASS.
+- python -m json.tool scratch\WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01\baseline_loop_fixture_input.json
+  - PASS.
+- python -m json.tool scratch\WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01\baseline_loop_result.json
+  - PASS.
+- python -m json.tool scratch\WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01\no_candidate_review_result.json
+  - PASS.
+- python -m json.tool scratch\WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01\crossing_rejection_result.json
+  - PASS.
+- python -m json.tool scratch\WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01\agent_behavior_assertions.json
+  - PASS.
+- python -m pytest tests\test_agent_canonical_crossing_build.py tests\test_candidate_lifecycle_engine.py -q
+  - PASS: 50 passed.
+- python tools/dev/diff_scope_summary.py
+  - PASS: no forbidden-path matches. Pre-existing untracked `build/` remained outside package scope.
+- git diff --check
+  - PASS.
+- git status --short
+  - PASS with expected package files untracked before staging and pre-existing `build/` left unstaged.
+
+Full pytest is not required because this package changes only package-local scratch/status documentation and no shared code, schemas, validators, runner, query layer, runtime, or protected execution behavior.

@@ -1,0 +1,81 @@
+{
+  "package": "WP-LAB-CROSSING-NONPROMOTABLE-GUARD-01",
+  "status": "implemented",
+  "test_file": "tests/test_agent_canonical_crossing_build.py",
+  "adversarial_cases": [
+    {
+      "case": "construction_payload=true with excellent metrics",
+      "expected": "rejected",
+      "reason_code": "reject_by_construction",
+      "covered_by": "test_nonpromotable_guard_rejects_eligibility_flags_before_crossing"
+    },
+    {
+      "case": "non_promotable=true with excellent metrics",
+      "expected": "rejected",
+      "reason_code": "reject_by_construction",
+      "covered_by": "test_nonpromotable_guard_rejects_eligibility_flags_before_crossing"
+    },
+    {
+      "case": "candidate_eligible=false",
+      "expected": "rejected",
+      "reason_code": "reject_by_construction",
+      "covered_by": "test_nonpromotable_guard_rejects_eligibility_flags_before_crossing"
+    },
+    {
+      "case": "promotion_eligible=false",
+      "expected": "rejected",
+      "reason_code": "reject_by_construction",
+      "covered_by": "test_nonpromotable_guard_rejects_eligibility_flags_before_crossing"
+    },
+    {
+      "case": "canonical_crossing_allowed=false",
+      "expected": "rejected",
+      "reason_code": "reject_by_construction",
+      "covered_by": "test_nonpromotable_guard_rejects_eligibility_flags_before_crossing"
+    },
+    {
+      "case": "paper_live_eligible=false",
+      "expected": "rejected",
+      "reason_code": "reject_by_construction",
+      "covered_by": "test_nonpromotable_guard_rejects_eligibility_flags_before_crossing"
+    },
+    {
+      "case": "edge_claim_allowed=false",
+      "expected": "rejected",
+      "reason_code": "reject_by_construction",
+      "covered_by": "test_nonpromotable_guard_rejects_eligibility_flags_before_crossing"
+    },
+    {
+      "case": "known_losing_baseline from PR #583",
+      "expected": "rejected",
+      "reason_code": "reject_by_construction",
+      "covered_by": "test_pr583_baseline_fixtures_reject_even_with_required_nonpromotable_semantics"
+    },
+    {
+      "case": "known_neutral_or_no_trade_baseline from PR #583",
+      "expected": "rejected",
+      "reason_code": "reject_by_construction",
+      "covered_by": "test_pr583_baseline_fixtures_reject_even_with_required_nonpromotable_semantics"
+    },
+    {
+      "case": "known_degenerate_or_invalid_baseline from PR #583",
+      "expected": "rejected",
+      "reason_code": "reject_by_construction",
+      "covered_by": "test_pr583_baseline_fixtures_reject_even_with_required_nonpromotable_semantics"
+    },
+    {
+      "case": "missing construction provenance on baseline fixture",
+      "expected": "rejected",
+      "reason_code": "reject_by_construction",
+      "covered_by": "test_baseline_catalog_reference_without_provenance_rejects_not_passes"
+    }
+  ],
+  "negative_write_assertions": {
+    "candidate_registry_write": false,
+    "canonical_result_population_write": false,
+    "readiness_or_promotion_language": false,
+    "paper_live_runtime_contact": false,
+    "build_fixture_canonical_crossing_action_requested_on_rejection": false
+  }
+}
+

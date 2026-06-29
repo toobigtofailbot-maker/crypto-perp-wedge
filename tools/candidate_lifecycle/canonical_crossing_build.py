@@ -85,6 +85,31 @@ FORBIDDEN_TRUE_APPROVAL_FLAGS = {
     "candidate_registration_allowed",
     "candidate_freeze_allowed",
 }
+PR583_BASELINE_IDS = {
+    "known_losing_baseline",
+    "known_neutral_or_no_trade_baseline",
+    "known_degenerate_or_invalid_baseline",
+}
+CONSTRUCTION_TRUE_REJECT_FIELDS = {
+    "construction_payload",
+    "non_promotable",
+}
+CONSTRUCTION_FALSE_REJECT_FIELDS = {
+    "candidate_eligible",
+    "promotion_eligible",
+    "paper_live_eligible",
+    "canonical_crossing_allowed",
+    "edge_claim_allowed",
+}
+REQUIRED_BASELINE_NONPROMOTABLE_SEMANTICS = {
+    "construction_payload": True,
+    "non_promotable": True,
+    "candidate_eligible": False,
+    "promotion_eligible": False,
+    "paper_live_eligible": False,
+    "canonical_crossing_allowed": False,
+    "edge_claim_allowed": False,
+}
 
 
 class CanonicalCrossingBuildError(ValueError):
@@ -145,12 +170,33 @@ class CanonicalCrossingFixtureBuilder:
         self.repo_root = repo_root.resolve()
         self.decisions: list[dict[str, Any]] = []
         self.tool_audit_records: list[AuditRecord] = []
+        self.rejection_result: dict[str, Any] | None = None
 
     def _record_decision(self, *, decision: str, check: str, reason: str) -> None:
         self.decisions.append({"decision": decision, "check": check, "reason": reason})
 
     def _block(self, check: str, reason: str) -> None:
         self._record_decision(decision="blocked", check=check, reason=reason)
+        raise CanonicalCrossingBuildError(reason)
+
+    def _reject_by_construction(self, check: str, reason: str, details: Mapping[str, Any]) -> None:
+        self.rejection_result = {
+            "status": "rejected",
+            "reason_code": "reject_by_construction",
+            "reason": reason,
+            "check": check,
+            "details": dict(details),
+            "candidate_lifecycle_written": False,
+            "canonical_crossing_written": False,
+            "promotion_or_readiness_created": False,
+            "paper_live_eligible": False,
+            "operator_gate_pending": False,
+            "edge_claim_allowed": False,
+            "fixture_only": True,
+            "real_canonical_evidence_written": False,
+            "first_real_crossing_remains_karl_gated": True,
+        }
+        self._record_decision(decision="rejected", check=check, reason=reason)
         raise CanonicalCrossingBuildError(reason)
 
     def _repo_relative(self, path: Path | str) -> str:
@@ -360,6 +406,84 @@ class CanonicalCrossingFixtureBuilder:
             "funding_cost_mode": effective_funding,
         }
 
+    def _walk_packet_values(self, value: Any) -> list[Any]:
+        values = [value]
+        if isinstance(value, Mapping):
+            for child in value.values():
+                values.extend(self._walk_packet_values(child))
+        elif isinstance(value, list):
+            for child in value:
+                values.extend(self._walk_packet_values(child))
+        return values
+
+    def _packet_mapping_sources(self, packet: Mapping[str, Any]) -> list[Mapping[str, Any]]:
+        sources: list[Mapping[str, Any]] = [packet]
+        for key in ("construction_provenance", "baseline_provenance", "payload_provenance", "provenance"):
+            value = packet.get(key)
+            if isinstance(value, Mapping):
+                sources.append(value)
+        return sources
+
+    def _first_declared_value(self, packet: Mapping[str, Any], field: str) -> Any:
+        for source in self._packet_mapping_sources(packet):
+            if field in source:
+                return source.get(field)
+        return None
+
+    def _baseline_ids_referenced(self, packet: Mapping[str, Any]) -> list[str]:
+        values = self._walk_packet_values(packet)
+        return sorted({value for value in values if isinstance(value, str) and value in PR583_BASELINE_IDS})
+
+    def _validate_nonpromotable_construction_guard(self, packet: Mapping[str, Any]) -> dict[str, Any]:
+        """Fail closed before fixture crossing when construction payload semantics are present or implied."""
+        rejection_triggers: list[str] = []
+        for field in sorted(CONSTRUCTION_TRUE_REJECT_FIELDS):
+            if self._first_declared_value(packet, field) is True:
+                rejection_triggers.append(f"{field}=true")
+        for field in sorted(CONSTRUCTION_FALSE_REJECT_FIELDS):
+            if self._first_declared_value(packet, field) is False:
+                rejection_triggers.append(f"{field}=false")
+
+        baseline_ids = self._baseline_ids_referenced(packet)
+        if baseline_ids:
+            missing_or_weakened = [
+                field
+                for field, expected in REQUIRED_BASELINE_NONPROMOTABLE_SEMANTICS.items()
+                if self._first_declared_value(packet, field) is not expected
+            ]
+            if missing_or_weakened:
+                self._reject_by_construction(
+                    "baseline_provenance_missing_or_weakened",
+                    "PR #583 baseline reference is missing required non-promotable construction semantics",
+                    {
+                        "baseline_ids": baseline_ids,
+                        "missing_or_weakened_fields": missing_or_weakened,
+                    },
+                )
+            rejection_triggers.append("pr583_baseline_reference")
+
+        if rejection_triggers:
+            self._reject_by_construction(
+                "nonpromotable_construction_guard",
+                "construction or non-promotable payload cannot enter candidate crossing",
+                {
+                    "triggers": sorted(set(rejection_triggers)),
+                    "baseline_ids": baseline_ids,
+                },
+            )
+
+        return {
+            "status": "passed",
+            "baseline_ids": baseline_ids,
+            "construction_payload": self._first_declared_value(packet, "construction_payload"),
+            "non_promotable": self._first_declared_value(packet, "non_promotable"),
+            "candidate_eligible": self._first_declared_value(packet, "candidate_eligible"),
+            "promotion_eligible": self._first_declared_value(packet, "promotion_eligible"),
+            "paper_live_eligible": self._first_declared_value(packet, "paper_live_eligible"),
+            "canonical_crossing_allowed": self._first_declared_value(packet, "canonical_crossing_allowed"),
+            "edge_claim_allowed": self._first_declared_value(packet, "edge_claim_allowed"),
+        }
+
     def _crossing_evidence(
         self,
         *,
@@ -566,7 +690,7 @@ class CanonicalCrossingFixtureBuilder:
         return output
 
     def _write_failure_audit(self, run_dir: Path, error: Exception) -> None:
-        failure_packet = {
+        failure_packet = self.rejection_result or {
             "status": "blocked",
             "error": str(error),
             "fixture_only": True,
@@ -590,7 +714,6 @@ class CanonicalCrossingFixtureBuilder:
     ) -> dict[str, Any]:
         run_dir = OUTPUT_ROOT / self.config.run_id
         output_registry = run_dir / "fake_registry_after.candidate_lifecycle_registry.json"
-        self._authorize_crossing_action(output_registry.as_posix())
         try:
             packet_path, packet, packet_hash = self._read_json(candidate_review_packet_path)
             approval_path, approval, approval_hash = self._read_json(crossing_approval_path)
@@ -608,6 +731,8 @@ class CanonicalCrossingFixtureBuilder:
                     "fixture_only": True,
                 },
             )
+            nonpromotable_guard_report = self._validate_nonpromotable_construction_guard(packet)
+            self._authorize_crossing_action(output_registry.as_posix())
             approval_report = self._validate_approval(
                 approval=approval,
                 approval_path=approval_path,
@@ -673,7 +798,11 @@ class CanonicalCrossingFixtureBuilder:
                 ),
                 "crossing_preflight_report": self._write_json(
                     run_dir / "crossing_preflight_report.json",
-                    {"status": "passed", "packet_contract": packet_report},
+                    {
+                        "status": "passed",
+                        "nonpromotable_construction_guard": nonpromotable_guard_report,
+                        "packet_contract": packet_report,
+                    },
                 ),
                 "fake_registry_before_hash": self._write_json(
                     run_dir / "fake_registry_before_hash.json",

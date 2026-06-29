@@ -1,0 +1,56 @@
+{
+  "package": "WP-LAB-CROSSING-NONPROMOTABLE-GUARD-01",
+  "base_commit": "63b5b1646bf1b2913491266c062e3ead9b2e818e",
+  "decision": "complete",
+  "guard_implemented": true,
+  "non_promotable_crossing_guard_hardened": true,
+  "lab_declared_finished": false,
+  "validation": {
+    "candidate_crossing_tests": {
+      "command": "python -m pytest tests\\test_agent_canonical_crossing_build.py tests\\test_candidate_lifecycle_engine.py tests\\test_validate_candidate_registry.py -q",
+      "result": "passed",
+      "observed": "69 passed"
+    },
+    "research_query": {
+      "command": "python -m tools.research_query.run --list-views",
+      "result": "passed"
+    },
+    "result_population_validator": {
+      "command": "python -m tools.registry.validate_result_populations",
+      "result": "passed"
+    },
+    "candidate_registry_validator": {
+      "command": "python -m tools.registry.validate_candidate_registry",
+      "result": "passed"
+    },
+    "json_validation": {
+      "guard_contract": "passed",
+      "adversarial_fixture_matrix": "passed",
+      "guard_validation_summary": "passed"
+    },
+    "diff_scope": {
+      "command": "python tools\\dev\\diff_scope_summary.py",
+      "result": "passed",
+      "forbidden_path_matches": "none"
+    },
+    "git_diff_check": {
+      "command": "git diff --check",
+      "result": "passed"
+    },
+    "full_pytest": {
+      "run": false,
+      "reason": "Package changes one fixture-only crossing builder and its nearest tests; full pytest is not required by package scope."
+    }
+  },
+  "boundary": {
+    "strategy_run_executed": false,
+    "backtest_executed": false,
+    "canonical_result_population_written": false,
+    "candidate_lifecycle_write": false,
+    "real_crossing_or_promotion": false,
+    "paper_live_runtime_contact": false,
+    "oms_risk_reconciliation_order_exchange_contact": false,
+    "private_provider_api_contact": false,
+    "data_committed": false
+  }
+}

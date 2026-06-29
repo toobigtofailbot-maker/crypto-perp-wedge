@@ -1,0 +1,28 @@
+WP-LAB-COMPLETION-MAP-UPDATE-BASELINE-PROVEN-01 validation summary
+
+Base branch: `main`
+Package branch: `lab/completion-map-update-baseline-proven-01`
+
+Commands run:
+
+- `python -m tools.research_query.run --list-views`
+  - PASS: listed research query views successfully.
+- `python -m tools.registry.validate_result_populations`
+  - PASS: result-population artifacts validate.
+- `python -m tools.registry.validate_candidate_registry`
+  - PASS: candidate lifecycle registry fixture artifacts validate.
+- `python -m json.tool scratch\WP-LAB-COMPLETION-MAP-UPDATE-BASELINE-PROVEN-01\completion_state_update.json`
+  - PASS: JSON parses.
+- `python -m json.tool scratch\WP-LAB-COMPLETION-MAP-UPDATE-BASELINE-PROVEN-01\held_boundary_map.json`
+  - PASS: JSON parses.
+- `python tools\dev\diff_scope_summary.py`
+  - PASS: forbidden-path matches none.
+  - Note: pre-existing untracked `build/` remains unstaged and out of package scope.
+- `git diff --check`
+  - PASS.
+- `git status --short`
+  - Shows intended package changes plus pre-existing untracked `build/`.
+
+Full pytest:
+
+- Not run. The active package validation says full pytest is not required for docs/status/scratch-only work unless repo truth or changed-file scope requires it. This package changes no code, schema, validator, runner, compiler, query-layer behavior, tests, result populations, candidate lifecycle artifacts, data, runtime, paper/live, OMS, risk, broker/exchange, or protected path.

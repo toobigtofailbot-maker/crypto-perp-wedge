@@ -1,0 +1,6 @@
+{
+  "autonomous_scheduler_activated": false,
+  "autonomous_scheduler_allowed_any": false,
+  "eligible_for_dry_run_start_live_dispatched_any": false,
+  "scheduler_default_off_preserved": true
+}

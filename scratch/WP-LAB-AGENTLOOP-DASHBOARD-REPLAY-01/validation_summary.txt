@@ -1,0 +1,12 @@
+package: WP-LAB-AGENTLOOP-DASHBOARD-REPLAY-01
+status: complete
+event_tape_validator: pass
+queue_scheduler_replay_consumed: True
+notify_report_replay_consumed: True
+agent_actions_matched: True
+dashboard_actions_matched: True
+dashboard_state_transitions_generated: True
+operating_test_labels_present: True
+real_research_evidence_labels_present: False
+forbidden_authority_terms_present: False
+mismatches: 0

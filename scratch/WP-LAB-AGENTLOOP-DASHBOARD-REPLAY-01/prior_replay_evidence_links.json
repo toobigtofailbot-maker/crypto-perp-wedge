@@ -1,0 +1,48 @@
+{
+  "links": [
+    {
+      "input_tape_id": "LAB-EVENT-TAPE-REFERENCE-001",
+      "non_authoritative": true,
+      "package": "WP-LAB-QUEUE-SCHEDULER-REPLAY-01",
+      "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+      "present": true,
+      "replay_evidence_class": "operating_test_evidence",
+      "role": "queue_scheduler_result",
+      "status": "complete"
+    },
+    {
+      "input_tape_id": null,
+      "non_authoritative": true,
+      "package": null,
+      "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/non_authority_assertions.json",
+      "present": true,
+      "replay_evidence_class": null,
+      "role": "queue_scheduler_non_authority",
+      "status": null
+    },
+    {
+      "input_tape_id": "LAB-EVENT-TAPE-REFERENCE-001",
+      "non_authoritative": true,
+      "package": "WP-LAB-NOTIFY-REPORT-REPLAY-01",
+      "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+      "present": true,
+      "replay_evidence_class": "operating_test_evidence",
+      "role": "notify_report_result",
+      "status": "complete"
+    },
+    {
+      "input_tape_id": null,
+      "non_authoritative": true,
+      "package": null,
+      "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/non_authority_assertions.json",
+      "present": true,
+      "replay_evidence_class": null,
+      "role": "notify_report_non_authority",
+      "status": null
+    }
+  ],
+  "mismatches": [],
+  "notify_report_replay_consumed": true,
+  "package": "WP-LAB-AGENTLOOP-DASHBOARD-REPLAY-01",
+  "queue_scheduler_replay_consumed": true
+}

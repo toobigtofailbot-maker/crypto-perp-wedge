@@ -1,0 +1,33 @@
+{
+  "candidate_evidence_label_present": false,
+  "forbidden_authority_terms_present": false,
+  "forbidden_terms_checked": [
+    "ranking",
+    "recommendation",
+    "readiness",
+    "promotion",
+    "trade",
+    "go-live",
+    "paper-live"
+  ],
+  "no_authority_label_present": true,
+  "no_candidate_label_present": true,
+  "observed_categories": [
+    "blocked",
+    "completed",
+    "delayed",
+    "failed",
+    "insufficient",
+    "invalid",
+    "no_candidate",
+    "queued",
+    "resource_limited",
+    "review_needed",
+    "running",
+    "withheld"
+  ],
+  "operating_test_evidence_label_present": true,
+  "real_research_evidence_label_present": false,
+  "required_operating_categories_present": true,
+  "strategy_evidence_label_present": false
+}

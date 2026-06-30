@@ -1,0 +1,396 @@
+{
+  "$defs": {
+    "event": {
+      "additionalProperties": false,
+      "properties": {
+        "autonomous_scheduler_allowed": {
+          "const": false
+        },
+        "candidate_eligible": {
+          "const": false
+        },
+        "canonical_crossing_allowed": {
+          "const": false
+        },
+        "construction_payload": {
+          "const": true
+        },
+        "edge_claim_allowed": {
+          "const": false
+        },
+        "event_id": {
+          "pattern": "^EVT-[0-9]{4}$",
+          "type": "string"
+        },
+        "event_time": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "event_type": {
+          "$ref": "#/$defs/event_type"
+        },
+        "expected_operating_outcome": {
+          "additionalProperties": false,
+          "properties": {
+            "agent_action": {
+              "$ref": "#/$defs/expected_agent_action"
+            },
+            "dashboard_action": {
+              "$ref": "#/$defs/expected_dashboard_action"
+            },
+            "notification_action": {
+              "$ref": "#/$defs/expected_notification_action"
+            },
+            "queue_action": {
+              "$ref": "#/$defs/expected_queue_action"
+            },
+            "registry_action": {
+              "$ref": "#/$defs/expected_registry_action"
+            },
+            "report_action": {
+              "$ref": "#/$defs/expected_report_action"
+            },
+            "scheduler_action": {
+              "$ref": "#/$defs/expected_scheduler_action"
+            }
+          },
+          "required": [
+            "queue_action",
+            "scheduler_action",
+            "notification_action",
+            "report_action",
+            "dashboard_action",
+            "agent_action",
+            "registry_action"
+          ],
+          "type": "object"
+        },
+        "job_id": {
+          "pattern": "^TAPE-JOB-[0-9]{4}$",
+          "type": "string"
+        },
+        "job_outcome": {
+          "$ref": "#/$defs/job_outcome"
+        },
+        "job_state_after": {
+          "$ref": "#/$defs/job_state"
+        },
+        "job_state_before": {
+          "$ref": "#/$defs/job_state"
+        },
+        "non_promotable": {
+          "const": true
+        },
+        "operating_test_evidence": {
+          "const": true
+        },
+        "paper_live_eligible": {
+          "const": false
+        },
+        "priority": {
+          "$ref": "#/$defs/priority"
+        },
+        "promotion_eligible": {
+          "const": false
+        },
+        "real_notification_sending_allowed": {
+          "const": false
+        },
+        "sequence_index": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "source_row_id": {
+          "pattern": "^SYN-[0-9]{4}$",
+          "type": "string"
+        },
+        "source_variant_id": {
+          "type": "string"
+        },
+        "strategy_evidence": {
+          "const": false
+        }
+      },
+      "required": [
+        "event_id",
+        "sequence_index",
+        "event_time",
+        "event_type",
+        "job_id",
+        "source_row_id",
+        "source_variant_id",
+        "construction_payload",
+        "non_promotable",
+        "operating_test_evidence",
+        "strategy_evidence",
+        "candidate_eligible",
+        "promotion_eligible",
+        "paper_live_eligible",
+        "canonical_crossing_allowed",
+        "edge_claim_allowed",
+        "real_notification_sending_allowed",
+        "autonomous_scheduler_allowed",
+        "priority",
+        "job_state_before",
+        "job_state_after",
+        "job_outcome",
+        "expected_operating_outcome"
+      ],
+      "type": "object"
+    },
+    "event_type": {
+      "enum": [
+        "job_enqueued",
+        "job_started",
+        "job_completed",
+        "job_failed",
+        "job_invalid",
+        "job_blocked",
+        "metrics_withheld",
+        "metrics_insufficient",
+        "resource_limited",
+        "job_delayed",
+        "review_needed",
+        "notification_worthy",
+        "daily_window_tick",
+        "weekly_window_tick",
+        "dashboard_snapshot_tick",
+        "registry_checkpoint"
+      ]
+    },
+    "expected_agent_action": {
+      "enum": [
+        "none",
+        "track_no_candidate_authority",
+        "track_terminal_no_candidate",
+        "track_blocker_no_candidate_authority",
+        "track_summary_no_candidate_authority"
+      ]
+    },
+    "expected_dashboard_action": {
+      "enum": [
+        "show_operating_test_state",
+        "show_queued",
+        "show_running",
+        "show_terminal",
+        "show_blocked",
+        "show_withheld",
+        "show_review_needed",
+        "show_resource_limited",
+        "show_no_candidate"
+      ]
+    },
+    "expected_notification_action": {
+      "enum": [
+        "none",
+        "dry_run_blocked",
+        "dry_run_failed",
+        "dry_run_review_needed",
+        "dry_run_withheld",
+        "dry_run_resource_limited",
+        "dry_run_daily_summary",
+        "dry_run_weekly_summary"
+      ]
+    },
+    "expected_queue_action": {
+      "enum": [
+        "none",
+        "enqueue",
+        "mark_running",
+        "mark_terminal",
+        "mark_invalid",
+        "mark_blocked",
+        "mark_withheld",
+        "mark_insufficient",
+        "mark_resource_limited",
+        "mark_delayed",
+        "mark_review_needed"
+      ]
+    },
+    "expected_registry_action": {
+      "enum": [
+        "none",
+        "record_operating_test_event",
+        "record_operating_test_checkpoint"
+      ]
+    },
+    "expected_report_action": {
+      "enum": [
+        "none",
+        "include_if_window_matches",
+        "include_in_daily_window",
+        "include_in_weekly_window",
+        "include_terminal_summary",
+        "include_blocker_summary",
+        "include_withheld_summary"
+      ]
+    },
+    "expected_scheduler_action": {
+      "enum": [
+        "no_autonomous_dispatch",
+        "eligible_for_dry_run_start",
+        "hold_resource_limit",
+        "hold_dependency_blocked",
+        "mark_delayed",
+        "mark_terminal"
+      ]
+    },
+    "job_outcome": {
+      "enum": [
+        "not_terminal",
+        "completed",
+        "failed",
+        "invalid",
+        "blocked",
+        "withheld",
+        "insufficient",
+        "resource_limited",
+        "delayed",
+        "review_needed",
+        "no_candidate"
+      ]
+    },
+    "job_state": {
+      "enum": [
+        "not_seen",
+        "queued",
+        "running",
+        "completed",
+        "failed",
+        "invalid",
+        "blocked",
+        "withheld",
+        "insufficient",
+        "resource_limited",
+        "delayed",
+        "review_needed",
+        "no_candidate"
+      ]
+    },
+    "priority": {
+      "enum": [
+        "low",
+        "normal",
+        "high",
+        "urgent"
+      ]
+    }
+  },
+  "$id": "https://crypto-perp-wedge.local/schemas/lab_event_tape.v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "autonomous_scheduler_allowed": {
+      "const": false
+    },
+    "candidate_evidence": {
+      "const": false
+    },
+    "canonical_crossing_allowed": {
+      "const": false
+    },
+    "construction_payload": {
+      "const": true
+    },
+    "description": {
+      "type": "string"
+    },
+    "deterministic": {
+      "const": true
+    },
+    "edge_claim_allowed": {
+      "const": false
+    },
+    "events": {
+      "items": {
+        "$ref": "#/$defs/event"
+      },
+      "minItems": 40,
+      "type": "array"
+    },
+    "non_promotable": {
+      "const": true
+    },
+    "operating_test_evidence": {
+      "const": true
+    },
+    "package": {
+      "const": "WP-LAB-EVENT-TAPE-CONTRACT-01"
+    },
+    "paper_live_eligible": {
+      "const": false
+    },
+    "real_notification_sending_allowed": {
+      "const": false
+    },
+    "schema_version": {
+      "const": "lab_event_tape.v1"
+    },
+    "seed": {
+      "type": [
+        "string",
+        "integer"
+      ]
+    },
+    "source_population": {
+      "additionalProperties": false,
+      "properties": {
+        "baseline_id": {
+          "const": "known_losing_baseline"
+        },
+        "manifest_path": {
+          "type": "string"
+        },
+        "manifest_sha256": {
+          "type": "string"
+        },
+        "package": {
+          "const": "WP-LAB-FACTORYTEST-SYNTHETIC-POPULATION-01"
+        },
+        "row_count_source": {
+          "const": 600
+        },
+        "validation_mode": {
+          "const": "strict_row_reference_validation"
+        }
+      },
+      "required": [
+        "package",
+        "baseline_id",
+        "row_count_source",
+        "manifest_path",
+        "manifest_sha256",
+        "validation_mode"
+      ],
+      "type": "object"
+    },
+    "strategy_evidence": {
+      "const": false
+    },
+    "tape_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "tape_id",
+    "package",
+    "description",
+    "deterministic",
+    "seed",
+    "construction_payload",
+    "non_promotable",
+    "operating_test_evidence",
+    "strategy_evidence",
+    "candidate_evidence",
+    "edge_claim_allowed",
+    "canonical_crossing_allowed",
+    "paper_live_eligible",
+    "real_notification_sending_allowed",
+    "autonomous_scheduler_allowed",
+    "source_population",
+    "events"
+  ],
+  "title": "Deterministic lab event tape v1",
+  "type": "object"
+}

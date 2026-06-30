@@ -352,3 +352,72 @@ def test_baseline_proof_artifact_refs_all_present() -> None:
     # Also check the held_boundary artifact directly.
     hb = data["held_boundary_panel"]
     assert hb["artifact_ref"]["present"] is True
+
+
+# ---------------------------------------------------------------------------
+# WP-LAB-DASHBOARD-GAP-COMPLETE-01 follow-up: fail-closed provenance defaults
+# ---------------------------------------------------------------------------
+
+def test_provenance_trace_fails_closed_when_keys_absent() -> None:
+    """Missing safety-critical keys in completion artifact default to safe (false/true).
+
+    A minimal artifact with only 'available' plumbing fields present must NOT
+    surface that the lab is finished, a crossing is complete, or a baseline is
+    candidate-eligible. Those defaults are dangerous; all must be false when the
+    source key is absent.
+    """
+    minimal_completion = {
+        "baseline_sequence_prs": [583, 584, 585, 586],
+        "core_pipe_fixture_proven": True,
+        # Safety-critical fields intentionally absent:
+        # real_candidate_crossing_completed, full_always_on_factory_completed,
+        # lab_declared_finished_without_qualification, baseline_candidate_eligible,
+        # edge_search_authorized_here, canonical_writes_authorized_here
+    }
+    pv = data_model._provenance_trace(minimal_completion)
+    assert pv["available"] is True
+    # Proof fields absent -> must default false (not "completed / eligible").
+    assert pv["real_candidate_crossing_completed"] is False
+    assert pv["full_always_on_factory_completed"] is False
+    assert pv["lab_declared_finished_without_qualification"] is False
+    assert pv["baseline_candidate_eligible"] is False
+    assert pv["edge_search_authorized_here"] is False
+    assert pv["canonical_writes_authorized_here"] is False
+    # Blocker/hold fields absent -> must default true (safe hold posture).
+    assert pv["held_b_requires_real_edge_search_or_candidate_flow"] is True
+    assert pv["paper_live_runtime_go_gated"] is True
+
+
+def test_provenance_trace_preserves_explicit_source_values() -> None:
+    """Explicit source values are not overridden by the fail-closed defaults.
+
+    The function must pass through whatever the artifact says when a key IS
+    present, so it is not just hard-coding every field.
+    """
+    explicit_completion = {
+        "baseline_sequence_prs": [583, 584, 585, 586],
+        "core_pipe_fixture_proven": True,
+        "no_candidate_result_observed": True,
+        "crossing_rejection_observed": True,
+        # Explicitly set to their real (false) values as in the committed artifact.
+        "real_candidate_crossing_completed": False,
+        "full_always_on_factory_completed": False,
+        "lab_declared_finished_without_qualification": False,
+        "baseline_candidate_eligible": False,
+        "edge_search_authorized_here": False,
+        "canonical_writes_authorized_here": False,
+        "held_b_requires_real_edge_search_or_candidate_flow": True,
+        "paper_live_runtime_go_gated": True,
+    }
+    pv = data_model._provenance_trace(explicit_completion)
+    assert pv["core_pipe_fixture_proven"] is True
+    assert pv["no_candidate_result_observed"] is True
+    assert pv["crossing_rejection_observed"] is True
+    assert pv["real_candidate_crossing_completed"] is False
+    assert pv["full_always_on_factory_completed"] is False
+    assert pv["lab_declared_finished_without_qualification"] is False
+    assert pv["baseline_candidate_eligible"] is False
+    assert pv["edge_search_authorized_here"] is False
+    assert pv["canonical_writes_authorized_here"] is False
+    assert pv["held_b_requires_real_edge_search_or_candidate_flow"] is True
+    assert pv["paper_live_runtime_go_gated"] is True

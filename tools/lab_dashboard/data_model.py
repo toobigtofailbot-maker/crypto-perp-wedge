@@ -543,20 +543,20 @@ def _provenance_trace(completion: dict[str, Any] | None) -> dict[str, Any]:
             completion.get("crossing_rejection_observed", False)
         ),
         "real_candidate_crossing_completed": bool(
-            completion.get("real_candidate_crossing_completed", True)
+            completion.get("real_candidate_crossing_completed", False)
         ),
         "full_always_on_factory_completed": bool(
-            completion.get("full_always_on_factory_completed", True)
+            completion.get("full_always_on_factory_completed", False)
         ),
         "lab_declared_finished_without_qualification": bool(
-            completion.get("lab_declared_finished_without_qualification", True)
+            completion.get("lab_declared_finished_without_qualification", False)
         ),
         "agent_rescue_recommended": bool(
             completion.get("agent_rescue_recommended", False)
         ),
         "agent_ranked_as_edge": bool(completion.get("agent_ranked_as_edge", False)),
         "baseline_candidate_eligible": bool(
-            completion.get("baseline_candidate_eligible", True)
+            completion.get("baseline_candidate_eligible", False)
         ),
         "held_b_requires_real_edge_search_or_candidate_flow": bool(
             completion.get("held_b_requires_real_edge_search_or_candidate_flow", True)

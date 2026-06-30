@@ -1,0 +1,76 @@
+{
+  "package": "WP-LAB-DASHBOARD-GAP-COMPLETE-01",
+  "schema_version": "non_authority_label_audit.v1",
+  "audit_scope": "tools/lab_dashboard/data_model.py, tools/lab_dashboard/render.py, tests/test_lab_dashboard.py",
+  "non_authority_declaration_inherited": true,
+  "dashboard_non_authority": {
+    "source": "tools/lab_dashboard/data_model.py DASHBOARD_NON_AUTHORITY",
+    "keys_verified": [
+      "renders_executable_control=False",
+      "has_run_button=False",
+      "has_approve_button=False",
+      "has_promote_button=False",
+      "has_retry_button=False",
+      "has_scheduler_toggle=False",
+      "fetches_live_data=False",
+      "auto_refreshes_from_network=False",
+      "ranks_as_authority=False",
+      "shows_recommendation_labels=False",
+      "authorizes_edge_search=False",
+      "authorizes_paper_live_runtime=False",
+      "executes_canonical_crossing=False",
+      "executes_transition=False"
+    ]
+  },
+  "new_panel_labels": {
+    "baseline_proof_panel": {
+      "non_authority_note": "Fixture-only / non-promotable baseline proof. Not ranking, not readiness, not recommendation, not trading authority.",
+      "fixture_only_field": true,
+      "non_promotable_field": true,
+      "candidate_eligible_false": true,
+      "crossing_action_authorized_false": true,
+      "canonical_result_population_written_false": true,
+      "candidate_registry_written_false": true,
+      "fabricated_metrics_false": true,
+      "numeric_override_false": true
+    },
+    "held_boundary_panel": {
+      "non_authority_note": "Deferred-B boundary map. These items are not authorized in the current phase. They require separate explicit operator authorization.",
+      "no_cta_language": true
+    }
+  },
+  "render_audit": {
+    "html_no_script_tags": true,
+    "html_no_button_tags": true,
+    "html_no_form_tags": true,
+    "html_no_input_tags": true,
+    "html_no_onclick": true,
+    "html_no_http_equiv_refresh": true,
+    "html_banner_labels_fixture_only": true,
+    "html_provenance_trace_shows_not_proven": true
+  },
+  "forbidden_language_audit": {
+    "ranking_authority_present": false,
+    "readiness_verdict_present": false,
+    "recommendation_label_present": false,
+    "promotion_cta_present": false,
+    "approve_cta_present": false,
+    "live_trading_cta_present": false,
+    "edge_search_suggestion_present": false
+  },
+  "test_coverage": {
+    "test_non_authority_declares_no_executable_controls": "existing",
+    "test_rendered_html_has_no_controls_or_scripts": "existing",
+    "test_baseline_proof_panel_present_and_non_authoritative": "new",
+    "test_baseline_proof_panel_payloads_populated": "new",
+    "test_baseline_proof_panel_gate_posture_no_fabrication": "new",
+    "test_baseline_proof_panel_guard_hardened": "new",
+    "test_baseline_proof_panel_agent_loop_no_candidate": "new",
+    "test_baseline_proof_panel_provenance_trace_not_finished": "new",
+    "test_held_boundary_panel_present_and_non_authoritative": "new",
+    "test_held_boundary_panel_content": "new",
+    "test_rendered_html_includes_baseline_proof_sections": "new",
+    "test_rendered_markdown_includes_baseline_proof_sections": "new",
+    "test_baseline_proof_artifact_refs_all_present": "new"
+  }
+}

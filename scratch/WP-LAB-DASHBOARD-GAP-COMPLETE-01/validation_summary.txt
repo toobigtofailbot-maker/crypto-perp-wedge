@@ -1,0 +1,67 @@
+WP-LAB-DASHBOARD-GAP-COMPLETE-01 — Validation Summary
+======================================================
+Date: 2026-06-29
+
+research query:
+  command: python -m tools.research_query.run --list-views
+  result: passed (views listed successfully)
+
+result-population validator:
+  command: python -m tools.registry.validate_result_populations
+  result: OK: result-population artifacts validate
+
+candidate-registry validator:
+  command: python -m tools.registry.validate_candidate_registry
+  result: OK: candidate lifecycle registry artifacts validate
+
+json validation:
+  dashboard_gap_analysis.json: OK
+  dashboard_surface_contract.json: OK
+  non_authority_label_audit.json: OK
+  rendered_output_manifest.json: OK
+  build/lab_dashboard/dashboard_data.json: OK
+
+render command:
+  command: python -m tools.lab_dashboard.run --out-dir build/lab_dashboard
+  result: passed
+  outputs:
+    build/lab_dashboard/dashboard_data.json
+    build/lab_dashboard/dashboard.html
+    build/lab_dashboard/dashboard.md
+
+focused tests:
+  command: python -m pytest tests/test_lab_dashboard.py tests/test_lab_reporting.py tests/test_lab_state_resolver.py -q
+  result: 53 passed (41 pre-existing + 12 new)
+
+diff scope:
+  command: python tools/dev/diff_scope_summary.py
+  result: passed; exit reason: ok; forbidden_path_matches: none
+
+git diff --check:
+  result: passed (no whitespace errors)
+
+git status --short:
+  M tests/test_lab_dashboard.py
+  M tools/lab_dashboard/data_model.py
+  M tools/lab_dashboard/render.py
+  ?? build/
+  ?? scratch/WP-LAB-DASHBOARD-GAP-COMPLETE-01/
+  (build/ is gitignored; scratch/WP-LAB-DASHBOARD-GAP-COMPLETE-01/ will be committed)
+
+full pytest:
+  NOT run (changes are isolated to dashboard/reporting/lab-state surfaces only;
+  focused tests cover the modified surfaces completely)
+
+boundary checks:
+  strategy run: none
+  edge-search: none
+  new metrics computed: none
+  canonical RP writes: none
+  candidate lifecycle writes: none
+  ranking/readiness/promotion: none
+  paper/live/runtime: none
+  OMS/risk/reconciliation/order/exchange: none
+  private provider/API: none
+  data committed: none
+  dependency changes: none
+  forbidden path matches: none

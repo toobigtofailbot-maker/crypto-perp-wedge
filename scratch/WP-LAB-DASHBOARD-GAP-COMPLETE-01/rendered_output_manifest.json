@@ -1,0 +1,59 @@
+{
+  "package": "WP-LAB-DASHBOARD-GAP-COMPLETE-01",
+  "schema_version": "rendered_output_manifest.v1",
+  "render_command": "python -m tools.lab_dashboard.run --out-dir build/lab_dashboard",
+  "render_result": "success",
+  "outputs": [
+    {
+      "path": "build/lab_dashboard/dashboard_data.json",
+      "kind": "data_json",
+      "committed": false,
+      "convention": "build/ is gitignored; generated for validation only",
+      "schema_version": "lab_results_dashboard_v2",
+      "panels_present": [
+        "denominator_summary",
+        "caveats",
+        "baseline_proof_panel",
+        "held_boundary_panel",
+        "subjects"
+      ]
+    },
+    {
+      "path": "build/lab_dashboard/dashboard.html",
+      "kind": "static_html",
+      "committed": false,
+      "convention": "build/ is gitignored; generated for validation only",
+      "no_scripts": true,
+      "no_buttons": true,
+      "no_forms": true,
+      "sections_present": [
+        "Denominator summary",
+        "Subjects by overall state",
+        "Trial denominator",
+        "Caveats",
+        "Baseline fixture proof",
+        "Held-boundary / deferred-B",
+        "Subjects"
+      ]
+    },
+    {
+      "path": "build/lab_dashboard/dashboard.md",
+      "kind": "markdown",
+      "committed": false,
+      "convention": "build/ is gitignored; generated for validation only",
+      "sections_present": [
+        "Lab Results Dashboard",
+        "Denominator summary",
+        "Caveats",
+        "Baseline fixture proof",
+        "Gate posture",
+        "Agent/baseline loop activity",
+        "Data/provenance trace",
+        "Held-boundary / deferred-B",
+        "Subjects"
+      ]
+    }
+  ],
+  "build_outputs_committed": false,
+  "build_outputs_untracked": true
+}

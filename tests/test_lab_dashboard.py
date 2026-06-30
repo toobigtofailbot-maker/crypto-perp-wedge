@@ -166,3 +166,258 @@ def test_markdown_lists_full_state_population() -> None:
     # Every overall state is listed, so blocked/failed buckets are visible.
     for state in model.OVERALL_STATES:
         assert f"`{state}`" in md
+
+
+# ---------------------------------------------------------------------------
+# WP-LAB-DASHBOARD-GAP-COMPLETE-01: new panel tests
+# ---------------------------------------------------------------------------
+
+def test_schema_version_bumped_to_v2() -> None:
+    """Dashboard schema version updated to reflect new panel additions."""
+    assert data_model.SCHEMA_VERSION == "lab_results_dashboard_v2"
+    result = build_dashboard_data(repo_root=REPO_ROOT)
+    assert result["schema_version"] == "lab_results_dashboard_v2"
+
+
+def test_baseline_proof_panel_present_and_non_authoritative() -> None:
+    """Baseline proof panel exists and carries non-authority label."""
+    data = build_dashboard_data(repo_root=REPO_ROOT)
+    assert "baseline_proof_panel" in data
+    panel = data["baseline_proof_panel"]
+    assert panel["panel_kind"] == "baseline_fixture_proof"
+    assert "non_authority_note" in panel
+    assert "not ranking" in panel["non_authority_note"].lower() or \
+           "not readiness" in panel["non_authority_note"].lower() or \
+           "non-promotable" in panel["non_authority_note"].lower()
+
+
+def test_baseline_proof_panel_payloads_populated() -> None:
+    """Baseline payload catalog (PR #583) is surfaced: 3 non-promotable baselines."""
+    data = build_dashboard_data(repo_root=REPO_ROOT)
+    bp = data["baseline_proof_panel"]["baseline_payloads"]
+    assert bp["available"] is True
+    assert bp["baseline_count"] == 3
+    assert bp["contract_only_route_used"] is True
+    assert len(bp["baselines"]) == 3
+    for b in bp["baselines"]:
+        assert b["non_promotable"] is True
+        assert b["construction_payload"] is True
+        assert b["candidate_eligible"] is False
+        # All baselines expect crossing rejection by construction.
+        assert b["expected_crossing_result"] == "reject_by_construction"
+
+
+def test_baseline_proof_panel_gate_posture_no_fabrication() -> None:
+    """Gate expectations (PR #584) surfaced; no numeric override or fabrication."""
+    data = build_dashboard_data(repo_root=REPO_ROOT)
+    ge = data["baseline_proof_panel"]["gate_expectations"]
+    assert ge["available"] is True
+    gr = ge["global_rule"]
+    assert gr.get("numeric_override_allowed") is False
+    assert gr.get("fabricated_metrics_allowed") is False
+    # WFO/OOS and MC/robustness posture per baseline (withheld/insufficient language).
+    assert len(ge["per_baseline"]) == 3
+    for b in ge["per_baseline"]:
+        assert b["numeric_override_allowed"] is False
+        assert b["retuning_allowed"] is False
+        # Every baseline expects construction-rejection at crossing.
+        assert b["crossing_expected"] == "reject_by_construction"
+
+
+def test_baseline_proof_panel_guard_hardened() -> None:
+    """Non-promotable crossing guard (PR #585) is confirmed hardened."""
+    data = build_dashboard_data(repo_root=REPO_ROOT)
+    gv = data["baseline_proof_panel"]["guard_validation"]
+    assert gv["available"] is True
+    assert gv["guard_implemented"] is True
+    assert gv["non_promotable_crossing_guard_hardened"] is True
+    assert gv["lab_declared_finished"] is False
+    assert gv["test_result"] == "passed"
+
+
+def test_baseline_proof_panel_agent_loop_no_candidate() -> None:
+    """Agent loop exercise (PR #586): fixture-only, no candidate, crossing rejected."""
+    data = build_dashboard_data(repo_root=REPO_ROOT)
+    al = data["baseline_proof_panel"]["agent_loop_exercise"]
+    assert al["available"] is True
+    assert al["fixture_only"] is True
+    assert al["non_promotable"] is True
+    assert al["candidate_eligible"] is False
+    assert al["canonical_result_population_written"] is False
+    assert al["candidate_registry_written"] is False
+    # No-candidate result.
+    nc = al["no_candidate_result"]
+    assert nc["status"] == "no_candidate"
+    assert nc["missing_or_unavailable_metrics_fabricated"] is False
+    # Crossing rejection.
+    cr = al["crossing_rejection"]
+    assert cr["status"] == "rejected"
+    assert cr["reason_code"] == "reject_by_construction"
+    assert cr["crossing_action_authorized"] is False
+    assert cr["first_real_crossing_remains_karl_gated"] is True
+    # Agent did not recommend rescue, retuning, or ranking.
+    beh = al["agent_loop_behavior"]
+    for flag in (
+        "recommended_rescue",
+        "recommended_retuning",
+        "ranked_as_edge",
+        "proposed_promotion",
+        "proposed_readiness",
+        "proposed_paper_live",
+        "proposed_real_crossing",
+    ):
+        assert beh[flag] is False, f"agent_loop_behavior.{flag} must be False"
+
+
+def test_baseline_proof_panel_provenance_trace_not_finished() -> None:
+    """Provenance trace (PR #587) shows what was proven and what was NOT proven."""
+    data = build_dashboard_data(repo_root=REPO_ROOT)
+    pv = data["baseline_proof_panel"]["provenance_trace"]
+    assert pv["available"] is True
+    assert pv["core_pipe_fixture_proven"] is True
+    assert pv["no_candidate_result_observed"] is True
+    assert pv["crossing_rejection_observed"] is True
+    # These are explicitly NOT proven (fixture/plumbing only).
+    assert pv["real_candidate_crossing_completed"] is False
+    assert pv["full_always_on_factory_completed"] is False
+    assert pv["lab_declared_finished_without_qualification"] is False
+    # No authorization granted.
+    assert pv["edge_search_authorized_here"] is False
+    assert pv["canonical_writes_authorized_here"] is False
+    assert pv["paper_live_runtime_go_gated"] is True
+    assert pv["held_b_requires_real_edge_search_or_candidate_flow"] is True
+    assert len(pv["baseline_sequence_prs"]) == 4
+
+
+def test_held_boundary_panel_present_and_non_authoritative() -> None:
+    """Held-boundary panel exists, carries non-authority label, is available."""
+    data = build_dashboard_data(repo_root=REPO_ROOT)
+    assert "held_boundary_panel" in data
+    hb = data["held_boundary_panel"]
+    assert hb["panel_kind"] == "held_boundary_deferred_b"
+    assert hb["available"] is True
+    assert "not authorized" in hb["non_authority_note"].lower()
+
+
+def test_held_boundary_panel_content() -> None:
+    """Held-boundary panel surfaces deferred-B, GO-candidate, and GO-gated items."""
+    data = build_dashboard_data(repo_root=REPO_ROOT)
+    hb = data["held_boundary_panel"]
+    # Deferred-B items.
+    assert len(hb["held_b_until_real_research_flow"]) > 0
+    # GO-candidate items.
+    assert len(hb["requires_real_go_candidate"]) > 0
+    # GO-gated protected paths.
+    assert len(hb["go_gated_protected"]) > 0
+    # GO-gated items include paper/live/runtime.
+    go_gated_text = " ".join(hb["go_gated_protected"]).lower()
+    assert any(
+        kw in go_gated_text
+        for kw in ("paper", "live", "runtime", "oms", "broker", "exchange")
+    )
+
+
+def test_rendered_html_includes_baseline_proof_sections() -> None:
+    """HTML render includes baseline proof and held-boundary panels."""
+    data = build_dashboard_data(repo_root=REPO_ROOT)
+    html_out = render_html(data)
+    lowered = html_out.lower()
+    assert "baseline fixture proof" in lowered
+    assert "non-promotable" in lowered
+    assert "held-boundary" in lowered or "held_boundary" in lowered or "deferred-b" in lowered
+    # Still no executable controls.
+    for forbidden in ("<script", "<button", "<form", "<input", "onclick"):
+        assert forbidden not in lowered
+
+
+def test_rendered_markdown_includes_baseline_proof_sections() -> None:
+    """Markdown render includes baseline proof and held-boundary panels."""
+    data = build_dashboard_data(repo_root=REPO_ROOT)
+    md = render_markdown(data)
+    assert "Baseline fixture proof" in md
+    assert "Gate posture" in md
+    assert "Agent/baseline loop activity" in md
+    assert "Data/provenance trace" in md
+    assert "Held-boundary" in md
+
+
+def test_baseline_proof_artifact_refs_all_present() -> None:
+    """All PR #583-#587 scratch artifacts referenced in the panel are present."""
+    data = build_dashboard_data(repo_root=REPO_ROOT)
+    refs = data["baseline_proof_panel"]["artifact_refs"]
+    for key, ref in refs.items():
+        assert ref["present"] is True, (
+            f"Expected artifact '{key}' at '{ref['path']}' to be present on main"
+        )
+    # Also check the held_boundary artifact directly.
+    hb = data["held_boundary_panel"]
+    assert hb["artifact_ref"]["present"] is True
+
+
+# ---------------------------------------------------------------------------
+# WP-LAB-DASHBOARD-GAP-COMPLETE-01 follow-up: fail-closed provenance defaults
+# ---------------------------------------------------------------------------
+
+def test_provenance_trace_fails_closed_when_keys_absent() -> None:
+    """Missing safety-critical keys in completion artifact default to safe (false/true).
+
+    A minimal artifact with only 'available' plumbing fields present must NOT
+    surface that the lab is finished, a crossing is complete, or a baseline is
+    candidate-eligible. Those defaults are dangerous; all must be false when the
+    source key is absent.
+    """
+    minimal_completion = {
+        "baseline_sequence_prs": [583, 584, 585, 586],
+        "core_pipe_fixture_proven": True,
+        # Safety-critical fields intentionally absent:
+        # real_candidate_crossing_completed, full_always_on_factory_completed,
+        # lab_declared_finished_without_qualification, baseline_candidate_eligible,
+        # edge_search_authorized_here, canonical_writes_authorized_here
+    }
+    pv = data_model._provenance_trace(minimal_completion)
+    assert pv["available"] is True
+    # Proof fields absent -> must default false (not "completed / eligible").
+    assert pv["real_candidate_crossing_completed"] is False
+    assert pv["full_always_on_factory_completed"] is False
+    assert pv["lab_declared_finished_without_qualification"] is False
+    assert pv["baseline_candidate_eligible"] is False
+    assert pv["edge_search_authorized_here"] is False
+    assert pv["canonical_writes_authorized_here"] is False
+    # Blocker/hold fields absent -> must default true (safe hold posture).
+    assert pv["held_b_requires_real_edge_search_or_candidate_flow"] is True
+    assert pv["paper_live_runtime_go_gated"] is True
+
+
+def test_provenance_trace_preserves_explicit_source_values() -> None:
+    """Explicit source values are not overridden by the fail-closed defaults.
+
+    The function must pass through whatever the artifact says when a key IS
+    present, so it is not just hard-coding every field.
+    """
+    explicit_completion = {
+        "baseline_sequence_prs": [583, 584, 585, 586],
+        "core_pipe_fixture_proven": True,
+        "no_candidate_result_observed": True,
+        "crossing_rejection_observed": True,
+        # Explicitly set to their real (false) values as in the committed artifact.
+        "real_candidate_crossing_completed": False,
+        "full_always_on_factory_completed": False,
+        "lab_declared_finished_without_qualification": False,
+        "baseline_candidate_eligible": False,
+        "edge_search_authorized_here": False,
+        "canonical_writes_authorized_here": False,
+        "held_b_requires_real_edge_search_or_candidate_flow": True,
+        "paper_live_runtime_go_gated": True,
+    }
+    pv = data_model._provenance_trace(explicit_completion)
+    assert pv["core_pipe_fixture_proven"] is True
+    assert pv["no_candidate_result_observed"] is True
+    assert pv["crossing_rejection_observed"] is True
+    assert pv["real_candidate_crossing_completed"] is False
+    assert pv["full_always_on_factory_completed"] is False
+    assert pv["lab_declared_finished_without_qualification"] is False
+    assert pv["baseline_candidate_eligible"] is False
+    assert pv["edge_search_authorized_here"] is False
+    assert pv["canonical_writes_authorized_here"] is False
+    assert pv["held_b_requires_real_edge_search_or_candidate_flow"] is True
+    assert pv["paper_live_runtime_go_gated"] is True

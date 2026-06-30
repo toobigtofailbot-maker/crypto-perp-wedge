@@ -1,0 +1,98 @@
+{
+  "package": "WP-LAB-DASHBOARD-GAP-COMPLETE-01",
+  "base_commit": "cbbca34fa62dabcb17c81bbf25c264f0dcb64b56",
+  "analysis_date": "2026-06-29",
+  "gaps": [
+    {
+      "view": "strategy_detail_drill_down",
+      "status": "added_here",
+      "panel_name": "baseline_proof_panel.baseline_payloads",
+      "source_artifacts": [
+        "scratch/WP-LAB-BASELINE-PAYLOAD-DEFINE-01/baseline_payload_catalog.json"
+      ],
+      "note": "Construction payload catalog (3 baselines, families, non-promotable flags, expected gate results) surfaced as read-only baseline_proof_panel. No ranking or readiness language."
+    },
+    {
+      "view": "sweep_grid_population_table",
+      "status": "added_here",
+      "panel_name": "baseline_proof_panel.gate_expectations",
+      "source_artifacts": [
+        "scratch/WP-LAB-GATE-HARDENING-WALKFORWARD-ROBUSTNESS-01/baseline_gate_expectations.json"
+      ],
+      "note": "Gate expectations per baseline (WFO/OOS, robustness/MC, statistical diagnostics, denominator integrity, crossing expected) surfaced. All marked fixture-only, withheld/insufficient where appropriate."
+    },
+    {
+      "view": "wfo_oos_gate_posture",
+      "status": "added_here",
+      "panel_name": "baseline_proof_panel.gate_expectations (wfo_oos_gate_expected field)",
+      "source_artifacts": [
+        "scratch/WP-LAB-GATE-HARDENING-WALKFORWARD-ROBUSTNESS-01/baseline_gate_expectations.json"
+      ],
+      "note": "Per-baseline WFO/OOS gate posture (fail_or_insufficient, blocked_or_insufficient_no_signal, blocked_invalid) surfaced. No fabricated metrics."
+    },
+    {
+      "view": "mc_robustness_posture",
+      "status": "added_here",
+      "panel_name": "baseline_proof_panel.gate_expectations (robustness_mc_gate_expected field)",
+      "source_artifacts": [
+        "scratch/WP-LAB-GATE-HARDENING-WALKFORWARD-ROBUSTNESS-01/baseline_gate_expectations.json"
+      ],
+      "note": "Per-baseline MC/robustness gate posture (fail_or_insufficient_or_withheld, withheld_or_insufficient, withheld_invalid) surfaced. Withheld states shown explicitly."
+    },
+    {
+      "view": "blockers_withheld",
+      "status": "added_here",
+      "panel_name": "baseline_proof_panel.gate_expectations (statistical_diagnostics_gate_expected)",
+      "source_artifacts": [
+        "scratch/WP-LAB-GATE-HARDENING-WALKFORWARD-ROBUSTNESS-01/baseline_gate_expectations.json"
+      ],
+      "note": "Withheld/insufficient statistical diagnostics gate states surfaced per baseline."
+    },
+    {
+      "view": "agent_activity_baseline_loop",
+      "status": "added_here",
+      "panel_name": "baseline_proof_panel.agent_loop_exercise",
+      "source_artifacts": [
+        "scratch/WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01/baseline_loop_result.json",
+        "scratch/WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01/no_candidate_review_result.json",
+        "scratch/WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01/crossing_rejection_result.json"
+      ],
+      "note": "Baseline loop exercise summary (fixture_only, no-candidate, crossing rejection) surfaced. No autonomy or promotion implied."
+    },
+    {
+      "view": "data_provenance",
+      "status": "added_here",
+      "panel_name": "baseline_proof_panel.provenance_trace",
+      "source_artifacts": [
+        "scratch/WP-LAB-COMPLETION-MAP-UPDATE-BASELINE-PROVEN-01/completion_state_update.json"
+      ],
+      "note": "PR #583-#587 baseline sequence provenance trace surfaced (which PRs, which artifacts, what was proven)."
+    },
+    {
+      "view": "candidate_no_candidate_state",
+      "status": "added_here",
+      "panel_name": "baseline_proof_panel.no_candidate_authority",
+      "source_artifacts": [
+        "scratch/WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01/no_candidate_review_result.json",
+        "scratch/WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01/crossing_rejection_result.json"
+      ],
+      "note": "Explicit no-candidate and crossing-rejection labels from fixture exercise. Labels: fixture_only=true, candidate_eligible=false, crossing_action_authorized=false."
+    },
+    {
+      "view": "non_authority_caveats",
+      "status": "already_present",
+      "panel_name": "caveats",
+      "source_artifacts": [],
+      "note": "6 global caveats already present in dashboard. No change needed."
+    },
+    {
+      "view": "held_boundary_deferred_b",
+      "status": "added_here",
+      "panel_name": "held_boundary_panel",
+      "source_artifacts": [
+        "scratch/WP-LAB-COMPLETION-MAP-UPDATE-BASELINE-PROVEN-01/held_boundary_map.json"
+      ],
+      "note": "Deferred-B items (requires real research flow), GO-candidate required items, GO-gated protected items surfaced as separate panel."
+    }
+  ]
+}

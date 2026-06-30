@@ -1,0 +1,12 @@
+{
+  "autonomous_scheduler_authorized": false,
+  "candidate_authority_created": false,
+  "candidate_evidence": false,
+  "canonical_crossing_authority_created": false,
+  "edge_claim_allowed": false,
+  "operating_test_evidence": true,
+  "paper_live_authority_created": false,
+  "protected_paths_touched": false,
+  "real_notification_sending_authorized": false,
+  "strategy_evidence": false
+}

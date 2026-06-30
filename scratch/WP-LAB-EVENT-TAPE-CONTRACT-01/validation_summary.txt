@@ -1,0 +1,48 @@
+WP-LAB-EVENT-TAPE-CONTRACT-01 validation summary
+
+Event-tape validator: True
+Deterministic replay validation: pass
+Closed enum validation: pass
+Non-promotable validation: pass
+Source-reference validation: pass_strict_row_reference_validation
+Errors: 0
+
+Reference tape: LAB-EVENT-TAPE-REFERENCE-001
+Schema version: lab_event_tape.v1
+Events: 40
+Jobs: 10
+Daily windows: 2
+Weekly windows: 1
+Dashboard ticks: 2
+Registry checkpoints: 2
+
+Authority boundaries:
+construction_payload_all_events=True
+non_promotable_all_events=True
+operating_test_evidence_all_events=True
+strategy_evidence_any=False
+candidate_eligible_any=False
+promotion_eligible_any=False
+paper_live_eligible_any=False
+canonical_crossing_allowed_any=False
+edge_claim_allowed_any=False
+autonomous_scheduler_allowed_any=False
+real_notification_sending_allowed_any=False
+
+No replay behavior was added. Queue/scheduler, notification/reporting, dashboard/lab-state, agent-loop, candidate lifecycle, runtime, OMS, risk, reconciliation, order, exchange, data, configs, dependencies, and protected paths were not modified.
+
+Commands run:
+- python -m json.tool scratch\WP-LAB-EVENT-TAPE-CONTRACT-01\event_tape_schema.json: pass
+- python -m json.tool scratch\WP-LAB-EVENT-TAPE-CONTRACT-01\reference_event_tape.json: pass
+- python -m json.tool scratch\WP-LAB-EVENT-TAPE-CONTRACT-01\reference_tape_summary.json: pass
+- python -m json.tool scratch\WP-LAB-EVENT-TAPE-CONTRACT-01\non_authority_assertions.json: pass
+- python -m json.tool scratch\WP-LAB-EVENT-TAPE-CONTRACT-01\validator_result.json: pass
+- python -m tools.lab_event_tape.validate scratch\WP-LAB-EVENT-TAPE-CONTRACT-01\reference_event_tape.json: pass
+- python -m pytest tests\test_lab_event_tape_contract.py -q: pass, 4 tests
+- python -m tools.research_query.run --list-views: pass
+- python -m tools.registry.validate_result_populations: pass
+- python -m tools.registry.validate_candidate_registry: pass
+- python tools/dev/diff_scope_summary.py: pass, forbidden-path matches none
+- git diff --cached --check: pass
+
+Full pytest was not run because this package changes only docs/status/scratch artifacts plus a package-local read-only validator and focused tests; no shared runtime, runner, schema/query-layer behavior, canonical result population, candidate lifecycle, data, dependency, or protected execution path changed.

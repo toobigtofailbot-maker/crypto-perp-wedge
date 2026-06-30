@@ -34,6 +34,16 @@ completed without real research traffic while preserving the boundary that a
 known non-promotable payload cannot prove autonomous always-on factory operation,
 first real candidate crossing, or paper/live/runtime authority.
 
+Final operating-readiness audit update: PRs #592 through #595 executed the
+deterministic event-tape operating-readiness route after the final Side 12
+known-payload map. The route covered a 40-event / 10-job operating-test stream,
+queue/scheduler dry-run handling, notification/report dry-run cadence, and
+agent-loop/dashboard stream handling. This proves operating-system evidence, not
+strategy evidence. The lab is now complete for known-payload strategy-pipe proof
+and deterministic operating-readiness acceptance testing. It is still not
+production autonomous operation, not real research traffic operation, not real
+candidate admission, not real crossing, and does not create paper/live readiness.
+
 ## 1. Current phase definition
 
 The current phase is a **human-driven, no-edge-search research lab**. Its job is
@@ -216,12 +226,12 @@ authorization.
 
 ## 7. What remains buildable now (within phase)
 
-After the baseline-proven sequence, no further non-edge-search lab-build work is
-currently identified as both buildable-now and value-adding, other than narrow
-completion-state documentation such as this update. Any later read-only
-legibility or traceability package must still prove that it is based on existing
-evidence, remains deterministic and non-authoritative, and does not imply
-at-scale factory, real candidate, or execution authority.
+After the deterministic event-tape route, no further no-edge operating-readiness
+work package is currently identified as both buildable-now and value-adding,
+unless repo truth changes. Any later read-only legibility or traceability package
+must still prove that it is based on existing evidence, remains deterministic and
+non-authoritative, and does not imply at-scale factory, real candidate, or
+execution authority.
 
 ## 8. What is not buildable without edge-search / live candidate flow
 
@@ -270,29 +280,40 @@ candidate, running anything live, or declaring an always-on autonomous research
 factory complete. Those are future, separately authorized phases or held-B
 layers, not unfinished business of this one.
 
-Current final decision state after the known-payload proof sequence and final
-non-edge-search hardening batch:
+Current final decision state after the known-payload proof sequence, final
+non-edge-search hardening batch, and deterministic event-tape
+operating-readiness route:
 
 - core pipe fixture/plumbing proof: true;
 - known-payload proof complete: true;
 - non-promotable promotion/crossing rejection proven: true;
 - scale-correctness on known payloads proven: true;
 - read-only dashboard/reporting/registry visibility hardened: true;
+- deterministic event-tape operating-readiness route complete: true;
+- operating-readiness acceptance-tested: true;
+- queue/scheduler dry-run handling acceptance-tested: true;
+- notification/report dry-run cadence acceptance-tested: true;
+- agent-loop/dashboard stream handling acceptance-tested: true;
 - lab complete for what can be completed without real research traffic: true;
 - lab declared finished without qualification: false;
+- production autonomous operation declared: false;
+- real research traffic started: false;
+- edge-search authorized here: false;
+- candidate authority created: false;
+- crossing authority created: false;
+- paper/live authority created: false;
 - always-on factory completed: false;
 - at-scale/autonomous layers: held-B until real research traffic;
 - first real crossing: held until a real GO candidate and explicit gate exist;
 - paper/live/runtime: GO-gated and protected;
-- no further non-edge-search work package is currently identified as
-  value-adding.
+- no further no-edge operating-readiness work package is currently identified as
+  value-adding after audit, unless repo truth changes.
 
 The remaining operator choices are:
 
-1. Operate the proven lab on real research traffic under explicit edge-search
-   authorization.
-2. Hold the lab as a complete no-edge-phase deliverable until Karl authorizes
-   real research traffic.
+1. Hold the completed no-edge operating-readiness lab.
+2. Authorize bounded real research traffic under an explicit edge-search
+   package.
 
 This map does not recommend which choice to make.
 
@@ -318,14 +339,14 @@ creates none.
 | 11 | WFO/OOS execution | `proven_on_known_payload` | PR #584 hardens non-promoting WFO/OOS gate semantics and PR #588 carries known-payload status accounting. | Real candidate WFO/OOS volume. |
 | 12 | Monte Carlo / robustness computation | `proven_on_known_payload` | PR #584 hardens robustness/MC withheld/advisory behavior and PR #588 preserves those statuses in known-payload population proof. | Real robustness volume over real candidates. |
 | 13 | Anti-overfit review across full result populations | `proven_on_known_payload` | Full-denominator known-payload preservation prevents winner-only interpretation for fixture proof. | Real populations and real selection pressure. |
-| 14 | Dashboard coverage | `complete` | PR #590 adds baseline proof and held-boundary panels with fail-closed provenance defaults. | Future real traffic can add content, not no-edge completion authority. |
-| 15 | Daily operator brief | `complete_for_no_edge_phase` | Existing read-only reporting surface is sufficient for committed no-edge evidence. | Real recurring traffic/events for always-on operation. |
-| 16 | Weekly performance / research report | `complete_for_no_edge_phase` | Existing read-only reporting surface is sufficient for committed no-edge evidence. | Real recurring traffic/events for always-on operation. |
-| 17 | Notification system | `held_B_needs_real_research_traffic` | Notification firing remains default-off and event-dependent. | Real jobs/events plus explicit firing authorization. |
-| 18 | Bounded research-agent loop | `proven_on_known_payload` | PR #586 proves no-candidate behavior on `known_losing_baseline` without rescue, retuning, ranking, promotion, or paper/live recommendation. | Real research queue traffic for autonomous loop operation. |
-| 19 | Agent scheduling and prioritization over a research queue | `held_B_needs_real_research_traffic` | Scheduler shell is inert/default-off; known payloads do not create a real queue. | Real research queue plus explicit autonomy authorization. |
-| 20 | Research queue / job orchestration / resource limits | `held_B_needs_real_research_traffic` | Shell/queue structures exist only as no-op/default-off surfaces. | Real research jobs and resource policy authorization. |
-| 21 | Candidate lifecycle gate maturity for real candidates | `needs_real_GO_candidate` | Non-promotable rejection is proven, but no real GO candidate exists. | A real candidate reaching human review under explicit authority. |
+| 14 | Dashboard coverage | `acceptance_tested_by_event_tape` | PR #590 adds baseline proof and held-boundary panels; PR #595 acceptance-tests dashboard state transitions over operating-test traffic with operating-test labels present and real-research labels absent. | Real research dashboard operation requires real research traffic. |
+| 15 | Daily operator brief | `acceptance_tested_by_event_tape` | PR #594 acceptance-tests deterministic daily-window reporting over the event tape with two daily windows. | Real recurring production cadence requires real research traffic. |
+| 16 | Weekly performance / research report | `acceptance_tested_by_event_tape` | PR #594 acceptance-tests deterministic weekly-window reporting over the event tape with one weekly window. | Real recurring production cadence requires real research traffic. |
+| 17 | Notification system | `acceptance_tested_by_event_tape` | PR #594 acceptance-tests dry-run notification rendering and matched notification actions while real sending remains false. | Real notification sending requires real jobs/events plus explicit firing authorization. |
+| 18 | Bounded research-agent loop | `acceptance_tested_by_event_tape` | PR #586 proves no-candidate behavior on `known_losing_baseline`; PR #595 acceptance-tests bounded agent action handling over the 10-job / 40-event operating-test stream with no rescue, retuning, ranking, readiness, or promotion recommendation. | Real autonomous research loop operation requires real research traffic and explicit authorization. |
+| 19 | Agent scheduling and prioritization over a research queue | `acceptance_tested_by_event_tape` | PR #593 acceptance-tests queue/scheduler dry-run handling and deterministic priority ordering while autonomous scheduler activation remains false. | Production prioritization requires real research queue traffic. |
+| 20 | Research queue / job orchestration / resource limits | `acceptance_tested_by_event_tape` | PR #593 acceptance-tests queue/scheduler dry-run handling, including resource-limit, blocked, delayed, and terminal behavior. | Production operation requires real research queue traffic. |
+| 21 | Candidate lifecycle gate maturity for real candidates | `needs_real_GO_candidate` | Non-promotable rejection / no-admission behavior is acceptance-tested, and PR #595 records `candidate_admitted=false`; no real GO candidate exists. | A real candidate reaching human review under explicit authority. |
 | 22 | First real candidate crossing | `needs_real_GO_candidate` | PR #585/#586 prove `reject_by_construction`, not real crossing. | A real GO candidate and explicit crossing package. |
 | 23 | Paper/live path | `GO_gated_protected` | Paper/live/runtime paths remain protected and untouched. | Explicit GO decision under protected runtime gates. |
 

@@ -1,0 +1,17 @@
+{
+  "known_payloads_used": [
+    "known_losing_baseline",
+    "600-row synthetic known-property population"
+  ],
+  "proofs_completed": [
+    "core pipe no-candidate",
+    "reject_by_construction crossing rejection",
+    "scale-correct denominator preservation",
+    "registry provenance coverage",
+    "dashboard fail-closed visibility"
+  ],
+  "proof_limit": "known non-promotable payloads cannot complete autonomous always-on operation because they do not create real research traffic",
+  "second_nonwinning_strategy_needed": false,
+  "one_additional_nonwinning_strategy_adds_new_proof": false,
+  "structural_conclusion": "A non-winning/non-promotable strategy and a non-promotable baseline construction payload are the same class of lab input for current proof purposes."
+}

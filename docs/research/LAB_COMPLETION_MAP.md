@@ -24,6 +24,16 @@ agent/lab-loop behavior for a no-candidate baseline. It does not create
 candidate authority, real crossing authority, edge-search authority, always-on
 factory completion, paper/live/runtime authority, or execution-machine scope.
 
+Final Side 12 no-edge-phase update: PRs #588 through #590 completed the final
+known-payload hardening batch after the baseline-proven sequence. PR #588 proved
+scale-correct denominator preservation with a 600-row synthetic population from
+the `known_losing_baseline` lineage. PR #589 hardened the read-only registry /
+provenance view. PR #590 completed the read-only dashboard gap surface and
+fail-closed provenance visibility. Together these packages finish what can be
+completed without real research traffic while preserving the boundary that a
+known non-promotable payload cannot prove autonomous always-on factory operation,
+first real candidate crossing, or paper/live/runtime authority.
+
 ## 1. Current phase definition
 
 The current phase is a **human-driven, no-edge-search research lab**. Its job is
@@ -260,21 +270,100 @@ candidate, running anything live, or declaring an always-on autonomous research
 factory complete. Those are future, separately authorized phases or held-B
 layers, not unfinished business of this one.
 
-Current decision state after the baseline-proven sequence:
+Current final decision state after the known-payload proof sequence and final
+non-edge-search hardening batch:
 
 - core pipe fixture/plumbing proof: true;
+- known-payload proof complete: true;
+- non-promotable promotion/crossing rejection proven: true;
+- scale-correctness on known payloads proven: true;
+- read-only dashboard/reporting/registry visibility hardened: true;
+- lab complete for what can be completed without real research traffic: true;
 - lab declared finished without qualification: false;
 - always-on factory completed: false;
-- at-scale/autonomous layers: held-B until real edge-search / real candidate
-  flow;
+- at-scale/autonomous layers: held-B until real research traffic;
 - first real crossing: held until a real GO candidate and explicit gate exist;
 - paper/live/runtime: GO-gated and protected;
-- next real fork: resume deliberate edge-search, or pause/accept the proven
-  core machine with held-B layers deferred.
+- no further non-edge-search work package is currently identified as
+  value-adding.
 
-This map does not recommend which fork to choose.
+The remaining operator choices are:
 
-## 11. Drift guardrails
+1. Operate the proven lab on real research traffic under explicit edge-search
+   authorization.
+2. Hold the lab as a complete no-edge-phase deliverable until Karl authorizes
+   real research traffic.
+
+This map does not recommend which choice to make.
+
+## 11. Final Side 12 capability map
+
+This section is the authoritative final Side 12 capability map for the
+no-edge-search phase. `canonical_authority_created` records whether repo truth
+already contains canonical authority for the relevant surface; this package
+creates none.
+
+| ID | Capability | Final status | Proof basis | Remaining condition |
+| --- | --- | --- | --- | --- |
+| 1 | Idea intake | `complete_for_no_edge_phase` | Human-driven intake and evidence organization are sufficient for the no-edge phase. | Real idea intake resumes only with explicit real research traffic. |
+| 2 | Automatic strategy formalization from arbitrary ideas | `not_applicable_to_no_edge_phase` | Arbitrary strategy formalization is edge-search / generation work. | Explicit edge-search authorization. |
+| 3 | Strategy-family classification and routing | `proven_on_known_payload` | PR #583 and PR #588 route the `known_losing_baseline` construction lineage through known-payload proof. | Real multi-family traffic for autonomous routing claims. |
+| 4 | Data / primitive / feature availability classifier | `held_B_needs_real_research_traffic` | Existing blockers and withheld states are visible, but known payloads do not exercise real feature-discovery demand. | Stream of real research jobs with varied data/primitive needs. |
+| 5 | Strategy Spec draft generation | `not_applicable_to_no_edge_phase` | PR #583 intentionally did not create schema-valid draft specs because exact construction provenance would need schema changes. | Explicit strategy-generation / schema path authorization. |
+| 6 | Variant Manifest / parameter generation | `proven_on_known_payload` | PR #588 proves deterministic scale rows for one non-promotable lineage without candidate authority. | Real variant traffic for edge-search work. |
+| 7 | Sweep Plan generation | `proven_on_known_payload` | PR #588 proves full-denominator synthetic population shape for known-payload sweep accounting. | Real sweep plans under explicit research authorization. |
+| 8 | Large-scale batch sweeps | `proven_on_known_payload` | PR #588 materializes 600 scratch-only rows across completed, failed, invalid, blocked, insufficient, and withheld states. | Real at-scale batch execution over real research jobs. |
+| 9 | Full result-population preservation including failures / blocked / invalid / data-unavailable rows | `proven_on_known_payload` | PR #588 preserves all 600 known-payload rows and status denominators. | Real traffic to prove continuous denominator preservation under live research variety. |
+| 10 | Run registry / result store with provenance, lineage, validation status, blockers, and run history | `complete` | PR #589 inventories canonical, scratch, fixture, docs-only, and blocked/deferred entries with provenance and validation state. | Real research traffic can expand entries but is not needed to complete no-edge visibility. |
+| 11 | WFO/OOS execution | `proven_on_known_payload` | PR #584 hardens non-promoting WFO/OOS gate semantics and PR #588 carries known-payload status accounting. | Real candidate WFO/OOS volume. |
+| 12 | Monte Carlo / robustness computation | `proven_on_known_payload` | PR #584 hardens robustness/MC withheld/advisory behavior and PR #588 preserves those statuses in known-payload population proof. | Real robustness volume over real candidates. |
+| 13 | Anti-overfit review across full result populations | `proven_on_known_payload` | Full-denominator known-payload preservation prevents winner-only interpretation for fixture proof. | Real populations and real selection pressure. |
+| 14 | Dashboard coverage | `complete` | PR #590 adds baseline proof and held-boundary panels with fail-closed provenance defaults. | Future real traffic can add content, not no-edge completion authority. |
+| 15 | Daily operator brief | `complete_for_no_edge_phase` | Existing read-only reporting surface is sufficient for committed no-edge evidence. | Real recurring traffic/events for always-on operation. |
+| 16 | Weekly performance / research report | `complete_for_no_edge_phase` | Existing read-only reporting surface is sufficient for committed no-edge evidence. | Real recurring traffic/events for always-on operation. |
+| 17 | Notification system | `held_B_needs_real_research_traffic` | Notification firing remains default-off and event-dependent. | Real jobs/events plus explicit firing authorization. |
+| 18 | Bounded research-agent loop | `proven_on_known_payload` | PR #586 proves no-candidate behavior on `known_losing_baseline` without rescue, retuning, ranking, promotion, or paper/live recommendation. | Real research queue traffic for autonomous loop operation. |
+| 19 | Agent scheduling and prioritization over a research queue | `held_B_needs_real_research_traffic` | Scheduler shell is inert/default-off; known payloads do not create a real queue. | Real research queue plus explicit autonomy authorization. |
+| 20 | Research queue / job orchestration / resource limits | `held_B_needs_real_research_traffic` | Shell/queue structures exist only as no-op/default-off surfaces. | Real research jobs and resource policy authorization. |
+| 21 | Candidate lifecycle gate maturity for real candidates | `needs_real_GO_candidate` | Non-promotable rejection is proven, but no real GO candidate exists. | A real candidate reaching human review under explicit authority. |
+| 22 | First real candidate crossing | `needs_real_GO_candidate` | PR #585/#586 prove `reject_by_construction`, not real crossing. | A real GO candidate and explicit crossing package. |
+| 23 | Paper/live path | `GO_gated_protected` | Paper/live/runtime paths remain protected and untouched. | Explicit GO decision under protected runtime gates. |
+
+## 12. Why one additional non-winning strategy does not unlock new lab proof
+
+Karl's useful principle is preserved: known, non-winning, non-promotable payloads
+are appropriate for proving lab machinery before edge hunting. The boundary is
+that PR #586 and PR #588 already consumed that class of input at single-pipe and
+scale levels.
+
+A non-winning / non-promotable strategy and a non-promotable baseline
+construction payload are the same class of lab input for current proof purposes:
+both are known-outcome, non-promotable inputs, and both must terminate as
+no-candidate / `reject_by_construction`. PR #586 proved that path end-to-end for
+`known_losing_baseline`. PR #588 proved scale-correctness for the same class with
+600 denominator-preserved rows. Running another non-promotable strategy through
+the same path would be re-proof, not new capability completion. The remaining
+held-B capabilities require streams of real research jobs, not one known-outcome
+payload.
+
+This conclusion does not claim that a real edge exists, recommend a strategy
+family, or authorize edge-search.
+
+## 13. External adoption runway final state
+
+External runway surfaces remain non-authoritative and do not become execution or
+evidence authority through this map.
+
+| Surface | Final state |
+| --- | --- |
+| workflow-gen | No new adoption WP is identified; any further use belongs to real research traffic / idea-generation phase. |
+| analytics metrics | Dashboard/reporting surfaces are hardened; no new adoption WP is identified unless real research reporting expands. |
+| robustness MC | Gate posture, withheld/advisory behavior, and known-payload denominator proof are complete for no-edge; real volume belongs to real research traffic. |
+| vectorbt | Non-canonical sidecar only; no new adoption WP without explicit edge-search / triage authorization. |
+| CCXT | Public data / funding adapter runway only; no new adoption WP without real data or research need. |
+| Nautilus | Simulator realism / paper-shadow future; held until later explicit design or GO path. |
+
+## 14. Drift guardrails
 
 - **No edge-search drift.** "Finish the lab" never means resume strategy
   generation or hypothesis search. A NO-GO conclusion does not authorize a new

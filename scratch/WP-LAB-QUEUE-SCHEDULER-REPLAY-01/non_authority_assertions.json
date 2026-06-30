@@ -1,0 +1,31 @@
+{
+  "autonomous_scheduler_allowed_any": false,
+  "candidate_authority_created": false,
+  "candidate_eligible_any": false,
+  "candidate_lifecycle_write_performed": false,
+  "canonical_crossing_allowed_any": false,
+  "canonical_crossing_authority_created": false,
+  "canonical_result_population_written": false,
+  "construction_payload_all_events": true,
+  "edge_claim_allowed_any": false,
+  "edge_search_authorized_here": false,
+  "non_promotable_all_events": true,
+  "operating_test_evidence_all_events": true,
+  "paper_live_authority_created": false,
+  "paper_live_eligible_any": false,
+  "real_notification_sending_allowed_any": false,
+  "strategy_evidence_any": false,
+  "strategy_run_performed": false,
+  "tape_level_flags": {
+    "autonomous_scheduler_allowed": false,
+    "candidate_evidence": false,
+    "canonical_crossing_allowed": false,
+    "construction_payload": true,
+    "edge_claim_allowed": false,
+    "non_promotable": true,
+    "operating_test_evidence": true,
+    "paper_live_eligible": false,
+    "real_notification_sending_allowed": false,
+    "strategy_evidence": false
+  }
+}

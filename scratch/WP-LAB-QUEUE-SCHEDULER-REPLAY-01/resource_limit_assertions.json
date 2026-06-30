@@ -1,0 +1,124 @@
+{
+  "blocked_behavior_matched": true,
+  "blocked_holds": [
+    {
+      "event_id": "EVT-0012",
+      "held": true,
+      "job_id": "TAPE-JOB-0004",
+      "later_started": false
+    }
+  ],
+  "blocked_jobs": [
+    "TAPE-JOB-0004"
+  ],
+  "delayed_behavior_matched": true,
+  "delayed_events": [
+    {
+      "event_id": "EVT-0025",
+      "job_id": "TAPE-JOB-0008",
+      "state": "delayed"
+    }
+  ],
+  "delayed_jobs": [
+    "TAPE-JOB-0008"
+  ],
+  "held_jobs_preserved_in_denominator": true,
+  "held_or_blocked_job_count": 2,
+  "resource_limit_behavior_matched": true,
+  "resource_limit_holds": [
+    {
+      "event_id": "EVT-0022",
+      "held": true,
+      "job_id": "TAPE-JOB-0007",
+      "later_started": false
+    }
+  ],
+  "resource_limited_jobs": [
+    "TAPE-JOB-0007"
+  ],
+  "terminal_behavior_matched": true,
+  "terminal_events": [
+    {
+      "event_id": "EVT-0003",
+      "job_id": "TAPE-JOB-0001",
+      "state": "completed"
+    },
+    {
+      "event_id": "EVT-0004",
+      "job_id": "TAPE-JOB-0001",
+      "state": "completed"
+    },
+    {
+      "event_id": "EVT-0007",
+      "job_id": "TAPE-JOB-0002",
+      "state": "failed"
+    },
+    {
+      "event_id": "EVT-0008",
+      "job_id": "TAPE-JOB-0002",
+      "state": "failed"
+    },
+    {
+      "event_id": "EVT-0010",
+      "job_id": "TAPE-JOB-0003",
+      "state": "invalid"
+    },
+    {
+      "event_id": "EVT-0013",
+      "job_id": "TAPE-JOB-0004",
+      "state": "blocked"
+    },
+    {
+      "event_id": "EVT-0016",
+      "job_id": "TAPE-JOB-0005",
+      "state": "withheld"
+    },
+    {
+      "event_id": "EVT-0017",
+      "job_id": "TAPE-JOB-0005",
+      "state": "withheld"
+    },
+    {
+      "event_id": "EVT-0020",
+      "job_id": "TAPE-JOB-0006",
+      "state": "insufficient"
+    },
+    {
+      "event_id": "EVT-0023",
+      "job_id": "TAPE-JOB-0007",
+      "state": "resource_limited"
+    },
+    {
+      "event_id": "EVT-0028",
+      "job_id": "TAPE-JOB-0009",
+      "state": "review_needed"
+    },
+    {
+      "event_id": "EVT-0029",
+      "job_id": "TAPE-JOB-0009",
+      "state": "review_needed"
+    },
+    {
+      "event_id": "EVT-0032",
+      "job_id": "TAPE-JOB-0010",
+      "state": "no_candidate"
+    },
+    {
+      "event_id": "EVT-0040",
+      "job_id": "TAPE-JOB-0008",
+      "state": "delayed"
+    }
+  ],
+  "terminal_jobs": [
+    "TAPE-JOB-0001",
+    "TAPE-JOB-0002",
+    "TAPE-JOB-0003",
+    "TAPE-JOB-0004",
+    "TAPE-JOB-0005",
+    "TAPE-JOB-0006",
+    "TAPE-JOB-0007",
+    "TAPE-JOB-0008",
+    "TAPE-JOB-0009",
+    "TAPE-JOB-0010"
+  ]
+}

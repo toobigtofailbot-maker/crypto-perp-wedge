@@ -1,0 +1,85 @@
+{
+  "ordered_job_ids": [
+    "TAPE-JOB-0004",
+    "TAPE-JOB-0007",
+    "TAPE-JOB-0002",
+    "TAPE-JOB-0006",
+    "TAPE-JOB-0010",
+    "TAPE-JOB-0001",
+    "TAPE-JOB-0005",
+    "TAPE-JOB-0009",
+    "TAPE-JOB-0003",
+    "TAPE-JOB-0008"
+  ],
+  "ordered_jobs": [
+    {
+      "event_id": "EVT-0011",
+      "job_id": "TAPE-JOB-0004",
+      "priority": "urgent",
+      "sequence_index": 11
+    },
+    {
+      "event_id": "EVT-0021",
+      "job_id": "TAPE-JOB-0007",
+      "priority": "urgent",
+      "sequence_index": 21
+    },
+    {
+      "event_id": "EVT-0005",
+      "job_id": "TAPE-JOB-0002",
+      "priority": "high",
+      "sequence_index": 5
+    },
+    {
+      "event_id": "EVT-0018",
+      "job_id": "TAPE-JOB-0006",
+      "priority": "high",
+      "sequence_index": 18
+    },
+    {
+      "event_id": "EVT-0030",
+      "job_id": "TAPE-JOB-0010",
+      "priority": "high",
+      "sequence_index": 30
+    },
+    {
+      "event_id": "EVT-0001",
+      "job_id": "TAPE-JOB-0001",
+      "priority": "normal",
+      "sequence_index": 1
+    },
+    {
+      "event_id": "EVT-0014",
+      "job_id": "TAPE-JOB-0005",
+      "priority": "normal",
+      "sequence_index": 14
+    },
+    {
+      "event_id": "EVT-0026",
+      "job_id": "TAPE-JOB-0009",
+      "priority": "normal",
+      "sequence_index": 26
+    },
+    {
+      "event_id": "EVT-0009",
+      "job_id": "TAPE-JOB-0003",
+      "priority": "low",
+      "sequence_index": 9
+    },
+    {
+      "event_id": "EVT-0024",
+      "job_id": "TAPE-JOB-0008",
+      "priority": "low",
+      "sequence_index": 24
+    }
+  ],
+  "ordering_rule": "priority rank urgent/high/normal/low, then sequence_index, then job_id",
+  "priority_order_deterministic": true,
+  "priority_rank": {
+    "high": 1,
+    "low": 3,
+    "normal": 2,
+    "urgent": 0
+  },
+  "queued_runnable_job_count": 10
+}

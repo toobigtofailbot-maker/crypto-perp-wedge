@@ -1,6 +1,11 @@
 WP-LAB-DASHBOARD-GAP-COMPLETE-01 — Validation Summary
 ======================================================
 Date: 2026-06-29
+Refreshed after: fail-closed provenance-default patch (commit ae3cfd3)
+
+fail-closed provenance-default tests included: yes
+  - test_provenance_trace_fails_closed_when_keys_absent
+  - test_provenance_trace_preserves_explicit_source_values
 
 research query:
   command: python -m tools.research_query.run --list-views
@@ -31,7 +36,10 @@ render command:
 
 focused tests:
   command: python -m pytest tests/test_lab_dashboard.py tests/test_lab_reporting.py tests/test_lab_state_resolver.py -q
-  result: 53 passed (41 pre-existing + 12 new)
+  result: 55 passed
+    test_lab_dashboard.py: 25 tests (11 pre-existing + 12 WP gap panels + 2 fail-closed patch)
+    test_lab_reporting.py: included
+    test_lab_state_resolver.py: included
 
 diff scope:
   command: python tools/dev/diff_scope_summary.py
@@ -41,16 +49,12 @@ git diff --check:
   result: passed (no whitespace errors)
 
 git status --short:
-  M tests/test_lab_dashboard.py
-  M tools/lab_dashboard/data_model.py
-  M tools/lab_dashboard/render.py
   ?? build/
-  ?? scratch/WP-LAB-DASHBOARD-GAP-COMPLETE-01/
-  (build/ is gitignored; scratch/WP-LAB-DASHBOARD-GAP-COMPLETE-01/ will be committed)
+  (all changed files committed; build/ is gitignored and untracked)
 
 full pytest:
-  NOT run (changes are isolated to dashboard/reporting/lab-state surfaces only;
-  focused tests cover the modified surfaces completely)
+  NOT run (changes isolated to _provenance_trace() in data_model.py, render.py,
+  and tests/test_lab_dashboard.py; focused suite covers all modified paths completely)
 
 boundary checks:
   strategy run: none

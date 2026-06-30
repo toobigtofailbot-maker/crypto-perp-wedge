@@ -1,0 +1,283 @@
+{
+  "entries": [
+    {
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "entry_id": "RP-2134",
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "terminal_state": "complete_non_decisional",
+      "validation_status": "PASS",
+      "withheld_or_insufficient_state": false
+    },
+    {
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "entry_id": "RP-2592",
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "terminal_state": "NO-GO",
+      "validation_status": "PASS",
+      "withheld_or_insufficient_state": false
+    },
+    {
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "entry_id": "RP-3731",
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "terminal_state": "NO-GO",
+      "validation_status": "PASS",
+      "withheld_or_insufficient_state": false
+    },
+    {
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "entry_id": "RP-4492",
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "terminal_state": "complete_non_decisional",
+      "validation_status": "PASS",
+      "withheld_or_insufficient_state": false
+    },
+    {
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "entry_id": "RP-6236",
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "terminal_state": "complete_non_decisional",
+      "validation_status": "PASS",
+      "withheld_or_insufficient_state": false
+    },
+    {
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "entry_id": "RP-6688",
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "terminal_state": "NO-GO",
+      "validation_status": "PASS",
+      "withheld_or_insufficient_state": false
+    },
+    {
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "entry_id": "RP-7134",
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "terminal_state": "NO-GO",
+      "validation_status": "PASS",
+      "withheld_or_insufficient_state": false
+    },
+    {
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "entry_id": "RP-7520",
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "terminal_state": "NO-GO",
+      "validation_status": "PASS",
+      "withheld_or_insufficient_state": false
+    },
+    {
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "entry_id": "candidate_registry_current",
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "terminal_state": "mixed_NO-GO_and_reserved",
+      "validation_status": "PASS",
+      "withheld_or_insufficient_state": false
+    },
+    {
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "entry_id": "funding_positioning_fade_synthesis_2026_06",
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "terminal_state": "NO-GO",
+      "validation_status": "PASS",
+      "withheld_or_insufficient_state": false
+    },
+    {
+      "blockers": [
+        "warmup/evaluation-window route unavailable without unauthorized runner/data changes",
+        "runner-consumable funding-feature CSV absent in worktree"
+      ],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "entry_id": "funding_riskmanaged_triage_run_blocked",
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "terminal_state": "blocked",
+      "validation_status": "BLOCKED",
+      "withheld_or_insufficient_state": true
+    },
+    {
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "entry_id": "funding_riskmanaged_stage1_triage",
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "terminal_state": "NO-GO",
+      "validation_status": "PASS",
+      "withheld_or_insufficient_state": false
+    },
+    {
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "entry_id": "priceonly_synthesis_2026_06",
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "terminal_state": "complete",
+      "validation_status": "PASS",
+      "withheld_or_insufficient_state": false
+    },
+    {
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "entry_id": "lab_state_model_surface",
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "terminal_state": "complete",
+      "validation_status": "PASS",
+      "withheld_or_insufficient_state": false
+    },
+    {
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "entry_id": "lab_results_dashboard_surface",
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "terminal_state": "complete",
+      "validation_status": "PASS",
+      "withheld_or_insufficient_state": false
+    },
+    {
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "entry_id": "lab_reporting_surface",
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "terminal_state": "complete",
+      "validation_status": "PASS",
+      "withheld_or_insufficient_state": false
+    },
+    {
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "entry_id": "lab_approval_queue_surface",
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "terminal_state": "nothing_candidate_ready",
+      "validation_status": "PASS",
+      "withheld_or_insufficient_state": true
+    },
+    {
+      "blockers": [
+        "no executor; autonomous flags remain false"
+      ],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "entry_id": "lab_scheduler_shell_surface",
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "terminal_state": "default_off_inert",
+      "validation_status": "PASS",
+      "withheld_or_insufficient_state": true
+    },
+    {
+      "blockers": [
+        "schema-valid Strategy Spec/VM/Sweep drafts deferred because exact provenance fields need schema changes"
+      ],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "entry_id": "baseline_payload_define_pr583",
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "terminal_state": "complete",
+      "validation_status": "PASS",
+      "withheld_or_insufficient_state": true
+    },
+    {
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "entry_id": "gate_hardening_pr584",
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "terminal_state": "complete",
+      "validation_status": "PASS",
+      "withheld_or_insufficient_state": false
+    },
+    {
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "entry_id": "nonpromotable_crossing_guard_pr585",
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "terminal_state": "reject_by_construction",
+      "validation_status": "PASS",
+      "withheld_or_insufficient_state": false
+    },
+    {
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "entry_id": "agent_loop_baseline_pr586",
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "terminal_state": "no-candidate",
+      "validation_status": "PASS",
+      "withheld_or_insufficient_state": false
+    },
+    {
+      "blockers": [
+        "at-scale/autonomous layers held until real edge-search or real candidate flow"
+      ],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "entry_id": "completion_map_update_pr587",
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "terminal_state": "complete_with_held_B_boundaries",
+      "validation_status": "PASS",
+      "withheld_or_insufficient_state": true
+    },
+    {
+      "blockers": [
+        "real candidate crossing requires real GO candidate",
+        "paper/live/runtime and OMS/risk/reconciliation/order/exchange remain GO-gated protected"
+      ],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "entry_id": "held_boundary_map_current",
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "terminal_state": "deferred_or_go_gated",
+      "validation_status": "PASS",
+      "withheld_or_insufficient_state": true
+    }
+  ],
+  "generated_at_utc": "2026-06-30T00:26:13Z",
+  "index_authority": "read_only_non_authoritative_index",
+  "package": "WP-LAB-RUN-REGISTRY-PROVENANCE-HARDEN-01"
+}

@@ -1,0 +1,401 @@
+{
+  "entries": [
+    {
+      "dashboard_visible": true,
+      "entry_id": "RP-2134",
+      "evidence_class": "canonical",
+      "non_authority_caveats": [
+        "canonical Result Population exists, but this index adds no new interpretation beyond recorded evidence",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "terminal_state": "complete_non_decisional"
+    },
+    {
+      "dashboard_visible": true,
+      "entry_id": "RP-2592",
+      "evidence_class": "canonical",
+      "non_authority_caveats": [
+        "canonical Result Population exists, but this index adds no new interpretation beyond recorded evidence",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "terminal_state": "NO-GO"
+    },
+    {
+      "dashboard_visible": true,
+      "entry_id": "RP-3731",
+      "evidence_class": "canonical",
+      "non_authority_caveats": [
+        "canonical Result Population exists, but this index adds no new interpretation beyond recorded evidence",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "terminal_state": "NO-GO"
+    },
+    {
+      "dashboard_visible": true,
+      "entry_id": "RP-4492",
+      "evidence_class": "canonical",
+      "non_authority_caveats": [
+        "canonical Result Population exists, but this index adds no new interpretation beyond recorded evidence",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "terminal_state": "complete_non_decisional"
+    },
+    {
+      "dashboard_visible": true,
+      "entry_id": "RP-6236",
+      "evidence_class": "canonical",
+      "non_authority_caveats": [
+        "canonical Result Population exists, but this index adds no new interpretation beyond recorded evidence",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "terminal_state": "complete_non_decisional"
+    },
+    {
+      "dashboard_visible": true,
+      "entry_id": "RP-6688",
+      "evidence_class": "canonical",
+      "non_authority_caveats": [
+        "canonical Result Population exists, but this index adds no new interpretation beyond recorded evidence",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "terminal_state": "NO-GO"
+    },
+    {
+      "dashboard_visible": true,
+      "entry_id": "RP-7134",
+      "evidence_class": "canonical",
+      "non_authority_caveats": [
+        "canonical Result Population exists, but this index adds no new interpretation beyond recorded evidence",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "terminal_state": "NO-GO"
+    },
+    {
+      "dashboard_visible": true,
+      "entry_id": "RP-7520",
+      "evidence_class": "canonical",
+      "non_authority_caveats": [
+        "canonical Result Population exists, but this index adds no new interpretation beyond recorded evidence",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "terminal_state": "NO-GO"
+    },
+    {
+      "dashboard_visible": true,
+      "entry_id": "candidate_registry_current",
+      "evidence_class": "canonical",
+      "non_authority_caveats": [
+        "candidate registry is inspected only; this package does not append or mutate it",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "terminal_state": "mixed_NO-GO_and_reserved"
+    },
+    {
+      "dashboard_visible": true,
+      "entry_id": "funding_positioning_fade_synthesis_2026_06",
+      "evidence_class": "scratch_only",
+      "non_authority_caveats": [
+        "scratch-only funding-fade conclusion; no candidate registered and no canonical crossing executed",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "terminal_state": "NO-GO"
+    },
+    {
+      "dashboard_visible": false,
+      "entry_id": "funding_riskmanaged_triage_run_blocked",
+      "evidence_class": "blocked",
+      "non_authority_caveats": [
+        "blocked attempt was not replaced by an unsafe partial run",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "terminal_state": "blocked"
+    },
+    {
+      "dashboard_visible": true,
+      "entry_id": "funding_riskmanaged_stage1_triage",
+      "evidence_class": "scratch_only",
+      "non_authority_caveats": [
+        "triage-only Stage-1 conclusion; no Stage-2, canonical evidence, or candidate lifecycle write authorized",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "terminal_state": "NO-GO"
+    },
+    {
+      "dashboard_visible": true,
+      "entry_id": "priceonly_synthesis_2026_06",
+      "evidence_class": "docs_only",
+      "non_authority_caveats": [
+        "evidence organization only; not a strategy recommendation or candidate-review packet",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "terminal_state": "complete"
+    },
+    {
+      "dashboard_visible": true,
+      "entry_id": "lab_state_model_surface",
+      "evidence_class": "docs_only",
+      "non_authority_caveats": [
+        "read-only state projection; transition execution remains human-gated elsewhere",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "terminal_state": "complete"
+    },
+    {
+      "dashboard_visible": true,
+      "entry_id": "lab_results_dashboard_surface",
+      "evidence_class": "docs_only",
+      "non_authority_caveats": [
+        "dashboard displays evidence and denominators; it cannot rank, approve, or execute",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "terminal_state": "complete"
+    },
+    {
+      "dashboard_visible": true,
+      "entry_id": "lab_reporting_surface",
+      "evidence_class": "docs_only",
+      "non_authority_caveats": [
+        "operator-readable shaping only; no notification firing or action execution",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "terminal_state": "complete"
+    },
+    {
+      "dashboard_visible": true,
+      "entry_id": "lab_approval_queue_surface",
+      "evidence_class": "docs_only",
+      "non_authority_caveats": [
+        "queue displays gates only; it cannot write approvals or create candidate readiness",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "terminal_state": "nothing_candidate_ready"
+    },
+    {
+      "dashboard_visible": true,
+      "entry_id": "lab_scheduler_shell_surface",
+      "evidence_class": "docs_only",
+      "non_authority_caveats": [
+        "scheduler shell can plan no-ops only; no run triggering authority",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "terminal_state": "default_off_inert"
+    },
+    {
+      "dashboard_visible": false,
+      "entry_id": "baseline_payload_define_pr583",
+      "evidence_class": "docs_only",
+      "non_authority_caveats": [
+        "baselines are construction-only and non-promotable",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "terminal_state": "complete"
+    },
+    {
+      "dashboard_visible": false,
+      "entry_id": "gate_hardening_pr584",
+      "evidence_class": "docs_only",
+      "non_authority_caveats": [
+        "numeric results cannot override construction/non-promotable provenance",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "terminal_state": "complete"
+    },
+    {
+      "dashboard_visible": false,
+      "entry_id": "nonpromotable_crossing_guard_pr585",
+      "evidence_class": "fixture_only",
+      "non_authority_caveats": [
+        "fixture-only guard proof; no real crossing performed",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "terminal_state": "reject_by_construction"
+    },
+    {
+      "dashboard_visible": true,
+      "entry_id": "agent_loop_baseline_pr586",
+      "evidence_class": "fixture_only",
+      "non_authority_caveats": [
+        "baseline loop did not recommend rescue, retuning, ranking, promotion, real crossing, or paper/live action",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "terminal_state": "no-candidate"
+    },
+    {
+      "dashboard_visible": true,
+      "entry_id": "completion_map_update_pr587",
+      "evidence_class": "docs_only",
+      "non_authority_caveats": [
+        "lab is not declared finished without qualification; no edge-search fork chosen",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "terminal_state": "complete_with_held_B_boundaries"
+    },
+    {
+      "dashboard_visible": false,
+      "entry_id": "held_boundary_map_current",
+      "evidence_class": "blocked",
+      "non_authority_caveats": [
+        "deferred boundaries are recorded as blockers, not backlog permission",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "terminal_state": "deferred_or_go_gated"
+    }
+  ],
+  "generated_at_utc": "2026-06-30T00:26:13Z",
+  "global_caveats": [
+    "read-only index only",
+    "not candidate authority",
+    "not promotion authority",
+    "not canonical crossing authority",
+    "not paper/live authority",
+    "not ranking or recommendation authority",
+    "no strategy run, backtest, sweep, edge-search, real crossing, promotion, paper/live/runtime contact, data acquisition, or dependency change is encoded here",
+    "research/workbench artifacts have no execution authority unless explicitly promoted through a later approved path"
+  ],
+  "index_authority": "read_only_non_authoritative_index",
+  "package": "WP-LAB-RUN-REGISTRY-PROVENANCE-HARDEN-01"
+}

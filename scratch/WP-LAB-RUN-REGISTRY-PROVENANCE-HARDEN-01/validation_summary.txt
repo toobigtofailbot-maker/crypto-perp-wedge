@@ -1,0 +1,50 @@
+WP-LAB-RUN-REGISTRY-PROVENANCE-HARDEN-01 validation summary
+
+Base commit: cbbca34fa62dabcb17c81bbf25c264f0dcb64b56
+
+Commands run:
+
+- python -m tools.lab_registry.build_lab_run_registry --output scratch\WP-LAB-RUN-REGISTRY-PROVENANCE-HARDEN-01\existing_lab_run_registry_snapshot.json
+  - Result: PASS.
+- python -m tools.lab_registry.validate_lab_run_registry scratch\WP-LAB-RUN-REGISTRY-PROVENANCE-HARDEN-01\existing_lab_run_registry_snapshot.json
+  - Result: PASS. Snapshot validates as lab_run_registry.v1.
+- python -m json.tool scratch\WP-LAB-RUN-REGISTRY-PROVENANCE-HARDEN-01\run_registry_inventory.json
+  - Result: PASS.
+- python -m json.tool scratch\WP-LAB-RUN-REGISTRY-PROVENANCE-HARDEN-01\provenance_lineage_index.json
+  - Result: PASS.
+- python -m json.tool scratch\WP-LAB-RUN-REGISTRY-PROVENANCE-HARDEN-01\blocker_validation_status_index.json
+  - Result: PASS.
+- python -m json.tool scratch\WP-LAB-RUN-REGISTRY-PROVENANCE-HARDEN-01\non_authority_caveat_index.json
+  - Result: PASS.
+- python -m tools.research_query.run --list-views
+  - Result: PASS. Views listed successfully.
+- python -m tools.registry.validate_result_populations
+  - Result: PASS.
+- python -m tools.registry.validate_candidate_registry
+  - Result: PASS.
+- python -m pytest tests\test_lab_run_registry.py -q
+  - Result: PASS, 8 passed.
+- python tools/dev/diff_scope_summary.py
+  - Result: PASS. Forbidden-path matches: none. The report observed package-local untracked files and pre-existing untracked build outputs.
+- git diff --check
+  - Result: PASS.
+- git status --short
+  - Result before staging: package-local scratch/status files untracked; pre-existing untracked build/ left untouched.
+
+Full pytest:
+
+- Not run. This package changes only package-local scratch/status documentation and no shared code, schemas, validators, query-layer behavior, runner/compiler behavior, result populations, candidate lifecycle artifacts, data, runtime, or protected execution behavior.
+
+Boundary validation:
+
+- Strategy run executed: no.
+- Edge-search executed: no.
+- Canonical Result Population mutation: no.
+- Candidate registry mutation: no.
+- Real crossing/promotion: no.
+- Paper/live/runtime contact: no.
+- OMS/risk/reconciliation/order/exchange/broker contact: no.
+- Private provider/API access: no.
+- Data committed: no.
+- Dependency changes: no.
+- Code changes: no.

@@ -1,0 +1,426 @@
+{
+  "entry_lineage": [
+    {
+      "entry_id": "RP-2134",
+      "evidence_class": "canonical",
+      "lineage_refs": [
+        {
+          "artifact_id": "STRAT-SPEC-0001",
+          "path": null,
+          "ref_id": "strategy_spec"
+        },
+        {
+          "artifact_id": "VM-0001",
+          "path": null,
+          "ref_id": "variant_manifest"
+        },
+        {
+          "artifact_id": "SWEEP-PLAN-0001",
+          "path": null,
+          "ref_id": "sweep_plan"
+        }
+      ],
+      "source_paths": [
+        "research/result_populations/RP-2134.result_population.json"
+      ]
+    },
+    {
+      "entry_id": "RP-2592",
+      "evidence_class": "canonical",
+      "lineage_refs": [
+        {
+          "artifact_id": "STRAT-SPEC-0004",
+          "path": null,
+          "ref_id": "strategy_spec"
+        },
+        {
+          "artifact_id": "VM-0004",
+          "path": null,
+          "ref_id": "variant_manifest"
+        },
+        {
+          "artifact_id": "SWEEP-PLAN-0004",
+          "path": null,
+          "ref_id": "sweep_plan"
+        }
+      ],
+      "source_paths": [
+        "research/result_populations/RP-2592.result_population.json"
+      ]
+    },
+    {
+      "entry_id": "RP-3731",
+      "evidence_class": "canonical",
+      "lineage_refs": [
+        {
+          "artifact_id": "STRAT-SPEC-0005",
+          "path": null,
+          "ref_id": "strategy_spec"
+        },
+        {
+          "artifact_id": "VM-0005",
+          "path": null,
+          "ref_id": "variant_manifest"
+        },
+        {
+          "artifact_id": "SWEEP-PLAN-0005",
+          "path": null,
+          "ref_id": "sweep_plan"
+        }
+      ],
+      "source_paths": [
+        "research/result_populations/RP-3731.result_population.json"
+      ]
+    },
+    {
+      "entry_id": "RP-4492",
+      "evidence_class": "canonical",
+      "lineage_refs": [
+        {
+          "artifact_id": "STRAT-SPEC-0001",
+          "path": null,
+          "ref_id": "strategy_spec"
+        },
+        {
+          "artifact_id": "VM-0001",
+          "path": null,
+          "ref_id": "variant_manifest"
+        },
+        {
+          "artifact_id": "SWEEP-PLAN-0001",
+          "path": null,
+          "ref_id": "sweep_plan"
+        }
+      ],
+      "source_paths": [
+        "research/result_populations/RP-4492.result_population.json"
+      ]
+    },
+    {
+      "entry_id": "RP-6236",
+      "evidence_class": "canonical",
+      "lineage_refs": [
+        {
+          "artifact_id": "STRAT-SPEC-0006",
+          "path": null,
+          "ref_id": "strategy_spec"
+        },
+        {
+          "artifact_id": "VM-0006",
+          "path": null,
+          "ref_id": "variant_manifest"
+        },
+        {
+          "artifact_id": "SWEEP-PLAN-0006",
+          "path": null,
+          "ref_id": "sweep_plan"
+        }
+      ],
+      "source_paths": [
+        "research/result_populations/RP-6236.result_population.json"
+      ]
+    },
+    {
+      "entry_id": "RP-6688",
+      "evidence_class": "canonical",
+      "lineage_refs": [
+        {
+          "artifact_id": "STRAT-SPEC-0002",
+          "path": null,
+          "ref_id": "strategy_spec"
+        },
+        {
+          "artifact_id": "VM-0002",
+          "path": null,
+          "ref_id": "variant_manifest"
+        },
+        {
+          "artifact_id": "SWEEP-PLAN-0002",
+          "path": null,
+          "ref_id": "sweep_plan"
+        }
+      ],
+      "source_paths": [
+        "research/result_populations/RP-6688.result_population.json"
+      ]
+    },
+    {
+      "entry_id": "RP-7134",
+      "evidence_class": "canonical",
+      "lineage_refs": [
+        {
+          "artifact_id": "STRAT-SPEC-0003",
+          "path": null,
+          "ref_id": "strategy_spec"
+        },
+        {
+          "artifact_id": "VM-0003",
+          "path": null,
+          "ref_id": "variant_manifest"
+        },
+        {
+          "artifact_id": "SWEEP-PLAN-0003",
+          "path": null,
+          "ref_id": "sweep_plan"
+        }
+      ],
+      "source_paths": [
+        "research/result_populations/RP-7134.result_population.json"
+      ]
+    },
+    {
+      "entry_id": "RP-7520",
+      "evidence_class": "canonical",
+      "lineage_refs": [
+        {
+          "artifact_id": "STRAT-SPEC-0002",
+          "path": null,
+          "ref_id": "strategy_spec"
+        },
+        {
+          "artifact_id": "VM-0002",
+          "path": null,
+          "ref_id": "variant_manifest"
+        },
+        {
+          "artifact_id": "SWEEP-PLAN-0002",
+          "path": null,
+          "ref_id": "sweep_plan"
+        }
+      ],
+      "source_paths": [
+        "research/result_populations/RP-7520.result_population.json"
+      ]
+    },
+    {
+      "entry_id": "candidate_registry_current",
+      "evidence_class": "canonical",
+      "lineage_refs": [],
+      "source_paths": [
+        "research/candidate_registry.jsonl"
+      ]
+    },
+    {
+      "entry_id": "funding_positioning_fade_synthesis_2026_06",
+      "evidence_class": "scratch_only",
+      "lineage_refs": [
+        "scratch/WP-RESEARCH-FUNDING-CARRY-02/*",
+        "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/stage1_verdict.json"
+      ],
+      "source_paths": [
+        "docs/research/FUNDING_POSITIONING_FADE_SYNTHESIS_2026-06.md"
+      ]
+    },
+    {
+      "entry_id": "funding_riskmanaged_triage_run_blocked",
+      "evidence_class": "blocked",
+      "lineage_refs": [],
+      "source_paths": [
+        "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-RUN-01/blocked_reason.json"
+      ]
+    },
+    {
+      "entry_id": "funding_riskmanaged_stage1_triage",
+      "evidence_class": "scratch_only",
+      "lineage_refs": [
+        "docs/research/FUNDING_POSITIONING_FADE_SYNTHESIS_2026-06.md"
+      ],
+      "source_paths": [
+        "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/stage1_verdict.json",
+        "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/row_accounting.json"
+      ]
+    },
+    {
+      "entry_id": "priceonly_synthesis_2026_06",
+      "evidence_class": "docs_only",
+      "lineage_refs": [],
+      "source_paths": [
+        "docs/research/PRICEONLY_SYNTHESIS_2026-06.md",
+        "scratch/WP-RESEARCH-PRICEONLY-SYNTHESIS-01/evidence_index.json"
+      ]
+    },
+    {
+      "entry_id": "lab_state_model_surface",
+      "evidence_class": "docs_only",
+      "lineage_refs": [],
+      "source_paths": [
+        "docs/research/LAB_COORDINATOR_STATE_MODEL.md",
+        "tools/lab_state/"
+      ]
+    },
+    {
+      "entry_id": "lab_results_dashboard_surface",
+      "evidence_class": "docs_only",
+      "lineage_refs": [],
+      "source_paths": [
+        "docs/research/LAB_RESULTS_DASHBOARD_SURFACE.md",
+        "tools/lab_dashboard/"
+      ]
+    },
+    {
+      "entry_id": "lab_reporting_surface",
+      "evidence_class": "docs_only",
+      "lineage_refs": [],
+      "source_paths": [
+        "docs/research/LAB_OPERATOR_BRIEF_REPORT_SURFACE.md",
+        "tools/lab_reporting/"
+      ]
+    },
+    {
+      "entry_id": "lab_approval_queue_surface",
+      "evidence_class": "docs_only",
+      "lineage_refs": [],
+      "source_paths": [
+        "docs/research/LAB_APPROVAL_QUEUE_SURFACE.md"
+      ]
+    },
+    {
+      "entry_id": "lab_scheduler_shell_surface",
+      "evidence_class": "docs_only",
+      "lineage_refs": [],
+      "source_paths": [
+        "docs/research/LAB_SCHEDULER_SHELL_DEFAULT_OFF.md"
+      ]
+    },
+    {
+      "entry_id": "baseline_payload_define_pr583",
+      "evidence_class": "docs_only",
+      "lineage_refs": [],
+      "source_paths": [
+        "scratch/WP-LAB-BASELINE-PAYLOAD-DEFINE-01/baseline_payload_catalog.json"
+      ]
+    },
+    {
+      "entry_id": "gate_hardening_pr584",
+      "evidence_class": "docs_only",
+      "lineage_refs": [],
+      "source_paths": [
+        "docs/research/LAB_STANDARD_CANDIDATE_GATES.md",
+        "scratch/WP-LAB-GATE-HARDENING-WALKFORWARD-ROBUSTNESS-01/baseline_gate_expectations.json"
+      ]
+    },
+    {
+      "entry_id": "nonpromotable_crossing_guard_pr585",
+      "evidence_class": "fixture_only",
+      "lineage_refs": [],
+      "source_paths": [
+        "docs/research/LAB_NONPROMOTABLE_CROSSING_GUARD.md",
+        "scratch/WP-LAB-CROSSING-NONPROMOTABLE-GUARD-01/guard_validation_summary.json"
+      ]
+    },
+    {
+      "entry_id": "agent_loop_baseline_pr586",
+      "evidence_class": "fixture_only",
+      "lineage_refs": [],
+      "source_paths": [
+        "scratch/WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01/baseline_loop_result.json",
+        "scratch/WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01/no_candidate_review_result.json",
+        "scratch/WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01/crossing_rejection_result.json"
+      ]
+    },
+    {
+      "entry_id": "completion_map_update_pr587",
+      "evidence_class": "docs_only",
+      "lineage_refs": [],
+      "source_paths": [
+        "docs/research/LAB_COMPLETION_MAP.md",
+        "scratch/WP-LAB-COMPLETION-MAP-UPDATE-BASELINE-PROVEN-01/completion_state_update.json",
+        "scratch/WP-LAB-COMPLETION-MAP-UPDATE-BASELINE-PROVEN-01/held_boundary_map.json"
+      ]
+    },
+    {
+      "entry_id": "held_boundary_map_current",
+      "evidence_class": "blocked",
+      "lineage_refs": [],
+      "source_paths": [
+        "scratch/WP-LAB-COMPLETION-MAP-UPDATE-BASELINE-PROVEN-01/held_boundary_map.json"
+      ]
+    }
+  ],
+  "generated_at_utc": "2026-06-30T00:26:13Z",
+  "lineage_authority": "read_only_non_authoritative_index",
+  "lineage_groups": [
+    {
+      "class": "canonical evidence",
+      "derived_indexes": [
+        "run_registry_inventory.json",
+        "existing_lab_run_registry_snapshot.json"
+      ],
+      "group_id": "canonical_result_populations",
+      "preserved_distinction": "canonical Result Populations are committed evidence, but this package does not mutate or promote them",
+      "source_paths": [
+        "research/result_populations/RP-2134.result_population.json",
+        "research/result_populations/RP-2592.result_population.json",
+        "research/result_populations/RP-3731.result_population.json",
+        "research/result_populations/RP-4492.result_population.json",
+        "research/result_populations/RP-6236.result_population.json",
+        "research/result_populations/RP-6688.result_population.json",
+        "research/result_populations/RP-7134.result_population.json",
+        "research/result_populations/RP-7520.result_population.json"
+      ]
+    },
+    {
+      "class": "scratch-only triage",
+      "derived_indexes": [
+        "run_registry_inventory.json",
+        "blocker_validation_status_index.json",
+        "non_authority_caveat_index.json"
+      ],
+      "group_id": "funding_fade_scratch_sequence",
+      "preserved_distinction": "NO-GO is scratch-only/non-canonical for these hypotheses and creates no candidate authority",
+      "source_paths": [
+        "docs/research/FUNDING_POSITIONING_FADE_SYNTHESIS_2026-06.md",
+        "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/stage1_verdict.json"
+      ]
+    },
+    {
+      "class": "fixture-only and docs-only factory proof",
+      "derived_indexes": [
+        "run_registry_inventory.json",
+        "provenance_lineage_index.json"
+      ],
+      "group_id": "baseline_pr583_587_sequence",
+      "preserved_distinction": "baseline sequence proves plumbing with construction payloads only; no real candidate flow or edge-search",
+      "source_paths": [
+        "scratch/WP-LAB-BASELINE-PAYLOAD-DEFINE-01/baseline_payload_catalog.json",
+        "docs/research/LAB_STANDARD_CANDIDATE_GATES.md",
+        "scratch/WP-LAB-GATE-HARDENING-WALKFORWARD-ROBUSTNESS-01/baseline_gate_expectations.json",
+        "docs/research/LAB_NONPROMOTABLE_CROSSING_GUARD.md",
+        "scratch/WP-LAB-CROSSING-NONPROMOTABLE-GUARD-01/guard_validation_summary.json",
+        "scratch/WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01/baseline_loop_result.json",
+        "scratch/WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01/no_candidate_review_result.json",
+        "scratch/WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01/crossing_rejection_result.json",
+        "docs/research/LAB_COMPLETION_MAP.md",
+        "scratch/WP-LAB-COMPLETION-MAP-UPDATE-BASELINE-PROVEN-01/completion_state_update.json",
+        "scratch/WP-LAB-COMPLETION-MAP-UPDATE-BASELINE-PROVEN-01/held_boundary_map.json"
+      ]
+    },
+    {
+      "class": "docs-only/read-only surfaces",
+      "derived_indexes": [
+        "run_registry_inventory.json"
+      ],
+      "group_id": "operator_surfaces",
+      "preserved_distinction": "surfaces display state/evidence only and have no write, gate, or execution authority",
+      "source_paths": [
+        "docs/research/LAB_RESULTS_DASHBOARD_SURFACE.md",
+        "docs/research/LAB_OPERATOR_BRIEF_REPORT_SURFACE.md",
+        "docs/research/LAB_APPROVAL_QUEUE_SURFACE.md",
+        "docs/research/LAB_COORDINATOR_STATE_MODEL.md"
+      ]
+    },
+    {
+      "class": "blocked/deferred requirements",
+      "derived_indexes": [
+        "blocker_validation_status_index.json"
+      ],
+      "group_id": "blocked_deferred_requirements",
+      "preserved_distinction": "blocked/deferred states remain blockers and do not authorize implementation work",
+      "source_paths": [
+        "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-RUN-01/blocked_reason.json",
+        "scratch/WP-LAB-COMPLETION-MAP-UPDATE-BASELINE-PROVEN-01/held_boundary_map.json"
+      ]
+    }
+  ],
+  "package": "WP-LAB-RUN-REGISTRY-PROVENANCE-HARDEN-01"
+}

@@ -1,0 +1,32 @@
+{
+  "all_rows_accounted": true,
+  "baseline_id": "known_losing_baseline",
+  "blocked_rows_preserved": true,
+  "candidate_registry_written": false,
+  "canonical_result_population_written": false,
+  "construction_payload": true,
+  "crossing_expected": "reject_by_construction",
+  "edge_search_authorized_here": false,
+  "failed_rows_preserved": true,
+  "favorable_numeric_rows": 36,
+  "favorable_numeric_rows_candidate_eligible": false,
+  "fixture_only": true,
+  "insufficient_or_withheld_rows_preserved": true,
+  "invalid_rows_preserved": true,
+  "lab_declared_finished": false,
+  "non_promotable": true,
+  "package": "WP-LAB-FACTORYTEST-SYNTHETIC-POPULATION-01",
+  "real_strategy_execution": false,
+  "row_count_materialized": 600,
+  "row_count_planned": 600,
+  "status": "completed",
+  "status_counts": {
+    "blocked": 50,
+    "completed": 300,
+    "failed": 100,
+    "insufficient": 50,
+    "invalid": 50,
+    "withheld": 50
+  },
+  "strategy_family_count": 1
+}

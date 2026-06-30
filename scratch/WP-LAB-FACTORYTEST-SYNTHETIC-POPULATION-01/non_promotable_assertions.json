@@ -1,0 +1,21 @@
+{
+  "all_rows_no_candidate_expected": true,
+  "all_rows_reject_by_construction_expected": true,
+  "baseline_id": "known_losing_baseline",
+  "candidate_eligible_any": false,
+  "candidate_registry_written": false,
+  "canonical_crossing_allowed_any": false,
+  "canonical_result_population_written": false,
+  "construction_payload_all_rows": true,
+  "edge_claim_allowed_any": false,
+  "edge_search_authorized_here": false,
+  "favorable_numeric_rows": 36,
+  "favorable_numeric_rows_candidate_eligible": false,
+  "non_promotable_all_rows": true,
+  "package": "WP-LAB-FACTORYTEST-SYNTHETIC-POPULATION-01",
+  "paper_live_eligible_any": false,
+  "promotion_eligible_any": false,
+  "real_strategy_execution": false,
+  "row_count": 600,
+  "synthetic_fixture_only_all_rows": true
+}

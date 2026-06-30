@@ -1,0 +1,267 @@
+{
+  "package": "WP-LAB-SIDE12-COMPLETION-FINAL-MAP-01",
+  "capabilities": [
+    {
+      "capability_id": 1,
+      "capability_name": "Idea intake",
+      "final_status": "complete_for_no_edge_phase",
+      "proof_basis": "Human-driven intake and evidence organization are sufficient for the no-edge phase.",
+      "known_payload_limit": "Known payloads do not create new real ideas.",
+      "remaining_condition_if_any": "Real idea intake resumes only with explicit real research traffic authorization.",
+      "structural_reason": "No-edge completion requires legibility of existing evidence, not autonomous idea generation.",
+      "canonical_authority_created": false,
+      "paper_live_authority_created": false
+    },
+    {
+      "capability_id": 2,
+      "capability_name": "Automatic strategy formalization from arbitrary ideas",
+      "final_status": "not_applicable_to_no_edge_phase",
+      "proof_basis": "Arbitrary formalization is strategy generation / edge-search work, which is not authorized in the no-edge phase.",
+      "known_payload_limit": "A known non-promotable payload does not prove arbitrary strategy formalization.",
+      "remaining_condition_if_any": "Explicit edge-search / strategy-generation authorization.",
+      "structural_reason": "Formalizing arbitrary ideas would create research traffic rather than map current completion.",
+      "canonical_authority_created": false,
+      "paper_live_authority_created": false
+    },
+    {
+      "capability_id": 3,
+      "capability_name": "Strategy-family classification and routing",
+      "final_status": "proven_on_known_payload",
+      "proof_basis": "PR #583 defines the known_losing_baseline lineage; PR #588 routes one construction lineage through scale proof.",
+      "known_payload_limit": "One known lineage cannot prove autonomous multi-family routing over real ideas.",
+      "remaining_condition_if_any": "Real multi-family research traffic.",
+      "structural_reason": "Known-payload routing proves plumbing class handling, not open-ended routing.",
+      "canonical_authority_created": false,
+      "paper_live_authority_created": false
+    },
+    {
+      "capability_id": 4,
+      "capability_name": "Data / primitive / feature availability classifier",
+      "final_status": "held_B_needs_real_research_traffic",
+      "proof_basis": "Blocked, invalid, insufficient, and withheld states are visible in existing evidence and PR #588 status accounting.",
+      "known_payload_limit": "Known payloads do not exercise varied real data and primitive demand.",
+      "remaining_condition_if_any": "A stream of real research jobs with varied data and primitive needs.",
+      "structural_reason": "Availability classification is meaningful when real jobs request unavailable or contested inputs.",
+      "canonical_authority_created": false,
+      "paper_live_authority_created": false
+    },
+    {
+      "capability_id": 5,
+      "capability_name": "Strategy Spec draft generation",
+      "final_status": "not_applicable_to_no_edge_phase",
+      "proof_basis": "PR #583 intentionally avoided schema-valid Strategy Spec drafts because exact construction-only provenance would require schema changes.",
+      "known_payload_limit": "Known non-promotable payload contracts are not Strategy Spec generation proof.",
+      "remaining_condition_if_any": "Explicit strategy-generation or schema-path authorization.",
+      "structural_reason": "Draft generation would be new research creation, outside the final map package.",
+      "canonical_authority_created": false,
+      "paper_live_authority_created": false
+    },
+    {
+      "capability_id": 6,
+      "capability_name": "Variant Manifest / parameter generation",
+      "final_status": "proven_on_known_payload",
+      "proof_basis": "PR #588 proves deterministic known-payload population scaling for one non-promotable lineage.",
+      "known_payload_limit": "It does not prove useful real parameter search or strategy recommendation.",
+      "remaining_condition_if_any": "Real variant traffic under explicit research authorization.",
+      "structural_reason": "Synthetic parameter/status fan-out proves denominator mechanics, not edge discovery.",
+      "canonical_authority_created": false,
+      "paper_live_authority_created": false
+    },
+    {
+      "capability_id": 7,
+      "capability_name": "Sweep Plan generation",
+      "final_status": "proven_on_known_payload",
+      "proof_basis": "PR #588 proves scale-correct population accounting for known-payload sweep-like rows.",
+      "known_payload_limit": "No real Sweep Plan was created or authorized.",
+      "remaining_condition_if_any": "Real sweep plans under explicit research authorization.",
+      "structural_reason": "The lab can preserve known-payload denominator shape, but real planning requires real research traffic.",
+      "canonical_authority_created": false,
+      "paper_live_authority_created": false
+    },
+    {
+      "capability_id": 8,
+      "capability_name": "Large-scale batch sweeps",
+      "final_status": "proven_on_known_payload",
+      "proof_basis": "PR #588 materializes 600 scratch-only known-payload rows across full status mix.",
+      "known_payload_limit": "Scratch fixture scale is not real batch execution over real strategy jobs.",
+      "remaining_condition_if_any": "Real at-scale batch execution under explicit research authorization.",
+      "structural_reason": "Known-payload scale proves accounting and non-promotion behavior, not always-on operation.",
+      "canonical_authority_created": false,
+      "paper_live_authority_created": false
+    },
+    {
+      "capability_id": 9,
+      "capability_name": "Full result-population preservation including failures / blocked / invalid / data-unavailable rows",
+      "final_status": "proven_on_known_payload",
+      "proof_basis": "PR #588 preserves all 600 known-payload rows including completed, failed, invalid, blocked, insufficient, and withheld rows.",
+      "known_payload_limit": "Known rows do not prove continuous preservation under new real research variation.",
+      "remaining_condition_if_any": "Real result-population traffic.",
+      "structural_reason": "The denominator contract is proven for known payloads; real traffic is needed for operational proof.",
+      "canonical_authority_created": true,
+      "paper_live_authority_created": false
+    },
+    {
+      "capability_id": 10,
+      "capability_name": "Run registry / result store with provenance, lineage, validation status, blockers, and run history",
+      "final_status": "complete",
+      "proof_basis": "PR #589 indexes canonical, scratch-only, fixture-only, docs-only, and blocked/deferred entries with provenance and validation state.",
+      "known_payload_limit": "Registry visibility does not create new candidate or execution authority.",
+      "remaining_condition_if_any": "Real research traffic can expand entries but is not needed for no-edge completion.",
+      "structural_reason": "Read-only provenance coverage is complete for current committed evidence.",
+      "canonical_authority_created": true,
+      "paper_live_authority_created": false
+    },
+    {
+      "capability_id": 11,
+      "capability_name": "WFO/OOS execution",
+      "final_status": "proven_on_known_payload",
+      "proof_basis": "PR #584 hardens non-promoting WFO/OOS gate semantics and PR #588 carries known-payload status accounting.",
+      "known_payload_limit": "Known-payload gate semantics are not real candidate WFO/OOS volume.",
+      "remaining_condition_if_any": "Real candidate WFO/OOS execution volume.",
+      "structural_reason": "A known non-promotable input must reject by construction even if metrics look favorable.",
+      "canonical_authority_created": false,
+      "paper_live_authority_created": false
+    },
+    {
+      "capability_id": 12,
+      "capability_name": "Monte Carlo / robustness computation",
+      "final_status": "proven_on_known_payload",
+      "proof_basis": "PR #584 hardens robustness/MC withheld/advisory behavior and PR #588 preserves known-payload robustness statuses.",
+      "known_payload_limit": "Known-payload status preservation is not real MC/robustness compute at volume.",
+      "remaining_condition_if_any": "Real robustness volume over real candidates.",
+      "structural_reason": "Withheld and advisory behavior are proven; real statistical volume needs real research jobs.",
+      "canonical_authority_created": false,
+      "paper_live_authority_created": false
+    },
+    {
+      "capability_id": 13,
+      "capability_name": "Anti-overfit review across full result populations",
+      "final_status": "proven_on_known_payload",
+      "proof_basis": "Full-denominator known-payload preservation prevents winner-only interpretation in PR #588.",
+      "known_payload_limit": "Synthetic known rows do not create real selection pressure.",
+      "remaining_condition_if_any": "Real populations and real selection pressure.",
+      "structural_reason": "Anti-overfit review requires real candidate competition to move beyond fixture proof.",
+      "canonical_authority_created": false,
+      "paper_live_authority_created": false
+    },
+    {
+      "capability_id": 14,
+      "capability_name": "Dashboard coverage",
+      "final_status": "complete",
+      "proof_basis": "PR #590 adds baseline proof and held-boundary panels with fail-closed provenance defaults.",
+      "known_payload_limit": "Dashboard visibility is read-only and creates no candidate authority.",
+      "remaining_condition_if_any": "Future real traffic may add content, not no-edge completion authority.",
+      "structural_reason": "The read-only dashboard now covers the known-payload proof and held-boundary surfaces.",
+      "canonical_authority_created": false,
+      "paper_live_authority_created": false
+    },
+    {
+      "capability_id": 15,
+      "capability_name": "Daily operator brief",
+      "final_status": "complete_for_no_edge_phase",
+      "proof_basis": "Existing read-only reporting surfaces are sufficient for current committed no-edge evidence.",
+      "known_payload_limit": "Known payloads do not create recurring real events.",
+      "remaining_condition_if_any": "Real recurring research traffic/events for always-on operation.",
+      "structural_reason": "Briefing static no-edge evidence is complete; live cadence needs real traffic.",
+      "canonical_authority_created": false,
+      "paper_live_authority_created": false
+    },
+    {
+      "capability_id": 16,
+      "capability_name": "Weekly performance / research report",
+      "final_status": "complete_for_no_edge_phase",
+      "proof_basis": "Existing read-only reporting surfaces are sufficient for current committed no-edge evidence.",
+      "known_payload_limit": "Known payloads do not create recurring real performance/research changes.",
+      "remaining_condition_if_any": "Real recurring research traffic/events for always-on operation.",
+      "structural_reason": "Reporting static no-edge evidence is complete; operational reporting needs real flow.",
+      "canonical_authority_created": false,
+      "paper_live_authority_created": false
+    },
+    {
+      "capability_id": 17,
+      "capability_name": "Notification system",
+      "final_status": "held_B_needs_real_research_traffic",
+      "proof_basis": "Notification firing remains default-off and event-dependent.",
+      "known_payload_limit": "Known payloads do not create real notification-worthy events.",
+      "remaining_condition_if_any": "Real jobs/events plus explicit notification firing authorization.",
+      "structural_reason": "Firing notifications is meaningful only when real research events occur.",
+      "canonical_authority_created": false,
+      "paper_live_authority_created": false
+    },
+    {
+      "capability_id": 18,
+      "capability_name": "Bounded research-agent loop",
+      "final_status": "proven_on_known_payload",
+      "proof_basis": "PR #586 proves no-candidate behavior on known_losing_baseline without rescue, retuning, ranking, promotion, or paper/live recommendation.",
+      "known_payload_limit": "One known payload does not prove autonomous operation over a real queue.",
+      "remaining_condition_if_any": "Real research queue traffic for autonomous loop operation.",
+      "structural_reason": "The bounded loop path is proven for rejection, not for ongoing idea/job handling.",
+      "canonical_authority_created": false,
+      "paper_live_authority_created": false
+    },
+    {
+      "capability_id": 19,
+      "capability_name": "Agent scheduling and prioritization over a research queue",
+      "final_status": "held_B_needs_real_research_traffic",
+      "proof_basis": "Scheduler shell is inert/default-off; known payloads do not create a real queue.",
+      "known_payload_limit": "A known payload cannot prove prioritization among real jobs.",
+      "remaining_condition_if_any": "Real research queue plus explicit autonomy authorization.",
+      "structural_reason": "Scheduling/prioritization requires multiple real jobs and resource tradeoffs.",
+      "canonical_authority_created": false,
+      "paper_live_authority_created": false
+    },
+    {
+      "capability_id": 20,
+      "capability_name": "Research queue / job orchestration / resource limits",
+      "final_status": "held_B_needs_real_research_traffic",
+      "proof_basis": "Shell/queue structures exist only as no-op/default-off surfaces.",
+      "known_payload_limit": "Known payloads do not create real queue pressure or resource contention.",
+      "remaining_condition_if_any": "Real research jobs and resource policy authorization.",
+      "structural_reason": "Orchestration/resource limits are only meaningful under real traffic.",
+      "canonical_authority_created": false,
+      "paper_live_authority_created": false
+    },
+    {
+      "capability_id": 21,
+      "capability_name": "Candidate lifecycle gate maturity for real candidates",
+      "final_status": "needs_real_GO_candidate",
+      "proof_basis": "Non-promotable rejection is proven; no real GO candidate exists.",
+      "known_payload_limit": "Reject-by-construction cannot prove real candidate lifecycle maturity.",
+      "remaining_condition_if_any": "A real candidate reaching human review under explicit authority.",
+      "structural_reason": "Lifecycle maturity for real candidates requires a real candidate object.",
+      "canonical_authority_created": true,
+      "paper_live_authority_created": false
+    },
+    {
+      "capability_id": 22,
+      "capability_name": "First real candidate crossing",
+      "final_status": "needs_real_GO_candidate",
+      "proof_basis": "PR #585/#586 prove reject_by_construction for non-promotable payloads, not real crossing.",
+      "known_payload_limit": "Known non-promotable payloads must not cross.",
+      "remaining_condition_if_any": "A real GO candidate and explicit crossing package.",
+      "structural_reason": "The correct proof for known payloads is rejection; real crossing needs a different authorized input.",
+      "canonical_authority_created": false,
+      "paper_live_authority_created": false
+    },
+    {
+      "capability_id": 23,
+      "capability_name": "Paper/live path",
+      "final_status": "GO_gated_protected",
+      "proof_basis": "Paper/live/runtime paths remain protected and untouched.",
+      "known_payload_limit": "Known-payload lab proof creates no execution authority.",
+      "remaining_condition_if_any": "Explicit GO decision under protected runtime gates.",
+      "structural_reason": "Paper/live belongs to protected execution-machine scope, not no-edge lab completion.",
+      "canonical_authority_created": false,
+      "paper_live_authority_created": false
+    }
+  ],
+  "status_counts": {
+    "complete": 2,
+    "proven_on_known_payload": 9,
+    "complete_for_no_edge_phase": 3,
+    "held_B_needs_real_research_traffic": 4,
+    "needs_real_GO_candidate": 2,
+    "GO_gated_protected": 1,
+    "not_applicable_to_no_edge_phase": 2
+  }
+}

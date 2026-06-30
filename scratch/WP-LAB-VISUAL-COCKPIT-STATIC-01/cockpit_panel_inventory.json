@@ -1,0 +1,14 @@
+{
+  "package": "WP-LAB-VISUAL-COCKPIT-STATIC-01",
+  "panels": {
+    "backtest_visualization": true,
+    "candidate_review_funnel": true,
+    "capability_completion": true,
+    "factory_activity": true,
+    "lab_overview": true,
+    "mc_robustness": true,
+    "operator_reports": true,
+    "strategy_job_explorer": true
+  },
+  "read_only_non_authoritative": true
+}

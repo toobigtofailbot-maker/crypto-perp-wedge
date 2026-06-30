@@ -1,0 +1,43 @@
+{
+  "allowed_local_ui_only": [
+    "details/links/static tables if present",
+    "CSS/SVG charts"
+  ],
+  "broker_exchange_order_oms_risk_reconciliation_controls": {
+    "matches": 0,
+    "passed": true
+  },
+  "candidate_crossing_controls": {
+    "matches": 0,
+    "passed": true
+  },
+  "external_scripts": {
+    "matches": 0,
+    "passed": true
+  },
+  "fetch_network": {
+    "matches": 0,
+    "passed": true
+  },
+  "forms": {
+    "matches": 0,
+    "passed": true
+  },
+  "live_fetch_controls": {
+    "matches": 0,
+    "passed": true
+  },
+  "overall_pass": true,
+  "paper_live_runtime_controls": {
+    "matches": 0,
+    "passed": true
+  },
+  "run_retry_approve_promote_controls": {
+    "matches": 0,
+    "passed": true
+  },
+  "scheduler_controls": {
+    "matches": 0,
+    "passed": true
+  }
+}

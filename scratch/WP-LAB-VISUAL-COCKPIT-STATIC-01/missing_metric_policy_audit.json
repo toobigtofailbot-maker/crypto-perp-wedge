@@ -1,0 +1,67 @@
+{
+  "missing_drawdown_curve": "rendered_unavailable_not_present",
+  "missing_equity_curve": "rendered_unavailable_not_present",
+  "missing_mc_robustness_data": "rendered_withheld_unavailable",
+  "missing_returns_distribution": "rendered_unavailable_not_present",
+  "no_fabricated_metrics": true,
+  "placeholder_fake_performance_numbers": false,
+  "result_population_checks": [
+    {
+      "drawdown_curve": "unavailable/not present",
+      "equity_curve": "unavailable/not present",
+      "mc_robustness_distribution": "withheld/unavailable",
+      "result_population_id": "RP-2134",
+      "returns_distribution": "unavailable/not present"
+    },
+    {
+      "drawdown_curve": "unavailable/not present",
+      "equity_curve": "unavailable/not present",
+      "mc_robustness_distribution": "withheld/unavailable",
+      "result_population_id": "RP-2592",
+      "returns_distribution": "unavailable/not present"
+    },
+    {
+      "drawdown_curve": "unavailable/not present",
+      "equity_curve": "unavailable/not present",
+      "mc_robustness_distribution": "withheld/unavailable",
+      "result_population_id": "RP-3731",
+      "returns_distribution": "unavailable/not present"
+    },
+    {
+      "drawdown_curve": "unavailable/not present",
+      "equity_curve": "unavailable/not present",
+      "mc_robustness_distribution": "withheld/unavailable",
+      "result_population_id": "RP-4492",
+      "returns_distribution": "unavailable/not present"
+    },
+    {
+      "drawdown_curve": "unavailable/not present",
+      "equity_curve": "unavailable/not present",
+      "mc_robustness_distribution": "withheld/unavailable",
+      "result_population_id": "RP-6236",
+      "returns_distribution": "unavailable/not present"
+    },
+    {
+      "drawdown_curve": "unavailable/not present",
+      "equity_curve": "unavailable/not present",
+      "mc_robustness_distribution": "withheld/unavailable",
+      "result_population_id": "RP-6688",
+      "returns_distribution": "unavailable/not present"
+    },
+    {
+      "drawdown_curve": "unavailable/not present",
+      "equity_curve": "unavailable/not present",
+      "mc_robustness_distribution": "withheld/unavailable",
+      "result_population_id": "RP-7134",
+      "returns_distribution": "unavailable/not present"
+    },
+    {
+      "drawdown_curve": "unavailable/not present",
+      "equity_curve": "unavailable/not present",
+      "mc_robustness_distribution": "withheld/unavailable",
+      "result_population_id": "RP-7520",
+      "returns_distribution": "unavailable/not present"
+    }
+  ],
+  "withheld_metrics": "rendered_withheld"
+}

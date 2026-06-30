@@ -1,0 +1,945 @@
+{
+  "base_commit": "cbbca34fa62dabcb17c81bbf25c264f0dcb64b56",
+  "candidate_registry_mutated": false,
+  "canonical_artifacts_mutated": false,
+  "edge_search_executed": false,
+  "entries": [
+    {
+      "artifact_type": "canonical_result_population",
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "dashboard_visible": true,
+      "entry_id": "RP-2134",
+      "evidence_class": "canonical",
+      "hypothesis_or_subject": "STRAT-SPEC-0001 / VM-0001 / SWEEP-PLAN-0001",
+      "lineage_refs": [
+        {
+          "artifact_id": "STRAT-SPEC-0001",
+          "path": null,
+          "ref_id": "strategy_spec"
+        },
+        {
+          "artifact_id": "VM-0001",
+          "path": null,
+          "ref_id": "variant_manifest"
+        },
+        {
+          "artifact_id": "SWEEP-PLAN-0001",
+          "path": null,
+          "ref_id": "sweep_plan"
+        }
+      ],
+      "non_authority_caveats": [
+        "canonical Result Population exists, but this index adds no new interpretation beyond recorded evidence",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "run_id_or_package": "RP-2134",
+      "source_package": "lab/run-registry-provenance-harden-01",
+      "source_paths": [
+        "research/result_populations/RP-2134.result_population.json"
+      ],
+      "source_pr": null,
+      "source_pr_if_known": null,
+      "terminal_state": "complete_non_decisional",
+      "validation_status": "PASS"
+    },
+    {
+      "artifact_type": "canonical_result_population",
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "dashboard_visible": true,
+      "entry_id": "RP-2592",
+      "evidence_class": "canonical",
+      "hypothesis_or_subject": "STRAT-SPEC-0004 / VM-0004 / SWEEP-PLAN-0004",
+      "lineage_refs": [
+        {
+          "artifact_id": "STRAT-SPEC-0004",
+          "path": null,
+          "ref_id": "strategy_spec"
+        },
+        {
+          "artifact_id": "VM-0004",
+          "path": null,
+          "ref_id": "variant_manifest"
+        },
+        {
+          "artifact_id": "SWEEP-PLAN-0004",
+          "path": null,
+          "ref_id": "sweep_plan"
+        }
+      ],
+      "non_authority_caveats": [
+        "canonical Result Population exists, but this index adds no new interpretation beyond recorded evidence",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "run_id_or_package": "RP-2592",
+      "source_package": "lab/run-registry-provenance-harden-01",
+      "source_paths": [
+        "research/result_populations/RP-2592.result_population.json"
+      ],
+      "source_pr": null,
+      "source_pr_if_known": null,
+      "terminal_state": "NO-GO",
+      "validation_status": "PASS"
+    },
+    {
+      "artifact_type": "canonical_result_population",
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "dashboard_visible": true,
+      "entry_id": "RP-3731",
+      "evidence_class": "canonical",
+      "hypothesis_or_subject": "STRAT-SPEC-0005 / VM-0005 / SWEEP-PLAN-0005",
+      "lineage_refs": [
+        {
+          "artifact_id": "STRAT-SPEC-0005",
+          "path": null,
+          "ref_id": "strategy_spec"
+        },
+        {
+          "artifact_id": "VM-0005",
+          "path": null,
+          "ref_id": "variant_manifest"
+        },
+        {
+          "artifact_id": "SWEEP-PLAN-0005",
+          "path": null,
+          "ref_id": "sweep_plan"
+        }
+      ],
+      "non_authority_caveats": [
+        "canonical Result Population exists, but this index adds no new interpretation beyond recorded evidence",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "run_id_or_package": "RP-3731",
+      "source_package": "lab/run-registry-provenance-harden-01",
+      "source_paths": [
+        "research/result_populations/RP-3731.result_population.json"
+      ],
+      "source_pr": null,
+      "source_pr_if_known": null,
+      "terminal_state": "NO-GO",
+      "validation_status": "PASS"
+    },
+    {
+      "artifact_type": "canonical_result_population",
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "dashboard_visible": true,
+      "entry_id": "RP-4492",
+      "evidence_class": "canonical",
+      "hypothesis_or_subject": "STRAT-SPEC-0001 / VM-0001 / SWEEP-PLAN-0001",
+      "lineage_refs": [
+        {
+          "artifact_id": "STRAT-SPEC-0001",
+          "path": null,
+          "ref_id": "strategy_spec"
+        },
+        {
+          "artifact_id": "VM-0001",
+          "path": null,
+          "ref_id": "variant_manifest"
+        },
+        {
+          "artifact_id": "SWEEP-PLAN-0001",
+          "path": null,
+          "ref_id": "sweep_plan"
+        }
+      ],
+      "non_authority_caveats": [
+        "canonical Result Population exists, but this index adds no new interpretation beyond recorded evidence",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "run_id_or_package": "RP-4492",
+      "source_package": "lab/run-registry-provenance-harden-01",
+      "source_paths": [
+        "research/result_populations/RP-4492.result_population.json"
+      ],
+      "source_pr": null,
+      "source_pr_if_known": null,
+      "terminal_state": "complete_non_decisional",
+      "validation_status": "PASS"
+    },
+    {
+      "artifact_type": "canonical_result_population",
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "dashboard_visible": true,
+      "entry_id": "RP-6236",
+      "evidence_class": "canonical",
+      "hypothesis_or_subject": "STRAT-SPEC-0006 / VM-0006 / SWEEP-PLAN-0006",
+      "lineage_refs": [
+        {
+          "artifact_id": "STRAT-SPEC-0006",
+          "path": null,
+          "ref_id": "strategy_spec"
+        },
+        {
+          "artifact_id": "VM-0006",
+          "path": null,
+          "ref_id": "variant_manifest"
+        },
+        {
+          "artifact_id": "SWEEP-PLAN-0006",
+          "path": null,
+          "ref_id": "sweep_plan"
+        }
+      ],
+      "non_authority_caveats": [
+        "canonical Result Population exists, but this index adds no new interpretation beyond recorded evidence",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "run_id_or_package": "RP-6236",
+      "source_package": "lab/run-registry-provenance-harden-01",
+      "source_paths": [
+        "research/result_populations/RP-6236.result_population.json"
+      ],
+      "source_pr": null,
+      "source_pr_if_known": null,
+      "terminal_state": "complete_non_decisional",
+      "validation_status": "PASS"
+    },
+    {
+      "artifact_type": "canonical_result_population",
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "dashboard_visible": true,
+      "entry_id": "RP-6688",
+      "evidence_class": "canonical",
+      "hypothesis_or_subject": "STRAT-SPEC-0002 / VM-0002 / SWEEP-PLAN-0002",
+      "lineage_refs": [
+        {
+          "artifact_id": "STRAT-SPEC-0002",
+          "path": null,
+          "ref_id": "strategy_spec"
+        },
+        {
+          "artifact_id": "VM-0002",
+          "path": null,
+          "ref_id": "variant_manifest"
+        },
+        {
+          "artifact_id": "SWEEP-PLAN-0002",
+          "path": null,
+          "ref_id": "sweep_plan"
+        }
+      ],
+      "non_authority_caveats": [
+        "canonical Result Population exists, but this index adds no new interpretation beyond recorded evidence",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "run_id_or_package": "RP-6688",
+      "source_package": "lab/run-registry-provenance-harden-01",
+      "source_paths": [
+        "research/result_populations/RP-6688.result_population.json"
+      ],
+      "source_pr": null,
+      "source_pr_if_known": null,
+      "terminal_state": "NO-GO",
+      "validation_status": "PASS"
+    },
+    {
+      "artifact_type": "canonical_result_population",
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "dashboard_visible": true,
+      "entry_id": "RP-7134",
+      "evidence_class": "canonical",
+      "hypothesis_or_subject": "STRAT-SPEC-0003 / VM-0003 / SWEEP-PLAN-0003",
+      "lineage_refs": [
+        {
+          "artifact_id": "STRAT-SPEC-0003",
+          "path": null,
+          "ref_id": "strategy_spec"
+        },
+        {
+          "artifact_id": "VM-0003",
+          "path": null,
+          "ref_id": "variant_manifest"
+        },
+        {
+          "artifact_id": "SWEEP-PLAN-0003",
+          "path": null,
+          "ref_id": "sweep_plan"
+        }
+      ],
+      "non_authority_caveats": [
+        "canonical Result Population exists, but this index adds no new interpretation beyond recorded evidence",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "run_id_or_package": "RP-7134",
+      "source_package": "lab/run-registry-provenance-harden-01",
+      "source_paths": [
+        "research/result_populations/RP-7134.result_population.json"
+      ],
+      "source_pr": null,
+      "source_pr_if_known": null,
+      "terminal_state": "NO-GO",
+      "validation_status": "PASS"
+    },
+    {
+      "artifact_type": "canonical_result_population",
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "dashboard_visible": true,
+      "entry_id": "RP-7520",
+      "evidence_class": "canonical",
+      "hypothesis_or_subject": "STRAT-SPEC-0002 / VM-0002 / SWEEP-PLAN-0002",
+      "lineage_refs": [
+        {
+          "artifact_id": "STRAT-SPEC-0002",
+          "path": null,
+          "ref_id": "strategy_spec"
+        },
+        {
+          "artifact_id": "VM-0002",
+          "path": null,
+          "ref_id": "variant_manifest"
+        },
+        {
+          "artifact_id": "SWEEP-PLAN-0002",
+          "path": null,
+          "ref_id": "sweep_plan"
+        }
+      ],
+      "non_authority_caveats": [
+        "canonical Result Population exists, but this index adds no new interpretation beyond recorded evidence",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "run_id_or_package": "RP-7520",
+      "source_package": "lab/run-registry-provenance-harden-01",
+      "source_paths": [
+        "research/result_populations/RP-7520.result_population.json"
+      ],
+      "source_pr": null,
+      "source_pr_if_known": null,
+      "terminal_state": "NO-GO",
+      "validation_status": "PASS"
+    },
+    {
+      "artifact_type": "candidate_registry_inventory",
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "dashboard_visible": true,
+      "entry_id": "candidate_registry_current",
+      "evidence_class": "canonical",
+      "hypothesis_or_subject": "H-001..H-012 candidate registry state",
+      "lineage_refs": [],
+      "non_authority_caveats": [
+        "candidate registry is inspected only; this package does not append or mutate it",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "run_id_or_package": "candidate_registry_current",
+      "source_package": "current_repo_truth",
+      "source_paths": [
+        "research/candidate_registry.jsonl"
+      ],
+      "source_pr": null,
+      "source_pr_if_known": null,
+      "terminal_state": "mixed_NO-GO_and_reserved",
+      "validation_status": "PASS"
+    },
+    {
+      "artifact_type": "research_synthesis",
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "dashboard_visible": true,
+      "entry_id": "funding_positioning_fade_synthesis_2026_06",
+      "evidence_class": "scratch_only",
+      "hypothesis_or_subject": "H-FUNDING-RATE-POSITIONING-FADE-01 and H-FUNDING-FADE-RISKMANAGED-01",
+      "lineage_refs": [
+        "scratch/WP-RESEARCH-FUNDING-CARRY-02/*",
+        "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/stage1_verdict.json"
+      ],
+      "non_authority_caveats": [
+        "scratch-only funding-fade conclusion; no candidate registered and no canonical crossing executed",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "run_id_or_package": "funding_positioning_fade_synthesis_2026_06",
+      "source_package": "WP-RESEARCH-FUNDING-CARRY-02 / WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01",
+      "source_paths": [
+        "docs/research/FUNDING_POSITIONING_FADE_SYNTHESIS_2026-06.md"
+      ],
+      "source_pr": null,
+      "source_pr_if_known": null,
+      "terminal_state": "NO-GO",
+      "validation_status": "PASS"
+    },
+    {
+      "artifact_type": "blocked_run_attempt",
+      "blockers": [
+        "warmup/evaluation-window route unavailable without unauthorized runner/data changes",
+        "runner-consumable funding-feature CSV absent in worktree"
+      ],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "dashboard_visible": false,
+      "entry_id": "funding_riskmanaged_triage_run_blocked",
+      "evidence_class": "blocked",
+      "hypothesis_or_subject": "H-FUNDING-FADE-RISKMANAGED-01 initial runner route",
+      "lineage_refs": [],
+      "non_authority_caveats": [
+        "blocked attempt was not replaced by an unsafe partial run",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "run_id_or_package": "funding_riskmanaged_triage_run_blocked",
+      "source_package": "WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-RUN-01",
+      "source_paths": [
+        "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-RUN-01/blocked_reason.json"
+      ],
+      "source_pr": null,
+      "source_pr_if_known": null,
+      "terminal_state": "blocked",
+      "validation_status": "BLOCKED"
+    },
+    {
+      "artifact_type": "scratch_triage_result",
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "dashboard_visible": true,
+      "entry_id": "funding_riskmanaged_stage1_triage",
+      "evidence_class": "scratch_only",
+      "hypothesis_or_subject": "H-FUNDING-FADE-RISKMANAGED-01 2024 Stage-1 triage",
+      "lineage_refs": [
+        "docs/research/FUNDING_POSITIONING_FADE_SYNTHESIS_2026-06.md"
+      ],
+      "non_authority_caveats": [
+        "triage-only Stage-1 conclusion; no Stage-2, canonical evidence, or candidate lifecycle write authorized",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "run_id_or_package": "funding_riskmanaged_stage1_triage",
+      "source_package": "WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01",
+      "source_paths": [
+        "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/stage1_verdict.json",
+        "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/row_accounting.json"
+      ],
+      "source_pr": 581,
+      "source_pr_if_known": 581,
+      "terminal_state": "NO-GO",
+      "validation_status": "PASS"
+    },
+    {
+      "artifact_type": "research_synthesis",
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "dashboard_visible": true,
+      "entry_id": "priceonly_synthesis_2026_06",
+      "evidence_class": "docs_only",
+      "hypothesis_or_subject": "BTCUSDT 15m price-only and data-derived frontier status",
+      "lineage_refs": [],
+      "non_authority_caveats": [
+        "evidence organization only; not a strategy recommendation or candidate-review packet",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "run_id_or_package": "priceonly_synthesis_2026_06",
+      "source_package": "WP-RESEARCH-PRICEONLY-SYNTHESIS-01",
+      "source_paths": [
+        "docs/research/PRICEONLY_SYNTHESIS_2026-06.md",
+        "scratch/WP-RESEARCH-PRICEONLY-SYNTHESIS-01/evidence_index.json"
+      ],
+      "source_pr": null,
+      "source_pr_if_known": null,
+      "terminal_state": "complete",
+      "validation_status": "PASS"
+    },
+    {
+      "artifact_type": "lab_surface",
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "dashboard_visible": true,
+      "entry_id": "lab_state_model_surface",
+      "evidence_class": "docs_only",
+      "hypothesis_or_subject": "coordinator state model",
+      "lineage_refs": [],
+      "non_authority_caveats": [
+        "read-only state projection; transition execution remains human-gated elsewhere",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "run_id_or_package": "lab_state_model_surface",
+      "source_package": "WP-LAB-COORDINATOR-STATE-MODEL-01 / WP-LAB-COVERAGE-GAP-CLOSE-01",
+      "source_paths": [
+        "docs/research/LAB_COORDINATOR_STATE_MODEL.md",
+        "tools/lab_state/"
+      ],
+      "source_pr": null,
+      "source_pr_if_known": null,
+      "terminal_state": "complete",
+      "validation_status": "PASS"
+    },
+    {
+      "artifact_type": "lab_surface",
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "dashboard_visible": true,
+      "entry_id": "lab_results_dashboard_surface",
+      "evidence_class": "docs_only",
+      "hypothesis_or_subject": "results dashboard",
+      "lineage_refs": [],
+      "non_authority_caveats": [
+        "dashboard displays evidence and denominators; it cannot rank, approve, or execute",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "run_id_or_package": "lab_results_dashboard_surface",
+      "source_package": "WP-LAB-RESULTS-DASHBOARD-01",
+      "source_paths": [
+        "docs/research/LAB_RESULTS_DASHBOARD_SURFACE.md",
+        "tools/lab_dashboard/"
+      ],
+      "source_pr": null,
+      "source_pr_if_known": null,
+      "terminal_state": "complete",
+      "validation_status": "PASS"
+    },
+    {
+      "artifact_type": "lab_surface",
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "dashboard_visible": true,
+      "entry_id": "lab_reporting_surface",
+      "evidence_class": "docs_only",
+      "hypothesis_or_subject": "operator brief/report surface",
+      "lineage_refs": [],
+      "non_authority_caveats": [
+        "operator-readable shaping only; no notification firing or action execution",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "run_id_or_package": "lab_reporting_surface",
+      "source_package": "WP-LAB-OPERATOR-BRIEF-REPORT-01",
+      "source_paths": [
+        "docs/research/LAB_OPERATOR_BRIEF_REPORT_SURFACE.md",
+        "tools/lab_reporting/"
+      ],
+      "source_pr": null,
+      "source_pr_if_known": null,
+      "terminal_state": "complete",
+      "validation_status": "PASS"
+    },
+    {
+      "artifact_type": "lab_surface",
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "dashboard_visible": true,
+      "entry_id": "lab_approval_queue_surface",
+      "evidence_class": "docs_only",
+      "hypothesis_or_subject": "approval/gate queue surface",
+      "lineage_refs": [],
+      "non_authority_caveats": [
+        "queue displays gates only; it cannot write approvals or create candidate readiness",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "run_id_or_package": "lab_approval_queue_surface",
+      "source_package": "WP-LAB-APPROVAL-QUEUE-SURFACE-01",
+      "source_paths": [
+        "docs/research/LAB_APPROVAL_QUEUE_SURFACE.md"
+      ],
+      "source_pr": null,
+      "source_pr_if_known": null,
+      "terminal_state": "nothing_candidate_ready",
+      "validation_status": "PASS"
+    },
+    {
+      "artifact_type": "lab_surface",
+      "blockers": [
+        "no executor; autonomous flags remain false"
+      ],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "dashboard_visible": true,
+      "entry_id": "lab_scheduler_shell_surface",
+      "evidence_class": "docs_only",
+      "hypothesis_or_subject": "scheduler shell default-off surface",
+      "lineage_refs": [],
+      "non_authority_caveats": [
+        "scheduler shell can plan no-ops only; no run triggering authority",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "run_id_or_package": "lab_scheduler_shell_surface",
+      "source_package": "WP-LAB-SCHEDULER-SHELL-DEFAULT-OFF-01",
+      "source_paths": [
+        "docs/research/LAB_SCHEDULER_SHELL_DEFAULT_OFF.md"
+      ],
+      "source_pr": null,
+      "source_pr_if_known": null,
+      "terminal_state": "default_off_inert",
+      "validation_status": "PASS"
+    },
+    {
+      "artifact_type": "baseline_contract",
+      "blockers": [
+        "schema-valid Strategy Spec/VM/Sweep drafts deferred because exact provenance fields need schema changes"
+      ],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "dashboard_visible": false,
+      "entry_id": "baseline_payload_define_pr583",
+      "evidence_class": "docs_only",
+      "hypothesis_or_subject": "construction payload catalog",
+      "lineage_refs": [],
+      "non_authority_caveats": [
+        "baselines are construction-only and non-promotable",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "run_id_or_package": "baseline_payload_define_pr583",
+      "source_package": "WP-LAB-BASELINE-PAYLOAD-DEFINE-01",
+      "source_paths": [
+        "scratch/WP-LAB-BASELINE-PAYLOAD-DEFINE-01/baseline_payload_catalog.json"
+      ],
+      "source_pr": 583,
+      "source_pr_if_known": 583,
+      "terminal_state": "complete",
+      "validation_status": "PASS"
+    },
+    {
+      "artifact_type": "gate_contract",
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "dashboard_visible": false,
+      "entry_id": "gate_hardening_pr584",
+      "evidence_class": "docs_only",
+      "hypothesis_or_subject": "non-promoting WFO/OOS and robustness gate semantics",
+      "lineage_refs": [],
+      "non_authority_caveats": [
+        "numeric results cannot override construction/non-promotable provenance",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "run_id_or_package": "gate_hardening_pr584",
+      "source_package": "WP-LAB-GATE-HARDENING-WALKFORWARD-ROBUSTNESS-01",
+      "source_paths": [
+        "docs/research/LAB_STANDARD_CANDIDATE_GATES.md",
+        "scratch/WP-LAB-GATE-HARDENING-WALKFORWARD-ROBUSTNESS-01/baseline_gate_expectations.json"
+      ],
+      "source_pr": 584,
+      "source_pr_if_known": 584,
+      "terminal_state": "complete",
+      "validation_status": "PASS"
+    },
+    {
+      "artifact_type": "fixture_guard",
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "dashboard_visible": false,
+      "entry_id": "nonpromotable_crossing_guard_pr585",
+      "evidence_class": "fixture_only",
+      "hypothesis_or_subject": "construction payload crossing guard",
+      "lineage_refs": [],
+      "non_authority_caveats": [
+        "fixture-only guard proof; no real crossing performed",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "run_id_or_package": "nonpromotable_crossing_guard_pr585",
+      "source_package": "WP-LAB-CROSSING-NONPROMOTABLE-GUARD-01",
+      "source_paths": [
+        "docs/research/LAB_NONPROMOTABLE_CROSSING_GUARD.md",
+        "scratch/WP-LAB-CROSSING-NONPROMOTABLE-GUARD-01/guard_validation_summary.json"
+      ],
+      "source_pr": 585,
+      "source_pr_if_known": 585,
+      "terminal_state": "reject_by_construction",
+      "validation_status": "PASS"
+    },
+    {
+      "artifact_type": "fixture_exercise",
+      "blockers": [],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "dashboard_visible": true,
+      "entry_id": "agent_loop_baseline_pr586",
+      "evidence_class": "fixture_only",
+      "hypothesis_or_subject": "baseline no-candidate lab loop",
+      "lineage_refs": [],
+      "non_authority_caveats": [
+        "baseline loop did not recommend rescue, retuning, ranking, promotion, real crossing, or paper/live action",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "run_id_or_package": "agent_loop_baseline_pr586",
+      "source_package": "WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01",
+      "source_paths": [
+        "scratch/WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01/baseline_loop_result.json",
+        "scratch/WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01/no_candidate_review_result.json",
+        "scratch/WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01/crossing_rejection_result.json"
+      ],
+      "source_pr": 586,
+      "source_pr_if_known": 586,
+      "terminal_state": "no-candidate",
+      "validation_status": "PASS"
+    },
+    {
+      "artifact_type": "completion_map",
+      "blockers": [
+        "at-scale/autonomous layers held until real edge-search or real candidate flow"
+      ],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "dashboard_visible": true,
+      "entry_id": "completion_map_update_pr587",
+      "evidence_class": "docs_only",
+      "hypothesis_or_subject": "baseline-proven lab completion state",
+      "lineage_refs": [],
+      "non_authority_caveats": [
+        "lab is not declared finished without qualification; no edge-search fork chosen",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "run_id_or_package": "completion_map_update_pr587",
+      "source_package": "WP-LAB-COMPLETION-MAP-UPDATE-BASELINE-PROVEN-01",
+      "source_paths": [
+        "docs/research/LAB_COMPLETION_MAP.md",
+        "scratch/WP-LAB-COMPLETION-MAP-UPDATE-BASELINE-PROVEN-01/completion_state_update.json",
+        "scratch/WP-LAB-COMPLETION-MAP-UPDATE-BASELINE-PROVEN-01/held_boundary_map.json"
+      ],
+      "source_pr": 587,
+      "source_pr_if_known": 587,
+      "terminal_state": "complete_with_held_B_boundaries",
+      "validation_status": "PASS"
+    },
+    {
+      "artifact_type": "blocked_deferred_boundary_index",
+      "blockers": [
+        "real candidate crossing requires real GO candidate",
+        "paper/live/runtime and OMS/risk/reconciliation/order/exchange remain GO-gated protected"
+      ],
+      "candidate_eligible": false,
+      "canonical_crossing_allowed": false,
+      "dashboard_visible": false,
+      "entry_id": "held_boundary_map_current",
+      "evidence_class": "blocked",
+      "hypothesis_or_subject": "held-B and GO-gated protected boundaries",
+      "lineage_refs": [],
+      "non_authority_caveats": [
+        "deferred boundaries are recorded as blockers, not backlog permission",
+        "read-only index only",
+        "not candidate authority",
+        "not promotion authority",
+        "not canonical crossing authority",
+        "not paper/live authority",
+        "not ranking or recommendation authority"
+      ],
+      "operator_visible": true,
+      "paper_live_eligible": false,
+      "promotion_eligible": false,
+      "run_id_or_package": "held_boundary_map_current",
+      "source_package": "WP-LAB-COMPLETION-MAP-UPDATE-BASELINE-PROVEN-01",
+      "source_paths": [
+        "scratch/WP-LAB-COMPLETION-MAP-UPDATE-BASELINE-PROVEN-01/held_boundary_map.json"
+      ],
+      "source_pr": 587,
+      "source_pr_if_known": 587,
+      "terminal_state": "deferred_or_go_gated",
+      "validation_status": "PASS"
+    }
+  ],
+  "entry_count": 24,
+  "evidence_class_counts": {
+    "blocked": 2,
+    "canonical": 9,
+    "docs_only": 9,
+    "fixture_only": 2,
+    "non_authoritative": 0,
+    "scratch_only": 2
+  },
+  "generated_at_utc": "2026-06-30T00:26:13Z",
+  "package": "WP-LAB-RUN-REGISTRY-PROVENANCE-HARDEN-01",
+  "registry_authority": "read_only_non_authoritative_index",
+  "strategy_run_executed": false
+}

@@ -1,0 +1,1239 @@
+{
+  "generated_at_utc": "2026-06-30T00:28:38Z",
+  "records": [
+    {
+      "analytics_report_ref": null,
+      "created_at_utc": "2026-06-30T00:28:38Z",
+      "dashboard_data_ref": null,
+      "data_slice_refs": [
+        {
+          "identity": "csv_fixture:sha256:90c38fd1fe4f2e86ee0a2ad1a4efaca4af7fde0f8f5bc75d8b1cfe54c16dabd0",
+          "path": null,
+          "ref_id": "data_slice_identity"
+        }
+      ],
+      "lineage_refs": [
+        {
+          "artifact_id": "STRAT-SPEC-0001",
+          "path": null,
+          "ref_id": "strategy_spec"
+        },
+        {
+          "artifact_id": "VM-0001",
+          "path": null,
+          "ref_id": "variant_manifest"
+        },
+        {
+          "artifact_id": "SWEEP-PLAN-0001",
+          "path": null,
+          "ref_id": "sweep_plan"
+        }
+      ],
+      "non_authority_flags": {
+        "display_only": true,
+        "not_approval": true,
+        "not_execution": true,
+        "not_paper_live": true,
+        "not_promotion": true,
+        "not_ranking_authority": true,
+        "not_readiness": true,
+        "not_recommendation": true
+      },
+      "result_population_id": "RP-2134",
+      "result_population_path": "research/result_populations/RP-2134.result_population.json",
+      "result_summary": {
+        "backtest_assumptions": {
+          "fee_side_assumption": "taker_entry_taker_exit",
+          "fill_mode": "complete",
+          "liquidation_mode": "zero_equity",
+          "order_size_assumption": "future offline runner assumption only; no execution here",
+          "sizing_metadata_mode": null,
+          "slippage_model": "fixed_bps"
+        },
+        "committed_denominator": 7,
+        "metric_summary": {
+          "drawdown": {
+            "available": true,
+            "max": 0.005174504774561278,
+            "mean": 0.005174504774561278,
+            "min": 0.005174504774561278
+          },
+          "fees": {
+            "available": true,
+            "max": 0.68712,
+            "mean": 0.68712,
+            "min": 0.68712
+          },
+          "funding": {
+            "available": true,
+            "max": 0.0,
+            "mean": 0.0,
+            "min": 0.0
+          },
+          "pnl": {
+            "available": true,
+            "max": -48.85889999999927,
+            "mean": -48.85889999999927,
+            "min": -48.85889999999927
+          },
+          "return_pct": {
+            "available": true,
+            "max": -0.004885889999999927,
+            "mean": -0.004885889999999927,
+            "min": -0.004885889999999927
+          },
+          "sharpe": {
+            "available": true,
+            "max": -28.755518855908324,
+            "mean": -28.755518855908324,
+            "min": -28.755518855908324
+          },
+          "slippage": {
+            "available": true,
+            "max": 0.17178,
+            "mean": 0.17178,
+            "min": 0.17178
+          },
+          "trade_count": {
+            "available": true,
+            "max": 9.0,
+            "mean": 9.0,
+            "min": 9.0
+          },
+          "win_rate": {
+            "available": true,
+            "max": 0.0,
+            "mean": 0.0,
+            "min": 0.0
+          }
+        },
+        "outcome_counts": {
+          "successful": 7
+        },
+        "result_row_count": 7,
+        "variant_ids": [
+          "VAR-000001",
+          "VAR-000002",
+          "VAR-000003",
+          "VAR-000004",
+          "VAR-000005",
+          "VAR-000006",
+          "VAR-000007"
+        ],
+        "variant_order_policy": "variant_id_ascending_only_not_quality_order"
+      },
+      "robustness_report_ref": null,
+      "run_id": "RP-2134",
+      "run_type": "canonical_result_population",
+      "source_branch": "lab/run-registry-provenance-harden-01",
+      "source_commit": "cbbca34",
+      "status": "PASS",
+      "strategy_spec_id": "STRAT-SPEC-0001",
+      "strategy_spec_path": null,
+      "sweep_plan_id": "SWEEP-PLAN-0001",
+      "sweep_plan_path": null,
+      "triage_sidecar_report_ref": null,
+      "validation_refs": [
+        {
+          "path": "research/result_populations/RP-2134.result_population.json",
+          "ref_id": "result_population_identity_hash",
+          "sha256": "sha256:d148463b78670a6600829b19042dc138acf5f7035f421fab890f458ab134622c"
+        },
+        {
+          "path": "research/result_populations/RP-2134.result_population.json",
+          "ref_id": "input_identity_hash",
+          "sha256": "sha256:056df8d9505105ac7dc479da5e27391f874b81adbe2530f6d9e5a37476d3adc0"
+        }
+      ],
+      "variant_manifest_id": "VM-0001",
+      "variant_manifest_path": null,
+      "walkforward_manifest_ref": null,
+      "warnings": []
+    },
+    {
+      "analytics_report_ref": null,
+      "created_at_utc": "2026-06-30T00:28:38Z",
+      "dashboard_data_ref": null,
+      "data_slice_refs": [
+        {
+          "identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+          "path": null,
+          "ref_id": "data_slice_identity"
+        }
+      ],
+      "lineage_refs": [
+        {
+          "artifact_id": "STRAT-SPEC-0004",
+          "path": null,
+          "ref_id": "strategy_spec"
+        },
+        {
+          "artifact_id": "VM-0004",
+          "path": null,
+          "ref_id": "variant_manifest"
+        },
+        {
+          "artifact_id": "SWEEP-PLAN-0004",
+          "path": null,
+          "ref_id": "sweep_plan"
+        }
+      ],
+      "non_authority_flags": {
+        "display_only": true,
+        "not_approval": true,
+        "not_execution": true,
+        "not_paper_live": true,
+        "not_promotion": true,
+        "not_ranking_authority": true,
+        "not_readiness": true,
+        "not_recommendation": true
+      },
+      "result_population_id": "RP-2592",
+      "result_population_path": "research/result_populations/RP-2592.result_population.json",
+      "result_summary": {
+        "backtest_assumptions": {
+          "fee_side_assumption": "taker_entry_taker_exit",
+          "fill_mode": "complete",
+          "liquidation_mode": "zero_equity",
+          "order_size_assumption": "sizing_mode=dynamic_equity_target_leverage; sizing_model=dynamic_equity_target_leverage; target_leverage=1; initial_equity=10000; dynamic_mode_opt_in_required=True; structured_sizing_metadata=present; sizing_equity_basis=realized_available_equity_at_entry; entry_reference_price_basis=next_bar_open_pre_fee_slippage; fixed_mode_order_size_still_resolved_for_backtest_argument_compatibility; reference_price=7189.4300000000003; resolved_order_size=1.3909308526545219; prior_assumption=future offline runner assumption: dynamic_equity_target_leverage at target_leverage=1.0, inherited as the comparable RP-7520/RP-7134 realism surface; no execution here",
+          "sizing_metadata_mode": null,
+          "slippage_model": "fixed_bps"
+        },
+        "committed_denominator": 8,
+        "metric_summary": {
+          "drawdown": {
+            "available": true,
+            "max": 0.7123328594559596,
+            "mean": 0.6396255106984028,
+            "min": 0.5654439160780094
+          },
+          "fees": {
+            "available": true,
+            "max": 16776.409937273624,
+            "mean": 11407.455777723917,
+            "min": 5604.614571128319
+          },
+          "funding": {
+            "available": true,
+            "max": 0.0,
+            "mean": 0.0,
+            "min": 0.0
+          },
+          "pnl": {
+            "available": true,
+            "max": 9547.276045038678,
+            "mean": 2998.1331782578786,
+            "min": -4297.456084068094
+          },
+          "return_pct": {
+            "available": true,
+            "max": 0.9547276045038677,
+            "mean": 0.29981331782578785,
+            "min": -0.4297456084068094
+          },
+          "sharpe": {
+            "available": true,
+            "max": 0.4645019846823303,
+            "mean": 0.2771542548171937,
+            "min": -0.019888406147748137
+          },
+          "slippage": {
+            "available": true,
+            "max": 4194.102484318406,
+            "mean": 2851.8639444309792,
+            "min": 1401.1536427820797
+          },
+          "trade_count": {
+            "available": true,
+            "max": 1300.0,
+            "mean": 929.5,
+            "min": 577.0
+          },
+          "win_rate": {
+            "available": true,
+            "max": 0.35008665511265163,
+            "mean": 0.31499383036943746,
+            "min": 0.27
+          }
+        },
+        "outcome_counts": {
+          "successful": 8
+        },
+        "result_row_count": 8,
+        "variant_ids": [
+          "VAR-000001",
+          "VAR-000002",
+          "VAR-000003",
+          "VAR-000004",
+          "VAR-000005",
+          "VAR-000006",
+          "VAR-000007",
+          "VAR-000008"
+        ],
+        "variant_order_policy": "variant_id_ascending_only_not_quality_order"
+      },
+      "robustness_report_ref": {
+        "authority": "advisory_display_only_not_gate_not_ranking",
+        "path": "scratch/EXT-INTEG-ROBUSTNESS-MC-01/seeded_advisory_mc_report.json",
+        "sha256": "sha256:5a02ca2c8265b9caf13ffa02dc4297b13e900208dad5e57984f0f360f5b91fd1",
+        "status": "PASS"
+      },
+      "run_id": "RP-2592",
+      "run_type": "canonical_result_population",
+      "source_branch": "lab/run-registry-provenance-harden-01",
+      "source_commit": "cbbca34",
+      "status": "PASS",
+      "strategy_spec_id": "STRAT-SPEC-0004",
+      "strategy_spec_path": null,
+      "sweep_plan_id": "SWEEP-PLAN-0004",
+      "sweep_plan_path": null,
+      "triage_sidecar_report_ref": {
+        "authority": "advisory_display_only_not_gate_not_ranking",
+        "path": "scratch/EXT-INTEG-VECTORBT-TRIAGE-SIDECAR-01/vectorbt_triage_report.json",
+        "sha256": "sha256:13e0f75a2216ea8f12cdf8b895f55cb9ca989f9b5624a9a4c9bf379651f71728",
+        "status": "PASS"
+      },
+      "validation_refs": [
+        {
+          "path": "research/result_populations/RP-2592.result_population.json",
+          "ref_id": "result_population_identity_hash",
+          "sha256": "sha256:c146d7880687f363ab2fa258a3b205b63f6ce45ba88c7641d63636186656a0e7"
+        },
+        {
+          "path": "research/result_populations/RP-2592.result_population.json",
+          "ref_id": "input_identity_hash",
+          "sha256": "sha256:d6df0801bdff4cd3b63e747677c0bd458ec65c7fbd9ce45dcf363bddcb739080"
+        }
+      ],
+      "variant_manifest_id": "VM-0004",
+      "variant_manifest_path": null,
+      "walkforward_manifest_ref": null,
+      "warnings": []
+    },
+    {
+      "analytics_report_ref": null,
+      "created_at_utc": "2026-06-30T00:28:38Z",
+      "dashboard_data_ref": null,
+      "data_slice_refs": [
+        {
+          "identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+          "path": null,
+          "ref_id": "data_slice_identity"
+        }
+      ],
+      "lineage_refs": [
+        {
+          "artifact_id": "STRAT-SPEC-0005",
+          "path": null,
+          "ref_id": "strategy_spec"
+        },
+        {
+          "artifact_id": "VM-0005",
+          "path": null,
+          "ref_id": "variant_manifest"
+        },
+        {
+          "artifact_id": "SWEEP-PLAN-0005",
+          "path": null,
+          "ref_id": "sweep_plan"
+        }
+      ],
+      "non_authority_flags": {
+        "display_only": true,
+        "not_approval": true,
+        "not_execution": true,
+        "not_paper_live": true,
+        "not_promotion": true,
+        "not_ranking_authority": true,
+        "not_readiness": true,
+        "not_recommendation": true
+      },
+      "result_population_id": "RP-3731",
+      "result_population_path": "research/result_populations/RP-3731.result_population.json",
+      "result_summary": {
+        "backtest_assumptions": {
+          "fee_side_assumption": "taker_entry_taker_exit",
+          "fill_mode": "complete",
+          "liquidation_mode": "zero_equity",
+          "order_size_assumption": "sizing_mode=dynamic_equity_target_leverage; sizing_model=dynamic_equity_target_leverage; target_leverage=1; initial_equity=10000; dynamic_mode_opt_in_required=True; structured_sizing_metadata=present; sizing_equity_basis=realized_available_equity_at_entry; entry_reference_price_basis=next_bar_open_pre_fee_slippage; fixed_mode_order_size_still_resolved_for_backtest_argument_compatibility; reference_price=7189.4300000000003; resolved_order_size=1.3909308526545219; prior_assumption=future offline runner assumption: dynamic_equity_target_leverage at target_leverage=1.0, inherited as the comparable RP-7520/RP-7134/RP-2592 realism surface; no execution here",
+          "sizing_metadata_mode": null,
+          "slippage_model": "fixed_bps"
+        },
+        "committed_denominator": 8,
+        "metric_summary": {
+          "drawdown": {
+            "available": true,
+            "max": 0.7221283064179846,
+            "mean": 0.5971769258733242,
+            "min": 0.4909023769997253
+          },
+          "fees": {
+            "available": true,
+            "max": 28523.46002967857,
+            "mean": 16111.237070187724,
+            "min": 5289.154860461876
+          },
+          "funding": {
+            "available": true,
+            "max": 0.0,
+            "mean": 0.0,
+            "min": 0.0
+          },
+          "pnl": {
+            "available": true,
+            "max": 16388.741140644684,
+            "mean": 4497.448456539952,
+            "min": -5396.817202131603
+          },
+          "return_pct": {
+            "available": true,
+            "max": 1.6388741140644685,
+            "mean": 0.44974484565399514,
+            "min": -0.5396817202131603
+          },
+          "sharpe": {
+            "available": true,
+            "max": 0.5767667817565336,
+            "mean": 0.2790204589474663,
+            "min": -0.1160217678119392
+          },
+          "slippage": {
+            "available": true,
+            "max": 7130.865007419642,
+            "mean": 4027.809267546931,
+            "min": 1322.288715115469
+          },
+          "trade_count": {
+            "available": true,
+            "max": 1443.0,
+            "mean": 1118.375,
+            "min": 773.0
+          },
+          "win_rate": {
+            "available": true,
+            "max": 0.31645569620253167,
+            "mean": 0.2824639685039598,
+            "min": 0.2523461939520334
+          }
+        },
+        "outcome_counts": {
+          "successful": 8
+        },
+        "result_row_count": 8,
+        "variant_ids": [
+          "VAR-000001",
+          "VAR-000002",
+          "VAR-000003",
+          "VAR-000004",
+          "VAR-000005",
+          "VAR-000006",
+          "VAR-000007",
+          "VAR-000008"
+        ],
+        "variant_order_policy": "variant_id_ascending_only_not_quality_order"
+      },
+      "robustness_report_ref": null,
+      "run_id": "RP-3731",
+      "run_type": "canonical_result_population",
+      "source_branch": "lab/run-registry-provenance-harden-01",
+      "source_commit": "cbbca34",
+      "status": "PASS",
+      "strategy_spec_id": "STRAT-SPEC-0005",
+      "strategy_spec_path": null,
+      "sweep_plan_id": "SWEEP-PLAN-0005",
+      "sweep_plan_path": null,
+      "triage_sidecar_report_ref": null,
+      "validation_refs": [
+        {
+          "path": "research/result_populations/RP-3731.result_population.json",
+          "ref_id": "result_population_identity_hash",
+          "sha256": "sha256:8e5f1381a860284ffa6ceb9f496fdf2d9ee127541a02e3a97abb013ba68e5aa1"
+        },
+        {
+          "path": "research/result_populations/RP-3731.result_population.json",
+          "ref_id": "input_identity_hash",
+          "sha256": "sha256:9f28ec89a08dcacebe22e7de68c3b5be72af312cf1f060b74bdde41e85881051"
+        }
+      ],
+      "variant_manifest_id": "VM-0005",
+      "variant_manifest_path": null,
+      "walkforward_manifest_ref": null,
+      "warnings": []
+    },
+    {
+      "analytics_report_ref": null,
+      "created_at_utc": "2026-06-30T00:28:38Z",
+      "dashboard_data_ref": null,
+      "data_slice_refs": [
+        {
+          "identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+          "path": null,
+          "ref_id": "data_slice_identity"
+        }
+      ],
+      "lineage_refs": [
+        {
+          "artifact_id": "STRAT-SPEC-0001",
+          "path": null,
+          "ref_id": "strategy_spec"
+        },
+        {
+          "artifact_id": "VM-0001",
+          "path": null,
+          "ref_id": "variant_manifest"
+        },
+        {
+          "artifact_id": "SWEEP-PLAN-0001",
+          "path": null,
+          "ref_id": "sweep_plan"
+        }
+      ],
+      "non_authority_flags": {
+        "display_only": true,
+        "not_approval": true,
+        "not_execution": true,
+        "not_paper_live": true,
+        "not_promotion": true,
+        "not_ranking_authority": true,
+        "not_readiness": true,
+        "not_recommendation": true
+      },
+      "result_population_id": "RP-4492",
+      "result_population_path": "research/result_populations/RP-4492.result_population.json",
+      "result_summary": {
+        "backtest_assumptions": {
+          "fee_side_assumption": "taker_entry_taker_exit",
+          "fill_mode": "complete",
+          "liquidation_mode": "zero_equity",
+          "order_size_assumption": "future offline runner assumption only; no execution here",
+          "sizing_metadata_mode": null,
+          "slippage_model": "fixed_bps"
+        },
+        "committed_denominator": 7,
+        "metric_summary": {
+          "drawdown": {
+            "available": true,
+            "max": 1.0,
+            "mean": 0.6850890324778464,
+            "min": 0.26897770904466234
+          },
+          "fees": {
+            "available": true,
+            "max": 25367.514335999993,
+            "mean": 14498.131563428567,
+            "min": 1773.1104400000008
+          },
+          "funding": {
+            "available": true,
+            "max": 0.0,
+            "mean": 0.0,
+            "min": 0.0
+          },
+          "pnl": {
+            "available": true,
+            "max": 50472.111950000006,
+            "mean": 15098.696253571443,
+            "min": -10000.0
+          },
+          "return_pct": {
+            "available": true,
+            "max": 5.047211195000001,
+            "mean": 1.5098696253571442,
+            "min": -1.0
+          },
+          "sharpe": {
+            "available": true,
+            "max": 1.24765689915331,
+            "mean": 0.5238853863652114,
+            "min": -0.28001251148886824
+          },
+          "slippage": {
+            "available": true,
+            "max": 6341.878583999998,
+            "mean": 3624.532890857142,
+            "min": 443.2776100000002
+          },
+          "trade_count": {
+            "available": true,
+            "max": 970.0,
+            "mean": 548.1428571428571,
+            "min": 64.0
+          },
+          "win_rate": {
+            "available": true,
+            "max": 0.75,
+            "mean": 0.6598227994964896,
+            "min": 0.6169871794871795
+          }
+        },
+        "outcome_counts": {
+          "successful": 7
+        },
+        "result_row_count": 7,
+        "variant_ids": [
+          "VAR-000001",
+          "VAR-000002",
+          "VAR-000003",
+          "VAR-000004",
+          "VAR-000005",
+          "VAR-000006",
+          "VAR-000007"
+        ],
+        "variant_order_policy": "variant_id_ascending_only_not_quality_order"
+      },
+      "robustness_report_ref": null,
+      "run_id": "RP-4492",
+      "run_type": "canonical_result_population",
+      "source_branch": "lab/run-registry-provenance-harden-01",
+      "source_commit": "cbbca34",
+      "status": "PASS",
+      "strategy_spec_id": "STRAT-SPEC-0001",
+      "strategy_spec_path": null,
+      "sweep_plan_id": "SWEEP-PLAN-0001",
+      "sweep_plan_path": null,
+      "triage_sidecar_report_ref": null,
+      "validation_refs": [
+        {
+          "path": "research/result_populations/RP-4492.result_population.json",
+          "ref_id": "result_population_identity_hash",
+          "sha256": "sha256:2a9cee1b1ba32d9f98f879aa4c1ef95e2f5b75b7348e1084e66afe80f77bb32c"
+        },
+        {
+          "path": "research/result_populations/RP-4492.result_population.json",
+          "ref_id": "input_identity_hash",
+          "sha256": "sha256:8fca9c6f6238f4fd5712420921faa649a1a182866adb22f1d5f3680b850a535c"
+        }
+      ],
+      "variant_manifest_id": "VM-0001",
+      "variant_manifest_path": null,
+      "walkforward_manifest_ref": null,
+      "warnings": []
+    },
+    {
+      "analytics_report_ref": null,
+      "created_at_utc": "2026-06-30T00:28:38Z",
+      "dashboard_data_ref": null,
+      "data_slice_refs": [
+        {
+          "identity": "binance_usdtm_btcusdt_ohlcv_4h:sha256:4379d2f0fad5e79bfd5576b308d01fb6134b0f5acf04013e73e00ce33ca96b30",
+          "path": null,
+          "ref_id": "data_slice_identity"
+        }
+      ],
+      "lineage_refs": [
+        {
+          "artifact_id": "STRAT-SPEC-0006",
+          "path": null,
+          "ref_id": "strategy_spec"
+        },
+        {
+          "artifact_id": "VM-0006",
+          "path": null,
+          "ref_id": "variant_manifest"
+        },
+        {
+          "artifact_id": "SWEEP-PLAN-0006",
+          "path": null,
+          "ref_id": "sweep_plan"
+        }
+      ],
+      "non_authority_flags": {
+        "display_only": true,
+        "not_approval": true,
+        "not_execution": true,
+        "not_paper_live": true,
+        "not_promotion": true,
+        "not_ranking_authority": true,
+        "not_readiness": true,
+        "not_recommendation": true
+      },
+      "result_population_id": "RP-6236",
+      "result_population_path": "research/result_populations/RP-6236.result_population.json",
+      "result_summary": {
+        "backtest_assumptions": {
+          "fee_side_assumption": "taker_entry_taker_exit",
+          "fill_mode": "complete",
+          "liquidation_mode": "zero_equity",
+          "order_size_assumption": "sizing_mode=dynamic_equity_target_leverage; sizing_model=dynamic_equity_target_leverage; target_leverage=1; initial_equity=10000; dynamic_mode_opt_in_required=True; structured_sizing_metadata=present; sizing_equity_basis=realized_available_equity_at_entry; entry_reference_price_basis=next_bar_open_pre_fee_slippage; fixed_mode_order_size_still_resolved_for_backtest_argument_compatibility; reference_price=7189.4300000000003; resolved_order_size=1.3909308526545219; prior_assumption=future offline runner assumption: dynamic_equity_target_leverage at target_leverage=1.0; funding currently modeled as 0.0 / synthetic zero funding in current 4h probe and 15m RP path; no execution here",
+          "sizing_metadata_mode": null,
+          "slippage_model": "fixed_bps"
+        },
+        "committed_denominator": 8,
+        "metric_summary": {
+          "drawdown": {
+            "available": true,
+            "max": 0.8590683995633936,
+            "mean": 0.6952926337909445,
+            "min": 0.5037996208666524
+          },
+          "fees": {
+            "available": true,
+            "max": 4093.518849481526,
+            "mean": 2974.5661817574914,
+            "min": 2026.3683872071229
+          },
+          "funding": {
+            "available": true,
+            "max": 0.0,
+            "mean": 0.0,
+            "min": 0.0
+          },
+          "pnl": {
+            "available": true,
+            "max": -320.2567365901741,
+            "mean": -4448.44243678394,
+            "min": -7352.298516206389
+          },
+          "return_pct": {
+            "available": true,
+            "max": -0.032025673659017415,
+            "mean": -0.44484424367839404,
+            "min": -0.7352298516206389
+          },
+          "sharpe": {
+            "available": true,
+            "max": 0.12126018242364933,
+            "mean": -0.22839009811408176,
+            "min": -0.5378632253914238
+          },
+          "slippage": {
+            "available": true,
+            "max": 1023.3797123703815,
+            "mean": 743.6415454393729,
+            "min": 506.5920968017807
+          },
+          "trade_count": {
+            "available": true,
+            "max": 562.0,
+            "mean": 504.0,
+            "min": 432.0
+          },
+          "win_rate": {
+            "available": true,
+            "max": 0.3683274021352313,
+            "mean": 0.33278967736558995,
+            "min": 0.2775330396475771
+          }
+        },
+        "outcome_counts": {
+          "successful": 8
+        },
+        "result_row_count": 8,
+        "variant_ids": [
+          "VAR-000001",
+          "VAR-000002",
+          "VAR-000003",
+          "VAR-000004",
+          "VAR-000005",
+          "VAR-000006",
+          "VAR-000007",
+          "VAR-000008"
+        ],
+        "variant_order_policy": "variant_id_ascending_only_not_quality_order"
+      },
+      "robustness_report_ref": null,
+      "run_id": "RP-6236",
+      "run_type": "canonical_result_population",
+      "source_branch": "lab/run-registry-provenance-harden-01",
+      "source_commit": "cbbca34",
+      "status": "PASS",
+      "strategy_spec_id": "STRAT-SPEC-0006",
+      "strategy_spec_path": null,
+      "sweep_plan_id": "SWEEP-PLAN-0006",
+      "sweep_plan_path": null,
+      "triage_sidecar_report_ref": null,
+      "validation_refs": [
+        {
+          "path": "research/result_populations/RP-6236.result_population.json",
+          "ref_id": "result_population_identity_hash",
+          "sha256": "sha256:60ac2a69f7551983b4d6ac3f061ff76c3ba7d0caea00fe407212f63a8b55c35a"
+        },
+        {
+          "path": "research/result_populations/RP-6236.result_population.json",
+          "ref_id": "input_identity_hash",
+          "sha256": "sha256:47e5b6f90586159bc8da63e181ad8912c889e1bd637fc63dd68d2d1b08065a95"
+        }
+      ],
+      "variant_manifest_id": "VM-0006",
+      "variant_manifest_path": null,
+      "walkforward_manifest_ref": null,
+      "warnings": []
+    },
+    {
+      "analytics_report_ref": null,
+      "created_at_utc": "2026-06-30T00:28:38Z",
+      "dashboard_data_ref": null,
+      "data_slice_refs": [
+        {
+          "identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+          "path": null,
+          "ref_id": "data_slice_identity"
+        }
+      ],
+      "lineage_refs": [
+        {
+          "artifact_id": "STRAT-SPEC-0002",
+          "path": null,
+          "ref_id": "strategy_spec"
+        },
+        {
+          "artifact_id": "VM-0002",
+          "path": null,
+          "ref_id": "variant_manifest"
+        },
+        {
+          "artifact_id": "SWEEP-PLAN-0002",
+          "path": null,
+          "ref_id": "sweep_plan"
+        }
+      ],
+      "non_authority_flags": {
+        "display_only": true,
+        "not_approval": true,
+        "not_execution": true,
+        "not_paper_live": true,
+        "not_promotion": true,
+        "not_ranking_authority": true,
+        "not_readiness": true,
+        "not_recommendation": true
+      },
+      "result_population_id": "RP-6688",
+      "result_population_path": "research/result_populations/RP-6688.result_population.json",
+      "result_summary": {
+        "backtest_assumptions": {
+          "fee_side_assumption": "taker_entry_taker_exit",
+          "fill_mode": "complete",
+          "liquidation_mode": "zero_equity",
+          "order_size_assumption": "future offline runner assumption only; no execution here",
+          "sizing_metadata_mode": null,
+          "slippage_model": "fixed_bps"
+        },
+        "committed_denominator": 10,
+        "metric_summary": {
+          "drawdown": {
+            "available": true,
+            "max": 1.0,
+            "mean": 1.0,
+            "min": 1.0
+          },
+          "fees": {
+            "available": true,
+            "max": 37332.33414400005,
+            "mean": 10501.20665360001,
+            "min": 3897.314868
+          },
+          "funding": {
+            "available": true,
+            "max": 0.0,
+            "mean": 0.0,
+            "min": 0.0
+          },
+          "pnl": {
+            "available": true,
+            "max": -10000.0,
+            "mean": -10000.0,
+            "min": -10000.0
+          },
+          "return_pct": {
+            "available": true,
+            "max": -1.0,
+            "mean": -1.0,
+            "min": -1.0
+          },
+          "sharpe": {
+            "available": true,
+            "max": 0.997177116916779,
+            "mean": -0.08303538430033172,
+            "min": -3.3184989271004612
+          },
+          "slippage": {
+            "available": true,
+            "max": 9333.083536000013,
+            "mean": 2625.3016634000023,
+            "min": 974.328717
+          },
+          "trade_count": {
+            "available": true,
+            "max": 1466.0,
+            "mean": 776.0,
+            "min": 308.0
+          },
+          "win_rate": {
+            "available": true,
+            "max": 0.760036496350365,
+            "mean": 0.6702688924783005,
+            "min": 0.6132332878581174
+          }
+        },
+        "outcome_counts": {
+          "successful": 10
+        },
+        "result_row_count": 10,
+        "variant_ids": [
+          "VAR-000001",
+          "VAR-000002",
+          "VAR-000003",
+          "VAR-000004",
+          "VAR-000005",
+          "VAR-000006",
+          "VAR-000007",
+          "VAR-000008",
+          "VAR-000009",
+          "VAR-000010"
+        ],
+        "variant_order_policy": "variant_id_ascending_only_not_quality_order"
+      },
+      "robustness_report_ref": null,
+      "run_id": "RP-6688",
+      "run_type": "canonical_result_population",
+      "source_branch": "lab/run-registry-provenance-harden-01",
+      "source_commit": "cbbca34",
+      "status": "PASS",
+      "strategy_spec_id": "STRAT-SPEC-0002",
+      "strategy_spec_path": null,
+      "sweep_plan_id": "SWEEP-PLAN-0002",
+      "sweep_plan_path": null,
+      "triage_sidecar_report_ref": null,
+      "validation_refs": [
+        {
+          "path": "research/result_populations/RP-6688.result_population.json",
+          "ref_id": "result_population_identity_hash",
+          "sha256": "sha256:7ee08cc1f30e26c318b39d571b90d25406072329ce4a67bd7c94ec35f98fcdbc"
+        },
+        {
+          "path": "research/result_populations/RP-6688.result_population.json",
+          "ref_id": "input_identity_hash",
+          "sha256": "sha256:ea9ea760ef7a5d30956a4573fc4ca0c39b43a533803667370219f5e3f7ffe386"
+        }
+      ],
+      "variant_manifest_id": "VM-0002",
+      "variant_manifest_path": null,
+      "walkforward_manifest_ref": null,
+      "warnings": []
+    },
+    {
+      "analytics_report_ref": {
+        "authority": "advisory_display_only_not_gate_not_ranking",
+        "path": "scratch/EXT-INTEG-ANALYTICS-METRICS-01/advisory_analytics_report.json",
+        "sha256": "sha256:4fa9d14475f5fda4586ceb7482a0e04395bd723d80c254556d2c95c550fde610",
+        "status": "PASS"
+      },
+      "created_at_utc": "2026-06-30T00:28:38Z",
+      "dashboard_data_ref": null,
+      "data_slice_refs": [
+        {
+          "identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+          "path": null,
+          "ref_id": "data_slice_identity"
+        }
+      ],
+      "lineage_refs": [
+        {
+          "artifact_id": "STRAT-SPEC-0003",
+          "path": null,
+          "ref_id": "strategy_spec"
+        },
+        {
+          "artifact_id": "VM-0003",
+          "path": null,
+          "ref_id": "variant_manifest"
+        },
+        {
+          "artifact_id": "SWEEP-PLAN-0003",
+          "path": null,
+          "ref_id": "sweep_plan"
+        }
+      ],
+      "non_authority_flags": {
+        "display_only": true,
+        "not_approval": true,
+        "not_execution": true,
+        "not_paper_live": true,
+        "not_promotion": true,
+        "not_ranking_authority": true,
+        "not_readiness": true,
+        "not_recommendation": true
+      },
+      "result_population_id": "RP-7134",
+      "result_population_path": "research/result_populations/RP-7134.result_population.json",
+      "result_summary": {
+        "backtest_assumptions": {
+          "fee_side_assumption": "taker_entry_taker_exit",
+          "fill_mode": "complete",
+          "liquidation_mode": "zero_equity",
+          "order_size_assumption": "sizing_mode=dynamic_equity_target_leverage; sizing_model=dynamic_equity_target_leverage; target_leverage=1; initial_equity=10000; dynamic_mode_opt_in_required=True; structured_sizing_metadata=present; sizing_equity_basis=realized_available_equity_at_entry; entry_reference_price_basis=next_bar_open_pre_fee_slippage; fixed_mode_order_size_still_resolved_for_backtest_argument_compatibility; reference_price=7189.4300000000003; resolved_order_size=1.3909308526545219; prior_assumption=future offline runner assumption: dynamic_equity_target_leverage at target_leverage=1.0, inherited as the comparable RP-7520 realism surface; no execution here",
+          "sizing_metadata_mode": null,
+          "slippage_model": "fixed_bps"
+        },
+        "committed_denominator": 8,
+        "metric_summary": {
+          "drawdown": {
+            "available": true,
+            "max": 0.9978576249633361,
+            "mean": 0.9928150959564545,
+            "min": 0.9866499456631055
+          },
+          "fees": {
+            "available": true,
+            "max": 5228.4830455666,
+            "mean": 3299.5755920727456,
+            "min": 1749.6726310207978
+          },
+          "funding": {
+            "available": true,
+            "max": 0.0,
+            "mean": 0.0,
+            "min": 0.0
+          },
+          "pnl": {
+            "available": true,
+            "max": -9860.418641538063,
+            "mean": -9924.409016729478,
+            "min": -9977.200963702111
+          },
+          "return_pct": {
+            "available": true,
+            "max": -0.9860418641538062,
+            "mean": -0.9924409016729479,
+            "min": -0.9977200963702111
+          },
+          "sharpe": {
+            "available": true,
+            "max": -1.3112121601812108,
+            "mean": -1.6956845261688822,
+            "min": -2.127242417982953
+          },
+          "slippage": {
+            "available": true,
+            "max": 1307.12076139165,
+            "mean": 824.8938980181864,
+            "min": 437.41815775519945
+          },
+          "trade_count": {
+            "available": true,
+            "max": 3667.0,
+            "mean": 2731.875,
+            "min": 1856.0
+          },
+          "win_rate": {
+            "available": true,
+            "max": 0.7420749279538905,
+            "mean": 0.7113556249469457,
+            "min": 0.6793292265571527
+          }
+        },
+        "outcome_counts": {
+          "successful": 8
+        },
+        "result_row_count": 8,
+        "variant_ids": [
+          "VAR-000001",
+          "VAR-000002",
+          "VAR-000003",
+          "VAR-000004",
+          "VAR-000005",
+          "VAR-000006",
+          "VAR-000007",
+          "VAR-000008"
+        ],
+        "variant_order_policy": "variant_id_ascending_only_not_quality_order"
+      },
+      "robustness_report_ref": null,
+      "run_id": "RP-7134",
+      "run_type": "canonical_result_population",
+      "source_branch": "lab/run-registry-provenance-harden-01",
+      "source_commit": "cbbca34",
+      "status": "PASS",
+      "strategy_spec_id": "STRAT-SPEC-0003",
+      "strategy_spec_path": null,
+      "sweep_plan_id": "SWEEP-PLAN-0003",
+      "sweep_plan_path": null,
+      "triage_sidecar_report_ref": null,
+      "validation_refs": [
+        {
+          "path": "research/result_populations/RP-7134.result_population.json",
+          "ref_id": "result_population_identity_hash",
+          "sha256": "sha256:2be44e307726f280f62123147db92afba20c520e5f14f59b470ea52d8ba6f27e"
+        },
+        {
+          "path": "research/result_populations/RP-7134.result_population.json",
+          "ref_id": "input_identity_hash",
+          "sha256": "sha256:9b77a2ba4b12ee11645d73357b3146903922296703eb82926d62b1d9da777794"
+        }
+      ],
+      "variant_manifest_id": "VM-0003",
+      "variant_manifest_path": null,
+      "walkforward_manifest_ref": null,
+      "warnings": []
+    },
+    {
+      "analytics_report_ref": null,
+      "created_at_utc": "2026-06-30T00:28:38Z",
+      "dashboard_data_ref": null,
+      "data_slice_refs": [
+        {
+          "identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+          "path": null,
+          "ref_id": "data_slice_identity"
+        }
+      ],
+      "lineage_refs": [
+        {
+          "artifact_id": "STRAT-SPEC-0002",
+          "path": null,
+          "ref_id": "strategy_spec"
+        },
+        {
+          "artifact_id": "VM-0002",
+          "path": null,
+          "ref_id": "variant_manifest"
+        },
+        {
+          "artifact_id": "SWEEP-PLAN-0002",
+          "path": null,
+          "ref_id": "sweep_plan"
+        }
+      ],
+      "non_authority_flags": {
+        "display_only": true,
+        "not_approval": true,
+        "not_execution": true,
+        "not_paper_live": true,
+        "not_promotion": true,
+        "not_ranking_authority": true,
+        "not_readiness": true,
+        "not_recommendation": true
+      },
+      "result_population_id": "RP-7520",
+      "result_population_path": "research/result_populations/RP-7520.result_population.json",
+      "result_summary": {
+        "backtest_assumptions": {
+          "fee_side_assumption": "taker_entry_taker_exit",
+          "fill_mode": "complete",
+          "liquidation_mode": "zero_equity",
+          "order_size_assumption": "sizing_mode=dynamic_equity_target_leverage; sizing_model=dynamic_equity_target_leverage; target_leverage=1; initial_equity=10000; dynamic_mode_opt_in_required=True; structured_sizing_metadata=present; sizing_equity_basis=realized_available_equity_at_entry; entry_reference_price_basis=next_bar_open_pre_fee_slippage; fixed_mode_order_size_still_resolved_for_backtest_argument_compatibility; reference_price=7189.4300000000003; resolved_order_size=1.3909308526545219; prior_assumption=future offline runner assumption only; no execution here",
+          "sizing_metadata_mode": null,
+          "slippage_model": "fixed_bps"
+        },
+        "committed_denominator": 10,
+        "metric_summary": {
+          "drawdown": {
+            "available": true,
+            "max": 0.9999982565425342,
+            "mean": 0.9354954088764634,
+            "min": 0.7263003985461405
+          },
+          "fees": {
+            "available": true,
+            "max": 13401.090248933137,
+            "mean": 7242.267341961922,
+            "min": 5713.109815240475
+          },
+          "funding": {
+            "available": true,
+            "max": 0.0,
+            "mean": 0.0,
+            "min": 0.0
+          },
+          "pnl": {
+            "available": true,
+            "max": -6165.006462407082,
+            "mean": -9121.887034447795,
+            "min": -9999.981943405086
+          },
+          "return_pct": {
+            "available": true,
+            "max": -0.6165006462407082,
+            "mean": -0.9121887034447793,
+            "min": -0.9999981943405086
+          },
+          "sharpe": {
+            "available": true,
+            "max": -0.17443213234004104,
+            "mean": -1.1982516641424492,
+            "min": -3.1696186860100872
+          },
+          "slippage": {
+            "available": true,
+            "max": 3350.272562233284,
+            "mean": 1810.5668354904806,
+            "min": 1428.2774538101187
+          },
+          "trade_count": {
+            "available": true,
+            "max": 12962.0,
+            "mean": 4850.2,
+            "min": 1212.0
+          },
+          "win_rate": {
+            "available": true,
+            "max": 0.7405729676787464,
+            "mean": 0.6477965314377976,
+            "min": 0.5924092409240924
+          }
+        },
+        "outcome_counts": {
+          "successful": 10
+        },
+        "result_row_count": 10,
+        "variant_ids": [
+          "VAR-000001",
+          "VAR-000002",
+          "VAR-000003",
+          "VAR-000004",
+          "VAR-000005",
+          "VAR-000006",
+          "VAR-000007",
+          "VAR-000008",
+          "VAR-000009",
+          "VAR-000010"
+        ],
+        "variant_order_policy": "variant_id_ascending_only_not_quality_order"
+      },
+      "robustness_report_ref": null,
+      "run_id": "RP-7520",
+      "run_type": "canonical_result_population",
+      "source_branch": "lab/run-registry-provenance-harden-01",
+      "source_commit": "cbbca34",
+      "status": "PASS",
+      "strategy_spec_id": "STRAT-SPEC-0002",
+      "strategy_spec_path": null,
+      "sweep_plan_id": "SWEEP-PLAN-0002",
+      "sweep_plan_path": null,
+      "triage_sidecar_report_ref": null,
+      "validation_refs": [
+        {
+          "path": "research/result_populations/RP-7520.result_population.json",
+          "ref_id": "result_population_identity_hash",
+          "sha256": "sha256:698f02c6239a5d2221ababeab62850403f71d9cf6f36279b3b8dcdc05fa7403c"
+        },
+        {
+          "path": "research/result_populations/RP-7520.result_population.json",
+          "ref_id": "input_identity_hash",
+          "sha256": "sha256:761f4af20320a244b0ff966eca17f3cc3a47bc79a5672cf2b40ee183ab9c05de"
+        }
+      ],
+      "variant_manifest_id": "VM-0002",
+      "variant_manifest_path": null,
+      "walkforward_manifest_ref": null,
+      "warnings": []
+    }
+  ],
+  "registry_posture": {
+    "append_only_posture": true,
+    "display_only": true,
+    "not_approval": true,
+    "not_execution": true,
+    "not_paper_live": true,
+    "not_promotion": true,
+    "not_ranking_authority": true,
+    "not_readiness": true,
+    "not_recommendation": true,
+    "read_only_over_canonical_evidence": true
+  },
+  "schema_version": "lab_run_registry.v1",
+  "source_branch": "lab/run-registry-provenance-harden-01",
+  "source_commit": "cbbca34",
+  "status": "PASS",
+  "warnings": []
+}

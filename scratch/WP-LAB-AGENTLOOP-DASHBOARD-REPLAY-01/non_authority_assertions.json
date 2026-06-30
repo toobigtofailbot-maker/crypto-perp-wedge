@@ -1,0 +1,22 @@
+{
+  "agent_rescue_recommended": false,
+  "agent_retuning_recommended": false,
+  "candidate_admitted": false,
+  "candidate_authority_created": false,
+  "candidate_eligible_any": false,
+  "candidate_evidence": false,
+  "canonical_crossing_allowed_any": false,
+  "canonical_crossing_authority_created": false,
+  "construction_payload_all_events": true,
+  "edge_claim_allowed": false,
+  "non_promotable_all_events": true,
+  "operating_test_evidence": true,
+  "paper_live_authority_created": false,
+  "paper_live_eligible_any": false,
+  "promotion_eligible_any": false,
+  "promotion_recommended": false,
+  "protected_paths_touched": false,
+  "ranking_recommended": false,
+  "readiness_recommended": false,
+  "strategy_evidence": false
+}

@@ -1,0 +1,1640 @@
+{
+  "aggregates_operating_test_into_real_strategy_evidence": false,
+  "category_counts": {
+    "blocked": 3,
+    "completed": 3,
+    "delayed": 2,
+    "failed": 3,
+    "insufficient": 2,
+    "invalid": 2,
+    "no_candidate": 1,
+    "queued": 10,
+    "resource_limited": 3,
+    "review_needed": 2,
+    "running": 6,
+    "withheld": 3
+  },
+  "deterministic_from_event_timestamps_and_sequence_index": true,
+  "evidence_class": "operating_test_evidence",
+  "input_tape_id": "LAB-EVENT-TAPE-REFERENCE-001",
+  "no_authority_labels_present": true,
+  "no_candidate_labels_present": true,
+  "operating_test_labels_present": true,
+  "package": "WP-LAB-AGENTLOOP-DASHBOARD-REPLAY-01",
+  "prior_replay_references_included": true,
+  "real_research_evidence_labels_present": false,
+  "required_categories_present": [
+    "blocked",
+    "completed",
+    "failed",
+    "insufficient",
+    "invalid",
+    "no_candidate",
+    "resource_limited",
+    "review_needed",
+    "withheld"
+  ],
+  "snapshot_count": 40,
+  "snapshots": [
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_queued",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_queued",
+      "deterministic_from": {
+        "event_time": "2026-01-05T09:00:00Z",
+        "sequence_index": 1
+      },
+      "display_category": "queued",
+      "event_id": "EVT-0001",
+      "event_time": "2026-01-05T09:00:00Z",
+      "event_type": "job_enqueued",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0001",
+      "job_outcome": "not_terminal",
+      "job_state_after": "queued",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 1,
+      "snapshot_id": "DASH-SNAP-0001",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_running",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_running",
+      "deterministic_from": {
+        "event_time": "2026-01-05T09:15:00Z",
+        "sequence_index": 2
+      },
+      "display_category": "running",
+      "event_id": "EVT-0002",
+      "event_time": "2026-01-05T09:15:00Z",
+      "event_type": "job_started",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0001",
+      "job_outcome": "not_terminal",
+      "job_state_after": "running",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 2,
+      "snapshot_id": "DASH-SNAP-0002",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_terminal",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_terminal",
+      "deterministic_from": {
+        "event_time": "2026-01-05T09:30:00Z",
+        "sequence_index": 3
+      },
+      "display_category": "completed",
+      "event_id": "EVT-0003",
+      "event_time": "2026-01-05T09:30:00Z",
+      "event_type": "job_completed",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0001",
+      "job_outcome": "completed",
+      "job_state_after": "completed",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 3,
+      "snapshot_id": "DASH-SNAP-0003",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_terminal",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_terminal",
+      "deterministic_from": {
+        "event_time": "2026-01-05T09:45:00Z",
+        "sequence_index": 4
+      },
+      "display_category": "completed",
+      "event_id": "EVT-0004",
+      "event_time": "2026-01-05T09:45:00Z",
+      "event_type": "notification_worthy",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0001",
+      "job_outcome": "completed",
+      "job_state_after": "completed",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 4,
+      "snapshot_id": "DASH-SNAP-0004",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_queued",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_queued",
+      "deterministic_from": {
+        "event_time": "2026-01-05T10:00:00Z",
+        "sequence_index": 5
+      },
+      "display_category": "queued",
+      "event_id": "EVT-0005",
+      "event_time": "2026-01-05T10:00:00Z",
+      "event_type": "job_enqueued",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0002",
+      "job_outcome": "not_terminal",
+      "job_state_after": "queued",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 5,
+      "snapshot_id": "DASH-SNAP-0005",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_running",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_running",
+      "deterministic_from": {
+        "event_time": "2026-01-05T10:15:00Z",
+        "sequence_index": 6
+      },
+      "display_category": "running",
+      "event_id": "EVT-0006",
+      "event_time": "2026-01-05T10:15:00Z",
+      "event_type": "job_started",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0002",
+      "job_outcome": "not_terminal",
+      "job_state_after": "running",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 6,
+      "snapshot_id": "DASH-SNAP-0006",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_terminal",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_terminal",
+      "deterministic_from": {
+        "event_time": "2026-01-05T10:30:00Z",
+        "sequence_index": 7
+      },
+      "display_category": "failed",
+      "event_id": "EVT-0007",
+      "event_time": "2026-01-05T10:30:00Z",
+      "event_type": "job_failed",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0002",
+      "job_outcome": "failed",
+      "job_state_after": "failed",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 7,
+      "snapshot_id": "DASH-SNAP-0007",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_terminal",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_terminal",
+      "deterministic_from": {
+        "event_time": "2026-01-05T10:45:00Z",
+        "sequence_index": 8
+      },
+      "display_category": "failed",
+      "event_id": "EVT-0008",
+      "event_time": "2026-01-05T10:45:00Z",
+      "event_type": "notification_worthy",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0002",
+      "job_outcome": "failed",
+      "job_state_after": "failed",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 8,
+      "snapshot_id": "DASH-SNAP-0008",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_queued",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_queued",
+      "deterministic_from": {
+        "event_time": "2026-01-05T11:00:00Z",
+        "sequence_index": 9
+      },
+      "display_category": "queued",
+      "event_id": "EVT-0009",
+      "event_time": "2026-01-05T11:00:00Z",
+      "event_type": "job_enqueued",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0003",
+      "job_outcome": "not_terminal",
+      "job_state_after": "queued",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 9,
+      "snapshot_id": "DASH-SNAP-0009",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_terminal",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_terminal",
+      "deterministic_from": {
+        "event_time": "2026-01-05T11:15:00Z",
+        "sequence_index": 10
+      },
+      "display_category": "invalid",
+      "event_id": "EVT-0010",
+      "event_time": "2026-01-05T11:15:00Z",
+      "event_type": "job_invalid",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0003",
+      "job_outcome": "invalid",
+      "job_state_after": "invalid",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 10,
+      "snapshot_id": "DASH-SNAP-0010",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_queued",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_queued",
+      "deterministic_from": {
+        "event_time": "2026-01-05T11:30:00Z",
+        "sequence_index": 11
+      },
+      "display_category": "queued",
+      "event_id": "EVT-0011",
+      "event_time": "2026-01-05T11:30:00Z",
+      "event_type": "job_enqueued",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0004",
+      "job_outcome": "not_terminal",
+      "job_state_after": "queued",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 11,
+      "snapshot_id": "DASH-SNAP-0011",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_blocked",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_blocked",
+      "deterministic_from": {
+        "event_time": "2026-01-05T11:45:00Z",
+        "sequence_index": 12
+      },
+      "display_category": "blocked",
+      "event_id": "EVT-0012",
+      "event_time": "2026-01-05T11:45:00Z",
+      "event_type": "job_blocked",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0004",
+      "job_outcome": "blocked",
+      "job_state_after": "blocked",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 12,
+      "snapshot_id": "DASH-SNAP-0012",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_blocked",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_blocked",
+      "deterministic_from": {
+        "event_time": "2026-01-05T12:00:00Z",
+        "sequence_index": 13
+      },
+      "display_category": "blocked",
+      "event_id": "EVT-0013",
+      "event_time": "2026-01-05T12:00:00Z",
+      "event_type": "notification_worthy",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0004",
+      "job_outcome": "blocked",
+      "job_state_after": "blocked",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 13,
+      "snapshot_id": "DASH-SNAP-0013",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_queued",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_queued",
+      "deterministic_from": {
+        "event_time": "2026-01-05T12:15:00Z",
+        "sequence_index": 14
+      },
+      "display_category": "queued",
+      "event_id": "EVT-0014",
+      "event_time": "2026-01-05T12:15:00Z",
+      "event_type": "job_enqueued",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0005",
+      "job_outcome": "not_terminal",
+      "job_state_after": "queued",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 14,
+      "snapshot_id": "DASH-SNAP-0014",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_running",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_running",
+      "deterministic_from": {
+        "event_time": "2026-01-05T12:30:00Z",
+        "sequence_index": 15
+      },
+      "display_category": "running",
+      "event_id": "EVT-0015",
+      "event_time": "2026-01-05T12:30:00Z",
+      "event_type": "job_started",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0005",
+      "job_outcome": "not_terminal",
+      "job_state_after": "running",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 15,
+      "snapshot_id": "DASH-SNAP-0015",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_withheld",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_withheld",
+      "deterministic_from": {
+        "event_time": "2026-01-05T12:45:00Z",
+        "sequence_index": 16
+      },
+      "display_category": "withheld",
+      "event_id": "EVT-0016",
+      "event_time": "2026-01-05T12:45:00Z",
+      "event_type": "metrics_withheld",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0005",
+      "job_outcome": "withheld",
+      "job_state_after": "withheld",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 16,
+      "snapshot_id": "DASH-SNAP-0016",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_withheld",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_withheld",
+      "deterministic_from": {
+        "event_time": "2026-01-05T13:00:00Z",
+        "sequence_index": 17
+      },
+      "display_category": "withheld",
+      "event_id": "EVT-0017",
+      "event_time": "2026-01-05T13:00:00Z",
+      "event_type": "notification_worthy",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0005",
+      "job_outcome": "withheld",
+      "job_state_after": "withheld",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 17,
+      "snapshot_id": "DASH-SNAP-0017",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_queued",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_queued",
+      "deterministic_from": {
+        "event_time": "2026-01-05T13:15:00Z",
+        "sequence_index": 18
+      },
+      "display_category": "queued",
+      "event_id": "EVT-0018",
+      "event_time": "2026-01-05T13:15:00Z",
+      "event_type": "job_enqueued",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0006",
+      "job_outcome": "not_terminal",
+      "job_state_after": "queued",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 18,
+      "snapshot_id": "DASH-SNAP-0018",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_running",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_running",
+      "deterministic_from": {
+        "event_time": "2026-01-05T13:30:00Z",
+        "sequence_index": 19
+      },
+      "display_category": "running",
+      "event_id": "EVT-0019",
+      "event_time": "2026-01-05T13:30:00Z",
+      "event_type": "job_started",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0006",
+      "job_outcome": "not_terminal",
+      "job_state_after": "running",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 19,
+      "snapshot_id": "DASH-SNAP-0019",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_withheld",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_withheld",
+      "deterministic_from": {
+        "event_time": "2026-01-05T13:45:00Z",
+        "sequence_index": 20
+      },
+      "display_category": "insufficient",
+      "event_id": "EVT-0020",
+      "event_time": "2026-01-05T13:45:00Z",
+      "event_type": "metrics_insufficient",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0006",
+      "job_outcome": "insufficient",
+      "job_state_after": "insufficient",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 20,
+      "snapshot_id": "DASH-SNAP-0020",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_queued",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_queued",
+      "deterministic_from": {
+        "event_time": "2026-01-05T14:00:00Z",
+        "sequence_index": 21
+      },
+      "display_category": "queued",
+      "event_id": "EVT-0021",
+      "event_time": "2026-01-05T14:00:00Z",
+      "event_type": "job_enqueued",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0007",
+      "job_outcome": "not_terminal",
+      "job_state_after": "queued",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 21,
+      "snapshot_id": "DASH-SNAP-0021",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_resource_limited",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_resource_limited",
+      "deterministic_from": {
+        "event_time": "2026-01-05T14:15:00Z",
+        "sequence_index": 22
+      },
+      "display_category": "resource_limited",
+      "event_id": "EVT-0022",
+      "event_time": "2026-01-05T14:15:00Z",
+      "event_type": "resource_limited",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0007",
+      "job_outcome": "resource_limited",
+      "job_state_after": "resource_limited",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 22,
+      "snapshot_id": "DASH-SNAP-0022",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_resource_limited",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_resource_limited",
+      "deterministic_from": {
+        "event_time": "2026-01-05T14:30:00Z",
+        "sequence_index": 23
+      },
+      "display_category": "resource_limited",
+      "event_id": "EVT-0023",
+      "event_time": "2026-01-05T14:30:00Z",
+      "event_type": "notification_worthy",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0007",
+      "job_outcome": "resource_limited",
+      "job_state_after": "resource_limited",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 23,
+      "snapshot_id": "DASH-SNAP-0023",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_queued",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_queued",
+      "deterministic_from": {
+        "event_time": "2026-01-05T14:45:00Z",
+        "sequence_index": 24
+      },
+      "display_category": "queued",
+      "event_id": "EVT-0024",
+      "event_time": "2026-01-05T14:45:00Z",
+      "event_type": "job_enqueued",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0008",
+      "job_outcome": "not_terminal",
+      "job_state_after": "queued",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 24,
+      "snapshot_id": "DASH-SNAP-0024",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_blocked",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_blocked",
+      "deterministic_from": {
+        "event_time": "2026-01-05T15:00:00Z",
+        "sequence_index": 25
+      },
+      "display_category": "delayed",
+      "event_id": "EVT-0025",
+      "event_time": "2026-01-05T15:00:00Z",
+      "event_type": "job_delayed",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0008",
+      "job_outcome": "delayed",
+      "job_state_after": "delayed",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 25,
+      "snapshot_id": "DASH-SNAP-0025",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_queued",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_queued",
+      "deterministic_from": {
+        "event_time": "2026-01-05T15:15:00Z",
+        "sequence_index": 26
+      },
+      "display_category": "queued",
+      "event_id": "EVT-0026",
+      "event_time": "2026-01-05T15:15:00Z",
+      "event_type": "job_enqueued",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0009",
+      "job_outcome": "not_terminal",
+      "job_state_after": "queued",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 26,
+      "snapshot_id": "DASH-SNAP-0026",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_running",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_running",
+      "deterministic_from": {
+        "event_time": "2026-01-05T15:30:00Z",
+        "sequence_index": 27
+      },
+      "display_category": "running",
+      "event_id": "EVT-0027",
+      "event_time": "2026-01-05T15:30:00Z",
+      "event_type": "job_started",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0009",
+      "job_outcome": "not_terminal",
+      "job_state_after": "running",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 27,
+      "snapshot_id": "DASH-SNAP-0027",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_review_needed",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_review_needed",
+      "deterministic_from": {
+        "event_time": "2026-01-05T15:45:00Z",
+        "sequence_index": 28
+      },
+      "display_category": "review_needed",
+      "event_id": "EVT-0028",
+      "event_time": "2026-01-05T15:45:00Z",
+      "event_type": "review_needed",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0009",
+      "job_outcome": "review_needed",
+      "job_state_after": "review_needed",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 28,
+      "snapshot_id": "DASH-SNAP-0028",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_review_needed",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_review_needed",
+      "deterministic_from": {
+        "event_time": "2026-01-05T16:00:00Z",
+        "sequence_index": 29
+      },
+      "display_category": "review_needed",
+      "event_id": "EVT-0029",
+      "event_time": "2026-01-05T16:00:00Z",
+      "event_type": "notification_worthy",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0009",
+      "job_outcome": "review_needed",
+      "job_state_after": "review_needed",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 29,
+      "snapshot_id": "DASH-SNAP-0029",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_queued",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_queued",
+      "deterministic_from": {
+        "event_time": "2026-01-05T16:15:00Z",
+        "sequence_index": 30
+      },
+      "display_category": "queued",
+      "event_id": "EVT-0030",
+      "event_time": "2026-01-05T16:15:00Z",
+      "event_type": "job_enqueued",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0010",
+      "job_outcome": "not_terminal",
+      "job_state_after": "queued",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 30,
+      "snapshot_id": "DASH-SNAP-0030",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_running",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_running",
+      "deterministic_from": {
+        "event_time": "2026-01-05T16:30:00Z",
+        "sequence_index": 31
+      },
+      "display_category": "running",
+      "event_id": "EVT-0031",
+      "event_time": "2026-01-05T16:30:00Z",
+      "event_type": "job_started",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0010",
+      "job_outcome": "not_terminal",
+      "job_state_after": "running",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 31,
+      "snapshot_id": "DASH-SNAP-0031",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_no_candidate",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_no_candidate",
+      "deterministic_from": {
+        "event_time": "2026-01-05T16:45:00Z",
+        "sequence_index": 32
+      },
+      "display_category": "no_candidate",
+      "event_id": "EVT-0032",
+      "event_time": "2026-01-05T16:45:00Z",
+      "event_type": "job_completed",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0010",
+      "job_outcome": "no_candidate",
+      "job_state_after": "no_candidate",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 32,
+      "snapshot_id": "DASH-SNAP-0032",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_terminal",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_terminal",
+      "deterministic_from": {
+        "event_time": "2026-01-06T09:00:00Z",
+        "sequence_index": 33
+      },
+      "display_category": "completed",
+      "event_id": "EVT-0033",
+      "event_time": "2026-01-06T09:00:00Z",
+      "event_type": "daily_window_tick",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0001",
+      "job_outcome": "not_terminal",
+      "job_state_after": "completed",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 33,
+      "snapshot_id": "DASH-SNAP-0033",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_terminal",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_terminal",
+      "deterministic_from": {
+        "event_time": "2026-01-06T09:15:00Z",
+        "sequence_index": 34
+      },
+      "display_category": "failed",
+      "event_id": "EVT-0034",
+      "event_time": "2026-01-06T09:15:00Z",
+      "event_type": "dashboard_snapshot_tick",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0002",
+      "job_outcome": "not_terminal",
+      "job_state_after": "failed",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 34,
+      "snapshot_id": "DASH-SNAP-0034",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_terminal",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_terminal",
+      "deterministic_from": {
+        "event_time": "2026-01-06T09:30:00Z",
+        "sequence_index": 35
+      },
+      "display_category": "invalid",
+      "event_id": "EVT-0035",
+      "event_time": "2026-01-06T09:30:00Z",
+      "event_type": "registry_checkpoint",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0003",
+      "job_outcome": "not_terminal",
+      "job_state_after": "invalid",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 35,
+      "snapshot_id": "DASH-SNAP-0035",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_blocked",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_blocked",
+      "deterministic_from": {
+        "event_time": "2026-01-07T09:00:00Z",
+        "sequence_index": 36
+      },
+      "display_category": "blocked",
+      "event_id": "EVT-0036",
+      "event_time": "2026-01-07T09:00:00Z",
+      "event_type": "daily_window_tick",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0004",
+      "job_outcome": "not_terminal",
+      "job_state_after": "blocked",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 36,
+      "snapshot_id": "DASH-SNAP-0036",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_withheld",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_withheld",
+      "deterministic_from": {
+        "event_time": "2026-01-12T09:00:00Z",
+        "sequence_index": 37
+      },
+      "display_category": "withheld",
+      "event_id": "EVT-0037",
+      "event_time": "2026-01-12T09:00:00Z",
+      "event_type": "weekly_window_tick",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0005",
+      "job_outcome": "not_terminal",
+      "job_state_after": "withheld",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 37,
+      "snapshot_id": "DASH-SNAP-0037",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_withheld",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_withheld",
+      "deterministic_from": {
+        "event_time": "2026-01-12T09:15:00Z",
+        "sequence_index": 38
+      },
+      "display_category": "insufficient",
+      "event_id": "EVT-0038",
+      "event_time": "2026-01-12T09:15:00Z",
+      "event_type": "dashboard_snapshot_tick",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0006",
+      "job_outcome": "not_terminal",
+      "job_state_after": "insufficient",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 38,
+      "snapshot_id": "DASH-SNAP-0038",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_resource_limited",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_resource_limited",
+      "deterministic_from": {
+        "event_time": "2026-01-12T09:30:00Z",
+        "sequence_index": 39
+      },
+      "display_category": "resource_limited",
+      "event_id": "EVT-0039",
+      "event_time": "2026-01-12T09:30:00Z",
+      "event_type": "registry_checkpoint",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0007",
+      "job_outcome": "not_terminal",
+      "job_state_after": "resource_limited",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 39,
+      "snapshot_id": "DASH-SNAP-0039",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    },
+    {
+      "aggregated_into_real_strategy_evidence": false,
+      "candidate_evidence": false,
+      "dashboard_action_expected": "show_blocked",
+      "dashboard_action_matched": true,
+      "dashboard_action_observed": "show_blocked",
+      "deterministic_from": {
+        "event_time": "2026-01-12T09:45:00Z",
+        "sequence_index": 40
+      },
+      "display_category": "delayed",
+      "event_id": "EVT-0040",
+      "event_time": "2026-01-12T09:45:00Z",
+      "event_type": "notification_worthy",
+      "evidence_label": "operating_test_evidence",
+      "job_id": "TAPE-JOB-0008",
+      "job_outcome": "delayed",
+      "job_state_after": "delayed",
+      "no_authority_label": "no_authority",
+      "no_candidate_label": "no_candidate",
+      "prior_replay_references": [
+        {
+          "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "queue_scheduler_result",
+          "status": "complete"
+        },
+        {
+          "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/notify_report_replay_result.json",
+          "replay_evidence_class": "operating_test_evidence",
+          "role": "notify_report_result",
+          "status": "complete"
+        }
+      ],
+      "real_research_evidence": false,
+      "sequence_index": 40,
+      "snapshot_id": "DASH-SNAP-0040",
+      "strategy_evidence": false,
+      "traffic_label": "operating_test_traffic_only"
+    }
+  ]
+}

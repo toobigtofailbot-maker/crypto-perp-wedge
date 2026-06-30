@@ -1,6 +1,6 @@
 # WP-LAB-VISUAL-COCKPIT-STATIC-01 repo truth discovery
 
-- base commit: `257abf5d19ee7ac99044cc4fea0dcfe62d8502c8`
+- base commit: `b2e8e66261e08b98de11fad6a5738fc49dfe3728`
 - PR #596 evidence observed: merged at current `origin/main` merge commit `257abf5d19ee7ac99044cc4fea0dcfe62d8502c8`.
 - existing audit dashboard outputs observed: `tools/lab_dashboard/run.py`, `tools/lab_dashboard/data_model.py`, `tools/lab_dashboard/render.py`; left unchanged.
 - visual data sources selected: lab completion map, event-tape contract/summary/tape, Side 12 readiness audit, queue replay, notify/report replay, agent/dashboard replay, audit dashboard projection, and committed result populations.

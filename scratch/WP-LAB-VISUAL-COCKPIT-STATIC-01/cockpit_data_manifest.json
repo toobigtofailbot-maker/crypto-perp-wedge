@@ -56,7 +56,7 @@
       "sha256": "sha256:3a2be087180341c45aeada0e8d07d9af9203e6e9fcb5320109a61167007130a4"
     }
   },
-  "base_commit": "257abf5d19ee7ac99044cc4fea0dcfe62d8502c8",
+  "base_commit": "b2e8e66261e08b98de11fad6a5738fc49dfe3728",
   "dependency_route": "stdlib Python only; no npm/pip/frontend dependency changes",
   "event_count": 40,
   "job_count": 10,

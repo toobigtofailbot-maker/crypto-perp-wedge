@@ -205,25 +205,48 @@ def _load_result_populations() -> list[dict[str, Any]]:
 def _capability_cards(side12_map: dict[str, Any] | None, completion_text: str | None) -> list[dict[str, Any]]:
     cards: list[dict[str, Any]] = []
     if side12_map:
-        for key, value in sorted(side12_map.items()):
-            if isinstance(value, dict):
-                title = str(value.get("capability") or value.get("name") or key)
-                status = str(value.get("status") or value.get("state") or value.get("readiness") or "complete")
-                proof = str(value.get("proof_basis") or value.get("evidence") or value.get("basis") or "")
-                remaining = str(value.get("remaining_condition") or value.get("remaining") or "")
-            else:
-                title = str(key)
-                status = str(value)
-                proof = "side12_operating_readiness_map.json"
-                remaining = ""
+        capability_rows = side12_map.get("capabilities")
+        if isinstance(capability_rows, list):
+            rows = [row for row in capability_rows if isinstance(row, dict)]
+        else:
+            rows = [value for _, value in sorted(side12_map.items()) if isinstance(value, dict)]
+        for value in rows:
+            capability_id = value.get("capability_id") or value.get("id") or value.get("capability")
+            title = str(
+                value.get("capability_name")
+                or value.get("title")
+                or value.get("capability")
+                or value.get("name")
+                or capability_id
+            )
+            status = str(
+                value.get("event_tape_audit_status")
+                or value.get("status")
+                or value.get("state")
+                or value.get("readiness")
+                or "complete"
+            )
+            proof = str(value.get("proof_basis") or value.get("evidence") or value.get("basis") or "")
+            remaining = str(value.get("remaining_condition") or value.get("remaining") or value.get("notes") or "")
             cards.append(
                 {
-                    "capability_id": key,
+                    "capability_id": capability_id,
+                    "capability_name": title,
                     "title": title.replace("_", " "),
                     "status_bucket": _capability_bucket(status),
                     "source_status": status,
+                    "pre_event_tape_status": value.get("pre_event_tape_status"),
                     "proof_basis": proof or "Side 12 readiness audit artifact",
                     "remaining_condition": remaining or "none recorded",
+                    "operating_readiness_acceptance_tested": bool(
+                        value.get("operating_readiness_acceptance_tested", False)
+                    ),
+                    "production_operation_requires_real_research_traffic": bool(
+                        value.get("production_operation_requires_real_research_traffic", False)
+                    ),
+                    "requires_real_GO_candidate": bool(value.get("requires_real_GO_candidate", False)),
+                    "paper_live_GO_gated": bool(value.get("paper_live_GO_gated", False)),
+                    "authority_created_here": bool(value.get("authority_created_here", False)),
                 }
             )
     if not cards and completion_text:
@@ -243,6 +266,17 @@ def _capability_cards(side12_map: dict[str, Any] | None, completion_text: str | 
 
 
 def _capability_bucket(status: str) -> str:
+    side12_statuses = {
+        "complete_before_event_tape",
+        "proven_on_known_payload",
+        "acceptance_tested_by_event_tape",
+        "held_until_real_research_traffic_for_production",
+        "needs_real_GO_candidate",
+        "GO_gated_protected",
+        "not_applicable_to_no_edge_phase",
+    }
+    if status in side12_statuses:
+        return status
     s = status.lower()
     if "paper" in s or "live" in s or "runtime" in s or "gated" in s:
         return "paper-live-gated"
@@ -550,6 +584,15 @@ def render_html(data: dict[str, Any]) -> str:
         "<article class='cap-card'>"
         f"<div>{_badge(card['status_bucket'], card['status_bucket'])}</div>"
         f"<h3>{_esc(card['title'])}</h3>"
+        "<dl>"
+        f"<dt>ID</dt><dd>{_esc(card['capability_id'])}</dd>"
+        f"<dt>Source</dt><dd>{_esc(card['source_status'])}</dd>"
+        f"<dt>Acceptance tested</dt><dd>{_esc(card['operating_readiness_acceptance_tested'])}</dd>"
+        f"<dt>Real traffic</dt><dd>{_esc(card['production_operation_requires_real_research_traffic'])}</dd>"
+        f"<dt>GO candidate</dt><dd>{_esc(card['requires_real_GO_candidate'])}</dd>"
+        f"<dt>Paper/live gated</dt><dd>{_esc(card['paper_live_GO_gated'])}</dd>"
+        f"<dt>Authority here</dt><dd>{_esc(card['authority_created_here'])}</dd>"
+        "</dl>"
         f"<p>{_esc(card['proof_basis'])}</p>"
         f"<small>Remaining: {_esc(card['remaining_condition'])}</small>"
         "</article>"
@@ -970,6 +1013,8 @@ def write_docs(data: dict[str, Any]) -> None:
                 "",
                 "Implemented a dependency-free, static, read-only lab visual cockpit under `tools/lab_visual_cockpit`. The cockpit consumes existing audit dashboard projections, event-tape and replay artifacts, Side 12 readiness evidence, report replay artifacts, and committed result populations.",
                 "",
+                "Follow-up `WP-LAB-VISUAL-COCKPIT-STATIC-01-FOLLOWUP-CAPABILITY-MAP-01` fixes capability completion parsing so the cockpit consumes the 23 entries under `side12_operating_readiness_map.json.capabilities` instead of rendering top-level metadata keys as cards. Generated cockpit data now preserves each Side 12 `event_tape_audit_status`, proof basis, remaining condition, and read-only authority flags on the capability cards.",
+                "",
                 "Boundary: no audit dashboard semantic change, no server/backend, no live fetch, no dependency changes, no candidate/crossing/paper-live/runtime authority, no protected-path behavior change, and no fabricated missing metrics.",
                 "",
                 "Validation evidence is recorded in `scratch/WP-LAB-VISUAL-COCKPIT-STATIC-01/validation_summary.txt`.",
@@ -983,8 +1028,7 @@ def write_docs(data: dict[str, Any]) -> None:
 def write_validation_summary(lines: list[str]) -> None:
     SCRATCH_DIR.mkdir(parents=True, exist_ok=True)
     path = SCRATCH_DIR / "validation_summary.txt"
-    if not path.exists():
-        path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def build(out_dir: Path, *, write_repo_evidence: bool = True) -> dict[str, Any]:
@@ -1010,24 +1054,25 @@ def build(out_dir: Path, *, write_repo_evidence: bool = True) -> dict[str, Any]:
         write_json(SCRATCH_DIR / "cockpit_panel_inventory.json", panel_inventory(data))
         write_json(SCRATCH_DIR / "read_only_control_scan.json", scan)
         write_json(SCRATCH_DIR / "missing_metric_policy_audit.json", data["missing_metric_policy"])
-        if not (SCRATCH_DIR / "validation_summary.txt").exists():
-            write_validation_summary(
-                [
-                    f"package={PACKAGE}",
-                    f"base_commit={data['base_commit']}",
-                    "cockpit_build=generated",
-                    f"output_path={out_dir}",
-                    f"read_only_control_scan={'PASS' if scan['overall_pass'] else 'FAIL'}",
-                    "missing_metric_policy=PASS",
-                    "dependency_route=stdlib only",
-                    "audit_dashboard_semantics_changed=false",
-                    "server_backend_added=false",
-                    "live_fetch_added=false",
-                    "candidate_authority_created=false",
-                    "crossing_authority_created=false",
-                    "paper_live_runtime_authority_created=false",
-                ]
-            )
+        write_validation_summary(
+            [
+                f"package={PACKAGE}",
+                f"base_commit={data['base_commit']}",
+                "cockpit_build=generated",
+                f"output_path={out_dir}",
+                f"capability_cards={len(data['capability_completion']['cards'])}",
+                f"capability_groups={json.dumps(data['capability_completion']['groups'], sort_keys=True)}",
+                f"read_only_control_scan={'PASS' if scan['overall_pass'] else 'FAIL'}",
+                "missing_metric_policy=PASS",
+                "dependency_route=stdlib only",
+                "audit_dashboard_semantics_changed=false",
+                "server_backend_added=false",
+                "live_fetch_added=false",
+                "candidate_authority_created=false",
+                "crossing_authority_created=false",
+                "paper_live_runtime_authority_created=false",
+            ]
+        )
     return {
         "data": data,
         "scan": scan,

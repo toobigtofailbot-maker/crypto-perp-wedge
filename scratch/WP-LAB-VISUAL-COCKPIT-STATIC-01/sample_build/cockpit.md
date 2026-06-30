@@ -2,7 +2,7 @@
 
 - schema: `lab_visual_cockpit_static_v1`
 - package: `WP-LAB-VISUAL-COCKPIT-STATIC-01`
-- base commit: `257abf5d19ee7ac99044cc4fea0dcfe62d8502c8`
+- base commit: `b2e8e66261e08b98de11fad6a5738fc49dfe3728`
 - posture: read-only, static, non-authoritative, no network, no controls
 
 ## Overview

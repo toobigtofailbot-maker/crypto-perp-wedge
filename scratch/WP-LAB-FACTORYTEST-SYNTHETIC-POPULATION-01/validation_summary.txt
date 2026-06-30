@@ -1,0 +1,14 @@
+package=WP-LAB-FACTORYTEST-SYNTHETIC-POPULATION-01
+status=completed
+fixture_only=true
+baseline_id=known_losing_baseline
+row_count_planned=600
+row_count_materialized=600
+all_rows_accounted=true
+status_counts={"blocked": 50, "completed": 300, "failed": 100, "insufficient": 50, "invalid": 50, "withheld": 50}
+favorable_numeric_rows=36
+candidate_registry_written=false
+canonical_result_population_written=false
+real_strategy_execution=false
+edge_search_authorized_here=false
+crossing_expected=reject_by_construction

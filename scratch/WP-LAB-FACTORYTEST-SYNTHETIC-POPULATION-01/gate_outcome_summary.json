@@ -1,0 +1,21 @@
+{
+  "all_rows_crossing_expected": "reject_by_construction",
+  "baseline_id": "known_losing_baseline",
+  "favorable_numeric_rows": 36,
+  "favorable_numeric_rows_candidate_eligible": false,
+  "gate_outcome_basis": "synthetic_fixture_statuses_only",
+  "numeric_override_allowed": false,
+  "package": "WP-LAB-FACTORYTEST-SYNTHETIC-POPULATION-01",
+  "real_anti_overfit_run": false,
+  "real_robustness_mc_run": false,
+  "real_wfo_oos_run": false,
+  "row_count": 600,
+  "status_counts": {
+    "blocked": 50,
+    "completed": 300,
+    "failed": 100,
+    "insufficient": 50,
+    "invalid": 50,
+    "withheld": 50
+  }
+}

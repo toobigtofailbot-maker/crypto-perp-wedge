@@ -1,0 +1,18 @@
+{
+  "all_rows_accounted": true,
+  "baseline_id": "known_losing_baseline",
+  "denominator_accounting_status": "preserved",
+  "failed_invalid_blocked_insufficient_withheld_retained": true,
+  "no_winner_only_pruning": true,
+  "package": "WP-LAB-FACTORYTEST-SYNTHETIC-POPULATION-01",
+  "row_count_materialized": 600,
+  "row_count_planned": 600,
+  "status_counts": {
+    "blocked": 50,
+    "completed": 300,
+    "failed": 100,
+    "insufficient": 50,
+    "invalid": 50,
+    "withheld": 50
+  }
+}

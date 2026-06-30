@@ -1,0 +1,18 @@
+package: WP-LAB-NOTIFY-REPORT-REPLAY-01
+input_tape: LAB-EVENT-TAPE-REFERENCE-001
+event_tape_validator: pass
+json_validation: pass
+focused_tests: pass (5 passed)
+research_query_list_views: pass
+result_population_validator: pass
+candidate_registry_validator: pass
+diff_scope_summary: pass (clean worktree; branch diff limited to allowed package files)
+git_diff_check: pass
+notification_actions_matched: True
+report_actions_matched: True
+daily_windows_generated: 2
+weekly_windows_generated: 1
+real_notification_send_performed: False
+strategy_run_performed: False
+replay_evidence_class: operating_test_evidence
+full_pytest: not run; package changes are limited to docs/status/scratch, focused tests, and package-local tools/lab_event_tape helper

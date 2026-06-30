@@ -1,0 +1,465 @@
+{
+  "evidence_class": "operating_test_evidence",
+  "input_tape_id": "LAB-EVENT-TAPE-REFERENCE-001",
+  "package": "WP-LAB-NOTIFY-REPORT-REPLAY-01",
+  "window_count": 2,
+  "windows": [
+    {
+      "authority": {
+        "candidate_authority_created": false,
+        "canonical_crossing_authority_created": false,
+        "edge_claim_allowed": false,
+        "paper_live_authority_created": false,
+        "strategy_evidence": false
+      },
+      "category_counts": {
+        "blocked": 2,
+        "failed": 2,
+        "insufficient": 1,
+        "invalid": 1,
+        "resource_limited": 2,
+        "review_needed": 2,
+        "withheld": 2
+      },
+      "deterministic_from_tape_timestamps": true,
+      "event_count": 33,
+      "events": [
+        {
+          "event_id": "EVT-0001",
+          "event_time": "2026-01-05T09:00:00Z",
+          "event_type": "job_enqueued",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "none",
+          "expected_report_action": "include_if_window_matches",
+          "job_id": "TAPE-JOB-0001",
+          "job_outcome": "not_terminal",
+          "priority": "normal"
+        },
+        {
+          "event_id": "EVT-0002",
+          "event_time": "2026-01-05T09:15:00Z",
+          "event_type": "job_started",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "none",
+          "expected_report_action": "include_if_window_matches",
+          "job_id": "TAPE-JOB-0001",
+          "job_outcome": "not_terminal",
+          "priority": "normal"
+        },
+        {
+          "event_id": "EVT-0003",
+          "event_time": "2026-01-05T09:30:00Z",
+          "event_type": "job_completed",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "none",
+          "expected_report_action": "include_terminal_summary",
+          "job_id": "TAPE-JOB-0001",
+          "job_outcome": "completed",
+          "priority": "normal"
+        },
+        {
+          "event_id": "EVT-0004",
+          "event_time": "2026-01-05T09:45:00Z",
+          "event_type": "notification_worthy",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "none",
+          "expected_report_action": "include_terminal_summary",
+          "job_id": "TAPE-JOB-0001",
+          "job_outcome": "completed",
+          "priority": "normal"
+        },
+        {
+          "event_id": "EVT-0005",
+          "event_time": "2026-01-05T10:00:00Z",
+          "event_type": "job_enqueued",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "none",
+          "expected_report_action": "include_if_window_matches",
+          "job_id": "TAPE-JOB-0002",
+          "job_outcome": "not_terminal",
+          "priority": "high"
+        },
+        {
+          "event_id": "EVT-0006",
+          "event_time": "2026-01-05T10:15:00Z",
+          "event_type": "job_started",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "none",
+          "expected_report_action": "include_if_window_matches",
+          "job_id": "TAPE-JOB-0002",
+          "job_outcome": "not_terminal",
+          "priority": "high"
+        },
+        {
+          "event_id": "EVT-0007",
+          "event_time": "2026-01-05T10:30:00Z",
+          "event_type": "job_failed",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "none",
+          "expected_report_action": "include_terminal_summary",
+          "job_id": "TAPE-JOB-0002",
+          "job_outcome": "failed",
+          "priority": "high"
+        },
+        {
+          "event_id": "EVT-0008",
+          "event_time": "2026-01-05T10:45:00Z",
+          "event_type": "notification_worthy",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "dry_run_failed",
+          "expected_report_action": "include_terminal_summary",
+          "job_id": "TAPE-JOB-0002",
+          "job_outcome": "failed",
+          "priority": "high"
+        },
+        {
+          "event_id": "EVT-0009",
+          "event_time": "2026-01-05T11:00:00Z",
+          "event_type": "job_enqueued",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "none",
+          "expected_report_action": "include_if_window_matches",
+          "job_id": "TAPE-JOB-0003",
+          "job_outcome": "not_terminal",
+          "priority": "low"
+        },
+        {
+          "event_id": "EVT-0010",
+          "event_time": "2026-01-05T11:15:00Z",
+          "event_type": "job_invalid",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "none",
+          "expected_report_action": "include_terminal_summary",
+          "job_id": "TAPE-JOB-0003",
+          "job_outcome": "invalid",
+          "priority": "low"
+        },
+        {
+          "event_id": "EVT-0011",
+          "event_time": "2026-01-05T11:30:00Z",
+          "event_type": "job_enqueued",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "none",
+          "expected_report_action": "include_if_window_matches",
+          "job_id": "TAPE-JOB-0004",
+          "job_outcome": "not_terminal",
+          "priority": "urgent"
+        },
+        {
+          "event_id": "EVT-0012",
+          "event_time": "2026-01-05T11:45:00Z",
+          "event_type": "job_blocked",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "none",
+          "expected_report_action": "include_blocker_summary",
+          "job_id": "TAPE-JOB-0004",
+          "job_outcome": "blocked",
+          "priority": "urgent"
+        },
+        {
+          "event_id": "EVT-0013",
+          "event_time": "2026-01-05T12:00:00Z",
+          "event_type": "notification_worthy",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "dry_run_blocked",
+          "expected_report_action": "include_blocker_summary",
+          "job_id": "TAPE-JOB-0004",
+          "job_outcome": "blocked",
+          "priority": "urgent"
+        },
+        {
+          "event_id": "EVT-0014",
+          "event_time": "2026-01-05T12:15:00Z",
+          "event_type": "job_enqueued",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "none",
+          "expected_report_action": "include_if_window_matches",
+          "job_id": "TAPE-JOB-0005",
+          "job_outcome": "not_terminal",
+          "priority": "normal"
+        },
+        {
+          "event_id": "EVT-0015",
+          "event_time": "2026-01-05T12:30:00Z",
+          "event_type": "job_started",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "none",
+          "expected_report_action": "include_if_window_matches",
+          "job_id": "TAPE-JOB-0005",
+          "job_outcome": "not_terminal",
+          "priority": "normal"
+        },
+        {
+          "event_id": "EVT-0016",
+          "event_time": "2026-01-05T12:45:00Z",
+          "event_type": "metrics_withheld",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "none",
+          "expected_report_action": "include_withheld_summary",
+          "job_id": "TAPE-JOB-0005",
+          "job_outcome": "withheld",
+          "priority": "normal"
+        },
+        {
+          "event_id": "EVT-0017",
+          "event_time": "2026-01-05T13:00:00Z",
+          "event_type": "notification_worthy",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "dry_run_withheld",
+          "expected_report_action": "include_withheld_summary",
+          "job_id": "TAPE-JOB-0005",
+          "job_outcome": "withheld",
+          "priority": "normal"
+        },
+        {
+          "event_id": "EVT-0018",
+          "event_time": "2026-01-05T13:15:00Z",
+          "event_type": "job_enqueued",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "none",
+          "expected_report_action": "include_if_window_matches",
+          "job_id": "TAPE-JOB-0006",
+          "job_outcome": "not_terminal",
+          "priority": "high"
+        },
+        {
+          "event_id": "EVT-0019",
+          "event_time": "2026-01-05T13:30:00Z",
+          "event_type": "job_started",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "none",
+          "expected_report_action": "include_if_window_matches",
+          "job_id": "TAPE-JOB-0006",
+          "job_outcome": "not_terminal",
+          "priority": "high"
+        },
+        {
+          "event_id": "EVT-0020",
+          "event_time": "2026-01-05T13:45:00Z",
+          "event_type": "metrics_insufficient",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "none",
+          "expected_report_action": "include_withheld_summary",
+          "job_id": "TAPE-JOB-0006",
+          "job_outcome": "insufficient",
+          "priority": "high"
+        },
+        {
+          "event_id": "EVT-0021",
+          "event_time": "2026-01-05T14:00:00Z",
+          "event_type": "job_enqueued",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "none",
+          "expected_report_action": "include_if_window_matches",
+          "job_id": "TAPE-JOB-0007",
+          "job_outcome": "not_terminal",
+          "priority": "urgent"
+        },
+        {
+          "event_id": "EVT-0022",
+          "event_time": "2026-01-05T14:15:00Z",
+          "event_type": "resource_limited",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "none",
+          "expected_report_action": "include_blocker_summary",
+          "job_id": "TAPE-JOB-0007",
+          "job_outcome": "resource_limited",
+          "priority": "urgent"
+        },
+        {
+          "event_id": "EVT-0023",
+          "event_time": "2026-01-05T14:30:00Z",
+          "event_type": "notification_worthy",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "dry_run_resource_limited",
+          "expected_report_action": "include_blocker_summary",
+          "job_id": "TAPE-JOB-0007",
+          "job_outcome": "resource_limited",
+          "priority": "urgent"
+        },
+        {
+          "event_id": "EVT-0024",
+          "event_time": "2026-01-05T14:45:00Z",
+          "event_type": "job_enqueued",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "none",
+          "expected_report_action": "include_if_window_matches",
+          "job_id": "TAPE-JOB-0008",
+          "job_outcome": "not_terminal",
+          "priority": "low"
+        },
+        {
+          "event_id": "EVT-0025",
+          "event_time": "2026-01-05T15:00:00Z",
+          "event_type": "job_delayed",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "none",
+          "expected_report_action": "include_blocker_summary",
+          "job_id": "TAPE-JOB-0008",
+          "job_outcome": "delayed",
+          "priority": "low"
+        },
+        {
+          "event_id": "EVT-0026",
+          "event_time": "2026-01-05T15:15:00Z",
+          "event_type": "job_enqueued",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "none",
+          "expected_report_action": "include_if_window_matches",
+          "job_id": "TAPE-JOB-0009",
+          "job_outcome": "not_terminal",
+          "priority": "normal"
+        },
+        {
+          "event_id": "EVT-0027",
+          "event_time": "2026-01-05T15:30:00Z",
+          "event_type": "job_started",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "none",
+          "expected_report_action": "include_if_window_matches",
+          "job_id": "TAPE-JOB-0009",
+          "job_outcome": "not_terminal",
+          "priority": "normal"
+        },
+        {
+          "event_id": "EVT-0028",
+          "event_time": "2026-01-05T15:45:00Z",
+          "event_type": "review_needed",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "none",
+          "expected_report_action": "include_blocker_summary",
+          "job_id": "TAPE-JOB-0009",
+          "job_outcome": "review_needed",
+          "priority": "normal"
+        },
+        {
+          "event_id": "EVT-0029",
+          "event_time": "2026-01-05T16:00:00Z",
+          "event_type": "notification_worthy",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "dry_run_review_needed",
+          "expected_report_action": "include_blocker_summary",
+          "job_id": "TAPE-JOB-0009",
+          "job_outcome": "review_needed",
+          "priority": "normal"
+        },
+        {
+          "event_id": "EVT-0030",
+          "event_time": "2026-01-05T16:15:00Z",
+          "event_type": "job_enqueued",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "none",
+          "expected_report_action": "include_if_window_matches",
+          "job_id": "TAPE-JOB-0010",
+          "job_outcome": "not_terminal",
+          "priority": "high"
+        },
+        {
+          "event_id": "EVT-0031",
+          "event_time": "2026-01-05T16:30:00Z",
+          "event_type": "job_started",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "none",
+          "expected_report_action": "include_if_window_matches",
+          "job_id": "TAPE-JOB-0010",
+          "job_outcome": "not_terminal",
+          "priority": "high"
+        },
+        {
+          "event_id": "EVT-0032",
+          "event_time": "2026-01-05T16:45:00Z",
+          "event_type": "job_completed",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "none",
+          "expected_report_action": "include_terminal_summary",
+          "job_id": "TAPE-JOB-0010",
+          "job_outcome": "no_candidate",
+          "priority": "high"
+        },
+        {
+          "event_id": "EVT-0033",
+          "event_time": "2026-01-06T09:00:00Z",
+          "event_type": "daily_window_tick",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "dry_run_daily_summary",
+          "expected_report_action": "include_in_daily_window",
+          "job_id": "TAPE-JOB-0001",
+          "job_outcome": "not_terminal",
+          "priority": "normal"
+        }
+      ],
+      "evidence_class": "operating_test_evidence",
+      "materialized_window_end_inclusive": "2026-01-06T09:00:00Z",
+      "report_actions": [
+        "include_blocker_summary",
+        "include_if_window_matches",
+        "include_in_daily_window",
+        "include_terminal_summary",
+        "include_withheld_summary"
+      ],
+      "tick_event_id": "EVT-0033",
+      "window_end_inclusive": "2026-01-06T09:00:00Z",
+      "window_id": "DAILY-0001",
+      "window_kind": "daily",
+      "window_start_exclusive": null
+    },
+    {
+      "authority": {
+        "candidate_authority_created": false,
+        "canonical_crossing_authority_created": false,
+        "edge_claim_allowed": false,
+        "paper_live_authority_created": false,
+        "strategy_evidence": false
+      },
+      "category_counts": {},
+      "deterministic_from_tape_timestamps": true,
+      "event_count": 3,
+      "events": [
+        {
+          "event_id": "EVT-0034",
+          "event_time": "2026-01-06T09:15:00Z",
+          "event_type": "dashboard_snapshot_tick",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "none",
+          "expected_report_action": "include_if_window_matches",
+          "job_id": "TAPE-JOB-0002",
+          "job_outcome": "not_terminal",
+          "priority": "high"
+        },
+        {
+          "event_id": "EVT-0035",
+          "event_time": "2026-01-06T09:30:00Z",
+          "event_type": "registry_checkpoint",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "none",
+          "expected_report_action": "include_if_window_matches",
+          "job_id": "TAPE-JOB-0003",
+          "job_outcome": "not_terminal",
+          "priority": "low"
+        },
+        {
+          "event_id": "EVT-0036",
+          "event_time": "2026-01-07T09:00:00Z",
+          "event_type": "daily_window_tick",
+          "evidence_class": "operating_test_evidence",
+          "expected_notification_action": "dry_run_daily_summary",
+          "expected_report_action": "include_in_daily_window",
+          "job_id": "TAPE-JOB-0004",
+          "job_outcome": "not_terminal",
+          "priority": "urgent"
+        }
+      ],
+      "evidence_class": "operating_test_evidence",
+      "materialized_window_end_inclusive": "2026-01-07T09:00:00Z",
+      "report_actions": [
+        "include_if_window_matches",
+        "include_in_daily_window"
+      ],
+      "tick_event_id": "EVT-0036",
+      "window_end_inclusive": "2026-01-07T09:00:00Z",
+      "window_id": "DAILY-0002",
+      "window_kind": "daily",
+      "window_start_exclusive": "2026-01-06T09:00:00Z"
+    }
+  ]
+}

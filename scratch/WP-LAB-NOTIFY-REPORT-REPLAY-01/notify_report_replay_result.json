@@ -1,0 +1,21 @@
+{
+  "candidate_authority_created": false,
+  "canonical_crossing_authority_created": false,
+  "daily_windows_generated": 2,
+  "dry_run_notifications_rendered": true,
+  "edge_search_authorized_here": false,
+  "event_count": 40,
+  "input_tape_id": "LAB-EVENT-TAPE-REFERENCE-001",
+  "job_count": 10,
+  "mismatches": [],
+  "notification_actions_matched": true,
+  "package": "WP-LAB-NOTIFY-REPORT-REPLAY-01",
+  "paper_live_authority_created": false,
+  "real_notification_send_performed": false,
+  "replay_evidence_class": "operating_test_evidence",
+  "report_actions_matched": true,
+  "schema_version": "lab_event_tape.v1",
+  "status": "complete",
+  "strategy_run_performed": false,
+  "weekly_windows_generated": 1
+}

@@ -1,0 +1,29 @@
+# WP-LAB-NOTIFY-REPORT-REPLAY-01 Repo Truth Discovery
+
+- Base commit: `77f1a98420a3b87fd207f7291efcc2aafaa8fbb2`
+- PR #592 observed: merged as `77f1a98420a3b87fd207f7291efcc2aafaa8fbb2`
+- PR #592 artifacts observed:
+  - `docs/research/LAB_EVENT_TAPE_CONTRACT.md`
+  - `docs/status_entries/WP-LAB-EVENT-TAPE-CONTRACT-01.md`
+  - `scratch/WP-LAB-EVENT-TAPE-CONTRACT-01/event_tape_schema.json`
+  - `scratch/WP-LAB-EVENT-TAPE-CONTRACT-01/reference_event_tape.json`
+  - `scratch/WP-LAB-EVENT-TAPE-CONTRACT-01/reference_tape_summary.json`
+  - `scratch/WP-LAB-EVENT-TAPE-CONTRACT-01/non_authority_assertions.json`
+  - `scratch/WP-LAB-EVENT-TAPE-CONTRACT-01/validator_result.json`
+  - `tools/lab_event_tape/validate.py`
+- Notification/reporting surfaces discovered:
+  - `tools/lab_reporting/**`: deterministic read-only operator brief / weekly report surface.
+  - `tools/lab_approval_queue/**`: deterministic read-only approval / gate queue surface; explicitly fires no notification.
+  - No distinct real notification sender surface was found in the scoped lab surfaces.
+- Selected replay-helper route: package-local interpreter at `tools/lab_event_tape/replay_notify_report.py`.
+- Existing repo reporting helpers invoked directly: no.
+- Reason direct coupling was not used: current reporting helpers render current dashboard-derived repo state, not the event tape's expected notification/report actions.
+- Files intentionally left unchanged:
+  - `tools/lab_reporting/**`
+  - `tools/lab_approval_queue/**`
+  - `tools/lab_scheduler_shell/**`
+  - `tools/lab_dashboard/**`
+  - `tools/lab_state/**`
+  - protected runtime, paper/live, OMS, risk, reconciliation, broker, exchange, data, config, dependency, registry, and candidate lifecycle paths.
+- Real notification sending occurred: no.
+- Replay outputs are operating-test evidence only: yes.

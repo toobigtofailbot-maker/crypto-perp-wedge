@@ -1,0 +1,73 @@
+{
+  "package": "WP-LAB-REAL-TRAFFIC-FRESH-REPLACEMENTS-01",
+  "matrix_status": "complete",
+  "replacement_ids": ["LAB-RT-HYP-002R", "LAB-RT-HYP-003R", "LAB-RT-HYP-004R"],
+  "checks": [
+    {
+      "constraint_family": "Donchian trend following: H-002 / H-012",
+      "LAB-RT-HYP-002R": "pass: no Donchian channel; uses RVOL/range expansion.",
+      "LAB-RT-HYP-003R": "pass: no Donchian channel; VWAP-distance reversion.",
+      "LAB-RT-HYP-004R": "pass: no Donchian channel; EMA/session impulse."
+    },
+    {
+      "constraint_family": "ORB family / rejected PR #598 HYP-002",
+      "LAB-RT-HYP-002R": "pass: not anchored to UTC opening range or retest window.",
+      "LAB-RT-HYP-003R": "pass: no opening-range logic.",
+      "LAB-RT-HYP-004R": "pass: uses time-of-day session gate, but no opening range or retest structure."
+    },
+    {
+      "constraint_family": "SMA crossover: RP-2592 / RP-3731 / RP-6236",
+      "LAB-RT-HYP-002R": "pass: no SMA crossover.",
+      "LAB-RT-HYP-003R": "pass: no SMA crossover.",
+      "LAB-RT-HYP-004R": "pass: EMA side/impulse, no crossover."
+    },
+    {
+      "constraint_family": "SMA/stddev/z-score fade: RP-7134 and SMA freshness-blocked attempt",
+      "LAB-RT-HYP-002R": "pass: breakout/continuation, not fade.",
+      "LAB-RT-HYP-003R": "pass_with_caution: reversion, but volume-weighted VWAP anchor and RSI/ATR context rather than SMA/stddev z-score.",
+      "LAB-RT-HYP-004R": "pass: continuation, not fade."
+    },
+    {
+      "constraint_family": "SMA-distance/SMA-band: RP-2134 / RP-4492 / RP-6688 / RP-7520",
+      "LAB-RT-HYP-002R": "pass: no SMA band or distance fade.",
+      "LAB-RT-HYP-003R": "pass_with_caution: distance reversion, but VWAP anchor is volume-weighted and not SMA band.",
+      "LAB-RT-HYP-004R": "pass: no SMA band."
+    },
+    {
+      "constraint_family": "Bollinger mean reversion / squeeze breakout: H-003 / H-006",
+      "LAB-RT-HYP-002R": "pass: breakout uses RVOL and range expansion, not Bollinger squeeze.",
+      "LAB-RT-HYP-003R": "pass_with_caution: reversion, but not Bollinger/stddev band.",
+      "LAB-RT-HYP-004R": "pass: continuation, not Bollinger."
+    },
+    {
+      "constraint_family": "Funding families: H-001 / H-007 / H-012 / funding scratch lineages",
+      "LAB-RT-HYP-002R": "pass: OHLCV-only, no funding input.",
+      "LAB-RT-HYP-003R": "pass: OHLCV-only, no funding input.",
+      "LAB-RT-HYP-004R": "pass: OHLCV-only, no funding input."
+    },
+    {
+      "constraint_family": "Premium/basis families: H-008 / H-010",
+      "LAB-RT-HYP-002R": "pass: OHLCV-only.",
+      "LAB-RT-HYP-003R": "pass: OHLCV rolling VWAP, no premium/basis stream.",
+      "LAB-RT-HYP-004R": "pass: OHLCV-only."
+    },
+    {
+      "constraint_family": "MACD / MTF trend alignment: H-005 / H-009",
+      "LAB-RT-HYP-002R": "pass: no MACD or MTF alignment.",
+      "LAB-RT-HYP-003R": "pass: no MACD or MTF alignment.",
+      "LAB-RT-HYP-004R": "pass: no MACD or MTF alignment; session filter is not MTF confirmation."
+    },
+    {
+      "constraint_family": "HYP-001 retained 4h no-wick EMA retest continuation",
+      "LAB-RT-HYP-002R": "pass: 15m RVOL/range expansion breakout, not EMA retest.",
+      "LAB-RT-HYP-003R": "pass: VWAP-distance reversion, not EMA retest.",
+      "LAB-RT-HYP-004R": "pass_with_caution: uses EMA but at 15m with session/impulse structure, not no-wick 4h retest."
+    }
+  ],
+  "overall": {
+    "LAB-RT-HYP-002R": "freshness_pass",
+    "LAB-RT-HYP-003R": "freshness_pass_with_caution",
+    "LAB-RT-HYP-004R": "freshness_pass_with_caution",
+    "batch_reduced": false
+  }
+}

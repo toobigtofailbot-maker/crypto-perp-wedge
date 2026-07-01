@@ -1,0 +1,95 @@
+{
+  "package": "WP-LAB-REAL-TRAFFIC-FRESH-REPLACEMENTS-01",
+  "screen_status": "complete",
+  "screen_rules": {
+    "batch_size_is_ceiling": true,
+    "must_be_supported_family": true,
+    "must_be_economically_distinct": true,
+    "must_not_duplicate_concluded_family": true,
+    "no_research_execution": true
+  },
+  "candidates_screened": [
+    {
+      "hypothesis_id": "LAB-RT-HYP-002R",
+      "hypothesis_name": "BTCUSDT 15m RVOL-gated range-expansion breakout",
+      "supported_family_route": "price_only_ohlcv.rvol_range_expansion_breakout_15m",
+      "screen_result": "accepted_for_revised_proposal",
+      "supported_primitives": ["rvol", "atr", "ohlcv high/low/close", "entry_controls.min_bars_between_entries"],
+      "economic_distinction": "Tests whether abnormal participation plus candle-range expansion identifies continuation, not whether a volatility squeeze, Donchian channel, or opening range breaks.",
+      "freshness_rationale": "Distinct from H-006 because it uses RVOL participation and single-bar/range expansion rather than Bollinger squeeze; distinct from H-002/H-012 because it does not use Donchian channels; distinct from ORB because it is not session-opening-range anchored.",
+      "blocked_or_rejected_reason": null
+    },
+    {
+      "hypothesis_id": "LAB-RT-HYP-003R",
+      "hypothesis_name": "BTCUSDT 15m rolling VWAP distance reversion",
+      "supported_family_route": "price_only_ohlcv.rolling_vwap_distance_reversion_15m",
+      "screen_result": "accepted_for_revised_proposal",
+      "supported_primitives": ["rolling_vwap", "atr", "rsi", "ohlcv close", "entry_controls.min_bars_between_entries"],
+      "economic_distinction": "Tests reversion to a volume-weighted intraday fair-value proxy after distance exhaustion, not reversion to SMA/stddev or Bollinger bands.",
+      "freshness_rationale": "Distinct from RP-6688/RP-7520 and RP-7134 because the anchor is rolling candle-VWAP and optional RSI exhaustion rather than SMA bands or z-score; distinct from H-010 because no mark/index/premium basis stream is used.",
+      "blocked_or_rejected_reason": null
+    },
+    {
+      "hypothesis_id": "LAB-RT-HYP-004R",
+      "hypothesis_name": "BTCUSDT 15m session-filtered EMA impulse continuation",
+      "supported_family_route": "price_only_ohlcv.session_ema_impulse_continuation_15m",
+      "screen_result": "accepted_for_revised_proposal",
+      "supported_primitives": ["ema", "atr", "rvol", "hour_of_day_utc", "day_of_week_utc", "ohlcv open/high/low/close", "entry_controls.min_bars_between_entries"],
+      "economic_distinction": "Tests whether high-liquidity UTC session windows improve short-horizon impulse continuation after an EMA-side close and ATR-normalized candle body.",
+      "freshness_rationale": "Distinct from SMA crossover RP families because no crossover is used; distinct from HYP-001 because it is 15m session/time-filtered impulse continuation, not 4h no-wick EMA retest; distinct from H-009 because no multi-timeframe alignment is used.",
+      "blocked_or_rejected_reason": null
+    },
+    {
+      "hypothesis_id": "SCREEN-REJECT-ORB-RETEST",
+      "hypothesis_name": "15m UTC opening-range breakout retest",
+      "supported_family_route": "price_only_ohlcv.opening_range_breakout_retest_15m",
+      "screen_result": "rejected_freshness_fail",
+      "supported_primitives": ["opening_range", "session", "fixed_R_target"],
+      "economic_distinction": "Not sufficient.",
+      "freshness_rationale": "Rejected because it duplicates PR #598 HYP-002 and the prior ORB prereg surface.",
+      "blocked_or_rejected_reason": "ORB family already surfaced in WP-ONLINE-ORB-15M-PREREG-01; PR #598 HYP-002 rejected."
+    },
+    {
+      "hypothesis_id": "SCREEN-REJECT-SMA-CROSSOVER",
+      "hypothesis_name": "15m SMA crossover trend continuation",
+      "supported_family_route": "price_only_ohlcv.sma_crossover_trend_continuation_15m",
+      "screen_result": "rejected_freshness_fail",
+      "supported_primitives": ["sma", "crosses_above", "crosses_below"],
+      "economic_distinction": "Not sufficient.",
+      "freshness_rationale": "Rejected because RP-2592/RP-3731/RP-6236 already cover SMA crossover continuation lineages.",
+      "blocked_or_rejected_reason": "Duplicate/retune concluded SMA crossover family."
+    },
+    {
+      "hypothesis_id": "SCREEN-REJECT-ZSCORE-FADE",
+      "hypothesis_name": "15m z-score/SMA stddev mean reversion",
+      "supported_family_route": "price_only_ohlcv.zscore_regime_gated_mean_reversion_15m",
+      "screen_result": "rejected_freshness_fail",
+      "supported_primitives": ["sma", "stddev", "z_score"],
+      "economic_distinction": "Not sufficient.",
+      "freshness_rationale": "Rejected because RP-7134 and the SMA freshness-blocked attempt already establish this as a concluded/blocked family.",
+      "blocked_or_rejected_reason": "Duplicate/retune concluded z-score/SMA/stddev fade family."
+    },
+    {
+      "hypothesis_id": "SCREEN-REJECT-DONCHIAN",
+      "hypothesis_name": "freshness-verified Donchian trend continuation",
+      "supported_family_route": "price_only_ohlcv.donchian_breakout_variant",
+      "screen_result": "rejected_freshness_fail",
+      "supported_primitives": ["donchian"],
+      "economic_distinction": "Not established.",
+      "freshness_rationale": "Rejected because H-002 and H-012 already constrain both 4h and 15m Donchian trend-following, including funding-filtered variants.",
+      "blocked_or_rejected_reason": "Too close to concluded Donchian families."
+    },
+    {
+      "hypothesis_id": "SCREEN-REJECT-FUNDING",
+      "hypothesis_name": "funding carry/fade or funding-filtered continuation",
+      "supported_family_route": "funding_context",
+      "screen_result": "rejected_freshness_fail",
+      "supported_primitives": ["funding_rate"],
+      "economic_distinction": "Not sufficient.",
+      "freshness_rationale": "Rejected because H-001, H-007, H-012, and funding scratch families already constrain funding-based replacements.",
+      "blocked_or_rejected_reason": "Funding-family retune risk."
+    }
+  ],
+  "replacement_count_accepted": 3,
+  "reduced_batch": false
+}

@@ -1,0 +1,101 @@
+{
+  "hypothesis_id": "LAB-RT-HYP-004R",
+  "hypothesis_name": "BTCUSDT 15m session-filtered EMA impulse continuation",
+  "comparison_targets": [
+    "RP-2592 / STRAT-SPEC-0004 15m SMA crossover trend continuation",
+    "RP-3731 / STRAT-SPEC-0005 15m SMA crossover ATR-stop momentum",
+    "RP-6236 / STRAT-SPEC-0006 4h SMA crossover ATR-stop momentum"
+  ],
+  "source_artifacts_inspected": [
+    "scratch/WP-LAB-REAL-TRAFFIC-FRESH-REPLACEMENTS-01/revised_hypothesis_set_proposal.json",
+    "scratch/WP-LAB-REAL-TRAFFIC-FRESH-REPLACEMENTS-01/freshness_check_matrix.json",
+    "scratch/WP-LAB-REAL-TRAFFIC-FRESH-REPLACEMENTS-01/concluded_family_inventory.json",
+    "research/result_populations/RP-2592.result_population.json",
+    "research/result_populations/RP-3731.result_population.json",
+    "research/result_populations/RP-6236.result_population.json",
+    "research/strategy_specs/STRAT-SPEC-0004.strategy_spec.json",
+    "research/strategy_specs/STRAT-SPEC-0005.strategy_spec.json",
+    "research/strategy_specs/STRAT-SPEC-0006.strategy_spec.json",
+    "research/variant_manifests/VM-0004.variant_manifest.json",
+    "research/variant_manifests/VM-0005.variant_manifest.json",
+    "research/variant_manifests/VM-0006.variant_manifest.json",
+    "research/sweep_plans/SWEEP-PLAN-0004.sweep_plan.json",
+    "research/sweep_plans/SWEEP-PLAN-0005.sweep_plan.json",
+    "research/sweep_plans/SWEEP-PLAN-0006.sweep_plan.json",
+    "research/indicator_catalogs/IND-CATALOG-0001.indicator_catalog.json",
+    "tools/research_runner/spec_signal_compiler.py"
+  ],
+  "proposed_mechanics": {
+    "anchor": "EMA side condition using ema_lookback_bars 50 or 96, plus candle body/ATR impulse and session context.",
+    "trigger": "Directional impulse continuation from candle body size relative to ATR, on the EMA side, with RVOL participation.",
+    "gate": "UTC session hours and weekend exclusion are load-bearing; RVOL minimum is fixed at 1.2.",
+    "normalization": "Body size normalized by ATR through body_atr_min; no fast/slow moving-average crossover.",
+    "timeframe": "15m BTCUSDT OHLCV D4A proposed surface.",
+    "entry_logic": "Both-direction continuation entries require EMA side, body/ATR impulse, RVOL, and allowed UTC session.",
+    "exit_or_risk_logic": "ATR stop multiple 2.0 and entry throttle; no opposite SMA crossover exit is proposed."
+  },
+  "concluded_family_mechanics": [
+    {
+      "target": "RP-2592 / STRAT-SPEC-0004",
+      "anchor": "Fast SMA and slow SMA pair with side-specific trend SMA confirmation.",
+      "trigger": "Fast SMA crosses above slow SMA for long or crosses below slow SMA for short.",
+      "gate": "Side-specific close versus trend SMA confirmation and fixed min_bars_between_entries=16.",
+      "normalization": "No body/ATR impulse normalization and no session/RVOL gate.",
+      "timeframe": "15m.",
+      "entry_logic": "Both-direction SMA crossover continuation entries.",
+      "exit_or_risk_logic": "Opposite SMA crossover exits."
+    },
+    {
+      "target": "RP-3731 / STRAT-SPEC-0005",
+      "anchor": "Same fast/slow/trend SMA crossover grid as STRAT-SPEC-0004.",
+      "trigger": "Fast/slow SMA crosses with trend SMA confirmation.",
+      "gate": "Fixed throttle; no session or RVOL gate.",
+      "normalization": "Adds fixed ATR-stop exit, but entry remains SMA crossover.",
+      "timeframe": "15m.",
+      "entry_logic": "Both-direction SMA crossover continuation entries.",
+      "exit_or_risk_logic": "Opposite SMA crossover exits plus fixed ATR stop."
+    },
+    {
+      "target": "RP-6236 / STRAT-SPEC-0006",
+      "anchor": "Rescaled 4h fast/slow/trend SMA crossover grid inherited from STRAT-SPEC-0005.",
+      "trigger": "Fast/slow SMA crosses with trend SMA confirmation on 4h bars.",
+      "gate": "Fixed throttle; no session or RVOL gate.",
+      "normalization": "Adds fixed ATR-stop exit, but entry remains SMA crossover.",
+      "timeframe": "4h.",
+      "entry_logic": "Both-direction SMA crossover continuation entries.",
+      "exit_or_risk_logic": "Opposite SMA crossover exits plus fixed ATR stop."
+    }
+  ],
+  "mechanical_differences": [
+    "HYP-004R has no fast/slow moving-average crossover trigger.",
+    "HYP-004R uses EMA side as context, not fast SMA crossing slow SMA as the event.",
+    "HYP-004R uses candle body relative to ATR as the impulse trigger.",
+    "HYP-004R uses RVOL and UTC session windows as gates; the concluded momentum targets do not.",
+    "HYP-004R declares session_hours_utc as a denominator axis and weekend_allowed=false, making session selection load-bearing.",
+    "HYP-004R proposes ATR stop only as risk/exit context, while RP-3731/RP-6236 use ATR stop on top of SMA crossover entries."
+  ],
+  "mechanical_overlaps": [
+    "All compared surfaces are continuation or momentum-adjacent.",
+    "HYP-004R and the targets use moving-average context, though EMA side differs from SMA crossover.",
+    "HYP-004R, RP-3731, and RP-6236 mention ATR in risk/normalization surfaces."
+  ],
+  "load_bearing_fresh_elements": [
+    "ema_lookback_bars is an explicit denominator axis and uses EMA rather than fast/slow SMA pair crossing.",
+    "body_atr_min is an explicit denominator axis and defines impulse strength.",
+    "session_hours_utc is an explicit denominator axis and weekend_allowed=false is fixed.",
+    "RVOL participation is required at rvol_min=1.2.",
+    "The absence of fast/slow crossover mechanics is central to distinctness."
+  ],
+  "cosmetic_elements": [
+    "Momentum and continuation wording overlaps with concluded families.",
+    "ATR-stop language overlaps with RP-3731/RP-6236 but is not the entry trigger.",
+    "Moving-average context alone is not enough for freshness; distinctness depends on no crossover trigger and load-bearing session/impulse/RVOL gates."
+  ],
+  "collapse_risk": "medium",
+  "distinctness_result": "pass_with_caution",
+  "drop_required_if_executing": false,
+  "reason": "The proposed surface does not reduce to the concluded SMA crossover families as written because it uses EMA-side context, body/ATR impulse, RVOL, and UTC session filters instead of fast/slow SMA crossing. Collapse risk is medium because a future formalizer could accidentally express a generic moving-average momentum or crossover wrapper; that would invalidate this result.",
+  "main_verification_required": true,
+  "research_execution_performed": false,
+  "frozen_set_created": false
+}

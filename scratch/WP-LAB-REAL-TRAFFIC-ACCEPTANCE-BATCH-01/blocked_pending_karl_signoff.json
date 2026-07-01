@@ -1,0 +1,35 @@
+{
+  "package": "WP-LAB-REAL-TRAFFIC-ACCEPTANCE-BATCH-01",
+  "decision": "blocked_pending_karl_signoff",
+  "base_commit": "0fbd7f240694045873e7b879da9c902172c59995",
+  "pr_596_merged": true,
+  "pr_596_merge_commit": "257abf5",
+  "signed_frozen_set_present": false,
+  "required_signoff_artifact": "scratch/WP-LAB-REAL-TRAFFIC-ACCEPTANCE-BATCH-01/karl_signed_frozen_hypothesis_set.md",
+  "required_machine_readable_frozen_set": "scratch/WP-LAB-REAL-TRAFFIC-ACCEPTANCE-BATCH-01/frozen_hypothesis_set.json",
+  "research_execution_performed": false,
+  "stopped_before_execution": true,
+  "blocker": "The package requires Karl sign-off on a frozen 3-4 hypothesis set before any real research execution. No signed frozen hypothesis set exists in repo truth or the prompt attachment.",
+  "created_artifacts": [
+    "scratch/WP-LAB-REAL-TRAFFIC-ACCEPTANCE-BATCH-01/repo_truth_discovery.md",
+    "scratch/WP-LAB-REAL-TRAFFIC-ACCEPTANCE-BATCH-01/frozen_hypothesis_set_proposal.json",
+    "scratch/WP-LAB-REAL-TRAFFIC-ACCEPTANCE-BATCH-01/frozen_hypothesis_set_proposal.md",
+    "scratch/WP-LAB-REAL-TRAFFIC-ACCEPTANCE-BATCH-01/blocked_pending_karl_signoff.json",
+    "scratch/WP-LAB-REAL-TRAFFIC-ACCEPTANCE-BATCH-01/blocked_pending_karl_signoff.md",
+    "scratch/WP-LAB-REAL-TRAFFIC-ACCEPTANCE-BATCH-01/non_authority_assertions.json",
+    "scratch/WP-LAB-REAL-TRAFFIC-ACCEPTANCE-BATCH-01/validation_summary.txt",
+    "docs/status_entries/WP-LAB-REAL-TRAFFIC-ACCEPTANCE-BATCH-01.md"
+  ],
+  "forbidden_actions_avoided": [
+    "candidate admission",
+    "canonical crossing",
+    "promotion/readiness declaration",
+    "paper/live/runtime contact",
+    "private provider/API access",
+    "autonomous scheduler activation",
+    "real notification sending",
+    "winner-only pruning",
+    "dependency changes",
+    "protected path changes"
+  ]
+}

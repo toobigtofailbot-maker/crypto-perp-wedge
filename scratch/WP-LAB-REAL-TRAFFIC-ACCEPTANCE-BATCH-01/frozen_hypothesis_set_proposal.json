@@ -1,0 +1,255 @@
+{
+  "package": "WP-LAB-REAL-TRAFFIC-ACCEPTANCE-BATCH-01",
+  "proposal_status": "blocked_pending_karl_signoff",
+  "proposal_purpose": "Machine-readable proposed frozen set for Karl/Main review before any bounded real-research acceptance traffic is executed.",
+  "not_execution_authority": true,
+  "hypothesis_count": 4,
+  "hypotheses": [
+    {
+      "hypothesis_id": "LAB-RT-HYP-001",
+      "hypothesis_name": "BTCUSDT 4h no-wick EMA retest continuation",
+      "supported_family_route": "price_only_ohlcv.no_wick_ema_retest_4h",
+      "economic_rationale": "A strong no-wick candle that closes on the trend side of EMA50 and retests the EMA may indicate continuation after directional impulse rather than mean reversion.",
+      "data_requirements": [
+        "BTCUSDT Binance USDT-M OHLCV 4h D4-derived local slice",
+        "Existing OHLCV fields only: open, high, low, close, volume",
+        "Existing indicator builtins: ema, atr"
+      ],
+      "frozen_parameters_or_search_space": {
+        "primary_timeframe": "4h",
+        "direction": "both",
+        "wick_threshold": [0.05, 0.1],
+        "body_threshold": [0.6, 0.7],
+        "atr_stop_multiple": [1.5, 2.0],
+        "trend_indicator": "EMA50",
+        "denominator": 8
+      },
+      "denominator_definition": "All 8 predeclared variants from wick_threshold x body_threshold x atr_stop_multiple are retained, including completed, failed, invalid, blocked, data-unavailable, withheld, no-trade, and NO-GO rows.",
+      "expected_artifacts": [
+        "scratch package Strategy Spec draft generated through existing Strategy Spec grammar",
+        "scratch package Variant Manifest",
+        "scratch package Sweep Plan",
+        "scratch/no-write offline runner output or blocked trace",
+        "WFO/OOS summary where existing support allows",
+        "robustness/MC summary where existing support allows",
+        "anti-overfit full-denominator review",
+        "operator review packet"
+      ],
+      "stop_conditions": [
+        "required 4h OHLCV slice is unavailable",
+        "existing Strategy Spec grammar cannot express the surface without schema/compiler changes",
+        "runner requires dependency, data acquisition, protected path, candidate lifecycle, crossing, or runtime changes",
+        "denominator preservation cannot be guaranteed",
+        "GO-like evidence appears and requires human decision"
+      ],
+      "known_failure_modes": [
+        "low trade count / sparse evidence",
+        "trend filter does not reduce adverse selection",
+        "cost and slippage dominate gross edge",
+        "drawdown exceeds predeclared screen",
+        "single-cell sensitivity"
+      ],
+      "non_promotion_posture": true,
+      "protected_boundaries": [
+        "No candidate admission",
+        "No canonical crossing",
+        "No promotion/readiness declaration",
+        "No paper/live/runtime contact",
+        "No OMS/risk/reconciliation/order/exchange/broker changes"
+      ],
+      "GO_definition": "All denominator rows are preserved, population-level net performance and drawdown pass the frozen screen, cost burden is not dominant under available metrics, and sensitivity is not winner-only; GO-like evidence still requires human decision and creates no admission or crossing authority.",
+      "NO_GO_definition": "Population-level net performance, drawdown, cost burden, sensitivity, or denominator integrity fails the frozen screen while all rows remain reported.",
+      "blocked_definition": "Execution cannot proceed through existing supported repo surfaces without unauthorized code, schema, data, dependency, protected-path, candidate-lifecycle, crossing, or runtime changes.",
+      "invalid_definition": "The hypothesis artifact set violates the frozen set, schema constraints, data lineage requirements, or predeclared denominator/search-space rules."
+    },
+    {
+      "hypothesis_id": "LAB-RT-HYP-002",
+      "hypothesis_name": "BTCUSDT 15m UTC opening-range breakout retest",
+      "supported_family_route": "price_only_ohlcv.opening_range_breakout_retest_15m",
+      "economic_rationale": "A close-confirmed breakout from the UTC daily opening range followed by a bounded retest may capture intraday continuation while limiting entries to one trade per session.",
+      "data_requirements": [
+        "BTCUSDT Binance USDT-M OHLCV 15m D4A normalized local slice",
+        "Existing session, opening-range, breakout, retest, session trade-cap, and fixed-R exit primitives",
+        "Existing indicator builtin: atr"
+      ],
+      "frozen_parameters_or_search_space": {
+        "primary_timeframe": "15m",
+        "direction": "both",
+        "session_anchor": "UTC_00:00",
+        "opening_range_bars": 2,
+        "retest_window_bars": [2, 4],
+        "breakout_tolerance_atr": [0.0, 0.1],
+        "fixed_R_target": [1.0, 2.0],
+        "max_trades_per_session": 1,
+        "denominator": 8
+      },
+      "denominator_definition": "All 8 predeclared variants from retest_window_bars x breakout_tolerance_atr x fixed_R_target are retained, including completed, failed, invalid, blocked, data-unavailable, withheld, no-trade, and NO-GO rows.",
+      "expected_artifacts": [
+        "scratch package Strategy Spec draft generated through existing Strategy Spec grammar",
+        "scratch package Variant Manifest",
+        "scratch package Sweep Plan",
+        "scratch/no-write offline runner output or blocked trace",
+        "WFO/OOS summary where existing support allows",
+        "robustness/MC summary where existing support allows",
+        "anti-overfit full-denominator review",
+        "operator review packet"
+      ],
+      "stop_conditions": [
+        "required 15m OHLCV slice is unavailable",
+        "existing ORB primitive route cannot validate without schema/compiler changes",
+        "full-slice runner cannot complete within bounded package limits",
+        "denominator preservation cannot be guaranteed",
+        "GO-like evidence appears and requires human decision"
+      ],
+      "known_failure_modes": [
+        "high churn on 15m data",
+        "fees and slippage dominate",
+        "near-terminal drawdown",
+        "session-specific overfit",
+        "cost/gross instrumentation unavailable"
+      ],
+      "non_promotion_posture": true,
+      "protected_boundaries": [
+        "No candidate admission",
+        "No canonical crossing",
+        "No promotion/readiness declaration",
+        "No paper/live/runtime contact",
+        "No OMS/risk/reconciliation/order/exchange/broker changes"
+      ],
+      "GO_definition": "All denominator rows are preserved, median and positive-row net performance pass the frozen screen, drawdown remains below automatic NO-GO limits, costs are honestly classified, and positive evidence is not isolated to one parameter cell; GO-like evidence still requires human decision.",
+      "NO_GO_definition": "Population-level net performance is negative, drawdown/cost/churn fails the frozen screen, or evidence is winner-only or sensitivity-fragile while all rows remain reported.",
+      "blocked_definition": "Execution cannot proceed through existing supported repo surfaces without unauthorized code, schema, data, dependency, protected-path, candidate-lifecycle, crossing, or runtime changes.",
+      "invalid_definition": "The hypothesis artifact set violates the frozen set, schema constraints, data lineage requirements, or predeclared denominator/search-space rules."
+    },
+    {
+      "hypothesis_id": "LAB-RT-HYP-003",
+      "hypothesis_name": "BTCUSDT 15m SMA crossover trend continuation",
+      "supported_family_route": "price_only_ohlcv.sma_crossover_trend_continuation_15m",
+      "economic_rationale": "A fast SMA crossing a slow SMA is a simple with-move continuation trigger that tests a different premise from prior centerline fade failures.",
+      "data_requirements": [
+        "BTCUSDT Binance USDT-M OHLCV 15m D4A normalized local slice",
+        "Existing OHLCV fields only: open, high, low, close, volume",
+        "Existing indicator builtin: sma",
+        "Existing crossover operators: crosses_above, crosses_below"
+      ],
+      "frozen_parameters_or_search_space": {
+        "primary_timeframe": "15m",
+        "direction": "both",
+        "fast_lookback_bars": [12, 24],
+        "slow_lookback_bars": [48, 96],
+        "trend_lookback_bars": [192],
+        "invalid_combination_rule": "exclude only if fast_lookback_bars >= slow_lookback_bars before execution",
+        "min_bars_between_entries": 8,
+        "denominator": 4
+      },
+      "denominator_definition": "All 4 valid predeclared fast x slow x trend combinations are retained, including completed, failed, invalid, blocked, data-unavailable, withheld, no-trade, and NO-GO rows; any invalid fast>=slow combination would be retained as predeclared invalid if introduced by later review.",
+      "expected_artifacts": [
+        "scratch package Strategy Spec draft generated through existing Strategy Spec grammar",
+        "scratch package Variant Manifest",
+        "scratch package Sweep Plan",
+        "scratch/no-write offline runner output or blocked trace",
+        "WFO/OOS summary where existing support allows",
+        "robustness/MC summary where existing support allows",
+        "anti-overfit full-denominator review",
+        "operator review packet"
+      ],
+      "stop_conditions": [
+        "required 15m OHLCV slice is unavailable",
+        "existing both-direction crossover grammar cannot express side-labeled entries/exits",
+        "runner requires schema/compiler/runner changes",
+        "denominator preservation cannot be guaranteed",
+        "GO-like evidence appears and requires human decision"
+      ],
+      "known_failure_modes": [
+        "trend transitions arrive too late",
+        "whipsaw churn dominates",
+        "opposite-signal exits allow large drawdowns",
+        "positive result depends on one lookback cell",
+        "DSR/PSR inputs unavailable"
+      ],
+      "non_promotion_posture": true,
+      "protected_boundaries": [
+        "No candidate admission",
+        "No canonical crossing",
+        "No promotion/readiness declaration",
+        "No paper/live/runtime contact",
+        "No OMS/risk/reconciliation/order/exchange/broker changes"
+      ],
+      "GO_definition": "All denominator rows are preserved, population-level net performance and drawdown pass the frozen screen, trade count and costs do not dominate, and favorable evidence spans more than one axis cell; GO-like evidence still requires human decision.",
+      "NO_GO_definition": "Population-level net performance, drawdown, churn/cost, or sensitivity fails the frozen screen while all rows remain reported.",
+      "blocked_definition": "Execution cannot proceed through existing supported repo surfaces without unauthorized code, schema, data, dependency, protected-path, candidate-lifecycle, crossing, or runtime changes.",
+      "invalid_definition": "The hypothesis artifact set violates the frozen set, schema constraints, data lineage requirements, or predeclared denominator/search-space rules."
+    },
+    {
+      "hypothesis_id": "LAB-RT-HYP-004",
+      "hypothesis_name": "BTCUSDT 15m volatility-normalized regime-gated mean reversion",
+      "supported_family_route": "price_only_ohlcv.zscore_regime_gated_mean_reversion_15m",
+      "economic_rationale": "Standardized distance from a centerline may better separate meaningful dislocation from noise, while trend/regime gating and re-entry discipline attempt to reduce repeated adverse fades and cost drag.",
+      "data_requirements": [
+        "BTCUSDT Binance USDT-M OHLCV 15m D4A normalized local slice",
+        "Existing z_score composed operand",
+        "Existing indicator builtins: sma, stddev",
+        "Existing trend/regime comparison grammar",
+        "Existing fixed entry-control support"
+      ],
+      "frozen_parameters_or_search_space": {
+        "primary_timeframe": "15m",
+        "direction": "both",
+        "center_lookback_bars": [96],
+        "scale_lookback_bars": [96, 192],
+        "entry_z_abs": [1.5, 2.0],
+        "exit_z_abs": [0.25],
+        "trend_lookback_bars": [384],
+        "min_bars_between_entries": 8,
+        "denominator": 4
+      },
+      "denominator_definition": "All 4 predeclared scale_lookback_bars x entry_z_abs combinations are retained with fixed center, exit, trend, and throttle values, including completed, failed, invalid, blocked, data-unavailable, withheld, no-trade, and NO-GO rows.",
+      "expected_artifacts": [
+        "scratch package Strategy Spec draft generated through existing Strategy Spec grammar",
+        "scratch package Variant Manifest",
+        "scratch package Sweep Plan",
+        "scratch/no-write offline runner output or blocked trace",
+        "WFO/OOS summary where existing support allows",
+        "robustness/MC summary where existing support allows",
+        "anti-overfit full-denominator review",
+        "operator review packet"
+      ],
+      "stop_conditions": [
+        "required 15m OHLCV slice is unavailable",
+        "existing z_score or regime-gate grammar cannot express the surface without changes",
+        "runner requires schema/compiler/runner changes",
+        "denominator preservation cannot be guaranteed",
+        "GO-like evidence appears and requires human decision"
+      ],
+      "known_failure_modes": [
+        "standardized fades remain gross-negative",
+        "regime gate overfits selection",
+        "trade-frequency control suppresses evidence",
+        "zero-scale/null-output behavior creates sparse entries",
+        "cost drag persists despite lower churn"
+      ],
+      "non_promotion_posture": true,
+      "protected_boundaries": [
+        "No candidate admission",
+        "No canonical crossing",
+        "No promotion/readiness declaration",
+        "No paper/live/runtime contact",
+        "No OMS/risk/reconciliation/order/exchange/broker changes"
+      ],
+      "GO_definition": "All denominator rows are preserved, population-level net performance and drawdown pass the frozen screen, churn/cost improvement versus prior mean-reversion evidence is measured honestly, and favorable evidence is not a single-cell artifact; GO-like evidence still requires human decision.",
+      "NO_GO_definition": "Population-level net performance, drawdown, cost/churn, sensitivity, or evidence sparsity fails the frozen screen while all rows remain reported.",
+      "blocked_definition": "Execution cannot proceed through existing supported repo surfaces without unauthorized code, schema, data, dependency, protected-path, candidate-lifecycle, crossing, or runtime changes.",
+      "invalid_definition": "The hypothesis artifact set violates the frozen set, schema constraints, data lineage requirements, or predeclared denominator/search-space rules."
+    }
+  ],
+  "batch_level_rules": {
+    "no_outcome_peeking": true,
+    "no_retuning_after_results": true,
+    "no_parameter_expansion_after_results": true,
+    "winner_only_pruning_forbidden": true,
+    "canonical_candidate_admission_authorized": false,
+    "canonical_crossing_authorized": false,
+    "promotion_readiness_authorized": false,
+    "paper_live_runtime_authorized": false
+  }
+}

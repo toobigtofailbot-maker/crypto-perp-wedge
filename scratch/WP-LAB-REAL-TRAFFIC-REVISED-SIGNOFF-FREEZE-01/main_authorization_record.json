@@ -1,0 +1,38 @@
+{
+  "package": "WP-LAB-REAL-TRAFFIC-REVISED-SIGNOFF-FREEZE-01",
+  "authorization_actor": "Main",
+  "authorization_present": true,
+  "decision": "authorized_as_is",
+  "authorization_text": "Decision: authorized_as_is.\n\nThe revised four-hypothesis set (HYP-001, HYP-002R, HYP-003R, HYP-004R) is verified distinct from all concluded families. No drops, no reductions. It proceeds to Karl sign-off recording.\n\nFreeze conditions:\n1. HYP-004R's session filter must be load-bearing in the compiled spec, not cosmetic over an EMA-momentum signal.\n2. HYP-003R and HYP-004R carry their `pass_with_caution` context into their result records.",
+  "verified_hypothesis_ids": [
+    "LAB-RT-HYP-001",
+    "LAB-RT-HYP-002R",
+    "LAB-RT-HYP-003R",
+    "LAB-RT-HYP-004R"
+  ],
+  "no_drops": true,
+  "no_reductions": true,
+  "freeze_conditions": {
+    "LAB-RT-HYP-004R": [
+      "session filter must be load-bearing",
+      "session_hours_utc must remain an explicit denominator axis or equivalent load-bearing gate",
+      "weekend_allowed=false must remain fixed",
+      "final compiled/formalized execution must not reduce to EMA/SMA momentum with a cosmetic session wrapper",
+      "pass_with_caution context must be carried into future result records",
+      "result interpretation must explicitly read against RP-2592 / RP-3731 / RP-6236 context",
+      "frozen mechanics must remain EMA-side body/ATR impulse + RVOL + UTC session filter, not fast/slow SMA crossover momentum"
+    ],
+    "LAB-RT-HYP-003R": [
+      "pass_with_caution context must be carried into future result records",
+      "result interpretation must explicitly read against RP-7134 / STRAT-SPEC-0003 context",
+      "frozen mechanics must remain rolling-VWAP anchor + ATR distance + RSI exhaustion/neutrality, not SMA/stddev z-score"
+    ],
+    "all_hypotheses": [
+      "non-promotion posture preserved",
+      "if any hypothesis screens GO later, execution must stop-and-surface to Karl as a real candidate decision",
+      "no automatic admission, crossing, readiness, or paper/live action"
+    ]
+  },
+  "source": "execution package prompt",
+  "recorded_by_package": "WP-LAB-REAL-TRAFFIC-REVISED-SIGNOFF-FREEZE-01"
+}

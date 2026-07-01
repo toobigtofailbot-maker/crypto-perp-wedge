@@ -1,0 +1,64 @@
+{
+  "package": "WP-LAB-REAL-TRAFFIC-DISTINCTNESS-CHECKS-01",
+  "base_commit": "ba5bf7e97201332a18a18a1e10eb3d877706c834",
+  "pr_599_merged": true,
+  "research_execution_performed": false,
+  "frozen_set_created": false,
+  "main_verification_required": true,
+  "karl_signoff_required": true,
+  "checks": [
+    {
+      "hypothesis_id": "LAB-RT-HYP-002R",
+      "comparison_targets": [
+        "H-002 / REP-0003",
+        "H-012 / REP-0032"
+      ],
+      "distinctness_result": "pass",
+      "collapse_risk": "low",
+      "decision": "keep_pending_main_verification",
+      "drop_required_if_executing": false,
+      "summary_reason": "Previous-bar range-expansion breakout with RVOL and ATR-normalized range is mechanically distinct from rolling Donchian channel breakout and Donchian plus funding filter."
+    },
+    {
+      "hypothesis_id": "LAB-RT-HYP-003R",
+      "comparison_targets": [
+        "RP-7134 / STRAT-SPEC-0003",
+        "SMA/stddev freshness-blocked attempt"
+      ],
+      "distinctness_result": "pass_with_caution",
+      "collapse_risk": "medium",
+      "decision": "keep_pending_main_verification",
+      "drop_required_if_executing": false,
+      "summary_reason": "Rolling VWAP anchor, ATR distance, RSI exhaustion, and VWAP/RSI exits differ from SMA/stddev z-score, SMA trend gate, and SMA-centerline exits."
+    },
+    {
+      "hypothesis_id": "LAB-RT-HYP-004R",
+      "comparison_targets": [
+        "RP-2592 / STRAT-SPEC-0004",
+        "RP-3731 / STRAT-SPEC-0005",
+        "RP-6236 / STRAT-SPEC-0006"
+      ],
+      "distinctness_result": "pass_with_caution",
+      "collapse_risk": "medium",
+      "decision": "keep_pending_main_verification",
+      "drop_required_if_executing": false,
+      "summary_reason": "EMA-side body/ATR impulse with RVOL and UTC session filters differs from fast/slow SMA crossover momentum, even where ATR stop vocabulary overlaps."
+    }
+  ],
+  "hypotheses_kept": [
+    "LAB-RT-HYP-001",
+    "LAB-RT-HYP-002R",
+    "LAB-RT-HYP-003R",
+    "LAB-RT-HYP-004R"
+  ],
+  "hypotheses_dropped": [],
+  "reduced_batch": false,
+  "final_candidate_set_count": 4,
+  "authority": {
+    "revised_hypothesis_set_frozen": false,
+    "candidate_admission_authorized": false,
+    "canonical_crossing_authorized": false,
+    "promotion_readiness_authorized": false,
+    "paper_live_runtime_authorized": false
+  }
+}

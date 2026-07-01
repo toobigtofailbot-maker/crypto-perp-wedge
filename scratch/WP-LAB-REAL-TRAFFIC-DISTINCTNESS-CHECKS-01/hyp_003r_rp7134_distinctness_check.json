@@ -1,0 +1,81 @@
+{
+  "hypothesis_id": "LAB-RT-HYP-003R",
+  "hypothesis_name": "BTCUSDT 15m rolling VWAP distance reversion",
+  "comparison_targets": [
+    "RP-7134 / STRAT-SPEC-0003 z-score trend-gated mean reversion",
+    "WP-RESEARCH-EDGE-SMA-FAMILY-01 SMA/stddev freshness-blocked attempt"
+  ],
+  "source_artifacts_inspected": [
+    "scratch/WP-LAB-REAL-TRAFFIC-FRESH-REPLACEMENTS-01/revised_hypothesis_set_proposal.json",
+    "scratch/WP-LAB-REAL-TRAFFIC-FRESH-REPLACEMENTS-01/freshness_check_matrix.json",
+    "scratch/WP-LAB-REAL-TRAFFIC-FRESH-REPLACEMENTS-01/concluded_family_inventory.json",
+    "research/result_populations/RP-7134.result_population.json",
+    "research/strategy_specs/STRAT-SPEC-0003.strategy_spec.json",
+    "research/variant_manifests/VM-0003.variant_manifest.json",
+    "research/sweep_plans/SWEEP-PLAN-0003.sweep_plan.json",
+    "docs/status_entries/WP-RESEARCH-EDGE-SMA-FAMILY-01.md",
+    "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/repo_truth_discovery.md",
+    "research/indicator_catalogs/IND-CATALOG-0001.indicator_catalog.json",
+    "tools/research_runner/spec_signal_compiler.py"
+  ],
+  "proposed_mechanics": {
+    "anchor": "Rolling candle-VWAP approximation from high/low/close/volume over 96 or 192 bars.",
+    "trigger": "ATR-normalized distance from rolling VWAP with RSI exhaustion confirmation.",
+    "gate": "RSI extreme threshold plus fixed min_bars_between_entries=8; no SMA trend gate is proposed.",
+    "normalization": "ATR distance threshold, not SMA/stddev z-score normalization.",
+    "timeframe": "15m BTCUSDT OHLCV D4A proposed surface.",
+    "entry_logic": "Both-direction mean-reversion entries when price is sufficiently far from rolling VWAP and RSI is extreme.",
+    "exit_or_risk_logic": "Return to VWAP or RSI neutral exit; no SMA centerline exit is proposed."
+  },
+  "concluded_family_mechanics": [
+    {
+      "target": "RP-7134 / STRAT-SPEC-0003",
+      "anchor": "SMA centerline with STDDEV scale inside a z_score composed operand.",
+      "trigger": "Long when close is below SMA by more than 1.5 rolling standard deviations; short when close is above SMA by more than 1.5 rolling standard deviations.",
+      "gate": "Shared trend gate requiring close above SMA(trend_lookback_bars); fixed min_bars_between_entries=8.",
+      "normalization": "z_score using close, SMA center, and STDDEV scale.",
+      "timeframe": "15m.",
+      "entry_logic": "Both-direction z-score overextension fade through SMA/stddev composed operand.",
+      "exit_or_risk_logic": "Side-specific SMA centerline exits; no max holding period."
+    },
+    {
+      "target": "SMA/stddev freshness-blocked attempt",
+      "anchor": "SMA/stddev overextension formalized into the STRAT-SPEC-0003 capability family.",
+      "trigger": "Fixed plus/minus 1.5 z-score entries under the available adapter.",
+      "gate": "Shared SMA trend gate and 8-bar entry throttle copied from STRAT-SPEC-0003.",
+      "normalization": "SMA/stddev z-score.",
+      "timeframe": "15m.",
+      "entry_logic": "Duplicate SMA/stddev overextension mean reversion.",
+      "exit_or_risk_logic": "SMA-centerline exits; VM-0003/SWEEP-PLAN-0003 semantics only."
+    }
+  ],
+  "mechanical_differences": [
+    "The proposed anchor is rolling VWAP from OHLCV high/low/close/volume, not SMA close-only centerline.",
+    "The proposed scale is ATR distance, not standard-deviation z-score.",
+    "The proposed confirmation gate is RSI exhaustion, not shared SMA trend gating.",
+    "The proposed exit is return to VWAP or RSI neutral, not SMA centerline crossing.",
+    "The proposed denominator axes are rolling_vwap_lookback_bars, distance_atr_entry, and rsi_extreme, not center_lookback_bars, vol_lookback_bars, and trend_lookback_bars."
+  ],
+  "mechanical_overlaps": [
+    "Both HYP-003R and RP-7134 are 15m both-direction mean-reversion ideas.",
+    "Both use normalized distance from a rolling reference anchor.",
+    "Both require existing OHLCV-derived indicator support and fixed entry throttling."
+  ],
+  "load_bearing_fresh_elements": [
+    "rolling_vwap_lookback_bars is an explicit denominator axis and changes the reference anchor.",
+    "distance_atr_entry uses ATR-normalized distance and changes the scale.",
+    "rsi_extreme is an explicit denominator axis and changes the trigger confirmation.",
+    "return_to_vwap_or_rsi_neutral changes exit semantics from SMA centerline exits."
+  ],
+  "cosmetic_elements": [
+    "The phrase distance reversion overlaps with prior fade-family language.",
+    "Using a rolling reference alone is not distinct; the distinctness depends on keeping VWAP/ATR/RSI rather than SMA/stddev."
+  ],
+  "collapse_risk": "medium",
+  "distinctness_result": "pass_with_caution",
+  "drop_required_if_executing": false,
+  "reason": "The proposed mechanics do not reduce to the committed SMA/stddev z-score family as written: anchor, scale, trigger confirmation, exit, and denominator axes differ. Collapse risk remains medium because a future formalizer that cannot express rolling VWAP, ATR distance, RSI, or VWAP/RSI exits could regress into the already-blocked SMA/stddev adapter path.",
+  "main_verification_required": true,
+  "research_execution_performed": false,
+  "frozen_set_created": false
+}

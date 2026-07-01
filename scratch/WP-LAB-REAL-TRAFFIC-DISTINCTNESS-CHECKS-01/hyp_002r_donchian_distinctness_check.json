@@ -1,0 +1,77 @@
+{
+  "hypothesis_id": "LAB-RT-HYP-002R",
+  "hypothesis_name": "BTCUSDT 15m RVOL-gated range-expansion breakout",
+  "comparison_targets": [
+    "H-002 / REP-0003 4h Donchian channel trend-following",
+    "H-012 / REP-0032 15m Donchian breakout with funding filter"
+  ],
+  "source_artifacts_inspected": [
+    "scratch/WP-LAB-REAL-TRAFFIC-FRESH-REPLACEMENTS-01/revised_hypothesis_set_proposal.json",
+    "scratch/WP-LAB-REAL-TRAFFIC-FRESH-REPLACEMENTS-01/freshness_check_matrix.json",
+    "scratch/WP-LAB-REAL-TRAFFIC-FRESH-REPLACEMENTS-01/concluded_family_inventory.json",
+    "research/experiments/REP-0003.report.json",
+    "research/experiments/REP-0032.report.json",
+    "research/indicator_catalogs/IND-CATALOG-0001.indicator_catalog.json",
+    "tools/research_runner/spec_signal_compiler.py"
+  ],
+  "proposed_mechanics": {
+    "anchor": "Previous-bar high/low only, with no rolling highest-high/lowest-low channel and no Donchian channel width/midline anchor.",
+    "trigger": "Range-expansion breakout through the immediately previous bar high/low, conditioned on ATR-normalized candle range and participation.",
+    "gate": "Relative volume threshold is required and parameterized by rvol_lookback_bars and rvol_min; min_bars_between_entries is fixed at 8.",
+    "normalization": "ATR-normalized range threshold through range_atr_min; RVOL measures current volume versus rolling volume baseline.",
+    "timeframe": "15m BTCUSDT OHLCV D4A proposed surface.",
+    "entry_logic": "Both-direction breakout entries require previous-bar high/low break plus RVOL and range-expansion confirmation.",
+    "exit_or_risk_logic": "ATR stop multiple 2.0 is proposed; no Donchian midline/channel exit is proposed."
+  },
+  "concluded_family_mechanics": [
+    {
+      "target": "H-002 / REP-0003",
+      "anchor": "4h Donchian channel trend-following baseline.",
+      "trigger": "Breakout beyond Donchian channel.",
+      "gate": "No RVOL participation gate recorded in REP-0003; simple Donchian trend context.",
+      "normalization": "No ATR-normalized range-expansion gate recorded in REP-0003.",
+      "timeframe": "4h.",
+      "entry_logic": "Channel breakout trend-following.",
+      "exit_or_risk_logic": "Baseline symmetric trend-following exits under the research workbench."
+    },
+    {
+      "target": "H-012 / REP-0032",
+      "anchor": "Prior-bar rolling high/low Donchian breakout channel on 15m.",
+      "trigger": "Donchian breakout using prior-bar rolling high/low.",
+      "gate": "Funding context filter blocks or flattens long when funding exceeds a positive threshold and short when funding is below a negative threshold; min_hold before state changes.",
+      "normalization": "No RVOL participation gate and no ATR-normalized range-expansion trigger recorded as the defining signal.",
+      "timeframe": "15m.",
+      "entry_logic": "Donchian breakout with funding filter; pure Donchian comparator also recorded.",
+      "exit_or_risk_logic": "Baseline trend exits; funding-filtered and pure comparator both liquidated."
+    }
+  ],
+  "mechanical_differences": [
+    "The proposed breakout level is the immediately previous bar high/low, not a Donchian rolling channel upper/lower level over a multi-bar lookback.",
+    "RVOL is load-bearing because entries require abnormal participation; removing RVOL would change the declared denominator axes and the economic thesis.",
+    "ATR-normalized range expansion is part of the trigger, while the Donchian targets are channel-breakout mechanics.",
+    "H-012 uses funding as the context filter; HYP-002R is OHLCV-only and uses volume participation instead.",
+    "H-002 is 4h and HYP-002R is 15m; timeframe alone is not counted as sufficient, but it supports the different event definition."
+  ],
+  "mechanical_overlaps": [
+    "Both HYP-002R and the Donchian targets are breakout or continuation family ideas.",
+    "Both HYP-002R and H-012 can reference previous information before the current trigger bar.",
+    "All compared surfaces are BTCUSDT perpetual research hypotheses and not execution authority."
+  ],
+  "load_bearing_fresh_elements": [
+    "rvol_min and rvol_lookback_bars are explicit denominator axes.",
+    "range_atr_min is an explicit denominator axis.",
+    "breakout_reference is fixed to previous_bar_high_low rather than a Donchian channel.",
+    "The economic rationale depends on participation-confirmed range expansion rather than channel trend following."
+  ],
+  "cosmetic_elements": [
+    "Shared breakout/continuation vocabulary is cosmetic unless formalization switches to rolling-channel mechanics.",
+    "The 15m timeframe by itself is not sufficient distinctness."
+  ],
+  "collapse_risk": "low",
+  "distinctness_result": "pass",
+  "drop_required_if_executing": false,
+  "reason": "Repo-truth proposal mechanics define a previous-bar/range-expansion/RVOL participation breakout, while the concluded targets are Donchian channel breakout families. A future formalized artifact must preserve the previous-bar and RVOL/range-expansion requirements; if it substitutes rolling Donchian channel levels, this pass no longer holds.",
+  "main_verification_required": true,
+  "research_execution_performed": false,
+  "frozen_set_created": false
+}

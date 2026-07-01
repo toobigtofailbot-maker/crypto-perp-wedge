@@ -1,0 +1,31 @@
+WP-LAB-REAL-TRAFFIC-DISTINCTNESS-CHECKS-01 validation summary
+
+Base:
+- origin/main at ba5bf7e97201332a18a18a1e10eb3d877706c834.
+- PR #599 verified merged by gh pr view 599.
+
+Commands:
+- python -m json.tool scratch\WP-LAB-REAL-TRAFFIC-DISTINCTNESS-CHECKS-01\hyp_002r_donchian_distinctness_check.json: PASS
+- python -m json.tool scratch\WP-LAB-REAL-TRAFFIC-DISTINCTNESS-CHECKS-01\hyp_003r_rp7134_distinctness_check.json: PASS
+- python -m json.tool scratch\WP-LAB-REAL-TRAFFIC-DISTINCTNESS-CHECKS-01\hyp_004r_momentum_distinctness_check.json: PASS
+- python -m json.tool scratch\WP-LAB-REAL-TRAFFIC-DISTINCTNESS-CHECKS-01\distinctness_decision_summary.json: PASS
+- python -m json.tool scratch\WP-LAB-REAL-TRAFFIC-DISTINCTNESS-CHECKS-01\revised_set_after_distinctness.json: PASS
+- python -m json.tool scratch\WP-LAB-REAL-TRAFFIC-DISTINCTNESS-CHECKS-01\non_authority_assertions.json: PASS
+- python -m tools.research_query.run --list-views: PASS, listed 124 views.
+- python -m tools.registry.validate_result_populations: PASS.
+- python -m tools.registry.validate_candidate_registry: PASS.
+- python tools/dev/diff_scope_summary.py: PASS before and after staging, changed files limited to docs/status_entries/WP-LAB-REAL-TRAFFIC-DISTINCTNESS-CHECKS-01.md and scratch/WP-LAB-REAL-TRAFFIC-DISTINCTNESS-CHECKS-01/**.
+- git diff --check: PASS before staging.
+- git diff --cached --check: PASS after staging.
+- git status --short: expected staged new status entry and scratch packet files only.
+
+Focused tests:
+- Not run; package changed no code.
+
+Full pytest:
+- Not run; active package validation did not require full pytest and package changed no code.
+
+Boundary:
+- No research execution.
+- No frozen set.
+- No Strategy Spec, Variant Manifest, Sweep Plan, Result Population, candidate registry, crossing, readiness, paper/live/runtime, protected-path, data, dependency, schema, validator, query-layer, runner, compiler, or lib change.

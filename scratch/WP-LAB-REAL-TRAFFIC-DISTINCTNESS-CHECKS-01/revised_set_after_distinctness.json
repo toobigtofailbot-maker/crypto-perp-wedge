@@ -1,0 +1,54 @@
+{
+  "package": "WP-LAB-REAL-TRAFFIC-DISTINCTNESS-CHECKS-01",
+  "source_revised_proposal": "scratch/WP-LAB-REAL-TRAFFIC-FRESH-REPLACEMENTS-01/revised_hypothesis_set_proposal.json",
+  "main_verification_required": true,
+  "karl_signoff_required": true,
+  "revised_hypothesis_set_frozen": false,
+  "hypotheses": [
+    {
+      "hypothesis_id": "LAB-RT-HYP-001",
+      "hypothesis_name": "BTCUSDT 4h no-wick EMA retest continuation",
+      "action_after_distinctness": "keep",
+      "distinctness_result": "retained_by_main_decision_not_rechecked_in_this_packet",
+      "drop_reason": null,
+      "reduced_batch_flag": false
+    },
+    {
+      "hypothesis_id": "LAB-RT-HYP-002R",
+      "hypothesis_name": "BTCUSDT 15m RVOL-gated range-expansion breakout",
+      "action_after_distinctness": "keep",
+      "distinctness_result": "pass",
+      "drop_reason": null,
+      "reduced_batch_flag": false
+    },
+    {
+      "hypothesis_id": "LAB-RT-HYP-003R",
+      "hypothesis_name": "BTCUSDT 15m rolling VWAP distance reversion",
+      "action_after_distinctness": "keep",
+      "distinctness_result": "pass_with_caution",
+      "drop_reason": null,
+      "reduced_batch_flag": false
+    },
+    {
+      "hypothesis_id": "LAB-RT-HYP-004R",
+      "hypothesis_name": "BTCUSDT 15m session-filtered EMA impulse continuation",
+      "action_after_distinctness": "keep",
+      "distinctness_result": "pass_with_caution",
+      "drop_reason": null,
+      "reduced_batch_flag": false
+    }
+  ],
+  "hypotheses_kept": [
+    "LAB-RT-HYP-001",
+    "LAB-RT-HYP-002R",
+    "LAB-RT-HYP-003R",
+    "LAB-RT-HYP-004R"
+  ],
+  "hypotheses_dropped": [],
+  "hypotheses_blocked_pending_main_verification": [],
+  "reduced_batch": false,
+  "final_candidate_set_count": 4,
+  "no_new_replacements_added": true,
+  "research_execution_performed": false,
+  "frozen_set_created": false
+}

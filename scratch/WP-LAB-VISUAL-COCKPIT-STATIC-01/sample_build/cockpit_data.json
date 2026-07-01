@@ -1,0 +1,4432 @@
+{
+  "artifact_sources": {
+    "agent_dashboard_replay": {
+      "path": "scratch/WP-LAB-AGENTLOOP-DASHBOARD-REPLAY-01/agent_dashboard_replay_result.json",
+      "present": true,
+      "sha256": "sha256:3948ccd8a714a8e502a7071dd5e7a04739ae924564e279eab388ff051e12fe3e"
+    },
+    "daily_report_replay": {
+      "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/daily_report_replay.json",
+      "present": true,
+      "sha256": "sha256:3998f95fa34f7c3f1de7518b2fa8d12e7f523bbd715c1cb424bea0a2099eb303"
+    },
+    "event_tape": {
+      "path": "scratch/WP-LAB-EVENT-TAPE-CONTRACT-01/reference_event_tape.json",
+      "present": true,
+      "sha256": "sha256:451e21216dc82e54e5b673dbe94dc0c2e06e32c6f54bc00114938ce114f28ecd"
+    },
+    "event_tape_contract": {
+      "path": "docs/research/LAB_EVENT_TAPE_CONTRACT.md",
+      "present": true,
+      "sha256": "sha256:d07b729d9e569995f3d2fb99955ce53f0051335357a9921562fa6e1ace0bdab3"
+    },
+    "event_tape_summary": {
+      "path": "scratch/WP-LAB-EVENT-TAPE-CONTRACT-01/reference_tape_summary.json",
+      "present": true,
+      "sha256": "sha256:a56dfc7924606326b57dadd7ed062e09d23c1ae3e504190766ef34c3e197a02b"
+    },
+    "factory_denominator": {
+      "path": "scratch/WP-LAB-FACTORYTEST-SYNTHETIC-POPULATION-01/denominator_accounting.json",
+      "present": true,
+      "sha256": "sha256:40ff4e1ef1ac92515a71efab48b2155b6d72b26d6962441f856990d4bf8f1413"
+    },
+    "lab_completion_map": {
+      "path": "docs/research/LAB_COMPLETION_MAP.md",
+      "present": true,
+      "sha256": "sha256:f8ab4b686e6f83a0ddc25424d2951efab08f7fb1b5c0d18c5be5d3479e9a9bcb"
+    },
+    "queue_replay": {
+      "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+      "present": true,
+      "sha256": "sha256:b1c25160af7a34fde72779fd92f24c6d310137109cf1019b0cbb4417fef276ec"
+    },
+    "side12_capability_map": {
+      "path": "scratch/WP-LAB-SIDE12-OPERATING-READINESS-AUDIT-01/side12_operating_readiness_map.json",
+      "present": true,
+      "sha256": "sha256:40b82951b1ee1d43380ea06a67ee445c4de7411377d0529a67eda67405f4adcd"
+    },
+    "side12_readiness": {
+      "path": "scratch/WP-LAB-SIDE12-OPERATING-READINESS-AUDIT-01/final_operating_readiness_state.json",
+      "present": true,
+      "sha256": "sha256:18765605c5c5e50a893b1fa258de32c148a8a66112ef555693eec4dc704e4391"
+    },
+    "weekly_report_replay": {
+      "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/weekly_report_replay.json",
+      "present": true,
+      "sha256": "sha256:3a2be087180341c45aeada0e8d07d9af9203e6e9fcb5320109a61167007130a4"
+    }
+  },
+  "audit_dashboard_snapshot": {
+    "baseline_proof_panel": {
+      "agent_loop_exercise": {
+        "agent_loop_behavior": {
+          "proposed_paper_live": false,
+          "proposed_promotion": false,
+          "proposed_readiness": false,
+          "proposed_real_crossing": false,
+          "ranked_as_edge": false,
+          "recommended_rescue": false,
+          "recommended_retuning": false
+        },
+        "available": true,
+        "baseline_id": "known_losing_baseline",
+        "candidate_eligible": false,
+        "candidate_registry_written": false,
+        "canonical_result_population_written": false,
+        "crossing_rejection": {
+          "check": "nonpromotable_construction_guard",
+          "crossing_action_authorized": false,
+          "first_real_crossing_remains_karl_gated": true,
+          "reason_code": "reject_by_construction",
+          "status": "rejected"
+        },
+        "crossing_rejection_reason_code": "reject_by_construction",
+        "fixture_only": true,
+        "no_candidate_result": {
+          "completed_rows": 0,
+          "declared_rows": 3,
+          "missing_or_unavailable_metrics_fabricated": false,
+          "review_outcome": "negative_fixture_no_candidate",
+          "robustness_mc_status": "insufficient_or_withheld_fixture_only",
+          "status": "no_candidate",
+          "wfo_oos_status": "insufficient_or_withheld_fixture_only"
+        },
+        "non_promotable": true,
+        "status": "completed"
+      },
+      "artifact_refs": {
+        "baseline_gate_expectations": {
+          "path": "scratch/WP-LAB-GATE-HARDENING-WALKFORWARD-ROBUSTNESS-01/baseline_gate_expectations.json",
+          "present": true
+        },
+        "baseline_loop_result": {
+          "path": "scratch/WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01/baseline_loop_result.json",
+          "present": true
+        },
+        "baseline_payload_catalog": {
+          "path": "scratch/WP-LAB-BASELINE-PAYLOAD-DEFINE-01/baseline_payload_catalog.json",
+          "present": true
+        },
+        "completion_state_update": {
+          "path": "scratch/WP-LAB-COMPLETION-MAP-UPDATE-BASELINE-PROVEN-01/completion_state_update.json",
+          "present": true
+        },
+        "crossing_rejection_result": {
+          "path": "scratch/WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01/crossing_rejection_result.json",
+          "present": true
+        },
+        "guard_validation_summary": {
+          "path": "scratch/WP-LAB-CROSSING-NONPROMOTABLE-GUARD-01/guard_validation_summary.json",
+          "present": true
+        },
+        "no_candidate_review_result": {
+          "path": "scratch/WP-LAB-AGENTLOOP-BASELINE-EXERCISE-01/no_candidate_review_result.json",
+          "present": true
+        }
+      },
+      "baseline_payloads": {
+        "available": true,
+        "baseline_count": 3,
+        "baselines": [
+          {
+            "baseline_id": "known_losing_baseline",
+            "candidate_eligible": false,
+            "construction_payload": true,
+            "expected_candidate_review_result": "negative_fixture_rejected",
+            "expected_crossing_result": "reject_by_construction",
+            "expected_gate_result": "fail",
+            "label": "Known losing SMA churn baseline",
+            "non_promotable": true,
+            "strategy_family": "sma_crossover_price_only"
+          },
+          {
+            "baseline_id": "known_neutral_or_no_trade_baseline",
+            "candidate_eligible": false,
+            "construction_payload": true,
+            "expected_candidate_review_result": "no_candidate_review_packet",
+            "expected_crossing_result": "reject_by_construction",
+            "expected_gate_result": "blocked_or_fail_no_signal",
+            "label": "Known no-trade unreachable-threshold baseline",
+            "non_promotable": true,
+            "strategy_family": "sma_stddev_zscore_price_only"
+          },
+          {
+            "baseline_id": "known_degenerate_or_invalid_baseline",
+            "candidate_eligible": false,
+            "construction_payload": true,
+            "expected_candidate_review_result": "invalid_fixture_rejected",
+            "expected_crossing_result": "reject_by_construction",
+            "expected_gate_result": "blocked_invalid",
+            "label": "Known invalid denominator-preservation baseline",
+            "non_promotable": true,
+            "strategy_family": "sma_parameter_constraint_fixture"
+          }
+        ],
+        "contract_only_route_used": true,
+        "selected_primitive_family": "SMA / StdDev price-only closed-condition vocabulary"
+      },
+      "gate_expectations": {
+        "available": true,
+        "global_rule": {
+          "construction_payload_or_non_promotable_dominates_numeric_results": true,
+          "fabricated_metrics_allowed": false,
+          "numeric_override_allowed": false,
+          "retuning_allowed": false
+        },
+        "per_baseline": [
+          {
+            "baseline_id": "known_losing_baseline",
+            "crossing_expected": "reject_by_construction",
+            "denominator_integrity_expected": "all_declared_rows_retained",
+            "numeric_override_allowed": false,
+            "retuning_allowed": false,
+            "robustness_mc_gate_expected": "fail_or_insufficient_or_withheld",
+            "statistical_diagnostics_gate_expected": "insufficient_or_withheld_unless_real_inputs_exist",
+            "wfo_oos_gate_expected": "fail_or_insufficient"
+          },
+          {
+            "baseline_id": "known_neutral_or_no_trade_baseline",
+            "crossing_expected": "reject_by_construction",
+            "denominator_integrity_expected": "no_trade_rows_retained",
+            "numeric_override_allowed": false,
+            "retuning_allowed": false,
+            "robustness_mc_gate_expected": "withheld_or_insufficient",
+            "statistical_diagnostics_gate_expected": "withheld_or_insufficient_no_signal",
+            "wfo_oos_gate_expected": "blocked_or_insufficient_no_signal"
+          },
+          {
+            "baseline_id": "known_degenerate_or_invalid_baseline",
+            "crossing_expected": "reject_by_construction",
+            "denominator_integrity_expected": "invalid_or_blocked_rows_retained",
+            "numeric_override_allowed": false,
+            "retuning_allowed": false,
+            "robustness_mc_gate_expected": "withheld_invalid",
+            "statistical_diagnostics_gate_expected": "withheld_invalid",
+            "wfo_oos_gate_expected": "blocked_invalid"
+          }
+        ]
+      },
+      "guard_validation": {
+        "available": true,
+        "guard_implemented": true,
+        "lab_declared_finished": false,
+        "non_promotable_crossing_guard_hardened": true,
+        "test_result": "passed",
+        "tests_observed": "69 passed"
+      },
+      "non_authority_note": "Fixture-only / non-promotable baseline proof. Not ranking, not readiness, not recommendation, not trading authority.",
+      "panel_kind": "baseline_fixture_proof",
+      "provenance_trace": {
+        "agent_ranked_as_edge": false,
+        "agent_rescue_recommended": false,
+        "available": true,
+        "baseline_candidate_eligible": false,
+        "baseline_sequence_prs": [
+          583,
+          584,
+          585,
+          586
+        ],
+        "canonical_writes_authorized_here": false,
+        "core_pipe_fixture_proven": true,
+        "crossing_rejection_observed": true,
+        "edge_search_authorized_here": false,
+        "full_always_on_factory_completed": false,
+        "held_b_requires_real_edge_search_or_candidate_flow": true,
+        "lab_declared_finished_without_qualification": false,
+        "no_candidate_result_observed": true,
+        "paper_live_runtime_go_gated": true,
+        "real_candidate_crossing_completed": false
+      }
+    },
+    "caveats": [
+      "This surface shows the full denominator (every run and state), not winners only.",
+      "Evidence shown is non-canonical / scratch-only unless a row's evidence class says otherwise; nothing here is crossed, candidate-registered, paper-ready, or live-ready.",
+      "Dry-run-only OOS evidence is not a rigorous gate pass.",
+      "Withheld statistics (e.g. PSR / DSR / MinTRL) are shown explicitly rather than fabricated.",
+      "Ordering is deterministic display order only and confers no ranking, recommendation, readiness, or promotion authority.",
+      "Any real transition or approval requires separate human action through the candidate lifecycle engine; this dashboard cannot grant it."
+    ],
+    "denominator_summary": {
+      "blocked_count": 2,
+      "by_overall_state": {
+        "blocked": 2,
+        "candidate_ready_for_human_review": 0,
+        "candidate_review_blocked": 0,
+        "experiment_complete": 1,
+        "formalized": 0,
+        "no_go": 4,
+        "not_started": 0,
+        "oos_gate_blocked": 0,
+        "oos_gate_fail": 1,
+        "operator_gate_pending": 0,
+        "replay_checked": 0,
+        "reported": 1,
+        "robustness_advisory": 0
+      },
+      "candidate_ready_count": 0,
+      "completed_experiment_run_count": 7,
+      "distinct_result_population_sets": 1,
+      "no_go_count": 4,
+      "operator_gate_pending_count": 0,
+      "subject_count": 9,
+      "trial_denominator_over_distinct_sets": {
+        "blocked": 0,
+        "complete": 36,
+        "failed": 0,
+        "invalid": 0,
+        "planned": 36,
+        "pruned": 0
+      }
+    },
+    "edge_search_hold": "No further edge-search is authorized by the coordinator state model. Strategy generation/search remains held until separate operator authorization.",
+    "held_boundary_panel": {
+      "artifact_ref": {
+        "path": "scratch/WP-LAB-COMPLETION-MAP-UPDATE-BASELINE-PROVEN-01/held_boundary_map.json",
+        "present": true
+      },
+      "available": true,
+      "current_fork": [
+        "resume deliberate edge-search",
+        "pause/accept proven core machine with held-B layers deferred"
+      ],
+      "go_gated_protected": [
+        "paper trading",
+        "live trading",
+        "runtime execution",
+        "OMS",
+        "risk",
+        "reconciliation",
+        "broker/exchange/order/capital paths"
+      ],
+      "held_b_until_real_research_flow": [
+        "at-scale continuous sweeps",
+        "at-scale WFO/OOS execution volume",
+        "at-scale robustness/MC execution volume",
+        "agent scheduling/prioritization/autonomy over real research queue",
+        "notification firing over real jobs",
+        "real candidate lifecycle progression"
+      ],
+      "non_authority_note": "Deferred-B boundary map. These items are not authorized in the current phase. They require separate explicit operator authorization.",
+      "panel_kind": "held_boundary_deferred_b",
+      "requires_real_go_candidate": [
+        "first real candidate crossing",
+        "real candidate promotion/readiness"
+      ]
+    },
+    "non_authority_declaration": {
+      "authorizes_edge_search": false,
+      "authorizes_paper_live_runtime": false,
+      "auto_refreshes_from_network": false,
+      "executes_canonical_crossing": false,
+      "executes_transition": false,
+      "fetches_live_data": false,
+      "has_approve_button": false,
+      "has_promote_button": false,
+      "has_retry_button": false,
+      "has_run_button": false,
+      "has_scheduler_toggle": false,
+      "ranks_as_authority": false,
+      "ranks_or_recommends": false,
+      "read_only": true,
+      "renders_executable_control": false,
+      "shows_recommendation_labels": false,
+      "writes_candidate_lifecycle": false,
+      "writes_canonical_evidence": false
+    },
+    "schema_version": "lab_results_dashboard_v2",
+    "subjects": [
+      {
+        "artifact_drilldown": [
+          {
+            "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/blocked_bridge_reason.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/blocked_candidate_review_reason.json",
+            "present": true,
+            "role": "generic_review_contract"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/blocked_robustness_reason.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/blocked_sweep_plan_reason.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/blocked_variant_manifest_reason.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/denominator_audit.json",
+            "present": true,
+            "role": "conclusion_traceability"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/formalizer_output_reference.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/missing_diagnostics.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/repo_truth_discovery.md",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/sma_family_research_idea.json",
+            "present": true,
+            "role": "formalization_status_entry"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/sma_family_result_packet.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/sma_family_summary.md",
+            "present": true,
+            "role": "reporting_doc"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/strategy_spec_reference.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          }
+        ],
+        "candidate_review_status": {
+          "detail": "Bridge and robustness source packets do not exist for a fresh attempt; candidate-review packet generation cannot satisfy lineage and denominator checks.",
+          "reason_code": "BLOCKED_RESULT_POPULATION_UNAVAILABLE",
+          "state": "candidate_review_blocked"
+        },
+        "denominator": {
+          "available": true,
+          "blocked": null,
+          "complete": null,
+          "failed": null,
+          "invalid": null,
+          "planned": null,
+          "preserved": true,
+          "pruned": null
+        },
+        "evidence_class": "unknown",
+        "no_go_caveats": [],
+        "oos_gate_status": {
+          "canonical_result_population_written": null,
+          "detail": "No OOS gate artifact available.",
+          "oos_evidence_status": null,
+          "reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+          "state": "not_started"
+        },
+        "operator_gate_status": {
+          "detail": "No candidate produced; nothing for the operator to gate.",
+          "reason_code": "STATE_NO_CANDIDATE_PRODUCED",
+          "state": "not_started"
+        },
+        "overall_state": "blocked",
+        "replay_status": {
+          "detail": "No replay normalization summary available.",
+          "reason_code": "STATE_ARTIFACT_MISSING",
+          "state": "not_started"
+        },
+        "reporting_status": {
+          "detail": "Conclusion recorded in a synthesis doc / status entry.",
+          "reason_code": "STATE_REPORTED_FROM_SYNTHESIS",
+          "state": "reported"
+        },
+        "result_populations": [],
+        "robustness_status": {
+          "descriptive_reports_produced": false,
+          "detail": "No robustness summary available.",
+          "per_trade_monte_carlo": null,
+          "reason_code": "STATE_ARTIFACT_MISSING",
+          "state": "not_started",
+          "withheld_statistics": []
+        },
+        "stages": [
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/sma_family_research_idea.json",
+                "present": true,
+                "role": "formalization_status_entry"
+              }
+            ],
+            "detail": "Idea intake recorded for the hypothesis.",
+            "reason_code": "STATE_FORMALIZED_FROM_STATUS_ENTRY",
+            "stage": "idea_intake",
+            "state": "formalized"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/sma_family_research_idea.json",
+                "present": true,
+                "role": "formalization_status_entry"
+              }
+            ],
+            "detail": "Hypothesis formalized in a repo status entry.",
+            "reason_code": "STATE_FORMALIZED_FROM_STATUS_ENTRY",
+            "stage": "formalization",
+            "state": "formalized"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/denominator_audit.json",
+                "present": true,
+                "role": "conclusion_traceability"
+              }
+            ],
+            "detail": "Legacy denominator preserved but no completed Result Population rows (blocked None/None).",
+            "reason_code": "BLOCKED_RESULT_POPULATION_UNAVAILABLE",
+            "stage": "experiment_run",
+            "state": "blocked"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "not configured",
+                "path": "",
+                "present": false,
+                "role": "replay_fixture_summary"
+              }
+            ],
+            "detail": "No replay normalization summary available.",
+            "reason_code": "STATE_ARTIFACT_MISSING",
+            "stage": "replay_normalization",
+            "state": "not_started"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "not configured",
+                "path": "",
+                "present": false,
+                "role": "oos_gate_summary"
+              }
+            ],
+            "detail": "No OOS gate artifact available.",
+            "reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+            "stage": "walkforward_oos_gate",
+            "state": "not_started"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/denominator_audit.json",
+                "present": true,
+                "role": "conclusion_traceability"
+              }
+            ],
+            "detail": "No robustness summary available.",
+            "reason_code": "STATE_ARTIFACT_MISSING",
+            "stage": "robustness",
+            "state": "not_started"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/blocked_candidate_review_reason.json",
+                "present": true,
+                "role": "generic_review_contract"
+              }
+            ],
+            "detail": "Bridge and robustness source packets do not exist for a fresh attempt; candidate-review packet generation cannot satisfy lineage and denominator checks.",
+            "reason_code": "BLOCKED_RESULT_POPULATION_UNAVAILABLE",
+            "stage": "candidate_review_reach",
+            "state": "candidate_review_blocked"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/sma_family_summary.md",
+                "present": true,
+                "role": "reporting_doc"
+              }
+            ],
+            "detail": "Conclusion recorded in a synthesis doc / status entry.",
+            "reason_code": "STATE_REPORTED_FROM_SYNTHESIS",
+            "stage": "reporting",
+            "state": "reported"
+          },
+          {
+            "artifact_refs": [],
+            "detail": "No candidate produced; nothing for the operator to gate.",
+            "reason_code": "STATE_NO_CANDIDATE_PRODUCED",
+            "stage": "operator_gate",
+            "state": "not_started"
+          }
+        ],
+        "subject_id": "WP-RESEARCH-EDGE-SMA-FAMILY-01",
+        "subject_label": "edge_sma_family_blocked",
+        "withheld_statistics": []
+      },
+      {
+        "artifact_drilldown": [
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/blocked_bridge_reason.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/blocked_formalizer_reason.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/blocked_robustness_reason.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/blocked_rp_replay_harness_reason.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/blocked_runner_reason.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/denominator_manifest.json",
+            "present": true,
+            "role": "conclusion_traceability"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/funding_family_adapter_contract.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/funding_pnl_boundary_note.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/main_report_back_guardrail.txt",
+            "present": true,
+            "role": "reporting_doc"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/no_candidate_review_packet_reason.json",
+            "present": true,
+            "role": "generic_review_contract"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/pre_registered_hypothesis.md",
+            "present": true,
+            "role": "formalization_status_entry"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/repo_truth_discovery.md",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/sweep_plan_summary.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/validation_summary.txt",
+            "present": true,
+            "role": "legacy_research_evidence"
+          }
+        ],
+        "candidate_review_status": {
+          "detail": "No completed result or robustness evidence exists, so existing review-trigger conditions cannot be evaluated or satisfied.",
+          "reason_code": "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+          "state": "candidate_review_not_created"
+        },
+        "denominator": {
+          "available": true,
+          "blocked": 36,
+          "complete": 0,
+          "failed": 0,
+          "invalid": 0,
+          "planned": 36,
+          "preserved": true,
+          "pruned": 0
+        },
+        "evidence_class": "unknown",
+        "no_go_caveats": [],
+        "oos_gate_status": {
+          "canonical_result_population_written": null,
+          "detail": "No OOS gate artifact available.",
+          "oos_evidence_status": null,
+          "reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+          "state": "not_started"
+        },
+        "operator_gate_status": {
+          "detail": "No candidate produced; nothing for the operator to gate.",
+          "reason_code": "STATE_NO_CANDIDATE_PRODUCED",
+          "state": "not_started"
+        },
+        "overall_state": "no_go",
+        "replay_status": {
+          "detail": "No replay normalization summary available.",
+          "reason_code": "STATE_ARTIFACT_MISSING",
+          "state": "not_started"
+        },
+        "reporting_status": {
+          "detail": "Conclusion recorded in a synthesis doc / status entry.",
+          "reason_code": "STATE_REPORTED_FROM_SYNTHESIS",
+          "state": "reported"
+        },
+        "result_populations": [],
+        "robustness_status": {
+          "descriptive_reports_produced": false,
+          "detail": "No robustness summary available.",
+          "per_trade_monte_carlo": null,
+          "reason_code": "STATE_ARTIFACT_MISSING",
+          "state": "not_started",
+          "withheld_statistics": []
+        },
+        "stages": [
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/pre_registered_hypothesis.md",
+                "present": true,
+                "role": "formalization_status_entry"
+              }
+            ],
+            "detail": "Idea intake recorded for the hypothesis.",
+            "reason_code": "STATE_FORMALIZED_FROM_STATUS_ENTRY",
+            "stage": "idea_intake",
+            "state": "formalized"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/pre_registered_hypothesis.md",
+                "present": true,
+                "role": "formalization_status_entry"
+              }
+            ],
+            "detail": "Hypothesis formalized in a repo status entry.",
+            "reason_code": "STATE_FORMALIZED_FROM_STATUS_ENTRY",
+            "stage": "formalization",
+            "state": "formalized"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/denominator_manifest.json",
+                "present": true,
+                "role": "conclusion_traceability"
+              }
+            ],
+            "detail": "Legacy denominator preserved but no completed Result Population rows (blocked 36/36).",
+            "reason_code": "BLOCKED_RESULT_POPULATION_UNAVAILABLE",
+            "stage": "experiment_run",
+            "state": "blocked"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "not configured",
+                "path": "",
+                "present": false,
+                "role": "replay_fixture_summary"
+              }
+            ],
+            "detail": "No replay normalization summary available.",
+            "reason_code": "STATE_ARTIFACT_MISSING",
+            "stage": "replay_normalization",
+            "state": "not_started"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "not configured",
+                "path": "",
+                "present": false,
+                "role": "oos_gate_summary"
+              }
+            ],
+            "detail": "No OOS gate artifact available.",
+            "reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+            "stage": "walkforward_oos_gate",
+            "state": "not_started"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/denominator_manifest.json",
+                "present": true,
+                "role": "conclusion_traceability"
+              }
+            ],
+            "detail": "No robustness summary available.",
+            "reason_code": "STATE_ARTIFACT_MISSING",
+            "stage": "robustness",
+            "state": "not_started"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/no_candidate_review_packet_reason.json",
+                "present": true,
+                "role": "generic_review_contract"
+              }
+            ],
+            "detail": "No completed result or robustness evidence exists, so existing review-trigger conditions cannot be evaluated or satisfied.",
+            "reason_code": "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+            "stage": "candidate_review_reach",
+            "state": "candidate_review_not_created"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/main_report_back_guardrail.txt",
+                "present": true,
+                "role": "reporting_doc"
+              }
+            ],
+            "detail": "Conclusion recorded in a synthesis doc / status entry.",
+            "reason_code": "STATE_REPORTED_FROM_SYNTHESIS",
+            "stage": "reporting",
+            "state": "reported"
+          },
+          {
+            "artifact_refs": [],
+            "detail": "No candidate produced; nothing for the operator to gate.",
+            "reason_code": "STATE_NO_CANDIDATE_PRODUCED",
+            "stage": "operator_gate",
+            "state": "not_started"
+          }
+        ],
+        "subject_id": "WP-RESEARCH-FUNDING-CARRY-01",
+        "subject_label": "funding_carry_initial_blocked_no_go",
+        "withheld_statistics": []
+      },
+      {
+        "artifact_drilldown": [
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02-FOLLOWUP-01/local_data_staging_report.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02-FOLLOWUP-01/repo_truth_data_contract.md",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02-FOLLOWUP-01/retry_decision.md",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/bridge_output.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/denominator_manifest.json",
+            "present": true,
+            "role": "conclusion_traceability"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/formalizer_output.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/funding_family_adapter_contract.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/funding_pnl_boundary_note.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/main_report_back_guardrail.txt",
+            "present": true,
+            "role": "reporting_doc"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/metrics_summary.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/monte_carlo/fixed/bootstrap_samples.sha256",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/monte_carlo/fixed/seeded_advisory_mc_report.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/monte_carlo/fixed/seeded_advisory_mc_report.md",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/monte_carlo/midline/bootstrap_samples.sha256",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/monte_carlo/midline/seeded_advisory_mc_report.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/monte_carlo/midline/seeded_advisory_mc_report.md",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/monte_carlo_summary.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/no_candidate_review_packet_reason.json",
+            "present": true,
+            "role": "generic_review_contract"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/denominator_ledger.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/fixed_max_hold_only/inputs/STRAT-SPEC-9478.strategy_spec.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/fixed_max_hold_only/inputs/SWEEP-PLAN-9933.sweep_plan.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/fixed_max_hold_only/inputs/VM-9933.variant_manifest.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/fixed_max_hold_only/inputs/bridge_metadata.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/fixed_max_hold_only/runner_artifacts/RP-2009.result_population.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/human_review_packet.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/midline_reversion_or_max_hold/inputs/STRAT-SPEC-9477.strategy_spec.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/midline_reversion_or_max_hold/inputs/SWEEP-PLAN-9934.sweep_plan.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/midline_reversion_or_max_hold/inputs/VM-9934.variant_manifest.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/midline_reversion_or_max_hold/inputs/bridge_metadata.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/midline_reversion_or_max_hold/runner_artifacts/RP-7592.result_population.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/b191967d3aff/STRAT-SPEC-9477.strategy_spec.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/b191967d3aff/STRAT-SPEC-9478.strategy_spec.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/b191967d3aff/formalized_idea.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/b191967d3aff/human_review_packet.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/b191967d3aff/operator_bridge_approval.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/pre_registered_hypothesis.md",
+            "present": true,
+            "role": "formalization_status_entry"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/repo_truth_discovery.md",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/robustness_fixed.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/robustness_midline.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/robustness_summary.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/rp_replay_harness_report.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/runner_result_summary.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/sweep_plan_summary.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/validation_summary.txt",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/walk_forward_summary.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          }
+        ],
+        "candidate_review_status": {
+          "detail": "Existing review-trigger criteria are not satisfied: every completed full-history row has drawdown above the 20% primary screen.",
+          "reason_code": "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+          "state": "candidate_review_not_created"
+        },
+        "denominator": {
+          "available": true,
+          "blocked": 0,
+          "complete": 36,
+          "failed": 0,
+          "invalid": 0,
+          "planned": 36,
+          "preserved": true,
+          "pruned": 0
+        },
+        "evidence_class": "unknown",
+        "no_go_caveats": [],
+        "oos_gate_status": {
+          "canonical_result_population_written": null,
+          "detail": "No OOS gate artifact available.",
+          "oos_evidence_status": null,
+          "reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+          "state": "not_started"
+        },
+        "operator_gate_status": {
+          "detail": "No candidate produced; nothing for the operator to gate.",
+          "reason_code": "STATE_NO_CANDIDATE_PRODUCED",
+          "state": "not_started"
+        },
+        "overall_state": "no_go",
+        "replay_status": {
+          "detail": "No replay normalization summary available.",
+          "reason_code": "STATE_ARTIFACT_MISSING",
+          "state": "not_started"
+        },
+        "reporting_status": {
+          "detail": "Conclusion recorded in a synthesis doc / status entry.",
+          "reason_code": "STATE_REPORTED_FROM_SYNTHESIS",
+          "state": "reported"
+        },
+        "result_populations": [
+          {
+            "exit_mode": "fixed",
+            "result_population_id": "RP-2009",
+            "rows": null,
+            "sha256": "d6e5e6c46c38208b308b2c5aaa34b3a65176831b61b5026229c857ba08914076"
+          },
+          {
+            "exit_mode": "midline",
+            "result_population_id": "RP-7592",
+            "rows": null,
+            "sha256": "18bfe97d571b3e5debf675a103e736ff29ce17287847a4b673cc4cbe68480d37"
+          }
+        ],
+        "robustness_status": {
+          "descriptive_reports_produced": false,
+          "detail": "No robustness summary available.",
+          "per_trade_monte_carlo": null,
+          "reason_code": "STATE_ARTIFACT_MISSING",
+          "state": "not_started",
+          "withheld_statistics": []
+        },
+        "stages": [
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/pre_registered_hypothesis.md",
+                "present": true,
+                "role": "formalization_status_entry"
+              }
+            ],
+            "detail": "Idea intake recorded for the hypothesis.",
+            "reason_code": "STATE_FORMALIZED_FROM_STATUS_ENTRY",
+            "stage": "idea_intake",
+            "state": "formalized"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/pre_registered_hypothesis.md",
+                "present": true,
+                "role": "formalization_status_entry"
+              }
+            ],
+            "detail": "Hypothesis formalized in a repo status entry.",
+            "reason_code": "STATE_FORMALIZED_FROM_STATUS_ENTRY",
+            "stage": "formalization",
+            "state": "formalized"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/denominator_manifest.json",
+                "present": true,
+                "role": "conclusion_traceability"
+              }
+            ],
+            "detail": "Legacy denominator preserved: 36/36 complete.",
+            "reason_code": "STATE_EXPERIMENT_DENOMINATOR_PRESERVED",
+            "stage": "experiment_run",
+            "state": "experiment_complete"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "not configured",
+                "path": "",
+                "present": false,
+                "role": "replay_fixture_summary"
+              }
+            ],
+            "detail": "No replay normalization summary available.",
+            "reason_code": "STATE_ARTIFACT_MISSING",
+            "stage": "replay_normalization",
+            "state": "not_started"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "not configured",
+                "path": "",
+                "present": false,
+                "role": "oos_gate_summary"
+              }
+            ],
+            "detail": "No OOS gate artifact available.",
+            "reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+            "stage": "walkforward_oos_gate",
+            "state": "not_started"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/denominator_manifest.json",
+                "present": true,
+                "role": "conclusion_traceability"
+              }
+            ],
+            "detail": "No robustness summary available.",
+            "reason_code": "STATE_ARTIFACT_MISSING",
+            "stage": "robustness",
+            "state": "not_started"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/no_candidate_review_packet_reason.json",
+                "present": true,
+                "role": "generic_review_contract"
+              }
+            ],
+            "detail": "Existing review-trigger criteria are not satisfied: every completed full-history row has drawdown above the 20% primary screen.",
+            "reason_code": "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+            "stage": "candidate_review_reach",
+            "state": "candidate_review_not_created"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/main_report_back_guardrail.txt",
+                "present": true,
+                "role": "reporting_doc"
+              }
+            ],
+            "detail": "Conclusion recorded in a synthesis doc / status entry.",
+            "reason_code": "STATE_REPORTED_FROM_SYNTHESIS",
+            "stage": "reporting",
+            "state": "reported"
+          },
+          {
+            "artifact_refs": [],
+            "detail": "No candidate produced; nothing for the operator to gate.",
+            "reason_code": "STATE_NO_CANDIDATE_PRODUCED",
+            "stage": "operator_gate",
+            "state": "not_started"
+          }
+        ],
+        "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+        "subject_label": "funding_carry_retry_no_go",
+        "withheld_statistics": []
+      },
+      {
+        "artifact_drilldown": [
+          {
+            "path": "docs/research/FUNDING_POSITIONING_FADE_SYNTHESIS_2026-06.md",
+            "present": true,
+            "role": "reporting_doc"
+          },
+          {
+            "path": "docs/status_entries/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01.md",
+            "present": true,
+            "role": "formalization_status_entry"
+          },
+          {
+            "path": "docs/status_entries/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01.md",
+            "present": true,
+            "role": "riskmanaged_conclusion_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01/conclusion_summary.json",
+            "present": true,
+            "role": "riskmanaged_conclusion_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01/conclusion_summary.md",
+            "present": true,
+            "role": "riskmanaged_conclusion_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01/conclusion_traceability.json",
+            "present": true,
+            "role": "conclusion_traceability"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01/no_candidate_review_packet_reason.json",
+            "present": true,
+            "role": "generic_review_contract"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01/no_retuning_attestation.md",
+            "present": true,
+            "role": "riskmanaged_conclusion_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01/operator_visibility_binding.json",
+            "present": true,
+            "role": "riskmanaged_conclusion_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/atr_20_slice_summary.json",
+            "present": true,
+            "role": "riskmanaged_conclusion_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/atr_30_slice_summary.json",
+            "present": true,
+            "role": "riskmanaged_conclusion_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/complete_108_row_denominator.csv",
+            "present": true,
+            "role": "riskmanaged_conclusion_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/complete_108_row_denominator.json",
+            "present": true,
+            "role": "riskmanaged_conclusion_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/no_atr_slice_summary.json",
+            "present": true,
+            "role": "riskmanaged_conclusion_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/row_accounting.json",
+            "present": true,
+            "role": "riskmanaged_conclusion_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/stage1_verdict.json",
+            "present": true,
+            "role": "riskmanaged_conclusion_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/stop_go_evaluation.json",
+            "present": true,
+            "role": "riskmanaged_conclusion_evidence"
+          }
+        ],
+        "candidate_review_status": {
+          "detail": "Risk-managed Stage-1 triage failed the frozen stop/go criteria: all three risk-control states were gross-negative, all had worst drawdown above 50%, and all had zero positive-return rows.",
+          "reason_code": "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+          "state": "candidate_review_not_created"
+        },
+        "denominator": {
+          "available": true,
+          "blocked": 0,
+          "complete": 108,
+          "failed": 0,
+          "invalid": 0,
+          "planned": 108,
+          "preserved": true,
+          "pruned": 0
+        },
+        "evidence_class": "non_canonical",
+        "no_go_caveats": [
+          "NO-GO on the primary risk-managed Stage-1 frozen stop/go criteria screen (threshold ATR slice median drawdown <= 0.35, worst drawdown < 0.50, positive median net return, and at least 4 positive-return rows).",
+          "Funding payments were not wired; this is a price/PnL signal test, not a complete funding-carry PnL test.",
+          "The NO-GO is about this hypothesis only, not a statement about all funding strategies."
+        ],
+        "oos_gate_status": {
+          "canonical_result_population_written": null,
+          "detail": "No OOS gate artifact available.",
+          "oos_evidence_status": null,
+          "reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+          "state": "not_started"
+        },
+        "operator_gate_status": {
+          "detail": "No candidate produced; nothing for the operator to gate.",
+          "reason_code": "STATE_NO_CANDIDATE_PRODUCED",
+          "state": "not_started"
+        },
+        "overall_state": "no_go",
+        "replay_status": {
+          "detail": "No replay normalization summary available.",
+          "reason_code": "STATE_ARTIFACT_MISSING",
+          "state": "not_started"
+        },
+        "reporting_status": {
+          "detail": "Conclusion recorded in a synthesis doc / status entry.",
+          "reason_code": "STATE_REPORTED_FROM_SYNTHESIS",
+          "state": "reported"
+        },
+        "result_populations": [],
+        "robustness_status": {
+          "descriptive_reports_produced": false,
+          "detail": "No robustness summary available.",
+          "per_trade_monte_carlo": null,
+          "reason_code": "STATE_ARTIFACT_MISSING",
+          "state": "not_started",
+          "withheld_statistics": []
+        },
+        "stages": [
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "docs/status_entries/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01.md",
+                "present": true,
+                "role": "formalization_status_entry"
+              }
+            ],
+            "detail": "Idea intake recorded for the hypothesis.",
+            "reason_code": "STATE_FORMALIZED_FROM_STATUS_ENTRY",
+            "stage": "idea_intake",
+            "state": "formalized"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "docs/status_entries/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01.md",
+                "present": true,
+                "role": "formalization_status_entry"
+              }
+            ],
+            "detail": "Hypothesis formalized in a repo status entry.",
+            "reason_code": "STATE_FORMALIZED_FROM_STATUS_ENTRY",
+            "stage": "formalization",
+            "state": "formalized"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01/conclusion_traceability.json",
+                "present": true,
+                "role": "conclusion_traceability"
+              }
+            ],
+            "detail": "Legacy denominator preserved: 108/108 complete.",
+            "reason_code": "STATE_EXPERIMENT_DENOMINATOR_PRESERVED",
+            "stage": "experiment_run",
+            "state": "experiment_complete"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "not configured",
+                "path": "",
+                "present": false,
+                "role": "replay_fixture_summary"
+              }
+            ],
+            "detail": "No replay normalization summary available.",
+            "reason_code": "STATE_ARTIFACT_MISSING",
+            "stage": "replay_normalization",
+            "state": "not_started"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "not configured",
+                "path": "",
+                "present": false,
+                "role": "oos_gate_summary"
+              }
+            ],
+            "detail": "No OOS gate artifact available.",
+            "reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+            "stage": "walkforward_oos_gate",
+            "state": "not_started"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01/conclusion_traceability.json",
+                "present": true,
+                "role": "conclusion_traceability"
+              }
+            ],
+            "detail": "No robustness summary available.",
+            "reason_code": "STATE_ARTIFACT_MISSING",
+            "stage": "robustness",
+            "state": "not_started"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01/no_candidate_review_packet_reason.json",
+                "present": true,
+                "role": "generic_review_contract"
+              }
+            ],
+            "detail": "Risk-managed Stage-1 triage failed the frozen stop/go criteria: all three risk-control states were gross-negative, all had worst drawdown above 50%, and all had zero positive-return rows.",
+            "reason_code": "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+            "stage": "candidate_review_reach",
+            "state": "candidate_review_not_created"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "docs/research/FUNDING_POSITIONING_FADE_SYNTHESIS_2026-06.md",
+                "present": true,
+                "role": "reporting_doc"
+              }
+            ],
+            "detail": "Conclusion recorded in a synthesis doc / status entry.",
+            "reason_code": "STATE_REPORTED_FROM_SYNTHESIS",
+            "stage": "reporting",
+            "state": "reported"
+          },
+          {
+            "artifact_refs": [],
+            "detail": "No candidate produced; nothing for the operator to gate.",
+            "reason_code": "STATE_NO_CANDIDATE_PRODUCED",
+            "stage": "operator_gate",
+            "state": "not_started"
+          }
+        ],
+        "subject_id": "H-FUNDING-FADE-RISKMANAGED-01",
+        "subject_label": "funding_fade_riskmanaged_stage1_no_go",
+        "withheld_statistics": []
+      },
+      {
+        "artifact_drilldown": [
+          {
+            "path": "docs/research/FUNDING_POSITIONING_FADE_SYNTHESIS_2026-06.md",
+            "present": true,
+            "role": "reporting_doc"
+          },
+          {
+            "path": "docs/status_entries/WP-LAB-IDEA-INTAKE-FORMALIZATION-01.md",
+            "present": true,
+            "role": "formalization_status_entry"
+          },
+          {
+            "path": "scratch/WP-LAB-GENERIC-ROBUSTNESS-REVIEW-REACH-01/generic_review_contract.json",
+            "present": true,
+            "role": "generic_review_contract"
+          },
+          {
+            "path": "scratch/WP-LAB-RP-REPLAY-NORMALIZATION-CONTRACT-01/replay_fixture_summary.json",
+            "present": true,
+            "role": "replay_fixture_summary"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-FADE-CONCLUDE-01/conclusion_traceability.json",
+            "present": true,
+            "role": "conclusion_traceability"
+          }
+        ],
+        "candidate_review_status": {
+          "detail": "All 36 scratch funding rows failed the primary drawdown screen; no candidate-review packet was generated.",
+          "reason_code": "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+          "state": "candidate_review_not_created"
+        },
+        "denominator": {
+          "available": true,
+          "blocked": 0,
+          "complete": 36,
+          "failed": 0,
+          "invalid": 0,
+          "planned": 36,
+          "preserved": true,
+          "pruned": 0
+        },
+        "evidence_class": "non_canonical",
+        "no_go_caveats": [
+          "NO-GO on the primary drawdown screen (threshold 0.2).",
+          "Funding payments were not wired; this is a price/PnL signal test, not a complete funding-carry PnL test.",
+          "The NO-GO is about this hypothesis only, not a statement about all funding strategies."
+        ],
+        "oos_gate_status": {
+          "canonical_result_population_written": false,
+          "detail": "OOS evidence is dry-run-only with deferred purge/embargo; not a rigorous gate pass.",
+          "oos_evidence_status": "completed_dry_run_only",
+          "reason_code": "STATE_OOS_DRY_RUN_ONLY",
+          "state": "oos_gate_blocked"
+        },
+        "operator_gate_status": {
+          "detail": "No candidate produced; nothing for the operator to gate.",
+          "reason_code": "STATE_NO_CANDIDATE_PRODUCED",
+          "state": "not_started"
+        },
+        "overall_state": "no_go",
+        "replay_status": {
+          "detail": "2 Result Population(s) normalized under the replay contract (equivalence only, not approval).",
+          "reason_code": "STATE_REPLAY_NORMALIZED",
+          "state": "replay_checked"
+        },
+        "reporting_status": {
+          "detail": "Conclusion recorded in a synthesis doc / status entry.",
+          "reason_code": "STATE_REPORTED_FROM_SYNTHESIS",
+          "state": "reported"
+        },
+        "result_populations": [
+          {
+            "exit_mode": "fixed_max_hold_only",
+            "result_population_id": "RP-2009",
+            "rows": 18,
+            "sha256": "d6e5e6c46c38208b308b2c5aaa34b3a65176831b61b5026229c857ba08914076"
+          },
+          {
+            "exit_mode": "midline_reversion_or_max_hold",
+            "result_population_id": "RP-7592",
+            "rows": 18,
+            "sha256": "18bfe97d571b3e5debf675a103e736ff29ce17287847a4b673cc4cbe68480d37"
+          }
+        ],
+        "robustness_status": {
+          "descriptive_reports_produced": true,
+          "detail": "Descriptive robustness reports produced; withheld PSR, DSR, MinTRL statistics rather than fabricating inputs.",
+          "per_trade_monte_carlo": "blocked_missing_real_per_trade_rows_not_fabricated",
+          "reason_code": "STATE_ROBUSTNESS_ADVISORY_ONLY",
+          "state": "robustness_advisory",
+          "withheld_statistics": [
+            "PSR",
+            "DSR",
+            "MinTRL"
+          ]
+        },
+        "stages": [
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "docs/status_entries/WP-LAB-IDEA-INTAKE-FORMALIZATION-01.md",
+                "present": true,
+                "role": "formalization_status_entry"
+              }
+            ],
+            "detail": "Idea intake recorded for the hypothesis.",
+            "reason_code": "STATE_FORMALIZED_FROM_STATUS_ENTRY",
+            "stage": "idea_intake",
+            "state": "formalized"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "docs/status_entries/WP-LAB-IDEA-INTAKE-FORMALIZATION-01.md",
+                "present": true,
+                "role": "formalization_status_entry"
+              }
+            ],
+            "detail": "Hypothesis formalized in a repo status entry.",
+            "reason_code": "STATE_FORMALIZED_FROM_STATUS_ENTRY",
+            "stage": "formalization",
+            "state": "formalized"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-RESEARCH-FUNDING-FADE-CONCLUDE-01/conclusion_traceability.json",
+                "present": true,
+                "role": "conclusion_traceability"
+              }
+            ],
+            "detail": "2 Result Population(s); denominator 36/36 preserved.",
+            "reason_code": "STATE_EXPERIMENT_DENOMINATOR_PRESERVED",
+            "stage": "experiment_run",
+            "state": "experiment_complete"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-LAB-RP-REPLAY-NORMALIZATION-CONTRACT-01/replay_fixture_summary.json",
+                "present": true,
+                "role": "replay_fixture_summary"
+              }
+            ],
+            "detail": "2 Result Population(s) normalized under the replay contract (equivalence only, not approval).",
+            "reason_code": "STATE_REPLAY_NORMALIZED",
+            "stage": "replay_normalization",
+            "state": "replay_checked"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "not configured",
+                "path": "",
+                "present": false,
+                "role": "oos_gate_summary"
+              }
+            ],
+            "detail": "OOS evidence is dry-run-only with deferred purge/embargo; not a rigorous gate pass.",
+            "reason_code": "STATE_OOS_DRY_RUN_ONLY",
+            "stage": "walkforward_oos_gate",
+            "state": "oos_gate_blocked"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-RESEARCH-FUNDING-FADE-CONCLUDE-01/conclusion_traceability.json",
+                "present": true,
+                "role": "conclusion_traceability"
+              }
+            ],
+            "detail": "Descriptive robustness reports produced; withheld PSR, DSR, MinTRL statistics rather than fabricating inputs.",
+            "reason_code": "STATE_ROBUSTNESS_ADVISORY_ONLY",
+            "stage": "robustness",
+            "state": "robustness_advisory"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-LAB-GENERIC-ROBUSTNESS-REVIEW-REACH-01/generic_review_contract.json",
+                "present": true,
+                "role": "generic_review_contract"
+              }
+            ],
+            "detail": "All 36 scratch funding rows failed the primary drawdown screen; no candidate-review packet was generated.",
+            "reason_code": "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+            "stage": "candidate_review_reach",
+            "state": "candidate_review_not_created"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "docs/research/FUNDING_POSITIONING_FADE_SYNTHESIS_2026-06.md",
+                "present": true,
+                "role": "reporting_doc"
+              }
+            ],
+            "detail": "Conclusion recorded in a synthesis doc / status entry.",
+            "reason_code": "STATE_REPORTED_FROM_SYNTHESIS",
+            "stage": "reporting",
+            "state": "reported"
+          },
+          {
+            "artifact_refs": [],
+            "detail": "No candidate produced; nothing for the operator to gate.",
+            "reason_code": "STATE_NO_CANDIDATE_PRODUCED",
+            "stage": "operator_gate",
+            "state": "not_started"
+          }
+        ],
+        "subject_id": "H-FUNDING-RATE-POSITIONING-FADE-01",
+        "subject_label": "funding_rate_positioning_fade",
+        "withheld_statistics": [
+          "PSR",
+          "DSR",
+          "MinTRL"
+        ]
+      },
+      {
+        "artifact_drilldown": [
+          {
+            "path": "research/candidate_registry.jsonl",
+            "present": true,
+            "role": "canonical_evidence_reference"
+          },
+          {
+            "path": "research/result_populations/RP-2134.result_population.json",
+            "present": true,
+            "role": "canonical_evidence_reference"
+          },
+          {
+            "path": "research/result_populations/RP-2592.result_population.json",
+            "present": true,
+            "role": "canonical_evidence_reference"
+          },
+          {
+            "path": "research/result_populations/RP-3731.result_population.json",
+            "present": true,
+            "role": "canonical_evidence_reference"
+          },
+          {
+            "path": "research/result_populations/RP-4492.result_population.json",
+            "present": true,
+            "role": "canonical_evidence_reference"
+          },
+          {
+            "path": "research/result_populations/RP-6236.result_population.json",
+            "present": true,
+            "role": "canonical_evidence_reference"
+          },
+          {
+            "path": "research/result_populations/RP-6688.result_population.json",
+            "present": true,
+            "role": "canonical_evidence_reference"
+          },
+          {
+            "path": "research/result_populations/RP-7134.result_population.json",
+            "present": true,
+            "role": "canonical_evidence_reference"
+          },
+          {
+            "path": "research/result_populations/RP-7520.result_population.json",
+            "present": true,
+            "role": "canonical_evidence_reference"
+          }
+        ],
+        "candidate_review_status": {
+          "detail": "No candidate-review reach record available.",
+          "reason_code": "STATE_ARTIFACT_MISSING",
+          "state": "not_started"
+        },
+        "denominator": {
+          "available": false
+        },
+        "evidence_class": "unknown",
+        "no_go_caveats": [],
+        "oos_gate_status": {
+          "canonical_result_population_written": null,
+          "detail": "No OOS gate artifact available.",
+          "oos_evidence_status": null,
+          "reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+          "state": "not_started"
+        },
+        "operator_gate_status": {
+          "detail": "No candidate produced; nothing for the operator to gate.",
+          "reason_code": "STATE_NO_CANDIDATE_PRODUCED",
+          "state": "not_started"
+        },
+        "overall_state": "experiment_complete",
+        "replay_status": {
+          "detail": "No replay normalization summary available.",
+          "reason_code": "STATE_ARTIFACT_MISSING",
+          "state": "not_started"
+        },
+        "reporting_status": {
+          "detail": "No synthesis/report artifact found.",
+          "reason_code": "STATE_STAGE_NOT_REACHED",
+          "state": "not_started"
+        },
+        "result_populations": [],
+        "robustness_status": {
+          "descriptive_reports_produced": false,
+          "detail": "No robustness summary available.",
+          "per_trade_monte_carlo": null,
+          "reason_code": "STATE_ARTIFACT_MISSING",
+          "state": "not_started",
+          "withheld_statistics": []
+        },
+        "stages": [
+          {
+            "artifact_refs": [
+              {
+                "note": "not configured",
+                "path": "",
+                "present": false,
+                "role": "formalization_status_entry"
+              }
+            ],
+            "detail": "No idea intake found.",
+            "reason_code": "STATE_STAGE_NOT_REACHED",
+            "stage": "idea_intake",
+            "state": "not_started"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "not configured",
+                "path": "",
+                "present": false,
+                "role": "formalization_status_entry"
+              }
+            ],
+            "detail": "No formalization status entry found.",
+            "reason_code": "STATE_STAGE_NOT_REACHED",
+            "stage": "formalization",
+            "state": "not_started"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "not configured",
+                "path": "",
+                "present": false,
+                "role": "conclusion_traceability"
+              }
+            ],
+            "detail": "No experiment conclusion artifact available.",
+            "reason_code": "STATE_ARTIFACT_MISSING",
+            "stage": "experiment_run",
+            "state": "not_started"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "not configured",
+                "path": "",
+                "present": false,
+                "role": "replay_fixture_summary"
+              }
+            ],
+            "detail": "No replay normalization summary available.",
+            "reason_code": "STATE_ARTIFACT_MISSING",
+            "stage": "replay_normalization",
+            "state": "not_started"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "not configured",
+                "path": "",
+                "present": false,
+                "role": "oos_gate_summary"
+              }
+            ],
+            "detail": "No OOS gate artifact available.",
+            "reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+            "stage": "walkforward_oos_gate",
+            "state": "not_started"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "not configured",
+                "path": "",
+                "present": false,
+                "role": "conclusion_traceability"
+              }
+            ],
+            "detail": "No robustness summary available.",
+            "reason_code": "STATE_ARTIFACT_MISSING",
+            "stage": "robustness",
+            "state": "not_started"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "not configured",
+                "path": "",
+                "present": false,
+                "role": "generic_review_contract"
+              }
+            ],
+            "detail": "No candidate-review reach record available.",
+            "reason_code": "STATE_ARTIFACT_MISSING",
+            "stage": "candidate_review_reach",
+            "state": "not_started"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "not configured",
+                "path": "",
+                "present": false,
+                "role": "reporting_doc"
+              }
+            ],
+            "detail": "No synthesis/report artifact found.",
+            "reason_code": "STATE_STAGE_NOT_REACHED",
+            "stage": "reporting",
+            "state": "not_started"
+          },
+          {
+            "artifact_refs": [],
+            "detail": "No candidate produced; nothing for the operator to gate.",
+            "reason_code": "STATE_NO_CANDIDATE_PRODUCED",
+            "stage": "operator_gate",
+            "state": "not_started"
+          }
+        ],
+        "subject_id": "HISTORICAL-CANONICAL-EVIDENCE",
+        "subject_label": "candidate_registry_and_result_populations",
+        "withheld_statistics": []
+      },
+      {
+        "artifact_drilldown": [
+          {
+            "path": "docs/research/WALKFORWARD_OOS_GATE_CONTRACT.md",
+            "present": true,
+            "role": "reporting_doc"
+          },
+          {
+            "path": "docs/status_entries/WP-LAB-WALKFORWARD-OOS-GATE-01.md",
+            "present": true,
+            "role": "formalization_status_entry"
+          },
+          {
+            "path": "scratch/WP-LAB-GENERIC-ROBUSTNESS-REVIEW-REACH-01/generic_review_contract.json",
+            "present": true,
+            "role": "generic_review_contract"
+          },
+          {
+            "path": "scratch/WP-LAB-RP-REPLAY-NORMALIZATION-CONTRACT-01/replay_fixture_summary.json",
+            "present": true,
+            "role": "replay_fixture_summary"
+          },
+          {
+            "path": "scratch/WP-LAB-WALKFORWARD-OOS-GATE-01/fixture_gate_summary.json",
+            "present": true,
+            "role": "oos_gate_summary"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-FUNDING-FADE-CONCLUDE-01/conclusion_traceability.json",
+            "present": true,
+            "role": "conclusion_traceability"
+          }
+        ],
+        "candidate_review_status": {
+          "detail": "Review reach is blocked until OOS gate evidence and Result Population identity are available.",
+          "reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+          "state": "candidate_review_blocked"
+        },
+        "denominator": {
+          "available": true,
+          "blocked": 0,
+          "complete": 36,
+          "failed": 0,
+          "invalid": 0,
+          "planned": 36,
+          "preserved": true,
+          "pruned": 0
+        },
+        "evidence_class": "non_canonical",
+        "no_go_caveats": [],
+        "oos_gate_status": {
+          "canonical_result_population_written": false,
+          "detail": "OOS gate decision: fail.",
+          "oos_evidence_status": "completed_dry_run_only",
+          "reason_code": "OOS_GATE_FAIL",
+          "state": "oos_gate_fail"
+        },
+        "operator_gate_status": {
+          "detail": "No candidate produced; nothing for the operator to gate.",
+          "reason_code": "STATE_NO_CANDIDATE_PRODUCED",
+          "state": "not_started"
+        },
+        "overall_state": "oos_gate_fail",
+        "replay_status": {
+          "detail": "2 Result Population(s) normalized under the replay contract (equivalence only, not approval).",
+          "reason_code": "STATE_REPLAY_NORMALIZED",
+          "state": "replay_checked"
+        },
+        "reporting_status": {
+          "detail": "Conclusion recorded in a synthesis doc / status entry.",
+          "reason_code": "STATE_REPORTED_FROM_SYNTHESIS",
+          "state": "reported"
+        },
+        "result_populations": [
+          {
+            "exit_mode": "fixed_max_hold_only",
+            "result_population_id": "RP-2009",
+            "rows": 18,
+            "sha256": "d6e5e6c46c38208b308b2c5aaa34b3a65176831b61b5026229c857ba08914076"
+          },
+          {
+            "exit_mode": "midline_reversion_or_max_hold",
+            "result_population_id": "RP-7592",
+            "rows": 18,
+            "sha256": "18bfe97d571b3e5debf675a103e736ff29ce17287847a4b673cc4cbe68480d37"
+          }
+        ],
+        "robustness_status": {
+          "descriptive_reports_produced": true,
+          "detail": "Descriptive robustness reports produced; withheld PSR, DSR, MinTRL statistics rather than fabricating inputs.",
+          "per_trade_monte_carlo": "blocked_missing_real_per_trade_rows_not_fabricated",
+          "reason_code": "STATE_ROBUSTNESS_ADVISORY_ONLY",
+          "state": "robustness_advisory",
+          "withheld_statistics": [
+            "PSR",
+            "DSR",
+            "MinTRL"
+          ]
+        },
+        "stages": [
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "docs/status_entries/WP-LAB-WALKFORWARD-OOS-GATE-01.md",
+                "present": true,
+                "role": "formalization_status_entry"
+              }
+            ],
+            "detail": "Idea intake recorded for the hypothesis.",
+            "reason_code": "STATE_FORMALIZED_FROM_STATUS_ENTRY",
+            "stage": "idea_intake",
+            "state": "formalized"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "docs/status_entries/WP-LAB-WALKFORWARD-OOS-GATE-01.md",
+                "present": true,
+                "role": "formalization_status_entry"
+              }
+            ],
+            "detail": "Hypothesis formalized in a repo status entry.",
+            "reason_code": "STATE_FORMALIZED_FROM_STATUS_ENTRY",
+            "stage": "formalization",
+            "state": "formalized"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-RESEARCH-FUNDING-FADE-CONCLUDE-01/conclusion_traceability.json",
+                "present": true,
+                "role": "conclusion_traceability"
+              }
+            ],
+            "detail": "2 Result Population(s); denominator 36/36 preserved.",
+            "reason_code": "STATE_EXPERIMENT_DENOMINATOR_PRESERVED",
+            "stage": "experiment_run",
+            "state": "experiment_complete"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-LAB-RP-REPLAY-NORMALIZATION-CONTRACT-01/replay_fixture_summary.json",
+                "present": true,
+                "role": "replay_fixture_summary"
+              }
+            ],
+            "detail": "2 Result Population(s) normalized under the replay contract (equivalence only, not approval).",
+            "reason_code": "STATE_REPLAY_NORMALIZED",
+            "stage": "replay_normalization",
+            "state": "replay_checked"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-LAB-WALKFORWARD-OOS-GATE-01/fixture_gate_summary.json",
+                "present": true,
+                "role": "oos_gate_summary"
+              }
+            ],
+            "detail": "OOS gate decision: fail.",
+            "reason_code": "OOS_GATE_FAIL",
+            "stage": "walkforward_oos_gate",
+            "state": "oos_gate_fail"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-RESEARCH-FUNDING-FADE-CONCLUDE-01/conclusion_traceability.json",
+                "present": true,
+                "role": "conclusion_traceability"
+              }
+            ],
+            "detail": "Descriptive robustness reports produced; withheld PSR, DSR, MinTRL statistics rather than fabricating inputs.",
+            "reason_code": "STATE_ROBUSTNESS_ADVISORY_ONLY",
+            "stage": "robustness",
+            "state": "robustness_advisory"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-LAB-GENERIC-ROBUSTNESS-REVIEW-REACH-01/generic_review_contract.json",
+                "present": true,
+                "role": "generic_review_contract"
+              }
+            ],
+            "detail": "Review reach is blocked until OOS gate evidence and Result Population identity are available.",
+            "reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+            "stage": "candidate_review_reach",
+            "state": "candidate_review_blocked"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "docs/research/WALKFORWARD_OOS_GATE_CONTRACT.md",
+                "present": true,
+                "role": "reporting_doc"
+              }
+            ],
+            "detail": "Conclusion recorded in a synthesis doc / status entry.",
+            "reason_code": "STATE_REPORTED_FROM_SYNTHESIS",
+            "stage": "reporting",
+            "state": "reported"
+          },
+          {
+            "artifact_refs": [],
+            "detail": "No candidate produced; nothing for the operator to gate.",
+            "reason_code": "STATE_NO_CANDIDATE_PRODUCED",
+            "stage": "operator_gate",
+            "state": "not_started"
+          }
+        ],
+        "subject_id": "OOS-GATE-FIXTURE-RP-2592",
+        "subject_label": "walkforward_oos_gate_fixture",
+        "withheld_statistics": [
+          "PSR",
+          "DSR",
+          "MinTRL"
+        ]
+      },
+      {
+        "artifact_drilldown": [
+          {
+            "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/blocked_bridge_reason.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/blocked_candidate_review_reason.json",
+            "present": true,
+            "role": "generic_review_contract"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/blocked_robustness_reason.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/denominator_audit.json",
+            "present": true,
+            "role": "conclusion_traceability"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/formalizer_output_reference.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/missing_diagnostics.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/orb_exit_respec_idea.json",
+            "present": true,
+            "role": "formalization_status_entry"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/orb_exit_respec_result_packet.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/orb_exit_respec_summary.md",
+            "present": true,
+            "role": "reporting_doc"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/repo_truth_discovery.md",
+            "present": true,
+            "role": "legacy_research_evidence"
+          }
+        ],
+        "candidate_review_status": {
+          "detail": "Candidate-review packet construction requires formalizer, bridge, denominator ledger, robustness diagnostics, and robustness review packet lineage. Bridge and robustness outputs do not exist for this blocked ORB attempt.",
+          "reason_code": "BLOCKED_RESULT_POPULATION_UNAVAILABLE",
+          "state": "candidate_review_blocked"
+        },
+        "denominator": {
+          "available": false
+        },
+        "evidence_class": "unknown",
+        "no_go_caveats": [],
+        "oos_gate_status": {
+          "canonical_result_population_written": null,
+          "detail": "No OOS gate artifact available.",
+          "oos_evidence_status": null,
+          "reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+          "state": "not_started"
+        },
+        "operator_gate_status": {
+          "detail": "No candidate produced; nothing for the operator to gate.",
+          "reason_code": "STATE_NO_CANDIDATE_PRODUCED",
+          "state": "not_started"
+        },
+        "overall_state": "blocked",
+        "replay_status": {
+          "detail": "No replay normalization summary available.",
+          "reason_code": "STATE_ARTIFACT_MISSING",
+          "state": "not_started"
+        },
+        "reporting_status": {
+          "detail": "Conclusion recorded in a synthesis doc / status entry.",
+          "reason_code": "STATE_REPORTED_FROM_SYNTHESIS",
+          "state": "reported"
+        },
+        "result_populations": [],
+        "robustness_status": {
+          "descriptive_reports_produced": false,
+          "detail": "No robustness summary available.",
+          "per_trade_monte_carlo": null,
+          "reason_code": "STATE_ARTIFACT_MISSING",
+          "state": "not_started",
+          "withheld_statistics": []
+        },
+        "stages": [
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/orb_exit_respec_idea.json",
+                "present": true,
+                "role": "formalization_status_entry"
+              }
+            ],
+            "detail": "Idea intake recorded for the hypothesis.",
+            "reason_code": "STATE_FORMALIZED_FROM_STATUS_ENTRY",
+            "stage": "idea_intake",
+            "state": "formalized"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/orb_exit_respec_idea.json",
+                "present": true,
+                "role": "formalization_status_entry"
+              }
+            ],
+            "detail": "Hypothesis formalized in a repo status entry.",
+            "reason_code": "STATE_FORMALIZED_FROM_STATUS_ENTRY",
+            "stage": "formalization",
+            "state": "formalized"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/denominator_audit.json",
+                "present": true,
+                "role": "conclusion_traceability"
+              }
+            ],
+            "detail": "Legacy denominator audit blocked before variant denominator.",
+            "reason_code": "BLOCKED_RESULT_POPULATION_UNAVAILABLE",
+            "stage": "experiment_run",
+            "state": "blocked"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "not configured",
+                "path": "",
+                "present": false,
+                "role": "replay_fixture_summary"
+              }
+            ],
+            "detail": "No replay normalization summary available.",
+            "reason_code": "STATE_ARTIFACT_MISSING",
+            "stage": "replay_normalization",
+            "state": "not_started"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "not configured",
+                "path": "",
+                "present": false,
+                "role": "oos_gate_summary"
+              }
+            ],
+            "detail": "No OOS gate artifact available.",
+            "reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+            "stage": "walkforward_oos_gate",
+            "state": "not_started"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/denominator_audit.json",
+                "present": true,
+                "role": "conclusion_traceability"
+              }
+            ],
+            "detail": "No robustness summary available.",
+            "reason_code": "STATE_ARTIFACT_MISSING",
+            "stage": "robustness",
+            "state": "not_started"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/blocked_candidate_review_reason.json",
+                "present": true,
+                "role": "generic_review_contract"
+              }
+            ],
+            "detail": "Candidate-review packet construction requires formalizer, bridge, denominator ledger, robustness diagnostics, and robustness review packet lineage. Bridge and robustness outputs do not exist for this blocked ORB attempt.",
+            "reason_code": "BLOCKED_RESULT_POPULATION_UNAVAILABLE",
+            "stage": "candidate_review_reach",
+            "state": "candidate_review_blocked"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/orb_exit_respec_summary.md",
+                "present": true,
+                "role": "reporting_doc"
+              }
+            ],
+            "detail": "Conclusion recorded in a synthesis doc / status entry.",
+            "reason_code": "STATE_REPORTED_FROM_SYNTHESIS",
+            "stage": "reporting",
+            "state": "reported"
+          },
+          {
+            "artifact_refs": [],
+            "detail": "No candidate produced; nothing for the operator to gate.",
+            "reason_code": "STATE_NO_CANDIDATE_PRODUCED",
+            "stage": "operator_gate",
+            "state": "not_started"
+          }
+        ],
+        "subject_id": "WP-RESEARCH-ORB-EXIT-RESPEC-01",
+        "subject_label": "orb_exit_respec_blocked",
+        "withheld_statistics": []
+      },
+      {
+        "artifact_drilldown": [
+          {
+            "path": "docs/research/PRICEONLY_SYNTHESIS_2026-06.md",
+            "present": true,
+            "role": "reporting_doc"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-PRICEONLY-SYNTHESIS-01/evidence_index.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-PRICEONLY-SYNTHESIS-01/lab_gap_checklist.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-PRICEONLY-SYNTHESIS-01/main_report_back_guardrail.txt",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-PRICEONLY-SYNTHESIS-01/open_decision_surfaces.txt",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-PRICEONLY-SYNTHESIS-01/priceonly_synthesis_source_audit.json",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-PRICEONLY-SYNTHESIS-01/repo_truth_discovery.md",
+            "present": true,
+            "role": "legacy_research_evidence"
+          },
+          {
+            "path": "scratch/WP-RESEARCH-PRICEONLY-SYNTHESIS-01/validation_summary.txt",
+            "present": true,
+            "role": "legacy_research_evidence"
+          }
+        ],
+        "candidate_review_status": {
+          "detail": "No candidate-review reach record available.",
+          "reason_code": "STATE_ARTIFACT_MISSING",
+          "state": "not_started"
+        },
+        "denominator": {
+          "available": false
+        },
+        "evidence_class": "unknown",
+        "no_go_caveats": [],
+        "oos_gate_status": {
+          "canonical_result_population_written": null,
+          "detail": "No OOS gate artifact available.",
+          "oos_evidence_status": null,
+          "reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+          "state": "not_started"
+        },
+        "operator_gate_status": {
+          "detail": "No candidate produced; nothing for the operator to gate.",
+          "reason_code": "STATE_NO_CANDIDATE_PRODUCED",
+          "state": "not_started"
+        },
+        "overall_state": "reported",
+        "replay_status": {
+          "detail": "No replay normalization summary available.",
+          "reason_code": "STATE_ARTIFACT_MISSING",
+          "state": "not_started"
+        },
+        "reporting_status": {
+          "detail": "Conclusion recorded in a synthesis doc / status entry.",
+          "reason_code": "STATE_REPORTED_FROM_SYNTHESIS",
+          "state": "reported"
+        },
+        "result_populations": [],
+        "robustness_status": {
+          "descriptive_reports_produced": false,
+          "detail": "No robustness summary available.",
+          "per_trade_monte_carlo": null,
+          "reason_code": "STATE_ARTIFACT_MISSING",
+          "state": "not_started",
+          "withheld_statistics": []
+        },
+        "stages": [
+          {
+            "artifact_refs": [
+              {
+                "note": "not configured",
+                "path": "",
+                "present": false,
+                "role": "formalization_status_entry"
+              }
+            ],
+            "detail": "No idea intake found.",
+            "reason_code": "STATE_STAGE_NOT_REACHED",
+            "stage": "idea_intake",
+            "state": "not_started"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "not configured",
+                "path": "",
+                "present": false,
+                "role": "formalization_status_entry"
+              }
+            ],
+            "detail": "No formalization status entry found.",
+            "reason_code": "STATE_STAGE_NOT_REACHED",
+            "stage": "formalization",
+            "state": "not_started"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "not configured",
+                "path": "",
+                "present": false,
+                "role": "conclusion_traceability"
+              }
+            ],
+            "detail": "No experiment conclusion artifact available.",
+            "reason_code": "STATE_ARTIFACT_MISSING",
+            "stage": "experiment_run",
+            "state": "not_started"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "not configured",
+                "path": "",
+                "present": false,
+                "role": "replay_fixture_summary"
+              }
+            ],
+            "detail": "No replay normalization summary available.",
+            "reason_code": "STATE_ARTIFACT_MISSING",
+            "stage": "replay_normalization",
+            "state": "not_started"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "not configured",
+                "path": "",
+                "present": false,
+                "role": "oos_gate_summary"
+              }
+            ],
+            "detail": "No OOS gate artifact available.",
+            "reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+            "stage": "walkforward_oos_gate",
+            "state": "not_started"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "not configured",
+                "path": "",
+                "present": false,
+                "role": "conclusion_traceability"
+              }
+            ],
+            "detail": "No robustness summary available.",
+            "reason_code": "STATE_ARTIFACT_MISSING",
+            "stage": "robustness",
+            "state": "not_started"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "not configured",
+                "path": "",
+                "present": false,
+                "role": "generic_review_contract"
+              }
+            ],
+            "detail": "No candidate-review reach record available.",
+            "reason_code": "STATE_ARTIFACT_MISSING",
+            "stage": "candidate_review_reach",
+            "state": "not_started"
+          },
+          {
+            "artifact_refs": [
+              {
+                "note": "",
+                "path": "docs/research/PRICEONLY_SYNTHESIS_2026-06.md",
+                "present": true,
+                "role": "reporting_doc"
+              }
+            ],
+            "detail": "Conclusion recorded in a synthesis doc / status entry.",
+            "reason_code": "STATE_REPORTED_FROM_SYNTHESIS",
+            "stage": "reporting",
+            "state": "reported"
+          },
+          {
+            "artifact_refs": [],
+            "detail": "No candidate produced; nothing for the operator to gate.",
+            "reason_code": "STATE_NO_CANDIDATE_PRODUCED",
+            "stage": "operator_gate",
+            "state": "not_started"
+          }
+        ],
+        "subject_id": "WP-RESEARCH-PRICEONLY-SYNTHESIS-01",
+        "subject_label": "priceonly_synthesis_reported",
+        "withheld_statistics": []
+      }
+    ],
+    "surface_kind": "read_only_operator_visibility"
+  },
+  "authority": {
+    "candidate_authority_created": false,
+    "canonical_crossing_authority_created": false,
+    "dependency_changes": false,
+    "edge_search_authorized_here": false,
+    "network_fetch_added": false,
+    "paper_live_authority_created": false,
+    "read_only": true,
+    "real_research_traffic_started": false,
+    "server_backend_added": false
+  },
+  "backtest_visualization": {
+    "drawdown_curve_state": "unavailable/not present in consumed artifacts",
+    "equity_curve_state": "unavailable/not present in consumed artifacts",
+    "per_variant_metrics_available": false,
+    "result_populations": [
+      {
+        "authority": {
+          "canonical_evidence_relationship": "reference_only",
+          "not_candidate_approval": true,
+          "not_canonical_evidence_replacement": true,
+          "not_dec_replacement": true,
+          "not_decision_authority": true,
+          "not_executable": true,
+          "not_exp_approval": true,
+          "not_exp_replacement": true,
+          "not_gate_authority": true,
+          "not_ol_replacement": true,
+          "not_outcome_ledger_replacement": true,
+          "not_paper_live_authority": true,
+          "not_ranking_authority": true,
+          "not_readiness_authority": true,
+          "not_rec_replacement": true,
+          "not_recommendation_authority": true,
+          "not_reconciliation_authority": true,
+          "not_rep_replacement": true,
+          "not_result_authority": true,
+          "not_runner_authority": true,
+          "not_runtime_authority": true,
+          "not_sweep_authority": true,
+          "not_transition_authority": true,
+          "not_trial_log_replacement": true
+        },
+        "committed_denominator": 7,
+        "has_drawdown_curve": false,
+        "has_equity_curve": false,
+        "has_mc_robustness_distribution": false,
+        "has_returns_distribution": false,
+        "metrics": [],
+        "outcome_counts": {
+          "aborted": 0,
+          "counts_sum": 7,
+          "counts_sum_equals_committed_denominator": true,
+          "data_unavailable": 0,
+          "errored": 0,
+          "excluded": 0,
+          "failed": 0,
+          "filtered": 0,
+          "invalid": 0,
+          "not_attempted": 0,
+          "successful": 7
+        },
+        "path": "research/result_populations/RP-2134.result_population.json",
+        "result_population_id": "RP-2134",
+        "result_row_count": 7,
+        "sha256": "sha256:b80b882e1b7866d761906c7502cf180acca0eeff0e7f3d022c15a1ff05ec3df9",
+        "strategy_spec_id": "STRAT-SPEC-0001",
+        "sweep_plan_id": "SWEEP-PLAN-0001",
+        "variant_manifest_id": "VM-0001",
+        "winner_only_retention_forbidden": true
+      },
+      {
+        "authority": {
+          "canonical_evidence_relationship": "reference_only",
+          "not_candidate_approval": true,
+          "not_canonical_evidence_replacement": true,
+          "not_dec_replacement": true,
+          "not_decision_authority": true,
+          "not_executable": true,
+          "not_exp_approval": true,
+          "not_exp_replacement": true,
+          "not_gate_authority": true,
+          "not_ol_replacement": true,
+          "not_outcome_ledger_replacement": true,
+          "not_paper_live_authority": true,
+          "not_ranking_authority": true,
+          "not_readiness_authority": true,
+          "not_rec_replacement": true,
+          "not_recommendation_authority": true,
+          "not_reconciliation_authority": true,
+          "not_rep_replacement": true,
+          "not_result_authority": true,
+          "not_runner_authority": true,
+          "not_runtime_authority": true,
+          "not_sweep_authority": true,
+          "not_transition_authority": true,
+          "not_trial_log_replacement": true
+        },
+        "committed_denominator": 8,
+        "has_drawdown_curve": false,
+        "has_equity_curve": false,
+        "has_mc_robustness_distribution": false,
+        "has_returns_distribution": false,
+        "metrics": [],
+        "outcome_counts": {
+          "aborted": 0,
+          "counts_sum": 8,
+          "counts_sum_equals_committed_denominator": true,
+          "data_unavailable": 0,
+          "errored": 0,
+          "excluded": 0,
+          "failed": 0,
+          "filtered": 0,
+          "invalid": 0,
+          "not_attempted": 0,
+          "successful": 8
+        },
+        "path": "research/result_populations/RP-2592.result_population.json",
+        "result_population_id": "RP-2592",
+        "result_row_count": 8,
+        "sha256": "sha256:d548bfe884b8ad3ec749627da60f54fff9d54d58032eb779342fa56111c713b8",
+        "strategy_spec_id": "STRAT-SPEC-0004",
+        "sweep_plan_id": "SWEEP-PLAN-0004",
+        "variant_manifest_id": "VM-0004",
+        "winner_only_retention_forbidden": true
+      },
+      {
+        "authority": {
+          "canonical_evidence_relationship": "reference_only",
+          "not_candidate_approval": true,
+          "not_canonical_evidence_replacement": true,
+          "not_dec_replacement": true,
+          "not_decision_authority": true,
+          "not_executable": true,
+          "not_exp_approval": true,
+          "not_exp_replacement": true,
+          "not_gate_authority": true,
+          "not_ol_replacement": true,
+          "not_outcome_ledger_replacement": true,
+          "not_paper_live_authority": true,
+          "not_ranking_authority": true,
+          "not_readiness_authority": true,
+          "not_rec_replacement": true,
+          "not_recommendation_authority": true,
+          "not_reconciliation_authority": true,
+          "not_rep_replacement": true,
+          "not_result_authority": true,
+          "not_runner_authority": true,
+          "not_runtime_authority": true,
+          "not_sweep_authority": true,
+          "not_transition_authority": true,
+          "not_trial_log_replacement": true
+        },
+        "committed_denominator": 8,
+        "has_drawdown_curve": false,
+        "has_equity_curve": false,
+        "has_mc_robustness_distribution": false,
+        "has_returns_distribution": false,
+        "metrics": [],
+        "outcome_counts": {
+          "aborted": 0,
+          "counts_sum": 8,
+          "counts_sum_equals_committed_denominator": true,
+          "data_unavailable": 0,
+          "errored": 0,
+          "excluded": 0,
+          "failed": 0,
+          "filtered": 0,
+          "invalid": 0,
+          "not_attempted": 0,
+          "successful": 8
+        },
+        "path": "research/result_populations/RP-3731.result_population.json",
+        "result_population_id": "RP-3731",
+        "result_row_count": 8,
+        "sha256": "sha256:e8d6bc5c48a80c32f9495a0d63d05be0cf8513b8f3912d6b81c6dbca715672c2",
+        "strategy_spec_id": "STRAT-SPEC-0005",
+        "sweep_plan_id": "SWEEP-PLAN-0005",
+        "variant_manifest_id": "VM-0005",
+        "winner_only_retention_forbidden": true
+      },
+      {
+        "authority": {
+          "canonical_evidence_relationship": "reference_only",
+          "not_candidate_approval": true,
+          "not_canonical_evidence_replacement": true,
+          "not_dec_replacement": true,
+          "not_decision_authority": true,
+          "not_executable": true,
+          "not_exp_approval": true,
+          "not_exp_replacement": true,
+          "not_gate_authority": true,
+          "not_ol_replacement": true,
+          "not_outcome_ledger_replacement": true,
+          "not_paper_live_authority": true,
+          "not_ranking_authority": true,
+          "not_readiness_authority": true,
+          "not_rec_replacement": true,
+          "not_recommendation_authority": true,
+          "not_reconciliation_authority": true,
+          "not_rep_replacement": true,
+          "not_result_authority": true,
+          "not_runner_authority": true,
+          "not_runtime_authority": true,
+          "not_sweep_authority": true,
+          "not_transition_authority": true,
+          "not_trial_log_replacement": true
+        },
+        "committed_denominator": 7,
+        "has_drawdown_curve": false,
+        "has_equity_curve": false,
+        "has_mc_robustness_distribution": false,
+        "has_returns_distribution": false,
+        "metrics": [],
+        "outcome_counts": {
+          "aborted": 0,
+          "counts_sum": 7,
+          "counts_sum_equals_committed_denominator": true,
+          "data_unavailable": 0,
+          "errored": 0,
+          "excluded": 0,
+          "failed": 0,
+          "filtered": 0,
+          "invalid": 0,
+          "not_attempted": 0,
+          "successful": 7
+        },
+        "path": "research/result_populations/RP-4492.result_population.json",
+        "result_population_id": "RP-4492",
+        "result_row_count": 7,
+        "sha256": "sha256:943833067d2bef2fc7a2d38c3502d7c115fef01b275dad5152c55f4cb51910aa",
+        "strategy_spec_id": "STRAT-SPEC-0001",
+        "sweep_plan_id": "SWEEP-PLAN-0001",
+        "variant_manifest_id": "VM-0001",
+        "winner_only_retention_forbidden": true
+      },
+      {
+        "authority": {
+          "canonical_evidence_relationship": "reference_only",
+          "not_candidate_approval": true,
+          "not_canonical_evidence_replacement": true,
+          "not_dec_replacement": true,
+          "not_decision_authority": true,
+          "not_executable": true,
+          "not_exp_approval": true,
+          "not_exp_replacement": true,
+          "not_gate_authority": true,
+          "not_ol_replacement": true,
+          "not_outcome_ledger_replacement": true,
+          "not_paper_live_authority": true,
+          "not_ranking_authority": true,
+          "not_readiness_authority": true,
+          "not_rec_replacement": true,
+          "not_recommendation_authority": true,
+          "not_reconciliation_authority": true,
+          "not_rep_replacement": true,
+          "not_result_authority": true,
+          "not_runner_authority": true,
+          "not_runtime_authority": true,
+          "not_sweep_authority": true,
+          "not_transition_authority": true,
+          "not_trial_log_replacement": true
+        },
+        "committed_denominator": 8,
+        "has_drawdown_curve": false,
+        "has_equity_curve": false,
+        "has_mc_robustness_distribution": false,
+        "has_returns_distribution": false,
+        "metrics": [],
+        "outcome_counts": {
+          "aborted": 0,
+          "counts_sum": 8,
+          "counts_sum_equals_committed_denominator": true,
+          "data_unavailable": 0,
+          "errored": 0,
+          "excluded": 0,
+          "failed": 0,
+          "filtered": 0,
+          "invalid": 0,
+          "not_attempted": 0,
+          "successful": 8
+        },
+        "path": "research/result_populations/RP-6236.result_population.json",
+        "result_population_id": "RP-6236",
+        "result_row_count": 8,
+        "sha256": "sha256:1b8f4ed5199067629e55fea3fcaf5d544168b03fa99af824d98b22582b1772b9",
+        "strategy_spec_id": "STRAT-SPEC-0006",
+        "sweep_plan_id": "SWEEP-PLAN-0006",
+        "variant_manifest_id": "VM-0006",
+        "winner_only_retention_forbidden": true
+      },
+      {
+        "authority": {
+          "canonical_evidence_relationship": "reference_only",
+          "not_candidate_approval": true,
+          "not_canonical_evidence_replacement": true,
+          "not_dec_replacement": true,
+          "not_decision_authority": true,
+          "not_executable": true,
+          "not_exp_approval": true,
+          "not_exp_replacement": true,
+          "not_gate_authority": true,
+          "not_ol_replacement": true,
+          "not_outcome_ledger_replacement": true,
+          "not_paper_live_authority": true,
+          "not_ranking_authority": true,
+          "not_readiness_authority": true,
+          "not_rec_replacement": true,
+          "not_recommendation_authority": true,
+          "not_reconciliation_authority": true,
+          "not_rep_replacement": true,
+          "not_result_authority": true,
+          "not_runner_authority": true,
+          "not_runtime_authority": true,
+          "not_sweep_authority": true,
+          "not_transition_authority": true,
+          "not_trial_log_replacement": true
+        },
+        "committed_denominator": 10,
+        "has_drawdown_curve": false,
+        "has_equity_curve": false,
+        "has_mc_robustness_distribution": false,
+        "has_returns_distribution": false,
+        "metrics": [],
+        "outcome_counts": {
+          "aborted": 0,
+          "counts_sum": 10,
+          "counts_sum_equals_committed_denominator": true,
+          "data_unavailable": 0,
+          "errored": 0,
+          "excluded": 0,
+          "failed": 0,
+          "filtered": 0,
+          "invalid": 0,
+          "not_attempted": 0,
+          "successful": 10
+        },
+        "path": "research/result_populations/RP-6688.result_population.json",
+        "result_population_id": "RP-6688",
+        "result_row_count": 10,
+        "sha256": "sha256:dd7a329fdf7649ce9d926a56b7fd3f262db46e2ecd9a490a34f3ec05dcf02e23",
+        "strategy_spec_id": "STRAT-SPEC-0002",
+        "sweep_plan_id": "SWEEP-PLAN-0002",
+        "variant_manifest_id": "VM-0002",
+        "winner_only_retention_forbidden": true
+      },
+      {
+        "authority": {
+          "canonical_evidence_relationship": "reference_only",
+          "not_candidate_approval": true,
+          "not_canonical_evidence_replacement": true,
+          "not_dec_replacement": true,
+          "not_decision_authority": true,
+          "not_executable": true,
+          "not_exp_approval": true,
+          "not_exp_replacement": true,
+          "not_gate_authority": true,
+          "not_ol_replacement": true,
+          "not_outcome_ledger_replacement": true,
+          "not_paper_live_authority": true,
+          "not_ranking_authority": true,
+          "not_readiness_authority": true,
+          "not_rec_replacement": true,
+          "not_recommendation_authority": true,
+          "not_reconciliation_authority": true,
+          "not_rep_replacement": true,
+          "not_result_authority": true,
+          "not_runner_authority": true,
+          "not_runtime_authority": true,
+          "not_sweep_authority": true,
+          "not_transition_authority": true,
+          "not_trial_log_replacement": true
+        },
+        "committed_denominator": 8,
+        "has_drawdown_curve": false,
+        "has_equity_curve": false,
+        "has_mc_robustness_distribution": false,
+        "has_returns_distribution": false,
+        "metrics": [],
+        "outcome_counts": {
+          "aborted": 0,
+          "counts_sum": 8,
+          "counts_sum_equals_committed_denominator": true,
+          "data_unavailable": 0,
+          "errored": 0,
+          "excluded": 0,
+          "failed": 0,
+          "filtered": 0,
+          "invalid": 0,
+          "not_attempted": 0,
+          "successful": 8
+        },
+        "path": "research/result_populations/RP-7134.result_population.json",
+        "result_population_id": "RP-7134",
+        "result_row_count": 8,
+        "sha256": "sha256:9813afd65c946ceaac23804fd485b4452d2451bec31a726eb86667926741e524",
+        "strategy_spec_id": "STRAT-SPEC-0003",
+        "sweep_plan_id": "SWEEP-PLAN-0003",
+        "variant_manifest_id": "VM-0003",
+        "winner_only_retention_forbidden": true
+      },
+      {
+        "authority": {
+          "canonical_evidence_relationship": "reference_only",
+          "not_candidate_approval": true,
+          "not_canonical_evidence_replacement": true,
+          "not_dec_replacement": true,
+          "not_decision_authority": true,
+          "not_executable": true,
+          "not_exp_approval": true,
+          "not_exp_replacement": true,
+          "not_gate_authority": true,
+          "not_ol_replacement": true,
+          "not_outcome_ledger_replacement": true,
+          "not_paper_live_authority": true,
+          "not_ranking_authority": true,
+          "not_readiness_authority": true,
+          "not_rec_replacement": true,
+          "not_recommendation_authority": true,
+          "not_reconciliation_authority": true,
+          "not_rep_replacement": true,
+          "not_result_authority": true,
+          "not_runner_authority": true,
+          "not_runtime_authority": true,
+          "not_sweep_authority": true,
+          "not_transition_authority": true,
+          "not_trial_log_replacement": true
+        },
+        "committed_denominator": 10,
+        "has_drawdown_curve": false,
+        "has_equity_curve": false,
+        "has_mc_robustness_distribution": false,
+        "has_returns_distribution": false,
+        "metrics": [],
+        "outcome_counts": {
+          "aborted": 0,
+          "counts_sum": 10,
+          "counts_sum_equals_committed_denominator": true,
+          "data_unavailable": 0,
+          "errored": 0,
+          "excluded": 0,
+          "failed": 0,
+          "filtered": 0,
+          "invalid": 0,
+          "not_attempted": 0,
+          "successful": 10
+        },
+        "path": "research/result_populations/RP-7520.result_population.json",
+        "result_population_id": "RP-7520",
+        "result_row_count": 10,
+        "sha256": "sha256:1df066eeb15957bb0a0825b180bcded8ee971a6e9834a30fe93ac7b70810bd36",
+        "strategy_spec_id": "STRAT-SPEC-0002",
+        "sweep_plan_id": "SWEEP-PLAN-0002",
+        "variant_manifest_id": "VM-0002",
+        "winner_only_retention_forbidden": true
+      }
+    ],
+    "returns_distribution_state": "unavailable/not present in consumed artifacts"
+  },
+  "base_commit": "b2e8e66261e08b98de11fad6a5738fc49dfe3728",
+  "candidate_review_funnel": {
+    "candidate_crossing_authority": "none_created",
+    "candidate_ready": 0,
+    "counts": {
+      "blocked": 0,
+      "candidate_ready": 0,
+      "complete": 36,
+      "distinct_result_population_sets": 1,
+      "failed": 0,
+      "invalid": 0,
+      "no_go": 4,
+      "planned": 36,
+      "subjects": 9
+    },
+    "full_denominator_preserved": true,
+    "paper_live_runtime_authority": "none_created",
+    "winner_only_view": false
+  },
+  "capability_completion": {
+    "cards": [
+      {
+        "authority_created_here": false,
+        "capability_id": 1,
+        "capability_name": "Idea intake",
+        "operating_readiness_acceptance_tested": false,
+        "paper_live_GO_gated": false,
+        "pre_event_tape_status": "complete_for_no_edge_phase",
+        "production_operation_requires_real_research_traffic": true,
+        "proof_basis": "Human-driven intake and evidence organization were already sufficient for the no-edge phase in LAB_COMPLETION_MAP.md.",
+        "remaining_condition": "Real idea intake resumes only with explicit real research traffic authorization.",
+        "requires_real_GO_candidate": false,
+        "source_status": "complete_before_event_tape",
+        "status_bucket": "complete_before_event_tape",
+        "title": "Idea intake"
+      },
+      {
+        "authority_created_here": false,
+        "capability_id": 2,
+        "capability_name": "Automatic strategy formalization from arbitrary ideas",
+        "operating_readiness_acceptance_tested": false,
+        "paper_live_GO_gated": false,
+        "pre_event_tape_status": "not_applicable_to_no_edge_phase",
+        "production_operation_requires_real_research_traffic": true,
+        "proof_basis": "Automatic strategy formalization is edge-search / generation work and is outside the no-edge operating-test route.",
+        "remaining_condition": "Requires explicit edge-search authorization; this audit creates none.",
+        "requires_real_GO_candidate": false,
+        "source_status": "not_applicable_to_no_edge_phase",
+        "status_bucket": "not_applicable_to_no_edge_phase",
+        "title": "Automatic strategy formalization from arbitrary ideas"
+      },
+      {
+        "authority_created_here": false,
+        "capability_id": 3,
+        "capability_name": "Strategy-family classification and routing",
+        "operating_readiness_acceptance_tested": false,
+        "paper_live_GO_gated": false,
+        "pre_event_tape_status": "proven_on_known_payload",
+        "production_operation_requires_real_research_traffic": true,
+        "proof_basis": "Known-payload route through PR #583 and PR #588 already proved construction-lineage routing for no-edge purposes.",
+        "remaining_condition": "Real multi-family traffic is still required for autonomous routing claims.",
+        "requires_real_GO_candidate": false,
+        "source_status": "proven_on_known_payload",
+        "status_bucket": "proven_on_known_payload",
+        "title": "Strategy-family classification and routing"
+      },
+      {
+        "authority_created_here": false,
+        "capability_id": 4,
+        "capability_name": "Data / primitive / feature availability classifier",
+        "operating_readiness_acceptance_tested": false,
+        "paper_live_GO_gated": false,
+        "pre_event_tape_status": "held_B_needs_real_research_traffic",
+        "production_operation_requires_real_research_traffic": true,
+        "proof_basis": "Existing blockers and withheld states are visible, but synthetic event-tape traffic does not create varied real feature-discovery demand.",
+        "remaining_condition": "Needs a stream of real research jobs with varied data and primitive needs.",
+        "requires_real_GO_candidate": false,
+        "source_status": "held_until_real_research_traffic_for_production",
+        "status_bucket": "held_until_real_research_traffic_for_production",
+        "title": "Data / primitive / feature availability classifier"
+      },
+      {
+        "authority_created_here": false,
+        "capability_id": 5,
+        "capability_name": "Strategy Spec draft generation",
+        "operating_readiness_acceptance_tested": false,
+        "paper_live_GO_gated": false,
+        "pre_event_tape_status": "not_applicable_to_no_edge_phase",
+        "production_operation_requires_real_research_traffic": true,
+        "proof_basis": "Strategy Spec draft generation is strategy-generation work, not no-edge operating-readiness proof.",
+        "remaining_condition": "Requires explicit strategy-generation / schema-path authorization.",
+        "requires_real_GO_candidate": false,
+        "source_status": "not_applicable_to_no_edge_phase",
+        "status_bucket": "not_applicable_to_no_edge_phase",
+        "title": "Strategy Spec draft generation"
+      },
+      {
+        "authority_created_here": false,
+        "capability_id": 6,
+        "capability_name": "Variant Manifest / parameter generation",
+        "operating_readiness_acceptance_tested": false,
+        "paper_live_GO_gated": false,
+        "pre_event_tape_status": "proven_on_known_payload",
+        "production_operation_requires_real_research_traffic": true,
+        "proof_basis": "PR #588 proved deterministic scale rows for one non-promotable lineage without candidate authority.",
+        "remaining_condition": "Real variant traffic belongs to future explicitly authorized research.",
+        "requires_real_GO_candidate": false,
+        "source_status": "proven_on_known_payload",
+        "status_bucket": "proven_on_known_payload",
+        "title": "Variant Manifest / parameter generation"
+      },
+      {
+        "authority_created_here": false,
+        "capability_id": 7,
+        "capability_name": "Sweep Plan generation",
+        "operating_readiness_acceptance_tested": false,
+        "paper_live_GO_gated": false,
+        "pre_event_tape_status": "proven_on_known_payload",
+        "production_operation_requires_real_research_traffic": true,
+        "proof_basis": "PR #588 proved full-denominator synthetic population shape for known-payload sweep accounting.",
+        "remaining_condition": "Real sweep plans require explicit research authorization.",
+        "requires_real_GO_candidate": false,
+        "source_status": "proven_on_known_payload",
+        "status_bucket": "proven_on_known_payload",
+        "title": "Sweep Plan generation"
+      },
+      {
+        "authority_created_here": false,
+        "capability_id": 8,
+        "capability_name": "Large-scale batch sweeps",
+        "operating_readiness_acceptance_tested": false,
+        "paper_live_GO_gated": false,
+        "pre_event_tape_status": "proven_on_known_payload",
+        "production_operation_requires_real_research_traffic": true,
+        "proof_basis": "PR #588 materialized 600 scratch-only known-payload rows across completed, failed, invalid, blocked, insufficient, and withheld states.",
+        "remaining_condition": "Real at-scale batch execution still requires real research jobs.",
+        "requires_real_GO_candidate": false,
+        "source_status": "proven_on_known_payload",
+        "status_bucket": "proven_on_known_payload",
+        "title": "Large-scale batch sweeps"
+      },
+      {
+        "authority_created_here": false,
+        "capability_id": 9,
+        "capability_name": "Full result-population preservation including failures / blocked / invalid / data-unavailable rows",
+        "operating_readiness_acceptance_tested": false,
+        "paper_live_GO_gated": false,
+        "pre_event_tape_status": "proven_on_known_payload",
+        "production_operation_requires_real_research_traffic": true,
+        "proof_basis": "PR #588 preserved all 600 known-payload rows and status denominators.",
+        "remaining_condition": "Continuous denominator preservation under live research variety remains future work.",
+        "requires_real_GO_candidate": false,
+        "source_status": "proven_on_known_payload",
+        "status_bucket": "proven_on_known_payload",
+        "title": "Full result-population preservation including failures / blocked / invalid / data-unavailable rows"
+      },
+      {
+        "authority_created_here": false,
+        "capability_id": 10,
+        "capability_name": "Run registry / result store with provenance, lineage, validation status, blockers, and run history",
+        "operating_readiness_acceptance_tested": false,
+        "paper_live_GO_gated": false,
+        "pre_event_tape_status": "complete",
+        "production_operation_requires_real_research_traffic": true,
+        "proof_basis": "PR #589 already inventoried canonical, scratch, fixture, docs-only, and blocked/deferred entries with provenance and validation state.",
+        "remaining_condition": "Real traffic can expand entries but is not needed to complete no-edge visibility.",
+        "requires_real_GO_candidate": false,
+        "source_status": "complete_before_event_tape",
+        "status_bucket": "complete_before_event_tape",
+        "title": "Run registry / result store with provenance, lineage, validation status, blockers, and run history"
+      },
+      {
+        "authority_created_here": false,
+        "capability_id": 11,
+        "capability_name": "WFO/OOS execution",
+        "operating_readiness_acceptance_tested": false,
+        "paper_live_GO_gated": false,
+        "pre_event_tape_status": "proven_on_known_payload",
+        "production_operation_requires_real_research_traffic": true,
+        "proof_basis": "PR #584 hardened non-promoting WFO/OOS gate semantics and PR #588 carried known-payload status accounting.",
+        "remaining_condition": "Real candidate WFO/OOS volume remains future research traffic.",
+        "requires_real_GO_candidate": false,
+        "source_status": "proven_on_known_payload",
+        "status_bucket": "proven_on_known_payload",
+        "title": "WFO/OOS execution"
+      },
+      {
+        "authority_created_here": false,
+        "capability_id": 12,
+        "capability_name": "Monte Carlo / robustness computation",
+        "operating_readiness_acceptance_tested": false,
+        "paper_live_GO_gated": false,
+        "pre_event_tape_status": "proven_on_known_payload",
+        "production_operation_requires_real_research_traffic": true,
+        "proof_basis": "PR #584 hardened robustness/MC withheld/advisory behavior and PR #588 preserved those statuses in known-payload population proof.",
+        "remaining_condition": "Real robustness volume over real candidates is still required.",
+        "requires_real_GO_candidate": false,
+        "source_status": "proven_on_known_payload",
+        "status_bucket": "proven_on_known_payload",
+        "title": "Monte Carlo / robustness computation"
+      },
+      {
+        "authority_created_here": false,
+        "capability_id": 13,
+        "capability_name": "Anti-overfit review across full result populations",
+        "operating_readiness_acceptance_tested": false,
+        "paper_live_GO_gated": false,
+        "pre_event_tape_status": "proven_on_known_payload",
+        "production_operation_requires_real_research_traffic": true,
+        "proof_basis": "Full-denominator known-payload preservation prevents winner-only interpretation for fixture proof.",
+        "remaining_condition": "Real populations and real selection pressure remain required.",
+        "requires_real_GO_candidate": false,
+        "source_status": "proven_on_known_payload",
+        "status_bucket": "proven_on_known_payload",
+        "title": "Anti-overfit review across full result populations"
+      },
+      {
+        "authority_created_here": false,
+        "capability_id": 14,
+        "capability_name": "Dashboard coverage",
+        "operating_readiness_acceptance_tested": true,
+        "paper_live_GO_gated": false,
+        "pre_event_tape_status": "complete",
+        "production_operation_requires_real_research_traffic": true,
+        "proof_basis": "PR #595 generated dashboard state transitions over the 40-event / 10-job operating-test stream, with operating-test labels present and real-research labels absent.",
+        "remaining_condition": "Acceptance-tested for deterministic operating-test traffic; not real research dashboard operation.",
+        "requires_real_GO_candidate": false,
+        "source_status": "acceptance_tested_by_event_tape",
+        "status_bucket": "acceptance_tested_by_event_tape",
+        "title": "Dashboard coverage"
+      },
+      {
+        "authority_created_here": false,
+        "capability_id": 15,
+        "capability_name": "Daily operator brief",
+        "operating_readiness_acceptance_tested": true,
+        "paper_live_GO_gated": false,
+        "pre_event_tape_status": "complete_for_no_edge_phase",
+        "production_operation_requires_real_research_traffic": true,
+        "proof_basis": "PR #594 matched report actions and generated two deterministic daily windows from the event tape.",
+        "remaining_condition": "Real recurring production cadence requires real research traffic.",
+        "requires_real_GO_candidate": false,
+        "source_status": "acceptance_tested_by_event_tape",
+        "status_bucket": "acceptance_tested_by_event_tape",
+        "title": "Daily operator brief"
+      },
+      {
+        "authority_created_here": false,
+        "capability_id": 16,
+        "capability_name": "Weekly performance / research report",
+        "operating_readiness_acceptance_tested": true,
+        "paper_live_GO_gated": false,
+        "pre_event_tape_status": "complete_for_no_edge_phase",
+        "production_operation_requires_real_research_traffic": true,
+        "proof_basis": "PR #594 matched report actions and generated one deterministic weekly window from the event tape.",
+        "remaining_condition": "Real recurring production cadence requires real research traffic.",
+        "requires_real_GO_candidate": false,
+        "source_status": "acceptance_tested_by_event_tape",
+        "status_bucket": "acceptance_tested_by_event_tape",
+        "title": "Weekly performance / research report"
+      },
+      {
+        "authority_created_here": false,
+        "capability_id": 17,
+        "capability_name": "Notification system",
+        "operating_readiness_acceptance_tested": true,
+        "paper_live_GO_gated": false,
+        "pre_event_tape_status": "held_B_needs_real_research_traffic",
+        "production_operation_requires_real_research_traffic": true,
+        "proof_basis": "PR #594 matched notification actions and rendered dry-run notifications while real_notification_send_performed remained false.",
+        "remaining_condition": "Dry-run firing is acceptance-tested; real sending remains separately gated.",
+        "requires_real_GO_candidate": false,
+        "source_status": "acceptance_tested_by_event_tape",
+        "status_bucket": "acceptance_tested_by_event_tape",
+        "title": "Notification system"
+      },
+      {
+        "authority_created_here": false,
+        "capability_id": 18,
+        "capability_name": "Bounded research-agent loop",
+        "operating_readiness_acceptance_tested": true,
+        "paper_live_GO_gated": false,
+        "pre_event_tape_status": "proven_on_known_payload",
+        "production_operation_requires_real_research_traffic": true,
+        "proof_basis": "PR #595 matched agent actions over the 10-job / 40-event stream and preserved no rescue, retuning, ranking, readiness, or promotion recommendations.",
+        "remaining_condition": "Real autonomous research loop operation requires real research traffic and explicit authorization.",
+        "requires_real_GO_candidate": false,
+        "source_status": "acceptance_tested_by_event_tape",
+        "status_bucket": "acceptance_tested_by_event_tape",
+        "title": "Bounded research-agent loop"
+      },
+      {
+        "authority_created_here": false,
+        "capability_id": 19,
+        "capability_name": "Agent scheduling and prioritization over a research queue",
+        "operating_readiness_acceptance_tested": true,
+        "paper_live_GO_gated": false,
+        "pre_event_tape_status": "held_B_needs_real_research_traffic",
+        "production_operation_requires_real_research_traffic": true,
+        "proof_basis": "PR #593 matched queue and scheduler actions, preserved deterministic priority ordering, and kept autonomous scheduler activation false.",
+        "remaining_condition": "Production prioritization requires real research queue traffic.",
+        "requires_real_GO_candidate": false,
+        "source_status": "acceptance_tested_by_event_tape",
+        "status_bucket": "acceptance_tested_by_event_tape",
+        "title": "Agent scheduling and prioritization over a research queue"
+      },
+      {
+        "authority_created_here": false,
+        "capability_id": 20,
+        "capability_name": "Research queue / job orchestration / resource limits",
+        "operating_readiness_acceptance_tested": true,
+        "paper_live_GO_gated": false,
+        "pre_event_tape_status": "held_B_needs_real_research_traffic",
+        "production_operation_requires_real_research_traffic": true,
+        "proof_basis": "PR #593 matched queue/scheduler actions and resource-limit, blocked, delayed, and terminal behavior over deterministic operating-test traffic.",
+        "remaining_condition": "Production operation requires real research queue traffic.",
+        "requires_real_GO_candidate": false,
+        "source_status": "acceptance_tested_by_event_tape",
+        "status_bucket": "acceptance_tested_by_event_tape",
+        "title": "Research queue / job orchestration / resource limits"
+      },
+      {
+        "authority_created_here": false,
+        "capability_id": 21,
+        "capability_name": "Candidate lifecycle gate maturity for real candidates",
+        "operating_readiness_acceptance_tested": true,
+        "paper_live_GO_gated": false,
+        "pre_event_tape_status": "needs_real_GO_candidate",
+        "production_operation_requires_real_research_traffic": true,
+        "proof_basis": "PR #595 records candidate_admitted=false and PR #585/#586 proved non-promotable rejection; no real GO candidate exists.",
+        "remaining_condition": "Non-promotable rejection / no-admission behavior is acceptance-tested; real candidate admission still needs a real GO candidate and explicit authority.",
+        "requires_real_GO_candidate": true,
+        "source_status": "needs_real_GO_candidate",
+        "status_bucket": "needs_real_GO_candidate",
+        "title": "Candidate lifecycle gate maturity for real candidates"
+      },
+      {
+        "authority_created_here": false,
+        "capability_id": 22,
+        "capability_name": "First real candidate crossing",
+        "operating_readiness_acceptance_tested": false,
+        "paper_live_GO_gated": true,
+        "pre_event_tape_status": "needs_real_GO_candidate",
+        "production_operation_requires_real_research_traffic": true,
+        "proof_basis": "PR #585/#586 prove reject-by-construction and PR #595 records real_crossing_created=false.",
+        "remaining_condition": "Still needs a real GO candidate and explicit crossing package.",
+        "requires_real_GO_candidate": true,
+        "source_status": "needs_real_GO_candidate",
+        "status_bucket": "needs_real_GO_candidate",
+        "title": "First real candidate crossing"
+      },
+      {
+        "authority_created_here": false,
+        "capability_id": 23,
+        "capability_name": "Paper/live path",
+        "operating_readiness_acceptance_tested": false,
+        "paper_live_GO_gated": true,
+        "pre_event_tape_status": "GO_gated_protected",
+        "production_operation_requires_real_research_traffic": true,
+        "proof_basis": "All event-tape and replay artifacts deny paper/live authority; protected runtime paths remain untouched.",
+        "remaining_condition": "Paper/live/runtime remains GO-gated and protected.",
+        "requires_real_GO_candidate": true,
+        "source_status": "GO_gated_protected",
+        "status_bucket": "GO_gated_protected",
+        "title": "Paper/live path"
+      }
+    ],
+    "groups": {
+      "GO_gated_protected": 1,
+      "acceptance_tested_by_event_tape": 7,
+      "complete_before_event_tape": 2,
+      "held_until_real_research_traffic_for_production": 1,
+      "needs_real_GO_candidate": 2,
+      "not_applicable_to_no_edge_phase": 2,
+      "proven_on_known_payload": 8
+    }
+  },
+  "dependency_route": "stdlib Python only; no npm/pip/frontend dependency changes",
+  "factory_activity": {
+    "agent_dashboard_status": {
+      "agent_actions_matched": true,
+      "candidate_admitted": false,
+      "candidate_authority_created": false,
+      "canonical_crossing_authority_created": false,
+      "dashboard_actions_matched": true,
+      "dashboard_state_transitions_generated": true,
+      "edge_search_authorized_here": false,
+      "event_count": 40,
+      "input_tape_id": "LAB-EVENT-TAPE-REFERENCE-001",
+      "job_count": 10,
+      "mismatches": [],
+      "notify_report_replay_consumed": true,
+      "operating_test_labels_present": true,
+      "package": "WP-LAB-AGENTLOOP-DASHBOARD-REPLAY-01",
+      "paper_live_authority_created": false,
+      "promotion_recommended": false,
+      "queue_scheduler_replay_consumed": true,
+      "ranking_recommended": false,
+      "readiness_recommended": false,
+      "real_crossing_created": false,
+      "real_research_evidence_labels_present": false,
+      "reference_tape_validation_passed": true,
+      "replay_evidence_class": "operating_test_evidence",
+      "rescue_recommended": false,
+      "retuning_recommended": false,
+      "schema_version": "lab_event_tape.v1",
+      "status": "complete",
+      "strategy_run_performed": false
+    },
+    "daily_cadence": {
+      "window_count": 2,
+      "windows": [
+        {
+          "category_counts": {
+            "blocked": 2,
+            "failed": 2,
+            "insufficient": 1,
+            "invalid": 1,
+            "resource_limited": 2,
+            "review_needed": 2,
+            "withheld": 2
+          },
+          "event_count": 33,
+          "window_id": "DAILY-0001"
+        },
+        {
+          "category_counts": {},
+          "event_count": 3,
+          "window_id": "DAILY-0002"
+        }
+      ]
+    },
+    "event_count": 40,
+    "event_types_covered": [
+      "daily_window_tick",
+      "dashboard_snapshot_tick",
+      "job_blocked",
+      "job_completed",
+      "job_delayed",
+      "job_enqueued",
+      "job_failed",
+      "job_invalid",
+      "job_started",
+      "metrics_insufficient",
+      "metrics_withheld",
+      "notification_worthy",
+      "registry_checkpoint",
+      "resource_limited",
+      "review_needed",
+      "weekly_window_tick"
+    ],
+    "job_count": 10,
+    "job_lifecycle": [
+      {
+        "events": 5,
+        "evidence_class": null,
+        "first_event_time": "2026-01-05T09:00:00Z",
+        "job_id": "TAPE-JOB-0001",
+        "last_event_time": "2026-01-06T09:00:00Z",
+        "last_event_type": "daily_window_tick",
+        "outcome": "not_terminal",
+        "priority": "normal"
+      },
+      {
+        "events": 5,
+        "evidence_class": null,
+        "first_event_time": "2026-01-05T10:00:00Z",
+        "job_id": "TAPE-JOB-0002",
+        "last_event_time": "2026-01-06T09:15:00Z",
+        "last_event_type": "dashboard_snapshot_tick",
+        "outcome": "not_terminal",
+        "priority": "high"
+      },
+      {
+        "events": 3,
+        "evidence_class": null,
+        "first_event_time": "2026-01-05T11:00:00Z",
+        "job_id": "TAPE-JOB-0003",
+        "last_event_time": "2026-01-06T09:30:00Z",
+        "last_event_type": "registry_checkpoint",
+        "outcome": "not_terminal",
+        "priority": "low"
+      },
+      {
+        "events": 4,
+        "evidence_class": null,
+        "first_event_time": "2026-01-05T11:30:00Z",
+        "job_id": "TAPE-JOB-0004",
+        "last_event_time": "2026-01-07T09:00:00Z",
+        "last_event_type": "daily_window_tick",
+        "outcome": "not_terminal",
+        "priority": "urgent"
+      },
+      {
+        "events": 5,
+        "evidence_class": null,
+        "first_event_time": "2026-01-05T12:15:00Z",
+        "job_id": "TAPE-JOB-0005",
+        "last_event_time": "2026-01-12T09:00:00Z",
+        "last_event_type": "weekly_window_tick",
+        "outcome": "not_terminal",
+        "priority": "normal"
+      },
+      {
+        "events": 4,
+        "evidence_class": null,
+        "first_event_time": "2026-01-05T13:15:00Z",
+        "job_id": "TAPE-JOB-0006",
+        "last_event_time": "2026-01-12T09:15:00Z",
+        "last_event_type": "dashboard_snapshot_tick",
+        "outcome": "not_terminal",
+        "priority": "high"
+      },
+      {
+        "events": 4,
+        "evidence_class": null,
+        "first_event_time": "2026-01-05T14:00:00Z",
+        "job_id": "TAPE-JOB-0007",
+        "last_event_time": "2026-01-12T09:30:00Z",
+        "last_event_type": "registry_checkpoint",
+        "outcome": "not_terminal",
+        "priority": "urgent"
+      },
+      {
+        "events": 3,
+        "evidence_class": null,
+        "first_event_time": "2026-01-05T14:45:00Z",
+        "job_id": "TAPE-JOB-0008",
+        "last_event_time": "2026-01-12T09:45:00Z",
+        "last_event_type": "notification_worthy",
+        "outcome": "delayed",
+        "priority": "low"
+      },
+      {
+        "events": 4,
+        "evidence_class": null,
+        "first_event_time": "2026-01-05T15:15:00Z",
+        "job_id": "TAPE-JOB-0009",
+        "last_event_time": "2026-01-05T16:00:00Z",
+        "last_event_type": "notification_worthy",
+        "outcome": "review_needed",
+        "priority": "normal"
+      },
+      {
+        "events": 3,
+        "evidence_class": null,
+        "first_event_time": "2026-01-05T16:15:00Z",
+        "job_id": "TAPE-JOB-0010",
+        "last_event_time": "2026-01-05T16:45:00Z",
+        "last_event_type": "job_completed",
+        "outcome": "no_candidate",
+        "priority": "high"
+      }
+    ],
+    "job_outcomes_covered": [
+      "blocked",
+      "completed",
+      "delayed",
+      "failed",
+      "insufficient",
+      "invalid",
+      "no_candidate",
+      "not_terminal",
+      "resource_limited",
+      "review_needed",
+      "withheld"
+    ],
+    "queue_action_counts": {
+      "enqueue": 10,
+      "mark_blocked": 1,
+      "mark_delayed": 1,
+      "mark_insufficient": 1,
+      "mark_invalid": 1,
+      "mark_resource_limited": 1,
+      "mark_review_needed": 1,
+      "mark_running": 6,
+      "mark_terminal": 3,
+      "mark_withheld": 1,
+      "none": 14
+    },
+    "scheduler_action_counts": {
+      "eligible_for_dry_run_start": 6,
+      "hold_dependency_blocked": 1,
+      "hold_resource_limit": 1,
+      "mark_delayed": 1,
+      "mark_terminal": 14,
+      "no_autonomous_dispatch": 17
+    },
+    "weekly_cadence": {
+      "window_count": 1,
+      "windows": [
+        {
+          "category_counts": {
+            "blocked": 2,
+            "failed": 2,
+            "insufficient": 1,
+            "invalid": 1,
+            "resource_limited": 2,
+            "review_needed": 2,
+            "withheld": 2
+          },
+          "event_count": 40,
+          "window_id": "WEEKLY-0001"
+        }
+      ]
+    }
+  },
+  "lab_overview": {
+    "candidate_crossing_paper_live_authority_state": "none_created",
+    "current_completion_state": "operating-readiness acceptance tested; real research traffic not started",
+    "event_tape_operating_readiness_state": "available",
+    "known_payload_proof_state": "available from baseline/event-tape/Side 12 artifacts",
+    "lab_phase": "Phase 2 research lab / operating-readiness hold",
+    "latest_activity": [
+      {
+        "event_id": "EVT-0029",
+        "event_time": "2026-01-05T16:00:00Z",
+        "event_type": "notification_worthy",
+        "job_id": "TAPE-JOB-0009",
+        "job_outcome": "review_needed",
+        "priority": "normal"
+      },
+      {
+        "event_id": "EVT-0030",
+        "event_time": "2026-01-05T16:15:00Z",
+        "event_type": "job_enqueued",
+        "job_id": "TAPE-JOB-0010",
+        "job_outcome": "not_terminal",
+        "priority": "high"
+      },
+      {
+        "event_id": "EVT-0031",
+        "event_time": "2026-01-05T16:30:00Z",
+        "event_type": "job_started",
+        "job_id": "TAPE-JOB-0010",
+        "job_outcome": "not_terminal",
+        "priority": "high"
+      },
+      {
+        "event_id": "EVT-0032",
+        "event_time": "2026-01-05T16:45:00Z",
+        "event_type": "job_completed",
+        "job_id": "TAPE-JOB-0010",
+        "job_outcome": "no_candidate",
+        "priority": "high"
+      },
+      {
+        "event_id": "EVT-0033",
+        "event_time": "2026-01-06T09:00:00Z",
+        "event_type": "daily_window_tick",
+        "job_id": "TAPE-JOB-0001",
+        "job_outcome": "not_terminal",
+        "priority": "normal"
+      },
+      {
+        "event_id": "EVT-0034",
+        "event_time": "2026-01-06T09:15:00Z",
+        "event_type": "dashboard_snapshot_tick",
+        "job_id": "TAPE-JOB-0002",
+        "job_outcome": "not_terminal",
+        "priority": "high"
+      },
+      {
+        "event_id": "EVT-0035",
+        "event_time": "2026-01-06T09:30:00Z",
+        "event_type": "registry_checkpoint",
+        "job_id": "TAPE-JOB-0003",
+        "job_outcome": "not_terminal",
+        "priority": "low"
+      },
+      {
+        "event_id": "EVT-0036",
+        "event_time": "2026-01-07T09:00:00Z",
+        "event_type": "daily_window_tick",
+        "job_id": "TAPE-JOB-0004",
+        "job_outcome": "not_terminal",
+        "priority": "urgent"
+      },
+      {
+        "event_id": "EVT-0037",
+        "event_time": "2026-01-12T09:00:00Z",
+        "event_type": "weekly_window_tick",
+        "job_id": "TAPE-JOB-0005",
+        "job_outcome": "not_terminal",
+        "priority": "normal"
+      },
+      {
+        "event_id": "EVT-0038",
+        "event_time": "2026-01-12T09:15:00Z",
+        "event_type": "dashboard_snapshot_tick",
+        "job_id": "TAPE-JOB-0006",
+        "job_outcome": "not_terminal",
+        "priority": "high"
+      },
+      {
+        "event_id": "EVT-0039",
+        "event_time": "2026-01-12T09:30:00Z",
+        "event_type": "registry_checkpoint",
+        "job_id": "TAPE-JOB-0007",
+        "job_outcome": "not_terminal",
+        "priority": "urgent"
+      },
+      {
+        "event_id": "EVT-0040",
+        "event_time": "2026-01-12T09:45:00Z",
+        "event_type": "notification_worthy",
+        "job_id": "TAPE-JOB-0008",
+        "job_outcome": "delayed",
+        "priority": "low"
+      }
+    ],
+    "operator_attention_summary": [
+      "No candidate-ready subjects are present.",
+      "Real research traffic is not started.",
+      "Withheld/unavailable metrics are shown explicitly."
+    ],
+    "real_research_traffic_state": "not_started",
+    "status_counts": {
+      "NO-GO": 5,
+      "blocked": 31,
+      "candidate-ready": 0,
+      "completed": 2,
+      "failed": 2,
+      "insufficient": 1,
+      "invalid": 1,
+      "review-needed": 2,
+      "withheld": 2
+    }
+  },
+  "mc_robustness": {
+    "result_populations": [
+      {
+        "indicator": "withheld",
+        "mc_distribution": "withheld/unavailable",
+        "percentile_bands": "withheld/unavailable",
+        "result_population_id": "RP-2134"
+      },
+      {
+        "indicator": "withheld",
+        "mc_distribution": "withheld/unavailable",
+        "percentile_bands": "withheld/unavailable",
+        "result_population_id": "RP-2592"
+      },
+      {
+        "indicator": "withheld",
+        "mc_distribution": "withheld/unavailable",
+        "percentile_bands": "withheld/unavailable",
+        "result_population_id": "RP-3731"
+      },
+      {
+        "indicator": "withheld",
+        "mc_distribution": "withheld/unavailable",
+        "percentile_bands": "withheld/unavailable",
+        "result_population_id": "RP-4492"
+      },
+      {
+        "indicator": "withheld",
+        "mc_distribution": "withheld/unavailable",
+        "percentile_bands": "withheld/unavailable",
+        "result_population_id": "RP-6236"
+      },
+      {
+        "indicator": "withheld",
+        "mc_distribution": "withheld/unavailable",
+        "percentile_bands": "withheld/unavailable",
+        "result_population_id": "RP-6688"
+      },
+      {
+        "indicator": "withheld",
+        "mc_distribution": "withheld/unavailable",
+        "percentile_bands": "withheld/unavailable",
+        "result_population_id": "RP-7134"
+      },
+      {
+        "indicator": "withheld",
+        "mc_distribution": "withheld/unavailable",
+        "percentile_bands": "withheld/unavailable",
+        "result_population_id": "RP-7520"
+      }
+    ],
+    "state": "withheld/unavailable where required statistical inputs are absent",
+    "withheld_indicators": [
+      "DSR",
+      "MinTRL",
+      "PSR"
+    ]
+  },
+  "missing_metric_policy": {
+    "missing_drawdown_curve": "rendered_unavailable_not_present",
+    "missing_equity_curve": "rendered_unavailable_not_present",
+    "missing_mc_robustness_data": "rendered_withheld_unavailable",
+    "missing_returns_distribution": "rendered_unavailable_not_present",
+    "no_fabricated_metrics": true,
+    "placeholder_fake_performance_numbers": false,
+    "result_population_checks": [
+      {
+        "drawdown_curve": "unavailable/not present",
+        "equity_curve": "unavailable/not present",
+        "mc_robustness_distribution": "withheld/unavailable",
+        "result_population_id": "RP-2134",
+        "returns_distribution": "unavailable/not present"
+      },
+      {
+        "drawdown_curve": "unavailable/not present",
+        "equity_curve": "unavailable/not present",
+        "mc_robustness_distribution": "withheld/unavailable",
+        "result_population_id": "RP-2592",
+        "returns_distribution": "unavailable/not present"
+      },
+      {
+        "drawdown_curve": "unavailable/not present",
+        "equity_curve": "unavailable/not present",
+        "mc_robustness_distribution": "withheld/unavailable",
+        "result_population_id": "RP-3731",
+        "returns_distribution": "unavailable/not present"
+      },
+      {
+        "drawdown_curve": "unavailable/not present",
+        "equity_curve": "unavailable/not present",
+        "mc_robustness_distribution": "withheld/unavailable",
+        "result_population_id": "RP-4492",
+        "returns_distribution": "unavailable/not present"
+      },
+      {
+        "drawdown_curve": "unavailable/not present",
+        "equity_curve": "unavailable/not present",
+        "mc_robustness_distribution": "withheld/unavailable",
+        "result_population_id": "RP-6236",
+        "returns_distribution": "unavailable/not present"
+      },
+      {
+        "drawdown_curve": "unavailable/not present",
+        "equity_curve": "unavailable/not present",
+        "mc_robustness_distribution": "withheld/unavailable",
+        "result_population_id": "RP-6688",
+        "returns_distribution": "unavailable/not present"
+      },
+      {
+        "drawdown_curve": "unavailable/not present",
+        "equity_curve": "unavailable/not present",
+        "mc_robustness_distribution": "withheld/unavailable",
+        "result_population_id": "RP-7134",
+        "returns_distribution": "unavailable/not present"
+      },
+      {
+        "drawdown_curve": "unavailable/not present",
+        "equity_curve": "unavailable/not present",
+        "mc_robustness_distribution": "withheld/unavailable",
+        "result_population_id": "RP-7520",
+        "returns_distribution": "unavailable/not present"
+      }
+    ],
+    "withheld_metrics": "rendered_withheld"
+  },
+  "operator_reports": {
+    "attention_items": [
+      "Real research traffic remains not started.",
+      "Candidate-ready count is 0.",
+      "Performance curves and MC distributions remain unavailable/withheld unless future artifacts provide them."
+    ],
+    "daily_brief_artifacts": [
+      "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/daily_report_replay.md",
+      "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/daily_report_replay.json"
+    ],
+    "latest_changes": [
+      {
+        "event_id": "EVT-0036",
+        "event_time": "2026-01-07T09:00:00Z",
+        "event_type": "daily_window_tick",
+        "job_id": "TAPE-JOB-0004",
+        "job_outcome": "not_terminal",
+        "priority": "urgent"
+      },
+      {
+        "event_id": "EVT-0037",
+        "event_time": "2026-01-12T09:00:00Z",
+        "event_type": "weekly_window_tick",
+        "job_id": "TAPE-JOB-0005",
+        "job_outcome": "not_terminal",
+        "priority": "normal"
+      },
+      {
+        "event_id": "EVT-0038",
+        "event_time": "2026-01-12T09:15:00Z",
+        "event_type": "dashboard_snapshot_tick",
+        "job_id": "TAPE-JOB-0006",
+        "job_outcome": "not_terminal",
+        "priority": "high"
+      },
+      {
+        "event_id": "EVT-0039",
+        "event_time": "2026-01-12T09:30:00Z",
+        "event_type": "registry_checkpoint",
+        "job_id": "TAPE-JOB-0007",
+        "job_outcome": "not_terminal",
+        "priority": "urgent"
+      },
+      {
+        "event_id": "EVT-0040",
+        "event_time": "2026-01-12T09:45:00Z",
+        "event_type": "notification_worthy",
+        "job_id": "TAPE-JOB-0008",
+        "job_outcome": "delayed",
+        "priority": "low"
+      }
+    ],
+    "weekly_report_artifacts": [
+      "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/weekly_report_replay.md",
+      "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/weekly_report_replay.json"
+    ]
+  },
+  "package": "WP-LAB-VISUAL-COCKPIT-STATIC-01",
+  "pr_596_merge_commit_observed": "257abf5d19ee7ac99044cc4fea0dcfe62d8502c8",
+  "rendering_route": "dependency-free static HTML/CSS with inline SVG/CSS charts; no script, no forms, no network",
+  "schema_version": "lab_visual_cockpit_static_v1",
+  "strategy_job_explorer": [
+    {
+      "artifact_links": [
+        {
+          "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/blocked_bridge_reason.json",
+          "present": true,
+          "role": "legacy_research_evidence"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/blocked_candidate_review_reason.json",
+          "present": true,
+          "role": "generic_review_contract"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/blocked_robustness_reason.json",
+          "present": true,
+          "role": "legacy_research_evidence"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/blocked_sweep_plan_reason.json",
+          "present": true,
+          "role": "legacy_research_evidence"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/blocked_variant_manifest_reason.json",
+          "present": true,
+          "role": "legacy_research_evidence"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/denominator_audit.json",
+          "present": true,
+          "role": "conclusion_traceability"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/formalizer_output_reference.json",
+          "present": true,
+          "role": "legacy_research_evidence"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/missing_diagnostics.json",
+          "present": true,
+          "role": "legacy_research_evidence"
+        }
+      ],
+      "denominator_status": "preserved",
+      "gate_status": "not_started",
+      "label": "edge_sma_family_blocked",
+      "overall_state": "blocked",
+      "strategy_spec_available": true,
+      "subject_id": "WP-RESEARCH-EDGE-SMA-FAMILY-01",
+      "sweep_plan_available": true,
+      "variant_manifest_available": true
+    },
+    {
+      "artifact_links": [
+        {
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/blocked_bridge_reason.json",
+          "present": true,
+          "role": "legacy_research_evidence"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/blocked_formalizer_reason.json",
+          "present": true,
+          "role": "legacy_research_evidence"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/blocked_robustness_reason.json",
+          "present": true,
+          "role": "legacy_research_evidence"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/blocked_rp_replay_harness_reason.json",
+          "present": true,
+          "role": "legacy_research_evidence"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/blocked_runner_reason.json",
+          "present": true,
+          "role": "legacy_research_evidence"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/denominator_manifest.json",
+          "present": true,
+          "role": "conclusion_traceability"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/funding_family_adapter_contract.json",
+          "present": true,
+          "role": "legacy_research_evidence"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/funding_pnl_boundary_note.json",
+          "present": true,
+          "role": "legacy_research_evidence"
+        }
+      ],
+      "denominator_status": "preserved",
+      "gate_status": "not_started",
+      "label": "funding_carry_initial_blocked_no_go",
+      "overall_state": "no_go",
+      "strategy_spec_available": false,
+      "subject_id": "WP-RESEARCH-FUNDING-CARRY-01",
+      "sweep_plan_available": true,
+      "variant_manifest_available": false
+    },
+    {
+      "artifact_links": [
+        {
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02-FOLLOWUP-01/local_data_staging_report.json",
+          "present": true,
+          "role": "legacy_research_evidence"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02-FOLLOWUP-01/repo_truth_data_contract.md",
+          "present": true,
+          "role": "legacy_research_evidence"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02-FOLLOWUP-01/retry_decision.md",
+          "present": true,
+          "role": "legacy_research_evidence"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/bridge_output.json",
+          "present": true,
+          "role": "legacy_research_evidence"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/denominator_manifest.json",
+          "present": true,
+          "role": "conclusion_traceability"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/formalizer_output.json",
+          "present": true,
+          "role": "legacy_research_evidence"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/funding_family_adapter_contract.json",
+          "present": true,
+          "role": "legacy_research_evidence"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/funding_pnl_boundary_note.json",
+          "present": true,
+          "role": "legacy_research_evidence"
+        }
+      ],
+      "denominator_status": "preserved",
+      "gate_status": "not_started",
+      "label": "funding_carry_retry_no_go",
+      "overall_state": "no_go",
+      "strategy_spec_available": true,
+      "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+      "sweep_plan_available": true,
+      "variant_manifest_available": true
+    },
+    {
+      "artifact_links": [
+        {
+          "path": "docs/research/FUNDING_POSITIONING_FADE_SYNTHESIS_2026-06.md",
+          "present": true,
+          "role": "reporting_doc"
+        },
+        {
+          "path": "docs/status_entries/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01.md",
+          "present": true,
+          "role": "formalization_status_entry"
+        },
+        {
+          "path": "docs/status_entries/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01.md",
+          "present": true,
+          "role": "riskmanaged_conclusion_evidence"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01/conclusion_summary.json",
+          "present": true,
+          "role": "riskmanaged_conclusion_evidence"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01/conclusion_summary.md",
+          "present": true,
+          "role": "riskmanaged_conclusion_evidence"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01/conclusion_traceability.json",
+          "present": true,
+          "role": "conclusion_traceability"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01/no_candidate_review_packet_reason.json",
+          "present": true,
+          "role": "generic_review_contract"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01/no_retuning_attestation.md",
+          "present": true,
+          "role": "riskmanaged_conclusion_evidence"
+        }
+      ],
+      "denominator_status": "preserved",
+      "gate_status": "not_started",
+      "label": "funding_fade_riskmanaged_stage1_no_go",
+      "overall_state": "no_go",
+      "strategy_spec_available": false,
+      "subject_id": "H-FUNDING-FADE-RISKMANAGED-01",
+      "sweep_plan_available": false,
+      "variant_manifest_available": false
+    },
+    {
+      "artifact_links": [
+        {
+          "path": "docs/research/FUNDING_POSITIONING_FADE_SYNTHESIS_2026-06.md",
+          "present": true,
+          "role": "reporting_doc"
+        },
+        {
+          "path": "docs/status_entries/WP-LAB-IDEA-INTAKE-FORMALIZATION-01.md",
+          "present": true,
+          "role": "formalization_status_entry"
+        },
+        {
+          "path": "scratch/WP-LAB-GENERIC-ROBUSTNESS-REVIEW-REACH-01/generic_review_contract.json",
+          "present": true,
+          "role": "generic_review_contract"
+        },
+        {
+          "path": "scratch/WP-LAB-RP-REPLAY-NORMALIZATION-CONTRACT-01/replay_fixture_summary.json",
+          "present": true,
+          "role": "replay_fixture_summary"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-FUNDING-FADE-CONCLUDE-01/conclusion_traceability.json",
+          "present": true,
+          "role": "conclusion_traceability"
+        }
+      ],
+      "denominator_status": "preserved",
+      "gate_status": "oos_gate_blocked",
+      "label": "funding_rate_positioning_fade",
+      "overall_state": "no_go",
+      "strategy_spec_available": false,
+      "subject_id": "H-FUNDING-RATE-POSITIONING-FADE-01",
+      "sweep_plan_available": false,
+      "variant_manifest_available": false
+    },
+    {
+      "artifact_links": [
+        {
+          "path": "research/candidate_registry.jsonl",
+          "present": true,
+          "role": "canonical_evidence_reference"
+        },
+        {
+          "path": "research/result_populations/RP-2134.result_population.json",
+          "present": true,
+          "role": "canonical_evidence_reference"
+        },
+        {
+          "path": "research/result_populations/RP-2592.result_population.json",
+          "present": true,
+          "role": "canonical_evidence_reference"
+        },
+        {
+          "path": "research/result_populations/RP-3731.result_population.json",
+          "present": true,
+          "role": "canonical_evidence_reference"
+        },
+        {
+          "path": "research/result_populations/RP-4492.result_population.json",
+          "present": true,
+          "role": "canonical_evidence_reference"
+        },
+        {
+          "path": "research/result_populations/RP-6236.result_population.json",
+          "present": true,
+          "role": "canonical_evidence_reference"
+        },
+        {
+          "path": "research/result_populations/RP-6688.result_population.json",
+          "present": true,
+          "role": "canonical_evidence_reference"
+        },
+        {
+          "path": "research/result_populations/RP-7134.result_population.json",
+          "present": true,
+          "role": "canonical_evidence_reference"
+        }
+      ],
+      "denominator_status": "unavailable",
+      "gate_status": "not_started",
+      "label": "candidate_registry_and_result_populations",
+      "overall_state": "experiment_complete",
+      "strategy_spec_available": false,
+      "subject_id": "HISTORICAL-CANONICAL-EVIDENCE",
+      "sweep_plan_available": false,
+      "variant_manifest_available": false
+    },
+    {
+      "artifact_links": [
+        {
+          "path": "docs/research/WALKFORWARD_OOS_GATE_CONTRACT.md",
+          "present": true,
+          "role": "reporting_doc"
+        },
+        {
+          "path": "docs/status_entries/WP-LAB-WALKFORWARD-OOS-GATE-01.md",
+          "present": true,
+          "role": "formalization_status_entry"
+        },
+        {
+          "path": "scratch/WP-LAB-GENERIC-ROBUSTNESS-REVIEW-REACH-01/generic_review_contract.json",
+          "present": true,
+          "role": "generic_review_contract"
+        },
+        {
+          "path": "scratch/WP-LAB-RP-REPLAY-NORMALIZATION-CONTRACT-01/replay_fixture_summary.json",
+          "present": true,
+          "role": "replay_fixture_summary"
+        },
+        {
+          "path": "scratch/WP-LAB-WALKFORWARD-OOS-GATE-01/fixture_gate_summary.json",
+          "present": true,
+          "role": "oos_gate_summary"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-FUNDING-FADE-CONCLUDE-01/conclusion_traceability.json",
+          "present": true,
+          "role": "conclusion_traceability"
+        }
+      ],
+      "denominator_status": "preserved",
+      "gate_status": "oos_gate_fail",
+      "label": "walkforward_oos_gate_fixture",
+      "overall_state": "oos_gate_fail",
+      "strategy_spec_available": false,
+      "subject_id": "OOS-GATE-FIXTURE-RP-2592",
+      "sweep_plan_available": false,
+      "variant_manifest_available": false
+    },
+    {
+      "artifact_links": [
+        {
+          "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/blocked_bridge_reason.json",
+          "present": true,
+          "role": "legacy_research_evidence"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/blocked_candidate_review_reason.json",
+          "present": true,
+          "role": "generic_review_contract"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/blocked_robustness_reason.json",
+          "present": true,
+          "role": "legacy_research_evidence"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/denominator_audit.json",
+          "present": true,
+          "role": "conclusion_traceability"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/formalizer_output_reference.json",
+          "present": true,
+          "role": "legacy_research_evidence"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/missing_diagnostics.json",
+          "present": true,
+          "role": "legacy_research_evidence"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/orb_exit_respec_idea.json",
+          "present": true,
+          "role": "formalization_status_entry"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/orb_exit_respec_result_packet.json",
+          "present": true,
+          "role": "legacy_research_evidence"
+        }
+      ],
+      "denominator_status": "unavailable",
+      "gate_status": "not_started",
+      "label": "orb_exit_respec_blocked",
+      "overall_state": "blocked",
+      "strategy_spec_available": false,
+      "subject_id": "WP-RESEARCH-ORB-EXIT-RESPEC-01",
+      "sweep_plan_available": false,
+      "variant_manifest_available": false
+    },
+    {
+      "artifact_links": [
+        {
+          "path": "docs/research/PRICEONLY_SYNTHESIS_2026-06.md",
+          "present": true,
+          "role": "reporting_doc"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-PRICEONLY-SYNTHESIS-01/evidence_index.json",
+          "present": true,
+          "role": "legacy_research_evidence"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-PRICEONLY-SYNTHESIS-01/lab_gap_checklist.json",
+          "present": true,
+          "role": "legacy_research_evidence"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-PRICEONLY-SYNTHESIS-01/main_report_back_guardrail.txt",
+          "present": true,
+          "role": "legacy_research_evidence"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-PRICEONLY-SYNTHESIS-01/open_decision_surfaces.txt",
+          "present": true,
+          "role": "legacy_research_evidence"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-PRICEONLY-SYNTHESIS-01/priceonly_synthesis_source_audit.json",
+          "present": true,
+          "role": "legacy_research_evidence"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-PRICEONLY-SYNTHESIS-01/repo_truth_discovery.md",
+          "present": true,
+          "role": "legacy_research_evidence"
+        },
+        {
+          "path": "scratch/WP-RESEARCH-PRICEONLY-SYNTHESIS-01/validation_summary.txt",
+          "present": true,
+          "role": "legacy_research_evidence"
+        }
+      ],
+      "denominator_status": "unavailable",
+      "gate_status": "not_started",
+      "label": "priceonly_synthesis_reported",
+      "overall_state": "reported",
+      "strategy_spec_available": false,
+      "subject_id": "WP-RESEARCH-PRICEONLY-SYNTHESIS-01",
+      "sweep_plan_available": false,
+      "variant_manifest_available": false
+    }
+  ],
+  "surface_kind": "read_only_static_visual_cockpit"
+}

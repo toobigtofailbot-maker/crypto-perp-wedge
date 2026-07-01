@@ -1,0 +1,67 @@
+{
+  "artifact_sources": {
+    "agent_dashboard_replay": {
+      "path": "scratch/WP-LAB-AGENTLOOP-DASHBOARD-REPLAY-01/agent_dashboard_replay_result.json",
+      "present": true,
+      "sha256": "sha256:3948ccd8a714a8e502a7071dd5e7a04739ae924564e279eab388ff051e12fe3e"
+    },
+    "daily_report_replay": {
+      "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/daily_report_replay.json",
+      "present": true,
+      "sha256": "sha256:3998f95fa34f7c3f1de7518b2fa8d12e7f523bbd715c1cb424bea0a2099eb303"
+    },
+    "event_tape": {
+      "path": "scratch/WP-LAB-EVENT-TAPE-CONTRACT-01/reference_event_tape.json",
+      "present": true,
+      "sha256": "sha256:451e21216dc82e54e5b673dbe94dc0c2e06e32c6f54bc00114938ce114f28ecd"
+    },
+    "event_tape_contract": {
+      "path": "docs/research/LAB_EVENT_TAPE_CONTRACT.md",
+      "present": true,
+      "sha256": "sha256:d07b729d9e569995f3d2fb99955ce53f0051335357a9921562fa6e1ace0bdab3"
+    },
+    "event_tape_summary": {
+      "path": "scratch/WP-LAB-EVENT-TAPE-CONTRACT-01/reference_tape_summary.json",
+      "present": true,
+      "sha256": "sha256:a56dfc7924606326b57dadd7ed062e09d23c1ae3e504190766ef34c3e197a02b"
+    },
+    "factory_denominator": {
+      "path": "scratch/WP-LAB-FACTORYTEST-SYNTHETIC-POPULATION-01/denominator_accounting.json",
+      "present": true,
+      "sha256": "sha256:40ff4e1ef1ac92515a71efab48b2155b6d72b26d6962441f856990d4bf8f1413"
+    },
+    "lab_completion_map": {
+      "path": "docs/research/LAB_COMPLETION_MAP.md",
+      "present": true,
+      "sha256": "sha256:f8ab4b686e6f83a0ddc25424d2951efab08f7fb1b5c0d18c5be5d3479e9a9bcb"
+    },
+    "queue_replay": {
+      "path": "scratch/WP-LAB-QUEUE-SCHEDULER-REPLAY-01/queue_scheduler_replay_result.json",
+      "present": true,
+      "sha256": "sha256:b1c25160af7a34fde72779fd92f24c6d310137109cf1019b0cbb4417fef276ec"
+    },
+    "side12_capability_map": {
+      "path": "scratch/WP-LAB-SIDE12-OPERATING-READINESS-AUDIT-01/side12_operating_readiness_map.json",
+      "present": true,
+      "sha256": "sha256:40b82951b1ee1d43380ea06a67ee445c4de7411377d0529a67eda67405f4adcd"
+    },
+    "side12_readiness": {
+      "path": "scratch/WP-LAB-SIDE12-OPERATING-READINESS-AUDIT-01/final_operating_readiness_state.json",
+      "present": true,
+      "sha256": "sha256:18765605c5c5e50a893b1fa258de32c148a8a66112ef555693eec4dc704e4391"
+    },
+    "weekly_report_replay": {
+      "path": "scratch/WP-LAB-NOTIFY-REPORT-REPLAY-01/weekly_report_replay.json",
+      "present": true,
+      "sha256": "sha256:3a2be087180341c45aeada0e8d07d9af9203e6e9fcb5320109a61167007130a4"
+    }
+  },
+  "base_commit": "b2e8e66261e08b98de11fad6a5738fc49dfe3728",
+  "dependency_route": "stdlib Python only; no npm/pip/frontend dependency changes",
+  "event_count": 40,
+  "job_count": 10,
+  "package": "WP-LAB-VISUAL-COCKPIT-STATIC-01",
+  "read_only_non_authoritative": true,
+  "rendering_route": "dependency-free static HTML/CSS with inline SVG/CSS charts; no script, no forms, no network",
+  "result_population_count": 8
+}

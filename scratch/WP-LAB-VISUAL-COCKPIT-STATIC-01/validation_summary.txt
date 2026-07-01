@@ -1,0 +1,23 @@
+Validation summary for WP-LAB-VISUAL-COCKPIT-STATIC-01-FOLLOWUP-CAPABILITY-MAP-01
+
+PASS - python -m tools.lab_visual_cockpit.run --out-dir build\lab_visual_cockpit
+PASS - capability_completion.cards length == 23
+PASS - capability IDs == 1..23
+PASS - metadata keys rendered as cards == none
+PASS - capability groups match Side 12 status_counts
+PASS - python -m json.tool build\lab_visual_cockpit\cockpit_data.json
+PASS - python -m json.tool scratch\WP-LAB-VISUAL-COCKPIT-STATIC-01\cockpit_data_manifest.json
+PASS - python -m json.tool scratch\WP-LAB-VISUAL-COCKPIT-STATIC-01\cockpit_panel_inventory.json
+PASS - python -m json.tool scratch\WP-LAB-VISUAL-COCKPIT-STATIC-01\read_only_control_scan.json
+PASS - python -m json.tool scratch\WP-LAB-VISUAL-COCKPIT-STATIC-01\missing_metric_policy_audit.json
+PASS - python -m pytest tests\test_lab_visual_cockpit_static.py -q (4 passed)
+PASS - python -m tools.research_query.run --list-views
+PASS - python -m tools.registry.validate_result_populations
+PASS - python -m tools.registry.validate_candidate_registry
+PASS - python tools/dev/diff_scope_summary.py
+PASS - git diff --check
+
+Full pytest not run: this follow-up changes only the visual cockpit package,
+package-local scratch evidence, the package status entry, and focused cockpit
+tests; no shared runtime, runner, query-layer, registry, schema, validator, or
+protected path behavior changed.

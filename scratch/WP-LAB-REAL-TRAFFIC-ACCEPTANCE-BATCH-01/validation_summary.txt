@@ -1,0 +1,23 @@
+WP-LAB-REAL-TRAFFIC-ACCEPTANCE-BATCH-01 validation summary
+
+Decision: blocked_pending_karl_signoff
+Execution route: stopped before research execution because no Karl-signed frozen hypothesis set exists.
+
+Commands run:
+
+PASS - .\.venv\Scripts\python.exe -m json.tool scratch\WP-LAB-REAL-TRAFFIC-ACCEPTANCE-BATCH-01\frozen_hypothesis_set_proposal.json
+PASS - .\.venv\Scripts\python.exe -m json.tool scratch\WP-LAB-REAL-TRAFFIC-ACCEPTANCE-BATCH-01\blocked_pending_karl_signoff.json
+PASS - .\.venv\Scripts\python.exe -m json.tool scratch\WP-LAB-REAL-TRAFFIC-ACCEPTANCE-BATCH-01\non_authority_assertions.json
+PASS - .\.venv\Scripts\python.exe -m tools.research_query.run --list-views
+PASS - .\.venv\Scripts\python.exe -m tools.registry.validate_result_populations
+PASS - .\.venv\Scripts\python.exe -m tools.registry.validate_candidate_registry
+PASS - .\.venv\Scripts\python.exe tools\dev\diff_scope_summary.py
+PASS - git diff --check
+
+Focused tests: not run; no code, schema, validator, runner/compiler, query-layer, dashboard/reporting/lab-state shared code, result-population, candidate lifecycle, data, runtime, or protected behavior changed.
+Full pytest: not run for the same reason.
+
+Notes:
+- The package produced blocked/sign-off artifacts only.
+- Pre-existing untracked build artifacts under build/ were observed and left untouched.
+- No research execution, Strategy Spec, Variant Manifest, Sweep Plan, Result Population, candidate registry write, crossing, promotion/readiness, paper/live/runtime contact, dependency change, or protected-path touch occurred.

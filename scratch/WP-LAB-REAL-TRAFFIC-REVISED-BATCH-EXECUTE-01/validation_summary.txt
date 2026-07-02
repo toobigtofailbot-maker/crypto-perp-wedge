@@ -11,8 +11,6 @@ Planned validation:
 - git diff --check.
 - git status --short.
 
-Results will be appended after command execution.
-
 Actual results:
 - `python -m json.tool scratch\WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01\blocked_reason.json`: PASS
 - `python -m json.tool scratch\WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01\non_authority_assertions.json`: PASS

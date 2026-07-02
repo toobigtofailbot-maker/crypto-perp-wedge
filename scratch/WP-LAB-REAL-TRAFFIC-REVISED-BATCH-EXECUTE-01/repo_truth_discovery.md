@@ -4,37 +4,30 @@ Package: `WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01`
 
 Base branch: `origin/main`
 
-Base commit: `2cea22d66ab4dffcb1ee43fcdb72ac3ae5341b6e`
+Base commit: `71687c1c519700867831d8e964f92f18b12dc2a7`
 
 ## Facts
 
-- `origin/main` includes merge commit `2cea22d66ab4dffcb1ee43fcdb72ac3ae5341b6e`, titled as the merge of `lab/real-traffic-revised-signoff-freeze-01`.
+- `origin/main` includes the merged revised signoff/freeze package.
 - The signed revised frozen set source exists at `scratch/WP-LAB-REAL-TRAFFIC-REVISED-SIGNOFF-FREEZE-01/revised_frozen_hypothesis_set.json`.
 - The Karl signoff record exists at `scratch/WP-LAB-REAL-TRAFFIC-REVISED-SIGNOFF-FREEZE-01/karl_signoff_record.json`.
 - The freeze-fidelity audit exists at `scratch/WP-LAB-REAL-TRAFFIC-REVISED-SIGNOFF-FREEZE-01/freeze_fidelity_audit.json` and records `audit_result: pass`.
-- The frozen set contains exactly:
-  - `LAB-RT-HYP-001`
-  - `LAB-RT-HYP-002R`
-  - `LAB-RT-HYP-003R`
-  - `LAB-RT-HYP-004R`
+- The frozen set contains exactly `LAB-RT-HYP-001`, `LAB-RT-HYP-002R`, `LAB-RT-HYP-003R`, and `LAB-RT-HYP-004R`.
 - Main authorization is recorded in the frozen-set source as `authorized_as_is`.
 - Karl authorization is recorded as `I authorize everything.`
 - The frozen-set source preserves the package-level non-promotion posture and stop-and-surface rule for GO-like evidence.
-- The required caution contexts are present:
-  - `LAB-RT-HYP-003R` must carry `pass_with_caution` context and be interpreted against `RP-7134 / STRAT-SPEC-0003`.
-  - `LAB-RT-HYP-004R` must carry `pass_with_caution` context and be interpreted against `RP-2592 / RP-3731 / RP-6236`.
-- The required `LAB-RT-HYP-004R` load-bearing condition is present: `session_hours_utc` must remain an explicit denominator axis or equivalent load-bearing gate, `weekend_allowed=false` must remain fixed, and a cosmetic session wrapper is forbidden.
-- The current compiler surface includes closed support for EMA, ATR, RSI, RVOL, rolling VWAP, Donchian, candle-shape primitives, UTC timestamp-derived data refs, session-window primitive refs, ATR stops, and `min_bars_between_entries`.
-- The current compiler surface does not expose a closed arithmetic/composition route for the exact frozen `range_atr_min` or `body_atr_min` mechanics. The available composed operands are limited to parameter scaling, z-score, and rolling empirical percentile forms, and candle-shape primitives express body/wick ratios against candle range, not candle range or body normalized by ATR.
-- Exact execution of `LAB-RT-HYP-002R` requires the frozen `range_atr_min` denominator axis.
-- Exact execution of `LAB-RT-HYP-004R` requires the frozen `body_atr_min` denominator axis and load-bearing session filter.
+- `LAB-RT-HYP-003R` must carry `pass_with_caution` context and be interpreted against `RP-7134 / STRAT-SPEC-0003`.
+- `LAB-RT-HYP-004R` must carry `pass_with_caution` context and be interpreted against `RP-2592 / RP-3731 / RP-6236`.
+- `LAB-RT-HYP-004R` requires `session_hours_utc` to remain an explicit denominator axis or equivalent load-bearing gate, `weekend_allowed=false` to remain fixed, and a cosmetic session wrapper is forbidden.
+- Current schema/compiler truth includes `atr_normalized_candle_ratio_v1` with `candle_range_atr_ratio` and `candle_body_atr_ratio`.
+- A read-only Python probe with the repo virtualenv found:
+  - validator composition types: `rolling_empirical_percentile_v1`, `scale_by_one_minus_parameter`, `scale_by_one_plus_parameter`, `z_score`
+  - compiler composition types: `atr_normalized_candle_ratio_v1`, `rolling_empirical_percentile_v1`, `scale_by_one_minus_parameter`, `scale_by_one_plus_parameter`, `z_score`
+- The offline runner validates parent Strategy Specs with `validate_strategy_specs()` before running.
 
 ## Inference
 
-The batch cannot execute the signed frozen four-hypothesis set through existing supported repo surfaces without either:
-
-- changing schema/compiler/runner behavior to add the missing closed ATR-normalized range/body primitive or arithmetic composition, which is forbidden by this package; or
-- weakening/retuning the frozen mechanics by substituting another available predicate, which would violate freeze fidelity.
+`LAB-RT-HYP-002R` and `LAB-RT-HYP-004R` can now be mapped to a compiler concept, but they cannot pass the current Strategy Spec validator/runner preflight using that exact concept. Executing them would require a validator/schema/runner-surface alignment change, or a weakened substitute for the frozen ATR-normalized axes.
 
 ## Decision
 
@@ -42,4 +35,4 @@ Block before execution. Preserve the full four-hypothesis denominator as blocked
 
 ## Open Question
 
-Whether a later explicitly authorized package should add a closed ATR-normalized candle range/body primitive or composition route before retrying this frozen set.
+Whether a later explicitly authorized package should align the Strategy Spec validator with the already-merged ATR-normalized candle schema/compiler surface before retrying this frozen set.

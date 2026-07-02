@@ -12,12 +12,12 @@ Main verification and Karl signoff are present. The freeze-fidelity audit record
 
 ## Blocking Fact
 
-The current closed compiler/runner surfaces cannot express every frozen mechanic exactly:
+Current `origin/main` includes schema/compiler support for `atr_normalized_candle_ratio_v1`, which maps the previously missing frozen axes:
 
-- `LAB-RT-HYP-002R` requires `range_atr_min`: candle high-low range normalized by ATR as a denominator axis.
-- `LAB-RT-HYP-004R` requires `body_atr_min`: candle body normalized by ATR as a denominator axis, while preserving load-bearing `session_hours_utc`.
+- `LAB-RT-HYP-002R` `range_atr_min` -> `candle_range_atr_ratio >= threshold`
+- `LAB-RT-HYP-004R` `body_atr_min` -> `candle_body_atr_ratio >= threshold`
 
-The repo supports EMA, ATR, RSI, RVOL, rolling VWAP, timestamp-derived fields, session refs, candle-shape body/wick ratios, and ATR stops. It does not expose a closed high-low-range / ATR or candle-body / ATR operand or primitive. Using body/range candle-shape predicates instead would change the frozen mechanics.
+The Strategy Spec validator has not yet been aligned with that composition type. Its closed `COMPOSITION_TYPES` set omits `atr_normalized_candle_ratio_v1`, while the compiler includes it. The offline runner validates parent Strategy Specs before execution, so an exact formalization would fail runner preflight without a validator/schema/runner change.
 
 ## Decision
 
@@ -29,4 +29,4 @@ No schema, compiler, runner, result-population, candidate lifecycle, crossing, p
 
 ## Future Option
 
-A later explicitly authorized package could add a closed ATR-normalized candle range/body primitive or equivalent closed composition route, then retry the frozen batch without retuning.
+A later explicitly authorized package could align the Strategy Spec validator with the existing ATR-normalized candle schema/compiler route, then retry the frozen batch without retuning.

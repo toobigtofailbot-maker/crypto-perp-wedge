@@ -1,0 +1,384 @@
+{
+  "package": "WP-LAB-REAL-TRAFFIC-REVISED-SIGNOFF-FREEZE-01",
+  "frozen_set_id": "LAB-RT-REVISED-FROZEN-SET-001",
+  "base_commit": "f025f46e2edc5c150a95581daec727788efd2806",
+  "pr_600_merged": true,
+  "pr_600_url": "https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/600",
+  "main_authorization_present": true,
+  "karl_signoff_present": true,
+  "main_decision": "authorized_as_is",
+  "main_authorization_text": "Decision: authorized_as_is.\n\nThe revised four-hypothesis set (HYP-001, HYP-002R, HYP-003R, HYP-004R) is verified distinct from all concluded families. No drops, no reductions. It proceeds to Karl sign-off recording.\n\nFreeze conditions:\n1. HYP-004R's session filter must be load-bearing in the compiled spec, not cosmetic over an EMA-momentum signal.\n2. HYP-003R and HYP-004R carry their `pass_with_caution` context into their result records.",
+  "karl_authorization_text": "I authorize everything.",
+  "karl_authorization_interpretation": "Karl authorizes Main-verified revised-set signoff and the next execution path, while all stated protected boundaries remain locked.",
+  "hypothesis_count": 4,
+  "hypotheses": [
+    {
+      "hypothesis_id": "LAB-RT-HYP-001",
+      "hypothesis_name": "BTCUSDT 4h no-wick EMA retest continuation",
+      "supported_family_route": "price_only_ohlcv.no_wick_ema_retest_4h",
+      "economic_rationale": "A strong no-wick candle that closes on the trend side of EMA50 and retests the EMA may indicate continuation after directional impulse rather than mean reversion.",
+      "data_requirements": [
+        "BTCUSDT Binance USDT-M OHLCV 4h D4-derived local slice",
+        "Existing OHLCV fields only: open, high, low, close, volume",
+        "Existing indicator builtins: ema, atr"
+      ],
+      "frozen_parameters_or_search_space": {
+        "primary_timeframe": "4h",
+        "direction": "both",
+        "wick_threshold": [
+          0.05,
+          0.1
+        ],
+        "body_threshold": [
+          0.6,
+          0.7
+        ],
+        "atr_stop_multiple": [
+          1.5,
+          2.0
+        ],
+        "trend_indicator": "EMA50",
+        "denominator": 8
+      },
+      "denominator_definition": "All 8 predeclared variants from wick_threshold x body_threshold x atr_stop_multiple are retained, including completed, failed, invalid, blocked, data-unavailable, withheld, no-trade, and NO-GO rows.",
+      "expected_artifacts": [
+        "scratch package Strategy Spec draft generated through existing Strategy Spec grammar",
+        "scratch package Variant Manifest",
+        "scratch package Sweep Plan",
+        "scratch/no-write offline runner output or blocked trace",
+        "WFO/OOS summary where existing support allows",
+        "robustness/MC summary where existing support allows",
+        "anti-overfit full-denominator review",
+        "operator review packet"
+      ],
+      "stop_conditions": [
+        "required 4h OHLCV slice is unavailable",
+        "existing Strategy Spec grammar cannot express the surface without schema/compiler changes",
+        "runner requires dependency, data acquisition, protected path, candidate lifecycle, crossing, or runtime changes",
+        "denominator preservation cannot be guaranteed",
+        "GO-like evidence appears and requires human decision"
+      ],
+      "known_failure_modes": [
+        "low trade count / sparse evidence",
+        "trend filter does not reduce adverse selection",
+        "cost and slippage dominate gross edge",
+        "drawdown exceeds predeclared screen",
+        "single-cell sensitivity"
+      ],
+      "non_promotion_posture": true,
+      "protected_boundaries": [
+        "No candidate admission",
+        "No canonical crossing",
+        "No promotion/readiness declaration",
+        "No paper/live/runtime contact",
+        "No OMS/risk/reconciliation/order/exchange/broker changes"
+      ],
+      "GO_definition": "All denominator rows are preserved, population-level net performance and drawdown pass the frozen screen, cost burden is not dominant under available metrics, and sensitivity is not winner-only; GO-like evidence still requires human decision and creates no admission or crossing authority.",
+      "NO_GO_definition": "Population-level net performance, drawdown, cost burden, sensitivity, or denominator integrity fails the frozen screen while all rows remain reported.",
+      "blocked_definition": "Execution cannot proceed through existing supported repo surfaces without unauthorized code, schema, data, dependency, protected-path, candidate-lifecycle, crossing, or runtime changes.",
+      "invalid_definition": "The hypothesis artifact set violates the frozen set, schema constraints, data lineage requirements, or predeclared denominator/search-space rules.",
+      "freshness_check_result": "retained_by_main_decision",
+      "freshness_check_evidence": [
+        "Main decision retained LAB-RT-HYP-001 from PR #598.",
+        "Freshness matrix records replacement candidates checked against retained HYP-001 to avoid duplication."
+      ],
+      "distinctness_result": "retained_by_main_decision_not_rechecked_in_this_packet",
+      "distinctness_source_artifact": "scratch/WP-LAB-REAL-TRAFFIC-DISTINCTNESS-CHECKS-01/revised_set_after_distinctness.json",
+      "result_context_flags": []
+    },
+    {
+      "hypothesis_id": "LAB-RT-HYP-002R",
+      "hypothesis_name": "BTCUSDT 15m RVOL-gated range-expansion breakout",
+      "supported_family_route": "price_only_ohlcv.rvol_range_expansion_breakout_15m",
+      "economic_rationale": "Breakouts accompanied by abnormal participation and an ATR-normalized candle range may reflect real order-flow participation rather than thin-channel noise. This tests participation-confirmed continuation, not Donchian, ORB, or Bollinger squeeze behavior.",
+      "data_requirements": [
+        "BTCUSDT Binance USDT-M OHLCV 15m D4A normalized local slice",
+        "Existing OHLCV fields: open, high, low, close, volume",
+        "Existing indicator builtins: rvol, atr",
+        "Existing entry-control support for min_bars_between_entries"
+      ],
+      "frozen_parameters_or_search_space": {
+        "primary_timeframe": "15m",
+        "direction": "both",
+        "rvol_lookback_bars": [
+          96,
+          192
+        ],
+        "rvol_min": [
+          1.5,
+          2.0
+        ],
+        "range_atr_min": [
+          1.0,
+          1.5
+        ],
+        "breakout_reference": "previous_bar_high_low",
+        "atr_stop_multiple": 2.0,
+        "min_bars_between_entries": 8,
+        "denominator": 8
+      },
+      "denominator_definition": "All 8 predeclared variants from rvol_lookback_bars x rvol_min x range_atr_min are retained, including completed, failed, invalid, blocked, data-unavailable, withheld, no-trade, and NO-GO rows.",
+      "expected_artifacts": [
+        "future scratch Strategy Spec draft if Main/Karl authorizes execution-package formalization",
+        "future scratch Variant Manifest and Sweep Plan",
+        "future scratch/no-write runner output or blocked trace",
+        "full-denominator screen summary",
+        "freshness evidence retained with the packet"
+      ],
+      "stop_conditions": [
+        "required 15m OHLCV D4A slice is unavailable",
+        "RVOL, ATR, prior-bar high/low, or entry-control route cannot validate without schema/compiler/runner changes",
+        "the final formalized surface collapses into Donchian, ORB, Bollinger squeeze, or SMA crossover semantics",
+        "denominator preservation cannot be guaranteed",
+        "GO-like evidence appears and requires human decision"
+      ],
+      "known_failure_modes": [
+        "participation breakout still churns in sideways periods",
+        "fees/slippage dominate due to 15m trade frequency",
+        "range expansion buys exhaustion rather than continuation",
+        "positive evidence isolated to one RVOL threshold",
+        "low number of independent high-RVOL episodes"
+      ],
+      "non_promotion_posture": true,
+      "protected_boundaries": [
+        "No candidate admission",
+        "No canonical crossing",
+        "No promotion/readiness declaration",
+        "No paper/live/runtime contact",
+        "No OMS/risk/reconciliation/order/exchange/broker changes"
+      ],
+      "GO_definition": "All denominator rows are preserved; median net return is positive; at least 5/8 rows are positive; drawdown remains below the frozen screen; costs are measured honestly; favorable evidence spans more than one RVOL and range threshold.",
+      "NO_GO_definition": "Population-level net performance, drawdown, cost/churn, or sensitivity fails the frozen screen while all rows remain reported.",
+      "blocked_definition": "Execution cannot proceed through existing supported repo surfaces without unauthorized schema/compiler/runner/data/dependency/protected-path/candidate-lifecycle/crossing/runtime changes.",
+      "invalid_definition": "The artifact set violates the revised proposal, schema constraints, data lineage requirements, or predeclared denominator/search-space rules.",
+      "freshness_check_result": "pass",
+      "freshness_check_evidence": [
+        "No Donchian channel, no ORB session opening range, no Bollinger squeeze, no SMA crossover.",
+        "Uses catalog-supported RVOL and ATR surfaces introduced by existing compiler/indicator work.",
+        "Freshness matrix marks pass against H-002, H-012, ORB, RP-2592, RP-3731, RP-6236, H-006, and funding families."
+      ],
+      "distinctness_result": "pass",
+      "distinctness_source_artifact": "scratch/WP-LAB-REAL-TRAFFIC-DISTINCTNESS-CHECKS-01/hyp_002r_donchian_distinctness_check.json",
+      "result_context_flags": []
+    },
+    {
+      "hypothesis_id": "LAB-RT-HYP-003R",
+      "hypothesis_name": "BTCUSDT 15m rolling VWAP distance reversion",
+      "supported_family_route": "price_only_ohlcv.rolling_vwap_distance_reversion_15m",
+      "economic_rationale": "Rolling candle-VWAP approximates recent volume-weighted fair value from OHLCV. A large ATR-normalized distance from that anchor plus RSI exhaustion may represent a liquidity overshoot that can revert without relying on SMA/stddev bands.",
+      "data_requirements": [
+        "BTCUSDT Binance USDT-M OHLCV 15m D4A normalized local slice",
+        "Existing OHLCV fields: high, low, close, volume",
+        "Existing indicator builtins: rolling_vwap, atr, rsi",
+        "Existing entry-control support for min_bars_between_entries"
+      ],
+      "frozen_parameters_or_search_space": {
+        "primary_timeframe": "15m",
+        "direction": "both",
+        "rolling_vwap_lookback_bars": [
+          96,
+          192
+        ],
+        "distance_atr_entry": [
+          1.0,
+          1.5
+        ],
+        "rsi_lookback_bars": 14,
+        "rsi_extreme": [
+          25,
+          30
+        ],
+        "exit_condition": "return_to_vwap_or_rsi_neutral",
+        "min_bars_between_entries": 8,
+        "denominator": 8
+      },
+      "denominator_definition": "All 8 predeclared variants from rolling_vwap_lookback_bars x distance_atr_entry x rsi_extreme are retained, including completed, failed, invalid, blocked, data-unavailable, withheld, no-trade, and NO-GO rows.",
+      "expected_artifacts": [
+        "future scratch Strategy Spec draft if Main/Karl authorizes execution-package formalization",
+        "future scratch Variant Manifest and Sweep Plan",
+        "future scratch/no-write runner output or blocked trace",
+        "full-denominator screen summary",
+        "freshness evidence retained with the packet"
+      ],
+      "stop_conditions": [
+        "required 15m OHLCV D4A slice is unavailable",
+        "rolling_vwap, ATR distance, RSI, or neutral-exit route cannot validate without schema/compiler/runner changes",
+        "the final formalized surface collapses into SMA-band, z-score, Bollinger, or basis/premium mean reversion semantics",
+        "denominator preservation cannot be guaranteed",
+        "GO-like evidence appears and requires human decision"
+      ],
+      "known_failure_modes": [
+        "VWAP fade remains gross-negative like prior fade families",
+        "RSI filter creates sparse or single-regime evidence",
+        "15m costs dominate before mean reversion realizes",
+        "rolling candle-VWAP approximation is too crude versus true trade VWAP",
+        "positive rows depend on one distance threshold"
+      ],
+      "non_promotion_posture": true,
+      "protected_boundaries": [
+        "No candidate admission",
+        "No canonical crossing",
+        "No promotion/readiness declaration",
+        "No paper/live/runtime contact",
+        "No OMS/risk/reconciliation/order/exchange/broker changes"
+      ],
+      "GO_definition": "All denominator rows are preserved; median net return is positive; at least 5/8 rows are positive; drawdown remains below the frozen screen; cost/churn is not dominant; favorable evidence is not isolated to one VWAP lookback or RSI threshold.",
+      "NO_GO_definition": "Population-level net performance, drawdown, cost/churn, sparse evidence, or sensitivity fails the frozen screen while all rows remain reported.",
+      "blocked_definition": "Execution cannot proceed through existing supported repo surfaces without unauthorized schema/compiler/runner/data/dependency/protected-path/candidate-lifecycle/crossing/runtime changes.",
+      "invalid_definition": "The artifact set violates the revised proposal, schema constraints, data lineage requirements, or predeclared denominator/search-space rules.",
+      "freshness_check_result": "pass_with_caution",
+      "freshness_check_evidence": [
+        "Reversion family is acknowledged, but the anchor is rolling candle-VWAP, not SMA/stddev/Bollinger or mark-index/premium basis.",
+        "Uses catalog-supported rolling_vwap, ATR, and RSI surfaces.",
+        "Freshness matrix marks caution against SMA-band/z-score/Bollinger fade families and pass against Donchian, ORB, funding, premium/basis, and SMA crossover constraints."
+      ],
+      "distinctness_result": "pass_with_caution",
+      "distinctness_source_artifact": "scratch/WP-LAB-REAL-TRAFFIC-DISTINCTNESS-CHECKS-01/hyp_003r_rp7134_distinctness_check.json",
+      "result_context_flags": [
+        "pass_with_caution",
+        "future result records must carry pass_with_caution context",
+        "interpret future result records against RP-7134 / STRAT-SPEC-0003 context"
+      ],
+      "mechanics_preservation_requirement": "rolling-VWAP anchor + ATR distance + RSI exhaustion/neutrality, not SMA/stddev z-score"
+    },
+    {
+      "hypothesis_id": "LAB-RT-HYP-004R",
+      "hypothesis_name": "BTCUSDT 15m session-filtered EMA impulse continuation",
+      "supported_family_route": "price_only_ohlcv.session_ema_impulse_continuation_15m",
+      "economic_rationale": "Directional impulse continuation may be more plausible during high-liquidity UTC windows when spread/cost friction is lower and participation is broader. This tests session-conditioned impulse follow-through rather than moving-average crossover or multi-timeframe trend alignment.",
+      "data_requirements": [
+        "BTCUSDT Binance USDT-M OHLCV 15m D4A normalized local slice",
+        "Existing OHLCV fields: open, high, low, close, volume",
+        "Existing indicator builtins: ema, atr, rvol",
+        "Existing timestamp-derived fields: hour_of_day_utc, day_of_week_utc"
+      ],
+      "frozen_parameters_or_search_space": {
+        "primary_timeframe": "15m",
+        "direction": "both",
+        "ema_lookback_bars": [
+          50,
+          96
+        ],
+        "body_atr_min": [
+          0.8,
+          1.2
+        ],
+        "rvol_min": [
+          1.2
+        ],
+        "session_hours_utc": [
+          "08:00-16:00",
+          "13:00-21:00"
+        ],
+        "weekend_allowed": false,
+        "atr_stop_multiple": 2.0,
+        "min_bars_between_entries": 8,
+        "denominator": 8
+      },
+      "denominator_definition": "All 8 predeclared variants from ema_lookback_bars x body_atr_min x session_hours_utc with fixed rvol_min and weekend filter are retained, including completed, failed, invalid, blocked, data-unavailable, withheld, no-trade, and NO-GO rows.",
+      "expected_artifacts": [
+        "future scratch Strategy Spec draft if Main/Karl authorizes execution-package formalization",
+        "future scratch Variant Manifest and Sweep Plan",
+        "future scratch/no-write runner output or blocked trace",
+        "full-denominator screen summary",
+        "freshness evidence retained with the packet"
+      ],
+      "stop_conditions": [
+        "required 15m OHLCV D4A slice is unavailable",
+        "EMA, ATR body, RVOL, or UTC session fields cannot validate without schema/compiler/runner changes",
+        "the final formalized surface collapses into SMA crossover, HYP-001 4h no-wick EMA retest, ORB, or MTF trend-alignment semantics",
+        "denominator preservation cannot be guaranteed",
+        "GO-like evidence appears and requires human decision"
+      ],
+      "known_failure_modes": [
+        "session filter overfits known liquid windows",
+        "impulse entries buy exhaustion",
+        "15m costs dominate",
+        "EMA condition behaves like a generic trend filter with little selectivity",
+        "positive evidence isolated to one session window"
+      ],
+      "non_promotion_posture": true,
+      "protected_boundaries": [
+        "No candidate admission",
+        "No canonical crossing",
+        "No promotion/readiness declaration",
+        "No paper/live/runtime contact",
+        "No OMS/risk/reconciliation/order/exchange/broker changes"
+      ],
+      "GO_definition": "All denominator rows are preserved; median net return is positive; at least 5/8 rows are positive; drawdown remains below the frozen screen; cost/churn is not dominant; favorable evidence spans more than one EMA/body/session axis.",
+      "NO_GO_definition": "Population-level net performance, drawdown, cost/churn, session fragility, or sensitivity fails the frozen screen while all rows remain reported.",
+      "blocked_definition": "Execution cannot proceed through existing supported repo surfaces without unauthorized schema/compiler/runner/data/dependency/protected-path/candidate-lifecycle/crossing/runtime changes.",
+      "invalid_definition": "The artifact set violates the revised proposal, schema constraints, data lineage requirements, or predeclared denominator/search-space rules.",
+      "freshness_check_result": "pass_with_caution",
+      "freshness_check_evidence": [
+        "Uses EMA, but not SMA crossover and not HYP-001's 4h no-wick EMA retest structure.",
+        "Uses catalog-supported EMA, ATR, RVOL, and UTC timestamp-derived session fields.",
+        "Freshness matrix marks pass against SMA crossover, ORB, Donchian, funding, premium/basis, MACD, and MTF constraints, with caution only for retained HYP-001 because both mention EMA."
+      ],
+      "distinctness_result": "pass_with_caution",
+      "distinctness_source_artifact": "scratch/WP-LAB-REAL-TRAFFIC-DISTINCTNESS-CHECKS-01/hyp_004r_momentum_distinctness_check.json",
+      "result_context_flags": [
+        "pass_with_caution",
+        "future result records must carry pass_with_caution context",
+        "interpret future result records against RP-2592 / RP-3731 / RP-6236 context",
+        "load-bearing session filter required"
+      ],
+      "load_bearing_session_requirement": {
+        "session_hours_utc_axis_required": true,
+        "weekend_allowed_fixed_false_required": true,
+        "cosmetic_session_wrapper_forbidden": true,
+        "must_not_reduce_to": "EMA/SMA momentum with cosmetic session wrapper or fast/slow SMA crossover momentum"
+      }
+    }
+  ],
+  "freeze_conditions": {
+    "LAB-RT-HYP-004R": [
+      "session filter must be load-bearing",
+      "session_hours_utc must remain an explicit denominator axis or equivalent load-bearing gate",
+      "weekend_allowed=false must remain fixed",
+      "final compiled/formalized execution must not reduce to EMA/SMA momentum with a cosmetic session wrapper",
+      "pass_with_caution context must be carried into future result records",
+      "result interpretation must explicitly read against RP-2592 / RP-3731 / RP-6236 context",
+      "frozen mechanics must remain EMA-side body/ATR impulse + RVOL + UTC session filter, not fast/slow SMA crossover momentum"
+    ],
+    "LAB-RT-HYP-003R": [
+      "pass_with_caution context must be carried into future result records",
+      "result interpretation must explicitly read against RP-7134 / STRAT-SPEC-0003 context",
+      "frozen mechanics must remain rolling-VWAP anchor + ATR distance + RSI exhaustion/neutrality, not SMA/stddev z-score"
+    ],
+    "all_hypotheses": [
+      "non-promotion posture preserved",
+      "if any hypothesis screens GO later, execution must stop-and-surface to Karl as a real candidate decision",
+      "no automatic admission, crossing, readiness, or paper/live action"
+    ]
+  },
+  "non_promotion_posture": "No hypothesis in this frozen set is promoted or admitted by this package.",
+  "stop_and_surface_rule": "If any hypothesis screens GO later, execution must stop and surface to Karl as a real candidate decision before any admission, crossing, readiness, paper/live, or runtime action.",
+  "batch_level_rules": {
+    "no_outcome_peeking": true,
+    "no_retuning_after_results": true,
+    "no_parameter_expansion_after_results": true,
+    "winner_only_pruning_forbidden": true,
+    "canonical_candidate_admission_authorized": false,
+    "canonical_crossing_authorized": false,
+    "promotion_readiness_authorized": false,
+    "paper_live_runtime_authorized": false
+  },
+  "source_artifacts": [
+    "scratch/WP-LAB-REAL-TRAFFIC-FRESH-REPLACEMENTS-01/revised_hypothesis_set_proposal.json",
+    "scratch/WP-LAB-REAL-TRAFFIC-DISTINCTNESS-CHECKS-01/distinctness_decision_summary.json",
+    "scratch/WP-LAB-REAL-TRAFFIC-DISTINCTNESS-CHECKS-01/revised_set_after_distinctness.json",
+    "scratch/WP-LAB-REAL-TRAFFIC-DISTINCTNESS-CHECKS-01/hyp_002r_donchian_distinctness_check.json",
+    "scratch/WP-LAB-REAL-TRAFFIC-DISTINCTNESS-CHECKS-01/hyp_003r_rp7134_distinctness_check.json",
+    "scratch/WP-LAB-REAL-TRAFFIC-DISTINCTNESS-CHECKS-01/hyp_004r_momentum_distinctness_check.json"
+  ],
+  "research_execution_performed": false,
+  "strategy_spec_written": false,
+  "variant_manifest_written": false,
+  "sweep_plan_written": false,
+  "result_population_written": false,
+  "candidate_admitted": false,
+  "canonical_crossing_performed": false,
+  "promotion_readiness_created": false,
+  "paper_live_runtime_authorized": false
+}

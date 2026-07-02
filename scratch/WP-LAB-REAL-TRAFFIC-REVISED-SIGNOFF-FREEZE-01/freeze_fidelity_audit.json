@@ -1,0 +1,41 @@
+{
+  "package": "WP-LAB-REAL-TRAFFIC-REVISED-SIGNOFF-FREEZE-01",
+  "audit_result": "pass",
+  "source_revised_proposal": "scratch/WP-LAB-REAL-TRAFFIC-FRESH-REPLACEMENTS-01/revised_hypothesis_set_proposal.json",
+  "source_distinctness_packet": "scratch/WP-LAB-REAL-TRAFFIC-DISTINCTNESS-CHECKS-01/revised_set_after_distinctness.json",
+  "source_hypothesis_ids": [
+    "LAB-RT-HYP-001",
+    "LAB-RT-HYP-002R",
+    "LAB-RT-HYP-003R",
+    "LAB-RT-HYP-004R"
+  ],
+  "frozen_hypothesis_ids": [
+    "LAB-RT-HYP-001",
+    "LAB-RT-HYP-002R",
+    "LAB-RT-HYP-003R",
+    "LAB-RT-HYP-004R"
+  ],
+  "exact_four_hypothesis_set_preserved": true,
+  "no_drops": true,
+  "no_reductions": true,
+  "no_renames": true,
+  "no_retuning": true,
+  "stop_conditions_weakened": false,
+  "hyp_004r_session_filter_preserved": true,
+  "hyp_004r_session_hours_denominator_axis_preserved": true,
+  "hyp_004r_weekend_allowed_false_preserved": true,
+  "hyp_004r_cosmetic_session_wrapper_forbidden": true,
+  "hyp_003r_pass_with_caution_preserved": true,
+  "hyp_004r_pass_with_caution_preserved": true,
+  "hyp_003r_result_context": "RP-7134 / STRAT-SPEC-0003",
+  "hyp_004r_result_context": "RP-2592 / RP-3731 / RP-6236",
+  "distinctness_results": {
+    "LAB-RT-HYP-001": "retained_by_main_decision_not_rechecked_in_this_packet",
+    "LAB-RT-HYP-002R": "pass",
+    "LAB-RT-HYP-003R": "pass_with_caution",
+    "LAB-RT-HYP-004R": "pass_with_caution"
+  },
+  "research_execution_performed": false,
+  "execution_artifacts_created": false,
+  "protected_boundaries_weakened": false
+}

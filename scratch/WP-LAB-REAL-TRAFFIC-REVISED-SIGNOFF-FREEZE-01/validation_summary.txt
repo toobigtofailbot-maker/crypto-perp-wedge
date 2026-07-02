@@ -1,0 +1,29 @@
+Package: WP-LAB-REAL-TRAFFIC-REVISED-SIGNOFF-FREEZE-01
+Base: f025f46e2edc5c150a95581daec727788efd2806
+PR #600 merged: true
+Main authorization present: true
+Karl signoff present: true
+Frozen set created: true
+Hypothesis count: 4
+Hypothesis IDs: LAB-RT-HYP-001, LAB-RT-HYP-002R, LAB-RT-HYP-003R, LAB-RT-HYP-004R
+HYP-004R session condition preserved: true
+HYP-003R pass_with_caution context preserved: true
+HYP-004R pass_with_caution context preserved: true
+Research execution performed: false
+Strategy Spec / VM / Sweep Plan written: false
+Result population written: false
+Candidate admitted: false
+Crossing performed: false
+Promotion/readiness created: false
+Paper/live/runtime contact: false
+Protected paths touched: false
+Dependency changes: false
+Validation commands: completed
+json validation: pass
+research query list-views: pass
+result-population validator: pass
+candidate-registry validator: pass
+diff scope summary: pass; only package docs/status and scratch files reported, forbidden-path matches none
+git diff --check: pass
+focused tests: not run; package is docs/status/scratch-only with no code changes
+full pytest: not run; package is docs/status/scratch-only with no code changes

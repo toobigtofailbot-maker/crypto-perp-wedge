@@ -3,7 +3,7 @@
 ## Branch State
 
 - Branch: `lab/real-traffic-revised-batch-execute-01`
-- Base: `origin/main` at `2cea22d66ab4dffcb1ee43fcdb72ac3ae5341b6e`
+- Base: `origin/main` at `71687c1c519700867831d8e964f92f18b12dc2a7`
 - Package class: bounded real-research acceptance execution.
 - Decision: `blocked` before execution.
 
@@ -22,24 +22,18 @@
 
 ## Blocker
 
-The package blocked before real research execution because existing supported repo surfaces cannot express every signed frozen hypothesis exactly without unauthorized schema/compiler/runner changes or freeze-fidelity weakening.
+The package blocked before real research execution because existing supported offline-runner surfaces still cannot accept every signed frozen hypothesis exactly without an unauthorized validator/schema/runner change.
 
-- `LAB-RT-HYP-002R` requires `range_atr_min`, a candle high-low range normalized by ATR denominator axis.
-- `LAB-RT-HYP-004R` requires `body_atr_min`, a candle body normalized by ATR denominator axis, while preserving load-bearing `session_hours_utc`.
+Current `origin/main` has additive schema/compiler support for `atr_normalized_candle_ratio_v1`, including:
 
-The current repo supports EMA, ATR, RSI, RVOL, rolling VWAP, timestamp-derived fields, session refs, candle-shape ratios, and ATR stops. It does not expose a closed high-low-range / ATR or candle-body / ATR operand or primitive. Substituting an available body/range candle-shape predicate would change the frozen signed set.
+- `candle_range_atr_ratio`, which maps to `LAB-RT-HYP-002R` `range_atr_min`.
+- `candle_body_atr_ratio`, which maps to `LAB-RT-HYP-004R` `body_atr_min`.
 
-## Delivered Artifacts
-
-- `scratch/WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01/repo_truth_discovery.md`
-- `scratch/WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01/blocked_reason.json`
-- `scratch/WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01/blocked_reason.md`
-- `scratch/WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01/non_authority_assertions.json`
-- `scratch/WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01/validation_summary.txt`
+However, the Strategy Spec validator's closed `COMPOSITION_TYPES` set still omits `atr_normalized_candle_ratio_v1`. The offline runner calls `validate_strategy_specs()` during parent-input preflight, so package-local Strategy Specs using the required ATR-normalized operands would fail before any run.
 
 ## Denominator Preservation
 
-The four signed hypothesis rows remain visible and are not dropped, reduced, renamed, retuned, expanded, or winner-pruned. No partial execution was performed because the batch would otherwise become incomplete acceptance traffic over a frozen set that cannot be exactly formalized in current repo surfaces.
+The four signed hypothesis rows remain visible and are not dropped, reduced, renamed, retuned, expanded, or winner-pruned. No partial execution was performed because two of four frozen rows cannot pass the current validator/runner preflight exactly, and partial execution would turn the signed acceptance batch into incomplete traffic.
 
 ## Non-Authority
 
@@ -47,4 +41,4 @@ No candidate was admitted. No canonical crossing was performed. No promotion/rea
 
 ## Future Option
 
-A later explicitly authorized package could add a closed ATR-normalized candle range/body primitive or equivalent closed composition route, then retry the frozen batch without retuning or weakening freeze fidelity.
+A later explicitly authorized package could align the Strategy Spec validator with the already-merged ATR-normalized candle schema/compiler surface, then retry this frozen batch without retuning or weakening freeze fidelity.

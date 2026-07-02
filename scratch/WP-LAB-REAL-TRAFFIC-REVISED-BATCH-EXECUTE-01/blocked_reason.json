@@ -2,7 +2,7 @@
   "package": "WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01",
   "decision": "blocked",
   "blocked_before_execution": true,
-  "base_commit": "2cea22d66ab4dffcb1ee43fcdb72ac3ae5341b6e",
+  "base_commit": "71687c1c519700867831d8e964f92f18b12dc2a7",
   "revised_frozen_set_source": "scratch/WP-LAB-REAL-TRAFFIC-REVISED-SIGNOFF-FREEZE-01/revised_frozen_hypothesis_set.json",
   "main_verification_present": true,
   "karl_signoff_present": true,
@@ -13,21 +13,29 @@
     "LAB-RT-HYP-003R",
     "LAB-RT-HYP-004R"
   ],
-  "primary_blocker": "Existing supported repo surfaces cannot express every signed frozen hypothesis exactly without schema/compiler/runner changes or freeze-fidelity weakening.",
+  "primary_blocker": "The offline runner cannot accept exact ATR-normalized candle Strategy Spec formalizations because validate_strategy_specs has not been aligned with the already-merged compiler/schema composition type.",
+  "repo_truth_findings": {
+    "schema_has_atr_normalized_candle_ratio": true,
+    "compiler_has_atr_normalized_candle_ratio": true,
+    "validator_has_atr_normalized_candle_ratio": false,
+    "runner_calls_strategy_spec_validator_before_execution": true
+  },
   "blocking_details": [
     {
       "hypothesis_id": "LAB-RT-HYP-002R",
       "frozen_axis": "range_atr_min",
       "required_mechanic": "current candle high-low range normalized by ATR as a denominator axis",
-      "repo_surface_status": "unsupported_as_closed_compiler_surface",
-      "reason": "The current compiler supports ATR and candle-shape range ratios, but does not expose a closed high-low range divided by ATR operand or primitive. Substituting candle-shape body/range or Donchian-style breakout would weaken the frozen route."
+      "available_schema_compiler_mapping": "atr_normalized_candle_ratio_v1.candle_range_atr_ratio >= threshold",
+      "repo_surface_status": "blocked_at_strategy_spec_validator_runner_preflight",
+      "reason": "The compiler supports the exact operand, but the Strategy Spec validator closed COMPOSITION_TYPES set omits atr_normalized_candle_ratio_v1; the runner validates parent Strategy Specs before execution."
     },
     {
       "hypothesis_id": "LAB-RT-HYP-004R",
       "frozen_axis": "body_atr_min",
       "required_mechanic": "current candle body normalized by ATR as a denominator axis, combined with load-bearing UTC session filter",
-      "repo_surface_status": "unsupported_as_closed_compiler_surface",
-      "reason": "The current compiler supports EMA, RVOL, UTC session refs, and candle-shape body/range ratios, but does not expose a closed candle body divided by ATR operand or primitive. Substituting body/range would retune the frozen signed set."
+      "available_schema_compiler_mapping": "atr_normalized_candle_ratio_v1.candle_body_atr_ratio >= threshold",
+      "repo_surface_status": "blocked_at_strategy_spec_validator_runner_preflight",
+      "reason": "The compiler supports the exact operand, but the Strategy Spec validator closed COMPOSITION_TYPES set omits atr_normalized_candle_ratio_v1; substituting another predicate would weaken the signed frozen set."
     }
   ],
   "denominator_preservation": {
@@ -44,10 +52,10 @@
       "LAB-RT-HYP-004R"
     ]
   },
-  "why_partial_execution_was_not_performed": "The package is a signed revised frozen four-hypothesis acceptance batch. Because exact formalization fails for frozen denominator axes before any run, partial execution would create an incomplete batch posture and could be misread as acceptance traffic over a weakened set.",
+  "why_partial_execution_was_not_performed": "The package is a signed revised frozen four-hypothesis acceptance batch. Because exact formalization for two frozen denominator axes fails runner preflight before any run, partial execution would create incomplete acceptance traffic.",
   "forbidden_change_required_to_unblock": [
-    "schema/compiler support for closed ATR-normalized candle range/body mechanics",
-    "or another explicit repo-supported route that preserves range_atr_min and body_atr_min exactly"
+    "Strategy Spec validator alignment for atr_normalized_candle_ratio_v1",
+    "or another explicitly authorized runner preflight route that accepts the already-merged exact ATR-normalized candle schema/compiler surface"
   ],
   "protected_boundaries_touched": false,
   "candidate_admitted": false,

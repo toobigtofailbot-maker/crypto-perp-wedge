@@ -1,0 +1,59 @@
+{
+  "package": "WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01",
+  "decision": "blocked",
+  "blocked_before_execution": true,
+  "base_commit": "2cea22d66ab4dffcb1ee43fcdb72ac3ae5341b6e",
+  "revised_frozen_set_source": "scratch/WP-LAB-REAL-TRAFFIC-REVISED-SIGNOFF-FREEZE-01/revised_frozen_hypothesis_set.json",
+  "main_verification_present": true,
+  "karl_signoff_present": true,
+  "signed_revised_frozen_set_present": true,
+  "hypothesis_ids": [
+    "LAB-RT-HYP-001",
+    "LAB-RT-HYP-002R",
+    "LAB-RT-HYP-003R",
+    "LAB-RT-HYP-004R"
+  ],
+  "primary_blocker": "Existing supported repo surfaces cannot express every signed frozen hypothesis exactly without schema/compiler/runner changes or freeze-fidelity weakening.",
+  "blocking_details": [
+    {
+      "hypothesis_id": "LAB-RT-HYP-002R",
+      "frozen_axis": "range_atr_min",
+      "required_mechanic": "current candle high-low range normalized by ATR as a denominator axis",
+      "repo_surface_status": "unsupported_as_closed_compiler_surface",
+      "reason": "The current compiler supports ATR and candle-shape range ratios, but does not expose a closed high-low range divided by ATR operand or primitive. Substituting candle-shape body/range or Donchian-style breakout would weaken the frozen route."
+    },
+    {
+      "hypothesis_id": "LAB-RT-HYP-004R",
+      "frozen_axis": "body_atr_min",
+      "required_mechanic": "current candle body normalized by ATR as a denominator axis, combined with load-bearing UTC session filter",
+      "repo_surface_status": "unsupported_as_closed_compiler_surface",
+      "reason": "The current compiler supports EMA, RVOL, UTC session refs, and candle-shape body/range ratios, but does not expose a closed candle body divided by ATR operand or primitive. Substituting body/range would retune the frozen signed set."
+    }
+  ],
+  "denominator_preservation": {
+    "frozen_hypothesis_count": 4,
+    "preserved_hypothesis_count": 4,
+    "rows_dropped": 0,
+    "winner_only_pruning_performed": false,
+    "retuning_after_results_performed": false,
+    "parameter_expansion_after_results_performed": false,
+    "blocked_rows_visible": [
+      "LAB-RT-HYP-001",
+      "LAB-RT-HYP-002R",
+      "LAB-RT-HYP-003R",
+      "LAB-RT-HYP-004R"
+    ]
+  },
+  "why_partial_execution_was_not_performed": "The package is a signed revised frozen four-hypothesis acceptance batch. Because exact formalization fails for frozen denominator axes before any run, partial execution would create an incomplete batch posture and could be misread as acceptance traffic over a weakened set.",
+  "forbidden_change_required_to_unblock": [
+    "schema/compiler support for closed ATR-normalized candle range/body mechanics",
+    "or another explicit repo-supported route that preserves range_atr_min and body_atr_min exactly"
+  ],
+  "protected_boundaries_touched": false,
+  "candidate_admitted": false,
+  "canonical_crossing_performed": false,
+  "promotion_readiness_created": false,
+  "paper_live_runtime_contact_performed": false,
+  "private_provider_api_used": false,
+  "dependency_changes": false
+}

@@ -586,11 +586,47 @@
         }
       }
     },
+    "atr_normalized_candle_ratio_composed_operand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operand_type",
+        "composition_type",
+        "ratio_type",
+        "atr_lookback",
+        "zero_atr_policy"
+      ],
+      "properties": {
+        "operand_type": {
+          "type": "string",
+          "const": "composed_operand"
+        },
+        "composition_type": {
+          "type": "string",
+          "const": "atr_normalized_candle_ratio_v1"
+        },
+        "ratio_type": {
+          "type": "string",
+          "enum": [
+            "candle_range_atr_ratio",
+            "candle_body_atr_ratio"
+          ]
+        },
+        "atr_lookback": {
+          "$ref": "#/definitions/indicator_lookback"
+        },
+        "zero_atr_policy": {
+          "type": "string",
+          "const": "null_output"
+        }
+      }
+    },
     "composed_operand": {
       "oneOf": [
         { "$ref": "#/definitions/scaled_parameter_composed_operand" },
         { "$ref": "#/definitions/z_score_composed_operand" },
-        { "$ref": "#/definitions/rolling_empirical_percentile_composed_operand" }
+        { "$ref": "#/definitions/rolling_empirical_percentile_composed_operand" },
+        { "$ref": "#/definitions/atr_normalized_candle_ratio_composed_operand" }
       ]
     },
     "operand": {

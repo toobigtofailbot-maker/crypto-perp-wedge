@@ -1,0 +1,37 @@
+{
+  "package": "WP-COMP-ATR-NORMALIZED-CANDLE-01",
+  "surface": {
+    "operand_type": "composed_operand",
+    "composition_type": "atr_normalized_candle_ratio_v1",
+    "allowed_ratio_types": [
+      "candle_range_atr_ratio",
+      "candle_body_atr_ratio"
+    ],
+    "atr_lookback": {
+      "allowed_forms": [
+        {
+          "bars": "integer >= 1"
+        },
+        {
+          "bars_parameter_ref": "non-empty parameter name resolving to integer >= 1"
+        }
+      ]
+    },
+    "zero_atr_policy": "null_output"
+  },
+  "definitions": {
+    "candle_range_atr_ratio": "(current high - current low) / ATR(lookback)",
+    "candle_body_atr_ratio": "abs(current close - current open) / ATR(lookback)",
+    "atr_convention": "existing closed compiler atr_v1 / wilder_rma convention"
+  },
+  "semantic_constraints": {
+    "no_arbitrary_expressions": true,
+    "no_user_defined_formulas": true,
+    "no_dynamic_python_eval": true,
+    "no_runtime_network_or_data_provider_access": true,
+    "no_dependency_change": true,
+    "no_lookahead": true,
+    "null_output_never_true_under_condition_policy": true,
+    "zero_atr_returns_null": true
+  }
+}

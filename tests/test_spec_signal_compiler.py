@@ -180,6 +180,16 @@ def _rolling_percentile_operand(field: str = "funding_rate", lookback=None) -> d
     }
 
 
+def _atr_normalized_candle_ratio_operand(ratio_type: str, lookback=None) -> dict:
+    return {
+        "operand_type": "composed_operand",
+        "composition_type": "atr_normalized_candle_ratio_v1",
+        "ratio_type": ratio_type,
+        "atr_lookback": lookback if lookback is not None else {"bars": 3},
+        "zero_atr_policy": "null_output",
+    }
+
+
 def _declare_host_data_ref(spec: dict, field: str = "funding_rate") -> None:
     spec["timeframe_and_data"] = {
         "host_data_refs": [
@@ -4525,3 +4535,162 @@ def test_funding_family_fixture_is_contrarian_and_binds_max_hold() -> None:
 
     assert signal.iloc[3] == -1.0
     assert signal.iloc[6] == 1.0
+
+
+def _atr_normalized_ratio_ohlcv() -> pd.DataFrame:
+    index = pd.date_range("2026-07-01", periods=5, freq="h", tz="UTC")
+    return pd.DataFrame(
+        {
+            "open": [10.0, 11.0, 12.0, 13.0, 14.0],
+            "high": [12.0, 13.0, 15.0, 18.0, 20.0],
+            "low": [10.0, 10.0, 11.0, 12.0, 18.0],
+            "close": [11.0, 12.0, 14.0, 17.0, 19.0],
+            "volume": [1000.0] * 5,
+        },
+        index=index,
+    )
+
+
+@pytest.mark.parametrize(
+    ("ratio_type", "expected"),
+    [
+        ("candle_range_atr_ratio", [math.nan, math.nan, 4.0 / 3.0, 1.5, 6.0 / 11.0]),
+        ("candle_body_atr_ratio", [math.nan, math.nan, 2.0 / 3.0, 1.0, 15.0 / 11.0]),
+    ],
+)
+def test_atr_normalized_candle_ratio_values(ratio_type: str, expected: list[float]) -> None:
+    ohlcv = _atr_normalized_ratio_ohlcv()
+    context = compiler._CompileContext(
+        strategy_spec={},
+        variant_assignment=_default_variant(),
+        ohlcv=ohlcv,
+        catalog=compiler._load_default_catalog(),
+    )
+
+    ratio = compiler._resolve_operand(_atr_normalized_candle_ratio_operand(ratio_type), context)
+
+    pd.testing.assert_series_equal(
+        ratio,
+        pd.Series(expected, index=ohlcv.index, dtype=float),
+    )
+
+
+def test_atr_normalized_candle_range_threshold_true_and_false_cases() -> None:
+    ohlcv = _atr_normalized_ratio_ohlcv()
+    spec = _single_condition_spec(
+        "gte",
+        _atr_normalized_candle_ratio_operand("candle_range_atr_ratio"),
+        _operand("constant", 1.4),
+        max_holding_bars=1,
+    )
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [0.0, 0.0, 0.0, 1.0, 0.0]
+
+
+def test_atr_normalized_candle_body_threshold_true_and_false_cases() -> None:
+    ohlcv = _atr_normalized_ratio_ohlcv()
+    spec = _single_condition_spec(
+        "gte",
+        _atr_normalized_candle_ratio_operand("candle_body_atr_ratio"),
+        _operand("constant", 1.2),
+        max_holding_bars=1,
+    )
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.tolist() == [0.0, 0.0, 0.0, 0.0, 1.0]
+
+
+def test_atr_normalized_candle_ratios_fail_closed_for_warmup_null_and_zero_atr() -> None:
+    index = pd.date_range("2026-07-02", periods=5, freq="h", tz="UTC")
+    zero_atr_ohlcv = pd.DataFrame(
+        {
+            "open": [100.0] * 5,
+            "high": [100.0] * 5,
+            "low": [100.0] * 5,
+            "close": [100.0] * 5,
+            "volume": [1000.0] * 5,
+        },
+        index=index,
+    )
+    null_ohlcv = pd.DataFrame(
+        {
+            "open": [100.0, 100.0, 100.0, math.nan, 100.0],
+            "high": [100.0, 100.0, 100.0, math.nan, 100.0],
+            "low": [100.0, 100.0, 100.0, 99.0, 100.0],
+            "close": [100.0, 100.0, 100.0, 101.0, 100.0],
+            "volume": [1000.0] * 5,
+        },
+        index=index,
+    )
+    range_spec = _single_condition_spec(
+        "gte",
+        _atr_normalized_candle_ratio_operand("candle_range_atr_ratio"),
+        _operand("constant", 0.0),
+        max_holding_bars=1,
+    )
+    body_spec = _single_condition_spec(
+        "gte",
+        _atr_normalized_candle_ratio_operand("candle_body_atr_ratio"),
+        _operand("constant", 0.0),
+        max_holding_bars=1,
+    )
+
+    assert compile_signal(range_spec, _default_variant(), zero_atr_ohlcv).tolist() == [0.0] * 5
+    assert compile_signal(body_spec, _default_variant(), zero_atr_ohlcv).tolist() == [0.0] * 5
+    assert compile_signal(range_spec, _default_variant(), null_ohlcv).tolist()[:4] == [0.0] * 4
+    assert compile_signal(body_spec, _default_variant(), null_ohlcv).tolist()[:4] == [0.0] * 4
+
+
+def test_atr_normalized_candle_ratios_do_not_use_future_bars() -> None:
+    ohlcv = _atr_normalized_ratio_ohlcv()
+    mutated = ohlcv.copy()
+    mutated.loc[mutated.index[4], ["open", "high", "low", "close"]] = [1000.0, 2000.0, 1.0, 1500.0]
+    cutoff = ohlcv.index[3]
+    spec = _single_condition_spec(
+        "gte",
+        _atr_normalized_candle_ratio_operand("candle_range_atr_ratio"),
+        _operand("constant", 1.4),
+        max_holding_bars=1,
+    )
+
+    base_signal = compile_signal(spec, _default_variant(), ohlcv)
+    mutated_signal = compile_signal(spec, _default_variant(), mutated)
+
+    pd.testing.assert_series_equal(base_signal.loc[:cutoff], mutated_signal.loc[:cutoff])
+
+
+def test_atr_normalized_candle_ratios_accept_parameter_bound_lookback() -> None:
+    ohlcv = _atr_normalized_ratio_ohlcv()
+    spec = _single_condition_spec(
+        "gte",
+        _atr_normalized_candle_ratio_operand(
+            "candle_range_atr_ratio",
+            lookback={"bars_parameter_ref": "atr_lookback_bars"},
+        ),
+        _operand("constant", 1.4),
+        max_holding_bars=1,
+    )
+
+    signal = compile_signal(spec, _default_variant(atr_lookback_bars=3), ohlcv)
+
+    assert signal.tolist() == [0.0, 0.0, 0.0, 1.0, 0.0]
+
+
+def test_atr_normalized_candle_ratio_rejects_arbitrary_ratio_expression() -> None:
+    ohlcv = _atr_normalized_ratio_ohlcv()
+    spec = _single_condition_spec(
+        "gte",
+        {
+            "operand_type": "composed_operand",
+            "composition_type": "divide",
+            "numerator": _operand("data_ref", "high", "high"),
+            "denominator": _operand("indicator_ref", "atr", "value", {"bars": 3}),
+        },
+        _operand("constant", 1.0),
+    )
+
+    with pytest.raises(UnsupportedSpecSignalCompilerFeature, match="unsupported composition_type"):
+        compile_signal(spec, _default_variant(), ohlcv)

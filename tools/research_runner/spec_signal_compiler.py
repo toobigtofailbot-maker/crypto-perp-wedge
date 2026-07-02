@@ -59,16 +59,23 @@ COMPOSITION_TYPE_SCALE_BY_ONE_MINUS_PARAMETER = "scale_by_one_minus_parameter"
 COMPOSITION_TYPE_SCALE_BY_ONE_PLUS_PARAMETER = "scale_by_one_plus_parameter"
 COMPOSITION_TYPE_Z_SCORE = "z_score"
 COMPOSITION_TYPE_ROLLING_EMPIRICAL_PERCENTILE = "rolling_empirical_percentile_v1"
+COMPOSITION_TYPE_ATR_NORMALIZED_CANDLE_RATIO = "atr_normalized_candle_ratio_v1"
 COMPOSITION_TYPES = {
     COMPOSITION_TYPE_SCALE_BY_ONE_MINUS_PARAMETER,
     COMPOSITION_TYPE_SCALE_BY_ONE_PLUS_PARAMETER,
     COMPOSITION_TYPE_Z_SCORE,
     COMPOSITION_TYPE_ROLLING_EMPIRICAL_PERCENTILE,
+    COMPOSITION_TYPE_ATR_NORMALIZED_CANDLE_RATIO,
 }
 COMPOSED_BASE_OPERAND_TYPES = {"data_ref", "indicator_ref"}
 COMPOSED_PARAMETER_OPERAND_TYPE = "parameter_ref"
 Z_SCORE_OPERAND_TYPES = {"data_ref", "indicator_ref"}
 Z_SCORE_ZERO_SCALE_POLICY = "null_output"
+ATR_NORMALIZED_CANDLE_RATIO_TYPES = {
+    "candle_range_atr_ratio",
+    "candle_body_atr_ratio",
+}
+ATR_NORMALIZED_CANDLE_ZERO_ATR_POLICY = "null_output"
 LOOKBACK_PARAMETER_REF_KEY = "bars_parameter_ref"
 VALUE_PARAMETER_REF_KEY = "parameter_ref"
 CROSSOVER_OPERATORS = {"crosses_above", "crosses_below"}
@@ -2177,6 +2184,8 @@ def _resolve_composed_operand(operand: Mapping[str, Any], context: _CompileConte
         return _resolve_z_score_composed_operand(operand, context)
     if composition_type == COMPOSITION_TYPE_ROLLING_EMPIRICAL_PERCENTILE:
         return _resolve_rolling_empirical_percentile_composed_operand(operand, context)
+    if composition_type == COMPOSITION_TYPE_ATR_NORMALIZED_CANDLE_RATIO:
+        return _resolve_atr_normalized_candle_ratio_composed_operand(operand, context)
 
     expected_keys = {
         "operand_type",
@@ -2335,6 +2344,56 @@ def _rolling_empirical_percentile_v1(source: pd.Series, lookback_bars: int) -> p
     )
     result.name = source.name
     return result
+
+
+def _resolve_atr_normalized_candle_ratio_composed_operand(
+    operand: Mapping[str, Any],
+    context: _CompileContext,
+) -> pd.Series:
+    expected_keys = {
+        "operand_type",
+        "composition_type",
+        "ratio_type",
+        "atr_lookback",
+        "zero_atr_policy",
+    }
+    if set(operand) != expected_keys:
+        raise SpecSignalCompilerError(
+            "atr_normalized_candle_ratio_v1 composed_operand has invalid properties"
+        )
+    ratio_type = operand.get("ratio_type")
+    if ratio_type not in ATR_NORMALIZED_CANDLE_RATIO_TYPES:
+        raise SpecSignalCompilerError(
+            "atr_normalized_candle_ratio_v1 ratio_type must be one of "
+            f"{sorted(ATR_NORMALIZED_CANDLE_RATIO_TYPES)}"
+        )
+    if operand.get("zero_atr_policy") != ATR_NORMALIZED_CANDLE_ZERO_ATR_POLICY:
+        raise SpecSignalCompilerError(
+            "atr_normalized_candle_ratio_v1 zero_atr_policy must be "
+            f"{ATR_NORMALIZED_CANDLE_ZERO_ATR_POLICY!r}"
+        )
+
+    atr_lookback = operand.get("atr_lookback")
+    if not isinstance(atr_lookback, Mapping):
+        raise SpecSignalCompilerError("atr_normalized_candle_ratio_v1 atr_lookback must be an object")
+    atr = _resolve_indicator_ref(
+        {
+            "operand_type": "indicator_ref",
+            "ref": "atr",
+            "field": "value",
+            "timeframe": None,
+            "lookback": atr_lookback,
+        },
+        context,
+    ).astype(float)
+
+    ohlcv = context.ohlcv
+    if ratio_type == "candle_range_atr_ratio":
+        numerator = ohlcv["high"].astype(float) - ohlcv["low"].astype(float)
+    else:
+        numerator = (ohlcv["close"].astype(float) - ohlcv["open"].astype(float)).abs()
+    result = numerator / atr
+    return result.mask(atr.isna() | (atr == 0.0))
 
 
 def _resolve_data_ref(operand: Mapping[str, Any], context: _CompileContext) -> pd.Series:

@@ -1,0 +1,47 @@
+WP-COMP-ATR-NORMALIZED-CANDLE-01 validation summary
+
+Base commit:
+- 45f86a8c713b8ee7def2c05edeba2476ef942c7b
+
+Commands:
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m json.tool scratch\WP-COMP-ATR-NORMALIZED-CANDLE-01\compiler_surface_contract.json
+  Result: PASS
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m json.tool scratch\WP-COMP-ATR-NORMALIZED-CANDLE-01\freeze_unblock_mapping.json
+  Result: PASS
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m json.tool scratch\WP-COMP-ATR-NORMALIZED-CANDLE-01\non_authority_assertions.json
+  Result: PASS
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.research_query.run --list-views
+  Result: PASS
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.registry.validate_result_populations
+  Result: PASS
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.registry.validate_candidate_registry
+  Result: PASS
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.registry.validate_indicator_catalogs
+  Result: PASS
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.registry.validate_strategy_specs
+  Result: PASS
+- Direct jsonschema sanity check for research/schemas/strategy_spec.schema.json and the new atr_normalized_candle_ratio_v1 operand
+  Result: PASS
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest tests/test_spec_signal_compiler.py -q
+  Result: PASS, 252 passed
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe tools/dev/diff_scope_summary.py
+  Result: PASS / advisory research/ match for allowed research/schemas/strategy_spec.schema.json
+- git diff --check
+  Result: PASS
+- git status --short
+  Result before staging: expected package files only
+
+Full pytest:
+- Not run. Package changed only the focused compiler/schema support surface and focused compiler tests plus direct schema/catalog validators passed.
+
+Boundary validation:
+- Research execution performed: false
+- Signed frozen set modified: false
+- Strategy Spec / Variant Manifest / Sweep Plan written: false
+- Result Population written: false
+- Candidate admitted: false
+- Crossing performed: false
+- Promotion/readiness created: false
+- Paper/live/runtime contact: false
+- Protected paths touched: false
+- Dependency changes: false

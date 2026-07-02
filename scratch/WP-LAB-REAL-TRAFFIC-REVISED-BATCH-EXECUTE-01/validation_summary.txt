@@ -1,0 +1,27 @@
+Validation summary for WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01
+
+Decision: blocked before execution.
+
+Planned validation:
+- JSON validation for blocked package artifacts.
+- Research query view listing.
+- Result-population validator.
+- Candidate-registry validator.
+- Diff scope summary.
+- git diff --check.
+- git status --short.
+
+Results will be appended after command execution.
+
+Actual results:
+- `python -m json.tool scratch\WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01\blocked_reason.json`: PASS
+- `python -m json.tool scratch\WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01\non_authority_assertions.json`: PASS
+- `python -m tools.research_query.run --list-views`: PASS
+- `python -m tools.registry.validate_result_populations`: PASS
+- `python -m tools.registry.validate_candidate_registry`: PASS
+- `python tools/dev/diff_scope_summary.py`: PASS; forbidden-path matches none.
+- `git diff --check`: PASS
+- `git status --short`: expected package files only before staging.
+
+Focused tests: not run; no code, schema, validator, query-layer, runner, compiler, registry, dashboard, or protected-path behavior changed.
+Full pytest: not run; no shared behavior changed and the package blocked before execution.

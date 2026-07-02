@@ -1,0 +1,38 @@
+{
+  "package": "WP-COMP-ATR-NORMALIZED-CANDLE-01",
+  "source_frozen_set": "scratch/WP-LAB-REAL-TRAFFIC-REVISED-SIGNOFF-FREEZE-01/revised_frozen_hypothesis_set.json",
+  "source_blocker": "scratch/WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01/blocked_reason.json",
+  "mappings": [
+    {
+      "hypothesis_id": "LAB-RT-HYP-002R",
+      "frozen_axis": "range_atr_min",
+      "compiler_operand": {
+        "operand_type": "composed_operand",
+        "composition_type": "atr_normalized_candle_ratio_v1",
+        "ratio_type": "candle_range_atr_ratio",
+        "atr_lookback": "literal or parameter-bound lookback supplied by future formalization",
+        "zero_atr_policy": "null_output"
+      },
+      "comparison": "candle_range_atr_ratio >= threshold"
+    },
+    {
+      "hypothesis_id": "LAB-RT-HYP-004R",
+      "frozen_axis": "body_atr_min",
+      "compiler_operand": {
+        "operand_type": "composed_operand",
+        "composition_type": "atr_normalized_candle_ratio_v1",
+        "ratio_type": "candle_body_atr_ratio",
+        "atr_lookback": "literal or parameter-bound lookback supplied by future formalization",
+        "zero_atr_policy": "null_output"
+      },
+      "comparison": "candle_body_atr_ratio >= threshold"
+    }
+  ],
+  "batch_execution": {
+    "real_traffic_batch_executed_by_this_package": false,
+    "strategy_specs_written_by_this_package": false,
+    "variant_manifests_written_by_this_package": false,
+    "sweep_plans_written_by_this_package": false,
+    "result_populations_written_by_this_package": false
+  }
+}

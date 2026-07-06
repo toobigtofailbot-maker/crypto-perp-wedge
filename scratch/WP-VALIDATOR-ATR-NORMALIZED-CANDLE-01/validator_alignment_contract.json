@@ -1,0 +1,52 @@
+{
+  "package": "WP-VALIDATOR-ATR-NORMALIZED-CANDLE-01",
+  "validator_surface": {
+    "operand_type": "composed_operand",
+    "composition_type": "atr_normalized_candle_ratio_v1",
+    "required_keys": [
+      "operand_type",
+      "composition_type",
+      "ratio_type",
+      "atr_lookback",
+      "zero_atr_policy"
+    ],
+    "allowed_ratio_types": [
+      "candle_range_atr_ratio",
+      "candle_body_atr_ratio"
+    ],
+    "atr_lookback": {
+      "allowed_forms": [
+        {
+          "bars": "integer >= 1"
+        },
+        {
+          "bars_parameter_ref": "non-empty free parameter name validated through existing integer lookback parameter rules"
+        }
+      ]
+    },
+    "zero_atr_policy": "null_output"
+  },
+  "fail_closed_constraints": {
+    "unknown_ratio_type_rejected": true,
+    "malformed_operand_rejected": true,
+    "unknown_composition_type_rejected": true,
+    "arbitrary_expression_formula_code_eval_rejected": true,
+    "nested_or_unauthorized_composed_operand_rejected": true,
+    "forbidden_executable_key_scanning_preserved": true
+  },
+  "preserved_behavior": {
+    "z_score": true,
+    "rolling_empirical_percentile_v1": true,
+    "parameter_scaling_composed_operands": true,
+    "schema_validation": true,
+    "non_authority_flags": true
+  },
+  "non_authority": {
+    "not_compiler_change": true,
+    "not_runner_change": true,
+    "not_research_execution": true,
+    "not_runtime_authority": true,
+    "not_paper_live_authority": true
+  }
+}
+

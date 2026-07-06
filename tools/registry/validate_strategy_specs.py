@@ -34,14 +34,21 @@ SCALED_PARAMETER_COMPOSITION_TYPES = {
 }
 COMPOSITION_TYPE_Z_SCORE = "z_score"
 COMPOSITION_TYPE_ROLLING_EMPIRICAL_PERCENTILE = "rolling_empirical_percentile_v1"
+COMPOSITION_TYPE_ATR_NORMALIZED_CANDLE_RATIO = "atr_normalized_candle_ratio_v1"
 COMPOSITION_TYPES = SCALED_PARAMETER_COMPOSITION_TYPES | {
     COMPOSITION_TYPE_Z_SCORE,
     COMPOSITION_TYPE_ROLLING_EMPIRICAL_PERCENTILE,
+    COMPOSITION_TYPE_ATR_NORMALIZED_CANDLE_RATIO,
 }
 COMPOSED_BASE_OPERAND_TYPES = {"data_ref", "indicator_ref"}
 COMPOSED_PARAMETER_OPERAND_TYPE = "parameter_ref"
 Z_SCORE_OPERAND_TYPES = {"data_ref", "indicator_ref"}
 Z_SCORE_ZERO_SCALE_POLICY = "null_output"
+ATR_NORMALIZED_CANDLE_RATIO_TYPES = {
+    "candle_range_atr_ratio",
+    "candle_body_atr_ratio",
+}
+ATR_NORMALIZED_CANDLE_ZERO_ATR_POLICY = "null_output"
 SIDE_LABELS = {"long", "short"}
 BOTH_DIRECTION = "both"
 SINGLE_DIRECTIONS = {"long", "short"}
@@ -560,6 +567,41 @@ def _validate_composed_operands(path: Path, payload: dict[str, Any]) -> list[str
                                     f"{path}: {operand_path}.source_operand data_ref field {field!r} "
                                     "must be declared in timeframe_and_data.host_data_refs"
                                 )
+                    elif composition_type == COMPOSITION_TYPE_ATR_NORMALIZED_CANDLE_RATIO:
+                        expected_keys = {
+                            "operand_type",
+                            "composition_type",
+                            "ratio_type",
+                            "atr_lookback",
+                            "zero_atr_policy",
+                        }
+                        if set(operand) != expected_keys:
+                            errors.append(f"{path}: {operand_path} has invalid composed_operand properties")
+                        ratio_type = operand.get("ratio_type")
+                        if ratio_type not in ATR_NORMALIZED_CANDLE_RATIO_TYPES:
+                            errors.append(
+                                f"{path}: {operand_path}.ratio_type must be one of "
+                                f"{sorted(ATR_NORMALIZED_CANDLE_RATIO_TYPES)}"
+                            )
+                        if operand.get("zero_atr_policy") != ATR_NORMALIZED_CANDLE_ZERO_ATR_POLICY:
+                            errors.append(
+                                f"{path}: {operand_path}.zero_atr_policy must be "
+                                f"{ATR_NORMALIZED_CANDLE_ZERO_ATR_POLICY!r}"
+                            )
+                        atr_lookback = operand.get("atr_lookback")
+                        if not isinstance(atr_lookback, dict):
+                            errors.append(f"{path}: {operand_path}.atr_lookback must be an object")
+                        elif set(atr_lookback) not in ({"bars"}, {LOOKBACK_PARAMETER_REF_KEY}):
+                            errors.append(
+                                f"{path}: {operand_path}.atr_lookback must use exactly one of "
+                                f"'bars' or {LOOKBACK_PARAMETER_REF_KEY!r}"
+                            )
+                        elif "bars" in atr_lookback:
+                            bars = atr_lookback.get("bars")
+                            if not _is_non_bool_int(bars) or bars < 1:
+                                errors.append(
+                                    f"{path}: {operand_path}.atr_lookback.bars must be an integer >= 1"
+                                )
 
     for composed_path, _ in _walk_composed_operands(payload, []):
         if composed_path not in condition_operand_paths:
@@ -710,6 +752,27 @@ def _validate_parameter_bound_lookbacks(path: Path, payload: dict[str, Any]) -> 
                 path,
                 operand_path,
                 lookback.get(LOOKBACK_PARAMETER_REF_KEY),
+                declarations,
+            )
+        )
+
+    for operand_path, operand in _walk_operands(payload, []):
+        if (
+            operand.get("operand_type") != COMPOSED_OPERAND_TYPE
+            or operand.get("composition_type") != COMPOSITION_TYPE_ATR_NORMALIZED_CANDLE_RATIO
+        ):
+            continue
+        atr_lookback = operand.get("atr_lookback")
+        if not isinstance(atr_lookback, dict) or LOOKBACK_PARAMETER_REF_KEY not in atr_lookback:
+            continue
+        if set(atr_lookback) != {LOOKBACK_PARAMETER_REF_KEY}:
+            errors.append(f"{path}: {operand_path}.atr_lookback has invalid parameter-bound properties")
+            continue
+        errors.extend(
+            _validate_integer_lookback_parameter(
+                path,
+                f"{operand_path}.atr_lookback",
+                atr_lookback.get(LOOKBACK_PARAMETER_REF_KEY),
                 declarations,
             )
         )

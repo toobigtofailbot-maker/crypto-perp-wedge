@@ -635,6 +635,27 @@ def _funding_percentile_strategy_spec(*, declare_funding: bool = True) -> dict:
     return payload
 
 
+def _strategy_spec_with_atr_normalized_candle_ratio(
+    *,
+    ratio_type: str = "candle_range_atr_ratio",
+    atr_lookback: dict | None = None,
+) -> dict:
+    payload = _base_strategy_spec()
+    payload["entry_logic"]["groups"][0]["conditions"][0]["left_operand"] = {
+        "operand_type": "composed_operand",
+        "composition_type": "atr_normalized_candle_ratio_v1",
+        "ratio_type": ratio_type,
+        "atr_lookback": atr_lookback if atr_lookback is not None else {"bars": 14},
+        "zero_atr_policy": "null_output",
+    }
+    payload["entry_logic"]["groups"][0]["conditions"][0]["operator"] = "gte"
+    payload["entry_logic"]["groups"][0]["conditions"][0]["right_operand"] = _standard_operand(
+        "constant",
+        1.0,
+    )
+    return payload
+
+
 def _validate(
     tmp_path: Path,
     payload: dict,
@@ -1760,6 +1781,68 @@ def test_forbidden_key_inside_z_score_composed_operand_fails(tmp_path):
     errors = _validate(tmp_path, payload)
 
     assert any("forbidden executable key name" in error and "eval" in error for error in errors)
+
+
+def test_atr_normalized_candle_range_ratio_passes_schema_and_validator(tmp_path):
+    payload = _strategy_spec_with_atr_normalized_candle_ratio(
+        ratio_type="candle_range_atr_ratio"
+    )
+    schema = _load_schema()
+
+    assert Draft7Validator(schema).is_valid(payload)
+    assert _validate(tmp_path, payload) == []
+
+
+def test_atr_normalized_candle_body_ratio_passes_schema_and_validator(tmp_path):
+    payload = _strategy_spec_with_atr_normalized_candle_ratio(
+        ratio_type="candle_body_atr_ratio"
+    )
+    schema = _load_schema()
+
+    assert Draft7Validator(schema).is_valid(payload)
+    assert _validate(tmp_path, payload) == []
+
+
+def test_atr_normalized_candle_ratio_accepts_parameter_bound_atr_lookback(tmp_path):
+    payload = _strategy_spec_with_atr_normalized_candle_ratio(
+        atr_lookback={"bars_parameter_ref": "atr_lookback_bars"}
+    )
+    payload["free_parameters"]["parameters"] = [
+        _lookback_parameter(name="atr_lookback_bars", default=14)
+    ]
+    payload["free_parameters"]["no_free_parameters_declared"] = False
+
+    assert _validate(tmp_path, payload) == []
+
+
+def test_atr_normalized_candle_ratio_rejects_unknown_ratio_type(tmp_path):
+    payload = _strategy_spec_with_atr_normalized_candle_ratio(
+        ratio_type="candle_wick_atr_ratio"
+    )
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("ratio_type" in error for error in errors)
+
+
+def test_atr_normalized_candle_ratio_rejects_malformed_operand(tmp_path):
+    payload = _strategy_spec_with_atr_normalized_candle_ratio()
+    del payload["entry_logic"]["groups"][0]["conditions"][0]["left_operand"]["zero_atr_policy"]
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("invalid composed_operand properties" in error for error in errors)
+
+
+def test_atr_normalized_candle_ratio_rejects_arbitrary_expression_payload(tmp_path):
+    payload = _strategy_spec_with_atr_normalized_candle_ratio()
+    payload["entry_logic"]["groups"][0]["conditions"][0]["left_operand"]["formula"] = (
+        "(high - low) / atr(14)"
+    )
+
+    errors = _validate(tmp_path, payload)
+
+    assert any("forbidden executable key name" in error and "formula" in error for error in errors)
 
 
 def test_strategy_spec_validator_does_not_import_compiler_runner_or_lib_modules():

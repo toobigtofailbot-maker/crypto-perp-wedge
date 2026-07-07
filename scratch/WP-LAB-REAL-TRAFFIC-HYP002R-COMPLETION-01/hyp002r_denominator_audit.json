@@ -1,0 +1,92 @@
+{
+  "blocked_rows": 0,
+  "dropped_rows": 0,
+  "executed_successful_rows": 8,
+  "failed_invalid_errored_no_trade_rows_preserved": true,
+  "frozen_denominator_rows": 8,
+  "hypothesis_id": "LAB-RT-HYP-002R",
+  "outcome_category_counts": {
+    "aborted": 0,
+    "counts_sum": 8,
+    "counts_sum_equals_committed_denominator": true,
+    "data_unavailable": 0,
+    "errored": 0,
+    "excluded": 0,
+    "failed": 0,
+    "filtered": 0,
+    "invalid": 0,
+    "not_attempted": 0,
+    "successful": 8
+  },
+  "package": "WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01",
+  "parameter_expansion_after_results_performed": false,
+  "preserved_rows": 8,
+  "retuning_after_results_performed": false,
+  "row_results": [
+    {
+      "drawdown": 0.7727628573399717,
+      "outcome_category": "successful",
+      "pnl": 37140.25077441437,
+      "return_pct": 3.714025077441437,
+      "trade_count": 27,
+      "variant_id": "VAR-000001"
+    },
+    {
+      "drawdown": 0.7727654107626626,
+      "outcome_category": "successful",
+      "pnl": 52665.051731798114,
+      "return_pct": 5.266505173179811,
+      "trade_count": 11,
+      "variant_id": "VAR-000002"
+    },
+    {
+      "drawdown": 0.7727579806235765,
+      "outcome_category": "successful",
+      "pnl": 58588.80249447064,
+      "return_pct": 5.858880249447064,
+      "trade_count": 13,
+      "variant_id": "VAR-000003"
+    },
+    {
+      "drawdown": 0.7727593688464381,
+      "outcome_category": "successful",
+      "pnl": 61907.93297432804,
+      "return_pct": 6.190793297432804,
+      "trade_count": 10,
+      "variant_id": "VAR-000004"
+    },
+    {
+      "drawdown": 0.772756400796087,
+      "outcome_category": "successful",
+      "pnl": 68636.49850121536,
+      "return_pct": 6.863649850121536,
+      "trade_count": 10,
+      "variant_id": "VAR-000005"
+    },
+    {
+      "drawdown": 0.7727629826295848,
+      "outcome_category": "successful",
+      "pnl": 39083.393867169216,
+      "return_pct": 3.9083393867169214,
+      "trade_count": 27,
+      "variant_id": "VAR-000006"
+    },
+    {
+      "drawdown": 0.7727593688464383,
+      "outcome_category": "successful",
+      "pnl": 56901.3742063674,
+      "return_pct": 5.69013742063674,
+      "trade_count": 15,
+      "variant_id": "VAR-000007"
+    },
+    {
+      "drawdown": 0.7727654107626627,
+      "outcome_category": "successful",
+      "pnl": 55438.63815183043,
+      "return_pct": 5.543863815183044,
+      "trade_count": 11,
+      "variant_id": "VAR-000008"
+    }
+  ],
+  "winner_only_pruning_performed": false
+}

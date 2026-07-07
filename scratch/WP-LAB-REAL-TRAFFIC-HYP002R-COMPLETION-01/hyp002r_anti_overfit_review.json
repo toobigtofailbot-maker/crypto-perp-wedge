@@ -1,0 +1,15 @@
+{
+  "anti_overfit_review_produced": true,
+  "full_denominator_retained": true,
+  "go_like_evidence": false,
+  "hypothesis_id": "LAB-RT-HYP-002R",
+  "notes": [
+    "8/8 positive PnL rows were retained and reported.",
+    "No threshold was changed after results.",
+    "High drawdown around 77.28% prevents GO-like interpretation despite positive PnL."
+  ],
+  "package": "WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01",
+  "parameter_expansion_after_results_performed": false,
+  "post_result_retuning_performed": false,
+  "winner_only_pruning_performed": false
+}

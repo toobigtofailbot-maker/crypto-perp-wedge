@@ -1,0 +1,85 @@
+{
+  "base_commit": "b268fe82ad343b8d8471429ed5dfc866e17d9e50",
+  "decision": "execute_hyp002r_only",
+  "denominator_axes_preserved": [
+    "rvol_lookback_bars",
+    "rvol_min",
+    "range_atr_min"
+  ],
+  "denominator_count_preserved": 8,
+  "formalized_title": "LAB-RT-HYP-002R RVOL gated previous-bar range breakout",
+  "frozen_set_source": "scratch/WP-LAB-REAL-TRAFFIC-REVISED-SIGNOFF-FREEZE-01/revised_frozen_hypothesis_set.json",
+  "frozen_title": "BTCUSDT 15m RVOL-gated range-expansion breakout",
+  "hypothesis_id": "LAB-RT-HYP-002R",
+  "matched_frozen_set": true,
+  "no_donchian_substitution": true,
+  "no_orb_session_anchor_substitution": true,
+  "no_parameter_expansion": true,
+  "no_retuning": true,
+  "package": "WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01",
+  "previous_bar_high_low_mapping": {
+    "closed_reference_route": "previous_bar_high / previous_bar_low closed primitive_ref route",
+    "previous_bar_high": {
+      "primitive_collection": "previous_bar_refs",
+      "primitive_ref_field": "high",
+      "semantics": "current row references high from t-1 only",
+      "supported": true
+    },
+    "previous_bar_low": {
+      "primitive_collection": "previous_bar_refs",
+      "primitive_ref_field": "low",
+      "semantics": "current row references low from t-1 only",
+      "supported": true
+    },
+    "supported": true
+  },
+  "runner_surface_contract": {
+    "allowed_config": {
+      "fields": [
+        "high",
+        "low"
+      ],
+      "lag_bars": 1,
+      "missing_prior_policy": "null_output",
+      "source": "ohlcv"
+    },
+    "allowed_operand": {
+      "field": [
+        "high",
+        "low"
+      ],
+      "lookback": null,
+      "operand_type": "primitive_ref",
+      "timeframe": null
+    },
+    "authority": {
+      "candidate_authority": false,
+      "crossing_authority": false,
+      "paper_live_runtime_authority": false,
+      "research_execution_authority": false
+    },
+    "package": "WP-RUNNER-PREVIOUS-BAR-HIGHLOW-REF-01",
+    "primitive_collection": "previous_bar_refs",
+    "primitive_id_key": "ref_id",
+    "rejections": [
+      "arbitrary_lag_expressions",
+      "arbitrary_formulas",
+      "dynamic_eval_code_script",
+      "future_bar_references",
+      "lookahead_labels",
+      "generic_sql_python_expression_fields",
+      "unsupported_previous_bar_fields"
+    ],
+    "semantics": {
+      "condition_null_policy": "predicate false through existing evaluator",
+      "first_row": "null_output",
+      "lookahead_allowed": false,
+      "missing_prior_high_or_low": "null_output",
+      "previous_bar_high": "ohlcv.high.shift(1)",
+      "previous_bar_low": "ohlcv.low.shift(1)"
+    },
+    "status": "supported",
+    "surface": "strategy_spec_online_ohlcv_primitives.previous_bar_refs"
+  },
+  "signed_frozen_set_modified": false
+}

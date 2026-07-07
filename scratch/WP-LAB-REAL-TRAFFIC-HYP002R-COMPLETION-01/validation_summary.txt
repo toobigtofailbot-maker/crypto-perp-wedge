@@ -1,0 +1,31 @@
+Package: WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01
+Decision: complete
+
+JSON validation:
+- PASS: 14 produced JSON artifacts parsed with python -m json.tool.
+
+Package-local artifact validators:
+- PASS: python -m tools.registry.validate_strategy_specs --strategy-specs-dir scratch\WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01\inputs\LAB-RT-HYP-002R
+- PASS: python -m tools.registry.validate_variant_sweep_artifacts --strategy-specs-dir scratch\WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01\inputs\LAB-RT-HYP-002R --variant-manifests-dir scratch\WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01\inputs\LAB-RT-HYP-002R --sweep-plans-dir scratch\WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01\inputs\LAB-RT-HYP-002R
+
+Runner evidence:
+- PASS: HYP-002R package-local offline dry-run completed.
+- Result population id: RP-1413, dry-run only, canonical write false.
+- Denominator: 8/8 preserved, 8 successful rows, 0 blocked/invalid/no-trade rows.
+- GO-like evidence: false; max drawdown 0.772765 fails the frozen screen.
+
+Standard validators:
+- PASS: python -m tools.research_query.run --list-views
+- PASS: python -m tools.registry.validate_result_populations
+- PASS: python -m tools.registry.validate_candidate_registry
+- PASS: python tools/dev/diff_scope_summary.py
+- PASS: git diff --check
+- PASS: git status --short showed only allowed untracked package files before staging.
+
+Tests:
+- Focused tests: not run; no code changes.
+- Full pytest: not run; no shared code, schema, validator, query-layer, runner, protected path, or runtime behavior changed.
+
+Boundary:
+- No canonical Result Population write.
+- No candidate admission, crossing, promotion/readiness, paper/live/runtime, private provider/API, scheduler activation, notification sending, dependency change, data acquisition, signed frozen-set mutation, or protected-path work.

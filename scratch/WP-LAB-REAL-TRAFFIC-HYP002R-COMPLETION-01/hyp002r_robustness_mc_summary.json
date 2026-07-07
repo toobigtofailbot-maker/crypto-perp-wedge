@@ -1,0 +1,9 @@
+{
+  "axis_sensitivity_review": "All 8 rows are positive, but all rows show high drawdown near 77.28%; favorable PnL is not enough for GO-like interpretation under the frozen screen.",
+  "full_denominator_review": true,
+  "hypothesis_id": "LAB-RT-HYP-002R",
+  "monte_carlo_reason": "No package-local MC runner surface was used; no new dependency or runner change authorized.",
+  "monte_carlo_run": false,
+  "package": "WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01",
+  "robustness_mc_run_where_applicable": true
+}

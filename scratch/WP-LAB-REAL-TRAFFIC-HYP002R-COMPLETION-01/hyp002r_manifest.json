@@ -1,0 +1,52 @@
+{
+  "base_commit": "b268fe82ad343b8d8471429ed5dfc866e17d9e50",
+  "canonical_write": false,
+  "decision": "complete",
+  "dry_run": true,
+  "go_candidate_worthy_decision_packet": "not_applicable_no_go_like_evidence",
+  "go_like_evidence": false,
+  "hyp002r_summary": {
+    "blocked_invalid_no_trade_rows": 0,
+    "canonical_write": false,
+    "denominator": 8,
+    "dry_run": true,
+    "max_drawdown": 0.7727654107626627,
+    "median_fees": 75.77949541285537,
+    "median_pnl": 56170.00617909891,
+    "median_return_pct": 5.617000617909891,
+    "median_slippage": 18.944873853213842,
+    "positive_pnl_rows": 8,
+    "result_population_id": "RP-1413",
+    "successful_rows": 8,
+    "trade_counts": [
+      27,
+      11,
+      13,
+      10,
+      10,
+      27,
+      15,
+      11
+    ],
+    "walkforward_rows": 24,
+    "walkforward_successful_rows": 24,
+    "walkforward_warnings": [],
+    "walkforward_window_count": 3
+  },
+  "hypothesis_id": "LAB-RT-HYP-002R",
+  "non_promotion_posture": true,
+  "package": "WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01",
+  "prior_batch_sources": [
+    "scratch/WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01/real_traffic_batch_manifest.json",
+    "scratch/WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01/denominator_preservation_audit.json",
+    "scratch/WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01/strategy_reading_summary.json",
+    "scratch/WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01/validation_summary.txt"
+  ],
+  "result_population_id": "RP-1413",
+  "runner_output": "scratch/WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01/runner_outputs/LAB-RT-HYP-002R.runner_result.json",
+  "runner_output_sha256": "sha256:4282aeead821eb1fed2d33055329de8343cf6f5de976779c7c26ab409ea87aaa",
+  "stop_after_human_decision_packet": false,
+  "strategy_spec": "scratch/WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01/inputs/LAB-RT-HYP-002R/STRAT-SPEC-9102.strategy_spec.json",
+  "sweep_plan": "scratch/WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01/inputs/LAB-RT-HYP-002R/SWEEP-PLAN-9102.sweep_plan.json",
+  "variant_manifest": "scratch/WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01/inputs/LAB-RT-HYP-002R/VM-9102.variant_manifest.json"
+}

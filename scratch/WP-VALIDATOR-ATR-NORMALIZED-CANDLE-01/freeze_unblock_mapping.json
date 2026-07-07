@@ -1,0 +1,39 @@
+{
+  "package": "WP-VALIDATOR-ATR-NORMALIZED-CANDLE-01",
+  "source_blocker": "scratch/WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01/blocked_reason.json",
+  "source_compiler_mapping": "scratch/WP-COMP-ATR-NORMALIZED-CANDLE-01/freeze_unblock_mapping.json",
+  "mappings": [
+    {
+      "frozen_axis": "LAB-RT-HYP-002R.range_atr_min",
+      "validator_operand": {
+        "operand_type": "composed_operand",
+        "composition_type": "atr_normalized_candle_ratio_v1",
+        "ratio_type": "candle_range_atr_ratio",
+        "atr_lookback": "literal or parameter-bound lookback supplied by later authorized formalization",
+        "zero_atr_policy": "null_output"
+      },
+      "comparison": "atr_normalized_candle_ratio_v1.candle_range_atr_ratio >= threshold",
+      "validator_status": "validator accepted"
+    },
+    {
+      "frozen_axis": "LAB-RT-HYP-004R.body_atr_min",
+      "validator_operand": {
+        "operand_type": "composed_operand",
+        "composition_type": "atr_normalized_candle_ratio_v1",
+        "ratio_type": "candle_body_atr_ratio",
+        "atr_lookback": "literal or parameter-bound lookback supplied by later authorized formalization",
+        "zero_atr_policy": "null_output"
+      },
+      "comparison": "atr_normalized_candle_ratio_v1.candle_body_atr_ratio >= threshold",
+      "validator_status": "validator accepted"
+    }
+  ],
+  "batch_execution": {
+    "real_traffic_batch_executed_by_this_package": false,
+    "strategy_specs_written_by_this_package": false,
+    "variant_manifests_written_by_this_package": false,
+    "sweep_plans_written_by_this_package": false,
+    "result_populations_written_by_this_package": false
+  }
+}
+

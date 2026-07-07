@@ -1,0 +1,31 @@
+WP-VALIDATOR-ATR-NORMALIZED-CANDLE-01 validation summary
+
+Completed:
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m json.tool scratch\WP-VALIDATOR-ATR-NORMALIZED-CANDLE-01\validator_alignment_contract.json
+  Result: PASS.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m json.tool scratch\WP-VALIDATOR-ATR-NORMALIZED-CANDLE-01\freeze_unblock_mapping.json
+  Result: PASS.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m json.tool scratch\WP-VALIDATOR-ATR-NORMALIZED-CANDLE-01\non_authority_assertions.json
+  Result: PASS.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest tests\test_validate_strategy_specs.py -q
+  Result: PASS, 111 passed.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest tests\test_spec_signal_compiler.py -q
+  Result: PASS, 252 passed.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.registry.validate_strategy_specs
+  Result: PASS, Strategy Spec artifacts validate.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.research_query.run --list-views
+  Result: PASS, views listed.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.registry.validate_result_populations
+  Result: PASS, result-population artifacts validate.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.registry.validate_candidate_registry
+  Result: PASS, candidate lifecycle registry artifacts validate.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe tools\dev\diff_scope_summary.py
+  Result: PASS, no forbidden-path matches.
+- git diff --check
+  Result: PASS.
+
+Not run:
+- Full pytest. Reason: package changed only the narrow Strategy Spec validator/test surface; focused validator and compiler suites passed.
+
+Environment note:
+- Initial bare `python -m pytest tests\test_spec_signal_compiler.py -q` used system Python and failed at collection because pandas is not installed there. The repo venv command passed.

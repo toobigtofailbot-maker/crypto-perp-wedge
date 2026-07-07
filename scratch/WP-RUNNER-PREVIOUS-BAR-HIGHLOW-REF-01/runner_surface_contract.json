@@ -1,0 +1,48 @@
+{
+  "package": "WP-RUNNER-PREVIOUS-BAR-HIGHLOW-REF-01",
+  "surface": "strategy_spec_online_ohlcv_primitives.previous_bar_refs",
+  "status": "supported",
+  "primitive_collection": "previous_bar_refs",
+  "primitive_id_key": "ref_id",
+  "allowed_config": {
+    "source": "ohlcv",
+    "lag_bars": 1,
+    "fields": [
+      "high",
+      "low"
+    ],
+    "missing_prior_policy": "null_output"
+  },
+  "allowed_operand": {
+    "operand_type": "primitive_ref",
+    "field": [
+      "high",
+      "low"
+    ],
+    "timeframe": null,
+    "lookback": null
+  },
+  "semantics": {
+    "previous_bar_high": "ohlcv.high.shift(1)",
+    "previous_bar_low": "ohlcv.low.shift(1)",
+    "first_row": "null_output",
+    "missing_prior_high_or_low": "null_output",
+    "condition_null_policy": "predicate false through existing evaluator",
+    "lookahead_allowed": false
+  },
+  "rejections": [
+    "arbitrary_lag_expressions",
+    "arbitrary_formulas",
+    "dynamic_eval_code_script",
+    "future_bar_references",
+    "lookahead_labels",
+    "generic_sql_python_expression_fields",
+    "unsupported_previous_bar_fields"
+  ],
+  "authority": {
+    "research_execution_authority": false,
+    "candidate_authority": false,
+    "crossing_authority": false,
+    "paper_live_runtime_authority": false
+  }
+}

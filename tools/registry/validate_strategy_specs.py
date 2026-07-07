@@ -104,6 +104,7 @@ PRIMITIVE_COLLECTIONS = {
     "opening_range_breakouts": "breakout_id",
     "opening_range_retests": "retest_id",
     "candle_shapes": "predicate_id",
+    "previous_bar_refs": "ref_id",
 }
 FORBIDDEN_EXECUTABLE_KEYS = {
     "expression",
@@ -1323,6 +1324,19 @@ def _validate_online_ohlcv_primitives(path: Path, payload: dict[str, Any]) -> li
             if predicate.get("units") != "fraction_of_range":
                 errors.append(f"{path}: {field_path}.units must be fraction_of_range")
 
+    for index, item in enumerate(primitives.get("previous_bar_refs", []) or []):
+        if not isinstance(item, dict):
+            continue
+        item_path = f"online_ohlcv_primitives.previous_bar_refs.{index}"
+        if item.get("source") != "ohlcv":
+            errors.append(f"{path}: {item_path}.source must be 'ohlcv'")
+        if item.get("lag_bars") != 1:
+            errors.append(f"{path}: {item_path}.lag_bars must be 1")
+        if item.get("fields") != ["high", "low"]:
+            errors.append(f"{path}: {item_path}.fields must be exactly ['high', 'low']")
+        if item.get("missing_prior_policy") != "null_output":
+            errors.append(f"{path}: {item_path}.missing_prior_policy must be 'null_output'")
+
     declared_primitive_ids = set(seen_ids)
     for operand_path, operand in _walk_operands(payload, []):
         if operand.get("operand_type") != PRIMITIVE_REF_OPERAND_TYPE:
@@ -1330,6 +1344,11 @@ def _validate_online_ohlcv_primitives(path: Path, payload: dict[str, Any]) -> li
         ref = operand.get("ref")
         if ref not in declared_primitive_ids:
             errors.append(f"{path}: {operand_path}.ref references unknown primitive {ref!r}")
+            continue
+        collection = seen_ids.get(str(ref))
+        field = operand.get("field")
+        if collection == "previous_bar_refs" and field not in {"high", "low"}:
+            errors.append(f"{path}: {operand_path}.field must be high or low for previous_bar_ref")
         if operand.get("timeframe") not in (None, ""):
             errors.append(f"{path}: {operand_path}.timeframe must be null for primitive_ref")
         if operand.get("lookback") is not None:

@@ -837,6 +837,33 @@
         { "required": ["body_pct"] }
       ]
     },
+    "previous_bar_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref_id",
+        "source",
+        "lag_bars",
+        "fields",
+        "missing_prior_policy"
+      ],
+      "properties": {
+        "ref_id": { "$ref": "#/definitions/non_empty_string" },
+        "source": { "type": "string", "const": "ohlcv" },
+        "lag_bars": { "type": "integer", "const": 1 },
+        "fields": {
+          "type": "array",
+          "items": [
+            { "type": "string", "const": "high" },
+            { "type": "string", "const": "low" }
+          ],
+          "additionalItems": false,
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "missing_prior_policy": { "type": "string", "const": "null_output" }
+      }
+    },
     "online_ohlcv_primitives": {
       "type": "object",
       "additionalProperties": false,
@@ -860,6 +887,10 @@
         "candle_shapes": {
           "type": "array",
           "items": { "$ref": "#/definitions/candle_shape" }
+        },
+        "previous_bar_refs": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/previous_bar_ref" }
         }
       }
     },

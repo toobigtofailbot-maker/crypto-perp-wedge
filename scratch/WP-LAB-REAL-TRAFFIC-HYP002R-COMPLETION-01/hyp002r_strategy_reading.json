@@ -1,0 +1,36 @@
+{
+  "frozen_mechanics_preserved": true,
+  "hypothesis_id": "LAB-RT-HYP-002R",
+  "metrics_summary": {
+    "blocked_invalid_no_trade_rows": 0,
+    "canonical_write": false,
+    "denominator": 8,
+    "dry_run": true,
+    "max_drawdown": 0.7727654107626627,
+    "median_fees": 75.77949541285537,
+    "median_pnl": 56170.00617909891,
+    "median_return_pct": 5.617000617909891,
+    "median_slippage": 18.944873853213842,
+    "positive_pnl_rows": 8,
+    "result_population_id": "RP-1413",
+    "successful_rows": 8,
+    "trade_counts": [
+      27,
+      11,
+      13,
+      10,
+      10,
+      27,
+      15,
+      11
+    ],
+    "walkforward_rows": 24,
+    "walkforward_successful_rows": 24,
+    "walkforward_warnings": [],
+    "walkforward_window_count": 3
+  },
+  "non_promoting_interpretation": "Positive PnL rows are offset by drawdown around 77.28%, so the frozen GO screen is not met.",
+  "package": "WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01",
+  "reading": "RVOL-gated immediately previous-bar high/low range-expansion breakout; not Donchian, not ORB, not session-anchor substitution.",
+  "result_context_flags": []
+}

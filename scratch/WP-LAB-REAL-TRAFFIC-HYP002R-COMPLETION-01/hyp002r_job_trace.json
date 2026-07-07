@@ -1,0 +1,30 @@
+{
+  "aborted": false,
+  "canonical_15m": true,
+  "deterministic_seed": 9100,
+  "execution_performed": true,
+  "full_result_capture_reason": "CLI stdout currently omits result_population payload; in-process runner return preserves full denominator row evidence.",
+  "hypothesis_id": "LAB-RT-HYP-002R",
+  "max_workers_cli_probe": 4,
+  "max_workers_full_result_capture": 1,
+  "ok": true,
+  "outcome_category_counts": {
+    "aborted": 0,
+    "counts_sum": 8,
+    "counts_sum_equals_committed_denominator": true,
+    "data_unavailable": 0,
+    "errored": 0,
+    "excluded": 0,
+    "failed": 0,
+    "filtered": 0,
+    "invalid": 0,
+    "not_attempted": 0,
+    "successful": 8
+  },
+  "package": "WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01",
+  "runner": "tools.research_runner.run_offline_sweep",
+  "runner_invocation_mode": "package-local dry-run; in-process call used to preserve full returned result_population object",
+  "sizing_mode": "dynamic_equity_target_leverage",
+  "target_leverage": 1.0,
+  "wrote": false
+}

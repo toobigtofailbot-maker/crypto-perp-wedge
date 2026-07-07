@@ -1,0 +1,22 @@
+{
+  "canonical_write": false,
+  "hypothesis_id": "LAB-RT-HYP-002R",
+  "method": "runner dry-run walkforward, bounded to 3 chronological windows",
+  "package": "WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01",
+  "protocol": {
+    "boundary_semantics": "start_inclusive_end_exclusive",
+    "in_sample_bars": 6000,
+    "no_lookahead_boundary": "OOS rows are never used to choose variants; each row reports the same predeclared included variants across IS and later OOS windows.",
+    "out_of_sample_bars": 1500,
+    "purge_embargo": "not_implemented_deferred_by_design",
+    "selection_behavior": "no_selection_partition_and_report_all_included_variants",
+    "step_bars": 7500,
+    "timezone": "UTC",
+    "window_type": "rolling_non_overlapping_build_test"
+  },
+  "rows": 24,
+  "successful_rows": 24,
+  "warnings": [],
+  "wfo_oos_run_where_applicable": true,
+  "window_count": 3
+}

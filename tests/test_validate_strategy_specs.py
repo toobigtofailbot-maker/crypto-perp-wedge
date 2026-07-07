@@ -252,6 +252,15 @@ def _online_primitives() -> dict:
                 "side_mode": "side_specific",
             }
         ],
+        "previous_bar_refs": [
+            {
+                "ref_id": "PREV-BAR-HL",
+                "source": "ohlcv",
+                "lag_bars": 1,
+                "fields": ["high", "low"],
+                "missing_prior_policy": "null_output",
+            }
+        ],
     }
 
 
@@ -873,6 +882,25 @@ def test_valid_online_ohlcv_primitives_pass_schema_and_validator(tmp_path):
     assert _validate(tmp_path, payload) == []
 
 
+def test_previous_bar_high_low_refs_pass_schema_and_validator(tmp_path):
+    payload = _base_strategy_spec()
+    payload["online_ohlcv_primitives"] = _online_primitives()
+    payload["entry_logic"]["groups"][0]["conditions"][0]["left_operand"] = _standard_operand(
+        "data_ref",
+        "close",
+        "close",
+    )
+    payload["entry_logic"]["groups"][0]["conditions"][0]["right_operand"] = _primitive_ref(
+        "PREV-BAR-HL",
+        "high",
+    )
+
+    errors = _validate(tmp_path, payload)
+
+    assert Draft7Validator(_load_schema()).is_valid(payload)
+    assert errors == []
+
+
 def test_online_ohlcv_primitive_parameter_refs_pass_schema_and_validator(tmp_path):
     payload = _base_strategy_spec()
     payload["online_ohlcv_primitives"] = _online_primitives()
@@ -1102,6 +1130,29 @@ def test_online_ohlcv_primitives_reject_invalid_closed_forms(tmp_path):
     payload["entry_logic"]["groups"][0]["conditions"][0]["left_operand"] = _primitive_ref("UNKNOWN", "long")
     payload["entry_logic"]["groups"][0]["conditions"][0]["operator"] = "is_true"
     cases.append((payload, "unknown primitive"))
+
+    payload = _base_strategy_spec()
+    payload["online_ohlcv_primitives"] = _online_primitives()
+    payload["online_ohlcv_primitives"]["previous_bar_refs"][0]["lag_bars"] = 2
+    cases.append((payload, "lag_bars"))
+
+    payload = _base_strategy_spec()
+    payload["online_ohlcv_primitives"] = _online_primitives()
+    payload["online_ohlcv_primitives"]["previous_bar_refs"][0]["fields"] = ["high", "close"]
+    cases.append((payload, "fields"))
+
+    payload = _base_strategy_spec()
+    payload["online_ohlcv_primitives"] = _online_primitives()
+    payload["entry_logic"]["groups"][0]["conditions"][0]["right_operand"] = _primitive_ref(
+        "PREV-BAR-HL",
+        "close",
+    )
+    cases.append((payload, "field must be high or low"))
+
+    payload = _base_strategy_spec()
+    payload["online_ohlcv_primitives"] = _online_primitives()
+    payload["online_ohlcv_primitives"]["previous_bar_refs"][0]["expression"] = "high.shift(1)"
+    cases.append((payload, "expression"))
 
     for index, (case, expected) in enumerate(cases, start=1):
         case["strategy_spec_id"] = f"STRAT-SPEC-91{index:02d}"

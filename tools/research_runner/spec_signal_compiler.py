@@ -121,6 +121,7 @@ OPENING_RANGES_KEY = "opening_ranges"
 OPENING_RANGE_BREAKOUTS_KEY = "opening_range_breakouts"
 OPENING_RANGE_RETESTS_KEY = "opening_range_retests"
 CANDLE_SHAPES_KEY = "candle_shapes"
+PREVIOUS_BAR_REFS_KEY = "previous_bar_refs"
 TIME_EXIT_ALLOWED_KEYS = {"session_end"}
 SESSION_END_ALLOWED_KEYS = {
     "enabled",
@@ -2154,7 +2155,36 @@ def _resolve_primitive_ref(operand: Mapping[str, Any], context: _CompileContext)
         if field not in {"long", "short", "value"}:
             raise SpecSignalCompilerError("candle_shape primitive_ref.field must be long, short, or value")
         return state[field]
+    if ref in _primitive_by_id(context, PREVIOUS_BAR_REFS_KEY, "ref_id"):
+        state = _previous_bar_ref_state(context, ref)
+        if field not in {"high", "low"}:
+            raise SpecSignalCompilerError("previous_bar_ref primitive_ref.field must be high or low")
+        return state[field]
     raise SpecSignalCompilerError(f"unknown primitive_ref: {ref}")
+
+
+def _previous_bar_ref_state(context: _CompileContext, ref_id: str) -> dict[str, pd.Series]:
+    cache_key = ("previous_bar_ref_high", ref_id)
+    if cache_key in context.primitive_cache:
+        return {
+            "high": context.primitive_cache[("previous_bar_ref_high", ref_id)],
+            "low": context.primitive_cache[("previous_bar_ref_low", ref_id)],
+        }
+    refs = _primitive_by_id(context, PREVIOUS_BAR_REFS_KEY, "ref_id")
+    config = refs.get(ref_id)
+    if config is None:
+        raise SpecSignalCompilerError(f"unknown previous_bar_ref: {ref_id}")
+    if config.get("source") != "ohlcv" or config.get("lag_bars") != 1:
+        raise SpecSignalCompilerError("previous_bar_ref supports only ohlcv lag_bars=1")
+    if config.get("fields") != ["high", "low"]:
+        raise SpecSignalCompilerError("previous_bar_ref.fields must be exactly ['high', 'low']")
+    if config.get("missing_prior_policy") != "null_output":
+        raise SpecSignalCompilerError("previous_bar_ref.missing_prior_policy must be null_output")
+    high = context.ohlcv["high"].astype(float).shift(1)
+    low = context.ohlcv["low"].astype(float).shift(1)
+    context.primitive_cache[("previous_bar_ref_high", ref_id)] = high
+    context.primitive_cache[("previous_bar_ref_low", ref_id)] = low
+    return {"high": high, "low": low}
 
 
 def _resolve_operand(operand: Mapping[str, Any], context: _CompileContext) -> Any:

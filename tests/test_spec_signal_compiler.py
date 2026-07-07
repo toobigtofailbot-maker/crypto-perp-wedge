@@ -124,6 +124,15 @@ def _online_primitives(*, retest_max: int = 3, tolerance_multiple: float = 0.0) 
                 "side_mode": "side_specific",
             }
         ],
+        "previous_bar_refs": [
+            {
+                "ref_id": "PREV-BAR-HL",
+                "source": "ohlcv",
+                "lag_bars": 1,
+                "fields": ["high", "low"],
+                "missing_prior_policy": "null_output",
+            }
+        ],
     }
 
 
@@ -4206,6 +4215,168 @@ def test_candle_shape_ratios_side_specific_and_fail_closed_cases() -> None:
     assert long_shape.tolist() == [True, False, False, False, False, False]
     assert short_shape.tolist() == [False, True, False, False, False, False]
     assert signal.tolist()[:3] == [1.0, 0.0, 0.0]
+
+
+def test_previous_bar_high_low_refs_resolve_one_bar_back_and_fail_closed() -> None:
+    index = pd.date_range("2026-01-01", periods=4, freq="h", tz="UTC")
+    ohlcv = pd.DataFrame(
+        {
+            "open": [9.0, 10.0, 24.0, 30.0],
+            "high": [10.0, 20.0, 30.0, 40.0],
+            "low": [5.0, 8.0, 9.0, 10.0],
+            "close": [9.0, 11.0, 25.0, 31.0],
+            "volume": [1000.0] * 4,
+        },
+        index=index,
+    )
+    spec = _spec()
+    spec["online_ohlcv_primitives"] = _online_primitives()
+    context = compiler._CompileContext(
+        strategy_spec=spec,
+        variant_assignment=_default_variant(),
+        ohlcv=ohlcv,
+        catalog=compiler._load_default_catalog(),
+    )
+
+    previous_high = compiler._resolve_operand(_primitive_ref("PREV-BAR-HL", "high"), context)
+    previous_low = compiler._resolve_operand(_primitive_ref("PREV-BAR-HL", "low"), context)
+
+    assert previous_high.tolist()[1:] == [10.0, 20.0, 30.0]
+    assert math.isnan(previous_high.iloc[0])
+    assert previous_high.tolist()[1:] != [20.0, 30.0, 40.0]
+    assert previous_low.tolist()[1:] == [5.0, 8.0, 9.0]
+    assert math.isnan(previous_low.iloc[0])
+    assert previous_low.tolist()[1:] != [8.0, 9.0, 10.0]
+
+
+def test_previous_bar_high_breakout_condition_uses_prior_bar_not_current_or_future() -> None:
+    ohlcv = _ohlcv()
+    condition = _condition(
+        _operand("data_ref", "close", "close"),
+        "gt",
+        _primitive_ref("PREV-BAR-HL", "high"),
+    )
+    spec = _single_condition_spec(
+        "gt",
+        _operand("data_ref", "close", "close"),
+        _primitive_ref("PREV-BAR-HL", "high"),
+    )
+    spec["online_ohlcv_primitives"] = _online_primitives()
+    context = compiler._CompileContext(
+        strategy_spec=spec,
+        variant_assignment=_default_variant(),
+        ohlcv=ohlcv,
+        catalog=compiler._load_default_catalog(),
+    )
+
+    predicate = compiler._evaluate_condition_series(condition, context, compiler.ENTRY_CONDITION_ROLES)
+
+    assert predicate.tolist() == [False, False, False, False, True, False, False, True]
+
+
+def test_previous_bar_missing_prior_value_fails_closed() -> None:
+    ohlcv = _ohlcv()
+    ohlcv.iloc[1, ohlcv.columns.get_loc("high")] = math.nan
+    spec = _single_condition_spec(
+        "gt",
+        _operand("data_ref", "close", "close"),
+        _primitive_ref("PREV-BAR-HL", "high"),
+    )
+    spec["online_ohlcv_primitives"] = _online_primitives()
+
+    signal = compile_signal(spec, _default_variant(), ohlcv)
+
+    assert signal.iloc[0] == 0.0
+    assert signal.iloc[2] == 0.0
+
+
+def test_hyp_002r_style_previous_bar_high_low_breakout_route_is_representable() -> None:
+    index = pd.date_range("2026-01-01", periods=5, freq="h", tz="UTC")
+    ohlcv = pd.DataFrame(
+        {
+            "open": [9.0, 10.0, 7.0, 30.0, 8.0],
+            "high": [10.0, 20.0, 30.0, 40.0, 20.0],
+            "low": [5.0, 8.0, 9.0, 10.0, 7.0],
+            "close": [9.0, 11.0, 7.0, 31.0, 6.0],
+            "volume": [1000.0] * 5,
+        },
+        index=index,
+    )
+    long_breakout = _condition(
+        _operand("data_ref", "close", "close"),
+        "gt",
+        _primitive_ref("PREV-BAR-HL", "high"),
+    )
+    short_breakout = _condition(
+        _operand("data_ref", "close", "close"),
+        "lt",
+        _primitive_ref("PREV-BAR-HL", "low"),
+    )
+    spec = _both_direction_spec(
+        long_entry=long_breakout,
+        short_entry=short_breakout,
+        max_holding_bars=1,
+    )
+    spec["online_ohlcv_primitives"] = _online_primitives()
+    spec["entry_logic"]["entry_controls"] = {"min_bars_between_entries": 1}
+    context = compiler._CompileContext(
+        strategy_spec=spec,
+        variant_assignment=_default_variant(),
+        ohlcv=ohlcv,
+        catalog=compiler._load_default_catalog(),
+    )
+
+    long_predicate = compiler._evaluate_condition_series(
+        long_breakout,
+        context,
+        compiler.ENTRY_CONDITION_ROLES,
+    )
+    short_predicate = compiler._evaluate_condition_series(
+        short_breakout,
+        context,
+        compiler.ENTRY_CONDITION_ROLES,
+    )
+
+    assert long_predicate.tolist() == [False, True, False, True, False]
+    assert short_predicate.tolist() == [False, False, True, False, True]
+
+
+@pytest.mark.parametrize(
+    ("mutator", "match"),
+    [
+        (lambda primitive: primitive.update({"lag_bars": 2}), "lag_bars=1"),
+        (lambda primitive: primitive.update({"source": "close"}), "ohlcv"),
+        (lambda primitive: primitive.update({"fields": ["high", "close"]}), "fields"),
+        (lambda primitive: primitive.update({"missing_prior_policy": "forward_fill"}), "missing_prior_policy"),
+    ],
+)
+def test_previous_bar_refs_reject_unknown_closed_forms(mutator, match: str) -> None:
+    primitives = _online_primitives()
+    mutator(primitives["previous_bar_refs"][0])
+    spec = _single_condition_spec(
+        "gt",
+        _operand("data_ref", "close", "close"),
+        _primitive_ref("PREV-BAR-HL", "high"),
+    )
+    spec["online_ohlcv_primitives"] = primitives
+
+    with pytest.raises(SpecSignalCompilerError, match=match):
+        compile_signal(spec, _default_variant(), _ohlcv())
+
+
+def test_previous_bar_refs_reject_unknown_field_and_arbitrary_expression_payload() -> None:
+    spec = _single_condition_spec(
+        "gt",
+        _operand("data_ref", "close", "close"),
+        _primitive_ref("PREV-BAR-HL", "close"),
+    )
+    spec["online_ohlcv_primitives"] = _online_primitives()
+    with pytest.raises(SpecSignalCompilerError, match="field must be high or low"):
+        compile_signal(spec, _default_variant(), _ohlcv())
+
+    spec["online_ohlcv_primitives"]["previous_bar_refs"][0]["formula"] = "high.shift(1)"
+    with pytest.raises(SpecSignalCompilerError, match="forbidden executable"):
+        compile_signal(spec, _default_variant(), _ohlcv())
 
 
 def test_composed_depth_three_example_with_primitive_ref_compiles_causally() -> None:

@@ -1,0 +1,51 @@
+Validation summary for WP-RUNNER-PREVIOUS-BAR-HIGHLOW-REF-01
+
+Decision: complete; previous-bar high/low route implemented and mapped.
+
+JSON validation:
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m json.tool scratch\WP-RUNNER-PREVIOUS-BAR-HIGHLOW-REF-01\runner_surface_contract.json
+  PASS.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m json.tool scratch\WP-RUNNER-PREVIOUS-BAR-HIGHLOW-REF-01\freeze_unblock_mapping.json
+  PASS.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m json.tool scratch\WP-RUNNER-PREVIOUS-BAR-HIGHLOW-REF-01\non_authority_assertions.json
+  PASS.
+
+Focused runner/formalization and schema/validator tests:
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest tests/test_spec_signal_compiler.py tests/test_validate_strategy_specs.py -q
+  PASS, 373 passed.
+
+Schema/validator command:
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.registry.validate_strategy_specs
+  PASS.
+
+Required repo validators:
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.research_query.run --list-views
+  PASS.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.registry.validate_result_populations
+  PASS.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.registry.validate_candidate_registry
+  PASS.
+
+Diff/scope and whitespace:
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe tools/dev/diff_scope_summary.py
+  PASS advisory run; generic forbidden-path listing noted research/schemas path.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe tools/dev/diff_scope_summary.py --check-forbidden --authorized-package WP-RUNNER-PREVIOUS-BAR-HIGHLOW-REF-01 --authorized-scope strategy-spec-schema --authorized-path research/schemas/strategy_spec.schema.json
+  PASS; forbidden-path matches none.
+- git diff --check
+  PASS.
+- git status --short
+  PASS; showed only package-scope modified/untracked files before staging.
+
+Full pytest:
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest -q
+  TIMEOUT after 30 minutes without failure summary.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe tools/dev/verify.py --full-pytest-sharded --pytest-shards 4 --pytest-shard-workers 4 --timeout-seconds 300 --full-pytest-timeout-seconds 1800 --max-output-chars 8000 --json
+  FAIL/TIMEOUT as a broad-suite residual:
+  - helper-internal diff_scope_summary step failed because the helper did not receive this package's authorized schema path; the explicit authorized diff_scope command above passed.
+  - pytest shard 0 timed out after 1800s without failure output.
+  - pytest shard 2 failed in tests/test_lab_state_coverage_audit.py with AuditError: unknown supplemental artifact role riskmanaged_conclusion_evidence.
+  - pytest shard 3 failed in tests/test_external_simulator_pilot.py because fixture["normalized_data_local_exists"] was false for RP-2592 local normalized data.
+  These full-suite failures are outside changed files and package scope.
+
+Notes:
+- An initial `python -m pytest ...` invocation used ambient system Python and failed during collection because pandas was unavailable. The repo virtualenv command above is the valid project-environment run.

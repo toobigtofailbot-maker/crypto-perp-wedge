@@ -1,0 +1,29 @@
+{
+  "package": "WP-RUNNER-PREVIOUS-BAR-HIGHLOW-REF-01",
+  "frozen_hypothesis": "LAB-RT-HYP-002R",
+  "frozen_reference": "previous_bar_high_low",
+  "mapping": {
+    "LAB-RT-HYP-002R.previous_bar_high_low": {
+      "previous_bar_high": {
+        "primitive_collection": "previous_bar_refs",
+        "primitive_ref_field": "high",
+        "semantics": "current row references high from t-1 only",
+        "supported": true
+      },
+      "previous_bar_low": {
+        "primitive_collection": "previous_bar_refs",
+        "primitive_ref_field": "low",
+        "semantics": "current row references low from t-1 only",
+        "supported": true
+      },
+      "closed_reference_route": "previous_bar_high / previous_bar_low closed primitive_ref route",
+      "supported": true
+    }
+  },
+  "batch_execution_performed": false,
+  "signed_frozen_set_modified": false,
+  "notes": [
+    "This package does not execute HYP-002R.",
+    "This package does not write Strategy Spec, Variant Manifest, Sweep Plan, Result Population, candidate lifecycle, crossing, readiness, paper/live, runtime, or protected-path artifacts."
+  ]
+}

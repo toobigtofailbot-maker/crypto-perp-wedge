@@ -1,0 +1,484 @@
+{
+  "schema_version": "v1",
+  "strategy_spec_id": "STRAT-SPEC-9101",
+  "title": "LAB-RT-HYP-001 no-wick EMA retest continuation",
+  "short_name": "strat-spec-9101",
+  "status": "approved_for_variant_planning",
+  "non_execution_declaration": {
+    "human_review_surface_only": true,
+    "not_executable": true,
+    "not_runtime_authority": true,
+    "not_paper_live_authority": true,
+    "not_gate_authority": true,
+    "not_candidate_approval": true,
+    "not_exp_approval": true,
+    "not_sweep_authority": true,
+    "not_ranking_authority": true,
+    "not_recommendation_authority": true,
+    "not_readiness_authority": true,
+    "not_transition_authority": true
+  },
+  "provenance": {
+    "source_type": "research_note",
+    "source_refs": [
+      "scratch/WP-LAB-REAL-TRAFFIC-REVISED-SIGNOFF-FREEZE-01/revised_frozen_hypothesis_set.json"
+    ],
+    "prepared_by": "Codex",
+    "created_at": "2026-07-07T00:00:00Z",
+    "updated_at": "2026-07-07T00:00:00Z",
+    "rationale": "Package-local formalization of Karl-signed revised frozen real-traffic acceptance hypothesis.",
+    "source_constraints": [
+      "No candidate admission, no canonical crossing, no promotion/readiness, no paper/live/runtime authority.",
+      "Package-local scratch execution only; no canonical result population write."
+    ],
+    "unresolved_claims": []
+  },
+  "instruments": {
+    "symbols": [
+      "BTCUSDT"
+    ],
+    "instrument_family": "crypto_perp",
+    "venue_assumption": "Binance USDT-M perpetual",
+    "market_type": "perpetual",
+    "directions_allowed": [
+      "long",
+      "short"
+    ],
+    "leverage_assumption": 1.0,
+    "exchange_constraint_refs": [],
+    "blockers": []
+  },
+  "timeframe_and_data": {
+    "primary_timeframe": "4h",
+    "confirmation_timeframes": [],
+    "host_data_refs": [
+      {
+        "stream": "ohlcv",
+        "timeframe": "4h",
+        "field": "open",
+        "availability": "required"
+      },
+      {
+        "stream": "ohlcv",
+        "timeframe": "4h",
+        "field": "high",
+        "availability": "required"
+      },
+      {
+        "stream": "ohlcv",
+        "timeframe": "4h",
+        "field": "low",
+        "availability": "required"
+      },
+      {
+        "stream": "ohlcv",
+        "timeframe": "4h",
+        "field": "close",
+        "availability": "required"
+      },
+      {
+        "stream": "ohlcv",
+        "timeframe": "4h",
+        "field": "volume",
+        "availability": "required"
+      },
+      {
+        "stream": "indicator_catalog",
+        "timeframe": null,
+        "field": "ema",
+        "availability": "required"
+      },
+      {
+        "stream": "indicator_catalog",
+        "timeframe": null,
+        "field": "atr",
+        "availability": "required"
+      }
+    ],
+    "gap_handling_assumption": "Use existing repo-supported local BTCUSDT OHLCV slice and existing gap policy; no interpolation or silent fill.",
+    "missing_data_blockers": []
+  },
+  "entry_logic": {
+    "direction": "both",
+    "entry_controls": {
+      "min_bars_between_entries": 1
+    },
+    "groups": [
+      {
+        "group_id": "H001-LONG",
+        "group_role": "required",
+        "logic": "all",
+        "conditions": [
+          {
+            "condition_id": "H001-LONG-SHAPE",
+            "condition_role": "required",
+            "left_operand": {
+              "operand_type": "primitive_ref",
+              "ref": "nowick_impulse",
+              "field": "long",
+              "timeframe": null,
+              "lookback": null
+            },
+            "operator": "is_true",
+            "right_operand": {
+              "operand_type": "constant",
+              "ref": true,
+              "field": null,
+              "timeframe": null,
+              "lookback": null
+            },
+            "units": null,
+            "notes": "H001-LONG-SHAPE"
+          },
+          {
+            "condition_id": "H001-LONG-CLOSE-GT-EMA",
+            "condition_role": "required",
+            "left_operand": {
+              "operand_type": "data_ref",
+              "ref": "close",
+              "field": "close",
+              "timeframe": null,
+              "lookback": null
+            },
+            "operator": "gt",
+            "right_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "ema",
+              "field": "value",
+              "timeframe": null,
+              "lookback": {
+                "bars": 50
+              }
+            },
+            "units": null,
+            "notes": "H001-LONG-CLOSE-GT-EMA"
+          },
+          {
+            "condition_id": "H001-LONG-LOW-RETEST-EMA",
+            "condition_role": "required",
+            "left_operand": {
+              "operand_type": "data_ref",
+              "ref": "low",
+              "field": "low",
+              "timeframe": null,
+              "lookback": null
+            },
+            "operator": "lte",
+            "right_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "ema",
+              "field": "value",
+              "timeframe": null,
+              "lookback": {
+                "bars": 50
+              }
+            },
+            "units": null,
+            "notes": "H001-LONG-LOW-RETEST-EMA"
+          }
+        ],
+        "subgroups": [],
+        "notes": "H001-LONG",
+        "side": "long"
+      },
+      {
+        "group_id": "H001-SHORT",
+        "group_role": "required",
+        "logic": "all",
+        "conditions": [
+          {
+            "condition_id": "H001-SHORT-SHAPE",
+            "condition_role": "required",
+            "left_operand": {
+              "operand_type": "primitive_ref",
+              "ref": "nowick_impulse",
+              "field": "short",
+              "timeframe": null,
+              "lookback": null
+            },
+            "operator": "is_true",
+            "right_operand": {
+              "operand_type": "constant",
+              "ref": true,
+              "field": null,
+              "timeframe": null,
+              "lookback": null
+            },
+            "units": null,
+            "notes": "H001-SHORT-SHAPE"
+          },
+          {
+            "condition_id": "H001-SHORT-CLOSE-LT-EMA",
+            "condition_role": "required",
+            "left_operand": {
+              "operand_type": "data_ref",
+              "ref": "close",
+              "field": "close",
+              "timeframe": null,
+              "lookback": null
+            },
+            "operator": "lt",
+            "right_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "ema",
+              "field": "value",
+              "timeframe": null,
+              "lookback": {
+                "bars": 50
+              }
+            },
+            "units": null,
+            "notes": "H001-SHORT-CLOSE-LT-EMA"
+          },
+          {
+            "condition_id": "H001-SHORT-HIGH-RETEST-EMA",
+            "condition_role": "required",
+            "left_operand": {
+              "operand_type": "data_ref",
+              "ref": "high",
+              "field": "high",
+              "timeframe": null,
+              "lookback": null
+            },
+            "operator": "gte",
+            "right_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "ema",
+              "field": "value",
+              "timeframe": null,
+              "lookback": {
+                "bars": 50
+              }
+            },
+            "units": null,
+            "notes": "H001-SHORT-HIGH-RETEST-EMA"
+          }
+        ],
+        "subgroups": [],
+        "notes": "H001-SHORT",
+        "side": "short"
+      }
+    ],
+    "notes": "Package-local frozen acceptance-batch entries."
+  },
+  "exit_logic": {
+    "groups": [],
+    "max_holding_period": {
+      "enabled": false,
+      "bars": null
+    },
+    "notes": "Package-local frozen acceptance-batch exits.",
+    "atr_stop": {
+      "enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": {
+        "parameter_ref": "atr_stop_multiple"
+      },
+      "entry_reference_price": "next_bar_open_pre_fee_slippage",
+      "evaluation_price": "close",
+      "evaluation_timing": "bar_close"
+    }
+  },
+  "risk_model": {
+    "sizing_intent": "review_only",
+    "exposure_limits": [
+      "dynamic_equity_target_leverage target_leverage=1.0 in offline scratch only"
+    ],
+    "stop_distance": null,
+    "target_distance": null,
+    "leverage_visibility": "offline research only",
+    "liquidation_sensitivity_notes": "existing zero-equity research assumption only"
+  },
+  "filters": {
+    "groups": [],
+    "none_declared": true
+  },
+  "free_parameters": {
+    "max_free_parameters": 5,
+    "counting_rule": "parameters contains only entries where is_free_parameter=true; maxItems 5 enforces the D2-006-style MVP free-parameter cap",
+    "parameters": [
+      {
+        "name": "wick_threshold",
+        "label": "Wick threshold",
+        "description": "Wick threshold",
+        "type": "number",
+        "units": "fraction",
+        "default": 0.05,
+        "range": {
+          "min": 0.05,
+          "max": 0.1,
+          "step": 0.05,
+          "inclusive_min": true,
+          "inclusive_max": true
+        },
+        "allowed_values": [
+          0.05,
+          0.1
+        ],
+        "is_free_parameter": true,
+        "included_in_variant_generation": true,
+        "role": "entry",
+        "rationale": "Frozen package-local acceptance-batch denominator axis or implementation-bound paired companion.",
+        "constraints": [
+          "Must remain fixed to the signed frozen acceptance batch values."
+        ]
+      },
+      {
+        "name": "body_threshold",
+        "label": "Body threshold",
+        "description": "Body threshold",
+        "type": "number",
+        "units": "fraction",
+        "default": 0.6,
+        "range": {
+          "min": 0.6,
+          "max": 0.7,
+          "step": 0.09999999999999998,
+          "inclusive_min": true,
+          "inclusive_max": true
+        },
+        "allowed_values": [
+          0.6,
+          0.7
+        ],
+        "is_free_parameter": true,
+        "included_in_variant_generation": true,
+        "role": "entry",
+        "rationale": "Frozen package-local acceptance-batch denominator axis or implementation-bound paired companion.",
+        "constraints": [
+          "Must remain fixed to the signed frozen acceptance batch values."
+        ]
+      },
+      {
+        "name": "atr_stop_multiple",
+        "label": "ATR stop multiple",
+        "description": "ATR stop multiple",
+        "type": "number",
+        "units": "ATR",
+        "default": 1.5,
+        "range": {
+          "min": 1.5,
+          "max": 2.0,
+          "step": 0.5,
+          "inclusive_min": true,
+          "inclusive_max": true
+        },
+        "allowed_values": [
+          1.5,
+          2.0
+        ],
+        "is_free_parameter": true,
+        "included_in_variant_generation": true,
+        "role": "exit",
+        "rationale": "Frozen package-local acceptance-batch denominator axis or implementation-bound paired companion.",
+        "constraints": [
+          "Must remain fixed to the signed frozen acceptance batch values."
+        ]
+      }
+    ],
+    "no_free_parameters_declared": false
+  },
+  "constraints": {
+    "invalid_parameter_combinations": [],
+    "unavailable_data_blockers": [],
+    "deferred_pattern_blockers": [],
+    "none_declared": false
+  },
+  "review": {
+    "human_review_required": true,
+    "reviewer": null,
+    "reviewed_at": null,
+    "review_notes": [
+      "Package-local acceptance execution; non-promotion posture retained."
+    ],
+    "approval_scope": "variant_planning_only",
+    "non_authority_acknowledgement": {
+      "not_candidate_approval": true,
+      "not_exp_approval": true,
+      "not_sweep_authority": true,
+      "not_ranking_authority": true,
+      "not_recommendation_authority": true,
+      "not_readiness_authority": true,
+      "not_transition_authority": true,
+      "not_runtime_authority": true,
+      "not_paper_live_authority": true,
+      "not_gate_satisfaction": true
+    }
+  },
+  "lineage": {
+    "parent_refs": [
+      {
+        "ref_type": "research_note",
+        "ref_id": "WP-LAB-REAL-TRAFFIC-REVISED-SIGNOFF-FREEZE-01",
+        "ref_path": "scratch/WP-LAB-REAL-TRAFFIC-REVISED-SIGNOFF-FREEZE-01/revised_frozen_hypothesis_set.json",
+        "ref_hash": null
+      }
+    ],
+    "supersedes": [],
+    "amendment_of": null
+  },
+  "hash_pinning": {
+    "canonical_spec_hash": null,
+    "hash_algorithm": "sha256",
+    "hash_scope_version": "strategy_spec_hash_scope_v1",
+    "hash_scope": [
+      "identity",
+      "strategy_body",
+      "free_parameters",
+      "constraints",
+      "assumptions"
+    ],
+    "hash_status": "computed"
+  },
+  "pre_registration_support": {
+    "intended_for_variant_manifest": true,
+    "variant_manifest_ref": "VM-9101",
+    "frozen_snapshot_ref": null
+  },
+  "backtest_realism_assumptions": {
+    "fee_side_assumption": "taker_entry_taker_exit",
+    "exchange_constraints_disclosed": true,
+    "funding_notional_mode": "entry_price",
+    "slippage_model": "fixed_bps",
+    "fill_mode": "complete",
+    "order_size_assumption": "dynamic_equity_target_leverage at target_leverage=1.0; package-local scratch only",
+    "liquidity_capacity_assumption": null,
+    "liquidation_mode": "zero_equity",
+    "maintenance_margin_assumption": null,
+    "mark_price_source": "close",
+    "bar_path_assumption": "next_open_close_mark"
+  },
+  "max_condition_group_depth": 3,
+  "online_ohlcv_primitives": {
+    "candle_shapes": [
+      {
+        "predicate_id": "nowick_impulse",
+        "range_source": "high_low",
+        "zero_range_policy": "false",
+        "missing_ohlc_policy": "false",
+        "upper_wick_pct": {
+          "operator": "lte",
+          "value": {
+            "parameter_ref": "wick_threshold"
+          },
+          "units": "fraction_of_range"
+        },
+        "lower_wick_pct": {
+          "operator": "lte",
+          "value": {
+            "parameter_ref": "wick_threshold"
+          },
+          "units": "fraction_of_range"
+        },
+        "body_pct": {
+          "operator": "gte",
+          "value": {
+            "parameter_ref": "body_threshold"
+          },
+          "units": "fraction_of_range"
+        },
+        "side_mode": "side_specific"
+      }
+    ]
+  }
+}

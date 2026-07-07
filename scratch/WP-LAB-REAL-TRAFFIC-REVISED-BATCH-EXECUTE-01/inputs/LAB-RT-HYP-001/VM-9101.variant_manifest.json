@@ -1,0 +1,416 @@
+{
+  "schema_version": "v1",
+  "variant_manifest_id": "VM-9101",
+  "status": "approved_for_sweep_planning",
+  "non_execution_declaration": {
+    "planning_surface_only": true,
+    "not_executable": true,
+    "not_runner_authority": true,
+    "not_sweep_authority": true,
+    "not_result_authority": true,
+    "not_candidate_approval": true,
+    "not_exp_approval": true,
+    "not_ranking_authority": true,
+    "not_recommendation_authority": true,
+    "not_readiness_authority": true,
+    "not_transition_authority": true,
+    "not_runtime_authority": true,
+    "not_paper_live_authority": true,
+    "not_gate_authority": true
+  },
+  "parent_strategy_spec": {
+    "strategy_spec_id": "STRAT-SPEC-9101",
+    "strategy_spec_schema_version": "v1",
+    "strategy_spec_hash": "sha256:f94374950f651edea84a0c7c4b1b296ce16c769df0166f36000c30ee84b6edc5",
+    "hash_algorithm": "sha256",
+    "hash_scope_version": "strategy_spec_hash_scope_v1",
+    "strategy_spec_review_status": "approved_for_variant_planning",
+    "strategy_spec_ref": "package-local scratch",
+    "mismatch_policy": "block",
+    "missing_parent_policy": "block",
+    "does_not_mutate_parent_strategy_spec": true
+  },
+  "population_governance": {
+    "population_cap": {
+      "max_variants": 8,
+      "cap_basis": "manual_grid",
+      "cap_source": "human_declared",
+      "cap_exception_authorized": false,
+      "cap_exception_ref": null
+    },
+    "declared_population": {
+      "committed_population_count": 8,
+      "declared_variant_count": 8,
+      "included_variant_count": 8,
+      "excluded_variant_count": 0,
+      "invalid_variant_count": 0,
+      "not_attempted_variant_count": 0
+    },
+    "trial_budget": {
+      "planned_trial_count": 8,
+      "trial_budget_denominator": 8,
+      "denominator_basis": "committed_pre_registered_population_count",
+      "denominator_count": 8,
+      "denominator_includes_failed": true,
+      "denominator_includes_excluded": true,
+      "denominator_includes_invalid": true,
+      "denominator_includes_errored": true,
+      "denominator_includes_aborted": true,
+      "denominator_includes_filtered": true,
+      "denominator_includes_data_unavailable": true,
+      "denominator_includes_not_attempted": true,
+      "executed_only_denominator_forbidden": true
+    },
+    "multiple_testing_accounting": {
+      "denominator_required": true,
+      "denominator_type": "committed_pre_registered_population",
+      "search_family_id": "SF-LAB-RT-HYP-001",
+      "search_family_method": "manual_grid",
+      "adaptive_search_used": false,
+      "adaptive_search_authorization_ref": null,
+      "all_trials_visible_required": true,
+      "winner_only_review_forbidden": true
+    },
+    "pre_registration": {
+      "pre_registered": true,
+      "pre_registration_status": "frozen_for_sweep_planning",
+      "pre_registration_scope": "full_variant_population",
+      "freeze_required_before_sweep": true,
+      "post_hoc_addition_forbidden": true,
+      "post_result_mutation_forbidden": true,
+      "allowed_change_mode": "supersede_before_results_only"
+    }
+  },
+  "parameter_axes": [
+    {
+      "axis_id": "AXIS-001",
+      "parameter_name": "wick_threshold",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.wick_threshold",
+      "parameter_type": "number",
+      "units": "fraction",
+      "axis_kind": "free_parameter",
+      "generator_method": "manual_grid",
+      "allowed_values": [
+        0.05,
+        0.1
+      ],
+      "range": {
+        "min": 0.05,
+        "max": 0.1,
+        "step": 0.05,
+        "inclusive_min": true,
+        "inclusive_max": true
+      },
+      "counts_toward_parent_free_parameter_cap": true,
+      "is_declared_in_parent_strategy_spec": true,
+      "invalid_combination_rule_refs": [],
+      "notes": "signed frozen axis or implementation-bound paired companion"
+    },
+    {
+      "axis_id": "AXIS-002",
+      "parameter_name": "body_threshold",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.body_threshold",
+      "parameter_type": "number",
+      "units": "fraction",
+      "axis_kind": "free_parameter",
+      "generator_method": "manual_grid",
+      "allowed_values": [
+        0.6,
+        0.7
+      ],
+      "range": {
+        "min": 0.6,
+        "max": 0.7,
+        "step": 0.09999999999999998,
+        "inclusive_min": true,
+        "inclusive_max": true
+      },
+      "counts_toward_parent_free_parameter_cap": true,
+      "is_declared_in_parent_strategy_spec": true,
+      "invalid_combination_rule_refs": [],
+      "notes": "signed frozen axis or implementation-bound paired companion"
+    },
+    {
+      "axis_id": "AXIS-003",
+      "parameter_name": "atr_stop_multiple",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.atr_stop_multiple",
+      "parameter_type": "number",
+      "units": "ATR",
+      "axis_kind": "free_parameter",
+      "generator_method": "manual_grid",
+      "allowed_values": [
+        1.5,
+        2.0
+      ],
+      "range": {
+        "min": 1.5,
+        "max": 2.0,
+        "step": 0.5,
+        "inclusive_min": true,
+        "inclusive_max": true
+      },
+      "counts_toward_parent_free_parameter_cap": true,
+      "is_declared_in_parent_strategy_spec": true,
+      "invalid_combination_rule_refs": [],
+      "notes": "signed frozen axis or implementation-bound paired companion"
+    }
+  ],
+  "invalid_combination_rules": [],
+  "exclusion_rules": [],
+  "variant_assignments": [
+    {
+      "variant_id": "VAR-000001",
+      "assignment_status": "included",
+      "parameter_values": {
+        "wick_threshold": 0.05,
+        "body_threshold": 0.6,
+        "atr_stop_multiple": 1.5
+      },
+      "parameter_value_hash": "sha256:b0f213080b2464dcc416bd909ecb71602f55a54b0b0abac3331947b98f550a5f",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-frozen-batch",
+        "generation_order": 1
+      }
+    },
+    {
+      "variant_id": "VAR-000002",
+      "assignment_status": "included",
+      "parameter_values": {
+        "wick_threshold": 0.05,
+        "body_threshold": 0.6,
+        "atr_stop_multiple": 2.0
+      },
+      "parameter_value_hash": "sha256:f71af994bcca4d444813443909e6f8e9bb143e18edd01ba67addee1bcb849f66",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-frozen-batch",
+        "generation_order": 2
+      }
+    },
+    {
+      "variant_id": "VAR-000003",
+      "assignment_status": "included",
+      "parameter_values": {
+        "wick_threshold": 0.05,
+        "body_threshold": 0.7,
+        "atr_stop_multiple": 1.5
+      },
+      "parameter_value_hash": "sha256:c13f0f17111e6fc408b352546c34a1cef8e51047e47c90192494daa869c33b39",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-frozen-batch",
+        "generation_order": 3
+      }
+    },
+    {
+      "variant_id": "VAR-000004",
+      "assignment_status": "included",
+      "parameter_values": {
+        "wick_threshold": 0.05,
+        "body_threshold": 0.7,
+        "atr_stop_multiple": 2.0
+      },
+      "parameter_value_hash": "sha256:2492265d75684674e3fad25b98f191ee32700b3138ee00517d15bc62522bf8f8",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-frozen-batch",
+        "generation_order": 4
+      }
+    },
+    {
+      "variant_id": "VAR-000005",
+      "assignment_status": "included",
+      "parameter_values": {
+        "wick_threshold": 0.1,
+        "body_threshold": 0.6,
+        "atr_stop_multiple": 1.5
+      },
+      "parameter_value_hash": "sha256:cac7e3ce3b14fbbc2e4e6443b9079381ed1f23afc369f3a26c2cf39b29d43346",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-frozen-batch",
+        "generation_order": 5
+      }
+    },
+    {
+      "variant_id": "VAR-000006",
+      "assignment_status": "included",
+      "parameter_values": {
+        "wick_threshold": 0.1,
+        "body_threshold": 0.6,
+        "atr_stop_multiple": 2.0
+      },
+      "parameter_value_hash": "sha256:1a0682de2544365f6a514fa1a4572c2166caf52ae57ba26506f42960e680e8c0",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-frozen-batch",
+        "generation_order": 6
+      }
+    },
+    {
+      "variant_id": "VAR-000007",
+      "assignment_status": "included",
+      "parameter_values": {
+        "wick_threshold": 0.1,
+        "body_threshold": 0.7,
+        "atr_stop_multiple": 1.5
+      },
+      "parameter_value_hash": "sha256:92dfa1d1406218d8392cb0287bedceecedc16a8559da2077222539483fdedecd",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-frozen-batch",
+        "generation_order": 7
+      }
+    },
+    {
+      "variant_id": "VAR-000008",
+      "assignment_status": "included",
+      "parameter_values": {
+        "wick_threshold": 0.1,
+        "body_threshold": 0.7,
+        "atr_stop_multiple": 2.0
+      },
+      "parameter_value_hash": "sha256:7325bf610a62393b3471dde0c75bcf97c1b0a6249b41a671ebbc37f72d6d5758",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-frozen-batch",
+        "generation_order": 8
+      }
+    }
+  ],
+  "manifest_hash_pinning": {
+    "manifest_hash": "sha256:5836924b32a313b977d4082abcf4046c44635480123a77afee7108da7291e491",
+    "hash_algorithm": "sha256",
+    "canonicalization": "json_canonical_v1",
+    "hash_scope_version": "variant_manifest_hash_scope_v1",
+    "hash_scope": [
+      "schema_version",
+      "variant_manifest_id",
+      "parent_strategy_spec.strategy_spec_id",
+      "parent_strategy_spec.strategy_spec_hash",
+      "population_governance",
+      "parameter_axes",
+      "invalid_combination_rules",
+      "exclusion_rules",
+      "variant_assignments"
+    ],
+    "hash_status": "computed",
+    "frozen_at": "2026-07-07T00:00:00Z",
+    "pre_sweep_freeze_required": true,
+    "post_result_mutation_forbidden": true
+  },
+  "amendment_and_supersession": {
+    "amendment_mode": "none",
+    "supersedes": null,
+    "supersession_lineage": [],
+    "amendment_reason": null,
+    "associated_results_state": "no_associated_results",
+    "supersession_allowed": false,
+    "close_only_after_results": true,
+    "post_result_change": false,
+    "preserve_prior_manifest_required": true,
+    "fresh_denominator_required": true,
+    "does_not_inherit_prior_results": true
+  },
+  "lineage": {
+    "parent_refs": [
+      {
+        "ref_type": "strategy_spec",
+        "ref_id": "STRAT-SPEC-9101",
+        "ref_path": "package-local scratch",
+        "ref_hash": "sha256:f94374950f651edea84a0c7c4b1b296ce16c769df0166f36000c30ee84b6edc5"
+      }
+    ],
+    "source_refs": [],
+    "created_at": "2026-07-07T00:00:00Z",
+    "updated_at": "2026-07-07T00:00:00Z",
+    "audit_notes": [
+      "Full signed frozen denominator preserved.",
+      "No post-result mutation or winner-only pruning authorized."
+    ],
+    "hash_refs": [
+      "sha256:f94374950f651edea84a0c7c4b1b296ce16c769df0166f36000c30ee84b6edc5",
+      "sha256:5836924b32a313b977d4082abcf4046c44635480123a77afee7108da7291e491"
+    ]
+  },
+  "review": {
+    "human_review_required": true,
+    "reviewer": null,
+    "reviewed_at": null,
+    "review_notes": [
+      "Package-local acceptance execution only."
+    ],
+    "approval_scope": "sweep_planning_only",
+    "non_authority_acknowledgement": {
+      "not_candidate_approval": true,
+      "not_exp_approval": true,
+      "not_sweep_authority": true,
+      "not_runner_authority": true,
+      "not_result_authority": true,
+      "not_ranking_authority": true,
+      "not_recommendation_authority": true,
+      "not_readiness_authority": true,
+      "not_transition_authority": true,
+      "not_runtime_authority": true,
+      "not_paper_live_authority": true,
+      "not_gate_satisfaction": true
+    }
+  }
+}

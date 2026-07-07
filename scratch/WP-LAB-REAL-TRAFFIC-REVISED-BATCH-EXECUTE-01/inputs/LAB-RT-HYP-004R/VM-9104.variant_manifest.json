@@ -1,0 +1,456 @@
+{
+  "schema_version": "v1",
+  "variant_manifest_id": "VM-9104",
+  "status": "approved_for_sweep_planning",
+  "non_execution_declaration": {
+    "planning_surface_only": true,
+    "not_executable": true,
+    "not_runner_authority": true,
+    "not_sweep_authority": true,
+    "not_result_authority": true,
+    "not_candidate_approval": true,
+    "not_exp_approval": true,
+    "not_ranking_authority": true,
+    "not_recommendation_authority": true,
+    "not_readiness_authority": true,
+    "not_transition_authority": true,
+    "not_runtime_authority": true,
+    "not_paper_live_authority": true,
+    "not_gate_authority": true
+  },
+  "parent_strategy_spec": {
+    "strategy_spec_id": "STRAT-SPEC-9104",
+    "strategy_spec_schema_version": "v1",
+    "strategy_spec_hash": "sha256:d9104e0e0de3385a493078f3f76c24a5236be535da18f381e9687c12953e42fe",
+    "hash_algorithm": "sha256",
+    "hash_scope_version": "strategy_spec_hash_scope_v1",
+    "strategy_spec_review_status": "approved_for_variant_planning",
+    "strategy_spec_ref": "package-local scratch",
+    "mismatch_policy": "block",
+    "missing_parent_policy": "block",
+    "does_not_mutate_parent_strategy_spec": true
+  },
+  "population_governance": {
+    "population_cap": {
+      "max_variants": 8,
+      "cap_basis": "manual_grid",
+      "cap_source": "human_declared",
+      "cap_exception_authorized": false,
+      "cap_exception_ref": null
+    },
+    "declared_population": {
+      "committed_population_count": 8,
+      "declared_variant_count": 8,
+      "included_variant_count": 8,
+      "excluded_variant_count": 0,
+      "invalid_variant_count": 0,
+      "not_attempted_variant_count": 0
+    },
+    "trial_budget": {
+      "planned_trial_count": 8,
+      "trial_budget_denominator": 8,
+      "denominator_basis": "committed_pre_registered_population_count",
+      "denominator_count": 8,
+      "denominator_includes_failed": true,
+      "denominator_includes_excluded": true,
+      "denominator_includes_invalid": true,
+      "denominator_includes_errored": true,
+      "denominator_includes_aborted": true,
+      "denominator_includes_filtered": true,
+      "denominator_includes_data_unavailable": true,
+      "denominator_includes_not_attempted": true,
+      "executed_only_denominator_forbidden": true
+    },
+    "multiple_testing_accounting": {
+      "denominator_required": true,
+      "denominator_type": "committed_pre_registered_population",
+      "search_family_id": "SF-LAB-RT-HYP-004R",
+      "search_family_method": "manual_grid",
+      "adaptive_search_used": false,
+      "adaptive_search_authorization_ref": null,
+      "all_trials_visible_required": true,
+      "winner_only_review_forbidden": true
+    },
+    "pre_registration": {
+      "pre_registered": true,
+      "pre_registration_status": "frozen_for_sweep_planning",
+      "pre_registration_scope": "full_variant_population",
+      "freeze_required_before_sweep": true,
+      "post_hoc_addition_forbidden": true,
+      "post_result_mutation_forbidden": true,
+      "allowed_change_mode": "supersede_before_results_only"
+    }
+  },
+  "parameter_axes": [
+    {
+      "axis_id": "AXIS-001",
+      "parameter_name": "ema_lookback_bars",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.ema_lookback_bars",
+      "parameter_type": "integer",
+      "units": "bars",
+      "axis_kind": "free_parameter",
+      "generator_method": "manual_grid",
+      "allowed_values": [
+        50,
+        96
+      ],
+      "range": {
+        "min": 50,
+        "max": 96,
+        "step": 46,
+        "inclusive_min": true,
+        "inclusive_max": true
+      },
+      "counts_toward_parent_free_parameter_cap": true,
+      "is_declared_in_parent_strategy_spec": true,
+      "invalid_combination_rule_refs": [],
+      "notes": "signed frozen axis or implementation-bound paired companion"
+    },
+    {
+      "axis_id": "AXIS-002",
+      "parameter_name": "body_atr_min",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.body_atr_min",
+      "parameter_type": "number",
+      "units": "ATR",
+      "axis_kind": "free_parameter",
+      "generator_method": "manual_grid",
+      "allowed_values": [
+        0.8,
+        1.2
+      ],
+      "range": {
+        "min": 0.8,
+        "max": 1.2,
+        "step": 0.3999999999999999,
+        "inclusive_min": true,
+        "inclusive_max": true
+      },
+      "counts_toward_parent_free_parameter_cap": true,
+      "is_declared_in_parent_strategy_spec": true,
+      "invalid_combination_rule_refs": [],
+      "notes": "signed frozen axis or implementation-bound paired companion"
+    },
+    {
+      "axis_id": "AXIS-003",
+      "parameter_name": "session_start_hour_utc",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.session_start_hour_utc",
+      "parameter_type": "integer",
+      "units": "hour",
+      "axis_kind": "free_parameter",
+      "generator_method": "manual_grid",
+      "allowed_values": [
+        8,
+        13
+      ],
+      "range": {
+        "min": 8,
+        "max": 13,
+        "step": 5,
+        "inclusive_min": true,
+        "inclusive_max": true
+      },
+      "counts_toward_parent_free_parameter_cap": true,
+      "is_declared_in_parent_strategy_spec": true,
+      "invalid_combination_rule_refs": [],
+      "notes": "signed frozen axis or implementation-bound paired companion"
+    },
+    {
+      "axis_id": "AXIS-004",
+      "parameter_name": "session_end_hour_utc",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.session_end_hour_utc",
+      "parameter_type": "integer",
+      "units": "hour",
+      "axis_kind": "free_parameter",
+      "generator_method": "manual_grid",
+      "allowed_values": [
+        16,
+        21
+      ],
+      "range": {
+        "min": 16,
+        "max": 21,
+        "step": 5,
+        "inclusive_min": true,
+        "inclusive_max": true
+      },
+      "counts_toward_parent_free_parameter_cap": true,
+      "is_declared_in_parent_strategy_spec": true,
+      "invalid_combination_rule_refs": [],
+      "notes": "signed frozen axis or implementation-bound paired companion"
+    }
+  ],
+  "invalid_combination_rules": [],
+  "exclusion_rules": [],
+  "variant_assignments": [
+    {
+      "variant_id": "VAR-000001",
+      "assignment_status": "included",
+      "parameter_values": {
+        "ema_lookback_bars": 50,
+        "body_atr_min": 0.8,
+        "session_start_hour_utc": 8,
+        "session_end_hour_utc": 16
+      },
+      "parameter_value_hash": "sha256:e784d68a84072664896f186cc2b87b0aa229729aa20ea13563ffd81f31b9ccb0",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-frozen-batch",
+        "generation_order": 1
+      }
+    },
+    {
+      "variant_id": "VAR-000002",
+      "assignment_status": "included",
+      "parameter_values": {
+        "ema_lookback_bars": 50,
+        "body_atr_min": 0.8,
+        "session_start_hour_utc": 13,
+        "session_end_hour_utc": 21
+      },
+      "parameter_value_hash": "sha256:f83ae1a4b1ed403ede909b34b22aa57d6d6f05a03dadb6ba520fe85c80313fb2",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-frozen-batch",
+        "generation_order": 2
+      }
+    },
+    {
+      "variant_id": "VAR-000003",
+      "assignment_status": "included",
+      "parameter_values": {
+        "ema_lookback_bars": 50,
+        "body_atr_min": 1.2,
+        "session_start_hour_utc": 8,
+        "session_end_hour_utc": 16
+      },
+      "parameter_value_hash": "sha256:1a52660fd6cf207ba707cd4f32884c79019650a4a247ebe39eb4ce8864e7d610",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-frozen-batch",
+        "generation_order": 3
+      }
+    },
+    {
+      "variant_id": "VAR-000004",
+      "assignment_status": "included",
+      "parameter_values": {
+        "ema_lookback_bars": 50,
+        "body_atr_min": 1.2,
+        "session_start_hour_utc": 13,
+        "session_end_hour_utc": 21
+      },
+      "parameter_value_hash": "sha256:9462821754a2060aaa90304157d7c059e2f780b5137dc707d9780fdcdff5d7db",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-frozen-batch",
+        "generation_order": 4
+      }
+    },
+    {
+      "variant_id": "VAR-000005",
+      "assignment_status": "included",
+      "parameter_values": {
+        "ema_lookback_bars": 96,
+        "body_atr_min": 0.8,
+        "session_start_hour_utc": 8,
+        "session_end_hour_utc": 16
+      },
+      "parameter_value_hash": "sha256:7784c7ef7b34f1edbff29476abc6dc54eed96a8fa94d81614062e9a682a6bd09",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-frozen-batch",
+        "generation_order": 5
+      }
+    },
+    {
+      "variant_id": "VAR-000006",
+      "assignment_status": "included",
+      "parameter_values": {
+        "ema_lookback_bars": 96,
+        "body_atr_min": 0.8,
+        "session_start_hour_utc": 13,
+        "session_end_hour_utc": 21
+      },
+      "parameter_value_hash": "sha256:7663ea097a20f3ea5c883be5aa253d7d9d49d0a417eb18263b558c80ddbfa2c6",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-frozen-batch",
+        "generation_order": 6
+      }
+    },
+    {
+      "variant_id": "VAR-000007",
+      "assignment_status": "included",
+      "parameter_values": {
+        "ema_lookback_bars": 96,
+        "body_atr_min": 1.2,
+        "session_start_hour_utc": 8,
+        "session_end_hour_utc": 16
+      },
+      "parameter_value_hash": "sha256:0119a2b9af4b315c165caa00f15119c058351a167bc6b1363369e129f373ea43",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-frozen-batch",
+        "generation_order": 7
+      }
+    },
+    {
+      "variant_id": "VAR-000008",
+      "assignment_status": "included",
+      "parameter_values": {
+        "ema_lookback_bars": 96,
+        "body_atr_min": 1.2,
+        "session_start_hour_utc": 13,
+        "session_end_hour_utc": 21
+      },
+      "parameter_value_hash": "sha256:521d5f5f29806b31d18a7f3431ff3c5dbda9852016ac3b499ceb5d61474fdb85",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-frozen-batch",
+        "generation_order": 8
+      }
+    }
+  ],
+  "manifest_hash_pinning": {
+    "manifest_hash": "sha256:651dfcfe66aaf8c1501274d15938e549699c4836dff1100d8c54835f3cc17f3b",
+    "hash_algorithm": "sha256",
+    "canonicalization": "json_canonical_v1",
+    "hash_scope_version": "variant_manifest_hash_scope_v1",
+    "hash_scope": [
+      "schema_version",
+      "variant_manifest_id",
+      "parent_strategy_spec.strategy_spec_id",
+      "parent_strategy_spec.strategy_spec_hash",
+      "population_governance",
+      "parameter_axes",
+      "invalid_combination_rules",
+      "exclusion_rules",
+      "variant_assignments"
+    ],
+    "hash_status": "computed",
+    "frozen_at": "2026-07-07T00:00:00Z",
+    "pre_sweep_freeze_required": true,
+    "post_result_mutation_forbidden": true
+  },
+  "amendment_and_supersession": {
+    "amendment_mode": "none",
+    "supersedes": null,
+    "supersession_lineage": [],
+    "amendment_reason": null,
+    "associated_results_state": "no_associated_results",
+    "supersession_allowed": false,
+    "close_only_after_results": true,
+    "post_result_change": false,
+    "preserve_prior_manifest_required": true,
+    "fresh_denominator_required": true,
+    "does_not_inherit_prior_results": true
+  },
+  "lineage": {
+    "parent_refs": [
+      {
+        "ref_type": "strategy_spec",
+        "ref_id": "STRAT-SPEC-9104",
+        "ref_path": "package-local scratch",
+        "ref_hash": "sha256:d9104e0e0de3385a493078f3f76c24a5236be535da18f381e9687c12953e42fe"
+      }
+    ],
+    "source_refs": [],
+    "created_at": "2026-07-07T00:00:00Z",
+    "updated_at": "2026-07-07T00:00:00Z",
+    "audit_notes": [
+      "Full signed frozen denominator preserved.",
+      "No post-result mutation or winner-only pruning authorized."
+    ],
+    "hash_refs": [
+      "sha256:d9104e0e0de3385a493078f3f76c24a5236be535da18f381e9687c12953e42fe",
+      "sha256:651dfcfe66aaf8c1501274d15938e549699c4836dff1100d8c54835f3cc17f3b"
+    ]
+  },
+  "review": {
+    "human_review_required": true,
+    "reviewer": null,
+    "reviewed_at": null,
+    "review_notes": [
+      "Package-local acceptance execution only."
+    ],
+    "approval_scope": "sweep_planning_only",
+    "non_authority_acknowledgement": {
+      "not_candidate_approval": true,
+      "not_exp_approval": true,
+      "not_sweep_authority": true,
+      "not_runner_authority": true,
+      "not_result_authority": true,
+      "not_ranking_authority": true,
+      "not_recommendation_authority": true,
+      "not_readiness_authority": true,
+      "not_transition_authority": true,
+      "not_runtime_authority": true,
+      "not_paper_live_authority": true,
+      "not_gate_satisfaction": true
+    }
+  }
+}

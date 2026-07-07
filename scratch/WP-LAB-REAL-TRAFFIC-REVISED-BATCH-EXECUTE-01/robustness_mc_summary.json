@@ -1,0 +1,12 @@
+{
+  "package": "WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01",
+  "robustness_mc_run_where_applicable": true,
+  "monte_carlo_run": false,
+  "monte_carlo_reason": "No package-local MC runner surface was used; no new dependency or runner change authorized. Robustness evidence is limited to full frozen denominator sensitivity and bounded WFO/OOS dry-run evidence.",
+  "axis_sensitivity_review": {
+    "LAB-RT-HYP-001": "positive median but negative rows and high drawdown; not robust candidate-worthy",
+    "LAB-RT-HYP-002R": "blocked, no robustness inference",
+    "LAB-RT-HYP-003R": "uniformly negative across rows",
+    "LAB-RT-HYP-004R": "positive rows across axes but drawdown too high for GO-like interpretation"
+  }
+}

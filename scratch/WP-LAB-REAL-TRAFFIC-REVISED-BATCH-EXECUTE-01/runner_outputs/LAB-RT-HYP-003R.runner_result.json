@@ -1,0 +1,1851 @@
+{
+  "aborted": false,
+  "committed_denominator": 8,
+  "dry_run": true,
+  "ok": true,
+  "outcome_category_counts": {
+    "aborted": 0,
+    "counts_sum": 8,
+    "counts_sum_equals_committed_denominator": true,
+    "data_unavailable": 0,
+    "errored": 0,
+    "excluded": 0,
+    "failed": 0,
+    "filtered": 0,
+    "invalid": 0,
+    "not_attempted": 0,
+    "successful": 8
+  },
+  "output_path": null,
+  "result_population": {
+    "append_only_ledger": {
+      "append_only": true,
+      "corrections_require_append_only_event": true,
+      "creation_event_ref": "RP-2231-EVENT-001",
+      "events": [
+        {
+          "actor_or_tool": "tools.research_runner.run_offline_sweep",
+          "event_id": "RP-2231-EVENT-001",
+          "event_timestamp": "2026-06-01T00:00:00Z",
+          "event_type": "created",
+          "notes": [
+            "build-and-test-only canonical 15m runner output"
+          ],
+          "related_artifact_refs": []
+        }
+      ],
+      "ledger_required": true,
+      "post_commit_in_place_mutation_forbidden": true,
+      "scientific_identity_mutation_forbidden_after_finalization": true,
+      "supersession_preserves_prior_result_population": true
+    },
+    "audit_envelope": {
+      "administrative_lineage": [],
+      "administrative_only": true,
+      "created_at": "2026-06-01T00:00:00Z",
+      "created_by": "tools.research_runner.run_offline_sweep",
+      "excluded_from_input_identity_hash": true,
+      "excluded_from_result_population_identity_hash": true,
+      "may_contain_scientific_content": false,
+      "operator_notes": [
+        "run_label=WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01-LAB-RT-HYP-003R"
+      ],
+      "review_notes": [],
+      "validation_run_logs": []
+    },
+    "backtest_assumption_summary": {
+      "bar_path_assumption": "next_open_close_mark",
+      "exchange_constraint_disclosure": "True",
+      "fee_side_assumption": "taker_entry_taker_exit",
+      "fill_mode": "complete",
+      "funding_notional": "entry_price",
+      "liquidation_mode": "zero_equity",
+      "liquidity_capacity_assumption": null,
+      "maintenance_margin_assumption": null,
+      "mark_price_source": "close",
+      "order_size_assumption": "sizing_mode=dynamic_equity_target_leverage; sizing_model=dynamic_equity_target_leverage; target_leverage=1; initial_equity=10000; dynamic_mode_opt_in_required=True; structured_sizing_metadata=present; sizing_equity_basis=realized_available_equity_at_entry; entry_reference_price_basis=next_bar_open_pre_fee_slippage; fixed_mode_order_size_still_resolved_for_backtest_argument_compatibility; reference_price=7189.4300000000003; resolved_order_size=1.3909308526545219; prior_assumption=dynamic_equity_target_leverage at target_leverage=1.0; package-local scratch only",
+      "records_assumptions_only": true,
+      "slippage_model": "fixed_bps"
+    },
+    "committed_denominator_snapshot": {
+      "aborted_variants_remain_in_denominator": true,
+      "committed_denominator": 8,
+      "data_unavailable_variants_remain_in_denominator": true,
+      "denominator_basis": "committed_pre_registered_population_count",
+      "denominator_equals_parent_manifest_committed_population_count": true,
+      "denominator_equals_parent_sweep_plan_committed_population_count": true,
+      "errored_variants_remain_in_denominator": true,
+      "excluded_variants_remain_in_denominator": true,
+      "executed_only_denominator_forbidden": true,
+      "failed_variants_remain_in_denominator": true,
+      "filtered_variants_remain_in_denominator": true,
+      "invalid_variants_remain_in_denominator": true,
+      "not_attempted_variants_remain_in_denominator": true,
+      "outcome_counts_sum": 8,
+      "outcome_counts_sum_equals_committed_denominator": true,
+      "parent_manifest_committed_population_count": 8,
+      "parent_sweep_plan_committed_population_count": 8,
+      "post_hoc_cleanup_forbidden": true,
+      "result_row_count": 8,
+      "result_row_count_equals_committed_denominator": true,
+      "selected_variant_count": 8,
+      "successful_only_denominator_forbidden": true,
+      "winner_only_retention_forbidden": true
+    },
+    "data_coverage_summary": {
+      "data_catalog_ref": "binance_usdtm_btcusdt_ohlcv_15m.offline_local.15m.20200101T000000Z.20260411T234500Z.sha256_3daace53d727599b",
+      "data_coverage_notes": [
+        "provenance_mode=d4_catalog_slice",
+        "offline only",
+        "no exchange/API contact",
+        "not live/paper input",
+        "d3_validation_report_sha256=785a8d53797155dcc80e646e8610db8d510825b9fa3dbccd21e79aa2700a6c1c",
+        "d2_import_report_sha256=543c944f727b2b9a7ad06742946ecefc91aa8b94723f46509e4041f622ef57ad",
+        "d4_catalog_artifact_sha256=f7b98c4d7759b6ba0c9bf8559bcea5e3311d3abe877930da254aeca96f53105a",
+        "row_count=220128",
+        "expected_row_count=220128",
+        "start_utc=2020-01-01T00:00:00Z",
+        "end_utc=2026-04-11T23:45:00Z",
+        "gap_count=0",
+        "missing_bar_count=0",
+        "gaps=[]",
+        "duplicate_group_count=0",
+        "duplicate_row_count=0",
+        "duplicates=[]",
+        "raw_source_sha256=343b639e35ce79824d26bddf6d70af2641c9d76003301e303f83cdf61d4feab4",
+        "normalized_sha256=c30fd7f07fdf513cdaf234b1bee4eff03b430a479cc572a2cc8b57394f22e0ab"
+      ],
+      "data_slice_identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+      "data_stream": "ohlcv",
+      "data_unavailable_count": 0,
+      "irreparable_gap_count": 0,
+      "missing_data_policy": "block_if_missing",
+      "timeframe": "15m"
+    },
+    "error_summary": {
+      "aborted": 0,
+      "all_error_categories_counted_in_denominator": true,
+      "data_unavailable": 0,
+      "error_rows_preserved": true,
+      "errored": 0,
+      "excluded": 0,
+      "failed": 0,
+      "filtered": 0,
+      "invalid": 0,
+      "not_attempted": 0
+    },
+    "execution_context": {
+      "dependency_summary": [
+        "pandas",
+        "jsonschema"
+      ],
+      "determinism_seed": 9100,
+      "environment_summary": [
+        "canonical_15m_ohlcv_input",
+        "d4_catalog_slice_provenance",
+        "execution_provenance_class=canonical_real_data",
+        "offline_only_no_exchange_api"
+      ],
+      "execution_mode": "offline_research",
+      "no_broker_exchange_order_contact": true,
+      "no_paper_live_contact": true,
+      "no_protected_path_contact": true,
+      "no_runtime_contact": true,
+      "offline_only": true,
+      "repo_commit": "build-test-only",
+      "runner_code_ref": "tools.research_runner.run_offline_sweep",
+      "runner_id": "offline-research-runner",
+      "runner_version": "wp-s2c-190-build-test-v1"
+    },
+    "input_identity_hash": {
+      "audit_envelope_excluded": true,
+      "audit_envelope_exclusion_reason": "administrative_audit_metadata_is_excluded_from_scientific_identity",
+      "canonicalization": "json_canonical_v1",
+      "hash": "sha256:3b8273021c994ba1883a0482619fb5f54b4022d712cc5a6d53ea86f0aa2f8225",
+      "hash_algorithm": "sha256",
+      "hash_scope": [
+        "parent_strategy_spec.strategy_spec_hash",
+        "parent_variant_manifest.manifest_hash",
+        "parent_sweep_plan.sweep_plan_identity_hash",
+        "parent_variant_manifest.committed_population_count",
+        "parent_sweep_plan.committed_population_count",
+        "execution_context.runner_code_ref",
+        "execution_context.repo_commit",
+        "data_coverage_summary.data_catalog_ref",
+        "data_coverage_summary.data_slice_identity",
+        "backtest_assumption_summary",
+        "sizing_metadata"
+      ],
+      "hash_scope_version": "input_identity_hash_scope_v1"
+    },
+    "lineage": {
+      "complete_population_lineage_preserved": true,
+      "created_from_validated_inputs": true,
+      "parent_hash_chain": {
+        "input_identity_hash": "sha256:3b8273021c994ba1883a0482619fb5f54b4022d712cc5a6d53ea86f0aa2f8225",
+        "strategy_spec_hash": "sha256:95f84b7d340e2def9c06ed3e897b49c091a62dc78c0f239072dfc5eff46261e0",
+        "sweep_plan_identity_hash": "sha256:60c14c003bb3e4bc8f4a9dbbb58925cac9f3686aad622efdda369321e5fcc435",
+        "variant_manifest_hash": "sha256:8c76e07cbc92678a2ace522506030c7117339933b943a9ecf721096488c514a5"
+      },
+      "result_population_id": "RP-2231",
+      "strategy_spec_id": "STRAT-SPEC-9103",
+      "sweep_plan_id": "SWEEP-PLAN-9103",
+      "variant_manifest_id": "VM-9103"
+    },
+    "non_authority_declaration": {
+      "canonical_evidence_relationship": "reference_only",
+      "not_candidate_approval": true,
+      "not_canonical_evidence_replacement": true,
+      "not_dec_replacement": true,
+      "not_decision_authority": true,
+      "not_executable": true,
+      "not_exp_approval": true,
+      "not_exp_replacement": true,
+      "not_gate_authority": true,
+      "not_ol_replacement": true,
+      "not_outcome_ledger_replacement": true,
+      "not_paper_live_authority": true,
+      "not_ranking_authority": true,
+      "not_readiness_authority": true,
+      "not_rec_replacement": true,
+      "not_recommendation_authority": true,
+      "not_reconciliation_authority": true,
+      "not_rep_replacement": true,
+      "not_result_authority": true,
+      "not_runner_authority": true,
+      "not_runtime_authority": true,
+      "not_sweep_authority": true,
+      "not_transition_authority": true,
+      "not_trial_log_replacement": true
+    },
+    "outcome_category_counts": {
+      "aborted": 0,
+      "counts_sum": 8,
+      "counts_sum_equals_committed_denominator": true,
+      "data_unavailable": 0,
+      "errored": 0,
+      "excluded": 0,
+      "failed": 0,
+      "filtered": 0,
+      "invalid": 0,
+      "not_attempted": 0,
+      "successful": 8
+    },
+    "parent_strategy_spec": {
+      "hash_algorithm": "sha256",
+      "hash_scope_version": "strategy_spec_hash_scope_v1",
+      "mismatch_policy": "block",
+      "missing_parent_policy": "block",
+      "strategy_spec_hash": "sha256:95f84b7d340e2def9c06ed3e897b49c091a62dc78c0f239072dfc5eff46261e0",
+      "strategy_spec_id": "STRAT-SPEC-9103",
+      "strategy_spec_ref": null,
+      "strategy_spec_schema_version": "v1"
+    },
+    "parent_sweep_plan": {
+      "committed_population_count": 8,
+      "hash_algorithm": "sha256",
+      "hash_scope_version": "sweep_plan_identity_hash_scope_v1",
+      "manifest_hash": "sha256:8c76e07cbc92678a2ace522506030c7117339933b943a9ecf721096488c514a5",
+      "manifest_id": "VM-9103",
+      "mismatch_policy": "block",
+      "missing_sweep_plan_policy": "block",
+      "selected_variant_count": 8,
+      "sweep_plan_id": "SWEEP-PLAN-9103",
+      "sweep_plan_identity_hash": "sha256:60c14c003bb3e4bc8f4a9dbbb58925cac9f3686aad622efdda369321e5fcc435",
+      "sweep_plan_ref": null,
+      "sweep_plan_schema_version": "v1"
+    },
+    "parent_variant_manifest": {
+      "committed_population_count": 8,
+      "hash_algorithm": "sha256",
+      "hash_scope_version": "variant_manifest_hash_scope_v1",
+      "manifest_hash": "sha256:8c76e07cbc92678a2ace522506030c7117339933b943a9ecf721096488c514a5",
+      "manifest_pre_registration_status": "frozen_for_sweep_planning",
+      "manifest_ref": null,
+      "mismatch_policy": "block",
+      "missing_manifest_policy": "block",
+      "variant_manifest_id": "VM-9103",
+      "variant_manifest_schema_version": "v1"
+    },
+    "result_population_id": "RP-2231",
+    "result_population_identity_hash": {
+      "audit_envelope_excluded": true,
+      "audit_envelope_exclusion_reason": "administrative_audit_metadata_is_excluded_from_scientific_identity",
+      "canonicalization": "json_canonical_v1",
+      "hash": "sha256:8a8ea6112e674d2a99151bddd123cba875cd4aa6e6dbcd3f2231aa2aedc6b1c8",
+      "hash_algorithm": "sha256",
+      "hash_scope": [
+        "parent_strategy_spec.strategy_spec_hash",
+        "parent_variant_manifest.manifest_hash",
+        "parent_sweep_plan.sweep_plan_identity_hash",
+        "parent_variant_manifest.committed_population_count",
+        "parent_sweep_plan.committed_population_count",
+        "execution_context.runner_code_ref",
+        "execution_context.repo_commit",
+        "data_coverage_summary.data_catalog_ref",
+        "data_coverage_summary.data_slice_identity",
+        "backtest_assumption_summary",
+        "sizing_metadata",
+        "committed_denominator_snapshot",
+        "variant_result_rows",
+        "outcome_category_counts",
+        "append_only_ledger.creation_event_ref",
+        "validation_summary.validator_identity"
+      ],
+      "hash_scope_version": "result_population_identity_hash_scope_v1"
+    },
+    "review": {
+      "non_authority_acknowledgement": {
+        "not_approval": true,
+        "not_gate_satisfaction": true,
+        "not_paper_live_authority": true,
+        "not_readiness": true,
+        "not_recommendation": true,
+        "not_runtime_authority": true,
+        "not_transition": true
+      },
+      "review_notes": [],
+      "review_scope": "none",
+      "review_status": "not_reviewed"
+    },
+    "schema_version": "v1",
+    "sizing_metadata": {
+      "entry_reference_price_basis": "next_bar_open_pre_fee_slippage",
+      "sizing_equity_basis": "realized_available_equity_at_entry",
+      "sizing_mode": "dynamic_equity_target_leverage",
+      "target_leverage": 1.0
+    },
+    "status": "generated",
+    "validation_summary": {
+      "blocking_errors": [],
+      "non_blocking_warnings": [],
+      "schema_validation_status": "passed",
+      "validation_timestamp": "2026-06-01T00:00:00Z",
+      "validator_authority_boundary": "evidence_only_no_approval_no_execution",
+      "validator_does_not_approve": true,
+      "validator_does_not_contact_runtime": true,
+      "validator_does_not_execute": true,
+      "validator_does_not_rank": true,
+      "validator_does_not_recommend": true,
+      "validator_identity": "tools.registry.validate_result_populations",
+      "validator_status": "passed",
+      "validator_version": "wp-s2c-189"
+    },
+    "variant_result_rows": [
+      {
+        "assignment_hash": "sha256:ff14c48eb00fd635a94f373cbcd69eb15d3b33a15eb0648b04675ca7960e7b63",
+        "assignment_ref": null,
+        "attempted": true,
+        "backtest_assumption_ref": "backtest_assumption_summary",
+        "data_coverage": {
+          "counts_in_denominator": true,
+          "data_catalog_ref": "binance_usdtm_btcusdt_ohlcv_15m.offline_local.15m.20200101T000000Z.20260411T234500Z.sha256_3daace53d727599b",
+          "data_slice_identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+          "data_stream": "ohlcv",
+          "irreparable_gap": false,
+          "missing_data_policy": "block_if_missing",
+          "timeframe": "15m"
+        },
+        "error": {
+          "counts_in_denominator": true,
+          "error_category": null,
+          "error_message_class": null,
+          "is_infrastructure_error": null,
+          "is_strategy_underperformance": null
+        },
+        "lineage": {
+          "parent_manifest_id": "VM-9103",
+          "parent_sweep_plan_id": "SWEEP-PLAN-9103",
+          "parent_variant_assignment_hash": "sha256:ff14c48eb00fd635a94f373cbcd69eb15d3b33a15eb0648b04675ca7960e7b63",
+          "parent_variant_assignment_ref": null,
+          "parent_variant_id": "VAR-000001"
+        },
+        "metrics": {
+          "drawdown": 0.9730851139063182,
+          "exposure": 1.0,
+          "fees": 2131.909477668712,
+          "funding": 0.0,
+          "pnl": -9716.79397099426,
+          "return_pct": -0.9716793970994261,
+          "sharpe": -1.3059112968337545,
+          "slippage": 532.977369417178,
+          "trade_count": 1537,
+          "win_rate": 0.5894599869876382
+        },
+        "non_success": {
+          "counts_in_denominator": true,
+          "declared_before_results": null,
+          "reason": null,
+          "rule_ref": null
+        },
+        "outcome_category": "successful",
+        "row_id": "RP-2231-ROW-000001",
+        "row_identity_hash": "sha256:30c1edb74ad7ca0c5831eeeeacd3b3ed53e14d75b8deeba4b2308579a2bcabeb",
+        "row_mutation_policy": {
+          "corrections_require_append_only_event": true,
+          "post_commit_in_place_mutation_forbidden": true,
+          "post_hoc_cleanup_forbidden": true,
+          "scientific_row_identity_immutable_after_commit": true
+        },
+        "variant_id": "VAR-000001"
+      },
+      {
+        "assignment_hash": "sha256:4b379bbeeca1eb887eaf9a7f0f0014f6eac463a769aae2ac8fbc8bc97fdccf19",
+        "assignment_ref": null,
+        "attempted": true,
+        "backtest_assumption_ref": "backtest_assumption_summary",
+        "data_coverage": {
+          "counts_in_denominator": true,
+          "data_catalog_ref": "binance_usdtm_btcusdt_ohlcv_15m.offline_local.15m.20200101T000000Z.20260411T234500Z.sha256_3daace53d727599b",
+          "data_slice_identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+          "data_stream": "ohlcv",
+          "irreparable_gap": false,
+          "missing_data_policy": "block_if_missing",
+          "timeframe": "15m"
+        },
+        "error": {
+          "counts_in_denominator": true,
+          "error_category": null,
+          "error_message_class": null,
+          "is_infrastructure_error": null,
+          "is_strategy_underperformance": null
+        },
+        "lineage": {
+          "parent_manifest_id": "VM-9103",
+          "parent_sweep_plan_id": "SWEEP-PLAN-9103",
+          "parent_variant_assignment_hash": "sha256:4b379bbeeca1eb887eaf9a7f0f0014f6eac463a769aae2ac8fbc8bc97fdccf19",
+          "parent_variant_assignment_ref": null,
+          "parent_variant_id": "VAR-000002"
+        },
+        "metrics": {
+          "drawdown": 0.9884968313105407,
+          "exposure": 1.0,
+          "fees": 3753.759555317928,
+          "funding": 0.0,
+          "pnl": -9880.842854021897,
+          "return_pct": -0.9880842854021897,
+          "sharpe": -1.3756874052126369,
+          "slippage": 938.439888829482,
+          "trade_count": 2803,
+          "win_rate": 0.6428826257581163
+        },
+        "non_success": {
+          "counts_in_denominator": true,
+          "declared_before_results": null,
+          "reason": null,
+          "rule_ref": null
+        },
+        "outcome_category": "successful",
+        "row_id": "RP-2231-ROW-000002",
+        "row_identity_hash": "sha256:aeda693c4b68b93fda9534aee6c0f826c16aa9616db87892685fef3e4f38ebe9",
+        "row_mutation_policy": {
+          "corrections_require_append_only_event": true,
+          "post_commit_in_place_mutation_forbidden": true,
+          "post_hoc_cleanup_forbidden": true,
+          "scientific_row_identity_immutable_after_commit": true
+        },
+        "variant_id": "VAR-000002"
+      },
+      {
+        "assignment_hash": "sha256:539bc45b8f1204b670c66f10c43d80ffae37152d2d9e82de9e2745785e3438f2",
+        "assignment_ref": null,
+        "attempted": true,
+        "backtest_assumption_ref": "backtest_assumption_summary",
+        "data_coverage": {
+          "counts_in_denominator": true,
+          "data_catalog_ref": "binance_usdtm_btcusdt_ohlcv_15m.offline_local.15m.20200101T000000Z.20260411T234500Z.sha256_3daace53d727599b",
+          "data_slice_identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+          "data_stream": "ohlcv",
+          "irreparable_gap": false,
+          "missing_data_policy": "block_if_missing",
+          "timeframe": "15m"
+        },
+        "error": {
+          "counts_in_denominator": true,
+          "error_category": null,
+          "error_message_class": null,
+          "is_infrastructure_error": null,
+          "is_strategy_underperformance": null
+        },
+        "lineage": {
+          "parent_manifest_id": "VM-9103",
+          "parent_sweep_plan_id": "SWEEP-PLAN-9103",
+          "parent_variant_assignment_hash": "sha256:539bc45b8f1204b670c66f10c43d80ffae37152d2d9e82de9e2745785e3438f2",
+          "parent_variant_assignment_ref": null,
+          "parent_variant_id": "VAR-000003"
+        },
+        "metrics": {
+          "drawdown": 0.9734969572132588,
+          "exposure": 1.0,
+          "fees": 2117.7096298145843,
+          "funding": 0.0,
+          "pnl": -9721.127502524923,
+          "return_pct": -0.9721127502524923,
+          "sharpe": -1.3128563790397163,
+          "slippage": 529.4274074536461,
+          "trade_count": 1531,
+          "win_rate": 0.5885042455911169
+        },
+        "non_success": {
+          "counts_in_denominator": true,
+          "declared_before_results": null,
+          "reason": null,
+          "rule_ref": null
+        },
+        "outcome_category": "successful",
+        "row_id": "RP-2231-ROW-000003",
+        "row_identity_hash": "sha256:f07a93cff040247146ae508fe401497b114ba51371ceaac72a1621564355d32a",
+        "row_mutation_policy": {
+          "corrections_require_append_only_event": true,
+          "post_commit_in_place_mutation_forbidden": true,
+          "post_hoc_cleanup_forbidden": true,
+          "scientific_row_identity_immutable_after_commit": true
+        },
+        "variant_id": "VAR-000003"
+      },
+      {
+        "assignment_hash": "sha256:462aa8018953099cb1ff70872e917260689438dc4b8646b788a1debd3ae35a8b",
+        "assignment_ref": null,
+        "attempted": true,
+        "backtest_assumption_ref": "backtest_assumption_summary",
+        "data_coverage": {
+          "counts_in_denominator": true,
+          "data_catalog_ref": "binance_usdtm_btcusdt_ohlcv_15m.offline_local.15m.20200101T000000Z.20260411T234500Z.sha256_3daace53d727599b",
+          "data_slice_identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+          "data_stream": "ohlcv",
+          "irreparable_gap": false,
+          "missing_data_policy": "block_if_missing",
+          "timeframe": "15m"
+        },
+        "error": {
+          "counts_in_denominator": true,
+          "error_category": null,
+          "error_message_class": null,
+          "is_infrastructure_error": null,
+          "is_strategy_underperformance": null
+        },
+        "lineage": {
+          "parent_manifest_id": "VM-9103",
+          "parent_sweep_plan_id": "SWEEP-PLAN-9103",
+          "parent_variant_assignment_hash": "sha256:462aa8018953099cb1ff70872e917260689438dc4b8646b788a1debd3ae35a8b",
+          "parent_variant_assignment_ref": null,
+          "parent_variant_id": "VAR-000004"
+        },
+        "metrics": {
+          "drawdown": 0.9886131650039511,
+          "exposure": 1.0,
+          "fees": 3648.2495176006482,
+          "funding": 0.0,
+          "pnl": -9882.047912494229,
+          "return_pct": -0.9882047912494228,
+          "sharpe": -1.3826955031830348,
+          "slippage": 912.0623794001621,
+          "trade_count": 2760,
+          "win_rate": 0.6420289855072464
+        },
+        "non_success": {
+          "counts_in_denominator": true,
+          "declared_before_results": null,
+          "reason": null,
+          "rule_ref": null
+        },
+        "outcome_category": "successful",
+        "row_id": "RP-2231-ROW-000004",
+        "row_identity_hash": "sha256:4b9d051c44a6dd141fba707771a1994da527177e0dfe10c5e2188564ae8d57da",
+        "row_mutation_policy": {
+          "corrections_require_append_only_event": true,
+          "post_commit_in_place_mutation_forbidden": true,
+          "post_hoc_cleanup_forbidden": true,
+          "scientific_row_identity_immutable_after_commit": true
+        },
+        "variant_id": "VAR-000004"
+      },
+      {
+        "assignment_hash": "sha256:593808f1702750a5a07c94e7ffa81d11ffe6c8bcb7f9bcca1a3eb6e60e4c29b8",
+        "assignment_ref": null,
+        "attempted": true,
+        "backtest_assumption_ref": "backtest_assumption_summary",
+        "data_coverage": {
+          "counts_in_denominator": true,
+          "data_catalog_ref": "binance_usdtm_btcusdt_ohlcv_15m.offline_local.15m.20200101T000000Z.20260411T234500Z.sha256_3daace53d727599b",
+          "data_slice_identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+          "data_stream": "ohlcv",
+          "irreparable_gap": false,
+          "missing_data_policy": "block_if_missing",
+          "timeframe": "15m"
+        },
+        "error": {
+          "counts_in_denominator": true,
+          "error_category": null,
+          "error_message_class": null,
+          "is_infrastructure_error": null,
+          "is_strategy_underperformance": null
+        },
+        "lineage": {
+          "parent_manifest_id": "VM-9103",
+          "parent_sweep_plan_id": "SWEEP-PLAN-9103",
+          "parent_variant_assignment_hash": "sha256:593808f1702750a5a07c94e7ffa81d11ffe6c8bcb7f9bcca1a3eb6e60e4c29b8",
+          "parent_variant_assignment_ref": null,
+          "parent_variant_id": "VAR-000005"
+        },
+        "metrics": {
+          "drawdown": 0.9717283160269521,
+          "exposure": 1.0,
+          "fees": 2088.933455952048,
+          "funding": 0.0,
+          "pnl": -9698.854393596426,
+          "return_pct": -0.9698854393596427,
+          "sharpe": -1.3025759263331451,
+          "slippage": 522.233363988012,
+          "trade_count": 1490,
+          "win_rate": 0.5899328859060403
+        },
+        "non_success": {
+          "counts_in_denominator": true,
+          "declared_before_results": null,
+          "reason": null,
+          "rule_ref": null
+        },
+        "outcome_category": "successful",
+        "row_id": "RP-2231-ROW-000005",
+        "row_identity_hash": "sha256:00439aff3eba0065706628bcbfe9a4720b1e09161661b510297446df2c44b034",
+        "row_mutation_policy": {
+          "corrections_require_append_only_event": true,
+          "post_commit_in_place_mutation_forbidden": true,
+          "post_hoc_cleanup_forbidden": true,
+          "scientific_row_identity_immutable_after_commit": true
+        },
+        "variant_id": "VAR-000005"
+      },
+      {
+        "assignment_hash": "sha256:58778f171ef098a6bb26d9c8ff2a074cdc059aa516ab32ce9e305354c8487b60",
+        "assignment_ref": null,
+        "attempted": true,
+        "backtest_assumption_ref": "backtest_assumption_summary",
+        "data_coverage": {
+          "counts_in_denominator": true,
+          "data_catalog_ref": "binance_usdtm_btcusdt_ohlcv_15m.offline_local.15m.20200101T000000Z.20260411T234500Z.sha256_3daace53d727599b",
+          "data_slice_identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+          "data_stream": "ohlcv",
+          "irreparable_gap": false,
+          "missing_data_policy": "block_if_missing",
+          "timeframe": "15m"
+        },
+        "error": {
+          "counts_in_denominator": true,
+          "error_category": null,
+          "error_message_class": null,
+          "is_infrastructure_error": null,
+          "is_strategy_underperformance": null
+        },
+        "lineage": {
+          "parent_manifest_id": "VM-9103",
+          "parent_sweep_plan_id": "SWEEP-PLAN-9103",
+          "parent_variant_assignment_hash": "sha256:58778f171ef098a6bb26d9c8ff2a074cdc059aa516ab32ce9e305354c8487b60",
+          "parent_variant_assignment_ref": null,
+          "parent_variant_id": "VAR-000006"
+        },
+        "metrics": {
+          "drawdown": 0.9899583429626736,
+          "exposure": 1.0,
+          "fees": 3283.426161197069,
+          "funding": 0.0,
+          "pnl": -9892.84935801888,
+          "return_pct": -0.989284935801888,
+          "sharpe": -1.4556876923864417,
+          "slippage": 820.8565402992673,
+          "trade_count": 2601,
+          "win_rate": 0.6447520184544406
+        },
+        "non_success": {
+          "counts_in_denominator": true,
+          "declared_before_results": null,
+          "reason": null,
+          "rule_ref": null
+        },
+        "outcome_category": "successful",
+        "row_id": "RP-2231-ROW-000006",
+        "row_identity_hash": "sha256:4f2ea380d987b6669176007caf9f21fbcf0f68df0dd35e4739779a42a1e9bdae",
+        "row_mutation_policy": {
+          "corrections_require_append_only_event": true,
+          "post_commit_in_place_mutation_forbidden": true,
+          "post_hoc_cleanup_forbidden": true,
+          "scientific_row_identity_immutable_after_commit": true
+        },
+        "variant_id": "VAR-000006"
+      },
+      {
+        "assignment_hash": "sha256:bf2232e95c47b1ad3c76a702ed187e199a964a62fcc6da49695a560df38f6012",
+        "assignment_ref": null,
+        "attempted": true,
+        "backtest_assumption_ref": "backtest_assumption_summary",
+        "data_coverage": {
+          "counts_in_denominator": true,
+          "data_catalog_ref": "binance_usdtm_btcusdt_ohlcv_15m.offline_local.15m.20200101T000000Z.20260411T234500Z.sha256_3daace53d727599b",
+          "data_slice_identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+          "data_stream": "ohlcv",
+          "irreparable_gap": false,
+          "missing_data_policy": "block_if_missing",
+          "timeframe": "15m"
+        },
+        "error": {
+          "counts_in_denominator": true,
+          "error_category": null,
+          "error_message_class": null,
+          "is_infrastructure_error": null,
+          "is_strategy_underperformance": null
+        },
+        "lineage": {
+          "parent_manifest_id": "VM-9103",
+          "parent_sweep_plan_id": "SWEEP-PLAN-9103",
+          "parent_variant_assignment_hash": "sha256:bf2232e95c47b1ad3c76a702ed187e199a964a62fcc6da49695a560df38f6012",
+          "parent_variant_assignment_ref": null,
+          "parent_variant_id": "VAR-000007"
+        },
+        "metrics": {
+          "drawdown": 0.9682940167474243,
+          "exposure": 1.0,
+          "fees": 2148.476804258038,
+          "funding": 0.0,
+          "pnl": -9662.272768671266,
+          "return_pct": -0.9662272768671266,
+          "sharpe": -1.2577655361592246,
+          "slippage": 537.1192010645095,
+          "trade_count": 1468,
+          "win_rate": 0.587874659400545
+        },
+        "non_success": {
+          "counts_in_denominator": true,
+          "declared_before_results": null,
+          "reason": null,
+          "rule_ref": null
+        },
+        "outcome_category": "successful",
+        "row_id": "RP-2231-ROW-000007",
+        "row_identity_hash": "sha256:9b40fe564aa7df84eb42594bb70cdf3a7576e01e91a7a9038334d15fc3dabc3d",
+        "row_mutation_policy": {
+          "corrections_require_append_only_event": true,
+          "post_commit_in_place_mutation_forbidden": true,
+          "post_hoc_cleanup_forbidden": true,
+          "scientific_row_identity_immutable_after_commit": true
+        },
+        "variant_id": "VAR-000007"
+      },
+      {
+        "assignment_hash": "sha256:cf31992da1b0fc6e5c05f0f788df4f3d0699ac2b6b40eb6d1a1c31e099a27c99",
+        "assignment_ref": null,
+        "attempted": true,
+        "backtest_assumption_ref": "backtest_assumption_summary",
+        "data_coverage": {
+          "counts_in_denominator": true,
+          "data_catalog_ref": "binance_usdtm_btcusdt_ohlcv_15m.offline_local.15m.20200101T000000Z.20260411T234500Z.sha256_3daace53d727599b",
+          "data_slice_identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+          "data_stream": "ohlcv",
+          "irreparable_gap": false,
+          "missing_data_policy": "block_if_missing",
+          "timeframe": "15m"
+        },
+        "error": {
+          "counts_in_denominator": true,
+          "error_category": null,
+          "error_message_class": null,
+          "is_infrastructure_error": null,
+          "is_strategy_underperformance": null
+        },
+        "lineage": {
+          "parent_manifest_id": "VM-9103",
+          "parent_sweep_plan_id": "SWEEP-PLAN-9103",
+          "parent_variant_assignment_hash": "sha256:cf31992da1b0fc6e5c05f0f788df4f3d0699ac2b6b40eb6d1a1c31e099a27c99",
+          "parent_variant_assignment_ref": null,
+          "parent_variant_id": "VAR-000008"
+        },
+        "metrics": {
+          "drawdown": 0.9893416989636621,
+          "exposure": 1.0,
+          "fees": 3077.4684111699326,
+          "funding": 0.0,
+          "pnl": -9886.934651249543,
+          "return_pct": -0.9886934651249543,
+          "sharpe": -1.445485950081145,
+          "slippage": 769.3671027924831,
+          "trade_count": 2510,
+          "win_rate": 0.6374501992031872
+        },
+        "non_success": {
+          "counts_in_denominator": true,
+          "declared_before_results": null,
+          "reason": null,
+          "rule_ref": null
+        },
+        "outcome_category": "successful",
+        "row_id": "RP-2231-ROW-000008",
+        "row_identity_hash": "sha256:4efe6aa8407d2c28f2421adcaea3d037d7fff197c2b3afbf79677e81adf0a6e4",
+        "row_mutation_policy": {
+          "corrections_require_append_only_event": true,
+          "post_commit_in_place_mutation_forbidden": true,
+          "post_hoc_cleanup_forbidden": true,
+          "scientific_row_identity_immutable_after_commit": true
+        },
+        "variant_id": "VAR-000008"
+      }
+    ]
+  },
+  "result_population_id": "RP-2231",
+  "walkforward": {
+    "canonical_result_population_written": false,
+    "dry_run_only": true,
+    "enabled": true,
+    "missing_input_warnings": [
+      "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+    ],
+    "non_authority_declaration": [
+      "build_test_only",
+      "not_canonical_evidence",
+      "not_ranking_authority",
+      "not_recommendation_authority",
+      "not_readiness_authority",
+      "not_promotion_authority",
+      "not_paper_live_runtime_authority"
+    ],
+    "rows": [
+      {
+        "boundary_semantics": "start_inclusive_end_exclusive",
+        "in_sample_end_exclusive": "2020-03-03T12:00:00Z",
+        "in_sample_metrics": {
+          "drawdown": 0.12358498567130337,
+          "exposure": 1.0,
+          "fees": 312.933688324739,
+          "funding": 0.0,
+          "pnl": -663.410114075914,
+          "return_pct": -0.0663410114075914,
+          "sharpe": -1.473007709456846,
+          "slippage": 78.23342208118476,
+          "trade_count": 40,
+          "win_rate": 0.575
+        },
+        "in_sample_row_count": 6000,
+        "in_sample_start": "2020-01-01T00:00:00Z",
+        "missing_input_warnings": [
+          "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+        ],
+        "oos_is_sharpe_efficiency": null,
+        "out_of_sample_end_exclusive": "2020-03-19T03:00:00Z",
+        "out_of_sample_metrics": {
+          "drawdown": 0.5444500506231283,
+          "exposure": 1.0,
+          "fees": 57.04693907965299,
+          "funding": 0.0,
+          "pnl": -3203.9614088114195,
+          "return_pct": -0.32039614088114193,
+          "sharpe": -3.833144963859614,
+          "slippage": 14.261734769913247,
+          "trade_count": 9,
+          "win_rate": 0.4444444444444444
+        },
+        "out_of_sample_row_count": 1500,
+        "out_of_sample_start": "2020-03-03T12:00:00Z",
+        "outcome_category": "successful",
+        "paired_is_oos_overlap_allowed": false,
+        "selection_behavior": "no_selection_partition_and_report_all_included_variants",
+        "variant_id": "VAR-000001",
+        "window_id": "WF-0001",
+        "window_index": 1
+      },
+      {
+        "boundary_semantics": "start_inclusive_end_exclusive",
+        "in_sample_end_exclusive": "2020-03-03T12:00:00Z",
+        "in_sample_metrics": {
+          "drawdown": 0.1521964790955648,
+          "exposure": 1.0,
+          "fees": 558.8916052978045,
+          "funding": 0.0,
+          "pnl": -1090.597268494963,
+          "return_pct": -0.10905972684949629,
+          "sharpe": -1.948517727201401,
+          "slippage": 139.72290132445113,
+          "trade_count": 74,
+          "win_rate": 0.6216216216216216
+        },
+        "in_sample_row_count": 6000,
+        "in_sample_start": "2020-01-01T00:00:00Z",
+        "missing_input_warnings": [
+          "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+        ],
+        "oos_is_sharpe_efficiency": null,
+        "out_of_sample_end_exclusive": "2020-03-19T03:00:00Z",
+        "out_of_sample_metrics": {
+          "drawdown": 0.5373025182298395,
+          "exposure": 1.0,
+          "fees": 105.45556981416962,
+          "funding": 0.0,
+          "pnl": -3268.337304780169,
+          "return_pct": -0.3268337304780169,
+          "sharpe": -3.833603820189883,
+          "slippage": 26.363892453542405,
+          "trade_count": 16,
+          "win_rate": 0.5625
+        },
+        "out_of_sample_row_count": 1500,
+        "out_of_sample_start": "2020-03-03T12:00:00Z",
+        "outcome_category": "successful",
+        "paired_is_oos_overlap_allowed": false,
+        "selection_behavior": "no_selection_partition_and_report_all_included_variants",
+        "variant_id": "VAR-000002",
+        "window_id": "WF-0001",
+        "window_index": 1
+      },
+      {
+        "boundary_semantics": "start_inclusive_end_exclusive",
+        "in_sample_end_exclusive": "2020-03-03T12:00:00Z",
+        "in_sample_metrics": {
+          "drawdown": 0.12358498567130337,
+          "exposure": 1.0,
+          "fees": 312.933688324739,
+          "funding": 0.0,
+          "pnl": -663.410114075914,
+          "return_pct": -0.0663410114075914,
+          "sharpe": -1.473007709456846,
+          "slippage": 78.23342208118476,
+          "trade_count": 40,
+          "win_rate": 0.575
+        },
+        "in_sample_row_count": 6000,
+        "in_sample_start": "2020-01-01T00:00:00Z",
+        "missing_input_warnings": [
+          "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+        ],
+        "oos_is_sharpe_efficiency": null,
+        "out_of_sample_end_exclusive": "2020-03-19T03:00:00Z",
+        "out_of_sample_metrics": {
+          "drawdown": 0.5444500506231283,
+          "exposure": 1.0,
+          "fees": 57.04693907965299,
+          "funding": 0.0,
+          "pnl": -3203.9614088114195,
+          "return_pct": -0.32039614088114193,
+          "sharpe": -3.833144963859614,
+          "slippage": 14.261734769913247,
+          "trade_count": 9,
+          "win_rate": 0.4444444444444444
+        },
+        "out_of_sample_row_count": 1500,
+        "out_of_sample_start": "2020-03-03T12:00:00Z",
+        "outcome_category": "successful",
+        "paired_is_oos_overlap_allowed": false,
+        "selection_behavior": "no_selection_partition_and_report_all_included_variants",
+        "variant_id": "VAR-000003",
+        "window_id": "WF-0001",
+        "window_index": 1
+      },
+      {
+        "boundary_semantics": "start_inclusive_end_exclusive",
+        "in_sample_end_exclusive": "2020-03-03T12:00:00Z",
+        "in_sample_metrics": {
+          "drawdown": 0.14678919030503693,
+          "exposure": 1.0,
+          "fees": 550.6543321396783,
+          "funding": 0.0,
+          "pnl": -1033.7731195825254,
+          "return_pct": -0.10337731195825255,
+          "sharpe": -1.8342489820034376,
+          "slippage": 137.66358303491958,
+          "trade_count": 73,
+          "win_rate": 0.6301369863013698
+        },
+        "in_sample_row_count": 6000,
+        "in_sample_start": "2020-01-01T00:00:00Z",
+        "missing_input_warnings": [
+          "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+        ],
+        "oos_is_sharpe_efficiency": null,
+        "out_of_sample_end_exclusive": "2020-03-19T03:00:00Z",
+        "out_of_sample_metrics": {
+          "drawdown": 0.5373025182298395,
+          "exposure": 1.0,
+          "fees": 105.45556981416962,
+          "funding": 0.0,
+          "pnl": -3268.337304780169,
+          "return_pct": -0.3268337304780169,
+          "sharpe": -3.833603820189883,
+          "slippage": 26.363892453542405,
+          "trade_count": 16,
+          "win_rate": 0.5625
+        },
+        "out_of_sample_row_count": 1500,
+        "out_of_sample_start": "2020-03-03T12:00:00Z",
+        "outcome_category": "successful",
+        "paired_is_oos_overlap_allowed": false,
+        "selection_behavior": "no_selection_partition_and_report_all_included_variants",
+        "variant_id": "VAR-000004",
+        "window_id": "WF-0001",
+        "window_index": 1
+      },
+      {
+        "boundary_semantics": "start_inclusive_end_exclusive",
+        "in_sample_end_exclusive": "2020-03-03T12:00:00Z",
+        "in_sample_metrics": {
+          "drawdown": 0.11359951160698513,
+          "exposure": 1.0,
+          "fees": 309.9137745459011,
+          "funding": 0.0,
+          "pnl": -372.24818081678495,
+          "return_pct": -0.0372248180816785,
+          "sharpe": -0.774157898507547,
+          "slippage": 77.47844363647528,
+          "trade_count": 39,
+          "win_rate": 0.5897435897435898
+        },
+        "in_sample_row_count": 6000,
+        "in_sample_start": "2020-01-01T00:00:00Z",
+        "missing_input_warnings": [
+          "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+        ],
+        "oos_is_sharpe_efficiency": null,
+        "out_of_sample_end_exclusive": "2020-03-19T03:00:00Z",
+        "out_of_sample_metrics": {
+          "drawdown": 0.5345872735587368,
+          "exposure": 1.0,
+          "fees": 52.860336428082526,
+          "funding": 0.0,
+          "pnl": -3042.457788842521,
+          "return_pct": -0.3042457788842521,
+          "sharpe": -3.5718597589815357,
+          "slippage": 13.215084107020632,
+          "trade_count": 8,
+          "win_rate": 0.5
+        },
+        "out_of_sample_row_count": 1500,
+        "out_of_sample_start": "2020-03-03T12:00:00Z",
+        "outcome_category": "successful",
+        "paired_is_oos_overlap_allowed": false,
+        "selection_behavior": "no_selection_partition_and_report_all_included_variants",
+        "variant_id": "VAR-000005",
+        "window_id": "WF-0001",
+        "window_index": 1
+      },
+      {
+        "boundary_semantics": "start_inclusive_end_exclusive",
+        "in_sample_end_exclusive": "2020-03-03T12:00:00Z",
+        "in_sample_metrics": {
+          "drawdown": 0.08975440767761424,
+          "exposure": 1.0,
+          "fees": 558.4302136991953,
+          "funding": 0.0,
+          "pnl": -116.66426810565463,
+          "return_pct": -0.011666426810565463,
+          "sharpe": -0.0814419645707074,
+          "slippage": 139.60755342479882,
+          "trade_count": 70,
+          "win_rate": 0.6714285714285714
+        },
+        "in_sample_row_count": 6000,
+        "in_sample_start": "2020-01-01T00:00:00Z",
+        "missing_input_warnings": [
+          "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+        ],
+        "oos_is_sharpe_efficiency": null,
+        "out_of_sample_end_exclusive": "2020-03-19T03:00:00Z",
+        "out_of_sample_metrics": {
+          "drawdown": 0.5333735078752051,
+          "exposure": 1.0,
+          "fees": 80.46440386248587,
+          "funding": 0.0,
+          "pnl": -3222.051074123252,
+          "return_pct": -0.3222051074123252,
+          "sharpe": -3.8029471493653006,
+          "slippage": 20.116100965621467,
+          "trade_count": 12,
+          "win_rate": 0.6666666666666666
+        },
+        "out_of_sample_row_count": 1500,
+        "out_of_sample_start": "2020-03-03T12:00:00Z",
+        "outcome_category": "successful",
+        "paired_is_oos_overlap_allowed": false,
+        "selection_behavior": "no_selection_partition_and_report_all_included_variants",
+        "variant_id": "VAR-000006",
+        "window_id": "WF-0001",
+        "window_index": 1
+      },
+      {
+        "boundary_semantics": "start_inclusive_end_exclusive",
+        "in_sample_end_exclusive": "2020-03-03T12:00:00Z",
+        "in_sample_metrics": {
+          "drawdown": 0.11359951160698513,
+          "exposure": 1.0,
+          "fees": 309.9137745459011,
+          "funding": 0.0,
+          "pnl": -372.24818081678495,
+          "return_pct": -0.0372248180816785,
+          "sharpe": -0.774157898507547,
+          "slippage": 77.47844363647528,
+          "trade_count": 39,
+          "win_rate": 0.5897435897435898
+        },
+        "in_sample_row_count": 6000,
+        "in_sample_start": "2020-01-01T00:00:00Z",
+        "missing_input_warnings": [
+          "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+        ],
+        "oos_is_sharpe_efficiency": null,
+        "out_of_sample_end_exclusive": "2020-03-19T03:00:00Z",
+        "out_of_sample_metrics": {
+          "drawdown": 0.5345872735587368,
+          "exposure": 1.0,
+          "fees": 52.860336428082526,
+          "funding": 0.0,
+          "pnl": -3042.457788842521,
+          "return_pct": -0.3042457788842521,
+          "sharpe": -3.5718597589815357,
+          "slippage": 13.215084107020632,
+          "trade_count": 8,
+          "win_rate": 0.5
+        },
+        "out_of_sample_row_count": 1500,
+        "out_of_sample_start": "2020-03-03T12:00:00Z",
+        "outcome_category": "successful",
+        "paired_is_oos_overlap_allowed": false,
+        "selection_behavior": "no_selection_partition_and_report_all_included_variants",
+        "variant_id": "VAR-000007",
+        "window_id": "WF-0001",
+        "window_index": 1
+      },
+      {
+        "boundary_semantics": "start_inclusive_end_exclusive",
+        "in_sample_end_exclusive": "2020-03-03T12:00:00Z",
+        "in_sample_metrics": {
+          "drawdown": 0.10191158569410552,
+          "exposure": 1.0,
+          "fees": 504.4057892925376,
+          "funding": 0.0,
+          "pnl": -305.7055013709305,
+          "return_pct": -0.03057055013709305,
+          "sharpe": -0.4700972624555215,
+          "slippage": 126.1014473231344,
+          "trade_count": 64,
+          "win_rate": 0.640625
+        },
+        "in_sample_row_count": 6000,
+        "in_sample_start": "2020-01-01T00:00:00Z",
+        "missing_input_warnings": [
+          "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+        ],
+        "oos_is_sharpe_efficiency": null,
+        "out_of_sample_end_exclusive": "2020-03-19T03:00:00Z",
+        "out_of_sample_metrics": {
+          "drawdown": 0.5333735078752051,
+          "exposure": 1.0,
+          "fees": 80.46440386248587,
+          "funding": 0.0,
+          "pnl": -3222.051074123252,
+          "return_pct": -0.3222051074123252,
+          "sharpe": -3.8029471493653006,
+          "slippage": 20.116100965621467,
+          "trade_count": 12,
+          "win_rate": 0.6666666666666666
+        },
+        "out_of_sample_row_count": 1500,
+        "out_of_sample_start": "2020-03-03T12:00:00Z",
+        "outcome_category": "successful",
+        "paired_is_oos_overlap_allowed": false,
+        "selection_behavior": "no_selection_partition_and_report_all_included_variants",
+        "variant_id": "VAR-000008",
+        "window_id": "WF-0001",
+        "window_index": 1
+      },
+      {
+        "boundary_semantics": "start_inclusive_end_exclusive",
+        "in_sample_end_exclusive": "2020-05-20T15:00:00Z",
+        "in_sample_metrics": {
+          "drawdown": 0.38699386014491155,
+          "exposure": 1.0,
+          "fees": 289.77787291497907,
+          "funding": 0.0,
+          "pnl": -2197.6237551568156,
+          "return_pct": -0.21976237551568156,
+          "sharpe": -2.534247121182709,
+          "slippage": 72.44446822874477,
+          "trade_count": 40,
+          "win_rate": 0.525
+        },
+        "in_sample_row_count": 6000,
+        "in_sample_start": "2020-03-19T03:00:00Z",
+        "missing_input_warnings": [
+          "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+        ],
+        "oos_is_sharpe_efficiency": null,
+        "out_of_sample_end_exclusive": "2020-06-05T06:00:00Z",
+        "out_of_sample_metrics": {
+          "drawdown": 0.07994073651248683,
+          "exposure": 1.0,
+          "fees": 74.30264521586413,
+          "funding": 0.0,
+          "pnl": 439.7448878189316,
+          "return_pct": 0.04397448878189316,
+          "sharpe": 2.4821141048642863,
+          "slippage": 18.575661303966033,
+          "trade_count": 9,
+          "win_rate": 0.6666666666666666
+        },
+        "out_of_sample_row_count": 1500,
+        "out_of_sample_start": "2020-05-20T15:00:00Z",
+        "outcome_category": "successful",
+        "paired_is_oos_overlap_allowed": false,
+        "selection_behavior": "no_selection_partition_and_report_all_included_variants",
+        "variant_id": "VAR-000001",
+        "window_id": "WF-0002",
+        "window_index": 2
+      },
+      {
+        "boundary_semantics": "start_inclusive_end_exclusive",
+        "in_sample_end_exclusive": "2020-05-20T15:00:00Z",
+        "in_sample_metrics": {
+          "drawdown": 0.34605350579887445,
+          "exposure": 1.0,
+          "fees": 573.9388619794291,
+          "funding": 0.0,
+          "pnl": -606.8580510278462,
+          "return_pct": -0.06068580510278462,
+          "sharpe": -0.30725654829966326,
+          "slippage": 143.48471549485728,
+          "trade_count": 74,
+          "win_rate": 0.6081081081081081
+        },
+        "in_sample_row_count": 6000,
+        "in_sample_start": "2020-03-19T03:00:00Z",
+        "missing_input_warnings": [
+          "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+        ],
+        "oos_is_sharpe_efficiency": null,
+        "out_of_sample_end_exclusive": "2020-06-05T06:00:00Z",
+        "out_of_sample_metrics": {
+          "drawdown": 0.07099153588775814,
+          "exposure": 1.0,
+          "fees": 146.3391972674865,
+          "funding": 0.0,
+          "pnl": 404.3299168811809,
+          "return_pct": 0.04043299168811809,
+          "sharpe": 2.1637489107129033,
+          "slippage": 36.584799316871624,
+          "trade_count": 18,
+          "win_rate": 0.6666666666666666
+        },
+        "out_of_sample_row_count": 1500,
+        "out_of_sample_start": "2020-05-20T15:00:00Z",
+        "outcome_category": "successful",
+        "paired_is_oos_overlap_allowed": false,
+        "selection_behavior": "no_selection_partition_and_report_all_included_variants",
+        "variant_id": "VAR-000002",
+        "window_id": "WF-0002",
+        "window_index": 2
+      },
+      {
+        "boundary_semantics": "start_inclusive_end_exclusive",
+        "in_sample_end_exclusive": "2020-05-20T15:00:00Z",
+        "in_sample_metrics": {
+          "drawdown": 0.38699386014491155,
+          "exposure": 1.0,
+          "fees": 289.77787291497907,
+          "funding": 0.0,
+          "pnl": -2197.6237551568156,
+          "return_pct": -0.21976237551568156,
+          "sharpe": -2.534247121182709,
+          "slippage": 72.44446822874477,
+          "trade_count": 40,
+          "win_rate": 0.525
+        },
+        "in_sample_row_count": 6000,
+        "in_sample_start": "2020-03-19T03:00:00Z",
+        "missing_input_warnings": [
+          "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+        ],
+        "oos_is_sharpe_efficiency": null,
+        "out_of_sample_end_exclusive": "2020-06-05T06:00:00Z",
+        "out_of_sample_metrics": {
+          "drawdown": 0.07994073651248683,
+          "exposure": 1.0,
+          "fees": 74.30264521586413,
+          "funding": 0.0,
+          "pnl": 439.7448878189316,
+          "return_pct": 0.04397448878189316,
+          "sharpe": 2.4821141048642863,
+          "slippage": 18.575661303966033,
+          "trade_count": 9,
+          "win_rate": 0.6666666666666666
+        },
+        "out_of_sample_row_count": 1500,
+        "out_of_sample_start": "2020-05-20T15:00:00Z",
+        "outcome_category": "successful",
+        "paired_is_oos_overlap_allowed": false,
+        "selection_behavior": "no_selection_partition_and_report_all_included_variants",
+        "variant_id": "VAR-000003",
+        "window_id": "WF-0002",
+        "window_index": 2
+      },
+      {
+        "boundary_semantics": "start_inclusive_end_exclusive",
+        "in_sample_end_exclusive": "2020-05-20T15:00:00Z",
+        "in_sample_metrics": {
+          "drawdown": 0.33794372585789956,
+          "exposure": 1.0,
+          "fees": 579.0668842656079,
+          "funding": 0.0,
+          "pnl": -468.7909973579881,
+          "return_pct": -0.04687909973579881,
+          "sharpe": -0.16591301525482297,
+          "slippage": 144.76672106640197,
+          "trade_count": 74,
+          "win_rate": 0.6081081081081081
+        },
+        "in_sample_row_count": 6000,
+        "in_sample_start": "2020-03-19T03:00:00Z",
+        "missing_input_warnings": [
+          "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+        ],
+        "oos_is_sharpe_efficiency": null,
+        "out_of_sample_end_exclusive": "2020-06-05T06:00:00Z",
+        "out_of_sample_metrics": {
+          "drawdown": 0.07099153588775814,
+          "exposure": 1.0,
+          "fees": 137.93872670956463,
+          "funding": 0.0,
+          "pnl": 322.9859427679876,
+          "return_pct": 0.03229859427679876,
+          "sharpe": 1.7850337209066234,
+          "slippage": 34.48468167739116,
+          "trade_count": 17,
+          "win_rate": 0.6470588235294118
+        },
+        "out_of_sample_row_count": 1500,
+        "out_of_sample_start": "2020-05-20T15:00:00Z",
+        "outcome_category": "successful",
+        "paired_is_oos_overlap_allowed": false,
+        "selection_behavior": "no_selection_partition_and_report_all_included_variants",
+        "variant_id": "VAR-000004",
+        "window_id": "WF-0002",
+        "window_index": 2
+      },
+      {
+        "boundary_semantics": "start_inclusive_end_exclusive",
+        "in_sample_end_exclusive": "2020-05-20T15:00:00Z",
+        "in_sample_metrics": {
+          "drawdown": 0.37700011937130506,
+          "exposure": 1.0,
+          "fees": 253.92179067346555,
+          "funding": 0.0,
+          "pnl": -2823.5413007883817,
+          "return_pct": -0.2823541300788382,
+          "sharpe": -3.7065149644324586,
+          "slippage": 63.48044766836639,
+          "trade_count": 37,
+          "win_rate": 0.4864864864864865
+        },
+        "in_sample_row_count": 6000,
+        "in_sample_start": "2020-03-19T03:00:00Z",
+        "missing_input_warnings": [
+          "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+        ],
+        "oos_is_sharpe_efficiency": null,
+        "out_of_sample_end_exclusive": "2020-06-05T06:00:00Z",
+        "out_of_sample_metrics": {
+          "drawdown": 0.07994073651248633,
+          "exposure": 1.0,
+          "fees": 64.42132754377572,
+          "funding": 0.0,
+          "pnl": 160.96086103217203,
+          "return_pct": 0.016096086103217205,
+          "sharpe": 1.0836253068595365,
+          "slippage": 16.10533188594393,
+          "trade_count": 8,
+          "win_rate": 0.625
+        },
+        "out_of_sample_row_count": 1500,
+        "out_of_sample_start": "2020-05-20T15:00:00Z",
+        "outcome_category": "successful",
+        "paired_is_oos_overlap_allowed": false,
+        "selection_behavior": "no_selection_partition_and_report_all_included_variants",
+        "variant_id": "VAR-000005",
+        "window_id": "WF-0002",
+        "window_index": 2
+      },
+      {
+        "boundary_semantics": "start_inclusive_end_exclusive",
+        "in_sample_end_exclusive": "2020-05-20T15:00:00Z",
+        "in_sample_metrics": {
+          "drawdown": 0.32296187283547817,
+          "exposure": 1.0,
+          "fees": 524.9662133435933,
+          "funding": 0.0,
+          "pnl": -1188.376964863135,
+          "return_pct": -0.11883769648631351,
+          "sharpe": -1.0421395554880208,
+          "slippage": 131.24155333589832,
+          "trade_count": 68,
+          "win_rate": 0.6029411764705882
+        },
+        "in_sample_row_count": 6000,
+        "in_sample_start": "2020-03-19T03:00:00Z",
+        "missing_input_warnings": [
+          "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+        ],
+        "oos_is_sharpe_efficiency": null,
+        "out_of_sample_end_exclusive": "2020-06-05T06:00:00Z",
+        "out_of_sample_metrics": {
+          "drawdown": 0.07507822963138105,
+          "exposure": 1.0,
+          "fees": 112.58669407375734,
+          "funding": 0.0,
+          "pnl": 152.22274007784836,
+          "return_pct": 0.015222274007784836,
+          "sharpe": 1.004602535660137,
+          "slippage": 28.146673518439336,
+          "trade_count": 14,
+          "win_rate": 0.6428571428571429
+        },
+        "out_of_sample_row_count": 1500,
+        "out_of_sample_start": "2020-05-20T15:00:00Z",
+        "outcome_category": "successful",
+        "paired_is_oos_overlap_allowed": false,
+        "selection_behavior": "no_selection_partition_and_report_all_included_variants",
+        "variant_id": "VAR-000006",
+        "window_id": "WF-0002",
+        "window_index": 2
+      },
+      {
+        "boundary_semantics": "start_inclusive_end_exclusive",
+        "in_sample_end_exclusive": "2020-05-20T15:00:00Z",
+        "in_sample_metrics": {
+          "drawdown": 0.37700011937130506,
+          "exposure": 1.0,
+          "fees": 253.92179067346555,
+          "funding": 0.0,
+          "pnl": -2823.5413007883817,
+          "return_pct": -0.2823541300788382,
+          "sharpe": -3.7065149644324586,
+          "slippage": 63.48044766836639,
+          "trade_count": 37,
+          "win_rate": 0.4864864864864865
+        },
+        "in_sample_row_count": 6000,
+        "in_sample_start": "2020-03-19T03:00:00Z",
+        "missing_input_warnings": [
+          "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+        ],
+        "oos_is_sharpe_efficiency": null,
+        "out_of_sample_end_exclusive": "2020-06-05T06:00:00Z",
+        "out_of_sample_metrics": {
+          "drawdown": 0.07994073651248633,
+          "exposure": 1.0,
+          "fees": 64.42132754377572,
+          "funding": 0.0,
+          "pnl": 160.96086103217203,
+          "return_pct": 0.016096086103217205,
+          "sharpe": 1.0836253068595365,
+          "slippage": 16.10533188594393,
+          "trade_count": 8,
+          "win_rate": 0.625
+        },
+        "out_of_sample_row_count": 1500,
+        "out_of_sample_start": "2020-05-20T15:00:00Z",
+        "outcome_category": "successful",
+        "paired_is_oos_overlap_allowed": false,
+        "selection_behavior": "no_selection_partition_and_report_all_included_variants",
+        "variant_id": "VAR-000007",
+        "window_id": "WF-0002",
+        "window_index": 2
+      },
+      {
+        "boundary_semantics": "start_inclusive_end_exclusive",
+        "in_sample_end_exclusive": "2020-05-20T15:00:00Z",
+        "in_sample_metrics": {
+          "drawdown": 0.3540121174548907,
+          "exposure": 1.0,
+          "fees": 476.02075559200745,
+          "funding": 0.0,
+          "pnl": -1636.9304055719767,
+          "return_pct": -0.16369304055719766,
+          "sharpe": -1.6062479017860027,
+          "slippage": 119.00518889800186,
+          "trade_count": 64,
+          "win_rate": 0.59375
+        },
+        "in_sample_row_count": 6000,
+        "in_sample_start": "2020-03-19T03:00:00Z",
+        "missing_input_warnings": [
+          "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+        ],
+        "oos_is_sharpe_efficiency": null,
+        "out_of_sample_end_exclusive": "2020-06-05T06:00:00Z",
+        "out_of_sample_metrics": {
+          "drawdown": 0.07507822963138105,
+          "exposure": 1.0,
+          "fees": 112.58669407375734,
+          "funding": 0.0,
+          "pnl": 152.22274007784836,
+          "return_pct": 0.015222274007784836,
+          "sharpe": 1.004602535660137,
+          "slippage": 28.146673518439336,
+          "trade_count": 14,
+          "win_rate": 0.6428571428571429
+        },
+        "out_of_sample_row_count": 1500,
+        "out_of_sample_start": "2020-05-20T15:00:00Z",
+        "outcome_category": "successful",
+        "paired_is_oos_overlap_allowed": false,
+        "selection_behavior": "no_selection_partition_and_report_all_included_variants",
+        "variant_id": "VAR-000008",
+        "window_id": "WF-0002",
+        "window_index": 2
+      },
+      {
+        "boundary_semantics": "start_inclusive_end_exclusive",
+        "in_sample_end_exclusive": "2020-08-06T18:00:00Z",
+        "in_sample_metrics": {
+          "drawdown": 0.07460105285444113,
+          "exposure": 1.0,
+          "fees": 368.23716879851725,
+          "funding": 0.0,
+          "pnl": 153.8161251010788,
+          "return_pct": 0.015381612510107879,
+          "sharpe": 0.4797396936730269,
+          "slippage": 92.05929219962931,
+          "trade_count": 45,
+          "win_rate": 0.6444444444444445
+        },
+        "in_sample_row_count": 6000,
+        "in_sample_start": "2020-06-05T06:00:00Z",
+        "missing_input_warnings": [],
+        "oos_is_sharpe_efficiency": 10.224203986574524,
+        "out_of_sample_end_exclusive": "2020-08-22T09:00:00Z",
+        "out_of_sample_metrics": {
+          "drawdown": 0.03746131833036085,
+          "exposure": 1.0,
+          "fees": 90.97716276740225,
+          "funding": 0.0,
+          "pnl": 657.951749378306,
+          "return_pct": 0.0657951749378306,
+          "sharpe": 4.904956488569803,
+          "slippage": 22.744290691850562,
+          "trade_count": 11,
+          "win_rate": 0.8181818181818182
+        },
+        "out_of_sample_row_count": 1500,
+        "out_of_sample_start": "2020-08-06T18:00:00Z",
+        "outcome_category": "successful",
+        "paired_is_oos_overlap_allowed": false,
+        "selection_behavior": "no_selection_partition_and_report_all_included_variants",
+        "variant_id": "VAR-000001",
+        "window_id": "WF-0003",
+        "window_index": 3
+      },
+      {
+        "boundary_semantics": "start_inclusive_end_exclusive",
+        "in_sample_end_exclusive": "2020-08-06T18:00:00Z",
+        "in_sample_metrics": {
+          "drawdown": 0.14480001625389424,
+          "exposure": 1.0,
+          "fees": 585.3927138432758,
+          "funding": 0.0,
+          "pnl": -341.94826477129936,
+          "return_pct": -0.03419482647712994,
+          "sharpe": -0.43230398253546076,
+          "slippage": 146.34817846081896,
+          "trade_count": 75,
+          "win_rate": 0.68
+        },
+        "in_sample_row_count": 6000,
+        "in_sample_start": "2020-06-05T06:00:00Z",
+        "missing_input_warnings": [
+          "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+        ],
+        "oos_is_sharpe_efficiency": null,
+        "out_of_sample_end_exclusive": "2020-08-22T09:00:00Z",
+        "out_of_sample_metrics": {
+          "drawdown": 0.04670832575455357,
+          "exposure": 1.0,
+          "fees": 120.73747365369084,
+          "funding": 0.0,
+          "pnl": -38.41587513815466,
+          "return_pct": -0.003841587513815466,
+          "sharpe": -0.07895956909376968,
+          "slippage": 30.18436841342271,
+          "trade_count": 15,
+          "win_rate": 0.6
+        },
+        "out_of_sample_row_count": 1500,
+        "out_of_sample_start": "2020-08-06T18:00:00Z",
+        "outcome_category": "successful",
+        "paired_is_oos_overlap_allowed": false,
+        "selection_behavior": "no_selection_partition_and_report_all_included_variants",
+        "variant_id": "VAR-000002",
+        "window_id": "WF-0003",
+        "window_index": 3
+      },
+      {
+        "boundary_semantics": "start_inclusive_end_exclusive",
+        "in_sample_end_exclusive": "2020-08-06T18:00:00Z",
+        "in_sample_metrics": {
+          "drawdown": 0.07460105285444113,
+          "exposure": 1.0,
+          "fees": 368.23716879851725,
+          "funding": 0.0,
+          "pnl": 153.8161251010788,
+          "return_pct": 0.015381612510107879,
+          "sharpe": 0.4797396936730269,
+          "slippage": 92.05929219962931,
+          "trade_count": 45,
+          "win_rate": 0.6444444444444445
+        },
+        "in_sample_row_count": 6000,
+        "in_sample_start": "2020-06-05T06:00:00Z",
+        "missing_input_warnings": [],
+        "oos_is_sharpe_efficiency": 10.224203986574524,
+        "out_of_sample_end_exclusive": "2020-08-22T09:00:00Z",
+        "out_of_sample_metrics": {
+          "drawdown": 0.03746131833036085,
+          "exposure": 1.0,
+          "fees": 90.97716276740225,
+          "funding": 0.0,
+          "pnl": 657.951749378306,
+          "return_pct": 0.0657951749378306,
+          "sharpe": 4.904956488569803,
+          "slippage": 22.744290691850562,
+          "trade_count": 11,
+          "win_rate": 0.8181818181818182
+        },
+        "out_of_sample_row_count": 1500,
+        "out_of_sample_start": "2020-08-06T18:00:00Z",
+        "outcome_category": "successful",
+        "paired_is_oos_overlap_allowed": false,
+        "selection_behavior": "no_selection_partition_and_report_all_included_variants",
+        "variant_id": "VAR-000003",
+        "window_id": "WF-0003",
+        "window_index": 3
+      },
+      {
+        "boundary_semantics": "start_inclusive_end_exclusive",
+        "in_sample_end_exclusive": "2020-08-06T18:00:00Z",
+        "in_sample_metrics": {
+          "drawdown": 0.15273761635957925,
+          "exposure": 1.0,
+          "fees": 549.5328602233385,
+          "funding": 0.0,
+          "pnl": -530.9880996721549,
+          "return_pct": -0.05309880996721549,
+          "sharpe": -0.7790259198016873,
+          "slippage": 137.38321505583463,
+          "trade_count": 71,
+          "win_rate": 0.6619718309859155
+        },
+        "in_sample_row_count": 6000,
+        "in_sample_start": "2020-06-05T06:00:00Z",
+        "missing_input_warnings": [
+          "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+        ],
+        "oos_is_sharpe_efficiency": null,
+        "out_of_sample_end_exclusive": "2020-08-22T09:00:00Z",
+        "out_of_sample_metrics": {
+          "drawdown": 0.04670832575455357,
+          "exposure": 1.0,
+          "fees": 120.73747365369084,
+          "funding": 0.0,
+          "pnl": -38.41587513815466,
+          "return_pct": -0.003841587513815466,
+          "sharpe": -0.07895956909376968,
+          "slippage": 30.18436841342271,
+          "trade_count": 15,
+          "win_rate": 0.6
+        },
+        "out_of_sample_row_count": 1500,
+        "out_of_sample_start": "2020-08-06T18:00:00Z",
+        "outcome_category": "successful",
+        "paired_is_oos_overlap_allowed": false,
+        "selection_behavior": "no_selection_partition_and_report_all_included_variants",
+        "variant_id": "VAR-000004",
+        "window_id": "WF-0003",
+        "window_index": 3
+      },
+      {
+        "boundary_semantics": "start_inclusive_end_exclusive",
+        "in_sample_end_exclusive": "2020-08-06T18:00:00Z",
+        "in_sample_metrics": {
+          "drawdown": 0.07870355676123286,
+          "exposure": 1.0,
+          "fees": 359.60999039931846,
+          "funding": 0.0,
+          "pnl": 151.375700484934,
+          "return_pct": 0.015137570048493398,
+          "sharpe": 0.4751379341722727,
+          "slippage": 89.90249759982962,
+          "trade_count": 44,
+          "win_rate": 0.6363636363636364
+        },
+        "in_sample_row_count": 6000,
+        "in_sample_start": "2020-06-05T06:00:00Z",
+        "missing_input_warnings": [],
+        "oos_is_sharpe_efficiency": 9.395049497812161,
+        "out_of_sample_end_exclusive": "2020-08-22T09:00:00Z",
+        "out_of_sample_metrics": {
+          "drawdown": 0.03746131833036079,
+          "exposure": 1.0,
+          "fees": 82.40323939388261,
+          "funding": 0.0,
+          "pnl": 588.1134833049709,
+          "return_pct": 0.058811348330497094,
+          "sharpe": 4.463944409836718,
+          "slippage": 20.600809848470654,
+          "trade_count": 10,
+          "win_rate": 0.8
+        },
+        "out_of_sample_row_count": 1500,
+        "out_of_sample_start": "2020-08-06T18:00:00Z",
+        "outcome_category": "successful",
+        "paired_is_oos_overlap_allowed": false,
+        "selection_behavior": "no_selection_partition_and_report_all_included_variants",
+        "variant_id": "VAR-000005",
+        "window_id": "WF-0003",
+        "window_index": 3
+      },
+      {
+        "boundary_semantics": "start_inclusive_end_exclusive",
+        "in_sample_end_exclusive": "2020-08-06T18:00:00Z",
+        "in_sample_metrics": {
+          "drawdown": 0.15761309703899773,
+          "exposure": 1.0,
+          "fees": 509.3628513119466,
+          "funding": 0.0,
+          "pnl": -364.2663656034856,
+          "return_pct": -0.03642663656034856,
+          "sharpe": -0.4757722523447471,
+          "slippage": 127.34071282798665,
+          "trade_count": 66,
+          "win_rate": 0.6515151515151515
+        },
+        "in_sample_row_count": 6000,
+        "in_sample_start": "2020-06-05T06:00:00Z",
+        "missing_input_warnings": [
+          "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+        ],
+        "oos_is_sharpe_efficiency": null,
+        "out_of_sample_end_exclusive": "2020-08-22T09:00:00Z",
+        "out_of_sample_metrics": {
+          "drawdown": 0.05179307183624224,
+          "exposure": 1.0,
+          "fees": 87.88662792424947,
+          "funding": 0.0,
+          "pnl": -148.9516695857692,
+          "return_pct": -0.014895166958576919,
+          "sharpe": -0.8567351825767902,
+          "slippage": 21.971656981062367,
+          "trade_count": 11,
+          "win_rate": 0.45454545454545453
+        },
+        "out_of_sample_row_count": 1500,
+        "out_of_sample_start": "2020-08-06T18:00:00Z",
+        "outcome_category": "successful",
+        "paired_is_oos_overlap_allowed": false,
+        "selection_behavior": "no_selection_partition_and_report_all_included_variants",
+        "variant_id": "VAR-000006",
+        "window_id": "WF-0003",
+        "window_index": 3
+      },
+      {
+        "boundary_semantics": "start_inclusive_end_exclusive",
+        "in_sample_end_exclusive": "2020-08-06T18:00:00Z",
+        "in_sample_metrics": {
+          "drawdown": 0.07870355676123254,
+          "exposure": 1.0,
+          "fees": 355.4853431510864,
+          "funding": 0.0,
+          "pnl": 220.60189188053482,
+          "return_pct": 0.022060189188053483,
+          "sharpe": 0.6362482254562785,
+          "slippage": 88.8713357877716,
+          "trade_count": 43,
+          "win_rate": 0.6511627906976745
+        },
+        "in_sample_row_count": 6000,
+        "in_sample_start": "2020-06-05T06:00:00Z",
+        "missing_input_warnings": [],
+        "oos_is_sharpe_efficiency": 7.01604221628351,
+        "out_of_sample_end_exclusive": "2020-08-22T09:00:00Z",
+        "out_of_sample_metrics": {
+          "drawdown": 0.03746131833036079,
+          "exposure": 1.0,
+          "fees": 82.40323939388261,
+          "funding": 0.0,
+          "pnl": 588.1134833049709,
+          "return_pct": 0.058811348330497094,
+          "sharpe": 4.463944409836718,
+          "slippage": 20.600809848470654,
+          "trade_count": 10,
+          "win_rate": 0.8
+        },
+        "out_of_sample_row_count": 1500,
+        "out_of_sample_start": "2020-08-06T18:00:00Z",
+        "outcome_category": "successful",
+        "paired_is_oos_overlap_allowed": false,
+        "selection_behavior": "no_selection_partition_and_report_all_included_variants",
+        "variant_id": "VAR-000007",
+        "window_id": "WF-0003",
+        "window_index": 3
+      },
+      {
+        "boundary_semantics": "start_inclusive_end_exclusive",
+        "in_sample_end_exclusive": "2020-08-06T18:00:00Z",
+        "in_sample_metrics": {
+          "drawdown": 0.15200628581541817,
+          "exposure": 1.0,
+          "fees": 494.86623479046455,
+          "funding": 0.0,
+          "pnl": -213.7233716460014,
+          "return_pct": -0.02137233716460014,
+          "sharpe": -0.21120685323631927,
+          "slippage": 123.71655869761614,
+          "trade_count": 63,
+          "win_rate": 0.6507936507936508
+        },
+        "in_sample_row_count": 6000,
+        "in_sample_start": "2020-06-05T06:00:00Z",
+        "missing_input_warnings": [
+          "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+        ],
+        "oos_is_sharpe_efficiency": null,
+        "out_of_sample_end_exclusive": "2020-08-22T09:00:00Z",
+        "out_of_sample_metrics": {
+          "drawdown": 0.04596385009086372,
+          "exposure": 1.0,
+          "fees": 88.40397580615448,
+          "funding": 0.0,
+          "pnl": -73.90052731377364,
+          "return_pct": -0.0073900527313773634,
+          "sharpe": -0.3432233962154819,
+          "slippage": 22.10099395153862,
+          "trade_count": 11,
+          "win_rate": 0.45454545454545453
+        },
+        "out_of_sample_row_count": 1500,
+        "out_of_sample_start": "2020-08-06T18:00:00Z",
+        "outcome_category": "successful",
+        "paired_is_oos_overlap_allowed": false,
+        "selection_behavior": "no_selection_partition_and_report_all_included_variants",
+        "variant_id": "VAR-000008",
+        "window_id": "WF-0003",
+        "window_index": 3
+      }
+    ],
+    "variant_count_per_window": 8,
+    "window_count": 3,
+    "window_protocol": {
+      "boundary_semantics": "start_inclusive_end_exclusive",
+      "in_sample_bars": 6000,
+      "no_lookahead_boundary": "OOS rows are never used to choose variants; each row reports the same predeclared included variants across IS and later OOS windows.",
+      "out_of_sample_bars": 1500,
+      "purge_embargo": "not_implemented_deferred_by_design",
+      "selection_behavior": "no_selection_partition_and_report_all_included_variants",
+      "step_bars": 7500,
+      "timezone": "UTC",
+      "window_type": "rolling_non_overlapping_build_test"
+    }
+  },
+  "wrote": false
+}

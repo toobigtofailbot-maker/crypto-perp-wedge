@@ -1,0 +1,612 @@
+{
+  "schema_version": "v1",
+  "strategy_spec_id": "STRAT-SPEC-9104",
+  "title": "LAB-RT-HYP-004R session EMA impulse continuation",
+  "short_name": "strat-spec-9104",
+  "status": "approved_for_variant_planning",
+  "non_execution_declaration": {
+    "human_review_surface_only": true,
+    "not_executable": true,
+    "not_runtime_authority": true,
+    "not_paper_live_authority": true,
+    "not_gate_authority": true,
+    "not_candidate_approval": true,
+    "not_exp_approval": true,
+    "not_sweep_authority": true,
+    "not_ranking_authority": true,
+    "not_recommendation_authority": true,
+    "not_readiness_authority": true,
+    "not_transition_authority": true
+  },
+  "provenance": {
+    "source_type": "research_note",
+    "source_refs": [
+      "scratch/WP-LAB-REAL-TRAFFIC-REVISED-SIGNOFF-FREEZE-01/revised_frozen_hypothesis_set.json"
+    ],
+    "prepared_by": "Codex",
+    "created_at": "2026-07-07T00:00:00Z",
+    "updated_at": "2026-07-07T00:00:00Z",
+    "rationale": "Package-local formalization of Karl-signed revised frozen real-traffic acceptance hypothesis.",
+    "source_constraints": [
+      "No candidate admission, no canonical crossing, no promotion/readiness, no paper/live/runtime authority.",
+      "Package-local scratch execution only; no canonical result population write."
+    ],
+    "unresolved_claims": []
+  },
+  "instruments": {
+    "symbols": [
+      "BTCUSDT"
+    ],
+    "instrument_family": "crypto_perp",
+    "venue_assumption": "Binance USDT-M perpetual",
+    "market_type": "perpetual",
+    "directions_allowed": [
+      "long",
+      "short"
+    ],
+    "leverage_assumption": 1.0,
+    "exchange_constraint_refs": [],
+    "blockers": []
+  },
+  "timeframe_and_data": {
+    "primary_timeframe": "15m",
+    "confirmation_timeframes": [],
+    "host_data_refs": [
+      {
+        "stream": "ohlcv",
+        "timeframe": "15m",
+        "field": "open",
+        "availability": "required"
+      },
+      {
+        "stream": "ohlcv",
+        "timeframe": "15m",
+        "field": "high",
+        "availability": "required"
+      },
+      {
+        "stream": "ohlcv",
+        "timeframe": "15m",
+        "field": "low",
+        "availability": "required"
+      },
+      {
+        "stream": "ohlcv",
+        "timeframe": "15m",
+        "field": "close",
+        "availability": "required"
+      },
+      {
+        "stream": "ohlcv",
+        "timeframe": "15m",
+        "field": "volume",
+        "availability": "required"
+      },
+      {
+        "stream": "indicator_catalog",
+        "timeframe": null,
+        "field": "ema",
+        "availability": "required"
+      },
+      {
+        "stream": "indicator_catalog",
+        "timeframe": null,
+        "field": "atr",
+        "availability": "required"
+      },
+      {
+        "stream": "indicator_catalog",
+        "timeframe": null,
+        "field": "rvol",
+        "availability": "required"
+      }
+    ],
+    "gap_handling_assumption": "Use existing repo-supported local BTCUSDT OHLCV slice and existing gap policy; no interpolation or silent fill.",
+    "missing_data_blockers": []
+  },
+  "entry_logic": {
+    "direction": "both",
+    "entry_controls": {
+      "min_bars_between_entries": 8
+    },
+    "groups": [
+      {
+        "group_id": "H004R-LONG",
+        "group_role": "required",
+        "logic": "all",
+        "conditions": [
+          {
+            "condition_id": "H004R-LONG-CLOSE-GT-EMA",
+            "condition_role": "required",
+            "left_operand": {
+              "operand_type": "data_ref",
+              "ref": "close",
+              "field": "close",
+              "timeframe": null,
+              "lookback": null
+            },
+            "operator": "gt",
+            "right_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "ema",
+              "field": "value",
+              "timeframe": null,
+              "lookback": {
+                "bars_parameter_ref": "ema_lookback_bars"
+              }
+            },
+            "units": null,
+            "notes": "H004R-LONG-CLOSE-GT-EMA"
+          },
+          {
+            "condition_id": "H004R-BODY-ATR",
+            "condition_role": "required",
+            "left_operand": {
+              "operand_type": "composed_operand",
+              "composition_type": "atr_normalized_candle_ratio_v1",
+              "ratio_type": "candle_body_atr_ratio",
+              "atr_lookback": {
+                "bars": 14
+              },
+              "zero_atr_policy": "null_output"
+            },
+            "operator": "gte",
+            "right_operand": {
+              "operand_type": "parameter_ref",
+              "ref": "body_atr_min",
+              "field": null,
+              "timeframe": null,
+              "lookback": null
+            },
+            "units": "ATR",
+            "notes": "H004R-BODY-ATR"
+          },
+          {
+            "condition_id": "H004R-RVOL",
+            "condition_role": "required",
+            "left_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "rvol",
+              "field": "rvol",
+              "timeframe": null,
+              "lookback": {
+                "bars": 96
+              }
+            },
+            "operator": "gte",
+            "right_operand": {
+              "operand_type": "constant",
+              "ref": 1.2,
+              "field": null,
+              "timeframe": null,
+              "lookback": null
+            },
+            "units": null,
+            "notes": "H004R-RVOL"
+          },
+          {
+            "condition_id": "H004R-HOUR-GTE-START",
+            "condition_role": "required",
+            "left_operand": {
+              "operand_type": "data_ref",
+              "ref": "hour_of_day_utc",
+              "field": "hour_of_day_utc",
+              "timeframe": null,
+              "lookback": null
+            },
+            "operator": "gte",
+            "right_operand": {
+              "operand_type": "parameter_ref",
+              "ref": "session_start_hour_utc",
+              "field": null,
+              "timeframe": null,
+              "lookback": null
+            },
+            "units": null,
+            "notes": "H004R-HOUR-GTE-START"
+          },
+          {
+            "condition_id": "H004R-HOUR-LT-END",
+            "condition_role": "required",
+            "left_operand": {
+              "operand_type": "data_ref",
+              "ref": "hour_of_day_utc",
+              "field": "hour_of_day_utc",
+              "timeframe": null,
+              "lookback": null
+            },
+            "operator": "lt",
+            "right_operand": {
+              "operand_type": "parameter_ref",
+              "ref": "session_end_hour_utc",
+              "field": null,
+              "timeframe": null,
+              "lookback": null
+            },
+            "units": null,
+            "notes": "H004R-HOUR-LT-END"
+          },
+          {
+            "condition_id": "H004R-WEEKDAY",
+            "condition_role": "required",
+            "left_operand": {
+              "operand_type": "data_ref",
+              "ref": "day_of_week_utc",
+              "field": "day_of_week_utc",
+              "timeframe": null,
+              "lookback": null
+            },
+            "operator": "lte",
+            "right_operand": {
+              "operand_type": "constant",
+              "ref": 4,
+              "field": null,
+              "timeframe": null,
+              "lookback": null
+            },
+            "units": null,
+            "notes": "H004R-WEEKDAY"
+          }
+        ],
+        "subgroups": [],
+        "notes": "H004R-LONG",
+        "side": "long"
+      },
+      {
+        "group_id": "H004R-SHORT",
+        "group_role": "required",
+        "logic": "all",
+        "conditions": [
+          {
+            "condition_id": "H004R-SHORT-CLOSE-LT-EMA",
+            "condition_role": "required",
+            "left_operand": {
+              "operand_type": "data_ref",
+              "ref": "close",
+              "field": "close",
+              "timeframe": null,
+              "lookback": null
+            },
+            "operator": "lt",
+            "right_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "ema",
+              "field": "value",
+              "timeframe": null,
+              "lookback": {
+                "bars_parameter_ref": "ema_lookback_bars"
+              }
+            },
+            "units": null,
+            "notes": "H004R-SHORT-CLOSE-LT-EMA"
+          },
+          {
+            "condition_id": "H004R-BODY-ATR",
+            "condition_role": "required",
+            "left_operand": {
+              "operand_type": "composed_operand",
+              "composition_type": "atr_normalized_candle_ratio_v1",
+              "ratio_type": "candle_body_atr_ratio",
+              "atr_lookback": {
+                "bars": 14
+              },
+              "zero_atr_policy": "null_output"
+            },
+            "operator": "gte",
+            "right_operand": {
+              "operand_type": "parameter_ref",
+              "ref": "body_atr_min",
+              "field": null,
+              "timeframe": null,
+              "lookback": null
+            },
+            "units": "ATR",
+            "notes": "H004R-BODY-ATR"
+          },
+          {
+            "condition_id": "H004R-RVOL",
+            "condition_role": "required",
+            "left_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "rvol",
+              "field": "rvol",
+              "timeframe": null,
+              "lookback": {
+                "bars": 96
+              }
+            },
+            "operator": "gte",
+            "right_operand": {
+              "operand_type": "constant",
+              "ref": 1.2,
+              "field": null,
+              "timeframe": null,
+              "lookback": null
+            },
+            "units": null,
+            "notes": "H004R-RVOL"
+          },
+          {
+            "condition_id": "H004R-HOUR-GTE-START",
+            "condition_role": "required",
+            "left_operand": {
+              "operand_type": "data_ref",
+              "ref": "hour_of_day_utc",
+              "field": "hour_of_day_utc",
+              "timeframe": null,
+              "lookback": null
+            },
+            "operator": "gte",
+            "right_operand": {
+              "operand_type": "parameter_ref",
+              "ref": "session_start_hour_utc",
+              "field": null,
+              "timeframe": null,
+              "lookback": null
+            },
+            "units": null,
+            "notes": "H004R-HOUR-GTE-START"
+          },
+          {
+            "condition_id": "H004R-HOUR-LT-END",
+            "condition_role": "required",
+            "left_operand": {
+              "operand_type": "data_ref",
+              "ref": "hour_of_day_utc",
+              "field": "hour_of_day_utc",
+              "timeframe": null,
+              "lookback": null
+            },
+            "operator": "lt",
+            "right_operand": {
+              "operand_type": "parameter_ref",
+              "ref": "session_end_hour_utc",
+              "field": null,
+              "timeframe": null,
+              "lookback": null
+            },
+            "units": null,
+            "notes": "H004R-HOUR-LT-END"
+          },
+          {
+            "condition_id": "H004R-WEEKDAY",
+            "condition_role": "required",
+            "left_operand": {
+              "operand_type": "data_ref",
+              "ref": "day_of_week_utc",
+              "field": "day_of_week_utc",
+              "timeframe": null,
+              "lookback": null
+            },
+            "operator": "lte",
+            "right_operand": {
+              "operand_type": "constant",
+              "ref": 4,
+              "field": null,
+              "timeframe": null,
+              "lookback": null
+            },
+            "units": null,
+            "notes": "H004R-WEEKDAY"
+          }
+        ],
+        "subgroups": [],
+        "notes": "H004R-SHORT",
+        "side": "short"
+      }
+    ],
+    "notes": "Package-local frozen acceptance-batch entries."
+  },
+  "exit_logic": {
+    "groups": [],
+    "max_holding_period": {
+      "enabled": false,
+      "bars": null
+    },
+    "notes": "Package-local frozen acceptance-batch exits.",
+    "atr_stop": {
+      "enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": 2.0,
+      "entry_reference_price": "next_bar_open_pre_fee_slippage",
+      "evaluation_price": "close",
+      "evaluation_timing": "bar_close"
+    }
+  },
+  "risk_model": {
+    "sizing_intent": "review_only",
+    "exposure_limits": [
+      "dynamic_equity_target_leverage target_leverage=1.0 in offline scratch only"
+    ],
+    "stop_distance": null,
+    "target_distance": null,
+    "leverage_visibility": "offline research only",
+    "liquidation_sensitivity_notes": "existing zero-equity research assumption only"
+  },
+  "filters": {
+    "groups": [],
+    "none_declared": true
+  },
+  "free_parameters": {
+    "max_free_parameters": 5,
+    "counting_rule": "parameters contains only entries where is_free_parameter=true; maxItems 5 enforces the D2-006-style MVP free-parameter cap",
+    "parameters": [
+      {
+        "name": "ema_lookback_bars",
+        "label": "EMA lookback",
+        "description": "EMA lookback",
+        "type": "integer",
+        "units": "bars",
+        "default": 50,
+        "range": {
+          "min": 50,
+          "max": 96,
+          "step": 46,
+          "inclusive_min": true,
+          "inclusive_max": true
+        },
+        "allowed_values": [
+          50,
+          96
+        ],
+        "is_free_parameter": true,
+        "included_in_variant_generation": true,
+        "role": "entry",
+        "rationale": "Frozen package-local acceptance-batch denominator axis or implementation-bound paired companion.",
+        "constraints": [
+          "Must remain fixed to the signed frozen acceptance batch values."
+        ]
+      },
+      {
+        "name": "body_atr_min",
+        "label": "Body ATR minimum",
+        "description": "Body ATR minimum",
+        "type": "number",
+        "units": "ATR",
+        "default": 0.8,
+        "range": {
+          "min": 0.8,
+          "max": 1.2,
+          "step": 0.3999999999999999,
+          "inclusive_min": true,
+          "inclusive_max": true
+        },
+        "allowed_values": [
+          0.8,
+          1.2
+        ],
+        "is_free_parameter": true,
+        "included_in_variant_generation": true,
+        "role": "entry",
+        "rationale": "Frozen package-local acceptance-batch denominator axis or implementation-bound paired companion.",
+        "constraints": [
+          "Must remain fixed to the signed frozen acceptance batch values."
+        ]
+      },
+      {
+        "name": "session_start_hour_utc",
+        "label": "Session start hour UTC",
+        "description": "Session start hour UTC",
+        "type": "integer",
+        "units": "hour",
+        "default": 8,
+        "range": {
+          "min": 8,
+          "max": 13,
+          "step": 5,
+          "inclusive_min": true,
+          "inclusive_max": true
+        },
+        "allowed_values": [
+          8,
+          13
+        ],
+        "is_free_parameter": true,
+        "included_in_variant_generation": true,
+        "role": "filter",
+        "rationale": "Frozen package-local acceptance-batch denominator axis or implementation-bound paired companion.",
+        "constraints": [
+          "Must remain fixed to the signed frozen acceptance batch values."
+        ]
+      },
+      {
+        "name": "session_end_hour_utc",
+        "label": "Session end hour UTC",
+        "description": "Session end hour UTC",
+        "type": "integer",
+        "units": "hour",
+        "default": 16,
+        "range": {
+          "min": 16,
+          "max": 21,
+          "step": 5,
+          "inclusive_min": true,
+          "inclusive_max": true
+        },
+        "allowed_values": [
+          16,
+          21
+        ],
+        "is_free_parameter": true,
+        "included_in_variant_generation": true,
+        "role": "filter",
+        "rationale": "Frozen package-local acceptance-batch denominator axis or implementation-bound paired companion.",
+        "constraints": [
+          "Must remain fixed to the signed frozen acceptance batch values."
+        ]
+      }
+    ],
+    "no_free_parameters_declared": false
+  },
+  "constraints": {
+    "invalid_parameter_combinations": [],
+    "unavailable_data_blockers": [],
+    "deferred_pattern_blockers": [],
+    "none_declared": false
+  },
+  "review": {
+    "human_review_required": true,
+    "reviewer": null,
+    "reviewed_at": null,
+    "review_notes": [
+      "Package-local acceptance execution; non-promotion posture retained."
+    ],
+    "approval_scope": "variant_planning_only",
+    "non_authority_acknowledgement": {
+      "not_candidate_approval": true,
+      "not_exp_approval": true,
+      "not_sweep_authority": true,
+      "not_ranking_authority": true,
+      "not_recommendation_authority": true,
+      "not_readiness_authority": true,
+      "not_transition_authority": true,
+      "not_runtime_authority": true,
+      "not_paper_live_authority": true,
+      "not_gate_satisfaction": true
+    }
+  },
+  "lineage": {
+    "parent_refs": [
+      {
+        "ref_type": "research_note",
+        "ref_id": "WP-LAB-REAL-TRAFFIC-REVISED-SIGNOFF-FREEZE-01",
+        "ref_path": "scratch/WP-LAB-REAL-TRAFFIC-REVISED-SIGNOFF-FREEZE-01/revised_frozen_hypothesis_set.json",
+        "ref_hash": null
+      }
+    ],
+    "supersedes": [],
+    "amendment_of": null
+  },
+  "hash_pinning": {
+    "canonical_spec_hash": null,
+    "hash_algorithm": "sha256",
+    "hash_scope_version": "strategy_spec_hash_scope_v1",
+    "hash_scope": [
+      "identity",
+      "strategy_body",
+      "free_parameters",
+      "constraints",
+      "assumptions"
+    ],
+    "hash_status": "computed"
+  },
+  "pre_registration_support": {
+    "intended_for_variant_manifest": true,
+    "variant_manifest_ref": "VM-9104",
+    "frozen_snapshot_ref": null
+  },
+  "backtest_realism_assumptions": {
+    "fee_side_assumption": "taker_entry_taker_exit",
+    "exchange_constraints_disclosed": true,
+    "funding_notional_mode": "entry_price",
+    "slippage_model": "fixed_bps",
+    "fill_mode": "complete",
+    "order_size_assumption": "dynamic_equity_target_leverage at target_leverage=1.0; package-local scratch only",
+    "liquidity_capacity_assumption": null,
+    "liquidation_mode": "zero_equity",
+    "maintenance_margin_assumption": null,
+    "mark_price_source": "close",
+    "bar_path_assumption": "next_open_close_mark"
+  },
+  "max_condition_group_depth": 3
+}

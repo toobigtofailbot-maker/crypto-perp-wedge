@@ -1,0 +1,496 @@
+{
+  "schema_version": "v1",
+  "variant_manifest_id": "VM-9103",
+  "status": "approved_for_sweep_planning",
+  "non_execution_declaration": {
+    "planning_surface_only": true,
+    "not_executable": true,
+    "not_runner_authority": true,
+    "not_sweep_authority": true,
+    "not_result_authority": true,
+    "not_candidate_approval": true,
+    "not_exp_approval": true,
+    "not_ranking_authority": true,
+    "not_recommendation_authority": true,
+    "not_readiness_authority": true,
+    "not_transition_authority": true,
+    "not_runtime_authority": true,
+    "not_paper_live_authority": true,
+    "not_gate_authority": true
+  },
+  "parent_strategy_spec": {
+    "strategy_spec_id": "STRAT-SPEC-9103",
+    "strategy_spec_schema_version": "v1",
+    "strategy_spec_hash": "sha256:95f84b7d340e2def9c06ed3e897b49c091a62dc78c0f239072dfc5eff46261e0",
+    "hash_algorithm": "sha256",
+    "hash_scope_version": "strategy_spec_hash_scope_v1",
+    "strategy_spec_review_status": "approved_for_variant_planning",
+    "strategy_spec_ref": "package-local scratch",
+    "mismatch_policy": "block",
+    "missing_parent_policy": "block",
+    "does_not_mutate_parent_strategy_spec": true
+  },
+  "population_governance": {
+    "population_cap": {
+      "max_variants": 8,
+      "cap_basis": "manual_grid",
+      "cap_source": "human_declared",
+      "cap_exception_authorized": false,
+      "cap_exception_ref": null
+    },
+    "declared_population": {
+      "committed_population_count": 8,
+      "declared_variant_count": 8,
+      "included_variant_count": 8,
+      "excluded_variant_count": 0,
+      "invalid_variant_count": 0,
+      "not_attempted_variant_count": 0
+    },
+    "trial_budget": {
+      "planned_trial_count": 8,
+      "trial_budget_denominator": 8,
+      "denominator_basis": "committed_pre_registered_population_count",
+      "denominator_count": 8,
+      "denominator_includes_failed": true,
+      "denominator_includes_excluded": true,
+      "denominator_includes_invalid": true,
+      "denominator_includes_errored": true,
+      "denominator_includes_aborted": true,
+      "denominator_includes_filtered": true,
+      "denominator_includes_data_unavailable": true,
+      "denominator_includes_not_attempted": true,
+      "executed_only_denominator_forbidden": true
+    },
+    "multiple_testing_accounting": {
+      "denominator_required": true,
+      "denominator_type": "committed_pre_registered_population",
+      "search_family_id": "SF-LAB-RT-HYP-003R",
+      "search_family_method": "manual_grid",
+      "adaptive_search_used": false,
+      "adaptive_search_authorization_ref": null,
+      "all_trials_visible_required": true,
+      "winner_only_review_forbidden": true
+    },
+    "pre_registration": {
+      "pre_registered": true,
+      "pre_registration_status": "frozen_for_sweep_planning",
+      "pre_registration_scope": "full_variant_population",
+      "freeze_required_before_sweep": true,
+      "post_hoc_addition_forbidden": true,
+      "post_result_mutation_forbidden": true,
+      "allowed_change_mode": "supersede_before_results_only"
+    }
+  },
+  "parameter_axes": [
+    {
+      "axis_id": "AXIS-001",
+      "parameter_name": "rolling_vwap_lookback_bars",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.rolling_vwap_lookback_bars",
+      "parameter_type": "integer",
+      "units": "bars",
+      "axis_kind": "free_parameter",
+      "generator_method": "manual_grid",
+      "allowed_values": [
+        96,
+        192
+      ],
+      "range": {
+        "min": 96,
+        "max": 192,
+        "step": 96,
+        "inclusive_min": true,
+        "inclusive_max": true
+      },
+      "counts_toward_parent_free_parameter_cap": true,
+      "is_declared_in_parent_strategy_spec": true,
+      "invalid_combination_rule_refs": [],
+      "notes": "signed frozen axis or implementation-bound paired companion"
+    },
+    {
+      "axis_id": "AXIS-002",
+      "parameter_name": "distance_atr_entry",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.distance_atr_entry",
+      "parameter_type": "number",
+      "units": "ATR",
+      "axis_kind": "free_parameter",
+      "generator_method": "manual_grid",
+      "allowed_values": [
+        1.0,
+        1.5
+      ],
+      "range": {
+        "min": 1.0,
+        "max": 1.5,
+        "step": 0.5,
+        "inclusive_min": true,
+        "inclusive_max": true
+      },
+      "counts_toward_parent_free_parameter_cap": true,
+      "is_declared_in_parent_strategy_spec": true,
+      "invalid_combination_rule_refs": [],
+      "notes": "signed frozen axis or implementation-bound paired companion"
+    },
+    {
+      "axis_id": "AXIS-003",
+      "parameter_name": "distance_atr_entry_negative",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.distance_atr_entry_negative",
+      "parameter_type": "number",
+      "units": "ATR",
+      "axis_kind": "free_parameter",
+      "generator_method": "manual_grid",
+      "allowed_values": [
+        -1.0,
+        -1.5
+      ],
+      "range": {
+        "min": -1.5,
+        "max": -1.0,
+        "step": 0.5,
+        "inclusive_min": true,
+        "inclusive_max": true
+      },
+      "counts_toward_parent_free_parameter_cap": true,
+      "is_declared_in_parent_strategy_spec": true,
+      "invalid_combination_rule_refs": [],
+      "notes": "signed frozen axis or implementation-bound paired companion"
+    },
+    {
+      "axis_id": "AXIS-004",
+      "parameter_name": "rsi_extreme",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.rsi_extreme",
+      "parameter_type": "integer",
+      "units": "RSI",
+      "axis_kind": "free_parameter",
+      "generator_method": "manual_grid",
+      "allowed_values": [
+        25,
+        30
+      ],
+      "range": {
+        "min": 25,
+        "max": 30,
+        "step": 5,
+        "inclusive_min": true,
+        "inclusive_max": true
+      },
+      "counts_toward_parent_free_parameter_cap": true,
+      "is_declared_in_parent_strategy_spec": true,
+      "invalid_combination_rule_refs": [],
+      "notes": "signed frozen axis or implementation-bound paired companion"
+    },
+    {
+      "axis_id": "AXIS-005",
+      "parameter_name": "rsi_short_extreme",
+      "parent_strategy_spec_parameter_ref": "free_parameters.parameters.rsi_short_extreme",
+      "parameter_type": "integer",
+      "units": "RSI",
+      "axis_kind": "free_parameter",
+      "generator_method": "manual_grid",
+      "allowed_values": [
+        75,
+        70
+      ],
+      "range": {
+        "min": 70,
+        "max": 75,
+        "step": 5,
+        "inclusive_min": true,
+        "inclusive_max": true
+      },
+      "counts_toward_parent_free_parameter_cap": true,
+      "is_declared_in_parent_strategy_spec": true,
+      "invalid_combination_rule_refs": [],
+      "notes": "signed frozen axis or implementation-bound paired companion"
+    }
+  ],
+  "invalid_combination_rules": [],
+  "exclusion_rules": [],
+  "variant_assignments": [
+    {
+      "variant_id": "VAR-000001",
+      "assignment_status": "included",
+      "parameter_values": {
+        "rolling_vwap_lookback_bars": 96,
+        "distance_atr_entry": 1.0,
+        "distance_atr_entry_negative": -1.0,
+        "rsi_extreme": 25,
+        "rsi_short_extreme": 75
+      },
+      "parameter_value_hash": "sha256:ff14c48eb00fd635a94f373cbcd69eb15d3b33a15eb0648b04675ca7960e7b63",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-frozen-batch",
+        "generation_order": 1
+      }
+    },
+    {
+      "variant_id": "VAR-000002",
+      "assignment_status": "included",
+      "parameter_values": {
+        "rolling_vwap_lookback_bars": 96,
+        "distance_atr_entry": 1.0,
+        "distance_atr_entry_negative": -1.0,
+        "rsi_extreme": 30,
+        "rsi_short_extreme": 70
+      },
+      "parameter_value_hash": "sha256:4b379bbeeca1eb887eaf9a7f0f0014f6eac463a769aae2ac8fbc8bc97fdccf19",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-frozen-batch",
+        "generation_order": 2
+      }
+    },
+    {
+      "variant_id": "VAR-000003",
+      "assignment_status": "included",
+      "parameter_values": {
+        "rolling_vwap_lookback_bars": 96,
+        "distance_atr_entry": 1.5,
+        "distance_atr_entry_negative": -1.5,
+        "rsi_extreme": 25,
+        "rsi_short_extreme": 75
+      },
+      "parameter_value_hash": "sha256:539bc45b8f1204b670c66f10c43d80ffae37152d2d9e82de9e2745785e3438f2",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-frozen-batch",
+        "generation_order": 3
+      }
+    },
+    {
+      "variant_id": "VAR-000004",
+      "assignment_status": "included",
+      "parameter_values": {
+        "rolling_vwap_lookback_bars": 96,
+        "distance_atr_entry": 1.5,
+        "distance_atr_entry_negative": -1.5,
+        "rsi_extreme": 30,
+        "rsi_short_extreme": 70
+      },
+      "parameter_value_hash": "sha256:462aa8018953099cb1ff70872e917260689438dc4b8646b788a1debd3ae35a8b",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-frozen-batch",
+        "generation_order": 4
+      }
+    },
+    {
+      "variant_id": "VAR-000005",
+      "assignment_status": "included",
+      "parameter_values": {
+        "rolling_vwap_lookback_bars": 192,
+        "distance_atr_entry": 1.0,
+        "distance_atr_entry_negative": -1.0,
+        "rsi_extreme": 25,
+        "rsi_short_extreme": 75
+      },
+      "parameter_value_hash": "sha256:593808f1702750a5a07c94e7ffa81d11ffe6c8bcb7f9bcca1a3eb6e60e4c29b8",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-frozen-batch",
+        "generation_order": 5
+      }
+    },
+    {
+      "variant_id": "VAR-000006",
+      "assignment_status": "included",
+      "parameter_values": {
+        "rolling_vwap_lookback_bars": 192,
+        "distance_atr_entry": 1.0,
+        "distance_atr_entry_negative": -1.0,
+        "rsi_extreme": 30,
+        "rsi_short_extreme": 70
+      },
+      "parameter_value_hash": "sha256:58778f171ef098a6bb26d9c8ff2a074cdc059aa516ab32ce9e305354c8487b60",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-frozen-batch",
+        "generation_order": 6
+      }
+    },
+    {
+      "variant_id": "VAR-000007",
+      "assignment_status": "included",
+      "parameter_values": {
+        "rolling_vwap_lookback_bars": 192,
+        "distance_atr_entry": 1.5,
+        "distance_atr_entry_negative": -1.5,
+        "rsi_extreme": 25,
+        "rsi_short_extreme": 75
+      },
+      "parameter_value_hash": "sha256:bf2232e95c47b1ad3c76a702ed187e199a964a62fcc6da49695a560df38f6012",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-frozen-batch",
+        "generation_order": 7
+      }
+    },
+    {
+      "variant_id": "VAR-000008",
+      "assignment_status": "included",
+      "parameter_values": {
+        "rolling_vwap_lookback_bars": 192,
+        "distance_atr_entry": 1.5,
+        "distance_atr_entry_negative": -1.5,
+        "rsi_extreme": 30,
+        "rsi_short_extreme": 70
+      },
+      "parameter_value_hash": "sha256:cf31992da1b0fc6e5c05f0f788df4f3d0699ac2b6b40eb6d1a1c31e099a27c99",
+      "axis_refs": [
+        "AXIS-001",
+        "AXIS-002",
+        "AXIS-003",
+        "AXIS-004",
+        "AXIS-005"
+      ],
+      "exclusion_rule_refs": [],
+      "invalid_combination_rule_refs": [],
+      "status_reason": null,
+      "lineage": {
+        "generated_by_rule": "manual-grid-frozen-batch",
+        "generation_order": 8
+      }
+    }
+  ],
+  "manifest_hash_pinning": {
+    "manifest_hash": "sha256:8c76e07cbc92678a2ace522506030c7117339933b943a9ecf721096488c514a5",
+    "hash_algorithm": "sha256",
+    "canonicalization": "json_canonical_v1",
+    "hash_scope_version": "variant_manifest_hash_scope_v1",
+    "hash_scope": [
+      "schema_version",
+      "variant_manifest_id",
+      "parent_strategy_spec.strategy_spec_id",
+      "parent_strategy_spec.strategy_spec_hash",
+      "population_governance",
+      "parameter_axes",
+      "invalid_combination_rules",
+      "exclusion_rules",
+      "variant_assignments"
+    ],
+    "hash_status": "computed",
+    "frozen_at": "2026-07-07T00:00:00Z",
+    "pre_sweep_freeze_required": true,
+    "post_result_mutation_forbidden": true
+  },
+  "amendment_and_supersession": {
+    "amendment_mode": "none",
+    "supersedes": null,
+    "supersession_lineage": [],
+    "amendment_reason": null,
+    "associated_results_state": "no_associated_results",
+    "supersession_allowed": false,
+    "close_only_after_results": true,
+    "post_result_change": false,
+    "preserve_prior_manifest_required": true,
+    "fresh_denominator_required": true,
+    "does_not_inherit_prior_results": true
+  },
+  "lineage": {
+    "parent_refs": [
+      {
+        "ref_type": "strategy_spec",
+        "ref_id": "STRAT-SPEC-9103",
+        "ref_path": "package-local scratch",
+        "ref_hash": "sha256:95f84b7d340e2def9c06ed3e897b49c091a62dc78c0f239072dfc5eff46261e0"
+      }
+    ],
+    "source_refs": [],
+    "created_at": "2026-07-07T00:00:00Z",
+    "updated_at": "2026-07-07T00:00:00Z",
+    "audit_notes": [
+      "Full signed frozen denominator preserved.",
+      "No post-result mutation or winner-only pruning authorized."
+    ],
+    "hash_refs": [
+      "sha256:95f84b7d340e2def9c06ed3e897b49c091a62dc78c0f239072dfc5eff46261e0",
+      "sha256:8c76e07cbc92678a2ace522506030c7117339933b943a9ecf721096488c514a5"
+    ]
+  },
+  "review": {
+    "human_review_required": true,
+    "reviewer": null,
+    "reviewed_at": null,
+    "review_notes": [
+      "Package-local acceptance execution only."
+    ],
+    "approval_scope": "sweep_planning_only",
+    "non_authority_acknowledgement": {
+      "not_candidate_approval": true,
+      "not_exp_approval": true,
+      "not_sweep_authority": true,
+      "not_runner_authority": true,
+      "not_result_authority": true,
+      "not_ranking_authority": true,
+      "not_recommendation_authority": true,
+      "not_readiness_authority": true,
+      "not_transition_authority": true,
+      "not_runtime_authority": true,
+      "not_paper_live_authority": true,
+      "not_gate_satisfaction": true
+    }
+  }
+}

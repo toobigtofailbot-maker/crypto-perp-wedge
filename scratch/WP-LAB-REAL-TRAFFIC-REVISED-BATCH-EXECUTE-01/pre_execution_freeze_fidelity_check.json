@@ -1,0 +1,86 @@
+{
+  "package": "WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01",
+  "base_commit": "7dae161a608823598a49410dd3117171e3223ed7",
+  "source_frozen_set": "scratch/WP-LAB-REAL-TRAFFIC-REVISED-SIGNOFF-FREEZE-01/revised_frozen_hypothesis_set.json",
+  "checked_before_execution": true,
+  "frozen_hypothesis_ids": [
+    "LAB-RT-HYP-001",
+    "LAB-RT-HYP-002R",
+    "LAB-RT-HYP-003R",
+    "LAB-RT-HYP-004R"
+  ],
+  "frozen_set_exact_count": 4,
+  "main_verification_present": true,
+  "karl_signoff_present": true,
+  "non_promotion_posture": true,
+  "stop_and_surface_rule_present": true,
+  "hypothesis_checks": [
+    {
+      "hypothesis_id": "LAB-RT-HYP-001",
+      "formalized": true,
+      "frozen_surface_matched": true,
+      "denominator_axes_preserved": [
+        "wick_threshold",
+        "body_threshold",
+        "atr_stop_multiple"
+      ],
+      "denominator_count": 8,
+      "execution_route": "canonical_4h_dry_run",
+      "notes": [
+        "EMA retest encoded using prior repo-documented closed-bar EMA touch-and-close proxy."
+      ]
+    },
+    {
+      "hypothesis_id": "LAB-RT-HYP-002R",
+      "formalized": false,
+      "frozen_surface_matched": false,
+      "denominator_axes_preserved": [
+        "rvol_lookback_bars",
+        "rvol_min",
+        "range_atr_min"
+      ],
+      "denominator_count": 8,
+      "execution_route": "blocked_before_execution",
+      "blocked_reason": "Frozen breakout_reference previous_bar_high_low is not expressible through current closed Strategy Spec/runner operands without schema/compiler/runner changes or weakening the signed frozen surface."
+    },
+    {
+      "hypothesis_id": "LAB-RT-HYP-003R",
+      "formalized": true,
+      "frozen_surface_matched": true,
+      "denominator_axes_preserved": [
+        "rolling_vwap_lookback_bars",
+        "distance_atr_entry",
+        "rsi_extreme"
+      ],
+      "denominator_count": 8,
+      "execution_route": "canonical_15m_dry_run",
+      "pass_with_caution_context": "RP-7134 / STRAT-SPEC-0003 adjacent concluded-family context retained",
+      "notes": [
+        "ATR distance uses fixed ATR(14); short-side threshold companions are paired implementation-bound values, not extra denominator rows."
+      ]
+    },
+    {
+      "hypothesis_id": "LAB-RT-HYP-004R",
+      "formalized": true,
+      "frozen_surface_matched": true,
+      "denominator_axes_preserved": [
+        "ema_lookback_bars",
+        "body_atr_min",
+        "session_hours_utc"
+      ],
+      "denominator_count": 8,
+      "execution_route": "canonical_15m_dry_run",
+      "pass_with_caution_context": "RP-2592 / RP-3731 / RP-6236 adjacent concluded-family context retained",
+      "session_hours_utc_load_bearing": true,
+      "notes": [
+        "session_hours_utc maps to paired load-bearing UTC start/end hour parameters plus day_of_week_utc <= 4; weekend_allowed=false retained."
+      ]
+    }
+  ],
+  "denominator_axes_removed_renamed_retuned_expanded_or_narrowed": false,
+  "hyp_004r_session_filter_load_bearing": true,
+  "hyp_003r_caution_context_will_carry": true,
+  "hyp_004r_caution_context_will_carry": true,
+  "hypotheses_collapsed_into_concluded_family": false,
+  "overall_decision": "execute_supported_rows_preserve_hyp_002r_blocked_denominator"
+}

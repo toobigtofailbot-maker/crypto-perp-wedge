@@ -1,0 +1,633 @@
+{
+  "schema_version": "v1",
+  "strategy_spec_id": "STRAT-SPEC-9103",
+  "title": "LAB-RT-HYP-003R rolling VWAP distance reversion",
+  "short_name": "strat-spec-9103",
+  "status": "approved_for_variant_planning",
+  "non_execution_declaration": {
+    "human_review_surface_only": true,
+    "not_executable": true,
+    "not_runtime_authority": true,
+    "not_paper_live_authority": true,
+    "not_gate_authority": true,
+    "not_candidate_approval": true,
+    "not_exp_approval": true,
+    "not_sweep_authority": true,
+    "not_ranking_authority": true,
+    "not_recommendation_authority": true,
+    "not_readiness_authority": true,
+    "not_transition_authority": true
+  },
+  "provenance": {
+    "source_type": "research_note",
+    "source_refs": [
+      "scratch/WP-LAB-REAL-TRAFFIC-REVISED-SIGNOFF-FREEZE-01/revised_frozen_hypothesis_set.json"
+    ],
+    "prepared_by": "Codex",
+    "created_at": "2026-07-07T00:00:00Z",
+    "updated_at": "2026-07-07T00:00:00Z",
+    "rationale": "Package-local formalization of Karl-signed revised frozen real-traffic acceptance hypothesis.",
+    "source_constraints": [
+      "No candidate admission, no canonical crossing, no promotion/readiness, no paper/live/runtime authority.",
+      "Package-local scratch execution only; no canonical result population write."
+    ],
+    "unresolved_claims": []
+  },
+  "instruments": {
+    "symbols": [
+      "BTCUSDT"
+    ],
+    "instrument_family": "crypto_perp",
+    "venue_assumption": "Binance USDT-M perpetual",
+    "market_type": "perpetual",
+    "directions_allowed": [
+      "long",
+      "short"
+    ],
+    "leverage_assumption": 1.0,
+    "exchange_constraint_refs": [],
+    "blockers": []
+  },
+  "timeframe_and_data": {
+    "primary_timeframe": "15m",
+    "confirmation_timeframes": [],
+    "host_data_refs": [
+      {
+        "stream": "ohlcv",
+        "timeframe": "15m",
+        "field": "open",
+        "availability": "required"
+      },
+      {
+        "stream": "ohlcv",
+        "timeframe": "15m",
+        "field": "high",
+        "availability": "required"
+      },
+      {
+        "stream": "ohlcv",
+        "timeframe": "15m",
+        "field": "low",
+        "availability": "required"
+      },
+      {
+        "stream": "ohlcv",
+        "timeframe": "15m",
+        "field": "close",
+        "availability": "required"
+      },
+      {
+        "stream": "ohlcv",
+        "timeframe": "15m",
+        "field": "volume",
+        "availability": "required"
+      },
+      {
+        "stream": "indicator_catalog",
+        "timeframe": null,
+        "field": "rolling_vwap",
+        "availability": "required"
+      },
+      {
+        "stream": "indicator_catalog",
+        "timeframe": null,
+        "field": "atr",
+        "availability": "required"
+      },
+      {
+        "stream": "indicator_catalog",
+        "timeframe": null,
+        "field": "rsi",
+        "availability": "required"
+      }
+    ],
+    "gap_handling_assumption": "Use existing repo-supported local BTCUSDT OHLCV slice and existing gap policy; no interpolation or silent fill.",
+    "missing_data_blockers": []
+  },
+  "entry_logic": {
+    "direction": "both",
+    "entry_controls": {
+      "min_bars_between_entries": 8
+    },
+    "groups": [
+      {
+        "group_id": "H003R-LONG",
+        "group_role": "required",
+        "logic": "all",
+        "conditions": [
+          {
+            "condition_id": "H003R-LONG-DIST",
+            "condition_role": "required",
+            "left_operand": {
+              "operand_type": "composed_operand",
+              "composition_type": "z_score",
+              "value_operand": {
+                "operand_type": "data_ref",
+                "ref": "close",
+                "field": "close",
+                "timeframe": null,
+                "lookback": null
+              },
+              "center_operand": {
+                "operand_type": "indicator_ref",
+                "ref": "rolling_vwap",
+                "field": "rolling_vwap",
+                "timeframe": null,
+                "lookback": {
+                  "bars_parameter_ref": "rolling_vwap_lookback_bars"
+                }
+              },
+              "scale_operand": {
+                "operand_type": "indicator_ref",
+                "ref": "atr",
+                "field": "value",
+                "timeframe": null,
+                "lookback": {
+                  "bars": 14
+                }
+              },
+              "zero_scale_policy": "null_output"
+            },
+            "operator": "lt",
+            "right_operand": {
+              "operand_type": "parameter_ref",
+              "ref": "distance_atr_entry_negative",
+              "field": null,
+              "timeframe": null,
+              "lookback": null
+            },
+            "units": "atr_distance",
+            "notes": "H003R-LONG-DIST"
+          },
+          {
+            "condition_id": "H003R-LONG-RSI",
+            "condition_role": "required",
+            "left_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "rsi",
+              "field": "value",
+              "timeframe": null,
+              "lookback": {
+                "bars": 14
+              }
+            },
+            "operator": "lte",
+            "right_operand": {
+              "operand_type": "parameter_ref",
+              "ref": "rsi_extreme",
+              "field": null,
+              "timeframe": null,
+              "lookback": null
+            },
+            "units": null,
+            "notes": "H003R-LONG-RSI"
+          }
+        ],
+        "subgroups": [],
+        "notes": "H003R-LONG",
+        "side": "long"
+      },
+      {
+        "group_id": "H003R-SHORT",
+        "group_role": "required",
+        "logic": "all",
+        "conditions": [
+          {
+            "condition_id": "H003R-SHORT-DIST",
+            "condition_role": "required",
+            "left_operand": {
+              "operand_type": "composed_operand",
+              "composition_type": "z_score",
+              "value_operand": {
+                "operand_type": "data_ref",
+                "ref": "close",
+                "field": "close",
+                "timeframe": null,
+                "lookback": null
+              },
+              "center_operand": {
+                "operand_type": "indicator_ref",
+                "ref": "rolling_vwap",
+                "field": "rolling_vwap",
+                "timeframe": null,
+                "lookback": {
+                  "bars_parameter_ref": "rolling_vwap_lookback_bars"
+                }
+              },
+              "scale_operand": {
+                "operand_type": "indicator_ref",
+                "ref": "atr",
+                "field": "value",
+                "timeframe": null,
+                "lookback": {
+                  "bars": 14
+                }
+              },
+              "zero_scale_policy": "null_output"
+            },
+            "operator": "gt",
+            "right_operand": {
+              "operand_type": "parameter_ref",
+              "ref": "distance_atr_entry",
+              "field": null,
+              "timeframe": null,
+              "lookback": null
+            },
+            "units": "atr_distance",
+            "notes": "H003R-SHORT-DIST"
+          },
+          {
+            "condition_id": "H003R-SHORT-RSI",
+            "condition_role": "required",
+            "left_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "rsi",
+              "field": "value",
+              "timeframe": null,
+              "lookback": {
+                "bars": 14
+              }
+            },
+            "operator": "gte",
+            "right_operand": {
+              "operand_type": "parameter_ref",
+              "ref": "rsi_short_extreme",
+              "field": null,
+              "timeframe": null,
+              "lookback": null
+            },
+            "units": null,
+            "notes": "H003R-SHORT-RSI"
+          }
+        ],
+        "subgroups": [],
+        "notes": "H003R-SHORT",
+        "side": "short"
+      }
+    ],
+    "notes": "Package-local frozen acceptance-batch entries."
+  },
+  "exit_logic": {
+    "groups": [
+      {
+        "group_id": "H003R-LONG-VWAP-EXIT",
+        "group_role": "exit",
+        "logic": "all",
+        "conditions": [
+          {
+            "condition_id": "H003R-LONG-CLOSE-GTE-VWAP",
+            "condition_role": "exit",
+            "left_operand": {
+              "operand_type": "data_ref",
+              "ref": "close",
+              "field": "close",
+              "timeframe": null,
+              "lookback": null
+            },
+            "operator": "gte",
+            "right_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "rolling_vwap",
+              "field": "rolling_vwap",
+              "timeframe": null,
+              "lookback": {
+                "bars_parameter_ref": "rolling_vwap_lookback_bars"
+              }
+            },
+            "units": null,
+            "notes": "H003R-LONG-CLOSE-GTE-VWAP"
+          }
+        ],
+        "subgroups": [],
+        "notes": "H003R-LONG-VWAP-EXIT",
+        "side": "long"
+      },
+      {
+        "group_id": "H003R-LONG-RSI-NEUTRAL",
+        "group_role": "exit",
+        "logic": "all",
+        "conditions": [
+          {
+            "condition_id": "H003R-LONG-RSI-GTE-50",
+            "condition_role": "exit",
+            "left_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "rsi",
+              "field": "value",
+              "timeframe": null,
+              "lookback": {
+                "bars": 14
+              }
+            },
+            "operator": "gte",
+            "right_operand": {
+              "operand_type": "constant",
+              "ref": 50,
+              "field": null,
+              "timeframe": null,
+              "lookback": null
+            },
+            "units": null,
+            "notes": "H003R-LONG-RSI-GTE-50"
+          }
+        ],
+        "subgroups": [],
+        "notes": "H003R-LONG-RSI-NEUTRAL",
+        "side": "long"
+      },
+      {
+        "group_id": "H003R-SHORT-VWAP-EXIT",
+        "group_role": "exit",
+        "logic": "all",
+        "conditions": [
+          {
+            "condition_id": "H003R-SHORT-CLOSE-LTE-VWAP",
+            "condition_role": "exit",
+            "left_operand": {
+              "operand_type": "data_ref",
+              "ref": "close",
+              "field": "close",
+              "timeframe": null,
+              "lookback": null
+            },
+            "operator": "lte",
+            "right_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "rolling_vwap",
+              "field": "rolling_vwap",
+              "timeframe": null,
+              "lookback": {
+                "bars_parameter_ref": "rolling_vwap_lookback_bars"
+              }
+            },
+            "units": null,
+            "notes": "H003R-SHORT-CLOSE-LTE-VWAP"
+          }
+        ],
+        "subgroups": [],
+        "notes": "H003R-SHORT-VWAP-EXIT",
+        "side": "short"
+      },
+      {
+        "group_id": "H003R-SHORT-RSI-NEUTRAL",
+        "group_role": "exit",
+        "logic": "all",
+        "conditions": [
+          {
+            "condition_id": "H003R-SHORT-RSI-LTE-50",
+            "condition_role": "exit",
+            "left_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "rsi",
+              "field": "value",
+              "timeframe": null,
+              "lookback": {
+                "bars": 14
+              }
+            },
+            "operator": "lte",
+            "right_operand": {
+              "operand_type": "constant",
+              "ref": 50,
+              "field": null,
+              "timeframe": null,
+              "lookback": null
+            },
+            "units": null,
+            "notes": "H003R-SHORT-RSI-LTE-50"
+          }
+        ],
+        "subgroups": [],
+        "notes": "H003R-SHORT-RSI-NEUTRAL",
+        "side": "short"
+      }
+    ],
+    "max_holding_period": {
+      "enabled": false,
+      "bars": null
+    },
+    "notes": "Package-local frozen acceptance-batch exits."
+  },
+  "risk_model": {
+    "sizing_intent": "review_only",
+    "exposure_limits": [
+      "dynamic_equity_target_leverage target_leverage=1.0 in offline scratch only"
+    ],
+    "stop_distance": null,
+    "target_distance": null,
+    "leverage_visibility": "offline research only",
+    "liquidation_sensitivity_notes": "existing zero-equity research assumption only"
+  },
+  "filters": {
+    "groups": [],
+    "none_declared": true
+  },
+  "free_parameters": {
+    "max_free_parameters": 5,
+    "counting_rule": "parameters contains only entries where is_free_parameter=true; maxItems 5 enforces the D2-006-style MVP free-parameter cap",
+    "parameters": [
+      {
+        "name": "rolling_vwap_lookback_bars",
+        "label": "Rolling VWAP lookback",
+        "description": "Rolling VWAP lookback",
+        "type": "integer",
+        "units": "bars",
+        "default": 96,
+        "range": {
+          "min": 96,
+          "max": 192,
+          "step": 96,
+          "inclusive_min": true,
+          "inclusive_max": true
+        },
+        "allowed_values": [
+          96,
+          192
+        ],
+        "is_free_parameter": true,
+        "included_in_variant_generation": true,
+        "role": "entry",
+        "rationale": "Frozen package-local acceptance-batch denominator axis or implementation-bound paired companion.",
+        "constraints": [
+          "Must remain fixed to the signed frozen acceptance batch values."
+        ]
+      },
+      {
+        "name": "distance_atr_entry",
+        "label": "ATR distance entry",
+        "description": "ATR distance entry",
+        "type": "number",
+        "units": "ATR",
+        "default": 1.0,
+        "range": {
+          "min": 1.0,
+          "max": 1.5,
+          "step": 0.5,
+          "inclusive_min": true,
+          "inclusive_max": true
+        },
+        "allowed_values": [
+          1.0,
+          1.5
+        ],
+        "is_free_parameter": true,
+        "included_in_variant_generation": true,
+        "role": "entry",
+        "rationale": "Frozen package-local acceptance-batch denominator axis or implementation-bound paired companion.",
+        "constraints": [
+          "Must remain fixed to the signed frozen acceptance batch values."
+        ]
+      },
+      {
+        "name": "distance_atr_entry_negative",
+        "label": "Negative ATR distance entry",
+        "description": "Negative ATR distance entry",
+        "type": "number",
+        "units": "ATR",
+        "default": -1.0,
+        "range": {
+          "min": -1.5,
+          "max": -1.0,
+          "step": 0.5,
+          "inclusive_min": true,
+          "inclusive_max": true
+        },
+        "allowed_values": [
+          -1.0,
+          -1.5
+        ],
+        "is_free_parameter": true,
+        "included_in_variant_generation": true,
+        "role": "entry",
+        "rationale": "Frozen package-local acceptance-batch denominator axis or implementation-bound paired companion.",
+        "constraints": [
+          "Must remain fixed to the signed frozen acceptance batch values."
+        ]
+      },
+      {
+        "name": "rsi_extreme",
+        "label": "RSI long extreme",
+        "description": "RSI long extreme",
+        "type": "integer",
+        "units": "RSI",
+        "default": 25,
+        "range": {
+          "min": 25,
+          "max": 30,
+          "step": 5,
+          "inclusive_min": true,
+          "inclusive_max": true
+        },
+        "allowed_values": [
+          25,
+          30
+        ],
+        "is_free_parameter": true,
+        "included_in_variant_generation": true,
+        "role": "entry",
+        "rationale": "Frozen package-local acceptance-batch denominator axis or implementation-bound paired companion.",
+        "constraints": [
+          "Must remain fixed to the signed frozen acceptance batch values."
+        ]
+      },
+      {
+        "name": "rsi_short_extreme",
+        "label": "RSI short extreme",
+        "description": "RSI short extreme",
+        "type": "integer",
+        "units": "RSI",
+        "default": 75,
+        "range": {
+          "min": 70,
+          "max": 75,
+          "step": 5,
+          "inclusive_min": true,
+          "inclusive_max": true
+        },
+        "allowed_values": [
+          75,
+          70
+        ],
+        "is_free_parameter": true,
+        "included_in_variant_generation": true,
+        "role": "entry",
+        "rationale": "Frozen package-local acceptance-batch denominator axis or implementation-bound paired companion.",
+        "constraints": [
+          "Must remain fixed to the signed frozen acceptance batch values."
+        ]
+      }
+    ],
+    "no_free_parameters_declared": false
+  },
+  "constraints": {
+    "invalid_parameter_combinations": [],
+    "unavailable_data_blockers": [],
+    "deferred_pattern_blockers": [],
+    "none_declared": false
+  },
+  "review": {
+    "human_review_required": true,
+    "reviewer": null,
+    "reviewed_at": null,
+    "review_notes": [
+      "Package-local acceptance execution; non-promotion posture retained."
+    ],
+    "approval_scope": "variant_planning_only",
+    "non_authority_acknowledgement": {
+      "not_candidate_approval": true,
+      "not_exp_approval": true,
+      "not_sweep_authority": true,
+      "not_ranking_authority": true,
+      "not_recommendation_authority": true,
+      "not_readiness_authority": true,
+      "not_transition_authority": true,
+      "not_runtime_authority": true,
+      "not_paper_live_authority": true,
+      "not_gate_satisfaction": true
+    }
+  },
+  "lineage": {
+    "parent_refs": [
+      {
+        "ref_type": "research_note",
+        "ref_id": "WP-LAB-REAL-TRAFFIC-REVISED-SIGNOFF-FREEZE-01",
+        "ref_path": "scratch/WP-LAB-REAL-TRAFFIC-REVISED-SIGNOFF-FREEZE-01/revised_frozen_hypothesis_set.json",
+        "ref_hash": null
+      }
+    ],
+    "supersedes": [],
+    "amendment_of": null
+  },
+  "hash_pinning": {
+    "canonical_spec_hash": null,
+    "hash_algorithm": "sha256",
+    "hash_scope_version": "strategy_spec_hash_scope_v1",
+    "hash_scope": [
+      "identity",
+      "strategy_body",
+      "free_parameters",
+      "constraints",
+      "assumptions"
+    ],
+    "hash_status": "computed"
+  },
+  "pre_registration_support": {
+    "intended_for_variant_manifest": true,
+    "variant_manifest_ref": "VM-9103",
+    "frozen_snapshot_ref": null
+  },
+  "backtest_realism_assumptions": {
+    "fee_side_assumption": "taker_entry_taker_exit",
+    "exchange_constraints_disclosed": true,
+    "funding_notional_mode": "entry_price",
+    "slippage_model": "fixed_bps",
+    "fill_mode": "complete",
+    "order_size_assumption": "dynamic_equity_target_leverage at target_leverage=1.0; package-local scratch only",
+    "liquidity_capacity_assumption": null,
+    "liquidation_mode": "zero_equity",
+    "maintenance_margin_assumption": null,
+    "mark_price_source": "close",
+    "bar_path_assumption": "next_open_close_mark"
+  },
+  "max_condition_group_depth": 3
+}

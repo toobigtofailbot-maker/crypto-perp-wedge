@@ -1,0 +1,74 @@
+[
+  {
+    "aborted": false,
+    "committed_denominator": 8,
+    "dry_run": true,
+    "elapsed_seconds": 14.932,
+    "hypothesis_id": "LAB-RT-HYP-001",
+    "ok": true,
+    "outcome_category_counts": {
+      "aborted": 0,
+      "counts_sum": 8,
+      "counts_sum_equals_committed_denominator": true,
+      "data_unavailable": 0,
+      "errored": 0,
+      "excluded": 0,
+      "failed": 0,
+      "filtered": 0,
+      "invalid": 0,
+      "not_attempted": 0,
+      "successful": 8
+    },
+    "result_population_id": "RP-3523",
+    "walkforward_window_count": 3,
+    "wrote": false
+  },
+  {
+    "aborted": false,
+    "committed_denominator": 8,
+    "dry_run": true,
+    "elapsed_seconds": 151.287,
+    "hypothesis_id": "LAB-RT-HYP-003R",
+    "ok": true,
+    "outcome_category_counts": {
+      "aborted": 0,
+      "counts_sum": 8,
+      "counts_sum_equals_committed_denominator": true,
+      "data_unavailable": 0,
+      "errored": 0,
+      "excluded": 0,
+      "failed": 0,
+      "filtered": 0,
+      "invalid": 0,
+      "not_attempted": 0,
+      "successful": 8
+    },
+    "result_population_id": "RP-2231",
+    "walkforward_window_count": 3,
+    "wrote": false
+  },
+  {
+    "aborted": false,
+    "committed_denominator": 8,
+    "dry_run": true,
+    "elapsed_seconds": 229.332,
+    "hypothesis_id": "LAB-RT-HYP-004R",
+    "ok": true,
+    "outcome_category_counts": {
+      "aborted": 0,
+      "counts_sum": 8,
+      "counts_sum_equals_committed_denominator": true,
+      "data_unavailable": 0,
+      "errored": 0,
+      "excluded": 0,
+      "failed": 0,
+      "filtered": 0,
+      "invalid": 0,
+      "not_attempted": 0,
+      "successful": 8
+    },
+    "result_population_id": "RP-6877",
+    "walkforward_window_count": 3,
+    "wrote": false
+  }
+]

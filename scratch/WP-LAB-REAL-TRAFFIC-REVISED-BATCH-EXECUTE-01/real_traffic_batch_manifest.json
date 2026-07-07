@@ -1,0 +1,149 @@
+{
+  "package": "WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01",
+  "decision": "complete",
+  "base_commit": "7dae161a608823598a49410dd3117171e3223ed7",
+  "real_research_execution_performed": true,
+  "canonical_result_population_written": false,
+  "hypothesis_ids": [
+    "LAB-RT-HYP-001",
+    "LAB-RT-HYP-002R",
+    "LAB-RT-HYP-003R",
+    "LAB-RT-HYP-004R"
+  ],
+  "frozen_set_source": "scratch/WP-LAB-REAL-TRAFFIC-REVISED-SIGNOFF-FREEZE-01/revised_frozen_hypothesis_set.json",
+  "additional_package_local_outputs": [
+    "scratch/WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01/inputs/**",
+    "scratch/WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01/runner_outputs/**"
+  ],
+  "go_candidate_worthy_decision_packet": "not_applicable_no_go_like_evidence",
+  "hypotheses": [
+    {
+      "hypothesis_id": "LAB-RT-HYP-001",
+      "result_population_id": "RP-3523",
+      "dry_run": true,
+      "canonical_write": false,
+      "denominator": 8,
+      "outcome_counts": {
+        "aborted": 0,
+        "counts_sum": 8,
+        "counts_sum_equals_committed_denominator": true,
+        "data_unavailable": 0,
+        "errored": 0,
+        "excluded": 0,
+        "failed": 0,
+        "filtered": 0,
+        "invalid": 0,
+        "not_attempted": 0,
+        "successful": 8
+      },
+      "positive_pnl_rows": 6,
+      "median_pnl": 19190.543559360623,
+      "median_return_pct": 1.9190543559360624,
+      "max_drawdown": 0.7708820807683276,
+      "trade_counts": [
+        14,
+        2,
+        14,
+        2,
+        8,
+        8,
+        8,
+        8
+      ],
+      "median_fees": 56.25909645806616,
+      "median_slippage": 14.06477411451654,
+      "walkforward_rows": 24,
+      "walkforward_successful_rows": 24,
+      "walkforward_warnings": [
+        "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+      ]
+    },
+    {
+      "hypothesis_id": "LAB-RT-HYP-002R",
+      "status": "blocked_before_execution",
+      "denominator": 8,
+      "blocked_reason": "previous_bar_high_low breakout reference unsupported by current closed runner grammar",
+      "canonical_write": false
+    },
+    {
+      "hypothesis_id": "LAB-RT-HYP-003R",
+      "result_population_id": "RP-2231",
+      "dry_run": true,
+      "canonical_write": false,
+      "denominator": 8,
+      "outcome_counts": {
+        "aborted": 0,
+        "counts_sum": 8,
+        "counts_sum_equals_committed_denominator": true,
+        "data_unavailable": 0,
+        "errored": 0,
+        "excluded": 0,
+        "failed": 0,
+        "filtered": 0,
+        "invalid": 0,
+        "not_attempted": 0,
+        "successful": 8
+      },
+      "positive_pnl_rows": 0,
+      "median_pnl": -9800.985178273411,
+      "median_return_pct": -0.980098517827341,
+      "max_drawdown": 0.9899583429626736,
+      "trade_counts": [
+        1537,
+        2803,
+        1531,
+        2760,
+        1490,
+        2601,
+        1468,
+        2510
+      ],
+      "median_fees": 2612.9726077139853,
+      "median_slippage": 653.2431519284963,
+      "walkforward_rows": 24,
+      "walkforward_successful_rows": 24,
+      "walkforward_warnings": [
+        "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+      ]
+    },
+    {
+      "hypothesis_id": "LAB-RT-HYP-004R",
+      "result_population_id": "RP-6877",
+      "dry_run": true,
+      "canonical_write": false,
+      "denominator": 8,
+      "outcome_counts": {
+        "aborted": 0,
+        "counts_sum": 8,
+        "counts_sum_equals_committed_denominator": true,
+        "data_unavailable": 0,
+        "errored": 0,
+        "excluded": 0,
+        "failed": 0,
+        "filtered": 0,
+        "invalid": 0,
+        "not_attempted": 0,
+        "successful": 8
+      },
+      "positive_pnl_rows": 8,
+      "median_pnl": 57714.7297609148,
+      "median_return_pct": 5.77147297609148,
+      "max_drawdown": 0.7727635930168999,
+      "trade_counts": [
+        11,
+        6,
+        20,
+        8,
+        11,
+        15,
+        22,
+        15
+      ],
+      "median_fees": 82.26637076121452,
+      "median_slippage": 20.56659269030363,
+      "walkforward_rows": 24,
+      "walkforward_successful_rows": 24,
+      "walkforward_warnings": []
+    }
+  ]
+}

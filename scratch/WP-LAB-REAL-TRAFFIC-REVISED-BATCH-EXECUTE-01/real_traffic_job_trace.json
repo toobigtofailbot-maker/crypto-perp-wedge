@@ -1,0 +1,76 @@
+{
+  "package": "WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01",
+  "job_count": 32,
+  "executed_rows": 24,
+  "blocked_rows": 8,
+  "jobs": [
+    {
+      "hypothesis_id": "LAB-RT-HYP-001",
+      "route": "canonical_4h_dry_run",
+      "status": "executed",
+      "result_population_id": "RP-3523",
+      "denominator": 8,
+      "outcome_counts": {
+        "aborted": 0,
+        "counts_sum": 8,
+        "counts_sum_equals_committed_denominator": true,
+        "data_unavailable": 0,
+        "errored": 0,
+        "excluded": 0,
+        "failed": 0,
+        "filtered": 0,
+        "invalid": 0,
+        "not_attempted": 0,
+        "successful": 8
+      }
+    },
+    {
+      "hypothesis_id": "LAB-RT-HYP-002R",
+      "route": "blocked_before_execution",
+      "status": "blocked",
+      "denominator": 8,
+      "reason": "previous_bar_high_low unsupported"
+    },
+    {
+      "hypothesis_id": "LAB-RT-HYP-003R",
+      "route": "canonical_15m_dry_run",
+      "status": "executed",
+      "result_population_id": "RP-2231",
+      "denominator": 8,
+      "outcome_counts": {
+        "aborted": 0,
+        "counts_sum": 8,
+        "counts_sum_equals_committed_denominator": true,
+        "data_unavailable": 0,
+        "errored": 0,
+        "excluded": 0,
+        "failed": 0,
+        "filtered": 0,
+        "invalid": 0,
+        "not_attempted": 0,
+        "successful": 8
+      }
+    },
+    {
+      "hypothesis_id": "LAB-RT-HYP-004R",
+      "route": "canonical_15m_dry_run",
+      "status": "executed",
+      "result_population_id": "RP-6877",
+      "denominator": 8,
+      "outcome_counts": {
+        "aborted": 0,
+        "counts_sum": 8,
+        "counts_sum_equals_committed_denominator": true,
+        "data_unavailable": 0,
+        "errored": 0,
+        "excluded": 0,
+        "failed": 0,
+        "filtered": 0,
+        "invalid": 0,
+        "not_attempted": 0,
+        "successful": 8
+      }
+    }
+  ],
+  "instrumentation_note": "Initial max_workers=4 stdin API attempt was discarded as Windows multiprocessing spawn noise; committed runner outputs are single-worker clean reruns."
+}

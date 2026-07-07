@@ -1,0 +1,14 @@
+{
+  "package": "WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01",
+  "anti_overfit_review_produced": true,
+  "full_denominator_retained": true,
+  "winner_only_pruning_performed": false,
+  "post_result_retuning_performed": false,
+  "go_like_evidence": false,
+  "notes": [
+    "HYP-004R positive rows were not escalated because drawdown failed the screen.",
+    "HYP-001 positive median was not escalated because drawdown and sensitivity failed.",
+    "HYP-003R uniformly failed.",
+    "HYP-002R stayed blocked rather than replaced."
+  ]
+}

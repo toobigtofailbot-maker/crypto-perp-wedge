@@ -21,6 +21,6 @@
   "parameter_expansion_after_results_performed": false,
   "protected_paths_touched": false,
   "dependency_changes": false,
-  "real_research_execution_performed": false,
-  "blocked_before_execution": true
+  "real_research_execution_performed": true,
+  "blocked_before_execution": false
 }

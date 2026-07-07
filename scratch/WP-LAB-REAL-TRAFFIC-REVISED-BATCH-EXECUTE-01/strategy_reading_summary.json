@@ -1,0 +1,147 @@
+{
+  "package": "WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01",
+  "go_like_evidence_surfaced": false,
+  "readings": [
+    {
+      "hypothesis_id": "LAB-RT-HYP-001",
+      "reading": "NO-GO / not candidate-worthy despite positive median return because max drawdown is about 77.1% and sensitivity includes negative rows.",
+      "metrics": {
+        "hypothesis_id": "LAB-RT-HYP-001",
+        "result_population_id": "RP-3523",
+        "dry_run": true,
+        "canonical_write": false,
+        "denominator": 8,
+        "outcome_counts": {
+          "aborted": 0,
+          "counts_sum": 8,
+          "counts_sum_equals_committed_denominator": true,
+          "data_unavailable": 0,
+          "errored": 0,
+          "excluded": 0,
+          "failed": 0,
+          "filtered": 0,
+          "invalid": 0,
+          "not_attempted": 0,
+          "successful": 8
+        },
+        "positive_pnl_rows": 6,
+        "median_pnl": 19190.543559360623,
+        "median_return_pct": 1.9190543559360624,
+        "max_drawdown": 0.7708820807683276,
+        "trade_counts": [
+          14,
+          2,
+          14,
+          2,
+          8,
+          8,
+          8,
+          8
+        ],
+        "median_fees": 56.25909645806616,
+        "median_slippage": 14.06477411451654,
+        "walkforward_rows": 24,
+        "walkforward_successful_rows": 24,
+        "walkforward_warnings": [
+          "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+        ]
+      }
+    },
+    {
+      "hypothesis_id": "LAB-RT-HYP-002R",
+      "reading": "BLOCKED before execution; no strategy-quality inference.",
+      "blocked_reason": "unsupported previous_bar_high_low route"
+    },
+    {
+      "hypothesis_id": "LAB-RT-HYP-003R",
+      "reading": "NO-GO. 0/8 positive rows, median return about -98.0%, high churn and severe drawdown. Pass-with-caution context against RP-7134 / STRAT-SPEC-0003 retained.",
+      "metrics": {
+        "hypothesis_id": "LAB-RT-HYP-003R",
+        "result_population_id": "RP-2231",
+        "dry_run": true,
+        "canonical_write": false,
+        "denominator": 8,
+        "outcome_counts": {
+          "aborted": 0,
+          "counts_sum": 8,
+          "counts_sum_equals_committed_denominator": true,
+          "data_unavailable": 0,
+          "errored": 0,
+          "excluded": 0,
+          "failed": 0,
+          "filtered": 0,
+          "invalid": 0,
+          "not_attempted": 0,
+          "successful": 8
+        },
+        "positive_pnl_rows": 0,
+        "median_pnl": -9800.985178273411,
+        "median_return_pct": -0.980098517827341,
+        "max_drawdown": 0.9899583429626736,
+        "trade_counts": [
+          1537,
+          2803,
+          1531,
+          2760,
+          1490,
+          2601,
+          1468,
+          2510
+        ],
+        "median_fees": 2612.9726077139853,
+        "median_slippage": 653.2431519284963,
+        "walkforward_rows": 24,
+        "walkforward_successful_rows": 24,
+        "walkforward_warnings": [
+          "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+        ]
+      },
+      "pass_with_caution_context": "RP-7134 / STRAT-SPEC-0003"
+    },
+    {
+      "hypothesis_id": "LAB-RT-HYP-004R",
+      "reading": "NO-GO / not candidate-worthy despite 8/8 positive full-slice rows because max drawdown is about 77.3%; session filter is load-bearing but evidence fails drawdown screen. Pass-with-caution context against RP-2592 / RP-3731 / RP-6236 retained.",
+      "metrics": {
+        "hypothesis_id": "LAB-RT-HYP-004R",
+        "result_population_id": "RP-6877",
+        "dry_run": true,
+        "canonical_write": false,
+        "denominator": 8,
+        "outcome_counts": {
+          "aborted": 0,
+          "counts_sum": 8,
+          "counts_sum_equals_committed_denominator": true,
+          "data_unavailable": 0,
+          "errored": 0,
+          "excluded": 0,
+          "failed": 0,
+          "filtered": 0,
+          "invalid": 0,
+          "not_attempted": 0,
+          "successful": 8
+        },
+        "positive_pnl_rows": 8,
+        "median_pnl": 57714.7297609148,
+        "median_return_pct": 5.77147297609148,
+        "max_drawdown": 0.7727635930168999,
+        "trade_counts": [
+          11,
+          6,
+          20,
+          8,
+          11,
+          15,
+          22,
+          15
+        ],
+        "median_fees": 82.26637076121452,
+        "median_slippage": 20.56659269030363,
+        "walkforward_rows": 24,
+        "walkforward_successful_rows": 24,
+        "walkforward_warnings": []
+      },
+      "pass_with_caution_context": "RP-2592 / RP-3731 / RP-6236",
+      "session_filter_load_bearing": true
+    }
+  ]
+}

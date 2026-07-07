@@ -1,0 +1,30 @@
+{
+  "package": "WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01",
+  "walkforward_oos_run_where_applicable": true,
+  "method": "runner dry-run walkforward, bounded to 3 chronological windows per executed hypothesis",
+  "canonical_write": false,
+  "summaries": {
+    "LAB-RT-HYP-001": {
+      "window_count": 3,
+      "rows": 24,
+      "successful_rows": 24,
+      "warnings": [
+        "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+      ]
+    },
+    "LAB-RT-HYP-003R": {
+      "window_count": 3,
+      "rows": 24,
+      "successful_rows": 24,
+      "warnings": [
+        "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+      ]
+    },
+    "LAB-RT-HYP-004R": {
+      "window_count": 3,
+      "rows": 24,
+      "successful_rows": 24,
+      "warnings": []
+    }
+  }
+}

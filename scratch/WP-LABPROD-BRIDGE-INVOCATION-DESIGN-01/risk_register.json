@@ -1,0 +1,62 @@
+{
+  "schema_version": "bridge_invocation_risk_register_v1",
+  "package_id": "WP-LABPROD-BRIDGE-INVOCATION-DESIGN-01",
+  "risks": [
+    {
+      "id": "R-001",
+      "risk": "weakening_bridge_validation",
+      "severity": "high",
+      "description": "Broadening existing bridge checks for convenience could make legacy bridge inputs less strict.",
+      "mitigation": "Use explicit product mode with legacy default unchanged and tests proving rejection of invalid product inputs."
+    },
+    {
+      "id": "R-002",
+      "risk": "approval_shape_drift",
+      "severity": "high",
+      "description": "Pipeline prereg approval and legacy bridge approval have different actors, scopes, and hash binding semantics.",
+      "mitigation": "Require a bridge-specific Karl exact-content approval marker for product bridge preparation."
+    },
+    {
+      "id": "R-003",
+      "risk": "toolcontext_bypass",
+      "severity": "high",
+      "description": "Instantiating bridge under a fake legacy WP would hide product authority from ToolContext.",
+      "mitigation": "Add explicit product-mode ToolContext allowlist and reject fake or unsupported WP IDs."
+    },
+    {
+      "id": "R-004",
+      "risk": "scratch_prefix_bypass",
+      "severity": "high",
+      "description": "Moving product source or output artifacts into legacy prefixes would bypass package-local product evidence discipline.",
+      "mitigation": "Validate product source and output paths against the active product package scratch root."
+    },
+    {
+      "id": "R-005",
+      "risk": "bridge_runner_coupling",
+      "severity": "high",
+      "description": "Current unblocked bridge path invokes the offline runner, which is forbidden for the product bridge-preparation stage.",
+      "mitigation": "Expose preparation-only product mode that cannot call runner and tests that runner permissions are not used."
+    },
+    {
+      "id": "R-006",
+      "risk": "dual_maintenance_drift",
+      "severity": "high",
+      "description": "Product-side reimplementation can diverge from bridge validation, derived artifacts, and denominator semantics.",
+      "mitigation": "Reject reimplementation; bridge module must remain owner of bridge output generation."
+    },
+    {
+      "id": "R-007",
+      "risk": "fabricated_bridge_outputs",
+      "severity": "high",
+      "description": "Bridge-shaped packets emitted outside bridge validation could appear authoritative without the real checks.",
+      "mitigation": "Forbid adapter-side fabricated bridge outputs and require bridge-owned validation and write path."
+    },
+    {
+      "id": "R-008",
+      "risk": "canonical_candidate_runtime_leakage",
+      "severity": "critical",
+      "description": "Bridge product mode could accidentally imply canonical evidence, candidate lifecycle, promotion/readiness, or runtime authority.",
+      "mitigation": "Keep explicit false flags, non-authority assertions, no canonical writes, no candidate lifecycle, and no paper/live/runtime contact."
+    }
+  ]
+}

@@ -185,9 +185,11 @@ def build_adapter_registry(package_id: str) -> tuple[AdapterRecord, ...]:
             ),
             implementation_status="blocked",
             blocker_reason=(
-                "Existing bridge requires its own operator approval marker and "
-                "package-specific scratch/source-prefix contract; the pipeline prereg "
-                "approval cannot be substituted safely."
+                "Existing bridge cannot be safely invoked from the lab pipeline package: "
+                "it hard-codes a different ToolContext WP allowlist, source formalizer "
+                "scratch prefixes, bridge output root, and legacy operator approval shape. "
+                "Changing those contracts is outside this package; pipeline prereg or "
+                "new bridge approval cannot be substituted safely."
             ),
         ),
         AdapterRecord(

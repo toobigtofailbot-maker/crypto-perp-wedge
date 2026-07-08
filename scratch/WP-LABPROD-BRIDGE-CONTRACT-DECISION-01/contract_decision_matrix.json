@@ -1,0 +1,65 @@
+{
+  "schema_version": "bridge_contract_decision_matrix_v1",
+  "package_id": "WP-LABPROD-BRIDGE-CONTRACT-DECISION-01",
+  "decision_subject": "additive_product_mode_plus_prepare_execute_split",
+  "options": [
+    {
+      "id": "option_1",
+      "source_design_options": [
+        "B",
+        "C"
+      ],
+      "name": "additive_product_mode_plus_prepare_execute_split",
+      "status": "proposal_for_karl_gate",
+      "legacy_behavior_changed": false,
+      "bridge_code_change_required_in_future": true,
+      "implementation_authorized_now": false,
+      "strictness_equivalence_required": true,
+      "strictness_verdict": "as_strict_or_stricter_if_implemented_as_specified",
+      "byte_regression_required": true,
+      "runner_separation_required": true,
+      "recommendation_in_design_packet": "candidate_if_strictness_proven",
+      "decision_note": "Preferred resolution because it keeps bridge validation ownership, makes product approval first-class, separates preparation from execution, and preserves legacy behavior by default."
+    },
+    {
+      "id": "option_2",
+      "source_design_options": [
+        "A"
+      ],
+      "name": "product_adapts_to_existing_legacy_bridge",
+      "status": "rejected_for_product_flow",
+      "legacy_behavior_changed": false,
+      "bridge_code_change_required_in_future": false,
+      "implementation_authorized_now": false,
+      "strictness_equivalence_required": false,
+      "byte_regression_required": false,
+      "runner_separation_required": false,
+      "recommendation_in_design_packet": "reject",
+      "decision_note": "Would require product flow to use legacy operator approval, legacy scratch prefixes, non-product output roots, and possible runner invocation."
+    },
+    {
+      "id": "option_3",
+      "source_design_options": [
+        "D"
+      ],
+      "name": "product_side_bridge_reimplementation",
+      "status": "rejected_unless_options_1_impossible_and_explicitly_authorized",
+      "legacy_behavior_changed": false,
+      "bridge_code_change_required_in_future": false,
+      "implementation_authorized_now": false,
+      "strictness_equivalence_required": true,
+      "byte_regression_required": true,
+      "runner_separation_required": true,
+      "recommendation_in_design_packet": "reject",
+      "decision_note": "Creates validator drift, evidence fabrication, denominator drift, and approval-bypass risk."
+    }
+  ],
+  "stop_conditions": [
+    "strictness_equivalence_not_provable",
+    "legacy_behavior_cannot_be_byte_regressed",
+    "product_mode_cannot_be_separated_from_runner_execution",
+    "product_approval_inferable_from_broad_prereg_approval",
+    "future_implementation_requires_protected_runtime_or_provider_or_dependency_or_data_authority",
+    "future_implementation_requires_product_side_bridge_output_fabrication"
+  ]
+}

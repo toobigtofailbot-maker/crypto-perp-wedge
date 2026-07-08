@@ -1,0 +1,27 @@
+{
+  "adapter_contract_version": "lab_pipeline_adapter_contract_v1",
+  "adapter_run_id": "LADAPT-8f3015b055116a87",
+  "adapter_status": "awaiting_prereg_approval",
+  "approval_consumed": false,
+  "approval_errors": [
+    "missing_prereg_approval"
+  ],
+  "gap_count": 0,
+  "invoked_real_modules": [],
+  "non_authority_assertions": {
+    "candidate_admission": false,
+    "candidate_lifecycle_written": false,
+    "canonical_evidence_written": false,
+    "crossing": false,
+    "dependency_config_data_acquisition": false,
+    "notification_firing": false,
+    "paper_live_runtime_contact": false,
+    "promotion_or_readiness": false,
+    "protected_path_touch": false,
+    "provider_api_credential_use": false,
+    "scheduler_autonomous_dispatch": false
+  },
+  "pipeline_run_id": "LPIPE-c9a3dc8b238abcbe",
+  "registry_closed": true,
+  "schema_version": "lab_pipeline_adapter_state_v1"
+}

@@ -1,0 +1,8 @@
+{
+  "source_idea": "Test a BTCUSDT 15m SMA/stddev mean-reversion idea through the lab pipeline adapter contract.",
+  "symbol": "BTCUSDT",
+  "timeframe": "15m",
+  "requested_by": "operator-fixture",
+  "requested_authority": [],
+  "requested_outputs": []
+}

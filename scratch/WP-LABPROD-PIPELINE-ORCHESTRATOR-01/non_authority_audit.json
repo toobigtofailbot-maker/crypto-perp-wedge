@@ -1,0 +1,13 @@
+{
+  "canonical_files_written": false,
+  "candidate_lifecycle_written": false,
+  "data_acquisition_performed": false,
+  "dependency_changes_required": false,
+  "notification_firing_performed": false,
+  "oms_risk_reconciliation_touched": false,
+  "paper_live_runtime_contacted": false,
+  "protected_paths_touched": false,
+  "provider_api_or_credential_used": false,
+  "scheduler_or_autonomous_dispatch_used": false,
+  "schema_version": "lab_pipeline_non_authority_audit_v1"
+}

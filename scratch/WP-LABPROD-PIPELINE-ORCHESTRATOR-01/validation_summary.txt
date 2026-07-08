@@ -1,0 +1,32 @@
+Validation summary for WP-LABPROD-PIPELINE-ORCHESTRATOR-01
+
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest tests/test_lab_pipeline_orchestrator.py -q: PASS, 15 tests.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest tests/test_lab_state_model.py tests/test_lab_state_resolver.py tests/test_lab_approval_queue.py tests/test_lab_scheduler_shell.py tests/test_lab_reporting.py tests/test_lab_dashboard.py -q: PASS, 95 tests.
+- python -m tools.lab_pipeline.run --request <temp request> --out-root <temp outputs> --json: PASS, halted at awaiting_prereg_approval with exit code 3 as expected.
+- python -m tools.lab_pipeline.run --request <temp request> --approval <template approval> --out-root <temp outputs> --json: PASS, completed approved non-canonical path.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.research_query.run --list-views: PASS, listed query views.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.registry.validate_result_populations: PASS.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.registry.validate_candidate_registry: PASS.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe tools/dev/diff_scope_summary.py: PASS, intended files only, no forbidden-path matches.
+- git diff --check: PASS.
+- git status --short: PASS, intended package files only.
+- final git fetch + rebase origin/main: PASS, branch already up to date.
+- post-rebase focused tests and required validators: PASS.
+
+Known validation limits:
+
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest tests/test_lab_operator_surface.py -q: FAIL, 1 existing stale hard-coded count assertion. Current repo truth reports 9 lab subjects; the test still expects 8 in test_batch_boundary_reflects_coverage_gap_closure. This package does not modify tools/lab_operator_surface or tools/lab_state subjects.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest -q: TIMED OUT after 10 minutes with no final summary. No lingering pytest processes remained after termination.
+
+Correction validation addendum for PR #612 follow-up:
+
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest tests/test_lab_pipeline_orchestrator.py -q: PASS, 15 tests.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest tests/test_lab_state_model.py tests/test_lab_state_resolver.py tests/test_lab_approval_queue.py tests/test_lab_scheduler_shell.py tests/test_lab_reporting.py tests/test_lab_dashboard.py -q: PASS, 95 tests.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.lab_pipeline.run --request <temp request> --out-root <temp outputs> --json: PASS, halted at awaiting_prereg_approval with exit code 3 as expected.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.lab_pipeline.run --request <temp request> --approval <template approval> --out-root <temp outputs> --json: PASS, completed approved non-canonical path and verified runner_invoked=false.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.research_query.run --list-views: PASS, listed query views.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.registry.validate_result_populations: PASS.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.registry.validate_candidate_registry: PASS.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe tools/dev/diff_scope_summary.py: PASS, intended files only, no forbidden-path matches.
+- git diff --check: PASS.
+- git status --short: PASS, intended correction package files only.

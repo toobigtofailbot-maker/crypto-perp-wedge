@@ -1,0 +1,51 @@
+WP-LABPROD-BRIDGE-CONTRACT-DECISION-01 validation summary
+
+Base:
+- Branch created from refreshed main at 7435debccdd970018e4d2f8d3d88f605c12181e9.
+- Open PR preflight returned no open PRs.
+- Package branch: codex/wp-labprod-bridge-contract-decision-01.
+
+Changed-file set:
+- docs/research/LAB_PRODUCTIZATION_BRIDGE_CONTRACT_DECISION.md
+- docs/status_entries/WP-LABPROD-BRIDGE-CONTRACT-DECISION-01.md
+- scratch/WP-LABPROD-BRIDGE-CONTRACT-DECISION-01/approval_strictness_equivalence.md
+- scratch/WP-LABPROD-BRIDGE-CONTRACT-DECISION-01/contract_decision_matrix.json
+- scratch/WP-LABPROD-BRIDGE-CONTRACT-DECISION-01/karl_review_packet.md
+- scratch/WP-LABPROD-BRIDGE-CONTRACT-DECISION-01/legacy_byte_regression_plan.md
+- scratch/WP-LABPROD-BRIDGE-CONTRACT-DECISION-01/new_path_validation_plan.md
+- scratch/WP-LABPROD-BRIDGE-CONTRACT-DECISION-01/non_authority_assertions.json
+- scratch/WP-LABPROD-BRIDGE-CONTRACT-DECISION-01/prepare_execute_split_contract.md
+- scratch/WP-LABPROD-BRIDGE-CONTRACT-DECISION-01/proposed_contract_diff.md
+- scratch/WP-LABPROD-BRIDGE-CONTRACT-DECISION-01/repo_truth_discovery.md
+- scratch/WP-LABPROD-BRIDGE-CONTRACT-DECISION-01/risk_register.json
+- scratch/WP-LABPROD-BRIDGE-CONTRACT-DECISION-01/validation_summary.txt
+
+Validation commands:
+- python -m json.tool scratch/WP-LABPROD-BRIDGE-CONTRACT-DECISION-01/contract_decision_matrix.json - PASS.
+- python -m json.tool scratch/WP-LABPROD-BRIDGE-CONTRACT-DECISION-01/risk_register.json - PASS.
+- python -m json.tool scratch/WP-LABPROD-BRIDGE-CONTRACT-DECISION-01/non_authority_assertions.json - PASS.
+- python -m tools.research_query.run --list-views - PASS, listed query views.
+- python -m tools.registry.validate_result_populations - PASS.
+- python -m tools.registry.validate_candidate_registry - PASS.
+- python tools/dev/diff_scope_summary.py - PASS, untracked files limited to allowed docs/status/scratch package paths; forbidden-path matches none.
+- git diff --check - PASS.
+- git diff --cached --check - initial FAIL for trailing blank lines at EOF in new files; fixed by mechanical whitespace cleanup.
+- git diff --cached --check - PASS after cleanup and restaging.
+- git status --short - PASS for expected staged files before commit.
+
+Focused tests:
+- Not run. No code/test files changed; package is docs/design-only.
+
+Full pytest:
+- Not run. No code/test files changed and docs-only validation policy does not require full pytest for this package.
+
+Boundary checks:
+- No bridge implementation file changed.
+- No bridge test file changed.
+- No adapter/orchestrator/runner/gate/cockpit implementation changed.
+- No schema/validator/query-layer code changed.
+- No canonical/candidate/runtime/protected file changed.
+- No generated build output committed.
+- JSON artifacts parse.
+- Non-authority assertions match the actual diff.
+- Proposed contract diff is a contract-level document, not an apply-ready patch.

@@ -1,0 +1,102 @@
+{
+  "schema_version": "bridge_contract_decision_risk_register_v1",
+  "package_id": "WP-LABPROD-BRIDGE-CONTRACT-DECISION-01",
+  "risks": [
+    {
+      "id": "risk_001",
+      "name": "weaker_product_approval_side_door",
+      "severity": "critical",
+      "why_it_matters": "A broad or inferred product approval could bypass the bridge's evidence-integrity boundary.",
+      "mitigation": "Require a bridge-specific Karl exact-content approval marker with source and approval hash binding.",
+      "future_test_or_review_gate": "Reject broad prereg approval and legacy operator approval in product mode."
+    },
+    {
+      "id": "risk_002",
+      "name": "legacy_bridge_behavior_changed_accidentally",
+      "severity": "critical",
+      "why_it_matters": "Legacy bridge evidence could drift without visible contract approval.",
+      "mitigation": "Keep legacy default unchanged and require byte-regression proof.",
+      "future_test_or_review_gate": "Before/after legacy invocation and byte/hash comparison."
+    },
+    {
+      "id": "risk_003",
+      "name": "toolcontext_bypass",
+      "severity": "critical",
+      "why_it_matters": "Wrong WP or role could gain bridge or runner authority.",
+      "mitigation": "Use explicit product-mode ToolContext allowlist and fail-closed checks.",
+      "future_test_or_review_gate": "Unsupported WP IDs and legacy/product cross-mode IDs are rejected."
+    },
+    {
+      "id": "risk_004",
+      "name": "scratch_prefix_bypass",
+      "severity": "high",
+      "why_it_matters": "Product artifacts could escape package-local scratch discipline.",
+      "mitigation": "Bind source and output paths to active product scratch root.",
+      "future_test_or_review_gate": "Reject non-product source paths, output roots, and path traversal."
+    },
+    {
+      "id": "risk_005",
+      "name": "product_approval_inferred_from_broad_prereg",
+      "severity": "critical",
+      "why_it_matters": "Pipeline prereg approval is not bridge-specific approval.",
+      "mitigation": "Require separate bridge-preparation marker and reject broad prereg substitution.",
+      "future_test_or_review_gate": "Broad prereg marker without bridge marker fails product mode."
+    },
+    {
+      "id": "risk_006",
+      "name": "bridge_shaped_output_fabrication",
+      "severity": "critical",
+      "why_it_matters": "Product code could emit plausible bridge artifacts without bridge validation.",
+      "mitigation": "Bridge module owns validation and artifact generation.",
+      "future_test_or_review_gate": "Product mode proves bridge-owned validators ran and no product reimplementation emits bridge outputs."
+    },
+    {
+      "id": "risk_007",
+      "name": "runner_invoked_during_prepare_only_path",
+      "severity": "critical",
+      "why_it_matters": "Preparation would silently become execution without separate approval.",
+      "mitigation": "Product mode has no runner call path and no runner permission.",
+      "future_test_or_review_gate": "Spy/audit proves no _invoke_runner, no run_offline_sweep, no RUN_NONCANONICAL_OFFLINE_SWEEP."
+    },
+    {
+      "id": "risk_008",
+      "name": "bridge_owned_validators_bypassed",
+      "severity": "high",
+      "why_it_matters": "Invalid Strategy Spec, Variant Manifest, or Sweep Plan artifacts could enter product evidence.",
+      "mitigation": "Product mode must run bridge-owned validator calls.",
+      "future_test_or_review_gate": "Validator failure rejects product mode and leaves no authoritative artifacts."
+    },
+    {
+      "id": "risk_009",
+      "name": "denominator_review_packet_drift",
+      "severity": "high",
+      "why_it_matters": "Hidden failures or winner-only selection would corrupt review evidence.",
+      "mitigation": "Preserve denominator ledger and review packet requirements with non-authority fields.",
+      "future_test_or_review_gate": "Denominator mismatch triggers evidence-suppression block."
+    },
+    {
+      "id": "risk_010",
+      "name": "partial_artifact_leakage",
+      "severity": "medium",
+      "why_it_matters": "Failed product preparation could leave ambiguous artifacts.",
+      "mitigation": "Fail closed and classify partial artifacts as scratch-only non-authoritative.",
+      "future_test_or_review_gate": "Failure leaves no canonical artifacts, no runner artifacts, and no candidate records."
+    },
+    {
+      "id": "risk_011",
+      "name": "canonical_candidate_runtime_scheduler_provider_protected_authority_leakage",
+      "severity": "critical",
+      "why_it_matters": "The product bridge path must not create downstream execution or authority.",
+      "mitigation": "Require explicit false flags and protected-path checks.",
+      "future_test_or_review_gate": "Approval with any true forbidden authority flag is rejected."
+    },
+    {
+      "id": "risk_012",
+      "name": "future_wp_misreads_decision_packet_as_implementation_authorization",
+      "severity": "high",
+      "why_it_matters": "This packet is a proposal only.",
+      "mitigation": "Repeat non-authority assertions and Karl-gate language in docs, status, scratch, and PR body.",
+      "future_test_or_review_gate": "Future implementation package must cite explicit Karl approval before code changes."
+    }
+  ]
+}

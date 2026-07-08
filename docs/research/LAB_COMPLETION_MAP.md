@@ -1,4 +1,4 @@
-# Research-Lab Completion Map
+﻿# Research-Lab Completion Map
 
 ## Status and authority
 
@@ -30,8 +30,9 @@ scale-correct denominator preservation with a 600-row synthetic population from
 the `known_losing_baseline` lineage. PR #589 hardened the read-only registry /
 provenance view. PR #590 completed the read-only dashboard gap surface and
 fail-closed provenance visibility. Together these packages finish what can be
-completed without real research traffic while preserving the boundary that a
-known non-promotable payload cannot prove autonomous always-on factory operation,
+completed before bounded real-traffic acceptance evidence existed while preserving
+the boundary that a known non-promotable payload cannot prove autonomous
+always-on factory operation,
 first real candidate crossing, or paper/live/runtime authority.
 
 Final operating-readiness audit update: PRs #592 through #595 executed the
@@ -41,8 +42,19 @@ queue/scheduler dry-run handling, notification/report dry-run cadence, and
 agent-loop/dashboard stream handling. This proves operating-system evidence, not
 strategy evidence. The lab is now complete for known-payload strategy-pipe proof
 and deterministic operating-readiness acceptance testing. It is still not
-production autonomous operation, not real research traffic operation, not real
-candidate admission, not real crossing, and does not create paper/live readiness.
+production autonomous operation, not generated real-research surface operation,
+not real candidate admission, not real crossing, and does not create paper/live
+readiness.
+
+Real-traffic acceptance update: PR #606 and PR #608 added bounded real research
+traffic acceptance evidence for the real-input operating layer. The revised
+four-hypothesis batch preserved the full frozen denominator: 32/32 rows
+preserved, 0 dropped, 0 blocked after completion, and 32 executed successful
+rows. The stream covered formalize, route, sweep, preserve, gate, and review
+without writing a canonical Result Population and without surfacing GO-like or
+candidate-worthy evidence. This is real-input operating-layer acceptance
+evidence, not candidate authority, crossing authority, paper/live/runtime
+authority, production autonomous operation, or always-on factory completion.
 
 ## 1. Current phase definition
 
@@ -192,7 +204,7 @@ operator authorization and real candidate flow** before it could be activated.
 | First real canonical crossing | No candidate has passed human review; crossing is a separately authorized package and has not occurred. |
 | Live candidate-flow-dependent behavior | All of the above depend on a real candidate reaching `candidate_ready_for_human_review`; the only committed conclusion to date is NO-GO, so no candidate flow exists yet. |
 | At-scale continuous sweeps | Meaningful scale requires authorized real edge-search / real research traffic; baseline fixtures prove plumbing only. |
-| At-scale WFO/OOS and robustness/MC execution volume | Gate semantics are hardened, but volume execution over real candidates is held until real research traffic exists. |
+| At-scale WFO/OOS and robustness/MC execution volume | Gate semantics are hardened, but volume execution over real candidates is held until separate authorization and real candidate flow exist. |
 | Agent scheduling / prioritization / autonomy | Baseline loop behavior is proven only for bounded fixture plumbing; autonomous operation over a real queue is held until real candidate flow and separate authorization exist. |
 | Notification firing over real jobs | Notification firing requires real jobs/events plus separate authorization; baseline fixtures do not create either. |
 
@@ -226,12 +238,12 @@ authorization.
 
 ## 7. What remains buildable now (within phase)
 
-After the deterministic event-tape route, no further no-edge operating-readiness
-work package is currently identified as both buildable-now and value-adding,
-unless repo truth changes. Any later read-only legibility or traceability package
-must still prove that it is based on existing evidence, remains deterministic and
-non-authoritative, and does not imply at-scale factory, real candidate, or
-execution authority.
+After the deterministic event-tape route and the bounded real-traffic revised
+batch, no further no-edge operating-readiness work package is currently
+identified as both buildable-now and value-adding unless repo truth changes. Any
+later read-only legibility or traceability package must still prove that it is
+based on existing evidence, remains deterministic and non-authoritative, and does
+not imply at-scale factory, real candidate, or execution authority.
 
 ## 8. What is not buildable without edge-search / live candidate flow
 
@@ -244,8 +256,8 @@ execution authority.
 - Autonomous agent scheduling, prioritization, or factory operation over a real
   research queue.
 
-These cannot be built or demonstrated meaningfully because there is no
-authorized edge-search and no live candidate flow.
+These cannot be built or demonstrated meaningfully because there is no GO-like
+candidate evidence, no authorized candidate flow, and no live candidate flow.
 
 ## 9. What is not authorized
 
@@ -291,19 +303,24 @@ operating-readiness route:
 - read-only dashboard/reporting/registry visibility hardened: true;
 - deterministic event-tape operating-readiness route complete: true;
 - operating-readiness acceptance-tested: true;
+- bounded real research traffic acceptance evidence exists: true;
+- real-input operating layer acceptance-tested: true;
 - queue/scheduler dry-run handling acceptance-tested: true;
 - notification/report dry-run cadence acceptance-tested: true;
 - agent-loop/dashboard stream handling acceptance-tested: true;
-- lab complete for what can be completed without real research traffic: true;
+- lab complete for known-payload proof, event-tape readiness, and bounded
+  real-traffic acceptance evidence: true;
 - lab declared finished without qualification: false;
 - production autonomous operation declared: false;
-- real research traffic started: false;
+- bounded real research traffic started: true;
+- GO-like / candidate-worthy evidence surfaced: false;
 - edge-search authorized here: false;
 - candidate authority created: false;
 - crossing authority created: false;
 - paper/live authority created: false;
 - always-on factory completed: false;
-- at-scale/autonomous layers: held-B until real research traffic;
+- at-scale/autonomous layers: held-B until separate authorization and real
+  candidate flow;
 - first real crossing: held until a real GO candidate and explicit gate exist;
 - paper/live/runtime: GO-gated and protected;
 - no further no-edge operating-readiness work package is currently identified as
@@ -312,8 +329,8 @@ operating-readiness route:
 The remaining operator choices are:
 
 1. Hold the completed no-edge operating-readiness lab.
-2. Authorize bounded real research traffic under an explicit edge-search
-   package.
+2. Authorize a separate future research or operator-surface package under
+   explicit scope and stop conditions.
 
 This map does not recommend which choice to make.
 

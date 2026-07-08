@@ -1,0 +1,168 @@
+{
+  "package_id": "WP-LAB-REAL-TRAFFIC-BATCH-CONCLUDE-01",
+  "base_commit": "ee2a824c2a2135124443357886b1885172f07869",
+  "source_prs_inspected": [
+    {
+      "number": 606,
+      "state": "MERGED",
+      "merged_at": "2026-07-07T17:39:50Z",
+      "merge_commit": "c2dac11729ffdf9fc9f833ff39e64ea67eb8bed5",
+      "url": "https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/606"
+    },
+    {
+      "number": 608,
+      "state": "MERGED",
+      "merged_at": "2026-07-07T21:41:06Z",
+      "merge_commit": "ee2a824c2a2135124443357886b1885172f07869",
+      "url": "https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/608"
+    }
+  ],
+  "source_files_inspected": [
+    "docs/project_status.md",
+    "CLAUDE_START_HERE.md",
+    "docs/runbook.md",
+    "AGENTS.md",
+    ".claude/README.md",
+    "docs/ai/codex/README.md",
+    "docs/ai/codex/WP_DRAFTING_STANDARD.md",
+    "docs/ai/codex/CODEX_TOKEN_EFFICIENCY.md",
+    "docs/research_pipeline/2026-05-stage2c_workflow_efficiency_operating_model_lock.md",
+    "docs/status_entries/README.md",
+    "docs/research/LAB_COMPLETION_MAP.md",
+    "docs/research/LAB_STATE_MODEL_COVERAGE_AUDIT.md",
+    "docs/status_entries/WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01.md",
+    "docs/status_entries/WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01.md",
+    "scratch/WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01/real_traffic_batch_manifest.json",
+    "scratch/WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01/operator_review_packet.md",
+    "scratch/WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01/operating_system_evidence_summary.json",
+    "scratch/WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01/denominator_preservation_audit.json",
+    "scratch/WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01/strategy_reading_summary.json",
+    "scratch/WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01/revised_batch_final_rollup.json",
+    "scratch/WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01/operator_review_packet.md",
+    "scratch/WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01/hyp002r_strategy_reading.json",
+    "scratch/WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01/non_authority_assertions.json",
+    "docs/status_entries/WP-RESEARCH-FUNDING-FADE-CONCLUDE-01.md",
+    "docs/research/FUNDING_POSITIONING_FADE_SYNTHESIS_2026-06.md",
+    "docs/research_pipeline/2026-06-phaseb_trial_01_screen_verdict.md",
+    "docs/research_pipeline/2026-06-phaseb_momentum_trial_0004_rp2592_screen.md",
+    "docs/research_pipeline/2026-06-momentum_v2_trial_0005_result.md",
+    "docs/research_pipeline/2026-06-momentum_4h_trial_0006_result.md"
+  ],
+  "frozen_denominator_rows": 32,
+  "preserved_rows": 32,
+  "dropped_rows": 0,
+  "blocked_rows": 0,
+  "executed_successful_rows": 32,
+  "canonical_result_population_written": false,
+  "go_like_evidence": false,
+  "real_research_execution_performed": true,
+  "per_hypothesis_summary_records": [
+    {
+      "hypothesis_id": "LAB-RT-HYP-001",
+      "denominator": 8,
+      "successful_rows": 8,
+      "positive_pnl_rows": 6,
+      "median_pnl": 19190.543559360623,
+      "max_drawdown": 0.7708820807683276,
+      "result_population_id": "RP-3523",
+      "canonical_write": false,
+      "reading": "positive median PnL, not candidate-worthy because drawdown is about 77%"
+    },
+    {
+      "hypothesis_id": "LAB-RT-HYP-002R",
+      "denominator": 8,
+      "successful_rows": 8,
+      "positive_pnl_rows": 8,
+      "median_pnl": 56170.00617909891,
+      "max_drawdown": 0.7727654107626627,
+      "result_population_id": "RP-1413",
+      "canonical_write": false,
+      "reading": "positive PnL rows, not candidate-worthy because drawdown is about 77%"
+    },
+    {
+      "hypothesis_id": "LAB-RT-HYP-003R",
+      "denominator": 8,
+      "successful_rows": 8,
+      "positive_pnl_rows": 0,
+      "median_pnl": -9800.985178273411,
+      "max_drawdown": 0.9899583429626736,
+      "result_population_id": "RP-2231",
+      "canonical_write": false,
+      "reading": "clean NO-GO; 0/8 positive PnL rows and severe drawdown",
+      "caution_context": "RP-7134 / STRAT-SPEC-0003"
+    },
+    {
+      "hypothesis_id": "LAB-RT-HYP-004R",
+      "denominator": 8,
+      "successful_rows": 8,
+      "positive_pnl_rows": 8,
+      "median_pnl": 57714.7297609148,
+      "max_drawdown": 0.7727635930168999,
+      "result_population_id": "RP-6877",
+      "canonical_write": false,
+      "reading": "positive PnL rows, not candidate-worthy because drawdown is about 77%",
+      "caution_context": "RP-2592 / RP-3731 / RP-6236; UTC session filter remained load-bearing"
+    }
+  ],
+  "candidate_authority_flag": false,
+  "crossing_authority_flag": false,
+  "promotion_readiness_flag": false,
+  "paper_live_runtime_authority_flag": false,
+  "autonomous_scheduler_authority_flag": false,
+  "retuning_parameter_expansion_flag": false,
+  "completion_map_updated": true,
+  "project_status_updated": true,
+  "coordinator_operator_binding_mode": "read-only docs/evidence binding through synthesis, status entry, completion-map update, project-status pointer, and scratch binding audit; no tool/query/dashboard implementation",
+  "validation_command_results": [
+    {
+      "command": "python -m json.tool scratch\\WP-LAB-REAL-TRAFFIC-BATCH-CONCLUDE-01\\conclusion_traceability.json",
+      "result": "PASS"
+    },
+    {
+      "command": "python -m tools.research_query.run --list-views",
+      "result": "PASS"
+    },
+    {
+      "command": "python -m tools.registry.validate_result_populations",
+      "result": "PASS"
+    },
+    {
+      "command": "python -m tools.registry.validate_candidate_registry",
+      "result": "PASS"
+    },
+    {
+      "command": "python tools/dev/diff_scope_summary.py",
+      "result": "PASS; forbidden-path matches none"
+    },
+    {
+      "command": "git diff --check",
+      "result": "PASS; exit 0 with line-ending warning on docs/research/LAB_COMPLETION_MAP.md"
+    },
+    {
+      "command": "git status --short",
+      "result": "PASS; expected docs/evidence package files only"
+    },
+    {
+      "command": "full pytest",
+      "result": "NOT RUN - docs/evidence-only package; not required by active package"
+    },
+    {
+      "command": "git fetch origin; git rebase origin/main",
+      "result": "PASS; branch already up to date"
+    },
+    {
+      "command": "git diff --cached --check",
+      "result": "PASS"
+    },
+    {
+      "command": "git push -u origin lab/real-traffic-batch-conclude-01",
+      "result": "PASS"
+    },
+    {
+      "command": "gh pr create --base main --head lab/real-traffic-batch-conclude-01",
+      "result": "PASS; https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/609"
+    }
+  ],
+  "package_pr_url": "https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/609",
+  "package_pr_state": "open_ready_for_review_non_draft"
+}

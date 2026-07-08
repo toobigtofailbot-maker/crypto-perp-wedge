@@ -1,0 +1,36 @@
+Validation summary - WP-LAB-REAL-TRAFFIC-BATCH-CONCLUDE-01
+
+Base validation pass before final rebase / PR creation:
+
+- python -m json.tool scratch\WP-LAB-REAL-TRAFFIC-BATCH-CONCLUDE-01\conclusion_traceability.json: PASS.
+- python -m tools.research_query.run --list-views: PASS; view list returned successfully.
+- python -m tools.registry.validate_result_populations: PASS; result-population artifacts validate.
+- python -m tools.registry.validate_candidate_registry: PASS; candidate lifecycle registry fixtures validate.
+- python tools/dev/diff_scope_summary.py: PASS; forbidden-path matches none.
+- git diff --check: PASS; command exited 0 with a line-ending warning for docs/research/LAB_COMPLETION_MAP.md.
+- git status --short: expected package docs/evidence files only.
+
+Manual boundary validation:
+
+- no tools/** changes: PASS.
+- no tests/** changes: PASS.
+- no src/**, lib/**, configs/**, data/**, or .claude/** changes: PASS.
+- no Strategy Spec / Variant Manifest / Sweep Plan / runner-output / signed-frozen-set mutation: PASS.
+- no canonical Result Population write: PASS.
+- no candidate registry change: PASS.
+- no runtime/protected path change: PASS.
+- denominator wording remains full-denominator, not winners-only: PASS.
+- pattern wording is marked as descriptive interpretation, not an edge claim or retuning instruction: PASS.
+
+Full pytest: NOT RUN - docs/evidence-only package; not required by active package because no code/schema/tool/test behavior changed.
+
+Final rebase / PR checks:
+
+- git fetch origin; git rebase origin/main: PASS; branch already up to date.
+- git diff --check: PASS after rebase.
+- git diff --cached --check: PASS after rebase.
+- git status --short --branch: clean on lab/real-traffic-batch-conclude-01 before push.
+- git push -u origin lab/real-traffic-batch-conclude-01: PASS.
+- PR URL: https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/609.
+- PR opened non-draft / ready for review: PASS.
+- GitHub mergeability checked outside committed validation artifacts after final amended push.

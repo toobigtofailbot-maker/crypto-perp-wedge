@@ -5,7 +5,7 @@
 Adds the first repo-native lab-productization pipeline spine under
 `tools/lab_pipeline`. The CLI accepts an operator request, writes a deterministic
 scratch pipeline packet, halts at exact-content prereg approval, and continues
-only when the file-based approval marker is scoped to non-canonical offline
+only when the Karl file-based approval marker is scoped to non-canonical offline
 research execution for the frozen preregistration packet hash.
 
 ## Authority

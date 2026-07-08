@@ -23,7 +23,7 @@ marker matches the frozen preregistration packet hash.
 Approval is valid only when:
 
 - `schema_version` is `lab_pipeline_prereg_approval_v1`
-- `approved_by` is `Karl` or `operator`
+- `approved_by` is `Karl`
 - `approval_scope` is `noncanonical_offline_research_execution_only`
 - `approval_statement` exactly matches the packet requirement
 - `authorizes_noncanonical_offline_research_execution` is `true`

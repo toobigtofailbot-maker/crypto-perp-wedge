@@ -68,6 +68,25 @@ def test_mismatched_approval_token_blocks(tmp_path: Path) -> None:
     assert any("approval_hash_mismatch" in reason for reason in result.blocked_reasons)
 
 
+def test_non_karl_approval_actor_blocks(tmp_path: Path) -> None:
+    first = run_pipeline(request_path=_request(tmp_path), output_root=tmp_path / "out")
+    prereg = Path(first.artifact_paths["preregistration_packet"])
+    approval = _approval_for(
+        prereg,
+        tmp_path / "operator_approval.json",
+        approved_by="operator",
+    )
+
+    result = run_pipeline(
+        request_path=_request(tmp_path),
+        approval_path=approval,
+        output_root=tmp_path / "out",
+    )
+
+    assert result.pipeline_status == "awaiting_prereg_approval"
+    assert any("approval_actor_not_karl" in reason for reason in result.blocked_reasons)
+
+
 def test_exact_content_approval_allows_only_noncanonical_continuation(tmp_path: Path) -> None:
     pending = run_pipeline(request_path=_request(tmp_path), output_root=tmp_path / "out")
     approval = _approval_for(
@@ -189,3 +208,12 @@ def test_no_dashboard_or_cockpit_files_are_touched(tmp_path: Path) -> None:
     assert "dashboard" not in generated_keys.lower()
     assert "cockpit" not in generated_names.lower()
     assert "cockpit" not in generated_keys.lower()
+
+
+def test_repo_resident_output_root_must_stay_in_package_scratch(tmp_path: Path) -> None:
+    with pytest.raises(Exception) as excinfo:
+        run_pipeline(
+            request_path=_request(tmp_path),
+            output_root=Path("scratch") / "not-this-package",
+        )
+    assert "must be under" in str(excinfo.value)

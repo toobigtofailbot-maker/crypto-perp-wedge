@@ -20,6 +20,7 @@ from tools.lab_pipeline.state import (
 REPO_ROOT = Path(__file__).resolve().parents[2]
 WP_ID = "WP-LABPROD-PIPELINE-ORCHESTRATOR-01"
 DEFAULT_OUTPUT_ROOT = REPO_ROOT / "scratch" / WP_ID / "outputs"
+DEFAULT_SCRATCH_ROOT = REPO_ROOT / "scratch" / WP_ID
 DETERMINISTIC_TIMESTAMP_UTC = "2026-07-08T00:00:00Z"
 CREATED_AT_POLICY = "deterministic_from_request_content_no_wall_clock"
 
@@ -226,7 +227,7 @@ def _approval_requirement(packet: Mapping[str, Any]) -> dict[str, Any]:
         "approval_marker_schema": model.APPROVAL_SCHEMA_VERSION,
         "required_fields": {
             "schema_version": model.APPROVAL_SCHEMA_VERSION,
-            "approved_by": "Karl or operator",
+            "approved_by": "Karl",
             "approval_scope": model.APPROVAL_SCOPE,
             "approval_statement": model.APPROVAL_STATEMENT,
             "authorizes_noncanonical_offline_research_execution": True,
@@ -261,8 +262,8 @@ def _validate_approval(
     }
     if approval.get("schema_version") != model.APPROVAL_SCHEMA_VERSION:
         errors.append("approval_schema_version_mismatch")
-    if approval.get("approved_by") not in {"Karl", "operator"}:
-        errors.append("approval_actor_not_karl_or_operator")
+    if approval.get("approved_by") != "Karl":
+        errors.append("approval_actor_not_karl")
     if approval.get("approval_scope") != model.APPROVAL_SCOPE:
         errors.append("approval_scope_not_noncanonical_offline_only")
     if approval.get("approval_statement") != model.APPROVAL_STATEMENT:
@@ -362,6 +363,7 @@ def run_pipeline(
     approval_path: Path | None = None,
     output_root: Path = DEFAULT_OUTPUT_ROOT,
 ) -> PipelineResult:
+    _validate_output_root(output_root)
     raw_request = read_json(request_path)
     request_obj = PipelineRequest.from_mapping(raw_request)
     request = request_obj.normalized()
@@ -620,6 +622,25 @@ def _finalize(
         artifact_paths=dict(artifacts),
         blocked_reasons=blocked_reasons,
     )
+
+
+def _validate_output_root(output_root: Path) -> None:
+    """Allow repo writes only inside this package's scratch root."""
+
+    resolved = Path(output_root).resolve()
+    repo = REPO_ROOT.resolve()
+    try:
+        rel = resolved.relative_to(repo)
+    except ValueError:
+        return
+    allowed = DEFAULT_SCRATCH_ROOT.resolve()
+    try:
+        resolved.relative_to(allowed)
+    except ValueError as exc:
+        raise PipelineBlockedError(
+            "output_root inside repo must be under "
+            f"{allowed.as_posix()}; got {rel.as_posix()}"
+        ) from exc
 
 
 def approval_template_for(preregistration_packet_path: Path) -> dict[str, Any]:

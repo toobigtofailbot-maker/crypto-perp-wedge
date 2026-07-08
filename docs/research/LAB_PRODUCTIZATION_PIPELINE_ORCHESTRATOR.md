@@ -53,6 +53,7 @@ marker is supplied. The marker must bind exactly to the frozen
 `preregistration_packet.json` hash and must use:
 
 - `schema_version = lab_pipeline_prereg_approval_v1`
+- `approved_by = Karl`
 - `approval_scope = noncanonical_offline_research_execution_only`
 - the exact approval statement recorded in `approval_requirement.json`
 - `authorizes_noncanonical_offline_research_execution = true`

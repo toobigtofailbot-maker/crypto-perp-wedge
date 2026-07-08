@@ -1,0 +1,15 @@
+WP-LABPROD-DATA-SIM-READINESS-DISPLAY-01 validation summary
+
+PASS: python -m pytest tests/test_lab_readiness.py -q
+PASS: python -m tools.lab_readiness.run --out-dir build/lab_readiness
+PASS: python -m tools.registry.validate_data_feature_availability
+PASS: python -m tools.research_query.run --list-views
+PASS: python -m tools.registry.validate_result_populations
+PASS: python -m tools.registry.validate_candidate_registry
+PASS: python tools/dev/diff_scope_summary.py
+PASS: git diff --check
+
+Notes:
+- build/lab_readiness was generated only for CLI validation and removed after validation.
+- No forbidden-path matches were reported by diff_scope_summary.py.
+- No provider/API/network/data-acquisition path was invoked.

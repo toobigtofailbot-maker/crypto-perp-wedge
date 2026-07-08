@@ -1,0 +1,20 @@
+{
+  "package_id": "WP-LABPROD-DATA-SIM-READINESS-DISPLAY-01",
+  "read_only_display_only": true,
+  "data_acquisition_performed": false,
+  "network_or_provider_api_used": false,
+  "credentials_used": false,
+  "runner_or_compiler_behavior_changed": false,
+  "simulator_behavior_changed": false,
+  "schema_validator_or_query_layer_changed": false,
+  "dependency_or_config_changed": false,
+  "canonical_result_population_written": false,
+  "candidate_registry_written": false,
+  "strategy_spec_variant_manifest_or_sweep_plan_written": false,
+  "trial_log_written": false,
+  "paper_live_runtime_touched": false,
+  "oms_risk_reconciliation_broker_exchange_order_touched": false,
+  "scheduler_or_autonomy_authority_created": false,
+  "crossing_promotion_or_readiness_authority_created": false,
+  "protected_paths_touched": false
+}

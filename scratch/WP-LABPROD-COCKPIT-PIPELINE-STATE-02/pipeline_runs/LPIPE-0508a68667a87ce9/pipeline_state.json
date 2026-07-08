@@ -1,0 +1,167 @@
+{
+  "approval_requirements": {
+    "approval_marker_schema": "lab_pipeline_prereg_approval_v1",
+    "non_authority_flags": {
+      "authorizes_promotion_or_readiness": false,
+      "contacts_paper_live_runtime": false,
+      "executes_canonical_crossing": false,
+      "fires_notifications": false,
+      "human_review_required_for_prereg": true,
+      "noncanonical_only": true,
+      "offline_only": true,
+      "scratch_only": true,
+      "separate_authorization_required_for_canonical_or_runtime": true,
+      "uses_provider_api_or_credentials": false,
+      "uses_scheduler_or_autonomy": false,
+      "writes_candidate_lifecycle": false,
+      "writes_canonical_evidence": false
+    },
+    "pipeline_run_id": "LPIPE-0508a68667a87ce9",
+    "preregistration_packet_sha256": "sha256:ab796b008f8f42568fac3628e2c54a1d1bc0b0e544ede354e65676b390016fc5",
+    "request_id": "REQ-acefdf3c4ebc",
+    "required_fields": {
+      "approval_scope": "noncanonical_offline_research_execution_only",
+      "approval_statement": "Authorizes only non-canonical offline research execution for the exact frozen preregistration packet content.",
+      "approved_by": "Karl",
+      "authorizes_candidate_lifecycle": false,
+      "authorizes_canonical_write": false,
+      "authorizes_noncanonical_offline_research_execution": true,
+      "authorizes_notifications": false,
+      "authorizes_paper_live_runtime": false,
+      "authorizes_scheduler_autonomy": false,
+      "preregistration_packet_sha256": "sha256:ab796b008f8f42568fac3628e2c54a1d1bc0b0e544ede354e65676b390016fc5",
+      "schema_version": "lab_pipeline_prereg_approval_v1"
+    },
+    "schema_version": "lab_pipeline_approval_requirement_v1"
+  },
+  "artifact_refs": [
+    "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/approval_requirement.json",
+    "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/pipeline_request.json",
+    "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/preregistration_packet.json"
+  ],
+  "blocked_reasons": [],
+  "created_at_policy": "deterministic_from_request_content_no_wall_clock",
+  "current_stage": "complete",
+  "deterministic_timestamp_utc": "2026-07-08T00:00:00Z",
+  "non_authority_flags": {
+    "authorizes_promotion_or_readiness": false,
+    "contacts_paper_live_runtime": false,
+    "executes_canonical_crossing": false,
+    "fires_notifications": false,
+    "human_review_required_for_prereg": true,
+    "noncanonical_only": true,
+    "offline_only": true,
+    "scratch_only": true,
+    "separate_authorization_required_for_canonical_or_runtime": true,
+    "uses_provider_api_or_credentials": false,
+    "uses_scheduler_or_autonomy": false,
+    "writes_candidate_lifecycle": false,
+    "writes_canonical_evidence": false
+  },
+  "pipeline_run_id": "LPIPE-0508a68667a87ce9",
+  "pipeline_status": "complete",
+  "request_id": "REQ-acefdf3c4ebc",
+  "requested_by": "Karl",
+  "schema_version": "lab_pipeline_state_v1",
+  "source_idea": "RVOL breakout continuation on BTCUSDT with a 15m volatility filter",
+  "stage_statuses": [
+    {
+      "artifact_refs": [
+        "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/pipeline_request.json"
+      ],
+      "blocked_reasons": [],
+      "detail": "Request loaded.",
+      "stage": "request_loaded",
+      "status": "complete"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [],
+      "detail": "Operator idea preserved and formalized.",
+      "stage": "idea_formalized",
+      "status": "complete"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [],
+      "detail": "Availability check passed for prereg packet preparation.",
+      "stage": "availability_checked",
+      "status": "complete"
+    },
+    {
+      "artifact_refs": [
+        "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/preregistration_packet.json",
+        "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/approval_requirement.json"
+      ],
+      "blocked_reasons": [],
+      "detail": "Frozen preregistration packet prepared.",
+      "stage": "prereg_packet_prepared",
+      "status": "complete"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [],
+      "detail": "Exact-content prereg approval marker accepted.",
+      "stage": "awaiting_prereg_approval",
+      "status": "complete"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [],
+      "detail": "Approval scope permits only non-canonical offline research execution.",
+      "stage": "approved_for_noncanonical_execution",
+      "status": "complete"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [],
+      "detail": "Deterministic non-canonical spine step entered.",
+      "stage": "noncanonical_execution_running",
+      "status": "complete"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [],
+      "detail": "Non-canonical spine step completed with preserved denominator.",
+      "stage": "noncanonical_execution_complete",
+      "status": "complete"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [],
+      "detail": "Gate review completed as non-authoritative packet check.",
+      "stage": "gate_review_complete",
+      "status": "complete"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [],
+      "detail": "Robustness review completed as non-authoritative packet check.",
+      "stage": "robustness_review_complete",
+      "status": "complete"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [],
+      "detail": "Operator review packet prepared without candidate lifecycle authority.",
+      "stage": "candidate_review_packet_prepared",
+      "status": "complete"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [],
+      "detail": "Pipeline packet complete.",
+      "stage": "complete",
+      "status": "complete"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [],
+      "detail": "",
+      "stage": "blocked",
+      "status": "not_started"
+    }
+  ],
+  "symbol": "BTCUSDT",
+  "timeframe": "15m"
+}

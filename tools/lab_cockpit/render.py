@@ -133,6 +133,30 @@ code, .mono { font-family: ui-monospace, "SF Mono", monospace; font-size: 0.8rem
 .legend .l-neg::before { background: var(--neg); }
 .legend .l-warn::before { background: var(--warn); }
 footer.foot { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--line); font-size: 0.78rem; color: var(--ink-soft); }
+.pill.awaiting_prereg_approval { background: var(--warn-soft); color: var(--warn); }
+.pill.blocked_or_invalid { background: var(--neg-soft); color: var(--neg); }
+.pill.complete_spine_only { background: var(--accent-soft); color: var(--accent); }
+.pill.complete { background: var(--pos-soft); color: var(--pos); }
+.pill.unavailable { background: var(--mute-soft); color: var(--mute); }
+.stages { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+.stage-chip {
+  font-size: 0.64rem; padding: 0.12rem 0.4rem; border-radius: 5px;
+  border: 1px solid var(--line); background: var(--mute-soft); color: var(--ink-soft);
+  font-family: ui-monospace, monospace;
+}
+.stage-chip.complete { background: var(--pos-soft); color: var(--pos); border-color: transparent; }
+.stage-chip.awaiting_approval { background: var(--warn-soft); color: var(--warn); border-color: transparent; }
+.stage-chip.blocked { background: var(--neg-soft); color: var(--neg); border-color: transparent; }
+.stage-chip.not_started { opacity: 0.5; }
+.callout {
+  border-left: 3px solid var(--accent); background: var(--accent-soft);
+  padding: 0.5rem 0.7rem; border-radius: 8px; font-size: 0.82rem; color: var(--ink);
+}
+.callout.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+.callout.neg { border-left-color: var(--neg); background: var(--neg-soft); }
+.callout .hashline { font-family: ui-monospace, monospace; font-size: 0.72rem; color: var(--ink-soft); word-break: break-all; }
+.runmeta { font-size: 0.8rem; color: var(--ink-soft); display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; }
+.runmeta code { color: var(--ink); }
 """.strip()
 
 
@@ -296,6 +320,144 @@ def _overview_html(data: dict[str, Any]) -> str:
         f"<div class='grid kpis' style='margin-top:0.9rem'>{kpis}</div>"
         "<div class='banner'><strong>Top blockers &amp; caveats.</strong>"
         f"<ul style='margin:0.4rem 0 0;padding-left:1.1rem'>{blockers}</ul></div>"
+    )
+
+
+def _short_hash(value: Any) -> str:
+    """Truncate a ``sha256:...`` digest for compact display."""
+    if not isinstance(value, str) or not value:
+        return "—"
+    if value.startswith("sha256:") and len(value) > 7 + 16:
+        return value[: 7 + 16] + "…"
+    return value
+
+
+def _pipeline_run_card(run: dict[str, Any]) -> str:
+    status = run["display_status"]
+    pill = f"<span class='pill {status}'>{_esc(run['display_label'])}</span>"
+
+    if not run.get("available", False):
+        return (
+            "<div class='card'>"
+            f"<h3>{pill}<span class='hid'>{_esc(run['pipeline_run_id'])}</span></h3>"
+            "<div class='callout neg'><strong>Fail-closed.</strong> "
+            f"{_esc(run.get('invalid_reason'))}. No run state is fabricated.</div>"
+            "</div>"
+        )
+
+    meta = (
+        "<div class='runmeta'>"
+        f"<span>symbol <code>{_esc(run.get('symbol'))}</code></span>"
+        f"<span>timeframe <code>{_esc(run.get('timeframe'))}</code></span>"
+        f"<span>requested by <code>{_esc(run.get('requested_by'))}</code></span>"
+        f"<span>request <code>{_esc(run.get('request_id'))}</code></span>"
+        "</div>"
+    )
+
+    stage_chips = "".join(
+        f"<span class='stage-chip {_esc(s.get('status'))}'>{_esc(s.get('stage'))}</span>"
+        for s in run.get("stages", [])
+    )
+
+    callouts: list[str] = []
+    if run.get("awaiting_approval"):
+        approval = run.get("approval", {})
+        callouts.append(
+            "<div class='callout warn'><strong>Awaiting prereg approval.</strong> "
+            "This run is halted until an exact-content preregistration approval "
+            "marker is supplied out-of-band. No approval control exists here."
+            f"<div class='hashline'>scope: {_esc(approval.get('approval_scope'))}</div>"
+            f"<div class='hashline'>packet sha256: "
+            f"{_esc(approval.get('preregistration_packet_sha256'))}</div></div>"
+        )
+    if run.get("blocked_reasons"):
+        reasons = "".join(
+            f"<li>{_esc(r)}</li>" for r in run["blocked_reasons"]
+        )
+        callouts.append(
+            "<div class='callout neg'><strong>Blocked.</strong>"
+            f"<ul style='margin:0.3rem 0 0;padding-left:1.1rem'>{reasons}</ul></div>"
+        )
+    if run.get("spine_only"):
+        callouts.append(
+            "<div class='callout'><strong>State-spine proof only.</strong> "
+            f"runner_invoked = <code>{_esc(run.get('runner_invoked'))}</code> "
+            f"(execution_kind <code>{_esc(run.get('execution_kind'))}</code>). "
+            "This is the deterministic pipeline spine, not a real hypothesis "
+            "run; real agent/runner adapter flow is not yet complete.</div>"
+        )
+
+    art_rows = "".join(
+        f"<tr><td>{_esc(a['filename'])}</td>"
+        f"<td>{'<span class=\"badge-ok\">present</span>' if a['present'] else '<span class=\"badge-miss\">missing</span>'}</td>"
+        f"<td class='mono'>{_esc(_short_hash(a['sha256']))}</td></tr>"
+        for a in run.get("artifacts", [])
+    )
+    artifacts = (
+        "<div><span class='smallcaps'>Artifacts</span>"
+        "<div class='tablewrap'><table class='data'><thead><tr><th>file</th>"
+        "<th>status</th><th>sha256</th></tr></thead>"
+        f"<tbody>{art_rows}</tbody></table></div></div>"
+    )
+
+    return (
+        "<div class='card'>"
+        f"<h3>{pill}<span class='hid'>{_esc(run['pipeline_run_id'])}</span></h3>"
+        f"<div style='font-weight:600'>{_esc(run.get('source_idea'))}</div>"
+        f"{meta}"
+        f"<div><span class='smallcaps'>Current stage</span> "
+        f"<code>{_esc(run.get('current_stage'))}</code></div>"
+        f"<div><span class='smallcaps'>Stage timeline</span>"
+        f"<div class='stages' style='margin-top:0.35rem'>{stage_chips}</div></div>"
+        f"{''.join(callouts)}"
+        f"{artifacts}"
+        "</div>"
+    )
+
+
+def _pipeline_state_html(data: dict[str, Any]) -> str:
+    ps = data["pipeline_state"]
+    header = (
+        "<h2 class='section'>Pipeline runs &middot; run-state "
+        "<span class='hint'>&mdash; read-only over committed pipeline packets</span></h2>"
+    )
+    if not ps.get("available"):
+        return (
+            f"{header}"
+            "<div class='panel'><div class='banner'>No committed pipeline run "
+            "packets are available "
+            f"(<span class='mono'>{_esc(ps.get('runs_root'))}</span>). "
+            f"{_esc(ps.get('unavailable_reason'))}. The pipeline state panel "
+            "fails closed rather than fabricating runs.</div>"
+            f"<div class='banner info'>{_esc(ps.get('spine_only_label'))}</div></div>"
+        )
+
+    totals = ps["totals"]
+    kpis = "".join(
+        [
+            _kpi(str(totals.get("run_count", 0)), "Pipeline runs", "accent"),
+            _kpi(str(totals.get("awaiting_approval", 0)), "Awaiting prereg approval", "warn"),
+            _kpi(str(totals.get("blocked_or_invalid", 0)), "Blocked / invalid", "neg"),
+            _kpi(str(totals.get("complete_spine_only", 0)), "Complete (spine only)", "accent"),
+            _kpi(str(totals.get("complete_real", 0)), "Complete (real runner)", "zero"),
+        ]
+    )
+    spine_banner = ""
+    if ps.get("spine_only"):
+        spine_banner = (
+            f"<div class='banner info'><strong>Honest labeling.</strong> "
+            f"{_esc(ps.get('spine_only_label'))}</div>"
+        )
+    cards = "".join(_pipeline_run_card(r) for r in ps.get("runs", []))
+    return (
+        f"{header}"
+        "<div class='banner info' style='margin-top:0'>Read-only projection of "
+        "committed <span class='mono'>tools/lab_pipeline</span> run packets. No "
+        "run, approve, retry, promote, or candidate control exists on this "
+        "page.</div>"
+        f"<div class='grid kpis' style='margin-top:0.9rem'>{kpis}</div>"
+        f"{spine_banner}"
+        f"<div class='grid cards' style='margin-top:0.9rem'>{cards}</div>"
     )
 
 
@@ -616,6 +778,7 @@ def render_html(data: dict[str, Any]) -> str:
     body = "".join(
         [
             _overview_html(data),
+            _pipeline_state_html(data),
             _funnel_html(data),
             _explorer_html(data),
             _visuals_html(data),
@@ -683,6 +846,39 @@ def render_markdown(data: dict[str, Any]) -> str:
     for b in ov["top_blockers"]:
         lines.append(f"  - {b}")
     lines.append("")
+
+    ps = data["pipeline_state"]
+    lines.append("## Pipeline runs / run-state")
+    lines.append("")
+    if not ps.get("available"):
+        lines.append(
+            f"- No committed pipeline run packets ({ps.get('runs_root')}); "
+            f"{ps.get('unavailable_reason')}. Panel fails closed to unavailable."
+        )
+        lines.append(f"- {ps.get('spine_only_label')}")
+        lines.append("")
+    else:
+        totals = ps["totals"]
+        lines.append(
+            f"- Runs: {totals.get('run_count')} "
+            f"(awaiting approval: {totals.get('awaiting_approval')}, "
+            f"blocked/invalid: {totals.get('blocked_or_invalid')}, "
+            f"complete spine-only: {totals.get('complete_spine_only')}, "
+            f"complete real-runner: {totals.get('complete_real')})."
+        )
+        if ps.get("spine_only"):
+            lines.append(f"- Honest labeling: {ps.get('spine_only_label')}")
+        lines.append("")
+        lines.append("| run | status | current stage | runner_invoked | blocker |")
+        lines.append("| --- | --- | --- | --- | --- |")
+        for r in ps["runs"]:
+            blocker = "; ".join(r.get("blocked_reasons", [])) or "—"
+            lines.append(
+                f"| `{r['pipeline_run_id']}` | {r['display_label']} | "
+                f"`{r.get('current_stage')}` | {r.get('runner_invoked')} | "
+                f"{blocker} |"
+            )
+        lines.append("")
 
     lines.append("## Candidate funnel (full denominator)")
     lines.append("")

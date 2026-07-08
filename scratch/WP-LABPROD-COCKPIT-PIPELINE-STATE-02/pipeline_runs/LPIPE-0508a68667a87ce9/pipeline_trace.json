@@ -1,0 +1,56 @@
+{
+  "events": [
+    {
+      "detail": "Request loaded.",
+      "stage": "request_loaded",
+      "status": "complete"
+    },
+    {
+      "detail": "Operator idea formalized.",
+      "stage": "idea_formalized",
+      "status": "complete"
+    },
+    {
+      "detail": "Availability check passed.",
+      "stage": "availability_checked",
+      "status": "complete"
+    },
+    {
+      "detail": "Frozen packet prepared.",
+      "stage": "prereg_packet_prepared",
+      "status": "complete"
+    },
+    {
+      "detail": "Approval accepted.",
+      "stage": "approved_for_noncanonical_execution",
+      "status": "complete"
+    },
+    {
+      "detail": "Scratch-only execution summary produced.",
+      "stage": "noncanonical_execution_complete",
+      "status": "complete"
+    },
+    {
+      "detail": "Pipeline complete.",
+      "stage": "complete",
+      "status": "complete"
+    }
+  ],
+  "non_authority_flags": {
+    "authorizes_promotion_or_readiness": false,
+    "contacts_paper_live_runtime": false,
+    "executes_canonical_crossing": false,
+    "fires_notifications": false,
+    "human_review_required_for_prereg": true,
+    "noncanonical_only": true,
+    "offline_only": true,
+    "scratch_only": true,
+    "separate_authorization_required_for_canonical_or_runtime": true,
+    "uses_provider_api_or_credentials": false,
+    "uses_scheduler_or_autonomy": false,
+    "writes_candidate_lifecycle": false,
+    "writes_canonical_evidence": false
+  },
+  "pipeline_run_id": "LPIPE-0508a68667a87ce9",
+  "schema_version": "lab_pipeline_trace_v1"
+}

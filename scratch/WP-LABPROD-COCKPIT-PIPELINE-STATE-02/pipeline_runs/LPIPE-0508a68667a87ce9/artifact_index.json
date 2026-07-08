@@ -1,0 +1,55 @@
+{
+  "artifact_count": 9,
+  "artifacts": {
+    "approval_requirement": {
+      "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/approval_requirement.json",
+      "sha256": "sha256:bdbf36ed0c0cf8f6bfe2c5c139ac7d3f0fb042c59a4c32afceef7bc47f3d2370"
+    },
+    "non_authority_assertions": {
+      "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/non_authority_assertions.json",
+      "sha256": "sha256:ba63e4d928140a24020484977cd235a632713a24d741344ffe46abc95aefa5fd"
+    },
+    "noncanonical_execution_summary": {
+      "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/noncanonical_execution_summary.json",
+      "sha256": "sha256:af9f1abe3306b844cb4451210cd71d950f45526a78774fe96e6f797ca394e9b7"
+    },
+    "operator_review_packet": {
+      "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/operator_review_packet.md",
+      "sha256": "sha256:0314994e5b4ca181e8e20f4f5b2bf804e1e95693fdb752ef4a20957e297a9e64"
+    },
+    "pipeline_request": {
+      "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/pipeline_request.json",
+      "sha256": "sha256:bba2dec9c5491d1e58b63b86e3837812c266537980dee5564e7ea30e82730727"
+    },
+    "pipeline_state": {
+      "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/pipeline_state.json",
+      "sha256": "sha256:3d7046ec14f3f7f0fd7c3e3ed6d7325d8792bad236d7454af6bb4cb4076f83e0"
+    },
+    "pipeline_trace": {
+      "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/pipeline_trace.json",
+      "sha256": "sha256:35b9a52c296200a4d566d1cf961add36b4d5968e4be3d9712963c540d2e5dcaf"
+    },
+    "preregistration_packet": {
+      "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/preregistration_packet.json",
+      "sha256": "sha256:5634c9440b2644ef4dbe06bf9b4f19bd6a67a7041edcc7d7c5e0d6bcd3335e99"
+    }
+  },
+  "non_authority_flags": {
+    "authorizes_promotion_or_readiness": false,
+    "contacts_paper_live_runtime": false,
+    "executes_canonical_crossing": false,
+    "fires_notifications": false,
+    "human_review_required_for_prereg": true,
+    "noncanonical_only": true,
+    "offline_only": true,
+    "scratch_only": true,
+    "separate_authorization_required_for_canonical_or_runtime": true,
+    "uses_provider_api_or_credentials": false,
+    "uses_scheduler_or_autonomy": false,
+    "writes_candidate_lifecycle": false,
+    "writes_canonical_evidence": false
+  },
+  "pipeline_run_id": "LPIPE-0508a68667a87ce9",
+  "schema_version": "lab_pipeline_artifact_index_v1",
+  "self_entry_note": "artifact_index self hash omitted to avoid recursive hash mutation"
+}

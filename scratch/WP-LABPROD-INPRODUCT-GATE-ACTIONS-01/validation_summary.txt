@@ -1,0 +1,33 @@
+WP-LABPROD-INPRODUCT-GATE-ACTIONS-01 validation summary
+
+Branch/worktree:
+- C:\GitHub\crypto-perp-wedge-worktrees\labprod-inproduct-gate-actions-01
+- branch: labprod/inproduct-gate-actions-01
+- base: origin/main at a57af3f
+
+Commands:
+- python -m pytest tests/test_lab_pipeline_orchestrator.py tests/test_lab_pipeline_gate_actions.py -q
+  Result: PASS, 39 passed in 2.98s
+- python -m pytest tests/test_lab_state_model.py tests/test_lab_state_resolver.py tests/test_lab_approval_queue.py -q
+  Result: PASS, 36 passed in 1.10s
+- python -m tools.research_query.run --list-views
+  Result: PASS, listed registered research-query views
+- python -m tools.registry.validate_result_populations
+  Result: PASS, result-population artifacts validate
+- python -m tools.registry.validate_candidate_registry
+  Result: PASS, candidate lifecycle registry fixtures validate
+- python tools/dev/diff_scope_summary.py
+  Result: PASS, no forbidden-path matches
+- git diff --check
+  Result: PASS
+- git diff --cached --check
+  Result: PASS
+
+Boundary evidence:
+- No canonical Result Population was written.
+- No candidate lifecycle file was changed.
+- No crossing, promotion/readiness, paper/live/runtime, scheduler/autonomy,
+  notification, provider/API, credential, dependency/config, data-acquisition,
+  cockpit UI, src, lib, configs, .claude, or protected path was changed.
+- Gate-action outputs are package-local fixtures under
+  scratch/WP-LABPROD-INPRODUCT-GATE-ACTIONS-01/.

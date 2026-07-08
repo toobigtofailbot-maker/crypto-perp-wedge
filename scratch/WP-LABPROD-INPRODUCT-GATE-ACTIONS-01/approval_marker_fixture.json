@@ -1,0 +1,52 @@
+{
+  "approval_requirement_ref": {
+    "pipeline_run_id": "LPIPE-ac17a417f602035e",
+    "preregistration_packet_sha256": "sha256:9be3c90854b14194de43525519e12107ec88be53a89a7b023dcd4c1fb7c2a607",
+    "request_id": "REQ-6366f7eaf874"
+  },
+  "approval_scope": "noncanonical_offline_research_execution_only",
+  "approval_statement": "Authorizes only non-canonical offline research execution for the exact frozen preregistration packet content.",
+  "approval_timestamp_utc": "2026-07-08T00:00:00Z",
+  "approved_by": "Karl",
+  "authorizes_candidate_lifecycle": false,
+  "authorizes_canonical_write": false,
+  "authorizes_crossing": false,
+  "authorizes_dependency_config_data_acquisition": false,
+  "authorizes_noncanonical_offline_research_execution": true,
+  "authorizes_notifications": false,
+  "authorizes_paper_live_runtime": false,
+  "authorizes_promotion_or_readiness": false,
+  "authorizes_protected_path_touch": false,
+  "authorizes_provider_api_or_credentials": false,
+  "authorizes_scheduler_autonomy": false,
+  "gate_action_id": "GATE-ACTION-FIXTURE-PREREG-01",
+  "non_authority_assertions": {
+    "candidate_lifecycle_write": false,
+    "canonical_write": false,
+    "crossing": false,
+    "dependency_config_data_acquisition": false,
+    "notification_sending": false,
+    "paper_live_runtime": false,
+    "promotion_or_readiness": false,
+    "protected_path_touch": false,
+    "provider_api_credential": false,
+    "scheduler_autonomy": false
+  },
+  "non_authority_flags": {
+    "authorizes_promotion_or_readiness": false,
+    "contacts_paper_live_runtime": false,
+    "executes_canonical_crossing": false,
+    "fires_notifications": false,
+    "human_review_required_for_prereg": true,
+    "noncanonical_only": true,
+    "offline_only": true,
+    "scratch_only": true,
+    "separate_authorization_required_for_canonical_or_runtime": true,
+    "uses_provider_api_or_credentials": false,
+    "uses_scheduler_or_autonomy": false,
+    "writes_candidate_lifecycle": false,
+    "writes_canonical_evidence": false
+  },
+  "preregistration_packet_sha256": "sha256:9be3c90854b14194de43525519e12107ec88be53a89a7b023dcd4c1fb7c2a607",
+  "schema_version": "lab_pipeline_prereg_approval_v1"
+}

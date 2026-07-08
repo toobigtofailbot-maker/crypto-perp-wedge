@@ -1,0 +1,26 @@
+{
+  "assertions": {
+    "canonical_write": false,
+    "candidate_lifecycle_write": false,
+    "crossing": false,
+    "dependency_config_data_acquisition": false,
+    "notification_sending": false,
+    "paper_live_runtime": false,
+    "promotion_or_readiness": false,
+    "protected_path_touch": false,
+    "provider_api_credential": false,
+    "scheduler_autonomy": false
+  },
+  "forbidden_scope_check": {
+    "candidate_lifecycle_files_changed": false,
+    "cockpit_ui_files_changed": false,
+    "configs_changed": false,
+    "data_changed": false,
+    "dependency_files_changed": false,
+    "lib_changed": false,
+    "runtime_or_paper_live_changed": false,
+    "src_changed": false
+  },
+  "package_id": "WP-LABPROD-INPRODUCT-GATE-ACTIONS-01",
+  "schema_version": "lab_pipeline_gate_action_non_authority_audit_v1"
+}

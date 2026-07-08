@@ -292,6 +292,12 @@ def _kpi(val: str, label: str, tone: str = "") -> str:
     )
 
 
+def _presence_badge(present: Any) -> str:
+    if present:
+        return '<span class="badge-ok">present</span>'
+    return '<span class="badge-miss">missing</span>'
+
+
 def _overview_html(data: dict[str, Any]) -> str:
     ov = data["overview"]
     batch = data["real_traffic_batch"]
@@ -389,7 +395,7 @@ def _pipeline_run_card(run: dict[str, Any]) -> str:
 
     art_rows = "".join(
         f"<tr><td>{_esc(a['filename'])}</td>"
-        f"<td>{'<span class=\"badge-ok\">present</span>' if a['present'] else '<span class=\"badge-miss\">missing</span>'}</td>"
+        f"<td>{_presence_badge(a['present'])}</td>"
         f"<td class='mono'>{_esc(_short_hash(a['sha256']))}</td></tr>"
         for a in run.get("artifacts", [])
     )
@@ -731,7 +737,7 @@ def _artifacts_html(data: dict[str, Any]) -> str:
     rows = "".join(
         f"<tr><td>{_esc(a['category'])}</td>"
         f"<td><code>{_esc(a['path'])}</code></td>"
-        f"<td>{'<span class=\"badge-ok\">present</span>' if a['present'] else '<span class=\"badge-miss\">missing</span>'}</td></tr>"
+        f"<td>{_presence_badge(a['present'])}</td></tr>"
         for a in data["artifact_drilldown"]
     )
     return (

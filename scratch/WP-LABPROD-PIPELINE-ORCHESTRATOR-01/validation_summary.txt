@@ -1,0 +1,16 @@
+Validation summary for WP-LABPROD-PIPELINE-ORCHESTRATOR-01
+
+- python -m pytest tests/test_lab_pipeline_orchestrator.py -q: PASS, 13 tests.
+- python -m tools.lab_pipeline.run --request <temp request> --out-root <temp outputs> --json: PASS, halted at awaiting_prereg_approval with exit code 3 as expected.
+- python -m tools.lab_pipeline.run --request <temp request> --approval <template approval> --out-root <temp outputs> --json: PASS, completed approved non-canonical path.
+- python -m tools.research_query.run --list-views: PASS, listed query views.
+- python -m tools.registry.validate_result_populations: PASS.
+- python -m tools.registry.validate_candidate_registry: PASS.
+- python tools/dev/diff_scope_summary.py: PASS, intended files only, no forbidden-path matches.
+- git diff --check: PASS.
+- git diff --cached --check: PASS after staging.
+- git status --short: PASS, intended package files only before staging and after staging.
+- final git fetch + rebase origin/main: PASS, branch already up to date.
+- post-rebase focused tests and required validators: PASS.
+
+Full pytest: NOT RUN; active package requires focused suite and validators, and no shared agent semantics were modified.

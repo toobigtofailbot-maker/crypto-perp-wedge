@@ -1,0 +1,96 @@
+{
+  "schema_version": "bridge_invocation_design_option_matrix_v1",
+  "package_id": "WP-LABPROD-BRIDGE-INVOCATION-DESIGN-01",
+  "options": [
+    {
+      "id": "A",
+      "name": "Product adapts to bridge",
+      "summary": "Product-side pre-bridge stage emits legacy bridge-conformant inputs while existing bridge contract remains unchanged.",
+      "safety_rating": "low_for_product_flow",
+      "approval_integrity": "weak",
+      "runner_separation": "none",
+      "drift_risk": "medium",
+      "benefits": [
+        "No bridge code change",
+        "Legacy bridge behavior remains untouched"
+      ],
+      "risks": [
+        "Requires legacy operator approval shape that is not product Karl approval",
+        "Requires legacy scratch/source prefixes",
+        "Outputs are not product package-local",
+        "Unblocked bridge path can invoke runner"
+      ],
+      "decision": "reject_for_product_flow"
+    },
+    {
+      "id": "B",
+      "name": "Additive bridge product-mode contract",
+      "summary": "Bridge keeps legacy behavior unchanged by default and adds an explicit strict product invocation mode.",
+      "safety_rating": "high_if_strict",
+      "approval_integrity": "strong",
+      "runner_separation": "requires_option_c",
+      "drift_risk": "low",
+      "benefits": [
+        "Bridge remains source of bridge validation truth",
+        "No product-side copy of bridge behavior",
+        "Product approval and scratch semantics become first-class"
+      ],
+      "risks": [
+        "Requires intentional bridge contract change",
+        "Tests must prove legacy behavior unchanged",
+        "Mode boundaries must fail closed"
+      ],
+      "decision": "recommended_with_option_c"
+    },
+    {
+      "id": "C",
+      "name": "Bridge preparation / runner execution split",
+      "summary": "Expose a no-runner bridge preparation contract and leave runner execution to separate authorization.",
+      "safety_rating": "high_if_explicit",
+      "approval_integrity": "strong_when_paired_with_option_b",
+      "runner_separation": "strong",
+      "drift_risk": "low",
+      "benefits": [
+        "Prevents accidental runner execution",
+        "Clarifies bridge versus runner authority",
+        "Supports product bridge stage without canonical or runner side effects"
+      ],
+      "risks": [
+        "Current repo has no public preparation-only mode",
+        "Requires careful contract tests against hidden runner invocation"
+      ],
+      "decision": "recommended_as_part_of_option_b"
+    },
+    {
+      "id": "D",
+      "name": "Product-side reimplementation",
+      "summary": "Recreate bridge behavior inside the lab product flow.",
+      "safety_rating": "low",
+      "approval_integrity": "weak",
+      "runner_separation": "unknown",
+      "drift_risk": "high",
+      "benefits": [
+        "Could keep product outputs package-local without modifying bridge"
+      ],
+      "risks": [
+        "Dual-maintenance drift",
+        "Validator mismatch",
+        "Evidence fabrication risk",
+        "Approval bypass risk",
+        "Denominator suppression risk"
+      ],
+      "decision": "reject_unless_explicitly_authorized_after_other_paths_proven_impossible"
+    }
+  ],
+  "recommended_architecture": {
+    "primary": "B",
+    "required_pairing": "C",
+    "forbidden_shortcuts": [
+      "fake legacy operator approval",
+      "adapter-side bridge output fabrication",
+      "legacy scratch prefix spoofing",
+      "runner monkeypatch suppression",
+      "product-side reimplementation"
+    ]
+  }
+}

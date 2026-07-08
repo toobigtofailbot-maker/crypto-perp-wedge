@@ -1,0 +1,49 @@
+Validation summary for WP-LABPROD-BRIDGE-INVOCATION-DESIGN-01
+
+Status: validation completed with one pre-existing full-pytest collection blocker
+outside package scope.
+
+Base:
+- origin/main at package start: 3d5eb0632b99d002b83e210089a65b7a2073eb02
+- open PR preflight: PASS, `gh pr list --state open --limit 100` returned `[]`
+
+Commands:
+- `python -m json.tool scratch/WP-LABPROD-BRIDGE-INVOCATION-DESIGN-01/bridge_contract_collision_map.json`: PASS
+- `python -m json.tool scratch/WP-LABPROD-BRIDGE-INVOCATION-DESIGN-01/design_option_matrix.json`: PASS
+- `python -m json.tool scratch/WP-LABPROD-BRIDGE-INVOCATION-DESIGN-01/risk_register.json`: PASS
+- `python -m json.tool scratch/WP-LABPROD-BRIDGE-INVOCATION-DESIGN-01/non_authority_assertions.json`: PASS
+- `python -m tools.research_query.run --list-views`: PASS, listed query views
+- `python -m tools.registry.validate_result_populations`: PASS
+- `python -m tools.registry.validate_candidate_registry`: PASS
+- `python tools/dev/diff_scope_summary.py`: PASS, only allowed docs/scratch files untracked before staging; no forbidden-path matches
+- `git diff --check`: PASS
+
+Interpreter note:
+- Global `python` is Python 3.14 and lacks repo dependencies such as pandas,
+  numpy, and binance. Required repo validators above also passed under the root
+  checkout venv at `C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe`
+  (Python 3.11.9), which is used for repo validation from this separate
+  worktree.
+
+Additional workflow validation:
+- `C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest -q`: FAIL
+  during collection on existing `tools/lab_cockpit/render.py`, line 394:
+  `SyntaxError: f-string expression part cannot include a backslash`, reached
+  via `tests/test_lab_cockpit.py` and
+  `tests/test_lab_cockpit_pipeline_state.py`.
+
+Scope note:
+- This package is docs/design-only and forbids cockpit/dashboard changes.
+  `tools/lab_cockpit/render.py` is not touched by this package. The pytest
+  failure is recorded as an open validation blocker outside authorized scope,
+  not fixed here.
+
+Boundary checks:
+- No bridge code changed.
+- No adapter code changed.
+- No runner, WFO/OOS, robustness, candidate-review, gate-actions, dashboard,
+  schema, validator, query-layer, data, config, dependency, `src/`, `lib/`,
+  `.claude/`, paper/live/runtime, OMS/risk/reconciliation/order/exchange,
+  scheduler/autonomy, notification, provider/API/credential, canonical Result
+  Population, candidate lifecycle, crossing, promotion, or readiness path
+  changed.

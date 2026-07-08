@@ -1,0 +1,147 @@
+{
+  "schema_version": "bridge_contract_collision_map_v1",
+  "package_id": "WP-LABPROD-BRIDGE-INVOCATION-DESIGN-01",
+  "current_bridge_contract": {
+    "module": "tools.research_agents.formalizer_runner_bridge",
+    "callable": "FormalizerRunnerBridge.run",
+    "toolcontext_role": "formalizer_runner_bridge",
+    "allowed_wp_ids": [
+      "WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01",
+      "WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01",
+      "WP-RESEARCH-FUNDING-CARRY-02"
+    ],
+    "source_prefixes": [
+      "scratch/WP-AGENT-IDEA-FORMALIZER-01/outputs/",
+      "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/formalizer/outputs/",
+      "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/"
+    ],
+    "output_root_rule": "scratch/<tool_context.wp_id>/outputs",
+    "approval_shape": {
+      "approved_by": "operator",
+      "approved_for_noncanonical_runner_bridge": true,
+      "approval_scope": "noncanonical_scratch_runner_bridge_only",
+      "source_formalizer_run_id_required": true,
+      "approval_path_colocated_with_formalizer_output": true
+    },
+    "runner_behavior": {
+      "unblocked_path_invokes_offline_runner": true,
+      "runner": "tools.research_runner.run_offline_sweep",
+      "reconciliation_runner_call": true
+    },
+    "outputs": [
+      "derived Strategy Spec",
+      "derived Variant Manifest",
+      "derived Sweep Plan",
+      "bridge metadata",
+      "denominator ledger",
+      "human review packet",
+      "runner result artifacts when unblocked"
+    ]
+  },
+  "current_lab_product_contract": {
+    "modules": [
+      "tools.lab_pipeline.orchestrator",
+      "tools.lab_pipeline.adapters",
+      "tools.lab_pipeline.adapter_contract"
+    ],
+    "approval_shape": {
+      "schema_version": "lab_pipeline_prereg_approval_v1",
+      "approved_by": "Karl",
+      "approval_scope": "noncanonical_offline_research_execution_only",
+      "approval_statement_exact": true,
+      "preregistration_packet_sha256_required": true,
+      "authorizes_canonical_write": false,
+      "authorizes_candidate_lifecycle": false,
+      "authorizes_paper_live_runtime": false,
+      "authorizes_scheduler_autonomy": false,
+      "authorizes_notifications": false
+    },
+    "scratch_rule": "package-local product scratch output",
+    "bridge_stage": "bridge_spec_variant_sweep_preparation",
+    "bridge_stage_status": "blocked_unsafe_to_adapt",
+    "runner_execution_allowed_for_current_package": false
+  },
+  "collision_points": [
+    {
+      "surface": "ToolContext",
+      "bridge_requirement": "existing bridge/adapter/funding WP allowlist",
+      "product_requirement": "lab product package context",
+      "collision": "product WP ID is rejected by the bridge"
+    },
+    {
+      "surface": "source path",
+      "bridge_requirement": "legacy formalizer scratch prefixes",
+      "product_requirement": "product package-local formalizer output",
+      "collision": "product source paths are rejected"
+    },
+    {
+      "surface": "output root",
+      "bridge_requirement": "scratch/<tool_context.wp_id>/outputs",
+      "product_requirement": "product package-local output packet",
+      "collision": "bridge outputs do not land under product package scratch"
+    },
+    {
+      "surface": "approval",
+      "bridge_requirement": "legacy operator bridge approval",
+      "product_requirement": "Karl exact-content product approval",
+      "collision": "approval semantics are different and not interchangeable"
+    },
+    {
+      "surface": "runner coupling",
+      "bridge_requirement": "unblocked run invokes offline runner",
+      "product_requirement": "bridge preparation without runner execution",
+      "collision": "no supported preparation-only bridge mode exists"
+    }
+  ],
+  "possible_resolution_surfaces": [
+    {
+      "surface": "product adapts to bridge",
+      "touches_future_components": [
+        "product pre-bridge stage",
+        "legacy approval artifact production"
+      ],
+      "verdict": "reject for product flow because it requires fake or mismatched approval/output semantics"
+    },
+    {
+      "surface": "additive bridge product mode",
+      "touches_future_components": [
+        "tools/research_agents/formalizer_runner_bridge.py",
+        "bridge-focused tests",
+        "product bridge contract docs"
+      ],
+      "verdict": "recommended with strict mode separation"
+    },
+    {
+      "surface": "bridge preparation-only split",
+      "touches_future_components": [
+        "bridge contract",
+        "bridge runner invocation boundary",
+        "bridge tests"
+      ],
+      "verdict": "recommended as part of product mode"
+    },
+    {
+      "surface": "product-side reimplementation",
+      "touches_future_components": [
+        "tools/lab_pipeline"
+      ],
+      "verdict": "rejected unless Main/Karl explicitly accept dual-maintenance and safety risks"
+    }
+  ],
+  "future_implementation_touch_candidates": [
+    "tools/research_agents/formalizer_runner_bridge.py",
+    "tests/test_agent_formalizer_runner_bridge.py",
+    "tests/test_lab_pipeline_bridge_adapter.py",
+    "docs/research/LAB_PRODUCTIZATION_PIPELINE_BRIDGE_ADAPTER.md"
+  ],
+  "future_implementation_forbidden_without_separate_authorization": [
+    "tools/research_runner/run_offline_sweep.py",
+    "lib/**",
+    "src/**",
+    "configs/**",
+    "data/**",
+    "research/result_populations/**",
+    "research/candidate_registry.jsonl",
+    "paper/live/runtime paths"
+  ]
+}

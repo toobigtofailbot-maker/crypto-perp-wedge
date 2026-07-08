@@ -1,0 +1,594 @@
+{
+  "artifact_drilldown": [
+    {
+      "category": "conclusion_doc",
+      "key": "batch_synthesis",
+      "path": "docs/research/LAB_REAL_TRAFFIC_BATCH_SYNTHESIS_2026-07.md",
+      "present": true
+    },
+    {
+      "category": "batch_rollup",
+      "key": "final_rollup",
+      "path": "scratch/WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01/revised_batch_final_rollup.json",
+      "present": true
+    },
+    {
+      "category": "frozen_set",
+      "key": "frozen_hypothesis_set",
+      "path": "scratch/WP-LAB-REAL-TRAFFIC-REVISED-SIGNOFF-FREEZE-01/revised_frozen_hypothesis_set.json",
+      "present": true
+    },
+    {
+      "category": "batch_manifest",
+      "key": "batch_execute_manifest",
+      "path": "scratch/WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01/real_traffic_batch_manifest.json",
+      "present": true
+    },
+    {
+      "category": "strategy_reading",
+      "key": "batch_execute_readings",
+      "path": "scratch/WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01/strategy_reading_summary.json",
+      "present": true
+    },
+    {
+      "category": "strategy_reading",
+      "key": "hyp002r_strategy_reading",
+      "path": "scratch/WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01/hyp002r_strategy_reading.json",
+      "present": true
+    },
+    {
+      "category": "walkforward_oos",
+      "key": "hyp002r_wfo_oos",
+      "path": "scratch/WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01/hyp002r_wfo_oos_summary.json",
+      "present": true
+    },
+    {
+      "category": "robustness_mc",
+      "key": "hyp002r_robustness_mc",
+      "path": "scratch/WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01/hyp002r_robustness_mc_summary.json",
+      "present": true
+    },
+    {
+      "category": "denominator_audit",
+      "key": "hyp002r_denominator_audit",
+      "path": "scratch/WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01/hyp002r_denominator_audit.json",
+      "present": true
+    },
+    {
+      "category": "boundary",
+      "key": "non_authority_assertions",
+      "path": "scratch/WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01/non_authority_assertions.json",
+      "present": true
+    }
+  ],
+  "boundary": {
+    "assertions": {
+      "autonomous_scheduler_activated": false,
+      "bounded_real_research_traffic": true,
+      "candidate_admission_authorized": false,
+      "candidate_admitted": false,
+      "canonical_crossing_authorized": false,
+      "canonical_crossing_performed": false,
+      "dependency_changes": false,
+      "karl_signoff_present": true,
+      "main_verification_present": true,
+      "non_promotion_posture": true,
+      "paper_live_authority_created": false,
+      "parameter_expansion_after_results_performed": false,
+      "private_provider_api_used": false,
+      "promotion_readiness_authorized": false,
+      "promotion_readiness_created": false,
+      "protected_paths_touched": false,
+      "real_notification_sending_authorized": false,
+      "retuning_after_results_performed": false,
+      "runtime_contact_performed": false,
+      "signed_frozen_set_modified": false,
+      "signed_revised_frozen_set_present": true,
+      "winner_only_pruning_performed": false
+    },
+    "available": true,
+    "source": "scratch/WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01/non_authority_assertions.json"
+  },
+  "candidate_funnel": {
+    "available": true,
+    "candidate_ready_count": 0,
+    "frozen_denominator_rows": 32,
+    "stages": [
+      {
+        "count": 4,
+        "label": "Frozen hypotheses",
+        "stage": "frozen_hypotheses"
+      },
+      {
+        "count": 4,
+        "label": "Executed (denominator preserved)",
+        "stage": "executed"
+      },
+      {
+        "count": 3,
+        "label": "Positive median PnL surface",
+        "stage": "positive_median_pnl"
+      },
+      {
+        "count": 0,
+        "label": "GO-like evidence",
+        "stage": "go_like_evidence"
+      },
+      {
+        "count": 0,
+        "label": "Candidate-ready for human review",
+        "stage": "candidate_ready"
+      }
+    ],
+    "winner_only_view": false
+  },
+  "caveats": [
+    "This cockpit shows the full denominator (every hypothesis and row), not winners only.",
+    "All real-traffic evidence is dry-run / package-local and non-canonical; nothing here is crossed, candidate-registered, paper-ready, or live-ready.",
+    "Positive PnL surfaces that fail the primary drawdown screen are shown as non-promoting, not as edges.",
+    "Withheld statistics (Monte-Carlo / bootstrap / PSR / DSR / MinTRL) are labelled explicitly rather than fabricated.",
+    "Display ordering is deterministic and confers no ranking, recommendation, readiness, or promotion authority.",
+    "Any real transition, candidate admission, crossing, or approval requires separate human action; this cockpit cannot grant it."
+  ],
+  "coordinator": {
+    "denominator_summary": {
+      "blocked_count": 2,
+      "by_overall_state": {
+        "blocked": 2,
+        "candidate_ready_for_human_review": 0,
+        "candidate_review_blocked": 0,
+        "experiment_complete": 1,
+        "formalized": 0,
+        "no_go": 4,
+        "not_started": 0,
+        "oos_gate_blocked": 0,
+        "oos_gate_fail": 1,
+        "operator_gate_pending": 0,
+        "replay_checked": 0,
+        "reported": 1,
+        "robustness_advisory": 0
+      },
+      "candidate_ready_count": 0,
+      "no_go_count": 4,
+      "operator_gate_pending_count": 0,
+      "subject_count": 9
+    },
+    "held_boundary_panel": {
+      "artifact_ref": {
+        "path": "scratch/WP-LAB-COMPLETION-MAP-UPDATE-BASELINE-PROVEN-01/held_boundary_map.json",
+        "present": true
+      },
+      "available": true,
+      "current_fork": [
+        "resume deliberate edge-search",
+        "pause/accept proven core machine with held-B layers deferred"
+      ],
+      "go_gated_protected": [
+        "paper trading",
+        "live trading",
+        "runtime execution",
+        "OMS",
+        "risk",
+        "reconciliation",
+        "broker/exchange/order/capital paths"
+      ],
+      "held_b_until_real_research_flow": [
+        "at-scale continuous sweeps",
+        "at-scale WFO/OOS execution volume",
+        "at-scale robustness/MC execution volume",
+        "agent scheduling/prioritization/autonomy over real research queue",
+        "notification firing over real jobs",
+        "real candidate lifecycle progression"
+      ],
+      "non_authority_note": "Deferred-B boundary map. These items are not authorized in the current phase. They require separate explicit operator authorization.",
+      "panel_kind": "held_boundary_deferred_b",
+      "requires_real_go_candidate": [
+        "first real candidate crossing",
+        "real candidate promotion/readiness"
+      ]
+    },
+    "schema_version": "lab_results_dashboard_v2",
+    "subjects": [
+      {
+        "evidence_class": "unknown",
+        "overall_state": "blocked",
+        "subject_id": "WP-RESEARCH-EDGE-SMA-FAMILY-01",
+        "subject_label": "edge_sma_family_blocked"
+      },
+      {
+        "evidence_class": "unknown",
+        "overall_state": "no_go",
+        "subject_id": "WP-RESEARCH-FUNDING-CARRY-01",
+        "subject_label": "funding_carry_initial_blocked_no_go"
+      },
+      {
+        "evidence_class": "unknown",
+        "overall_state": "no_go",
+        "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+        "subject_label": "funding_carry_retry_no_go"
+      },
+      {
+        "evidence_class": "non_canonical",
+        "overall_state": "no_go",
+        "subject_id": "H-FUNDING-FADE-RISKMANAGED-01",
+        "subject_label": "funding_fade_riskmanaged_stage1_no_go"
+      },
+      {
+        "evidence_class": "non_canonical",
+        "overall_state": "no_go",
+        "subject_id": "H-FUNDING-RATE-POSITIONING-FADE-01",
+        "subject_label": "funding_rate_positioning_fade"
+      },
+      {
+        "evidence_class": "unknown",
+        "overall_state": "experiment_complete",
+        "subject_id": "HISTORICAL-CANONICAL-EVIDENCE",
+        "subject_label": "candidate_registry_and_result_populations"
+      },
+      {
+        "evidence_class": "non_canonical",
+        "overall_state": "oos_gate_fail",
+        "subject_id": "OOS-GATE-FIXTURE-RP-2592",
+        "subject_label": "walkforward_oos_gate_fixture"
+      },
+      {
+        "evidence_class": "unknown",
+        "overall_state": "blocked",
+        "subject_id": "WP-RESEARCH-ORB-EXIT-RESPEC-01",
+        "subject_label": "orb_exit_respec_blocked"
+      },
+      {
+        "evidence_class": "unknown",
+        "overall_state": "reported",
+        "subject_id": "WP-RESEARCH-PRICEONLY-SYNTHESIS-01",
+        "subject_label": "priceonly_synthesis_reported"
+      }
+    ]
+  },
+  "edge_search_hold": "No further edge-search is authorized by the coordinator state model. Strategy generation/search remains held until separate operator authorization.",
+  "non_authority_declaration": {
+    "authorizes_edge_search": false,
+    "authorizes_paper_live_runtime": false,
+    "auto_refreshes": false,
+    "auto_refreshes_from_network": false,
+    "contacts_runtime": false,
+    "creates_candidate": false,
+    "executes_canonical_crossing": false,
+    "executes_transition": false,
+    "fetches_live_data": false,
+    "has_approve_button": false,
+    "has_candidate_control": false,
+    "has_promote_button": false,
+    "has_retry_button": false,
+    "has_run_button": false,
+    "has_scheduler_toggle": false,
+    "ranks_as_authority": false,
+    "ranks_or_recommends": false,
+    "read_only": true,
+    "renders_executable_control": false,
+    "shows_recommendation_labels": false,
+    "static_only": true,
+    "submits_forms": false,
+    "writes_candidate_lifecycle": false,
+    "writes_canonical_evidence": false,
+    "writes_canonical_result_population": false
+  },
+  "overview": {
+    "candidate_state": {
+      "candidate_admitted": false,
+      "candidate_ready_count": 0,
+      "go_like_evidence": false
+    },
+    "denominator": {
+      "coordinator_blocked_count": 2,
+      "coordinator_no_go_count": 4,
+      "coordinator_subject_count": 9,
+      "real_traffic_rows": 32
+    },
+    "productization_status": "Real-traffic operating-layer acceptance evidence concluded; lab held at edge-search with no candidate produced.",
+    "real_traffic_batch": {
+      "available": true,
+      "blocked_rows": 0,
+      "canonical_result_population_written": false,
+      "decision": "complete",
+      "dropped_rows": 0,
+      "executed_successful_rows": 32,
+      "frozen_denominator_rows": 32,
+      "go_like_evidence": false,
+      "preserved_rows": 32
+    },
+    "top_blockers": [
+      "No hypothesis produced GO-like or candidate-worthy evidence (0 GO-like of 4 frozen).",
+      "No canonical Result Population written; evidence is dry-run / package-local.",
+      "Monte-Carlo / bootstrap withheld; PSR / DSR / MinTRL not computed.",
+      "Walk-forward evidence is bounded dry-run only, not a rigorous OOS gate pass.",
+      "Edge-search remains held pending separate operator authorization."
+    ]
+  },
+  "real_traffic_batch": {
+    "available": true,
+    "base_commit": "b268fe82ad343b8d8471429ed5dfc866e17d9e50",
+    "batch_package": "WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01",
+    "blocked_rows": 0,
+    "canonical_result_population_written": false,
+    "decision": "complete",
+    "dropped_rows": 0,
+    "executed_successful_rows": 32,
+    "frozen_denominator_rows": 32,
+    "go_candidate_worthy_decision_packet": "not_applicable_no_go_like_evidence",
+    "go_like_evidence": false,
+    "hypotheses": [
+      {
+        "canonical_write": false,
+        "denominator": 8,
+        "distinctness_result": "retained_by_main_decision_not_rechecked_in_this_packet",
+        "dry_run": true,
+        "economic_rationale": "A strong no-wick candle that closes on the trend side of EMA50 and retests the EMA may indicate continuation after directional impulse rather than mean reversion.",
+        "family_route": "price_only_ohlcv.no_wick_ema_retest_4h",
+        "freshness_check_result": "retained_by_main_decision",
+        "go_definition": "All denominator rows are preserved, population-level net performance and drawdown pass the frozen screen, cost burden is not dominant under available metrics, and sensitivity is not winner-only; GO-like evidence still requires human decision and creates no admission or crossing authority.",
+        "hypothesis_id": "LAB-RT-HYP-001",
+        "max_drawdown": 0.7708820807683276,
+        "median_fees": 56.25909645806616,
+        "median_pnl": 19190.543559360623,
+        "median_return_pct": 1.9190543559360624,
+        "median_slippage": 14.06477411451654,
+        "name": "BTCUSDT 4h no-wick EMA retest continuation",
+        "non_promoting_reason": "fails primary drawdown screen",
+        "positive_pnl_rows": 6,
+        "reading": "NO-GO / not candidate-worthy despite positive median return because max drawdown is about 77.1% and sensitivity includes negative rows.",
+        "result_context_flags": [],
+        "result_population_id": "RP-3523",
+        "status": "non_promoting",
+        "status_label": "NON-PROMOTING",
+        "successful_rows": 8,
+        "trade_counts": [
+          14,
+          2,
+          14,
+          2,
+          8,
+          8,
+          8,
+          8
+        ],
+        "walkforward_rows": 24,
+        "walkforward_successful_rows": 24,
+        "walkforward_warnings": [
+          "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+        ]
+      },
+      {
+        "canonical_write": false,
+        "denominator": 8,
+        "distinctness_result": "pass",
+        "dry_run": true,
+        "economic_rationale": "Breakouts accompanied by abnormal participation and an ATR-normalized candle range may reflect real order-flow participation rather than thin-channel noise. This tests participation-confirmed continuation, not Donchian, ORB, or Bollinger squeeze behavior.",
+        "family_route": "price_only_ohlcv.rvol_range_expansion_breakout_15m",
+        "freshness_check_result": "pass",
+        "go_definition": "All denominator rows are preserved; median net return is positive; at least 5/8 rows are positive; drawdown remains below the frozen screen; costs are measured honestly; favorable evidence spans more than one RVOL and range threshold.",
+        "hypothesis_id": "LAB-RT-HYP-002R",
+        "max_drawdown": 0.7727654107626627,
+        "median_fees": 75.77949541285537,
+        "median_pnl": 56170.00617909891,
+        "median_return_pct": 5.617000617909891,
+        "median_slippage": 18.944873853213842,
+        "name": "BTCUSDT 15m RVOL-gated range-expansion breakout",
+        "non_promoting_reason": "fails primary drawdown screen",
+        "positive_pnl_rows": 8,
+        "reading": "RVOL-gated immediately previous-bar high/low range-expansion breakout; not Donchian, not ORB, not session-anchor substitution. Positive PnL rows are offset by drawdown around 77.28%, so the frozen GO screen is not met.",
+        "result_context_flags": [],
+        "result_population_id": "RP-1413",
+        "status": "non_promoting",
+        "status_label": "NON-PROMOTING",
+        "successful_rows": 8,
+        "trade_counts": [
+          27,
+          11,
+          13,
+          10,
+          10,
+          27,
+          15,
+          11
+        ],
+        "walkforward_rows": 24,
+        "walkforward_successful_rows": 24,
+        "walkforward_warnings": []
+      },
+      {
+        "canonical_write": false,
+        "denominator": 8,
+        "distinctness_result": "pass_with_caution",
+        "dry_run": true,
+        "economic_rationale": "Rolling candle-VWAP approximates recent volume-weighted fair value from OHLCV. A large ATR-normalized distance from that anchor plus RSI exhaustion may represent a liquidity overshoot that can revert without relying on SMA/stddev bands.",
+        "family_route": "price_only_ohlcv.rolling_vwap_distance_reversion_15m",
+        "freshness_check_result": "pass_with_caution",
+        "go_definition": "All denominator rows are preserved; median net return is positive; at least 5/8 rows are positive; drawdown remains below the frozen screen; cost/churn is not dominant; favorable evidence is not isolated to one VWAP lookback or RSI threshold.",
+        "hypothesis_id": "LAB-RT-HYP-003R",
+        "max_drawdown": 0.9899583429626736,
+        "median_fees": 2612.9726077139853,
+        "median_pnl": -9800.985178273411,
+        "median_return_pct": -0.980098517827341,
+        "median_slippage": 653.2431519284963,
+        "name": "BTCUSDT 15m rolling VWAP distance reversion",
+        "non_promoting_reason": "negative population and severe drawdown",
+        "positive_pnl_rows": 0,
+        "reading": "NO-GO. 0/8 positive rows, median return about -98.0%, high churn and severe drawdown. Pass-with-caution context against RP-7134 / STRAT-SPEC-0003 retained.",
+        "result_context_flags": [
+          "pass_with_caution",
+          "future result records must carry pass_with_caution context",
+          "interpret future result records against RP-7134 / STRAT-SPEC-0003 context"
+        ],
+        "result_population_id": "RP-2231",
+        "status": "no_go",
+        "status_label": "NO-GO",
+        "successful_rows": 8,
+        "trade_counts": [
+          1537,
+          2803,
+          1531,
+          2760,
+          1490,
+          2601,
+          1468,
+          2510
+        ],
+        "walkforward_rows": 24,
+        "walkforward_successful_rows": 24,
+        "walkforward_warnings": [
+          "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+        ]
+      },
+      {
+        "canonical_write": false,
+        "denominator": 8,
+        "distinctness_result": "pass_with_caution",
+        "dry_run": true,
+        "economic_rationale": "Directional impulse continuation may be more plausible during high-liquidity UTC windows when spread/cost friction is lower and participation is broader. This tests session-conditioned impulse follow-through rather than moving-average crossover or multi-timeframe trend alignment.",
+        "family_route": "price_only_ohlcv.session_ema_impulse_continuation_15m",
+        "freshness_check_result": "pass_with_caution",
+        "go_definition": "All denominator rows are preserved; median net return is positive; at least 5/8 rows are positive; drawdown remains below the frozen screen; cost/churn is not dominant; favorable evidence spans more than one EMA/body/session axis.",
+        "hypothesis_id": "LAB-RT-HYP-004R",
+        "max_drawdown": 0.7727635930168999,
+        "median_fees": 82.26637076121452,
+        "median_pnl": 57714.7297609148,
+        "median_return_pct": 5.77147297609148,
+        "median_slippage": 20.56659269030363,
+        "name": "BTCUSDT 15m session-filtered EMA impulse continuation",
+        "non_promoting_reason": "fails primary drawdown screen",
+        "positive_pnl_rows": 8,
+        "reading": "NO-GO / not candidate-worthy despite 8/8 positive full-slice rows because max drawdown is about 77.3%; session filter is load-bearing but evidence fails drawdown screen. Pass-with-caution context against RP-2592 / RP-3731 / RP-6236 retained.",
+        "result_context_flags": [
+          "pass_with_caution",
+          "future result records must carry pass_with_caution context",
+          "interpret future result records against RP-2592 / RP-3731 / RP-6236 context",
+          "load-bearing session filter required"
+        ],
+        "result_population_id": "RP-6877",
+        "status": "non_promoting",
+        "status_label": "NON-PROMOTING",
+        "successful_rows": 8,
+        "trade_counts": [
+          11,
+          6,
+          20,
+          8,
+          11,
+          15,
+          22,
+          15
+        ],
+        "walkforward_rows": 24,
+        "walkforward_successful_rows": 24,
+        "walkforward_warnings": []
+      }
+    ],
+    "preserved_rows": 32,
+    "real_research_execution_performed": true,
+    "totals": {
+      "candidate_worthy_hypotheses": 0,
+      "go_like_hypotheses": 0,
+      "hypotheses_with_positive_median_pnl": 3,
+      "hypotheses_with_positive_rows": 3,
+      "hypothesis_count": 4,
+      "no_go_count": 1,
+      "non_promoting_count": 3,
+      "total_positive_rows": 22
+    }
+  },
+  "robustness": {
+    "available": true,
+    "axis_sensitivity_review": "All 8 rows are positive, but all rows show high drawdown near 77.28%; favorable PnL is not enough for GO-like interpretation under the frozen screen.",
+    "full_denominator_review": true,
+    "monte_carlo_reason": "No package-local MC runner surface was used; no new dependency or runner change authorized.",
+    "monte_carlo_run": false,
+    "withheld_note": "No package-local Monte-Carlo / bootstrap runner surface was used, and PSR / DSR / MinTRL were not computed on this dry-run evidence. These statistics are withheld rather than fabricated.",
+    "withheld_statistics": [
+      "MonteCarlo",
+      "Bootstrap",
+      "PSR",
+      "DSR",
+      "MinTRL"
+    ]
+  },
+  "schema_version": "lab_product_cockpit_v1",
+  "surface_kind": "read_only_operator_cockpit",
+  "timeline": [
+    {
+      "detail": "authorized_as_is",
+      "kind": "freeze",
+      "label": "Revised four-hypothesis set signed off and frozen",
+      "ref": "PR #600",
+      "seq": 1,
+      "source": "scratch/WP-LAB-REAL-TRAFFIC-REVISED-SIGNOFF-FREEZE-01/revised_frozen_hypothesis_set.json"
+    },
+    {
+      "detail": "Real research traffic; denominator preserved; no canonical write.",
+      "kind": "execute",
+      "label": "Revised batch executed (HYP-002R blocked pending runner support)",
+      "ref": "PR #606",
+      "seq": 2,
+      "source": "scratch/WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01/real_traffic_batch_manifest.json"
+    },
+    {
+      "detail": "32/32 rows executed and preserved; GO-like evidence = false.",
+      "kind": "complete",
+      "label": "HYP-002R completed; final revised-batch rollup",
+      "ref": "PR #608",
+      "seq": 3,
+      "source": "scratch/WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01/revised_batch_final_rollup.json"
+    },
+    {
+      "detail": "Operating-layer acceptance evidence; no candidate / crossing authority.",
+      "kind": "conclude",
+      "label": "Real-traffic batch synthesis concluded",
+      "ref": "PR #609",
+      "seq": 4,
+      "source": "docs/research/LAB_REAL_TRAFFIC_BATCH_SYNTHESIS_2026-07.md"
+    }
+  ],
+  "wfo_oos": {
+    "available": true,
+    "gate_posture": "dry_run_walkforward_not_a_rigorous_gate_pass",
+    "per_hypothesis": [
+      {
+        "hypothesis_id": "LAB-RT-HYP-001",
+        "walkforward_rows": 24,
+        "walkforward_successful_rows": 24,
+        "warnings": [
+          "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+        ]
+      },
+      {
+        "hypothesis_id": "LAB-RT-HYP-002R",
+        "walkforward_rows": 24,
+        "walkforward_successful_rows": 24,
+        "warnings": []
+      },
+      {
+        "hypothesis_id": "LAB-RT-HYP-003R",
+        "walkforward_rows": 24,
+        "walkforward_successful_rows": 24,
+        "warnings": [
+          "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+        ]
+      },
+      {
+        "hypothesis_id": "LAB-RT-HYP-004R",
+        "walkforward_rows": 24,
+        "walkforward_successful_rows": 24,
+        "warnings": []
+      }
+    ],
+    "protocol": {
+      "in_sample_bars": 6000,
+      "method": "runner dry-run walkforward, bounded to 3 chronological windows",
+      "no_lookahead_boundary": "OOS rows are never used to choose variants; each row reports the same predeclared included variants across IS and later OOS windows.",
+      "out_of_sample_bars": 1500,
+      "purge_embargo": "not_implemented_deferred_by_design",
+      "window_count": 3
+    },
+    "rigorous_oos_gate_pass": false
+  }
+}

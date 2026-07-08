@@ -1,0 +1,32 @@
+WP-LABPROD-COCKPIT-STATIC-01 — validation summary
+base SHA: 126d9aa (main)
+
+== pytest tests/test_lab_cockpit.py -q ==
+......................                                                   [100%]
+22 passed in 0.62s
+
+== no-regression: pytest tests/test_lab_dashboard.py tests/test_lab_state_model.py tests/test_lab_state_resolver.py -q ==
+................................................                         [100%]
+48 passed in 0.62s
+
+== python -m tools.lab_cockpit.run --out-dir build/lab_cockpit ==
+cockpit_data: build\lab_cockpit\cockpit_data.json
+cockpit_html: build\lab_cockpit\cockpit.html
+cockpit_md:   build\lab_cockpit\cockpit.md
+
+== python -m tools.research_query.run --list-views (tail) ==
+v_walkforward_manifest_overview
+== python -m tools.registry.validate_result_populations ==
+OK: result-population artifacts under C:\GitHub\crypto-perp-wedge\.claude\worktrees\hungry-hermann-b0a7ce\research\result_populations validate
+== python -m tools.registry.validate_candidate_registry ==
+OK: candidate lifecycle registry artifacts under C:\GitHub\crypto-perp-wedge\.claude\worktrees\hungry-hermann-b0a7ce\tests\fixtures\candidate_lifecycle_registry validate
+== git diff --check ==
+clean
+
+== rendered HTML forbidden-token scan ==
+forbidden present: False
+
+NOTE: tests/test_lab_state_coverage_audit.py shows 3 failed / 12 errors on
+BOTH this branch and pristine main (126d9aa): pre-existing 'unknown
+supplemental artifact role: riskmanaged_conclusion_evidence' in
+tools/lab_state/run.py; unrelated to and untouched by this package.

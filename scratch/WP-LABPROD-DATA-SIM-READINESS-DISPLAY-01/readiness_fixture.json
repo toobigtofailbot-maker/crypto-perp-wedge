@@ -1,0 +1,490 @@
+{
+  "item_count": 14,
+  "items": [
+    {
+      "blocker_detail": "None for closed OHLCV builtin families on the offline research path; still not paper/live or promotion authority.",
+      "current_repo_support": [
+        "indicator catalog active ids=atr,donchian,ema,ma_distance,rolling_vwap,rsi,rvol,sma,stddev",
+        "compiler builtins present=True",
+        "offline real-data runner path present=True"
+      ],
+      "feature_or_family": "ohlcv_indicators",
+      "label": "OHLCV-only indicators",
+      "next_prerequisite_category": "none_for_offline_research_display",
+      "non_authority_flags": [
+        "read_only_display_only",
+        "not_data_acquisition_authority",
+        "not_vendor_or_api_authority",
+        "not_runner_or_compiler_change_authority",
+        "not_simulator_change_authority",
+        "not_strategy_execution_authority",
+        "not_candidate_authority",
+        "not_crossing_or_promotion_authority",
+        "not_paper_live_runtime_authority",
+        "not_provider_api_or_credential_authority",
+        "not_scheduler_or_autonomy_authority"
+      ],
+      "reason_code": "OHLCV_INDICATOR_COMPILER_AND_OFFLINE_RUNNER_PRESENT",
+      "required_source_evidence": [
+        "BTCUSDT OHLCV public history/catalog lineage",
+        "indicator catalog",
+        "spec_signal_compiler builtins"
+      ],
+      "status": "testable_now_with_current_public_history",
+      "subject_id": "READINESS-OHLCV-INDICATORS"
+    },
+    {
+      "blocker_detail": "Funding-rate values are cataloged as conditional public-archive history, but the runner-consumable full-history feature CSV is not created by this display.",
+      "current_repo_support": [
+        "funding_rate / PUBLIC_FUNDING_ARCHIVE / FULL_HISTORY_PUBLIC_ARCHIVE / full_history=conditional",
+        "runner declared non-OHLCV support present=True",
+        "WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-UNBLOCK-01 records runner-consumable funding-feature CSV as missing"
+      ],
+      "feature_or_family": "funding_rate_feature",
+      "label": "Funding-rate feature history",
+      "next_prerequisite_category": "local_full_history_materialization",
+      "non_authority_flags": [
+        "read_only_display_only",
+        "not_data_acquisition_authority",
+        "not_vendor_or_api_authority",
+        "not_runner_or_compiler_change_authority",
+        "not_simulator_change_authority",
+        "not_strategy_execution_authority",
+        "not_candidate_authority",
+        "not_crossing_or_promotion_authority",
+        "not_paper_live_runtime_authority",
+        "not_provider_api_or_credential_authority",
+        "not_scheduler_or_autonomy_authority"
+      ],
+      "reason_code": "FUNDING_FEATURE_PUBLIC_HISTORY_CONDITIONAL_BUT_RUNNER_CSV_MISSING",
+      "required_source_evidence": [
+        "aligned funding_rate column covering the claimed evidence window",
+        "data_availability_claim binding"
+      ],
+      "status": "needs_local_full_history_materialization",
+      "subject_id": "READINESS-FUNDING-RATE-FEATURE-HISTORY"
+    },
+    {
+      "blocker_detail": "Backtest core can model opt-in funding cashflows, but current canonical runner inputs do not supply real funding events for a full funding-carry PnL claim.",
+      "current_repo_support": [
+        "backtest funding opt-in present=True",
+        "canonical runner execution inputs currently use zero_funding_for_ohlcv on the inspected paths",
+        "funding_cost_mode is default-off and prior funding NO-GO docs warn price-PnL funding signal tests were not funding-carry-PnL tests"
+      ],
+      "feature_or_family": "funding_cost_realism",
+      "label": "Funding PnL / cost realism",
+      "next_prerequisite_category": "runner_support_and_local_funding_materialization",
+      "non_authority_flags": [
+        "read_only_display_only",
+        "not_data_acquisition_authority",
+        "not_vendor_or_api_authority",
+        "not_runner_or_compiler_change_authority",
+        "not_simulator_change_authority",
+        "not_strategy_execution_authority",
+        "not_candidate_authority",
+        "not_crossing_or_promotion_authority",
+        "not_paper_live_runtime_authority",
+        "not_provider_api_or_credential_authority",
+        "not_scheduler_or_autonomy_authority"
+      ],
+      "reason_code": "FUNDING_CASHFLOW_CORE_OPT_IN_BUT_CANONICAL_RUNNER_PATH_NOT_WIRED",
+      "required_source_evidence": [
+        "funding_rate event frame aligned to execution window",
+        "runner/backtester path with funding_cost_mode enabled"
+      ],
+      "status": "needs_runner_or_compiler_support",
+      "subject_id": "READINESS-FUNDING-PNL-COST-REALISM"
+    },
+    {
+      "blocker_detail": "Repo truth permits conditional archive derivation for taker-flow features, but this package does not materialize archive-derived columns or acquire trade archives.",
+      "current_repo_support": [
+        "taker_buy_sell_ratio / PUBLIC_REST_TAKER_RATIO / RECENT_ONLY_PUBLIC_REST / full_history=no",
+        "taker_buy_sell_ratio / PUBLIC_TRADE_ARCHIVE_DERIVATION / FULL_HISTORY_PUBLIC_ARCHIVE / full_history=conditional",
+        "taker_buy_volume / PUBLIC_REST_TAKER_RATIO / RECENT_ONLY_PUBLIC_REST / full_history=no",
+        "taker_buy_volume / PUBLIC_TRADE_ARCHIVE_DERIVATION / FULL_HISTORY_PUBLIC_ARCHIVE / full_history=conditional",
+        "taker_sell_volume / PUBLIC_REST_TAKER_RATIO / RECENT_ONLY_PUBLIC_REST / full_history=no",
+        "taker_sell_volume / PUBLIC_TRADE_ARCHIVE_DERIVATION / FULL_HISTORY_PUBLIC_ARCHIVE / full_history=conditional",
+        "runner declared non-OHLCV support present=True"
+      ],
+      "feature_or_family": "taker_flow",
+      "label": "Taker-flow archive-derived support",
+      "next_prerequisite_category": "local_full_history_materialization",
+      "non_authority_flags": [
+        "read_only_display_only",
+        "not_data_acquisition_authority",
+        "not_vendor_or_api_authority",
+        "not_runner_or_compiler_change_authority",
+        "not_simulator_change_authority",
+        "not_strategy_execution_authority",
+        "not_candidate_authority",
+        "not_crossing_or_promotion_authority",
+        "not_paper_live_runtime_authority",
+        "not_provider_api_or_credential_authority",
+        "not_scheduler_or_autonomy_authority"
+      ],
+      "reason_code": "TAKER_FLOW_ARCHIVE_DERIVATION_CONDITIONAL_NOT_MATERIALIZED",
+      "required_source_evidence": [
+        "verified trade or aggregate-trade archive files",
+        "deterministic reconstruction into declared taker-flow columns"
+      ],
+      "status": "needs_local_full_history_materialization",
+      "subject_id": "READINESS-TAKER-FLOW-ARCHIVE"
+    },
+    {
+      "blocker_detail": "Current open interest is snapshot/recent-only in repo truth; trades or aggregate trades cannot reconstruct true open interest.",
+      "current_repo_support": [
+        "open_interest / PUBLIC_REST_CURRENT_OPEN_INTEREST / PUBLIC_SNAPSHOT_ONLY / full_history=no",
+        "open_interest_value / PUBLIC_REST_OPEN_INTEREST_STATISTICS / RECENT_ONLY_PUBLIC_REST / full_history=no"
+      ],
+      "feature_or_family": "open_interest",
+      "label": "Open interest",
+      "next_prerequisite_category": "vendor_or_captured_history",
+      "non_authority_flags": [
+        "read_only_display_only",
+        "not_data_acquisition_authority",
+        "not_vendor_or_api_authority",
+        "not_runner_or_compiler_change_authority",
+        "not_simulator_change_authority",
+        "not_strategy_execution_authority",
+        "not_candidate_authority",
+        "not_crossing_or_promotion_authority",
+        "not_paper_live_runtime_authority",
+        "not_provider_api_or_credential_authority",
+        "not_scheduler_or_autonomy_authority"
+      ],
+      "reason_code": "OPEN_INTEREST_NOT_PUBLIC_FULL_HISTORY",
+      "required_source_evidence": [
+        "vendor or captured historical open-interest dataset with provenance"
+      ],
+      "status": "needs_vendor_or_captured_history",
+      "subject_id": "READINESS-OPEN-INTEREST"
+    },
+    {
+      "blocker_detail": "Public long/short ratio endpoints are recent-only under the committed availability labels and cannot support full-history evidence without an override dataset.",
+      "current_repo_support": [
+        "top_trader_position_long_short_ratio / PUBLIC_REST_TOP_TRADER_POSITION_RATIO / RECENT_ONLY_PUBLIC_REST / full_history=no",
+        "top_trader_account_long_short_ratio / PUBLIC_REST_TOP_TRADER_ACCOUNT_RATIO / RECENT_ONLY_PUBLIC_REST / full_history=no",
+        "global_long_short_account_ratio / PUBLIC_REST_GLOBAL_ACCOUNT_RATIO / RECENT_ONLY_PUBLIC_REST / full_history=no"
+      ],
+      "feature_or_family": "long_short_ratio",
+      "label": "Long/short ratio",
+      "next_prerequisite_category": "vendor_or_captured_history",
+      "non_authority_flags": [
+        "read_only_display_only",
+        "not_data_acquisition_authority",
+        "not_vendor_or_api_authority",
+        "not_runner_or_compiler_change_authority",
+        "not_simulator_change_authority",
+        "not_strategy_execution_authority",
+        "not_candidate_authority",
+        "not_crossing_or_promotion_authority",
+        "not_paper_live_runtime_authority",
+        "not_provider_api_or_credential_authority",
+        "not_scheduler_or_autonomy_authority"
+      ],
+      "reason_code": "LONG_SHORT_RATIO_PUBLIC_REST_RECENT_ONLY",
+      "required_source_evidence": [
+        "vendor or captured historical long/short ratio dataset with alignment provenance"
+      ],
+      "status": "needs_vendor_or_captured_history",
+      "subject_id": "READINESS-LONG-SHORT-RATIO"
+    },
+    {
+      "blocker_detail": "The catalog keeps liquidation_volume vendor-only for history and not compiler-visible; simulator liquidation assumptions are not liquidation-volume data.",
+      "current_repo_support": [
+        "liquidation_volume / VENDOR_HISTORICAL_DATASET / VENDOR_ONLY_FOR_HISTORY / full_history=no"
+      ],
+      "feature_or_family": "liquidation_history",
+      "label": "Liquidation volume/history",
+      "next_prerequisite_category": "vendor_or_captured_history_then_runner_or_compiler_support",
+      "non_authority_flags": [
+        "read_only_display_only",
+        "not_data_acquisition_authority",
+        "not_vendor_or_api_authority",
+        "not_runner_or_compiler_change_authority",
+        "not_simulator_change_authority",
+        "not_strategy_execution_authority",
+        "not_candidate_authority",
+        "not_crossing_or_promotion_authority",
+        "not_paper_live_runtime_authority",
+        "not_provider_api_or_credential_authority",
+        "not_scheduler_or_autonomy_authority"
+      ],
+      "reason_code": "LIQUIDATION_VOLUME_VENDOR_ONLY_AND_NOT_COMPILER_VISIBLE",
+      "required_source_evidence": [
+        "vendor or captured historical liquidation dataset",
+        "future compiler/runner binding if used in signals"
+      ],
+      "status": "needs_vendor_or_captured_history",
+      "subject_id": "READINESS-LIQUIDATION-HISTORY"
+    },
+    {
+      "blocker_detail": "No repo-truth full-history L2 source or Strategy Spec/compiler binding exists for order-book features.",
+      "current_repo_support": [
+        "no committed L2/order-book availability catalog row found",
+        "no inspected runner/backtester path consumes order-book depth"
+      ],
+      "feature_or_family": "order_book_microstructure",
+      "label": "L2 / order-book features",
+      "next_prerequisite_category": "vendor_or_captured_history_and_runner_or_compiler_support",
+      "non_authority_flags": [
+        "read_only_display_only",
+        "not_data_acquisition_authority",
+        "not_vendor_or_api_authority",
+        "not_runner_or_compiler_change_authority",
+        "not_simulator_change_authority",
+        "not_strategy_execution_authority",
+        "not_candidate_authority",
+        "not_crossing_or_promotion_authority",
+        "not_paper_live_runtime_authority",
+        "not_provider_api_or_credential_authority",
+        "not_scheduler_or_autonomy_authority"
+      ],
+      "reason_code": "NO_COMMITTED_L2_HISTORY_OR_COMPILER_BINDING",
+      "required_source_evidence": [
+        "captured or vendor historical L2/order-book dataset",
+        "separately authorized microstructure compiler/runner/simulator support"
+      ],
+      "status": "needs_vendor_or_captured_history",
+      "subject_id": "READINESS-L2-ORDERBOOK"
+    },
+    {
+      "blocker_detail": "These fields are conditional public-archive data features for signal use when aligned and materialized; the backtester still marks/liquidates on close, not external mark/index data.",
+      "current_repo_support": [
+        "mark_price / PUBLIC_MARK_KLINE_ARCHIVE / FULL_HISTORY_PUBLIC_ARCHIVE / full_history=conditional",
+        "index_price / PUBLIC_INDEX_KLINE_ARCHIVE / FULL_HISTORY_PUBLIC_ARCHIVE / full_history=conditional",
+        "premium_index / PUBLIC_PREMIUM_KLINE_ARCHIVE / FULL_HISTORY_PUBLIC_ARCHIVE / full_history=conditional",
+        "backtest close-only mark source enforced=True"
+      ],
+      "feature_or_family": "mark_index_premium_fields",
+      "label": "Mark / index / premium index fields",
+      "next_prerequisite_category": "local_full_history_materialization_for_signal_features_or_simulator_realism_upgrade_for_marking",
+      "non_authority_flags": [
+        "read_only_display_only",
+        "not_data_acquisition_authority",
+        "not_vendor_or_api_authority",
+        "not_runner_or_compiler_change_authority",
+        "not_simulator_change_authority",
+        "not_strategy_execution_authority",
+        "not_candidate_authority",
+        "not_crossing_or_promotion_authority",
+        "not_paper_live_runtime_authority",
+        "not_provider_api_or_credential_authority",
+        "not_scheduler_or_autonomy_authority"
+      ],
+      "reason_code": "CONDITIONAL_PUBLIC_ARCHIVE_FIELDS_NEED_ALIGNED_RUNNER_COLUMNS",
+      "required_source_evidence": [
+        "aligned mark/index/premium history for the evidence window",
+        "irreparable-gap policy handling",
+        "declared runner columns"
+      ],
+      "status": "needs_local_full_history_materialization",
+      "subject_id": "READINESS-MARK-INDEX-PREMIUM-FIELDS"
+    },
+    {
+      "blocker_detail": "No data blocker for UTC-derived fields when source bars exist; complex session behavior remains offline research only.",
+      "current_repo_support": [
+        "hour_of_day_utc / DERIVED_FROM_BAR_TIMESTAMP / FULL_HISTORY_PUBLIC_ARCHIVE / full_history=conditional",
+        "day_of_week_utc / DERIVED_FROM_BAR_TIMESTAMP / FULL_HISTORY_PUBLIC_ARCHIVE / full_history=conditional",
+        "is_weekend_utc / DERIVED_FROM_BAR_TIMESTAMP / FULL_HISTORY_PUBLIC_ARCHIVE / full_history=conditional",
+        "compiler timestamp/session support present=True"
+      ],
+      "feature_or_family": "time_session_fields",
+      "label": "UTC/session/time-derived fields",
+      "next_prerequisite_category": "none_for_offline_research_display",
+      "non_authority_flags": [
+        "read_only_display_only",
+        "not_data_acquisition_authority",
+        "not_vendor_or_api_authority",
+        "not_runner_or_compiler_change_authority",
+        "not_simulator_change_authority",
+        "not_strategy_execution_authority",
+        "not_candidate_authority",
+        "not_crossing_or_promotion_authority",
+        "not_paper_live_runtime_authority",
+        "not_provider_api_or_credential_authority",
+        "not_scheduler_or_autonomy_authority"
+      ],
+      "reason_code": "TIMESTAMP_FIELDS_AND_SESSION_PRIMITIVES_PRESENT",
+      "required_source_evidence": [
+        "UTC bar timestamp from aligned OHLCV bars",
+        "Strategy Spec session/time primitives when used"
+      ],
+      "status": "testable_now_with_current_public_history",
+      "subject_id": "READINESS-UTC-TIME-FIELDS"
+    },
+    {
+      "blocker_detail": "No data blocker for closed Donchian/OHLCV breakout variants on the offline research path; not a candidate or promotion claim.",
+      "current_repo_support": [
+        "indicator catalog active ids=atr,donchian,ema,ma_distance,rolling_vwap,rsi,rvol,sma,stddev",
+        "compiler builtins present=True",
+        "offline real-data runner path present=True"
+      ],
+      "feature_or_family": "donchian_breakout",
+      "label": "Donchian / breakout family",
+      "next_prerequisite_category": "none_for_offline_research_display",
+      "non_authority_flags": [
+        "read_only_display_only",
+        "not_data_acquisition_authority",
+        "not_vendor_or_api_authority",
+        "not_runner_or_compiler_change_authority",
+        "not_simulator_change_authority",
+        "not_strategy_execution_authority",
+        "not_candidate_authority",
+        "not_crossing_or_promotion_authority",
+        "not_paper_live_runtime_authority",
+        "not_provider_api_or_credential_authority",
+        "not_scheduler_or_autonomy_authority"
+      ],
+      "reason_code": "DONCHIAN_AND_CROSSOVER_COMPILER_SUPPORT_PRESENT",
+      "required_source_evidence": [
+        "OHLCV high/low history",
+        "donchian_v1 indicator",
+        "closed crossover/comparison operators"
+      ],
+      "status": "testable_now_with_current_public_history",
+      "subject_id": "READINESS-DONCHIAN-BREAKOUT"
+    },
+    {
+      "blocker_detail": "No data blocker for closed SMA/StdDev OHLCV variants on the offline research path; trial/candidate authority remains separate.",
+      "current_repo_support": [
+        "indicator catalog active ids=atr,donchian,ema,ma_distance,rolling_vwap,rsi,rvol,sma,stddev",
+        "compiler builtins present=True",
+        "offline real-data runner path present=True"
+      ],
+      "feature_or_family": "sma_stddev_mean_reversion",
+      "label": "SMA / StdDev mean-reversion",
+      "next_prerequisite_category": "none_for_offline_research_display",
+      "non_authority_flags": [
+        "read_only_display_only",
+        "not_data_acquisition_authority",
+        "not_vendor_or_api_authority",
+        "not_runner_or_compiler_change_authority",
+        "not_simulator_change_authority",
+        "not_strategy_execution_authority",
+        "not_candidate_authority",
+        "not_crossing_or_promotion_authority",
+        "not_paper_live_runtime_authority",
+        "not_provider_api_or_credential_authority",
+        "not_scheduler_or_autonomy_authority"
+      ],
+      "reason_code": "SMA_STDDEV_ZSCORE_COMPILER_SUPPORT_PRESENT",
+      "required_source_evidence": [
+        "OHLCV close history",
+        "sma_v1 and stddev_v1 indicators",
+        "z_score composed operand when specified"
+      ],
+      "status": "testable_now_with_current_public_history",
+      "subject_id": "READINESS-SMA-STDDEV-MEAN-REVERSION"
+    },
+    {
+      "blocker_detail": "EMA/RVOL/session are closed offline compiler surfaces; rolling VWAP is a candle approximation and must not be represented as true trade-level VWAP.",
+      "current_repo_support": [
+        "indicator catalog active ids=atr,donchian,ema,ma_distance,rolling_vwap,rsi,rvol,sma,stddev",
+        "compiler builtins present=True",
+        "offline real-data runner path present=True",
+        "rolling_vwap_v1 is candle OHLCV approximation, not true trade-level VWAP"
+      ],
+      "feature_or_family": "ema_rvol_vwap_session",
+      "label": "EMA / RVOL / rolling VWAP / session families",
+      "next_prerequisite_category": "none_for_offline_research_display_or_taker_trade_history_for_true_vwap",
+      "non_authority_flags": [
+        "read_only_display_only",
+        "not_data_acquisition_authority",
+        "not_vendor_or_api_authority",
+        "not_runner_or_compiler_change_authority",
+        "not_simulator_change_authority",
+        "not_strategy_execution_authority",
+        "not_candidate_authority",
+        "not_crossing_or_promotion_authority",
+        "not_paper_live_runtime_authority",
+        "not_provider_api_or_credential_authority",
+        "not_scheduler_or_autonomy_authority"
+      ],
+      "reason_code": "SUPPORTED_BUILTINS_WITH_CAVEATED_VWAP_AND_SESSION_SEMANTICS",
+      "required_source_evidence": [
+        "OHLCV history",
+        "ema_v1, rvol_v1, rolling_vwap_v1 indicator interfaces",
+        "session primitives when declared"
+      ],
+      "status": "testable_now_with_current_caveats",
+      "subject_id": "READINESS-EMA-RVOL-VWAP-SESSION"
+    },
+    {
+      "blocker_detail": "Offline simulator realism disclosures do not authorize paper/shadow/live, runtime, OMS, risk, broker/exchange, or autonomous dispatch.",
+      "current_repo_support": [
+        "backtest realism disclosures present=True",
+        "LAB_COMPLETION_MAP records paper/live/runtime as GO-gated protected"
+      ],
+      "feature_or_family": "simulator_realism_boundary",
+      "label": "Simulator realism / paper-shadow phase boundary",
+      "next_prerequisite_category": "protected_phase_gate",
+      "non_authority_flags": [
+        "read_only_display_only",
+        "not_data_acquisition_authority",
+        "not_vendor_or_api_authority",
+        "not_runner_or_compiler_change_authority",
+        "not_simulator_change_authority",
+        "not_strategy_execution_authority",
+        "not_candidate_authority",
+        "not_crossing_or_promotion_authority",
+        "not_paper_live_runtime_authority",
+        "not_provider_api_or_credential_authority",
+        "not_scheduler_or_autonomy_authority"
+      ],
+      "reason_code": "PAPER_LIVE_RUNTIME_REMAINS_PROTECTED_AND_HUMAN_GATED",
+      "required_source_evidence": [
+        "explicit later GO package for paper/shadow/runtime contact",
+        "protected runtime review"
+      ],
+      "status": "go_gated_or_paper_phase_only",
+      "subject_id": "READINESS-SIMULATOR-PAPER-SHADOW-BOUNDARY"
+    }
+  ],
+  "non_authority_declaration": {
+    "acquires_data": false,
+    "authorizes_crossing_promotion_or_readiness": false,
+    "authorizes_paper_live_runtime": false,
+    "authorizes_scheduler_or_autonomy": false,
+    "changes_runner_or_compiler": false,
+    "changes_simulator": false,
+    "contacts_network_or_provider_api": false,
+    "creates_candidate_or_result_population": false,
+    "read_only_display_only": true,
+    "runs_strategy": false,
+    "uses_credentials": false,
+    "writes_only_with_out_dir": true
+  },
+  "schema_version": "lab_data_sim_readiness_v1",
+  "source_files": [
+    "research/data_feature_availability/PERP-DERIVED-FEATURE-AVAILABILITY-0001.json",
+    "research/indicator_catalogs/IND-CATALOG-0001.indicator_catalog.json",
+    "tools/research_runner/spec_signal_compiler.py",
+    "tools/research_runner/run_offline_sweep.py",
+    "lib/backtest.py",
+    "docs/research/LAB_COMPLETION_MAP.md"
+  ],
+  "status_taxonomy": [
+    "testable_now_with_current_public_history",
+    "testable_now_with_current_caveats",
+    "needs_local_full_history_materialization",
+    "needs_vendor_or_captured_history",
+    "needs_runner_or_compiler_support",
+    "needs_simulator_realism_upgrade",
+    "go_gated_or_paper_phase_only",
+    "protected_or_out_of_scope",
+    "unknown_needs_review"
+  ],
+  "summary_by_status": {
+    "go_gated_or_paper_phase_only": 1,
+    "needs_local_full_history_materialization": 3,
+    "needs_runner_or_compiler_support": 1,
+    "needs_simulator_realism_upgrade": 0,
+    "needs_vendor_or_captured_history": 4,
+    "protected_or_out_of_scope": 0,
+    "testable_now_with_current_caveats": 1,
+    "testable_now_with_current_public_history": 4,
+    "unknown_needs_review": 0
+  },
+  "surface_kind": "read_only_data_sim_readiness_display"
+}

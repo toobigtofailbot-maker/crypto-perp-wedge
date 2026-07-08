@@ -8,6 +8,8 @@ from tools.agent_sandbox import BlockedActionError, MemoryAuditSink, ToolContext
 from tools.lab_pipeline.adapter_contract import build_adapter_registry
 from tools.research_agents.formalizer_runner_bridge import (
     APPROVAL_SCOPE,
+    PRODUCT_BRIDGE_INVOCATION_MODE,
+    PRODUCT_BRIDGE_PREPARE_WP_ID,
     ROLE,
     WP_ID,
     FormalizerRunnerBridge,
@@ -45,6 +47,29 @@ def test_existing_bridge_rejects_lab_pipeline_package_toolcontext(tmp_path: Path
             tool_context=context,
             repo_root=tmp_path,
         )
+
+
+def test_product_mode_is_explicit_and_does_not_unblock_old_adapter_wp(
+    tmp_path: Path,
+) -> None:
+    context, _ = _context(PACKAGE_ID)
+
+    with pytest.raises(ValueError, match="product bridge preparation"):
+        FormalizerRunnerBridge(
+            config=FormalizerRunnerBridgeConfig(ohlcv_input_path="scratch/fixture.csv"),
+            tool_context=context,
+            repo_root=tmp_path,
+            bridge_invocation_mode=PRODUCT_BRIDGE_INVOCATION_MODE,
+        )
+
+    product_context, _ = _context(PRODUCT_BRIDGE_PREPARE_WP_ID)
+    bridge = FormalizerRunnerBridge(
+        config=FormalizerRunnerBridgeConfig(ohlcv_input_path="scratch/fixture.csv"),
+        tool_context=product_context,
+        repo_root=tmp_path,
+        bridge_invocation_mode=PRODUCT_BRIDGE_INVOCATION_MODE,
+    )
+    assert bridge.output_root.as_posix() == f"scratch/{PRODUCT_BRIDGE_PREPARE_WP_ID}/outputs"
 
 
 def test_existing_bridge_output_root_is_not_package_local(tmp_path: Path) -> None:

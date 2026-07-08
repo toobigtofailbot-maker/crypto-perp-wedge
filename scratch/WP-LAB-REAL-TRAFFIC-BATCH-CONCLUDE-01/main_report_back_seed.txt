@@ -1,0 +1,24 @@
+Main,
+
+Facts:
+- PR #606 executed the revised real-traffic batch evidence for LAB-RT-HYP-001, LAB-RT-HYP-003R, and LAB-RT-HYP-004R while preserving LAB-RT-HYP-002R as blocked until runner support existed.
+- PR #608 completed LAB-RT-HYP-002R and the final revised-batch rollup records 32 frozen rows, 32 preserved rows, 0 dropped rows, 0 blocked rows, and 32 successful executed rows.
+- The final rollup records canonical result population written false, GO-like evidence false, and real research execution performed true.
+- LAB-RT-HYP-003R is a clean NO-GO. LAB-RT-HYP-001, LAB-RT-HYP-002R, and LAB-RT-HYP-004R show positive raw-PnL surfaces but fail the primary drawdown screen.
+
+Interpretation:
+- The real-input operating layer now has bounded acceptance evidence on real research traffic across formalize, route, sweep, preserve, gate, and review.
+- The strategy evidence is not candidate-worthy. The descriptive accumulated pattern is that the tested BTC directional / breakout / continuation real-traffic surfaces can show positive raw PnL while retaining drawdown-lethal risk profiles.
+- Funding-fade evidence remains a separate NO-GO context, not a broad funding-family or BTC-perp edge conclusion.
+
+Boundary:
+- No candidate admission, crossing, promotion/readiness, paper/live/runtime authority, scheduler activation, notification sending, retuning, parameter expansion, canonical Result Population write, or protected-path authority is created.
+- The primary drawdown screen correctly blocks escalation.
+
+Decision needed:
+- Decide whether to hold after the bounded real-input operating-layer acceptance record or authorize a separate next package.
+
+Options, if needed:
+- A. Hold the lab at the current acceptance-evidence state.
+- B. Authorize a read-only operator-surface binding package for generated coordinator/dashboard/report visibility.
+- C. Authorize a separate future real-research package with its own scope and stop conditions.

@@ -1,0 +1,134 @@
+{
+  "approval_requirements": {},
+  "artifact_refs": [
+    "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-e7d1a256221a28aa/pipeline_request.json"
+  ],
+  "blocked_reasons": [
+    "availability_blocked:unsupported_timeframe"
+  ],
+  "created_at_policy": "deterministic_from_request_content_no_wall_clock",
+  "current_stage": "blocked",
+  "deterministic_timestamp_utc": "2026-07-08T00:00:00Z",
+  "non_authority_flags": {
+    "authorizes_promotion_or_readiness": false,
+    "contacts_paper_live_runtime": false,
+    "executes_canonical_crossing": false,
+    "fires_notifications": false,
+    "human_review_required_for_prereg": true,
+    "noncanonical_only": true,
+    "offline_only": true,
+    "scratch_only": true,
+    "separate_authorization_required_for_canonical_or_runtime": true,
+    "uses_provider_api_or_credentials": false,
+    "uses_scheduler_or_autonomy": false,
+    "writes_candidate_lifecycle": false,
+    "writes_canonical_evidence": false
+  },
+  "pipeline_run_id": "LPIPE-e7d1a256221a28aa",
+  "pipeline_status": "blocked",
+  "request_id": "REQ-0c88de81c763",
+  "requested_by": "Karl",
+  "schema_version": "lab_pipeline_state_v1",
+  "source_idea": "Momentum idea on an unsupported research timeframe",
+  "stage_statuses": [
+    {
+      "artifact_refs": [
+        "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-e7d1a256221a28aa/pipeline_request.json"
+      ],
+      "blocked_reasons": [],
+      "detail": "Request loaded.",
+      "stage": "request_loaded",
+      "status": "complete"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [],
+      "detail": "Operator idea preserved and formalized.",
+      "stage": "idea_formalized",
+      "status": "complete"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [
+        "availability_blocked:unsupported_timeframe"
+      ],
+      "detail": "Availability check blocked.",
+      "stage": "availability_checked",
+      "status": "blocked"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [],
+      "detail": "",
+      "stage": "prereg_packet_prepared",
+      "status": "not_started"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [],
+      "detail": "",
+      "stage": "awaiting_prereg_approval",
+      "status": "not_started"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [],
+      "detail": "",
+      "stage": "approved_for_noncanonical_execution",
+      "status": "not_started"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [],
+      "detail": "",
+      "stage": "noncanonical_execution_running",
+      "status": "not_started"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [],
+      "detail": "",
+      "stage": "noncanonical_execution_complete",
+      "status": "not_started"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [],
+      "detail": "",
+      "stage": "gate_review_complete",
+      "status": "not_started"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [],
+      "detail": "",
+      "stage": "robustness_review_complete",
+      "status": "not_started"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [],
+      "detail": "",
+      "stage": "candidate_review_packet_prepared",
+      "status": "not_started"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [],
+      "detail": "",
+      "stage": "complete",
+      "status": "not_started"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [
+        "availability_blocked:unsupported_timeframe"
+      ],
+      "detail": "Pipeline blocked by availability.",
+      "stage": "blocked",
+      "status": "blocked"
+    }
+  ],
+  "symbol": "BTCUSDT",
+  "timeframe": "3m"
+}

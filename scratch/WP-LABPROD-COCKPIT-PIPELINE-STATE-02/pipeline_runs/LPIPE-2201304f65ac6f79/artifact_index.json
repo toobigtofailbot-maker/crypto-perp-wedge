@@ -1,0 +1,51 @@
+{
+  "artifact_count": 8,
+  "artifacts": {
+    "approval_requirement": {
+      "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/approval_requirement.json",
+      "sha256": "sha256:1abaf4fa541ac32ca0b22a71f1c53e995e150c1888b5577a065267619e13b10d"
+    },
+    "non_authority_assertions": {
+      "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/non_authority_assertions.json",
+      "sha256": "sha256:e5dc1ff8b8e7bd0b9d3eb752877ed2da87661a07962c7761cc34cb3b7a0cfccc"
+    },
+    "operator_review_packet": {
+      "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/operator_review_packet.md",
+      "sha256": "sha256:8443d1ea5d8720ce163995181cc0e1ff235838c89f1d49ab0efc5415b2c29610"
+    },
+    "pipeline_request": {
+      "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/pipeline_request.json",
+      "sha256": "sha256:bddfd765098346746cfa274354a9803ab5328582a00710b98ef429edd3860945"
+    },
+    "pipeline_state": {
+      "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/pipeline_state.json",
+      "sha256": "sha256:2047e099ddc7e6245b4dfd1d7799837ca1cf6546dbdf6949229a68b3a2fe9533"
+    },
+    "pipeline_trace": {
+      "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/pipeline_trace.json",
+      "sha256": "sha256:019efa540fa07c82854adbf480b5c85cdb853fbadee66653dde711bb2cf709f2"
+    },
+    "preregistration_packet": {
+      "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/preregistration_packet.json",
+      "sha256": "sha256:fb749ffb1ea5b7cad7ac4ecd7903983a09a5c21bbe145295a005b3df58e37610"
+    }
+  },
+  "non_authority_flags": {
+    "authorizes_promotion_or_readiness": false,
+    "contacts_paper_live_runtime": false,
+    "executes_canonical_crossing": false,
+    "fires_notifications": false,
+    "human_review_required_for_prereg": true,
+    "noncanonical_only": true,
+    "offline_only": true,
+    "scratch_only": true,
+    "separate_authorization_required_for_canonical_or_runtime": true,
+    "uses_provider_api_or_credentials": false,
+    "uses_scheduler_or_autonomy": false,
+    "writes_candidate_lifecycle": false,
+    "writes_canonical_evidence": false
+  },
+  "pipeline_run_id": "LPIPE-2201304f65ac6f79",
+  "schema_version": "lab_pipeline_artifact_index_v1",
+  "self_entry_note": "artifact_index self hash omitted to avoid recursive hash mutation"
+}

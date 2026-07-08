@@ -1,0 +1,27 @@
+{
+  "candidate_lifecycle_written": false,
+  "canonical_files_written": false,
+  "dependency_changes_required": false,
+  "non_authority_flags": {
+    "authorizes_promotion_or_readiness": false,
+    "contacts_paper_live_runtime": false,
+    "executes_canonical_crossing": false,
+    "fires_notifications": false,
+    "human_review_required_for_prereg": true,
+    "noncanonical_only": true,
+    "offline_only": true,
+    "scratch_only": true,
+    "separate_authorization_required_for_canonical_or_runtime": true,
+    "uses_provider_api_or_credentials": false,
+    "uses_scheduler_or_autonomy": false,
+    "writes_candidate_lifecycle": false,
+    "writes_canonical_evidence": false
+  },
+  "notifications_fired": false,
+  "paper_live_runtime_contacted": false,
+  "pipeline_run_id": "LPIPE-e7d1a256221a28aa",
+  "protected_paths_touched": false,
+  "provider_api_network_attempted": false,
+  "scheduler_or_autonomy_used": false,
+  "schema_version": "lab_pipeline_non_authority_assertions_v1"
+}

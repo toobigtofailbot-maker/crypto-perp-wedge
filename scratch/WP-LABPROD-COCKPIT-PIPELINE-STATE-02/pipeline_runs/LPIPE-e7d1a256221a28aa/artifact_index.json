@@ -1,0 +1,43 @@
+{
+  "artifact_count": 6,
+  "artifacts": {
+    "non_authority_assertions": {
+      "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-e7d1a256221a28aa/non_authority_assertions.json",
+      "sha256": "sha256:2669a5ed181a898579fdd15ce1672180fa5b19c20c41be96c986baa89d1028ee"
+    },
+    "operator_review_packet": {
+      "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-e7d1a256221a28aa/operator_review_packet.md",
+      "sha256": "sha256:e18b1b086e46945d3c93196488fe93d17dc6093515b496ad4cb72c3c4eec55dd"
+    },
+    "pipeline_request": {
+      "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-e7d1a256221a28aa/pipeline_request.json",
+      "sha256": "sha256:ff533f8e1953cd8878312958f95d19849beaee6dbcc1eef85ea5f5253c2085d4"
+    },
+    "pipeline_state": {
+      "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-e7d1a256221a28aa/pipeline_state.json",
+      "sha256": "sha256:bf787df92b3600b3b52cffae6718d2ebeab5beb01a6d0d7a096be66fa9b111a4"
+    },
+    "pipeline_trace": {
+      "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-e7d1a256221a28aa/pipeline_trace.json",
+      "sha256": "sha256:709532bdaac423e80c49ddab1018ea73adf129ee00767b41a662ca21b5777c84"
+    }
+  },
+  "non_authority_flags": {
+    "authorizes_promotion_or_readiness": false,
+    "contacts_paper_live_runtime": false,
+    "executes_canonical_crossing": false,
+    "fires_notifications": false,
+    "human_review_required_for_prereg": true,
+    "noncanonical_only": true,
+    "offline_only": true,
+    "scratch_only": true,
+    "separate_authorization_required_for_canonical_or_runtime": true,
+    "uses_provider_api_or_credentials": false,
+    "uses_scheduler_or_autonomy": false,
+    "writes_candidate_lifecycle": false,
+    "writes_canonical_evidence": false
+  },
+  "pipeline_run_id": "LPIPE-e7d1a256221a28aa",
+  "schema_version": "lab_pipeline_artifact_index_v1",
+  "self_entry_note": "artifact_index self hash omitted to avoid recursive hash mutation"
+}

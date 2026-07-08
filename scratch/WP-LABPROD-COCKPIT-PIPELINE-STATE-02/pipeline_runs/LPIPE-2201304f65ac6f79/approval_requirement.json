@@ -1,0 +1,35 @@
+{
+  "approval_marker_schema": "lab_pipeline_prereg_approval_v1",
+  "non_authority_flags": {
+    "authorizes_promotion_or_readiness": false,
+    "contacts_paper_live_runtime": false,
+    "executes_canonical_crossing": false,
+    "fires_notifications": false,
+    "human_review_required_for_prereg": true,
+    "noncanonical_only": true,
+    "offline_only": true,
+    "scratch_only": true,
+    "separate_authorization_required_for_canonical_or_runtime": true,
+    "uses_provider_api_or_credentials": false,
+    "uses_scheduler_or_autonomy": false,
+    "writes_candidate_lifecycle": false,
+    "writes_canonical_evidence": false
+  },
+  "pipeline_run_id": "LPIPE-2201304f65ac6f79",
+  "preregistration_packet_sha256": "sha256:3c1f76d5749a70f3ea1ceb44014b74dc133a6c13ac5f2a28831ae6083345055c",
+  "request_id": "REQ-9704f55778e6",
+  "required_fields": {
+    "approval_scope": "noncanonical_offline_research_execution_only",
+    "approval_statement": "Authorizes only non-canonical offline research execution for the exact frozen preregistration packet content.",
+    "approved_by": "Karl",
+    "authorizes_candidate_lifecycle": false,
+    "authorizes_canonical_write": false,
+    "authorizes_noncanonical_offline_research_execution": true,
+    "authorizes_notifications": false,
+    "authorizes_paper_live_runtime": false,
+    "authorizes_scheduler_autonomy": false,
+    "preregistration_packet_sha256": "sha256:3c1f76d5749a70f3ea1ceb44014b74dc133a6c13ac5f2a28831ae6083345055c",
+    "schema_version": "lab_pipeline_prereg_approval_v1"
+  },
+  "schema_version": "lab_pipeline_approval_requirement_v1"
+}

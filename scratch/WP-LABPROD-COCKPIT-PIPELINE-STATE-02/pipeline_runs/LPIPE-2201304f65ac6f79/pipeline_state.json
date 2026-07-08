@@ -1,0 +1,173 @@
+{
+  "approval_requirements": {
+    "approval_marker_schema": "lab_pipeline_prereg_approval_v1",
+    "non_authority_flags": {
+      "authorizes_promotion_or_readiness": false,
+      "contacts_paper_live_runtime": false,
+      "executes_canonical_crossing": false,
+      "fires_notifications": false,
+      "human_review_required_for_prereg": true,
+      "noncanonical_only": true,
+      "offline_only": true,
+      "scratch_only": true,
+      "separate_authorization_required_for_canonical_or_runtime": true,
+      "uses_provider_api_or_credentials": false,
+      "uses_scheduler_or_autonomy": false,
+      "writes_candidate_lifecycle": false,
+      "writes_canonical_evidence": false
+    },
+    "pipeline_run_id": "LPIPE-2201304f65ac6f79",
+    "preregistration_packet_sha256": "sha256:3c1f76d5749a70f3ea1ceb44014b74dc133a6c13ac5f2a28831ae6083345055c",
+    "request_id": "REQ-9704f55778e6",
+    "required_fields": {
+      "approval_scope": "noncanonical_offline_research_execution_only",
+      "approval_statement": "Authorizes only non-canonical offline research execution for the exact frozen preregistration packet content.",
+      "approved_by": "Karl",
+      "authorizes_candidate_lifecycle": false,
+      "authorizes_canonical_write": false,
+      "authorizes_noncanonical_offline_research_execution": true,
+      "authorizes_notifications": false,
+      "authorizes_paper_live_runtime": false,
+      "authorizes_scheduler_autonomy": false,
+      "preregistration_packet_sha256": "sha256:3c1f76d5749a70f3ea1ceb44014b74dc133a6c13ac5f2a28831ae6083345055c",
+      "schema_version": "lab_pipeline_prereg_approval_v1"
+    },
+    "schema_version": "lab_pipeline_approval_requirement_v1"
+  },
+  "artifact_refs": [
+    "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/approval_requirement.json",
+    "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/pipeline_request.json",
+    "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/preregistration_packet.json"
+  ],
+  "blocked_reasons": [
+    "prereg_approval_blocked:missing_prereg_approval"
+  ],
+  "created_at_policy": "deterministic_from_request_content_no_wall_clock",
+  "current_stage": "awaiting_prereg_approval",
+  "deterministic_timestamp_utc": "2026-07-08T00:00:00Z",
+  "non_authority_flags": {
+    "authorizes_promotion_or_readiness": false,
+    "contacts_paper_live_runtime": false,
+    "executes_canonical_crossing": false,
+    "fires_notifications": false,
+    "human_review_required_for_prereg": true,
+    "noncanonical_only": true,
+    "offline_only": true,
+    "scratch_only": true,
+    "separate_authorization_required_for_canonical_or_runtime": true,
+    "uses_provider_api_or_credentials": false,
+    "uses_scheduler_or_autonomy": false,
+    "writes_candidate_lifecycle": false,
+    "writes_canonical_evidence": false
+  },
+  "pipeline_run_id": "LPIPE-2201304f65ac6f79",
+  "pipeline_status": "awaiting_prereg_approval",
+  "request_id": "REQ-9704f55778e6",
+  "requested_by": "Karl",
+  "schema_version": "lab_pipeline_state_v1",
+  "source_idea": "Funding-carry mean reversion on BTCUSDT over the 1h research timeframe",
+  "stage_statuses": [
+    {
+      "artifact_refs": [
+        "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/pipeline_request.json"
+      ],
+      "blocked_reasons": [],
+      "detail": "Request loaded.",
+      "stage": "request_loaded",
+      "status": "complete"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [],
+      "detail": "Operator idea preserved and formalized.",
+      "stage": "idea_formalized",
+      "status": "complete"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [],
+      "detail": "Availability check passed for prereg packet preparation.",
+      "stage": "availability_checked",
+      "status": "complete"
+    },
+    {
+      "artifact_refs": [
+        "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/preregistration_packet.json",
+        "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/approval_requirement.json"
+      ],
+      "blocked_reasons": [],
+      "detail": "Frozen preregistration packet prepared.",
+      "stage": "prereg_packet_prepared",
+      "status": "complete"
+    },
+    {
+      "artifact_refs": [
+        "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/approval_requirement.json"
+      ],
+      "blocked_reasons": [
+        "prereg_approval_blocked:missing_prereg_approval"
+      ],
+      "detail": "Pipeline halted until exact-content prereg approval is supplied.",
+      "stage": "awaiting_prereg_approval",
+      "status": "awaiting_approval"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [],
+      "detail": "",
+      "stage": "approved_for_noncanonical_execution",
+      "status": "not_started"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [],
+      "detail": "",
+      "stage": "noncanonical_execution_running",
+      "status": "not_started"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [],
+      "detail": "",
+      "stage": "noncanonical_execution_complete",
+      "status": "not_started"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [],
+      "detail": "",
+      "stage": "gate_review_complete",
+      "status": "not_started"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [],
+      "detail": "",
+      "stage": "robustness_review_complete",
+      "status": "not_started"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [],
+      "detail": "",
+      "stage": "candidate_review_packet_prepared",
+      "status": "not_started"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [],
+      "detail": "",
+      "stage": "complete",
+      "status": "not_started"
+    },
+    {
+      "artifact_refs": [],
+      "blocked_reasons": [],
+      "detail": "",
+      "stage": "blocked",
+      "status": "not_started"
+    }
+  ],
+  "symbol": "BTCUSDT",
+  "timeframe": "1h"
+}

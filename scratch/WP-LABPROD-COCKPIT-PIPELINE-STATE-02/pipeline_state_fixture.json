@@ -1,0 +1,578 @@
+{
+  "available": true,
+  "runs": [
+    {
+      "approval": {
+        "approval_scope": "noncanonical_offline_research_execution_only",
+        "awaiting": false,
+        "preregistration_packet_sha256": "sha256:ab796b008f8f42568fac3628e2c54a1d1bc0b0e544ede354e65676b390016fc5",
+        "required": true
+      },
+      "artifacts": [
+        {
+          "filename": "pipeline_state.json",
+          "key": "pipeline_state",
+          "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/pipeline_state.json",
+          "present": true,
+          "sha256": "sha256:3d7046ec14f3f7f0fd7c3e3ed6d7325d8792bad236d7454af6bb4cb4076f83e0"
+        },
+        {
+          "filename": "pipeline_trace.json",
+          "key": "pipeline_trace",
+          "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/pipeline_trace.json",
+          "present": true,
+          "sha256": "sha256:35b9a52c296200a4d566d1cf961add36b4d5968e4be3d9712963c540d2e5dcaf"
+        },
+        {
+          "filename": "preregistration_packet.json",
+          "key": "preregistration_packet",
+          "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/preregistration_packet.json",
+          "present": true,
+          "sha256": "sha256:5634c9440b2644ef4dbe06bf9b4f19bd6a67a7041edcc7d7c5e0d6bcd3335e99"
+        },
+        {
+          "filename": "approval_requirement.json",
+          "key": "approval_requirement",
+          "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/approval_requirement.json",
+          "present": true,
+          "sha256": "sha256:bdbf36ed0c0cf8f6bfe2c5c139ac7d3f0fb042c59a4c32afceef7bc47f3d2370"
+        },
+        {
+          "filename": "noncanonical_execution_summary.json",
+          "key": "noncanonical_execution_summary",
+          "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/noncanonical_execution_summary.json",
+          "present": true,
+          "sha256": "sha256:af9f1abe3306b844cb4451210cd71d950f45526a78774fe96e6f797ca394e9b7"
+        },
+        {
+          "filename": "operator_review_packet.md",
+          "key": "operator_review_packet",
+          "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/operator_review_packet.md",
+          "present": true,
+          "sha256": "sha256:0314994e5b4ca181e8e20f4f5b2bf804e1e95693fdb752ef4a20957e297a9e64"
+        },
+        {
+          "filename": "non_authority_assertions.json",
+          "key": "non_authority_assertions",
+          "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/non_authority_assertions.json",
+          "present": true,
+          "sha256": "sha256:ba63e4d928140a24020484977cd235a632713a24d741344ffe46abc95aefa5fd"
+        },
+        {
+          "filename": "artifact_index.json",
+          "key": "artifact_index",
+          "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/artifact_index.json",
+          "present": true,
+          "sha256": null
+        },
+        {
+          "filename": "pipeline_request.json",
+          "key": "pipeline_request",
+          "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/pipeline_request.json",
+          "present": true,
+          "sha256": "sha256:bba2dec9c5491d1e58b63b86e3837812c266537980dee5564e7ea30e82730727"
+        }
+      ],
+      "available": true,
+      "awaiting_approval": false,
+      "blocked_reasons": [],
+      "current_stage": "complete",
+      "display_label": "COMPLETE \u00b7 SPINE ONLY",
+      "display_status": "complete_spine_only",
+      "execution_kind": "deterministic_spine_proof",
+      "non_authority_flags": {
+        "authorizes_promotion_or_readiness": false,
+        "contacts_paper_live_runtime": false,
+        "executes_canonical_crossing": false,
+        "fires_notifications": false,
+        "human_review_required_for_prereg": true,
+        "noncanonical_only": true,
+        "offline_only": true,
+        "scratch_only": true,
+        "separate_authorization_required_for_canonical_or_runtime": true,
+        "uses_provider_api_or_credentials": false,
+        "uses_scheduler_or_autonomy": false,
+        "writes_candidate_lifecycle": false,
+        "writes_canonical_evidence": false
+      },
+      "pipeline_run_id": "LPIPE-0508a68667a87ce9",
+      "raw_status": "complete",
+      "request_id": "REQ-acefdf3c4ebc",
+      "requested_by": "Karl",
+      "runner_invoked": false,
+      "source_idea": "RVOL breakout continuation on BTCUSDT with a 15m volatility filter",
+      "spine_only": true,
+      "stages": [
+        {
+          "blocked_reasons": [],
+          "detail": "Request loaded.",
+          "stage": "request_loaded",
+          "status": "complete"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "Operator idea preserved and formalized.",
+          "stage": "idea_formalized",
+          "status": "complete"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "Availability check passed for prereg packet preparation.",
+          "stage": "availability_checked",
+          "status": "complete"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "Frozen preregistration packet prepared.",
+          "stage": "prereg_packet_prepared",
+          "status": "complete"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "Exact-content prereg approval marker accepted.",
+          "stage": "awaiting_prereg_approval",
+          "status": "complete"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "Approval scope permits only non-canonical offline research execution.",
+          "stage": "approved_for_noncanonical_execution",
+          "status": "complete"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "Deterministic non-canonical spine step entered.",
+          "stage": "noncanonical_execution_running",
+          "status": "complete"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "Non-canonical spine step completed with preserved denominator.",
+          "stage": "noncanonical_execution_complete",
+          "status": "complete"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "Gate review completed as non-authoritative packet check.",
+          "stage": "gate_review_complete",
+          "status": "complete"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "Robustness review completed as non-authoritative packet check.",
+          "stage": "robustness_review_complete",
+          "status": "complete"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "Operator review packet prepared without candidate lifecycle authority.",
+          "stage": "candidate_review_packet_prepared",
+          "status": "complete"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "Pipeline packet complete.",
+          "stage": "complete",
+          "status": "complete"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "",
+          "stage": "blocked",
+          "status": "not_started"
+        }
+      ],
+      "symbol": "BTCUSDT",
+      "timeframe": "15m"
+    },
+    {
+      "approval": {
+        "approval_scope": "noncanonical_offline_research_execution_only",
+        "awaiting": true,
+        "preregistration_packet_sha256": "sha256:3c1f76d5749a70f3ea1ceb44014b74dc133a6c13ac5f2a28831ae6083345055c",
+        "required": true
+      },
+      "artifacts": [
+        {
+          "filename": "pipeline_state.json",
+          "key": "pipeline_state",
+          "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/pipeline_state.json",
+          "present": true,
+          "sha256": "sha256:2047e099ddc7e6245b4dfd1d7799837ca1cf6546dbdf6949229a68b3a2fe9533"
+        },
+        {
+          "filename": "pipeline_trace.json",
+          "key": "pipeline_trace",
+          "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/pipeline_trace.json",
+          "present": true,
+          "sha256": "sha256:019efa540fa07c82854adbf480b5c85cdb853fbadee66653dde711bb2cf709f2"
+        },
+        {
+          "filename": "preregistration_packet.json",
+          "key": "preregistration_packet",
+          "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/preregistration_packet.json",
+          "present": true,
+          "sha256": "sha256:fb749ffb1ea5b7cad7ac4ecd7903983a09a5c21bbe145295a005b3df58e37610"
+        },
+        {
+          "filename": "approval_requirement.json",
+          "key": "approval_requirement",
+          "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/approval_requirement.json",
+          "present": true,
+          "sha256": "sha256:1abaf4fa541ac32ca0b22a71f1c53e995e150c1888b5577a065267619e13b10d"
+        },
+        {
+          "filename": "noncanonical_execution_summary.json",
+          "key": "noncanonical_execution_summary",
+          "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/noncanonical_execution_summary.json",
+          "present": false,
+          "sha256": null
+        },
+        {
+          "filename": "operator_review_packet.md",
+          "key": "operator_review_packet",
+          "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/operator_review_packet.md",
+          "present": true,
+          "sha256": "sha256:8443d1ea5d8720ce163995181cc0e1ff235838c89f1d49ab0efc5415b2c29610"
+        },
+        {
+          "filename": "non_authority_assertions.json",
+          "key": "non_authority_assertions",
+          "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/non_authority_assertions.json",
+          "present": true,
+          "sha256": "sha256:e5dc1ff8b8e7bd0b9d3eb752877ed2da87661a07962c7761cc34cb3b7a0cfccc"
+        },
+        {
+          "filename": "artifact_index.json",
+          "key": "artifact_index",
+          "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/artifact_index.json",
+          "present": true,
+          "sha256": null
+        },
+        {
+          "filename": "pipeline_request.json",
+          "key": "pipeline_request",
+          "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/pipeline_request.json",
+          "present": true,
+          "sha256": "sha256:bddfd765098346746cfa274354a9803ab5328582a00710b98ef429edd3860945"
+        }
+      ],
+      "available": true,
+      "awaiting_approval": true,
+      "blocked_reasons": [
+        "prereg_approval_blocked:missing_prereg_approval"
+      ],
+      "current_stage": "awaiting_prereg_approval",
+      "display_label": "AWAITING PREREG APPROVAL",
+      "display_status": "awaiting_prereg_approval",
+      "execution_kind": null,
+      "non_authority_flags": {
+        "authorizes_promotion_or_readiness": false,
+        "contacts_paper_live_runtime": false,
+        "executes_canonical_crossing": false,
+        "fires_notifications": false,
+        "human_review_required_for_prereg": true,
+        "noncanonical_only": true,
+        "offline_only": true,
+        "scratch_only": true,
+        "separate_authorization_required_for_canonical_or_runtime": true,
+        "uses_provider_api_or_credentials": false,
+        "uses_scheduler_or_autonomy": false,
+        "writes_candidate_lifecycle": false,
+        "writes_canonical_evidence": false
+      },
+      "pipeline_run_id": "LPIPE-2201304f65ac6f79",
+      "raw_status": "awaiting_prereg_approval",
+      "request_id": "REQ-9704f55778e6",
+      "requested_by": "Karl",
+      "runner_invoked": null,
+      "source_idea": "Funding-carry mean reversion on BTCUSDT over the 1h research timeframe",
+      "spine_only": false,
+      "stages": [
+        {
+          "blocked_reasons": [],
+          "detail": "Request loaded.",
+          "stage": "request_loaded",
+          "status": "complete"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "Operator idea preserved and formalized.",
+          "stage": "idea_formalized",
+          "status": "complete"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "Availability check passed for prereg packet preparation.",
+          "stage": "availability_checked",
+          "status": "complete"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "Frozen preregistration packet prepared.",
+          "stage": "prereg_packet_prepared",
+          "status": "complete"
+        },
+        {
+          "blocked_reasons": [
+            "prereg_approval_blocked:missing_prereg_approval"
+          ],
+          "detail": "Pipeline halted until exact-content prereg approval is supplied.",
+          "stage": "awaiting_prereg_approval",
+          "status": "awaiting_approval"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "",
+          "stage": "approved_for_noncanonical_execution",
+          "status": "not_started"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "",
+          "stage": "noncanonical_execution_running",
+          "status": "not_started"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "",
+          "stage": "noncanonical_execution_complete",
+          "status": "not_started"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "",
+          "stage": "gate_review_complete",
+          "status": "not_started"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "",
+          "stage": "robustness_review_complete",
+          "status": "not_started"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "",
+          "stage": "candidate_review_packet_prepared",
+          "status": "not_started"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "",
+          "stage": "complete",
+          "status": "not_started"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "",
+          "stage": "blocked",
+          "status": "not_started"
+        }
+      ],
+      "symbol": "BTCUSDT",
+      "timeframe": "1h"
+    },
+    {
+      "approval": {
+        "approval_scope": null,
+        "awaiting": false,
+        "preregistration_packet_sha256": null,
+        "required": false
+      },
+      "artifacts": [
+        {
+          "filename": "pipeline_state.json",
+          "key": "pipeline_state",
+          "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-e7d1a256221a28aa/pipeline_state.json",
+          "present": true,
+          "sha256": "sha256:bf787df92b3600b3b52cffae6718d2ebeab5beb01a6d0d7a096be66fa9b111a4"
+        },
+        {
+          "filename": "pipeline_trace.json",
+          "key": "pipeline_trace",
+          "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-e7d1a256221a28aa/pipeline_trace.json",
+          "present": true,
+          "sha256": "sha256:709532bdaac423e80c49ddab1018ea73adf129ee00767b41a662ca21b5777c84"
+        },
+        {
+          "filename": "preregistration_packet.json",
+          "key": "preregistration_packet",
+          "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-e7d1a256221a28aa/preregistration_packet.json",
+          "present": false,
+          "sha256": null
+        },
+        {
+          "filename": "approval_requirement.json",
+          "key": "approval_requirement",
+          "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-e7d1a256221a28aa/approval_requirement.json",
+          "present": false,
+          "sha256": null
+        },
+        {
+          "filename": "noncanonical_execution_summary.json",
+          "key": "noncanonical_execution_summary",
+          "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-e7d1a256221a28aa/noncanonical_execution_summary.json",
+          "present": false,
+          "sha256": null
+        },
+        {
+          "filename": "operator_review_packet.md",
+          "key": "operator_review_packet",
+          "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-e7d1a256221a28aa/operator_review_packet.md",
+          "present": true,
+          "sha256": "sha256:e18b1b086e46945d3c93196488fe93d17dc6093515b496ad4cb72c3c4eec55dd"
+        },
+        {
+          "filename": "non_authority_assertions.json",
+          "key": "non_authority_assertions",
+          "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-e7d1a256221a28aa/non_authority_assertions.json",
+          "present": true,
+          "sha256": "sha256:2669a5ed181a898579fdd15ce1672180fa5b19c20c41be96c986baa89d1028ee"
+        },
+        {
+          "filename": "artifact_index.json",
+          "key": "artifact_index",
+          "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-e7d1a256221a28aa/artifact_index.json",
+          "present": true,
+          "sha256": null
+        },
+        {
+          "filename": "pipeline_request.json",
+          "key": "pipeline_request",
+          "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-e7d1a256221a28aa/pipeline_request.json",
+          "present": true,
+          "sha256": "sha256:ff533f8e1953cd8878312958f95d19849beaee6dbcc1eef85ea5f5253c2085d4"
+        }
+      ],
+      "available": true,
+      "awaiting_approval": false,
+      "blocked_reasons": [
+        "availability_blocked:unsupported_timeframe"
+      ],
+      "current_stage": "blocked",
+      "display_label": "BLOCKED",
+      "display_status": "blocked_or_invalid",
+      "execution_kind": null,
+      "non_authority_flags": {
+        "authorizes_promotion_or_readiness": false,
+        "contacts_paper_live_runtime": false,
+        "executes_canonical_crossing": false,
+        "fires_notifications": false,
+        "human_review_required_for_prereg": true,
+        "noncanonical_only": true,
+        "offline_only": true,
+        "scratch_only": true,
+        "separate_authorization_required_for_canonical_or_runtime": true,
+        "uses_provider_api_or_credentials": false,
+        "uses_scheduler_or_autonomy": false,
+        "writes_candidate_lifecycle": false,
+        "writes_canonical_evidence": false
+      },
+      "pipeline_run_id": "LPIPE-e7d1a256221a28aa",
+      "raw_status": "blocked",
+      "request_id": "REQ-0c88de81c763",
+      "requested_by": "Karl",
+      "runner_invoked": null,
+      "source_idea": "Momentum idea on an unsupported research timeframe",
+      "spine_only": false,
+      "stages": [
+        {
+          "blocked_reasons": [],
+          "detail": "Request loaded.",
+          "stage": "request_loaded",
+          "status": "complete"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "Operator idea preserved and formalized.",
+          "stage": "idea_formalized",
+          "status": "complete"
+        },
+        {
+          "blocked_reasons": [
+            "availability_blocked:unsupported_timeframe"
+          ],
+          "detail": "Availability check blocked.",
+          "stage": "availability_checked",
+          "status": "blocked"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "",
+          "stage": "prereg_packet_prepared",
+          "status": "not_started"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "",
+          "stage": "awaiting_prereg_approval",
+          "status": "not_started"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "",
+          "stage": "approved_for_noncanonical_execution",
+          "status": "not_started"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "",
+          "stage": "noncanonical_execution_running",
+          "status": "not_started"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "",
+          "stage": "noncanonical_execution_complete",
+          "status": "not_started"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "",
+          "stage": "gate_review_complete",
+          "status": "not_started"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "",
+          "stage": "robustness_review_complete",
+          "status": "not_started"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "",
+          "stage": "candidate_review_packet_prepared",
+          "status": "not_started"
+        },
+        {
+          "blocked_reasons": [],
+          "detail": "",
+          "stage": "complete",
+          "status": "not_started"
+        },
+        {
+          "blocked_reasons": [
+            "availability_blocked:unsupported_timeframe"
+          ],
+          "detail": "Pipeline blocked by availability.",
+          "stage": "blocked",
+          "status": "blocked"
+        }
+      ],
+      "symbol": "BTCUSDT",
+      "timeframe": "3m"
+    }
+  ],
+  "runs_root": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs",
+  "spine_only": true,
+  "spine_only_label": "State spine / prereg approval contract only; real agent/runner adapter flow not yet complete.",
+  "status": "present",
+  "totals": {
+    "awaiting_approval": 1,
+    "blocked_or_invalid": 1,
+    "complete_real": 0,
+    "complete_spine_only": 1,
+    "run_count": 3
+  }
+}

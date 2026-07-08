@@ -1,0 +1,31 @@
+Validation summary for WP-LABPROD-PAPER-HANDOFF-BOUNDARY-DEFINE-01.
+
+Base: origin/main / 126d9aaeaad2e5bd67e5163548f1223e6e78df13
+Branch: labprod/paper-handoff-boundary-define-01
+Worktree: C:\GitHub\crypto-perp-wedge-worktrees\labprod-paper-handoff-boundary-define-01
+
+Commands:
+
+- python -m json.tool scratch/WP-LABPROD-PAPER-HANDOFF-BOUNDARY-DEFINE-01/handoff_boundary_traceability.json: PASS
+- python tools/dev/diff_scope_summary.py: PASS
+  - Staged files only: 6
+  - Forbidden-path matches: none
+  - Untracked files: none
+- git diff --check: PASS
+- git diff --cached --check: PASS
+- git status --short: PASS
+  - Staged additions are limited to the six allowed package files.
+
+Manual checks:
+
+- docs/scratch/status-entry only: PASS
+- tests touched: no
+- implementation paths touched: no
+- docs/project_status.md touched: no
+- docs/research/LAB_COMPLETION_MAP.md touched: no
+- candidate/crossing/promotion/readiness authority created: no
+- paper/shadow/live/runtime authority created: no
+- scheduler/autonomous dispatch authority created: no
+- provider/API/credential/network authority created: no
+- canonical Result Population or candidate registry write created: no
+- protected paths touched: no

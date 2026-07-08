@@ -11,6 +11,9 @@
 - Existing bounded research-agent modules live under `tools/research_agents`.
 - The formalizer-runner bridge, robustness diagnostician, and candidate review
   packet agents validate exact package-specific ToolContext roles and WP IDs.
+- Existing research-agent modules remain package-specific and scratch-prefix
+  specific; their approval and ToolContext semantics are not generic pipeline
+  adapter interfaces in this PR.
 
 ## Inference
 
@@ -19,17 +22,26 @@ to relax their package-specific guards. A new `tools/lab_pipeline` surface can
 provide the operator-invocable state spine and exact prereg approval pause while
 preserving those prior agent boundaries.
 
+The current branch should therefore be described as a deterministic state spine
+and approval contract, not as proof that the existing idea formalizer,
+formalizer-runner bridge, robustness diagnostician, candidate-review packet
+agent, WFO/OOS gate, or real offline runner are already chained into one product
+flow.
+
 ## Decision
 
 Use the preferred new package path `tools/lab_pipeline`. Keep pipeline run-stage
 names local to that package and document that they do not alter
-`tools/lab_state`.
+`tools/lab_state`. Keep approved execution as deterministic non-canonical spine
+proof with `runner_invoked=false`.
 
 ## Open Question
 
 Future adapter packages can decide how, or whether, to route approved pipeline
 runs into existing bounded agent modules without weakening their ToolContext
 roles, approval scopes, and scratch-prefix guarantees.
+
+Named follow-up dependency: `WP-LABPROD-PIPELINE-AGENT-ADAPTERS-02`.
 
 ## Future Option
 

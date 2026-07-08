@@ -8,19 +8,27 @@ scratch pipeline packet, halts at exact-content prereg approval, and continues
 only when the Karl file-based approval marker is scoped to non-canonical offline
 research execution for the frozen preregistration packet hash.
 
+This branch is scoped as the Wave 1 pipeline state spine / prereg approval
+contract. It does not yet invoke the existing idea formalizer,
+formalizer-runner bridge, robustness diagnostician, candidate-review packet
+agent, WFO/OOS gate, or real offline runner as an end-to-end product flow.
+Approved runs produce deterministic non-canonical spine proof only, with
+`noncanonical_execution_summary.json` recording `runner_invoked=false`.
+
 ## Authority
 
 This package grants only non-canonical, scratch-only, offline research-lab
-orchestration authority. It grants no candidate, crossing, promotion/readiness,
-paper/live/runtime, scheduler/autonomy, notification, provider/API, credential,
-dependency, data, or protected-path authority.
+state-spine / approval-contract authority. It grants no candidate, crossing,
+promotion/readiness, paper/live/runtime, scheduler/autonomy, notification,
+provider/API, credential, dependency, data, or protected-path authority.
 
 ## Repo-Truth Discovery
 
 Current `tools/lab_state` remains the canonical read-only coordinator state
 model. Existing agent packages are scratch-only and bind approval semantics to
 their own package-specific ToolContext roles and scratch prefixes. This package
-therefore adds a new pipeline spine without modifying existing agent semantics.
+therefore adds a new pipeline spine without modifying existing agent semantics
+or invoking those agents.
 
 Detailed discovery is recorded in
 `scratch/WP-LABPROD-PIPELINE-ORCHESTRATOR-01/repo_truth_discovery.md`.
@@ -57,3 +65,10 @@ Non-canonical lab-productization orchestration only; no canonical evidence,
 candidate, crossing, promotion, paper/live/runtime, scheduler/autonomy,
 notification, provider/API, credential, dependency, data, or protected-path
 authority.
+
+This package does not remove the need for future Codex/Main-approved work
+packages to run a full hypothesis test. The required follow-up adapter package
+is `WP-LABPROD-PIPELINE-AGENT-ADAPTERS-02`, whose high-level goal is to safely
+bind this state spine to existing formalizer / bridge / runner / robustness /
+candidate-review packet modules without weakening ToolContext, approval,
+scratch-prefix, non-authority, or protected-boundary guarantees.

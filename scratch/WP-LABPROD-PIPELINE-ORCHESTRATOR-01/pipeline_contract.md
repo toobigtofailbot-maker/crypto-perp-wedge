@@ -1,5 +1,20 @@
 # Pipeline Contract
 
+## Current Product Boundary
+
+This contract describes the Wave 1 pipeline state spine and exact-content
+prereg approval flow only. It does not describe an end-to-end existing-agent
+chain.
+
+The current CLI does not invoke the existing idea formalizer,
+formalizer-runner bridge, robustness diagnostician, candidate-review packet
+agent, WFO/OOS gate, or real offline runner. Approved runs write
+`noncanonical_execution_summary.json` as deterministic non-canonical spine
+proof, and that summary records `runner_invoked=false`.
+
+Adapter wiring for the real existing modules is a required later package:
+`WP-LABPROD-PIPELINE-AGENT-ADAPTERS-02`.
+
 ## Request
 
 Input is a JSON object with:

@@ -1,0 +1,54 @@
+WP-LABPROD-COCKPIT-SYNTAXFIX-01 validation summary
+
+Branch/worktree:
+- Branch: codex/wp-labprod-cockpit-syntaxfix-01
+- Worktree: C:\GitHub\crypto-perp-wedge-worktrees\wp-labprod-cockpit-syntaxfix-01
+- Base: origin/main at c81d3026b7c46e080036a316ed10143b97782689
+
+Repo-truth discovery:
+- Open PR check at package start: gh pr list returned [].
+- PR #618 was already merged into origin/main at the package base SHA.
+- The reported syntax hazard was present in tools/lab_cockpit/render.py as f-string expressions containing escaped quotes for presence badge HTML.
+
+Syntax check:
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m py_compile tools/lab_cockpit/render.py
+  Result: PASS.
+
+Focused:
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest tests/test_lab_cockpit.py tests/test_lab_cockpit_pipeline_state.py -q
+  Result: PASS, 43 passed in 3.00s.
+
+Regression:
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest tests/test_lab_dashboard.py tests/test_lab_state_model.py tests/test_lab_state_resolver.py -q
+  Result: PASS, 48 passed in 1.91s.
+
+Cockpit build:
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.lab_cockpit.run --out-dir build/lab_cockpit
+  Result: PASS.
+  Outputs generated locally for validation only:
+  - build\lab_cockpit\cockpit_data.json
+  - build\lab_cockpit\cockpit.html
+  - build\lab_cockpit\cockpit.md
+  The generated build/ tree was not committed.
+
+Standard repo validators:
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.research_query.run --list-views
+  Result: PASS, listed views successfully.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.registry.validate_result_populations
+  Result: PASS, result-population artifacts validate.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.registry.validate_candidate_registry
+  Result: PASS, candidate lifecycle registry fixture artifacts validate.
+
+Full test check:
+- python -m pytest -q
+  Result: FAIL under system Python 3.14.3 before package validation due to missing local dependencies: binance, pandas, numpy. This was environmental and not package-caused.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest -q
+  Result: TIMEOUT after 304079 ms with no failure output returned before timeout.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest --collect-only -q
+  Result: PASS, 2585 tests collected in 6.41s. Full collection no longer fails on the cockpit SyntaxError.
+
+Boundary check:
+- Changed code path: tools/lab_cockpit/render.py only.
+- Added required package evidence under scratch/WP-LABPROD-COCKPIT-SYNTAXFIX-01/ and docs/status_entries/.
+- No bridge code, adapter code, runner code, src, lib, configs, data, protected runtime path, dependency, config, canonical evidence, or candidate lifecycle write was changed.
+- No cockpit control surface, JavaScript, server/network behavior, live fetch, auto-refresh, run/approve/promote/retry/candidate/scheduler control was added.

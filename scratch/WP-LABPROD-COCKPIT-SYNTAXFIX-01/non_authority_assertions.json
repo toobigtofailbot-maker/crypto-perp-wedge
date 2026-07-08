@@ -1,0 +1,20 @@
+{
+  "syntax_fix_only": true,
+  "feature_change": false,
+  "cockpit_control_added": false,
+  "javascript_added": false,
+  "server_or_network_added": false,
+  "bridge_code_changed": false,
+  "adapter_code_changed": false,
+  "runner_code_changed": false,
+  "canonical_evidence_written": false,
+  "candidate_lifecycle_written": false,
+  "crossing": false,
+  "promotion_or_readiness": false,
+  "paper_live_runtime_contact": false,
+  "scheduler_autonomous_dispatch": false,
+  "notification_firing": false,
+  "provider_api_credential_use": false,
+  "dependency_config_data_acquisition": false,
+  "protected_path_touch": false
+}

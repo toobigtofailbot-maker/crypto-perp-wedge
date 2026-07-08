@@ -31,6 +31,16 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Output root for pipeline run packets",
     )
     parser.add_argument(
+        "--run-adapters",
+        action="store_true",
+        help="After exact prereg approval, run the package-local adapter-backed flow",
+    )
+    parser.add_argument(
+        "--adapter-out-root",
+        type=Path,
+        help="Output root for adapter packets; defaults to the adapter package scratch root",
+    )
+    parser.add_argument(
         "--write-approval-template",
         type=Path,
         help="Write an approval template for an existing preregistration packet and exit",
@@ -53,6 +63,8 @@ def main(argv: list[str] | None = None) -> int:
             request_path=args.request,
             approval_path=args.approval,
             output_root=args.out_root,
+            run_adapters=args.run_adapters,
+            adapter_output_root=args.adapter_out_root,
         )
     except (OSError, ValueError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)

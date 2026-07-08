@@ -1,0 +1,19 @@
+{
+  "adapter_run_id": "LADAPT-8f3015b055116a87",
+  "gap_count": 0,
+  "gaps": [],
+  "non_authority_assertions": {
+    "candidate_admission": false,
+    "candidate_lifecycle_written": false,
+    "canonical_evidence_written": false,
+    "crossing": false,
+    "dependency_config_data_acquisition": false,
+    "notification_firing": false,
+    "paper_live_runtime_contact": false,
+    "promotion_or_readiness": false,
+    "protected_path_touch": false,
+    "provider_api_credential_use": false,
+    "scheduler_autonomous_dispatch": false
+  },
+  "schema_version": "lab_pipeline_adapter_gap_register_v1"
+}

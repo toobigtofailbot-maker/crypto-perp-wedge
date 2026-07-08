@@ -1,0 +1,30 @@
+WP-LABPROD-PIPELINE-AGENT-ADAPTERS-02 validation summary
+
+Branch/worktree:
+- Branch: labprod/pipeline-agent-adapters-02
+- Base: origin/main at a57af3f
+- Worktree: C:\GitHub\crypto-perp-wedge-worktrees\labprod-pipeline-agent-adapters-02
+
+Commands run:
+- python -m pytest tests/test_lab_pipeline_orchestrator.py tests/test_lab_pipeline_agent_adapters.py -q
+  Result: PASS, 27 passed.
+- python -m pytest tests/test_lab_state_model.py tests/test_lab_state_resolver.py tests/test_lab_approval_queue.py tests/test_lab_scheduler_shell.py tests/test_lab_reporting.py tests/test_lab_dashboard.py -q
+  Result: PASS, 95 passed.
+- python -m tools.research_query.run --list-views
+  Result: PASS, listed query views successfully.
+- python -m tools.registry.validate_result_populations
+  Result: PASS, result-population artifacts validate.
+- python -m tools.registry.validate_candidate_registry
+  Result: PASS, candidate lifecycle registry fixtures validate.
+- python tools/dev/diff_scope_summary.py
+  Result: PASS, no forbidden-path matches reported.
+- git diff --check
+  Result: PASS.
+
+Fixture:
+- scratch/WP-LABPROD-PIPELINE-AGENT-ADAPTERS-02/adapter_run_fixture.json
+- scratch/WP-LABPROD-PIPELINE-AGENT-ADAPTERS-02/outputs/LADAPT-8f3015b055116a87/
+- Fixture status: awaiting_prereg_approval; no real modules invoked; no approval marker created.
+
+Boundary:
+- No src, lib, configs, .claude, data, cockpit, scheduler, notification, dependency, provider/API, credential, paper/live/runtime, OMS/risk/reconciliation, canonical evidence, candidate lifecycle, Strategy Spec, Variant Manifest, Sweep Plan, Result Population, or trial-log path changed.

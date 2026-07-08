@@ -362,6 +362,8 @@ def run_pipeline(
     request_path: Path,
     approval_path: Path | None = None,
     output_root: Path = DEFAULT_OUTPUT_ROOT,
+    run_adapters: bool = False,
+    adapter_output_root: Path | None = None,
 ) -> PipelineResult:
     _validate_output_root(output_root)
     raw_request = read_json(request_path)
@@ -519,6 +521,26 @@ def run_pipeline(
     )
     _set_stage(stages, "complete", "complete", "Pipeline packet complete.")
     add_trace("complete", "complete", "Pipeline complete.")
+
+    if run_adapters:
+        from tools.lab_pipeline.adapters import DEFAULT_ADAPTER_OUTPUT_ROOT, run_adapter_flow
+
+        adapter_result = run_adapter_flow(
+            request=request,
+            pipeline_run_id=pipeline_run_id,
+            preregistration_packet_path=Path(artifacts["preregistration_packet"]),
+            approval_path=approval_path,
+            output_root=adapter_output_root or DEFAULT_ADAPTER_OUTPUT_ROOT,
+        )
+        artifacts["pipeline_adapter_state"] = adapter_result.artifact_paths[
+            "pipeline_adapter_state"
+        ]
+        artifacts["pipeline_adapter_gap_register"] = adapter_result.artifact_paths[
+            "adapter_gap_register"
+        ]
+        artifacts["pipeline_adapter_operator_review_packet"] = adapter_result.artifact_paths[
+            "operator_review_packet"
+        ]
 
     return _finalize(
         run_dir=run_dir,

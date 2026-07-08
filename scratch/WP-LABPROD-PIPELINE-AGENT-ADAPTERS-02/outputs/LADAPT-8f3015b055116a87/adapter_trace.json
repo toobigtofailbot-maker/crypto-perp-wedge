@@ -1,0 +1,181 @@
+{
+  "adapter_run_id": "LADAPT-8f3015b055116a87",
+  "events": [
+    {
+      "adapter_id": "adapter.idea_formalizer.fake_offline.v1",
+      "detail": "Adapter execution halted before invoking real modules.",
+      "hashes": {},
+      "input_paths": [],
+      "non_authority_assertions": {
+        "candidate_admission": false,
+        "candidate_lifecycle_written": false,
+        "canonical_evidence_written": false,
+        "crossing": false,
+        "dependency_config_data_acquisition": false,
+        "notification_firing": false,
+        "paper_live_runtime_contact": false,
+        "promotion_or_readiness": false,
+        "protected_path_touch": false,
+        "provider_api_credential_use": false,
+        "scheduler_autonomous_dispatch": false
+      },
+      "output_paths": [],
+      "reason_code": "pipeline_prereg_approval_missing_or_invalid",
+      "stage": "idea_formalization",
+      "status": "awaiting_prereg_approval"
+    },
+    {
+      "adapter_id": "adapter.lab_readiness.projection.v1",
+      "detail": "Adapter execution halted before invoking real modules.",
+      "hashes": {},
+      "input_paths": [],
+      "non_authority_assertions": {
+        "candidate_admission": false,
+        "candidate_lifecycle_written": false,
+        "canonical_evidence_written": false,
+        "crossing": false,
+        "dependency_config_data_acquisition": false,
+        "notification_firing": false,
+        "paper_live_runtime_contact": false,
+        "promotion_or_readiness": false,
+        "protected_path_touch": false,
+        "provider_api_credential_use": false,
+        "scheduler_autonomous_dispatch": false
+      },
+      "output_paths": [],
+      "reason_code": "pipeline_prereg_approval_missing_or_invalid",
+      "stage": "availability_readiness_classification",
+      "status": "awaiting_prereg_approval"
+    },
+    {
+      "adapter_id": "adapter.formalizer_runner_bridge.v1",
+      "detail": "Adapter execution halted before invoking real modules.",
+      "hashes": {},
+      "input_paths": [],
+      "non_authority_assertions": {
+        "candidate_admission": false,
+        "candidate_lifecycle_written": false,
+        "canonical_evidence_written": false,
+        "crossing": false,
+        "dependency_config_data_acquisition": false,
+        "notification_firing": false,
+        "paper_live_runtime_contact": false,
+        "promotion_or_readiness": false,
+        "protected_path_touch": false,
+        "provider_api_credential_use": false,
+        "scheduler_autonomous_dispatch": false
+      },
+      "output_paths": [],
+      "reason_code": "pipeline_prereg_approval_missing_or_invalid",
+      "stage": "bridge_spec_variant_sweep_preparation",
+      "status": "awaiting_prereg_approval"
+    },
+    {
+      "adapter_id": "adapter.offline_runner.noncanonical.v1",
+      "detail": "Adapter execution halted before invoking real modules.",
+      "hashes": {},
+      "input_paths": [],
+      "non_authority_assertions": {
+        "candidate_admission": false,
+        "candidate_lifecycle_written": false,
+        "canonical_evidence_written": false,
+        "crossing": false,
+        "dependency_config_data_acquisition": false,
+        "notification_firing": false,
+        "paper_live_runtime_contact": false,
+        "promotion_or_readiness": false,
+        "protected_path_touch": false,
+        "provider_api_credential_use": false,
+        "scheduler_autonomous_dispatch": false
+      },
+      "output_paths": [],
+      "reason_code": "pipeline_prereg_approval_missing_or_invalid",
+      "stage": "noncanonical_offline_runner_execution",
+      "status": "awaiting_prereg_approval"
+    },
+    {
+      "adapter_id": "adapter.wfo_oos_gate.v1",
+      "detail": "Adapter execution halted before invoking real modules.",
+      "hashes": {},
+      "input_paths": [],
+      "non_authority_assertions": {
+        "candidate_admission": false,
+        "candidate_lifecycle_written": false,
+        "canonical_evidence_written": false,
+        "crossing": false,
+        "dependency_config_data_acquisition": false,
+        "notification_firing": false,
+        "paper_live_runtime_contact": false,
+        "promotion_or_readiness": false,
+        "protected_path_touch": false,
+        "provider_api_credential_use": false,
+        "scheduler_autonomous_dispatch": false
+      },
+      "output_paths": [],
+      "reason_code": "pipeline_prereg_approval_missing_or_invalid",
+      "stage": "wfo_oos_gate_review",
+      "status": "awaiting_prereg_approval"
+    },
+    {
+      "adapter_id": "adapter.robustness_diagnostician.v1",
+      "detail": "Adapter execution halted before invoking real modules.",
+      "hashes": {},
+      "input_paths": [],
+      "non_authority_assertions": {
+        "candidate_admission": false,
+        "candidate_lifecycle_written": false,
+        "canonical_evidence_written": false,
+        "crossing": false,
+        "dependency_config_data_acquisition": false,
+        "notification_firing": false,
+        "paper_live_runtime_contact": false,
+        "promotion_or_readiness": false,
+        "protected_path_touch": false,
+        "provider_api_credential_use": false,
+        "scheduler_autonomous_dispatch": false
+      },
+      "output_paths": [],
+      "reason_code": "pipeline_prereg_approval_missing_or_invalid",
+      "stage": "robustness_diagnostics",
+      "status": "awaiting_prereg_approval"
+    },
+    {
+      "adapter_id": "adapter.candidate_review_packet.v1",
+      "detail": "Adapter execution halted before invoking real modules.",
+      "hashes": {},
+      "input_paths": [],
+      "non_authority_assertions": {
+        "candidate_admission": false,
+        "candidate_lifecycle_written": false,
+        "canonical_evidence_written": false,
+        "crossing": false,
+        "dependency_config_data_acquisition": false,
+        "notification_firing": false,
+        "paper_live_runtime_contact": false,
+        "promotion_or_readiness": false,
+        "protected_path_touch": false,
+        "provider_api_credential_use": false,
+        "scheduler_autonomous_dispatch": false
+      },
+      "output_paths": [],
+      "reason_code": "pipeline_prereg_approval_missing_or_invalid",
+      "stage": "candidate_review_packet_preparation",
+      "status": "awaiting_prereg_approval"
+    }
+  ],
+  "no_winner_only_or_hidden_failure_status": true,
+  "non_authority_assertions": {
+    "candidate_admission": false,
+    "candidate_lifecycle_written": false,
+    "canonical_evidence_written": false,
+    "crossing": false,
+    "dependency_config_data_acquisition": false,
+    "notification_firing": false,
+    "paper_live_runtime_contact": false,
+    "promotion_or_readiness": false,
+    "protected_path_touch": false,
+    "provider_api_credential_use": false,
+    "scheduler_autonomous_dispatch": false
+  },
+  "schema_version": "lab_pipeline_adapter_trace_v1"
+}

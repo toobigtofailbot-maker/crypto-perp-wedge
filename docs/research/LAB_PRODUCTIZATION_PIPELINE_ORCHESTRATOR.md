@@ -6,11 +6,11 @@
 pipeline state spine and exact-content prereg approval contract for
 non-canonical research-lab packets.
 
-This is the Wave 1 state/approval spine only. It does not yet invoke the
-existing idea formalizer, formalizer-runner bridge, robustness diagnostician,
-candidate-review packet agent, WFO/OOS gate, or real offline runner as an
-end-to-end product flow. Approved runs currently produce deterministic
-non-canonical spine proof only.
+This began as the Wave 1 state/approval spine only. The follow-up
+`WP-LABPROD-PIPELINE-AGENT-ADAPTERS-02` adds an opt-in adapter-backed flow behind
+the same exact-content prereg approval gate. See
+`docs/research/LAB_PRODUCTIZATION_PIPELINE_AGENT_ADAPTERS.md` for the adapter
+registry, actual bound stages, and current gap-registered stages.
 
 It creates no canonical evidence, candidate lifecycle record, crossing,
 promotion, readiness, paper/live/runtime behavior, scheduler/autonomous
@@ -30,11 +30,12 @@ agents or bypass their approval scopes. It records a deterministic pipeline
 spine and can be extended by later authorized adapter packages if a clean
 callable integration is locked.
 
-Existing agent modules are not invoked by this package because their ToolContext
-roles, WP IDs, and scratch-prefix rules remain package-specific. The current CLI
-is therefore an operator-invocable state spine / prereg approval flow, not the
-full existing-agent chain and not a replacement for Codex work packages required
-to complete a real hypothesis test.
+Existing agent modules are invoked only through the adapter package where their
+ToolContext roles, scratch-prefix rules, and approval contracts can be preserved.
+The adapter package currently binds idea formalization and read-only readiness
+classification, while bridge / runner / WFO-OOS / robustness / candidate-review
+stages remain gap-registered where their contracts cannot yet be safely
+satisfied.
 
 ## Flow
 
@@ -95,15 +96,20 @@ Core files:
 - `non_authority_assertions.json`
 - `operator_review_packet.md`
 
-Approved runs also write `noncanonical_execution_summary.json`. That file is a
-deterministic spine proof, not canonical evidence and not a runner result. Its
-`runner_invoked` field is explicitly `false`.
+Approved spine-only runs also write `noncanonical_execution_summary.json`. That
+file is a deterministic spine proof, not canonical evidence and not a runner
+result. Its `runner_invoked` field is explicitly `false`.
+
+When invoked with `--run-adapters`, approved runs additionally link to the
+package-local adapter packet written by
+`WP-LABPROD-PIPELINE-AGENT-ADAPTERS-02`.
 
 ## CLI
 
 ```powershell
 python -m tools.lab_pipeline.run --request <request.json> --json
 python -m tools.lab_pipeline.run --request <request.json> --approval <approval.json> --json
+python -m tools.lab_pipeline.run --request <request.json> --approval <approval.json> --run-adapters --json
 ```
 
 Exit codes:
@@ -124,9 +130,7 @@ Any such downstream action requires a separate approved work package.
 
 ## Required Follow-Up
 
-`WP-LABPROD-PIPELINE-AGENT-ADAPTERS-02` is the required later adapter package
-before this state spine can become a true end-to-end product flow. Its goal
-should be limited to safely binding the pipeline state spine to existing
-formalizer / bridge / runner / robustness / candidate-review packet modules
-without weakening ToolContext, approval, scratch-prefix, non-authority, or
-protected-boundary guarantees.
+`WP-LABPROD-PIPELINE-AGENT-ADAPTERS-02` provides the first adapter-backed flow.
+Further packages are still required before bridge / runner / WFO-OOS /
+robustness / candidate-review stages can run from this product flow without
+gap registrations.

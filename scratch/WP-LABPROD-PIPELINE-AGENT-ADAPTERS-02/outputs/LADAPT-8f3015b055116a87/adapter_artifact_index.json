@@ -1,0 +1,49 @@
+{
+  "adapter_run_id": "LADAPT-8f3015b055116a87",
+  "artifact_count": 8,
+  "artifacts": {
+    "adapter_gap_register": {
+      "path": "C:/GitHub/crypto-perp-wedge-worktrees/labprod-pipeline-agent-adapters-02/scratch/WP-LABPROD-PIPELINE-AGENT-ADAPTERS-02/outputs/LADAPT-8f3015b055116a87/adapter_gap_register.json",
+      "sha256": "sha256:437e5123347c08a02842b29ece632e0745808177c5f71b27dc9e2d6607a9ed67"
+    },
+    "adapter_registry": {
+      "path": "C:/GitHub/crypto-perp-wedge-worktrees/labprod-pipeline-agent-adapters-02/scratch/WP-LABPROD-PIPELINE-AGENT-ADAPTERS-02/outputs/LADAPT-8f3015b055116a87/adapter_registry.json",
+      "sha256": "sha256:c4fd134d09af481e68deb4054595e52c37ca982199cc2a2d714c38acc7381937"
+    },
+    "adapter_trace": {
+      "path": "C:/GitHub/crypto-perp-wedge-worktrees/labprod-pipeline-agent-adapters-02/scratch/WP-LABPROD-PIPELINE-AGENT-ADAPTERS-02/outputs/LADAPT-8f3015b055116a87/adapter_trace.json",
+      "sha256": "sha256:db836fbadd1bd84f255a1f1c9ba909846378ccbddeac3fd5d4d0eababee2ef71"
+    },
+    "non_authority_assertions": {
+      "path": "C:/GitHub/crypto-perp-wedge-worktrees/labprod-pipeline-agent-adapters-02/scratch/WP-LABPROD-PIPELINE-AGENT-ADAPTERS-02/outputs/LADAPT-8f3015b055116a87/non_authority_assertions.json",
+      "sha256": "sha256:deaba9c8d29aa545ed8b5d1c2fb005fa21c6fc639a886ccf31b5e3fbe0130ee0"
+    },
+    "operator_review_packet": {
+      "path": "C:/GitHub/crypto-perp-wedge-worktrees/labprod-pipeline-agent-adapters-02/scratch/WP-LABPROD-PIPELINE-AGENT-ADAPTERS-02/outputs/LADAPT-8f3015b055116a87/operator_review_packet.md",
+      "sha256": "sha256:64d83b074631e2e95a326b043731f2dd81a313b72fc735ef18ad7670fd18ea48"
+    },
+    "pipeline_adapter_request": {
+      "path": "C:/GitHub/crypto-perp-wedge-worktrees/labprod-pipeline-agent-adapters-02/scratch/WP-LABPROD-PIPELINE-AGENT-ADAPTERS-02/outputs/LADAPT-8f3015b055116a87/pipeline_adapter_request.json",
+      "sha256": "sha256:68c81a4e96ecb56b16169d216d2545026b2f40085d87793b2b2461b3d5b563f0"
+    },
+    "pipeline_adapter_state": {
+      "path": "C:/GitHub/crypto-perp-wedge-worktrees/labprod-pipeline-agent-adapters-02/scratch/WP-LABPROD-PIPELINE-AGENT-ADAPTERS-02/outputs/LADAPT-8f3015b055116a87/pipeline_adapter_state.json",
+      "sha256": "sha256:068df8c2e8cec669d3a6478c3d1fff45fbadac42cba3d19974095fd6cab297e2"
+    }
+  },
+  "non_authority_assertions": {
+    "candidate_admission": false,
+    "candidate_lifecycle_written": false,
+    "canonical_evidence_written": false,
+    "crossing": false,
+    "dependency_config_data_acquisition": false,
+    "notification_firing": false,
+    "paper_live_runtime_contact": false,
+    "promotion_or_readiness": false,
+    "protected_path_touch": false,
+    "provider_api_credential_use": false,
+    "scheduler_autonomous_dispatch": false
+  },
+  "schema_version": "lab_pipeline_adapter_artifact_index_v1",
+  "self_entry_note": "adapter_artifact_index self hash omitted to avoid recursive hash mutation"
+}

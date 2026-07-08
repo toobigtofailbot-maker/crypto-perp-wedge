@@ -1,0 +1,18 @@
+{
+  "schema_version": "lab_pipeline_adapter_non_authority_audit_v1",
+  "package_id": "WP-LABPROD-PIPELINE-AGENT-ADAPTERS-02",
+  "canonical_evidence_written": false,
+  "candidate_lifecycle_written": false,
+  "candidate_admission": false,
+  "crossing": false,
+  "promotion_or_readiness": false,
+  "paper_live_runtime_contact": false,
+  "scheduler_autonomous_dispatch": false,
+  "notification_firing": false,
+  "provider_api_credential_use": false,
+  "dependency_config_data_acquisition": false,
+  "protected_path_touch": false,
+  "runtime_paths_changed": false,
+  "cockpit_paths_changed": false,
+  "project_status_changed": false
+}

@@ -1,0 +1,154 @@
+{
+  "package_id": "WP-LABPROD-PAPER-HANDOFF-BOUNDARY-DEFINE-01",
+  "source_files_inspected": [
+    "docs/project_status.md",
+    "AGENTS.md",
+    "CLAUDE_START_HERE.md",
+    "docs/runbook.md",
+    "docs/research/LAB_COMPLETION_MAP.md",
+    "docs/research_pipeline/2026-06-strategy_research_lab_target_operating_model.md",
+    "docs/research_pipeline/2026-06-strategy_research_lab_design_consolidation_roadmap.md",
+    "docs/research_pipeline/2026-05-scope6_packaging_locking_decision.md",
+    "docs/research_pipeline/2026-04-rec_d2_006_gates_methodology.md",
+    "docs/onboarding/PHASE2_BASELINE.md",
+    "docs/research_pipeline/2026-05-approval_readiness_criteria_locking_decision.md",
+    "docs/research_pipeline/2026-04-rec5_floor_gap_stability.md",
+    "docs/research_pipeline/2026-04-phase9_decision_record.md",
+    "docs/research_pipeline/2026-05-research_to_shadow_readiness_criteria_sketch.md",
+    "docs/research_pipeline/2026-05-shadow_to_paper_readiness_criteria_sketch.md",
+    "docs/architecture/candidate_lifecycle_design.md",
+    "docs/architecture/2026-06-agent_canonical_crossing_design.md",
+    "docs/research/WALKFORWARD_OOS_GATE_CONTRACT.md",
+    "docs/research/GENERIC_ROBUSTNESS_REVIEW_REACH_CONTRACT.md",
+    "docs/research/LAB_APPROVAL_QUEUE_SURFACE.md",
+    "docs/research/LAB_COORDINATOR_STATE_MODEL.md",
+    "docs/research_pipeline/2026-06-result_population_storage_design.md",
+    "docs/architecture/paper_shadow_chassis_design.md",
+    "docs/architecture/2026-06-paper_bot_scaffolding_design.md",
+    "docs/architecture/LONG_TERM_SCOPE.md",
+    "docs/research_pipeline/2026-05-stage2c_workflow_efficiency_operating_model_lock.md",
+    "docs/ai/codex/CODEX_TOKEN_EFFICIENCY.md"
+  ],
+  "boundary_claims": [
+    {
+      "claim": "The productized research lab may surface advisory outputs and evidence for human review, but paper/shadow/live remain outside this milestone.",
+      "source": "docs/research/LAB_COMPLETION_MAP.md",
+      "fields_or_sections": [
+        "Status and authority",
+        "Current phase definition",
+        "GO-gated execution-machine work",
+        "Current final decision state"
+      ]
+    },
+    {
+      "claim": "D2-006 promotion gates remain controlling before any research-to-shadow review.",
+      "source": "docs/onboarding/PHASE2_BASELINE.md",
+      "fields_or_sections": [
+        "D2-006 - Promotion gates are objective, numeric, and shared across all candidates"
+      ]
+    },
+    {
+      "claim": "Shadow mode is the sole bridge from research backtester to paper runtime and requires a shadow window plus parity checks before Phase 3 eligibility.",
+      "source": "docs/onboarding/PHASE2_BASELINE.md",
+      "fields_or_sections": [
+        "D2-007 - Shadow mode is the sole bridge from research backtester to paper runtime"
+      ]
+    },
+    {
+      "claim": "Agents and lab automation cannot approve gates, touch live systems, change risk parameters, or create execution authority.",
+      "source": "docs/onboarding/PHASE2_BASELINE.md",
+      "fields_or_sections": [
+        "D2-011 - Agent roster and autonomy levels",
+        "Protected boundaries"
+      ]
+    },
+    {
+      "claim": "REC-5 exact-segment evidence requires at least three reconciliations per candidate/outcome/pipeline/expectation-source segment before segment-level inference.",
+      "source": "docs/research_pipeline/2026-04-rec5_floor_gap_stability.md",
+      "fields_or_sections": [
+        "REC-5 Floor Definition",
+        "Current Floor-Gap State",
+        "Mutation / Evolution Rules"
+      ]
+    },
+    {
+      "claim": "Approval/readiness criteria may inform human review but cannot create automatic transition, promotion, readiness, paper/live, or runtime authority.",
+      "source": "docs/research_pipeline/2026-05-approval_readiness_criteria_locking_decision.md",
+      "fields_or_sections": [
+        "Locked global criteria",
+        "Locked research-to-shadow criteria",
+        "Locked shadow-to-paper criteria",
+        "Locked drift-rejection criteria"
+      ]
+    },
+    {
+      "claim": "Scope 6 approval and evidence records document human decisions and required evidence, but do not implement transitions or authorize runtime contact.",
+      "source": "docs/research_pipeline/2026-05-scope6_packaging_locking_decision.md",
+      "fields_or_sections": [
+        "Locked item 1 - research-to-shadow approval-record artifact",
+        "Locked item 2 - shadow-evidence retention artifact",
+        "Locked item 3 - shadow-to-paper approval-record artifact",
+        "What this locking decision does not authorize"
+      ]
+    },
+    {
+      "claim": "A future canonical crossing requires explicit human approval, source-content review, hash validation, denominator preservation, validator/integrity preflight, append-only write semantics, post-write validation, and audit reporting.",
+      "source": "docs/architecture/2026-06-agent_canonical_crossing_design.md",
+      "fields_or_sections": [
+        "Purpose",
+        "Authority Model",
+        "Content-Before-Lock Review Discipline",
+        "Validator and Integrity Gates",
+        "Stop Conditions"
+      ]
+    },
+    {
+      "claim": "Candidate lifecycle records are evidence indexes and human-review workflow records only, not execution authority.",
+      "source": "docs/architecture/candidate_lifecycle_design.md",
+      "fields_or_sections": [
+        "Status / Authority Boundary",
+        "Gate Model",
+        "Non-Authority Boundaries"
+      ]
+    },
+    {
+      "claim": "Walk-forward/OOS and robustness outputs are review inputs only; pass/fail/blocked/advisory statuses cannot approve candidates or create readiness.",
+      "source": "docs/research/WALKFORWARD_OOS_GATE_CONTRACT.md; docs/research/GENERIC_ROBUSTNESS_REVIEW_REACH_CONTRACT.md",
+      "fields_or_sections": [
+        "Status and Authority",
+        "Gate Semantics",
+        "Non-Authority Boundary",
+        "Scope",
+        "Family-Neutral Review Rules"
+      ]
+    },
+    {
+      "claim": "Future paper/shadow chassis or paper-bot scaffolding remains design-only unless separately authorized and cannot contact broker/exchange/order/provider paths or protected runtime paths.",
+      "source": "docs/architecture/paper_shadow_chassis_design.md; docs/architecture/2026-06-paper_bot_scaffolding_design.md",
+      "fields_or_sections": [
+        "Package Scope",
+        "Architecture Boundary",
+        "What Is Not Authorized",
+        "Sandbox-Only Goal",
+        "Future Implementation Proof Requirements",
+        "Stop Conditions Before Implementation"
+      ]
+    },
+    {
+      "claim": "Permanent human gates remain human-controlled for hypothesis approval, go/no-go decisions, shadow promotion, live promotion, risk changes, kill decisions, and novel strategy-family introduction.",
+      "source": "docs/architecture/LONG_TERM_SCOPE.md",
+      "fields_or_sections": [
+        "Permanent Human Gates",
+        "Decision Pipeline"
+      ]
+    }
+  ],
+  "authority_created": {
+    "candidate_admission": false,
+    "canonical_crossing": false,
+    "promotion_readiness": false,
+    "paper_shadow_live": false,
+    "runtime_contact": false,
+    "protected_paths": false
+  }
+}

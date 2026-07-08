@@ -1,0 +1,17 @@
+{
+  "canonical_evidence_written": false,
+  "candidate_admission": false,
+  "candidate_lifecycle_written": false,
+  "crossing": false,
+  "dependency_config_data_acquisition": false,
+  "notification_firing": false,
+  "paper_live_runtime_contact": false,
+  "promotion_or_readiness": false,
+  "protected_path_touch": false,
+  "provider_api_credential_use": false,
+  "runner_execution": false,
+  "scheduler_autonomous_dispatch": false,
+  "schema_version": "lab_pipeline_bridge_adapter_non_authority_assertions_v1",
+  "strategy_spec_variant_sweep_canonical_write": false,
+  "wfo_oos_robustness_candidate_review_execution": false
+}

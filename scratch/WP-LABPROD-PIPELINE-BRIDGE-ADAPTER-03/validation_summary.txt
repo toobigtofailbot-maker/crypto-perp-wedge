@@ -1,0 +1,34 @@
+Validation summary for WP-LABPROD-PIPELINE-BRIDGE-ADAPTER-03
+
+Outcome:
+- Outcome B recorded: bridge adapter remains blocked by existing bridge
+  ToolContext, source-prefix, output-root, approval-shape, and runner-boundary
+  contracts.
+
+Commands:
+- python -m pytest tests/test_lab_pipeline_orchestrator.py tests/test_lab_pipeline_agent_adapters.py tests/test_lab_pipeline_gate_actions.py tests/test_lab_pipeline_bridge_adapter.py -q
+  - Initial system-Python attempt failed during collection because pandas was
+    unavailable outside the repo venv.
+  - Rerun with C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe passed:
+    56 passed.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m pytest tests/test_lab_state_model.py tests/test_lab_state_resolver.py tests/test_lab_approval_queue.py tests/test_lab_scheduler_shell.py tests/test_lab_reporting.py tests/test_lab_dashboard.py -q
+  - Passed: 95 passed.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.research_query.run --list-views
+  - Passed; views listed successfully.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.registry.validate_result_populations
+  - Passed.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe -m tools.registry.validate_candidate_registry
+  - Passed.
+- C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe tools/dev/diff_scope_summary.py
+  - Passed; no forbidden-path matches.
+- Safe CLI smoke for prereg preview/approval and approved pipeline completion
+  with temp output roots:
+  - awaiting prereg exit/status observed: 3 / awaiting_prereg_approval.
+  - prereg approval preview created.
+  - prereg approval marker created.
+  - approved pipeline completed.
+  - Adapter CLI invocation was intentionally not run because Outcome B blocks a
+    safe bridge adapter invocation and the existing real formalizer path would
+    write to prior-package scratch outside this package's allowed scratch scope.
+- git diff --check
+  - Passed.

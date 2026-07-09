@@ -1,0 +1,42 @@
+Validation Summary - WP-LABPROD-PIPELINE-RUNNER-ADAPTER-04
+
+Base SHA:
+- 0e968f67dfce783950fd02f79dd772c5b53599e1
+
+Focused syntax/tests:
+- .\.venv\Scripts\python.exe -m py_compile tools\lab_pipeline\runner_adapter.py tools\lab_pipeline\adapter_contract.py
+  - PASS
+- .\.venv\Scripts\python.exe -m pytest tests/test_lab_pipeline_runner_adapter.py -q
+  - PASS: 29 passed
+- PowerShell-expanded equivalent of `python -m pytest tests/test_lab_pipeline*.py -q`
+  - PASS: 86 passed
+  - Note: the literal Windows command `tests/test_lab_pipeline*.py` did not expand and pytest reported "file or directory not found"; rerun with PowerShell-expanded paths.
+- .\.venv\Scripts\python.exe -m pytest tests/test_agent_formalizer_runner_bridge.py tests/test_lab_pipeline_bridge_adapter.py -q
+  - PASS: 71 passed
+- .\.venv\Scripts\python.exe -m pytest tests/test_offline_research_runner.py -q
+  - PASS: 101 passed, 2 warnings from existing timestamp parsing warning coverage
+
+Standard validators:
+- .\.venv\Scripts\python.exe -m json.tool scratch\WP-LABPROD-PIPELINE-RUNNER-ADAPTER-04\non_authority_assertions.json
+  - PASS
+- .\.venv\Scripts\python.exe -m tools.research_query.run --list-views
+  - PASS: listed views successfully
+- .\.venv\Scripts\python.exe -m tools.registry.validate_result_populations
+  - PASS: committed result populations validate
+- .\.venv\Scripts\python.exe -m tools.registry.validate_candidate_registry
+  - PASS: candidate lifecycle registry fixtures validate
+- .\.venv\Scripts\python.exe tools\dev\diff_scope_summary.py
+  - PASS: forbidden-path matches none
+- git diff --check
+  - PASS
+
+Full pytest:
+- .\.venv\Scripts\python.exe -m pytest -q
+  - TIMEOUT after 304 seconds without completed result
+- .\.venv\Scripts\python.exe -m pytest --collect-only -q
+  - PASS: 2648 tests collected
+
+Validation posture:
+- Focused adapter, bridge product prepare-only, lab pipeline, and offline runner tests passed.
+- Standard validators passed.
+- Full pytest did not complete within the local command timeout; package fallback collect-only completed successfully.

@@ -83,6 +83,12 @@ def test_product_gates_adapter_invokes_existing_agents_and_writes_advisory_packe
     assert result.adapter_status == "completed"
     assert str(result.output_dir).startswith(str(gates_output_root))
     assert advisory["posture"] == "advisory_only_noncanonical_product_scratch"
+    assert advisory["scale_budget"]["schema_version"] == "product_runner_approved_sweep_budget_v1"
+    assert advisory["scale_budget"]["committed_population_count"] == 8
+    assert advisory["scale_budget"]["max_variant_count"] == 8
+    assert advisory["largest_tested_denominator"] == 8
+    assert advisory["budget_exceeded"] is False
+    assert any("Scale is bounded" in caveat for caveat in advisory["caveats"])
     assert advisory["denominator_counts"] == {
         "blocked": 0,
         "completed": 8,

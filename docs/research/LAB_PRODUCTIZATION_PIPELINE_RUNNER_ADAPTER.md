@@ -21,6 +21,7 @@ Runner execution uses `product_runner_execute_approval_v1`, not the bridge prepa
 - product pipeline run id;
 - runner adapter stage identity;
 - product output root;
+- approved sweep budget contract;
 - explicit runner-execution authorization;
 - explicit false protected-authority flags.
 
@@ -64,6 +65,13 @@ All runner rows remain in the Result Population. Adapter status counts use:
 - invalid
 - blocked
 - pruned
+
+`approved_sweep_budget` binds the execute approval to the prepared Variant
+Manifest / Sweep Plan denominator. The adapter requires `all_manifest_variants`,
+matching committed/selected/assignment counts, and
+`committed_population_count <= max_variant_count` before invoking the runner.
+After execution, adapter and direct runner outputs must contain exactly the
+approved variant ids and row count.
 
 No winner-only selection, ranking authority, readiness claim, promotion claim, gate action, WFO/OOS run, robustness run, candidate-review run, canonical write, or candidate lifecycle write is added.
 

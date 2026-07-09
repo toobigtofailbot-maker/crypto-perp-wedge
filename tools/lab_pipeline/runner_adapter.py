@@ -31,6 +31,7 @@ EXECUTE_APPROVAL_STATEMENT = (
     "Authorizes only non-canonical product runner execution for the exact "
     "bridge-prepared Strategy Spec, Variant Manifest, and Sweep Plan artifacts."
 )
+SWEEP_BUDGET_SCHEMA_VERSION = "product_runner_approved_sweep_budget_v1"
 RUNNER_CODE_REF = "tools.research_runner.run_offline_sweep.run_offline_sweep"
 
 FALSE_AUTHORITY_FLAGS = (
@@ -72,6 +73,7 @@ class RunnerAdapterResult:
     output_dir: Path
     artifact_paths: dict[str, str]
     denominator_counts: dict[str, int]
+    approved_sweep_budget: dict[str, Any]
     reconciliation: dict[str, Any]
     audit_records: tuple[dict[str, Any], ...]
 
@@ -132,6 +134,131 @@ def _file_hash(path: Path | str) -> str:
     return file_sha256(target)
 
 
+def _require_int(payload: Mapping[str, Any], dotted_path: str) -> int:
+    current: Any = payload
+    for part in dotted_path.split("."):
+        if not isinstance(current, Mapping) or part not in current:
+            raise RunnerAdapterError(f"sweep budget missing {dotted_path}")
+        current = current[part]
+    if not isinstance(current, int) or isinstance(current, bool):
+        raise RunnerAdapterError(f"sweep budget {dotted_path} must be an integer")
+    return current
+
+
+def _require_positive_budget(value: int | None) -> int:
+    if not isinstance(value, int) or isinstance(value, bool) or value <= 0:
+        raise RunnerAdapterError("approved max_variant_count must be a positive integer")
+    return value
+
+
+def _selected_variant_ids(sweep_plan: Mapping[str, Any]) -> list[str]:
+    selected = sweep_plan.get("test_selection", {}).get("selected_variant_ids")
+    if not isinstance(selected, list) or not all(isinstance(item, str) and item for item in selected):
+        raise RunnerAdapterError("sweep budget selected_variant_ids must be non-empty strings")
+    if len(selected) != len(set(selected)):
+        raise RunnerAdapterError("sweep budget selected_variant_ids must be unique")
+    return selected
+
+
+def _manifest_variant_ids(manifest: Mapping[str, Any]) -> list[str]:
+    assignments = manifest.get("variant_assignments")
+    if not isinstance(assignments, list):
+        raise RunnerAdapterError("sweep budget variant_assignments must be a list")
+    ids: list[str] = []
+    for row in assignments:
+        if not isinstance(row, Mapping) or not isinstance(row.get("variant_id"), str):
+            raise RunnerAdapterError("sweep budget variant_assignments require variant_id")
+        ids.append(row["variant_id"])
+    if len(ids) != len(set(ids)):
+        raise RunnerAdapterError("sweep budget variant_assignments must have unique ids")
+    return ids
+
+
+def _sweep_budget_contract(
+    *,
+    prepared_strategy_spec_path: str,
+    prepared_variant_manifest_path: str,
+    prepared_sweep_plan_path: str,
+    max_variant_count: int,
+) -> dict[str, Any]:
+    max_variant_count = _require_positive_budget(max_variant_count)
+    manifest = read_json(_repo_path(prepared_variant_manifest_path))
+    sweep_plan = read_json(_repo_path(prepared_sweep_plan_path))
+    manifest_ids = _manifest_variant_ids(manifest)
+    selected_ids = _selected_variant_ids(sweep_plan)
+    committed = _require_int(
+        manifest, "population_governance.declared_population.committed_population_count"
+    )
+    declared = _require_int(
+        manifest, "population_governance.declared_population.declared_variant_count"
+    )
+    trial_denominator = _require_int(
+        manifest, "population_governance.trial_budget.trial_budget_denominator"
+    )
+    denominator_count = _require_int(
+        manifest, "population_governance.trial_budget.denominator_count"
+    )
+    manifest_cap = _require_int(manifest, "population_governance.population_cap.max_variants")
+    sweep_committed = _require_int(sweep_plan, "trial_accounting.committed_population_count")
+    sweep_selected = _require_int(sweep_plan, "trial_accounting.selected_variant_count")
+    parent_committed = _require_int(
+        sweep_plan, "parent_variant_manifest.manifest_committed_population_count"
+    )
+    selection_mode = sweep_plan.get("test_selection", {}).get("selection_mode")
+    if selection_mode != "all_manifest_variants":
+        raise RunnerAdapterError("approved bounded sweeps require all_manifest_variants selection")
+    if set(selected_ids) != set(manifest_ids):
+        raise RunnerAdapterError("approved bounded sweep must select every manifest variant")
+    counts = {
+        "committed_population_count": committed,
+        "declared_variant_count": declared,
+        "trial_budget_denominator": trial_denominator,
+        "denominator_count": denominator_count,
+        "sweep_committed_population_count": sweep_committed,
+        "sweep_selected_variant_count": sweep_selected,
+        "parent_manifest_committed_population_count": parent_committed,
+        "variant_assignment_count": len(manifest_ids),
+        "selected_variant_id_count": len(selected_ids),
+    }
+    if len(set(counts.values())) != 1:
+        raise RunnerAdapterError(f"sweep budget count mismatch: {counts}")
+    if committed > max_variant_count:
+        raise RunnerAdapterError(
+            "sweep budget exceeded: "
+            f"committed_population_count {committed} > max_variant_count {max_variant_count}"
+        )
+    return {
+        "schema_version": SWEEP_BUDGET_SCHEMA_VERSION,
+        "approval_binding": "karl_exact_content_runner_execute_approval",
+        "scope": "prepared_strategy_spec_variant_manifest_sweep_plan_only",
+        "prepared_strategy_spec_path": prepared_strategy_spec_path,
+        "prepared_variant_manifest_path": prepared_variant_manifest_path,
+        "prepared_sweep_plan_path": prepared_sweep_plan_path,
+        "variant_manifest_id": manifest.get("variant_manifest_id"),
+        "sweep_plan_id": sweep_plan.get("sweep_plan_id"),
+        "selection_mode": selection_mode,
+        "max_variant_count": max_variant_count,
+        "committed_population_count": committed,
+        "declared_variant_count": declared,
+        "selected_variant_count": sweep_selected,
+        "variant_assignment_count": len(manifest_ids),
+        "manifest_population_cap": manifest_cap,
+        "selected_variant_ids_sha256": sha256_payload({"selected_variant_ids": selected_ids}),
+        "within_approved_budget": True,
+        "full_denominator_required": True,
+        "winner_narrowing_forbidden": True,
+        "canonical_writes_allowed": False,
+        "candidate_lifecycle_allowed": False,
+        "noncanonical_product_scratch_only": True,
+        "allowed_denominator_statuses": list(ALLOWED_DENOMINATOR_STATUSES),
+        "runner_outcome_categories_preserved": list(RUNNER_OUTCOME_TO_STATUS),
+    }
+
+
+def _expected_variant_ids_from_sweep(prepared_sweep_plan_path: str) -> set[str]:
+    return set(_selected_variant_ids(read_json(_repo_path(prepared_sweep_plan_path))))
+
+
 def approval_template(
     *,
     prepared_strategy_spec_path: Path | str,
@@ -141,26 +268,41 @@ def approval_template(
     product_pipeline_run_id: str,
     output_root: Path | str = DEFAULT_OUTPUT_ROOT,
     approval_timestamp_utc: str = "2026-07-08T00:00:00Z",
+    max_variant_count: int | None = None,
 ) -> dict[str, Any]:
     """Return an exact-content execute approval marker template."""
 
     output_root_rel = _validate_product_output_root(Path(output_root))
+    strategy_rel = _safe_repo_relative(prepared_strategy_spec_path)
+    manifest_rel = _safe_repo_relative(prepared_variant_manifest_path)
+    sweep_rel = _safe_repo_relative(prepared_sweep_plan_path)
+    manifest = read_json(_repo_path(manifest_rel))
+    committed = _require_int(
+        manifest, "population_governance.declared_population.committed_population_count"
+    )
+    approved_budget = _sweep_budget_contract(
+        prepared_strategy_spec_path=strategy_rel,
+        prepared_variant_manifest_path=manifest_rel,
+        prepared_sweep_plan_path=sweep_rel,
+        max_variant_count=max_variant_count if max_variant_count is not None else committed,
+    )
     return {
         "schema_version": EXECUTE_APPROVAL_SCHEMA_VERSION,
         "approved_by": "Karl",
         "approval_scope": EXECUTE_APPROVAL_SCOPE,
         "approval_statement": EXECUTE_APPROVAL_STATEMENT,
         "approval_timestamp_utc": approval_timestamp_utc,
-        "prepared_strategy_spec_path": _safe_repo_relative(prepared_strategy_spec_path),
+        "prepared_strategy_spec_path": strategy_rel,
         "prepared_strategy_spec_sha256": _file_hash(prepared_strategy_spec_path),
-        "prepared_variant_manifest_path": _safe_repo_relative(prepared_variant_manifest_path),
+        "prepared_variant_manifest_path": manifest_rel,
         "prepared_variant_manifest_sha256": _file_hash(prepared_variant_manifest_path),
-        "prepared_sweep_plan_path": _safe_repo_relative(prepared_sweep_plan_path),
+        "prepared_sweep_plan_path": sweep_rel,
         "prepared_sweep_plan_sha256": _file_hash(prepared_sweep_plan_path),
         "bridge_preparation_run_id": bridge_preparation_run_id,
         "product_pipeline_run_id": product_pipeline_run_id,
         "runner_adapter_stage_identity": RUNNER_ADAPTER_STAGE_IDENTITY,
         "product_output_root": output_root_rel,
+        "approved_sweep_budget": approved_budget,
         "authorizes_runner_execution": True,
         **{field: False for field in FALSE_AUTHORITY_FLAGS},
     }
@@ -200,6 +342,21 @@ def _require_execute_approval(
     for field, expected_value in expected.items():
         if approval.get(field) != expected_value:
             errors.append(f"execute_approval_mismatch:{field}")
+    approved_budget = approval.get("approved_sweep_budget")
+    if not isinstance(approved_budget, Mapping):
+        errors.append("execute_approval_missing:approved_sweep_budget")
+    else:
+        try:
+            expected_budget = _sweep_budget_contract(
+                prepared_strategy_spec_path=prepared_strategy_spec_path,
+                prepared_variant_manifest_path=prepared_variant_manifest_path,
+                prepared_sweep_plan_path=prepared_sweep_plan_path,
+                max_variant_count=approved_budget.get("max_variant_count"),
+            )
+            if dict(approved_budget) != expected_budget:
+                errors.append("execute_approval_mismatch:approved_sweep_budget")
+        except RunnerAdapterError as exc:
+            errors.append(f"approved_sweep_budget_invalid:{exc}")
     try:
         _parse_utc_like_timestamp(approval.get("approval_timestamp_utc"))
     except RunnerAdapterError as exc:
@@ -231,6 +388,32 @@ def _status_counts(result_population: Mapping[str, Any]) -> dict[str, int]:
             raise RunnerAdapterError(f"unsupported runner outcome category: {outcome}")
         counts[RUNNER_OUTCOME_TO_STATUS[outcome]] += 1
     return {status: counts.get(status, 0) for status in ALLOWED_DENOMINATOR_STATUSES}
+
+
+def _assert_result_population_preserves_budget(
+    *,
+    result_population: Mapping[str, Any],
+    approved_budget: Mapping[str, Any],
+    expected_variant_ids: set[str],
+) -> None:
+    rows = result_population.get("variant_result_rows")
+    if not isinstance(rows, list):
+        raise RunnerAdapterError("runner result population has no variant_result_rows")
+    row_ids = [
+        row.get("variant_id")
+        for row in rows
+        if isinstance(row, Mapping) and isinstance(row.get("variant_id"), str)
+    ]
+    committed = approved_budget["committed_population_count"]
+    if len(rows) != committed:
+        raise RunnerAdapterError(
+            f"runner result row count {len(rows)} does not equal approved denominator {committed}"
+        )
+    if len(row_ids) != len(rows) or set(row_ids) != expected_variant_ids:
+        raise RunnerAdapterError("runner result rows do not match approved sweep variant ids")
+    counts = _status_counts(result_population)
+    if sum(counts.values()) != committed:
+        raise RunnerAdapterError("runner denominator status counts do not sum to approved denominator")
 
 
 def _invoke_existing_runner(
@@ -305,6 +488,8 @@ def run_product_runner_adapter(
         product_pipeline_run_id=product_pipeline_run_id,
         output_root=output_root_rel,
     )
+    approved_budget = dict(approval["approved_sweep_budget"])
+    expected_variant_ids = _expected_variant_ids_from_sweep(sweep_rel)
     bindings = {
         "prepared_strategy_spec_path": strategy_rel,
         "prepared_strategy_spec_sha256": approval["prepared_strategy_spec_sha256"],
@@ -319,6 +504,7 @@ def run_product_runner_adapter(
         "runner_adapter_stage_identity": RUNNER_ADAPTER_STAGE_IDENTITY,
         "product_output_root": output_root_rel,
         "deterministic_seed": deterministic_seed,
+        "approved_sweep_budget": approved_budget,
     }
     run_id = _runner_adapter_run_id(bindings)
     run_dir = output_root_path / run_id
@@ -366,6 +552,16 @@ def run_product_runner_adapter(
     adapter_output_path = Path(str(adapter_result["output_path"]))
     direct_output_path = Path(str(direct_result["output_path"]))
     reconciliation = _reconcile_outputs(adapter_output_path, direct_output_path)
+    _assert_result_population_preserves_budget(
+        result_population=adapter_result["result_population"],
+        approved_budget=approved_budget,
+        expected_variant_ids=expected_variant_ids,
+    )
+    _assert_result_population_preserves_budget(
+        result_population=direct_result["result_population"],
+        approved_budget=approved_budget,
+        expected_variant_ids=expected_variant_ids,
+    )
     adapter_counts = _status_counts(adapter_result["result_population"])
     direct_counts = _status_counts(direct_result["result_population"])
     if adapter_counts != direct_counts:
@@ -391,6 +587,9 @@ def run_product_runner_adapter(
             "direct_result_population_path": reconciliation["direct_result_population_path"],
             "direct_result_population_sha256": reconciliation["direct_result_population_sha256"],
         },
+        "approved_sweep_budget": approved_budget,
+        "largest_tested_denominator": approved_budget["committed_population_count"],
+        "budget_exceeded": False,
         "denominator_counts": adapter_counts,
         "runner_outcome_category_counts": adapter_result["outcome_category_counts"],
         "full_denominator_preserved": True,
@@ -423,6 +622,7 @@ def run_product_runner_adapter(
         output_dir=run_dir,
         artifact_paths=artifact_paths,
         denominator_counts=adapter_counts,
+        approved_sweep_budget=approved_budget,
         reconciliation=reconciliation,
         audit_records=audit_records,
     )

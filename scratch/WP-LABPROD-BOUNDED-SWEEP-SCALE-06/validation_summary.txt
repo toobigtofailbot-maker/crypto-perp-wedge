@@ -1,0 +1,28 @@
+Validation summary for `WP-LABPROD-BOUNDED-SWEEP-SCALE-06`.
+
+Base / dependency checks:
+- `git log --oneline --decorate -n 40` showed `129bb28` as merge commit for PR #624 on `main` / `origin/main`.
+- `gh pr list --state open --json number,title,headRefName,baseRefName,files --limit 100` -> `[]`.
+- `gh pr view 588 --json number,state,mergedAt,title,mergeCommit,files` -> PR #588 merged, title `WP-LAB-FACTORYTEST-SYNTHETIC-POPULATION-01`, merge commit `3060ad49a8cef605eeeb5fd058e1c3bee4a998c1`.
+
+Commands / results:
+- `.\\.venv\\Scripts\\python.exe -m py_compile tools\\lab_pipeline\\runner_adapter.py tools\\lab_pipeline\\gates_adapter.py tests\\test_lab_pipeline_runner_adapter.py tests\\test_lab_pipeline_gates_adapter.py` -> PASS.
+- `.\\.venv\\Scripts\\python.exe -m pytest tests\\test_lab_pipeline_runner_adapter.py tests\\test_lab_pipeline_gates_adapter.py -q` -> PASS, `37 passed`.
+- `.\\.venv\\Scripts\\python.exe -m pytest tests\\test_lab_pipeline_runner_adapter.py tests\\test_lab_pipeline_gates_adapter.py tests\\test_lab_pipeline_orchestrator.py tests\\test_lab_pipeline_gate_actions.py tests\\test_lab_pipeline_bridge_adapter.py tests\\test_lab_pipeline_agent_adapters.py -q` -> PASS, `94 passed`.
+- `.\\.venv\\Scripts\\python.exe -m json.tool scratch\\WP-LABPROD-BOUNDED-SWEEP-SCALE-06\\non_authority_assertions.json` -> PASS.
+- `.\\.venv\\Scripts\\python.exe -m tools.research_query.run --list-views` -> PASS, listed query views including integrity views.
+- `.\\.venv\\Scripts\\python.exe -m tools.registry.validate_result_populations` -> PASS.
+- `.\\.venv\\Scripts\\python.exe -m tools.registry.validate_candidate_registry` -> PASS.
+- `.\\.venv\\Scripts\\python.exe tools\\dev\\diff_scope_summary.py` -> PASS / advisory; no forbidden-path matches. It also reported unrelated untracked `WP-LABPROD-LAB-QUEUE-STATUS-07` files already present in the worktree.
+- `git diff --check` -> PASS.
+- `.\\.venv\\Scripts\\python.exe -m pytest -q` -> TIMEOUT after 304 seconds before a result was produced. Two orphaned `pytest -q` Python processes were identified and stopped.
+- `.\\.venv\\Scripts\\python.exe -m pytest --collect-only -q` -> PASS, `2662 tests collected`.
+
+Focused scale evidence:
+- Largest focused tested denominator: `1000`.
+- Synthetic 1000-row status distribution: `completed=200`, `failed=200`, `invalid=200`, `pruned=200`, `blocked=200`.
+- Budget-exceeded path failed closed before runner invocation.
+- Row-shrinkage path failed closed after runner output.
+
+Boundary result:
+- No canonical evidence, candidate lifecycle, crossing, promotion/readiness, paper/live/runtime, scheduler/autonomy, notification, provider/API, dependency/config/data-acquisition, schema, validator, query-layer, runner semantics, backtester, `src/`, `lib/`, or `configs/` path changed.

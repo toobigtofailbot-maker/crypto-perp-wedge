@@ -1,0 +1,52 @@
+WP-DASH-ARCH-LOCK-01 validation summary
+
+Base: main at ec5b42b8cc1331478757379aeeb0eb735c90c5a8
+Branch: codex/wp-dash-arch-lock-01
+
+Commands:
+
+- git status --short
+  - PASS: only scoped untracked package files before staging.
+- git diff --check
+  - PASS: no whitespace errors.
+- python -m json.tool scratch/WP-DASH-ARCH-LOCK-01/non_authority_assertions.json
+  - PASS: valid JSON.
+- python -m tools.research_query.run --list-views
+  - PASS: listed query views successfully.
+- python -m tools.registry.validate_result_populations
+  - PASS: result-population artifacts validate.
+- python -m tools.registry.validate_candidate_registry
+  - PASS: candidate lifecycle registry fixtures validate.
+- python tools/dev/diff_scope_summary.py
+  - PASS: no forbidden-path matches; changed files docs/status/scratch only.
+- python single-process integrity view check over tools.research_query.query_layer
+  - PASS: integrity_views_checked=58, integrity_failures=0.
+- git diff --cached --check
+  - PASS: no staged whitespace errors.
+- git diff --cached --name-only
+  - PASS: staged files are the six package docs/status/scratch artifacts only.
+- python tools/dev/diff_scope_summary.py after staging
+  - PASS: staged files docs/status/scratch only; no untracked files; no
+    forbidden-path matches.
+
+Notes:
+
+- An initial per-view shell loop around `python -m tools.research_query.run --view <view> --json`
+  timed out after about 304 seconds before producing a complete result. It was
+  replaced with an equivalent single-process check using the same query-layer
+  named views to avoid repeated CLI startup overhead.
+- Full pytest was not run because this package changes only docs/status/scratch
+  architecture artifacts and no implementation code, schemas, validators,
+  query-layer behavior, runner/compiler behavior, result populations, candidate
+  lifecycle artifacts, data, runtime, or protected execution behavior.
+
+Boundary validation:
+
+- Dashboard implementation created: no.
+- FastAPI server created: no.
+- Next.js app created: no.
+- Agent Inbox implemented: no.
+- Hosted deployment/auth/monitoring implemented: no.
+- Runtime, paper/live, provider/API, scheduler, notification, canonical,
+  candidate, crossing, promotion/readiness, config, dependency, schema,
+  validator, query-layer, data, or protected paths touched: no.

@@ -138,6 +138,12 @@ footer.foot { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(-
 .pill.complete_spine_only { background: var(--accent-soft); color: var(--accent); }
 .pill.complete { background: var(--pos-soft); color: var(--pos); }
 .pill.unavailable { background: var(--mute-soft); color: var(--mute); }
+.pill.advisory_packet_ready { background: var(--pos-soft); color: var(--pos); }
+.pill.executed { background: var(--accent-soft); color: var(--accent); }
+.pill.blocked_or_failed { background: var(--neg-soft); color: var(--neg); }
+.stage-chip.reached { background: var(--pos-soft); color: var(--pos); border-color: transparent; }
+.stage-chip.notreached { opacity: 0.45; }
+.vocab { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.4rem; }
 .stages { display: flex; flex-wrap: wrap; gap: 0.25rem; }
 .stage-chip {
   font-size: 0.64rem; padding: 0.12rem 0.4rem; border-radius: 5px;
@@ -450,9 +456,14 @@ def _pipeline_state_html(data: dict[str, Any]) -> str:
     )
     spine_banner = ""
     if ps.get("spine_only"):
+        supersede = ""
+        if ps.get("real_run_supersedes_note"):
+            supersede = (
+                f" <strong>{_esc(ps.get('real_run_supersedes_note'))}</strong>"
+            )
         spine_banner = (
             f"<div class='banner info'><strong>Honest labeling.</strong> "
-            f"{_esc(ps.get('spine_only_label'))}</div>"
+            f"{_esc(ps.get('spine_only_label'))}{supersede}</div>"
         )
     cards = "".join(_pipeline_run_card(r) for r in ps.get("runs", []))
     return (
@@ -464,6 +475,227 @@ def _pipeline_state_html(data: dict[str, Any]) -> str:
         f"<div class='grid kpis' style='margin-top:0.9rem'>{kpis}</div>"
         f"{spine_banner}"
         f"<div class='grid cards' style='margin-top:0.9rem'>{cards}</div>"
+    )
+
+
+def _product_run_card(run: dict[str, Any]) -> str:
+    state = run["display_state"]
+    pill = f"<span class='pill {state}'>{_esc(run['display_label'])}</span>"
+
+    if not run.get("available", False):
+        return (
+            "<div class='card'>"
+            f"<h3>{pill}<span class='hid'>{_esc(run['run_id'])}</span></h3>"
+            "<div class='callout neg'><strong>Fail-closed.</strong> "
+            f"{_esc(run.get('invalid_reason'))}. No run state is fabricated.</div>"
+            "</div>"
+        )
+
+    prov = run.get("provenance", {})
+    meta = (
+        "<div class='runmeta'>"
+        f"<span>pipeline <code>{_esc(prov.get('product_pipeline_run_id'))}</code></span>"
+        f"<span>bridge <code>{_esc(prov.get('bridge_preparation_run_id'))}</code></span>"
+        f"<span>runner <code>{_esc(prov.get('runner_adapter_run_id'))}</code></span>"
+        f"<span>gates <code>{_esc(prov.get('gates_adapter_run_id'))}</code></span>"
+        "</div>"
+    )
+
+    ladder = "".join(
+        f"<span class='stage-chip {'reached' if s.get('reached') else 'notreached'}'>"
+        f"{_esc(s.get('stage'))}</span>"
+        for s in run.get("stage_ladder", [])
+    )
+
+    denom = run.get("denominator_counts", {})
+    denom_line = " · ".join(
+        f"{_esc(k)} {_esc(v)}" for k, v in denom.items()
+    )
+
+    # Runner is real: honest positive statement, no spine-only banner here.
+    runner_callout = (
+        "<div class='callout'><strong>Real runner executed.</strong> "
+        f"runner_invoked = <code>{_esc(run.get('runner_invoked'))}</code>; full "
+        "denominator preserved "
+        f"(<span class='mono'>{_esc(denom_line)}</span>). Non-canonical product "
+        "scratch only.</div>"
+    )
+
+    # Withheld statistics: shown explicitly as missing/withheld, never zero.
+    wh = run.get("withheld_statistics", {})
+    wh_sections = "".join(
+        f"<tr><td class='mono'>{_esc(s['key'])}</td>"
+        f"<td><span class='badge-withheld'>{_esc(s.get('status'))}</span></td>"
+        f"<td>{_esc(', '.join(s.get('statistics') or []) or '—')}</td>"
+        f"<td>{_esc(str(s.get('fabricated')).lower())}</td></tr>"
+        for s in wh.get("sections", [])
+    )
+    withheld = (
+        "<div><span class='smallcaps'>Withheld / missing statistics</span>"
+        f"<div style='font-size:0.8rem;color:var(--ink-soft);margin:0.3rem 0'>"
+        f"WFO/OOS gate status: <span class='badge-withheld'>{_esc(wh.get('wfo_oos_gate_status'))}</span> "
+        f"({_esc(wh.get('wfo_oos_withheld_status'))})</div>"
+        "<div class='tablewrap'><table class='data'><thead><tr><th>section</th>"
+        "<th>status</th><th>statistics</th><th>fabricated</th></tr></thead>"
+        f"<tbody>{wh_sections}</tbody></table></div></div>"
+    )
+
+    # Robustness diagnostics: completed + skipped (with honest reasons).
+    rob = run.get("robustness", {})
+    completed_chips = " ".join(
+        f"<span class='chip pos'>{_esc(d)}</span>"
+        for d in rob.get("diagnostics_completed", [])
+    ) or "—"
+    skipped_rows = "".join(
+        f"<li>{_esc(s.get('diagnostic'))} — {_esc(s.get('reason'))}</li>"
+        for s in rob.get("diagnostics_skipped", [])
+    ) or "<li>none</li>"
+    robustness = (
+        "<div><span class='smallcaps'>Robustness diagnostics</span>"
+        f"<div style='margin:0.3rem 0'>{completed_chips}</div>"
+        "<div style='font-size:0.8rem;color:var(--ink-soft)'>Skipped (queued follow-up):"
+        f"<ul style='margin:0.2rem 0 0;padding-left:1.1rem'>{skipped_rows}</ul></div></div>"
+    )
+
+    # Candidate review: advisory only, non-promoting.
+    cr = run.get("candidate_review", {})
+    gaps = "".join(f"<li>{_esc(g)}</li>" for g in cr.get("evidence_gaps", [])) or "<li>none</li>"
+    review = (
+        "<div><span class='smallcaps'>Candidate review (advisory)</span>"
+        f"<div style='font-size:0.82rem'>status: <code>{_esc(cr.get('status'))}</code> · "
+        f"blockers: {_esc(len(cr.get('blockers') or []))} · "
+        f"recommendation: <code>{_esc(cr.get('recommendation'))}</code></div>"
+        "<div style='font-size:0.8rem;color:var(--ink-soft)'>Evidence gaps:"
+        f"<ul style='margin:0.2rem 0 0;padding-left:1.1rem'>{gaps}</ul></div></div>"
+    )
+
+    # Advisory surface routing: a review value, explicitly not admission.
+    surface = (
+        "<div class='callout warn'><strong>Advisory surface routing.</strong> "
+        f"status <code>{_esc(run.get('candidate_surface_status'))}</code> "
+        "&mdash; review routing only. "
+        f"candidate lifecycle written: <code>{_esc(run.get('candidate_lifecycle_written'))}</code>; "
+        f"auto admission / crossing / promotion: "
+        f"<code>{_esc(run.get('go_auto_admission'))}</code> / "
+        f"<code>{_esc(run.get('go_auto_crossing'))}</code> / "
+        f"<code>{_esc(run.get('go_auto_promotion'))}</code>. No candidate is "
+        "admitted, crossed, promoted, or marked ready by this cockpit.</div>"
+    )
+
+    art_rows = "".join(
+        f"<tr><td>{_esc(a['filename'])}</td>"
+        f"<td>{_presence_badge(a['present'])}</td>"
+        f"<td class='mono'>{_esc(_short_hash(a['sha256']))}</td></tr>"
+        for a in run.get("artifacts", [])
+    )
+    artifacts = (
+        "<div><span class='smallcaps'>Artifacts</span>"
+        "<div class='tablewrap'><table class='data'><thead><tr><th>file</th>"
+        "<th>status</th><th>sha256</th></tr></thead>"
+        f"<tbody>{art_rows}</tbody></table></div></div>"
+    )
+
+    return (
+        "<div class='card'>"
+        f"<h3>{pill}<span class='hid'>{_esc(run['run_id'])}</span></h3>"
+        f"{meta}"
+        f"<div><span class='smallcaps'>Stage ladder</span>"
+        f"<div class='stages' style='margin-top:0.35rem'>{ladder}</div></div>"
+        f"{runner_callout}"
+        f"{withheld}"
+        f"{robustness}"
+        f"{review}"
+        f"{surface}"
+        f"{artifacts}"
+        "</div>"
+    )
+
+
+def _product_runs_html(data: dict[str, Any]) -> str:
+    pr = data["product_runs"]
+    header = (
+        "<h2 class='section'>Product pipeline &middot; real runs "
+        "<span class='hint'>&mdash; read-only over committed real adapter output</span></h2>"
+    )
+    vocab = "".join(
+        f"<span class='chip'>{_esc(v['label'])}</span>"
+        for v in pr.get("state_vocabulary", [])
+    )
+    if not pr.get("available"):
+        return (
+            f"{header}"
+            "<div class='panel'><div class='banner'>No committed product-pipeline "
+            f"run fixtures are available "
+            f"(<span class='mono'>{_esc(pr.get('runs_root'))}</span>). "
+            f"{_esc(pr.get('unavailable_reason'))}. The product real-run panel "
+            "fails closed to the honest <strong>no-run</strong> state rather than "
+            "fabricating runs.</div>"
+            f"<div class='smallcaps'>States distinguished</div>"
+            f"<div class='vocab'>{vocab}</div></div>"
+        )
+
+    totals = pr["totals"]
+    kpis = "".join(
+        [
+            _kpi(str(totals.get("run_count", 0)), "Product runs", "accent"),
+            _kpi(str(totals.get("advisory_packet_ready", 0)), "Advisory packet ready", "pos"),
+            _kpi(str(totals.get("real_runner_runs", 0)), "Real runner invoked", "pos"),
+            _kpi(str(totals.get("blocked_or_failed", 0)), "Blocked / failed", "neg"),
+        ]
+    )
+    cards = "".join(_product_run_card(r) for r in pr.get("runs", []))
+    return (
+        f"{header}"
+        "<div class='banner info' style='margin-top:0'>Read-only projection of the "
+        "<strong>real</strong> product pipeline chain &mdash; product bridge prepare "
+        "&rarr; product runner adapter &rarr; product gates adapters. No run, "
+        "approve, execute, promote, or candidate control exists on this page.</div>"
+        f"<div class='grid kpis' style='margin-top:0.9rem'>{kpis}</div>"
+        f"<div class='smallcaps' style='margin-top:0.8rem'>States distinguished</div>"
+        f"<div class='vocab'>{vocab}</div>"
+        f"<div class='grid cards' style='margin-top:0.9rem'>{cards}</div>"
+    )
+
+
+def _product_funnel_html(data: dict[str, Any]) -> str:
+    funnel = data["product_candidate_funnel"]
+    if not funnel.get("available"):
+        return (
+            "<h2 class='section'>Product candidate funnel</h2>"
+            "<div class='panel'><div class='banner'>No real product-run advisory "
+            "evidence available; product funnel is empty (no candidate admitted).</div></div>"
+        )
+    stages = funnel["stages"]
+    top = max((s["count"] for s in stages), default=1) or 1
+    tones = {
+        "runner_rows_preserved": "var(--accent)",
+        "runner_completed_rows": "var(--pos)",
+        "advisory_packet_ready": "var(--warn)",
+        "surface_hold_for_review": "var(--mute)",
+        "candidate_admitted": "var(--mute)",
+    }
+    rows = []
+    for s in stages:
+        width = (s["count"] / top * 100) if top else 0
+        colour = tones.get(s["stage"], "var(--accent)")
+        inner = (
+            f"<span style='width:{max(width, 3):.1f}%;background:{colour}'>{s['count']}</span>"
+            if s["count"] > 0
+            else "<span style='width:3%;background:var(--line-strong)'></span>"
+        )
+        rows.append(
+            f"<div class='funnel-row'><div>{_esc(s['label'])}</div>"
+            f"<div class='funnel-bar'>{inner}</div>"
+            f"<div class='mono' style='text-align:right'>{s['count']}</div></div>"
+        )
+    return (
+        "<h2 class='section'>Product candidate funnel "
+        "<span class='hint'>&mdash; real advisory packets, no candidate admitted</span></h2>"
+        "<div class='panel'>"
+        "<div class='banner info' style='margin-top:0'>The real product funnel "
+        "narrows to <strong>zero candidates admitted</strong>: advisory surface "
+        f"routing is review-routing only. {_esc(funnel.get('note'))}</div>"
+        f"<div class='funnel'>{''.join(rows)}</div></div>"
     )
 
 
@@ -784,6 +1016,8 @@ def render_html(data: dict[str, Any]) -> str:
     body = "".join(
         [
             _overview_html(data),
+            _product_runs_html(data),
+            _product_funnel_html(data),
             _pipeline_state_html(data),
             _funnel_html(data),
             _explorer_html(data),
@@ -874,6 +1108,8 @@ def render_markdown(data: dict[str, Any]) -> str:
         )
         if ps.get("spine_only"):
             lines.append(f"- Honest labeling: {ps.get('spine_only_label')}")
+            if ps.get("real_run_supersedes_note"):
+                lines.append(f"- {ps.get('real_run_supersedes_note')}")
         lines.append("")
         lines.append("| run | status | current stage | runner_invoked | blocker |")
         lines.append("| --- | --- | --- | --- | --- |")
@@ -884,6 +1120,90 @@ def render_markdown(data: dict[str, Any]) -> str:
                 f"`{r.get('current_stage')}` | {r.get('runner_invoked')} | "
                 f"{blocker} |"
             )
+        lines.append("")
+
+    pr = data["product_runs"]
+    lines.append("## Product pipeline / real runs")
+    lines.append("")
+    lines.append(
+        "States distinguished: "
+        + ", ".join(v["label"] for v in pr.get("state_vocabulary", []))
+        + "."
+    )
+    lines.append("")
+    if not pr.get("available"):
+        lines.append(
+            f"- No committed product-pipeline run fixtures ({pr.get('runs_root')}); "
+            f"{pr.get('unavailable_reason')}. Panel fails closed to the no-run state."
+        )
+        lines.append("")
+    else:
+        totals = pr["totals"]
+        lines.append(
+            f"- Runs: {totals.get('run_count')} "
+            f"(advisory packet ready: {totals.get('advisory_packet_ready')}, "
+            f"real runner invoked: {totals.get('real_runner_runs')}, "
+            f"blocked/failed: {totals.get('blocked_or_failed')})."
+        )
+        lines.append("")
+        lines.append(
+            "| run | state | runner_invoked | denominator (completed/total) | "
+            "surface status | candidate admitted |"
+        )
+        lines.append("| --- | --- | --- | --- | --- | ---: |")
+        for r in pr["runs"]:
+            denom = r.get("denominator_counts", {})
+            total = sum(denom.values())
+            lines.append(
+                f"| `{r['run_id']}` | {r['display_label']} | "
+                f"{r.get('runner_invoked')} | "
+                f"{denom.get('completed', 0)}/{total} | "
+                f"{r.get('candidate_surface_status')} | 0 |"
+            )
+        lines.append("")
+        for r in pr["runs"]:
+            if not r.get("available"):
+                continue
+            wh = r.get("withheld_statistics", {})
+            lines.append(f"### `{r['run_id']}` — {r['display_label']}")
+            lines.append("")
+            lines.append(
+                f"- WFO/OOS gate status: {wh.get('wfo_oos_gate_status')} "
+                f"({wh.get('wfo_oos_withheld_status')}); statistics withheld, not fabricated."
+            )
+            for s in wh.get("sections", []):
+                lines.append(
+                    f"  - {s['key']}: {s.get('status')} "
+                    f"(fabricated: {str(s.get('fabricated')).lower()})"
+                )
+            rob = r.get("robustness", {})
+            lines.append(
+                f"- Robustness: {len(rob.get('diagnostics_completed', []))} completed, "
+                f"{len(rob.get('diagnostics_skipped', []))} skipped (queued follow-up)."
+            )
+            cr = r.get("candidate_review", {})
+            lines.append(
+                f"- Candidate review (advisory): status {cr.get('status')}, "
+                f"{len(cr.get('evidence_gaps', []))} evidence gaps, "
+                f"recommendation {cr.get('recommendation')}."
+            )
+            lines.append(
+                f"- Advisory surface routing: {r.get('candidate_surface_status')} "
+                "(review routing only); candidate lifecycle written: "
+                f"{r.get('candidate_lifecycle_written')}; no candidate admitted."
+            )
+            lines.append("")
+
+    fn = data["product_candidate_funnel"]
+    lines.append("## Product candidate funnel (no candidate admitted)")
+    lines.append("")
+    if fn.get("available"):
+        lines.append("| stage | count |")
+        lines.append("| --- | ---: |")
+        for s in fn["stages"]:
+            lines.append(f"| {s['label']} | {s['count']} |")
+        lines.append("")
+        lines.append(f"> {fn.get('note')}")
         lines.append("")
 
     lines.append("## Candidate funnel (full denominator)")

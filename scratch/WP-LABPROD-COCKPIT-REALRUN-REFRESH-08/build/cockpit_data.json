@@ -1,0 +1,1532 @@
+{
+  "artifact_drilldown": [
+    {
+      "category": "conclusion_doc",
+      "key": "batch_synthesis",
+      "path": "docs/research/LAB_REAL_TRAFFIC_BATCH_SYNTHESIS_2026-07.md",
+      "present": true
+    },
+    {
+      "category": "batch_rollup",
+      "key": "final_rollup",
+      "path": "scratch/WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01/revised_batch_final_rollup.json",
+      "present": true
+    },
+    {
+      "category": "frozen_set",
+      "key": "frozen_hypothesis_set",
+      "path": "scratch/WP-LAB-REAL-TRAFFIC-REVISED-SIGNOFF-FREEZE-01/revised_frozen_hypothesis_set.json",
+      "present": true
+    },
+    {
+      "category": "batch_manifest",
+      "key": "batch_execute_manifest",
+      "path": "scratch/WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01/real_traffic_batch_manifest.json",
+      "present": true
+    },
+    {
+      "category": "strategy_reading",
+      "key": "batch_execute_readings",
+      "path": "scratch/WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01/strategy_reading_summary.json",
+      "present": true
+    },
+    {
+      "category": "strategy_reading",
+      "key": "hyp002r_strategy_reading",
+      "path": "scratch/WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01/hyp002r_strategy_reading.json",
+      "present": true
+    },
+    {
+      "category": "walkforward_oos",
+      "key": "hyp002r_wfo_oos",
+      "path": "scratch/WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01/hyp002r_wfo_oos_summary.json",
+      "present": true
+    },
+    {
+      "category": "robustness_mc",
+      "key": "hyp002r_robustness_mc",
+      "path": "scratch/WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01/hyp002r_robustness_mc_summary.json",
+      "present": true
+    },
+    {
+      "category": "denominator_audit",
+      "key": "hyp002r_denominator_audit",
+      "path": "scratch/WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01/hyp002r_denominator_audit.json",
+      "present": true
+    },
+    {
+      "category": "boundary",
+      "key": "non_authority_assertions",
+      "path": "scratch/WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01/non_authority_assertions.json",
+      "present": true
+    }
+  ],
+  "boundary": {
+    "assertions": {
+      "autonomous_scheduler_activated": false,
+      "bounded_real_research_traffic": true,
+      "candidate_admission_authorized": false,
+      "candidate_admitted": false,
+      "canonical_crossing_authorized": false,
+      "canonical_crossing_performed": false,
+      "dependency_changes": false,
+      "karl_signoff_present": true,
+      "main_verification_present": true,
+      "non_promotion_posture": true,
+      "paper_live_authority_created": false,
+      "parameter_expansion_after_results_performed": false,
+      "private_provider_api_used": false,
+      "promotion_readiness_authorized": false,
+      "promotion_readiness_created": false,
+      "protected_paths_touched": false,
+      "real_notification_sending_authorized": false,
+      "retuning_after_results_performed": false,
+      "runtime_contact_performed": false,
+      "signed_frozen_set_modified": false,
+      "signed_revised_frozen_set_present": true,
+      "winner_only_pruning_performed": false
+    },
+    "available": true,
+    "source": "scratch/WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01/non_authority_assertions.json"
+  },
+  "candidate_funnel": {
+    "available": true,
+    "candidate_ready_count": 0,
+    "frozen_denominator_rows": 32,
+    "stages": [
+      {
+        "count": 4,
+        "label": "Frozen hypotheses",
+        "stage": "frozen_hypotheses"
+      },
+      {
+        "count": 4,
+        "label": "Executed (denominator preserved)",
+        "stage": "executed"
+      },
+      {
+        "count": 3,
+        "label": "Positive median PnL surface",
+        "stage": "positive_median_pnl"
+      },
+      {
+        "count": 0,
+        "label": "GO-like evidence",
+        "stage": "go_like_evidence"
+      },
+      {
+        "count": 0,
+        "label": "Candidate-ready for human review",
+        "stage": "candidate_ready"
+      }
+    ],
+    "winner_only_view": false
+  },
+  "caveats": [
+    "This cockpit shows the full denominator (every hypothesis and row), not winners only.",
+    "All real-traffic evidence is dry-run / package-local and non-canonical; nothing here is crossed, candidate-registered, paper-ready, or live-ready.",
+    "Positive PnL surfaces that fail the primary drawdown screen are shown as non-promoting, not as edges.",
+    "Withheld statistics (Monte-Carlo / bootstrap / PSR / DSR / MinTRL) are labelled explicitly rather than fabricated.",
+    "Display ordering is deterministic and confers no ranking, recommendation, readiness, or promotion authority.",
+    "Any real transition, candidate admission, crossing, or approval requires separate human action; this cockpit cannot grant it."
+  ],
+  "coordinator": {
+    "denominator_summary": {
+      "blocked_count": 2,
+      "by_overall_state": {
+        "blocked": 2,
+        "candidate_ready_for_human_review": 0,
+        "candidate_review_blocked": 0,
+        "experiment_complete": 1,
+        "formalized": 0,
+        "no_go": 4,
+        "not_started": 0,
+        "oos_gate_blocked": 0,
+        "oos_gate_fail": 1,
+        "operator_gate_pending": 0,
+        "replay_checked": 0,
+        "reported": 1,
+        "robustness_advisory": 0
+      },
+      "candidate_ready_count": 0,
+      "no_go_count": 4,
+      "operator_gate_pending_count": 0,
+      "subject_count": 9
+    },
+    "held_boundary_panel": {
+      "artifact_ref": {
+        "path": "scratch/WP-LAB-COMPLETION-MAP-UPDATE-BASELINE-PROVEN-01/held_boundary_map.json",
+        "present": true
+      },
+      "available": true,
+      "current_fork": [
+        "resume deliberate edge-search",
+        "pause/accept proven core machine with held-B layers deferred"
+      ],
+      "go_gated_protected": [
+        "paper trading",
+        "live trading",
+        "runtime execution",
+        "OMS",
+        "risk",
+        "reconciliation",
+        "broker/exchange/order/capital paths"
+      ],
+      "held_b_until_real_research_flow": [
+        "at-scale continuous sweeps",
+        "at-scale WFO/OOS execution volume",
+        "at-scale robustness/MC execution volume",
+        "agent scheduling/prioritization/autonomy over real research queue",
+        "notification firing over real jobs",
+        "real candidate lifecycle progression"
+      ],
+      "non_authority_note": "Deferred-B boundary map. These items are not authorized in the current phase. They require separate explicit operator authorization.",
+      "panel_kind": "held_boundary_deferred_b",
+      "requires_real_go_candidate": [
+        "first real candidate crossing",
+        "real candidate promotion/readiness"
+      ]
+    },
+    "schema_version": "lab_results_dashboard_v2",
+    "subjects": [
+      {
+        "evidence_class": "unknown",
+        "overall_state": "blocked",
+        "subject_id": "WP-RESEARCH-EDGE-SMA-FAMILY-01",
+        "subject_label": "edge_sma_family_blocked"
+      },
+      {
+        "evidence_class": "unknown",
+        "overall_state": "no_go",
+        "subject_id": "WP-RESEARCH-FUNDING-CARRY-01",
+        "subject_label": "funding_carry_initial_blocked_no_go"
+      },
+      {
+        "evidence_class": "unknown",
+        "overall_state": "no_go",
+        "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+        "subject_label": "funding_carry_retry_no_go"
+      },
+      {
+        "evidence_class": "non_canonical",
+        "overall_state": "no_go",
+        "subject_id": "H-FUNDING-FADE-RISKMANAGED-01",
+        "subject_label": "funding_fade_riskmanaged_stage1_no_go"
+      },
+      {
+        "evidence_class": "non_canonical",
+        "overall_state": "no_go",
+        "subject_id": "H-FUNDING-RATE-POSITIONING-FADE-01",
+        "subject_label": "funding_rate_positioning_fade"
+      },
+      {
+        "evidence_class": "unknown",
+        "overall_state": "experiment_complete",
+        "subject_id": "HISTORICAL-CANONICAL-EVIDENCE",
+        "subject_label": "candidate_registry_and_result_populations"
+      },
+      {
+        "evidence_class": "non_canonical",
+        "overall_state": "oos_gate_fail",
+        "subject_id": "OOS-GATE-FIXTURE-RP-2592",
+        "subject_label": "walkforward_oos_gate_fixture"
+      },
+      {
+        "evidence_class": "unknown",
+        "overall_state": "blocked",
+        "subject_id": "WP-RESEARCH-ORB-EXIT-RESPEC-01",
+        "subject_label": "orb_exit_respec_blocked"
+      },
+      {
+        "evidence_class": "unknown",
+        "overall_state": "reported",
+        "subject_id": "WP-RESEARCH-PRICEONLY-SYNTHESIS-01",
+        "subject_label": "priceonly_synthesis_reported"
+      }
+    ]
+  },
+  "edge_search_hold": "No further edge-search is authorized by the coordinator state model. Strategy generation/search remains held until separate operator authorization.",
+  "non_authority_declaration": {
+    "admits_candidate": false,
+    "authorizes_edge_search": false,
+    "authorizes_paper_live_runtime": false,
+    "auto_refreshes": false,
+    "auto_refreshes_from_network": false,
+    "contacts_runtime": false,
+    "creates_candidate": false,
+    "executes_canonical_crossing": false,
+    "executes_transition": false,
+    "fetches_live_data": false,
+    "has_approve_button": false,
+    "has_candidate_control": false,
+    "has_pipeline_approve_button": false,
+    "has_pipeline_retry_button": false,
+    "has_pipeline_run_button": false,
+    "has_promote_button": false,
+    "has_retry_button": false,
+    "has_run_button": false,
+    "has_scheduler_toggle": false,
+    "invokes_pipeline_runner": false,
+    "invokes_product_gates_adapter": false,
+    "invokes_product_runner_adapter": false,
+    "ranks_as_authority": false,
+    "ranks_or_recommends": false,
+    "read_only": true,
+    "reads_pipeline_state_only": true,
+    "reads_product_run_state_only": true,
+    "records_candidate_surface_decision": false,
+    "renders_executable_control": false,
+    "shows_recommendation_labels": false,
+    "static_only": true,
+    "submits_forms": false,
+    "writes_advisory_review_packet": false,
+    "writes_candidate_lifecycle": false,
+    "writes_canonical_evidence": false,
+    "writes_canonical_result_population": false,
+    "writes_prereg_approval_marker": false
+  },
+  "overview": {
+    "candidate_state": {
+      "candidate_admitted": false,
+      "candidate_ready_count": 0,
+      "go_like_evidence": false
+    },
+    "denominator": {
+      "coordinator_blocked_count": 2,
+      "coordinator_no_go_count": 4,
+      "coordinator_subject_count": 9,
+      "real_traffic_rows": 32
+    },
+    "productization_status": "Real-traffic operating-layer acceptance evidence concluded; lab held at edge-search with no candidate produced.",
+    "real_traffic_batch": {
+      "available": true,
+      "blocked_rows": 0,
+      "canonical_result_population_written": false,
+      "decision": "complete",
+      "dropped_rows": 0,
+      "executed_successful_rows": 32,
+      "frozen_denominator_rows": 32,
+      "go_like_evidence": false,
+      "preserved_rows": 32
+    },
+    "top_blockers": [
+      "No hypothesis produced GO-like or candidate-worthy evidence (0 GO-like of 4 frozen).",
+      "No canonical Result Population written; evidence is dry-run / package-local.",
+      "Monte-Carlo / bootstrap withheld; PSR / DSR / MinTRL not computed.",
+      "Walk-forward evidence is bounded dry-run only, not a rigorous OOS gate pass.",
+      "Edge-search remains held pending separate operator authorization."
+    ]
+  },
+  "pipeline_state": {
+    "available": true,
+    "real_run_evidence_available": true,
+    "real_run_supersedes_note": "Superseded: the real product runner + gates adapter flow is now complete; see the product pipeline real-run panel for actual runner output and the advisory review packet.",
+    "runs": [
+      {
+        "approval": {
+          "approval_scope": "noncanonical_offline_research_execution_only",
+          "awaiting": false,
+          "preregistration_packet_sha256": "sha256:ab796b008f8f42568fac3628e2c54a1d1bc0b0e544ede354e65676b390016fc5",
+          "required": true
+        },
+        "artifacts": [
+          {
+            "filename": "pipeline_state.json",
+            "key": "pipeline_state",
+            "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/pipeline_state.json",
+            "present": true,
+            "sha256": "sha256:3d7046ec14f3f7f0fd7c3e3ed6d7325d8792bad236d7454af6bb4cb4076f83e0"
+          },
+          {
+            "filename": "pipeline_trace.json",
+            "key": "pipeline_trace",
+            "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/pipeline_trace.json",
+            "present": true,
+            "sha256": "sha256:35b9a52c296200a4d566d1cf961add36b4d5968e4be3d9712963c540d2e5dcaf"
+          },
+          {
+            "filename": "preregistration_packet.json",
+            "key": "preregistration_packet",
+            "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/preregistration_packet.json",
+            "present": true,
+            "sha256": "sha256:5634c9440b2644ef4dbe06bf9b4f19bd6a67a7041edcc7d7c5e0d6bcd3335e99"
+          },
+          {
+            "filename": "approval_requirement.json",
+            "key": "approval_requirement",
+            "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/approval_requirement.json",
+            "present": true,
+            "sha256": "sha256:bdbf36ed0c0cf8f6bfe2c5c139ac7d3f0fb042c59a4c32afceef7bc47f3d2370"
+          },
+          {
+            "filename": "noncanonical_execution_summary.json",
+            "key": "noncanonical_execution_summary",
+            "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/noncanonical_execution_summary.json",
+            "present": true,
+            "sha256": "sha256:af9f1abe3306b844cb4451210cd71d950f45526a78774fe96e6f797ca394e9b7"
+          },
+          {
+            "filename": "operator_review_packet.md",
+            "key": "operator_review_packet",
+            "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/operator_review_packet.md",
+            "present": true,
+            "sha256": "sha256:0314994e5b4ca181e8e20f4f5b2bf804e1e95693fdb752ef4a20957e297a9e64"
+          },
+          {
+            "filename": "non_authority_assertions.json",
+            "key": "non_authority_assertions",
+            "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/non_authority_assertions.json",
+            "present": true,
+            "sha256": "sha256:ba63e4d928140a24020484977cd235a632713a24d741344ffe46abc95aefa5fd"
+          },
+          {
+            "filename": "artifact_index.json",
+            "key": "artifact_index",
+            "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/artifact_index.json",
+            "present": true,
+            "sha256": null
+          },
+          {
+            "filename": "pipeline_request.json",
+            "key": "pipeline_request",
+            "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/pipeline_request.json",
+            "present": true,
+            "sha256": "sha256:bba2dec9c5491d1e58b63b86e3837812c266537980dee5564e7ea30e82730727"
+          }
+        ],
+        "available": true,
+        "awaiting_approval": false,
+        "blocked_reasons": [],
+        "current_stage": "complete",
+        "display_label": "COMPLETE \u00b7 SPINE ONLY",
+        "display_status": "complete_spine_only",
+        "execution_kind": "deterministic_spine_proof",
+        "non_authority_flags": {
+          "authorizes_promotion_or_readiness": false,
+          "contacts_paper_live_runtime": false,
+          "executes_canonical_crossing": false,
+          "fires_notifications": false,
+          "human_review_required_for_prereg": true,
+          "noncanonical_only": true,
+          "offline_only": true,
+          "scratch_only": true,
+          "separate_authorization_required_for_canonical_or_runtime": true,
+          "uses_provider_api_or_credentials": false,
+          "uses_scheduler_or_autonomy": false,
+          "writes_candidate_lifecycle": false,
+          "writes_canonical_evidence": false
+        },
+        "pipeline_run_id": "LPIPE-0508a68667a87ce9",
+        "raw_status": "complete",
+        "request_id": "REQ-acefdf3c4ebc",
+        "requested_by": "Karl",
+        "runner_invoked": false,
+        "source_idea": "RVOL breakout continuation on BTCUSDT with a 15m volatility filter",
+        "spine_only": true,
+        "stages": [
+          {
+            "blocked_reasons": [],
+            "detail": "Request loaded.",
+            "stage": "request_loaded",
+            "status": "complete"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "Operator idea preserved and formalized.",
+            "stage": "idea_formalized",
+            "status": "complete"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "Availability check passed for prereg packet preparation.",
+            "stage": "availability_checked",
+            "status": "complete"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "Frozen preregistration packet prepared.",
+            "stage": "prereg_packet_prepared",
+            "status": "complete"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "Exact-content prereg approval marker accepted.",
+            "stage": "awaiting_prereg_approval",
+            "status": "complete"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "Approval scope permits only non-canonical offline research execution.",
+            "stage": "approved_for_noncanonical_execution",
+            "status": "complete"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "Deterministic non-canonical spine step entered.",
+            "stage": "noncanonical_execution_running",
+            "status": "complete"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "Non-canonical spine step completed with preserved denominator.",
+            "stage": "noncanonical_execution_complete",
+            "status": "complete"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "Gate review completed as non-authoritative packet check.",
+            "stage": "gate_review_complete",
+            "status": "complete"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "Robustness review completed as non-authoritative packet check.",
+            "stage": "robustness_review_complete",
+            "status": "complete"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "Operator review packet prepared without candidate lifecycle authority.",
+            "stage": "candidate_review_packet_prepared",
+            "status": "complete"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "Pipeline packet complete.",
+            "stage": "complete",
+            "status": "complete"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "",
+            "stage": "blocked",
+            "status": "not_started"
+          }
+        ],
+        "symbol": "BTCUSDT",
+        "timeframe": "15m"
+      },
+      {
+        "approval": {
+          "approval_scope": "noncanonical_offline_research_execution_only",
+          "awaiting": true,
+          "preregistration_packet_sha256": "sha256:3c1f76d5749a70f3ea1ceb44014b74dc133a6c13ac5f2a28831ae6083345055c",
+          "required": true
+        },
+        "artifacts": [
+          {
+            "filename": "pipeline_state.json",
+            "key": "pipeline_state",
+            "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/pipeline_state.json",
+            "present": true,
+            "sha256": "sha256:2047e099ddc7e6245b4dfd1d7799837ca1cf6546dbdf6949229a68b3a2fe9533"
+          },
+          {
+            "filename": "pipeline_trace.json",
+            "key": "pipeline_trace",
+            "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/pipeline_trace.json",
+            "present": true,
+            "sha256": "sha256:019efa540fa07c82854adbf480b5c85cdb853fbadee66653dde711bb2cf709f2"
+          },
+          {
+            "filename": "preregistration_packet.json",
+            "key": "preregistration_packet",
+            "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/preregistration_packet.json",
+            "present": true,
+            "sha256": "sha256:fb749ffb1ea5b7cad7ac4ecd7903983a09a5c21bbe145295a005b3df58e37610"
+          },
+          {
+            "filename": "approval_requirement.json",
+            "key": "approval_requirement",
+            "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/approval_requirement.json",
+            "present": true,
+            "sha256": "sha256:1abaf4fa541ac32ca0b22a71f1c53e995e150c1888b5577a065267619e13b10d"
+          },
+          {
+            "filename": "noncanonical_execution_summary.json",
+            "key": "noncanonical_execution_summary",
+            "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/noncanonical_execution_summary.json",
+            "present": false,
+            "sha256": null
+          },
+          {
+            "filename": "operator_review_packet.md",
+            "key": "operator_review_packet",
+            "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/operator_review_packet.md",
+            "present": true,
+            "sha256": "sha256:8443d1ea5d8720ce163995181cc0e1ff235838c89f1d49ab0efc5415b2c29610"
+          },
+          {
+            "filename": "non_authority_assertions.json",
+            "key": "non_authority_assertions",
+            "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/non_authority_assertions.json",
+            "present": true,
+            "sha256": "sha256:e5dc1ff8b8e7bd0b9d3eb752877ed2da87661a07962c7761cc34cb3b7a0cfccc"
+          },
+          {
+            "filename": "artifact_index.json",
+            "key": "artifact_index",
+            "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/artifact_index.json",
+            "present": true,
+            "sha256": null
+          },
+          {
+            "filename": "pipeline_request.json",
+            "key": "pipeline_request",
+            "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/pipeline_request.json",
+            "present": true,
+            "sha256": "sha256:bddfd765098346746cfa274354a9803ab5328582a00710b98ef429edd3860945"
+          }
+        ],
+        "available": true,
+        "awaiting_approval": true,
+        "blocked_reasons": [
+          "prereg_approval_blocked:missing_prereg_approval"
+        ],
+        "current_stage": "awaiting_prereg_approval",
+        "display_label": "AWAITING PREREG APPROVAL",
+        "display_status": "awaiting_prereg_approval",
+        "execution_kind": null,
+        "non_authority_flags": {
+          "authorizes_promotion_or_readiness": false,
+          "contacts_paper_live_runtime": false,
+          "executes_canonical_crossing": false,
+          "fires_notifications": false,
+          "human_review_required_for_prereg": true,
+          "noncanonical_only": true,
+          "offline_only": true,
+          "scratch_only": true,
+          "separate_authorization_required_for_canonical_or_runtime": true,
+          "uses_provider_api_or_credentials": false,
+          "uses_scheduler_or_autonomy": false,
+          "writes_candidate_lifecycle": false,
+          "writes_canonical_evidence": false
+        },
+        "pipeline_run_id": "LPIPE-2201304f65ac6f79",
+        "raw_status": "awaiting_prereg_approval",
+        "request_id": "REQ-9704f55778e6",
+        "requested_by": "Karl",
+        "runner_invoked": null,
+        "source_idea": "Funding-carry mean reversion on BTCUSDT over the 1h research timeframe",
+        "spine_only": false,
+        "stages": [
+          {
+            "blocked_reasons": [],
+            "detail": "Request loaded.",
+            "stage": "request_loaded",
+            "status": "complete"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "Operator idea preserved and formalized.",
+            "stage": "idea_formalized",
+            "status": "complete"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "Availability check passed for prereg packet preparation.",
+            "stage": "availability_checked",
+            "status": "complete"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "Frozen preregistration packet prepared.",
+            "stage": "prereg_packet_prepared",
+            "status": "complete"
+          },
+          {
+            "blocked_reasons": [
+              "prereg_approval_blocked:missing_prereg_approval"
+            ],
+            "detail": "Pipeline halted until exact-content prereg approval is supplied.",
+            "stage": "awaiting_prereg_approval",
+            "status": "awaiting_approval"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "",
+            "stage": "approved_for_noncanonical_execution",
+            "status": "not_started"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "",
+            "stage": "noncanonical_execution_running",
+            "status": "not_started"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "",
+            "stage": "noncanonical_execution_complete",
+            "status": "not_started"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "",
+            "stage": "gate_review_complete",
+            "status": "not_started"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "",
+            "stage": "robustness_review_complete",
+            "status": "not_started"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "",
+            "stage": "candidate_review_packet_prepared",
+            "status": "not_started"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "",
+            "stage": "complete",
+            "status": "not_started"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "",
+            "stage": "blocked",
+            "status": "not_started"
+          }
+        ],
+        "symbol": "BTCUSDT",
+        "timeframe": "1h"
+      },
+      {
+        "approval": {
+          "approval_scope": null,
+          "awaiting": false,
+          "preregistration_packet_sha256": null,
+          "required": false
+        },
+        "artifacts": [
+          {
+            "filename": "pipeline_state.json",
+            "key": "pipeline_state",
+            "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-e7d1a256221a28aa/pipeline_state.json",
+            "present": true,
+            "sha256": "sha256:bf787df92b3600b3b52cffae6718d2ebeab5beb01a6d0d7a096be66fa9b111a4"
+          },
+          {
+            "filename": "pipeline_trace.json",
+            "key": "pipeline_trace",
+            "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-e7d1a256221a28aa/pipeline_trace.json",
+            "present": true,
+            "sha256": "sha256:709532bdaac423e80c49ddab1018ea73adf129ee00767b41a662ca21b5777c84"
+          },
+          {
+            "filename": "preregistration_packet.json",
+            "key": "preregistration_packet",
+            "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-e7d1a256221a28aa/preregistration_packet.json",
+            "present": false,
+            "sha256": null
+          },
+          {
+            "filename": "approval_requirement.json",
+            "key": "approval_requirement",
+            "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-e7d1a256221a28aa/approval_requirement.json",
+            "present": false,
+            "sha256": null
+          },
+          {
+            "filename": "noncanonical_execution_summary.json",
+            "key": "noncanonical_execution_summary",
+            "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-e7d1a256221a28aa/noncanonical_execution_summary.json",
+            "present": false,
+            "sha256": null
+          },
+          {
+            "filename": "operator_review_packet.md",
+            "key": "operator_review_packet",
+            "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-e7d1a256221a28aa/operator_review_packet.md",
+            "present": true,
+            "sha256": "sha256:e18b1b086e46945d3c93196488fe93d17dc6093515b496ad4cb72c3c4eec55dd"
+          },
+          {
+            "filename": "non_authority_assertions.json",
+            "key": "non_authority_assertions",
+            "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-e7d1a256221a28aa/non_authority_assertions.json",
+            "present": true,
+            "sha256": "sha256:2669a5ed181a898579fdd15ce1672180fa5b19c20c41be96c986baa89d1028ee"
+          },
+          {
+            "filename": "artifact_index.json",
+            "key": "artifact_index",
+            "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-e7d1a256221a28aa/artifact_index.json",
+            "present": true,
+            "sha256": null
+          },
+          {
+            "filename": "pipeline_request.json",
+            "key": "pipeline_request",
+            "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-e7d1a256221a28aa/pipeline_request.json",
+            "present": true,
+            "sha256": "sha256:ff533f8e1953cd8878312958f95d19849beaee6dbcc1eef85ea5f5253c2085d4"
+          }
+        ],
+        "available": true,
+        "awaiting_approval": false,
+        "blocked_reasons": [
+          "availability_blocked:unsupported_timeframe"
+        ],
+        "current_stage": "blocked",
+        "display_label": "BLOCKED",
+        "display_status": "blocked_or_invalid",
+        "execution_kind": null,
+        "non_authority_flags": {
+          "authorizes_promotion_or_readiness": false,
+          "contacts_paper_live_runtime": false,
+          "executes_canonical_crossing": false,
+          "fires_notifications": false,
+          "human_review_required_for_prereg": true,
+          "noncanonical_only": true,
+          "offline_only": true,
+          "scratch_only": true,
+          "separate_authorization_required_for_canonical_or_runtime": true,
+          "uses_provider_api_or_credentials": false,
+          "uses_scheduler_or_autonomy": false,
+          "writes_candidate_lifecycle": false,
+          "writes_canonical_evidence": false
+        },
+        "pipeline_run_id": "LPIPE-e7d1a256221a28aa",
+        "raw_status": "blocked",
+        "request_id": "REQ-0c88de81c763",
+        "requested_by": "Karl",
+        "runner_invoked": null,
+        "source_idea": "Momentum idea on an unsupported research timeframe",
+        "spine_only": false,
+        "stages": [
+          {
+            "blocked_reasons": [],
+            "detail": "Request loaded.",
+            "stage": "request_loaded",
+            "status": "complete"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "Operator idea preserved and formalized.",
+            "stage": "idea_formalized",
+            "status": "complete"
+          },
+          {
+            "blocked_reasons": [
+              "availability_blocked:unsupported_timeframe"
+            ],
+            "detail": "Availability check blocked.",
+            "stage": "availability_checked",
+            "status": "blocked"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "",
+            "stage": "prereg_packet_prepared",
+            "status": "not_started"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "",
+            "stage": "awaiting_prereg_approval",
+            "status": "not_started"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "",
+            "stage": "approved_for_noncanonical_execution",
+            "status": "not_started"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "",
+            "stage": "noncanonical_execution_running",
+            "status": "not_started"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "",
+            "stage": "noncanonical_execution_complete",
+            "status": "not_started"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "",
+            "stage": "gate_review_complete",
+            "status": "not_started"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "",
+            "stage": "robustness_review_complete",
+            "status": "not_started"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "",
+            "stage": "candidate_review_packet_prepared",
+            "status": "not_started"
+          },
+          {
+            "blocked_reasons": [],
+            "detail": "",
+            "stage": "complete",
+            "status": "not_started"
+          },
+          {
+            "blocked_reasons": [
+              "availability_blocked:unsupported_timeframe"
+            ],
+            "detail": "Pipeline blocked by availability.",
+            "stage": "blocked",
+            "status": "blocked"
+          }
+        ],
+        "symbol": "BTCUSDT",
+        "timeframe": "3m"
+      }
+    ],
+    "runs_root": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs",
+    "spine_only": true,
+    "spine_only_label": "State spine / prereg approval contract only; real agent/runner adapter flow not yet complete.",
+    "status": "present",
+    "totals": {
+      "awaiting_approval": 1,
+      "blocked_or_invalid": 1,
+      "complete_real": 0,
+      "complete_spine_only": 1,
+      "run_count": 3
+    }
+  },
+  "product_candidate_funnel": {
+    "available": true,
+    "candidate_admitted_count": 0,
+    "note": "Advisory surface routing is review-routing only; no candidate is admitted, crossed, promoted, or marked ready by this cockpit.",
+    "stages": [
+      {
+        "count": 8,
+        "label": "Runner rows preserved (full denominator)",
+        "stage": "runner_rows_preserved"
+      },
+      {
+        "count": 8,
+        "label": "Completed runner rows",
+        "stage": "runner_completed_rows"
+      },
+      {
+        "count": 1,
+        "label": "Advisory review packets ready",
+        "stage": "advisory_packet_ready"
+      },
+      {
+        "count": 0,
+        "label": "Routed hold-for-review (advisory only)",
+        "stage": "surface_hold_for_review"
+      },
+      {
+        "count": 0,
+        "label": "Candidates admitted",
+        "stage": "candidate_admitted"
+      }
+    ],
+    "winner_only_view": false
+  },
+  "product_runs": {
+    "available": true,
+    "panel_state": "advisory_packet_ready",
+    "runs": [
+      {
+        "adapter_status": "completed",
+        "artifacts": [
+          {
+            "filename": "advisory_review_packet.json",
+            "path": "scratch/WP-LABPROD-COCKPIT-REALRUN-REFRESH-08/product_runs/LGATE-ad8b6d62f772e9d8/advisory_review_packet.json",
+            "present": true,
+            "sha256": "sha256:b3cfb72612f54628dd24e656c26a915562af7fcae42dab57433563b9448aebec"
+          },
+          {
+            "filename": "advisory_review_packet.md",
+            "path": "scratch/WP-LABPROD-COCKPIT-REALRUN-REFRESH-08/product_runs/LGATE-ad8b6d62f772e9d8/advisory_review_packet.md",
+            "present": true,
+            "sha256": "sha256:9b96fa78b7af1ab2aa720439d9160eb48c95cb3bd66db82562f28caeb0ba1808"
+          },
+          {
+            "filename": "gates_adapter_result.json",
+            "path": "scratch/WP-LABPROD-COCKPIT-REALRUN-REFRESH-08/product_runs/LGATE-ad8b6d62f772e9d8/gates_adapter_result.json",
+            "present": true,
+            "sha256": "sha256:5a98ca7862cf5e22fd71d4d0fa277a1c3c4d832d9d6bdac6684371e315cdb966"
+          },
+          {
+            "filename": "wfo_oos_result.json",
+            "path": "scratch/WP-LABPROD-COCKPIT-REALRUN-REFRESH-08/product_runs/LGATE-ad8b6d62f772e9d8/wfo_oos_result.json",
+            "present": true,
+            "sha256": "sha256:32de95130e3697dc637d26cb7f06f82277a8ae2f24865f386b4f98470f0bbee2"
+          },
+          {
+            "filename": "robustness_result.json",
+            "path": "scratch/WP-LABPROD-COCKPIT-REALRUN-REFRESH-08/product_runs/LGATE-ad8b6d62f772e9d8/robustness_result.json",
+            "present": true,
+            "sha256": "sha256:8268cd83233273c8fe46e40bbbf192a638eb521fdc2b84fe0e80ef2cd25ce574"
+          },
+          {
+            "filename": "candidate_review_result.json",
+            "path": "scratch/WP-LABPROD-COCKPIT-REALRUN-REFRESH-08/product_runs/LGATE-ad8b6d62f772e9d8/candidate_review_result.json",
+            "present": true,
+            "sha256": "sha256:8387c72236ed5a419c9cb6b9d602e76d9059aad9d5772986dcf2714e74fb7d63"
+          },
+          {
+            "filename": "direct_agent_reconciliation.json",
+            "path": "scratch/WP-LABPROD-COCKPIT-REALRUN-REFRESH-08/product_runs/LGATE-ad8b6d62f772e9d8/direct_agent_reconciliation.json",
+            "present": true,
+            "sha256": "sha256:cc2ce75b9d288130dfab0d45e3d98f39ccb21c2eb5411d1a0c2290eb463583fb"
+          },
+          {
+            "filename": "runner_adapter_result.json",
+            "path": "scratch/WP-LABPROD-COCKPIT-REALRUN-REFRESH-08/product_runs/LGATE-ad8b6d62f772e9d8/runner_adapter_result.json",
+            "present": true,
+            "sha256": "sha256:f964ad3a9d7eb8014a073f81a1b2be510302133a64b4f7e78d09257733373b17"
+          }
+        ],
+        "available": true,
+        "candidate_lifecycle_written": false,
+        "candidate_review": {
+          "blockers": [],
+          "evidence_gaps": [
+            "needs real trade rows for per-trade diagnostics",
+            "needs fold/OOS inputs for walk-forward diagnostics",
+            "needs separately authorized funding-on test before funding stress"
+          ],
+          "existing_agent_invoked": true,
+          "recommendation": null,
+          "status": "completed"
+        },
+        "candidate_surface_allowed_statuses": [
+          "hold_for_review",
+          "needs_more_evidence",
+          "do_not_escalate"
+        ],
+        "candidate_surface_status": "needs_more_evidence",
+        "denominator_counts": {
+          "blocked": 0,
+          "completed": 8,
+          "failed": 0,
+          "invalid": 0,
+          "pruned": 0
+        },
+        "display_label": "ADVISORY PACKET READY",
+        "display_state": "advisory_packet_ready",
+        "full_denominator_preserved": true,
+        "go_auto_admission": false,
+        "go_auto_crossing": false,
+        "go_auto_promotion": false,
+        "non_promotion_posture": {
+          "not_candidate_admission": true,
+          "not_candidate_lifecycle": true,
+          "not_canonical_evidence": true,
+          "not_crossing": true,
+          "not_paper_live_runtime_authority": true,
+          "not_promotion_or_readiness": true
+        },
+        "posture": "advisory_only_noncanonical_product_scratch",
+        "provenance": {
+          "bridge_preparation_run_id": "239624c28e8e64a6",
+          "gates_adapter_run_id": "LGATE-ad8b6d62f772e9d8",
+          "product_pipeline_run_id": "PIPELINE-PRODUCT-BRIDGE-0001",
+          "runner_adapter_run_id": "LRUN-cbbdb839a2a7badf"
+        },
+        "reached_states": [
+          "advisory_packet_ready",
+          "bridge_prepared",
+          "execute_approval_consumed",
+          "idea_formalized",
+          "runner_executed"
+        ],
+        "real_run": true,
+        "robustness": {
+          "adapter_status": "completed",
+          "denominator_integrity_status": {
+            "all_source_rows_preserved": true,
+            "result_row_count": 8,
+            "row_disposition": [
+              {
+                "eligible_for_metrics": true,
+                "status_reason": "successful",
+                "trial_status": "completed",
+                "variant_id": "VAR-000001"
+              },
+              {
+                "eligible_for_metrics": true,
+                "status_reason": "successful",
+                "trial_status": "completed",
+                "variant_id": "VAR-000002"
+              },
+              {
+                "eligible_for_metrics": true,
+                "status_reason": "successful",
+                "trial_status": "completed",
+                "variant_id": "VAR-000003"
+              },
+              {
+                "eligible_for_metrics": true,
+                "status_reason": "successful",
+                "trial_status": "completed",
+                "variant_id": "VAR-000004"
+              },
+              {
+                "eligible_for_metrics": true,
+                "status_reason": "successful",
+                "trial_status": "completed",
+                "variant_id": "VAR-000005"
+              },
+              {
+                "eligible_for_metrics": true,
+                "status_reason": "successful",
+                "trial_status": "completed",
+                "variant_id": "VAR-000006"
+              },
+              {
+                "eligible_for_metrics": true,
+                "status_reason": "successful",
+                "trial_status": "completed",
+                "variant_id": "VAR-000007"
+              },
+              {
+                "eligible_for_metrics": true,
+                "status_reason": "successful",
+                "trial_status": "completed",
+                "variant_id": "VAR-000008"
+              }
+            ],
+            "source_declared_trial_count": 8,
+            "source_status_counts": {
+              "blocked": 0,
+              "completed": 8,
+              "failed": 0,
+              "invalid": 0,
+              "pruned": 0
+            },
+            "status": "passed"
+          },
+          "diagnostics_completed": [
+            "seeded_variant_metric_bootstrap",
+            "metric_confidence_intervals",
+            "parameter_sensitivity",
+            "denominator_integrity",
+            "source_lineage_hash_preservation",
+            "funding_mode_visibility",
+            "data_availability_propagation"
+          ],
+          "diagnostics_skipped": [
+            {
+              "diagnostic": "oos_walkforward_status",
+              "reason": "missing_fold_inputs"
+            },
+            {
+              "diagnostic": "per_trade_status",
+              "reason": "QUEUE_PER_TRADE_INSTRUMENTATION"
+            },
+            {
+              "diagnostic": "funding_stress_status",
+              "reason": "not_applicable_funding_mode_off"
+            }
+          ],
+          "existing_agent_invoked": true
+        },
+        "run_id": "LGATE-ad8b6d62f772e9d8",
+        "runner_invoked": true,
+        "stage_ladder": [
+          {
+            "label": "Idea formalized (product bridge)",
+            "reached": true,
+            "stage": "idea_formalized"
+          },
+          {
+            "label": "Strategy Spec / Variant Manifest / Sweep Plan prepared",
+            "reached": true,
+            "stage": "bridge_prepared"
+          },
+          {
+            "label": "Exact-content execute approval consumed",
+            "reached": true,
+            "stage": "execute_approval_consumed"
+          },
+          {
+            "label": "Offline runner executed; Result Population produced",
+            "reached": true,
+            "stage": "runner_executed"
+          },
+          {
+            "label": "Advisory review packet assembled",
+            "reached": true,
+            "stage": "advisory_packet_ready"
+          }
+        ],
+        "withheld_statistics": {
+          "fabricated_any": false,
+          "sections": [
+            {
+              "fabricated": false,
+              "key": "wfo_oos",
+              "statistics": [
+                "mean_oos_sharpe",
+                "minimum_oos_sharpe",
+                "maximum_oos_drawdown",
+                "walkforward_split_periods",
+                "purge_bars",
+                "embargo_bars"
+              ],
+              "status": "withheld_missing_walkforward_oos_inputs"
+            },
+            {
+              "fabricated": false,
+              "key": "oos_walkforward",
+              "statistics": [],
+              "status": "missing_fold_inputs"
+            },
+            {
+              "fabricated": false,
+              "key": "per_trade",
+              "statistics": [],
+              "status": "QUEUE_PER_TRADE_INSTRUMENTATION"
+            },
+            {
+              "fabricated": false,
+              "key": "funding_stress",
+              "statistics": [],
+              "status": "not_applicable_funding_mode_off"
+            }
+          ],
+          "wfo_oos_gate_status": "blocked",
+          "wfo_oos_statistics": [
+            "mean_oos_sharpe",
+            "minimum_oos_sharpe",
+            "maximum_oos_drawdown",
+            "walkforward_split_periods",
+            "purge_bars",
+            "embargo_bars"
+          ],
+          "wfo_oos_withheld_status": "withheld_missing_walkforward_oos_inputs"
+        }
+      }
+    ],
+    "runs_root": "scratch/WP-LABPROD-COCKPIT-REALRUN-REFRESH-08/product_runs",
+    "state_vocabulary": [
+      {
+        "label": "No run",
+        "state": "no_run"
+      },
+      {
+        "label": "Awaiting execute approval",
+        "state": "awaiting_approval"
+      },
+      {
+        "label": "Prepared (bridge prepare-only)",
+        "state": "prepared"
+      },
+      {
+        "label": "Executed (runner Result Population)",
+        "state": "executed"
+      },
+      {
+        "label": "Advisory packet ready",
+        "state": "advisory_packet_ready"
+      },
+      {
+        "label": "Blocked / failed",
+        "state": "blocked_or_failed"
+      }
+    ],
+    "status": "present",
+    "totals": {
+      "advisory_packet_ready": 1,
+      "blocked_or_failed": 0,
+      "real_runner_runs": 1,
+      "run_count": 1
+    }
+  },
+  "real_traffic_batch": {
+    "available": true,
+    "base_commit": "b268fe82ad343b8d8471429ed5dfc866e17d9e50",
+    "batch_package": "WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01",
+    "blocked_rows": 0,
+    "canonical_result_population_written": false,
+    "decision": "complete",
+    "dropped_rows": 0,
+    "executed_successful_rows": 32,
+    "frozen_denominator_rows": 32,
+    "go_candidate_worthy_decision_packet": "not_applicable_no_go_like_evidence",
+    "go_like_evidence": false,
+    "hypotheses": [
+      {
+        "canonical_write": false,
+        "denominator": 8,
+        "distinctness_result": "retained_by_main_decision_not_rechecked_in_this_packet",
+        "dry_run": true,
+        "economic_rationale": "A strong no-wick candle that closes on the trend side of EMA50 and retests the EMA may indicate continuation after directional impulse rather than mean reversion.",
+        "family_route": "price_only_ohlcv.no_wick_ema_retest_4h",
+        "freshness_check_result": "retained_by_main_decision",
+        "go_definition": "All denominator rows are preserved, population-level net performance and drawdown pass the frozen screen, cost burden is not dominant under available metrics, and sensitivity is not winner-only; GO-like evidence still requires human decision and creates no admission or crossing authority.",
+        "hypothesis_id": "LAB-RT-HYP-001",
+        "max_drawdown": 0.7708820807683276,
+        "median_fees": 56.25909645806616,
+        "median_pnl": 19190.543559360623,
+        "median_return_pct": 1.9190543559360624,
+        "median_slippage": 14.06477411451654,
+        "name": "BTCUSDT 4h no-wick EMA retest continuation",
+        "non_promoting_reason": "fails primary drawdown screen",
+        "positive_pnl_rows": 6,
+        "reading": "NO-GO / not candidate-worthy despite positive median return because max drawdown is about 77.1% and sensitivity includes negative rows.",
+        "result_context_flags": [],
+        "result_population_id": "RP-3523",
+        "status": "non_promoting",
+        "status_label": "NON-PROMOTING",
+        "successful_rows": 8,
+        "trade_counts": [
+          14,
+          2,
+          14,
+          2,
+          8,
+          8,
+          8,
+          8
+        ],
+        "walkforward_rows": 24,
+        "walkforward_successful_rows": 24,
+        "walkforward_warnings": [
+          "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+        ]
+      },
+      {
+        "canonical_write": false,
+        "denominator": 8,
+        "distinctness_result": "pass",
+        "dry_run": true,
+        "economic_rationale": "Breakouts accompanied by abnormal participation and an ATR-normalized candle range may reflect real order-flow participation rather than thin-channel noise. This tests participation-confirmed continuation, not Donchian, ORB, or Bollinger squeeze behavior.",
+        "family_route": "price_only_ohlcv.rvol_range_expansion_breakout_15m",
+        "freshness_check_result": "pass",
+        "go_definition": "All denominator rows are preserved; median net return is positive; at least 5/8 rows are positive; drawdown remains below the frozen screen; costs are measured honestly; favorable evidence spans more than one RVOL and range threshold.",
+        "hypothesis_id": "LAB-RT-HYP-002R",
+        "max_drawdown": 0.7727654107626627,
+        "median_fees": 75.77949541285537,
+        "median_pnl": 56170.00617909891,
+        "median_return_pct": 5.617000617909891,
+        "median_slippage": 18.944873853213842,
+        "name": "BTCUSDT 15m RVOL-gated range-expansion breakout",
+        "non_promoting_reason": "fails primary drawdown screen",
+        "positive_pnl_rows": 8,
+        "reading": "RVOL-gated immediately previous-bar high/low range-expansion breakout; not Donchian, not ORB, not session-anchor substitution. Positive PnL rows are offset by drawdown around 77.28%, so the frozen GO screen is not met.",
+        "result_context_flags": [],
+        "result_population_id": "RP-1413",
+        "status": "non_promoting",
+        "status_label": "NON-PROMOTING",
+        "successful_rows": 8,
+        "trade_counts": [
+          27,
+          11,
+          13,
+          10,
+          10,
+          27,
+          15,
+          11
+        ],
+        "walkforward_rows": 24,
+        "walkforward_successful_rows": 24,
+        "walkforward_warnings": []
+      },
+      {
+        "canonical_write": false,
+        "denominator": 8,
+        "distinctness_result": "pass_with_caution",
+        "dry_run": true,
+        "economic_rationale": "Rolling candle-VWAP approximates recent volume-weighted fair value from OHLCV. A large ATR-normalized distance from that anchor plus RSI exhaustion may represent a liquidity overshoot that can revert without relying on SMA/stddev bands.",
+        "family_route": "price_only_ohlcv.rolling_vwap_distance_reversion_15m",
+        "freshness_check_result": "pass_with_caution",
+        "go_definition": "All denominator rows are preserved; median net return is positive; at least 5/8 rows are positive; drawdown remains below the frozen screen; cost/churn is not dominant; favorable evidence is not isolated to one VWAP lookback or RSI threshold.",
+        "hypothesis_id": "LAB-RT-HYP-003R",
+        "max_drawdown": 0.9899583429626736,
+        "median_fees": 2612.9726077139853,
+        "median_pnl": -9800.985178273411,
+        "median_return_pct": -0.980098517827341,
+        "median_slippage": 653.2431519284963,
+        "name": "BTCUSDT 15m rolling VWAP distance reversion",
+        "non_promoting_reason": "negative population and severe drawdown",
+        "positive_pnl_rows": 0,
+        "reading": "NO-GO. 0/8 positive rows, median return about -98.0%, high churn and severe drawdown. Pass-with-caution context against RP-7134 / STRAT-SPEC-0003 retained.",
+        "result_context_flags": [
+          "pass_with_caution",
+          "future result records must carry pass_with_caution context",
+          "interpret future result records against RP-7134 / STRAT-SPEC-0003 context"
+        ],
+        "result_population_id": "RP-2231",
+        "status": "no_go",
+        "status_label": "NO-GO",
+        "successful_rows": 8,
+        "trade_counts": [
+          1537,
+          2803,
+          1531,
+          2760,
+          1490,
+          2601,
+          1468,
+          2510
+        ],
+        "walkforward_rows": 24,
+        "walkforward_successful_rows": 24,
+        "walkforward_warnings": [
+          "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+        ]
+      },
+      {
+        "canonical_write": false,
+        "denominator": 8,
+        "distinctness_result": "pass_with_caution",
+        "dry_run": true,
+        "economic_rationale": "Directional impulse continuation may be more plausible during high-liquidity UTC windows when spread/cost friction is lower and participation is broader. This tests session-conditioned impulse follow-through rather than moving-average crossover or multi-timeframe trend alignment.",
+        "family_route": "price_only_ohlcv.session_ema_impulse_continuation_15m",
+        "freshness_check_result": "pass_with_caution",
+        "go_definition": "All denominator rows are preserved; median net return is positive; at least 5/8 rows are positive; drawdown remains below the frozen screen; cost/churn is not dominant; favorable evidence spans more than one EMA/body/session axis.",
+        "hypothesis_id": "LAB-RT-HYP-004R",
+        "max_drawdown": 0.7727635930168999,
+        "median_fees": 82.26637076121452,
+        "median_pnl": 57714.7297609148,
+        "median_return_pct": 5.77147297609148,
+        "median_slippage": 20.56659269030363,
+        "name": "BTCUSDT 15m session-filtered EMA impulse continuation",
+        "non_promoting_reason": "fails primary drawdown screen",
+        "positive_pnl_rows": 8,
+        "reading": "NO-GO / not candidate-worthy despite 8/8 positive full-slice rows because max drawdown is about 77.3%; session filter is load-bearing but evidence fails drawdown screen. Pass-with-caution context against RP-2592 / RP-3731 / RP-6236 retained.",
+        "result_context_flags": [
+          "pass_with_caution",
+          "future result records must carry pass_with_caution context",
+          "interpret future result records against RP-2592 / RP-3731 / RP-6236 context",
+          "load-bearing session filter required"
+        ],
+        "result_population_id": "RP-6877",
+        "status": "non_promoting",
+        "status_label": "NON-PROMOTING",
+        "successful_rows": 8,
+        "trade_counts": [
+          11,
+          6,
+          20,
+          8,
+          11,
+          15,
+          22,
+          15
+        ],
+        "walkforward_rows": 24,
+        "walkforward_successful_rows": 24,
+        "walkforward_warnings": []
+      }
+    ],
+    "preserved_rows": 32,
+    "real_research_execution_performed": true,
+    "totals": {
+      "candidate_worthy_hypotheses": 0,
+      "go_like_hypotheses": 0,
+      "hypotheses_with_positive_median_pnl": 3,
+      "hypotheses_with_positive_rows": 3,
+      "hypothesis_count": 4,
+      "no_go_count": 1,
+      "non_promoting_count": 3,
+      "total_positive_rows": 22
+    }
+  },
+  "robustness": {
+    "available": true,
+    "axis_sensitivity_review": "All 8 rows are positive, but all rows show high drawdown near 77.28%; favorable PnL is not enough for GO-like interpretation under the frozen screen.",
+    "full_denominator_review": true,
+    "monte_carlo_reason": "No package-local MC runner surface was used; no new dependency or runner change authorized.",
+    "monte_carlo_run": false,
+    "withheld_note": "No package-local Monte-Carlo / bootstrap runner surface was used, and PSR / DSR / MinTRL were not computed on this dry-run evidence. These statistics are withheld rather than fabricated.",
+    "withheld_statistics": [
+      "MonteCarlo",
+      "Bootstrap",
+      "PSR",
+      "DSR",
+      "MinTRL"
+    ]
+  },
+  "schema_version": "lab_product_cockpit_v1",
+  "surface_kind": "read_only_operator_cockpit",
+  "timeline": [
+    {
+      "detail": "authorized_as_is",
+      "kind": "freeze",
+      "label": "Revised four-hypothesis set signed off and frozen",
+      "ref": "PR #600",
+      "seq": 1,
+      "source": "scratch/WP-LAB-REAL-TRAFFIC-REVISED-SIGNOFF-FREEZE-01/revised_frozen_hypothesis_set.json"
+    },
+    {
+      "detail": "Real research traffic; denominator preserved; no canonical write.",
+      "kind": "execute",
+      "label": "Revised batch executed (HYP-002R blocked pending runner support)",
+      "ref": "PR #606",
+      "seq": 2,
+      "source": "scratch/WP-LAB-REAL-TRAFFIC-REVISED-BATCH-EXECUTE-01/real_traffic_batch_manifest.json"
+    },
+    {
+      "detail": "32/32 rows executed and preserved; GO-like evidence = false.",
+      "kind": "complete",
+      "label": "HYP-002R completed; final revised-batch rollup",
+      "ref": "PR #608",
+      "seq": 3,
+      "source": "scratch/WP-LAB-REAL-TRAFFIC-HYP002R-COMPLETION-01/revised_batch_final_rollup.json"
+    },
+    {
+      "detail": "Operating-layer acceptance evidence; no candidate / crossing authority.",
+      "kind": "conclude",
+      "label": "Real-traffic batch synthesis concluded",
+      "ref": "PR #609",
+      "seq": 4,
+      "source": "docs/research/LAB_REAL_TRAFFIC_BATCH_SYNTHESIS_2026-07.md"
+    }
+  ],
+  "wfo_oos": {
+    "available": true,
+    "gate_posture": "dry_run_walkforward_not_a_rigorous_gate_pass",
+    "per_hypothesis": [
+      {
+        "hypothesis_id": "LAB-RT-HYP-001",
+        "walkforward_rows": 24,
+        "walkforward_successful_rows": 24,
+        "warnings": [
+          "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+        ]
+      },
+      {
+        "hypothesis_id": "LAB-RT-HYP-002R",
+        "walkforward_rows": 24,
+        "walkforward_successful_rows": 24,
+        "warnings": []
+      },
+      {
+        "hypothesis_id": "LAB-RT-HYP-003R",
+        "walkforward_rows": 24,
+        "walkforward_successful_rows": 24,
+        "warnings": [
+          "oos_is_sharpe_efficiency_unavailable_non_positive_or_missing_is_sharpe"
+        ]
+      },
+      {
+        "hypothesis_id": "LAB-RT-HYP-004R",
+        "walkforward_rows": 24,
+        "walkforward_successful_rows": 24,
+        "warnings": []
+      }
+    ],
+    "protocol": {
+      "in_sample_bars": 6000,
+      "method": "runner dry-run walkforward, bounded to 3 chronological windows",
+      "no_lookahead_boundary": "OOS rows are never used to choose variants; each row reports the same predeclared included variants across IS and later OOS windows.",
+      "out_of_sample_bars": 1500,
+      "purge_embargo": "not_implemented_deferred_by_design",
+      "window_count": 3
+    },
+    "rigorous_oos_gate_pass": false
+  }
+}

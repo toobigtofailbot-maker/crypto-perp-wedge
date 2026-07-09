@@ -1,0 +1,17 @@
+{
+  "schema_version": "cockpit_realrun_refresh_non_authority_assertions_v1",
+  "package_id": "WP-LABPROD-COCKPIT-REALRUN-REFRESH-08",
+  "read_only_dashboard": true,
+  "controls_added": false,
+  "approval_actions_added": false,
+  "notification_firing": false,
+  "scheduler_activation": false,
+  "canonical_evidence_written": false,
+  "candidate_lifecycle_written": false,
+  "crossing": false,
+  "promotion_or_readiness": false,
+  "paper_live_runtime_contact": false,
+  "provider_api_credential_use": false,
+  "dependency_config_data_acquisition": false,
+  "protected_path_touch": false
+}

@@ -1,0 +1,76 @@
+{
+  "adapter_status": "blocked",
+  "caveats": [
+    "Product runner output contains aggregate Result Population rows but no fold/OOS window artifact.",
+    "No WFO/OOS statistic was filled with zero, estimated, or converted into pass/fail authority."
+  ],
+  "existing_gate_entry_point": "tools.oos_gate.evaluate.evaluate_candidate_review_gate",
+  "existing_gate_invoked": true,
+  "gate_artifact_supplied": false,
+  "gate_evaluation": {
+    "aggregate": {
+      "blocked_count": 1,
+      "candidate_lifecycle_writes": 0,
+      "canonical_writes": 0,
+      "pass_count": 0,
+      "runtime_actions": 0
+    },
+    "candidate_count": 1,
+    "candidate_results": [
+      {
+        "blockers": [
+          "missing_oos_gate_evidence"
+        ],
+        "candidate_id": "RP-6903",
+        "candidate_lifecycle_writes": 0,
+        "candidate_review_gate_status": "blocked",
+        "canonical_writes": 0,
+        "gate_decision": null,
+        "runtime_actions": 0
+      }
+    ],
+    "gate_artifact_errors": [],
+    "gate_artifact_valid": false,
+    "non_authority_flags": [
+      "not_candidate_approval",
+      "not_candidate_lifecycle_write_authority",
+      "not_paper_live_authority",
+      "not_promotion_authority",
+      "not_ranking_authority",
+      "not_readiness_authority",
+      "not_recommendation_authority",
+      "not_result_population_write_authority",
+      "not_runtime_authority"
+    ],
+    "schema_version": "oos_candidate_gate_evaluation.v1"
+  },
+  "non_authority_assertions": {
+    "candidate_admission": false,
+    "candidate_lifecycle_written": false,
+    "candidate_registry_written": false,
+    "canonical_evidence_written": false,
+    "crossing": false,
+    "dependency_config_data_acquisition": false,
+    "notification_firing": false,
+    "paper_live_runtime_contact": false,
+    "promotion_or_readiness": false,
+    "protected_path_touch": false,
+    "provider_api_credential_use": false,
+    "scheduler_autonomous_dispatch": false
+  },
+  "schema_version": "product_wfo_oos_adapter_result_v1",
+  "source_result_population_id": "RP-6903",
+  "source_runner_adapter_run_id": "LRUN-cbbdb839a2a7badf",
+  "withheld_statistics": {
+    "fabricated": false,
+    "statistics": [
+      "mean_oos_sharpe",
+      "minimum_oos_sharpe",
+      "maximum_oos_drawdown",
+      "walkforward_split_periods",
+      "purge_bars",
+      "embargo_bars"
+    ],
+    "status": "withheld_missing_walkforward_oos_inputs"
+  }
+}

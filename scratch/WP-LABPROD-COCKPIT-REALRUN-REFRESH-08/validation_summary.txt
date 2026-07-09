@@ -1,0 +1,72 @@
+WP-LABPROD-COCKPIT-REALRUN-REFRESH-08 — Validation Summary
+Interpreter: C:/GitHub/crypto-perp-wedge/.venv/Scripts/python.exe (Python 3.11.9, pandas present)
+Note: the repo's active venv is the main-repo .venv; the worktree's default
+python (3.14) lacks pandas, so all commands below used the .venv interpreter.
+
+Hard dependency
+- PR #624 merged on main (HEAD 129bb28, present on origin/main). PASS.
+
+Changed files (scope)
+- tools/lab_cockpit/model.py   (M, +346)
+- tools/lab_cockpit/render.py  (M, +320)
+- tests/test_lab_cockpit_product_runs.py (new, 22 tests)
+- docs/research/LAB_PRODUCTIZATION_COCKPIT_REALRUN_REFRESH.md (new)
+- docs/status_entries/WP-LABPROD-COCKPIT-REALRUN-REFRESH-08.md (new)
+- scratch/WP-LABPROD-COCKPIT-REALRUN-REFRESH-08/** (new: generator, committed
+  real-run fixture, evidence, build output)
+
+Commands run
+1. py_compile tools/lab_cockpit/{model,render,run}.py,
+   tests/test_lab_cockpit_product_runs.py, generate_product_run_fixtures.py
+   -> OK.
+2. python -m json.tool scratch/.../non_authority_assertions.json
+   -> valid JSON.
+3. Fixture generator determinism: generated twice, byte-identical
+   (sha256 of every file matched); no absolute/machine/temp paths in committed
+   bytes. PASS.
+4. Focused cockpit tests
+   pytest tests/test_lab_cockpit_product_runs.py tests/test_lab_cockpit.py
+          tests/test_lab_cockpit_pipeline_state.py
+          tests/test_lab_visual_cockpit_static.py
+   -> 69 passed.
+5. Cockpit render/build command
+   python -m tools.lab_cockpit.run --out-dir scratch/.../build
+   -> wrote cockpit_data.json / cockpit.html / cockpit.md; DOM inspection
+   confirmed section order, 8 cards, 3 SVGs, no horizontal overflow.
+6. Lab pipeline state/query tests
+   pytest tests/test_lab_pipeline_gates_adapter.py
+          tests/test_lab_pipeline_runner_adapter.py
+   -> 33 passed.
+7. python -m tools.research_query.run --list-views
+   -> views listed OK (…v_walkforward_manifest_overview).
+8. python -m tools.registry.validate_result_populations
+   -> OK: result-population artifacts validate.
+9. python -m tools.registry.validate_candidate_registry
+   -> OK: candidate lifecycle registry artifacts validate.
+   (Confirms no canonical result-population or candidate-lifecycle writes added.)
+10. python tools/dev/diff_scope_summary.py
+    -> Forbidden-path matches: none; exit reason: ok.
+11. git diff --check (working tree + staged)
+    -> clean (exit 0).
+12. Full pytest
+    -> collected 2674 tests (collect-only PASS). Full run exceeds the 10-minute
+       harness limit (as the package anticipated), so per the WP fallback the
+       focused + dependency slice was run instead:
+       pytest test_lab_cockpit_product_runs, test_lab_cockpit,
+              test_lab_cockpit_pipeline_state, test_lab_visual_cockpit_static,
+              test_lab_pipeline_gates_adapter, test_lab_pipeline_runner_adapter,
+              test_lab_pipeline_orchestrator, test_lab_dashboard,
+              test_lab_state_model
+       -> 151 passed.
+
+Boundary
+- Read-only cockpit: rendered page contains no <script>/<button>/<form>/<input>/
+  onclick/refresh/http(s)/fetch/websocket/timer tokens (asserted in tests).
+- non_authority_declaration product keys: reads_product_run_state_only=true;
+  invokes_product_runner_adapter / invokes_product_gates_adapter /
+  writes_advisory_review_packet / records_candidate_surface_decision /
+  admits_candidate = false.
+- No candidate/crossing/promotion/paper-live/runtime authority implicated; no
+  dependency/toolchain/provider/API changes; no protected-path touch.
+
+Decision: READY_FOR_REVIEW

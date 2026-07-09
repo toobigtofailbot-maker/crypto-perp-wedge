@@ -7,6 +7,7 @@ from typing import Any, Final
 
 
 ADAPTER_CONTRACT_VERSION: Final = "lab_pipeline_adapter_contract_v1"
+RUNNER_ADAPTER_PACKAGE_ID: Final = "WP-LABPROD-PIPELINE-RUNNER-ADAPTER-04"
 
 ADAPTER_STAGE_STATUSES: Final[tuple[str, ...]] = (
     "adapter_complete",
@@ -133,6 +134,7 @@ def build_adapter_registry(package_id: str) -> tuple[AdapterRecord, ...]:
     """Return the deterministic closed registry for pipeline adapter stages."""
 
     scratch = f"scratch/{package_id}"
+    runner_adapter_implemented = package_id == RUNNER_ADAPTER_PACKAGE_ID
     return (
         AdapterRecord(
             adapter_id="adapter.idea_formalizer.fake_offline.v1",
@@ -206,10 +208,14 @@ def build_adapter_registry(package_id: str) -> tuple[AdapterRecord, ...]:
                 scratch_only=True,
                 read_only=False,
             ),
-            implementation_status="blocked",
+            implementation_status="implemented" if runner_adapter_implemented else "blocked",
             blocker_reason=(
-                "No safe bridge-produced validated Strategy Spec / Variant Manifest / "
-                "Sweep Plan input set is available without the separate bridge approval."
+                None
+                if runner_adapter_implemented
+                else (
+                    "No safe bridge-produced validated Strategy Spec / Variant Manifest / "
+                    "Sweep Plan input set is available without the separate bridge approval."
+                )
             ),
         ),
         AdapterRecord(

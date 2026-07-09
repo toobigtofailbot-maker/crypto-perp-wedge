@@ -1,0 +1,44 @@
+WP-DASH-FRONTEND-DEPS-03A — Validation summary
+
+Environment
+- node: v24.18.0
+- npm: 11.16.0
+- venv python: C:\GitHub\crypto-perp-wedge\.venv\Scripts\python.exe
+
+Dependency versions
+- next:               14.2.5  -> 14.2.35
+- eslint-config-next: 14.2.5  -> 14.2.35
+- react:              18.3.1  (unchanged)
+- react-dom:          18.3.1  (unchanged)
+
+Audit (npm audit --omit=dev)
+- before: 2 vulnerabilities (1 moderate, 1 critical) — next 0.9.9 - 16.3.0-canary.5; auth-bypass class present
+- after:  2 vulnerabilities (1 moderate, 1 high)     — residual requires next@16.2.10 (breaking, NOT applied)
+- net:    critical -> high; aggregated advisory count 26 -> 14; auth-bypass + bundled-postcss resolved
+
+Frontend validation (from operator_dashboard_frontend/)
+- npm install:   PASS (added 393 packages, audited 394)
+- npm run typecheck (tsc --noEmit): PASS (exit 0)
+- npm run lint  (next lint):        PASS ("No ESLint warnings or errors")
+- npm run build (next build):       PASS (exit 0; all routes prerendered)
+
+Backend / repo validation (from worktree root, main-repo venv)
+- pytest tests/test_operator_dashboard_api.py -q:         PASS (11 passed)
+- python -m tools.research_query.run --list-views:        PASS (exit 0)
+- python -m tools.registry.validate_result_populations:   PASS ("OK")
+- python -m tools.registry.validate_candidate_registry:   PASS ("OK")
+- python tools/dev/diff_scope_summary.py:                 PASS (exit reason ok; only package.json/package-lock.json in numstat; no forbidden-path matches)
+- git diff --check:        clean
+- git diff --cached --check: clean
+
+No-control scan (operator_dashboard_frontend/src)
+- POST/PUT/PATCH/DELETE mutation calls: NONE
+- forms / submit / control-wired buttons: NONE
+- Agent Inbox write: NONE
+- run/approve/execute/promote/cross/trade controls: NONE
+- paper/live controls: NONE
+- scheduler/notification controls: NONE
+- (control-verb text matches are pre-existing boundary language + read-only fixtures only)
+
+Boundary
+- Dependency maintenance only. No feature / control / API / backend / runtime / protected-path changes.

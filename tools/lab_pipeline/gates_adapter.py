@@ -165,6 +165,13 @@ def _require_runner_summary(path: Path) -> tuple[dict[str, Any], str]:
         errors.append("runner denominator was not preserved")
     if summary.get("winner_narrowing") is not False:
         errors.append("runner summary indicates winner narrowing")
+    budget = summary.get("approved_sweep_budget")
+    if not isinstance(budget, Mapping):
+        errors.append("runner approved_sweep_budget missing")
+    elif budget.get("within_approved_budget") is not True:
+        errors.append("runner approved_sweep_budget exceeded")
+    if summary.get("budget_exceeded") is not False:
+        errors.append("runner summary indicates budget exceeded")
     reconciliation = summary.get("direct_runner_reconciliation")
     if not isinstance(reconciliation, Mapping) or reconciliation.get("verdict") != "passed":
         errors.append("runner direct reconciliation did not pass")
@@ -584,6 +591,7 @@ def _markdown_packet(packet: Mapping[str, Any]) -> str:
         f"- Runner adapter run ID: {packet['runner_result_reference']['runner_adapter_run_id']}",
         f"- Posture: {packet['posture']}",
         f"- Candidate-surface status: {packet['candidate_surface_routing']['surface_status']}",
+        f"- Approved denominator: {packet['scale_budget']['committed_population_count']} / {packet['scale_budget']['max_variant_count']}",
         "",
         "## Denominator",
     ]
@@ -772,6 +780,11 @@ def run_product_gates_adapters(
         },
         "product_bridge_reference": dict(bridge_paths),
         "denominator_counts": dict(runner_summary["denominator_counts"]),
+        "scale_budget": dict(runner_summary["approved_sweep_budget"]),
+        "largest_tested_denominator": runner_summary["approved_sweep_budget"][
+            "committed_population_count"
+        ],
+        "budget_exceeded": False,
         "full_denominator_preserved": True,
         "status_vocabulary": list(DENOMINATOR_STATUSES),
         "wfo_oos_result": wfo_result,
@@ -790,6 +803,11 @@ def run_product_gates_adapters(
         },
         "caveats": [
             *wfo_result["caveats"],
+            (
+                "Scale is bounded by the exact runner execute approval budget; "
+                "rows outside that approved denominator are fail-closed before runner invocation."
+            ),
+            "All supported runner outcome categories remain denominator-visible; no winner-only view is created.",
             "Robustness and candidate-review raw agent payloads are embedded without promotion authority.",
             "Compatibility sandbox paths inside raw agent payloads are invocation-local and not canonical evidence paths.",
         ],

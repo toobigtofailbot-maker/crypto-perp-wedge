@@ -22,6 +22,7 @@ Required runner facts:
 - adapter Result Population path/hash;
 - direct Result Population path/hash;
 - direct runner reconciliation verdict;
+- approved sweep budget;
 - bridge preparation run id;
 - product pipeline run id;
 - execute approval path/hash;
@@ -57,6 +58,7 @@ The advisory packet schema is `product_pipeline_advisory_review_packet_v1`. It i
 
 - runner result reference;
 - product bridge reference;
+- scale budget and largest tested denominator;
 - full denominator counts;
 - WFO/OOS result;
 - robustness result wrapper with raw existing-agent payload;
@@ -66,6 +68,10 @@ The advisory packet schema is `product_pipeline_advisory_review_packet_v1`. It i
 - candidate-surface routing;
 - non-promotion posture;
 - non-authority assertions.
+
+Scale caveats remain in the packet. The packet records that rows outside the
+exact runner execute approval budget fail closed before runner invocation, and
+that supported runner outcome categories remain denominator-visible.
 
 ## Candidate Surface Routing
 

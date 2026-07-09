@@ -1,0 +1,57 @@
+{
+  "adapter_status": "completed",
+  "agent_logic_reimplemented": false,
+  "artifact_paths": {
+    "advisory_review_packet": "scratch/WP-LABPROD-COCKPIT-REALRUN-REFRESH-08/product_runs/LGATE-ad8b6d62f772e9d8/_invocation_local/scratch/WP-LABPROD-PIPELINE-GATES-ADAPTERS-05/outputs/LGATE-ad8b6d62f772e9d8/advisory_review_packet.json",
+    "advisory_review_packet_markdown": "scratch/WP-LABPROD-COCKPIT-REALRUN-REFRESH-08/product_runs/LGATE-ad8b6d62f772e9d8/_invocation_local/scratch/WP-LABPROD-PIPELINE-GATES-ADAPTERS-05/outputs/LGATE-ad8b6d62f772e9d8/advisory_review_packet.md",
+    "candidate_review_result": "scratch/WP-LABPROD-COCKPIT-REALRUN-REFRESH-08/product_runs/LGATE-ad8b6d62f772e9d8/_invocation_local/scratch/WP-LABPROD-PIPELINE-GATES-ADAPTERS-05/outputs/LGATE-ad8b6d62f772e9d8/candidate_review_result.json",
+    "candidate_surface_decision": "scratch/WP-LABPROD-COCKPIT-REALRUN-REFRESH-08/product_runs/LGATE-ad8b6d62f772e9d8/_invocation_local/scratch/WP-LABPROD-PIPELINE-GATES-ADAPTERS-05/outputs/LGATE-ad8b6d62f772e9d8/candidate_surface_decision.json",
+    "direct_agent_reconciliation": "scratch/WP-LABPROD-COCKPIT-REALRUN-REFRESH-08/product_runs/LGATE-ad8b6d62f772e9d8/_invocation_local/scratch/WP-LABPROD-PIPELINE-GATES-ADAPTERS-05/outputs/LGATE-ad8b6d62f772e9d8/direct_agent_reconciliation.json",
+    "robustness_result": "scratch/WP-LABPROD-COCKPIT-REALRUN-REFRESH-08/product_runs/LGATE-ad8b6d62f772e9d8/_invocation_local/scratch/WP-LABPROD-PIPELINE-GATES-ADAPTERS-05/outputs/LGATE-ad8b6d62f772e9d8/robustness_result.json",
+    "wfo_oos_result": "scratch/WP-LABPROD-COCKPIT-REALRUN-REFRESH-08/product_runs/LGATE-ad8b6d62f772e9d8/_invocation_local/scratch/WP-LABPROD-PIPELINE-GATES-ADAPTERS-05/outputs/LGATE-ad8b6d62f772e9d8/wfo_oos_result.json"
+  },
+  "candidate_review_adapter_invoked_existing_agent": true,
+  "candidate_surface_status": "needs_more_evidence",
+  "direct_agent_reconciliation": {
+    "candidate_review": {
+      "adapter_run_id": "3b187568755f4067",
+      "comparison": "direct_repeat_payload_and_markdown_equality",
+      "direct_run_id": "3b187568755f4067",
+      "existing_agent_invoked": true,
+      "verdict": "passed"
+    },
+    "normalization_used": false,
+    "robustness": {
+      "adapter_run_id": "c8eb54948367c6bd",
+      "comparison": "direct_repeat_payload_equality",
+      "direct_run_id": "c8eb54948367c6bd",
+      "existing_agent_invoked": true,
+      "verdict": "passed"
+    },
+    "schema_version": "product_gates_direct_agent_reconciliation_v1",
+    "verdict": "passed",
+    "wfo_oos": {
+      "comparison": "byte_stable_json_payload_equality",
+      "existing_agent_invoked": true,
+      "verdict": "passed"
+    }
+  },
+  "gates_adapter_run_id": "LGATE-ad8b6d62f772e9d8",
+  "non_authority_assertions": {
+    "candidate_admission": false,
+    "candidate_lifecycle_written": false,
+    "candidate_registry_written": false,
+    "canonical_evidence_written": false,
+    "crossing": false,
+    "dependency_config_data_acquisition": false,
+    "notification_firing": false,
+    "paper_live_runtime_contact": false,
+    "promotion_or_readiness": false,
+    "protected_path_touch": false,
+    "provider_api_credential_use": false,
+    "scheduler_autonomous_dispatch": false
+  },
+  "robustness_adapter_invoked_existing_agent": true,
+  "schema_version": "product_pipeline_gates_adapter_result_v1",
+  "wfo_oos_adapter_invoked_existing_agent": true
+}

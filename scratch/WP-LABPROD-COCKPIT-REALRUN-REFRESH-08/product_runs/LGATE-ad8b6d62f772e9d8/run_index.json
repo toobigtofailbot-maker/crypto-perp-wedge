@@ -1,0 +1,127 @@
+{
+  "adapter_status": "completed",
+  "artifacts": [
+    {
+      "filename": "advisory_review_packet.json",
+      "path": "scratch/WP-LABPROD-COCKPIT-REALRUN-REFRESH-08/product_runs/LGATE-ad8b6d62f772e9d8/advisory_review_packet.json",
+      "present": true,
+      "sha256": "sha256:b3cfb72612f54628dd24e656c26a915562af7fcae42dab57433563b9448aebec"
+    },
+    {
+      "filename": "advisory_review_packet.md",
+      "path": "scratch/WP-LABPROD-COCKPIT-REALRUN-REFRESH-08/product_runs/LGATE-ad8b6d62f772e9d8/advisory_review_packet.md",
+      "present": true,
+      "sha256": "sha256:9b96fa78b7af1ab2aa720439d9160eb48c95cb3bd66db82562f28caeb0ba1808"
+    },
+    {
+      "filename": "gates_adapter_result.json",
+      "path": "scratch/WP-LABPROD-COCKPIT-REALRUN-REFRESH-08/product_runs/LGATE-ad8b6d62f772e9d8/gates_adapter_result.json",
+      "present": true,
+      "sha256": "sha256:5a98ca7862cf5e22fd71d4d0fa277a1c3c4d832d9d6bdac6684371e315cdb966"
+    },
+    {
+      "filename": "wfo_oos_result.json",
+      "path": "scratch/WP-LABPROD-COCKPIT-REALRUN-REFRESH-08/product_runs/LGATE-ad8b6d62f772e9d8/wfo_oos_result.json",
+      "present": true,
+      "sha256": "sha256:32de95130e3697dc637d26cb7f06f82277a8ae2f24865f386b4f98470f0bbee2"
+    },
+    {
+      "filename": "robustness_result.json",
+      "path": "scratch/WP-LABPROD-COCKPIT-REALRUN-REFRESH-08/product_runs/LGATE-ad8b6d62f772e9d8/robustness_result.json",
+      "present": true,
+      "sha256": "sha256:8268cd83233273c8fe46e40bbbf192a638eb521fdc2b84fe0e80ef2cd25ce574"
+    },
+    {
+      "filename": "candidate_review_result.json",
+      "path": "scratch/WP-LABPROD-COCKPIT-REALRUN-REFRESH-08/product_runs/LGATE-ad8b6d62f772e9d8/candidate_review_result.json",
+      "present": true,
+      "sha256": "sha256:8387c72236ed5a419c9cb6b9d602e76d9059aad9d5772986dcf2714e74fb7d63"
+    },
+    {
+      "filename": "direct_agent_reconciliation.json",
+      "path": "scratch/WP-LABPROD-COCKPIT-REALRUN-REFRESH-08/product_runs/LGATE-ad8b6d62f772e9d8/direct_agent_reconciliation.json",
+      "present": true,
+      "sha256": "sha256:cc2ce75b9d288130dfab0d45e3d98f39ccb21c2eb5411d1a0c2290eb463583fb"
+    },
+    {
+      "filename": "runner_adapter_result.json",
+      "path": "scratch/WP-LABPROD-COCKPIT-REALRUN-REFRESH-08/product_runs/LGATE-ad8b6d62f772e9d8/runner_adapter_result.json",
+      "present": true,
+      "sha256": "sha256:f964ad3a9d7eb8014a073f81a1b2be510302133a64b4f7e78d09257733373b17"
+    }
+  ],
+  "candidate_lifecycle_written": false,
+  "candidate_surface_allowed_statuses": [
+    "hold_for_review",
+    "needs_more_evidence",
+    "do_not_escalate"
+  ],
+  "candidate_surface_status": "needs_more_evidence",
+  "denominator_counts": {
+    "blocked": 0,
+    "completed": 8,
+    "failed": 0,
+    "invalid": 0,
+    "pruned": 0
+  },
+  "full_denominator_preserved": true,
+  "gates_adapter_run_id": "LGATE-ad8b6d62f772e9d8",
+  "go_auto_admission": false,
+  "go_auto_crossing": false,
+  "go_auto_promotion": false,
+  "non_promotion_posture": {
+    "not_candidate_admission": true,
+    "not_candidate_lifecycle": true,
+    "not_canonical_evidence": true,
+    "not_crossing": true,
+    "not_paper_live_runtime_authority": true,
+    "not_promotion_or_readiness": true
+  },
+  "package_id": "WP-LABPROD-COCKPIT-REALRUN-REFRESH-08",
+  "posture": "advisory_only_noncanonical_product_scratch",
+  "provenance": {
+    "bridge_preparation_run_id": "239624c28e8e64a6",
+    "gates_adapter_run_id": "LGATE-ad8b6d62f772e9d8",
+    "product_pipeline_run_id": "PIPELINE-PRODUCT-BRIDGE-0001",
+    "runner_adapter_run_id": "LRUN-cbbdb839a2a7badf"
+  },
+  "real_run": true,
+  "runner_denominator_counts": {
+    "blocked": 0,
+    "completed": 8,
+    "failed": 0,
+    "invalid": 0,
+    "pruned": 0
+  },
+  "runner_invoked": true,
+  "schema_version": "lab_product_cockpit_real_run_index_v1",
+  "stage_ladder": [
+    {
+      "label": "Idea formalized (product bridge)",
+      "reached": true,
+      "stage": "idea_formalized"
+    },
+    {
+      "label": "Strategy Spec / Variant Manifest / Sweep Plan prepared",
+      "reached": true,
+      "stage": "bridge_prepared"
+    },
+    {
+      "label": "Exact-content execute approval consumed",
+      "reached": true,
+      "stage": "execute_approval_consumed"
+    },
+    {
+      "label": "Offline runner executed; Result Population produced",
+      "reached": true,
+      "stage": "runner_executed"
+    },
+    {
+      "label": "Advisory review packet assembled",
+      "reached": true,
+      "stage": "advisory_packet_ready"
+    }
+  ],
+  "terminal_label": "ADVISORY PACKET READY",
+  "terminal_state": "advisory_packet_ready"
+}

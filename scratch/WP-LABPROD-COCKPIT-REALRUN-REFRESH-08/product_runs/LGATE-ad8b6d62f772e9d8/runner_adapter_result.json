@@ -1,0 +1,82 @@
+{
+  "adapter_status": "completed",
+  "denominator_counts": {
+    "blocked": 0,
+    "completed": 8,
+    "failed": 0,
+    "invalid": 0,
+    "pruned": 0
+  },
+  "direct_runner_reconciliation": {
+    "adapter_result_population_path": "scratch/WP-LABPROD-PIPELINE-RUNNER-ADAPTER-04/outputs/LRUN-cbbdb839a2a7badf/runner_artifacts/adapter/RP-6903.result_population.json",
+    "adapter_result_population_sha256": "sha256:d42aaa46e8dcae41f9227b6ea621265b64851b1a2428b5de11db5e280518f6ea",
+    "direct_result_population_path": "scratch/WP-LABPROD-PIPELINE-RUNNER-ADAPTER-04/outputs/LRUN-cbbdb839a2a7badf/runner_artifacts/direct/RP-6903.result_population.json",
+    "direct_result_population_sha256": "sha256:d42aaa46e8dcae41f9227b6ea621265b64851b1a2428b5de11db5e280518f6ea",
+    "normalized_comparison": null,
+    "normalized_comparison_used": false,
+    "normalized_stable_hash_match": true,
+    "raw_byte_hash_match": true,
+    "schema_version": "product_runner_adapter_reconciliation_v1",
+    "verdict": "passed"
+  },
+  "execute_approval": {
+    "approval_scope": "noncanonical_product_runner_execution_only",
+    "approved_by": "Karl",
+    "path": "scratch/WP-LABPROD-PIPELINE-RUNNER-ADAPTER-04/outputs/karl_runner_execute_approval.json",
+    "sha256": "sha256:ec4bc130e6c377a5a3a28b170dd55511a9f513cb4b1cf6151551ad2d9ae6c99c"
+  },
+  "full_denominator_preserved": true,
+  "non_authority_assertions": {
+    "candidate_lifecycle_written": false,
+    "candidate_review_execution": false,
+    "canonical_evidence_written": false,
+    "dependency_config_data_acquisition": false,
+    "notification_firing": false,
+    "paper_live_runtime_contact": false,
+    "protected_path_touch": false,
+    "provider_api_credential_use": false,
+    "robustness_execution": false,
+    "scheduler_autonomous_dispatch": false,
+    "wfo_oos_execution": false
+  },
+  "noncanonical_status": "noncanonical_product_scratch_only",
+  "runner_adapter_run_id": "LRUN-cbbdb839a2a7badf",
+  "runner_code_ref": "tools.research_runner.run_offline_sweep.run_offline_sweep",
+  "runner_outcome_category_counts": {
+    "aborted": 0,
+    "counts_sum": 8,
+    "counts_sum_equals_committed_denominator": true,
+    "data_unavailable": 0,
+    "errored": 0,
+    "excluded": 0,
+    "failed": 0,
+    "filtered": 0,
+    "invalid": 0,
+    "not_attempted": 0,
+    "successful": 8
+  },
+  "runner_outputs": {
+    "adapter_result_population_path": "scratch/WP-LABPROD-PIPELINE-RUNNER-ADAPTER-04/outputs/LRUN-cbbdb839a2a7badf/runner_artifacts/adapter/RP-6903.result_population.json",
+    "adapter_result_population_sha256": "sha256:d42aaa46e8dcae41f9227b6ea621265b64851b1a2428b5de11db5e280518f6ea",
+    "direct_result_population_path": "scratch/WP-LABPROD-PIPELINE-RUNNER-ADAPTER-04/outputs/LRUN-cbbdb839a2a7badf/runner_artifacts/direct/RP-6903.result_population.json",
+    "direct_result_population_sha256": "sha256:d42aaa46e8dcae41f9227b6ea621265b64851b1a2428b5de11db5e280518f6ea"
+  },
+  "runner_reimplemented": false,
+  "schema_version": "product_runner_adapter_result_v1",
+  "source_bindings": {
+    "bridge_preparation_run_id": "239624c28e8e64a6",
+    "deterministic_seed": 0,
+    "execute_approval_path": "scratch/WP-LABPROD-PIPELINE-RUNNER-ADAPTER-04/outputs/karl_runner_execute_approval.json",
+    "execute_approval_sha256": "sha256:ec4bc130e6c377a5a3a28b170dd55511a9f513cb4b1cf6151551ad2d9ae6c99c",
+    "prepared_strategy_spec_path": "scratch/WP-LABPROD-BRIDGE-PRODUCT-MODE-IMPLEMENT-01B/outputs/239624c28e8e64a6/inputs/STRAT-SPEC-9001.strategy_spec.json",
+    "prepared_strategy_spec_sha256": "sha256:789517d6a11e816f0877a4f9e78062d9bd04ff8629c5b381550d9b5dd15b9260",
+    "prepared_sweep_plan_path": "scratch/WP-LABPROD-BRIDGE-PRODUCT-MODE-IMPLEMENT-01B/outputs/239624c28e8e64a6/inputs/SWEEP-PLAN-9370.sweep_plan.json",
+    "prepared_sweep_plan_sha256": "sha256:09c2abe0b3af7904dff06d71da1587c990c2a443f1b79efcae7684cb3f3d3798",
+    "prepared_variant_manifest_path": "scratch/WP-LABPROD-BRIDGE-PRODUCT-MODE-IMPLEMENT-01B/outputs/239624c28e8e64a6/inputs/VM-9370.variant_manifest.json",
+    "prepared_variant_manifest_sha256": "sha256:beb12e8bfdb3c600579b7cf42aa088865b3cdfd605c823c96556588b45c781dc",
+    "product_output_root": "scratch/WP-LABPROD-PIPELINE-RUNNER-ADAPTER-04/outputs",
+    "product_pipeline_run_id": "PIPELINE-PRODUCT-BRIDGE-0001",
+    "runner_adapter_stage_identity": "noncanonical_offline_runner_execution"
+  },
+  "winner_narrowing": false
+}

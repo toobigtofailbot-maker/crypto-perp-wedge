@@ -1,0 +1,1122 @@
+{
+  "adapter_status": "completed",
+  "audit_records": [
+    {
+      "action_type": "read_non_secret_files",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=candidate_review_packet_preparer under policy=bounded-research-agent-v1",
+      "role": "candidate_review_packet_preparer",
+      "target_path": "scratch/wp-agent-idea-formalizer-01/outputs/productbridge1/formalized_idea.json",
+      "timestamp_utc": "2026-07-08T00:00:00Z",
+      "wp_id": "WP-AGENT-CANDIDATE-REVIEW-PACKET-01"
+    },
+    {
+      "action_type": "read_non_secret_files",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=candidate_review_packet_preparer under policy=bounded-research-agent-v1",
+      "role": "candidate_review_packet_preparer",
+      "target_path": "scratch/wp-agent-formalizer-runner-bridge-01/outputs/239624c28e8e64a6/human_review_packet.json",
+      "timestamp_utc": "2026-07-08T00:00:00Z",
+      "wp_id": "WP-AGENT-CANDIDATE-REVIEW-PACKET-01"
+    },
+    {
+      "action_type": "read_non_secret_files",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=candidate_review_packet_preparer under policy=bounded-research-agent-v1",
+      "role": "candidate_review_packet_preparer",
+      "target_path": "scratch/wp-agent-formalizer-runner-bridge-01/outputs/239624c28e8e64a6/denominator_ledger.json",
+      "timestamp_utc": "2026-07-08T00:00:00Z",
+      "wp_id": "WP-AGENT-CANDIDATE-REVIEW-PACKET-01"
+    },
+    {
+      "action_type": "read_non_secret_files",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=candidate_review_packet_preparer under policy=bounded-research-agent-v1",
+      "role": "candidate_review_packet_preparer",
+      "target_path": "scratch/wp-agent-robustness-diagnostician-01/outputs/c8eb54948367c6bd/robustness_diagnostics.json",
+      "timestamp_utc": "2026-07-08T00:00:00Z",
+      "wp_id": "WP-AGENT-CANDIDATE-REVIEW-PACKET-01"
+    },
+    {
+      "action_type": "read_non_secret_files",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=candidate_review_packet_preparer under policy=bounded-research-agent-v1",
+      "role": "candidate_review_packet_preparer",
+      "target_path": "scratch/wp-agent-robustness-diagnostician-01/outputs/c8eb54948367c6bd/robustness_review_packet.json",
+      "timestamp_utc": "2026-07-08T00:00:00Z",
+      "wp_id": "WP-AGENT-CANDIDATE-REVIEW-PACKET-01"
+    },
+    {
+      "action_type": "read_non_secret_files",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=candidate_review_packet_preparer under policy=bounded-research-agent-v1",
+      "role": "candidate_review_packet_preparer",
+      "target_path": "scratch/wp-agent-candidate-review-packet-01/inputs/operator_candidate_review_approval.json",
+      "timestamp_utc": "2026-07-08T00:00:00Z",
+      "wp_id": "WP-AGENT-CANDIDATE-REVIEW-PACKET-01"
+    },
+    {
+      "action_type": "read_non_secret_files",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=candidate_review_packet_preparer under policy=bounded-research-agent-v1",
+      "role": "candidate_review_packet_preparer",
+      "target_path": "scratch/wp-agent-formalizer-runner-bridge-01/outputs/239624c28e8e64a6/inputs/strat-spec-9001.strategy_spec.json",
+      "timestamp_utc": "2026-07-08T00:00:00Z",
+      "wp_id": "WP-AGENT-CANDIDATE-REVIEW-PACKET-01"
+    },
+    {
+      "action_type": "read_non_secret_files",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=candidate_review_packet_preparer under policy=bounded-research-agent-v1",
+      "role": "candidate_review_packet_preparer",
+      "target_path": "scratch/wp-agent-formalizer-runner-bridge-01/outputs/239624c28e8e64a6/runner_artifacts/rp-6903.result_population.json",
+      "timestamp_utc": "2026-07-08T00:00:00Z",
+      "wp_id": "WP-AGENT-CANDIDATE-REVIEW-PACKET-01"
+    },
+    {
+      "action_type": "read_non_secret_files",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=candidate_review_packet_preparer under policy=bounded-research-agent-v1",
+      "role": "candidate_review_packet_preparer",
+      "target_path": "tools/candidate_lifecycle/lifecycle_engine.py",
+      "timestamp_utc": "2026-07-08T00:00:00Z",
+      "wp_id": "WP-AGENT-CANDIDATE-REVIEW-PACKET-01"
+    },
+    {
+      "action_type": "read_non_secret_files",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=candidate_review_packet_preparer under policy=bounded-research-agent-v1",
+      "role": "candidate_review_packet_preparer",
+      "target_path": "tools/candidate_lifecycle/build_candidate_review_packet.py",
+      "timestamp_utc": "2026-07-08T00:00:00Z",
+      "wp_id": "WP-AGENT-CANDIDATE-REVIEW-PACKET-01"
+    },
+    {
+      "action_type": "read_non_secret_files",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=candidate_review_packet_preparer under policy=bounded-research-agent-v1",
+      "role": "candidate_review_packet_preparer",
+      "target_path": "scratch/wp-lab-candidate-lifecycle-engine-01/candidate_review_packet.md",
+      "timestamp_utc": "2026-07-08T00:00:00Z",
+      "wp_id": "WP-AGENT-CANDIDATE-REVIEW-PACKET-01"
+    },
+    {
+      "action_type": "read_non_secret_files",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=candidate_review_packet_preparer under policy=bounded-research-agent-v1",
+      "role": "candidate_review_packet_preparer",
+      "target_path": "scratch/wp-lab-candidate-lifecycle-engine-01/candidate_lifecycle_report.json",
+      "timestamp_utc": "2026-07-08T00:00:00Z",
+      "wp_id": "WP-AGENT-CANDIDATE-REVIEW-PACKET-01"
+    },
+    {
+      "action_type": "build_scratch_candidate_review_packet",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=candidate_review_packet_preparer under policy=bounded-research-agent-v1",
+      "role": "candidate_review_packet_preparer",
+      "target_path": "scratch/wp-agent-candidate-review-packet-01/outputs/3b187568755f4067/candidate_review_packet.json",
+      "timestamp_utc": "2026-07-08T00:00:00Z",
+      "wp_id": "WP-AGENT-CANDIDATE-REVIEW-PACKET-01"
+    },
+    {
+      "action_type": "write_scratch",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=candidate_review_packet_preparer under policy=bounded-research-agent-v1",
+      "role": "candidate_review_packet_preparer",
+      "target_path": "scratch/wp-agent-candidate-review-packet-01/outputs/3b187568755f4067/candidate_review_packet.json",
+      "timestamp_utc": "2026-07-08T00:00:00Z",
+      "wp_id": "WP-AGENT-CANDIDATE-REVIEW-PACKET-01"
+    },
+    {
+      "action_type": "write_scratch",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=candidate_review_packet_preparer under policy=bounded-research-agent-v1",
+      "role": "candidate_review_packet_preparer",
+      "target_path": "scratch/wp-agent-candidate-review-packet-01/outputs/3b187568755f4067/candidate_review_packet.md",
+      "timestamp_utc": "2026-07-08T00:00:00Z",
+      "wp_id": "WP-AGENT-CANDIDATE-REVIEW-PACKET-01"
+    },
+    {
+      "action_type": "read_non_secret_files",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=candidate_review_packet_preparer under policy=bounded-research-agent-v1",
+      "role": "candidate_review_packet_preparer",
+      "target_path": "scratch/wp-agent-idea-formalizer-01/outputs/productbridge1/formalized_idea.json",
+      "timestamp_utc": "2026-07-08T00:00:00Z",
+      "wp_id": "WP-AGENT-CANDIDATE-REVIEW-PACKET-01"
+    },
+    {
+      "action_type": "read_non_secret_files",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=candidate_review_packet_preparer under policy=bounded-research-agent-v1",
+      "role": "candidate_review_packet_preparer",
+      "target_path": "scratch/wp-agent-formalizer-runner-bridge-01/outputs/239624c28e8e64a6/human_review_packet.json",
+      "timestamp_utc": "2026-07-08T00:00:00Z",
+      "wp_id": "WP-AGENT-CANDIDATE-REVIEW-PACKET-01"
+    },
+    {
+      "action_type": "read_non_secret_files",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=candidate_review_packet_preparer under policy=bounded-research-agent-v1",
+      "role": "candidate_review_packet_preparer",
+      "target_path": "scratch/wp-agent-formalizer-runner-bridge-01/outputs/239624c28e8e64a6/denominator_ledger.json",
+      "timestamp_utc": "2026-07-08T00:00:00Z",
+      "wp_id": "WP-AGENT-CANDIDATE-REVIEW-PACKET-01"
+    },
+    {
+      "action_type": "read_non_secret_files",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=candidate_review_packet_preparer under policy=bounded-research-agent-v1",
+      "role": "candidate_review_packet_preparer",
+      "target_path": "scratch/wp-agent-robustness-diagnostician-01/outputs/c8eb54948367c6bd/robustness_diagnostics.json",
+      "timestamp_utc": "2026-07-08T00:00:00Z",
+      "wp_id": "WP-AGENT-CANDIDATE-REVIEW-PACKET-01"
+    },
+    {
+      "action_type": "read_non_secret_files",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=candidate_review_packet_preparer under policy=bounded-research-agent-v1",
+      "role": "candidate_review_packet_preparer",
+      "target_path": "scratch/wp-agent-robustness-diagnostician-01/outputs/c8eb54948367c6bd/robustness_review_packet.json",
+      "timestamp_utc": "2026-07-08T00:00:00Z",
+      "wp_id": "WP-AGENT-CANDIDATE-REVIEW-PACKET-01"
+    },
+    {
+      "action_type": "read_non_secret_files",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=candidate_review_packet_preparer under policy=bounded-research-agent-v1",
+      "role": "candidate_review_packet_preparer",
+      "target_path": "scratch/wp-agent-candidate-review-packet-01/inputs/operator_candidate_review_approval.json",
+      "timestamp_utc": "2026-07-08T00:00:00Z",
+      "wp_id": "WP-AGENT-CANDIDATE-REVIEW-PACKET-01"
+    },
+    {
+      "action_type": "read_non_secret_files",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=candidate_review_packet_preparer under policy=bounded-research-agent-v1",
+      "role": "candidate_review_packet_preparer",
+      "target_path": "scratch/wp-agent-formalizer-runner-bridge-01/outputs/239624c28e8e64a6/inputs/strat-spec-9001.strategy_spec.json",
+      "timestamp_utc": "2026-07-08T00:00:00Z",
+      "wp_id": "WP-AGENT-CANDIDATE-REVIEW-PACKET-01"
+    },
+    {
+      "action_type": "read_non_secret_files",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=candidate_review_packet_preparer under policy=bounded-research-agent-v1",
+      "role": "candidate_review_packet_preparer",
+      "target_path": "scratch/wp-agent-formalizer-runner-bridge-01/outputs/239624c28e8e64a6/runner_artifacts/rp-6903.result_population.json",
+      "timestamp_utc": "2026-07-08T00:00:00Z",
+      "wp_id": "WP-AGENT-CANDIDATE-REVIEW-PACKET-01"
+    },
+    {
+      "action_type": "read_non_secret_files",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=candidate_review_packet_preparer under policy=bounded-research-agent-v1",
+      "role": "candidate_review_packet_preparer",
+      "target_path": "tools/candidate_lifecycle/lifecycle_engine.py",
+      "timestamp_utc": "2026-07-08T00:00:00Z",
+      "wp_id": "WP-AGENT-CANDIDATE-REVIEW-PACKET-01"
+    },
+    {
+      "action_type": "read_non_secret_files",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=candidate_review_packet_preparer under policy=bounded-research-agent-v1",
+      "role": "candidate_review_packet_preparer",
+      "target_path": "tools/candidate_lifecycle/build_candidate_review_packet.py",
+      "timestamp_utc": "2026-07-08T00:00:00Z",
+      "wp_id": "WP-AGENT-CANDIDATE-REVIEW-PACKET-01"
+    },
+    {
+      "action_type": "read_non_secret_files",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=candidate_review_packet_preparer under policy=bounded-research-agent-v1",
+      "role": "candidate_review_packet_preparer",
+      "target_path": "scratch/wp-lab-candidate-lifecycle-engine-01/candidate_review_packet.md",
+      "timestamp_utc": "2026-07-08T00:00:00Z",
+      "wp_id": "WP-AGENT-CANDIDATE-REVIEW-PACKET-01"
+    },
+    {
+      "action_type": "read_non_secret_files",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=candidate_review_packet_preparer under policy=bounded-research-agent-v1",
+      "role": "candidate_review_packet_preparer",
+      "target_path": "scratch/wp-lab-candidate-lifecycle-engine-01/candidate_lifecycle_report.json",
+      "timestamp_utc": "2026-07-08T00:00:00Z",
+      "wp_id": "WP-AGENT-CANDIDATE-REVIEW-PACKET-01"
+    },
+    {
+      "action_type": "build_scratch_candidate_review_packet",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=candidate_review_packet_preparer under policy=bounded-research-agent-v1",
+      "role": "candidate_review_packet_preparer",
+      "target_path": "scratch/wp-agent-candidate-review-packet-01/outputs/3b187568755f4067/candidate_review_packet.json",
+      "timestamp_utc": "2026-07-08T00:00:00Z",
+      "wp_id": "WP-AGENT-CANDIDATE-REVIEW-PACKET-01"
+    },
+    {
+      "action_type": "write_scratch",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=candidate_review_packet_preparer under policy=bounded-research-agent-v1",
+      "role": "candidate_review_packet_preparer",
+      "target_path": "scratch/wp-agent-candidate-review-packet-01/outputs/3b187568755f4067/candidate_review_packet.json",
+      "timestamp_utc": "2026-07-08T00:00:00Z",
+      "wp_id": "WP-AGENT-CANDIDATE-REVIEW-PACKET-01"
+    },
+    {
+      "action_type": "write_scratch",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=candidate_review_packet_preparer under policy=bounded-research-agent-v1",
+      "role": "candidate_review_packet_preparer",
+      "target_path": "scratch/wp-agent-candidate-review-packet-01/outputs/3b187568755f4067/candidate_review_packet.md",
+      "timestamp_utc": "2026-07-08T00:00:00Z",
+      "wp_id": "WP-AGENT-CANDIDATE-REVIEW-PACKET-01"
+    }
+  ],
+  "compatibility_sandbox": {
+    "committed": false,
+    "reason": "existing agent read/write policy accepts legacy bridge-shaped scratch paths only",
+    "used": true
+  },
+  "existing_agent_entry_point": "tools.research_agents.candidate_review_packet_agent.CandidateReviewPacketAgent.run",
+  "existing_agent_invoked": true,
+  "existing_agent_markdown": "# Candidate Review Packet\n\n- Run ID: 3b187568755f4067\n- Posture: scratch-only, advisory, human-review-required\n- Strongest allowed summary: candidate may be worth human review for further evidence\n\n## Non-Authority Flags\n- not canonical\n- not evidence\n- not candidate authority\n- not promotion authority\n- not ranking authority\n- not paper/live readiness\n- not a trading signal\n- human review required\n\n## Sources\n- Formalizer: scratch/WP-AGENT-IDEA-FORMALIZER-01/outputs/productbridge1/formalized_idea.json (sha256:2415b09e9fb1e9fb1c95546c3197f7a3ffe6a20266ad00d1027c1c8d3f9d6ae1)\n- Bridge packet: scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/239624c28e8e64a6/human_review_packet.json (sha256:82bb26b8f806066bcc1c405a6aaec978c6d9b8ea4112f2a3869ca30900d09d10)\n- Denominator ledger: scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/239624c28e8e64a6/denominator_ledger.json (sha256:85ff394be57f3b91f2b9c736a5fb963c01af7a329026f5d79bf39bf6006376f8)\n- Robustness diagnostics: scratch/WP-AGENT-ROBUSTNESS-DIAGNOSTICIAN-01/outputs/c8eb54948367c6bd/robustness_diagnostics.json (sha256:8aef75ef152d9f00db687a4ffa0f0bfc0f4d371059d60a5cb1070970d92c14f7)\n- Robustness packet: scratch/WP-AGENT-ROBUSTNESS-DIAGNOSTICIAN-01/outputs/c8eb54948367c6bd/robustness_review_packet.json (sha256:e33883add048013d1f4b310aef236511db70fb80ad329a79b41d812508269b14)\n\n## Denominator\n- completed: 8\n- failed: 0\n- invalid: 0\n- pruned: 0\n- blocked: 0\n- All source rows preserved: True\n\n## Evidence Summary\n- Strategy family: strat-spec-0003-sma-stddev-mean-reversion\n- Idea summary: bounded SMA/stddev mean-reversion idea\n- Funding mode: {'default_off': True, 'effective': 'off', 'global_mode_mutated': False, 'requested': 'off'}\n- Data warnings: ['none']\n- Data blockers: ['none']\n\n## Robustness\n- Completed: seeded_variant_metric_bootstrap\n- Completed: metric_confidence_intervals\n- Completed: parameter_sensitivity\n- Completed: denominator_integrity\n- Completed: source_lineage_hash_preservation\n- Completed: funding_mode_visibility\n- Completed: data_availability_propagation\n- Skipped diagnostics:\n  - {'diagnostic': 'oos_walkforward_status', 'reason': 'missing_fold_inputs'}\n  - {'diagnostic': 'per_trade_status', 'reason': 'QUEUE_PER_TRADE_INSTRUMENTATION'}\n  - {'diagnostic': 'funding_stress_status', 'reason': 'not_applicable_funding_mode_off'}\n\n## Gaps And Follow-Ups\n- Evidence gaps:\n  - needs real trade rows for per-trade diagnostics\n  - needs fold/OOS inputs for walk-forward diagnostics\n  - needs separately authorized funding-on test before funding stress\n- Blockers:\n  - none\n- Recommended human review questions:\n  - Do the source packets preserve enough lineage for a future lifecycle review?\n  - Are denominator failures, invalid rows, pruned rows, and blocked rows acceptable to investigate further?\n  - Which missing diagnostics must be collected before any future canonical evidence package?\n  - Does the data availability/funding posture require a separate approved package?\n- Recommended next evidence steps:\n  - collect real trade rows before per-trade diagnostics\n  - collect fold/OOS inputs before walk-forward robustness claims\n  - run funding-on evidence only under a separate approved package\n  - prepare candidate lifecycle review only through a later human-gated path\n",
+  "existing_agent_packet": {
+    "allowed_summary_language": "candidate may be worth human review for further evidence",
+    "blockers": [],
+    "candidate_lifecycle_context_refs": [
+      {
+        "path": "tools/candidate_lifecycle/lifecycle_engine.py",
+        "role": "read_only_context",
+        "sha256": "sha256:8b2a9fe87dacb0200ae6a33a38d0985bd73a691af463be0b4a456c80b6142ffe"
+      },
+      {
+        "path": "tools/candidate_lifecycle/build_candidate_review_packet.py",
+        "role": "read_only_context",
+        "sha256": "sha256:356084b6ab49dc161ee98e2d078d698af49141e2bd6aac0e9e4c73bcbf882def"
+      },
+      {
+        "path": "scratch/WP-LAB-CANDIDATE-LIFECYCLE-ENGINE-01/candidate_review_packet.md",
+        "role": "read_only_context",
+        "sha256": "sha256:971b07d96adc1fa522457b12a8d421b4b2c6fcbea75e08a19787032ee2ba8e91"
+      },
+      {
+        "path": "scratch/WP-LAB-CANDIDATE-LIFECYCLE-ENGINE-01/candidate_lifecycle_report.json",
+        "role": "read_only_context",
+        "sha256": "sha256:2eead9018a12f224e7aa04ad7eed353f8b6ac88570537fc1ced4479c43198928"
+      }
+    ],
+    "created_at_utc": "2026-07-08T00:00:00Z",
+    "data_and_funding_summary": {
+      "data_availability_blockers": [],
+      "data_availability_warnings": [],
+      "funding_mode": {
+        "default_off": true,
+        "effective": "off",
+        "global_mode_mutated": false,
+        "requested": "off"
+      },
+      "funding_stress_status": {
+        "performed": false,
+        "status": "not_applicable_funding_mode_off"
+      }
+    },
+    "denominator_snapshot": {
+      "all_source_rows_preserved": true,
+      "counts": {
+        "blocked": 0,
+        "completed": 8,
+        "failed": 0,
+        "invalid": 0,
+        "pruned": 0
+      },
+      "declared_trial_count": 8,
+      "ledger_path": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/239624c28e8e64a6/denominator_ledger.json",
+      "ledger_sha256": "sha256:85ff394be57f3b91f2b9c736a5fb963c01af7a329026f5d79bf39bf6006376f8",
+      "row_disposition": [
+        {
+          "status_reason": "successful",
+          "trial_status": "completed",
+          "variant_id": "VAR-000001"
+        },
+        {
+          "status_reason": "successful",
+          "trial_status": "completed",
+          "variant_id": "VAR-000002"
+        },
+        {
+          "status_reason": "successful",
+          "trial_status": "completed",
+          "variant_id": "VAR-000003"
+        },
+        {
+          "status_reason": "successful",
+          "trial_status": "completed",
+          "variant_id": "VAR-000004"
+        },
+        {
+          "status_reason": "successful",
+          "trial_status": "completed",
+          "variant_id": "VAR-000005"
+        },
+        {
+          "status_reason": "successful",
+          "trial_status": "completed",
+          "variant_id": "VAR-000006"
+        },
+        {
+          "status_reason": "successful",
+          "trial_status": "completed",
+          "variant_id": "VAR-000007"
+        },
+        {
+          "status_reason": "successful",
+          "trial_status": "completed",
+          "variant_id": "VAR-000008"
+        }
+      ]
+    },
+    "evidence_gaps": [
+      "needs real trade rows for per-trade diagnostics",
+      "needs fold/OOS inputs for walk-forward diagnostics",
+      "needs separately authorized funding-on test before funding stress"
+    ],
+    "lineage_consistency": {
+      "all_source_rows_preserved": true,
+      "denominator_counts": {
+        "blocked": 0,
+        "completed": 8,
+        "failed": 0,
+        "invalid": 0,
+        "pruned": 0
+      },
+      "ledger_row_count": 8,
+      "result_artifact_bound": true,
+      "source_bridge_run_id": "239624c28e8e64a6",
+      "source_formalizer_run_id": "productbridge1",
+      "source_robustness_run_id": "c8eb54948367c6bd",
+      "status": "passed"
+    },
+    "missing_data_limitations": {
+      "funding_stress": {
+        "performed": false,
+        "status": "not_applicable_funding_mode_off"
+      },
+      "oos_walkforward": {
+        "queued_follow_up": true,
+        "status": "missing_fold_inputs"
+      },
+      "per_trade": {
+        "fabricated_per_trade_data": false,
+        "finding": "PER_TRADE_DATA_MISSING",
+        "follow_up_label": "QUEUE_PER_TRADE_INSTRUMENTATION",
+        "performed": false,
+        "reason": "Committed Result Population rows expose aggregate per-variant metrics only; no real per-trade rows were found or supplied.",
+        "source_checksum": null,
+        "source_path": null,
+        "status": "QUEUE_PER_TRADE_INSTRUMENTATION"
+      }
+    },
+    "non_authority_flags": [
+      "not canonical",
+      "not evidence",
+      "not candidate authority",
+      "not promotion authority",
+      "not ranking authority",
+      "not paper/live readiness",
+      "not a trading signal",
+      "human review required"
+    ],
+    "operator_approval": {
+      "metadata": {
+        "approval_scope": "noncanonical_scratch_candidate_review_only",
+        "approval_timestamp_utc": "2026-07-08T00:00:00Z",
+        "approved_by": "operator",
+        "approved_for_noncanonical_candidate_review_packet": true,
+        "source_bridge_run_id": "239624c28e8e64a6",
+        "source_robustness_run_id": "c8eb54948367c6bd"
+      },
+      "not_candidate_registration": true,
+      "not_evidence_approval": true,
+      "not_paper_live_approval": true,
+      "path": "scratch/WP-AGENT-CANDIDATE-REVIEW-PACKET-01/inputs/operator_candidate_review_approval.json",
+      "sha256": "sha256:ccbccc793d8e2fba2a9c5b9ade5eeefa1abffdb20c8072b68dd6e5b26b008437"
+    },
+    "packet_version": "candidate-review-packet-v1",
+    "recommended_human_review_questions": [
+      "Do the source packets preserve enough lineage for a future lifecycle review?",
+      "Are denominator failures, invalid rows, pruned rows, and blocked rows acceptable to investigate further?",
+      "Which missing diagnostics must be collected before any future canonical evidence package?",
+      "Does the data availability/funding posture require a separate approved package?"
+    ],
+    "recommended_next_evidence_steps": [
+      "collect real trade rows before per-trade diagnostics",
+      "collect fold/OOS inputs before walk-forward robustness claims",
+      "run funding-on evidence only under a separate approved package",
+      "prepare candidate lifecycle review only through a later human-gated path"
+    ],
+    "robustness_summary": {
+      "bootstrap_mc_summary": {
+        "drawdown": {
+          "authority": "advisory_only_not_gate_not_ranking",
+          "bootstrap_mean": 0.01719472535960753,
+          "ci_lower": 0.005387645636721732,
+          "ci_upper": 0.03120161233366016,
+          "confidence_level": 0.95,
+          "metric": "drawdown",
+          "observed_mean": 0.017810966039516894,
+          "row_count": 8,
+          "sample_count": 50
+        },
+        "exposure": {
+          "authority": "advisory_only_not_gate_not_ranking",
+          "bootstrap_mean": 1.0,
+          "ci_lower": 1.0,
+          "ci_upper": 1.0,
+          "confidence_level": 0.95,
+          "metric": "exposure",
+          "observed_mean": 1.0,
+          "row_count": 8,
+          "sample_count": 50
+        },
+        "fees": {
+          "authority": "advisory_only_not_gate_not_ranking",
+          "bootstrap_mean": 8.197436736831039,
+          "ci_lower": 8.19319768237508,
+          "ci_upper": 8.201897184798032,
+          "confidence_level": 0.95,
+          "metric": "fees",
+          "observed_mean": 8.197840543107692,
+          "row_count": 8,
+          "sample_count": 50
+        },
+        "funding": {
+          "authority": "advisory_only_not_gate_not_ranking",
+          "bootstrap_mean": 0.0,
+          "ci_lower": 0.0,
+          "ci_upper": 0.0,
+          "confidence_level": 0.95,
+          "metric": "funding",
+          "observed_mean": 0.0,
+          "row_count": 8,
+          "sample_count": 50
+        },
+        "pnl": {
+          "authority": "advisory_only_not_gate_not_ranking",
+          "bootstrap_mean": 13.664528133305776,
+          "ci_lower": -178.3901443127862,
+          "ci_upper": 267.58469803484996,
+          "confidence_level": 0.95,
+          "metric": "pnl",
+          "observed_mean": 1.2606661132715544,
+          "row_count": 8,
+          "sample_count": 50
+        },
+        "return_pct": {
+          "authority": "advisory_only_not_gate_not_ranking",
+          "bootstrap_mean": 0.0006554483435210485,
+          "ci_lower": -0.02477903011715485,
+          "ci_upper": 0.02509249579419435,
+          "confidence_level": 0.95,
+          "metric": "return_pct",
+          "observed_mean": 0.00012606661132715663,
+          "row_count": 8,
+          "sample_count": 50
+        },
+        "sharpe": {
+          "authority": "advisory_only_not_gate_not_ranking",
+          "bootstrap_mean": -6.430082702346615,
+          "ci_lower": -61.88512192795133,
+          "ci_upper": 40.95823358316805,
+          "confidence_level": 0.95,
+          "metric": "sharpe",
+          "observed_mean": -2.1208524924920447,
+          "row_count": 8,
+          "sample_count": 50
+        },
+        "slippage": {
+          "authority": "advisory_only_not_gate_not_ranking",
+          "bootstrap_mean": 2.04934186014419,
+          "ci_lower": 2.0481453990619993,
+          "ci_upper": 2.0506029639732146,
+          "confidence_level": 0.95,
+          "metric": "slippage",
+          "observed_mean": 2.049460135776923,
+          "row_count": 8,
+          "sample_count": 50
+        },
+        "trade_count": {
+          "authority": "advisory_only_not_gate_not_ranking",
+          "bootstrap_mean": 1.0,
+          "ci_lower": 1.0,
+          "ci_upper": 1.0,
+          "confidence_level": 0.95,
+          "metric": "trade_count",
+          "observed_mean": 1.0,
+          "row_count": 8,
+          "sample_count": 50
+        },
+        "win_rate": {
+          "authority": "advisory_only_not_gate_not_ranking",
+          "bootstrap_mean": 0.49,
+          "ci_lower": 0.125,
+          "ci_upper": 0.875,
+          "confidence_level": 0.95,
+          "metric": "win_rate",
+          "observed_mean": 0.5,
+          "row_count": 8,
+          "sample_count": 50
+        }
+      },
+      "diagnostics_completed": [
+        "seeded_variant_metric_bootstrap",
+        "metric_confidence_intervals",
+        "parameter_sensitivity",
+        "denominator_integrity",
+        "source_lineage_hash_preservation",
+        "funding_mode_visibility",
+        "data_availability_propagation"
+      ],
+      "diagnostics_skipped": [
+        {
+          "diagnostic": "oos_walkforward_status",
+          "reason": "missing_fold_inputs"
+        },
+        {
+          "diagnostic": "per_trade_status",
+          "reason": "QUEUE_PER_TRADE_INSTRUMENTATION"
+        },
+        {
+          "diagnostic": "funding_stress_status",
+          "reason": "not_applicable_funding_mode_off"
+        }
+      ],
+      "evidence_gaps": [
+        "needs real trade rows for per-trade diagnostics",
+        "needs fold/OOS inputs for walk-forward diagnostics",
+        "needs separately authorized funding-on test before funding stress"
+      ],
+      "missing_diagnostic_inputs": {
+        "funding_stress": {
+          "performed": false,
+          "status": "not_applicable_funding_mode_off"
+        },
+        "oos_walkforward": {
+          "queued_follow_up": true,
+          "status": "missing_fold_inputs"
+        },
+        "per_trade": {
+          "fabricated_per_trade_data": false,
+          "finding": "PER_TRADE_DATA_MISSING",
+          "follow_up_label": "QUEUE_PER_TRADE_INSTRUMENTATION",
+          "performed": false,
+          "reason": "Committed Result Population rows expose aggregate per-variant metrics only; no real per-trade rows were found or supplied.",
+          "source_checksum": null,
+          "source_path": null,
+          "status": "QUEUE_PER_TRADE_INSTRUMENTATION"
+        }
+      },
+      "parameter_sensitivity_summary": {
+        "authority": "advisory_only_not_ranking_not_gate",
+        "parameter_count": 3,
+        "parameters": [
+          {
+            "parameter_name": "center_lookback_bars",
+            "value_count": 2,
+            "values": [
+              {
+                "metrics": {
+                  "drawdown": {
+                    "count": 4,
+                    "mean": 0.01789716691106646
+                  },
+                  "exposure": {
+                    "count": 4,
+                    "mean": 1.0
+                  },
+                  "fees": {
+                    "count": 4,
+                    "mean": 8.196548072234163
+                  },
+                  "funding": {
+                    "count": 4,
+                    "mean": 0.0
+                  },
+                  "pnl": {
+                    "count": 4,
+                    "mean": -2.711756463968868
+                  },
+                  "return_pct": {
+                    "count": 4,
+                    "mean": -0.0002711756463968859
+                  },
+                  "sharpe": {
+                    "count": 4,
+                    "mean": -2.1476886065343983
+                  },
+                  "slippage": {
+                    "count": 4,
+                    "mean": 2.049137018058541
+                  },
+                  "trade_count": {
+                    "count": 4,
+                    "mean": 1.0
+                  },
+                  "win_rate": {
+                    "count": 4,
+                    "mean": 0.5
+                  }
+                },
+                "parameter_value": "100",
+                "variant_ids": [
+                  "VAR-000005",
+                  "VAR-000006",
+                  "VAR-000007",
+                  "VAR-000008"
+                ]
+              },
+              {
+                "metrics": {
+                  "drawdown": {
+                    "count": 4,
+                    "mean": 0.017724765167967324
+                  },
+                  "exposure": {
+                    "count": 4,
+                    "mean": 1.0
+                  },
+                  "fees": {
+                    "count": 4,
+                    "mean": 8.19913301398122
+                  },
+                  "funding": {
+                    "count": 4,
+                    "mean": 0.0
+                  },
+                  "pnl": {
+                    "count": 4,
+                    "mean": 5.233088690511977
+                  },
+                  "return_pct": {
+                    "count": 4,
+                    "mean": 0.0005233088690511992
+                  },
+                  "sharpe": {
+                    "count": 4,
+                    "mean": -2.094016378449691
+                  },
+                  "slippage": {
+                    "count": 4,
+                    "mean": 2.049783253495305
+                  },
+                  "trade_count": {
+                    "count": 4,
+                    "mean": 1.0
+                  },
+                  "win_rate": {
+                    "count": 4,
+                    "mean": 0.5
+                  }
+                },
+                "parameter_value": "50",
+                "variant_ids": [
+                  "VAR-000001",
+                  "VAR-000002",
+                  "VAR-000003",
+                  "VAR-000004"
+                ]
+              }
+            ]
+          },
+          {
+            "parameter_name": "trend_lookback_bars",
+            "value_count": 2,
+            "values": [
+              {
+                "metrics": {
+                  "drawdown": {
+                    "count": 4,
+                    "mean": 0.018052813675231393
+                  },
+                  "exposure": {
+                    "count": 4,
+                    "mean": 1.0
+                  },
+                  "fees": {
+                    "count": 4,
+                    "mean": 8.19844126729911
+                  },
+                  "funding": {
+                    "count": 4,
+                    "mean": 0.0
+                  },
+                  "pnl": {
+                    "count": 4,
+                    "mean": -2.453798010765695
+                  },
+                  "return_pct": {
+                    "count": 4,
+                    "mean": -0.00024537980107656836
+                  },
+                  "sharpe": {
+                    "count": 4,
+                    "mean": -2.1278441205434113
+                  },
+                  "slippage": {
+                    "count": 4,
+                    "mean": 2.0496103168247775
+                  },
+                  "trade_count": {
+                    "count": 4,
+                    "mean": 1.0
+                  },
+                  "win_rate": {
+                    "count": 4,
+                    "mean": 0.5
+                  }
+                },
+                "parameter_value": "100",
+                "variant_ids": [
+                  "VAR-000001",
+                  "VAR-000003",
+                  "VAR-000005",
+                  "VAR-000007"
+                ]
+              },
+              {
+                "metrics": {
+                  "drawdown": {
+                    "count": 4,
+                    "mean": 0.017569118403802392
+                  },
+                  "exposure": {
+                    "count": 4,
+                    "mean": 1.0
+                  },
+                  "fees": {
+                    "count": 4,
+                    "mean": 8.197239818916273
+                  },
+                  "funding": {
+                    "count": 4,
+                    "mean": 0.0
+                  },
+                  "pnl": {
+                    "count": 4,
+                    "mean": 4.975130237308804
+                  },
+                  "return_pct": {
+                    "count": 4,
+                    "mean": 0.0004975130237308816
+                  },
+                  "sharpe": {
+                    "count": 4,
+                    "mean": -2.113860864440678
+                  },
+                  "slippage": {
+                    "count": 4,
+                    "mean": 2.0493099547290683
+                  },
+                  "trade_count": {
+                    "count": 4,
+                    "mean": 1.0
+                  },
+                  "win_rate": {
+                    "count": 4,
+                    "mean": 0.5
+                  }
+                },
+                "parameter_value": "200",
+                "variant_ids": [
+                  "VAR-000002",
+                  "VAR-000004",
+                  "VAR-000006",
+                  "VAR-000008"
+                ]
+              }
+            ]
+          },
+          {
+            "parameter_name": "vol_lookback_bars",
+            "value_count": 2,
+            "values": [
+              {
+                "metrics": {
+                  "drawdown": {
+                    "count": 4,
+                    "mean": 0.017572597956058915
+                  },
+                  "exposure": {
+                    "count": 4,
+                    "mean": 1.0
+                  },
+                  "fees": {
+                    "count": 4,
+                    "mean": 8.195784631469765
+                  },
+                  "funding": {
+                    "count": 4,
+                    "mean": 0.0
+                  },
+                  "pnl": {
+                    "count": 4,
+                    "mean": 2.3483591809590507
+                  },
+                  "return_pct": {
+                    "count": 4,
+                    "mean": 0.00023483591809590754
+                  },
+                  "sharpe": {
+                    "count": 4,
+                    "mean": -2.1385465280714797
+                  },
+                  "slippage": {
+                    "count": 4,
+                    "mean": 2.0489461578674413
+                  },
+                  "trade_count": {
+                    "count": 4,
+                    "mean": 1.0
+                  },
+                  "win_rate": {
+                    "count": 4,
+                    "mean": 0.5
+                  }
+                },
+                "parameter_value": "30",
+                "variant_ids": [
+                  "VAR-000001",
+                  "VAR-000002",
+                  "VAR-000005",
+                  "VAR-000006"
+                ]
+              },
+              {
+                "metrics": {
+                  "drawdown": {
+                    "count": 4,
+                    "mean": 0.01804933412297487
+                  },
+                  "exposure": {
+                    "count": 4,
+                    "mean": 1.0
+                  },
+                  "fees": {
+                    "count": 4,
+                    "mean": 8.19989645474562
+                  },
+                  "funding": {
+                    "count": 4,
+                    "mean": 0.0
+                  },
+                  "pnl": {
+                    "count": 4,
+                    "mean": 0.17297304558405813
+                  },
+                  "return_pct": {
+                    "count": 4,
+                    "mean": 1.7297304558405724e-05
+                  },
+                  "sharpe": {
+                    "count": 4,
+                    "mean": -2.1031584569126096
+                  },
+                  "slippage": {
+                    "count": 4,
+                    "mean": 2.049974113686405
+                  },
+                  "trade_count": {
+                    "count": 4,
+                    "mean": 1.0
+                  },
+                  "win_rate": {
+                    "count": 4,
+                    "mean": 0.5
+                  }
+                },
+                "parameter_value": "50",
+                "variant_ids": [
+                  "VAR-000003",
+                  "VAR-000004",
+                  "VAR-000007",
+                  "VAR-000008"
+                ]
+              }
+            ]
+          }
+        ],
+        "source_path": null,
+        "source_type": "variant_result_rows",
+        "status": "performed"
+      }
+    },
+    "run_id": "3b187568755f4067",
+    "runner_metrics_summary": {
+      "manual_reconciliation_result": {
+        "adapter_result_population_path": "scratch/WP-LABPROD-PIPELINE-RUNNER-ADAPTER-04/outputs/LRUN-cbbdb839a2a7badf/runner_artifacts/adapter/RP-6903.result_population.json",
+        "adapter_result_population_sha256": "sha256:d42aaa46e8dcae41f9227b6ea621265b64851b1a2428b5de11db5e280518f6ea",
+        "direct_result_population_path": "scratch/WP-LABPROD-PIPELINE-RUNNER-ADAPTER-04/outputs/LRUN-cbbdb839a2a7badf/runner_artifacts/direct/RP-6903.result_population.json",
+        "direct_result_population_sha256": "sha256:d42aaa46e8dcae41f9227b6ea621265b64851b1a2428b5de11db5e280518f6ea",
+        "normalized_comparison": null,
+        "normalized_comparison_used": false,
+        "normalized_stable_hash_match": true,
+        "raw_byte_hash_match": true,
+        "schema_version": "product_runner_adapter_reconciliation_v1",
+        "verdict": "passed"
+      },
+      "top_metrics": {
+        "drawdown": 3.351675837984658e-06,
+        "exposure": 1.0,
+        "fees": 8.207703851925963,
+        "funding": 0.0,
+        "pnl": 364.9279639819906,
+        "return_pct": 0.036492796398199065,
+        "sharpe": 84.07459760983478,
+        "slippage": 2.0519259629814908,
+        "trade_count": 1,
+        "win_rate": 1.0
+      }
+    },
+    "schema_version": "candidate_review_packet_v1",
+    "source_bridge": {
+      "review_packet_path": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/239624c28e8e64a6/human_review_packet.json",
+      "review_packet_sha256": "sha256:82bb26b8f806066bcc1c405a6aaec978c6d9b8ea4112f2a3869ca30900d09d10",
+      "run_id": "239624c28e8e64a6",
+      "runner_artifact_path": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/239624c28e8e64a6/runner_artifacts/RP-6903.result_population.json",
+      "runner_artifact_sha256": "sha256:d42aaa46e8dcae41f9227b6ea621265b64851b1a2428b5de11db5e280518f6ea"
+    },
+    "source_formalizer": {
+      "draft_strategy_spec_path": "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/239624c28e8e64a6/inputs/STRAT-SPEC-9001.strategy_spec.json",
+      "draft_strategy_spec_sha256": "sha256:789517d6a11e816f0877a4f9e78062d9bd04ff8629c5b381550d9b5dd15b9260",
+      "path": "scratch/WP-AGENT-IDEA-FORMALIZER-01/outputs/productbridge1/formalized_idea.json",
+      "run_id": "productbridge1",
+      "sha256": "sha256:2415b09e9fb1e9fb1c95546c3197f7a3ffe6a20266ad00d1027c1c8d3f9d6ae1"
+    },
+    "source_robustness": {
+      "diagnostics_path": "scratch/WP-AGENT-ROBUSTNESS-DIAGNOSTICIAN-01/outputs/c8eb54948367c6bd/robustness_diagnostics.json",
+      "diagnostics_sha256": "sha256:8aef75ef152d9f00db687a4ffa0f0bfc0f4d371059d60a5cb1070970d92c14f7",
+      "review_packet_path": "scratch/WP-AGENT-ROBUSTNESS-DIAGNOSTICIAN-01/outputs/c8eb54948367c6bd/robustness_review_packet.json",
+      "review_packet_sha256": "sha256:e33883add048013d1f4b310aef236511db70fb80ad329a79b41d812508269b14",
+      "run_id": "c8eb54948367c6bd"
+    },
+    "strategy_summary": {
+      "draft_strategy_spec_summary": {
+        "primary_timeframe": "15m",
+        "status": "draft",
+        "strategy_spec_id": "STRAT-SPEC-9001",
+        "title": "Draft provider-assisted SMA/stddev mean-reversion Strategy Spec"
+      },
+      "features": [
+        "sma",
+        "stddev"
+      ],
+      "idea_summary": "bounded SMA/stddev mean-reversion idea",
+      "strategy_family": "strat-spec-0003-sma-stddev-mean-reversion",
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "timeframe": "15m"
+    }
+  },
+  "existing_agent_result": {
+    "artifact_paths": {
+      "candidate_review_packet_json": "scratch/WP-AGENT-CANDIDATE-REVIEW-PACKET-01/outputs/3b187568755f4067/candidate_review_packet.json",
+      "candidate_review_packet_markdown": "scratch/WP-AGENT-CANDIDATE-REVIEW-PACKET-01/outputs/3b187568755f4067/candidate_review_packet.md"
+    },
+    "non_authority_flags": [
+      "not canonical",
+      "not evidence",
+      "not candidate authority",
+      "not promotion authority",
+      "not ranking authority",
+      "not paper/live readiness",
+      "not a trading signal",
+      "human review required"
+    ],
+    "run_id": "3b187568755f4067",
+    "source_bridge_run_id": "239624c28e8e64a6",
+    "source_denominator_counts": {
+      "blocked": 0,
+      "completed": 8,
+      "failed": 0,
+      "invalid": 0,
+      "pruned": 0
+    },
+    "source_robustness_run_id": "c8eb54948367c6bd",
+    "status": "completed"
+  },
+  "non_authority_assertions": {
+    "candidate_admission": false,
+    "candidate_lifecycle_written": false,
+    "candidate_registry_written": false,
+    "canonical_evidence_written": false,
+    "crossing": false,
+    "dependency_config_data_acquisition": false,
+    "notification_firing": false,
+    "paper_live_runtime_contact": false,
+    "promotion_or_readiness": false,
+    "protected_path_touch": false,
+    "provider_api_credential_use": false,
+    "scheduler_autonomous_dispatch": false
+  },
+  "schema_version": "product_candidate_review_adapter_result_v1"
+}

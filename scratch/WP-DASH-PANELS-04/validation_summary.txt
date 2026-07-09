@@ -1,0 +1,62 @@
+WP-DASH-PANELS-04 — Validation Summary
+======================================
+
+Environment
+- Node v24.18.0, npm 11.16.0 (C:\Program Files\nodejs; prepended to PATH).
+- Base: origin/main @ a03f07f (PR #633 merged).
+- Branch: claude/wp-dash-panels-04-c379e9 (worktree).
+
+Frontend (operator_dashboard_frontend/)
+- npm run typecheck : PASS (tsc --noEmit, no errors) — baseline and post-change.
+- npm run lint      : PASS (next lint — "No ESLint warnings or errors").
+- npm run build     : PASS (all 24 routes prerendered; / //research //strategies
+                      //system //reports build as static, [strategy_id] dynamic).
+
+Backend / API (root .venv python, worktree checkout — API code unchanged)
+- pytest tests/test_operator_dashboard_api.py -q : 11 passed, 1 warning.
+
+Repo validators
+- python -m tools.research_query.run --list-views : OK (views enumerated).
+- python -m tools.registry.validate_result_populations : OK.
+- python -m tools.registry.validate_candidate_registry : OK.
+
+Scope / integrity
+- python tools/dev/diff_scope_summary.py : exit reason `ok`;
+  Forbidden-path matches: none.
+- git diff --check         : clean (no whitespace errors).
+- git diff --cached --check: clean.
+
+Changed files (all within allowed scope)
+- operator_dashboard_frontend/src/app/page.tsx
+- operator_dashboard_frontend/src/app/research/page.tsx
+- operator_dashboard_frontend/src/app/research/jobs/page.tsx
+- operator_dashboard_frontend/src/app/research/result-populations/page.tsx
+- operator_dashboard_frontend/src/app/strategies/page.tsx
+- operator_dashboard_frontend/src/app/strategies/[strategy_id]/page.tsx
+- operator_dashboard_frontend/src/app/candidates/page.tsx
+- operator_dashboard_frontend/src/app/system/page.tsx
+- operator_dashboard_frontend/src/app/system/data/page.tsx
+- operator_dashboard_frontend/src/app/system/validators/page.tsx
+- operator_dashboard_frontend/src/app/system/provenance/page.tsx
+- operator_dashboard_frontend/src/components/ReportView.tsx
+- operator_dashboard_frontend/src/components/viz.tsx           (new)
+- operator_dashboard_frontend/src/components/BoundaryNotes.tsx (new)
+- operator_dashboard_frontend/src/lib/status.ts               (new)
+- operator_dashboard_frontend/src/lib/types.ts
+- operator_dashboard_frontend/src/lib/fixtures.ts
+- docs/status_entries/WP-DASH-PANELS-04.md                    (new)
+- scratch/WP-DASH-PANELS-04/**                                (new)
+
+No-control scan
+- No forms, inputs, buttons, onClick/onSubmit handlers, useState, or
+  POST/PUT/PATCH/DELETE calls. Only GET-only apiClient (unchanged, unused by
+  pages) and textual "POST not implemented" boundary copy. See
+  no_control_evidence.md.
+
+Visual verification (next dev, localhost:3000, headless)
+- Command Center, /research/result-populations, /candidates rendered with real
+  fixture data; distribution bars / stacked bars / funnel present; validator
+  chip correctly toned ("passed" -> good); no console errors.
+
+Dependencies
+- No new dependency added. No chart library. Tailwind/CSS/React primitives only.

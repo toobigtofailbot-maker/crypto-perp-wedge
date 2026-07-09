@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/PageHeader";
-import { Card, CardTitle, KeyValue } from "@/components/ui";
+import { Badge, Card, CardTitle, KeyValue } from "@/components/ui";
 import { PlaceholderCard, UnavailableState } from "@/components/States";
+import { toneForStatus } from "@/lib/status";
 import { fixtures } from "@/lib/fixtures";
 
 export default function StrategyDetailPage({
@@ -30,10 +31,21 @@ export default function StrategyDetailPage({
 
       {strategy ? (
         <Card>
-          <CardTitle>Summary</CardTitle>
+          <div className="mb-3 flex flex-wrap items-center gap-2">
+            <CardTitle>Summary</CardTitle>
+            {strategy.status ? (
+              <Badge tone={toneForStatus(strategy.status)}>
+                {strategy.status}
+              </Badge>
+            ) : null}
+            {strategy.not_executable ? (
+              <Badge tone="warn">not executable</Badge>
+            ) : null}
+          </div>
           <div className="flex flex-col">
             <KeyValue label="Strategy ID" value={strategy.strategy_id ?? "—"} />
-            <KeyValue label="Status" value={strategy.status ?? "—"} />
+            <KeyValue label="Short name" value={strategy.short_name ?? "—"} />
+            <KeyValue label="Source type" value={strategy.source_type ?? "—"} />
             <KeyValue
               label="Instrument family"
               value={strategy.instrument_family ?? "—"}
@@ -46,7 +58,11 @@ export default function StrategyDetailPage({
             <KeyValue label="Direction" value={strategy.direction ?? "—"} />
             <KeyValue
               label="Free parameters"
-              value={strategy.free_parameter_count ?? "—"}
+              value={strategy.free_parameter_count ?? "n/a"}
+            />
+            <KeyValue
+              label="Max free parameters"
+              value={strategy.max_free_parameters ?? "—"}
             />
             <KeyValue
               label="Approval scope"

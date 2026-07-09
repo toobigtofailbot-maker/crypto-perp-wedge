@@ -1,0 +1,58 @@
+{
+  "schema_version": "operator_dashboard_api_v1",
+  "source": "operator dashboard architecture lock",
+  "provenance": [
+    {
+      "path": "docs/architecture/operator_dashboard_agent_inbox_architecture_lock.md",
+      "role": "architecture_lock",
+      "note": null,
+      "sha256": "sha256:cd75ca6137ea1e64d59658767899fc8d9dd6194ce43485d7bec84417b95473f5"
+    }
+  ],
+  "authority": {
+    "api_projection_only": true,
+    "repo_artifacts_remain_truth": true,
+    "read_only": true,
+    "get_endpoints_only": true,
+    "not_execution_authority": true,
+    "not_approval_authority": true,
+    "not_recommendation_authority": true,
+    "not_ranking_authority": true,
+    "not_readiness_authority": true,
+    "not_promotion_authority": true,
+    "not_runtime_authority": true,
+    "not_paper_live_authority": true,
+    "not_broker_exchange_order_authority": true,
+    "not_agent_inbox_write_authority": true,
+    "not_scheduler_authority": true,
+    "not_notification_authority": true,
+    "control_surface": "none"
+  },
+  "warnings": [
+    "This API response is a derived read-only projection for local dashboard inspection. Committed repo artifacts and protected runtime truth, where later authorized snapshots exist, remain authoritative."
+  ],
+  "withheld": {},
+  "unavailable": {
+    "agent_inbox_write": "POST /api/agent/intake-draft is intentionally not implemented."
+  },
+  "data": {
+    "status": "unavailable",
+    "schema_status": "future_placeholder_only",
+    "draft_endpoint_available": false,
+    "post_endpoint_created": false,
+    "agent_inbox_write_created": false,
+    "allowed_methods": [
+      "GET"
+    ],
+    "future_intake_fields_preview": [
+      "source_label",
+      "source_type",
+      "idea_text",
+      "claimed_edge",
+      "timeframe_hint",
+      "data_requirements",
+      "operator_notes"
+    ],
+    "reason": "Agent Inbox writes belong to a later isolated package. This endpoint only displays the boundary and does not accept or persist drafts."
+  }
+}

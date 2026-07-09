@@ -1,0 +1,1320 @@
+{
+  "schema_version": "operator_dashboard_api_v1",
+  "source": "tools.lab_reporting.report_model.build_report_data",
+  "provenance": [
+    {
+      "path": "tools/lab_reporting/report_model.py",
+      "role": "static_reader",
+      "note": null,
+      "sha256": "sha256:1224ca5ca231de3c355e65eb7f44f64ddcd582db6d3f78cd2cbcad0100f1aa31"
+    },
+    {
+      "path": "docs/research/LAB_OPERATOR_BRIEF_REPORT_SURFACE.md",
+      "role": "report_surface_doc",
+      "note": null,
+      "sha256": "sha256:d6dfb0a08b8fdd62f2d7749819aff41e74061661223dccb0e8b07cd811ce2cba"
+    }
+  ],
+  "authority": {
+    "api_projection_only": true,
+    "repo_artifacts_remain_truth": true,
+    "read_only": true,
+    "get_endpoints_only": true,
+    "not_execution_authority": true,
+    "not_approval_authority": true,
+    "not_recommendation_authority": true,
+    "not_ranking_authority": true,
+    "not_readiness_authority": true,
+    "not_promotion_authority": true,
+    "not_runtime_authority": true,
+    "not_paper_live_authority": true,
+    "not_broker_exchange_order_authority": true,
+    "not_agent_inbox_write_authority": true,
+    "not_scheduler_authority": true,
+    "not_notification_authority": true,
+    "control_surface": "none"
+  },
+  "warnings": [
+    "This API response is a derived read-only projection for local dashboard inspection. Committed repo artifacts and protected runtime truth, where later authorized snapshots exist, remain authoritative."
+  ],
+  "withheld": {
+    "charting": {
+      "enabled": false,
+      "note": "Charting deferred: weekly report is table-based static output only; no safe dependency-light static-chart path is adopted."
+    }
+  },
+  "unavailable": {},
+  "data": {
+    "status": "available",
+    "report_kind": "weekly_report",
+    "report": {
+      "schema_version": "lab_operator_brief_report_v1",
+      "surface_kind": "read_only_operator_brief_report",
+      "as_of": "unspecified",
+      "period": "unspecified",
+      "non_authority_declaration": {
+        "read_only": true,
+        "executes_transition": false,
+        "writes_canonical_evidence": false,
+        "writes_candidate_lifecycle": false,
+        "executes_canonical_crossing": false,
+        "ranks_or_recommends": false,
+        "authorizes_edge_search": false,
+        "authorizes_paper_live_runtime": false,
+        "descriptive_only": true,
+        "emits_recommendations": false,
+        "ranks_as_authority": false,
+        "applies_promotion_labels": false,
+        "applies_decision_labels": false,
+        "declares_readiness_verdict": false,
+        "auto_sends": false,
+        "fires_notifications": false,
+        "integrates_scheduler": false,
+        "suggests_edge_search": false
+      },
+      "edge_search_hold": "No further edge-search is authorized by the coordinator state model. Strategy generation/search remains held until separate operator authorization.",
+      "counts": {
+        "subjects": 9,
+        "completed_runs": 7,
+        "blocked_runs": 3,
+        "no_gos": 4,
+        "open_decision_surfaces": 0,
+        "candidate_review_evidence": 0,
+        "by_overall_state": {
+          "not_started": 0,
+          "formalized": 0,
+          "experiment_complete": 1,
+          "replay_checked": 0,
+          "oos_gate_fail": 1,
+          "oos_gate_blocked": 0,
+          "candidate_review_blocked": 0,
+          "robustness_advisory": 0,
+          "no_go": 4,
+          "blocked": 2,
+          "candidate_ready_for_human_review": 0,
+          "operator_gate_pending": 0,
+          "reported": 1
+        }
+      },
+      "completed_runs": [
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-01",
+          "subject_label": "funding_carry_initial_blocked_no_go",
+          "overall_state": "no_go",
+          "evidence_class": "unknown",
+          "oos_gate_state": "not_started",
+          "oos_gate_reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+          "oos_evidence_status": null,
+          "replay_state": "not_started",
+          "robustness_state": "not_started",
+          "candidate_review_state": "candidate_review_not_created",
+          "candidate_review_reason_code": "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+          "reporting_state": "reported",
+          "operator_gate_state": "not_started",
+          "withheld_statistics": [],
+          "no_go_caveats": []
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "subject_label": "funding_carry_retry_no_go",
+          "overall_state": "no_go",
+          "evidence_class": "unknown",
+          "oos_gate_state": "not_started",
+          "oos_gate_reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+          "oos_evidence_status": null,
+          "replay_state": "not_started",
+          "robustness_state": "not_started",
+          "candidate_review_state": "candidate_review_not_created",
+          "candidate_review_reason_code": "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+          "reporting_state": "reported",
+          "operator_gate_state": "not_started",
+          "withheld_statistics": [],
+          "no_go_caveats": []
+        },
+        {
+          "subject_id": "H-FUNDING-FADE-RISKMANAGED-01",
+          "subject_label": "funding_fade_riskmanaged_stage1_no_go",
+          "overall_state": "no_go",
+          "evidence_class": "non_canonical",
+          "oos_gate_state": "not_started",
+          "oos_gate_reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+          "oos_evidence_status": null,
+          "replay_state": "not_started",
+          "robustness_state": "not_started",
+          "candidate_review_state": "candidate_review_not_created",
+          "candidate_review_reason_code": "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+          "reporting_state": "reported",
+          "operator_gate_state": "not_started",
+          "withheld_statistics": [],
+          "no_go_caveats": [
+            "NO-GO on the primary risk-managed Stage-1 frozen stop/go criteria screen (threshold ATR slice median drawdown <= 0.35, worst drawdown < 0.50, positive median net return, and at least 4 positive-return rows).",
+            "Funding payments were not wired; this is a price/PnL signal test, not a complete funding-carry PnL test.",
+            "The NO-GO is about this hypothesis only, not a statement about all funding strategies."
+          ]
+        },
+        {
+          "subject_id": "H-FUNDING-RATE-POSITIONING-FADE-01",
+          "subject_label": "funding_rate_positioning_fade",
+          "overall_state": "no_go",
+          "evidence_class": "non_canonical",
+          "oos_gate_state": "oos_gate_blocked",
+          "oos_gate_reason_code": "STATE_OOS_DRY_RUN_ONLY",
+          "oos_evidence_status": "completed_dry_run_only",
+          "replay_state": "replay_checked",
+          "robustness_state": "robustness_advisory",
+          "candidate_review_state": "candidate_review_not_created",
+          "candidate_review_reason_code": "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+          "reporting_state": "reported",
+          "operator_gate_state": "not_started",
+          "withheld_statistics": [
+            "PSR",
+            "DSR",
+            "MinTRL"
+          ],
+          "no_go_caveats": [
+            "NO-GO on the primary drawdown screen (threshold 0.2).",
+            "Funding payments were not wired; this is a price/PnL signal test, not a complete funding-carry PnL test.",
+            "The NO-GO is about this hypothesis only, not a statement about all funding strategies."
+          ]
+        },
+        {
+          "subject_id": "HISTORICAL-CANONICAL-EVIDENCE",
+          "subject_label": "candidate_registry_and_result_populations",
+          "overall_state": "experiment_complete",
+          "evidence_class": "unknown",
+          "oos_gate_state": "not_started",
+          "oos_gate_reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+          "oos_evidence_status": null,
+          "replay_state": "not_started",
+          "robustness_state": "not_started",
+          "candidate_review_state": "not_started",
+          "candidate_review_reason_code": "STATE_ARTIFACT_MISSING",
+          "reporting_state": "not_started",
+          "operator_gate_state": "not_started",
+          "withheld_statistics": [],
+          "no_go_caveats": []
+        },
+        {
+          "subject_id": "OOS-GATE-FIXTURE-RP-2592",
+          "subject_label": "walkforward_oos_gate_fixture",
+          "overall_state": "oos_gate_fail",
+          "evidence_class": "non_canonical",
+          "oos_gate_state": "oos_gate_fail",
+          "oos_gate_reason_code": "OOS_GATE_FAIL",
+          "oos_evidence_status": "completed_dry_run_only",
+          "replay_state": "replay_checked",
+          "robustness_state": "robustness_advisory",
+          "candidate_review_state": "candidate_review_blocked",
+          "candidate_review_reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+          "reporting_state": "reported",
+          "operator_gate_state": "not_started",
+          "withheld_statistics": [
+            "PSR",
+            "DSR",
+            "MinTRL"
+          ],
+          "no_go_caveats": []
+        },
+        {
+          "subject_id": "WP-RESEARCH-PRICEONLY-SYNTHESIS-01",
+          "subject_label": "priceonly_synthesis_reported",
+          "overall_state": "reported",
+          "evidence_class": "unknown",
+          "oos_gate_state": "not_started",
+          "oos_gate_reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+          "oos_evidence_status": null,
+          "replay_state": "not_started",
+          "robustness_state": "not_started",
+          "candidate_review_state": "not_started",
+          "candidate_review_reason_code": "STATE_ARTIFACT_MISSING",
+          "reporting_state": "reported",
+          "operator_gate_state": "not_started",
+          "withheld_statistics": [],
+          "no_go_caveats": []
+        }
+      ],
+      "blocked_runs": [
+        {
+          "subject_id": "WP-RESEARCH-EDGE-SMA-FAMILY-01",
+          "subject_label": "edge_sma_family_blocked",
+          "overall_state": "blocked",
+          "evidence_class": "unknown",
+          "oos_gate_state": "not_started",
+          "oos_gate_reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+          "oos_evidence_status": null,
+          "replay_state": "not_started",
+          "robustness_state": "not_started",
+          "candidate_review_state": "candidate_review_blocked",
+          "candidate_review_reason_code": "BLOCKED_RESULT_POPULATION_UNAVAILABLE",
+          "reporting_state": "reported",
+          "operator_gate_state": "not_started",
+          "withheld_statistics": [],
+          "no_go_caveats": []
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-01",
+          "subject_label": "funding_carry_initial_blocked_no_go",
+          "overall_state": "no_go",
+          "evidence_class": "unknown",
+          "oos_gate_state": "not_started",
+          "oos_gate_reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+          "oos_evidence_status": null,
+          "replay_state": "not_started",
+          "robustness_state": "not_started",
+          "candidate_review_state": "candidate_review_not_created",
+          "candidate_review_reason_code": "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+          "reporting_state": "reported",
+          "operator_gate_state": "not_started",
+          "withheld_statistics": [],
+          "no_go_caveats": []
+        },
+        {
+          "subject_id": "WP-RESEARCH-ORB-EXIT-RESPEC-01",
+          "subject_label": "orb_exit_respec_blocked",
+          "overall_state": "blocked",
+          "evidence_class": "unknown",
+          "oos_gate_state": "not_started",
+          "oos_gate_reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+          "oos_evidence_status": null,
+          "replay_state": "not_started",
+          "robustness_state": "not_started",
+          "candidate_review_state": "candidate_review_blocked",
+          "candidate_review_reason_code": "BLOCKED_RESULT_POPULATION_UNAVAILABLE",
+          "reporting_state": "reported",
+          "operator_gate_state": "not_started",
+          "withheld_statistics": [],
+          "no_go_caveats": []
+        }
+      ],
+      "no_gos": [
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-01",
+          "subject_label": "funding_carry_initial_blocked_no_go",
+          "overall_state": "no_go",
+          "evidence_class": "unknown",
+          "oos_gate_state": "not_started",
+          "oos_gate_reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+          "oos_evidence_status": null,
+          "replay_state": "not_started",
+          "robustness_state": "not_started",
+          "candidate_review_state": "candidate_review_not_created",
+          "candidate_review_reason_code": "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+          "reporting_state": "reported",
+          "operator_gate_state": "not_started",
+          "withheld_statistics": [],
+          "no_go_caveats": []
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "subject_label": "funding_carry_retry_no_go",
+          "overall_state": "no_go",
+          "evidence_class": "unknown",
+          "oos_gate_state": "not_started",
+          "oos_gate_reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+          "oos_evidence_status": null,
+          "replay_state": "not_started",
+          "robustness_state": "not_started",
+          "candidate_review_state": "candidate_review_not_created",
+          "candidate_review_reason_code": "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+          "reporting_state": "reported",
+          "operator_gate_state": "not_started",
+          "withheld_statistics": [],
+          "no_go_caveats": []
+        },
+        {
+          "subject_id": "H-FUNDING-FADE-RISKMANAGED-01",
+          "subject_label": "funding_fade_riskmanaged_stage1_no_go",
+          "overall_state": "no_go",
+          "evidence_class": "non_canonical",
+          "oos_gate_state": "not_started",
+          "oos_gate_reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+          "oos_evidence_status": null,
+          "replay_state": "not_started",
+          "robustness_state": "not_started",
+          "candidate_review_state": "candidate_review_not_created",
+          "candidate_review_reason_code": "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+          "reporting_state": "reported",
+          "operator_gate_state": "not_started",
+          "withheld_statistics": [],
+          "no_go_caveats": [
+            "NO-GO on the primary risk-managed Stage-1 frozen stop/go criteria screen (threshold ATR slice median drawdown <= 0.35, worst drawdown < 0.50, positive median net return, and at least 4 positive-return rows).",
+            "Funding payments were not wired; this is a price/PnL signal test, not a complete funding-carry PnL test.",
+            "The NO-GO is about this hypothesis only, not a statement about all funding strategies."
+          ]
+        },
+        {
+          "subject_id": "H-FUNDING-RATE-POSITIONING-FADE-01",
+          "subject_label": "funding_rate_positioning_fade",
+          "overall_state": "no_go",
+          "evidence_class": "non_canonical",
+          "oos_gate_state": "oos_gate_blocked",
+          "oos_gate_reason_code": "STATE_OOS_DRY_RUN_ONLY",
+          "oos_evidence_status": "completed_dry_run_only",
+          "replay_state": "replay_checked",
+          "robustness_state": "robustness_advisory",
+          "candidate_review_state": "candidate_review_not_created",
+          "candidate_review_reason_code": "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+          "reporting_state": "reported",
+          "operator_gate_state": "not_started",
+          "withheld_statistics": [
+            "PSR",
+            "DSR",
+            "MinTRL"
+          ],
+          "no_go_caveats": [
+            "NO-GO on the primary drawdown screen (threshold 0.2).",
+            "Funding payments were not wired; this is a price/PnL signal test, not a complete funding-carry PnL test.",
+            "The NO-GO is about this hypothesis only, not a statement about all funding strategies."
+          ]
+        }
+      ],
+      "open_decision_surfaces": [],
+      "validation_status": [
+        {
+          "subject_id": "WP-RESEARCH-EDGE-SMA-FAMILY-01",
+          "replay_state": "not_started",
+          "replay_reason_code": "STATE_ARTIFACT_MISSING",
+          "oos_gate_state": "not_started",
+          "oos_gate_reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+          "oos_evidence_status": null,
+          "robustness_state": "not_started",
+          "withheld_statistics": []
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-01",
+          "replay_state": "not_started",
+          "replay_reason_code": "STATE_ARTIFACT_MISSING",
+          "oos_gate_state": "not_started",
+          "oos_gate_reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+          "oos_evidence_status": null,
+          "robustness_state": "not_started",
+          "withheld_statistics": []
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "replay_state": "not_started",
+          "replay_reason_code": "STATE_ARTIFACT_MISSING",
+          "oos_gate_state": "not_started",
+          "oos_gate_reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+          "oos_evidence_status": null,
+          "robustness_state": "not_started",
+          "withheld_statistics": []
+        },
+        {
+          "subject_id": "H-FUNDING-FADE-RISKMANAGED-01",
+          "replay_state": "not_started",
+          "replay_reason_code": "STATE_ARTIFACT_MISSING",
+          "oos_gate_state": "not_started",
+          "oos_gate_reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+          "oos_evidence_status": null,
+          "robustness_state": "not_started",
+          "withheld_statistics": []
+        },
+        {
+          "subject_id": "H-FUNDING-RATE-POSITIONING-FADE-01",
+          "replay_state": "replay_checked",
+          "replay_reason_code": "STATE_REPLAY_NORMALIZED",
+          "oos_gate_state": "oos_gate_blocked",
+          "oos_gate_reason_code": "STATE_OOS_DRY_RUN_ONLY",
+          "oos_evidence_status": "completed_dry_run_only",
+          "robustness_state": "robustness_advisory",
+          "withheld_statistics": [
+            "PSR",
+            "DSR",
+            "MinTRL"
+          ]
+        },
+        {
+          "subject_id": "HISTORICAL-CANONICAL-EVIDENCE",
+          "replay_state": "not_started",
+          "replay_reason_code": "STATE_ARTIFACT_MISSING",
+          "oos_gate_state": "not_started",
+          "oos_gate_reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+          "oos_evidence_status": null,
+          "robustness_state": "not_started",
+          "withheld_statistics": []
+        },
+        {
+          "subject_id": "OOS-GATE-FIXTURE-RP-2592",
+          "replay_state": "replay_checked",
+          "replay_reason_code": "STATE_REPLAY_NORMALIZED",
+          "oos_gate_state": "oos_gate_fail",
+          "oos_gate_reason_code": "OOS_GATE_FAIL",
+          "oos_evidence_status": "completed_dry_run_only",
+          "robustness_state": "robustness_advisory",
+          "withheld_statistics": [
+            "PSR",
+            "DSR",
+            "MinTRL"
+          ]
+        },
+        {
+          "subject_id": "WP-RESEARCH-ORB-EXIT-RESPEC-01",
+          "replay_state": "not_started",
+          "replay_reason_code": "STATE_ARTIFACT_MISSING",
+          "oos_gate_state": "not_started",
+          "oos_gate_reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+          "oos_evidence_status": null,
+          "robustness_state": "not_started",
+          "withheld_statistics": []
+        },
+        {
+          "subject_id": "WP-RESEARCH-PRICEONLY-SYNTHESIS-01",
+          "replay_state": "not_started",
+          "replay_reason_code": "STATE_ARTIFACT_MISSING",
+          "oos_gate_state": "not_started",
+          "oos_gate_reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+          "oos_evidence_status": null,
+          "robustness_state": "not_started",
+          "withheld_statistics": []
+        }
+      ],
+      "candidate_review_readiness": [
+        {
+          "subject_id": "WP-RESEARCH-EDGE-SMA-FAMILY-01",
+          "has_candidate_review_evidence": false,
+          "candidate_review_state": "candidate_review_blocked",
+          "candidate_review_reason_code": "BLOCKED_RESULT_POPULATION_UNAVAILABLE",
+          "detail": "No candidate-review packet evidence to surface (state `candidate_review_blocked`)."
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-01",
+          "has_candidate_review_evidence": false,
+          "candidate_review_state": "candidate_review_not_created",
+          "candidate_review_reason_code": "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+          "detail": "No candidate-review packet evidence to surface (state `candidate_review_not_created`)."
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "has_candidate_review_evidence": false,
+          "candidate_review_state": "candidate_review_not_created",
+          "candidate_review_reason_code": "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+          "detail": "No candidate-review packet evidence to surface (state `candidate_review_not_created`)."
+        },
+        {
+          "subject_id": "H-FUNDING-FADE-RISKMANAGED-01",
+          "has_candidate_review_evidence": false,
+          "candidate_review_state": "candidate_review_not_created",
+          "candidate_review_reason_code": "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+          "detail": "No candidate-review packet evidence to surface (state `candidate_review_not_created`)."
+        },
+        {
+          "subject_id": "H-FUNDING-RATE-POSITIONING-FADE-01",
+          "has_candidate_review_evidence": false,
+          "candidate_review_state": "candidate_review_not_created",
+          "candidate_review_reason_code": "NO_GO_PRIMARY_RISK_SCREEN_FAILED",
+          "detail": "No candidate-review packet evidence to surface (state `candidate_review_not_created`)."
+        },
+        {
+          "subject_id": "HISTORICAL-CANONICAL-EVIDENCE",
+          "has_candidate_review_evidence": false,
+          "candidate_review_state": "not_started",
+          "candidate_review_reason_code": "STATE_ARTIFACT_MISSING",
+          "detail": "No candidate-review packet evidence to surface (state `not_started`)."
+        },
+        {
+          "subject_id": "OOS-GATE-FIXTURE-RP-2592",
+          "has_candidate_review_evidence": false,
+          "candidate_review_state": "candidate_review_blocked",
+          "candidate_review_reason_code": "BLOCKED_OOS_GATE_UNAVAILABLE",
+          "detail": "No candidate-review packet evidence to surface (state `candidate_review_blocked`)."
+        },
+        {
+          "subject_id": "WP-RESEARCH-ORB-EXIT-RESPEC-01",
+          "has_candidate_review_evidence": false,
+          "candidate_review_state": "candidate_review_blocked",
+          "candidate_review_reason_code": "BLOCKED_RESULT_POPULATION_UNAVAILABLE",
+          "detail": "No candidate-review packet evidence to surface (state `candidate_review_blocked`)."
+        },
+        {
+          "subject_id": "WP-RESEARCH-PRICEONLY-SYNTHESIS-01",
+          "has_candidate_review_evidence": false,
+          "candidate_review_state": "not_started",
+          "candidate_review_reason_code": "STATE_ARTIFACT_MISSING",
+          "detail": "No candidate-review packet evidence to surface (state `not_started`)."
+        }
+      ],
+      "artifact_links": [
+        {
+          "subject_id": "WP-RESEARCH-EDGE-SMA-FAMILY-01",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/blocked_bridge_reason.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-EDGE-SMA-FAMILY-01",
+          "role": "generic_review_contract",
+          "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/blocked_candidate_review_reason.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-EDGE-SMA-FAMILY-01",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/blocked_robustness_reason.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-EDGE-SMA-FAMILY-01",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/blocked_sweep_plan_reason.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-EDGE-SMA-FAMILY-01",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/blocked_variant_manifest_reason.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-EDGE-SMA-FAMILY-01",
+          "role": "conclusion_traceability",
+          "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/denominator_audit.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-EDGE-SMA-FAMILY-01",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/formalizer_output_reference.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-EDGE-SMA-FAMILY-01",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/missing_diagnostics.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-EDGE-SMA-FAMILY-01",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/repo_truth_discovery.md",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-EDGE-SMA-FAMILY-01",
+          "role": "formalization_status_entry",
+          "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/sma_family_research_idea.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-EDGE-SMA-FAMILY-01",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/sma_family_result_packet.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-EDGE-SMA-FAMILY-01",
+          "role": "reporting_doc",
+          "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/sma_family_summary.md",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-EDGE-SMA-FAMILY-01",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-EDGE-SMA-FAMILY-01/strategy_spec_reference.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-01",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/blocked_bridge_reason.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-01",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/blocked_formalizer_reason.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-01",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/blocked_robustness_reason.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-01",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/blocked_rp_replay_harness_reason.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-01",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/blocked_runner_reason.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-01",
+          "role": "conclusion_traceability",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/denominator_manifest.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-01",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/funding_family_adapter_contract.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-01",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/funding_pnl_boundary_note.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-01",
+          "role": "reporting_doc",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/main_report_back_guardrail.txt",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-01",
+          "role": "generic_review_contract",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/no_candidate_review_packet_reason.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-01",
+          "role": "formalization_status_entry",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/pre_registered_hypothesis.md",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-01",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/repo_truth_discovery.md",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-01",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/sweep_plan_summary.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-01",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-01/validation_summary.txt",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02-FOLLOWUP-01/local_data_staging_report.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02-FOLLOWUP-01/repo_truth_data_contract.md",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02-FOLLOWUP-01/retry_decision.md",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/bridge_output.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "conclusion_traceability",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/denominator_manifest.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/formalizer_output.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/funding_family_adapter_contract.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/funding_pnl_boundary_note.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "reporting_doc",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/main_report_back_guardrail.txt",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/metrics_summary.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/monte_carlo/fixed/bootstrap_samples.sha256",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/monte_carlo/fixed/seeded_advisory_mc_report.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/monte_carlo/fixed/seeded_advisory_mc_report.md",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/monte_carlo/midline/bootstrap_samples.sha256",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/monte_carlo/midline/seeded_advisory_mc_report.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/monte_carlo/midline/seeded_advisory_mc_report.md",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/monte_carlo_summary.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "generic_review_contract",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/no_candidate_review_packet_reason.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/denominator_ledger.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/fixed_max_hold_only/inputs/STRAT-SPEC-9478.strategy_spec.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/fixed_max_hold_only/inputs/SWEEP-PLAN-9933.sweep_plan.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/fixed_max_hold_only/inputs/VM-9933.variant_manifest.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/fixed_max_hold_only/inputs/bridge_metadata.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/fixed_max_hold_only/runner_artifacts/RP-2009.result_population.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/human_review_packet.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/midline_reversion_or_max_hold/inputs/STRAT-SPEC-9477.strategy_spec.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/midline_reversion_or_max_hold/inputs/SWEEP-PLAN-9934.sweep_plan.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/midline_reversion_or_max_hold/inputs/VM-9934.variant_manifest.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/midline_reversion_or_max_hold/inputs/bridge_metadata.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/813c51adc1879144/midline_reversion_or_max_hold/runner_artifacts/RP-7592.result_population.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/b191967d3aff/STRAT-SPEC-9477.strategy_spec.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/b191967d3aff/STRAT-SPEC-9478.strategy_spec.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/b191967d3aff/formalized_idea.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/b191967d3aff/human_review_packet.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/b191967d3aff/operator_bridge_approval.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "formalization_status_entry",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/pre_registered_hypothesis.md",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/repo_truth_discovery.md",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/robustness_fixed.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/robustness_midline.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/robustness_summary.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/rp_replay_harness_report.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/runner_result_summary.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/sweep_plan_summary.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/validation_summary.txt",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-FUNDING-CARRY-02",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-CARRY-02/walk_forward_summary.json",
+          "present": true
+        },
+        {
+          "subject_id": "H-FUNDING-FADE-RISKMANAGED-01",
+          "role": "reporting_doc",
+          "path": "docs/research/FUNDING_POSITIONING_FADE_SYNTHESIS_2026-06.md",
+          "present": true
+        },
+        {
+          "subject_id": "H-FUNDING-FADE-RISKMANAGED-01",
+          "role": "formalization_status_entry",
+          "path": "docs/status_entries/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01.md",
+          "present": true
+        },
+        {
+          "subject_id": "H-FUNDING-FADE-RISKMANAGED-01",
+          "role": "riskmanaged_conclusion_evidence",
+          "path": "docs/status_entries/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01.md",
+          "present": true
+        },
+        {
+          "subject_id": "H-FUNDING-FADE-RISKMANAGED-01",
+          "role": "riskmanaged_conclusion_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01/conclusion_summary.json",
+          "present": true
+        },
+        {
+          "subject_id": "H-FUNDING-FADE-RISKMANAGED-01",
+          "role": "riskmanaged_conclusion_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01/conclusion_summary.md",
+          "present": true
+        },
+        {
+          "subject_id": "H-FUNDING-FADE-RISKMANAGED-01",
+          "role": "conclusion_traceability",
+          "path": "scratch/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01/conclusion_traceability.json",
+          "present": true
+        },
+        {
+          "subject_id": "H-FUNDING-FADE-RISKMANAGED-01",
+          "role": "generic_review_contract",
+          "path": "scratch/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01/no_candidate_review_packet_reason.json",
+          "present": true
+        },
+        {
+          "subject_id": "H-FUNDING-FADE-RISKMANAGED-01",
+          "role": "riskmanaged_conclusion_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01/no_retuning_attestation.md",
+          "present": true
+        },
+        {
+          "subject_id": "H-FUNDING-FADE-RISKMANAGED-01",
+          "role": "riskmanaged_conclusion_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01/operator_visibility_binding.json",
+          "present": true
+        },
+        {
+          "subject_id": "H-FUNDING-FADE-RISKMANAGED-01",
+          "role": "riskmanaged_conclusion_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/atr_20_slice_summary.json",
+          "present": true
+        },
+        {
+          "subject_id": "H-FUNDING-FADE-RISKMANAGED-01",
+          "role": "riskmanaged_conclusion_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/atr_30_slice_summary.json",
+          "present": true
+        },
+        {
+          "subject_id": "H-FUNDING-FADE-RISKMANAGED-01",
+          "role": "riskmanaged_conclusion_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/complete_108_row_denominator.csv",
+          "present": true
+        },
+        {
+          "subject_id": "H-FUNDING-FADE-RISKMANAGED-01",
+          "role": "riskmanaged_conclusion_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/complete_108_row_denominator.json",
+          "present": true
+        },
+        {
+          "subject_id": "H-FUNDING-FADE-RISKMANAGED-01",
+          "role": "riskmanaged_conclusion_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/no_atr_slice_summary.json",
+          "present": true
+        },
+        {
+          "subject_id": "H-FUNDING-FADE-RISKMANAGED-01",
+          "role": "riskmanaged_conclusion_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/row_accounting.json",
+          "present": true
+        },
+        {
+          "subject_id": "H-FUNDING-FADE-RISKMANAGED-01",
+          "role": "riskmanaged_conclusion_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/stage1_verdict.json",
+          "present": true
+        },
+        {
+          "subject_id": "H-FUNDING-FADE-RISKMANAGED-01",
+          "role": "riskmanaged_conclusion_evidence",
+          "path": "scratch/WP-RESEARCH-FUNDING-RISKMANAGED-TRIAGE-01/stop_go_evaluation.json",
+          "present": true
+        },
+        {
+          "subject_id": "H-FUNDING-RATE-POSITIONING-FADE-01",
+          "role": "reporting_doc",
+          "path": "docs/research/FUNDING_POSITIONING_FADE_SYNTHESIS_2026-06.md",
+          "present": true
+        },
+        {
+          "subject_id": "H-FUNDING-RATE-POSITIONING-FADE-01",
+          "role": "formalization_status_entry",
+          "path": "docs/status_entries/WP-LAB-IDEA-INTAKE-FORMALIZATION-01.md",
+          "present": true
+        },
+        {
+          "subject_id": "H-FUNDING-RATE-POSITIONING-FADE-01",
+          "role": "generic_review_contract",
+          "path": "scratch/WP-LAB-GENERIC-ROBUSTNESS-REVIEW-REACH-01/generic_review_contract.json",
+          "present": true
+        },
+        {
+          "subject_id": "H-FUNDING-RATE-POSITIONING-FADE-01",
+          "role": "replay_fixture_summary",
+          "path": "scratch/WP-LAB-RP-REPLAY-NORMALIZATION-CONTRACT-01/replay_fixture_summary.json",
+          "present": true
+        },
+        {
+          "subject_id": "H-FUNDING-RATE-POSITIONING-FADE-01",
+          "role": "conclusion_traceability",
+          "path": "scratch/WP-RESEARCH-FUNDING-FADE-CONCLUDE-01/conclusion_traceability.json",
+          "present": true
+        },
+        {
+          "subject_id": "HISTORICAL-CANONICAL-EVIDENCE",
+          "role": "canonical_evidence_reference",
+          "path": "research/candidate_registry.jsonl",
+          "present": true
+        },
+        {
+          "subject_id": "HISTORICAL-CANONICAL-EVIDENCE",
+          "role": "canonical_evidence_reference",
+          "path": "research/result_populations/RP-2134.result_population.json",
+          "present": true
+        },
+        {
+          "subject_id": "HISTORICAL-CANONICAL-EVIDENCE",
+          "role": "canonical_evidence_reference",
+          "path": "research/result_populations/RP-2592.result_population.json",
+          "present": true
+        },
+        {
+          "subject_id": "HISTORICAL-CANONICAL-EVIDENCE",
+          "role": "canonical_evidence_reference",
+          "path": "research/result_populations/RP-3731.result_population.json",
+          "present": true
+        },
+        {
+          "subject_id": "HISTORICAL-CANONICAL-EVIDENCE",
+          "role": "canonical_evidence_reference",
+          "path": "research/result_populations/RP-4492.result_population.json",
+          "present": true
+        },
+        {
+          "subject_id": "HISTORICAL-CANONICAL-EVIDENCE",
+          "role": "canonical_evidence_reference",
+          "path": "research/result_populations/RP-6236.result_population.json",
+          "present": true
+        },
+        {
+          "subject_id": "HISTORICAL-CANONICAL-EVIDENCE",
+          "role": "canonical_evidence_reference",
+          "path": "research/result_populations/RP-6688.result_population.json",
+          "present": true
+        },
+        {
+          "subject_id": "HISTORICAL-CANONICAL-EVIDENCE",
+          "role": "canonical_evidence_reference",
+          "path": "research/result_populations/RP-7134.result_population.json",
+          "present": true
+        },
+        {
+          "subject_id": "HISTORICAL-CANONICAL-EVIDENCE",
+          "role": "canonical_evidence_reference",
+          "path": "research/result_populations/RP-7520.result_population.json",
+          "present": true
+        },
+        {
+          "subject_id": "OOS-GATE-FIXTURE-RP-2592",
+          "role": "reporting_doc",
+          "path": "docs/research/WALKFORWARD_OOS_GATE_CONTRACT.md",
+          "present": true
+        },
+        {
+          "subject_id": "OOS-GATE-FIXTURE-RP-2592",
+          "role": "formalization_status_entry",
+          "path": "docs/status_entries/WP-LAB-WALKFORWARD-OOS-GATE-01.md",
+          "present": true
+        },
+        {
+          "subject_id": "OOS-GATE-FIXTURE-RP-2592",
+          "role": "generic_review_contract",
+          "path": "scratch/WP-LAB-GENERIC-ROBUSTNESS-REVIEW-REACH-01/generic_review_contract.json",
+          "present": true
+        },
+        {
+          "subject_id": "OOS-GATE-FIXTURE-RP-2592",
+          "role": "replay_fixture_summary",
+          "path": "scratch/WP-LAB-RP-REPLAY-NORMALIZATION-CONTRACT-01/replay_fixture_summary.json",
+          "present": true
+        },
+        {
+          "subject_id": "OOS-GATE-FIXTURE-RP-2592",
+          "role": "oos_gate_summary",
+          "path": "scratch/WP-LAB-WALKFORWARD-OOS-GATE-01/fixture_gate_summary.json",
+          "present": true
+        },
+        {
+          "subject_id": "OOS-GATE-FIXTURE-RP-2592",
+          "role": "conclusion_traceability",
+          "path": "scratch/WP-RESEARCH-FUNDING-FADE-CONCLUDE-01/conclusion_traceability.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-ORB-EXIT-RESPEC-01",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/blocked_bridge_reason.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-ORB-EXIT-RESPEC-01",
+          "role": "generic_review_contract",
+          "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/blocked_candidate_review_reason.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-ORB-EXIT-RESPEC-01",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/blocked_robustness_reason.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-ORB-EXIT-RESPEC-01",
+          "role": "conclusion_traceability",
+          "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/denominator_audit.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-ORB-EXIT-RESPEC-01",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/formalizer_output_reference.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-ORB-EXIT-RESPEC-01",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/missing_diagnostics.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-ORB-EXIT-RESPEC-01",
+          "role": "formalization_status_entry",
+          "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/orb_exit_respec_idea.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-ORB-EXIT-RESPEC-01",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/orb_exit_respec_result_packet.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-ORB-EXIT-RESPEC-01",
+          "role": "reporting_doc",
+          "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/orb_exit_respec_summary.md",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-ORB-EXIT-RESPEC-01",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-ORB-EXIT-RESPEC-01/repo_truth_discovery.md",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-PRICEONLY-SYNTHESIS-01",
+          "role": "reporting_doc",
+          "path": "docs/research/PRICEONLY_SYNTHESIS_2026-06.md",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-PRICEONLY-SYNTHESIS-01",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-PRICEONLY-SYNTHESIS-01/evidence_index.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-PRICEONLY-SYNTHESIS-01",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-PRICEONLY-SYNTHESIS-01/lab_gap_checklist.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-PRICEONLY-SYNTHESIS-01",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-PRICEONLY-SYNTHESIS-01/main_report_back_guardrail.txt",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-PRICEONLY-SYNTHESIS-01",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-PRICEONLY-SYNTHESIS-01/open_decision_surfaces.txt",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-PRICEONLY-SYNTHESIS-01",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-PRICEONLY-SYNTHESIS-01/priceonly_synthesis_source_audit.json",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-PRICEONLY-SYNTHESIS-01",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-PRICEONLY-SYNTHESIS-01/repo_truth_discovery.md",
+          "present": true
+        },
+        {
+          "subject_id": "WP-RESEARCH-PRICEONLY-SYNTHESIS-01",
+          "role": "legacy_research_evidence",
+          "path": "scratch/WP-RESEARCH-PRICEONLY-SYNTHESIS-01/validation_summary.txt",
+          "present": true
+        }
+      ],
+      "withheld_statistics": [
+        "DSR",
+        "MinTRL",
+        "PSR"
+      ],
+      "caveats": [
+        "This surface shows the full denominator (every run and state), not winners only.",
+        "Evidence shown is non-canonical / scratch-only unless a row's evidence class says otherwise; nothing here is crossed, candidate-registered, paper-ready, or live-ready.",
+        "Dry-run-only OOS evidence is not a rigorous gate pass.",
+        "Withheld statistics (e.g. PSR / DSR / MinTRL) are shown explicitly rather than fabricated.",
+        "Ordering is deterministic display order only and confers no ranking, recommendation, readiness, or promotion authority.",
+        "Any real transition or approval requires separate human action through the candidate lifecycle engine; this dashboard cannot grant it."
+      ],
+      "charting": {
+        "enabled": false,
+        "note": "Charting deferred: weekly report is table-based static output only; no safe dependency-light static-chart path is adopted."
+      }
+    }
+  }
+}

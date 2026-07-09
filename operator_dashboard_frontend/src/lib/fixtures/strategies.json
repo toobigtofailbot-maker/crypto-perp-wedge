@@ -1,0 +1,150 @@
+{
+  "schema_version": "operator_dashboard_api_v1",
+  "source": "committed research/strategy_specs artifacts",
+  "provenance": [
+    {
+      "path": "research/strategy_specs",
+      "role": "strategy_spec_directory",
+      "note": null,
+      "sha256": null
+    },
+    {
+      "path": "tools/research_query/query_layer.py",
+      "role": "available_read_only_query_surface",
+      "note": null,
+      "sha256": "sha256:5f0f621b1079a99e26638b4b7d93d23d98618a4ae9f85fee0b92ba13bc92c3a4"
+    }
+  ],
+  "authority": {
+    "api_projection_only": true,
+    "repo_artifacts_remain_truth": true,
+    "read_only": true,
+    "get_endpoints_only": true,
+    "not_execution_authority": true,
+    "not_approval_authority": true,
+    "not_recommendation_authority": true,
+    "not_ranking_authority": true,
+    "not_readiness_authority": true,
+    "not_promotion_authority": true,
+    "not_runtime_authority": true,
+    "not_paper_live_authority": true,
+    "not_broker_exchange_order_authority": true,
+    "not_agent_inbox_write_authority": true,
+    "not_scheduler_authority": true,
+    "not_notification_authority": true,
+    "control_surface": "none"
+  },
+  "warnings": [
+    "This API response is a derived read-only projection for local dashboard inspection. Committed repo artifacts and protected runtime truth, where later authorized snapshots exist, remain authoritative."
+  ],
+  "withheld": {},
+  "unavailable": {},
+  "data": {
+    "status": "available",
+    "count": 6,
+    "items": [
+      {
+        "strategy_id": "STRAT-SPEC-0001",
+        "strategy_spec_id": "STRAT-SPEC-0001",
+        "path": "research/strategy_specs/STRAT-SPEC-0001.strategy_spec.json",
+        "title": "First Canonical SMA-Distance Strategy Spec",
+        "short_name": "sma-distance-15m-long",
+        "status": "approved_for_variant_planning",
+        "source_type": "manual_idea",
+        "instrument_family": "crypto_perp",
+        "market_type": "perpetual",
+        "primary_timeframe": "15m",
+        "direction": "long",
+        "free_parameter_count": null,
+        "max_free_parameters": 5,
+        "approval_scope": null,
+        "not_executable": true
+      },
+      {
+        "strategy_id": "STRAT-SPEC-0002",
+        "strategy_spec_id": "STRAT-SPEC-0002",
+        "path": "research/strategy_specs/STRAT-SPEC-0002.strategy_spec.json",
+        "title": "Frozen Both-Direction SMA-Band Strategy Spec",
+        "short_name": "sma-band-15m-both",
+        "status": "approved_for_variant_planning",
+        "source_type": "research_note",
+        "instrument_family": "crypto_perp",
+        "market_type": "perpetual",
+        "primary_timeframe": "15m",
+        "direction": "both",
+        "free_parameter_count": null,
+        "max_free_parameters": 5,
+        "approval_scope": null,
+        "not_executable": true
+      },
+      {
+        "strategy_id": "STRAT-SPEC-0003",
+        "strategy_spec_id": "STRAT-SPEC-0003",
+        "path": "research/strategy_specs/STRAT-SPEC-0003.strategy_spec.json",
+        "title": "Phase-B Z-Score Trend-Gated Mean-Reversion Strategy Spec",
+        "short_name": "phaseb-zscore-trend-throttle-15m-both",
+        "status": "approved_for_variant_planning",
+        "source_type": "research_note",
+        "instrument_family": "crypto_perp",
+        "market_type": "perpetual",
+        "primary_timeframe": "15m",
+        "direction": "both",
+        "free_parameter_count": null,
+        "max_free_parameters": 5,
+        "approval_scope": null,
+        "not_executable": true
+      },
+      {
+        "strategy_id": "STRAT-SPEC-0004",
+        "strategy_spec_id": "STRAT-SPEC-0004",
+        "path": "research/strategy_specs/STRAT-SPEC-0004.strategy_spec.json",
+        "title": "Phase-B SMA Crossover Momentum Strategy Spec",
+        "short_name": "phaseb-sma-crossover-momentum-15m-both",
+        "status": "approved_for_variant_planning",
+        "source_type": "research_note",
+        "instrument_family": "crypto_perp",
+        "market_type": "perpetual",
+        "primary_timeframe": "15m",
+        "direction": "both",
+        "free_parameter_count": null,
+        "max_free_parameters": 5,
+        "approval_scope": null,
+        "not_executable": true
+      },
+      {
+        "strategy_id": "STRAT-SPEC-0005",
+        "strategy_spec_id": "STRAT-SPEC-0005",
+        "path": "research/strategy_specs/STRAT-SPEC-0005.strategy_spec.json",
+        "title": "Momentum v2 SMA Crossover ATR-Stop Strategy Spec",
+        "short_name": "momentum-v2-sma-crossover-atr-stop-15m-both",
+        "status": "approved_for_variant_planning",
+        "source_type": "research_note",
+        "instrument_family": "crypto_perp",
+        "market_type": "perpetual",
+        "primary_timeframe": "15m",
+        "direction": "both",
+        "free_parameter_count": null,
+        "max_free_parameters": 5,
+        "approval_scope": null,
+        "not_executable": true
+      },
+      {
+        "strategy_id": "STRAT-SPEC-0006",
+        "strategy_spec_id": "STRAT-SPEC-0006",
+        "path": "research/strategy_specs/STRAT-SPEC-0006.strategy_spec.json",
+        "title": "Momentum 4h SMA Crossover ATR-Stop Strategy Spec",
+        "short_name": "momentum-4h-sma-crossover-atr-stop-4h-both",
+        "status": "approved_for_variant_planning",
+        "source_type": "research_note",
+        "instrument_family": "crypto_perp",
+        "market_type": "perpetual",
+        "primary_timeframe": "4h",
+        "direction": "both",
+        "free_parameter_count": null,
+        "max_free_parameters": 5,
+        "approval_scope": null,
+        "not_executable": true
+      }
+    ]
+  }
+}

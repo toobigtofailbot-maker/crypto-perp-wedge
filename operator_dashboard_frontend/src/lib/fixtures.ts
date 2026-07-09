@@ -11,6 +11,7 @@
 import type {
   AgentIntakeSchema,
   ApiEnvelope,
+  CandidatesFunnelData,
   DashboardSummary,
   ListData,
   ResultPopulationSummary,
@@ -37,7 +38,7 @@ export const fixtures = {
   resultPopulations: () =>
     asEnvelope<ListData<ResultPopulationSummary>>(resultPopulations),
   strategies: () => asEnvelope<ListData<StrategySummary>>(strategies),
-  candidatesFunnel: () => asEnvelope<Record<string, unknown>>(candidatesFunnel),
+  candidatesFunnel: () => asEnvelope<CandidatesFunnelData>(candidatesFunnel),
   reportsDaily: () => asEnvelope<Record<string, unknown>>(reportsDaily),
   reportsWeekly: () => asEnvelope<Record<string, unknown>>(reportsWeekly),
   systemDataHealth: () => asEnvelope<Record<string, unknown>>(systemDataHealth),

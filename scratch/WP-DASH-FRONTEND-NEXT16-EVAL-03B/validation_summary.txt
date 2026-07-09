@@ -1,0 +1,47 @@
+WP-DASH-FRONTEND-NEXT16-EVAL-03B validation summary
+
+Decision:
+- Deferred. Migration not applied.
+
+Preliminary discovery:
+- PR #632 merged at d276d90e885ccdfdf1249d2bee45c47d6c187dec.
+- No open competing Next 16 PR found.
+- Node v24.18.0 and npm 11.16.0 available through C:\Program Files\nodejs.
+- Baseline install required npm ci because node_modules was absent/stale locally.
+
+Baseline frontend validation after npm ci:
+- npm audit --omit=dev: FAIL as expected, 2 vulnerabilities (1 moderate, 1 high); remediation points to next@16.2.10.
+- npm run typecheck: PASS.
+- npm run lint: PASS.
+- npm run build: PASS, Next 14.2.35, 25 app routes generated with /strategies/[strategy_id] dynamic.
+
+Target metadata:
+- next@16.2.10 exists, requires node >=20.9.0, and accepts react/react-dom ^18.2.0 or ^19.
+- Current react/react-dom 18.3.1 satisfy target metadata.
+- eslint-config-next@16.2.10 exists and requires eslint >=9.0.0.
+
+Trial results:
+- npm install next@16.2.10 eslint-config-next@16.2.10: FAIL, ERESOLVE due eslint@8.57.0 not satisfying eslint-config-next peer.
+- npm install next@16.2.10 eslint-config-next@16.2.10 eslint@9.39.4: PASS as trial only.
+- Trial npm run typecheck: PASS.
+- Trial npm run build: PASS under Next 16.2.10.
+- Trial npm run lint: FAIL; existing next lint script no longer works as written.
+- Trial npm audit --omit=dev: FAIL, 2 moderate vulnerabilities still reported against next and nested postcss.
+- Trial edits reverted; final branch does not retain package dependency changes.
+
+Final deferred-path validation:
+- npm audit --omit=dev: FAIL as expected for deferred path, 2 vulnerabilities (1 moderate, 1 high), remediation still points to next@16.2.10.
+- npm run typecheck: initial post-trial restored run failed due stale .next generated type paths from the reverted Next 16 trial; npm run build regenerated Next 14 .next artifacts.
+- npm run typecheck rerun after build: PASS.
+- npm run lint: PASS.
+- npm run build: PASS, Next 14.2.35, 25 app routes generated with /strategies/[strategy_id] dynamic.
+- Structural no-control scan for mutation methods, forms, submit handlers, buttons, and click handlers: no matches.
+- .\.venv\Scripts\python.exe -m pytest tests/test_operator_dashboard_api.py -q: PASS, 11 passed, 1 warning.
+- .\.venv\Scripts\python.exe tools/dev/diff_scope_summary.py: PASS, forbidden-path matches none.
+- git diff --check: PASS.
+- git diff --cached --check: PASS.
+
+Boundary:
+- No dependency migration retained.
+- No frontend source changes retained.
+- No API/backend/root dependency/runtime/paper-live/protected-path changes.

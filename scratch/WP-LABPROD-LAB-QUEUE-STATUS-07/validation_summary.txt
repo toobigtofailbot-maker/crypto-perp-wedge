@@ -1,0 +1,31 @@
+WP-LABPROD-LAB-QUEUE-STATUS-07 validation summary
+
+Environment:
+- Branch: codex/wp-labprod-lab-queue-status-07
+- Base/main gate: PR #624 merged to main at 2026-07-09T14:52:09Z
+- Local main/origin main before branch: 129bb28424c825a2d0bb1607366dc09bd9ef01c1
+- Python used for repo validation: .venv/Scripts/python.exe 3.11.9
+
+Commands/results:
+- .venv/Scripts/python.exe -m py_compile tools/lab_pipeline/queue_status.py tests/test_lab_pipeline_queue_status.py: PASS
+- .venv/Scripts/python.exe -m py_compile tools/lab_pipeline/queue_status.py tests/test_lab_pipeline_queue_status.py tools/lab_pipeline/runner_adapter.py tools/lab_pipeline/gates_adapter.py tests/test_lab_pipeline_runner_adapter.py tests/test_lab_pipeline_gates_adapter.py: PASS
+- .venv/Scripts/python.exe -m pytest tests/test_lab_pipeline_queue_status.py -q: PASS, 6 passed
+- .venv/Scripts/python.exe -m pytest tests/test_lab_pipeline_orchestrator.py tests/test_lab_cockpit_pipeline_state.py -q: PASS, 36 passed
+- .venv/Scripts/python.exe -m pytest tests/test_lab_pipeline_runner_adapter.py tests/test_lab_pipeline_gates_adapter.py -q: PASS, 37 passed
+- .venv/Scripts/python.exe -m pytest tests/test_lab_approval_queue.py tests/test_lab_operator_surface.py -q: FAIL, 24 passed / 1 failed. Failure: tests/test_lab_operator_surface.py::test_batch_boundary_reflects_coverage_gap_closure expected subject_count 8 but current surface reports 9. This appears to be a stale hard-coded expectation in an existing surface test, not a queue/status implementation failure.
+- .venv/Scripts/python.exe -m json.tool scratch/WP-LABPROD-LAB-QUEUE-STATUS-07/non_authority_assertions.json: PASS
+- .venv/Scripts/python.exe -m tools.research_query.run --list-views: PASS
+- .venv/Scripts/python.exe -m tools.registry.validate_result_populations: PASS
+- .venv/Scripts/python.exe -m tools.registry.validate_candidate_registry: PASS
+- .venv/Scripts/python.exe tools/dev/diff_scope_summary.py: PASS, but reports unrelated dirty files outside this package.
+- git diff --check: PASS
+- .venv/Scripts/python.exe -m pytest -q: TIMEOUT after 304 seconds
+- .venv/Scripts/python.exe -m pytest --collect-only -q: PASS, 2662 tests collected
+
+Focused status evidence:
+- build_queue_status() over committed fixtures shows 3 runs: 1 awaiting_prereg_approval, 1 awaiting_execute_approval, 1 blocked.
+- Temp-artifact focused tests cover queued, running, complete, failed, and advisory_packet_ready.
+- Notification preview fields are dry-run only and assert notification_fired=false / dispatch_enqueued=false.
+
+Known workspace caveat:
+- The working tree contains unrelated WP-LABPROD-BOUNDED-SWEEP-SCALE-06 artifacts and runner/gates adapter edits not authored by this package. They must be isolated or reconciled before a clean package PR.

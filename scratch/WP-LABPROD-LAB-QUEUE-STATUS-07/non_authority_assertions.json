@@ -1,0 +1,18 @@
+{
+  "canonical_evidence_written": false,
+  "candidate_lifecycle_written": false,
+  "crossing": false,
+  "dependency_config_data_acquisition": false,
+  "job_execution_controls": false,
+  "notification_firing": false,
+  "paper_live_runtime_contact": false,
+  "package_id": "WP-LABPROD-LAB-QUEUE-STATUS-07",
+  "product_scratch_local_outputs": true,
+  "promotion_or_readiness": false,
+  "protected_path_touch": false,
+  "provider_api_credential_use": false,
+  "scheduler_activation": false,
+  "schema_version": "lab_queue_status_non_authority_assertions_v1",
+  "status_visibility_only": true,
+  "autonomous_dispatch": false
+}

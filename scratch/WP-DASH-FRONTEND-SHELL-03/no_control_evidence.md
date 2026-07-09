@@ -3,6 +3,11 @@
 Static verification that the frontend shell contains no write/control surface.
 Commands run from `operator_dashboard_frontend/`.
 
+> Re-verified in follow-up WP-DASH-FRONTEND-SHELL-03F after Node build fixes.
+> The two files changed during that follow-up
+> (`src/components/ReportView.tsx`, `src/app/system/data/page.tsx`) are
+> display-only rendering fixes and add no controls. All greps below still hold.
+
 ## Mutation methods (POST/PUT/PATCH/DELETE)
 
 ```

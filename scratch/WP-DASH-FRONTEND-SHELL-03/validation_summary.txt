@@ -4,67 +4,76 @@ WP-DASH-FRONTEND-SHELL-03 — Validation Summary
 Environment: Windows 11, PowerShell + Git Bash. Repo venv at
 C:\GitHub\crypto-perp-wedge\.venv (python invoked as .venv\Scripts\python.exe).
 
-BACKEND / REPO VALIDATORS (all executed here)
----------------------------------------------
-[PASS] pytest tests/test_operator_dashboard_api.py
-       -> 11 passed, 1 warning (pre-existing StarletteDeprecationWarning).
+Node validation follow-up: WP-DASH-FRONTEND-SHELL-03F
+-----------------------------------------------------
+Node.js LTS was installed via `winget install OpenJS.NodeJS.LTS` (operator
+authorized). Installed: node v24.18.0, npm 11.16.0 (C:\Program Files\nodejs).
+The full frontend toolchain was then run and all checks pass.
 
-[PASS] json.tool scratch/.../non_authority_assertions.json
-       -> parses; valid JSON.
+FRONTEND / NODE VALIDATION (executed)
+-------------------------------------
+[PASS] npm install
+       -> added 390 packages; generated operator_dashboard_frontend/package-lock.json.
+       Notes (informational, not blocking):
+         - npm allow-scripts skipped a postinstall for unrs-resolver@1.12.2
+           (npm 11 default). Lint and build both succeed without it.
+         - deprecation warnings (eslint@8, inflight, glob, rimraf) — transitive.
+         - RECOMMENDATION (out of this follow-up's scope): next@14.2.5 carries a
+           published security advisory; a patch bump to the latest 14.2.x is
+           advisable in a separate dependency-maintenance change.
 
-[PASS] python -m tools.research_query.run --list-views
-       -> view list prints normally (unchanged surface).
+[PASS] npm run typecheck   (tsc --noEmit)   -> exit 0, no errors.
+[PASS] npm run lint        (next lint)      -> exit 0, "No ESLint warnings or errors".
+[PASS] npm run build       (next build)     -> exit 0.
+       -> Compiled successfully; 25/25 pages generated (24 static ○, 1 dynamic ƒ
+          for /strategies/[strategy_id]). First Load JS ~87 kB shared.
 
-[PASS] python -m tools.registry.validate_result_populations
-       -> "OK: result-population artifacts ... validate".
+Build fixes applied (smallest change; display-only; read-only preserved)
+------------------------------------------------------------------------
+The first build surfaced 3 prerender failures ("Objects are not valid as a
+React child") caused by fixture fields that are nested objects but were rendered
+directly. Inaccurate type casts had masked this from tsc. Fixes:
 
-[PASS] python -m tools.registry.validate_candidate_registry
-       -> "OK: candidate lifecycle registry artifacts ... validate".
+  1. operator_dashboard_frontend/src/components/ReportView.tsx
+     report.counts mixes scalar totals with a nested `by_overall_state` group.
+     Now scalar counts render as stat tiles; nested groups render as key/value
+     rows. Cast corrected Record<string,number> -> Record<string,unknown>.
 
-[PASS] python tools/dev/diff_scope_summary.py
-       -> Forbidden-path matches: none. exit reason: ok.
+  2. operator_dashboard_frontend/src/app/system/data/page.tsx
+     `warnings` items are structured records ({warning_id,status,message,...}),
+     not strings. Now rendered via a warningText() guard (message or JSON).
+     Type corrected string[] -> unknown[].
 
-[PASS] git diff --check ; git diff --cached --check
-       -> clean (no whitespace/conflict errors).
-       Note: git reports CRLF->LF normalization for generated JSON fixtures
-       (informational only).
+No routes, features, controls, panels, or API contracts were added or changed.
 
-CHANGED SCOPE
--------------
-Top-level dirs touched: operator_dashboard_frontend/, scratch/, docs/ (status
-entry only). No changes to src/**, lib/**, configs/**, .claude/**, data/**,
-tools/**, tests/**, or any runtime/paper/live/protected path. The read-only
-API package tools/operator_dashboard_api/** was read for contract/fixtures only
-and NOT modified.
+BACKEND / REPO VALIDATORS (executed, re-run after fixes)
+--------------------------------------------------------
+[PASS] pytest tests/test_operator_dashboard_api.py -> 11 passed, 1 warning
+       (pre-existing StarletteDeprecationWarning).
+[PASS] json.tool scratch/.../non_authority_assertions.json -> valid JSON.
+[PASS] python -m tools.research_query.run --list-views -> prints (unchanged).
+[PASS] python -m tools.registry.validate_result_populations -> OK.
+[PASS] python -m tools.registry.validate_candidate_registry -> OK.
+[PASS] python tools/dev/diff_scope_summary.py -> Forbidden-path matches: none.
+[PASS] git diff --check ; git diff --cached --check -> clean.
 
-FRONTEND / NODE VALIDATION (NOT executed here)
-----------------------------------------------
-Node.js and npm are NOT installed on this environment (absent from both the Git
-Bash PATH and the Windows PATH). Therefore the following were NOT run here and
-MUST be run by the operator in a Node-equipped environment:
-
-  cd operator_dashboard_frontend
-  npm install
-  npm run typecheck   # tsc --noEmit
-  npm run lint        # next lint
-  npm run build       # next build
-
-The shell is authored as idiomatic Next.js 14 App Router + TypeScript strict +
-Tailwind v3 with an isolated, self-contained package.json (no root/dependency
-changes, no lockfile generated locally). No lockfile could be produced without
-npm; `npm install` will generate it.
-
-NO-CONTROL STATIC CHECK (executed here)
----------------------------------------
-See no_control_evidence.md. Summary of greps over operator_dashboard_frontend/src:
+NO-CONTROL STATIC CHECK (executed, re-run after fixes)
+------------------------------------------------------
+Greps over operator_dashboard_frontend/src:
   - method: POST/PUT/PATCH/DELETE  -> NONE
   - fetch(                         -> 1 hit, GET-only apiClient.ts (unused by pages)
-  - <form>                         -> NONE
-  - onSubmit / onClick             -> NONE
-  - <button>                       -> NONE
-  - <input> / <textarea> / <select> -> NONE
-  - control verbs                  -> only descriptive text / data-field names
+  - <form> / onSubmit / onClick / <button> / <input>/<textarea>/<select> -> NONE
 Conclusion: no write/control/mutation surface. Navigation-only interactivity.
+The two changed files are display-only and add no controls.
 
-DECISION: READY_FOR_REVIEW
-Open point: frontend typecheck/lint/build must be run where Node is installed.
+CHANGED SCOPE (this follow-up)
+------------------------------
+  M operator_dashboard_frontend/src/app/system/data/page.tsx
+  M operator_dashboard_frontend/src/components/ReportView.tsx
+  ?? operator_dashboard_frontend/package-lock.json   (standard npm output)
+node_modules/ and .next/ remain gitignored (not tracked). No changes outside
+operator_dashboard_frontend/** except this evidence file. API package unchanged.
+
+DECISION: READY_FOR_REVIEW — merge-verifiable.
+npm install / typecheck / lint / build all PASS. Recommendation (separate scope):
+bump next to a patched 14.2.x for the published security advisory.

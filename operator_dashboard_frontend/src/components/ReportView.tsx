@@ -29,7 +29,16 @@ const SECTION_KEYS = [
 export function ReportView({ envelope }: { envelope: ApiEnvelope<ReportData> }) {
   const data = envelope.data;
   const report = data.report ?? {};
-  const counts = (report.counts as Record<string, number> | undefined) ?? {};
+  const counts = (report.counts as Record<string, unknown> | undefined) ?? {};
+  // Report counts mix scalar headline totals with nested breakdown groups
+  // (e.g. by_overall_state). Render scalars as stat tiles and nested groups as
+  // key/value rows so no object is passed to React as a child.
+  const scalarCounts = Object.entries(counts).filter(
+    ([, v]) => typeof v === "number" || typeof v === "string",
+  ) as Array<[string, number | string]>;
+  const groupCounts = Object.entries(counts).filter(
+    ([, v]) => v !== null && typeof v === "object",
+  ) as Array<[string, Record<string, unknown>]>;
 
   return (
     <>
@@ -43,13 +52,32 @@ export function ReportView({ envelope }: { envelope: ApiEnvelope<ReportData> }) 
         </span>
       </div>
 
-      {Object.keys(counts).length > 0 ? (
+      {scalarCounts.length > 0 ? (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          {Object.entries(counts).map(([k, v]) => (
+          {scalarCounts.map(([k, v]) => (
             <StatCard key={k} label={k} value={v} />
           ))}
         </div>
       ) : null}
+
+      {groupCounts.map(([groupKey, group]) => (
+        <Card key={groupKey}>
+          <CardTitle>{groupKey}</CardTitle>
+          <div className="flex flex-col">
+            {Object.entries(group).map(([k, v]) => (
+              <KeyValue
+                key={k}
+                label={k}
+                value={
+                  v !== null && typeof v === "object"
+                    ? JSON.stringify(v)
+                    : String(v)
+                }
+              />
+            ))}
+          </div>
+        </Card>
+      ))}
 
       <Card>
         <CardTitle>Sections present</CardTitle>

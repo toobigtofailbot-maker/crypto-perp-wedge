@@ -10,10 +10,20 @@ export default function SystemDataPage() {
     status?: string;
     system_posture?: string;
     latest_data_slice?: Record<string, unknown>;
-    warnings?: string[];
+    warnings?: unknown[];
   };
   const slice = data.latest_data_slice ?? {};
   const warnings = Array.isArray(data.warnings) ? data.warnings : [];
+
+  // Warnings may be plain strings or structured records ({message, ...}).
+  const warningText = (w: unknown): string => {
+    if (typeof w === "string") return w;
+    if (w !== null && typeof w === "object") {
+      const message = (w as { message?: unknown }).message;
+      return typeof message === "string" ? message : JSON.stringify(w);
+    }
+    return String(w);
+  };
 
   return (
     <>
@@ -56,7 +66,7 @@ export default function SystemDataPage() {
           <CardTitle>Warnings</CardTitle>
           <ul className="flex flex-col gap-1 text-sm text-cockpit-warn">
             {warnings.map((w, i) => (
-              <li key={i}>{w}</li>
+              <li key={i}>{warningText(w)}</li>
             ))}
           </ul>
         </Card>

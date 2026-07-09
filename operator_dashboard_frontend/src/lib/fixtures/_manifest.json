@@ -1,0 +1,42 @@
+{
+  "generated_from": "tools.operator_dashboard_api.app (GET endpoints, TestClient)",
+  "note": "API-shaped read-only fixtures. Committed repo artifacts remain truth. No mutation endpoints exist.",
+  "endpoints": {
+    "dashboard_summary": {
+      "endpoint": "/api/dashboard/summary",
+      "schema_version": "operator_dashboard_api_v1"
+    },
+    "research_jobs": {
+      "endpoint": "/api/research/jobs",
+      "schema_version": "operator_dashboard_api_v1"
+    },
+    "result_populations": {
+      "endpoint": "/api/research/result-populations",
+      "schema_version": "operator_dashboard_api_v1"
+    },
+    "strategies": {
+      "endpoint": "/api/strategies",
+      "schema_version": "operator_dashboard_api_v1"
+    },
+    "candidates_funnel": {
+      "endpoint": "/api/candidates/funnel",
+      "schema_version": "operator_dashboard_api_v1"
+    },
+    "reports_daily": {
+      "endpoint": "/api/reports/daily",
+      "schema_version": "operator_dashboard_api_v1"
+    },
+    "reports_weekly": {
+      "endpoint": "/api/reports/weekly",
+      "schema_version": "operator_dashboard_api_v1"
+    },
+    "system_data_health": {
+      "endpoint": "/api/system/data-health",
+      "schema_version": "operator_dashboard_api_v1"
+    },
+    "agent_intake_schema": {
+      "endpoint": "/api/agent/intake-schema",
+      "schema_version": "operator_dashboard_api_v1"
+    }
+  }
+}

@@ -1,0 +1,230 @@
+{
+  "schema_version": "operator_dashboard_api_v1",
+  "source": "tools.lab_pipeline.queue_status.build_queue_status",
+  "provenance": [
+    {
+      "path": "tools/lab_pipeline/queue_status.py",
+      "role": "reader",
+      "note": null,
+      "sha256": "sha256:247fd01e2aeecefa1227db90388459ab7b88d156e7beed6ec24547cd27be531a"
+    },
+    {
+      "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs",
+      "role": "artifact_root",
+      "note": null,
+      "sha256": null
+    },
+    {
+      "path": "scratch/WP-LABPROD-PIPELINE-RUNNER-ADAPTER-04/outputs",
+      "role": "artifact_root",
+      "note": null,
+      "sha256": null
+    },
+    {
+      "path": "scratch/WP-LABPROD-PIPELINE-GATES-ADAPTERS-05/outputs",
+      "role": "artifact_root",
+      "note": null,
+      "sha256": null
+    }
+  ],
+  "authority": {
+    "api_projection_only": true,
+    "repo_artifacts_remain_truth": true,
+    "read_only": true,
+    "get_endpoints_only": true,
+    "not_execution_authority": true,
+    "not_approval_authority": true,
+    "not_recommendation_authority": true,
+    "not_ranking_authority": true,
+    "not_readiness_authority": true,
+    "not_promotion_authority": true,
+    "not_runtime_authority": true,
+    "not_paper_live_authority": true,
+    "not_broker_exchange_order_authority": true,
+    "not_agent_inbox_write_authority": true,
+    "not_scheduler_authority": true,
+    "not_notification_authority": true,
+    "control_surface": "none"
+  },
+  "warnings": [
+    "This API response is a derived read-only projection for local dashboard inspection. Committed repo artifacts and protected runtime truth, where later authorized snapshots exist, remain authoritative."
+  ],
+  "withheld": {
+    "notifications": "Notification fields are dry-run preview metadata only."
+  },
+  "unavailable": {},
+  "data": {
+    "schema_version": "lab_product_queue_status_v1",
+    "surface_kind": "read_only_product_lab_queue_status",
+    "allowed_status_states": [
+      "queued",
+      "running",
+      "awaiting_prereg_approval",
+      "awaiting_execute_approval",
+      "blocked",
+      "complete",
+      "failed",
+      "advisory_packet_ready"
+    ],
+    "summary": {
+      "run_count": 3,
+      "by_status": {
+        "queued": 0,
+        "running": 0,
+        "awaiting_prereg_approval": 1,
+        "awaiting_execute_approval": 1,
+        "blocked": 1,
+        "complete": 0,
+        "failed": 0,
+        "advisory_packet_ready": 0
+      },
+      "approval_needed_count": 2,
+      "blocked_count": 1,
+      "failed_count": 0,
+      "advisory_packet_ready_count": 0
+    },
+    "non_authority_declaration": {
+      "status_visibility_only": true,
+      "read_only": true,
+      "notification_firing": false,
+      "autonomous_dispatch": false,
+      "scheduler_activation": false,
+      "job_execution_controls": false,
+      "canonical_evidence_written": false,
+      "candidate_lifecycle_written": false,
+      "crossing": false,
+      "promotion_or_readiness": false,
+      "paper_live_runtime_contact": false,
+      "provider_api_credential_use": false,
+      "dependency_config_data_acquisition": false,
+      "protected_path_touch": false,
+      "has_approve_button": false,
+      "has_execute_button": false,
+      "has_retry_button": false,
+      "has_scheduler_toggle": false
+    },
+    "artifact_roots": {
+      "pipeline_runs_root": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs",
+      "runner_results_root": "scratch/WP-LABPROD-PIPELINE-RUNNER-ADAPTER-04/outputs",
+      "gates_results_root": "scratch/WP-LABPROD-PIPELINE-GATES-ADAPTERS-05/outputs"
+    },
+    "runs": [
+      {
+        "pipeline_run_id": "LPIPE-0508a68667a87ce9",
+        "request_id": "REQ-acefdf3c4ebc",
+        "source_idea": "RVOL breakout continuation on BTCUSDT with a 15m volatility filter",
+        "symbol": "BTCUSDT",
+        "timeframe": "15m",
+        "requested_by": "Karl",
+        "status": "awaiting_execute_approval",
+        "status_detail": {
+          "raw_pipeline_status": "complete",
+          "current_stage": "complete",
+          "runner_adapter_status": null,
+          "advisory_packet_status": null
+        },
+        "approval_needed": {
+          "kind": "execute_approval",
+          "needed": true,
+          "approval_scope": "noncanonical_product_runner_execution_only",
+          "approval_statement": "Authorizes only non-canonical product runner execution for the exact bridge-prepared Strategy Spec, Variant Manifest, and Sweep Plan artifacts."
+        },
+        "blocked_reasons": [],
+        "runner": null,
+        "advisory_packet": null,
+        "artifact_refs": [
+          {
+            "role": "pipeline_state",
+            "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-0508a68667a87ce9/pipeline_state.json",
+            "present": true
+          }
+        ],
+        "notification_preview": {
+          "dry_run_only": true,
+          "would_notify_operator": true,
+          "channels": [],
+          "notification_fired": false,
+          "dispatch_enqueued": false,
+          "preview_reason": "execute_approval"
+        }
+      },
+      {
+        "pipeline_run_id": "LPIPE-2201304f65ac6f79",
+        "request_id": "REQ-9704f55778e6",
+        "source_idea": "Funding-carry mean reversion on BTCUSDT over the 1h research timeframe",
+        "symbol": "BTCUSDT",
+        "timeframe": "1h",
+        "requested_by": "Karl",
+        "status": "awaiting_prereg_approval",
+        "status_detail": {
+          "raw_pipeline_status": "awaiting_prereg_approval",
+          "current_stage": "awaiting_prereg_approval",
+          "runner_adapter_status": null,
+          "advisory_packet_status": null
+        },
+        "approval_needed": {
+          "kind": "prereg_approval",
+          "needed": true,
+          "approval_scope": "noncanonical_offline_research_execution_only",
+          "packet_sha256": "sha256:3c1f76d5749a70f3ea1ceb44014b74dc133a6c13ac5f2a28831ae6083345055c"
+        },
+        "blocked_reasons": [
+          "prereg_approval_blocked:missing_prereg_approval"
+        ],
+        "runner": null,
+        "advisory_packet": null,
+        "artifact_refs": [
+          {
+            "role": "pipeline_state",
+            "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-2201304f65ac6f79/pipeline_state.json",
+            "present": true
+          }
+        ],
+        "notification_preview": {
+          "dry_run_only": true,
+          "would_notify_operator": true,
+          "channels": [],
+          "notification_fired": false,
+          "dispatch_enqueued": false,
+          "preview_reason": "prereg_approval"
+        }
+      },
+      {
+        "pipeline_run_id": "LPIPE-e7d1a256221a28aa",
+        "request_id": "REQ-0c88de81c763",
+        "source_idea": "Momentum idea on an unsupported research timeframe",
+        "symbol": "BTCUSDT",
+        "timeframe": "3m",
+        "requested_by": "Karl",
+        "status": "blocked",
+        "status_detail": {
+          "raw_pipeline_status": "blocked",
+          "current_stage": "blocked",
+          "runner_adapter_status": null,
+          "advisory_packet_status": null
+        },
+        "approval_needed": null,
+        "blocked_reasons": [
+          "availability_blocked:unsupported_timeframe"
+        ],
+        "runner": null,
+        "advisory_packet": null,
+        "artifact_refs": [
+          {
+            "role": "pipeline_state",
+            "path": "scratch/WP-LABPROD-COCKPIT-PIPELINE-STATE-02/pipeline_runs/LPIPE-e7d1a256221a28aa/pipeline_state.json",
+            "present": true
+          }
+        ],
+        "notification_preview": {
+          "dry_run_only": true,
+          "would_notify_operator": true,
+          "channels": [],
+          "notification_fired": false,
+          "dispatch_enqueued": false,
+          "preview_reason": "status_visibility_preview_no_delivery"
+        }
+      }
+    ]
+  }
+}

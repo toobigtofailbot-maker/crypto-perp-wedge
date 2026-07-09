@@ -1,0 +1,108 @@
+{
+  "schema_version": "operator_dashboard_api_v1",
+  "source": "committed repo artifacts plus static cockpit and queue readers",
+  "provenance": [
+    {
+      "path": "tools/lab_cockpit/model.py",
+      "role": "static_reader",
+      "note": null,
+      "sha256": "sha256:5ca66ce16cac38c33bfd71b4f2f0b43af48c8b1baf7d63441a5e534678c43964"
+    },
+    {
+      "path": "tools/lab_pipeline/queue_status.py",
+      "role": "static_reader",
+      "note": null,
+      "sha256": "sha256:247fd01e2aeecefa1227db90388459ab7b88d156e7beed6ec24547cd27be531a"
+    },
+    {
+      "path": "research/candidate_registry.jsonl",
+      "role": "candidate_registry",
+      "note": null,
+      "sha256": "sha256:4a3ad4b32dce9685bb2170b01935ff17e55f333c3319c356eee628790e28bef7"
+    },
+    {
+      "path": "research/result_populations",
+      "role": "result_population_directory",
+      "note": null,
+      "sha256": null
+    },
+    {
+      "path": "research/strategy_specs",
+      "role": "strategy_spec_directory",
+      "note": null,
+      "sha256": null
+    }
+  ],
+  "authority": {
+    "api_projection_only": true,
+    "repo_artifacts_remain_truth": true,
+    "read_only": true,
+    "get_endpoints_only": true,
+    "not_execution_authority": true,
+    "not_approval_authority": true,
+    "not_recommendation_authority": true,
+    "not_ranking_authority": true,
+    "not_readiness_authority": true,
+    "not_promotion_authority": true,
+    "not_runtime_authority": true,
+    "not_paper_live_authority": true,
+    "not_broker_exchange_order_authority": true,
+    "not_agent_inbox_write_authority": true,
+    "not_scheduler_authority": true,
+    "not_notification_authority": true,
+    "control_surface": "none"
+  },
+  "warnings": [
+    "This API response is a derived read-only projection for local dashboard inspection. Committed repo artifacts and protected runtime truth, where later authorized snapshots exist, remain authoritative."
+  ],
+  "withheld": {},
+  "unavailable": {
+    "paper_live_telemetry": "No paper/live read-only snapshot is authorized or present.",
+    "control_actions": "No control actions are implemented by this API."
+  },
+  "data": {
+    "status": "available",
+    "system_posture": "research_only",
+    "counts": {
+      "result_populations": 8,
+      "strategies": 6,
+      "registered_candidates": 12,
+      "queue_runs": 3,
+      "product_runs": 1,
+      "candidates_admitted": 0
+    },
+    "queue_summary": {
+      "run_count": 3,
+      "by_status": {
+        "queued": 0,
+        "running": 0,
+        "awaiting_prereg_approval": 1,
+        "awaiting_execute_approval": 1,
+        "blocked": 1,
+        "complete": 0,
+        "failed": 0,
+        "advisory_packet_ready": 0
+      },
+      "approval_needed_count": 2,
+      "blocked_count": 1,
+      "failed_count": 0,
+      "advisory_packet_ready_count": 0
+    },
+    "product_run_summary": {
+      "run_count": 1,
+      "advisory_packet_ready": 1,
+      "blocked_or_failed": 0,
+      "real_runner_runs": 1
+    },
+    "paper_trading": {
+      "status": "unavailable",
+      "reason": "No authorized read-only paper telemetry snapshot exists for this API package.",
+      "capability_built": false
+    },
+    "live_trading": {
+      "status": "unavailable",
+      "reason": "No authorized read-only live telemetry snapshot exists for this API package.",
+      "capability_built": false
+    }
+  }
+}

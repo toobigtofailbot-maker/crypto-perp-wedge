@@ -1,0 +1,96 @@
+{
+  "schema_version": "operator_dashboard_api_v1",
+  "source": "candidate registry plus static product cockpit funnel",
+  "provenance": [
+    {
+      "path": "research/candidate_registry.jsonl",
+      "role": "candidate_registry",
+      "note": null,
+      "sha256": "sha256:4a3ad4b32dce9685bb2170b01935ff17e55f333c3319c356eee628790e28bef7"
+    },
+    {
+      "path": "tools/lab_cockpit/model.py",
+      "role": "static_reader",
+      "note": null,
+      "sha256": "sha256:5ca66ce16cac38c33bfd71b4f2f0b43af48c8b1baf7d63441a5e534678c43964"
+    }
+  ],
+  "authority": {
+    "api_projection_only": true,
+    "repo_artifacts_remain_truth": true,
+    "read_only": true,
+    "get_endpoints_only": true,
+    "not_execution_authority": true,
+    "not_approval_authority": true,
+    "not_recommendation_authority": true,
+    "not_ranking_authority": true,
+    "not_readiness_authority": true,
+    "not_promotion_authority": true,
+    "not_runtime_authority": true,
+    "not_paper_live_authority": true,
+    "not_broker_exchange_order_authority": true,
+    "not_agent_inbox_write_authority": true,
+    "not_scheduler_authority": true,
+    "not_notification_authority": true,
+    "control_surface": "none"
+  },
+  "warnings": [
+    "This API response is a derived read-only projection for local dashboard inspection. Committed repo artifacts and protected runtime truth, where later authorized snapshots exist, remain authoritative."
+  ],
+  "withheld": {
+    "candidate_admission": "No committed candidate admission is created or implied by this endpoint."
+  },
+  "unavailable": {
+    "paper_live_capability": "No paper/live capability is built by this dashboard API package."
+  },
+  "data": {
+    "status": "available",
+    "candidate_registry": {
+      "registered_count": 12,
+      "by_status": {
+        "CONCLUDED": 11,
+        "DRAFT": 1
+      },
+      "by_overall_verdict": {
+        "NO-GO": 11,
+        "PENDING": 1
+      },
+      "admitted_candidate_count": 0,
+      "paper_live_built": false
+    },
+    "product_candidate_funnel": {
+      "available": true,
+      "candidate_admitted_count": 0,
+      "winner_only_view": false,
+      "note": "Advisory surface routing is review-routing only; no candidate is admitted, crossed, promoted, or marked ready by this cockpit.",
+      "stages": [
+        {
+          "stage": "runner_rows_preserved",
+          "label": "Runner rows preserved (full denominator)",
+          "count": 8
+        },
+        {
+          "stage": "runner_completed_rows",
+          "label": "Completed runner rows",
+          "count": 8
+        },
+        {
+          "stage": "advisory_packet_ready",
+          "label": "Advisory review packets ready",
+          "count": 1
+        },
+        {
+          "stage": "surface_hold_for_review",
+          "label": "Routed hold-for-review (advisory only)",
+          "count": 0
+        },
+        {
+          "stage": "candidate_admitted",
+          "label": "Candidates admitted",
+          "count": 0
+        }
+      ]
+    },
+    "note": "Candidate funnel is read-only. GO-like review routing, when present, is advisory review routing only and admits no candidate."
+  }
+}

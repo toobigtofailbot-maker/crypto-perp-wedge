@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 import shutil
 from datetime import datetime, timezone
@@ -16,13 +17,23 @@ from tools.registry.validate_variant_sweep_artifacts import validate_variant_swe
 from tools.research_agents.formalizer_runner_bridge import (
     APPROVAL_SCOPE,
     FORMALIZER_OUTPUT_PREFIX,
+    PRODUCT_APPROVAL_CONTENT_HASH_FIELD,
+    PRODUCT_APPROVAL_SCOPE,
+    PRODUCT_APPROVAL_SCHEMA_VERSION,
+    PRODUCT_APPROVAL_STATEMENT,
+    PRODUCT_BRIDGE_INVOCATION_MODE,
+    PRODUCT_BRIDGE_PREPARE_WP_ID,
+    PRODUCT_BRIDGE_STAGE_IDENTITY,
+    PRODUCT_FALSE_AUTHORITY_FLAGS,
     NON_AUTHORITY_FLAGS,
     ROLE,
     TRIAL_STATUSES,
     WP_ID,
     FormalizerRunnerBridge,
     FormalizerRunnerBridgeConfig,
+    FormalizerRunnerBridgeError,
     FUNDING_RESEARCH_WP_ID,
+    _approval_content_hash,
 )
 from tools.research_agents.idea_formalizer_agent import (
     AVAILABILITY_CATALOG_PATH,
@@ -197,10 +208,104 @@ def _setup_source(
     return formalizer_path, approval_path, fixture_path
 
 
+def _file_sha256(root: Path, relative: str) -> str:
+    return "sha256:" + hashlib.sha256((root / relative).read_bytes()).hexdigest()
+
+
+def _setup_product_source(
+    root: Path,
+    *,
+    approval_overrides: dict | None = None,
+    corrupt_approval_content_hash: bool = False,
+    approval_path_override: str | None = None,
+    product_packet_path_override: str | None = None,
+    formalizer_path_override: str | None = None,
+) -> tuple[str, str, str, str]:
+    run_id = "productbridge1"
+    prefix = f"scratch/{PRODUCT_BRIDGE_PREPARE_WP_ID}/outputs/{run_id}"
+    formalizer_path = formalizer_path_override or f"{prefix}/formalized_idea.json"
+    draft_path = f"{prefix}/STRAT-SPEC-9001.strategy_spec.json"
+    product_packet_path = product_packet_path_override or f"{prefix}/source_product_packet.json"
+    output_root = f"scratch/{PRODUCT_BRIDGE_PREPARE_WP_ID}/outputs"
+    assessments = [_feature_assessment("sma"), _feature_assessment("stddev")]
+    formalized = {
+        "schema_version": "agent_formalized_idea_v1",
+        "run_id": run_id,
+        "status": "accepted",
+        "input": {
+            "idea": "Fade z-score extremes using SMA and standard deviation.",
+            "symbol": "BTCUSDT",
+            "timeframe": "15m",
+        },
+        "capability_assessment": {
+            "detected_features": [row["feature"] for row in assessments],
+            "feature_assessments": assessments,
+            "historically_testable_now": True,
+            "blocking_features": [],
+        },
+        "research_object": {
+            "summary": "bounded SMA/stddev mean-reversion idea",
+            "symbols": ["BTCUSDT"],
+            "timeframe": "15m",
+            "features": [row["feature"] for row in assessments],
+        },
+        "draft_strategy_spec": {"produced": True, "path": draft_path, "blockers": []},
+        "non_authority": {"scratch_only": True, "not_canonical": True},
+    }
+    product_packet = {
+        "schema_version": "lab_product_bridge_source_packet_v1",
+        "pipeline_run_id": "PIPELINE-PRODUCT-BRIDGE-0001",
+        "bridge_stage_identity": PRODUCT_BRIDGE_STAGE_IDENTITY,
+        "source_formalizer_output_path": formalizer_path,
+        "non_authority": {"scratch_only": True},
+    }
+    _write_json(root, draft_path, _draft_strategy_spec(formalizer_path))
+    _write_json(root, formalizer_path, formalized)
+    _write_json(root, product_packet_path, product_packet)
+    approval = {
+        "schema_version": PRODUCT_APPROVAL_SCHEMA_VERSION,
+        "approved_by": "Karl",
+        "approval_scope": PRODUCT_APPROVAL_SCOPE,
+        "approval_statement": PRODUCT_APPROVAL_STATEMENT,
+        "approval_timestamp_utc": "2000-01-01T00:00:00Z",
+        "source_product_packet_path": product_packet_path,
+        "source_product_packet_sha256": _file_sha256(root, product_packet_path),
+        "source_formalizer_output_path": formalizer_path,
+        "source_formalizer_output_sha256": _file_sha256(root, formalizer_path),
+        "source_formalizer_run_id": run_id,
+        "product_pipeline_run_id": product_packet["pipeline_run_id"],
+        "bridge_stage_identity": PRODUCT_BRIDGE_STAGE_IDENTITY,
+        "product_mode_output_root": output_root,
+        "authorizes_bridge_preparation": True,
+        **{field: False for field in PRODUCT_FALSE_AUTHORITY_FLAGS},
+    }
+    approval.update(approval_overrides or {})
+    approval[PRODUCT_APPROVAL_CONTENT_HASH_FIELD] = _approval_content_hash(approval)
+    if corrupt_approval_content_hash:
+        approval[PRODUCT_APPROVAL_CONTENT_HASH_FIELD] = "sha256:" + "0" * 64
+    approval_path = approval_path_override or f"{prefix}/karl_bridge_preparation_approval.json"
+    _write_json(root, approval_path, approval)
+    fixture_path = _write_ohlcv_fixture(root)
+    return formalizer_path, approval_path, product_packet_path, fixture_path
+
+
 def _context() -> tuple[ToolContext, MemoryAuditSink]:
     sink = MemoryAuditSink()
     return (
         ToolContext(wp_id=WP_ID, role=ROLE, audit_sink=sink, clock=lambda: FIXED_TIME),
+        sink,
+    )
+
+
+def _product_context() -> tuple[ToolContext, MemoryAuditSink]:
+    sink = MemoryAuditSink()
+    return (
+        ToolContext(
+            wp_id=PRODUCT_BRIDGE_PREPARE_WP_ID,
+            role=ROLE,
+            audit_sink=sink,
+            clock=lambda: FIXED_TIME,
+        ),
         sink,
     )
 
@@ -218,6 +323,35 @@ def _run(root: Path, *, config: FormalizerRunnerBridgeConfig | None = None, **so
         bridge.run(
             formalizer_output_path=formalizer_path,
             approval_path=approval_path,
+        ),
+        sink,
+    )
+
+
+def _run_product(
+    root: Path,
+    *,
+    approval_overrides: dict | None = None,
+    corrupt_approval_content_hash: bool = False,
+):
+    _copy_templates(root)
+    formalizer_path, approval_path, product_packet_path, fixture_path = _setup_product_source(
+        root,
+        approval_overrides=approval_overrides,
+        corrupt_approval_content_hash=corrupt_approval_content_hash,
+    )
+    context, sink = _product_context()
+    bridge = FormalizerRunnerBridge(
+        config=FormalizerRunnerBridgeConfig(ohlcv_input_path=fixture_path),
+        tool_context=context,
+        repo_root=root,
+        bridge_invocation_mode=PRODUCT_BRIDGE_INVOCATION_MODE,
+    )
+    return (
+        bridge.run(
+            formalizer_output_path=formalizer_path,
+            approval_path=approval_path,
+            source_product_packet_path=product_packet_path,
         ),
         sink,
     )
@@ -263,6 +397,359 @@ def test_approved_bridge_runs_real_runner_and_reconciles(tmp_path: Path):
         record.action_type == RUN_NONCANONICAL_OFFLINE_SWEEP and record.decision == "allowed"
         for record in sink.records
     )
+
+
+def test_legacy_bridge_byte_regression_fixture_remains_stable(tmp_path: Path):
+    result, sink = _run(tmp_path)
+
+    assert result["run_id"] == "c81e86a223723b97"
+    assert result["status"] == "completed"
+    assert result["trial_status_counts"] == {
+        "completed": 8,
+        "failed": 0,
+        "invalid": 0,
+        "pruned": 0,
+        "blocked": 0,
+    }
+    expected_paths = {
+        "strategy_spec": (
+            "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/"
+            "c81e86a223723b97/inputs/STRAT-SPEC-9001.strategy_spec.json"
+        ),
+        "variant_manifest": (
+            "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/"
+            "c81e86a223723b97/inputs/VM-9746.variant_manifest.json"
+        ),
+        "sweep_plan": (
+            "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/"
+            "c81e86a223723b97/inputs/SWEEP-PLAN-9746.sweep_plan.json"
+        ),
+        "denominator_ledger": (
+            "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/"
+            "c81e86a223723b97/denominator_ledger.json"
+        ),
+        "human_review_packet": (
+            "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/"
+            "c81e86a223723b97/human_review_packet.json"
+        ),
+        "runner_result": (
+            "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/"
+            "c81e86a223723b97/runner_artifacts/RP-6475.result_population.json"
+        ),
+    }
+    expected_hashes = {
+        "strategy_spec": "sha256:2152be54645c20bc0a320142002abfb3a223f28f7ca7c1f9cbbd638d9e03caae",
+        "variant_manifest": "sha256:ad0ec366a903bbd12f8a06d50d6a61cdff452d4bdeab6d859ce29f2bd13f947c",
+        "sweep_plan": "sha256:9dce4b61acfad4b04f1e38836b3fb8297122a6a6b0e82e6c35c2ab1a591c2254",
+        "denominator_ledger": "sha256:bca1017aa5771bc6949a7cd61d9883994d45786e7fda2a937bcc7eab41aebf31",
+        "human_review_packet": "sha256:650a3559582c12ad7f7150279b76a0a779db498f3ed8c85d740e723fb2959c2f",
+        "runner_result": "sha256:e391705cd21b8cdabddb092b4a55907f0855077716194ae064326c2ad521a645",
+    }
+    for key, expected_path in expected_paths.items():
+        assert result["artifact_paths"][key] == expected_path
+        assert _file_sha256(tmp_path, expected_path) == expected_hashes[key]
+    assert (
+        sum(
+            1
+            for record in sink.records
+            if record.action_type == RUN_NONCANONICAL_OFFLINE_SWEEP
+            and record.decision == "allowed"
+        )
+        == 2
+    )
+
+
+def test_product_bridge_prepare_only_writes_product_scratch_and_never_runs_runner(
+    tmp_path: Path,
+):
+    result, sink = _run_product(tmp_path)
+
+    assert result["status"] == "prepared"
+    assert result["trial_status_counts"] == {
+        "completed": 0,
+        "failed": 0,
+        "invalid": 0,
+        "pruned": 0,
+        "blocked": 8,
+    }
+    assert result["artifact_paths"]["runner_result"] is None
+    assert result["artifact_paths"]["runner_results"] == {}
+    assert not any(record.action_type == RUN_NONCANONICAL_OFFLINE_SWEEP for record in sink.records)
+    assert (
+        sum(record.action_type == "run_read_only_validation" for record in sink.records)
+        >= 3
+    )
+    assert not (tmp_path / f"scratch/{PRODUCT_BRIDGE_PREPARE_WP_ID}/outputs" / result["run_id"] / "runner_artifacts").exists()
+    for path in (
+        result["artifact_paths"]["strategy_spec"],
+        result["artifact_paths"]["variant_manifest"],
+        result["artifact_paths"]["sweep_plan"],
+        result["artifact_paths"]["denominator_ledger"],
+        result["artifact_paths"]["human_review_packet"],
+    ):
+        assert path.startswith(f"scratch/{PRODUCT_BRIDGE_PREPARE_WP_ID}/outputs/")
+        assert (tmp_path / path).is_file()
+    review = json.loads((tmp_path / result["artifact_paths"]["human_review_packet"]).read_text())
+    assert review["validation_status"] == "prepared"
+    assert review["runner_invocation_metadata"]["runner_invoked"] is False
+    assert review["runner_invocation_metadata"]["runner_boundary"] == "not_requested"
+    assert review["runner_artifact_paths"] == []
+    assert (
+        review["product_bridge_preparation_metadata"]["stale_approval_policy"]
+        == "content_bound_no_wall_clock_expiry"
+    )
+    input_dir = (tmp_path / result["artifact_paths"]["strategy_spec"]).parent
+    assert validate_strategy_specs(strategy_specs_dir=input_dir) == []
+    assert (
+        validate_variant_sweep_artifacts(
+            strategy_specs_dir=input_dir,
+            variant_manifests_dir=input_dir,
+            sweep_plans_dir=input_dir,
+        )
+        == []
+    )
+
+
+@pytest.mark.parametrize(
+    "approval_overrides",
+    [
+        {"approved_by": "operator"},
+        {"approval_scope": APPROVAL_SCOPE},
+        {"approval_statement": "Approve something broader."},
+        {"approval_timestamp_utc": ""},
+        {"approval_timestamp_utc": "not-a-timestamp"},
+        {"source_product_packet_sha256": "sha256:" + "1" * 64},
+        {"source_formalizer_output_sha256": "sha256:" + "2" * 64},
+        {"source_formalizer_run_id": "other-run"},
+        {"product_pipeline_run_id": "other-product-run"},
+        {"bridge_stage_identity": "runner_execution"},
+        {"product_mode_output_root": "scratch/other/outputs"},
+        {"authorizes_bridge_preparation": False},
+    ],
+)
+def test_product_bridge_approval_mismatch_fails_closed(
+    tmp_path: Path,
+    approval_overrides: dict,
+):
+    with pytest.raises(BlockedActionError):
+        _run_product(tmp_path, approval_overrides=approval_overrides)
+
+
+@pytest.mark.parametrize("flag", PRODUCT_FALSE_AUTHORITY_FLAGS)
+def test_product_bridge_rejects_any_protected_authority_flag_true(
+    tmp_path: Path,
+    flag: str,
+):
+    with pytest.raises(BlockedActionError):
+        _run_product(tmp_path, approval_overrides={flag: True})
+
+
+def test_product_bridge_rejects_approval_content_hash_mismatch(tmp_path: Path):
+    with pytest.raises(BlockedActionError):
+        _run_product(tmp_path, corrupt_approval_content_hash=True)
+
+
+def test_product_bridge_rejects_legacy_operator_approval(tmp_path: Path):
+    _copy_templates(tmp_path)
+    formalizer_path, _, product_packet_path, fixture_path = _setup_product_source(tmp_path)
+    approval_path = _write_json(
+        tmp_path,
+        f"scratch/{PRODUCT_BRIDGE_PREPARE_WP_ID}/outputs/productbridge1/operator_bridge_approval.json",
+        {
+            "approved_for_noncanonical_runner_bridge": True,
+            "approved_by": "operator",
+            "approval_scope": APPROVAL_SCOPE,
+            "approval_timestamp_utc": "2026-06-22T00:00:00Z",
+            "source_formalizer_run_id": "productbridge1",
+        },
+    )
+    context, _ = _product_context()
+    bridge = FormalizerRunnerBridge(
+        config=FormalizerRunnerBridgeConfig(ohlcv_input_path=fixture_path),
+        tool_context=context,
+        repo_root=tmp_path,
+        bridge_invocation_mode=PRODUCT_BRIDGE_INVOCATION_MODE,
+    )
+
+    with pytest.raises(BlockedActionError):
+        bridge.run(
+            formalizer_output_path=formalizer_path,
+            approval_path=approval_path,
+            source_product_packet_path=product_packet_path,
+        )
+
+
+def test_product_bridge_rejects_broad_pipeline_prereg_approval(tmp_path: Path):
+    _copy_templates(tmp_path)
+    formalizer_path, _, product_packet_path, fixture_path = _setup_product_source(tmp_path)
+    approval_path = _write_json(
+        tmp_path,
+        f"scratch/{PRODUCT_BRIDGE_PREPARE_WP_ID}/outputs/productbridge1/pipeline_prereg_approval.json",
+        {
+            "schema_version": "lab_pipeline_prereg_approval_v1",
+            "approved_by": "Karl",
+            "approval_scope": "noncanonical_offline_research_execution_only",
+            "approval_statement": (
+                "Authorizes only non-canonical offline research execution for the exact "
+                "frozen preregistration packet content."
+            ),
+            "approval_timestamp_utc": "2026-07-08T00:00:00Z",
+            "authorizes_noncanonical_offline_research_execution": True,
+            "authorizes_canonical_write": False,
+            "authorizes_candidate_lifecycle": False,
+            "authorizes_paper_live_runtime": False,
+            "authorizes_scheduler_autonomy": False,
+            "authorizes_notifications": False,
+        },
+    )
+    context, _ = _product_context()
+    bridge = FormalizerRunnerBridge(
+        config=FormalizerRunnerBridgeConfig(ohlcv_input_path=fixture_path),
+        tool_context=context,
+        repo_root=tmp_path,
+        bridge_invocation_mode=PRODUCT_BRIDGE_INVOCATION_MODE,
+    )
+
+    with pytest.raises(BlockedActionError):
+        bridge.run(
+            formalizer_output_path=formalizer_path,
+            approval_path=approval_path,
+            source_product_packet_path=product_packet_path,
+        )
+
+
+def test_product_bridge_accepts_old_timestamp_without_wall_clock_expiry(tmp_path: Path):
+    result, _ = _run_product(
+        tmp_path,
+        approval_overrides={"approval_timestamp_utc": "1999-12-31T23:59:59Z"},
+    )
+
+    assert result["status"] == "prepared"
+
+
+def test_product_bridge_does_not_call_runner_even_with_unblocked_inputs(
+    tmp_path: Path,
+    monkeypatch,
+):
+    def fail_runner(*args, **kwargs):
+        raise AssertionError("product mode must not invoke the runner")
+
+    monkeypatch.setattr(FormalizerRunnerBridge, "_invoke_runner", fail_runner)
+    result, sink = _run_product(tmp_path)
+
+    assert result["status"] == "prepared"
+    assert not any(record.action_type == RUN_NONCANONICAL_OFFLINE_SWEEP for record in sink.records)
+
+
+def test_product_bridge_invalid_draft_fails_closed_without_runner_artifacts(
+    tmp_path: Path,
+):
+    _copy_templates(tmp_path)
+    formalizer_path, approval_path, product_packet_path, fixture_path = _setup_product_source(tmp_path)
+    formalized = json.loads((tmp_path / formalizer_path).read_text())
+    draft_path = formalized["draft_strategy_spec"]["path"]
+    draft = json.loads((tmp_path / draft_path).read_text())
+    draft["strategy_spec_id"] = ""
+    _write_json(tmp_path, draft_path, draft)
+    context, sink = _product_context()
+    bridge = FormalizerRunnerBridge(
+        config=FormalizerRunnerBridgeConfig(ohlcv_input_path=fixture_path),
+        tool_context=context,
+        repo_root=tmp_path,
+        bridge_invocation_mode=PRODUCT_BRIDGE_INVOCATION_MODE,
+    )
+
+    with pytest.raises(FormalizerRunnerBridgeError, match="draft Strategy Spec validation failed"):
+        bridge.run(
+            formalizer_output_path=formalizer_path,
+            approval_path=approval_path,
+            source_product_packet_path=product_packet_path,
+        )
+    product_outputs = tmp_path / "scratch" / PRODUCT_BRIDGE_PREPARE_WP_ID / "outputs"
+    assert not list(product_outputs.rglob("runner_artifacts"))
+    assert not list(product_outputs.rglob("denominator_ledger.json"))
+    assert not list(product_outputs.rglob("human_review_packet.json"))
+    assert not any(record.action_type == RUN_NONCANONICAL_OFFLINE_SWEEP for record in sink.records)
+
+
+def test_product_bridge_rejects_paths_outside_product_scratch(tmp_path: Path):
+    _copy_templates(tmp_path)
+    formalizer_path, approval_path, product_packet_path, fixture_path = _setup_product_source(
+        tmp_path,
+        product_packet_path_override="scratch/OTHER-PACKAGE/source_product_packet.json",
+    )
+    context, _ = _product_context()
+    bridge = FormalizerRunnerBridge(
+        config=FormalizerRunnerBridgeConfig(ohlcv_input_path=fixture_path),
+        tool_context=context,
+        repo_root=tmp_path,
+        bridge_invocation_mode=PRODUCT_BRIDGE_INVOCATION_MODE,
+    )
+
+    with pytest.raises(FormalizerRunnerBridgeError, match="source product packet"):
+        bridge.run(
+            formalizer_output_path=formalizer_path,
+            approval_path=approval_path,
+            source_product_packet_path=product_packet_path,
+        )
+
+
+def test_product_bridge_rejects_output_root_outside_product_scratch(tmp_path: Path):
+    context, _ = _product_context()
+
+    with pytest.raises(FormalizerRunnerBridgeError, match="product output root"):
+        FormalizerRunnerBridge(
+            config=FormalizerRunnerBridgeConfig(ohlcv_input_path="unused.csv"),
+            tool_context=context,
+            repo_root=tmp_path,
+            bridge_invocation_mode=PRODUCT_BRIDGE_INVOCATION_MODE,
+            product_output_root="scratch/OTHER-PACKAGE/outputs",
+        )
+
+
+def test_product_bridge_rejects_legacy_wp_identity_in_product_mode(tmp_path: Path):
+    context, _ = _context()
+
+    with pytest.raises(ValueError, match="product bridge preparation"):
+        FormalizerRunnerBridge(
+            config=FormalizerRunnerBridgeConfig(ohlcv_input_path="unused.csv"),
+            tool_context=context,
+            repo_root=tmp_path,
+            bridge_invocation_mode=PRODUCT_BRIDGE_INVOCATION_MODE,
+        )
+
+
+def test_legacy_mode_rejects_product_wp_and_product_approval(tmp_path: Path):
+    context, _ = _product_context()
+    with pytest.raises(ValueError, match="exact ToolContext role and WP"):
+        FormalizerRunnerBridge(
+            config=FormalizerRunnerBridgeConfig(ohlcv_input_path="unused.csv"),
+            tool_context=context,
+            repo_root=tmp_path,
+        )
+
+    _copy_templates(tmp_path)
+    _, approval_path, _, fixture_path = _setup_product_source(tmp_path)
+    legacy_context, _ = _context()
+    legacy_bridge = FormalizerRunnerBridge(
+        config=FormalizerRunnerBridgeConfig(ohlcv_input_path=fixture_path),
+        tool_context=legacy_context,
+        repo_root=tmp_path,
+    )
+    approval = json.loads((tmp_path / approval_path).read_text())
+    with pytest.raises(BlockedActionError):
+        legacy_bridge._require_approval(
+            approval,
+            source_run_id="productbridge1",
+            approval_path=(
+                "scratch/WP-AGENT-IDEA-FORMALIZER-01/outputs/"
+                "productbridge1/karl_bridge_preparation_approval.json"
+            ),
+            formalizer_path=(
+                "scratch/WP-AGENT-IDEA-FORMALIZER-01/outputs/"
+                "productbridge1/formalized_idea.json"
+            ),
+        )
 
 
 def test_funding_bridge_emits_valid_18_row_halves_and_compiles(tmp_path: Path):

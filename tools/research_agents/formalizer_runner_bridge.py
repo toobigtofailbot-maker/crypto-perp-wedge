@@ -7,7 +7,8 @@ import hashlib
 import json
 from collections import Counter
 from dataclasses import dataclass
-from pathlib import Path
+from datetime import datetime
+from pathlib import Path, PurePosixPath
 from typing import Any, Mapping, Sequence
 
 from tools.agent_sandbox import BlockedActionError, ToolAction, ToolContext
@@ -28,12 +29,36 @@ DONCHIAN_ADAPTER_WP_ID = "WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01"
 FUNDING_RESEARCH_WP_ID = "WP-RESEARCH-FUNDING-CARRY-02"
 ROLE = "formalizer_runner_bridge"
 OUTPUT_ROOT = Path("scratch") / WP_ID / "outputs"
+LEGACY_BRIDGE_INVOCATION_MODE = "legacy_bridge_run"
+PRODUCT_BRIDGE_INVOCATION_MODE = "product_bridge_prepare_only"
+PRODUCT_BRIDGE_PREPARE_WP_ID = "WP-LABPROD-BRIDGE-PRODUCT-MODE-IMPLEMENT-01B"
+PRODUCT_BRIDGE_PREPARE_WP_IDS = frozenset({PRODUCT_BRIDGE_PREPARE_WP_ID})
 FORMALIZER_OUTPUT_PREFIX = "scratch/WP-AGENT-IDEA-FORMALIZER-01/outputs/"
 DONCHIAN_FORMALIZER_OUTPUT_PREFIX = (
     "scratch/WP-AGENT-ADAPTER-DONCHIAN-FAMILY-01/formalizer/outputs/"
 )
 FUNDING_FORMALIZER_OUTPUT_PREFIX = "scratch/WP-RESEARCH-FUNDING-CARRY-02/outputs/"
 APPROVAL_SCOPE = "noncanonical_scratch_runner_bridge_only"
+PRODUCT_APPROVAL_SCHEMA_VERSION = "product_bridge_preparation_approval_v1"
+PRODUCT_APPROVAL_SCOPE = "noncanonical_product_bridge_preparation_only"
+PRODUCT_APPROVAL_STATEMENT = (
+    "Authorizes only non-canonical product bridge preparation for the exact frozen "
+    "source product packet and formalizer output content."
+)
+PRODUCT_BRIDGE_STAGE_IDENTITY = "bridge_spec_variant_sweep_preparation"
+PRODUCT_APPROVAL_CONTENT_HASH_FIELD = "approval_marker_content_sha256"
+PRODUCT_PREPARE_ONLY_REASON = "product bridge prepare-only mode stops before runner execution"
+PRODUCT_FALSE_AUTHORITY_FLAGS = (
+    "authorizes_runner_execution",
+    "authorizes_canonical_write",
+    "authorizes_candidate_lifecycle",
+    "authorizes_paper_live_runtime",
+    "authorizes_scheduler_autonomy",
+    "authorizes_notification",
+    "authorizes_provider_api_credential",
+    "authorizes_dependency_config_data_acquisition",
+    "authorizes_protected_path_touch",
+)
 BRIDGE_VERSION = "formalizer-runner-bridge-v1"
 VARIANT_TEMPLATE_PATH = Path("research/variant_manifests/VM-0003.variant_manifest.json")
 SWEEP_TEMPLATE_PATH = Path("research/sweep_plans/SWEEP-PLAN-0003.sweep_plan.json")
@@ -98,6 +123,41 @@ def _sha256_bytes(value: bytes) -> str:
     return "sha256:" + hashlib.sha256(value).hexdigest()
 
 
+def _approval_content_hash(approval: Mapping[str, Any]) -> str:
+    scoped = dict(approval)
+    scoped.pop(PRODUCT_APPROVAL_CONTENT_HASH_FIELD, None)
+    return _sha256(scoped)
+
+
+def _parse_utc_like_timestamp(value: Any) -> None:
+    if not isinstance(value, str) or not value.strip():
+        raise FormalizerRunnerBridgeError("approval timestamp is required")
+    timestamp = value.strip()
+    if not timestamp.endswith("Z"):
+        raise FormalizerRunnerBridgeError("approval timestamp must be UTC-like ISO-8601 with Z")
+    try:
+        datetime.fromisoformat(timestamp[:-1] + "+00:00")
+    except ValueError as exc:
+        raise FormalizerRunnerBridgeError("approval timestamp is malformed") from exc
+
+
+def _safe_relative_parts(path: str) -> tuple[str, ...]:
+    pure = PurePosixPath(path.replace("\\", "/"))
+    if pure.is_absolute() or any(part in {"", ".", ".."} for part in pure.parts):
+        raise FormalizerRunnerBridgeError("path must be a safe repo-relative path")
+    if pure.parts and pure.parts[0].endswith(":"):
+        raise FormalizerRunnerBridgeError("path must be a safe repo-relative path")
+    return pure.parts
+
+
+def _path_is_under(path: str, prefix: str, *, allow_equal: bool = False) -> bool:
+    path_parts = _safe_relative_parts(path)
+    prefix_parts = _safe_relative_parts(prefix.rstrip("/") + "/sentinel")[:-1]
+    if allow_equal and path_parts == prefix_parts:
+        return True
+    return len(path_parts) > len(prefix_parts) and path_parts[: len(prefix_parts)] == prefix_parts
+
+
 def _get_path(payload: Mapping[str, Any], dotted_path: str) -> Any:
     current: Any = payload
     for part in dotted_path.split("."):
@@ -124,17 +184,43 @@ class FormalizerRunnerBridge:
         config: FormalizerRunnerBridgeConfig,
         tool_context: ToolContext,
         repo_root: Path = REPO_ROOT,
+        bridge_invocation_mode: str = LEGACY_BRIDGE_INVOCATION_MODE,
+        product_output_root: Path | str | None = None,
     ) -> None:
-        if tool_context.role != ROLE or tool_context.wp_id not in {
-            WP_ID,
-            DONCHIAN_ADAPTER_WP_ID,
-            FUNDING_RESEARCH_WP_ID,
+        if bridge_invocation_mode not in {
+            LEGACY_BRIDGE_INVOCATION_MODE,
+            PRODUCT_BRIDGE_INVOCATION_MODE,
         }:
-            raise ValueError("FormalizerRunnerBridge requires its exact ToolContext role and WP")
+            raise ValueError("unsupported bridge invocation mode")
+        if bridge_invocation_mode == LEGACY_BRIDGE_INVOCATION_MODE:
+            if tool_context.role != ROLE or tool_context.wp_id not in {
+                WP_ID,
+                DONCHIAN_ADAPTER_WP_ID,
+                FUNDING_RESEARCH_WP_ID,
+            }:
+                raise ValueError("FormalizerRunnerBridge requires its exact ToolContext role and WP")
+            output_root = Path("scratch") / tool_context.wp_id / "outputs"
+        else:
+            if tool_context.role != ROLE or tool_context.wp_id not in PRODUCT_BRIDGE_PREPARE_WP_IDS:
+                raise ValueError(
+                    "product bridge preparation requires its exact ToolContext role and WP"
+                )
+            output_root = (
+                Path(product_output_root)
+                if product_output_root is not None
+                else Path("scratch") / tool_context.wp_id / "outputs"
+            )
         self.config = config
         self.tool_context = tool_context
         self.repo_root = repo_root.resolve()
-        self.output_root = Path("scratch") / tool_context.wp_id / "outputs"
+        self.bridge_invocation_mode = bridge_invocation_mode
+        self.output_root = Path(self._repo_relative(output_root))
+        if self.bridge_invocation_mode == PRODUCT_BRIDGE_INVOCATION_MODE:
+            self._require_product_local_relative(
+                self.output_root.as_posix(),
+                label="product output root",
+                require_outputs=True,
+            )
 
     def _repo_relative(self, path: Path | str) -> str:
         candidate = Path(path)
@@ -147,6 +233,24 @@ class FormalizerRunnerBridge:
         if normalized == ".." or normalized.startswith("../"):
             raise FormalizerRunnerBridgeError("path must remain inside the repo")
         return normalized
+
+    def _product_scratch_prefix(self, *, require_outputs: bool = False) -> str:
+        prefix = f"scratch/{self.tool_context.wp_id}/"
+        if require_outputs:
+            prefix += "outputs/"
+        return prefix
+
+    def _require_product_local_relative(
+        self,
+        path: str,
+        *,
+        label: str,
+        require_outputs: bool = False,
+    ) -> str:
+        prefix = self._product_scratch_prefix(require_outputs=require_outputs)
+        if not _path_is_under(path, prefix, allow_equal=require_outputs):
+            raise FormalizerRunnerBridgeError(f"{label} must remain under {prefix}")
+        return path
 
     def _read_bytes(self, path: Path | str) -> bytes:
         relative = self._repo_relative(path)
@@ -183,10 +287,14 @@ class FormalizerRunnerBridge:
     def _validate_formalizer_contract(
         self, path: str, payload: Mapping[str, Any]
     ) -> str:
-        expected_prefix = {
-            DONCHIAN_ADAPTER_WP_ID: DONCHIAN_FORMALIZER_OUTPUT_PREFIX,
-            FUNDING_RESEARCH_WP_ID: FUNDING_FORMALIZER_OUTPUT_PREFIX,
-        }.get(self.tool_context.wp_id, FORMALIZER_OUTPUT_PREFIX)
+        expected_prefix = (
+            self._product_scratch_prefix()
+            if self.bridge_invocation_mode == PRODUCT_BRIDGE_INVOCATION_MODE
+            else {
+                DONCHIAN_ADAPTER_WP_ID: DONCHIAN_FORMALIZER_OUTPUT_PREFIX,
+                FUNDING_RESEARCH_WP_ID: FUNDING_FORMALIZER_OUTPUT_PREFIX,
+            }.get(self.tool_context.wp_id, FORMALIZER_OUTPUT_PREFIX)
+        )
         if not path.startswith(expected_prefix) or not path.endswith("/formalized_idea.json"):
             raise FormalizerRunnerBridgeError(
                 "formalizer output must be the scoped scratch artifact"
@@ -275,13 +383,71 @@ class FormalizerRunnerBridge:
             raise
         raise AssertionError("unapproved bridge was unexpectedly allowed")
 
+    def _require_product_approval(
+        self,
+        approval: Mapping[str, Any],
+        *,
+        product_packet: Mapping[str, Any],
+        source_product_packet_path: str,
+        source_product_packet_hash: str,
+        source_formalizer_path: str,
+        source_formalizer_hash: str,
+        source_formalizer_run_id: str,
+        approval_path: str,
+    ) -> None:
+        errors: list[str] = []
+        try:
+            _parse_utc_like_timestamp(approval.get("approval_timestamp_utc"))
+        except FormalizerRunnerBridgeError as exc:
+            errors.append(str(exc))
+        product_run_id = product_packet.get("pipeline_run_id")
+        if not isinstance(product_run_id, str) or not product_run_id:
+            errors.append("source product packet pipeline_run_id is required")
+        expected = {
+            "schema_version": PRODUCT_APPROVAL_SCHEMA_VERSION,
+            "approved_by": "Karl",
+            "approval_scope": PRODUCT_APPROVAL_SCOPE,
+            "approval_statement": PRODUCT_APPROVAL_STATEMENT,
+            "source_product_packet_path": source_product_packet_path,
+            "source_product_packet_sha256": source_product_packet_hash,
+            "source_formalizer_output_path": source_formalizer_path,
+            "source_formalizer_output_sha256": source_formalizer_hash,
+            "source_formalizer_run_id": source_formalizer_run_id,
+            "product_pipeline_run_id": product_run_id,
+            "bridge_stage_identity": PRODUCT_BRIDGE_STAGE_IDENTITY,
+            "product_mode_output_root": self.output_root.as_posix(),
+        }
+        for field, value in expected.items():
+            if approval.get(field) != value:
+                errors.append(f"approval mismatch: {field}")
+        if approval.get("authorizes_bridge_preparation") is not True:
+            errors.append("approval missing bridge preparation authority")
+        for field in PRODUCT_FALSE_AUTHORITY_FLAGS:
+            if approval.get(field) is not False:
+                errors.append(f"approval too broad: {field}")
+        if approval.get(PRODUCT_APPROVAL_CONTENT_HASH_FIELD) != _approval_content_hash(approval):
+            errors.append("approval content hash mismatch")
+        if errors:
+            try:
+                self.tool_context.require_allowed(ToolAction("approval_gate_bypass", approval_path))
+            except BlockedActionError:
+                raise
+            raise AssertionError(
+                "invalid product bridge approval was unexpectedly allowed: "
+                + "; ".join(errors)
+            )
+
     def _validate_draft(self, draft_path: str, *, family_id: str) -> dict[str, Any]:
         expected_prefix = (
-            DONCHIAN_FORMALIZER_OUTPUT_PREFIX
-            if family_id == "donchian_channel_breakout_v1"
-            else FUNDING_FORMALIZER_OUTPUT_PREFIX
-            if family_id == "funding_rate_positioning_fade_v1"
-            else FORMALIZER_OUTPUT_PREFIX
+            self._product_scratch_prefix()
+            if self.bridge_invocation_mode == PRODUCT_BRIDGE_INVOCATION_MODE
+            else (
+                DONCHIAN_FORMALIZER_OUTPUT_PREFIX
+                if family_id == "donchian_channel_breakout_v1"
+                else FUNDING_FORMALIZER_OUTPUT_PREFIX
+                if family_id == "funding_rate_positioning_fade_v1"
+                else FORMALIZER_OUTPUT_PREFIX
+            )
         )
         if not draft_path.startswith(expected_prefix):
             raise FormalizerRunnerBridgeError(
@@ -393,6 +559,8 @@ class FormalizerRunnerBridge:
         family_id: str,
         funding_exit_mode: str | None = None,
         numeric_offset: int = 0,
+        approval_ref_id: str = "OPERATOR-BRIDGE-APPROVAL",
+        metadata_extra: Mapping[str, Any] | None = None,
     ) -> dict[str, str]:
         inputs_dir = run_dir / "inputs"
         spec = copy.deepcopy(dict(draft))
@@ -432,7 +600,7 @@ class FormalizerRunnerBridge:
                     },
                     {
                         "ref_type": "manual_review",
-                        "ref_id": "OPERATOR-BRIDGE-APPROVAL",
+                        "ref_id": approval_ref_id,
                         "ref_path": approval_path,
                         "ref_hash": approval_hash,
                     },
@@ -501,7 +669,7 @@ class FormalizerRunnerBridge:
                     },
                     {
                         "ref_type": "manual_review",
-                        "ref_id": "OPERATOR-BRIDGE-APPROVAL",
+                        "ref_id": approval_ref_id,
                         "ref_path": approval_path,
                         "ref_hash": approval_hash,
                     },
@@ -561,6 +729,8 @@ class FormalizerRunnerBridge:
             "compatibility_status_not_authority": True,
             "non_authority_flags": list(NON_AUTHORITY_FLAGS),
         }
+        if metadata_extra is not None:
+            metadata.update(dict(metadata_extra))
         written["bridge_metadata"] = self._write_json(inputs_dir / "bridge_metadata.json", metadata)
         return written
 
@@ -1028,9 +1198,27 @@ class FormalizerRunnerBridge:
         *,
         formalizer_output_path: Path | str,
         approval_path: Path | str,
+        source_product_packet_path: Path | str | None = None,
     ) -> dict[str, Any]:
+        product_mode = self.bridge_invocation_mode == PRODUCT_BRIDGE_INVOCATION_MODE
         formalizer_path = self._repo_relative(formalizer_output_path)
         approval_relative = self._repo_relative(approval_path)
+        source_product_packet_relative: str | None = None
+        if product_mode:
+            self._require_product_local_relative(
+                formalizer_path,
+                label="source formalizer output",
+            )
+            self._require_product_local_relative(
+                approval_relative,
+                label="product approval marker",
+            )
+            if source_product_packet_path is None:
+                raise FormalizerRunnerBridgeError("source product packet path is required")
+            source_product_packet_relative = self._require_product_local_relative(
+                self._repo_relative(source_product_packet_path),
+                label="source product packet",
+            )
         formalizer_bytes = self._read_bytes(formalizer_path)
         formalized = json.loads(formalizer_bytes)
         family_id = self._validate_formalizer_contract(formalizer_path, formalized)
@@ -1038,12 +1226,32 @@ class FormalizerRunnerBridge:
         approval = json.loads(approval_bytes)
         if not isinstance(approval, dict):
             raise FormalizerRunnerBridgeError("approval marker must be a JSON object")
-        self._require_approval(
-            approval,
-            source_run_id=formalized["run_id"],
-            approval_path=approval_relative,
-            formalizer_path=formalizer_path,
-        )
+        product_packet: dict[str, Any] | None = None
+        product_packet_hash: str | None = None
+        if product_mode:
+            assert source_product_packet_relative is not None
+            product_packet_bytes = self._read_bytes(source_product_packet_relative)
+            product_packet = json.loads(product_packet_bytes)
+            if not isinstance(product_packet, dict):
+                raise FormalizerRunnerBridgeError("source product packet must be a JSON object")
+            product_packet_hash = _sha256_bytes(product_packet_bytes)
+            self._require_product_approval(
+                approval,
+                product_packet=product_packet,
+                source_product_packet_path=source_product_packet_relative,
+                source_product_packet_hash=product_packet_hash,
+                source_formalizer_path=formalizer_path,
+                source_formalizer_hash=_sha256_bytes(formalizer_bytes),
+                source_formalizer_run_id=formalized["run_id"],
+                approval_path=approval_relative,
+            )
+        else:
+            self._require_approval(
+                approval,
+                source_run_id=formalized["run_id"],
+                approval_path=approval_relative,
+                formalizer_path=formalizer_path,
+            )
         draft_paths: dict[str, str] = {
             "default": str(formalized["draft_strategy_spec"]["path"])
         }
@@ -1058,17 +1266,53 @@ class FormalizerRunnerBridge:
             mode: self._validate_draft(path, family_id=family_id)
             for mode, path in draft_paths.items()
         }
-        ohlcv_path = self._repo_relative(self.config.ohlcv_input_path)
-        ohlcv_hash = _sha256_bytes(self._read_bytes(ohlcv_path))
-
-        run_identity = {
-            "formalizer_hash": _sha256_bytes(formalizer_bytes),
-            "approval_hash": _sha256_bytes(approval_bytes),
-            "draft_hashes": {mode: _sha256(draft) for mode, draft in drafts.items()},
-            "ohlcv_hash": ohlcv_hash,
-            "config": self.config.__dict__,
-            "bridge_version": BRIDGE_VERSION,
-        }
+        formalizer_hash = _sha256_bytes(formalizer_bytes)
+        approval_hash = _sha256_bytes(approval_bytes)
+        product_metadata_extra: dict[str, Any] | None = None
+        if product_mode:
+            assert product_packet is not None
+            assert product_packet_hash is not None
+            assert source_product_packet_relative is not None
+            ohlcv_path: str | None = None
+            ohlcv_hash: str | None = None
+            product_metadata_extra = {
+                "bridge_invocation_mode": PRODUCT_BRIDGE_INVOCATION_MODE,
+                "product_bridge_contract_version": PRODUCT_APPROVAL_SCHEMA_VERSION,
+                "source_product_packet_path": source_product_packet_relative,
+                "source_product_packet_hash": product_packet_hash,
+                "product_pipeline_run_id": product_packet["pipeline_run_id"],
+                "bridge_stage_identity": PRODUCT_BRIDGE_STAGE_IDENTITY,
+                "product_mode_output_root": self.output_root.as_posix(),
+                "runner_invoked": False,
+                "authorizes_bridge_preparation": True,
+                **{field: False for field in PRODUCT_FALSE_AUTHORITY_FLAGS},
+            }
+            run_identity = {
+                "bridge_invocation_mode": PRODUCT_BRIDGE_INVOCATION_MODE,
+                "formalizer_hash": formalizer_hash,
+                "approval_hash": approval_hash,
+                "approval_content_hash": approval[PRODUCT_APPROVAL_CONTENT_HASH_FIELD],
+                "source_product_packet_hash": product_packet_hash,
+                "source_product_packet_path": source_product_packet_relative,
+                "draft_hashes": {mode: _sha256(draft) for mode, draft in drafts.items()},
+                "config": self.config.__dict__,
+                "bridge_version": BRIDGE_VERSION,
+                "product_bridge_contract_version": PRODUCT_APPROVAL_SCHEMA_VERSION,
+                "product_pipeline_run_id": product_packet["pipeline_run_id"],
+                "bridge_stage_identity": PRODUCT_BRIDGE_STAGE_IDENTITY,
+                "product_mode_output_root": self.output_root.as_posix(),
+            }
+        else:
+            ohlcv_path = self._repo_relative(self.config.ohlcv_input_path)
+            ohlcv_hash = _sha256_bytes(self._read_bytes(ohlcv_path))
+            run_identity = {
+                "formalizer_hash": formalizer_hash,
+                "approval_hash": approval_hash,
+                "draft_hashes": {mode: _sha256(draft) for mode, draft in drafts.items()},
+                "ohlcv_hash": ohlcv_hash,
+                "config": self.config.__dict__,
+                "bridge_version": BRIDGE_VERSION,
+            }
         run_id = hashlib.sha256(_canonical_bytes(run_identity)).hexdigest()[:16]
         run_dir = self.output_root / run_id
         blockers = self._availability_blockers(formalized, family_id=family_id)
@@ -1090,13 +1334,19 @@ class FormalizerRunnerBridge:
                 run_dir=mode_dir,
                 formalized=formalized,
                 formalizer_path=formalizer_path,
-                formalizer_hash=run_identity["formalizer_hash"],
+                formalizer_hash=formalizer_hash,
                 approval_path=approval_relative,
-                approval_hash=run_identity["approval_hash"],
+                approval_hash=approval_hash,
                 draft=draft,
                 family_id=family_id,
                 funding_exit_mode=None if mode == "default" else mode,
                 numeric_offset=index,
+                approval_ref_id=(
+                    "KARL-PRODUCT-BRIDGE-PREPARATION-APPROVAL"
+                    if product_mode
+                    else "OPERATOR-BRIDGE-APPROVAL"
+                ),
+                metadata_extra=product_metadata_extra,
             )
             self._validate_derived_inputs(input_paths)
             all_input_paths[mode] = input_paths
@@ -1110,7 +1360,13 @@ class FormalizerRunnerBridge:
             runner_result: dict[str, Any] | None = None
             runner_artifact_path: str | None = None
             reconciliation: dict[str, Any] = {"passed": False, "not_run_reasons": blockers}
-            if not blockers:
+            if product_mode:
+                reconciliation = {
+                    "passed": False,
+                    "runner_invoked": False,
+                    "not_run_reasons": list(dict.fromkeys([*blockers, PRODUCT_PREPARE_ONLY_REASON])),
+                }
+            elif not blockers:
                 runner_result = self._invoke_runner(
                     run_dir=mode_dir,
                     input_paths=input_paths,
@@ -1141,7 +1397,11 @@ class FormalizerRunnerBridge:
                 manifest=manifest,
                 runner_result=runner_result,
                 runner_artifact_path=runner_artifact_path,
-                blockers=blockers,
+                blockers=(
+                    list(dict.fromkeys([*blockers, PRODUCT_PREPARE_ONLY_REASON]))
+                    if product_mode
+                    else blockers
+                ),
                 funding_cost_mode=self.config.funding_cost_mode,
                 timestamp_utc=self.config.timestamp_utc,
                 strategy_family=family_id,
@@ -1190,13 +1450,38 @@ class FormalizerRunnerBridge:
         }
         ledger_path = self._write_json(run_dir / "denominator_ledger.json", ledger)
         completed = [row for row in ledger_rows if row["trial_status"] == "completed"]
-        review = {
-            "schema_version": "formalizer_runner_bridge_human_review_packet_v1",
-            "run_id": run_id,
-            "source_idea_formalizer_summary": copy.deepcopy(formalized["research_object"]),
-            "approval_metadata": copy.deepcopy(approval),
-            "derived_input_artifact_paths": review_input_paths,
-            "runner_invocation_metadata": {
+        if product_mode:
+            assert product_packet is not None
+            assert product_packet_hash is not None
+            assert source_product_packet_relative is not None
+            runner_invocation_metadata = {
+                "runner": None,
+                **invocation_identity,
+                "mode": PRODUCT_BRIDGE_INVOCATION_MODE,
+                "runner_invoked": False,
+                "runner_boundary": "not_requested",
+                "deterministic_seed": self.config.deterministic_seed,
+                "network": False,
+            }
+            product_bridge_metadata: dict[str, Any] | None = {
+                "source_product_packet_path": source_product_packet_relative,
+                "source_product_packet_hash": product_packet_hash,
+                "source_formalizer_output_path": formalizer_path,
+                "source_formalizer_output_hash": formalizer_hash,
+                "approval_marker_path": approval_relative,
+                "approval_marker_hash": approval_hash,
+                "approval_marker_content_hash": approval[PRODUCT_APPROVAL_CONTENT_HASH_FIELD],
+                "product_pipeline_run_id": product_packet["pipeline_run_id"],
+                "bridge_stage_identity": PRODUCT_BRIDGE_STAGE_IDENTITY,
+                "product_mode_output_root": self.output_root.as_posix(),
+                "stale_approval_policy": "content_bound_no_wall_clock_expiry",
+                "timestamp_audit_only": True,
+                "runner_execution_authorized": False,
+            }
+            validation_status = "prepared"
+            funding_effective = "not_run"
+        else:
+            runner_invocation_metadata = {
                 "runner": "tools.research_runner.run_offline_sweep",
                 **invocation_identity,
                 "mode": "canonical_15m_fixture_offline",
@@ -1204,7 +1489,17 @@ class FormalizerRunnerBridge:
                 "ohlcv_input_path": ohlcv_path,
                 "ohlcv_input_hash": ohlcv_hash,
                 "network": False,
-            },
+            }
+            product_bridge_metadata = None
+            validation_status = "blocked" if blockers else "passed"
+            funding_effective = "off" if not blockers else "not_run"
+        review = {
+            "schema_version": "formalizer_runner_bridge_human_review_packet_v1",
+            "run_id": run_id,
+            "source_idea_formalizer_summary": copy.deepcopy(formalized["research_object"]),
+            "approval_metadata": copy.deepcopy(approval),
+            "derived_input_artifact_paths": review_input_paths,
+            "runner_invocation_metadata": runner_invocation_metadata,
             "denominator_counts": count_packet,
             "completed_trial_count": count_packet["completed"],
             "failed_trial_count": count_packet["failed"],
@@ -1215,21 +1510,23 @@ class FormalizerRunnerBridge:
             "top_metrics": completed[0]["metrics_summary"] if completed else None,
             "full_ledger_path": ledger_path,
             "runner_artifact_paths": list(runner_artifact_paths.values()),
-            "validation_status": "blocked" if blockers else "passed",
+            "validation_status": validation_status,
             "data_availability_blockers": blockers,
             "data_availability_warnings": [],
             "funding_mode": {
                 "requested": self.config.funding_cost_mode,
-                "effective": "off" if not blockers else "not_run",
+                "effective": funding_effective,
                 "default_off": True,
                 "global_mode_mutated": False,
             },
             "non_authority_flags": list(NON_AUTHORITY_FLAGS),
         }
+        if product_bridge_metadata is not None:
+            review["product_bridge_preparation_metadata"] = product_bridge_metadata
         review_path = self._write_json(run_dir / "human_review_packet.json", review)
         return {
             "run_id": run_id,
-            "status": "blocked" if blockers else "completed",
+            "status": "prepared" if product_mode else "blocked" if blockers else "completed",
             "trial_status_counts": count_packet,
             "manual_reconciliation_result": reconciliation,
             "artifact_paths": {

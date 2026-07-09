@@ -1,0 +1,24 @@
+WP-LABPROD-BRIDGE-PRODUCT-MODE-IMPLEMENT-01B validation summary
+
+Completed:
+- .venv\Scripts\python.exe -m py_compile tools\research_agents\formalizer_runner_bridge.py : PASS
+- .venv\Scripts\python.exe -m pytest tests/test_agent_formalizer_runner_bridge.py -q : PASS, 65 passed
+- .venv\Scripts\python.exe -m pytest tests/test_lab_pipeline_bridge_adapter.py -q : PASS, 6 passed
+- .venv\Scripts\python.exe -m pytest tests/test_lab_pipeline*.py -q : literal PowerShell glob failed, no tests ran
+- expanded test_lab_pipeline*.py files via PowerShell and ran pytest : PASS, 57 passed
+- .venv\Scripts\python.exe -m json.tool scratch\WP-LABPROD-BRIDGE-PRODUCT-MODE-IMPLEMENT-01B\non_authority_assertions.json : PASS
+- .venv\Scripts\python.exe -m tools.research_query.run --list-views : PASS, listed views
+- .venv\Scripts\python.exe -m tools.registry.validate_result_populations : PASS
+- .venv\Scripts\python.exe -m tools.registry.validate_candidate_registry : PASS
+- .venv\Scripts\python.exe tools\dev\diff_scope_summary.py : PASS, forbidden-path matches none
+- git diff --check : PASS
+- .venv\Scripts\python.exe -m pytest -q : TIMEOUT after 604 seconds, no failure output produced before timeout
+- .venv\Scripts\python.exe -m pytest --collect-only -q : PASS, 2619 tests collected
+- after product output-root normalization, .venv\Scripts\python.exe -m py_compile tools\research_agents\formalizer_runner_bridge.py : PASS
+- after product output-root normalization, .venv\Scripts\python.exe -m pytest tests/test_agent_formalizer_runner_bridge.py tests/test_lab_pipeline_bridge_adapter.py -q : PASS, 71 passed
+- final pre-stage git diff --check : PASS
+- final pre-stage .venv\Scripts\python.exe tools\dev\diff_scope_summary.py : PASS, forbidden-path matches none
+
+Before commit:
+- git diff --cached --check : PASS
+- git status --short : staged files match allowed package scope

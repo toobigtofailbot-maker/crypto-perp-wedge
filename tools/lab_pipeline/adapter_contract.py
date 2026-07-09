@@ -8,6 +8,7 @@ from typing import Any, Final
 
 ADAPTER_CONTRACT_VERSION: Final = "lab_pipeline_adapter_contract_v1"
 RUNNER_ADAPTER_PACKAGE_ID: Final = "WP-LABPROD-PIPELINE-RUNNER-ADAPTER-04"
+GATES_ADAPTER_PACKAGE_ID: Final = "WP-LABPROD-PIPELINE-GATES-ADAPTERS-05"
 
 ADAPTER_STAGE_STATUSES: Final[tuple[str, ...]] = (
     "adapter_complete",
@@ -135,6 +136,7 @@ def build_adapter_registry(package_id: str) -> tuple[AdapterRecord, ...]:
 
     scratch = f"scratch/{package_id}"
     runner_adapter_implemented = package_id == RUNNER_ADAPTER_PACKAGE_ID
+    gates_adapters_implemented = package_id == GATES_ADAPTER_PACKAGE_ID
     return (
         AdapterRecord(
             adapter_id="adapter.idea_formalizer.fake_offline.v1",
@@ -232,10 +234,14 @@ def build_adapter_registry(package_id: str) -> tuple[AdapterRecord, ...]:
                 scratch_only=True,
                 read_only=True,
             ),
-            implementation_status="blocked",
+            implementation_status="implemented" if gates_adapters_implemented else "blocked",
             blocker_reason=(
-                "No safe upstream walk-forward/OOS gate artifact exists in this "
-                "adapter packet; fabricating a gate pass is forbidden."
+                None
+                if gates_adapters_implemented
+                else (
+                    "No safe upstream walk-forward/OOS gate artifact exists in this "
+                    "adapter packet; fabricating a gate pass is forbidden."
+                )
             ),
         ),
         AdapterRecord(
@@ -255,10 +261,14 @@ def build_adapter_registry(package_id: str) -> tuple[AdapterRecord, ...]:
                 scratch_only=True,
                 read_only=False,
             ),
-            implementation_status="blocked",
+            implementation_status="implemented" if gates_adapters_implemented else "blocked",
             blocker_reason=(
-                "Requires bridge outputs and a separate robustness approval marker; "
-                "neither can be safely fabricated or replaced by pipeline prereg approval."
+                None
+                if gates_adapters_implemented
+                else (
+                    "Requires bridge outputs and a separate robustness approval marker; "
+                    "neither can be safely fabricated or replaced by pipeline prereg approval."
+                )
             ),
         ),
         AdapterRecord(
@@ -278,11 +288,15 @@ def build_adapter_registry(package_id: str) -> tuple[AdapterRecord, ...]:
                 scratch_only=True,
                 read_only=False,
             ),
-            implementation_status="blocked",
+            implementation_status="implemented" if gates_adapters_implemented else "blocked",
             blocker_reason=(
-                "Requires complete bridge and robustness packets plus its own "
-                "candidate-review approval marker; a human-review packet cannot be "
-                "safely synthesized from missing upstream evidence."
+                None
+                if gates_adapters_implemented
+                else (
+                    "Requires complete bridge and robustness packets plus its own "
+                    "candidate-review approval marker; a human-review packet cannot be "
+                    "safely synthesized from missing upstream evidence."
+                )
             ),
         ),
     )

@@ -1,0 +1,34 @@
+WP-LABPROD-PIPELINE-GATES-ADAPTERS-05 validation summary
+
+Base:
+- origin/main / c3ca2c093c7d8be0b3642f04fb521189839b2ad3
+
+Commands run:
+- .\.venv\Scripts\python.exe -m py_compile tools\lab_pipeline\gates_adapter.py tools\lab_pipeline\adapter_contract.py
+  Result: PASS
+- .\.venv\Scripts\python.exe -m pytest tests\test_lab_pipeline_gates_adapter.py -q
+  Result: PASS, 4 passed
+- .\.venv\Scripts\python.exe -m pytest tests\test_lab_pipeline_gates_adapter.py tests\test_lab_pipeline_runner_adapter.py tests\test_oos_gate.py tests\test_agent_robustness_diagnostician.py tests\test_agent_candidate_review_packet.py -q
+  Result: PASS, 112 passed
+- PowerShell-expanded .\.venv\Scripts\python.exe -m pytest tests\test_lab_pipeline*.py -q
+  Result: PASS, 90 passed
+- .\.venv\Scripts\python.exe -m json.tool scratch\WP-LABPROD-PIPELINE-GATES-ADAPTERS-05\non_authority_assertions.json
+  Result: PASS
+- .\.venv\Scripts\python.exe -m tools.research_query.run --list-views
+  Result: PASS, view list printed
+- .\.venv\Scripts\python.exe -m tools.registry.validate_result_populations
+  Result: PASS, committed result populations validate
+- .\.venv\Scripts\python.exe -m tools.registry.validate_candidate_registry
+  Result: PASS, candidate lifecycle registry fixtures validate
+- .\.venv\Scripts\python.exe tools\dev\diff_scope_summary.py
+  Result: PASS, no forbidden-path matches
+- git diff --check
+  Result: PASS
+- .\.venv\Scripts\python.exe -m pytest -q
+  Result: TIMEOUT after 604 seconds before a pytest result was returned
+- .\.venv\Scripts\python.exe -m pytest --collect-only -q
+  Result: PASS, 2652 tests collected
+
+Validation posture:
+- Focused package, runner adapter, lab pipeline, WFO/OOS, robustness, and candidate-review tests passed.
+- Full pytest did not complete within the local 10-minute command timeout; collect-only passed as the package-prescribed fallback.

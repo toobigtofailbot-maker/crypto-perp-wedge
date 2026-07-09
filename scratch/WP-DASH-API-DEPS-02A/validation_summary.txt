@@ -1,0 +1,45 @@
+WP-DASH-API-DEPS-02A validation summary
+
+Branch: codex/wp-dash-api-deps-02a
+Base: 86e72fa7ceddf25dc37680bb87d95597e4f1cd70
+
+Required/adapted checks:
+
+- git status --short: showed only requirements.lock.txt, requirements.txt, and scratch/WP-DASH-API-DEPS-02A before evidence docs were added.
+- default python import probe:
+  fastapi False
+  starlette False
+  pydantic True
+- repo .venv import probe:
+  fastapi True
+  starlette True
+  pydantic True
+- .venv json validation:
+  .\.venv\Scripts\python.exe -m json.tool scratch\WP-DASH-API-DEPS-02A\non_authority_assertions.json
+  PASS
+- FastAPI/TestClient smoke:
+  fastapi_testclient_ok
+  Note: Starlette emitted a deprecation warning that its current httpx-based TestClient import path is deprecated in favor of future httpx2, but the smoke test passed with the package-selected httpx dependency.
+- .venv query view list:
+  .\.venv\Scripts\python.exe -m tools.research_query.run --list-views
+  PASS, 124 views listed.
+- .venv result-population validator:
+  .\.venv\Scripts\python.exe -m tools.registry.validate_result_populations
+  PASS
+- .venv candidate registry validator:
+  .\.venv\Scripts\python.exe -m tools.registry.validate_candidate_registry
+  PASS
+- diff scope summary:
+  .\.venv\Scripts\python.exe tools\dev\diff_scope_summary.py
+  PASS; requirements files were the only forbidden-pattern matches and are package-authorized.
+- git diff --check:
+  PASS
+- git diff --cached --check:
+  PASS
+- dependency compatibility:
+  .\.venv\Scripts\python.exe -m pip check
+  PASS, no broken requirements found.
+
+Not run:
+
+- Full pytest was not run. The active package validation list did not require it for this dependency-enable-only package, and the required import/TestClient/registry/query/diff checks passed.

@@ -4,4 +4,6 @@ duckdb
 polars
 
 binance-futures-connector
+fastapi
+httpx
 jsonschema

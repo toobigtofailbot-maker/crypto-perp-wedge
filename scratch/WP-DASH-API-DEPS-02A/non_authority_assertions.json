@@ -1,0 +1,22 @@
+{
+  "schema_version": "dashboard_api_deps_non_authority_assertions_v1",
+  "package_id": "WP-DASH-API-DEPS-02A",
+  "dependency_enablement_only": true,
+  "dashboard_api_implemented": false,
+  "frontend_created": false,
+  "agent_inbox_created": false,
+  "server_deployed": false,
+  "hosted_deployment_created": false,
+  "auth_implemented": false,
+  "monitoring_created": false,
+  "runtime_contact": false,
+  "paper_live_contact": false,
+  "notification_firing": false,
+  "scheduler_autonomy": false,
+  "canonical_evidence_written": false,
+  "candidate_lifecycle_written": false,
+  "crossing_created": false,
+  "promotion_or_readiness_created": false,
+  "provider_api_credential_use": false,
+  "protected_path_touch": false
+}

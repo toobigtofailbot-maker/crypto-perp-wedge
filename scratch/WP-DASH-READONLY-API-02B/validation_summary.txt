@@ -1,0 +1,38 @@
+WP-DASH-READONLY-API-02B validation summary
+
+Branch: codex/wp-dash-readonly-api-02b
+Base: main
+Base SHA: 6c0b173
+
+Preflight:
+- git fetch origin: PASS
+- git checkout main / git pull --ff-only origin main: PASS
+- git status --short --branch before branch creation: clean on main...origin/main
+- branch availability check for codex/wp-dash-readonly-api-02b: PASS; no local or remote branch found before creation
+- open PR check: PASS; gh pr list returned []
+- FastAPI/TestClient repo .venv smoke: PASS; fastapi_testclient_ok
+
+Validation:
+- .\.venv\Scripts\python.exe -m py_compile tools/operator_dashboard_api/app.py tools/operator_dashboard_api/models.py tools/operator_dashboard_api/readers.py tests/test_operator_dashboard_api.py: PASS
+- .\.venv\Scripts\python.exe -m pytest tests/test_operator_dashboard_api.py -q: PASS, 11 passed, 1 Starlette/TestClient deprecation warning
+- .\.venv\Scripts\python.exe -m json.tool scratch/WP-DASH-READONLY-API-02B/non_authority_assertions.json: PASS
+- .\.venv\Scripts\python.exe -m tools.research_query.run --list-views: PASS, 124 views listed
+- .\.venv\Scripts\python.exe -m tools.registry.validate_result_populations: PASS
+- .\.venv\Scripts\python.exe -m tools.registry.validate_candidate_registry: PASS
+- .\.venv\Scripts\python.exe tools/dev/diff_scope_summary.py: PASS; only untracked package-scoped files before staging, no forbidden-path matches
+- git diff --check: PASS
+- git diff --cached --check: PASS
+
+Full-suite attempt:
+- .\.venv\Scripts\python.exe -m pytest -q: TIMED OUT after 10 minutes without returning a final test result.
+- .\.venv\Scripts\python.exe -m pytest --collect-only -q: PASS, 2695 tests collected, 1 Starlette/TestClient deprecation warning
+- .\.venv\Scripts\python.exe -m pytest tests/test_operator_dashboard_api.py tests/test_lab_reporting.py tests/test_lab_cockpit_product_runs.py tests/test_generate_static_dashboard.py tests/test_validate_dashboard_data.py -q: PASS, 104 passed, 1 Starlette/TestClient deprecation warning
+
+Boundary checks:
+- No dependency/config files changed.
+- No hosted deployment files created.
+- No frontend app created.
+- No Agent Inbox write endpoint created.
+- No pipeline invocation endpoint created.
+- No current cockpit/dashboard/reporting/query implementation modified.
+- No protected runtime, OMS, risk, reconciliation, paper/live, provider/API, scheduler, notification, schema, validator, query-layer, data, canonical evidence, candidate lifecycle, crossing, promotion, or readiness path changed.

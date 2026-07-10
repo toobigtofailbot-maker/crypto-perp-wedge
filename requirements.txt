@@ -7,3 +7,4 @@ binance-futures-connector
 fastapi
 httpx
 jsonschema
+uvicorn

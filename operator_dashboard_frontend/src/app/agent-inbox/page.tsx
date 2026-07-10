@@ -18,6 +18,7 @@ import { BoundaryNotes } from "@/components/BoundaryNotes";
 import { Card, CardTitle, KeyValue } from "@/components/ui";
 import { IntakeBoundaryPanel } from "@/components/agent-inbox/IntakeBoundaryPanel";
 import { IntakeForm } from "@/components/agent-inbox/IntakeForm";
+import { DraftHistory } from "@/components/agent-inbox/DraftHistory";
 import {
   AGENT_INBOX_ORIGIN_ENV,
   AGENT_INBOX_PROXY_PATH,
@@ -51,6 +52,8 @@ export default function AgentInboxPage() {
         serviceConfigured={serviceOrigin !== null}
         serviceOrigin={serviceOrigin}
       />
+
+      <DraftHistory serviceConfigured={serviceOrigin !== null} />
 
       <Card className="bg-cockpit-panel-2">
         <CardTitle>Two services, one boundary</CardTitle>

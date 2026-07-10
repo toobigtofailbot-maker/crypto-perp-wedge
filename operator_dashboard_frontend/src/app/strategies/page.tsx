@@ -4,13 +4,39 @@ import { ProvenanceFooter } from "@/components/ProvenanceFooter";
 import { BoundaryNotes } from "@/components/BoundaryNotes";
 import { Badge, Card, CardTitle, StatCard } from "@/components/ui";
 import { EmptyState } from "@/components/States";
+import { ChartCard } from "@/components/charts/ChartCard";
+import { ChartProvenanceNote } from "@/components/charts/ChartProvenanceNote";
+import {
+  CategoricalCountChart,
+  type CategoryBar,
+} from "@/components/charts/CategoricalCountChart";
 import { toneForStatus } from "@/lib/status";
 import { fixtures } from "@/lib/fixtures";
+import type { StrategySummary } from "@/lib/types";
+
+/** Tally committed specs by one committed facet. Display-only aggregation. */
+function facetBars(
+  items: StrategySummary[],
+  facet: keyof StrategySummary,
+): CategoryBar[] {
+  const tally = new Map<string, number>();
+  for (const item of items) {
+    const value = item[facet];
+    if (typeof value !== "string" || value.length === 0) continue;
+    tally.set(value, (tally.get(value) ?? 0) + 1);
+  }
+  return [...tally.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .map(([label, count]) => ({ label, count, tone: "info" as const }));
+}
 
 export default function StrategiesPage() {
   const envelope = fixtures.strategies();
   const items = envelope.data.items ?? [];
   const notExecutable = items.filter((s) => s.not_executable).length;
+
+  const timeframeBars = facetBars(items, "primary_timeframe");
+  const directionBars = facetBars(items, "direction");
 
   return (
     <>
@@ -33,6 +59,46 @@ export default function StrategiesPage() {
           hint="none in this shell"
         />
       </div>
+
+      {items.length > 0 ? (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <ChartCard
+            title="Specs by primary timeframe"
+            footer={
+              <ChartProvenanceNote
+                source="GET /api/strategies"
+                fields={["items[].primary_timeframe"]}
+                derived={["count per distinct value"]}
+                drawn={items.length}
+              />
+            }
+          >
+            <CategoricalCountChart
+              bars={timeframeBars}
+              horizontal
+              ariaLabel={`Bar chart of committed strategy specs across ${timeframeBars.length} primary timeframes`}
+            />
+          </ChartCard>
+          <ChartCard
+            title="Specs by direction"
+            footer={
+              <ChartProvenanceNote
+                source="GET /api/strategies"
+                fields={["items[].direction"]}
+                derived={["count per distinct value"]}
+                drawn={items.length}
+                note="Strategy specs are planning artifacts and are not executable."
+              />
+            }
+          >
+            <CategoricalCountChart
+              bars={directionBars}
+              horizontal
+              ariaLabel={`Bar chart of committed strategy specs across ${directionBars.length} directions`}
+            />
+          </ChartCard>
+        </div>
+      ) : null}
 
       <Card>
         <CardTitle>Strategy specs ({envelope.data.count ?? items.length})</CardTitle>

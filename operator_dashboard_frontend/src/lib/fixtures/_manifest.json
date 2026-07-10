@@ -14,6 +14,12 @@
       "endpoint": "/api/research/result-populations",
       "schema_version": "operator_dashboard_api_v1"
     },
+    "result_population_detail": {
+      "endpoint": "/api/research/result-populations/{result_population_id}",
+      "schema_version": "operator_dashboard_api_v1",
+      "files": "result_populations/{result_population_id}.json",
+      "note": "One envelope per committed result-population artifact. Carries the per-variant metrics block (return_pct, drawdown, sharpe, win_rate, trade_count) that the list endpoint does not project. Offline research backtest outputs only; not performance claims, rankings, readiness, or candidate authority."
+    },
     "strategies": {
       "endpoint": "/api/strategies",
       "schema_version": "operator_dashboard_api_v1"

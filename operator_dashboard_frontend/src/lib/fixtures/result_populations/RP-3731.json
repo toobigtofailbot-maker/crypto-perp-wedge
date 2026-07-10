@@ -1,0 +1,436 @@
+{
+  "schema_version": "operator_dashboard_api_v1",
+  "source": "committed artifact RP-3731.result_population.json",
+  "provenance": [
+    {
+      "path": "research/result_populations/RP-3731.result_population.json",
+      "role": "result_population_artifact",
+      "note": null,
+      "sha256": "sha256:e8d6bc5c48a80c32f9495a0d63d05be0cf8513b8f3912d6b81c6dbca715672c2"
+    }
+  ],
+  "authority": {
+    "api_projection_only": true,
+    "repo_artifacts_remain_truth": true,
+    "read_only": true,
+    "get_endpoints_only": true,
+    "not_execution_authority": true,
+    "not_approval_authority": true,
+    "not_recommendation_authority": true,
+    "not_ranking_authority": true,
+    "not_readiness_authority": true,
+    "not_promotion_authority": true,
+    "not_runtime_authority": true,
+    "not_paper_live_authority": true,
+    "not_broker_exchange_order_authority": true,
+    "not_agent_inbox_write_authority": true,
+    "not_scheduler_authority": true,
+    "not_notification_authority": true,
+    "control_surface": "none"
+  },
+  "warnings": [
+    "This API response is a derived read-only projection for local dashboard inspection. Committed repo artifacts and protected runtime truth, where later authorized snapshots exist, remain authoritative."
+  ],
+  "withheld": {
+    "uncommitted_runner_outputs": "Not read. This endpoint projects committed artifacts only."
+  },
+  "unavailable": {},
+  "data": {
+    "result_population_id": "RP-3731",
+    "path": "research/result_populations/RP-3731.result_population.json",
+    "parent_strategy_spec_id": "STRAT-SPEC-0005",
+    "variant_manifest_id": "VM-0005",
+    "sweep_plan_id": "SWEEP-PLAN-0005",
+    "committed_denominator": 8,
+    "result_row_count": 8,
+    "outcome_counts": {
+      "aborted": 0,
+      "counts_sum": 8,
+      "counts_sum_equals_committed_denominator": true,
+      "data_unavailable": 0,
+      "errored": 0,
+      "excluded": 0,
+      "failed": 0,
+      "filtered": 0,
+      "invalid": 0,
+      "not_attempted": 0,
+      "successful": 8
+    },
+    "result_population_identity_hash": "sha256:8e5f1381a860284ffa6ceb9f496fdf2d9ee127541a02e3a97abb013ba68e5aa1",
+    "input_identity_hash": "sha256:9f28ec89a08dcacebe22e7de68c3b5be72af312cf1f060b74bdde41e85881051",
+    "execution_mode": "offline_research",
+    "offline_only": true,
+    "no_runtime_contact": true,
+    "no_paper_live_contact": true,
+    "validator_status": "passed",
+    "review_status": "not_reviewed",
+    "status": "available",
+    "data_coverage_summary": {
+      "data_catalog_ref": "binance_usdtm_btcusdt_ohlcv_15m.offline_local.15m.20200101T000000Z.20260411T234500Z.sha256_3daace53d727599b",
+      "data_coverage_notes": [
+        "provenance_mode=d4_catalog_slice",
+        "offline only",
+        "no exchange/API contact",
+        "not live/paper input",
+        "d3_validation_report_sha256=785a8d53797155dcc80e646e8610db8d510825b9fa3dbccd21e79aa2700a6c1c",
+        "d2_import_report_sha256=543c944f727b2b9a7ad06742946ecefc91aa8b94723f46509e4041f622ef57ad",
+        "d4_catalog_artifact_sha256=f7b98c4d7759b6ba0c9bf8559bcea5e3311d3abe877930da254aeca96f53105a",
+        "row_count=220128",
+        "expected_row_count=220128",
+        "start_utc=2020-01-01T00:00:00Z",
+        "end_utc=2026-04-11T23:45:00Z",
+        "gap_count=0",
+        "missing_bar_count=0",
+        "gaps=[]",
+        "duplicate_group_count=0",
+        "duplicate_row_count=0",
+        "duplicates=[]",
+        "raw_source_sha256=343b639e35ce79824d26bddf6d70af2641c9d76003301e303f83cdf61d4feab4",
+        "normalized_sha256=c30fd7f07fdf513cdaf234b1bee4eff03b430a479cc572a2cc8b57394f22e0ab"
+      ],
+      "data_slice_identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+      "data_stream": "ohlcv",
+      "data_unavailable_count": 0,
+      "irreparable_gap_count": 0,
+      "missing_data_policy": "block_if_missing",
+      "timeframe": "15m"
+    },
+    "backtest_assumption_summary": {
+      "bar_path_assumption": "next_open_close_mark",
+      "exchange_constraint_disclosure": "True",
+      "fee_side_assumption": "taker_entry_taker_exit",
+      "fill_mode": "complete",
+      "funding_notional": "entry_price",
+      "liquidation_mode": "zero_equity",
+      "liquidity_capacity_assumption": null,
+      "maintenance_margin_assumption": null,
+      "mark_price_source": "close",
+      "order_size_assumption": "sizing_mode=dynamic_equity_target_leverage; sizing_model=dynamic_equity_target_leverage; target_leverage=1; initial_equity=10000; dynamic_mode_opt_in_required=True; structured_sizing_metadata=present; sizing_equity_basis=realized_available_equity_at_entry; entry_reference_price_basis=next_bar_open_pre_fee_slippage; fixed_mode_order_size_still_resolved_for_backtest_argument_compatibility; reference_price=7189.4300000000003; resolved_order_size=1.3909308526545219; prior_assumption=future offline runner assumption: dynamic_equity_target_leverage at target_leverage=1.0, inherited as the comparable RP-7520/RP-7134/RP-2592 realism surface; no execution here",
+      "records_assumptions_only": true,
+      "slippage_model": "fixed_bps"
+    },
+    "error_summary": {
+      "aborted": 0,
+      "all_error_categories_counted_in_denominator": true,
+      "data_unavailable": 0,
+      "error_rows_preserved": true,
+      "errored": 0,
+      "excluded": 0,
+      "failed": 0,
+      "filtered": 0,
+      "invalid": 0,
+      "not_attempted": 0
+    },
+    "append_only_ledger": {
+      "append_only": true,
+      "corrections_require_append_only_event": true,
+      "creation_event_ref": "RP-3731-EVENT-001",
+      "events": [
+        {
+          "actor_or_tool": "tools.research_runner.run_offline_sweep",
+          "event_id": "RP-3731-EVENT-001",
+          "event_timestamp": "2026-06-01T00:00:00Z",
+          "event_type": "created",
+          "notes": [
+            "build-and-test-only canonical 15m runner output"
+          ],
+          "related_artifact_refs": []
+        }
+      ],
+      "ledger_required": true,
+      "post_commit_in_place_mutation_forbidden": true,
+      "scientific_identity_mutation_forbidden_after_finalization": true,
+      "supersession_preserves_prior_result_population": true
+    },
+    "non_authority_declaration": {
+      "canonical_evidence_relationship": "reference_only",
+      "not_candidate_approval": true,
+      "not_canonical_evidence_replacement": true,
+      "not_dec_replacement": true,
+      "not_decision_authority": true,
+      "not_executable": true,
+      "not_exp_approval": true,
+      "not_exp_replacement": true,
+      "not_gate_authority": true,
+      "not_ol_replacement": true,
+      "not_outcome_ledger_replacement": true,
+      "not_paper_live_authority": true,
+      "not_ranking_authority": true,
+      "not_readiness_authority": true,
+      "not_rec_replacement": true,
+      "not_recommendation_authority": true,
+      "not_reconciliation_authority": true,
+      "not_rep_replacement": true,
+      "not_result_authority": true,
+      "not_runner_authority": true,
+      "not_runtime_authority": true,
+      "not_sweep_authority": true,
+      "not_transition_authority": true,
+      "not_trial_log_replacement": true
+    },
+    "review": {
+      "non_authority_acknowledgement": {
+        "not_approval": true,
+        "not_gate_satisfaction": true,
+        "not_paper_live_authority": true,
+        "not_readiness": true,
+        "not_recommendation": true,
+        "not_runtime_authority": true,
+        "not_transition": true
+      },
+      "review_notes": [],
+      "review_scope": "none",
+      "review_status": "not_reviewed"
+    },
+    "variant_result_rows": [
+      {
+        "variant_id": "VAR-000001",
+        "row_id": "RP-3731-ROW-000001",
+        "outcome_category": "successful",
+        "attempted": true,
+        "metrics": {
+          "drawdown": 0.6092977099781285,
+          "exposure": 1.0,
+          "fees": 14181.312813761113,
+          "funding": 0.0,
+          "pnl": -1019.4732894198369,
+          "return_pct": -0.10194732894198369,
+          "sharpe": 0.16642046389626258,
+          "slippage": 3545.3282034402782,
+          "trade_count": 1442,
+          "win_rate": 0.289875173370319
+        },
+        "non_success": {
+          "counts_in_denominator": true,
+          "declared_before_results": null,
+          "reason": null,
+          "rule_ref": null
+        },
+        "error": {
+          "counts_in_denominator": true,
+          "error_category": null,
+          "error_message_class": null,
+          "is_infrastructure_error": null,
+          "is_strategy_underperformance": null
+        }
+      },
+      {
+        "variant_id": "VAR-000002",
+        "row_id": "RP-3731-ROW-000002",
+        "outcome_category": "successful",
+        "attempted": true,
+        "metrics": {
+          "drawdown": 0.6125925900051835,
+          "exposure": 1.0,
+          "fees": 14962.292234424898,
+          "funding": 0.0,
+          "pnl": 677.2648455705148,
+          "return_pct": 0.06772648455705148,
+          "sharpe": 0.23166216670722803,
+          "slippage": 3740.5730586062245,
+          "trade_count": 1443,
+          "win_rate": 0.29244629244629244
+        },
+        "non_success": {
+          "counts_in_denominator": true,
+          "declared_before_results": null,
+          "reason": null,
+          "rule_ref": null
+        },
+        "error": {
+          "counts_in_denominator": true,
+          "error_category": null,
+          "error_message_class": null,
+          "is_infrastructure_error": null,
+          "is_strategy_underperformance": null
+        }
+      },
+      {
+        "variant_id": "VAR-000003",
+        "row_id": "RP-3731-ROW-000003",
+        "outcome_category": "successful",
+        "attempted": true,
+        "metrics": {
+          "drawdown": 0.5715123992202652,
+          "exposure": 1.0,
+          "fees": 15842.065537245773,
+          "funding": 0.0,
+          "pnl": 6887.808163344405,
+          "return_pct": 0.6887808163344405,
+          "sharpe": 0.4088612855779806,
+          "slippage": 3960.5163843114433,
+          "trade_count": 1008,
+          "win_rate": 0.2569444444444444
+        },
+        "non_success": {
+          "counts_in_denominator": true,
+          "declared_before_results": null,
+          "reason": null,
+          "rule_ref": null
+        },
+        "error": {
+          "counts_in_denominator": true,
+          "error_category": null,
+          "error_message_class": null,
+          "is_infrastructure_error": null,
+          "is_strategy_underperformance": null
+        }
+      },
+      {
+        "variant_id": "VAR-000004",
+        "row_id": "RP-3731-ROW-000004",
+        "outcome_category": "successful",
+        "attempted": true,
+        "metrics": {
+          "drawdown": 0.5083598211521911,
+          "exposure": 1.0,
+          "fees": 18098.541528321093,
+          "funding": 0.0,
+          "pnl": 10523.64064025745,
+          "return_pct": 1.052364064025745,
+          "sharpe": 0.48210248837723124,
+          "slippage": 4524.635382080273,
+          "trade_count": 959,
+          "win_rate": 0.2523461939520334
+        },
+        "non_success": {
+          "counts_in_denominator": true,
+          "declared_before_results": null,
+          "reason": null,
+          "rule_ref": null
+        },
+        "error": {
+          "counts_in_denominator": true,
+          "error_category": null,
+          "error_message_class": null,
+          "is_infrastructure_error": null,
+          "is_strategy_underperformance": null
+        }
+      },
+      {
+        "variant_id": "VAR-000005",
+        "row_id": "RP-3731-ROW-000005",
+        "outcome_category": "successful",
+        "attempted": true,
+        "metrics": {
+          "drawdown": 0.4909023769997253,
+          "exposure": 1.0,
+          "fees": 28523.46002967857,
+          "funding": 0.0,
+          "pnl": 16388.741140644684,
+          "return_pct": 1.6388741140644685,
+          "sharpe": 0.5767667817565336,
+          "slippage": 7130.865007419642,
+          "trade_count": 1264,
+          "win_rate": 0.31645569620253167
+        },
+        "non_success": {
+          "counts_in_denominator": true,
+          "declared_before_results": null,
+          "reason": null,
+          "rule_ref": null
+        },
+        "error": {
+          "counts_in_denominator": true,
+          "error_category": null,
+          "error_message_class": null,
+          "is_infrastructure_error": null,
+          "is_strategy_underperformance": null
+        }
+      },
+      {
+        "variant_id": "VAR-000006",
+        "row_id": "RP-3731-ROW-000006",
+        "outcome_category": "successful",
+        "attempted": true,
+        "metrics": {
+          "drawdown": 0.5847598626507222,
+          "exposure": 1.0,
+          "fees": 26312.61963495816,
+          "funding": 0.0,
+          "pnl": 12539.862446474075,
+          "return_pct": 1.2539862446474075,
+          "sharpe": 0.5175699728294486,
+          "slippage": 6578.15490873954,
+          "trade_count": 1239,
+          "win_rate": 0.3163841807909605
+        },
+        "non_success": {
+          "counts_in_denominator": true,
+          "declared_before_results": null,
+          "reason": null,
+          "rule_ref": null
+        },
+        "error": {
+          "counts_in_denominator": true,
+          "error_category": null,
+          "error_message_class": null,
+          "is_infrastructure_error": null,
+          "is_strategy_underperformance": null
+        }
+      },
+      {
+        "variant_id": "VAR-000007",
+        "row_id": "RP-3731-ROW-000007",
+        "outcome_category": "successful",
+        "attempted": true,
+        "metrics": {
+          "drawdown": 0.6778623405623931,
+          "exposure": 1.0,
+          "fees": 5680.449922650318,
+          "funding": 0.0,
+          "pnl": -4621.439092420079,
+          "return_pct": -0.4621439092420079,
+          "sharpe": -0.03519771975301534,
+          "slippage": 1420.1124806625794,
+          "trade_count": 819,
+          "win_rate": 0.2661782661782662
+        },
+        "non_success": {
+          "counts_in_denominator": true,
+          "declared_before_results": null,
+          "reason": null,
+          "rule_ref": null
+        },
+        "error": {
+          "counts_in_denominator": true,
+          "error_category": null,
+          "error_message_class": null,
+          "is_infrastructure_error": null,
+          "is_strategy_underperformance": null
+        }
+      },
+      {
+        "variant_id": "VAR-000008",
+        "row_id": "RP-3731-ROW-000008",
+        "outcome_category": "successful",
+        "attempted": true,
+        "metrics": {
+          "drawdown": 0.7221283064179846,
+          "exposure": 1.0,
+          "fees": 5289.154860461876,
+          "funding": 0.0,
+          "pnl": -5396.817202131603,
+          "return_pct": -0.5396817202131603,
+          "sharpe": -0.1160217678119392,
+          "slippage": 1322.288715115469,
+          "trade_count": 773,
+          "win_rate": 0.2690815006468305
+        },
+        "non_success": {
+          "counts_in_denominator": true,
+          "declared_before_results": null,
+          "reason": null,
+          "rule_ref": null
+        },
+        "error": {
+          "counts_in_denominator": true,
+          "error_category": null,
+          "error_message_class": null,
+          "is_infrastructure_error": null,
+          "is_strategy_underperformance": null
+        }
+      }
+    ]
+  }
+}

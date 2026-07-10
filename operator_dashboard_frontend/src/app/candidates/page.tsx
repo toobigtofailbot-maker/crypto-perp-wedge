@@ -2,8 +2,13 @@ import { PageHeader } from "@/components/PageHeader";
 import { ProvenanceFooter } from "@/components/ProvenanceFooter";
 import { BoundaryNotes } from "@/components/BoundaryNotes";
 import { Badge, Card, CardTitle, StatCard } from "@/components/ui";
-import { CountBars, Funnel, type CountRow, type FunnelStageRow } from "@/components/viz";
 import { EmptyState } from "@/components/States";
+import { ChartCard } from "@/components/charts/ChartCard";
+import { ChartProvenanceNote } from "@/components/charts/ChartProvenanceNote";
+import {
+  CategoricalCountChart,
+  type CategoryBar,
+} from "@/components/charts/CategoricalCountChart";
 import { toneForStatus } from "@/lib/status";
 import { fixtures } from "@/lib/fixtures";
 
@@ -13,13 +18,14 @@ export default function CandidatesPage() {
   const reg = data.candidate_registry ?? {};
   const funnel = data.product_candidate_funnel;
 
-  const statusRows: CountRow[] = Object.entries(reg.by_status ?? {}).map(
+  const statusBars: CategoryBar[] = Object.entries(reg.by_status ?? {}).map(
     ([label, count]) => ({ label, count, tone: toneForStatus(label) }),
   );
-  const verdictRows: CountRow[] = Object.entries(reg.by_overall_verdict ?? {}).map(
-    ([label, count]) => ({ label, count, tone: toneForStatus(label) }),
-  );
-  const funnelRows: FunnelStageRow[] = (funnel?.stages ?? []).map((s) => ({
+  const verdictBars: CategoryBar[] = Object.entries(
+    reg.by_overall_verdict ?? {},
+  ).map(([label, count]) => ({ label, count, tone: toneForStatus(label) }));
+  // Stage order is the committed display order from the API, preserved as-is.
+  const funnelBars: CategoryBar[] = (funnel?.stages ?? []).map((s) => ({
     label: s.label ?? s.stage ?? "stage",
     count: s.count ?? 0,
     tone: s.stage === "candidate_admitted" ? "warn" : "info",
@@ -51,33 +57,81 @@ export default function CandidatesPage() {
         />
       </div>
 
-      {funnelRows.length > 0 ? (
-        <Card>
-          <CardTitle>Product candidate funnel</CardTitle>
-          <Funnel stages={funnelRows} />
-          {funnel?.note ? (
-            <p className="mt-3 text-xs text-cockpit-muted">{funnel.note}</p>
-          ) : null}
-        </Card>
+      {funnelBars.length > 0 ? (
+        <ChartCard
+          title="Product candidate funnel"
+          subtitle="Committed stage counts in committed display order. Stage order implies no promotion, admission, or ranking authority."
+          footer={
+            <>
+              {funnel?.note ? (
+                <p className="mb-3 text-xs text-cockpit-muted">{funnel.note}</p>
+              ) : null}
+              <ChartProvenanceNote
+                source="GET /api/candidates/funnel"
+                fields={["product_candidate_funnel.stages[].label", "…stages[].count"]}
+                drawn={funnelBars.length}
+                note="Full denominator is shown; this is not a winner-only view."
+              />
+            </>
+          }
+        >
+          <CategoricalCountChart
+            bars={funnelBars}
+            horizontal
+            ariaLabel={`Funnel bar chart across ${funnelBars.length} committed stages`}
+          />
+        </ChartCard>
       ) : null}
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <Card>
-          <CardTitle>Registry by status</CardTitle>
-          {statusRows.length > 0 ? (
-            <CountBars rows={statusRows} />
-          ) : (
+        {statusBars.length > 0 ? (
+          <ChartCard
+            title="Registry by status"
+            footer={
+              <ChartProvenanceNote
+                source="GET /api/candidates/funnel"
+                fields={["candidate_registry.by_status"]}
+                drawn={statusBars.length}
+              />
+            }
+          >
+            <CategoricalCountChart
+              bars={statusBars}
+              horizontal
+              ariaLabel={`Bar chart of candidate registry counts across ${statusBars.length} statuses`}
+            />
+          </ChartCard>
+        ) : (
+          <Card>
+            <CardTitle>Registry by status</CardTitle>
             <EmptyState message="No status breakdown available." />
-          )}
-        </Card>
-        <Card>
-          <CardTitle>Registry by overall verdict</CardTitle>
-          {verdictRows.length > 0 ? (
-            <CountBars rows={verdictRows} />
-          ) : (
+          </Card>
+        )}
+
+        {verdictBars.length > 0 ? (
+          <ChartCard
+            title="Registry by overall verdict"
+            footer={
+              <ChartProvenanceNote
+                source="GET /api/candidates/funnel"
+                fields={["candidate_registry.by_overall_verdict"]}
+                drawn={verdictBars.length}
+                note="Verdicts are read from the committed registry; this surface issues none."
+              />
+            }
+          >
+            <CategoricalCountChart
+              bars={verdictBars}
+              horizontal
+              ariaLabel={`Bar chart of candidate registry counts across ${verdictBars.length} overall verdicts`}
+            />
+          </ChartCard>
+        ) : (
+          <Card>
+            <CardTitle>Registry by overall verdict</CardTitle>
             <EmptyState message="No verdict breakdown available." />
-          )}
-        </Card>
+          </Card>
+        )}
       </div>
 
       <Card className="border-cockpit-warn/40">

@@ -1,0 +1,498 @@
+{
+  "schema_version": "operator_dashboard_api_v1",
+  "source": "committed artifact RP-6688.result_population.json",
+  "provenance": [
+    {
+      "path": "research/result_populations/RP-6688.result_population.json",
+      "role": "result_population_artifact",
+      "note": null,
+      "sha256": "sha256:dd7a329fdf7649ce9d926a56b7fd3f262db46e2ecd9a490a34f3ec05dcf02e23"
+    }
+  ],
+  "authority": {
+    "api_projection_only": true,
+    "repo_artifacts_remain_truth": true,
+    "read_only": true,
+    "get_endpoints_only": true,
+    "not_execution_authority": true,
+    "not_approval_authority": true,
+    "not_recommendation_authority": true,
+    "not_ranking_authority": true,
+    "not_readiness_authority": true,
+    "not_promotion_authority": true,
+    "not_runtime_authority": true,
+    "not_paper_live_authority": true,
+    "not_broker_exchange_order_authority": true,
+    "not_agent_inbox_write_authority": true,
+    "not_scheduler_authority": true,
+    "not_notification_authority": true,
+    "control_surface": "none"
+  },
+  "warnings": [
+    "This API response is a derived read-only projection for local dashboard inspection. Committed repo artifacts and protected runtime truth, where later authorized snapshots exist, remain authoritative."
+  ],
+  "withheld": {
+    "uncommitted_runner_outputs": "Not read. This endpoint projects committed artifacts only."
+  },
+  "unavailable": {},
+  "data": {
+    "result_population_id": "RP-6688",
+    "path": "research/result_populations/RP-6688.result_population.json",
+    "parent_strategy_spec_id": "STRAT-SPEC-0002",
+    "variant_manifest_id": "VM-0002",
+    "sweep_plan_id": "SWEEP-PLAN-0002",
+    "committed_denominator": 10,
+    "result_row_count": 10,
+    "outcome_counts": {
+      "aborted": 0,
+      "counts_sum": 10,
+      "counts_sum_equals_committed_denominator": true,
+      "data_unavailable": 0,
+      "errored": 0,
+      "excluded": 0,
+      "failed": 0,
+      "filtered": 0,
+      "invalid": 0,
+      "not_attempted": 0,
+      "successful": 10
+    },
+    "result_population_identity_hash": "sha256:7ee08cc1f30e26c318b39d571b90d25406072329ce4a67bd7c94ec35f98fcdbc",
+    "input_identity_hash": "sha256:ea9ea760ef7a5d30956a4573fc4ca0c39b43a533803667370219f5e3f7ffe386",
+    "execution_mode": "offline_research",
+    "offline_only": true,
+    "no_runtime_contact": true,
+    "no_paper_live_contact": true,
+    "validator_status": "passed",
+    "review_status": "not_reviewed",
+    "status": "available",
+    "data_coverage_summary": {
+      "data_catalog_ref": "binance_usdtm_btcusdt_ohlcv_15m.offline_local.15m.20200101T000000Z.20260411T234500Z.sha256_3daace53d727599b",
+      "data_coverage_notes": [
+        "provenance_mode=d4_catalog_slice",
+        "offline only",
+        "no exchange/API contact",
+        "not live/paper input",
+        "d3_validation_report_sha256=785a8d53797155dcc80e646e8610db8d510825b9fa3dbccd21e79aa2700a6c1c",
+        "d2_import_report_sha256=543c944f727b2b9a7ad06742946ecefc91aa8b94723f46509e4041f622ef57ad",
+        "d4_catalog_artifact_sha256=f7b98c4d7759b6ba0c9bf8559bcea5e3311d3abe877930da254aeca96f53105a",
+        "row_count=220128",
+        "expected_row_count=220128",
+        "start_utc=2020-01-01T00:00:00Z",
+        "end_utc=2026-04-11T23:45:00Z",
+        "gap_count=0",
+        "missing_bar_count=0",
+        "gaps=[]",
+        "duplicate_group_count=0",
+        "duplicate_row_count=0",
+        "duplicates=[]",
+        "raw_source_sha256=343b639e35ce79824d26bddf6d70af2641c9d76003301e303f83cdf61d4feab4",
+        "normalized_sha256=c30fd7f07fdf513cdaf234b1bee4eff03b430a479cc572a2cc8b57394f22e0ab"
+      ],
+      "data_slice_identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+      "data_stream": "ohlcv",
+      "data_unavailable_count": 0,
+      "irreparable_gap_count": 0,
+      "missing_data_policy": "block_if_missing",
+      "timeframe": "15m"
+    },
+    "backtest_assumption_summary": {
+      "bar_path_assumption": "next_open_close_mark",
+      "exchange_constraint_disclosure": "True",
+      "fee_side_assumption": "taker_entry_taker_exit",
+      "fill_mode": "complete",
+      "funding_notional": "entry_price",
+      "liquidation_mode": "zero_equity",
+      "liquidity_capacity_assumption": null,
+      "maintenance_margin_assumption": null,
+      "mark_price_source": "close",
+      "order_size_assumption": "future offline runner assumption only; no execution here",
+      "records_assumptions_only": true,
+      "slippage_model": "fixed_bps"
+    },
+    "error_summary": {
+      "aborted": 0,
+      "all_error_categories_counted_in_denominator": true,
+      "data_unavailable": 0,
+      "error_rows_preserved": true,
+      "errored": 0,
+      "excluded": 0,
+      "failed": 0,
+      "filtered": 0,
+      "invalid": 0,
+      "not_attempted": 0
+    },
+    "append_only_ledger": {
+      "append_only": true,
+      "corrections_require_append_only_event": true,
+      "creation_event_ref": "RP-6688-EVENT-001",
+      "events": [
+        {
+          "actor_or_tool": "tools.research_runner.run_offline_sweep",
+          "event_id": "RP-6688-EVENT-001",
+          "event_timestamp": "2026-06-01T00:00:00Z",
+          "event_type": "created",
+          "notes": [
+            "build-and-test-only canonical 15m runner output"
+          ],
+          "related_artifact_refs": []
+        }
+      ],
+      "ledger_required": true,
+      "post_commit_in_place_mutation_forbidden": true,
+      "scientific_identity_mutation_forbidden_after_finalization": true,
+      "supersession_preserves_prior_result_population": true
+    },
+    "non_authority_declaration": {
+      "canonical_evidence_relationship": "reference_only",
+      "not_candidate_approval": true,
+      "not_canonical_evidence_replacement": true,
+      "not_dec_replacement": true,
+      "not_decision_authority": true,
+      "not_executable": true,
+      "not_exp_approval": true,
+      "not_exp_replacement": true,
+      "not_gate_authority": true,
+      "not_ol_replacement": true,
+      "not_outcome_ledger_replacement": true,
+      "not_paper_live_authority": true,
+      "not_ranking_authority": true,
+      "not_readiness_authority": true,
+      "not_rec_replacement": true,
+      "not_recommendation_authority": true,
+      "not_reconciliation_authority": true,
+      "not_rep_replacement": true,
+      "not_result_authority": true,
+      "not_runner_authority": true,
+      "not_runtime_authority": true,
+      "not_sweep_authority": true,
+      "not_transition_authority": true,
+      "not_trial_log_replacement": true
+    },
+    "review": {
+      "non_authority_acknowledgement": {
+        "not_approval": true,
+        "not_gate_satisfaction": true,
+        "not_paper_live_authority": true,
+        "not_readiness": true,
+        "not_recommendation": true,
+        "not_runtime_authority": true,
+        "not_transition": true
+      },
+      "review_notes": [],
+      "review_scope": "none",
+      "review_status": "not_reviewed"
+    },
+    "variant_result_rows": [
+      {
+        "variant_id": "VAR-000001",
+        "row_id": "RP-6688-ROW-000001",
+        "outcome_category": "successful",
+        "attempted": true,
+        "metrics": {
+          "drawdown": 1.0,
+          "exposure": 1.0,
+          "fees": 4712.335423999993,
+          "funding": 0.0,
+          "pnl": -10000.0,
+          "return_pct": -1.0,
+          "sharpe": -3.3184989271004612,
+          "slippage": 1178.0838559999981,
+          "trade_count": 747,
+          "win_rate": 0.7068273092369478
+        },
+        "non_success": {
+          "counts_in_denominator": true,
+          "declared_before_results": null,
+          "reason": null,
+          "rule_ref": null
+        },
+        "error": {
+          "counts_in_denominator": true,
+          "error_category": null,
+          "error_message_class": null,
+          "is_infrastructure_error": null,
+          "is_strategy_underperformance": null
+        }
+      },
+      {
+        "variant_id": "VAR-000002",
+        "row_id": "RP-6688-ROW-000002",
+        "outcome_category": "successful",
+        "attempted": true,
+        "metrics": {
+          "drawdown": 1.0,
+          "exposure": 1.0,
+          "fees": 7695.883872000014,
+          "funding": 0.0,
+          "pnl": -10000.0,
+          "return_pct": -1.0,
+          "sharpe": -0.09408021545054557,
+          "slippage": 1923.9709680000035,
+          "trade_count": 1037,
+          "win_rate": 0.6682738669238187
+        },
+        "non_success": {
+          "counts_in_denominator": true,
+          "declared_before_results": null,
+          "reason": null,
+          "rule_ref": null
+        },
+        "error": {
+          "counts_in_denominator": true,
+          "error_category": null,
+          "error_message_class": null,
+          "is_infrastructure_error": null,
+          "is_strategy_underperformance": null
+        }
+      },
+      {
+        "variant_id": "VAR-000003",
+        "row_id": "RP-6688-ROW-000003",
+        "outcome_category": "successful",
+        "attempted": true,
+        "metrics": {
+          "drawdown": 1.0,
+          "exposure": 1.0,
+          "fees": 12895.139516000003,
+          "funding": 0.0,
+          "pnl": -10000.0,
+          "return_pct": -1.0,
+          "sharpe": 0.7333519911606513,
+          "slippage": 3223.7848790000007,
+          "trade_count": 854,
+          "win_rate": 0.6229508196721312
+        },
+        "non_success": {
+          "counts_in_denominator": true,
+          "declared_before_results": null,
+          "reason": null,
+          "rule_ref": null
+        },
+        "error": {
+          "counts_in_denominator": true,
+          "error_category": null,
+          "error_message_class": null,
+          "is_infrastructure_error": null,
+          "is_strategy_underperformance": null
+        }
+      },
+      {
+        "variant_id": "VAR-000004",
+        "row_id": "RP-6688-ROW-000004",
+        "outcome_category": "successful",
+        "attempted": true,
+        "metrics": {
+          "drawdown": 1.0,
+          "exposure": 1.0,
+          "fees": 37332.33414400005,
+          "funding": 0.0,
+          "pnl": -10000.0,
+          "return_pct": -1.0,
+          "sharpe": 0.8303258459497623,
+          "slippage": 9333.083536000013,
+          "trade_count": 1466,
+          "win_rate": 0.6132332878581174
+        },
+        "non_success": {
+          "counts_in_denominator": true,
+          "declared_before_results": null,
+          "reason": null,
+          "rule_ref": null
+        },
+        "error": {
+          "counts_in_denominator": true,
+          "error_category": null,
+          "error_message_class": null,
+          "is_infrastructure_error": null,
+          "is_strategy_underperformance": null
+        }
+      },
+      {
+        "variant_id": "VAR-000005",
+        "row_id": "RP-6688-ROW-000005",
+        "outcome_category": "successful",
+        "attempted": true,
+        "metrics": {
+          "drawdown": 1.0,
+          "exposure": 1.0,
+          "fees": 13633.019232000011,
+          "funding": 0.0,
+          "pnl": -10000.0,
+          "return_pct": -1.0,
+          "sharpe": -0.15367455853145023,
+          "slippage": 3408.254808000003,
+          "trade_count": 555,
+          "win_rate": 0.6216216216216216
+        },
+        "non_success": {
+          "counts_in_denominator": true,
+          "declared_before_results": null,
+          "reason": null,
+          "rule_ref": null
+        },
+        "error": {
+          "counts_in_denominator": true,
+          "error_category": null,
+          "error_message_class": null,
+          "is_infrastructure_error": null,
+          "is_strategy_underperformance": null
+        }
+      },
+      {
+        "variant_id": "VAR-000006",
+        "row_id": "RP-6688-ROW-000006",
+        "outcome_category": "successful",
+        "attempted": true,
+        "metrics": {
+          "drawdown": 1.0,
+          "exposure": 1.0,
+          "fees": 8173.681688000014,
+          "funding": 0.0,
+          "pnl": -10000.0,
+          "return_pct": -1.0,
+          "sharpe": 0.5901456636299505,
+          "slippage": 2043.4204220000036,
+          "trade_count": 1096,
+          "win_rate": 0.760036496350365
+        },
+        "non_success": {
+          "counts_in_denominator": true,
+          "declared_before_results": null,
+          "reason": null,
+          "rule_ref": null
+        },
+        "error": {
+          "counts_in_denominator": true,
+          "error_category": null,
+          "error_message_class": null,
+          "is_infrastructure_error": null,
+          "is_strategy_underperformance": null
+        }
+      },
+      {
+        "variant_id": "VAR-000007",
+        "row_id": "RP-6688-ROW-000007",
+        "outcome_category": "successful",
+        "attempted": true,
+        "metrics": {
+          "drawdown": 1.0,
+          "exposure": 1.0,
+          "fees": 6355.362363999999,
+          "funding": 0.0,
+          "pnl": -10000.0,
+          "return_pct": -1.0,
+          "sharpe": -1.0654166440132062,
+          "slippage": 1588.8405909999997,
+          "trade_count": 794,
+          "win_rate": 0.7178841309823678
+        },
+        "non_success": {
+          "counts_in_denominator": true,
+          "declared_before_results": null,
+          "reason": null,
+          "rule_ref": null
+        },
+        "error": {
+          "counts_in_denominator": true,
+          "error_category": null,
+          "error_message_class": null,
+          "is_infrastructure_error": null,
+          "is_strategy_underperformance": null
+        }
+      },
+      {
+        "variant_id": "VAR-000008",
+        "row_id": "RP-6688-ROW-000008",
+        "outcome_category": "successful",
+        "attempted": true,
+        "metrics": {
+          "drawdown": 1.0,
+          "exposure": 1.0,
+          "fees": 5619.576944000005,
+          "funding": 0.0,
+          "pnl": -10000.0,
+          "return_pct": -1.0,
+          "sharpe": 0.6156999712839655,
+          "slippage": 1404.8942360000012,
+          "trade_count": 543,
+          "win_rate": 0.6813996316758748
+        },
+        "non_success": {
+          "counts_in_denominator": true,
+          "declared_before_results": null,
+          "reason": null,
+          "rule_ref": null
+        },
+        "error": {
+          "counts_in_denominator": true,
+          "error_category": null,
+          "error_message_class": null,
+          "is_infrastructure_error": null,
+          "is_strategy_underperformance": null
+        }
+      },
+      {
+        "variant_id": "VAR-000009",
+        "row_id": "RP-6688-ROW-000009",
+        "outcome_category": "successful",
+        "attempted": true,
+        "metrics": {
+          "drawdown": 1.0,
+          "exposure": 1.0,
+          "fees": 3897.314868,
+          "funding": 0.0,
+          "pnl": -10000.0,
+          "return_pct": -1.0,
+          "sharpe": 0.03461591315123755,
+          "slippage": 974.328717,
+          "trade_count": 360,
+          "win_rate": 0.6611111111111111
+        },
+        "non_success": {
+          "counts_in_denominator": true,
+          "declared_before_results": null,
+          "reason": null,
+          "rule_ref": null
+        },
+        "error": {
+          "counts_in_denominator": true,
+          "error_category": null,
+          "error_message_class": null,
+          "is_infrastructure_error": null,
+          "is_strategy_underperformance": null
+        }
+      },
+      {
+        "variant_id": "VAR-000010",
+        "row_id": "RP-6688-ROW-000010",
+        "outcome_category": "successful",
+        "attempted": true,
+        "metrics": {
+          "drawdown": 1.0,
+          "exposure": 1.0,
+          "fees": 4697.418484000002,
+          "funding": 0.0,
+          "pnl": -10000.0,
+          "return_pct": -1.0,
+          "sharpe": 0.997177116916779,
+          "slippage": 1174.3546210000004,
+          "trade_count": 308,
+          "win_rate": 0.6493506493506493
+        },
+        "non_success": {
+          "counts_in_denominator": true,
+          "declared_before_results": null,
+          "reason": null,
+          "rule_ref": null
+        },
+        "error": {
+          "counts_in_denominator": true,
+          "error_category": null,
+          "error_message_class": null,
+          "is_infrastructure_error": null,
+          "is_strategy_underperformance": null
+        }
+      }
+    ]
+  }
+}

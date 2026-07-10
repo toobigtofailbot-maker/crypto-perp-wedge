@@ -1,0 +1,98 @@
+WP-DASH-CHARTS-PANELS-05 — Validation summary
+=============================================
+
+Base: main @ 74e6464
+Branch: claude/wp-dash-charts-panels-05-4d1f75
+Node v24.18.0 / npm 11.16.0
+
+FRONTEND (from operator_dashboard_frontend/)
+--------------------------------------------
+npm install          PASS   up to date, audited 398 packages
+npm audit --omit=dev PASS   2 vulnerabilities (1 moderate, 1 high) — IDENTICAL TO BASELINE
+                            both in the `next` chain (next high, postcss moderate);
+                            fixable only by next@16 semver-major, out of scope.
+                            echarts / zrender: NOT flagged.
+                            Nothing suppressed; `npm audit fix --force` not run.
+npm run typecheck    PASS   tsc --noEmit, no output
+npm run lint         PASS   ✔ No ESLint warnings or errors
+npm run build        PASS   ✓ Compiled successfully
+                            ✓ Generating static pages (25/25)
+
+Bundle effect (First Load JS, from `npm run build`):
+  chart-free routes  87.4 kB  -> 87.4 kB   (byte-for-byte unchanged)
+  chart routes       87.4 kB  -> ~279 kB
+  /strategies[/id]   87.4 kB  -> ~288-289 kB
+  => tree-shaken echarts/core registration confines ECharts to routes that draw.
+
+BACKEND / API (from repo root, .venv python)
+--------------------------------------------
+pytest tests/test_operator_dashboard_api.py -q       PASS   11 passed, 1 warning
+   (warning = pre-existing StarletteDeprecationWarning re: httpx, unrelated)
+
+REPO VALIDATORS
+---------------
+python -m tools.research_query.run --list-views          PASS   views listed, unchanged
+python -m tools.registry.validate_result_populations     PASS   "OK: result-population artifacts ... validate"
+python -m tools.registry.validate_candidate_registry     PASS   "OK: candidate lifecycle registry artifacts ... validate"
+
+SCOPE / HYGIENE
+---------------
+python tools/dev/diff_scope_summary.py    PASS   "## Forbidden-path matches — none"
+git diff --check                          PASS   clean
+git diff --cached --check                 PASS   clean
+   (git emitted informational CRLF->LF normalization notices for the 8 new fixture
+    files. `.gitattributes` declares `* text=auto eol=lf`; the staged blobs are
+    already LF, identical to every pre-existing fixture. No action needed.)
+
+NO-CONTROL STATIC SCAN over operator_dashboard_frontend/src
+-----------------------------------------------------------
+HTTP mutation verbs (POST/PUT/PATCH/DELETE)   0   PASS
+form elements / onSubmit / inputs             0   PASS
+buttons / onClick / onChange / submit         0   PASS
+server actions / revalidate / redirect        0   PASS
+action verbs wired to UI                      0   PASS
+localStorage / sessionStorage / cookies       0   PASS
+useState / useReducer                         0   PASS
+fetch(                                        1   apiClient.ts — pre-existing, GET-only,
+                                                  imported by no page or component
+agent-inbox-write matches                    22   all negative declarations
+                                                  (`false`, `not_*_authority: true`) or prose
+                                                  stating the endpoint is not implemented
+
+Charts import no fixtures and no apiClient; they receive serializable props only.
+Registered ECharts modules: BarChart, ScatterChart, GridComponent, TooltipComponent,
+LegendComponent, CanvasRenderer. NOT registered: toolbox, dataZoom, brush, markLine, markArea.
+
+VISUAL VERIFICATION
+-------------------
+`npm run build` then `npx next start -p 3517`. Server log: 0 errors / warnings / exceptions.
+
+Route                          HTTP  charts  absence-states
+/                              200   1       2
+/research/result-populations   200   4       2
+/strategies                    200   2       0
+/strategies/STRAT-SPEC-0001    200   3       3
+/strategies/STRAT-SPEC-0003    200   3       3
+/candidates                    200   3       0
+/reports                       200   0       0
+/reports/daily                 200   1       1
+/reports/weekly                200   1       1
+/system/data                   200   0       2
+
+Rendered aria-labels cross-checked against committed artifacts:
+  "…across 66 committed variant rows"          == 66 rows over 8 result populations   OK
+  "…14 committed variant rows" (STRAT-SPEC-0001) == RP-2134 (7) + RP-4492 (7)          OK
+  "…8 committed queue statuses"                == queue_summary.by_status              OK
+  "…5 committed stages"                        == product_candidate_funnel.stages      OK
+  "…5 non-zero states"                         == by_overall_state non-zero count      OK
+
+LIMITATION (stated, not papered over)
+-------------------------------------
+The browser console was NOT read: the Chrome extension was not connected in this
+environment. Canvas paint was therefore not observed live. Coverage achieved instead:
+production build passes, all chart routes return 200, every chart host server-renders
+with row counts matching committed artifacts, and the server log is clean. A reviewer
+should run `npm run dev` and confirm the canvases paint without console errors.
+
+OVERALL: all commanded validations PASS. No forbidden path touched. No control created.
+No chart data fabricated.

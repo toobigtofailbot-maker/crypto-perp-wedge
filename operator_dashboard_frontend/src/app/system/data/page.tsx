@@ -2,12 +2,24 @@ import { PageHeader } from "@/components/PageHeader";
 import { ProvenanceFooter } from "@/components/ProvenanceFooter";
 import { Badge, Card, CardTitle, KeyValue } from "@/components/ui";
 import { EmptyState } from "@/components/States";
+import { ChartCard } from "@/components/charts/ChartCard";
+import { ChartProvenanceNote } from "@/components/charts/ChartProvenanceNote";
+import { UnavailableChartState } from "@/components/charts/UnavailableChartState";
+import {
+  CategoricalCountChart,
+  type CategoryBar,
+} from "@/components/charts/CategoricalCountChart";
 import { toneForStatus } from "@/lib/status";
 import { fixtures } from "@/lib/fixtures";
 
 interface Freshness {
   staleness_status?: string;
   staleness_reason?: string;
+}
+interface Gap {
+  start_utc?: string;
+  end_utc?: string;
+  missing_bar_count?: number;
 }
 interface D4Slice {
   status?: string;
@@ -19,7 +31,12 @@ interface D4Slice {
   row_count?: number;
   expected_row_count?: number;
   timestamp_range?: { start_utc?: string; end_utc?: string };
-  gap_facts?: { gap_count?: number; missing_bar_count?: number };
+  gap_facts?: {
+    gap_count?: number;
+    missing_bar_count?: number;
+    gaps?: Gap[];
+    policy?: string;
+  };
   duplicate_facts?: { duplicate_group_count?: number; duplicate_row_count?: number };
   freshness?: Freshness;
 }
@@ -51,6 +68,15 @@ export default function SystemDataPage() {
   const range = slice.timestamp_range ?? {};
   const warnings = Array.isArray(data.warnings) ? data.warnings : [];
   const rowsMatch = slice.row_count === slice.expected_row_count;
+
+  // Charted only if the collector actually detected gaps. The policy is
+  // detect-and-report, never fill or interpolate — so is this chart.
+  const gaps = gap.gaps ?? [];
+  const gapBars: CategoryBar[] = gaps.map((g, i) => ({
+    label: g.start_utc ?? `gap ${i + 1}`,
+    count: g.missing_bar_count ?? 0,
+    tone: "warn",
+  }));
 
   return (
     <>
@@ -110,6 +136,44 @@ export default function SystemDataPage() {
           </p>
         ) : null}
       </Card>
+
+      {gapBars.length > 0 ? (
+        <ChartCard
+          title="Detected coverage gaps"
+          subtitle="Missing bars per detected gap, as recorded by the collector."
+          footer={
+            <ChartProvenanceNote
+              source="GET /api/system/data-health"
+              fields={[
+                "d4_slice.gap_facts.gaps[].start_utc",
+                "d4_slice.gap_facts.gaps[].missing_bar_count",
+              ]}
+              drawn={gapBars.length}
+              note={`Gap policy: ${gap.policy ?? "detect and report"}. Gaps are never filled or interpolated, here or upstream.`}
+            />
+          }
+        >
+          <CategoricalCountChart
+            bars={gapBars}
+            horizontal
+            ariaLabel={`Bar chart of missing bars across ${gapBars.length} detected coverage gaps`}
+          />
+        </ChartCard>
+      ) : (
+        <UnavailableChartState
+          title="Detected coverage gaps"
+          absence="unavailable"
+          reason={`The committed slice reports ${gap.gap_count ?? 0} gaps and ${gap.missing_bar_count ?? 0} missing bars, so there is nothing to plot. An empty chart is not drawn in place of a clean slice.`}
+          source="d4_slice.gap_facts"
+        />
+      )}
+
+      <UnavailableChartState
+        title="Price / OHLCV series"
+        absence="deferred"
+        reason="The data-health endpoint projects slice identity, row counts, and gap facts — not the bars themselves. Candle rendering belongs to a later package with a real candle data contract."
+        source="GET /api/system/data-health"
+      />
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <Card>

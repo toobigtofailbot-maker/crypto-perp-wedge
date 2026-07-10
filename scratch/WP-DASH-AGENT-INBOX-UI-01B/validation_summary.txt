@@ -1,0 +1,118 @@
+WP-DASH-AGENT-INBOX-UI-01B VALIDATION SUMMARY
+=============================================
+
+Base: main @ 071a6afe801ef431ac26e1df0df3867591cb83b8
+Branch: claude/wp-dash-agent-inbox-ui-01b
+
+FRONTEND (operator_dashboard_frontend/)
+---------------------------------------
+npm ci                                  PASS (no dependency change; lockfile untouched)
+npm run typecheck                       PASS (tsc --noEmit, no errors)
+npm run lint                            PASS (next lint: no ESLint warnings or errors)
+npm run build                           PASS (compiled successfully, 31/31 static pages)
+  /agent-inbox                          f (dynamic, server-rendered on demand)  5.54 kB
+  /agent-inbox/intake-draft             f (route handler)                       0 B
+npm test                                N/A (no test script defined in package.json; none added)
+
+BACKEND REGRESSION (unmodified code, run to prove no breakage)
+--------------------------------------------------------------
+pytest tests/test_operator_dashboard_api.py -q      11 passed
+pytest tests/test_agent_inbox_intake.py -q           8 passed
+
+REPO VALIDATORS
+---------------
+python -m tools.research_query.run --list-views              PASS (views listed)
+python -m tools.registry.validate_result_populations         OK
+python -m tools.registry.validate_candidate_registry         OK
+python tools/dev/diff_scope_summary.py                       exit reason: ok
+git diff --check                                             clean
+git diff --cached --check                                    clean
+
+CORS FINDING (drove the passthrough design)
+-------------------------------------------
+Measured against the real tools.agent_inbox_intake app over a socket:
+  OPTIONS /api/agent/intake-draft  (Origin + Access-Control-Request-Method: POST)
+    -> HTTP 405
+  POST /api/agent/intake-draft  (Origin set)
+    -> no Access-Control-* response headers
+Conclusion: a direct cross-origin browser JSON POST is impossible. The service
+may not be modified by this package, so the UI posts to a same-origin passthrough
+(package section 10.2: "documented local path").
+
+VISUAL / RUNTIME VERIFICATION
+-----------------------------
+Harness: the REAL tools.agent_inbox_intake FastAPI app served over a stdlib
+HTTP socket (uvicorn is not installed in .venv; bridged via Starlette TestClient).
+Dashboard served with `next start -p 3100`, AGENT_INBOX_SERVICE_ORIGIN set.
+
+  A. GET /agent-inbox (configured)
+     PASS - renders the form, all boundary lines ("Draft only.",
+     "Does not create candidates.", "Requires human review before any repo
+     action."), and the target origin. Exactly one <form>. Submit button present
+     and correctly disabled while required fields are empty. All five locked
+     timeframes rendered as <option>s.
+
+  B. POST /agent-inbox/intake-draft (real submit, end to end through the
+     passthrough into the real service)
+     PASS - HTTP 200, real packet returned:
+       draft_id       AIDRAFT-80744DCF037F5139
+       schema_version agent_inbox_intake_draft_packet_v1
+       spec produced  False
+       blockers       ['no validated draft adapter exists for this exact primitive family']
+       output_path    scratch/WP-DASH-AGENT-INBOX-WRITE-01A/drafts/AIDRAFT-80744DCF037F5139.draft_packet.json
+       fabricated     False
+       not_execution  True
+       not_paper_live True
+       api_call_made  False
+       audit records  4
+     Every field the response preview renders is present in the real packet.
+
+  C. Rejection: timeframe_hint "7m"
+     PASS - HTTP 400, detail surfaced verbatim:
+     "timeframe_hint must be one of ['15m', '1d', '1h', '30m', '4h']"
+
+  D. Rejection: market_hint "ETHUSDT"
+     PASS - HTTP 400 "market_hint must remain bounded to BTCUSDT"
+
+  E. Schema validation: missing title
+     PASS - HTTP 422, pydantic list detail flattened by the client
+
+  F. extra="forbid": extra key run_backtest
+     PASS - HTTP 422 "Extra inputs are not permitted"
+
+  G. Passthrough is POST-only
+     PASS - GET -> 405, DELETE -> 405
+
+  H. Service unreachable (origin points at a dead port)
+     PASS - HTTP 502 {"agent_inbox_unreachable": true}; no draft fabricated
+
+  I. Service unconfigured (AGENT_INBOX_SERVICE_ORIGIN unset)
+     PASS - page renders "Intake service not configured", names the env var,
+     form fieldset disabled=""; badge reads "no target"
+
+  J. Unconfigured POST
+     PASS - HTTP 503 {"agent_inbox_unconfigured": true}, "No draft was created."
+
+NOT VERIFIED
+------------
+Live in-browser React interaction (typing into the form, clicking submit, and
+watching DraftPacketView mount) was NOT exercised: the Claude-in-Chrome
+extension was not connected in this session, and preview tooling requires a
+.claude/launch.json, a path this package is forbidden to modify. What was
+verified instead: the server-rendered DOM contains the full form; the exact HTTP
+exchange the browser performs was driven end to end against the real service;
+and every packet field the preview reads was confirmed present in the real
+response. The un-exercised gap is React client-side rendering only.
+
+CLEANUP
+-------
+Three draft packets written by the real service during verification were removed
+from scratch/WP-DASH-AGENT-INBOX-WRITE-01A/drafts/ with `git clean -f`.
+01A's committed sample packet (AIDRAFT-8DEEE634E62CD560) is preserved; 01A's
+tree reports clean.
+
+BOUNDARY
+--------
+Frontend Agent Inbox UI only. Posts only to the isolated scratch-write service.
+No canonical, candidate, runner, pipeline, runtime, paper/live, scheduler,
+notification, or protected-path change. No dependency change.

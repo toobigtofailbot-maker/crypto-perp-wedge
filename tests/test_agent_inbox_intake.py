@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib
 import ast
 import inspect
+import json
 import shutil
 import sys
 from datetime import datetime, timezone
@@ -12,8 +13,19 @@ import pytest
 from fastapi.testclient import TestClient
 
 from tools.agent_inbox_intake.app import create_app
-from tools.agent_inbox_intake.models import IntakeDraftError, IntakeDraftRequest
-from tools.agent_inbox_intake.service import PACKAGE_ID, create_intake_draft
+from tools.agent_inbox_intake.models import (
+    DraftHistoryError,
+    DraftIdError,
+    DraftNotFoundError,
+    IntakeDraftError,
+    IntakeDraftRequest,
+)
+from tools.agent_inbox_intake.service import (
+    PACKAGE_ID,
+    create_intake_draft,
+    get_intake_draft,
+    list_intake_drafts,
+)
 from tools.operator_dashboard_api.app import app as dashboard_app
 from tools.research_agents.idea_formalizer_agent import (
     AVAILABILITY_CATALOG_PATH,
@@ -170,6 +182,8 @@ def test_isolated_fastapi_app_exposes_post_without_mutating_dashboard_api():
         if route.path.startswith("/api/")
     }
     assert ("/api/agent/intake-draft", ("POST",)) in intake_routes
+    assert ("/api/agent/drafts", ("GET",)) in intake_routes
+    assert ("/api/agent/drafts/{draft_id}", ("GET",)) in intake_routes
 
     for route in dashboard_app.routes:
         if route.path.startswith("/api/"):
@@ -215,3 +229,139 @@ def test_service_source_does_not_import_forbidden_execution_surfaces():
         module_name.startswith(forbidden_terms[:7]) for module_name in imported_modules
     )
     assert not any(term in source for term in forbidden_terms[7:])
+
+
+def test_list_missing_directory_returns_honest_empty_history(agent_inbox_repo: Path):
+    history = list_intake_drafts(repo_root=agent_inbox_repo)
+
+    assert history == {
+        "status": "empty",
+        "count": 0,
+        "drafts": [],
+        "storage_source": f"scratch/{PACKAGE_ID}/drafts",
+        "scratch_only": True,
+    }
+
+
+def test_list_real_packets_is_compact_and_deterministically_newest_first(
+    agent_inbox_repo: Path,
+):
+    older = create_intake_draft(
+        _valid_request(client_draft_id="history-older", submitter_label="operator-a"),
+        repo_root=agent_inbox_repo,
+        clock=lambda: datetime(2026, 7, 9, 12, 0, tzinfo=timezone.utc),
+    )
+    newer = create_intake_draft(
+        _valid_request(
+            client_draft_id="history-newer",
+            title="Newer draft",
+            submitter_label="operator-b",
+        ),
+        repo_root=agent_inbox_repo,
+        clock=lambda: datetime(2026, 7, 10, 12, 0, tzinfo=timezone.utc),
+    )
+    tied_newer = create_intake_draft(
+        _valid_request(client_draft_id="history-newer-tie", title="Tied newer draft"),
+        repo_root=agent_inbox_repo,
+        clock=lambda: datetime(2026, 7, 10, 12, 0, tzinfo=timezone.utc),
+    )
+
+    history = list_intake_drafts(repo_root=agent_inbox_repo)
+
+    assert history["status"] == "available"
+    assert history["count"] == 3
+    expected_tied_order = sorted([newer["draft_id"], tied_newer["draft_id"]])
+    assert [row["draft_id"] for row in history["drafts"]] == [
+        *expected_tied_order,
+        older["draft_id"],
+    ]
+    row = next(row for row in history["drafts"] if row["draft_id"] == newer["draft_id"])
+    assert row["title"] == "Newer draft"
+    assert row["submitter_label"] == "operator-b"
+    assert row["market_hint"] == "BTCUSDT"
+    assert row["timeframe_hint"] == "15m"
+    assert row["hypothesis_preview"].startswith("BTCUSDT 15m EMA momentum")
+    assert row["blocker_count"] == len(newer["blockers"])
+    assert row["warning_count"] == len(newer["warnings"])
+    assert row["open_question_count"] == len(newer["open_questions"])
+    assert row["fabricated"] is False
+    assert row["non_authority"]["scratch_only"] is True
+    assert row["source_packet_path"] == newer["provenance"]["output_path"]
+    assert "formalizer_result" not in row
+
+
+def test_detail_returns_exact_stored_packet(agent_inbox_repo: Path):
+    packet = create_intake_draft(
+        _valid_request(client_draft_id="history-detail"),
+        repo_root=agent_inbox_repo,
+        clock=lambda: FIXED_TIME,
+    )
+    stored_path = agent_inbox_repo / packet["provenance"]["output_path"]
+    stored = json.loads(stored_path.read_text(encoding="utf-8"))
+
+    assert get_intake_draft(packet["draft_id"], repo_root=agent_inbox_repo) == stored
+
+    client = TestClient(create_app(repo_root=agent_inbox_repo))
+    response = client.get(f"/api/agent/drafts/{packet['draft_id']}")
+    assert response.status_code == 200
+    assert response.json() == stored
+
+
+def test_missing_and_path_traversal_draft_ids_are_rejected(agent_inbox_repo: Path):
+    with pytest.raises(DraftNotFoundError, match="draft not found"):
+        get_intake_draft("AIDRAFT-0000000000000000", repo_root=agent_inbox_repo)
+    with pytest.raises(DraftIdError, match="draft_id must match"):
+        get_intake_draft("../project_status", repo_root=agent_inbox_repo)
+
+    client = TestClient(create_app(repo_root=agent_inbox_repo))
+    missing = client.get("/api/agent/drafts/AIDRAFT-0000000000000000")
+    invalid = client.get("/api/agent/drafts/not-a-draft-id")
+    assert missing.status_code == 404
+    assert invalid.status_code == 400
+
+
+def test_malformed_packet_fails_closed_and_honestly(agent_inbox_repo: Path):
+    drafts = agent_inbox_repo / "scratch" / PACKAGE_ID / "drafts"
+    drafts.mkdir(parents=True)
+    malformed = drafts / "AIDRAFT-ABCDEF0123456789.draft_packet.json"
+    malformed.write_text('{"draft_id":"wrong"}\n', encoding="utf-8")
+
+    with pytest.raises(DraftHistoryError, match="stored draft_id"):
+        list_intake_drafts(repo_root=agent_inbox_repo)
+    with pytest.raises(DraftHistoryError, match="stored draft_id"):
+        get_intake_draft("AIDRAFT-ABCDEF0123456789", repo_root=agent_inbox_repo)
+
+    response = TestClient(create_app(repo_root=agent_inbox_repo)).get(
+        "/api/agent/drafts"
+    )
+    assert response.status_code == 503
+    assert "stored draft_id" in response.json()["detail"]
+
+
+def test_history_reads_only_scratch_and_writes_no_canonical_files(
+    agent_inbox_repo: Path,
+):
+    packet = create_intake_draft(
+        _valid_request(client_draft_id="history-read-only"),
+        repo_root=agent_inbox_repo,
+        clock=lambda: FIXED_TIME,
+    )
+    before = sorted(
+        path.relative_to(agent_inbox_repo).as_posix()
+        for path in agent_inbox_repo.rglob("*")
+        if path.is_file()
+    )
+
+    list_intake_drafts(repo_root=agent_inbox_repo)
+    get_intake_draft(packet["draft_id"], repo_root=agent_inbox_repo)
+
+    after = sorted(
+        path.relative_to(agent_inbox_repo).as_posix()
+        for path in agent_inbox_repo.rglob("*")
+        if path.is_file()
+    )
+    assert after == before
+    assert not any(path.startswith("research/strategy_specs/") for path in after)
+    assert not any(path.startswith("research/variant_manifests/") for path in after)
+    assert not any(path.startswith("research/sweep_plans/") for path in after)
+    assert not any(path.startswith("research/result_populations/") for path in after)

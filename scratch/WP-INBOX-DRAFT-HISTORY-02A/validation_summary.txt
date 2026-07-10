@@ -1,0 +1,40 @@
+WP-INBOX-DRAFT-HISTORY-02A validation summary
+
+Focused tests:
+- .venv/Scripts/python.exe -m pytest tests/test_agent_inbox_intake.py -q
+  PASS: 14 passed
+
+Dashboard API regression:
+- .venv/Scripts/python.exe -m pytest tests/test_operator_dashboard_api.py -q
+  PASS: 11 passed
+
+Repository checks:
+- python -m tools.research_query.run --list-views
+  PASS: view listing completed
+- python -m tools.registry.validate_result_populations
+  PASS
+- python -m tools.registry.validate_candidate_registry
+  PASS
+- python tools/dev/diff_scope_summary.py
+  PASS: no forbidden-path matches
+
+Manual service validation:
+- Started uvicorn on localhost for `tools.agent_inbox_intake.app:app`.
+- POST created validation packet AIDRAFT-B74BFEFBB7F4EA8F.
+- GET list returned the packet; GET detail returned the same draft id.
+- Removed the validation-created packet after the check.
+
+Full pytest:
+- python -m pytest -q
+  BASELINE FAILURE outside package scope. After making the primary checkout's
+  gitignored normalized D4A dataset available to the isolated worktree, fail-fast
+  reached 1,141 passing tests and 1 skip before:
+  tests/test_lab_operator_surface.py::test_batch_boundary_reflects_coverage_gap_closure
+  expected subject_count 8, current merged dashboard denominator returned 9.
+  This package changes neither the failing test nor `tools/lab_operator_surface` /
+  `tools/lab_dashboard`. The exact test reproduces on a detached untouched
+  `origin/main` worktree at `1969251`. No unrelated fix was attempted.
+
+Final diff checks:
+- git diff --check: PASS
+- git diff --cached --check: PASS

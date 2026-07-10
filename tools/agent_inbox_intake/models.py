@@ -21,3 +21,15 @@ class IntakeDraftRequest(BaseModel):
 
 class IntakeDraftError(ValueError):
     """Raised when a request fails closed before a draft packet can be written."""
+
+
+class DraftHistoryError(ValueError):
+    """Raised when stored draft history cannot be read honestly."""
+
+
+class DraftIdError(DraftHistoryError):
+    """Raised when a requested draft identifier is unsafe or malformed."""
+
+
+class DraftNotFoundError(LookupError):
+    """Raised when a well-formed draft identifier has no stored packet."""

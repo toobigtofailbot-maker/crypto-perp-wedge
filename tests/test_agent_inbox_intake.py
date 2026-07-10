@@ -17,14 +17,18 @@ from tools.agent_inbox_intake.models import (
     DraftHistoryError,
     DraftIdError,
     DraftNotFoundError,
+    DraftReviewError,
+    DraftReviewEventRequest,
     IntakeDraftError,
     IntakeDraftRequest,
 )
 from tools.agent_inbox_intake.service import (
     PACKAGE_ID,
+    append_draft_review_event,
     create_intake_draft,
     get_intake_draft,
     list_intake_drafts,
+    list_draft_review_events,
 )
 from tools.operator_dashboard_api.app import app as dashboard_app
 from tools.research_agents.idea_formalizer_agent import (
@@ -184,6 +188,8 @@ def test_isolated_fastapi_app_exposes_post_without_mutating_dashboard_api():
     assert ("/api/agent/intake-draft", ("POST",)) in intake_routes
     assert ("/api/agent/drafts", ("GET",)) in intake_routes
     assert ("/api/agent/drafts/{draft_id}", ("GET",)) in intake_routes
+    assert ("/api/agent/drafts/{draft_id}/review-events", ("GET",)) in intake_routes
+    assert ("/api/agent/drafts/{draft_id}/review-events", ("POST",)) in intake_routes
 
     for route in dashboard_app.routes:
         if route.path.startswith("/api/"):
@@ -365,3 +371,163 @@ def test_history_reads_only_scratch_and_writes_no_canonical_files(
     assert not any(path.startswith("research/variant_manifests/") for path in after)
     assert not any(path.startswith("research/sweep_plans/") for path in after)
     assert not any(path.startswith("research/result_populations/") for path in after)
+
+
+def _review_request(state: str) -> DraftReviewEventRequest:
+    return DraftReviewEventRequest(
+        review_state=state,
+        reviewer_label="human-reviewer",
+        rationale=f"Review rationale for {state}.",
+        clarification_request=(
+            "Please state the intended exit condition."
+            if state == "needs_clarification"
+            else None
+        ),
+    )
+
+
+def test_review_trail_is_initially_honest_and_empty(agent_inbox_repo: Path):
+    packet = create_intake_draft(
+        _valid_request(client_draft_id="review-empty"),
+        repo_root=agent_inbox_repo,
+        clock=lambda: FIXED_TIME,
+    )
+
+    trail = list_draft_review_events(packet["draft_id"], repo_root=agent_inbox_repo)
+
+    assert trail["count"] == 0
+    assert trail["review_events"] == []
+    assert trail["append_only"] is True
+    assert trail["canonical_authority"] is False
+    assert not (agent_inbox_repo / trail["storage_source"]).exists()
+
+
+@pytest.mark.parametrize(
+    "state",
+    ["reviewed", "rejected", "needs_clarification", "flagged_for_canonicalization"],
+)
+def test_each_allowed_review_state_appends(agent_inbox_repo: Path, state: str):
+    packet = create_intake_draft(
+        _valid_request(client_draft_id=f"review-{state}"),
+        repo_root=agent_inbox_repo,
+        clock=lambda: FIXED_TIME,
+    )
+
+    result = append_draft_review_event(
+        packet["draft_id"],
+        _review_request(state),
+        repo_root=agent_inbox_repo,
+        clock=lambda: FIXED_TIME,
+    )
+
+    event = result["event"]
+    assert event["review_state"] == state
+    assert event["append_index"] == 1
+    assert event["timestamp_utc"] == "2026-07-09T12:00:00Z"
+    assert event["schema_version"] == "agent_inbox_draft_review_event_v1"
+    assert event["non_authority_flags"]["annotation_only"] is True
+    assert event["non_authority_flags"]["not_canonicalization_approval"] is True
+    assert result["review_trail"]["review_events"] == [event]
+
+
+def test_multiple_review_events_preserve_bytes_and_append_order(agent_inbox_repo: Path):
+    packet = create_intake_draft(
+        _valid_request(client_draft_id="review-append-only"),
+        repo_root=agent_inbox_repo,
+        clock=lambda: FIXED_TIME,
+    )
+    first = append_draft_review_event(
+        packet["draft_id"], _review_request("reviewed"),
+        repo_root=agent_inbox_repo, clock=lambda: FIXED_TIME,
+    )
+    path = agent_inbox_repo / first["review_trail"]["storage_source"]
+    first_bytes = path.read_bytes()
+
+    append_draft_review_event(
+        packet["draft_id"], _review_request("rejected"),
+        repo_root=agent_inbox_repo,
+        clock=lambda: datetime(2026, 7, 9, 12, 1, tzinfo=timezone.utc),
+    )
+
+    trail = list_draft_review_events(packet["draft_id"], repo_root=agent_inbox_repo)
+    assert path.read_bytes().startswith(first_bytes)
+    assert [event["append_index"] for event in trail["review_events"]] == [1, 2]
+    assert [event["review_state"] for event in trail["review_events"]] == [
+        "reviewed", "rejected"
+    ]
+
+
+def test_review_rejects_invalid_state_labels_ids_and_missing_drafts(
+    agent_inbox_repo: Path,
+):
+    packet = create_intake_draft(
+        _valid_request(client_draft_id="review-invalid"),
+        repo_root=agent_inbox_repo,
+        clock=lambda: FIXED_TIME,
+    )
+    with pytest.raises(DraftReviewError, match="review_state"):
+        append_draft_review_event(
+            packet["draft_id"], _review_request("approved"), repo_root=agent_inbox_repo
+        )
+    with pytest.raises(DraftIdError):
+        list_draft_review_events("../escape", repo_root=agent_inbox_repo)
+    with pytest.raises(DraftNotFoundError):
+        list_draft_review_events(
+            "AIDRAFT-0000000000000000", repo_root=agent_inbox_repo
+        )
+
+    client = TestClient(create_app(repo_root=agent_inbox_repo))
+    invalid_state = client.post(
+        f"/api/agent/drafts/{packet['draft_id']}/review-events",
+        json={
+            "review_state": "approved",
+            "reviewer_label": "reviewer",
+            "rationale": "No.",
+        },
+    )
+    blank_label = client.post(
+        f"/api/agent/drafts/{packet['draft_id']}/review-events",
+        json={"review_state": "reviewed", "reviewer_label": " ", "rationale": "ok"},
+    )
+    traversal = client.get("/api/agent/drafts/%2E%2E%2Fescape/review-events")
+    missing = client.get(
+        "/api/agent/drafts/AIDRAFT-0000000000000000/review-events"
+    )
+    assert invalid_state.status_code == 400
+    assert blank_label.status_code == 400
+    assert traversal.status_code in {400, 404}
+    assert missing.status_code == 404
+
+
+def test_canonicalization_flag_is_annotation_only_and_writes_only_review_jsonl(
+    agent_inbox_repo: Path,
+):
+    packet = create_intake_draft(
+        _valid_request(client_draft_id="review-no-authority"),
+        repo_root=agent_inbox_repo,
+        clock=lambda: FIXED_TIME,
+    )
+    before = {
+        path.relative_to(agent_inbox_repo).as_posix(): path.read_bytes()
+        for path in agent_inbox_repo.rglob("*") if path.is_file()
+    }
+
+    result = append_draft_review_event(
+        packet["draft_id"], _review_request("flagged_for_canonicalization"),
+        repo_root=agent_inbox_repo, clock=lambda: FIXED_TIME,
+    )
+
+    after = {
+        path.relative_to(agent_inbox_repo).as_posix(): path.read_bytes()
+        for path in agent_inbox_repo.rglob("*") if path.is_file()
+    }
+    created = set(after) - set(before)
+    assert created == {result["review_trail"]["storage_source"]}
+    assert all(after[path] == content for path, content in before.items())
+    forbidden_fragments = (
+        "strategy_specs", "variant_manifests", "sweep_plans", "result_populations",
+        "candidate", "queue", "runner",
+    )
+    assert not any(
+        fragment in path for path in created for fragment in forbidden_fragments
+    )

@@ -1,0 +1,9 @@
+{
+  "client_draft_id": "sample-draft-001",
+  "constraints_notes": "Review only. Keep this as a scratch draft packet.",
+  "hypothesis_text": "BTCUSDT 15m EMA momentum persists because slow information diffusion keeps pressure moving in the same direction after completed bars.",
+  "market_hint": "BTCUSDT",
+  "submitter_label": "codex-sample",
+  "timeframe_hint": "15m",
+  "title": "EMA momentum continuation"
+}

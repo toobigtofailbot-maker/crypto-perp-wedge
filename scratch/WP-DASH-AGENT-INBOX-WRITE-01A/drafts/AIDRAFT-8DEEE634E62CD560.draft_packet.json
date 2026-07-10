@@ -1,0 +1,228 @@
+{
+  "availability_primitive_check": {
+    "blocking_features": [],
+    "detected_features": [
+      "ema"
+    ],
+    "distinction": "compiler field existence is separate from historical testability",
+    "feature_assessments": [
+      {
+        "compiler_field_exists": true,
+        "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+        "feature": "ema",
+        "historical_testability": "available_when_source_bars_exist",
+        "source_class": "INDICATOR_DERIVED_FROM_OHLCV",
+        "warnings": []
+      }
+    ],
+    "historically_testable_now": true
+  },
+  "blockers": [
+    "no validated draft adapter exists for this exact primitive family"
+  ],
+  "created_at": "2026-07-09T23:42:19Z",
+  "draft_id": "AIDRAFT-8DEEE634E62CD560",
+  "fabricated": false,
+  "formalizer_result": {
+    "adapter_metadata": {
+      "family_id": null,
+      "freshness_distinct_from": [],
+      "prior_family_evidence": [],
+      "unsupported_capabilities": []
+    },
+    "blocked_action": null,
+    "capability_assessment": {
+      "blocking_features": [],
+      "detected_features": [
+        "ema"
+      ],
+      "distinction": "compiler field existence is separate from historical testability",
+      "feature_assessments": [
+        {
+          "compiler_field_exists": true,
+          "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+          "feature": "ema",
+          "historical_testability": "available_when_source_bars_exist",
+          "source_class": "INDICATOR_DERIVED_FROM_OHLCV",
+          "warnings": []
+        }
+      ],
+      "historically_testable_now": true
+    },
+    "draft_strategy_spec": {
+      "blockers": [
+        "no validated draft adapter exists for this exact primitive family"
+      ],
+      "path": null,
+      "produced": false
+    },
+    "input": {
+      "constraints": [
+        "Review only. Keep this as a scratch draft packet."
+      ],
+      "idea": "EMA momentum continuation. BTCUSDT 15m EMA momentum persists because slow information diffusion keeps pressure moving in the same direction after completed bars.",
+      "symbol": "BTCUSDT",
+      "timeframe": "15m"
+    },
+    "non_authority": {
+      "draft_only": true,
+      "human_review_required": true,
+      "not_candidate_authority": true,
+      "not_canonical": true,
+      "not_evidence": true,
+      "not_paper_live_runtime_authority": true,
+      "not_promotion_authority": true,
+      "scratch_only": true
+    },
+    "provider_metadata": {
+      "api_call_made": false,
+      "provider_id": "fake-rule-v1",
+      "provider_mode": "fake_offline",
+      "request_id": "e68ab9ce0884",
+      "response_source": "deterministic_fake"
+    },
+    "rejection_reasons": [],
+    "research_object": {
+      "causal_rationale": "EMA momentum continuation. BTCUSDT 15m EMA momentum persists because slow information diffusion keeps pressure moving in the same direction after completed bars.",
+      "entry_concept": "Evaluate on completed bars and enter at the next bar open.",
+      "exit_concept": "Exit on the declared signal reversal or bounded holding limit.",
+      "falsifiable_prediction": "The completed-bar signal has positive out-of-sample expectancy after costs.",
+      "features": [
+        "ema"
+      ],
+      "parameter_bounds": [
+        {
+          "maximum": 100,
+          "minimum": 50,
+          "name": "center_lookback_bars"
+        },
+        {
+          "maximum": 50,
+          "minimum": 30,
+          "name": "vol_lookback_bars"
+        },
+        {
+          "maximum": 200,
+          "minimum": 100,
+          "name": "trend_lookback_bars"
+        }
+      ],
+      "stop_conditions": [
+        "Stop if preregistered out-of-sample thresholds fail."
+      ],
+      "summary": "EMA momentum continuation. BTCUSDT 15m EMA momentum persists because slow information diffusion keeps pressure moving in the same direction after completed bars.",
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "timeframe": "15m"
+    },
+    "run_id": "e68ab9ce0884",
+    "schema_version": "agent_formalized_idea_v1",
+    "status": "accepted"
+  },
+  "non_authority_flags": {
+    "draft_only": true,
+    "fabricated": false,
+    "noncanonical": true,
+    "not_approval": true,
+    "not_candidate_lifecycle": true,
+    "not_candidate_registry": true,
+    "not_execution": true,
+    "not_notification": true,
+    "not_paper_live": true,
+    "not_pipeline_run": true,
+    "not_promotion": true,
+    "not_provider_api": true,
+    "not_result_population": true,
+    "not_runner_job": true,
+    "not_runtime": true,
+    "not_scheduler": true,
+    "not_strategy_spec": true,
+    "not_sweep_plan": true,
+    "not_variant_manifest": true,
+    "review_only": true,
+    "scratch_only": true
+  },
+  "open_questions": [
+    "Human review must decide whether this scratch draft should be revised, discarded, or promoted through a later authorized package."
+  ],
+  "provenance": {
+    "captured_formalizer_write_paths": [
+      "scratch/WP-DASH-AGENT-INBOX-WRITE-01A/outputs/e68ab9ce0884/formalized_idea.json",
+      "scratch/WP-DASH-AGENT-INBOX-WRITE-01A/outputs/e68ab9ce0884/human_review_packet.json"
+    ],
+    "formalizer_mode": "fake_offline_packet_only",
+    "formalizer_module": "tools.research_agents.idea_formalizer_agent",
+    "formalizer_writes_captured_in_memory": true,
+    "output_path": "scratch/WP-DASH-AGENT-INBOX-WRITE-01A/drafts/AIDRAFT-8DEEE634E62CD560.draft_packet.json",
+    "package_id": "WP-DASH-AGENT-INBOX-WRITE-01A",
+    "provider_id": "fake-rule-v1",
+    "provider_mode": "fake_offline",
+    "service_namespace": "tools.agent_inbox_intake",
+    "tool_context_role": "idea_formalizer",
+    "tool_context_wp_id": "WP-DASH-AGENT-INBOX-WRITE-01A"
+  },
+  "schema_version": "agent_inbox_intake_draft_packet_v1",
+  "source_hashes": {
+    "formalizer_result_sha256": "sha256:ff593a8673ff33307ea56d707b7e44f5df8d9873196bc661b5bf96881e266d4f",
+    "source_request_sha256": "sha256:7226f7b365beab35a349b9d7522ee24a4c584c5955055d12441746bfa28ca7a4"
+  },
+  "source_request": {
+    "client_draft_id": "sample-draft-001",
+    "constraints_notes": "Review only. Keep this as a scratch draft packet.",
+    "hypothesis_text": "BTCUSDT 15m EMA momentum persists because slow information diffusion keeps pressure moving in the same direction after completed bars.",
+    "market_hint": "BTCUSDT",
+    "submitter_label": "codex-sample",
+    "timeframe_hint": "15m",
+    "title": "EMA momentum continuation"
+  },
+  "tool_context_audit": [
+    {
+      "action_type": "read_non_secret_files",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=idea_formalizer under policy=bounded-research-agent-v1",
+      "role": "idea_formalizer",
+      "target_path": "research/indicator_catalogs/ind-catalog-0001.indicator_catalog.json",
+      "timestamp_utc": "2026-07-09T23:42:19Z",
+      "wp_id": "WP-DASH-AGENT-INBOX-WRITE-01A"
+    },
+    {
+      "action_type": "read_non_secret_files",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=idea_formalizer under policy=bounded-research-agent-v1",
+      "role": "idea_formalizer",
+      "target_path": "research/data_feature_availability/perp-derived-feature-availability-0001.json",
+      "timestamp_utc": "2026-07-09T23:42:19Z",
+      "wp_id": "WP-DASH-AGENT-INBOX-WRITE-01A"
+    },
+    {
+      "action_type": "write_scratch",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=idea_formalizer under policy=bounded-research-agent-v1",
+      "role": "idea_formalizer",
+      "target_path": "scratch/wp-dash-agent-inbox-write-01a/outputs/e68ab9ce0884/formalized_idea.json",
+      "timestamp_utc": "2026-07-09T23:42:19Z",
+      "wp_id": "WP-DASH-AGENT-INBOX-WRITE-01A"
+    },
+    {
+      "action_type": "write_scratch",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=idea_formalizer under policy=bounded-research-agent-v1",
+      "role": "idea_formalizer",
+      "target_path": "scratch/wp-dash-agent-inbox-write-01a/outputs/e68ab9ce0884/human_review_packet.json",
+      "timestamp_utc": "2026-07-09T23:42:19Z",
+      "wp_id": "WP-DASH-AGENT-INBOX-WRITE-01A"
+    }
+  ],
+  "warnings": [
+    "Scratch-only Agent Inbox draft packet; no canonical artifact, candidate, runner, pipeline, paper/live, scheduler, or notification authority."
+  ]
+}

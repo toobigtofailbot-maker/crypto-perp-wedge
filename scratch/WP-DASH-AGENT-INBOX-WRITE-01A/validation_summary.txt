@@ -1,0 +1,70 @@
+WP-DASH-AGENT-INBOX-WRITE-01A validation summary
+
+Branch:
+- codex/wp-dash-agent-inbox-write-01a
+
+Base:
+- main @ b01d15e616cd56a849c0483275ed195464abc759
+
+Commands run:
+
+1. .\.venv\Scripts\python.exe -m py_compile tools\agent_inbox_intake\__init__.py tools\agent_inbox_intake\models.py tools\agent_inbox_intake\service.py tools\agent_inbox_intake\app.py
+   Result: PASS
+
+2. .\.venv\Scripts\python.exe -m pytest tests/test_agent_inbox_intake.py -q
+   Result: PASS
+   Evidence: 8 passed, 1 Starlette/httpx TestClient deprecation warning.
+
+3. .\.venv\Scripts\python.exe -m pytest tests/test_operator_dashboard_api.py -q
+   Result: PASS
+   Evidence: 11 passed, 1 Starlette/httpx TestClient deprecation warning.
+
+4. .\.venv\Scripts\python.exe -m tools.research_query.run --list-views
+   Result: PASS
+   Evidence: listed 124 views.
+
+5. .\.venv\Scripts\python.exe -m tools.registry.validate_result_populations
+   Result: PASS
+   Evidence: OK: result-population artifacts validate.
+
+6. .\.venv\Scripts\python.exe -m tools.registry.validate_candidate_registry
+   Result: PASS
+   Evidence: OK: candidate lifecycle registry artifacts validate.
+
+7. .\.venv\Scripts\python.exe tools\dev\diff_scope_summary.py
+   Result: PASS
+   Evidence: no forbidden-path matches; untracked files were only the package files before staging.
+
+8. git diff --check
+   Result: PASS
+
+9. git diff --cached --check
+   Result: PASS
+
+10. .\.venv\Scripts\python.exe -m pytest -q
+    Result: TIMEOUT / INCOMPLETE
+    Evidence: command timed out after 20 minutes without returning a pytest summary. Two lingering `python -m pytest -q` processes were identified and stopped. This is not counted as a pass.
+
+11. .\.venv\Scripts\python.exe -m pytest --collect-only -q
+    Result: PASS
+    Evidence: 2703 tests collected in 7.91s, 1 Starlette/httpx TestClient deprecation warning.
+
+Scope checks:
+
+- `tools/operator_dashboard_api/**`: not modified.
+- `operator_dashboard_frontend/**`: not modified.
+- `research/strategy_specs/**`: not modified.
+- `research/variant_manifests/**`: not modified.
+- `research/sweep_plans/**`: not modified.
+- `research/result_populations/**`: not modified.
+- `research/candidate_registry.jsonl`: not modified.
+- `tools/research_runner/**`, `tools/lab_pipeline/**`, `src/**`, `lib/**`, `configs/**`, and `data/**`: not modified.
+- Canonical artifacts created: none.
+- Candidate registry/lifecycle writes: none.
+- Runner/bridge/gates/pipeline invocation: none.
+- Runtime/paper/live/provider contact: none.
+
+Sample output:
+
+- `scratch/WP-DASH-AGENT-INBOX-WRITE-01A/sample_draft_packet.json`
+- `scratch/WP-DASH-AGENT-INBOX-WRITE-01A/drafts/AIDRAFT-8DEEE634E62CD560.draft_packet.json`

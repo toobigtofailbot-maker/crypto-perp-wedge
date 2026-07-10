@@ -1,0 +1,65 @@
+WP-INBOX-DRAFT-REVIEW-STATE-03B — validation summary
+=====================================================
+
+Base: origin/main @ 2cc1866 (PRs #643, #645, #647 merged; #640 design-only merged).
+
+Frontend gates (operator_dashboard_frontend)
+--------------------------------------------
+npm run typecheck  -> PASS (tsc --noEmit, no errors)
+npm run lint       -> PASS (next lint, no ESLint warnings or errors)
+npm run build      -> PASS; route registered:
+                      ƒ /agent-inbox/drafts/[draft_id]/review-events
+
+Backend regression (main-repo .venv python)
+-------------------------------------------
+pytest tests/test_agent_inbox_intake.py   -> 22 passed
+pytest tests/test_operator_dashboard_api.py -> 14 passed
+
+Repo checks
+-----------
+git diff --check          -> clean
+git diff --cached --check -> clean
+tools/dev/diff_scope_summary.py -> Forbidden-path matches: none.
+  Changed files:
+    M operator_dashboard_frontend/src/components/agent-inbox/DraftHistory.tsx (+5/-1)
+    M operator_dashboard_frontend/src/lib/agentInboxClient.ts (+186/-0)
+    ?? operator_dashboard_frontend/src/app/agent-inbox/drafts/[draft_id]/review-events/route.ts
+    ?? operator_dashboard_frontend/src/components/agent-inbox/ReviewTrail.tsx
+  (Docs/scratch evidence files additionally added under docs/status_entries and scratch/.)
+
+Manual / browser validation (isolated service on :8137, dashboard on :3137)
+---------------------------------------------------------------------------
+Service contract, direct:
+  GET  review-events (existing draft, no events)     -> 200, count 0, honest empty trail
+  GET  review-events, invalid id shape               -> 400 (no path constructed)
+  GET  review-events, valid shape / missing draft    -> 404
+
+Same-origin passthrough (dashboard origin):
+  GET  /agent-inbox/drafts/{id}/review-events        -> 200, forwarded verbatim
+  GET  .../review-events with bad id                 -> 400, NO upstream call
+  POST .../review-events (flagged_for_canonicalization) -> 200, event + review_trail
+  PUT  .../review-events                             -> 405
+  DELETE .../review-events                           -> 405
+
+UI (browser):
+  - Draft detail opened from history renders "Review trail" section.
+  - Empty trail rendered honestly before any event.
+  - Appended flagged_for_canonicalization (curl) then needs_clarification (UI form);
+    trail showed "2 events" in append_index order (#1 flagged, #2 needs_clarification).
+  - needs_clarification event rendered its clarification_request field.
+  - flagged_for_canonicalization annotation-only notice shown on the event row and
+    in the append form when that state is selected.
+  - After page reload + re-open, trail still showed "2 events" (server persistence).
+  - Service stopped: Refresh -> "Review trail unavailable … It may not be running.
+    No review trail was read or written." Append attempt while down -> same honest
+    inline message, typed input preserved.
+  - Browser storage after appends: localStorage {}, sessionStorage {}, cookie "".
+  - Network limited to: GET /agent-inbox/drafts, GET /agent-inbox/drafts/{id},
+    GET .../review-events, POST .../review-events. No queue/canonical/runtime/
+    paper/live/scheduler/notification calls.
+
+Cleanup
+-------
+Removed the test-generated scratch review file
+(scratch/WP-DASH-AGENT-INBOX-WRITE-01A/reviews/AIDRAFT-8DEEE634E62CD560.review_events.jsonl)
+so the working tree contains only the intended source, docs, and evidence changes.

@@ -362,6 +362,192 @@ export async function getIntakeDrafts(): Promise<AgentInboxDraftListEnvelope> {
   throw new AgentInboxRejectedError(response.status, message);
 }
 
+/* ------------------------------------------------------------------------- *
+ * Scratch draft review trail (WP-INBOX-DRAFT-REVIEW-STATE-03A/03B)
+ *
+ * Append-only human review annotations over an existing scratch draft. The
+ * `GET` reads the trail; the `POST` appends exactly one event. Both go through a
+ * same-origin passthrough because the isolated service (`tools.agent_inbox_intake`)
+ * ships no CORS, and each passthrough hardcodes one upstream endpoint per verb —
+ * neither is a general forwarder. A review event is annotation only: it does not
+ * approve, promote, canonicalize, admit to a queue, create a candidate, or
+ * authorize research/paper/live/runtime execution. In particular
+ * `flagged_for_canonicalization` is a note that a human may later pursue a
+ * separate Karl-gated canonicalization review; it creates and approves nothing.
+ * ------------------------------------------------------------------------- */
+
+/** The four review states the 03A service accepts. Mirrors `ALLOWED_REVIEW_STATES`. */
+export const REVIEW_STATES = [
+  "reviewed",
+  "rejected",
+  "needs_clarification",
+  "flagged_for_canonicalization",
+] as const;
+export type ReviewState = (typeof REVIEW_STATES)[number];
+
+/** Field bounds from `DraftReviewEventRequest` in `tools/agent_inbox_intake/models.py`. */
+export const REVIEW_FIELD_LIMITS = {
+  reviewer_label: 80,
+  rationale: 1200,
+  clarification_request: 1200,
+} as const;
+
+/** Upstream suffix appended to `/api/agent/drafts/{draft_id}`. The proxy hardcodes it. */
+export const AGENT_INBOX_REVIEW_EVENTS_SUFFIX = "/review-events";
+
+/** Same-origin passthrough for one draft's append-only review trail. */
+export function agentInboxReviewEventsProxyPath(draftId: string): string {
+  return `${AGENT_INBOX_DRAFTS_PROXY_PATH}/${encodeURIComponent(draftId)}${AGENT_INBOX_REVIEW_EVENTS_SUFFIX}`;
+}
+
+/**
+ * The request body for one appended review event. The service model sets
+ * `extra="forbid"`, so no key outside this shape may be sent; `clarification_request`
+ * is omitted, not sent empty, when the reviewer leaves it blank.
+ */
+export interface AgentInboxReviewEventRequest {
+  review_state: ReviewState;
+  reviewer_label: string;
+  rationale: string;
+  clarification_request?: string;
+}
+
+/**
+ * The explicit non-authority posture the service stamps onto every review event.
+ * Kept open (`Record`) so it renders verbatim through `FlagGrid`; the 03A service
+ * currently stamps exactly: `scratch_only`, `annotation_only`,
+ * `not_canonicalization_approval`, `not_queue_admission`, `not_research_execution`,
+ * `not_candidate_creation`, and `not_runtime_action`.
+ */
+export type AgentInboxReviewNonAuthorityFlags = Record<string, boolean>;
+
+/**
+ * One stored review event, exactly as `append_draft_review_event` writes it and
+ * `list_draft_review_events` reads it back. `append_index` is 1-based and defines
+ * the append order; the trail is never reordered or edited.
+ */
+export interface AgentInboxReviewEvent {
+  schema_version: string;
+  event_id: string;
+  draft_id: string;
+  append_index: number;
+  review_state: string;
+  reviewer_label: string;
+  timestamp_utc: string;
+  rationale: string;
+  clarification_request: string | null;
+  non_authority_flags: AgentInboxReviewNonAuthorityFlags;
+}
+
+/** The envelope returned by `GET /api/agent/drafts/{draft_id}/review-events`. */
+export interface AgentInboxReviewTrailEnvelope {
+  draft_id: string;
+  count: number;
+  review_events: AgentInboxReviewEvent[];
+  storage_source: string;
+  append_only: boolean;
+  scratch_only: boolean;
+  canonical_authority: boolean;
+}
+
+/** The body returned by the append POST: the new event plus the whole current trail. */
+export interface AgentInboxReviewAppendResult {
+  event: AgentInboxReviewEvent;
+  review_trail: AgentInboxReviewTrailEnvelope;
+}
+
+/**
+ * Read the append-only review trail for one existing scratch draft via the
+ * same-origin passthrough. GET only; nothing is submitted. Unconfigured/unreachable
+ * raise `AgentInboxUnavailableError`; a rejected/missing draft (400/404/503)
+ * raises `AgentInboxRejectedError`. The trail is review material only — not
+ * approval, ranking, readiness, canonicalization, queue admission, or execution.
+ */
+export async function getDraftReviewEvents(
+  draftId: string,
+): Promise<AgentInboxReviewTrailEnvelope> {
+  let response: Response;
+  try {
+    response = await fetch(agentInboxReviewEventsProxyPath(draftId), {
+      method: "GET",
+      cache: "no-store",
+      headers: { Accept: "application/json" },
+    });
+  } catch {
+    throw new AgentInboxUnavailableError(
+      "The dashboard could not reach its own review-trail passthrough.",
+    );
+  }
+
+  if (response.ok) {
+    return (await response.json()) as AgentInboxReviewTrailEnvelope;
+  }
+
+  let body: ProxyFailureBody = {};
+  try {
+    body = (await response.json()) as ProxyFailureBody;
+  } catch {
+    throw new AgentInboxRejectedError(
+      response.status,
+      `The intake service answered with status ${response.status}.`,
+    );
+  }
+
+  const message = describeDetail(body.detail, response.status);
+  if (body.agent_inbox_unconfigured || body.agent_inbox_unreachable) {
+    throw new AgentInboxUnavailableError(message);
+  }
+  throw new AgentInboxRejectedError(response.status, message);
+}
+
+/**
+ * Append exactly one human review annotation to a scratch draft's trail via the
+ * same-origin passthrough. This is the only write in this module besides intake,
+ * and it appends review material only: it approves, promotes, canonicalizes,
+ * queues, and executes nothing. Unconfigured/unreachable raise
+ * `AgentInboxUnavailableError`; a rejected request (400/404/422/503) raises
+ * `AgentInboxRejectedError` with the service's own words. The returned trail is
+ * the service's, unchanged.
+ */
+export async function appendDraftReviewEvent(
+  draftId: string,
+  request: AgentInboxReviewEventRequest,
+): Promise<AgentInboxReviewAppendResult> {
+  let response: Response;
+  try {
+    response = await fetch(agentInboxReviewEventsProxyPath(draftId), {
+      method: "POST",
+      cache: "no-store",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify(request),
+    });
+  } catch {
+    throw new AgentInboxUnavailableError(
+      "The dashboard could not reach its own review-trail passthrough.",
+    );
+  }
+
+  if (response.ok) {
+    return (await response.json()) as AgentInboxReviewAppendResult;
+  }
+
+  let body: ProxyFailureBody = {};
+  try {
+    body = (await response.json()) as ProxyFailureBody;
+  } catch {
+    throw new AgentInboxRejectedError(
+      response.status,
+      `The intake service answered with status ${response.status}.`,
+    );
+  }
+
+  const message = describeDetail(body.detail, response.status);
+  if (body.agent_inbox_unconfigured || body.agent_inbox_unreachable) {
+    throw new AgentInboxUnavailableError(message);
+  }
+  throw new AgentInboxRejectedError(response.status, message);
+}
+
 /**
  * Read one stored scratch packet by id via the same-origin passthrough. GET
  * only. Unconfigured/unreachable raise `AgentInboxUnavailableError`; a rejected

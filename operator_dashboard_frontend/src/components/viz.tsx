@@ -1,11 +1,10 @@
 /**
  * CSS-only read-only visual summaries for the operator cockpit.
  *
- * These are presentational primitives (bars, meters, funnels) built entirely
- * from Tailwind utilities and inline width percentages. They render committed
+ * These are presentational primitives (bars, funnels) built entirely from
+ * Tailwind utilities and inline width percentages. They render committed
  * counts only — no chart dependency, no data generation, no interactivity.
  */
-import type { ReactNode } from "react";
 import type { Tone } from "@/lib/status";
 
 const BAR_CLASS: Record<Tone, string> = {
@@ -27,36 +26,6 @@ const DOT_CLASS: Record<Tone, string> = {
 function pct(value: number, max: number): number {
   if (max <= 0) return 0;
   return Math.max(0, Math.min(100, (value / max) * 100));
-}
-
-/** A single labelled proportional bar with a numeric value on the right. */
-export function Meter({
-  label,
-  value,
-  max,
-  tone = "info",
-  valueText,
-}: {
-  label: ReactNode;
-  value: number;
-  max: number;
-  tone?: Tone;
-  valueText?: string;
-}) {
-  return (
-    <div className="flex flex-col gap-1">
-      <div className="flex items-baseline justify-between gap-3 text-xs">
-        <span className="text-cockpit-muted">{label}</span>
-        <span className="font-mono text-cockpit-text">{valueText ?? value}</span>
-      </div>
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-cockpit-panel-2">
-        <div
-          className={`h-full rounded-full ${BAR_CLASS[tone]}`}
-          style={{ width: `${pct(value, max)}%` }}
-        />
-      </div>
-    </div>
-  );
 }
 
 export interface CountRow {

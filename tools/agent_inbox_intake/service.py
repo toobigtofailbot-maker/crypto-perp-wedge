@@ -12,11 +12,17 @@ import copy
 import hashlib
 import json
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Mapping
 
-from tools.agent_inbox_intake.models import IntakeDraftError, IntakeDraftRequest
+from tools.agent_inbox_intake.models import (
+    DraftHistoryError,
+    DraftIdError,
+    DraftNotFoundError,
+    IntakeDraftError,
+    IntakeDraftRequest,
+)
 from tools.agent_sandbox import MemoryAuditSink, ToolAction, ToolContext
 from tools.agent_sandbox.audit import AuditRecord
 from tools.agent_sandbox.permissions import WRITE_SCRATCH
@@ -36,6 +42,9 @@ SERVICE_NAMESPACE = "tools.agent_inbox_intake"
 DEFAULT_OUTPUT_ROOT = Path("scratch") / PACKAGE_ID / "drafts"
 MAX_COMBINED_TEXT_LENGTH = 5200
 CLIENT_DRAFT_ID_RE = re.compile(r"^[A-Za-z0-9_.:-]{1,80}$")
+DRAFT_ID_RE = re.compile(r"^AIDRAFT-[A-F0-9]{16}$")
+DRAFT_FILENAME_RE = re.compile(r"^(AIDRAFT-[A-F0-9]{16})\.draft_packet\.json$")
+HYPOTHESIS_PREVIEW_LENGTH = 160
 
 NON_AUTHORITY_FLAGS: dict[str, bool] = {
     "scratch_only": True,
@@ -112,6 +121,174 @@ def _write_json_scratch(path: Path, payload: Mapping[str, Any], repo_root: Path)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return relative
+
+
+def _draft_root(repo_root: Path, output_root: Path) -> Path:
+    root = output_root if output_root.is_absolute() else repo_root / output_root
+    _ensure_repo_scratch_path(root / "path_probe.json", repo_root)
+    return root
+
+
+def _validate_draft_id(draft_id: str) -> None:
+    if not DRAFT_ID_RE.fullmatch(draft_id):
+        raise DraftIdError("draft_id must match AIDRAFT-<16 uppercase hex characters>")
+
+
+def _read_stored_packet(path: Path, *, expected_draft_id: str) -> dict[str, Any]:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise DraftHistoryError(f"stored draft packet is unreadable: {path.name}") from exc
+    if not isinstance(payload, dict):
+        raise DraftHistoryError(f"stored draft packet must be a JSON object: {path.name}")
+    if payload.get("draft_id") != expected_draft_id:
+        raise DraftHistoryError(f"stored draft_id does not match filename: {path.name}")
+    required_types = {
+        "created_at": str,
+        "schema_version": str,
+        "source_request": dict,
+        "blockers": list,
+        "warnings": list,
+        "open_questions": list,
+        "non_authority_flags": dict,
+        "fabricated": bool,
+    }
+    for field, expected_type in required_types.items():
+        if not isinstance(payload.get(field), expected_type):
+            raise DraftHistoryError(
+                f"stored draft packet has invalid or missing {field}: {path.name}"
+            )
+    try:
+        created_at = datetime.fromisoformat(payload["created_at"].replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise DraftHistoryError(f"stored draft packet has invalid created_at: {path.name}") from exc
+    if created_at.tzinfo is None or created_at.utcoffset() != timedelta(0):
+        raise DraftHistoryError(f"stored draft packet has non-UTC created_at: {path.name}")
+    request = payload["source_request"]
+    for field in ("title", "hypothesis_text"):
+        if not isinstance(request.get(field), str):
+            raise DraftHistoryError(
+                f"stored draft packet has invalid source_request.{field}: {path.name}"
+            )
+    for field in ("submitter_label", "market_hint", "timeframe_hint"):
+        if request.get(field) is not None and not isinstance(request[field], str):
+            raise DraftHistoryError(
+                f"stored draft packet has invalid source_request.{field}: {path.name}"
+            )
+    for field in (
+        "scratch_only",
+        "noncanonical",
+        "draft_only",
+        "review_only",
+        "not_approval",
+        "not_promotion",
+        "not_execution",
+    ):
+        if not isinstance(payload["non_authority_flags"].get(field), bool):
+            raise DraftHistoryError(
+                f"stored draft packet has invalid non_authority_flags.{field}: {path.name}"
+            )
+    return payload
+
+
+def _hypothesis_preview(value: Any) -> str | None:
+    if not isinstance(value, str):
+        return None
+    compact = " ".join(value.split())
+    if len(compact) <= HYPOTHESIS_PREVIEW_LENGTH:
+        return compact
+    return compact[: HYPOTHESIS_PREVIEW_LENGTH - 1].rstrip() + "…"
+
+
+def _non_authority_summary(flags: Mapping[str, Any]) -> dict[str, bool]:
+    names = (
+        "scratch_only",
+        "noncanonical",
+        "draft_only",
+        "review_only",
+        "not_approval",
+        "not_promotion",
+        "not_execution",
+    )
+    return {name: flags.get(name) is True for name in names}
+
+
+def list_intake_drafts(
+    *,
+    repo_root: Path = REPO_ROOT,
+    output_root: Path = DEFAULT_OUTPUT_ROOT,
+) -> dict[str, Any]:
+    """Return deterministic compact metadata for stored scratch draft packets."""
+
+    repo_root = repo_root.resolve()
+    root = _draft_root(repo_root, output_root)
+    storage_source = _repo_relative(root, repo_root)
+    if not root.exists():
+        return {
+            "status": "empty",
+            "count": 0,
+            "drafts": [],
+            "storage_source": storage_source,
+            "scratch_only": True,
+        }
+    if not root.is_dir():
+        raise DraftHistoryError("draft history storage source is not a directory")
+
+    drafts: list[dict[str, Any]] = []
+    for path in root.glob("*.draft_packet.json"):
+        match = DRAFT_FILENAME_RE.fullmatch(path.name)
+        if match is None:
+            raise DraftHistoryError(f"stored draft packet has invalid filename: {path.name}")
+        _ensure_repo_scratch_path(path, repo_root)
+        draft_id = match.group(1)
+        packet = _read_stored_packet(path, expected_draft_id=draft_id)
+        request = packet["source_request"]
+        flags = packet["non_authority_flags"]
+        drafts.append(
+            {
+                "draft_id": draft_id,
+                "created_at": packet["created_at"],
+                "schema_version": packet["schema_version"],
+                "title": request.get("title"),
+                "submitter_label": request.get("submitter_label"),
+                "market_hint": request.get("market_hint"),
+                "timeframe_hint": request.get("timeframe_hint"),
+                "hypothesis_preview": _hypothesis_preview(request.get("hypothesis_text")),
+                "blocker_count": len(packet["blockers"]),
+                "warning_count": len(packet["warnings"]),
+                "open_question_count": len(packet["open_questions"]),
+                "fabricated": packet["fabricated"],
+                "non_authority": _non_authority_summary(flags),
+                "source_packet_path": _repo_relative(path, repo_root),
+            }
+        )
+    drafts.sort(key=lambda item: item["draft_id"])
+    drafts.sort(key=lambda item: item["created_at"], reverse=True)
+    return {
+        "status": "available" if drafts else "empty",
+        "count": len(drafts),
+        "drafts": drafts,
+        "storage_source": storage_source,
+        "scratch_only": True,
+    }
+
+
+def get_intake_draft(
+    draft_id: str,
+    *,
+    repo_root: Path = REPO_ROOT,
+    output_root: Path = DEFAULT_OUTPUT_ROOT,
+) -> dict[str, Any]:
+    """Return one exact stored scratch packet by its validated identifier."""
+
+    _validate_draft_id(draft_id)
+    repo_root = repo_root.resolve()
+    root = _draft_root(repo_root, output_root)
+    path = root / f"{draft_id}.draft_packet.json"
+    if not path.is_file():
+        raise DraftNotFoundError(f"draft not found: {draft_id}")
+    _ensure_repo_scratch_path(path, repo_root)
+    return _read_stored_packet(path, expected_draft_id=draft_id)
 
 
 def _clean_text(value: str | None) -> str | None:
@@ -254,8 +431,7 @@ def create_intake_draft(
     """Create one scratch-only Agent Inbox draft packet and return it."""
 
     repo_root = repo_root.resolve()
-    output_root = output_root if output_root.is_absolute() else repo_root / output_root
-    _ensure_repo_scratch_path(output_root / "path_probe.json", repo_root)
+    output_root = _draft_root(repo_root, output_root)
     source_request = _normalise_request(request)
     constraints = []
     if source_request.get("constraints_notes"):

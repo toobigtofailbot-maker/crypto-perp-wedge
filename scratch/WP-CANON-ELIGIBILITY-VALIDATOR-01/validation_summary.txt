@@ -1,0 +1,18 @@
+WP-CANON-ELIGIBILITY-VALIDATOR-01 validation summary
+
+PASS: repository virtualenv pytest tests/test_canon_intake_eligibility_validator.py -q (7 passed)
+PASS: repository virtualenv pytest tests/test_agent_inbox_intake.py -q (22 passed, 1 deprecation warning)
+PASS: repository virtualenv pytest tests/test_operator_dashboard_api.py -q (14 passed, 1 deprecation warning)
+PASS: python -m tools.research_query.run --list-views
+PASS: python -m tools.registry.validate_result_populations
+PASS: python -m tools.registry.validate_candidate_registry
+PASS: python tools/dev/diff_scope_summary.py (no forbidden-path matches)
+PASS: git diff --check
+PASS: git diff --cached --check
+PASS: manual real-draft run for AIDRAFT-8DEEE634E62CD560; status=needs_clarification, all authority flags false, scratch report only
+PASS: focused reviewed/vague/malformed/duplicate manual-equivalent fixture exercises are covered by the focused test module
+
+ENVIRONMENT RETRY: system-python inbox regression collection lacked fastapi; rerun in the existing repository virtualenv passed. No dependency was added.
+TIMEOUT / NOT A PASS: full pytest was attempted with 10-minute and 20-minute bounds. Both runs emitted no failure details and exceeded the bound. Package-specific and adjacent regressions passed, but full-suite completion remains an explicit PR limitation.
+
+No canonical, queue, candidate, result-population, runtime, dashboard, intake-service, config, or dependency file changed.

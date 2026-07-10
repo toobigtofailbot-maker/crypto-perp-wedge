@@ -20,6 +20,9 @@ from tools.agent_inbox_intake.models import (
     DraftHistoryError,
     DraftIdError,
     DraftNotFoundError,
+    DraftReviewError,
+    DraftReviewEventRequest,
+    DraftReviewStorageError,
     IntakeDraftError,
     IntakeDraftRequest,
 )
@@ -40,6 +43,11 @@ PACKAGE_ID = "WP-DASH-AGENT-INBOX-WRITE-01A"
 SCHEMA_VERSION = "agent_inbox_intake_draft_packet_v1"
 SERVICE_NAMESPACE = "tools.agent_inbox_intake"
 DEFAULT_OUTPUT_ROOT = Path("scratch") / PACKAGE_ID / "drafts"
+DEFAULT_REVIEW_ROOT = Path("scratch") / PACKAGE_ID / "reviews"
+REVIEW_SCHEMA_VERSION = "agent_inbox_draft_review_event_v1"
+ALLOWED_REVIEW_STATES = frozenset(
+    {"reviewed", "rejected", "needs_clarification", "flagged_for_canonicalization"}
+)
 MAX_COMBINED_TEXT_LENGTH = 5200
 CLIENT_DRAFT_ID_RE = re.compile(r"^[A-Za-z0-9_.:-]{1,80}$")
 DRAFT_ID_RE = re.compile(r"^AIDRAFT-[A-F0-9]{16}$")
@@ -125,6 +133,12 @@ def _write_json_scratch(path: Path, payload: Mapping[str, Any], repo_root: Path)
 
 def _draft_root(repo_root: Path, output_root: Path) -> Path:
     root = output_root if output_root.is_absolute() else repo_root / output_root
+    _ensure_repo_scratch_path(root / "path_probe.json", repo_root)
+    return root
+
+
+def _review_root(repo_root: Path, review_root: Path) -> Path:
+    root = review_root if review_root.is_absolute() else repo_root / review_root
     _ensure_repo_scratch_path(root / "path_probe.json", repo_root)
     return root
 
@@ -289,6 +303,128 @@ def get_intake_draft(
         raise DraftNotFoundError(f"draft not found: {draft_id}")
     _ensure_repo_scratch_path(path, repo_root)
     return _read_stored_packet(path, expected_draft_id=draft_id)
+
+
+def _read_review_events(path: Path, *, draft_id: str) -> list[dict[str, Any]]:
+    if not path.exists():
+        return []
+    if not path.is_file():
+        raise DraftReviewStorageError("review event storage path is not a file")
+    events: list[dict[str, Any]] = []
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeError) as exc:
+        raise DraftReviewStorageError("review event storage is unreadable") from exc
+    for index, line in enumerate(lines, start=1):
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError as exc:
+            raise DraftReviewStorageError(f"stored review event {index} is malformed") from exc
+        if not isinstance(event, dict) or event.get("draft_id") != draft_id:
+            raise DraftReviewStorageError(f"stored review event {index} has invalid draft_id")
+        if event.get("append_index") != index:
+            raise DraftReviewStorageError(f"stored review event {index} has invalid append_index")
+        if event.get("review_state") not in ALLOWED_REVIEW_STATES:
+            raise DraftReviewStorageError(f"stored review event {index} has invalid review_state")
+        events.append(event)
+    return events
+
+
+def list_draft_review_events(
+    draft_id: str,
+    *,
+    repo_root: Path = REPO_ROOT,
+    output_root: Path = DEFAULT_OUTPUT_ROOT,
+    review_root: Path = DEFAULT_REVIEW_ROOT,
+) -> dict[str, Any]:
+    """Return the append-only human review trail for one existing scratch draft."""
+
+    get_intake_draft(draft_id, repo_root=repo_root, output_root=output_root)
+    repo_root = repo_root.resolve()
+    root = _review_root(repo_root, review_root)
+    path = root / f"{draft_id}.review_events.jsonl"
+    _ensure_repo_scratch_path(path, repo_root)
+    events = _read_review_events(path, draft_id=draft_id)
+    return {
+        "draft_id": draft_id,
+        "count": len(events),
+        "review_events": events,
+        "storage_source": _repo_relative(path, repo_root),
+        "append_only": True,
+        "scratch_only": True,
+        "canonical_authority": False,
+    }
+
+
+def append_draft_review_event(
+    draft_id: str,
+    request: DraftReviewEventRequest,
+    *,
+    repo_root: Path = REPO_ROOT,
+    output_root: Path = DEFAULT_OUTPUT_ROOT,
+    review_root: Path = DEFAULT_REVIEW_ROOT,
+    clock: Any = _utc_now,
+) -> dict[str, Any]:
+    """Append one non-authoritative human annotation to a scratch draft trail."""
+
+    get_intake_draft(draft_id, repo_root=repo_root, output_root=output_root)
+    payload = request.model_dump()
+    cleaned = {
+        key: _clean_text(value) if isinstance(value, str) else value
+        for key, value in payload.items()
+    }
+    if cleaned["review_state"] not in ALLOWED_REVIEW_STATES:
+        raise DraftReviewError(
+            f"review_state must be one of {sorted(ALLOWED_REVIEW_STATES)}"
+        )
+    if not cleaned["reviewer_label"]:
+        raise DraftReviewError("reviewer_label must be non-empty")
+    if not cleaned["rationale"]:
+        raise DraftReviewError("rationale must be non-empty")
+
+    repo_root = repo_root.resolve()
+    root = _review_root(repo_root, review_root)
+    path = root / f"{draft_id}.review_events.jsonl"
+    _ensure_repo_scratch_path(path, repo_root)
+    prior_events = _read_review_events(path, draft_id=draft_id)
+    append_index = len(prior_events) + 1
+    event_basis = {
+        "draft_id": draft_id,
+        "append_index": append_index,
+        "review_state": cleaned["review_state"],
+        "reviewer_label": cleaned["reviewer_label"],
+        "timestamp_utc": _format_utc(clock()),
+        "rationale": cleaned["rationale"],
+        "clarification_request": cleaned["clarification_request"],
+    }
+    event = {
+        "schema_version": REVIEW_SCHEMA_VERSION,
+        "event_id": "AIREVIEW-"
+        + hashlib.sha256(_canonical_json(event_basis).encode("utf-8")).hexdigest()[:16].upper(),
+        **event_basis,
+        "non_authority_flags": {
+            "scratch_only": True,
+            "annotation_only": True,
+            "not_canonicalization_approval": True,
+            "not_queue_admission": True,
+            "not_research_execution": True,
+            "not_candidate_creation": True,
+            "not_runtime_action": True,
+        },
+    }
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("a", encoding="utf-8", newline="\n") as handle:
+            handle.write(_canonical_json(event) + "\n")
+    except OSError as exc:
+        raise DraftReviewStorageError("review event append failed") from exc
+    trail = list_draft_review_events(
+        draft_id,
+        repo_root=repo_root,
+        output_root=output_root,
+        review_root=review_root,
+    )
+    return {"event": event, "review_trail": trail}
 
 
 def _clean_text(value: str | None) -> str | None:

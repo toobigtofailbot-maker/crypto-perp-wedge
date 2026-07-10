@@ -3,9 +3,9 @@
 - Base: `main` @ `1969251`
 - Branch: `codex/wp-dash-artifact-projections-04`
 - PR: https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/642
-- GitHub state: draft
-- Decision: scoped implementation complete; draft retained because current `main` has a
-  repository-wide stale-count test failure.
+- GitHub state: ready for review
+- Decision: scoped implementation complete and ready for review. The repository-wide
+  stale-count test failure is reproducible on clean current `main` and unrelated to this PR.
 
 ## Delivered
 
@@ -49,7 +49,8 @@ no data member for those classes; it does not zero-fill or reconstruct them.
 - Full suite with `--maxfail=1`: 1 failed, 1136 passed before stop. The failure is
   `test_batch_boundary_reflects_coverage_gap_closure` expecting 8 subjects while current
   merged artifacts produce 9. It reproduces identically in a clean detached `origin/main`
-  worktree at `1969251`; this package does not touch that subsystem or its inputs.
+  worktree at the original base `1969251` and refreshed `origin/main` at `42cd688`; this
+  package does not touch that subsystem or its inputs.
 
 ## Boundary and follow-up
 

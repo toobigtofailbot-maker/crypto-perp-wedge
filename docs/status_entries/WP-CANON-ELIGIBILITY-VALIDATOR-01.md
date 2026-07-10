@@ -1,0 +1,3 @@
+# WP-CANON-ELIGIBILITY-VALIDATOR-01
+
+Added `tools/canon_intake/eligibility_validator.py`, focused tests, and scratch evidence for deterministic advisory screening of reviewed Agent Inbox drafts. The validator hashes all sources, reports explicit unknown/failure reasons, and scans concluded candidates, Strategy Specs, and linked Result Populations for duplicate/freshness evidence. Its only output is a scratch eligibility report; it grants no Gate C, canonical-write, queue, candidate, research-execution, or runtime authority. The next package remains the separately Karl-gated Gate-C canonical writer, which must not trust an eligibility verdict as authorization.

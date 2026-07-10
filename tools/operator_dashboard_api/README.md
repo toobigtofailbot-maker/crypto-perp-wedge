@@ -10,6 +10,7 @@ It is read-only and local inspection only. It reads committed repo artifacts and
 - `GET /api/research/jobs`
 - `GET /api/research/result-populations`
 - `GET /api/research/result-populations/{id}`
+- `GET /api/research/result-populations/{id}/artifact-projections`
 - `GET /api/strategies`
 - `GET /api/strategies/{id}`
 - `GET /api/candidates/funnel`
@@ -39,6 +40,11 @@ Current readers use:
 - `tools.dashboard.collector.collect_dashboard_data`
 
 Every response carries `provenance`, `authority`, `warnings`, `withheld`, and `unavailable` fields.
+
+The artifact-projections route exposes committed WFO fold arrays, Monte Carlo confidence
+summaries, and result-population trade diagnostics where exact lineage is available. It
+returns explicit unavailable inventory entries, without data arrays, for absent equity,
+drawdown time-series, per-trade-return, and trade-list artifacts.
 
 ## Tests
 

@@ -36,6 +36,13 @@ def create_app() -> FastAPI:
     def result_population(id: str) -> ApiEnvelope:
         return readers.read_result_population(id)
 
+    @api.get(
+        "/api/research/result-populations/{id}/artifact-projections",
+        response_model=ApiEnvelope,
+    )
+    def result_population_artifact_projections(id: str) -> ApiEnvelope:
+        return readers.read_result_population_artifact_projections(id)
+
     @api.get("/api/strategies", response_model=ApiEnvelope)
     def strategies() -> ApiEnvelope:
         return readers.read_strategies()

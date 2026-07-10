@@ -1,0 +1,40 @@
+WP-INBOX-LOCAL-RUNBOOK-01 validation summary
+Date: 2026-07-10
+Worktree: C:/GitHub/crypto-perp-wedge-wp-inbox-local-runbook-01
+Branch: codex/wp-inbox-local-runbook-01
+Initial base: b2f1f480411fa29684f8e9ee5d4375f8400ce9c7 (PR #644 merge)
+Final refreshed base: 6e9e25cffb650cb4ae4f8bece68c212faf265922 (PR #645 merge, containing PR #644)
+
+Runtime discovery
+- requirements.txt declares uvicorn.
+- requirements.lock.txt locks uvicorn==0.51.0.
+- Intake command used: ./.venv/Scripts/python.exe -m uvicorn tools.agent_inbox_intake.app:app --host 127.0.0.1 --port 8765
+- Dashboard command used: AGENT_INBOX_SERVICE_ORIGIN=http://127.0.0.1:8765 with npm --prefix operator_dashboard_frontend run dev -- --hostname 127.0.0.1 --port 3000
+
+Live behavior
+- GET http://127.0.0.1:8765/openapi.json: HTTP 200.
+- GET http://127.0.0.1:8765/docs: HTTP 200.
+- Unconfigured dashboard /agent-inbox: HTTP 200; showed INTAKE SERVICE NOT CONFIGURED.
+- Configured dashboard /agent-inbox: HTTP 200; unconfigured message absent.
+- Configured dashboard with intake stopped: POST returned HTTP 502 and packet count did not change.
+- Browser form submission with intake running: HTTP 200.
+- Sanity-check draft id: AIDRAFT-7B2F4F814C1401E7.
+- Packet existed at scratch/WP-DASH-AGENT-INBOX-WRITE-01A/drafts/AIDRAFT-7B2F4F814C1401E7.draft_packet.json.
+- Packet flags: fabricated=false, scratch_only=true, noncanonical=true, not_execution=true.
+- GET /api/agent/drafts listed the draft.
+- GET /api/agent/drafts/AIDRAFT-7B2F4F814C1401E7 returned the matching packet.
+- Exact validation packet removed; post-cleanup existence check was false.
+- Dashboard PID 36812 and intake PID 32544 were stopped; ports 3000 and 8765 were no longer listening.
+- No canonical artifact, candidate, queue, runner, pipeline, research execution, scheduler, notification, runtime, paper, or live write occurred.
+
+Required validation
+- Initial pytest attempt: not used as merge evidence; fresh locked venv lacked pytest.
+- pytest installed only into gitignored .venv; dependency files unchanged.
+- ./.venv/Scripts/python.exe -m pytest tests/test_agent_inbox_intake.py -q: 14 passed, 1 Starlette deprecation warning.
+- ./.venv/Scripts/python.exe -m pytest tests/test_operator_dashboard_api.py -q: 14 passed, 1 Starlette deprecation warning.
+- python tools/dev/diff_scope_summary.py: exit 0; no forbidden-path matches.
+- git diff --check: exit 0.
+- git diff --cached --check: exit 0.
+- Frontend files and package scripts were not touched; frontend typecheck/lint/build gate was not required. Live next dev startup and /agent-inbox interaction passed.
+- Full repository pytest: not run; active package states it is not required and it is not used as merge evidence.
+- After rebasing onto final origin/main, both scoped suites passed again (14 each), diff scope remained clean, and both diff checks passed.

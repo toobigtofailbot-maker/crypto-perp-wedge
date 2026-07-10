@@ -46,11 +46,20 @@ export const tooltipStyle = {
   padding: [6, 8],
 };
 
-/** Compact grid: charts sit inside cards that already supply padding. */
+/**
+ * Compact grid: charts sit inside cards that already supply padding.
+ *
+ * These are outer bounds — ECharts 6 lays axis labels out inside them by
+ * default, so `containLabel` is neither set nor needed (it is a no-op unless
+ * `LegacyGridContainLabel` is registered). An axis `name`, however, is drawn
+ * beyond the bound, so a chart that names its y-axis must widen `top` itself.
+ */
 export const gridStyle = {
   top: 16,
   right: 16,
   bottom: 24,
   left: 48,
-  containLabel: true,
 };
+
+/** Top margin that clears a y-axis `name` drawn above the grid. */
+export const GRID_TOP_WITH_AXIS_NAME = 32;

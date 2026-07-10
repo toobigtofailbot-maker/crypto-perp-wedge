@@ -86,13 +86,67 @@ Rendered aria-labels cross-checked against committed artifacts:
   "…5 committed stages"                        == product_candidate_funnel.stages      OK
   "…5 non-zero states"                         == by_overall_state non-zero count      OK
 
-LIMITATION (stated, not papered over)
--------------------------------------
-The browser console was NOT read: the Chrome extension was not connected in this
-environment. Canvas paint was therefore not observed live. Coverage achieved instead:
-production build passes, all chart routes return 200, every chart host server-renders
-with row counts matching committed artifacts, and the server log is clean. A reviewer
-should run `npm run dev` and confirm the canvases paint without console errors.
+BROWSER VALIDATION (follow-up pass, `npm run dev`, real Chromium)
+-----------------------------------------------------------------
+The limitation recorded in the first pass (browser console unreadable) is now CLOSED.
+Every route below was loaded in a real browser against `npm run dev`.
 
-OVERALL: all commanded validations PASS. No forbidden path touched. No control created.
-No chart data fabricated.
+Canvases actually paint. Verified by reading each canvas's 2D backing store and counting
+non-transparent pixels -- not by asserting the host element exists:
+
+Route                          canvases  pctLit per canvas          absence-states  controls
+/                              1         14.9                       2               0
+/research/result-populations   4         42.0 / 10.5 / 13.3 / 5.9   2               0
+/strategies                    2         19.7 / 19.8                0               0
+/strategies/STRAT-SPEC-0001    3         21.1 / 12.8 / 7.0          3               0
+/candidates                    3         16.1 / 16.6 / 17.3         0               0
+/reports/daily                 1         18.3                       1               0
+/reports/weekly                1         18.3                       1               0
+/system/data                   0         (gap chart correctly absent) 2             0
+
+Console:        0 errors, 0 warnings, 0 failed network requests.
+Controls:       0 <button>, 0 <form>, 0 <input>/<textarea>/<select> on every route.
+
+Tooltips exercised with synthetic mouse events; custom formatters run and print committed
+values (no throw, error handler installed on window 'error' + 'unhandledrejection'):
+  return histogram   -> "-100.0% ... -49.6%  36 variants" / "-49.6% ... 0.8%  16 variants"
+  drawdown histogram -> "83.4% ... 91.7%  3 variants" / "0.5% ... 8.8%  7 variants"
+  scatter (item)     -> "RP-4492 . VAR-000006  drawdown 29.1%  return 368.5%"
+  stacked outcome    -> "RP-7520 ... successful 10"   (RP-7520 commits 10 rows: matches)
+Legend: clicks and the scroll-page arrow throw nothing; a series toggle produced a real
+repaint (310519 -> 282611 lit pixels) and restored cleanly.
+
+Honest states confirmed on screen: equity curve (deferred), realised drawdown over time
+(deferred), per-trade distribution (withheld), WFO (deferred), robustness/Monte Carlo
+(withheld, naming PSR/DSR/MinTRL), detected coverage gaps (unavailable, "reports 0 gaps
+and 0 missing bars"), price/OHLCV series (deferred).
+
+DEFECT FOUND AND FIXED
+----------------------
+Console emitted, once per chart:
+  [ECharts] Specified `grid.containLabel` but no `use(LegacyGridContainLabel)`;
+            use `grid.outerBounds` instead.
+ECharts 6 IGNORES `grid.containLabel` unless the legacy feature is registered. Because of
+that, `grid.top: 16` reserved no room for a y-axis `name`, and the axis names "variants"
+(both histograms) and "return" (scatter) were CLIPPED at the canvas top edge.
+
+Smallest chart-rendering fix, confined to operator_dashboard_frontend:
+  - lib/chartTheme.ts: drop the ignored `containLabel` (provably a no-op -- ECharts says so
+    and ignores it, so removal cannot change layout) and add GRID_TOP_WITH_AXIS_NAME = 32.
+  - MetricHistogramChart.tsx / DrawdownVsReturnScatter.tsx: use that top margin, since
+    these are the only charts that name a y-axis.
+
+Re-verified after the fix: axis names fully visible; the ECharts console message is gone
+(fresh 4-chart load emits nothing); horizontal bar charts (queue, funnel, registry) show
+no label clipping, confirming the `containLabel` removal was a true no-op; tooltips and
+legend still behave; typecheck / lint / build still pass.
+
+NOT FIXED (pre-existing, out of scope)
+--------------------------------------
+At a 375px mobile viewport the whole shell overflows: the sidebar is fixed-width and does
+not collapse, so main content (banner badges, prose, and charts alike) is squeezed. This
+predates this package (shell layout, WP-DASH-FRONTEND-SHELL-03) and is not chart-specific
+-- the charts shrink without throwing. Left untouched.
+
+OVERALL: all commanded validations PASS. Browser validation PASS after one chart-rendering
+fix. No forbidden path touched. No control created. No chart data fabricated.

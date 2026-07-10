@@ -14,7 +14,13 @@
 
 import { useMemo } from "react";
 import { EChart, type CockpitChartOption } from "@/components/charts/EChart";
-import { axisStyle, COCKPIT, gridStyle, tooltipStyle } from "@/lib/chartTheme";
+import {
+  axisStyle,
+  COCKPIT,
+  GRID_TOP_WITH_AXIS_NAME,
+  gridStyle,
+  tooltipStyle,
+} from "@/lib/chartTheme";
 import { formatNumber, histogram } from "@/lib/chartData";
 
 function MetricHistogramChart({
@@ -37,7 +43,8 @@ function MetricHistogramChart({
     const bins = histogram(values, binCount);
 
     return {
-      grid: gridStyle,
+      // The y-axis is named, so reserve room for the name above the grid.
+      grid: { ...gridStyle, top: GRID_TOP_WITH_AXIS_NAME },
       tooltip: {
         trigger: "axis",
         axisPointer: { type: "shadow" },

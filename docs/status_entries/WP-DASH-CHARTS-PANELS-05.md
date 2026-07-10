@@ -117,9 +117,21 @@ clean server log, and every chart host server-rendered with row counts matching 
 committed artifacts (66 variant rows; 14 for `STRAT-SPEC-0001`; 8 queue statuses; 5 funnel
 stages; 5 non-zero report states).
 
-**Limitation:** the browser console was not read — the Chrome extension was not connected in
-this environment — so live canvas paint was not observed. A reviewer should run
-`npm run dev` and confirm the canvases paint without console errors.
+Browser verification (follow-up pass, `npm run dev`, real Chromium): canvases genuinely
+paint — confirmed by counting non-transparent pixels in each canvas's backing store, not by
+asserting the host element exists. **0 console errors, 0 warnings, 0 failed requests.**
+**0 buttons / forms / inputs** on every route. Tooltip `formatter` functions run under an
+error trap and print committed values (`RP-4492 · VAR-000006 · drawdown 29.1% · return
+368.5%`); legend clicks and paging throw nothing, and a series toggle repainted and restored
+cleanly. All withheld / unavailable / deferred states render as designed.
+
+**One rendering defect was found and fixed during that pass.** ECharts 6 ignores
+`grid.containLabel` unless `LegacyGridContainLabel` is registered, so `grid.top: 16` reserved
+no room for a y-axis `name` and the axis names "variants" (histograms) and "return" (scatter)
+were clipped at the canvas top edge. Fix, confined to the chart layer: remove the ignored
+`containLabel` (provably a no-op — ECharts states it is ignored, so removing it cannot change
+layout, and the horizontal bar charts confirm no label regression) and give the two charts
+that name a y-axis a `GRID_TOP_WITH_AXIS_NAME = 32` top margin.
 
 ## Follow-ups
 
@@ -129,3 +141,7 @@ this environment — so live canvas paint was not observed. A reviewer should ru
   a merged public surface.
 - Charting equity curves, WFO folds, or Monte Carlo paths requires the read-only API to
   project those series. That is a backend change and therefore a separate package.
+- At a 375px viewport the whole shell overflows: the sidebar is fixed-width and never
+  collapses, squeezing prose, badges, and charts alike. This predates this package (shell
+  layout from `WP-DASH-FRONTEND-SHELL-03`) and is not chart-specific — the charts shrink
+  without throwing. Left untouched here.

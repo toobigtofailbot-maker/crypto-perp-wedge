@@ -167,8 +167,30 @@ Chart presence was confirmed from the rendered `aria-label` of each chart host, 
 were cross-checked against the committed artifacts (66 total variant rows; 14 for
 `STRAT-SPEC-0001`; 8 queue statuses; 5 funnel stages; 5 non-zero report states). All matched.
 
-**Limitation, stated plainly:** the browser console could not be read — the Chrome extension was
-not connected in this environment. Verification therefore covers HTTP status, server-side render
-of every chart host with correct committed row counts, a clean server log, and a passing
-production build. It does **not** include a live browser console check of canvas paint. A reviewer
-running `npm run dev` should confirm the canvases paint without console errors.
+### Browser validation (follow-up pass) — limitation now closed
+
+Every route above was loaded in a real browser against `npm run dev`. **Canvases genuinely
+paint** — verified by reading each canvas's 2D backing store and counting non-transparent
+pixels, not by asserting the host element exists. Console: **0 errors, 0 warnings, 0 failed
+requests**. Controls: **0 buttons, 0 forms, 0 inputs** on every route.
+
+Tooltips were exercised with synthetic mouse events under a `window.onerror` /
+`unhandledrejection` trap. The custom `formatter` functions run and print committed values —
+e.g. the scatter yields `RP-4492 · VAR-000006 · drawdown 29.1% · return 368.5%`, and the stacked
+chart yields `RP-7520 … successful 10`, which matches RP-7520's committed 10 rows. Legend clicks
+and the legend scroll-page arrow throw nothing; a series toggle produced a real repaint
+(310,519 → 282,611 lit pixels) and restored cleanly.
+
+**One defect was found and fixed.** ECharts 6 ignores `grid.containLabel` unless
+`LegacyGridContainLabel` is registered (it logged this once per chart). Consequently `grid.top: 16`
+reserved no room for a y-axis `name`, and the axis names **"variants"** (both histograms) and
+**"return"** (scatter) were clipped at the canvas top edge. Fix, confined to the chart layer:
+drop the ignored `containLabel` (provably a no-op) and give the two charts that name a y-axis a
+`GRID_TOP_WITH_AXIS_NAME = 32` top margin. Re-verified afterwards — axis names fully visible, the
+ECharts message gone, horizontal bar charts (queue, funnel, registry) still un-clipped, tooltips
+and legend still fine.
+
+**Not fixed (pre-existing, out of scope):** at a 375px viewport the whole shell overflows because
+the sidebar is fixed-width and never collapses. That is shell layout from
+`WP-DASH-FRONTEND-SHELL-03`, affects prose and badges as much as charts, and the charts shrink
+without throwing.

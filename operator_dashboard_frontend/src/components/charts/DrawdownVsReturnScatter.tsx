@@ -11,7 +11,13 @@
 
 import { useMemo } from "react";
 import { EChart, type CockpitChartOption } from "@/components/charts/EChart";
-import { axisStyle, COCKPIT, gridStyle, tooltipStyle } from "@/lib/chartTheme";
+import {
+  axisStyle,
+  COCKPIT,
+  GRID_TOP_WITH_AXIS_NAME,
+  gridStyle,
+  tooltipStyle,
+} from "@/lib/chartTheme";
 
 export interface ScatterPoint {
   /** Committed `metrics.drawdown`. */
@@ -33,7 +39,8 @@ export function DrawdownVsReturnScatter({
 }) {
   const option = useMemo<CockpitChartOption>(() => {
     return {
-      grid: gridStyle,
+      // The y-axis is named, so reserve room for the name above the grid.
+      grid: { ...gridStyle, top: GRID_TOP_WITH_AXIS_NAME },
       tooltip: {
         trigger: "item",
         ...tooltipStyle,

@@ -1,0 +1,35 @@
+WP-INBOX-ASGI-SERVER-DEPS-00 validation summary
+
+Dependency / environment
+- .\.venv\Scripts\python.exe -m pip install -r requirements.txt: PASS
+  Installed only uvicorn==0.51.0 and resolver-required click==8.4.2; colorama==0.4.6 was already present and is included in the lock for fresh Windows installs.
+- .\.venv\Scripts\python.exe -m pip install --dry-run --ignore-installed uvicorn==0.51.0: PASS
+  Resolved uvicorn, click, colorama, and existing h11 only.
+- .\.venv\Scripts\python.exe -c "import uvicorn; print(uvicorn.__version__)": PASS (0.51.0)
+- .\.venv\Scripts\python.exe -m pip check: PASS (No broken requirements found.)
+
+Live service
+- Start: .\.venv\Scripts\python.exe -m uvicorn tools.agent_inbox_intake.app:app --host 127.0.0.1 --port 8765
+- GET /openapi.json: PASS (HTTP 200)
+- GET /docs: PASS (HTTP 200)
+- Valid POST /api/agent/intake-draft: PASS (AIDRAFT-45754E9CE36DE17F)
+- Invalid ETHUSDT POST: PASS (HTTP 400; market_hint must remain bounded to BTCUSDT)
+- Validation draft cleanup: PASS (draft count 1 -> 2 -> 1)
+- Process / temporary log cleanup: PASS
+
+Required package checks
+- pytest tests/test_agent_inbox_intake.py -q: PASS (8 passed, 1 warning)
+- pytest tests/test_operator_dashboard_api.py -q: PASS (11 passed, 1 warning)
+- python -m tools.research_query.run --list-views: PASS (124 views listed)
+- python -m tools.registry.validate_result_populations: PASS
+- python -m tools.registry.validate_candidate_registry: PASS
+- python tools/dev/diff_scope_summary.py: PASS (exit 0; no forbidden-path matches)
+- git diff --check: PASS
+
+Repository-wide workflow check
+- pytest --collect-only -q: PASS (2703 tests collected)
+- pytest -q: INCOMPLETE, not a test failure. Two attempts exceeded 20 minutes and a final long-gate attempt exceeded 40 minutes while still CPU-active. Quiet-mode pytest emitted no assertion failure or completion summary. The runs were manually terminated after their long gates and their process pairs were stopped. Full pytest is not counted as merge evidence or claimed as a pass.
+
+Boundary result
+- Changed scope is limited to requirements.txt, requirements.lock.txt, the package status entry, and package scratch evidence.
+- No runbook, UI, CORS, Agent Inbox service behavior, dashboard API behavior, canonicalization, queue, runner, bridge, gates, pipeline, scheduler, notification, hosted deployment/auth, runtime, OMS, risk, reconciliation, safe mode, credentials, provider/exchange, or paper/live functionality changed.

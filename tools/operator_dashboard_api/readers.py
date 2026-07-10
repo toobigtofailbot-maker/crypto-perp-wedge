@@ -27,6 +27,19 @@ from tools.operator_dashboard_api.models import (
 RESULT_POPULATIONS_DIR = REPO_ROOT / "research" / "result_populations"
 STRATEGY_SPECS_DIR = REPO_ROOT / "research" / "strategy_specs"
 CANDIDATE_REGISTRY_PATH = REPO_ROOT / "research" / "candidate_registry.jsonl"
+WFO_REPORT_PATHS = (
+    REPO_ROOT / "scratch" / "WP-LAB-WALKFORWARD-RUN-01" / "walkforward_run_report.json",
+    REPO_ROOT
+    / "scratch"
+    / "WP-LAB-WALKFORWARD-PURGEDFOLD-INTEG-01"
+    / "purged_walkforward_run_report.json",
+)
+MONTE_CARLO_REPORT_PATHS = (
+    REPO_ROOT
+    / "scratch"
+    / "EXT-INTEG-ROBUSTNESS-MC-01"
+    / "seeded_advisory_mc_report.json",
+)
 
 
 def _sha256(path: Path) -> str | None:
@@ -279,6 +292,224 @@ def read_result_population(result_population_id: str) -> ApiEnvelope:
         withheld={
             "uncommitted_runner_outputs": "Not read. This endpoint projects committed artifacts only."
         },
+    )
+
+
+def _lineage_matches_result_population(
+    artifact: dict[str, Any], result_population: dict[str, Any]
+) -> bool:
+    lineage = result_population.get("lineage") or {}
+    fields = (
+        ("strategy_spec_id", "strategy_spec_id"),
+        ("variant_manifest_id", "variant_manifest_id"),
+        ("sweep_plan_id", "sweep_plan_id"),
+    )
+    return all(
+        isinstance(artifact.get(field), str)
+        and bool(artifact[field])
+        and artifact[field] == lineage.get(lineage_field)
+        for field, lineage_field in fields
+    )
+
+
+def _artifact_source(
+    *,
+    artifact_kind: str,
+    path: Path,
+    source_field: str,
+    data: Any,
+    row_count: int,
+    fold_count: int | None = None,
+    sample_count: int | None = None,
+    linkage: str,
+) -> dict[str, Any]:
+    return {
+        "artifact_kind": artifact_kind,
+        "data_available": True,
+        "source_path": _repo_relative(path),
+        "source_sha256": _sha256(path),
+        "source_field": source_field,
+        "row_count": row_count,
+        "fold_count": fold_count,
+        "path_count": 1,
+        "sample_count": sample_count,
+        "linkage": linkage,
+        "data": data,
+    }
+
+
+def _inventory_item(
+    artifact_kind: str,
+    sources: list[dict[str, Any]],
+    unavailable_reason: str,
+) -> dict[str, Any]:
+    if sources:
+        return {
+            "artifact_kind": artifact_kind,
+            "data_available": True,
+            "source_path": sources[0]["source_path"] if len(sources) == 1 else None,
+            "source_sha256": sources[0]["source_sha256"] if len(sources) == 1 else None,
+            "path_count": len(sources),
+            "row_count": sum(source["row_count"] for source in sources),
+            "fold_count": sum(source["fold_count"] or 0 for source in sources),
+            "withheld_reason": None,
+            "unavailable_reason": None,
+        }
+    return {
+        "artifact_kind": artifact_kind,
+        "data_available": False,
+        "source_path": None,
+        "source_sha256": None,
+        "path_count": 0,
+        "row_count": 0,
+        "fold_count": 0,
+        "withheld_reason": unavailable_reason,
+        "unavailable_reason": unavailable_reason,
+    }
+
+
+def read_result_population_artifact_projections(
+    result_population_id: str,
+) -> ApiEnvelope:
+    """Project only committed diagnostic arrays linked to one result population."""
+
+    result_path = RESULT_POPULATIONS_DIR / f"{result_population_id}.result_population.json"
+    result_population = _read_json(result_path)
+    if result_population is None:
+        return _envelope(
+            source="committed diagnostic artifact inventory",
+            data={"status": "unavailable", "result_population_id": result_population_id},
+            provenance=[_provenance(RESULT_POPULATIONS_DIR, "result_population_directory")],
+            unavailable={
+                "artifact_projections": (
+                    f"{result_population_id} is not present as a committed result population."
+                )
+            },
+        )
+
+    projections: list[dict[str, Any]] = []
+    by_kind: dict[str, list[dict[str, Any]]] = {
+        "equity_curve": [],
+        "drawdown_time_series": [],
+        "wfo_folds": [],
+        "monte_carlo_robustness_summary": [],
+        "monte_carlo_sample_distribution": [],
+        "per_trade_return_distribution": [],
+        "trade_list": [],
+        "summarized_trade_diagnostics": [],
+    }
+
+    variant_rows = result_population.get("variant_result_rows")
+    if isinstance(variant_rows, list):
+        projection = _artifact_source(
+            artifact_kind="summarized_trade_diagnostics",
+            path=result_path,
+            source_field="variant_result_rows",
+            data=variant_rows,
+            row_count=len(variant_rows),
+            linkage="direct_result_population_id",
+        )
+        projections.append(projection)
+        by_kind[projection["artifact_kind"]].append(projection)
+
+    for path in WFO_REPORT_PATHS:
+        payload = _read_json(path)
+        if payload is None or not _lineage_matches_result_population(payload, result_population):
+            continue
+        folds = payload.get("fold_results")
+        if not isinstance(folds, list):
+            continue
+        projection = _artifact_source(
+            artifact_kind="wfo_folds",
+            path=path,
+            source_field="fold_results",
+            data=folds,
+            row_count=len(folds),
+            fold_count=len(folds),
+            linkage="exact_strategy_spec_variant_manifest_sweep_plan_lineage_match",
+        )
+        projections.append(projection)
+        by_kind[projection["artifact_kind"]].append(projection)
+
+    for path in MONTE_CARLO_REPORT_PATHS:
+        payload = _read_json(path)
+        fixture = (payload or {}).get("fixture") or {}
+        bootstrap_ci = (payload or {}).get("bootstrap_ci")
+        if fixture.get("result_population_id") != result_population_id:
+            continue
+        if not isinstance(bootstrap_ci, dict):
+            continue
+        projection = _artifact_source(
+            artifact_kind="monte_carlo_robustness_summary",
+            path=path,
+            source_field="bootstrap_ci",
+            data=bootstrap_ci,
+            row_count=len(bootstrap_ci),
+            sample_count=payload.get("bootstrap_sample_count"),
+            linkage="direct_fixture_result_population_id",
+        )
+        projections.append(projection)
+        by_kind[projection["artifact_kind"]].append(projection)
+
+    absence_reasons = {
+        "equity_curve": (
+            "No committed equity-curve point series is linked to this result population."
+        ),
+        "drawdown_time_series": (
+            "Committed artifacts expose aggregate drawdown metrics, not drawdown "
+            "time-series points."
+        ),
+        "wfo_folds": "No committed WFO fold report has exact lineage to this result population.",
+        "monte_carlo_robustness_summary": (
+            "No committed Monte Carlo confidence-summary artifact directly names this "
+            "result population."
+        ),
+        "monte_carlo_sample_distribution": (
+            "Monte Carlo reports commit confidence summaries and a sample checksum, not "
+            "the raw bootstrap sample distribution."
+        ),
+        "per_trade_return_distribution": (
+            "Committed result populations expose aggregate per-variant metrics only; no "
+            "real per-trade returns are present."
+        ),
+        "trade_list": (
+            "No committed trade-list rows are linked to this result population; "
+            "aggregate trade counts are not expanded into trades."
+        ),
+        "summarized_trade_diagnostics": (
+            "No committed variant_result_rows array is present for summarized trade diagnostics."
+        ),
+    }
+    inventory = [
+        _inventory_item(kind, by_kind[kind], absence_reasons[kind]) for kind in by_kind
+    ]
+    available_count = sum(item["data_available"] for item in inventory)
+    data = {
+        "status": "available" if available_count == len(inventory) else "partially_available",
+        "result_population_id": result_population_id,
+        "artifact_class_count": len(inventory),
+        "available_artifact_class_count": available_count,
+        "projection_count": len(projections),
+        "artifact_inventory": inventory,
+        "projections": projections,
+    }
+    unavailable = {
+        item["artifact_kind"]: item["unavailable_reason"]
+        for item in inventory
+        if not item["data_available"]
+    }
+    source_paths = [result_path, *WFO_REPORT_PATHS, *MONTE_CARLO_REPORT_PATHS]
+    projected_paths = {projection["source_path"] for projection in projections}
+    return _envelope(
+        source="committed result population and diagnostic artifacts",
+        data=data,
+        provenance=[
+            _provenance(path, "projected_diagnostic_artifact")
+            for path in source_paths
+            if _repo_relative(path) in projected_paths
+        ],
+        withheld=unavailable,
+        unavailable=unavailable,
     )
 
 

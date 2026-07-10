@@ -1,0 +1,31 @@
+WP-DASH-ARTIFACT-PROJECTIONS-04 validation summary
+Base: origin/main @ 1969251e96c5e923d4857a4c36294286b47503c2
+
+PASS  .venv/Scripts/python.exe -m pytest tests/test_operator_dashboard_api.py -q
+      14 passed; 1 pre-existing Starlette/httpx deprecation warning.
+PASS  .venv/Scripts/python.exe -m tools.research_query.run --list-views
+      124 read-only views listed.
+PASS  .venv/Scripts/python.exe -m tools.registry.validate_result_populations
+PASS  .venv/Scripts/python.exe -m tools.registry.validate_candidate_registry
+PASS  .venv/Scripts/python.exe tools/dev/diff_scope_summary.py
+      Exit reason ok; forbidden-path matches none.
+PASS  git diff --check
+PASS  git diff --cached --check
+
+BASELINE FAILURE  .venv/Scripts/python.exe -m pytest --maxfail=1
+      1 failed, 1136 passed before stop.
+      Failing test: tests/test_lab_operator_surface.py::test_batch_boundary_reflects_coverage_gap_closure
+      Assertion: expected subject_count 8; current merged artifacts produce 9.
+      The same test failed identically in a clean detached origin/main worktree at 1969251.
+      This package does not touch tools/lab_operator_surface, tools/lab_dashboard, their
+      source artifacts, or this test. Fixing the stale expectation is outside allowed scope.
+
+Earlier full-suite attempt: `pytest -q` timed out after 20 minutes without emitting a test
+failure. The subsequent visible-progress and final runs consistently exposed the current-main
+operator-surface assertion above.
+
+Optional formatter checks were not available because neither black nor ruff is installed in
+the repo virtual environment. They are not package-required validators. Changed Python lines
+were manually checked against the configured 100-character line length.
+
+No frontend files were touched, so frontend typecheck/lint/build are not applicable.

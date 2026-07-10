@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from pathlib import Path
 
 from fastapi.testclient import TestClient
@@ -16,6 +17,7 @@ REQUIRED_GET_ROUTES = {
     "/api/research/jobs",
     "/api/research/result-populations",
     "/api/research/result-populations/{id}",
+    "/api/research/result-populations/{id}/artifact-projections",
     "/api/strategies",
     "/api/strategies/{id}",
     "/api/candidates/funnel",
@@ -86,6 +88,7 @@ def test_required_routes_return_json_envelopes() -> None:
         "/api/research/jobs",
         "/api/research/result-populations",
         "/api/research/result-populations/RP-7134",
+        "/api/research/result-populations/RP-2592/artifact-projections",
         "/api/strategies",
         "/api/strategies/STRAT-SPEC-0003",
         "/api/candidates/funnel",
@@ -123,6 +126,84 @@ def test_result_population_detail_is_read_only_and_denominator_visible() -> None
     assert non_authority["not_executable"] is True
     assert non_authority["not_runtime_authority"] is True
     assert non_authority["not_paper_live_authority"] is True
+
+
+def test_real_artifact_projections_trace_exact_committed_content() -> None:
+    payload = _client().get(
+        "/api/research/result-populations/RP-2592/artifact-projections"
+    ).json()
+    _assert_envelope(payload)
+    data = payload["data"]
+    assert data["status"] == "partially_available"
+
+    projections = data["projections"]
+    for projection in projections:
+        source = REPO_ROOT / projection["source_path"]
+        assert projection["source_sha256"] == f"sha256:{_sha(source)}"
+        assert projection["path_count"] == 1
+
+    trade_diagnostics = next(
+        item for item in projections if item["artifact_kind"] == "summarized_trade_diagnostics"
+    )
+    result_population = json.loads(
+        (REPO_ROOT / trade_diagnostics["source_path"]).read_text(encoding="utf-8")
+    )
+    assert trade_diagnostics["source_field"] == "variant_result_rows"
+    assert trade_diagnostics["data"] == result_population["variant_result_rows"]
+    assert trade_diagnostics["row_count"] == len(result_population["variant_result_rows"])
+
+    wfo = [item for item in projections if item["artifact_kind"] == "wfo_folds"]
+    assert len(wfo) == 2
+    for projection in wfo:
+        source_payload = json.loads(
+            (REPO_ROOT / projection["source_path"]).read_text(encoding="utf-8")
+        )
+        assert projection["data"] == source_payload["fold_results"]
+        assert projection["fold_count"] == len(source_payload["fold_results"])
+
+    monte_carlo = next(
+        item
+        for item in projections
+        if item["artifact_kind"] == "monte_carlo_robustness_summary"
+    )
+    mc_payload = json.loads(
+        (REPO_ROOT / monte_carlo["source_path"]).read_text(encoding="utf-8")
+    )
+    assert monte_carlo["data"] == mc_payload["bootstrap_ci"]
+    assert monte_carlo["sample_count"] == mc_payload["bootstrap_sample_count"]
+
+
+def test_absent_artifact_classes_have_reasons_and_no_fake_data_arrays() -> None:
+    payload = _client().get(
+        "/api/research/result-populations/RP-7134/artifact-projections"
+    ).json()
+    inventory = {item["artifact_kind"]: item for item in payload["data"]["artifact_inventory"]}
+    for kind in (
+        "equity_curve",
+        "drawdown_time_series",
+        "wfo_folds",
+        "monte_carlo_robustness_summary",
+        "monte_carlo_sample_distribution",
+        "per_trade_return_distribution",
+        "trade_list",
+    ):
+        item = inventory[kind]
+        assert item["data_available"] is False
+        assert item["withheld_reason"]
+        assert item["unavailable_reason"]
+        assert "data" not in item
+        assert kind in payload["unavailable"]
+
+
+def test_unknown_result_population_artifact_projection_is_unavailable() -> None:
+    payload = _client().get(
+        "/api/research/result-populations/RP-NOT-PRESENT/artifact-projections"
+    ).json()
+    assert payload["data"] == {
+        "status": "unavailable",
+        "result_population_id": "RP-NOT-PRESENT",
+    }
+    assert payload["unavailable"]["artifact_projections"]
 
 
 def test_strategy_detail_does_not_imply_execution_authority() -> None:

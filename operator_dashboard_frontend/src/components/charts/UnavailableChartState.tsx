@@ -59,7 +59,7 @@ export function UnavailableChartState({
         {source ? (
           <>
             {" "}
-            Declared by <span className="font-mono text-cockpit-text">{source}</span>.
+            Declared by <span className="break-all font-mono text-cockpit-text">{source}</span>.
           </>
         ) : null}
       </p>

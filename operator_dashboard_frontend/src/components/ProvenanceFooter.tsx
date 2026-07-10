@@ -30,7 +30,7 @@ export function ProvenanceFooter({ envelope }: { envelope: ApiEnvelope }) {
             <dd>
               <ul className="mt-1 flex flex-col gap-0.5">
                 {envelope.provenance.map((p, i) => (
-                  <li key={`${p.path}-${i}`} className="font-mono">
+                  <li key={`${p.path}-${i}`} className="break-all font-mono">
                     {p.path}
                     <span className="text-cockpit-muted"> · {p.role}</span>
                   </li>

@@ -32,7 +32,7 @@ export function ChartProvenanceNote({
     <div className="flex flex-col gap-1 border-t border-cockpit-border/50 pt-2 text-xs text-cockpit-muted">
       <p>
         <span className="uppercase tracking-wider">source</span>{" "}
-        <span className="font-mono text-cockpit-text">{source}</span>
+        <span className="break-all font-mono text-cockpit-text">{source}</span>
       </p>
       <p>
         <span className="uppercase tracking-wider">fields</span>{" "}

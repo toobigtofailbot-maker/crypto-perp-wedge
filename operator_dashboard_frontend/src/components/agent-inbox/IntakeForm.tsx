@@ -371,7 +371,7 @@ export function IntakeForm({
               ? "Intake service unreachable"
               : "Draft not created"
           }
-          reason={`${submission.message} No draft packet was created, and nothing is shown in its place.`}
+          reason={submission.message}
         />
       ) : null}
 

@@ -29,6 +29,23 @@ export const AGENT_INBOX_PROXY_PATH = "/agent-inbox/intake-draft";
 /** The single upstream endpoint on the isolated service. The proxy hardcodes it. */
 export const AGENT_INBOX_UPSTREAM_PATH = "/api/agent/intake-draft";
 
+/**
+ * Read-only draft history (WP-INBOX-DRAFT-HISTORY-02A/02B). These are GET-only
+ * views of scratch packets already written; they submit and mutate nothing. Each
+ * has a same-origin passthrough (the service ships no CORS) whose upstream is a
+ * single hardcoded read endpoint, so neither passthrough is a general forwarder.
+ */
+export const AGENT_INBOX_DRAFTS_PROXY_PATH = "/agent-inbox/drafts";
+export const AGENT_INBOX_DRAFTS_UPSTREAM_PATH = "/api/agent/drafts";
+
+/** `AIDRAFT-<16 uppercase hex>`; mirrors `DRAFT_ID_RE` in the 02A service. */
+export const DRAFT_ID_PATTERN = /^AIDRAFT-[A-F0-9]{16}$/;
+
+/** Same-origin passthrough for one draft's stored packet. */
+export function agentInboxDraftDetailProxyPath(draftId: string): string {
+  return `${AGENT_INBOX_DRAFTS_PROXY_PATH}/${encodeURIComponent(draftId)}`;
+}
+
 /** Server-only env var naming the isolated service origin, e.g. `http://127.0.0.1:8100`. */
 export const AGENT_INBOX_ORIGIN_ENV = "AGENT_INBOX_SERVICE_ORIGIN";
 
@@ -234,6 +251,136 @@ export async function postIntakeDraft(
   } catch {
     throw new AgentInboxUnavailableError(
       "The dashboard could not reach its own intake passthrough.",
+    );
+  }
+
+  if (response.ok) {
+    return (await response.json()) as AgentInboxDraftPacket;
+  }
+
+  let body: ProxyFailureBody = {};
+  try {
+    body = (await response.json()) as ProxyFailureBody;
+  } catch {
+    throw new AgentInboxRejectedError(
+      response.status,
+      `The intake service answered with status ${response.status}.`,
+    );
+  }
+
+  const message = describeDetail(body.detail, response.status);
+  if (body.agent_inbox_unconfigured || body.agent_inbox_unreachable) {
+    throw new AgentInboxUnavailableError(message);
+  }
+  throw new AgentInboxRejectedError(response.status, message);
+}
+
+/**
+ * The compact per-draft non-authority posture echoed by the 02A list endpoint.
+ * A summary of the packet's own flags, not a separate verdict.
+ */
+export interface AgentInboxDraftListNonAuthority {
+  scratch_only: boolean;
+  noncanonical: boolean;
+  draft_only: boolean;
+  review_only: boolean;
+  not_approval: boolean;
+  not_promotion: boolean;
+  not_execution: boolean;
+}
+
+/**
+ * One row of the draft history list, exactly as `list_intake_drafts` projects
+ * it. These are compact metadata for orientation, not the full packet — opening
+ * a draft fetches the stored packet whole via {@link getIntakeDraft}.
+ */
+export interface AgentInboxDraftSummary {
+  draft_id: string;
+  created_at: string;
+  schema_version: string;
+  title: string | null;
+  submitter_label: string | null;
+  market_hint: string | null;
+  timeframe_hint: string | null;
+  hypothesis_preview: string | null;
+  blocker_count: number;
+  warning_count: number;
+  open_question_count: number;
+  fabricated: boolean;
+  non_authority: AgentInboxDraftListNonAuthority;
+  source_packet_path: string;
+}
+
+/** The envelope returned by `GET /api/agent/drafts`, forwarded verbatim. */
+export interface AgentInboxDraftListEnvelope {
+  status: "available" | "empty";
+  count: number;
+  drafts: AgentInboxDraftSummary[];
+  storage_source: string;
+  scratch_only: boolean;
+}
+
+/**
+ * Read the scratch draft history from the isolated service via the same-origin
+ * passthrough. GET only; nothing is submitted, and no packet is synthesized when
+ * the service is unconfigured or unreachable — those raise
+ * `AgentInboxUnavailableError`. A malformed-history 503 raises
+ * `AgentInboxRejectedError` with the service's own words.
+ */
+export async function getIntakeDrafts(): Promise<AgentInboxDraftListEnvelope> {
+  let response: Response;
+  try {
+    response = await fetch(AGENT_INBOX_DRAFTS_PROXY_PATH, {
+      method: "GET",
+      cache: "no-store",
+      headers: { Accept: "application/json" },
+    });
+  } catch {
+    throw new AgentInboxUnavailableError(
+      "The dashboard could not reach its own draft-history passthrough.",
+    );
+  }
+
+  if (response.ok) {
+    return (await response.json()) as AgentInboxDraftListEnvelope;
+  }
+
+  let body: ProxyFailureBody = {};
+  try {
+    body = (await response.json()) as ProxyFailureBody;
+  } catch {
+    throw new AgentInboxRejectedError(
+      response.status,
+      `The intake service answered with status ${response.status}.`,
+    );
+  }
+
+  const message = describeDetail(body.detail, response.status);
+  if (body.agent_inbox_unconfigured || body.agent_inbox_unreachable) {
+    throw new AgentInboxUnavailableError(message);
+  }
+  throw new AgentInboxRejectedError(response.status, message);
+}
+
+/**
+ * Read one stored scratch packet by id via the same-origin passthrough. GET
+ * only. Unconfigured/unreachable raise `AgentInboxUnavailableError`; a rejected
+ * or missing draft (400/404/503) raises `AgentInboxRejectedError`. The returned
+ * packet is the persisted JSON, unchanged; it is review material only.
+ */
+export async function getIntakeDraft(
+  draftId: string,
+): Promise<AgentInboxDraftPacket> {
+  let response: Response;
+  try {
+    response = await fetch(agentInboxDraftDetailProxyPath(draftId), {
+      method: "GET",
+      cache: "no-store",
+      headers: { Accept: "application/json" },
+    });
+  } catch {
+    throw new AgentInboxUnavailableError(
+      "The dashboard could not reach its own draft-history passthrough.",
     );
   }
 

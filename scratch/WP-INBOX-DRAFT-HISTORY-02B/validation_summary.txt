@@ -1,0 +1,64 @@
+WP-INBOX-DRAFT-HISTORY-02B — Validation Summary
+================================================
+
+Preflight
+- origin/main tip includes PR #643 (WP-INBOX-DRAFT-HISTORY-02A merged; commit
+  67005e5 "add scratch draft history endpoints"). Dependency satisfied.
+- 02A endpoints confirmed: GET /api/agent/drafts, GET /api/agent/drafts/{id}.
+
+Frontend (operator_dashboard_frontend/)
+- npm run typecheck : PASS (tsc --noEmit, no output)
+- npm run lint      : PASS (No ESLint warnings or errors)
+- npm run build     : PASS (Compiled successfully; 31/31 pages)
+                      routes registered:
+                        /agent-inbox                    (dynamic)
+                        /agent-inbox/drafts             (dynamic)
+                        /agent-inbox/drafts/[draft_id]  (dynamic)
+
+Backend regression
+- pytest tests/test_agent_inbox_intake.py tests/test_operator_dashboard_api.py
+    -> 28 passed, 1 warning
+
+Repo
+- python tools/dev/diff_scope_summary.py
+    -> changed files (5), all within allowed frontend scope:
+       operator_dashboard_frontend/src/app/agent-inbox/drafts/[draft_id]/route.ts
+       operator_dashboard_frontend/src/app/agent-inbox/drafts/route.ts
+       operator_dashboard_frontend/src/app/agent-inbox/page.tsx
+       operator_dashboard_frontend/src/components/agent-inbox/DraftHistory.tsx
+       operator_dashboard_frontend/src/lib/agentInboxClient.ts
+    -> Forbidden-path matches: none
+- git diff --check / git diff --cached --check : clean
+
+Browser / manual (service :8100, dashboard :3210 with AGENT_INBOX_SERVICE_ORIGIN)
+- Submitted a bounded idea via the form ("Funding-rate mean reversion",
+  submitter ui-e2e-validation) -> returned packet rendered.
+- After reload, that draft appeared at the TOP of history (3 drafts total).
+- Opened a draft from history -> full stored packet rendered (DraftPacketView).
+- Reloaded page -> history remained, read from the service.
+- Passthrough verb checks:
+    GET  /agent-inbox/drafts                          -> 200
+    GET  /agent-inbox/drafts/AIDRAFT-B681B1CA1D84647D -> 200
+    GET  /agent-inbox/drafts/bogus                    -> 400 (no upstream call)
+    POST /agent-inbox/drafts                          -> 405 (no POST handler)
+- Recorded network for history feature: GET only (list on mount/refresh; detail).
+- Unconfigured (dashboard :3211, no env) -> "Draft history not configured";
+  passthrough GET /agent-inbox/drafts -> 503 agent_inbox_unconfigured. No fetch,
+  no simulated drafts.
+- Service-down (service stopped, Refresh clicked) -> "Draft history unavailable
+  … No draft history was read." No simulated drafts.
+- Storage: localStorage={} sessionStorage={} document.cookie="" (before & after
+  opening a draft, and after reload).
+
+Cleanup
+- Validation-created scratch drafts removed from the worktree; working tree
+  contains only the 5 allowed frontend files (plus docs/status + this scratch
+  evidence).
+
+Report-back
+- Draft history survives reload: YES (re-read from the service on mount).
+- Controls: 2 network controls, both GET-only reads (Refresh; open draft), plus
+  a local Close-detail button (no network). No run/approve/promote/execute/
+  candidate/pipeline/paper/live/scheduler/notification/review-state control.
+- History remains scratch-only / noncanonical, review material only.
+- Next dependent package: WP-INBOX-DRAFT-REVIEW-STATE-03A / 03B.

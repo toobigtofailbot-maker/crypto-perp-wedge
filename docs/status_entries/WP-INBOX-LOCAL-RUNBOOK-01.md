@@ -4,6 +4,9 @@ Branch: `codex/wp-inbox-local-runbook-01`
 
 PR: [#646](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/646)
 
+Final base: `origin/main` at `6e9e25cffb650cb4ae4f8bece68c212faf265922`,
+which contains the prerequisite PR #644 merge.
+
 Package class: Tier 1 documentation / local operator runbook.
 
 ## Scope summary
@@ -37,6 +40,8 @@ or background supervisor.
 - `tests/test_operator_dashboard_api.py`: 14 passed, 1 dependency deprecation warning.
 - `python tools/dev/diff_scope_summary.py`: clean; no forbidden-path matches.
 - `git diff --check` and `git diff --cached --check`: passed.
+- After the final rebase onto current `origin/main`, both scoped suites passed
+  again (14 each), diff scope remained clean, and both diff checks passed.
 - Frontend sources/package scripts were not touched, so their conditional
   typecheck/lint/build gate was not required. Live `next dev` and browser
   interaction passed.

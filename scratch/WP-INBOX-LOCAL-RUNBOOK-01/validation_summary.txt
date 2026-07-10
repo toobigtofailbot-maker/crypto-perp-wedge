@@ -2,7 +2,8 @@ WP-INBOX-LOCAL-RUNBOOK-01 validation summary
 Date: 2026-07-10
 Worktree: C:/GitHub/crypto-perp-wedge-wp-inbox-local-runbook-01
 Branch: codex/wp-inbox-local-runbook-01
-Base: b2f1f480411fa29684f8e9ee5d4375f8400ce9c7 (PR #644 merge)
+Initial base: b2f1f480411fa29684f8e9ee5d4375f8400ce9c7 (PR #644 merge)
+Final refreshed base: 6e9e25cffb650cb4ae4f8bece68c212faf265922 (PR #645 merge, containing PR #644)
 
 Runtime discovery
 - requirements.txt declares uvicorn.
@@ -36,3 +37,4 @@ Required validation
 - git diff --cached --check: exit 0.
 - Frontend files and package scripts were not touched; frontend typecheck/lint/build gate was not required. Live next dev startup and /agent-inbox interaction passed.
 - Full repository pytest: not run; active package states it is not required and it is not used as merge evidence.
+- After rebasing onto final origin/main, both scoped suites passed again (14 each), diff scope remained clean, and both diff checks passed.

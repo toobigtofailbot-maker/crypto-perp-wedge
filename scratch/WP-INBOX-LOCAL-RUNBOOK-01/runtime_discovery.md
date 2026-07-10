@@ -2,8 +2,10 @@
 
 - Isolated worktree: `C:/GitHub/crypto-perp-wedge-wp-inbox-local-runbook-01`
 - Branch: `codex/wp-inbox-local-runbook-01`
-- Base: `b2f1f480411fa29684f8e9ee5d4375f8400ce9c7`
-- Base commit: merge of PR #644 (`WP-INBOX-ASGI-SERVER-DEPS-00`)
+- Initial execution base: `b2f1f480411fa29684f8e9ee5d4375f8400ce9c7`,
+  the merge of PR #644 (`WP-INBOX-ASGI-SERVER-DEPS-00`).
+- Final refreshed base: `6e9e25cffb650cb4ae4f8bece68c212faf265922`,
+  current `origin/main` after PR #645 and still containing PR #644.
 - Launch worktree: `C:/GitHub/crypto-perp-wedge`
 - Launch branch: `codex/wp-dash-artifact-projections-04`
 - Launch worktree was not switched or edited.

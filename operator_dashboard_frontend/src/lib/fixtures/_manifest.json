@@ -24,6 +24,12 @@
       "endpoint": "/api/strategies",
       "schema_version": "operator_dashboard_api_v1"
     },
+    "strategy_detail": {
+      "endpoint": "/api/strategies/{strategy_id}",
+      "schema_version": "operator_dashboard_api_v1",
+      "files": "strategies/{strategy_id}.json",
+      "note": "One envelope per committed strategy spec. Carries the spec body (provenance, non_execution_declaration, timeframe_and_data, entry_logic, exit_logic, filters, free_parameters, review) that the list endpoint does not project. Strategy specs are planning artifacts: not executable, not candidates, not approved beyond variant planning, and carrying no performance claim. On this endpoint data.status is the envelope status, not the spec lifecycle status: the reader overwrites it, so lifecycle status is read from /api/strategies."
+    },
     "candidates_funnel": {
       "endpoint": "/api/candidates/funnel",
       "schema_version": "operator_dashboard_api_v1"

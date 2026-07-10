@@ -1,0 +1,56 @@
+WP-DASH-STRATEGY-EXPLORER-06 — validation summary
+generated: 2026-07-10T05:49:27Z
+branch:    claude/strategy-explorer-drilldown-28dbb6
+head:      9c0fb0841798f772db8c1c769a883b5efba8a1b1
+base:      main @ 9c0fb0841798f772db8c1c769a883b5efba8a1b1
+
+=== operator_dashboard_frontend ===
+$ npm run typecheck
+> tsc --noEmit
+
+  -> PASS (tsc --noEmit, no output)
+$ npm run lint
+✔ No ESLint warnings or errors
+$ npm run build
+ ✓ Compiled successfully
+   Generating static pages (0/31) ...
+   Generating static pages (7/31) 
+   Generating static pages (15/31) 
+   Generating static pages (23/31) 
+ ✓ Generating static pages (31/31)
+├ ○ /strategies                          1.41 kB         288 kB
+├ ● /strategies/[strategy_id]            200 B           289 kB
+
+=== backend / API (unchanged) ===
+$ pytest tests/test_operator_dashboard_api.py -q
+11 passed, 1 warning in 2.79s
+$ python -m tools.research_query.run --list-views
+124 views listed (exit 0)
+$ python -m tools.registry.validate_result_populations
+OK: result-population artifacts under C:\GitHub\crypto-perp-wedge\.claude\worktrees\mystifying-turing-5933c8\research\result_populations validate
+$ python -m tools.registry.validate_candidate_registry
+OK: candidate lifecycle registry artifacts under C:\GitHub\crypto-perp-wedge\.claude\worktrees\mystifying-turing-5933c8\tests\fixtures\candidate_lifecycle_registry validate
+$ python tools/dev/diff_scope_summary.py
+  -> Forbidden-path matches: none | exit reason: ok
+$ git diff --check ; git diff --cached --check
+  -> clean
+
+=== no-control scan (operator_dashboard_frontend/src) ===
+  mutation HTTP methods .................. 0
+  forms / onSubmit / FormData ........... 0
+  <button> / onClick / useState ......... 0
+  run|approve|promote|execute|trade() ... 0
+  fetch() ............................... 1  (apiClient.ts, GET-only, pre-existing, unmodified)
+  "use client" in explorer/strategies ... 0  (all server components)
+  served-HTML controls on all routes .... 0
+
+=== visual verification (next start -p 3131) ===
+  HTTP 200  /strategies
+  HTTP 200  /strategies/STRAT-SPEC-0001
+  HTTP 200  /strategies/STRAT-SPEC-0003
+  HTTP 200  /strategies/STRAT-SPEC-0006
+  HTTP 200  /strategies/STRAT-SPEC-9999
+  HTTP 200  /strategies/not%20a%20spec
+  unknown ids render the honest 'Strategy unavailable' page (200, mirroring the API envelope; the API does not 404)
+  evidence badges match fixtures: 0001=2RP/14rows, 0002=2RP/20rows, 0003-0006=1RP/8rows, total 66
+  browser console: NOT CHECKED (Chrome extension not connected; .claude/launch.json is a forbidden path)

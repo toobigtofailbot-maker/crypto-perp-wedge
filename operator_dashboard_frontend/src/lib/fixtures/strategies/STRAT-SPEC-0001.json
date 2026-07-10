@@ -1,0 +1,289 @@
+{
+  "schema_version": "operator_dashboard_api_v1",
+  "source": "committed artifact STRAT-SPEC-0001.strategy_spec.json",
+  "provenance": [
+    {
+      "path": "research/strategy_specs/STRAT-SPEC-0001.strategy_spec.json",
+      "role": "strategy_spec_artifact",
+      "note": null,
+      "sha256": "sha256:a7e7bb5d4a5eda5a1d2ebb842d828f664064dae69859d8cda1ec5015ac5f342c"
+    }
+  ],
+  "authority": {
+    "api_projection_only": true,
+    "repo_artifacts_remain_truth": true,
+    "read_only": true,
+    "get_endpoints_only": true,
+    "not_execution_authority": true,
+    "not_approval_authority": true,
+    "not_recommendation_authority": true,
+    "not_ranking_authority": true,
+    "not_readiness_authority": true,
+    "not_promotion_authority": true,
+    "not_runtime_authority": true,
+    "not_paper_live_authority": true,
+    "not_broker_exchange_order_authority": true,
+    "not_agent_inbox_write_authority": true,
+    "not_scheduler_authority": true,
+    "not_notification_authority": true,
+    "control_surface": "none"
+  },
+  "warnings": [
+    "This API response is a derived read-only projection for local dashboard inspection. Committed repo artifacts and protected runtime truth, where later authorized snapshots exist, remain authoritative."
+  ],
+  "withheld": {
+    "execution_results": "Strategy specs are planning artifacts; result populations are exposed separately."
+  },
+  "unavailable": {},
+  "data": {
+    "strategy_id": "STRAT-SPEC-0001",
+    "strategy_spec_id": "STRAT-SPEC-0001",
+    "path": "research/strategy_specs/STRAT-SPEC-0001.strategy_spec.json",
+    "title": "First Canonical SMA-Distance Strategy Spec",
+    "short_name": "sma-distance-15m-long",
+    "status": "available",
+    "source_type": "manual_idea",
+    "instrument_family": "crypto_perp",
+    "market_type": "perpetual",
+    "primary_timeframe": "15m",
+    "direction": "long",
+    "free_parameter_count": null,
+    "max_free_parameters": 5,
+    "approval_scope": null,
+    "not_executable": true,
+    "provenance": {
+      "source_type": "manual_idea",
+      "source_refs": [
+        "docs/research_pipeline/2026-06-revised_first_canonical_sma_distance_spec_design.md"
+      ],
+      "prepared_by": "Codex",
+      "created_at": "2026-06-05T00:00:00Z",
+      "updated_at": "2026-06-05T00:00:00Z",
+      "rationale": "Frozen first canonical parent Strategy Spec for the accepted long-only 15m BTCUSDT SMA-distance design.",
+      "source_constraints": [
+        "OHLCV-only; no ATR stop; no max holding period; no sweep run authorized."
+      ],
+      "unresolved_claims": []
+    },
+    "non_execution_declaration": {
+      "human_review_surface_only": true,
+      "not_executable": true,
+      "not_runtime_authority": true,
+      "not_paper_live_authority": true,
+      "not_gate_authority": true,
+      "not_candidate_approval": true,
+      "not_exp_approval": true,
+      "not_sweep_authority": true,
+      "not_ranking_authority": true,
+      "not_recommendation_authority": true,
+      "not_readiness_authority": true,
+      "not_transition_authority": true
+    },
+    "timeframe_and_data": {
+      "primary_timeframe": "15m",
+      "confirmation_timeframes": [],
+      "host_data_refs": [
+        {
+          "stream": "ohlcv",
+          "timeframe": "15m",
+          "field": "open",
+          "availability": "required"
+        },
+        {
+          "stream": "ohlcv",
+          "timeframe": "15m",
+          "field": "high",
+          "availability": "required"
+        },
+        {
+          "stream": "ohlcv",
+          "timeframe": "15m",
+          "field": "low",
+          "availability": "required"
+        },
+        {
+          "stream": "ohlcv",
+          "timeframe": "15m",
+          "field": "close",
+          "availability": "required"
+        },
+        {
+          "stream": "ohlcv",
+          "timeframe": "15m",
+          "field": "volume",
+          "availability": "required"
+        },
+        {
+          "stream": "indicator_catalog",
+          "timeframe": null,
+          "field": "sma",
+          "availability": "required"
+        }
+      ],
+      "gap_handling_assumption": "Use existing research-workbench irreparable-gap policy; no interpolation or silent fill.",
+      "missing_data_blockers": []
+    },
+    "entry_logic": {
+      "direction": "long",
+      "groups": [
+        {
+          "group_id": "ENTRY-GROUP-0001",
+          "group_role": "required",
+          "logic": "all",
+          "conditions": [
+            {
+              "condition_id": "ENTRY-CLOSE-LT-SMA20-SCALED-BY-THRESHOLD",
+              "condition_role": "required",
+              "left_operand": {
+                "operand_type": "data_ref",
+                "ref": "close",
+                "field": "close",
+                "timeframe": null,
+                "lookback": null
+              },
+              "operator": "lt",
+              "right_operand": {
+                "operand_type": "composed_operand",
+                "composition_type": "scale_by_one_minus_parameter",
+                "base_operand": {
+                  "operand_type": "indicator_ref",
+                  "ref": "sma",
+                  "field": "value",
+                  "timeframe": null,
+                  "lookback": {
+                    "bars": 20
+                  }
+                },
+                "parameter_operand": {
+                  "operand_type": "parameter_ref",
+                  "ref": "entry_distance_threshold",
+                  "field": null,
+                  "timeframe": null,
+                  "lookback": null
+                }
+              },
+              "units": "ratio",
+              "notes": "Enter long when close is below SMA(20) scaled by one minus entry_distance_threshold."
+            }
+          ],
+          "subgroups": [],
+          "notes": "Long-only SMA-distance mean-reversion entry."
+        }
+      ],
+      "notes": "Entry target: close < SMA(20) * (1 - entry_distance_threshold)."
+    },
+    "exit_logic": {
+      "groups": [
+        {
+          "group_id": "EXIT-GROUP-0001",
+          "group_role": "exit",
+          "logic": "all",
+          "conditions": [
+            {
+              "condition_id": "EXIT-CLOSE-GTE-SMA20",
+              "condition_role": "exit",
+              "left_operand": {
+                "operand_type": "data_ref",
+                "ref": "close",
+                "field": "close",
+                "timeframe": null,
+                "lookback": null
+              },
+              "operator": "gte",
+              "right_operand": {
+                "operand_type": "indicator_ref",
+                "ref": "sma",
+                "field": "value",
+                "timeframe": null,
+                "lookback": {
+                  "bars": 20
+                }
+              },
+              "units": null,
+              "notes": "Exit when close returns to or above SMA(20)."
+            }
+          ],
+          "subgroups": [],
+          "notes": "Centerline exit only."
+        }
+      ],
+      "max_holding_period": {
+        "enabled": false,
+        "bars": null
+      },
+      "notes": "max_holding_period.bars omitted by disabling max holding; ATR stop is not active."
+    },
+    "filters": {
+      "groups": [
+        {
+          "group_id": "FILTER-TYPING-NO-OP-0001",
+          "group_role": "no_trade",
+          "logic": "all",
+          "conditions": [],
+          "subgroups": [],
+          "notes": "Zero-condition no-trade placeholder for current query-layer typed-array visibility; no active filter condition is declared."
+        }
+      ],
+      "none_declared": false
+    },
+    "free_parameters": {
+      "max_free_parameters": 5,
+      "counting_rule": "parameters contains only entries where is_free_parameter=true; maxItems 5 enforces the D2-006-style MVP free-parameter cap",
+      "parameters": [
+        {
+          "name": "entry_distance_threshold",
+          "label": "Entry distance threshold",
+          "description": "Ratio distance below SMA(20) required for long entry.",
+          "type": "number",
+          "units": "ratio",
+          "default": 0.02,
+          "range": {
+            "min": 0.005,
+            "max": 0.05,
+            "step": 0.005,
+            "inclusive_min": true,
+            "inclusive_max": true
+          },
+          "allowed_values": [
+            0.005,
+            0.01,
+            0.015,
+            0.02,
+            0.03,
+            0.04,
+            0.05
+          ],
+          "is_free_parameter": true,
+          "included_in_variant_generation": true,
+          "role": "entry",
+          "rationale": "Swept first canonical parameter for SMA-distance entry strictness.",
+          "constraints": [
+            "Must remain numeric and in (0, 1)."
+          ]
+        }
+      ],
+      "no_free_parameters_declared": false
+    },
+    "review": {
+      "human_review_required": true,
+      "reviewer": null,
+      "reviewed_at": null,
+      "review_notes": [
+        "WP-S2c-209R freezes first parent instances only; no sweep run or result population is authorized."
+      ],
+      "approval_scope": "variant_planning_only",
+      "non_authority_acknowledgement": {
+        "not_candidate_approval": true,
+        "not_exp_approval": true,
+        "not_sweep_authority": true,
+        "not_ranking_authority": true,
+        "not_recommendation_authority": true,
+        "not_readiness_authority": true,
+        "not_transition_authority": true,
+        "not_runtime_authority": true,
+        "not_paper_live_authority": true,
+        "not_gate_satisfaction": true
+      }
+    }
+  }
+}

@@ -1,0 +1,475 @@
+{
+  "schema_version": "operator_dashboard_api_v1",
+  "source": "committed artifact STRAT-SPEC-0005.strategy_spec.json",
+  "provenance": [
+    {
+      "path": "research/strategy_specs/STRAT-SPEC-0005.strategy_spec.json",
+      "role": "strategy_spec_artifact",
+      "note": null,
+      "sha256": "sha256:1baeb4da177750795266091b2b7d50094f95d65c74059aa2ee1c5769171219b7"
+    }
+  ],
+  "authority": {
+    "api_projection_only": true,
+    "repo_artifacts_remain_truth": true,
+    "read_only": true,
+    "get_endpoints_only": true,
+    "not_execution_authority": true,
+    "not_approval_authority": true,
+    "not_recommendation_authority": true,
+    "not_ranking_authority": true,
+    "not_readiness_authority": true,
+    "not_promotion_authority": true,
+    "not_runtime_authority": true,
+    "not_paper_live_authority": true,
+    "not_broker_exchange_order_authority": true,
+    "not_agent_inbox_write_authority": true,
+    "not_scheduler_authority": true,
+    "not_notification_authority": true,
+    "control_surface": "none"
+  },
+  "warnings": [
+    "This API response is a derived read-only projection for local dashboard inspection. Committed repo artifacts and protected runtime truth, where later authorized snapshots exist, remain authoritative."
+  ],
+  "withheld": {
+    "execution_results": "Strategy specs are planning artifacts; result populations are exposed separately."
+  },
+  "unavailable": {},
+  "data": {
+    "strategy_id": "STRAT-SPEC-0005",
+    "strategy_spec_id": "STRAT-SPEC-0005",
+    "path": "research/strategy_specs/STRAT-SPEC-0005.strategy_spec.json",
+    "title": "Momentum v2 SMA Crossover ATR-Stop Strategy Spec",
+    "short_name": "momentum-v2-sma-crossover-atr-stop-15m-both",
+    "status": "available",
+    "source_type": "research_note",
+    "instrument_family": "crypto_perp",
+    "market_type": "perpetual",
+    "primary_timeframe": "15m",
+    "direction": "both",
+    "free_parameter_count": null,
+    "max_free_parameters": 5,
+    "approval_scope": null,
+    "not_executable": true,
+    "provenance": {
+      "source_type": "research_note",
+      "source_refs": [
+        "docs/research_pipeline/2026-06-momentum_v2_design.md",
+        "docs/status_entries/WP-A6-ATRSTOP-01.md",
+        "docs/research_pipeline/2026-06-momentum_v2_prereg_0005.md",
+        "research/result_populations/RP-2592.result_population.json"
+      ],
+      "prepared_by": "Codex",
+      "created_at": "2026-06-16T00:00:00Z",
+      "updated_at": "2026-06-16T00:00:00Z",
+      "rationale": "Momentum v2 freeze-candidate surface after RP-2592: preserve the 0004 both-direction SMA crossover trend-continuation grid and add a fixed A6 bar-close ATR stop to address the broad drawdown failure without optimizing ATR parameters.",
+      "source_constraints": [
+        "WP-MOMENTUM-V2-PREREG-01 is a draft-and-surface package; merge/finalize remains HOLD pending Karl gate.",
+        "Reuse STRAT-SPEC-0004 fast/slow/trend logic and variant grid exactly.",
+        "Retain both-direction side-labeled long and short entry groups with no compiler mirroring.",
+        "Retain side-specific trend confirmation inside entry groups, not shared filters.groups.",
+        "Retain opposite-signal crossover exits beside ATR-stop exits.",
+        "Use fixed entry_logic.entry_controls.min_bars_between_entries = 16 and do not sweep throttle.",
+        "Add only the A6 closed exit_logic.atr_stop shape with fixed atr_lookback=14 and atr_multiplier=3.0.",
+        "ATR literals are conventional risk-control constants selected before any 0005 result exists, not from post-hoc 0005 performance optimization.",
+        "No canonical sweep, result population, candidate registration, promotion, paper/live/runtime, or capital authority is authorized by this artifact."
+      ],
+      "unresolved_claims": [
+        "Karl approval is required before merge/finalize of this freeze candidate.",
+        "Future canonical trial execution remains separately unauthorized and requires a later explicit package.",
+        "ATR-stop effect on drawdown/cost is unproven until a future authorized canonical result population is produced."
+      ]
+    },
+    "non_execution_declaration": {
+      "human_review_surface_only": true,
+      "not_executable": true,
+      "not_runtime_authority": true,
+      "not_paper_live_authority": true,
+      "not_gate_authority": true,
+      "not_candidate_approval": true,
+      "not_exp_approval": true,
+      "not_sweep_authority": true,
+      "not_ranking_authority": true,
+      "not_recommendation_authority": true,
+      "not_readiness_authority": true,
+      "not_transition_authority": true
+    },
+    "timeframe_and_data": {
+      "primary_timeframe": "15m",
+      "confirmation_timeframes": [],
+      "host_data_refs": [
+        {
+          "stream": "ohlcv",
+          "timeframe": "15m",
+          "field": "open",
+          "availability": "required"
+        },
+        {
+          "stream": "ohlcv",
+          "timeframe": "15m",
+          "field": "high",
+          "availability": "required"
+        },
+        {
+          "stream": "ohlcv",
+          "timeframe": "15m",
+          "field": "low",
+          "availability": "required"
+        },
+        {
+          "stream": "ohlcv",
+          "timeframe": "15m",
+          "field": "close",
+          "availability": "required"
+        },
+        {
+          "stream": "ohlcv",
+          "timeframe": "15m",
+          "field": "volume",
+          "availability": "required"
+        },
+        {
+          "stream": "indicator_catalog",
+          "timeframe": null,
+          "field": "sma",
+          "availability": "required"
+        },
+        {
+          "stream": "indicator_catalog",
+          "timeframe": null,
+          "field": "atr",
+          "availability": "required"
+        }
+      ],
+      "gap_handling_assumption": "Use existing BTCUSDT 15m OHLCV D4/D4A catalog and slice facts, existing research-workbench gap policy, and no interpolation or silent fill.",
+      "missing_data_blockers": []
+    },
+    "entry_logic": {
+      "direction": "both",
+      "entry_controls": {
+        "min_bars_between_entries": 16
+      },
+      "groups": [
+        {
+          "group_id": "ENTRY-GROUP-LONG-SMA-CROSSOVER-0005",
+          "group_role": "required",
+          "logic": "all",
+          "conditions": [
+            {
+              "condition_id": "LONG-FAST-SMA-CROSSES-ABOVE-SLOW-SMA",
+              "condition_role": "required",
+              "left_operand": {
+                "operand_type": "indicator_ref",
+                "ref": "sma",
+                "field": "value",
+                "timeframe": null,
+                "lookback": {
+                  "bars_parameter_ref": "fast_lookback_bars"
+                }
+              },
+              "operator": "crosses_above",
+              "right_operand": {
+                "operand_type": "indicator_ref",
+                "ref": "sma",
+                "field": "value",
+                "timeframe": null,
+                "lookback": {
+                  "bars_parameter_ref": "slow_lookback_bars"
+                }
+              },
+              "units": null,
+              "notes": "Long entry event when fast SMA crosses above slow SMA."
+            },
+            {
+              "condition_id": "LONG-CLOSE-GT-TREND-SMA",
+              "condition_role": "confirming",
+              "left_operand": {
+                "operand_type": "data_ref",
+                "ref": "close",
+                "field": "close",
+                "timeframe": null,
+                "lookback": null
+              },
+              "operator": "gt",
+              "right_operand": {
+                "operand_type": "indicator_ref",
+                "ref": "sma",
+                "field": "value",
+                "timeframe": null,
+                "lookback": {
+                  "bars_parameter_ref": "trend_lookback_bars"
+                }
+              },
+              "units": null,
+              "notes": "Long-side trend confirmation: close must be above SMA(trend_lookback_bars)."
+            }
+          ],
+          "subgroups": [],
+          "notes": "Explicit long-side momentum entry group; trend confirmation is side-specific and not a shared filter.",
+          "side": "long"
+        },
+        {
+          "group_id": "ENTRY-GROUP-SHORT-SMA-CROSSOVER-0005",
+          "group_role": "required",
+          "logic": "all",
+          "conditions": [
+            {
+              "condition_id": "SHORT-FAST-SMA-CROSSES-BELOW-SLOW-SMA",
+              "condition_role": "required",
+              "left_operand": {
+                "operand_type": "indicator_ref",
+                "ref": "sma",
+                "field": "value",
+                "timeframe": null,
+                "lookback": {
+                  "bars_parameter_ref": "fast_lookback_bars"
+                }
+              },
+              "operator": "crosses_below",
+              "right_operand": {
+                "operand_type": "indicator_ref",
+                "ref": "sma",
+                "field": "value",
+                "timeframe": null,
+                "lookback": {
+                  "bars_parameter_ref": "slow_lookback_bars"
+                }
+              },
+              "units": null,
+              "notes": "Short entry event when fast SMA crosses below slow SMA."
+            },
+            {
+              "condition_id": "SHORT-CLOSE-LT-TREND-SMA",
+              "condition_role": "confirming",
+              "left_operand": {
+                "operand_type": "data_ref",
+                "ref": "close",
+                "field": "close",
+                "timeframe": null,
+                "lookback": null
+              },
+              "operator": "lt",
+              "right_operand": {
+                "operand_type": "indicator_ref",
+                "ref": "sma",
+                "field": "value",
+                "timeframe": null,
+                "lookback": {
+                  "bars_parameter_ref": "trend_lookback_bars"
+                }
+              },
+              "units": null,
+              "notes": "Short-side trend confirmation: close must be below SMA(trend_lookback_bars)."
+            }
+          ],
+          "subgroups": [],
+          "notes": "Explicit short-side momentum entry group; trend confirmation is side-specific and not a shared filter.",
+          "side": "short"
+        }
+      ],
+      "notes": "Both-direction SMA crossover continuation entries use side-specific trend confirmation and fixed min_bars_between_entries=16. Throttle is fixed and not part of VM axes."
+    },
+    "exit_logic": {
+      "groups": [
+        {
+          "group_id": "EXIT-GROUP-LONG-OPPOSITE-CROSS-0005",
+          "group_role": "exit",
+          "logic": "all",
+          "conditions": [
+            {
+              "condition_id": "LONG-EXIT-FAST-SMA-CROSSES-BELOW-SLOW-SMA",
+              "condition_role": "exit",
+              "left_operand": {
+                "operand_type": "indicator_ref",
+                "ref": "sma",
+                "field": "value",
+                "timeframe": null,
+                "lookback": {
+                  "bars_parameter_ref": "fast_lookback_bars"
+                }
+              },
+              "operator": "crosses_below",
+              "right_operand": {
+                "operand_type": "indicator_ref",
+                "ref": "sma",
+                "field": "value",
+                "timeframe": null,
+                "lookback": {
+                  "bars_parameter_ref": "slow_lookback_bars"
+                }
+              },
+              "units": null,
+              "notes": "Long exit on opposite bearish SMA crossover."
+            }
+          ],
+          "subgroups": [],
+          "notes": "Explicit long-side opposite-signal invalidation exit.",
+          "side": "long"
+        },
+        {
+          "group_id": "EXIT-GROUP-SHORT-OPPOSITE-CROSS-0005",
+          "group_role": "exit",
+          "logic": "all",
+          "conditions": [
+            {
+              "condition_id": "SHORT-EXIT-FAST-SMA-CROSSES-ABOVE-SLOW-SMA",
+              "condition_role": "exit",
+              "left_operand": {
+                "operand_type": "indicator_ref",
+                "ref": "sma",
+                "field": "value",
+                "timeframe": null,
+                "lookback": {
+                  "bars_parameter_ref": "fast_lookback_bars"
+                }
+              },
+              "operator": "crosses_above",
+              "right_operand": {
+                "operand_type": "indicator_ref",
+                "ref": "sma",
+                "field": "value",
+                "timeframe": null,
+                "lookback": {
+                  "bars_parameter_ref": "slow_lookback_bars"
+                }
+              },
+              "units": null,
+              "notes": "Short exit on opposite bullish SMA crossover."
+            }
+          ],
+          "subgroups": [],
+          "notes": "Explicit short-side opposite-signal invalidation exit.",
+          "side": "short"
+        }
+      ],
+      "max_holding_period": {
+        "enabled": false,
+        "bars": null
+      },
+      "notes": "Side-specific opposite-crossover exits are retained; fixed A6 ATR-stop is additive beside those exits. ATR-stop uses next-bar-open pre-fee/slippage entry reference, close evaluation at bar close, and ATR frozen from the entry signal bar. No intrabar stop touch, stop order, target, trailing stop, or max holding period is modeled.",
+      "atr_stop": {
+        "enabled": true,
+        "atr_lookback": 14,
+        "atr_multiplier": 3.0,
+        "entry_reference_price": "next_bar_open_pre_fee_slippage",
+        "evaluation_price": "close",
+        "evaluation_timing": "bar_close"
+      }
+    },
+    "filters": {
+      "groups": [],
+      "none_declared": true
+    },
+    "free_parameters": {
+      "max_free_parameters": 5,
+      "counting_rule": "parameters contains only entries where is_free_parameter=true; maxItems 5 enforces the D2-006-style MVP free-parameter cap",
+      "parameters": [
+        {
+          "name": "fast_lookback_bars",
+          "label": "Fast SMA lookback bars",
+          "description": "Integer lookback bound into fast sma lookback bars.",
+          "type": "integer",
+          "units": "bars",
+          "default": 20,
+          "range": {
+            "min": 20,
+            "max": 50,
+            "step": 30,
+            "inclusive_min": true,
+            "inclusive_max": true
+          },
+          "allowed_values": [
+            20,
+            50
+          ],
+          "is_free_parameter": true,
+          "included_in_variant_generation": true,
+          "role": "entry",
+          "rationale": "Shorter side of the SMA crossover; values are deliberately below every slow lookback.",
+          "constraints": [
+            "Must remain integer and bind only to indicator_ref.lookback via bars_parameter_ref.",
+            "Must be less than slow_lookback_bars for every committed variant."
+          ]
+        },
+        {
+          "name": "slow_lookback_bars",
+          "label": "Slow SMA lookback bars",
+          "description": "Integer lookback bound into slow sma lookback bars.",
+          "type": "integer",
+          "units": "bars",
+          "default": 100,
+          "range": {
+            "min": 100,
+            "max": 200,
+            "step": 100,
+            "inclusive_min": true,
+            "inclusive_max": true
+          },
+          "allowed_values": [
+            100,
+            200
+          ],
+          "is_free_parameter": true,
+          "included_in_variant_generation": true,
+          "role": "entry",
+          "rationale": "Slower crossover reference; values stay above every fast lookback and below every trend lookback.",
+          "constraints": [
+            "Must remain integer and bind only to indicator_ref.lookback via bars_parameter_ref.",
+            "Must be greater than fast_lookback_bars and less than trend_lookback_bars for every committed variant."
+          ]
+        },
+        {
+          "name": "trend_lookback_bars",
+          "label": "Trend SMA lookback bars",
+          "description": "Integer lookback bound into trend sma lookback bars.",
+          "type": "integer",
+          "units": "bars",
+          "default": 300,
+          "range": {
+            "min": 300,
+            "max": 400,
+            "step": 100,
+            "inclusive_min": true,
+            "inclusive_max": true
+          },
+          "allowed_values": [
+            300,
+            400
+          ],
+          "is_free_parameter": true,
+          "included_in_variant_generation": true,
+          "role": "filter",
+          "rationale": "Slow trend confirmation axis; values stay above every slow lookback to avoid slow/trend collision.",
+          "constraints": [
+            "Must remain integer and bind only to indicator_ref.lookback via bars_parameter_ref.",
+            "Must be greater than slow_lookback_bars for every committed variant."
+          ]
+        }
+      ],
+      "no_free_parameters_declared": false
+    },
+    "review": {
+      "human_review_required": true,
+      "reviewer": "Karl/Main via PR review",
+      "reviewed_at": "2026-06-16T00:00:00Z",
+      "review_notes": [
+        "Surfaced for ready-for-review PR under WP-MOMENTUM-V2-PREREG-01; merge/finalize remains HOLD pending Karl gate.",
+        "This planning status is not candidate approval, sweep authority, canonical evidence, or runtime authority.",
+        "Future canonical trial execution remains separately unauthorized."
+      ],
+      "approval_scope": "variant_planning_only",
+      "non_authority_acknowledgement": {
+        "not_candidate_approval": true,
+        "not_exp_approval": true,
+        "not_sweep_authority": true,
+        "not_ranking_authority": true,
+        "not_recommendation_authority": true,
+        "not_readiness_authority": true,
+        "not_transition_authority": true,
+        "not_runtime_authority": true,
+        "not_paper_live_authority": true,
+        "not_gate_satisfaction": true
+      }
+    }
+  }
+}

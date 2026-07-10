@@ -60,6 +60,8 @@ export interface PaperLiveState {
 
 export interface StrategySummary {
   strategy_id?: string;
+  strategy_spec_id?: string | null;
+  path?: string | null;
   title?: string | null;
   short_name?: string | null;
   status?: string | null;
@@ -68,10 +70,164 @@ export interface StrategySummary {
   market_type?: string | null;
   primary_timeframe?: string | null;
   direction?: string | null;
+  /**
+   * Projected from `free_parameters.count`, which committed specs do not carry;
+   * it is therefore `null` on every spec. The real parameters are in
+   * `StrategyDetail.free_parameters.parameters`.
+   */
   free_parameter_count?: number | null;
   max_free_parameters?: number | null;
+  /**
+   * Projected from `review.review_scope`, which committed specs do not carry;
+   * it is therefore `null` on every spec. The real value is
+   * `StrategyDetail.review.approval_scope`.
+   */
   approval_scope?: string | null;
   not_executable?: boolean | null;
+}
+
+/** A leaf or composed operand inside a committed strategy-spec condition. */
+export interface SpecOperand {
+  operand_type?: string | null;
+  /** For `constant` this holds the literal value, not a name. */
+  ref?: string | number | null;
+  field?: string | null;
+  timeframe?: string | null;
+  lookback?: {
+    bars?: number | null;
+    bars_parameter_ref?: string | null;
+  } | null;
+  // `composed_operand` only.
+  composition_type?: string | null;
+  base_operand?: SpecOperand | null;
+  parameter_operand?: SpecOperand | null;
+  value_operand?: SpecOperand | null;
+  center_operand?: SpecOperand | null;
+  scale_operand?: SpecOperand | null;
+  zero_scale_policy?: string | null;
+}
+
+export interface SpecCondition {
+  condition_id?: string | null;
+  condition_role?: string | null;
+  left_operand?: SpecOperand | null;
+  operator?: string | null;
+  right_operand?: SpecOperand | null;
+  units?: string | null;
+  notes?: string | null;
+}
+
+export interface SpecLogicGroup {
+  group_id?: string | null;
+  group_role?: string | null;
+  logic?: string | null;
+  side?: string | null;
+  conditions?: SpecCondition[];
+  subgroups?: SpecLogicGroup[];
+  notes?: string | null;
+}
+
+export interface SpecEntryLogic {
+  direction?: string | null;
+  groups?: SpecLogicGroup[];
+  notes?: string | null;
+}
+
+export interface SpecExitLogic {
+  groups?: SpecLogicGroup[];
+  max_holding_period?: { enabled?: boolean | null; bars?: number | null } | null;
+  notes?: string | null;
+}
+
+export interface SpecFilters {
+  groups?: SpecLogicGroup[];
+  none_declared?: boolean | null;
+}
+
+/** One declared free parameter. Values here are the swept space, not an assignment. */
+export interface SpecFreeParameter {
+  name?: string | null;
+  label?: string | null;
+  description?: string | null;
+  type?: string | null;
+  units?: string | null;
+  default?: number | string | null;
+  range?: {
+    min?: number | null;
+    max?: number | null;
+    step?: number | null;
+    inclusive_min?: boolean | null;
+    inclusive_max?: boolean | null;
+  } | null;
+  allowed_values?: Array<number | string> | null;
+  is_free_parameter?: boolean | null;
+  included_in_variant_generation?: boolean | null;
+  role?: string | null;
+  rationale?: string | null;
+  constraints?: string[] | null;
+}
+
+export interface SpecFreeParameters {
+  max_free_parameters?: number | null;
+  counting_rule?: string | null;
+  parameters?: SpecFreeParameter[];
+  no_free_parameters_declared?: boolean | null;
+}
+
+export interface SpecHostDataRef {
+  stream?: string | null;
+  timeframe?: string | null;
+  field?: string | null;
+  availability?: string | null;
+}
+
+export interface SpecTimeframeAndData {
+  primary_timeframe?: string | null;
+  confirmation_timeframes?: string[] | null;
+  host_data_refs?: SpecHostDataRef[];
+  gap_handling_assumption?: string | null;
+  missing_data_blockers?: string[] | null;
+}
+
+export interface SpecProvenance {
+  source_type?: string | null;
+  source_refs?: string[] | null;
+  prepared_by?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+  rationale?: string | null;
+  source_constraints?: string[] | null;
+  unresolved_claims?: string[] | null;
+}
+
+export interface SpecReview {
+  human_review_required?: boolean | null;
+  reviewer?: string | null;
+  reviewed_at?: string | null;
+  review_notes?: string[] | null;
+  approval_scope?: string | null;
+  non_authority_acknowledgement?: Record<string, boolean>;
+}
+
+/**
+ * Detail projection for one committed strategy spec, from
+ * `GET /api/strategies/{id}`.
+ *
+ * A strategy spec is a planning artifact. It is not executable, not a
+ * candidate, not approved for anything beyond variant planning, and carries no
+ * performance claim. `status` on this projection is the *envelope* status
+ * (`available` / `unavailable`), not the spec's lifecycle status — the reader
+ * overwrites it. Lifecycle status survives only on `GET /api/strategies`.
+ */
+export interface StrategyDetail extends StrategySummary {
+  provenance?: SpecProvenance;
+  non_execution_declaration?: Record<string, boolean>;
+  timeframe_and_data?: SpecTimeframeAndData;
+  entry_logic?: SpecEntryLogic;
+  exit_logic?: SpecExitLogic;
+  filters?: SpecFilters;
+  free_parameters?: SpecFreeParameters;
+  review?: SpecReview;
 }
 
 export interface ResultPopulationSummary {
@@ -127,11 +283,17 @@ export interface VariantResultRow {
 
 /** Detail projection for a single committed result population. */
 export interface ResultPopulationDetail extends ResultPopulationSummary, Statused {
-  data_coverage_summary?: {
-    data_catalog_ref?: string | null;
-    data_coverage_notes?: string[];
-    data_slice_identity?: string | null;
-  };
+  variant_manifest_id?: string | null;
+  sweep_plan_id?: string | null;
+  result_population_identity_hash?: string | null;
+  input_identity_hash?: string | null;
+  append_only_ledger?: Record<string, unknown>;
+  /**
+   * Committed coverage block. Kept open-ended, like
+   * `backtest_assumption_summary`: consumers render whatever keys the artifact
+   * carries rather than a subset fixed here.
+   */
+  data_coverage_summary?: Record<string, unknown>;
   backtest_assumption_summary?: Record<string, unknown>;
   error_summary?: Record<string, unknown>;
   non_authority_declaration?: Record<string, unknown>;

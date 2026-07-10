@@ -1,0 +1,402 @@
+{
+  "schema_version": "operator_dashboard_api_v1",
+  "source": "committed artifact STRAT-SPEC-0002.strategy_spec.json",
+  "provenance": [
+    {
+      "path": "research/strategy_specs/STRAT-SPEC-0002.strategy_spec.json",
+      "role": "strategy_spec_artifact",
+      "note": null,
+      "sha256": "sha256:d2e0820864c882361fbd466c6ae0eaea03568e4ccc8dfaee4a3114a330f18574"
+    }
+  ],
+  "authority": {
+    "api_projection_only": true,
+    "repo_artifacts_remain_truth": true,
+    "read_only": true,
+    "get_endpoints_only": true,
+    "not_execution_authority": true,
+    "not_approval_authority": true,
+    "not_recommendation_authority": true,
+    "not_ranking_authority": true,
+    "not_readiness_authority": true,
+    "not_promotion_authority": true,
+    "not_runtime_authority": true,
+    "not_paper_live_authority": true,
+    "not_broker_exchange_order_authority": true,
+    "not_agent_inbox_write_authority": true,
+    "not_scheduler_authority": true,
+    "not_notification_authority": true,
+    "control_surface": "none"
+  },
+  "warnings": [
+    "This API response is a derived read-only projection for local dashboard inspection. Committed repo artifacts and protected runtime truth, where later authorized snapshots exist, remain authoritative."
+  ],
+  "withheld": {
+    "execution_results": "Strategy specs are planning artifacts; result populations are exposed separately."
+  },
+  "unavailable": {},
+  "data": {
+    "strategy_id": "STRAT-SPEC-0002",
+    "strategy_spec_id": "STRAT-SPEC-0002",
+    "path": "research/strategy_specs/STRAT-SPEC-0002.strategy_spec.json",
+    "title": "Frozen Both-Direction SMA-Band Strategy Spec",
+    "short_name": "sma-band-15m-both",
+    "status": "available",
+    "source_type": "research_note",
+    "instrument_family": "crypto_perp",
+    "market_type": "perpetual",
+    "primary_timeframe": "15m",
+    "direction": "both",
+    "free_parameter_count": null,
+    "max_free_parameters": 5,
+    "approval_scope": null,
+    "not_executable": true,
+    "provenance": {
+      "source_type": "research_note",
+      "source_refs": [
+        "docs/research_pipeline/2026-06-both_direction_sma_band_spec_design.md",
+        "docs/status_entries/WP-SPEC-BOTHDIR-01a.md",
+        "docs/research_pipeline/2026-06-both_direction_semantics_lock.md",
+        "docs/status_entries/WP-COMP-BOTHDIR-01d.md",
+        "docs/data/2026-06-binance_usdtm_15m_catalog_and_slice_identity.md"
+      ],
+      "prepared_by": "Codex",
+      "created_at": "2026-06-12T00:00:00Z",
+      "updated_at": "2026-06-12T00:00:00Z",
+      "rationale": "Frozen pre-registration parent Strategy Spec for the accepted first both-direction BTCUSDT 15m SMA-band mean-reversion design.",
+      "source_constraints": [
+        "Use explicit side-labeled long and short entry groups.",
+        "Use explicit side-labeled long and short exit groups.",
+        "Use existing BTCUSDT 15m OHLCV catalog and slice references only.",
+        "Use existing locked backtest-realism assumption surface only.",
+        "No sweep run or result population is authorized."
+      ],
+      "unresolved_claims": []
+    },
+    "non_execution_declaration": {
+      "human_review_surface_only": true,
+      "not_executable": true,
+      "not_runtime_authority": true,
+      "not_paper_live_authority": true,
+      "not_gate_authority": true,
+      "not_candidate_approval": true,
+      "not_exp_approval": true,
+      "not_sweep_authority": true,
+      "not_ranking_authority": true,
+      "not_recommendation_authority": true,
+      "not_readiness_authority": true,
+      "not_transition_authority": true
+    },
+    "timeframe_and_data": {
+      "primary_timeframe": "15m",
+      "confirmation_timeframes": [],
+      "host_data_refs": [
+        {
+          "stream": "ohlcv",
+          "timeframe": "15m",
+          "field": "open",
+          "availability": "required"
+        },
+        {
+          "stream": "ohlcv",
+          "timeframe": "15m",
+          "field": "high",
+          "availability": "required"
+        },
+        {
+          "stream": "ohlcv",
+          "timeframe": "15m",
+          "field": "low",
+          "availability": "required"
+        },
+        {
+          "stream": "ohlcv",
+          "timeframe": "15m",
+          "field": "close",
+          "availability": "required"
+        },
+        {
+          "stream": "ohlcv",
+          "timeframe": "15m",
+          "field": "volume",
+          "availability": "required"
+        },
+        {
+          "stream": "indicator_catalog",
+          "timeframe": null,
+          "field": "sma",
+          "availability": "required"
+        }
+      ],
+      "gap_handling_assumption": "Use existing BTCUSDT 15m OHLCV D4A catalog/slice facts and existing research-workbench gap policy; no interpolation or silent fill.",
+      "missing_data_blockers": []
+    },
+    "entry_logic": {
+      "direction": "both",
+      "groups": [
+        {
+          "group_id": "ENTRY-GROUP-LONG-0001",
+          "group_role": "required",
+          "side": "long",
+          "logic": "all",
+          "conditions": [
+            {
+              "condition_id": "LONG-CLOSE-LT-SMA-SCALED-MINUS-P",
+              "condition_role": "required",
+              "left_operand": {
+                "operand_type": "data_ref",
+                "ref": "close",
+                "field": "close",
+                "timeframe": null,
+                "lookback": null
+              },
+              "operator": "lt",
+              "right_operand": {
+                "operand_type": "composed_operand",
+                "composition_type": "scale_by_one_minus_parameter",
+                "base_operand": {
+                  "operand_type": "indicator_ref",
+                  "ref": "sma",
+                  "field": "value",
+                  "timeframe": null,
+                  "lookback": {
+                    "bars_parameter_ref": "sma_lookback_bars"
+                  }
+                },
+                "parameter_operand": {
+                  "operand_type": "parameter_ref",
+                  "ref": "band_threshold",
+                  "field": null,
+                  "timeframe": null,
+                  "lookback": null
+                }
+              },
+              "units": "ratio",
+              "notes": "Long entry when close is below SMA(N) scaled by one minus band_threshold."
+            }
+          ],
+          "subgroups": [],
+          "notes": "Explicit long-side root entry group; no compiler mirroring."
+        },
+        {
+          "group_id": "ENTRY-GROUP-SHORT-0001",
+          "group_role": "required",
+          "side": "short",
+          "logic": "all",
+          "conditions": [
+            {
+              "condition_id": "SHORT-CLOSE-GT-SMA-SCALED-PLUS-P",
+              "condition_role": "required",
+              "left_operand": {
+                "operand_type": "data_ref",
+                "ref": "close",
+                "field": "close",
+                "timeframe": null,
+                "lookback": null
+              },
+              "operator": "gt",
+              "right_operand": {
+                "operand_type": "composed_operand",
+                "composition_type": "scale_by_one_plus_parameter",
+                "base_operand": {
+                  "operand_type": "indicator_ref",
+                  "ref": "sma",
+                  "field": "value",
+                  "timeframe": null,
+                  "lookback": {
+                    "bars_parameter_ref": "sma_lookback_bars"
+                  }
+                },
+                "parameter_operand": {
+                  "operand_type": "parameter_ref",
+                  "ref": "band_threshold",
+                  "field": null,
+                  "timeframe": null,
+                  "lookback": null
+                }
+              },
+              "units": "ratio",
+              "notes": "Short entry when close is above SMA(N) scaled by one plus band_threshold."
+            }
+          ],
+          "subgroups": [],
+          "notes": "Explicit short-side root entry group; no compiler mirroring."
+        }
+      ],
+      "notes": "Accepted design: long close < SMA(N) * (1 - p); short close > SMA(N) * (1 + p)."
+    },
+    "exit_logic": {
+      "groups": [
+        {
+          "group_id": "EXIT-GROUP-LONG-0001",
+          "group_role": "exit",
+          "side": "long",
+          "logic": "all",
+          "conditions": [
+            {
+              "condition_id": "LONG-CLOSE-GTE-SMA",
+              "condition_role": "exit",
+              "left_operand": {
+                "operand_type": "data_ref",
+                "ref": "close",
+                "field": "close",
+                "timeframe": null,
+                "lookback": null
+              },
+              "operator": "gte",
+              "right_operand": {
+                "operand_type": "indicator_ref",
+                "ref": "sma",
+                "field": "value",
+                "timeframe": null,
+                "lookback": {
+                  "bars_parameter_ref": "sma_lookback_bars"
+                }
+              },
+              "units": null,
+              "notes": "Long exit when close returns to or above SMA(N)."
+            }
+          ],
+          "subgroups": [],
+          "notes": "Explicit long-side centerline exit group."
+        },
+        {
+          "group_id": "EXIT-GROUP-SHORT-0001",
+          "group_role": "exit",
+          "side": "short",
+          "logic": "all",
+          "conditions": [
+            {
+              "condition_id": "SHORT-CLOSE-LTE-SMA",
+              "condition_role": "exit",
+              "left_operand": {
+                "operand_type": "data_ref",
+                "ref": "close",
+                "field": "close",
+                "timeframe": null,
+                "lookback": null
+              },
+              "operator": "lte",
+              "right_operand": {
+                "operand_type": "indicator_ref",
+                "ref": "sma",
+                "field": "value",
+                "timeframe": null,
+                "lookback": {
+                  "bars_parameter_ref": "sma_lookback_bars"
+                }
+              },
+              "units": null,
+              "notes": "Short exit when close returns to or below SMA(N)."
+            }
+          ],
+          "subgroups": [],
+          "notes": "Explicit short-side centerline exit group."
+        }
+      ],
+      "max_holding_period": {
+        "enabled": false,
+        "bars": null
+      },
+      "notes": "Side-specific SMA centerline exits only; no max holding period."
+    },
+    "filters": {
+      "groups": [
+        {
+          "group_id": "FILTER-TYPING-NO-OP-0002",
+          "group_role": "no_trade",
+          "logic": "all",
+          "conditions": [],
+          "subgroups": [],
+          "notes": "Zero-condition no-trade placeholder for current query-layer typed-array visibility; no active filter condition is declared."
+        }
+      ],
+      "none_declared": false
+    },
+    "free_parameters": {
+      "max_free_parameters": 5,
+      "counting_rule": "parameters contains only entries where is_free_parameter=true; maxItems 5 enforces the D2-006-style MVP free-parameter cap",
+      "parameters": [
+        {
+          "name": "sma_lookback_bars",
+          "label": "SMA lookback bars",
+          "description": "Integer lookback bound into SMA(N) for both entry bands and exits.",
+          "type": "integer",
+          "units": "bars",
+          "default": 20,
+          "range": {
+            "min": 20,
+            "max": 50,
+            "step": 30,
+            "inclusive_min": true,
+            "inclusive_max": true
+          },
+          "allowed_values": [
+            20,
+            50
+          ],
+          "is_free_parameter": true,
+          "included_in_variant_generation": true,
+          "role": "entry",
+          "rationale": "Accepted finite lookback axis for the both-direction SMA-band pre-registration population.",
+          "constraints": [
+            "Must remain integer and bind only to indicator_ref.lookback via bars_parameter_ref."
+          ]
+        },
+        {
+          "name": "band_threshold",
+          "label": "Band threshold",
+          "description": "Symmetric ratio band applied as SMA(N) * (1 - p) for long entry and SMA(N) * (1 + p) for short entry.",
+          "type": "number",
+          "units": "ratio",
+          "default": 0.005,
+          "range": {
+            "min": 0.0025,
+            "max": 0.02,
+            "step": 0.0025,
+            "inclusive_min": true,
+            "inclusive_max": true
+          },
+          "allowed_values": [
+            0.0025,
+            0.005,
+            0.01,
+            0.015,
+            0.02
+          ],
+          "is_free_parameter": true,
+          "included_in_variant_generation": true,
+          "role": "entry",
+          "rationale": "Accepted finite symmetric band axis for the both-direction SMA-band pre-registration population.",
+          "constraints": [
+            "Must remain numeric and in (0, 1).",
+            "Must be reused symmetrically by plus and minus band operands."
+          ]
+        }
+      ],
+      "no_free_parameters_declared": false
+    },
+    "review": {
+      "human_review_required": true,
+      "reviewer": null,
+      "reviewed_at": null,
+      "review_notes": [
+        "Karl-gated frozen canonical instance package. Frozen-instance report-back to Karl is required before merge.",
+        "WP-SPEC-BOTHDIR-01c remains separately Karl-gated and is not authorized by this artifact."
+      ],
+      "approval_scope": "variant_planning_only",
+      "non_authority_acknowledgement": {
+        "not_candidate_approval": true,
+        "not_exp_approval": true,
+        "not_sweep_authority": true,
+        "not_ranking_authority": true,
+        "not_recommendation_authority": true,
+        "not_readiness_authority": true,
+        "not_transition_authority": true,
+        "not_runtime_authority": true,
+        "not_paper_live_authority": true,
+        "not_gate_satisfaction": true
+      }
+    }
+  }
+}

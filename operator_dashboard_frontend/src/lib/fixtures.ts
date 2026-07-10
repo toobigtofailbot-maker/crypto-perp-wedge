@@ -14,6 +14,7 @@ import type {
   CandidatesFunnelData,
   DashboardSummary,
   ListData,
+  ResultPopulationDetail,
   ResultPopulationSummary,
   StrategySummary,
 } from "@/lib/types";
@@ -28,9 +29,32 @@ import reportsWeekly from "@/lib/fixtures/reports_weekly.json";
 import systemDataHealth from "@/lib/fixtures/system_data_health.json";
 import agentIntakeSchema from "@/lib/fixtures/agent_intake_schema.json";
 
+// Detail projections of `GET /api/research/result-populations/{id}`, one file
+// per committed artifact, captured verbatim from the same unchanged API. These
+// carry the per-variant `metrics` block that the list endpoint does not project.
+import rp2134 from "@/lib/fixtures/result_populations/RP-2134.json";
+import rp2592 from "@/lib/fixtures/result_populations/RP-2592.json";
+import rp3731 from "@/lib/fixtures/result_populations/RP-3731.json";
+import rp4492 from "@/lib/fixtures/result_populations/RP-4492.json";
+import rp6236 from "@/lib/fixtures/result_populations/RP-6236.json";
+import rp6688 from "@/lib/fixtures/result_populations/RP-6688.json";
+import rp7134 from "@/lib/fixtures/result_populations/RP-7134.json";
+import rp7520 from "@/lib/fixtures/result_populations/RP-7520.json";
+
 function asEnvelope<T>(raw: unknown): ApiEnvelope<T> {
   return raw as ApiEnvelope<T>;
 }
+
+const RESULT_POPULATION_DETAILS: readonly unknown[] = [
+  rp2134,
+  rp2592,
+  rp3731,
+  rp4492,
+  rp6236,
+  rp6688,
+  rp7134,
+  rp7520,
+];
 
 export const fixtures = {
   dashboardSummary: () => asEnvelope<DashboardSummary>(dashboardSummary),
@@ -43,4 +67,18 @@ export const fixtures = {
   reportsWeekly: () => asEnvelope<Record<string, unknown>>(reportsWeekly),
   systemDataHealth: () => asEnvelope<Record<string, unknown>>(systemDataHealth),
   agentIntakeSchema: () => asEnvelope<AgentIntakeSchema>(agentIntakeSchema),
+
+  /** Every committed result-population detail envelope, in artifact-id order. */
+  resultPopulationDetails: (): ApiEnvelope<ResultPopulationDetail>[] =>
+    RESULT_POPULATION_DETAILS.map((raw) =>
+      asEnvelope<ResultPopulationDetail>(raw),
+    ),
+
+  /** A single detail envelope, or undefined when no such artifact is committed. */
+  resultPopulationDetail: (
+    id: string,
+  ): ApiEnvelope<ResultPopulationDetail> | undefined =>
+    fixtures
+      .resultPopulationDetails()
+      .find((e) => e.data.result_population_id === id),
 };

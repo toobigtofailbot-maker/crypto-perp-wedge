@@ -56,6 +56,28 @@ export function toneForStatus(status: string | null | undefined): Tone {
   return "neutral";
 }
 
+/**
+ * Keys inside a committed `outcome_counts` block that are bookkeeping, not
+ * outcome buckets. They must never be charted as a category.
+ */
+export const OUTCOME_META: ReadonlySet<string> = new Set([
+  "counts_sum",
+  "counts_sum_equals_committed_denominator",
+]);
+
+/** Tone per committed outcome category, so a failure never renders healthy. */
+export const OUTCOME_TONE: Record<string, Tone> = {
+  successful: "good",
+  failed: "bad",
+  errored: "bad",
+  aborted: "bad",
+  invalid: "bad",
+  excluded: "warn",
+  filtered: "warn",
+  not_attempted: "warn",
+  data_unavailable: "warn",
+};
+
 /** Humanise a snake_case key for labels (display only). */
 export function humanize(key: string): string {
   return key.replace(/_/g, " ");

@@ -94,6 +94,51 @@ export interface ListData<T> extends Statused {
   items?: T[];
 }
 
+/**
+ * Per-variant metrics as committed in a result-population artifact and
+ * projected verbatim by `GET /api/research/result-populations/{id}`.
+ *
+ * These are offline research backtest outputs. They are not performance
+ * claims, rankings, readiness signals, or candidate authority. Any field may
+ * be absent; absent means absent and is never substituted with zero.
+ */
+export interface VariantMetrics {
+  drawdown?: number | null;
+  exposure?: number | null;
+  fees?: number | null;
+  funding?: number | null;
+  pnl?: number | null;
+  return_pct?: number | null;
+  sharpe?: number | null;
+  slippage?: number | null;
+  trade_count?: number | null;
+  win_rate?: number | null;
+}
+
+export interface VariantResultRow {
+  variant_id?: string | null;
+  row_id?: string | null;
+  outcome_category?: string | null;
+  attempted?: boolean | null;
+  metrics?: VariantMetrics;
+  non_success?: Record<string, unknown>;
+  error?: Record<string, unknown>;
+}
+
+/** Detail projection for a single committed result population. */
+export interface ResultPopulationDetail extends ResultPopulationSummary, Statused {
+  data_coverage_summary?: {
+    data_catalog_ref?: string | null;
+    data_coverage_notes?: string[];
+    data_slice_identity?: string | null;
+  };
+  backtest_assumption_summary?: Record<string, unknown>;
+  error_summary?: Record<string, unknown>;
+  non_authority_declaration?: Record<string, unknown>;
+  review?: Record<string, unknown>;
+  variant_result_rows?: VariantResultRow[];
+}
+
 export interface CandidateRegistryRollup {
   registered_count?: number;
   by_status?: Record<string, number>;

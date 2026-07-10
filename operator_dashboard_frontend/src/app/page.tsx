@@ -3,7 +3,13 @@ import { PageHeader } from "@/components/PageHeader";
 import { ProvenanceFooter } from "@/components/ProvenanceFooter";
 import { BoundaryNotes } from "@/components/BoundaryNotes";
 import { Badge, Card, CardTitle, KeyValue, StatCard } from "@/components/ui";
-import { CountBars, type CountRow } from "@/components/viz";
+import { ChartCard } from "@/components/charts/ChartCard";
+import { ChartProvenanceNote } from "@/components/charts/ChartProvenanceNote";
+import { UnavailableChartState } from "@/components/charts/UnavailableChartState";
+import {
+  CategoricalCountChart,
+  type CategoryBar,
+} from "@/components/charts/CategoricalCountChart";
 import { toneForStatus } from "@/lib/status";
 import { fixtures } from "@/lib/fixtures";
 
@@ -16,7 +22,7 @@ export default function CommandCenterPage() {
   const paper = summary.paper_trading;
   const live = summary.live_trading;
 
-  const queueRows: CountRow[] = Object.entries(queue.by_status ?? {}).map(
+  const queueBars: CategoryBar[] = Object.entries(queue.by_status ?? {}).map(
     ([label, count]) => ({ label, count, tone: toneForStatus(label) }),
   );
 
@@ -42,33 +48,54 @@ export default function CommandCenterPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <Card>
-          <div className="mb-3 flex items-center justify-between">
-            <CardTitle>Queue by status</CardTitle>
-            <Link
-              href="/research/jobs"
-              className="text-xs text-cockpit-accent hover:underline"
-            >
-              View jobs →
-            </Link>
-          </div>
-          {queueRows.length > 0 ? (
-            <CountBars rows={queueRows} />
-          ) : (
-            <p className="text-xs text-cockpit-muted">No queue snapshot.</p>
-          )}
-          <div className="mt-3 flex flex-wrap gap-2">
-            <Badge tone={queue.approval_needed_count ? "warn" : "neutral"}>
-              approval needed: {queue.approval_needed_count ?? 0}
-            </Badge>
-            <Badge tone={queue.blocked_count ? "bad" : "neutral"}>
-              blocked: {queue.blocked_count ?? 0}
-            </Badge>
-            <Badge tone={queue.failed_count ? "bad" : "neutral"}>
-              failed: {queue.failed_count ?? 0}
-            </Badge>
-          </div>
-        </Card>
+        {queueBars.length > 0 ? (
+          <ChartCard
+            title="Queue by status"
+            subtitle="Committed run-status tallies. Bar length is a count, not a priority or a rank."
+            badges={
+              <Link
+                href="/research/jobs"
+                className="text-xs text-cockpit-accent hover:underline"
+              >
+                View jobs →
+              </Link>
+            }
+            footer={
+              <>
+                <div className="mb-3 flex flex-wrap gap-2">
+                  <Badge tone={queue.approval_needed_count ? "warn" : "neutral"}>
+                    approval needed: {queue.approval_needed_count ?? 0}
+                  </Badge>
+                  <Badge tone={queue.blocked_count ? "bad" : "neutral"}>
+                    blocked: {queue.blocked_count ?? 0}
+                  </Badge>
+                  <Badge tone={queue.failed_count ? "bad" : "neutral"}>
+                    failed: {queue.failed_count ?? 0}
+                  </Badge>
+                </div>
+                <ChartProvenanceNote
+                  source="GET /api/dashboard/summary"
+                  fields={["queue_summary.by_status"]}
+                  drawn={queueBars.length}
+                  note="Approval-needed states are shown, not actionable — this shell approves nothing."
+                />
+              </>
+            }
+          >
+            <CategoricalCountChart
+              bars={queueBars}
+              horizontal
+              ariaLabel={`Bar chart of ${queueBars.length} committed queue statuses`}
+            />
+          </ChartCard>
+        ) : (
+          <UnavailableChartState
+            title="Queue by status"
+            absence="unavailable"
+            reason="No queue snapshot is present in the committed summary."
+            source="queue_summary.by_status"
+          />
+        )}
 
         <Card>
           <CardTitle>Product runs</CardTitle>
@@ -92,6 +119,21 @@ export default function CommandCenterPage() {
             promoted, or marked ready.
           </p>
         </Card>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <UnavailableChartState
+          title="Portfolio equity curve"
+          absence="deferred"
+          reason="No equity series is projected by the read-only API. Committed research artifacts carry scalar per-variant metrics only, and no authorized paper or live telemetry snapshot exists to curve."
+          source="envelope.unavailable.paper_live_telemetry"
+        />
+        <UnavailableChartState
+          title="Realised drawdown over time"
+          absence="deferred"
+          reason="Drawdown is committed as a scalar per variant, not as a time series. A drawdown curve would require a per-bar equity series the API does not expose."
+          source="tools/operator_dashboard_api/readers.py::_variant_rows"
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">

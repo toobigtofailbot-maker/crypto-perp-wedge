@@ -19,7 +19,7 @@ export default function ReportsPage() {
       <PageHeader
         title="Reports"
         breadcrumb={["Reports"]}
-        description="Read-only report projections. Charting is withheld by the API in this shell."
+        description="Read-only report projections. Committed count blocks are charted here; each report's own embedded charting stays withheld, and statistics the reports name as withheld (PSR, DSR, MinTRL) are never drawn."
       />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {REPORTS.map((r) => (

@@ -1,0 +1,60 @@
+WP-DASH-DEBT-CLEANUP-05 — Validation summary
+=============================================
+Baseline: main @ 1969251 (PRs #636, #639 merged). Frontend-only cleanup.
+
+Changed files (all under operator_dashboard_frontend/src/**):
+  AppShell.tsx                          +10 / -3
+  Sidebar.tsx                           +2  / -2
+  ProvenanceFooter.tsx                  +1  / -1
+  charts/ChartProvenanceNote.tsx        +1  / -1
+  charts/UnavailableChartState.tsx      +1  / -1
+  explorer/EvidencePanel.tsx            +4  / -2
+  agent-inbox/IntakeForm.tsx            +1  / -1
+  viz.tsx                               +4  / -36   (Funnel + FunnelStageRow removed)
+  Total: 8 files, +24 / -47
+
+Frontend (cd operator_dashboard_frontend):
+  npm run typecheck ... PASS (tsc --noEmit, no errors)
+  npm run lint      ... PASS (No ESLint warnings or errors)
+  npm run build     ... PASS (all routes compiled; /strategies/[strategy_id] SSG ok)
+
+Repo (via .venv python; fastapi not in default interpreter):
+  pytest tests/test_operator_dashboard_api.py  ) 19 passed, 1 warning
+  pytest tests/test_agent_inbox_intake.py      )   (run together)
+  python tools/dev/diff_scope_summary.py ... exit reason: ok
+      - all 8 changed files under operator_dashboard_frontend/src/** (allowed)
+      - only forbidden-path flag was a local .claude/launch.json used for
+        browser validation; removed before finalizing (git status clean of it)
+  git diff --check          ... OK (no whitespace errors)
+  git diff --cached --check ... OK
+
+Browser / manual (Next dev server, 375x812 mobile unless noted):
+  NOTE: a dev-cache corruption ("Cannot find module './276.js'") occurred once
+  because `npm run build` was run while `next dev` shared the same .next dir.
+  Resolved by `rm -rf .next` + dev restart. Production build itself passed
+  cleanly; not a code defect. All results below re-confirmed on the clean server.
+
+  Route                              docHorizOverflow  clippedInMain  notes
+  /                                  false             0              charts ok
+  /agent-inbox                       false             0              1 form / 1 submit / 2 buttons (submit+clear) — no new controls
+  /candidates                        false             0              3 charts render (309px)
+  /strategies                        false             0
+  /strategies/STRAT-SPEC-0001        false             0              6 tables (each in overflow-x-auto scroll wrapper), 4 charts
+  /research/result-populations       false             0              4 charts render
+
+  Console app errors: NONE on any route.
+  Charts: none broken; all render and fit the content column.
+  Candidate funnel: present as ECharts CategoricalCountChart (no missing
+    replacement after removing the dead CSS Funnel primitive).
+
+  Shell overflow (the targeted issue):
+    before: sidebar 240px fixed -> content column 135px, content clipped
+    after:  mobile content column 375px (full width); desktop unchanged
+            (240px vertical sidebar, 9 links stacked, verticalNav=true)
+    mobile nav height ~440px -> ~322px after horizontal-wrap of top-level links.
+
+No-control / no-scope-drift:
+  - No route, data fetch, API endpoint, or dependency added.
+  - No new form, button, or mutation path (agent-inbox still 1 form / 1 submit).
+  - tools/** and the read-only dashboard API untouched.
+  - No chart semantics changed; no data fabricated.

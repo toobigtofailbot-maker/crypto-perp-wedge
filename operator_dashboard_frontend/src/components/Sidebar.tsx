@@ -20,7 +20,7 @@ export function Sidebar() {
 
   return (
     <nav
-      className="flex h-full w-60 shrink-0 flex-col gap-6 overflow-y-auto border-r border-cockpit-border bg-cockpit-panel px-3 py-4"
+      className="flex w-full shrink-0 flex-col gap-4 border-b border-cockpit-border bg-cockpit-panel px-3 py-4 md:h-full md:w-60 md:gap-6 md:overflow-y-auto md:border-b-0 md:border-r"
       aria-label="Primary"
     >
       <div className="px-2">
@@ -32,7 +32,7 @@ export function Sidebar() {
         </div>
       </div>
 
-      <ul className="flex flex-col gap-1">
+      <ul className="flex flex-row flex-wrap gap-x-1 gap-y-1 md:flex-col">
         {NAV_GROUPS.map((group) => {
           const active = isActive(pathname, group.href);
           return (

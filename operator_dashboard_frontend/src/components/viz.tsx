@@ -1,9 +1,10 @@
 /**
  * CSS-only read-only visual summaries for the operator cockpit.
  *
- * These are presentational primitives (bars, funnels) built entirely from
- * Tailwind utilities and inline width percentages. They render committed
- * counts only — no chart dependency, no data generation, no interactivity.
+ * These are presentational primitives (labelled count bars and a stacked bar)
+ * built entirely from Tailwind utilities and inline width percentages. They
+ * render committed counts only — no chart dependency, no data generation, no
+ * interactivity.
  */
 import type { Tone } from "@/lib/status";
 
@@ -123,39 +124,6 @@ export function StackedBar({
           </li>
         ))}
       </ul>
-    </div>
-  );
-}
-
-export interface FunnelStageRow {
-  label: string;
-  count: number;
-  tone?: Tone;
-}
-
-/**
- * A top-down funnel: each stage is a proportional bar sized against the first
- * (widest) stage. Presentation only — stage order is the committed display
- * order and implies no promotion, admission, or ranking authority.
- */
-export function Funnel({ stages }: { stages: FunnelStageRow[] }) {
-  const max = stages.reduce((m, s) => Math.max(m, s.count), 0);
-  return (
-    <div className="flex flex-col gap-2">
-      {stages.map((s) => (
-        <div key={s.label} className="flex flex-col gap-1">
-          <div className="flex items-baseline justify-between gap-3 text-xs">
-            <span className="text-cockpit-text">{s.label}</span>
-            <span className="font-mono text-cockpit-text">{s.count}</span>
-          </div>
-          <div className="h-3 w-full overflow-hidden rounded bg-cockpit-panel-2">
-            <div
-              className={`h-full rounded ${BAR_CLASS[s.tone ?? "info"]}`}
-              style={{ width: `${max > 0 ? Math.max(pct(s.count, max), s.count > 0 ? 4 : 0) : 0}%` }}
-            />
-          </div>
-        </div>
-      ))}
     </div>
   );
 }

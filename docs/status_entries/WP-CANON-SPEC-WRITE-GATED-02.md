@@ -1,0 +1,3 @@
+# WP-CANON-SPEC-WRITE-GATED-02
+
+Added the physically separate `tools/canon_intake/spec_writer.py` Gate C writer, focused tests, and package evidence. Only Karl exact-content approval bound to the proposed bytes, target, and hash-verified draft/review/eligibility lineage permits one append-only canonical Strategy Spec write; eligibility and review state remain advisory. The writer independently reruns canonical validation, refuses overwrite or audit-recorded ID reuse, and appends `research/canonical_crossing_audit/strategy_spec_writes.jsonl` only when a valid write occurs. No real Gate C was supplied, so no production Strategy Spec or audit instance was written. Gate-Q queue admission remains a separate future Karl-gated package.

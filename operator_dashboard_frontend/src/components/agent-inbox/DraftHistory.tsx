@@ -22,6 +22,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Badge, Card, CardTitle } from "@/components/ui";
 import { EmptyState, LoadingState, UnavailableState } from "@/components/States";
 import { DraftPacketView } from "@/components/agent-inbox/DraftPacketView";
+import { ReviewTrail } from "@/components/agent-inbox/ReviewTrail";
 import {
   AgentInboxRejectedError,
   AgentInboxUnavailableError,
@@ -349,7 +350,10 @@ function DraftDetail({
       ) : null}
 
       {detail.kind === "loaded" ? (
-        <DraftPacketView packet={detail.packet} />
+        <>
+          <DraftPacketView packet={detail.packet} />
+          <ReviewTrail draftId={detail.packet.draft_id} />
+        </>
       ) : null}
     </div>
   );

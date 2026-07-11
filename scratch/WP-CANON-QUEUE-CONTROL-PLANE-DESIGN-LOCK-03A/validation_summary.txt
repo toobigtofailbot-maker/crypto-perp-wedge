@@ -1,6 +1,7 @@
-Focused: tests/test_canon_queue_control_plane_contracts.py - 8 passed.
+Follow-up focused: tests/test_canon_queue_control_plane_contracts.py - 10 passed.
 Adjacent: canon_intake_spec_writer 34 passed; eligibility_validator 7 passed; agent_inbox_intake 22 passed; operator_dashboard_api 14 passed.
 Registry/query: research-query view inventory succeeded; Result Population validator passed; candidate registry validator passed.
 Diff checks: diff_scope_summary completed; git diff --check passed; git diff --cached --check passed.
-Full pytest: incomplete. `python -m pytest -q` produced no failure output but exceeded the 1200-second command timeout and was terminated with exit code 124. This is not recorded as a pass.
+Schema meta-validation: Gate-Q, queue item, and queue-admission audit record schemas passed Draft 7 meta-validation.
+Original full pytest: incomplete. `python -m pytest -q` produced no failure output but exceeded the 1200-second command timeout and was terminated with exit code 124. This remains recorded as not passed; the follow-up package required the focused and adjacent commands above, all of which passed.
 Manual boundary review: no writer, production queue item/directory, dispatch, run output, Result Population, candidate, runtime, paper/live, OMS, risk, reconciliation, config, dependency, or protected execution change was created.

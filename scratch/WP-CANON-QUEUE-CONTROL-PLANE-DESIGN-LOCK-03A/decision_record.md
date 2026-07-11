@@ -15,6 +15,11 @@ Admission must remain inert, immutable, one-file-per-item, fully hash-bound, and
 - priorities `normal|expedited`: smallest useful bounded ordering vocabulary; no bypass semantics; scheduling remains unauthorized.
 - denominator-bound `variant_attempts`: directly matches current frozen population; retries count and v1 bound equals denominator; resource/runtime expansion remains unauthorized.
 - `gate_q_approval_core_v1`: necessary to break the full-file hash cycle while preserving exact queue-byte binding; later writer recomputes it; it does not replace full Gate-Q validation.
+- Gate-Q approvals live at `research/queue/gate_q_approvals/<approval_id>.gate_q_approval.json`; ID/path substitutes reject.
+- Gate-C uses a stable raw-record reference at a 1-based JSONL line, not a mutable whole-file hash.
+- Admission audit is `research/queue/admission_audit/queue_admissions.jsonl` with `QAUDIT-<queue_item_id>` records and permanent reuse checks.
+- `repo_canonical_json_v1` replaces the inaccurate JCS claim and forbids floats.
+- Queue ID date must equal the UTC `admitted_at` date.
 
 ## Rejected alternatives
 

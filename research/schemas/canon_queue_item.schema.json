@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#", "$id": "canon_queue_item.schema.json", "title": "Canonical offline-research queue admission item",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "queue_item_id", "status", "admitted_at", "queue_target", "priority", "artifact_refs", "denominator", "dataset", "budget", "gate_q", "lineage", "traceability_hashes", "immutable_posture", "authority_flags"],
+  "properties": {
+    "schema_version": {"const": "canon_queue_item_v1"}, "queue_item_id": {"type": "string", "pattern": "^QI-[0-9]{8}-[A-Z0-9]{8}$"}, "status": {"const": "admitted_non_dispatched"}, "admitted_at": {"type": "string", "format": "date-time"}, "queue_target": {"const": "offline_research"}, "priority": {"enum": ["normal", "expedited"]},
+    "artifact_refs": {"type": "object", "additionalProperties": false, "required": ["strategy_spec", "variant_manifest", "sweep_plan"], "properties": {"strategy_spec": {"$ref": "#/definitions/ref"}, "variant_manifest": {"$ref": "#/definitions/ref"}, "sweep_plan": {"$ref": "#/definitions/ref"}}},
+    "denominator": {"$ref": "gate_q_approval.schema.json#/definitions/denominator"}, "dataset": {"$ref": "gate_q_approval.schema.json#/definitions/dataset"}, "budget": {"$ref": "gate_q_approval.schema.json#/definitions/budget"},
+    "gate_q": {"type": "object", "additionalProperties": false, "required": ["approval_id", "path", "approval_core_sha256", "approval_core_hash_scope", "approval_core_canonicalization"], "properties": {"approval_id": {"type": "string", "pattern": "^GATE-Q-[A-Z0-9][A-Z0-9-]{2,63}$"}, "path": {"type": "string", "pattern": "^research/queue/gate_q_approvals/GATE-Q-[A-Z0-9][A-Z0-9-]{2,63}\\.gate_q_approval\\.json$"}, "approval_core_sha256": {"$ref": "#/definitions/hash"}, "approval_core_hash_scope": {"const": "gate_q_approval_core_v1"}, "approval_core_canonicalization": {"const": "repo_canonical_json_v1"}}},
+    "lineage": {"type": "object", "additionalProperties": false, "required": ["source_draft", "review_trail", "eligibility_report", "gate_c_approval", "gate_c_crossing_audit_record"], "properties": {"source_draft": {"$ref": "#/definitions/ref"}, "review_trail": {"$ref": "#/definitions/ref"}, "eligibility_report": {"$ref": "#/definitions/ref"}, "gate_c_approval": {"$ref": "#/definitions/ref"}, "gate_c_crossing_audit_record": {"$ref": "gate_q_approval.schema.json#/definitions/gate_c_audit_record_ref"}}},
+    "traceability_hashes": {"type": "array", "minItems": 8, "uniqueItems": true, "items": {"$ref": "#/definitions/hash"}},
+    "immutable_posture": {"type": "object", "additionalProperties": false, "required": ["append_only", "overwrite_forbidden", "single_use_queue_item_id", "single_use_target_path"], "properties": {"append_only": {"const": true}, "overwrite_forbidden": {"const": true}, "single_use_queue_item_id": {"const": true}, "single_use_target_path": {"const": true}}},
+    "authority_flags": {"$ref": "gate_q_approval.schema.json#/definitions/flags"}
+  },
+  "definitions": {"hash": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "ref": {"type": "object", "additionalProperties": false, "required": ["path", "sha256"], "properties": {"path": {"type": "string", "minLength": 1}, "sha256": {"$ref": "#/definitions/hash"}}}}
+}

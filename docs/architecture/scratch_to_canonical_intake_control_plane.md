@@ -231,6 +231,10 @@ promotion, readiness, or execution authority.
 
 ## 6. Queue admission
 
+The exact Gate-Q and append-only queue-item contract is now locked in
+`docs/architecture/canon_queue_control_plane.md`; that contract controls the
+queue layout, bounded vocabularies, hash scopes, and no-dispatch semantics.
+
 Queue admission occurs only after canonical Strategy Spec creation and separate
 human-reviewed preparation of a hash-pinned Variant Manifest and Sweep Plan.
 The existing schemas and validators remain authoritative; this design changes

@@ -1,0 +1,14 @@
+PASS  pytest tests/test_canon_intake_queue_admission.py -q (21 passed)
+PASS  pytest tests/test_canon_queue_control_plane_contracts.py -q (10 passed)
+PASS  pytest tests/test_canon_intake_spec_writer.py -q (34 passed)
+PASS  pytest tests/test_canon_intake_eligibility_validator.py -q (7 passed)
+PASS  pytest tests/test_agent_inbox_intake.py -q (22 passed)
+PASS  pytest tests/test_operator_dashboard_api.py -q (14 passed)
+PASS  python -m tools.research_query.run --list-views
+PASS  python -m tools.registry.validate_result_populations
+PASS  python -m tools.registry.validate_candidate_registry
+PASS  python tools/dev/diff_scope_summary.py (no forbidden-path matches)
+PASS  python -m py_compile tools/canon_intake/queue_admission.py
+PASS  git diff --check
+PASS  git diff --cached --check
+TIMEOUT  python -m pytest -q exceeded the bounded 240-second limit; it is not reported as a pass.

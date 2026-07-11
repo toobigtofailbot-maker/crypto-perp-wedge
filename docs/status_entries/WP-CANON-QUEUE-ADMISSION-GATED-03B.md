@@ -4,4 +4,6 @@ Branch `codex/wp-canon-queue-admission-gated-03b` started from merged PR #651 at
 
 No dispatcher, runner, scheduler, Result Population, candidate, runtime, paper/live, OMS, risk, reconciliation, schema, query, configuration, dependency, notification, Agent Inbox, or Gate-C writer surface is changed. No real Gate-Q approval was supplied, so no production approval, queue item, or admission-audit record was created and no run was dispatched.
 
+The PR #652 protected-boundary follow-up rejects lexical aliases and symlinked path components before resolution, binds source/review/eligibility and Gate-C approval evidence to the exact crossing-audit record, enforces timezone-aware timestamps and UTC queue-ID dates, validates every existing audit record structurally and semantically, and adds collision, partial-append, rollback-failure, existing-lock, and committed lock-cleanup failure injection coverage.
+
 Command: `python -m tools.canon_intake.queue_admission --gate-q <authoritative-gate-q> --proposed-queue-item <frozen-queue-item.json> --repo-root <repo>`.

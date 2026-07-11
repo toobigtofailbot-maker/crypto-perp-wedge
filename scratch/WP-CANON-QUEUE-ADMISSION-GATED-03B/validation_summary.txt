@@ -12,3 +12,13 @@ PASS  python -m py_compile tools/canon_intake/queue_admission.py
 PASS  git diff --check
 PASS  git diff --cached --check
 TIMEOUT  python -m pytest -q exceeded the bounded 240-second limit; it is not reported as a pass.
+
+PR #652 protected-boundary follow-up:
+PASS  pytest tests/test_canon_intake_queue_admission.py -q (41 passed, 5 skipped: Windows symlink privilege unavailable)
+PASS  pytest tests/test_canon_queue_control_plane_contracts.py -q (10 passed)
+PASS  pytest tests/test_canon_intake_spec_writer.py -q (34 passed)
+PASS  pytest tests/test_canon_intake_eligibility_validator.py -q (7 passed)
+PASS  pytest tests/test_agent_inbox_intake.py -q (22 passed)
+PASS  pytest tests/test_operator_dashboard_api.py -q (14 passed)
+PASS  research-query view listing, both registry validators, diff-scope, py_compile, and diff checks
+NOT REPEATED  full pytest previously exceeded the bounded 240-second limit; scoped follow-up validation is reported above.

@@ -56,13 +56,18 @@ def _fixture(tmp_path: Path):
     lineage = {}
     for name in ("source_draft", "review_trail", "eligibility_report", "gate_c_approval"):
         rel = f"scratch/lineage/{name}.json"
-        _write(root / rel, {"kind": name})
+        payload = {"kind": name}
+        if name == "source_draft":
+            payload["draft_id"] = "AIDRAFT-TEST0000000001"
+        elif name == "gate_c_approval":
+            payload = {"approval_id": "GATE-C-TEST", "approval_scope": "one_append_only_canonical_strategy_spec_write", "authorizes_queue": False, "authorizes_execution": False}
+        _write(root / rel, payload)
         lineage[name] = _ref(root, rel)
     dataset_rel = "data/immutable/BTCUSDT-1h.snapshot"
     (root / dataset_rel).parent.mkdir(parents=True)
     (root / dataset_rel).write_bytes(b"immutable dataset fixture\n")
     gate_c_rel = "research/canonical_crossing_audit/strategy_spec_writes.jsonl"
-    gate_c_record = {"approval_id": "GATE-C-TEST", "strategy_spec_id": "STRAT-SPEC-9001", "canonical_target_path": "research/strategy_specs/STRAT-SPEC-9001.strategy_spec.json", "approved_content_sha256": _hash(_raw(spec_path))}
+    gate_c_record = {"approval_id": "GATE-C-TEST", "approval_record_sha256": lineage["gate_c_approval"]["sha256"], "source_draft_id": "AIDRAFT-TEST0000000001", "source_draft": lineage["source_draft"], "review_trail": lineage["review_trail"], "eligibility_report": lineage["eligibility_report"], "strategy_spec_id": "STRAT-SPEC-9001", "canonical_target_path": "research/strategy_specs/STRAT-SPEC-9001.strategy_spec.json", "approved_content_sha256": _hash(_raw(spec_path))}
     gate_c_raw = (json.dumps(gate_c_record, sort_keys=True) + "\n").encode()
     (root / gate_c_rel).parent.mkdir(parents=True)
     (root / gate_c_rel).write_bytes(gate_c_raw)
@@ -205,6 +210,220 @@ def test_existing_malformed_audit_fails_before_item_write(tmp_path):
     root, gate_path, frozen, gate, _ = _fixture(tmp_path)
     audit = root / "research/queue/admission_audit/queue_admissions.jsonl"
     audit.parent.mkdir(parents=True); audit.write_text("not-json\n", encoding="utf-8")
-    with pytest.raises(QueueAdmissionError, match="unreadable"):
+    with pytest.raises(QueueAdmissionError, match="invalid UTF-8 JSON"):
         admit_queue_item(repo_root=root, gate_q_path=gate_path, proposed_queue_item_path=frozen)
     assert not (root / gate["proposed_queue_item"]["target_path"]).exists()
+
+
+@pytest.mark.parametrize("field", ["source_draft", "review_trail", "eligibility_report"])
+def test_gate_c_crossing_rejects_hash_valid_lineage_substitution(tmp_path, field):
+    root, gate_path, frozen, gate, item = _fixture(tmp_path)
+    relative = f"scratch/lineage/substitute-{field}.json"
+    _write(root / relative, {"draft_id": "AIDRAFT-TEST0000000001", "substitute": field})
+    replacement = _ref(root, relative)
+    gate["lineage"][field] = item["lineage"][field] = replacement
+    _resign(gate_path, frozen, gate, item)
+    with pytest.raises(QueueAdmissionError, match="does not match the Gate-C crossing record"):
+        admit_queue_item(repo_root=root, gate_q_path=gate_path, proposed_queue_item_path=frozen)
+
+
+def test_gate_c_approval_file_hash_mismatch_fails(tmp_path):
+    root, gate_path, frozen, _, _ = _fixture(tmp_path)
+    with (root / "scratch/lineage/gate_c_approval.json").open("ab") as handle:
+        handle.write(b"mutation")
+    with pytest.raises(QueueAdmissionError, match="gate_c_approval hash mismatch"):
+        admit_queue_item(repo_root=root, gate_q_path=gate_path, proposed_queue_item_path=frozen)
+
+
+@pytest.mark.parametrize("mutation,match", [
+    (lambda approval: approval.__setitem__("approval_id", "GATE-C-WRONG"), "approval ID"),
+    (lambda approval: approval.__setitem__("approval_scope", "queue_admission"), "scope"),
+])
+def test_gate_c_approval_identity_and_scope_mismatch_fail(tmp_path, mutation, match):
+    root, gate_path, frozen, gate, item = _fixture(tmp_path)
+    approval_path = root / gate["lineage"]["gate_c_approval"]["path"]
+    approval = json.loads(approval_path.read_text(encoding="utf-8")); mutation(approval)
+    _write(approval_path, approval)
+    approval_ref = _ref(root, gate["lineage"]["gate_c_approval"]["path"])
+    gate["lineage"]["gate_c_approval"] = item["lineage"]["gate_c_approval"] = approval_ref
+    audit_path = root / "research/canonical_crossing_audit/strategy_spec_writes.jsonl"
+    audit_record = json.loads(audit_path.read_text(encoding="utf-8"))
+    audit_record["approval_record_sha256"] = approval_ref["sha256"]
+    audit_raw = (json.dumps(audit_record, sort_keys=True) + "\n").encode(); audit_path.write_bytes(audit_raw)
+    for ref in (gate["artifact_refs"]["gate_c_crossing_audit_record"], item["lineage"]["gate_c_crossing_audit_record"]):
+        ref["raw_record_sha256"] = _hash(audit_raw)
+    _resign(gate_path, frozen, gate, item)
+    with pytest.raises(QueueAdmissionError, match=match):
+        admit_queue_item(repo_root=root, gate_q_path=gate_path, proposed_queue_item_path=frozen)
+
+
+@pytest.mark.parametrize("which", ["approved_at", "admitted_at"])
+def test_timezone_naive_timestamp_fails(tmp_path, which):
+    root, gate_path, frozen, gate, item = _fixture(tmp_path)
+    if which == "approved_at": gate[which] = "2026-07-11T11:00:00"
+    else: item[which] = "2026-07-11T12:00:00"
+    _resign(gate_path, frozen, gate, item)
+    with pytest.raises(QueueAdmissionError, match="date-time|timezone-aware"):
+        admit_queue_item(repo_root=root, gate_q_path=gate_path, proposed_queue_item_path=frozen)
+
+
+def test_offset_timestamp_uses_utc_queue_id_date(tmp_path):
+    root, gate_path, frozen, gate, item = _fixture(tmp_path)
+    item["admitted_at"] = "2026-07-10T20:30:00-05:00"
+    _resign(gate_path, frozen, gate, item)
+    admit_queue_item(repo_root=root, gate_q_path=gate_path, proposed_queue_item_path=frozen)
+
+
+def _symlink(link: Path, target: Path, directory=False):
+    try:
+        link.symlink_to(target, target_is_directory=directory)
+    except OSError as exc:
+        pytest.skip(f"symlink creation unavailable: {exc}")
+
+
+def test_gate_q_symlink_alias_fails(tmp_path):
+    root, gate_path, frozen, _, _ = _fixture(tmp_path)
+    alias = tmp_path / "gate-alias.json"; _symlink(alias, gate_path)
+    with pytest.raises(QueueAdmissionError, match="symlink"):
+        admit_queue_item(repo_root=root, gate_q_path=alias, proposed_queue_item_path=frozen)
+
+
+def test_authoritative_gate_q_under_symlinked_parent_fails(tmp_path):
+    root, gate_path, frozen, _, _ = _fixture(tmp_path)
+    approvals = gate_path.parent; real = root / "real-approvals"; approvals.rename(real)
+    _symlink(approvals, real, directory=True)
+    with pytest.raises(QueueAdmissionError, match="symlink"):
+        admit_queue_item(repo_root=root, gate_q_path=gate_path, proposed_queue_item_path=frozen)
+
+
+def test_referenced_artifact_symlink_fails(tmp_path):
+    root, gate_path, frozen, gate, item = _fixture(tmp_path)
+    original = root / "data/immutable/BTCUSDT-1h.snapshot"
+    real = root / "data/immutable/real.snapshot"; original.rename(real); _symlink(original, real)
+    with pytest.raises(QueueAdmissionError, match="symlink"):
+        admit_queue_item(repo_root=root, gate_q_path=gate_path, proposed_queue_item_path=frozen)
+
+
+def test_symlinked_admission_parent_fails(tmp_path):
+    root, gate_path, frozen, _, _ = _fixture(tmp_path)
+    queue = root / "research/queue"; outside = tmp_path / "outside"; outside.mkdir()
+    (queue / "admissions").parent.mkdir(parents=True, exist_ok=True)
+    _symlink(queue / "admissions", outside, directory=True)
+    with pytest.raises(QueueAdmissionError, match="symlink"):
+        admit_queue_item(repo_root=root, gate_q_path=gate_path, proposed_queue_item_path=frozen)
+
+
+def test_symlinked_audit_directory_fails(tmp_path):
+    root, gate_path, frozen, _, _ = _fixture(tmp_path)
+    outside = tmp_path / "outside-audit"; outside.mkdir()
+    audit_dir = root / "research/queue/admission_audit"; audit_dir.parent.mkdir(parents=True, exist_ok=True)
+    _symlink(audit_dir, outside, directory=True)
+    with pytest.raises(QueueAdmissionError, match="symlink"):
+        admit_queue_item(repo_root=root, gate_q_path=gate_path, proposed_queue_item_path=frozen)
+
+
+def _admit_and_record(tmp_path):
+    root, gate_path, frozen, gate, item = _fixture(tmp_path)
+    record = admit_queue_item(repo_root=root, gate_q_path=gate_path, proposed_queue_item_path=frozen)
+    audit = root / "research/queue/admission_audit/queue_admissions.jsonl"
+    target = root / gate["proposed_queue_item"]["target_path"]
+    target.unlink()
+    return root, gate_path, frozen, gate, item, record, audit
+
+
+@pytest.mark.parametrize("kind,match", [("schema", "schema validation"), ("semantic", "inconsistent ID/path"), ("partial", "partial"), ("duplicate", "duplicate")])
+def test_existing_audit_integrity_failures_block_before_write(tmp_path, kind, match):
+    root, gate_path, frozen, gate, _, record, audit = _admit_and_record(tmp_path)
+    if kind == "schema": raw = b"{}\n"
+    elif kind == "partial": raw = json.dumps(record).encode()
+    elif kind == "duplicate": raw = (json.dumps(record) + "\n" + json.dumps(record) + "\n").encode()
+    else:
+        record["queue_item_path"] = "research/queue/admissions/QI-20260711-ZZZZ9999.queue_item.json"
+        raw = (json.dumps(record) + "\n").encode()
+    audit.write_bytes(raw)
+    with pytest.raises(QueueAdmissionError, match=match):
+        admit_queue_item(repo_root=root, gate_q_path=gate_path, proposed_queue_item_path=frozen)
+    assert not (root / gate["proposed_queue_item"]["target_path"]).exists()
+
+
+def test_existing_lock_fails_closed(tmp_path):
+    root, gate_path, frozen, gate, _ = _fixture(tmp_path)
+    lock = root / "research/queue/admission_audit/.queue_admission.lock"
+    lock.parent.mkdir(parents=True); lock.write_text("held", encoding="utf-8")
+    with pytest.raises(QueueAdmissionError, match="lock exists"):
+        admit_queue_item(repo_root=root, gate_q_path=gate_path, proposed_queue_item_path=frozen)
+    assert not (root / gate["proposed_queue_item"]["target_path"]).exists()
+
+
+def test_exclusive_create_race_collision_writes_no_audit(tmp_path, monkeypatch):
+    root, gate_path, frozen, gate, _ = _fixture(tmp_path)
+    target = root / gate["proposed_queue_item"]["target_path"]
+    original_open = Path.open
+    def raced_open(self, mode="r", *args, **kwargs):
+        if self == target and mode == "xb": raise FileExistsError("raced target creation")
+        return original_open(self, mode, *args, **kwargs)
+    monkeypatch.setattr(Path, "open", raced_open)
+    with pytest.raises(QueueAdmissionError, match="rolled back"):
+        admit_queue_item(repo_root=root, gate_q_path=gate_path, proposed_queue_item_path=frozen)
+    assert not (root / "research/queue/admission_audit/queue_admissions.jsonl").exists()
+
+
+def test_valid_prior_audit_record_allows_distinct_admission(tmp_path):
+    root, gate_path, frozen, gate, item, _, _ = _admit_and_record(tmp_path)
+    old_gate = gate_path
+    new_approval, new_item = "GATE-Q-TEST-002", "QI-20260711-EFGH5678"
+    new_gate_rel = f"research/queue/gate_q_approvals/{new_approval}.gate_q_approval.json"
+    new_item_rel = f"research/queue/admissions/{new_item}.queue_item.json"
+    gate["approval_id"] = new_approval; gate["approval_artifact_target_path"] = new_gate_rel
+    gate["proposed_queue_item"]["queue_item_id"] = new_item; gate["proposed_queue_item"]["target_path"] = new_item_rel
+    item["queue_item_id"] = new_item; item["gate_q"]["approval_id"] = new_approval; item["gate_q"]["path"] = new_gate_rel
+    gate_path = root / new_gate_rel
+    _resign(gate_path, frozen, gate, item); old_gate.unlink()
+    admit_queue_item(repo_root=root, gate_q_path=gate_path, proposed_queue_item_path=frozen)
+    assert len((root / "research/queue/admission_audit/queue_admissions.jsonl").read_text().splitlines()) == 2
+
+
+class _PartialAudit:
+    def __init__(self, handle, fail_rollback=False): self.handle, self.fail_rollback, self.seeks = handle, fail_rollback, 0
+    def __getattr__(self, name): return getattr(self.handle, name)
+    def seek(self, *args):
+        self.seeks += 1
+        if self.fail_rollback and self.seeks > 1: raise ValueError("rollback seek failed")
+        return self.handle.seek(*args)
+    def write(self, data):
+        amount = max(1, len(data) // 2); self.handle.write(data[:amount]); return amount
+
+
+@pytest.mark.parametrize("rollback_failure", [False, True])
+def test_partial_audit_append_rolls_back_or_reports_integrity_critical(tmp_path, monkeypatch, rollback_failure):
+    root, gate_path, frozen, gate, _ = _fixture(tmp_path)
+    audit = root / "research/queue/admission_audit/queue_admissions.jsonl"
+    audit.parent.mkdir(parents=True); audit.write_bytes(b"")
+    monkeypatch.setattr(queue_admission, "_open_audit", lambda path: (_PartialAudit(path.open("r+b"), rollback_failure), False))
+    error = queue_admission.QueueAdmissionIntegrityCriticalError if rollback_failure else QueueAdmissionError
+    with pytest.raises(error, match="rollback failed|rolled back"):
+        admit_queue_item(repo_root=root, gate_q_path=gate_path, proposed_queue_item_path=frozen)
+    assert not (root / gate["proposed_queue_item"]["target_path"]).exists()
+    if not rollback_failure: assert audit.read_bytes() == b""
+
+
+def test_queue_item_rollback_failure_is_integrity_critical(tmp_path, monkeypatch):
+    root, gate_path, frozen, gate, _ = _fixture(tmp_path)
+    target = root / gate["proposed_queue_item"]["target_path"]
+    original_unlink = Path.unlink
+    monkeypatch.setattr(queue_admission, "_open_audit", lambda path: (_ for _ in ()).throw(OSError("audit denied")))
+    monkeypatch.setattr(Path, "unlink", lambda self, *a, **k: (_ for _ in ()).throw(OSError("target rollback denied")) if self == target else original_unlink(self, *a, **k))
+    with pytest.raises(queue_admission.QueueAdmissionIntegrityCriticalError, match="queue-item rollback failed"):
+        admit_queue_item(repo_root=root, gate_q_path=gate_path, proposed_queue_item_path=frozen)
+
+
+def test_post_commit_lock_cleanup_failure_preserves_commit(tmp_path, monkeypatch):
+    root, gate_path, frozen, gate, _ = _fixture(tmp_path)
+    lock = root / "research/queue/admission_audit/.queue_admission.lock"
+    target = root / gate["proposed_queue_item"]["target_path"]
+    audit = root / "research/queue/admission_audit/queue_admissions.jsonl"
+    original_unlink = Path.unlink
+    monkeypatch.setattr(Path, "unlink", lambda self, *a, **k: (_ for _ in ()).throw(OSError("cleanup denied")) if self == lock else original_unlink(self, *a, **k))
+    with pytest.raises(queue_admission.QueueAdmissionIntegrityCriticalError, match="admission committed; automatic retry forbidden"):
+        admit_queue_item(repo_root=root, gate_q_path=gate_path, proposed_queue_item_path=frozen)
+    assert target.exists() and audit.exists()

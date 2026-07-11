@@ -1,0 +1,18 @@
+WP-CANON-SPEC-WRITE-GATED-02 validation summary
+
+PASS: pytest tests/test_canon_intake_spec_writer.py -q (34 passed)
+PASS: pytest tests/test_canon_intake_eligibility_validator.py -q (7 passed)
+PASS: pytest tests/test_agent_inbox_intake.py -q (22 passed; 1 dependency deprecation warning)
+PASS: pytest tests/test_operator_dashboard_api.py -q (14 passed; 1 dependency deprecation warning)
+PASS: python -m tools.research_query.run --list-views
+PASS: python -m tools.registry.validate_result_populations
+PASS: python -m tools.registry.validate_candidate_registry
+PASS: python tools/dev/diff_scope_summary.py (authorized new files only; no forbidden-path match)
+PASS: git diff --check
+PASS: git diff --cached --check before staging
+
+INCOMPLETE: both protected-boundary follow-ups attempted full `pytest -q` with a 300-second ceiling and exceeded it without emitting a failing test. The earlier package also recorded 120-second, 300-second, and 900-second timeouts. These are reported as timeouts, not passes.
+
+Isolated-temp-repo tests cover: missing Gate C; eligibility/flag only; exact hash/target; atomic collision/no overwrite; authoritative review/eligibility paths; contract-faithful draft, review, eligibility, Gate C, and Strategy Spec lineage; every review non-authority flag; eligibility/review summary agreement; malformed/wrong lineage; rejected or clarification review states; eligibility authority-flag rejection; exact valid write; permanent target/spec/approval-ID non-reuse; lock collision; audit-open and partial-write rollback; post-commit lock-cleanup integrity-critical classification with committed artifacts preserved; complete JSONL append; and absence of queue/candidate/runtime outputs.
+
+No real Gate C approval artifact was supplied. No production canonical Strategy Spec or crossing audit record was written.

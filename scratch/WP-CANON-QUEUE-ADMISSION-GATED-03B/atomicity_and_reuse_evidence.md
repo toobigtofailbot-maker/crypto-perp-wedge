@@ -1,0 +1,7 @@
+# Atomicity and reuse evidence
+
+Admission is serialized by exclusive creation of `.queue_admission.lock`. Inside the lock the audit is re-read, approval/ID/path reuse is rejected, the item is opened with `xb`, exact bytes are flushed/fsynced, and one prevalidated audit line is flushed/fsynced. Audit failure truncates to the prior length and removes the new item. Rollback failure and committed lock-cleanup failure are integrity-critical and forbid automatic retry. Existing targets are never overwritten.
+
+The existing audit is read as raw bytes: nonempty content must end in LF, every line must be a UTF-8 JSON object satisfying the locked schema and derived ID/path bindings, and internal duplicate approval IDs, item IDs, or item paths reject the entire crossing before target creation. Failure injection covers raced exclusive-create collision, held lock, partial append restoration, audit rollback failure, independent target rollback failure, and post-commit lock-cleanup failure with committed artifacts preserved.
+
+Final TOCTOU evidence validates the complete incoming bundle and all historical evidence before lock entry, then rereads and revalidates both inside the lock before reuse checks and target creation. Deterministic tests mutate the Gate-Q file, frozen queue bytes, a referenced artifact, and the historical audit between those phases; all reject before the target or audit append.

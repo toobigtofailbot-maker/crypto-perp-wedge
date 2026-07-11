@@ -1,6 +1,6 @@
 WP-CANON-SPEC-WRITE-GATED-02 validation summary
 
-PASS: pytest tests/test_canon_intake_spec_writer.py -q (8 passed)
+PASS: pytest tests/test_canon_intake_spec_writer.py -q (21 passed)
 PASS: pytest tests/test_canon_intake_eligibility_validator.py -q (7 passed)
 PASS: pytest tests/test_agent_inbox_intake.py -q (22 passed; 1 dependency deprecation warning)
 PASS: pytest tests/test_operator_dashboard_api.py -q (14 passed; 1 dependency deprecation warning)
@@ -11,8 +11,8 @@ PASS: python tools/dev/diff_scope_summary.py (authorized new files only; no forb
 PASS: git diff --check
 PASS: git diff --cached --check before staging
 
-INCOMPLETE: full `pytest -q` was attempted with 120-second, 300-second, and 900-second ceilings. Each run exceeded its ceiling without emitting a failing test. This is reported as a timeout, not a pass.
+INCOMPLETE: follow-up full `pytest -q` was attempted with a 300-second ceiling and exceeded it without emitting a failing test. The earlier package also recorded 120-second, 300-second, and 900-second timeouts. These are reported as timeouts, not passes.
 
-Manual cases are covered by isolated-temp-repo tests: missing Gate C, eligibility/flag only, hash mismatch, target mismatch, existing target, malformed spec despite eligible advisory, exact valid write, append-only audit preservation, permanent audited ID/target non-reuse, and absence of queue/candidate/runtime outputs.
+Isolated-temp-repo tests cover: missing Gate C; eligibility/flag only; exact hash/target; atomic collision/no overwrite; contract-faithful draft, review, eligibility, Gate C, and Strategy Spec lineage; malformed/wrong lineage; rejected or clarification review states; eligibility authority-flag rejection; exact valid write; permanent target/spec/approval-ID non-reuse; lock collision; audit-open and partial-write rollback; complete JSONL append; and absence of queue/candidate/runtime outputs.
 
 No real Gate C approval artifact was supplied. No production canonical Strategy Spec or crossing audit record was written.

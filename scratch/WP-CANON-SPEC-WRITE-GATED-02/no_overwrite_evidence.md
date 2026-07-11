@@ -1,3 +1,3 @@
 # No-overwrite evidence
 
-The writer rejects an existing target before validation or write. It also parses the append-only crossing audit and rejects any previously recorded target or Strategy Spec ID, even if the target file was later removed. Tests verify unchanged existing bytes and permanent ID/target non-reuse.
+The writer creates the canonical target with OS-level exclusive binary create (`xb`) inside a narrow local crossing lock. Existing targets and simulated concurrent-create collisions fail closed without audit append. The audit permanently rejects reused targets, Strategy Spec IDs, or Gate C approval IDs even if a prior target was removed. Audit-open and partial-write failures restore the audit's prior bytes and remove the newly created target; rollback failure is integrity-critical. Stale locks are never auto-cleared and require explicit operator inspection.

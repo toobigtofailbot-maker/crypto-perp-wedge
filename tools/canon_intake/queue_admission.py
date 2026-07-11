@@ -254,6 +254,23 @@ def _read_audit(root: Path, path: Path) -> list[dict[str, Any]]:
             raise QueueAdmissionError(f"existing admission audit line {number} has inconsistent ID/path bindings")
         if approval_id in approval_ids or item_id in item_ids or record["queue_item_path"] in item_paths:
             raise QueueAdmissionError("existing admission audit contains duplicate approval, item ID, or item path")
+        queue_path = _repo_path(root, record["queue_item_path"], f"historical audit line {number} queue item")
+        gate_path = _repo_path(root, record["gate_q_approval_path"], f"historical audit line {number} Gate-Q approval")
+        try:
+            historical = _validate_bundle(repo_root=root, gate_q_path=gate_path, proposed_queue_item_path=queue_path)
+        except QueueAdmissionError as exc:
+            raise QueueAdmissionError(f"historical audit line {number} evidence invalid: {exc}") from exc
+        derived = historical["record"]
+        evidence_fields = (
+            "queue_item_id", "queue_item_path", "queue_item_sha256",
+            "gate_q_approval_id", "gate_q_approval_path", "gate_q_approval_file_sha256",
+            "gate_q_approval_core_sha256", "strategy_spec_id", "strategy_spec_path",
+            "strategy_spec_sha256", "variant_manifest_path", "variant_manifest_sha256",
+            "sweep_plan_path", "sweep_plan_sha256", "admitted_at", "no_dispatch", "no_execution",
+        )
+        for field in evidence_fields:
+            if record.get(field) != derived.get(field):
+                raise QueueAdmissionError(f"historical audit line {number} {field} disagrees with validated evidence")
         approval_ids.add(approval_id); item_ids.add(item_id); item_paths.add(record["queue_item_path"])
         records.append(record)
     return records
@@ -298,7 +315,7 @@ def _open_audit(path: Path) -> tuple[BinaryIO, bool]:
         return path.open("r+b"), False
 
 
-def admit_queue_item(*, repo_root: Path, gate_q_path: Path, proposed_queue_item_path: Path) -> dict[str, Any]:
+def _validate_bundle(*, repo_root: Path, gate_q_path: Path, proposed_queue_item_path: Path) -> dict[str, Any]:
     root = repo_root.resolve()
     gate, gate_raw = _load_object(gate_q_path, "Gate-Q approval")
     item, item_raw = _load_object(proposed_queue_item_path, "proposed queue item")
@@ -371,17 +388,26 @@ def admit_queue_item(*, repo_root: Path, gate_q_path: Path, proposed_queue_item_
     required_hashes = {_digest(raw) for raw in (spec_raw, vm_raw, sweep_raw)} | {gate["dataset"]["sha256"]} | {ref["sha256"] for ref in gate["lineage"].values()}
     if not required_hashes <= set(item.get("traceability_hashes", [])):
         raise QueueAdmissionError("queue-item traceability hashes are incomplete")
-    target = _repo_path(root, target_rel, "queue-item target")
-    audit = _repo_path(root, AUDIT_PATH.as_posix(), "admission audit path")
-    target.parent.mkdir(parents=True, exist_ok=True)
-    audit.parent.mkdir(parents=True, exist_ok=True)
     record = {"schema_version": "queue_admission_audit_record_v1", "audit_record_id": f"QAUDIT-{item_id}", "queue_item_id": item_id, "queue_item_path": target_rel, "queue_item_sha256": _digest(item_raw), "gate_q_approval_id": approval_id, "gate_q_approval_path": gate_rel, "gate_q_approval_file_sha256": _digest(gate_raw), "gate_q_approval_core_sha256": core_hash, "strategy_spec_id": spec_id, "strategy_spec_path": gate["artifact_refs"]["strategy_spec"]["path"], "strategy_spec_sha256": _digest(spec_raw), "variant_manifest_path": gate["artifact_refs"]["variant_manifest"]["path"], "variant_manifest_sha256": _digest(vm_raw), "sweep_plan_path": gate["artifact_refs"]["sweep_plan"]["path"], "sweep_plan_sha256": _digest(sweep_raw), "admitted_at": item["admitted_at"], "writer_version": WRITER_VERSION, "validation_outcome": "passed_before_admission", "no_dispatch": True, "no_execution": True}
     _schema_check(root, "queue_admission_audit_record.schema.json", record, "admission audit record")
-    line = repo_canonical_json_v1(record) + b"\n"
+    return {"record": record, "item_raw": item_raw, "approval_id": approval_id, "item_id": item_id, "target_rel": target_rel}
+
+
+def admit_queue_item(*, repo_root: Path, gate_q_path: Path, proposed_queue_item_path: Path) -> dict[str, Any]:
+    root = repo_root.resolve()
+    preflight = _validate_bundle(repo_root=root, gate_q_path=gate_q_path, proposed_queue_item_path=proposed_queue_item_path)
+    audit = _repo_path(root, AUDIT_PATH.as_posix(), "admission audit path")
+    _check_reuse(_read_audit(root, audit), preflight["approval_id"], preflight["item_id"], preflight["target_rel"])
     with _crossing_lock(root) as state:
-        _check_reuse(_read_audit(root, audit), approval_id, item_id, target_rel)
+        bundle = _validate_bundle(repo_root=root, gate_q_path=gate_q_path, proposed_queue_item_path=proposed_queue_item_path)
+        _check_reuse(_read_audit(root, audit), bundle["approval_id"], bundle["item_id"], bundle["target_rel"])
+        target = _repo_path(root, bundle["target_rel"], "queue-item target")
+        target.parent.mkdir(parents=True, exist_ok=True)
         if target.exists() or target.is_symlink():
             raise QueueAdmissionError("queue-item target already exists; overwrite is forbidden")
+        item_raw = bundle["item_raw"]
+        record = bundle["record"]
+        line = repo_canonical_json_v1(record) + b"\n"
         handle = None
         created_audit = False
         prior_length = 0

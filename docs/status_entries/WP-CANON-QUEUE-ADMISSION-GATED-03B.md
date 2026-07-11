@@ -6,4 +6,6 @@ No dispatcher, runner, scheduler, Result Population, candidate, runtime, paper/l
 
 The PR #652 protected-boundary follow-up rejects lexical aliases and symlinked path components before resolution, binds source/review/eligibility and Gate-C approval evidence to the exact crossing-audit record, enforces timezone-aware timestamps and UTC queue-ID dates, validates every existing audit record structurally and semantically, and adds collision, partial-append, rollback-failure, existing-lock, and committed lock-cleanup failure injection coverage.
 
+The final integrity follow-up reconstructs every historical audit line through the same complete bundle validator used for incoming admission, compares all audit evidence fields to the validated stored queue item, authoritative Gate-Q approval, canonical artifacts, dataset, Gate-C crossing, and source lineage, and repeats incoming plus historical validation inside the exclusive lock before writing the second-validation bytes.
+
 Command: `python -m tools.canon_intake.queue_admission --gate-q <authoritative-gate-q> --proposed-queue-item <frozen-queue-item.json> --repo-root <repo>`.

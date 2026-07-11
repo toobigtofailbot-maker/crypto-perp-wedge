@@ -105,7 +105,7 @@ def _validate_draft(packet: Mapping[str, Any], path: str, draft_id: str, source_
         raise GateCWriteError("source lineage contains a malformed SHA-256 value")
 
 
-def _validate_reviews(raw: bytes, draft_id: str) -> None:
+def _validate_reviews(raw: bytes, draft_id: str) -> dict[str, Any]:
     try:
         lines = raw.decode("utf-8").splitlines()
     except UnicodeError as exc:
@@ -119,19 +119,36 @@ def _validate_reviews(raw: bytes, draft_id: str) -> None:
         except json.JSONDecodeError as exc:
             raise GateCWriteError(f"malformed review event at line {index}") from exc
         required_flags = event.get("non_authority_flags") if isinstance(event, dict) else None
+        required_flag_names = {
+            "scratch_only", "annotation_only", "not_canonicalization_approval",
+            "not_queue_admission", "not_research_execution", "not_candidate_creation",
+            "not_runtime_action",
+        }
         if (not isinstance(event, dict) or event.get("schema_version") != "agent_inbox_draft_review_event_v1"
                 or event.get("draft_id") != draft_id or event.get("append_index") != index
                 or event.get("review_state") not in REVIEW_STATES
                 or not isinstance(event.get("event_id"), str) or not isinstance(event.get("reviewer_label"), str)
                 or not isinstance(event.get("timestamp_utc"), str) or not isinstance(event.get("rationale"), str)
-                or not isinstance(required_flags, dict) or required_flags.get("not_canonicalization_approval") is not True):
+                or not isinstance(required_flags, dict)
+                or any(required_flags.get(name) is not True for name in required_flag_names)):
             raise GateCWriteError(f"invalid review event contract at line {index}")
         events.append(event)
     if events[-1]["review_state"] not in {"reviewed", "flagged_for_canonicalization"}:
         raise GateCWriteError("latest review state is not eligible for Gate C consideration")
+    latest_state = events[-1]["review_state"]
+    return {
+        "event_count": len(events),
+        "latest_state": latest_state,
+        "flagged_for_canonicalization": latest_state == "flagged_for_canonicalization",
+    }
 
 
-def _validate_eligibility(report: Mapping[str, Any], draft_id: str, refs: Mapping[str, tuple[str, str, Path, bytes]]) -> None:
+def _validate_eligibility(
+    report: Mapping[str, Any],
+    draft_id: str,
+    refs: Mapping[str, tuple[str, str, Path, bytes]],
+    review_summary: Mapping[str, Any],
+) -> None:
     exact = {
         "schema_version": "canon_intake_eligibility_report_v1", "draft_id": draft_id,
         "source_draft_path": refs["source_draft"][0], "source_draft_hash": refs["source_draft"][1],
@@ -140,6 +157,8 @@ def _validate_eligibility(report: Mapping[str, Any], draft_id: str, refs: Mappin
     }
     if any(report.get(k) != v for k, v in exact.items()):
         raise GateCWriteError("eligibility report identity, lineage, or authority flags are invalid")
+    if report.get("reviewed_state_summary") != review_summary:
+        raise GateCWriteError("eligibility reviewed_state_summary does not match the actual review trail")
     flags = report.get("non_authority_flags")
     required = {"not_approval", "not_canonical_write", "not_gate_c", "not_queue_admission", "not_candidate_creation", "not_research_execution", "not_runtime_action"}
     if not isinstance(flags, dict) or any(flags.get(key) is not True for key in required):
@@ -186,6 +205,7 @@ def _validate_candidate(repo_root: Path, proposed_path: Path, proposed_raw: byte
 def _crossing_lock(repo_root: Path):
     path = repo_root / LOCK_PATH
     path.parent.mkdir(parents=True, exist_ok=True)
+    state = {"crossing_committed": False}
     try:
         fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
     except FileExistsError as exc:
@@ -195,7 +215,7 @@ def _crossing_lock(repo_root: Path):
         os.fsync(fd)
         os.close(fd)
         fd = -1
-        yield
+        yield state
     finally:
         if fd >= 0:
             os.close(fd)
@@ -203,6 +223,15 @@ def _crossing_lock(repo_root: Path):
             path.unlink()
         except FileNotFoundError:
             pass
+        except OSError as exc:
+            if state["crossing_committed"]:
+                raise GateCIntegrityCriticalError(
+                    "canonical crossing committed but lock cleanup failed; "
+                    "explicit operator inspection is required and automatic retry is forbidden"
+                ) from exc
+            raise GateCIntegrityCriticalError(
+                "canonical crossing lock cleanup failed; explicit operator inspection is required"
+            ) from exc
 
 
 def _open_audit(path: Path) -> tuple[BinaryIO, bool]:
@@ -241,11 +270,19 @@ def write_approved_strategy_spec(*, repo_root: Path, proposed_content_path: Path
     if target.parent != canonical_root or target.is_symlink():
         raise GateCWriteError("Gate C target is not an allowed canonical Strategy Spec path")
     refs = {name: _verify_ref(repo_root, gate.get(name), name) for name in ("source_draft", "review_trail", "eligibility_report")}
+    expected_review_path = (REVIEW_ROOT / f"{draft_id}.review_events.jsonl").as_posix()
+    expected_eligibility_path = Path(
+        f"scratch/WP-CANON-ELIGIBILITY-VALIDATOR-01/reports/{draft_id}.eligibility_report.json"
+    ).as_posix()
+    if refs["review_trail"][0] != expected_review_path:
+        raise GateCWriteError("review trail path is outside the authoritative Agent Inbox review contract")
+    if refs["eligibility_report"][0] != expected_eligibility_path:
+        raise GateCWriteError("eligibility report path is outside the authoritative validator report contract")
     draft = json.loads(refs["source_draft"][3].decode("utf-8"))
     eligibility = json.loads(refs["eligibility_report"][3].decode("utf-8"))
     _validate_draft(draft, refs["source_draft"][0], draft_id, gate.get("source_hashes"))
-    _validate_reviews(refs["review_trail"][3], draft_id)
-    _validate_eligibility(eligibility, draft_id, refs)
+    review_summary = _validate_reviews(refs["review_trail"][3], draft_id)
+    _validate_eligibility(eligibility, draft_id, refs, review_summary)
     _independent_checks(spec, target_value, refs, approval_id)
     _validate_candidate(repo_root, target, proposed_raw)
     audit_path = (repo_root / AUDIT_PATH).resolve()
@@ -255,7 +292,7 @@ def write_approved_strategy_spec(*, repo_root: Path, proposed_content_path: Path
     timestamp = (now or datetime.now(timezone.utc)).astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
     record = {"schema_version": "gate_c_strategy_spec_write_audit_v1", "approval_id": approval_id, "approval_record_sha256": _digest(gate_raw), "approved_by": "Karl", "approved_at": gate["approved_at"], "written_at": timestamp, "writer_version": WRITER_VERSION, "strategy_spec_id": spec["strategy_spec_id"], "source_draft_id": draft_id, "source_hashes": gate["source_hashes"], "canonical_target_path": target_value, "approved_content_sha256": content_hash, "source_draft": {"path": refs["source_draft"][0], "sha256": refs["source_draft"][1]}, "review_trail": {"path": refs["review_trail"][0], "sha256": refs["review_trail"][1]}, "eligibility_report": {"path": refs["eligibility_report"][0], "sha256": refs["eligibility_report"][1], "advisory_only": True}, "validation_outcome": "passed_before_write", "no_queue_candidate_runtime_outputs": True}
     line = (json.dumps(record, sort_keys=True, separators=(",", ":")) + "\n").encode()
-    with _crossing_lock(repo_root):
+    with _crossing_lock(repo_root) as lock_state:
         prior = _read_audit(audit_path)
         if any(isinstance(r, dict) and (r.get("canonical_target_path") == target_value or r.get("strategy_spec_id") == spec.get("strategy_spec_id") or r.get("approval_id") == approval_id) for r in prior):
             raise GateCWriteError("audit already records this target, Strategy Spec identifier, or approval_id")
@@ -280,6 +317,7 @@ def write_approved_strategy_spec(*, repo_root: Path, proposed_content_path: Path
             audit_handle.flush()
             os.fsync(audit_handle.fileno())
             audit_handle.close()
+            lock_state["crossing_committed"] = True
             return record
         except (OSError, ValueError) as exc:
             rollback_errors = []

@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 
 import tools.canon_intake.spec_writer as writer
-from tools.canon_intake.spec_writer import GateCWriteError, write_approved_strategy_spec
+from tools.canon_intake.spec_writer import GateCIntegrityCriticalError, GateCWriteError, write_approved_strategy_spec
 
 
 def _sha(data: bytes) -> str:
@@ -92,6 +92,19 @@ def _replace_source(repo: Path, proposed: Path, gate_path: Path, gate: dict, nam
     spec["provenance"]["source_refs"] = [f"{key}:{gate[key]['path']}#{gate[key]['sha256']}" for key in ("source_draft", "review_trail", "eligibility_report")] + [f"gate_c_approval:{gate['approval_id']}"]
     proposed_raw = _write(proposed, spec)
     gate["approved_content_sha256"] = _sha(proposed_raw)
+    _write(gate_path, gate)
+
+
+def _relocate_source(repo: Path, proposed: Path, gate_path: Path, gate: dict, name: str, destination: str):
+    source = repo / gate[name]["path"]
+    target = repo / destination
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(source.read_bytes())
+    gate[name]["path"] = destination
+    spec = json.loads(proposed.read_text(encoding="utf-8"))
+    spec["provenance"]["source_refs"] = [f"{key}:{gate[key]['path']}#{gate[key]['sha256']}" for key in ("source_draft", "review_trail", "eligibility_report")] + [f"gate_c_approval:{gate['approval_id']}"]
+    raw = _write(proposed, spec)
+    gate["approved_content_sha256"] = _sha(raw)
     _write(gate_path, gate)
 
 
@@ -211,6 +224,45 @@ def test_review_wrong_draft_and_broken_append_order_fail(tmp_path, repo_root):
             _run(repo, proposed, gate_path)
 
 
+@pytest.mark.parametrize("name,destination,error", [
+    ("review_trail", "scratch/substitute/review_events.jsonl", "authoritative Agent Inbox review"),
+    ("eligibility_report", "scratch/substitute/eligibility_report.json", "authoritative validator report"),
+])
+def test_contract_shaped_source_at_non_authoritative_path_fails(tmp_path, repo_root, name, destination, error):
+    proposed, gate_path, gate = _fixture_repo(tmp_path, repo_root)
+    _relocate_source(tmp_path, proposed, gate_path, gate, name, destination)
+    with pytest.raises(GateCWriteError, match=error):
+        _run(tmp_path, proposed, gate_path)
+    _assert_no_write(tmp_path)
+
+
+@pytest.mark.parametrize("flag", [
+    "scratch_only", "annotation_only", "not_canonicalization_approval",
+    "not_queue_admission", "not_research_execution", "not_candidate_creation",
+    "not_runtime_action",
+])
+def test_each_review_non_authority_flag_is_required(tmp_path, repo_root, flag):
+    proposed, gate_path, gate = _fixture_repo(tmp_path, repo_root)
+    review = json.loads((tmp_path / gate["review_trail"]["path"]).read_text())
+    review["non_authority_flags"][flag] = False
+    _replace_source(tmp_path, proposed, gate_path, gate, "review_trail", review, jsonl=True)
+    with pytest.raises(GateCWriteError, match="review event contract"):
+        _run(tmp_path, proposed, gate_path)
+
+
+@pytest.mark.parametrize("field,value", [
+    ("event_count", 2), ("latest_state", "flagged_for_canonicalization"),
+    ("flagged_for_canonicalization", True),
+])
+def test_eligibility_review_summary_must_match_actual_trail(tmp_path, repo_root, field, value):
+    proposed, gate_path, gate = _fixture_repo(tmp_path, repo_root)
+    report = json.loads((tmp_path / gate["eligibility_report"]["path"]).read_text())
+    report["reviewed_state_summary"][field] = value
+    _replace_source(tmp_path, proposed, gate_path, gate, "eligibility_report", report)
+    with pytest.raises(GateCWriteError, match="reviewed_state_summary"):
+        _run(tmp_path, proposed, gate_path)
+
+
 @pytest.mark.parametrize("field,value", [("draft_id", "AIDRAFT-FFFFFFFFFFFFFFFF"), ("canonical_authority", True), ("source_draft_hash", "sha256:" + "0" * 64)])
 def test_eligibility_identity_lineage_and_authority_fail(tmp_path, repo_root, field, value):
     proposed, gate_path, gate = _fixture_repo(tmp_path, repo_root)
@@ -289,6 +341,28 @@ def test_existing_lock_fails_closed(tmp_path, repo_root):
     with pytest.raises(GateCWriteError, match="explicit operator inspection"):
         _run(tmp_path, proposed, gate_path)
     _assert_no_write(tmp_path)
+
+
+def test_lock_cleanup_failure_after_commit_is_integrity_critical(tmp_path, repo_root, monkeypatch):
+    proposed, gate_path, gate = _fixture_repo(tmp_path, repo_root)
+    lock = (tmp_path / writer.LOCK_PATH).resolve()
+    original_unlink = Path.unlink
+    def fail_lock_cleanup(path, *args, **kwargs):
+        if path.resolve() == lock:
+            raise PermissionError("injected lock cleanup failure")
+        return original_unlink(path, *args, **kwargs)
+    monkeypatch.setattr(Path, "unlink", fail_lock_cleanup)
+    with pytest.raises(
+        GateCIntegrityCriticalError,
+        match="crossing committed but lock cleanup failed.*automatic retry is forbidden",
+    ):
+        _run(tmp_path, proposed, gate_path)
+    assert (tmp_path / gate["canonical_target_path"]).read_bytes() == proposed.read_bytes()
+    audit = tmp_path / writer.AUDIT_PATH
+    records = [json.loads(line) for line in audit.read_text(encoding="utf-8").splitlines()]
+    assert len(records) == 1
+    assert records[0]["approval_id"] == gate["approval_id"]
+    assert lock.exists()
 
 
 @pytest.fixture

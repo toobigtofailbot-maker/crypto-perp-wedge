@@ -1,0 +1,3 @@
+# No-dispatch proof
+
+Repository search found no watcher or runner reference to `research/queue/admissions/`. This package adds only schemas, documentation, fixtures, and tests. The schemas fix status to `admitted_non_dispatched`, target to `offline_research`, all dispatch/execution/autonomy flags to false, and reject additional properties. Fixtures contain no runner invocation, executable command, scheduler trigger, provider/broker/exchange parameter, paper/live mode, dispatch request, or promotion command. No executable writer, production queue directory/item, run output, or Result Population is added.

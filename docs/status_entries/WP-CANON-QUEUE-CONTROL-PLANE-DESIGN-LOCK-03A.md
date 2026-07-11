@@ -1,0 +1,3 @@
+# WP-CANON-QUEUE-CONTROL-PLANE-DESIGN-LOCK-03A
+
+Locks machine-checkable Gate-Q and inert append-only queue-item contracts at `research/queue/admissions/`, with bounded target/priority, exact lineage/data/denominator/budget/hash binding, and explicit no-dispatch semantics. Adds schemas, static fake fixtures, focused tests, architecture, and decision evidence only. No admission writer, production queue item, dispatch, execution, Result Population, candidate, runtime, paper/live, OMS, risk, or protected-path change is included. Next implementation authority, if separately approved, is revised `WP-CANON-QUEUE-ADMISSION-GATED-03B`.

@@ -1,0 +1,56 @@
+WP-CANON-FIRST-GATE-C-CROSSING-GATED-02C — PHASE A VALIDATION
+
+Base/branch
+- branch: codex/wp-canon-first-gate-c-crossing-gated-02c
+- starting origin/main: 0a4f1a22fb9f2a9c1fdf66aad4024e631672358f
+- starting HEAD: 0a4f1a22fb9f2a9c1fdf66aad4024e631672358f
+- isolated sibling worktree: yes
+
+Discovery assertions
+- authoritative Agent Inbox draft packets: 1
+- genuine eligible candidates: 0
+- sole draft: AIDRAFT-8DEEE634E62CD560
+- fake/sample provenance detected: yes
+- review event count: 0
+- eligibility status: needs_clarification
+- unresolved draft blocker: yes
+- canonical Strategy Specs: 6
+- Variant Manifests: 6
+- Sweep Plans: 6
+- canonical crossing audit directory/file: absent
+- existing IDs forbidden for retroactive crossing: confirmed
+
+Required Phase-A artifacts
+- repo_truth_discovery.md: present
+- candidate_inventory.json: present
+- karl_candidate_and_clarification_decision.md: present
+- phase_a_validation.txt: present
+
+Command validation
+- initial scoped-test attempt using worktree-local .venv: NOT RUN (isolated worktree has no .venv); superseded by the successful absolute-interpreter run below
+- combined prescribed scoped pytest files via C:/GitHub/crypto-perp-wedge/.venv/Scripts/python.exe: PASS (149 passed, 5 skipped, 5 warnings)
+- python -m tools.registry.validate_strategy_specs: PASS
+- python -m tools.registry.validate_variant_sweep_artifacts: PASS
+- python -m tools.research_query.run --list-views: PASS (views listed; no query execution required by the package command)
+- python -m tools.registry.validate_result_populations: PASS
+- python -m tools.registry.validate_candidate_registry: PASS (repo-default fixture target reported by validator)
+- python tools/dev/diff_scope_summary.py: PASS; exactly four package-local untracked files; no forbidden-path matches
+- python -m py_compile tools/canon_intake/spec_writer.py: PASS
+- candidate_inventory.json PowerShell JSON parse: PASS
+- git diff --check: PASS
+- git diff --cached --check: PASS (nothing staged)
+
+Boundary assertions
+- review event appended: no
+- eligibility report created/overwritten: no
+- Strategy Spec frozen: no
+- Gate-C approval prepared/materialized: no
+- canonical Strategy Spec written: no
+- crossing audit written: no
+- Variant Manifest created/modified: no
+- Sweep Plan created/modified: no
+- queue/admission/dispatch/execution/candidate/runtime/paper-live touched: no
+
+Result
+PASS — Phase A evidence prepared; mandatory human stop applies.
+AWAITING KARL CANDIDATE/CLARIFICATION DECISION

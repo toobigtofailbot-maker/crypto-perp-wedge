@@ -1,0 +1,212 @@
+{
+  "availability_primitive_check": {
+    "blocking_features": [],
+    "detected_features": [
+      "atr",
+      "sma"
+    ],
+    "distinction": "compiler field existence is separate from historical testability",
+    "feature_assessments": [
+      {
+        "compiler_field_exists": true,
+        "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+        "feature": "atr",
+        "historical_testability": "available_when_source_bars_exist",
+        "source_class": "INDICATOR_DERIVED_FROM_OHLCV",
+        "warnings": []
+      },
+      {
+        "compiler_field_exists": true,
+        "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+        "feature": "sma",
+        "historical_testability": "available_when_source_bars_exist",
+        "source_class": "INDICATOR_DERIVED_FROM_OHLCV",
+        "warnings": []
+      }
+    ],
+    "historically_testable_now": true
+  },
+  "blockers": [
+    "idea lacks an explicit causal mechanism"
+  ],
+  "created_at": "2026-07-11T23:54:07Z",
+  "draft_id": "AIDRAFT-C1F03B240EC9C27E",
+  "fabricated": false,
+  "formalizer_result": {
+    "adapter_metadata": {
+      "family_id": null,
+      "freshness_distinct_from": [],
+      "unsupported_capabilities": []
+    },
+    "blocked_action": null,
+    "capability_assessment": {
+      "blocking_features": [],
+      "detected_features": [
+        "atr",
+        "sma"
+      ],
+      "distinction": "compiler field existence is separate from historical testability",
+      "feature_assessments": [
+        {
+          "compiler_field_exists": true,
+          "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+          "feature": "atr",
+          "historical_testability": "available_when_source_bars_exist",
+          "source_class": "INDICATOR_DERIVED_FROM_OHLCV",
+          "warnings": []
+        },
+        {
+          "compiler_field_exists": true,
+          "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+          "feature": "sma",
+          "historical_testability": "available_when_source_bars_exist",
+          "source_class": "INDICATOR_DERIVED_FROM_OHLCV",
+          "warnings": []
+        }
+      ],
+      "historically_testable_now": true
+    },
+    "draft_strategy_spec": {
+      "blockers": [],
+      "path": null,
+      "produced": false
+    },
+    "input": {
+      "constraints": [
+        "Both long and short. Completed-bar crossover; next-bar-open fill. Long: fast SMA crosses above slow SMA. Short: fast crosses below. Exit on opposite crossover or fixed atr_stop: lookback=20, multiplier=2.0, entry_ref=next_bar_open_pre_fee_slippage, evaluation_price=close, evaluation_timing=bar_close. One position, 1.0 leverage, no pyramiding, max hold, take profit, regime filter, or adaptive sizing. Fees 4bps, slippage 2bps, funding accounted. Only free parameters: fast [30,50,70] default 50 and slow [150,200,250] default 200; require fast<slow. H-004 remains NO-GO."
+      ],
+      "idea": "H-004-R1 daily dual-SMA trend with fixed ATR risk containment. BTCUSDT daily medium-term trend exposure may retain positive risk-adjusted behavior when a simple dual-SMA crossover is paired with a fixed completed-bar ATR risk exit. The candidate removes the H-004 rolling volatility-percentile gate and tests whether fixed ATR(20) x 2.0 risk containment can reduce drawdown without creating post-hoc side selection, hidden leverage, or extra free parameters.",
+      "symbol": "BTCUSDT",
+      "timeframe": "1d"
+    },
+    "non_authority": {
+      "draft_only": true,
+      "human_review_required": true,
+      "not_candidate_authority": true,
+      "not_canonical": true,
+      "not_evidence": true,
+      "not_paper_live_runtime_authority": true,
+      "not_promotion_authority": true,
+      "scratch_only": true
+    },
+    "provider_metadata": {
+      "api_call_made": false,
+      "provider_id": "fake-rule-v1",
+      "provider_mode": "fake_offline",
+      "request_id": "eca84ef18d9b",
+      "response_source": "deterministic_fake"
+    },
+    "rejection_reasons": [
+      "idea lacks an explicit causal mechanism"
+    ],
+    "research_object": null,
+    "run_id": "eca84ef18d9b",
+    "schema_version": "agent_formalized_idea_v1",
+    "status": "rejected"
+  },
+  "non_authority_flags": {
+    "draft_only": true,
+    "fabricated": false,
+    "noncanonical": true,
+    "not_approval": true,
+    "not_candidate_lifecycle": true,
+    "not_candidate_registry": true,
+    "not_execution": true,
+    "not_notification": true,
+    "not_paper_live": true,
+    "not_pipeline_run": true,
+    "not_promotion": true,
+    "not_provider_api": true,
+    "not_result_population": true,
+    "not_runner_job": true,
+    "not_runtime": true,
+    "not_scheduler": true,
+    "not_strategy_spec": true,
+    "not_sweep_plan": true,
+    "not_variant_manifest": true,
+    "review_only": true,
+    "scratch_only": true
+  },
+  "open_questions": [
+    "Human review must decide whether this scratch draft should be revised, discarded, or promoted through a later authorized package."
+  ],
+  "provenance": {
+    "captured_formalizer_write_paths": [
+      "scratch/WP-DASH-AGENT-INBOX-WRITE-01A/outputs/eca84ef18d9b/formalized_idea.json",
+      "scratch/WP-DASH-AGENT-INBOX-WRITE-01A/outputs/eca84ef18d9b/human_review_packet.json"
+    ],
+    "formalizer_mode": "fake_offline_packet_only",
+    "formalizer_module": "tools.research_agents.idea_formalizer_agent",
+    "formalizer_writes_captured_in_memory": true,
+    "output_path": "scratch/WP-DASH-AGENT-INBOX-WRITE-01A/drafts/AIDRAFT-C1F03B240EC9C27E.draft_packet.json",
+    "package_id": "WP-DASH-AGENT-INBOX-WRITE-01A",
+    "provider_id": "fake-rule-v1",
+    "provider_mode": "fake_offline",
+    "service_namespace": "tools.agent_inbox_intake",
+    "tool_context_role": "idea_formalizer",
+    "tool_context_wp_id": "WP-DASH-AGENT-INBOX-WRITE-01A"
+  },
+  "schema_version": "agent_inbox_intake_draft_packet_v1",
+  "source_hashes": {
+    "formalizer_result_sha256": "sha256:b2adbb3dd11011548e9d3cfaf1b5c7fa1ed211e319caa4bd29e7f9e14626653c",
+    "source_request_sha256": "sha256:256839b8e5c64763d5999df8447a1a37842ea687513559b7f02df8edb04bdec5"
+  },
+  "source_request": {
+    "client_draft_id": "h004-r1-daily-sma-atr-risk-v1",
+    "constraints_notes": "Both long and short. Completed-bar crossover; next-bar-open fill. Long: fast SMA crosses above slow SMA. Short: fast crosses below. Exit on opposite crossover or fixed atr_stop: lookback=20, multiplier=2.0, entry_ref=next_bar_open_pre_fee_slippage, evaluation_price=close, evaluation_timing=bar_close. One position, 1.0 leverage, no pyramiding, max hold, take profit, regime filter, or adaptive sizing. Fees 4bps, slippage 2bps, funding accounted. Only free parameters: fast [30,50,70] default 50 and slow [150,200,250] default 200; require fast<slow. H-004 remains NO-GO.",
+    "hypothesis_text": "BTCUSDT daily medium-term trend exposure may retain positive risk-adjusted behavior when a simple dual-SMA crossover is paired with a fixed completed-bar ATR risk exit. The candidate removes the H-004 rolling volatility-percentile gate and tests whether fixed ATR(20) x 2.0 risk containment can reduce drawdown without creating post-hoc side selection, hidden leverage, or extra free parameters.",
+    "market_hint": "BTCUSDT Binance USDT-M perpetual",
+    "submitter_label": "Karl",
+    "timeframe_hint": "1d",
+    "title": "H-004-R1 daily dual-SMA trend with fixed ATR risk containment"
+  },
+  "tool_context_audit": [
+    {
+      "action_type": "read_non_secret_files",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=idea_formalizer under policy=bounded-research-agent-v1",
+      "role": "idea_formalizer",
+      "target_path": "research/indicator_catalogs/ind-catalog-0001.indicator_catalog.json",
+      "timestamp_utc": "2026-07-11T23:54:07Z",
+      "wp_id": "WP-DASH-AGENT-INBOX-WRITE-01A"
+    },
+    {
+      "action_type": "read_non_secret_files",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=idea_formalizer under policy=bounded-research-agent-v1",
+      "role": "idea_formalizer",
+      "target_path": "research/data_feature_availability/perp-derived-feature-availability-0001.json",
+      "timestamp_utc": "2026-07-11T23:54:07Z",
+      "wp_id": "WP-DASH-AGENT-INBOX-WRITE-01A"
+    },
+    {
+      "action_type": "write_scratch",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=idea_formalizer under policy=bounded-research-agent-v1",
+      "role": "idea_formalizer",
+      "target_path": "scratch/wp-dash-agent-inbox-write-01a/outputs/eca84ef18d9b/formalized_idea.json",
+      "timestamp_utc": "2026-07-11T23:54:07Z",
+      "wp_id": "WP-DASH-AGENT-INBOX-WRITE-01A"
+    },
+    {
+      "action_type": "write_scratch",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=idea_formalizer under policy=bounded-research-agent-v1",
+      "role": "idea_formalizer",
+      "target_path": "scratch/wp-dash-agent-inbox-write-01a/outputs/eca84ef18d9b/human_review_packet.json",
+      "timestamp_utc": "2026-07-11T23:54:07Z",
+      "wp_id": "WP-DASH-AGENT-INBOX-WRITE-01A"
+    }
+  ],
+  "warnings": [
+    "Scratch-only Agent Inbox draft packet; no canonical artifact, candidate, runner, pipeline, paper/live, scheduler, or notification authority."
+  ]
+}

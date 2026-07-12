@@ -1,0 +1,49 @@
+{
+  "schema_version": "h004_r2_corrected_preview_audit_v1",
+  "records": [
+    {
+      "timestamp_utc": "2026-07-12T01:07:28Z",
+      "wp_id": "WP-DASH-AGENT-INBOX-WRITE-01A",
+      "role": "idea_formalizer",
+      "action_type": "read_non_secret_files",
+      "target_path": "research/indicator_catalogs/ind-catalog-0001.indicator_catalog.json",
+      "decision": "allowed",
+      "reason": "allowed by role=idea_formalizer under policy=bounded-research-agent-v1",
+      "policy_id": "bounded-research-agent-v1",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority"
+    },
+    {
+      "timestamp_utc": "2026-07-12T01:07:28Z",
+      "wp_id": "WP-DASH-AGENT-INBOX-WRITE-01A",
+      "role": "idea_formalizer",
+      "action_type": "read_non_secret_files",
+      "target_path": "research/data_feature_availability/perp-derived-feature-availability-0001.json",
+      "decision": "allowed",
+      "reason": "allowed by role=idea_formalizer under policy=bounded-research-agent-v1",
+      "policy_id": "bounded-research-agent-v1",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority"
+    },
+    {
+      "timestamp_utc": "2026-07-12T01:07:28Z",
+      "wp_id": "WP-DASH-AGENT-INBOX-WRITE-01A",
+      "role": "idea_formalizer",
+      "action_type": "write_scratch",
+      "target_path": "scratch/wp-dash-agent-inbox-write-01a/outputs/e7041455e0b1/formalized_idea.json",
+      "decision": "allowed",
+      "reason": "allowed by role=idea_formalizer under policy=bounded-research-agent-v1",
+      "policy_id": "bounded-research-agent-v1",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority"
+    },
+    {
+      "timestamp_utc": "2026-07-12T01:07:28Z",
+      "wp_id": "WP-DASH-AGENT-INBOX-WRITE-01A",
+      "role": "idea_formalizer",
+      "action_type": "write_scratch",
+      "target_path": "scratch/wp-dash-agent-inbox-write-01a/outputs/e7041455e0b1/human_review_packet.json",
+      "decision": "allowed",
+      "reason": "allowed by role=idea_formalizer under policy=bounded-research-agent-v1",
+      "policy_id": "bounded-research-agent-v1",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority"
+    }
+  ]
+}

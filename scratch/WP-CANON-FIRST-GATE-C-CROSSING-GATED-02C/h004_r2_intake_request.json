@@ -1,0 +1,9 @@
+{
+  "client_draft_id": "h004-r2-daily-ema-pullback-atr-time-v1",
+  "constraints_notes": "Review-only scratch intake. Both long and short; completed-bar signals; next-bar-open fills; one position; no pyramiding. Long: EMA(trend_fast)>EMA(200), close>EMA(200), and close crosses above EMA(pullback). Short: exact inverse. Exit long when close crosses below EMA(pullback); exit short on crosses above; also ATR(14) stop with multiplier parameter and max-holding parameter. Fixed 10-bar entry cooldown. Free parameters only: pullback_ema_bars [10,20,30] default 20; trend_fast_ema_bars [40,50,60] default 50; atr_multiplier [2.0,2.5,3.0] default 2.5; max_holding_bars [30,45,60] default 45. Fixed slow EMA=200 and ATR lookback=14. Require pullback<trend_fast<200. Fees 4bps, slippage 2bps, funding accounted. No volatility-percentile filter, SMA crossover entry, take profit, adaptive sizing, live data, execution authority, or candidate promotion.",
+  "hypothesis_text": "Because slow information diffusion and persistent investor positioning can sustain multi-week BTC momentum, temporary countertrend pullbacks toward a short EMA may offer lower-risk continuation entries than the initial trend crossover. On completed BTCUSDT daily OHLCV bars, enter long when close crosses above a pullback EMA while a faster trend EMA is above a fixed 200-day EMA and price is above the 200-day EMA; mirror for shorts. Exit on a recross of the pullback EMA, a fixed ATR stop, or a bounded maximum holding period. The falsifiable prediction is that this EMA pullback continuation design improves net Sharpe, max drawdown, and 90-day PnL concentration versus the concluded H-004 baseline after fees, slippage, and funding.",
+  "market_hint": "BTCUSDT",
+  "submitter_label": "Karl",
+  "timeframe_hint": "1d",
+  "title": "H-004-R2 daily EMA pullback continuation with ATR and time-stop risk control"
+}

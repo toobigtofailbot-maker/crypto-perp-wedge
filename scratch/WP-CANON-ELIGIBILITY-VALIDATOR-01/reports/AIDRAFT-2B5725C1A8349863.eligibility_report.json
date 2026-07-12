@@ -1,0 +1,170 @@
+{
+  "advisory_only": true,
+  "canonical_authority": false,
+  "checks": {
+    "bounded_market": {
+      "evidence": [],
+      "explanation": "market_hint='BTCUSDT'; formalized symbols=['BTCUSDT']",
+      "status": "pass"
+    },
+    "bounded_timeframe": {
+      "evidence": [],
+      "explanation": "timeframe='1d'; allowed=['15m', '1d', '1h', '30m', '4h']",
+      "status": "pass"
+    },
+    "concluded_family_freshness_scan": {
+      "evidence": [],
+      "explanation": "detected 1 concluded-family match(es).",
+      "status": "fail"
+    },
+    "data_availability": {
+      "evidence": [],
+      "explanation": "historically_testable_now=True",
+      "status": "pass"
+    },
+    "duplicate_near_duplicate_scan": {
+      "evidence": [
+        "research/candidate_registry.jsonl"
+      ],
+      "explanation": "detected 1 normalized near-duplicate match(es).",
+      "status": "fail"
+    },
+    "falsifiable_hypothesis": {
+      "evidence": [],
+      "explanation": "A falsifiable prediction is present.",
+      "status": "pass"
+    },
+    "feature_availability": {
+      "evidence": [],
+      "explanation": "blocking_features=[]; assessment_count=3",
+      "status": "pass"
+    },
+    "historical_testability": {
+      "evidence": [],
+      "explanation": "Uses the packet's explicit capability assessment; this does not prove a dataset slice exists.",
+      "status": "pass"
+    },
+    "parameter_bounds": {
+      "evidence": [],
+      "explanation": "declared_bound_count=3; maximum supported free-parameter count=5",
+      "status": "pass"
+    },
+    "provenance_completeness": {
+      "evidence": [],
+      "explanation": "Draft provenance and source hashes are present.",
+      "status": "pass"
+    }
+  },
+  "draft_id": "AIDRAFT-2B5725C1A8349863",
+  "duplicate_near_duplicate_candidates": [
+    {
+      "explanation": "normalized overlap=['daily', 'trend']; concluded family=trend_following; timeframe=1d",
+      "match_type": "concluded_candidate_near_duplicate",
+      "similarity": 0.024691,
+      "source_hash": "sha256:4a3ad4b32dce9685bb2170b01935ff17e55f333c3319c356eee628790e28bef7",
+      "source_id": "H-004",
+      "source_path": "research/candidate_registry.jsonl"
+    }
+  ],
+  "eligibility_status": "ineligible",
+  "gate_c_authority": false,
+  "non_authority_flags": {
+    "not_approval": true,
+    "not_candidate_creation": true,
+    "not_canonical_write": true,
+    "not_gate_c": true,
+    "not_queue_admission": true,
+    "not_research_execution": true,
+    "not_runtime_action": true
+  },
+  "open_questions": [],
+  "queue_authority": false,
+  "rejection_reasons": [
+    "concluded_family_freshness_scan: detected 1 concluded-family match(es).",
+    "duplicate_near_duplicate_scan: detected 1 normalized near-duplicate match(es)."
+  ],
+  "review_trail_hash": "sha256:a0e3174758316a18ff0f4f207886d2cb1704eaad609e397fd1aee1e0f4339230",
+  "review_trail_path": "scratch/WP-DASH-AGENT-INBOX-WRITE-01A/reviews/AIDRAFT-2B5725C1A8349863.review_events.jsonl",
+  "reviewed_state_summary": {
+    "event_count": 1,
+    "flagged_for_canonicalization": false,
+    "latest_state": "reviewed"
+  },
+  "schema_version": "canon_intake_eligibility_report_v1",
+  "source_artifacts_read": [
+    {
+      "path": "research/candidate_registry.jsonl",
+      "sha256": "sha256:4a3ad4b32dce9685bb2170b01935ff17e55f333c3319c356eee628790e28bef7"
+    },
+    {
+      "path": "research/result_populations/RP-2134.result_population.json",
+      "sha256": "sha256:b80b882e1b7866d761906c7502cf180acca0eeff0e7f3d022c15a1ff05ec3df9"
+    },
+    {
+      "path": "research/result_populations/RP-2592.result_population.json",
+      "sha256": "sha256:d548bfe884b8ad3ec749627da60f54fff9d54d58032eb779342fa56111c713b8"
+    },
+    {
+      "path": "research/result_populations/RP-3731.result_population.json",
+      "sha256": "sha256:e8d6bc5c48a80c32f9495a0d63d05be0cf8513b8f3912d6b81c6dbca715672c2"
+    },
+    {
+      "path": "research/result_populations/RP-4492.result_population.json",
+      "sha256": "sha256:943833067d2bef2fc7a2d38c3502d7c115fef01b275dad5152c55f4cb51910aa"
+    },
+    {
+      "path": "research/result_populations/RP-6236.result_population.json",
+      "sha256": "sha256:1b8f4ed5199067629e55fea3fcaf5d544168b03fa99af824d98b22582b1772b9"
+    },
+    {
+      "path": "research/result_populations/RP-6688.result_population.json",
+      "sha256": "sha256:dd7a329fdf7649ce9d926a56b7fd3f262db46e2ecd9a490a34f3ec05dcf02e23"
+    },
+    {
+      "path": "research/result_populations/RP-7134.result_population.json",
+      "sha256": "sha256:9813afd65c946ceaac23804fd485b4452d2451bec31a726eb86667926741e524"
+    },
+    {
+      "path": "research/result_populations/RP-7520.result_population.json",
+      "sha256": "sha256:1df066eeb15957bb0a0825b180bcded8ee971a6e9834a30fe93ac7b70810bd36"
+    },
+    {
+      "path": "research/strategy_specs/STRAT-SPEC-0001.strategy_spec.json",
+      "sha256": "sha256:a7e7bb5d4a5eda5a1d2ebb842d828f664064dae69859d8cda1ec5015ac5f342c"
+    },
+    {
+      "path": "research/strategy_specs/STRAT-SPEC-0002.strategy_spec.json",
+      "sha256": "sha256:d2e0820864c882361fbd466c6ae0eaea03568e4ccc8dfaee4a3114a330f18574"
+    },
+    {
+      "path": "research/strategy_specs/STRAT-SPEC-0003.strategy_spec.json",
+      "sha256": "sha256:b20e8df8e45d69da2c6d679e23e30147d6928dd63e7d216f493e0e671554a6c7"
+    },
+    {
+      "path": "research/strategy_specs/STRAT-SPEC-0004.strategy_spec.json",
+      "sha256": "sha256:75aaeae687bc1976467c132bbcc1b146668bbce1082683608c41c9460856482a"
+    },
+    {
+      "path": "research/strategy_specs/STRAT-SPEC-0005.strategy_spec.json",
+      "sha256": "sha256:1baeb4da177750795266091b2b7d50094f95d65c74059aa2ee1c5769171219b7"
+    },
+    {
+      "path": "research/strategy_specs/STRAT-SPEC-0006.strategy_spec.json",
+      "sha256": "sha256:f0d8109822c75820aaf3e2837246ac2e5b14cb838b8cf40d5677e5720bceb0c5"
+    },
+    {
+      "path": "scratch/WP-DASH-AGENT-INBOX-WRITE-01A/drafts/AIDRAFT-2B5725C1A8349863.draft_packet.json",
+      "sha256": "sha256:7c4e53c5cceefc23dc2c242102c0a5c744355d7fafff4ebd892944cf13c5193a"
+    },
+    {
+      "path": "scratch/WP-DASH-AGENT-INBOX-WRITE-01A/reviews/AIDRAFT-2B5725C1A8349863.review_events.jsonl",
+      "sha256": "sha256:a0e3174758316a18ff0f4f207886d2cb1704eaad609e397fd1aee1e0f4339230"
+    }
+  ],
+  "source_draft_hash": "sha256:7c4e53c5cceefc23dc2c242102c0a5c744355d7fafff4ebd892944cf13c5193a",
+  "source_draft_path": "scratch/WP-DASH-AGENT-INBOX-WRITE-01A/drafts/AIDRAFT-2B5725C1A8349863.draft_packet.json",
+  "warnings": [
+    "Advisory evidence only; this report is not Gate C and grants no write or queue authority.",
+    "draft blocker: no validated draft adapter exists for this exact primitive family"
+  ]
+}

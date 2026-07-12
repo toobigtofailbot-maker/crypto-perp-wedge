@@ -1,0 +1,15 @@
+{
+  "schema_version": "h004_r2_canonicalization_validation_v1",
+  "overall": "PASS",
+  "strategy_spec_id": "STRAT-SPEC-0007",
+  "target": "research/strategy_specs/STRAT-SPEC-0007.strategy_spec.json",
+  "spec_sha256": "sha256:b23ebc1093df51b7fab5e39c46fd2b96b5e71d35300134eb319a5cbc32d0857c",
+  "approval_id": "GATE-C-H004-R2-0001",
+  "gate_c_sha256": "sha256:b05753fe01cc99aa2c4f0e419fca88f4f843154f12843f01aae775eb1e4e68cd",
+  "schema_validation": "PASS via spec_writer._validate_candidate without canonical write",
+  "compiler_validation": "PASS on 260-row synthetic completed-daily OHLCV; no backtest or research execution",
+  "parameter_count": 4,
+  "r1_sha256": "sha256:1e8fb845356e95952ab3ec3bcaaaa455670b7d1f0ea0bc82195b406799a55a07",
+  "canonical_target_absent": true,
+  "crossing_audit_absent": true
+}

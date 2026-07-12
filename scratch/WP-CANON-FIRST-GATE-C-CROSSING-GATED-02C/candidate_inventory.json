@@ -1,0 +1,42 @@
+{
+  "schema_version": "wp_canon_first_gate_c_phase_a_candidate_inventory_v1",
+  "generated_from_commit": "0a4f1a22fb9f2a9c1fdf66aad4024e631672358f",
+  "authoritative_draft_directory": "scratch/WP-DASH-AGENT-INBOX-WRITE-01A/drafts",
+  "candidate_count": 1,
+  "valid_genuine_candidate_count": 0,
+  "candidates": [
+    {
+      "draft_id": "AIDRAFT-8DEEE634E62CD560",
+      "title": "EMA momentum continuation",
+      "submitter_label": "codex-sample",
+      "provenance": {
+        "provider_id": "fake-rule-v1",
+        "provider_mode": "fake_offline",
+        "response_source": "deterministic_fake",
+        "formalizer_mode": "fake_offline_packet_only",
+        "client_draft_id": "sample-draft-001"
+      },
+      "fake_or_sample_status": "deterministic fake-offline, sample-labeled packet; fabricated flag is false but provenance is explicitly synthetic/sample",
+      "blockers": [
+        "no validated draft adapter exists for this exact primitive family"
+      ],
+      "review_status": {
+        "event_count": 0,
+        "latest_state": null,
+        "review_trail_path": null
+      },
+      "eligibility_status": "needs_clarification",
+      "eligibility_rejection_reasons": [],
+      "eligibility_open_questions": [
+        "A reviewed or flagged_for_canonicalization review state is required before Gate C review consideration."
+      ],
+      "duplicate_near_duplicate_status": {
+        "validator_normalized_matches": [],
+        "exact_duplicate": false,
+        "manual_assessment": "No exact normalized match was reported. Material differentiation is unresolved because the packet does not define exact EMA signal semantics and the repo already contains momentum/trend canonical and concluded families, including STRAT-SPEC-0005, STRAT-SPEC-0006, H-005, H-008, and H-012."
+      },
+      "recommendation": "not usable",
+      "recommendation_reason": "Must not be silently promoted: it is sample/fake-offline evidence, unreviewed, materially underspecified, and carries an unresolved adapter blocker. It is usable only if Karl explicitly authorizes it as a canonical canary and resolves the complete clarification checklist."
+    }
+  ]
+}

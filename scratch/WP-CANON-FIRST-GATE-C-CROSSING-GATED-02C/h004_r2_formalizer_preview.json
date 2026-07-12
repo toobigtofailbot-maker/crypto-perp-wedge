@@ -1,0 +1,43 @@
+{
+  "schema_version": "h004_r2_formalizer_preview_v1",
+  "authoritative_packet_written": false,
+  "expected_draft_id": "AIDRAFT-2B5725C1A8349863",
+  "id_algorithm": "AIDRAFT- + first 16 uppercase hex characters of sha256(client_draft_id UTF-8)",
+  "preview": {
+    "status": "rejected",
+    "research_object": null,
+    "rejection_reasons": [
+      "protected trading-control action requested"
+    ],
+    "capability_assessment": null,
+    "blocked_action": {
+      "action_type": "risk_control",
+      "decision": "blocked",
+      "reason": "hard prohibition: action_type=risk_control",
+      "target_path": "src/risk"
+    },
+    "provider_metadata": {
+      "api_call_made": false,
+      "provider_id": "fake-rule-v1",
+      "provider_mode": "fake_offline",
+      "response_source": null
+    },
+    "captured_paths_written_to_memory_only": [
+      "scratch/WP-DASH-AGENT-INBOX-WRITE-01A/outputs/d107c8a8ba7b/formalized_idea.json",
+      "scratch/WP-DASH-AGENT-INBOX-WRITE-01A/outputs/d107c8a8ba7b/human_review_packet.json"
+    ],
+    "run_id": "d107c8a8ba7b",
+    "preview_timestamp_utc": "2026-07-12T00:45:18Z"
+  },
+  "required_assertions": {
+    "accepted": false,
+    "research_object_is_object": false,
+    "rejection_reasons_empty": false,
+    "fake_offline": true,
+    "api_call_made_false": true,
+    "required_features_detected": false,
+    "blocking_features_empty": null,
+    "historically_testable_now": null
+  },
+  "stop_reason": "The exact approved title contains 'risk control', which the current deterministic formalizer classifies as a protected risk_control action before capability assessment. The package forbids a wording retry after preview failure."
+}

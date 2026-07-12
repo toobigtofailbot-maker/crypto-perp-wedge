@@ -1,0 +1,585 @@
+{
+  "schema_version": "v1",
+  "strategy_spec_id": "STRAT-SPEC-0007",
+  "title": "H-004-R2 Daily EMA Pullback Continuation with ATR and Time-Stop Risk Containment",
+  "short_name": "h004-r2-daily-ema-pullback-atr-time",
+  "status": "review_requested",
+  "non_execution_declaration": {
+    "human_review_surface_only": true,
+    "not_executable": true,
+    "not_runtime_authority": true,
+    "not_paper_live_authority": true,
+    "not_gate_authority": true,
+    "not_candidate_approval": true,
+    "not_exp_approval": true,
+    "not_sweep_authority": true,
+    "not_ranking_authority": true,
+    "not_recommendation_authority": true,
+    "not_readiness_authority": true,
+    "not_transition_authority": true
+  },
+  "provenance": {
+    "source_type": "manual_idea",
+    "source_refs": [
+      "source_draft:scratch/WP-DASH-AGENT-INBOX-WRITE-01A/drafts/AIDRAFT-2B5725C1A8349863.draft_packet.json#sha256:7c4e53c5cceefc23dc2c242102c0a5c744355d7fafff4ebd892944cf13c5193a",
+      "review_trail:scratch/WP-DASH-AGENT-INBOX-WRITE-01A/reviews/AIDRAFT-2B5725C1A8349863.review_events.jsonl#sha256:a0e3174758316a18ff0f4f207886d2cb1704eaad609e397fd1aee1e0f4339230",
+      "eligibility_report:scratch/WP-CANON-ELIGIBILITY-VALIDATOR-01/reports/AIDRAFT-2B5725C1A8349863.eligibility_report.json#sha256:76a0654144d215d62932568b5627d6838f3613e36238bebccaac25d55b873dd9",
+      "gate_c_approval:GATE-C-H004-R2-0001"
+    ],
+    "prepared_by": "Codex",
+    "created_at": "2026-07-12T00:00:00Z",
+    "updated_at": "2026-07-12T00:00:00Z",
+    "rationale": "New preregistered H-004-R2 question: slow information diffusion and persistent positioning may sustain multi-week momentum, while a countertrend pullback and recovery through a short EMA may provide a continuation entry distinct from H-004. H-004 remains a concluded NO-GO.",
+    "source_constraints": [
+      "BTCUSDT Binance USDT-M perpetual; completed 1d OHLCV only; long and short mirror logic.",
+      "Exactly four free parameters; fixed slow EMA=200, ATR lookback=14, cooldown=10, leverage=1.0, fees=4 bps, slippage=2 bps, and existing offline funding accounting.",
+      "No H-004 volatility-percentile filter, SMA crossover entry, take profit, trailing stop, adaptive sizing, same-bar reversal, queue, execution, candidate, runtime, paper, or live authority."
+    ],
+    "unresolved_claims": []
+  },
+  "instruments": {
+    "symbols": [
+      "BTCUSDT"
+    ],
+    "instrument_family": "crypto_perp",
+    "venue_assumption": "Binance USDT-M perpetual",
+    "market_type": "perpetual",
+    "directions_allowed": [
+      "long",
+      "short"
+    ],
+    "leverage_assumption": 1.0,
+    "exchange_constraint_refs": [],
+    "blockers": []
+  },
+  "timeframe_and_data": {
+    "primary_timeframe": "1d",
+    "confirmation_timeframes": [],
+    "host_data_refs": [
+      {
+        "stream": "ohlcv",
+        "timeframe": "1d",
+        "field": "open",
+        "availability": "required"
+      },
+      {
+        "stream": "ohlcv",
+        "timeframe": "1d",
+        "field": "high",
+        "availability": "required"
+      },
+      {
+        "stream": "ohlcv",
+        "timeframe": "1d",
+        "field": "low",
+        "availability": "required"
+      },
+      {
+        "stream": "ohlcv",
+        "timeframe": "1d",
+        "field": "close",
+        "availability": "required"
+      },
+      {
+        "stream": "ohlcv",
+        "timeframe": "1d",
+        "field": "volume",
+        "availability": "required"
+      },
+      {
+        "stream": "indicator_catalog",
+        "timeframe": null,
+        "field": "ema",
+        "availability": "required"
+      },
+      {
+        "stream": "indicator_catalog",
+        "timeframe": null,
+        "field": "atr",
+        "availability": "required"
+      }
+    ],
+    "gap_handling_assumption": "Use existing research-workbench irreparable-gap policy; completed 1d bars only, with no interpolation or silent fill.",
+    "missing_data_blockers": []
+  },
+  "entry_logic": {
+    "direction": "both",
+    "groups": [
+      {
+        "group_id": "ENTRY-GROUP-LONG-H004R2",
+        "group_role": "required",
+        "side": "long",
+        "logic": "all",
+        "conditions": [
+          {
+            "condition_id": "LONG-TREND-FAST-EMA-GT-EMA200",
+            "condition_role": "required",
+            "left_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "ema",
+              "field": "value",
+              "timeframe": null,
+              "lookback": {
+                "bars_parameter_ref": "trend_fast_ema_bars"
+              }
+            },
+            "operator": "gt",
+            "right_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "ema",
+              "field": "value",
+              "timeframe": null,
+              "lookback": {
+                "bars": 200
+              }
+            },
+            "units": null,
+            "notes": "Established bullish EMA trend regime."
+          },
+          {
+            "condition_id": "LONG-CLOSE-GT-EMA200",
+            "condition_role": "required",
+            "left_operand": {
+              "operand_type": "data_ref",
+              "ref": "close",
+              "field": "close",
+              "timeframe": null,
+              "lookback": null
+            },
+            "operator": "gt",
+            "right_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "ema",
+              "field": "value",
+              "timeframe": null,
+              "lookback": {
+                "bars": 200
+              }
+            },
+            "units": null,
+            "notes": "Close confirms price above the fixed 200-day EMA."
+          },
+          {
+            "condition_id": "LONG-CLOSE-CROSSES-ABOVE-PULLBACK-EMA",
+            "condition_role": "required",
+            "left_operand": {
+              "operand_type": "data_ref",
+              "ref": "close",
+              "field": "close",
+              "timeframe": null,
+              "lookback": null
+            },
+            "operator": "crosses_above",
+            "right_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "ema",
+              "field": "value",
+              "timeframe": null,
+              "lookback": {
+                "bars_parameter_ref": "pullback_ema_bars"
+              }
+            },
+            "units": null,
+            "notes": "New long pullback-recovery entry event."
+          }
+        ],
+        "subgroups": [],
+        "notes": "All three conditions must hold on the same completed daily bar."
+      },
+      {
+        "group_id": "ENTRY-GROUP-SHORT-H004R2",
+        "group_role": "required",
+        "side": "short",
+        "logic": "all",
+        "conditions": [
+          {
+            "condition_id": "SHORT-TREND-FAST-EMA-LT-EMA200",
+            "condition_role": "required",
+            "left_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "ema",
+              "field": "value",
+              "timeframe": null,
+              "lookback": {
+                "bars_parameter_ref": "trend_fast_ema_bars"
+              }
+            },
+            "operator": "lt",
+            "right_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "ema",
+              "field": "value",
+              "timeframe": null,
+              "lookback": {
+                "bars": 200
+              }
+            },
+            "units": null,
+            "notes": "Established bearish EMA trend regime."
+          },
+          {
+            "condition_id": "SHORT-CLOSE-LT-EMA200",
+            "condition_role": "required",
+            "left_operand": {
+              "operand_type": "data_ref",
+              "ref": "close",
+              "field": "close",
+              "timeframe": null,
+              "lookback": null
+            },
+            "operator": "lt",
+            "right_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "ema",
+              "field": "value",
+              "timeframe": null,
+              "lookback": {
+                "bars": 200
+              }
+            },
+            "units": null,
+            "notes": "Close confirms price below the fixed 200-day EMA."
+          },
+          {
+            "condition_id": "SHORT-CLOSE-CROSSES-BELOW-PULLBACK-EMA",
+            "condition_role": "required",
+            "left_operand": {
+              "operand_type": "data_ref",
+              "ref": "close",
+              "field": "close",
+              "timeframe": null,
+              "lookback": null
+            },
+            "operator": "crosses_below",
+            "right_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "ema",
+              "field": "value",
+              "timeframe": null,
+              "lookback": {
+                "bars_parameter_ref": "pullback_ema_bars"
+              }
+            },
+            "units": null,
+            "notes": "New short pullback-recovery entry event."
+          }
+        ],
+        "subgroups": [],
+        "notes": "Exact inverse; all three conditions must hold on the same completed daily bar."
+      }
+    ],
+    "entry_controls": {
+      "min_bars_between_entries": 10
+    },
+    "notes": "Completed-bar evaluation with modeled next-bar-open fill; one position, no pyramiding, no partial position, no same-bar reversal. Re-entry requires the fixed cooldown and a new cross event."
+  },
+  "exit_logic": {
+    "groups": [
+      {
+        "group_id": "EXIT-GROUP-LONG-H004R2",
+        "group_role": "exit",
+        "side": "long",
+        "logic": "all",
+        "conditions": [
+          {
+            "condition_id": "LONG-EXIT-PULLBACK-EMA-RECROSS",
+            "condition_role": "exit",
+            "left_operand": {
+              "operand_type": "data_ref",
+              "ref": "close",
+              "field": "close",
+              "timeframe": null,
+              "lookback": null
+            },
+            "operator": "crosses_below",
+            "right_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "ema",
+              "field": "value",
+              "timeframe": null,
+              "lookback": {
+                "bars_parameter_ref": "pullback_ema_bars"
+              }
+            },
+            "units": null,
+            "notes": "Long exit on completed-bar pullback EMA recross; modeled fill at next bar open."
+          }
+        ],
+        "subgroups": [],
+        "notes": "Signal exit; ATR and maximum holding exits are additive with no ranking."
+      },
+      {
+        "group_id": "EXIT-GROUP-SHORT-H004R2",
+        "group_role": "exit",
+        "side": "short",
+        "logic": "all",
+        "conditions": [
+          {
+            "condition_id": "SHORT-EXIT-PULLBACK-EMA-RECROSS",
+            "condition_role": "exit",
+            "left_operand": {
+              "operand_type": "data_ref",
+              "ref": "close",
+              "field": "close",
+              "timeframe": null,
+              "lookback": null
+            },
+            "operator": "crosses_above",
+            "right_operand": {
+              "operand_type": "indicator_ref",
+              "ref": "ema",
+              "field": "value",
+              "timeframe": null,
+              "lookback": {
+                "bars_parameter_ref": "pullback_ema_bars"
+              }
+            },
+            "units": null,
+            "notes": "Short exit on completed-bar pullback EMA recross; modeled fill at next bar open."
+          }
+        ],
+        "subgroups": [],
+        "notes": "Signal exit; ATR and maximum holding exits are additive with no ranking."
+      }
+    ],
+    "max_holding_period": {
+      "enabled": true,
+      "bars": {
+        "parameter_ref": "max_holding_bars"
+      }
+    },
+    "atr_stop": {
+      "enabled": true,
+      "atr_lookback": 14,
+      "atr_multiplier": {
+        "parameter_ref": "atr_multiplier"
+      },
+      "entry_reference_price": "next_bar_open_pre_fee_slippage",
+      "evaluation_price": "close",
+      "evaluation_timing": "bar_close"
+    },
+    "notes": "Any pullback EMA recross, ATR exit, or maximum holding exit may flatten; no ranking and no same-bar reversal. Compiler convention: max holding exits when held_bars >= bound on completed-bar evaluation; held_bars begins at one on the signal/fill state bar. ATR is captured from the entry signal bar; long stop = entry reference - multiplier \u00d7 entry ATR; short stop = entry reference + multiplier \u00d7 entry ATR. This is a completed-bar close signal, not an intrabar stop order, and does not guarantee stop-price fill. No take profit or trailing stop."
+  },
+  "risk_model": {
+    "sizing_intent": "review_only",
+    "exposure_limits": [
+      "One position maximum; no pyramiding; no partial position; no adaptive sizing."
+    ],
+    "stop_distance": {
+      "ref_type": "parameter_ref",
+      "ref": "atr_multiplier"
+    },
+    "target_distance": null,
+    "leverage_visibility": "fixed 1.0 baseline leverage/notional assumption",
+    "liquidation_sensitivity_notes": "Research-only fixed 1.0 baseline leverage/notional assumption. ATR stop is close-evaluated on completed bars and is not a guaranteed intrabar fill."
+  },
+  "filters": {
+    "groups": [],
+    "none_declared": true
+  },
+  "free_parameters": {
+    "max_free_parameters": 5,
+    "counting_rule": "parameters contains only entries where is_free_parameter=true; maxItems 5 enforces the D2-006-style MVP free-parameter cap",
+    "parameters": [
+      {
+        "name": "pullback_ema_bars",
+        "label": "Pullback EMA bars",
+        "description": "Short EMA used for pullback-recovery entry and recross exit.",
+        "type": "integer",
+        "units": "bars",
+        "default": 20,
+        "range": {
+          "min": 10,
+          "max": 30,
+          "step": 10,
+          "inclusive_min": true,
+          "inclusive_max": true
+        },
+        "allowed_values": [
+          10,
+          20,
+          30
+        ],
+        "is_free_parameter": true,
+        "included_in_variant_generation": true,
+        "role": "entry",
+        "rationale": "Tests pullback horizon while preserving the fixed causal entry topology.",
+        "constraints": [
+          "Must be less than trend_fast_ema_bars and 200."
+        ]
+      },
+      {
+        "name": "trend_fast_ema_bars",
+        "label": "Fast trend EMA bars",
+        "description": "Fast EMA compared with fixed EMA(200) for trend regime.",
+        "type": "integer",
+        "units": "bars",
+        "default": 50,
+        "range": {
+          "min": 40,
+          "max": 60,
+          "step": 10,
+          "inclusive_min": true,
+          "inclusive_max": true
+        },
+        "allowed_values": [
+          40,
+          50,
+          60
+        ],
+        "is_free_parameter": true,
+        "included_in_variant_generation": true,
+        "role": "filter",
+        "rationale": "Tests established trend horizon without changing the entry event.",
+        "constraints": [
+          "Must be greater than pullback_ema_bars and less than 200."
+        ]
+      },
+      {
+        "name": "atr_multiplier",
+        "label": "ATR multiplier",
+        "description": "Fixed ATR(14) exit multiplier.",
+        "type": "number",
+        "units": "ATR",
+        "default": 2.5,
+        "range": {
+          "min": 2.0,
+          "max": 3.0,
+          "step": 0.5,
+          "inclusive_min": true,
+          "inclusive_max": true
+        },
+        "allowed_values": [
+          2.0,
+          2.5,
+          3.0
+        ],
+        "is_free_parameter": true,
+        "included_in_variant_generation": true,
+        "role": "risk",
+        "rationale": "Tests bounded adverse failed-trend containment.",
+        "constraints": [
+          "Must bind only to exit_logic.atr_stop.atr_multiplier."
+        ]
+      },
+      {
+        "name": "max_holding_bars",
+        "label": "Maximum holding bars",
+        "description": "Maximum completed daily bars held before time exit.",
+        "type": "integer",
+        "units": "bars",
+        "default": 45,
+        "range": {
+          "min": 30,
+          "max": 60,
+          "step": 15,
+          "inclusive_min": true,
+          "inclusive_max": true
+        },
+        "allowed_values": [
+          30,
+          45,
+          60
+        ],
+        "is_free_parameter": true,
+        "included_in_variant_generation": true,
+        "role": "exit",
+        "rationale": "Tests bounded stale-position exposure.",
+        "constraints": [
+          "Must bind only to exit_logic.max_holding_period.bars."
+        ]
+      }
+    ],
+    "no_free_parameters_declared": false
+  },
+  "constraints": {
+    "invalid_parameter_combinations": [
+      {
+        "constraint_id": "H004R2-EMA-ORDER",
+        "description": "Reject unless pullback_ema_bars < trend_fast_ema_bars < 200.",
+        "affected_parameters": [
+          "pullback_ema_bars",
+          "trend_fast_ema_bars"
+        ]
+      }
+    ],
+    "unavailable_data_blockers": [],
+    "deferred_pattern_blockers": [
+      "No volatility-percentile filter, SMA crossover entry, take profit, trailing stop, adaptive sizing, intrabar stop order, or guaranteed stop-price fill.",
+      "No queue admission, research execution, scheduling, candidate lifecycle, promotion/readiness, notification, runtime, paper, or live authority."
+    ],
+    "none_declared": false
+  },
+  "review": {
+    "human_review_required": true,
+    "reviewer": null,
+    "reviewed_at": null,
+    "review_notes": [
+      "Gate C review must acknowledge the advisory H-004 near-duplicate/freshness findings and material differences.",
+      "H-004 remains a concluded NO-GO; no success claim is made for H-004-R2."
+    ],
+    "approval_scope": "none",
+    "non_authority_acknowledgement": {
+      "not_candidate_approval": true,
+      "not_exp_approval": true,
+      "not_sweep_authority": true,
+      "not_ranking_authority": true,
+      "not_recommendation_authority": true,
+      "not_readiness_authority": true,
+      "not_transition_authority": true,
+      "not_runtime_authority": true,
+      "not_paper_live_authority": true,
+      "not_gate_satisfaction": true
+    }
+  },
+  "lineage": {
+    "parent_refs": [
+      {
+        "ref_type": "research_note",
+        "ref_id": "H-004",
+        "ref_path": "research/hypotheses/H-004/HYPOTHESIS.md",
+        "ref_hash": null
+      },
+      {
+        "ref_type": "research_note",
+        "ref_id": "DEC-0004",
+        "ref_path": "research/decisions/DEC-0004.md",
+        "ref_hash": null
+      }
+    ],
+    "supersedes": [],
+    "amendment_of": null
+  },
+  "hash_pinning": {
+    "canonical_spec_hash": null,
+    "hash_algorithm": "sha256",
+    "hash_scope_version": "strategy_spec_hash_scope_v1",
+    "hash_scope": [
+      "identity",
+      "strategy_body",
+      "free_parameters",
+      "constraints",
+      "assumptions"
+    ],
+    "hash_status": "not_computed"
+  },
+  "pre_registration_support": {
+    "intended_for_variant_manifest": true,
+    "variant_manifest_ref": null,
+    "frozen_snapshot_ref": null
+  },
+  "backtest_realism_assumptions": {
+    "fee_side_assumption": "taker_entry_taker_exit; 4 bps each modeled fill",
+    "exchange_constraints_disclosed": true,
+    "funding_notional_mode": "entry_price",
+    "slippage_model": "fixed_bps",
+    "fill_mode": "complete",
+    "order_size_assumption": "one position maximum at fixed 1.0 baseline notional/leverage; 2 bps fixed slippage each modeled fill; funding included under existing offline entry-price accounting; no pyramiding, partial position, adaptive sizing, or run authority",
+    "liquidity_capacity_assumption": "not active in this pre-Gate-C preregistration artifact",
+    "liquidation_mode": "zero_equity",
+    "maintenance_margin_assumption": null,
+    "mark_price_source": "close",
+    "bar_path_assumption": "next_open_close_mark"
+  },
+  "max_condition_group_depth": 3
+}

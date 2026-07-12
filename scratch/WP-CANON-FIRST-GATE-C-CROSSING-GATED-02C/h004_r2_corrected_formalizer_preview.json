@@ -1,0 +1,149 @@
+{
+  "schema_version": "h004_r2_corrected_formalizer_preview_v1",
+  "source_request": {
+    "title": "H-004-R2 daily EMA pullback continuation with ATR and time-stop risk containment",
+    "hypothesis_text": "Because slow information diffusion and persistent investor positioning can sustain multi-week BTC momentum, a temporary countertrend pullback toward a short EMA may create a lower-risk continuation entry after price recovers inside an established EMA trend. On completed BTCUSDT daily OHLCV bars, enter long when close crosses above a pullback EMA while a faster trend EMA is above a fixed 200-day EMA and price is above the 200-day EMA; mirror the logic for shorts. Exit on a pullback EMA recross, a fixed ATR exit, or a bounded maximum holding period. The falsifiable prediction is improved net Sharpe, maximum drawdown, and 90-day PnL concentration relative to the concluded H-004 baseline after fees, slippage, and funding.",
+    "market_hint": "BTCUSDT",
+    "timeframe_hint": "1d",
+    "constraints_notes": "Review-only scratch intake. Both long and short; completed-bar signals; next-bar-open fills; one position; no pyramiding. Long: EMA(trend_fast)>EMA(200), close>EMA(200), and close crosses above EMA(pullback). Short: exact inverse. Exit long when close crosses below EMA(pullback); exit short when close crosses above; also use ATR(14) exit with multiplier parameter and a maximum-holding parameter. Fixed 10-bar entry cooldown. Free parameters only: pullback_ema_bars [10,20,30] default 20; trend_fast_ema_bars [40,50,60] default 50; atr_multiplier [2.0,2.5,3.0] default 2.5; max_holding_bars [30,45,60] default 45. Fixed slow EMA=200 and ATR lookback=14. Require pullback<trend_fast<200. Fees 4bps, slippage 2bps, funding accounted. No volatility-percentile filter, SMA crossover entry, take profit, adaptive sizing, live data, execution authority, or promotion.",
+    "submitter_label": "Karl",
+    "client_draft_id": "h004-r2-daily-ema-pullback-atr-time-v1"
+  },
+  "preview": {
+    "schema_version": "agent_formalized_idea_v1",
+    "run_id": "e7041455e0b1",
+    "status": "accepted",
+    "input": {
+      "idea": "H-004-R2 daily EMA pullback continuation with ATR and time-stop risk containment. Because slow information diffusion and persistent investor positioning can sustain multi-week BTC momentum, a temporary countertrend pullback toward a short EMA may create a lower-risk continuation entry after price recovers inside an established EMA trend. On completed BTCUSDT daily OHLCV bars, enter long when close crosses above a pullback EMA while a faster trend EMA is above a fixed 200-day EMA and price is above the 200-day EMA; mirror the logic for shorts. Exit on a pullback EMA recross, a fixed ATR exit, or a bounded maximum holding period. The falsifiable prediction is improved net Sharpe, maximum drawdown, and 90-day PnL concentration relative to the concluded H-004 baseline after fees, slippage, and funding.",
+      "symbol": "BTCUSDT",
+      "timeframe": "1d",
+      "constraints": [
+        "Review-only scratch intake. Both long and short; completed-bar signals; next-bar-open fills; one position; no pyramiding. Long: EMA(trend_fast)>EMA(200), close>EMA(200), and close crosses above EMA(pullback). Short: exact inverse. Exit long when close crosses below EMA(pullback); exit short when close crosses above; also use ATR(14) exit with multiplier parameter and a maximum-holding parameter. Fixed 10-bar entry cooldown. Free parameters only: pullback_ema_bars [10,20,30] default 20; trend_fast_ema_bars [40,50,60] default 50; atr_multiplier [2.0,2.5,3.0] default 2.5; max_holding_bars [30,45,60] default 45. Fixed slow EMA=200 and ATR lookback=14. Require pullback<trend_fast<200. Fees 4bps, slippage 2bps, funding accounted. No volatility-percentile filter, SMA crossover entry, take profit, adaptive sizing, live data, execution authority, or promotion."
+      ]
+    },
+    "provider_metadata": {
+      "provider_mode": "fake_offline",
+      "provider_id": "fake-rule-v1",
+      "request_id": "e7041455e0b1",
+      "response_source": "deterministic_fake",
+      "api_call_made": false
+    },
+    "capability_assessment": {
+      "detected_features": [
+        "atr",
+        "ema",
+        "ohlcv"
+      ],
+      "feature_assessments": [
+        {
+          "feature": "atr",
+          "compiler_field_exists": true,
+          "historical_testability": "available_when_source_bars_exist",
+          "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+          "source_class": "INDICATOR_DERIVED_FROM_OHLCV",
+          "warnings": []
+        },
+        {
+          "feature": "ema",
+          "compiler_field_exists": true,
+          "historical_testability": "available_when_source_bars_exist",
+          "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+          "source_class": "INDICATOR_DERIVED_FROM_OHLCV",
+          "warnings": []
+        },
+        {
+          "feature": "ohlcv",
+          "compiler_field_exists": true,
+          "historical_testability": "available_public_archive",
+          "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+          "source_class": "PUBLIC_OHLCV_ARCHIVE",
+          "warnings": []
+        }
+      ],
+      "historically_testable_now": true,
+      "blocking_features": [],
+      "distinction": "compiler field existence is separate from historical testability"
+    },
+    "research_object": {
+      "summary": "H-004-R2 daily EMA pullback continuation with ATR and time-stop risk containment. Because slow information diffusion and persistent investor positioning can sustain multi-week BTC momentum, a temporary countertrend pullback toward a short EMA may create a lower-risk continuation entry after price recovers inside an established EMA trend. On completed BTCUSDT daily OHLCV bars, enter long when close crosses above a pullback EMA while a faster trend EMA is above a fixed 200-day EMA and price is above the 200-day EMA; mirror the logic for shorts. Exit on a pullback EMA recross, a fixed ATR exit, or a bounded maximum holding period. The falsifiable prediction is improved net Sharpe, maximum drawdown, and 90-day PnL concentration relative to the concluded H-004 baseline after fees, slippage, and funding.",
+      "causal_rationale": "H-004-R2 daily EMA pullback continuation with ATR and time-stop risk containment. Because slow information diffusion and persistent investor positioning can sustain multi-week BTC momentum, a temporary countertrend pullback toward a short EMA may create a lower-risk continuation entry after price recovers inside an established EMA trend. On completed BTCUSDT daily OHLCV bars, enter long when close crosses above a pullback EMA while a faster trend EMA is above a fixed 200-day EMA and price is above the 200-day EMA; mirror the logic for shorts. Exit on a pullback EMA recross, a fixed ATR exit, or a bounded maximum holding period. The falsifiable prediction is improved net Sharpe, maximum drawdown, and 90-day PnL concentration relative to the concluded H-004 baseline after fees, slippage, and funding.",
+      "falsifiable_prediction": "The completed-bar signal has positive out-of-sample expectancy after costs.",
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "timeframe": "1d",
+      "features": [
+        "atr",
+        "ema",
+        "ohlcv"
+      ],
+      "entry_concept": "Evaluate on completed bars and enter at the next bar open.",
+      "exit_concept": "Exit on the declared signal reversal or bounded holding limit.",
+      "parameter_bounds": [
+        {
+          "name": "center_lookback_bars",
+          "minimum": 50,
+          "maximum": 100
+        },
+        {
+          "name": "vol_lookback_bars",
+          "minimum": 30,
+          "maximum": 50
+        },
+        {
+          "name": "trend_lookback_bars",
+          "minimum": 100,
+          "maximum": 200
+        }
+      ],
+      "stop_conditions": [
+        "Stop if preregistered out-of-sample thresholds fail."
+      ]
+    },
+    "rejection_reasons": [],
+    "blocked_action": null,
+    "draft_strategy_spec": {
+      "produced": false,
+      "path": null,
+      "blockers": [
+        "no validated draft adapter exists for this exact primitive family"
+      ]
+    },
+    "adapter_metadata": {
+      "family_id": null,
+      "freshness_distinct_from": [],
+      "unsupported_capabilities": [],
+      "prior_family_evidence": []
+    },
+    "non_authority": {
+      "draft_only": true,
+      "scratch_only": true,
+      "not_canonical": true,
+      "not_evidence": true,
+      "not_candidate_authority": true,
+      "not_promotion_authority": true,
+      "not_paper_live_runtime_authority": true,
+      "human_review_required": true
+    }
+  },
+  "captured_paths_written_to_memory_only": [
+    "scratch/WP-DASH-AGENT-INBOX-WRITE-01A/outputs/e7041455e0b1/formalized_idea.json",
+    "scratch/WP-DASH-AGENT-INBOX-WRITE-01A/outputs/e7041455e0b1/human_review_packet.json"
+  ],
+  "assertions": {
+    "no_boundary_rejection": true,
+    "status_accepted": true,
+    "research_object_nonempty": true,
+    "rejection_reasons_empty": true,
+    "provider_mode_fake_offline": true,
+    "provider_id_fake_rule_v1": true,
+    "api_call_made_false": true,
+    "required_features": true,
+    "blocking_features_empty": true,
+    "historically_testable_now": true,
+    "audit_actions_bounded": true,
+    "no_protected_target": true,
+    "writes_memory_only": true
+  },
+  "authoritative_packet_written": false
+}

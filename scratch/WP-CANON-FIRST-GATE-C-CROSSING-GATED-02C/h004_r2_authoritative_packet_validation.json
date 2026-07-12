@@ -1,0 +1,46 @@
+{
+  "schema_version": "h004_r2_authoritative_packet_validation_v1",
+  "draft_id": "AIDRAFT-2B5725C1A8349863",
+  "path": "scratch/WP-DASH-AGENT-INBOX-WRITE-01A/drafts/AIDRAFT-2B5725C1A8349863.draft_packet.json",
+  "raw_sha256": "7c4e53c5cceefc23dc2c242102c0a5c744355d7fafff4ebd892944cf13c5193a",
+  "source_hashes": {
+    "source_request_sha256": "sha256:9d735af65f4491e1275564eba4bf1a4f06a4f55965868a594833258482b8283b",
+    "formalizer_result_sha256": "sha256:b24cf10df7a46323211d3c9225fca7d565b96d7e5e496ee96237ae59cae0764e"
+  },
+  "detected_features": [
+    "atr",
+    "ema",
+    "ohlcv"
+  ],
+  "blockers": [
+    "no validated draft adapter exists for this exact primitive family"
+  ],
+  "warnings": [
+    "Scratch-only Agent Inbox draft packet; no canonical artifact, candidate, runner, pipeline, paper/live, scheduler, or notification authority."
+  ],
+  "checks": {
+    "utf8_json_reread_equal": true,
+    "raw_hash_recorded": true,
+    "source_hash_recomputed": true,
+    "formalizer_hash_recomputed": true,
+    "draft_id_exact": true,
+    "path_exact": true,
+    "schema_exact": true,
+    "fabricated_false": true,
+    "source_request_exact": true,
+    "formalizer_accepted": true,
+    "research_object_nonempty": true,
+    "rejection_reasons_empty": true,
+    "provider_exact": true,
+    "no_api_call": true,
+    "required_features": true,
+    "no_blocking_features": true,
+    "historically_testable": true,
+    "only_expected_blocker": true,
+    "no_existing_review": true,
+    "no_existing_eligibility": true,
+    "h004_no_go": true,
+    "material_difference_exists": true
+  },
+  "overall": "PASS"
+}

@@ -1,0 +1,177 @@
+{
+  "schema_version": "wp_canon_first_gate_c_pre_resume_preservation_manifest_v1",
+  "captured_from_head": "0a4f1a22fb9f2a9c1fdf66aad4024e631672358f",
+  "origin_main": "0a4f1a22fb9f2a9c1fdf66aad4024e631672358f",
+  "package_status_entry_present": false,
+  "canonical_crossing_audit_present": false,
+  "entries": [
+    {
+      "path": "research/strategy_specs/STRAT-SPEC-0001.strategy_spec.json",
+      "sha256": "a7e7bb5d4a5eda5a1d2ebb842d828f664064dae69859d8cda1ec5015ac5f342c",
+      "size": 11793,
+      "role": "canonical_strategy_spec_inventory",
+      "must_remain_unchanged": false
+    },
+    {
+      "path": "research/strategy_specs/STRAT-SPEC-0002.strategy_spec.json",
+      "sha256": "d2e0820864c882361fbd466c6ae0eaea03568e4ccc8dfaee4a3114a330f18574",
+      "size": 14179,
+      "role": "canonical_strategy_spec_inventory",
+      "must_remain_unchanged": false
+    },
+    {
+      "path": "research/strategy_specs/STRAT-SPEC-0003.strategy_spec.json",
+      "sha256": "b20e8df8e45d69da2c6d679e23e30147d6928dd63e7d216f493e0e671554a6c7",
+      "size": 18214,
+      "role": "canonical_strategy_spec_inventory",
+      "must_remain_unchanged": false
+    },
+    {
+      "path": "research/strategy_specs/STRAT-SPEC-0004.strategy_spec.json",
+      "sha256": "75aaeae687bc1976467c132bbcc1b146668bbce1082683608c41c9460856482a",
+      "size": 17850,
+      "role": "canonical_strategy_spec_inventory",
+      "must_remain_unchanged": false
+    },
+    {
+      "path": "research/strategy_specs/STRAT-SPEC-0005.strategy_spec.json",
+      "sha256": "1baeb4da177750795266091b2b7d50094f95d65c74059aa2ee1c5769171219b7",
+      "size": 19539,
+      "role": "canonical_strategy_spec_inventory",
+      "must_remain_unchanged": false
+    },
+    {
+      "path": "research/strategy_specs/STRAT-SPEC-0006.strategy_spec.json",
+      "sha256": "f0d8109822c75820aaf3e2837246ac2e5b14cb838b8cf40d5677e5720bceb0c5",
+      "size": 21585,
+      "role": "canonical_strategy_spec_inventory",
+      "must_remain_unchanged": false
+    },
+    {
+      "path": "scratch/WP-CANON-ELIGIBILITY-VALIDATOR-01/reports/AIDRAFT-8DEEE634E62CD560.eligibility_report.json",
+      "sha256": "1f47fcf402aec9549fd714a0088a2864a864613e2786bc7b200de8a645f39d6e",
+      "size": 5829,
+      "role": "eligibility_inventory_or_package_evidence",
+      "must_remain_unchanged": false
+    },
+    {
+      "path": "scratch/WP-CANON-FIRST-GATE-C-CROSSING-GATED-02C/adapter_limitation_resolution.md",
+      "sha256": "d08a0b307d6e57927179cc0fd1ecfbbf5d38d4aa186590503424937a0583a1f1",
+      "size": 1388,
+      "role": "existing_package_evidence",
+      "must_remain_unchanged": false
+    },
+    {
+      "path": "scratch/WP-CANON-FIRST-GATE-C-CROSSING-GATED-02C/candidate_inventory.json",
+      "sha256": "2a586d1ad66d7ae690e0ef2b0351998d551576f34b68c99ab68e7399e0ee8a47",
+      "size": 2156,
+      "role": "existing_package_evidence",
+      "must_remain_unchanged": false
+    },
+    {
+      "path": "scratch/WP-CANON-FIRST-GATE-C-CROSSING-GATED-02C/h004_r1_duplicate_assessment.md",
+      "sha256": "3eed68484c53dbf4002bdce5ede85392f893e33b6e246feb8cda667b198715d4",
+      "size": 949,
+      "role": "existing_package_evidence",
+      "must_remain_unchanged": false
+    },
+    {
+      "path": "scratch/WP-CANON-FIRST-GATE-C-CROSSING-GATED-02C/h004_r1_intake_request.json",
+      "sha256": "11f510d7ea30a5cab1664baeb618b2bb889915905f0ccc3cafb1344092875d05",
+      "size": 1260,
+      "role": "existing_package_evidence",
+      "must_remain_unchanged": false
+    },
+    {
+      "path": "scratch/WP-CANON-FIRST-GATE-C-CROSSING-GATED-02C/h004_r2_formalizer_preview.json",
+      "sha256": "ceb895f9796b8047be7e287ce331f8e614b22f7af98aaf1bbf9ed5c21e669910",
+      "size": 1676,
+      "role": "review_inventory_or_package_evidence",
+      "must_remain_unchanged": false
+    },
+    {
+      "path": "scratch/WP-CANON-FIRST-GATE-C-CROSSING-GATED-02C/h004_r2_intake_request.json",
+      "sha256": "4c74b7e08fd6b0801a85f8d990c5e21dc8a2c3ff8485a8750fbd26dff4062713",
+      "size": 1883,
+      "role": "existing_package_evidence",
+      "must_remain_unchanged": false
+    },
+    {
+      "path": "scratch/WP-CANON-FIRST-GATE-C-CROSSING-GATED-02C/h004_r2_material_difference.md",
+      "sha256": "40e5cd766453832366a004fa525e680f862aa3ed11c352de6f8595903f84e46b",
+      "size": 1422,
+      "role": "existing_package_evidence",
+      "must_remain_unchanged": false
+    },
+    {
+      "path": "scratch/WP-CANON-FIRST-GATE-C-CROSSING-GATED-02C/h004_r2_packet_validation.md",
+      "sha256": "f3162f424892e64ba4e87c123f977efcc187477c2e97d6d80ad34a968434177f",
+      "size": 1247,
+      "role": "existing_package_evidence",
+      "must_remain_unchanged": false
+    },
+    {
+      "path": "scratch/WP-CANON-FIRST-GATE-C-CROSSING-GATED-02C/h004_source_selection.md",
+      "sha256": "29abe8111503af82b95cb10fa5cd5222d52c0886ed1a148dd40240478c7da548",
+      "size": 1976,
+      "role": "existing_package_evidence",
+      "must_remain_unchanged": false
+    },
+    {
+      "path": "scratch/WP-CANON-FIRST-GATE-C-CROSSING-GATED-02C/karl_candidate_and_clarification_decision.md",
+      "sha256": "e2d7db8cefaaf3f75a632288b85ab7bcf8c950cdae44f2c1df96d075e4de613e",
+      "size": 5947,
+      "role": "existing_package_evidence",
+      "must_remain_unchanged": false
+    },
+    {
+      "path": "scratch/WP-CANON-FIRST-GATE-C-CROSSING-GATED-02C/karl_h004_r1_draft_review.md",
+      "sha256": "1f8f33432590a8073b769038ad6a379248491a8e778cfe885b2e9fdb5c881c4e",
+      "size": 1614,
+      "role": "review_inventory_or_package_evidence",
+      "must_remain_unchanged": false
+    },
+    {
+      "path": "scratch/WP-CANON-FIRST-GATE-C-CROSSING-GATED-02C/phase_a_validation.txt",
+      "sha256": "bcb55615e91cd2e7979719ecd88f9c638cb74f1707242f2a8bb7014d8ea35d8f",
+      "size": 2494,
+      "role": "existing_package_evidence",
+      "must_remain_unchanged": false
+    },
+    {
+      "path": "scratch/WP-CANON-FIRST-GATE-C-CROSSING-GATED-02C/phase_b1_validation.txt",
+      "sha256": "63803ea96cf0e651465dd3e598b04e2eebfd520bbb1262bd882074ec55e74ee7",
+      "size": 1759,
+      "role": "existing_package_evidence",
+      "must_remain_unchanged": false
+    },
+    {
+      "path": "scratch/WP-CANON-FIRST-GATE-C-CROSSING-GATED-02C/rejected_r1_preservation_and_supersession.md",
+      "sha256": "67a0c1019fcde5e38e6c80dd2e97ec67540af52cbce02c0519083dd75f0a7471",
+      "size": 839,
+      "role": "existing_package_evidence",
+      "must_remain_unchanged": false
+    },
+    {
+      "path": "scratch/WP-CANON-FIRST-GATE-C-CROSSING-GATED-02C/repo_truth_discovery.md",
+      "sha256": "c5979210adad123efd17cf7be1878013b6a4595e29683e323b46ed6a7fe3399f",
+      "size": 4739,
+      "role": "existing_package_evidence",
+      "must_remain_unchanged": false
+    },
+    {
+      "path": "scratch/WP-DASH-AGENT-INBOX-WRITE-01A/drafts/AIDRAFT-8DEEE634E62CD560.draft_packet.json",
+      "sha256": "ccff8a3b7f8cdc930e776c92d012a11c3b233daada9c653952a9d194ec235441",
+      "size": 8940,
+      "role": "existing_package_evidence",
+      "must_remain_unchanged": false
+    },
+    {
+      "path": "scratch/WP-DASH-AGENT-INBOX-WRITE-01A/drafts/AIDRAFT-C1F03B240EC9C27E.draft_packet.json",
+      "sha256": "1e8fb845356e95952ab3ec3bcaaaa455670b7d1f0ea0bc82195b406799a55a07",
+      "size": 10105,
+      "role": "rejected_r1_authoritative_packet",
+      "must_remain_unchanged": true
+    }
+  ]
+}

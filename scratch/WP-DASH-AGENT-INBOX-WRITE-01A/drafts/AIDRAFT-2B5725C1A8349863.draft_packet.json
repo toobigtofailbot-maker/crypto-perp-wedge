@@ -1,0 +1,266 @@
+{
+  "availability_primitive_check": {
+    "blocking_features": [],
+    "detected_features": [
+      "atr",
+      "ema",
+      "ohlcv"
+    ],
+    "distinction": "compiler field existence is separate from historical testability",
+    "feature_assessments": [
+      {
+        "compiler_field_exists": true,
+        "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+        "feature": "atr",
+        "historical_testability": "available_when_source_bars_exist",
+        "source_class": "INDICATOR_DERIVED_FROM_OHLCV",
+        "warnings": []
+      },
+      {
+        "compiler_field_exists": true,
+        "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+        "feature": "ema",
+        "historical_testability": "available_when_source_bars_exist",
+        "source_class": "INDICATOR_DERIVED_FROM_OHLCV",
+        "warnings": []
+      },
+      {
+        "compiler_field_exists": true,
+        "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+        "feature": "ohlcv",
+        "historical_testability": "available_public_archive",
+        "source_class": "PUBLIC_OHLCV_ARCHIVE",
+        "warnings": []
+      }
+    ],
+    "historically_testable_now": true
+  },
+  "blockers": [
+    "no validated draft adapter exists for this exact primitive family"
+  ],
+  "created_at": "2026-07-12T01:08:17Z",
+  "draft_id": "AIDRAFT-2B5725C1A8349863",
+  "fabricated": false,
+  "formalizer_result": {
+    "adapter_metadata": {
+      "family_id": null,
+      "freshness_distinct_from": [],
+      "prior_family_evidence": [],
+      "unsupported_capabilities": []
+    },
+    "blocked_action": null,
+    "capability_assessment": {
+      "blocking_features": [],
+      "detected_features": [
+        "atr",
+        "ema",
+        "ohlcv"
+      ],
+      "distinction": "compiler field existence is separate from historical testability",
+      "feature_assessments": [
+        {
+          "compiler_field_exists": true,
+          "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+          "feature": "atr",
+          "historical_testability": "available_when_source_bars_exist",
+          "source_class": "INDICATOR_DERIVED_FROM_OHLCV",
+          "warnings": []
+        },
+        {
+          "compiler_field_exists": true,
+          "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+          "feature": "ema",
+          "historical_testability": "available_when_source_bars_exist",
+          "source_class": "INDICATOR_DERIVED_FROM_OHLCV",
+          "warnings": []
+        },
+        {
+          "compiler_field_exists": true,
+          "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+          "feature": "ohlcv",
+          "historical_testability": "available_public_archive",
+          "source_class": "PUBLIC_OHLCV_ARCHIVE",
+          "warnings": []
+        }
+      ],
+      "historically_testable_now": true
+    },
+    "draft_strategy_spec": {
+      "blockers": [
+        "no validated draft adapter exists for this exact primitive family"
+      ],
+      "path": null,
+      "produced": false
+    },
+    "input": {
+      "constraints": [
+        "Review-only scratch intake. Both long and short; completed-bar signals; next-bar-open fills; one position; no pyramiding. Long: EMA(trend_fast)>EMA(200), close>EMA(200), and close crosses above EMA(pullback). Short: exact inverse. Exit long when close crosses below EMA(pullback); exit short when close crosses above; also use ATR(14) exit with multiplier parameter and a maximum-holding parameter. Fixed 10-bar entry cooldown. Free parameters only: pullback_ema_bars [10,20,30] default 20; trend_fast_ema_bars [40,50,60] default 50; atr_multiplier [2.0,2.5,3.0] default 2.5; max_holding_bars [30,45,60] default 45. Fixed slow EMA=200 and ATR lookback=14. Require pullback<trend_fast<200. Fees 4bps, slippage 2bps, funding accounted. No volatility-percentile filter, SMA crossover entry, take profit, adaptive sizing, live data, execution authority, or promotion."
+      ],
+      "idea": "H-004-R2 daily EMA pullback continuation with ATR and time-stop risk containment. Because slow information diffusion and persistent investor positioning can sustain multi-week BTC momentum, a temporary countertrend pullback toward a short EMA may create a lower-risk continuation entry after price recovers inside an established EMA trend. On completed BTCUSDT daily OHLCV bars, enter long when close crosses above a pullback EMA while a faster trend EMA is above a fixed 200-day EMA and price is above the 200-day EMA; mirror the logic for shorts. Exit on a pullback EMA recross, a fixed ATR exit, or a bounded maximum holding period. The falsifiable prediction is improved net Sharpe, maximum drawdown, and 90-day PnL concentration relative to the concluded H-004 baseline after fees, slippage, and funding.",
+      "symbol": "BTCUSDT",
+      "timeframe": "1d"
+    },
+    "non_authority": {
+      "draft_only": true,
+      "human_review_required": true,
+      "not_candidate_authority": true,
+      "not_canonical": true,
+      "not_evidence": true,
+      "not_paper_live_runtime_authority": true,
+      "not_promotion_authority": true,
+      "scratch_only": true
+    },
+    "provider_metadata": {
+      "api_call_made": false,
+      "provider_id": "fake-rule-v1",
+      "provider_mode": "fake_offline",
+      "request_id": "e7041455e0b1",
+      "response_source": "deterministic_fake"
+    },
+    "rejection_reasons": [],
+    "research_object": {
+      "causal_rationale": "H-004-R2 daily EMA pullback continuation with ATR and time-stop risk containment. Because slow information diffusion and persistent investor positioning can sustain multi-week BTC momentum, a temporary countertrend pullback toward a short EMA may create a lower-risk continuation entry after price recovers inside an established EMA trend. On completed BTCUSDT daily OHLCV bars, enter long when close crosses above a pullback EMA while a faster trend EMA is above a fixed 200-day EMA and price is above the 200-day EMA; mirror the logic for shorts. Exit on a pullback EMA recross, a fixed ATR exit, or a bounded maximum holding period. The falsifiable prediction is improved net Sharpe, maximum drawdown, and 90-day PnL concentration relative to the concluded H-004 baseline after fees, slippage, and funding.",
+      "entry_concept": "Evaluate on completed bars and enter at the next bar open.",
+      "exit_concept": "Exit on the declared signal reversal or bounded holding limit.",
+      "falsifiable_prediction": "The completed-bar signal has positive out-of-sample expectancy after costs.",
+      "features": [
+        "atr",
+        "ema",
+        "ohlcv"
+      ],
+      "parameter_bounds": [
+        {
+          "maximum": 100,
+          "minimum": 50,
+          "name": "center_lookback_bars"
+        },
+        {
+          "maximum": 50,
+          "minimum": 30,
+          "name": "vol_lookback_bars"
+        },
+        {
+          "maximum": 200,
+          "minimum": 100,
+          "name": "trend_lookback_bars"
+        }
+      ],
+      "stop_conditions": [
+        "Stop if preregistered out-of-sample thresholds fail."
+      ],
+      "summary": "H-004-R2 daily EMA pullback continuation with ATR and time-stop risk containment. Because slow information diffusion and persistent investor positioning can sustain multi-week BTC momentum, a temporary countertrend pullback toward a short EMA may create a lower-risk continuation entry after price recovers inside an established EMA trend. On completed BTCUSDT daily OHLCV bars, enter long when close crosses above a pullback EMA while a faster trend EMA is above a fixed 200-day EMA and price is above the 200-day EMA; mirror the logic for shorts. Exit on a pullback EMA recross, a fixed ATR exit, or a bounded maximum holding period. The falsifiable prediction is improved net Sharpe, maximum drawdown, and 90-day PnL concentration relative to the concluded H-004 baseline after fees, slippage, and funding.",
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "timeframe": "1d"
+    },
+    "run_id": "e7041455e0b1",
+    "schema_version": "agent_formalized_idea_v1",
+    "status": "accepted"
+  },
+  "non_authority_flags": {
+    "draft_only": true,
+    "fabricated": false,
+    "noncanonical": true,
+    "not_approval": true,
+    "not_candidate_lifecycle": true,
+    "not_candidate_registry": true,
+    "not_execution": true,
+    "not_notification": true,
+    "not_paper_live": true,
+    "not_pipeline_run": true,
+    "not_promotion": true,
+    "not_provider_api": true,
+    "not_result_population": true,
+    "not_runner_job": true,
+    "not_runtime": true,
+    "not_scheduler": true,
+    "not_strategy_spec": true,
+    "not_sweep_plan": true,
+    "not_variant_manifest": true,
+    "review_only": true,
+    "scratch_only": true
+  },
+  "open_questions": [
+    "Human review must decide whether this scratch draft should be revised, discarded, or promoted through a later authorized package."
+  ],
+  "provenance": {
+    "captured_formalizer_write_paths": [
+      "scratch/WP-DASH-AGENT-INBOX-WRITE-01A/outputs/e7041455e0b1/formalized_idea.json",
+      "scratch/WP-DASH-AGENT-INBOX-WRITE-01A/outputs/e7041455e0b1/human_review_packet.json"
+    ],
+    "formalizer_mode": "fake_offline_packet_only",
+    "formalizer_module": "tools.research_agents.idea_formalizer_agent",
+    "formalizer_writes_captured_in_memory": true,
+    "output_path": "scratch/WP-DASH-AGENT-INBOX-WRITE-01A/drafts/AIDRAFT-2B5725C1A8349863.draft_packet.json",
+    "package_id": "WP-DASH-AGENT-INBOX-WRITE-01A",
+    "provider_id": "fake-rule-v1",
+    "provider_mode": "fake_offline",
+    "service_namespace": "tools.agent_inbox_intake",
+    "tool_context_role": "idea_formalizer",
+    "tool_context_wp_id": "WP-DASH-AGENT-INBOX-WRITE-01A"
+  },
+  "schema_version": "agent_inbox_intake_draft_packet_v1",
+  "source_hashes": {
+    "formalizer_result_sha256": "sha256:b24cf10df7a46323211d3c9225fca7d565b96d7e5e496ee96237ae59cae0764e",
+    "source_request_sha256": "sha256:9d735af65f4491e1275564eba4bf1a4f06a4f55965868a594833258482b8283b"
+  },
+  "source_request": {
+    "client_draft_id": "h004-r2-daily-ema-pullback-atr-time-v1",
+    "constraints_notes": "Review-only scratch intake. Both long and short; completed-bar signals; next-bar-open fills; one position; no pyramiding. Long: EMA(trend_fast)>EMA(200), close>EMA(200), and close crosses above EMA(pullback). Short: exact inverse. Exit long when close crosses below EMA(pullback); exit short when close crosses above; also use ATR(14) exit with multiplier parameter and a maximum-holding parameter. Fixed 10-bar entry cooldown. Free parameters only: pullback_ema_bars [10,20,30] default 20; trend_fast_ema_bars [40,50,60] default 50; atr_multiplier [2.0,2.5,3.0] default 2.5; max_holding_bars [30,45,60] default 45. Fixed slow EMA=200 and ATR lookback=14. Require pullback<trend_fast<200. Fees 4bps, slippage 2bps, funding accounted. No volatility-percentile filter, SMA crossover entry, take profit, adaptive sizing, live data, execution authority, or promotion.",
+    "hypothesis_text": "Because slow information diffusion and persistent investor positioning can sustain multi-week BTC momentum, a temporary countertrend pullback toward a short EMA may create a lower-risk continuation entry after price recovers inside an established EMA trend. On completed BTCUSDT daily OHLCV bars, enter long when close crosses above a pullback EMA while a faster trend EMA is above a fixed 200-day EMA and price is above the 200-day EMA; mirror the logic for shorts. Exit on a pullback EMA recross, a fixed ATR exit, or a bounded maximum holding period. The falsifiable prediction is improved net Sharpe, maximum drawdown, and 90-day PnL concentration relative to the concluded H-004 baseline after fees, slippage, and funding.",
+    "market_hint": "BTCUSDT",
+    "submitter_label": "Karl",
+    "timeframe_hint": "1d",
+    "title": "H-004-R2 daily EMA pullback continuation with ATR and time-stop risk containment"
+  },
+  "tool_context_audit": [
+    {
+      "action_type": "read_non_secret_files",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=idea_formalizer under policy=bounded-research-agent-v1",
+      "role": "idea_formalizer",
+      "target_path": "research/indicator_catalogs/ind-catalog-0001.indicator_catalog.json",
+      "timestamp_utc": "2026-07-12T01:08:17Z",
+      "wp_id": "WP-DASH-AGENT-INBOX-WRITE-01A"
+    },
+    {
+      "action_type": "read_non_secret_files",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=idea_formalizer under policy=bounded-research-agent-v1",
+      "role": "idea_formalizer",
+      "target_path": "research/data_feature_availability/perp-derived-feature-availability-0001.json",
+      "timestamp_utc": "2026-07-12T01:08:17Z",
+      "wp_id": "WP-DASH-AGENT-INBOX-WRITE-01A"
+    },
+    {
+      "action_type": "write_scratch",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=idea_formalizer under policy=bounded-research-agent-v1",
+      "role": "idea_formalizer",
+      "target_path": "scratch/wp-dash-agent-inbox-write-01a/outputs/e7041455e0b1/formalized_idea.json",
+      "timestamp_utc": "2026-07-12T01:08:17Z",
+      "wp_id": "WP-DASH-AGENT-INBOX-WRITE-01A"
+    },
+    {
+      "action_type": "write_scratch",
+      "decision": "allowed",
+      "non_authority": "audit record only; no canonical, candidate-lifecycle, promotion, paper/live, runtime, or execution authority",
+      "policy_id": "bounded-research-agent-v1",
+      "reason": "allowed by role=idea_formalizer under policy=bounded-research-agent-v1",
+      "role": "idea_formalizer",
+      "target_path": "scratch/wp-dash-agent-inbox-write-01a/outputs/e7041455e0b1/human_review_packet.json",
+      "timestamp_utc": "2026-07-12T01:08:17Z",
+      "wp_id": "WP-DASH-AGENT-INBOX-WRITE-01A"
+    }
+  ],
+  "warnings": [
+    "Scratch-only Agent Inbox draft packet; no canonical artifact, candidate, runner, pipeline, paper/live, scheduler, or notification authority."
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "schema_version": "gate_c_strategy_spec_approval_v1",
+  "approval_id": "GATE-C-H004-R2-0001",
+  "approved_by": "Karl",
+  "approved_at": "2026-07-12T01:13:23.634190Z",
+  "approval_scope": "one_append_only_canonical_strategy_spec_write",
+  "source_draft_id": "AIDRAFT-2B5725C1A8349863",
+  "source_hashes": {
+    "formalizer_result_sha256": "sha256:b24cf10df7a46323211d3c9225fca7d565b96d7e5e496ee96237ae59cae0764e",
+    "source_request_sha256": "sha256:9d735af65f4491e1275564eba4bf1a4f06a4f55965868a594833258482b8283b"
+  },
+  "content_reviewed": true,
+  "authorizes_canonical_write": true,
+  "append_only": true,
+  "exact_content_and_target_only": true,
+  "authorizes_queue": false,
+  "authorizes_execution": false,
+  "authorizes_candidate_lifecycle": false,
+  "authorizes_promotion_readiness": false,
+  "authorizes_paper_live_runtime": false,
+  "authorizes_scheduler_autonomy": false,
+  "authorizes_notifications": false,
+  "approved_content_sha256": "sha256:b23ebc1093df51b7fab5e39c46fd2b96b5e71d35300134eb319a5cbc32d0857c",
+  "canonical_target_path": "research/strategy_specs/STRAT-SPEC-0007.strategy_spec.json",
+  "source_draft": {
+    "path": "scratch/WP-DASH-AGENT-INBOX-WRITE-01A/drafts/AIDRAFT-2B5725C1A8349863.draft_packet.json",
+    "sha256": "sha256:7c4e53c5cceefc23dc2c242102c0a5c744355d7fafff4ebd892944cf13c5193a"
+  },
+  "review_trail": {
+    "path": "scratch/WP-DASH-AGENT-INBOX-WRITE-01A/reviews/AIDRAFT-2B5725C1A8349863.review_events.jsonl",
+    "sha256": "sha256:a0e3174758316a18ff0f4f207886d2cb1704eaad609e397fd1aee1e0f4339230"
+  },
+  "eligibility_report": {
+    "path": "scratch/WP-CANON-ELIGIBILITY-VALIDATOR-01/reports/AIDRAFT-2B5725C1A8349863.eligibility_report.json",
+    "sha256": "sha256:76a0654144d215d62932568b5627d6838f3613e36238bebccaac25d55b873dd9"
+  }
+}

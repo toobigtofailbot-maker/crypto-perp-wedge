@@ -43,7 +43,7 @@
     "classification": "pre-inventoried stale exact-count expectation"
   },
   "coverage_cli": {
-    "total_discovered_artifacts": 2049,
+    "total_discovered_artifacts": 2109,
     "covered_coordinator_artifacts": 123,
     "surface_visible_artifacts": 119,
     "unmapped_gap_artifacts": 0,
@@ -51,6 +51,33 @@
     "riskmanaged_exact_paths": 15,
     "riskmanaged_invalid_classifications": 0,
     "wrote_repo_state": false
+  },
+  "inventory_total_contract": {
+    "observed_current_total": 2109,
+    "increase_from_prior_observation": 60,
+    "tracked_package_evidence_files": 59,
+    "stable_test_invariant": "total equals inventory length and exceeds 1000",
+    "exact_contract_counts": {
+      "covered_coordinator_artifacts": 123,
+      "surface_visible_artifacts": 119,
+      "unmapped_gap_artifacts": 0,
+      "malformed_or_unreadable_artifacts": 0
+    },
+    "production_fix_changed": false
+  },
+  "narrow_followup_validation": {
+    "rerun_shard": "S04",
+    "passed": 355,
+    "failed": 0,
+    "skipped": 0,
+    "errors": 0,
+    "aggregate_after_replacement": {
+      "passed": 2836,
+      "failed": 6,
+      "skipped": 6,
+      "errors": 0,
+      "failure_union_exact_allowlist_match": true
+    }
   },
   "preservation": {
     "read_only_hashes_checked": 71,

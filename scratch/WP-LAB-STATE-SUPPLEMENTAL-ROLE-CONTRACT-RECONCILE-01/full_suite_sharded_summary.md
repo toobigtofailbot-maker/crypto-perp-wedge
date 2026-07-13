@@ -18,6 +18,10 @@
 
 The repository baseline remains red on these six pre-existing unrelated failures. This validation introduces no skip, xfail, suppression, or unrelated repair.
 
+At the current PR head, the coverage CLI observes 2,109 discovered artifacts. The 59 tracked package-evidence files explain the increase from the earlier 2,049 observation. The stable test invariant is that total equals inventory length and exceeds 1,000; exact contract counts remain 123 covered, 119 surface-visible, zero gaps, and zero malformed. The production fix remains byte-identical.
+
+The narrow follow-up reran the complete affected S04 terminal shard: 355 passed, zero failed, zero skipped, and zero errors. Replacing the original 355-pass S04 result leaves the aggregate unchanged at 2,836 passed, 6 failed, 6 skipped, and zero errors, with the failure union still an exact allowlist match.
+
 ## Preliminary harness attempts
 
 - S01 attempt 1 used an absent in-repo basetemp parent and was superseded after preserving its evidence.

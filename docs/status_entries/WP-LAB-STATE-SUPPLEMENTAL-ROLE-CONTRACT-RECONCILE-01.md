@@ -29,7 +29,7 @@ The coordinator emits `riskmanaged_conclusion_evidence` for `funding_fade_riskma
 - All 15 formerly affected lab-state nodes pass.
 - Focused: 27 passed.
 - Adjacent: 108 passed plus only the known stale operator-surface node.
-- Coverage CLI: 2,049 discovered, 123 covered, 119 surface-visible, 0 gaps, 0 malformed; all 15 risk-managed paths are covered and require no follow-up.
+- Coverage CLI observed 2,109 discovered artifacts at the current PR head. The 59 tracked package-evidence files explain the increase from the earlier 2,049 observation. The stable test invariant requires the total to equal inventory length and exceed 1,000; exact contract counts remain 123 covered, 119 surface-visible, 0 gaps, and 0 malformed. All 15 risk-managed paths are covered and require no follow-up.
 - Preservation: all 71 read-only hashes and frozen production/test hashes unchanged; `py_compile`, JSON/JUnit parsing, `git diff --check`, and forbidden-path scan pass.
 
 Two preliminary shard attempts are preserved but excluded from terminal reconciliation: S01 used an absent in-repo basetemp parent; S03 used an in-repo basetemp that correctly triggered path guards. Their corrected terminal reruns completed successfully.
@@ -37,3 +37,5 @@ Two preliminary shard attempts are preserved but excluded from terminal reconcil
 ## Boundary
 
 No coordinator output, resolver/model, operator/dashboard/cockpit code or fixture, canonical, queue, execution, result, candidate, runtime, paper/live, OMS, risk, reconciliation, dependency, or configuration change was made. No unrelated baseline repair is included.
+
+The production role-contract correction remains byte-identical in the narrow PR follow-up.

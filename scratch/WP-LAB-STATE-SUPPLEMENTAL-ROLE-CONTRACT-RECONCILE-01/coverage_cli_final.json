@@ -1,0 +1,44 @@
+{
+  "by_category": {
+    "blocked_or_no_go_evidence": 0,
+    "candidate_or_crossing_evidence": 0,
+    "coordinator_subject_covered": 4,
+    "intentionally_out_of_scope": 741,
+    "known_fixture": 0,
+    "known_supporting_artifact": 546,
+    "orphan_research_artifact": 391,
+    "requires_followup_mapping": 0,
+    "status_entry_only": 244,
+    "surface_visible": 119,
+    "synthesis_or_report": 4
+  },
+  "by_coverage_status": {
+    "covered": 123,
+    "malformed": 0,
+    "out_of_scope": 1926,
+    "unmapped_gap": 0
+  },
+  "coordinator_subjects": [
+    "edge_sma_family_blocked",
+    "funding_carry_01_blocked_no_go",
+    "funding_carry_02_no_go",
+    "funding_fade_riskmanaged_no_go",
+    "funding_positioning_fade_no_go",
+    "historical_canonical_evidence_bundle",
+    "oos_gate_fail_demo",
+    "orb_exit_respec_blocked",
+    "priceonly_synthesis_reported"
+  ],
+  "findings": [],
+  "gaps_found": false,
+  "non_authority_declaration": "Read-only coverage audit. Mutates no artifact, runs no strategy, fetches no data, changes no coordinator/candidate bindings, and resumes no edge-search. Gaps are reported, never fixed here.",
+  "recommended_follow_up_packages": [],
+  "schema_version": "lab_state_coverage_audit/v1",
+  "totals": {
+    "covered_coordinator_artifacts": 123,
+    "malformed_or_unreadable_artifacts": 0,
+    "surface_visible_artifacts": 119,
+    "total_discovered_artifacts": 2049,
+    "unmapped_gap_artifacts": 0
+  }
+}

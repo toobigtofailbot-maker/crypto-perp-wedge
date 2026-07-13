@@ -1,0 +1,13 @@
+........................................................................ [ 20%]
+........................................................................ [ 40%]
+........................................................................ [ 60%]
+........................................................................ [ 80%]
+....................................................................     [100%]
+============================== warnings summary ===============================
+tests/test_offline_research_runner.py::test_canonical_15m_fails_closed_on_invalid_timestamp_strings[timestamp]
+tests/test_offline_research_runner.py::test_canonical_15m_fails_closed_on_invalid_timestamp_strings[open_time]
+  C:\GitHub\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\tools\research_runner\run_offline_sweep.py:692: UserWarning: Could not infer format, so each element will be parsed individually, falling back to `dateutil`. To ensure parsing is consistent and as-expected, please specify a format.
+    parsed = pd.to_datetime(frame[column], utc=True, errors="coerce")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+356 passed, 2 warnings in 226.17s (0:03:46)

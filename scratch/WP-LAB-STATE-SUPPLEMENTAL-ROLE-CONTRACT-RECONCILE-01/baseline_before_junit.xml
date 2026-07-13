@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="12" failures="3" skipped="0" tests="17" time="1.267" timestamp="2026-07-12T17:24:11.473556-06:00" hostname="KDG"><testcase classname="tests.test_lab_state_coverage_audit" name="test_coordinator_paths_split_surface_vs_consulted" time="0.002"><failure message="tools.lab_state_coverage_audit.audit.AuditError: unknown supplemental artifact role: riskmanaged_conclusion_evidence">tests\test_lab_state_coverage_audit.py:35: in test_coordinator_paths_split_surface_vs_consulted
+    surface, consulted = coordinator_paths_from_subjects(SUBJECTS)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools\lab_state_coverage_audit\audit.py:195: in coordinator_paths_from_subjects
+    raise AuditError(f"unknown supplemental artifact role: {role}")
+E   tools.lab_state_coverage_audit.audit.AuditError: unknown supplemental artifact role: riskmanaged_conclusion_evidence</failure></testcase><testcase classname="tests.test_lab_state_coverage_audit" name="test_coordinator_paths_rejects_unknown_role" time="0.001" /><testcase classname="tests.test_lab_state_coverage_audit" name="test_surface_path_is_surface_visible_and_covered" time="0.001"><error message="failed on setup with &quot;tools.lab_state_coverage_audit.audit.AuditError: unknown supplemental artifact role: riskmanaged_conclusion_evidence&quot;">tests\test_lab_state_coverage_audit.py:27: in ctx
+    surface, consulted = coordinator_paths_from_subjects(SUBJECTS)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools\lab_state_coverage_audit\audit.py:195: in coordinator_paths_from_subjects
+    raise AuditError(f"unknown supplemental artifact role: {role}")
+E   tools.lab_state_coverage_audit.audit.AuditError: unknown supplemental artifact role: riskmanaged_conclusion_evidence</error></testcase><testcase classname="tests.test_lab_state_coverage_audit" name="test_consulted_path_is_coordinator_covered_not_rendered" time="0.001"><error message="failed on setup with &quot;tools.lab_state_coverage_audit.audit.AuditError: unknown supplemental artifact role: riskmanaged_conclusion_evidence&quot;">tests\test_lab_state_coverage_audit.py:27: in ctx
+    surface, consulted = coordinator_paths_from_subjects(SUBJECTS)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools\lab_state_coverage_audit\audit.py:195: in coordinator_paths_from_subjects
+    raise AuditError(f"unknown supplemental artifact role: {role}")
+E   tools.lab_state_coverage_audit.audit.AuditError: unknown supplemental artifact role: riskmanaged_conclusion_evidence</error></testcase><testcase classname="tests.test_lab_state_coverage_audit" name="test_malformed_fails_closed" time="0.001"><error message="failed on setup with &quot;tools.lab_state_coverage_audit.audit.AuditError: unknown supplemental artifact role: riskmanaged_conclusion_evidence&quot;">tests\test_lab_state_coverage_audit.py:27: in ctx
+    surface, consulted = coordinator_paths_from_subjects(SUBJECTS)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools\lab_state_coverage_audit\audit.py:195: in coordinator_paths_from_subjects
+    raise AuditError(f"unknown supplemental artifact role: {role}")
+E   tools.lab_state_coverage_audit.audit.AuditError: unknown supplemental artifact role: riskmanaged_conclusion_evidence</error></testcase><testcase classname="tests.test_lab_state_coverage_audit" name="test_former_no_go_conclusion_is_now_covered" time="0.001"><error message="failed on setup with &quot;tools.lab_state_coverage_audit.audit.AuditError: unknown supplemental artifact role: riskmanaged_conclusion_evidence&quot;">tests\test_lab_state_coverage_audit.py:27: in ctx
+    surface, consulted = coordinator_paths_from_subjects(SUBJECTS)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools\lab_state_coverage_audit\audit.py:195: in coordinator_paths_from_subjects
+    raise AuditError(f"unknown supplemental artifact role: {role}")
+E   tools.lab_state_coverage_audit.audit.AuditError: unknown supplemental artifact role: riskmanaged_conclusion_evidence</error></testcase><testcase classname="tests.test_lab_state_coverage_audit" name="test_former_result_packet_gap_is_now_covered" time="0.001"><error message="failed on setup with &quot;tools.lab_state_coverage_audit.audit.AuditError: unknown supplemental artifact role: riskmanaged_conclusion_evidence&quot;">tests\test_lab_state_coverage_audit.py:27: in ctx
+    surface, consulted = coordinator_paths_from_subjects(SUBJECTS)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools\lab_state_coverage_audit\audit.py:195: in coordinator_paths_from_subjects
+    raise AuditError(f"unknown supplemental artifact role: {role}")
+E   tools.lab_state_coverage_audit.audit.AuditError: unknown supplemental artifact role: riskmanaged_conclusion_evidence</error></testcase><testcase classname="tests.test_lab_state_coverage_audit" name="test_former_canonical_result_population_gap_is_now_covered" time="0.001"><error message="failed on setup with &quot;tools.lab_state_coverage_audit.audit.AuditError: unknown supplemental artifact role: riskmanaged_conclusion_evidence&quot;">tests\test_lab_state_coverage_audit.py:27: in ctx
+    surface, consulted = coordinator_paths_from_subjects(SUBJECTS)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools\lab_state_coverage_audit\audit.py:195: in coordinator_paths_from_subjects
+    raise AuditError(f"unknown supplemental artifact role: {role}")
+E   tools.lab_state_coverage_audit.audit.AuditError: unknown supplemental artifact role: riskmanaged_conclusion_evidence</error></testcase><testcase classname="tests.test_lab_state_coverage_audit" name="test_former_synthesis_doc_gap_is_now_covered" time="0.001"><error message="failed on setup with &quot;tools.lab_state_coverage_audit.audit.AuditError: unknown supplemental artifact role: riskmanaged_conclusion_evidence&quot;">tests\test_lab_state_coverage_audit.py:27: in ctx
+    surface, consulted = coordinator_paths_from_subjects(SUBJECTS)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools\lab_state_coverage_audit\audit.py:195: in coordinator_paths_from_subjects
+    raise AuditError(f"unknown supplemental artifact role: {role}")
+E   tools.lab_state_coverage_audit.audit.AuditError: unknown supplemental artifact role: riskmanaged_conclusion_evidence</error></testcase><testcase classname="tests.test_lab_state_coverage_audit" name="test_lab_tooling_scratch_is_supporting" time="0.001"><error message="failed on setup with &quot;tools.lab_state_coverage_audit.audit.AuditError: unknown supplemental artifact role: riskmanaged_conclusion_evidence&quot;">tests\test_lab_state_coverage_audit.py:27: in ctx
+    surface, consulted = coordinator_paths_from_subjects(SUBJECTS)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools\lab_state_coverage_audit\audit.py:195: in coordinator_paths_from_subjects
+    raise AuditError(f"unknown supplemental artifact role: {role}")
+E   tools.lab_state_coverage_audit.audit.AuditError: unknown supplemental artifact role: riskmanaged_conclusion_evidence</error></testcase><testcase classname="tests.test_lab_state_coverage_audit" name="test_other_status_entry_is_status_entry_only" time="0.001"><error message="failed on setup with &quot;tools.lab_state_coverage_audit.audit.AuditError: unknown supplemental artifact role: riskmanaged_conclusion_evidence&quot;">tests\test_lab_state_coverage_audit.py:27: in ctx
+    surface, consulted = coordinator_paths_from_subjects(SUBJECTS)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools\lab_state_coverage_audit\audit.py:195: in coordinator_paths_from_subjects
+    raise AuditError(f"unknown supplemental artifact role: {role}")
+E   tools.lab_state_coverage_audit.audit.AuditError: unknown supplemental artifact role: riskmanaged_conclusion_evidence</error></testcase><testcase classname="tests.test_lab_state_coverage_audit" name="test_edge_search_research_is_intentionally_out_of_scope" time="0.001"><error message="failed on setup with &quot;tools.lab_state_coverage_audit.audit.AuditError: unknown supplemental artifact role: riskmanaged_conclusion_evidence&quot;">tests\test_lab_state_coverage_audit.py:27: in ctx
+    surface, consulted = coordinator_paths_from_subjects(SUBJECTS)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools\lab_state_coverage_audit\audit.py:195: in coordinator_paths_from_subjects
+    raise AuditError(f"unknown supplemental artifact role: {role}")
+E   tools.lab_state_coverage_audit.audit.AuditError: unknown supplemental artifact role: riskmanaged_conclusion_evidence</error></testcase><testcase classname="tests.test_lab_state_coverage_audit" name="test_build_audit_counts_and_findings" time="0.001"><error message="failed on setup with &quot;tools.lab_state_coverage_audit.audit.AuditError: unknown supplemental artifact role: riskmanaged_conclusion_evidence&quot;">tests\test_lab_state_coverage_audit.py:27: in ctx
+    surface, consulted = coordinator_paths_from_subjects(SUBJECTS)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools\lab_state_coverage_audit\audit.py:195: in coordinator_paths_from_subjects
+    raise AuditError(f"unknown supplemental artifact role: {role}")
+E   tools.lab_state_coverage_audit.audit.AuditError: unknown supplemental artifact role: riskmanaged_conclusion_evidence</error></testcase><testcase classname="tests.test_lab_state_coverage_audit" name="test_build_audit_rejects_unknown_category" time="0.001"><error message="failed on setup with &quot;tools.lab_state_coverage_audit.audit.AuditError: unknown supplemental artifact role: riskmanaged_conclusion_evidence&quot;">tests\test_lab_state_coverage_audit.py:27: in ctx
+    surface, consulted = coordinator_paths_from_subjects(SUBJECTS)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools\lab_state_coverage_audit\audit.py:195: in coordinator_paths_from_subjects
+    raise AuditError(f"unknown supplemental artifact role: {role}")
+E   tools.lab_state_coverage_audit.audit.AuditError: unknown supplemental artifact role: riskmanaged_conclusion_evidence</error></testcase><testcase classname="tests.test_lab_state_coverage_audit" name="test_every_category_and_status_is_in_vocabulary" time="0.001" /><testcase classname="tests.test_lab_state_coverage_audit" name="test_build_coverage_audit_over_repo_covers_bound_paths" time="0.001"><failure message="tools.lab_state_coverage_audit.audit.AuditError: unknown supplemental artifact role: riskmanaged_conclusion_evidence">tests\test_lab_state_coverage_audit.py:193: in test_build_coverage_audit_over_repo_covers_bound_paths
+    payload = run.build_coverage_audit()
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools\lab_state_coverage_audit\run.py:88: in build_coverage_audit
+    surface_paths, consulted_paths = coordinator_paths_from_subjects(SUBJECTS)
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools\lab_state_coverage_audit\audit.py:195: in coordinator_paths_from_subjects
+    raise AuditError(f"unknown supplemental artifact role: {role}")
+E   tools.lab_state_coverage_audit.audit.AuditError: unknown supplemental artifact role: riskmanaged_conclusion_evidence</failure></testcase><testcase classname="tests.test_lab_state_coverage_audit" name="test_build_coverage_audit_covers_former_known_gaps" time="0.002"><failure message="tools.lab_state_coverage_audit.audit.AuditError: unknown supplemental artifact role: riskmanaged_conclusion_evidence">tests\test_lab_state_coverage_audit.py:212: in test_build_coverage_audit_covers_former_known_gaps
+    payload = run.build_coverage_audit()
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools\lab_state_coverage_audit\run.py:88: in build_coverage_audit
+    surface_paths, consulted_paths = coordinator_paths_from_subjects(SUBJECTS)
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools\lab_state_coverage_audit\audit.py:195: in coordinator_paths_from_subjects
+    raise AuditError(f"unknown supplemental artifact role: {role}")
+E   tools.lab_state_coverage_audit.audit.AuditError: unknown supplemental artifact role: riskmanaged_conclusion_evidence</failure></testcase></testsuite></testsuites>

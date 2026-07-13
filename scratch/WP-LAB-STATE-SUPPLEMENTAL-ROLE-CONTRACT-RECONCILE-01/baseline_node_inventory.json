@@ -1,0 +1,31 @@
+{
+  "schema_version": "wp_lab_state_supplemental_role_contract_reconcile_baseline_v1",
+  "base_sha": "bfc15567850dd143dd064f688a0fa99fbeec9eff",
+  "focused_totals": {"passed": 2, "failed": 3, "errors": 12, "affected": 15},
+  "root_cause": "AuditError: unknown supplemental artifact role: riskmanaged_conclusion_evidence",
+  "affected_node_ids": [
+    "tests/test_lab_state_coverage_audit.py::test_surface_path_is_surface_visible_and_covered",
+    "tests/test_lab_state_coverage_audit.py::test_consulted_path_is_coordinator_covered_not_rendered",
+    "tests/test_lab_state_coverage_audit.py::test_malformed_fails_closed",
+    "tests/test_lab_state_coverage_audit.py::test_former_no_go_conclusion_is_now_covered",
+    "tests/test_lab_state_coverage_audit.py::test_former_result_packet_gap_is_now_covered",
+    "tests/test_lab_state_coverage_audit.py::test_former_canonical_result_population_gap_is_now_covered",
+    "tests/test_lab_state_coverage_audit.py::test_former_synthesis_doc_gap_is_now_covered",
+    "tests/test_lab_state_coverage_audit.py::test_lab_tooling_scratch_is_supporting",
+    "tests/test_lab_state_coverage_audit.py::test_other_status_entry_is_status_entry_only",
+    "tests/test_lab_state_coverage_audit.py::test_edge_search_research_is_intentionally_out_of_scope",
+    "tests/test_lab_state_coverage_audit.py::test_build_audit_counts_and_findings",
+    "tests/test_lab_state_coverage_audit.py::test_build_audit_rejects_unknown_category",
+    "tests/test_lab_state_coverage_audit.py::test_coordinator_paths_split_surface_vs_consulted",
+    "tests/test_lab_state_coverage_audit.py::test_build_coverage_audit_over_repo_covers_bound_paths",
+    "tests/test_lab_state_coverage_audit.py::test_build_coverage_audit_covers_former_known_gaps"
+  ],
+  "remaining_non_lab_node_ids": [
+    "tests/test_external_simulator_pilot.py::test_default_fixture_mapping_uses_rp_2592_lineage",
+    "tests/test_lab_operator_surface.py::test_batch_boundary_reflects_coverage_gap_closure",
+    "tests/test_research_query.py::test_current_integrity_views_empty_under_pre_execution_refinement",
+    "tests/test_research_query.py::test_strategy_spec_relation_first_instance_repo_state",
+    "tests/test_research_query.py::test_strategy_spec_views_expose_first_instance_repo_state",
+    "tests/test_research_query.py::test_strategy_spec_integrity_views_empty_under_current_zero_instance_state"
+  ]
+}

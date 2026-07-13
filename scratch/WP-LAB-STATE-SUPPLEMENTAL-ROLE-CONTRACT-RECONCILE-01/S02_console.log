@@ -1,0 +1,13 @@
+...........................................................F............ [ 20%]
+........................................................................ [ 40%]
+........................................................................ [ 60%]
+........................................................................ [ 80%]
+....................................................................     [100%]
+================================== FAILURES ===================================
+______________ test_default_fixture_mapping_uses_rp_2592_lineage ______________
+tests\test_external_simulator_pilot.py:39: in test_default_fixture_mapping_uses_rp_2592_lineage
+    assert fixture["normalized_data_local_exists"] is True
+E   assert False is True
+=========================== short test summary info ===========================
+FAILED tests/test_external_simulator_pilot.py::test_default_fixture_mapping_uses_rp_2592_lineage
+1 failed, 355 passed in 188.09s (0:03:08)

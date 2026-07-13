@@ -1,0 +1,34 @@
+{
+  "schema_version": "wp_lab_state_known_failure_allowlist_v1",
+  "source_baseline_inventory_path": "C:/GitHub/crypto-perp-wedge-wp-repo-full-suite-baseline-reconcile-01/scratch/WP-REPO-FULL-SUITE-BASELINE-RECONCILE-01/baseline_failure_inventory.json",
+  "source_baseline_inventory_sha256": "95649af5236739aa43c47f2bb89479e640d0334268b60d7e52a187b7894642b8",
+  "allowance_kind": "exact_node_ids_only",
+  "repository_baseline_posture": "These failures remain blocking for the repository baseline but are outside this PR.",
+  "nodes": [
+    {
+      "node_id": "tests/test_external_simulator_pilot.py::test_default_fixture_mapping_uses_rp_2592_lineage",
+      "classification": "ENVIRONMENT_OR_OPTIONAL_DEPENDENCY"
+    },
+    {
+      "node_id": "tests/test_lab_operator_surface.py::test_batch_boundary_reflects_coverage_gap_closure",
+      "classification": "STALE_TEST_EXPECTATION"
+    },
+    {
+      "node_id": "tests/test_research_query.py::test_current_integrity_views_empty_under_pre_execution_refinement",
+      "classification": "STALE_TEST_EXPECTATION"
+    },
+    {
+      "node_id": "tests/test_research_query.py::test_strategy_spec_relation_first_instance_repo_state",
+      "classification": "STALE_TEST_EXPECTATION"
+    },
+    {
+      "node_id": "tests/test_research_query.py::test_strategy_spec_views_expose_first_instance_repo_state",
+      "classification": "STALE_TEST_EXPECTATION"
+    },
+    {
+      "node_id": "tests/test_research_query.py::test_strategy_spec_integrity_views_empty_under_current_zero_instance_state",
+      "classification": "STALE_TEST_EXPECTATION"
+    }
+  ],
+  "wildcards_prefixes_regexes_or_count_only_allowances": false
+}

@@ -1,0 +1,221 @@
+........................................................................ [ 20%]
+........................................................................ [ 40%]
+........FFFFFFFFF..............F........................................ [ 60%]
+........................................................................ [ 80%]
+............................F.......................................     [100%]
+================================== FAILURES ===================================
+______________ test_approval_preview_produces_no_approval_marker ______________
+tools\lab_pipeline\orchestrator.py:660: in _validate_output_root
+    resolved.relative_to(allowed)
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:730: in relative_to
+    raise ValueError("{!r} is not in the subpath of {!r}"
+E   ValueError: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S03\\test_approval_preview_produces0\\pipeline' is not in the subpath of 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LABPROD-PIPELINE-ORCHESTRATOR-01' OR one path is relative and the other is absolute.
+
+The above exception was the direct cause of the following exception:
+tests\test_lab_pipeline_gate_actions.py:60: in test_approval_preview_produces_no_approval_marker
+    _, requirement, prereg = _pending_packet(tmp_path)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_lab_pipeline_gate_actions.py:33: in _pending_packet
+    pending = run_pipeline(request_path=_request(tmp_path), output_root=tmp_path / "pipeline")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools\lab_pipeline\orchestrator.py:368: in run_pipeline
+    _validate_output_root(output_root)
+tools\lab_pipeline\orchestrator.py:662: in _validate_output_root
+    raise PipelineBlockedError(
+E   tools.lab_pipeline.orchestrator.PipelineBlockedError: output_root inside repo must be under C:/GitHub/crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01/scratch/WP-LABPROD-PIPELINE-ORCHESTRATOR-01; got scratch/WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01/tmp/S03/test_approval_preview_produces0/pipeline
+_______ test_valid_explicit_prereg_action_creates_exact_approval_marker _______
+tools\lab_pipeline\orchestrator.py:660: in _validate_output_root
+    resolved.relative_to(allowed)
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:730: in relative_to
+    raise ValueError("{!r} is not in the subpath of {!r}"
+E   ValueError: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S03\\test_valid_explicit_prereg_act0\\pipeline' is not in the subpath of 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LABPROD-PIPELINE-ORCHESTRATOR-01' OR one path is relative and the other is absolute.
+
+The above exception was the direct cause of the following exception:
+tests\test_lab_pipeline_gate_actions.py:83: in test_valid_explicit_prereg_action_creates_exact_approval_marker
+    _, requirement, prereg = _pending_packet(tmp_path)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_lab_pipeline_gate_actions.py:33: in _pending_packet
+    pending = run_pipeline(request_path=_request(tmp_path), output_root=tmp_path / "pipeline")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools\lab_pipeline\orchestrator.py:368: in run_pipeline
+    _validate_output_root(output_root)
+tools\lab_pipeline\orchestrator.py:662: in _validate_output_root
+    raise PipelineBlockedError(
+E   tools.lab_pipeline.orchestrator.PipelineBlockedError: output_root inside repo must be under C:/GitHub/crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01/scratch/WP-LABPROD-PIPELINE-ORCHESTRATOR-01; got scratch/WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01/tmp/S03/test_valid_explicit_prereg_act0/pipeline
+_____________________ test_mismatched_packet_hash_blocks ______________________
+tools\lab_pipeline\orchestrator.py:660: in _validate_output_root
+    resolved.relative_to(allowed)
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:730: in relative_to
+    raise ValueError("{!r} is not in the subpath of {!r}"
+E   ValueError: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S03\\test_mismatched_packet_hash_bl0\\pipeline' is not in the subpath of 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LABPROD-PIPELINE-ORCHESTRATOR-01' OR one path is relative and the other is absolute.
+
+The above exception was the direct cause of the following exception:
+tests\test_lab_pipeline_gate_actions.py:109: in test_mismatched_packet_hash_blocks
+    _, requirement, prereg = _pending_packet(tmp_path)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_lab_pipeline_gate_actions.py:33: in _pending_packet
+    pending = run_pipeline(request_path=_request(tmp_path), output_root=tmp_path / "pipeline")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools\lab_pipeline\orchestrator.py:368: in run_pipeline
+    _validate_output_root(output_root)
+tools\lab_pipeline\orchestrator.py:662: in _validate_output_root
+    raise PipelineBlockedError(
+E   tools.lab_pipeline.orchestrator.PipelineBlockedError: output_root inside repo must be under C:/GitHub/crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01/scratch/WP-LABPROD-PIPELINE-ORCHESTRATOR-01; got scratch/WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01/tmp/S03/test_mismatched_packet_hash_bl0/pipeline
+______________________ test_wrong_approval_actor_blocks _______________________
+tools\lab_pipeline\orchestrator.py:660: in _validate_output_root
+    resolved.relative_to(allowed)
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:730: in relative_to
+    raise ValueError("{!r} is not in the subpath of {!r}"
+E   ValueError: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S03\\test_wrong_approval_actor_bloc0\\pipeline' is not in the subpath of 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LABPROD-PIPELINE-ORCHESTRATOR-01' OR one path is relative and the other is absolute.
+
+The above exception was the direct cause of the following exception:
+tests\test_lab_pipeline_gate_actions.py:124: in test_wrong_approval_actor_blocks
+    _, requirement, prereg = _pending_packet(tmp_path)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_lab_pipeline_gate_actions.py:33: in _pending_packet
+    pending = run_pipeline(request_path=_request(tmp_path), output_root=tmp_path / "pipeline")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools\lab_pipeline\orchestrator.py:368: in run_pipeline
+    _validate_output_root(output_root)
+tools\lab_pipeline\orchestrator.py:662: in _validate_output_root
+    raise PipelineBlockedError(
+E   tools.lab_pipeline.orchestrator.PipelineBlockedError: output_root inside repo must be under C:/GitHub/crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01/scratch/WP-LABPROD-PIPELINE-ORCHESTRATOR-01; got scratch/WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01/tmp/S03/test_wrong_approval_actor_bloc0/pipeline
+______________________ test_broad_authority_flags_block _______________________
+tools\lab_pipeline\orchestrator.py:660: in _validate_output_root
+    resolved.relative_to(allowed)
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:730: in relative_to
+    raise ValueError("{!r} is not in the subpath of {!r}"
+E   ValueError: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S03\\test_broad_authority_flags_blo0\\pipeline' is not in the subpath of 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LABPROD-PIPELINE-ORCHESTRATOR-01' OR one path is relative and the other is absolute.
+
+The above exception was the direct cause of the following exception:
+tests\test_lab_pipeline_gate_actions.py:138: in test_broad_authority_flags_block
+    _, requirement, prereg = _pending_packet(tmp_path)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_lab_pipeline_gate_actions.py:33: in _pending_packet
+    pending = run_pipeline(request_path=_request(tmp_path), output_root=tmp_path / "pipeline")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools\lab_pipeline\orchestrator.py:368: in run_pipeline
+    _validate_output_root(output_root)
+tools\lab_pipeline\orchestrator.py:662: in _validate_output_root
+    raise PipelineBlockedError(
+E   tools.lab_pipeline.orchestrator.PipelineBlockedError: output_root inside repo must be under C:/GitHub/crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01/scratch/WP-LABPROD-PIPELINE-ORCHESTRATOR-01; got scratch/WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01/tmp/S03/test_broad_authority_flags_blo0/pipeline
+_____________________ test_missing_exact_statement_blocks _____________________
+tools\lab_pipeline\orchestrator.py:660: in _validate_output_root
+    resolved.relative_to(allowed)
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:730: in relative_to
+    raise ValueError("{!r} is not in the subpath of {!r}"
+E   ValueError: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S03\\test_missing_exact_statement_b0\\pipeline' is not in the subpath of 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LABPROD-PIPELINE-ORCHESTRATOR-01' OR one path is relative and the other is absolute.
+
+The above exception was the direct cause of the following exception:
+tests\test_lab_pipeline_gate_actions.py:158: in test_missing_exact_statement_blocks
+    _, requirement, prereg = _pending_packet(tmp_path)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_lab_pipeline_gate_actions.py:33: in _pending_packet
+    pending = run_pipeline(request_path=_request(tmp_path), output_root=tmp_path / "pipeline")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools\lab_pipeline\orchestrator.py:368: in run_pipeline
+    _validate_output_root(output_root)
+tools\lab_pipeline\orchestrator.py:662: in _validate_output_root
+    raise PipelineBlockedError(
+E   tools.lab_pipeline.orchestrator.PipelineBlockedError: output_root inside repo must be under C:/GitHub/crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01/scratch/WP-LABPROD-PIPELINE-ORCHESTRATOR-01; got scratch/WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01/tmp/S03/test_missing_exact_statement_b0/pipeline
+_______________________ test_output_path_escape_blocks ________________________
+tools\lab_pipeline\orchestrator.py:660: in _validate_output_root
+    resolved.relative_to(allowed)
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:730: in relative_to
+    raise ValueError("{!r} is not in the subpath of {!r}"
+E   ValueError: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S03\\test_output_path_escape_blocks0\\pipeline' is not in the subpath of 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LABPROD-PIPELINE-ORCHESTRATOR-01' OR one path is relative and the other is absolute.
+
+The above exception was the direct cause of the following exception:
+tests\test_lab_pipeline_gate_actions.py:172: in test_output_path_escape_blocks
+    _, requirement, prereg = _pending_packet(tmp_path)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_lab_pipeline_gate_actions.py:33: in _pending_packet
+    pending = run_pipeline(request_path=_request(tmp_path), output_root=tmp_path / "pipeline")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools\lab_pipeline\orchestrator.py:368: in run_pipeline
+    _validate_output_root(output_root)
+tools\lab_pipeline\orchestrator.py:662: in _validate_output_root
+    raise PipelineBlockedError(
+E   tools.lab_pipeline.orchestrator.PipelineBlockedError: output_root inside repo must be under C:/GitHub/crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01/scratch/WP-LABPROD-PIPELINE-ORCHESTRATOR-01; got scratch/WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01/tmp/S03/test_output_path_escape_blocks0/pipeline
+_ test_generated_approval_marker_is_accepted_by_existing_pipeline_validation __
+tools\lab_pipeline\orchestrator.py:660: in _validate_output_root
+    resolved.relative_to(allowed)
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:730: in relative_to
+    raise ValueError("{!r} is not in the subpath of {!r}"
+E   ValueError: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S03\\test_generated_approval_marker0\\pipeline' is not in the subpath of 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LABPROD-PIPELINE-ORCHESTRATOR-01' OR one path is relative and the other is absolute.
+
+The above exception was the direct cause of the following exception:
+tests\test_lab_pipeline_gate_actions.py:187: in test_generated_approval_marker_is_accepted_by_existing_pipeline_validation
+    _, requirement, prereg = _pending_packet(tmp_path)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_lab_pipeline_gate_actions.py:33: in _pending_packet
+    pending = run_pipeline(request_path=_request(tmp_path), output_root=tmp_path / "pipeline")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools\lab_pipeline\orchestrator.py:368: in run_pipeline
+    _validate_output_root(output_root)
+tools\lab_pipeline\orchestrator.py:662: in _validate_output_root
+    raise PipelineBlockedError(
+E   tools.lab_pipeline.orchestrator.PipelineBlockedError: output_root inside repo must be under C:/GitHub/crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01/scratch/WP-LABPROD-PIPELINE-ORCHESTRATOR-01; got scratch/WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01/tmp/S03/test_generated_approval_marker0/pipeline
+_ test_candidate_surface_scaffold_accepts_only_non_authority_decision_values __
+tools\lab_pipeline\gate_actions.py:475: in _validate_output_path
+    resolved.relative_to(scratch_root)
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:730: in relative_to
+    raise ValueError("{!r} is not in the subpath of {!r}"
+E   ValueError: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S03\\test_candidate_surface_scaffol0\\hold_for_review.json' is not in the subpath of 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LABPROD-INPRODUCT-GATE-ACTIONS-01' OR one path is relative and the other is absolute.
+
+The above exception was the direct cause of the following exception:
+tests\test_lab_pipeline_gate_actions.py:209: in test_candidate_surface_scaffold_accepts_only_non_authority_decision_values
+    result = record_candidate_surface_decision(
+tools\lab_pipeline\gate_actions.py:238: in record_candidate_surface_decision
+    target = _resolve_output_file(
+tools\lab_pipeline\gate_actions.py:456: in _resolve_output_file
+    _validate_output_path(resolved)
+tools\lab_pipeline\gate_actions.py:477: in _validate_output_path
+    raise GateActionError(
+E   tools.lab_pipeline.gate_actions.GateActionError: output file inside repo must be under C:/GitHub/crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01/scratch/WP-LABPROD-INPRODUCT-GATE-ACTIONS-01; got C:/GitHub/crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01/scratch/WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01/tmp/S03/test_candidate_surface_scaffol0/hold_for_review.json
+____________ test_non_authority_flags_are_present_in_every_output _____________
+tools\lab_pipeline\orchestrator.py:660: in _validate_output_root
+    resolved.relative_to(allowed)
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:730: in relative_to
+    raise ValueError("{!r} is not in the subpath of {!r}"
+E   ValueError: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S03\\test_non_authority_flags_are_p0\\pipeline' is not in the subpath of 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LABPROD-PIPELINE-ORCHESTRATOR-01' OR one path is relative and the other is absolute.
+
+The above exception was the direct cause of the following exception:
+tests\test_lab_pipeline_gate_actions.py:257: in test_non_authority_flags_are_present_in_every_output
+    _, requirement, prereg = _pending_packet(tmp_path)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_lab_pipeline_gate_actions.py:33: in _pending_packet
+    pending = run_pipeline(request_path=_request(tmp_path), output_root=tmp_path / "pipeline")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools\lab_pipeline\orchestrator.py:368: in run_pipeline
+    _validate_output_root(output_root)
+tools\lab_pipeline\orchestrator.py:662: in _validate_output_root
+    raise PipelineBlockedError(
+E   tools.lab_pipeline.orchestrator.PipelineBlockedError: output_root inside repo must be under C:/GitHub/crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01/scratch/WP-LABPROD-PIPELINE-ORCHESTRATOR-01; got scratch/WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01/tmp/S03/test_non_authority_flags_are_p0/pipeline
+_________ test_cli_writes_report_and_prints_repo_relative_output_dir __________
+tests\test_seeded_advisory_mc.py:271: in test_cli_writes_report_and_prints_repo_relative_output_dir
+    assert printed["output_dir"] == "external:scratch"
+E   AssertionError: assert 'scratch/WP-L..._pri0/scratch' == 'external:scratch'
+E
+E     - external:scratch
+E     + scratch/WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01/tmp/S03/test_cli_writes_report_and_pri0/scratch
+============================== warnings summary ===============================
+tests/test_offline_research_runner.py::test_canonical_15m_fails_closed_on_invalid_timestamp_strings[timestamp]
+tests/test_offline_research_runner.py::test_canonical_15m_fails_closed_on_invalid_timestamp_strings[open_time]
+  C:\GitHub\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\tools\research_runner\run_offline_sweep.py:692: UserWarning: Could not infer format, so each element will be parsed individually, falling back to `dateutil`. To ensure parsing is consistent and as-expected, please specify a format.
+    parsed = pd.to_datetime(frame[column], utc=True, errors="coerce")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_lab_pipeline_gate_actions.py::test_approval_preview_produces_no_approval_marker
+FAILED tests/test_lab_pipeline_gate_actions.py::test_valid_explicit_prereg_action_creates_exact_approval_marker
+FAILED tests/test_lab_pipeline_gate_actions.py::test_mismatched_packet_hash_blocks
+FAILED tests/test_lab_pipeline_gate_actions.py::test_wrong_approval_actor_blocks
+FAILED tests/test_lab_pipeline_gate_actions.py::test_broad_authority_flags_block
+FAILED tests/test_lab_pipeline_gate_actions.py::test_missing_exact_statement_blocks
+FAILED tests/test_lab_pipeline_gate_actions.py::test_output_path_escape_blocks
+FAILED tests/test_lab_pipeline_gate_actions.py::test_generated_approval_marker_is_accepted_by_existing_pipeline_validation
+FAILED tests/test_lab_pipeline_gate_actions.py::test_candidate_surface_scaffold_accepts_only_non_authority_decision_values
+FAILED tests/test_lab_pipeline_gate_actions.py::test_non_authority_flags_are_present_in_every_output
+FAILED tests/test_seeded_advisory_mc.py::test_cli_writes_report_and_prints_repo_relative_output_dir
+11 failed, 345 passed, 2 warnings in 226.15s (0:03:46)

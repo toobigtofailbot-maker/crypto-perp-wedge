@@ -1,0 +1,13 @@
+{
+  "shard_id": "S05",
+  "attempt": 1,
+  "terminal_result": true,
+  "start_utc": "2026-07-13T03:23:28.2736158Z",
+  "end_utc": "2026-07-13T03:25:44.5788695Z",
+  "elapsed_seconds": 136.291,
+  "exit_code": 1,
+  "timeout_seconds": 2700,
+  "python": "C:/GitHub/crypto-perp-wedge/.venv/Scripts/python.exe",
+  "basetemp": "C:\\Users\\dersu\\AppData\\Local\\Temp\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\S05",
+  "file_list": "scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01/full_suite_shards/S05.txt"
+}

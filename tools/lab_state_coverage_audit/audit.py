@@ -69,6 +69,9 @@ _SUPPLEMENTAL_RENDERED_ROLE_PREFIXES: tuple[str, ...] = (
     "canonical_",
     "bundle_",
 )
+_SUPPLEMENTAL_RENDERED_ROLES: frozenset[str] = frozenset(
+    {"riskmanaged_conclusion_evidence"}
+)
 
 # Operator-relevant conclusions that are NOT bound to any coordinator subject.
 # These are the silent-evidence gap set: committed conclusions an operator would
@@ -191,7 +194,10 @@ def coordinator_paths_from_subjects(
             role = str(item.get("role", "supplemental_evidence"))
             if not rel:
                 continue
-            if not role.startswith(_SUPPLEMENTAL_RENDERED_ROLE_PREFIXES):
+            if (
+                role not in _SUPPLEMENTAL_RENDERED_ROLES
+                and not role.startswith(_SUPPLEMENTAL_RENDERED_ROLE_PREFIXES)
+            ):
                 raise AuditError(f"unknown supplemental artifact role: {role}")
             surface.add(str(rel))
     # A path that is rendered for one subject dominates a consulted-only use.

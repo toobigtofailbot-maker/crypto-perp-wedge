@@ -1,0 +1,202 @@
+{
+  "schema_version": "wp_lab_state_full_suite_sharded_result_v1",
+  "collection_count": 2848,
+  "collection_sha256": "e785f8add24c57f09225779b6c1fc3a605fd30083226c212d82a73f8b553f296",
+  "initial_shards": 8,
+  "completed_leaf_shards": 8,
+  "terminal_tests": 2848.0,
+  "passed": 2836.0,
+  "failed": 6.0,
+  "skipped": 6.0,
+  "errors": 0.0,
+  "internal_errors": 0,
+  "final_leaf_timeouts": 0,
+  "coverage": {
+    "every_collected_node_executed_exactly_once": true,
+    "missing_nodes": [],
+    "extra_nodes": [],
+    "duplicate_nodes": []
+  },
+  "failure_reconciliation": {
+    "exact_allowlist_match": true,
+    "failing_nodes": [
+      "tests/test_external_simulator_pilot.py::test_default_fixture_mapping_uses_rp_2592_lineage",
+      "tests/test_lab_operator_surface.py::test_batch_boundary_reflects_coverage_gap_closure",
+      "tests/test_research_query.py::test_current_integrity_views_empty_under_pre_execution_refinement",
+      "tests/test_research_query.py::test_strategy_spec_integrity_views_empty_under_current_zero_instance_state",
+      "tests/test_research_query.py::test_strategy_spec_relation_first_instance_repo_state",
+      "tests/test_research_query.py::test_strategy_spec_views_expose_first_instance_repo_state"
+    ],
+    "unexpected_failures": [],
+    "allowed_nodes_not_failed": []
+  },
+  "skipped_nodes": [
+    "tests/test_backtest_liquidation.py::test_buy_and_hold_unchanged_on_benign_window",
+    "tests/test_canon_intake_queue_admission.py::test_authoritative_gate_q_under_symlinked_parent_fails",
+    "tests/test_canon_intake_queue_admission.py::test_gate_q_symlink_alias_fails",
+    "tests/test_canon_intake_queue_admission.py::test_referenced_artifact_symlink_fails",
+    "tests/test_canon_intake_queue_admission.py::test_symlinked_admission_parent_fails",
+    "tests/test_canon_intake_queue_admission.py::test_symlinked_audit_directory_fails"
+  ],
+  "error_nodes": [],
+  "all_15_lab_state_nodes_passed": true,
+  "preliminary_nonterminal_attempts": [
+    {
+      "shard_id": "S01",
+      "reason": "in-repo basetemp parent absent",
+      "excluded_from_terminal_reconciliation": true
+    },
+    {
+      "shard_id": "S03",
+      "reason": "in-repo basetemp triggered deliberate path guards",
+      "excluded_from_terminal_reconciliation": true
+    }
+  ],
+  "shards": [
+    {
+      "shard_id": "S01",
+      "expected_nodes": 357,
+      "junit_tests": 357,
+      "junit_failures": 0,
+      "junit_errors": 0,
+      "junit_skipped": 0,
+      "junit_passed": 357,
+      "exit_code": 0,
+      "elapsed_seconds": 222.372,
+      "failed_nodes": [],
+      "skipped_nodes": [],
+      "error_nodes": [],
+      "terminal": true,
+      "timed_out": false
+    },
+    {
+      "shard_id": "S02",
+      "expected_nodes": 356,
+      "junit_tests": 356,
+      "junit_failures": 1,
+      "junit_errors": 0,
+      "junit_skipped": 0,
+      "junit_passed": 355,
+      "exit_code": 1,
+      "elapsed_seconds": 190.36,
+      "failed_nodes": [
+        "tests/test_external_simulator_pilot.py::test_default_fixture_mapping_uses_rp_2592_lineage"
+      ],
+      "skipped_nodes": [],
+      "error_nodes": [],
+      "terminal": true,
+      "timed_out": false
+    },
+    {
+      "shard_id": "S03",
+      "expected_nodes": 356,
+      "junit_tests": 356,
+      "junit_failures": 0,
+      "junit_errors": 0,
+      "junit_skipped": 0,
+      "junit_passed": 356,
+      "exit_code": 0,
+      "elapsed_seconds": 228.451,
+      "failed_nodes": [],
+      "skipped_nodes": [],
+      "error_nodes": [],
+      "terminal": true,
+      "timed_out": false
+    },
+    {
+      "shard_id": "S04",
+      "expected_nodes": 355,
+      "junit_tests": 355,
+      "junit_failures": 0,
+      "junit_errors": 0,
+      "junit_skipped": 0,
+      "junit_passed": 355,
+      "exit_code": 0,
+      "elapsed_seconds": 140.335,
+      "failed_nodes": [],
+      "skipped_nodes": [],
+      "error_nodes": [],
+      "terminal": true,
+      "timed_out": false
+    },
+    {
+      "shard_id": "S05",
+      "expected_nodes": 356,
+      "junit_tests": 356,
+      "junit_failures": 1,
+      "junit_errors": 0,
+      "junit_skipped": 0,
+      "junit_passed": 355,
+      "exit_code": 1,
+      "elapsed_seconds": 136.291,
+      "failed_nodes": [
+        "tests/test_lab_operator_surface.py::test_batch_boundary_reflects_coverage_gap_closure"
+      ],
+      "skipped_nodes": [],
+      "error_nodes": [],
+      "terminal": true,
+      "timed_out": false
+    },
+    {
+      "shard_id": "S06",
+      "expected_nodes": 356,
+      "junit_tests": 356,
+      "junit_failures": 0,
+      "junit_errors": 0,
+      "junit_skipped": 5,
+      "junit_passed": 351,
+      "exit_code": 0,
+      "elapsed_seconds": 286.826,
+      "failed_nodes": [],
+      "skipped_nodes": [
+        "tests/test_canon_intake_queue_admission.py::test_gate_q_symlink_alias_fails",
+        "tests/test_canon_intake_queue_admission.py::test_authoritative_gate_q_under_symlinked_parent_fails",
+        "tests/test_canon_intake_queue_admission.py::test_referenced_artifact_symlink_fails",
+        "tests/test_canon_intake_queue_admission.py::test_symlinked_admission_parent_fails",
+        "tests/test_canon_intake_queue_admission.py::test_symlinked_audit_directory_fails"
+      ],
+      "error_nodes": [],
+      "terminal": true,
+      "timed_out": false
+    },
+    {
+      "shard_id": "S07",
+      "expected_nodes": 356,
+      "junit_tests": 356,
+      "junit_failures": 0,
+      "junit_errors": 0,
+      "junit_skipped": 0,
+      "junit_passed": 356,
+      "exit_code": 0,
+      "elapsed_seconds": 455.01,
+      "failed_nodes": [],
+      "skipped_nodes": [],
+      "error_nodes": [],
+      "terminal": true,
+      "timed_out": false
+    },
+    {
+      "shard_id": "S08",
+      "expected_nodes": 356,
+      "junit_tests": 356,
+      "junit_failures": 4,
+      "junit_errors": 0,
+      "junit_skipped": 1,
+      "junit_passed": 351,
+      "exit_code": 1,
+      "elapsed_seconds": 1193.723,
+      "failed_nodes": [
+        "tests/test_research_query.py::test_current_integrity_views_empty_under_pre_execution_refinement",
+        "tests/test_research_query.py::test_strategy_spec_relation_first_instance_repo_state",
+        "tests/test_research_query.py::test_strategy_spec_views_expose_first_instance_repo_state",
+        "tests/test_research_query.py::test_strategy_spec_integrity_views_empty_under_current_zero_instance_state"
+      ],
+      "skipped_nodes": [
+        "tests/test_backtest_liquidation.py::test_buy_and_hold_unchanged_on_benign_window"
+      ],
+      "error_nodes": [],
+      "terminal": true,
+      "timed_out": false
+    }
+  ]
+}

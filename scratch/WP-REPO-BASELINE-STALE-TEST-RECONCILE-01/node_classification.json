@@ -1,0 +1,84 @@
+{
+  "schema_version": "wp_repo_baseline_stale_test_reconcile_node_classification_v1",
+  "package_id": "WP-REPO-BASELINE-STALE-TEST-RECONCILE-01",
+  "production_defect_found": false,
+  "nodes": [
+    {
+      "node_id": "tests/test_external_simulator_pilot.py::test_default_fixture_mapping_uses_rp_2592_lineage",
+      "expected_value": true,
+      "actual_value": false,
+      "authoritative_repo_source": [
+        "research/result_populations/RP-2592.result_population.json",
+        "research/data_slices/binance_usdtm_btcusdt_15m/binance_usdtm_btcusdt_15m_20200101_20260411.catalog_slice.json",
+        "tools/external_pilots/simulator_pilot.py"
+      ],
+      "classification": "EXPLICIT_ENVIRONMENT_DEPENDENCY",
+      "exact_correction": "Validate committed RP/catalog/path/checksum lineage, then skip only when the gitignored local normalized D4A CSV is absent; otherwise retain the true existence assertion.",
+      "production_change_requirement": false
+    },
+    {
+      "node_id": "tests/test_lab_operator_surface.py::test_batch_boundary_reflects_coverage_gap_closure",
+      "expected_value": {
+        "subject_count": 8,
+        "no_go_count": 3
+      },
+      "actual_value": {
+        "subject_count": 9,
+        "no_go_count": 4
+      },
+      "authoritative_repo_source": [
+        "tools/lab_state/run.py",
+        "tools/lab_dashboard/data_model.py",
+        "tools/lab_operator_surface/index_model.py"
+      ],
+      "classification": "STALE_TEST_EXPECTATION",
+      "exact_correction": "Update only the exact current-state subject_count and no_go_count literals.",
+      "production_change_requirement": false
+    },
+    {
+      "node_id": "tests/test_research_query.py::test_current_integrity_views_empty_under_pre_execution_refinement",
+      "expected_value": "all discovered integrity views empty",
+      "actual_value": "exactly one STRAT-SPEC-0007 hash-readiness row; every other discovered integrity view empty",
+      "authoritative_repo_source": [
+        "research/strategy_specs/STRAT-SPEC-0007.strategy_spec.json",
+        "tools/research_query/views.sql"
+      ],
+      "classification": "STALE_TEST_EXPECTATION",
+      "exact_correction": "Require the exact known hash-readiness row while rejecting rows from every other discovered integrity view.",
+      "production_change_requirement": false
+    },
+    {
+      "node_id": "tests/test_research_query.py::test_strategy_spec_relation_first_instance_repo_state",
+      "expected_value": "STRAT-SPEC-0001 through STRAT-SPEC-0006",
+      "actual_value": "STRAT-SPEC-0001 through STRAT-SPEC-0007",
+      "authoritative_repo_source": "research/strategy_specs/STRAT-SPEC-0007.strategy_spec.json",
+      "classification": "STALE_TEST_EXPECTATION",
+      "exact_correction": "Add STRAT-SPEC-0007 to sorted exact relation equality.",
+      "production_change_requirement": false
+    },
+    {
+      "node_id": "tests/test_research_query.py::test_strategy_spec_views_expose_first_instance_repo_state",
+      "expected_value": "exact view rows through STRAT-SPEC-0006",
+      "actual_value": "exact view rows through STRAT-SPEC-0007",
+      "authoritative_repo_source": [
+        "research/strategy_specs/STRAT-SPEC-0007.strategy_spec.json",
+        "tools/research_query/views.sql"
+      ],
+      "classification": "STALE_TEST_EXPECTATION",
+      "exact_correction": "Add the canonical STRAT-SPEC-0007 overview, parameter, condition-group, and backtest-assumption rows and assert review_requested status.",
+      "production_change_requirement": false
+    },
+    {
+      "node_id": "tests/test_research_query.py::test_strategy_spec_integrity_views_empty_under_current_zero_instance_state",
+      "expected_value": "three Strategy Spec integrity views empty",
+      "actual_value": "non-authority and bounds empty; hash-readiness contains the exact STRAT-SPEC-0007 row",
+      "authoritative_repo_source": [
+        "research/strategy_specs/STRAT-SPEC-0007.strategy_spec.json",
+        "tools/research_query/views.sql"
+      ],
+      "classification": "STALE_TEST_EXPECTATION",
+      "exact_correction": "Keep exact emptiness for unaffected views and require the one truthful hash-readiness row.",
+      "production_change_requirement": false
+    }
+  ]
+}

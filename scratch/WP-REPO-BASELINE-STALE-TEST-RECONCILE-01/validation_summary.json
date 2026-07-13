@@ -1,0 +1,89 @@
+{
+  "schema_version": "wp_repo_baseline_stale_test_reconcile_validation_v1",
+  "package_id": "WP-REPO-BASELINE-STALE-TEST-RECONCILE-01",
+  "base_sha": "8ad273516990e7b6ef8e6d18b6a69c0f863f50c8",
+  "focused": {
+    "external_simulator": {
+      "passed": 6,
+      "skipped": 1,
+      "failed": 0,
+      "errors": 0
+    },
+    "lab_operator_surface": {
+      "passed": 12,
+      "skipped": 0,
+      "failed": 0,
+      "errors": 0
+    },
+    "research_query": {
+      "passed": 65,
+      "skipped": 0,
+      "failed": 0,
+      "errors": 0
+    }
+  },
+  "adjacent": {
+    "explicit_file_count": 28,
+    "passed": 520,
+    "skipped": 0,
+    "failed": 0,
+    "errors": 0
+  },
+  "deterministic_collection": {
+    "selected_runs": 2,
+    "run_1_exit_code": 0,
+    "run_2_exit_code": 0,
+    "collected_nodes": 2849,
+    "collected_files": 157,
+    "normalized_inventories_identical": true,
+    "normalized_node_inventory_sha256": "fb1953f2a9d407202f8219af3521ba306e4d92b5913d1fd13e47fa5c0eac55c3",
+    "collection_errors": 0,
+    "internal_errors": 0
+  },
+  "sharded_full_suite": {
+    "algorithm": "greedy_lpt_file_sharding_v1",
+    "source_partition": "PR #654 committed full_suite_shard_manifest.json",
+    "sequential_shards": true,
+    "external_basetemp": true,
+    "terminal_shard_count": 8,
+    "shards": [
+      {"shard_id": "S01", "passed": 357, "skipped": 0, "failed": 0, "errors": 0},
+      {"shard_id": "S02", "passed": 355, "skipped": 1, "failed": 0, "errors": 0},
+      {"shard_id": "S03", "passed": 356, "skipped": 0, "failed": 0, "errors": 0},
+      {"shard_id": "S04", "passed": 355, "skipped": 0, "failed": 0, "errors": 0},
+      {"shard_id": "S05", "passed": 356, "skipped": 0, "failed": 0, "errors": 0},
+      {"shard_id": "S06", "passed": 351, "skipped": 5, "failed": 0, "errors": 0},
+      {"shard_id": "S07", "passed": 356, "skipped": 0, "failed": 0, "errors": 0},
+      {"shard_id": "S08", "passed": 356, "skipped": 1, "failed": 0, "errors": 0}
+    ],
+    "collected_and_executed_exactly_once": true,
+    "passed": 2842,
+    "skipped": 7,
+    "failed": 0,
+    "errors": 0,
+    "internal_errors": 0,
+    "terminal_timeouts": 0,
+    "passed_derived_as_collected_minus_skipped": true,
+    "skip_set_matches_refreshed_base_plus_external_simulator": true,
+    "skip_set": [
+      "tests/test_backtest_liquidation.py::test_buy_and_hold_unchanged_on_benign_window",
+      "tests/test_canon_intake_queue_admission.py::test_authoritative_gate_q_under_symlinked_parent_fails",
+      "tests/test_canon_intake_queue_admission.py::test_gate_q_symlink_alias_fails",
+      "tests/test_canon_intake_queue_admission.py::test_referenced_artifact_symlink_fails",
+      "tests/test_canon_intake_queue_admission.py::test_symlinked_admission_parent_fails",
+      "tests/test_canon_intake_queue_admission.py::test_symlinked_audit_directory_fails",
+      "tests/test_external_simulator_pilot.py::test_default_fixture_mapping_uses_rp_2592_lineage"
+    ]
+  },
+  "static_and_scope": {
+    "changed_json_parse": "passed",
+    "py_compile": "passed",
+    "git_diff_check": "passed",
+    "staged_diff_check": "passed",
+    "changed_files_inspected": true,
+    "forbidden_path_matches": 0,
+    "read_only_production_or_canonical_changes": 0
+  },
+  "production_behavior_changed": false,
+  "verdict": "READY_FOR_PR_REVIEW"
+}

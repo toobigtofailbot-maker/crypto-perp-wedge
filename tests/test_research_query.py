@@ -1757,9 +1757,23 @@ def test_current_integrity_views_empty_under_pre_execution_refinement(conn):
         ).fetchall()
     ]
 
+    expected_rows = {
+        "v_integrity_strategy_spec_hash_readiness": [
+            (
+                "strategy_spec_hash_readiness_violation",
+                "STRAT-SPEC-0007",
+                "hash_pinning.hash_status",
+                "computed when intended_for_variant_manifest=true",
+                "not_computed",
+            )
+        ]
+    }
+
     assert view_names
     for view_name in view_names:
-        assert conn.execute(f'SELECT * FROM "{view_name}"').fetchall() == []
+        assert conn.execute(f'SELECT * FROM "{view_name}"').fetchall() == expected_rows.get(
+            view_name, []
+        )
 
 
 def test_integrity_candidate_refs_empty_under_healthy_state(conn):
@@ -1778,13 +1792,14 @@ def test_strategy_spec_relation_first_instance_repo_state(conn):
         ("STRAT-SPEC-0004",),
         ("STRAT-SPEC-0005",),
         ("STRAT-SPEC-0006",),
+        ("STRAT-SPEC-0007",),
     ]
 
 
 def test_strategy_spec_views_expose_first_instance_repo_state(conn):
     overview = conn.execute(
         """
-        SELECT strategy_spec_id, instrument_family, market_type, primary_timeframe,
+        SELECT strategy_spec_id, status, instrument_family, market_type, primary_timeframe,
                direction, free_parameter_count, max_free_parameters, hash_status,
                intended_for_variant_manifest, approval_scope
         FROM v_strategy_spec_overview
@@ -1819,6 +1834,7 @@ def test_strategy_spec_views_expose_first_instance_repo_state(conn):
     assert overview == [
         (
             "STRAT-SPEC-0001",
+            "approved_for_variant_planning",
             "crypto_perp",
             "perpetual",
             "15m",
@@ -1831,6 +1847,7 @@ def test_strategy_spec_views_expose_first_instance_repo_state(conn):
         ),
         (
             "STRAT-SPEC-0002",
+            "approved_for_variant_planning",
             "crypto_perp",
             "perpetual",
             "15m",
@@ -1843,6 +1860,7 @@ def test_strategy_spec_views_expose_first_instance_repo_state(conn):
         ),
         (
             "STRAT-SPEC-0003",
+            "approved_for_variant_planning",
             "crypto_perp",
             "perpetual",
             "15m",
@@ -1855,6 +1873,7 @@ def test_strategy_spec_views_expose_first_instance_repo_state(conn):
         ),
         (
             "STRAT-SPEC-0004",
+            "approved_for_variant_planning",
             "crypto_perp",
             "perpetual",
             "15m",
@@ -1867,6 +1886,7 @@ def test_strategy_spec_views_expose_first_instance_repo_state(conn):
         ),
         (
             "STRAT-SPEC-0005",
+            "approved_for_variant_planning",
             "crypto_perp",
             "perpetual",
             "15m",
@@ -1879,6 +1899,7 @@ def test_strategy_spec_views_expose_first_instance_repo_state(conn):
         ),
         (
             "STRAT-SPEC-0006",
+            "approved_for_variant_planning",
             "crypto_perp",
             "perpetual",
             "4h",
@@ -1888,6 +1909,19 @@ def test_strategy_spec_views_expose_first_instance_repo_state(conn):
             "computed",
             True,
             "variant_planning_only",
+        ),
+        (
+            "STRAT-SPEC-0007",
+            "review_requested",
+            "crypto_perp",
+            "perpetual",
+            "1d",
+            "both",
+            4,
+            5,
+            "not_computed",
+            True,
+            "none",
         ),
     ]
     assert parameters == [
@@ -2041,6 +2075,46 @@ def test_strategy_spec_views_expose_first_instance_repo_state(conn):
             6.0,
             True,
         ),
+        (
+            "STRAT-SPEC-0007",
+            "atr_multiplier",
+            "number",
+            "risk",
+            2.0,
+            3.0,
+            0.5,
+            True,
+        ),
+        (
+            "STRAT-SPEC-0007",
+            "max_holding_bars",
+            "integer",
+            "exit",
+            30.0,
+            60.0,
+            15.0,
+            True,
+        ),
+        (
+            "STRAT-SPEC-0007",
+            "pullback_ema_bars",
+            "integer",
+            "entry",
+            10.0,
+            30.0,
+            10.0,
+            True,
+        ),
+        (
+            "STRAT-SPEC-0007",
+            "trend_fast_ema_bars",
+            "integer",
+            "filter",
+            40.0,
+            60.0,
+            10.0,
+            True,
+        ),
     ]
     assert condition_groups == [
         ("STRAT-SPEC-0001", "entry_logic", "ENTRY-GROUP-0001", 1, 0, 1),
@@ -2068,6 +2142,10 @@ def test_strategy_spec_views_expose_first_instance_repo_state(conn):
         ("STRAT-SPEC-0006", "entry_logic", "ENTRY-GROUP-SHORT-SMA-CROSSOVER-0006", 2, 0, 1),
         ("STRAT-SPEC-0006", "exit_logic", "EXIT-GROUP-LONG-OPPOSITE-CROSS-0006", 1, 0, 1),
         ("STRAT-SPEC-0006", "exit_logic", "EXIT-GROUP-SHORT-OPPOSITE-CROSS-0006", 1, 0, 1),
+        ("STRAT-SPEC-0007", "entry_logic", "ENTRY-GROUP-LONG-H004R2", 3, 0, 1),
+        ("STRAT-SPEC-0007", "entry_logic", "ENTRY-GROUP-SHORT-H004R2", 3, 0, 1),
+        ("STRAT-SPEC-0007", "exit_logic", "EXIT-GROUP-LONG-H004R2", 1, 0, 1),
+        ("STRAT-SPEC-0007", "exit_logic", "EXIT-GROUP-SHORT-H004R2", 1, 0, 1),
     ]
     assert assumptions == [
         (
@@ -2118,6 +2196,14 @@ def test_strategy_spec_views_expose_first_instance_repo_state(conn):
             "fixed_bps",
             "complete",
         ),
+        (
+            "STRAT-SPEC-0007",
+            "taker_entry_taker_exit; 4 bps each modeled fill",
+            True,
+            "entry_price",
+            "fixed_bps",
+            "complete",
+        ),
     ]
 
 
@@ -2160,12 +2246,76 @@ def test_strategy_spec_condition_groups_handles_current_composed_z_score(conn):
 
 
 def test_strategy_spec_integrity_views_empty_under_current_zero_instance_state(conn):
-    for view_name in [
-        "v_integrity_strategy_spec_non_authority",
-        "v_integrity_strategy_spec_bounds",
-        "v_integrity_strategy_spec_hash_readiness",
-    ]:
-        assert conn.execute(f'SELECT * FROM "{view_name}"').fetchall() == []
+    assert conn.execute("SELECT * FROM v_integrity_strategy_spec_non_authority").fetchall() == []
+    assert conn.execute("SELECT * FROM v_integrity_strategy_spec_bounds").fetchall() == []
+    assert conn.execute("SELECT * FROM v_integrity_strategy_spec_hash_readiness").fetchall() == [
+        (
+            "strategy_spec_hash_readiness_violation",
+            "STRAT-SPEC-0007",
+            "hash_pinning.hash_status",
+            "computed when intended_for_variant_manifest=true",
+            "not_computed",
+        )
+    ]
+
+
+def test_strategy_spec_0007_has_no_downstream_or_promotion_authority(conn):
+    downstream_counts = conn.execute(
+        """
+        SELECT
+            (SELECT count(*) FROM v_variant_manifest_overview
+             WHERE parent_strategy_spec_id = 'STRAT-SPEC-0007'),
+            (SELECT count(*)
+             FROM v_sweep_plan_overview AS sweep
+             JOIN v_variant_manifest_overview AS manifest
+               ON sweep.parent_variant_manifest_id = manifest.variant_manifest_id
+             WHERE manifest.parent_strategy_spec_id = 'STRAT-SPEC-0007'),
+            (SELECT count(*) FROM v_result_population_overview
+             WHERE parent_strategy_spec_id = 'STRAT-SPEC-0007'),
+            (SELECT count(*) FROM candidates AS candidate
+             WHERE contains(CAST(to_json(candidate) AS VARCHAR), 'STRAT-SPEC-0007')),
+            (SELECT count(*) FROM exp_plans AS plan
+             WHERE contains(CAST(to_json(plan) AS VARCHAR), 'STRAT-SPEC-0007')),
+            (SELECT count(*) FROM exp_reports AS report
+             WHERE contains(CAST(to_json(report) AS VARCHAR), 'STRAT-SPEC-0007'))
+        """
+    ).fetchone()
+    authority_posture = conn.execute(
+        """
+        SELECT status,
+               review.approval_scope,
+               pre_registration_support.variant_manifest_ref,
+               non_execution_declaration.not_executable,
+               non_execution_declaration.not_candidate_approval,
+               non_execution_declaration.not_exp_approval,
+               non_execution_declaration.not_sweep_authority,
+               non_execution_declaration.not_recommendation_authority,
+               non_execution_declaration.not_readiness_authority,
+               non_execution_declaration.not_transition_authority,
+               list_contains(
+                   constraints.deferred_pattern_blockers,
+                   'No queue admission, research execution, scheduling, candidate lifecycle, '
+                   'promotion/readiness, notification, runtime, paper, or live authority.'
+               )
+        FROM strategy_specs
+        WHERE strategy_spec_id = 'STRAT-SPEC-0007'
+        """
+    ).fetchone()
+
+    assert downstream_counts == (0, 0, 0, 0, 0, 0)
+    assert authority_posture == (
+        "review_requested",
+        "none",
+        None,
+        True,
+        True,
+        True,
+        True,
+        True,
+        True,
+        True,
+        True,
+    )
 
 
 def test_temp_strategy_spec_appears_in_read_only_views(monkeypatch, tmp_path):

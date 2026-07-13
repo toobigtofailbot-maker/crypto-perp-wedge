@@ -93,8 +93,8 @@ def test_honest_state_taken_verbatim_from_approval_queue() -> None:
 def test_batch_boundary_reflects_coverage_gap_closure() -> None:
     data = build_index_data(repo_root=REPO_ROOT)
     batch = data["batch_boundary"]
-    assert batch["subject_count"] == 8
-    assert batch["no_go_count"] == 3
+    assert batch["subject_count"] == 9
+    assert batch["no_go_count"] == 4
     assert batch["blocked_count"] == 2
     assert batch["candidate_ready_count"] == 0
     assert batch["operator_gate_pending_count"] == 0

@@ -1,0 +1,79 @@
+{
+  "schema_version": "wp_repo_baseline_stale_test_reconcile_repo_truth_v1",
+  "package_id": "WP-REPO-BASELINE-STALE-TEST-RECONCILE-01",
+  "base_sha": "8ad273516990e7b6ef8e6d18b6a69c0f863f50c8",
+  "base_ref": "origin/main",
+  "pr_654_state": "MERGED",
+  "pr_654_merge_sha": "8ad273516990e7b6ef8e6d18b6a69c0f863f50c8",
+  "open_pr_count_at_preflight": 0,
+  "primary_checkout_unexpected_changes": false,
+  "isolated_worktree_unexpected_changes_before_branching": false,
+  "strategy_spec_0007": {
+    "status": "review_requested",
+    "primary_timeframe": "1d",
+    "direction": "both",
+    "free_parameter_count": 4,
+    "intended_for_variant_manifest": true,
+    "approval_scope": "none",
+    "hash_status": "not_computed",
+    "actual_variant_manifest_count": 0,
+    "actual_sweep_plan_count": 0,
+    "actual_result_population_count": 0,
+    "candidate_reference_count": 0,
+    "experiment_plan_reference_count": 0,
+    "experiment_report_reference_count": 0
+  },
+  "external_simulator": {
+    "result_population_id": "RP-2592",
+    "strategy_spec_id": "STRAT-SPEC-0004",
+    "variant_manifest_id": "VM-0004",
+    "sweep_plan_id": "SWEEP-PLAN-0004",
+    "selected_variant_count": 8,
+    "successful_row_count": 8,
+    "result_population_checksum": "sha256:d548bfe884b8ad3ec749627da60f54fff9d54d58032eb779342fa56111c713b8",
+    "normalized_data_local_exists": false,
+    "lineage_valid": true,
+    "simulator_execution_attempted": false
+  },
+  "lab_operator_batch_boundary": {
+    "subjects_declared": 9,
+    "subject_count": 9,
+    "no_go_count": 4,
+    "blocked_count": 2,
+    "candidate_ready_count": 0,
+    "operator_gate_pending_count": 0,
+    "index_matches_dashboard": true
+  },
+  "integrity_truth": {
+    "v_integrity_strategy_spec_non_authority": [],
+    "v_integrity_strategy_spec_bounds": [],
+    "v_integrity_strategy_spec_hash_readiness": [
+      {
+        "issue_type": "strategy_spec_hash_readiness_violation",
+        "strategy_spec_id": "STRAT-SPEC-0007",
+        "field": "hash_pinning.hash_status",
+        "expected": "computed when intended_for_variant_manifest=true",
+        "observed": "not_computed"
+      }
+    ]
+  },
+  "focused_base_inventory": {
+    "external_simulator": {
+      "passed": 6,
+      "failed": 1,
+      "errors": 0
+    },
+    "lab_operator_surface": {
+      "passed": 11,
+      "failed": 1,
+      "errors": 0
+    },
+    "research_query": {
+      "passed": 60,
+      "failed": 4,
+      "errors": 0
+    },
+    "failure_set_exactly_the_six_package_nodes": true
+  },
+  "production_defect_found": false
+}

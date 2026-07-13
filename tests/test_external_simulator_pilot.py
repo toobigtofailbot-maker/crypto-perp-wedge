@@ -36,8 +36,25 @@ def test_default_fixture_mapping_uses_rp_2592_lineage():
     assert fixture["sweep_plan_id"] == "SWEEP-PLAN-0004"
     assert fixture["selected_variant_count"] == 8
     assert fixture["rp_successful_row_count"] == 8
-    assert fixture["normalized_data_local_exists"] is True
+    assert fixture["data_catalog_path"] == (
+        "research/data_slices/binance_usdtm_btcusdt_15m/"
+        "binance_usdtm_btcusdt_15m_20200101_20260411.catalog_slice.json"
+    )
+    assert fixture["normalized_data_path"] == (
+        "data/processed/d4a/"
+        "binance_um_perp_BTCUSDT_15m_2020-01-01_2026-04-11_d4a_normalized.csv"
+    )
+    assert fixture["result_population_checksum"] == (
+        "sha256:d548bfe884b8ad3ec749627da60f54fff9d54d58032eb779342fa56111c713b8"
+    )
     assert fixture["data_slice_identity"].startswith("binance_usdtm_btcusdt_ohlcv_15m:sha256:")
+    if not fixture["normalized_data_local_exists"]:
+        pytest.skip(
+            "The normalized D4A CSV is gitignored/local and absent in this isolated "
+            "worktree; committed RP/catalog lineage was still validated; no simulator "
+            "execution was attempted."
+        )
+    assert fixture["normalized_data_local_exists"] is True
 
 
 def test_blocked_nautilus_probe_marks_no_reconciliation(monkeypatch):

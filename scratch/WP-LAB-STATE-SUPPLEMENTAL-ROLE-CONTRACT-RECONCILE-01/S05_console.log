@@ -1,0 +1,13 @@
+........................................................................ [ 20%]
+........................................................................ [ 40%]
+..............F......................................................... [ 60%]
+........................................................................ [ 80%]
+....................................................................     [100%]
+================================== FAILURES ===================================
+______________ test_batch_boundary_reflects_coverage_gap_closure ______________
+tests\test_lab_operator_surface.py:96: in test_batch_boundary_reflects_coverage_gap_closure
+    assert batch["subject_count"] == 8
+E   assert 9 == 8
+=========================== short test summary info ===========================
+FAILED tests/test_lab_operator_surface.py::test_batch_boundary_reflects_coverage_gap_closure
+1 failed, 355 passed in 134.18s (0:02:14)

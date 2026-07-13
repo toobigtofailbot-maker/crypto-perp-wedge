@@ -1,0 +1,11 @@
+{
+  "shard_id": "S01",
+  "command": "python -m pytest <ordered file list> -q --tb=short --basetemp <package temp> --junitxml=<package junit>",
+  "start_utc": "2026-07-13T03:02:28.8209894Z",
+  "end_utc": "2026-07-13T03:04:41.2270733Z",
+  "elapsed_seconds": 132.39,
+  "exit_code": 1,
+  "timeout_seconds": 2700,
+  "python": "C:/GitHub/crypto-perp-wedge/.venv/Scripts/python.exe",
+  "file_list": "scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01/full_suite_shards/S01.txt"
+}

@@ -1,0 +1,295 @@
+EEEEEEEEEEEEEEE..........E......EEEE..EEE...EEEEEEEEEEEE.......EEEE.E... [ 20%]
+........................................................................ [ 40%]
+........................................................................ [ 60%]
+........................................................................ [ 80%]
+..................................................EEEEEEEEEEEEE..E..E    [100%]
+=================================== ERRORS ====================================
+_ ERROR at setup of test_local_dry_run_writes_expected_bundle_files_under_tmp_path _
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_ ERROR at setup of test_missing_output_dir_returns_failure_and_writes_no_files _
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_ ERROR at setup of test_file_path_as_output_dir_returns_failure_and_writes_no_files _
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+______ ERROR at setup of test_runner_does_not_create_parent_directories _______
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_____ ERROR at setup of test_local_dry_run_converts_intent_to_run_request _____
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_ ERROR at setup of test_manifest_output_and_validation_boundaries_are_non_authoritative _
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_ ERROR at setup of test_local_dry_run_is_deterministic_for_identical_intent __
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_ ERROR at setup of test_invalid_intent_records_failure_accounting_without_run_outputs _
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+___ ERROR at setup of test_bundle_file_content_matches_returned_structures ____
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_ ERROR at setup of test_two_axis_second_shape_writes_batch_registry_and_summary _
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_ ERROR at setup of test_two_axis_second_shape_uses_lexicographic_axis_order_and_stable_ids _
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_ ERROR at setup of test_two_axis_second_shape_fans_out_batch_items_with_combined_parameters _
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_ ERROR at setup of test_two_axis_second_shape_max_point_count_blocks_before_downstream_calls _
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_ ERROR at setup of test_second_shape_summary_has_no_interpretive_authority_fields _
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_____ ERROR at setup of test_second_shape_boundary_markers_are_preserved ______
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+________________ ERROR at setup of test_append_trial_roundtrip ________________
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_ ERROR at setup of test_price_ref_provider_selects_nearest_prior_bookticker_mid _
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_ ERROR at setup of test_price_ref_provider_falls_back_to_mark_price_when_bookticker_misses_lookback _
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_ ERROR at setup of test_price_ref_provider_fails_open_to_fixed_on_invalid_local_parquet _
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_ ERROR at setup of test_reconciliations_relation_registered_empty_with_missing_dir _
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_ ERROR at setup of test_temp_valid_reconciliation_appears_in_overview_and_summary _
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+___ ERROR at setup of test_temp_valid_reconciliation_integrity_views_empty ____
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_ ERROR at setup of test_temp_invalid_reconciliation_integrity_views_emit_stable_issues _
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+___ ERROR at setup of test_walkforward_views_expose_manifest_and_fold_rows ____
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_ ERROR at setup of test_walkforward_integrity_views_clean_for_valid_fixture __
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_ ERROR at setup of test_identical_replay_inputs_produce_identical_normalized_hash _
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+________ ERROR at setup of test_changed_metric_changes_normalized_hash ________
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_____ ERROR at setup of test_changed_denominator_changes_normalized_hash ______
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_ ERROR at setup of test_changed_parent_identity_hashes_change_normalized_hash _
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_ ERROR at setup of test_path_portable_normalization_does_not_hide_semantic_path_difference _
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+____ ERROR at setup of test_repo_root_absolute_path_matches_relative_path _____
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_________ ERROR at setup of test_external_absolute_paths_fail_closed __________
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+______ ERROR at setup of test_non_object_variant_result_row_fails_closed ______
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+___ ERROR at setup of test_contract_summary_validates_against_owned_schema ____
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_ ERROR at setup of test_compare_result_populations_reports_replay_invariant_fields _
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_________ ERROR at setup of test_run_writes_required_scratch_outputs __________
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_________ ERROR at setup of test_cli_writes_report_and_prints_summary _________
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_____________ ERROR at setup of test_invalid_input_fails_cleanly ______________
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_______ ERROR at setup of test_invalid_required_structure_fails_cleanly _______
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_ ERROR at setup of test_default_run_outputs_do_not_embed_local_absolute_paths _
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+__________ ERROR at setup of test_markdown_output_for_all_green_log ___________
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+__________ ERROR at setup of test_json_output_includes_required_keys __________
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_____ ERROR at setup of test_overall_status_pass_for_clear_all_green_log ______
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_ ERROR at setup of test_registry_pass_count_does_not_increment_pytest_passes _
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+________ ERROR at setup of test_overall_status_fail_for_pytest_failure ________
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+___________ ERROR at setup of test_overall_status_fail_for_timeout ____________
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+______ ERROR at setup of test_overall_status_fail_for_nonzero_exit_code _______
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+___ ERROR at setup of test_overall_status_fail_for_integrity_returned_rows ____
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_____ ERROR at setup of test_overall_status_unknown_when_no_clear_markers _____
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+___ ERROR at setup of test_diff_scope_clean_headings_do_not_create_failures ___
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+________ ERROR at setup of test_fail_on_error_exits_nonzero_on_failure ________
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+______________ ERROR at setup of test_raw_log_path_is_preserved _______________
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+___________ ERROR at setup of test_helper_does_not_mutate_input_log ___________
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_ ERROR at setup of test_generated_manifest_validates_against_existing_contract _
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+_____________ ERROR at setup of test_cli_writes_default_sidecars ______________
+C:\Users\dersu\AppData\Local\Python\pythoncore-3.11-64\Lib\pathlib.py:1116: in mkdir
+    os.mkdir(self, mode)
+E   FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\GitHub\\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\\scratch\\WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01\\tmp\\S01'
+============================== warnings summary ===============================
+tests/test_evaluation.py::test_sortino_positive_returns
+  C:\GitHub\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\tests\test_evaluation.py:49: Pandas4Warning: 'd' is deprecated and will be removed in a future version, please use 'D' instead.
+    dates = pd.date_range(start, periods=len(values), freq=freq, tz="UTC")
+
+tests/test_evaluation.py::test_calmar_positive_trend
+tests/test_evaluation.py::test_max_drawdown_known
+tests/test_evaluation.py::test_max_drawdown_no_drawdown
+  C:\GitHub\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\tests\test_evaluation.py:44: Pandas4Warning: 'd' is deprecated and will be removed in a future version, please use 'D' instead.
+    dates = pd.date_range(start, periods=len(values), freq=freq, tz="UTC")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+ERROR tests/research_automation/test_local_dry_run_runner.py::test_local_dry_run_writes_expected_bundle_files_under_tmp_path
+ERROR tests/research_automation/test_local_dry_run_runner.py::test_missing_output_dir_returns_failure_and_writes_no_files
+ERROR tests/research_automation/test_local_dry_run_runner.py::test_file_path_as_output_dir_returns_failure_and_writes_no_files
+ERROR tests/research_automation/test_local_dry_run_runner.py::test_runner_does_not_create_parent_directories
+ERROR tests/research_automation/test_local_dry_run_runner.py::test_local_dry_run_converts_intent_to_run_request
+ERROR tests/research_automation/test_local_dry_run_runner.py::test_manifest_output_and_validation_boundaries_are_non_authoritative
+ERROR tests/research_automation/test_local_dry_run_runner.py::test_local_dry_run_is_deterministic_for_identical_intent
+ERROR tests/research_automation/test_local_dry_run_runner.py::test_invalid_intent_records_failure_accounting_without_run_outputs
+ERROR tests/research_automation/test_local_dry_run_runner.py::test_bundle_file_content_matches_returned_structures
+ERROR tests/research_automation/test_local_parameter_sweep_second_shape.py::test_two_axis_second_shape_writes_batch_registry_and_summary
+ERROR tests/research_automation/test_local_parameter_sweep_second_shape.py::test_two_axis_second_shape_uses_lexicographic_axis_order_and_stable_ids
+ERROR tests/research_automation/test_local_parameter_sweep_second_shape.py::test_two_axis_second_shape_fans_out_batch_items_with_combined_parameters
+ERROR tests/research_automation/test_local_parameter_sweep_second_shape.py::test_two_axis_second_shape_max_point_count_blocks_before_downstream_calls
+ERROR tests/research_automation/test_local_parameter_sweep_second_shape.py::test_second_shape_summary_has_no_interpretive_authority_fields
+ERROR tests/research_automation/test_local_parameter_sweep_second_shape.py::test_second_shape_boundary_markers_are_preserved
+ERROR tests/test_evaluation.py::test_append_trial_roundtrip - FileNotFoundErr...
+ERROR tests/test_price_ref_provider.py::test_price_ref_provider_selects_nearest_prior_bookticker_mid
+ERROR tests/test_price_ref_provider.py::test_price_ref_provider_falls_back_to_mark_price_when_bookticker_misses_lookback
+ERROR tests/test_price_ref_provider.py::test_price_ref_provider_fails_open_to_fixed_on_invalid_local_parquet
+ERROR tests/test_research_query_reconciliation_views.py::test_reconciliations_relation_registered_empty_with_missing_dir
+ERROR tests/test_research_query_reconciliation_views.py::test_temp_valid_reconciliation_appears_in_overview_and_summary
+ERROR tests/test_research_query_reconciliation_views.py::test_temp_valid_reconciliation_integrity_views_empty
+ERROR tests/test_research_query_reconciliation_views.py::test_temp_invalid_reconciliation_integrity_views_emit_stable_issues
+ERROR tests/test_research_query_walkforward_views.py::test_walkforward_views_expose_manifest_and_fold_rows
+ERROR tests/test_research_query_walkforward_views.py::test_walkforward_integrity_views_clean_for_valid_fixture
+ERROR tests/test_research_replay_normalization.py::test_identical_replay_inputs_produce_identical_normalized_hash
+ERROR tests/test_research_replay_normalization.py::test_changed_metric_changes_normalized_hash
+ERROR tests/test_research_replay_normalization.py::test_changed_denominator_changes_normalized_hash
+ERROR tests/test_research_replay_normalization.py::test_changed_parent_identity_hashes_change_normalized_hash
+ERROR tests/test_research_replay_normalization.py::test_path_portable_normalization_does_not_hide_semantic_path_difference
+ERROR tests/test_research_replay_normalization.py::test_repo_root_absolute_path_matches_relative_path
+ERROR tests/test_research_replay_normalization.py::test_external_absolute_paths_fail_closed
+ERROR tests/test_research_replay_normalization.py::test_non_object_variant_result_row_fails_closed
+ERROR tests/test_research_replay_normalization.py::test_contract_summary_validates_against_owned_schema
+ERROR tests/test_research_replay_normalization.py::test_compare_result_populations_reports_replay_invariant_fields
+ERROR tests/test_robustness_depth.py::test_run_writes_required_scratch_outputs
+ERROR tests/test_robustness_depth.py::test_cli_writes_report_and_prints_summary
+ERROR tests/test_robustness_depth.py::test_invalid_input_fails_cleanly - File...
+ERROR tests/test_robustness_depth.py::test_invalid_required_structure_fails_cleanly
+ERROR tests/test_robustness_depth.py::test_default_run_outputs_do_not_embed_local_absolute_paths
+ERROR tests/test_validation_summary.py::test_markdown_output_for_all_green_log
+ERROR tests/test_validation_summary.py::test_json_output_includes_required_keys
+ERROR tests/test_validation_summary.py::test_overall_status_pass_for_clear_all_green_log
+ERROR tests/test_validation_summary.py::test_registry_pass_count_does_not_increment_pytest_passes
+ERROR tests/test_validation_summary.py::test_overall_status_fail_for_pytest_failure
+ERROR tests/test_validation_summary.py::test_overall_status_fail_for_timeout
+ERROR tests/test_validation_summary.py::test_overall_status_fail_for_nonzero_exit_code
+ERROR tests/test_validation_summary.py::test_overall_status_fail_for_integrity_returned_rows
+ERROR tests/test_validation_summary.py::test_overall_status_unknown_when_no_clear_markers
+ERROR tests/test_validation_summary.py::test_diff_scope_clean_headings_do_not_create_failures
+ERROR tests/test_validation_summary.py::test_fail_on_error_exits_nonzero_on_failure
+ERROR tests/test_validation_summary.py::test_raw_log_path_is_preserved - File...
+ERROR tests/test_validation_summary.py::test_helper_does_not_mutate_input_log
+ERROR tests/test_walkforward_purged_folds.py::test_generated_manifest_validates_against_existing_contract
+ERROR tests/test_walkforward_purged_folds.py::test_cli_writes_default_sidecars
+302 passed, 4 warnings, 55 errors in 129.98s (0:02:09)

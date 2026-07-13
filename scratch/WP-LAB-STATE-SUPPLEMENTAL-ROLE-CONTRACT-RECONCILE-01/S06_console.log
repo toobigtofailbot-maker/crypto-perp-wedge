@@ -1,0 +1,13 @@
+........................................................................ [ 20%]
+................................................sssss................... [ 40%]
+........................................................................ [ 60%]
+........................................................................ [ 80%]
+....................................................................     [100%]
+============================== warnings summary ===============================
+tools\canon_intake\queue_admission.py:16
+tools\canon_intake\queue_admission.py:16
+  C:\GitHub\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\tools\canon_intake\queue_admission.py:16: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
+    from jsonschema import Draft7Validator, FormatChecker, RefResolver
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+351 passed, 5 skipped, 2 warnings in 281.23s (0:04:41)

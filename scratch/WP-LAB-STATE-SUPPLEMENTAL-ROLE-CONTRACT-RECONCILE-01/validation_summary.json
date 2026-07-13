@@ -1,0 +1,64 @@
+{
+  "schema_version": "wp_lab_state_supplemental_role_contract_reconcile_validation_v2",
+  "base_sha": "bfc15567850dd143dd064f688a0fa99fbeec9eff",
+  "implementation_frozen": true,
+  "original_monolithic_run": {
+    "result": "timeout",
+    "timeout_seconds": 5404,
+    "partial_junit_tests": 2002,
+    "accepted_as_pass": false
+  },
+  "deterministic_collection": {
+    "runs": 2,
+    "collected_nodes": 2848,
+    "collected_files": 157,
+    "sorted_inventories_byte_identical": true,
+    "node_inventory_sha256": "e785f8add24c57f09225779b6c1fc3a605fd30083226c212d82a73f8b553f296",
+    "collection_errors": 0,
+    "internal_errors": 0
+  },
+  "sharded_full_suite": {
+    "algorithm": "greedy_lpt_file_sharding_v1",
+    "terminal_leaf_shards": 8,
+    "collected_and_executed_exactly_once": true,
+    "passed": 2836,
+    "failed": 6,
+    "skipped": 6,
+    "errors": 0,
+    "internal_errors": 0,
+    "final_leaf_timeouts": 0,
+    "failure_union_exact_allowlist_match": true,
+    "all_15_affected_lab_state_nodes_passed": true,
+    "preliminary_harness_attempts_excluded": [
+      "S01 attempt 1: absent in-repo basetemp parent",
+      "S03 attempt 1: in-repo basetemp triggered deliberate path guards"
+    ]
+  },
+  "focused": {"passed": 27, "failed": 0, "errors": 0},
+  "adjacent": {
+    "passed": 108,
+    "failed": 1,
+    "errors": 0,
+    "remaining_node": "tests/test_lab_operator_surface.py::test_batch_boundary_reflects_coverage_gap_closure",
+    "classification": "pre-inventoried stale exact-count expectation"
+  },
+  "coverage_cli": {
+    "total_discovered_artifacts": 2049,
+    "covered_coordinator_artifacts": 123,
+    "surface_visible_artifacts": 119,
+    "unmapped_gap_artifacts": 0,
+    "malformed_or_unreadable_artifacts": 0,
+    "riskmanaged_exact_paths": 15,
+    "riskmanaged_invalid_classifications": 0,
+    "wrote_repo_state": false
+  },
+  "preservation": {
+    "read_only_hashes_checked": 71,
+    "read_only_hash_changes": 0,
+    "frozen_production_test_hash_changes": 0,
+    "py_compile": "passed",
+    "git_diff_check": "passed",
+    "forbidden_path_matches": 0
+  },
+  "verdict": "READY_FOR_PR_REVIEW"
+}

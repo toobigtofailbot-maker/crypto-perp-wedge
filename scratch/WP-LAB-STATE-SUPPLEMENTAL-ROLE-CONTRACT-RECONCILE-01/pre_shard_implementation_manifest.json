@@ -1,0 +1,18 @@
+{
+  "schema_version": "wp_lab_state_pre_shard_implementation_manifest_v1",
+  "base_sha": "bfc15567850dd143dd064f688a0fa99fbeec9eff",
+  "diff_patch_sha256": "d67582f3dd77928b069e4c5a7d56d9347d407b485e58cb28344bc2e00104133d",
+  "changed_file_scope": [
+    "tools/lab_state_coverage_audit/audit.py",
+    "tests/test_lab_state_coverage_audit.py",
+    "docs/status_entries/WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01.md",
+    "scratch/WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01/**"
+  ],
+  "frozen_file_sha256": {
+    "tools/lab_state_coverage_audit/audit.py": "1ee629a2934969ad22cbfbb2f0fd38d64d8611b945de2a3287db73ff29a4929c",
+    "tests/test_lab_state_coverage_audit.py": "615adc2f2f19ae95d21455d8e9420e3a3efe5e54c2035ac66961fba7a744fd5d",
+    "docs/status_entries/WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01.md": "567348e3d17efa5e9b978f1283b17174b7d14c1fef8e3f720b97146ac46a4d77",
+    "scratch/WP-LAB-STATE-SUPPLEMENTAL-ROLE-CONTRACT-RECONCILE-01/validation_summary.json": "a845746f44985c37b35ebc88ed9807453740b497951bde8ea7e42652c392d0fb"
+  },
+  "freeze_rule": "Production and test implementation are frozen. Only validation evidence and status/report text may change."
+}

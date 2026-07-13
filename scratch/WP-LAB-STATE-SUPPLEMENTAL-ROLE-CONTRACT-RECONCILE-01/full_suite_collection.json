@@ -1,0 +1,15 @@
+{
+  "schema_version": "wp_lab_state_full_suite_collection_v1",
+  "command": "C:/GitHub/crypto-perp-wedge/.venv/Scripts/python.exe -m pytest --collect-only -q",
+  "collection_runs": 2,
+  "collection_errors": 0,
+  "internal_errors": 0,
+  "collected_node_count": 2848,
+  "collected_file_count": 157,
+  "deterministic_ordering": true,
+  "sorted_inventories_byte_identical": true,
+  "sorted_node_inventory_sha256": "e785f8add24c57f09225779b6c1fc3a605fd30083226c212d82a73f8b553f296",
+  "run_1_output_sha256": "da329378b85c20b2ef465da7323c2348b97ee2b5cad6c1ca24470c4956ac2a89",
+  "run_2_output_sha256": "dd4233ffe61d8f65ecd8a1421d1a98a205f1edb81b9761ab27cab601a0964221",
+  "warnings": 5
+}

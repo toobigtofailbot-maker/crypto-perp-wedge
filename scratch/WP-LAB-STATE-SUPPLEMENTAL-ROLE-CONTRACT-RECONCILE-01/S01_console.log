@@ -1,0 +1,18 @@
+........................................................................ [ 20%]
+........................................................................ [ 40%]
+........................................................................ [ 60%]
+........................................................................ [ 80%]
+.....................................................................    [100%]
+============================== warnings summary ===============================
+tests/test_evaluation.py::test_sortino_positive_returns
+  C:\GitHub\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\tests\test_evaluation.py:49: Pandas4Warning: 'd' is deprecated and will be removed in a future version, please use 'D' instead.
+    dates = pd.date_range(start, periods=len(values), freq=freq, tz="UTC")
+
+tests/test_evaluation.py::test_calmar_positive_trend
+tests/test_evaluation.py::test_max_drawdown_known
+tests/test_evaluation.py::test_max_drawdown_no_drawdown
+  C:\GitHub\crypto-perp-wedge-wp-lab-state-supplemental-role-contract-reconcile-01\tests\test_evaluation.py:44: Pandas4Warning: 'd' is deprecated and will be removed in a future version, please use 'D' instead.
+    dates = pd.date_range(start, periods=len(values), freq=freq, tz="UTC")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+357 passed, 4 warnings in 220.01s (0:03:40)

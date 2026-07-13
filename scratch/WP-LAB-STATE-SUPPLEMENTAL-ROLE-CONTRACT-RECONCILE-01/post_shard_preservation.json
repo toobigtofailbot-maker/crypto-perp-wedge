@@ -1,0 +1,14 @@
+{
+  "schema_version": "wp_lab_state_post_shard_preservation_v1",
+  "read_only_hashes_checked": 71,
+  "read_only_hash_changes": [],
+  "frozen_implementation_sha256": {
+    "tools/lab_state_coverage_audit/audit.py": "1ee629a2934969ad22cbfbb2f0fd38d64d8611b945de2a3287db73ff29a4929c",
+    "tests/test_lab_state_coverage_audit.py": "615adc2f2f19ae95d21455d8e9420e3a3efe5e54c2035ac66961fba7a744fd5d"
+  },
+  "frozen_implementation_hash_changes": [],
+  "package_json_files_parsed": 20,
+  "package_junit_files_parsed": 14,
+  "git_diff_check": "passed",
+  "forbidden_path_matches": 0
+}

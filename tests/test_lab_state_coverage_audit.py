@@ -55,6 +55,54 @@ def test_coordinator_paths_rejects_unknown_role() -> None:
         coordinator_paths_from_subjects(bad)
 
 
+def test_exact_riskmanaged_conclusion_role_is_surface_rendered() -> None:
+    path = "scratch/example-riskmanaged-conclusion.json"
+    subjects = {
+        "x": {
+            "supplemental_artifacts": [
+                {"role": "riskmanaged_conclusion_evidence", "path": path}
+            ]
+        }
+    }
+    surface, consulted = coordinator_paths_from_subjects(subjects)
+    assert surface == frozenset({path})
+    assert consulted == frozenset()
+
+
+def test_live_riskmanaged_conclusion_paths_are_surface_rendered() -> None:
+    subject = SUBJECTS["funding_fade_riskmanaged_no_go"]
+    expected = {item["path"] for item in subject["supplemental_artifacts"]}
+    assert {item["role"] for item in subject["supplemental_artifacts"]} == {
+        "riskmanaged_conclusion_evidence"
+    }
+    surface, consulted = coordinator_paths_from_subjects(SUBJECTS)
+    assert expected <= surface
+    assert not (expected & consulted)
+
+
+@pytest.mark.parametrize(
+    "role",
+    ["made_up_role", "riskmanaged_unknown", "riskmanaged_conclusion_evidence_extra"],
+)
+def test_unknown_supplemental_roles_fail_closed(role: str) -> None:
+    subjects = {
+        "x": {"supplemental_artifacts": [{"role": role, "path": "scratch/x.json"}]}
+    }
+    with pytest.raises(AuditError, match=role):
+        coordinator_paths_from_subjects(subjects)
+
+
+@pytest.mark.parametrize(
+    "role", ["supplemental_evidence", "legacy_evidence", "canonical_evidence", "bundle_evidence"]
+)
+def test_existing_supplemental_role_prefixes_remain_accepted(role: str) -> None:
+    path = f"scratch/{role}.json"
+    subjects = {"x": {"supplemental_artifacts": [{"role": role, "path": path}]}}
+    surface, consulted = coordinator_paths_from_subjects(subjects)
+    assert surface == frozenset({path})
+    assert consulted == frozenset()
+
+
 # ---------------------------------------------------------------------------
 # classify_artifact — coverage-bearing paths.
 # ---------------------------------------------------------------------------
@@ -75,6 +123,20 @@ def test_consulted_path_is_coordinator_covered_not_rendered(
     assert result.category == "coordinator_subject_covered"
     assert result.coverage_status == "covered"
     assert result.surface_visible is False
+
+
+def test_riskmanaged_conclusion_path_is_surface_visible_and_covered(
+    ctx: CoverageContext,
+) -> None:
+    path = (
+        "scratch/WP-RESEARCH-FUNDING-FADE-RISKMANAGED-CONCLUDE-01/"
+        "conclusion_summary.json"
+    )
+    result = classify_artifact(path, ctx)
+    assert result.category == "surface_visible"
+    assert result.coverage_status == "covered"
+    assert result.surface_visible is True
+    assert result.requires_followup is False
 
 
 # ---------------------------------------------------------------------------
@@ -193,11 +255,13 @@ def test_build_coverage_audit_over_repo_covers_bound_paths() -> None:
     payload = run.build_coverage_audit()
     summary = payload["summary"]
     # All coordinator-referenced and supplemental historical paths resolve to covered.
-    assert summary["totals"]["covered_coordinator_artifacts"] == 107
-    assert summary["totals"]["surface_visible_artifacts"] == 103
-    assert summary["totals"]["unmapped_gap_artifacts"] == 0
-    # The repo is large; the audit must enumerate a substantial universe.
-    assert summary["totals"]["total_discovered_artifacts"] > 1000
+    assert summary["totals"] == {
+        "total_discovered_artifacts": 2049,
+        "covered_coordinator_artifacts": 123,
+        "surface_visible_artifacts": 119,
+        "unmapped_gap_artifacts": 0,
+        "malformed_or_unreadable_artifacts": 0,
+    }
     # No category count is negative and they sum to the total.
     total = summary["totals"]["total_discovered_artifacts"]
     assert sum(summary["by_category"].values()) == total

@@ -1,0 +1,132 @@
+{
+  "schema_version": "wp_canon_variant_planning_approval_writer_validation_summary_v1",
+  "package_id": "WP-CANON-VARIANT-PLANNING-APPROVAL-WRITER-01A",
+  "verdict": "pass",
+  "focused": {
+    "new_writer_tests": {
+      "passed": 71,
+      "skipped": 0,
+      "failed": 0,
+      "errors": 0
+    },
+    "adjacent_protected_contracts": {
+      "command_scope": [
+        "tests/test_canon_intake_variant_planning_approval.py",
+        "tests/test_canon_intake_spec_writer.py",
+        "tests/test_canon_intake_queue_admission.py",
+        "tests/test_validate_variant_sweep_artifacts.py",
+        "tests/test_canon_queue_control_plane_contracts.py"
+      ],
+      "passed": 220,
+      "skipped": 5,
+      "failed": 0,
+      "errors": 0,
+      "skip_class": "Windows symlink creation privilege unavailable in five pre-existing queue-admission tests"
+    }
+  },
+  "deterministic_full_suite": {
+    "global_collection": {
+      "runs": 2,
+      "identical": true,
+      "unique_nodes_each_run": 2920,
+      "normalized_inventory_sha256": "18bc5e4897b878111069dae89d827dc07a2e1db51f40373f059bda2c64bc74a2"
+    },
+    "tracked_sharder_collection": {
+      "runs": 2,
+      "identical": true,
+      "tracked_test_files": 143,
+      "unique_nodes_each_run": 2661,
+      "normalized_inventory_sha256": "b34b8c7c745274f4e7b9a405518d1ed3abcaafd97a159543f74abae9e4c788b3",
+      "new_test_module_included": true
+    },
+    "tracked_eight_shard_verifier": {
+      "overall_status": "pass",
+      "workers": 4,
+      "per_shard_timeout_seconds": 5400,
+      "passed": 2654,
+      "skipped": 7,
+      "failed": 0,
+      "errors": 0,
+      "internal_errors": 0,
+      "timed_out_shards": 0,
+      "shards": [
+        {"index": 0, "passed": 189, "skipped": 0, "elapsed_seconds": 584.641},
+        {"index": 1, "passed": 520, "skipped": 6, "elapsed_seconds": 1033.906},
+        {"index": 2, "passed": 344, "skipped": 0, "elapsed_seconds": 631.344},
+        {"index": 3, "passed": 344, "skipped": 0, "elapsed_seconds": 506.688},
+        {"index": 4, "passed": 219, "skipped": 1, "elapsed_seconds": 401.922},
+        {"index": 5, "passed": 324, "skipped": 0, "elapsed_seconds": 432.109},
+        {"index": 6, "passed": 418, "skipped": 0, "elapsed_seconds": 2427.031},
+        {"index": 7, "passed": 296, "skipped": 0, "elapsed_seconds": 1392.015}
+      ]
+    },
+    "nested_directory_supplement": {
+      "reason": "The repository sharder intentionally discovers tests with git ls-files tests/test*.py, which excludes the disjoint tests/research_automation nested directory.",
+      "test_files": 15,
+      "passed": 259,
+      "skipped": 0,
+      "failed": 0,
+      "errors": 0
+    },
+    "combined_exact_inventory": {
+      "nodes_executed_exactly_once": 2920,
+      "passed": 2913,
+      "skipped": 7,
+      "failed": 0,
+      "errors": 0,
+      "internal_errors": 0,
+      "terminal_timeouts": 0
+    },
+    "authorized_skip_set": [
+      "tests/test_external_simulator_pilot.py::test_default_fixture_mapping_uses_rp_2592_lineage",
+      "tests/test_backtest_liquidation.py::test_buy_and_hold_unchanged_on_benign_window",
+      "tests/test_canon_intake_queue_admission.py::test_gate_q_symlink_alias_fails",
+      "tests/test_canon_intake_queue_admission.py::test_authoritative_gate_q_under_symlinked_parent_fails",
+      "tests/test_canon_intake_queue_admission.py::test_referenced_artifact_symlink_fails",
+      "tests/test_canon_intake_queue_admission.py::test_symlinked_admission_parent_fails",
+      "tests/test_canon_intake_queue_admission.py::test_symlinked_audit_directory_fails"
+    ]
+  },
+  "schema_and_semantic_validation": {
+    "approval_schema_draft7_valid": true,
+    "audit_schema_draft7_valid": true,
+    "all_protected_schema_objects_closed": true,
+    "merged_approval_proposal_validates": true,
+    "merged_audit_proposal_validates": true,
+    "proposal_contract_core_sha256": "sha256:4b8e126870c918e88ac42336427c3ba495bcac6433bd3741b0a01c712bf99f0",
+    "proposal_contract_core_hash_matches": true,
+    "strategy_spec_registry_validator": "pass",
+    "variant_manifest_and_sweep_plan_validator": "pass",
+    "result_population_validator": "pass",
+    "python_compile": "pass"
+  },
+  "static_scope_and_preservation": {
+    "changed_json_parse": "pass",
+    "git_diff_check": "pass",
+    "staged_diff_check": "pass",
+    "exact_changed_file_allowlist": "pass",
+    "authorized_research_schema_scope_check": "pass",
+    "forbidden_scope_diff_count": 0,
+    "production_and_canonical_inputs_byte_identical": true,
+    "real_authority_artifact_absent": true,
+    "dependency_or_configuration_change": false
+  },
+  "non_acceptance_attempts": [
+    {
+      "stage": "preflight baseline",
+      "result": "resource-contention timeout on shard 5 after seven shards passed",
+      "disposition": "shard 5 passed in isolation; this attempt is disclosed in repo_truth.json and is not final acceptance evidence"
+    },
+    {
+      "stage": "pre-stage package-head verifier",
+      "result": "all eight tracked shards passed, but the advisory diff-scope command lacked the package's explicit schema authorization and the untracked new test was absent from git ls-files",
+      "disposition": "not used for acceptance; files were staged, the supported research-schema authorization was supplied, inventories were recollected, and the complete final run passed"
+    },
+    {
+      "stage": "optional Ruff check",
+      "result": "Ruff is not installed in the existing environment",
+      "disposition": "no dependency was added; line-length, py_compile, focused tests, full tests, and required repo validators passed"
+    }
+  ],
+  "acceptance_ready": true
+}

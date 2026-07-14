@@ -1,0 +1,159 @@
+{
+  "schema_version": "wp_canon_variant_planning_approval_writer_contract_matrix_v1",
+  "package_id": "WP-CANON-VARIANT-PLANNING-APPROVAL-WRITER-01A",
+  "objective": "Implement a separate append-only Gate C-VP approval schema, protected writer, audit contract, and failure-closed tests without creating production authority.",
+  "contracts": [
+    {
+      "id": "approval-schema",
+      "requirement": "Closed approval contract with derived identity/path, Karl-only scope, immutable parent and Gate-C lineage, bounded VM core, single-use declarations, and locked authority flags.",
+      "implementation": [
+        "research/schemas/strategy_spec_variant_planning_approval.schema.json"
+      ],
+      "verification": [
+        "schema proposal validation",
+        "tests/test_canon_intake_variant_planning_approval.py::test_schemas_are_closed_draft7_contracts",
+        "focused malformed and semantic mutation tests"
+      ],
+      "status": "satisfied"
+    },
+    {
+      "id": "audit-schema",
+      "requirement": "Closed canonical audit record binding approval bytes, parent, Gate-C lineage, VM/search-family core, writer outcome, and explicit downstream non-authority facts.",
+      "implementation": [
+        "research/schemas/strategy_spec_variant_planning_approval_audit.schema.json"
+      ],
+      "verification": [
+        "schema proposal validation",
+        "exact one-line audit success test",
+        "historical replay mutation tests"
+      ],
+      "status": "satisfied"
+    },
+    {
+      "id": "pre-lock-validation",
+      "requirement": "Validate schema, target binding, path confinement, symlink absence, parent bytes/status, exact Gate-C raw line, contract core, and every permanent collision before locking.",
+      "implementation": [
+        "tools/canon_intake/variant_planning_approval.py"
+      ],
+      "verification": [
+        "parent and Gate-C mutation tests",
+        "path traversal, symlink, and broken-symlink tests",
+        "core-hash and float-rejection tests",
+        "approval, VM, and audit collision tests"
+      ],
+      "status": "satisfied"
+    },
+    {
+      "id": "inside-lock-revalidation",
+      "requirement": "Repeat mutable-state, corpus, history, and target checks under one repository-local exclusive lock.",
+      "implementation": [
+        "tools/canon_intake/variant_planning_approval.py"
+      ],
+      "verification": [
+        "lock collision test",
+        "in-lock mutation tests",
+        "concurrent target creation test"
+      ],
+      "status": "satisfied"
+    },
+    {
+      "id": "exact-commit",
+      "requirement": "Exclusively write the exact reviewed approval bytes, flush/fsync, then append exactly one canonical audit JSON line with one LF.",
+      "implementation": [
+        "tools/canon_intake/variant_planning_approval.py"
+      ],
+      "verification": [
+        "exact-byte CLI and API success tests",
+        "approval hash and audit line assertions",
+        "duplicate submission rejection test"
+      ],
+      "status": "satisfied"
+    },
+    {
+      "id": "failure-atomicity",
+      "requirement": "Leave no partial artifact on failure, roll back partial commit, surface rollback failure as integrity-critical, and preserve a committed pair when lock cleanup fails.",
+      "implementation": [
+        "tools/canon_intake/variant_planning_approval.py"
+      ],
+      "verification": [
+        "approval flush/fsync failure tests",
+        "audit open/write/flush failure tests",
+        "rollback success and rollback failure tests",
+        "post-commit lock-cleanup failure test"
+      ],
+      "status": "satisfied"
+    },
+    {
+      "id": "complete-history-replay",
+      "requirement": "Fail closed on malformed, missing, tampered, inconsistent, or colliding historical audit/approval evidence.",
+      "implementation": [
+        "tools/canon_intake/variant_planning_approval.py"
+      ],
+      "verification": [
+        "valid prior-line preservation test",
+        "canonical historical JSONL test",
+        "malformed historical line test",
+        "missing historical approval test",
+        "orphan approval without audit test",
+        "historical approval tamper tests"
+      ],
+      "status": "satisfied"
+    },
+    {
+      "id": "canonical-core",
+      "requirement": "Reject floats on the protected approval/core surface and hash the exact core with repo_canonical_json_v1 while allowing valid numeric data in referenced Specs and VMs.",
+      "implementation": [
+        "tools/canon_intake/variant_planning_approval.py"
+      ],
+      "verification": [
+        "protected float-rejection tests",
+        "float-bearing referenced artifact regression test",
+        "axis/order/value/population/denominator/search-family mutations"
+      ],
+      "status": "satisfied"
+    },
+    {
+      "id": "output-boundary",
+      "requirement": "Write only one approval, one audit line, and the temporary lock lifecycle; grant no Gate-Q or downstream authority.",
+      "implementation": [
+        "research/schemas/strategy_spec_variant_planning_approval.schema.json",
+        "research/schemas/strategy_spec_variant_planning_approval_audit.schema.json",
+        "tools/canon_intake/variant_planning_approval.py"
+      ],
+      "verification": [
+        "authority flag mutation tests",
+        "no downstream output success assertion",
+        "preservation_manifest.json"
+      ],
+      "status": "satisfied"
+    },
+    {
+      "id": "production-authority-absence",
+      "requirement": "Create no real approval, authoritative audit line, VM, Sweep, Gate-Q item, queue item, execution, result, candidate, or runtime state.",
+      "implementation": [],
+      "verification": [
+        "exact changed-file allowlist",
+        "authoritative directory absence check",
+        "preservation_manifest.json"
+      ],
+      "status": "satisfied"
+    }
+  ],
+  "authority_flags": {
+    "required_true": [
+      "authorizes_variant_manifest_preparation",
+      "authorizes_one_manifest_only"
+    ],
+    "all_other_design_flags_required_false": true,
+    "gate_q_authority": false,
+    "queue_authority": false,
+    "dispatch_authority": false,
+    "research_execution_authority": false,
+    "result_population_authority": false,
+    "candidate_authority": false,
+    "ranking_or_recommendation_authority": false,
+    "promotion_authority": false,
+    "runtime_or_paper_live_authority": false
+  },
+  "traceability_complete": true
+}

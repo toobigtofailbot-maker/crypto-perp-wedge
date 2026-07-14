@@ -1,0 +1,90 @@
+{
+  "schema_version": "wp_canon_variant_planning_approval_writer_repo_truth_v1",
+  "package_id": "WP-CANON-VARIANT-PLANNING-APPROVAL-WRITER-01A",
+  "recorded_date": "2026-07-14",
+  "repository": {
+    "name": "toobigtofailbot-maker/crypto-perp-wedge",
+    "base_ref": "origin/main",
+    "base_sha": "b83b592d25c64e4a28b3eff96ee7a88f64e6d5eb",
+    "branch": "codex/wp-canon-variant-planning-approval-writer-01a",
+    "worktree": "C:\\GitHub\\crypto-perp-wedge-wp-canon-variant-planning-approval-writer-01a",
+    "root_checkout_clean_before_branching": true,
+    "local_main_fast_forwarded_to_origin_main": true,
+    "pr_656_merged_at_base": true,
+    "branch_absent_locally_and_remotely_before_creation": true,
+    "open_pr_owning_exact_scope_before_creation": false
+  },
+  "merged_design": {
+    "path": "docs/architecture/strategy_spec_variant_planning_authority.md",
+    "sha256": "ad8185a2ac80a9d39bdc0a272835efc74d876550590a0d21d007b21ddd2b1708",
+    "selected_authority": "standalone_gate_c_vp",
+    "approval_path": "research/strategy_spec_variant_planning_approvals/<approval_id>.variant_planning_approval.json",
+    "audit_path": "research/strategy_spec_variant_planning_audit/variant_planning_approvals.jsonl",
+    "authority_limit": "one_bounded_variant_manifest_preparation"
+  },
+  "canonical_parent": {
+    "strategy_spec_id": "STRAT-SPEC-0007",
+    "path": "research/strategy_specs/STRAT-SPEC-0007.strategy_spec.json",
+    "byte_length": 19880,
+    "sha256": "b23ebc1093df51b7fab5e39c46fd2b96b5e71d35300134eb319a5cbc32d0857c",
+    "embedded_status": "review_requested",
+    "approval_scope": "none",
+    "reviewer": null,
+    "byte_identical_to_base": true
+  },
+  "gate_c_lineage": {
+    "audit_path": "research/canonical_crossing_audit/strategy_spec_writes.jsonl",
+    "audit_line_number": 1,
+    "raw_line_includes_lf": true,
+    "raw_line_sha256": "ef5a452a4aff61a35fdbdfcf16162362400345f28af67b7bb41aa4ae36024be2",
+    "gate_c_approval_id": "GATE-C-H004-R2-0001",
+    "gate_c_approval_sha256": "b05753fe01cc99aa2c4f0e419fca88f4f843154f12843f01aae775eb1e4e68cd",
+    "bound_strategy_spec_id": "STRAT-SPEC-0007",
+    "lineage_intact": true
+  },
+  "canonical_inventory": {
+    "strategy_specs": 7,
+    "variant_manifests": 6,
+    "sweep_plans": 6,
+    "gate_q_approvals": 0,
+    "queue_items": 0,
+    "research_queue_directory_exists": false
+  },
+  "pre_mutation_contradiction_scan": {
+    "equivalent_approval_schema_exists": false,
+    "equivalent_audit_schema_exists": false,
+    "equivalent_writer_exists": false,
+    "authoritative_approval_directory_exists": false,
+    "authoritative_audit_directory_exists": false,
+    "reserved_vpapp_identifier_exists": false,
+    "reserved_vpaudit_identifier_exists": false,
+    "reserved_vm_0007_exists": false,
+    "reserved_target_search_family_exists": false,
+    "schema_id_convention": "repo-local schema filename",
+    "canonical_json_function": "tools.canon_intake.queue_admission.repo_canonical_json_v1",
+    "canonical_json_rules": "UTF-8, sorted keys, compact separators, ensure_ascii=false, recursive float rejection",
+    "gate_c_reference_semantics": "one-based exact raw JSONL line hashed with its LF terminator",
+    "lock_semantics": "repository-local O_EXCL lock with no automatic stale-lock removal",
+    "rollback_semantics": "exclusive target creation, exact audit append rollback, integrity-critical rollback failure",
+    "path_defense": "repository confinement plus rejection of every symlink component",
+    "historical_replay": "parse, schema-check, and semantically replay every prior audit record and bound approval",
+    "collision_scan": "approval ID/path, VM ID/path, and nested search-family values across approvals, audit, and canonical VM corpus",
+    "cross_platform_conclusion": "O_EXCL target creation and explicit file flush/fsync are used on Windows and POSIX, matching the existing protected-writer convention",
+    "contradiction_found": false
+  },
+  "preflight_baseline": {
+    "collection_runs_identical": true,
+    "collected_nodes_each_run": 2849,
+    "normalized_inventory_sha256": "5a9dc4b2f04c6ce50ec561aaf0ca7ed679b52ab99d43f2a55e620875e4216bd1",
+    "first_sharded_attempt": "outer execution wrapper ended after 20 minutes before an aggregate result was emitted",
+    "parallel_sharded_attempt": "seven shards passed; shard 5 reached its 1800-second resource-contention timeout without a test failure or error",
+    "isolated_shard_5_rerun": "435 passed in 1742.45 seconds with zero failures and zero errors",
+    "disposition": "preflight established deterministic collection and passing test behavior across all shards; only the package-head run is used as final acceptance evidence"
+  },
+  "authority_state": {
+    "real_variant_planning_approval_created": false,
+    "real_variant_planning_audit_line_created": false,
+    "research_execution_authorized": false,
+    "downstream_state_changed": false
+  }
+}

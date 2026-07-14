@@ -1,0 +1,379 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "strategy_spec_variant_planning_approval.schema.json",
+  "title": "Standalone Gate C-VP exact variant-planning approval",
+  "description": "Append-only Karl approval for preparation of exactly one bounded Variant Manifest. This contract grants no Gate-Q, queue, dispatch, execution, result, candidate, ranking, recommendation, promotion, runtime, paper/live, OMS, risk, or reconciliation authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "approval_id",
+    "approval_artifact_target_path",
+    "approved_by",
+    "approved_at",
+    "approval_scope",
+    "exact_content_and_target_only",
+    "append_only",
+    "single_use_approval_id",
+    "canonical_parent",
+    "variant_manifest_contract_core",
+    "contract_core_sha256",
+    "contract_core_hash_scope",
+    "contract_core_canonicalization",
+    "amendment_revocation_policy",
+    "reuse_policy",
+    "overwrite_forbidden",
+    "authority_flags"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "strategy_spec_variant_planning_approval_v1"
+    },
+    "approval_id": {
+      "$ref": "#/definitions/approval_id"
+    },
+    "approval_artifact_target_path": {
+      "type": "string",
+      "pattern": "^research/strategy_spec_variant_planning_approvals/VPAPP-[0-9]{8}-[A-Z0-9]{8}\\.variant_planning_approval\\.json$"
+    },
+    "approved_by": {
+      "const": "Karl"
+    },
+    "approved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "approval_scope": {
+      "const": "one_bounded_variant_manifest_preparation"
+    },
+    "exact_content_and_target_only": {
+      "const": true
+    },
+    "append_only": {
+      "const": true
+    },
+    "single_use_approval_id": {
+      "const": true
+    },
+    "canonical_parent": {
+      "$ref": "#/definitions/canonical_parent"
+    },
+    "variant_manifest_contract_core": {
+      "$ref": "#/definitions/variant_manifest_contract_core"
+    },
+    "contract_core_sha256": {
+      "$ref": "#/definitions/hash"
+    },
+    "contract_core_hash_scope": {
+      "const": "variant_planning_contract_core_v1"
+    },
+    "contract_core_canonicalization": {
+      "const": "repo_canonical_json_v1"
+    },
+    "amendment_revocation_policy": {
+      "const": "supersede_with_new_approval_before_manifest_creation"
+    },
+    "reuse_policy": {
+      "const": "reject_all_identifier_path_and_search_family_reuse"
+    },
+    "overwrite_forbidden": {
+      "const": true
+    },
+    "authority_flags": {
+      "$ref": "#/definitions/authority_flags"
+    }
+  },
+  "definitions": {
+    "hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "approval_id": {
+      "type": "string",
+      "pattern": "^VPAPP-[0-9]{8}-[A-Z0-9]{8}$"
+    },
+    "strategy_spec_id": {
+      "type": "string",
+      "pattern": "^STRAT-SPEC-[0-9]{4}$"
+    },
+    "strategy_spec_path": {
+      "type": "string",
+      "pattern": "^research/strategy_specs/STRAT-SPEC-[0-9]{4}\\.strategy_spec\\.json$"
+    },
+    "variant_manifest_id": {
+      "type": "string",
+      "pattern": "^VM-[0-9]{4}$"
+    },
+    "variant_manifest_path": {
+      "type": "string",
+      "pattern": "^research/variant_manifests/VM-[0-9]{4}\\.variant_manifest\\.json$"
+    },
+    "search_family_id": {
+      "type": "string",
+      "pattern": "^SF-[A-Z0-9][A-Z0-9-]{2,126}[A-Z0-9]$"
+    },
+    "gate_c_audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "audit_path",
+        "line_number",
+        "raw_record_sha256",
+        "gate_c_approval_id",
+        "strategy_spec_id",
+        "canonical_target_path"
+      ],
+      "properties": {
+        "audit_path": {
+          "const": "research/canonical_crossing_audit/strategy_spec_writes.jsonl"
+        },
+        "line_number": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "raw_record_sha256": {
+          "$ref": "#/definitions/hash"
+        },
+        "gate_c_approval_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "strategy_spec_id": {
+          "$ref": "#/definitions/strategy_spec_id"
+        },
+        "canonical_target_path": {
+          "$ref": "#/definitions/strategy_spec_path"
+        }
+      }
+    },
+    "canonical_parent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "strategy_spec_id",
+        "path",
+        "sha256",
+        "embedded_status",
+        "gate_c_audit"
+      ],
+      "properties": {
+        "strategy_spec_id": {
+          "$ref": "#/definitions/strategy_spec_id"
+        },
+        "path": {
+          "$ref": "#/definitions/strategy_spec_path"
+        },
+        "sha256": {
+          "$ref": "#/definitions/hash"
+        },
+        "embedded_status": {
+          "const": "review_requested"
+        },
+        "gate_c_audit": {
+          "$ref": "#/definitions/gate_c_audit"
+        }
+      }
+    },
+    "integer_axis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "integer_values"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "integer_values": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "milli_axis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "milli_values"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "milli_values": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "parameter_axis": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/integer_axis"
+        },
+        {
+          "$ref": "#/definitions/milli_axis"
+        }
+      ]
+    },
+    "variant_manifest_contract_core": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "strategy_spec_id",
+        "strategy_spec_path",
+        "strategy_spec_sha256",
+        "variant_manifest_id",
+        "variant_manifest_path",
+        "search_family_id",
+        "ordered_parameter_axes",
+        "population_cap",
+        "committed_population_count",
+        "denominator_basis",
+        "adaptive_search",
+        "post_hoc_mutation_forbidden",
+        "authority"
+      ],
+      "properties": {
+        "strategy_spec_id": {
+          "$ref": "#/definitions/strategy_spec_id"
+        },
+        "strategy_spec_path": {
+          "$ref": "#/definitions/strategy_spec_path"
+        },
+        "strategy_spec_sha256": {
+          "$ref": "#/definitions/hash"
+        },
+        "variant_manifest_id": {
+          "$ref": "#/definitions/variant_manifest_id"
+        },
+        "variant_manifest_path": {
+          "$ref": "#/definitions/variant_manifest_path"
+        },
+        "search_family_id": {
+          "$ref": "#/definitions/search_family_id"
+        },
+        "ordered_parameter_axes": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 5,
+          "items": {
+            "$ref": "#/definitions/parameter_axis"
+          }
+        },
+        "population_cap": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "committed_population_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "denominator_basis": {
+          "const": "committed_pre_registered_population_count"
+        },
+        "adaptive_search": {
+          "const": false
+        },
+        "post_hoc_mutation_forbidden": {
+          "const": true
+        },
+        "authority": {
+          "const": "one_bounded_variant_manifest_preparation_only"
+        }
+      }
+    },
+    "authority_flags": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "authorizes_variant_manifest_preparation",
+        "authorizes_one_manifest_only",
+        "authorizes_strategy_spec_mutation",
+        "authorizes_gate_c",
+        "authorizes_gate_q",
+        "authorizes_queue_admission",
+        "authorizes_dispatch",
+        "authorizes_research_execution",
+        "authorizes_result_population",
+        "authorizes_candidate_lifecycle",
+        "authorizes_ranking",
+        "authorizes_recommendation",
+        "authorizes_promotion_readiness",
+        "authorizes_scheduler_autonomy",
+        "authorizes_notifications",
+        "authorizes_runtime",
+        "authorizes_paper_live",
+        "authorizes_oms_risk_reconciliation"
+      ],
+      "properties": {
+        "authorizes_variant_manifest_preparation": {
+          "const": true
+        },
+        "authorizes_one_manifest_only": {
+          "const": true
+        },
+        "authorizes_strategy_spec_mutation": {
+          "const": false
+        },
+        "authorizes_gate_c": {
+          "const": false
+        },
+        "authorizes_gate_q": {
+          "const": false
+        },
+        "authorizes_queue_admission": {
+          "const": false
+        },
+        "authorizes_dispatch": {
+          "const": false
+        },
+        "authorizes_research_execution": {
+          "const": false
+        },
+        "authorizes_result_population": {
+          "const": false
+        },
+        "authorizes_candidate_lifecycle": {
+          "const": false
+        },
+        "authorizes_ranking": {
+          "const": false
+        },
+        "authorizes_recommendation": {
+          "const": false
+        },
+        "authorizes_promotion_readiness": {
+          "const": false
+        },
+        "authorizes_scheduler_autonomy": {
+          "const": false
+        },
+        "authorizes_notifications": {
+          "const": false
+        },
+        "authorizes_runtime": {
+          "const": false
+        },
+        "authorizes_paper_live": {
+          "const": false
+        },
+        "authorizes_oms_risk_reconciliation": {
+          "const": false
+        }
+      }
+    }
+  }
+}

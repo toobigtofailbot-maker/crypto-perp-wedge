@@ -1,0 +1,154 @@
+{
+  "schema_version": "wp_canon_variant_planning_vm_queue_lineage_validation_summary_v1",
+  "package_id": "WP-CANON-VARIANT-PLANNING-VM-QUEUE-LINEAGE-01B",
+  "verdict": "pass",
+  "focused": {
+    "final_contract_suite": {
+      "command_scope": [
+        "tests/test_validate_variant_sweep_artifacts.py",
+        "tests/test_canon_queue_control_plane_contracts.py",
+        "tests/test_canon_intake_queue_admission.py",
+        "tests/test_canon_intake_variant_planning_approval.py"
+      ],
+      "passed": 221,
+      "skipped": 5,
+      "failed": 0,
+      "errors": 0,
+      "skip_class": "Windows symlink creation privilege unavailable in five pre-existing queue-admission tests"
+    },
+    "post_correction_regression": {
+      "passed": 65,
+      "skipped": 0,
+      "failed": 0,
+      "errors": 0,
+      "scope": "VM/Sweep focused validator tests plus the previously exposed lab-pipeline scratch-copy case"
+    }
+  },
+  "adjacent": {
+    "scope": [
+      "01A protected writer",
+      "offline research runner",
+      "Result Population contracts",
+      "research-query projections",
+      "dashboard read-only projections",
+      "operator API read-only projections"
+    ],
+    "passed": 367,
+    "failed": 0,
+    "errors": 0,
+    "warnings": 5
+  },
+  "deterministic_full_suite": {
+    "global_collection": {
+      "runs": 2,
+      "identical": true,
+      "unique_nodes_each_run": 2955,
+      "normalized_inventory_sha256": "d6351e29a8b77d70ca0714e32567be5d4b29f63ee99c3c8815d0746d4655cc38"
+    },
+    "tracked_eight_shard_pytest": {
+      "status": "pass",
+      "workers": 4,
+      "tracked_test_files": 143,
+      "nodes": 2696,
+      "passed": 2689,
+      "skipped": 7,
+      "failed": 0,
+      "errors": 0,
+      "internal_errors": 0,
+      "timed_out_shards": 0,
+      "per_shard_timeout_seconds": 5400,
+      "shards": [
+        {"index": 0, "passed": 189, "skipped": 0, "elapsed_seconds": 610.719},
+        {"index": 1, "passed": 534, "skipped": 6, "elapsed_seconds": 1176.344},
+        {"index": 2, "passed": 344, "skipped": 0, "elapsed_seconds": 693.516},
+        {"index": 3, "passed": 344, "skipped": 0, "elapsed_seconds": 254.719},
+        {"index": 4, "passed": 219, "skipped": 1, "elapsed_seconds": 380.187},
+        {"index": 5, "passed": 324, "skipped": 0, "elapsed_seconds": 458.422},
+        {"index": 6, "passed": 418, "skipped": 0, "elapsed_seconds": 2593.407},
+        {"index": 7, "passed": 317, "skipped": 0, "elapsed_seconds": 1640.765}
+      ]
+    },
+    "nested_directory_supplement": {
+      "reason": "The repository sharder intentionally discovers git ls-files tests/test*.py and excludes the disjoint tests/research_automation directory.",
+      "test_files": 15,
+      "nodes": 259,
+      "passed": 259,
+      "skipped": 0,
+      "failed": 0,
+      "errors": 0
+    },
+    "combined_exact_inventory": {
+      "nodes_executed_exactly_once": 2955,
+      "passed": 2948,
+      "skipped": 7,
+      "failed": 0,
+      "errors": 0,
+      "internal_errors": 0,
+      "terminal_timeouts": 0
+    },
+    "authorized_skip_set": [
+      "tests/test_external_simulator_pilot.py::test_default_fixture_mapping_uses_rp_2592_lineage",
+      "tests/test_backtest_liquidation.py::test_buy_and_hold_unchanged_on_benign_window",
+      "tests/test_canon_intake_queue_admission.py::test_gate_q_symlink_alias_fails",
+      "tests/test_canon_intake_queue_admission.py::test_authoritative_gate_q_under_symlinked_parent_fails",
+      "tests/test_canon_intake_queue_admission.py::test_referenced_artifact_symlink_fails",
+      "tests/test_canon_intake_queue_admission.py::test_symlinked_admission_parent_fails",
+      "tests/test_canon_intake_queue_admission.py::test_symlinked_audit_directory_fails"
+    ]
+  },
+  "schema_and_semantic_validation": {
+    "changed_and_evidence_json_parse": "pass",
+    "changed_python_compile": "pass",
+    "strategy_spec_registry_validator": "pass",
+    "variant_manifest_and_sweep_plan_validator": "pass",
+    "result_population_validator": "pass",
+    "all_six_canonical_vm_sweep_pairs": "pass",
+    "synthetic_external_approval_bundle": "pass",
+    "legacy_queue_bundle": "pass",
+    "external_queue_admission_and_replay": "pass",
+    "dispatch_or_execution_created": false
+  },
+  "research_query_validation": {
+    "focused_and_full_pytest": "pass",
+    "package_relevant_vm_and_sweep_integrity_views": "clean",
+    "optional_all_view_sweep": "one pre-existing baseline row",
+    "baseline_row": {
+      "view": "v_integrity_strategy_spec_hash_readiness",
+      "strategy_spec_id": "STRAT-SPEC-0007",
+      "expected_value": "computed when intended_for_variant_manifest=true",
+      "actual_value": "not_computed",
+      "identical_on_untouched_origin_main": true,
+      "package_related": false,
+      "disposition": "No canonical/query mutation is authorized; this optional sweep is not used as package acceptance evidence."
+    }
+  },
+  "static_scope_and_preservation": {
+    "staged_standard_verifier": "pass",
+    "git_diff_check": "pass",
+    "staged_diff_check": "pass",
+    "exact_changed_file_allowlist": "pass",
+    "authorized_research_schema_scope_check": "pass",
+    "forbidden_scope_diff_count": 0,
+    "production_and_canonical_inputs_byte_identical": true,
+    "real_authority_artifact_absent": true,
+    "dependency_or_configuration_change": false
+  },
+  "non_acceptance_attempts": [
+    {
+      "stage": "first package-head tracked sharded run",
+      "result": "Seven shards passed; shard 7 exposed that canonical approval semantics were being applied to an authority-free lab scratch manifest copy.",
+      "disposition": "Semantics were narrowed to the authoritative VM corpus and exact replay copies; the focused regression, isolated shard 7, and final eight-shard inventory passed."
+    },
+    {
+      "stage": "environment rerun",
+      "result": "A bare Windows Python launcher lacked pandas and fastapi and failed collection.",
+      "disposition": "No dependency changed; the repository virtual environment was selected explicitly and the complete inventory passed."
+    },
+    {
+      "stage": "optional all-integrity-view sweep",
+      "result": "The verifier aggregate was non-green solely for the existing STRAT-SPEC-0007 hash-readiness row; every pytest shard passed.",
+      "disposition": "The identical row was reproduced on untouched origin/main; package-relevant integrity views and research-query tests passed, and forbidden canonical/query state was not changed."
+    }
+  ],
+  "acceptance_ready": true
+}

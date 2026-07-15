@@ -30,6 +30,7 @@
     },
     "non_execution_declaration": { "$ref": "#/definitions/non_execution_declaration" },
     "parent_strategy_spec": { "$ref": "#/definitions/parent_strategy_spec" },
+    "variant_planning_approval": { "$ref": "#/definitions/variant_planning_approval" },
     "population_governance": { "$ref": "#/definitions/population_governance" },
     "parameter_axes": {
       "type": "array",
@@ -126,6 +127,18 @@
         "mismatch_policy": { "type": "string", "const": "block" },
         "missing_parent_policy": { "type": "string", "const": "block" },
         "does_not_mutate_parent_strategy_spec": { "type": "boolean", "const": true }
+      }
+    },
+    "variant_planning_approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["approval_id", "path", "sha256", "contract_core_sha256", "evidence_mode"],
+      "properties": {
+        "approval_id": { "type": "string", "pattern": "^VPAPP-[0-9]{8}-[A-Z0-9]{8}$" },
+        "path": { "type": "string", "pattern": "^research/strategy_spec_variant_planning_approvals/VPAPP-[0-9]{8}-[A-Z0-9]{8}\\.variant_planning_approval\\.json$" },
+        "sha256": { "$ref": "#/definitions/sha256_hash" },
+        "contract_core_sha256": { "$ref": "#/definitions/sha256_hash" },
+        "evidence_mode": { "const": "external_append_only_approval" }
       }
     },
     "population_governance": {

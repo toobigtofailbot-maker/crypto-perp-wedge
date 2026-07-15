@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
@@ -289,6 +290,254 @@ def _validate_parent_strategy_spec_hash(
             f"{path}: parent_strategy_spec.strategy_spec_hash mismatch for "
             f"{strategy_spec_id}: declared {declared_hash!r}, computed {computed_hash}"
         )
+    return errors
+
+
+def _exact_scaled_milli(value: Any) -> int | None:
+    if isinstance(value, bool):
+        return None
+    decimal_value = Decimal(value) if isinstance(value, int) else value
+    if not isinstance(decimal_value, Decimal) or not decimal_value.is_finite():
+        return None
+    scaled = decimal_value * 1000
+    if scaled != scaled.to_integral_value():
+        return None
+    return int(scaled)
+
+
+def _derive_variant_planning_contract_core(
+    payload: dict[str, Any],
+    *,
+    parent_path: str,
+    parent_file_sha256: str,
+) -> tuple[dict[str, Any] | None, str | None]:
+    axes = payload.get("parameter_axes")
+    if not isinstance(axes, list) or not axes:
+        return None, "external planning approval requires at least one parameter axis"
+    ordered_axes: list[dict[str, Any]] = []
+    for index, axis in enumerate(axes):
+        if not isinstance(axis, dict):
+            return None, f"parameter_axes.{index} must be an object"
+        name = axis.get("parameter_name")
+        values = axis.get("allowed_values")
+        parameter_type = axis.get("parameter_type")
+        if not isinstance(name, str) or not isinstance(values, list) or not values:
+            return None, f"parameter_axes.{index} lacks an exact name/value set"
+        if parameter_type == "integer":
+            if any(not isinstance(value, int) or isinstance(value, bool) for value in values):
+                return None, f"parameter_axes.{index} integer values are not exact JSON integers"
+            ordered_axes.append({"name": name, "integer_values": values})
+        elif parameter_type == "number":
+            scaled = [_exact_scaled_milli(value) for value in values]
+            if any(value is None for value in scaled):
+                return None, f"parameter_axes.{index} number values are not exact to milli scale"
+            ordered_axes.append({"name": name, "milli_values": scaled})
+        else:
+            return None, f"parameter_axes.{index} has unsupported external-approval type {parameter_type!r}"
+
+    parent = payload.get("parent_strategy_spec", {})
+    governance = payload.get("population_governance", {})
+    cap = governance.get("population_cap", {})
+    declared = governance.get("declared_population", {})
+    trial_budget = governance.get("trial_budget", {})
+    multiple_testing = governance.get("multiple_testing_accounting", {})
+    preregistration = governance.get("pre_registration", {})
+    vm_id = payload.get("variant_manifest_id")
+    core = {
+        "strategy_spec_id": parent.get("strategy_spec_id"),
+        "strategy_spec_path": parent_path,
+        "strategy_spec_sha256": parent_file_sha256,
+        "variant_manifest_id": vm_id,
+        "variant_manifest_path": f"research/variant_manifests/{vm_id}.variant_manifest.json",
+        "search_family_id": multiple_testing.get("search_family_id"),
+        "ordered_parameter_axes": ordered_axes,
+        "population_cap": cap.get("max_variants"),
+        "committed_population_count": declared.get("committed_population_count"),
+        "denominator_basis": trial_budget.get("denominator_basis"),
+        "adaptive_search": multiple_testing.get("adaptive_search_used"),
+        "post_hoc_mutation_forbidden": preregistration.get("post_result_mutation_forbidden"),
+        "authority": "one_bounded_variant_manifest_preparation_only",
+    }
+    return core, None
+
+
+def _validate_variant_planning_approval(
+    path: Path,
+    payload: dict[str, Any],
+    strategy_specs_dir: Path,
+    repo_root: Path,
+) -> list[str]:
+    parent = payload.get("parent_strategy_spec")
+    if not isinstance(parent, dict):
+        return []
+    spec_id = parent.get("strategy_spec_id")
+    if not isinstance(spec_id, str):
+        return []
+    parent_path = _discover_by_id(
+        strategy_specs_dir, "*.strategy_spec.json", "strategy_spec_id", spec_id
+    )
+    if parent_path is None:
+        return []
+    try:
+        parent_payload = load_json(parent_path)
+        parent_raw = parent_path.read_bytes()
+    except (json.JSONDecodeError, OSError):
+        return []
+
+    evidence = payload.get("variant_planning_approval")
+    root = repo_root.resolve()
+    authoritative_vm = root / "research" / "variant_manifests" / path.name
+    authoritative_match = False
+    if authoritative_vm.is_file() and not authoritative_vm.is_symlink():
+        try:
+            authoritative_match = load_json(authoritative_vm) == payload
+        except (json.JSONDecodeError, OSError):
+            authoritative_match = False
+    if not authoritative_match and evidence is None:
+        # Workbench/scratch copies carry no canonical authority. Preserve their
+        # existing structural validation while reserving approval semantics for
+        # the authoritative VM corpus and exact copies replayed against it.
+        return []
+    status = parent_payload.get("status")
+    review_scope = parent_payload.get("review", {}).get("approval_scope")
+    if status == "approved_for_variant_planning":
+        errors = []
+        if review_scope != "variant_planning_only":
+            errors.append(
+                f"{path}: embedded-approved parent requires review.approval_scope='variant_planning_only'"
+            )
+        if evidence is not None:
+            errors.append(
+                f"{path}: embedded-approved parent must not include external variant-planning approval evidence"
+            )
+        return errors
+    if status != "review_requested":
+        return [
+            f"{path}: parent status {status!r} cannot support the literal approved_for_variant_planning claim"
+        ]
+    if not isinstance(evidence, dict):
+        return [
+            f"{path}: review_requested parent requires external variant-planning approval evidence"
+        ]
+
+    errors: list[str] = []
+    try:
+        from tools.canon_intake import variant_planning_approval as approval_contract
+
+        approval_id = evidence.get("approval_id")
+        expected_rel = (
+            approval_contract.APPROVAL_ROOT
+            / f"{approval_id}.variant_planning_approval.json"
+        ).as_posix()
+        if evidence.get("path") != expected_rel:
+            raise approval_contract.VariantPlanningApprovalError(
+                "VM approval path is not authoritative and ID-derived"
+            )
+        approval_path = approval_contract._repo_path(
+            root, evidence.get("path"), "VM variant-planning approval path"
+        )
+        expected_path = root.joinpath(*approval_contract.APPROVAL_ROOT.parts) / (
+            f"{approval_id}.variant_planning_approval.json"
+        )
+        if approval_path != expected_path:
+            raise approval_contract.VariantPlanningApprovalError(
+                "VM approval file is outside the authoritative approval directory"
+            )
+        bundle = approval_contract._validate_approval_file(
+            root, approval_path, "VM variant-planning approval"
+        )
+        if bundle["approval_id"] != approval_id:
+            raise approval_contract.VariantPlanningApprovalError("VM approval ID mismatch")
+        approval_file_sha256 = "sha256:" + hashlib.sha256(bundle["approval_raw"]).hexdigest()
+        if evidence.get("sha256") != approval_file_sha256:
+            raise approval_contract.VariantPlanningApprovalError("VM approval whole-file hash mismatch")
+        if evidence.get("contract_core_sha256") != bundle["approval"].get(
+            "contract_core_sha256"
+        ):
+            raise approval_contract.VariantPlanningApprovalError("VM approval contract-core hash mismatch")
+        if evidence.get("evidence_mode") != "external_append_only_approval":
+            raise approval_contract.VariantPlanningApprovalError("VM approval evidence mode mismatch")
+
+        canonical_parent_rel = f"research/strategy_specs/{spec_id}.strategy_spec.json"
+        if parent.get("strategy_spec_ref") != canonical_parent_rel:
+            raise approval_contract.VariantPlanningApprovalError(
+                "external VM parent Strategy Spec reference is not canonical"
+            )
+        if bundle["approval"]["canonical_parent"]["path"] != canonical_parent_rel:
+            raise approval_contract.VariantPlanningApprovalError(
+                "approval parent path does not match the VM parent"
+            )
+
+        if path.name != f"{payload.get('variant_manifest_id')}.variant_manifest.json":
+            raise approval_contract.VariantPlanningApprovalError(
+                "external VM filename is not derived from its identifier"
+            )
+        if not authoritative_vm.is_file() or authoritative_vm.is_symlink():
+            raise approval_contract.VariantPlanningApprovalError(
+                "external VM must exist at its authoritative non-symlink path"
+            )
+        authoritative_payload = load_json(authoritative_vm)
+        if authoritative_payload != payload:
+            raise approval_contract.VariantPlanningApprovalError(
+                "validated VM bytes do not match the authoritative VM"
+            )
+        exact_payload = json.loads(
+            authoritative_vm.read_text(encoding="utf-8"), parse_float=Decimal
+        )
+        derived_core, derivation_error = _derive_variant_planning_contract_core(
+            exact_payload,
+            parent_path=canonical_parent_rel,
+            parent_file_sha256="sha256:" + hashlib.sha256(parent_raw).hexdigest(),
+        )
+        if derivation_error:
+            raise approval_contract.VariantPlanningApprovalError(derivation_error)
+        if derived_core != bundle["approval"].get("variant_manifest_contract_core"):
+            raise approval_contract.VariantPlanningApprovalError(
+                "VM-derived planning contract core does not exactly match the approval"
+            )
+        if approval_contract.contract_core_sha256(derived_core) != evidence.get(
+            "contract_core_sha256"
+        ):
+            raise approval_contract.VariantPlanningApprovalError(
+                "VM-derived planning contract-core hash mismatch"
+            )
+
+        audit_path = approval_contract._repo_path(
+            root, approval_contract.AUDIT_PATH.as_posix(), "variant-planning audit path"
+        )
+        historical = approval_contract._read_historical_audit(root, audit_path)
+        approvals = approval_contract._scan_approval_corpus(root)
+        approval_contract._validate_history_alignment(historical, approvals)
+        matches = [record for record in historical if record.get("approval_id") == approval_id]
+        if len(matches) != 1 or matches[0] != bundle["record"]:
+            raise approval_contract.VariantPlanningApprovalError(
+                "variant-planning audit must contain one unique matching approval record"
+            )
+        approval_matches = [item for item in approvals if item["approval_id"] == approval_id]
+        if len(approval_matches) != 1:
+            raise approval_contract.VariantPlanningApprovalError(
+                "authoritative approval corpus must contain one matching approval"
+            )
+        manifests = approval_contract._scan_variant_manifest_corpus(root)
+        vm_rel = f"research/variant_manifests/{payload.get('variant_manifest_id')}.variant_manifest.json"
+        family = (
+            payload.get("population_governance", {})
+            .get("multiple_testing_accounting", {})
+            .get("search_family_id")
+        )
+        vm_matches = [
+            item
+            for item in manifests
+            if item["variant_manifest_id"] == payload.get("variant_manifest_id")
+            and item["variant_manifest_path"] == vm_rel
+            and item["search_family_id"] == family
+        ]
+        if len(vm_matches) != 1:
+            raise approval_contract.VariantPlanningApprovalError(
+                "approval/VM/path/search-family single-use binding is not unique"
+            )
+    except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as exc:
+        errors.append(f"{path}: external variant-planning approval invalid: {exc}")
     return errors
 
 
@@ -914,8 +1163,6 @@ def validate_variant_sweep_artifacts(
 ) -> list[str]:
     """Return validation errors for variant/sweep artifacts, or [] when valid."""
 
-    del repo_root
-
     variant_files = (
         sorted(variant_manifests_dir.rglob("*.variant_manifest.json"))
         if variant_manifests_dir.exists()
@@ -966,6 +1213,9 @@ def validate_variant_sweep_artifacts(
             errors.append(f"{path}: missing valid variant_manifest_id")
 
         errors.extend(_validate_parent_strategy_spec_hash(path, payload, strategy_specs_dir))
+        errors.extend(
+            _validate_variant_planning_approval(path, payload, strategy_specs_dir, repo_root)
+        )
         errors.extend(_validate_manifest_bound_parameter_axes(path, payload, strategy_specs_dir))
         errors.extend(_validate_manifest_hash(path, payload))
         errors.extend(_validate_manifest_amendment(path, payload))

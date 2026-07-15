@@ -1,0 +1,82 @@
+{
+  "schema_version": "wp_canon_variant_planning_vm_queue_lineage_repo_truth_v1",
+  "package_id": "WP-CANON-VARIANT-PLANNING-VM-QUEUE-LINEAGE-01B",
+  "recorded_date": "2026-07-15",
+  "repository": {
+    "name": "toobigtofailbot-maker/crypto-perp-wedge",
+    "base_ref": "origin/main",
+    "base_sha": "62705223b3ac43cd79be070820f2c5538fd4e349",
+    "branch": "codex/wp-canon-variant-planning-vm-queue-lineage-01b",
+    "worktree": "C:\\GitHub\\crypto-perp-wedge-wp-canon-variant-planning-vm-queue-lineage-01b",
+    "local_main_fast_forwarded_to_origin_main": true,
+    "approval_writer_01a_merged_at_base": true,
+    "open_pr_owning_exact_scope_before_creation": false
+  },
+  "merged_authority_contract": {
+    "design_path": "docs/architecture/strategy_spec_variant_planning_authority.md",
+    "design_sha256": "ad8185a2ac80a9d39bdc0a272835efc74d876550590a0d21d007b21ddd2b1708",
+    "approval_schema": "research/schemas/strategy_spec_variant_planning_approval.schema.json",
+    "audit_schema": "research/schemas/strategy_spec_variant_planning_approval_audit.schema.json",
+    "protected_writer": "tools/canon_intake/variant_planning_approval.py",
+    "selected_authority": "standalone_gate_c_vp",
+    "authority_limit": "one_bounded_variant_manifest_preparation"
+  },
+  "canonical_inventory": {
+    "strategy_specs": 7,
+    "variant_manifests": 6,
+    "sweep_plans": 6,
+    "result_populations": 8,
+    "variant_planning_approval_directory_exists": false,
+    "variant_planning_audit_directory_exists": false,
+    "gate_q_approval_directory_exists": false,
+    "queue_admission_directory_exists": false,
+    "queue_admission_audit_exists": false
+  },
+  "contract_discovery": {
+    "variant_manifest_schema_version": "variant_manifest_v1",
+    "schema_version_bump_required": false,
+    "existing_parent_claim_literal": "approved_for_variant_planning",
+    "legacy_embedded_review_scope": "variant_planning_only",
+    "external_parent_status": "review_requested",
+    "external_evidence_mode": "external_append_only_approval",
+    "variant_manifest_hash_contract_changed": false,
+    "sweep_planning_approval_field_added": false,
+    "gate_q_exact_vm_byte_binding_preserved": true,
+    "circular_hash_found": false,
+    "queue_terminal_state": "admitted_non_dispatched",
+    "dispatch_authority_added": false
+  },
+  "canonical_parent_0007": {
+    "path": "research/strategy_specs/STRAT-SPEC-0007.strategy_spec.json",
+    "sha256": "b23ebc1093df51b7fab5e39c46fd2b96b5e71d35300134eb319a5cbc32d0857c",
+    "status": "review_requested",
+    "approval_scope": "none",
+    "byte_identical_to_base": true
+  },
+  "gate_c_lineage": {
+    "audit_path": "research/canonical_crossing_audit/strategy_spec_writes.jsonl",
+    "audit_file_sha256": "ef5a452a4aff61a35fdbdfcf16162362400345f28af67b7bb41aa4ae36024be2",
+    "gate_c_approval_id": "GATE-C-H004-R2-0001",
+    "lineage_intact": true
+  },
+  "established_test_owners": [
+    "tests/test_validate_variant_sweep_artifacts.py",
+    "tests/test_canon_queue_control_plane_contracts.py",
+    "tests/test_canon_intake_queue_admission.py"
+  ],
+  "pre_mutation_baseline": {
+    "focused_passed": 186,
+    "focused_skipped": 5,
+    "focused_failed": 0,
+    "authorized_skip_set_unchanged": true
+  },
+  "authority_state": {
+    "real_variant_planning_approval_created": false,
+    "real_variant_planning_audit_line_created": false,
+    "real_variant_manifest_created_or_changed": false,
+    "real_sweep_plan_created_or_changed": false,
+    "real_gate_q_or_queue_state_created": false,
+    "execution_result_or_candidate_state_changed": false
+  },
+  "contradiction_found": false
+}

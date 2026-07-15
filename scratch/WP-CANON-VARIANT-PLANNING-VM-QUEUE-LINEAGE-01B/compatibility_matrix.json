@@ -1,0 +1,52 @@
+{
+  "schema_version": "wp_canon_variant_planning_vm_queue_lineage_compatibility_matrix_v1",
+  "package_id": "WP-CANON-VARIANT-PLANNING-VM-QUEUE-LINEAGE-01B",
+  "verdict": "pass",
+  "modes": [
+    {
+      "mode": "legacy_embedded_approved",
+      "parent_status": "approved_for_variant_planning",
+      "parent_review_scope": "variant_planning_only",
+      "vm_external_evidence": "forbidden",
+      "gate_q_queue_audit_external_lineage": "absent",
+      "canonical_pairs_validated": 6,
+      "canonical_bytes_changed": false,
+      "result": "pass"
+    },
+    {
+      "mode": "external_append_only_approval",
+      "parent_status": "review_requested",
+      "vm_external_evidence": "required",
+      "approval_and_audit_replay": "required",
+      "gate_q_queue_audit_external_lineage": "required_and_exact",
+      "synthetic_temporary_repository": true,
+      "admission_state": "admitted_non_dispatched",
+      "result": "pass"
+    }
+  ],
+  "rejection_coverage": {
+    "missing_or_unsupported_evidence": true,
+    "wrong_approval_id_path_file_hash_core_hash_or_mode": true,
+    "outside_authoritative_path_traversal_or_symlink": true,
+    "stale_parent_or_gate_c_lineage": true,
+    "missing_wrong_or_duplicate_approval_audit": true,
+    "reused_approval_vm_path_or_search_family": true,
+    "changed_axis_order_name_value_type_or_scale": true,
+    "changed_population_denominator_adaptive_mutation_or_authority": true,
+    "non_exact_decimal_conversion": true,
+    "missing_or_mismatched_gate_q_queue_or_audit_lineage": true,
+    "gate_q_as_substitute_planning_authority": true,
+    "malformed_historical_replay": true,
+    "legacy_forced_migration": true,
+    "dispatch_or_execution_authority": true
+  },
+  "unchanged_contracts": {
+    "variant_manifest_schema_version": true,
+    "gate_q_schema_version": true,
+    "queue_item_schema_version": true,
+    "queue_admission_audit_schema_version": true,
+    "variant_manifest_hash_scope": true,
+    "sweep_binding": true,
+    "legacy_gate_q_queue_fixtures": true
+  }
+}

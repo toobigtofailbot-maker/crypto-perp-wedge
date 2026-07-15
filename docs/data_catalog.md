@@ -121,13 +121,24 @@
 - Storage path: data/processed/binance_um_perp_BTCUSDT_4h_2020-01-01_2026-04-11_2026-04-12T1655Z.parquet
 
 ## Dataset: BTCUSDT 1d full history (Binance USDT-M Perp) – Parquet
-- Source: data.binance.vision bulk archives + Binance Futures API
+- Source: data.binance.vision monthly/daily bulk archives
 - Symbol/Contract: BTCUSDT (USDT-M Perpetual)
 - Timeframe: 1d
 - Range (start/end): 2020-01-01 / 2026-04-11
 - Created (UTC): 2026-04-12T1655Z
 - SHA256: c6e2e7ce030db6a710d95e48325fc77b27efbbdd441199b3d7458d4394795802
 - Storage path: data/processed/binance_um_perp_BTCUSDT_1d_2020-01-01_2026-04-11_2026-04-12T1655Z.parquet
+- Dataset ID: binance_usdtm_btcusdt_ohlcv_1d
+- Snapshot version: 2026-04-12T1655Z
+- Gate-Q market identity: BTCUSDT_BINANCE_USDTM_PERPETUAL
+- Row count: 2,293
+- Exact coverage: 2020-01-01T00:00:00Z through 2026-04-11T23:59:59.999000Z (last bar open 2026-04-11T00:00:00Z)
+- Source method/parameters: existing local output from the repo-documented `python scripts/fetch_btcusdt_klines_bulk.py --interval 1d`; producer defaults were symbol `BTCUSDT`, from `2019-09-08` (earliest available bar `2020-01-01`), to UTC execution date `2026-04-12` (last available completed bar `2026-04-11`), and output directory `data/processed`; public data.binance.vision Binance USDT-M monthly/daily kline archives; no fetch was performed by WP-CANON-H004-DATASET-LINEAGE-01 and credentials_used=false
+- Normalization: existing producer coerced Binance kline numeric fields, kept the first row per `open_time_ms`, sorted ascending, applied the explicit UTC date window, and serialized Parquet with `index=false`; registration does not rewrite the dataset and rejects any duplicate in the exact registered file
+- Completed-bar policy: require `close_time_ms < 2026-04-12T16:55:00Z`; the open 2026-04-12 daily bar is excluded
+- Findings: 0 gaps / 0 missing bars; 0 duplicate groups / 0 duplicate rows in the registered Parquet; 0 malformed OHLC rows; 0 negative-volume rows; 0 open bars; no fill or interpolation
+- Unresolved policy: reject
+- Catalog lineage: research/data_slices/binance_usdtm_btcusdt_1d/binance_usdtm_btcusdt_1d_20200101_20260411.catalog_slice.json
 
 ## Dataset: BTCUSDT funding rates full history (Binance USDT-M Perp) – Parquet
 - Source: Binance Futures API `/fapi/v1/fundingRate`

@@ -1,0 +1,99 @@
+{
+  "schema_version": "strategy_spec_variant_planning_approval_v1",
+  "approval_id": "VPAPP-20260715-H004R201",
+  "approval_artifact_target_path": "research/strategy_spec_variant_planning_approvals/VPAPP-20260715-H004R201.variant_planning_approval.json",
+  "approved_by": "Karl",
+  "approved_at": "2026-07-15T18:08:31.172496Z",
+  "approval_scope": "one_bounded_variant_manifest_preparation",
+  "exact_content_and_target_only": true,
+  "append_only": true,
+  "single_use_approval_id": true,
+  "canonical_parent": {
+    "strategy_spec_id": "STRAT-SPEC-0007",
+    "path": "research/strategy_specs/STRAT-SPEC-0007.strategy_spec.json",
+    "sha256": "sha256:b23ebc1093df51b7fab5e39c46fd2b96b5e71d35300134eb319a5cbc32d0857c",
+    "embedded_status": "review_requested",
+    "gate_c_audit": {
+      "audit_path": "research/canonical_crossing_audit/strategy_spec_writes.jsonl",
+      "line_number": 1,
+      "raw_record_sha256": "sha256:ef5a452a4aff61a35fdbdfcf16162362400345f28af67b7bb41aa4ae36024be2",
+      "gate_c_approval_id": "GATE-C-H004-R2-0001",
+      "strategy_spec_id": "STRAT-SPEC-0007",
+      "canonical_target_path": "research/strategy_specs/STRAT-SPEC-0007.strategy_spec.json"
+    }
+  },
+  "variant_manifest_contract_core": {
+    "strategy_spec_id": "STRAT-SPEC-0007",
+    "strategy_spec_path": "research/strategy_specs/STRAT-SPEC-0007.strategy_spec.json",
+    "strategy_spec_sha256": "sha256:b23ebc1093df51b7fab5e39c46fd2b96b5e71d35300134eb319a5cbc32d0857c",
+    "variant_manifest_id": "VM-0007",
+    "variant_manifest_path": "research/variant_manifests/VM-0007.variant_manifest.json",
+    "search_family_id": "SF-H004-R2-EMA-PULLBACK-CONTINUATION-1D-0001",
+    "ordered_parameter_axes": [
+      {
+        "name": "pullback_ema_bars",
+        "integer_values": [
+          10,
+          20,
+          30
+        ]
+      },
+      {
+        "name": "trend_fast_ema_bars",
+        "integer_values": [
+          40,
+          50,
+          60
+        ]
+      },
+      {
+        "name": "atr_multiplier",
+        "milli_values": [
+          2000,
+          2500,
+          3000
+        ]
+      },
+      {
+        "name": "max_holding_bars",
+        "integer_values": [
+          30,
+          45,
+          60
+        ]
+      }
+    ],
+    "population_cap": 81,
+    "committed_population_count": 81,
+    "denominator_basis": "committed_pre_registered_population_count",
+    "adaptive_search": false,
+    "post_hoc_mutation_forbidden": true,
+    "authority": "one_bounded_variant_manifest_preparation_only"
+  },
+  "contract_core_sha256": "sha256:4b8e126870c918e88ac42336427c3ba495bcacb6433bd3741b0a01c712bf99f0",
+  "contract_core_hash_scope": "variant_planning_contract_core_v1",
+  "contract_core_canonicalization": "repo_canonical_json_v1",
+  "amendment_revocation_policy": "supersede_with_new_approval_before_manifest_creation",
+  "reuse_policy": "reject_all_identifier_path_and_search_family_reuse",
+  "overwrite_forbidden": true,
+  "authority_flags": {
+    "authorizes_variant_manifest_preparation": true,
+    "authorizes_one_manifest_only": true,
+    "authorizes_strategy_spec_mutation": false,
+    "authorizes_gate_c": false,
+    "authorizes_gate_q": false,
+    "authorizes_queue_admission": false,
+    "authorizes_dispatch": false,
+    "authorizes_research_execution": false,
+    "authorizes_result_population": false,
+    "authorizes_candidate_lifecycle": false,
+    "authorizes_ranking": false,
+    "authorizes_recommendation": false,
+    "authorizes_promotion_readiness": false,
+    "authorizes_scheduler_autonomy": false,
+    "authorizes_notifications": false,
+    "authorizes_runtime": false,
+    "authorizes_paper_live": false,
+    "authorizes_oms_risk_reconciliation": false
+  }
+}

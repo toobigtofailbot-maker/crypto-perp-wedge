@@ -1,0 +1,37 @@
+{
+  "schema_version": "wp_canon_variant_planning_vm_queue_lineage_preservation_manifest_v1",
+  "package_id": "WP-CANON-VARIANT-PLANNING-VM-QUEUE-LINEAGE-01B",
+  "base_sha": "62705223b3ac43cd79be070820f2c5538fd4e349",
+  "git_object_preservation": [
+    {"path": "docs/architecture/strategy_spec_variant_planning_authority.md", "base_oid": "832de104ead747b21ab2a037418c9381cc84aa87", "byte_identical": true},
+    {"path": "research/strategy_specs", "base_oid": "081ca45da5652a97e64362c64afce1a3c272a029", "byte_identical": true},
+    {"path": "research/variant_manifests", "base_oid": "6d89ac4d664223637ad6abd4fb7ec59c1f3f077e", "byte_identical": true},
+    {"path": "research/sweep_plans", "base_oid": "79b7172a7ffb83880c360566b3c5f3de0beb3c0e", "byte_identical": true},
+    {"path": "research/canonical_crossing_audit", "base_oid": "581b25048f1723329a127956b5b2060949827071", "byte_identical": true},
+    {"path": "research/result_populations", "base_oid": "b39924b9456ab59c9fa0991269002ac31224bcff", "byte_identical": true},
+    {"path": "research/schemas/strategy_spec_variant_planning_approval.schema.json", "base_oid": "707aef0de77590cf87a7a758c6932975d8a03981", "byte_identical": true},
+    {"path": "research/schemas/strategy_spec_variant_planning_approval_audit.schema.json", "base_oid": "c6813c8ef7c39405c0142e7c96af820a5ae6ef68", "byte_identical": true},
+    {"path": "tools/canon_intake/variant_planning_approval.py", "base_oid": "38cc08e768b93482726d1fc6f92d97f731e6e92d", "byte_identical": true},
+    {"path": "tools/research_runner", "base_oid": "03dfaeb91a802ffd55b1d305a8e532239b5198f8", "byte_identical": true},
+    {"path": "tools/research_query", "base_oid": "aa124b9662bea04f7511adf9c21429559480926f", "byte_identical": true}
+  ],
+  "critical_lineage_files": [
+    {"path": "research/strategy_specs/STRAT-SPEC-0007.strategy_spec.json", "git_oid": "ac5a493cb5b7d1a5de3647df07bd3151a8e4a440", "sha256": "b23ebc1093df51b7fab5e39c46fd2b96b5e71d35300134eb319a5cbc32d0857c", "byte_identical": true},
+    {"path": "research/canonical_crossing_audit/strategy_spec_writes.jsonl", "git_oid": "9fc05d43fc12248f2fdeddc6968ad10d0c4955a3", "sha256": "ef5a452a4aff61a35fdbdfcf16162362400345f28af67b7bb41aa4ae36024be2", "byte_identical": true},
+    {"path": "scratch/WP-CANON-FIRST-GATE-C-CROSSING-GATED-02C/approvals/GATE-C-H004-R2-0001.gate_c_approval.json", "git_oid": "8c2998abab2c05732be413ef8f3e390d3fb0905e", "byte_identical": true}
+  ],
+  "authoritative_output_absence": {
+    "research/strategy_spec_variant_planning_approvals": false,
+    "research/strategy_spec_variant_planning_audit": false,
+    "research/queue/gate_q_approvals": false,
+    "research/queue/admissions": false,
+    "research/queue/queue_admission_audit.jsonl": false,
+    "real_approval_instance": false,
+    "real_audit_instance": false,
+    "variant_manifest_or_sweep_instance_changed": false,
+    "execution_result_or_candidate_state_changed": false
+  },
+  "forbidden_scope_diff_count": 0,
+  "production_and_canonical_inputs_byte_identical": true,
+  "dependency_or_configuration_change": false
+}

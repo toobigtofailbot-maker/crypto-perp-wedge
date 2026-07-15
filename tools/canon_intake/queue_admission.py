@@ -267,6 +267,8 @@ def _read_audit(root: Path, path: Path) -> list[dict[str, Any]]:
             "gate_q_approval_core_sha256", "strategy_spec_id", "strategy_spec_path",
             "strategy_spec_sha256", "variant_manifest_path", "variant_manifest_sha256",
             "sweep_plan_path", "sweep_plan_sha256", "admitted_at", "no_dispatch", "no_execution",
+            "variant_planning_approval_id", "variant_planning_approval_path",
+            "variant_planning_approval_file_sha256", "variant_planning_approval_contract_core_sha256",
         )
         for field in evidence_fields:
             if record.get(field) != derived.get(field):
@@ -372,6 +374,30 @@ def _validate_bundle(*, repo_root: Path, gate_q_path: Path, proposed_queue_item_
     if not isinstance(draft_packet, dict) or draft_packet.get("draft_id") != gate_c_record.get("source_draft_id"):
         raise QueueAdmissionError("source draft ID does not match the Gate-C crossing record")
     _validate_artifact_validators(root, spec_path, vm_path, sweep_path)
+    vm_planning = vm.get("variant_planning_approval")
+    gate_planning = gate["artifact_refs"].get("variant_planning_approval")
+    item_planning = item["lineage"].get("variant_planning_approval")
+    planning_lineage = None
+    if vm_planning is None:
+        if gate_planning is not None or item_planning is not None:
+            raise QueueAdmissionError(
+                "legacy embedded-approved VM must not carry external planning-approval lineage"
+            )
+    else:
+        planning_lineage = {
+            "approval_id": vm_planning.get("approval_id"),
+            "path": vm_planning.get("path"),
+            "sha256": vm_planning.get("sha256"),
+            "contract_core_sha256": vm_planning.get("contract_core_sha256"),
+        }
+        _equal("variant-planning Gate-Q lineage", planning_lineage, gate_planning)
+        _equal("variant-planning queue-item lineage", planning_lineage, item_planning)
+        approval_path, approval_raw = _verify_ref(
+            root, planning_lineage, "variant-planning approval"
+        )
+        del approval_path
+        if _digest(approval_raw) != planning_lineage["sha256"]:
+            raise QueueAdmissionError("variant-planning approval whole-file hash mismatch")
     spec_id = spec.get("strategy_spec_id")
     _equal("VM/Sweep Strategy Spec ID", spec_id, vm.get("parent_strategy_spec", {}).get("strategy_spec_id"), sweep.get("lineage", {}).get("parent_strategy_spec_ref", {}).get("ref_id"))
     _equal("Sweep/VM ID", vm.get("variant_manifest_id"), sweep.get("parent_variant_manifest", {}).get("variant_manifest_id"))
@@ -386,9 +412,27 @@ def _validate_bundle(*, repo_root: Path, gate_q_path: Path, proposed_queue_item_
     _equal("priority", gate["priority"], item["priority"])
     _equal("queue target", gate["queue_target"], item["queue_target"])
     required_hashes = {_digest(raw) for raw in (spec_raw, vm_raw, sweep_raw)} | {gate["dataset"]["sha256"]} | {ref["sha256"] for ref in gate["lineage"].values()}
+    if planning_lineage is not None:
+        required_hashes.update(
+            {
+                planning_lineage["sha256"],
+                planning_lineage["contract_core_sha256"],
+            }
+        )
     if not required_hashes <= set(item.get("traceability_hashes", [])):
         raise QueueAdmissionError("queue-item traceability hashes are incomplete")
     record = {"schema_version": "queue_admission_audit_record_v1", "audit_record_id": f"QAUDIT-{item_id}", "queue_item_id": item_id, "queue_item_path": target_rel, "queue_item_sha256": _digest(item_raw), "gate_q_approval_id": approval_id, "gate_q_approval_path": gate_rel, "gate_q_approval_file_sha256": _digest(gate_raw), "gate_q_approval_core_sha256": core_hash, "strategy_spec_id": spec_id, "strategy_spec_path": gate["artifact_refs"]["strategy_spec"]["path"], "strategy_spec_sha256": _digest(spec_raw), "variant_manifest_path": gate["artifact_refs"]["variant_manifest"]["path"], "variant_manifest_sha256": _digest(vm_raw), "sweep_plan_path": gate["artifact_refs"]["sweep_plan"]["path"], "sweep_plan_sha256": _digest(sweep_raw), "admitted_at": item["admitted_at"], "writer_version": WRITER_VERSION, "validation_outcome": "passed_before_admission", "no_dispatch": True, "no_execution": True}
+    if planning_lineage is not None:
+        record.update(
+            {
+                "variant_planning_approval_id": planning_lineage["approval_id"],
+                "variant_planning_approval_path": planning_lineage["path"],
+                "variant_planning_approval_file_sha256": planning_lineage["sha256"],
+                "variant_planning_approval_contract_core_sha256": planning_lineage[
+                    "contract_core_sha256"
+                ],
+            }
+        )
     _schema_check(root, "queue_admission_audit_record.schema.json", record, "admission audit record")
     return {"record": record, "item_raw": item_raw, "approval_id": approval_id, "item_id": item_id, "target_rel": target_rel}
 

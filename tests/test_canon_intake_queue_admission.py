@@ -6,7 +6,10 @@ from pathlib import Path
 
 import pytest
 
-from tests.test_validate_variant_sweep_artifacts import _write_valid_fixture
+from tests.test_validate_variant_sweep_artifacts import (
+    _write_external_fixture,
+    _write_valid_fixture,
+)
 from tools.canon_intake.queue_admission import (
     QueueAdmissionError,
     admit_queue_item,
@@ -47,7 +50,7 @@ def _resign(gate_path: Path, frozen: Path, gate: dict, item: dict) -> None:
     _write(gate_path, gate)
 
 
-def _fixture(tmp_path: Path):
+def _fixture(tmp_path: Path, *, external: bool = False):
     root = tmp_path / "repo"
     shutil.copytree(REPO_ROOT / "research/schemas", root / "research/schemas")
     spec, vm, sweep, specs, vms, sweeps = _write_valid_fixture(root)
@@ -72,17 +75,52 @@ def _fixture(tmp_path: Path):
     gate_c_raw = (json.dumps(gate_c_record, sort_keys=True) + "\n").encode()
     (root / gate_c_rel).parent.mkdir(parents=True)
     (root / gate_c_rel).write_bytes(gate_c_raw)
+    if external:
+        spec, vm, sweep, specs, vms, sweeps, _ = _write_external_fixture(
+            root,
+            gate_c_extras={
+                "approval_record_sha256": lineage["gate_c_approval"]["sha256"],
+                "source_draft_id": "AIDRAFT-TEST0000000001",
+                "source_draft": lineage["source_draft"],
+                "review_trail": lineage["review_trail"],
+                "eligibility_report": lineage["eligibility_report"],
+            },
+        )
+        spec_path = specs / "STRAT-SPEC-9001.strategy_spec.json"
+        vm_path = vms / "VM-0001.variant_manifest.json"
+        sweep_path = sweeps / "SWEEP-PLAN-0001.sweep_plan.json"
+        gate_c_raw = (root / gate_c_rel).read_bytes()
     gate_c_ref = {"audit_path": gate_c_rel, "line_number": 1, "raw_record_sha256": _hash(gate_c_raw), "gate_c_approval_id": "GATE-C-TEST", "strategy_spec_id": "STRAT-SPEC-9001", "canonical_target_path": "research/strategy_specs/STRAT-SPEC-9001.strategy_spec.json"}
     flags = {name: False for name in ("authorizes_dispatch", "authorizes_execution", "authorizes_scheduler_autonomy", "authorizes_candidate_lifecycle", "authorizes_promotion_readiness", "authorizes_paper_live_runtime", "authorizes_notifications")}
-    denominator = {"basis": "committed_pre_registered_population_count", "committed_population_count": 2, "variant_manifest_value": 2, "sweep_plan_value": 2, "mismatch_policy": "reject"}
+    count = vm["population_governance"]["declared_population"]["committed_population_count"]
+    denominator = {"basis": "committed_pre_registered_population_count", "committed_population_count": count, "variant_manifest_value": count, "sweep_plan_value": count, "mismatch_policy": "reject"}
     dataset = {"dataset_id": "BTCUSDT-1h", "snapshot_version": "v1", "path": dataset_rel, "sha256": _hash(_raw(root / dataset_rel)), "market": "BTCUSDT_BINANCE_USDTM_PERPETUAL", "timeframe": "1h", "unresolved_policy": "reject"}
-    budget = {"metric": "variant_attempts", "upper_bound": 2, "unit": "attempts", "comparison": "actual_lte_upper_bound", "retries_included": True, "mismatch_or_exceed_policy": "reject"}
+    budget = {"metric": "variant_attempts", "upper_bound": count, "unit": "attempts", "comparison": "actual_lte_upper_bound", "retries_included": True, "mismatch_or_exceed_policy": "reject"}
     artifact_refs = {"strategy_spec": _ref(root, spec_path.relative_to(root).as_posix()), "variant_manifest": _ref(root, vm_path.relative_to(root).as_posix()), "sweep_plan": _ref(root, sweep_path.relative_to(root).as_posix())}
+    planning_lineage = None
+    if external:
+        planning = vm["variant_planning_approval"]
+        planning_lineage = {
+            "approval_id": planning["approval_id"],
+            "path": planning["path"],
+            "sha256": planning["sha256"],
+            "contract_core_sha256": planning["contract_core_sha256"],
+        }
     approval_id, item_id = "GATE-Q-TEST-001", "QI-20260711-ABCD1234"
     gate_rel = f"research/queue/gate_q_approvals/{approval_id}.gate_q_approval.json"
     item_rel = f"research/queue/admissions/{item_id}.queue_item.json"
-    item = {"schema_version": "canon_queue_item_v1", "queue_item_id": item_id, "status": "admitted_non_dispatched", "admitted_at": "2026-07-11T12:00:00Z", "queue_target": "offline_research", "priority": "normal", "artifact_refs": artifact_refs, "denominator": denominator, "dataset": dataset, "budget": budget, "gate_q": {"approval_id": approval_id, "path": gate_rel, "approval_core_sha256": "sha256:" + "0" * 64, "approval_core_hash_scope": "gate_q_approval_core_v1", "approval_core_canonicalization": "repo_canonical_json_v1"}, "lineage": {**lineage, "gate_c_crossing_audit_record": gate_c_ref}, "traceability_hashes": list(dict.fromkeys([r["sha256"] for r in artifact_refs.values()] + [dataset["sha256"]] + [r["sha256"] for r in lineage.values()])), "immutable_posture": {"append_only": True, "overwrite_forbidden": True, "single_use_queue_item_id": True, "single_use_target_path": True}, "authority_flags": flags}
+    item_lineage = {**lineage, "gate_c_crossing_audit_record": gate_c_ref}
+    if planning_lineage is not None:
+        item_lineage["variant_planning_approval"] = planning_lineage
+    traceability = list(dict.fromkeys([r["sha256"] for r in artifact_refs.values()] + [dataset["sha256"]] + [r["sha256"] for r in lineage.values()]))
+    if planning_lineage is not None:
+        traceability.extend(
+            [planning_lineage["sha256"], planning_lineage["contract_core_sha256"]]
+        )
+    item = {"schema_version": "canon_queue_item_v1", "queue_item_id": item_id, "status": "admitted_non_dispatched", "admitted_at": "2026-07-11T12:00:00Z", "queue_target": "offline_research", "priority": "normal", "artifact_refs": artifact_refs, "denominator": denominator, "dataset": dataset, "budget": budget, "gate_q": {"approval_id": approval_id, "path": gate_rel, "approval_core_sha256": "sha256:" + "0" * 64, "approval_core_hash_scope": "gate_q_approval_core_v1", "approval_core_canonicalization": "repo_canonical_json_v1"}, "lineage": item_lineage, "traceability_hashes": list(dict.fromkeys(traceability)), "immutable_posture": {"append_only": True, "overwrite_forbidden": True, "single_use_queue_item_id": True, "single_use_target_path": True}, "authority_flags": flags}
     gate = {"schema_version": "gate_q_queue_admission_approval_v1", "approval_id": approval_id, "approval_artifact_target_path": gate_rel, "approved_by": "Karl", "approved_at": "2026-07-11T11:00:00Z", "approval_scope": "one_append_only_queue_admission", "artifact_refs": {**artifact_refs, "gate_c_crossing_audit_record": gate_c_ref}, "denominator": denominator, "dataset": dataset, "budget": budget, "priority": "normal", "queue_target": "offline_research", "proposed_queue_item": {"queue_item_id": item_id, "target_path": item_rel, "bytes_sha256": "sha256:" + "0" * 64, "byte_encoding": "utf8_exact_file_bytes"}, "lineage": lineage, "approval_core_sha256": "sha256:" + "0" * 64, "approval_core_hash_scope": "gate_q_approval_core_v1", "approval_core_canonicalization": "repo_canonical_json_v1", "exact_content_and_target_only": True, "append_only": True, "single_use_approval_id": True, "authority_flags": flags}
+    if planning_lineage is not None:
+        gate["artifact_refs"]["variant_planning_approval"] = planning_lineage
     core = approval_core_sha256(gate)
     gate["approval_core_sha256"] = core
     item["gate_q"]["approval_core_sha256"] = core
@@ -116,6 +154,97 @@ def test_valid_exact_content_admits_once_without_dispatch_outputs(tmp_path):
     assert len((root / "research/queue/admission_audit/queue_admissions.jsonl").read_text().splitlines()) == 1
     for forbidden in ("runs", "result_populations", "candidates", "scheduler", "dispatch"):
         assert not (root / forbidden).exists()
+
+
+def test_external_planning_approval_lineage_admits_inert_item(tmp_path):
+    root, gate_path, frozen, gate, item = _fixture(tmp_path, external=True)
+    record = admit_queue_item(
+        repo_root=root, gate_q_path=gate_path, proposed_queue_item_path=frozen
+    )
+    planning = gate["artifact_refs"]["variant_planning_approval"]
+    assert item["lineage"]["variant_planning_approval"] == planning
+    assert record["variant_planning_approval_id"] == planning["approval_id"]
+    assert record["variant_planning_approval_path"] == planning["path"]
+    assert record["variant_planning_approval_file_sha256"] == planning["sha256"]
+    assert (
+        record["variant_planning_approval_contract_core_sha256"]
+        == planning["contract_core_sha256"]
+    )
+    assert record["no_dispatch"] is True and record["no_execution"] is True
+    for forbidden in ("runs", "result_populations", "candidates", "scheduler", "dispatch"):
+        assert not (root / forbidden).exists()
+
+
+@pytest.mark.parametrize("surface", ["gate_q", "queue_item"])
+def test_external_planning_approval_lineage_is_required_on_both_surfaces(
+    tmp_path, surface
+):
+    root, gate_path, frozen, gate, item = _fixture(tmp_path, external=True)
+    if surface == "gate_q":
+        gate["artifact_refs"].pop("variant_planning_approval")
+    else:
+        item["lineage"].pop("variant_planning_approval")
+    _resign(gate_path, frozen, gate, item)
+    with pytest.raises(QueueAdmissionError, match="variant-planning"):
+        admit_queue_item(
+            repo_root=root, gate_q_path=gate_path, proposed_queue_item_path=frozen
+        )
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("approval_id", "VPAPP-20260714-WRONG001"),
+        ("path", "research/strategy_spec_variant_planning_approvals/VPAPP-20260714-WRONG001.variant_planning_approval.json"),
+        ("sha256", "sha256:" + "0" * 64),
+        ("contract_core_sha256", "sha256:" + "1" * 64),
+    ],
+)
+def test_external_planning_approval_lineage_mismatch_fails_closed(
+    tmp_path, field, value
+):
+    root, gate_path, frozen, gate, item = _fixture(tmp_path, external=True)
+    item["lineage"]["variant_planning_approval"][field] = value
+    _resign(gate_path, frozen, gate, item)
+    with pytest.raises(QueueAdmissionError, match="variant-planning"):
+        admit_queue_item(
+            repo_root=root, gate_q_path=gate_path, proposed_queue_item_path=frozen
+        )
+
+
+def test_legacy_bundle_rejects_gate_q_as_substitute_planning_authority(tmp_path):
+    root, gate_path, frozen, gate, item = _fixture(tmp_path)
+    planning = {
+        "approval_id": "VPAPP-20260714-TEST0001",
+        "path": (
+            "research/strategy_spec_variant_planning_approvals/"
+            "VPAPP-20260714-TEST0001.variant_planning_approval.json"
+        ),
+        "sha256": "sha256:" + "0" * 64,
+        "contract_core_sha256": "sha256:" + "1" * 64,
+    }
+    gate["artifact_refs"]["variant_planning_approval"] = planning
+    item["lineage"]["variant_planning_approval"] = planning
+    item["traceability_hashes"].extend(
+        [planning["sha256"], planning["contract_core_sha256"]]
+    )
+    _resign(gate_path, frozen, gate, item)
+    with pytest.raises(QueueAdmissionError, match="legacy embedded-approved"):
+        admit_queue_item(
+            repo_root=root, gate_q_path=gate_path, proposed_queue_item_path=frozen
+        )
+
+
+def test_external_planning_traceability_hashes_are_required(tmp_path):
+    root, gate_path, frozen, gate, item = _fixture(tmp_path, external=True)
+    item["traceability_hashes"].remove(
+        gate["artifact_refs"]["variant_planning_approval"]["contract_core_sha256"]
+    )
+    _resign(gate_path, frozen, gate, item)
+    with pytest.raises(QueueAdmissionError, match="traceability hashes"):
+        admit_queue_item(
+            repo_root=root, gate_q_path=gate_path, proposed_queue_item_path=frozen
+        )
 
 
 @pytest.mark.parametrize("mutation,match", [
@@ -323,8 +452,8 @@ def test_symlinked_audit_directory_fails(tmp_path):
         admit_queue_item(repo_root=root, gate_q_path=gate_path, proposed_queue_item_path=frozen)
 
 
-def _admit_and_record(tmp_path):
-    root, gate_path, frozen, gate, item = _fixture(tmp_path)
+def _admit_and_record(tmp_path, *, external: bool = False):
+    root, gate_path, frozen, gate, item = _fixture(tmp_path, external=external)
     record = admit_queue_item(repo_root=root, gate_q_path=gate_path, proposed_queue_item_path=frozen)
     audit = root / "research/queue/admission_audit/queue_admissions.jsonl"
     return root, gate_path, frozen, gate, item, record, audit
@@ -391,6 +520,58 @@ def test_valid_prior_audit_record_allows_distinct_admission(tmp_path):
     assert len(lines) == 2 and lines[0] == first_line
     assert all(path.read_bytes() == raw for path, raw in before.items())
     assert (root / gate2["proposed_queue_item"]["target_path"]).read_bytes() == frozen2.read_bytes()
+
+
+def test_external_historical_replay_revalidates_planning_evidence(tmp_path):
+    root, gate_path, frozen, gate, item, record, audit = _admit_and_record(
+        tmp_path, external=True
+    )
+    gate_path2, frozen2, gate2, _ = _distinct_bundle(root, gate, item, tmp_path)
+    planning_audit = root / (
+        "research/strategy_spec_variant_planning_audit/"
+        "variant_planning_approvals.jsonl"
+    )
+    planning_audit.write_bytes(planning_audit.read_bytes() * 2)
+    before = audit.read_bytes()
+    with pytest.raises(QueueAdmissionError, match="historical audit line 1|duplicate"):
+        admit_queue_item(
+            repo_root=root, gate_q_path=gate_path2, proposed_queue_item_path=frozen2
+        )
+    assert not (root / gate2["proposed_queue_item"]["target_path"]).exists()
+    assert audit.read_bytes() == before
+
+
+def test_external_historical_admission_requires_complete_conditional_audit_lineage(
+    tmp_path,
+):
+    root, gate_path, _, gate, item, record, audit = _admit_and_record(
+        tmp_path, external=True
+    )
+    gate_path2, frozen2, gate2, _ = _distinct_bundle(root, gate, item, tmp_path)
+    record.pop("variant_planning_approval_contract_core_sha256")
+    audit.write_bytes(repo_canonical_json_v1(record) + b"\n")
+    before = audit.read_bytes()
+    with pytest.raises(QueueAdmissionError, match="historical audit line 1"):
+        admit_queue_item(
+            repo_root=root, gate_q_path=gate_path2, proposed_queue_item_path=frozen2
+        )
+    assert not (root / gate2["proposed_queue_item"]["target_path"]).exists()
+    assert audit.read_bytes() == before
+
+
+def test_external_historical_replay_rejects_missing_approval_file(tmp_path):
+    root, gate_path, _, gate, item, _, audit = _admit_and_record(
+        tmp_path, external=True
+    )
+    gate_path2, frozen2, gate2, _ = _distinct_bundle(root, gate, item, tmp_path)
+    (root / gate["artifact_refs"]["variant_planning_approval"]["path"]).unlink()
+    before = audit.read_bytes()
+    with pytest.raises(QueueAdmissionError, match="historical audit line 1|approval"):
+        admit_queue_item(
+            repo_root=root, gate_q_path=gate_path2, proposed_queue_item_path=frozen2
+        )
+    assert not (root / gate2["proposed_queue_item"]["target_path"]).exists()
+    assert audit.read_bytes() == before
 
 
 class _PartialAudit:

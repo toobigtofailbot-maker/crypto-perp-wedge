@@ -45,6 +45,7 @@ def semantic_errors(gate, item, *, used_approvals=(), used_ids=(), used_targets=
     if gate["approval_id"] != item["gate_q"]["approval_id"] or gate["approval_core_sha256"] != item["gate_q"]["approval_core_sha256"]: errors.append("Gate Q binding mismatch")
     if gate["approval_artifact_target_path"] != gate_path or item["gate_q"]["path"] != gate_path: errors.append("Gate Q identity/path mismatch")
     if gate["artifact_refs"]["strategy_spec"] != item["artifact_refs"]["strategy_spec"] or gate["artifact_refs"]["variant_manifest"] != item["artifact_refs"]["variant_manifest"] or gate["artifact_refs"]["sweep_plan"] != item["artifact_refs"]["sweep_plan"]: errors.append("artifact hash mismatch")
+    if gate["artifact_refs"].get("variant_planning_approval") != item["lineage"].get("variant_planning_approval"): errors.append("variant-planning lineage mismatch")
     d = item["denominator"]
     if len({d["committed_population_count"], d["variant_manifest_value"], d["sweep_plan_value"], item["budget"]["upper_bound"]}) != 1: errors.append("denominator/budget mismatch or exceeded")
     admitted_date = datetime.fromisoformat(item["admitted_at"].replace("Z", "+00:00")).astimezone(timezone.utc).strftime("%Y%m%d")
@@ -113,6 +114,35 @@ def test_contract_contains_no_dispatch_or_runner_surface():
     for name in ("valid_gate_q.json", "valid_queue_item.json"):
         text = (FIXTURES / name).read_text(encoding="utf-8")
         assert not any(f'"{key}"' in text for key in forbidden)
+
+
+def test_optional_external_planning_lineage_is_closed_and_cross_bound():
+    gate, item = load("valid_gate_q.json"), load("valid_queue_item.json")
+    planning = {
+        "approval_id": "VPAPP-20260714-TEST0001",
+        "path": (
+            "research/strategy_spec_variant_planning_approvals/"
+            "VPAPP-20260714-TEST0001.variant_planning_approval.json"
+        ),
+        "sha256": "sha256:" + "1" * 64,
+        "contract_core_sha256": "sha256:" + "2" * 64,
+    }
+    gate["artifact_refs"]["variant_planning_approval"] = copy.deepcopy(planning)
+    item["lineage"]["variant_planning_approval"] = copy.deepcopy(planning)
+    assert not list(validator("gate_q_approval.schema.json").iter_errors(gate))
+    assert not list(validator("canon_queue_item.schema.json").iter_errors(item))
+    assert semantic_errors(gate, item) == []
+    item["lineage"]["variant_planning_approval"]["extra"] = True
+    assert list(validator("canon_queue_item.schema.json").iter_errors(item))
+
+
+def test_legacy_static_gate_q_and_queue_fixtures_require_no_migration():
+    gate, item = load("valid_gate_q.json"), load("valid_queue_item.json")
+    assert "variant_planning_approval" not in gate["artifact_refs"]
+    assert "variant_planning_approval" not in item["lineage"]
+    assert not list(validator("gate_q_approval.schema.json").iter_errors(gate))
+    assert not list(validator("canon_queue_item.schema.json").iter_errors(item))
+    assert semantic_errors(gate, item) == []
 
 
 def test_queue_admission_audit_record_schema_and_reuse_identity():

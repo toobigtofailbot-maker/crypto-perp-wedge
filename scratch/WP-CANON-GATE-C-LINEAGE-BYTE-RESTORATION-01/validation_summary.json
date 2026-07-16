@@ -1,0 +1,51 @@
+{
+  "package_id": "WP-CANON-GATE-C-LINEAGE-BYTE-RESTORATION-01",
+  "focused": {
+    "lineage_regression": "1 passed",
+    "gate_c_spec_writer_eligibility_gate_c_vp_vm_sweep_queue_modules": "251 passed, 5 accepted Windows symlink skips",
+    "all_registry_validators": "24 passed",
+    "data_validation": "passed using 35 temporary hard links; tracked report restored byte-identically",
+    "read_only_h004_lineage_preflight": "passed through Gate-C, approval, Strategy Spec, Gate C-VP, VM/Sweep, denominator, and dataset; no authoritative Gate-Q exists; zero writes",
+    "integrity_views": "58 discovered; 57 clean; one accepted pre-existing STRAT-SPEC-0007 hash-readiness row; zero command errors/timeouts",
+    "git_attributes_and_index": "exact-path text unset; CR-at-EOL allowed; both index raw hashes exact",
+    "git_diff_check": "passed with repository CR-at-EOL convention"
+  },
+  "deterministic_full_suite": {
+    "collections": 2,
+    "collections_identical": true,
+    "normalized_inventory_sha256": "sha256:d05a194d748f983a8584c7de5c7c71251457bc20608b6d5ec9111013b2169b22",
+    "inventory_nodes": 2965,
+    "inventory_files": 160,
+    "execution_profile": "eight deterministic verifier shards over 145 top-level files plus one exact non-overlapping 15-file nested supplement",
+    "every_inventory_node_executed_exactly_once": true,
+    "passed": 2958,
+    "skipped": 7,
+    "failed": 0,
+    "errors": 0,
+    "internal_errors": 0,
+    "timeouts": 0,
+    "accepted_skip_set": [
+      "tests/test_external_simulator_pilot.py::test_default_fixture_mapping_uses_rp_2592_lineage",
+      "tests/test_backtest_liquidation.py::test_buy_and_hold_unchanged_on_benign_window",
+      "tests/test_canon_intake_queue_admission.py::test_gate_q_symlink_alias_fails",
+      "tests/test_canon_intake_queue_admission.py::test_authoritative_gate_q_under_symlinked_parent_fails",
+      "tests/test_canon_intake_queue_admission.py::test_referenced_artifact_symlink_fails",
+      "tests/test_canon_intake_queue_admission.py::test_symlinked_admission_parent_fails",
+      "tests/test_canon_intake_queue_admission.py::test_symlinked_audit_directory_fails"
+    ]
+  },
+  "superseded_non_acceptance_attempts": [
+    "first temporary queue-preflight fixture stopped because scratch already existed",
+    "second synthetic Gate-Q fixture omitted eligibility advisory_only",
+    "third synthetic Gate-Q fixture proved a hypothetical extra-field schema mismatch and was dropped because main has no Gate-Q and the package forbids creating one",
+    "three registry validators invoked as file paths lacked the repo module path; supported module-entrypoint reruns passed",
+    "first integrity wrapper was killed by its outer 124-second timeout; completed rerun produced the accepted 57-clean/one-known-row profile",
+    "repo verifier discovered only 145 top-level test files; exact non-overlapping execution of the omitted 15 nested files completed the frozen inventory",
+    "diff-scope helper rejected the package-specific authorization label as unsupported while still reporting zero allowlist violations and zero forbidden matches"
+  ],
+  "scope": {
+    "changed_file_allowlist_count": 9,
+    "exact_allowlist_passed": true,
+    "forbidden_or_protected_path_changes": 0
+  }
+}

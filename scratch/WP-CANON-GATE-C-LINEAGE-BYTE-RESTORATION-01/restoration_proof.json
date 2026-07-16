@@ -1,0 +1,45 @@
+{
+  "package_id": "WP-CANON-GATE-C-LINEAGE-BYTE-RESTORATION-01",
+  "method": "replace every LF byte with CRLF; no reserialization or content edit",
+  "files": [
+    {
+      "path": "scratch/WP-DASH-AGENT-INBOX-WRITE-01A/drafts/AIDRAFT-2B5725C1A8349863.draft_packet.json",
+      "before_bytes": 14419,
+      "before_sha256": "sha256:e9da0e1f081c602463ca713a0dd66a7126693a70524ec6f14e350e0f81f2df66",
+      "before_lf": 266,
+      "before_crlf": 0,
+      "before_stray_cr": 0,
+      "restored_bytes": 14685,
+      "restored_lf": 266,
+      "restored_crlf": 266,
+      "restored_sha256": "sha256:7c4e53c5cceefc23dc2c242102c0a5c744355d7fafff4ebd892944cf13c5193a",
+      "expected_sha256": "sha256:7c4e53c5cceefc23dc2c242102c0a5c744355d7fafff4ebd892944cf13c5193a",
+      "semantic_sha256_before_after": "sha256:0f4aed048b37927a14269d1b94f8e1e9bdee7bc224fe38d64d23ce12450e1c22",
+      "parsed_json_equal": true,
+      "index_blob": "9b959e22a39ec36cd326e257b1e9501b5b3073a3"
+    },
+    {
+      "path": "scratch/WP-CANON-ELIGIBILITY-VALIDATOR-01/reports/AIDRAFT-2B5725C1A8349863.eligibility_report.json",
+      "before_bytes": 6692,
+      "before_sha256": "sha256:d5fad930d350acea19a60d886964f49b4747d048a243aa12c16daf974c180565",
+      "before_lf": 170,
+      "before_crlf": 0,
+      "before_stray_cr": 0,
+      "restored_bytes": 6862,
+      "restored_lf": 170,
+      "restored_crlf": 170,
+      "restored_sha256": "sha256:76a0654144d215d62932568b5627d6838f3613e36238bebccaac25d55b873dd9",
+      "expected_sha256": "sha256:76a0654144d215d62932568b5627d6838f3613e36238bebccaac25d55b873dd9",
+      "semantic_sha256_before_after": "sha256:3436ce41e22b61e279ed76fe76bd4e7f1cd7e5bf042eae7c1170263009d7adbe",
+      "parsed_json_equal": true,
+      "index_blob": "8be32d53d1588336722643f198ba9292b4fa7f0d"
+    }
+  ],
+  "git_attributes": {
+    "global_lf_policy_changed": false,
+    "exact_path_text_attribute": "unset",
+    "whitespace": "blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol"
+  },
+  "index_raw_hashes_match": true,
+  "fresh_detached_checkout_from_final_index_tree_match": true
+}

@@ -1,0 +1,332 @@
+{
+  "schema_version": "v1",
+  "sweep_plan_id": "SWEEP-PLAN-0007",
+  "status": "approved_for_offline_run_planning",
+  "non_execution_declaration": {
+    "planning_surface_only": true,
+    "not_executable": true,
+    "not_runner_authority": true,
+    "not_sweep_authority": true,
+    "not_result_authority": true,
+    "not_candidate_approval": true,
+    "not_exp_approval": true,
+    "not_ranking_authority": true,
+    "not_recommendation_authority": true,
+    "not_readiness_authority": true,
+    "not_transition_authority": true,
+    "not_runtime_authority": true,
+    "not_paper_live_authority": true,
+    "not_gate_authority": true
+  },
+  "parent_variant_manifest": {
+    "variant_manifest_id": "VM-0007",
+    "variant_manifest_schema_version": "v1",
+    "manifest_hash": "sha256:168fe6deefc761bc9bf9f603f37d199c5f3ef28a83aff5ee0a6a6596729fc667",
+    "hash_algorithm": "sha256",
+    "manifest_population_count": 81,
+    "manifest_committed_population_count": 81,
+    "manifest_population_cap": 81,
+    "manifest_pre_registration_status": "frozen_for_sweep_planning",
+    "mismatch_policy": "block",
+    "missing_manifest_policy": "block",
+    "one_manifest_only": true
+  },
+  "test_selection": {
+    "selection_mode": "all_manifest_variants",
+    "selected_variant_ids": [
+      "VAR-000001",
+      "VAR-000002",
+      "VAR-000003",
+      "VAR-000004",
+      "VAR-000005",
+      "VAR-000006",
+      "VAR-000007",
+      "VAR-000008",
+      "VAR-000009",
+      "VAR-000010",
+      "VAR-000011",
+      "VAR-000012",
+      "VAR-000013",
+      "VAR-000014",
+      "VAR-000015",
+      "VAR-000016",
+      "VAR-000017",
+      "VAR-000018",
+      "VAR-000019",
+      "VAR-000020",
+      "VAR-000021",
+      "VAR-000022",
+      "VAR-000023",
+      "VAR-000024",
+      "VAR-000025",
+      "VAR-000026",
+      "VAR-000027",
+      "VAR-000028",
+      "VAR-000029",
+      "VAR-000030",
+      "VAR-000031",
+      "VAR-000032",
+      "VAR-000033",
+      "VAR-000034",
+      "VAR-000035",
+      "VAR-000036",
+      "VAR-000037",
+      "VAR-000038",
+      "VAR-000039",
+      "VAR-000040",
+      "VAR-000041",
+      "VAR-000042",
+      "VAR-000043",
+      "VAR-000044",
+      "VAR-000045",
+      "VAR-000046",
+      "VAR-000047",
+      "VAR-000048",
+      "VAR-000049",
+      "VAR-000050",
+      "VAR-000051",
+      "VAR-000052",
+      "VAR-000053",
+      "VAR-000054",
+      "VAR-000055",
+      "VAR-000056",
+      "VAR-000057",
+      "VAR-000058",
+      "VAR-000059",
+      "VAR-000060",
+      "VAR-000061",
+      "VAR-000062",
+      "VAR-000063",
+      "VAR-000064",
+      "VAR-000065",
+      "VAR-000066",
+      "VAR-000067",
+      "VAR-000068",
+      "VAR-000069",
+      "VAR-000070",
+      "VAR-000071",
+      "VAR-000072",
+      "VAR-000073",
+      "VAR-000074",
+      "VAR-000075",
+      "VAR-000076",
+      "VAR-000077",
+      "VAR-000078",
+      "VAR-000079",
+      "VAR-000080",
+      "VAR-000081"
+    ],
+    "excluded_variant_ids": [],
+    "subset_selection_rule": null,
+    "declared_before_results": true,
+    "post_hoc_addition_forbidden": true,
+    "outside_manifest_variants_forbidden": true
+  },
+  "validation_methods": {
+    "backtest": {
+      "enabled": true,
+      "method_ref": null,
+      "notes": "Future offline single-slice planning declaration only; this package performs no run."
+    },
+    "walk_forward_oos": {
+      "enabled": false,
+      "method_ref": null,
+      "declares_chronological_separation": false,
+      "notes": "Not authorized or performed by this planning package."
+    },
+    "robustness": {
+      "enabled": false,
+      "method_ref": null,
+      "families_declared": [],
+      "notes": "Not authorized or performed by this planning package."
+    },
+    "dsr_psr_mintrl_accounting": {
+      "enabled": true,
+      "denominator_ref": "committed_population_count",
+      "computation_deferred": true,
+      "notes": "The multiple-testing denominator is frozen at the full committed pre-registered population of 81."
+    },
+    "monte_carlo": {
+      "enabled": false,
+      "method_ref": null,
+      "computation_deferred": true,
+      "notes": "Not authorized or performed by this planning package."
+    },
+    "declarative_intent_only": true,
+    "no_runner_hooks": true,
+    "no_formulas": true,
+    "no_computation": true
+  },
+  "data_and_timeframe_assumptions": {
+    "primary_timeframe": "1d",
+    "confirmation_timeframes": [],
+    "data_refs": [
+      {
+        "stream": "ohlcv",
+        "timeframe": "1d",
+        "field": "open",
+        "availability": "required"
+      },
+      {
+        "stream": "ohlcv",
+        "timeframe": "1d",
+        "field": "high",
+        "availability": "required"
+      },
+      {
+        "stream": "ohlcv",
+        "timeframe": "1d",
+        "field": "low",
+        "availability": "required"
+      },
+      {
+        "stream": "ohlcv",
+        "timeframe": "1d",
+        "field": "close",
+        "availability": "required"
+      },
+      {
+        "stream": "ohlcv",
+        "timeframe": "1d",
+        "field": "volume",
+        "availability": "required"
+      }
+    ],
+    "missing_data_posture": "block_if_missing",
+    "gap_handling_assumption": "Use existing research-workbench irreparable-gap policy; completed 1d bars only, with no interpolation or silent fill."
+  },
+  "realism_assumptions": {
+    "fee_side_assumption": "taker_entry_taker_exit; 4 bps each modeled fill",
+    "exchange_constraints_disclosed": true,
+    "funding_notional_mode": "entry_price",
+    "slippage_model": "fixed_bps",
+    "fill_mode": "complete",
+    "order_size_assumption": "one position maximum at fixed 1.0 baseline notional/leverage; 2 bps fixed slippage each modeled fill; funding included under existing offline entry-price accounting; no pyramiding, partial position, adaptive sizing, or run authority",
+    "liquidity_capacity_assumption": "not active in this pre-Gate-C preregistration artifact",
+    "liquidation_mode": "zero_equity",
+    "maintenance_margin_assumption": null,
+    "mark_price_source": "close",
+    "bar_path_assumption": "next_open_close_mark",
+    "declarations_only": true
+  },
+  "result_capture_expectations": {
+    "result_population_expected": true,
+    "expected_result_population_ref": null,
+    "must_capture_successful": true,
+    "must_capture_failed": true,
+    "must_capture_invalid": true,
+    "must_capture_excluded": true,
+    "must_capture_errored": true,
+    "must_capture_aborted": true,
+    "must_capture_filtered": true,
+    "must_capture_data_unavailable": true,
+    "must_capture_not_attempted": true,
+    "winner_only_retention_forbidden": true,
+    "canonical_evidence_mapping_deferred": true
+  },
+  "trial_accounting": {
+    "committed_population_count": 81,
+    "selected_variant_count": 81,
+    "executed_variant_count": 0,
+    "successful_variant_count": 0,
+    "failed_variant_count": 0,
+    "errored_variant_count": 0,
+    "aborted_variant_count": 0,
+    "filtered_variant_count": 0,
+    "data_unavailable_variant_count": 0,
+    "excluded_variant_count": 0,
+    "not_attempted_variant_count": 81,
+    "multiple_testing_denominator": 81,
+    "denominator_basis": "committed_pre_registered_population_count",
+    "denominator_equals_committed_population_count": true,
+    "executed_only_denominator_forbidden": true,
+    "successful_only_denominator_forbidden": true,
+    "failed_variants_remain_in_denominator": true,
+    "excluded_variants_remain_in_denominator": true,
+    "invalid_variants_remain_in_denominator": true,
+    "errored_variants_remain_in_denominator": true,
+    "aborted_variants_remain_in_denominator": true,
+    "filtered_variants_remain_in_denominator": true,
+    "data_unavailable_variants_remain_in_denominator": true,
+    "not_attempted_variants_remain_in_denominator": true
+  },
+  "lineage": {
+    "parent_manifest_ref": {
+      "ref_type": "variant_manifest",
+      "ref_id": "VM-0007",
+      "ref_path": "research/variant_manifests/VM-0007.variant_manifest.json",
+      "ref_hash": "sha256:168fe6deefc761bc9bf9f603f37d199c5f3ef28a83aff5ee0a6a6596729fc667"
+    },
+    "parent_strategy_spec_ref": {
+      "ref_type": "strategy_spec",
+      "ref_id": "STRAT-SPEC-0007",
+      "ref_path": "research/strategy_specs/STRAT-SPEC-0007.strategy_spec.json",
+      "ref_hash": "sha256:8b6f7dd7a3e12b934c1038ae113aa25aa79f0b3cc6a336b25bd58164f5cc92db"
+    },
+    "search_family_id": "SF-H004-R2-EMA-PULLBACK-CONTINUATION-1D-0001",
+    "source_refs": [
+      {
+        "ref_type": "manual_review",
+        "ref_id": "VPAPP-20260715-H004R201",
+        "ref_path": "research/strategy_spec_variant_planning_approvals/VPAPP-20260715-H004R201.variant_planning_approval.json",
+        "ref_hash": "sha256:13b40df10af9290d65c971e1e57397e5193cc76fa5852a04b6084ec41c8a275a"
+      },
+      {
+        "ref_type": "other",
+        "ref_id": "binance_usdtm_btcusdt_ohlcv_1d",
+        "ref_path": "research/data_slices/binance_usdtm_btcusdt_1d/binance_usdtm_btcusdt_1d_20200101_20260411.catalog_slice.json",
+        "ref_hash": "sha256:51fc09918841cd3ac353efe375af91a4732080571f9b1af634f5d1a426217adb"
+      },
+      {
+        "ref_type": "manual_review",
+        "ref_id": "WP-CANON-H004-VM-SWEEP-GENERATE-03",
+        "ref_path": "docs/status_entries/WP-CANON-H004-VM-SWEEP-GENERATE-03.md",
+        "ref_hash": null
+      }
+    ],
+    "created_at": "2026-07-15T21:48:24Z",
+    "updated_at": "2026-07-15T21:48:24Z",
+    "audit_notes": [
+      "All 81 manifest variants are selected in deterministic order; executed=0 and not_attempted=81 by design.",
+      "No external planning-approval field is added to the Sweep Plan.",
+      "This plan contains no runner hooks, formulas, computation, Gate Q, queue, dispatch, execution, Result Population, candidate, ranking, recommendation, runtime, paper/live, OMS, risk, or reconciliation authority."
+    ]
+  },
+  "review": {
+    "human_review_required": true,
+    "reviewer": "Karl/Main via active WP and PR review",
+    "reviewed_at": null,
+    "review_notes": [
+      "The active package authorizes canonical non-executing sweep planning over the exact approved VM population only.",
+      "All variants remain visible and selected; no ranking, narrowing, result computation, or execution occurs."
+    ],
+    "approval_scope": "offline_run_planning_only",
+    "non_authority_acknowledgement": {
+      "not_candidate_approval": true,
+      "not_exp_approval": true,
+      "not_sweep_authority": true,
+      "not_runner_authority": true,
+      "not_result_authority": true,
+      "not_ranking_authority": true,
+      "not_recommendation_authority": true,
+      "not_readiness_authority": true,
+      "not_transition_authority": true,
+      "not_runtime_authority": true,
+      "not_paper_live_authority": true,
+      "not_gate_satisfaction": true
+    }
+  },
+  "amendment_and_supersession": {
+    "amendment_mode": "none",
+    "supersedes": null,
+    "supersession_lineage": [],
+    "amendment_reason": null,
+    "associated_results_state": "no_associated_results",
+    "supersession_allowed": false,
+    "close_only_after_results": true,
+    "post_result_change": false,
+    "preserve_prior_sweep_plan_required": true,
+    "does_not_modify_parent_manifest": true,
+    "does_not_modify_manifest_denominator": true
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "package_id": "WP-CANON-GATE-C-LINEAGE-BYTE-RESTORATION-01",
+  "base_sha": "de758a5a886b2729384efb1873966b6fccb2fdc7",
+  "crossing_commit": "a9bed325ebaae89f98efbd0252e44a6e4fdd2fec",
+  "branch": "codex/wp-canon-gate-c-lineage-byte-restoration-01",
+  "worktree": "C:/GitHub/crypto-perp-wedge-wp-canon-gate-c-lineage-byte-restoration-01",
+  "root_checkout_clean_before_fetch": true,
+  "origin_main_refreshed_ff_only": true,
+  "open_repair_pr_conflict": false,
+  "requested_branch_preexisted_locally": false,
+  "requested_branch_preexisted_remotely": false,
+  "source_draft_blob": {
+    "current": "14522118b378e44eee7508048a7cc2716287eb81",
+    "crossing": "14522118b378e44eee7508048a7cc2716287eb81",
+    "equal": true
+  },
+  "eligibility_report_blob": {
+    "current": "2f3f9f5554a7e434d9c4d267e6c7b0d5f31b2508",
+    "crossing": "2f3f9f5554a7e434d9c4d267e6c7b0d5f31b2508",
+    "equal": true
+  },
+  "hard_decision": "byte_restoration",
+  "decision_conditions_passed": [
+    "LF-to-CRLF candidates preserve parsed JSON values",
+    "candidate raw hashes equal immutable Gate-C hashes",
+    "original files contained no mixed newlines or stray carriage returns",
+    "current and crossing Git blob IDs are equal",
+    "review-trail bytes and hash remain valid",
+    "complete available lineage replay passes after restoration"
+  ]
+}

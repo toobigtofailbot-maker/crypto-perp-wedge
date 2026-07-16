@@ -31,6 +31,10 @@ research/result_populations/RP-2592.result_population.json -text whitespace=blan
 # Preserve the dry-run-attested CRLF byte form for this canonical result population.
 research/result_populations/RP-3731.result_population.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 
+# Preserve the immutable Gate-C-attested CRLF byte form for these H-004-R2 lineage inputs.
+scratch/WP-DASH-AGENT-INBOX-WRITE-01A/drafts/AIDRAFT-2B5725C1A8349863.draft_packet.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+scratch/WP-CANON-ELIGIBILITY-VALIDATOR-01/reports/AIDRAFT-2B5725C1A8349863.eligibility_report.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
 # Binary/data artifacts.
 *.parquet binary
 *.png binary

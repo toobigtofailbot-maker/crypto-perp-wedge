@@ -1,0 +1,12 @@
+# WP-CANON-GATE-C-LINEAGE-BYTE-RESTORATION-01
+
+Status: **READY FOR PR REVIEW**.
+
+- Base: `de758a5a886b2729384efb1873966b6fccb2fdc7` (`origin/main`).
+- Restoration: the H-004-R2 source draft and eligibility report were restored by LF-to-CRLF byte transformation only. Their raw hashes now exactly match immutable Gate-C evidence: `sha256:7c4e53c5cceefc23dc2c242102c0a5c744355d7fafff4ebd892944cf13c5193a` and `sha256:76a0654144d215d62932568b5627d6838f3613e36238bebccaac25d55b873dd9`.
+- Prevention: `.gitattributes` adds exact-path `-text` rules with the repository's CR-at-EOL whitespace allowance; the global LF policy is unchanged.
+- Proof: current and crossing-commit blobs were identical before restoration; both files were pure LF with no stray CRs; parsed JSON and canonical semantic digests are unchanged; Git index and fresh detached checkout retain the exact CRLF hashes.
+- Lineage: Gate-C approval/audit and review trail replay; eligibility internally binds the restored source; `STRAT-SPEC-0007`, Gate C-VP, `VM-0007`, `SWEEP-PLAN-0007`, denominator 81, and dataset lineage validate. The current read-only queue lineage preflight passes every available upstream check; no authoritative Gate-Q exists and no proposal or write was created.
+- Audit regression: audit line 1 remains present with raw SHA-256 `sha256:ef5a452a4aff61a35fdbdfcf16162362400345f28af67b7bb41aa4ae36024be2`; every audit line is parsed; exactly one H-004-R2 record with the attested identity and lineage references is required; duplicate or conflicting H-004-R2 identity reuse is rejected; unrelated future append-only Gate-C records after line 1 are permitted.
+- Validation: the corrected lineage regression passes 3 tests and the focused adjacent contracts pass 253 tests with 5 accepted Windows symlink skips; 24 registry validators pass; data validation passes; 58 integrity views reproduce 57 clean plus the accepted pre-existing `STRAT-SPEC-0007` hash-readiness row; two identical collections found 2,967 nodes across 160 files with normalized inventory SHA-256 `sha256:28e16c225963d8c75e5377aedd851f34600c92d6776709c1b9146d950de68ac1`; exact non-overlapping execution produced 2,960 passed and the refreshed-main seven skips, with zero failures, errors, internal errors, or timeouts.
+- Boundary: no approval/audit mutation, recross, Strategy Spec/VM/Sweep/dataset mutation, Gate Q, queue, dispatch, execution, Result Population, candidate, runtime, paper/live, OMS, risk, or reconciliation change or authority.

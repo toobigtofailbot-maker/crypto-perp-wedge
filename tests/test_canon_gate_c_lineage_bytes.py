@@ -42,6 +42,25 @@ EXPECTED_SEMANTIC_HASHES = {
     "source_draft": "sha256:0f4aed048b37927a14269d1b94f8e1e9bdee7bc224fe38d64d23ce12450e1c22",
     "eligibility_report": "sha256:3436ce41e22b61e279ed76fe76bd4e7f1cd7e5bf042eae7c1170263009d7adbe",
 }
+H004_R2_IDENTITY = {
+    "approval_id": "GATE-C-H004-R2-0001",
+    "strategy_spec_id": "STRAT-SPEC-0007",
+    "canonical_target_path": SPEC_PATH.as_posix(),
+}
+EXPECTED_LINEAGE_REFS = {
+    "source_draft": {
+        "path": DRAFT_PATH.as_posix(),
+        "sha256": EXPECTED_HASHES["source_draft"],
+    },
+    "review_trail": {
+        "path": REVIEW_PATH.as_posix(),
+        "sha256": EXPECTED_HASHES["review_trail"],
+    },
+    "eligibility_report": {
+        "path": ELIGIBILITY_PATH.as_posix(),
+        "sha256": EXPECTED_HASHES["eligibility_report"],
+    },
+}
 
 
 def _sha256(raw: bytes) -> str:
@@ -59,6 +78,16 @@ def _assert_crlf_only(raw: bytes) -> None:
     assert b"\r\n" in raw
     assert b"\r" not in raw.replace(b"\r\n", b"")
     assert b"\n" not in raw.replace(b"\r\n", b"")
+
+
+def _unique_h004_r2_record(records: list[dict[str, object]]) -> dict[str, object]:
+    related = [
+        record
+        for record in records
+        if any(record.get(key) == value for key, value in H004_R2_IDENTITY.items())
+    ]
+    assert len(related) == 1
+    return related[0]
 
 
 def test_h004_r2_gate_c_lineage_replays_from_immutable_attested_bytes():
@@ -88,19 +117,24 @@ def test_h004_r2_gate_c_lineage_replays_from_immutable_attested_bytes():
     )
 
     audit_lines = (REPO_ROOT / AUDIT_PATH).read_bytes().splitlines(keepends=True)
-    assert len(audit_lines) == 1
+    assert audit_lines
     assert _sha256(audit_lines[0]) == EXPECTED_HASHES["audit_line"]
-    audit = json.loads(audit_lines[0].decode("utf-8"))
-    assert audit["approval_id"] == "GATE-C-H004-R2-0001"
+    audit_records = [json.loads(line.decode("utf-8")) for line in audit_lines]
+    audit = _unique_h004_r2_record(audit_records)
+    assert audit == audit_records[0]
+    assert all(audit[key] == value for key, value in H004_R2_IDENTITY.items())
     assert approval["approval_id"] == audit["approval_id"]
     assert audit["approval_record_sha256"] == EXPECTED_HASHES["approval"]
-    assert audit["canonical_target_path"] == SPEC_PATH.as_posix()
     assert audit["approved_content_sha256"] == EXPECTED_HASHES["strategy_spec"]
 
     refs = {}
     for name in ("source_draft", "review_trail", "eligibility_report"):
         approval_ref = approval[name]
         audit_ref = audit[name]
+        assert {
+            "path": audit_ref["path"],
+            "sha256": audit_ref["sha256"],
+        } == EXPECTED_LINEAGE_REFS[name]
         assert audit_ref["path"] == approval_ref["path"]
         assert audit_ref["sha256"] == approval_ref["sha256"]
         refs[name] = spec_writer._verify_ref(REPO_ROOT, approval_ref, name)
@@ -138,3 +172,43 @@ def test_h004_r2_gate_c_lineage_replays_from_immutable_attested_bytes():
         )
         if path.is_file()
     ) == 1
+
+
+def test_h004_r2_audit_scope_allows_unrelated_future_append_only_records():
+    current = json.loads(
+        (REPO_ROOT / AUDIT_PATH).read_bytes().splitlines(keepends=True)[0].decode(
+            "utf-8"
+        )
+    )
+    unrelated = {
+        "approval_id": "GATE-C-FUTURE-0001",
+        "strategy_spec_id": "STRAT-SPEC-9999",
+        "canonical_target_path": (
+            "research/strategy_specs/STRAT-SPEC-9999.strategy_spec.json"
+        ),
+    }
+    assert _unique_h004_r2_record([current, unrelated]) == current
+
+
+def test_h004_r2_audit_scope_rejects_duplicate_or_conflicting_records():
+    current = json.loads(
+        (REPO_ROOT / AUDIT_PATH).read_bytes().splitlines(keepends=True)[0].decode(
+            "utf-8"
+        )
+    )
+    conflicts = (
+        {**H004_R2_IDENTITY, "strategy_spec_id": "STRAT-SPEC-9999"},
+        {**H004_R2_IDENTITY, "approval_id": "GATE-C-CONFLICT-0001"},
+        {
+            **H004_R2_IDENTITY,
+            "canonical_target_path": (
+                "research/strategy_specs/STRAT-SPEC-9999.strategy_spec.json"
+            ),
+        },
+    )
+    for conflict in conflicts:
+        try:
+            _unique_h004_r2_record([current, conflict])
+        except AssertionError:
+            continue
+        raise AssertionError("duplicate or conflicting H-004-R2 record was accepted")

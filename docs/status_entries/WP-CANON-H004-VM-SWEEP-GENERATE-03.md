@@ -1,0 +1,15 @@
+# WP-CANON-H004-VM-SWEEP-GENERATE-03
+
+Status: **READY FOR PR REVIEW**.
+
+- Base: `9a09f9d9650ec4f0833c8cd916dfd4a6d3faf77f` (`origin/main`).
+- Canonical artifacts: `VM-0007` whole-file SHA-256 `sha256:822da9ca46eca4f3a9d4d86936fdd3447004ef77806fc3ce60ab0cf979ea171d`, manifest hash `sha256:168fe6deefc761bc9bf9f603f37d199c5f3ef28a83aff5ee0a6a6596729fc667`; `SWEEP-PLAN-0007` whole-file SHA-256 `sha256:66d48ec6d57048012dcd243ca7dda25dcf59241b1a3733dc05796eb46d7af2f0`, bound to that manifest hash.
+- Approval: `VPAPP-20260715-H004R201`, whole-file SHA-256 `sha256:13b40df10af9290d65c971e1e57397e5193cc76fa5852a04b6084ec41c8a275a`, contract-core SHA-256 `sha256:4b8e126870c918e88ac42336427c3ba495bcacb6433bd3741b0a01c712bf99f0`; one exact matching audit record and Gate-C lineage `GATE-C-H004-R2-0001` replay successfully.
+- Population: search family `SF-H004-R2-EMA-PULLBACK-CONTINUATION-1D-0001`; ordered axes `pullback_ema_bars=[10,20,30]`, `trend_fast_ema_bars=[40,50,60]`, `atr_multiplier=[2.0,2.5,3.0]` (approved milli-values `[2000,2500,3000]`), `max_holding_bars=[30,45,60]`; 81 unique included assignments, denominator 81, no exclusions, adaptive search, pruning, ranking, optimization, or post-result mutation.
+- Focused compatibility: JSON schemas, VM/Sweep semantics, approval-core derivation, all registry validators, data validation, 308 registry tests, 82 read-only runner/query/dashboard tests, and all 58 integrity views pass with only the accepted pre-existing STRAT-SPEC-0007 hash-readiness row.
+- Full regression: two identical final collections, 2,964 nodes across 159 files; deterministic eight-shard execution completed with 2,957 passed, the exact seven accepted environment skips, and zero failures, errors, internal errors, or timeouts.
+- Scope tooling: the exact 11-file allowlist and direct forbidden/protected-path checks pass. The advisory diff helper remains non-green because it has no canonical VM/Sweep authorization class and mechanically flags the two package-authorized `research/` writes; both its unsupported custom-scope attempt and its non-exempting exact-file attempt are disclosed in package evidence.
+- Conditional test maintenance: two focused test files were updated only to distinguish the six byte-identical legacy pairs from the new externally approved pair and to expose the new VM/Sweep read-only repo state without changing validator or query behavior.
+- Preservation: 33 tracked read-only inputs, including `STRAT-SPEC-0007`, Gate-C/Gate C-VP evidence, dataset lineage, schemas, validators, all six legacy pairs, and runner/query/dashboard consumers, remain byte-identical.
+- Boundary: planning artifacts only. No dataset mutation, Gate Q, queue admission, dispatch, execution, Result Population, candidate, ranking, recommendation, readiness, promotion, runtime, paper/live, OMS, risk, reconciliation, configuration, dependency, schema, validator, query-layer, runner, or protected-path behavior changed or was authorized.
+- PR: [#661 — WP-CANON-H004-VM-SWEEP-GENERATE-03: Register H-004-R2 bounded population](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/661).

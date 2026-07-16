@@ -2259,7 +2259,7 @@ def test_strategy_spec_integrity_views_empty_under_current_zero_instance_state(c
     ]
 
 
-def test_strategy_spec_0007_has_no_downstream_or_promotion_authority(conn):
+def test_strategy_spec_0007_has_only_planning_downstream_and_no_promotion_authority(conn):
     downstream_counts = conn.execute(
         """
         SELECT
@@ -2302,7 +2302,7 @@ def test_strategy_spec_0007_has_no_downstream_or_promotion_authority(conn):
         """
     ).fetchone()
 
-    assert downstream_counts == (0, 0, 0, 0, 0, 0)
+    assert downstream_counts == (1, 1, 0, 0, 0, 0)
     assert authority_posture == (
         "review_requested",
         "none",
@@ -2553,6 +2553,7 @@ def test_variant_sweep_relations_first_instance_repo_state(conn):
         ("VM-0004",),
         ("VM-0005",),
         ("VM-0006",),
+        ("VM-0007",),
     ]
     assert conn.execute("SELECT sweep_plan_id FROM sweep_plans ORDER BY sweep_plan_id").fetchall() == [
         ("SWEEP-PLAN-0001",),
@@ -2561,6 +2562,7 @@ def test_variant_sweep_relations_first_instance_repo_state(conn):
         ("SWEEP-PLAN-0004",),
         ("SWEEP-PLAN-0005",),
         ("SWEEP-PLAN-0006",),
+        ("SWEEP-PLAN-0007",),
     ]
 
 
@@ -2631,7 +2633,7 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
         """
     ).fetchall()
 
-    assert manifest_overview == [
+    assert manifest_overview[:-1] == [
         (
             "VM-0001",
             "STRAT-SPEC-0001",
@@ -2699,7 +2701,18 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
             "sweep_planning_only",
         ),
     ]
-    assert manifest_population == [
+    assert manifest_overview[-1] == (
+        "VM-0007",
+        "STRAT-SPEC-0007",
+        81,
+        81,
+        81,
+        "SF-H004-R2-EMA-PULLBACK-CONTINUATION-1D-0001",
+        "frozen_for_sweep_planning",
+        "computed",
+        "sweep_planning_only",
+    )
+    assert manifest_population[:-1] == [
         (
             "VM-0001",
             7,
@@ -2773,7 +2786,19 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
             True,
         ),
     ]
-    assert manifest_axes == [
+    assert manifest_population[-1] == (
+        "VM-0007",
+        81,
+        81,
+        81,
+        81,
+        "committed_pre_registered_population_count",
+        "committed_pre_registered_population",
+        False,
+        True,
+        True,
+    )
+    assert manifest_axes[:-4] == [
         (
             "VM-0001",
             "AXIS-001",
@@ -2910,7 +2935,13 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
             True,
         ),
     ]
-    assert manifest_assignments == [
+    assert manifest_axes[-4:] == [
+        ("VM-0007", "AXIS-001", "pullback_ema_bars", "integer", "bars", "manual_grid", True),
+        ("VM-0007", "AXIS-002", "trend_fast_ema_bars", "integer", "bars", "manual_grid", True),
+        ("VM-0007", "AXIS-003", "atr_multiplier", "number", "ATR", "manual_grid", True),
+        ("VM-0007", "AXIS-004", "max_holding_bars", "integer", "bars", "manual_grid", True),
+    ]
+    assert manifest_assignments[:-81] == [
         ("VM-0001", "VAR-000001", "included", 1, 0, 0, "manual-grid", 1),
         ("VM-0001", "VAR-000002", "included", 1, 0, 0, "manual-grid", 2),
         ("VM-0001", "VAR-000003", "included", 1, 0, 0, "manual-grid", 3),
@@ -3177,7 +3208,20 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
             8,
         ),
     ]
-    assert sweep_overview == [
+    assert manifest_assignments[-81:] == [
+        (
+            "VM-0007",
+            f"VAR-{index:06d}",
+            "included",
+            4,
+            0,
+            0,
+            "approved-cartesian-grid-axis-order-left-to-right",
+            index,
+        )
+        for index in range(1, 82)
+    ]
+    assert sweep_overview[:-1] == [
         (
             "SWEEP-PLAN-0001",
             "VM-0001",
@@ -3245,7 +3289,18 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
             "offline_run_planning_only",
         ),
     ]
-    assert sweep_accounting == [
+    assert sweep_overview[-1] == (
+        "SWEEP-PLAN-0007",
+        "VM-0007",
+        81,
+        81,
+        "frozen_for_sweep_planning",
+        "all_manifest_variants",
+        81,
+        0,
+        "offline_run_planning_only",
+    )
+    assert sweep_accounting[:-1] == [
         (
             "SWEEP-PLAN-0001",
             7,
@@ -3319,7 +3374,19 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
             True,
         ),
     ]
-    assert result_capture == [
+    assert sweep_accounting[-1] == (
+        "SWEEP-PLAN-0007",
+        81,
+        81,
+        0,
+        81,
+        81,
+        "committed_pre_registered_population_count",
+        True,
+        True,
+        True,
+    )
+    assert result_capture[:-1] == [
         ("SWEEP-PLAN-0001", True, None, True, True),
         ("SWEEP-PLAN-0002", True, None, True, True),
         ("SWEEP-PLAN-0003", True, None, True, True),
@@ -3327,6 +3394,7 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
         ("SWEEP-PLAN-0005", True, None, True, True),
         ("SWEEP-PLAN-0006", True, None, True, True),
     ]
+    assert result_capture[-1] == ("SWEEP-PLAN-0007", True, None, True, True)
 
 
 def test_first_canonical_15m_result_population_views_under_first_parent_instances(conn):

@@ -754,12 +754,22 @@ def test_all_six_canonical_legacy_bundles_validate_without_external_evidence():
         for path in directory.glob(pattern)
     }
     assert validate_variant_sweep_artifacts() == []
-    assert len(list((REPO_ROOT / "research/variant_manifests").glob("*.variant_manifest.json"))) == 6
+    legacy_manifests = [
+        REPO_ROOT
+        / "research/variant_manifests"
+        / f"VM-{index:04d}.variant_manifest.json"
+        for index in range(1, 7)
+    ]
+    legacy_sweeps = [
+        REPO_ROOT
+        / "research/sweep_plans"
+        / f"SWEEP-PLAN-{index:04d}.sweep_plan.json"
+        for index in range(1, 7)
+    ]
+    assert all(path.is_file() for path in legacy_manifests + legacy_sweeps)
     assert all(
         "variant_planning_approval" not in json.loads(path.read_text(encoding="utf-8"))
-        for path in (REPO_ROOT / "research/variant_manifests").glob(
-            "*.variant_manifest.json"
-        )
+        for path in legacy_manifests
     )
     assert before == {
         path: hashlib.sha256(path.read_bytes()).hexdigest() for path in before

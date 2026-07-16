@@ -1,0 +1,182 @@
+{
+  "package_id": "WP-CANON-H004-VM-SWEEP-GENERATE-03",
+  "focused": {
+    "json_schema_validation": "passed: VM and Sweep",
+    "semantic_variant_sweep_validator": "passed: all seven canonical pairs",
+    "approval_audit_replay": "passed: one approval / one audit record",
+    "vm_derived_contract_core": "passed: sha256:4b8e126870c918e88ac42336427c3ba495bcacb6433bd3741b0a01c712bf99f0",
+    "registry_pytest": "308 passed",
+    "read_only_consumer_pytest": "82 passed",
+    "registry_validators": [
+      "Strategy Spec",
+      "VM/Sweep",
+      "data-feature availability",
+      "Result Population",
+      "candidate registry"
+    ],
+    "data_validator": "passed; generated report preserved externally as sha256:0acee3edea63f3f3e4186be05dffc904660aed26eb763c22f496e01c3686b66a; tracked report restored",
+    "integrity_views": {
+      "discovered": 58,
+      "empty": 57,
+      "accepted_pre_existing_rows": 1,
+      "row": "STRAT-SPEC-0007 hash_pinning.hash_status=not_computed"
+    }
+  },
+  "deterministic_full_suite": {
+    "algorithm": "greedy_lpt_file_sharding_v1",
+    "collections": 2,
+    "collections_identical": true,
+    "final_inventory_nodes": 2964,
+    "final_inventory_files": 159,
+    "final_normalized_inventory_sha256": "sha256:a4f8fa6ece9807cea3dfbc6ee3c0134ec7a5d2fe19d4c5a6f57519c27b2ba999",
+    "shard_count": 8,
+    "worker_count": 4,
+    "every_final_node_executed_exactly_once": true,
+    "passed": 2957,
+    "skipped": 7,
+    "failed": 0,
+    "errors": 0,
+    "internal_errors": 0,
+    "timeouts": 0,
+    "shards": [
+      {
+        "shard": 1,
+        "expected_nodes": 370,
+        "executed_nodes": 370,
+        "passed": 370,
+        "skipped": 0,
+        "failed": 0,
+        "errors": 0,
+        "timed_out": false,
+        "elapsed_seconds": 326.341
+      },
+      {
+        "shard": 2,
+        "expected_nodes": 371,
+        "executed_nodes": 371,
+        "passed": 370,
+        "skipped": 1,
+        "failed": 0,
+        "errors": 0,
+        "timed_out": false,
+        "elapsed_seconds": 324.296
+      },
+      {
+        "shard": 3,
+        "expected_nodes": 371,
+        "executed_nodes": 371,
+        "passed": 370,
+        "skipped": 1,
+        "failed": 0,
+        "errors": 0,
+        "timed_out": false,
+        "elapsed_seconds": 574.849
+      },
+      {
+        "shard": 4,
+        "expected_nodes": 371,
+        "executed_nodes": 371,
+        "passed": 366,
+        "skipped": 5,
+        "failed": 0,
+        "errors": 0,
+        "timed_out": false,
+        "elapsed_seconds": 756.397
+      },
+      {
+        "shard": 5,
+        "expected_nodes": 371,
+        "executed_nodes": 371,
+        "passed": 371,
+        "skipped": 0,
+        "failed": 0,
+        "errors": 0,
+        "timed_out": false,
+        "elapsed_seconds": 1269.58
+      },
+      {
+        "shard": 6,
+        "expected_nodes": 370,
+        "executed_nodes": 370,
+        "passed": 370,
+        "skipped": 0,
+        "failed": 0,
+        "errors": 0,
+        "timed_out": false,
+        "elapsed_seconds": 132.309
+      },
+      {
+        "shard": 7,
+        "expected_nodes": 370,
+        "executed_nodes": 370,
+        "passed": 370,
+        "skipped": 0,
+        "failed": 0,
+        "errors": 0,
+        "timed_out": false,
+        "elapsed_seconds": 942.123
+      },
+      {
+        "shard": 8,
+        "expected_nodes": 370,
+        "executed_nodes": 370,
+        "passed": 370,
+        "skipped": 0,
+        "failed": 0,
+        "errors": 0,
+        "timed_out": false,
+        "elapsed_seconds": 1242.817,
+        "supersedes_initial_failed_shard": true
+      }
+    ],
+    "accepted_skip_set": [
+      {
+        "test": "tests.test_external_simulator_pilot::test_default_fixture_mapping_uses_rp_2592_lineage",
+        "category": "absent_gitignored_d4a_simulator_input"
+      },
+      {
+        "test": "tests.test_backtest_liquidation::test_buy_and_hold_unchanged_on_benign_window",
+        "category": "absent_gitignored_4h_parquet_fixture"
+      },
+      {
+        "test": "tests.test_canon_intake_queue_admission::test_gate_q_symlink_alias_fails",
+        "category": "windows_symlink_privilege_unavailable"
+      },
+      {
+        "test": "tests.test_canon_intake_queue_admission::test_authoritative_gate_q_under_symlinked_parent_fails",
+        "category": "windows_symlink_privilege_unavailable"
+      },
+      {
+        "test": "tests.test_canon_intake_queue_admission::test_referenced_artifact_symlink_fails",
+        "category": "windows_symlink_privilege_unavailable"
+      },
+      {
+        "test": "tests.test_canon_intake_queue_admission::test_symlinked_admission_parent_fails",
+        "category": "windows_symlink_privilege_unavailable"
+      },
+      {
+        "test": "tests.test_canon_intake_queue_admission::test_symlinked_audit_directory_fails",
+        "category": "windows_symlink_privilege_unavailable"
+      }
+    ]
+  },
+  "superseded_non_acceptance_attempts": [
+    "scripts/validate_data.py --help attempted validation without worktree-local gitignored data and failed; later required data validation passed with temporary hard links",
+    "first focused pytest command was killed by an incorrect one-second timeout; identical rerun passed 308 tests",
+    "combined consumer modules timed out after 20 minutes without a completion result; split focused consumer rerun passed 82 tests",
+    "first full-suite shard 8 exposed three stale six-pair/no-planning-downstream query assertions; conditional focused test fixes passed and final shard 8 rerun passed all 370 nodes",
+    "diff_scope_summary rejected custom scope canonical-vm-sweep-planning as unsupported and flagged the two package-authorized research artifact paths",
+    "diff_scope_summary exact allowed-file run confirmed zero allowlist violations but still flagged the same two research paths because allowed-file does not exempt the global research prefix"
+  ],
+  "preservation": {
+    "tracked_read_only_inputs_verified": 33,
+    "hash_mismatches": 0,
+    "legacy_vm_sweep_pairs_unchanged": 6
+  },
+  "scope": {
+    "exact_changed_file_allowlist_count": 11,
+    "exact_changed_file_allowlist_passed": true,
+    "direct_forbidden_and_protected_path_scan_passed": true,
+    "advisory_helper_status": "non-green only for two explicitly authorized canonical research artifact writes"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "package_id": "WP-CANON-H004-VM-SWEEP-GENERATE-03",
+  "method": "two fresh invocations using approved axis order and itertools.product left-to-right",
+  "generation_a": "external_scratch_invocation_a",
+  "generation_b": "external_scratch_invocation_b",
+  "byte_identical": true,
+  "vm_whole_file_sha256": "sha256:822da9ca46eca4f3a9d4d86936fdd3447004ef77806fc3ce60ab0cf979ea171d",
+  "sweep_whole_file_sha256": "sha256:66d48ec6d57048012dcd243ca7dda25dcf59241b1a3733dc05796eb46d7af2f0",
+  "vm_manifest_hash": "sha256:168fe6deefc761bc9bf9f603f37d199c5f3ef28a83aff5ee0a6a6596729fc667",
+  "sweep_parent_manifest_hash": "sha256:168fe6deefc761bc9bf9f603f37d199c5f3ef28a83aff5ee0a6a6596729fc667"
+}

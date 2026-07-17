@@ -67,6 +67,24 @@ def test_valid_static_fixtures_and_cross_contract():
     assert gate["proposed_queue_item"]["bytes_sha256"] == queue_hash
 
 
+@pytest.mark.parametrize("mutation", ["omit", "false", "extra"])
+def test_eligibility_lineage_requires_closed_advisory_only_true(mutation):
+    gate, item = load("valid_gate_q.json"), load("valid_queue_item.json")
+    for document, schema_name in (
+        (gate, "gate_q_approval.schema.json"),
+        (item, "canon_queue_item.schema.json"),
+    ):
+        candidate = copy.deepcopy(document)
+        eligibility = candidate["lineage"]["eligibility_report"]
+        if mutation == "omit":
+            eligibility.pop("advisory_only")
+        elif mutation == "false":
+            eligibility["advisory_only"] = False
+        else:
+            eligibility["extra"] = True
+        assert list(validator(schema_name).iter_errors(candidate))
+
+
 def test_repo_canonical_json_v1_is_exact_and_stable():
     left = {"z": [True, None, 2], "é": "雪", "a": {"b": "x"}}
     right = json.loads(' { "a" : { "b" : "x" }, "é" : "雪", "z" : [ true, null, 2 ] } ')
@@ -148,6 +166,6 @@ def test_legacy_static_gate_q_and_queue_fixtures_require_no_migration():
 def test_queue_admission_audit_record_schema_and_reuse_identity():
     gate, item = load("valid_gate_q.json"), load("valid_queue_item.json")
     h = lambda c: "sha256:" + hashlib.sha256(c).hexdigest()
-    record = {"schema_version":"queue_admission_audit_record_v1","audit_record_id":"QAUDIT-" + item["queue_item_id"],"queue_item_id":item["queue_item_id"],"queue_item_path":gate["proposed_queue_item"]["target_path"],"queue_item_sha256":h((FIXTURES/"valid_queue_item.json").read_bytes()),"gate_q_approval_id":gate["approval_id"],"gate_q_approval_path":gate["approval_artifact_target_path"],"gate_q_approval_file_sha256":h((FIXTURES/"valid_gate_q.json").read_bytes()),"gate_q_approval_core_sha256":gate["approval_core_sha256"],"strategy_spec_id":"STRAT-SPEC-9999","strategy_spec_path":"research/strategy_specs/STRAT-SPEC-9999.strategy_spec.json","strategy_spec_sha256":item["artifact_refs"]["strategy_spec"]["sha256"],"variant_manifest_path":item["artifact_refs"]["variant_manifest"]["path"],"variant_manifest_sha256":item["artifact_refs"]["variant_manifest"]["sha256"],"sweep_plan_path":item["artifact_refs"]["sweep_plan"]["path"],"sweep_plan_sha256":item["artifact_refs"]["sweep_plan"]["sha256"],"admitted_at":item["admitted_at"],"writer_version":"fixture-v1","validation_outcome":"passed_before_admission","no_dispatch":True,"no_execution":True}
+    record = {"schema_version":"queue_admission_audit_record_v1","audit_record_id":"QAUDIT-" + item["queue_item_id"],"queue_item_id":item["queue_item_id"],"queue_item_path":gate["proposed_queue_item"]["target_path"],"queue_item_sha256":h((FIXTURES/"valid_queue_item.json").read_bytes()),"gate_q_approval_id":gate["approval_id"],"gate_q_approval_path":gate["approval_artifact_target_path"],"gate_q_approval_file_sha256":h((FIXTURES/"valid_gate_q.json").read_bytes()),"gate_q_approval_core_sha256":gate["approval_core_sha256"],"eligibility_report":gate["lineage"]["eligibility_report"],"strategy_spec_id":"STRAT-SPEC-9999","strategy_spec_path":"research/strategy_specs/STRAT-SPEC-9999.strategy_spec.json","strategy_spec_sha256":item["artifact_refs"]["strategy_spec"]["sha256"],"variant_manifest_path":item["artifact_refs"]["variant_manifest"]["path"],"variant_manifest_sha256":item["artifact_refs"]["variant_manifest"]["sha256"],"sweep_plan_path":item["artifact_refs"]["sweep_plan"]["path"],"sweep_plan_sha256":item["artifact_refs"]["sweep_plan"]["sha256"],"admitted_at":item["admitted_at"],"writer_version":"fixture-v1","validation_outcome":"passed_before_admission","no_dispatch":True,"no_execution":True}
     assert not list(validator("queue_admission_audit_record.schema.json").iter_errors(record))
     assert {record["gate_q_approval_id"], record["queue_item_id"], record["queue_item_path"]}

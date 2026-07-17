@@ -67,6 +67,7 @@ def _fixture(tmp_path: Path, *, external: bool = False):
             payload = {"approval_id": "GATE-C-TEST", "approval_scope": "one_append_only_canonical_strategy_spec_write", "authorizes_queue": False, "authorizes_execution": False}
         _write(root / rel, payload)
         lineage[name] = _ref(root, rel)
+    lineage["eligibility_report"]["advisory_only"] = True
     dataset_rel = "data/immutable/BTCUSDT-1h.snapshot"
     (root / dataset_rel).parent.mkdir(parents=True)
     (root / dataset_rel).write_bytes(b"immutable dataset fixture\n")
@@ -162,6 +163,14 @@ def test_external_planning_approval_lineage_admits_inert_item(tmp_path):
         repo_root=root, gate_q_path=gate_path, proposed_queue_item_path=frozen
     )
     planning = gate["artifact_refs"]["variant_planning_approval"]
+    gate_c_record = json.loads(
+        (root / "research/canonical_crossing_audit/strategy_spec_writes.jsonl")
+        .read_text(encoding="utf-8")
+    )
+    assert gate["lineage"]["eligibility_report"] == item["lineage"]["eligibility_report"]
+    assert gate["lineage"]["eligibility_report"] == gate_c_record["eligibility_report"]
+    assert gate["lineage"]["eligibility_report"]["advisory_only"] is True
+    assert record["eligibility_report"] == gate["lineage"]["eligibility_report"]
     assert item["lineage"]["variant_planning_approval"] == planning
     assert record["variant_planning_approval_id"] == planning["approval_id"]
     assert record["variant_planning_approval_path"] == planning["path"]
@@ -351,10 +360,29 @@ def test_gate_c_crossing_rejects_hash_valid_lineage_substitution(tmp_path, field
     relative = f"scratch/lineage/substitute-{field}.json"
     _write(root / relative, {"draft_id": "AIDRAFT-TEST0000000001", "substitute": field})
     replacement = _ref(root, relative)
+    if field == "eligibility_report":
+        replacement["advisory_only"] = True
     gate["lineage"][field] = item["lineage"][field] = replacement
     _resign(gate_path, frozen, gate, item)
     with pytest.raises(QueueAdmissionError, match="does not match the Gate-C crossing record"):
         admit_queue_item(repo_root=root, gate_q_path=gate_path, proposed_queue_item_path=frozen)
+
+
+def test_queue_item_eligibility_lineage_mismatch_uses_exact_equality(tmp_path):
+    root, gate_path, frozen, gate, item = _fixture(tmp_path, external=True)
+    relative = "scratch/lineage/alternate-eligibility.json"
+    _write(root / relative, {"kind": "alternate eligibility"})
+    item["lineage"]["eligibility_report"] = {
+        **_ref(root, relative),
+        "advisory_only": True,
+    }
+    _resign(gate_path, frozen, gate, item)
+    with pytest.raises(QueueAdmissionError, match="eligibility_report lineage mismatch"):
+        admit_queue_item(
+            repo_root=root,
+            gate_q_path=gate_path,
+            proposed_queue_item_path=frozen,
+        )
 
 
 def test_gate_c_approval_file_hash_mismatch_fails(tmp_path):
@@ -541,6 +569,22 @@ def test_external_historical_replay_revalidates_planning_evidence(tmp_path):
     assert audit.read_bytes() == before
 
 
+def test_external_historical_replay_matches_exact_eligibility_evidence(tmp_path):
+    root, _, _, gate, item, first_record, audit = _admit_and_record(
+        tmp_path, external=True
+    )
+    gate_path2, frozen2, _, _ = _distinct_bundle(root, gate, item, tmp_path)
+    admit_queue_item(
+        repo_root=root,
+        gate_q_path=gate_path2,
+        proposed_queue_item_path=frozen2,
+    )
+    records = [json.loads(line) for line in audit.read_text(encoding="utf-8").splitlines()]
+    assert len(records) == 2
+    assert records[0]["eligibility_report"] == first_record["eligibility_report"]
+    assert records[0]["eligibility_report"] == gate["lineage"]["eligibility_report"]
+
+
 def test_external_historical_admission_requires_complete_conditional_audit_lineage(
     tmp_path,
 ):
@@ -650,7 +694,7 @@ def test_historical_missing_or_changed_evidence_blocks_distinct_admission(tmp_pa
     assert audit.read_bytes() == audit_after_tamper
 
 
-@pytest.mark.parametrize("kind", ["queue_schema", "gate_core", "gate_proposed", "audit_timestamp", "audit_hash"])
+@pytest.mark.parametrize("kind", ["queue_schema", "gate_core", "gate_proposed", "audit_timestamp", "audit_hash", "audit_eligibility"])
 def test_historical_schema_valid_cross_evidence_inconsistency_fails(tmp_path, kind):
     root, gate_path, _, gate, item, record, audit = _admit_and_record(tmp_path)
     gate_path2, frozen2, gate2, _ = _distinct_bundle(root, gate, item, tmp_path)
@@ -665,6 +709,12 @@ def test_historical_schema_valid_cross_evidence_inconsistency_fails(tmp_path, ki
         raw = _write(gate_path, payload); record["gate_q_approval_file_sha256"] = _hash(raw)
         if kind == "gate_core": record["gate_q_approval_core_sha256"] = payload["approval_core_sha256"]
     elif kind == "audit_timestamp": record["admitted_at"] = "2026-07-11T13:00:00Z"
+    elif kind == "audit_eligibility":
+        record["eligibility_report"] = {
+            "path": "scratch/lineage/other-eligibility.json",
+            "sha256": "sha256:" + "3" * 64,
+            "advisory_only": True,
+        }
     else: record["strategy_spec_sha256"] = "sha256:" + "2" * 64
     audit.write_bytes(repo_canonical_json_v1(record) + b"\n")
     before = audit.read_bytes()

@@ -1,0 +1,53 @@
+{
+  "package_id": "WP-CANON-GATEQ-ELIGIBILITY-SHAPE-RECONCILE-01",
+  "focused": {
+    "baseline_queue_control": "86 passed, 5 accepted Windows symlink skips",
+    "new_contract_proofs": "20 passed",
+    "gate_c_gate_c_vp_vm_sweep_queue_adjacent": "264 passed, 5 accepted Windows symlink skips",
+    "registry_validators": "24 passed",
+    "query_views": "124 listed; all 58 integrity views executed; 57 empty and one accepted pre-existing STRAT-SPEC-0007 hash-readiness row",
+    "immutable_dependency_hashes": "all exact",
+    "authoritative_queue_history": "absent before and after"
+  },
+  "static_and_scope": {
+    "changed_json_parse": "passed",
+    "changed_python_compile": "passed",
+    "git_diff_check": "passed",
+    "frozen_allowlist": "passed; 15 final paths including status fragment",
+    "direct_forbidden_path_scan": "passed; zero unauthorized paths",
+    "preservation": "23 immutable checks passed; zero mismatches",
+    "authoritative_queue_state_created": false
+  },
+  "deterministic_full_suite": {
+    "collections": 2,
+    "collections_identical": true,
+    "normalized_inventory_sha256": "sha256:12b662053b3f63582f876315b2bc4d81cde4a0508409c11b54d558494f37c8d8",
+    "inventory_nodes": 2973,
+    "inventory_files": 160,
+    "execution_profile": "15 terminal top-level verifier shards plus exact non-overlapping replacement of timed shard 0 (65 research-query nodes in eight deterministic groups and nine remaining files) plus one exact non-overlapping 15-file nested supplement",
+    "every_inventory_node_executed_exactly_once_in_accepted_profile": true,
+    "passed": 2966,
+    "skipped": 7,
+    "failed": 0,
+    "errors": 0,
+    "internal_errors": 0,
+    "timeouts": 0,
+    "accepted_skip_set": [
+      "tests/test_external_simulator_pilot.py::test_default_fixture_mapping_uses_rp_2592_lineage",
+      "tests/test_backtest_liquidation.py::test_buy_and_hold_unchanged_on_benign_window",
+      "tests/test_canon_intake_queue_admission.py::test_gate_q_symlink_alias_fails",
+      "tests/test_canon_intake_queue_admission.py::test_authoritative_gate_q_under_symlinked_parent_fails",
+      "tests/test_canon_intake_queue_admission.py::test_referenced_artifact_symlink_fails",
+      "tests/test_canon_intake_queue_admission.py::test_symlinked_admission_parent_fails",
+      "tests/test_canon_intake_queue_admission.py::test_symlinked_audit_directory_fails"
+    ]
+  },
+  "superseded_non_acceptance_attempts": [
+    "combined baseline command exceeded its 120-second outer limit; split baseline passed",
+    "serial and parallel multi-process integrity wrappers exceeded 10-minute outer limits; identical single-connection 58-view execution completed",
+    "eight-shard full verifier exceeded its outer limit and its exact orphan process tree was terminated",
+    "16-shard verifier completed 15 shards but shard 0 timed out at 1800 seconds; generic diff-scope also flagged package-authorized research schema paths",
+    "whole-file tests/test_research_query.py rerun timed out at 1800 seconds; its frozen 65 nodes passed in eight deterministic groups",
+    "first node-group orchestrator exited after a process-state collection bug; its four already-started groups completed and passed, and the remaining four disjoint groups passed"
+  ]
+}

@@ -265,6 +265,7 @@ def _read_audit(root: Path, path: Path) -> list[dict[str, Any]]:
             "queue_item_id", "queue_item_path", "queue_item_sha256",
             "gate_q_approval_id", "gate_q_approval_path", "gate_q_approval_file_sha256",
             "gate_q_approval_core_sha256", "strategy_spec_id", "strategy_spec_path",
+            "eligibility_report",
             "strategy_spec_sha256", "variant_manifest_path", "variant_manifest_sha256",
             "sweep_plan_path", "sweep_plan_sha256", "admitted_at", "no_dispatch", "no_execution",
             "variant_planning_approval_id", "variant_planning_approval_path",
@@ -421,7 +422,7 @@ def _validate_bundle(*, repo_root: Path, gate_q_path: Path, proposed_queue_item_
         )
     if not required_hashes <= set(item.get("traceability_hashes", [])):
         raise QueueAdmissionError("queue-item traceability hashes are incomplete")
-    record = {"schema_version": "queue_admission_audit_record_v1", "audit_record_id": f"QAUDIT-{item_id}", "queue_item_id": item_id, "queue_item_path": target_rel, "queue_item_sha256": _digest(item_raw), "gate_q_approval_id": approval_id, "gate_q_approval_path": gate_rel, "gate_q_approval_file_sha256": _digest(gate_raw), "gate_q_approval_core_sha256": core_hash, "strategy_spec_id": spec_id, "strategy_spec_path": gate["artifact_refs"]["strategy_spec"]["path"], "strategy_spec_sha256": _digest(spec_raw), "variant_manifest_path": gate["artifact_refs"]["variant_manifest"]["path"], "variant_manifest_sha256": _digest(vm_raw), "sweep_plan_path": gate["artifact_refs"]["sweep_plan"]["path"], "sweep_plan_sha256": _digest(sweep_raw), "admitted_at": item["admitted_at"], "writer_version": WRITER_VERSION, "validation_outcome": "passed_before_admission", "no_dispatch": True, "no_execution": True}
+    record = {"schema_version": "queue_admission_audit_record_v1", "audit_record_id": f"QAUDIT-{item_id}", "queue_item_id": item_id, "queue_item_path": target_rel, "queue_item_sha256": _digest(item_raw), "gate_q_approval_id": approval_id, "gate_q_approval_path": gate_rel, "gate_q_approval_file_sha256": _digest(gate_raw), "gate_q_approval_core_sha256": core_hash, "eligibility_report": gate["lineage"]["eligibility_report"], "strategy_spec_id": spec_id, "strategy_spec_path": gate["artifact_refs"]["strategy_spec"]["path"], "strategy_spec_sha256": _digest(spec_raw), "variant_manifest_path": gate["artifact_refs"]["variant_manifest"]["path"], "variant_manifest_sha256": _digest(vm_raw), "sweep_plan_path": gate["artifact_refs"]["sweep_plan"]["path"], "sweep_plan_sha256": _digest(sweep_raw), "admitted_at": item["admitted_at"], "writer_version": WRITER_VERSION, "validation_outcome": "passed_before_admission", "no_dispatch": True, "no_execution": True}
     if planning_lineage is not None:
         record.update(
             {

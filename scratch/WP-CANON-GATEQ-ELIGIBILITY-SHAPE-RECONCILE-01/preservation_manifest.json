@@ -1,0 +1,33 @@
+{
+  "package_id": "WP-CANON-GATEQ-ELIGIBILITY-SHAPE-RECONCILE-01",
+  "base_sha": "ea8073b890c6aa84f1684714844a00b1a6c296ca",
+  "unauthorized_mismatches": 0,
+  "immutable": {
+    "research/strategy_specs/STRAT-SPEC-0007.strategy_spec.json": "sha256:b23ebc1093df51b7fab5e39c46fd2b96b5e71d35300134eb319a5cbc32d0857c",
+    "research/canonical_crossing_audit/strategy_spec_writes.jsonl#line-1-with-LF": "sha256:ef5a452a4aff61a35fdbdfcf16162362400345f28af67b7bb41aa4ae36024be2",
+    "scratch/WP-DASH-AGENT-INBOX-WRITE-01A/drafts/AIDRAFT-2B5725C1A8349863.draft_packet.json": "sha256:7c4e53c5cceefc23dc2c242102c0a5c744355d7fafff4ebd892944cf13c5193a",
+    "scratch/WP-DASH-AGENT-INBOX-WRITE-01A/reviews/AIDRAFT-2B5725C1A8349863.review_events.jsonl": "sha256:a0e3174758316a18ff0f4f207886d2cb1704eaad609e397fd1aee1e0f4339230",
+    "scratch/WP-CANON-ELIGIBILITY-VALIDATOR-01/reports/AIDRAFT-2B5725C1A8349863.eligibility_report.json": "sha256:76a0654144d215d62932568b5627d6838f3613e36238bebccaac25d55b873dd9",
+    "research/strategy_spec_variant_planning_approvals/VPAPP-20260715-H004R201.variant_planning_approval.json": "sha256:13b40df10af9290d65c971e1e57397e5193cc76fa5852a04b6084ec41c8a275a",
+    "research/variant_manifests/VM-0007.variant_manifest.json": "sha256:822da9ca46eca4f3a9d4d86936fdd3447004ef77806fc3ce60ab0cf979ea171d",
+    "research/sweep_plans/SWEEP-PLAN-0007.sweep_plan.json": "sha256:66d48ec6d57048012dcd243ca7dda25dcf59241b1a3733dc05796eb46d7af2f0",
+    "research/data_slices/binance_usdtm_btcusdt_1d/binance_usdtm_btcusdt_1d_20200101_20260411.catalog_slice.json": "sha256:51fc09918841cd3ac353efe375af91a4732080571f9b1af634f5d1a426217adb",
+    "local:data/processed/binance_um_perp_BTCUSDT_1d_2020-01-01_2026-04-11_2026-04-12T1655Z.parquet": "sha256:c6e2e7ce030db6a710d95e48325fc77b27efbbdd441199b3d7458d4394795802"
+  },
+  "pre_existing_canonical_bundle_file_hashes": {
+    "VM-0001": "sha256:af790cb6d143907695031928d441c0d8e6c240a90c2d08610d4e930aea13d972",
+    "VM-0002": "sha256:766715c976c1b309add2b5ba031d5741c005a4678ac0bd17f570c2bcc1715eee",
+    "VM-0003": "sha256:069c4e505003b104a4b17f3e3ad8ca66240e205b615fdc77354c065373ffc1f2",
+    "VM-0004": "sha256:e408dbc7d562ff6377d9b9d40f33e867b55870fcce7e89e82516e77d8f07d429",
+    "VM-0005": "sha256:b198428d25c376c2e2e75f3237d842435d526192a297893b15a3952182e2ffe6",
+    "VM-0006": "sha256:fc8e87a1cc34c1b1fcec6ded9871ffeae5d26392dca3bff99235c80f9969aa6a",
+    "SWEEP-PLAN-0001": "sha256:39d07533c078b82569cb26a6d93bfe1b9192736867860c1e141c75d557bfb394",
+    "SWEEP-PLAN-0002": "sha256:2cde2973d07dd9f35cd9ccc4ce2b1994d244cfcfdb9f2af40441388677b5b985",
+    "SWEEP-PLAN-0003": "sha256:82d78358a5498b8983a55ce4930bdfd1ae33354f9198faa4da97ebfe5b4d9bcf",
+    "SWEEP-PLAN-0004": "sha256:0013cc2b12e8e895c21cfa0bc2efb2e51a6c029c6c8bff9aabfefd03cac1fee1",
+    "SWEEP-PLAN-0005": "sha256:8c2f1e1f0ff8ea332fe482b4d02ab257f2ade31a1a7ff16675784c587a5660cc",
+    "SWEEP-PLAN-0006": "sha256:59f85c7082ecc23c7985f11bd3b05c339138deb641fff1a388976a01c8b0d277"
+  },
+  "authoritative_queue_history": "absent before and after",
+  "real_authority_or_state_created": false
+}

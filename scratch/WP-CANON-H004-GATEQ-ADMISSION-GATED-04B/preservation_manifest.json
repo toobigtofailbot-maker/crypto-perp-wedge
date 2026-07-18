@@ -1,0 +1,236 @@
+{
+  "package_id": "WP-CANON-H004-GATEQ-ADMISSION-GATED-04B",
+  "base_sha": "e4cc369610d8582f279cddb5df973a58b2345aaa",
+  "algorithm": "sha256_raw_file_bytes",
+  "tracked_input_count": 55,
+  "tracked_inputs": [
+    {
+      "path": "CLAUDE_START_HERE.md",
+      "sha256": "sha256:519bea0da37fb91c9884d13294949b68f157928ac12529878e9025e03c6ab7cb"
+    },
+    {
+      "path": "docs/ai/codex/CODEX_TOKEN_EFFICIENCY.md",
+      "sha256": "sha256:37e3e6fe54c89c69e19598df3ae33f8ff2c6c164b7e915e7e2f0f2337cfa9ce9"
+    },
+    {
+      "path": "docs/project_status.md",
+      "sha256": "sha256:dc9a52296c0220b43335d00385e30bad91a6cb018725d28bece29c4f9469c504"
+    },
+    {
+      "path": "docs/research_pipeline/2026-05-stage2c_workflow_efficiency_operating_model_lock.md",
+      "sha256": "sha256:abea7a78ff4f8b5adc5ef546b6560e353f352a80f4f16dbc217d9ce7e8618cc6"
+    },
+    {
+      "path": "docs/runbook.md",
+      "sha256": "sha256:5d3f777488179458f37e1eb1507e5d452b25fbbba5bd5a5f6a736095ec56e4c4"
+    },
+    {
+      "path": "docs/status_entries/WP-CANON-GATEQ-ELIGIBILITY-SHAPE-RECONCILE-01.md",
+      "sha256": "sha256:5d91c86b24e75d007f86fda51bc77feef98ee41b940c3b292f36fe6e613cf645"
+    },
+    {
+      "path": "research/canonical_crossing_audit/strategy_spec_writes.jsonl",
+      "sha256": "sha256:ef5a452a4aff61a35fdbdfcf16162362400345f28af67b7bb41aa4ae36024be2"
+    },
+    {
+      "path": "research/data_slices/binance_usdtm_btcusdt_1d/binance_usdtm_btcusdt_1d_20200101_20260411.catalog_slice.json",
+      "sha256": "sha256:51fc09918841cd3ac353efe375af91a4732080571f9b1af634f5d1a426217adb"
+    },
+    {
+      "path": "research/schemas/canon_queue_item.schema.json",
+      "sha256": "sha256:b78b62e27ac0dcb9fc49ce23132f4530efa45a4df96143799cfe088a8afa0892"
+    },
+    {
+      "path": "research/schemas/gate_q_approval.schema.json",
+      "sha256": "sha256:a1e5bf1a320d425a08fa9d4ceeaccba26e026b6f325e3a5f3d6c0792a1fcab24"
+    },
+    {
+      "path": "research/schemas/queue_admission_audit_record.schema.json",
+      "sha256": "sha256:8cba310221e9d528a963e212812ee9d0f70488e2ffd078ab6996e6c9003ab5e1"
+    },
+    {
+      "path": "research/schemas/strategy_spec_variant_planning_approval_audit.schema.json",
+      "sha256": "sha256:5415341731f43fc547b9abb9a80998977467e9bc444ee42172f544b620858771"
+    },
+    {
+      "path": "research/schemas/strategy_spec_variant_planning_approval.schema.json",
+      "sha256": "sha256:32821716144ae138882a4c4c7d2b9e17f35ae21005353276fa7a0b00e2a7ecc1"
+    },
+    {
+      "path": "research/schemas/strategy_spec.schema.json",
+      "sha256": "sha256:70993b8ad75767094853a4f1c897738b8f8bef7c91c442088c60a38814108951"
+    },
+    {
+      "path": "research/schemas/sweep_plan.schema.json",
+      "sha256": "sha256:0ed54961f17ba0e7c04e2e606172aec8c84cc5e58aca56e311b2cf9070a703dd"
+    },
+    {
+      "path": "research/schemas/variant_manifest.schema.json",
+      "sha256": "sha256:97d372fcf7277836296c15c229410e986550c7e0ec58183068849fa2cbfcc0a5"
+    },
+    {
+      "path": "research/strategy_spec_variant_planning_approvals/VPAPP-20260715-H004R201.variant_planning_approval.json",
+      "sha256": "sha256:13b40df10af9290d65c971e1e57397e5193cc76fa5852a04b6084ec41c8a275a"
+    },
+    {
+      "path": "research/strategy_spec_variant_planning_audit/variant_planning_approvals.jsonl",
+      "sha256": "sha256:d21308886a6f6751932c1b4da4ec1734ff808af6fba91748c4b6e6e1c5dbd3ba"
+    },
+    {
+      "path": "research/strategy_specs/STRAT-SPEC-0007.strategy_spec.json",
+      "sha256": "sha256:b23ebc1093df51b7fab5e39c46fd2b96b5e71d35300134eb319a5cbc32d0857c"
+    },
+    {
+      "path": "research/sweep_plans/SWEEP-PLAN-0001.sweep_plan.json",
+      "sha256": "sha256:39d07533c078b82569cb26a6d93bfe1b9192736867860c1e141c75d557bfb394"
+    },
+    {
+      "path": "research/sweep_plans/SWEEP-PLAN-0002.sweep_plan.json",
+      "sha256": "sha256:2cde2973d07dd9f35cd9ccc4ce2b1994d244cfcfdb9f2af40441388677b5b985"
+    },
+    {
+      "path": "research/sweep_plans/SWEEP-PLAN-0003.sweep_plan.json",
+      "sha256": "sha256:82d78358a5498b8983a55ce4930bdfd1ae33354f9198faa4da97ebfe5b4d9bcf"
+    },
+    {
+      "path": "research/sweep_plans/SWEEP-PLAN-0004.sweep_plan.json",
+      "sha256": "sha256:0013cc2b12e8e895c21cfa0bc2efb2e51a6c029c6c8bff9aabfefd03cac1fee1"
+    },
+    {
+      "path": "research/sweep_plans/SWEEP-PLAN-0005.sweep_plan.json",
+      "sha256": "sha256:8c2f1e1f0ff8ea332fe482b4d02ab257f2ade31a1a7ff16675784c587a5660cc"
+    },
+    {
+      "path": "research/sweep_plans/SWEEP-PLAN-0006.sweep_plan.json",
+      "sha256": "sha256:59f85c7082ecc23c7985f11bd3b05c339138deb641fff1a388976a01c8b0d277"
+    },
+    {
+      "path": "research/sweep_plans/SWEEP-PLAN-0007.sweep_plan.json",
+      "sha256": "sha256:66d48ec6d57048012dcd243ca7dda25dcf59241b1a3733dc05796eb46d7af2f0"
+    },
+    {
+      "path": "research/variant_manifests/VM-0001.variant_manifest.json",
+      "sha256": "sha256:af790cb6d143907695031928d441c0d8e6c240a90c2d08610d4e930aea13d972"
+    },
+    {
+      "path": "research/variant_manifests/VM-0002.variant_manifest.json",
+      "sha256": "sha256:766715c976c1b309add2b5ba031d5741c005a4678ac0bd17f570c2bcc1715eee"
+    },
+    {
+      "path": "research/variant_manifests/VM-0003.variant_manifest.json",
+      "sha256": "sha256:069c4e505003b104a4b17f3e3ad8ca66240e205b615fdc77354c065373ffc1f2"
+    },
+    {
+      "path": "research/variant_manifests/VM-0004.variant_manifest.json",
+      "sha256": "sha256:e408dbc7d562ff6377d9b9d40f33e867b55870fcce7e89e82516e77d8f07d429"
+    },
+    {
+      "path": "research/variant_manifests/VM-0005.variant_manifest.json",
+      "sha256": "sha256:b198428d25c376c2e2e75f3237d842435d526192a297893b15a3952182e2ffe6"
+    },
+    {
+      "path": "research/variant_manifests/VM-0006.variant_manifest.json",
+      "sha256": "sha256:fc8e87a1cc34c1b1fcec6ded9871ffeae5d26392dca3bff99235c80f9969aa6a"
+    },
+    {
+      "path": "research/variant_manifests/VM-0007.variant_manifest.json",
+      "sha256": "sha256:822da9ca46eca4f3a9d4d86936fdd3447004ef77806fc3ce60ab0cf979ea171d"
+    },
+    {
+      "path": "scratch/WP-CANON-ELIGIBILITY-VALIDATOR-01/reports/AIDRAFT-2B5725C1A8349863.eligibility_report.json",
+      "sha256": "sha256:76a0654144d215d62932568b5627d6838f3613e36238bebccaac25d55b873dd9"
+    },
+    {
+      "path": "scratch/WP-CANON-FIRST-GATE-C-CROSSING-GATED-02C/approvals/GATE-C-H004-R2-0001.gate_c_approval.json",
+      "sha256": "sha256:b05753fe01cc99aa2c4f0e419fca88f4f843154f12843f01aae775eb1e4e68cd"
+    },
+    {
+      "path": "scratch/WP-CANON-GATEQ-ELIGIBILITY-SHAPE-RECONCILE-01/exact_equality_preservation.md",
+      "sha256": "sha256:bed6b2b03c55d733aefd3bdc12b8279ed5c9e66f3b606936244f5c4d7a3a8c68"
+    },
+    {
+      "path": "scratch/WP-CANON-GATEQ-ELIGIBILITY-SHAPE-RECONCILE-01/historical_compatibility_summary.md",
+      "sha256": "sha256:90e73891e6106cae13b1db2218f10857109f8947670e0a0f259ef29fa2740bd3"
+    },
+    {
+      "path": "scratch/WP-CANON-GATEQ-ELIGIBILITY-SHAPE-RECONCILE-01/validation_summary.json",
+      "sha256": "sha256:21d6e47f116a1be9f84a6acba065e81ed1a96943e8c0d1f3f17aed08cb489b89"
+    },
+    {
+      "path": "scratch/WP-CANON-QUEUE-CONTROL-PLANE-DESIGN-LOCK-03A/fixtures/valid_gate_q.json",
+      "sha256": "sha256:593d5b5fece3b7933fd35d6c847f6bdc0025649d048f540983b0e1a2f2532b63"
+    },
+    {
+      "path": "scratch/WP-CANON-QUEUE-CONTROL-PLANE-DESIGN-LOCK-03A/fixtures/valid_queue_item.json",
+      "sha256": "sha256:adeba4ad85a8c12709de31f536a2bf45ecd111f2293332f298158daf59f24b4a"
+    },
+    {
+      "path": "scratch/WP-DASH-AGENT-INBOX-WRITE-01A/drafts/AIDRAFT-2B5725C1A8349863.draft_packet.json",
+      "sha256": "sha256:7c4e53c5cceefc23dc2c242102c0a5c744355d7fafff4ebd892944cf13c5193a"
+    },
+    {
+      "path": "scratch/WP-DASH-AGENT-INBOX-WRITE-01A/reviews/AIDRAFT-2B5725C1A8349863.review_events.jsonl",
+      "sha256": "sha256:a0e3174758316a18ff0f4f207886d2cb1704eaad609e397fd1aee1e0f4339230"
+    },
+    {
+      "path": "tests/test_canon_gate_c_lineage_bytes.py",
+      "sha256": "sha256:96944f66de5c71565753a58945a244f9ac53801ee904745e550fe321997354c7"
+    },
+    {
+      "path": "tests/test_canon_intake_queue_admission.py",
+      "sha256": "sha256:9b35efe65b4475756ff4973902e9e671d82c7d99c34735ff72e358b8d85ae7ec"
+    },
+    {
+      "path": "tests/test_canon_intake_variant_planning_approval.py",
+      "sha256": "sha256:22f38755a6be0e98cd98bf4829b3daeaee369c01d39f0276193ed5e2983010cc"
+    },
+    {
+      "path": "tests/test_canon_queue_control_plane_contracts.py",
+      "sha256": "sha256:72c6c99c2efa4ce1a0a1b49fe9582718aa527e8fcd46e19fc04563ec77b32e02"
+    },
+    {
+      "path": "tests/test_register_binance_usdtm_1d_lineage.py",
+      "sha256": "sha256:39f5ed0b7acfbad3e68f80859500435bf8d5bada43c81d646569f608d8913730"
+    },
+    {
+      "path": "tools/canon_intake/queue_admission.py",
+      "sha256": "sha256:c79ec0a6c2e6490c4dd2aa5a9e38e4905e4ccef4a85dc04f71b38a54380e9577"
+    },
+    {
+      "path": "tools/canon_intake/spec_writer.py",
+      "sha256": "sha256:68426dd027c5233f39f3bbd2f2931b987e53bf9bd0657a096891407fbfe5df0a"
+    },
+    {
+      "path": "tools/canon_intake/variant_planning_approval.py",
+      "sha256": "sha256:86daf4644ecfc853ee20e63fffe29c578cb6dbe33fdc7ea04c797fafc2bf18bf"
+    },
+    {
+      "path": "tools/dashboard/collector.py",
+      "sha256": "sha256:7c4cf106724b023d19253598fceab9ad407a3c75b9dfc4798e233e3a742751f6"
+    },
+    {
+      "path": "tools/data/register_binance_usdtm_1d_lineage.py",
+      "sha256": "sha256:304677c9800763189424f2efa7900eeb2c2be2fce4b4bb99663bc8e409fbc8c1"
+    },
+    {
+      "path": "tools/registry/validate_strategy_specs.py",
+      "sha256": "sha256:9475f2c39304402cf7e97961614e8e6faab01e71df1de61373b52801ce1a1936"
+    },
+    {
+      "path": "tools/registry/validate_variant_sweep_artifacts.py",
+      "sha256": "sha256:8bda6f06093758506400be879d86d614754d283f918c25911c486444a3fa048c"
+    },
+    {
+      "path": "tools/research_query/query_layer.py",
+      "sha256": "sha256:5f0f621b1079a99e26638b4b7d93d23d98618a4ae9f85fee0b92ba13bc92c3a4"
+    }
+  ],
+  "local_ignored_inputs": [
+    {
+      "path": "data/processed/binance_um_perp_BTCUSDT_1d_2020-01-01_2026-04-11_2026-04-12T1655Z.parquet",
+      "source_checkout": "C:/GitHub/crypto-perp-wedge",
+      "sha256": "sha256:c6e2e7ce030db6a710d95e48325fc77b27efbbdd441199b3d7458d4394795802"
+    }
+  ],
+  "expected_mismatch_count": 0
+}

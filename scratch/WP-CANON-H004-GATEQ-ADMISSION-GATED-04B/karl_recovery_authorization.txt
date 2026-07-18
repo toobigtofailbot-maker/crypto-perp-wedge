@@ -1,0 +1,31 @@
+I authorize the narrow 04B recovery described in the attached file.
+
+Remove only the identified malformed, uncommitted Gate-Q file. Then validate the unchanged frozen proposal in a non-authoritative staging location and perform exactly one fresh byte-exact materialization.
+
+Proceed with the protected writer only after confirming the authoritative file is exactly 4,615 bytes and matches SHA-256 `sha256:8645018c04a565761d72047b5225fbfd5694e342f5180407f0c8b111ba310fed`.
+
+If any stated precondition or hash differs, stop without further mutation.
+
+I, Karl, authorize removal of only the malformed uncommitted file `research/queue/gate_q_approvals/GATE-Q-H004-R2-04B-0001.gate_q_approval.json` with SHA-256 `sha256:c0f1403660177a56f9d5cfe4b62d4f0d08b2412d1ea2ec92544789bf99e366f3`, followed by one fresh byte-exact materialization from the unchanged frozen proposal SHA-256 `sha256:8645018c04a565761d72047b5225fbfd5694e342f5180407f0c8b111ba310fed`.
+
+Proceed only while all of the following remain true:
+
+- the malformed file is uncommitted;
+- no queue item exists;
+- no admission-audit record was appended;
+- no queue-admission lock exists;
+- the frozen proposal is unchanged;
+- no dispatch or execution state exists;
+- the repository base and all previously approved packet values remain unchanged.
+
+After removal, validate the frozen proposal bytes in a non-authoritative staging location, then perform exactly one fresh byte-exact materialization to the authoritative Gate-Q path.
+
+Immediately verify that the authoritative file is exactly 4,615 bytes and has SHA-256 `sha256:8645018c04a565761d72047b5225fbfd5694e342f5180407f0c8b111ba310fed`.
+
+Only after that exact byte check passes, continue the previously authorized single protected-writer invocation.
+
+This recovery authorization does not authorize regeneration, normalization, content changes, path changes, ID changes, additional retries, dispatch, scheduling, execution, Result Population creation, runtime changes, paper/live activity, OMS changes, risk changes, reconciliation changes, or mutation of upstream or historical evidence.
+
+If any precondition, byte count, hash, path, ID, or repository assumption differs, stop without further mutation and report the exact mismatch.
+
+— Karl

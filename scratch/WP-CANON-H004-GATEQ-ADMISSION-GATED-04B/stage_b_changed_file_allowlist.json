@@ -1,0 +1,27 @@
+{
+  "package_id": "WP-CANON-H004-GATEQ-ADMISSION-GATED-04B",
+  "stage": "B_write_and_admit_after_exact_authorization",
+  "allowed_paths": [
+    "docs/status_entries/WP-CANON-H004-GATEQ-ADMISSION-GATED-04B.md",
+    "research/queue/admission_audit/queue_admissions.jsonl",
+    "research/queue/admissions/QI-20260717-H004R2B1.queue_item.json",
+    "research/queue/gate_q_approvals/GATE-Q-H004-R2-04B-0001.gate_q_approval.json",
+    "scratch/WP-CANON-H004-GATEQ-ADMISSION-GATED-04B/derived_admission_audit_record.json",
+    "scratch/WP-CANON-H004-GATEQ-ADMISSION-GATED-04B/frozen_packet.md",
+    "scratch/WP-CANON-H004-GATEQ-ADMISSION-GATED-04B/karl_exact_authorization.txt",
+    "scratch/WP-CANON-H004-GATEQ-ADMISSION-GATED-04B/karl_recovery_authorization.txt",
+    "scratch/WP-CANON-H004-GATEQ-ADMISSION-GATED-04B/preservation_manifest.json",
+    "scratch/WP-CANON-H004-GATEQ-ADMISSION-GATED-04B/proposed_gate_q_approval.json",
+    "scratch/WP-CANON-H004-GATEQ-ADMISSION-GATED-04B/proposed_queue_item.json",
+    "scratch/WP-CANON-H004-GATEQ-ADMISSION-GATED-04B/repo_truth_preflight.md",
+    "scratch/WP-CANON-H004-GATEQ-ADMISSION-GATED-04B/stage_a_changed_file_allowlist.json",
+    "scratch/WP-CANON-H004-GATEQ-ADMISSION-GATED-04B/stage_b_changed_file_allowlist.json",
+    "scratch/WP-CANON-H004-GATEQ-ADMISSION-GATED-04B/stage_b_validation_summary.json",
+    "scratch/WP-CANON-H004-GATEQ-ADMISSION-GATED-04B/validation_summary.json"
+  ],
+  "authoritative_gate_q_count": 1,
+  "authoritative_queue_item_count": 1,
+  "admission_audit_append_count": 1,
+  "dispatch_or_execution_allowed": false,
+  "production_contract_edits_allowed": false
+}

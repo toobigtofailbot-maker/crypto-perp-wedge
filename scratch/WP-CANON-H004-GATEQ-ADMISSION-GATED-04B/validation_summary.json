@@ -1,0 +1,83 @@
+{
+  "package_id": "WP-CANON-H004-GATEQ-ADMISSION-GATED-04B",
+  "stage": "A_prepare_and_freeze_only",
+  "verdict": "KARL EXACT-CONTENT GATE-Q APPROVAL REQUIRED",
+  "base_sha": "e4cc369610d8582f279cddb5df973a58b2345aaa",
+  "frozen": {
+    "gate_q_id": "GATE-Q-H004-R2-04B-0001",
+    "gate_q_target_path": "research/queue/gate_q_approvals/GATE-Q-H004-R2-04B-0001.gate_q_approval.json",
+    "gate_q_full_sha256": "sha256:8645018c04a565761d72047b5225fbfd5694e342f5180407f0c8b111ba310fed",
+    "gate_q_core_sha256": "sha256:08e78c274cbade0fb6622596d0b9d36c94cccfea0a29488d7e447f591509e88c",
+    "queue_item_id": "QI-20260717-H004R2B1",
+    "queue_item_target_path": "research/queue/admissions/QI-20260717-H004R2B1.queue_item.json",
+    "queue_item_full_sha256": "sha256:47ba045b4ac89588e1865c280b080f0922cef6bb1e7d4e7880090ba07a44d967",
+    "terminal_status": "admitted_non_dispatched"
+  },
+  "baseline": {
+    "collections": 2,
+    "collections_identical": true,
+    "normalized_inventory_sha256": "sha256:12b662053b3f63582f876315b2bc4d81cde4a0508409c11b54d558494f37c8d8",
+    "inventory_nodes": 2973,
+    "inventory_files": 160,
+    "focused": "385 passed, 5 accepted Windows symlink skips",
+    "registry_validators": "24 passed",
+    "integrity_views": "58 executed in one connection; 57 empty; one accepted pre-existing STRAT-SPEC-0007 hash-readiness row",
+    "dataset": "2,293 rows; exact Parquet hash; regenerated catalog bytes equal sha256:51fc09918841cd3ac353efe375af91a4732080571f9b1af634f5d1a426217adb",
+    "full_suite": {
+      "execution_profile": "15 disjoint top-level file shards with tests/test_research_query.py split into eight disjoint node groups, plus one 15-file nested supplement; throttle 8",
+      "spec_count": 24,
+      "executed_exactly_once": 2973,
+      "passed": 2966,
+      "skipped": 7,
+      "failed": 0,
+      "errors": 0,
+      "internal_errors": 0,
+      "timeouts": 0
+    }
+  },
+  "proposal_validation": {
+    "gate_q_schema": "passed",
+    "queue_item_schema": "passed",
+    "derived_audit_schema": "passed",
+    "approval_core_recomputation": "passed",
+    "queue_exact_byte_hash": "passed",
+    "gate_q_item_equality": "passed",
+    "gate_c_exact_equality_including_advisory_only": "passed",
+    "gate_c_vp_lineage_and_core": "passed",
+    "vm_sweep_semantics": "passed",
+    "dataset_identity_and_checksum": "passed",
+    "denominator_and_budget": "passed",
+    "traceability_hashes": "exact 12-hash set",
+    "id_path_collision": "none",
+    "path_traversal_or_symlink": "none",
+    "protected_writer_temp_preflight": "passed",
+    "derived_audit_exact_eligibility": "passed",
+    "temporary_historical_replay": "one exact record replayed",
+    "temporary_terminal_state": "admitted_non_dispatched",
+    "temporary_lock_cleanup": "passed"
+  },
+  "scope_and_preservation": {
+    "allowlist_count": 8,
+    "authoritative_queue_state_created": false,
+    "production_contract_changed": false,
+    "dispatch_or_execution_created": false,
+    "preservation_tracked_inputs": 55,
+    "preservation_local_ignored_inputs": 1,
+    "expected_mismatch_count": 0,
+    "git_diff_check": "passed"
+  },
+  "superseded_non_acceptance_attempts": [
+    "A parallel baseline launch was rejected by command policy before execution because it included temporary-file deletion; no validator ran in that launch.",
+    "The multi-process integrity wrapper exceeded its 20-minute outer timeout and returned no child results; it is not pass evidence. The accepted direct single-connection 58-view replay completed.",
+    "The first temporary writer-preflight setup copied no schemas because PowerShell treated a LiteralPath wildcard literally; the writer stopped at missing-schema load before validation or crossing. A fresh temp repo with explicit schema copies passed.",
+    "A consolidated final-check launch was rejected by a PowerShell parser before execution; no check result from that launch is evidence.",
+    "A pre-final scope check saw six of eight allowlisted files before frozen_packet.md and validation_summary.json were created; that expected intermediate mismatch is not final scope evidence."
+  ],
+  "state_proof": {
+    "authoritative_gate_q_exists": false,
+    "authoritative_queue_item_exists": false,
+    "admission_audit_exists": false,
+    "dispatch_or_execution_output_exists": false,
+    "stage_b_authorized": false
+  }
+}

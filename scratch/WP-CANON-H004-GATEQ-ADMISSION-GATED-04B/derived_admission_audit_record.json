@@ -1,0 +1,32 @@
+{
+  "schema_version": "queue_admission_audit_record_v1",
+  "audit_record_id": "QAUDIT-QI-20260717-H004R2B1",
+  "queue_item_id": "QI-20260717-H004R2B1",
+  "queue_item_path": "research/queue/admissions/QI-20260717-H004R2B1.queue_item.json",
+  "queue_item_sha256": "sha256:47ba045b4ac89588e1865c280b080f0922cef6bb1e7d4e7880090ba07a44d967",
+  "gate_q_approval_id": "GATE-Q-H004-R2-04B-0001",
+  "gate_q_approval_path": "research/queue/gate_q_approvals/GATE-Q-H004-R2-04B-0001.gate_q_approval.json",
+  "gate_q_approval_file_sha256": "sha256:8645018c04a565761d72047b5225fbfd5694e342f5180407f0c8b111ba310fed",
+  "gate_q_approval_core_sha256": "sha256:08e78c274cbade0fb6622596d0b9d36c94cccfea0a29488d7e447f591509e88c",
+  "eligibility_report": {
+    "advisory_only": true,
+    "path": "scratch/WP-CANON-ELIGIBILITY-VALIDATOR-01/reports/AIDRAFT-2B5725C1A8349863.eligibility_report.json",
+    "sha256": "sha256:76a0654144d215d62932568b5627d6838f3613e36238bebccaac25d55b873dd9"
+  },
+  "strategy_spec_id": "STRAT-SPEC-0007",
+  "strategy_spec_path": "research/strategy_specs/STRAT-SPEC-0007.strategy_spec.json",
+  "strategy_spec_sha256": "sha256:b23ebc1093df51b7fab5e39c46fd2b96b5e71d35300134eb319a5cbc32d0857c",
+  "variant_manifest_path": "research/variant_manifests/VM-0007.variant_manifest.json",
+  "variant_manifest_sha256": "sha256:822da9ca46eca4f3a9d4d86936fdd3447004ef77806fc3ce60ab0cf979ea171d",
+  "sweep_plan_path": "research/sweep_plans/SWEEP-PLAN-0007.sweep_plan.json",
+  "sweep_plan_sha256": "sha256:66d48ec6d57048012dcd243ca7dda25dcf59241b1a3733dc05796eb46d7af2f0",
+  "variant_planning_approval_id": "VPAPP-20260715-H004R201",
+  "variant_planning_approval_path": "research/strategy_spec_variant_planning_approvals/VPAPP-20260715-H004R201.variant_planning_approval.json",
+  "variant_planning_approval_file_sha256": "sha256:13b40df10af9290d65c971e1e57397e5193cc76fa5852a04b6084ec41c8a275a",
+  "variant_planning_approval_contract_core_sha256": "sha256:4b8e126870c918e88ac42336427c3ba495bcacb6433bd3741b0a01c712bf99f0",
+  "admitted_at": "2026-07-17T22:23:24Z",
+  "writer_version": "gate_q_queue_admission_writer_v1",
+  "validation_outcome": "passed_before_admission",
+  "no_dispatch": true,
+  "no_execution": true
+}

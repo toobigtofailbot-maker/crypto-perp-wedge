@@ -1,0 +1,102 @@
+{
+  "schema_version": "gate_q_queue_admission_approval_v1",
+  "approval_id": "GATE-Q-H004-R2-04B-0001",
+  "approval_artifact_target_path": "research/queue/gate_q_approvals/GATE-Q-H004-R2-04B-0001.gate_q_approval.json",
+  "approved_by": "Karl",
+  "approved_at": "2026-07-17T22:23:24Z",
+  "approval_scope": "one_append_only_queue_admission",
+  "artifact_refs": {
+    "strategy_spec": {
+      "path": "research/strategy_specs/STRAT-SPEC-0007.strategy_spec.json",
+      "sha256": "sha256:b23ebc1093df51b7fab5e39c46fd2b96b5e71d35300134eb319a5cbc32d0857c"
+    },
+    "gate_c_crossing_audit_record": {
+      "audit_path": "research/canonical_crossing_audit/strategy_spec_writes.jsonl",
+      "line_number": 1,
+      "raw_record_sha256": "sha256:ef5a452a4aff61a35fdbdfcf16162362400345f28af67b7bb41aa4ae36024be2",
+      "gate_c_approval_id": "GATE-C-H004-R2-0001",
+      "strategy_spec_id": "STRAT-SPEC-0007",
+      "canonical_target_path": "research/strategy_specs/STRAT-SPEC-0007.strategy_spec.json"
+    },
+    "variant_manifest": {
+      "path": "research/variant_manifests/VM-0007.variant_manifest.json",
+      "sha256": "sha256:822da9ca46eca4f3a9d4d86936fdd3447004ef77806fc3ce60ab0cf979ea171d"
+    },
+    "sweep_plan": {
+      "path": "research/sweep_plans/SWEEP-PLAN-0007.sweep_plan.json",
+      "sha256": "sha256:66d48ec6d57048012dcd243ca7dda25dcf59241b1a3733dc05796eb46d7af2f0"
+    },
+    "variant_planning_approval": {
+      "approval_id": "VPAPP-20260715-H004R201",
+      "path": "research/strategy_spec_variant_planning_approvals/VPAPP-20260715-H004R201.variant_planning_approval.json",
+      "sha256": "sha256:13b40df10af9290d65c971e1e57397e5193cc76fa5852a04b6084ec41c8a275a",
+      "contract_core_sha256": "sha256:4b8e126870c918e88ac42336427c3ba495bcacb6433bd3741b0a01c712bf99f0"
+    }
+  },
+  "denominator": {
+    "basis": "committed_pre_registered_population_count",
+    "committed_population_count": 81,
+    "variant_manifest_value": 81,
+    "sweep_plan_value": 81,
+    "mismatch_policy": "reject"
+  },
+  "dataset": {
+    "dataset_id": "binance_usdtm_btcusdt_ohlcv_1d",
+    "snapshot_version": "2026-04-12T1655Z",
+    "path": "data/processed/binance_um_perp_BTCUSDT_1d_2020-01-01_2026-04-11_2026-04-12T1655Z.parquet",
+    "sha256": "sha256:c6e2e7ce030db6a710d95e48325fc77b27efbbdd441199b3d7458d4394795802",
+    "market": "BTCUSDT_BINANCE_USDTM_PERPETUAL",
+    "timeframe": "1d",
+    "unresolved_policy": "reject"
+  },
+  "budget": {
+    "metric": "variant_attempts",
+    "upper_bound": 81,
+    "unit": "attempts",
+    "comparison": "actual_lte_upper_bound",
+    "retries_included": true,
+    "mismatch_or_exceed_policy": "reject"
+  },
+  "priority": "normal",
+  "queue_target": "offline_research",
+  "proposed_queue_item": {
+    "queue_item_id": "QI-20260717-H004R2B1",
+    "target_path": "research/queue/admissions/QI-20260717-H004R2B1.queue_item.json",
+    "bytes_sha256": "sha256:47ba045b4ac89588e1865c280b080f0922cef6bb1e7d4e7880090ba07a44d967",
+    "byte_encoding": "utf8_exact_file_bytes"
+  },
+  "lineage": {
+    "source_draft": {
+      "path": "scratch/WP-DASH-AGENT-INBOX-WRITE-01A/drafts/AIDRAFT-2B5725C1A8349863.draft_packet.json",
+      "sha256": "sha256:7c4e53c5cceefc23dc2c242102c0a5c744355d7fafff4ebd892944cf13c5193a"
+    },
+    "review_trail": {
+      "path": "scratch/WP-DASH-AGENT-INBOX-WRITE-01A/reviews/AIDRAFT-2B5725C1A8349863.review_events.jsonl",
+      "sha256": "sha256:a0e3174758316a18ff0f4f207886d2cb1704eaad609e397fd1aee1e0f4339230"
+    },
+    "eligibility_report": {
+      "advisory_only": true,
+      "path": "scratch/WP-CANON-ELIGIBILITY-VALIDATOR-01/reports/AIDRAFT-2B5725C1A8349863.eligibility_report.json",
+      "sha256": "sha256:76a0654144d215d62932568b5627d6838f3613e36238bebccaac25d55b873dd9"
+    },
+    "gate_c_approval": {
+      "path": "scratch/WP-CANON-FIRST-GATE-C-CROSSING-GATED-02C/approvals/GATE-C-H004-R2-0001.gate_c_approval.json",
+      "sha256": "sha256:b05753fe01cc99aa2c4f0e419fca88f4f843154f12843f01aae775eb1e4e68cd"
+    }
+  },
+  "approval_core_sha256": "sha256:08e78c274cbade0fb6622596d0b9d36c94cccfea0a29488d7e447f591509e88c",
+  "approval_core_hash_scope": "gate_q_approval_core_v1",
+  "approval_core_canonicalization": "repo_canonical_json_v1",
+  "exact_content_and_target_only": true,
+  "append_only": true,
+  "single_use_approval_id": true,
+  "authority_flags": {
+    "authorizes_dispatch": false,
+    "authorizes_execution": false,
+    "authorizes_scheduler_autonomy": false,
+    "authorizes_candidate_lifecycle": false,
+    "authorizes_promotion_readiness": false,
+    "authorizes_paper_live_runtime": false,
+    "authorizes_notifications": false
+  }
+}

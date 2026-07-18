@@ -1,0 +1,105 @@
+{
+  "package_id": "WP-CANON-H004-GATEQ-ADMISSION-GATED-04B",
+  "stage": "B_write_and_admit_after_exact_authorization",
+  "verdict": "READY FOR PR REVIEW",
+  "base_sha": "e4cc369610d8582f279cddb5df973a58b2345aaa",
+  "authorization": {
+    "exact_content_evidence_path": "scratch/WP-CANON-H004-GATEQ-ADMISSION-GATED-04B/karl_exact_authorization.txt",
+    "exact_content_evidence_sha256": "sha256:40f1e625b703bde64852d35d97760889e1a36a19c95f5029465aad4c528fbb81",
+    "recovery_evidence_path": "scratch/WP-CANON-H004-GATEQ-ADMISSION-GATED-04B/karl_recovery_authorization.txt",
+    "recovery_evidence_sha256": "sha256:bccac7e1b7d974e8adbd9a31d96d5d7cce934f8d78d16ac34223d8ca7a169769"
+  },
+  "recovery": {
+    "malformed_uncommitted_gate_q_sha256": "sha256:c0f1403660177a56f9d5cfe4b62d4f0d08b2412d1ea2ec92544789bf99e366f3",
+    "malformed_length_bytes": 4616,
+    "removed_path": "research/queue/gate_q_approvals/GATE-Q-H004-R2-04B-0001.gate_q_approval.json",
+    "preconditions_rechecked": true,
+    "queue_item_absent_before_recovery": true,
+    "audit_absent_before_recovery": true,
+    "lock_absent_before_recovery": true,
+    "dispatch_or_execution_state_absent_before_recovery": true,
+    "non_authoritative_staging_length_bytes": 4615,
+    "non_authoritative_staging_sha256": "sha256:8645018c04a565761d72047b5225fbfd5694e342f5180407f0c8b111ba310fed",
+    "fresh_authoritative_materialization_count": 1,
+    "authoritative_byte_equality_after_materialization": true
+  },
+  "crossing": {
+    "protected_writer_invocation_count": 1,
+    "gate_q_id": "GATE-Q-H004-R2-04B-0001",
+    "gate_q_path": "research/queue/gate_q_approvals/GATE-Q-H004-R2-04B-0001.gate_q_approval.json",
+    "gate_q_length_bytes": 4615,
+    "gate_q_full_sha256": "sha256:8645018c04a565761d72047b5225fbfd5694e342f5180407f0c8b111ba310fed",
+    "gate_q_core_sha256": "sha256:08e78c274cbade0fb6622596d0b9d36c94cccfea0a29488d7e447f591509e88c",
+    "queue_item_id": "QI-20260717-H004R2B1",
+    "queue_item_path": "research/queue/admissions/QI-20260717-H004R2B1.queue_item.json",
+    "queue_item_full_sha256": "sha256:47ba045b4ac89588e1865c280b080f0922cef6bb1e7d4e7880090ba07a44d967",
+    "queue_item_byte_equal_to_frozen_proposal": true,
+    "audit_record_id": "QAUDIT-QI-20260717-H004R2B1",
+    "audit_path": "research/queue/admission_audit/queue_admissions.jsonl",
+    "audit_full_sha256": "sha256:e668475f7d9f0d3d3c425a173aa1eb593814d824d4590c794887bde21368d3e2",
+    "audit_nonempty_line_count": 1,
+    "audit_semantically_equal_to_frozen_derivation": true,
+    "history_replay_record_count": 1,
+    "history_replay": "passed",
+    "terminal_status": "admitted_non_dispatched",
+    "no_dispatch": true,
+    "no_execution": true
+  },
+  "eligibility_report": {
+    "advisory_only": true,
+    "path": "scratch/WP-CANON-ELIGIBILITY-VALIDATOR-01/reports/AIDRAFT-2B5725C1A8349863.eligibility_report.json",
+    "sha256": "sha256:76a0654144d215d62932568b5627d6838f3613e36238bebccaac25d55b873dd9",
+    "exact_on_gate_q_queue_item_audit_and_gate_c": true
+  },
+  "validation": {
+    "focused": "385 passed, 5 accepted Windows symlink skips",
+    "registry_validators": "24 passed across all five registry validator CLIs",
+    "integrity_views": "58 executed in one connection; 57 empty; one accepted pre-existing STRAT-SPEC-0007 hash-readiness row",
+    "collections": 2,
+    "collections_identical": true,
+    "normalized_inventory_sha256": "sha256:12b662053b3f63582f876315b2bc4d81cde4a0508409c11b54d558494f37c8d8",
+    "inventory_nodes": 2973,
+    "inventory_files": 160,
+    "full_suite": {
+      "execution_profile": "15 disjoint top-level file shards excluding tests/test_research_query.py, that file split into eight disjoint node groups, plus one 15-file nested supplement; throttle 8",
+      "spec_count": 24,
+      "executed_exactly_once": 2973,
+      "passed": 2966,
+      "skipped": 7,
+      "failed": 0,
+      "errors": 0,
+      "internal_errors": 0,
+      "timeouts": 0
+    }
+  },
+  "scope_and_preservation": {
+    "allowlist_count": 16,
+    "authoritative_gate_q_count": 1,
+    "authoritative_queue_item_count": 1,
+    "admission_audit_append_count": 1,
+    "preservation_tracked_inputs": 55,
+    "preservation_local_ignored_inputs": 1,
+    "preservation_mismatch_count": 0,
+    "production_contract_changed": false,
+    "dispatch_scheduler_runner_or_execution_invoked": false,
+    "result_population_candidate_readiness_promotion_or_runtime_created": false
+  },
+  "superseded_non_acceptance_attempts": [
+    "The first authoritative Gate-Q materialization added one extra LF, producing the authorized malformed uncommitted 4,616-byte file. The protected writer was not invoked. Work stopped until Karl supplied exact narrow recovery authorization.",
+    "A combined verification and deletion shell command and a later literal Remove-Item command were rejected by local command policy before execution; the exact malformed file was subsequently removed once through the workspace patch mechanism under Karl's recovery authorization.",
+    "The first post-cross full-suite launcher failed during in-memory empty-shard construction before launching any pytest process. The corrected fresh 24-spec profile passed and is the accepted evidence."
+  ],
+  "boundary": {
+    "dispatch": false,
+    "scheduler": false,
+    "execution": false,
+    "run": false,
+    "result_population": false,
+    "candidate": false,
+    "ranking_or_recommendation": false,
+    "readiness_or_promotion": false,
+    "runtime_or_paper_live": false,
+    "oms_risk_or_reconciliation": false,
+    "dependency_or_configuration_change": false
+  }
+}

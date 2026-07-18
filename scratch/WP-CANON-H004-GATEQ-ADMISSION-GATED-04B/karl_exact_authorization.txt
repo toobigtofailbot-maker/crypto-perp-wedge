@@ -1,0 +1,162 @@
+KARL EXACT-CONTENT AUTHORIZATION — WP-CANON-H004-GATEQ-ADMISSION-GATED-04B
+
+I, Karl, authorize Stage B of WP-CANON-H004-GATEQ-ADMISSION-GATED-04B for the exact frozen Stage-A packet identified below.
+
+This authorization applies only if every value below is byte-for-byte consistent with the locally frozen packet in:
+
+scratch/WP-CANON-H004-GATEQ-ADMISSION-GATED-04B/frozen_packet.md
+
+If any value, byte, hash, path, ID, timestamp-bound file content, dependency, or repository assumption differs, stop without crossing and report the mismatch. Do not regenerate, normalize, substitute, or amend the frozen packet under this authorization.
+
+REPOSITORY DEPENDENCY
+
+- Base and PR #663 merge commit:
+  e4cc369610d8582f279cddb5df973a58b2345aaa
+
+GATE-Q APPROVAL
+
+- Gate-Q ID:
+  GATE-Q-H004-R2-04B-0001
+- Authoritative path:
+  research/queue/gate_q_approvals/GATE-Q-H004-R2-04B-0001.gate_q_approval.json
+- Exact full-file SHA-256:
+  sha256:8645018c04a565761d72047b5225fbfd5694e342f5180407f0c8b111ba310fed
+- Exact approval-core SHA-256:
+  sha256:08e78c274cbade0fb6622596d0b9d36c94cccfea0a29488d7e447f591509e88c
+
+QUEUE ITEM
+
+- Queue-item ID:
+  QI-20260717-H004R2B1
+- Authoritative path:
+  research/queue/admissions/QI-20260717-H004R2B1.queue_item.json
+- Exact full-file SHA-256:
+  sha256:47ba045b4ac89588e1865c280b080f0922cef6bb1e7d4e7880090ba07a44d967
+- Terminal state:
+  admitted_non_dispatched
+
+STRATEGY SPEC AND GATE-C
+
+- Strategy Spec:
+  STRAT-SPEC-0007
+- Strategy Spec path:
+  research/strategy_specs/STRAT-SPEC-0007.strategy_spec.json
+- Strategy Spec exact SHA-256:
+  sha256:b23ebc1093df51b7fab5e39c46fd2b96b5e71d35300134eb319a5cbc32d0857c
+- Gate-C approval:
+  GATE-C-H004-R2-0001
+- Gate-C audit path:
+  research/canonical_crossing_audit/strategy_spec_writes.jsonl
+- Gate-C audit record:
+  line 1
+- Exact Gate-C raw-record SHA-256 including LF:
+  sha256:ef5a452a4aff61a35fdbdfcf16162362400345f28af67b7bb41aa4ae36024be2
+
+EXACT ELIGIBILITY LINEAGE
+
+{
+  "advisory_only": true,
+  "path": "scratch/WP-CANON-ELIGIBILITY-VALIDATOR-01/reports/AIDRAFT-2B5725C1A8349863.eligibility_report.json",
+  "sha256": "sha256:76a0654144d215d62932568b5627d6838f3613e36238bebccaac25d55b873dd9"
+}
+
+GATE C-VP
+
+- Approval ID:
+  VPAPP-20260715-H004R201
+- Path:
+  research/strategy_spec_variant_planning_approvals/VPAPP-20260715-H004R201.variant_planning_approval.json
+- Exact full-file SHA-256:
+  sha256:13b40df10af9290d65c971e1e57397e5193cc76fa5852a04b6084ec41c8a275a
+- Exact contract-core SHA-256:
+  sha256:4b8e126870c918e88ac42336427c3ba495bcacb6433bd3741b0a01c712bf99f0
+
+VARIANT MANIFEST
+
+- ID:
+  VM-0007
+- Path:
+  research/variant_manifests/VM-0007.variant_manifest.json
+- Exact full-file SHA-256:
+  sha256:822da9ca46eca4f3a9d4d86936fdd3447004ef77806fc3ce60ab0cf979ea171d
+- Exact manifest hash:
+  sha256:168fe6deefc761bc9bf9f603f37d199c5f3ef28a83aff5ee0a6a6596729fc667
+
+SWEEP PLAN
+
+- ID:
+  SWEEP-PLAN-0007
+- Path:
+  research/sweep_plans/SWEEP-PLAN-0007.sweep_plan.json
+- Exact full-file SHA-256:
+  sha256:66d48ec6d57048012dcd243ca7dda25dcf59241b1a3733dc05796eb46d7af2f0
+
+DATASET
+
+- Dataset ID:
+  binance_usdtm_btcusdt_ohlcv_1d
+- Snapshot version:
+  2026-04-12T1655Z
+- Path:
+  data/processed/binance_um_perp_BTCUSDT_1d_2020-01-01_2026-04-11_2026-04-12T1655Z.parquet
+- Exact SHA-256:
+  sha256:c6e2e7ce030db6a710d95e48325fc77b27efbbdd441199b3d7458d4394795802
+- Market:
+  BTCUSDT_BINANCE_USDTM_PERPETUAL
+- Timeframe:
+  1d
+- Unresolved policy:
+  reject
+
+DENOMINATOR, BUDGET, PRIORITY, AND TARGET
+
+- Denominator:
+  81
+
+{
+  "metric": "variant_attempts",
+  "upper_bound": 81,
+  "unit": "attempts",
+  "comparison": "actual_lte_upper_bound",
+  "retries_included": true,
+  "mismatch_or_exceed_policy": "reject"
+}
+
+- Priority:
+  normal
+- Queue target:
+  offline_research
+
+AUTHORIZED ACTION
+
+Proceed with Stage B only:
+
+1. Revalidate current main, all frozen bytes, all hashes, all ID/path collision checks, all upstream lineage, and my exact authorization.
+2. Write exactly one authoritative Gate-Q approval at the ID-derived path.
+3. Invoke the existing protected queue-admission writer exactly once.
+4. Create exactly one queue item.
+5. Append exactly one matching admission-audit record.
+6. Verify historical replay and terminal state admitted_non_dispatched.
+7. Commit, push, and open the single non-draft PR required by the WP.
+
+AUTHORITY EXCLUSIONS
+
+This authorization does not authorize:
+
+- dispatch;
+- scheduling or runner invocation;
+- execution;
+- retries outside the frozen budget;
+- Result Population creation;
+- ranking, recommendation, or candidate action;
+- readiness or promotion;
+- runtime, paper, shadow, or live trading;
+- OMS, risk, reconciliation, safe-mode, broker, exchange, credential, account, balance, position, order, or capital-allocation changes;
+- schema, writer, validator, fixture, dependency, or configuration changes;
+- mutation of any upstream or historical byte.
+
+The crossing must remain append-only, exact-content, single-use, non-dispatched, and non-executing.
+
+If any precondition fails or an integrity-critical condition occurs, stop without automatic retry and report the exact failure.
+
+— Karl

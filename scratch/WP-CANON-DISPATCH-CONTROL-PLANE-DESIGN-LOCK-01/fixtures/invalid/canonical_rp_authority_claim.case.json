@@ -1,0 +1,1 @@
+{"base":"valid/dispatch_record.json","mutations":[{"operation":"replace","path":"non_authority_declaration.canonical_result_population_write_forbidden","value":false}],"expected_reason":"canonical Result Population authority"}

@@ -1,0 +1,1 @@
+{"base":"valid/terminal_completed.json","mutations":[{"operation":"add","path":"readiness","value":"GO"}],"expected_reason":"readiness"}

@@ -1,0 +1,1 @@
+{"base":"valid/terminal_completed.json","mutations":[{"operation":"replace","path":"run_terminal.terminal_state","value":"success"}],"expected_reason":"terminal_state"}

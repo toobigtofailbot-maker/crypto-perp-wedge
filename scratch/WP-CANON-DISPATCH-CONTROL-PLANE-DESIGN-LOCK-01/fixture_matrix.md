@@ -27,6 +27,7 @@ Tests synthesize complete ordered JSONL streams from these line fixtures without
 | `free_form_executable_command.case.json` | arbitrary command surface forbidden |
 | `unknown_event_state.case.json` | event vocabulary closed |
 | `unknown_terminal_state.case.json` | terminal vocabulary closed |
+| `not_attempted_attempt_outcome.case.json` | `not_attempted` is terminal denominator accounting only, never an attempt outcome |
 | `go_readiness_vocabulary.case.json` | GO/readiness field forbidden by closed object |
 | `completed_denominator_mismatch.case.json` | completed actual does not equal denominator |
 | `midrun_claiming_full_completion.case.json` | midrun state falsely claims full completion |

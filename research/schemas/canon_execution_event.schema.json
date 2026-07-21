@@ -131,7 +131,7 @@
         "variant_id": { "type": "string", "minLength": 1 },
         "retry_ordinal": { "const": 0 },
         "outcome_category": {
-          "enum": ["successful", "failed", "invalid", "excluded", "errored", "aborted", "filtered", "data_unavailable", "not_attempted"]
+          "enum": ["successful", "failed", "invalid", "excluded", "errored", "aborted", "filtered", "data_unavailable"]
         },
         "reason_code": {
           "enum": [
@@ -142,8 +142,7 @@
             "execution_error",
             "abort_condition",
             "filter_rule",
-            "data_missing",
-            "terminal_stop_before_attempt"
+            "data_missing"
           ]
         },
         "counts_toward_budget": { "const": true },

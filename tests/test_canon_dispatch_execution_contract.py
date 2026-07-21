@@ -16,7 +16,7 @@ FIXTURES = (
 )
 VALID = FIXTURES / "valid"
 INVALID = FIXTURES / "invalid"
-OUTCOMES = (
+ATTEMPT_OUTCOME_CATEGORIES = (
     "successful",
     "failed",
     "invalid",
@@ -25,6 +25,9 @@ OUTCOMES = (
     "aborted",
     "filtered",
     "data_unavailable",
+)
+TERMINAL_ACCOUNTING_CATEGORIES = (
+    *ATTEMPT_OUTCOME_CATEGORIES,
     "not_attempted",
 )
 TERMINAL_REASONS = {
@@ -42,7 +45,6 @@ OUTCOME_REASONS = {
     "aborted": "abort_condition",
     "filtered": "filter_rule",
     "data_unavailable": "data_missing",
-    "not_attempted": "terminal_stop_before_attempt",
 }
 
 
@@ -142,7 +144,7 @@ def terminal_semantic_errors(event: dict) -> list[str]:
     errors = []
     if terminal["terminal_reason_code"] != TERMINAL_REASONS.get(state):
         errors.append("terminal state/reason mismatch")
-    population_sum = sum(counts[name] for name in OUTCOMES)
+    population_sum = sum(counts[name] for name in TERMINAL_ACCOUNTING_CATEGORIES)
     attempted_sum = population_sum - counts["not_attempted"]
     if population_sum != accounting["population_accounted_total"]:
         errors.append("outcome counts/population total mismatch")
@@ -193,8 +195,6 @@ def event_semantic_errors(event: dict) -> list[str]:
         outcome = event["attempt_outcome"]
         if outcome["reason_code"] != OUTCOME_REASONS[outcome["outcome_category"]]:
             errors.append("attempt outcome/reason mismatch")
-        if outcome["outcome_category"] == "not_attempted":
-            errors.append("not_attempted is terminal denominator accounting only")
     if event["event_type"] == "run_terminal":
         errors.extend(terminal_semantic_errors(event))
     return errors
@@ -367,6 +367,7 @@ def test_invalid_fixtures_fail_for_intended_reason(path):
         "free_form_executable_command": ("command", "additional properties"),
         "unknown_event_state": ("event_type", "run_paused"),
         "unknown_terminal_state": ("terminal_state", "success"),
+        "not_attempted_attempt_outcome": ("outcome_category", "not_attempted"),
         "go_readiness_vocabulary": ("readiness", "additional properties"),
         "completed_denominator_mismatch": ("completed denominator mismatch",),
         "midrun_claiming_full_completion": ("midrun partial denominator mismatch",),
@@ -383,6 +384,10 @@ def test_invalid_fixtures_fail_for_intended_reason(path):
 
 def test_terminal_vocabulary_and_event_specific_payloads_are_closed():
     schema = load(SCHEMAS / "canon_execution_event.schema.json")
+    attempt_enum = schema["definitions"]["attempt_outcome"]["properties"][
+        "outcome_category"
+    ]["enum"]
+    assert attempt_enum == list(ATTEMPT_OUTCOME_CATEGORIES)
     terminal_enum = schema["definitions"]["run_terminal"]["properties"][
         "terminal_state"
     ]["enum"]
@@ -411,10 +416,11 @@ def test_denominator_budget_and_no_retry_rules_fail_closed():
 
     attempt = load(VALID / "attempt_successful.json")
     attempt["attempt_outcome"]["outcome_category"] = "not_attempted"
-    attempt["attempt_outcome"]["reason_code"] = "terminal_stop_before_attempt"
-    assert "not_attempted is terminal denominator accounting only" in event_semantic_errors(
-        attempt
+    schema_errors = list(
+        schema_validator("canon_execution_event.schema.json").iter_errors(attempt)
     )
+    assert schema_errors
+    assert any(error.absolute_path[-1] == "outcome_category" for error in schema_errors)
 
 
 def test_valid_fixtures_contain_no_positive_authority_vocabulary():

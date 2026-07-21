@@ -1,0 +1,1 @@
+{"base":"valid/attempt_successful.json","mutations":[{"operation":"replace","path":"attempt_outcome.outcome_category","value":"not_attempted"}],"expected_reason":"not_attempted attempt outcome schema rejection"}

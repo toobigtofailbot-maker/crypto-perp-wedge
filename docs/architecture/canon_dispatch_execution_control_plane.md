@@ -14,7 +14,9 @@ Option C is selected:
 4. provisional runner outputs remain scratch detail;
 5. only a later separately gated Result Population package may create canonical scientific evidence.
 
-Option A, mutating the queue item through execution states, is rejected because admission history is permanently `admitted_non_dispatched` and has no execution authority. Option B, a mutable execution-state document, is rejected because it would erase prior progress and failure transitions. Option C preserves the exact dispatch decision and every later execution fact without rewriting either history.
+Option A, a separate immutable dispatch record plus a separate immutable run record, is rejected. A run unfolds through start, progress, failure, and terminal state. Writing one immutable run record only at the end would lose in-flight and crash-visible state, while updating that record during the run would violate immutability. Option B, a mutable execution-state document, is rejected because it would erase prior progress and failure transitions. Option C therefore keeps dispatch immutable and records unfolding execution through append-only events.
+
+The queue item and admission audit remain immutable admission history. Queue or admission mutation is forbidden under every topology; it was not the definition of Option A.
 
 Dispatch and execution records are authoritative control-plane history only. They MUST NOT replace or claim authority for a Result Population, EXP, REP, outcome ledger, recommendation, decision, ranking, readiness, promotion, candidate lifecycle, scheduler, runtime, paper, or live surface. They MUST NOT contain GO, NO-GO, winner, candidate-worthy, readiness, or recommendation semantics.
 
@@ -65,7 +67,7 @@ The closed event vocabulary is:
 | `attempt_outcome` | contiguous attempt number, unique variant ID, retry ordinal 0, closed outcome/reason, budget and denominator counting truth | zero or more after start and before terminal |
 | `run_terminal` | closed terminal state/reason, process-start truth, full denominator accounting, actual budget | exactly once and last |
 
-An `attempt_outcome` is terminal for that one planned attempt. Because v1 admits no retry allowance, `retry_ordinal` MUST be 0 and a variant ID MUST NOT recur in the run. `not_attempted` is retained in the closed outcome vocabulary for terminal denominator accounting; a future semantic validator MUST reject an emitted attempt event that falsely consumes budget while claiming no attempt occurred.
+An `attempt_outcome` is terminal for that one planned attempt. Because v1 admits no retry allowance, `retry_ordinal` MUST be 0 and a variant ID MUST NOT recur in the run. No `attempt_outcome` event may use `not_attempted`, and no attempt event is emitted for an unattempted denominator member. The terminal event MUST record the unattempted remainder. `attempts_recorded` and budget `actual` MUST exclude that remainder, while the full denominator MUST continue to include it.
 
 The stream MUST never rewrite, truncate, reorder, or delete an earlier line. A partial or malformed tail is crash-visible integrity evidence and MUST NOT be silently repaired. Corrections require a separately authorized future protocol; none is defined here.
 
@@ -95,7 +97,7 @@ V1 fixes `retry_allowance=0`. Since the upper bound equals the denominator, no r
 
 Every terminal event MUST account for the full planned population. The sum of all nine outcome counts MUST equal `population_accounted_total`, which MUST equal `planned`. The sum excluding `not_attempted` MUST equal `attempts_recorded` and budget `actual`. `not_attempted` MUST equal the unattempted remainder. These cross-field equations are semantic-validator requirements because Draft 7 cannot compare or sum sibling values.
 
-The closed outcome categories are `successful`, `failed`, `invalid`, `excluded`, `errored`, `aborted`, `filtered`, `data_unavailable`, and `not_attempted`. Failed, invalid, excluded, errored, aborted, filtered, unavailable, and unattempted members MUST remain visible; winner-only retention and silent drops are forbidden.
+The closed attempt-outcome categories are `successful`, `failed`, `invalid`, `excluded`, `errored`, `aborted`, `filtered`, and `data_unavailable`. Terminal denominator accounting uses those eight categories plus `not_attempted`. Failed, invalid, excluded, errored, aborted, filtered, unavailable, and unattempted members MUST remain visible; winner-only retention and silent drops are forbidden.
 
 ## Single-use, locking, and crossing requirements
 

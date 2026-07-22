@@ -1,0 +1,1 @@
+{"base":"valid/dispatch_record.json","mutations":[{"operation":"replace","path":"queue_binding.raw_sha256","value":"sha256:ABC"}],"expected_reason":"hash"}

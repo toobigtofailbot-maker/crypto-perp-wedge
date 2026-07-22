@@ -1,0 +1,241 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "canon_execution_event.schema.json",
+  "title": "Append-only canonical offline-research execution event",
+  "description": "One independently valid line in a single-run execution JSONL stream. Events are control-plane history, not canonical scientific evidence.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "event_id",
+    "event_type",
+    "sequence_number",
+    "timestamp_utc",
+    "actor",
+    "bindings",
+    "stream_path",
+    "non_authority_declaration"
+  ],
+  "properties": {
+    "schema_version": { "const": "canon_execution_event_v1" },
+    "event_id": { "type": "string", "pattern": "^EXEC-EVENT-RUN-[0-9]{8}-[A-Z0-9]{8}-[0-9]{6}$" },
+    "event_type": { "enum": ["run_start", "attempt_outcome", "run_terminal"] },
+    "sequence_number": { "type": "integer", "minimum": 1, "maximum": 999999 },
+    "timestamp_utc": { "type": "string", "format": "date-time" },
+    "actor": { "$ref": "#/definitions/actor" },
+    "bindings": { "$ref": "#/definitions/bindings" },
+    "stream_path": { "$ref": "#/definitions/execution_stream_path" },
+    "run_start": { "$ref": "#/definitions/run_start" },
+    "attempt_outcome": { "$ref": "#/definitions/attempt_outcome" },
+    "run_terminal": { "$ref": "#/definitions/run_terminal" },
+    "non_authority_declaration": { "$ref": "#/definitions/non_authority_declaration" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "event_type": { "const": "run_start" } } },
+      "then": {
+        "required": ["run_start"],
+        "not": { "anyOf": [{ "required": ["attempt_outcome"] }, { "required": ["run_terminal"] }] }
+      }
+    },
+    {
+      "if": { "properties": { "event_type": { "const": "attempt_outcome" } } },
+      "then": {
+        "required": ["attempt_outcome"],
+        "not": { "anyOf": [{ "required": ["run_start"] }, { "required": ["run_terminal"] }] }
+      }
+    },
+    {
+      "if": { "properties": { "event_type": { "const": "run_terminal" } } },
+      "then": {
+        "required": ["run_terminal"],
+        "not": { "anyOf": [{ "required": ["run_start"] }, { "required": ["attempt_outcome"] }] }
+      }
+    }
+  ],
+  "definitions": {
+    "hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "repo_path": {
+      "type": "string",
+      "pattern": "^(?!/)(?!.*\\\\)(?!.*//)(?!.*(?:^|/)\\.\\.?(?:/|$))[A-Za-z0-9._/-]+$"
+    },
+    "dispatch_id": { "type": "string", "pattern": "^DSP-[0-9]{8}-[A-Z0-9]{8}$" },
+    "run_id": { "type": "string", "pattern": "^RUN-[0-9]{8}-[A-Z0-9]{8}$" },
+    "dispatch_path": {
+      "type": "string",
+      "pattern": "^research/queue/dispatch_records/DSP-[0-9]{8}-[A-Z0-9]{8}\\.dispatch_record\\.json$"
+    },
+    "execution_stream_path": {
+      "type": "string",
+      "pattern": "^research/queue/execution_events/RUN-[0-9]{8}-[A-Z0-9]{8}\\.execution_events\\.jsonl$"
+    },
+    "actor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["actor_id", "tool_name", "tool_version", "tool_source_path", "tool_source_sha256"],
+      "properties": {
+        "actor_id": { "type": "string", "pattern": "^[A-Za-z0-9._-]{1,64}$" },
+        "tool_name": { "type": "string", "pattern": "^[A-Za-z0-9._-]{1,128}$" },
+        "tool_version": { "type": "string", "minLength": 1 },
+        "tool_source_path": { "$ref": "#/definitions/repo_path" },
+        "tool_source_sha256": { "$ref": "#/definitions/hash" }
+      }
+    },
+    "bindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dispatch_id", "dispatch_record_path", "dispatch_record_sha256", "run_id", "queue_item_id"],
+      "properties": {
+        "dispatch_id": { "$ref": "#/definitions/dispatch_id" },
+        "dispatch_record_path": { "$ref": "#/definitions/dispatch_path" },
+        "dispatch_record_sha256": { "$ref": "#/definitions/hash" },
+        "run_id": { "$ref": "#/definitions/run_id" },
+        "queue_item_id": { "type": "string", "pattern": "^QI-[0-9]{8}-[A-Z0-9]{8}$" }
+      }
+    },
+    "budget_snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["metric", "upper_bound", "actual", "unit", "retries_included", "retry_allowance", "comparison", "mismatch_or_exceed_policy"],
+      "properties": {
+        "metric": { "const": "variant_attempts" },
+        "upper_bound": { "type": "integer", "minimum": 1 },
+        "actual": { "type": "integer", "minimum": 0 },
+        "unit": { "const": "attempts" },
+        "retries_included": { "const": true },
+        "retry_allowance": { "const": 0 },
+        "comparison": { "const": "actual_lte_upper_bound" },
+        "mismatch_or_exceed_policy": { "const": "reject" }
+      }
+    },
+    "run_start": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start_state", "runner_process_started", "planned_denominator", "budget", "seed", "workers", "automatic_retry"],
+      "properties": {
+        "start_state": { "const": "invocation_started" },
+        "runner_process_started": { "type": "boolean" },
+        "planned_denominator": { "type": "integer", "minimum": 1 },
+        "budget": { "$ref": "#/definitions/budget_snapshot" },
+        "seed": { "type": "integer", "minimum": 0 },
+        "workers": { "type": "integer", "minimum": 1 },
+        "automatic_retry": { "const": false }
+      }
+    },
+    "attempt_outcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attempt_number", "variant_id", "retry_ordinal", "outcome_category", "reason_code", "counts_toward_budget", "counts_toward_denominator"],
+      "properties": {
+        "attempt_number": { "type": "integer", "minimum": 1 },
+        "variant_id": { "type": "string", "minLength": 1 },
+        "retry_ordinal": { "const": 0 },
+        "outcome_category": {
+          "enum": ["successful", "failed", "invalid", "excluded", "errored", "aborted", "filtered", "data_unavailable"]
+        },
+        "reason_code": {
+          "enum": [
+            "completed",
+            "runner_failure",
+            "validation_failure",
+            "exclusion_rule",
+            "execution_error",
+            "abort_condition",
+            "filter_rule",
+            "data_missing"
+          ]
+        },
+        "counts_toward_budget": { "const": true },
+        "counts_toward_denominator": { "const": true }
+      }
+    },
+    "outcome_counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["successful", "failed", "invalid", "excluded", "errored", "aborted", "filtered", "data_unavailable", "not_attempted"],
+      "properties": {
+        "successful": { "type": "integer", "minimum": 0 },
+        "failed": { "type": "integer", "minimum": 0 },
+        "invalid": { "type": "integer", "minimum": 0 },
+        "excluded": { "type": "integer", "minimum": 0 },
+        "errored": { "type": "integer", "minimum": 0 },
+        "aborted": { "type": "integer", "minimum": 0 },
+        "filtered": { "type": "integer", "minimum": 0 },
+        "data_unavailable": { "type": "integer", "minimum": 0 },
+        "not_attempted": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "denominator_accounting": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["basis", "planned", "attempts_recorded", "population_accounted_total", "not_attempted", "outcome_counts", "mismatch_policy"],
+      "properties": {
+        "basis": { "const": "committed_pre_registered_population_count" },
+        "planned": { "type": "integer", "minimum": 1 },
+        "attempts_recorded": { "type": "integer", "minimum": 0 },
+        "population_accounted_total": { "type": "integer", "minimum": 0 },
+        "not_attempted": { "type": "integer", "minimum": 0 },
+        "outcome_counts": { "$ref": "#/definitions/outcome_counts" },
+        "mismatch_policy": { "const": "reject" }
+      }
+    },
+    "run_terminal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["terminal_state", "terminal_reason_code", "process_started", "denominator_accounting", "budget"],
+      "properties": {
+        "terminal_state": {
+          "enum": ["run_completed", "run_failed_process_start", "run_failed_midrun", "run_blocked"]
+        },
+        "terminal_reason_code": {
+          "enum": ["completed_denominator_accounted", "runner_process_start_failed", "runner_failed_before_denominator_complete", "fail_closed_stop_condition"]
+        },
+        "process_started": { "type": "boolean" },
+        "denominator_accounting": { "$ref": "#/definitions/denominator_accounting" },
+        "budget": { "$ref": "#/definitions/budget_snapshot" }
+      }
+    },
+    "non_authority_declaration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "control_plane_history_only",
+        "not_canonical_strategy_performance_evidence",
+        "not_result_population_authority",
+        "not_exp_replacement",
+        "not_rep_replacement",
+        "not_outcome_ledger_replacement",
+        "not_recommendation_replacement",
+        "not_decision_replacement",
+        "not_ranking_authority",
+        "not_recommendation_authority",
+        "not_readiness_authority",
+        "not_promotion_authority",
+        "not_candidate_authority",
+        "not_scheduler_authority",
+        "not_runtime_authority",
+        "not_paper_live_authority",
+        "canonical_result_population_write_forbidden"
+      ],
+      "properties": {
+        "control_plane_history_only": { "const": true },
+        "not_canonical_strategy_performance_evidence": { "const": true },
+        "not_result_population_authority": { "const": true },
+        "not_exp_replacement": { "const": true },
+        "not_rep_replacement": { "const": true },
+        "not_outcome_ledger_replacement": { "const": true },
+        "not_recommendation_replacement": { "const": true },
+        "not_decision_replacement": { "const": true },
+        "not_ranking_authority": { "const": true },
+        "not_recommendation_authority": { "const": true },
+        "not_readiness_authority": { "const": true },
+        "not_promotion_authority": { "const": true },
+        "not_candidate_authority": { "const": true },
+        "not_scheduler_authority": { "const": true },
+        "not_runtime_authority": { "const": true },
+        "not_paper_live_authority": { "const": true },
+        "canonical_result_population_write_forbidden": { "const": true }
+      }
+    }
+  }
+}

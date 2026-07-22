@@ -1,0 +1,1 @@
+{"base":"valid/dispatch_record.json","mutations":[{"operation":"add","path":"runner_binding.command","value":"python -m arbitrary.runner --execute"}],"expected_reason":"command"}

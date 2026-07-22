@@ -1,0 +1,312 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "canon_dispatch_record.schema.json",
+  "title": "Immutable canonical offline-research dispatch record",
+  "description": "Control-plane history for one exact, single-use offline-research dispatch. This record is not execution progress or canonical scientific evidence.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "dispatch_id",
+    "dispatch_record_path",
+    "created_at",
+    "dispatch_state",
+    "queue_binding",
+    "gate_q_binding",
+    "dispatch_authorization",
+    "run_binding",
+    "runner_binding",
+    "artifact_bindings",
+    "dataset_binding",
+    "denominator",
+    "budget",
+    "execution_parameters",
+    "output_targets",
+    "immutable_posture",
+    "non_authority_declaration"
+  ],
+  "properties": {
+    "schema_version": { "const": "canon_dispatch_record_v1" },
+    "dispatch_id": { "$ref": "#/definitions/dispatch_id" },
+    "dispatch_record_path": { "$ref": "#/definitions/dispatch_path" },
+    "created_at": { "$ref": "#/definitions/timestamp" },
+    "dispatch_state": { "const": "dispatched" },
+    "queue_binding": { "$ref": "#/definitions/queue_binding" },
+    "gate_q_binding": { "$ref": "#/definitions/gate_q_binding" },
+    "dispatch_authorization": { "$ref": "#/definitions/dispatch_authorization" },
+    "run_binding": { "$ref": "#/definitions/run_binding" },
+    "runner_binding": { "$ref": "#/definitions/runner_binding" },
+    "artifact_bindings": { "$ref": "#/definitions/artifact_bindings" },
+    "dataset_binding": { "$ref": "#/definitions/dataset_binding" },
+    "denominator": { "$ref": "#/definitions/denominator" },
+    "budget": { "$ref": "#/definitions/budget" },
+    "execution_parameters": { "$ref": "#/definitions/execution_parameters" },
+    "output_targets": { "$ref": "#/definitions/output_targets" },
+    "immutable_posture": { "$ref": "#/definitions/immutable_posture" },
+    "non_authority_declaration": { "$ref": "#/definitions/non_authority_declaration" }
+  },
+  "definitions": {
+    "hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "repo_path": {
+      "type": "string",
+      "pattern": "^(?!/)(?!.*\\\\)(?!.*//)(?!.*(?:^|/)\\.\\.?(?:/|$))[A-Za-z0-9._/-]+$"
+    },
+    "dispatch_id": {
+      "type": "string",
+      "pattern": "^DSP-[0-9]{8}-[A-Z0-9]{8}$"
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^RUN-[0-9]{8}-[A-Z0-9]{8}$"
+    },
+    "dispatch_path": {
+      "type": "string",
+      "pattern": "^research/queue/dispatch_records/DSP-[0-9]{8}-[A-Z0-9]{8}\\.dispatch_record\\.json$"
+    },
+    "execution_stream_path": {
+      "type": "string",
+      "pattern": "^research/queue/execution_events/RUN-[0-9]{8}-[A-Z0-9]{8}\\.execution_events\\.jsonl$"
+    },
+    "artifact_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_id", "path", "sha256"],
+      "properties": {
+        "artifact_id": { "type": "string", "minLength": 1 },
+        "path": { "$ref": "#/definitions/repo_path" },
+        "sha256": { "$ref": "#/definitions/hash" }
+      }
+    },
+    "queue_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["queue_item_id", "path", "raw_sha256", "admission_status"],
+      "properties": {
+        "queue_item_id": { "type": "string", "pattern": "^QI-[0-9]{8}-[A-Z0-9]{8}$" },
+        "path": { "type": "string", "pattern": "^research/queue/admissions/QI-[0-9]{8}-[A-Z0-9]{8}\\.queue_item\\.json$" },
+        "raw_sha256": { "$ref": "#/definitions/hash" },
+        "admission_status": { "const": "admitted_non_dispatched" }
+      }
+    },
+    "gate_q_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "approval_id",
+        "path",
+        "file_sha256",
+        "approval_core_sha256",
+        "approval_core_hash_scope",
+        "approval_core_canonicalization"
+      ],
+      "properties": {
+        "approval_id": { "type": "string", "pattern": "^GATE-Q-[A-Z0-9][A-Z0-9-]{2,63}$" },
+        "path": { "type": "string", "pattern": "^research/queue/gate_q_approvals/GATE-Q-[A-Z0-9][A-Z0-9-]{2,63}\\.gate_q_approval\\.json$" },
+        "file_sha256": { "$ref": "#/definitions/hash" },
+        "approval_core_sha256": { "$ref": "#/definitions/hash" },
+        "approval_core_hash_scope": { "const": "gate_q_approval_core_v1" },
+        "approval_core_canonicalization": { "const": "repo_canonical_json_v1" }
+      }
+    },
+    "dispatch_authorization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "authorization_id",
+        "source_path",
+        "source_sha256",
+        "authorized_by",
+        "authorized_at",
+        "authorization_scope",
+        "authorized_queue_item_id",
+        "authorized_dispatch_id",
+        "authorized_run_id",
+        "exact_content_and_target_only",
+        "fresh_for_dispatch"
+      ],
+      "properties": {
+        "authorization_id": { "type": "string", "pattern": "^KDAUTH-[0-9]{8}-[A-Z0-9]{8}$" },
+        "source_path": { "$ref": "#/definitions/repo_path" },
+        "source_sha256": { "$ref": "#/definitions/hash" },
+        "authorized_by": { "const": "Karl" },
+        "authorized_at": { "$ref": "#/definitions/timestamp" },
+        "authorization_scope": { "const": "one_exact_offline_research_dispatch" },
+        "authorized_queue_item_id": { "type": "string", "pattern": "^QI-[0-9]{8}-[A-Z0-9]{8}$" },
+        "authorized_dispatch_id": { "$ref": "#/definitions/dispatch_id" },
+        "authorized_run_id": { "$ref": "#/definitions/run_id" },
+        "exact_content_and_target_only": { "const": true },
+        "fresh_for_dispatch": { "const": true }
+      }
+    },
+    "run_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["run_id", "execution_event_stream_path"],
+      "properties": {
+        "run_id": { "$ref": "#/definitions/run_id" },
+        "execution_event_stream_path": { "$ref": "#/definitions/execution_stream_path" }
+      }
+    },
+    "runner_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["invocation_kind", "module", "source_path", "version", "source_sha256"],
+      "properties": {
+        "invocation_kind": { "const": "python_module" },
+        "module": { "type": "string", "pattern": "^[a-z_][a-z0-9_]*(?:\\.[a-z_][a-z0-9_]*)+$" },
+        "source_path": { "$ref": "#/definitions/repo_path" },
+        "version": { "type": "string", "minLength": 1 },
+        "source_sha256": { "$ref": "#/definitions/hash" }
+      }
+    },
+    "artifact_bindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["strategy_spec", "variant_manifest", "sweep_plan"],
+      "properties": {
+        "strategy_spec": { "$ref": "#/definitions/artifact_ref" },
+        "variant_manifest": { "$ref": "#/definitions/artifact_ref" },
+        "sweep_plan": { "$ref": "#/definitions/artifact_ref" }
+      }
+    },
+    "dataset_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dataset_id", "snapshot_version", "path", "sha256", "market", "timeframe", "unresolved_policy"],
+      "properties": {
+        "dataset_id": { "type": "string", "minLength": 1 },
+        "snapshot_version": { "type": "string", "minLength": 1 },
+        "path": { "$ref": "#/definitions/repo_path" },
+        "sha256": { "$ref": "#/definitions/hash" },
+        "market": { "const": "BTCUSDT_BINANCE_USDTM_PERPETUAL" },
+        "timeframe": { "enum": ["15m", "30m", "1h", "4h", "1d"] },
+        "unresolved_policy": { "const": "reject" }
+      }
+    },
+    "denominator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["basis", "planned", "variant_manifest_value", "sweep_plan_value", "mismatch_policy"],
+      "properties": {
+        "basis": { "const": "committed_pre_registered_population_count" },
+        "planned": { "type": "integer", "minimum": 1 },
+        "variant_manifest_value": { "type": "integer", "minimum": 1 },
+        "sweep_plan_value": { "type": "integer", "minimum": 1 },
+        "mismatch_policy": { "const": "reject" }
+      }
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["metric", "upper_bound", "unit", "comparison", "retries_included", "retry_allowance", "mismatch_or_exceed_policy"],
+      "properties": {
+        "metric": { "const": "variant_attempts" },
+        "upper_bound": { "type": "integer", "minimum": 1 },
+        "unit": { "const": "attempts" },
+        "comparison": { "const": "actual_lte_upper_bound" },
+        "retries_included": { "const": true },
+        "retry_allowance": { "const": 0 },
+        "mismatch_or_exceed_policy": { "const": "reject" }
+      }
+    },
+    "execution_parameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["seed", "workers", "one_shot", "automatic_retry", "automatic_second_invocation"],
+      "properties": {
+        "seed": { "type": "integer", "minimum": 0 },
+        "workers": { "type": "integer", "minimum": 1 },
+        "one_shot": { "const": true },
+        "automatic_retry": { "const": false },
+        "automatic_second_invocation": { "const": false }
+      }
+    },
+    "output_targets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scratch_run_directory", "provisional_result_path", "execution_event_stream_path"],
+      "properties": {
+        "scratch_run_directory": { "type": "string", "pattern": "^scratch/[A-Za-z0-9._/-]+/$" },
+        "provisional_result_path": { "type": "string", "pattern": "^scratch/[A-Za-z0-9._/-]+\\.json$" },
+        "execution_event_stream_path": { "$ref": "#/definitions/execution_stream_path" }
+      }
+    },
+    "immutable_posture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "exclusive_create_required",
+        "append_only_identity_history",
+        "overwrite_forbidden",
+        "delete_forbidden",
+        "repair_in_place_forbidden",
+        "single_use_dispatch_id",
+        "single_use_run_id",
+        "single_use_queue_authorization_pair",
+        "single_use_target_paths",
+        "reuse_scan_includes_historical_records"
+      ],
+      "properties": {
+        "exclusive_create_required": { "const": true },
+        "append_only_identity_history": { "const": true },
+        "overwrite_forbidden": { "const": true },
+        "delete_forbidden": { "const": true },
+        "repair_in_place_forbidden": { "const": true },
+        "single_use_dispatch_id": { "const": true },
+        "single_use_run_id": { "const": true },
+        "single_use_queue_authorization_pair": { "const": true },
+        "single_use_target_paths": { "const": true },
+        "reuse_scan_includes_historical_records": { "const": true }
+      }
+    },
+    "non_authority_declaration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "control_plane_history_only",
+        "not_canonical_strategy_performance_evidence",
+        "not_result_population_authority",
+        "not_exp_replacement",
+        "not_rep_replacement",
+        "not_outcome_ledger_replacement",
+        "not_recommendation_replacement",
+        "not_decision_replacement",
+        "not_ranking_authority",
+        "not_recommendation_authority",
+        "not_readiness_authority",
+        "not_promotion_authority",
+        "not_candidate_authority",
+        "not_scheduler_authority",
+        "not_runtime_authority",
+        "not_paper_live_authority",
+        "canonical_result_population_write_forbidden"
+      ],
+      "properties": {
+        "control_plane_history_only": { "const": true },
+        "not_canonical_strategy_performance_evidence": { "const": true },
+        "not_result_population_authority": { "const": true },
+        "not_exp_replacement": { "const": true },
+        "not_rep_replacement": { "const": true },
+        "not_outcome_ledger_replacement": { "const": true },
+        "not_recommendation_replacement": { "const": true },
+        "not_decision_replacement": { "const": true },
+        "not_ranking_authority": { "const": true },
+        "not_recommendation_authority": { "const": true },
+        "not_readiness_authority": { "const": true },
+        "not_promotion_authority": { "const": true },
+        "not_candidate_authority": { "const": true },
+        "not_scheduler_authority": { "const": true },
+        "not_runtime_authority": { "const": true },
+        "not_paper_live_authority": { "const": true },
+        "canonical_result_population_write_forbidden": { "const": true }
+      }
+    }
+  }
+}

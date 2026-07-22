@@ -1,0 +1,29 @@
+{
+  "schema_version": "wp_canon_dispatch_control_plane_preservation_v1",
+  "package_id": "WP-CANON-DISPATCH-CONTROL-PLANE-DESIGN-LOCK-01",
+  "base_commit": "1c22edf602f748ed03d9304c66b4b40cd6f0d601",
+  "authoritative_state_changed": false,
+  "runner_invocation_count": 0,
+  "production_dispatch_write_count": 0,
+  "production_execution_event_write_count": 0,
+  "canonical_result_population_write_count": 0,
+  "preserved": [
+    {"path":"research/queue/admissions/QI-20260717-H004R2B1.queue_item.json","before_sha256":"sha256:47ba045b4ac89588e1865c280b080f0922cef6bb1e7d4e7880090ba07a44d967","after_sha256":"sha256:47ba045b4ac89588e1865c280b080f0922cef6bb1e7d4e7880090ba07a44d967"},
+    {"path":"research/queue/gate_q_approvals/GATE-Q-H004-R2-04B-0001.gate_q_approval.json","before_sha256":"sha256:8645018c04a565761d72047b5225fbfd5694e342f5180407f0c8b111ba310fed","after_sha256":"sha256:8645018c04a565761d72047b5225fbfd5694e342f5180407f0c8b111ba310fed"},
+    {"path":"research/queue/admission_audit/queue_admissions.jsonl","before_sha256":"sha256:e668475f7d9f0d3d3c425a173aa1eb593814d824d4590c794887bde21368d3e2","after_sha256":"sha256:e668475f7d9f0d3d3c425a173aa1eb593814d824d4590c794887bde21368d3e2"},
+    {"path":"research/strategy_specs/STRAT-SPEC-0007.strategy_spec.json","before_sha256":"sha256:b23ebc1093df51b7fab5e39c46fd2b96b5e71d35300134eb319a5cbc32d0857c","after_sha256":"sha256:b23ebc1093df51b7fab5e39c46fd2b96b5e71d35300134eb319a5cbc32d0857c"},
+    {"path":"research/variant_manifests/VM-0007.variant_manifest.json","before_sha256":"sha256:822da9ca46eca4f3a9d4d86936fdd3447004ef77806fc3ce60ab0cf979ea171d","after_sha256":"sha256:822da9ca46eca4f3a9d4d86936fdd3447004ef77806fc3ce60ab0cf979ea171d"},
+    {"path":"research/sweep_plans/SWEEP-PLAN-0007.sweep_plan.json","before_sha256":"sha256:66d48ec6d57048012dcd243ca7dda25dcf59241b1a3733dc05796eb46d7af2f0","after_sha256":"sha256:66d48ec6d57048012dcd243ca7dda25dcf59241b1a3733dc05796eb46d7af2f0"},
+    {"path":"tools/research_runner/run_offline_sweep.py","before_sha256":"sha256:bbd34bf955292bfe7bd00949f0cc5cab3687007476819ff65613db5c7da91c0e","after_sha256":"sha256:bbd34bf955292bfe7bd00949f0cc5cab3687007476819ff65613db5c7da91c0e"},
+    {"path":"research/schemas/result_population.schema.json","before_sha256":"sha256:128c744cec03a360977d330b6ddd5b436fcbad5b023aa43744dc5e3da47ccdec","after_sha256":"sha256:128c744cec03a360977d330b6ddd5b436fcbad5b023aa43744dc5e3da47ccdec"},
+    {"path":"tools/registry/validate_result_populations.py","before_sha256":"sha256:7268065e205419db49e9065264743b6c168714d14bac9e54638680c53eb9a615","after_sha256":"sha256:7268065e205419db49e9065264743b6c168714d14bac9e54638680c53eb9a615"}
+  ],
+  "blocked_h004_worktree": {
+    "path": "C:/GitHub/crypto-perp-wedge-wp-canon-h004-dispatch-gated-01",
+    "tracked_diff_hash_before": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+    "tracked_diff_hash_after": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+    "untracked_file_count_before": 12,
+    "untracked_file_count_after": 12,
+    "all_twelve_sha256_values_unchanged": true
+  }
+}

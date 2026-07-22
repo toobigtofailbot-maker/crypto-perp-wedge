@@ -303,5 +303,11 @@ def test_all_full_canonical_strategy_spec_hashes_match_vm_parent_lineage() -> No
         )
 
 
-def test_no_production_external_readiness_fact_or_directory_exists() -> None:
-    assert not PRODUCTION_FACT_ROOT.exists()
+def test_exactly_one_production_external_readiness_fact_exists_and_is_bound() -> None:
+    facts = sorted(PRODUCTION_FACT_ROOT.glob("*.external_content_readiness.json"))
+    assert [path.name for path in facts] == [
+        "SS-ECR-STRAT-SPEC-0007.external_content_readiness.json"
+    ]
+    fact = _load(facts[0])
+    assert _schema_error_text(fact) == ""
+    assert _semantic_errors(fact, REPO_ROOT) == []

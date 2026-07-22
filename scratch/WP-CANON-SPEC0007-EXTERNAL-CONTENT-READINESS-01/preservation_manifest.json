@@ -1,0 +1,37 @@
+{
+  "package_id": "WP-CANON-SPEC0007-EXTERNAL-CONTENT-READINESS-01",
+  "base_commit": "94ba623830655d2e20af2cd96e37ef019b082382",
+  "hash_algorithm": "sha256 exact file bytes",
+  "preserved_artifacts": {
+    "research/strategy_specs/STRAT-SPEC-0001.strategy_spec.json": "a7e7bb5d4a5eda5a1d2ebb842d828f664064dae69859d8cda1ec5015ac5f342c",
+    "research/strategy_specs/STRAT-SPEC-0002.strategy_spec.json": "d2e0820864c882361fbd466c6ae0eaea03568e4ccc8dfaee4a3114a330f18574",
+    "research/strategy_specs/STRAT-SPEC-0003.strategy_spec.json": "b20e8df8e45d69da2c6d679e23e30147d6928dd63e7d216f493e0e671554a6c7",
+    "research/strategy_specs/STRAT-SPEC-0004.strategy_spec.json": "75aaeae687bc1976467c132bbcc1b146668bbce1082683608c41c9460856482a",
+    "research/strategy_specs/STRAT-SPEC-0005.strategy_spec.json": "1baeb4da177750795266091b2b7d50094f95d65c74059aa2ee1c5769171219b7",
+    "research/strategy_specs/STRAT-SPEC-0006.strategy_spec.json": "f0d8109822c75820aaf3e2837246ac2e5b14cb838b8cf40d5677e5720bceb0c5",
+    "research/strategy_specs/STRAT-SPEC-0007.strategy_spec.json": "b23ebc1093df51b7fab5e39c46fd2b96b5e71d35300134eb319a5cbc32d0857c",
+    "research/variant_manifests/VM-0001.variant_manifest.json": "af790cb6d143907695031928d441c0d8e6c240a90c2d08610d4e930aea13d972",
+    "research/variant_manifests/VM-0002.variant_manifest.json": "766715c976c1b309add2b5ba031d5741c005a4678ac0bd17f570c2bcc1715eee",
+    "research/variant_manifests/VM-0003.variant_manifest.json": "069c4e505003b104a4b17f3e3ad8ca66240e205b615fdc77354c065373ffc1f2",
+    "research/variant_manifests/VM-0004.variant_manifest.json": "e408dbc7d562ff6377d9b9d40f33e867b55870fcce7e89e82516e77d8f07d429",
+    "research/variant_manifests/VM-0005.variant_manifest.json": "b198428d25c376c2e2e75f3237d842435d526192a297893b15a3952182e2ffe6",
+    "research/variant_manifests/VM-0006.variant_manifest.json": "fc8e87a1cc34c1b1fcec6ded9871ffeae5d26392dca3bff99235c80f9969aa6a",
+    "research/variant_manifests/VM-0007.variant_manifest.json": "822da9ca46eca4f3a9d4d86936fdd3447004ef77806fc3ce60ab0cf979ea171d",
+    "research/sweep_plans/SWEEP-PLAN-0001.sweep_plan.json": "39d07533c078b82569cb26a6d93bfe1b9192736867860c1e141c75d557bfb394",
+    "research/sweep_plans/SWEEP-PLAN-0002.sweep_plan.json": "2cde2973d07dd9f35cd9ccc4ce2b1994d244cfcfdb9f2af40441388677b5b985",
+    "research/sweep_plans/SWEEP-PLAN-0003.sweep_plan.json": "82d78358a5498b8983a55ce4930bdfd1ae33354f9198faa4da97ebfe5b4d9bcf",
+    "research/sweep_plans/SWEEP-PLAN-0004.sweep_plan.json": "0013cc2b12e8e895c21cfa0bc2efb2e51a6c029c6c8bff9aabfefd03cac1fee1",
+    "research/sweep_plans/SWEEP-PLAN-0005.sweep_plan.json": "8c2f1e1f0ff8ea332fe482b4d02ab257f2ade31a1a7ff16675784c587a5660cc",
+    "research/sweep_plans/SWEEP-PLAN-0006.sweep_plan.json": "59f85c7082ecc23c7985f11bd3b05c339138deb641fff1a388976a01c8b0d277",
+    "research/sweep_plans/SWEEP-PLAN-0007.sweep_plan.json": "66d48ec6d57048012dcd243ca7dda25dcf59241b1a3733dc05796eb46d7af2f0",
+    "research/queue/admission_audit/queue_admissions.jsonl": "e668475f7d9f0d3d3c425a173aa1eb593814d824d4590c794887bde21368d3e2",
+    "research/queue/admissions/QI-20260717-H004R2B1.queue_item.json": "47ba045b4ac89588e1865c280b080f0922cef6bb1e7d4e7880090ba07a44d967",
+    "research/queue/gate_q_approvals/GATE-Q-H004-R2-04B-0001.gate_q_approval.json": "8645018c04a565761d72047b5225fbfd5694e342f5180407f0c8b111ba310fed",
+    "research/schemas/canon_dispatch_record.schema.json": "6e0ea552251f0bf61125c28f7ed527c0613bee67f27b8c1e9c7256a1bd5035c6",
+    "research/schemas/canon_execution_event.schema.json": "629c936bb927a56fa9d579c9628ec39895dac10a93d5838ea163ed5c41ebdfbc"
+  },
+  "new_fact": {
+    "path": "research/strategy_spec_external_content_readiness/SS-ECR-STRAT-SPEC-0007.external_content_readiness.json",
+    "sha256": "ec182c262046797b81ebc409d711f1e11f671831cffc472f3277192117236761"
+  }
+}

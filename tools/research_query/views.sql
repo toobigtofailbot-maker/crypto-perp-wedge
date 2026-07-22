@@ -4372,26 +4372,38 @@ FROM (
     SELECT strategy_spec_id, 'free_parameters.parameters.count', '<=5', CAST(list_count(free_parameters.parameters) AS VARCHAR) FROM strategy_specs WHERE list_count(free_parameters.parameters) > 5
 ) AS issues;
 
--- Do Strategy Specs keep visible hash and pre-registration posture internally consistent?
--- This view does not compute hashes and does not approve any spec.
-CREATE OR REPLACE VIEW v_integrity_strategy_spec_hash_readiness AS
+-- Is the one H-004-scoped Strategy Spec bound by exactly one protected, immutable,
+-- reproducible external-content-readiness fact? Empty means this prerequisite passes;
+-- it does not grant dispatch, execution, Result Population, or runtime authority.
+CREATE OR REPLACE VIEW v_integrity_strategy_spec_external_content_readiness AS
 SELECT
-    'strategy_spec_hash_readiness_violation' AS issue_type,
+    issue_type,
     strategy_spec_id,
+    fact_id,
     source_field,
     expected_value,
     actual_value
-FROM (
-    SELECT strategy_spec_id, 'hash_pinning.canonical_spec_hash' AS source_field, 'non-empty when hash_status=computed' AS expected_value, CAST(hash_pinning.canonical_spec_hash AS VARCHAR) AS actual_value
-    FROM strategy_specs
-    WHERE hash_pinning.hash_status = 'computed'
-      AND NULLIF(CAST(hash_pinning.canonical_spec_hash AS VARCHAR), '') IS NULL
-    UNION ALL
-    SELECT strategy_spec_id, 'hash_pinning.hash_status', 'computed when intended_for_variant_manifest=true', CAST(hash_pinning.hash_status AS VARCHAR)
-    FROM strategy_specs
-    WHERE pre_registration_support.intended_for_variant_manifest IS DISTINCT FROM false
-      AND hash_pinning.hash_status IS DISTINCT FROM 'computed'
-) AS issues;
+FROM strategy_spec_external_content_readiness_checks;
+
+-- Preserve the historical strategy_spec_hash_scope_v1 reproducibility gap as a
+-- separate visible disclosure. This row is intentionally non-blocking for the
+-- external-content prerequisite and must remain after Surface A becomes clean.
+CREATE OR REPLACE VIEW v_integrity_strategy_spec_legacy_hash_scope_reproducibility AS
+SELECT
+    'strategy_spec_legacy_hash_scope_reproducibility_unresolved' AS issue_type,
+    specs.strategy_spec_id,
+    facts.fact_id,
+    'legacy_internal_hash.legacy_hash_scope_reproducibility' AS source_field,
+    'historical strategy_spec_hash_scope_v1 reproducible' AS expected_value,
+    'unresolved; hash_status='
+        || CAST(specs.hash_pinning.hash_status AS VARCHAR)
+        || '; canonical_spec_hash='
+        || COALESCE(CAST(specs.hash_pinning.canonical_spec_hash AS VARCHAR), 'null')
+        AS actual_value
+FROM strategy_specs AS specs
+LEFT JOIN strategy_spec_external_content_readiness AS facts
+    ON facts.strategy_spec_id = specs.strategy_spec_id
+WHERE specs.strategy_spec_id = 'STRAT-SPEC-0007';
 
 -- What Variant Manifest artifacts are visible to the read-only query layer?
 -- This is descriptive visibility only and does not approve variants or sweeps.

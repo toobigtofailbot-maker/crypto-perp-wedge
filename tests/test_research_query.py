@@ -10,6 +10,7 @@ from tools.research_query.query_layer import (
     REGISTRY_PATH,
     RESULT_POPULATIONS_DIR,
     SWEEP_PLANS_DIR,
+    STRATEGY_SPEC_EXTERNAL_CONTENT_READINESS_DIR,
     STRATEGY_SPECS_DIR,
     TRIAL_LOG_PATH,
     VARIANT_MANIFESTS_DIR,
@@ -38,7 +39,8 @@ REQUIRED_VIEWS = {
     "v_strategy_spec_backtest_assumptions",
     "v_integrity_strategy_spec_non_authority",
     "v_integrity_strategy_spec_bounds",
-    "v_integrity_strategy_spec_hash_readiness",
+    "v_integrity_strategy_spec_external_content_readiness",
+    "v_integrity_strategy_spec_legacy_hash_scope_reproducibility",
     "v_variant_manifest_overview",
     "v_variant_manifest_population",
     "v_variant_manifest_parameter_axes",
@@ -1481,6 +1483,7 @@ def _init_temp_query_layer(
     variant_manifests=None,
     sweep_plans=None,
     result_populations=None,
+    external_content_readiness=None,
 ):
     registry_path = tmp_path / "research" / "candidate_registry.jsonl"
     trial_log_path = tmp_path / "research" / "trial_log.jsonl"
@@ -1489,6 +1492,9 @@ def _init_temp_query_layer(
     variant_manifests_dir = tmp_path / "research" / "variant_manifests"
     sweep_plans_dir = tmp_path / "research" / "sweep_plans"
     result_populations_dir = tmp_path / "research" / "result_populations"
+    external_content_readiness_dir = (
+        tmp_path / "research" / "strategy_spec_external_content_readiness"
+    )
 
     registry_path.parent.mkdir(parents=True, exist_ok=True)
     registry_path.write_text(
@@ -1523,6 +1529,12 @@ def _init_temp_query_layer(
             / f"{result_population['result_population_id']}.result_population.json",
             result_population,
         )
+    for fact in external_content_readiness or []:
+        _write_json(
+            external_content_readiness_dir
+            / f"{fact['fact_id']}.external_content_readiness.json",
+            fact,
+        )
 
     monkeypatch.setattr(query_layer, "REGISTRY_PATH", registry_path)
     monkeypatch.setattr(query_layer, "TRIAL_LOG_PATH", trial_log_path)
@@ -1531,6 +1543,11 @@ def _init_temp_query_layer(
     monkeypatch.setattr(query_layer, "VARIANT_MANIFESTS_DIR", variant_manifests_dir)
     monkeypatch.setattr(query_layer, "SWEEP_PLANS_DIR", sweep_plans_dir)
     monkeypatch.setattr(query_layer, "RESULT_POPULATIONS_DIR", result_populations_dir)
+    monkeypatch.setattr(
+        query_layer,
+        "STRATEGY_SPEC_EXTERNAL_CONTENT_READINESS_DIR",
+        external_content_readiness_dir,
+    )
 
     return init_duckdb()
 
@@ -1758,13 +1775,14 @@ def test_current_integrity_views_empty_under_pre_execution_refinement(conn):
     ]
 
     expected_rows = {
-        "v_integrity_strategy_spec_hash_readiness": [
+        "v_integrity_strategy_spec_legacy_hash_scope_reproducibility": [
             (
-                "strategy_spec_hash_readiness_violation",
+                "strategy_spec_legacy_hash_scope_reproducibility_unresolved",
                 "STRAT-SPEC-0007",
-                "hash_pinning.hash_status",
-                "computed when intended_for_variant_manifest=true",
-                "not_computed",
+                "SS-ECR-STRAT-SPEC-0007",
+                "legacy_internal_hash.legacy_hash_scope_reproducibility",
+                "historical strategy_spec_hash_scope_v1 reproducible",
+                "unresolved; hash_status=not_computed; canonical_spec_hash=null",
             )
         ]
     }
@@ -2248,13 +2266,19 @@ def test_strategy_spec_condition_groups_handles_current_composed_z_score(conn):
 def test_strategy_spec_integrity_views_empty_under_current_zero_instance_state(conn):
     assert conn.execute("SELECT * FROM v_integrity_strategy_spec_non_authority").fetchall() == []
     assert conn.execute("SELECT * FROM v_integrity_strategy_spec_bounds").fetchall() == []
-    assert conn.execute("SELECT * FROM v_integrity_strategy_spec_hash_readiness").fetchall() == [
+    assert conn.execute(
+        "SELECT * FROM v_integrity_strategy_spec_external_content_readiness"
+    ).fetchall() == []
+    assert conn.execute(
+        "SELECT * FROM v_integrity_strategy_spec_legacy_hash_scope_reproducibility"
+    ).fetchall() == [
         (
-            "strategy_spec_hash_readiness_violation",
+            "strategy_spec_legacy_hash_scope_reproducibility_unresolved",
             "STRAT-SPEC-0007",
-            "hash_pinning.hash_status",
-            "computed when intended_for_variant_manifest=true",
-            "not_computed",
+            "SS-ECR-STRAT-SPEC-0007",
+            "legacy_internal_hash.legacy_hash_scope_reproducibility",
+            "historical strategy_spec_hash_scope_v1 reproducible",
+            "unresolved; hash_status=not_computed; canonical_spec_hash=null",
         )
     ]
 
@@ -2473,45 +2497,50 @@ def test_strategy_spec_bounds_integrity_flags_visible_violation(monkeypatch, tmp
         connection.close()
 
 
-def test_strategy_spec_hash_readiness_integrity_flags_visible_violation(monkeypatch, tmp_path):
-    missing_hash = _valid_strategy_spec("STRAT-SPEC-9001")
-    missing_hash["hash_pinning"]["hash_status"] = "computed"
-    missing_hash["hash_pinning"]["canonical_spec_hash"] = None
-
-    prereg_without_hash = _valid_strategy_spec("STRAT-SPEC-9002")
-    prereg_without_hash["pre_registration_support"]["intended_for_variant_manifest"] = True
-    prereg_without_hash["hash_pinning"]["hash_status"] = "not_computed"
-
+def test_strategy_spec_external_readiness_missing_fact_and_legacy_disclosure(
+    monkeypatch, tmp_path
+):
+    spec = _valid_strategy_spec("STRAT-SPEC-0007")
+    spec["hash_pinning"]["hash_status"] = "not_computed"
+    spec["hash_pinning"]["canonical_spec_hash"] = None
     connection = _init_temp_query_layer(
         monkeypatch,
         tmp_path,
         [_valid_candidate_row()],
         [_valid_plan()],
         [_valid_report()],
-        strategy_specs=[missing_hash, prereg_without_hash],
+        strategy_specs=[spec],
     )
     try:
-        rows = connection.execute(
+        external_rows = connection.execute(
             """
-            SELECT strategy_spec_id, source_field, expected_value, actual_value
-            FROM v_integrity_strategy_spec_hash_readiness
-            ORDER BY strategy_spec_id, source_field
+            SELECT issue_type, strategy_spec_id, fact_id, source_field,
+                   expected_value, actual_value
+            FROM v_integrity_strategy_spec_external_content_readiness
             """
         ).fetchall()
-
-        assert rows == [
+        legacy_rows = connection.execute(
+            "SELECT * FROM v_integrity_strategy_spec_legacy_hash_scope_reproducibility"
+        ).fetchall()
+        assert external_rows == [
             (
-                "STRAT-SPEC-9001",
-                "hash_pinning.canonical_spec_hash",
-                "non-empty when hash_status=computed",
+                "external_content_readiness_fact_missing",
+                "STRAT-SPEC-0007",
+                None,
+                "fact_path",
+                "research/strategy_spec_external_content_readiness/SS-ECR-STRAT-SPEC-0007.external_content_readiness.json",
                 None,
             ),
+        ]
+        assert legacy_rows == [
             (
-                "STRAT-SPEC-9002",
-                "hash_pinning.hash_status",
-                "computed when intended_for_variant_manifest=true",
-                "not_computed",
-            ),
+                "strategy_spec_legacy_hash_scope_reproducibility_unresolved",
+                "STRAT-SPEC-0007",
+                None,
+                "legacy_internal_hash.legacy_hash_scope_reproducibility",
+                "historical strategy_spec_hash_scope_v1 reproducible",
+                "unresolved; hash_status=not_computed; canonical_spec_hash=null",
+            )
         ]
     finally:
         connection.close()
@@ -2534,7 +2563,8 @@ def test_querying_strategy_spec_views_does_not_modify_research_files(conn):
         "v_strategy_spec_backtest_assumptions",
         "v_integrity_strategy_spec_non_authority",
         "v_integrity_strategy_spec_bounds",
-        "v_integrity_strategy_spec_hash_readiness",
+        "v_integrity_strategy_spec_external_content_readiness",
+        "v_integrity_strategy_spec_legacy_hash_scope_reproducibility",
     ]:
         run_named_view(conn, view_name)
 

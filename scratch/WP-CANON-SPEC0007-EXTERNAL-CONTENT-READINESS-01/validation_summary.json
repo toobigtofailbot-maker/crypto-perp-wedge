@@ -1,0 +1,71 @@
+{
+  "package_id": "WP-CANON-SPEC0007-EXTERNAL-CONTENT-READINESS-01",
+  "base_commit": "94ba623830655d2e20af2cd96e37ef019b082382",
+  "overall": "PASS_WITH_ADVISORY_HELPER_SCOPE_LIMITATION",
+  "fact": {
+    "fact_id": "SS-ECR-STRAT-SPEC-0007",
+    "path": "research/strategy_spec_external_content_readiness/SS-ECR-STRAT-SPEC-0007.external_content_readiness.json",
+    "exact_file_sha256": "sha256:ec182c262046797b81ebc409d711f1e11f671831cffc472f3277192117236761",
+    "proposed_bytes_equal_production_bytes": true,
+    "protected_validator": "PASS"
+  },
+  "required_validation": {
+    "draft7_schema_and_production_fact": "PASS",
+    "targeted_writer_and_contract_tests": "PASS; 49 passed",
+    "targeted_query_tests": "PASS; 5 passed",
+    "all_registry_validators": "PASS; 25 of 25 on refreshed base",
+    "strategy_spec_validator": "PASS",
+    "variant_manifest_and_sweep_validator": "PASS",
+    "integrity_views": {
+      "status": "PASS",
+      "view_count": 59,
+      "external_content_readiness_rows": 0,
+      "legacy_hash_scope_rows": 1,
+      "other_nonempty_rows": 0
+    },
+    "repository_parse": {
+      "json_files": 1162,
+      "jsonl_files": 12,
+      "jsonl_rows": 27585,
+      "status": "PASS"
+    },
+    "preservation_manifest": "PASS; 26 of 26",
+    "full_pytest_sharded": {
+      "status": "PASS",
+      "shards": 16,
+      "passing_shards": 16,
+      "tracked_test_files_on_refreshed_base": 149,
+      "pre_rebase_full_profile": "PASS; all 16 shards covering the staged 148-file profile",
+      "post_rebase_delta_and_package_focus": "PASS; 73 passed, 2 skipped, including the newly merged funding-provenance test",
+      "post_rebase_focused_query_tests": "PASS; 5 passed",
+      "workers": 8,
+      "timeout_seconds_per_shard": 3600,
+      "slowest_shard": "shard 2/16; 215 passed in 2337.19s"
+    },
+    "git_diff_check": "PASS after evidence whitespace correction",
+    "git_diff_cached_check": "PASS after evidence whitespace correction",
+    "exact_changed_file_allowlist": "PASS; 13 paths",
+    "forbidden_path_scan": "PASS by active-package exact authorization and manual scan"
+  },
+  "advisory_helper_limitation": {
+    "tool": "tools/dev/diff_scope_summary.py --check-forbidden",
+    "status": "EXPECTED_NONZERO",
+    "reason": "The advisory helper has no supported authorized-scope vocabulary for strategy-spec external-content-readiness facts. The active package explicitly authorizes the one exact research fact path; no helper behavior was changed or bypassed silently."
+  },
+  "non_evidence_runs": [
+    "A broad query pytest selection exceeded a five-minute command ceiling; exact query tests later passed.",
+    "PowerShell ConvertFrom-Json rejected valid empty-key JSON; the Git-scoped standards-compliant Python parse passed.",
+    "The first 147-file sharded attempt was manually interrupted on shard 1 before its configured timeout and is not accepted as pass evidence.",
+    "The definitive staged 148-file sharded profile passed all 16 partitions."
+  ],
+  "boundary_result": {
+    "strategy_spec_vm_sweep_modified": false,
+    "queue_or_gate_q_modified": false,
+    "dispatch_schema_or_writer_modified": false,
+    "execution_event_or_runner_modified": false,
+    "result_population_modified": false,
+    "runtime_paper_live_oms_risk_reconciliation_modified": false,
+    "docs_project_status_modified": false,
+    "dispatch_or_execution_action_performed": false
+  }
+}

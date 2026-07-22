@@ -1,0 +1,18 @@
+{
+  "package_id": "WP-CANON-SPEC0007-EXTERNAL-CONTENT-READINESS-01",
+  "allowed_paths": [
+    "docs/status_entries/WP-CANON-SPEC0007-EXTERNAL-CONTENT-READINESS-01.md",
+    "research/strategy_spec_external_content_readiness/SS-ECR-STRAT-SPEC-0007.external_content_readiness.json",
+    "scratch/WP-CANON-SPEC0007-EXTERNAL-CONTENT-READINESS-01/changed_file_allowlist.json",
+    "scratch/WP-CANON-SPEC0007-EXTERNAL-CONTENT-READINESS-01/preservation_manifest.json",
+    "scratch/WP-CANON-SPEC0007-EXTERNAL-CONTENT-READINESS-01/proposed_external_content_readiness.json",
+    "scratch/WP-CANON-SPEC0007-EXTERNAL-CONTENT-READINESS-01/repo_truth_discovery.md",
+    "scratch/WP-CANON-SPEC0007-EXTERNAL-CONTENT-READINESS-01/validation_summary.json",
+    "tests/test_external_content_readiness_writer.py",
+    "tests/test_research_query.py",
+    "tests/test_strategy_spec_external_content_readiness_contract.py",
+    "tools/canon_intake/external_content_readiness.py",
+    "tools/research_query/query_layer.py",
+    "tools/research_query/views.sql"
+  ]
+}

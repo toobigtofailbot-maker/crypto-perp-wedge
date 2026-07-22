@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 import hashlib
 import json
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -30,6 +31,9 @@ R2S_APPROVAL_RECORDS_DIR = REPO_ROOT / "research" / "r2s_approval_records"
 SHADOW_EVIDENCE_RETENTION_DIR = REPO_ROOT / "research" / "shadow_evidence_retention"
 S2P_APPROVAL_RECORDS_DIR = REPO_ROOT / "research" / "s2p_approval_records"
 STRATEGY_SPECS_DIR = REPO_ROOT / "research" / "strategy_specs"
+STRATEGY_SPEC_EXTERNAL_CONTENT_READINESS_DIR = (
+    REPO_ROOT / "research" / "strategy_spec_external_content_readiness"
+)
 VARIANT_MANIFESTS_DIR = REPO_ROOT / "research" / "variant_manifests"
 SWEEP_PLANS_DIR = REPO_ROOT / "research" / "sweep_plans"
 RESULT_POPULATIONS_DIR = REPO_ROOT / "research" / "result_populations"
@@ -88,6 +92,57 @@ def _sql_literal(value: Any) -> str:
     if isinstance(value, bool):
         return "TRUE" if value else "FALSE"
     return "'" + str(value).replace("'", "''") + "'"
+
+
+def _external_readiness_validation_state(repo_root: Path) -> tuple[str, ...]:
+    """Content-address the inputs used by the protected readiness validator."""
+
+    paths = [
+        repo_root / "research/strategy_specs/STRAT-SPEC-0007.strategy_spec.json",
+        repo_root / "research/variant_manifests/VM-0007.variant_manifest.json",
+        repo_root / "research/sweep_plans/SWEEP-PLAN-0007.sweep_plan.json",
+        repo_root
+        / "research/schemas/strategy_spec_external_content_readiness.schema.json",
+        repo_root / "tools/registry/validate_variant_sweep_artifacts.py",
+    ]
+    fact_root = repo_root / "research/strategy_spec_external_content_readiness"
+    if fact_root.exists() and fact_root.is_dir() and not fact_root.is_symlink():
+        paths.extend(
+            sorted(
+                path
+                for path in fact_root.iterdir()
+                if path.is_file() and not path.is_symlink()
+            )
+        )
+    git_head = repo_root / ".git" / "HEAD"
+    paths.append(git_head)
+    if git_head.is_file():
+        head_text = git_head.read_text(encoding="utf-8").strip()
+        if head_text.startswith("ref: "):
+            paths.append(repo_root / ".git" / head_text[5:])
+    paths.append(repo_root / ".git" / "packed-refs")
+
+    state: list[str] = []
+    for path in paths:
+        relative = path.relative_to(repo_root).as_posix()
+        if path.is_file():
+            state.append(f"{relative}:{hashlib.sha256(path.read_bytes()).hexdigest()}")
+        else:
+            state.append(f"{relative}:missing")
+    return tuple(state)
+
+
+@lru_cache(maxsize=64)
+def _cached_external_readiness_findings(
+    repo_root_value: str, validation_state: tuple[str, ...]
+) -> tuple[str, ...]:
+    del validation_state  # Its content-addressed value is the cache discriminator.
+    from tools.canon_intake.external_content_readiness import (
+        validate_external_content_readiness_corpus,
+    )
+
+    findings = validate_external_content_readiness_corpus(Path(repo_root_value))
+    return tuple(json.dumps(row, sort_keys=True) for row in findings)
 
 
 def _require_file(path: Path, label: str) -> None:
@@ -1040,6 +1095,206 @@ def _register_s2p_approval_records(conn: duckdb.DuckDBPyConnection) -> None:
         WHERE FALSE
         """
     )
+
+
+def _register_strategy_spec_external_content_readiness(
+    conn: duckdb.DuckDBPyConnection,
+) -> None:
+    """Register flattened facts and deterministic protected-validator findings."""
+
+    fact_files = (
+        sorted(
+            STRATEGY_SPEC_EXTERNAL_CONTENT_READINESS_DIR.glob(
+                "*.external_content_readiness.json"
+            )
+        )
+        if STRATEGY_SPEC_EXTERNAL_CONTENT_READINESS_DIR.exists()
+        and STRATEGY_SPEC_EXTERNAL_CONTENT_READINESS_DIR.is_dir()
+        and not STRATEGY_SPEC_EXTERNAL_CONTENT_READINESS_DIR.is_symlink()
+        else []
+    )
+    fact_files = [
+        path for path in fact_files if path.is_file() and not path.is_symlink()
+    ]
+    fact_rows: list[tuple[Any, ...]] = []
+    for path in fact_files:
+        try:
+            fact = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, json.JSONDecodeError):
+            continue
+        if not isinstance(fact, dict):
+            continue
+        strategy_spec = fact.get("strategy_spec", {})
+        content = fact.get("content_binding", {})
+        source_git = fact.get("source_git", {})
+        computation = fact.get("computation", {})
+        legacy = fact.get("legacy_internal_hash", {})
+        fact_rows.append(
+            (
+                fact.get("fact_id"),
+                fact.get("fact_path"),
+                fact.get("scope"),
+                strategy_spec.get("strategy_spec_id"),
+                strategy_spec.get("path"),
+                content.get("raw_byte_length"),
+                content.get("raw_file_sha256"),
+                content.get("canonicalization"),
+                content.get("full_repo_canonical_json_sha256"),
+                source_git.get("commit_sha"),
+                source_git.get("blob_sha"),
+                computation.get("tool_identity"),
+                computation.get("tool_path"),
+                computation.get("tool_sha256"),
+                computation.get("tool_version"),
+                fact.get("computed_at"),
+                fact.get("readiness_state"),
+                legacy.get("hash_status_observed"),
+                legacy.get("hash_scope_version_observed"),
+                legacy.get("canonical_spec_hash_observed"),
+                legacy.get("legacy_hash_scope_reproducibility"),
+                fact.get("dispatch_prerequisite_only"),
+            )
+        )
+
+    fact_columns = (
+        "fact_id",
+        "fact_path",
+        "scope",
+        "strategy_spec_id",
+        "strategy_spec_path",
+        "raw_byte_length",
+        "raw_file_sha256",
+        "canonicalization",
+        "full_repo_canonical_json_sha256",
+        "source_git_commit_sha",
+        "source_git_blob_sha",
+        "computation_tool_identity",
+        "computation_tool_path",
+        "computation_tool_sha256",
+        "computation_tool_version",
+        "computed_at",
+        "readiness_state",
+        "legacy_hash_status_observed",
+        "legacy_hash_scope_version_observed",
+        "legacy_canonical_spec_hash_observed",
+        "legacy_hash_scope_reproducibility",
+        "dispatch_prerequisite_only",
+    )
+    if fact_rows:
+        values = ",\n".join(
+            "(" + ", ".join(_sql_literal(value) for value in row) + ")"
+            for row in fact_rows
+        )
+        conn.execute(
+            f"""
+            CREATE VIEW strategy_spec_external_content_readiness AS
+            SELECT
+                CAST(fact_id AS VARCHAR) AS fact_id,
+                CAST(fact_path AS VARCHAR) AS fact_path,
+                CAST(scope AS VARCHAR) AS scope,
+                CAST(strategy_spec_id AS VARCHAR) AS strategy_spec_id,
+                CAST(strategy_spec_path AS VARCHAR) AS strategy_spec_path,
+                CAST(raw_byte_length AS BIGINT) AS raw_byte_length,
+                CAST(raw_file_sha256 AS VARCHAR) AS raw_file_sha256,
+                CAST(canonicalization AS VARCHAR) AS canonicalization,
+                CAST(full_repo_canonical_json_sha256 AS VARCHAR) AS full_repo_canonical_json_sha256,
+                CAST(source_git_commit_sha AS VARCHAR) AS source_git_commit_sha,
+                CAST(source_git_blob_sha AS VARCHAR) AS source_git_blob_sha,
+                CAST(computation_tool_identity AS VARCHAR) AS computation_tool_identity,
+                CAST(computation_tool_path AS VARCHAR) AS computation_tool_path,
+                CAST(computation_tool_sha256 AS VARCHAR) AS computation_tool_sha256,
+                CAST(computation_tool_version AS VARCHAR) AS computation_tool_version,
+                CAST(computed_at AS VARCHAR) AS computed_at,
+                CAST(readiness_state AS VARCHAR) AS readiness_state,
+                CAST(legacy_hash_status_observed AS VARCHAR) AS legacy_hash_status_observed,
+                CAST(legacy_hash_scope_version_observed AS VARCHAR) AS legacy_hash_scope_version_observed,
+                CAST(legacy_canonical_spec_hash_observed AS VARCHAR) AS legacy_canonical_spec_hash_observed,
+                CAST(legacy_hash_scope_reproducibility AS VARCHAR) AS legacy_hash_scope_reproducibility,
+                CAST(dispatch_prerequisite_only AS BOOLEAN) AS dispatch_prerequisite_only
+            FROM (VALUES {values}) AS facts({', '.join(fact_columns)})
+            """
+        )
+    else:
+        conn.execute(
+            """
+            CREATE VIEW strategy_spec_external_content_readiness AS
+            SELECT
+                CAST(NULL AS VARCHAR) AS fact_id,
+                CAST(NULL AS VARCHAR) AS fact_path,
+                CAST(NULL AS VARCHAR) AS scope,
+                CAST(NULL AS VARCHAR) AS strategy_spec_id,
+                CAST(NULL AS VARCHAR) AS strategy_spec_path,
+                CAST(NULL AS BIGINT) AS raw_byte_length,
+                CAST(NULL AS VARCHAR) AS raw_file_sha256,
+                CAST(NULL AS VARCHAR) AS canonicalization,
+                CAST(NULL AS VARCHAR) AS full_repo_canonical_json_sha256,
+                CAST(NULL AS VARCHAR) AS source_git_commit_sha,
+                CAST(NULL AS VARCHAR) AS source_git_blob_sha,
+                CAST(NULL AS VARCHAR) AS computation_tool_identity,
+                CAST(NULL AS VARCHAR) AS computation_tool_path,
+                CAST(NULL AS VARCHAR) AS computation_tool_sha256,
+                CAST(NULL AS VARCHAR) AS computation_tool_version,
+                CAST(NULL AS VARCHAR) AS computed_at,
+                CAST(NULL AS VARCHAR) AS readiness_state,
+                CAST(NULL AS VARCHAR) AS legacy_hash_status_observed,
+                CAST(NULL AS VARCHAR) AS legacy_hash_scope_version_observed,
+                CAST(NULL AS VARCHAR) AS legacy_canonical_spec_hash_observed,
+                CAST(NULL AS VARCHAR) AS legacy_hash_scope_reproducibility,
+                CAST(NULL AS BOOLEAN) AS dispatch_prerequisite_only
+            WHERE FALSE
+            """
+        )
+
+    validation_root = STRATEGY_SPECS_DIR.parent.parent
+    findings = [
+        json.loads(row)
+        for row in _cached_external_readiness_findings(
+            str(validation_root.absolute()),
+            _external_readiness_validation_state(validation_root),
+        )
+    ]
+    check_columns = (
+        "issue_type",
+        "strategy_spec_id",
+        "fact_id",
+        "source_field",
+        "expected_value",
+        "actual_value",
+    )
+    if findings:
+        values = ",\n".join(
+            "("
+            + ", ".join(_sql_literal(row.get(column)) for column in check_columns)
+            + ")"
+            for row in findings
+        )
+        conn.execute(
+            f"""
+            CREATE VIEW strategy_spec_external_content_readiness_checks AS
+            SELECT
+                CAST(issue_type AS VARCHAR) AS issue_type,
+                CAST(strategy_spec_id AS VARCHAR) AS strategy_spec_id,
+                CAST(fact_id AS VARCHAR) AS fact_id,
+                CAST(source_field AS VARCHAR) AS source_field,
+                CAST(expected_value AS VARCHAR) AS expected_value,
+                CAST(actual_value AS VARCHAR) AS actual_value
+            FROM (VALUES {values}) AS findings({', '.join(check_columns)})
+            """
+        )
+    else:
+        conn.execute(
+            """
+            CREATE VIEW strategy_spec_external_content_readiness_checks AS
+            SELECT
+                CAST(NULL AS VARCHAR) AS issue_type,
+                CAST(NULL AS VARCHAR) AS strategy_spec_id,
+                CAST(NULL AS VARCHAR) AS fact_id,
+                CAST(NULL AS VARCHAR) AS source_field,
+                CAST(NULL AS VARCHAR) AS expected_value,
+                CAST(NULL AS VARCHAR) AS actual_value
+            WHERE FALSE
+            """
+        )
 
 
 def _register_strategy_specs(conn: duckdb.DuckDBPyConnection) -> None:
@@ -2259,6 +2514,7 @@ def init_duckdb(read_only: bool = True) -> duckdb.DuckDBPyConnection:
     _register_shadow_evidence_retention(conn)
     _register_s2p_approval_records(conn)
     _register_strategy_specs(conn)
+    _register_strategy_spec_external_content_readiness(conn)
     _register_data_feature_availability(conn)
     _register_variant_manifests(conn)
     _register_sweep_plans(conn)

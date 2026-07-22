@@ -1,8 +1,9 @@
 # Repo-truth discovery
 
-- Package-start and validation base: `origin/main` at `1c22edf602f748ed03d9304c66b4b40cd6f0d601`.
-- At publication refresh, `origin/main` is `64f3757c6ee0ae5249dce52babd6a5811347d719`; the package-start base remains its ancestor.
-- The only open PR at preflight was #665. It merged during publication and accounts for the intervening 30-file dispatch package. Its architecture/schema/fixture/test paths are distinct from this package's paths, this package does not edit them, and GitHub reports PR #666 cleanly mergeable against the refreshed target.
+- Package-start validation base: `origin/main` at `1c22edf602f748ed03d9304c66b4b40cd6f0d601`.
+- Same-PR refresh preflight: old head `9f64707afef85dbd6cf2de801d69b0ee2972beed`, old merge base `1c22edf602f748ed03d9304c66b4b40cd6f0d601`, and old ahead/behind `3/3` relative to refreshed `origin/main`.
+- Refreshed final validation base: `origin/main` at `64f3757c6ee0ae5249dce52babd6a5811347d719`. The rebase completed without conflict at rebased pre-follow-up head `50e776007212e54fea42166e9714fb4c957d98b9`; final merge base equals refreshed `origin/main`, refreshed `main` is an ancestor, and post-rebase ahead/behind is `3/0` before the follow-up commit.
+- PR #666 was the only open PR at refresh preflight. Merged PR #665 accounts for the intervening 30-file dispatch package; its paths are distinct from this package's 24 PR paths, the exact intersection is empty, and no PR #665 file is edited here.
 - No merged external Strategy Spec content-readiness fact, schema, validator, query view, or equivalent H-C design lock existed.
 - The prior `codex/wp-canon-spec0007-hash-readiness-integrity-01` branch had no committed or uncommitted implementation beyond merged base. Its controlling blocked result is the active package's finding that no known algorithm reproduces every historical internal `canonical_spec_hash`.
 - `tools/registry/validate_variant_sweep_artifacts.py::canonical_json_bytes` reproducibly hashes all seven complete Strategy Specs and every result equals the corresponding VM parent `strategy_spec_hash`.
@@ -11,3 +12,4 @@
 - VM-0007 and SWEEP-PLAN-0007 remain present and unchanged; all Strategy Specs, VMs, and Sweeps are recorded in `preservation_manifest.json`.
 - All 58 merged-base `v_integrity_*` views ran. The sole nonempty result is the existing STRAT-SPEC-0007 `not_computed` row in `v_integrity_strategy_spec_hash_readiness`.
 - No production external readiness directory or fact exists. H-004 remains not dispatch-ready.
+- H-C production scope is closed to Strategy Specs explicitly bound by the H-004 prerequisite chain. `STRAT-SPEC-0007` is currently the only authorized production spec; the scratch-only `STRAT-SPEC-9000` fixture is not in scope and grants no production authority.

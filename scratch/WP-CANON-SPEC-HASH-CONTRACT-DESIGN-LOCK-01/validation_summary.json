@@ -1,12 +1,24 @@
 {
   "package_id": "WP-CANON-SPEC-HASH-CONTRACT-DESIGN-LOCK-01",
-  "source_git_commit": "1c22edf602f748ed03d9304c66b4b40cd6f0d601",
+  "package_start_validation_base": "1c22edf602f748ed03d9304c66b4b40cd6f0d601",
+  "refreshed_final_validation_base": "64f3757c6ee0ae5249dce52babd6a5811347d719",
+  "final_merge_base": "64f3757c6ee0ae5249dce52babd6a5811347d719",
+  "rebase": {
+    "old_head": "9f64707afef85dbd6cf2de801d69b0ee2972beed",
+    "old_merge_base": "1c22edf602f748ed03d9304c66b4b40cd6f0d601",
+    "old_ahead_behind": "3/3",
+    "rebased_pre_followup_head": "50e776007212e54fea42166e9714fb4c957d98b9",
+    "post_rebase_ahead_behind": "3/0",
+    "conflicts": 0,
+    "current_main_is_ancestor": true,
+    "pr_665_file_overlap_count": 0
+  },
   "overall": "PASS",
   "required_validation": {
     "draft7_schema_meta_validation": "PASS",
     "targeted_contract_pytest": {
       "status": "PASS",
-      "passed": 22
+      "passed": 23
     },
     "all_registry_validators": {
       "status": "PASS",
@@ -23,7 +35,7 @@
     },
     "repository_json_parse": {
       "status": "PASS",
-      "parsed_before_final_summary_and_status_files": 1127
+      "parsed_before_final_summary_and_status_refresh": 1153
     },
     "preservation_recheck": {
       "status": "PASS",
@@ -33,27 +45,29 @@
       "sweep_plans": 7
     },
     "full_pytest_accepted_profile": {
-      "status": "PASS",
-      "profile": "tools/dev/verify.py --full-pytest-sharded",
+      "status": "PASS accepted deterministic composite on one unchanged rebased tree",
+      "profile": "tools/dev/verify.py --full-pytest-sharded --pytest-shards 16",
       "shards": 16,
       "workers": 8,
-      "tracked_test_files": 146,
+      "tracked_test_files": 147,
       "passing_shards": 16,
       "failed_shards": 0,
       "timed_out_shards": 0,
       "new_contract_test_shard": "PASS",
-      "maximum_shard_elapsed_seconds": 1279.468
+      "combined_run_passing_shards": 15,
+      "combined_run_timed_out_shard": 1,
+      "isolated_identical_partition_rerun": "shard 1/16 PASS",
+      "isolated_rerun_elapsed_seconds": 1362.0,
+      "maximum_passing_shard_elapsed_seconds": 1362.0
     },
     "diff_scope_summary": "PASS with exact active-package authorization for the new research schema",
     "git_diff_check": "PASS",
     "git_diff_cached_check": "PASS"
   },
-  "superseded_non_evidence_runs": [
-    "Initial targeted pytest had three expected-error string mismatches; corrected fixture expectations and identical rerun passed 22 tests.",
-    "Direct-file invocation of all registry validators exposed three tools-package import errors; correct module invocation reran all 24 validators successfully.",
-    "Serial full pytest exceeded the foreground execution window without a reported test failure; it is not counted as passing evidence.",
-    "Two foreground sharded verifier attempts were interrupted by app-session resumption before final output; neither is used as evidence.",
-    "The final retained background sharded verifier completed with overall pass and is the full-suite evidence."
+  "non_evidence_and_recovery_notes": [
+    "The pre-rebase full-suite result is not reused as refreshed validation evidence.",
+    "A first post-rebase full-suite launch used the Windows Store Python shim and failed collection because repository dependencies were absent; it is environment-only non-evidence.",
+    "The correct-interpreter combined run passed 15 shards and timed out deterministic shard 1 at 1800 seconds without a test failure. Shard 1 was rerun alone with the same 16-shard partition and unchanged tree, passing in 1362.0 seconds; the accepted composite therefore contains a pass for every deterministic shard."
   ],
   "boundary_result": {
     "production_readiness_fact_created": false,

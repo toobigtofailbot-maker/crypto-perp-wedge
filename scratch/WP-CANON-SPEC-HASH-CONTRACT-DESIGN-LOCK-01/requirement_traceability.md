@@ -3,6 +3,7 @@
 | Active-WP requirement | Source | Evidence | Status |
 |---|---|---|---|
 | H-004-dispatch-scoped H-C, no repo-wide migration or authority | sections 2, 9.1, 13 | architecture `Decision and scope`; schema non-authority constants | satisfied |
+| Production fact scope is explicit and closed to the H-004 prerequisite chain | same-PR refresh sections 2, 5, 7 | architecture names `STRAT-SPEC-0007`, rejects out-of-scope production facts, and confines `STRAT-SPEC-9000` to non-production mechanics; targeted test pins all statements | satisfied |
 | Bind raw bytes and full repo-canonical JSON | sections 9.2, 9.4 | architecture `Locked two-hash binding`; schema `content_binding`; valid fixtures | satisfied |
 | Preserve and disclose legacy internal scope as unresolved | sections 9.3, 9.4 | architecture `Legacy internal hash posture`; schema `legacy_internal_hash`; tests | satisfied |
 | Future immutable fact shape and create semantics | sections 9.4, 9.5 | schema; architecture `Future immutable fact contract` and `Immutable creation requirements` | satisfied |
@@ -13,3 +14,4 @@
 | No production fact, validator, views, dispatch schema, or canonical artifact mutation | sections 3, 7, 12, 13 | changed-file allowlist; preservation manifest; boundary scan | satisfied |
 | Required validation and unchanged integrity baseline | sections 14, 15 | `integrity_baseline.json`; final `validation_summary.json` | satisfied |
 | Package status fragment, commit, push, ready PR | sections 7, 17 | status fragment and GitHub PR #666 | satisfied |
+| Rebase and post-rebase combined-state validation | same-PR refresh sections 4, 8 | final merge base `64f3757c6ee0ae5249dce52babd6a5811347d719`; refreshed validation summary | satisfied |

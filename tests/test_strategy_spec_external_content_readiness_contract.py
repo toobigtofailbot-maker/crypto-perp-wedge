@@ -14,6 +14,12 @@ from tools.registry.validate_variant_sweep_artifacts import canonical_json_bytes
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+ARCHITECTURE_PATH = (
+    REPO_ROOT
+    / "docs"
+    / "architecture"
+    / "canon_strategy_spec_dispatch_content_readiness.md"
+)
 SCHEMA_PATH = (
     REPO_ROOT
     / "research"
@@ -229,6 +235,24 @@ def test_schema_cannot_claim_repo_wide_migration_or_authority() -> None:
         "not_oms_risk_reconciliation_authority",
     ):
         assert non_authority["properties"][field] == {"const": True}
+
+
+def test_architecture_closes_h004_production_scope() -> None:
+    architecture = ARCHITECTURE_PATH.read_text(encoding="utf-8")
+    for required_text in (
+        "current and only authorized production Strategy Spec under this decision is "
+        "`STRAT-SPEC-0007`",
+        "must reject an H-004-scoped production fact for any Strategy Spec not "
+        "explicitly bound by the H-004 prerequisite chain",
+        "The generic `STRAT-SPEC-9000` fixture tests schema and content-binding "
+        "mechanics only",
+        "It grants no production fact authority and is not an in-scope H-004 "
+        "Strategy Spec",
+        "at most one immutable fact for each explicitly in-scope H-004 Strategy Spec",
+        "does not authorize a repository-wide production fact rollout",
+    ):
+        assert required_text in architecture
+    assert "exactly one fact per Strategy Spec" not in architecture
 
 
 def test_fact_contract_forbids_duplicate_superseding_and_source_mutation() -> None:

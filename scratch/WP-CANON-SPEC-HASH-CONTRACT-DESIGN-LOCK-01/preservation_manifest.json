@@ -1,6 +1,7 @@
 {
   "schema_version": "wp_canon_spec_hash_contract_preservation_v1",
-  "source_git_commit": "1c22edf602f748ed03d9304c66b4b40cd6f0d601",
+  "source_git_commit": "64f3757c6ee0ae5249dce52babd6a5811347d719",
+  "package_start_source_git_commit": "1c22edf602f748ed03d9304c66b4b40cd6f0d601",
   "algorithm": "sha256_exact_file_bytes",
   "artifacts": [
     {"path": "research/strategy_specs/STRAT-SPEC-0001.strategy_spec.json", "byte_length": 11793, "sha256": "sha256:a7e7bb5d4a5eda5a1d2ebb842d828f664064dae69859d8cda1ec5015ac5f342c"},

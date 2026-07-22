@@ -4,6 +4,10 @@
 
 Main selects H-C for the H-004 dispatch prerequisite. A later immutable external-content-readiness fact must bind both the exact Strategy Spec file bytes and the full parsed JSON content. This lock is limited to H-004 dispatch prerequisites.
 
+The H-C fact family is dispatch-scoped to Strategy Specs explicitly bound by the H-004 prerequisite chain. The current and only authorized production Strategy Spec under this decision is `STRAT-SPEC-0007`. A future production writer, validator, and query implementation must reject an H-004-scoped production fact for any Strategy Spec not explicitly bound by the H-004 prerequisite chain.
+
+The schema is structurally reusable for design-contract testing, but structural validity does not establish production scope. The generic `STRAT-SPEC-9000` fixture tests schema and content-binding mechanics only. It grants no production fact authority and is not an in-scope H-004 Strategy Spec. This decision does not authorize a repository-wide production fact rollout.
+
 This decision is not a repository-wide Strategy Spec hash migration. It does not reinterpret, replace, repair, or prove the historical `hash_pinning.canonical_spec_hash` values or `strategy_spec_hash_scope_v1`. It creates no dispatch, execution, Result Population, ranking, recommendation, candidate, promotion, readiness beyond content integrity, runtime, paper/live, OMS, risk, reconciliation, scheduler, or notification authority. The production fact, validator, query views, and dispatch-record changes are outside this package.
 
 ## Locked two-hash binding
@@ -51,7 +55,7 @@ No Strategy Spec, Variant Manifest parent binding, or Sweep Plan is changed. Ext
 
 ## Future immutable fact contract
 
-The Draft 7 schema is `research/schemas/strategy_spec_external_content_readiness.schema.json`. A later implementation must create exactly one fact per Strategy Spec with these required fields:
+The Draft 7 schema is `research/schemas/strategy_spec_external_content_readiness.schema.json`. A later implementation may create at most one immutable fact for each explicitly in-scope H-004 Strategy Spec, with these required fields:
 
 - schema version and deterministic fact ID;
 - deterministic fact path;
@@ -81,6 +85,7 @@ The later writer and validator must deterministically enforce the ID/path relati
 
 The later implementation must:
 
+- reject an H-004-scoped production fact for any Strategy Spec not explicitly bound by the H-004 prerequisite chain;
 - use exclusive create for both identifier and target path;
 - confine source and target paths to their exact repo roots;
 - reject a symlink at the source, target, or any path component;

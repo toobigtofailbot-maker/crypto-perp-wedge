@@ -1,11 +1,11 @@
 # Fixture matrix
 
-All fixtures are non-production and live under this package scratch directory. The valid STRAT-SPEC-0007 fixture reproduces current canonical source bytes. The generic fixture is materialized by tests at its declared logical `research/strategy_specs/STRAT-SPEC-9000.strategy_spec.json` path.
+All fixtures are non-production and live under this package scratch directory. The valid STRAT-SPEC-0007 fixture reproduces current canonical source bytes. The generic fixture is materialized by tests at its declared logical `research/strategy_specs/STRAT-SPEC-9000.strategy_spec.json` path. STRAT-SPEC-9000 tests schema and content-binding mechanics only; it grants no production fact authority and is not an in-scope H-004 Strategy Spec.
 
 | Fixture | Expected result | Contract point |
 |---|---|---|
 | `valid/STRAT-SPEC-0007.external_content_readiness.json` | pass | H-C binding over the current H-004 Strategy Spec |
-| `valid/STRAT-SPEC-9000.external_content_readiness.json` | pass | generic full-content binding |
+| `valid/STRAT-SPEC-9000.external_content_readiness.json` | pass | non-production-only generic schema/content mechanics |
 | `invalid/wrong_raw_hash.case.json` | fail | exact raw hash |
 | `invalid/wrong_canonical_hash.case.json` | fail | exact full canonical hash |
 | `invalid/wrong_canonicalization.case.json` | fail | closed canonicalization |

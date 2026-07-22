@@ -12,4 +12,4 @@
 | Targeted schema/semantic/preservation tests | section 11 | `tests/test_strategy_spec_external_content_readiness_contract.py` | satisfied |
 | No production fact, validator, views, dispatch schema, or canonical artifact mutation | sections 3, 7, 12, 13 | changed-file allowlist; preservation manifest; boundary scan | satisfied |
 | Required validation and unchanged integrity baseline | sections 14, 15 | `integrity_baseline.json`; final `validation_summary.json` | satisfied |
-| Package status fragment, commit, push, ready PR | sections 7, 17 | status fragment and GitHub PR | satisfied after final publication gate |
+| Package status fragment, commit, push, ready PR | sections 7, 17 | status fragment and GitHub PR #666 | satisfied |

@@ -1,0 +1,66 @@
+{
+  "package_id": "WP-CANON-SPEC-HASH-CONTRACT-DESIGN-LOCK-01",
+  "source_git_commit": "1c22edf602f748ed03d9304c66b4b40cd6f0d601",
+  "overall": "PASS",
+  "required_validation": {
+    "draft7_schema_meta_validation": "PASS",
+    "targeted_contract_pytest": {
+      "status": "PASS",
+      "passed": 22
+    },
+    "all_registry_validators": {
+      "status": "PASS",
+      "validator_count": 24,
+      "includes_strategy_spec_validator": true,
+      "includes_variant_manifest_and_sweep_validator": true
+    },
+    "integrity_views": {
+      "status": "PASS exact baseline comparison",
+      "view_count": 58,
+      "nonempty_view_count": 1,
+      "nonempty_row_count": 1,
+      "unchanged_finding": "v_integrity_strategy_spec_hash_readiness / STRAT-SPEC-0007 / hash_pinning.hash_status / not_computed"
+    },
+    "repository_json_parse": {
+      "status": "PASS",
+      "parsed_before_final_summary_and_status_files": 1127
+    },
+    "preservation_recheck": {
+      "status": "PASS",
+      "artifact_count": 21,
+      "strategy_specs": 7,
+      "variant_manifests": 7,
+      "sweep_plans": 7
+    },
+    "full_pytest_accepted_profile": {
+      "status": "PASS",
+      "profile": "tools/dev/verify.py --full-pytest-sharded",
+      "shards": 16,
+      "workers": 8,
+      "tracked_test_files": 146,
+      "passing_shards": 16,
+      "failed_shards": 0,
+      "timed_out_shards": 0,
+      "new_contract_test_shard": "PASS",
+      "maximum_shard_elapsed_seconds": 1279.468
+    },
+    "diff_scope_summary": "PASS with exact active-package authorization for the new research schema",
+    "git_diff_check": "PASS",
+    "git_diff_cached_check": "PASS"
+  },
+  "superseded_non_evidence_runs": [
+    "Initial targeted pytest had three expected-error string mismatches; corrected fixture expectations and identical rerun passed 22 tests.",
+    "Direct-file invocation of all registry validators exposed three tools-package import errors; correct module invocation reran all 24 validators successfully.",
+    "Serial full pytest exceeded the foreground execution window without a reported test failure; it is not counted as passing evidence.",
+    "Two foreground sharded verifier attempts were interrupted by app-session resumption before final output; neither is used as evidence.",
+    "The final retained background sharded verifier completed with overall pass and is the full-suite evidence."
+  ],
+  "boundary_result": {
+    "production_readiness_fact_created": false,
+    "validator_or_query_view_modified": false,
+    "strategy_spec_vm_or_sweep_modified": false,
+    "dispatch_schema_modified": false,
+    "runtime_or_protected_path_modified": false,
+    "docs_project_status_modified": false
+  }
+}

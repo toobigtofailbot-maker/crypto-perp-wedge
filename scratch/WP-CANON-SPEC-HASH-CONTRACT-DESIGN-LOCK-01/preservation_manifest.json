@@ -1,0 +1,28 @@
+{
+  "schema_version": "wp_canon_spec_hash_contract_preservation_v1",
+  "source_git_commit": "1c22edf602f748ed03d9304c66b4b40cd6f0d601",
+  "algorithm": "sha256_exact_file_bytes",
+  "artifacts": [
+    {"path": "research/strategy_specs/STRAT-SPEC-0001.strategy_spec.json", "byte_length": 11793, "sha256": "sha256:a7e7bb5d4a5eda5a1d2ebb842d828f664064dae69859d8cda1ec5015ac5f342c"},
+    {"path": "research/strategy_specs/STRAT-SPEC-0002.strategy_spec.json", "byte_length": 14179, "sha256": "sha256:d2e0820864c882361fbd466c6ae0eaea03568e4ccc8dfaee4a3114a330f18574"},
+    {"path": "research/strategy_specs/STRAT-SPEC-0003.strategy_spec.json", "byte_length": 18214, "sha256": "sha256:b20e8df8e45d69da2c6d679e23e30147d6928dd63e7d216f493e0e671554a6c7"},
+    {"path": "research/strategy_specs/STRAT-SPEC-0004.strategy_spec.json", "byte_length": 17850, "sha256": "sha256:75aaeae687bc1976467c132bbcc1b146668bbce1082683608c41c9460856482a"},
+    {"path": "research/strategy_specs/STRAT-SPEC-0005.strategy_spec.json", "byte_length": 19539, "sha256": "sha256:1baeb4da177750795266091b2b7d50094f95d65c74059aa2ee1c5769171219b7"},
+    {"path": "research/strategy_specs/STRAT-SPEC-0006.strategy_spec.json", "byte_length": 21585, "sha256": "sha256:f0d8109822c75820aaf3e2837246ac2e5b14cb838b8cf40d5677e5720bceb0c5"},
+    {"path": "research/strategy_specs/STRAT-SPEC-0007.strategy_spec.json", "byte_length": 19880, "sha256": "sha256:b23ebc1093df51b7fab5e39c46fd2b96b5e71d35300134eb319a5cbc32d0857c"},
+    {"path": "research/variant_manifests/VM-0001.variant_manifest.json", "byte_length": 12294, "sha256": "sha256:af790cb6d143907695031928d441c0d8e6c240a90c2d08610d4e930aea13d972"},
+    {"path": "research/variant_manifests/VM-0002.variant_manifest.json", "byte_length": 13735, "sha256": "sha256:766715c976c1b309add2b5ba031d5741c005a4678ac0bd17f570c2bcc1715eee"},
+    {"path": "research/variant_manifests/VM-0003.variant_manifest.json", "byte_length": 14482, "sha256": "sha256:069c4e505003b104a4b17f3e3ad8ca66240e205b615fdc77354c065373ffc1f2"},
+    {"path": "research/variant_manifests/VM-0004.variant_manifest.json", "byte_length": 14316, "sha256": "sha256:e408dbc7d562ff6377d9b9d40f33e867b55870fcce7e89e82516e77d8f07d429"},
+    {"path": "research/variant_manifests/VM-0005.variant_manifest.json", "byte_length": 14661, "sha256": "sha256:b198428d25c376c2e2e75f3237d842435d526192a297893b15a3952182e2ffe6"},
+    {"path": "research/variant_manifests/VM-0006.variant_manifest.json", "byte_length": 14934, "sha256": "sha256:fc8e87a1cc34c1b1fcec6ded9871ffeae5d26392dca3bff99235c80f9969aa6a"},
+    {"path": "research/variant_manifests/VM-0007.variant_manifest.json", "byte_length": 69732, "sha256": "sha256:822da9ca46eca4f3a9d4d86936fdd3447004ef77806fc3ce60ab0cf979ea171d"},
+    {"path": "research/sweep_plans/SWEEP-PLAN-0001.sweep_plan.json", "byte_length": 9135, "sha256": "sha256:39d07533c078b82569cb26a6d93bfe1b9192736867860c1e141c75d557bfb394"},
+    {"path": "research/sweep_plans/SWEEP-PLAN-0002.sweep_plan.json", "byte_length": 8548, "sha256": "sha256:2cde2973d07dd9f35cd9ccc4ce2b1994d244cfcfdb9f2af40441388677b5b985"},
+    {"path": "research/sweep_plans/SWEEP-PLAN-0003.sweep_plan.json", "byte_length": 9114, "sha256": "sha256:82d78358a5498b8983a55ce4930bdfd1ae33354f9198faa4da97ebfe5b4d9bcf"},
+    {"path": "research/sweep_plans/SWEEP-PLAN-0004.sweep_plan.json", "byte_length": 8918, "sha256": "sha256:0013cc2b12e8e895c21cfa0bc2efb2e51a6c029c6c8bff9aabfefd03cac1fee1"},
+    {"path": "research/sweep_plans/SWEEP-PLAN-0005.sweep_plan.json", "byte_length": 9252, "sha256": "sha256:8c2f1e1f0ff8ea332fe482b4d02ab257f2ade31a1a7ff16675784c587a5660cc"},
+    {"path": "research/sweep_plans/SWEEP-PLAN-0006.sweep_plan.json", "byte_length": 9756, "sha256": "sha256:59f85c7082ecc23c7985f11bd3b05c339138deb641fff1a388976a01c8b0d277"},
+    {"path": "research/sweep_plans/SWEEP-PLAN-0007.sweep_plan.json", "byte_length": 11182, "sha256": "sha256:66d48ec6d57048012dcd243ca7dda25dcf59241b1a3733dc05796eb46d7af2f0"}
+  ]
+}

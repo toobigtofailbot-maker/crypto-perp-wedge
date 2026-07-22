@@ -1,0 +1,73 @@
+{
+  "base_commit": "1c22edf602f748ed03d9304c66b4b40cd6f0d601",
+  "branch": "codex/wp-runner-funding-provenance-contract-01",
+  "integrity_baseline": {
+    "clean_view_count": 57,
+    "integrity_view_count": 58,
+    "nonempty_expected_baseline": [
+      {
+        "actual_value": "not_computed",
+        "expected_value": "computed when intended_for_variant_manifest=true",
+        "issue_type": "strategy_spec_hash_readiness_violation",
+        "source_field": "hash_pinning.hash_status",
+        "strategy_spec_id": "STRAT-SPEC-0007",
+        "view": "v_integrity_strategy_spec_hash_readiness"
+      }
+    ]
+  },
+  "package_id": "WP-RUNNER-FUNDING-PROVENANCE-CONTRACT-01",
+  "preserved_files": [
+    {
+      "path": "lib/backtest.py",
+      "sha256": "b360fbbc8639828010627710779e7583f05f8ed8640ce96aefee4b72ad8c8d15"
+    },
+    {
+      "path": "tools/research_runner/run_offline_sweep.py",
+      "sha256": "bbd34bf955292bfe7bd00949f0cc5cab3687007476819ff65613db5c7da91c0e"
+    },
+    {
+      "path": "research/strategy_specs/STRAT-SPEC-0007.strategy_spec.json",
+      "sha256": "b23ebc1093df51b7fab5e39c46fd2b96b5e71d35300134eb319a5cbc32d0857c"
+    },
+    {
+      "path": "research/variant_manifests/VM-0007.variant_manifest.json",
+      "sha256": "822da9ca46eca4f3a9d4d86936fdd3447004ef77806fc3ce60ab0cf979ea171d"
+    },
+    {
+      "path": "research/sweep_plans/SWEEP-PLAN-0007.sweep_plan.json",
+      "sha256": "66d48ec6d57048012dcd243ca7dda25dcf59241b1a3733dc05796eb46d7af2f0"
+    },
+    {
+      "path": "research/queue/admissions/QI-20260717-H004R2B1.queue_item.json",
+      "sha256": "47ba045b4ac89588e1865c280b080f0922cef6bb1e7d4e7880090ba07a44d967"
+    },
+    {
+      "path": "research/queue/gate_q_approvals/GATE-Q-H004-R2-04B-0001.gate_q_approval.json",
+      "sha256": "8645018c04a565761d72047b5225fbfd5694e342f5180407f0c8b111ba310fed"
+    },
+    {
+      "path": "research/data_slices/binance_usdtm_btcusdt_1d/binance_usdtm_btcusdt_1d_20200101_20260411.catalog_slice.json",
+      "sha256": "51fc09918841cd3ac353efe375af91a4732080571f9b1af634f5d1a426217adb"
+    }
+  ],
+  "raw_funding_data": {
+    "byte_length": 126987,
+    "coverage_end_utc": "2026-04-12T16:00:00Z",
+    "coverage_start_utc": "2019-09-10T08:00:00Z",
+    "path": "data/processed/binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z.parquet",
+    "row_count": 7220,
+    "sha256": "5f0da7478ccf3514af41dff9958b579cd2f797a2716001b0fa10a11059912798"
+  },
+  "stage_a_posture": {
+    "authoritative_write_performed": false,
+    "commit_performed": false,
+    "data_mutated": false,
+    "h004_executed": false,
+    "network_used": false,
+    "private_exchange_access_used": false,
+    "push_performed": false,
+    "pull_request_opened": false,
+    "runner_invoked": false
+  },
+  "worktree": "C:/GitHub/crypto-perp-wedge-wp-runner-funding-provenance-contract-01"
+}

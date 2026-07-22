@@ -9,7 +9,7 @@ import math
 import sys
 from collections import Counter
 from concurrent.futures import ProcessPoolExecutor, as_completed
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -18,6 +18,11 @@ from jsonschema import Draft7Validator
 
 from lib.backtest import run_backtest
 from lib.evaluation import max_drawdown, sharpe
+from tools.registry.validate_funding_series_provenance import (
+    DEFAULT_SCHEMA_PATH as DEFAULT_FUNDING_PROVENANCE_SCHEMA_PATH,
+    FundingProvenanceError,
+    validate_artifact as validate_funding_artifact,
+)
 from tools.registry.validate_result_populations import (
     DEFAULT_RESULT_POPULATION_SCHEMA_PATH,
     HASH_ALGORITHM,
@@ -58,6 +63,40 @@ OUTCOME_CATEGORIES = (
 RUNNER_VERSION = "wp-s2c-190-build-test-v1"
 RUNNER_CODE_REF = "tools.research_runner.run_offline_sweep"
 FIXED_AUDIT_TIMESTAMP = "2026-06-01T00:00:00Z"
+FUNDING_COST_MODES = ("off", "on")
+FUNDING_REQUIRED_STRATEGY_SPEC_IDS = frozenset({"STRAT-SPEC-0007"})
+CANONICAL_FUNDING_EXPECTED_IDENTITY: dict[str, Any] = {
+    "funding_series_id": (
+        "binance_usdtm_btcusdt_funding_events_20190910t080000z_"
+        "20260412t160000z_sha256_5f0da7478ccf3514"
+    ),
+    "provenance_artifact_id": (
+        "FUNDING-PROV-BINANCE-USDTM-BTCUSDT-20190910T080000Z-"
+        "20260412T160000Z-5F0DA7478CCF3514"
+    ),
+    "provenance_artifact_path": (
+        "research/data_provenance/funding/"
+        "binance_usdtm_btcusdt_funding_events_20190910t080000z_"
+        "20260412t160000z_sha256_5f0da7478ccf3514.funding_provenance.json"
+    ),
+    "provenance_artifact_sha256": (
+        "sha256:fe84062a6426b7b5aa1653e87eb0038486925f5c5c6263cc33595870d4e6c692"
+    ),
+    "funding_parquet_path": (
+        "data/processed/binance_um_perp_BTCUSDT_funding_8h_"
+        "2019-09-10_2026-04-12_2026-04-12T1655Z.parquet"
+    ),
+    "funding_parquet_sha256": (
+        "sha256:5f0da7478ccf3514af41dff9958b579cd2f797a2716001b0fa10a11059912798"
+    ),
+    "funding_parquet_byte_length": 126_987,
+    "funding_parquet_row_count": 7_220,
+    "coverage_start_utc": "2019-09-10T08:00:00Z",
+    "coverage_end_utc": "2026-04-12T16:00:00Z",
+    "timestamp_semantics": "actual_exchange_funding_event_timestamp",
+    "rate_units": "decimal_fraction_of_notional_per_funding_event",
+    "boundary_rule_id": "existing_backtest_left_open_right_closed_pre_fill_v1",
+}
 CANONICAL_15M_DATA_CATALOG_REF = "15m_ohlcv_test_fixture_offline_only"
 D4_PROVENANCE_MODE_NOTE = "provenance_mode=d4_catalog_slice"
 D4H_PROVENANCE_MODE_NOTE = "provenance_mode=d4h_derived_catalog_slice"
@@ -132,6 +171,9 @@ class _ExecutionInput:
     data_slice_identity: str
     environment_summary: list[str]
     data_coverage_notes: list[str]
+    funding_input_identity: dict[str, Any] = field(
+        default_factory=lambda: _funding_input_identity_off()
+    )
 
 
 @dataclass(frozen=True)
@@ -195,6 +237,202 @@ def _sha256_file(path: Path) -> str:
 
 def _sha256_file_hex(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _validate_funding_cost_mode(value: str) -> str:
+    if value not in FUNDING_COST_MODES:
+        raise OfflineSweepError("--funding-cost-mode must be 'off' or 'on'")
+    return value
+
+
+def _funding_input_identity_off() -> dict[str, Any]:
+    return {
+        "funding_mode": "off",
+        "funding_series_id": None,
+        "provenance_artifact_id": None,
+        "provenance_artifact_path": None,
+        "provenance_artifact_sha256": None,
+        "funding_parquet_path": None,
+        "funding_parquet_sha256": None,
+        "coverage_start_utc": None,
+        "coverage_end_utc": None,
+        "timestamp_semantics": None,
+        "rate_units": None,
+        "boundary_rule_id": None,
+    }
+
+
+def _funding_identity_note(identity: dict[str, Any]) -> str:
+    return "funding_input_identity=" + json.dumps(
+        identity,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+
+
+def _load_validated_funding_input(
+    artifact_path: Path,
+    data_root: Path | None,
+) -> tuple[pd.DataFrame, dict[str, Any]]:
+    expected = CANONICAL_FUNDING_EXPECTED_IDENTITY
+    expected_artifact = REPO_ROOT.joinpath(*expected["provenance_artifact_path"].split("/"))
+    supplied_artifact = artifact_path if artifact_path.is_absolute() else REPO_ROOT / artifact_path
+    try:
+        if supplied_artifact.resolve(strict=True) != expected_artifact.resolve(strict=True):
+            raise OfflineSweepError(
+                "--funding-provenance must identify the canonical funding provenance artifact"
+            )
+    except FileNotFoundError as exc:
+        raise OfflineSweepError(
+            f"--funding-provenance does not exist: {artifact_path}"
+        ) from exc
+
+    if data_root is not None and data_root.is_symlink():
+        raise OfflineSweepError("--funding-data-root must not be a symlink")
+    source_root = data_root or REPO_ROOT
+    try:
+        validation = validate_funding_artifact(
+            supplied_artifact,
+            schema_path=DEFAULT_FUNDING_PROVENANCE_SCHEMA_PATH,
+            repo_root=REPO_ROOT,
+            data_root=source_root,
+        )
+    except (FundingProvenanceError, FileNotFoundError, OSError) as exc:
+        raise OfflineSweepError(f"funding input validation failed: {exc}") from exc
+
+    observed = {
+        "funding_series_id": validation.funding_series_id,
+        "provenance_artifact_id": validation.artifact_id,
+        "provenance_artifact_path": validation.artifact_path,
+        "provenance_artifact_sha256": validation.artifact_sha256,
+        "funding_parquet_path": validation.source_data_path,
+        "funding_parquet_sha256": validation.source_data_sha256,
+        "funding_parquet_row_count": validation.row_count,
+        "coverage_start_utc": validation.coverage_start_utc,
+        "coverage_end_utc": validation.coverage_end_utc,
+    }
+    for field, value in observed.items():
+        if value != expected[field]:
+            raise OfflineSweepError(
+                f"canonical funding identity mismatch for {field}: expected={expected[field]!r}, "
+                f"observed={value!r}"
+            )
+
+    payload = _load_json(supplied_artifact)
+    try:
+        post_validation_artifact_sha256 = _sha256_file(supplied_artifact)
+    except OSError as exc:
+        raise OfflineSweepError(
+            f"funding provenance read failed after validation: {exc}"
+        ) from exc
+    if post_validation_artifact_sha256 != expected["provenance_artifact_sha256"]:
+        raise OfflineSweepError("funding provenance mutated after validation")
+    if payload["file_identity"]["byte_length"] != expected["funding_parquet_byte_length"]:
+        raise OfflineSweepError(
+            "canonical funding identity mismatch for funding_parquet_byte_length"
+        )
+    if payload["event_fields"]["timestamp"]["semantics"] != expected["timestamp_semantics"]:
+        raise OfflineSweepError("canonical funding identity mismatch for timestamp_semantics")
+    if payload["event_fields"]["funding_rate"]["units"] != expected["rate_units"]:
+        raise OfflineSweepError("canonical funding identity mismatch for rate_units")
+    if payload["alignment"]["boundary_rule_id"] != expected["boundary_rule_id"]:
+        raise OfflineSweepError("canonical funding identity mismatch for boundary_rule_id")
+
+    source_path = source_root.resolve(strict=True).joinpath(
+        *validation.source_data_path.split("/")
+    )
+    try:
+        source_path = source_path.resolve(strict=True)
+        source_frame = pd.read_parquet(source_path, columns=["fundingTime", "fundingRate"])
+    except Exception as exc:
+        raise OfflineSweepError(f"funding input read failed after validation: {exc}") from exc
+    if _sha256_file(source_path) != expected["funding_parquet_sha256"]:
+        raise OfflineSweepError("funding source mutated after provenance validation")
+
+    timestamps = pd.to_datetime(source_frame["fundingTime"], unit="ms", utc=True)
+    funding = pd.DataFrame(
+        {"funding_rate": source_frame["fundingRate"].astype("float64").to_numpy()},
+        index=pd.DatetimeIndex(timestamps),
+    )
+    funding.index.name = "fundingTime"
+    identity = {
+        "funding_mode": "on",
+        "funding_series_id": validation.funding_series_id,
+        "provenance_artifact_id": validation.artifact_id,
+        "provenance_artifact_path": validation.artifact_path,
+        "provenance_artifact_sha256": validation.artifact_sha256,
+        "funding_parquet_path": validation.source_data_path,
+        "funding_parquet_sha256": validation.source_data_sha256,
+        "coverage_start_utc": validation.coverage_start_utc,
+        "coverage_end_utc": validation.coverage_end_utc,
+        "timestamp_semantics": payload["event_fields"]["timestamp"]["semantics"],
+        "rate_units": payload["event_fields"]["funding_rate"]["units"],
+        "boundary_rule_id": payload["alignment"]["boundary_rule_id"],
+    }
+    return funding, identity
+
+
+def _payload_declares_required_funding(payload: Any) -> bool:
+    if isinstance(payload, dict):
+        if payload.get("stream") == "funding" and payload.get("availability") in {
+            "required",
+            "blocker_if_missing",
+        }:
+            return True
+        return any(_payload_declares_required_funding(value) for value in payload.values())
+    if isinstance(payload, list):
+        return any(_payload_declares_required_funding(value) for value in payload)
+    return False
+
+
+def _requires_funding_costs(
+    strategy_spec: dict[str, Any],
+    sweep_plan: dict[str, Any],
+) -> bool:
+    return (
+        strategy_spec.get("strategy_spec_id") in FUNDING_REQUIRED_STRATEGY_SPEC_IDS
+        or _payload_declares_required_funding(strategy_spec.get("timeframe_and_data"))
+        or _payload_declares_required_funding(sweep_plan.get("data_and_timeframe_assumptions"))
+    )
+
+
+def _bind_funding_input(
+    execution_input: _ExecutionInput,
+    *,
+    funding_cost_mode: str,
+    funding: pd.DataFrame | None = None,
+    funding_identity: dict[str, Any] | None = None,
+) -> _ExecutionInput:
+    if funding_cost_mode == "off":
+        identity = _funding_input_identity_off()
+        bound_funding = execution_input.funding
+    else:
+        if funding is None or funding_identity is None:
+            raise OfflineSweepError("funding mode on requires validated funding data and identity")
+        coverage_start = pd.Timestamp(funding_identity["coverage_start_utc"])
+        coverage_end = pd.Timestamp(funding_identity["coverage_end_utc"])
+        if execution_input.ohlcv.index[0] < coverage_start:
+            raise OfflineSweepError("OHLCV starts before canonical funding coverage")
+        if execution_input.ohlcv.index[-1] > coverage_end:
+            raise OfflineSweepError("OHLCV ends after canonical funding coverage")
+        identity = funding_identity
+        bound_funding = funding.loc[
+            (funding.index >= execution_input.ohlcv.index[0])
+            & (funding.index <= execution_input.ohlcv.index[-1])
+        ].copy()
+    note = _funding_identity_note(identity)
+    return _ExecutionInput(
+        mode=execution_input.mode,
+        execution_provenance_class=execution_input.execution_provenance_class,
+        ohlcv=execution_input.ohlcv,
+        funding=bound_funding,
+        timeframe=execution_input.timeframe,
+        data_catalog_ref=execution_input.data_catalog_ref,
+        data_slice_identity=execution_input.data_slice_identity,
+        environment_summary=[*execution_input.environment_summary, note],
+        data_coverage_notes=[*execution_input.data_coverage_notes, note],
+        funding_input_identity=identity,
+    )
 
 
 def _validate_target_leverage(value: float) -> float:
@@ -605,6 +843,7 @@ def _run_synthetic_backtest(
         gaps_path=REPO_ROOT / "tools" / "research_runner" / "_nonexistent_empty_gaps.json",
         entry_fee_side="taker",
         exit_fee_side="taker",
+        funding_cost_mode="off",
         funding_notional_mode="entry_price",
         order_size=sizing.resolved_order_size,
         sizing_mode=sizing_mode,
@@ -723,10 +962,7 @@ def _zero_funding_for_ohlcv(ohlcv: pd.DataFrame) -> pd.DataFrame:
 
 
 def _slice_funding_for_window(funding: pd.DataFrame, start: pd.Timestamp, end: pd.Timestamp) -> pd.DataFrame:
-    sliced = funding.loc[(funding.index >= start) & (funding.index < end)].copy()
-    if sliced.empty:
-        return pd.DataFrame({"funding_rate": [0.0]}, index=pd.DatetimeIndex([start], tz="UTC"))
-    return sliced
+    return funding.loc[(funding.index >= start) & (funding.index < end)].copy()
 
 
 def _slice_execution_input(
@@ -751,6 +987,7 @@ def _slice_execution_input(
         data_slice_identity=execution_input.data_slice_identity,
         environment_summary=execution_input.environment_summary,
         data_coverage_notes=execution_input.data_coverage_notes,
+        funding_input_identity=execution_input.funding_input_identity,
     )
 
 
@@ -782,6 +1019,7 @@ def _slice_execution_input_for_evaluation_end(
         data_slice_identity=execution_input.data_slice_identity,
         environment_summary=execution_input.environment_summary,
         data_coverage_notes=execution_input.data_coverage_notes,
+        funding_input_identity=execution_input.funding_input_identity,
     )
 
 
@@ -878,6 +1116,7 @@ def _canonical_15m_execution_input(
             "not production data",
             "not live/paper input",
         ],
+        funding_input_identity=_funding_input_identity_off(),
     )
 
 
@@ -1010,6 +1249,7 @@ def _d4_catalog_execution_input(
             f"raw_source_sha256={raw_source_sha256}",
             f"normalized_sha256={normalized_sha256}",
         ],
+        funding_input_identity=_funding_input_identity_off(),
     )
 
 
@@ -1153,6 +1393,7 @@ def _canonical_4h_execution_input(
             f"duplicates={json.dumps(duplicates, sort_keys=True, separators=(',', ':'))}",
             f"partial_window_count={partial_window_count}",
         ],
+        funding_input_identity=_funding_input_identity_off(),
     )
 
 
@@ -1188,6 +1429,7 @@ def _run_canonical_15m_backtest(
         gaps_path=REPO_ROOT / "tools" / "research_runner" / "_nonexistent_empty_gaps.json",
         entry_fee_side="taker",
         exit_fee_side="taker",
+        funding_cost_mode=execution_input.funding_input_identity["funding_mode"],
         funding_notional_mode="entry_price",
         order_size=sizing.resolved_order_size,
         sizing_mode=sizing_context.sizing_mode,
@@ -1830,29 +2072,32 @@ def _deterministic_result_population_id(
     data_slice_identity: str,
     d3_validation_identity: str | None,
     execution_provenance_class: str,
+    funding_input_identity: dict[str, Any] | None = None,
 ) -> str:
+    identity_payload = {
+        "strategy_hash": strategy_hash,
+        "manifest_hash": manifest_hash,
+        "sweep_hash": sweep_hash,
+        "backtest_assumption_summary": backtest_assumption_summary,
+        "data_slice_identity": data_slice_identity,
+        "d3_validation_identity": d3_validation_identity,
+        "execution_provenance_class": execution_provenance_class,
+    }
+    if funding_input_identity is not None:
+        identity_payload["funding_input_identity"] = funding_input_identity
     digest = hashlib.sha256(
-        _canonical_json_bytes(
-            {
-                "strategy_hash": strategy_hash,
-                "manifest_hash": manifest_hash,
-                "sweep_hash": sweep_hash,
-                "backtest_assumption_summary": backtest_assumption_summary,
-                "data_slice_identity": data_slice_identity,
-                "d3_validation_identity": d3_validation_identity,
-                "execution_provenance_class": execution_provenance_class,
-            }
-        )
+        _canonical_json_bytes(identity_payload)
     ).hexdigest()
     return f"RP-{int(digest[:8], 16) % 10000:04d}"
 
 
-def _execution_provenance_identity(execution_input: _ExecutionInput | None) -> dict[str, str | None]:
+def _execution_provenance_identity(execution_input: _ExecutionInput | None) -> dict[str, Any]:
     if execution_input is None:
         return {
             "data_slice_identity": "synthetic-offline-runner-v1",
             "d3_validation_identity": None,
             "execution_provenance_class": "fixture_offline",
+            "funding_input_identity": None,
         }
     d3_validation_identity = None
     for note in execution_input.data_coverage_notes:
@@ -1866,6 +2111,7 @@ def _execution_provenance_identity(execution_input: _ExecutionInput | None) -> d
         "data_slice_identity": execution_input.data_slice_identity,
         "d3_validation_identity": d3_validation_identity,
         "execution_provenance_class": execution_input.execution_provenance_class,
+        "funding_input_identity": execution_input.funding_input_identity,
     }
 
 
@@ -1928,15 +2174,21 @@ def _order_size_assumption(
 def _backtest_assumption_summary(
     sweep_plan: dict[str, Any],
     sizing_context: _SizingContext,
+    funding_input_identity: dict[str, Any] | None,
 ) -> dict[str, Any]:
     assumptions = sweep_plan["realism_assumptions"]
+    order_size_assumption = _order_size_assumption(sweep_plan, sizing_context)
+    if funding_input_identity is not None:
+        order_size_assumption = (
+            f"{order_size_assumption}; {_funding_identity_note(funding_input_identity)}"
+        )
     return {
         "fee_side_assumption": assumptions["fee_side_assumption"] or "taker_entry_taker_exit",
         "exchange_constraint_disclosure": str(assumptions["exchange_constraints_disclosed"]),
         "funding_notional": "entry_price",
         "slippage_model": "fixed_bps",
         "fill_mode": "complete",
-        "order_size_assumption": _order_size_assumption(sweep_plan, sizing_context),
+        "order_size_assumption": order_size_assumption,
         "liquidity_capacity_assumption": assumptions["liquidity_capacity_assumption"],
         "liquidation_mode": "zero_equity",
         "maintenance_margin_assumption": assumptions["maintenance_margin_assumption"],
@@ -2368,7 +2620,16 @@ def _build_result_population(
     ]
     selected_count = sweep_plan["trial_accounting"]["selected_variant_count"]
     sizing_context = _sizing_context(execution_input, sizing_mode, target_leverage)
-    backtest_assumptions = _backtest_assumption_summary(sweep_plan, sizing_context)
+    funding_input_identity = (
+        execution_input.funding_input_identity
+        if execution_input is not None
+        else None
+    )
+    backtest_assumptions = _backtest_assumption_summary(
+        sweep_plan,
+        sizing_context,
+        funding_input_identity,
+    )
     sizing_metadata = _sizing_metadata(sizing_context)
     data_availability_claim = _data_availability_claim(strategy_spec)
     input_scope = _input_scope(
@@ -2388,6 +2649,7 @@ def _build_result_population(
         provenance_identity["data_slice_identity"],
         provenance_identity["d3_validation_identity"],
         provenance_identity["execution_provenance_class"],
+        provenance_identity["funding_input_identity"],
     )
     if max_workers == 1:
         rows, aborted = _execute_rows(
@@ -2789,6 +3051,9 @@ def run_offline_sweep(
     canonical_15m: bool = False,
     canonical_4h: bool = False,
     ohlcv_input_path: Path | None = None,
+    funding_cost_mode: str = "off",
+    funding_provenance_path: Path | None = None,
+    funding_data_root: Path | None = None,
     d4_catalog_slice_path: Path | None = None,
     d2_import_report_path: Path | None = None,
     d4h_catalog_slice_path: Path | None = None,
@@ -2817,6 +3082,15 @@ def run_offline_sweep(
     sizing_mode = _validate_sizing_mode(sizing_mode)
     target_leverage = _validate_target_leverage(target_leverage)
     max_workers = _validate_max_workers(max_workers)
+    funding_cost_mode = _validate_funding_cost_mode(funding_cost_mode)
+    if funding_cost_mode == "off" and (
+        funding_provenance_path is not None or funding_data_root is not None
+    ):
+        raise OfflineSweepError(
+            "funding provenance/data-root arguments are invalid when --funding-cost-mode=off"
+        )
+    if funding_cost_mode == "on" and funding_provenance_path is None:
+        raise OfflineSweepError("--funding-provenance is required when --funding-cost-mode=on")
     if canonical_15m and canonical_4h:
         raise OfflineSweepError("--canonical-15m and --canonical-4h are mutually exclusive")
     guarded_output_dir = _guard_output_dir(output_dir, write_result_population)
@@ -2825,6 +3099,8 @@ def run_offline_sweep(
         variant_manifest_path,
         sweep_plan_path,
     )
+    if funding_cost_mode == "off" and _requires_funding_costs(strategy_spec, sweep_plan):
+        raise OfflineSweepError("strategy/sweep requires funding costs but funding mode is off")
     declared_non_ohlcv_columns = _declared_non_ohlcv_columns(strategy_spec)
     execution_input = None
     if canonical_15m:
@@ -2866,6 +3142,27 @@ def run_offline_sweep(
         or d4h_derivation_report_path is not None
     ):
         raise OfflineSweepError("D4H provenance mode requires --canonical-4h")
+    if funding_cost_mode == "on":
+        if execution_input is None:
+            raise OfflineSweepError(
+                "funding mode on requires an existing canonical 15m or 4h input route"
+            )
+        assert funding_provenance_path is not None
+        funding_frame, funding_identity = _load_validated_funding_input(
+            funding_provenance_path,
+            funding_data_root,
+        )
+        execution_input = _bind_funding_input(
+            execution_input,
+            funding_cost_mode="on",
+            funding=funding_frame,
+            funding_identity=funding_identity,
+        )
+    elif execution_input is not None:
+        execution_input = _bind_funding_input(
+            execution_input,
+            funding_cost_mode="off",
+        )
     if walkforward and execution_input is None:
         raise OfflineSweepError("walk-forward mode currently requires canonical input data")
     if evaluation_start is not None or evaluation_end is not None:
@@ -2948,6 +3245,21 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--canonical-15m", action="store_true")
     parser.add_argument("--canonical-4h", action="store_true")
     parser.add_argument("--ohlcv-input", type=Path)
+    parser.add_argument(
+        "--funding-cost-mode",
+        choices=FUNDING_COST_MODES,
+        default="off",
+        help=(
+            "Funding cost mode. Defaults to off; on requires the canonical local "
+            "provenance artifact."
+        ),
+    )
+    parser.add_argument("--funding-provenance", type=Path)
+    parser.add_argument(
+        "--funding-data-root",
+        type=Path,
+        help="Optional clean local checkout root containing the bound data/processed Parquet.",
+    )
     parser.add_argument("--d4-catalog-slice", type=Path)
     parser.add_argument("--d2-import-report", type=Path)
     parser.add_argument("--d4h-catalog-slice", type=Path)
@@ -3027,6 +3339,9 @@ def main(argv: list[str] | None = None) -> int:
             canonical_15m=args.canonical_15m,
             canonical_4h=args.canonical_4h,
             ohlcv_input_path=args.ohlcv_input,
+            funding_cost_mode=args.funding_cost_mode,
+            funding_provenance_path=args.funding_provenance,
+            funding_data_root=args.funding_data_root,
             d4_catalog_slice_path=args.d4_catalog_slice,
             d2_import_report_path=args.d2_import_report,
             d4h_catalog_slice_path=args.d4h_catalog_slice,

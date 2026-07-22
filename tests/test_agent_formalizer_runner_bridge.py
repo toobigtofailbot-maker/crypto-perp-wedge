@@ -434,16 +434,16 @@ def test_legacy_bridge_byte_regression_fixture_remains_stable(tmp_path: Path):
         ),
         "runner_result": (
             "scratch/WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01/outputs/"
-            "c81e86a223723b97/runner_artifacts/RP-6475.result_population.json"
+            "c81e86a223723b97/runner_artifacts/RP-6770.result_population.json"
         ),
     }
     expected_hashes = {
         "strategy_spec": "sha256:2152be54645c20bc0a320142002abfb3a223f28f7ca7c1f9cbbd638d9e03caae",
         "variant_manifest": "sha256:ad0ec366a903bbd12f8a06d50d6a61cdff452d4bdeab6d859ce29f2bd13f947c",
         "sweep_plan": "sha256:9dce4b61acfad4b04f1e38836b3fb8297122a6a6b0e82e6c35c2ab1a591c2254",
-        "denominator_ledger": "sha256:bca1017aa5771bc6949a7cd61d9883994d45786e7fda2a937bcc7eab41aebf31",
-        "human_review_packet": "sha256:650a3559582c12ad7f7150279b76a0a779db498f3ed8c85d740e723fb2959c2f",
-        "runner_result": "sha256:e391705cd21b8cdabddb092b4a55907f0855077716194ae064326c2ad521a645",
+        "denominator_ledger": "sha256:eee66974a3962b7b620da8a3da08072bb358967a32ab982a9236ce4086966138",
+        "human_review_packet": "sha256:cb1bf1d50456dc721b7fed32bb8b76f097b832da790fc7d144471f4268328f7a",
+        "runner_result": "sha256:5ff8257d833a92e95ec9c137fde001c3085d150ef97fd8983765c7b7202f8f64",
     }
     for key, expected_path in expected_paths.items():
         assert result["artifact_paths"][key] == expected_path

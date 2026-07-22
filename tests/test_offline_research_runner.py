@@ -1565,6 +1565,7 @@ def test_canonical_15m_path_compiles_frozen_variants_and_uses_15m_input(tmp_path
     assert exit_condition["right_operand"]["ref"] == "sma"
     assert all(call[2].index.to_series().diff().dropna().eq(pd.Timedelta(minutes=15)).all() for call in compile_calls)
     assert all(kwargs["interval"] == "15m" for _, kwargs in backtest_calls)
+    assert all(kwargs["funding_cost_mode"] == "off" for _, kwargs in backtest_calls)
     assert payload["data_coverage_summary"]["timeframe"] == "15m"
     assert payload["data_coverage_summary"]["data_catalog_ref"] == runner.CANONICAL_15M_DATA_CATALOG_REF
     assert payload["data_coverage_summary"]["data_slice_identity"].startswith("csv_fixture:sha256:")
@@ -1982,6 +1983,7 @@ def test_canonical_4h_path_uses_4h_interval_and_binds_lineage(tmp_path, monkeypa
     )
     assert backtest_calls
     assert all(call["interval"] == "4h" for call in backtest_calls)
+    assert all(call["funding_cost_mode"] == "off" for call in backtest_calls)
     assert coverage["timeframe"] == "4h"
     assert coverage["data_catalog_ref"] == catalog["catalog_ref"]
     assert coverage["data_slice_identity"] == catalog["slice_identity"]["data_slice_identity"]

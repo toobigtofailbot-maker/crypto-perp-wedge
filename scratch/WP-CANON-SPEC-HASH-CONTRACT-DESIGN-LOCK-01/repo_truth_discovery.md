@@ -1,8 +1,8 @@
 # Repo-truth discovery
 
-- Effective base and refreshed `origin/main`: `1c22edf602f748ed03d9304c66b4b40cd6f0d601`.
-- The drafting-time base remains an ancestor (and is the current base).
-- The only open PR at preflight was #665. Its architecture/schema/fixture/test paths are distinct from this package's paths; this package does not edit them.
+- Package-start and validation base: `origin/main` at `1c22edf602f748ed03d9304c66b4b40cd6f0d601`.
+- At publication refresh, `origin/main` is `64f3757c6ee0ae5249dce52babd6a5811347d719`; the package-start base remains its ancestor.
+- The only open PR at preflight was #665. It merged during publication and accounts for the intervening 30-file dispatch package. Its architecture/schema/fixture/test paths are distinct from this package's paths, this package does not edit them, and GitHub reports PR #666 cleanly mergeable against the refreshed target.
 - No merged external Strategy Spec content-readiness fact, schema, validator, query view, or equivalent H-C design lock existed.
 - The prior `codex/wp-canon-spec0007-hash-readiness-integrity-01` branch had no committed or uncommitted implementation beyond merged base. Its controlling blocked result is the active package's finding that no known algorithm reproduces every historical internal `canonical_spec_hash`.
 - `tools/registry/validate_variant_sweep_artifacts.py::canonical_json_bytes` reproducibly hashes all seven complete Strategy Specs and every result equals the corresponding VM parent `strategy_spec_hash`.

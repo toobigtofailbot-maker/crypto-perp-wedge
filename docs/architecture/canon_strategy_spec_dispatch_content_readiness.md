@@ -108,9 +108,9 @@ This disclosure view reports the unresolved reproducibility of historical `strat
 
 The unresolved legacy disclosure does not block the H-004 dispatch-scoped external-content prerequisite after Surface A passes, unless Main later changes policy. It remains visible as an integrity finding. The existing `v_integrity_strategy_spec_hash_readiness` STRAT-SPEC-0007 `not_computed` row remains unchanged until the later query package explicitly reconciles view topology without losing the finding.
 
-## Downstream dispatch binding after PR #665
+## Downstream dispatch binding following merged PR #665
 
-After the dispatch control-plane package in PR #665 merges, a separate approved schema/fixture package must update the dispatch record to bind all of:
+The dispatch control-plane package in PR #665 is merged. A separate approved schema/fixture package must update the dispatch record to bind all of:
 
 - external readiness fact ID;
 - external readiness fact path;
@@ -120,7 +120,7 @@ After the dispatch control-plane package in PR #665 merges, a separate approved 
 - canonicalization identity;
 - disclosed legacy internal status and unresolved scope reproducibility.
 
-This is a downstream schema follow-up only. This package does not modify PR #665, any dispatch schema, queue/Gate-Q admission, runner, validator, query layer, or canonical artifact.
+This is a downstream schema follow-up only. This package does not modify artifacts introduced by PR #665, any dispatch schema, queue/Gate-Q admission, runner, validator, query layer, or canonical artifact.
 
 ## Current integrity baseline and non-readiness conclusion
 

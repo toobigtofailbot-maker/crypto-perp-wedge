@@ -1,0 +1,62 @@
+{
+  "schema_version": "strategy_spec_external_content_readiness_v1",
+  "fact_id": "SS-ECR-STRAT-SPEC-0007",
+  "fact_path": "research/strategy_spec_external_content_readiness/SS-ECR-STRAT-SPEC-0007.external_content_readiness.json",
+  "scope": "h004_dispatch_external_content_readiness",
+  "strategy_spec": {
+    "strategy_spec_id": "STRAT-SPEC-0007",
+    "path": "research/strategy_specs/STRAT-SPEC-0007.strategy_spec.json"
+  },
+  "content_binding": {
+    "raw_byte_length": 19880,
+    "raw_file_sha256": "sha256:b23ebc1093df51b7fab5e39c46fd2b96b5e71d35300134eb319a5cbc32d0857c",
+    "canonicalization": "repo_canonical_json_v1",
+    "full_repo_canonical_json_sha256": "sha256:8b6f7dd7a3e12b934c1038ae113aa25aa79f0b3cc6a336b25bd58164f5cc92db"
+  },
+  "source_git": {
+    "commit_sha": "1c22edf602f748ed03d9304c66b4b40cd6f0d601",
+    "blob_sha": "ac5a493cb5b7d1a5de3647df07bd3151a8e4a440"
+  },
+  "computation": {
+    "tool_identity": "strategy_spec_vm_parent_lineage_canonicalizer",
+    "tool_path": "tools/registry/validate_variant_sweep_artifacts.py",
+    "tool_sha256": "sha256:8bda6f06093758506400be879d86d614754d283f918c25911c486444a3fa048c",
+    "tool_version": "git-blob:4d87799c0f48da6e0964b4f1a1c65ed3c87dbf6c"
+  },
+  "computed_at": "2026-07-19T00:00:00Z",
+  "readiness_state": "external_content_ready",
+  "legacy_internal_hash": {
+    "hash_status_observed": "not_computed",
+    "hash_scope_version_observed": "strategy_spec_hash_scope_v1",
+    "canonical_spec_hash_observed": null,
+    "legacy_hash_scope_reproducibility": "unresolved"
+  },
+  "no_mutation_proof": {
+    "strategy_spec_bytes_unchanged": true,
+    "variant_manifest_parent_binding_unchanged": true,
+    "sweep_plan_unchanged": true,
+    "source_bytes_revalidated_immediately_before_write": true
+  },
+  "immutability": {
+    "exclusive_create": true,
+    "overwrite_forbidden": true,
+    "delete_recreate_forbidden": true,
+    "in_place_repair_forbidden": true,
+    "duplicate_fact_forbidden": true,
+    "superseding_fact_forbidden": true
+  },
+  "dispatch_prerequisite_only": true,
+  "non_authority_declaration": {
+    "content_integrity_only": true,
+    "not_repo_wide_hash_migration": true,
+    "not_legacy_hash_reinterpretation": true,
+    "not_dispatch_authority": true,
+    "not_execution_authority": true,
+    "not_result_population_authority": true,
+    "not_ranking_authority": true,
+    "not_readiness_beyond_content_integrity": true,
+    "not_runtime_authority": true,
+    "not_paper_live_authority": true,
+    "not_oms_risk_reconciliation_authority": true
+  }
+}

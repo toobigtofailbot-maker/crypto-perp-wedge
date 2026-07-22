@@ -1,0 +1,16 @@
+{
+  "source_git_commit": "64f3757c6ee0ae5249dce52babd6a5811347d719",
+  "package_start_source_git_commit": "1c22edf602f748ed03d9304c66b4b40cd6f0d601",
+  "integrity_view_count": 58,
+  "nonempty_views": {
+    "v_integrity_strategy_spec_hash_readiness": [
+      {
+        "issue_type": "strategy_spec_hash_readiness_violation",
+        "strategy_spec_id": "STRAT-SPEC-0007",
+        "source_field": "hash_pinning.hash_status",
+        "expected_value": "computed when intended_for_variant_manifest=true",
+        "actual_value": "not_computed"
+      }
+    ]
+  }
+}

@@ -1,0 +1,326 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "strategy_spec_external_content_readiness.schema.json",
+  "title": "H-004 dispatch-scoped Strategy Spec external content readiness fact",
+  "description": "Future immutable fact binding exact Strategy Spec file bytes and full repo-canonical JSON content. This fact is only an H-004 dispatch prerequisite and grants no dispatch, execution, ranking, promotion, runtime, paper/live, OMS, risk, or reconciliation authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "fact_id",
+    "fact_path",
+    "scope",
+    "strategy_spec",
+    "content_binding",
+    "source_git",
+    "computation",
+    "computed_at",
+    "readiness_state",
+    "legacy_internal_hash",
+    "no_mutation_proof",
+    "immutability",
+    "dispatch_prerequisite_only",
+    "non_authority_declaration"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "strategy_spec_external_content_readiness_v1"
+    },
+    "fact_id": {
+      "$ref": "#/definitions/fact_id"
+    },
+    "fact_path": {
+      "$ref": "#/definitions/fact_path"
+    },
+    "scope": {
+      "const": "h004_dispatch_external_content_readiness"
+    },
+    "strategy_spec": {
+      "$ref": "#/definitions/strategy_spec"
+    },
+    "content_binding": {
+      "$ref": "#/definitions/content_binding"
+    },
+    "source_git": {
+      "$ref": "#/definitions/source_git"
+    },
+    "computation": {
+      "$ref": "#/definitions/computation"
+    },
+    "computed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "readiness_state": {
+      "const": "external_content_ready"
+    },
+    "legacy_internal_hash": {
+      "$ref": "#/definitions/legacy_internal_hash"
+    },
+    "no_mutation_proof": {
+      "$ref": "#/definitions/no_mutation_proof"
+    },
+    "immutability": {
+      "$ref": "#/definitions/immutability"
+    },
+    "dispatch_prerequisite_only": {
+      "const": true
+    },
+    "non_authority_declaration": {
+      "$ref": "#/definitions/non_authority_declaration"
+    }
+  },
+  "definitions": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "git_object_sha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "strategy_spec_id": {
+      "type": "string",
+      "pattern": "^STRAT-SPEC-[0-9]{4}$"
+    },
+    "strategy_spec_path": {
+      "type": "string",
+      "pattern": "^research/strategy_specs/STRAT-SPEC-[0-9]{4}\\.strategy_spec\\.json$"
+    },
+    "fact_id": {
+      "type": "string",
+      "pattern": "^SS-ECR-STRAT-SPEC-[0-9]{4}$"
+    },
+    "fact_path": {
+      "type": "string",
+      "pattern": "^research/strategy_spec_external_content_readiness/SS-ECR-STRAT-SPEC-[0-9]{4}\\.external_content_readiness\\.json$"
+    },
+    "strategy_spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "strategy_spec_id",
+        "path"
+      ],
+      "properties": {
+        "strategy_spec_id": {
+          "$ref": "#/definitions/strategy_spec_id"
+        },
+        "path": {
+          "$ref": "#/definitions/strategy_spec_path"
+        }
+      }
+    },
+    "content_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "raw_byte_length",
+        "raw_file_sha256",
+        "canonicalization",
+        "full_repo_canonical_json_sha256"
+      ],
+      "properties": {
+        "raw_byte_length": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "raw_file_sha256": {
+          "$ref": "#/definitions/sha256"
+        },
+        "canonicalization": {
+          "const": "repo_canonical_json_v1"
+        },
+        "full_repo_canonical_json_sha256": {
+          "$ref": "#/definitions/sha256"
+        }
+      }
+    },
+    "source_git": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "commit_sha",
+        "blob_sha"
+      ],
+      "properties": {
+        "commit_sha": {
+          "$ref": "#/definitions/git_object_sha"
+        },
+        "blob_sha": {
+          "$ref": "#/definitions/git_object_sha"
+        }
+      }
+    },
+    "computation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tool_identity",
+        "tool_path",
+        "tool_sha256",
+        "tool_version"
+      ],
+      "properties": {
+        "tool_identity": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tool_path": {
+          "type": "string",
+          "pattern": "^(tools|tests)/[A-Za-z0-9_./-]+\\.py$"
+        },
+        "tool_sha256": {
+          "$ref": "#/definitions/sha256"
+        },
+        "tool_version": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "legacy_internal_hash": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hash_status_observed",
+        "hash_scope_version_observed",
+        "canonical_spec_hash_observed",
+        "legacy_hash_scope_reproducibility"
+      ],
+      "properties": {
+        "hash_status_observed": {
+          "enum": [
+            "not_computed",
+            "computed",
+            "superseded"
+          ]
+        },
+        "hash_scope_version_observed": {
+          "const": "strategy_spec_hash_scope_v1"
+        },
+        "canonical_spec_hash_observed": {
+          "oneOf": [
+            {
+              "$ref": "#/definitions/sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "legacy_hash_scope_reproducibility": {
+          "const": "unresolved"
+        }
+      }
+    },
+    "no_mutation_proof": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "strategy_spec_bytes_unchanged",
+        "variant_manifest_parent_binding_unchanged",
+        "sweep_plan_unchanged",
+        "source_bytes_revalidated_immediately_before_write"
+      ],
+      "properties": {
+        "strategy_spec_bytes_unchanged": {
+          "const": true
+        },
+        "variant_manifest_parent_binding_unchanged": {
+          "const": true
+        },
+        "sweep_plan_unchanged": {
+          "const": true
+        },
+        "source_bytes_revalidated_immediately_before_write": {
+          "const": true
+        }
+      }
+    },
+    "immutability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "exclusive_create",
+        "overwrite_forbidden",
+        "delete_recreate_forbidden",
+        "in_place_repair_forbidden",
+        "duplicate_fact_forbidden",
+        "superseding_fact_forbidden"
+      ],
+      "properties": {
+        "exclusive_create": {
+          "const": true
+        },
+        "overwrite_forbidden": {
+          "const": true
+        },
+        "delete_recreate_forbidden": {
+          "const": true
+        },
+        "in_place_repair_forbidden": {
+          "const": true
+        },
+        "duplicate_fact_forbidden": {
+          "const": true
+        },
+        "superseding_fact_forbidden": {
+          "const": true
+        }
+      }
+    },
+    "non_authority_declaration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "content_integrity_only",
+        "not_repo_wide_hash_migration",
+        "not_legacy_hash_reinterpretation",
+        "not_dispatch_authority",
+        "not_execution_authority",
+        "not_result_population_authority",
+        "not_ranking_authority",
+        "not_readiness_beyond_content_integrity",
+        "not_runtime_authority",
+        "not_paper_live_authority",
+        "not_oms_risk_reconciliation_authority"
+      ],
+      "properties": {
+        "content_integrity_only": {
+          "const": true
+        },
+        "not_repo_wide_hash_migration": {
+          "const": true
+        },
+        "not_legacy_hash_reinterpretation": {
+          "const": true
+        },
+        "not_dispatch_authority": {
+          "const": true
+        },
+        "not_execution_authority": {
+          "const": true
+        },
+        "not_result_population_authority": {
+          "const": true
+        },
+        "not_ranking_authority": {
+          "const": true
+        },
+        "not_readiness_beyond_content_integrity": {
+          "const": true
+        },
+        "not_runtime_authority": {
+          "const": true
+        },
+        "not_paper_live_authority": {
+          "const": true
+        },
+        "not_oms_risk_reconciliation_authority": {
+          "const": true
+        }
+      }
+    }
+  }
+}

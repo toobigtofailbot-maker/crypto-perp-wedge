@@ -1,0 +1,1 @@
+{"base":"STRAT-SPEC-0007.external_content_readiness.json","operation":"set","path":"legacy_internal_hash.legacy_internal_hash_verified","value":true,"expected_error":"legacy_internal_hash_verified"}

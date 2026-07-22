@@ -1,0 +1,1 @@
+{"base":"STRAT-SPEC-0007.external_content_readiness.json","operation":"set","path":"content_binding.raw_file_sha256","value":"sha256:0000000000000000000000000000000000000000000000000000000000000000","expected_error":"raw file SHA-256 mismatch"}

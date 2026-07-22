@@ -1,0 +1,1 @@
+{"base":"STRAT-SPEC-0007.external_content_readiness.json","operation":"delete","path":"content_binding.raw_byte_length","expected_error":"raw_byte_length"}

@@ -1,0 +1,1 @@
+{"base":"STRAT-SPEC-0007.external_content_readiness.json","operation":"set","path":"content_binding.full_repo_canonical_json_sha256","value":"sha256:0000000000000000000000000000000000000000000000000000000000000000","expected_error":"full repo-canonical JSON SHA-256 mismatch"}

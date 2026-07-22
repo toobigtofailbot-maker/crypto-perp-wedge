@@ -1,0 +1,1 @@
+{"base":"STRAT-SPEC-0007.external_content_readiness.json","operation":"set","path":"no_mutation_proof.strategy_spec_bytes_unchanged","value":false,"expected_error":"no_mutation_proof.strategy_spec_bytes_unchanged"}

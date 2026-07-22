@@ -1,0 +1,1 @@
+{"base":"STRAT-SPEC-0007.external_content_readiness.json","operation":"set_many","values":{"non_authority_declaration.not_dispatch_authority":false,"non_authority_declaration.not_runtime_authority":false,"non_authority_declaration.not_ranking_authority":false},"expected_error":"non_authority_declaration.not_dispatch_authority"}

@@ -1,0 +1,69 @@
+{
+  "authoritative_path_absence": {
+    "docs/data/canon_funding_series_provenance_contract.md": true,
+    "docs/status_entries/WP-RUNNER-FUNDING-PROVENANCE-CONTRACT-01.md": true,
+    "research/data_provenance/funding": true,
+    "research/schemas/funding_series_provenance.schema.json": true,
+    "tests/test_funding_series_provenance.py": true,
+    "tools/registry/validate_funding_series_provenance.py": true
+  },
+  "base_commit": "1c22edf602f748ed03d9304c66b4b40cd6f0d601",
+  "checks": {
+    "draft_7_schema_meta_validation": "PASS",
+    "git_diff_check": "PASS_NO_TRACKED_DIFF",
+    "git_no_index_untracked_check": "NOT_USED_WINDOWS_LONG_PATH_LIMIT_ON_SCRATCH_MIRROR",
+    "integrity_baseline": {
+      "clean": 57,
+      "known_nonempty_baseline": 1,
+      "total": 58
+    },
+    "proposed_artifact_exact_local_validation": {
+      "coverage_end_utc": "2026-04-12T16:00:00Z",
+      "coverage_start_utc": "2019-09-10T08:00:00Z",
+      "duplicate_timestamp_count": 0,
+      "gap_count": 0,
+      "result": "PASS",
+      "row_count": 7220,
+      "source_data_sha256": "sha256:5f0da7478ccf3514af41dff9958b579cd2f797a2716001b0fa10a11059912798"
+    },
+    "proposed_validator_py_compile": "PASS",
+    "proposed_validator_tests": {
+      "passed": 25,
+      "result": "PASS",
+      "skipped": 1,
+      "skip_reason": "Windows symlink creation unavailable; validator symlink rejection remains covered when the environment permits fixture creation"
+    },
+    "raw_data": {
+      "all_funding_rates_finite": true,
+      "byte_length": 126987,
+      "duplicate_timestamp_count": 0,
+      "expected_slot_count": 7220,
+      "gap_count": 0,
+      "maximum_nominal_slot_offset_ms": 47,
+      "row_count": 7220,
+      "sha256": "5f0da7478ccf3514af41dff9958b579cd2f797a2716001b0fa10a11059912798",
+      "strictly_monotonic_event_timestamps": true
+    },
+    "untracked_text_whitespace_scan": "PASS"
+  },
+  "package_id": "WP-RUNNER-FUNDING-PROVENANCE-CONTRACT-01",
+  "proposed_file_hashes": {
+    "docs/data/canon_funding_series_provenance_contract.md": "sha256:64537a3ad6a6626019af05da4af53d0857c980032d2ef42cdc37c92c447c0b1d",
+    "research/data_provenance/funding/binance_usdtm_btcusdt_funding_events_20190910t080000z_20260412t160000z_sha256_5f0da7478ccf3514.funding_provenance.json": "sha256:fe84062a6426b7b5aa1653e87eb0038486925f5c5c6263cc33595870d4e6c692",
+    "research/schemas/funding_series_provenance.schema.json": "sha256:945b6e1988c7378b3b30f14b45282a35a1f1a851f05f1eeeab1f2ea07f4e5341",
+    "tests/test_funding_series_provenance.py": "sha256:2655a46b4196f3c62021448bc9f2be36af5fd0b6df32e8c0eb8b46c4b7eba358",
+    "tools/registry/validate_funding_series_provenance.py": "sha256:349540f8cfc27a4f8c3507a438f949e0ca818c9b25ad4a3c0bfb5172469eb0d7"
+  },
+  "stage_a_prohibitions_observed": {
+    "authoritative_write": true,
+    "commit": true,
+    "data_download_or_regeneration": true,
+    "data_mutation": true,
+    "h004_execution": true,
+    "network_or_private_exchange_access": true,
+    "pull_request": true,
+    "push": true,
+    "runner_or_backtest_modification": true
+  },
+  "status": "PASS_AWAITING_KARL_APPROVAL"
+}

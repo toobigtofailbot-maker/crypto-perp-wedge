@@ -1,0 +1,163 @@
+{
+  "alignment": {
+    "boundary_rule_id": "existing_backtest_left_open_right_closed_pre_fill_v1",
+    "event_interval": "(previous_bar_timestamp,current_bar_timestamp]",
+    "event_timestamp_use": "actual_exchange_timestamp_only",
+    "position_state_requirement": "position_nonzero_before_current_bar_funding_phase",
+    "preexisting_position_event_at_current_bar_timestamp": "included",
+    "same_timestamp_entry": "excluded_funding_processed_before_current_bar_fill"
+  },
+  "cadence": {
+    "actual_timestamps_preserved": true,
+    "expected_interval": "PT8H",
+    "gap_classification_rule": "nearest_nominal_utc_8h_slot_for_completeness_only",
+    "gap_classification_tolerance": "PT1M",
+    "observed_maximum_absolute_slot_offset_ms": 47
+  },
+  "coverage": {
+    "end_utc": "2026-04-12T16:00:00Z",
+    "start_utc": "2019-09-10T08:00:00Z"
+  },
+  "data_quality": {
+    "all_funding_rates_finite": true,
+    "duplicate_timestamp_count": 0,
+    "gap_count": 0,
+    "gap_inventory": [],
+    "strictly_monotonic_event_timestamps": true
+  },
+  "downstream_identity_binding": {
+    "consumers": [
+      "runner",
+      "scratch_manifest",
+      "result_population_input_identity",
+      "option_c_dispatch_record"
+    ],
+    "equivalent_bindings_required_where_applicable": true,
+    "required_fields": [
+      "funding_mode",
+      "funding_series_id",
+      "provenance_artifact_id",
+      "provenance_artifact_path",
+      "provenance_artifact_sha256",
+      "funding_parquet_path",
+      "funding_parquet_sha256",
+      "coverage_start_utc",
+      "coverage_end_utc",
+      "timestamp_semantics",
+      "rate_units",
+      "boundary_rule_id"
+    ]
+  },
+  "event_fields": {
+    "funding_rate": {
+      "field": "fundingRate",
+      "positive_rate_semantics": "longs_pay_shorts_receive",
+      "storage_type": "float64",
+      "units": "decimal_fraction_of_notional_per_funding_event"
+    },
+    "timestamp": {
+      "field": "fundingTime",
+      "semantics": "actual_exchange_funding_event_timestamp",
+      "storage_type": "int64_epoch_milliseconds",
+      "timezone": "UTC"
+    }
+  },
+  "file_identity": {
+    "byte_length": 126987,
+    "column_schema": [
+      {
+        "arrow_type": "large_string",
+        "name": "symbol",
+        "observed_null_count": 0,
+        "physical_nullable": true,
+        "required_non_null": true
+      },
+      {
+        "arrow_type": "int64",
+        "name": "fundingTime",
+        "observed_null_count": 0,
+        "physical_nullable": true,
+        "required_non_null": true
+      },
+      {
+        "arrow_type": "double",
+        "name": "fundingRate",
+        "observed_null_count": 0,
+        "physical_nullable": true,
+        "required_non_null": true
+      },
+      {
+        "arrow_type": "double",
+        "name": "markPrice",
+        "observed_null_count": 4536,
+        "physical_nullable": true,
+        "required_non_null": false
+      }
+    ],
+    "file_format": "parquet",
+    "raw_sha256": "sha256:5f0da7478ccf3514af41dff9958b579cd2f797a2716001b0fa10a11059912798",
+    "row_count": 7220,
+    "source_data_path": "data/processed/binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z.parquet"
+  },
+  "funding_series_id": "binance_usdtm_btcusdt_funding_events_20190910t080000z_20260412t160000z_sha256_5f0da7478ccf3514",
+  "intended_funding_mode": "on",
+  "market_identity": {
+    "contract_type": "perpetual",
+    "instrument": "BTCUSDT",
+    "market_type": "USDT-M perpetual",
+    "venue": "Binance"
+  },
+  "materialization_history": {
+    "current_validation_mutates_data": false,
+    "post_materialization_repair": "none",
+    "producer_duplicate_rows_removed": null,
+    "producer_operations": [
+      "coerce_fundingRate_and_markPrice_to_numeric",
+      "coerce_fundingTime_to_nullable_int64",
+      "drop_duplicate_fundingTime_keep_first",
+      "sort_fundingTime_ascending_and_reset_index",
+      "serialize_parquet_index_false"
+    ],
+    "producer_pre_dedup_row_count_evidenced": false,
+    "unresolved_history": "pre_dedup_api_row_count_and_duplicate_removal_count_not_evidenced"
+  },
+  "non_authority_declaration": {
+    "not_candidate_or_promotion_authority": true,
+    "not_dispatch_or_execution_authority": true,
+    "not_oms_risk_or_reconciliation_authority": true,
+    "not_paper_live_or_runtime_authority": true,
+    "not_result_population_authority": true,
+    "not_runner_readiness_authority": true,
+    "research_data_provenance_only": true
+  },
+  "policies": {
+    "backfill": "forbidden",
+    "duplicate_timestamp": "fail_closed",
+    "forward_fill": "forbidden",
+    "identity_mismatch": "fail_closed",
+    "interpolation": "forbidden",
+    "malformed_or_nonfinite_rate": "fail_closed",
+    "missing_required_event": "fail_closed",
+    "outside_declared_coverage": "reject",
+    "repair": "none",
+    "silent_repair": "forbidden",
+    "zero_substitution": "forbidden"
+  },
+  "provenance_artifact": {
+    "artifact_id": "FUNDING-PROV-BINANCE-USDTM-BTCUSDT-20190910T080000Z-20260412T160000Z-5F0DA7478CCF3514",
+    "path": "research/data_provenance/funding/binance_usdtm_btcusdt_funding_events_20190910t080000z_20260412t160000z_sha256_5f0da7478ccf3514.funding_provenance.json"
+  },
+  "schema_version": "funding_series_provenance_v1",
+  "snapshot": {
+    "collected_at_utc": "2026-04-12T16:55:00Z",
+    "collection_timestamp_precision": "minute"
+  },
+  "source": {
+    "adapter": "scripts/fetch_btcusdt_funding_bulk.py",
+    "credentials_used": false,
+    "endpoint": "/fapi/v1/fundingRate",
+    "network_fetch_allowed": false,
+    "private_exchange_access_allowed": false,
+    "public_private_classification": "public"
+  }
+}

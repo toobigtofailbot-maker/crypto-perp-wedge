@@ -1,0 +1,634 @@
+{
+  "$id": "https://crypto-perp-wedge.local/research/schemas/funding_series_provenance.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "definitions": {
+    "column": {
+      "additionalProperties": false,
+      "properties": {
+        "arrow_type": {
+          "enum": [
+            "large_string",
+            "int64",
+            "double"
+          ],
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "observed_null_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "physical_nullable": {
+          "type": "boolean"
+        },
+        "required_non_null": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "arrow_type",
+        "physical_nullable",
+        "required_non_null",
+        "observed_null_count"
+      ],
+      "type": "object"
+    },
+    "date_time": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "gap": {
+      "additionalProperties": false,
+      "properties": {
+        "missing_nominal_event_utc": {
+          "$ref": "#/definitions/date_time"
+        }
+      },
+      "required": [
+        "missing_nominal_event_utc"
+      ],
+      "type": "object"
+    },
+    "sha256": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "type": "string"
+    }
+  },
+  "description": "Closed, non-executing provenance contract for one offline funding-event series. It grants no runner, result, dispatch, runtime, paper/live, OMS, risk, or reconciliation authority.",
+  "properties": {
+    "alignment": {
+      "additionalProperties": false,
+      "properties": {
+        "boundary_rule_id": {
+          "const": "existing_backtest_left_open_right_closed_pre_fill_v1",
+          "type": "string"
+        },
+        "event_interval": {
+          "const": "(previous_bar_timestamp,current_bar_timestamp]",
+          "type": "string"
+        },
+        "event_timestamp_use": {
+          "const": "actual_exchange_timestamp_only",
+          "type": "string"
+        },
+        "position_state_requirement": {
+          "const": "position_nonzero_before_current_bar_funding_phase",
+          "type": "string"
+        },
+        "preexisting_position_event_at_current_bar_timestamp": {
+          "const": "included",
+          "type": "string"
+        },
+        "same_timestamp_entry": {
+          "const": "excluded_funding_processed_before_current_bar_fill",
+          "type": "string"
+        }
+      },
+      "required": [
+        "boundary_rule_id",
+        "event_interval",
+        "position_state_requirement",
+        "preexisting_position_event_at_current_bar_timestamp",
+        "same_timestamp_entry",
+        "event_timestamp_use"
+      ],
+      "type": "object"
+    },
+    "cadence": {
+      "additionalProperties": false,
+      "properties": {
+        "actual_timestamps_preserved": {
+          "const": true,
+          "type": "boolean"
+        },
+        "expected_interval": {
+          "const": "PT8H",
+          "type": "string"
+        },
+        "gap_classification_rule": {
+          "const": "nearest_nominal_utc_8h_slot_for_completeness_only",
+          "type": "string"
+        },
+        "gap_classification_tolerance": {
+          "const": "PT1M",
+          "type": "string"
+        },
+        "observed_maximum_absolute_slot_offset_ms": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "expected_interval",
+        "gap_classification_tolerance",
+        "gap_classification_rule",
+        "actual_timestamps_preserved",
+        "observed_maximum_absolute_slot_offset_ms"
+      ],
+      "type": "object"
+    },
+    "coverage": {
+      "additionalProperties": false,
+      "properties": {
+        "end_utc": {
+          "$ref": "#/definitions/date_time"
+        },
+        "start_utc": {
+          "$ref": "#/definitions/date_time"
+        }
+      },
+      "required": [
+        "start_utc",
+        "end_utc"
+      ],
+      "type": "object"
+    },
+    "data_quality": {
+      "additionalProperties": false,
+      "properties": {
+        "all_funding_rates_finite": {
+          "const": true,
+          "type": "boolean"
+        },
+        "duplicate_timestamp_count": {
+          "const": 0,
+          "type": "integer"
+        },
+        "gap_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "gap_inventory": {
+          "items": {
+            "$ref": "#/definitions/gap"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "strictly_monotonic_event_timestamps": {
+          "const": true,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "duplicate_timestamp_count",
+        "gap_count",
+        "gap_inventory",
+        "strictly_monotonic_event_timestamps",
+        "all_funding_rates_finite"
+      ],
+      "type": "object"
+    },
+    "downstream_identity_binding": {
+      "additionalProperties": false,
+      "properties": {
+        "consumers": {
+          "items": {
+            "enum": [
+              "runner",
+              "scratch_manifest",
+              "result_population_input_identity",
+              "option_c_dispatch_record"
+            ],
+            "type": "string"
+          },
+          "minItems": 4,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "equivalent_bindings_required_where_applicable": {
+          "const": true,
+          "type": "boolean"
+        },
+        "required_fields": {
+          "items": {
+            "enum": [
+              "funding_mode",
+              "funding_series_id",
+              "provenance_artifact_id",
+              "provenance_artifact_path",
+              "provenance_artifact_sha256",
+              "funding_parquet_path",
+              "funding_parquet_sha256",
+              "coverage_start_utc",
+              "coverage_end_utc",
+              "timestamp_semantics",
+              "rate_units",
+              "boundary_rule_id"
+            ],
+            "type": "string"
+          },
+          "minItems": 12,
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "required_fields",
+        "consumers",
+        "equivalent_bindings_required_where_applicable"
+      ],
+      "type": "object"
+    },
+    "event_fields": {
+      "additionalProperties": false,
+      "properties": {
+        "funding_rate": {
+          "additionalProperties": false,
+          "properties": {
+            "field": {
+              "const": "fundingRate",
+              "type": "string"
+            },
+            "positive_rate_semantics": {
+              "const": "longs_pay_shorts_receive",
+              "type": "string"
+            },
+            "storage_type": {
+              "const": "float64",
+              "type": "string"
+            },
+            "units": {
+              "const": "decimal_fraction_of_notional_per_funding_event",
+              "type": "string"
+            }
+          },
+          "required": [
+            "field",
+            "storage_type",
+            "units",
+            "positive_rate_semantics"
+          ],
+          "type": "object"
+        },
+        "timestamp": {
+          "additionalProperties": false,
+          "properties": {
+            "field": {
+              "const": "fundingTime",
+              "type": "string"
+            },
+            "semantics": {
+              "const": "actual_exchange_funding_event_timestamp",
+              "type": "string"
+            },
+            "storage_type": {
+              "const": "int64_epoch_milliseconds",
+              "type": "string"
+            },
+            "timezone": {
+              "const": "UTC",
+              "type": "string"
+            }
+          },
+          "required": [
+            "field",
+            "storage_type",
+            "semantics",
+            "timezone"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "timestamp",
+        "funding_rate"
+      ],
+      "type": "object"
+    },
+    "file_identity": {
+      "additionalProperties": false,
+      "properties": {
+        "byte_length": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "column_schema": {
+          "items": {
+            "$ref": "#/definitions/column"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "file_format": {
+          "const": "parquet",
+          "type": "string"
+        },
+        "raw_sha256": {
+          "$ref": "#/definitions/sha256"
+        },
+        "row_count": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "source_data_path": {
+          "pattern": "^data/processed/[A-Za-z0-9._/-]+\\.parquet$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_data_path",
+        "file_format",
+        "row_count",
+        "byte_length",
+        "raw_sha256",
+        "column_schema"
+      ],
+      "type": "object"
+    },
+    "funding_series_id": {
+      "pattern": "^[a-z0-9_]+_sha256_[a-f0-9]{16}$",
+      "type": "string"
+    },
+    "intended_funding_mode": {
+      "const": "on",
+      "type": "string"
+    },
+    "market_identity": {
+      "additionalProperties": false,
+      "properties": {
+        "contract_type": {
+          "const": "perpetual",
+          "type": "string"
+        },
+        "instrument": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "market_type": {
+          "const": "USDT-M perpetual",
+          "type": "string"
+        },
+        "venue": {
+          "const": "Binance",
+          "type": "string"
+        }
+      },
+      "required": [
+        "venue",
+        "market_type",
+        "contract_type",
+        "instrument"
+      ],
+      "type": "object"
+    },
+    "materialization_history": {
+      "additionalProperties": false,
+      "properties": {
+        "current_validation_mutates_data": {
+          "const": false,
+          "type": "boolean"
+        },
+        "post_materialization_repair": {
+          "const": "none",
+          "type": "string"
+        },
+        "producer_duplicate_rows_removed": {
+          "const": null,
+          "type": "null"
+        },
+        "producer_operations": {
+          "items": {
+            "enum": [
+              "coerce_fundingRate_and_markPrice_to_numeric",
+              "coerce_fundingTime_to_nullable_int64",
+              "drop_duplicate_fundingTime_keep_first",
+              "sort_fundingTime_ascending_and_reset_index",
+              "serialize_parquet_index_false"
+            ],
+            "type": "string"
+          },
+          "minItems": 5,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "producer_pre_dedup_row_count_evidenced": {
+          "const": false,
+          "type": "boolean"
+        },
+        "unresolved_history": {
+          "const": "pre_dedup_api_row_count_and_duplicate_removal_count_not_evidenced",
+          "type": "string"
+        }
+      },
+      "required": [
+        "producer_operations",
+        "producer_pre_dedup_row_count_evidenced",
+        "producer_duplicate_rows_removed",
+        "unresolved_history",
+        "post_materialization_repair",
+        "current_validation_mutates_data"
+      ],
+      "type": "object"
+    },
+    "non_authority_declaration": {
+      "additionalProperties": false,
+      "properties": {
+        "not_candidate_or_promotion_authority": {
+          "const": true,
+          "type": "boolean"
+        },
+        "not_dispatch_or_execution_authority": {
+          "const": true,
+          "type": "boolean"
+        },
+        "not_oms_risk_or_reconciliation_authority": {
+          "const": true,
+          "type": "boolean"
+        },
+        "not_paper_live_or_runtime_authority": {
+          "const": true,
+          "type": "boolean"
+        },
+        "not_result_population_authority": {
+          "const": true,
+          "type": "boolean"
+        },
+        "not_runner_readiness_authority": {
+          "const": true,
+          "type": "boolean"
+        },
+        "research_data_provenance_only": {
+          "const": true,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "research_data_provenance_only",
+        "not_runner_readiness_authority",
+        "not_dispatch_or_execution_authority",
+        "not_result_population_authority",
+        "not_candidate_or_promotion_authority",
+        "not_paper_live_or_runtime_authority",
+        "not_oms_risk_or_reconciliation_authority"
+      ],
+      "type": "object"
+    },
+    "policies": {
+      "additionalProperties": false,
+      "properties": {
+        "backfill": {
+          "const": "forbidden",
+          "type": "string"
+        },
+        "duplicate_timestamp": {
+          "const": "fail_closed",
+          "type": "string"
+        },
+        "forward_fill": {
+          "const": "forbidden",
+          "type": "string"
+        },
+        "identity_mismatch": {
+          "const": "fail_closed",
+          "type": "string"
+        },
+        "interpolation": {
+          "const": "forbidden",
+          "type": "string"
+        },
+        "malformed_or_nonfinite_rate": {
+          "const": "fail_closed",
+          "type": "string"
+        },
+        "missing_required_event": {
+          "const": "fail_closed",
+          "type": "string"
+        },
+        "outside_declared_coverage": {
+          "const": "reject",
+          "type": "string"
+        },
+        "repair": {
+          "const": "none",
+          "type": "string"
+        },
+        "silent_repair": {
+          "const": "forbidden",
+          "type": "string"
+        },
+        "zero_substitution": {
+          "const": "forbidden",
+          "type": "string"
+        }
+      },
+      "required": [
+        "repair",
+        "silent_repair",
+        "zero_substitution",
+        "interpolation",
+        "forward_fill",
+        "backfill",
+        "missing_required_event",
+        "malformed_or_nonfinite_rate",
+        "duplicate_timestamp",
+        "identity_mismatch",
+        "outside_declared_coverage"
+      ],
+      "type": "object"
+    },
+    "provenance_artifact": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_id": {
+          "pattern": "^FUNDING-PROV-[A-Z0-9-]+$",
+          "type": "string"
+        },
+        "path": {
+          "pattern": "^research/data_provenance/funding/[a-z0-9_]+_sha256_[a-f0-9]{16}\\.funding_provenance\\.json$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "path"
+      ],
+      "type": "object"
+    },
+    "schema_version": {
+      "const": "funding_series_provenance_v1",
+      "type": "string"
+    },
+    "snapshot": {
+      "additionalProperties": false,
+      "properties": {
+        "collection_timestamp_precision": {
+          "const": "minute",
+          "type": "string"
+        },
+        "collected_at_utc": {
+          "$ref": "#/definitions/date_time"
+        }
+      },
+      "required": [
+        "collected_at_utc",
+        "collection_timestamp_precision"
+      ],
+      "type": "object"
+    },
+    "source": {
+      "additionalProperties": false,
+      "properties": {
+        "adapter": {
+          "const": "scripts/fetch_btcusdt_funding_bulk.py",
+          "type": "string"
+        },
+        "credentials_used": {
+          "const": false,
+          "type": "boolean"
+        },
+        "endpoint": {
+          "const": "/fapi/v1/fundingRate",
+          "type": "string"
+        },
+        "network_fetch_allowed": {
+          "const": false,
+          "type": "boolean"
+        },
+        "private_exchange_access_allowed": {
+          "const": false,
+          "type": "boolean"
+        },
+        "public_private_classification": {
+          "const": "public",
+          "type": "string"
+        }
+      },
+      "required": [
+        "adapter",
+        "endpoint",
+        "public_private_classification",
+        "network_fetch_allowed",
+        "private_exchange_access_allowed",
+        "credentials_used"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema_version",
+    "funding_series_id",
+    "provenance_artifact",
+    "market_identity",
+    "materialization_history",
+    "source",
+    "event_fields",
+    "snapshot",
+    "coverage",
+    "cadence",
+    "file_identity",
+    "data_quality",
+    "policies",
+    "alignment",
+    "intended_funding_mode",
+    "downstream_identity_binding",
+    "non_authority_declaration"
+  ],
+  "title": "Funding Series Provenance",
+  "type": "object"
+}

@@ -3,14 +3,17 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import subprocess
 import sys
 import time
+from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Sequence
+from pathlib import PurePosixPath
+from typing import Any, Mapping, Sequence
 
 
 ADVISORY_NOTE = (
@@ -21,6 +24,9 @@ ADVISORY_NOTE = (
 )
 DEFAULT_TIMEOUT_SECONDS = 300
 DEFAULT_INTEGRITY_MAX_WORKERS = 4
+PYTEST_SHARD_PROFILES_PATH = Path("tools/dev/pytest_shard_profiles.json")
+SUPPORTED_PROFILE_PARTITION_STRATEGY = "isolated-dedicated-then-index-modulo"
+SUPPORTED_ISOLATED_EXECUTION = "exclusive"
 REQUIRED_JSON_KEYS = [
     "overall_status",
     "commands",
@@ -38,6 +44,18 @@ class CommandSpec:
     timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS
     label: str | None = None
     metadata: dict[str, Any] | None = None
+
+
+@dataclass(frozen=True)
+class PytestShardProfile:
+    profile_id: str
+    profile_version: int
+    shard_count: int
+    isolated_files: tuple[str, ...]
+    isolated_execution: str
+    partition_strategy: str
+    timeout_seconds: int
+    exactly_once: bool
 
 
 class VerifyError(RuntimeError):
@@ -179,6 +197,213 @@ def _partition_by_index(items: Sequence[str], shard_count: int) -> list[list[str
     return [[item for item_index, item in enumerate(items) if item_index % shard_count == shard_index] for shard_index in range(shard_count)]
 
 
+def _validate_profile_path(path: Any) -> str:
+    if not isinstance(path, str) or not path:
+        raise VerifyError("pytest shard profile paths must be non-empty strings")
+    if path != path.strip():
+        raise VerifyError(f"pytest shard profile path has surrounding whitespace: {path!r}")
+    if "\\" in path:
+        raise VerifyError(f"pytest shard profile path must use forward slashes: {path}")
+    pure_path = PurePosixPath(path)
+    if pure_path.is_absolute() or "." in pure_path.parts or ".." in pure_path.parts:
+        raise VerifyError(f"invalid pytest shard profile path: {path}")
+    if not path.startswith("tests/test") or not path.endswith(".py"):
+        raise VerifyError(f"pytest shard profile path is not a tracked pytest file path: {path}")
+    return path
+
+
+def _parse_pytest_shard_profile(profile_name: str, raw_profile: Any) -> PytestShardProfile:
+    if not isinstance(raw_profile, Mapping):
+        raise VerifyError(f"pytest shard profile {profile_name!r} must be a JSON object")
+
+    profile_id = raw_profile.get("profile_id")
+    profile_version = raw_profile.get("profile_version")
+    shard_count = raw_profile.get("shard_count")
+    isolated_files = raw_profile.get("isolated_files")
+    isolated_execution = raw_profile.get("isolated_execution")
+    partition_strategy = raw_profile.get("partition_strategy")
+    timeout_seconds = raw_profile.get("timeout_seconds")
+    exactly_once = raw_profile.get("exactly_once")
+
+    if not isinstance(profile_id, str) or not profile_id or profile_id != profile_name:
+        raise VerifyError(f"pytest shard profile ID must equal its selector: {profile_name}")
+    if isinstance(profile_version, bool) or not isinstance(profile_version, int) or profile_version <= 0:
+        raise VerifyError(f"pytest shard profile {profile_name!r} has an invalid profile_version")
+    if isinstance(shard_count, bool) or not isinstance(shard_count, int) or shard_count <= 0:
+        raise VerifyError(f"pytest shard profile {profile_name!r} has an invalid shard_count")
+    if not isinstance(isolated_files, list):
+        raise VerifyError(f"pytest shard profile {profile_name!r} isolated_files must be a JSON array")
+    validated_isolated = tuple(_validate_profile_path(path) for path in isolated_files)
+    duplicate_isolated = sorted(path for path, count in Counter(validated_isolated).items() if count > 1)
+    if duplicate_isolated:
+        raise VerifyError(
+            f"pytest shard profile {profile_name!r} has duplicate isolated files: {duplicate_isolated}"
+        )
+    if isolated_execution != SUPPORTED_ISOLATED_EXECUTION:
+        raise VerifyError(
+            f"pytest shard profile {profile_name!r} has unsupported isolated_execution: "
+            f"{isolated_execution!r}"
+        )
+    if partition_strategy != SUPPORTED_PROFILE_PARTITION_STRATEGY:
+        raise VerifyError(
+            f"pytest shard profile {profile_name!r} has unsupported partition_strategy: "
+            f"{partition_strategy!r}"
+        )
+    if isinstance(timeout_seconds, bool) or not isinstance(timeout_seconds, int) or timeout_seconds <= 0:
+        raise VerifyError(f"pytest shard profile {profile_name!r} has an invalid timeout_seconds")
+    if exactly_once is not True:
+        raise VerifyError(f"pytest shard profile {profile_name!r} must require exactly_once coverage")
+
+    return PytestShardProfile(
+        profile_id=profile_id,
+        profile_version=profile_version,
+        shard_count=shard_count,
+        isolated_files=validated_isolated,
+        isolated_execution=isolated_execution,
+        partition_strategy=partition_strategy,
+        timeout_seconds=timeout_seconds,
+        exactly_once=exactly_once,
+    )
+
+
+def load_pytest_shard_profile(repo_root: Path, profile_name: str) -> PytestShardProfile:
+    profile_path = repo_root / PYTEST_SHARD_PROFILES_PATH
+    try:
+        payload = json.loads(profile_path.read_text(encoding="utf-8"))
+    except FileNotFoundError as exc:
+        raise VerifyError(f"pytest shard profile file does not exist: {profile_path}") from exc
+    except json.JSONDecodeError as exc:
+        raise VerifyError(f"pytest shard profile file is invalid JSON: {exc}") from exc
+    if not isinstance(payload, Mapping) or not isinstance(payload.get("profiles"), Mapping):
+        raise VerifyError("pytest shard profile file must contain a profiles object")
+    profiles = payload["profiles"]
+    if profile_name not in profiles:
+        raise VerifyError(f"unknown pytest shard profile: {profile_name}")
+    return _parse_pytest_shard_profile(profile_name, profiles[profile_name])
+
+
+def _validate_tracked_test_files(files: Sequence[str]) -> list[str]:
+    validated = [_validate_profile_path(path) for path in files]
+    if not validated:
+        raise VerifyError("no tracked pytest files were discovered")
+    duplicate_files = sorted(path for path, count in Counter(validated).items() if count > 1)
+    if duplicate_files:
+        raise VerifyError(f"tracked pytest discovery returned duplicate files: {duplicate_files}")
+    if validated != sorted(validated):
+        raise VerifyError("tracked pytest discovery must be sorted deterministically")
+    return validated
+
+
+def _partition_by_profile(files: Sequence[str], profile: PytestShardProfile) -> list[list[str]]:
+    tracked_files = _validate_tracked_test_files(files)
+    tracked_set = set(tracked_files)
+    untracked_isolated = sorted(path for path in profile.isolated_files if path not in tracked_set)
+    if untracked_isolated:
+        raise VerifyError(
+            f"pytest shard profile {profile.profile_id!r} references untracked isolated files: "
+            f"{untracked_isolated}"
+        )
+    if profile.shard_count > len(tracked_files):
+        raise VerifyError(
+            f"pytest shard profile {profile.profile_id!r} shard_count ({profile.shard_count}) "
+            f"exceeds discovered test files ({len(tracked_files)})"
+        )
+    if len(profile.isolated_files) > profile.shard_count:
+        raise VerifyError(
+            f"pytest shard profile {profile.profile_id!r} has more isolated files than shards"
+        )
+
+    isolated_set = set(profile.isolated_files)
+    remaining_files = [path for path in tracked_files if path not in isolated_set]
+    remaining_shard_count = profile.shard_count - len(profile.isolated_files)
+    if remaining_files and remaining_shard_count <= 0:
+        raise VerifyError(
+            f"pytest shard profile {profile.profile_id!r} has no shards for non-isolated test files"
+        )
+    if remaining_shard_count > len(remaining_files):
+        raise VerifyError(
+            f"pytest shard profile {profile.profile_id!r} would create empty deterministic shards"
+        )
+
+    partitions = [[path] for path in profile.isolated_files]
+    if remaining_shard_count:
+        partitions.extend(_partition_by_index(remaining_files, remaining_shard_count))
+    return partitions
+
+
+def _assignment_proof(
+    files: Sequence[str],
+    partitions: Sequence[Sequence[str]],
+    *,
+    profile: PytestShardProfile | None,
+    partition_strategy: str,
+) -> dict[str, Any]:
+    tracked_files = _validate_tracked_test_files(files)
+    assignments = [path for partition in partitions for path in partition]
+    assignment_counts = Counter(assignments)
+    tracked_set = set(tracked_files)
+    missing_files = sorted(tracked_set - set(assignments))
+    duplicate_files = sorted(path for path, count in assignment_counts.items() if count > 1)
+    untracked_files = sorted(set(assignments) - tracked_set)
+    exact_coverage = (
+        len(assignments) == len(tracked_files)
+        and len(assignment_counts) == len(tracked_files)
+        and not missing_files
+        and not duplicate_files
+        and not untracked_files
+    )
+
+    manifest = {
+        "profile_id": profile.profile_id if profile else None,
+        "profile_version": profile.profile_version if profile else None,
+        "partition_strategy": partition_strategy,
+        "isolated_execution": profile.isolated_execution if profile else None,
+        "shard_count": len(partitions),
+        "assignments": [
+            {"shard_index": index, "files": list(partition)}
+            for index, partition in enumerate(partitions)
+        ],
+    }
+    manifest_bytes = json.dumps(
+        manifest,
+        ensure_ascii=True,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode("utf-8")
+    proof = {
+        "profile_id": profile.profile_id if profile else None,
+        "profile_version": profile.profile_version if profile else None,
+        "partition_strategy": partition_strategy,
+        "isolated_execution": profile.isolated_execution if profile else None,
+        "profile_timeout_seconds": profile.timeout_seconds if profile else None,
+        "exactly_once_required": profile.exactly_once if profile else True,
+        "assignment_manifest_sha256": f"sha256:{hashlib.sha256(manifest_bytes).hexdigest()}",
+        "discovered_tracked_file_count": len(tracked_files),
+        "assigned_file_count": len(assignments),
+        "unique_assigned_file_count": len(assignment_counts),
+        "missing_files": missing_files,
+        "duplicate_files": duplicate_files,
+        "untracked_files": untracked_files,
+        "exact_coverage": exact_coverage,
+        "assignments": [
+            {
+                "shard_index": index,
+                "test_file_count": len(partition),
+                "files": list(partition),
+            }
+            for index, partition in enumerate(partitions)
+        ],
+    }
+    if not exact_coverage:
+        raise VerifyError(
+            "pytest shard assignment failed exact coverage proof: "
+            f"missing={missing_files}, duplicate={duplicate_files}, untracked={untracked_files}"
+        )
+    if any(not partition for partition in partitions):
+        raise VerifyError("pytest shard assignment contains an empty shard")
+    return proof
+
+
 def run_pytest_shards(
     repo_root: Path,
     args: argparse.Namespace,
@@ -187,16 +412,41 @@ def run_pytest_shards(
         return {"enabled": False, "reason": "not requested", "shards": []}, []
 
     files = discover_pytest_files(repo_root)
-    if args.pytest_shards > len(files):
-        raise VerifyError(
-            f"--pytest-shards ({args.pytest_shards}) exceeds discovered test files ({len(files)})"
-        )
-    partitions = _partition_by_index(files, args.pytest_shards)
+    profile = (
+        load_pytest_shard_profile(repo_root, args.pytest_shard_profile)
+        if args.pytest_shard_profile
+        else None
+    )
+    shard_count = profile.shard_count if profile else (args.pytest_shards or 1)
+    if profile:
+        if args.full_pytest_timeout_seconds != profile.timeout_seconds:
+            raise VerifyError(
+                f"pytest shard profile {profile.profile_id!r} requires "
+                f"--full-pytest-timeout-seconds {profile.timeout_seconds}"
+            )
+        partitions = _partition_by_profile(files, profile)
+        partition_strategy = profile.partition_strategy
+    else:
+        files = _validate_tracked_test_files(files)
+        if shard_count > len(files):
+            raise VerifyError(
+                f"--pytest-shards ({shard_count}) exceeds discovered test files ({len(files)})"
+            )
+        partitions = _partition_by_index(files, shard_count)
+        partition_strategy = "index-modulo"
+    assignment_proof = _assignment_proof(
+        files,
+        partitions,
+        profile=profile,
+        partition_strategy=partition_strategy,
+    )
     selected_indices = (
         [args.pytest_shard_index]
         if args.pytest_shard_index is not None
-        else list(range(args.pytest_shards))
+        else list(range(shard_count))
     )
+    if any(index < 0 or index >= shard_count for index in selected_indices):
+        raise VerifyError(f"--pytest-shard-index must be between 0 and {shard_count - 1}")
     shard_specs = [
         CommandSpec(
             _python_cmd(["-m", "pytest", *partitions[index], "-q"]),
@@ -205,8 +455,9 @@ def run_pytest_shards(
             metadata={
                 "kind": "pytest_shard",
                 "shard_index": index,
-                "shard_count": args.pytest_shards,
+                "shard_count": shard_count,
                 "test_file_count": len(partitions[index]),
+                "files": list(partitions[index]),
             },
         )
         for index in selected_indices
@@ -214,33 +465,93 @@ def run_pytest_shards(
 
     worker_count = min(args.pytest_shard_workers, len(shard_specs)) if shard_specs else 0
     results: list[dict[str, Any]] = []
-    if worker_count:
-        with ThreadPoolExecutor(max_workers=worker_count) as executor:
-            futures = [executor.submit(run_command, repo_root, spec, args.max_output_chars) for spec in shard_specs]
+    exclusive_shard_count = len(profile.isolated_files) if profile else 0
+    exclusive_specs = [
+        spec
+        for spec in shard_specs
+        if spec.metadata and spec.metadata["shard_index"] < exclusive_shard_count
+    ]
+    parallel_specs = [spec for spec in shard_specs if spec not in exclusive_specs]
+    for spec in exclusive_specs:
+        results.append(run_command(repo_root, spec, args.max_output_chars))
+        if results[-1]["status"] != "pass":
+            break
+    exclusive_phase_passed = all(result["status"] == "pass" for result in results)
+    if exclusive_specs and len(results) != len(exclusive_specs):
+        exclusive_phase_passed = False
+    if not exclusive_phase_passed:
+        parallel_specs = []
+    parallel_worker_count = min(args.pytest_shard_workers, len(parallel_specs)) if parallel_specs else 0
+    if parallel_worker_count:
+        with ThreadPoolExecutor(max_workers=parallel_worker_count) as executor:
+            futures = [
+                executor.submit(run_command, repo_root, spec, args.max_output_chars)
+                for spec in parallel_specs
+            ]
             for future in as_completed(futures):
                 results.append(future.result())
 
     results.sort(key=lambda result: result["metadata"]["shard_index"])
+    shard_results = [
+        {
+            "shard_index": result["metadata"]["shard_index"],
+            "shard_count": result["metadata"]["shard_count"],
+            "test_file_count": result["metadata"]["test_file_count"],
+            "files": result["metadata"]["files"],
+            "command": result["command"],
+            "status": result["status"],
+            "completion_status": "incomplete" if result["timed_out"] else "complete",
+            "completed": not result["timed_out"],
+            "exit_code": result["exit_code"],
+            "timed_out": result["timed_out"],
+            "timeout_seconds": result["timeout_seconds"],
+            "elapsed_seconds": result["elapsed_seconds"],
+        }
+        for result in results
+    ]
+    slowest = max(shard_results, key=lambda shard: shard["elapsed_seconds"], default=None)
+    all_shards_selected = len(selected_indices) == shard_count
+    executed_indices = [shard["shard_index"] for shard in shard_results]
+    not_run_indices = sorted(set(selected_indices) - set(executed_indices))
+    all_selected_shards_executed = not not_run_indices
     summary = {
         "enabled": True,
-        "shard_count": args.pytest_shards,
+        **assignment_proof,
+        "shard_count": shard_count,
         "selected_indices": selected_indices,
+        "executed_indices": executed_indices,
+        "not_run_indices": not_run_indices,
         "workers": worker_count,
-        "test_file_count": len(files),
-        "shards": [
-            {
-                "shard_index": result["metadata"]["shard_index"],
-                "shard_count": result["metadata"]["shard_count"],
-                "test_file_count": result["metadata"]["test_file_count"],
-                "command": result["command"],
-                "status": result["status"],
-                "exit_code": result["exit_code"],
-                "timed_out": result["timed_out"],
-                "timeout_seconds": result["timeout_seconds"],
-                "elapsed_seconds": result["elapsed_seconds"],
-            }
-            for result in results
+        "parallel_workers": parallel_worker_count,
+        "exclusive_shard_indices": [
+            spec.metadata["shard_index"]
+            for spec in exclusive_specs
+            if spec.metadata
         ],
+        "test_file_count": len(files),
+        "all_shards_selected": all_shards_selected,
+        "all_selected_shards_executed": all_selected_shards_executed,
+        "parallel_phase_skipped": bool(not_run_indices and exclusive_specs),
+        "all_shards_complete": (
+            all_shards_selected
+            and all_selected_shards_executed
+            and all(shard["completed"] for shard in shard_results)
+        ),
+        "all_shards_passed": (
+            all_shards_selected
+            and all_selected_shards_executed
+            and all(shard["status"] == "pass" for shard in shard_results)
+        ),
+        "slowest_shard": (
+            {
+                "shard_index": slowest["shard_index"],
+                "elapsed_seconds": slowest["elapsed_seconds"],
+            }
+            if slowest
+            else None
+        ),
+        "maximum_elapsed_seconds": slowest["elapsed_seconds"] if slowest else None,
+        "shards": shard_results,
     }
     return summary, results
 
@@ -402,11 +713,32 @@ def format_markdown(summary: dict[str, Any]) -> str:
             f"- enabled: {pytest_shards['shard_count']} shards, "
             f"{pytest_shards['workers']} worker(s), {pytest_shards['test_file_count']} test files"
         )
+        if pytest_shards["profile_id"]:
+            lines.append(
+                f"- profile: `{pytest_shards['profile_id']}` "
+                f"(version={pytest_shards['profile_version']}, "
+                f"strategy={pytest_shards['partition_strategy']})"
+            )
+        lines.append(
+            f"- assignment coverage: exact={str(pytest_shards['exact_coverage']).lower()}, "
+            f"tracked={pytest_shards['discovered_tracked_file_count']}, "
+            f"assigned={pytest_shards['assigned_file_count']}, "
+            f"unique={pytest_shards['unique_assigned_file_count']}"
+        )
+        lines.append(
+            f"- assignment manifest: `{pytest_shards['assignment_manifest_sha256']}`"
+        )
         for shard in pytest_shards["shards"]:
             lines.append(
                 f"- shard {shard['shard_index']}/{shard['shard_count']}: "
                 f"{shard['status']} (files={shard['test_file_count']}, "
+                f"completion={shard['completion_status']}, "
                 f"elapsed={shard['elapsed_seconds']}s, timeout={str(shard['timed_out']).lower()})"
+            )
+        if pytest_shards["slowest_shard"]:
+            lines.append(
+                f"- slowest shard: {pytest_shards['slowest_shard']['shard_index']} "
+                f"({pytest_shards['maximum_elapsed_seconds']}s)"
             )
     else:
         lines.append("- not run; pass `--full-pytest-sharded --pytest-shards N` to shard full pytest")
@@ -431,7 +763,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--pytest", action="append", default=[], help="Targeted pytest path or nodeid; may be repeated")
     parser.add_argument("--full-pytest", action="store_true", help="Run full pytest explicitly")
     parser.add_argument("--full-pytest-sharded", action="store_true", help="Run full pytest as deterministic test-file shards")
-    parser.add_argument("--pytest-shards", type=int, default=1, help="Number of deterministic pytest file shards")
+    parser.add_argument("--pytest-shards", type=int, help="Number of deterministic pytest file shards (default: 1)")
+    parser.add_argument(
+        "--pytest-shard-profile",
+        help="Repo-owned named deterministic pytest shard profile",
+    )
     parser.add_argument("--pytest-shard-index", type=int, help="Run only one zero-based pytest shard index")
     parser.add_argument("--pytest-shard-workers", type=int, default=4, help="Maximum parallel workers for pytest shards")
     parser.add_argument("--timeout-seconds", type=int, default=DEFAULT_TIMEOUT_SECONDS)
@@ -480,14 +816,22 @@ def run(argv: Sequence[str] | None = None) -> int:
         parser.error("--max-output-chars must be positive")
     if args.integrity_max_workers <= 0:
         parser.error("--integrity-max-workers must be positive")
-    if args.pytest_shards <= 0:
+    if args.pytest_shards is not None and args.pytest_shards <= 0:
         parser.error("--pytest-shards must be positive")
     if args.pytest_shard_workers <= 0:
         parser.error("--pytest-shard-workers must be positive")
-    if args.pytest_shard_index is not None and not 0 <= args.pytest_shard_index < args.pytest_shards:
-        parser.error("--pytest-shard-index must be between 0 and --pytest-shards - 1")
     if args.pytest_shard_index is not None and not args.full_pytest_sharded:
         parser.error("--pytest-shard-index requires --full-pytest-sharded")
+    if args.pytest_shard_profile and not args.full_pytest_sharded:
+        parser.error("--pytest-shard-profile requires --full-pytest-sharded")
+    if args.pytest_shard_profile and args.pytest_shards is not None:
+        parser.error("--pytest-shard-profile conflicts with --pytest-shards")
+    if (
+        args.pytest_shard_index is not None
+        and args.pytest_shards is not None
+        and not 0 <= args.pytest_shard_index < args.pytest_shards
+    ):
+        parser.error("--pytest-shard-index must be between 0 and --pytest-shards - 1")
     if args.authorized_path and not args.authorized_scope:
         parser.error("--authorized-path requires --authorized-scope")
     if args.authorized_scope and not args.authorized_path:

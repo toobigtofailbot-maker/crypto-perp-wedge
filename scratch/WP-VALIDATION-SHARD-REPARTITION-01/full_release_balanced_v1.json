@@ -1,0 +1,3270 @@
+{
+  "advisory_note": "This helper is advisory orchestration only. It preserves raw command strings, exit codes, timeout status, and material output, but it does not replace direct command accountability, changed-file inspection, validators, integrity views, pytest, or semantic review.",
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "command": "git diff --check",
+      "elapsed_seconds": 0.125,
+      "exit_code": 0,
+      "label": null,
+      "metadata": {},
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 300
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--check"
+      ],
+      "command": "git diff --cached --check",
+      "elapsed_seconds": 0.109,
+      "exit_code": 0,
+      "label": null,
+      "metadata": {},
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 300
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--short"
+      ],
+      "command": "git status --short",
+      "elapsed_seconds": 0.157,
+      "exit_code": 0,
+      "label": null,
+      "metadata": {},
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "M  docs/ai/codex/VALIDATION_POLICY.md\nA  tests/test_verify_shard_profiles.py\nA  tools/dev/pytest_shard_profiles.json\nM  tools/dev/verify.py\n?? scratch/WP-VALIDATION-SHARD-REPARTITION-01/",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 300
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-only"
+      ],
+      "command": "git diff --name-only",
+      "elapsed_seconds": 0.125,
+      "exit_code": 0,
+      "label": null,
+      "metadata": {},
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 300
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--name-only"
+      ],
+      "command": "git diff --cached --name-only",
+      "elapsed_seconds": 0.109,
+      "exit_code": 0,
+      "label": null,
+      "metadata": {},
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "docs/ai/codex/VALIDATION_POLICY.md\ntests/test_verify_shard_profiles.py\ntools/dev/pytest_shard_profiles.json\ntools/dev/verify.py",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 300
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "tools/dev/diff_scope_summary.py",
+        "--check-forbidden"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe tools/dev/diff_scope_summary.py --check-forbidden",
+      "elapsed_seconds": 1.016,
+      "exit_code": 0,
+      "label": null,
+      "metadata": {},
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "# Diff / Scope Summary\n\n## Tracked changed files\n- none\n\n## Staged changed files\n- `docs/ai/codex/VALIDATION_POLICY.md`\n- `tests/test_verify_shard_profiles.py`\n- `tools/dev/pytest_shard_profiles.json`\n- `tools/dev/verify.py`\n\n## Untracked files\n- `scratch/WP-VALIDATION-SHARD-REPARTITION-01/pre_exclusive_contention_failure.json`\n\n## Numstat\n- working tree:\n- none\n- staged:\n- `docs/ai/codex/VALIDATION_POLICY.md`: +26 / -0\n- `tests/test_verify_shard_profiles.py`: +368 / -0\n- `tools/dev/pytest_shard_profiles.json`: +16 / -0\n- `tools/dev/verify.py`: +372 / -28\n\n## Forbidden-path matches\n- none\n\n## Authorized canonical result-population writes\n- package: not supplied\n- authorized: none\n- rejected: none\n\n## Authorized path writes\n- package: not supplied\n- scope: not supplied\n- authorized: none\n- rejected: none\n\n## Allowed-file check\n- none\n\n## Trial-log check\n- not checked; pass `--trial-log` or touch `research/trial_log.jsonl` to include numstat\n\n## Notes\n- exit reason: `ok`\n- repo root: `C:/GitHub/crypto-perp-wedge-wp-validation-shard-repartition-01`\n- base ref: `not supplied`\n- accepted for future compatibility; current summary uses working tree and staged git diff state\n- Advisory only. Does not replace direct changed-file inspection, integrity views, registry validators, scoped pytest, full pytest, or semantic review.\n- git command errors:\n- none",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 300
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "tools.registry.validate_result_populations"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m tools.registry.validate_result_populations",
+      "elapsed_seconds": 0.812,
+      "exit_code": 0,
+      "label": null,
+      "metadata": {},
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "OK: result-population artifacts under C:\\GitHub\\crypto-perp-wedge-wp-validation-shard-repartition-01\\research\\result_populations validate",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 300
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "tools.research_query.run",
+        "--list-views"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m tools.research_query.run --list-views",
+      "elapsed_seconds": 18.797,
+      "exit_code": 0,
+      "label": null,
+      "metadata": {},
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "v_agent_outputs_latest\nv_agent_outputs_overview\nv_bucket_mappings_latest\nv_bucket_mappings_overview\nv_candidate_by_family\nv_candidate_overview\nv_concluded_candidates\nv_data_feature_availability\nv_decision_changes_overview\nv_experiment_instances\nv_gate_results_flat\nv_information_inputs\nv_integrity_agent_output_refs\nv_integrity_bucket_mapping_refs\nv_integrity_candidate_refs\nv_integrity_decision_refs\nv_integrity_lifecycle_approval_completeness\nv_integrity_lifecycle_change_refs\nv_integrity_lifecycle_fast_track_completeness\nv_integrity_lifecycle_transition_graph\nv_integrity_macro_window_agent_output_refs\nv_integrity_outcome_ledger_derivation\nv_integrity_outcome_ledger_refs\nv_integrity_outcome_ledger_scope\nv_integrity_outcome_ledger_window_bounds\nv_integrity_overlay_shadow_refs\nv_integrity_plan_report_pairs\nv_integrity_pre_gate_advisory_snapshot_refs\nv_integrity_r2s_approval_candidate_refs\nv_integrity_r2s_rec5_candidate_consistency\nv_integrity_reconciliation_derivation\nv_integrity_reconciliation_expectation_source\nv_integrity_reconciliation_realized_metrics\nv_integrity_reconciliation_refs\nv_integrity_reconciliation_scope\nv_integrity_release_refs\nv_integrity_result_population_append_only_violation\nv_integrity_result_population_audit_in_identity_scope\nv_integrity_result_population_authority_key_violation\nv_integrity_result_population_canonical_evidence_violation\nv_integrity_result_population_canonical_write_violation\nv_integrity_result_population_denominator_mismatch\nv_integrity_result_population_missing_variant_rows\nv_integrity_result_population_non_authority_violation\nv_integrity_result_population_offline_boundary_violation\nv_integrity_result_population_outcome_count_mismatch\nv_integrity_result_population_parent_hash_chain_mismatch\nv_integrity_result_population_unknown_outcome_category\nv_integrity_s2p_approval_candidate_refs\nv_integrity_s2p_shadow_evidence_candidate_consistency\nv_integrity_s2p_shadow_evidence_refs\nv_integrity_scope6_authority_flags\nv_integrity_scope6_preservation_flags\nv_integrity_shadow_evidence_candidate_refs\nv_integrity_shadow_signal_summary_derivation\nv_integrity_shadow_signal_summary_v2_derivation\nv_integrity_strategy_spec_bounds\nv_integrity_strategy_spec_external_content_readiness\nv_integrity_strategy_spec_legacy_hash_scope_reproducibility\nv_integrity_strategy_spec_non_authority\nv_integrity_sweep_plan_denominator\nv_integrity_sweep_plan_no_computation\nv_integrity_sweep_plan_non_authority\nv_integrity_sweep_plan_parent_manifest\nv_integrity_variant_manifest_denominator\nv_integrity_variant_manifest_hash_readiness\nv_integrity_variant_manifest_non_authority\nv_integrity_variant_manifest_supersession\nv_integrity_walkforward_fold_chronology\nv_integrity_walkforward_fold_denominator\nv_integrity_walkforward_non_authority\nv_is_metrics_by_candidate\nv_lifecycle_change_overview\nv_lifecycle_state_transitions\nv_macro_window_agent_outputs_latest\nv_macro_window_agent_outputs_overview\nv_oos_metrics_by_candidate\nv_outcome_ledger_candidate_pipeline_summary\nv_outcome_ledger_overview\nv_overlay_shadow_agreement_summary\nv_overlay_shadow_logs_latest\nv_overlay_shadow_logs_overview\nv_overlay_shadow_override_audit\nv_pre_gate_advisory_snapshots_latest\nv_pre_gate_advisory_snapshots_overview\nv_r2s_approval_records\nv_reconciliation_candidate_pipeline_summary\nv_reconciliation_overview\nv_release_notes_overview\nv_result_population_append_only_ledger\nv_result_population_backtest_assumptions\nv_result_population_data_coverage\nv_result_population_denominator\nv_result_population_error_summary\nv_result_population_execution_context\nv_result_population_identity_audit\nv_result_population_ledger_events\nv_result_population_non_authority\nv_result_population_outcome_counts\nv_result_population_overview\nv_result_population_parent_lineage\nv_result_population_variant_rows\nv_s2p_approval_records\nv_s2p_shadow_evidence_links\nv_scope6_candidate_packaging_overview\nv_shadow_evidence_retention\nv_shadow_signal_summaries_overview\nv_shadow_signal_summaries_v2_overview\nv_stag",
+      "stdout_truncated": "true",
+      "timed_out": false,
+      "timeout_seconds": 300
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_research_query.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_research_query.py -q",
+      "elapsed_seconds": 1028.954,
+      "exit_code": 0,
+      "label": "pytest-shard-0",
+      "metadata": {
+        "files": [
+          "tests/test_research_query.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 0,
+        "test_file_count": 1
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": ".................................................................        [100%]\n65 passed in 1026.80s (0:17:06)",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_advisory_analytics_metrics.py",
+        "tests/test_lab_cockpit_pipeline_state.py",
+        "tests/test_price_ref_provider.py",
+        "tests/test_validate_strategy_specs.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_advisory_analytics_metrics.py tests/test_lab_cockpit_pipeline_state.py tests/test_price_ref_provider.py tests/test_validate_strategy_specs.py -q",
+      "elapsed_seconds": 13.859,
+      "exit_code": 0,
+      "label": "pytest-shard-1",
+      "metadata": {
+        "files": [
+          "tests/test_advisory_analytics_metrics.py",
+          "tests/test_lab_cockpit_pipeline_state.py",
+          "tests/test_price_ref_provider.py",
+          "tests/test_validate_strategy_specs.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 1,
+        "test_file_count": 4
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "........................................................................ [ 46%]\n........................................................................ [ 92%]\n............                                                             [100%]\n156 passed in 11.62s",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_agent_candidate_review_packet.py",
+        "tests/test_lab_cockpit_product_runs.py",
+        "tests/test_purgedcv_pilot.py",
+        "tests/test_validate_variant_sweep_artifacts.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_agent_candidate_review_packet.py tests/test_lab_cockpit_product_runs.py tests/test_purgedcv_pilot.py tests/test_validate_variant_sweep_artifacts.py -q",
+      "elapsed_seconds": 40.328,
+      "exit_code": 0,
+      "label": "pytest-shard-2",
+      "metadata": {
+        "files": [
+          "tests/test_agent_candidate_review_packet.py",
+          "tests/test_lab_cockpit_product_runs.py",
+          "tests/test_purgedcv_pilot.py",
+          "tests/test_validate_variant_sweep_artifacts.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 2,
+        "test_file_count": 4
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "........................................................................ [ 56%]\n........................................................                 [100%]\n============================== warnings summary ===============================\ntools\\canon_intake\\queue_admission.py:16\ntools\\canon_intake\\queue_admission.py:16\n  C:\\GitHub\\crypto-perp-wedge-wp-validation-shard-repartition-01\\tools\\canon_intake\\queue_admission.py:16: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.\n    from jsonschema import Draft7Validator, FormatChecker, RefResolver\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n128 passed, 2 warnings in 36.12s",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_agent_canonical_crossing_build.py",
+        "tests/test_lab_dashboard.py",
+        "tests/test_register_binance_usdtm_1d_lineage.py",
+        "tests/test_validation_summary.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_agent_canonical_crossing_build.py tests/test_lab_dashboard.py tests/test_register_binance_usdtm_1d_lineage.py tests/test_validation_summary.py -q",
+      "elapsed_seconds": 8.296,
+      "exit_code": 0,
+      "label": "pytest-shard-3",
+      "metadata": {
+        "files": [
+          "tests/test_agent_canonical_crossing_build.py",
+          "tests/test_lab_dashboard.py",
+          "tests/test_register_binance_usdtm_1d_lineage.py",
+          "tests/test_validation_summary.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 3,
+        "test_file_count": 4
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "........................................................................ [ 75%]\n.......................                                                  [100%]\n95 passed in 5.75s",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_agent_donchian_adapter.py",
+        "tests/test_lab_event_tape_agent_dashboard_replay.py",
+        "tests/test_registry_validation.py",
+        "tests/test_vectorbt_sweep_comparator.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_agent_donchian_adapter.py tests/test_lab_event_tape_agent_dashboard_replay.py tests/test_registry_validation.py tests/test_vectorbt_sweep_comparator.py -q",
+      "elapsed_seconds": 8.187,
+      "exit_code": 0,
+      "label": "pytest-shard-4",
+      "metadata": {
+        "files": [
+          "tests/test_agent_donchian_adapter.py",
+          "tests/test_lab_event_tape_agent_dashboard_replay.py",
+          "tests/test_registry_validation.py",
+          "tests/test_vectorbt_sweep_comparator.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 4,
+        "test_file_count": 4
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": ".........................................................                [100%]\n57 passed in 5.12s",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_agent_experiment_runner.py",
+        "tests/test_lab_event_tape_contract.py",
+        "tests/test_release_notes_validation.py",
+        "tests/test_vectorbt_triage_sidecar.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_agent_experiment_runner.py tests/test_lab_event_tape_contract.py tests/test_release_notes_validation.py tests/test_vectorbt_triage_sidecar.py -q",
+      "elapsed_seconds": 10.578,
+      "exit_code": 0,
+      "label": "pytest-shard-5",
+      "metadata": {
+        "files": [
+          "tests/test_agent_experiment_runner.py",
+          "tests/test_lab_event_tape_contract.py",
+          "tests/test_release_notes_validation.py",
+          "tests/test_vectorbt_triage_sidecar.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 5,
+        "test_file_count": 4
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "........................................................                 [100%]\n============================== warnings summary ===============================\ntests/test_vectorbt_triage_sidecar.py::test_unavailable_vectorbt_produces_deterministic_deferred_report\ntests/test_vectorbt_triage_sidecar.py::test_unavailable_vectorbt_produces_deterministic_deferred_report\n  C:\\GitHub\\crypto-perp-wedge-wp-validation-shard-repartition-01\\tools\\canon_intake\\queue_admission.py:16: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.\n    from jsonschema import Draft7Validator, FormatChecker, RefResolver\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n56 passed, 2 warnings in 7.89s",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_agent_formalizer_runner_bridge.py",
+        "tests/test_lab_event_tape_notify_report_replay.py",
+        "tests/test_resample_binance_usdtm_15m_to_4h.py",
+        "tests/test_verify.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_agent_formalizer_runner_bridge.py tests/test_lab_event_tape_notify_report_replay.py tests/test_resample_binance_usdtm_15m_to_4h.py tests/test_verify.py -q",
+      "elapsed_seconds": 25.016,
+      "exit_code": 0,
+      "label": "pytest-shard-6",
+      "metadata": {
+        "files": [
+          "tests/test_agent_formalizer_runner_bridge.py",
+          "tests/test_lab_event_tape_notify_report_replay.py",
+          "tests/test_resample_binance_usdtm_15m_to_4h.py",
+          "tests/test_verify.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 6,
+        "test_file_count": 4
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "........................................................................ [ 71%]\n.............................                                            [100%]\n101 passed in 22.46s",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_agent_idea_formalizer.py",
+        "tests/test_lab_event_tape_queue_scheduler_replay.py",
+        "tests/test_research_idea_validator.py",
+        "tests/test_verify_shard_profiles.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_agent_idea_formalizer.py tests/test_lab_event_tape_queue_scheduler_replay.py tests/test_research_idea_validator.py tests/test_verify_shard_profiles.py -q",
+      "elapsed_seconds": 6.219,
+      "exit_code": 0,
+      "label": "pytest-shard-7",
+      "metadata": {
+        "files": [
+          "tests/test_agent_idea_formalizer.py",
+          "tests/test_lab_event_tape_queue_scheduler_replay.py",
+          "tests/test_research_idea_validator.py",
+          "tests/test_verify_shard_profiles.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 7,
+        "test_file_count": 4
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "........................................................................ [ 92%]\n......                                                                   [100%]\n78 passed in 3.96s",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_agent_inbox_intake.py",
+        "tests/test_lab_factorytest_synthetic_population.py",
+        "tests/test_research_query_agent_outputs.py",
+        "tests/test_walkforward_fold_manifest_validator.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_agent_inbox_intake.py tests/test_lab_factorytest_synthetic_population.py tests/test_research_query_agent_outputs.py tests/test_walkforward_fold_manifest_validator.py -q",
+      "elapsed_seconds": 290.266,
+      "exit_code": 0,
+      "label": "pytest-shard-8",
+      "metadata": {
+        "files": [
+          "tests/test_agent_inbox_intake.py",
+          "tests/test_lab_factorytest_synthetic_population.py",
+          "tests/test_research_query_agent_outputs.py",
+          "tests/test_walkforward_fold_manifest_validator.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 8,
+        "test_file_count": 4
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "......................................                                   [100%]\n============================== warnings summary ===============================\n..\\crypto-perp-wedge\\.venv\\Lib\\site-packages\\fastapi\\testclient.py:1\n  C:\\GitHub\\crypto-perp-wedge\\.venv\\Lib\\site-packages\\fastapi\\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n    from starlette.testclient import TestClient as TestClient  # noqa\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n38 passed, 1 warning in 285.37s (0:04:45)",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_agent_output_validation.py",
+        "tests/test_lab_operator_surface.py",
+        "tests/test_research_query_bucket_mappings.py",
+        "tests/test_walkforward_purged_folds.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_agent_output_validation.py tests/test_lab_operator_surface.py tests/test_research_query_bucket_mappings.py tests/test_walkforward_purged_folds.py -q",
+      "elapsed_seconds": 287.781,
+      "exit_code": 0,
+      "label": "pytest-shard-9",
+      "metadata": {
+        "files": [
+          "tests/test_agent_output_validation.py",
+          "tests/test_lab_operator_surface.py",
+          "tests/test_research_query_bucket_mappings.py",
+          "tests/test_walkforward_purged_folds.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 9,
+        "test_file_count": 4
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": ".....................................                                    [100%]\n37 passed in 284.84s (0:04:44)",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_agent_robustness_diagnostician.py",
+        "tests/test_lab_pipeline_agent_adapters.py",
+        "tests/test_research_query_lifecycle_views.py",
+        "tests/test_walkforward_run_report_validator.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_agent_robustness_diagnostician.py tests/test_lab_pipeline_agent_adapters.py tests/test_research_query_lifecycle_views.py tests/test_walkforward_run_report_validator.py -q",
+      "elapsed_seconds": 413.859,
+      "exit_code": 0,
+      "label": "pytest-shard-10",
+      "metadata": {
+        "files": [
+          "tests/test_agent_robustness_diagnostician.py",
+          "tests/test_lab_pipeline_agent_adapters.py",
+          "tests/test_research_query_lifecycle_views.py",
+          "tests/test_walkforward_run_report_validator.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 10,
+        "test_file_count": 4
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "...............................................................          [100%]\n63 passed in 411.03s (0:06:51)",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_agent_toolcontext_sandbox.py",
+        "tests/test_lab_pipeline_bridge_adapter.py",
+        "tests/test_research_query_macro_window_agent_outputs.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_agent_toolcontext_sandbox.py tests/test_lab_pipeline_bridge_adapter.py tests/test_research_query_macro_window_agent_outputs.py -q",
+      "elapsed_seconds": 288.687,
+      "exit_code": 0,
+      "label": "pytest-shard-11",
+      "metadata": {
+        "files": [
+          "tests/test_agent_toolcontext_sandbox.py",
+          "tests/test_lab_pipeline_bridge_adapter.py",
+          "tests/test_research_query_macro_window_agent_outputs.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 11,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "........................................................................ [ 83%]\n..............                                                           [100%]\n86 passed in 285.54s (0:04:45)",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_backtest.py",
+        "tests/test_lab_pipeline_gate_actions.py",
+        "tests/test_research_query_outcome_ledger_views.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_backtest.py tests/test_lab_pipeline_gate_actions.py tests/test_research_query_outcome_ledger_views.py -q",
+      "elapsed_seconds": 320.25,
+      "exit_code": 0,
+      "label": "pytest-shard-12",
+      "metadata": {
+        "files": [
+          "tests/test_backtest.py",
+          "tests/test_lab_pipeline_gate_actions.py",
+          "tests/test_research_query_outcome_ledger_views.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 12,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "........................................................................ [ 71%]\n.............................                                            [100%]\n101 passed in 317.01s (0:05:17)",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_backtest_liquidation.py",
+        "tests/test_lab_pipeline_gates_adapter.py",
+        "tests/test_research_query_overlay_shadow_logs.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_backtest_liquidation.py tests/test_lab_pipeline_gates_adapter.py tests/test_research_query_overlay_shadow_logs.py -q",
+      "elapsed_seconds": 284.219,
+      "exit_code": 0,
+      "label": "pytest-shard-13",
+      "metadata": {
+        "files": [
+          "tests/test_backtest_liquidation.py",
+          "tests/test_lab_pipeline_gates_adapter.py",
+          "tests/test_research_query_overlay_shadow_logs.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 13,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "..s........................                                              [100%]\n26 passed, 1 skipped in 280.07s (0:04:40)",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_binance_perp_realism.py",
+        "tests/test_lab_pipeline_orchestrator.py",
+        "tests/test_research_query_pre_gate_advisory_snapshots.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_binance_perp_realism.py tests/test_lab_pipeline_orchestrator.py tests/test_research_query_pre_gate_advisory_snapshots.py -q",
+      "elapsed_seconds": 279.188,
+      "exit_code": 0,
+      "label": "pytest-shard-14",
+      "metadata": {
+        "files": [
+          "tests/test_binance_perp_realism.py",
+          "tests/test_lab_pipeline_orchestrator.py",
+          "tests/test_research_query_pre_gate_advisory_snapshots.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 14,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": ".........................                                                [100%]\n25 passed in 276.14s (0:04:36)",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_bucket_mapping_validation.py",
+        "tests/test_lab_pipeline_queue_status.py",
+        "tests/test_research_query_reconciliation_views.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_bucket_mapping_validation.py tests/test_lab_pipeline_queue_status.py tests/test_research_query_reconciliation_views.py -q",
+      "elapsed_seconds": 318.313,
+      "exit_code": 0,
+      "label": "pytest-shard-15",
+      "metadata": {
+        "files": [
+          "tests/test_bucket_mapping_validation.py",
+          "tests/test_lab_pipeline_queue_status.py",
+          "tests/test_research_query_reconciliation_views.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 15,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": ".........................                                                [100%]\n25 passed in 315.41s (0:05:15)",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_candidate_lifecycle_engine.py",
+        "tests/test_lab_pipeline_runner_adapter.py",
+        "tests/test_research_query_shadow_signal_summary_views.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_candidate_lifecycle_engine.py tests/test_lab_pipeline_runner_adapter.py tests/test_research_query_shadow_signal_summary_views.py -q",
+      "elapsed_seconds": 316.125,
+      "exit_code": 0,
+      "label": "pytest-shard-16",
+      "metadata": {
+        "files": [
+          "tests/test_candidate_lifecycle_engine.py",
+          "tests/test_lab_pipeline_runner_adapter.py",
+          "tests/test_research_query_shadow_signal_summary_views.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 16,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "..................................................                       [100%]\n50 passed in 313.36s (0:05:13)",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_canon_dispatch_execution_contract.py",
+        "tests/test_lab_readiness.py",
+        "tests/test_research_query_shadow_signal_views.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_canon_dispatch_execution_contract.py tests/test_lab_readiness.py tests/test_research_query_shadow_signal_views.py -q",
+      "elapsed_seconds": 166.453,
+      "exit_code": 0,
+      "label": "pytest-shard-17",
+      "metadata": {
+        "files": [
+          "tests/test_canon_dispatch_execution_contract.py",
+          "tests/test_lab_readiness.py",
+          "tests/test_research_query_shadow_signal_views.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 17,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "...............................................                          [100%]\n47 passed in 163.95s (0:02:43)",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_canon_gate_c_lineage_bytes.py",
+        "tests/test_lab_reporting.py",
+        "tests/test_research_query_stages_6_7.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_canon_gate_c_lineage_bytes.py tests/test_lab_reporting.py tests/test_research_query_stages_6_7.py -q",
+      "elapsed_seconds": 229.969,
+      "exit_code": 0,
+      "label": "pytest-shard-18",
+      "metadata": {
+        "files": [
+          "tests/test_canon_gate_c_lineage_bytes.py",
+          "tests/test_lab_reporting.py",
+          "tests/test_research_query_stages_6_7.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 18,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "............................                                             [100%]\n28 passed in 225.98s (0:03:45)",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_canon_intake_eligibility_validator.py",
+        "tests/test_lab_run_registry.py",
+        "tests/test_research_query_walkforward_views.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_canon_intake_eligibility_validator.py tests/test_lab_run_registry.py tests/test_research_query_walkforward_views.py -q",
+      "elapsed_seconds": 44.937,
+      "exit_code": 0,
+      "label": "pytest-shard-19",
+      "metadata": {
+        "files": [
+          "tests/test_canon_intake_eligibility_validator.py",
+          "tests/test_lab_run_registry.py",
+          "tests/test_research_query_walkforward_views.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 19,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": ".................                                                        [100%]\n17 passed in 42.72s",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_canon_intake_queue_admission.py",
+        "tests/test_lab_scheduler_shell.py",
+        "tests/test_research_replay_normalization.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_canon_intake_queue_admission.py tests/test_lab_scheduler_shell.py tests/test_research_replay_normalization.py -q",
+      "elapsed_seconds": 86.437,
+      "exit_code": 0,
+      "label": "pytest-shard-20",
+      "metadata": {
+        "files": [
+          "tests/test_canon_intake_queue_admission.py",
+          "tests/test_lab_scheduler_shell.py",
+          "tests/test_research_replay_normalization.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 20,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "........................................sssss........................... [ 64%]\n.......................................                                  [100%]\n============================== warnings summary ===============================\ntools\\canon_intake\\queue_admission.py:16\ntools\\canon_intake\\queue_admission.py:16\n  C:\\GitHub\\crypto-perp-wedge-wp-validation-shard-repartition-01\\tools\\canon_intake\\queue_admission.py:16: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.\n    from jsonschema import Draft7Validator, FormatChecker, RefResolver\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n106 passed, 5 skipped, 2 warnings in 79.83s (0:01:19)",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_canon_intake_spec_writer.py",
+        "tests/test_lab_state_coverage_audit.py",
+        "tests/test_robustness_depth.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_canon_intake_spec_writer.py tests/test_lab_state_coverage_audit.py tests/test_robustness_depth.py -q",
+      "elapsed_seconds": 14.391,
+      "exit_code": 0,
+      "label": "pytest-shard-21",
+      "metadata": {
+        "files": [
+          "tests/test_canon_intake_spec_writer.py",
+          "tests/test_lab_state_coverage_audit.py",
+          "tests/test_robustness_depth.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 21,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "........................................................................ [ 98%]\n.                                                                        [100%]\n73 passed in 12.20s",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_canon_intake_variant_planning_approval.py",
+        "tests/test_lab_state_model.py",
+        "tests/test_run_walkforward_scratch.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_canon_intake_variant_planning_approval.py tests/test_lab_state_model.py tests/test_run_walkforward_scratch.py -q",
+      "elapsed_seconds": 12.453,
+      "exit_code": 0,
+      "label": "pytest-shard-22",
+      "metadata": {
+        "files": [
+          "tests/test_canon_intake_variant_planning_approval.py",
+          "tests/test_lab_state_model.py",
+          "tests/test_run_walkforward_scratch.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 22,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "........................................................................ [ 86%]\n...........                                                              [100%]\n============================== warnings summary ===============================\ntools\\canon_intake\\queue_admission.py:16\ntools\\canon_intake\\queue_admission.py:16\n  C:\\GitHub\\crypto-perp-wedge-wp-validation-shard-repartition-01\\tools\\canon_intake\\queue_admission.py:16: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.\n    from jsonschema import Draft7Validator, FormatChecker, RefResolver\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n83 passed, 2 warnings in 9.86s",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_canon_queue_control_plane_contracts.py",
+        "tests/test_lab_state_resolver.py",
+        "tests/test_scope6_packaging_validators.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_canon_queue_control_plane_contracts.py tests/test_lab_state_resolver.py tests/test_scope6_packaging_validators.py -q",
+      "elapsed_seconds": 4.61,
+      "exit_code": 0,
+      "label": "pytest-shard-23",
+      "metadata": {
+        "files": [
+          "tests/test_canon_queue_control_plane_contracts.py",
+          "tests/test_lab_state_resolver.py",
+          "tests/test_scope6_packaging_validators.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 23,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "...........................................                              [100%]\n============================== warnings summary ===============================\ntests\\test_canon_queue_control_plane_contracts.py:8\ntests\\test_canon_queue_control_plane_contracts.py:8\n  C:\\GitHub\\crypto-perp-wedge-wp-validation-shard-repartition-01\\tests\\test_canon_queue_control_plane_contracts.py:8: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.\n    from jsonschema import Draft7Validator, RefResolver\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n43 passed, 2 warnings in 2.35s",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_catalog_binance_usdtm_15m.py",
+        "tests/test_lab_visual_cockpit_static.py",
+        "tests/test_scope6_query_layer.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_catalog_binance_usdtm_15m.py tests/test_lab_visual_cockpit_static.py tests/test_scope6_query_layer.py -q",
+      "elapsed_seconds": 218.625,
+      "exit_code": 0,
+      "label": "pytest-shard-24",
+      "metadata": {
+        "files": [
+          "tests/test_catalog_binance_usdtm_15m.py",
+          "tests/test_lab_visual_cockpit_static.py",
+          "tests/test_scope6_query_layer.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 24,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "............................                                             [100%]\n28 passed in 216.28s (0:03:36)",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_ccxt_public_funding_adapter.py",
+        "tests/test_macro_flags.py",
+        "tests/test_seeded_advisory_mc.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_ccxt_public_funding_adapter.py tests/test_macro_flags.py tests/test_seeded_advisory_mc.py -q",
+      "elapsed_seconds": 7.0,
+      "exit_code": 0,
+      "label": "pytest-shard-25",
+      "metadata": {
+        "files": [
+          "tests/test_ccxt_public_funding_adapter.py",
+          "tests/test_macro_flags.py",
+          "tests/test_seeded_advisory_mc.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 25,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "..............................                                           [100%]\n30 passed in 0.89s",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_ccxt_public_funding_ingest.py",
+        "tests/test_macro_window_agent_output_validation.py",
+        "tests/test_shadow_adapter.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_ccxt_public_funding_ingest.py tests/test_macro_window_agent_output_validation.py tests/test_shadow_adapter.py -q",
+      "elapsed_seconds": 3.907,
+      "exit_code": 0,
+      "label": "pytest-shard-26",
+      "metadata": {
+        "files": [
+          "tests/test_ccxt_public_funding_ingest.py",
+          "tests/test_macro_window_agent_output_validation.py",
+          "tests/test_shadow_adapter.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 26,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "...........................                                              [100%]\n27 passed in 0.88s",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_code_index.py",
+        "tests/test_nautilus_mapping_spike.py",
+        "tests/test_shadow_evidence.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_code_index.py tests/test_nautilus_mapping_spike.py tests/test_shadow_evidence.py -q",
+      "elapsed_seconds": 17.968,
+      "exit_code": 0,
+      "label": "pytest-shard-27",
+      "metadata": {
+        "files": [
+          "tests/test_code_index.py",
+          "tests/test_nautilus_mapping_spike.py",
+          "tests/test_shadow_evidence.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 27,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": ".................................                                        [100%]\n33 passed in 15.60s",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_decision_change_validation.py",
+        "tests/test_notifications_approvals_poc.py",
+        "tests/test_shadow_integration.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_decision_change_validation.py tests/test_notifications_approvals_poc.py tests/test_shadow_integration.py -q",
+      "elapsed_seconds": 4.359,
+      "exit_code": 0,
+      "label": "pytest-shard-28",
+      "metadata": {
+        "files": [
+          "tests/test_decision_change_validation.py",
+          "tests/test_notifications_approvals_poc.py",
+          "tests/test_shadow_integration.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 28,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "...........................                                              [100%]\n27 passed in 2.20s",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_diff_scope_summary.py",
+        "tests/test_offline_research_runner.py",
+        "tests/test_shadow_parity.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_diff_scope_summary.py tests/test_offline_research_runner.py tests/test_shadow_parity.py -q",
+      "elapsed_seconds": 124.266,
+      "exit_code": 0,
+      "label": "pytest-shard-29",
+      "metadata": {
+        "files": [
+          "tests/test_diff_scope_summary.py",
+          "tests/test_offline_research_runner.py",
+          "tests/test_shadow_parity.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 29,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "........................................................................ [ 51%]\n.....................................................................    [100%]\n============================== warnings summary ===============================\ntools\\canon_intake\\queue_admission.py:16\ntools\\canon_intake\\queue_admission.py:16\n  C:\\GitHub\\crypto-perp-wedge-wp-validation-shard-repartition-01\\tools\\canon_intake\\queue_admission.py:16: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.\n    from jsonschema import Draft7Validator, FormatChecker, RefResolver\n\ntests/test_offline_research_runner.py::test_canonical_15m_fails_closed_on_invalid_timestamp_strings[timestamp]\ntests/test_offline_research_runner.py::test_canonical_15m_fails_closed_on_invalid_timestamp_strings[open_time]\n  C:\\GitHub\\crypto-perp-wedge-wp-validation-shard-repartition-01\\tools\\research_runner\\run_offline_sweep.py:1190: UserWarning: Could not infer format, so each element will be parsed individually, falling back to `dateutil`. To ensure parsing is consistent and as-expected, please specify a format.\n    parsed = pd.to_datetime(frame[column], utc=True, errors=\"coerce\")\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n141 passed, 4 warnings in 121.72s (0:02:01)",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_draft_grid_generator.py",
+        "tests/test_offline_runner_canonical_1d.py",
+        "tests/test_shadow_run_helper.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_draft_grid_generator.py tests/test_offline_runner_canonical_1d.py tests/test_shadow_run_helper.py -q",
+      "elapsed_seconds": 11.672,
+      "exit_code": 0,
+      "label": "pytest-shard-30",
+      "metadata": {
+        "files": [
+          "tests/test_draft_grid_generator.py",
+          "tests/test_offline_runner_canonical_1d.py",
+          "tests/test_shadow_run_helper.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 30,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "..........................................................               [100%]\n============================== warnings summary ===============================\ntools\\canon_intake\\queue_admission.py:16\ntools\\canon_intake\\queue_admission.py:16\n  C:\\GitHub\\crypto-perp-wedge-wp-validation-shard-repartition-01\\tools\\canon_intake\\queue_admission.py:16: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.\n    from jsonschema import Draft7Validator, FormatChecker, RefResolver\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n58 passed, 2 warnings in 9.10s",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_evaluation.py",
+        "tests/test_offline_runner_funding_input.py",
+        "tests/test_shadow_signal_summary_v2_validation.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_evaluation.py tests/test_offline_runner_funding_input.py tests/test_shadow_signal_summary_v2_validation.py -q",
+      "elapsed_seconds": 11.75,
+      "exit_code": 0,
+      "label": "pytest-shard-31",
+      "metadata": {
+        "files": [
+          "tests/test_evaluation.py",
+          "tests/test_offline_runner_funding_input.py",
+          "tests/test_shadow_signal_summary_v2_validation.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 31,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": ".........................s.............                                  [100%]\n============================== warnings summary ===============================\ntools\\canon_intake\\queue_admission.py:16\ntools\\canon_intake\\queue_admission.py:16\n  C:\\GitHub\\crypto-perp-wedge-wp-validation-shard-repartition-01\\tools\\canon_intake\\queue_admission.py:16: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.\n    from jsonschema import Draft7Validator, FormatChecker, RefResolver\n\ntests/test_evaluation.py::test_sortino_positive_returns\n  C:\\GitHub\\crypto-perp-wedge-wp-validation-shard-repartition-01\\tests\\test_evaluation.py:49: Pandas4Warning: 'd' is deprecated and will be removed in a future version, please use 'D' instead.\n    dates = pd.date_range(start, periods=len(values), freq=freq, tz=\"UTC\")\n\ntests/test_evaluation.py::test_calmar_positive_trend\ntests/test_evaluation.py::test_max_drawdown_known\ntests/test_evaluation.py::test_max_drawdown_no_drawdown\n  C:\\GitHub\\crypto-perp-wedge-wp-validation-shard-repartition-01\\tests\\test_evaluation.py:44: Pandas4Warning: 'd' is deprecated and will be removed in a future version, please use 'D' instead.\n    dates = pd.date_range(start, periods=len(values), freq=freq, tz=\"UTC\")\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n38 passed, 1 skipped, 6 warnings in 7.37s",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_evaluation_cost_drag.py",
+        "tests/test_oos_gate.py",
+        "tests/test_shadow_signal_summary_validation.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_evaluation_cost_drag.py tests/test_oos_gate.py tests/test_shadow_signal_summary_validation.py -q",
+      "elapsed_seconds": 5.422,
+      "exit_code": 0,
+      "label": "pytest-shard-32",
+      "metadata": {
+        "files": [
+          "tests/test_evaluation_cost_drag.py",
+          "tests/test_oos_gate.py",
+          "tests/test_shadow_signal_summary_validation.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 32,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "........................                                                 [100%]\n24 passed in 2.32s",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_evaluation_window.py",
+        "tests/test_operator_dashboard_api.py",
+        "tests/test_signal_provider.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_evaluation_window.py tests/test_operator_dashboard_api.py tests/test_signal_provider.py -q",
+      "elapsed_seconds": 7.093,
+      "exit_code": 0,
+      "label": "pytest-shard-33",
+      "metadata": {
+        "files": [
+          "tests/test_evaluation_window.py",
+          "tests/test_operator_dashboard_api.py",
+          "tests/test_signal_provider.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 33,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "...................................                                      [100%]\n============================== warnings summary ===============================\n..\\crypto-perp-wedge\\.venv\\Lib\\site-packages\\fastapi\\testclient.py:1\n  C:\\GitHub\\crypto-perp-wedge\\.venv\\Lib\\site-packages\\fastapi\\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n    from starlette.testclient import TestClient as TestClient  # noqa\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n35 passed, 1 warning in 4.69s",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_external_analytics_pilot.py",
+        "tests/test_optuna_search_pilot.py",
+        "tests/test_spec_signal_compiler.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_external_analytics_pilot.py tests/test_optuna_search_pilot.py tests/test_spec_signal_compiler.py -q",
+      "elapsed_seconds": 6.391,
+      "exit_code": 0,
+      "label": "pytest-shard-34",
+      "metadata": {
+        "files": [
+          "tests/test_external_analytics_pilot.py",
+          "tests/test_optuna_search_pilot.py",
+          "tests/test_spec_signal_compiler.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 34,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "........................................................................ [ 26%]\n........................................................................ [ 52%]\n........................................................................ [ 78%]\n............................................................             [100%]\n276 passed in 3.80s",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_external_content_readiness_writer.py",
+        "tests/test_outcome_ledger_build_from_rep.py",
+        "tests/test_status_snapshot.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_external_content_readiness_writer.py tests/test_outcome_ledger_build_from_rep.py tests/test_status_snapshot.py -q",
+      "elapsed_seconds": 80.563,
+      "exit_code": 0,
+      "label": "pytest-shard-35",
+      "metadata": {
+        "files": [
+          "tests/test_external_content_readiness_writer.py",
+          "tests/test_outcome_ledger_build_from_rep.py",
+          "tests/test_status_snapshot.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 35,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "..................................................................       [100%]\n66 passed in 76.55s (0:01:16)",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_external_robustness_mc_pilot.py",
+        "tests/test_overlay_evaluator.py",
+        "tests/test_strategy_spec_external_content_readiness_contract.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_external_robustness_mc_pilot.py tests/test_overlay_evaluator.py tests/test_strategy_spec_external_content_readiness_contract.py -q",
+      "elapsed_seconds": 3.218,
+      "exit_code": 0,
+      "label": "pytest-shard-36",
+      "metadata": {
+        "files": [
+          "tests/test_external_robustness_mc_pilot.py",
+          "tests/test_overlay_evaluator.py",
+          "tests/test_strategy_spec_external_content_readiness_contract.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 36,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "............................................                             [100%]\n44 passed in 1.05s",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_external_simulator_pilot.py",
+        "tests/test_overlay_shadow_log_validation.py",
+        "tests/test_takerflow_archive_recon.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_external_simulator_pilot.py tests/test_overlay_shadow_log_validation.py tests/test_takerflow_archive_recon.py -q",
+      "elapsed_seconds": 3.61,
+      "exit_code": 0,
+      "label": "pytest-shard-37",
+      "metadata": {
+        "files": [
+          "tests/test_external_simulator_pilot.py",
+          "tests/test_overlay_shadow_log_validation.py",
+          "tests/test_takerflow_archive_recon.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 37,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": ".s...............................................                        [100%]\n48 passed, 1 skipped in 1.37s",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_external_workflow_hyperopt_pilot.py",
+        "tests/test_paper_broker.py",
+        "tests/test_validate_binance_usdtm_15m.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_external_workflow_hyperopt_pilot.py tests/test_paper_broker.py tests/test_validate_binance_usdtm_15m.py -q",
+      "elapsed_seconds": 6.078,
+      "exit_code": 0,
+      "label": "pytest-shard-38",
+      "metadata": {
+        "files": [
+          "tests/test_external_workflow_hyperopt_pilot.py",
+          "tests/test_paper_broker.py",
+          "tests/test_validate_binance_usdtm_15m.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 38,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": ".........................                                                [100%]\n25 passed in 3.64s",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_formalize_research_idea.py",
+        "tests/test_paper_ledger.py",
+        "tests/test_validate_candidate_registry.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_formalize_research_idea.py tests/test_paper_ledger.py tests/test_validate_candidate_registry.py -q",
+      "elapsed_seconds": 4.266,
+      "exit_code": 0,
+      "label": "pytest-shard-39",
+      "metadata": {
+        "files": [
+          "tests/test_formalize_research_idea.py",
+          "tests/test_paper_ledger.py",
+          "tests/test_validate_candidate_registry.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 39,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": ".............................                                            [100%]\n29 passed in 2.17s",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_funding_feature_materialization.py",
+        "tests/test_paper_scheduler.py",
+        "tests/test_validate_dashboard_data.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_funding_feature_materialization.py tests/test_paper_scheduler.py tests/test_validate_dashboard_data.py -q",
+      "elapsed_seconds": 5.578,
+      "exit_code": 0,
+      "label": "pytest-shard-40",
+      "metadata": {
+        "files": [
+          "tests/test_funding_feature_materialization.py",
+          "tests/test_paper_scheduler.py",
+          "tests/test_validate_dashboard_data.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 40,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": ".................................                                        [100%]\n33 passed in 3.08s",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_funding_series_provenance.py",
+        "tests/test_paper_trader_once.py",
+        "tests/test_validate_data_feature_availability.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_funding_series_provenance.py tests/test_paper_trader_once.py tests/test_validate_data_feature_availability.py -q",
+      "elapsed_seconds": 25.312,
+      "exit_code": 0,
+      "label": "pytest-shard-41",
+      "metadata": {
+        "files": [
+          "tests/test_funding_series_provenance.py",
+          "tests/test_paper_trader_once.py",
+          "tests/test_validate_data_feature_availability.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 41,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": ".......................s.s.........                                      [100%]\n33 passed, 2 skipped in 22.73s",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_generate_robustness_report.py",
+        "tests/test_paper_trader_position_flow.py",
+        "tests/test_validate_indicator_catalogs.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_generate_robustness_report.py tests/test_paper_trader_position_flow.py tests/test_validate_indicator_catalogs.py -q",
+      "elapsed_seconds": 8.75,
+      "exit_code": 0,
+      "label": "pytest-shard-42",
+      "metadata": {
+        "files": [
+          "tests/test_generate_robustness_report.py",
+          "tests/test_paper_trader_position_flow.py",
+          "tests/test_validate_indicator_catalogs.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 42,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "............................................                             [100%]\n44 passed in 6.30s",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_generate_static_dashboard.py",
+        "tests/test_paper_trader_price_ref_flow.py",
+        "tests/test_validate_lifecycle_changes.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_generate_static_dashboard.py tests/test_paper_trader_price_ref_flow.py tests/test_validate_lifecycle_changes.py -q",
+      "elapsed_seconds": 26.813,
+      "exit_code": 0,
+      "label": "pytest-shard-43",
+      "metadata": {
+        "files": [
+          "tests/test_generate_static_dashboard.py",
+          "tests/test_paper_trader_price_ref_flow.py",
+          "tests/test_validate_lifecycle_changes.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 43,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "..............................................                           [100%]\n46 passed in 24.07s",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_generic_robustness_review_reach.py",
+        "tests/test_paper_trader_signal_flow.py",
+        "tests/test_validate_outcome_ledger.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_generic_robustness_review_reach.py tests/test_paper_trader_signal_flow.py tests/test_validate_outcome_ledger.py -q",
+      "elapsed_seconds": 9.39,
+      "exit_code": 0,
+      "label": "pytest-shard-44",
+      "metadata": {
+        "files": [
+          "tests/test_generic_robustness_review_reach.py",
+          "tests/test_paper_trader_signal_flow.py",
+          "tests/test_validate_outcome_ledger.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 44,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": ".......................                                                  [100%]\n23 passed in 2.63s",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_import_binance_usdtm_15m.py",
+        "tests/test_perp_public_data_adapter.py",
+        "tests/test_validate_paper_state.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_import_binance_usdtm_15m.py tests/test_perp_public_data_adapter.py tests/test_validate_paper_state.py -q",
+      "elapsed_seconds": 8.844,
+      "exit_code": 0,
+      "label": "pytest-shard-45",
+      "metadata": {
+        "files": [
+          "tests/test_import_binance_usdtm_15m.py",
+          "tests/test_perp_public_data_adapter.py",
+          "tests/test_validate_paper_state.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 45,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "........................................                                 [100%]\n40 passed in 3.39s",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_lab_approval_queue.py",
+        "tests/test_pre_gate_advisory_combiner.py",
+        "tests/test_validate_reconciliations.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_lab_approval_queue.py tests/test_pre_gate_advisory_combiner.py tests/test_validate_reconciliations.py -q",
+      "elapsed_seconds": 4.531,
+      "exit_code": 0,
+      "label": "pytest-shard-46",
+      "metadata": {
+        "files": [
+          "tests/test_lab_approval_queue.py",
+          "tests/test_pre_gate_advisory_combiner.py",
+          "tests/test_validate_reconciliations.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 46,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "......................................                                   [100%]\n38 passed in 2.06s",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    },
+    {
+      "argv": [
+        "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_lab_cockpit.py",
+        "tests/test_pre_gate_advisory_snapshot_validation.py",
+        "tests/test_validate_result_populations.py",
+        "-q"
+      ],
+      "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_lab_cockpit.py tests/test_pre_gate_advisory_snapshot_validation.py tests/test_validate_result_populations.py -q",
+      "elapsed_seconds": 14.469,
+      "exit_code": 0,
+      "label": "pytest-shard-47",
+      "metadata": {
+        "files": [
+          "tests/test_lab_cockpit.py",
+          "tests/test_pre_gate_advisory_snapshot_validation.py",
+          "tests/test_validate_result_populations.py"
+        ],
+        "kind": "pytest_shard",
+        "shard_count": 48,
+        "shard_index": 47,
+        "test_file_count": 3
+      },
+      "required": true,
+      "status": "pass",
+      "stderr": "",
+      "stderr_truncated": "false",
+      "stdout": "........................................................................ [ 74%]\n.........................                                                [100%]\n============================== warnings summary ===============================\ntools\\canon_intake\\queue_admission.py:16\ntools\\canon_intake\\queue_admission.py:16\n  C:\\GitHub\\crypto-perp-wedge-wp-validation-shard-repartition-01\\tools\\canon_intake\\queue_admission.py:16: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.\n    from jsonschema import Draft7Validator, FormatChecker, RefResolver\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n97 passed, 2 warnings in 12.14s",
+      "stdout_truncated": "false",
+      "timed_out": false,
+      "timeout_seconds": 1800
+    }
+  ],
+  "failures": [],
+  "integrity_views": [],
+  "overall_status": "pass",
+  "pytest_shards": {
+    "all_selected_shards_executed": true,
+    "all_shards_complete": true,
+    "all_shards_passed": true,
+    "all_shards_selected": true,
+    "assigned_file_count": 152,
+    "assignment_manifest_sha256": "sha256:ea1105d98606e338b71307548e4fb3d4d7bea7e8259fc6ccd064f5ecbc476290",
+    "assignments": [
+      {
+        "files": [
+          "tests/test_research_query.py"
+        ],
+        "shard_index": 0,
+        "test_file_count": 1
+      },
+      {
+        "files": [
+          "tests/test_advisory_analytics_metrics.py",
+          "tests/test_lab_cockpit_pipeline_state.py",
+          "tests/test_price_ref_provider.py",
+          "tests/test_validate_strategy_specs.py"
+        ],
+        "shard_index": 1,
+        "test_file_count": 4
+      },
+      {
+        "files": [
+          "tests/test_agent_candidate_review_packet.py",
+          "tests/test_lab_cockpit_product_runs.py",
+          "tests/test_purgedcv_pilot.py",
+          "tests/test_validate_variant_sweep_artifacts.py"
+        ],
+        "shard_index": 2,
+        "test_file_count": 4
+      },
+      {
+        "files": [
+          "tests/test_agent_canonical_crossing_build.py",
+          "tests/test_lab_dashboard.py",
+          "tests/test_register_binance_usdtm_1d_lineage.py",
+          "tests/test_validation_summary.py"
+        ],
+        "shard_index": 3,
+        "test_file_count": 4
+      },
+      {
+        "files": [
+          "tests/test_agent_donchian_adapter.py",
+          "tests/test_lab_event_tape_agent_dashboard_replay.py",
+          "tests/test_registry_validation.py",
+          "tests/test_vectorbt_sweep_comparator.py"
+        ],
+        "shard_index": 4,
+        "test_file_count": 4
+      },
+      {
+        "files": [
+          "tests/test_agent_experiment_runner.py",
+          "tests/test_lab_event_tape_contract.py",
+          "tests/test_release_notes_validation.py",
+          "tests/test_vectorbt_triage_sidecar.py"
+        ],
+        "shard_index": 5,
+        "test_file_count": 4
+      },
+      {
+        "files": [
+          "tests/test_agent_formalizer_runner_bridge.py",
+          "tests/test_lab_event_tape_notify_report_replay.py",
+          "tests/test_resample_binance_usdtm_15m_to_4h.py",
+          "tests/test_verify.py"
+        ],
+        "shard_index": 6,
+        "test_file_count": 4
+      },
+      {
+        "files": [
+          "tests/test_agent_idea_formalizer.py",
+          "tests/test_lab_event_tape_queue_scheduler_replay.py",
+          "tests/test_research_idea_validator.py",
+          "tests/test_verify_shard_profiles.py"
+        ],
+        "shard_index": 7,
+        "test_file_count": 4
+      },
+      {
+        "files": [
+          "tests/test_agent_inbox_intake.py",
+          "tests/test_lab_factorytest_synthetic_population.py",
+          "tests/test_research_query_agent_outputs.py",
+          "tests/test_walkforward_fold_manifest_validator.py"
+        ],
+        "shard_index": 8,
+        "test_file_count": 4
+      },
+      {
+        "files": [
+          "tests/test_agent_output_validation.py",
+          "tests/test_lab_operator_surface.py",
+          "tests/test_research_query_bucket_mappings.py",
+          "tests/test_walkforward_purged_folds.py"
+        ],
+        "shard_index": 9,
+        "test_file_count": 4
+      },
+      {
+        "files": [
+          "tests/test_agent_robustness_diagnostician.py",
+          "tests/test_lab_pipeline_agent_adapters.py",
+          "tests/test_research_query_lifecycle_views.py",
+          "tests/test_walkforward_run_report_validator.py"
+        ],
+        "shard_index": 10,
+        "test_file_count": 4
+      },
+      {
+        "files": [
+          "tests/test_agent_toolcontext_sandbox.py",
+          "tests/test_lab_pipeline_bridge_adapter.py",
+          "tests/test_research_query_macro_window_agent_outputs.py"
+        ],
+        "shard_index": 11,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_backtest.py",
+          "tests/test_lab_pipeline_gate_actions.py",
+          "tests/test_research_query_outcome_ledger_views.py"
+        ],
+        "shard_index": 12,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_backtest_liquidation.py",
+          "tests/test_lab_pipeline_gates_adapter.py",
+          "tests/test_research_query_overlay_shadow_logs.py"
+        ],
+        "shard_index": 13,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_binance_perp_realism.py",
+          "tests/test_lab_pipeline_orchestrator.py",
+          "tests/test_research_query_pre_gate_advisory_snapshots.py"
+        ],
+        "shard_index": 14,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_bucket_mapping_validation.py",
+          "tests/test_lab_pipeline_queue_status.py",
+          "tests/test_research_query_reconciliation_views.py"
+        ],
+        "shard_index": 15,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_candidate_lifecycle_engine.py",
+          "tests/test_lab_pipeline_runner_adapter.py",
+          "tests/test_research_query_shadow_signal_summary_views.py"
+        ],
+        "shard_index": 16,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_canon_dispatch_execution_contract.py",
+          "tests/test_lab_readiness.py",
+          "tests/test_research_query_shadow_signal_views.py"
+        ],
+        "shard_index": 17,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_canon_gate_c_lineage_bytes.py",
+          "tests/test_lab_reporting.py",
+          "tests/test_research_query_stages_6_7.py"
+        ],
+        "shard_index": 18,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_canon_intake_eligibility_validator.py",
+          "tests/test_lab_run_registry.py",
+          "tests/test_research_query_walkforward_views.py"
+        ],
+        "shard_index": 19,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_canon_intake_queue_admission.py",
+          "tests/test_lab_scheduler_shell.py",
+          "tests/test_research_replay_normalization.py"
+        ],
+        "shard_index": 20,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_canon_intake_spec_writer.py",
+          "tests/test_lab_state_coverage_audit.py",
+          "tests/test_robustness_depth.py"
+        ],
+        "shard_index": 21,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_canon_intake_variant_planning_approval.py",
+          "tests/test_lab_state_model.py",
+          "tests/test_run_walkforward_scratch.py"
+        ],
+        "shard_index": 22,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_canon_queue_control_plane_contracts.py",
+          "tests/test_lab_state_resolver.py",
+          "tests/test_scope6_packaging_validators.py"
+        ],
+        "shard_index": 23,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_catalog_binance_usdtm_15m.py",
+          "tests/test_lab_visual_cockpit_static.py",
+          "tests/test_scope6_query_layer.py"
+        ],
+        "shard_index": 24,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_ccxt_public_funding_adapter.py",
+          "tests/test_macro_flags.py",
+          "tests/test_seeded_advisory_mc.py"
+        ],
+        "shard_index": 25,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_ccxt_public_funding_ingest.py",
+          "tests/test_macro_window_agent_output_validation.py",
+          "tests/test_shadow_adapter.py"
+        ],
+        "shard_index": 26,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_code_index.py",
+          "tests/test_nautilus_mapping_spike.py",
+          "tests/test_shadow_evidence.py"
+        ],
+        "shard_index": 27,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_decision_change_validation.py",
+          "tests/test_notifications_approvals_poc.py",
+          "tests/test_shadow_integration.py"
+        ],
+        "shard_index": 28,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_diff_scope_summary.py",
+          "tests/test_offline_research_runner.py",
+          "tests/test_shadow_parity.py"
+        ],
+        "shard_index": 29,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_draft_grid_generator.py",
+          "tests/test_offline_runner_canonical_1d.py",
+          "tests/test_shadow_run_helper.py"
+        ],
+        "shard_index": 30,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_evaluation.py",
+          "tests/test_offline_runner_funding_input.py",
+          "tests/test_shadow_signal_summary_v2_validation.py"
+        ],
+        "shard_index": 31,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_evaluation_cost_drag.py",
+          "tests/test_oos_gate.py",
+          "tests/test_shadow_signal_summary_validation.py"
+        ],
+        "shard_index": 32,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_evaluation_window.py",
+          "tests/test_operator_dashboard_api.py",
+          "tests/test_signal_provider.py"
+        ],
+        "shard_index": 33,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_external_analytics_pilot.py",
+          "tests/test_optuna_search_pilot.py",
+          "tests/test_spec_signal_compiler.py"
+        ],
+        "shard_index": 34,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_external_content_readiness_writer.py",
+          "tests/test_outcome_ledger_build_from_rep.py",
+          "tests/test_status_snapshot.py"
+        ],
+        "shard_index": 35,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_external_robustness_mc_pilot.py",
+          "tests/test_overlay_evaluator.py",
+          "tests/test_strategy_spec_external_content_readiness_contract.py"
+        ],
+        "shard_index": 36,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_external_simulator_pilot.py",
+          "tests/test_overlay_shadow_log_validation.py",
+          "tests/test_takerflow_archive_recon.py"
+        ],
+        "shard_index": 37,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_external_workflow_hyperopt_pilot.py",
+          "tests/test_paper_broker.py",
+          "tests/test_validate_binance_usdtm_15m.py"
+        ],
+        "shard_index": 38,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_formalize_research_idea.py",
+          "tests/test_paper_ledger.py",
+          "tests/test_validate_candidate_registry.py"
+        ],
+        "shard_index": 39,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_funding_feature_materialization.py",
+          "tests/test_paper_scheduler.py",
+          "tests/test_validate_dashboard_data.py"
+        ],
+        "shard_index": 40,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_funding_series_provenance.py",
+          "tests/test_paper_trader_once.py",
+          "tests/test_validate_data_feature_availability.py"
+        ],
+        "shard_index": 41,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_generate_robustness_report.py",
+          "tests/test_paper_trader_position_flow.py",
+          "tests/test_validate_indicator_catalogs.py"
+        ],
+        "shard_index": 42,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_generate_static_dashboard.py",
+          "tests/test_paper_trader_price_ref_flow.py",
+          "tests/test_validate_lifecycle_changes.py"
+        ],
+        "shard_index": 43,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_generic_robustness_review_reach.py",
+          "tests/test_paper_trader_signal_flow.py",
+          "tests/test_validate_outcome_ledger.py"
+        ],
+        "shard_index": 44,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_import_binance_usdtm_15m.py",
+          "tests/test_perp_public_data_adapter.py",
+          "tests/test_validate_paper_state.py"
+        ],
+        "shard_index": 45,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_lab_approval_queue.py",
+          "tests/test_pre_gate_advisory_combiner.py",
+          "tests/test_validate_reconciliations.py"
+        ],
+        "shard_index": 46,
+        "test_file_count": 3
+      },
+      {
+        "files": [
+          "tests/test_lab_cockpit.py",
+          "tests/test_pre_gate_advisory_snapshot_validation.py",
+          "tests/test_validate_result_populations.py"
+        ],
+        "shard_index": 47,
+        "test_file_count": 3
+      }
+    ],
+    "discovered_tracked_file_count": 152,
+    "duplicate_files": [],
+    "enabled": true,
+    "exact_coverage": true,
+    "exactly_once_required": true,
+    "exclusive_shard_indices": [
+      0
+    ],
+    "executed_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47
+    ],
+    "isolated_execution": "exclusive",
+    "maximum_elapsed_seconds": 1028.954,
+    "missing_files": [],
+    "not_run_indices": [],
+    "parallel_phase_skipped": false,
+    "parallel_workers": 4,
+    "partition_strategy": "isolated-dedicated-then-index-modulo",
+    "profile_id": "full-release-balanced-v1",
+    "profile_timeout_seconds": 1800,
+    "profile_version": 1,
+    "selected_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47
+    ],
+    "shard_count": 48,
+    "shards": [
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_research_query.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 1028.954,
+        "exit_code": 0,
+        "files": [
+          "tests/test_research_query.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 0,
+        "status": "pass",
+        "test_file_count": 1,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_advisory_analytics_metrics.py tests/test_lab_cockpit_pipeline_state.py tests/test_price_ref_provider.py tests/test_validate_strategy_specs.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 13.859,
+        "exit_code": 0,
+        "files": [
+          "tests/test_advisory_analytics_metrics.py",
+          "tests/test_lab_cockpit_pipeline_state.py",
+          "tests/test_price_ref_provider.py",
+          "tests/test_validate_strategy_specs.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 1,
+        "status": "pass",
+        "test_file_count": 4,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_agent_candidate_review_packet.py tests/test_lab_cockpit_product_runs.py tests/test_purgedcv_pilot.py tests/test_validate_variant_sweep_artifacts.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 40.328,
+        "exit_code": 0,
+        "files": [
+          "tests/test_agent_candidate_review_packet.py",
+          "tests/test_lab_cockpit_product_runs.py",
+          "tests/test_purgedcv_pilot.py",
+          "tests/test_validate_variant_sweep_artifacts.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 2,
+        "status": "pass",
+        "test_file_count": 4,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_agent_canonical_crossing_build.py tests/test_lab_dashboard.py tests/test_register_binance_usdtm_1d_lineage.py tests/test_validation_summary.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 8.296,
+        "exit_code": 0,
+        "files": [
+          "tests/test_agent_canonical_crossing_build.py",
+          "tests/test_lab_dashboard.py",
+          "tests/test_register_binance_usdtm_1d_lineage.py",
+          "tests/test_validation_summary.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 3,
+        "status": "pass",
+        "test_file_count": 4,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_agent_donchian_adapter.py tests/test_lab_event_tape_agent_dashboard_replay.py tests/test_registry_validation.py tests/test_vectorbt_sweep_comparator.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 8.187,
+        "exit_code": 0,
+        "files": [
+          "tests/test_agent_donchian_adapter.py",
+          "tests/test_lab_event_tape_agent_dashboard_replay.py",
+          "tests/test_registry_validation.py",
+          "tests/test_vectorbt_sweep_comparator.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 4,
+        "status": "pass",
+        "test_file_count": 4,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_agent_experiment_runner.py tests/test_lab_event_tape_contract.py tests/test_release_notes_validation.py tests/test_vectorbt_triage_sidecar.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 10.578,
+        "exit_code": 0,
+        "files": [
+          "tests/test_agent_experiment_runner.py",
+          "tests/test_lab_event_tape_contract.py",
+          "tests/test_release_notes_validation.py",
+          "tests/test_vectorbt_triage_sidecar.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 5,
+        "status": "pass",
+        "test_file_count": 4,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_agent_formalizer_runner_bridge.py tests/test_lab_event_tape_notify_report_replay.py tests/test_resample_binance_usdtm_15m_to_4h.py tests/test_verify.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 25.016,
+        "exit_code": 0,
+        "files": [
+          "tests/test_agent_formalizer_runner_bridge.py",
+          "tests/test_lab_event_tape_notify_report_replay.py",
+          "tests/test_resample_binance_usdtm_15m_to_4h.py",
+          "tests/test_verify.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 6,
+        "status": "pass",
+        "test_file_count": 4,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_agent_idea_formalizer.py tests/test_lab_event_tape_queue_scheduler_replay.py tests/test_research_idea_validator.py tests/test_verify_shard_profiles.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 6.219,
+        "exit_code": 0,
+        "files": [
+          "tests/test_agent_idea_formalizer.py",
+          "tests/test_lab_event_tape_queue_scheduler_replay.py",
+          "tests/test_research_idea_validator.py",
+          "tests/test_verify_shard_profiles.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 7,
+        "status": "pass",
+        "test_file_count": 4,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_agent_inbox_intake.py tests/test_lab_factorytest_synthetic_population.py tests/test_research_query_agent_outputs.py tests/test_walkforward_fold_manifest_validator.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 290.266,
+        "exit_code": 0,
+        "files": [
+          "tests/test_agent_inbox_intake.py",
+          "tests/test_lab_factorytest_synthetic_population.py",
+          "tests/test_research_query_agent_outputs.py",
+          "tests/test_walkforward_fold_manifest_validator.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 8,
+        "status": "pass",
+        "test_file_count": 4,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_agent_output_validation.py tests/test_lab_operator_surface.py tests/test_research_query_bucket_mappings.py tests/test_walkforward_purged_folds.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 287.781,
+        "exit_code": 0,
+        "files": [
+          "tests/test_agent_output_validation.py",
+          "tests/test_lab_operator_surface.py",
+          "tests/test_research_query_bucket_mappings.py",
+          "tests/test_walkforward_purged_folds.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 9,
+        "status": "pass",
+        "test_file_count": 4,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_agent_robustness_diagnostician.py tests/test_lab_pipeline_agent_adapters.py tests/test_research_query_lifecycle_views.py tests/test_walkforward_run_report_validator.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 413.859,
+        "exit_code": 0,
+        "files": [
+          "tests/test_agent_robustness_diagnostician.py",
+          "tests/test_lab_pipeline_agent_adapters.py",
+          "tests/test_research_query_lifecycle_views.py",
+          "tests/test_walkforward_run_report_validator.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 10,
+        "status": "pass",
+        "test_file_count": 4,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_agent_toolcontext_sandbox.py tests/test_lab_pipeline_bridge_adapter.py tests/test_research_query_macro_window_agent_outputs.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 288.687,
+        "exit_code": 0,
+        "files": [
+          "tests/test_agent_toolcontext_sandbox.py",
+          "tests/test_lab_pipeline_bridge_adapter.py",
+          "tests/test_research_query_macro_window_agent_outputs.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 11,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_backtest.py tests/test_lab_pipeline_gate_actions.py tests/test_research_query_outcome_ledger_views.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 320.25,
+        "exit_code": 0,
+        "files": [
+          "tests/test_backtest.py",
+          "tests/test_lab_pipeline_gate_actions.py",
+          "tests/test_research_query_outcome_ledger_views.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 12,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_backtest_liquidation.py tests/test_lab_pipeline_gates_adapter.py tests/test_research_query_overlay_shadow_logs.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 284.219,
+        "exit_code": 0,
+        "files": [
+          "tests/test_backtest_liquidation.py",
+          "tests/test_lab_pipeline_gates_adapter.py",
+          "tests/test_research_query_overlay_shadow_logs.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 13,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_binance_perp_realism.py tests/test_lab_pipeline_orchestrator.py tests/test_research_query_pre_gate_advisory_snapshots.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 279.188,
+        "exit_code": 0,
+        "files": [
+          "tests/test_binance_perp_realism.py",
+          "tests/test_lab_pipeline_orchestrator.py",
+          "tests/test_research_query_pre_gate_advisory_snapshots.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 14,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_bucket_mapping_validation.py tests/test_lab_pipeline_queue_status.py tests/test_research_query_reconciliation_views.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 318.313,
+        "exit_code": 0,
+        "files": [
+          "tests/test_bucket_mapping_validation.py",
+          "tests/test_lab_pipeline_queue_status.py",
+          "tests/test_research_query_reconciliation_views.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 15,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_candidate_lifecycle_engine.py tests/test_lab_pipeline_runner_adapter.py tests/test_research_query_shadow_signal_summary_views.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 316.125,
+        "exit_code": 0,
+        "files": [
+          "tests/test_candidate_lifecycle_engine.py",
+          "tests/test_lab_pipeline_runner_adapter.py",
+          "tests/test_research_query_shadow_signal_summary_views.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 16,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_canon_dispatch_execution_contract.py tests/test_lab_readiness.py tests/test_research_query_shadow_signal_views.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 166.453,
+        "exit_code": 0,
+        "files": [
+          "tests/test_canon_dispatch_execution_contract.py",
+          "tests/test_lab_readiness.py",
+          "tests/test_research_query_shadow_signal_views.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 17,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_canon_gate_c_lineage_bytes.py tests/test_lab_reporting.py tests/test_research_query_stages_6_7.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 229.969,
+        "exit_code": 0,
+        "files": [
+          "tests/test_canon_gate_c_lineage_bytes.py",
+          "tests/test_lab_reporting.py",
+          "tests/test_research_query_stages_6_7.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 18,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_canon_intake_eligibility_validator.py tests/test_lab_run_registry.py tests/test_research_query_walkforward_views.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 44.937,
+        "exit_code": 0,
+        "files": [
+          "tests/test_canon_intake_eligibility_validator.py",
+          "tests/test_lab_run_registry.py",
+          "tests/test_research_query_walkforward_views.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 19,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_canon_intake_queue_admission.py tests/test_lab_scheduler_shell.py tests/test_research_replay_normalization.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 86.437,
+        "exit_code": 0,
+        "files": [
+          "tests/test_canon_intake_queue_admission.py",
+          "tests/test_lab_scheduler_shell.py",
+          "tests/test_research_replay_normalization.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 20,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_canon_intake_spec_writer.py tests/test_lab_state_coverage_audit.py tests/test_robustness_depth.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 14.391,
+        "exit_code": 0,
+        "files": [
+          "tests/test_canon_intake_spec_writer.py",
+          "tests/test_lab_state_coverage_audit.py",
+          "tests/test_robustness_depth.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 21,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_canon_intake_variant_planning_approval.py tests/test_lab_state_model.py tests/test_run_walkforward_scratch.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 12.453,
+        "exit_code": 0,
+        "files": [
+          "tests/test_canon_intake_variant_planning_approval.py",
+          "tests/test_lab_state_model.py",
+          "tests/test_run_walkforward_scratch.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 22,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_canon_queue_control_plane_contracts.py tests/test_lab_state_resolver.py tests/test_scope6_packaging_validators.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 4.61,
+        "exit_code": 0,
+        "files": [
+          "tests/test_canon_queue_control_plane_contracts.py",
+          "tests/test_lab_state_resolver.py",
+          "tests/test_scope6_packaging_validators.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 23,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_catalog_binance_usdtm_15m.py tests/test_lab_visual_cockpit_static.py tests/test_scope6_query_layer.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 218.625,
+        "exit_code": 0,
+        "files": [
+          "tests/test_catalog_binance_usdtm_15m.py",
+          "tests/test_lab_visual_cockpit_static.py",
+          "tests/test_scope6_query_layer.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 24,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_ccxt_public_funding_adapter.py tests/test_macro_flags.py tests/test_seeded_advisory_mc.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 7.0,
+        "exit_code": 0,
+        "files": [
+          "tests/test_ccxt_public_funding_adapter.py",
+          "tests/test_macro_flags.py",
+          "tests/test_seeded_advisory_mc.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 25,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_ccxt_public_funding_ingest.py tests/test_macro_window_agent_output_validation.py tests/test_shadow_adapter.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 3.907,
+        "exit_code": 0,
+        "files": [
+          "tests/test_ccxt_public_funding_ingest.py",
+          "tests/test_macro_window_agent_output_validation.py",
+          "tests/test_shadow_adapter.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 26,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_code_index.py tests/test_nautilus_mapping_spike.py tests/test_shadow_evidence.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 17.968,
+        "exit_code": 0,
+        "files": [
+          "tests/test_code_index.py",
+          "tests/test_nautilus_mapping_spike.py",
+          "tests/test_shadow_evidence.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 27,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_decision_change_validation.py tests/test_notifications_approvals_poc.py tests/test_shadow_integration.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 4.359,
+        "exit_code": 0,
+        "files": [
+          "tests/test_decision_change_validation.py",
+          "tests/test_notifications_approvals_poc.py",
+          "tests/test_shadow_integration.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 28,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_diff_scope_summary.py tests/test_offline_research_runner.py tests/test_shadow_parity.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 124.266,
+        "exit_code": 0,
+        "files": [
+          "tests/test_diff_scope_summary.py",
+          "tests/test_offline_research_runner.py",
+          "tests/test_shadow_parity.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 29,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_draft_grid_generator.py tests/test_offline_runner_canonical_1d.py tests/test_shadow_run_helper.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 11.672,
+        "exit_code": 0,
+        "files": [
+          "tests/test_draft_grid_generator.py",
+          "tests/test_offline_runner_canonical_1d.py",
+          "tests/test_shadow_run_helper.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 30,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_evaluation.py tests/test_offline_runner_funding_input.py tests/test_shadow_signal_summary_v2_validation.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 11.75,
+        "exit_code": 0,
+        "files": [
+          "tests/test_evaluation.py",
+          "tests/test_offline_runner_funding_input.py",
+          "tests/test_shadow_signal_summary_v2_validation.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 31,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_evaluation_cost_drag.py tests/test_oos_gate.py tests/test_shadow_signal_summary_validation.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 5.422,
+        "exit_code": 0,
+        "files": [
+          "tests/test_evaluation_cost_drag.py",
+          "tests/test_oos_gate.py",
+          "tests/test_shadow_signal_summary_validation.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 32,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_evaluation_window.py tests/test_operator_dashboard_api.py tests/test_signal_provider.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 7.093,
+        "exit_code": 0,
+        "files": [
+          "tests/test_evaluation_window.py",
+          "tests/test_operator_dashboard_api.py",
+          "tests/test_signal_provider.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 33,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_external_analytics_pilot.py tests/test_optuna_search_pilot.py tests/test_spec_signal_compiler.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 6.391,
+        "exit_code": 0,
+        "files": [
+          "tests/test_external_analytics_pilot.py",
+          "tests/test_optuna_search_pilot.py",
+          "tests/test_spec_signal_compiler.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 34,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_external_content_readiness_writer.py tests/test_outcome_ledger_build_from_rep.py tests/test_status_snapshot.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 80.563,
+        "exit_code": 0,
+        "files": [
+          "tests/test_external_content_readiness_writer.py",
+          "tests/test_outcome_ledger_build_from_rep.py",
+          "tests/test_status_snapshot.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 35,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_external_robustness_mc_pilot.py tests/test_overlay_evaluator.py tests/test_strategy_spec_external_content_readiness_contract.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 3.218,
+        "exit_code": 0,
+        "files": [
+          "tests/test_external_robustness_mc_pilot.py",
+          "tests/test_overlay_evaluator.py",
+          "tests/test_strategy_spec_external_content_readiness_contract.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 36,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_external_simulator_pilot.py tests/test_overlay_shadow_log_validation.py tests/test_takerflow_archive_recon.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 3.61,
+        "exit_code": 0,
+        "files": [
+          "tests/test_external_simulator_pilot.py",
+          "tests/test_overlay_shadow_log_validation.py",
+          "tests/test_takerflow_archive_recon.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 37,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_external_workflow_hyperopt_pilot.py tests/test_paper_broker.py tests/test_validate_binance_usdtm_15m.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 6.078,
+        "exit_code": 0,
+        "files": [
+          "tests/test_external_workflow_hyperopt_pilot.py",
+          "tests/test_paper_broker.py",
+          "tests/test_validate_binance_usdtm_15m.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 38,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_formalize_research_idea.py tests/test_paper_ledger.py tests/test_validate_candidate_registry.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 4.266,
+        "exit_code": 0,
+        "files": [
+          "tests/test_formalize_research_idea.py",
+          "tests/test_paper_ledger.py",
+          "tests/test_validate_candidate_registry.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 39,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_funding_feature_materialization.py tests/test_paper_scheduler.py tests/test_validate_dashboard_data.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 5.578,
+        "exit_code": 0,
+        "files": [
+          "tests/test_funding_feature_materialization.py",
+          "tests/test_paper_scheduler.py",
+          "tests/test_validate_dashboard_data.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 40,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_funding_series_provenance.py tests/test_paper_trader_once.py tests/test_validate_data_feature_availability.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 25.312,
+        "exit_code": 0,
+        "files": [
+          "tests/test_funding_series_provenance.py",
+          "tests/test_paper_trader_once.py",
+          "tests/test_validate_data_feature_availability.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 41,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_generate_robustness_report.py tests/test_paper_trader_position_flow.py tests/test_validate_indicator_catalogs.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 8.75,
+        "exit_code": 0,
+        "files": [
+          "tests/test_generate_robustness_report.py",
+          "tests/test_paper_trader_position_flow.py",
+          "tests/test_validate_indicator_catalogs.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 42,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_generate_static_dashboard.py tests/test_paper_trader_price_ref_flow.py tests/test_validate_lifecycle_changes.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 26.813,
+        "exit_code": 0,
+        "files": [
+          "tests/test_generate_static_dashboard.py",
+          "tests/test_paper_trader_price_ref_flow.py",
+          "tests/test_validate_lifecycle_changes.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 43,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_generic_robustness_review_reach.py tests/test_paper_trader_signal_flow.py tests/test_validate_outcome_ledger.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 9.39,
+        "exit_code": 0,
+        "files": [
+          "tests/test_generic_robustness_review_reach.py",
+          "tests/test_paper_trader_signal_flow.py",
+          "tests/test_validate_outcome_ledger.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 44,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_import_binance_usdtm_15m.py tests/test_perp_public_data_adapter.py tests/test_validate_paper_state.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 8.844,
+        "exit_code": 0,
+        "files": [
+          "tests/test_import_binance_usdtm_15m.py",
+          "tests/test_perp_public_data_adapter.py",
+          "tests/test_validate_paper_state.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 45,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_lab_approval_queue.py tests/test_pre_gate_advisory_combiner.py tests/test_validate_reconciliations.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 4.531,
+        "exit_code": 0,
+        "files": [
+          "tests/test_lab_approval_queue.py",
+          "tests/test_pre_gate_advisory_combiner.py",
+          "tests/test_validate_reconciliations.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 46,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      },
+      {
+        "command": "C:\\GitHub\\crypto-perp-wedge\\.venv\\Scripts\\python.exe -m pytest tests/test_lab_cockpit.py tests/test_pre_gate_advisory_snapshot_validation.py tests/test_validate_result_populations.py -q",
+        "completed": true,
+        "completion_status": "complete",
+        "elapsed_seconds": 14.469,
+        "exit_code": 0,
+        "files": [
+          "tests/test_lab_cockpit.py",
+          "tests/test_pre_gate_advisory_snapshot_validation.py",
+          "tests/test_validate_result_populations.py"
+        ],
+        "shard_count": 48,
+        "shard_index": 47,
+        "status": "pass",
+        "test_file_count": 3,
+        "timed_out": false,
+        "timeout_seconds": 1800
+      }
+    ],
+    "slowest_shard": {
+      "elapsed_seconds": 1028.954,
+      "shard_index": 0
+    },
+    "test_file_count": 152,
+    "unique_assigned_file_count": 152,
+    "untracked_files": [],
+    "workers": 4
+  }
+}

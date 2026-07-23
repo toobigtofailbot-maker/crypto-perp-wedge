@@ -1,0 +1,16 @@
+{
+  "profiles": {
+    "full-release-balanced-v1": {
+      "profile_id": "full-release-balanced-v1",
+      "profile_version": 1,
+      "shard_count": 48,
+      "isolated_files": [
+        "tests/test_research_query.py"
+      ],
+      "isolated_execution": "exclusive",
+      "partition_strategy": "isolated-dedicated-then-index-modulo",
+      "timeout_seconds": 1800,
+      "exactly_once": true
+    }
+  }
+}

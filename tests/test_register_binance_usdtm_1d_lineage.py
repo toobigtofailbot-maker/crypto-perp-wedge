@@ -137,6 +137,33 @@ def test_whole_file_checksum_mismatch_is_rejected(tmp_path: Path):
         _build(source, "0" * 64)
 
 
+def test_wrong_columns_and_column_order_are_rejected(tmp_path: Path):
+    missing = _frame().drop(columns=["volume"])
+    source, sha256 = _write_parquet(tmp_path / "missing-column.parquet", missing)
+    with pytest.raises(LineageError, match="column contract mismatch"):
+        _build(source, sha256)
+
+    reordered = _frame()[list(reversed(_frame().columns))]
+    source, sha256 = _write_parquet(tmp_path / "reordered.parquet", reordered)
+    with pytest.raises(LineageError, match="column ordering"):
+        _build(source, sha256)
+
+
+def test_non_utc_day_boundary_and_wrong_close_time_are_rejected(tmp_path: Path):
+    shifted = _frame()
+    shifted["open_time_ms"] += 3_600_000
+    shifted["close_time_ms"] += 3_600_000
+    source, sha256 = _write_parquet(tmp_path / "shifted-boundary.parquet", shifted)
+    with pytest.raises(LineageError, match="00:00:00 UTC"):
+        _build(source, sha256)
+
+    wrong_close = _frame()
+    wrong_close.loc[1, "close_time_ms"] -= 1
+    source, sha256 = _write_parquet(tmp_path / "wrong-close.parquet", wrong_close)
+    with pytest.raises(LineageError, match="close_time_ms"):
+        _build(source, sha256)
+
+
 @pytest.mark.parametrize(
     ("column", "value", "message"),
     [

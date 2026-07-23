@@ -10,7 +10,7 @@ import sys
 from collections import Counter
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import dataclass, field
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 import pandas as pd
@@ -18,6 +18,14 @@ from jsonschema import Draft7Validator
 
 from lib.backtest import run_backtest
 from lib.evaluation import max_drawdown, sharpe
+from tools.data.register_binance_usdtm_1d_lineage import (
+    CADENCE_MS as CANONICAL_1D_CADENCE_MS,
+    DATASET_ID as CANONICAL_1D_DATASET_ID,
+    REQUIRED_COLUMNS as CANONICAL_1D_SOURCE_COLUMNS,
+    SNAPSHOT_VERSION as CANONICAL_1D_SNAPSHOT_VERSION,
+    build_lineage as build_1d_lineage,
+    canonical_json_bytes as canonical_1d_catalog_bytes,
+)
 from tools.registry.validate_funding_series_provenance import (
     DEFAULT_SCHEMA_PATH as DEFAULT_FUNDING_PROVENANCE_SCHEMA_PATH,
     FundingProvenanceError,
@@ -100,6 +108,25 @@ CANONICAL_FUNDING_EXPECTED_IDENTITY: dict[str, Any] = {
 CANONICAL_15M_DATA_CATALOG_REF = "15m_ohlcv_test_fixture_offline_only"
 D4_PROVENANCE_MODE_NOTE = "provenance_mode=d4_catalog_slice"
 D4H_PROVENANCE_MODE_NOTE = "provenance_mode=d4h_derived_catalog_slice"
+CANONICAL_1D_PROVENANCE_MODE_NOTE = "provenance_mode=canonical_1d_public_archive_snapshot"
+DEFAULT_1D_CATALOG_SLICE_PATH = (
+    REPO_ROOT
+    / "research"
+    / "data_slices"
+    / "binance_usdtm_btcusdt_1d"
+    / "binance_usdtm_btcusdt_1d_20200101_20260411.catalog_slice.json"
+)
+DEFAULT_1D_VALIDATOR_PATH = (
+    REPO_ROOT / "tools" / "data" / "register_binance_usdtm_1d_lineage.py"
+)
+OFFICIAL_1D_CATALOG_ARTIFACT_SHA256 = (
+    "51fc09918841cd3ac353efe375af91a4732080571f9b1af634f5d1a426217adb"
+)
+OFFICIAL_1D_SOURCE_SHA256 = (
+    "c6e2e7ce030db6a710d95e48325fc77b27efbbdd441199b3d7458d4394795802"
+)
+OFFICIAL_1D_SOURCE_BYTE_LENGTH = 200_961
+OFFICIAL_1D_ROW_COUNT = 2_293
 DEFAULT_4H_CATALOG_SLICE_PATH = (
     REPO_ROOT
     / "research"
@@ -918,6 +945,238 @@ def _load_4h_ohlcv_input(
         expected_delta=pd.Timedelta(hours=4),
         min_rows=20,
         additional_columns=additional_columns,
+    )
+
+
+def _canonical_1d_repo_path(value: Any, label: str) -> PurePosixPath:
+    if not isinstance(value, str) or not value or "\\" in value:
+        raise OfflineSweepError(f"canonical 1d {label} must be a non-empty POSIX path")
+    logical = PurePosixPath(value)
+    if logical.is_absolute() or ".." in logical.parts:
+        raise OfflineSweepError(f"canonical 1d {label} must remain repository-relative")
+    return logical
+
+
+def _canonical_1d_configured_path(path: Path, label: str) -> PurePosixPath:
+    try:
+        relative = path.relative_to(REPO_ROOT)
+    except ValueError as exc:
+        raise OfflineSweepError(
+            f"canonical 1d configured {label} must remain under the repository root"
+        ) from exc
+    return _canonical_1d_repo_path(relative.as_posix(), label)
+
+
+def _path_is_link(path: Path) -> bool:
+    is_junction = getattr(path, "is_junction", None)
+    return path.is_symlink() or (callable(is_junction) and is_junction())
+
+
+def _resolve_canonical_1d_path(
+    logical: PurePosixPath,
+    *,
+    label: str,
+) -> Path:
+    if _path_is_link(REPO_ROOT):
+        raise OfflineSweepError("canonical 1d repository root must not be a link")
+    try:
+        root = REPO_ROOT.resolve(strict=True)
+        candidate = root.joinpath(*logical.parts)
+        current = root
+        for part in logical.parts:
+            current = current / part
+            if _path_is_link(current):
+                raise OfflineSweepError(f"canonical 1d {label} must not traverse a link")
+        resolved = candidate.resolve(strict=True)
+    except FileNotFoundError as exc:
+        raise OfflineSweepError(f"canonical 1d {label} does not exist: {logical}") from exc
+    if resolved == root or root not in resolved.parents:
+        raise OfflineSweepError(f"canonical 1d {label} escapes the repository root")
+    if not resolved.is_file():
+        raise OfflineSweepError(f"canonical 1d {label} must be a file")
+    return resolved
+
+
+def _canonical_1d_execution_input(
+    additional_columns: tuple[str, ...] = (),
+) -> _ExecutionInput:
+    catalog_logical = _canonical_1d_configured_path(
+        DEFAULT_1D_CATALOG_SLICE_PATH,
+        "catalog path",
+    )
+    catalog_path = _resolve_canonical_1d_path(catalog_logical, label="catalog")
+    validator_logical = _canonical_1d_configured_path(
+        DEFAULT_1D_VALIDATOR_PATH,
+        "validator path",
+    )
+    validator_path = _resolve_canonical_1d_path(validator_logical, label="validator")
+
+    catalog_bytes = catalog_path.read_bytes()
+    catalog_sha256 = _sha256_file_hex(catalog_path)
+    if catalog_sha256 != OFFICIAL_1D_CATALOG_ARTIFACT_SHA256:
+        raise OfflineSweepError("canonical 1d catalog SHA256 does not match official identity")
+    try:
+        catalog = json.loads(catalog_bytes)
+    except (TypeError, ValueError) as exc:
+        raise OfflineSweepError("canonical 1d catalog is not valid JSON") from exc
+    if not isinstance(catalog, dict):
+        raise OfflineSweepError("canonical 1d catalog root must be an object")
+
+    if catalog.get("dataset_id") != CANONICAL_1D_DATASET_ID:
+        raise OfflineSweepError("canonical 1d catalog dataset_id mismatch")
+    if catalog.get("snapshot_version") != CANONICAL_1D_SNAPSHOT_VERSION:
+        raise OfflineSweepError("canonical 1d catalog snapshot_version mismatch")
+    if catalog.get("timeframe") != "1d":
+        raise OfflineSweepError("canonical 1d catalog timeframe mismatch")
+    if catalog.get("catalog_status") != "valid_offline_provenance_tracked_snapshot":
+        raise OfflineSweepError("canonical 1d catalog status is not valid")
+    if catalog.get("unresolved_policy") != "reject":
+        raise OfflineSweepError("canonical 1d catalog must use unresolved_policy=reject")
+    if catalog.get("source", {}).get("method") != (
+        "existing local public archive snapshot; no fetch performed by this package"
+    ):
+        raise OfflineSweepError("canonical 1d source posture must be the registered direct snapshot")
+    if catalog.get("source", {}).get("credentials_used") is not False:
+        raise OfflineSweepError("canonical 1d source must be public and credential-free")
+
+    source_logical = _canonical_1d_repo_path(catalog.get("path"), "source path")
+    source_path = _resolve_canonical_1d_path(source_logical, label="source")
+    pre_read_source_sha256 = _sha256_file_hex(source_path)
+    pre_read_source_size = source_path.stat().st_size
+    if pre_read_source_sha256 != OFFICIAL_1D_SOURCE_SHA256:
+        raise OfflineSweepError("canonical 1d source SHA256 does not match official identity")
+    if pre_read_source_size != OFFICIAL_1D_SOURCE_BYTE_LENGTH:
+        raise OfflineSweepError("canonical 1d source byte length does not match official identity")
+
+    try:
+        rebuilt_catalog = build_1d_lineage(
+            source_path,
+            logical_path=source_logical.as_posix(),
+            expected_sha256=OFFICIAL_1D_SOURCE_SHA256,
+        )
+    except Exception as exc:
+        raise OfflineSweepError(f"canonical 1d lineage validation failed: {exc}") from exc
+    if canonical_1d_catalog_bytes(rebuilt_catalog) != catalog_bytes:
+        raise OfflineSweepError("canonical 1d catalog does not match validated source lineage")
+
+    try:
+        source_frame = pd.read_parquet(source_path)
+    except Exception as exc:
+        raise OfflineSweepError(f"canonical 1d source read failed after validation: {exc}") from exc
+    if list(source_frame.columns) != CANONICAL_1D_SOURCE_COLUMNS:
+        raise OfflineSweepError("canonical 1d source columns changed after validation")
+    if len(source_frame) != OFFICIAL_1D_ROW_COUNT:
+        raise OfflineSweepError("canonical 1d source row count does not match official identity")
+    missing_declared = set(additional_columns) - set(source_frame.columns)
+    if missing_declared:
+        raise OfflineSweepError(
+            "canonical 1d source missing declared non-OHLCV columns: "
+            f"{sorted(missing_declared)}"
+        )
+
+    timestamps = pd.to_datetime(
+        source_frame["open_time_ms"].astype("int64"),
+        unit="ms",
+        utc=True,
+    )
+    retained_columns = [*REQUIRED_OHLCV_COLUMNS, *additional_columns]
+    ohlcv = source_frame[retained_columns].astype(float).copy()
+    ohlcv.index = pd.DatetimeIndex(timestamps, name="timestamp")
+    if ohlcv.index.has_duplicates or not ohlcv.index.is_monotonic_increasing:
+        raise OfflineSweepError("canonical 1d source timestamps changed after validation")
+    deltas = ohlcv.index.to_series().diff().dropna().unique()
+    if len(deltas) != 1 or deltas[0] != pd.Timedelta(milliseconds=CANONICAL_1D_CADENCE_MS):
+        raise OfflineSweepError("canonical 1d source cadence changed after validation")
+
+    post_read_source_sha256 = _sha256_file_hex(source_path)
+    post_read_source_size = source_path.stat().st_size
+    post_read_catalog_sha256 = _sha256_file_hex(catalog_path)
+    if (
+        post_read_source_sha256 != pre_read_source_sha256
+        or post_read_source_size != pre_read_source_size
+    ):
+        raise OfflineSweepError("canonical 1d source mutated after validation/read")
+    if post_read_catalog_sha256 != catalog_sha256:
+        raise OfflineSweepError("canonical 1d catalog mutated after validation/read")
+
+    coverage = catalog["coverage"]
+    findings = catalog["findings"]
+    validator_sha256 = _sha256_file_hex(validator_path)
+    columns_schema_identity = _sha256_prefixed(CANONICAL_1D_SOURCE_COLUMNS)
+    validation_identity = _sha256_prefixed(
+        {
+            "catalog_sha256": f"sha256:{catalog_sha256}",
+            "validator_path": validator_logical.as_posix(),
+            "validator_sha256": f"sha256:{validator_sha256}",
+            "catalog_matches_rebuilt_lineage": True,
+        }
+    )
+    input_identity = {
+        "canonical_route": "1d",
+        "dataset_id": catalog["dataset_id"],
+        "snapshot_version": catalog["snapshot_version"],
+        "catalog_path": catalog_logical.as_posix(),
+        "catalog_sha256": f"sha256:{catalog_sha256}",
+        "source_path": source_logical.as_posix(),
+        "source_raw_sha256": f"sha256:{post_read_source_sha256}",
+        "source_byte_length": post_read_source_size,
+        "row_count": len(ohlcv),
+        "coverage_start_utc": coverage["start_open_utc"],
+        "coverage_end_open_utc": coverage["end_open_utc"],
+        "coverage_end_close_utc": coverage["end_close_utc"],
+        "timeframe": "1d",
+        "cadence_ms": CANONICAL_1D_CADENCE_MS,
+        "timezone": "UTC",
+        "columns": CANONICAL_1D_SOURCE_COLUMNS,
+        "columns_schema_identity": columns_schema_identity,
+        "duplicate_policy": findings["duplicate_policy"],
+        "duplicate_row_count": findings["duplicate_row_count"],
+        "gap_policy": findings["gap_policy"],
+        "gap_count": findings["gap_count"],
+        "missing_bar_count": findings["missing_bar_count"],
+        "partial_window_posture": "completed_bars_only_reject_partial",
+        "open_or_incomplete_bar_count": findings["open_or_incomplete_bar_count"],
+        "source_type": "direct_public_archive_snapshot",
+        "source_identity": catalog["source"],
+        "parent_identity": None,
+        "derivation_identity": None,
+        "validation_identity": validation_identity,
+        "validation_artifact_kind": "catalog_slice_with_embedded_validation_findings",
+        "validator_path": validator_logical.as_posix(),
+        "validator_sha256": f"sha256:{validator_sha256}",
+    }
+    input_identity_hash = _sha256_prefixed(input_identity)
+    identity_note = "canonical_1d_input_identity=" + json.dumps(
+        input_identity,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    return _ExecutionInput(
+        mode="canonical_1d_public_archive_snapshot",
+        execution_provenance_class="canonical_direct_real_data",
+        ohlcv=ohlcv,
+        funding=_zero_funding_for_ohlcv(ohlcv),
+        timeframe="1d",
+        data_catalog_ref=(
+            f"{catalog_logical.as_posix()}#sha256:{catalog_sha256}"
+        ),
+        data_slice_identity=(
+            f"{CANONICAL_1D_DATASET_ID}:identity_{input_identity_hash}"
+        ),
+        environment_summary=[
+            "canonical_1d_public_archive_snapshot_input",
+            "execution_provenance_class=canonical_direct_real_data",
+            "offline_only_no_exchange_api",
+        ],
+        data_coverage_notes=[
+            CANONICAL_1D_PROVENANCE_MODE_NOTE,
+            identity_note,
+            f"1d_validation_identity={validation_identity}",
+            "offline only",
+            "no exchange/API contact",
+            "not live/paper input",
+        ],
+        funding_input_identity=_funding_input_identity_off(),
     )
 
 
@@ -2101,6 +2360,9 @@ def _execution_provenance_identity(execution_input: _ExecutionInput | None) -> d
         }
     d3_validation_identity = None
     for note in execution_input.data_coverage_notes:
+        if note.startswith("1d_validation_identity="):
+            d3_validation_identity = note.split("=", 1)[1]
+            break
         if note.startswith("d4h_validation_report_sha256="):
             d3_validation_identity = note.split("=", 1)[1]
             break
@@ -3050,6 +3312,7 @@ def run_offline_sweep(
     deterministic_seed: int = 0,
     canonical_15m: bool = False,
     canonical_4h: bool = False,
+    canonical_1d: bool = False,
     ohlcv_input_path: Path | None = None,
     funding_cost_mode: str = "off",
     funding_provenance_path: Path | None = None,
@@ -3091,8 +3354,8 @@ def run_offline_sweep(
         )
     if funding_cost_mode == "on" and funding_provenance_path is None:
         raise OfflineSweepError("--funding-provenance is required when --funding-cost-mode=on")
-    if canonical_15m and canonical_4h:
-        raise OfflineSweepError("--canonical-15m and --canonical-4h are mutually exclusive")
+    if sum((canonical_15m, canonical_4h, canonical_1d)) > 1:
+        raise OfflineSweepError("canonical 15m, 4h, and 1d routes are mutually exclusive")
     guarded_output_dir = _guard_output_dir(output_dir, write_result_population)
     strategy_spec, manifest, sweep_plan = _validate_parent_inputs(
         strategy_spec_path,
@@ -3134,6 +3397,24 @@ def run_offline_sweep(
             d4h_derivation_report_path,
             declared_non_ohlcv_columns,
         )
+    elif canonical_1d:
+        primary_timeframe = strategy_spec.get("timeframe_and_data", {}).get("primary_timeframe")
+        sweep_timeframe = sweep_plan.get("data_and_timeframe_assumptions", {}).get(
+            "primary_timeframe"
+        )
+        if primary_timeframe != "1d" or sweep_timeframe != "1d":
+            raise OfflineSweepError("canonical_1d requires 1d Strategy Spec and Sweep Plan")
+        if ohlcv_input_path is not None:
+            raise OfflineSweepError("--ohlcv-input is forbidden with --canonical-1d")
+        if d4_catalog_slice_path is not None or d2_import_report_path is not None:
+            raise OfflineSweepError("D4 15m provenance flags require --canonical-15m")
+        if (
+            d4h_catalog_slice_path is not None
+            or d4h_validation_report_path is not None
+            or d4h_derivation_report_path is not None
+        ):
+            raise OfflineSweepError("D4H provenance flags require --canonical-4h")
+        execution_input = _canonical_1d_execution_input(declared_non_ohlcv_columns)
     elif d4_catalog_slice_path is not None or d2_import_report_path is not None:
         raise OfflineSweepError("D4 provenance mode requires --canonical-15m")
     elif (
@@ -3145,7 +3426,7 @@ def run_offline_sweep(
     if funding_cost_mode == "on":
         if execution_input is None:
             raise OfflineSweepError(
-                "funding mode on requires an existing canonical 15m or 4h input route"
+                "funding mode on requires an existing canonical 15m, 4h, or 1d input route"
             )
         assert funding_provenance_path is not None
         funding_frame, funding_identity = _load_validated_funding_input(
@@ -3172,7 +3453,8 @@ def run_offline_sweep(
             )
         if execution_input is None:
             raise OfflineSweepError(
-                "evaluation window requires canonical input data (--canonical-15m or --canonical-4h)"
+                "evaluation window requires canonical input data "
+                "(--canonical-15m, --canonical-4h, or --canonical-1d)"
             )
         _validate_evaluation_window(evaluation_start, evaluation_end, execution_input.ohlcv)
     payload, aborted = _build_result_population(
@@ -3244,6 +3526,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--deterministic-seed", type=int, default=0)
     parser.add_argument("--canonical-15m", action="store_true")
     parser.add_argument("--canonical-4h", action="store_true")
+    parser.add_argument("--canonical-1d", action="store_true")
     parser.add_argument("--ohlcv-input", type=Path)
     parser.add_argument(
         "--funding-cost-mode",
@@ -3338,6 +3621,7 @@ def main(argv: list[str] | None = None) -> int:
             deterministic_seed=args.deterministic_seed,
             canonical_15m=args.canonical_15m,
             canonical_4h=args.canonical_4h,
+            canonical_1d=args.canonical_1d,
             ohlcv_input_path=args.ohlcv_input,
             funding_cost_mode=args.funding_cost_mode,
             funding_provenance_path=args.funding_provenance,

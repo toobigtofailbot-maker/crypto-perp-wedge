@@ -89,6 +89,7 @@ REQUIRED_VIEWS = {
     "v_integrity_walkforward_fold_chronology",
     "v_integrity_walkforward_fold_denominator",
     "v_integrity_walkforward_non_authority",
+    "v_integrity_dispatch_authorization_crossing_reservations",
 }
 
 EXPECTED_COLUMNS = {
@@ -412,6 +413,22 @@ EXPECTED_COLUMNS = {
         "parent_variant_id",
         "parent_sweep_plan_id",
         "parent_manifest_id",
+    ],
+    "v_integrity_dispatch_authorization_crossing_reservations": [
+        "finding_type",
+        "attempt_id",
+        "reservation_stream_path",
+        "authorization_id",
+        "authorization_target_path",
+        "dispatch_id",
+        "dispatch_record_path",
+        "run_id",
+        "execution_event_stream_path",
+        "queue_item_id",
+        "terminal_outcome",
+        "reason_code",
+        "operator_inspection_required",
+        "non_authority",
     ],
 }
 
@@ -1604,6 +1621,15 @@ def test_named_views_return_expected_columns(conn):
         actual_columns = [description[0] for description in rows.description]
 
         assert actual_columns == expected_columns
+
+
+def test_dispatch_authorization_crossing_reservation_integrity_is_empty_on_main(
+    conn,
+):
+    assert run_named_view(
+        conn,
+        "v_integrity_dispatch_authorization_crossing_reservations",
+    ) == []
 
 
 def test_candidate_overview_contains_all_registered_candidates(conn):

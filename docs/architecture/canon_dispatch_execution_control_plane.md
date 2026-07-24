@@ -121,6 +121,70 @@ ranking, recommendation, candidate, readiness, promotion, scheduler, runtime,
 paper/live, OMS, risk, reconciliation, broker, exchange, order, position,
 balance, capital, or notification authority.
 
+## Protected KDAUTH crossing reservations
+
+Normative schema:
+`research/schemas/canon_dispatch_authorization_crossing_reservation_event.schema.json`.
+
+KDAUTH crossing attempts use a separate authoritative append-only reservation
+ledger. It does not extend or change the closed KDAUTH lifecycle vocabulary.
+The authoritative root is
+`research/queue/dispatch_authorization_reservations/`, with exactly one stream
+per attempt at
+`<attempt_id>.crossing_reservation.jsonl`. Attempt IDs use
+`KDAUTH-XING-YYYYMMDD-XXXXXXXX`; event IDs are the derived
+`<attempt_id>-000001` reservation and optional `<attempt_id>-000002` terminal.
+Each stream contains exactly one first `attempt_reserved` event and zero or one
+terminal, never more than two lines and never an event after the terminal.
+
+The protected order is:
+
+1. acquire the repository-wide KDAUTH crossing lock at
+   `research/queue/dispatch_authorization_audit/.dispatch_authorization.lock`;
+2. validate the exact reviewed proposal and all references;
+3. durably publish and prove the complete `attempt_reserved` line through a
+   no-overwrite, ID-derived reservation path;
+4. only then create the KDAUTH target and append `authorization_created`;
+5. append exactly one reservation terminal under the same still-held lock;
+6. release the lock.
+
+The reservation API deliberately exposes lock-held operations so the later
+KDAUTH writer can keep the same lock instance across reservation, KDAUTH
+target/lifecycle mutation, and terminal append. No KDAUTH target or lifecycle
+mutation may begin before the reservation commit is proven durable.
+
+The terminal vocabulary is closed:
+
+- `crossing_committed` binds the exact resulting KDAUTH bytes/core and exact
+  raw `authorization_created` lifecycle line;
+- `crossing_rolled_back_clean` proves target absence and exact lifecycle-audit
+  length restoration while retaining the reservation;
+- `crossing_integrity_critical` records closed failure/uncertainty and
+  target/audit state classifications and always requires operator inspection.
+
+Every committed reservation permanently consumes its attempt, authorization,
+dispatch, run, target-path, queue-item/authorization, reviewed-content, and
+core-hash identity bindings. Success, clean rollback, integrity-critical
+failure, a missing terminal, and deletion all retain the burn. Current streams
+and committed retained Git history are both scanned; malformed or ambiguous
+history fails closed. Reservation history is never rewritten, truncated,
+deleted, repaired in place, or interpreted as retry/recovery authority.
+
+Read-only integrity visibility is exposed through
+`v_integrity_dispatch_authorization_crossing_reservations`. It surfaces
+integrity-critical and unterminated attempts, invalid sequences/bindings,
+committed crossings without the exact creation event, and any
+`authorization_created` event without an earlier exact reservation. The
+reservation ledger is control-plane integrity history only: it is not Karl's
+approval, a KDAUTH artifact or lifecycle event, a dispatch/execution record,
+scientific evidence, runner/scheduler/runtime authority, or paper/live,
+OMS/risk/reconciliation, broker/exchange/order/capital authority.
+
+This reservation capability is a prerequisite only. The retained protected
+KDAUTH-writer package must be refreshed after this ledger merges and must wire
+the exact reservation-before-mutation sequence under the same lock. This
+package does not resume or implement that writer.
+
 ## Immutable dispatch record
 
 Normative schema: `research/schemas/canon_dispatch_record.schema.json`.

@@ -1,0 +1,623 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "canon_dispatch_authorization_crossing_reservation_event.schema.json",
+  "title": "Protected KDAUTH crossing reservation event",
+  "description": "One append-only event in a per-attempt KDAUTH crossing reservation stream. This is control-plane integrity history only.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "event_id",
+    "sequence_number",
+    "event_type",
+    "attempt_id",
+    "reservation_stream_path",
+    "authorization_binding",
+    "dispatch_binding",
+    "run_binding",
+    "queue_binding",
+    "reviewed_content_binding",
+    "reserved_at",
+    "occurred_at",
+    "actor",
+    "writer_identity",
+    "identities_permanently_reserved",
+    "automatic_retry_with_same_identities_forbidden",
+    "event_payload",
+    "non_authority_declaration"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "canon_dispatch_authorization_crossing_reservation_event_v1"
+    },
+    "event_id": {
+      "type": "string",
+      "pattern": "^KDAUTH-XING-[0-9]{8}-[A-Z0-9]{8}-00000[12]$"
+    },
+    "sequence_number": {
+      "type": "integer",
+      "enum": [
+        1,
+        2
+      ]
+    },
+    "event_type": {
+      "enum": [
+        "attempt_reserved",
+        "crossing_committed",
+        "crossing_rolled_back_clean",
+        "crossing_integrity_critical"
+      ]
+    },
+    "attempt_id": {
+      "$ref": "#/definitions/attempt_id"
+    },
+    "reservation_stream_path": {
+      "$ref": "#/definitions/reservation_stream_path"
+    },
+    "authorization_binding": {
+      "$ref": "#/definitions/authorization_binding"
+    },
+    "dispatch_binding": {
+      "$ref": "#/definitions/dispatch_binding"
+    },
+    "run_binding": {
+      "$ref": "#/definitions/run_binding"
+    },
+    "queue_binding": {
+      "$ref": "#/definitions/queue_binding"
+    },
+    "reviewed_content_binding": {
+      "$ref": "#/definitions/reviewed_content_binding"
+    },
+    "reserved_at": {
+      "$ref": "#/definitions/timestamp"
+    },
+    "occurred_at": {
+      "$ref": "#/definitions/timestamp"
+    },
+    "actor": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._-]{1,128}$"
+    },
+    "writer_identity": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._-]{1,128}$"
+    },
+    "identities_permanently_reserved": {
+      "const": true
+    },
+    "automatic_retry_with_same_identities_forbidden": {
+      "const": true
+    },
+    "event_payload": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/attempt_reserved_payload"
+        },
+        {
+          "$ref": "#/definitions/crossing_committed_payload"
+        },
+        {
+          "$ref": "#/definitions/crossing_rolled_back_clean_payload"
+        },
+        {
+          "$ref": "#/definitions/crossing_integrity_critical_payload"
+        }
+      ]
+    },
+    "non_authority_declaration": {
+      "$ref": "#/definitions/non_authority_declaration"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "attempt_reserved"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "sequence_number": {
+            "const": 1
+          },
+          "event_payload": {
+            "$ref": "#/definitions/attempt_reserved_payload"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "crossing_committed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "sequence_number": {
+            "const": 2
+          },
+          "event_payload": {
+            "$ref": "#/definitions/crossing_committed_payload"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "crossing_rolled_back_clean"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "sequence_number": {
+            "const": 2
+          },
+          "event_payload": {
+            "$ref": "#/definitions/crossing_rolled_back_clean_payload"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "crossing_integrity_critical"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "sequence_number": {
+            "const": 2
+          },
+          "event_payload": {
+            "$ref": "#/definitions/crossing_integrity_critical_payload"
+          }
+        }
+      }
+    }
+  ],
+  "definitions": {
+    "hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "attempt_id": {
+      "type": "string",
+      "pattern": "^KDAUTH-XING-[0-9]{8}-[A-Z0-9]{8}$"
+    },
+    "authorization_id": {
+      "type": "string",
+      "pattern": "^KDAUTH-[A-Z0-9]+-R[0-9]+-[0-9]{4}$"
+    },
+    "dispatch_id": {
+      "type": "string",
+      "pattern": "^DSP-[0-9]{8}-[A-Z0-9]{8}$"
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^RUN-[0-9]{8}-[A-Z0-9]{8}$"
+    },
+    "queue_item_id": {
+      "type": "string",
+      "pattern": "^QI-[0-9]{8}-[A-Z0-9]{8}$"
+    },
+    "reservation_stream_path": {
+      "type": "string",
+      "pattern": "^research/queue/dispatch_authorization_reservations/KDAUTH-XING-[0-9]{8}-[A-Z0-9]{8}\\.crossing_reservation\\.jsonl$"
+    },
+    "authorization_path": {
+      "type": "string",
+      "pattern": "^research/queue/dispatch_authorizations/KDAUTH-[A-Z0-9]+-R[0-9]+-[0-9]{4}\\.dispatch_authorization\\.json$"
+    },
+    "dispatch_path": {
+      "type": "string",
+      "pattern": "^research/queue/dispatch_records/DSP-[0-9]{8}-[A-Z0-9]{8}\\.dispatch_record\\.json$"
+    },
+    "execution_stream_path": {
+      "type": "string",
+      "pattern": "^research/queue/execution_events/RUN-[0-9]{8}-[A-Z0-9]{8}\\.execution_events\\.jsonl$"
+    },
+    "authorization_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "authorization_id",
+        "authorization_target_path",
+        "authorization_core_sha256",
+        "authorization_core_hash_scope",
+        "authorization_core_canonicalization"
+      ],
+      "properties": {
+        "authorization_id": {
+          "$ref": "#/definitions/authorization_id"
+        },
+        "authorization_target_path": {
+          "$ref": "#/definitions/authorization_path"
+        },
+        "authorization_core_sha256": {
+          "$ref": "#/definitions/hash"
+        },
+        "authorization_core_hash_scope": {
+          "const": "dispatch_authorization_core_v1"
+        },
+        "authorization_core_canonicalization": {
+          "const": "repo_canonical_json_v1"
+        }
+      }
+    },
+    "dispatch_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dispatch_id",
+        "dispatch_record_path"
+      ],
+      "properties": {
+        "dispatch_id": {
+          "$ref": "#/definitions/dispatch_id"
+        },
+        "dispatch_record_path": {
+          "$ref": "#/definitions/dispatch_path"
+        }
+      }
+    },
+    "run_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "run_id",
+        "execution_event_stream_path"
+      ],
+      "properties": {
+        "run_id": {
+          "$ref": "#/definitions/run_id"
+        },
+        "execution_event_stream_path": {
+          "$ref": "#/definitions/execution_stream_path"
+        }
+      }
+    },
+    "queue_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "queue_item_id",
+        "authorization_id",
+        "queue_authorization_pair_scope"
+      ],
+      "properties": {
+        "queue_item_id": {
+          "$ref": "#/definitions/queue_item_id"
+        },
+        "authorization_id": {
+          "$ref": "#/definitions/authorization_id"
+        },
+        "queue_authorization_pair_scope": {
+          "const": "queue_item_and_dispatch_authorization"
+        }
+      }
+    },
+    "reviewed_content_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reviewed_whole_file_sha256",
+        "reviewed_byte_length",
+        "reviewed_content_scope"
+      ],
+      "properties": {
+        "reviewed_whole_file_sha256": {
+          "$ref": "#/definitions/hash"
+        },
+        "reviewed_byte_length": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "reviewed_content_scope": {
+          "const": "exact_kdauth_whole_file_bytes_including_final_lf"
+        }
+      }
+    },
+    "attempt_reserved_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reservation_committed_before_kdauth_mutation",
+        "kdauth_target_mutation_started",
+        "kdauth_lifecycle_mutation_started",
+        "reservation_commit_posture",
+        "terminal_outcome_pending"
+      ],
+      "properties": {
+        "reservation_committed_before_kdauth_mutation": {
+          "const": true
+        },
+        "kdauth_target_mutation_started": {
+          "const": false
+        },
+        "kdauth_lifecycle_mutation_started": {
+          "const": false
+        },
+        "reservation_commit_posture": {
+          "const": "exclusive_create_complete_write_fsync_verified"
+        },
+        "terminal_outcome_pending": {
+          "const": true
+        }
+      }
+    },
+    "crossing_committed_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "terminal_outcome",
+        "kdauth_target_durable",
+        "authorization_created_durable",
+        "resulting_authorization_path",
+        "resulting_authorization_whole_file_sha256",
+        "resulting_authorization_byte_length",
+        "resulting_authorization_core_sha256",
+        "lifecycle_audit_path",
+        "authorization_created_event_id",
+        "lifecycle_event_sequence_number",
+        "lifecycle_raw_line_sha256",
+        "lifecycle_raw_line_byte_length",
+        "rollback_performed",
+        "operator_inspection_required",
+        "terminal_is_permanent"
+      ],
+      "properties": {
+        "terminal_outcome": {
+          "const": "crossing_committed"
+        },
+        "kdauth_target_durable": {
+          "const": true
+        },
+        "authorization_created_durable": {
+          "const": true
+        },
+        "resulting_authorization_path": {
+          "$ref": "#/definitions/authorization_path"
+        },
+        "resulting_authorization_whole_file_sha256": {
+          "$ref": "#/definitions/hash"
+        },
+        "resulting_authorization_byte_length": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "resulting_authorization_core_sha256": {
+          "$ref": "#/definitions/hash"
+        },
+        "lifecycle_audit_path": {
+          "const": "research/queue/dispatch_authorization_audit/dispatch_authorization_events.jsonl"
+        },
+        "authorization_created_event_id": {
+          "type": "string",
+          "pattern": "^KDAUTH-EVENT-KDAUTH-[A-Z0-9]+-R[0-9]+-[0-9]{4}-[0-9]{6}$"
+        },
+        "lifecycle_event_sequence_number": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 999999
+        },
+        "lifecycle_raw_line_sha256": {
+          "$ref": "#/definitions/hash"
+        },
+        "lifecycle_raw_line_byte_length": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "rollback_performed": {
+          "const": false
+        },
+        "operator_inspection_required": {
+          "const": false
+        },
+        "terminal_is_permanent": {
+          "const": true
+        }
+      }
+    },
+    "crossing_rolled_back_clean_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "terminal_outcome",
+        "kdauth_target_absence_proven",
+        "lifecycle_audit_restored_to_exact_prior_length",
+        "prior_lifecycle_audit_byte_length",
+        "final_lifecycle_audit_byte_length",
+        "rollback_durability_proven",
+        "durability_uncertainty",
+        "operator_inspection_required",
+        "terminal_is_permanent"
+      ],
+      "properties": {
+        "terminal_outcome": {
+          "const": "crossing_rolled_back_clean"
+        },
+        "kdauth_target_absence_proven": {
+          "const": true
+        },
+        "lifecycle_audit_restored_to_exact_prior_length": {
+          "const": true
+        },
+        "prior_lifecycle_audit_byte_length": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "final_lifecycle_audit_byte_length": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rollback_durability_proven": {
+          "const": true
+        },
+        "durability_uncertainty": {
+          "const": false
+        },
+        "operator_inspection_required": {
+          "const": false
+        },
+        "terminal_is_permanent": {
+          "const": true
+        }
+      }
+    },
+    "crossing_integrity_critical_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "terminal_outcome",
+        "operator_inspection_required",
+        "terminal_is_permanent",
+        "failure_phase",
+        "uncertainty_class",
+        "kdauth_target_state",
+        "lifecycle_audit_state"
+      ],
+      "properties": {
+        "terminal_outcome": {
+          "const": "crossing_integrity_critical"
+        },
+        "operator_inspection_required": {
+          "const": true
+        },
+        "terminal_is_permanent": {
+          "const": true
+        },
+        "failure_phase": {
+          "enum": [
+            "reservation_terminal_append",
+            "kdauth_target_exclusive_create",
+            "kdauth_target_write",
+            "kdauth_target_flush",
+            "kdauth_target_fsync",
+            "authorization_created_append",
+            "authorization_created_flush",
+            "authorization_created_fsync",
+            "rollback",
+            "lock_cleanup",
+            "post_crossing_verification",
+            "unexpected_protected_writer_failure"
+          ]
+        },
+        "uncertainty_class": {
+          "enum": [
+            "partial_write",
+            "durability_not_proven",
+            "rollback_failed",
+            "rollback_state_ambiguous",
+            "append_state_ambiguous",
+            "lock_cleanup_failed_after_mutation",
+            "cross_surface_binding_mismatch",
+            "terminal_append_failed",
+            "unexpected_integrity_uncertainty"
+          ]
+        },
+        "kdauth_target_state": {
+          "enum": [
+            "absent",
+            "complete",
+            "partial",
+            "unknown"
+          ]
+        },
+        "lifecycle_audit_state": {
+          "enum": [
+            "unchanged",
+            "authorization_created_complete",
+            "partial_tail",
+            "rollback_failed",
+            "unknown"
+          ]
+        }
+      }
+    },
+    "non_authority_declaration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "control_plane_integrity_history_only",
+        "not_dispatch_authorization",
+        "not_karl_approval",
+        "not_kdauth_lifecycle_event",
+        "does_not_create_dispatch",
+        "does_not_create_execution_event",
+        "does_not_invoke_runner",
+        "not_result_population_authority",
+        "not_ranking_recommendation_authority",
+        "not_candidate_readiness_promotion_authority",
+        "not_retry_recovery_authority",
+        "not_scheduler_runtime_authority",
+        "not_paper_live_authority",
+        "not_oms_risk_reconciliation_authority",
+        "not_broker_exchange_order_capital_authority"
+      ],
+      "properties": {
+        "control_plane_integrity_history_only": {
+          "const": true
+        },
+        "not_dispatch_authorization": {
+          "const": true
+        },
+        "not_karl_approval": {
+          "const": true
+        },
+        "not_kdauth_lifecycle_event": {
+          "const": true
+        },
+        "does_not_create_dispatch": {
+          "const": true
+        },
+        "does_not_create_execution_event": {
+          "const": true
+        },
+        "does_not_invoke_runner": {
+          "const": true
+        },
+        "not_result_population_authority": {
+          "const": true
+        },
+        "not_ranking_recommendation_authority": {
+          "const": true
+        },
+        "not_candidate_readiness_promotion_authority": {
+          "const": true
+        },
+        "not_retry_recovery_authority": {
+          "const": true
+        },
+        "not_scheduler_runtime_authority": {
+          "const": true
+        },
+        "not_paper_live_authority": {
+          "const": true
+        },
+        "not_oms_risk_reconciliation_authority": {
+          "const": true
+        },
+        "not_broker_exchange_order_capital_authority": {
+          "const": true
+        }
+      }
+    }
+  }
+}

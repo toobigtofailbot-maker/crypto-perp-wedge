@@ -582,6 +582,94 @@ def _validate(fixture: dict, **kwargs):
     )
 
 
+def _crossing_reservation_event(fixture: dict, attempt_id: str) -> dict:
+    import tools.canon_intake.dispatch_authorization_reservation as reservation
+
+    authorization = fixture["authorization"]
+    core = authorization["authorization_core"]
+    crossing = core["crossing_identities"]
+    queue_item_id = core["queue_binding"]["queue_item_id"]
+    return {
+        "schema_version": reservation.SCHEMA_VERSION,
+        "event_id": f"{attempt_id}-000001",
+        "sequence_number": 1,
+        "event_type": "attempt_reserved",
+        "attempt_id": attempt_id,
+        "reservation_stream_path": (
+            "research/queue/dispatch_authorization_reservations/"
+            f"{attempt_id}.crossing_reservation.jsonl"
+        ),
+        "authorization_binding": {
+            "authorization_id": authorization["authorization_id"],
+            "authorization_target_path": authorization[
+                "authorization_artifact_target_path"
+            ],
+            "authorization_core_sha256": authorization[
+                "authorization_core_sha256"
+            ],
+            "authorization_core_hash_scope":
+                "dispatch_authorization_core_v1",
+            "authorization_core_canonicalization":
+                "repo_canonical_json_v1",
+        },
+        "dispatch_binding": {
+            "dispatch_id": crossing["dispatch_id"],
+            "dispatch_record_path": crossing["dispatch_record_path"],
+        },
+        "run_binding": {
+            "run_id": crossing["run_id"],
+            "execution_event_stream_path": crossing[
+                "execution_event_stream_path"
+            ],
+        },
+        "queue_binding": {
+            "queue_item_id": queue_item_id,
+            "authorization_id": authorization["authorization_id"],
+            "queue_authorization_pair_scope":
+                "queue_item_and_dispatch_authorization",
+        },
+        "reviewed_content_binding": {
+            "reviewed_whole_file_sha256": _hash(
+                fixture["authorization_raw"]
+            ),
+            "reviewed_byte_length": len(fixture["authorization_raw"]),
+            "reviewed_content_scope":
+                "exact_kdauth_whole_file_bytes_including_final_lf",
+        },
+        "reserved_at": "2026-07-24T12:00:00Z",
+        "occurred_at": "2026-07-24T12:00:00Z",
+        "actor": "Karl",
+        "writer_identity": reservation.WRITER_IDENTITY,
+        "identities_permanently_reserved": True,
+        "automatic_retry_with_same_identities_forbidden": True,
+        "event_payload": {
+            "reservation_committed_before_kdauth_mutation": True,
+            "kdauth_target_mutation_started": False,
+            "kdauth_lifecycle_mutation_started": False,
+            "reservation_commit_posture":
+                "exclusive_create_complete_write_fsync_verified",
+            "terminal_outcome_pending": True,
+        },
+        "non_authority_declaration": {
+            "control_plane_integrity_history_only": True,
+            "not_dispatch_authorization": True,
+            "not_karl_approval": True,
+            "not_kdauth_lifecycle_event": True,
+            "does_not_create_dispatch": True,
+            "does_not_create_execution_event": True,
+            "does_not_invoke_runner": True,
+            "not_result_population_authority": True,
+            "not_ranking_recommendation_authority": True,
+            "not_candidate_readiness_promotion_authority": True,
+            "not_retry_recovery_authority": True,
+            "not_scheduler_runtime_authority": True,
+            "not_paper_live_authority": True,
+            "not_oms_risk_reconciliation_authority": True,
+            "not_broker_exchange_order_capital_authority": True,
+        },
+    }
+
+
 @pytest.fixture
 def repo_root():
     return Path(__file__).resolve().parents[1]
@@ -1223,6 +1311,8 @@ def test_symlinked_reference_fails_closed(tmp_path, repo_root):
 
 
 def test_no_production_kdauth_audit_dispatch_or_execution_created(repo_root):
+    import tools.canon_intake.dispatch_authorization_reservation as reservation
+
     approval_root = repo_root / validator.APPROVAL_ROOT
     audit_path = repo_root / validator.AUDIT_PATH
     dispatch_root = repo_root / validator.DISPATCH_ROOT
@@ -1237,3 +1327,199 @@ def test_no_production_kdauth_audit_dispatch_or_execution_created(repo_root):
     assert not execution_root.exists() or not list(
         execution_root.glob("*.execution_events.jsonl")
     )
+    reservation_root = repo_root / reservation.RESERVATION_ROOT
+    assert not reservation_root.exists() or not list(
+        reservation_root.glob("*.crossing_reservation.jsonl")
+    )
+
+
+def test_unterminated_crossing_reservation_permanently_blocks_kdauth_reuse(
+    tmp_path, repo_root
+):
+    import tools.canon_intake.dispatch_authorization_reservation as reservation
+
+    fixture = _fixture(tmp_path, repo_root)
+    shutil.copy2(
+        repo_root / "research/schemas" / reservation.SCHEMA_NAME,
+        fixture["root"] / "research/schemas" / reservation.SCHEMA_NAME,
+    )
+    authorization = fixture["authorization"]
+    core = authorization["authorization_core"]
+    crossing = core["crossing_identities"]
+    queue_item_id = core["queue_binding"]["queue_item_id"]
+    attempt_id = "KDAUTH-XING-20260724-TEST9001"
+    event = {
+        "schema_version": reservation.SCHEMA_VERSION,
+        "event_id": f"{attempt_id}-000001",
+        "sequence_number": 1,
+        "event_type": "attempt_reserved",
+        "attempt_id": attempt_id,
+        "reservation_stream_path": (
+            "research/queue/dispatch_authorization_reservations/"
+            f"{attempt_id}.crossing_reservation.jsonl"
+        ),
+        "authorization_binding": {
+            "authorization_id": authorization["authorization_id"],
+            "authorization_target_path": authorization[
+                "authorization_artifact_target_path"
+            ],
+            "authorization_core_sha256": authorization[
+                "authorization_core_sha256"
+            ],
+            "authorization_core_hash_scope":
+                "dispatch_authorization_core_v1",
+            "authorization_core_canonicalization":
+                "repo_canonical_json_v1",
+        },
+        "dispatch_binding": {
+            "dispatch_id": crossing["dispatch_id"],
+            "dispatch_record_path": crossing["dispatch_record_path"],
+        },
+        "run_binding": {
+            "run_id": crossing["run_id"],
+            "execution_event_stream_path": crossing[
+                "execution_event_stream_path"
+            ],
+        },
+        "queue_binding": {
+            "queue_item_id": queue_item_id,
+            "authorization_id": authorization["authorization_id"],
+            "queue_authorization_pair_scope":
+                "queue_item_and_dispatch_authorization",
+        },
+        "reviewed_content_binding": {
+            "reviewed_whole_file_sha256": _hash(
+                fixture["authorization_raw"]
+            ),
+            "reviewed_byte_length": len(fixture["authorization_raw"]),
+            "reviewed_content_scope":
+                "exact_kdauth_whole_file_bytes_including_final_lf",
+        },
+        "reserved_at": "2026-07-24T12:00:00Z",
+        "occurred_at": "2026-07-24T12:00:00Z",
+        "actor": "Karl",
+        "writer_identity": reservation.WRITER_IDENTITY,
+        "identities_permanently_reserved": True,
+        "automatic_retry_with_same_identities_forbidden": True,
+        "event_payload": {
+            "reservation_committed_before_kdauth_mutation": True,
+            "kdauth_target_mutation_started": False,
+            "kdauth_lifecycle_mutation_started": False,
+            "reservation_commit_posture":
+                "exclusive_create_complete_write_fsync_verified",
+            "terminal_outcome_pending": True,
+        },
+        "non_authority_declaration": {
+            "control_plane_integrity_history_only": True,
+            "not_dispatch_authorization": True,
+            "not_karl_approval": True,
+            "not_kdauth_lifecycle_event": True,
+            "does_not_create_dispatch": True,
+            "does_not_create_execution_event": True,
+            "does_not_invoke_runner": True,
+            "not_result_population_authority": True,
+            "not_ranking_recommendation_authority": True,
+            "not_candidate_readiness_promotion_authority": True,
+            "not_retry_recovery_authority": True,
+            "not_scheduler_runtime_authority": True,
+            "not_paper_live_authority": True,
+            "not_oms_risk_reconciliation_authority": True,
+            "not_broker_exchange_order_capital_authority": True,
+        },
+    }
+    path = fixture["root"] / event["reservation_stream_path"]
+    path.parent.mkdir(parents=True)
+    path.write_bytes(reservation.repo_canonical_json_v1(event) + b"\n")
+    with pytest.raises(
+        DispatchAuthorizationError,
+        match="crossing reservation permanently consumes",
+    ):
+        _validate(fixture)
+
+
+def test_committed_reservation_links_exact_kdauth_and_creation_event(
+    tmp_path, repo_root
+):
+    import tools.canon_intake.dispatch_authorization_reservation as reservation
+
+    fixture = _fixture(tmp_path, repo_root)
+    shutil.copy2(
+        repo_root / "research/schemas" / reservation.SCHEMA_NAME,
+        fixture["root"] / "research/schemas" / reservation.SCHEMA_NAME,
+    )
+    authorization_raw = fixture["authorization_raw"]
+    fixture["created"]["occurred_at"] = "2026-07-24T12:01:00Z"
+    creation_raw = repo_canonical_json_v1(fixture["created"]) + b"\n"
+
+    fixture["authorization_path"].unlink()
+    fixture["audit_path"].unlink()
+
+    def remove_readonly(function, path, exc_info):
+        del exc_info
+        os.chmod(path, 0o700)
+        function(path)
+
+    shutil.rmtree(fixture["root"] / ".git", onerror=remove_readonly)
+    _git(fixture["root"], "init", "-q")
+    _commit(fixture["root"], "synthetic pre-crossing dependencies")
+
+    initial = _crossing_reservation_event(
+        fixture, "KDAUTH-XING-20260724-TEST9002"
+    )
+    terminal = copy.deepcopy(initial)
+    terminal["event_id"] = f"{initial['attempt_id']}-000002"
+    terminal["sequence_number"] = 2
+    terminal["event_type"] = "crossing_committed"
+    terminal["occurred_at"] = "2026-07-24T12:02:00Z"
+    terminal["event_payload"] = {
+        "terminal_outcome": "crossing_committed",
+        "kdauth_target_durable": True,
+        "authorization_created_durable": True,
+        "resulting_authorization_path": initial[
+            "authorization_binding"
+        ]["authorization_target_path"],
+        "resulting_authorization_whole_file_sha256":
+            _hash(authorization_raw),
+        "resulting_authorization_byte_length": len(authorization_raw),
+        "resulting_authorization_core_sha256": initial[
+            "authorization_binding"
+        ]["authorization_core_sha256"],
+        "lifecycle_audit_path": validator.AUDIT_PATH.as_posix(),
+        "authorization_created_event_id": fixture["created"]["event_id"],
+        "lifecycle_event_sequence_number": fixture["created"][
+            "sequence_number"
+        ],
+        "lifecycle_raw_line_sha256": _hash(creation_raw),
+        "lifecycle_raw_line_byte_length": len(creation_raw),
+        "rollback_performed": False,
+        "operator_inspection_required": False,
+        "terminal_is_permanent": True,
+    }
+    with reservation.dispatch_authorization_crossing_lock(
+        repo_root=fixture["root"]
+    ) as lock:
+        reserved = (
+            reservation.reserve_dispatch_authorization_crossing_locked(
+                lock=lock, event=initial
+            )
+        )
+        assert reserved["reservation_committed"] is True
+        fixture["authorization_path"].write_bytes(authorization_raw)
+        fixture["audit_path"].write_bytes(creation_raw)
+        completed = (
+            reservation.append_dispatch_authorization_crossing_terminal_locked(
+                lock=lock, event=terminal
+            )
+        )
+        assert completed["terminal_outcome"] == "crossing_committed"
+
+    stream = fixture["root"] / initial["reservation_stream_path"]
+    validated = (
+        reservation.validate_dispatch_authorization_reservation_stream(
+            repo_root=fixture["root"],
+            reservation_path=stream,
+            require_terminal=True,
+        )
+    )
+    assert validated["findings"] == []
+    assert _validate(fixture)["valid"] is True

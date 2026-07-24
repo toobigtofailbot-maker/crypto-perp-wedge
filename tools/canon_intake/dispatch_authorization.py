@@ -1440,6 +1440,114 @@ def _validate_single_use(
                     + ", ".join(collisions)
                 )
 
+    # The crossing-reservation ledger is a separate authoritative burn surface.
+    # A matching committed terminal is the one reservation belonging to this
+    # already-created KDAUTH.  Every other collision, including an unresolved,
+    # rolled-back, integrity-critical, deleted, or retained-only attempt, fails
+    # closed and permanently prevents reuse.
+    from tools.canon_intake.dispatch_authorization_reservation import (
+        DispatchAuthorizationReservationError,
+        scan_dispatch_authorization_reservations,
+    )
+
+    try:
+        reservations = scan_dispatch_authorization_reservations(
+            repo_root=root,
+            include_retained_history=True,
+        )
+    except DispatchAuthorizationReservationError as exc:
+        raise DispatchAuthorizationError(
+            f"crossing reservation history is invalid: {exc}"
+        ) from exc
+    reservation_expected = {
+        "authorization_id": expected["authorization_id"],
+        "authorization_target_path": expected["authorization_path"],
+        "reviewed_whole_file_sha256": expected[
+            "authorization_file_sha256"
+        ],
+        "authorization_core_sha256": authorization[
+            "authorization_core_sha256"
+        ],
+        "queue_item_id": expected["queue_item_id"],
+        "dispatch_id": expected["dispatch_id"],
+        "dispatch_record_path": expected["dispatch_path"],
+        "run_id": expected["run_id"],
+        "execution_event_stream_path": expected["stream_path"],
+    }
+    matching_committed_attempts: set[str] = set()
+    for reservation in reservations:
+        first = reservation["events"][0]
+        reservation_values = {
+            "authorization_id": first["authorization_binding"][
+                "authorization_id"
+            ],
+            "authorization_target_path": first["authorization_binding"][
+                "authorization_target_path"
+            ],
+            "reviewed_whole_file_sha256": first[
+                "reviewed_content_binding"
+            ]["reviewed_whole_file_sha256"],
+            "authorization_core_sha256": first["authorization_binding"][
+                "authorization_core_sha256"
+            ],
+            "queue_item_id": first["queue_binding"]["queue_item_id"],
+            "dispatch_id": first["dispatch_binding"]["dispatch_id"],
+            "dispatch_record_path": first["dispatch_binding"][
+                "dispatch_record_path"
+            ],
+            "run_id": first["run_binding"]["run_id"],
+            "execution_event_stream_path": first["run_binding"][
+                "execution_event_stream_path"
+            ],
+        }
+        if (
+            reservation["terminal_outcome"] == "crossing_committed"
+            and reservation_values == reservation_expected
+        ):
+            matching_committed_attempts.add(first["attempt_id"])
+    for reservation in reservations:
+        first = reservation["events"][0]
+        reservation_values = {
+            "authorization_id": first["authorization_binding"][
+                "authorization_id"
+            ],
+            "authorization_target_path": first["authorization_binding"][
+                "authorization_target_path"
+            ],
+            "reviewed_whole_file_sha256": first[
+                "reviewed_content_binding"
+            ]["reviewed_whole_file_sha256"],
+            "authorization_core_sha256": first["authorization_binding"][
+                "authorization_core_sha256"
+            ],
+            "queue_item_id": first["queue_binding"]["queue_item_id"],
+            "dispatch_id": first["dispatch_binding"]["dispatch_id"],
+            "dispatch_record_path": first["dispatch_binding"][
+                "dispatch_record_path"
+            ],
+            "run_id": first["run_binding"]["run_id"],
+            "execution_event_stream_path": first["run_binding"][
+                "execution_event_stream_path"
+            ],
+        }
+        collisions = [
+            field
+            for field, value in reservation_expected.items()
+            if reservation_values.get(field) == value
+        ]
+        if not collisions:
+            continue
+        if (
+            first["attempt_id"] in matching_committed_attempts
+            and reservation_values == reservation_expected
+        ):
+            continue
+        raise DispatchAuthorizationError(
+            "crossing reservation permanently consumes single-use identities "
+            f"in {first['reservation_stream_path']}: "
+            + ", ".join(collisions)
+        )
+
 
 def validate_dispatch_authorization(
     *,

@@ -56,6 +56,9 @@ canon_dispatch_authorization_v1
 │   ├── budget
 │   ├── execution_parameters
 │   ├── output_targets
+│   │   ├── scratch_output_root = lexically and physically confined below repository scratch/
+│   │   ├── execution_event_stream_path
+│   │   └── canonical_result_population_target_forbidden = true
 │   └── authority_flags
 ├── authorization_core_sha256
 ├── authorization_core_hash_scope = dispatch_authorization_core_v1
@@ -113,6 +116,21 @@ packet.
 > and grants no downstream authority.
 
 Any byte or wording difference fails validation.
+
+## Scratch-output confinement
+
+`authorization_core.output_targets.scratch_output_root` is a repo-relative
+POSIX directory path rooted below `scratch/`. The closed schema requires one or
+more non-empty directory components plus a final `/`; it rejects absolute
+paths, backslashes, duplicate separators, `.` or `..` components, traversal,
+and non-directory string form.
+
+The read-only validator checks the unnormalized lexical value first, then
+resolves the target without creating it. The resolved target must remain
+physically below the repository's real `scratch/` directory. Existing
+non-directory targets and symlink or junction escapes fail closed. This binding
+cannot name `research/result_populations/` or any other canonical repository
+output surface.
 
 ## Serialization and hashes
 

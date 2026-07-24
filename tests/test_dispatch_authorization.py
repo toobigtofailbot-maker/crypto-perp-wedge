@@ -916,6 +916,88 @@ def test_denominator_budget_retry_and_output_mismatch_fail(
         _validate(fixture, require_audit=False, scan_history=False)
 
 
+@pytest.mark.parametrize(
+    "scratch_output_root",
+    [
+        "scratch/../research/result_populations/",
+        "scratch/foo/../../research/queue/",
+        "scratch/./foo/",
+        "scratch//foo/",
+        "scratch\\foo\\",
+        "/scratch/foo/",
+        "C:/scratch/foo/",
+        "scratch/foo",
+        "scratch/",
+    ],
+)
+def test_scratch_output_root_lexical_escape_fails(
+    tmp_path, repo_root, scratch_output_root
+):
+    fixture = _fixture(tmp_path, repo_root)
+    fixture["authorization"]["authorization_core"]["output_targets"][
+        "scratch_output_root"
+    ] = scratch_output_root
+    _resign(fixture)
+    with pytest.raises(DispatchAuthorizationError):
+        _validate(fixture, require_audit=False, scan_history=False)
+
+
+def test_valid_nested_scratch_output_root_is_read_only(tmp_path, repo_root):
+    fixture = _fixture(tmp_path, repo_root)
+    nested = "scratch/FIXTURE-RUN/nested.output/"
+    target = fixture["root"] / nested
+    fixture["authorization"]["authorization_core"]["output_targets"][
+        "scratch_output_root"
+    ] = nested
+    _resign(fixture)
+    assert not target.exists()
+    assert _validate(fixture, require_audit=False, scan_history=False)["valid"]
+    assert not target.exists()
+
+
+def test_existing_file_cannot_be_a_scratch_output_root(tmp_path, repo_root):
+    fixture = _fixture(tmp_path, repo_root)
+    target = fixture["root"] / "scratch/FIXTURE-FILE"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text("not a directory", encoding="utf-8")
+    fixture["authorization"]["authorization_core"]["output_targets"][
+        "scratch_output_root"
+    ] = "scratch/FIXTURE-FILE/"
+    _resign(fixture)
+    with pytest.raises(DispatchAuthorizationError, match="resolve to a directory"):
+        _validate(fixture, require_audit=False, scan_history=False)
+
+
+def test_scratch_output_symlink_or_junction_escape_fails_closed(
+    tmp_path, repo_root
+):
+    fixture = _fixture(tmp_path, repo_root)
+    scratch = fixture["root"] / "scratch"
+    scratch.mkdir(exist_ok=True)
+    outside = tmp_path / "outside-scratch"
+    outside.mkdir()
+    escape = scratch / "escape"
+    try:
+        escape.symlink_to(outside, target_is_directory=True)
+    except OSError:
+        if os.name != "nt":
+            pytest.skip("directory symlinks are unavailable in this environment")
+        created = subprocess.run(
+            ["cmd.exe", "/c", "mklink", "/J", str(escape), str(outside)],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if created.returncode != 0:
+            pytest.skip("directory symlinks and junctions are unavailable")
+    fixture["authorization"]["authorization_core"]["output_targets"][
+        "scratch_output_root"
+    ] = "scratch/escape/nested/"
+    _resign(fixture)
+    with pytest.raises(DispatchAuthorizationError, match="symlinked|escapes"):
+        _validate(fixture, require_audit=False, scan_history=False)
+
+
 def _terminal_event(fixture: dict, event_type: str) -> dict:
     created = fixture["created"]
     payloads = {

@@ -80,6 +80,9 @@ H004_FUNDING_DATA_PATH = (
 H004_RUNNER_MODULE = "tools.research_runner.run_offline_sweep"
 H004_RUNNER_PATH = "tools/research_runner/run_offline_sweep.py"
 H004_RUNNER_VERSION = "wp-s2c-190-build-test-v1"
+SCRATCH_OUTPUT_ROOT_RE = re.compile(
+    r"^scratch/(?:(?!\.{1,2}/)[A-Za-z0-9._-]+/)+$"
+)
 
 
 class DispatchAuthorizationError(ValueError):
@@ -154,6 +157,36 @@ def _repo_path(root: Path, value: Any, label: str) -> Path:
         resolved.relative_to(root)
     except ValueError as exc:
         raise DispatchAuthorizationError(f"{label} escapes the repository") from exc
+    return resolved
+
+
+def _scratch_directory_path(root: Path, value: Any, label: str) -> Path:
+    if not isinstance(value, str) or SCRATCH_OUTPUT_ROOT_RE.fullmatch(value) is None:
+        raise DispatchAuthorizationError(
+            f"{label} must be a lexical scratch directory path without "
+            "traversal, empty or dot components, backslashes, or absolute form"
+        )
+    parts = value[:-1].split("/")
+    scratch_lexical = root / "scratch"
+    lexical = root.joinpath(*parts)
+    _reject_symlink_components(lexical, label)
+
+    resolved_scratch = scratch_lexical.resolve()
+    if resolved_scratch != scratch_lexical:
+        raise DispatchAuthorizationError(
+            f"{label} scratch root is a symlink or junction"
+        )
+    resolved = lexical.resolve()
+    try:
+        resolved.relative_to(resolved_scratch)
+    except ValueError as exc:
+        raise DispatchAuthorizationError(
+            f"{label} escapes the repository scratch directory"
+        ) from exc
+    if lexical.exists() and not lexical.is_dir():
+        raise DispatchAuthorizationError(
+            f"{label} must resolve to a directory when it already exists"
+        )
     return resolved
 
 
@@ -951,7 +984,9 @@ def _validate_runner(root: Path, core: Mapping[str, Any]) -> None:
         raise DispatchAuthorizationError("runner source is in a forbidden path")
 
 
-def _validate_denominator_budget_and_outputs(core: Mapping[str, Any]) -> None:
+def _validate_denominator_budget_and_outputs(
+    root: Path, core: Mapping[str, Any]
+) -> None:
     denominator = core["denominator"]
     budget = core["budget"]
     vm_count = (
@@ -971,6 +1006,11 @@ def _validate_denominator_budget_and_outputs(core: Mapping[str, Any]) -> None:
         "output execution stream",
         crossing["execution_event_stream_path"],
         core["output_targets"]["execution_event_stream_path"],
+    )
+    _scratch_directory_path(
+        root,
+        core["output_targets"]["scratch_output_root"],
+        "output_targets.scratch_output_root",
     )
 
 
@@ -1434,7 +1474,7 @@ def validate_dispatch_authorization(
     _validate_dataset(root, core)
     _validate_funding(root, core)
     _validate_runner(root, core)
-    _validate_denominator_budget_and_outputs(core)
+    _validate_denominator_budget_and_outputs(root, core)
 
     lifecycle_state = "not_recorded"
     if require_audit:

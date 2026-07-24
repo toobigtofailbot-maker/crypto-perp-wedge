@@ -1,0 +1,39 @@
+{
+  "schema_version": "wp_canon_dispatch_authorization_contract_preservation_v1",
+  "base_commit": "ed0227d57d882ec3442d39bde894ccfe01efa03e",
+  "pr_670_overlap": [],
+  "pr_671_overlap": [],
+  "recovery": {
+    "authoritative_pre_mutation_tree": "a0c28ce13cf95f194bd6160363b24cedbc7dce0e",
+    "post_refresh_pre_metadata_tree": "5df745883c7eab3b52bc0d803f006f700655f555",
+    "backup_manifest_path": "C:/KDAUTH_RECOVERY_BACKUPS/WP-CANON-DISPATCH-AUTHORIZATION-CONTRACT-01/20260724T004154Z/backup_manifest.json",
+    "backup_manifest_sha256": "sha256:1c127d0a102c75c3bf18e845a5e72589734445cd893a8cc9e78eea0168d59e45",
+    "branch_attachment": "normal_non_forced_switch_to_existing_unowned_branch",
+    "refresh_method": "fast_forward_only",
+    "validation_profile": "full-release-balanced-v1"
+  },
+  "preserved_inputs": [
+    {"path": "research/strategy_specs/STRAT-SPEC-0007.strategy_spec.json", "byte_length": 19880, "sha256": "sha256:b23ebc1093df51b7fab5e39c46fd2b96b5e71d35300134eb319a5cbc32d0857c"},
+    {"path": "research/strategy_spec_external_content_readiness/SS-ECR-STRAT-SPEC-0007.external_content_readiness.json", "byte_length": 2545, "sha256": "sha256:ec182c262046797b81ebc409d711f1e11f671831cffc472f3277192117236761"},
+    {"path": "research/strategy_spec_variant_planning_approvals/VPAPP-20260715-H004R201.variant_planning_approval.json", "byte_length": 3695, "sha256": "sha256:13b40df10af9290d65c971e1e57397e5193cc76fa5852a04b6084ec41c8a275a"},
+    {"path": "research/variant_manifests/VM-0007.variant_manifest.json", "byte_length": 69732, "sha256": "sha256:822da9ca46eca4f3a9d4d86936fdd3447004ef77806fc3ce60ab0cf979ea171d"},
+    {"path": "research/sweep_plans/SWEEP-PLAN-0007.sweep_plan.json", "byte_length": 11182, "sha256": "sha256:66d48ec6d57048012dcd243ca7dda25dcf59241b1a3733dc05796eb46d7af2f0"},
+    {"path": "research/queue/gate_q_approvals/GATE-Q-H004-R2-04B-0001.gate_q_approval.json", "byte_length": 4615, "sha256": "sha256:8645018c04a565761d72047b5225fbfd5694e342f5180407f0c8b111ba310fed"},
+    {"path": "research/queue/admissions/QI-20260717-H004R2B1.queue_item.json", "byte_length": 5345, "sha256": "sha256:47ba045b4ac89588e1865c280b080f0922cef6bb1e7d4e7880090ba07a44d967"},
+    {"path": "research/queue/admission_audit/queue_admissions.jsonl", "byte_length": 2084, "sha256": "sha256:e668475f7d9f0d3d3c425a173aa1eb593814d824d4590c794887bde21368d3e2"},
+    {"path": "research/data_slices/binance_usdtm_btcusdt_1d/binance_usdtm_btcusdt_1d_20200101_20260411.catalog_slice.json", "byte_length": 4237, "sha256": "sha256:51fc09918841cd3ac353efe375af91a4732080571f9b1af634f5d1a426217adb"},
+    {"path": "research/data_provenance/funding/binance_usdtm_btcusdt_funding_events_20190910t080000z_20260412t160000z_sha256_5f0da7478ccf3514.funding_provenance.json", "byte_length": 5619, "sha256": "sha256:fe84062a6426b7b5aa1653e87eb0038486925f5c5c6263cc33595870d4e6c692"},
+    {"path": "tools/data/register_binance_usdtm_1d_lineage.py", "byte_length": 15005, "sha256": "sha256:304677c9800763189424f2efa7900eeb2c2be2fce4b4bb99663bc8e409fbc8c1"},
+    {"path": "tools/research_runner/run_offline_sweep.py", "byte_length": 149993, "sha256": "sha256:b23c18a66c399b8f4575c6f51d421153d30f9afbffdc0e24c10a336cd6460e1d"},
+    {"path": "data/processed/binance_um_perp_BTCUSDT_1d_2020-01-01_2026-04-11_2026-04-12T1655Z.parquet", "byte_length": 200961, "sha256": "sha256:c6e2e7ce030db6a710d95e48325fc77b27efbbdd441199b3d7458d4394795802", "local_untracked_input": true},
+    {"path": "data/processed/binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z.parquet", "byte_length": 126987, "sha256": "sha256:5f0da7478ccf3514af41dff9958b579cd2f797a2716001b0fa10a11059912798", "local_untracked_input": true}
+  ],
+  "production_writes": {
+    "dispatch_authorization": 0,
+    "dispatch_authorization_audit_event": 0,
+    "dispatch_record": 0,
+    "execution_event": 0,
+    "runner_invocation": 0,
+    "result_population": 0
+  }
+}

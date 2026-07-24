@@ -122,6 +122,10 @@
         "authorization_id",
         "source_path",
         "source_sha256",
+        "source_byte_length",
+        "authorization_core_sha256",
+        "authorization_core_hash_scope",
+        "authorization_core_canonicalization",
         "authorized_by",
         "authorized_at",
         "authorization_scope",
@@ -129,20 +133,31 @@
         "authorized_dispatch_id",
         "authorized_run_id",
         "exact_content_and_target_only",
-        "fresh_for_dispatch"
+        "content_bound_freshness",
+        "single_use_authorization_id",
+        "no_downstream_authority"
       ],
       "properties": {
-        "authorization_id": { "type": "string", "pattern": "^KDAUTH-[0-9]{8}-[A-Z0-9]{8}$" },
-        "source_path": { "$ref": "#/definitions/repo_path" },
+        "authorization_id": { "type": "string", "pattern": "^KDAUTH-[A-Z0-9]+-R[0-9]+-[0-9]{4}$" },
+        "source_path": {
+          "type": "string",
+          "pattern": "^research/queue/dispatch_authorizations/KDAUTH-[A-Z0-9]+-R[0-9]+-[0-9]{4}\\.dispatch_authorization\\.json$"
+        },
         "source_sha256": { "$ref": "#/definitions/hash" },
+        "source_byte_length": { "type": "integer", "minimum": 1 },
+        "authorization_core_sha256": { "$ref": "#/definitions/hash" },
+        "authorization_core_hash_scope": { "const": "dispatch_authorization_core_v1" },
+        "authorization_core_canonicalization": { "const": "repo_canonical_json_v1" },
         "authorized_by": { "const": "Karl" },
         "authorized_at": { "$ref": "#/definitions/timestamp" },
-        "authorization_scope": { "const": "one_exact_offline_research_dispatch" },
+        "authorization_scope": { "const": "one_single_use_dispatch" },
         "authorized_queue_item_id": { "type": "string", "pattern": "^QI-[0-9]{8}-[A-Z0-9]{8}$" },
         "authorized_dispatch_id": { "$ref": "#/definitions/dispatch_id" },
         "authorized_run_id": { "$ref": "#/definitions/run_id" },
         "exact_content_and_target_only": { "const": true },
-        "fresh_for_dispatch": { "const": true }
+        "content_bound_freshness": { "const": true },
+        "single_use_authorization_id": { "const": true },
+        "no_downstream_authority": { "const": true }
       }
     },
     "run_binding": {

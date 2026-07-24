@@ -19,17 +19,23 @@
     "approval_core_canonicalization": "repo_canonical_json_v1"
   },
   "dispatch_authorization": {
-    "authorization_id": "KDAUTH-20260718-FIXTURE1",
-    "source_path": "scratch/WP-CANON-DISPATCH-CONTROL-PLANE-DESIGN-LOCK-01/fixtures/fixture_karl_authorization.txt",
+    "authorization_id": "KDAUTH-H004-R2-9999",
+    "source_path": "research/queue/dispatch_authorizations/KDAUTH-H004-R2-9999.dispatch_authorization.json",
     "source_sha256": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "source_byte_length": 1,
+    "authorization_core_sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "authorization_core_hash_scope": "dispatch_authorization_core_v1",
+    "authorization_core_canonicalization": "repo_canonical_json_v1",
     "authorized_by": "Karl",
     "authorized_at": "2026-07-18T14:59:00Z",
-    "authorization_scope": "one_exact_offline_research_dispatch",
+    "authorization_scope": "one_single_use_dispatch",
     "authorized_queue_item_id": "QI-20260717-H004R2B1",
     "authorized_dispatch_id": "DSP-20260718-FIXTURE1",
     "authorized_run_id": "RUN-20260718-FIXTURE1",
     "exact_content_and_target_only": true,
-    "fresh_for_dispatch": true
+    "content_bound_freshness": true,
+    "single_use_authorization_id": true,
+    "no_downstream_authority": true
   },
   "run_binding": {
     "run_id": "RUN-20260718-FIXTURE1",

@@ -14,7 +14,7 @@
   "bindings": {
     "dispatch_id": "DSP-20260718-FIXTURE1",
     "dispatch_record_path": "research/queue/dispatch_records/DSP-20260718-FIXTURE1.dispatch_record.json",
-    "dispatch_record_sha256": "sha256:7cd581ac1da516e501ba4b8aa2c37165af4a6af96c73d31fd8be4be7f5c62b1d",
+    "dispatch_record_sha256": "sha256:a147bbcceeda987c39f741bdac7fa49f760c41498d4b79a4c787dd7677c153be",
     "run_id": "RUN-20260718-FIXTURE1",
     "queue_item_id": "QI-20260717-H004R2B1"
   },

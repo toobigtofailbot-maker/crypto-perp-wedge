@@ -234,6 +234,49 @@ def _write_stream(root: Path, *events: dict) -> Path:
     return path
 
 
+def _distinct_attempt(suffix: str) -> dict:
+    return _attempt_event(
+        attempt_id=f"KDAUTH-XING-20260724-{suffix}",
+        authorization_id=f"KDAUTH-{suffix}-R2-9002",
+        dispatch_id=f"DSP-20260724-{suffix}",
+        run_id=f"RUN-20260724-{suffix}",
+        queue_item_id=f"QI-20260724-{suffix}",
+    )
+
+
+def _symlink_or_skip(
+    link: Path,
+    target: Path,
+    *,
+    target_is_directory: bool,
+) -> None:
+    try:
+        link.symlink_to(target, target_is_directory=target_is_directory)
+    except OSError:
+        pytest.skip("this environment cannot create the required symlink")
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "../escape",
+        "research\\queue\\escape",
+        "/absolute/escape",
+        "research//queue/escape",
+        "research/./queue/escape",
+        "C:/absolute/escape",
+    ],
+)
+def test_repo_path_rejects_nonlexical_relative_posix_forms(
+    synthetic_repo: Path, value: str
+) -> None:
+    with pytest.raises(
+        DispatchAuthorizationReservationError,
+        match="repo-relative|traversal",
+    ):
+        reservation._repo_path(synthetic_repo.resolve(), value, "test path")
+
+
 def test_schema_is_closed_valid_draft7(source_repo: Path) -> None:
     schema = json.loads(
         (
@@ -468,6 +511,293 @@ def test_retained_deleted_stream_still_burns_all_bound_identities(
             )
 
 
+def test_logical_attempt_collapses_valid_one_line_then_two_line_history(
+    synthetic_repo: Path,
+) -> None:
+    initial = _attempt_event()
+    terminal = _terminal(initial, "crossing_integrity_critical")
+    path = _write_stream(synthetic_repo, initial)
+    _commit(synthetic_repo, "retain initial prefix")
+    _write_stream(synthetic_repo, initial, terminal)
+    _commit(synthetic_repo, "append terminal")
+
+    scans = scan_dispatch_authorization_reservations(
+        repo_root=synthetic_repo,
+        include_retained_history=True,
+    )
+    assert len(scans) == 1
+    assert scans[0]["attempt_id"] == initial["attempt_id"]
+    assert scans[0]["event_count"] == 2
+    assert scans[0]["history_version_count"] == 2
+    assert scans[0]["terminal_outcome"] == "crossing_integrity_critical"
+
+
+def test_current_current_exact_duplicate_tuple_fails_closed(
+    synthetic_repo: Path,
+) -> None:
+    first = _attempt_event()
+    second = copy.deepcopy(first)
+    second["attempt_id"] = "KDAUTH-XING-20260724-TEST0002"
+    second["event_id"] = f"{second['attempt_id']}-000001"
+    second["reservation_stream_path"] = (
+        "research/queue/dispatch_authorization_reservations/"
+        f"{second['attempt_id']}.crossing_reservation.jsonl"
+    )
+    _write_stream(synthetic_repo, first)
+    _write_stream(synthetic_repo, second)
+
+    with pytest.raises(
+        DispatchAuthorizationReservationError,
+        match="distinct reservation attempts collide",
+    ):
+        scan_dispatch_authorization_reservations(repo_root=synthetic_repo)
+
+
+@pytest.mark.parametrize(
+    "collision_kind,expected_field",
+    [
+        ("authorization", "authorization_id"),
+        ("dispatch", "dispatch_id"),
+        ("run", "run_id"),
+        ("queue_authorization_pair", "queue_authorization_pair"),
+    ],
+)
+def test_current_current_partial_identity_collision_fails_closed(
+    synthetic_repo: Path,
+    collision_kind: str,
+    expected_field: str,
+) -> None:
+    first = _attempt_event()
+    second = _distinct_attempt("PART0002")
+    if collision_kind == "authorization":
+        second["authorization_binding"] = copy.deepcopy(
+            first["authorization_binding"]
+        )
+        second["queue_binding"]["authorization_id"] = first[
+            "authorization_binding"
+        ]["authorization_id"]
+    elif collision_kind == "dispatch":
+        second["dispatch_binding"] = copy.deepcopy(first["dispatch_binding"])
+    elif collision_kind == "run":
+        second["run_binding"] = copy.deepcopy(first["run_binding"])
+    else:
+        second["authorization_binding"] = copy.deepcopy(
+            first["authorization_binding"]
+        )
+        second["queue_binding"] = copy.deepcopy(first["queue_binding"])
+    _write_stream(synthetic_repo, first)
+    _write_stream(synthetic_repo, second)
+
+    with pytest.raises(
+        DispatchAuthorizationReservationError,
+        match=expected_field,
+    ):
+        scan_dispatch_authorization_reservations(repo_root=synthetic_repo)
+
+
+def test_path_only_collision_is_invalid_because_paths_are_id_derived(
+    synthetic_repo: Path,
+) -> None:
+    first = _attempt_event()
+    second = _distinct_attempt("PATH0002")
+    second["authorization_binding"]["authorization_target_path"] = first[
+        "authorization_binding"
+    ]["authorization_target_path"]
+    _write_stream(synthetic_repo, first)
+    _write_stream(synthetic_repo, second)
+
+    with pytest.raises(
+        DispatchAuthorizationReservationError,
+        match="not derived from authorization ID",
+    ):
+        scan_dispatch_authorization_reservations(repo_root=synthetic_repo)
+
+
+def test_current_retained_identity_collision_fails_closed(
+    synthetic_repo: Path,
+) -> None:
+    retained = _attempt_event()
+    path = _write_stream(synthetic_repo, retained)
+    _commit(synthetic_repo, "retain first attempt")
+    path.unlink()
+    _commit(synthetic_repo, "delete first attempt")
+    current = copy.deepcopy(retained)
+    current["attempt_id"] = "KDAUTH-XING-20260724-TEST0002"
+    current["event_id"] = f"{current['attempt_id']}-000001"
+    current["reservation_stream_path"] = (
+        "research/queue/dispatch_authorization_reservations/"
+        f"{current['attempt_id']}.crossing_reservation.jsonl"
+    )
+    _write_stream(synthetic_repo, current)
+
+    with pytest.raises(
+        DispatchAuthorizationReservationError,
+        match="distinct reservation attempts collide",
+    ):
+        scan_dispatch_authorization_reservations(repo_root=synthetic_repo)
+
+
+def test_retained_retained_identity_collision_fails_closed(
+    synthetic_repo: Path,
+) -> None:
+    first = _attempt_event()
+    first_path = _write_stream(synthetic_repo, first)
+    _commit(synthetic_repo, "retain first attempt")
+    first_path.unlink()
+    _commit(synthetic_repo, "delete first attempt")
+    second = copy.deepcopy(first)
+    second["attempt_id"] = "KDAUTH-XING-20260724-TEST0002"
+    second["event_id"] = f"{second['attempt_id']}-000001"
+    second["reservation_stream_path"] = (
+        "research/queue/dispatch_authorization_reservations/"
+        f"{second['attempt_id']}.crossing_reservation.jsonl"
+    )
+    second_path = _write_stream(synthetic_repo, second)
+    _commit(synthetic_repo, "retain second attempt")
+    second_path.unlink()
+    _commit(synthetic_repo, "delete second attempt")
+
+    with pytest.raises(
+        DispatchAuthorizationReservationError,
+        match="distinct reservation attempts collide",
+    ):
+        scan_dispatch_authorization_reservations(repo_root=synthetic_repo)
+
+
+def test_duplicate_collision_produces_closed_integrity_rows(
+    synthetic_repo: Path,
+) -> None:
+    first = _attempt_event()
+    second = copy.deepcopy(first)
+    second["attempt_id"] = "KDAUTH-XING-20260724-TEST0002"
+    second["event_id"] = f"{second['attempt_id']}-000001"
+    second["reservation_stream_path"] = (
+        "research/queue/dispatch_authorization_reservations/"
+        f"{second['attempt_id']}.crossing_reservation.jsonl"
+    )
+    _write_stream(synthetic_repo, first)
+    _write_stream(synthetic_repo, second)
+
+    findings = collect_dispatch_authorization_crossing_findings(
+        repo_root=synthetic_repo
+    )
+    collision_rows = [
+        row
+        for row in findings
+        if row["finding_type"]
+        == "reservation_identity_collision_across_attempts"
+    ]
+    assert {row["attempt_id"] for row in collision_rows} == {
+        first["attempt_id"],
+        second["attempt_id"],
+    }
+    assert {
+        row["reason_code"] for row in collision_rows
+    } == {"protected_identity_collision_across_distinct_attempts"}
+
+
+def test_retained_only_integrity_critical_remains_visible_after_deletion(
+    synthetic_repo: Path,
+) -> None:
+    initial = _attempt_event()
+    path = _write_stream(
+        synthetic_repo,
+        initial,
+        _terminal(initial, "crossing_integrity_critical"),
+    )
+    _commit(synthetic_repo, "retain critical terminal")
+    path.unlink()
+    _commit(synthetic_repo, "delete critical stream")
+
+    findings = collect_dispatch_authorization_crossing_findings(
+        repo_root=synthetic_repo
+    )
+    assert [row["finding_type"] for row in findings] == [
+        "crossing_integrity_critical"
+    ]
+
+
+def test_retained_only_unterminated_remains_visible_after_deletion(
+    synthetic_repo: Path,
+) -> None:
+    initial = _attempt_event()
+    path = _write_stream(synthetic_repo, initial)
+    _commit(synthetic_repo, "retain unterminated attempt")
+    path.unlink()
+    _commit(synthetic_repo, "delete unterminated stream")
+
+    findings = collect_dispatch_authorization_crossing_findings(
+        repo_root=synthetic_repo
+    )
+    assert [row["finding_type"] for row in findings] == [
+        "attempt_reserved_without_terminal"
+    ]
+
+
+def test_retained_committed_prefix_collapse_does_not_report_missing_terminal(
+    synthetic_repo: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    initial = _attempt_event()
+    terminal = _terminal(initial, "crossing_committed")
+    path = _write_stream(synthetic_repo, initial)
+    _commit(synthetic_repo, "retain committed prefix")
+    _write_stream(synthetic_repo, initial, terminal)
+    _commit(synthetic_repo, "retain committed terminal")
+    path.unlink()
+    _commit(synthetic_repo, "delete committed stream")
+    monkeypatch.setattr(
+        reservation,
+        "_validate_committed_cross_surface",
+        lambda root, first, last: None,
+    )
+
+    assert collect_dispatch_authorization_crossing_findings(
+        repo_root=synthetic_repo
+    ) == []
+
+
+def test_retained_clean_rollback_remains_finding_free(
+    synthetic_repo: Path,
+) -> None:
+    initial = _attempt_event()
+    path = _write_stream(
+        synthetic_repo,
+        initial,
+        _terminal(initial, "crossing_rolled_back_clean"),
+    )
+    _commit(synthetic_repo, "retain clean rollback")
+    path.unlink()
+    _commit(synthetic_repo, "delete clean rollback stream")
+
+    assert collect_dispatch_authorization_crossing_findings(
+        repo_root=synthetic_repo
+    ) == []
+
+
+def test_conflicting_retained_versions_produce_invalid_history_finding(
+    synthetic_repo: Path,
+) -> None:
+    initial = _attempt_event()
+    path = _write_stream(synthetic_repo, initial)
+    _commit(synthetic_repo, "retain original attempt")
+    path.unlink()
+    _commit(synthetic_repo, "delete original attempt")
+    rewritten = copy.deepcopy(initial)
+    rewritten["reviewed_content_binding"]["reviewed_byte_length"] = 1235
+    _write_stream(synthetic_repo, rewritten)
+    _commit(synthetic_repo, "retain conflicting rewrite")
+    path.unlink()
+    _commit(synthetic_repo, "delete conflicting rewrite")
+
+    findings = collect_dispatch_authorization_crossing_findings(
+        repo_root=synthetic_repo
+    )
+    assert [row["finding_type"] for row in findings] == [
+        "reservation_duplicate_or_invalid_sequence"
+    ]
+
+
 def test_existing_dispatch_surface_blocks_reservation(
     synthetic_repo: Path,
 ) -> None:
@@ -535,6 +865,151 @@ def test_prepublication_failure_never_creates_authoritative_target(
     assert list(reservation_root.glob("*.tmp")) == []
 
 
+def test_dangling_symlink_at_reservation_target_fails_closed(
+    synthetic_repo: Path,
+) -> None:
+    initial = _attempt_event()
+    target = _stream_path(synthetic_repo, initial)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    _symlink_or_skip(
+        target,
+        target.with_name("missing-reservation-target"),
+        target_is_directory=False,
+    )
+    assert os.path.lexists(target)
+
+    with dispatch_authorization_crossing_lock(
+        repo_root=synthetic_repo
+    ) as lock:
+        with pytest.raises(
+            DispatchAuthorizationReservationError,
+            match="symlink|reparse",
+        ):
+            reserve_dispatch_authorization_crossing_locked(
+                lock=lock, event=initial
+            )
+
+
+def test_dangling_symlink_at_kdauth_target_blocks_clean_rollback(
+    synthetic_repo: Path,
+) -> None:
+    initial = _attempt_event()
+    terminal = _terminal(initial, "crossing_rolled_back_clean")
+    with dispatch_authorization_crossing_lock(
+        repo_root=synthetic_repo
+    ) as lock:
+        reserve_dispatch_authorization_crossing_locked(
+            lock=lock, event=initial
+        )
+        target = synthetic_repo / initial["authorization_binding"][
+            "authorization_target_path"
+        ]
+        target.parent.mkdir(parents=True, exist_ok=True)
+        _symlink_or_skip(
+            target,
+            target.with_name("missing-kdauth-target"),
+            target_is_directory=False,
+        )
+        assert os.path.lexists(target)
+        with pytest.raises(
+            DispatchAuthorizationReservationError,
+            match="symlink|reparse",
+        ):
+            append_dispatch_authorization_crossing_terminal_locked(
+                lock=lock, event=terminal
+            )
+
+
+@pytest.mark.parametrize("destination_kind", ["inside", "outside"])
+def test_symlinked_reservation_parent_redirect_fails_closed(
+    synthetic_repo: Path,
+    tmp_path: Path,
+    destination_kind: str,
+) -> None:
+    initial = _attempt_event()
+    reservation_root = synthetic_repo / reservation.RESERVATION_ROOT
+    reservation_root.parent.mkdir(parents=True, exist_ok=True)
+    destination = (
+        synthetic_repo / "safe-but-nonauthoritative"
+        if destination_kind == "inside"
+        else tmp_path / "outside-repository"
+    )
+    destination.mkdir()
+    _symlink_or_skip(
+        reservation_root,
+        destination,
+        target_is_directory=True,
+    )
+
+    with dispatch_authorization_crossing_lock(
+        repo_root=synthetic_repo
+    ) as lock:
+        with pytest.raises(
+            DispatchAuthorizationReservationError,
+            match="symlink|reparse",
+        ):
+            reserve_dispatch_authorization_crossing_locked(
+                lock=lock, event=initial
+            )
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows junction fixture")
+def test_windows_junction_reservation_parent_redirect_fails_closed(
+    synthetic_repo: Path,
+    tmp_path: Path,
+) -> None:
+    initial = _attempt_event()
+    reservation_root = synthetic_repo / reservation.RESERVATION_ROOT
+    reservation_root.parent.mkdir(parents=True, exist_ok=True)
+    destination = tmp_path / "junction-destination"
+    destination.mkdir()
+    created = subprocess.run(
+        [
+            "cmd.exe",
+            "/c",
+            "mklink",
+            "/J",
+            str(reservation_root),
+            str(destination),
+        ],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if created.returncode != 0:
+        pytest.skip("this environment cannot create the required junction")
+
+    with dispatch_authorization_crossing_lock(
+        repo_root=synthetic_repo
+    ) as lock:
+        with pytest.raises(
+            DispatchAuthorizationReservationError,
+            match="symlink|reparse",
+        ):
+            reserve_dispatch_authorization_crossing_locked(
+                lock=lock, event=initial
+            )
+
+
+def test_reservation_target_occupied_by_directory_fails_closed(
+    synthetic_repo: Path,
+) -> None:
+    initial = _attempt_event()
+    target = _stream_path(synthetic_repo, initial)
+    target.mkdir(parents=True)
+
+    with dispatch_authorization_crossing_lock(
+        repo_root=synthetic_repo
+    ) as lock:
+        with pytest.raises(
+            DispatchAuthorizationReservationError,
+            match="single-use",
+        ):
+            reserve_dispatch_authorization_crossing_locked(
+                lock=lock, event=initial
+            )
+
+
 def test_partial_terminal_failure_never_truncates_initial(
     synthetic_repo: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -564,6 +1039,43 @@ def test_partial_terminal_failure_never_truncates_initial(
     raw = _stream_path(synthetic_repo, initial).read_bytes()
     assert raw.startswith(repo_canonical_json_v1(initial) + b"\n")
     assert len(raw) > len(repo_canonical_json_v1(initial) + b"\n")
+
+
+def test_terminal_occurred_at_must_not_precede_initial_occurred_at(
+    synthetic_repo: Path,
+) -> None:
+    initial = _attempt_event()
+    initial["occurred_at"] = "2026-07-24T12:01:00Z"
+    terminal = _terminal(initial, "crossing_integrity_critical")
+    terminal["occurred_at"] = "2026-07-24T12:00:30Z"
+    path = _write_stream(synthetic_repo, initial, terminal)
+
+    with pytest.raises(
+        DispatchAuthorizationReservationError,
+        match="terminal occurred_at must not precede initial",
+    ):
+        validate_dispatch_authorization_reservation_stream(
+            repo_root=synthetic_repo,
+            reservation_path=path,
+        )
+
+
+def test_terminal_occurred_at_must_not_precede_reserved_at(
+    synthetic_repo: Path,
+) -> None:
+    initial = _attempt_event()
+    terminal = _terminal(initial, "crossing_integrity_critical")
+    terminal["occurred_at"] = "2026-07-24T11:59:59Z"
+    path = _write_stream(synthetic_repo, initial, terminal)
+
+    with pytest.raises(
+        DispatchAuthorizationReservationError,
+        match="occurred_at must not precede reserved_at",
+    ):
+        validate_dispatch_authorization_reservation_stream(
+            repo_root=synthetic_repo,
+            reservation_path=path,
+        )
 
 
 def test_authorization_created_without_prior_reservation_is_visible(
@@ -646,4 +1158,48 @@ def test_query_registration_exposes_synthetic_integrity_critical(
     assert rows[0]["finding_type"] == "crossing_integrity_critical"
     assert rows[0]["reason_code"] == "recorded_integrity_critical"
     assert rows[0]["operator_inspection_required"] is True
+    conn.close()
+
+
+def test_query_registration_exposes_cross_attempt_identity_collision(
+    synthetic_repo: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import duckdb
+
+    from tools.research_query import query_layer
+
+    first = _attempt_event()
+    second = copy.deepcopy(first)
+    second["attempt_id"] = "KDAUTH-XING-20260724-TEST0002"
+    second["event_id"] = f"{second['attempt_id']}-000001"
+    second["reservation_stream_path"] = (
+        "research/queue/dispatch_authorization_reservations/"
+        f"{second['attempt_id']}.crossing_reservation.jsonl"
+    )
+    _write_stream(synthetic_repo, first)
+    _write_stream(synthetic_repo, second)
+    monkeypatch.setattr(query_layer, "REPO_ROOT", synthetic_repo)
+    conn = duckdb.connect(database=":memory:")
+    query_layer._register_dispatch_authorization_crossing_reservation_findings(
+        conn
+    )
+    rows = conn.execute(
+        """
+        SELECT finding_type, reason_code
+        FROM dispatch_authorization_crossing_reservation_findings
+        WHERE finding_type =
+            'reservation_identity_collision_across_attempts'
+        ORDER BY attempt_id
+        """
+    ).fetchall()
+    assert rows == [
+        (
+            "reservation_identity_collision_across_attempts",
+            "protected_identity_collision_across_distinct_attempts",
+        ),
+        (
+            "reservation_identity_collision_across_attempts",
+            "protected_identity_collision_across_distinct_attempts",
+        ),
+    ]
     conn.close()

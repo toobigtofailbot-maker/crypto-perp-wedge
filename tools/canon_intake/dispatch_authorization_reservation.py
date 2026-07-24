@@ -11,6 +11,7 @@ import errno
 import hashlib
 import json
 import os
+import stat
 import subprocess
 import uuid
 from dataclasses import dataclass
@@ -78,6 +79,8 @@ FINDING_REASON_CODES = {
         "terminal_common_binding_mismatch",
     "reservation_duplicate_or_invalid_sequence":
         "invalid_sequence_or_stream",
+    "reservation_identity_collision_across_attempts":
+        "protected_identity_collision_across_distinct_attempts",
 }
 BINARY_FLAG = getattr(os, "O_BINARY", 0)
 
@@ -107,12 +110,35 @@ def _lexical_absolute(path: Path) -> Path:
     return path if path.is_absolute() else Path.cwd() / path
 
 
+def _lexical_entry_exists(path: Path) -> bool:
+    return os.path.lexists(os.fspath(path))
+
+
+def _is_reparse_point(path: Path) -> bool:
+    try:
+        metadata = os.lstat(path)
+    except (FileNotFoundError, NotADirectoryError):
+        return False
+    except OSError as exc:
+        raise DispatchAuthorizationReservationError(
+            f"path entry metadata is unreadable: {path}"
+        ) from exc
+    attributes = getattr(metadata, "st_file_attributes", 0)
+    reparse_flag = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
+    return bool(attributes & reparse_flag)
+
+
+def _is_link_or_reparse(path: Path) -> bool:
+    return path.is_symlink() or _is_reparse_point(path)
+
+
 def _reject_symlink_components(path: Path, label: str) -> Path:
     lexical = _lexical_absolute(path)
     for component in reversed([lexical, *lexical.parents]):
-        if component.exists() and component.is_symlink():
+        if _is_link_or_reparse(component):
             raise DispatchAuthorizationReservationError(
-                f"{label} contains a symlinked path component: {component}"
+                f"{label} contains a symlink or reparse-point component: "
+                f"{component}"
             )
     return lexical
 
@@ -131,23 +157,26 @@ def _repo_path(root: Path, value: str, label: str) -> Path:
         raise DispatchAuthorizationReservationError(
             f"{label} must be a repo-relative POSIX path"
         )
+    raw_parts = value.split("/")
     pure = PurePosixPath(value)
-    if pure.is_absolute() or any(
-        part in {"", ".", ".."} for part in pure.parts
+    if (
+        pure.is_absolute()
+        or (raw_parts and len(raw_parts[0]) >= 2 and raw_parts[0][1] == ":")
+        or any(part in {"", ".", ".."} for part in raw_parts)
     ):
         raise DispatchAuthorizationReservationError(
             f"{label} must not contain traversal, dot, or empty components"
         )
     lexical = root.joinpath(*pure.parts)
     _reject_symlink_components(lexical, label)
-    resolved = lexical.resolve()
+    resolved = lexical.resolve(strict=False)
     try:
         resolved.relative_to(root)
     except ValueError as exc:
         raise DispatchAuthorizationReservationError(
             f"{label} escapes the repository"
         ) from exc
-    return resolved
+    return lexical
 
 
 def _schema_validator(root: Path) -> Draft7Validator:
@@ -368,6 +397,12 @@ def _parse_stream(
                 raise DispatchAuthorizationReservationError(
                     f"terminal common binding mismatch: {field}"
                 )
+        if _parse_timestamp(
+            terminal["occurred_at"], "terminal.occurred_at"
+        ) < _parse_timestamp(first["occurred_at"], "initial.occurred_at"):
+            raise DispatchAuthorizationReservationError(
+                "terminal occurred_at must not precede initial occurred_at"
+            )
     return events
 
 
@@ -509,11 +544,22 @@ def _validate_committed_cross_surface(
             raise DispatchAuthorizationReservationError(
                 f"authorization_created reservation mismatch: {field}"
             )
-    if _parse_timestamp(
+    creation_occurred_at = _parse_timestamp(
         creation.get("occurred_at"), "authorization_created.occurred_at"
-    ) <= _parse_timestamp(initial["occurred_at"], "reservation.occurred_at"):
+    )
+    initial_occurred_at = _parse_timestamp(
+        initial["occurred_at"], "reservation.occurred_at"
+    )
+    terminal_occurred_at = _parse_timestamp(
+        terminal["occurred_at"], "committed terminal.occurred_at"
+    )
+    if creation_occurred_at <= initial_occurred_at:
         raise DispatchAuthorizationReservationError(
             "authorization_created does not follow the committed reservation"
+        )
+    if terminal_occurred_at < creation_occurred_at:
+        raise DispatchAuthorizationReservationError(
+            "committed terminal occurred_at precedes authorization_created"
         )
     exact_terminal_links = {
         "authorization_created_event_id": creation.get("event_id"),
@@ -538,9 +584,20 @@ def _validate_clean_rollback_cross_surface(
         initial["authorization_binding"]["authorization_target_path"],
         "reserved KDAUTH target",
     )
-    if target.exists():
+    authorization_root = _repo_path(
+        root, AUTHORIZATION_ROOT.as_posix(), "KDAUTH authority root"
+    )
+    if target.parent != authorization_root:
         raise DispatchAuthorizationReservationError(
-            "clean rollback retains the reserved KDAUTH target"
+            "reserved KDAUTH target parent is not the authority root"
+        )
+    _reject_symlink_components(
+        target.parent, "reserved KDAUTH target parent"
+    )
+    if _lexical_entry_exists(target):
+        raise DispatchAuthorizationReservationError(
+            "clean rollback retains a lexical entry at the reserved KDAUTH "
+            "target"
         )
     authorization_id = initial["authorization_binding"]["authorization_id"]
     if any(
@@ -818,48 +875,6 @@ def _validate_raw_stream(
     }
 
 
-def scan_dispatch_authorization_reservations(
-    *,
-    repo_root: Path,
-    include_retained_history: bool = True,
-) -> list[dict[str, Any]]:
-    """Fail-closed scan of current and retained reservation streams."""
-    root = _resolve_root(repo_root)
-    current = list(_current_streams(root))
-    historical = (
-        list(_history_streams(root)) if include_retained_history else []
-    )
-    versions: dict[str, set[bytes]] = {}
-    for path, raw, _ in [*current, *historical]:
-        versions.setdefault(path, set()).add(raw)
-    for path, raw_versions in versions.items():
-        ordered = sorted(raw_versions, key=len)
-        for previous, current_version in zip(ordered, ordered[1:]):
-            if not current_version.startswith(previous):
-                raise DispatchAuthorizationReservationError(
-                    f"retained reservation history rewrites prior bytes: {path}"
-                )
-    results: list[dict[str, Any]] = []
-    seen: set[tuple[str, str]] = set()
-    for path, raw, commit in [*current, *historical]:
-        key = (path, _digest(raw))
-        if key in seen:
-            continue
-        seen.add(key)
-        result = _validate_raw_stream(
-            root,
-            path,
-            raw,
-            validate_cross_surfaces=commit is None,
-        )
-        result["source_kind"] = (
-            "current" if commit is None else "retained_history"
-        )
-        result["source_commit"] = commit
-        results.append(result)
-    return results
-
-
 def _identity_values(event: Mapping[str, Any]) -> dict[str, Any]:
     return {
         "attempt_id": event["attempt_id"],
@@ -893,6 +908,171 @@ def _identity_values(event: Mapping[str, Any]) -> dict[str, Any]:
             event["authorization_binding"]["authorization_core_sha256"],
         ),
     }
+
+
+PROTECTED_IDENTITY_FIELDS = (
+    "authorization_id",
+    "authorization_target_path",
+    "dispatch_id",
+    "dispatch_record_path",
+    "run_id",
+    "execution_event_stream_path",
+    "queue_authorization_pair",
+    "reviewed_identity_tuple",
+    "core_identity_tuple",
+)
+
+
+def _logical_attempt_model(
+    *,
+    root: Path,
+    include_retained_history: bool,
+    validate_cross_surfaces: bool,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    current = list(_current_streams(root))
+    historical = (
+        list(_history_streams(root)) if include_retained_history else []
+    )
+    grouped: dict[
+        tuple[str, str],
+        dict[bytes, list[tuple[str, str | None]]],
+    ] = {}
+    attempt_paths: dict[str, set[str]] = {}
+    path_attempts: dict[str, set[str]] = {}
+    for path, raw, commit in [*current, *historical]:
+        source_kind = "current" if commit is None else "retained_history"
+        try:
+            parsed = _validate_raw_stream(
+                root,
+                path,
+                raw,
+                validate_cross_surfaces=False,
+            )
+        except DispatchAuthorizationReservationError as exc:
+            source = path if commit is None else f"{commit}:{path}"
+            raise DispatchAuthorizationReservationError(
+                f"reservation history contains an invalid stream at {source}: "
+                f"{exc}"
+            ) from exc
+        attempt_id = parsed["attempt_id"]
+        stream_path = parsed["reservation_stream_path"]
+        key = (attempt_id, stream_path)
+        grouped.setdefault(key, {}).setdefault(raw, []).append(
+            (source_kind, commit)
+        )
+        attempt_paths.setdefault(attempt_id, set()).add(stream_path)
+        path_attempts.setdefault(stream_path, set()).add(attempt_id)
+
+    for attempt_id, paths in attempt_paths.items():
+        if len(paths) != 1:
+            raise DispatchAuthorizationReservationError(
+                f"logical reservation attempt has multiple paths: {attempt_id}"
+            )
+    for path, attempt_ids in path_attempts.items():
+        if len(attempt_ids) != 1:
+            raise DispatchAuthorizationReservationError(
+                f"reservation path has multiple attempt IDs: {path}"
+            )
+
+    logical_attempts: list[dict[str, Any]] = []
+    for (attempt_id, path), version_sources in sorted(grouped.items()):
+        ordered = sorted(version_sources, key=lambda value: (len(value), value))
+        for index, previous in enumerate(ordered):
+            for later in ordered[index + 1:]:
+                if not later.startswith(previous):
+                    raise DispatchAuthorizationReservationError(
+                        "reservation history contains non-prefix or ambiguous "
+                        f"competing versions for {attempt_id} at {path}"
+                    )
+        longest_length = max(len(raw) for raw in ordered)
+        longest = [raw for raw in ordered if len(raw) == longest_length]
+        if len(longest) != 1:
+            raise DispatchAuthorizationReservationError(
+                "reservation history contains ambiguous competing longest "
+                f"versions for {attempt_id} at {path}"
+            )
+        selected_raw = longest[0]
+        result = _validate_raw_stream(
+            root,
+            path,
+            selected_raw,
+            validate_cross_surfaces=validate_cross_surfaces,
+        )
+        selected_sources = version_sources[selected_raw]
+        result["source_kind"] = (
+            "current"
+            if any(kind == "current" for kind, _ in selected_sources)
+            else "retained_history"
+        )
+        commits = sorted(
+            {
+                commit
+                for sources in version_sources.values()
+                for _, commit in sources
+                if commit is not None
+            }
+        )
+        result["source_commit"] = commits[-1] if commits else None
+        result["source_commits"] = commits
+        result["history_version_count"] = len(version_sources)
+        logical_attempts.append(result)
+
+    collisions: list[dict[str, Any]] = []
+    for left_index, left in enumerate(logical_attempts):
+        left_event = left["events"][0]
+        left_key = (
+            left_event["attempt_id"],
+            left_event["reservation_stream_path"],
+        )
+        left_values = _identity_values(left_event)
+        for right in logical_attempts[left_index + 1:]:
+            right_event = right["events"][0]
+            right_key = (
+                right_event["attempt_id"],
+                right_event["reservation_stream_path"],
+            )
+            if left_key == right_key:
+                continue
+            right_values = _identity_values(right_event)
+            collision_fields = [
+                field
+                for field in PROTECTED_IDENTITY_FIELDS
+                if left_values[field] == right_values[field]
+            ]
+            if collision_fields:
+                collisions.append(
+                    {
+                        "left": left,
+                        "right": right,
+                        "fields": collision_fields,
+                    }
+                )
+    return logical_attempts, collisions
+
+
+def scan_dispatch_authorization_reservations(
+    *,
+    repo_root: Path,
+    include_retained_history: bool = True,
+) -> list[dict[str, Any]]:
+    """Return one fail-closed logical state per current/retained attempt."""
+    root = _resolve_root(repo_root)
+    logical_attempts, collisions = _logical_attempt_model(
+        root=root,
+        include_retained_history=include_retained_history,
+        validate_cross_surfaces=True,
+    )
+    if collisions:
+        collision = collisions[0]
+        left = collision["left"]["events"][0]
+        right = collision["right"]["events"][0]
+        raise DispatchAuthorizationReservationError(
+            "distinct reservation attempts collide on protected identities: "
+            f"{left['attempt_id']} at {left['reservation_stream_path']} and "
+            f"{right['attempt_id']} at {right['reservation_stream_path']}: "
+            + ", ".join(collision["fields"])
+        )
+    return logical_attempts
 
 
 def _reject_reserved_identity_reuse(
@@ -1173,7 +1353,11 @@ def reserve_dispatch_authorization_crossing_locked(
     )
     reservation_root.mkdir(parents=True, exist_ok=True)
     _reject_symlink_components(reservation_root, "reservation root")
-    if target.exists():
+    if target.parent != reservation_root:
+        raise DispatchAuthorizationReservationError(
+            "reservation target parent is not the authority root"
+        )
+    if _lexical_entry_exists(target):
         raise DispatchAuthorizationReservationError(
             "reservation target is permanently single-use"
         )
@@ -1207,6 +1391,11 @@ def reserve_dispatch_authorization_crossing_locked(
                 "reservation target collided during no-overwrite publication"
             ) from exc
         published = True
+        _reject_symlink_components(target, "published reservation")
+        if _is_link_or_reparse(target) or not target.is_file():
+            raise DispatchAuthorizationReservationIntegrityCriticalError(
+                "published reservation is not the exact expected regular file"
+            )
         if _read_stream_bytes(target, "published reservation") != candidate:
             raise DispatchAuthorizationReservationIntegrityCriticalError(
                 "published reservation byte verification failed"
@@ -1332,15 +1521,6 @@ def append_dispatch_authorization_crossing_terminal_locked(
         ) from exc
 
 
-def _best_effort_first_event(raw: bytes) -> dict[str, Any] | None:
-    try:
-        first = raw.splitlines()[0]
-        value = json.loads(first.decode("utf-8"))
-    except (IndexError, UnicodeError, json.JSONDecodeError):
-        return None
-    return value if isinstance(value, dict) else None
-
-
 def _creation_has_exact_kdauth_target(
     root: Path, creation: Mapping[str, Any]
 ) -> bool:
@@ -1381,11 +1561,15 @@ def collect_dispatch_authorization_crossing_findings(
     """Collect closed read-only integrity findings for the query layer."""
     root = _resolve_root(repo_root)
     findings: list[dict[str, Any]] = []
-    valid_results: list[dict[str, Any]] = []
     try:
-        streams = list(_current_streams(root))
+        valid_results, collisions = _logical_attempt_model(
+            root=root,
+            include_retained_history=True,
+            validate_cross_surfaces=True,
+        )
     except DispatchAuthorizationReservationError:
-        streams = []
+        valid_results = []
+        collisions = []
         findings.append(
             _finding(
                 None,
@@ -1393,23 +1577,26 @@ def collect_dispatch_authorization_crossing_findings(
                 terminal_outcome=None,
             )
         )
-    for path, raw, _ in streams:
-        try:
-            result = _validate_raw_stream(
-                root, path, raw, validate_cross_surfaces=True
+    for result in valid_results:
+        findings.extend(result["findings"])
+    collision_rows: set[tuple[str, str]] = set()
+    for collision in collisions:
+        for result in (collision["left"], collision["right"]):
+            event = result["events"][0]
+            key = (
+                event["attempt_id"],
+                event["reservation_stream_path"],
             )
-        except DispatchAuthorizationReservationError:
-            event = _best_effort_first_event(raw)
+            if key in collision_rows:
+                continue
+            collision_rows.add(key)
             findings.append(
                 _finding(
                     event,
-                    "reservation_duplicate_or_invalid_sequence",
-                    terminal_outcome=None,
+                    "reservation_identity_collision_across_attempts",
+                    terminal_outcome=result["terminal_outcome"],
                 )
             )
-            continue
-        valid_results.append(result)
-        findings.extend(result["findings"])
 
     initial_events = [result["events"][0] for result in valid_results]
     try:

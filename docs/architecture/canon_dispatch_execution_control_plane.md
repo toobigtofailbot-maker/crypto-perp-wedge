@@ -166,18 +166,36 @@ Every committed reservation permanently consumes its attempt, authorization,
 dispatch, run, target-path, queue-item/authorization, reviewed-content, and
 core-hash identity bindings. Success, clean rollback, integrity-critical
 failure, a missing terminal, and deletion all retain the burn. Current streams
-and committed retained Git history are both scanned; malformed or ambiguous
-history fails closed. Reservation history is never rewritten, truncated,
-deleted, repaired in place, or interpreted as retry/recovery authority.
+and committed retained Git history are grouped by exact attempt ID and derived
+stream path. Append-only prefixes collapse to the single longest valid logical
+attempt; non-prefix rewrites and competing longest versions fail closed.
+Distinct logical attempts are globally compared, and any collision on an
+authorization, dispatch, run, target-path, queue/authorization,
+reviewed-content, or authorization-core identity fails closed. Reservation
+history is never rewritten, truncated, deleted, repaired in place, or
+interpreted as retry/recovery authority.
+
+The authoritative path remains lexical while resolved confinement is checked
+separately. A dangling symlink, supported Windows junction/reparse point,
+redirecting component, or non-file entry at a reserved target is not absence.
+Clean rollback and initial publication both reject those entries without
+following them. A terminal timestamp cannot precede its reservation or initial
+event; a committed terminal cannot precede the exact linked
+`authorization_created`, which must remain strictly later than
+`attempt_reserved`.
 
 Read-only integrity visibility is exposed through
 `v_integrity_dispatch_authorization_crossing_reservations`. It surfaces
 integrity-critical and unterminated attempts, invalid sequences/bindings,
 committed crossings without the exact creation event, and any
-`authorization_created` event without an earlier exact reservation. The
-reservation ledger is control-plane integrity history only: it is not Karl's
-approval, a KDAUTH artifact or lifecycle event, a dispatch/execution record,
-scientific evidence, runner/scheduler/runtime authority, or paper/live,
+`authorization_created` event without an earlier exact reservation. It uses
+the same current-plus-retained logical-attempt model, so deleted unresolved or
+integrity-critical attempts remain visible and cross-attempt protected-identity
+collisions use the closed
+`reservation_identity_collision_across_attempts` finding. The reservation
+ledger is control-plane integrity history only: it is not Karl's approval, a
+KDAUTH artifact or lifecycle event, a dispatch/execution record, scientific
+evidence, runner/scheduler/runtime authority, or paper/live,
 OMS/risk/reconciliation, broker/exchange/order/capital authority.
 
 This reservation capability is a prerequisite only. The retained protected

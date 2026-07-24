@@ -1474,7 +1474,7 @@ def _validate_single_use(
         "run_id": expected["run_id"],
         "execution_event_stream_path": expected["stream_path"],
     }
-    matching_committed_attempts: set[str] = set()
+    matching_committed_attempts: list[dict[str, Any]] = []
     for reservation in reservations:
         first = reservation["events"][0]
         reservation_values = {
@@ -1503,8 +1503,15 @@ def _validate_single_use(
         if (
             reservation["terminal_outcome"] == "crossing_committed"
             and reservation_values == reservation_expected
+            and reservation["findings"] == []
         ):
-            matching_committed_attempts.add(first["attempt_id"])
+            matching_committed_attempts.append(reservation)
+    if len(matching_committed_attempts) != 1:
+        raise DispatchAuthorizationError(
+            "exactly one logical committed crossing reservation matching the "
+            "KDAUTH and authorization_created event is required"
+        )
+    matching_committed = matching_committed_attempts[0]
     for reservation in reservations:
         first = reservation["events"][0]
         reservation_values = {
@@ -1538,7 +1545,7 @@ def _validate_single_use(
         if not collisions:
             continue
         if (
-            first["attempt_id"] in matching_committed_attempts
+            reservation is matching_committed
             and reservation_values == reservation_expected
         ):
             continue

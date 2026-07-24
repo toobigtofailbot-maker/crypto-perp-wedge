@@ -12,6 +12,7 @@ import pytest
 from jsonschema import Draft7Validator
 
 import tools.canon_intake.dispatch_authorization as validator
+import tools.canon_intake.dispatch_authorization_reservation as reservation
 from tools.canon_intake.dispatch_authorization import (
     APPROVAL_STATEMENT,
     DispatchAuthorizationError,
@@ -98,11 +99,20 @@ def _commit(root: Path, message: str) -> None:
     )
 
 
-def _fixture(tmp_path: Path, source_repo: Path):
+def _fixture(
+    tmp_path: Path,
+    source_repo: Path,
+    *,
+    include_committed_reservation: bool = True,
+):
     root = tmp_path / "repo"
     schemas = root / "research/schemas"
     schemas.mkdir(parents=True)
-    for name in (validator.APPROVAL_SCHEMA, validator.AUDIT_SCHEMA):
+    for name in (
+        validator.APPROVAL_SCHEMA,
+        validator.AUDIT_SCHEMA,
+        reservation.SCHEMA_NAME,
+    ):
         shutil.copy2(source_repo / "research/schemas" / name, schemas / name)
 
     spec_rel = "research/strategy_specs/STRAT-SPEC-9001.strategy_spec.json"
@@ -546,9 +556,7 @@ def _fixture(tmp_path: Path, source_repo: Path):
     audit_path.parent.mkdir(parents=True)
     audit_path.write_bytes(repo_canonical_json_v1(created) + b"\n")
 
-    _git(root, "init", "-q")
-    _commit(root, "synthetic valid KDAUTH")
-    return {
+    fixture = {
         "root": root,
         "authorization_path": authorization_path,
         "authorization": authorization,
@@ -556,6 +564,16 @@ def _fixture(tmp_path: Path, source_repo: Path):
         "audit_path": audit_path,
         "created": created,
     }
+    if include_committed_reservation:
+        _write_matching_committed_reservation(
+            fixture,
+            attempt_id="KDAUTH-XING-20260720-BASE9001",
+            initial_occurred_at="2026-07-20T17:30:00Z",
+            terminal_occurred_at="2026-07-20T17:32:00Z",
+        )
+    _git(root, "init", "-q")
+    _commit(root, "synthetic valid KDAUTH")
+    return fixture
 
 
 def _resign(fixture: dict) -> None:
@@ -582,9 +600,13 @@ def _validate(fixture: dict, **kwargs):
     )
 
 
-def _crossing_reservation_event(fixture: dict, attempt_id: str) -> dict:
-    import tools.canon_intake.dispatch_authorization_reservation as reservation
-
+def _crossing_reservation_event(
+    fixture: dict,
+    attempt_id: str,
+    *,
+    reserved_at: str = "2026-07-24T12:00:00Z",
+    occurred_at: str = "2026-07-24T12:00:00Z",
+) -> dict:
     authorization = fixture["authorization"]
     core = authorization["authorization_core"]
     crossing = core["crossing_identities"]
@@ -636,8 +658,8 @@ def _crossing_reservation_event(fixture: dict, attempt_id: str) -> dict:
             "reviewed_content_scope":
                 "exact_kdauth_whole_file_bytes_including_final_lf",
         },
-        "reserved_at": "2026-07-24T12:00:00Z",
-        "occurred_at": "2026-07-24T12:00:00Z",
+        "reserved_at": reserved_at,
+        "occurred_at": occurred_at,
         "actor": "Karl",
         "writer_identity": reservation.WRITER_IDENTITY,
         "identities_permanently_reserved": True,
@@ -668,6 +690,63 @@ def _crossing_reservation_event(fixture: dict, attempt_id: str) -> dict:
             "not_broker_exchange_order_capital_authority": True,
         },
     }
+
+
+def _write_matching_committed_reservation(
+    fixture: dict,
+    *,
+    attempt_id: str,
+    initial_occurred_at: str,
+    terminal_occurred_at: str,
+) -> tuple[dict, dict, Path]:
+    initial = _crossing_reservation_event(
+        fixture,
+        attempt_id,
+        reserved_at=initial_occurred_at,
+        occurred_at=initial_occurred_at,
+    )
+    creation_raw = repo_canonical_json_v1(fixture["created"]) + b"\n"
+    terminal = copy.deepcopy(initial)
+    terminal["event_id"] = f"{attempt_id}-000002"
+    terminal["sequence_number"] = 2
+    terminal["event_type"] = "crossing_committed"
+    terminal["occurred_at"] = terminal_occurred_at
+    terminal["event_payload"] = {
+        "terminal_outcome": "crossing_committed",
+        "kdauth_target_durable": True,
+        "authorization_created_durable": True,
+        "resulting_authorization_path": initial[
+            "authorization_binding"
+        ]["authorization_target_path"],
+        "resulting_authorization_whole_file_sha256": _hash(
+            fixture["authorization_raw"]
+        ),
+        "resulting_authorization_byte_length": len(
+            fixture["authorization_raw"]
+        ),
+        "resulting_authorization_core_sha256": initial[
+            "authorization_binding"
+        ]["authorization_core_sha256"],
+        "lifecycle_audit_path": validator.AUDIT_PATH.as_posix(),
+        "authorization_created_event_id": fixture["created"]["event_id"],
+        "lifecycle_event_sequence_number": fixture["created"][
+            "sequence_number"
+        ],
+        "lifecycle_raw_line_sha256": _hash(creation_raw),
+        "lifecycle_raw_line_byte_length": len(creation_raw),
+        "rollback_performed": False,
+        "operator_inspection_required": False,
+        "terminal_is_permanent": True,
+    }
+    path = fixture["root"] / initial["reservation_stream_path"]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(
+        repo_canonical_json_v1(initial)
+        + b"\n"
+        + repo_canonical_json_v1(terminal)
+        + b"\n"
+    )
+    return initial, terminal, path
 
 
 @pytest.fixture
@@ -708,6 +787,86 @@ def test_valid_synthetic_authorization_and_created_audit_pass(
     assert result["lifecycle_state"] == "created"
     assert result["freshness"] == "content_bound_exact_equality_only"
     assert result["non_authority"]["does_not_invoke_runner"] is True
+
+
+def test_kdauth_requires_exactly_one_matching_committed_logical_attempt(
+    tmp_path, repo_root
+):
+    fixture = _fixture(
+        tmp_path, repo_root, include_committed_reservation=False
+    )
+    with pytest.raises(
+        DispatchAuthorizationError,
+        match="exactly one logical committed crossing reservation",
+    ):
+        _validate(fixture)
+
+
+def test_two_exact_committed_logical_attempts_fail_kdauth_validation(
+    tmp_path, repo_root
+):
+    fixture = _fixture(
+        tmp_path, repo_root, include_committed_reservation=False
+    )
+    _write_matching_committed_reservation(
+        fixture,
+        attempt_id="KDAUTH-XING-20260720-DUPE9001",
+        initial_occurred_at="2026-07-20T17:29:00Z",
+        terminal_occurred_at="2026-07-20T17:32:00Z",
+    )
+    _write_matching_committed_reservation(
+        fixture,
+        attempt_id="KDAUTH-XING-20260720-DUPE9002",
+        initial_occurred_at="2026-07-20T17:30:00Z",
+        terminal_occurred_at="2026-07-20T17:33:00Z",
+    )
+    with pytest.raises(
+        DispatchAuthorizationError,
+        match="history is invalid.*distinct reservation attempts collide",
+    ):
+        _validate(fixture)
+
+
+def test_committed_terminal_must_not_precede_authorization_created(
+    tmp_path, repo_root
+):
+    fixture = _fixture(
+        tmp_path, repo_root, include_committed_reservation=False
+    )
+    initial, terminal, _ = _write_matching_committed_reservation(
+        fixture,
+        attempt_id="KDAUTH-XING-20260720-TIME9001",
+        initial_occurred_at="2026-07-20T17:30:00Z",
+        terminal_occurred_at="2026-07-20T17:30:30Z",
+    )
+    with pytest.raises(
+        reservation.DispatchAuthorizationReservationError,
+        match="committed terminal occurred_at precedes authorization_created",
+    ):
+        reservation._validate_committed_cross_surface(
+            fixture["root"], initial, terminal
+        )
+
+
+def test_authorization_created_must_strictly_follow_initial_reservation(
+    tmp_path, repo_root
+):
+    fixture = _fixture(
+        tmp_path, repo_root, include_committed_reservation=False
+    )
+    initial, terminal, _ = _write_matching_committed_reservation(
+        fixture,
+        attempt_id="KDAUTH-XING-20260720-TIME9002",
+        initial_occurred_at="2026-07-20T17:31:00Z",
+        terminal_occurred_at="2026-07-20T17:32:00Z",
+    )
+    with pytest.raises(
+        reservation.DispatchAuthorizationReservationError,
+        match="authorization_created does not follow",
+    ):
+        reservation._validate_committed_cross_surface(
+            fixture["root"], initial, terminal
+        )
 
 
 def test_cli_is_read_only_and_returns_structured_result(tmp_path, repo_root):
@@ -1338,7 +1497,9 @@ def test_unterminated_crossing_reservation_permanently_blocks_kdauth_reuse(
 ):
     import tools.canon_intake.dispatch_authorization_reservation as reservation
 
-    fixture = _fixture(tmp_path, repo_root)
+    fixture = _fixture(
+        tmp_path, repo_root, include_committed_reservation=False
+    )
     shutil.copy2(
         repo_root / "research/schemas" / reservation.SCHEMA_NAME,
         fixture["root"] / "research/schemas" / reservation.SCHEMA_NAME,
@@ -1432,7 +1593,7 @@ def test_unterminated_crossing_reservation_permanently_blocks_kdauth_reuse(
     path.write_bytes(reservation.repo_canonical_json_v1(event) + b"\n")
     with pytest.raises(
         DispatchAuthorizationError,
-        match="crossing reservation permanently consumes",
+        match="exactly one logical committed crossing reservation",
     ):
         _validate(fixture)
 
@@ -1442,7 +1603,9 @@ def test_committed_reservation_links_exact_kdauth_and_creation_event(
 ):
     import tools.canon_intake.dispatch_authorization_reservation as reservation
 
-    fixture = _fixture(tmp_path, repo_root)
+    fixture = _fixture(
+        tmp_path, repo_root, include_committed_reservation=False
+    )
     shutil.copy2(
         repo_root / "research/schemas" / reservation.SCHEMA_NAME,
         fixture["root"] / "research/schemas" / reservation.SCHEMA_NAME,

@@ -68,33 +68,58 @@ bindings and the selected cross-surface outcome, appends one canonical line,
 flushes/fsyncs, then rereads the exact two-line stream. No terminal failure
 truncates or deletes the initial reservation.
 
+## PR #673 fail-closed follow-up
+
+The same PR now collapses current and retained append-only versions into one
+logical state per exact attempt ID and derived stream path. A valid one-line
+prefix followed by its two-line terminal is one attempt. Non-prefix rewrites,
+ambiguous longest versions, and protected identity collisions across distinct
+logical attempts fail closed. KDAUTH validation requires exactly one committed
+logical attempt with complete bindings equal to the KDAUTH and its exact
+`authorization_created` event; zero or multiple matches fail closed.
+
+Integrity collection uses that same current-plus-retained model. Deleted
+integrity-critical and genuinely unterminated attempts remain visible, while a
+retained one-line prefix cannot create a false missing-terminal finding after
+a valid terminal exists. Cross-attempt collisions use the closed finding
+`reservation_identity_collision_across_attempts` and reason
+`protected_identity_collision_across_distinct_attempts`.
+
+Lexical authoritative paths are preserved separately from resolved
+confinement. Dangling symlinks, supported Windows junction/reparse points,
+redirecting components, and non-file target entries are rejected without being
+followed. Terminal chronology is closed across `reserved_at`, initial
+`occurred_at`, exact `authorization_created.occurred_at`, and committed
+terminal `occurred_at`. No reservation schema amendment was required.
+
 ## Validation and preservation
 
-- Focused reservation tests: `19 passed`. Protected KDAUTH, Gate C-VP, Gate-Q,
-  queue, dispatch/execution-contract, and retained-history regressions:
-  `346 passed, 6` accepted Windows symlink skips. Coverage includes a synthetic
-  reservation-before-KDAUTH success crossing, clean rollback,
-  integrity-critical, missing-terminal, retained-deletion, control-surface
-  collision, exact-byte, partial-append, and query-registration coverage.
-- Query contract checks: `3 passed, 63 deselected`; the new view is registered
-  with the exact closed columns, is empty on the real repository, and is
-  non-empty for synthetic integrity-critical/missing-terminal/
-  missing-prior-reservation cases.
+- Same-PR reservation/KDAUTH follow-up: `122 passed, 5 skipped`. Four new skips
+  are limited to specific symlink fixtures that this Windows environment
+  cannot create; the Windows junction/reparse fixture executed and passed.
+  The fifth skip is the pre-existing KDAUTH symlink-fixture limitation. No
+  skip or xfail bypasses a failing semantic assertion.
+- Protected KDAUTH, Gate C-VP, Gate-Q, queue, external-readiness,
+  dispatch/execution-contract, and retained-history regressions:
+  `399 passed, 10 skipped`; the additional five skips are pre-existing
+  protected-writer symlink-fixture limitations on Windows.
+- Query-focused checks: `3 passed, 112 deselected`; the view is empty on the
+  real repository and non-empty with the closed cross-attempt collision type
+  and reason for synthetic duplicates.
 - Registry validation: all 25 `tools.registry.validate_*` modules passed. The
   funding validator used its supported read-only `--data-root` override to the
   primary checkout because the clean worktree intentionally lacks the
-  gitignored Parquet; the first default-path invocation disclosed that missing
-  local file and is not pass evidence.
+  gitignored Parquet.
 - JSON/Draft-7: 1,171 tracked JSON files, 12 JSONL files / 27,585 non-empty
   lines, and all 43 Draft-7 schemas parse and validate.
 - Integrity: all 60 `v_integrity_*` views executed; 59 are empty and the sole
   non-empty row is the unchanged locked
   `v_integrity_strategy_spec_legacy_hash_scope_reproducibility` disclosure.
   The new reservation view is empty on real repo state.
-- `full-release-balanced-v1`: all 154 tracked test files were assigned exactly
-  once across 48 shards; missing, duplicate, and untracked assignments were
-  zero; every shard completed and passed with no failure or timeout. The
-  dedicated query shard passed in 1,013.125 seconds.
+- Same-PR `full-release-balanced-v1`: all 154 tracked test files are assigned
+  exactly once across 48 shards; missing, duplicate, and untracked assignments
+  are zero; every selected shard completes and passes with no failure, error,
+  or timeout.
 - Existing protected KDAUTH/lifecycle/dispatch/execution schemas are unchanged.
 - Queue/Gate-Q/VPAPP writers, canonical 1d/funding identities, runner,
   dependencies, configs, runtime, paper/live, OMS/risk/reconciliation, and

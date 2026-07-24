@@ -1,0 +1,202 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "canon_dispatch_authorization_audit_event.schema.json",
+  "title": "Append-only canonical dispatch-authorization lifecycle event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "event_id",
+    "sequence_number",
+    "event_type",
+    "authorization_id",
+    "authorization_path",
+    "authorization_file_sha256",
+    "authorization_byte_length",
+    "authorization_core_sha256",
+    "authorization_core_hash_scope",
+    "queue_item_id",
+    "dispatch_id",
+    "run_id",
+    "occurred_at",
+    "actor",
+    "tool_identity",
+    "event_payload",
+    "non_authority_declaration"
+  ],
+  "properties": {
+    "schema_version": {"const": "canon_dispatch_authorization_audit_event_v1"},
+    "event_id": {
+      "type": "string",
+      "pattern": "^KDAUTH-EVENT-KDAUTH-[A-Z0-9]+-R[0-9]+-[0-9]{4}-[0-9]{6}$"
+    },
+    "sequence_number": {"type": "integer", "minimum": 1},
+    "event_type": {
+      "enum": [
+        "authorization_created",
+        "authorization_superseded",
+        "authorization_revoked",
+        "authorization_consumed"
+      ]
+    },
+    "authorization_id": {"$ref": "#/definitions/authorization_id"},
+    "authorization_path": {"$ref": "#/definitions/authorization_path"},
+    "authorization_file_sha256": {"$ref": "#/definitions/hash"},
+    "authorization_byte_length": {"type": "integer", "minimum": 1},
+    "authorization_core_sha256": {"$ref": "#/definitions/hash"},
+    "authorization_core_hash_scope": {"const": "dispatch_authorization_core_v1"},
+    "queue_item_id": {
+      "type": "string",
+      "pattern": "^QI-[0-9]{8}-[A-Z0-9]{8}$"
+    },
+    "dispatch_id": {
+      "type": "string",
+      "pattern": "^DSP-[0-9]{8}-[A-Z0-9]{8}$"
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^RUN-[0-9]{8}-[A-Z0-9]{8}$"
+    },
+    "occurred_at": {"type": "string", "format": "date-time"},
+    "actor": {"type": "string", "minLength": 1},
+    "tool_identity": {"type": "string", "minLength": 1},
+    "event_payload": {
+      "oneOf": [
+        {"$ref": "#/definitions/created_payload"},
+        {"$ref": "#/definitions/superseded_payload"},
+        {"$ref": "#/definitions/revoked_payload"},
+        {"$ref": "#/definitions/consumed_payload"}
+      ]
+    },
+    "non_authority_declaration": {"$ref": "#/definitions/non_authority"}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"event_type": {"const": "authorization_created"}}
+      },
+      "then": {
+        "properties": {
+          "event_payload": {"$ref": "#/definitions/created_payload"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"event_type": {"const": "authorization_superseded"}}
+      },
+      "then": {
+        "properties": {
+          "event_payload": {"$ref": "#/definitions/superseded_payload"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"event_type": {"const": "authorization_revoked"}}
+      },
+      "then": {
+        "properties": {
+          "event_payload": {"$ref": "#/definitions/revoked_payload"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"event_type": {"const": "authorization_consumed"}}
+      },
+      "then": {
+        "properties": {
+          "event_payload": {"$ref": "#/definitions/consumed_payload"}
+        }
+      }
+    }
+  ],
+  "definitions": {
+    "hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "authorization_id": {
+      "type": "string",
+      "pattern": "^KDAUTH-[A-Z0-9]+-R[0-9]+-[0-9]{4}$"
+    },
+    "authorization_path": {
+      "type": "string",
+      "pattern": "^research/queue/dispatch_authorizations/KDAUTH-[A-Z0-9]+-R[0-9]+-[0-9]{4}\\.dispatch_authorization\\.json$"
+    },
+    "created_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["event_kind", "creation_posture"],
+      "properties": {
+        "event_kind": {"const": "authorization_created"},
+        "creation_posture": {"const": "protected_exclusive_create"}
+      }
+    },
+    "superseded_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_kind",
+        "new_authorization_id",
+        "new_authorization_path",
+        "reason"
+      ],
+      "properties": {
+        "event_kind": {"const": "authorization_superseded"},
+        "new_authorization_id": {"$ref": "#/definitions/authorization_id"},
+        "new_authorization_path": {"$ref": "#/definitions/authorization_path"},
+        "reason": {"type": "string", "minLength": 1}
+      }
+    },
+    "revoked_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["event_kind", "reason"],
+      "properties": {
+        "event_kind": {"const": "authorization_revoked"},
+        "reason": {"type": "string", "minLength": 1}
+      }
+    },
+    "consumed_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_kind",
+        "consumer_tool",
+        "dispatch_record_path",
+        "consumption_is_permanent"
+      ],
+      "properties": {
+        "event_kind": {"const": "authorization_consumed"},
+        "consumer_tool": {"type": "string", "minLength": 1},
+        "dispatch_record_path": {
+          "type": "string",
+          "pattern": "^research/queue/dispatch_records/DSP-[0-9]{8}-[A-Z0-9]{8}\\.dispatch_record\\.json$"
+        },
+        "consumption_is_permanent": {"const": true}
+      }
+    },
+    "non_authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lifecycle_history_only",
+        "does_not_invoke_runner",
+        "not_result_population_authority",
+        "not_ranking_recommendation_authority",
+        "not_candidate_readiness_promotion_authority",
+        "not_runtime_paper_live_authority"
+      ],
+      "properties": {
+        "lifecycle_history_only": {"const": true},
+        "does_not_invoke_runner": {"const": true},
+        "not_result_population_authority": {"const": true},
+        "not_ranking_recommendation_authority": {"const": true},
+        "not_candidate_readiness_promotion_authority": {"const": true},
+        "not_runtime_paper_live_authority": {"const": true}
+      }
+    }
+  }
+}

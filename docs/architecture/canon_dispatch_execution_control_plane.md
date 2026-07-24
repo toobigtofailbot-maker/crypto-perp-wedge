@@ -27,13 +27,99 @@ Dispatch and execution records are authoritative control-plane history only. The
 | Dispatch record | `research/queue/dispatch_records/<dispatch_id>.dispatch_record.json` | `DSP-YYYYMMDD-XXXXXXXX` |
 | Execution stream | `research/queue/execution_events/<run_id>.execution_events.jsonl` | `RUN-YYYYMMDD-XXXXXXXX` |
 | Execution event | one JSON object plus LF in the run stream | `EXEC-EVENT-<run_id>-NNNNNN` |
-| Exact Karl authority reference | durable repo-relative source bound by the dispatch record | `KDAUTH-YYYYMMDD-XXXXXXXX` |
+| Exact Karl dispatch authorization | `research/queue/dispatch_authorizations/<authorization_id>.dispatch_authorization.json` | family/revision scoped `KDAUTH-<FAMILY>-R<REVISION>-NNNN` |
+| Dispatch-authorization lifecycle audit | `research/queue/dispatch_authorization_audit/dispatch_authorization_events.jsonl` | `KDAUTH-EVENT-<authorization_id>-NNNNNN` |
 
 `XXXXXXXX` is eight uppercase alphanumeric characters. The dispatch date MUST equal the UTC date of `created_at`. Event sequence numbers start at 1, are contiguous and strictly increasing, and are rendered as six digits in the event ID. Paths are repo-relative POSIX paths with no traversal, backslashes, empty components, or symlink escape.
 
 IDs, exact target paths, run IDs, event IDs, and queue-item/authorization pairs are permanently single-use. Removal of a file does not free an identity. A future writer MUST scan all current dispatch records, every execution line, durable Karl authorization sources, and retained repository history before crossing. An identity found in any one source is consumed. Missing or ambiguous history fails closed.
 
 No production directory or instance is created by this design package.
+
+## Exact dispatch authorization
+
+Normative schemas:
+
+- `research/schemas/canon_dispatch_authorization.schema.json`;
+- `research/schemas/canon_dispatch_authorization_audit_event.schema.json`.
+
+The authorization family mirrors the existing Gate-Q and standalone Gate C-VP
+approval posture. It is a closed Draft 7 JSON artifact approved by Karl for one
+exact, pre-declared, single-use dispatch. Its target path is derived from its
+family/revision-scoped identifier. For H-004-R2 the identifier form is
+`KDAUTH-H004-R2-NNNN`.
+
+The artifact binds:
+
+- the exact admitted queue-item bytes and state plus exact Gate-Q whole-file and
+  semantic-core hashes;
+- the pre-declared dispatch ID/path and run ID/execution-stream path;
+- the exact frozen Stage-A dispatcher packet bytes and byte length;
+- exact Strategy Spec, external-content-readiness, variant-planning approval,
+  Variant Manifest, Sweep Plan, and Gate-Q lineage;
+- the exact canonical 1d catalog/data identity, direct-public-snapshot posture,
+  canonical cadence and column contract, completed-bar findings, lineage
+  validator source identity, and rebuilt-catalog validation identity;
+- funding mode `on`, the exact funding provenance/data identity, event
+  semantics, and no-fill/no-interpolation posture;
+- structured runner module/source/version identity, never a command;
+- denominator, budget, seed, workers, one-shot/no-retry posture, and scratch
+  plus execution-event output targets;
+- the complete no-downstream-authority declaration.
+
+The exact approval statement is:
+
+> Karl approves one single-use offline research dispatch for the exact queue
+> item, dispatch ID, run ID, frozen dispatcher packet, lineage, dataset,
+> funding identity, runner, budget, and output targets bound by this artifact,
+> and grants no downstream authority.
+
+The complete `authorization_core` is hashed with
+`repo_canonical_json_v1`, stored as `authorization_core_sha256`, and scoped as
+`dispatch_authorization_core_v1`. The authorization file does not contain its
+own whole-file hash. Consumers compute SHA-256 over the exact bytes, including
+the required final LF, and bind both that hash and the byte length.
+
+The exact authorization serialization is UTF-8 without BOM, lexicographically
+sorted keys, two-space JSON indentation, no trailing spaces, and exactly one
+trailing LF. CRLF, a missing or double LF, bytes after the LF, or any
+serialization drift fails closed. Lifecycle-audit lines use
+`repo_canonical_json_v1` plus one LF.
+
+Freshness is content-bound only. `approved_at` is mandatory, parseable, and
+timezone-aware, but there is no expiry, same-day requirement, Git-time
+comparison, or wall-clock window. Any bound identity, field, byte length, or
+hash drift requires a new authorization.
+
+The canonical 1d binding is the route merged by
+`WP-RUNNER-1D-CANONICAL-ROUTE-01`: catalog and Parquet bytes are bound
+separately, the tracked lineage validator source is bound by exact path,
+SHA-256, and byte length, and `validation_identity` binds the catalog hash,
+validator path/hash, and successful exact catalog rebuild. The KDAUTH runner
+binding likewise names `tools.research_runner.run_offline_sweep`, its tracked
+source bytes, and `wp-s2c-190-build-test-v1`. These are content bindings only;
+this contract does not invoke the merged route.
+
+The lifecycle vocabulary is closed:
+
+- `authorization_created`, exactly once and first;
+- `authorization_superseded`, only before consumption and referencing a new
+  authorization;
+- `authorization_revoked`, only before consumption and permanently terminal;
+- `authorization_consumed`, exactly once and permanently terminal.
+
+The lifecycle stream is append-only canonical JSONL. It never rewrites,
+truncates, deletes, or repairs a prior line. A malformed or partial tail fails
+closed. Superseded, revoked, or consumed authorizations are permanently
+unusable. Deletion does not release an authorization ID/path, dispatch ID, run
+ID, queue target, queue/authorization pair, or target path. A new attempt
+requires fresh authorization, dispatch, and run identities.
+
+KDAUTH alone does not create a dispatch, start or invoke a runner, create an
+execution event, authorize retry/recovery, or grant Result Population,
+ranking, recommendation, candidate, readiness, promotion, scheduler, runtime,
+paper/live, OMS, risk, reconciliation, broker, exchange, order, position,
+balance, capital, or notification authority.
 
 ## Immutable dispatch record
 
@@ -140,14 +226,23 @@ A later separately authorized Result Population package MAY read the immutable d
 
 Separate Karl/Main-authorized packages are required for:
 
-- an exact dispatch-authorization artifact/schema if Main chooses to canonicalize that source;
+- a protected exact dispatch-authorization writer and lifecycle-event append
+  mechanism implementing this locked contract;
 - a dispatch writer and execution-event writer implementing every lock, reuse, path, and failure rule above;
 - read-only integrity/query views and a replay validator;
-- a runner adapter or runner capability package, including the separately tracked 1d real-data gap;
+- any later runner-adapter capability needed to consume a reviewed production
+  dispatcher packet without broadening the merged canonical 1d route;
 - the one-shot H-004-R2 dispatch and any later canonical Result Population handoff.
 
 None may be inferred from this contract lock.
 
 ## Traceability
 
-`WP-CANON-H004-DISPATCH-GATED-01` Stage A stopped at base `1c22edf602f748ed03d9304c66b4b40cd6f0d601` because the repo had no durable dispatch/execution-state contract. Its twelve preserved uncommitted evidence files remain read-only and identify the same independent 1d runner gap. This Option-C lock resolves only the missing representation and semantics. It does not unblock execution by itself.
+`WP-CANON-H004-DISPATCH-GATED-01` Stage A stopped at base
+`1c22edf602f748ed03d9304c66b4b40cd6f0d601` because the repo had no durable
+dispatch/execution-state contract. Its twelve preserved uncommitted evidence
+files remain read-only. The canonical 1d route has since merged, but no
+refreshed Stage A has frozen the exact production dispatcher packet. This
+Option-C lock and the KDAUTH contract resolve representation and validation
+semantics only. A real production KDAUTH remains impossible until a later
+separately authorized refreshed Stage A freezes that exact packet.

@@ -1,0 +1,637 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "canon_dispatch_authorization.schema.json",
+  "title": "Exact single-use canonical offline-research dispatch authorization",
+  "description": "Karl's exact-content authorization for one immutable dispatch crossing. The artifact does not start a runner or grant downstream authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "authorization_id",
+    "authorization_artifact_target_path",
+    "approved_by",
+    "approved_at",
+    "authorization_scope",
+    "approval_statement",
+    "authorization_core",
+    "authorization_core_sha256",
+    "authorization_core_hash_scope",
+    "authorization_core_canonicalization",
+    "exact_content_and_target_only",
+    "append_only",
+    "single_use_authorization_id",
+    "content_bound_freshness",
+    "amendment_revocation_policy",
+    "authority_flags"
+  ],
+  "properties": {
+    "schema_version": {"const": "canon_dispatch_authorization_v1"},
+    "authorization_id": {"$ref": "#/definitions/authorization_id"},
+    "authorization_artifact_target_path": {"$ref": "#/definitions/authorization_path"},
+    "approved_by": {"const": "Karl"},
+    "approved_at": {"$ref": "#/definitions/timestamp"},
+    "authorization_scope": {"const": "one_single_use_dispatch"},
+    "approval_statement": {
+      "const": "Karl approves one single-use offline research dispatch for the exact queue item, dispatch ID, run ID, frozen dispatcher packet, lineage, dataset, funding identity, runner, budget, and output targets bound by this artifact, and grants no downstream authority."
+    },
+    "authorization_core": {"$ref": "#/definitions/authorization_core"},
+    "authorization_core_sha256": {"$ref": "#/definitions/hash"},
+    "authorization_core_hash_scope": {"const": "dispatch_authorization_core_v1"},
+    "authorization_core_canonicalization": {"const": "repo_canonical_json_v1"},
+    "exact_content_and_target_only": {"const": true},
+    "append_only": {"const": true},
+    "single_use_authorization_id": {"const": true},
+    "content_bound_freshness": {"const": true},
+    "amendment_revocation_policy": {
+      "const": "append_new_supersession_or_revocation_event_before_consumption_only"
+    },
+    "authority_flags": {"$ref": "#/definitions/authority_flags"}
+  },
+  "definitions": {
+    "hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "repo_path": {
+      "type": "string",
+      "pattern": "^(?!/)(?!.*\\\\)(?!.*//)(?!.*(?:^|/)\\.\\.?(?:/|$))[A-Za-z0-9._/-]+$"
+    },
+    "authorization_id": {
+      "type": "string",
+      "pattern": "^KDAUTH-[A-Z0-9]+-R[0-9]+-[0-9]{4}$"
+    },
+    "authorization_path": {
+      "type": "string",
+      "pattern": "^research/queue/dispatch_authorizations/KDAUTH-[A-Z0-9]+-R[0-9]+-[0-9]{4}\\.dispatch_authorization\\.json$"
+    },
+    "queue_id": {
+      "type": "string",
+      "pattern": "^QI-[0-9]{8}-[A-Z0-9]{8}$"
+    },
+    "dispatch_id": {
+      "type": "string",
+      "pattern": "^DSP-[0-9]{8}-[A-Z0-9]{8}$"
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^RUN-[0-9]{8}-[A-Z0-9]{8}$"
+    },
+    "file_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "whole_file_sha256", "byte_length"],
+      "properties": {
+        "path": {"$ref": "#/definitions/repo_path"},
+        "whole_file_sha256": {"$ref": "#/definitions/hash"},
+        "byte_length": {"type": "integer", "minimum": 1}
+      }
+    },
+    "identified_file_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_id", "path", "whole_file_sha256", "byte_length"],
+      "properties": {
+        "artifact_id": {"type": "string", "minLength": 1},
+        "path": {"$ref": "#/definitions/repo_path"},
+        "whole_file_sha256": {"$ref": "#/definitions/hash"},
+        "byte_length": {"type": "integer", "minimum": 1}
+      }
+    },
+    "core_bound_file_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_id",
+        "path",
+        "whole_file_sha256",
+        "byte_length",
+        "core_sha256",
+        "core_hash_scope",
+        "core_canonicalization"
+      ],
+      "properties": {
+        "artifact_id": {"type": "string", "minLength": 1},
+        "path": {"$ref": "#/definitions/repo_path"},
+        "whole_file_sha256": {"$ref": "#/definitions/hash"},
+        "byte_length": {"type": "integer", "minimum": 1},
+        "core_sha256": {"$ref": "#/definitions/hash"},
+        "core_hash_scope": {"type": "string", "minLength": 1},
+        "core_canonicalization": {"const": "repo_canonical_json_v1"}
+      }
+    },
+    "queue_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "queue_item_id",
+        "path",
+        "whole_file_sha256",
+        "byte_length",
+        "required_state",
+        "gate_q"
+      ],
+      "properties": {
+        "queue_item_id": {"$ref": "#/definitions/queue_id"},
+        "path": {
+          "type": "string",
+          "pattern": "^research/queue/admissions/QI-[0-9]{8}-[A-Z0-9]{8}\\.queue_item\\.json$"
+        },
+        "whole_file_sha256": {"$ref": "#/definitions/hash"},
+        "byte_length": {"type": "integer", "minimum": 1},
+        "required_state": {"const": "admitted_non_dispatched"},
+        "gate_q": {"$ref": "#/definitions/gate_q_ref"}
+      }
+    },
+    "gate_q_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "approval_id",
+        "path",
+        "whole_file_sha256",
+        "byte_length",
+        "core_sha256",
+        "core_hash_scope",
+        "core_canonicalization"
+      ],
+      "properties": {
+        "approval_id": {
+          "type": "string",
+          "pattern": "^GATE-Q-[A-Z0-9][A-Z0-9-]{2,63}$"
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^research/queue/gate_q_approvals/GATE-Q-[A-Z0-9][A-Z0-9-]{2,63}\\.gate_q_approval\\.json$"
+        },
+        "whole_file_sha256": {"$ref": "#/definitions/hash"},
+        "byte_length": {"type": "integer", "minimum": 1},
+        "core_sha256": {"$ref": "#/definitions/hash"},
+        "core_hash_scope": {"const": "gate_q_approval_core_v1"},
+        "core_canonicalization": {"const": "repo_canonical_json_v1"}
+      }
+    },
+    "crossing_identities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dispatch_id",
+        "run_id",
+        "dispatch_record_path",
+        "execution_event_stream_path"
+      ],
+      "properties": {
+        "dispatch_id": {"$ref": "#/definitions/dispatch_id"},
+        "run_id": {"$ref": "#/definitions/run_id"},
+        "dispatch_record_path": {
+          "type": "string",
+          "pattern": "^research/queue/dispatch_records/DSP-[0-9]{8}-[A-Z0-9]{8}\\.dispatch_record\\.json$"
+        },
+        "execution_event_stream_path": {
+          "type": "string",
+          "pattern": "^research/queue/execution_events/RUN-[0-9]{8}-[A-Z0-9]{8}\\.execution_events\\.jsonl$"
+        }
+      }
+    },
+    "dispatcher_packet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "packet_id",
+        "packet_purpose",
+        "packet_version",
+        "path",
+        "whole_file_sha256",
+        "byte_length",
+        "byte_encoding",
+        "serialization",
+        "placeholder_forbidden"
+      ],
+      "properties": {
+        "packet_id": {"type": "string", "minLength": 1},
+        "packet_purpose": {"const": "exact_offline_research_dispatch_stage_a"},
+        "packet_version": {"type": "string", "minLength": 1},
+        "path": {
+          "type": "string",
+          "pattern": "^scratch/[A-Za-z0-9._/-]+\\.json$"
+        },
+        "whole_file_sha256": {"$ref": "#/definitions/hash"},
+        "byte_length": {"type": "integer", "minimum": 1},
+        "byte_encoding": {"const": "utf8_exact_file_bytes"},
+        "serialization": {"const": "deterministic_json_one_lf"},
+        "placeholder_forbidden": {"const": true}
+      }
+    },
+    "strategy_spec_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_id",
+        "path",
+        "whole_file_sha256",
+        "byte_length",
+        "content_canonical_sha256"
+      ],
+      "properties": {
+        "artifact_id": {"type": "string", "pattern": "^STRAT-SPEC-[0-9]{4}$"},
+        "path": {
+          "type": "string",
+          "pattern": "^research/strategy_specs/STRAT-SPEC-[0-9]{4}\\.strategy_spec\\.json$"
+        },
+        "whole_file_sha256": {"$ref": "#/definitions/hash"},
+        "byte_length": {"type": "integer", "minimum": 1},
+        "content_canonical_sha256": {"$ref": "#/definitions/hash"}
+      }
+    },
+    "readiness_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_id",
+        "path",
+        "whole_file_sha256",
+        "byte_length",
+        "strategy_spec_raw_sha256",
+        "strategy_spec_canonical_sha256"
+      ],
+      "properties": {
+        "artifact_id": {
+          "type": "string",
+          "pattern": "^SS-ECR-STRAT-SPEC-[0-9]{4}$"
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^research/strategy_spec_external_content_readiness/SS-ECR-STRAT-SPEC-[0-9]{4}\\.external_content_readiness\\.json$"
+        },
+        "whole_file_sha256": {"$ref": "#/definitions/hash"},
+        "byte_length": {"type": "integer", "minimum": 1},
+        "strategy_spec_raw_sha256": {"$ref": "#/definitions/hash"},
+        "strategy_spec_canonical_sha256": {"$ref": "#/definitions/hash"}
+      }
+    },
+    "variant_planning_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_id",
+        "path",
+        "whole_file_sha256",
+        "byte_length",
+        "core_sha256"
+      ],
+      "properties": {
+        "artifact_id": {
+          "type": "string",
+          "pattern": "^VPAPP-[0-9]{8}-[A-Z0-9]{8}$"
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^research/strategy_spec_variant_planning_approvals/VPAPP-[0-9]{8}-[A-Z0-9]{8}\\.variant_planning_approval\\.json$"
+        },
+        "whole_file_sha256": {"$ref": "#/definitions/hash"},
+        "byte_length": {"type": "integer", "minimum": 1},
+        "core_sha256": {"$ref": "#/definitions/hash"}
+      }
+    },
+    "variant_manifest_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_id", "path", "whole_file_sha256", "byte_length"],
+      "properties": {
+        "artifact_id": {"type": "string", "pattern": "^VM-[0-9]{4}$"},
+        "path": {
+          "type": "string",
+          "pattern": "^research/variant_manifests/VM-[0-9]{4}\\.variant_manifest\\.json$"
+        },
+        "whole_file_sha256": {"$ref": "#/definitions/hash"},
+        "byte_length": {"type": "integer", "minimum": 1}
+      }
+    },
+    "sweep_plan_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_id", "path", "whole_file_sha256", "byte_length"],
+      "properties": {
+        "artifact_id": {"type": "string", "pattern": "^SWEEP-PLAN-[0-9]{4}$"},
+        "path": {
+          "type": "string",
+          "pattern": "^research/sweep_plans/SWEEP-PLAN-[0-9]{4}\\.sweep_plan\\.json$"
+        },
+        "whole_file_sha256": {"$ref": "#/definitions/hash"},
+        "byte_length": {"type": "integer", "minimum": 1}
+      }
+    },
+    "lineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "strategy_spec",
+        "external_content_readiness",
+        "variant_planning_approval",
+        "variant_manifest",
+        "sweep_plan",
+        "gate_q"
+      ],
+      "properties": {
+        "strategy_spec": {"$ref": "#/definitions/strategy_spec_ref"},
+        "external_content_readiness": {"$ref": "#/definitions/readiness_ref"},
+        "variant_planning_approval": {"$ref": "#/definitions/variant_planning_ref"},
+        "variant_manifest": {"$ref": "#/definitions/variant_manifest_ref"},
+        "sweep_plan": {"$ref": "#/definitions/sweep_plan_ref"},
+        "gate_q": {"$ref": "#/definitions/gate_q_ref"}
+      }
+    },
+    "dataset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canonical_route",
+        "dataset_id",
+        "snapshot_version",
+        "catalog_status",
+        "catalog_path",
+        "catalog_sha256",
+        "catalog_byte_length",
+        "data_path",
+        "data_sha256",
+        "data_byte_length",
+        "row_count",
+        "market",
+        "timeframe",
+        "cadence_ms",
+        "timezone",
+        "columns_schema_identity",
+        "coverage_start_utc",
+        "coverage_end_utc",
+        "duplicate_count",
+        "gap_count",
+        "missing_bar_count",
+        "open_or_incomplete_bar_count",
+        "partial_window_posture",
+        "source_type",
+        "parent_identity_absent",
+        "derivation_identity_absent",
+        "validator_path",
+        "validator_sha256",
+        "validator_byte_length",
+        "validation_identity"
+      ],
+      "properties": {
+        "canonical_route": {"const": "1d"},
+        "dataset_id": {"type": "string", "minLength": 1},
+        "snapshot_version": {"type": "string", "minLength": 1},
+        "catalog_status": {
+          "const": "valid_offline_provenance_tracked_snapshot"
+        },
+        "catalog_path": {"$ref": "#/definitions/repo_path"},
+        "catalog_sha256": {"$ref": "#/definitions/hash"},
+        "catalog_byte_length": {"type": "integer", "minimum": 1},
+        "data_path": {"$ref": "#/definitions/repo_path"},
+        "data_sha256": {"$ref": "#/definitions/hash"},
+        "data_byte_length": {"type": "integer", "minimum": 1},
+        "row_count": {"type": "integer", "minimum": 1},
+        "market": {"const": "BTCUSDT_BINANCE_USDTM_PERPETUAL"},
+        "timeframe": {"const": "1d"},
+        "cadence_ms": {"const": 86400000},
+        "timezone": {"const": "UTC"},
+        "columns_schema_identity": {"$ref": "#/definitions/hash"},
+        "coverage_start_utc": {"$ref": "#/definitions/timestamp"},
+        "coverage_end_utc": {"$ref": "#/definitions/timestamp"},
+        "duplicate_count": {"const": 0},
+        "gap_count": {"const": 0},
+        "missing_bar_count": {"const": 0},
+        "open_or_incomplete_bar_count": {"const": 0},
+        "partial_window_posture": {
+          "const": "completed_bars_only_reject_partial"
+        },
+        "source_type": {"const": "direct_public_archive_snapshot"},
+        "parent_identity_absent": {"const": true},
+        "derivation_identity_absent": {"const": true},
+        "validator_path": {
+          "const": "tools/data/register_binance_usdtm_1d_lineage.py"
+        },
+        "validator_sha256": {"$ref": "#/definitions/hash"},
+        "validator_byte_length": {"type": "integer", "minimum": 1},
+        "validation_identity": {"$ref": "#/definitions/hash"}
+      }
+    },
+    "funding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "funding_mode",
+        "funding_series_id",
+        "provenance_artifact_id",
+        "provenance_artifact_path",
+        "provenance_artifact_sha256",
+        "provenance_artifact_byte_length",
+        "funding_data_path",
+        "funding_data_sha256",
+        "funding_data_byte_length",
+        "row_count",
+        "coverage_start_utc",
+        "coverage_end_utc",
+        "timestamp_semantics",
+        "rate_units",
+        "boundary_rule_id",
+        "fill_forbidden",
+        "interpolation_forbidden",
+        "backfill_forbidden",
+        "rounding_forbidden",
+        "zero_substitution_forbidden"
+      ],
+      "properties": {
+        "funding_mode": {"const": "on"},
+        "funding_series_id": {"type": "string", "minLength": 1},
+        "provenance_artifact_id": {"type": "string", "minLength": 1},
+        "provenance_artifact_path": {"$ref": "#/definitions/repo_path"},
+        "provenance_artifact_sha256": {"$ref": "#/definitions/hash"},
+        "provenance_artifact_byte_length": {"type": "integer", "minimum": 1},
+        "funding_data_path": {"$ref": "#/definitions/repo_path"},
+        "funding_data_sha256": {"$ref": "#/definitions/hash"},
+        "funding_data_byte_length": {"type": "integer", "minimum": 1},
+        "row_count": {"type": "integer", "minimum": 1},
+        "coverage_start_utc": {"$ref": "#/definitions/timestamp"},
+        "coverage_end_utc": {"$ref": "#/definitions/timestamp"},
+        "timestamp_semantics": {"type": "string", "minLength": 1},
+        "rate_units": {"type": "string", "minLength": 1},
+        "boundary_rule_id": {"type": "string", "minLength": 1},
+        "fill_forbidden": {"const": true},
+        "interpolation_forbidden": {"const": true},
+        "backfill_forbidden": {"const": true},
+        "rounding_forbidden": {"const": true},
+        "zero_substitution_forbidden": {"const": true}
+      }
+    },
+    "runner": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "invocation_kind",
+        "module",
+        "source_path",
+        "source_sha256",
+        "source_byte_length",
+        "version"
+      ],
+      "properties": {
+        "invocation_kind": {"const": "python_module"},
+        "module": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*(?:\\.[a-z_][a-z0-9_]*)+$"
+        },
+        "source_path": {"$ref": "#/definitions/repo_path"},
+        "source_sha256": {"$ref": "#/definitions/hash"},
+        "source_byte_length": {"type": "integer", "minimum": 1},
+        "version": {"type": "string", "minLength": 1}
+      }
+    },
+    "denominator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "basis",
+        "planned",
+        "variant_manifest_value",
+        "sweep_plan_value",
+        "mismatch_policy"
+      ],
+      "properties": {
+        "basis": {"const": "committed_pre_registered_population_count"},
+        "planned": {"type": "integer", "minimum": 1},
+        "variant_manifest_value": {"type": "integer", "minimum": 1},
+        "sweep_plan_value": {"type": "integer", "minimum": 1},
+        "mismatch_policy": {"const": "reject"}
+      }
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "metric",
+        "upper_bound",
+        "unit",
+        "comparison",
+        "retries_included",
+        "retry_allowance",
+        "mismatch_or_exceed_policy"
+      ],
+      "properties": {
+        "metric": {"const": "variant_attempts"},
+        "upper_bound": {"type": "integer", "minimum": 1},
+        "unit": {"const": "attempts"},
+        "comparison": {"const": "actual_lte_upper_bound"},
+        "retries_included": {"const": true},
+        "retry_allowance": {"const": 0},
+        "mismatch_or_exceed_policy": {"const": "reject"}
+      }
+    },
+    "execution_parameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "seed",
+        "workers",
+        "one_shot",
+        "automatic_retry",
+        "automatic_second_invocation"
+      ],
+      "properties": {
+        "seed": {"type": "integer", "minimum": 0},
+        "workers": {"type": "integer", "minimum": 1},
+        "one_shot": {"const": true},
+        "automatic_retry": {"const": false},
+        "automatic_second_invocation": {"const": false}
+      }
+    },
+    "output_targets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scratch_output_root",
+        "execution_event_stream_path",
+        "canonical_result_population_target_forbidden"
+      ],
+      "properties": {
+        "scratch_output_root": {
+          "type": "string",
+          "pattern": "^scratch/(?:(?!\\.{1,2}/)[A-Za-z0-9._-]+/)+$"
+        },
+        "execution_event_stream_path": {
+          "type": "string",
+          "pattern": "^research/queue/execution_events/RUN-[0-9]{8}-[A-Z0-9]{8}\\.execution_events\\.jsonl$"
+        },
+        "canonical_result_population_target_forbidden": {"const": true}
+      }
+    },
+    "authority_flags": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "authorizes_one_single_use_dispatch",
+        "artifact_invokes_runner",
+        "authorizes_runner_execution",
+        "authorizes_result_population",
+        "authorizes_ranking_recommendation",
+        "authorizes_candidate_lifecycle",
+        "authorizes_readiness_promotion",
+        "authorizes_standing_dispatcher_scheduler",
+        "authorizes_retry_recovery",
+        "authorizes_paper_live_runtime",
+        "authorizes_oms_risk_reconciliation",
+        "authorizes_broker_exchange_orders_positions_balances_capital",
+        "authorizes_notifications"
+      ],
+      "properties": {
+        "authorizes_one_single_use_dispatch": {"const": true},
+        "artifact_invokes_runner": {"const": false},
+        "authorizes_runner_execution": {"const": false},
+        "authorizes_result_population": {"const": false},
+        "authorizes_ranking_recommendation": {"const": false},
+        "authorizes_candidate_lifecycle": {"const": false},
+        "authorizes_readiness_promotion": {"const": false},
+        "authorizes_standing_dispatcher_scheduler": {"const": false},
+        "authorizes_retry_recovery": {"const": false},
+        "authorizes_paper_live_runtime": {"const": false},
+        "authorizes_oms_risk_reconciliation": {"const": false},
+        "authorizes_broker_exchange_orders_positions_balances_capital": {"const": false},
+        "authorizes_notifications": {"const": false}
+      }
+    },
+    "authorization_core": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "queue_binding",
+        "crossing_identities",
+        "dispatcher_packet",
+        "lineage",
+        "dataset",
+        "funding",
+        "runner",
+        "denominator",
+        "budget",
+        "execution_parameters",
+        "output_targets",
+        "authority_flags"
+      ],
+      "properties": {
+        "queue_binding": {"$ref": "#/definitions/queue_binding"},
+        "crossing_identities": {"$ref": "#/definitions/crossing_identities"},
+        "dispatcher_packet": {"$ref": "#/definitions/dispatcher_packet"},
+        "lineage": {"$ref": "#/definitions/lineage"},
+        "dataset": {"$ref": "#/definitions/dataset"},
+        "funding": {"$ref": "#/definitions/funding"},
+        "runner": {"$ref": "#/definitions/runner"},
+        "denominator": {"$ref": "#/definitions/denominator"},
+        "budget": {"$ref": "#/definitions/budget"},
+        "execution_parameters": {"$ref": "#/definitions/execution_parameters"},
+        "output_targets": {"$ref": "#/definitions/output_targets"},
+        "authority_flags": {"$ref": "#/definitions/authority_flags"}
+      }
+    }
+  }
+}

@@ -406,10 +406,12 @@ def _parse_stream(
     return events
 
 
-def _read_audit_lines(root: Path) -> list[tuple[dict[str, Any], bytes]]:
+def _read_audit_snapshot(
+    root: Path,
+) -> tuple[list[tuple[dict[str, Any], bytes]], int]:
     audit_path = _repo_path(root, AUDIT_PATH.as_posix(), "lifecycle audit")
     if not audit_path.exists():
-        return []
+        return [], 0
     raw = _read_stream_bytes(audit_path, "lifecycle audit")
     if raw and not raw.endswith(b"\n"):
         raise DispatchAuthorizationReservationError(
@@ -432,6 +434,11 @@ def _read_audit_lines(root: Path) -> list[tuple[dict[str, Any], bytes]]:
                 f"lifecycle audit line {number} is not canonical"
             )
         rows.append((event, raw_line))
+    return rows, len(raw)
+
+
+def _read_audit_lines(root: Path) -> list[tuple[dict[str, Any], bytes]]:
+    rows, _ = _read_audit_snapshot(root)
     return rows
 
 
@@ -574,11 +581,11 @@ def _validate_committed_cross_surface(
             )
 
 
-def _validate_clean_rollback_cross_surface(
+def _validate_clean_rollback_common(
     root: Path,
     initial: Mapping[str, Any],
     terminal: Mapping[str, Any],
-) -> None:
+) -> tuple[int, int]:
     target = _repo_path(
         root,
         initial["authorization_binding"]["authorization_target_path"],
@@ -600,10 +607,11 @@ def _validate_clean_rollback_cross_surface(
             "target"
         )
     authorization_id = initial["authorization_binding"]["authorization_id"]
+    audit_rows, actual_length = _read_audit_snapshot(root)
     if any(
         event.get("event_type") == "authorization_created"
         and event.get("authorization_id") == authorization_id
-        for event, _ in _read_audit_lines(root)
+        for event, _ in audit_rows
     ):
         raise DispatchAuthorizationReservationError(
             "clean rollback retains authorization_created"
@@ -615,11 +623,43 @@ def _validate_clean_rollback_cross_surface(
         raise DispatchAuthorizationReservationError(
             "clean rollback prior/final audit lengths differ"
         )
-    audit = _repo_path(root, AUDIT_PATH.as_posix(), "lifecycle audit")
-    actual_length = audit.stat().st_size if audit.exists() else 0
+    if (
+        payload["rollback_durability_proven"] is not True
+        or payload["durability_uncertainty"] is not False
+    ):
+        raise DispatchAuthorizationReservationError(
+            "clean rollback durability is not proven"
+        )
+    return final_length, actual_length
+
+
+def _validate_clean_rollback_before_terminal_append(
+    root: Path,
+    initial: Mapping[str, Any],
+    terminal: Mapping[str, Any],
+) -> None:
+    final_length, actual_length = _validate_clean_rollback_common(
+        root, initial, terminal
+    )
     if actual_length != final_length:
         raise DispatchAuthorizationReservationError(
-            "clean rollback final audit length is not the actual length"
+            "clean rollback declared final audit length is stale before "
+            "terminal append"
+        )
+
+
+def _validate_clean_rollback_replay(
+    root: Path,
+    initial: Mapping[str, Any],
+    terminal: Mapping[str, Any],
+) -> None:
+    final_length, actual_length = _validate_clean_rollback_common(
+        root, initial, terminal
+    )
+    if actual_length < final_length:
+        raise DispatchAuthorizationReservationError(
+            "clean rollback replay audit is shorter than the recorded final "
+            "length"
         )
 
 
@@ -647,7 +687,7 @@ def _cross_surface_findings(
         if terminal["event_type"] == "crossing_committed":
             _validate_committed_cross_surface(root, initial, terminal)
         else:
-            _validate_clean_rollback_cross_surface(root, initial, terminal)
+            _validate_clean_rollback_replay(root, initial, terminal)
     except DispatchAuthorizationReservationError:
         finding_type = (
             "crossing_committed_without_exact_authorization_created"
@@ -1470,7 +1510,9 @@ def append_dispatch_authorization_crossing_terminal_locked(
     if terminal["event_type"] == "crossing_committed":
         _validate_committed_cross_surface(root, initial, terminal)
     elif terminal["event_type"] == "crossing_rolled_back_clean":
-        _validate_clean_rollback_cross_surface(root, initial, terminal)
+        _validate_clean_rollback_before_terminal_append(
+            root, initial, terminal
+        )
     terminal_raw = repo_canonical_json_v1(terminal) + b"\n"
     fd: int | None = None
     append_started = False

@@ -158,7 +158,7 @@ The terminal vocabulary is closed:
 - `crossing_committed` binds the exact resulting KDAUTH bytes/core and exact
   raw `authorization_created` lifecycle line;
 - `crossing_rolled_back_clean` proves target absence and exact lifecycle-audit
-  length restoration while retaining the reservation;
+  length restoration at terminal-write time while retaining the reservation;
 - `crossing_integrity_critical` records closed failure/uncertainty and
   target/audit state classifications and always requires operator inspection.
 
@@ -183,6 +183,16 @@ following them. A terminal timestamp cannot precede its reservation or initial
 event; a committed terminal cannot precede the exact linked
 `authorization_created`, which must remain strictly later than
 `attempt_reserved`.
+
+Clean-rollback terminal publication and later replay have deliberately
+different audit-length checks. Under the held crossing lock, immediately
+before terminal append, the canonical shared lifecycle audit must have exactly
+the recorded final length. During later read-only validation, the canonical
+audit may be longer because unrelated KDAUTH events can append legally, but it
+must never be shorter than the recorded final length and must contain no
+matching `authorization_created`. Later unrelated append-only growth does not
+invalidate the historical rollback or release its permanently burned
+identities.
 
 Read-only integrity visibility is exposed through
 `v_integrity_dispatch_authorization_crossing_reservations`. It surfaces

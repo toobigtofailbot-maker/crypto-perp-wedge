@@ -234,6 +234,58 @@ def _write_stream(root: Path, *events: dict) -> Path:
     return path
 
 
+def _audit_event(
+    index: int,
+    *,
+    authorization_id: str | None = None,
+) -> dict:
+    token = f"AUDIT{index:03d}"
+    selected_id = authorization_id or f"KDAUTH-{token}-R2-{9100 + index}"
+    return {
+        "schema_version": "canon_dispatch_authorization_audit_event_v1",
+        "event_id": f"KDAUTH-EVENT-{selected_id}-000001",
+        "sequence_number": 1,
+        "event_type": "authorization_created",
+        "authorization_id": selected_id,
+        "authorization_path": (
+            "research/queue/dispatch_authorizations/"
+            f"{selected_id}.dispatch_authorization.json"
+        ),
+        "authorization_file_sha256": "sha256:" + f"{index:x}"[-1] * 64,
+        "authorization_byte_length": 1000 + index,
+        "authorization_core_sha256": "sha256:" + f"{index + 8:x}"[-1] * 64,
+        "authorization_core_hash_scope": "dispatch_authorization_core_v1",
+        "queue_item_id": f"QI-20260724-{token}",
+        "dispatch_id": f"DSP-20260724-{token}",
+        "run_id": f"RUN-20260724-{token}",
+        "occurred_at": f"2026-07-24T12:{10 + index:02d}:00Z",
+        "actor": "Karl",
+        "tool_identity": "synthetic-kdauth-writer-v1",
+        "event_payload": {
+            "event_kind": "authorization_created",
+            "creation_posture": "protected_exclusive_create",
+        },
+        "non_authority_declaration": {
+            "lifecycle_history_only": True,
+            "does_not_invoke_runner": True,
+            "not_result_population_authority": True,
+            "not_ranking_recommendation_authority": True,
+            "not_candidate_readiness_promotion_authority": True,
+            "not_runtime_paper_live_authority": True,
+        },
+    }
+
+
+def _write_audit(root: Path, *events: dict) -> tuple[Path, int]:
+    raw = b"".join(
+        repo_canonical_json_v1(event) + b"\n" for event in events
+    )
+    path = root / reservation.AUDIT_PATH
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(raw)
+    return path, len(raw)
+
+
 def _distinct_attempt(suffix: str) -> dict:
     return _attempt_event(
         attempt_id=f"KDAUTH-XING-20260724-{suffix}",
@@ -379,6 +431,171 @@ def test_clean_rollback_terminal_is_append_only_and_burns_identity(
     )
     assert validated["event_count"] == 2
     assert validated["findings"] == []
+
+
+def test_clean_rollback_exact_current_audit_length_allows_terminal_append(
+    synthetic_repo: Path,
+) -> None:
+    _, audit_length = _write_audit(synthetic_repo, _audit_event(1))
+    initial = _attempt_event()
+    terminal = _terminal(initial, "crossing_rolled_back_clean")
+    terminal["event_payload"]["prior_lifecycle_audit_byte_length"] = (
+        audit_length
+    )
+    terminal["event_payload"]["final_lifecycle_audit_byte_length"] = (
+        audit_length
+    )
+
+    with dispatch_authorization_crossing_lock(
+        repo_root=synthetic_repo
+    ) as lock:
+        reserve_dispatch_authorization_crossing_locked(
+            lock=lock, event=initial
+        )
+        result = append_dispatch_authorization_crossing_terminal_locked(
+            lock=lock, event=terminal
+        )
+    assert result["terminal_outcome"] == "crossing_rolled_back_clean"
+    assert result["validation"]["findings"] == []
+
+
+def test_clean_rollback_stale_declared_length_rejected_before_append(
+    synthetic_repo: Path,
+) -> None:
+    _write_audit(synthetic_repo, _audit_event(1))
+    initial = _attempt_event()
+    terminal = _terminal(initial, "crossing_rolled_back_clean")
+
+    with dispatch_authorization_crossing_lock(
+        repo_root=synthetic_repo
+    ) as lock:
+        reserve_dispatch_authorization_crossing_locked(
+            lock=lock, event=initial
+        )
+        with pytest.raises(
+            DispatchAuthorizationReservationError,
+            match="stale before terminal append",
+        ):
+            append_dispatch_authorization_crossing_terminal_locked(
+                lock=lock, event=terminal
+            )
+    validated = validate_dispatch_authorization_reservation_stream(
+        repo_root=synthetic_repo,
+        reservation_path=_stream_path(synthetic_repo, initial),
+    )
+    assert validated["event_count"] == 1
+
+
+@pytest.mark.parametrize("append_count", [1, 3])
+def test_clean_rollback_replay_allows_unrelated_later_audit_appends(
+    synthetic_repo: Path,
+    append_count: int,
+) -> None:
+    initial = _attempt_event()
+    terminal = _terminal(initial, "crossing_rolled_back_clean")
+    with dispatch_authorization_crossing_lock(
+        repo_root=synthetic_repo
+    ) as lock:
+        reserve_dispatch_authorization_crossing_locked(
+            lock=lock, event=initial
+        )
+        append_dispatch_authorization_crossing_terminal_locked(
+            lock=lock, event=terminal
+        )
+    _write_audit(
+        synthetic_repo,
+        *[_audit_event(index) for index in range(1, append_count + 1)],
+    )
+
+    validated = validate_dispatch_authorization_reservation_stream(
+        repo_root=synthetic_repo,
+        reservation_path=_stream_path(synthetic_repo, initial),
+        require_terminal=True,
+    )
+    assert validated["findings"] == []
+    assert collect_dispatch_authorization_crossing_findings(
+        repo_root=synthetic_repo
+    ) == []
+
+
+def test_clean_rollback_replay_shorter_audit_fails_closed(
+    synthetic_repo: Path,
+) -> None:
+    initial = _attempt_event()
+    terminal = _terminal(initial, "crossing_rolled_back_clean")
+    terminal["event_payload"]["prior_lifecycle_audit_byte_length"] = 100
+    terminal["event_payload"]["final_lifecycle_audit_byte_length"] = 100
+    path = _write_stream(synthetic_repo, initial, terminal)
+
+    validated = validate_dispatch_authorization_reservation_stream(
+        repo_root=synthetic_repo,
+        reservation_path=path,
+        require_terminal=True,
+    )
+    assert [row["finding_type"] for row in validated["findings"]] == [
+        "reservation_terminal_binding_mismatch"
+    ]
+    with pytest.raises(
+        DispatchAuthorizationReservationError,
+        match="shorter than the recorded final length",
+    ):
+        reservation._validate_clean_rollback_replay(
+            synthetic_repo.resolve(), initial, terminal
+        )
+
+
+@pytest.mark.parametrize(
+    "extension",
+    [
+        b'{"malformed":true',
+        b'{"malformed":}\n',
+    ],
+)
+def test_clean_rollback_replay_rejects_partial_or_malformed_audit_extension(
+    synthetic_repo: Path,
+    extension: bytes,
+) -> None:
+    initial = _attempt_event()
+    terminal = _terminal(initial, "crossing_rolled_back_clean")
+    path = _write_stream(synthetic_repo, initial, terminal)
+    audit = synthetic_repo / reservation.AUDIT_PATH
+    audit.parent.mkdir(parents=True, exist_ok=True)
+    audit.write_bytes(extension)
+
+    validated = validate_dispatch_authorization_reservation_stream(
+        repo_root=synthetic_repo,
+        reservation_path=path,
+        require_terminal=True,
+    )
+    assert [row["finding_type"] for row in validated["findings"]] == [
+        "reservation_terminal_binding_mismatch"
+    ]
+
+
+def test_clean_rollback_replay_matching_later_creation_is_a_finding(
+    synthetic_repo: Path,
+) -> None:
+    initial = _attempt_event()
+    terminal = _terminal(initial, "crossing_rolled_back_clean")
+    path = _write_stream(synthetic_repo, initial, terminal)
+    _write_audit(
+        synthetic_repo,
+        _audit_event(
+            1,
+            authorization_id=initial["authorization_binding"][
+                "authorization_id"
+            ],
+        ),
+    )
+
+    validated = validate_dispatch_authorization_reservation_stream(
+        repo_root=synthetic_repo,
+        reservation_path=path,
+        require_terminal=True,
+    )
+    assert [row["finding_type"] for row in validated["findings"]] == [
+        "reservation_terminal_binding_mismatch"
+    ]
 
 
 def test_integrity_critical_terminal_is_visible(
@@ -769,6 +986,25 @@ def test_retained_clean_rollback_remains_finding_free(
     _commit(synthetic_repo, "retain clean rollback")
     path.unlink()
     _commit(synthetic_repo, "delete clean rollback stream")
+
+    assert collect_dispatch_authorization_crossing_findings(
+        repo_root=synthetic_repo
+    ) == []
+
+
+def test_retained_only_clean_rollback_allows_unrelated_audit_growth(
+    synthetic_repo: Path,
+) -> None:
+    initial = _attempt_event()
+    path = _write_stream(
+        synthetic_repo,
+        initial,
+        _terminal(initial, "crossing_rolled_back_clean"),
+    )
+    _commit(synthetic_repo, "retain clean rollback")
+    path.unlink()
+    _commit(synthetic_repo, "delete clean rollback stream")
+    _write_audit(synthetic_repo, _audit_event(1), _audit_event(2))
 
     assert collect_dispatch_authorization_crossing_findings(
         repo_root=synthetic_repo

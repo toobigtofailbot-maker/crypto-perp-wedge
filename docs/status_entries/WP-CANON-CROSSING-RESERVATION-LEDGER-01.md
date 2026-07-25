@@ -92,20 +92,32 @@ followed. Terminal chronology is closed across `reserved_at`, initial
 `occurred_at`, exact `authorization_created.occurred_at`, and committed
 terminal `occurred_at`. No reservation schema amendment was required.
 
+## PR #673 clean-rollback replay follow-up
+
+Clean-rollback validation is split by phase without changing the schema. Under
+the held crossing lock, terminal append requires a canonical shared audit whose
+current length exactly equals the equal declared prior/final lengths. Later
+stream, retained-history, and integrity replay requires the canonical audit to
+be at least that recorded final length. A shorter, malformed, or partial audit,
+a later matching `authorization_created`, unequal recorded lengths, target
+presence, or unproven rollback durability still fails closed. Unrelated later
+append-only KDAUTH events no longer create a false terminal-binding finding,
+and all reservation identities remain permanently burned.
+
 ## Validation and preservation
 
-- Same-PR reservation/KDAUTH follow-up: `122 passed, 5 skipped`. Four new skips
+- Same-PR reservation/KDAUTH follow-up: `131 passed, 5 skipped`. Four skips
   are limited to specific symlink fixtures that this Windows environment
   cannot create; the Windows junction/reparse fixture executed and passed.
   The fifth skip is the pre-existing KDAUTH symlink-fixture limitation. No
   skip or xfail bypasses a failing semantic assertion.
 - Protected KDAUTH, Gate C-VP, Gate-Q, queue, external-readiness,
   dispatch/execution-contract, and retained-history regressions:
-  `399 passed, 10 skipped`; the additional five skips are pre-existing
+  `408 passed, 10 skipped`; the additional five skips are pre-existing
   protected-writer symlink-fixture limitations on Windows.
-- Query-focused checks: `3 passed, 112 deselected`; the view is empty on the
-  real repository and non-empty with the closed cross-attempt collision type
-  and reason for synthetic duplicates.
+- Query-focused checks: `9 passed, 115 deselected`; the view is empty on the
+  real repository, unrelated clean-rollback replay growth stays finding-free,
+  and synthetic duplicate/replay defects produce their closed findings.
 - Registry validation: all 25 `tools.registry.validate_*` modules passed. The
   funding validator used its supported read-only `--data-root` override to the
   primary checkout because the clean worktree intentionally lacks the

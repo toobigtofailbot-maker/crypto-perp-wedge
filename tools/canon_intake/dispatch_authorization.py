@@ -1014,34 +1014,17 @@ def _validate_denominator_budget_and_outputs(
     )
 
 
-def _audit_events(
+def _validate_dispatch_authorization_audit_raw(
     root: Path,
-    authorization: Mapping[str, Any],
-    raw: bytes,
-    audit_path: Path,
-) -> tuple[list[dict[str, Any]], str]:
-    audit_raw = _read_bytes(audit_path, "dispatch-authorization audit")
+    audit_raw: bytes,
+) -> list[tuple[dict[str, Any], bytes]]:
     if not audit_raw or not audit_raw.endswith(b"\n"):
         raise DispatchAuthorizationError(
             "dispatch-authorization audit is empty or has a partial tail"
         )
     events_by_authorization: dict[str, list[dict[str, Any]]] = {}
     seen_event_ids: set[str] = set()
-    authorization_id = authorization["authorization_id"]
-    core = authorization["authorization_core"]
-    crossing = core["crossing_identities"]
-    queue_id = core["queue_binding"]["queue_item_id"]
-    expected_common = {
-        "authorization_id": authorization_id,
-        "authorization_path": authorization["authorization_artifact_target_path"],
-        "authorization_file_sha256": _digest(raw),
-        "authorization_byte_length": len(raw),
-        "authorization_core_sha256": authorization["authorization_core_sha256"],
-        "authorization_core_hash_scope": "dispatch_authorization_core_v1",
-        "queue_item_id": queue_id,
-        "dispatch_id": crossing["dispatch_id"],
-        "run_id": crossing["run_id"],
-    }
+    rows: list[tuple[dict[str, Any], bytes]] = []
     for number, raw_line in enumerate(audit_raw.splitlines(keepends=True), 1):
         if not raw_line.endswith(b"\n"):
             raise DispatchAuthorizationError(f"audit line {number} lacks LF")
@@ -1071,6 +1054,7 @@ def _audit_events(
         if event["event_payload"]["event_kind"] != event["event_type"]:
             raise DispatchAuthorizationError("audit event/payload kind mismatch")
         events_by_authorization.setdefault(event["authorization_id"], []).append(event)
+        rows.append((event, raw_line))
 
     for grouped_id, grouped_events in events_by_authorization.items():
         terminal = False
@@ -1140,8 +1124,72 @@ def _audit_events(
                     raise DispatchAuthorizationError(
                         "supersession target path is not derived from its new ID"
                     )
+    return rows
 
-    events = events_by_authorization.get(authorization_id, [])
+
+def read_and_validate_dispatch_authorization_audit(
+    *,
+    repo_root: Path,
+    audit_path: Path | None = None,
+    allow_missing: bool = False,
+) -> tuple[list[tuple[dict[str, Any], bytes]], int]:
+    """Read and validate the complete authoritative KDAUTH lifecycle audit."""
+    root = _resolve_root(repo_root)
+    canonical_audit = _repo_path(
+        root, AUDIT_PATH.as_posix(), "dispatch-authorization audit path"
+    )
+    if audit_path is not None:
+        supplied_audit = _reject_symlink_components(
+            audit_path, "dispatch-authorization audit path"
+        ).resolve()
+        if supplied_audit != canonical_audit:
+            raise DispatchAuthorizationError(
+                "dispatch-authorization audit is not at the canonical path"
+            )
+    if not canonical_audit.exists():
+        if allow_missing:
+            return [], 0
+        raise DispatchAuthorizationError(
+            "dispatch-authorization audit must be a regular non-symlink file"
+        )
+    audit_raw = _read_bytes(canonical_audit, "dispatch-authorization audit")
+    return (
+        _validate_dispatch_authorization_audit_raw(root, audit_raw),
+        len(audit_raw),
+    )
+
+
+def _audit_events(
+    root: Path,
+    authorization: Mapping[str, Any],
+    raw: bytes,
+    audit_path: Path,
+) -> tuple[list[dict[str, Any]], str]:
+    audit_rows, _ = read_and_validate_dispatch_authorization_audit(
+        repo_root=root,
+        audit_path=audit_path,
+    )
+    authorization_id = authorization["authorization_id"]
+    core = authorization["authorization_core"]
+    crossing = core["crossing_identities"]
+    queue_id = core["queue_binding"]["queue_item_id"]
+    expected_common = {
+        "authorization_id": authorization_id,
+        "authorization_path": authorization["authorization_artifact_target_path"],
+        "authorization_file_sha256": _digest(raw),
+        "authorization_byte_length": len(raw),
+        "authorization_core_sha256": authorization["authorization_core_sha256"],
+        "authorization_core_hash_scope": "dispatch_authorization_core_v1",
+        "queue_item_id": queue_id,
+        "dispatch_id": crossing["dispatch_id"],
+        "run_id": crossing["run_id"],
+    }
+
+    events = [
+        event
+        for event, _ in audit_rows
+        if event["authorization_id"] == authorization_id
+    ]
     if not events or events[0]["event_type"] != "authorization_created":
         raise DispatchAuthorizationError("audit lacks its creation event")
     for event in events:

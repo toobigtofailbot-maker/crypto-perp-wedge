@@ -409,32 +409,20 @@ def _parse_stream(
 def _read_audit_snapshot(
     root: Path,
 ) -> tuple[list[tuple[dict[str, Any], bytes]], int]:
-    audit_path = _repo_path(root, AUDIT_PATH.as_posix(), "lifecycle audit")
-    if not audit_path.exists():
-        return [], 0
-    raw = _read_stream_bytes(audit_path, "lifecycle audit")
-    if raw and not raw.endswith(b"\n"):
-        raise DispatchAuthorizationReservationError(
-            "lifecycle audit has a partial tail"
+    from tools.canon_intake.dispatch_authorization import (
+        DispatchAuthorizationError,
+        read_and_validate_dispatch_authorization_audit,
+    )
+
+    try:
+        return read_and_validate_dispatch_authorization_audit(
+            repo_root=root,
+            allow_missing=True,
         )
-    rows: list[tuple[dict[str, Any], bytes]] = []
-    for number, raw_line in enumerate(raw.splitlines(keepends=True), 1):
-        try:
-            event = json.loads(raw_line[:-1].decode("utf-8"))
-        except (UnicodeError, json.JSONDecodeError) as exc:
-            raise DispatchAuthorizationReservationError(
-                f"lifecycle audit line {number} is malformed"
-            ) from exc
-        if not isinstance(event, dict):
-            raise DispatchAuthorizationReservationError(
-                f"lifecycle audit line {number} is not an object"
-            )
-        if raw_line != repo_canonical_json_v1(event) + b"\n":
-            raise DispatchAuthorizationReservationError(
-                f"lifecycle audit line {number} is not canonical"
-            )
-        rows.append((event, raw_line))
-    return rows, len(raw)
+    except DispatchAuthorizationError as exc:
+        raise DispatchAuthorizationReservationError(
+            f"lifecycle audit validation failed: {exc}"
+        ) from exc
 
 
 def _read_audit_lines(root: Path) -> list[tuple[dict[str, Any], bytes]]:

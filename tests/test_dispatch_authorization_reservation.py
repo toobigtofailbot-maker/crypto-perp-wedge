@@ -55,12 +55,14 @@ def synthetic_repo(tmp_path: Path, source_repo: Path) -> Path:
     root = tmp_path / "repo"
     schema_dir = root / "research/schemas"
     schema_dir.mkdir(parents=True)
-    shutil.copy2(
-        source_repo
-        / "research/schemas"
-        / reservation.SCHEMA_NAME,
-        schema_dir / reservation.SCHEMA_NAME,
-    )
+    for schema_name in (
+        reservation.SCHEMA_NAME,
+        "canon_dispatch_authorization_audit_event.schema.json",
+    ):
+        shutil.copy2(
+            source_repo / "research/schemas" / schema_name,
+            schema_dir / schema_name,
+        )
     _git(root, "init", "-q")
     _commit(root, "fixture schema")
     return root
@@ -284,6 +286,79 @@ def _write_audit(root: Path, *events: dict) -> tuple[Path, int]:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(raw)
     return path, len(raw)
+
+
+def _audit_terminal_event(
+    created: dict,
+    *,
+    event_type: str = "authorization_revoked",
+) -> dict:
+    terminal = copy.deepcopy(created)
+    terminal["event_id"] = (
+        f"KDAUTH-EVENT-{created['authorization_id']}-000002"
+    )
+    terminal["sequence_number"] = 2
+    terminal["event_type"] = event_type
+    terminal["occurred_at"] = "2026-07-24T13:00:00Z"
+    if event_type == "authorization_revoked":
+        terminal["event_payload"] = {
+            "event_kind": "authorization_revoked",
+            "reason": "synthetic lifecycle terminal",
+        }
+    elif event_type == "authorization_consumed":
+        terminal["event_payload"] = {
+            "event_kind": "authorization_consumed",
+            "consumer_tool": "synthetic-dispatch-writer-v1",
+            "dispatch_record_path": (
+                "research/queue/dispatch_records/"
+                f"{created['dispatch_id']}.dispatch_record.json"
+            ),
+            "consumption_is_permanent": True,
+        }
+    else:
+        raise AssertionError(event_type)
+    return terminal
+
+
+def _assert_invalid_audit_fails_clean_rollback_replay(
+    root: Path,
+    *events: dict,
+) -> None:
+    initial = _attempt_event()
+    terminal = _terminal(initial, "crossing_rolled_back_clean")
+    path = _write_stream(root, initial, terminal)
+    audit_path, audit_length = _write_audit(root, *events)
+    expected_raw = b"".join(
+        repo_canonical_json_v1(event) + b"\n" for event in events
+    )
+    assert audit_length > terminal["event_payload"][
+        "final_lifecycle_audit_byte_length"
+    ]
+    assert audit_path.read_bytes() == expected_raw
+    assert expected_raw.endswith(b"\n")
+
+    with pytest.raises(
+        DispatchAuthorizationReservationError,
+        match="lifecycle audit validation failed",
+    ):
+        reservation._validate_clean_rollback_replay(
+            root.resolve(), initial, terminal
+        )
+
+    validated = validate_dispatch_authorization_reservation_stream(
+        repo_root=root,
+        reservation_path=path,
+        require_terminal=True,
+    )
+    assert "reservation_terminal_binding_mismatch" in {
+        row["finding_type"] for row in validated["findings"]
+    }
+    findings = collect_dispatch_authorization_crossing_findings(
+        repo_root=root
+    )
+    assert "reservation_terminal_binding_mismatch" in {
+        row["finding_type"] for row in findings
+    }
 
 
 def _distinct_attempt(suffix: str) -> dict:
@@ -596,6 +671,101 @@ def test_clean_rollback_replay_matching_later_creation_is_a_finding(
     assert [row["finding_type"] for row in validated["findings"]] == [
         "reservation_terminal_binding_mismatch"
     ]
+
+
+def test_clean_rollback_replay_rejects_canonical_schema_missing_audit_line(
+    synthetic_repo: Path,
+) -> None:
+    _assert_invalid_audit_fails_clean_rollback_replay(
+        synthetic_repo,
+        {"malformed_but_canonical": True},
+    )
+
+
+def test_clean_rollback_replay_rejects_schema_invalid_lifecycle_field(
+    synthetic_repo: Path,
+) -> None:
+    invalid = _audit_event(1)
+    invalid["authorization_file_sha256"] = "sha256:not-a-valid-hash"
+    _assert_invalid_audit_fails_clean_rollback_replay(
+        synthetic_repo,
+        invalid,
+    )
+
+
+def test_clean_rollback_replay_rejects_unknown_lifecycle_property(
+    synthetic_repo: Path,
+) -> None:
+    invalid = _audit_event(1)
+    invalid["unexpected_closed_schema_field"] = True
+    _assert_invalid_audit_fails_clean_rollback_replay(
+        synthetic_repo,
+        invalid,
+    )
+
+
+def test_clean_rollback_replay_rejects_lifecycle_terminal_before_creation(
+    synthetic_repo: Path,
+) -> None:
+    invalid = _audit_terminal_event(_audit_event(1))
+    invalid["sequence_number"] = 1
+    invalid["event_id"] = (
+        f"KDAUTH-EVENT-{invalid['authorization_id']}-000001"
+    )
+    _assert_invalid_audit_fails_clean_rollback_replay(
+        synthetic_repo,
+        invalid,
+    )
+
+
+@pytest.mark.parametrize(
+    "duplicate_kind",
+    ["creation", "sequence"],
+)
+def test_clean_rollback_replay_rejects_duplicate_lifecycle_history(
+    synthetic_repo: Path,
+    duplicate_kind: str,
+) -> None:
+    created = _audit_event(1)
+    duplicate = copy.deepcopy(created)
+    if duplicate_kind == "creation":
+        duplicate["sequence_number"] = 2
+        duplicate["event_id"] = (
+            f"KDAUTH-EVENT-{created['authorization_id']}-000002"
+        )
+        duplicate["occurred_at"] = "2026-07-24T13:00:00Z"
+    _assert_invalid_audit_fails_clean_rollback_replay(
+        synthetic_repo,
+        created,
+        duplicate,
+    )
+
+
+def test_clean_rollback_replay_accepts_multiple_unrelated_valid_lifecycles(
+    synthetic_repo: Path,
+) -> None:
+    initial = _attempt_event()
+    terminal = _terminal(initial, "crossing_rolled_back_clean")
+    path = _write_stream(synthetic_repo, initial, terminal)
+    first = _audit_event(1)
+    second = _audit_event(2)
+    _write_audit(
+        synthetic_repo,
+        first,
+        second,
+        _audit_terminal_event(first),
+        _audit_terminal_event(second, event_type="authorization_consumed"),
+    )
+
+    validated = validate_dispatch_authorization_reservation_stream(
+        repo_root=synthetic_repo,
+        reservation_path=path,
+        require_terminal=True,
+    )
+    assert validated["findings"] == []
+    assert collect_dispatch_authorization_crossing_findings(
+        repo_root=synthetic_repo
+    ) == []
 
 
 def test_integrity_critical_terminal_is_visible(
@@ -1340,20 +1510,16 @@ def test_authorization_created_without_prior_reservation_is_visible(
         + "\n"
     ).encode("utf-8")
     authorization_path.write_bytes(authorization_raw)
-    creation = {
-        "event_type": "authorization_created",
-        "event_id": "KDAUTH-EVENT-KDAUTH-TEST-R2-9001-000001",
-        "sequence_number": 1,
-        "authorization_id": "KDAUTH-TEST-R2-9001",
-        "authorization_path": authorization_rel,
-        "authorization_file_sha256": reservation._digest(authorization_raw),
-        "authorization_byte_length": len(authorization_raw),
-        "authorization_core_sha256": "sha256:" + "1" * 64,
-        "queue_item_id": "QI-20260724-TEST0001",
-        "dispatch_id": "DSP-20260724-TEST0001",
-        "run_id": "RUN-20260724-TEST0001",
-        "occurred_at": "2026-07-24T12:01:00Z",
-    }
+    creation = _audit_event(
+        1,
+        authorization_id="KDAUTH-TEST-R2-9001",
+    )
+    creation["authorization_path"] = authorization_rel
+    creation["authorization_file_sha256"] = reservation._digest(
+        authorization_raw
+    )
+    creation["authorization_byte_length"] = len(authorization_raw)
+    creation["authorization_core_sha256"] = "sha256:" + "1" * 64
     audit.write_bytes(repo_canonical_json_v1(creation) + b"\n")
     findings = collect_dispatch_authorization_crossing_findings(
         repo_root=synthetic_repo

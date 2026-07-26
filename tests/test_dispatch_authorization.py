@@ -843,7 +843,7 @@ def test_committed_terminal_must_not_precede_authorization_created(
         reservation.DispatchAuthorizationReservationError,
         match="committed terminal occurred_at precedes authorization_created",
     ):
-        reservation._validate_committed_cross_surface(
+        reservation._validate_committed_replay(
             fixture["root"], initial, terminal
         )
 
@@ -864,7 +864,7 @@ def test_authorization_created_must_strictly_follow_initial_reservation(
         reservation.DispatchAuthorizationReservationError,
         match="authorization_created does not follow",
     ):
-        reservation._validate_committed_cross_surface(
+        reservation._validate_committed_replay(
             fixture["root"], initial, terminal
         )
 
@@ -1303,6 +1303,113 @@ def test_revoked_superseded_and_consumed_authorizations_fail(
     )
     with pytest.raises(DispatchAuthorizationError, match="not consumable"):
         _validate(fixture, scan_history=False)
+
+
+@pytest.mark.parametrize(
+    "event_type",
+    [
+        "authorization_consumed",
+        "authorization_revoked",
+        "authorization_superseded",
+    ],
+)
+def test_historical_committed_crossing_survives_lawful_terminal_lifecycle(
+    tmp_path, repo_root, event_type
+):
+    fixture = _fixture(
+        tmp_path, repo_root, include_committed_reservation=False
+    )
+    initial, committed, stream = _write_matching_committed_reservation(
+        fixture,
+        attempt_id="KDAUTH-XING-20260720-HIST9001",
+        initial_occurred_at="2026-07-20T17:30:00Z",
+        terminal_occurred_at="2026-07-20T17:32:00Z",
+    )
+    lifecycle_terminal = _terminal_event(fixture, event_type)
+    fixture["audit_path"].write_bytes(
+        repo_canonical_json_v1(fixture["created"])
+        + b"\n"
+        + repo_canonical_json_v1(lifecycle_terminal)
+        + b"\n"
+    )
+
+    validated = (
+        reservation.validate_dispatch_authorization_reservation_stream(
+            repo_root=fixture["root"],
+            reservation_path=stream,
+            require_terminal=True,
+        )
+    )
+    assert validated["valid"] is True
+    assert validated["findings"] == []
+    assert reservation.collect_dispatch_authorization_crossing_findings(
+        repo_root=fixture["root"]
+    ) == []
+    with pytest.raises(DispatchAuthorizationError, match="not consumable"):
+        _validate(fixture, scan_history=False)
+
+    wrong_link = copy.deepcopy(committed)
+    wrong_link["event_payload"]["lifecycle_raw_line_sha256"] = (
+        "sha256:" + "0" * 64
+    )
+    stream.write_bytes(
+        repo_canonical_json_v1(initial)
+        + b"\n"
+        + repo_canonical_json_v1(wrong_link)
+        + b"\n"
+    )
+    invalid = reservation.validate_dispatch_authorization_reservation_stream(
+        repo_root=fixture["root"],
+        reservation_path=stream,
+        require_terminal=True,
+    )
+    assert [row["finding_type"] for row in invalid["findings"]] == [
+        "crossing_committed_without_exact_authorization_created"
+    ]
+
+
+@pytest.mark.parametrize(
+    "event_type",
+    [
+        "authorization_consumed",
+        "authorization_revoked",
+        "authorization_superseded",
+    ],
+)
+def test_committed_terminal_append_rejects_nonconsumable_kdauth(
+    tmp_path, repo_root, event_type
+):
+    fixture = _fixture(
+        tmp_path, repo_root, include_committed_reservation=False
+    )
+    initial, committed, stream = _write_matching_committed_reservation(
+        fixture,
+        attempt_id="KDAUTH-XING-20260720-WRIT9001",
+        initial_occurred_at="2026-07-20T17:30:00Z",
+        terminal_occurred_at="2026-07-20T17:32:00Z",
+    )
+    initial_raw = repo_canonical_json_v1(initial) + b"\n"
+    stream.write_bytes(initial_raw)
+    lifecycle_terminal = _terminal_event(fixture, event_type)
+    fixture["audit_path"].write_bytes(
+        repo_canonical_json_v1(fixture["created"])
+        + b"\n"
+        + repo_canonical_json_v1(lifecycle_terminal)
+        + b"\n"
+    )
+
+    with reservation.dispatch_authorization_crossing_lock(
+        repo_root=fixture["root"]
+    ) as lock:
+        with pytest.raises(
+            reservation.DispatchAuthorizationReservationError,
+            match="authorization is not consumable",
+        ):
+            reservation.append_dispatch_authorization_crossing_terminal_locked(
+                lock=lock,
+                event=committed,
+            )
+    assert stream.read_bytes() == initial_raw
 
 
 @pytest.mark.parametrize("kind", ["partial", "wrong_first", "duplicate_created"])

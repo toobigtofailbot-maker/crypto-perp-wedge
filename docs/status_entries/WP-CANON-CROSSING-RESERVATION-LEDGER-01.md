@@ -7,9 +7,23 @@
 - Branch/worktree:
   `codex/wp-canon-crossing-reservation-ledger-01` at
   `C:\GitHub\crypto-perp-wedge-wp-canon-crossing-reservation-ledger-01`.
-- Preflight: `origin/main` equaled the authorized base; the primary checkout
-  and retained KDAUTH-writer worktree were clean; GitHub had zero open PRs and
-  no overlapping reservation/incident capability was present.
+- Original-package preflight: `origin/main` equaled the authorized base; the
+  primary checkout and retained KDAUTH-writer worktree were clean; GitHub had
+  zero open PRs and no overlapping reservation/incident capability was
+  present.
+- Fourth-correction reviewed predecessor:
+  `32f93f7cda73ae20200a027db1d19b211fda5605`.
+- Fourth-correction delta: exactly
+  `tools/canon_intake/dispatch_authorization_reservation.py`,
+  `tests/test_dispatch_authorization.py`,
+  `docs/architecture/canon_dispatch_execution_control_plane.md`, and this
+  status entry. The containing correction commit is the final branch head; its
+  exact object ID is recorded in PR #673 and the execution report after commit
+  because a Git commit cannot contain its own object ID.
+- Fourth-correction live preflight: PR #673 was the sole open PR, open and
+  non-draft at the reviewed predecessor, 4 ahead / 0 behind, with the exact
+  cumulative 10-file allowlist and no hosted checks, comments, reviews, or
+  review threads. The retained KDAUTH-writer worktree was not accessed.
 
 ## Locked decisions implemented
 
@@ -104,31 +118,59 @@ presence, or unproven rollback durability still fails closed. Unrelated later
 append-only KDAUTH events no longer create a false terminal-binding finding,
 and all reservation identities remain permanently burned.
 
+## PR #673 full-audit-validation follow-up
+
+The shared KDAUTH lifecycle-audit reader now applies the existing closed
+Draft-7 schema and complete lifecycle state machine to every current audit
+line. Reservation validation reuses that reader rather than maintaining a
+weaker JSON/canonical-only parser. Missing-schema fields, invalid hashes,
+unknown properties, duplicate IDs or creations, sequence gaps, events before
+creation, events after a terminal, partial tails, and malformed serialization
+all fail closed. Fully valid unrelated append-only lifecycle growth remains
+finding-free. Neither closed schema changed.
+
+## PR #673 committed-crossing replay follow-up
+
+Committed-crossing validation is now explicitly phase-sensitive. Immediately
+before `crossing_committed` append under the held lock, the exact KDAUTH and
+complete lifecycle audit must validate with the matching authorization still
+in its created, consumable state. Later stream, retained-history, and integrity
+replay validates the exact KDAUTH content, full audit, original
+`authorization_created` bindings, chronology, and raw-line link independently
+of current consumability. A lawful later `authorization_consumed`,
+`authorization_revoked`, or `authorization_superseded` state remains
+permanently non-consumable but does not invalidate the earlier committed
+crossing or create a reservation finding. The ordinary KDAUTH validator
+continues to reject every such terminal lifecycle state as not consumable.
+
 ## Validation and preservation
 
-- Same-PR reservation/KDAUTH follow-up: `131 passed, 5 skipped`. Four skips
+- Final reservation/KDAUTH suite: `144 passed, 5 skipped`. The six-case
+  committed-crossing matrix covers historical replay and writer-time rejection
+  for consumed, revoked, and superseded lifecycle states. Four skips
   are limited to specific symlink fixtures that this Windows environment
   cannot create; the Windows junction/reparse fixture executed and passed.
   The fifth skip is the pre-existing KDAUTH symlink-fixture limitation. No
   skip or xfail bypasses a failing semantic assertion.
 - Protected KDAUTH, Gate C-VP, Gate-Q, queue, external-readiness,
   dispatch/execution-contract, and retained-history regressions:
-  `408 passed, 10 skipped`; the additional five skips are pre-existing
+  `499 passed, 10 skipped`; the additional five skips are pre-existing
   protected-writer symlink-fixture limitations on Windows.
-- Query-focused checks: `9 passed, 115 deselected`; the view is empty on the
-  real repository, unrelated clean-rollback replay growth stays finding-free,
-  and synthetic duplicate/replay defects produce their closed findings.
+- Query-focused reservation check: `1 passed, 65 deselected`; the view is empty
+  on the real repository. Synthetic invalid histories retain the existing
+  closed findings, while valid clean rollback and lawful post-commit lifecycle
+  evolution remain finding-free.
 - Registry validation: all 25 `tools.registry.validate_*` modules passed. The
   funding validator used its supported read-only `--data-root` override to the
   primary checkout because the clean worktree intentionally lacks the
   gitignored Parquet.
 - JSON/Draft-7: 1,171 tracked JSON files, 12 JSONL files / 27,585 non-empty
-  lines, and all 43 Draft-7 schemas parse and validate.
+  lines, and all 44 Draft-7 schemas parse and validate.
 - Integrity: all 60 `v_integrity_*` views executed; 59 are empty and the sole
   non-empty row is the unchanged locked
   `v_integrity_strategy_spec_legacy_hash_scope_reproducibility` disclosure.
   The new reservation view is empty on real repo state.
-- Same-PR `full-release-balanced-v1`: all 154 tracked test files are assigned
+- Final `full-release-balanced-v1`: all 154 tracked test files are assigned
   exactly once across 48 shards; missing, duplicate, and untracked assignments
   are zero; every selected shard completes and passes with no failure, error,
   or timeout.

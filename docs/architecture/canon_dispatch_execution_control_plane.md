@@ -194,6 +194,17 @@ matching `authorization_created`. Later unrelated append-only growth does not
 invalidate the historical rollback or release its permanently burned
 identities.
 
+Committed-crossing publication and replay also have deliberately different
+current-lifecycle requirements. Under the held crossing lock, immediately
+before appending `crossing_committed`, the exact KDAUTH must still be in its
+created, consumable lifecycle state. Later read-only replay proves the
+historical committed crossing from the exact KDAUTH content, complete valid
+lifecycle audit, original `authorization_created` bindings, chronology, and
+raw-line link independently of current consumability. A later lawful
+`authorization_consumed`, `authorization_revoked`, or
+`authorization_superseded` terminal permanently prevents reuse but does not
+invalidate the earlier committed crossing.
+
 Read-only integrity visibility is exposed through
 `v_integrity_dispatch_authorization_crossing_reservations`. It surfaces
 integrity-critical and unterminated attempts, invalid sequences/bindings,

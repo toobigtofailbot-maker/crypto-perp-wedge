@@ -430,10 +430,12 @@ def _read_audit_lines(root: Path) -> list[tuple[dict[str, Any], bytes]]:
     return rows
 
 
-def _validate_committed_cross_surface(
+def _validate_committed_cross_surface_common(
     root: Path,
     initial: Mapping[str, Any],
     terminal: Mapping[str, Any],
+    *,
+    require_current_consumability: bool,
 ) -> None:
     from tools.canon_intake.dispatch_authorization import (
         DispatchAuthorizationError,
@@ -452,7 +454,7 @@ def _validate_committed_cross_surface(
         validation = validate_dispatch_authorization(
             repo_root=root,
             authorization_path=authorization_path,
-            require_audit=True,
+            require_audit=require_current_consumability,
             scan_history=False,
         )
     except DispatchAuthorizationError as exc:
@@ -567,6 +569,41 @@ def _validate_committed_cross_surface(
             raise DispatchAuthorizationReservationError(
                 f"committed terminal lifecycle link mismatch: {field}"
             )
+
+
+def _validate_committed_before_terminal_append(
+    root: Path,
+    initial: Mapping[str, Any],
+    terminal: Mapping[str, Any],
+) -> None:
+    _validate_committed_cross_surface_common(
+        root,
+        initial,
+        terminal,
+        require_current_consumability=True,
+    )
+
+
+def _validate_committed_replay(
+    root: Path,
+    initial: Mapping[str, Any],
+    terminal: Mapping[str, Any],
+) -> None:
+    _validate_committed_cross_surface_common(
+        root,
+        initial,
+        terminal,
+        require_current_consumability=False,
+    )
+
+
+def _validate_committed_cross_surface(
+    root: Path,
+    initial: Mapping[str, Any],
+    terminal: Mapping[str, Any],
+) -> None:
+    """Retain the established private replay seam for logical-history checks."""
+    _validate_committed_replay(root, initial, terminal)
 
 
 def _validate_clean_rollback_common(
@@ -1496,7 +1533,9 @@ def append_dispatch_authorization_crossing_terminal_locked(
                 f"terminal common binding mismatch: {field}"
             )
     if terminal["event_type"] == "crossing_committed":
-        _validate_committed_cross_surface(root, initial, terminal)
+        _validate_committed_before_terminal_append(
+            root, initial, terminal
+        )
     elif terminal["event_type"] == "crossing_rolled_back_clean":
         _validate_clean_rollback_before_terminal_append(
             root, initial, terminal

@@ -2,6 +2,7 @@ import hashlib
 import json
 from pathlib import Path
 
+import duckdb
 import pytest
 
 from tools.research_query import query_layer
@@ -90,6 +91,7 @@ REQUIRED_VIEWS = {
     "v_integrity_walkforward_fold_denominator",
     "v_integrity_walkforward_non_authority",
     "v_integrity_dispatch_authorization_crossing_reservations",
+    "v_integrity_dispatch_authorization_dispatch_without_consumption",
 }
 
 EXPECTED_COLUMNS = {
@@ -428,6 +430,20 @@ EXPECTED_COLUMNS = {
         "terminal_outcome",
         "reason_code",
         "operator_inspection_required",
+        "non_authority",
+    ],
+    "v_integrity_dispatch_authorization_dispatch_without_consumption": [
+        "authorization_id",
+        "authorization_path",
+        "authorization_whole_file_sha256",
+        "authorization_core_sha256",
+        "dispatch_id",
+        "dispatch_path",
+        "run_id",
+        "queue_item_id",
+        "lifecycle_state",
+        "audit_path",
+        "reason",
         "non_authority",
     ],
 }
@@ -1630,6 +1646,58 @@ def test_dispatch_authorization_crossing_reservation_integrity_is_empty_on_main(
         conn,
         "v_integrity_dispatch_authorization_crossing_reservations",
     ) == []
+
+
+def test_dispatch_without_consumption_integrity_is_empty_on_main(conn):
+    assert run_named_view(
+        conn,
+        "v_integrity_dispatch_authorization_dispatch_without_consumption",
+    ) == []
+
+
+def test_dispatch_without_consumption_registration_is_stable_and_read_only(
+    tmp_path, monkeypatch
+):
+    from tests import test_dispatch_authorization_writer as writer_support
+
+    source_repo = Path(__file__).resolve().parents[1]
+    fixture = writer_support.prepared_fixture(tmp_path, source_repo)
+    writer_support.cross(fixture, "QUERY001")
+    writer_support.dispatch_record(fixture, source_repo)
+    before = {
+        path.relative_to(fixture["root"]).as_posix():
+            hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in fixture["root"].rglob("*")
+        if path.is_file() and ".git" not in path.parts
+    }
+    monkeypatch.setattr(query_layer, "REPO_ROOT", fixture["root"])
+    tail = query_layer.VIEWS_PATH.read_text(encoding="utf-8").split(
+        "-- Which valid canonical dispatches lack their exact KDAUTH "
+        "consumption event?",
+        1,
+    )[1]
+    observed = []
+    for _ in range(2):
+        synthetic = duckdb.connect(database=":memory:")
+        query_layer._register_dispatch_without_consumption_findings(
+            synthetic
+        )
+        synthetic.execute(tail)
+        rows = synthetic.execute(
+            "SELECT * FROM "
+            "v_integrity_dispatch_authorization_dispatch_without_consumption"
+        ).fetchall()
+        observed.append(rows)
+        synthetic.close()
+    assert observed[0] == observed[1]
+    assert len(observed[0]) == 1
+    after = {
+        path.relative_to(fixture["root"]).as_posix():
+            hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in fixture["root"].rglob("*")
+        if path.is_file() and ".git" not in path.parts
+    }
+    assert after == before
 
 
 def test_candidate_overview_contains_all_registered_candidates(conn):

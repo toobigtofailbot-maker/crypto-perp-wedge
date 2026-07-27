@@ -9,9 +9,11 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
+import stat
 import subprocess
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 from typing import Any, Iterable, Literal, Mapping
 
@@ -34,6 +36,7 @@ from tools.data.register_binance_usdtm_1d_lineage import (
 
 APPROVAL_SCHEMA = "canon_dispatch_authorization.schema.json"
 AUDIT_SCHEMA = "canon_dispatch_authorization_audit_event.schema.json"
+DISPATCH_SCHEMA = "canon_dispatch_record.schema.json"
 APPROVAL_ROOT = Path("research/queue/dispatch_authorizations")
 AUDIT_PATH = Path(
     "research/queue/dispatch_authorization_audit/"
@@ -129,12 +132,29 @@ def _lexical_absolute(path: Path) -> Path:
     return path if path.is_absolute() else Path.cwd() / path
 
 
+def _lexical_entry_exists(path: Path) -> bool:
+    return os.path.lexists(path)
+
+
+def _is_link_or_reparse(path: Path) -> bool:
+    try:
+        metadata = os.lstat(path)
+    except OSError:
+        return False
+    if stat.S_ISLNK(metadata.st_mode):
+        return True
+    reparse_flag = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0)
+    file_attributes = getattr(metadata, "st_file_attributes", 0)
+    return bool(reparse_flag and file_attributes & reparse_flag)
+
+
 def _reject_symlink_components(path: Path, label: str) -> Path:
     lexical = _lexical_absolute(path)
     for component in reversed([lexical, *lexical.parents]):
-        if component.exists() and component.is_symlink():
+        if _lexical_entry_exists(component) and _is_link_or_reparse(component):
             raise DispatchAuthorizationError(
-                f"{label} contains a symlinked path component: {component}"
+                f"{label} contains a symlinked or reparse-point path component: "
+                f"{component}"
             )
     return lexical
 
@@ -298,7 +318,10 @@ def _load_raw_ref(
 
 
 def _load_authorization(
-    root: Path, authorization_path: Path
+    root: Path,
+    authorization_path: Path,
+    *,
+    require_authoritative_path: bool = True,
 ) -> tuple[dict[str, Any], bytes, str]:
     path = _reject_symlink_components(authorization_path, "dispatch authorization")
     raw = _read_bytes(path, "dispatch authorization")
@@ -329,7 +352,7 @@ def _load_authorization(
             "authorization target path is not derived from its identifier"
         )
     expected_path = _repo_path(root, expected_rel, "authorization target path")
-    if path.resolve() != expected_path:
+    if require_authoritative_path and path.resolve() != expected_path:
         raise DispatchAuthorizationError(
             "dispatch authorization is not at its authoritative ID-derived path"
         )
@@ -1165,6 +1188,49 @@ def read_and_validate_dispatch_authorization_audit(
     )
 
 
+def validate_dispatch_authorization_audit_append_candidate(
+    *,
+    repo_root: Path,
+    event: Mapping[str, Any],
+    allow_missing_audit: bool = False,
+) -> dict[str, Any]:
+    """Validate one proposed canonical append against the complete audit."""
+    root = _resolve_root(repo_root)
+    rows, prior_length = read_and_validate_dispatch_authorization_audit(
+        repo_root=root,
+        allow_missing=allow_missing_audit,
+    )
+    del rows
+    audit_path = _repo_path(
+        root, AUDIT_PATH.as_posix(), "dispatch-authorization audit path"
+    )
+    prior_raw = (
+        _read_bytes(audit_path, "dispatch-authorization audit")
+        if audit_path.exists()
+        else b""
+    )
+    if len(prior_raw) != prior_length:
+        raise DispatchAuthorizationError(
+            "dispatch-authorization audit changed during append validation"
+        )
+    if not isinstance(event, Mapping):
+        raise DispatchAuthorizationError(
+            "dispatch-authorization audit event must be a mapping"
+        )
+    materialized = dict(event)
+    line = repo_canonical_json_v1(materialized) + b"\n"
+    _validate_dispatch_authorization_audit_raw(root, prior_raw + line)
+    return {
+        "valid": True,
+        "prior_byte_length": prior_length,
+        "prior_raw_sha256": _digest(prior_raw),
+        "raw_line": line,
+        "raw_line_sha256": _digest(line),
+        "raw_line_byte_length": len(line),
+        "non_authority": True,
+    }
+
+
 def _audit_events(
     root: Path,
     authorization: Mapping[str, Any],
@@ -1394,6 +1460,7 @@ def _validate_single_use(
     authorization_raw: bytes,
     *,
     reservation_history_policy: ReservationHistoryPolicy,
+    allowed_dispatch_record: tuple[str, str] | None = None,
 ) -> None:
     core = authorization["authorization_core"]
     crossing = core["crossing_identities"]
@@ -1486,6 +1553,25 @@ def _validate_single_use(
                     raise DispatchAuthorizationError(
                         "authorization creation history conflicts with current bytes"
                     )
+                continue
+            if (
+                allowed_dispatch_record is not None
+                and path == allowed_dispatch_record[0]
+                and _digest(raw) == allowed_dispatch_record[1]
+                and all(
+                    binding.get(field) == expected[field]
+                    for field in (
+                        "authorization_id",
+                        "authorization_path",
+                        "authorization_file_sha256",
+                        "queue_item_id",
+                        "dispatch_id",
+                        "run_id",
+                        "dispatch_path",
+                        "stream_path",
+                    )
+                )
+            ):
                 continue
             collisions = [
                 field
@@ -1615,20 +1701,22 @@ def _validate_single_use(
         )
 
 
-def validate_dispatch_authorization(
+def _validate_dispatch_authorization_file(
     *,
-    repo_root: Path,
+    root: Path,
     authorization_path: Path,
     audit_path: Path | None = None,
     expected_whole_file_sha256: str | None = None,
     expected_byte_length: int | None = None,
     require_audit: bool = True,
     scan_history: bool = True,
+    require_authoritative_path: bool = True,
+    allowed_dispatch_record: tuple[str, str] | None = None,
 ) -> dict[str, Any]:
-    """Validate one authoritative KDAUTH and return non-authoritative facts."""
-    root = _resolve_root(repo_root)
     authorization, raw, relative_path = _load_authorization(
-        root, authorization_path
+        root,
+        authorization_path,
+        require_authoritative_path=require_authoritative_path,
     )
     whole_hash = _digest(raw)
     if (
@@ -1682,6 +1770,7 @@ def validate_dispatch_authorization(
             authorization,
             raw,
             reservation_history_policy=reservation_history_policy,
+            allowed_dispatch_record=allowed_dispatch_record,
         )
 
     crossing = core["crossing_identities"]
@@ -1706,6 +1795,511 @@ def validate_dispatch_authorization(
             "does_not_create_result_population": True,
         },
     }
+
+
+def validate_dispatch_authorization_candidate(
+    *,
+    repo_root: Path,
+    proposal_path: Path,
+    expected_whole_file_sha256: str | None = None,
+    expected_byte_length: int | None = None,
+) -> dict[str, Any]:
+    """Validate exact review-path bytes before any protected crossing mutation."""
+    root = _resolve_root(repo_root)
+    result = _validate_dispatch_authorization_file(
+        root=root,
+        authorization_path=proposal_path,
+        expected_whole_file_sha256=expected_whole_file_sha256,
+        expected_byte_length=expected_byte_length,
+        require_audit=False,
+        scan_history=True,
+        require_authoritative_path=False,
+    )
+    target = _repo_path(
+        root,
+        result["authorization_path"],
+        "authorization target path",
+    )
+    if _lexical_entry_exists(target):
+        raise DispatchAuthorizationError(
+            "authorization target path is not absent for precreation review"
+        )
+    return {
+        **result,
+        "proposal_path": str(
+            _reject_symlink_components(proposal_path, "dispatch authorization")
+            .resolve()
+        ),
+        "target_absence_proven": True,
+    }
+
+
+def validate_dispatch_authorization(
+    *,
+    repo_root: Path,
+    authorization_path: Path,
+    audit_path: Path | None = None,
+    expected_whole_file_sha256: str | None = None,
+    expected_byte_length: int | None = None,
+    require_audit: bool = True,
+    scan_history: bool = True,
+) -> dict[str, Any]:
+    """Validate one authoritative KDAUTH and return non-authoritative facts."""
+    root = _resolve_root(repo_root)
+    return _validate_dispatch_authorization_file(
+        root=root,
+        authorization_path=authorization_path,
+        audit_path=audit_path,
+        expected_whole_file_sha256=expected_whole_file_sha256,
+        expected_byte_length=expected_byte_length,
+        require_audit=require_audit,
+        scan_history=scan_history,
+        require_authoritative_path=True,
+    )
+
+
+def _require_mapping_equal(
+    label: str,
+    actual: Mapping[str, Any],
+    expected: Mapping[str, Any],
+) -> None:
+    mismatches = [
+        field
+        for field, value in expected.items()
+        if actual.get(field) != value
+    ]
+    if mismatches:
+        raise DispatchAuthorizationError(
+            f"{label} mismatch: {', '.join(mismatches)}"
+        )
+
+
+def _require_exact_committed_crossing(
+    root: Path,
+    authorization: Mapping[str, Any],
+    authorization_raw: bytes,
+) -> None:
+    from tools.canon_intake.dispatch_authorization_reservation import (
+        DispatchAuthorizationReservationError,
+        scan_dispatch_authorization_reservations,
+    )
+
+    core = authorization["authorization_core"]
+    crossing = core["crossing_identities"]
+    expected = {
+        "authorization_id": authorization["authorization_id"],
+        "authorization_target_path": authorization[
+            "authorization_artifact_target_path"
+        ],
+        "reviewed_whole_file_sha256": _digest(authorization_raw),
+        "authorization_core_sha256": authorization[
+            "authorization_core_sha256"
+        ],
+        "queue_item_id": core["queue_binding"]["queue_item_id"],
+        "dispatch_id": crossing["dispatch_id"],
+        "dispatch_record_path": crossing["dispatch_record_path"],
+        "run_id": crossing["run_id"],
+        "execution_event_stream_path": crossing[
+            "execution_event_stream_path"
+        ],
+    }
+    try:
+        reservations = scan_dispatch_authorization_reservations(
+            repo_root=root,
+            include_retained_history=True,
+        )
+    except DispatchAuthorizationReservationError as exc:
+        raise DispatchAuthorizationError(
+            f"crossing reservation history is invalid: {exc}"
+        ) from exc
+    matches: list[dict[str, Any]] = []
+    for reservation in reservations:
+        initial = reservation["events"][0]
+        values = {
+            "authorization_id": initial["authorization_binding"][
+                "authorization_id"
+            ],
+            "authorization_target_path": initial["authorization_binding"][
+                "authorization_target_path"
+            ],
+            "reviewed_whole_file_sha256": initial[
+                "reviewed_content_binding"
+            ]["reviewed_whole_file_sha256"],
+            "authorization_core_sha256": initial["authorization_binding"][
+                "authorization_core_sha256"
+            ],
+            "queue_item_id": initial["queue_binding"]["queue_item_id"],
+            "dispatch_id": initial["dispatch_binding"]["dispatch_id"],
+            "dispatch_record_path": initial["dispatch_binding"][
+                "dispatch_record_path"
+            ],
+            "run_id": initial["run_binding"]["run_id"],
+            "execution_event_stream_path": initial["run_binding"][
+                "execution_event_stream_path"
+            ],
+        }
+        collisions = [
+            field
+            for field, value in expected.items()
+            if values.get(field) == value
+        ]
+        if values == expected:
+            if (
+                reservation["terminal_outcome"] == "crossing_committed"
+                and reservation["findings"] == []
+            ):
+                matches.append(reservation)
+                continue
+        if collisions:
+            raise DispatchAuthorizationError(
+                "crossing reservation permanently consumes single-use identities "
+                f"in {initial['reservation_stream_path']}: "
+                + ", ".join(collisions)
+            )
+    if len(matches) != 1:
+        raise DispatchAuthorizationError(
+            "exactly one logical committed crossing reservation matching the "
+            "KDAUTH and authorization_created event is required"
+        )
+
+
+def validate_dispatch_record_for_authorization(
+    *,
+    repo_root: Path,
+    dispatch_path: Path,
+    authorization_path: Path | None = None,
+) -> dict[str, Any]:
+    """Validate one durable dispatch against its exact KDAUTH and lifecycle."""
+    root = _resolve_root(repo_root)
+    dispatch_lexical = _reject_symlink_components(
+        dispatch_path, "dispatch record"
+    )
+    dispatch_raw = _read_bytes(dispatch_lexical, "dispatch record")
+    dispatch = _decode_object(dispatch_raw, "dispatch record")
+    if dispatch_raw != serialize_dispatch_authorization(dispatch):
+        raise DispatchAuthorizationError(
+            "dispatch record is not canonical sorted two-space JSON plus one LF"
+        )
+    _schema_check(root, DISPATCH_SCHEMA, dispatch, "dispatch record")
+
+    dispatch_id = dispatch["dispatch_id"]
+    expected_dispatch_rel = (
+        DISPATCH_ROOT / f"{dispatch_id}.dispatch_record.json"
+    ).as_posix()
+    if dispatch["dispatch_record_path"] != expected_dispatch_rel:
+        raise DispatchAuthorizationError(
+            "dispatch record ID/path mismatch"
+        )
+    expected_dispatch_path = _repo_path(
+        root, expected_dispatch_rel, "dispatch record path"
+    )
+    if dispatch_lexical.resolve() != expected_dispatch_path:
+        raise DispatchAuthorizationError(
+            "dispatch record is not at its authoritative ID-derived path"
+        )
+    created_at = _parse_timestamp(dispatch["created_at"], "dispatch.created_at")
+    if (
+        created_at.astimezone(timezone.utc).strftime("%Y%m%d")
+        != dispatch_id.split("-")[1]
+    ):
+        raise DispatchAuthorizationError(
+            "dispatch ID date does not equal created_at UTC date"
+        )
+
+    authorization_ref = dispatch["dispatch_authorization"]
+    selected_authorization_path = (
+        authorization_path
+        if authorization_path is not None
+        else _repo_path(
+            root,
+            authorization_ref["source_path"],
+            "dispatch authorization source path",
+        )
+    )
+    authorization, authorization_raw, authorization_rel = _load_authorization(
+        root,
+        selected_authorization_path,
+        require_authoritative_path=True,
+    )
+    _validate_h004_contract(authorization)
+    core = authorization["authorization_core"]
+    _validate_queue_and_gate(root, core)
+    _validate_crossing_identities(core)
+    _validate_dispatcher_packet(root, core)
+    _validate_lineage(root, core)
+    _validate_dataset(root, core)
+    _validate_funding(root, core)
+    _validate_runner(root, core)
+    _validate_denominator_budget_and_outputs(root, core)
+    events, lifecycle_state = _audit_events(
+        root,
+        authorization,
+        authorization_raw,
+        _repo_path(root, AUDIT_PATH.as_posix(), "dispatch-authorization audit"),
+    )
+    _require_exact_committed_crossing(root, authorization, authorization_raw)
+
+    crossing = core["crossing_identities"]
+    queue = core["queue_binding"]
+    gate = queue["gate_q"]
+    _require_mapping_equal(
+        "dispatch/KDAUTH authorization",
+        authorization_ref,
+        {
+            "authorization_id": authorization["authorization_id"],
+            "source_path": authorization_rel,
+            "source_sha256": _digest(authorization_raw),
+            "source_byte_length": len(authorization_raw),
+            "authorization_core_sha256": authorization[
+                "authorization_core_sha256"
+            ],
+            "authorization_core_hash_scope":
+                "dispatch_authorization_core_v1",
+            "authorization_core_canonicalization":
+                "repo_canonical_json_v1",
+            "authorized_by": authorization["approved_by"],
+            "authorized_at": authorization["approved_at"],
+            "authorization_scope": authorization["authorization_scope"],
+            "authorized_queue_item_id": queue["queue_item_id"],
+            "authorized_dispatch_id": crossing["dispatch_id"],
+            "authorized_run_id": crossing["run_id"],
+            "exact_content_and_target_only": True,
+            "content_bound_freshness": True,
+            "single_use_authorization_id": True,
+            "no_downstream_authority": True,
+        },
+    )
+    _require_mapping_equal(
+        "dispatch/KDAUTH queue",
+        dispatch["queue_binding"],
+        {
+            "queue_item_id": queue["queue_item_id"],
+            "path": queue["path"],
+            "raw_sha256": queue["whole_file_sha256"],
+            "admission_status": queue["required_state"],
+        },
+    )
+    _require_mapping_equal(
+        "dispatch/KDAUTH Gate-Q",
+        dispatch["gate_q_binding"],
+        {
+            "approval_id": gate["approval_id"],
+            "path": gate["path"],
+            "file_sha256": gate["whole_file_sha256"],
+            "approval_core_sha256": gate["core_sha256"],
+            "approval_core_hash_scope": gate["core_hash_scope"],
+            "approval_core_canonicalization": gate[
+                "core_canonicalization"
+            ],
+        },
+    )
+    _require_mapping_equal(
+        "dispatch/KDAUTH run",
+        dispatch["run_binding"],
+        {
+            "run_id": crossing["run_id"],
+            "execution_event_stream_path": crossing[
+                "execution_event_stream_path"
+            ],
+        },
+    )
+    _require_mapping_equal(
+        "dispatch/KDAUTH runner",
+        dispatch["runner_binding"],
+        {
+            field: core["runner"][field]
+            for field in (
+                "invocation_kind",
+                "module",
+                "source_path",
+                "version",
+                "source_sha256",
+            )
+        },
+    )
+    for field in ("strategy_spec", "variant_manifest", "sweep_plan"):
+        source = core["lineage"][field]
+        _require_mapping_equal(
+            f"dispatch/KDAUTH artifact {field}",
+            dispatch["artifact_bindings"][field],
+            {
+                "artifact_id": source["artifact_id"],
+                "path": source["path"],
+                "sha256": source["whole_file_sha256"],
+            },
+        )
+    dataset = core["dataset"]
+    _require_mapping_equal(
+        "dispatch/KDAUTH dataset",
+        dispatch["dataset_binding"],
+        {
+            "dataset_id": dataset["dataset_id"],
+            "snapshot_version": dataset["snapshot_version"],
+            "path": dataset["data_path"],
+            "sha256": dataset["data_sha256"],
+            "market": dataset["market"],
+            "timeframe": dataset["timeframe"],
+            "unresolved_policy": "reject",
+        },
+    )
+    for field in ("denominator", "budget", "execution_parameters"):
+        if dispatch[field] != core[field]:
+            raise DispatchAuthorizationError(
+                f"dispatch/KDAUTH {field} mismatch"
+            )
+    if dispatch["dispatch_id"] != crossing["dispatch_id"]:
+        raise DispatchAuthorizationError("dispatch/KDAUTH dispatch ID mismatch")
+    if (
+        dispatch["output_targets"]["execution_event_stream_path"]
+        != crossing["execution_event_stream_path"]
+    ):
+        raise DispatchAuthorizationError(
+            "dispatch/KDAUTH execution output mismatch"
+        )
+    scratch_root = _scratch_directory_path(
+        root,
+        core["output_targets"]["scratch_output_root"],
+        "authorized scratch output root",
+    )
+    scratch_run_directory = _scratch_directory_path(
+        root,
+        dispatch["output_targets"]["scratch_run_directory"],
+        "dispatch scratch run directory",
+    )
+    provisional_result_path = _repo_path(
+        root,
+        dispatch["output_targets"]["provisional_result_path"],
+        "dispatch provisional result path",
+    )
+    _repo_path(
+        root,
+        dispatch["output_targets"]["execution_event_stream_path"],
+        "dispatch execution-event stream path",
+    )
+    for field, selected in (
+        ("scratch_run_directory", scratch_run_directory),
+        ("provisional_result_path", provisional_result_path),
+    ):
+        try:
+            selected.relative_to(scratch_root)
+        except ValueError as exc:
+            raise DispatchAuthorizationError(
+                f"dispatch output {field} escapes the authorized scratch root"
+            ) from exc
+
+    return {
+        "valid": True,
+        "dispatch_id": dispatch_id,
+        "dispatch_path": expected_dispatch_rel,
+        "dispatch_file_sha256": _digest(dispatch_raw),
+        "dispatch_byte_length": len(dispatch_raw),
+        "authorization_id": authorization["authorization_id"],
+        "authorization_path": authorization_rel,
+        "authorization_whole_file_sha256": _digest(authorization_raw),
+        "authorization_core_sha256": authorization[
+            "authorization_core_sha256"
+        ],
+        "queue_item_id": queue["queue_item_id"],
+        "run_id": crossing["run_id"],
+        "lifecycle_state": lifecycle_state,
+        "lifecycle_events": events,
+        "audit_path": AUDIT_PATH.as_posix(),
+        "non_authority": True,
+    }
+
+
+def validate_dispatch_authorization_for_consumption(
+    *,
+    repo_root: Path,
+    authorization_path: Path,
+    dispatch_path: Path,
+) -> dict[str, Any]:
+    """Validate active KDAUTH history while allowing its one exact dispatch."""
+    root = _resolve_root(repo_root)
+    dispatch = validate_dispatch_record_for_authorization(
+        repo_root=root,
+        dispatch_path=dispatch_path,
+        authorization_path=authorization_path,
+    )
+    authorization = _validate_dispatch_authorization_file(
+        root=root,
+        authorization_path=authorization_path,
+        require_audit=True,
+        scan_history=True,
+        require_authoritative_path=True,
+        allowed_dispatch_record=(
+            dispatch["dispatch_path"],
+            dispatch["dispatch_file_sha256"],
+        ),
+    )
+    return {
+        **authorization,
+        "dispatch_validation": dispatch,
+    }
+
+
+def collect_dispatch_without_consumption_findings(
+    *,
+    repo_root: Path,
+) -> list[dict[str, Any]]:
+    """Collect valid dispatches lacking their exact consumed lifecycle event."""
+    root = _resolve_root(repo_root)
+    dispatch_root = _repo_path(
+        root, DISPATCH_ROOT.as_posix(), "dispatch-record root"
+    )
+    if not dispatch_root.exists():
+        return []
+    findings: list[dict[str, Any]] = []
+    for path in sorted(dispatch_root.glob("*.dispatch_record.json")):
+        try:
+            result = validate_dispatch_record_for_authorization(
+                repo_root=root,
+                dispatch_path=path,
+            )
+        except DispatchAuthorizationError:
+            continue
+        if result["lifecycle_state"] not in {"created", "consumed"}:
+            continue
+        exact_consumption = any(
+            event["event_type"] == "authorization_consumed"
+            and event["authorization_id"] == result["authorization_id"]
+            and event["authorization_path"] == result["authorization_path"]
+            and event["authorization_file_sha256"]
+            == result["authorization_whole_file_sha256"]
+            and event["authorization_core_sha256"]
+            == result["authorization_core_sha256"]
+            and event["queue_item_id"] == result["queue_item_id"]
+            and event["dispatch_id"] == result["dispatch_id"]
+            and event["run_id"] == result["run_id"]
+            and event["event_payload"]["dispatch_record_path"]
+            == result["dispatch_path"]
+            and event["event_payload"]["consumption_is_permanent"] is True
+            for event in result["lifecycle_events"]
+        )
+        if exact_consumption:
+            continue
+        findings.append(
+            {
+                "authorization_id": result["authorization_id"],
+                "authorization_path": result["authorization_path"],
+                "authorization_whole_file_sha256": result[
+                    "authorization_whole_file_sha256"
+                ],
+                "authorization_core_sha256": result[
+                    "authorization_core_sha256"
+                ],
+                "dispatch_id": result["dispatch_id"],
+                "dispatch_path": result["dispatch_path"],
+                "run_id": result["run_id"],
+                "queue_item_id": result["queue_item_id"],
+                "lifecycle_state": result["lifecycle_state"],
+                "audit_path": result["audit_path"],
+                "reason":
+                    "valid_dispatch_exists_without_exact_authorization_consumed",
+                "non_authority": True,
+            }
+        )
+    return findings
 
 
 def main() -> int:

@@ -5399,3 +5399,22 @@ SELECT
 FROM data_feature_availability_catalog AS catalog,
 UNNEST(catalog.entries) AS availability(entry)
 ORDER BY entry.feature_name, entry.source_class;
+
+-- Which protected KDAUTH crossing reservations require operator inspection?
+CREATE OR REPLACE VIEW v_integrity_dispatch_authorization_crossing_reservations AS
+SELECT
+    finding_type,
+    attempt_id,
+    reservation_stream_path,
+    authorization_id,
+    authorization_target_path,
+    dispatch_id,
+    dispatch_record_path,
+    run_id,
+    execution_event_stream_path,
+    queue_item_id,
+    terminal_outcome,
+    reason_code,
+    operator_inspection_required,
+    non_authority
+FROM dispatch_authorization_crossing_reservation_findings;

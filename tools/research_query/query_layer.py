@@ -2351,6 +2351,72 @@ def _register_walkforward_fold_manifests(conn: duckdb.DuckDBPyConnection) -> Non
     )
 
 
+def _register_dispatch_authorization_crossing_reservation_findings(
+    conn: duckdb.DuckDBPyConnection,
+) -> None:
+    """Register read-only closed findings from protected reservation history."""
+    from tools.canon_intake.dispatch_authorization_reservation import (
+        collect_dispatch_authorization_crossing_findings,
+    )
+
+    findings = collect_dispatch_authorization_crossing_findings(
+        repo_root=REPO_ROOT
+    )
+    columns = (
+        "finding_type",
+        "attempt_id",
+        "reservation_stream_path",
+        "authorization_id",
+        "authorization_target_path",
+        "dispatch_id",
+        "dispatch_record_path",
+        "run_id",
+        "execution_event_stream_path",
+        "queue_item_id",
+        "terminal_outcome",
+        "reason_code",
+        "operator_inspection_required",
+        "non_authority",
+    )
+    if findings:
+        values = ",\n".join(
+            "("
+            + ", ".join(_sql_literal(row[column]) for column in columns)
+            + ")"
+            for row in findings
+        )
+        conn.execute(
+            f"""
+            CREATE VIEW dispatch_authorization_crossing_reservation_findings AS
+            SELECT * FROM (VALUES
+                {values}
+            ) AS findings({", ".join(columns)})
+            """
+        )
+        return
+    conn.execute(
+        """
+        CREATE VIEW dispatch_authorization_crossing_reservation_findings AS
+        SELECT
+            CAST(NULL AS VARCHAR) AS finding_type,
+            CAST(NULL AS VARCHAR) AS attempt_id,
+            CAST(NULL AS VARCHAR) AS reservation_stream_path,
+            CAST(NULL AS VARCHAR) AS authorization_id,
+            CAST(NULL AS VARCHAR) AS authorization_target_path,
+            CAST(NULL AS VARCHAR) AS dispatch_id,
+            CAST(NULL AS VARCHAR) AS dispatch_record_path,
+            CAST(NULL AS VARCHAR) AS run_id,
+            CAST(NULL AS VARCHAR) AS execution_event_stream_path,
+            CAST(NULL AS VARCHAR) AS queue_item_id,
+            CAST(NULL AS VARCHAR) AS terminal_outcome,
+            CAST(NULL AS VARCHAR) AS reason_code,
+            CAST(NULL AS BOOLEAN) AS operator_inspection_required,
+            CAST(NULL AS BOOLEAN) AS non_authority
+        WHERE FALSE
+        """
+    )
+
+
 def _rows_as_dicts(cursor: duckdb.DuckDBPyConnection) -> list[dict[str, Any]]:
     columns = [description[0] for description in cursor.description or []]
     return [dict(zip(columns, row, strict=True)) for row in cursor.fetchall()]
@@ -2520,6 +2586,7 @@ def init_duckdb(read_only: bool = True) -> duckdb.DuckDBPyConnection:
     _register_sweep_plans(conn)
     _register_result_populations(conn)
     _register_walkforward_fold_manifests(conn)
+    _register_dispatch_authorization_crossing_reservation_findings(conn)
     load_views(conn)
     return conn
 

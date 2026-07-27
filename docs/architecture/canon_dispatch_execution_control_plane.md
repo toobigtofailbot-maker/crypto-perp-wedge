@@ -121,6 +121,128 @@ ranking, recommendation, candidate, readiness, promotion, scheduler, runtime,
 paper/live, OMS, risk, reconciliation, broker, exchange, order, position,
 balance, capital, or notification authority.
 
+## Protected KDAUTH crossing reservations
+
+Normative schema:
+`research/schemas/canon_dispatch_authorization_crossing_reservation_event.schema.json`.
+
+KDAUTH crossing attempts use a separate authoritative append-only reservation
+ledger. It does not extend or change the closed KDAUTH lifecycle vocabulary.
+The authoritative root is
+`research/queue/dispatch_authorization_reservations/`, with exactly one stream
+per attempt at
+`<attempt_id>.crossing_reservation.jsonl`. Attempt IDs use
+`KDAUTH-XING-YYYYMMDD-XXXXXXXX`; event IDs are the derived
+`<attempt_id>-000001` reservation and optional `<attempt_id>-000002` terminal.
+Each stream contains exactly one first `attempt_reserved` event and zero or one
+terminal, never more than two lines and never an event after the terminal.
+
+The protected order is:
+
+1. acquire the repository-wide KDAUTH crossing lock at
+   `research/queue/dispatch_authorization_audit/.dispatch_authorization.lock`;
+2. validate the exact reviewed proposal and all references;
+3. durably publish and prove the complete `attempt_reserved` line through a
+   no-overwrite, ID-derived reservation path;
+4. only then create the KDAUTH target and append `authorization_created`;
+5. append exactly one reservation terminal under the same still-held lock;
+6. release the lock.
+
+The reservation API deliberately exposes lock-held operations so the later
+KDAUTH writer can keep the same lock instance across reservation, KDAUTH
+target/lifecycle mutation, and terminal append. No KDAUTH target or lifecycle
+mutation may begin before the reservation commit is proven durable.
+
+The terminal vocabulary is closed:
+
+- `crossing_committed` binds the exact resulting KDAUTH bytes/core and exact
+  raw `authorization_created` lifecycle line;
+- `crossing_rolled_back_clean` proves target absence and exact lifecycle-audit
+  length restoration at terminal-write time while retaining the reservation;
+- `crossing_integrity_critical` records closed failure/uncertainty and
+  target/audit state classifications and always requires operator inspection.
+
+Every committed reservation permanently consumes its attempt, authorization,
+dispatch, run, target-path, queue-item/authorization, reviewed-content, and
+core-hash identity bindings. Success, clean rollback, integrity-critical
+failure, a missing terminal, and deletion all retain the burn. Current streams
+and committed retained Git history are grouped by exact attempt ID and derived
+stream path. Append-only prefixes collapse to the single longest valid logical
+attempt; non-prefix rewrites and competing longest versions fail closed.
+Distinct logical attempts are globally compared, and any collision on an
+authorization, dispatch, run, target-path, queue/authorization,
+reviewed-content, or authorization-core identity fails closed. Reservation
+history is never rewritten, truncated, deleted, repaired in place, or
+interpreted as retry/recovery authority.
+
+The authoritative path remains lexical while resolved confinement is checked
+separately. A dangling symlink, supported Windows junction/reparse point,
+redirecting component, or non-file entry at a reserved target is not absence.
+Clean rollback and initial publication both reject those entries without
+following them. A terminal timestamp cannot precede its reservation or initial
+event; a committed terminal cannot precede the exact linked
+`authorization_created`, which must remain strictly later than
+`attempt_reserved`.
+
+Clean-rollback terminal publication and later replay have deliberately
+different audit-length checks. Under the held crossing lock, immediately
+before terminal append, the canonical shared lifecycle audit must have exactly
+the recorded final length. During later read-only validation, the canonical
+audit may be longer because unrelated KDAUTH events can append legally, but it
+must never be shorter than the recorded final length and must contain no
+matching `authorization_created`. Later unrelated append-only growth does not
+invalidate the historical rollback or release its permanently burned
+identities.
+
+Committed-crossing publication and replay also have deliberately different
+current-lifecycle requirements. Under the held crossing lock, immediately
+before appending `crossing_committed`, the exact KDAUTH must still be in its
+created, consumable lifecycle state. Later read-only replay proves the
+historical committed crossing from the exact KDAUTH content, complete valid
+lifecycle audit, original `authorization_created` bindings, chronology, and
+raw-line link independently of current consumability. A later lawful
+`authorization_consumed`, `authorization_revoked`, or
+`authorization_superseded` terminal permanently prevents reuse but does not
+invalidate the earlier committed crossing.
+
+KDAUTH validation dispatches the existing `require_audit` and `scan_history`
+arguments as an explicit phase contract:
+
+| Validation context | `require_audit` | `scan_history` | Reservation rule |
+| --- | --- | --- | --- |
+| Semantic-only internal validation | false | false | No lifecycle or history scan; returns `not_recorded` |
+| Writer-time active lifecycle | true | false | Current lifecycle must be created; the reservation writer separately proves its held-lock one-line attempt |
+| Existing precreation-review compatibility | false | true | Complete current-plus-retained reservation scan must find zero protected-identity collisions; no committed terminal is required or accepted as freshness |
+| Authoritative active KDAUTH | true | true | Current lifecycle must be created and exactly one exact committed crossing must be proven; every other collision fails |
+| Historical committed replay | separate reservation replay | separate reservation replay | Exact original creation link and complete audit remain required, while a lawful later lifecycle terminal is historical rather than consumable |
+
+Exactly-one committed proof applies only to authoritative active KDAUTH
+validation. `scan_history=False` is a bounded internal seam, not authority to
+create, reserve, dispatch, execute, retry, or recover. Precreation compatibility
+still reads the authoritative ID-derived KDAUTH path; validation of proposal
+bytes from a non-authoritative review path remains deferred to the retained
+protected KDAUTH-writer package. No mode releases a reserved identity or grants
+retry/recovery authority.
+
+Read-only integrity visibility is exposed through
+`v_integrity_dispatch_authorization_crossing_reservations`. It surfaces
+integrity-critical and unterminated attempts, invalid sequences/bindings,
+committed crossings without the exact creation event, and any
+`authorization_created` event without an earlier exact reservation. It uses
+the same current-plus-retained logical-attempt model, so deleted unresolved or
+integrity-critical attempts remain visible and cross-attempt protected-identity
+collisions use the closed
+`reservation_identity_collision_across_attempts` finding. The reservation
+ledger is control-plane integrity history only: it is not Karl's approval, a
+KDAUTH artifact or lifecycle event, a dispatch/execution record, scientific
+evidence, runner/scheduler/runtime authority, or paper/live,
+OMS/risk/reconciliation, broker/exchange/order/capital authority.
+
+This reservation capability is a prerequisite only. The retained protected
+KDAUTH-writer package must be refreshed after this ledger merges and must wire
+the exact reservation-before-mutation sequence under the same lock. This
+package does not resume or implement that writer.
+
 ## Immutable dispatch record
 
 Normative schema: `research/schemas/canon_dispatch_record.schema.json`.

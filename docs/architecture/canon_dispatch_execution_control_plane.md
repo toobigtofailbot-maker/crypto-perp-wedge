@@ -205,6 +205,25 @@ raw-line link independently of current consumability. A later lawful
 `authorization_superseded` terminal permanently prevents reuse but does not
 invalidate the earlier committed crossing.
 
+KDAUTH validation dispatches the existing `require_audit` and `scan_history`
+arguments as an explicit phase contract:
+
+| Validation context | `require_audit` | `scan_history` | Reservation rule |
+| --- | --- | --- | --- |
+| Semantic-only internal validation | false | false | No lifecycle or history scan; returns `not_recorded` |
+| Writer-time active lifecycle | true | false | Current lifecycle must be created; the reservation writer separately proves its held-lock one-line attempt |
+| Existing precreation-review compatibility | false | true | Complete current-plus-retained reservation scan must find zero protected-identity collisions; no committed terminal is required or accepted as freshness |
+| Authoritative active KDAUTH | true | true | Current lifecycle must be created and exactly one exact committed crossing must be proven; every other collision fails |
+| Historical committed replay | separate reservation replay | separate reservation replay | Exact original creation link and complete audit remain required, while a lawful later lifecycle terminal is historical rather than consumable |
+
+Exactly-one committed proof applies only to authoritative active KDAUTH
+validation. `scan_history=False` is a bounded internal seam, not authority to
+create, reserve, dispatch, execute, retry, or recover. Precreation compatibility
+still reads the authoritative ID-derived KDAUTH path; validation of proposal
+bytes from a non-authoritative review path remains deferred to the retained
+protected KDAUTH-writer package. No mode releases a reserved identity or grants
+retry/recovery authority.
+
 Read-only integrity visibility is exposed through
 `v_integrity_dispatch_authorization_crossing_reservations`. It surfaces
 integrity-critical and unterminated attempts, invalid sequences/bindings,

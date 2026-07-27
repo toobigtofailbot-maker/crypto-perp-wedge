@@ -24,6 +24,19 @@
   non-draft at the reviewed predecessor, 4 ahead / 0 behind, with the exact
   cumulative 10-file allowlist and no hosted checks, comments, reviews, or
   review threads. The retained KDAUTH-writer worktree was not accessed.
+- Revised-fifth reviewed predecessor:
+  `adf137ab704091b5e7c097b6fa3040079adb4733`.
+- Revised-fifth delta: exactly
+  `tools/canon_intake/dispatch_authorization.py`,
+  `tests/test_dispatch_authorization.py`,
+  `tests/test_dispatch_authorization_reservation.py`,
+  `docs/architecture/canon_dispatch_execution_control_plane.md`, and this
+  status entry.
+- Revised-fifth live preflight: PR #673 remained the sole open PR, open,
+  non-draft, conflict-free, 5 ahead / 0 behind, with the unchanged cumulative
+  10-file allowlist and no hosted checks, comments, reviews, review threads, or
+  PR-triggered workflow runs. The retained KDAUTH-writer worktree was inspected
+  read-only for cleanliness and remained untouched.
 
 ## Locked decisions implemented
 
@@ -143,19 +156,51 @@ permanently non-consumable but does not invalidate the earlier committed
 crossing or create a reservation finding. The ordinary KDAUTH validator
 continues to reject every such terminal lifecycle state as not consumable.
 
+## PR #673 revised fifth validation-context closure
+
+The existing `require_audit` and `scan_history` arguments now select four
+explicit, exhaustive contexts. Semantic-only internal validation
+(`False/False`) reads no lifecycle or history and returns `not_recorded`.
+Writer-time active-lifecycle validation (`True/False`) requires the current
+created state while the reservation module separately proves its held-lock
+one-line attempt. Existing precreation compatibility (`False/True`) performs a
+complete current-plus-retained zero-collision reservation scan without
+requiring a committed terminal. Authoritative active validation (`True/True`)
+retains the exactly-one exact committed-crossing proof and rejects every other
+collision.
+
+The shared KDAUTH fixture no longer silently creates a committed reservation:
+every caller declares its intended reservation state. Public-entrypoint tests
+cover all four contexts, the actual `--precreation-review` CLI proves both
+read-only zero-collision success and current/retained/committed collision
+rejection, and the reservation suite exercises the public held-lock
+reserve/mutate/commit transition followed by consumed, revoked, and superseded
+historical replay.
+
+Reservation replay remains separate from these four active-validator contexts.
+The original creation event, bindings, chronology, and raw-line link remain
+mandatory after a lawful lifecycle terminal, while ordinary authoritative
+KDAUTH validation remains non-consumable. The canonical-path requirement is
+unchanged. Validation of proposal bytes from a non-authoritative review path
+remains deferred to the retained protected KDAUTH-writer package. No identity
+is released and no retry, recovery, dispatch, execution, or downstream
+authority is created.
+
 ## Validation and preservation
 
-- Final reservation/KDAUTH suite: `144 passed, 5 skipped`. The six-case
-  committed-crossing matrix covers historical replay and writer-time rejection
-  for consumed, revoked, and superseded lifecycle states. Four skips
-  are limited to specific symlink fixtures that this Windows environment
-  cannot create; the Windows junction/reparse fixture executed and passed.
-  The fifth skip is the pre-existing KDAUTH symlink-fixture limitation. No
-  skip or xfail bypasses a failing semantic assertion.
-- Protected KDAUTH, Gate C-VP, Gate-Q, queue, external-readiness,
-  dispatch/execution-contract, and retained-history regressions:
-  `499 passed, 10 skipped`; the additional five skips are pre-existing
-  protected-writer symlink-fixture limitations on Windows.
+- Final reservation/KDAUTH suite: `172 passed, 5 skipped`. The public
+  four-context matrix, actual precreation CLI matrix, authoritative
+  zero/one/two matrix, public crossing transition, clean-rollback phase split,
+  and committed historical replay all pass. Four skips are limited to specific
+  reservation symlink fixtures that this Windows environment cannot create;
+  the Windows junction/reparse fixture executed and passed. The fifth skip is
+  the pre-existing KDAUTH symlink-fixture limitation. No skip or xfail bypasses
+  a failing semantic assertion.
+- Adjacent Gate C-VP, Gate-Q, queue, external-readiness, and
+  dispatch/execution protected regressions: `243 passed, 5 skipped`. Those five
+  skips are pre-existing protected-writer symlink-fixture limitations on
+  Windows. Together with the complete reservation/KDAUTH suite, focused and
+  adjacent evidence is `415 passed, 10 skipped`.
 - Query-focused reservation check: `1 passed, 65 deselected`; the view is empty
   on the real repository. Synthetic invalid histories retain the existing
   closed findings, while valid clean rollback and lawful post-commit lifecycle

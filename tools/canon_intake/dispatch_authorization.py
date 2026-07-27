@@ -13,7 +13,7 @@ import re
 import subprocess
 from datetime import datetime
 from pathlib import Path, PurePosixPath
-from typing import Any, Iterable, Mapping
+from typing import Any, Iterable, Literal, Mapping
 
 from jsonschema import Draft7Validator, FormatChecker
 
@@ -83,6 +83,12 @@ H004_RUNNER_VERSION = "wp-s2c-190-build-test-v1"
 SCRATCH_OUTPUT_ROOT_RE = re.compile(
     r"^scratch/(?:(?!\.{1,2}/)[A-Za-z0-9._-]+/)+$"
 )
+FRESH_COLLISION_CHECK = "fresh_collision_check"
+COMMITTED_CROSSING_PROOF = "committed_crossing_proof"
+ReservationHistoryPolicy = Literal[
+    "fresh_collision_check",
+    "committed_crossing_proof",
+]
 
 
 class DispatchAuthorizationError(ValueError):
@@ -1383,7 +1389,11 @@ def _consumption_bindings(path: str, raw: bytes) -> list[dict[str, Any]]:
 
 
 def _validate_single_use(
-    root: Path, authorization: Mapping[str, Any], authorization_raw: bytes
+    root: Path,
+    authorization: Mapping[str, Any],
+    authorization_raw: bytes,
+    *,
+    reservation_history_policy: ReservationHistoryPolicy,
 ) -> None:
     core = authorization["authorization_core"]
     crossing = core["crossing_identities"]
@@ -1489,10 +1499,10 @@ def _validate_single_use(
                 )
 
     # The crossing-reservation ledger is a separate authoritative burn surface.
-    # A matching committed terminal is the one reservation belonging to this
-    # already-created KDAUTH.  Every other collision, including an unresolved,
-    # rolled-back, integrity-critical, deleted, or retained-only attempt, fails
-    # closed and permanently prevents reuse.
+    # Precreation requires zero colliding attempts.  An active, already-created
+    # KDAUTH instead requires its one exact committed attempt.  Every other
+    # collision, including an unresolved, rolled-back, integrity-critical,
+    # deleted, or retained-only attempt, fails closed and prevents reuse.
     from tools.canon_intake.dispatch_authorization_reservation import (
         DispatchAuthorizationReservationError,
         scan_dispatch_authorization_reservations,
@@ -1522,7 +1532,7 @@ def _validate_single_use(
         "run_id": expected["run_id"],
         "execution_event_stream_path": expected["stream_path"],
     }
-    matching_committed_attempts: list[dict[str, Any]] = []
+    reservation_bindings: list[tuple[dict[str, Any], dict[str, Any]]] = []
     for reservation in reservations:
         first = reservation["events"][0]
         reservation_values = {
@@ -1548,6 +1558,30 @@ def _validate_single_use(
                 "execution_event_stream_path"
             ],
         }
+        reservation_bindings.append((reservation, reservation_values))
+
+    if reservation_history_policy == FRESH_COLLISION_CHECK:
+        for reservation, reservation_values in reservation_bindings:
+            collisions = [
+                field
+                for field, value in reservation_expected.items()
+                if reservation_values.get(field) == value
+            ]
+            if collisions:
+                first = reservation["events"][0]
+                raise DispatchAuthorizationError(
+                    "crossing reservation permanently consumes single-use "
+                    f"identities in {first['reservation_stream_path']}: "
+                    + ", ".join(collisions)
+                )
+        return
+    if reservation_history_policy != COMMITTED_CROSSING_PROOF:
+        raise DispatchAuthorizationError(
+            "unknown crossing reservation history validation policy"
+        )
+
+    matching_committed_attempts: list[dict[str, Any]] = []
+    for reservation, reservation_values in reservation_bindings:
         if (
             reservation["terminal_outcome"] == "crossing_committed"
             and reservation_values == reservation_expected
@@ -1560,31 +1594,8 @@ def _validate_single_use(
             "KDAUTH and authorization_created event is required"
         )
     matching_committed = matching_committed_attempts[0]
-    for reservation in reservations:
+    for reservation, reservation_values in reservation_bindings:
         first = reservation["events"][0]
-        reservation_values = {
-            "authorization_id": first["authorization_binding"][
-                "authorization_id"
-            ],
-            "authorization_target_path": first["authorization_binding"][
-                "authorization_target_path"
-            ],
-            "reviewed_whole_file_sha256": first[
-                "reviewed_content_binding"
-            ]["reviewed_whole_file_sha256"],
-            "authorization_core_sha256": first["authorization_binding"][
-                "authorization_core_sha256"
-            ],
-            "queue_item_id": first["queue_binding"]["queue_item_id"],
-            "dispatch_id": first["dispatch_binding"]["dispatch_id"],
-            "dispatch_record_path": first["dispatch_binding"][
-                "dispatch_record_path"
-            ],
-            "run_id": first["run_binding"]["run_id"],
-            "execution_event_stream_path": first["run_binding"][
-                "execution_event_stream_path"
-            ],
-        }
         collisions = [
             field
             for field, value in reservation_expected.items()
@@ -1661,7 +1672,17 @@ def validate_dispatch_authorization(
                 f"authorization is not consumable: lifecycle state is {lifecycle_state}"
             )
     if scan_history:
-        _validate_single_use(root, authorization, raw)
+        reservation_history_policy: ReservationHistoryPolicy = (
+            COMMITTED_CROSSING_PROOF
+            if require_audit
+            else FRESH_COLLISION_CHECK
+        )
+        _validate_single_use(
+            root,
+            authorization,
+            raw,
+            reservation_history_policy=reservation_history_policy,
+        )
 
     crossing = core["crossing_identities"]
     return {

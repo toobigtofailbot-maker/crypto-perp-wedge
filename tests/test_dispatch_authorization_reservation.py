@@ -8,7 +8,13 @@ from pathlib import Path
 import pytest
 from jsonschema import Draft7Validator
 
+import tools.canon_intake.dispatch_authorization as authorization_validator
 import tools.canon_intake.dispatch_authorization_reservation as reservation
+from tests import test_dispatch_authorization as authorization_test_support
+from tools.canon_intake.dispatch_authorization import (
+    DispatchAuthorizationError,
+    validate_dispatch_authorization,
+)
 from tools.canon_intake.dispatch_authorization_reservation import (
     DispatchAuthorizationReservationError,
     DispatchAuthorizationReservationIntegrityCriticalError,
@@ -1482,6 +1488,134 @@ def test_terminal_occurred_at_must_not_precede_reserved_at(
             repo_root=synthetic_repo,
             reservation_path=path,
         )
+
+
+@pytest.mark.parametrize(
+    "lifecycle_event_type",
+    [
+        "authorization_consumed",
+        "authorization_revoked",
+        "authorization_superseded",
+    ],
+)
+def test_public_crossing_transition_and_terminal_lifecycle_replay(
+    tmp_path: Path,
+    source_repo: Path,
+    lifecycle_event_type: str,
+) -> None:
+    fixture = authorization_test_support._fixture(
+        tmp_path,
+        source_repo,
+        reservation_state="none",
+    )
+    fixture["created"]["occurred_at"] = "2026-07-24T12:01:00Z"
+    creation_raw = (
+        authorization_test_support.repo_canonical_json_v1(fixture["created"])
+        + b"\n"
+    )
+    authorization_raw = fixture["authorization_raw"]
+    fixture["authorization_path"].unlink()
+    fixture["audit_path"].unlink()
+
+    def remove_readonly(function, path, exc_info):
+        del exc_info
+        os.chmod(path, 0o700)
+        function(path)
+
+    shutil.rmtree(fixture["root"] / ".git", onerror=remove_readonly)
+    _git(fixture["root"], "init", "-q")
+    _commit(fixture["root"], "synthetic pre-crossing dependencies")
+
+    assert not fixture["authorization_path"].exists()
+    assert not fixture["audit_path"].exists()
+    assert not (fixture["root"] / reservation.RESERVATION_ROOT).exists()
+    assert not (
+        fixture["root"] / authorization_validator.DISPATCH_ROOT
+    ).exists()
+    assert not (
+        fixture["root"] / authorization_validator.EXECUTION_ROOT
+    ).exists()
+
+    initial = authorization_test_support._crossing_reservation_event(
+        fixture,
+        "KDAUTH-XING-20260724-E2E90001",
+        reserved_at="2026-07-24T12:00:00Z",
+        occurred_at="2026-07-24T12:00:00Z",
+    )
+    committed = authorization_test_support._matching_committed_terminal(
+        fixture,
+        initial,
+        occurred_at="2026-07-24T12:02:00Z",
+    )
+    with dispatch_authorization_crossing_lock(
+        repo_root=fixture["root"]
+    ) as lock:
+        reserved = reserve_dispatch_authorization_crossing_locked(
+            lock=lock,
+            event=initial,
+        )
+        assert reserved["reservation_committed"] is True
+        fixture["authorization_path"].write_bytes(authorization_raw)
+        fixture["audit_path"].write_bytes(creation_raw)
+        completed = append_dispatch_authorization_crossing_terminal_locked(
+            lock=lock,
+            event=committed,
+        )
+        assert completed["terminal_outcome"] == "crossing_committed"
+
+    active = validate_dispatch_authorization(
+        repo_root=fixture["root"],
+        authorization_path=fixture["authorization_path"],
+        require_audit=True,
+        scan_history=True,
+    )
+    assert active["valid"] is True
+    assert active["lifecycle_state"] == "created"
+
+    lifecycle_terminal = authorization_test_support._terminal_event(
+        fixture,
+        lifecycle_event_type,
+    )
+    fixture["audit_path"].write_bytes(
+        creation_raw
+        + authorization_test_support.repo_canonical_json_v1(
+            lifecycle_terminal
+        )
+        + b"\n"
+    )
+    with pytest.raises(DispatchAuthorizationError, match="not consumable"):
+        validate_dispatch_authorization(
+            repo_root=fixture["root"],
+            authorization_path=fixture["authorization_path"],
+            require_audit=True,
+            scan_history=True,
+        )
+
+    stream = fixture["root"] / initial["reservation_stream_path"]
+    replay = validate_dispatch_authorization_reservation_stream(
+        repo_root=fixture["root"],
+        reservation_path=stream,
+        require_terminal=True,
+    )
+    assert replay["valid"] is True
+    assert replay["findings"] == []
+    assert collect_dispatch_authorization_crossing_findings(
+        repo_root=fixture["root"]
+    ) == []
+
+    wrong_link = copy.deepcopy(committed)
+    wrong_link["event_payload"]["lifecycle_raw_line_sha256"] = (
+        "sha256:" + "0" * 64
+    )
+    _write_stream(fixture["root"], initial, wrong_link)
+    invalid_replay = validate_dispatch_authorization_reservation_stream(
+        repo_root=fixture["root"],
+        reservation_path=stream,
+        require_terminal=True,
+    )
+    assert {
+        row["finding_type"] for row in invalid_replay["findings"]
+    } == {"crossing_committed_without_exact_authorization_created"}
 
 
 def test_authorization_created_without_prior_reservation_is_visible(

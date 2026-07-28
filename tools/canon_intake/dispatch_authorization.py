@@ -46,7 +46,7 @@ DISPATCH_ROOT = Path("research/queue/dispatch_records")
 EXECUTION_ROOT = Path("research/queue/execution_events")
 APPROVAL_STATEMENT = (
     "Karl approves one single-use offline research dispatch for the exact queue "
-    "item, dispatch ID, run ID, frozen dispatcher packet, lineage, dataset, "
+    "item, dispatch ID, run ID, immutable dispatch manifest, lineage, dataset, "
     "funding identity, runner, budget, and output targets bound by this artifact, "
     "and grants no downstream authority."
 )
@@ -516,28 +516,38 @@ def _validate_crossing_identities(core: Mapping[str, Any]) -> None:
     )
 
 
-def _validate_dispatcher_packet(root: Path, core: Mapping[str, Any]) -> None:
-    packet_ref = core["dispatcher_packet"]
-    packet, _, _ = _load_json_ref(
-        root,
-        packet_ref["path"],
-        packet_ref["whole_file_sha256"],
-        packet_ref["byte_length"],
-        "frozen dispatcher packet",
+def _validate_dispatch_manifest_reference(
+    root: Path, core: Mapping[str, Any]
+) -> dict[str, Any]:
+    from tools.canon_intake.dispatch_manifest import (
+        DispatchManifestError,
+        MANIFEST_ROOT,
+        validate_dispatch_manifest,
+        validate_manifest_authorization_binding,
     )
-    _require_equal("dispatcher packet ID", packet_ref["packet_id"], packet.get("packet_id"))
-    _require_equal(
-        "dispatcher packet purpose",
-        packet_ref["packet_purpose"],
-        packet.get("packet_purpose"),
+
+    manifest_ref = core["dispatch_manifest"]
+    manifest_id = manifest_ref["manifest_id"]
+    manifest_path = (
+        MANIFEST_ROOT / f"{manifest_id}.dispatch_manifest.json"
     )
-    _require_equal(
-        "dispatcher packet version",
-        packet_ref["packet_version"],
-        packet.get("packet_version"),
-    )
-    if packet.get("placeholder") is True:
-        raise DispatchAuthorizationError("dispatcher packet is a placeholder")
+    try:
+        validation = validate_dispatch_manifest(
+            repo_root=root,
+            manifest_path=root / manifest_path,
+            expected_whole_file_sha256=manifest_ref[
+                "whole_file_sha256"
+            ],
+            expected_byte_length=manifest_ref["byte_length"],
+            require_authoritative_path=True,
+            validate_references=False,
+        )
+        validate_manifest_authorization_binding(
+            validation["manifest"], core
+        )
+    except DispatchManifestError as exc:
+        raise DispatchAuthorizationError(str(exc)) from exc
+    return validation
 
 
 def _validate_lineage(root: Path, core: Mapping[str, Any]) -> None:
@@ -1731,7 +1741,7 @@ def _validate_dispatch_authorization_file(
     _validate_h004_contract(authorization)
     _validate_queue_and_gate(root, core)
     _validate_crossing_identities(core)
-    _validate_dispatcher_packet(root, core)
+    _validate_dispatch_manifest_reference(root, core)
     _validate_lineage(root, core)
     _validate_dataset(root, core)
     _validate_funding(root, core)
@@ -2025,7 +2035,7 @@ def validate_dispatch_record_for_authorization(
     core = authorization["authorization_core"]
     _validate_queue_and_gate(root, core)
     _validate_crossing_identities(core)
-    _validate_dispatcher_packet(root, core)
+    manifest_validation = _validate_dispatch_manifest_reference(root, core)
     _validate_lineage(root, core)
     _validate_dataset(root, core)
     _validate_funding(root, core)
@@ -2166,26 +2176,59 @@ def validate_dispatch_record_for_authorization(
         dispatch["output_targets"]["scratch_run_directory"],
         "dispatch scratch run directory",
     )
-    provisional_result_path = _repo_path(
-        root,
-        dispatch["output_targets"]["provisional_result_path"],
-        "dispatch provisional result path",
-    )
+    provisional_result_paths = [
+        _repo_path(
+            root,
+            value,
+            f"dispatch provisional result path {index}",
+        )
+        for index, value in enumerate(
+            dispatch["output_targets"]["provisional_result_paths"], 1
+        )
+    ]
     _repo_path(
         root,
         dispatch["output_targets"]["execution_event_stream_path"],
         "dispatch execution-event stream path",
     )
-    for field, selected in (
-        ("scratch_run_directory", scratch_run_directory),
-        ("provisional_result_path", provisional_result_path),
-    ):
+    selected_outputs = [("scratch_run_directory", scratch_run_directory)]
+    selected_outputs.extend(
+        (
+            f"provisional_result_paths[{index}]",
+            selected,
+        )
+        for index, selected in enumerate(provisional_result_paths)
+    )
+    for field, selected in selected_outputs:
         try:
             selected.relative_to(scratch_root)
         except ValueError as exc:
             raise DispatchAuthorizationError(
                 f"dispatch output {field} escapes the authorized scratch root"
             ) from exc
+
+    from tools.canon_intake.dispatch_manifest import (
+        DispatchManifestError,
+        derive_dispatch_record,
+    )
+
+    try:
+        derived = derive_dispatch_record(
+            manifest=manifest_validation["manifest"],
+            manifest_raw=manifest_validation["raw"],
+            authorization=authorization,
+            authorization_raw=authorization_raw,
+        )
+    except DispatchManifestError as exc:
+        raise DispatchAuthorizationError(str(exc)) from exc
+    if dispatch != derived:
+        raise DispatchAuthorizationError(
+            "dispatch record differs from the deterministic manifest derivation"
+        )
+    if dispatch_raw != serialize_dispatch_authorization(derived):
+        raise DispatchAuthorizationError(
+            "dispatch record bytes differ from the deterministic manifest derivation"
+        )
 
     return {
         "valid": True,

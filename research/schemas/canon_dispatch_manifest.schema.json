@@ -1,0 +1,151 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "canon_dispatch_manifest.schema.json",
+  "title": "Immutable canonical dispatch intent manifest",
+  "description": "Non-authorizing exact intent committed before KDAUTH and used for deterministic dispatch derivation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "manifest_id",
+    "manifest_target_path",
+    "manifest_purpose",
+    "manifest_canonicalization",
+    "dispatch_derivation_version",
+    "dispatch_created_at",
+    "queue_binding",
+    "crossing_identities",
+    "lineage",
+    "dataset",
+    "funding",
+    "runner",
+    "denominator",
+    "budget",
+    "execution_parameters",
+    "output_targets",
+    "non_authority_declaration"
+  ],
+  "properties": {
+    "schema_version": {"const": "canon_dispatch_manifest_v1"},
+    "manifest_id": {
+      "type": "string",
+      "pattern": "^DMAN-H004-R2-[0-9]{4}$"
+    },
+    "manifest_target_path": {
+      "type": "string",
+      "pattern": "^research/queue/dispatch_manifests/DMAN-H004-R2-[0-9]{4}\\.dispatch_manifest\\.json$"
+    },
+    "manifest_purpose": {
+      "const": "exact_offline_research_dispatch_intent"
+    },
+    "manifest_canonicalization": {"const": "repo_canonical_json_v1"},
+    "dispatch_derivation_version": {
+      "const": "canon_dispatch_from_manifest_v1"
+    },
+    "dispatch_created_at": {
+      "$ref": "canon_dispatch_authorization.schema.json#/definitions/timestamp"
+    },
+    "queue_binding": {
+      "$ref": "canon_dispatch_authorization.schema.json#/definitions/queue_binding"
+    },
+    "crossing_identities": {
+      "$ref": "canon_dispatch_authorization.schema.json#/definitions/crossing_identities"
+    },
+    "lineage": {
+      "$ref": "canon_dispatch_authorization.schema.json#/definitions/lineage"
+    },
+    "dataset": {
+      "$ref": "canon_dispatch_authorization.schema.json#/definitions/dataset"
+    },
+    "funding": {
+      "$ref": "canon_dispatch_authorization.schema.json#/definitions/funding"
+    },
+    "runner": {
+      "$ref": "canon_dispatch_authorization.schema.json#/definitions/runner"
+    },
+    "denominator": {
+      "$ref": "canon_dispatch_authorization.schema.json#/definitions/denominator"
+    },
+    "budget": {
+      "$ref": "canon_dispatch_authorization.schema.json#/definitions/budget"
+    },
+    "execution_parameters": {
+      "$ref": "canon_dispatch_authorization.schema.json#/definitions/execution_parameters"
+    },
+    "output_targets": {"$ref": "#/definitions/output_targets"},
+    "non_authority_declaration": {
+      "$ref": "#/definitions/non_authority"
+    }
+  },
+  "definitions": {
+    "execution_stream_path": {
+      "type": "string",
+      "pattern": "^research/queue/execution_events/RUN-[0-9]{8}-[A-Z0-9]{8}\\.execution_events\\.jsonl$"
+    },
+    "scratch_root": {
+      "type": "string",
+      "pattern": "^scratch/(?:(?!\\.{1,2}/)[A-Za-z0-9._-]+/)+$"
+    },
+    "scratch_directory": {
+      "type": "string",
+      "pattern": "^scratch/(?:(?!\\.{1,2}/)[A-Za-z0-9._-]+/)+$"
+    },
+    "scratch_file": {
+      "type": "string",
+      "pattern": "^scratch/(?:(?!\\.{1,2}/)[A-Za-z0-9._-]+/)+(?!\\.{1,2}$)[A-Za-z0-9._-]+\\.json$"
+    },
+    "output_targets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scratch_output_root",
+        "scratch_run_directory",
+        "provisional_result_paths",
+        "execution_event_stream_path",
+        "canonical_result_population_target_forbidden"
+      ],
+      "properties": {
+        "scratch_output_root": {"$ref": "#/definitions/scratch_root"},
+        "scratch_run_directory": {
+          "$ref": "#/definitions/scratch_directory"
+        },
+        "provisional_result_paths": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/definitions/scratch_file"}
+        },
+        "execution_event_stream_path": {
+          "$ref": "#/definitions/execution_stream_path"
+        },
+        "canonical_result_population_target_forbidden": {"const": true}
+      }
+    },
+    "non_authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "commitment_evidence_only",
+        "does_not_authorize_dispatch",
+        "does_not_create_kdauth",
+        "does_not_invoke_runner",
+        "does_not_authorize_retry",
+        "not_result_population_authority",
+        "not_ranking_recommendation_authority",
+        "not_candidate_readiness_promotion_authority",
+        "not_runtime_paper_live_authority"
+      ],
+      "properties": {
+        "commitment_evidence_only": {"const": true},
+        "does_not_authorize_dispatch": {"const": true},
+        "does_not_create_kdauth": {"const": true},
+        "does_not_invoke_runner": {"const": true},
+        "does_not_authorize_retry": {"const": true},
+        "not_result_population_authority": {"const": true},
+        "not_ranking_recommendation_authority": {"const": true},
+        "not_candidate_readiness_promotion_authority": {"const": true},
+        "not_runtime_paper_live_authority": {"const": true}
+      }
+    }
+  }
+}

@@ -243,6 +243,61 @@ KDAUTH-writer package must be refreshed after this ledger merges and must wire
 the exact reservation-before-mutation sequence under the same lock. This
 package does not resume or implement that writer.
 
+## Protected KDAUTH writer and lifecycle append
+
+`tools/canon_intake/dispatch_authorization_writer.py` implements the protected
+crossing capability without creating a production authorization. Its public
+writer accepts a regular non-symlink proposal path, an independently supplied
+whole-file SHA-256, a fresh reservation-attempt ID, the exact approving actor,
+and a repository root. The review hash is never inferred from a filename,
+sidecar, Git object, authorization-core hash, target, or review packet.
+
+Before locking, and again after acquiring the repository-wide KDAUTH crossing
+lock, the writer rereads the proposal, checks byte-for-byte equality, validates
+the complete KDAUTH contract from the review path, performs the current plus
+retained precreation collision scan, and proves the ID-derived target absent.
+The proposal bytes, including their one final LF, must equal the independent
+review hash and length at both checks.
+
+Under the same held lock the crossing order is fixed:
+
+1. publish and prove one durable `attempt_reserved` through the reservation
+   ledger's public lock-held API;
+2. exclusive-create, flush/fsync, reread, and byte-compare the ID-derived
+   KDAUTH target;
+3. append, flush/fsync, reread, and validate exactly one
+   `authorization_created` line whose whole-file hash and byte length equal the
+   reviewed bytes;
+4. validate the active writer-time lifecycle without weakening the four merged
+   validator contexts;
+5. append and prove one `crossing_committed` terminal whose raw lifecycle-line
+   hash and length bind that exact creation line;
+6. release the shared lock only after the terminal is proven.
+
+A provably pre-append failure after reservation may restore the exact prior
+lifecycle-audit bytes, prove target absence and rollback durability, and append
+one `crossing_rolled_back_clean`. Partial writes, append uncertainty, fsync
+uncertainty, terminal uncertainty, rollback uncertainty, or lock-cleanup
+failure are integrity-critical. Evidence remains in place, identities remain
+burned, and automatic retry, reuse, deletion of reservation history, rewrite,
+or repair is forbidden.
+
+The separate lifecycle append API acquires the same lock, rereads the exact
+authoritative KDAUTH and complete audit, validates the closed state and
+current-plus-retained history, derives the next event identity and sequence,
+and appends one canonical terminal lifecycle line. Consumption additionally
+requires an exact schema-valid durable dispatch record with matching KDAUTH,
+queue, Gate-Q, run, runner, artifact, dataset, denominator, budget, execution,
+and output bindings. This API does not implement the dispatch writer.
+
+Read-only integrity visibility is exposed through
+`v_integrity_dispatch_authorization_dispatch_without_consumption`. It emits
+only for a valid canonical dispatch with an exact readable committed KDAUTH
+when no exact matching `authorization_consumed` event exists. A mismatched
+consumption event does not clear the finding. The view never creates or repairs
+files and grants no authorization, dispatch, execution, runner, retry,
+scientific-evidence, runtime, paper/live, or capital authority.
+
 ## Immutable dispatch record
 
 Normative schema: `research/schemas/canon_dispatch_record.schema.json`.

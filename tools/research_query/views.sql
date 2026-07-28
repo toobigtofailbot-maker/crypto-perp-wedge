@@ -5418,3 +5418,20 @@ SELECT
     operator_inspection_required,
     non_authority
 FROM dispatch_authorization_crossing_reservation_findings;
+
+-- Which valid canonical dispatches lack their exact KDAUTH consumption event?
+CREATE OR REPLACE VIEW v_integrity_dispatch_authorization_dispatch_without_consumption AS
+SELECT
+    authorization_id,
+    authorization_path,
+    authorization_whole_file_sha256,
+    authorization_core_sha256,
+    dispatch_id,
+    dispatch_path,
+    run_id,
+    queue_item_id,
+    lifecycle_state,
+    audit_path,
+    reason,
+    non_authority
+FROM dispatch_without_consumption_findings;

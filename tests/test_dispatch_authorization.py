@@ -20,6 +20,7 @@ from tools.canon_intake.dispatch_authorization import (
     repo_canonical_json_v1,
     serialize_dispatch_authorization,
     validate_dispatch_authorization,
+    validate_dispatch_authorization_candidate,
 )
 from tools.canon_intake.queue_admission import approval_core_sha256
 from tools.data.register_binance_usdtm_1d_lineage import (
@@ -2139,3 +2140,43 @@ def test_committed_reservation_links_exact_kdauth_and_creation_event(
     )
     assert validated["findings"] == []
     assert _validate(fixture)["valid"] is True
+
+
+def test_candidate_validator_accepts_review_path_and_requires_target_absence(
+    tmp_path, repo_root
+):
+    fixture = _fixture(tmp_path, repo_root, reservation_state="none")
+    proposal = fixture["root"] / "review/proposal.json"
+    proposal.parent.mkdir(parents=True)
+    proposal.write_bytes(fixture["authorization_raw"])
+    fixture["authorization_path"].unlink()
+    fixture["audit_path"].unlink()
+
+    def remove_readonly(function, path, exc_info):
+        del exc_info
+        os.chmod(path, 0o700)
+        function(path)
+
+    shutil.rmtree(fixture["root"] / ".git", onerror=remove_readonly)
+    _git(fixture["root"], "init", "-q")
+    _commit(fixture["root"], "synthetic proposal dependencies")
+
+    result = validate_dispatch_authorization_candidate(
+        repo_root=fixture["root"],
+        proposal_path=proposal,
+        expected_whole_file_sha256=_hash(fixture["authorization_raw"]),
+        expected_byte_length=len(fixture["authorization_raw"]),
+    )
+    assert result["valid"] is True
+    assert result["target_absence_proven"] is True
+    assert result["lifecycle_state"] == "not_recorded"
+
+    fixture["authorization_path"].write_bytes(fixture["authorization_raw"])
+    with pytest.raises(
+        DispatchAuthorizationError,
+        match="target path is not absent",
+    ):
+        validate_dispatch_authorization_candidate(
+            repo_root=fixture["root"],
+            proposal_path=proposal,
+        )

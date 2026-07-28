@@ -32,7 +32,7 @@
     "approved_at": {"$ref": "#/definitions/timestamp"},
     "authorization_scope": {"const": "one_single_use_dispatch"},
     "approval_statement": {
-      "const": "Karl approves one single-use offline research dispatch for the exact queue item, dispatch ID, run ID, frozen dispatcher packet, lineage, dataset, funding identity, runner, budget, and output targets bound by this artifact, and grants no downstream authority."
+      "const": "Karl approves one single-use offline research dispatch for the exact queue item, dispatch ID, run ID, immutable dispatch manifest, lineage, dataset, funding identity, runner, budget, and output targets bound by this artifact, and grants no downstream authority."
     },
     "authorization_core": {"$ref": "#/definitions/authorization_core"},
     "authorization_core_sha256": {"$ref": "#/definitions/hash"},
@@ -196,33 +196,21 @@
         }
       }
     },
-    "dispatcher_packet": {
+    "dispatch_manifest": {
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "packet_id",
-        "packet_purpose",
-        "packet_version",
-        "path",
+        "manifest_id",
         "whole_file_sha256",
-        "byte_length",
-        "byte_encoding",
-        "serialization",
-        "placeholder_forbidden"
+        "byte_length"
       ],
       "properties": {
-        "packet_id": {"type": "string", "minLength": 1},
-        "packet_purpose": {"const": "exact_offline_research_dispatch_stage_a"},
-        "packet_version": {"type": "string", "minLength": 1},
-        "path": {
+        "manifest_id": {
           "type": "string",
-          "pattern": "^scratch/[A-Za-z0-9._/-]+\\.json$"
+          "pattern": "^DMAN-H004-R2-[0-9]{4}$"
         },
         "whole_file_sha256": {"$ref": "#/definitions/hash"},
-        "byte_length": {"type": "integer", "minimum": 1},
-        "byte_encoding": {"const": "utf8_exact_file_bytes"},
-        "serialization": {"const": "deterministic_json_one_lf"},
-        "placeholder_forbidden": {"const": true}
+        "byte_length": {"type": "integer", "minimum": 1}
       }
     },
     "strategy_spec_ref": {
@@ -607,7 +595,7 @@
       "required": [
         "queue_binding",
         "crossing_identities",
-        "dispatcher_packet",
+        "dispatch_manifest",
         "lineage",
         "dataset",
         "funding",
@@ -621,7 +609,7 @@
       "properties": {
         "queue_binding": {"$ref": "#/definitions/queue_binding"},
         "crossing_identities": {"$ref": "#/definitions/crossing_identities"},
-        "dispatcher_packet": {"$ref": "#/definitions/dispatcher_packet"},
+        "dispatch_manifest": {"$ref": "#/definitions/dispatch_manifest"},
         "lineage": {"$ref": "#/definitions/lineage"},
         "dataset": {"$ref": "#/definitions/dataset"},
         "funding": {"$ref": "#/definitions/funding"},

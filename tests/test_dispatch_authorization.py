@@ -13,6 +13,7 @@ from jsonschema import Draft7Validator
 
 import tools.canon_intake.dispatch_authorization as validator
 import tools.canon_intake.dispatch_authorization_reservation as reservation
+import tools.canon_intake.dispatch_manifest as manifest_contract
 from tools.canon_intake.dispatch_authorization import (
     APPROVAL_STATEMENT,
     DispatchAuthorizationError,
@@ -115,6 +116,7 @@ def _fixture(
         validator.APPROVAL_SCHEMA,
         validator.AUDIT_SCHEMA,
         reservation.SCHEMA_NAME,
+        manifest_contract.SCHEMA_NAME,
     ):
         shutil.copy2(source_repo / "research/schemas" / name, schemas / name)
 
@@ -272,15 +274,6 @@ def _fixture(
     (root / runner_rel).parent.mkdir(parents=True)
     (root / runner_rel).write_bytes(runner_raw)
 
-    packet_rel = "scratch/STAGE-A/FIXTURE.dispatch_packet.json"
-    packet = {
-        "packet_id": "DISPATCH-PACKET-FIXTURE-1",
-        "packet_purpose": "exact_offline_research_dispatch_stage_a",
-        "packet_version": "fixture-v1",
-        "placeholder": False,
-    }
-    packet_raw = _write_json(root / packet_rel, packet)
-
     queue_id = "QI-20260720-TEST9001"
     queue_rel = f"research/queue/admissions/{queue_id}.queue_item.json"
     gate_id = "GATE-Q-TEST-9001"
@@ -362,17 +355,6 @@ def _fixture(
             "run_id": run_id,
             "dispatch_record_path": dispatch_path,
             "execution_event_stream_path": stream_path,
-        },
-        "dispatcher_packet": {
-            "packet_id": packet["packet_id"],
-            "packet_purpose": packet["packet_purpose"],
-            "packet_version": packet["packet_version"],
-            "path": packet_rel,
-            "whole_file_sha256": _hash(packet_raw),
-            "byte_length": len(packet_raw),
-            "byte_encoding": "utf8_exact_file_bytes",
-            "serialization": "deterministic_json_one_lf",
-            "placeholder_forbidden": True,
         },
         "lineage": {
             "strategy_spec": {
@@ -501,6 +483,52 @@ def _fixture(
         },
         "authority_flags": copy.deepcopy(flags),
     }
+    manifest_id = "DMAN-H004-R2-9001"
+    manifest_rel = (
+        "research/queue/dispatch_manifests/"
+        f"{manifest_id}.dispatch_manifest.json"
+    )
+    manifest = {
+        "schema_version": manifest_contract.SCHEMA_VERSION,
+        "manifest_id": manifest_id,
+        "manifest_target_path": manifest_rel,
+        "manifest_purpose": "exact_offline_research_dispatch_intent",
+        "manifest_canonicalization": "repo_canonical_json_v1",
+        "dispatch_derivation_version": manifest_contract.DERIVATION_VERSION,
+        "dispatch_created_at": "2026-07-20T18:00:00Z",
+        "queue_binding": copy.deepcopy(core["queue_binding"]),
+        "crossing_identities": copy.deepcopy(core["crossing_identities"]),
+        "lineage": copy.deepcopy(core["lineage"]),
+        "dataset": copy.deepcopy(core["dataset"]),
+        "funding": copy.deepcopy(core["funding"]),
+        "runner": copy.deepcopy(core["runner"]),
+        "denominator": copy.deepcopy(core["denominator"]),
+        "budget": copy.deepcopy(core["budget"]),
+        "execution_parameters": copy.deepcopy(core["execution_parameters"]),
+        "output_targets": {
+            "scratch_output_root": core["output_targets"][
+                "scratch_output_root"
+            ],
+            "scratch_run_directory": "scratch/FIXTURE-RUN/dispatch/",
+            "provisional_result_paths": [
+                "scratch/FIXTURE-RUN/dispatch/provisional_result.json"
+            ],
+            "execution_event_stream_path": stream_path,
+            "canonical_result_population_target_forbidden": True,
+        },
+        "non_authority_declaration": copy.deepcopy(
+            manifest_contract.MANIFEST_NON_AUTHORITY
+        ),
+    }
+    manifest_raw = manifest_contract.serialize_dispatch_manifest(manifest)
+    manifest_path = root / manifest_rel
+    manifest_path.parent.mkdir(parents=True)
+    manifest_path.write_bytes(manifest_raw)
+    core["dispatch_manifest"] = {
+        "manifest_id": manifest_id,
+        "whole_file_sha256": _hash(manifest_raw),
+        "byte_length": len(manifest_raw),
+    }
     authorization_id = "KDAUTH-TEST-R2-9001"
     authorization_rel = (
         "research/queue/dispatch_authorizations/"
@@ -566,6 +594,9 @@ def _fixture(
         "authorization_raw": authorization_raw,
         "audit_path": audit_path,
         "created": created,
+        "manifest": manifest,
+        "manifest_path": manifest_path,
+        "manifest_raw": manifest_raw,
     }
     if reservation_state == "committed":
         _write_matching_committed_reservation(
@@ -593,6 +624,46 @@ def _resign(fixture: dict) -> None:
         "authorization_core_sha256"
     ]
     fixture["audit_path"].write_bytes(repo_canonical_json_v1(created) + b"\n")
+
+
+def _resign_manifest_and_authorization(fixture: dict) -> None:
+    core = fixture["authorization"]["authorization_core"]
+    manifest = fixture["manifest"]
+    for field in (
+        "queue_binding",
+        "crossing_identities",
+        "lineage",
+        "dataset",
+        "funding",
+        "runner",
+        "denominator",
+        "budget",
+        "execution_parameters",
+    ):
+        manifest[field] = copy.deepcopy(core[field])
+    scratch_root = core["output_targets"]["scratch_output_root"]
+    manifest["output_targets"] = {
+        "scratch_output_root": scratch_root,
+        "scratch_run_directory": f"{scratch_root}dispatch/",
+        "provisional_result_paths": [
+            f"{scratch_root}dispatch/provisional_result.json"
+        ],
+        "execution_event_stream_path": core["output_targets"][
+            "execution_event_stream_path"
+        ],
+        "canonical_result_population_target_forbidden": True,
+    }
+    fixture["manifest_raw"] = manifest_contract.serialize_dispatch_manifest(
+        manifest
+    )
+    fixture["manifest_path"].write_bytes(fixture["manifest_raw"])
+    core["dispatch_manifest"]["whole_file_sha256"] = _hash(
+        fixture["manifest_raw"]
+    )
+    core["dispatch_manifest"]["byte_length"] = len(
+        fixture["manifest_raw"]
+    )
+    _resign(fixture)
 
 
 def _validate(fixture: dict, **kwargs):
@@ -960,7 +1031,11 @@ def repo_root():
 
 
 def test_schemas_are_closed_valid_draft7(repo_root):
-    for name in (validator.APPROVAL_SCHEMA, validator.AUDIT_SCHEMA):
+    for name in (
+        validator.APPROVAL_SCHEMA,
+        validator.AUDIT_SCHEMA,
+        manifest_contract.SCHEMA_NAME,
+    ):
         schema = json.loads(
             (repo_root / "research/schemas" / name).read_text(encoding="utf-8")
         )
@@ -1400,7 +1475,7 @@ def test_gate_q_whole_core_and_relationship_mismatch_fail(
 @pytest.mark.parametrize(
     "section",
     [
-        "dispatcher_packet",
+        "dispatch_manifest",
         "strategy_spec",
         "external_content_readiness",
         "variant_planning_approval",
@@ -1408,14 +1483,14 @@ def test_gate_q_whole_core_and_relationship_mismatch_fail(
         "sweep_plan",
     ],
 )
-def test_packet_and_each_lineage_hash_mismatch_fail(
+def test_manifest_and_each_lineage_hash_mismatch_fail(
     tmp_path, repo_root, section
 ):
     fixture = _fixture(tmp_path, repo_root, reservation_state="none")
     core = fixture["authorization"]["authorization_core"]
     target = (
-        core["dispatcher_packet"]
-        if section == "dispatcher_packet"
+        core["dispatch_manifest"]
+        if section == "dispatch_manifest"
         else core["lineage"][section]
     )
     target["whole_file_sha256"] = "sha256:" + "0" * 64
@@ -1543,7 +1618,7 @@ def test_valid_nested_scratch_output_root_is_read_only(tmp_path, repo_root):
     fixture["authorization"]["authorization_core"]["output_targets"][
         "scratch_output_root"
     ] = nested
-    _resign(fixture)
+    _resign_manifest_and_authorization(fixture)
     assert not target.exists()
     assert _validate(fixture, require_audit=False, scan_history=False)["valid"]
     assert not target.exists()
@@ -1557,7 +1632,7 @@ def test_existing_file_cannot_be_a_scratch_output_root(tmp_path, repo_root):
     fixture["authorization"]["authorization_core"]["output_targets"][
         "scratch_output_root"
     ] = "scratch/FIXTURE-FILE/"
-    _resign(fixture)
+    _resign_manifest_and_authorization(fixture)
     with pytest.raises(DispatchAuthorizationError, match="resolve to a directory"):
         _validate(fixture, require_audit=False, scan_history=False)
 
@@ -1587,7 +1662,7 @@ def test_scratch_output_symlink_or_junction_escape_fails_closed(
     fixture["authorization"]["authorization_core"]["output_targets"][
         "scratch_output_root"
     ] = "scratch/escape/nested/"
-    _resign(fixture)
+    _resign_manifest_and_authorization(fixture)
     with pytest.raises(DispatchAuthorizationError, match="symlinked|escapes"):
         _validate(fixture, require_audit=False, scan_history=False)
 
@@ -1926,12 +2001,16 @@ def test_symlinked_reference_fails_closed(tmp_path, repo_root):
 def test_no_production_kdauth_audit_dispatch_or_execution_created(repo_root):
     import tools.canon_intake.dispatch_authorization_reservation as reservation
 
+    manifest_root = repo_root / manifest_contract.MANIFEST_ROOT
     approval_root = repo_root / validator.APPROVAL_ROOT
     audit_path = repo_root / validator.AUDIT_PATH
     dispatch_root = repo_root / validator.DISPATCH_ROOT
     execution_root = repo_root / validator.EXECUTION_ROOT
     assert not approval_root.exists() or not list(
         approval_root.glob("*.dispatch_authorization.json")
+    )
+    assert not manifest_root.exists() or not list(
+        manifest_root.glob("*.dispatch_manifest.json")
     )
     assert not audit_path.exists()
     assert not dispatch_root.exists() or not list(

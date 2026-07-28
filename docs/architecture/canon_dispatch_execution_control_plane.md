@@ -24,6 +24,7 @@ Dispatch and execution records are authoritative control-plane history only. The
 
 | Artifact | Authoritative path | Identity |
 | --- | --- | --- |
+| Dispatch manifest | `research/queue/dispatch_manifests/<manifest_id>.dispatch_manifest.json` | `DMAN-H004-R2-NNNN` |
 | Dispatch record | `research/queue/dispatch_records/<dispatch_id>.dispatch_record.json` | `DSP-YYYYMMDD-XXXXXXXX` |
 | Execution stream | `research/queue/execution_events/<run_id>.execution_events.jsonl` | `RUN-YYYYMMDD-XXXXXXXX` |
 | Execution event | one JSON object plus LF in the run stream | `EXEC-EVENT-<run_id>-NNNNNN` |
@@ -34,7 +35,34 @@ Dispatch and execution records are authoritative control-plane history only. The
 
 IDs, exact target paths, run IDs, event IDs, and queue-item/authorization pairs are permanently single-use. Removal of a file does not free an identity. A future writer MUST scan all current dispatch records, every execution line, durable Karl authorization sources, and retained repository history before crossing. An identity found in any one source is consumed. Missing or ambiguous history fails closed.
 
-No production directory or instance is created by this design package.
+## Non-circular dispatch manifest
+
+Normative schema:
+`research/schemas/canon_dispatch_manifest.schema.json`.
+
+The immutable manifest is non-authorizing commitment evidence. It exists
+before KDAUTH and commits the exact queue, dispatch/run identities, creation
+timestamp, full lineage, canonical 1d and funding identities, runner,
+denominator, budget, execution parameters, exact scratch run directory, every
+exact provisional-result leaf, and execution-event target. Root-only,
+wildcard, duplicate, omitted, ambiguous, circular, self-hash, and future-KDAUTH
+representations are invalid.
+
+Manifest bytes use the existing sorted two-space UTF-8 JSON plus one LF
+serialization. The manifest contains neither its whole-file hash/length nor
+any KDAUTH reference. Its protected writer validates before and in-lock,
+scans current and retained identity history, and exclusive-creates only the
+ID-derived target. It creates no KDAUTH, dispatch, execution event, runner
+invocation, retry, or downstream authority.
+
+The dependency graph is strict:
+
+`manifest -> KDAUTH manifest commitment -> byte-derived dispatch record`.
+
+KDAUTH commits the existing manifest ID, whole-file SHA-256, and byte length.
+The dispatch record is deterministically derived from the validated manifest
+plus the already-existing exact KDAUTH bytes. No object commits bytes of an
+object whose serialization depends on it.
 
 ## Exact dispatch authorization
 
@@ -54,7 +82,8 @@ The artifact binds:
 - the exact admitted queue-item bytes and state plus exact Gate-Q whole-file and
   semantic-core hashes;
 - the pre-declared dispatch ID/path and run ID/execution-stream path;
-- the exact frozen Stage-A dispatcher packet bytes and byte length;
+- the exact immutable dispatch-manifest ID, whole-file SHA-256, and byte
+  length;
 - exact Strategy Spec, external-content-readiness, variant-planning approval,
   Variant Manifest, Sweep Plan, and Gate-Q lineage;
 - the exact canonical 1d catalog/data identity, direct-public-snapshot posture,
@@ -70,7 +99,7 @@ The artifact binds:
 The exact approval statement is:
 
 > Karl approves one single-use offline research dispatch for the exact queue
-> item, dispatch ID, run ID, frozen dispatcher packet, lineage, dataset,
+> item, dispatch ID, run ID, immutable dispatch manifest, lineage, dataset,
 > funding identity, runner, budget, and output targets bound by this artifact,
 > and grants no downstream authority.
 
@@ -305,6 +334,8 @@ Normative schema: `research/schemas/canon_dispatch_record.schema.json`.
 The record MUST bind:
 
 - its derived dispatch ID/path, creation timestamp, and the sole state `dispatched`;
+- the exact manifest ID/path/hash/length, canonicalization, and locked
+  derivation version;
 - one exact admitted queue item ID/path and raw-file SHA-256;
 - the exact Gate-Q ID/path, full-file SHA-256, core SHA-256, core scope, and canonicalization;
 - one fresh exact Karl authorization, including its ID, source path/hash, actor, time, scope, queue item, dispatch ID, and run ID;
@@ -314,7 +345,14 @@ The record MUST bind:
 - denominator, budget, seed, workers, one-shot/no-retry posture, and exact scratch/event output targets;
 - immutable/single-use posture and the complete non-authority declaration.
 
-The record MUST NOT contain progress, attempt outcomes, counts, a terminal state, a mutable status, a retry instruction, a canonical Result Population target, or a free-form executable command. `dispatch_state="dispatched"` records only that the durable one-shot dispatch crossing occurred; it does not mean a process started or finished.
+The validator recomputes the complete record from manifest plus KDAUTH and
+requires exact canonical byte equality. No writer-selected default, ambient
+value, alternate leaf beneath an allowed root, or assertion of derivation is
+accepted. The record MUST NOT contain progress, attempt outcomes, counts, a
+terminal state, a mutable status, a retry instruction, a canonical Result
+Population target, or a free-form executable command.
+`dispatch_state="dispatched"` records only that the durable one-shot dispatch
+crossing occurred; it does not mean a process started or finished.
 
 ## Append-only execution stream
 
@@ -407,8 +445,8 @@ Separate Karl/Main-authorized packages are required for:
   mechanism implementing this locked contract;
 - a dispatch writer and execution-event writer implementing every lock, reuse, path, and failure rule above;
 - read-only integrity/query views and a replay validator;
-- any later runner-adapter capability needed to consume a reviewed production
-  dispatcher packet without broadening the merged canonical 1d route;
+- any later runner-adapter capability needed to consume a manifest-derived
+  dispatch without broadening the merged canonical 1d route;
 - the one-shot H-004-R2 dispatch and any later canonical Result Population handoff.
 
 None may be inferred from this contract lock.
@@ -419,7 +457,7 @@ None may be inferred from this contract lock.
 `1c22edf602f748ed03d9304c66b4b40cd6f0d601` because the repo had no durable
 dispatch/execution-state contract. Its twelve preserved uncommitted evidence
 files remain read-only. The canonical 1d route has since merged, but no
-refreshed Stage A has frozen the exact production dispatcher packet. This
-Option-C lock and the KDAUTH contract resolve representation and validation
-semantics only. A real production KDAUTH remains impossible until a later
-separately authorized refreshed Stage A freezes that exact packet.
+refreshed Stage A has created an exact production dispatch manifest. This
+contract resolves non-circular representation and validation semantics only.
+A real production manifest and KDAUTH remain impossible until a later
+separately authorized refreshed Stage A and protected crossing package.

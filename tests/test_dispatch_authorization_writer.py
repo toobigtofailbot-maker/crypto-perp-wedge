@@ -19,10 +19,12 @@ from tools.canon_intake.dispatch_authorization import (
     DispatchAuthorizationError,
     collect_dispatch_without_consumption_findings,
     repo_canonical_json_v1,
+    serialize_dispatch_authorization,
     validate_dispatch_authorization,
     validate_dispatch_authorization_candidate,
     validate_dispatch_record_for_authorization,
 )
+from tools.canon_intake.dispatch_manifest import derive_dispatch_record
 
 
 def _hash(raw: bytes) -> str:
@@ -137,105 +139,17 @@ def cross(fixture: dict, token: str = "WRITER01") -> dict:
 
 
 def dispatch_record(fixture: dict, source_repo: Path) -> tuple[dict, Path]:
-    template = json.loads(
-        (
-            source_repo / "scratch/WP-CANON-DISPATCH-CONTROL-PLANE-DESIGN-LOCK-01/"
-            "fixtures/valid/dispatch_record.json"
-        ).read_text(encoding="utf-8")
-    )
+    del source_repo
     authorization = fixture["authorization"]
-    raw = fixture["authorization_raw"]
-    core = authorization["authorization_core"]
-    crossing = core["crossing_identities"]
-    queue = core["queue_binding"]
-    gate = queue["gate_q"]
-    dispatch_id = crossing["dispatch_id"]
-    run_id = crossing["run_id"]
-    template["dispatch_id"] = dispatch_id
-    template["dispatch_record_path"] = crossing["dispatch_record_path"]
-    template["created_at"] = (
-        f"{dispatch_id.split('-')[1][0:4]}-{dispatch_id.split('-')[1][4:6]}-"
-        f"{dispatch_id.split('-')[1][6:8]}T18:00:00Z"
+    template = derive_dispatch_record(
+        manifest=fixture["manifest"],
+        manifest_raw=fixture["manifest_raw"],
+        authorization=authorization,
+        authorization_raw=fixture["authorization_raw"],
     )
-    template["queue_binding"] = {
-        "queue_item_id": queue["queue_item_id"],
-        "path": queue["path"],
-        "raw_sha256": queue["whole_file_sha256"],
-        "admission_status": queue["required_state"],
-    }
-    template["gate_q_binding"] = {
-        "approval_id": gate["approval_id"],
-        "path": gate["path"],
-        "file_sha256": gate["whole_file_sha256"],
-        "approval_core_sha256": gate["core_sha256"],
-        "approval_core_hash_scope": gate["core_hash_scope"],
-        "approval_core_canonicalization": gate["core_canonicalization"],
-    }
-    template["dispatch_authorization"] = {
-        "authorization_id": authorization["authorization_id"],
-        "source_path": authorization["authorization_artifact_target_path"],
-        "source_sha256": _hash(raw),
-        "source_byte_length": len(raw),
-        "authorization_core_sha256": authorization["authorization_core_sha256"],
-        "authorization_core_hash_scope": "dispatch_authorization_core_v1",
-        "authorization_core_canonicalization": "repo_canonical_json_v1",
-        "authorized_by": authorization["approved_by"],
-        "authorized_at": authorization["approved_at"],
-        "authorization_scope": authorization["authorization_scope"],
-        "authorized_queue_item_id": queue["queue_item_id"],
-        "authorized_dispatch_id": dispatch_id,
-        "authorized_run_id": run_id,
-        "exact_content_and_target_only": True,
-        "content_bound_freshness": True,
-        "single_use_authorization_id": True,
-        "no_downstream_authority": True,
-    }
-    template["run_binding"] = {
-        "run_id": run_id,
-        "execution_event_stream_path": crossing["execution_event_stream_path"],
-    }
-    template["runner_binding"] = {
-        field: core["runner"][field]
-        for field in (
-            "invocation_kind",
-            "module",
-            "source_path",
-            "version",
-            "source_sha256",
-        )
-    }
-    template["artifact_bindings"] = {
-        field: {
-            "artifact_id": core["lineage"][field]["artifact_id"],
-            "path": core["lineage"][field]["path"],
-            "sha256": core["lineage"][field]["whole_file_sha256"],
-        }
-        for field in ("strategy_spec", "variant_manifest", "sweep_plan")
-    }
-    dataset = core["dataset"]
-    template["dataset_binding"] = {
-        "dataset_id": dataset["dataset_id"],
-        "snapshot_version": dataset["snapshot_version"],
-        "path": dataset["data_path"],
-        "sha256": dataset["data_sha256"],
-        "market": dataset["market"],
-        "timeframe": dataset["timeframe"],
-        "unresolved_policy": "reject",
-    }
-    template["denominator"] = copy.deepcopy(core["denominator"])
-    template["budget"] = copy.deepcopy(core["budget"])
-    template["execution_parameters"] = copy.deepcopy(core["execution_parameters"])
-    scratch = core["output_targets"]["scratch_output_root"]
-    template["output_targets"] = {
-        "scratch_run_directory": f"{scratch}dispatch/",
-        "provisional_result_path": f"{scratch}dispatch/result.json",
-        "execution_event_stream_path": crossing["execution_event_stream_path"],
-    }
-    path = fixture["root"] / crossing["dispatch_record_path"]
+    path = fixture["root"] / template["dispatch_record_path"]
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_bytes(
-        (json.dumps(template, indent=2, sort_keys=True, ensure_ascii=False) + "\n").encode("utf-8")
-    )
+    path.write_bytes(serialize_dispatch_authorization(template))
     return template, path
 
 

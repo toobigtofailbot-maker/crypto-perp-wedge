@@ -4,6 +4,14 @@
   "dispatch_record_path": "research/queue/dispatch_records/DSP-20260718-FIXTURE1.dispatch_record.json",
   "created_at": "2026-07-18T15:00:00Z",
   "dispatch_state": "dispatched",
+  "manifest_derivation": {
+    "manifest_id": "DMAN-H004-R2-9999",
+    "manifest_path": "research/queue/dispatch_manifests/DMAN-H004-R2-9999.dispatch_manifest.json",
+    "manifest_whole_file_sha256": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+    "manifest_byte_length": 1,
+    "manifest_canonicalization": "repo_canonical_json_v1",
+    "dispatch_derivation_version": "canon_dispatch_from_manifest_v1"
+  },
   "queue_binding": {
     "queue_item_id": "QI-20260717-H004R2B1",
     "path": "research/queue/admissions/QI-20260717-H004R2B1.queue_item.json",
@@ -99,7 +107,9 @@
   },
   "output_targets": {
     "scratch_run_directory": "scratch/WP-CANON-DISPATCH-CONTROL-PLANE-DESIGN-LOCK-01/fixtures/nonproduction_run/",
-    "provisional_result_path": "scratch/WP-CANON-DISPATCH-CONTROL-PLANE-DESIGN-LOCK-01/fixtures/nonproduction_run/provisional_result.json",
+    "provisional_result_paths": [
+      "scratch/WP-CANON-DISPATCH-CONTROL-PLANE-DESIGN-LOCK-01/fixtures/nonproduction_run/provisional_result.json"
+    ],
     "execution_event_stream_path": "research/queue/execution_events/RUN-20260718-FIXTURE1.execution_events.jsonl"
   },
   "immutable_posture": {

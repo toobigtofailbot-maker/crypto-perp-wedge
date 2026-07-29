@@ -5419,6 +5419,20 @@ SELECT
     non_authority
 FROM dispatch_authorization_crossing_reservation_findings;
 
+-- Which execution streams are missing, malformed, incomplete, unbound, or deleted?
+CREATE OR REPLACE VIEW v_integrity_execution_streams AS
+SELECT
+    finding_type,
+    dispatch_id,
+    dispatch_path,
+    run_id,
+    execution_event_stream_path,
+    stream_state,
+    reason,
+    operator_inspection_required,
+    non_authority
+FROM execution_stream_integrity_findings;
+
 -- Which valid canonical dispatches lack their exact KDAUTH consumption event?
 CREATE OR REPLACE VIEW v_integrity_dispatch_authorization_dispatch_without_consumption AS
 SELECT

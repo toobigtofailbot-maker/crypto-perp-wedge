@@ -2479,6 +2479,62 @@ def _register_dispatch_without_consumption_findings(
     )
 
 
+def _register_execution_stream_integrity_findings(
+    conn: duckdb.DuckDBPyConnection,
+) -> None:
+    """Register read-only execution-stream integrity findings."""
+    from tools.canon_intake.execution_event import (
+        collect_execution_stream_integrity_findings,
+    )
+
+    findings = collect_execution_stream_integrity_findings(
+        repo_root=REPO_ROOT
+    )
+    columns = (
+        "finding_type",
+        "dispatch_id",
+        "dispatch_path",
+        "run_id",
+        "execution_event_stream_path",
+        "stream_state",
+        "reason",
+        "operator_inspection_required",
+        "non_authority",
+    )
+    if findings:
+        values = ",\n".join(
+            "("
+            + ", ".join(_sql_literal(row[column]) for column in columns)
+            + ")"
+            for row in findings
+        )
+        conn.execute(
+            f"""
+            CREATE VIEW execution_stream_integrity_findings AS
+            SELECT * FROM (VALUES
+                {values}
+            ) AS findings({", ".join(columns)})
+            """
+        )
+        return
+    conn.execute(
+        """
+        CREATE VIEW execution_stream_integrity_findings AS
+        SELECT
+            CAST(NULL AS VARCHAR) AS finding_type,
+            CAST(NULL AS VARCHAR) AS dispatch_id,
+            CAST(NULL AS VARCHAR) AS dispatch_path,
+            CAST(NULL AS VARCHAR) AS run_id,
+            CAST(NULL AS VARCHAR) AS execution_event_stream_path,
+            CAST(NULL AS VARCHAR) AS stream_state,
+            CAST(NULL AS VARCHAR) AS reason,
+            CAST(NULL AS BOOLEAN) AS operator_inspection_required,
+            CAST(NULL AS BOOLEAN) AS non_authority
+        WHERE FALSE
+        """
+    )
+
+
 def _rows_as_dicts(cursor: duckdb.DuckDBPyConnection) -> list[dict[str, Any]]:
     columns = [description[0] for description in cursor.description or []]
     return [dict(zip(columns, row, strict=True)) for row in cursor.fetchall()]
@@ -2650,6 +2706,7 @@ def init_duckdb(read_only: bool = True) -> duckdb.DuckDBPyConnection:
     _register_walkforward_fold_manifests(conn)
     _register_dispatch_authorization_crossing_reservation_findings(conn)
     _register_dispatch_without_consumption_findings(conn)
+    _register_execution_stream_integrity_findings(conn)
     load_views(conn)
     return conn
 

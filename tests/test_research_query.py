@@ -92,6 +92,7 @@ REQUIRED_VIEWS = {
     "v_integrity_walkforward_non_authority",
     "v_integrity_dispatch_authorization_crossing_reservations",
     "v_integrity_dispatch_authorization_dispatch_without_consumption",
+    "v_integrity_execution_streams",
 }
 
 EXPECTED_COLUMNS = {
@@ -444,6 +445,17 @@ EXPECTED_COLUMNS = {
         "lifecycle_state",
         "audit_path",
         "reason",
+        "non_authority",
+    ],
+    "v_integrity_execution_streams": [
+        "finding_type",
+        "dispatch_id",
+        "dispatch_path",
+        "run_id",
+        "execution_event_stream_path",
+        "stream_state",
+        "reason",
+        "operator_inspection_required",
         "non_authority",
     ],
 }
@@ -1653,6 +1665,45 @@ def test_dispatch_without_consumption_integrity_is_empty_on_main(conn):
         conn,
         "v_integrity_dispatch_authorization_dispatch_without_consumption",
     ) == []
+
+
+def test_execution_stream_integrity_is_empty_on_main(conn):
+    assert run_named_view(conn, "v_integrity_execution_streams") == []
+
+
+def test_execution_stream_integrity_registration_exposes_closed_findings(
+    monkeypatch,
+):
+    from tools.canon_intake import execution_event
+
+    finding = {
+        "finding_type": "execution_stream_incomplete",
+        "dispatch_id": "DSP-20260720-QUERY001",
+        "dispatch_path": (
+            "research/queue/dispatch_records/"
+            "DSP-20260720-QUERY001.dispatch_record.json"
+        ),
+        "run_id": "RUN-20260720-QUERY001",
+        "execution_event_stream_path": (
+            "research/queue/execution_events/"
+            "RUN-20260720-QUERY001.execution_events.jsonl"
+        ),
+        "stream_state": "in_progress",
+        "reason": "synthetic query fixture",
+        "operator_inspection_required": True,
+        "non_authority": True,
+    }
+    monkeypatch.setattr(
+        execution_event,
+        "collect_execution_stream_integrity_findings",
+        lambda **kwargs: [finding],
+    )
+    synthetic = duckdb.connect(database=":memory:")
+    query_layer._register_execution_stream_integrity_findings(synthetic)
+    assert synthetic.execute(
+        "SELECT * FROM execution_stream_integrity_findings"
+    ).fetchone() == tuple(finding.values())
+    synthetic.close()
 
 
 def test_dispatch_without_consumption_registration_is_stable_and_read_only(

@@ -1,0 +1,816 @@
+"""Read-only validation and derivation seams for canonical execution events."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import subprocess
+from collections import Counter
+from collections.abc import Iterable, Mapping
+from datetime import datetime
+from pathlib import Path
+from typing import Any
+
+from jsonschema import Draft7Validator, FormatChecker
+
+from tools.canon_intake.dispatch_authorization import (
+    DispatchAuthorizationError,
+    repo_canonical_json_v1,
+    validate_dispatch_record_for_authorization,
+)
+
+EXECUTION_ROOT = Path("research/queue/execution_events")
+DISPATCH_ROOT = Path("research/queue/dispatch_records")
+EXECUTION_SCHEMA = Path("research/schemas/canon_execution_event.schema.json")
+
+OUTCOME_REASONS = {
+    "successful": "completed",
+    "failed": "runner_failure",
+    "invalid": "validation_failure",
+    "excluded": "exclusion_rule",
+    "errored": "execution_error",
+    "aborted": "abort_condition",
+    "filtered": "filter_rule",
+    "data_unavailable": "data_missing",
+}
+OUTCOME_CATEGORIES = tuple(OUTCOME_REASONS)
+ACCOUNTING_CATEGORIES = (*OUTCOME_CATEGORIES, "not_attempted")
+TERMINAL_REASONS = {
+    "run_completed": "completed_denominator_accounted",
+    "run_failed_process_start": "runner_process_start_failed",
+    "run_failed_midrun": "runner_failed_before_denominator_complete",
+    "run_blocked": "fail_closed_stop_condition",
+}
+NON_AUTHORITY_DECLARATION = {
+    "control_plane_history_only": True,
+    "not_canonical_strategy_performance_evidence": True,
+    "not_result_population_authority": True,
+    "not_exp_replacement": True,
+    "not_rep_replacement": True,
+    "not_outcome_ledger_replacement": True,
+    "not_recommendation_replacement": True,
+    "not_decision_replacement": True,
+    "not_ranking_authority": True,
+    "not_recommendation_authority": True,
+    "not_readiness_authority": True,
+    "not_promotion_authority": True,
+    "not_candidate_authority": True,
+    "not_scheduler_authority": True,
+    "not_runtime_authority": True,
+    "not_paper_live_authority": True,
+    "canonical_result_population_write_forbidden": True,
+}
+
+
+class ExecutionEventError(ValueError):
+    """Execution-event or execution-stream validation failed closed."""
+
+
+def _digest(raw: bytes) -> str:
+    return "sha256:" + hashlib.sha256(raw).hexdigest()
+
+
+def _lexical_absolute(path: Path) -> Path:
+    return path if path.is_absolute() else Path.cwd() / path
+
+
+def _is_link_or_reparse(path: Path) -> bool:
+    if path.is_symlink():
+        return True
+    try:
+        attributes = getattr(path.lstat(), "st_file_attributes", 0)
+    except OSError:
+        return False
+    return bool(attributes & getattr(os.stat_result, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400))
+
+
+def _resolve_root(repo_root: Path) -> Path:
+    root = _lexical_absolute(Path(repo_root))
+    if not root.is_dir() or _is_link_or_reparse(root):
+        raise ExecutionEventError("repository root must be a regular directory")
+    return root.resolve()
+
+
+def _repo_path(root: Path, value: str | Path, label: str) -> Path:
+    selected = Path(value)
+    candidate = selected if selected.is_absolute() else root / selected
+    lexical = _lexical_absolute(candidate)
+    try:
+        relative = lexical.relative_to(root)
+    except ValueError as exc:
+        raise ExecutionEventError(f"{label} escapes repository root") from exc
+    if ".." in relative.parts:
+        raise ExecutionEventError(f"{label} contains path traversal")
+    current = root
+    for component in relative.parts:
+        current = current / component
+        if os.path.lexists(os.fspath(current)) and _is_link_or_reparse(current):
+            raise ExecutionEventError(f"{label} contains a symlink or reparse component")
+    return lexical
+
+
+def _schema_validator(root: Path) -> Draft7Validator:
+    schema_path = _repo_path(root, EXECUTION_SCHEMA, "execution-event schema")
+    try:
+        schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise ExecutionEventError("execution-event schema is unreadable") from exc
+    Draft7Validator.check_schema(schema)
+    return Draft7Validator(schema, format_checker=FormatChecker())
+
+
+def _schema_check(
+    root: Path,
+    event: Mapping[str, Any],
+    *,
+    label: str = "execution event",
+) -> None:
+    errors = sorted(
+        _schema_validator(root).iter_errors(event),
+        key=lambda error: list(error.absolute_path),
+    )
+    if errors:
+        rendered = "; ".join(
+            (".".join(str(part) for part in error.absolute_path) or "<root>") + f": {error.message}"
+            for error in errors
+        )
+        raise ExecutionEventError(f"{label} schema validation failed: {rendered}")
+
+
+def _parse_timestamp(value: str, label: str) -> datetime:
+    try:
+        parsed = datetime.fromisoformat(value)
+    except (AttributeError, ValueError) as exc:
+        raise ExecutionEventError(f"{label} must be a valid date-time") from exc
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise ExecutionEventError(f"{label} must be timezone-aware")
+    return parsed
+
+
+def serialize_execution_event(event: Mapping[str, Any]) -> bytes:
+    """Return one canonical JSON object plus exactly one LF."""
+    try:
+        return repo_canonical_json_v1(event) + b"\n"
+    except DispatchAuthorizationError as exc:
+        raise ExecutionEventError(str(exc)) from exc
+
+
+def _expected_bindings(
+    dispatch: Mapping[str, Any],
+    dispatch_file_sha256: str,
+) -> dict[str, Any]:
+    return {
+        "dispatch_id": dispatch["dispatch_id"],
+        "dispatch_record_path": dispatch["dispatch_record_path"],
+        "dispatch_record_sha256": dispatch_file_sha256,
+        "run_id": dispatch["run_binding"]["run_id"],
+        "queue_item_id": dispatch["queue_binding"]["queue_item_id"],
+    }
+
+
+def _expected_budget(
+    dispatch: Mapping[str, Any],
+    *,
+    actual: int,
+) -> dict[str, Any]:
+    return {**dispatch["budget"], "actual": actual}
+
+
+def _validate_terminal(
+    dispatch: Mapping[str, Any],
+    terminal: Mapping[str, Any],
+) -> None:
+    state = terminal["terminal_state"]
+    accounting = terminal["denominator_accounting"]
+    budget = terminal["budget"]
+    counts = accounting["outcome_counts"]
+    planned = dispatch["denominator"]["planned"]
+    attempts = accounting["attempts_recorded"]
+    not_attempted = accounting["not_attempted"]
+    population_sum = sum(counts[name] for name in ACCOUNTING_CATEGORIES)
+    attempted_sum = sum(counts[name] for name in OUTCOME_CATEGORIES)
+    if terminal["terminal_reason_code"] != TERMINAL_REASONS[state]:
+        raise ExecutionEventError("terminal state/reason binding mismatch")
+    if accounting["basis"] != dispatch["denominator"]["basis"]:
+        raise ExecutionEventError("terminal denominator basis differs from dispatch")
+    if accounting["planned"] != planned:
+        raise ExecutionEventError("terminal planned denominator differs from dispatch")
+    if accounting["population_accounted_total"] != planned:
+        raise ExecutionEventError("terminal does not account for the full denominator")
+    if population_sum != planned:
+        raise ExecutionEventError("terminal outcome counts do not sum to planned")
+    if attempted_sum != attempts:
+        raise ExecutionEventError("terminal attempted outcome counts mismatch")
+    if counts["not_attempted"] != not_attempted:
+        raise ExecutionEventError("terminal not-attempted fields mismatch")
+    if not_attempted != planned - attempts:
+        raise ExecutionEventError("terminal unattempted remainder mismatch")
+    if budget != _expected_budget(dispatch, actual=attempts):
+        raise ExecutionEventError("terminal budget differs from dispatch/accounting")
+    if state == "run_completed" and not (
+        terminal["process_started"] and attempts == planned and not_attempted == 0
+    ):
+        raise ExecutionEventError("run_completed accounting is invalid")
+    if state == "run_failed_process_start" and not (
+        terminal["process_started"] is False and attempts == 0 and not_attempted == planned
+    ):
+        raise ExecutionEventError("process-start failure accounting is invalid")
+    if state == "run_failed_midrun" and not (
+        terminal["process_started"] and attempts < planned and not_attempted > 0
+    ):
+        raise ExecutionEventError("midrun failure accounting is invalid")
+    if state == "run_blocked" and (
+        (not terminal["process_started"] and attempts != 0) or attempts > planned
+    ):
+        raise ExecutionEventError("blocked-run process/accounting truth is invalid")
+
+
+def validate_execution_event(
+    *,
+    repo_root: Path,
+    dispatch: Mapping[str, Any],
+    dispatch_file_sha256: str,
+    event: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Validate one event against exact immutable dispatch bindings."""
+    root = _resolve_root(repo_root)
+    if not isinstance(event, Mapping):
+        raise ExecutionEventError("execution event must be one object")
+    _schema_check(root, event)
+    sequence = event["sequence_number"]
+    run_id = dispatch["run_binding"]["run_id"]
+    expected_event_id = f"EXEC-EVENT-{run_id}-{sequence:06d}"
+    expected_stream = dispatch["run_binding"]["execution_event_stream_path"]
+    if event["event_id"] != expected_event_id:
+        raise ExecutionEventError("event ID/run/sequence binding mismatch")
+    if event["bindings"] != _expected_bindings(dispatch, dispatch_file_sha256):
+        raise ExecutionEventError("event bindings differ from exact dispatch")
+    if event["stream_path"] != expected_stream:
+        raise ExecutionEventError("event stream path differs from exact dispatch")
+    _parse_timestamp(event["timestamp_utc"], "event timestamp")
+    event_type = event["event_type"]
+    if event_type == "run_start":
+        start = event["run_start"]
+        if sequence != 1:
+            raise ExecutionEventError("run_start must have sequence 1")
+        if start["planned_denominator"] != dispatch["denominator"]["planned"]:
+            raise ExecutionEventError("run_start denominator differs from dispatch")
+        if start["budget"] != _expected_budget(dispatch, actual=0):
+            raise ExecutionEventError("run_start budget differs from dispatch")
+        if start["seed"] != dispatch["execution_parameters"]["seed"]:
+            raise ExecutionEventError("run_start seed differs from dispatch")
+        if start["workers"] != dispatch["execution_parameters"]["workers"]:
+            raise ExecutionEventError("run_start workers differ from dispatch")
+        if start["automatic_retry"] != dispatch["execution_parameters"]["automatic_retry"]:
+            raise ExecutionEventError("run_start retry posture differs from dispatch")
+    elif event_type == "attempt_outcome":
+        attempt = event["attempt_outcome"]
+        if attempt["reason_code"] != OUTCOME_REASONS[attempt["outcome_category"]]:
+            raise ExecutionEventError("attempt outcome/reason binding mismatch")
+    else:
+        _validate_terminal(dispatch, event["run_terminal"])
+    canonical_raw = serialize_execution_event(event)
+    return {
+        "valid": True,
+        "event": dict(event),
+        "event_id": event["event_id"],
+        "event_type": event_type,
+        "sequence_number": sequence,
+        "canonical_raw": canonical_raw,
+        "canonical_sha256": _digest(canonical_raw),
+        "non_authority": True,
+    }
+
+
+def derive_execution_event(
+    *,
+    repo_root: Path,
+    dispatch: Mapping[str, Any],
+    dispatch_file_sha256: str,
+    event_type: str,
+    sequence_number: int,
+    timestamp_utc: str,
+    actor: Mapping[str, Any],
+    payload: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Derive immutable bindings and validate one event-specific payload."""
+    if event_type not in {"run_start", "attempt_outcome", "run_terminal"}:
+        raise ExecutionEventError("event_type is outside the closed vocabulary")
+    if not isinstance(payload, Mapping):
+        raise ExecutionEventError("event payload must be one object")
+    run_id = dispatch["run_binding"]["run_id"]
+    event = {
+        "schema_version": "canon_execution_event_v1",
+        "event_id": f"EXEC-EVENT-{run_id}-{sequence_number:06d}",
+        "event_type": event_type,
+        "sequence_number": sequence_number,
+        "timestamp_utc": timestamp_utc,
+        "actor": dict(actor),
+        "bindings": _expected_bindings(dispatch, dispatch_file_sha256),
+        "stream_path": dispatch["run_binding"]["execution_event_stream_path"],
+        event_type: dict(payload),
+        "non_authority_declaration": dict(NON_AUTHORITY_DECLARATION),
+    }
+    validate_execution_event(
+        repo_root=repo_root,
+        dispatch=dispatch,
+        dispatch_file_sha256=dispatch_file_sha256,
+        event=event,
+    )
+    return event
+
+
+def _decode_stream(
+    *,
+    root: Path,
+    dispatch: Mapping[str, Any],
+    dispatch_file_sha256: str,
+    raw: bytes,
+    label: str,
+) -> list[dict[str, Any]]:
+    if not raw:
+        raise ExecutionEventError(f"{label} is empty")
+    if not raw.endswith(b"\n"):
+        raise ExecutionEventError(f"{label} has a partial tail")
+    events: list[dict[str, Any]] = []
+    for number, line in enumerate(raw.splitlines(), 1):
+        try:
+            event = json.loads(line.decode("utf-8"))
+        except (UnicodeError, json.JSONDecodeError) as exc:
+            raise ExecutionEventError(f"{label} is malformed at line {number}") from exc
+        if not isinstance(event, dict):
+            raise ExecutionEventError(f"{label} line {number} is not one JSON object")
+        validation = validate_execution_event(
+            repo_root=root,
+            dispatch=dispatch,
+            dispatch_file_sha256=dispatch_file_sha256,
+            event=event,
+        )
+        if line + b"\n" != validation["canonical_raw"]:
+            raise ExecutionEventError(f"{label} line {number} is not canonical JSON plus one LF")
+        events.append(event)
+    return events
+
+
+def _validate_stream_semantics(
+    dispatch: Mapping[str, Any],
+    events: list[dict[str, Any]],
+) -> str:
+    if events[0]["event_type"] != "run_start":
+        raise ExecutionEventError("run_start must be the unique first event")
+    if any(event["event_type"] == "run_start" for event in events[1:]):
+        raise ExecutionEventError("duplicate run_start event")
+    sequences = [event["sequence_number"] for event in events]
+    if sequences != list(range(1, len(events) + 1)):
+        raise ExecutionEventError("execution-event sequence is not contiguous")
+    event_ids = [event["event_id"] for event in events]
+    if len(event_ids) != len(set(event_ids)):
+        raise ExecutionEventError("execution-event ID collision")
+    first_actor = events[0]["actor"]
+    if any(event["actor"] != first_actor for event in events[1:]):
+        raise ExecutionEventError("actor/tool identity changed within stream")
+    terminals = [
+        index for index, event in enumerate(events) if event["event_type"] == "run_terminal"
+    ]
+    if len(terminals) > 1:
+        raise ExecutionEventError("execution stream contains multiple terminals")
+    if terminals and terminals[0] != len(events) - 1:
+        raise ExecutionEventError("execution event appears after terminal")
+    attempts = [
+        event["attempt_outcome"] for event in events if event["event_type"] == "attempt_outcome"
+    ]
+    if attempts and not events[0]["run_start"]["runner_process_started"]:
+        raise ExecutionEventError("attempt exists although process did not start")
+    if [attempt["attempt_number"] for attempt in attempts] != list(range(1, len(attempts) + 1)):
+        raise ExecutionEventError("attempt numbers are not contiguous")
+    variant_ids = [attempt["variant_id"] for attempt in attempts]
+    if len(variant_ids) != len(set(variant_ids)):
+        raise ExecutionEventError("variant ID recurs in execution stream")
+    if len(attempts) > dispatch["denominator"]["planned"]:
+        raise ExecutionEventError("attempt count exceeds planned denominator")
+    if not terminals:
+        return "in_progress"
+    terminal = events[-1]["run_terminal"]
+    if terminal["process_started"] != events[0]["run_start"]["runner_process_started"]:
+        raise ExecutionEventError("start/terminal process-start truth mismatch")
+    accounting = terminal["denominator_accounting"]
+    if accounting["attempts_recorded"] != len(attempts):
+        raise ExecutionEventError("terminal attempt count differs from stream")
+    observed = Counter(attempt["outcome_category"] for attempt in attempts)
+    for category in OUTCOME_CATEGORIES:
+        if accounting["outcome_counts"][category] != observed[category]:
+            raise ExecutionEventError(f"terminal {category} count differs from attempt history")
+    return "terminal"
+
+
+def _git(root: Path, *args: str, check: bool = True) -> subprocess.CompletedProcess:
+    try:
+        result = subprocess.run(
+            ["git", *args],
+            cwd=root,
+            capture_output=True,
+            check=False,
+        )
+    except OSError as exc:
+        raise ExecutionEventError("retained Git history is unavailable") from exc
+    if check and result.returncode != 0:
+        raise ExecutionEventError(
+            "retained Git history command failed: "
+            + " ".join(args)
+            + ": "
+            + result.stderr.decode("utf-8", errors="replace").strip()
+        )
+    return result
+
+
+def _retained_stream_versions(root: Path) -> Iterable[tuple[str, bytes]]:
+    if (
+        _git(root, "rev-parse", "--is-inside-work-tree", check=False).stdout.decode().strip()
+        != "true"
+    ):
+        raise ExecutionEventError("retained Git history is unavailable; validation fails closed")
+    tracked_root = EXECUTION_ROOT.as_posix()
+    commits = [
+        value
+        for value in _git(root, "log", "--all", "--format=%H", "--", tracked_root)
+        .stdout.decode()
+        .splitlines()
+        if value
+    ]
+    seen: set[tuple[str, str]] = set()
+    for commit in commits:
+        paths = (
+            _git(root, "ls-tree", "-r", "--name-only", commit, "--", tracked_root)
+            .stdout.decode()
+            .splitlines()
+        )
+        for path in paths:
+            blob = _git(root, "rev-parse", f"{commit}:{path}").stdout.decode().strip()
+            key = (path, blob)
+            if key in seen:
+                continue
+            seen.add(key)
+            raw = _git(root, "show", f"{commit}:{path}").stdout
+            yield path, raw
+
+
+def _identity_values(raw: bytes, label: str) -> list[dict[str, Any]]:
+    if not raw or not raw.endswith(b"\n"):
+        raise ExecutionEventError(f"{label} is empty or has a partial tail")
+    values = []
+    for number, line in enumerate(raw.splitlines(), 1):
+        try:
+            event = json.loads(line.decode("utf-8"))
+        except (UnicodeError, json.JSONDecodeError) as exc:
+            raise ExecutionEventError(f"{label} is malformed at line {number}") from exc
+        if not isinstance(event, dict):
+            raise ExecutionEventError(f"{label} line {number} is not one object")
+        bindings = event.get("bindings", {})
+        values.append(
+            {
+                "run_id": bindings.get("run_id"),
+                "stream_path": event.get("stream_path"),
+                "event_id": event.get("event_id"),
+            }
+        )
+    return values
+
+
+def validate_execution_stream_history(
+    *,
+    repo_root: Path,
+    run_id: str,
+    stream_path: str,
+    current_raw: bytes | None,
+) -> dict[str, Any]:
+    """Prove current and retained stream versions form one append-only history."""
+    root = _resolve_root(repo_root)
+    documents: list[tuple[str, bytes, str]] = []
+    current_root = _repo_path(root, EXECUTION_ROOT, "execution-event root")
+    if current_root.exists():
+        if not current_root.is_dir():
+            raise ExecutionEventError("execution-event root is not a directory")
+        for path in sorted(current_root.iterdir(), key=lambda value: value.name):
+            if (
+                _is_link_or_reparse(path)
+                or not path.is_file()
+                or not path.name.endswith(".execution_events.jsonl")
+            ):
+                raise ExecutionEventError(f"unexpected execution-event corpus entry: {path.name}")
+            relative = path.relative_to(root).as_posix()
+            documents.append((relative, path.read_bytes(), "current"))
+    documents.extend(
+        (path, raw, "retained_history") for path, raw in _retained_stream_versions(root)
+    )
+    target_versions: list[bytes] = []
+    seen_documents: set[tuple[str, str]] = set()
+    for path, raw, source_kind in documents:
+        key = (path, _digest(raw))
+        if key in seen_documents:
+            continue
+        seen_documents.add(key)
+        identities = _identity_values(raw, f"{source_kind}:{path}")
+        if path == stream_path:
+            target_versions.append(raw)
+            continue
+        for identity in identities:
+            if (
+                identity["run_id"] == run_id
+                or identity["stream_path"] == stream_path
+                or (
+                    isinstance(identity["event_id"], str)
+                    and identity["event_id"].startswith(f"EXEC-EVENT-{run_id}-")
+                )
+            ):
+                raise ExecutionEventError(f"execution identity collision in {source_kind}:{path}")
+    if current_raw is None and target_versions:
+        raise ExecutionEventError("retained history contains a deleted execution stream")
+    if current_raw is not None:
+        target_versions.append(current_raw)
+        for version in target_versions:
+            if not current_raw.startswith(version):
+                raise ExecutionEventError(
+                    "execution stream conflicts with retained append-only history"
+                )
+    return {
+        "valid": True,
+        "run_id": run_id,
+        "stream_path": stream_path,
+        "current_exists": current_raw is not None,
+        "retained_version_count": len({_digest(raw) for raw in target_versions}),
+        "non_authority": True,
+    }
+
+
+def _validated_dispatch(
+    *,
+    root: Path,
+    dispatch_path: Path,
+    reviewed_dispatch_whole_file_sha256: str,
+) -> tuple[dict[str, Any], bytes, dict[str, Any]]:
+    selected = _repo_path(root, dispatch_path, "dispatch record")
+    if _is_link_or_reparse(selected) or not selected.is_file():
+        raise ExecutionEventError("dispatch record must be a regular non-symlink file")
+    raw = selected.read_bytes()
+    if not isinstance(reviewed_dispatch_whole_file_sha256, str):
+        raise ExecutionEventError("reviewed dispatch whole-file SHA-256 must be supplied")
+    if _digest(raw) != reviewed_dispatch_whole_file_sha256:
+        raise ExecutionEventError("dispatch bytes differ from reviewed SHA-256")
+    try:
+        validation = validate_dispatch_record_for_authorization(
+            repo_root=root,
+            dispatch_path=selected,
+        )
+    except DispatchAuthorizationError as exc:
+        raise ExecutionEventError(str(exc)) from exc
+    if validation["lifecycle_state"] != "consumed":
+        raise ExecutionEventError("dispatch KDAUTH lifecycle is not exactly consumed")
+    try:
+        dispatch = json.loads(raw.decode("utf-8"))
+    except (UnicodeError, json.JSONDecodeError) as exc:
+        raise ExecutionEventError("dispatch record is unreadable") from exc
+    return dispatch, raw, validation
+
+
+def read_and_validate_execution_stream(
+    *,
+    repo_root: Path,
+    dispatch_path: Path,
+    reviewed_dispatch_whole_file_sha256: str,
+    allow_missing: bool = False,
+    require_terminal: bool = False,
+    scan_retained_history: bool = True,
+) -> dict[str, Any]:
+    """Read and validate one authoritative stream against an exact dispatch."""
+    root = _resolve_root(repo_root)
+    dispatch, dispatch_raw, dispatch_validation = _validated_dispatch(
+        root=root,
+        dispatch_path=dispatch_path,
+        reviewed_dispatch_whole_file_sha256=(reviewed_dispatch_whole_file_sha256),
+    )
+    stream_relative = dispatch["run_binding"]["execution_event_stream_path"]
+    stream_path = _repo_path(root, stream_relative, "execution stream")
+    if os.path.lexists(os.fspath(stream_path)):
+        if _is_link_or_reparse(stream_path) or not stream_path.is_file():
+            raise ExecutionEventError("execution stream must be a regular non-symlink file")
+        raw: bytes | None = stream_path.read_bytes()
+    else:
+        raw = None
+    if scan_retained_history:
+        history = validate_execution_stream_history(
+            repo_root=root,
+            run_id=dispatch["run_binding"]["run_id"],
+            stream_path=stream_relative,
+            current_raw=raw,
+        )
+    else:
+        history = None
+    if raw is None:
+        if not allow_missing:
+            raise ExecutionEventError("authoritative execution stream is missing")
+        if require_terminal:
+            raise ExecutionEventError("terminal execution stream is required")
+        return {
+            "valid": True,
+            "state": "missing",
+            "events": [],
+            "raw": None,
+            "dispatch": dispatch,
+            "dispatch_validation": dispatch_validation,
+            "dispatch_file_sha256": _digest(dispatch_raw),
+            "stream_path": stream_relative,
+            "history_validation": history,
+            "non_authority": True,
+        }
+    events = _decode_stream(
+        root=root,
+        dispatch=dispatch,
+        dispatch_file_sha256=_digest(dispatch_raw),
+        raw=raw,
+        label="execution stream",
+    )
+    state = _validate_stream_semantics(dispatch, events)
+    if require_terminal and state != "terminal":
+        raise ExecutionEventError("execution stream is incomplete")
+    return {
+        "valid": True,
+        "state": state,
+        "events": events,
+        "raw": raw,
+        "stream_file_sha256": _digest(raw),
+        "stream_byte_length": len(raw),
+        "dispatch": dispatch,
+        "dispatch_validation": dispatch_validation,
+        "dispatch_file_sha256": _digest(dispatch_raw),
+        "stream_path": stream_relative,
+        "history_validation": history,
+        "non_authority": True,
+    }
+
+
+def _finding(
+    *,
+    finding_type: str,
+    dispatch_id: str | None,
+    dispatch_path: str | None,
+    run_id: str | None,
+    stream_path: str | None,
+    state: str,
+    reason: str,
+) -> dict[str, Any]:
+    return {
+        "finding_type": finding_type,
+        "dispatch_id": dispatch_id,
+        "dispatch_path": dispatch_path,
+        "run_id": run_id,
+        "execution_event_stream_path": stream_path,
+        "stream_state": state,
+        "reason": reason,
+        "operator_inspection_required": True,
+        "non_authority": True,
+    }
+
+
+def collect_execution_stream_integrity_findings(
+    *,
+    repo_root: Path,
+) -> list[dict[str, Any]]:
+    """Report missing, malformed, incomplete, unbound, or deleted streams."""
+    root = _resolve_root(repo_root)
+    findings: list[dict[str, Any]] = []
+    bound_streams: set[str] = set()
+    dispatch_root = _repo_path(root, DISPATCH_ROOT, "dispatch-record root")
+    if dispatch_root.exists():
+        if not dispatch_root.is_dir():
+            raise ExecutionEventError("dispatch-record root is not a directory")
+        for path in sorted(
+            dispatch_root.glob("*.dispatch_record.json"),
+            key=lambda value: value.name,
+        ):
+            raw = path.read_bytes()
+            try:
+                dispatch = json.loads(raw.decode("utf-8"))
+            except (UnicodeError, json.JSONDecodeError):
+                continue
+            if not isinstance(dispatch, dict):
+                continue
+            try:
+                dispatch_validation = validate_dispatch_record_for_authorization(
+                    repo_root=root,
+                    dispatch_path=path,
+                )
+            except DispatchAuthorizationError:
+                continue
+            if dispatch_validation["lifecycle_state"] != "consumed":
+                continue
+            dispatch_id = dispatch.get("dispatch_id")
+            run_id = dispatch.get("run_binding", {}).get("run_id")
+            stream = dispatch.get("run_binding", {}).get("execution_event_stream_path")
+            if isinstance(stream, str):
+                bound_streams.add(stream)
+            try:
+                result = read_and_validate_execution_stream(
+                    repo_root=root,
+                    dispatch_path=path,
+                    reviewed_dispatch_whole_file_sha256=_digest(raw),
+                    allow_missing=True,
+                    require_terminal=False,
+                    scan_retained_history=True,
+                )
+            except ExecutionEventError as exc:
+                findings.append(
+                    _finding(
+                        finding_type="execution_stream_malformed",
+                        dispatch_id=dispatch_id,
+                        dispatch_path=dispatch.get("dispatch_record_path"),
+                        run_id=run_id,
+                        stream_path=stream,
+                        state="invalid",
+                        reason=str(exc),
+                    )
+                )
+                continue
+            if result["state"] == "missing":
+                findings.append(
+                    _finding(
+                        finding_type="execution_stream_missing",
+                        dispatch_id=dispatch_id,
+                        dispatch_path=dispatch["dispatch_record_path"],
+                        run_id=run_id,
+                        stream_path=stream,
+                        state="missing",
+                        reason="valid consumed dispatch has no execution stream",
+                    )
+                )
+            elif result["state"] == "in_progress":
+                findings.append(
+                    _finding(
+                        finding_type="execution_stream_incomplete",
+                        dispatch_id=dispatch_id,
+                        dispatch_path=dispatch["dispatch_record_path"],
+                        run_id=run_id,
+                        stream_path=stream,
+                        state="in_progress",
+                        reason="valid execution stream has no terminal event",
+                    )
+                )
+    execution_root = _repo_path(root, EXECUTION_ROOT, "execution-event root")
+    if execution_root.exists():
+        if not execution_root.is_dir():
+            raise ExecutionEventError("execution-event root is not a directory")
+        for path in sorted(
+            execution_root.glob("*.execution_events.jsonl"),
+            key=lambda value: value.name,
+        ):
+            relative = path.relative_to(root).as_posix()
+            if relative not in bound_streams:
+                findings.append(
+                    _finding(
+                        finding_type="execution_stream_unbound",
+                        dispatch_id=None,
+                        dispatch_path=None,
+                        run_id=None,
+                        stream_path=relative,
+                        state="unbound",
+                        reason=("execution stream has no current dispatch binding"),
+                    )
+                )
+    current_paths = (
+        {
+            path.relative_to(root).as_posix()
+            for path in execution_root.glob("*.execution_events.jsonl")
+        }
+        if execution_root.exists()
+        else set()
+    )
+    retained_paths = {path for path, _ in _retained_stream_versions(root)}
+    for path in sorted(retained_paths - current_paths):
+        findings.append(
+            _finding(
+                finding_type="execution_stream_deleted_retained_history",
+                dispatch_id=None,
+                dispatch_path=None,
+                run_id=None,
+                stream_path=path,
+                state="deleted",
+                reason="retained execution stream is absent from current tree",
+            )
+        )
+    unique = {
+        (
+            row["finding_type"],
+            row["dispatch_id"],
+            row["run_id"],
+            row["execution_event_stream_path"],
+            row["reason"],
+        ): row
+        for row in findings
+    }
+    return [
+        unique[key]
+        for key in sorted(
+            unique,
+            key=lambda value: tuple("" if part is None else part for part in value),
+        )
+    ]

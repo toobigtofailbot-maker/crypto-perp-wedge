@@ -487,9 +487,9 @@ def test_retained_history_collision_or_deletion_blocks_reuse(fixture):
 
 def _make_directory_redirect(path: Path, destination: Path) -> Path:
     retained = path.with_name(path.name + "-retained")
-    path.rename(retained)
-    destination.mkdir()
     try:
+        path.rename(retained)
+        destination.mkdir()
         if os.name == "nt":
             subprocess.run(
                 [
@@ -530,7 +530,11 @@ def test_lock_parent_redirect_is_rejected_without_outside_write(fixture, tmp_pat
     assert not list(retained.glob(".*.execution_event_append.lock"))
 
 
-def test_post_validation_parent_substitution_cannot_redirect_append(fixture, tmp_path, monkeypatch):
+def test_post_preflight_pre_anchor_parent_substitution_cannot_redirect_append(
+    fixture,
+    tmp_path,
+    monkeypatch,
+):
     real_preflight = writer._preflight
     outside = tmp_path / "outside-race"
     retained = None
@@ -547,6 +551,143 @@ def test_post_validation_parent_substitution_cannot_redirect_append(fixture, tmp
     assert retained is not None
     assert list(outside.iterdir()) == []
     assert not list(retained.glob("*.execution_events.jsonl"))
+
+
+@pytest.mark.parametrize(
+    ("substitution_target", "expected_failure_phase"),
+    [
+        ("execution stream parent", "append_or_durability"),
+        ("execution append lock parent", "lock_cleanup"),
+    ],
+    ids=["stream-parent", "lock-parent"],
+)
+def test_post_anchor_post_validation_parent_substitution_fails_closed(
+    fixture,
+    tmp_path,
+    monkeypatch,
+    substitution_target,
+    expected_failure_phase,
+):
+    _start(fixture)
+    _commit(fixture["root"], "retain execution start before parent substitution")
+    before = fixture["stream_path"].read_bytes()
+    lock_parent_path = fixture["root"] / writer.LOCK_ROOT
+    substitution_path = (
+        fixture["stream_path"].parent
+        if substitution_target == "execution stream parent"
+        else lock_parent_path
+    )
+    outside = tmp_path / (
+        "outside-stream-parent"
+        if substitution_target == "execution stream parent"
+        else "outside-lock-parent"
+    )
+    trace = {
+        "candidate_derivations": 0,
+        "currentness_checks": {},
+        "substitution_timing": None,
+        "retained_parent": None,
+        "append_started": False,
+        "append_completed": False,
+    }
+    real_derive = writer._derive_candidate
+    real_assert_current = writer._AnchoredDirectory.assert_current
+    real_verify_reference = writer._AnchoredDirectory.verify_reference
+    real_write_all = writer._write_all
+
+    def track_candidate_derivation(**kwargs):
+        result = real_derive(**kwargs)
+        trace["candidate_derivations"] += 1
+        return result
+
+    def track_currentness(self):
+        result = real_assert_current(self)
+        checks = trace["currentness_checks"]
+        checks[self.label] = checks.get(self.label, 0) + 1
+        return result
+
+    def substitute_after_pre_mutation_checks(self, name, **kwargs):
+        result = real_verify_reference(self, name, **kwargs)
+        if self.label == "authoritative dispatch parent" and trace["substitution_timing"] is None:
+            assert trace["candidate_derivations"] == 2
+            assert trace["currentness_checks"]["execution stream parent"] == 1
+            assert trace["currentness_checks"]["authoritative dispatch parent"] == 1
+            assert trace["currentness_checks"]["execution append lock parent"] == 3
+            assert (
+                lock_parent_path / f".{fixture['run_id']}.execution_event_append.lock"
+            ).is_file()
+            trace["retained_parent"] = _make_directory_redirect(
+                substitution_path,
+                outside,
+            )
+            trace["substitution_timing"] = (
+                "after locked validation, candidate derivation, and all "
+                "pre-mutation parent-currentness checks; before stream "
+                "verification and append"
+            )
+        return result
+
+    def observe_real_append(fd, raw):
+        if raw.startswith(b'{"actor"'):
+            trace["append_started"] = True
+            result = real_write_all(fd, raw)
+            trace["append_completed"] = True
+            return result
+        return real_write_all(fd, raw)
+
+    monkeypatch.setattr(writer, "_derive_candidate", track_candidate_derivation)
+    monkeypatch.setattr(
+        writer._AnchoredDirectory,
+        "assert_current",
+        track_currentness,
+    )
+    monkeypatch.setattr(
+        writer._AnchoredDirectory,
+        "verify_reference",
+        substitute_after_pre_mutation_checks,
+    )
+    monkeypatch.setattr(writer, "_write_all", observe_real_append)
+
+    with pytest.raises(writer.ExecutionEventWriterIntegrityCriticalError) as caught:
+        _attempt(
+            fixture,
+            variant_id="SYNTHETIC-VARIANT-001",
+            second=2,
+        )
+
+    assert caught.value.failure_phase == expected_failure_phase
+    assert caught.value.stream_may_have_changed is True
+    assert caught.value.event_durable is False
+    assert trace["substitution_timing"] is not None
+    assert trace["append_started"] is True
+    assert trace["append_completed"] is True
+    retained_parent = trace["retained_parent"]
+    assert retained_parent is not None
+    physical_stream = retained_parent / fixture["stream_path"].relative_to(substitution_path)
+    after = physical_stream.read_bytes()
+    assert after.startswith(before)
+    assert len(after) > len(before)
+    assert json.loads(after.splitlines()[-1])["event_type"] == "attempt_outcome"
+    assert list(outside.iterdir()) == []
+    assert substitution_path.resolve() == outside.resolve()
+    assert substitution_path.is_dir()
+    assert retained_parent.is_dir()
+
+    with pytest.raises(ExecutionEventError, match="symlink or reparse") as direct:
+        _validated(fixture)
+    with pytest.raises(ExecutionEventError, match="symlink or reparse") as findings:
+        collect_execution_stream_integrity_findings(repo_root=fixture["root"])
+    monkeypatch.setattr(query_layer, "REPO_ROOT", fixture["root"])
+    conn = duckdb.connect(database=":memory:")
+    try:
+        with pytest.raises(ExecutionEventError, match="symlink or reparse") as query:
+            query_layer._register_execution_stream_integrity_findings(conn)
+    finally:
+        conn.close()
+    assert str(direct.value)
+    assert str(findings.value)
+    assert str(query.value)
+    assert list(outside.iterdir()) == []
 
 
 def test_dispatch_drift_after_lock_acquisition_fails_before_append(fixture, monkeypatch):

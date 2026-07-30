@@ -511,6 +511,23 @@ def _make_directory_redirect(path: Path, destination: Path) -> Path:
     return retained
 
 
+def _assert_redirect_remains_integrity_visible(fixture, monkeypatch) -> None:
+    with pytest.raises(ExecutionEventError, match="symlink or reparse") as direct:
+        _validated(fixture)
+    with pytest.raises(ExecutionEventError, match="symlink or reparse") as findings:
+        collect_execution_stream_integrity_findings(repo_root=fixture["root"])
+    monkeypatch.setattr(query_layer, "REPO_ROOT", fixture["root"])
+    conn = duckdb.connect(database=":memory:")
+    try:
+        with pytest.raises(ExecutionEventError, match="symlink or reparse") as query:
+            query_layer._register_execution_stream_integrity_findings(conn)
+    finally:
+        conn.close()
+    assert str(direct.value)
+    assert str(findings.value)
+    assert str(query.value)
+
+
 def test_stream_and_lock_parent_redirect_is_rejected(fixture, tmp_path):
     outside = tmp_path / "outside"
     retained = _make_directory_redirect(fixture["stream_path"].parent, outside)
@@ -554,19 +571,19 @@ def test_post_preflight_pre_anchor_parent_substitution_cannot_redirect_append(
 
 
 @pytest.mark.parametrize(
-    ("substitution_target", "expected_failure_phase"),
+    ("substitution_target", "lock_cleanup_also_uncertain"),
     [
-        ("execution stream parent", "append_or_durability"),
-        ("execution append lock parent", "lock_cleanup"),
+        ("execution stream parent", False),
+        ("execution append lock parent", True),
     ],
     ids=["stream-parent", "lock-parent"],
 )
-def test_post_anchor_post_validation_parent_substitution_fails_closed(
+def test_pre_append_post_anchor_parent_substitution_preserves_primary_precedence(
     fixture,
     tmp_path,
     monkeypatch,
     substitution_target,
-    expected_failure_phase,
+    lock_cleanup_also_uncertain,
 ):
     _start(fixture)
     _commit(fixture["root"], "retain execution start before parent substitution")
@@ -589,11 +606,14 @@ def test_post_anchor_post_validation_parent_substitution_fails_closed(
         "retained_parent": None,
         "append_started": False,
         "append_completed": False,
+        "lock_cleanup_started": False,
+        "lock_cleanup_completed": False,
     }
     real_derive = writer._derive_candidate
     real_assert_current = writer._AnchoredDirectory.assert_current
     real_verify_reference = writer._AnchoredDirectory.verify_reference
     real_write_all = writer._write_all
+    real_delete = writer._AnchoredFile.delete
 
     def track_candidate_derivation(**kwargs):
         result = real_derive(**kwargs)
@@ -635,6 +655,14 @@ def test_post_anchor_post_validation_parent_substitution_fails_closed(
             return result
         return real_write_all(fd, raw)
 
+    def observe_real_cleanup(self):
+        if self.name.endswith(".execution_event_append.lock"):
+            trace["lock_cleanup_started"] = True
+            result = real_delete(self)
+            trace["lock_cleanup_completed"] = True
+            return result
+        raise AssertionError(f"unexpected protected cleanup target: {self.name}")
+
     monkeypatch.setattr(writer, "_derive_candidate", track_candidate_derivation)
     monkeypatch.setattr(
         writer._AnchoredDirectory,
@@ -647,6 +675,7 @@ def test_post_anchor_post_validation_parent_substitution_fails_closed(
         substitute_after_pre_mutation_checks,
     )
     monkeypatch.setattr(writer, "_write_all", observe_real_append)
+    monkeypatch.setattr(writer._AnchoredFile, "delete", observe_real_cleanup)
 
     with pytest.raises(writer.ExecutionEventWriterIntegrityCriticalError) as caught:
         _attempt(
@@ -655,15 +684,25 @@ def test_post_anchor_post_validation_parent_substitution_fails_closed(
             second=2,
         )
 
-    assert caught.value.failure_phase == expected_failure_phase
+    assert caught.value.failure_phase == "append_or_durability"
+    assert caught.value.uncertainty_class == "append_or_durability_uncertain"
     assert caught.value.stream_may_have_changed is True
     assert caught.value.event_durable is False
+    assert caught.value.lock_cleanup_also_uncertain is lock_cleanup_also_uncertain
+    assert str(caught.value)
+    assert trace["candidate_derivations"] == 2
     assert trace["substitution_timing"] is not None
     assert trace["append_started"] is True
     assert trace["append_completed"] is True
+    assert trace["lock_cleanup_started"] is True
+    assert trace["lock_cleanup_completed"] is True
     retained_parent = trace["retained_parent"]
     assert retained_parent is not None
-    physical_stream = retained_parent / fixture["stream_path"].relative_to(substitution_path)
+    physical_stream = (
+        retained_parent / fixture["stream_path"].name
+        if substitution_target == "execution stream parent"
+        else fixture["stream_path"]
+    )
     after = physical_stream.read_bytes()
     assert after.startswith(before)
     assert len(after) > len(before)
@@ -672,21 +711,99 @@ def test_post_anchor_post_validation_parent_substitution_fails_closed(
     assert substitution_path.resolve() == outside.resolve()
     assert substitution_path.is_dir()
     assert retained_parent.is_dir()
+    assert not list(
+        retained_parent.glob(".*.execution_event_append.lock")
+        if substitution_target == "execution append lock parent"
+        else ()
+    )
+    _assert_redirect_remains_integrity_visible(fixture, monkeypatch)
+    assert list(outside.iterdir()) == []
 
-    with pytest.raises(ExecutionEventError, match="symlink or reparse") as direct:
-        _validated(fixture)
-    with pytest.raises(ExecutionEventError, match="symlink or reparse") as findings:
-        collect_execution_stream_integrity_findings(repo_root=fixture["root"])
-    monkeypatch.setattr(query_layer, "REPO_ROOT", fixture["root"])
-    conn = duckdb.connect(database=":memory:")
-    try:
-        with pytest.raises(ExecutionEventError, match="symlink or reparse") as query:
-            query_layer._register_execution_stream_integrity_findings(conn)
-    finally:
-        conn.close()
-    assert str(direct.value)
-    assert str(findings.value)
-    assert str(query.value)
+
+def test_post_proof_lock_parent_substitution_reports_real_cleanup_uncertainty(
+    fixture,
+    tmp_path,
+    monkeypatch,
+):
+    _start(fixture)
+    _commit(fixture["root"], "retain execution start before cleanup substitution")
+    before = fixture["stream_path"].read_bytes()
+    lock_parent_path = fixture["root"] / writer.LOCK_ROOT
+    outside = tmp_path / "outside-lock-cleanup"
+    trace = {
+        "append_calls": 0,
+        "event_writes": 0,
+        "substitution_timing": None,
+        "retained_parent": None,
+        "lock_cleanup_started": False,
+        "lock_cleanup_completed": False,
+    }
+    real_append = writer._append_under_lock
+    real_write_all = writer._write_all
+    real_delete = writer._AnchoredFile.delete
+
+    def append_then_substitute(**kwargs):
+        trace["append_calls"] += 1
+        result = real_append(**kwargs)
+        assert kwargs["state"]["event_durable"] is True
+        assert trace["event_writes"] == 1
+        trace["retained_parent"] = _make_directory_redirect(
+            lock_parent_path,
+            outside,
+        )
+        trace["substitution_timing"] = (
+            "after append, fsync, reread, completed-stream validation, "
+            "post-append anchor proof, and event_durable=true; before real "
+            "lock cleanup"
+        )
+        return result
+
+    def observe_real_append(fd, raw):
+        if raw.startswith(b'{"actor"'):
+            trace["event_writes"] += 1
+        return real_write_all(fd, raw)
+
+    def observe_real_cleanup(self):
+        if self.name.endswith(".execution_event_append.lock"):
+            trace["lock_cleanup_started"] = True
+            result = real_delete(self)
+            trace["lock_cleanup_completed"] = True
+            return result
+        raise AssertionError(f"unexpected protected cleanup target: {self.name}")
+
+    monkeypatch.setattr(writer, "_append_under_lock", append_then_substitute)
+    monkeypatch.setattr(writer, "_write_all", observe_real_append)
+    monkeypatch.setattr(writer._AnchoredFile, "delete", observe_real_cleanup)
+
+    with pytest.raises(writer.ExecutionEventWriterIntegrityCriticalError) as caught:
+        _attempt(
+            fixture,
+            variant_id="SYNTHETIC-VARIANT-001",
+            second=2,
+        )
+
+    assert caught.value.failure_phase == "lock_cleanup"
+    assert caught.value.uncertainty_class == "lock_cleanup_uncertain"
+    assert caught.value.stream_may_have_changed is True
+    assert caught.value.event_durable is True
+    assert caught.value.lock_cleanup_also_uncertain is False
+    assert trace["append_calls"] == 1
+    assert trace["event_writes"] == 1
+    assert trace["substitution_timing"] is not None
+    assert trace["lock_cleanup_started"] is True
+    assert trace["lock_cleanup_completed"] is True
+    retained_parent = trace["retained_parent"]
+    assert retained_parent is not None
+    after = fixture["stream_path"].read_bytes()
+    assert after.startswith(before)
+    assert len(after) > len(before)
+    assert json.loads(after.splitlines()[-1])["event_type"] == "attempt_outcome"
+    assert not list(retained_parent.glob(".*.execution_event_append.lock"))
+    assert list(outside.iterdir()) == []
+    assert lock_parent_path.resolve() == outside.resolve()
+    assert lock_parent_path.is_dir()
+    assert retained_parent.is_dir()
+    _assert_redirect_remains_integrity_visible(fixture, monkeypatch)
     assert list(outside.iterdir()) == []
 
 
@@ -818,7 +935,10 @@ def test_lock_cleanup_uncertainty_never_returns_success(fixture, monkeypatch):
         match="lock cleanup",
     ) as caught:
         _start(fixture)
+    assert caught.value.failure_phase == "lock_cleanup"
+    assert caught.value.stream_may_have_changed is True
     assert caught.value.event_durable is True
+    assert caught.value.lock_cleanup_also_uncertain is False
     assert _validated(fixture)["events"][0]["event_type"] == "run_start"
     assert (
         fixture["root"] / writer.LOCK_ROOT / f".{fixture['run_id']}.execution_event_append.lock"

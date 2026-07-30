@@ -276,6 +276,7 @@ def _run_append_lock(
 ) -> Iterator[_AnchoredDirectory]:
     parent: _AnchoredDirectory | None = None
     lock_file: _AnchoredFile | None = None
+    primary_integrity_error: ExecutionEventWriterIntegrityCriticalError | None = None
     lock_name = f".{run_id}.execution_event_append.lock"
     try:
         parent = _AnchoredDirectory(
@@ -313,7 +314,10 @@ def _run_append_lock(
         raise ExecutionEventWriterError(
             "per-run execution append lock exists; stale locks fail closed"
         ) from exc
-    except (ExecutionEventWriterError, ExecutionEventWriterIntegrityCriticalError):
+    except ExecutionEventWriterIntegrityCriticalError as exc:
+        primary_integrity_error = exc
+        raise
+    except ExecutionEventWriterError:
         raise
     except OSError as exc:
         if state["append_started"]:
@@ -323,6 +327,9 @@ def _run_append_lock(
             error.failure_phase = "append_or_durability"
             error.uncertainty_class = "append_or_durability_uncertain"
             error.stream_may_have_changed = True
+            error.event_durable = state["event_durable"]
+            error.lock_cleanup_also_uncertain = False
+            primary_integrity_error = error
             raise error from exc
         raise ExecutionEventWriterError(
             "descriptor-anchored per-run append lock is unavailable"
@@ -341,14 +348,18 @@ def _run_append_lock(
         if parent is not None:
             parent.close()
         if cleanup_error is not None:
-            error = ExecutionEventWriterIntegrityCriticalError(
-                "execution append lock cleanup is uncertain; operator inspection required"
-            )
-            error.failure_phase = "lock_cleanup"
-            error.uncertainty_class = "lock_cleanup_uncertain"
-            error.stream_may_have_changed = state["append_started"]
-            error.event_durable = state["event_durable"]
-            raise error from cleanup_error
+            if primary_integrity_error is not None:
+                primary_integrity_error.lock_cleanup_also_uncertain = True
+            else:
+                error = ExecutionEventWriterIntegrityCriticalError(
+                    "execution append lock cleanup is uncertain; operator inspection required"
+                )
+                error.failure_phase = "lock_cleanup"
+                error.uncertainty_class = "lock_cleanup_uncertain"
+                error.stream_may_have_changed = state["append_started"]
+                error.event_durable = state["event_durable"]
+                error.lock_cleanup_also_uncertain = False
+                raise error from cleanup_error
 
 
 def _append_under_lock(
@@ -509,6 +520,7 @@ def _append_under_lock(
             error.uncertainty_class = "append_or_durability_uncertain"
             error.stream_may_have_changed = True
             error.event_durable = state["event_durable"]
+            error.lock_cleanup_also_uncertain = False
             raise error from exc
         raise ExecutionEventWriterError(
             "descriptor-anchored execution append validation failed"

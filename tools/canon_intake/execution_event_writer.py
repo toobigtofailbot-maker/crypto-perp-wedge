@@ -19,14 +19,20 @@ from tools.canon_intake.dispatch_authorization_writer import (
 )
 from tools.canon_intake.execution_event import (
     ACCOUNTING_CATEGORIES,
+    EXECUTION_WRITER_COMBINED_UNCERTAINTY,
+    EXECUTION_WRITER_IDENTITY,
+    EXECUTION_WRITER_INTEGRITY_ROOT,
+    EXECUTION_WRITER_INTEGRITY_SCHEMA_VERSION,
     OUTCOME_CATEGORIES,
     ExecutionEventError,
     derive_execution_event,
+    execution_writer_integrity_record_name,
     read_and_validate_execution_stream,
     serialize_execution_event,
+    serialize_execution_writer_integrity_record,
 )
 
-WRITER_IDENTITY = "tools.canon_intake.execution_event_writer_v1"
+WRITER_IDENTITY = EXECUTION_WRITER_IDENTITY
 LOCK_ROOT = Path("research/queue")
 
 
@@ -267,12 +273,62 @@ def _preflight(
     return result
 
 
+def _write_combined_uncertainty_record(
+    *,
+    integrity_parent: _AnchoredDirectory,
+    state: Mapping[str, Any],
+) -> str:
+    sequence_number = state["event_sequence_number"]
+    name = execution_writer_integrity_record_name(
+        run_id=state["run_id"],
+        event_sequence_number=sequence_number,
+    )
+    record = {
+        "schema_version": EXECUTION_WRITER_INTEGRITY_SCHEMA_VERSION,
+        "record_kind": EXECUTION_WRITER_COMBINED_UNCERTAINTY,
+        "writer_identity": WRITER_IDENTITY,
+        "dispatch_id": state["dispatch_id"],
+        "dispatch_path": state["dispatch_path"],
+        "run_id": state["run_id"],
+        "execution_event_stream_path": state["stream_path"],
+        "event_id": state["event_id"],
+        "event_sequence_number": sequence_number,
+        "primary_failure_phase": "append_or_durability",
+        "primary_uncertainty_class": "append_or_durability_uncertain",
+        "event_durable": state["event_durable"],
+        "stream_may_have_changed": state["append_started"],
+        "lock_cleanup_also_uncertain": True,
+        "operator_inspection_required": True,
+        "non_authority": True,
+    }
+    raw = serialize_execution_writer_integrity_record(record)
+    integrity_file: _AnchoredFile | None = None
+    integrity_parent.assert_current()
+    integrity_parent.require_absent(name)
+    try:
+        integrity_file = integrity_parent.create(name)
+        _write_all(integrity_file.fd, raw)
+        integrity_file.fsync()
+        integrity_parent.fsync()
+        integrity_parent.assert_current()
+        integrity_parent.verify_reference(
+            name,
+            expected_identity=integrity_file.identity,
+            expected_raw=raw,
+        )
+    finally:
+        if integrity_file is not None:
+            integrity_file.close()
+    return (EXECUTION_WRITER_INTEGRITY_ROOT / name).as_posix()
+
+
 @contextmanager
 def _run_append_lock(
     *,
     root: Path,
     run_id: str,
-    state: dict[str, bool],
+    state: dict[str, Any],
+    integrity_parent: _AnchoredDirectory,
 ) -> Iterator[_AnchoredDirectory]:
     parent: _AnchoredDirectory | None = None
     lock_file: _AnchoredFile | None = None
@@ -329,6 +385,9 @@ def _run_append_lock(
             error.stream_may_have_changed = True
             error.event_durable = state["event_durable"]
             error.lock_cleanup_also_uncertain = False
+            error.integrity_visibility_recorded = False
+            error.integrity_visibility_record_path = None
+            error.integrity_visibility_record_uncertain = False
             primary_integrity_error = error
             raise error from exc
         raise ExecutionEventWriterError(
@@ -350,6 +409,33 @@ def _run_append_lock(
         if cleanup_error is not None:
             if primary_integrity_error is not None:
                 primary_integrity_error.lock_cleanup_also_uncertain = True
+                try:
+                    record_path = _write_combined_uncertainty_record(
+                        integrity_parent=integrity_parent,
+                        state=state,
+                    )
+                except Exception as visibility_error:
+                    primary_integrity_error.integrity_visibility_recorded = False
+                    try:
+                        expected_name = execution_writer_integrity_record_name(
+                            run_id=state["run_id"],
+                            event_sequence_number=state["event_sequence_number"],
+                        )
+                    except Exception:
+                        expected_name = None
+                    primary_integrity_error.integrity_visibility_record_path = (
+                        (EXECUTION_WRITER_INTEGRITY_ROOT / expected_name).as_posix()
+                        if expected_name is not None
+                        else None
+                    )
+                    primary_integrity_error.integrity_visibility_record_uncertain = True
+                    primary_integrity_error.integrity_visibility_record_error = str(
+                        visibility_error
+                    )
+                else:
+                    primary_integrity_error.integrity_visibility_recorded = True
+                    primary_integrity_error.integrity_visibility_record_path = record_path
+                    primary_integrity_error.integrity_visibility_record_uncertain = False
             else:
                 error = ExecutionEventWriterIntegrityCriticalError(
                     "execution append lock cleanup is uncertain; operator inspection required"
@@ -359,6 +445,9 @@ def _run_append_lock(
                 error.stream_may_have_changed = state["append_started"]
                 error.event_durable = state["event_durable"]
                 error.lock_cleanup_also_uncertain = False
+                error.integrity_visibility_recorded = False
+                error.integrity_visibility_record_path = None
+                error.integrity_visibility_record_uncertain = False
                 raise error from cleanup_error
 
 
@@ -374,7 +463,7 @@ def _append_under_lock(
     timestamp_utc: str,
     actor: Mapping[str, Any],
     event_input: Mapping[str, Any],
-    state: dict[str, bool],
+    state: dict[str, Any],
 ) -> dict[str, Any]:
     dispatch_parent: _AnchoredDirectory | None = None
     stream_parent: _AnchoredDirectory | None = None
@@ -435,6 +524,8 @@ def _append_under_lock(
             actor=actor,
             event_input=event_input,
         )
+        state["event_id"] = event["event_id"]
+        state["event_sequence_number"] = event["sequence_number"]
         for parent in (lock_parent, dispatch_parent, stream_parent):
             parent.assert_current()
         dispatch_parent.verify_reference(
@@ -521,6 +612,9 @@ def _append_under_lock(
             error.stream_may_have_changed = True
             error.event_durable = state["event_durable"]
             error.lock_cleanup_also_uncertain = False
+            error.integrity_visibility_recorded = False
+            error.integrity_visibility_record_path = None
+            error.integrity_visibility_record_uncertain = False
             raise error from exc
         raise ExecutionEventWriterError(
             "descriptor-anchored execution append validation failed"
@@ -557,7 +651,7 @@ def write_execution_event(
         raise ExecutionEventWriterError("actor/tool identity must be one object")
     lexical_root = _selected_path(Path.cwd(), Path(repo_root))
     selected_dispatch = _selected_path(lexical_root, dispatch_path)
-    _preflight(
+    preflight = _preflight(
         root=lexical_root,
         dispatch_path=selected_dispatch,
         reviewed_dispatch_whole_file_sha256=reviewed_dispatch_whole_file_sha256,
@@ -570,21 +664,53 @@ def write_execution_event(
     )
     root = lexical_root.resolve()
     selected_dispatch = _selected_path(root, dispatch_path)
-    state = {"append_started": False, "event_durable": False}
-    with _run_append_lock(root=root, run_id=run_id, state=state) as lock_parent:
-        appended = _append_under_lock(
+    dispatch = preflight["dispatch"]
+    state: dict[str, Any] = {
+        "append_started": False,
+        "event_durable": False,
+        "dispatch_id": dispatch["dispatch_id"],
+        "dispatch_path": dispatch["dispatch_record_path"],
+        "run_id": run_id,
+        "stream_path": stream_path,
+        "event_id": None,
+        "event_sequence_number": None,
+    }
+    integrity_parent: _AnchoredDirectory | None = None
+    try:
+        integrity_parent = _AnchoredDirectory(
             root=root,
-            lock_parent=lock_parent,
-            dispatch_path=selected_dispatch,
-            reviewed_dispatch_whole_file_sha256=reviewed_dispatch_whole_file_sha256,
-            run_id=run_id,
-            stream_path=stream_path,
-            event_type=event_type,
-            timestamp_utc=timestamp_utc,
-            actor=actor,
-            event_input=event_input,
-            state=state,
+            relative=EXECUTION_WRITER_INTEGRITY_ROOT,
+            label="execution-writer integrity parent",
         )
+        integrity_parent.assert_current()
+        with _run_append_lock(
+            root=root,
+            run_id=run_id,
+            state=state,
+            integrity_parent=integrity_parent,
+        ) as lock_parent:
+            appended = _append_under_lock(
+                root=root,
+                lock_parent=lock_parent,
+                dispatch_path=selected_dispatch,
+                reviewed_dispatch_whole_file_sha256=(reviewed_dispatch_whole_file_sha256),
+                run_id=run_id,
+                stream_path=stream_path,
+                event_type=event_type,
+                timestamp_utc=timestamp_utc,
+                actor=actor,
+                event_input=event_input,
+                state=state,
+            )
+    except ExecutionEventWriterError:
+        raise
+    except OSError as exc:
+        raise ExecutionEventWriterError(
+            "descriptor-anchored execution-writer integrity parent is unavailable"
+        ) from exc
+    finally:
+        if integrity_parent is not None:
+            integrity_parent.close()
     event = appended["event"]
     completed = appended["completed"]
     return {

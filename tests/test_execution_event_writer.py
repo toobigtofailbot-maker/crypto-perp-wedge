@@ -21,6 +21,7 @@ from tools.canon_intake.dispatch_authorization import (
     serialize_dispatch_authorization,
 )
 from tools.canon_intake.execution_event import (
+    EXECUTION_WRITER_INTEGRITY_ROOT,
     ExecutionEventError,
     collect_execution_stream_integrity_findings,
     derive_execution_event,
@@ -69,6 +70,10 @@ def fixture(tmp_path: Path) -> dict:
     stream_relative = dispatch["run_binding"]["execution_event_stream_path"]
     stream_path = prepared["root"] / stream_relative
     stream_path.parent.mkdir(parents=True, exist_ok=True)
+    (prepared["root"] / EXECUTION_WRITER_INTEGRITY_ROOT).mkdir(
+        parents=True,
+        exist_ok=True,
+    )
     prepared.update(
         {
             "dispatch": dispatch,
@@ -511,21 +516,48 @@ def _make_directory_redirect(path: Path, destination: Path) -> Path:
     return retained
 
 
-def _assert_redirect_remains_integrity_visible(fixture, monkeypatch) -> None:
+def _assert_redirect_remains_integrity_visible(
+    fixture,
+    monkeypatch,
+    *,
+    durable_combined_uncertainty: bool = False,
+) -> None:
     with pytest.raises(ExecutionEventError, match="symlink or reparse") as direct:
         _validated(fixture)
-    with pytest.raises(ExecutionEventError, match="symlink or reparse") as findings:
-        collect_execution_stream_integrity_findings(repo_root=fixture["root"])
     monkeypatch.setattr(query_layer, "REPO_ROOT", fixture["root"])
     conn = duckdb.connect(database=":memory:")
     try:
-        with pytest.raises(ExecutionEventError, match="symlink or reparse") as query:
+        if durable_combined_uncertainty:
+            findings = collect_execution_stream_integrity_findings(repo_root=fixture["root"])
             query_layer._register_execution_stream_integrity_findings(conn)
+            query_types = {
+                row[0]
+                for row in conn.execute(
+                    "SELECT finding_type FROM execution_stream_integrity_findings"
+                ).fetchall()
+            }
+            expected = {
+                "execution_writer_append_or_durability_uncertain",
+                "execution_writer_lock_cleanup_also_uncertain",
+            }
+            assert expected <= {row["finding_type"] for row in findings}
+            assert expected <= query_types
+        else:
+            with pytest.raises(
+                ExecutionEventError,
+                match="symlink or reparse",
+            ) as findings:
+                collect_execution_stream_integrity_findings(repo_root=fixture["root"])
+            with pytest.raises(
+                ExecutionEventError,
+                match="symlink or reparse",
+            ) as query:
+                query_layer._register_execution_stream_integrity_findings(conn)
+            assert str(findings.value)
+            assert str(query.value)
     finally:
         conn.close()
     assert str(direct.value)
-    assert str(findings.value)
-    assert str(query.value)
 
 
 def test_stream_and_lock_parent_redirect_is_rejected(fixture, tmp_path):
@@ -716,8 +748,161 @@ def test_pre_append_post_anchor_parent_substitution_preserves_primary_precedence
         if substitution_target == "execution append lock parent"
         else ()
     )
-    _assert_redirect_remains_integrity_visible(fixture, monkeypatch)
+    if lock_cleanup_also_uncertain:
+        assert caught.value.integrity_visibility_recorded is True
+        assert caught.value.integrity_visibility_record_uncertain is False
+        record_path = fixture["root"] / (caught.value.integrity_visibility_record_path)
+        record = json.loads(record_path.read_text(encoding="utf-8"))
+        assert record["primary_failure_phase"] == "append_or_durability"
+        assert record["event_durable"] is False
+        assert record["stream_may_have_changed"] is True
+        assert record["lock_cleanup_also_uncertain"] is True
+    _assert_redirect_remains_integrity_visible(
+        fixture,
+        monkeypatch,
+        durable_combined_uncertainty=lock_cleanup_also_uncertain,
+    )
     assert list(outside.iterdir()) == []
+
+
+def test_combined_uncertainty_is_durable_and_query_visible_cross_platform(
+    fixture,
+    monkeypatch,
+):
+    _start(fixture)
+    before = fixture["stream_path"].read_bytes()
+    trace = {
+        "lock_currentness_checks": 0,
+        "candidate_derivations": 0,
+        "event_writes": 0,
+        "lock_deletes": 0,
+    }
+    real_assert_current = writer._AnchoredDirectory.assert_current
+    real_derive = writer._derive_candidate
+    real_write_all = writer._write_all
+    real_delete = writer._AnchoredFile.delete
+
+    def fail_post_append_and_post_cleanup_currentness(self):
+        if self.label == "execution append lock parent":
+            trace["lock_currentness_checks"] += 1
+            if trace["lock_currentness_checks"] in {4, 5}:
+                raise OSError("synthetic execution append lock parent currentness failure")
+        return real_assert_current(self)
+
+    def observe_candidate(**kwargs):
+        result = real_derive(**kwargs)
+        trace["candidate_derivations"] += 1
+        return result
+
+    def observe_writes(fd, raw):
+        if raw.startswith(b'{"actor"'):
+            trace["event_writes"] += 1
+        return real_write_all(fd, raw)
+
+    def observe_cleanup(self):
+        if not self.name.endswith(".execution_event_append.lock"):
+            raise AssertionError(f"unexpected protected cleanup target: {self.name}")
+        trace["lock_deletes"] += 1
+        return real_delete(self)
+
+    def forbid_truncate(self, length):
+        raise AssertionError(f"execution writer attempted forbidden truncate to {length}")
+
+    monkeypatch.setattr(
+        writer._AnchoredDirectory,
+        "assert_current",
+        fail_post_append_and_post_cleanup_currentness,
+    )
+    monkeypatch.setattr(writer, "_derive_candidate", observe_candidate)
+    monkeypatch.setattr(writer, "_write_all", observe_writes)
+    monkeypatch.setattr(writer._AnchoredFile, "delete", observe_cleanup)
+    monkeypatch.setattr(writer._AnchoredFile, "truncate", forbid_truncate)
+
+    with pytest.raises(writer.ExecutionEventWriterIntegrityCriticalError) as caught:
+        _attempt(
+            fixture,
+            variant_id="SYNTHETIC-VARIANT-001",
+            second=2,
+        )
+
+    error = caught.value
+    assert error.failure_phase == "append_or_durability"
+    assert error.uncertainty_class == "append_or_durability_uncertain"
+    assert error.event_durable is False
+    assert error.stream_may_have_changed is True
+    assert error.lock_cleanup_also_uncertain is True
+    assert error.integrity_visibility_recorded is True
+    assert error.integrity_visibility_record_uncertain is False
+    assert trace == {
+        "lock_currentness_checks": 5,
+        "candidate_derivations": 2,
+        "event_writes": 1,
+        "lock_deletes": 1,
+    }
+    after = fixture["stream_path"].read_bytes()
+    assert after.startswith(before)
+    assert json.loads(after.splitlines()[-1])["event_type"] == "attempt_outcome"
+    assert not (
+        fixture["root"] / writer.LOCK_ROOT / f".{fixture['run_id']}.execution_event_append.lock"
+    ).exists()
+
+    record_path = fixture["root"] / error.integrity_visibility_record_path
+    record_raw = record_path.read_bytes()
+    record = json.loads(record_raw)
+    assert record_raw.endswith(b"\n")
+    assert record == {
+        "schema_version": "canon_execution_writer_integrity_visibility_v1",
+        "record_kind": "append_or_durability_and_lock_cleanup_uncertain",
+        "writer_identity": writer.WRITER_IDENTITY,
+        "dispatch_id": fixture["dispatch"]["dispatch_id"],
+        "dispatch_path": fixture["dispatch"]["dispatch_record_path"],
+        "run_id": fixture["run_id"],
+        "execution_event_stream_path": fixture["stream_relative"],
+        "event_id": f"EXEC-EVENT-{fixture['run_id']}-000002",
+        "event_sequence_number": 2,
+        "primary_failure_phase": "append_or_durability",
+        "primary_uncertainty_class": "append_or_durability_uncertain",
+        "event_durable": False,
+        "stream_may_have_changed": True,
+        "lock_cleanup_also_uncertain": True,
+        "operator_inspection_required": True,
+        "non_authority": True,
+    }
+
+    expected_types = {
+        "execution_writer_append_or_durability_uncertain",
+        "execution_writer_lock_cleanup_also_uncertain",
+    }
+    findings = collect_execution_stream_integrity_findings(repo_root=fixture["root"])
+    finding_types = {row["finding_type"] for row in findings}
+    assert expected_types <= finding_types
+    assert "execution_stream_incomplete" in finding_types
+    uncertainty_rows = [row for row in findings if row["finding_type"] in expected_types]
+    assert all(row["stream_state"] == "integrity_critical" for row in uncertainty_rows)
+    assert all(row["operator_inspection_required"] for row in uncertainty_rows)
+    assert all(row["non_authority"] for row in uncertainty_rows)
+
+    monkeypatch.setattr(query_layer, "REPO_ROOT", fixture["root"])
+    conn = duckdb.connect(database=":memory:")
+    try:
+        query_layer._register_execution_stream_integrity_findings(conn)
+        query_rows = conn.execute(
+            "SELECT finding_type, stream_state "
+            "FROM execution_stream_integrity_findings "
+            "WHERE finding_type LIKE 'execution_writer_%'"
+        ).fetchall()
+    finally:
+        conn.close()
+    assert set(query_rows) == {
+        (
+            "execution_writer_append_or_durability_uncertain",
+            "integrity_critical",
+        ),
+        (
+            "execution_writer_lock_cleanup_also_uncertain",
+            "integrity_critical",
+        ),
+    }
 
 
 def test_post_proof_lock_parent_substitution_reports_real_cleanup_uncertainty(
@@ -940,6 +1125,11 @@ def test_lock_cleanup_uncertainty_never_returns_success(fixture, monkeypatch):
     assert caught.value.event_durable is True
     assert caught.value.lock_cleanup_also_uncertain is False
     assert _validated(fixture)["events"][0]["event_type"] == "run_start"
+    assert not list(
+        (fixture["root"] / EXECUTION_WRITER_INTEGRITY_ROOT).glob(
+            "*.execution_writer_integrity.json"
+        )
+    )
     assert (
         fixture["root"] / writer.LOCK_ROOT / f".{fixture['run_id']}.execution_event_append.lock"
     ).is_file()

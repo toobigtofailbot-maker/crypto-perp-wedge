@@ -10,11 +10,17 @@ import pytest
 from tests import test_dispatch_writer as dispatch_support
 from tools.canon_intake import dispatch_writer
 from tools.canon_intake.execution_event import (
+    EXECUTION_WRITER_COMBINED_UNCERTAINTY,
+    EXECUTION_WRITER_IDENTITY,
+    EXECUTION_WRITER_INTEGRITY_ROOT,
+    EXECUTION_WRITER_INTEGRITY_SCHEMA_VERSION,
     ExecutionEventError,
     collect_execution_stream_integrity_findings,
     derive_execution_event,
+    execution_writer_integrity_record_name,
     read_and_validate_execution_stream,
     serialize_execution_event,
+    serialize_execution_writer_integrity_record,
     validate_execution_event,
     validate_execution_stream_history,
 )
@@ -58,6 +64,10 @@ def fixture(tmp_path: Path) -> dict:
     dispatch = json.loads(dispatch_raw)
     stream_path = prepared["root"] / dispatch["run_binding"]["execution_event_stream_path"]
     stream_path.parent.mkdir(parents=True, exist_ok=True)
+    (prepared["root"] / EXECUTION_WRITER_INTEGRITY_ROOT).mkdir(
+        parents=True,
+        exist_ok=True,
+    )
     prepared.update(
         {
             "dispatch": dispatch,
@@ -257,6 +267,67 @@ def test_missing_and_incomplete_streams_are_visible_without_mutation(fixture):
         for finding in collect_execution_stream_integrity_findings(repo_root=fixture["root"])
     ] == ["execution_stream_incomplete"]
     assert fixture["dispatch_path"].read_bytes() == before
+
+
+@pytest.mark.parametrize("record_state", ["canonical", "partial"])
+def test_combined_writer_uncertainty_record_is_independently_read_only_visible(
+    fixture,
+    record_state,
+):
+    run_id = fixture["dispatch"]["run_binding"]["run_id"]
+    stream_path = fixture["dispatch"]["run_binding"]["execution_event_stream_path"]
+    name = execution_writer_integrity_record_name(
+        run_id=run_id,
+        event_sequence_number=2,
+    )
+    path = fixture["root"] / EXECUTION_WRITER_INTEGRITY_ROOT / name
+    record = {
+        "schema_version": EXECUTION_WRITER_INTEGRITY_SCHEMA_VERSION,
+        "record_kind": EXECUTION_WRITER_COMBINED_UNCERTAINTY,
+        "writer_identity": EXECUTION_WRITER_IDENTITY,
+        "dispatch_id": fixture["dispatch"]["dispatch_id"],
+        "dispatch_path": fixture["dispatch"]["dispatch_record_path"],
+        "run_id": run_id,
+        "execution_event_stream_path": stream_path,
+        "event_id": f"EXEC-EVENT-{run_id}-000002",
+        "event_sequence_number": 2,
+        "primary_failure_phase": "append_or_durability",
+        "primary_uncertainty_class": "append_or_durability_uncertain",
+        "event_durable": False,
+        "stream_may_have_changed": True,
+        "lock_cleanup_also_uncertain": True,
+        "operator_inspection_required": True,
+        "non_authority": True,
+    }
+    raw = (
+        serialize_execution_writer_integrity_record(record)
+        if record_state == "canonical"
+        else b'{"partial":true}'
+    )
+    path.write_bytes(raw)
+
+    findings = collect_execution_stream_integrity_findings(repo_root=fixture["root"])
+
+    assert path.read_bytes() == raw
+    expected_types = {
+        "execution_writer_append_or_durability_uncertain",
+        "execution_writer_lock_cleanup_also_uncertain",
+    }
+    incident_rows = [row for row in findings if row["finding_type"] in expected_types]
+    assert {row["finding_type"] for row in incident_rows} == expected_types
+    assert all(row["run_id"] == run_id for row in incident_rows)
+    assert all(row["execution_event_stream_path"] == stream_path for row in incident_rows)
+    assert all(row["stream_state"] == "integrity_critical" for row in incident_rows)
+    assert all(row["operator_inspection_required"] for row in incident_rows)
+    assert all(row["non_authority"] for row in incident_rows)
+    if record_state == "canonical":
+        assert all(
+            row["dispatch_id"] == fixture["dispatch"]["dispatch_id"] for row in incident_rows
+        )
+        assert all("malformed" not in row["reason"] for row in incident_rows)
+    else:
+        assert all(row["dispatch_id"] is None for row in incident_rows)
+        assert all("malformed" in row["reason"] for row in incident_rows)
 
 
 @pytest.mark.parametrize(

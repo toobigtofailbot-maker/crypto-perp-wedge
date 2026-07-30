@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import subprocess
 from collections import Counter
 from collections.abc import Iterable, Mapping
@@ -23,6 +24,32 @@ from tools.canon_intake.dispatch_authorization import (
 EXECUTION_ROOT = Path("research/queue/execution_events")
 DISPATCH_ROOT = Path("research/queue/dispatch_records")
 EXECUTION_SCHEMA = Path("research/schemas/canon_execution_event.schema.json")
+EXECUTION_WRITER_INTEGRITY_ROOT = Path("research/canonical_crossing_audit")
+EXECUTION_WRITER_INTEGRITY_SUFFIX = ".execution_writer_integrity.json"
+EXECUTION_WRITER_INTEGRITY_SCHEMA_VERSION = "canon_execution_writer_integrity_visibility_v1"
+EXECUTION_WRITER_IDENTITY = "tools.canon_intake.execution_event_writer_v1"
+EXECUTION_WRITER_COMBINED_UNCERTAINTY = "append_or_durability_and_lock_cleanup_uncertain"
+_EXECUTION_WRITER_INTEGRITY_NAME_RE = re.compile(
+    r"^(RUN-[0-9]{8}-[A-Z0-9]{8})-([0-9]{6})" + re.escape(EXECUTION_WRITER_INTEGRITY_SUFFIX) + r"$"
+)
+_EXECUTION_WRITER_INTEGRITY_KEYS = {
+    "schema_version",
+    "record_kind",
+    "writer_identity",
+    "dispatch_id",
+    "dispatch_path",
+    "run_id",
+    "execution_event_stream_path",
+    "event_id",
+    "event_sequence_number",
+    "primary_failure_phase",
+    "primary_uncertainty_class",
+    "event_durable",
+    "stream_may_have_changed",
+    "lock_cleanup_also_uncertain",
+    "operator_inspection_required",
+    "non_authority",
+}
 
 OUTCOME_REASONS = {
     "successful": "completed",
@@ -152,6 +179,100 @@ def serialize_execution_event(event: Mapping[str, Any]) -> bytes:
     """Return one canonical JSON object plus exactly one LF."""
     try:
         return repo_canonical_json_v1(event) + b"\n"
+    except DispatchAuthorizationError as exc:
+        raise ExecutionEventError(str(exc)) from exc
+
+
+def execution_writer_integrity_record_name(
+    *,
+    run_id: str,
+    event_sequence_number: int,
+) -> str:
+    """Return the immutable per-event execution-writer incident filename."""
+    if (
+        not isinstance(run_id, str)
+        or not isinstance(event_sequence_number, int)
+        or isinstance(event_sequence_number, bool)
+        or event_sequence_number < 1
+    ):
+        raise ExecutionEventError("execution-writer integrity record identity is invalid")
+    name = f"{run_id}-{event_sequence_number:06d}{EXECUTION_WRITER_INTEGRITY_SUFFIX}"
+    if _EXECUTION_WRITER_INTEGRITY_NAME_RE.fullmatch(name) is None:
+        raise ExecutionEventError("execution-writer integrity record identity is invalid")
+    return name
+
+
+def _validate_execution_writer_integrity_record(
+    record: Mapping[str, Any],
+    *,
+    expected_run_id: str,
+    expected_sequence_number: int,
+) -> dict[str, Any]:
+    if not isinstance(record, Mapping):
+        raise ExecutionEventError("execution-writer integrity record must be one object")
+    if (
+        not isinstance(expected_run_id, str)
+        or not isinstance(expected_sequence_number, int)
+        or isinstance(expected_sequence_number, bool)
+        or expected_sequence_number < 1
+    ):
+        raise ExecutionEventError("execution-writer integrity record identity is invalid")
+    if set(record) != _EXECUTION_WRITER_INTEGRITY_KEYS:
+        raise ExecutionEventError("execution-writer integrity record fields are invalid")
+    expected = {
+        "schema_version": EXECUTION_WRITER_INTEGRITY_SCHEMA_VERSION,
+        "record_kind": EXECUTION_WRITER_COMBINED_UNCERTAINTY,
+        "writer_identity": EXECUTION_WRITER_IDENTITY,
+        "run_id": expected_run_id,
+        "event_id": (f"EXEC-EVENT-{expected_run_id}-{expected_sequence_number:06d}"),
+        "event_sequence_number": expected_sequence_number,
+        "primary_failure_phase": "append_or_durability",
+        "primary_uncertainty_class": "append_or_durability_uncertain",
+        "event_durable": False,
+        "stream_may_have_changed": True,
+        "lock_cleanup_also_uncertain": True,
+        "operator_inspection_required": True,
+        "non_authority": True,
+    }
+    for key, value in expected.items():
+        if record.get(key) != value:
+            raise ExecutionEventError(f"execution-writer integrity record {key} is invalid")
+    for key in (
+        "dispatch_id",
+        "dispatch_path",
+        "execution_event_stream_path",
+    ):
+        if not isinstance(record.get(key), str) or not record[key]:
+            raise ExecutionEventError(f"execution-writer integrity record {key} is invalid")
+    if record["dispatch_path"] != (
+        f"research/queue/dispatch_records/{record['dispatch_id']}.dispatch_record.json"
+    ):
+        raise ExecutionEventError("execution-writer integrity record dispatch binding is invalid")
+    if record["execution_event_stream_path"] != (
+        f"research/queue/execution_events/{expected_run_id}.execution_events.jsonl"
+    ):
+        raise ExecutionEventError("execution-writer integrity record stream binding is invalid")
+    return dict(record)
+
+
+def serialize_execution_writer_integrity_record(
+    record: Mapping[str, Any],
+) -> bytes:
+    """Return one validated canonical execution-writer incident record."""
+    try:
+        sequence_number = record["event_sequence_number"]
+        run_id = record["run_id"]
+    except (KeyError, TypeError) as exc:
+        raise ExecutionEventError("execution-writer integrity record identity is missing") from exc
+    if not isinstance(sequence_number, int) or isinstance(sequence_number, bool):
+        raise ExecutionEventError("execution-writer integrity record sequence is invalid")
+    validated = _validate_execution_writer_integrity_record(
+        record,
+        expected_run_id=run_id,
+        expected_sequence_number=sequence_number,
+    )
+    try:
+        return repo_canonical_json_v1(validated) + b"\n"
     except DispatchAuthorizationError as exc:
         raise ExecutionEventError(str(exc)) from exc
 
@@ -672,15 +793,151 @@ def _finding(
     }
 
 
+def _execution_writer_uncertainty_findings(
+    *,
+    dispatch_id: str | None,
+    dispatch_path: str | None,
+    run_id: str,
+    stream_path: str,
+    record_path: str,
+    malformed_reason: str | None = None,
+) -> list[dict[str, Any]]:
+    record_status = (
+        f"durable incident record {record_path}"
+        if malformed_reason is None
+        else (f"matching durable incident record {record_path} is malformed: {malformed_reason}")
+    )
+    return [
+        _finding(
+            finding_type="execution_writer_append_or_durability_uncertain",
+            dispatch_id=dispatch_id,
+            dispatch_path=dispatch_path,
+            run_id=run_id,
+            stream_path=stream_path,
+            state="integrity_critical",
+            reason=(
+                "primary append_or_durability uncertainty is preserved; "
+                "event_durable=false and stream_may_have_changed=true; " + record_status
+            ),
+        ),
+        _finding(
+            finding_type="execution_writer_lock_cleanup_also_uncertain",
+            dispatch_id=dispatch_id,
+            dispatch_path=dispatch_path,
+            run_id=run_id,
+            stream_path=stream_path,
+            state="integrity_critical",
+            reason=(
+                "lock cleanup is also uncertain and does not replace the "
+                "primary append_or_durability uncertainty; " + record_status
+            ),
+        ),
+    ]
+
+
+def _collect_execution_writer_integrity_findings(
+    *,
+    root: Path,
+) -> list[dict[str, Any]]:
+    audit_root = _repo_path(
+        root,
+        EXECUTION_WRITER_INTEGRITY_ROOT,
+        "execution-writer integrity root",
+    )
+    if not audit_root.exists():
+        return []
+    if not audit_root.is_dir():
+        raise ExecutionEventError("execution-writer integrity root is not a directory")
+    findings: list[dict[str, Any]] = []
+    for path in sorted(
+        audit_root.glob(f"*{EXECUTION_WRITER_INTEGRITY_SUFFIX}"),
+        key=lambda value: value.name,
+    ):
+        match = _EXECUTION_WRITER_INTEGRITY_NAME_RE.fullmatch(path.name)
+        if match is None:
+            continue
+        run_id = match.group(1)
+        sequence_number = int(match.group(2))
+        record_path = path.relative_to(root).as_posix()
+        stream_path = f"research/queue/execution_events/{run_id}.execution_events.jsonl"
+        try:
+            if _is_link_or_reparse(path) or not path.is_file():
+                raise ExecutionEventError("record is not a regular non-symlink file")
+            raw = path.read_bytes()
+            record = json.loads(raw.decode("utf-8"))
+            validated = _validate_execution_writer_integrity_record(
+                record,
+                expected_run_id=run_id,
+                expected_sequence_number=sequence_number,
+            )
+            if serialize_execution_writer_integrity_record(validated) != raw:
+                raise ExecutionEventError("record is not canonical")
+        except (
+            OSError,
+            UnicodeError,
+            json.JSONDecodeError,
+            ExecutionEventError,
+        ) as exc:
+            findings.extend(
+                _execution_writer_uncertainty_findings(
+                    dispatch_id=None,
+                    dispatch_path=None,
+                    run_id=run_id,
+                    stream_path=stream_path,
+                    record_path=record_path,
+                    malformed_reason=str(exc),
+                )
+            )
+            continue
+        findings.extend(
+            _execution_writer_uncertainty_findings(
+                dispatch_id=validated["dispatch_id"],
+                dispatch_path=validated["dispatch_path"],
+                run_id=validated["run_id"],
+                stream_path=validated["execution_event_stream_path"],
+                record_path=record_path,
+            )
+        )
+    return findings
+
+
+def _sorted_unique_findings(
+    findings: Iterable[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    unique = {
+        (
+            row["finding_type"],
+            row["dispatch_id"],
+            row["run_id"],
+            row["execution_event_stream_path"],
+            row["reason"],
+        ): row
+        for row in findings
+    }
+    return [
+        unique[key]
+        for key in sorted(
+            unique,
+            key=lambda value: tuple("" if part is None else part for part in value),
+        )
+    ]
+
+
 def collect_execution_stream_integrity_findings(
     *,
     repo_root: Path,
 ) -> list[dict[str, Any]]:
-    """Report missing, malformed, incomplete, unbound, or deleted streams."""
+    """Report stream failures and durable execution-writer uncertainty."""
     root = _resolve_root(repo_root)
-    findings: list[dict[str, Any]] = []
+    writer_findings = _collect_execution_writer_integrity_findings(root=root)
+    findings: list[dict[str, Any]] = list(writer_findings)
     bound_streams: set[str] = set()
-    dispatch_root = _repo_path(root, DISPATCH_ROOT, "dispatch-record root")
+    try:
+        dispatch_root = _repo_path(root, DISPATCH_ROOT, "dispatch-record root")
+    except ExecutionEventError:
+        if writer_findings:
+            return _sorted_unique_findings(findings)
+        raise
     if dispatch_root.exists():
         if not dispatch_root.is_dir():
             raise ExecutionEventError("dispatch-record root is not a directory")
@@ -755,7 +1012,12 @@ def collect_execution_stream_integrity_findings(
                         reason="valid execution stream has no terminal event",
                     )
                 )
-    execution_root = _repo_path(root, EXECUTION_ROOT, "execution-event root")
+    try:
+        execution_root = _repo_path(root, EXECUTION_ROOT, "execution-event root")
+    except ExecutionEventError:
+        if writer_findings:
+            return _sorted_unique_findings(findings)
+        raise
     if execution_root.exists():
         if not execution_root.is_dir():
             raise ExecutionEventError("execution-event root is not a directory")
@@ -797,20 +1059,4 @@ def collect_execution_stream_integrity_findings(
                 reason="retained execution stream is absent from current tree",
             )
         )
-    unique = {
-        (
-            row["finding_type"],
-            row["dispatch_id"],
-            row["run_id"],
-            row["execution_event_stream_path"],
-            row["reason"],
-        ): row
-        for row in findings
-    }
-    return [
-        unique[key]
-        for key in sorted(
-            unique,
-            key=lambda value: tuple("" if part is None else part for part in value),
-        )
-    ]
+    return _sorted_unique_findings(findings)

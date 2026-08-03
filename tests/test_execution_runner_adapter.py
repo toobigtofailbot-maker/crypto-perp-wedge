@@ -1,5 +1,6 @@
 import hashlib
 import json
+import os
 import shutil
 from pathlib import Path
 
@@ -104,7 +105,11 @@ def _runner_result(categories: tuple[str, ...]) -> dict:
 
 
 def _install_request_and_runner(monkeypatch, result: dict, calls: list[str]) -> None:
-    monkeypatch.setattr(adapter, "_prepare_runner_request", lambda root, dispatch: object())
+    monkeypatch.setattr(
+        adapter,
+        "_prepare_runner_request",
+        lambda root, dispatch, **kwargs: object(),
+    )
 
     def invoke(request, *, on_process_started):
         del request
@@ -122,6 +127,89 @@ def _validated(fixture: dict, *, terminal: bool = True) -> dict:
         reviewed_dispatch_whole_file_sha256=fixture["dispatch_hash"],
         require_terminal=terminal,
     )
+
+
+def _configure_exact_input_prepare(
+    fixture: dict,
+    monkeypatch: pytest.MonkeyPatch,
+    runner_result: dict,
+    calls: list[str],
+) -> dict:
+    manifest = json.loads(fixture["manifest_path"].read_bytes())
+    runner_binding = fixture["dispatch"]["runner_binding"]
+    dataset = manifest["dataset"]
+    funding = manifest["funding"]
+
+    def bound_runner(*args, **kwargs):
+        del args, kwargs
+        calls.append("bound-runner")
+        return runner_result
+
+    bound_runner.__module__ = runner_binding["module"]
+    runner_path = fixture["root"] / runner_binding["source_path"]
+    monkeypatch.setattr(adapter, "RUNNER_MODULE", runner_binding["module"])
+    monkeypatch.setattr(adapter, "RUNNER_SOURCE_PATH", runner_binding["source_path"])
+    monkeypatch.setattr(adapter.offline_runner, "__name__", runner_binding["module"])
+    monkeypatch.setattr(adapter.offline_runner, "__file__", str(runner_path))
+    monkeypatch.setattr(adapter.offline_runner, "REPO_ROOT", fixture["root"])
+    monkeypatch.setattr(adapter.offline_runner, "RUNNER_VERSION", runner_binding["version"])
+    monkeypatch.setattr(adapter.offline_runner, "run_offline_sweep", bound_runner)
+    monkeypatch.setattr(
+        adapter.offline_runner,
+        "DEFAULT_1D_CATALOG_SLICE_PATH",
+        fixture["root"] / dataset["catalog_path"],
+    )
+    monkeypatch.setattr(
+        adapter.offline_runner,
+        "DEFAULT_1D_VALIDATOR_PATH",
+        fixture["root"] / dataset["validator_path"],
+    )
+    monkeypatch.setattr(
+        adapter.offline_runner,
+        "OFFICIAL_1D_CATALOG_ARTIFACT_SHA256",
+        dataset["catalog_sha256"].removeprefix("sha256:"),
+    )
+    monkeypatch.setattr(
+        adapter.offline_runner,
+        "OFFICIAL_1D_SOURCE_SHA256",
+        dataset["data_sha256"].removeprefix("sha256:"),
+    )
+    monkeypatch.setattr(
+        adapter.offline_runner,
+        "OFFICIAL_1D_SOURCE_BYTE_LENGTH",
+        dataset["data_byte_length"],
+    )
+    monkeypatch.setattr(
+        adapter.offline_runner,
+        "CANONICAL_FUNDING_EXPECTED_IDENTITY",
+        {
+            "provenance_artifact_path": funding["provenance_artifact_path"],
+            "provenance_artifact_sha256": funding["provenance_artifact_sha256"],
+            "funding_parquet_path": funding["funding_data_path"],
+            "funding_parquet_sha256": funding["funding_data_sha256"],
+            "funding_parquet_byte_length": funding["funding_data_byte_length"],
+        },
+    )
+    return manifest
+
+
+def _bound_input_path(fixture: dict, manifest: dict, label: str) -> Path:
+    dispatch = fixture["dispatch"]
+    if label == "dispatch record":
+        return fixture["dispatch_path"]
+    relative_by_label = {
+        "dispatch manifest": dispatch["manifest_derivation"]["manifest_path"],
+        "runner source": dispatch["runner_binding"]["source_path"],
+        "strategy spec": dispatch["artifact_bindings"]["strategy_spec"]["path"],
+        "variant manifest": dispatch["artifact_bindings"]["variant_manifest"]["path"],
+        "sweep plan": dispatch["artifact_bindings"]["sweep_plan"]["path"],
+        "funding provenance": manifest["funding"]["provenance_artifact_path"],
+        "funding data": manifest["funding"]["funding_data_path"],
+        "dataset catalog": manifest["dataset"]["catalog_path"],
+        "dataset input": manifest["dataset"]["data_path"],
+        "dataset validator": manifest["dataset"]["validator_path"],
+    }
+    return fixture["root"] / relative_by_label[label]
 
 
 def test_completed_synthetic_run_records_every_attempt_and_no_authority_artifact(
@@ -159,7 +247,11 @@ def test_completed_synthetic_run_records_every_attempt_and_no_authority_artifact
 
 
 def test_process_start_failure_records_start_and_closed_terminal(fixture, monkeypatch):
-    monkeypatch.setattr(adapter, "_prepare_runner_request", lambda root, dispatch: object())
+    monkeypatch.setattr(
+        adapter,
+        "_prepare_runner_request",
+        lambda root, dispatch, **kwargs: object(),
+    )
 
     def fail_start(request, *, on_process_started):
         del request, on_process_started
@@ -216,7 +308,7 @@ def test_fail_closed_pre_attempt_block_writes_no_attempt_outcome(fixture, monkey
     monkeypatch.setattr(
         adapter,
         "_prepare_runner_request",
-        lambda root, dispatch: (_ for _ in ()).throw(
+        lambda root, dispatch, **kwargs: (_ for _ in ()).throw(
             adapter.ExecutionRunnerAdapterError("synthetic binding block")
         ),
     )
@@ -364,6 +456,106 @@ def test_unlawful_terminal_vocabulary_is_rejected():
         adapter._terminal_input("success", process_started=True)
 
 
+@pytest.mark.parametrize(
+    ("label", "operation"),
+    [
+        ("dispatch record", "replace"),
+        ("dispatch manifest", "write"),
+        ("runner source", "replace"),
+        ("strategy spec", "write"),
+        ("variant manifest", "replace"),
+        ("sweep plan", "write"),
+        ("funding provenance", "replace"),
+        ("funding data", "write"),
+        ("dataset catalog", "replace"),
+        ("dataset input", "write"),
+        ("dataset validator", "replace"),
+    ],
+)
+def test_post_validation_input_substitution_is_denied_and_lifecycle_fails_closed(
+    fixture,
+    monkeypatch,
+    label,
+    operation,
+):
+    calls: list[str] = []
+    manifest = _configure_exact_input_prepare(
+        fixture,
+        monkeypatch,
+        _runner_result(("successful",) * 4),
+        calls,
+    )
+    target = _bound_input_path(fixture, manifest, label)
+    original = target.read_bytes()
+
+    def substitute_after_start(request, *, on_process_started):
+        del request
+        on_process_started()
+        if operation == "write":
+            target.write_bytes(b"post-validation substituted bytes\n")
+        else:
+            replacement = target.with_name(target.name + ".substitution")
+            replacement.write_bytes(b"post-validation replacement bytes\n")
+            os.replace(replacement, target)
+        pytest.fail("bound input substitution unexpectedly succeeded")
+
+    monkeypatch.setattr(adapter, "_invoke_existing_runner", substitute_after_start)
+    with pytest.raises(adapter.ExecutionRunnerAdapterError) as caught:
+        adapter.run_consumed_dispatch(**_kwargs(fixture))
+
+    stream = _validated(fixture)
+    assert calls == []
+    assert target.read_bytes() == original
+    assert not [event for event in stream["events"] if event["event_type"] == "attempt_outcome"]
+    expected_terminal = "run_failed_midrun" if os.name == "nt" else "run_blocked"
+    assert caught.value.terminal_state == expected_terminal
+    assert [event["event_type"] for event in stream["events"]] == [
+        "run_start",
+        "run_terminal",
+    ]
+    assert stream["events"][-1]["run_terminal"]["terminal_state"] == expected_terminal
+    accounting = stream["events"][-1]["run_terminal"]["denominator_accounting"]
+    assert accounting["planned"] == 4
+    assert accounting["attempts_recorded"] == 0
+    assert accounting["not_attempted"] == 4
+    assert not (fixture["root"] / "research/result_populations").exists()
+    assert not (fixture["root"] / "scratch/FIXTURE-RUN/dispatch").exists()
+
+
+def test_runner_callable_is_captured_before_module_rebinding(fixture, monkeypatch):
+    calls: list[str] = []
+    _configure_exact_input_prepare(
+        fixture,
+        monkeypatch,
+        _runner_result(("successful",) * 4),
+        calls,
+    )
+    if os.name != "nt":
+        with pytest.raises(adapter.ExecutionRunnerAdapterError, match="exact-byte"):
+            adapter.run_consumed_dispatch(**_kwargs(fixture))
+        return
+
+    real_prepare = adapter._prepare_runner_request
+
+    def replacement_runner(*args, **kwargs):
+        del args, kwargs
+        calls.append("replacement-runner")
+        return _runner_result(("failed",) * 4)
+
+    def prepare_and_rebind(*args, **kwargs):
+        request = real_prepare(*args, **kwargs)
+        monkeypatch.setattr(adapter.offline_runner, "run_offline_sweep", replacement_runner)
+        return request
+
+    monkeypatch.setattr(adapter, "_prepare_runner_request", prepare_and_rebind)
+    result = adapter.run_consumed_dispatch(**_kwargs(fixture))
+
+    assert calls == ["bound-runner"]
+    assert result["terminal_state"] == "run_completed"
+    assert result["attempts_recorded"] == 4
+    assert not (fixture["root"] / "research/result_populations").exists()
+
+
 def test_existing_runner_seam_is_dry_run_only(monkeypatch):
     captured: dict = {}
     started: list[bool] = []
@@ -384,6 +576,8 @@ def test_existing_runner_seam_is_dry_run_only(monkeypatch):
         deterministic_seed=7,
         max_workers=1,
         run_label="RUN-20260720-TEST9001",
+        runner_callable=fake_run,
+        input_leases=(),
     )
 
     assert adapter._invoke_existing_runner(

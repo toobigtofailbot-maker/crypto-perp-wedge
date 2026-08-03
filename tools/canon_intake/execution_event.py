@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import subprocess
 from collections import Counter
 from collections.abc import Iterable, Mapping
@@ -23,6 +24,64 @@ from tools.canon_intake.dispatch_authorization import (
 EXECUTION_ROOT = Path("research/queue/execution_events")
 DISPATCH_ROOT = Path("research/queue/dispatch_records")
 EXECUTION_SCHEMA = Path("research/schemas/canon_execution_event.schema.json")
+EXECUTION_WRITER_INTEGRITY_ROOT = Path("research/canonical_crossing_audit")
+EXECUTION_WRITER_INTEGRITY_SUFFIX = ".execution_writer_integrity.json"
+EXECUTION_WRITER_INTEGRITY_SCHEMA_VERSION = "canon_execution_writer_integrity_visibility_v1"
+EXECUTION_WRITER_VISIBILITY_MARKER_SCHEMA_VERSION = (
+    "canon_execution_writer_integrity_visibility_marker_v1"
+)
+EXECUTION_WRITER_IDENTITY = "tools.canon_intake.execution_event_writer_v1"
+EXECUTION_WRITER_COMBINED_UNCERTAINTY = "append_or_durability_and_lock_cleanup_uncertain"
+EXECUTION_WRITER_MUTATION_RESERVED = "execution_event_mutation_reserved"
+EXECUTION_WRITER_EVENT_DURABLE = "execution_event_durable_proven"
+EXECUTION_WRITER_CLEANUP_SUCCEEDED = "append_lock_cleanup_succeeded_after_primary_uncertainty"
+_EXECUTION_WRITER_MARKER_SUFFIXES = {
+    EXECUTION_WRITER_MUTATION_RESERVED: ".execution_writer_visibility_reservation.json",
+    EXECUTION_WRITER_EVENT_DURABLE: ".execution_writer_event_durable.json",
+    EXECUTION_WRITER_CLEANUP_SUCCEEDED: ".execution_writer_cleanup_succeeded.json",
+}
+_EXECUTION_WRITER_INTEGRITY_NAME_RE = re.compile(
+    r"^(RUN-[0-9]{8}-[A-Z0-9]{8})-([0-9]{6})" + re.escape(EXECUTION_WRITER_INTEGRITY_SUFFIX) + r"$"
+)
+_EXECUTION_WRITER_MARKER_NAME_RE = re.compile(
+    r"^(RUN-[0-9]{8}-[A-Z0-9]{8})-([0-9]{6})("
+    + "|".join(re.escape(value) for value in _EXECUTION_WRITER_MARKER_SUFFIXES.values())
+    + r")$"
+)
+_EXECUTION_WRITER_INTEGRITY_KEYS = {
+    "schema_version",
+    "record_kind",
+    "writer_identity",
+    "dispatch_id",
+    "dispatch_path",
+    "run_id",
+    "execution_event_stream_path",
+    "event_id",
+    "event_sequence_number",
+    "primary_failure_phase",
+    "primary_uncertainty_class",
+    "event_durable",
+    "stream_may_have_changed",
+    "lock_cleanup_also_uncertain",
+    "operator_inspection_required",
+    "non_authority",
+}
+_EXECUTION_WRITER_MARKER_KEYS = {
+    "schema_version",
+    "record_kind",
+    "writer_identity",
+    "dispatch_id",
+    "dispatch_path",
+    "run_id",
+    "execution_event_stream_path",
+    "event_id",
+    "event_sequence_number",
+    "event_durable",
+    "stream_file_sha256",
+    "stream_byte_length",
+    "lock_cleanup_succeeded_after_primary_uncertainty",
+    "non_authority",
+}
 
 OUTCOME_REASONS = {
     "successful": "completed",
@@ -152,6 +211,200 @@ def serialize_execution_event(event: Mapping[str, Any]) -> bytes:
     """Return one canonical JSON object plus exactly one LF."""
     try:
         return repo_canonical_json_v1(event) + b"\n"
+    except DispatchAuthorizationError as exc:
+        raise ExecutionEventError(str(exc)) from exc
+
+
+def execution_writer_integrity_record_name(
+    *,
+    run_id: str,
+    event_sequence_number: int,
+) -> str:
+    """Return the immutable per-event execution-writer incident filename."""
+    if (
+        not isinstance(run_id, str)
+        or not isinstance(event_sequence_number, int)
+        or isinstance(event_sequence_number, bool)
+        or event_sequence_number < 1
+    ):
+        raise ExecutionEventError("execution-writer integrity record identity is invalid")
+    name = f"{run_id}-{event_sequence_number:06d}{EXECUTION_WRITER_INTEGRITY_SUFFIX}"
+    if _EXECUTION_WRITER_INTEGRITY_NAME_RE.fullmatch(name) is None:
+        raise ExecutionEventError("execution-writer integrity record identity is invalid")
+    return name
+
+
+def execution_writer_visibility_marker_name(
+    *,
+    run_id: str,
+    event_sequence_number: int,
+    record_kind: str,
+) -> str:
+    """Return one immutable execution-writer visibility marker filename."""
+    suffix = _EXECUTION_WRITER_MARKER_SUFFIXES.get(record_kind)
+    if (
+        suffix is None
+        or not isinstance(run_id, str)
+        or not isinstance(event_sequence_number, int)
+        or isinstance(event_sequence_number, bool)
+        or event_sequence_number < 1
+    ):
+        raise ExecutionEventError("execution-writer visibility marker identity is invalid")
+    name = f"{run_id}-{event_sequence_number:06d}{suffix}"
+    if _EXECUTION_WRITER_MARKER_NAME_RE.fullmatch(name) is None:
+        raise ExecutionEventError("execution-writer visibility marker identity is invalid")
+    return name
+
+
+def _validate_execution_writer_visibility_marker(
+    record: Mapping[str, Any],
+    *,
+    expected_run_id: str,
+    expected_sequence_number: int,
+    expected_record_kind: str,
+) -> dict[str, Any]:
+    if not isinstance(record, Mapping) or set(record) != _EXECUTION_WRITER_MARKER_KEYS:
+        raise ExecutionEventError("execution-writer visibility marker fields are invalid")
+    if expected_record_kind not in _EXECUTION_WRITER_MARKER_SUFFIXES:
+        raise ExecutionEventError("execution-writer visibility marker kind is invalid")
+    expected = {
+        "schema_version": EXECUTION_WRITER_VISIBILITY_MARKER_SCHEMA_VERSION,
+        "record_kind": expected_record_kind,
+        "writer_identity": EXECUTION_WRITER_IDENTITY,
+        "run_id": expected_run_id,
+        "event_id": f"EXEC-EVENT-{expected_run_id}-{expected_sequence_number:06d}",
+        "event_sequence_number": expected_sequence_number,
+        "non_authority": True,
+    }
+    for key, value in expected.items():
+        if record.get(key) != value:
+            raise ExecutionEventError(f"execution-writer visibility marker {key} is invalid")
+    for key in ("dispatch_id", "dispatch_path", "execution_event_stream_path"):
+        if not isinstance(record.get(key), str) or not record[key]:
+            raise ExecutionEventError(f"execution-writer visibility marker {key} is invalid")
+    if record["dispatch_path"] != (
+        f"research/queue/dispatch_records/{record['dispatch_id']}.dispatch_record.json"
+    ):
+        raise ExecutionEventError("execution-writer visibility marker dispatch binding is invalid")
+    if record["execution_event_stream_path"] != (
+        f"research/queue/execution_events/{expected_run_id}.execution_events.jsonl"
+    ):
+        raise ExecutionEventError("execution-writer visibility marker stream binding is invalid")
+    durable = expected_record_kind == EXECUTION_WRITER_EVENT_DURABLE
+    cleanup_succeeded = expected_record_kind == EXECUTION_WRITER_CLEANUP_SUCCEEDED
+    if record.get("event_durable") is not durable:
+        raise ExecutionEventError("execution-writer visibility marker durability state is invalid")
+    if record.get("lock_cleanup_succeeded_after_primary_uncertainty") is not cleanup_succeeded:
+        raise ExecutionEventError("execution-writer visibility marker cleanup state is invalid")
+    if durable:
+        if (
+            not isinstance(record.get("stream_file_sha256"), str)
+            or re.fullmatch(r"sha256:[0-9a-f]{64}", record["stream_file_sha256"]) is None
+            or not isinstance(record.get("stream_byte_length"), int)
+            or isinstance(record["stream_byte_length"], bool)
+            or record["stream_byte_length"] < 1
+        ):
+            raise ExecutionEventError("execution-writer visibility marker stream proof is invalid")
+    elif (
+        record.get("stream_file_sha256") is not None or record.get("stream_byte_length") is not None
+    ):
+        raise ExecutionEventError("execution-writer visibility marker stream proof is invalid")
+    return dict(record)
+
+
+def serialize_execution_writer_visibility_marker(record: Mapping[str, Any]) -> bytes:
+    """Return one validated canonical immutable visibility marker."""
+    try:
+        sequence_number = record["event_sequence_number"]
+        run_id = record["run_id"]
+        record_kind = record["record_kind"]
+    except (KeyError, TypeError) as exc:
+        raise ExecutionEventError("execution-writer visibility marker identity is missing") from exc
+    if not isinstance(sequence_number, int) or isinstance(sequence_number, bool):
+        raise ExecutionEventError("execution-writer visibility marker sequence is invalid")
+    validated = _validate_execution_writer_visibility_marker(
+        record,
+        expected_run_id=run_id,
+        expected_sequence_number=sequence_number,
+        expected_record_kind=record_kind,
+    )
+    try:
+        return repo_canonical_json_v1(validated) + b"\n"
+    except DispatchAuthorizationError as exc:
+        raise ExecutionEventError(str(exc)) from exc
+
+
+def _validate_execution_writer_integrity_record(
+    record: Mapping[str, Any],
+    *,
+    expected_run_id: str,
+    expected_sequence_number: int,
+) -> dict[str, Any]:
+    if not isinstance(record, Mapping):
+        raise ExecutionEventError("execution-writer integrity record must be one object")
+    if (
+        not isinstance(expected_run_id, str)
+        or not isinstance(expected_sequence_number, int)
+        or isinstance(expected_sequence_number, bool)
+        or expected_sequence_number < 1
+    ):
+        raise ExecutionEventError("execution-writer integrity record identity is invalid")
+    if set(record) != _EXECUTION_WRITER_INTEGRITY_KEYS:
+        raise ExecutionEventError("execution-writer integrity record fields are invalid")
+    expected = {
+        "schema_version": EXECUTION_WRITER_INTEGRITY_SCHEMA_VERSION,
+        "record_kind": EXECUTION_WRITER_COMBINED_UNCERTAINTY,
+        "writer_identity": EXECUTION_WRITER_IDENTITY,
+        "run_id": expected_run_id,
+        "event_id": (f"EXEC-EVENT-{expected_run_id}-{expected_sequence_number:06d}"),
+        "event_sequence_number": expected_sequence_number,
+        "primary_failure_phase": "append_or_durability",
+        "primary_uncertainty_class": "append_or_durability_uncertain",
+        "event_durable": False,
+        "stream_may_have_changed": True,
+        "lock_cleanup_also_uncertain": True,
+        "operator_inspection_required": True,
+        "non_authority": True,
+    }
+    for key, value in expected.items():
+        if record.get(key) != value:
+            raise ExecutionEventError(f"execution-writer integrity record {key} is invalid")
+    for key in (
+        "dispatch_id",
+        "dispatch_path",
+        "execution_event_stream_path",
+    ):
+        if not isinstance(record.get(key), str) or not record[key]:
+            raise ExecutionEventError(f"execution-writer integrity record {key} is invalid")
+    if record["dispatch_path"] != (
+        f"research/queue/dispatch_records/{record['dispatch_id']}.dispatch_record.json"
+    ):
+        raise ExecutionEventError("execution-writer integrity record dispatch binding is invalid")
+    if record["execution_event_stream_path"] != (
+        f"research/queue/execution_events/{expected_run_id}.execution_events.jsonl"
+    ):
+        raise ExecutionEventError("execution-writer integrity record stream binding is invalid")
+    return dict(record)
+
+
+def serialize_execution_writer_integrity_record(
+    record: Mapping[str, Any],
+) -> bytes:
+    """Return one validated canonical execution-writer incident record."""
+    try:
+        sequence_number = record["event_sequence_number"]
+        run_id = record["run_id"]
+    except (KeyError, TypeError) as exc:
+        raise ExecutionEventError("execution-writer integrity record identity is missing") from exc
+    if not isinstance(sequence_number, int) or isinstance(sequence_number, bool):
+        raise ExecutionEventError("execution-writer integrity record sequence is invalid")
+    validated = _validate_execution_writer_integrity_record(
+        record,
+        expected_run_id=run_id,
+        expected_sequence_number=sequence_number,
+    )
+    try:
+        return repo_canonical_json_v1(validated) + b"\n"
     except DispatchAuthorizationError as exc:
         raise ExecutionEventError(str(exc)) from exc
 
@@ -672,15 +925,330 @@ def _finding(
     }
 
 
+def _execution_writer_uncertainty_findings(
+    *,
+    dispatch_id: str | None,
+    dispatch_path: str | None,
+    run_id: str,
+    stream_path: str,
+    record_path: str,
+    malformed_reason: str | None = None,
+) -> list[dict[str, Any]]:
+    record_status = (
+        f"durable incident record {record_path}"
+        if malformed_reason is None
+        else (f"matching durable incident record {record_path} is malformed: {malformed_reason}")
+    )
+    return [
+        _finding(
+            finding_type="execution_writer_append_or_durability_uncertain",
+            dispatch_id=dispatch_id,
+            dispatch_path=dispatch_path,
+            run_id=run_id,
+            stream_path=stream_path,
+            state="integrity_critical",
+            reason=(
+                "primary append_or_durability uncertainty is preserved; "
+                "event_durable=false and stream_may_have_changed=true; " + record_status
+            ),
+        ),
+        _finding(
+            finding_type="execution_writer_lock_cleanup_also_uncertain",
+            dispatch_id=dispatch_id,
+            dispatch_path=dispatch_path,
+            run_id=run_id,
+            stream_path=stream_path,
+            state="integrity_critical",
+            reason=(
+                "lock cleanup is also uncertain and does not replace the "
+                "primary append_or_durability uncertainty; " + record_status
+            ),
+        ),
+    ]
+
+
+def _execution_writer_reserved_uncertainty_findings(
+    *,
+    reservation: Mapping[str, Any] | None,
+    run_id: str,
+    sequence_number: int,
+    reservation_path: str | None,
+    durable_status: str,
+    cleanup_status: str,
+    cleanup_succeeded: bool,
+) -> list[dict[str, Any]]:
+    stream_path = f"research/queue/execution_events/{run_id}.execution_events.jsonl"
+    dispatch_id = reservation.get("dispatch_id") if reservation is not None else None
+    dispatch_path = reservation.get("dispatch_path") if reservation is not None else None
+    if reservation is not None:
+        stream_path = reservation["execution_event_stream_path"]
+    marker = reservation_path or (
+        f"execution-writer visibility marker identity {run_id}-{sequence_number:06d}"
+    )
+    findings = [
+        _finding(
+            finding_type="execution_writer_append_or_durability_uncertain",
+            dispatch_id=dispatch_id,
+            dispatch_path=dispatch_path,
+            run_id=run_id,
+            stream_path=stream_path,
+            state="integrity_critical",
+            reason=(
+                f"immutable pre-mutation reservation {marker} is unresolved; "
+                f"{durable_status}; primary append_or_durability uncertainty "
+                "remains conservatively visible"
+            ),
+        )
+    ]
+    if not cleanup_succeeded:
+        findings.append(
+            _finding(
+                finding_type="execution_writer_lock_cleanup_also_uncertain",
+                dispatch_id=dispatch_id,
+                dispatch_path=dispatch_path,
+                run_id=run_id,
+                stream_path=stream_path,
+                state="integrity_critical",
+                reason=(
+                    "lock cleanup success is not durably proven and additive cleanup "
+                    f"uncertainty cannot be excluded; {cleanup_status}; {marker} is "
+                    "retained without repair"
+                ),
+            )
+        )
+    return findings
+
+
+def _visibility_marker_bindings_match(
+    left: Mapping[str, Any],
+    right: Mapping[str, Any],
+) -> bool:
+    return all(
+        left[key] == right[key]
+        for key in (
+            "writer_identity",
+            "dispatch_id",
+            "dispatch_path",
+            "run_id",
+            "execution_event_stream_path",
+            "event_id",
+            "event_sequence_number",
+        )
+    )
+
+
+def _collect_execution_writer_integrity_findings(
+    *,
+    root: Path,
+) -> list[dict[str, Any]]:
+    audit_root = _repo_path(
+        root,
+        EXECUTION_WRITER_INTEGRITY_ROOT,
+        "execution-writer integrity root",
+    )
+    if not audit_root.exists():
+        return []
+    if not audit_root.is_dir():
+        raise ExecutionEventError("execution-writer integrity root is not a directory")
+    findings: list[dict[str, Any]] = []
+    final_incidents: set[tuple[str, int]] = set()
+    for path in sorted(
+        audit_root.glob(f"*{EXECUTION_WRITER_INTEGRITY_SUFFIX}"),
+        key=lambda value: value.name,
+    ):
+        match = _EXECUTION_WRITER_INTEGRITY_NAME_RE.fullmatch(path.name)
+        if match is None:
+            continue
+        run_id = match.group(1)
+        sequence_number = int(match.group(2))
+        final_incidents.add((run_id, sequence_number))
+        record_path = path.relative_to(root).as_posix()
+        stream_path = f"research/queue/execution_events/{run_id}.execution_events.jsonl"
+        try:
+            if _is_link_or_reparse(path) or not path.is_file():
+                raise ExecutionEventError("record is not a regular non-symlink file")
+            raw = path.read_bytes()
+            record = json.loads(raw.decode("utf-8"))
+            validated = _validate_execution_writer_integrity_record(
+                record,
+                expected_run_id=run_id,
+                expected_sequence_number=sequence_number,
+            )
+            if serialize_execution_writer_integrity_record(validated) != raw:
+                raise ExecutionEventError("record is not canonical")
+        except (
+            OSError,
+            UnicodeError,
+            json.JSONDecodeError,
+            ExecutionEventError,
+        ) as exc:
+            findings.extend(
+                _execution_writer_uncertainty_findings(
+                    dispatch_id=None,
+                    dispatch_path=None,
+                    run_id=run_id,
+                    stream_path=stream_path,
+                    record_path=record_path,
+                    malformed_reason=str(exc),
+                )
+            )
+            continue
+        findings.extend(
+            _execution_writer_uncertainty_findings(
+                dispatch_id=validated["dispatch_id"],
+                dispatch_path=validated["dispatch_path"],
+                run_id=validated["run_id"],
+                stream_path=validated["execution_event_stream_path"],
+                record_path=record_path,
+            )
+        )
+
+    marker_records: dict[
+        tuple[str, int],
+        dict[str, tuple[dict[str, Any] | None, str | None, str]],
+    ] = {}
+    suffix_to_kind = {suffix: kind for kind, suffix in _EXECUTION_WRITER_MARKER_SUFFIXES.items()}
+    for path in sorted(
+        (
+            candidate
+            for suffix in _EXECUTION_WRITER_MARKER_SUFFIXES.values()
+            for candidate in audit_root.glob(f"*{suffix}")
+        ),
+        key=lambda value: value.name,
+    ):
+        match = _EXECUTION_WRITER_MARKER_NAME_RE.fullmatch(path.name)
+        if match is None:
+            continue
+        run_id = match.group(1)
+        sequence_number = int(match.group(2))
+        record_kind = suffix_to_kind[match.group(3)]
+        record_path = path.relative_to(root).as_posix()
+        validated: dict[str, Any] | None = None
+        malformed_reason: str | None = None
+        try:
+            if _is_link_or_reparse(path) or not path.is_file():
+                raise ExecutionEventError("marker is not a regular non-symlink file")
+            raw = path.read_bytes()
+            record = json.loads(raw.decode("utf-8"))
+            validated = _validate_execution_writer_visibility_marker(
+                record,
+                expected_run_id=run_id,
+                expected_sequence_number=sequence_number,
+                expected_record_kind=record_kind,
+            )
+            if serialize_execution_writer_visibility_marker(validated) != raw:
+                raise ExecutionEventError("marker is not canonical")
+        except (
+            OSError,
+            UnicodeError,
+            json.JSONDecodeError,
+            ExecutionEventError,
+        ) as exc:
+            validated = None
+            malformed_reason = str(exc)
+        marker_records.setdefault((run_id, sequence_number), {})[record_kind] = (
+            validated,
+            malformed_reason,
+            record_path,
+        )
+
+    for (run_id, sequence_number), records in sorted(marker_records.items()):
+        if (run_id, sequence_number) in final_incidents:
+            continue
+        reservation_item = records.get(EXECUTION_WRITER_MUTATION_RESERVED)
+        durable_item = records.get(EXECUTION_WRITER_EVENT_DURABLE)
+        cleanup_item = records.get(EXECUTION_WRITER_CLEANUP_SUCCEEDED)
+        reservation = reservation_item[0] if reservation_item is not None else None
+        reservation_path = reservation_item[2] if reservation_item is not None else None
+        reservation_malformed = reservation_item is None or reservation_item[1] is not None
+        durable = durable_item[0] if durable_item is not None else None
+        durable_matches = (
+            not reservation_malformed
+            and durable is not None
+            and _visibility_marker_bindings_match(reservation, durable)
+        )
+        if durable_matches:
+            continue
+        cleanup = cleanup_item[0] if cleanup_item is not None else None
+        cleanup_matches = (
+            not reservation_malformed
+            and cleanup is not None
+            and _visibility_marker_bindings_match(reservation, cleanup)
+        )
+        if reservation_item is None:
+            reservation_status = "pre-mutation reservation is absent"
+        elif reservation_item[1] is not None:
+            reservation_status = f"pre-mutation reservation is malformed: {reservation_item[1]}"
+        else:
+            reservation_status = "pre-mutation reservation is canonical"
+        if durable_item is None:
+            durable_status = "event-durable proof is absent"
+        elif durable_item[1] is not None:
+            durable_status = f"event-durable proof is malformed: {durable_item[1]}"
+        else:
+            durable_status = "event-durable proof does not match the reservation"
+        if cleanup_item is None:
+            cleanup_status = "cleanup-success proof is absent"
+        elif cleanup_item[1] is not None:
+            cleanup_status = f"cleanup-success proof is malformed: {cleanup_item[1]}"
+        else:
+            cleanup_status = "cleanup-success proof does not match the reservation"
+        findings.extend(
+            _execution_writer_reserved_uncertainty_findings(
+                reservation=reservation,
+                run_id=run_id,
+                sequence_number=sequence_number,
+                reservation_path=reservation_path,
+                durable_status=f"{reservation_status}; {durable_status}",
+                cleanup_status=cleanup_status,
+                cleanup_succeeded=cleanup_matches,
+            )
+        )
+    return findings
+
+
+def _sorted_unique_findings(
+    findings: Iterable[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    unique = {
+        (
+            row["finding_type"],
+            row["dispatch_id"],
+            row["run_id"],
+            row["execution_event_stream_path"],
+            row["reason"],
+        ): row
+        for row in findings
+    }
+    return [
+        unique[key]
+        for key in sorted(
+            unique,
+            key=lambda value: tuple("" if part is None else part for part in value),
+        )
+    ]
+
+
 def collect_execution_stream_integrity_findings(
     *,
     repo_root: Path,
 ) -> list[dict[str, Any]]:
-    """Report missing, malformed, incomplete, unbound, or deleted streams."""
+    """Report stream failures and durable execution-writer uncertainty."""
     root = _resolve_root(repo_root)
-    findings: list[dict[str, Any]] = []
+    writer_findings = _collect_execution_writer_integrity_findings(root=root)
+    findings: list[dict[str, Any]] = list(writer_findings)
+    writer_finding_types = {row["finding_type"] for row in writer_findings}
+    combined_writer_uncertainty_visible = {
+        "execution_writer_append_or_durability_uncertain",
+        "execution_writer_lock_cleanup_also_uncertain",
+    } <= writer_finding_types
     bound_streams: set[str] = set()
-    dispatch_root = _repo_path(root, DISPATCH_ROOT, "dispatch-record root")
+    try:
+        dispatch_root = _repo_path(root, DISPATCH_ROOT, "dispatch-record root")
+    except ExecutionEventError:
+        if combined_writer_uncertainty_visible:
+            return _sorted_unique_findings(findings)
+        raise
     if dispatch_root.exists():
         if not dispatch_root.is_dir():
             raise ExecutionEventError("dispatch-record root is not a directory")
@@ -755,7 +1323,12 @@ def collect_execution_stream_integrity_findings(
                         reason="valid execution stream has no terminal event",
                     )
                 )
-    execution_root = _repo_path(root, EXECUTION_ROOT, "execution-event root")
+    try:
+        execution_root = _repo_path(root, EXECUTION_ROOT, "execution-event root")
+    except ExecutionEventError:
+        if combined_writer_uncertainty_visible:
+            return _sorted_unique_findings(findings)
+        raise
     if execution_root.exists():
         if not execution_root.is_dir():
             raise ExecutionEventError("execution-event root is not a directory")
@@ -797,20 +1370,4 @@ def collect_execution_stream_integrity_findings(
                 reason="retained execution stream is absent from current tree",
             )
         )
-    unique = {
-        (
-            row["finding_type"],
-            row["dispatch_id"],
-            row["run_id"],
-            row["execution_event_stream_path"],
-            row["reason"],
-        ): row
-        for row in findings
-    }
-    return [
-        unique[key]
-        for key in sorted(
-            unique,
-            key=lambda value: tuple("" if part is None else part for part in value),
-        )
-    ]
+    return _sorted_unique_findings(findings)

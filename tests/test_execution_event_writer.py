@@ -22,6 +22,7 @@ from tools.canon_intake.dispatch_authorization import (
 )
 from tools.canon_intake.execution_event import (
     EXECUTION_WRITER_INTEGRITY_ROOT,
+    EXECUTION_WRITER_MUTATION_RESERVED,
     ExecutionEventError,
     collect_execution_stream_integrity_findings,
     derive_execution_event,
@@ -223,7 +224,14 @@ def test_lawful_start_multiple_attempts_and_terminal_are_exact_and_visible(
     assert accounting["outcome_counts"]["failed"] == 1
     assert accounting["not_attempted"] == fixture["dispatch"]["denominator"]["planned"] - 2
     assert result["events"][-1]["run_terminal"]["budget"]["actual"] == 2
+    audit_root = fixture["root"] / EXECUTION_WRITER_INTEGRITY_ROOT
+    reservations = sorted(audit_root.glob("*.execution_writer_visibility_reservation.json"))
+    durable_proofs = sorted(audit_root.glob("*.execution_writer_event_durable.json"))
+    assert len(reservations) == 4
+    assert len(durable_proofs) == 4
+    retained_marker_bytes = {path: path.read_bytes() for path in [*reservations, *durable_proofs]}
     assert collect_execution_stream_integrity_findings(repo_root=fixture["root"]) == []
+    assert {path: path.read_bytes() for path in retained_marker_bytes} == retained_marker_bytes
 
 
 def test_completed_terminal_requires_every_planned_member_attempted(fixture):
@@ -765,6 +773,39 @@ def test_pre_append_post_anchor_parent_substitution_preserves_primary_precedence
     assert list(outside.iterdir()) == []
 
 
+def _install_combined_uncertainty_currentness_failures(monkeypatch):
+    trace = {"lock_currentness_checks": 0}
+    real_assert_current = writer._AnchoredDirectory.assert_current
+
+    def fail_post_append_and_post_cleanup_currentness(self):
+        if self.label == "execution append lock parent":
+            trace["lock_currentness_checks"] += 1
+            if trace["lock_currentness_checks"] in {4, 5}:
+                raise OSError("synthetic execution append lock parent currentness failure")
+        return real_assert_current(self)
+
+    monkeypatch.setattr(
+        writer._AnchoredDirectory,
+        "assert_current",
+        fail_post_append_and_post_cleanup_currentness,
+    )
+    return trace
+
+
+def _writer_uncertainty_rows(fixture):
+    expected_types = {
+        "execution_writer_append_or_durability_uncertain",
+        "execution_writer_lock_cleanup_also_uncertain",
+    }
+    findings = collect_execution_stream_integrity_findings(repo_root=fixture["root"])
+    rows = [row for row in findings if row["finding_type"] in expected_types]
+    assert {row["finding_type"] for row in rows} == expected_types
+    assert all(row["stream_state"] == "integrity_critical" for row in rows)
+    assert all(row["operator_inspection_required"] for row in rows)
+    assert all(row["non_authority"] for row in rows)
+    return rows
+
+
 def test_combined_uncertainty_is_durable_and_query_visible_cross_platform(
     fixture,
     monkeypatch,
@@ -905,6 +946,133 @@ def test_combined_uncertainty_is_durable_and_query_visible_cross_platform(
     }
 
 
+def test_process_stop_before_final_incident_creation_retains_read_only_evidence(
+    fixture,
+    monkeypatch,
+):
+    class SimulatedProcessStop(BaseException):
+        pass
+
+    _start(fixture)
+    trace = _install_combined_uncertainty_currentness_failures(monkeypatch)
+    final_record_attempted = False
+
+    def stop_before_final_create(*, integrity_parent, state):
+        nonlocal final_record_attempted
+        final_record_attempted = True
+        assert state["append_started"] is True
+        assert state["event_durable"] is False
+        raise SimulatedProcessStop("synthetic stop before final incident create")
+
+    monkeypatch.setattr(writer, "_write_combined_uncertainty_record", stop_before_final_create)
+
+    with pytest.raises(SimulatedProcessStop):
+        _attempt(
+            fixture,
+            variant_id="SYNTHETIC-VARIANT-001",
+            second=2,
+        )
+
+    assert final_record_attempted is True
+    assert trace["lock_currentness_checks"] == 5
+    final_name = writer.execution_writer_integrity_record_name(
+        run_id=fixture["run_id"],
+        event_sequence_number=2,
+    )
+    reservation_name = writer.execution_writer_visibility_marker_name(
+        run_id=fixture["run_id"],
+        event_sequence_number=2,
+        record_kind=EXECUTION_WRITER_MUTATION_RESERVED,
+    )
+    audit_root = fixture["root"] / EXECUTION_WRITER_INTEGRITY_ROOT
+    assert not (audit_root / final_name).exists()
+    reservation_path = audit_root / reservation_name
+    reservation_raw = reservation_path.read_bytes()
+
+    rows = _writer_uncertainty_rows(fixture)
+
+    assert reservation_path.read_bytes() == reservation_raw
+    assert all("reservation" in row["reason"] for row in rows)
+    assert all("durable incident record" not in row["reason"] for row in rows)
+    monkeypatch.setattr(query_layer, "REPO_ROOT", fixture["root"])
+    conn = duckdb.connect(database=":memory:")
+    try:
+        query_layer._register_execution_stream_integrity_findings(conn)
+        query_types = {
+            row[0]
+            for row in conn.execute(
+                "SELECT finding_type FROM execution_stream_integrity_findings "
+                "WHERE finding_type LIKE 'execution_writer_%'"
+            ).fetchall()
+        }
+    finally:
+        conn.close()
+    assert query_types == {
+        "execution_writer_append_or_durability_uncertain",
+        "execution_writer_lock_cleanup_also_uncertain",
+    }
+
+
+@pytest.mark.parametrize("final_failure", ["audit_parent_currentness", "exclusive_create"])
+def test_final_incident_create_failure_uses_retained_reservation_evidence(
+    fixture,
+    monkeypatch,
+    final_failure,
+):
+    _start(fixture)
+    trace = _install_combined_uncertainty_currentness_failures(monkeypatch)
+    real_combined_record = writer._write_combined_uncertainty_record
+    real_assert_current = writer._AnchoredDirectory.assert_current
+    real_create = writer._AnchoredDirectory.create
+    final_record_started = False
+
+    def observe_final_record(**kwargs):
+        nonlocal final_record_started
+        final_record_started = True
+        return real_combined_record(**kwargs)
+
+    def fail_final_currentness(self):
+        if (
+            final_failure == "audit_parent_currentness"
+            and final_record_started
+            and self.label == "execution-writer integrity parent"
+        ):
+            raise OSError("synthetic final incident audit-parent currentness failure")
+        return real_assert_current(self)
+
+    def fail_final_create(self, name):
+        if final_failure == "exclusive_create" and name.endswith(
+            ".execution_writer_integrity.json"
+        ):
+            raise OSError("synthetic final incident exclusive-create failure")
+        return real_create(self, name)
+
+    monkeypatch.setattr(writer, "_write_combined_uncertainty_record", observe_final_record)
+    monkeypatch.setattr(writer._AnchoredDirectory, "assert_current", fail_final_currentness)
+    monkeypatch.setattr(writer._AnchoredDirectory, "create", fail_final_create)
+
+    with pytest.raises(writer.ExecutionEventWriterIntegrityCriticalError) as caught:
+        _attempt(
+            fixture,
+            variant_id="SYNTHETIC-VARIANT-001",
+            second=2,
+        )
+
+    error = caught.value
+    assert error.failure_phase == "append_or_durability"
+    assert error.event_durable is False
+    assert error.stream_may_have_changed is True
+    assert error.lock_cleanup_also_uncertain is True
+    assert error.integrity_visibility_recorded is False
+    assert error.integrity_visibility_record_uncertain is True
+    assert final_record_started is True
+    assert trace["lock_currentness_checks"] == 5
+    final_path = fixture["root"] / error.integrity_visibility_record_path
+    assert not final_path.exists()
+    rows = _writer_uncertainty_rows(fixture)
+    assert all("reservation" in row["reason"] for row in rows)
+
+
 def test_post_proof_lock_parent_substitution_reports_real_cleanup_uncertainty(
     fixture,
     tmp_path,
@@ -1027,10 +1195,14 @@ def test_partial_append_is_integrity_critical_preserved_and_visible(fixture, mon
         )
     assert fixture["stream_path"].read_bytes().startswith(before)
     assert fixture["stream_path"].read_bytes() != before
-    assert [
+    finding_types = {
         row["finding_type"]
         for row in collect_execution_stream_integrity_findings(repo_root=fixture["root"])
-    ] == ["execution_stream_malformed"]
+    }
+    assert finding_types == {
+        "execution_stream_malformed",
+        "execution_writer_append_or_durability_uncertain",
+    }
 
 
 def test_preserved_malformed_tail_remains_visible_in_sql_integrity_view(fixture, monkeypatch):
@@ -1130,6 +1302,11 @@ def test_lock_cleanup_uncertainty_never_returns_success(fixture, monkeypatch):
             "*.execution_writer_integrity.json"
         )
     )
+    assert not {
+        row["finding_type"]
+        for row in collect_execution_stream_integrity_findings(repo_root=fixture["root"])
+        if row["finding_type"].startswith("execution_writer_")
+    }
     assert (
         fixture["root"] / writer.LOCK_ROOT / f".{fixture['run_id']}.execution_event_append.lock"
     ).is_file()

@@ -19,17 +19,23 @@ from tools.canon_intake.dispatch_authorization_writer import (
 )
 from tools.canon_intake.execution_event import (
     ACCOUNTING_CATEGORIES,
+    EXECUTION_WRITER_CLEANUP_SUCCEEDED,
     EXECUTION_WRITER_COMBINED_UNCERTAINTY,
+    EXECUTION_WRITER_EVENT_DURABLE,
     EXECUTION_WRITER_IDENTITY,
     EXECUTION_WRITER_INTEGRITY_ROOT,
     EXECUTION_WRITER_INTEGRITY_SCHEMA_VERSION,
+    EXECUTION_WRITER_MUTATION_RESERVED,
+    EXECUTION_WRITER_VISIBILITY_MARKER_SCHEMA_VERSION,
     OUTCOME_CATEGORIES,
     ExecutionEventError,
     derive_execution_event,
     execution_writer_integrity_record_name,
+    execution_writer_visibility_marker_name,
     read_and_validate_execution_stream,
     serialize_execution_event,
     serialize_execution_writer_integrity_record,
+    serialize_execution_writer_visibility_marker,
 )
 
 WRITER_IDENTITY = EXECUTION_WRITER_IDENTITY
@@ -273,6 +279,72 @@ def _preflight(
     return result
 
 
+def _write_immutable_integrity_record(
+    *,
+    integrity_parent: _AnchoredDirectory,
+    name: str,
+    raw: bytes,
+) -> str:
+    integrity_file: _AnchoredFile | None = None
+    integrity_parent.assert_current()
+    integrity_parent.require_absent(name)
+    try:
+        integrity_file = integrity_parent.create(name)
+        _write_all(integrity_file.fd, raw)
+        integrity_file.fsync()
+        integrity_parent.fsync()
+        integrity_parent.assert_current()
+        integrity_parent.verify_reference(
+            name,
+            expected_identity=integrity_file.identity,
+            expected_raw=raw,
+        )
+    finally:
+        if integrity_file is not None:
+            integrity_file.close()
+    return (EXECUTION_WRITER_INTEGRITY_ROOT / name).as_posix()
+
+
+def _write_visibility_marker(
+    *,
+    integrity_parent: _AnchoredDirectory,
+    state: Mapping[str, Any],
+    record_kind: str,
+    completed: Mapping[str, Any] | None = None,
+) -> str:
+    sequence_number = state["event_sequence_number"]
+    name = execution_writer_visibility_marker_name(
+        run_id=state["run_id"],
+        event_sequence_number=sequence_number,
+        record_kind=record_kind,
+    )
+    durable = record_kind == EXECUTION_WRITER_EVENT_DURABLE
+    record = {
+        "schema_version": EXECUTION_WRITER_VISIBILITY_MARKER_SCHEMA_VERSION,
+        "record_kind": record_kind,
+        "writer_identity": WRITER_IDENTITY,
+        "dispatch_id": state["dispatch_id"],
+        "dispatch_path": state["dispatch_path"],
+        "run_id": state["run_id"],
+        "execution_event_stream_path": state["stream_path"],
+        "event_id": state["event_id"],
+        "event_sequence_number": sequence_number,
+        "event_durable": durable,
+        "stream_file_sha256": completed["stream_file_sha256"] if durable else None,
+        "stream_byte_length": completed["stream_byte_length"] if durable else None,
+        "lock_cleanup_succeeded_after_primary_uncertainty": (
+            record_kind == EXECUTION_WRITER_CLEANUP_SUCCEEDED
+        ),
+        "non_authority": True,
+    }
+    raw = serialize_execution_writer_visibility_marker(record)
+    return _write_immutable_integrity_record(
+        integrity_parent=integrity_parent,
+        name=name,
+        raw=raw,
+    )
+
+
 def _write_combined_uncertainty_record(
     *,
     integrity_parent: _AnchoredDirectory,
@@ -302,24 +374,11 @@ def _write_combined_uncertainty_record(
         "non_authority": True,
     }
     raw = serialize_execution_writer_integrity_record(record)
-    integrity_file: _AnchoredFile | None = None
-    integrity_parent.assert_current()
-    integrity_parent.require_absent(name)
-    try:
-        integrity_file = integrity_parent.create(name)
-        _write_all(integrity_file.fd, raw)
-        integrity_file.fsync()
-        integrity_parent.fsync()
-        integrity_parent.assert_current()
-        integrity_parent.verify_reference(
-            name,
-            expected_identity=integrity_file.identity,
-            expected_raw=raw,
-        )
-    finally:
-        if integrity_file is not None:
-            integrity_file.close()
-    return (EXECUTION_WRITER_INTEGRITY_ROOT / name).as_posix()
+    return _write_immutable_integrity_record(
+        integrity_parent=integrity_parent,
+        name=name,
+        raw=raw,
+    )
 
 
 @contextmanager
@@ -406,6 +465,23 @@ def _run_append_lock(
                 lock_file.close()
         if parent is not None:
             parent.close()
+        if cleanup_error is None and primary_integrity_error is not None:
+            try:
+                cleanup_proof_path = _write_visibility_marker(
+                    integrity_parent=integrity_parent,
+                    state=state,
+                    record_kind=EXECUTION_WRITER_CLEANUP_SUCCEEDED,
+                )
+            except (OSError, ExecutionEventError) as visibility_error:
+                primary_integrity_error.integrity_visibility_cleanup_proof_recorded = False
+                primary_integrity_error.integrity_visibility_cleanup_proof_uncertain = True
+                primary_integrity_error.integrity_visibility_cleanup_proof_error = str(
+                    visibility_error
+                )
+            else:
+                primary_integrity_error.integrity_visibility_cleanup_proof_recorded = True
+                primary_integrity_error.integrity_visibility_cleanup_proof_path = cleanup_proof_path
+                primary_integrity_error.integrity_visibility_cleanup_proof_uncertain = False
         if cleanup_error is not None:
             if primary_integrity_error is not None:
                 primary_integrity_error.lock_cleanup_also_uncertain = True
@@ -414,14 +490,14 @@ def _run_append_lock(
                         integrity_parent=integrity_parent,
                         state=state,
                     )
-                except Exception as visibility_error:
+                except (OSError, ExecutionEventError) as visibility_error:
                     primary_integrity_error.integrity_visibility_recorded = False
                     try:
                         expected_name = execution_writer_integrity_record_name(
                             run_id=state["run_id"],
                             event_sequence_number=state["event_sequence_number"],
                         )
-                    except Exception:
+                    except ExecutionEventError:
                         expected_name = None
                     primary_integrity_error.integrity_visibility_record_path = (
                         (EXECUTION_WRITER_INTEGRITY_ROOT / expected_name).as_posix()
@@ -455,6 +531,7 @@ def _append_under_lock(
     *,
     root: Path,
     lock_parent: _AnchoredDirectory,
+    integrity_parent: _AnchoredDirectory,
     dispatch_path: Path,
     reviewed_dispatch_whole_file_sha256: str,
     run_id: str,
@@ -535,8 +612,6 @@ def _append_under_lock(
         )
         if stream_file is None:
             stream_parent.require_absent(stream_name)
-            state["append_started"] = True
-            stream_file = stream_parent.create(stream_name)
         else:
             stream_parent.verify_reference(
                 stream_name,
@@ -546,7 +621,15 @@ def _append_under_lock(
             end = os.lseek(stream_file.fd, 0, os.SEEK_END)
             if end != len(anchored_prior_raw):
                 raise OSError("anchored stream length changed before append")
-            state["append_started"] = True
+
+        state["visibility_reservation_path"] = _write_visibility_marker(
+            integrity_parent=integrity_parent,
+            state=state,
+            record_kind=EXECUTION_WRITER_MUTATION_RESERVED,
+        )
+        state["append_started"] = True
+        if stream_file is None:
+            stream_file = stream_parent.create(stream_name)
 
         _write_all(stream_file.fd, event_raw)
         stream_file.fsync()
@@ -591,6 +674,12 @@ def _append_under_lock(
             dispatch_path.name,
             expected_identity=dispatch_file.identity,
             expected_raw=dispatch_raw,
+        )
+        state["event_durable_proof_path"] = _write_visibility_marker(
+            integrity_parent=integrity_parent,
+            state=state,
+            record_kind=EXECUTION_WRITER_EVENT_DURABLE,
+            completed=completed,
         )
         state["event_durable"] = True
         return {
@@ -692,6 +781,7 @@ def write_execution_event(
             appended = _append_under_lock(
                 root=root,
                 lock_parent=lock_parent,
+                integrity_parent=integrity_parent,
                 dispatch_path=selected_dispatch,
                 reviewed_dispatch_whole_file_sha256=(reviewed_dispatch_whole_file_sha256),
                 run_id=run_id,

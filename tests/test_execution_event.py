@@ -11,16 +11,21 @@ from tests import test_dispatch_writer as dispatch_support
 from tools.canon_intake import dispatch_writer
 from tools.canon_intake.execution_event import (
     EXECUTION_WRITER_COMBINED_UNCERTAINTY,
+    EXECUTION_WRITER_EVENT_DURABLE,
     EXECUTION_WRITER_IDENTITY,
     EXECUTION_WRITER_INTEGRITY_ROOT,
     EXECUTION_WRITER_INTEGRITY_SCHEMA_VERSION,
+    EXECUTION_WRITER_MUTATION_RESERVED,
+    EXECUTION_WRITER_VISIBILITY_MARKER_SCHEMA_VERSION,
     ExecutionEventError,
     collect_execution_stream_integrity_findings,
     derive_execution_event,
     execution_writer_integrity_record_name,
+    execution_writer_visibility_marker_name,
     read_and_validate_execution_stream,
     serialize_execution_event,
     serialize_execution_writer_integrity_record,
+    serialize_execution_writer_visibility_marker,
     validate_execution_event,
     validate_execution_stream_history,
 )
@@ -328,6 +333,73 @@ def test_combined_writer_uncertainty_record_is_independently_read_only_visible(
     else:
         assert all(row["dispatch_id"] is None for row in incident_rows)
         assert all("malformed" in row["reason"] for row in incident_rows)
+
+
+def _visibility_marker_record(fixture, *, record_kind):
+    run_id = fixture["dispatch"]["run_binding"]["run_id"]
+    durable = record_kind == EXECUTION_WRITER_EVENT_DURABLE
+    return {
+        "schema_version": EXECUTION_WRITER_VISIBILITY_MARKER_SCHEMA_VERSION,
+        "record_kind": record_kind,
+        "writer_identity": EXECUTION_WRITER_IDENTITY,
+        "dispatch_id": fixture["dispatch"]["dispatch_id"],
+        "dispatch_path": fixture["dispatch"]["dispatch_record_path"],
+        "run_id": run_id,
+        "execution_event_stream_path": fixture["dispatch"]["run_binding"][
+            "execution_event_stream_path"
+        ],
+        "event_id": f"EXEC-EVENT-{run_id}-000002",
+        "event_sequence_number": 2,
+        "event_durable": durable,
+        "stream_file_sha256": "sha256:" + "a" * 64 if durable else None,
+        "stream_byte_length": 123 if durable else None,
+        "lock_cleanup_succeeded_after_primary_uncertainty": False,
+        "non_authority": True,
+    }
+
+
+@pytest.mark.parametrize("malformed_kind", ["reservation", "durable_proof"])
+def test_partial_visibility_marker_remains_conservatively_visible_without_mutation(
+    fixture,
+    malformed_kind,
+):
+    run_id = fixture["dispatch"]["run_binding"]["run_id"]
+    audit_root = fixture["root"] / EXECUTION_WRITER_INTEGRITY_ROOT
+    reservation_name = execution_writer_visibility_marker_name(
+        run_id=run_id,
+        event_sequence_number=2,
+        record_kind=EXECUTION_WRITER_MUTATION_RESERVED,
+    )
+    reservation_path = audit_root / reservation_name
+    if malformed_kind == "reservation":
+        reservation_path.write_bytes(b'{"partial":true}')
+    else:
+        reservation_path.write_bytes(
+            serialize_execution_writer_visibility_marker(
+                _visibility_marker_record(
+                    fixture,
+                    record_kind=EXECUTION_WRITER_MUTATION_RESERVED,
+                )
+            )
+        )
+        durable_name = execution_writer_visibility_marker_name(
+            run_id=run_id,
+            event_sequence_number=2,
+            record_kind=EXECUTION_WRITER_EVENT_DURABLE,
+        )
+        (audit_root / durable_name).write_bytes(b'{"partial":true}')
+    before = {path: path.read_bytes() for path in audit_root.iterdir()}
+
+    findings = collect_execution_stream_integrity_findings(repo_root=fixture["root"])
+
+    assert {path: path.read_bytes() for path in audit_root.iterdir()} == before
+    expected_types = {
+        "execution_writer_append_or_durability_uncertain",
+        "execution_writer_lock_cleanup_also_uncertain",
+    }
+    rows = [row for row in findings if row["finding_type"] in expected_types]
+    assert {row["finding_type"] for row in rows} == expected_types
+    assert all("malformed" in row["reason"] for row in rows if "append" in row["finding_type"])
 
 
 @pytest.mark.parametrize(

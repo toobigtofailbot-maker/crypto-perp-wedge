@@ -2133,7 +2133,7 @@ def test_symlinked_reference_fails_closed(tmp_path, repo_root):
         _validate(fixture, require_audit=False, scan_history=False)
 
 
-def test_no_production_kdauth_audit_dispatch_or_execution_created(repo_root):
+def test_only_frozen_stage_a_manifest_and_no_downstream_artifacts_created(repo_root):
     import tools.canon_intake.dispatch_authorization_reservation as reservation
 
     manifest_root = repo_root / manifest_contract.MANIFEST_ROOT
@@ -2144,8 +2144,14 @@ def test_no_production_kdauth_audit_dispatch_or_execution_created(repo_root):
     assert not approval_root.exists() or not list(
         approval_root.glob("*.dispatch_authorization.json")
     )
-    assert not manifest_root.exists() or not list(
-        manifest_root.glob("*.dispatch_manifest.json")
+    manifests = list(manifest_root.glob("*.dispatch_manifest.json"))
+    assert [path.name for path in manifests] == [
+        "DMAN-H004-R2-0001.dispatch_manifest.json"
+    ]
+    manifest_raw = manifests[0].read_bytes()
+    assert len(manifest_raw) == 8928
+    assert _hash(manifest_raw) == (
+        "sha256:cb8fdde0db1ab14282a62c217b0add134ce9615e9abee0f8215a0ae3ba4c7cb2"
     )
     assert not audit_path.exists()
     assert not dispatch_root.exists() or not list(

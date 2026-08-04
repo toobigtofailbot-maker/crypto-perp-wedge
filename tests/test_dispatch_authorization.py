@@ -28,6 +28,9 @@ from tools.data.register_binance_usdtm_1d_lineage import (
     REQUIRED_COLUMNS as CANONICAL_1D_SOURCE_COLUMNS,
     build_lineage as build_1d_lineage,
 )
+from tools.registry.validate_variant_sweep_artifacts import (
+    canonical_json_bytes as strategy_spec_canonical_json_bytes,
+)
 
 
 def _hash(raw: bytes) -> str:
@@ -123,7 +126,7 @@ def _fixture(
     spec_rel = "research/strategy_specs/STRAT-SPEC-9001.strategy_spec.json"
     spec = {"schema_version": "v1", "strategy_spec_id": "STRAT-SPEC-9001"}
     spec_raw = _write_json(root / spec_rel, spec)
-    spec_canonical_hash = _hash(repo_canonical_json_v1(spec))
+    spec_canonical_hash = _hash(strategy_spec_canonical_json_bytes(spec))
 
     readiness_rel = (
         "research/strategy_spec_external_content_readiness/"
@@ -1025,9 +1028,141 @@ def _file_snapshot(root: Path) -> dict[str, str]:
     }
 
 
+def _committed_ref(
+    repo_root: Path, path: str, artifact_id: str | None = None
+) -> dict:
+    raw = (repo_root / path).read_bytes()
+    return _ref(path, raw, artifact_id)
+
+
+def _real_h004_lineage_core(repo_root: Path) -> dict:
+    spec_path = "research/strategy_specs/STRAT-SPEC-0007.strategy_spec.json"
+    readiness_path = (
+        "research/strategy_spec_external_content_readiness/"
+        "SS-ECR-STRAT-SPEC-0007.external_content_readiness.json"
+    )
+    planning_path = (
+        "research/strategy_spec_variant_planning_approvals/"
+        "VPAPP-20260715-H004R201.variant_planning_approval.json"
+    )
+    manifest_path = "research/variant_manifests/VM-0007.variant_manifest.json"
+    sweep_path = "research/sweep_plans/SWEEP-PLAN-0007.sweep_plan.json"
+    gate_path = (
+        "research/queue/gate_q_approvals/"
+        "GATE-Q-H004-R2-04B-0001.gate_q_approval.json"
+    )
+
+    readiness = json.loads((repo_root / readiness_path).read_text(encoding="utf-8"))
+    planning = json.loads((repo_root / planning_path).read_text(encoding="utf-8"))
+    gate = json.loads((repo_root / gate_path).read_text(encoding="utf-8"))
+    content_binding = readiness["content_binding"]
+    gate_ref = {
+        **_committed_ref(
+            repo_root,
+            gate_path,
+            "GATE-Q-H004-R2-04B-0001",
+        ),
+        "approval_id": "GATE-Q-H004-R2-04B-0001",
+        "core_sha256": gate["approval_core_sha256"],
+        "core_hash_scope": gate["approval_core_hash_scope"],
+        "core_canonicalization": gate["approval_core_canonicalization"],
+    }
+    gate_ref.pop("artifact_id")
+
+    return {
+        "lineage": {
+            "strategy_spec": {
+                **_committed_ref(repo_root, spec_path, "STRAT-SPEC-0007"),
+                "content_canonical_sha256": content_binding[
+                    "full_repo_canonical_json_sha256"
+                ],
+            },
+            "external_content_readiness": {
+                **_committed_ref(
+                    repo_root,
+                    readiness_path,
+                    "SS-ECR-STRAT-SPEC-0007",
+                ),
+                "strategy_spec_raw_sha256": content_binding["raw_file_sha256"],
+                "strategy_spec_canonical_sha256": content_binding[
+                    "full_repo_canonical_json_sha256"
+                ],
+            },
+            "variant_planning_approval": {
+                **_committed_ref(
+                    repo_root,
+                    planning_path,
+                    "VPAPP-20260715-H004R201",
+                ),
+                "core_sha256": planning["contract_core_sha256"],
+            },
+            "variant_manifest": _committed_ref(
+                repo_root, manifest_path, "VM-0007"
+            ),
+            "sweep_plan": _committed_ref(
+                repo_root, sweep_path, "SWEEP-PLAN-0007"
+            ),
+            "gate_q": copy.deepcopy(gate_ref),
+        },
+        "queue_binding": {"gate_q": copy.deepcopy(gate_ref)},
+        "denominator": {
+            "variant_manifest_value": 81,
+            "sweep_plan_value": 81,
+        },
+    }
+
+
 @pytest.fixture
 def repo_root():
     return Path(__file__).resolve().parents[1]
+
+
+def test_real_h004_float_bearing_strategy_spec_lineage_validates(repo_root):
+    strategy_spec = json.loads(
+        (
+            repo_root
+            / "research/strategy_specs/STRAT-SPEC-0007.strategy_spec.json"
+        ).read_text(encoding="utf-8")
+    )
+
+    def float_values(value):
+        if isinstance(value, dict):
+            for child in value.values():
+                yield from float_values(child)
+        elif isinstance(value, list):
+            for child in value:
+                yield from float_values(child)
+        elif isinstance(value, float):
+            yield value
+
+    values = list(float_values(strategy_spec))
+    assert 1.0 in values
+    assert 2.5 in values
+    validator._validate_lineage(repo_root, _real_h004_lineage_core(repo_root))
+
+
+@pytest.mark.parametrize(
+    ("field", "message"),
+    (
+        ("whole_file_sha256", "Strategy Spec whole-file hash mismatch"),
+        ("content_canonical_sha256", "Strategy Spec canonical hash"),
+    ),
+)
+def test_real_h004_strategy_spec_lineage_rejects_hash_substitution(
+    repo_root, field, message
+):
+    core = _real_h004_lineage_core(repo_root)
+    core["lineage"]["strategy_spec"][field] = "sha256:" + "0" * 64
+    with pytest.raises(DispatchAuthorizationError, match=message):
+        validator._validate_lineage(repo_root, core)
+
+
+def test_dispatch_queue_canonicalizer_still_rejects_floats():
+    with pytest.raises(
+        DispatchAuthorizationError,
+        match="floating-point values are forbidden in repo_canonical_json_v1",
+    ):
+        repo_canonical_json_v1({"queue_numeric_value": 1.0})
 
 
 def test_schemas_are_closed_valid_draft7(repo_root):

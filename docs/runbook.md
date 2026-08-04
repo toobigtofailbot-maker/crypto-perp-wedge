@@ -244,6 +244,17 @@ Run the frozen Phase 1 closure baseline with:
 python -m src.runtime.paper_trader --once-at 2026-01-01T01:00:00Z --config configs\paper_runtime.phase1_closed.json
 ```
 
+## Dispatch-authorization parent bootstrap
+
+Before the first dispatch-authorization/KDAUTH crossing in a fresh clone or checkout where the control-plane roots are absent, create exactly these two empty ordinary directories:
+
+```powershell
+New-Item -ItemType Directory -Path research\queue\dispatch_authorizations
+New-Item -ItemType Directory -Path research\queue\dispatch_authorization_audit
+```
+
+Both directories must pre-exist, resolve beneath the repository root, remain empty before first use, and contain no symlink, junction, reparse point, mount redirect, or equivalent indirection. Do not place `.gitkeep` or any other sentinel in either controlled directory. The protected writer verifies these parents but does not create them.
+
 ## Phase 2 research workbench
 
 ### Overview

@@ -32,6 +32,9 @@ from tools.data.register_binance_usdtm_1d_lineage import (
     build_lineage as build_1d_lineage,
     canonical_json_bytes as canonical_1d_catalog_bytes,
 )
+from tools.registry.validate_variant_sweep_artifacts import (
+    canonical_json_bytes as strategy_spec_canonical_json_bytes,
+)
 
 
 APPROVAL_SCHEMA = "canon_dispatch_authorization.schema.json"
@@ -567,7 +570,7 @@ def _validate_lineage(root: Path, core: Mapping[str, Any]) -> None:
     _require_equal(
         "Strategy Spec identity", spec_ref["artifact_id"], spec.get("strategy_spec_id")
     )
-    spec_canonical = _digest(repo_canonical_json_v1(spec))
+    spec_canonical = _digest(strategy_spec_canonical_json_bytes(spec))
     _require_equal(
         "Strategy Spec canonical hash",
         spec_ref["content_canonical_sha256"],

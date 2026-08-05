@@ -10,6 +10,21 @@ The earlier Phase 2 framing could be read as candidate-first: register the next 
 
 Phase 2 still exists to find promotable BTCUSDT perp edge, but the near-term architecture path may build reusable research foundations first. Strategy v1 is not locked now. H-011 and later ideas remain future candidates, not the organizing principle for the next architecture step.
 
+## Engineering readiness is independent of strategy readiness
+
+`docs/decisions/ENGINEERING_VS_STRATEGY_READINESS.md` is the controlling
+decision. Candidate failure or non-promotability does not block construction or
+engineering validation of the candidate-agnostic lab, autonomous factory,
+paper/shadow and monitoring layers, dashboards, or live-capable stack in
+disabled/non-capital modes.
+
+H-004-R2 is the designated engineering dummy for that work. It remains
+non-winning, non-production, structurally GO-forbidden, and non-promotable. Its
+engineering outputs cannot establish edge, satisfy a genuine-performance gate,
+or authorize capital. Real-capital authorization/deployment and every promotion
+gate that requires genuine performance evidence still require a genuinely
+qualified candidate and explicit human approval.
+
 ## Why Single-Strategy Framing Is Insufficient
 
 H-001 through H-010 produced no promotable candidate. WP-5a audited the research instrument, and WP-5b applied bounded pipeline fixes while preserving all existing overall NO-GO verdicts.
@@ -80,5 +95,8 @@ Candidate discovery / testing / comparison should be represented through structu
 Structured evidence collection should make it easier for humans to understand why a candidate is backlog, registered, concluded, ranked, or shadow-ready.
 
 Human approval is required before promotion. No automated process can approve Strategy v1, shadow deployment, live deployment, risk changes, or kill decisions.
+
+Engineering completion using the dummy does not change this promotion boundary
+and does not itself authorize paper/live activation or runtime contact.
 
 The protected deterministic execution core remains the boundary below the research machine. Nothing in this direction changes live or paper execution semantics.

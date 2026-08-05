@@ -1,5 +1,21 @@
 ﻿# Research-Lab Completion Map
 
+## 2026-08-05 controlling readiness decision
+
+`docs/decisions/ENGINEERING_VS_STRATEGY_READINESS.md` now controls the
+engineering-vs-strategy boundary. This map remains authoritative for its
+historical research evidence, completed proof, and non-authority facts, but its
+earlier planning conclusions that made profitable/real-candidate flow a
+prerequisite for engineering construction or non-capital validation are
+superseded in place below.
+
+H-004-R2 is the designated non-winning engineering dummy. Separately authorized
+packages may use it to build and engineering-validate the lab, autonomous
+factory, paper/shadow and monitoring layers, and live-capable stack in disabled,
+simulation, or other non-capital modes. It remains non-production,
+non-promotable, and structurally GO-forbidden; none of its engineering evidence
+establishes edge or authorizes real capital.
+
 ## Status and authority
 
 This is the authoritative committed completion map for the research lab. It
@@ -189,9 +205,16 @@ These are committed and structurally complete but produce **no effect**:
 
 ## 4. Deferred-B behaviors (deferred, with exact reason)
 
-"Deferred-B" means the *structure* for the behavior is present or anticipated
-but the behavior is **intentionally not live**. Each requires **separate
-operator authorization and real candidate flow** before it could be activated.
+Historical pre-decision posture (superseded on 2026-08-05 for engineering
+construction and non-capital validation): "Deferred-B" meant that the
+*structure* was present or anticipated but intentionally not live, with separate
+operator authorization and real candidate flow required before activation.
+
+Under `docs/decisions/ENGINEERING_VS_STRATEGY_READINESS.md`, separately
+authorized engineering construction and validation may proceed with H-004-R2 in
+disabled, simulation, or other non-capital modes. Genuine candidate evidence is
+still required for performance-dependent promotion and real-capital activation;
+the dummy cannot satisfy that boundary.
 
 | Deferred-B behavior | Why it is deferred |
 | --- | --- |
@@ -202,20 +225,25 @@ operator authorization and real candidate flow** before it could be activated.
 | Candidate lifecycle writes | The lifecycle engine exists but is human-gated; no candidate is registered, so there is nothing to write. |
 | Coordinator transition execution | The state model is descriptive; executing a transition is owned by the human-gated candidate lifecycle engine, not the model. |
 | First real canonical crossing | No candidate has passed human review; crossing is a separately authorized package and has not occurred. |
-| Live candidate-flow-dependent behavior | All of the above depend on a real candidate reaching `candidate_ready_for_human_review`; the only committed conclusion to date is NO-GO, so no candidate flow exists yet. |
-| At-scale continuous sweeps | Meaningful scale requires authorized real edge-search / real research traffic; baseline fixtures prove plumbing only. |
-| At-scale WFO/OOS and robustness/MC execution volume | Gate semantics are hardened, but volume execution over real candidates is held until separate authorization and real candidate flow exist. |
-| Agent scheduling / prioritization / autonomy | Baseline loop behavior is proven only for bounded fixture plumbing; autonomous operation over a real queue is held until real candidate flow and separate authorization exist. |
+| Live candidate-flow-dependent behavior | Genuine lifecycle/performance transitions still require a qualified candidate. Candidate-agnostic engineering plumbing may be built and validated with the designated dummy without creating candidate authority. |
+| At-scale continuous sweeps | Historical proof covered baseline plumbing only. Separately authorized scale engineering may now use the dummy; results remain engineering evidence, not edge evidence. |
+| At-scale WFO/OOS and robustness/MC execution volume | Gate semantics are hardened. Separately authorized volume/capacity validation may use the dummy, while performance-dependent promotion still requires genuine candidate evidence. |
+| Agent scheduling / prioritization / autonomy | Baseline proof remains bounded historical evidence. Separately authorized factory engineering may operate over dummy/non-capital traffic; live-impacting or real-capital activation remains separately gated. |
 | Notification firing over real jobs | Notification firing requires real jobs/events plus separate authorization; baseline fixtures do not create either. |
 
-Activation of any deferred-B behavior **requires separate operator
-authorization and real candidate flow**. This document does not grant it.
+Historical pre-decision conclusion (superseded on 2026-08-05): activation of
+every Deferred-B behavior required separate operator authorization and real
+candidate flow. The controlling rule now permits separately authorized
+engineering construction/non-capital validation with the designated dummy;
+genuine candidate evidence remains mandatory wherever performance, promotion,
+or real-capital semantics require it. This document itself grants no activation.
 
-## 5. GO-gated execution-machine work (out of scope)
+## 5. GO-gated execution-machine activation and engineering buildability
 
-The following are **out of scope for the entire lab phase** and require an
-explicit GO decision plus the locked execution-machine gates (D2-006, D2-007,
-REC-5, Phase 9 / D2-011, Scope 6, permanent human gates):
+Historical pre-decision conclusion (superseded on 2026-08-05 for construction
+and non-capital validation): the following were out of scope for the entire lab
+phase and required an explicit GO decision plus the locked execution-machine
+gates (D2-006, D2-007, REC-5, Phase 9 / D2-011, Scope 6, permanent human gates):
 
 - paper / shadow / live execution;
 - runtime monitoring;
@@ -225,7 +253,13 @@ REC-5, Phase 9 / D2-011, Scope 6, permanent human gates):
 - safe-mode / kill-switch operational authority (governance boundary preserved;
   no operational authority is added by the lab).
 
-None of these is buildable inside the current phase.
+The historical claim that none of these layers is buildable in the current phase
+is superseded by `docs/decisions/ENGINEERING_VS_STRATEGY_READINESS.md`. They may
+be built, integrated, and engineering-validated with H-004-R2 in simulation,
+disabled, or other non-capital modes under separately authorized packages.
+Paper/live activation, runtime contact with live impact, promotion, risk/capital
+changes, and real-capital deployment remain behind their explicit protected
+gates and genuine-performance requirements.
 
 ## 6. Edge-search hold
 
@@ -238,14 +272,20 @@ authorization.
 
 ## 7. What remains buildable now (within phase)
 
-After the deterministic event-tape route and the bounded real-traffic revised
-batch, no further no-edge operating-readiness work package is currently
-identified as both buildable-now and value-adding unless repo truth changes. Any
-later read-only legibility or traceability package must still prove that it is
-based on existing evidence, remains deterministic and non-authoritative, and does
-not imply at-scale factory, real candidate, or execution authority.
+Historical pre-decision conclusion (superseded on 2026-08-05): after the
+deterministic event-tape route and bounded real-traffic revised batch, no further
+no-edge operating-readiness package was identified as both buildable and
+value-adding. Current repo truth permits separately authorized engineering work
+with H-004-R2 where it adds new infrastructure/capacity/safety proof in
+non-capital modes. Such work must remain deterministic, non-authoritative, and
+must not imply edge, promotion, or real-capital authority.
 
-## 8. What is not buildable without edge-search / live candidate flow
+## 8. Historical real-candidate-flow build hold (superseded in part)
+
+The following list records the historical pre-decision conclusion. It is
+preserved as historical truth but superseded on 2026-08-05 wherever it treated
+real-candidate flow as a prerequisite for engineering construction or
+non-capital validation:
 
 - Any new strategy hypothesis, family, variant, sweep, or backtest.
 - Any candidate-flow-dependent surface behavior (real approval queue entries,
@@ -256,8 +296,13 @@ not imply at-scale factory, real candidate, or execution authority.
 - Autonomous agent scheduling, prioritization, or factory operation over a real
   research queue.
 
-These cannot be built or demonstrated meaningfully because there is no GO-like
-candidate evidence, no authorized candidate flow, and no live candidate flow.
+The historical conclusion was that these could not be built or demonstrated
+meaningfully without GO-like, authorized, live candidate flow. Under the
+controlling decision, H-004-R2 may now serve as the engineering fixture for
+separately authorized idea-intake, scheduling, sweep, WFO/OOS, robustness,
+factory, paper/shadow, monitoring, and disabled execution-stack proof. It does
+not authorize genuine candidate lifecycle transitions, edge claims, promotion,
+live impact, or real-capital deployment.
 
 ## 9. What is not authorized
 
@@ -319,12 +364,15 @@ operating-readiness route:
 - crossing authority created: false;
 - paper/live authority created: false;
 - always-on factory completed: false;
-- at-scale/autonomous layers: held-B until separate authorization and real
-  candidate flow;
-- first real crossing: held until a real GO candidate and explicit gate exist;
+- at-scale/autonomous layers: historical real-candidate-flow hold superseded for
+  separately authorized dummy-based engineering/non-capital validation; real
+  promotion and capital activation remain genuinely candidate-gated;
+- first performance/promotion/real-capital crossing: held until a genuinely
+  qualified candidate and explicit gate exist;
 - paper/live/runtime: GO-gated and protected;
-- no further no-edge operating-readiness work package is currently identified as
-  value-adding after audit, unless repo truth changes.
+- further engineering-readiness packages may be authorized when they add new
+  dummy-based infrastructure, capacity, observability, or safety proof without
+  claiming edge or capital authority.
 
 The remaining operator choices are:
 
@@ -340,6 +388,12 @@ This section is the authoritative final Side 12 capability map for the
 no-edge-search phase. `canonical_authority_created` records whether repo truth
 already contains canonical authority for the relevant surface; this package
 creates none.
+
+The proof statuses and historical evidence gaps in this table remain unchanged.
+Any "real traffic" or "real candidate" remaining condition is an evidence or
+performance boundary, not a blanket prohibition on separately authorized
+dummy-based engineering construction/non-capital validation under the
+2026-08-05 controlling decision.
 
 | ID | Capability | Final status | Proof basis | Remaining condition |
 | --- | --- | --- | --- | --- |
@@ -367,9 +421,10 @@ creates none.
 | 22 | First real candidate crossing | `needs_real_GO_candidate` | PR #585/#586 prove `reject_by_construction`, not real crossing. | A real GO candidate and explicit crossing package. |
 | 23 | Paper/live path | `GO_gated_protected` | Paper/live/runtime paths remain protected and untouched. | Explicit GO decision under protected runtime gates. |
 
-## 12. Why one additional non-winning strategy does not unlock new lab proof
+## 12. Supersession of the prior non-winning-strategy conclusion
 
-Karl's useful principle is preserved: known, non-winning, non-promotable payloads
+Historical pre-decision conclusion (preserved): known, non-winning,
+non-promotable payloads
 are appropriate for proving lab machinery before edge hunting. The boundary is
 that PR #586 and PR #588 already consumed that class of input at single-pipe and
 scale levels.
@@ -384,8 +439,17 @@ the same path would be re-proof, not new capability completion. The remaining
 held-B capabilities require streams of real research jobs, not one known-outcome
 payload.
 
-This conclusion does not claim that a real edge exists, recommend a strategy
-family, or authorize edge-search.
+That conclusion is superseded on 2026-08-05 as a limit on *new engineering
+proof*. H-004-R2 is now the designated engineering fixture and may establish new
+infrastructure, integration, capacity, observability, safety, paper/shadow,
+monitoring, factory, and disabled-stack proof under separately authorized
+packages. Repeating proof already established remains unnecessary, but the
+dummy's non-winning status is not itself a blocker to new engineering scope.
+
+The historical and current conclusions make no real-edge claim, recommend no
+strategy family, and authorize no edge-search, GO, promotion, live impact, or
+real-capital operation. H-004-R2 remains structurally GO-forbidden and its
+engineering evidence is not strategy-performance evidence.
 
 ## 13. External adoption runway final state
 
@@ -407,13 +471,18 @@ evidence authority through this map.
   generation or hypothesis search. A NO-GO conclusion does not authorize a new
   cycle.
 - **No execution-machine drift.** Read-only surfaces never gain run / approve /
-  promote / retry / scheduler-toggle controls. Deferred-B behaviors stay inert
-  until separate operator authorization **and** real candidate flow exist.
+  promote / retry / scheduler-toggle controls through this map. Deferred-B
+  engineering work requires a separate package; dummy-based non-capital
+  validation may be authorized, while live-impacting/performance/real-capital
+  activation still requires its genuine candidate evidence and protected gates.
 - **No authority-by-existence.** No surface, fixture, manifest, scheduler entry,
   dashboard, or stored artifact infers authority from its own existence.
-- **Read-only by default.** New in-phase work must be read-only, deterministic,
-  and non-authoritative, and must preserve the protected boundaries (OMS, risk,
-  reconciliation, kill-switch / safe-mode, Tier 4, `lib/` `src/` `configs/`
-  `.claude/` `data/`, permanent human gates).
+- **No authority by engineering work.** Historical no-edge map work was
+  read-only by default. Separately authorized engineering packages may build
+  within their exact scope, but must remain deterministic/non-authoritative in
+  non-capital modes and preserve protected boundaries (OMS, risk,
+  reconciliation, kill-switch / safe-mode, Tier 4, `lib/`, `src/`, `configs/`,
+  `.claude/`, `data/`, permanent human gates) unless a later protected package
+  explicitly authorizes a narrower change.
 - **Human gates are permanent.** Any movement toward candidate promotion, R2S /
   S2P, paper/live, or runtime remains human-gated under existing locked gates.

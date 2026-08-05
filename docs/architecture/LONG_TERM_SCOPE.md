@@ -8,7 +8,12 @@ This document records architecture direction that should guide future execution 
 
 ## Current Position
 
-The repo is in Phase 2 research execution. Phase 2 remains research-first: validate or kill BTCUSDT perpetual strategy candidates before expanding runtime scope.
+The repo is in Phase 2 research execution. Phase 2 remains research-first, but
+engineering readiness and strategy readiness are separate under
+`docs/decisions/ENGINEERING_VS_STRATEGY_READINESS.md`. Genuine candidate
+evidence remains mandatory before real-capital authorization or deployment;
+absence of profitable edge does not block candidate-agnostic construction or
+engineering validation in disabled, simulation, or other non-capital modes.
 
 The long-term target is a multi-strategy, multi-timeframe portfolio rather than a single winner-takes-all strategy. The current accepted direction adds a candidate-agnostic research machine buildout tranche before Strategy v1 lock-in.
 
@@ -19,6 +24,12 @@ The deterministic execution core remains protected. OMS truth, reconciliation tr
 The repo has accepted a near-term candidate-agnostic research machine buildout tranche. Its priority is foundation work for systematic candidate discovery, testing, comparison, ranking, and later human-gated promotion.
 
 This layer sits above the protected deterministic execution core. It may define registry, schema, artifact, query, and bounded research automation foundations, but it does not weaken OMS, reconciliation, kill-switch, risk-cap, overlay, paper ledger, event-log, or runtime decision semantics.
+
+The currently designated H-004-R2 engineering dummy may exercise these
+foundations and later lab/factory, paper/shadow, monitoring, and
+live-capable-disabled plumbing under separately authorized packages. It remains
+non-winning, non-production, structurally GO-forbidden, and unable to supply
+strategy-performance or real-capital authority.
 
 ## Forward Roadmap
 
@@ -35,7 +46,12 @@ The long-term architecture progresses in staged layers:
 9. Multi-strategy management for independently validated strategy families across multiple timeframes.
 10. Monitor and self-improvement research layer that watches performance, proposes variants, and routes evidence back into safe research workflows.
 
-Each stage should add capability only after the prior stage has produced repo-recorded evidence and an explicit execution package.
+Activation and performance claims at each stage require the applicable
+repo-recorded evidence and explicit execution package. This sequence is not a
+linear prerequisite on engineering buildability: candidate-agnostic machinery
+may be built and validated with the designated dummy before genuine edge exists,
+provided it stays inside separately authorized non-capital modes and preserves
+all protected gates.
 
 The intended end state is not one active strategy. Each active timeframe may eventually host multiple independently validated strategies, roughly 2-3 candidates where research evidence justifies continued work. No timeframe receives a free pass: every candidate must still pass pre-registration, research evaluation, shadow/parity checks, and human-controlled promotion gates before trading.
 
@@ -120,12 +136,20 @@ Automation in these areas must preserve provenance, reproducibility, and the exi
 The following items remain deferred unless a later architecture package explicitly unlocks them:
 
 - 4h routine research work, while it remains in Cold Storage after the H-001 and H-002 baseline failures.
-- Heavy live-trading framework upgrades before research evidence requires them.
+- Real-capital activation and speculative production expansion before genuine
+  strategy evidence requires them. Engineering construction and validation of
+  live-capable components in disabled/non-capital modes remains permitted under
+  `docs/decisions/ENGINEERING_VS_STRATEGY_READINESS.md` and separately
+  authorized protected packages.
 - CCXT adoption for execution abstraction.
 - Managed agents now.
 - Broader LLM routing or multi-provider complexity now.
 
-These are deferred to protect research focus and avoid expanding operational complexity before there is strategy evidence to justify it.
+These deferrals protect research focus and avoid unscoped operational
+complexity. They are not a blanket strategy-evidence prerequisite for
+separately authorized engineering construction/non-capital validation; genuine
+strategy evidence remains the gate for performance claims and real-capital
+activation.
 
 ## Revision Policy
 

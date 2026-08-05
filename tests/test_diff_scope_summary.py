@@ -567,6 +567,7 @@ def test_mixed_authorized_schema_plus_unauthorized_research_file_fails(tmp_path,
             "research/queue/dispatch_authorization_reservations/"
             "KDAUTH-XING-20260805-TEST0001.crossing_reservation.jsonl"
         ),
+        "research/queue/dispatch_records/DSP-20260804-H004R2A1.dispatch_record.json",
         "tests/test_dispatch_authorization.py",
         "docs/project_status.md",
     ],
@@ -608,7 +609,7 @@ def test_dispatch_authorization_crossing_scope_accepts_only_exact_changed_paths(
 @pytest.mark.parametrize(
     "path",
     [
-        "research/queue/dispatch_records/DSP-20260805-TEST.dispatch_record.json",
+        "research/queue/unrelated/UNRELATED-20260805.json",
         "tests/test_dispatch_writer.py",
         "docs/status_entries/WP-TEST.md",
     ],
@@ -643,9 +644,9 @@ def test_dispatch_authorization_crossing_scope_rejects_paths_outside_bounded_fam
             "path": path,
             "scope": "dispatch-authorization-crossing",
             "reason": (
-                "dispatch-authorization-crossing scope is limited to the canonical authorization, "
-                "lifecycle audit, crossing reservation, dispatch-authorization regression test, "
-                "and project-status path families"
+                "dispatch-authorization-crossing scope is limited to the canonical dispatch record, "
+                "authorization, lifecycle audit, crossing reservation, dispatch-authorization "
+                "regression test, and project-status path families"
             ),
         }
     ]
@@ -805,6 +806,101 @@ def test_committed_base_to_head_authorizes_dispatch_crossing_path(tmp_path, caps
     assert exit_code == 0
     assert payload["forbidden_matches"] == []
     assert payload["authorized_path_writes"]["authorized"][0]["path"] == path
+
+
+def test_committed_base_to_head_authorizes_actual_next_dispatch_crossing_set(
+    tmp_path, capsys
+):
+    repo = _repo(tmp_path)
+    base_ref = _git(repo, "rev-parse", "HEAD").stdout.strip()
+    paths = [
+        "research/queue/dispatch_records/DSP-20260804-H004R2A1.dispatch_record.json",
+        "research/queue/dispatch_authorization_audit/dispatch_authorization_events.jsonl",
+        "docs/project_status.md",
+    ]
+    for path in paths:
+        _write(repo / path, "changed\n")
+    _git(repo, "add", *paths)
+    _git(repo, "commit", "-m", "add actual next dispatch crossing set")
+    head_ref = _git(repo, "rev-parse", "HEAD").stdout.strip()
+    assert _git(repo, "status", "--short").stdout == ""
+
+    args = [
+        "--repo-root",
+        str(repo),
+        "--json",
+        "--check-forbidden",
+        "--base-ref",
+        base_ref,
+        "--head-ref",
+        head_ref,
+        "--authorized-package",
+        "WP-CANON-H004-DISPATCH-RECORD-01",
+        "--authorized-scope",
+        "dispatch-authorization-crossing",
+    ]
+    for path in paths:
+        args.extend(["--authorized-path", path])
+
+    exit_code, stdout, _ = _run(args, capsys)
+
+    payload = json.loads(stdout)
+    assert exit_code == 0
+    assert set(payload["tracked_changed_files"]) == set(paths)
+    assert payload["staged_changed_files"] == []
+    assert payload["untracked_files"] == []
+    assert payload["numstat"]["mode"] == "committed_base_to_head"
+    assert payload["forbidden_matches"] == []
+    assert {
+        item["path"] for item in payload["authorized_path_writes"]["authorized"]
+    } == set(paths)
+    assert payload["authorized_path_writes"]["rejected"] == []
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "research/queue/unrelated/UNRELATED-20260805.json",
+        "tests/test_dispatch_writer.py",
+        "docs/status_entries/WP-TEST.md",
+    ],
+)
+def test_committed_base_to_head_rejects_out_of_family_paths(tmp_path, capsys, path):
+    repo = _repo(tmp_path)
+    base_ref = _git(repo, "rev-parse", "HEAD").stdout.strip()
+    _write(repo / path, "changed\n")
+    _git(repo, "add", path)
+    _git(repo, "commit", "-m", "add out-of-family path")
+    head_ref = _git(repo, "rev-parse", "HEAD").stdout.strip()
+
+    exit_code, stdout, _ = _run(
+        [
+            "--repo-root",
+            str(repo),
+            "--json",
+            "--check-forbidden",
+            "--base-ref",
+            base_ref,
+            "--head-ref",
+            head_ref,
+            "--authorized-package",
+            "WP-TEST",
+            "--authorized-path",
+            path,
+            "--authorized-scope",
+            "dispatch-authorization-crossing",
+        ],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 1
+    assert payload["numstat"]["mode"] == "committed_base_to_head"
+    assert payload["authorized_path_writes"]["authorized"] == []
+    assert payload["authorized_path_writes"]["rejected"][0]["path"] == path
+    assert "canonical dispatch record" in payload["authorized_path_writes"]["rejected"][0][
+        "reason"
+    ]
 
 
 def test_committed_base_to_head_rejects_authorized_path_not_in_selected_diff(tmp_path, capsys):

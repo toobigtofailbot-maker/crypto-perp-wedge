@@ -50,6 +50,10 @@ DISPATCH_AUTHORIZATION_RESERVATION_RE = re.compile(
     r"^research/queue/dispatch_authorization_reservations/"
     r"KDAUTH-XING-[0-9]{8}-[A-Z0-9]{8}\.crossing_reservation\.jsonl$"
 )
+DISPATCH_RECORD_RE = re.compile(
+    r"^research/queue/dispatch_records/"
+    r"DSP-[0-9]{8}-[A-Z0-9]{8}\.dispatch_record\.json$"
+)
 DISPATCH_AUTHORIZATION_AUDIT_PATH = (
     "research/queue/dispatch_authorization_audit/dispatch_authorization_events.jsonl"
 )
@@ -273,14 +277,15 @@ def _authorized_path_scope_rejection(path: str, scope: str) -> str | None:
             DISPATCH_AUTHORIZATION_RE.match(path)
             or path == DISPATCH_AUTHORIZATION_AUDIT_PATH
             or DISPATCH_AUTHORIZATION_RESERVATION_RE.match(path)
+            or DISPATCH_RECORD_RE.match(path)
             or path == DISPATCH_AUTHORIZATION_REGRESSION_TEST_PATH
             or path == PROJECT_STATUS_PATH
         ):
             return None
         return (
-            "dispatch-authorization-crossing scope is limited to the canonical authorization, "
-            "lifecycle audit, crossing reservation, dispatch-authorization regression test, "
-            "and project-status path families"
+            "dispatch-authorization-crossing scope is limited to the canonical dispatch record, "
+            "authorization, lifecycle audit, crossing reservation, dispatch-authorization "
+            "regression test, and project-status path families"
         )
 
     return f"unsupported authorized scope: {scope}"

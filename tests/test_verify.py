@@ -347,6 +347,49 @@ def test_verify_passes_authorized_path_scope_to_diff_scope():
     assert "strategy-spec-schema" in diff_scope_command
 
 
+def test_verify_passes_committed_diff_and_authorization_evidence_to_diff_scope():
+    parser = helper.build_parser()
+    path = (
+        "research/queue/dispatch_authorizations/"
+        "KDAUTH-H004-R2-9001.dispatch_authorization.json"
+    )
+    args = parser.parse_args(
+        [
+            "--base-ref",
+            "base-sha",
+            "--head-ref",
+            "head-sha",
+            "--authorized-package",
+            "WP-TEST",
+            "--authorized-path",
+            path,
+            "--authorized-scope",
+            "dispatch-authorization-crossing",
+        ]
+    )
+
+    commands = helper.build_standard_commands(args)
+    diff_scope_command = next(
+        command.argv for command in commands if "tools/dev/diff_scope_summary.py" in command.argv
+    )
+
+    assert diff_scope_command == [
+        helper.sys.executable,
+        "tools/dev/diff_scope_summary.py",
+        "--check-forbidden",
+        "--authorized-path",
+        path,
+        "--authorized-scope",
+        "dispatch-authorization-crossing",
+        "--authorized-package",
+        "WP-TEST",
+        "--base-ref",
+        "base-sha",
+        "--head-ref",
+        "head-sha",
+    ]
+
+
 def test_verify_diff_scope_command_is_strict_by_default():
     parser = helper.build_parser()
     args = parser.parse_args([])
@@ -377,6 +420,16 @@ def test_verify_authorized_path_requires_package(capsys):
 
     assert exc_info.value.code == 2
     assert "--authorized-path requires --authorized-package" in stderr
+
+
+@pytest.mark.parametrize("flag", ["--base-ref", "--head-ref"])
+def test_verify_committed_diff_requires_both_endpoints(capsys, flag):
+    with pytest.raises(SystemExit) as exc_info:
+        helper.run([flag, "HEAD"])
+    stderr = capsys.readouterr().err
+
+    assert exc_info.value.code == 2
+    assert "requires" in stderr
 
 
 def test_docs_only_preset_does_not_add_full_pytest_by_default():

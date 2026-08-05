@@ -42,6 +42,23 @@ CANONICAL_RESULT_POPULATION_RE = re.compile(
 STRATEGY_SPEC_RE = re.compile(r"^research/strategy_specs/STRAT-SPEC-\d+\.strategy_spec\.json$")
 RESEARCH_PIPELINE_DOC_RE = re.compile(r"^docs/research_pipeline/[^/]+\.md$")
 STATUS_ENTRY_RE = re.compile(r"^docs/status_entries/WP-[^/]+\.md$")
+DISPATCH_AUTHORIZATION_RE = re.compile(
+    r"^research/queue/dispatch_authorizations/"
+    r"KDAUTH-[A-Z0-9]+-R[0-9]+-[0-9]{4}\.dispatch_authorization\.json$"
+)
+DISPATCH_AUTHORIZATION_RESERVATION_RE = re.compile(
+    r"^research/queue/dispatch_authorization_reservations/"
+    r"KDAUTH-XING-[0-9]{8}-[A-Z0-9]{8}\.crossing_reservation\.jsonl$"
+)
+DISPATCH_RECORD_RE = re.compile(
+    r"^research/queue/dispatch_records/"
+    r"DSP-[0-9]{8}-[A-Z0-9]{8}\.dispatch_record\.json$"
+)
+DISPATCH_AUTHORIZATION_AUDIT_PATH = (
+    "research/queue/dispatch_authorization_audit/dispatch_authorization_events.jsonl"
+)
+DISPATCH_AUTHORIZATION_REGRESSION_TEST_PATH = "tests/test_dispatch_authorization.py"
+PROJECT_STATUS_PATH = "docs/project_status.md"
 
 
 @dataclass(frozen=True)
@@ -255,6 +272,22 @@ def _authorized_path_scope_rejection(path: str, scope: str) -> str | None:
             return None
         return "status scope is limited to docs/status_entries/WP-*.md paths"
 
+    if normalized_scope == "dispatch-authorization-crossing":
+        if (
+            DISPATCH_AUTHORIZATION_RE.match(path)
+            or path == DISPATCH_AUTHORIZATION_AUDIT_PATH
+            or DISPATCH_AUTHORIZATION_RESERVATION_RE.match(path)
+            or DISPATCH_RECORD_RE.match(path)
+            or path == DISPATCH_AUTHORIZATION_REGRESSION_TEST_PATH
+            or path == PROJECT_STATUS_PATH
+        ):
+            return None
+        return (
+            "dispatch-authorization-crossing scope is limited to the canonical dispatch record, "
+            "authorization, lifecycle audit, crossing reservation, dispatch-authorization "
+            "regression test, and project-status path families"
+        )
+
     return f"unsupported authorized scope: {scope}"
 
 
@@ -290,16 +323,64 @@ def _authorized_general_paths(
 
 def build_summary(args: argparse.Namespace) -> dict[str, Any]:
     repo_root = resolve_repo_root(args.repo_root)
+    comparison_mode = "committed_base_to_head" if args.base_ref and args.head_ref else "working_tree_and_staged"
+    comparison_semantics = "working tree, staged index, and untracked files"
+    resolved_base: str | None = None
+    resolved_head: str | None = None
+    comparison_range: str | None = None
 
-    tracked_result = _run_git(repo_root, ["diff", "--name-only"])
-    staged_result = _run_git(repo_root, ["diff", "--cached", "--name-only"])
-    untracked_result = _run_git(repo_root, ["ls-files", "--others", "--exclude-standard"])
-    numstat_result = _run_git(repo_root, ["diff", "--numstat"])
-    staged_numstat_result = _run_git(repo_root, ["diff", "--cached", "--numstat"])
+    if comparison_mode == "committed_base_to_head":
+        base_resolution = _run_git(repo_root, ["rev-parse", "--verify", f"{args.base_ref}^{{commit}}"])
+        head_resolution = _run_git(repo_root, ["rev-parse", "--verify", f"{args.head_ref}^{{commit}}"])
+        git_results = [base_resolution, head_resolution]
+        if not base_resolution.failed and not head_resolution.failed:
+            resolved_base = base_resolution.stdout.strip()
+            resolved_head = head_resolution.stdout.strip()
+            comparison_range = f"{resolved_base}...{resolved_head}"
+            committed_names_result = _run_git(
+                repo_root,
+                ["diff", "--name-only", comparison_range, "--"],
+            )
+            committed_numstat_result = _run_git(
+                repo_root,
+                ["diff", "--numstat", comparison_range, "--"],
+            )
+            git_results.extend([committed_names_result, committed_numstat_result])
+            tracked_files = _split_lines(committed_names_result)
+            committed_numstat = _parse_numstat(committed_numstat_result)
+            committed_numstat_errors = _git_failures([committed_numstat_result])
+        else:
+            tracked_files = []
+            committed_numstat = []
+            committed_numstat_errors = []
+        staged_files = []
+        untracked_files = []
+        working_numstat = []
+        staged_numstat = []
+        numstat_errors = _git_failures([base_resolution, head_resolution])
+        comparison_semantics = "git diff <resolved-base>...<resolved-head> (merge-base to head)"
+    else:
+        tracked_result = _run_git(repo_root, ["diff", "--name-only"])
+        staged_result = _run_git(repo_root, ["diff", "--cached", "--name-only"])
+        untracked_result = _run_git(repo_root, ["ls-files", "--others", "--exclude-standard"])
+        numstat_result = _run_git(repo_root, ["diff", "--numstat"])
+        staged_numstat_result = _run_git(repo_root, ["diff", "--cached", "--numstat"])
+        git_results = [
+            tracked_result,
+            staged_result,
+            untracked_result,
+            numstat_result,
+            staged_numstat_result,
+        ]
+        tracked_files = _split_lines(tracked_result)
+        staged_files = _split_lines(staged_result)
+        untracked_files = _split_lines(untracked_result)
+        working_numstat = _parse_numstat(numstat_result)
+        staged_numstat = _parse_numstat(staged_numstat_result)
+        committed_numstat = []
+        numstat_errors = _git_failures([numstat_result, staged_numstat_result])
+        committed_numstat_errors = []
 
-    tracked_files = _split_lines(tracked_result)
-    staged_files = _split_lines(staged_result)
-    untracked_files = _split_lines(untracked_result)
     changed_files = _unique_paths(tracked_files, staged_files, untracked_files)
 
     forbidden_prefixes = [*DEFAULT_FORBIDDEN_PREFIXES, *args.forbidden_prefix]
@@ -333,23 +414,32 @@ def build_summary(args: argparse.Namespace) -> dict[str, Any]:
     trial_log_checked = bool(args.trial_log or trial_log_touched)
     trial_log_results: list[GitResult] = []
     if trial_log_checked:
-        trial_working_result = _run_git(repo_root, ["diff", "--numstat", "--", TRIAL_LOG_PATH])
-        trial_staged_result = _run_git(repo_root, ["diff", "--cached", "--numstat", "--", TRIAL_LOG_PATH])
-        trial_log_results.extend([trial_working_result, trial_staged_result])
-        trial_working = _parse_numstat(trial_working_result)
-        trial_staged = _parse_numstat(trial_staged_result)
+        if comparison_mode == "committed_base_to_head" and comparison_range:
+            trial_committed_result = _run_git(
+                repo_root,
+                ["diff", "--numstat", comparison_range, "--", TRIAL_LOG_PATH],
+            )
+            trial_log_results.append(trial_committed_result)
+            trial_working = []
+            trial_staged = []
+            trial_committed = _parse_numstat(trial_committed_result)
+        elif comparison_mode == "working_tree_and_staged":
+            trial_working_result = _run_git(repo_root, ["diff", "--numstat", "--", TRIAL_LOG_PATH])
+            trial_staged_result = _run_git(repo_root, ["diff", "--cached", "--numstat", "--", TRIAL_LOG_PATH])
+            trial_log_results.extend([trial_working_result, trial_staged_result])
+            trial_working = _parse_numstat(trial_working_result)
+            trial_staged = _parse_numstat(trial_staged_result)
+            trial_committed = []
+        else:
+            trial_working = []
+            trial_staged = []
+            trial_committed = []
     else:
         trial_working = []
         trial_staged = []
+        trial_committed = []
 
-    git_results = [
-        tracked_result,
-        staged_result,
-        untracked_result,
-        numstat_result,
-        staged_numstat_result,
-        *trial_log_results,
-    ]
+    git_results.extend(trial_log_results)
     failures = _git_failures(git_results)
 
     exit_reason = "ok"
@@ -357,15 +447,26 @@ def build_summary(args: argparse.Namespace) -> dict[str, Any]:
         exit_reason = "git command failed"
     elif args.check_forbidden and forbidden_matches:
         exit_reason = "forbidden path match"
+    elif args.check_forbidden and (
+        rejected_authorized_canonical_writes or rejected_authorized_general_writes
+    ):
+        exit_reason = "authorized path rejected"
 
     summary = {
         "tracked_changed_files": tracked_files,
         "staged_changed_files": staged_files,
         "untracked_files": untracked_files,
         "numstat": {
-            "working_tree": _parse_numstat(numstat_result),
-            "staged": _parse_numstat(staged_numstat_result),
-            "errors": _git_failures([numstat_result, staged_numstat_result]),
+            "mode": comparison_mode,
+            "base_ref": args.base_ref,
+            "head_ref": args.head_ref,
+            "resolved_base": resolved_base,
+            "resolved_head": resolved_head,
+            "semantics": comparison_semantics,
+            "working_tree": working_numstat,
+            "staged": staged_numstat,
+            "committed": committed_numstat,
+            "errors": [*numstat_errors, *committed_numstat_errors],
         },
         "forbidden_matches": forbidden_matches,
         "authorized_canonical_result_population_writes": {
@@ -382,17 +483,21 @@ def build_summary(args: argparse.Namespace) -> dict[str, Any]:
         "allowed_file_violations": allowed_file_violations,
         "trial_log": {
             "path": TRIAL_LOG_PATH,
+            "mode": comparison_mode,
             "checked": trial_log_checked,
             "touched": trial_log_touched,
             "working_tree": trial_working,
             "staged": trial_staged,
+            "committed": trial_committed,
             "errors": _git_failures(trial_log_results),
         },
         "exit_reason": exit_reason,
         "_meta": {
             "repo_root": repo_root.as_posix(),
+            "comparison_mode": comparison_mode,
             "base_ref": args.base_ref,
-            "base_ref_note": "accepted for future compatibility; current summary uses working tree and staged git diff state",
+            "head_ref": args.head_ref,
+            "comparison_semantics": comparison_semantics,
             "forbidden_prefixes": forbidden_prefixes,
             "authorized_canonical_result_population_paths": sorted(authorized_canonical_paths),
             "authorized_general_paths": sorted(authorized_general_paths),
@@ -490,15 +595,21 @@ def format_markdown(summary: dict[str, Any]) -> str:
     authorized_general_text = "\n".join(authorized_general_lines)
 
     if trial_log["checked"]:
-        trial_log_text = "\n".join(
-            [
-                f"- touched: `{str(trial_log['touched']).lower()}`",
-                "- working tree:",
-                _format_numstat_entries(trial_log["working_tree"]),
-                "- staged:",
-                _format_numstat_entries(trial_log["staged"]),
-            ]
-        )
+        trial_log_lines = [f"- touched: `{str(trial_log['touched']).lower()}`"]
+        if trial_log["mode"] == "committed_base_to_head":
+            trial_log_lines.extend(
+                ["- committed base-to-head:", _format_numstat_entries(trial_log["committed"])]
+            )
+        else:
+            trial_log_lines.extend(
+                [
+                    "- working tree:",
+                    _format_numstat_entries(trial_log["working_tree"]),
+                    "- staged:",
+                    _format_numstat_entries(trial_log["staged"]),
+                ]
+            )
+        trial_log_text = "\n".join(trial_log_lines)
     else:
         trial_log_text = "- not checked; pass `--trial-log` or touch `research/trial_log.jsonl` to include numstat"
 
@@ -524,10 +635,14 @@ def format_markdown(summary: dict[str, Any]) -> str:
             _format_path_list(summary["untracked_files"]),
             "",
             "## Numstat",
+            f"- mode: `{summary['numstat']['mode']}`",
+            f"- semantics: {summary['numstat']['semantics']}",
             "- working tree:",
             _format_numstat_entries(summary["numstat"]["working_tree"]),
             "- staged:",
             _format_numstat_entries(summary["numstat"]["staged"]),
+            "- committed base-to-head:",
+            _format_numstat_entries(summary["numstat"]["committed"]),
             "",
             "## Forbidden-path matches",
             forbidden_text,
@@ -547,8 +662,10 @@ def format_markdown(summary: dict[str, Any]) -> str:
             "## Notes",
             f"- exit reason: `{summary['exit_reason']}`",
             f"- repo root: `{meta['repo_root']}`",
+            f"- comparison mode: `{meta['comparison_mode']}`",
             f"- base ref: `{meta['base_ref'] or 'not supplied'}`",
-            f"- {meta['base_ref_note']}",
+            f"- head ref: `{meta['head_ref'] or 'not supplied'}`",
+            f"- comparison semantics: {meta['comparison_semantics']}",
             f"- {meta['advisory_note']}",
             "- git command errors:",
             git_error_text,
@@ -564,7 +681,20 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Exit nonzero when forbidden-path matches are found",
     )
-    parser.add_argument("--base-ref", help="Optional future comparison ref; current summary remains local diff state")
+    parser.add_argument(
+        "--base-ref",
+        help=(
+            "Explicit base commit/ref for committed comparison mode; requires --head-ref and uses "
+            "git diff <base>...<head> merge-base-to-head semantics"
+        ),
+    )
+    parser.add_argument(
+        "--head-ref",
+        help=(
+            "Explicit head commit/ref for committed comparison mode; requires --base-ref and uses "
+            "git diff <base>...<head> merge-base-to-head semantics"
+        ),
+    )
     parser.add_argument("--trial-log", action="store_true", help=f"Include {TRIAL_LOG_PATH} numstat")
     parser.add_argument(
         "--forbidden-prefix",
@@ -622,6 +752,10 @@ def run(argv: Sequence[str] | None = None) -> int:
         parser.error("--authorized-scope requires --authorized-path")
     if args.authorized_path and not args.authorized_package:
         parser.error("--authorized-path requires --authorized-package")
+    if args.base_ref and not args.head_ref:
+        parser.error("--base-ref requires --head-ref")
+    if args.head_ref and not args.base_ref:
+        parser.error("--head-ref requires --base-ref")
 
     try:
         summary = build_summary(args)
@@ -637,7 +771,11 @@ def run(argv: Sequence[str] | None = None) -> int:
 
     if summary["_meta"]["git_errors"]:
         return 1
-    if args.check_forbidden and summary["forbidden_matches"]:
+    if args.check_forbidden and (
+        summary["forbidden_matches"]
+        or summary["authorized_canonical_result_population_writes"]["rejected"]
+        or summary["authorized_path_writes"]["rejected"]
+    ):
         return 1
     return 0
 

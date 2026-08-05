@@ -246,14 +246,15 @@ python -m src.runtime.paper_trader --once-at 2026-01-01T01:00:00Z --config confi
 
 ## Dispatch-authorization parent bootstrap
 
-Before the first dispatch-authorization/KDAUTH crossing in a fresh clone or checkout where the control-plane roots are absent, create exactly these two empty ordinary directories:
+Before the first dispatch-authorization/KDAUTH crossing or dispatch-record writer call in a fresh clone or checkout where the control-plane roots are absent, create exactly these three empty ordinary directories:
 
 ```powershell
 New-Item -ItemType Directory -Path research\queue\dispatch_authorizations
 New-Item -ItemType Directory -Path research\queue\dispatch_authorization_audit
+New-Item -ItemType Directory -Path research\queue\dispatch_records
 ```
 
-Both directories must pre-exist, resolve beneath the repository root, remain empty before first use, and contain no symlink, junction, reparse point, mount redirect, or equivalent indirection. Do not place `.gitkeep` or any other sentinel in either controlled directory. The protected writer verifies these parents but does not create them.
+All three directories must pre-exist before the relevant protected writer call, resolve beneath the repository root, remain empty before first use, and contain no symlink, junction, reparse point, mount redirect, or equivalent indirection. Do not place `.gitkeep` or any other sentinel in any controlled directory. The protected writers verify these parents but do not create them. Git does not track empty directories, so every fresh clone or checkout must perform this bootstrap before its first relevant crossing; this prerequisite grants no crossing or execution authority.
 
 ## Phase 2 research workbench
 

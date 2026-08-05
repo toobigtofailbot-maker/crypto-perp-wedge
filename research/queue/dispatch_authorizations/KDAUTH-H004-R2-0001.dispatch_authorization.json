@@ -1,0 +1,211 @@
+{
+  "amendment_revocation_policy": "append_new_supersession_or_revocation_event_before_consumption_only",
+  "append_only": true,
+  "approval_statement": "Karl approves one single-use offline research dispatch for the exact queue item, dispatch ID, run ID, immutable dispatch manifest, lineage, dataset, funding identity, runner, budget, and output targets bound by this artifact, and grants no downstream authority.",
+  "approved_at": "2026-08-04T23:34:46Z",
+  "approved_by": "Karl",
+  "authority_flags": {
+    "artifact_invokes_runner": false,
+    "authorizes_broker_exchange_orders_positions_balances_capital": false,
+    "authorizes_candidate_lifecycle": false,
+    "authorizes_notifications": false,
+    "authorizes_oms_risk_reconciliation": false,
+    "authorizes_one_single_use_dispatch": true,
+    "authorizes_paper_live_runtime": false,
+    "authorizes_ranking_recommendation": false,
+    "authorizes_readiness_promotion": false,
+    "authorizes_result_population": false,
+    "authorizes_retry_recovery": false,
+    "authorizes_runner_execution": false,
+    "authorizes_standing_dispatcher_scheduler": false
+  },
+  "authorization_artifact_target_path": "research/queue/dispatch_authorizations/KDAUTH-H004-R2-0001.dispatch_authorization.json",
+  "authorization_core": {
+    "authority_flags": {
+      "artifact_invokes_runner": false,
+      "authorizes_broker_exchange_orders_positions_balances_capital": false,
+      "authorizes_candidate_lifecycle": false,
+      "authorizes_notifications": false,
+      "authorizes_oms_risk_reconciliation": false,
+      "authorizes_one_single_use_dispatch": true,
+      "authorizes_paper_live_runtime": false,
+      "authorizes_ranking_recommendation": false,
+      "authorizes_readiness_promotion": false,
+      "authorizes_result_population": false,
+      "authorizes_retry_recovery": false,
+      "authorizes_runner_execution": false,
+      "authorizes_standing_dispatcher_scheduler": false
+    },
+    "budget": {
+      "comparison": "actual_lte_upper_bound",
+      "metric": "variant_attempts",
+      "mismatch_or_exceed_policy": "reject",
+      "retries_included": true,
+      "retry_allowance": 0,
+      "unit": "attempts",
+      "upper_bound": 81
+    },
+    "crossing_identities": {
+      "dispatch_id": "DSP-20260804-H004R2A1",
+      "dispatch_record_path": "research/queue/dispatch_records/DSP-20260804-H004R2A1.dispatch_record.json",
+      "execution_event_stream_path": "research/queue/execution_events/RUN-20260804-H004R2A1.execution_events.jsonl",
+      "run_id": "RUN-20260804-H004R2A1"
+    },
+    "dataset": {
+      "cadence_ms": 86400000,
+      "canonical_route": "1d",
+      "catalog_byte_length": 4237,
+      "catalog_path": "research/data_slices/binance_usdtm_btcusdt_1d/binance_usdtm_btcusdt_1d_20200101_20260411.catalog_slice.json",
+      "catalog_sha256": "sha256:51fc09918841cd3ac353efe375af91a4732080571f9b1af634f5d1a426217adb",
+      "catalog_status": "valid_offline_provenance_tracked_snapshot",
+      "columns_schema_identity": "sha256:6ccfac9ea1c523007ef94eaf068ad9566abe60e9f4d70965ac798e3c911af6dc",
+      "coverage_end_utc": "2026-04-11T23:59:59.999000Z",
+      "coverage_start_utc": "2020-01-01T00:00:00Z",
+      "data_byte_length": 200961,
+      "data_path": "data/processed/binance_um_perp_BTCUSDT_1d_2020-01-01_2026-04-11_2026-04-12T1655Z.parquet",
+      "data_sha256": "sha256:c6e2e7ce030db6a710d95e48325fc77b27efbbdd441199b3d7458d4394795802",
+      "dataset_id": "binance_usdtm_btcusdt_ohlcv_1d",
+      "derivation_identity_absent": true,
+      "duplicate_count": 0,
+      "gap_count": 0,
+      "market": "BTCUSDT_BINANCE_USDTM_PERPETUAL",
+      "missing_bar_count": 0,
+      "open_or_incomplete_bar_count": 0,
+      "parent_identity_absent": true,
+      "partial_window_posture": "completed_bars_only_reject_partial",
+      "row_count": 2293,
+      "snapshot_version": "2026-04-12T1655Z",
+      "source_type": "direct_public_archive_snapshot",
+      "timeframe": "1d",
+      "timezone": "UTC",
+      "validation_identity": "sha256:268cb6ade6e2a3e71f5bbbe0c4dad5b720732310f8e966f901616845f13bd3b9",
+      "validator_byte_length": 15005,
+      "validator_path": "tools/data/register_binance_usdtm_1d_lineage.py",
+      "validator_sha256": "sha256:304677c9800763189424f2efa7900eeb2c2be2fce4b4bb99663bc8e409fbc8c1"
+    },
+    "denominator": {
+      "basis": "committed_pre_registered_population_count",
+      "mismatch_policy": "reject",
+      "planned": 81,
+      "sweep_plan_value": 81,
+      "variant_manifest_value": 81
+    },
+    "dispatch_manifest": {
+      "byte_length": 8928,
+      "manifest_id": "DMAN-H004-R2-0001",
+      "whole_file_sha256": "sha256:cb8fdde0db1ab14282a62c217b0add134ce9615e9abee0f8215a0ae3ba4c7cb2"
+    },
+    "execution_parameters": {
+      "automatic_retry": false,
+      "automatic_second_invocation": false,
+      "one_shot": true,
+      "seed": 7,
+      "workers": 1
+    },
+    "funding": {
+      "backfill_forbidden": true,
+      "boundary_rule_id": "existing_backtest_left_open_right_closed_pre_fill_v1",
+      "coverage_end_utc": "2026-04-12T16:00:00Z",
+      "coverage_start_utc": "2019-09-10T08:00:00Z",
+      "fill_forbidden": true,
+      "funding_data_byte_length": 126987,
+      "funding_data_path": "data/processed/binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z.parquet",
+      "funding_data_sha256": "sha256:5f0da7478ccf3514af41dff9958b579cd2f797a2716001b0fa10a11059912798",
+      "funding_mode": "on",
+      "funding_series_id": "binance_usdtm_btcusdt_funding_events_20190910t080000z_20260412t160000z_sha256_5f0da7478ccf3514",
+      "interpolation_forbidden": true,
+      "provenance_artifact_byte_length": 5619,
+      "provenance_artifact_id": "FUNDING-PROV-BINANCE-USDTM-BTCUSDT-20190910T080000Z-20260412T160000Z-5F0DA7478CCF3514",
+      "provenance_artifact_path": "research/data_provenance/funding/binance_usdtm_btcusdt_funding_events_20190910t080000z_20260412t160000z_sha256_5f0da7478ccf3514.funding_provenance.json",
+      "provenance_artifact_sha256": "sha256:fe84062a6426b7b5aa1653e87eb0038486925f5c5c6263cc33595870d4e6c692",
+      "rate_units": "decimal_fraction_of_notional_per_funding_event",
+      "rounding_forbidden": true,
+      "row_count": 7220,
+      "timestamp_semantics": "actual_exchange_funding_event_timestamp",
+      "zero_substitution_forbidden": true
+    },
+    "lineage": {
+      "external_content_readiness": {
+        "artifact_id": "SS-ECR-STRAT-SPEC-0007",
+        "byte_length": 2545,
+        "path": "research/strategy_spec_external_content_readiness/SS-ECR-STRAT-SPEC-0007.external_content_readiness.json",
+        "strategy_spec_canonical_sha256": "sha256:8b6f7dd7a3e12b934c1038ae113aa25aa79f0b3cc6a336b25bd58164f5cc92db",
+        "strategy_spec_raw_sha256": "sha256:b23ebc1093df51b7fab5e39c46fd2b96b5e71d35300134eb319a5cbc32d0857c",
+        "whole_file_sha256": "sha256:ec182c262046797b81ebc409d711f1e11f671831cffc472f3277192117236761"
+      },
+      "gate_q": {
+        "approval_id": "GATE-Q-H004-R2-04B-0001",
+        "byte_length": 4615,
+        "core_canonicalization": "repo_canonical_json_v1",
+        "core_hash_scope": "gate_q_approval_core_v1",
+        "core_sha256": "sha256:08e78c274cbade0fb6622596d0b9d36c94cccfea0a29488d7e447f591509e88c",
+        "path": "research/queue/gate_q_approvals/GATE-Q-H004-R2-04B-0001.gate_q_approval.json",
+        "whole_file_sha256": "sha256:8645018c04a565761d72047b5225fbfd5694e342f5180407f0c8b111ba310fed"
+      },
+      "strategy_spec": {
+        "artifact_id": "STRAT-SPEC-0007",
+        "byte_length": 19880,
+        "content_canonical_sha256": "sha256:8b6f7dd7a3e12b934c1038ae113aa25aa79f0b3cc6a336b25bd58164f5cc92db",
+        "path": "research/strategy_specs/STRAT-SPEC-0007.strategy_spec.json",
+        "whole_file_sha256": "sha256:b23ebc1093df51b7fab5e39c46fd2b96b5e71d35300134eb319a5cbc32d0857c"
+      },
+      "sweep_plan": {
+        "artifact_id": "SWEEP-PLAN-0007",
+        "byte_length": 11182,
+        "path": "research/sweep_plans/SWEEP-PLAN-0007.sweep_plan.json",
+        "whole_file_sha256": "sha256:66d48ec6d57048012dcd243ca7dda25dcf59241b1a3733dc05796eb46d7af2f0"
+      },
+      "variant_manifest": {
+        "artifact_id": "VM-0007",
+        "byte_length": 69732,
+        "path": "research/variant_manifests/VM-0007.variant_manifest.json",
+        "whole_file_sha256": "sha256:822da9ca46eca4f3a9d4d86936fdd3447004ef77806fc3ce60ab0cf979ea171d"
+      },
+      "variant_planning_approval": {
+        "artifact_id": "VPAPP-20260715-H004R201",
+        "byte_length": 3695,
+        "core_sha256": "sha256:4b8e126870c918e88ac42336427c3ba495bcacb6433bd3741b0a01c712bf99f0",
+        "path": "research/strategy_spec_variant_planning_approvals/VPAPP-20260715-H004R201.variant_planning_approval.json",
+        "whole_file_sha256": "sha256:13b40df10af9290d65c971e1e57397e5193cc76fa5852a04b6084ec41c8a275a"
+      }
+    },
+    "output_targets": {
+      "canonical_result_population_target_forbidden": true,
+      "execution_event_stream_path": "research/queue/execution_events/RUN-20260804-H004R2A1.execution_events.jsonl",
+      "scratch_output_root": "scratch/RUN-20260804-H004R2A1/"
+    },
+    "queue_binding": {
+      "byte_length": 5345,
+      "gate_q": {
+        "approval_id": "GATE-Q-H004-R2-04B-0001",
+        "byte_length": 4615,
+        "core_canonicalization": "repo_canonical_json_v1",
+        "core_hash_scope": "gate_q_approval_core_v1",
+        "core_sha256": "sha256:08e78c274cbade0fb6622596d0b9d36c94cccfea0a29488d7e447f591509e88c",
+        "path": "research/queue/gate_q_approvals/GATE-Q-H004-R2-04B-0001.gate_q_approval.json",
+        "whole_file_sha256": "sha256:8645018c04a565761d72047b5225fbfd5694e342f5180407f0c8b111ba310fed"
+      },
+      "path": "research/queue/admissions/QI-20260717-H004R2B1.queue_item.json",
+      "queue_item_id": "QI-20260717-H004R2B1",
+      "required_state": "admitted_non_dispatched",
+      "whole_file_sha256": "sha256:47ba045b4ac89588e1865c280b080f0922cef6bb1e7d4e7880090ba07a44d967"
+    },
+    "runner": {
+      "invocation_kind": "python_module",
+      "module": "tools.research_runner.run_offline_sweep",
+      "source_byte_length": 149993,
+      "source_path": "tools/research_runner/run_offline_sweep.py",
+      "source_sha256": "sha256:b23c18a66c399b8f4575c6f51d421153d30f9afbffdc0e24c10a336cd6460e1d",
+      "version": "wp-s2c-190-build-test-v1"
+    }
+  },
+  "authorization_core_canonicalization": "repo_canonical_json_v1",
+  "authorization_core_hash_scope": "dispatch_authorization_core_v1",
+  "authorization_core_sha256": "sha256:a5bcc0a54f350dc51509135c1ec53ddb4436a873c4574df5e062c7b78be647c0",
+  "authorization_id": "KDAUTH-H004-R2-0001",
+  "authorization_scope": "one_single_use_dispatch",
+  "content_bound_freshness": true,
+  "exact_content_and_target_only": true,
+  "schema_version": "canon_dispatch_authorization_v1",
+  "single_use_authorization_id": true
+}

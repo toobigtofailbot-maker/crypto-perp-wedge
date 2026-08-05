@@ -2133,36 +2133,179 @@ def test_symlinked_reference_fails_closed(tmp_path, repo_root):
         _validate(fixture, require_audit=False, scan_history=False)
 
 
-def test_only_frozen_stage_a_manifest_and_no_downstream_artifacts_created(repo_root):
-    import tools.canon_intake.dispatch_authorization_reservation as reservation
+def test_exact_post_kdauth_boundary_and_no_downstream_artifacts_created(repo_root):
+    from tools.canon_intake import dispatch_writer, execution_event
 
+    manifest_sha256 = (
+        "sha256:cb8fdde0db1ab14282a62c217b0add134ce9615e9abee0f8215a0ae3ba4c7cb2"
+    )
+    authorization_sha256 = (
+        "sha256:e6063a04e9bd5d7afb4048ba89c70155e3010042b5a5bde3a025f11f0c372c91"
+    )
+    authorization_core_hash = (
+        "sha256:a5bcc0a54f350dc51509135c1ec53ddb4436a873c4574df5e062c7b78be647c0"
+    )
+    audit_sha256 = (
+        "sha256:cbc0346bbd521eec6e330fb749d27a7e64ab68ea546302a2efb75a0630975521"
+    )
+    reservation_sha256 = (
+        "sha256:edf50c00d0c939143e3a632d62e9fea731fab16faa575ad2eb70e0b2e0410cf0"
+    )
     manifest_root = repo_root / manifest_contract.MANIFEST_ROOT
     approval_root = repo_root / validator.APPROVAL_ROOT
     audit_path = repo_root / validator.AUDIT_PATH
+    reservation_root = repo_root / reservation.RESERVATION_ROOT
     dispatch_root = repo_root / validator.DISPATCH_ROOT
     execution_root = repo_root / validator.EXECUTION_ROOT
-    assert not approval_root.exists() or not list(
-        approval_root.glob("*.dispatch_authorization.json")
-    )
-    manifests = list(manifest_root.glob("*.dispatch_manifest.json"))
+    manifests = sorted(manifest_root.glob("*.dispatch_manifest.json"))
     assert [path.name for path in manifests] == [
         "DMAN-H004-R2-0001.dispatch_manifest.json"
     ]
     manifest_raw = manifests[0].read_bytes()
     assert len(manifest_raw) == 8928
-    assert _hash(manifest_raw) == (
-        "sha256:cb8fdde0db1ab14282a62c217b0add134ce9615e9abee0f8215a0ae3ba4c7cb2"
+    assert _hash(manifest_raw) == manifest_sha256
+    manifest_validation = manifest_contract.validate_dispatch_manifest(
+        repo_root=repo_root,
+        manifest_path=manifests[0],
+        expected_whole_file_sha256=manifest_sha256,
+        expected_byte_length=8928,
+        require_authoritative_path=True,
+        validate_references=True,
     )
-    assert not audit_path.exists()
+    assert manifest_validation["valid"] is True
+    assert manifest_validation["manifest_id"] == "DMAN-H004-R2-0001"
+
+    authorization_paths = sorted(
+        approval_root.glob("*.dispatch_authorization.json")
+    )
+    assert [path.name for path in authorization_paths] == [
+        "KDAUTH-H004-R2-0001.dispatch_authorization.json"
+    ]
+    authorization_path = authorization_paths[0]
+    authorization_raw = authorization_path.read_bytes()
+    assert len(authorization_raw) == 10865
+    assert _hash(authorization_raw) == authorization_sha256
+    authorization_validation = validate_dispatch_authorization(
+        repo_root=repo_root,
+        authorization_path=authorization_path,
+        audit_path=audit_path,
+        expected_whole_file_sha256=authorization_sha256,
+        expected_byte_length=10865,
+        require_audit=True,
+        scan_history=True,
+    )
+    assert authorization_validation["valid"] is True
+    assert authorization_validation["authorization_id"] == "KDAUTH-H004-R2-0001"
+    assert authorization_validation["authorization_core_sha256"] == (
+        authorization_core_hash
+    )
+    assert authorization_validation["lifecycle_state"] == "created"
+    authorization = json.loads(authorization_raw)
+    assert authorization["approved_by"] == "Karl"
+    assert authorization["approved_at"] == "2026-08-04T23:34:46Z"
+    assert authorization_core_sha256(authorization["authorization_core"]) == (
+        authorization_core_hash
+    )
+    assert authorization["authorization_core"]["dispatch_manifest"] == {
+        "manifest_id": "DMAN-H004-R2-0001",
+        "whole_file_sha256": manifest_sha256,
+        "byte_length": 8928,
+    }
+    current_and_retained = list(
+        validator._iter_current_control_documents(repo_root)
+    ) + list(validator._history_documents(repo_root))
+    unique_authorizations = {
+        (path, _hash(raw))
+        for path, raw in current_and_retained
+        if path.endswith(".dispatch_authorization.json")
+    }
+    assert unique_authorizations == {
+        (
+            "research/queue/dispatch_authorizations/"
+            "KDAUTH-H004-R2-0001.dispatch_authorization.json",
+            authorization_sha256,
+        )
+    }
+
+    assert sorted(path.name for path in audit_path.parent.iterdir()) == [
+        "dispatch_authorization_events.jsonl"
+    ]
+    audit_raw = audit_path.read_bytes()
+    assert len(audit_raw) == 1216
+    assert _hash(audit_raw) == audit_sha256
+    audit_rows, audit_length = (
+        validator.read_and_validate_dispatch_authorization_audit(
+            repo_root=repo_root,
+            audit_path=audit_path,
+        )
+    )
+    assert audit_length == 1216
+    assert len(audit_rows) == 1
+    created = audit_rows[0][0]
+    assert created["event_id"] == "KDAUTH-EVENT-KDAUTH-H004-R2-0001-000001"
+    assert created["event_type"] == "authorization_created"
+    assert created["authorization_id"] == "KDAUTH-H004-R2-0001"
+    assert created["authorization_file_sha256"] == authorization_sha256
+    assert created["authorization_core_sha256"] == authorization_core_hash
+    assert created["authorization_byte_length"] == 10865
+
+    reservation_paths = sorted(
+        reservation_root.glob("*.crossing_reservation.jsonl")
+    )
+    assert [path.name for path in reservation_paths] == [
+        "KDAUTH-XING-20260804-C3N4RPZN.crossing_reservation.jsonl"
+    ]
+    reservation_raw = reservation_paths[0].read_bytes()
+    assert len(reservation_raw) == 5952
+    assert _hash(reservation_raw) == reservation_sha256
+    reservation_validation = (
+        reservation.validate_dispatch_authorization_reservation_stream(
+            repo_root=repo_root,
+            reservation_path=reservation_paths[0],
+            require_terminal=True,
+        )
+    )
+    assert reservation_validation["attempt_id"] == (
+        "KDAUTH-XING-20260804-C3N4RPZN"
+    )
+    assert reservation_validation["event_count"] == 2
+    assert [event["event_type"] for event in reservation_validation["events"]] == [
+        "attempt_reserved",
+        "crossing_committed",
+    ]
+    assert reservation_validation["terminal_outcome"] == "crossing_committed"
+    assert reservation_validation["findings"] == []
+    reviewed = reservation_validation["events"][0]["reviewed_content_binding"]
+    assert reviewed["reviewed_whole_file_sha256"] == authorization_sha256
+    assert reviewed["reviewed_byte_length"] == 10865
+    attempts = reservation.scan_dispatch_authorization_reservations(
+        repo_root=repo_root,
+        include_retained_history=True,
+    )
+    assert len(attempts) == 1
+    assert attempts[0]["terminal_outcome"] == "crossing_committed"
+    assert attempts[0]["findings"] == []
+    assert reservation.collect_dispatch_authorization_crossing_findings(
+        repo_root=repo_root
+    ) == []
+
+    assert validator.collect_dispatch_without_consumption_findings(
+        repo_root=repo_root
+    ) == []
+    assert execution_event.collect_execution_stream_integrity_findings(
+        repo_root=repo_root
+    ) == []
     assert not dispatch_root.exists() or not list(
         dispatch_root.glob("*.dispatch_record.json")
     )
     assert not execution_root.exists() or not list(
         execution_root.glob("*.execution_events.jsonl")
     )
-    reservation_root = repo_root / reservation.RESERVATION_ROOT
-    assert not reservation_root.exists() or not list(
-        reservation_root.glob("*.crossing_reservation.jsonl")
+    assert not (repo_root / dispatch_writer.LOCK_PATH).exists()
+    assert not (repo_root / reservation.CROSSING_LOCK_PATH).exists()
+    assert not (repo_root / "scratch/RUN-20260804-H004R2A1").exists()
+    assert not list(
+        (repo_root / "research/result_populations").glob("RP-0007*")
     )
 
 

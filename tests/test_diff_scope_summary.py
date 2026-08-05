@@ -558,6 +558,337 @@ def test_mixed_authorized_schema_plus_unauthorized_research_file_fails(tmp_path,
     assert payload["forbidden_matches"] == [{"path": note_path, "prefix": "research/"}]
 
 
+@pytest.mark.parametrize(
+    "path",
+    [
+        "research/queue/dispatch_authorizations/KDAUTH-H004-R2-9001.dispatch_authorization.json",
+        "research/queue/dispatch_authorization_audit/dispatch_authorization_events.jsonl",
+        (
+            "research/queue/dispatch_authorization_reservations/"
+            "KDAUTH-XING-20260805-TEST0001.crossing_reservation.jsonl"
+        ),
+        "tests/test_dispatch_authorization.py",
+        "docs/project_status.md",
+    ],
+)
+def test_dispatch_authorization_crossing_scope_accepts_only_exact_changed_paths(
+    tmp_path, capsys, path
+):
+    repo = _repo(tmp_path)
+    _write(repo / path, "changed\n")
+
+    exit_code, stdout, _ = _run(
+        [
+            "--repo-root",
+            str(repo),
+            "--json",
+            "--check-forbidden",
+            "--authorized-package",
+            "WP-TEST",
+            "--authorized-path",
+            path,
+            "--authorized-scope",
+            "dispatch-authorization-crossing",
+        ],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 0
+    assert payload["forbidden_matches"] == []
+    assert payload["authorized_path_writes"]["authorized"] == [
+        {
+            "path": path,
+            "status": "authorized",
+            "scope": "dispatch-authorization-crossing",
+        }
+    ]
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "research/queue/dispatch_records/DSP-20260805-TEST.dispatch_record.json",
+        "tests/test_dispatch_writer.py",
+        "docs/status_entries/WP-TEST.md",
+    ],
+)
+def test_dispatch_authorization_crossing_scope_rejects_paths_outside_bounded_families(
+    tmp_path, capsys, path
+):
+    repo = _repo(tmp_path)
+    _write(repo / path, "changed\n")
+
+    exit_code, stdout, _ = _run(
+        [
+            "--repo-root",
+            str(repo),
+            "--json",
+            "--check-forbidden",
+            "--authorized-package",
+            "WP-TEST",
+            "--authorized-path",
+            path,
+            "--authorized-scope",
+            "dispatch-authorization-crossing",
+        ],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 1
+    assert payload["authorized_path_writes"]["authorized"] == []
+    assert payload["authorized_path_writes"]["rejected"] == [
+        {
+            "path": path,
+            "scope": "dispatch-authorization-crossing",
+            "reason": (
+                "dispatch-authorization-crossing scope is limited to the canonical authorization, "
+                "lifecycle audit, crossing reservation, dispatch-authorization regression test, "
+                "and project-status path families"
+            ),
+        }
+    ]
+
+
+def test_dispatch_authorization_crossing_scope_does_not_authorize_omitted_canonical_path(
+    tmp_path, capsys
+):
+    repo = _repo(tmp_path)
+    authorized_path = (
+        "research/queue/dispatch_authorizations/"
+        "KDAUTH-H004-R2-9001.dispatch_authorization.json"
+    )
+    omitted_path = (
+        "research/queue/dispatch_authorization_reservations/"
+        "KDAUTH-XING-20260805-TEST0001.crossing_reservation.jsonl"
+    )
+    _write(repo / authorized_path, "{}\n")
+    _write(repo / omitted_path, "event\n")
+
+    exit_code, stdout, _ = _run(
+        [
+            "--repo-root",
+            str(repo),
+            "--json",
+            "--check-forbidden",
+            "--authorized-package",
+            "WP-TEST",
+            "--authorized-path",
+            authorized_path,
+            "--authorized-scope",
+            "dispatch-authorization-crossing",
+        ],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 1
+    assert payload["authorized_path_writes"]["authorized"][0]["path"] == authorized_path
+    assert payload["forbidden_matches"] == [{"path": omitted_path, "prefix": "research/"}]
+
+
+def test_dispatch_authorization_crossing_scope_alone_authorizes_nothing(tmp_path, capsys):
+    repo = _repo(tmp_path)
+
+    with pytest.raises(SystemExit) as exc_info:
+        helper.run(
+            [
+                "--repo-root",
+                str(repo),
+                "--authorized-scope",
+                "dispatch-authorization-crossing",
+            ]
+        )
+    stderr = capsys.readouterr().err
+
+    assert exc_info.value.code == 2
+    assert "--authorized-scope requires --authorized-path" in stderr
+
+
+def test_unsupported_authorized_scope_remains_fail_closed(tmp_path, capsys):
+    repo = _repo(tmp_path)
+    path = "docs/project_status.md"
+    _write(repo / path, "changed\n")
+
+    exit_code, stdout, _ = _run(
+        [
+            "--repo-root",
+            str(repo),
+            "--json",
+            "--check-forbidden",
+            "--authorized-package",
+            "WP-TEST",
+            "--authorized-path",
+            path,
+            "--authorized-scope",
+            "not-a-supported-scope",
+        ],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 1
+    assert payload["exit_reason"] == "authorized path rejected"
+    assert payload["authorized_path_writes"]["rejected"] == [
+        {
+            "path": path,
+            "scope": "not-a-supported-scope",
+            "reason": "unsupported authorized scope: not-a-supported-scope",
+        }
+    ]
+
+
+def test_committed_base_to_head_detects_clean_committed_change(tmp_path, capsys):
+    repo = _repo(tmp_path)
+    base_ref = _git(repo, "rev-parse", "HEAD").stdout.strip()
+    _write(repo / "notes.md", "committed\n")
+    _git(repo, "add", "notes.md")
+    _git(repo, "commit", "-m", "committed change")
+    head_ref = _git(repo, "rev-parse", "HEAD").stdout.strip()
+    assert _git(repo, "status", "--short").stdout == ""
+
+    exit_code, stdout, _ = _run(
+        [
+            "--repo-root",
+            str(repo),
+            "--json",
+            "--base-ref",
+            base_ref,
+            "--head-ref",
+            head_ref,
+        ],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 0
+    assert payload["tracked_changed_files"] == ["notes.md"]
+    assert payload["staged_changed_files"] == []
+    assert payload["untracked_files"] == []
+    assert payload["numstat"]["mode"] == "committed_base_to_head"
+    assert payload["numstat"]["base_ref"] == base_ref
+    assert payload["numstat"]["head_ref"] == head_ref
+    assert payload["numstat"]["committed"][0]["path"] == "notes.md"
+
+
+def test_committed_base_to_head_authorizes_dispatch_crossing_path(tmp_path, capsys):
+    repo = _repo(tmp_path)
+    base_ref = _git(repo, "rev-parse", "HEAD").stdout.strip()
+    path = "research/queue/dispatch_authorizations/KDAUTH-H004-R2-9001.dispatch_authorization.json"
+    _write(repo / path, "{}\n")
+    _git(repo, "add", path)
+    _git(repo, "commit", "-m", "add dispatch authorization")
+    head_ref = _git(repo, "rev-parse", "HEAD").stdout.strip()
+
+    exit_code, stdout, _ = _run(
+        [
+            "--repo-root",
+            str(repo),
+            "--json",
+            "--check-forbidden",
+            "--base-ref",
+            base_ref,
+            "--head-ref",
+            head_ref,
+            "--authorized-package",
+            "WP-TEST",
+            "--authorized-path",
+            path,
+            "--authorized-scope",
+            "dispatch-authorization-crossing",
+        ],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 0
+    assert payload["forbidden_matches"] == []
+    assert payload["authorized_path_writes"]["authorized"][0]["path"] == path
+
+
+def test_committed_base_to_head_rejects_authorized_path_not_in_selected_diff(tmp_path, capsys):
+    repo = _repo(tmp_path)
+    base_ref = _git(repo, "rev-parse", "HEAD").stdout.strip()
+    _write(repo / "notes.md", "committed\n")
+    _git(repo, "add", "notes.md")
+    _git(repo, "commit", "-m", "committed change")
+    head_ref = _git(repo, "rev-parse", "HEAD").stdout.strip()
+    path = "research/queue/dispatch_authorizations/KDAUTH-H004-R2-9001.dispatch_authorization.json"
+    _write(repo / path, "untracked and excluded from committed comparison\n")
+
+    exit_code, stdout, _ = _run(
+        [
+            "--repo-root",
+            str(repo),
+            "--json",
+            "--check-forbidden",
+            "--base-ref",
+            base_ref,
+            "--head-ref",
+            head_ref,
+            "--authorized-package",
+            "WP-TEST",
+            "--authorized-path",
+            path,
+            "--authorized-scope",
+            "dispatch-authorization-crossing",
+        ],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 1
+    assert payload["untracked_files"] == []
+    assert payload["authorized_path_writes"]["rejected"] == [
+        {
+            "path": path,
+            "scope": "dispatch-authorization-crossing",
+            "reason": "path not changed",
+        }
+    ]
+
+
+@pytest.mark.parametrize("flag", ["--base-ref", "--head-ref"])
+def test_committed_comparison_requires_both_endpoints(tmp_path, capsys, flag):
+    repo = _repo(tmp_path)
+
+    with pytest.raises(SystemExit) as exc_info:
+        helper.run(["--repo-root", str(repo), flag, "HEAD"])
+    stderr = capsys.readouterr().err
+
+    assert exc_info.value.code == 2
+    assert "requires" in stderr
+
+
+@pytest.mark.parametrize(
+    ("base_ref", "head_ref"),
+    [("missing-base", "HEAD"), ("HEAD", "missing-head")],
+)
+def test_committed_comparison_invalid_ref_fails_closed(
+    tmp_path, capsys, base_ref, head_ref
+):
+    repo = _repo(tmp_path)
+
+    exit_code, stdout, _ = _run(
+        [
+            "--repo-root",
+            str(repo),
+            "--json",
+            "--base-ref",
+            base_ref,
+            "--head-ref",
+            head_ref,
+        ],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 1
+    assert payload["exit_reason"] == "git command failed"
+    assert payload["numstat"]["errors"]
+
+
 def test_authorized_path_requires_scope(tmp_path, capsys):
     repo = _repo(tmp_path)
     path = "research/schemas/strategy_spec.schema.json"
@@ -635,3 +966,16 @@ def test_helper_does_not_mutate_files_or_git_state(tmp_path, capsys):
     assert exit_code == 0
     assert after_status == before_status
     assert after_readme == before_readme
+
+
+def test_default_mode_remains_working_tree_and_staged(tmp_path, capsys):
+    repo = _repo(tmp_path)
+    _write(repo / "README.md", "working tree change\n")
+
+    exit_code, stdout, _ = _run(["--repo-root", str(repo), "--json"], capsys)
+
+    payload = json.loads(stdout)
+    assert exit_code == 0
+    assert payload["tracked_changed_files"] == ["README.md"]
+    assert payload["numstat"]["mode"] == "working_tree_and_staged"
+    assert payload["numstat"]["committed"] == []

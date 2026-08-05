@@ -157,6 +157,10 @@ def build_standard_commands(args: argparse.Namespace) -> list[CommandSpec]:
         diff_scope_args.extend(["--authorized-scope", args.authorized_scope])
     if args.authorized_package:
         diff_scope_args.extend(["--authorized-package", args.authorized_package])
+    if args.base_ref:
+        diff_scope_args.extend(["--base-ref", args.base_ref])
+    if args.head_ref:
+        diff_scope_args.extend(["--head-ref", args.head_ref])
     commands = [
         CommandSpec(["git", "diff", "--check"], timeout_seconds=timeout),
         CommandSpec(["git", "diff", "--cached", "--check"], timeout_seconds=timeout),
@@ -804,6 +808,20 @@ def build_parser() -> argparse.ArgumentParser:
         "--authorized-package",
         help="Explicit package id passed to diff_scope_summary.py with authorization evidence",
     )
+    parser.add_argument(
+        "--base-ref",
+        help=(
+            "Explicit base commit/ref forwarded to diff_scope_summary.py committed comparison mode; "
+            "requires --head-ref"
+        ),
+    )
+    parser.add_argument(
+        "--head-ref",
+        help=(
+            "Explicit head commit/ref forwarded to diff_scope_summary.py committed comparison mode; "
+            "requires --base-ref"
+        ),
+    )
     return parser
 
 
@@ -838,6 +856,10 @@ def run(argv: Sequence[str] | None = None) -> int:
         parser.error("--authorized-scope requires --authorized-path")
     if args.authorized_path and not args.authorized_package:
         parser.error("--authorized-path requires --authorized-package")
+    if args.base_ref and not args.head_ref:
+        parser.error("--base-ref requires --head-ref")
+    if args.head_ref and not args.base_ref:
+        parser.error("--head-ref requires --base-ref")
     try:
         summary = build_summary(args)
     except VerifyError as exc:

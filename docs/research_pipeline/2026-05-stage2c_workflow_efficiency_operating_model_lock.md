@@ -6,6 +6,27 @@ This is a documentation-only operating-model lock. It records accepted Stage 2c 
 
 Repo truth and active package scope still outrank this lock. Package-specific forbidden scope also overrides the general tier model below.
 
+## Prospective Balanced Acceleration supersession
+
+`docs/decisions/ENGINEERING_VS_STRATEGY_READINESS.md` prospectively supersedes
+this file's earlier universal per-package validation and report-back posture.
+Historical packages and their validation records remain historical truth.
+
+For future packages, validation is risk-tiered and affected-scope-specific, with
+full validation at milestone/release boundaries and wherever a package risk
+tier, protected/canonical crossing, or explicit package gate requires it.
+Conditional runways may cover coherent non-protected/non-canonical work inside
+pre-approved scope. Exact-head Karl/Main review remains required for
+protected/canonical crossings, but is not mechanically required for every
+low-risk non-boundary package. Concise, inspectable evidence and fewer
+unnecessary report-back crossings are preferred.
+
+Balanced Acceleration cannot weaken capital safety, canonical integrity,
+protected runtime, OMS, reconciliation, risk, safe-mode, live-impacting human
+approval, or any package-specific acceptance or stop condition. Stronger
+existing gates still win. Nothing in this supersession retroactively changes a
+completed package or authorizes implementation beyond an active package's scope.
+
 ## Current state at lock
 
 Latest merged runway package: WP-12bh / WP-S2c-25.
@@ -137,18 +158,29 @@ No paired-source reuse or batched-cycle implementation may be applied to H-005 u
 
 Refreshed-main preflight remains mandatory.
 
-Integrity views remain mandatory.
+Integrity views remain mandatory where the active risk tier, affected scope,
+milestone/release boundary, protected/canonical gate, or package requires them.
 
 Registry validators remain mandatory where repo convention requires them.
 
-Full pytest remains mandatory unless a future repo-approved validation-tier document changes that rule.
+For historical packages executed before the Balanced Acceleration decision,
+full pytest remained mandatory unless their active package said otherwise.
+Prospectively, full pytest/full-release runs at milestone/release boundaries and
+where the risk tier, affected scope, protected/canonical gate, or active package
+requires it.
 
-No validation reduction is authorized by this lock.
+No validation reduction may be inferred ad hoc; the prospective posture must
+come from the locked decision, repo truth, and the active package.
 
-E8 and E9 remain not adopted:
+Historical E8/E9 posture before Balanced Acceleration:
 
 - do not skip refreshed-main preflight;
-- do not skip full pytest merely because a package is documentation-only.
+- documentation-only status did not by itself permit skipping full pytest.
+
+Refreshed-main remains mandatory. Prospectively, documentation-only packages
+use the locked risk-tier/affected-scope posture; full validation remains
+mandatory at milestones and wherever the active risk tier or package requires
+it.
 
 ## Reporting and handoff expectations
 
@@ -180,7 +212,9 @@ Stop if the document cannot preserve H-005 runway unchanged.
 
 Stop if the document implies R1/R2 are approved for implementation.
 
-Stop if the document weakens refreshed-main, integrity-view, registry-validator, or full-pytest discipline.
+Stop if a package bypasses refreshed-main, required affected-scope validation,
+registry/integrity checks required by its risk tier, milestone full validation,
+or any stronger protected/canonical/package-specific gate.
 
 Stop if another open PR touches `docs/project_status.md`.
 

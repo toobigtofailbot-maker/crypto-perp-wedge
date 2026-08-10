@@ -75,6 +75,8 @@ FINDING_REASON_CODES = {
         "prior_reservation_missing_or_late",
     "crossing_committed_without_exact_authorization_created":
         "exact_creation_binding_missing",
+    "crossing_committed_required_validation_input_unavailable":
+        "canonical_1d_dataset_unavailable",
     "reservation_terminal_binding_mismatch":
         "terminal_common_binding_mismatch",
     "reservation_duplicate_or_invalid_sequence":
@@ -93,6 +95,12 @@ class DispatchAuthorizationReservationIntegrityCriticalError(
     DispatchAuthorizationReservationError
 ):
     """A published or appended authoritative stream may require inspection."""
+
+
+class _RequiredValidationInputUnavailableError(
+    DispatchAuthorizationReservationError
+):
+    """A lineage-valid crossing cannot access one required local input."""
 
 
 def _digest(raw: bytes) -> str:
@@ -430,17 +438,14 @@ def _read_audit_lines(root: Path) -> list[tuple[dict[str, Any], bytes]]:
     return rows
 
 
-def _validate_committed_cross_surface_common(
+def _validate_committed_exact_creation_binding(
     root: Path,
     initial: Mapping[str, Any],
     terminal: Mapping[str, Any],
-    *,
-    require_current_consumability: bool,
-) -> None:
+) -> tuple[bytes, dict[str, Any]]:
     from tools.canon_intake.dispatch_authorization import (
         DispatchAuthorizationError,
         authorization_core_sha256,
-        validate_dispatch_authorization,
     )
 
     authorization_binding = initial["authorization_binding"]
@@ -450,17 +455,6 @@ def _validate_committed_cross_surface_common(
         authorization_binding["authorization_target_path"],
         "reserved KDAUTH target",
     )
-    try:
-        validation = validate_dispatch_authorization(
-            repo_root=root,
-            authorization_path=authorization_path,
-            require_audit=require_current_consumability,
-            scan_history=False,
-        )
-    except DispatchAuthorizationError as exc:
-        raise DispatchAuthorizationReservationError(
-            f"committed KDAUTH does not validate: {exc}"
-        ) from exc
     raw = _read_stream_bytes(authorization_path, "committed KDAUTH")
     try:
         authorization = json.loads(raw.decode("utf-8"))
@@ -468,6 +462,10 @@ def _validate_committed_cross_surface_common(
         raise DispatchAuthorizationReservationError(
             "committed KDAUTH is malformed"
         ) from exc
+    if not isinstance(authorization, dict):
+        raise DispatchAuthorizationReservationError(
+            "committed KDAUTH is not an object"
+        )
     if authorization.get("approved_by") != initial["actor"]:
         raise DispatchAuthorizationReservationError(
             "reservation actor does not equal KDAUTH approved_by"
@@ -483,14 +481,36 @@ def _validate_committed_cross_surface_common(
             "authorization_core_sha256"
         ],
     }
+    actual_values = {
+        "authorization_id": authorization.get("authorization_id"),
+        "authorization_path": authorization.get(
+            "authorization_artifact_target_path"
+        ),
+        "whole_file_sha256": _digest(raw),
+        "byte_length": len(raw),
+        "authorization_core_sha256": authorization.get(
+            "authorization_core_sha256"
+        ),
+    }
     for field, expected in expected_values.items():
-        if validation[field] != expected:
+        if actual_values[field] != expected:
             raise DispatchAuthorizationReservationError(
                 f"committed KDAUTH reservation mismatch: {field}"
             )
-    if authorization_core_sha256(
-        authorization["authorization_core"]
-    ) != authorization_binding["authorization_core_sha256"]:
+    core = authorization.get("authorization_core")
+    if not isinstance(core, Mapping):
+        raise DispatchAuthorizationReservationError(
+            "committed KDAUTH authorization core is malformed"
+        )
+    try:
+        actual_core_sha256 = authorization_core_sha256(core)
+    except (DispatchAuthorizationError, TypeError, ValueError) as exc:
+        raise DispatchAuthorizationReservationError(
+            "committed KDAUTH authorization core is malformed"
+        ) from exc
+    if actual_core_sha256 != authorization_binding[
+        "authorization_core_sha256"
+    ]:
         raise DispatchAuthorizationReservationError(
             "committed KDAUTH core hash mismatch"
         )
@@ -568,6 +588,114 @@ def _validate_committed_cross_surface_common(
         if payload[field] != expected:
             raise DispatchAuthorizationReservationError(
                 f"committed terminal lifecycle link mismatch: {field}"
+            )
+    return raw, authorization
+
+
+def _validate_required_canonical_dataset_availability(
+    root: Path,
+    authorization: Mapping[str, Any],
+) -> None:
+    core = authorization.get("authorization_core")
+    dataset = core.get("dataset") if isinstance(core, Mapping) else None
+    data_path = (
+        dataset.get("data_path") if isinstance(dataset, Mapping) else None
+    )
+    if not isinstance(data_path, str) or not data_path or "\\" in data_path:
+        raise DispatchAuthorizationReservationError(
+            "committed KDAUTH required dataset path is malformed"
+        )
+    raw_parts = data_path.split("/")
+    pure = PurePosixPath(data_path)
+    if (
+        pure.is_absolute()
+        or (raw_parts and len(raw_parts[0]) >= 2 and raw_parts[0][1] == ":")
+        or any(part in {"", ".", ".."} for part in raw_parts)
+    ):
+        raise DispatchAuthorizationReservationError(
+            "committed KDAUTH required dataset path is malformed"
+        )
+    lexical = root.joinpath(*pure.parts)
+    for component in reversed([lexical, *lexical.parents]):
+        if _is_link_or_reparse(component):
+            raise _RequiredValidationInputUnavailableError(
+                "required canonical 1d dataset is unavailable as a regular "
+                "non-symlink file"
+            )
+    if not lexical.is_file():
+        raise _RequiredValidationInputUnavailableError(
+            "required canonical 1d dataset is unavailable as a regular "
+            "non-symlink file"
+        )
+    try:
+        with lexical.open("rb") as handle:
+            handle.read(1)
+    except OSError as exc:
+        raise _RequiredValidationInputUnavailableError(
+            "required canonical 1d dataset is unreadable"
+        ) from exc
+
+
+def _is_required_canonical_dataset_validation_failure(
+    error: DispatchAuthorizationReservationError,
+) -> bool:
+    from tools.canon_intake.dispatch_authorization import (
+        DispatchAuthorizationError,
+    )
+
+    cause = error.__cause__
+    return isinstance(cause, DispatchAuthorizationError) and str(cause) in {
+        "1d dataset must be a regular non-symlink file",
+        "1d dataset is unreadable",
+    }
+
+
+def _validate_committed_cross_surface_common(
+    root: Path,
+    initial: Mapping[str, Any],
+    terminal: Mapping[str, Any],
+    *,
+    require_current_consumability: bool,
+) -> None:
+    from tools.canon_intake.dispatch_authorization import (
+        DispatchAuthorizationError,
+        validate_dispatch_authorization,
+    )
+
+    authorization_binding = initial["authorization_binding"]
+    reviewed = initial["reviewed_content_binding"]
+    authorization_path = _repo_path(
+        root,
+        authorization_binding["authorization_target_path"],
+        "reserved KDAUTH target",
+    )
+    try:
+        validation = validate_dispatch_authorization(
+            repo_root=root,
+            authorization_path=authorization_path,
+            require_audit=require_current_consumability,
+            scan_history=False,
+        )
+    except DispatchAuthorizationError as exc:
+        raise DispatchAuthorizationReservationError(
+            f"committed KDAUTH does not validate: {exc}"
+        ) from exc
+    _validate_committed_exact_creation_binding(root, initial, terminal)
+    expected_values = {
+        "authorization_id": authorization_binding["authorization_id"],
+        "authorization_path": authorization_binding[
+            "authorization_target_path"
+        ],
+        "whole_file_sha256": reviewed["reviewed_whole_file_sha256"],
+        "byte_length": reviewed["reviewed_byte_length"],
+        "authorization_core_sha256": authorization_binding[
+            "authorization_core_sha256"
+        ],
+    }
+    for field, expected in expected_values.items():
+        if validation[field] != expected:
+            raise DispatchAuthorizationReservationError(
+                f"committed KDAUTH reservation mismatch: {field}"
             )
 
 
@@ -713,7 +841,30 @@ def _cross_surface_findings(
             _validate_committed_cross_surface(root, initial, terminal)
         else:
             _validate_clean_rollback_replay(root, initial, terminal)
-    except DispatchAuthorizationReservationError:
+    except DispatchAuthorizationReservationError as exc:
+        if (
+            terminal["event_type"] == "crossing_committed"
+            and _is_required_canonical_dataset_validation_failure(exc)
+        ):
+            try:
+                _, authorization = (
+                    _validate_committed_exact_creation_binding(
+                        root, initial, terminal
+                    )
+                )
+                _validate_required_canonical_dataset_availability(
+                    root, authorization
+                )
+            except _RequiredValidationInputUnavailableError:
+                return [
+                    _finding(
+                        initial,
+                        "crossing_committed_required_validation_input_unavailable",
+                        terminal_outcome=terminal["event_type"],
+                    )
+                ]
+            except DispatchAuthorizationReservationError:
+                pass
         finding_type = (
             "crossing_committed_without_exact_authorization_created"
             if terminal["event_type"] == "crossing_committed"

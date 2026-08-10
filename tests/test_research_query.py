@@ -1597,7 +1597,7 @@ def _init_temp_query_layer(
     return init_duckdb()
 
 
-@pytest.fixture()
+@pytest.fixture(scope="module")
 def conn():
     connection = init_duckdb()
     try:

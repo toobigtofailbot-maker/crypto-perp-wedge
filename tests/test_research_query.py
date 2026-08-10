@@ -1668,7 +1668,27 @@ def test_dispatch_without_consumption_integrity_is_empty_on_main(conn):
 
 
 def test_execution_stream_integrity_is_empty_on_main(conn):
-    assert run_named_view(conn, "v_integrity_execution_streams") == []
+    # Stage B remains unauthorized and unrun, so this exact consumed dispatch
+    # must remain visibly pre-execution until its execution stream is created.
+    assert run_named_view(conn, "v_integrity_execution_streams") == [
+        {
+            "finding_type": "execution_stream_missing",
+            "dispatch_id": "DSP-20260804-H004R2A1",
+            "dispatch_path": (
+                "research/queue/dispatch_records/"
+                "DSP-20260804-H004R2A1.dispatch_record.json"
+            ),
+            "run_id": "RUN-20260804-H004R2A1",
+            "execution_event_stream_path": (
+                "research/queue/execution_events/"
+                "RUN-20260804-H004R2A1.execution_events.jsonl"
+            ),
+            "stream_state": "missing",
+            "reason": "valid consumed dispatch has no execution stream",
+            "operator_inspection_required": True,
+            "non_authority": True,
+        }
+    ]
 
 
 def test_execution_stream_integrity_registration_exposes_closed_findings(
@@ -1920,6 +1940,27 @@ def test_current_integrity_views_empty_under_pre_execution_refinement(conn):
     ]
 
     expected_rows = {
+        # This exact row is lawful only at the post-dispatch/pre-Stage-B
+        # boundary; a later execution stream must make this snapshot stale.
+        "v_integrity_execution_streams": [
+            (
+                "execution_stream_missing",
+                "DSP-20260804-H004R2A1",
+                (
+                    "research/queue/dispatch_records/"
+                    "DSP-20260804-H004R2A1.dispatch_record.json"
+                ),
+                "RUN-20260804-H004R2A1",
+                (
+                    "research/queue/execution_events/"
+                    "RUN-20260804-H004R2A1.execution_events.jsonl"
+                ),
+                "missing",
+                "valid consumed dispatch has no execution stream",
+                True,
+                True,
+            )
+        ],
         "v_integrity_strategy_spec_legacy_hash_scope_reproducibility": [
             (
                 "strategy_spec_legacy_hash_scope_reproducibility_unresolved",

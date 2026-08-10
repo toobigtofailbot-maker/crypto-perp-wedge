@@ -1613,9 +1613,104 @@ def test_public_crossing_transition_and_terminal_lifecycle_replay(
         reservation_path=stream,
         require_terminal=True,
     )
-    assert {
-        row["finding_type"] for row in invalid_replay["findings"]
-    } == {"crossing_committed_without_exact_authorization_created"}
+    assert [
+        (row["finding_type"], row["reason_code"])
+        for row in invalid_replay["findings"]
+    ] == [
+        (
+            "crossing_committed_without_exact_authorization_created",
+            "exact_creation_binding_missing",
+        )
+    ]
+
+
+def test_missing_required_dataset_is_honest_non_authority_finding(
+    tmp_path: Path,
+    source_repo: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import duckdb
+
+    from tools.research_query import query_layer
+
+    fixture = authorization_test_support._fixture(
+        tmp_path,
+        source_repo,
+        reservation_state="committed",
+    )
+    dataset_path = fixture["root"] / fixture["authorization"][
+        "authorization_core"
+    ]["dataset"]["data_path"]
+    dataset_path.unlink()
+
+    with pytest.raises(
+        DispatchAuthorizationError,
+        match="1d dataset must be a regular non-symlink file",
+    ):
+        validate_dispatch_authorization(
+            repo_root=fixture["root"],
+            authorization_path=fixture["authorization_path"],
+            require_audit=False,
+            scan_history=False,
+        )
+
+    stream = next(
+        (fixture["root"] / reservation.RESERVATION_ROOT).glob("*.jsonl")
+    )
+    initial = json.loads(stream.read_text(encoding="utf-8").splitlines()[0])
+    findings = collect_dispatch_authorization_crossing_findings(
+        repo_root=fixture["root"]
+    )
+    assert len(findings) == 1
+    finding = findings[0]
+    assert finding == {
+        "finding_type": (
+            "crossing_committed_required_validation_input_unavailable"
+        ),
+        "attempt_id": initial["attempt_id"],
+        "reservation_stream_path": initial["reservation_stream_path"],
+        "authorization_id": initial["authorization_binding"][
+            "authorization_id"
+        ],
+        "authorization_target_path": initial["authorization_binding"][
+            "authorization_target_path"
+        ],
+        "dispatch_id": initial["dispatch_binding"]["dispatch_id"],
+        "dispatch_record_path": initial["dispatch_binding"][
+            "dispatch_record_path"
+        ],
+        "run_id": initial["run_binding"]["run_id"],
+        "execution_event_stream_path": initial["run_binding"][
+            "execution_event_stream_path"
+        ],
+        "queue_item_id": initial["queue_binding"]["queue_item_id"],
+        "terminal_outcome": "crossing_committed",
+        "reason_code": "canonical_1d_dataset_unavailable",
+        "operator_inspection_required": True,
+        "non_authority": True,
+    }
+    assert finding["finding_type"] != (
+        "crossing_committed_without_exact_authorization_created"
+    )
+    assert finding["reason_code"] != "exact_creation_binding_missing"
+
+    monkeypatch.setattr(query_layer, "REPO_ROOT", fixture["root"])
+    conn = duckdb.connect(database=":memory:")
+    query_layer._register_dispatch_authorization_crossing_reservation_findings(
+        conn
+    )
+    conn.execute(
+        """
+        CREATE VIEW v_integrity_dispatch_authorization_crossing_reservations AS
+        SELECT * FROM dispatch_authorization_crossing_reservation_findings
+        """
+    )
+    rows = query_layer.run_named_view(
+        conn,
+        "v_integrity_dispatch_authorization_crossing_reservations",
+    )
+    assert rows == [finding]
+    conn.close()
 
 
 def test_authorization_created_without_prior_reservation_is_visible(

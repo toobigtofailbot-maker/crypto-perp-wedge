@@ -244,6 +244,29 @@ Run the frozen Phase 1 closure baseline with:
 python -m src.runtime.paper_trader --once-at 2026-01-01T01:00:00Z --config configs\paper_runtime.phase1_closed.json
 ```
 
+## H-004/KDAUTH local dataset prerequisite
+
+Any worktree that runs H-004/KDAUTH dispatch-authorization or reservation
+integrity validation must contain this exact canonical local corpus:
+
+- Canonical 1d dataset:
+  - Path: `data/processed/binance_um_perp_BTCUSDT_1d_2020-01-01_2026-04-11_2026-04-12T1655Z.parquet`
+  - Byte length: `200961`
+  - SHA-256: `c6e2e7ce030db6a710d95e48325fc77b27efbbdd441199b3d7458d4394795802`
+  - Source of truth: `research/data_slices/binance_usdtm_btcusdt_1d/binance_usdtm_btcusdt_1d_20200101_20260411.catalog_slice.json` and the KDAUTH dataset binding.
+- Canonical funding-events dataset:
+  - Path: `data/processed/binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z.parquet`
+  - Byte length: `126987`
+  - SHA-256: `5f0da7478ccf3514af41dff9958b579cd2f797a2716001b0fa10a11059912798`
+  - Source of truth: `research/data_provenance/funding/binance_usdtm_btcusdt_funding_events_20190910t080000z_20260412t160000z_sha256_5f0da7478ccf3514.funding_provenance.json` and the KDAUTH funding binding.
+
+Each path must be a regular non-symlink/non-reparse file and remain gitignored,
+untracked, and unstaged. Copy only exact bytes from a verified canonical local
+source; never fetch, regenerate, transform, or substitute either file. Missing
+local validation inputs are input-availability conditions and must not be
+interpreted as authorization-lineage corruption. Any path, byte-length, or
+SHA-256 mismatch is a hard stop, not a provisioning convenience.
+
 ## Dispatch-authorization parent bootstrap
 
 Before the first dispatch-authorization/KDAUTH crossing or dispatch-record writer call in a fresh clone or checkout where the control-plane roots are absent, create exactly these three empty ordinary directories:

@@ -267,6 +267,18 @@ local validation inputs are input-availability conditions and must not be
 interpreted as authorization-lineage corruption. Any path, byte-length, or
 SHA-256 mismatch is a hard stop, not a provisioning convenience.
 
+## H-004 canonical execution actor identity
+
+The exact execution-event `actor_id` for the separately authorized H-004
+canonical Stage-B invocation is `codex-execution-runner`. This identifies the
+automated system performing the execution and must still be passed explicitly
+to `run_consumed_dispatch`; the adapter must not supply it as a default.
+
+This execution identity does not replace or reinterpret the KDAUTH
+`authorized_by` or lifecycle actor lineage, where Karl remains the authorization
+actor. Recording `codex-execution-runner` here creates no execution authority by
+itself. A real H-004 invocation still requires its separate exact-run gate.
+
 ## Dispatch-authorization parent bootstrap
 
 Before the first dispatch-authorization/KDAUTH crossing or dispatch-record writer call in a fresh clone or checkout where the control-plane roots are absent, create exactly these three empty ordinary directories:

@@ -31,9 +31,14 @@ from tools.canon_intake.execution_event_writer import (
     ExecutionEventWriterError,
     write_execution_event,
 )
+from tools.canon_intake.scratch_persistence import (
+    ScratchPersistenceError,
+    persist_provisional_result,
+    preflight_provisional_result_target,
+)
 from tools.research_runner import run_offline_sweep as offline_runner
 
-ADAPTER_VERSION = "canon-execution-runner-adapter-v2"
+ADAPTER_VERSION = "canon-execution-runner-adapter-v3"
 ADAPTER_SOURCE_PATH = "tools/canon_intake/execution_runner_adapter.py"
 RUNNER_MODULE = "tools.research_runner.run_offline_sweep"
 RUNNER_SOURCE_PATH = "tools/research_runner/run_offline_sweep.py"
@@ -655,17 +660,26 @@ def run_consumed_dispatch(
         raise primary
 
     try:
+        preflight_provisional_result_target(
+            repo_root=root,
+            dispatch=dispatch,
+        )
         request = _prepare_runner_request(
             root,
             dispatch,
             dispatch_path=dispatch_path,
             reviewed_dispatch_whole_file_sha256=reviewed_dispatch_whole_file_sha256,
         )
-    except ExecutionRunnerAdapterError as exc:
+    except (ExecutionRunnerAdapterError, ScratchPersistenceError) as exc:
+        primary = (
+            exc
+            if isinstance(exc, ExecutionRunnerAdapterError)
+            else ExecutionRunnerAdapterError(f"scratch persistence preflight failed: {exc}")
+        )
         try:
             append("run_start", {"runner_process_started": False})
         except ExecutionEventWriterError as writer_error:
-            writer_error.adapter_primary_error = exc  # type: ignore[attr-defined]
+            writer_error.adapter_primary_error = primary  # type: ignore[attr-defined]
             try:
                 append(
                     "run_terminal",
@@ -674,7 +688,7 @@ def run_consumed_dispatch(
             except ExecutionEventWriterError as terminal_error:
                 writer_error.terminal_emission_error = terminal_error  # type: ignore[attr-defined]
             raise
-        close_or_raise("run_blocked", process_started=False, primary=exc)
+        close_or_raise("run_blocked", process_started=False, primary=primary)
 
     process_started = False
 
@@ -749,6 +763,18 @@ def run_consumed_dispatch(
                 writer_error.terminal_emission_error = terminal_error  # type: ignore[attr-defined]
             raise
 
+    provisional_result = None
+    if terminal_state == "run_completed":
+        try:
+            provisional_result = persist_provisional_result(
+                repo_root=root,
+                dispatch=dispatch,
+                runner_output=runner_result,
+            )
+        except ScratchPersistenceError as exc:
+            wrapped = ExecutionRunnerAdapterError(f"provisional scratch persistence failed: {exc}")
+            close_or_raise("run_blocked", process_started=True, primary=wrapped)
+
     terminal = append(
         "run_terminal",
         _terminal_input(terminal_state, process_started=True),
@@ -777,6 +803,7 @@ def run_consumed_dispatch(
         "stream_file_sha256": closed["stream_file_sha256"],
         "stream_byte_length": closed["stream_byte_length"],
         "terminal_event_id": terminal["event_id"],
+        "provisional_result": provisional_result,
         "runner_output": dict(runner_result),
         "non_authority": {
             "advisory_output_only": True,

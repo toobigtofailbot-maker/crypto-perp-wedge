@@ -1,4 +1,5 @@
 import hashlib
+import inspect
 import json
 import os
 import shutil
@@ -212,15 +213,32 @@ def _bound_input_path(fixture: dict, manifest: dict, label: str) -> Path:
     return fixture["root"] / relative_by_label[label]
 
 
-def test_completed_synthetic_run_records_every_attempt_and_no_authority_artifact(
+def test_completed_synthetic_run_persists_before_terminal_and_no_authority_artifact(
     fixture, monkeypatch
 ):
     calls: list[str] = []
+    order: list[str] = []
+    runner_output = _runner_result(("successful", "failed", "invalid", "data_unavailable"))
     _install_request_and_runner(
         monkeypatch,
-        _runner_result(("successful", "failed", "invalid", "data_unavailable")),
+        runner_output,
         calls,
     )
+    real_persist = adapter.persist_provisional_result
+    real_write = adapter.write_execution_event
+
+    def tracked_persist(**kwargs):
+        result = real_persist(**kwargs)
+        order.append("provisional_persisted")
+        return result
+
+    def tracked_write(**kwargs):
+        if kwargs["event_type"] == "run_terminal":
+            order.append(f"terminal:{kwargs['event_input']['terminal_state']}")
+        return real_write(**kwargs)
+
+    monkeypatch.setattr(adapter, "persist_provisional_result", tracked_persist)
+    monkeypatch.setattr(adapter, "write_execution_event", tracked_write)
     before_dispatch = fixture["dispatch_path"].read_bytes()
     before_authorization = fixture["authorization_path"].read_bytes()
 
@@ -232,6 +250,7 @@ def test_completed_synthetic_run_records_every_attempt_and_no_authority_artifact
     assert result["attempts_recorded"] == 4
     assert result["not_attempted"] == 0
     assert result["non_authority"]["advisory_output_only"] is True
+    assert order == ["provisional_persisted", "terminal:run_completed"]
     assert [event["event_type"] for event in stream["events"]] == [
         "run_start",
         "attempt_outcome",
@@ -243,7 +262,17 @@ def test_completed_synthetic_run_records_every_attempt_and_no_authority_artifact
     assert fixture["dispatch_path"].read_bytes() == before_dispatch
     assert fixture["authorization_path"].read_bytes() == before_authorization
     assert not (fixture["root"] / "research/result_populations").exists()
-    assert not (fixture["root"] / "scratch/FIXTURE-RUN/dispatch").exists()
+    provisional = (
+        fixture["root"] / fixture["dispatch"]["output_targets"]["provisional_result_paths"][0]
+    )
+    raw = provisional.read_bytes()
+    assert json.loads(raw) == runner_output
+    assert (
+        result["provisional_result"]["provisional_result_path"]
+        == provisional.relative_to(fixture["root"]).as_posix()
+    )
+    assert result["provisional_result"]["byte_length"] == len(raw)
+    assert result["provisional_result"]["sha256"] == _hash(raw)
 
 
 def test_process_start_failure_records_start_and_closed_terminal(fixture, monkeypatch):
@@ -361,6 +390,68 @@ def test_duplicate_adapter_invocation_is_rejected_without_second_runner_call(fix
 
     assert calls == ["runner"]
     assert fixture["stream_path"].read_bytes() == retained
+
+
+def test_existing_provisional_result_blocks_before_runner_and_is_not_overwritten(
+    fixture,
+    monkeypatch,
+):
+    target = fixture["root"] / fixture["dispatch"]["output_targets"]["provisional_result_paths"][0]
+    target.parent.mkdir(parents=True)
+    original = b"retained provisional bytes\n"
+    target.write_bytes(original)
+    calls: list[str] = []
+    _install_request_and_runner(monkeypatch, _runner_result(("successful",) * 4), calls)
+
+    with pytest.raises(adapter.ExecutionRunnerAdapterError, match="preflight failed") as caught:
+        adapter.run_consumed_dispatch(**_kwargs(fixture))
+
+    assert calls == []
+    assert target.read_bytes() == original
+    assert caught.value.terminal_state == "run_blocked"
+    stream = _validated(fixture)
+    assert [event["event_type"] for event in stream["events"]] == [
+        "run_start",
+        "run_terminal",
+    ]
+    assert stream["events"][0]["run_start"]["runner_process_started"] is False
+
+
+def test_persistence_failure_records_blocked_terminal_after_all_attempts(
+    fixture,
+    monkeypatch,
+):
+    calls: list[str] = []
+    _install_request_and_runner(monkeypatch, _runner_result(("successful",) * 4), calls)
+    monkeypatch.setattr(
+        adapter,
+        "persist_provisional_result",
+        lambda **kwargs: (_ for _ in ()).throw(
+            adapter.ScratchPersistenceError("synthetic persistence failure")
+        ),
+    )
+
+    with pytest.raises(adapter.ExecutionRunnerAdapterError, match="persistence failed") as caught:
+        adapter.run_consumed_dispatch(**_kwargs(fixture))
+
+    assert calls == ["runner"]
+    assert caught.value.terminal_state == "run_blocked"
+    stream = _validated(fixture)
+    assert [event["event_type"] for event in stream["events"]] == [
+        "run_start",
+        "attempt_outcome",
+        "attempt_outcome",
+        "attempt_outcome",
+        "attempt_outcome",
+        "run_terminal",
+    ]
+    terminal = stream["events"][-1]["run_terminal"]
+    assert terminal["terminal_state"] == "run_blocked"
+    assert terminal["denominator_accounting"]["attempts_recorded"] == 4
+    assert terminal["denominator_accounting"]["not_attempted"] == 0
+    assert not (
+        fixture["root"] / fixture["dispatch"]["output_targets"]["provisional_result_paths"][0]
+    ).exists()
 
 
 @pytest.mark.parametrize(
@@ -554,6 +645,10 @@ def test_runner_callable_is_captured_before_module_rebinding(fixture, monkeypatc
     assert result["terminal_state"] == "run_completed"
     assert result["attempts_recorded"] == 4
     assert not (fixture["root"] / "research/result_populations").exists()
+    provisional = (
+        fixture["root"] / fixture["dispatch"]["output_targets"]["provisional_result_paths"][0]
+    )
+    assert json.loads(provisional.read_bytes()) == result["runner_output"]
 
 
 def test_existing_runner_seam_is_dry_run_only(monkeypatch):
@@ -589,3 +684,16 @@ def test_existing_runner_seam_is_dry_run_only(monkeypatch):
     assert captured["kwargs"]["output_dir"] is None
     assert captured["kwargs"]["canonical_1d"] is True
     assert captured["kwargs"]["funding_cost_mode"] == "on"
+
+
+def test_canonical_execution_actor_is_documented_but_remains_explicit():
+    repo_root = Path(__file__).resolve().parents[1]
+    runbook = (repo_root / "docs/runbook.md").read_text(encoding="utf-8")
+    parameter = inspect.signature(adapter.run_consumed_dispatch).parameters["actor_id"]
+
+    assert "exact execution-event `actor_id`" in runbook
+    assert "`codex-execution-runner`" in runbook
+    assert "does not replace or reinterpret the KDAUTH" in runbook
+    assert "creates no execution authority" in runbook
+    assert adapter.ADAPTER_VERSION == "canon-execution-runner-adapter-v3"
+    assert parameter.default is inspect.Parameter.empty

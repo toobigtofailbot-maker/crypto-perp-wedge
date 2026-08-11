@@ -2146,7 +2146,16 @@ def test_exact_post_kdauth_boundary_and_no_downstream_artifacts_created(repo_roo
         "sha256:a5bcc0a54f350dc51509135c1ec53ddb4436a873c4574df5e062c7b78be647c0"
     )
     audit_sha256 = (
+        "sha256:ff00cec3bb5c22af12840e0e727eb3549706c95c21888748a066f9e52ff0455f"
+    )
+    created_event_sha256 = (
         "sha256:cbc0346bbd521eec6e330fb749d27a7e64ab68ea546302a2efb75a0630975521"
+    )
+    consumed_event_sha256 = (
+        "sha256:cfac0ab4d60755089f94553f80d4661532d986d52a27f725d29d6051ef82f292"
+    )
+    dispatch_sha256 = (
+        "sha256:8b6804ac5fb45fb3d4274acf9e97e8aa8707728b0bf9857932300692854d7d3c"
     )
     reservation_sha256 = (
         "sha256:edf50c00d0c939143e3a632d62e9fea731fab16faa575ad2eb70e0b2e0410cf0"
@@ -2185,21 +2194,39 @@ def test_exact_post_kdauth_boundary_and_no_downstream_artifacts_created(repo_roo
     authorization_raw = authorization_path.read_bytes()
     assert len(authorization_raw) == 10865
     assert _hash(authorization_raw) == authorization_sha256
-    authorization_validation = validate_dispatch_authorization(
-        repo_root=repo_root,
-        authorization_path=authorization_path,
-        audit_path=audit_path,
-        expected_whole_file_sha256=authorization_sha256,
-        expected_byte_length=10865,
-        require_audit=True,
-        scan_history=True,
+    dispatch_paths = sorted(dispatch_root.glob("*.dispatch_record.json"))
+    assert [path.name for path in dispatch_paths] == [
+        "DSP-20260804-H004R2A1.dispatch_record.json"
+    ]
+    dispatch_path = dispatch_paths[0]
+    dispatch_raw = dispatch_path.read_bytes()
+    assert len(dispatch_raw) == 6215
+    assert _hash(dispatch_raw) == dispatch_sha256
+    dispatch = json.loads(dispatch_raw)
+    assert dispatch["dispatch_id"] == "DSP-20260804-H004R2A1"
+    assert dispatch["dispatch_record_path"] == (
+        "research/queue/dispatch_records/"
+        "DSP-20260804-H004R2A1.dispatch_record.json"
+    )
+    authorization_validation = (
+        validator.validate_dispatch_record_for_authorization(
+            repo_root=repo_root,
+            dispatch_path=dispatch_path,
+            authorization_path=authorization_path,
+        )
     )
     assert authorization_validation["valid"] is True
     assert authorization_validation["authorization_id"] == "KDAUTH-H004-R2-0001"
     assert authorization_validation["authorization_core_sha256"] == (
         authorization_core_hash
     )
-    assert authorization_validation["lifecycle_state"] == "created"
+    assert authorization_validation["authorization_whole_file_sha256"] == (
+        authorization_sha256
+    )
+    assert authorization_validation["dispatch_id"] == "DSP-20260804-H004R2A1"
+    assert authorization_validation["dispatch_file_sha256"] == dispatch_sha256
+    assert authorization_validation["dispatch_byte_length"] == 6215
+    assert authorization_validation["lifecycle_state"] == "consumed"
     authorization = json.loads(authorization_raw)
     assert authorization["approved_by"] == "Karl"
     assert authorization["approved_at"] == "2026-08-04T23:34:46Z"
@@ -2231,7 +2258,7 @@ def test_exact_post_kdauth_boundary_and_no_downstream_artifacts_created(repo_roo
         "dispatch_authorization_events.jsonl"
     ]
     audit_raw = audit_path.read_bytes()
-    assert len(audit_raw) == 1216
+    assert len(audit_raw) == 2574
     assert _hash(audit_raw) == audit_sha256
     audit_rows, audit_length = (
         validator.read_and_validate_dispatch_authorization_audit(
@@ -2239,15 +2266,60 @@ def test_exact_post_kdauth_boundary_and_no_downstream_artifacts_created(repo_roo
             audit_path=audit_path,
         )
     )
-    assert audit_length == 1216
-    assert len(audit_rows) == 1
-    created = audit_rows[0][0]
+    assert audit_length == 2574
+    assert len(audit_rows) == 2
+    lifecycle_events = [row[0] for row in audit_rows]
+    assert [event["sequence_number"] for event in lifecycle_events] == [1, 2]
+    assert [event["event_type"] for event in lifecycle_events] == [
+        "authorization_created",
+        "authorization_consumed",
+    ]
+    assert sum(
+        event["event_type"] == "authorization_created"
+        for event in lifecycle_events
+    ) == 1
+    assert sum(
+        event["event_type"] == "authorization_consumed"
+        for event in lifecycle_events
+    ) == 1
+    assert authorization_validation["lifecycle_events"] == lifecycle_events
+
+    created, created_raw = audit_rows[0]
     assert created["event_id"] == "KDAUTH-EVENT-KDAUTH-H004-R2-0001-000001"
+    assert created["sequence_number"] == 1
     assert created["event_type"] == "authorization_created"
+    assert created["actor"] == "Karl"
+    assert created["occurred_at"] == "2026-08-04T23:36:14.784685Z"
     assert created["authorization_id"] == "KDAUTH-H004-R2-0001"
     assert created["authorization_file_sha256"] == authorization_sha256
     assert created["authorization_core_sha256"] == authorization_core_hash
     assert created["authorization_byte_length"] == 10865
+    assert len(created_raw) == 1216
+    assert _hash(created_raw) == created_event_sha256
+
+    consumed, consumed_raw = audit_rows[1]
+    assert consumed["event_id"] == (
+        "KDAUTH-EVENT-KDAUTH-H004-R2-0001-000002"
+    )
+    assert consumed["sequence_number"] == 2
+    assert consumed["event_type"] == "authorization_consumed"
+    assert consumed["actor"] == "Karl"
+    assert consumed["occurred_at"] == "2026-08-05T23:37:24.820590Z"
+    assert consumed["authorization_id"] == "KDAUTH-H004-R2-0001"
+    assert consumed["authorization_file_sha256"] == authorization_sha256
+    assert consumed["authorization_core_sha256"] == authorization_core_hash
+    assert consumed["authorization_byte_length"] == 10865
+    assert consumed["event_payload"] == {
+        "consumer_tool": "tools.canon_intake.dispatch_writer_v1",
+        "consumption_is_permanent": True,
+        "dispatch_record_path": (
+            "research/queue/dispatch_records/"
+            "DSP-20260804-H004R2A1.dispatch_record.json"
+        ),
+        "event_kind": "authorization_consumed",
+    }
+    assert len(consumed_raw) == 1358
+    assert _hash(consumed_raw) == consumed_event_sha256
 
     reservation_paths = sorted(
         reservation_root.glob("*.crossing_reservation.jsonl")
@@ -2294,16 +2366,50 @@ def test_exact_post_kdauth_boundary_and_no_downstream_artifacts_created(repo_roo
     ) == []
     assert execution_event.collect_execution_stream_integrity_findings(
         repo_root=repo_root
-    ) == []
-    assert not dispatch_root.exists() or not list(
-        dispatch_root.glob("*.dispatch_record.json")
-    )
-    assert not execution_root.exists() or not list(
-        execution_root.glob("*.execution_events.jsonl")
-    )
+    ) == [
+        {
+            "dispatch_id": "DSP-20260804-H004R2A1",
+            "dispatch_path": (
+                "research/queue/dispatch_records/"
+                "DSP-20260804-H004R2A1.dispatch_record.json"
+            ),
+            "execution_event_stream_path": (
+                "research/queue/execution_events/"
+                "RUN-20260804-H004R2A1.execution_events.jsonl"
+            ),
+            "finding_type": "execution_stream_missing",
+            "non_authority": True,
+            "operator_inspection_required": True,
+            "reason": "valid consumed dispatch has no execution stream",
+            "run_id": "RUN-20260804-H004R2A1",
+            "stream_state": "missing",
+        }
+    ]
+    assert not list(execution_root.glob("*.execution_events.jsonl"))
     assert not (repo_root / dispatch_writer.LOCK_PATH).exists()
     assert not (repo_root / reservation.CROSSING_LOCK_PATH).exists()
-    assert not (repo_root / "scratch/RUN-20260804-H004R2A1").exists()
+    assert dispatch["output_targets"] == {
+        "execution_event_stream_path": (
+            "research/queue/execution_events/"
+            "RUN-20260804-H004R2A1.execution_events.jsonl"
+        ),
+        "provisional_result_paths": [
+            "scratch/RUN-20260804-H004R2A1/dispatch/provisional_result.json"
+        ],
+        "scratch_run_directory": "scratch/RUN-20260804-H004R2A1/dispatch/",
+    }
+    assert not (
+        repo_root / dispatch["output_targets"]["execution_event_stream_path"]
+    ).exists()
+    scratch_run_root = repo_root / "scratch/RUN-20260804-H004R2A1"
+    assert not scratch_run_root.exists()
+    assert not (
+        repo_root / dispatch["output_targets"]["scratch_run_directory"]
+    ).exists()
+    for provisional_path in dispatch["output_targets"][
+        "provisional_result_paths"
+    ]:
+        assert not (repo_root / provisional_path).exists()
     assert not list(
         (repo_root / "research/result_populations").glob("RP-0007*")
     )

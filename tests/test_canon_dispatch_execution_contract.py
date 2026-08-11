@@ -443,8 +443,18 @@ def test_valid_fixtures_contain_no_positive_authority_vocabulary():
 def test_no_production_dispatch_execution_or_result_population_fixture_created():
     dispatch_root = ROOT / "research/queue/dispatch_records"
     execution_root = ROOT / "research/queue/execution_events"
-    assert not dispatch_root.exists() or not list(dispatch_root.glob("*.json"))
-    assert not execution_root.exists() or not list(execution_root.glob("*.jsonl"))
+    dispatch_paths = sorted(dispatch_root.glob("*.json"))
+    assert [path.name for path in dispatch_paths] == [
+        "DSP-20260804-H004R2A1.dispatch_record.json"
+    ]
+    dispatch_raw = dispatch_paths[0].read_bytes()
+    assert len(dispatch_raw) == 6215
+    assert hashlib.sha256(dispatch_raw).hexdigest() == (
+        "8b6804ac5fb45fb3d4274acf9e97e8aa8707728b0bf9857932300692854d7d3c"
+    )
+    assert json.loads(dispatch_raw)["dispatch_id"] == "DSP-20260804-H004R2A1"
+    assert not list(execution_root.glob("*.jsonl"))
+    assert not list((ROOT / "research/result_populations").glob("RP-0007*"))
     assert not list(FIXTURES.rglob("RP-*.result_population.json"))
 
 

@@ -5323,16 +5323,59 @@ FROM (
 
 -- Does any Result Population indicate canonical repo output?
 CREATE OR REPLACE VIEW v_integrity_result_population_canonical_write_violation AS
+WITH payload_nodes AS (
+    SELECT
+        rp.result_population_id,
+        node.path,
+        node.key,
+        node.type,
+        CASE
+            WHEN node.type = 'VARCHAR' THEN json_extract_string(node.value, '$')
+            WHEN node.type NOT IN ('OBJECT', 'ARRAY') THEN CAST(node.atom AS VARCHAR)
+            ELSE NULL
+        END AS scalar_text,
+        concat(
+            'PROPOSED_RESULT_POPULATION|id=',
+            rp.result_population_id,
+            '|canonical_target_path=research/result_populations/',
+            rp.result_population_id,
+            '.result_population.json|classification=canonical write not yet authorized'
+        ) AS permitted_lineage,
+        list_count(
+            list_filter(
+                rp.audit_envelope.administrative_lineage,
+                lineage -> lineage = concat(
+                    'PROPOSED_RESULT_POPULATION|id=',
+                    rp.result_population_id,
+                    '|canonical_target_path=research/result_populations/',
+                    rp.result_population_id,
+                    '.result_population.json|classification=canonical write not yet authorized'
+                )
+            )
+        ) AS permitted_lineage_count
+    FROM result_populations AS rp,
+         json_tree(to_json(rp)) AS node
+), canonical_reference_nodes AS (
+    SELECT *
+    FROM payload_nodes
+    WHERE contains(lower(concat(coalesce(key, ''), ' ', coalesce(scalar_text, ''))), 'research/result_populations')
+       OR contains(lower(concat(coalesce(key, ''), ' ', coalesce(scalar_text, ''))), 'canonical_result_population')
+       OR contains(lower(concat(coalesce(key, ''), ' ', coalesce(scalar_text, ''))), 'canonical sweep')
+)
 SELECT
     'result_population_canonical_write_violation' AS issue_type,
     result_population_id,
     'payload_text' AS source_field,
     'no canonical research/result_populations output reference' AS expected_value,
     'canonical reference present' AS actual_value
-FROM result_populations AS rp
-WHERE contains(lower(CAST(to_json(rp) AS VARCHAR)), 'research/result_populations')
-   OR contains(lower(CAST(to_json(rp) AS VARCHAR)), 'canonical_result_population')
-   OR contains(lower(CAST(to_json(rp) AS VARCHAR)), 'canonical sweep');
+FROM canonical_reference_nodes
+WHERE NOT (
+    path = '$.audit_envelope.administrative_lineage'
+    AND type = 'VARCHAR'
+    AND scalar_text = permitted_lineage
+    AND permitted_lineage_count = 1
+)
+GROUP BY result_population_id;
 
 -- Does any Result Population carry executable or authority-like key/value markers?
 CREATE OR REPLACE VIEW v_integrity_result_population_authority_key_violation AS

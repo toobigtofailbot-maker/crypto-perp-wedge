@@ -4796,12 +4796,9 @@ def test_result_population_offline_boundary_integrity_flags_violation(monkeypatc
         connection.close()
 
 
-def test_result_population_canonical_write_integrity_flags_violation(monkeypatch, tmp_path):
-    result_population = _valid_result_population()
-    result_population["audit_envelope"]["operator_notes"] = [
-        "output_dir=research/result_populations"
-    ]
-
+def _result_population_canonical_write_violations(
+    monkeypatch, tmp_path, result_population
+):
     connection = _init_temp_query_layer(
         monkeypatch,
         tmp_path,
@@ -4811,16 +4808,129 @@ def test_result_population_canonical_write_integrity_flags_violation(monkeypatch
         result_populations=[result_population],
     )
     try:
-        rows = connection.execute(
+        return connection.execute(
             """
             SELECT result_population_id
             FROM v_integrity_result_population_canonical_write_violation
             """
         ).fetchall()
-
-        assert rows == [("RP-9001",)]
     finally:
         connection.close()
+
+
+def _permitted_result_population_lineage(result_population_id):
+    return (
+        f"PROPOSED_RESULT_POPULATION|id={result_population_id}"
+        f"|canonical_target_path=research/result_populations/{result_population_id}"
+        ".result_population.json|classification=canonical write not yet authorized"
+    )
+
+
+def test_result_population_canonical_write_integrity_allows_exact_provenance(
+    monkeypatch, tmp_path
+):
+    result_population = _valid_result_population("RP-9017")
+    result_population["audit_envelope"]["administrative_lineage"] = [
+        _permitted_result_population_lineage("RP-9017")
+    ]
+
+    assert _result_population_canonical_write_violations(
+        monkeypatch, tmp_path, result_population
+    ) == []
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        "operator_notes",
+        "scientific_field",
+        "execution_field",
+        "wrong_lineage_id",
+        "wrong_target_rp",
+        "malformed_target",
+        "wrong_classification",
+        "authority_bearing_lineage",
+        "non_exact_lineage_shape",
+        "duplicate_permitted_lineage",
+        "permitted_lineage_plus_other_reference",
+    ],
+)
+def test_result_population_canonical_write_integrity_rejects_non_exempt_references(
+    monkeypatch, tmp_path, case
+):
+    result_population_id = "RP-9017"
+    canonical_target = (
+        "research/result_populations/RP-9017.result_population.json"
+    )
+    permitted_lineage = _permitted_result_population_lineage(result_population_id)
+    result_population = _valid_result_population(result_population_id)
+
+    if case == "operator_notes":
+        result_population["audit_envelope"]["operator_notes"] = [canonical_target]
+    elif case == "scientific_field":
+        result_population["parent_strategy_spec"]["strategy_spec_ref"] = (
+            canonical_target
+        )
+    elif case == "execution_field":
+        result_population["execution_context"]["runner_code_ref"] = canonical_target
+    elif case == "wrong_lineage_id":
+        result_population["audit_envelope"]["administrative_lineage"] = [
+            permitted_lineage.replace("id=RP-9017", "id=RP-9999")
+        ]
+    elif case == "wrong_target_rp":
+        result_population["audit_envelope"]["administrative_lineage"] = [
+            permitted_lineage.replace(
+                "result_populations/RP-9017", "result_populations/RP-9999"
+            )
+        ]
+    elif case == "malformed_target":
+        result_population["audit_envelope"]["administrative_lineage"] = [
+            permitted_lineage.replace(".result_population.json", ".json")
+        ]
+    elif case == "wrong_classification":
+        result_population["audit_envelope"]["administrative_lineage"] = [
+            permitted_lineage.replace(
+                "canonical write not yet authorized", "canonical write authorized"
+            )
+        ]
+    elif case == "authority_bearing_lineage":
+        result_population["audit_envelope"]["administrative_lineage"] = [
+            permitted_lineage + "|authority=write"
+        ]
+    elif case == "non_exact_lineage_shape":
+        result_population["audit_envelope"]["administrative_lineage"] = [
+            "PROPOSED_RESULT_POPULATION"
+            f"|canonical_target_path={canonical_target}"
+            f"|id={result_population_id}"
+            "|classification=canonical write not yet authorized"
+        ]
+    elif case == "duplicate_permitted_lineage":
+        result_population["audit_envelope"]["administrative_lineage"] = [
+            permitted_lineage,
+            permitted_lineage,
+        ]
+    elif case == "permitted_lineage_plus_other_reference":
+        result_population["audit_envelope"]["administrative_lineage"] = [
+            permitted_lineage
+        ]
+        result_population["audit_envelope"]["operator_notes"] = [canonical_target]
+
+    assert _result_population_canonical_write_violations(
+        monkeypatch, tmp_path, result_population
+    ) == [(result_population_id,)]
+
+
+def test_result_population_canonical_write_integrity_flags_legacy_violation(
+    monkeypatch, tmp_path
+):
+    result_population = _valid_result_population()
+    result_population["audit_envelope"]["operator_notes"] = [
+        "output_dir=research/result_populations"
+    ]
+
+    assert _result_population_canonical_write_violations(
+        monkeypatch, tmp_path, result_population
+    ) == [("RP-9001",)]
 
 
 def test_result_population_authority_key_integrity_flags_violation(monkeypatch, tmp_path):

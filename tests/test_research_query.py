@@ -23,6 +23,30 @@ from tools.research_query.query_layer import (
 )
 
 
+H004_EXECUTION_STREAM_RELATIVE_PATH = Path(
+    "research/queue/execution_events/RUN-20260804-H004R2A1.execution_events.jsonl"
+)
+H004_EXECUTION_STREAM_MISSING_FINDING = {
+    "finding_type": "execution_stream_missing",
+    "dispatch_id": "DSP-20260804-H004R2A1",
+    "dispatch_path": (
+        "research/queue/dispatch_records/DSP-20260804-H004R2A1.dispatch_record.json"
+    ),
+    "run_id": "RUN-20260804-H004R2A1",
+    "execution_event_stream_path": H004_EXECUTION_STREAM_RELATIVE_PATH.as_posix(),
+    "stream_state": "missing",
+    "reason": "valid consumed dispatch has no execution stream",
+    "operator_inspection_required": True,
+    "non_authority": True,
+}
+
+
+def _expected_h004_execution_stream_integrity_findings():
+    if (query_layer.REPO_ROOT / H004_EXECUTION_STREAM_RELATIVE_PATH).is_file():
+        return []
+    return [H004_EXECUTION_STREAM_MISSING_FINDING]
+
+
 REQUIRED_VIEWS = {
     "v_candidate_overview",
     "v_concluded_candidates",
@@ -1667,28 +1691,13 @@ def test_dispatch_without_consumption_integrity_is_empty_on_main(conn):
     ) == []
 
 
-def test_execution_stream_integrity_is_empty_on_main(conn):
-    # Stage B remains unauthorized and unrun, so this exact consumed dispatch
-    # must remain visibly pre-execution until its execution stream is created.
-    assert run_named_view(conn, "v_integrity_execution_streams") == [
-        {
-            "finding_type": "execution_stream_missing",
-            "dispatch_id": "DSP-20260804-H004R2A1",
-            "dispatch_path": (
-                "research/queue/dispatch_records/"
-                "DSP-20260804-H004R2A1.dispatch_record.json"
-            ),
-            "run_id": "RUN-20260804-H004R2A1",
-            "execution_event_stream_path": (
-                "research/queue/execution_events/"
-                "RUN-20260804-H004R2A1.execution_events.jsonl"
-            ),
-            "stream_state": "missing",
-            "reason": "valid consumed dispatch has no execution stream",
-            "operator_inspection_required": True,
-            "non_authority": True,
-        }
-    ]
+def test_execution_stream_integrity_matches_repo_or_local_evidence_context(conn):
+    # A clean checkout must disclose the exact missing stream. The evidence-bearing
+    # H-004 worktree may contain that exact untracked stream, in which case the view
+    # must be clean; this does not claim that local evidence is merged repo truth.
+    assert run_named_view(
+        conn, "v_integrity_execution_streams"
+    ) == _expected_h004_execution_stream_integrity_findings()
 
 
 def test_execution_stream_integrity_registration_exposes_closed_findings(
@@ -1940,27 +1949,6 @@ def test_current_integrity_views_empty_under_pre_execution_refinement(conn):
     ]
 
     expected_rows = {
-        # This exact row is lawful only at the post-dispatch/pre-Stage-B
-        # boundary; a later execution stream must make this snapshot stale.
-        "v_integrity_execution_streams": [
-            (
-                "execution_stream_missing",
-                "DSP-20260804-H004R2A1",
-                (
-                    "research/queue/dispatch_records/"
-                    "DSP-20260804-H004R2A1.dispatch_record.json"
-                ),
-                "RUN-20260804-H004R2A1",
-                (
-                    "research/queue/execution_events/"
-                    "RUN-20260804-H004R2A1.execution_events.jsonl"
-                ),
-                "missing",
-                "valid consumed dispatch has no execution stream",
-                True,
-                True,
-            )
-        ],
         "v_integrity_strategy_spec_legacy_hash_scope_reproducibility": [
             (
                 "strategy_spec_legacy_hash_scope_reproducibility_unresolved",
@@ -1972,6 +1960,11 @@ def test_current_integrity_views_empty_under_pre_execution_refinement(conn):
             )
         ]
     }
+    execution_stream_findings = _expected_h004_execution_stream_integrity_findings()
+    if execution_stream_findings:
+        expected_rows["v_integrity_execution_streams"] = [
+            tuple(finding.values()) for finding in execution_stream_findings
+        ]
 
     assert view_names
     for view_name in view_names:
@@ -2469,19 +2462,45 @@ def test_strategy_spec_integrity_views_empty_under_current_zero_instance_state(c
     ]
 
 
-def test_strategy_spec_0007_has_only_planning_downstream_and_no_promotion_authority(conn):
-    downstream_counts = conn.execute(
+def test_strategy_spec_0007_has_exact_rp0007_evidence_and_no_promotion_authority(conn):
+    variant_manifests = conn.execute(
+        """
+        SELECT variant_manifest_id
+        FROM v_variant_manifest_overview
+        WHERE parent_strategy_spec_id = 'STRAT-SPEC-0007'
+        ORDER BY variant_manifest_id
+        """
+    ).fetchall()
+    sweep_plans = conn.execute(
+        """
+        SELECT sweep.sweep_plan_id
+        FROM v_sweep_plan_overview AS sweep
+        JOIN v_variant_manifest_overview AS manifest
+          ON sweep.parent_variant_manifest_id = manifest.variant_manifest_id
+        WHERE manifest.parent_strategy_spec_id = 'STRAT-SPEC-0007'
+        ORDER BY sweep.sweep_plan_id
+        """
+    ).fetchall()
+    result_population_evidence = conn.execute(
+        """
+        SELECT overview.result_population_id,
+               overview.parent_strategy_spec_id,
+               overview.parent_variant_manifest_id,
+               overview.parent_sweep_plan_id,
+               non_authority.canonical_evidence_relationship,
+               non_authority.not_runtime_authority,
+               non_authority.not_paper_live_authority,
+               non_authority.review_not_approval
+        FROM v_result_population_overview AS overview
+        JOIN v_result_population_non_authority AS non_authority
+          USING (result_population_id)
+        WHERE overview.parent_strategy_spec_id = 'STRAT-SPEC-0007'
+        ORDER BY overview.result_population_id
+        """
+    ).fetchall()
+    downstream_authority_counts = conn.execute(
         """
         SELECT
-            (SELECT count(*) FROM v_variant_manifest_overview
-             WHERE parent_strategy_spec_id = 'STRAT-SPEC-0007'),
-            (SELECT count(*)
-             FROM v_sweep_plan_overview AS sweep
-             JOIN v_variant_manifest_overview AS manifest
-               ON sweep.parent_variant_manifest_id = manifest.variant_manifest_id
-             WHERE manifest.parent_strategy_spec_id = 'STRAT-SPEC-0007'),
-            (SELECT count(*) FROM v_result_population_overview
-             WHERE parent_strategy_spec_id = 'STRAT-SPEC-0007'),
             (SELECT count(*) FROM candidates AS candidate
              WHERE contains(CAST(to_json(candidate) AS VARCHAR), 'STRAT-SPEC-0007')),
             (SELECT count(*) FROM exp_plans AS plan
@@ -2512,7 +2531,21 @@ def test_strategy_spec_0007_has_only_planning_downstream_and_no_promotion_author
         """
     ).fetchone()
 
-    assert downstream_counts == (1, 1, 0, 0, 0, 0)
+    assert variant_manifests == [("VM-0007",)]
+    assert sweep_plans == [("SWEEP-PLAN-0007",)]
+    assert result_population_evidence == [
+        (
+            "RP-0007",
+            "STRAT-SPEC-0007",
+            "VM-0007",
+            "SWEEP-PLAN-0007",
+            "reference_only",
+            True,
+            True,
+            True,
+        )
+    ]
+    assert downstream_authority_counts == (0, 0, 0)
     assert authority_posture == (
         "review_requested",
         "none",
@@ -3613,8 +3646,18 @@ def test_variant_sweep_views_expose_first_instance_repo_state(conn):
     assert result_capture[-1] == ("SWEEP-PLAN-0007", True, None, True, True)
 
 
-def test_first_canonical_15m_result_population_views_under_first_parent_instances(conn):
-    assert conn.execute("SELECT COUNT(*) FROM result_populations").fetchone()[0] == 8
+def test_canonical_result_population_views_match_append_only_artifact_corpus(conn):
+    canonical_artifact_ids = sorted(
+        path.name.removesuffix(".result_population.json")
+        for path in RESULT_POPULATIONS_DIR.glob("RP-*.result_population.json")
+    )
+    queried_result_population_ids = [
+        row[0]
+        for row in conn.execute(
+            "SELECT result_population_id FROM result_populations ORDER BY result_population_id"
+        ).fetchall()
+    ]
+    assert queried_result_population_ids == canonical_artifact_ids
 
     overview = conn.execute(
         """
@@ -3689,6 +3732,17 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
     ).fetchall()
 
     assert overview == [
+        (
+            "RP-0007",
+            "STRAT-SPEC-0007",
+            "VM-0007",
+            "SWEEP-PLAN-0007",
+            81,
+            81,
+            81,
+            "offline_research",
+            True,
+        ),
         (
             "RP-2134",
             "STRAT-SPEC-0001",
@@ -3779,6 +3833,7 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
         ),
     ]
     assert lineage == [
+        ("RP-0007", "STRAT-SPEC-0007", "VM-0007", "SWEEP-PLAN-0007", True),
         ("RP-2134", "STRAT-SPEC-0001", "VM-0001", "SWEEP-PLAN-0001", True),
         ("RP-2592", "STRAT-SPEC-0004", "VM-0004", "SWEEP-PLAN-0004", True),
         ("RP-3731", "STRAT-SPEC-0005", "VM-0005", "SWEEP-PLAN-0005", True),
@@ -3789,6 +3844,7 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
         ("RP-7520", "STRAT-SPEC-0002", "VM-0002", "SWEEP-PLAN-0002", True),
     ]
     assert denominator == [
+        ("RP-0007", 81, 81, 81, True, True, True),
         ("RP-2134", 7, 7, 7, True, True, True),
         ("RP-2592", 8, 8, 8, True, True, True),
         ("RP-3731", 8, 8, 8, True, True, True),
@@ -3799,6 +3855,7 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
         ("RP-7520", 10, 10, 10, True, True, True),
     ]
     assert counts == [
+        ("RP-0007", 81, 0, 0, 0, 0, 0, 0, 0, 0, 81, True),
         ("RP-2134", 7, 0, 0, 0, 0, 0, 0, 0, 0, 7, True),
         ("RP-2592", 8, 0, 0, 0, 0, 0, 0, 0, 0, 8, True),
         ("RP-3731", 8, 0, 0, 0, 0, 0, 0, 0, 0, 8, True),
@@ -3809,6 +3866,17 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
         ("RP-7520", 10, 0, 0, 0, 0, 0, 0, 0, 0, 10, True),
     ]
     assert rows == [
+        (
+            "RP-0007",
+            f"VAR-{index:06d}",
+            "successful",
+            True,
+            "binance_usdtm_btcusdt_ohlcv_1d:identity_sha256:05ce3d5fdb5186ae36f612e2c51393eaecb110a66b0c3506e5583f3acedd443f",
+            "SWEEP-PLAN-0007",
+            "VM-0007",
+        )
+        for index in range(1, 82)
+    ] + [
         (
             "RP-2134",
             f"VAR-{index:06d}",
@@ -3899,6 +3967,14 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
     ]
     assert coverage == [
         (
+            "RP-0007",
+            "research/data_slices/binance_usdtm_btcusdt_1d/binance_usdtm_btcusdt_1d_20200101_20260411.catalog_slice.json#sha256:51fc09918841cd3ac353efe375af91a4732080571f9b1af634f5d1a426217adb",
+            "binance_usdtm_btcusdt_ohlcv_1d:identity_sha256:05ce3d5fdb5186ae36f612e2c51393eaecb110a66b0c3506e5583f3acedd443f",
+            "1d",
+            "ohlcv",
+            "block_if_missing",
+        ),
+        (
             "RP-2134",
             "15m_ohlcv_test_fixture_offline_only",
             "csv_fixture:sha256:90c38fd1fe4f2e86ee0a2ad1a4efaca4af7fde0f8f5bc75d8b1cfe54c16dabd0",
@@ -3964,6 +4040,17 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
         ),
     ]
     assert execution_context == [
+        (
+            "RP-0007",
+            "tools.research_runner.run_offline_sweep",
+            7,
+            "offline_research",
+            True,
+            True,
+            True,
+            True,
+            True,
+        ),
         (
             "RP-2134",
             "tools.research_runner.run_offline_sweep",
@@ -4054,6 +4141,7 @@ def test_first_canonical_15m_result_population_views_under_first_parent_instance
         ),
     ]
     assert non_authority == [
+        ("RP-0007", True, True, "reference_only", True),
         ("RP-2134", True, True, "reference_only", True),
         ("RP-2592", True, True, "reference_only", True),
         ("RP-3731", True, True, "reference_only", True),

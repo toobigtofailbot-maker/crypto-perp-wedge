@@ -291,6 +291,75 @@ New-Item -ItemType Directory -Path research\queue\dispatch_records
 
 All three directories must pre-exist before the relevant protected writer call, resolve beneath the repository root, remain empty before first use, and contain no symlink, junction, reparse point, mount redirect, or equivalent indirection. Do not place `.gitkeep` or any other sentinel in any controlled directory. The protected writers verify these parents but do not create them. Git does not track empty directories, so every fresh clone or checkout must perform this bootstrap before its first relevant crossing; this prerequisite grants no crossing or execution authority.
 
+## Protected-action authorization readiness
+
+A protected execution or canonical crossing must not be surfaced for
+authorization until it is physically ready in the current worktree and requires
+zero additional reversible setup after authorization. Run the zero-effect
+`tools.canon_intake.execution_readiness` checker for the exact dispatch, run,
+stream, actor, executable identities, expected HEAD, and Result Population
+identity. `READY` is an environment fact only; it grants no execution,
+canonical, retry, recovery, runtime, paper/live, or capital authority.
+
+The checker fails closed and reports machine-readable findings for these twelve
+categories:
+
+1. Repository/worktree: ordinary non-reparse root, visible expected/current
+   HEAD, and clean tracked/index state when requested.
+2. Dispatch: exact path, bytes, hash, run/stream binding, and consumed
+   dispatch/KDAUTH state through the existing validators.
+3. Execution stream parent: existing ordinary directory beneath the repository,
+   opened and identity-rechecked through the writer's descriptor-anchored
+   primitive.
+4. Append-lock parent: the exact production lock root opens through that same
+   primitive and has no target-run stale lock.
+5. Execution-writer integrity parent: the production audit parent opens through
+   that same primitive and has no target-run visibility/integrity residue.
+6. First-run stream state: the target is absent, retained history has no target
+   version, and stream integrity validation reports the missing pre-run state.
+7. Scratch target: the existing production scratch preflight accepts the exact
+   dispatch-bound target without creating it.
+8. Local data: dataset and funding paths have exact bytes/hashes, are ordinary,
+   and remain gitignored, untracked, and unstaged.
+9. Leased inputs: the adapter's existing preparation path acquires all eleven
+   exact read-only inputs and releases every lease without invoking the runner.
+10. Executable and actor identities: runner, adapter, scratch persistence,
+    execution-event writer, and explicit actor match the reviewed request.
+11. Runtime and prior-effect absence: required production imports are already
+    available without a fetch; no stream, runner-start evidence, scratch output,
+    target Result Population, stale lock, or writer residue exists.
+12. Fixture-to-production parity: every fixture setup action is classified and
+    every real-worktree prerequisite is mechanically checked or explicitly
+    bootstrapped before authorization.
+
+Current fixture-to-production parity is:
+
+| Fixture setup action | Classification | Durable coverage |
+| --- | --- | --- |
+| `stream_path.parent.mkdir(parents=True, exist_ok=True)` | REQUIRED IN REAL WORKTREE | Readiness checks the production execution-event parent with the writer's anchored-directory primitive. |
+| Ensure `research/canonical_crossing_audit` exists | REQUIRED IN REAL WORKTREE | Readiness checks the production integrity parent with the writer's anchored-directory primitive. |
+| Copy the execution-event schema into a synthetic repository | TEST-ONLY | A real checkout receives the committed schema; dispatch/stream validation proves availability. |
+| Provision synthetic manifest, KDAUTH, dispatch, bound artifacts, data, and Git history | TEST-ONLY | Real requests use their exact committed dispatch bindings and separately controlled local canonical data. |
+
+Before the first execution-event writer use in a fresh clone or worktree, create
+the exact controlled empty execution-event parent only after readiness reports
+it as a safe bootstrap candidate. For the current writer that parent is:
+
+```powershell
+New-Item -ItemType Directory -Path research\queue\execution_events
+```
+
+The parent must be an empty ordinary directory beneath the repository root, and
+its existing parent must pass descriptor-anchored/no-reparse validation. It must
+contain no symlink, junction, reparse point, mount redirect, or other indirection.
+The production writer verifies but does not create this directory. Git does not
+track empty directories, so every fresh clone or worktree must run readiness and
+perform any approved empty-directory bootstrap before authorization. Do not add
+`.gitkeep` or another sentinel to a controlled empty directory unless a future
+explicit architecture decision changes this rule. Bootstrap is reversible
+non-authority setup and grants no execution or canonical authority; the checker
+reports candidates but never creates them.
+
 ## Phase 2 research workbench
 
 ### Overview

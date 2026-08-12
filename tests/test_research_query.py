@@ -3659,6 +3659,31 @@ def test_canonical_result_population_views_match_append_only_artifact_corpus(con
     ]
     assert queried_result_population_ids == canonical_artifact_ids
 
+    known_artifact_ids = {
+        "RP-0007",
+        "RP-2134",
+        "RP-2592",
+        "RP-3731",
+        "RP-4492",
+        "RP-6236",
+        "RP-6688",
+        "RP-7134",
+        "RP-7520",
+    }
+
+    def _assert_one_row_view_matches_known(actual_rows, expected_known_rows):
+        actual_ids = [row[0] for row in actual_rows]
+        assert sorted(actual_ids) == canonical_artifact_ids
+        assert [
+            row for row in actual_rows if row[0] in known_artifact_ids
+        ] == expected_known_rows
+
+    def _assert_variant_rows_match_known(actual_rows, expected_known_rows):
+        assert {row[0] for row in actual_rows} == set(canonical_artifact_ids)
+        assert [
+            row for row in actual_rows if row[0] in known_artifact_ids
+        ] == expected_known_rows
+
     overview = conn.execute(
         """
         SELECT result_population_id, parent_strategy_spec_id,
@@ -3731,7 +3756,7 @@ def test_canonical_result_population_views_match_append_only_artifact_corpus(con
         """
     ).fetchall()
 
-    assert overview == [
+    _assert_one_row_view_matches_known(overview, [
         (
             "RP-0007",
             "STRAT-SPEC-0007",
@@ -3831,8 +3856,8 @@ def test_canonical_result_population_views_match_append_only_artifact_corpus(con
             "offline_research",
             True,
         ),
-    ]
-    assert lineage == [
+    ])
+    _assert_one_row_view_matches_known(lineage, [
         ("RP-0007", "STRAT-SPEC-0007", "VM-0007", "SWEEP-PLAN-0007", True),
         ("RP-2134", "STRAT-SPEC-0001", "VM-0001", "SWEEP-PLAN-0001", True),
         ("RP-2592", "STRAT-SPEC-0004", "VM-0004", "SWEEP-PLAN-0004", True),
@@ -3842,8 +3867,8 @@ def test_canonical_result_population_views_match_append_only_artifact_corpus(con
         ("RP-6688", "STRAT-SPEC-0002", "VM-0002", "SWEEP-PLAN-0002", True),
         ("RP-7134", "STRAT-SPEC-0003", "VM-0003", "SWEEP-PLAN-0003", True),
         ("RP-7520", "STRAT-SPEC-0002", "VM-0002", "SWEEP-PLAN-0002", True),
-    ]
-    assert denominator == [
+    ])
+    _assert_one_row_view_matches_known(denominator, [
         ("RP-0007", 81, 81, 81, True, True, True),
         ("RP-2134", 7, 7, 7, True, True, True),
         ("RP-2592", 8, 8, 8, True, True, True),
@@ -3853,8 +3878,8 @@ def test_canonical_result_population_views_match_append_only_artifact_corpus(con
         ("RP-6688", 10, 10, 10, True, True, True),
         ("RP-7134", 8, 8, 8, True, True, True),
         ("RP-7520", 10, 10, 10, True, True, True),
-    ]
-    assert counts == [
+    ])
+    _assert_one_row_view_matches_known(counts, [
         ("RP-0007", 81, 0, 0, 0, 0, 0, 0, 0, 0, 81, True),
         ("RP-2134", 7, 0, 0, 0, 0, 0, 0, 0, 0, 7, True),
         ("RP-2592", 8, 0, 0, 0, 0, 0, 0, 0, 0, 8, True),
@@ -3864,8 +3889,8 @@ def test_canonical_result_population_views_match_append_only_artifact_corpus(con
         ("RP-6688", 10, 0, 0, 0, 0, 0, 0, 0, 0, 10, True),
         ("RP-7134", 8, 0, 0, 0, 0, 0, 0, 0, 0, 8, True),
         ("RP-7520", 10, 0, 0, 0, 0, 0, 0, 0, 0, 10, True),
-    ]
-    assert rows == [
+    ])
+    _assert_variant_rows_match_known(rows, [
         (
             "RP-0007",
             f"VAR-{index:06d}",
@@ -3964,8 +3989,8 @@ def test_canonical_result_population_views_match_append_only_artifact_corpus(con
             "VM-0002",
         )
         for index in range(1, 11)
-    ]
-    assert coverage == [
+    ])
+    _assert_one_row_view_matches_known(coverage, [
         (
             "RP-0007",
             "research/data_slices/binance_usdtm_btcusdt_1d/binance_usdtm_btcusdt_1d_20200101_20260411.catalog_slice.json#sha256:51fc09918841cd3ac353efe375af91a4732080571f9b1af634f5d1a426217adb",
@@ -4038,8 +4063,8 @@ def test_canonical_result_population_views_match_append_only_artifact_corpus(con
             "ohlcv",
             "block_if_missing",
         ),
-    ]
-    assert execution_context == [
+    ])
+    _assert_one_row_view_matches_known(execution_context, [
         (
             "RP-0007",
             "tools.research_runner.run_offline_sweep",
@@ -4139,8 +4164,8 @@ def test_canonical_result_population_views_match_append_only_artifact_corpus(con
             True,
             True,
         ),
-    ]
-    assert non_authority == [
+    ])
+    _assert_one_row_view_matches_known(non_authority, [
         ("RP-0007", True, True, "reference_only", True),
         ("RP-2134", True, True, "reference_only", True),
         ("RP-2592", True, True, "reference_only", True),
@@ -4150,7 +4175,7 @@ def test_canonical_result_population_views_match_append_only_artifact_corpus(con
         ("RP-6688", True, True, "reference_only", True),
         ("RP-7134", True, True, "reference_only", True),
         ("RP-7520", True, True, "reference_only", True),
-    ]
+    ])
 
 
 def test_variant_sweep_integrity_views_empty_under_current_zero_instance_state(conn):

@@ -12,7 +12,8 @@ This file is a compatibility wrapper only. It is not the authority for report-ba
 
 ## Default Compact Report-Back
 
-Use this compact shape by default for clean T1 packages when the active WP specifies no stricter format:
+Use this compact shape by default for clean T0 packages and clean
+low-semantic-risk T1 packages when the active WP specifies no stricter format:
 
 ```text
 A. Scope

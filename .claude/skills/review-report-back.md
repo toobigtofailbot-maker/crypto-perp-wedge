@@ -12,7 +12,12 @@
 
 ### Step 1 — Validate Report-Back Structure
 
-The active WP's report-back format wins. If the active WP specifies A–H sections or another explicit shape, check for those. For clean T1 packages with no WP-specified format, check for the compact A–E shape from `docs/ai/codex/WP_EXECUTION_REPORT.md`.
+The active WP's report-back format wins. If the active WP specifies A–H
+sections or another explicit shape, check for those. For clean T0 packages and
+clean low-semantic-risk T1 packages with no WP-specified format, check for the
+compact A–E shape from `docs/ai/codex/WP_EXECUTION_REPORT.md`. Material-risk T2
+packages, T3/T4 packages, and failure/recovery cases use expanded evidence when
+the report policy requires it.
 
 Confirm the report-back contains:
 
@@ -35,6 +40,12 @@ If any required item is missing → **REQUEST CHANGES**: ask the coding agent to
 ---
 
 ### Step 2 — Verify Validation Evidence
+
+Apply the current tier meanings: T0 is docs/status/comments; T1 is test-only,
+read-only query additions, exact persistence, or non-canonical research
+automation; T2 is schema, validator, contract, query-SQL, or broadly used
+production code; T3 is canonical crossing, protected writer, or dispatch
+authorization; T4 is runtime, paper/live, OMS, reconciliation, risk, or capital.
 
 For each validation command or gate required by the active WP:
 

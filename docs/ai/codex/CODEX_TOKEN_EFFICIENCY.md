@@ -6,7 +6,13 @@ This guidance applies to Claude Code and Codex. File name is retained for histor
 
 This document is guidance-only for coding-agent token efficiency, prompt size, and context hygiene. It does not create implementation authority, validation-tier authority, evidence authority, runtime authority, or downstream decision authority.
 
-Token efficiency cannot justify skipping repo-truth inspection, refreshed-main preflight, changed-file inspection, integrity views, registry validators, full pytest, package-specific validation, or package-specific stop conditions. It also cannot justify protected-path, runtime, paper/live, OMS, risk, safe-mode, config, dependency, schema, validator, query-layer, data, or implementation drift.
+Token efficiency cannot justify skipping repo-truth inspection, refreshed-main
+preflight, changed-file inspection, or validation required by the active T0-T4
+tier/package. It cannot downgrade a required full pytest/full-release run.
+Focused and adjacent validation remains real validation, not a shortcut. Token
+efficiency also cannot justify protected-path, runtime, paper/live, OMS, risk,
+safe-mode, config, dependency, schema, validator, query-layer, data, or
+implementation drift.
 
 ## Source-of-truth hierarchy
 
@@ -22,9 +28,15 @@ Repo truth and active WP scope always win. Cached status, memory, summaries, or 
 
 ## Read-Path Router and Context Budget
 
-The package-class read-path router in `docs/ai/codex/README.md` provides T1/T2/T3/T4 class-specific file-reading guidance. Apply it after required startup anchors and after the active WP instructions.
+The package-class read-path router in `docs/ai/codex/README.md` provides
+T0/T1/T2/T3/T4 blast-radius class-specific file-reading guidance. Apply it
+after required startup anchors and after the active WP instructions.
 
 Every WP should include a `Context Budget / Files to Inspect` section with the five required fields (`Read first`, `Read for this package`, `Read only if blocked`, `Do not read / do not touch`, `Search terms if paths changed`). See `docs/ai/codex/COMPACT_WP_TEMPLATE.md` for the full requirements.
+
+Map the fields to the locked budget: P0 is `Read first` plus `Read for this
+package`; P1 is `Read only if blocked` plus `Search terms if paths changed`; P2
+is `Do not read / do not touch`.
 
 The read-path router and Context Budget reduce wrong-file reading. They do not reduce startup-anchor obligations, repo-truth inspection, validation, changed-file inspection, or stop-condition investigation.
 
@@ -64,7 +76,13 @@ D. Boundary check
 E. PR status / decision
 ```
 
-Longer report-backs remain required for T2/T3/T4 packages, artifact packages, stop triggers, validation failures, nontrivial semantics, package-specific report formats, or any case where compression would hide a failed command, skipped required validation, unexpected changed file, forbidden-scope touch, mergeability failure, or unresolved escalation. See `docs/ai/codex/WP_EXECUTION_REPORT.md` for the full expanded shape, tier-aware expectations, and failure evidence rule.
+Longer report-backs remain required for material-semantic-risk T2 packages, all
+T3/T4 packages, artifact packages when their evidence requires expansion, stop
+triggers, validation failures, nontrivial semantics, package-specific report
+formats, or any case where compression would hide a failed command, skipped
+required validation, unexpected changed file, forbidden-scope touch,
+mergeability failure, or unresolved escalation. See
+`docs/ai/codex/WP_EXECUTION_REPORT.md` for the full tier-aware rules.
 
 PR bodies must use the compact minimum shape. They must not restate the entire WP or paste large passing logs.
 
@@ -109,7 +127,7 @@ Future efficiency ideas are sequenced. Compact WP template guidance is now imple
 
 Validation command-running wrapper modes are deferred / not implemented for now. The current approved workflow continues to execute required commands directly and may summarize existing local logs through `tools/dev/validation_summary.py`. The helper remains a log-summary helper only, and its command-running wrapper modes remain intentionally unimplemented / fail-closed. Wrapper modes may be reopened only by a future explicit package if repeated validation-reporting bottlenecks justify the added risk; any such package must fail closed, preserve raw failure output, preserve exit codes and timeouts, and keep actual commands as validation authority.
 
-The current efficiency/tooling tranche is complete enough to resume project work after explicit user/Karl instruction. Each future helper or tooling idea still requires its own package scope and validation. The implemented guidance, helper, and design surfaces are advisory only and do not replace package scope, raw logs, command execution, direct changed-file inspection, integrity views, registry validators, scoped pytest, full pytest, repo-truth file inspection, `docs/project_status.md`, branch/PR checks, artifact/count verification, or semantic review. This document does not implement RTK/RTX/TRS/manual compression tooling, command-running validation wrappers, generated committed indexes, generated committed memory/status snapshots, memory files, automation, schemas, validators, query-layer changes, or runtime behavior.
+The current efficiency/tooling tranche is complete enough to resume project work after explicit user/Karl instruction. Each future helper or tooling idea still requires its own package scope and validation. The implemented guidance, helper, and design surfaces are advisory only and do not replace package scope, raw logs, command execution, direct changed-file inspection, tier-required focused/adjacent tests, validators, integrity views, broad/full-suite evidence when required, repo-truth file inspection, `docs/project_status.md`, branch/PR checks, artifact/count verification, or semantic review. This document does not implement RTK/RTX/TRS/manual compression tooling, command-running validation wrappers, generated committed indexes, generated committed memory/status snapshots, memory files, automation, schemas, validators, query-layer changes, or runtime behavior.
 
 ## Workflow-Efficiency Guidance Closure
 
@@ -143,9 +161,10 @@ Do not use token efficiency to:
 - skip refreshed-main preflight;
 - skip required startup anchors;
 - skip changed-file inspection;
-- skip integrity views;
-- skip registry validators;
-- skip full pytest unless a future repo-approved validation-tier document changes that;
+- skip focused, adjacent, validator, or integrity evidence required by the
+  active tier/package;
+- skip full pytest/full-release when the tier, blast radius, milestone/release
+  boundary, protected gate, or active package requires it;
 - weaken forbidden-scope handling or protected boundaries;
 - treat compressed summaries, memory, or cached status as repo truth;
 - implement RTK, validation wrappers, broader or authority-bearing code indexes, broader or authority-bearing memory/status snapshots, R1/R2, H-006, Path B, runtime, paper/live, OMS, risk, safe-mode, config, dependency, schema, validator, query-layer, data, policy, scoring, ranking, recommendation, approval, readiness, lifecycle, promotion/demotion, or downstream authority.

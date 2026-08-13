@@ -10,13 +10,22 @@
 
 ## Scope and changed files
 
-The package makes the already-decided operating model durable in the existing
-authoritative guidance surfaces. Exact changed files:
+The package makes the already-decided operating model durable in the central
+policy and every active referenced drafting, reporting, and execution-brief
+surface. Exact changed files:
 
 - `docs/ai/codex/VALIDATION_POLICY.md`
 - `docs/ai/codex/WP_DRAFTING_STANDARD.md`
 - `docs/runbook.md`
 - `docs/status_entries/WP-GUIDE-ACCELERATION-OPERATING-MODE-01.md`
+- `docs/ai/codex/README.md`
+- `docs/ai/codex/COMPACT_WP_TEMPLATE.md`
+- `docs/ai/codex/WP_EXECUTION_REPORT.md`
+- `prompts/execution_brief.md`
+- `.claude/skills/write-execution-brief.md`
+- `docs/ai/codex/CODEX_TOKEN_EFFICIENCY.md`
+- `prompts/report_back.md`
+- `.claude/skills/review-report-back.md`
 
 The locked T0-T4 vocabulary selects validation by blast radius: T0
 docs/status/comments; T1 test-only, read-only query additions, exact-artifact
@@ -25,15 +34,22 @@ contract, query-SQL, and broad production code; T3 canonical crossings and
 protected writers; T4 runtime, OMS, reconciliation, risk, capital, and
 paper/live paths.
 
+One T0-T4 vocabulary now applies across current shared guidance, compatibility
+wrappers, and Claude drafting/review skills. Historical status entries and
+architecture/design records retain their contemporaneous labels and were
+intentionally not rewritten; they are not authoritative for the current tier
+meanings.
+
 ## Validation summary
 
 - `git diff --check`: passed.
 - `git diff --cached --check`: passed.
-- Exact four-file allowlist and forbidden-scope checks: passed.
-- Internal path references for the three guidance surfaces: passed.
-- Markdown fenced-block balance for the three guidance surfaces: passed; no
+- Exact twelve-file allowlist and forbidden-scope checks: passed.
+- Internal path references for the active guidance surfaces: passed.
+- Markdown fenced-block balance for the active guidance surfaces: passed; no
   repo-owned Markdown lint/render command was discovered.
-- Contradictory modified-surface tier-nomenclature scan: passed.
+- Active-guidance tier-nomenclature contradiction scan, including `AGENTS.md`
+  and `CLAUDE_START_HERE.md`: passed; no stale live-tier semantics remain.
 - Protected-core semantic text audit: passed.
 - Final rebase onto current `origin/main`: passed.
 - GitHub mergeability: `MERGEABLE` / clean.

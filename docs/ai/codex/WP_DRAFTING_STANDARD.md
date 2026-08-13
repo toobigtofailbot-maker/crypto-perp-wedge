@@ -30,12 +30,53 @@ Every WP must include:
 - scope: exact allowed created or modified files;
 - forbidden scope: paths, artifacts, authority changes, and protected boundaries outside the package;
 - validation: exact commands and expected evidence;
+- validation tier: the T0-T4 blast-radius tier from `docs/ai/codex/VALIDATION_POLICY.md`, including mandatory focused tests, adjacent subsystem tests, relevant validators/integrity views, and whether broad/full-suite evidence is required and why;
+- validation profile: environment prerequisites, known disclosures, and any reusable broad evidence with its exact base/head/scope;
+- context budget: P0 must read, P1 conditional, and P2 irrelevant or forbidden;
 - stop conditions: conditions that require halting and reporting;
 - commit / PR instructions: branch, commit message, PR title, draft status, and body requirements;
 - report-back format: required sections and evidence. Report-backs may use the compact tier-aware shape from `docs/ai/codex/WP_EXECUTION_REPORT.md` when the package is clean; expanded detail is required when validation fails, scope differs, forbidden files are touched, GitHub mergeability is not clean, or the package is T2/T3/T4 with material semantic risk;
 - whether `docs/project_status.md` will be modified: state this explicitly so reviewers can anticipate parallel-PR collision risk and confirm the final rebase and mergeability gate was completed (see `docs/status_entries/README.md`);
 - review checklist: how Side/Main should inspect merge readiness;
 - PR status: ready for review / not draft unless explicitly authorized otherwise.
+
+### Coherent vertical-slice rule
+
+A WP is one coherent objective, one authority/risk boundary, and one validation
+chain. It does not mean one tiny file or assertion. Prefer a larger coherent
+same-risk vertical slice when splitting it would create avoidable handoffs or
+leave direct consumers knowingly contradictory.
+
+Before implementation, scan the obvious downstream consumers and tests of the
+state being changed. Within an authorized objective, the package may include
+same-semantic-class test rebaselines, fixture corrections, local helper
+refactors, and reversible non-canonical support corrections when necessary to
+complete that objective and when they remain inside the allowed files, risk
+tier, and authority boundary.
+
+Stop when architecture changes, protected or canonical authority expands, the
+allowed-file or risk boundary genuinely widens, or unexpected semantics cannot
+be resolved inside the authorized objective. Do not split or stop merely because
+a necessary in-scope correction was not predicted line by line.
+
+### Runway and bounded-correction rule
+
+Main may authorize a larger runway of packages or a bounded in-scope correction
+envelope. The runway must state its objective, allowed authority/risk boundary,
+validation chain, stop triggers, and re-engagement points. It never authorizes a
+new tier, protected boundary, or out-of-scope file implicitly.
+
+### Context budget
+
+Every WP must classify context as:
+
+- P0: must read before work;
+- P1: read only when dependency or contradiction analysis requires it;
+- P2: irrelevant or forbidden for the package.
+
+This keeps repo truth first while avoiding repeated broad exploration. The
+budget cannot omit startup anchors, current changed files, or a file required to
+resolve a real contradiction.
 
 PR title package-label prefix rule:
 
@@ -95,7 +136,11 @@ If dirty, stop and report the file list. Do not stash silently, overwrite, clean
 
 ## 5. Parallel PR Rule
 
-Parallel PRs are allowed when primary scopes do not overlap. `docs/project_status.md` conflicts are expected during parallel WP execution and may be resolved by rebase after earlier PRs merge.
+Two or three file-disjoint lanes of the same or lower risk may run concurrently
+when their objectives and validation chains are independent. Protected or
+shared-semantic overlaps must serialize. `docs/project_status.md` conflicts are
+expected during parallel WP execution and may be resolved by rebase after
+earlier PRs merge.
 
 Protected/runtime/canonical/schema/tooling overlaps are stop conditions unless explicitly scoped by the active WP. Do not use parallel execution to weaken protected boundaries or to broaden a package.
 
@@ -184,25 +229,41 @@ If the dedicated worktree lacks `.venv`, use the root checkout virtualenv by abs
 
 or create/use the repo-standard environment if that is the established convention. Do not treat missing `.venv` inside a worktree as a package failure.
 
-If full pytest fails only because a gitignored local data file is absent in the isolated worktree, report it explicitly. Do not commit gitignored local data and do not expand the WP to data-file handling.
+Use a deterministic named validation profile when a package depends on
+gitignored data, local control-plane evidence, known integrity disclosures, or
+other environment-specific state. Verify exact paths, file kind, byte lengths,
+hashes, ignore/tracking state, and permitted hydration method before testing.
+Local existence never upgrades evidence to merged repo truth.
 
-For T1 docs-only WPs, full pytest is not required unless the package or repo guidance explicitly requires it. For T3/code WPs, follow the package validation requirements and report environment-only failures separately.
+If required local data is absent, report it against the profile before broad
+validation. Do not commit gitignored local data or expand the WP to data-file
+handling. T0 docs/process packages do not run pytest by default. T1-T4 packages
+follow the active tier and package requirements, with environment-only failures
+reported separately from semantic failures.
 
 ## 10. Usage-Efficient Validation Rule
 
-Run validation in stages. Do not run full pytest repeatedly after every small edit.
+Run validation in the readiness order locked by
+`docs/ai/codex/VALIDATION_POLICY.md`. Full pytest/full-release is an integration
+and protected-boundary tool, not the routine inner loop.
 
 Universal rule:
 
+- confirm exact branch/base/worktree, validation profile, prerequisites, known disclosures, and changed-file allowlist first;
 - use focused tests first;
 - use adjacent subsystem tests second;
 - run package validators / registry validators next;
 - run query views / integrity checks where relevant;
 - run `tools/dev/diff_scope_summary.py` before full pytest where available;
-- run full pytest once, final only, for implementation WPs;
+- run full pytest only when the tier, blast radius, milestone/release boundary, protected gate, or active package requires it;
 - run the final rebase / GitHub mergeability gate after validation.
 
-If focused tests fail, fix using focused tests first. Do not proceed to full pytest until focused tests pass. Do not rerun full pytest after every small edit. Run full pytest once at the end unless a full-suite failure specifically requires another full-suite confirmation. If validation exposes a broader architecture issue or unscoped file requirement, stop and report instead of continuing exploratory edits.
+If focused tests fail, correct and rerun the focused chain first. Do not proceed
+to broad validation until focused, adjacent, and relevant validator/integrity
+checks pass. After a small correction, rerun prior broad evidence only when the
+correction invalidates its covered blast radius. If validation exposes a broader
+architecture issue or unscoped file requirement, stop and report instead of
+continuing exploratory edits.
 
 Concise-output rule:
 
@@ -226,24 +287,24 @@ E. PR status / ready-for-review status
 
 See `docs/ai/codex/WP_EXECUTION_REPORT.md` for the compact and expanded report-back shapes and tier-aware expectations.
 
-Recommended T1 docs/design/process validation profile:
+Recommended T0 docs/status/comment validation profile:
 
 ```powershell
 git diff --check
-python -m tools.registry.validate_result_populations
-python -m tools.research_query.run --list-views
-# run all discovered v_integrity_* views and confirm clean / zero rows
-python tools/dev/diff_scope_summary.py
+python tools/dev/diff_scope_summary.py --check-forbidden
 git diff --cached --check
 git diff --cached --name-only
 # final rebase / GitHub mergeability gate
 ```
 
-Full pytest is not required for T1 docs/design/process WPs unless explicitly required by the WP or repo guidance.
-Use `docs/ai/codex/VALIDATION_POLICY.md` for the current docs-only wording and
-to distinguish `NOT RUN - docs-only policy` from `TIMED OUT`.
+Run docs render/lint/link checks when the repo supports them. Run targeted
+validators only when the docs diff changes artifact indexes, references,
+examples, or validation-relevant generated text. Full pytest is not required
+for T0 unless the active WP or stronger authority requires it. Use
+`docs/ai/codex/VALIDATION_POLICY.md` to distinguish `NOT RUN - T0 docs/process
+policy` from `TIMED OUT`.
 
-Recommended T3 implementation validation profile:
+Recommended T2 broad production/contract validation shape:
 
 ```powershell
 python -m pytest <changed/new test file> -q
@@ -258,18 +319,18 @@ git diff --cached --name-only
 # final rebase / GitHub mergeability gate
 ```
 
-For data WPs, run focused data tests first, adjacent importer / validator / catalog tests second, invalid-data output tests where relevant, validators and integrity checks, then full pytest once final when the data WP is implementation-scoped.
+For data WPs, run focused data tests first, adjacent importer / validator / catalog tests second, invalid-data output tests where relevant, and relevant validators/integrity checks. Run full pytest only when the tier, affected dependency graph, milestone/release boundary, or active package requires it.
 
-For compiler WPs, run focused compiler tests first, adjacent validator / compiler-probe tests second, determinism / fail-closed / no-lookahead tests where relevant, validators and integrity checks, then full pytest once final when the compiler WP is implementation-scoped.
+For compiler WPs, run focused compiler tests first, adjacent validator / compiler-probe tests second, determinism / fail-closed / no-lookahead tests where relevant, and relevant validators/integrity checks. Run full pytest when the T2 blast radius is broad or when a stronger gate requires it.
 
 Environment-only full-pytest failures:
 
 - if full pytest fails only because a gitignored local data file is absent in the isolated worktree, report it explicitly as environment-only;
 - do not commit gitignored local data;
 - do not expand the WP to data-file handling;
-- for T1 docs-only packages, full pytest is not required unless explicitly required;
-- for T3/code WPs, follow the package validation requirements and report any environment-only full-pytest failure separately;
-- do not weaken real validation failures. If full pytest fails for a non-environment reason in a T3 package, that remains a blocker unless the active WP explicitly defines a different stop condition.
+- for T0 docs/process packages, full pytest is not required unless explicitly required;
+- for T1-T4 WPs, follow the package and tier requirements and report any environment-only full-pytest failure separately;
+- do not weaken real validation failures. Any required full-suite failure remains a blocker unless the active WP or stronger authority explicitly defines a different acceptance condition.
 
 ## 11. Invalid-Data Output Rule
 
@@ -396,7 +457,7 @@ If yes, the PR is not merge-ready.
 
 ## 13. Type-Specific Templates
 
-### T1 Doc / Design WP
+### T0 Doc / Design WP
 
 Use for documentation, process, architecture, or design-only packages.
 
@@ -404,27 +465,56 @@ Required emphasis:
 
 - docs/status only unless the WP explicitly allows another file;
 - no code, tests, schemas, tools, data artifacts, research artifacts, or runtime mutation;
-- T1 validation from the package;
+- T0 validation from the package;
 - full pytest not required unless repo guidance or the WP requires it;
 - if full pytest is run voluntarily and fails only due to missing gitignored local data, report as environment-only and do not expand scope.
 
 Validation should include changed-file scope, forbidden-path check, `git diff --check`, and package-required validators.
 
-Full pytest is not required for T1 docs/design/process WPs unless explicitly required by the WP or repo guidance. Use the T1 docs/design/process profile from the Usage-Efficient Validation Rule by default. Use `docs/ai/codex/VALIDATION_POLICY.md` for the current docs-only wording and to distinguish `NOT RUN - docs-only policy` from `TIMED OUT`.
+Full pytest is not required for T0 docs/design/process WPs unless explicitly
+required by the WP or repo guidance. Use the T0 profile from the
+Usage-Efficient Validation Rule by default. Use
+`docs/ai/codex/VALIDATION_POLICY.md` for the current wording and to distinguish
+`NOT RUN - T0 docs/process policy` from `TIMED OUT`.
 
-### T3 Implementation WP
+### T1 Test / Read-Only / Exact-Persistence WP
+
+Use for test-only changes, read-only query additions without production query
+semantic changes, exact-artifact persistence, and non-canonical research
+automation.
+
+Required emphasis:
+
+- focused and adjacent tests plus relevant validators/integrity views;
+- no full suite by default;
+- exact artifact bytes and identity remain unchanged for persistence packages;
+- no promotion, canonical-crossing, protected-writer, or runtime authority.
+
+### T2 Production / Contract Implementation WP
 
 Use for scoped code/test implementation packages.
 
 Required emphasis:
 
 - code/tests allowed only in scoped files;
-- focused tests first, adjacent tests second, validators / integrity / diff-scope next, full pytest once at the end;
-- full pytest unless the WP explicitly defines a stricter or narrower approved profile;
+- focused tests first, adjacent tests second, then relevant validators, integrity views, and diff-scope proof;
+- full pytest when the dependency graph or blast radius is broad, or when a milestone/release/package gate requires it;
 - run `tools/dev/diff_scope_summary.py` where available;
 - run relevant integrity views;
 - no protected path drift;
 - no opportunistic refactors.
+
+### T3 Canonical Crossing / Protected Writer WP
+
+Use for canonical crossing logic, execution writers, dispatch authorization,
+and other protected writers. Require full rigor, full-release/full-suite
+evidence, exact-head review, exact-content and append-only integrity proof, and
+the applicable human gate.
+
+### T4 Runtime / Capital-Boundary WP
+
+Use for runtime, OMS, reconciliation, risk, capital, and paper/live paths.
+Require maximum rigor, Karl gate, and preservation of every protected control.
 
 ### Data Contract WP
 
@@ -455,7 +545,7 @@ Required content:
 - focused data tests first;
 - adjacent importer / validator / catalog tests second;
 - invalid-data output tests where relevant;
-- full pytest unless a stricter WP-specific validation profile applies.
+- full pytest when the T2 dependency graph/blast radius, milestone/release boundary, or active package requires it.
 
 ### Schema / Validator WP
 
@@ -484,7 +574,7 @@ Required content:
 - focused compiler tests first;
 - adjacent validator / compiler-probe tests second;
 - determinism / fail-closed / no-lookahead tests where relevant;
-- full pytest.
+- full pytest when the T2 dependency graph/blast radius, milestone/release boundary, or active package requires it.
 
 ### Runner / Canonical-Artifact WP
 
@@ -583,9 +673,9 @@ Reviewers should verify:
 
 Every future WP must include:
 
-- `Context Budget / Files to Inspect` with the five required fields: `Read first`, `Read for this package`, `Read only if blocked`, `Do not read / do not touch`, `Search terms if paths changed`. See `docs/ai/codex/COMPACT_WP_TEMPLATE.md` for the full Context Budget requirements.
+- `Context Budget / Files to Inspect`, explicitly mapped to P0/P1/P2. P0 contains `Read first` and `Read for this package`; P1 contains `Read only if blocked` and `Search terms if paths changed`; P2 contains `Do not read / do not touch`. See `docs/ai/codex/COMPACT_WP_TEMPLATE.md` for the full Context Budget requirements.
 - `Delta from defaults` when using compact WP format, stating what differs from standard guidance for validation, forbidden paths, manual steps, stop triggers, and report-back. The delta section must not skip required startup anchors, validation, or protected-boundary checks.
-- Package-class classification: T1 (docs/guidance/design), T2 (research artifacts/query/evidence), T3 (implementation/tooling/dashboard/schema/validator), or T4 (runtime/paper/live/OMS/risk/protected). See `docs/ai/codex/README.md` for the read-path guidance per class.
+- Package-class classification using the single blast-radius vocabulary in `docs/ai/codex/VALIDATION_POLICY.md`: T0 (docs/status/comments), T1 (test-only/read-only query/exact persistence/non-canonical research automation), T2 (schema/validator/contract/query SQL/broad production code), T3 (canonical crossing/protected writer/dispatch authorization), or T4 (runtime/paper/live/OMS/reconciliation/risk/capital). See `docs/ai/codex/README.md` for additional read-path guidance, but do not use older labels there to override this tier vocabulary.
 
 These requirements do not reduce or replace the universal WP requirements in Section 2, the validation requirements in Sections 9–10, the isolated-worktree rule in Section 4, or any other standard in this document.
 
@@ -623,7 +713,8 @@ If a required behavior is impossible under the allowed scope, the WP must not as
 - explicitly accept the limitation as known debt;
 - or define a stop condition and decision request.
 
-This gate is mandatory for dashboard, schema, validator, collector, and renderer packages and recommended for all T3 implementation packages.
+This gate is mandatory for dashboard, schema, validator, collector, and renderer
+packages and recommended for all T2 implementation packages.
 
 ## 16. Follow-Up / Blocker Resolution Contradiction Scan
 
@@ -668,7 +759,9 @@ The gate requires the agent to inspect the actual GitHub PR title, PR body, and 
 
 For packages whose changed text includes non-authority, anti-ranking, no-readiness, no-promotion, no-execution, or dashboard-as-non-authority constraints, a semantic text audit is also required before ready-for-review. See `docs/ai/codex/COMPACT_WP_TEMPLATE.md` for the sample audit block.
 
-This gate applies to every WP that opens a PR, including T1 docs-only packages. Active WPs that include a `Final PR Readiness Gate` section must apply the gate to their own PR before reporting ready-for-review.
+This gate applies to every WP that opens a PR, including T0 docs-only packages.
+Active WPs that include a `Final PR Readiness Gate` section must apply the gate
+to their own PR before reporting ready-for-review.
 
 If a required item is missing, the agent must report not-ready and include a paste-ready follow-up prompt.
 
@@ -683,7 +776,31 @@ When Side/Main review determines a follow-up is needed, the review/report-back m
 
 If the failure was preventable or likely to recur, Side/Main should draft or request a narrow improvement WP after the immediate blocker is resolved.
 
-## 18. Future WP Reference Rule
+## 18. Architecture-transition and external-adoption rules
+
+At an architecture transition, identify the validation, allowlist, environment,
+and evidence-lifecycle support that the next packages will need. When an
+obvious validation-tool gap would otherwise force repeated exceptions or broad
+manual proof, surface a separate bounded tooling package before the transition.
+Do not hide tooling implementation inside the package making the crossing.
+
+When an external capability already has a committed disposition and its
+adoption trigger is satisfied, use that disposition rather than reopening a
+generic survey by default. Adopt or wrap the bounded capability only within its
+existing authority boundary. Adoption never gives an external tool canonical,
+promotion, runtime, execution, or risk authority.
+
+## 19. Protected-core invariants
+
+Acceleration is faster everywhere protected controls do not require
+protected-level cost and unchanged where they do. No WP, runway, evidence reuse,
+or validation tier may weaken exact-content canonical crossings,
+irreversible-execution authorization, full-denominator accounting, append-only
+integrity, protected writers, human promotion gates, runtime, paper/live, OMS,
+reconciliation, hard risk, capital, or exact-head review where T3/T4 requires
+it.
+
+## 20. Future WP Reference Rule
 
 Future WPs (for Claude Code or Codex) may say:
 

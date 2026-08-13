@@ -244,19 +244,38 @@ Run the frozen Phase 1 closure baseline with:
 python -m src.runtime.paper_trader --once-at 2026-01-01T01:00:00Z --config configs\paper_runtime.phase1_closed.json
 ```
 
-## H-004/KDAUTH local dataset prerequisite
+## Local-evidence lifecycle
+
+Local presence and durable repo truth are different states. A local file never
+silently becomes merged repo truth, authority, or canonical evidence.
+
+| Evidence class | Clean-worktree expectation | Local hydration/creation | Commit and persistence authority | Query/integrity interpretation |
+| --- | --- | --- | --- | --- |
+| A. Merged tracked repo truth | Present at the checked-out commit. | Restored only through ordinary Git checkout/fetch of the exact commit. | Already committed; modification requires an explicit WP covering the path and semantics. | Absence or byte drift from the checked-out commit is a repo-state failure. |
+| B. Intentionally gitignored validation data | May be absent. | May be hydrated only by the named validation profile; exact-source/hash/byte/file-kind rules apply. | Must not be committed unless a later explicit data-persistence package authorizes it. | Absence is an input-availability condition when the named profile requires it; presence is valid only after profile verification. |
+| C. Local untracked execution/control-plane evidence | Absent in a clean checkout; may exist in an evidence-bearing worktree. | May be created only by a separately authorized writer/crossing/execution flow, or copied only when an explicit profile permits exact-byte hydration. | Must not be committed without separate exact-content persistence authority and every applicable protected/canonical gate. | Interpret absence/presence against the explicitly named clean or evidence-bearing context; local presence is not merged persistence. |
+| D. Scratch/provisional evidence | Normally absent and never required as merged truth. | May be created or hydrated only inside the active package's reversible scratch scope. | Must not be committed or promoted unless a later package explicitly authorizes the exact artifact and crossing. | Advisory/provisional only; absence is normal unless the active validation step requires it. Presence grants no canonical, promotion, execution, or runtime authority. |
+| E. Canonical artifacts intended for durable repo persistence | Absent before an authorized crossing; present after the exact artifact is merged. | Do not hydrate a local substitute and call it canonical. Creation/persistence follows the authorized writer or exact-content crossing. | Requires explicit canonical persistence authority, applicable human gate, exact-content proof, and exact-head review. | Validate against exact merged repo truth and the artifact's schema/integrity contract; local pre-merge existence remains only a candidate for persistence. |
+
+Hydration is validation setup, not authority. Checks must report which evidence
+class and named validation context they used. They must not collapse a clean
+checkout, an evidence-bearing worktree, and merged repo truth into one baseline.
+This lifecycle policy does not retroactively authorize committing any current
+H-004 local stream, audit, writer-integrity, or scratch evidence.
+
+## Validation profile: H-004 exact local corpus v1
 
 Any worktree that runs H-004/KDAUTH dispatch-authorization or reservation
 integrity validation must contain this exact canonical local corpus:
 
 - Canonical 1d dataset:
   - Path: `data/processed/binance_um_perp_BTCUSDT_1d_2020-01-01_2026-04-11_2026-04-12T1655Z.parquet`
-  - Byte length: `200961`
+  - Byte length: `200,961`
   - SHA-256: `c6e2e7ce030db6a710d95e48325fc77b27efbbdd441199b3d7458d4394795802`
   - Source of truth: `research/data_slices/binance_usdtm_btcusdt_1d/binance_usdtm_btcusdt_1d_20200101_20260411.catalog_slice.json` and the KDAUTH dataset binding.
 - Canonical funding-events dataset:
   - Path: `data/processed/binance_um_perp_BTCUSDT_funding_8h_2019-09-10_2026-04-12_2026-04-12T1655Z.parquet`
-  - Byte length: `126987`
+  - Byte length: `126,987`
   - SHA-256: `5f0da7478ccf3514af41dff9958b579cd2f797a2716001b0fa10a11059912798`
   - Source of truth: `research/data_provenance/funding/binance_usdtm_btcusdt_funding_events_20190910t080000z_20260412t160000z_sha256_5f0da7478ccf3514.funding_provenance.json` and the KDAUTH funding binding.
 
@@ -266,6 +285,39 @@ source; never fetch, regenerate, transform, or substitute either file. Missing
 local validation inputs are input-availability conditions and must not be
 interpreted as authorization-lineage corruption. Any path, byte-length, or
 SHA-256 mismatch is a hard stop, not a provisioning convenience.
+
+The profile has two explicit execution-stream contexts:
+
+- `h004-clean`: the exact merged repo checkout plus the verified ignored dataset
+  corpus above; the real H-004 execution stream is absent.
+- `h004-evidence-bearing`: the exact merged repo checkout plus that corpus and
+  the real local untracked execution stream at
+  `research/queue/execution_events/RUN-20260804-H004R2A1.execution_events.jsonl`.
+
+In `h004-clean`, `v_integrity_execution_streams` is expected to disclose exactly
+the missing stream for dispatch `DSP-20260804-H004R2A1`, run
+`RUN-20260804-H004R2A1`, at that path. In `h004-evidence-bearing`, the view may be
+clean only when the exact real stream is present and passes its existing
+integrity contract. This profile does not decide or authorize stream
+persistence, copying, regeneration, rerun, or canonical write.
+
+The locked `STRAT-SPEC-0007` row in
+`v_integrity_strategy_spec_legacy_hash_scope_reproducibility` is a known
+validation disclosure in both named H-004 contexts. It is not universally
+ignorable outside that exact view and context.
+
+### Known-state stop suppression
+
+A locked disclosure or expected environment condition may be recorded in a
+named validation profile. An exact match to the named expected state does not
+require a new human stop on every run. Any delta in count, identity, content,
+path, hash, file kind, tracking state, or semantics requires classification and
+the active package's normal stop handling.
+
+Profile entries are evidence and context, not authority. Vague labels such as
+`baseline` must not suppress new findings. The comparison baseline must be exact
+merged repo truth or the explicitly named validation context, never whichever
+local worktree is convenient.
 
 ## H-004 canonical execution actor identity
 

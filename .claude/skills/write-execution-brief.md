@@ -26,7 +26,7 @@ WP id:
 Title:
 Suggested branch:
 Effective base: main
-Package class: T1 / T2 / T3 / T4
+Package class: T0 / T1 / T2 / T3 / T4
 Execution mode:
 Expected PR title: (must begin with package label followed by `:`)
 ```
@@ -54,7 +54,9 @@ Explicit list:
 
 ### 6. Requirement Compatibility / Impossibility Check
 
-**Mandatory for dashboard, schema, validator, collector, renderer, and T3 packages. Recommended for all T2+ packages.**
+**Mandatory for material dashboard, schema, validator, collector, and renderer
+requirements and for protected T3/T4 packages where compatibility is material.
+Recommended for all T2+ packages with material semantic change.**
 
 Before implementation, verify each material behavior is compatible with current repo mechanisms and allowed changed-file scope:
 
@@ -73,12 +75,14 @@ Mandatory isolated-worktree setup. See `docs/ai/codex/WP_DRAFTING_STANDARD.md` �
 Five required fields (see `docs/ai/codex/COMPACT_WP_TEMPLATE.md`):
 
 ```text
-Read first:
-Read for this package:
-Read only if blocked:
-Do not read / do not touch:
-Search terms if paths changed:
+P0 — Read first:
+P0 — Read for this package:
+P1 — Read only if blocked:
+P2 — Do not read / do not touch:
+P1 — Search terms if paths changed:
 ```
+
+P0 is mandatory, P1 is conditional, and P2 is irrelevant or forbidden.
 
 ### 9. Scope
 
@@ -99,11 +103,21 @@ Package-specific edits only. Required wording, artifact fields, or doc sections.
 
 Exact commands and expected evidence, using the package-class validation profile:
 
-- T1 docs: `git diff --check`, registry validators, `diff_scope_summary.py`, no full pytest unless explicitly required.
-- T3 implementation: focused tests, adjacent subsystem tests, validators, integrity views, full pytest once final.
+- T0 docs/status/comments: scope and docs checks, including `git diff --check`;
+  no pytest by default.
+- T1 tests/read-only query additions/exact persistence/non-canonical research
+  automation: focused and adjacent tests plus relevant validators/integrity; no
+  full suite by default.
+- T2 schema/validator/contract/query-SQL/broad production code: focused,
+  adjacent, affected-contract, validator, and integrity evidence; full suite
+  only when blast radius or an active gate requires it.
+- T3 canonical crossing/protected writer/dispatch authorization and T4
+  runtime/paper-live/OMS/reconciliation/risk/capital: full protected rigor and
+  applicable exact-head/Karl gates.
 - See `docs/ai/codex/WP_DRAFTING_STANDARD.md` §10 for the full validation profile by class.
 
-Do not require baseline full pytest as a pre-flight gate for T1 docs packages unless the active package explicitly requires it.
+Do not require baseline full pytest as a pre-flight gate for T0 docs packages
+unless the active package explicitly requires it.
 
 ### 13. Stop / Escalation Conditions
 
@@ -164,7 +178,8 @@ State `None` or list exact user steps, timing, optional/required status, and rep
 3. Validation gates must produce a machine-readable pass/fail signal.
 4. File specs must be complete for code files: every public function, every dataclass field, every invariant.
 5. Stop conditions must be unambiguous.
-6. Compatibility/impossibility check must be present for T2+ packages.
+6. Compatibility/impossibility check must be present for material T2+ packages
+   and protected T3/T4 packages as specified above.
 7. Final PR readiness gate and contradiction scan must be included for follow-up packages.
 8. Active-WP Requirement Traceability must be included before ready-for-review.
 9. WP drafting must start from refreshed shared guidance, not memory or older packages.
@@ -178,6 +193,6 @@ State `None` or list exact user steps, timing, optional/required status, and rep
 - Gates that depend on external state not present in the validation environment.
 - Briefs that require the coding agent to read other documents to understand what to do.
 - Calling `prompts/execution_brief.md` canonical — it is a compatibility wrapper only.
-- Requiring baseline full pytest as mandatory preflight for T1 docs-only packages.
+- Requiring baseline full pytest as mandatory preflight for T0 docs-only packages.
 - Missing compatibility/impossibility check for schema, validator, or dashboard packages.
 - Missing contradiction scan for follow-up or blocker-resolution packages.

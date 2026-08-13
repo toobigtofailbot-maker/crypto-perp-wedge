@@ -4,7 +4,8 @@ Use this report-back structure for coding-agent execution packages (Claude Code 
 
 ## Default Compact Report-Back Shape
 
-Use the compact shape by default for clean T1 packages:
+Use the compact shape by default for clean T0 packages and clean low-semantic-risk
+T1 packages:
 
 ```text
 A. Scope
@@ -65,24 +66,30 @@ Expanded detail is required when any of the following apply:
 ## Tier-Aware Report-Back Expectations
 
 ```text
-T1 docs/guidance/design:
+T0 docs/status/comments:
 - Compact by default if clean.
-- Include exact changed files, validation commands and results, boundary check, PR/mergeability status.
+- Include exact changed files, T0 validation results, boundary check, and PR/mergeability status.
+- Full pytest is not run by default.
 - Do not paste full passing logs.
 
-T2 research artifacts/query/evidence:
-- Include artifact IDs, parent lineage, denominators, hashes where applicable.
-- Include validator, query, and integrity results.
-- Compact passing logs; expand failed evidence.
+T1 tests/read-only query additions/exact persistence/non-canonical research automation:
+- Compact by default when clean and low semantic risk.
+- Include focused and adjacent tests plus relevant validator/integrity results.
+- Include exact artifact identities, bytes, hashes, and lineage where applicable.
 
-T3 implementation/tooling/dashboard/schema/validator:
-- Include changed modules, tests, validators, integration or dry-run evidence where relevant.
-- Include adjacent subsystem checks and protected-path scan.
-- Compact passing logs; expand failures.
+T2 schema/validator/contract/query-SQL/broad production code:
+- Expand when material semantic risk requires it.
+- Include affected contracts, focused and adjacent tests, and relevant validator/integrity evidence.
+- Include broad/full-suite evidence only when required by blast radius or the active gate.
 
-T4 runtime/paper/live/OMS/risk/protected:
+T3 canonical crossing/execution writer/dispatch authorization/protected writers:
+- Use expanded reporting.
+- Include full protected evidence, exact-head review, and exact identities,
+  append-only integrity, and full-denominator accounting where applicable.
+
+T4 runtime/paper/live/OMS/reconciliation/risk/capital:
 - Do not use compact-only report-back unless the active WP explicitly authorizes it.
-- Include full safety and protected-boundary evidence required by the package.
+- Include maximum safety and protected-boundary evidence plus the Karl gate.
 ```
 
 ## PR Body Is Not a Mini-WP

@@ -30,12 +30,16 @@ Before drafting a WP, refresh `docs/ai/codex/WP_DRAFTING_STANDARD.md` and this f
 Every compact WP must include a `Context Budget / Files to Inspect` section with these required fields:
 
 ```text
-Read first:
-Read for this package:
-Read only if blocked:
-Do not read / do not touch:
-Search terms if paths changed:
+P0 — Read first:
+P0 — Read for this package:
+P1 — Read only if blocked:
+P2 — Do not read / do not touch:
+P1 — Search terms if paths changed:
 ```
+
+P0 is mandatory context, P1 is conditional context used when dependency or
+contradiction analysis requires it, and P2 is irrelevant or forbidden for the
+package.
 
 The Context Budget is package-specific. It may use file counts, line ranges, named sections, or search terms where useful, but it is not a global numeric cap and cannot override repo-truth inspection, validation, changed-file inspection, or stop-condition investigation.
 
@@ -114,8 +118,11 @@ Every compact WP must include:
 - Required wording, artifact fields, or doc sections.
 
 ## 9. Validation Requirements
-- Exact commands or validators.
-- Integrity views, registry validators, scoped pytest, and full pytest unless a repo-approved validation-tier document changes the requirement.
+- State the T0-T4 blast-radius tier from `docs/ai/codex/VALIDATION_POLICY.md`.
+- Name mandatory focused tests, adjacent tests, relevant validators/integrity
+  views, and whether broad/full-suite evidence is required and why.
+- Full suite only when the tier, blast radius, milestone/release boundary,
+  protected gate, or active package requires it.
 
 ## 10. Stop / Escalation Conditions
 - Dependency failures.
@@ -143,7 +150,7 @@ Before reporting ready-for-review, confirm:
 
 ## Requirement Compatibility / Impossibility Check
 
-**Mandatory for dashboard, schema, validator, collector, and renderer packages. Recommended for all T3 implementation packages.**
+**Mandatory for material dashboard, schema, validator, collector, and renderer requirements and for protected T3/T4 packages where compatibility is material. Recommended for all T2+ packages with material semantic change.**
 
 Before implementation, include a compatibility matrix in the compact WP:
 
@@ -220,7 +227,10 @@ Each WP must still state:
 
 ## Required validation block
 
-Compact WPs must not omit refreshed-main preflight, project-status open-PR conflict checks when `docs/project_status.md` is touched, changed-file scope checks, integrity views, registry validators, scoped pytest, or full pytest unless a future repo-approved validation-tier document explicitly changes the rule.
+Compact WPs must not omit refreshed-main preflight, project-status open-PR
+conflict checks when `docs/project_status.md` is touched, changed-file scope
+checks, or the focused, adjacent, validator, integrity, and broad/full-suite
+evidence required by the package's T0-T4 tier and active gate.
 
 Validation-output summaries are allowed only as reporting compression. They cannot replace command execution. `v_integrity_*: clean (N)` is allowed only when all discovered integrity views actually ran with JSON output and returned `[]`.
 
@@ -256,7 +266,11 @@ Every compact WP must require a report-back that states:
 
 ## Docs-only package notes
 
-Docs-only compact WPs may use concise implementation wording, but they still need exact changed-file scope, project-status conflict checks when status is touched, integrity views, registry validators where repo convention requires them, scoped pytest, and full pytest unless later repo truth changes validation tiers.
+T0 docs-only compact WPs may use concise implementation wording, but they still
+need exact changed-file scope, project-status conflict checks when status is
+touched, docs checks where supported, package-required targeted validators, and
+protected-boundary review. Pytest and unrelated registry/query integrity are not
+required by default.
 
 Docs-only packages do not create implementation, evidence, runtime, policy, approval, readiness, lifecycle, promotion/demotion, or downstream authority unless the active WP explicitly and validly says otherwise.
 
@@ -297,10 +311,10 @@ Compact prompts must not omit or weaken:
 - changed-file inspection;
 - allowed changed-file set;
 - forbidden runtime/protected boundaries;
-- integrity views;
-- registry validators;
-- scoped pytest;
-- full pytest unless a future repo-approved validation-tier document changes it;
+- focused and adjacent tests required by the tier;
+- relevant integrity views and registry validators required by the tier;
+- broad/full pytest when the tier, blast radius, milestone/release boundary,
+  protected gate, or active package requires it;
 - project-status overlap checks when status is touched;
 - package-specific dependencies;
 - package-specific stop triggers;

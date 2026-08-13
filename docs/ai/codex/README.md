@@ -43,41 +43,52 @@ This clarification does not change startup order, make any startup anchor option
 
 This router applies **after** required shared startup anchors (`AGENTS.md`, `CLAUDE_START_HERE.md`, `docs/runbook.md`, `docs/project_status.md`) and after the active WP instructions. It does not change those startup anchors, make any of them optional, or reduce repo-truth obligations, validation, changed-file inspection, or stop-condition investigation. It reduces wrong-file reading only.
 
-**T1 docs / guidance / design:**
+**T0 docs / status / comments only:**
 - Startup anchors.
 - Active WP.
 - Target docs and status files.
 - Relevant shared guidance.
 - Avoid code, artifacts, runtime, data, tests unless conflict/stop investigation requires it.
 
-**T2 research artifacts / query / evidence:**
+**T1 tests / read-only query additions / exact persistence / non-canonical research automation:**
 - Startup anchors.
 - Active WP.
-- Parent artifacts and schemas.
-- Validators and query/integrity surfaces.
-- Status fragments and project status.
-- Verify IDs, denominators, lineage, hashes, outcome counts, failed/skipped/not-attempted preservation.
+- Directly affected tests, read-only query surfaces, exact artifacts, or bounded
+  non-canonical automation.
+- Relevant adjacent tests, validators, and integrity views required by the
+  package.
+- For exact persistence, verify bytes, hashes, lineage, and non-authority.
 
-**T3 implementation / tooling / dashboard / schema / validator:**
+**T2 schema / validator / contract / query-SQL / broadly used production code:**
 - Startup anchors.
 - Active WP.
-- Changed modules and adjacent subsystem files.
-- Relevant schemas/validators/tests.
-- Focused tests first, then required broader validation.
+- Changed production, contract, schema, validator, and query modules.
+- Direct consumers and adjacent subsystem tests.
+- Relevant validators and integrity views.
+- Focused and adjacent validation before any broad suite required by blast
+  radius or an active gate.
 - No helper output replaces direct inspection.
 
-**T4 runtime / paper/live / OMS / risk / protected:**
+**T3 canonical crossing / execution writer / dispatch authorization / protected writers:**
+- Startup anchors and active WP.
+- Protected canonical, writer, and dispatch surfaces.
+- Exact protected identities, contracts, append-only/full-denominator posture,
+  and full protected validation evidence.
+- Exact-head review and the applicable human gate.
+
+**T4 runtime / paper/live / OMS / reconciliation / risk / capital:**
 - Stop unless the active WP explicitly authorizes the boundary.
-- Follow protected-path review and full validation posture.
+- Inspect only the explicitly authorized runtime/protected surfaces.
+- Follow maximum safety validation and the explicit Karl/protected gate.
 
 **Context Budget field model for future WPs:**
 
 ```text
-Read first:
-Read for this package:
-Read only if blocked:
-Do not read / do not touch:
-Search terms if paths changed:
+P0 — Read first:
+P0 — Read for this package:
+P1 — Read only if blocked:
+P2 — Do not read / do not touch:
+P1 — Search terms if paths changed:
 ```
 
 See `docs/ai/codex/COMPACT_WP_TEMPLATE.md` for the full Context Budget requirements.

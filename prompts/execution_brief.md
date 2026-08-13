@@ -57,12 +57,14 @@ Stop before implementation if any required behavior is not compatible under allo
 Five required fields:
 
 ```text
-Read first:
-Read for this package:
-Read only if blocked:
-Do not read / do not touch:
-Search terms if paths changed:
+P0 — Read first:
+P0 — Read for this package:
+P1 — Read only if blocked:
+P2 — Do not read / do not touch:
+P1 — Search terms if paths changed:
 ```
+
+P0 is mandatory, P1 is conditional, and P2 is irrelevant or forbidden.
 
 ### 9. Scope
 
@@ -80,9 +82,14 @@ Search terms if paths changed:
 ### 12. Validation Requirements
 
 - Exact commands or validators.
-- For T1 docs packages, use the T1 validation profile from `docs/ai/codex/WP_DRAFTING_STANDARD.md` §10.
-- For T3 implementation packages, follow the T3 profile: focused tests, adjacent subsystem tests, validators, integrity checks, full pytest once final.
-- Full pytest is not required for T1 docs-only packages unless explicitly required.
+- T0 docs/process: T0 scope/docs checks; no pytest by default.
+- T1: focused and adjacent tests plus relevant validators/integrity; no full
+  suite by default.
+- T2: affected-contract, focused, adjacent, validator, and integrity evidence;
+  full suite only when blast radius or the active package gate requires it.
+- T3/T4: full protected rigor and applicable exact-head/human gates.
+- Use `docs/ai/codex/VALIDATION_POLICY.md` and
+  `docs/ai/codex/WP_DRAFTING_STANDARD.md` §10 for the authoritative details.
 
 ### 13. Stop / Escalation Conditions
 

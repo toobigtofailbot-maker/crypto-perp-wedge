@@ -1,47 +1,107 @@
 # Validation Policy
 
-This document records repo-local validation tiers for coding-agent work. It is
-workflow guidance only; active work packages and current repo truth still win.
+This document records the repo-local validation tiers for coding-agent work. It
+is workflow guidance only; current merged repo truth and the active work package
+still win. Main, Karl, or an active package may always require stronger
+validation. A lower tier never weakens an explicit protected, canonical,
+milestone, release, or exact-head requirement.
 
-## Docs-only packages
+## T0-T4 validation tiers by blast radius
 
-Docs-only packages do not run full pytest by default. A docs-only package is one
-whose committed diff is limited to documentation or status fragments and does not
-change schemas, validators, query-layer behavior, tooling code, tests, research
-artifacts, result populations, data, runner/backtester behavior, runtime, paper
-or live trading paths, OMS, reconciliation, risk, broker/exchange, credentials,
-or capital controls.
+Classify the changed semantics and their blast radius, not merely the number of
+files. If a package crosses tiers, use the highest applicable tier.
 
-Default docs-only validation should include:
+| Tier | Typical changed surface | Required validation posture |
+| --- | --- | --- |
+| T0 | Documentation, status, or comments only | Scope, changed-file, docs render/lint/link checks where supported, and `git diff --check`; no pytest by default. |
+| T1 | Tests only; read-only query additions that do not change production query semantics; exact-artifact persistence; non-canonical research automation | Mandatory focused and adjacent blast-radius tests plus relevant validators and integrity views; no full suite by default. |
+| T2 | Schema, validator, contract, query-SQL, or broadly used production-code changes | Focused and adjacent tests, every affected contract suite, and relevant validators/integrity views; full suite when the dependency graph or blast radius is broad enough to require it. |
+| T3 | Canonical crossing logic, execution writers, dispatch authorization, or other protected writers | Full rigor, full-release/full-suite evidence, and exact-head review. |
+| T4 | Runtime, OMS, reconciliation, risk, capital, or paper/live paths | Maximum rigor, Karl gate, and preservation of every protected control. |
 
-- `git diff --check`
-- `git diff --cached --check`
-- `git status --short`
-- changed-file and scope inspection
-- `python tools/dev/diff_scope_summary.py --check-forbidden`
-- docs-specific checks if a package names them
-- targeted validators only when the docs diff changes artifact indexes,
-  references, examples, or validation-relevant generated text
+T0 applies only when the committed diff is limited to documentation, status, or
+comments and changes no schema, validator, query-layer behavior, tooling code,
+test, research artifact, result population, data, runner/backtester behavior,
+runtime, paper/live trading path, OMS, reconciliation, risk, broker/exchange,
+credential, or capital control. Report skipped full pytest as:
 
-Full pytest remains available for docs-only packages, but it is not required by
-default and is not implied by `tools/dev/verify.py --validation-preset docs-only`.
+```text
+full pytest: NOT RUN - T0 docs/process policy; not used as merge evidence
+```
 
-Report wording must distinguish policy decisions from failures:
+Do not report a timeout as a policy skip. Use:
 
-- `full pytest: NOT RUN - docs-only policy; not used as merge evidence`
-- `full pytest: TIMED OUT after <seconds>; not a pass`
+```text
+full pytest: TIMED OUT after <seconds>; not a pass
+```
 
-## Implementation packages
+## Blast-radius test selection
 
-Implementation, schema, validator, query-layer, compiler, runner, dashboard, or
-test-support packages must follow the active work package validation commands.
-Use focused tests first, adjacent subsystem tests second, validators and
-integrity checks where relevant, then full pytest or sharded full pytest when the
-active package requires full-suite evidence.
+Every work package must name:
 
-`tools/dev/verify.py --full-pytest-sharded --pytest-shards N` may be used as
-full-suite evidence only when all required shards pass. A failed or timed-out
-shard fails the overall verification.
+- mandatory focused tests;
+- adjacent subsystem tests;
+- relevant validators and integrity views;
+- whether full-suite evidence is required and why.
+
+The selection must follow affected semantics and direct consumers, including
+append-only growth. Tests over append-only registries, ledgers, streams, or
+artifact corpora should assert dynamic membership, uniqueness, denominators,
+ordering, and preserved historical identities where those are the contract.
+They should not require a valid future append to extend a brittle snapshot of
+the entire corpus unless the snapshot itself is the authorized contract.
+
+Any future dependency-map or blast-radius selector is separate T1 tooling work.
+This policy does not implement one.
+
+## Readiness before broad validation
+
+Use this order:
+
+1. Confirm the exact branch, base, and worktree.
+2. Confirm the named validation profile and environment prerequisites.
+3. Record known baseline disclosures.
+4. Prove the changed-file and scope allowlist.
+5. Run focused tests.
+6. Run adjacent tests.
+7. Run relevant validators and integrity views.
+8. Run a broad/full suite only when the tier or active package requires it.
+9. Complete the final rebase and exact-head evidence.
+
+Never start a long full suite merely to discover a missing known gitignored
+dataset or an already-recorded baseline disclosure. A focused failure returns
+to focused correction. After a small correction, rerun broad validation only
+when that correction invalidates the prior broad evidence.
+
+## Reusable validation evidence
+
+A reusable broad-validation record must identify:
+
+- exact base and head;
+- changed surface covered;
+- test and validator profile;
+- environment and validation profile;
+- known disclosures;
+- result and duration.
+
+A subsequent package may cite that evidence only after proving that its changed
+files and semantics are outside the reused evidence's invalidated blast radius,
+and after running the focused and adjacent delta required for its own change.
+Full-suite evidence is therefore not automatically invalidated by every later
+file-disjoint, low-blast-radius package. Reuse is evidence, not authority, and
+does not waive a tier, milestone, release, protected, or package-specific gate.
+
+Non-normative example: broad query-semantic evidence from PR #695 supported the
+focused exact-artifact-persistence delta in PR #694 because the later package
+proved its bounded delta; that sequence does not create a general exemption.
+
+## Full-release evidence
+
+Full pytest and the full-release profile are integration and
+protected-boundary tools, not the routine inner loop. When a package requires
+full-suite evidence, `tools/dev/verify.py --full-pytest-sharded --pytest-shards
+N` may be used only when all required shards pass. A failed or timed-out shard
+fails the overall verification.
 
 The repo-owned `full-release-balanced-v1` profile is the bounded default for
 release-gated full-suite evidence when a package requires sharding:
@@ -71,8 +131,15 @@ cannot be combined with `--pytest-shards`; ambiguous combinations are rejected.
 `--pytest-shard-index` remains available for deterministic diagnostics, but a
 selected-shard run is not complete full-suite evidence.
 
-## Non-exemptions
+## Protected-core invariants
 
-The docs-only policy is not an exemption from semantic review, changed-file
+Acceleration is faster where protected-level cost is unnecessary and unchanged
+where protected controls require it. No tier, profile, or reused evidence may
+weaken exact-content canonical crossings, irreversible-execution authorization,
+full-denominator accounting, append-only integrity, protected writers, human
+promotion gates, runtime, paper/live, OMS, reconciliation, hard risk, capital,
+or exact-head review where T3/T4 requires it.
+
+The tier model is not an exemption from semantic review, direct changed-file
 inspection, forbidden-scope checks, protected-boundary review, validators named
-by the package, or any active work package requirement.
+by the package, or any active work-package requirement.

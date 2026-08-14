@@ -113,6 +113,8 @@ class ProviderResponse:
     status: str
     response_source: str
     payload: Mapping[str, Any] | None
+    run_metadata: Mapping[str, Any] | None = None
+    provenance: Mapping[str, Any] | None = None
 
 
 @dataclass(frozen=True)

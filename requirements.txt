@@ -2,6 +2,7 @@
 pyarrow
 duckdb
 polars
+pydantic-ai-slim
 
 binance-futures-connector
 fastapi

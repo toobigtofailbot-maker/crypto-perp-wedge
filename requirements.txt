@@ -3,6 +3,7 @@ pyarrow
 duckdb
 polars
 pydantic-ai-slim
+psycopg[binary]==3.3.4
 
 binance-futures-connector
 fastapi

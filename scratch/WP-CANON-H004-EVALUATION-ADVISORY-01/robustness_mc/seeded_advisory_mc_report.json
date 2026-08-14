@@ -1,0 +1,1127 @@
+{
+  "bootstrap_ci": {
+    "drawdown": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 0.7875492492901403,
+      "ci_lower": 0.755796531046143,
+      "ci_upper": 0.820938024351035,
+      "confidence_level": 0.95,
+      "metric": "drawdown",
+      "observed_mean": 0.787851493868377,
+      "row_count": 81,
+      "sample_count": 1000
+    },
+    "exposure": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 1.0,
+      "ci_lower": 1.0,
+      "ci_upper": 1.0,
+      "confidence_level": 0.95,
+      "metric": "exposure",
+      "observed_mean": 1.0,
+      "row_count": 81,
+      "sample_count": 1000
+    },
+    "fees": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 3508.206273211823,
+      "ci_lower": 2979.5496814141566,
+      "ci_upper": 4045.3149202817176,
+      "confidence_level": 0.95,
+      "metric": "fees",
+      "observed_mean": 3510.123016706466,
+      "row_count": 81,
+      "sample_count": 1000
+    },
+    "funding": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 12960.17543651805,
+      "ci_lower": 11766.681611884522,
+      "ci_upper": 14162.023911522085,
+      "confidence_level": 0.95,
+      "metric": "funding",
+      "observed_mean": 12960.08287255466,
+      "row_count": 81,
+      "sample_count": 1000
+    },
+    "pnl": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 42986.69433775243,
+      "ci_lower": 34892.1209329424,
+      "ci_upper": 51282.61245385194,
+      "confidence_level": 0.95,
+      "metric": "pnl",
+      "observed_mean": 43036.80346834689,
+      "row_count": 81,
+      "sample_count": 1000
+    },
+    "return_pct": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 4.307558677976175,
+      "ci_lower": 3.4787575939577016,
+      "ci_upper": 5.125361475213646,
+      "confidence_level": 0.95,
+      "metric": "return_pct",
+      "observed_mean": 4.303680346834686,
+      "row_count": 81,
+      "sample_count": 1000
+    },
+    "sharpe": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 0.369058814297004,
+      "ci_lower": 0.23156430099939462,
+      "ci_upper": 0.5119911451805494,
+      "confidence_level": 0.95,
+      "metric": "sharpe",
+      "observed_mean": 0.3715442667932788,
+      "row_count": 81,
+      "sample_count": 1000
+    },
+    "slippage": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 879.1569567342891,
+      "ci_lower": 751.043353782507,
+      "ci_upper": 1007.5233910308621,
+      "confidence_level": 0.95,
+      "metric": "slippage",
+      "observed_mean": 877.5307541766165,
+      "row_count": 81,
+      "sample_count": 1000
+    },
+    "trade_count": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 60.268987654320966,
+      "ci_lower": 51.690123456790126,
+      "ci_upper": 68.23641975308642,
+      "confidence_level": 0.95,
+      "metric": "trade_count",
+      "observed_mean": 60.333333333333336,
+      "row_count": 81,
+      "sample_count": 1000
+    },
+    "win_rate": {
+      "authority": "advisory_only_not_gate_not_ranking",
+      "bootstrap_mean": 0.3157891404405074,
+      "ci_lower": 0.31278678724416015,
+      "ci_upper": 0.3189068296866663,
+      "confidence_level": 0.95,
+      "metric": "win_rate",
+      "observed_mean": 0.31579766779577695,
+      "row_count": 81,
+      "sample_count": 1000
+    }
+  },
+  "bootstrap_sample_count": 1000,
+  "bootstrap_samples_checksum": "sha256:d5468e223b4e3e1e0fdaf535c4a8bf14893a5c4b0fff3761cc71000f7a997ab9",
+  "boundary_statement": {
+    "candidate_evidence_authority_created": false,
+    "canonical_result_population_write": false,
+    "fabricated_per_trade_data": false,
+    "promotion_readiness_authority_created": false,
+    "runner_backtester_touched": false,
+    "runtime_paper_live_touched": false,
+    "screen_gate_authority_created": false,
+    "strategy_spec_vm_sweep_write": false
+  },
+  "confidence_level": 0.95,
+  "decision_label": "ADOPT_AS_ROBUSTNESS_LAYER",
+  "fixture": {
+    "checksum": "sha256:ff1104cebcb2775f3f64d2e5bec72b3aaaeeb4187740978e79a26a4819ee2308",
+    "data_slice_identity": "binance_usdtm_btcusdt_ohlcv_1d:identity_sha256:05ce3d5fdb5186ae36f612e2c51393eaecb110a66b0c3506e5583f3acedd443f",
+    "path": "research/result_populations/RP-0007.result_population.json",
+    "result_population_id": "RP-0007",
+    "row_count": 81,
+    "row_filter": "attempted_true_and_outcome_category_successful",
+    "source_fields_used": [
+      "variant_result_rows[].variant_id",
+      "variant_result_rows[].metrics.return_pct",
+      "variant_result_rows[].metrics.pnl",
+      "variant_result_rows[].metrics.drawdown",
+      "variant_result_rows[].metrics.sharpe",
+      "variant_result_rows[].metrics.trade_count",
+      "variant_result_rows[].metrics.win_rate",
+      "variant_result_rows[].metrics.fees",
+      "variant_result_rows[].metrics.funding",
+      "variant_result_rows[].metrics.slippage",
+      "variant_result_rows[].metrics.exposure"
+    ],
+    "strategy_spec_id": "STRAT-SPEC-0007",
+    "sweep_plan_id": "SWEEP-PLAN-0007",
+    "timeframe": "1d",
+    "variant_manifest_id": "VM-0007"
+  },
+  "fixture_validation": {
+    "input_checksum": "sha256:ff1104cebcb2775f3f64d2e5bec72b3aaaeeb4187740978e79a26a4819ee2308",
+    "input_path": "research/result_populations/RP-0007.result_population.json",
+    "result_population_id": "RP-0007",
+    "row_count": 81,
+    "status": "passed",
+    "validation_scope": "advisory_fixture_shape_only",
+    "warnings": []
+  },
+  "labels": [
+    "ADVISORY ROBUSTNESS / SEEDED MONTE CARLO OUTPUT",
+    "NON-CANONICAL REPORT",
+    "NOT A RESULT POPULATION",
+    "NOT SCREEN-GATE AUTHORITY",
+    "NOT STRATEGY / VM / SWEEP AUTHORITY",
+    "NOT CANDIDATE EVIDENCE AUTHORITY",
+    "NOT PROMOTION / READINESS AUTHORITY",
+    "NOT PAPER / LIVE / RUNTIME AUTHORITY",
+    "PER-TRADE MONTE CARLO USES ONLY REAL PER-TRADE DATA IF AVAILABLE",
+    "MISSING PER-TRADE DATA MUST BE REPORTED, NOT FABRICATED"
+  ],
+  "metrics_skipped": [],
+  "metrics_used": [
+    "drawdown",
+    "exposure",
+    "fees",
+    "funding",
+    "pnl",
+    "return_pct",
+    "sharpe",
+    "slippage",
+    "trade_count",
+    "win_rate"
+  ],
+  "missing_data_notes": [
+    "Only finite numeric values from existing Result Population row metrics are bootstrapped.",
+    "Per-trade rows are not present in committed Result Populations and were not fabricated.",
+    "The report is advisory and non-canonical; it is not a screen gate or promotion input by itself."
+  ],
+  "output_checksum": "sha256:e9d9547235a1a901b501df441b10a408ec4ce05c2c7189065b0015a21da92341",
+  "package_id": "EXT-INTEG-ROBUSTNESS-MC-01",
+  "parameter_sensitivity": {
+    "authority": "advisory_only_not_ranking_not_gate",
+    "parameter_count": 4,
+    "parameters": [
+      {
+        "parameter_name": "atr_multiplier",
+        "value_count": 3,
+        "values": [
+          {
+            "metrics": {
+              "drawdown": {
+                "count": 27,
+                "mean": 0.7878514938683767
+              },
+              "exposure": {
+                "count": 27,
+                "mean": 1.0
+              },
+              "fees": {
+                "count": 27,
+                "mean": 3510.1230167064696
+              },
+              "funding": {
+                "count": 27,
+                "mean": 12960.082872554663
+              },
+              "pnl": {
+                "count": 27,
+                "mean": 43036.80346834687
+              },
+              "return_pct": {
+                "count": 27,
+                "mean": 4.303680346834687
+              },
+              "sharpe": {
+                "count": 27,
+                "mean": 0.3715442667932784
+              },
+              "slippage": {
+                "count": 27,
+                "mean": 877.5307541766174
+              },
+              "trade_count": {
+                "count": 27,
+                "mean": 60.333333333333336
+              },
+              "win_rate": {
+                "count": 27,
+                "mean": 0.31579766779577734
+              }
+            },
+            "parameter_value": "2.0",
+            "variant_ids": [
+              "VAR-000001",
+              "VAR-000002",
+              "VAR-000003",
+              "VAR-000010",
+              "VAR-000011",
+              "VAR-000012",
+              "VAR-000019",
+              "VAR-000020",
+              "VAR-000021",
+              "VAR-000028",
+              "VAR-000029",
+              "VAR-000030",
+              "VAR-000037",
+              "VAR-000038",
+              "VAR-000039",
+              "VAR-000046",
+              "VAR-000047",
+              "VAR-000048",
+              "VAR-000055",
+              "VAR-000056",
+              "VAR-000057",
+              "VAR-000064",
+              "VAR-000065",
+              "VAR-000066",
+              "VAR-000073",
+              "VAR-000074",
+              "VAR-000075"
+            ]
+          },
+          {
+            "metrics": {
+              "drawdown": {
+                "count": 27,
+                "mean": 0.7878514938683767
+              },
+              "exposure": {
+                "count": 27,
+                "mean": 1.0
+              },
+              "fees": {
+                "count": 27,
+                "mean": 3510.1230167064696
+              },
+              "funding": {
+                "count": 27,
+                "mean": 12960.082872554663
+              },
+              "pnl": {
+                "count": 27,
+                "mean": 43036.80346834687
+              },
+              "return_pct": {
+                "count": 27,
+                "mean": 4.303680346834687
+              },
+              "sharpe": {
+                "count": 27,
+                "mean": 0.3715442667932784
+              },
+              "slippage": {
+                "count": 27,
+                "mean": 877.5307541766174
+              },
+              "trade_count": {
+                "count": 27,
+                "mean": 60.333333333333336
+              },
+              "win_rate": {
+                "count": 27,
+                "mean": 0.31579766779577734
+              }
+            },
+            "parameter_value": "2.5",
+            "variant_ids": [
+              "VAR-000004",
+              "VAR-000005",
+              "VAR-000006",
+              "VAR-000013",
+              "VAR-000014",
+              "VAR-000015",
+              "VAR-000022",
+              "VAR-000023",
+              "VAR-000024",
+              "VAR-000031",
+              "VAR-000032",
+              "VAR-000033",
+              "VAR-000040",
+              "VAR-000041",
+              "VAR-000042",
+              "VAR-000049",
+              "VAR-000050",
+              "VAR-000051",
+              "VAR-000058",
+              "VAR-000059",
+              "VAR-000060",
+              "VAR-000067",
+              "VAR-000068",
+              "VAR-000069",
+              "VAR-000076",
+              "VAR-000077",
+              "VAR-000078"
+            ]
+          },
+          {
+            "metrics": {
+              "drawdown": {
+                "count": 27,
+                "mean": 0.7878514938683767
+              },
+              "exposure": {
+                "count": 27,
+                "mean": 1.0
+              },
+              "fees": {
+                "count": 27,
+                "mean": 3510.1230167064696
+              },
+              "funding": {
+                "count": 27,
+                "mean": 12960.082872554663
+              },
+              "pnl": {
+                "count": 27,
+                "mean": 43036.80346834687
+              },
+              "return_pct": {
+                "count": 27,
+                "mean": 4.303680346834687
+              },
+              "sharpe": {
+                "count": 27,
+                "mean": 0.3715442667932784
+              },
+              "slippage": {
+                "count": 27,
+                "mean": 877.5307541766174
+              },
+              "trade_count": {
+                "count": 27,
+                "mean": 60.333333333333336
+              },
+              "win_rate": {
+                "count": 27,
+                "mean": 0.31579766779577734
+              }
+            },
+            "parameter_value": "3.0",
+            "variant_ids": [
+              "VAR-000007",
+              "VAR-000008",
+              "VAR-000009",
+              "VAR-000016",
+              "VAR-000017",
+              "VAR-000018",
+              "VAR-000025",
+              "VAR-000026",
+              "VAR-000027",
+              "VAR-000034",
+              "VAR-000035",
+              "VAR-000036",
+              "VAR-000043",
+              "VAR-000044",
+              "VAR-000045",
+              "VAR-000052",
+              "VAR-000053",
+              "VAR-000054",
+              "VAR-000061",
+              "VAR-000062",
+              "VAR-000063",
+              "VAR-000070",
+              "VAR-000071",
+              "VAR-000072",
+              "VAR-000079",
+              "VAR-000080",
+              "VAR-000081"
+            ]
+          }
+        ]
+      },
+      {
+        "parameter_name": "max_holding_bars",
+        "value_count": 3,
+        "values": [
+          {
+            "metrics": {
+              "drawdown": {
+                "count": 27,
+                "mean": 0.7825346626915217
+              },
+              "exposure": {
+                "count": 27,
+                "mean": 1.0
+              },
+              "fees": {
+                "count": 27,
+                "mean": 3508.6434817039253
+              },
+              "funding": {
+                "count": 27,
+                "mean": 12299.52959850869
+              },
+              "pnl": {
+                "count": 27,
+                "mean": 40960.52048216089
+              },
+              "return_pct": {
+                "count": 27,
+                "mean": 4.096052048216089
+              },
+              "sharpe": {
+                "count": 27,
+                "mean": 0.3708183444466623
+              },
+              "slippage": {
+                "count": 27,
+                "mean": 877.1608704259813
+              },
+              "trade_count": {
+                "count": 27,
+                "mean": 60.333333333333336
+              },
+              "win_rate": {
+                "count": 27,
+                "mean": 0.31579766779577734
+              }
+            },
+            "parameter_value": "30",
+            "variant_ids": [
+              "VAR-000001",
+              "VAR-000004",
+              "VAR-000007",
+              "VAR-000010",
+              "VAR-000013",
+              "VAR-000016",
+              "VAR-000019",
+              "VAR-000022",
+              "VAR-000025",
+              "VAR-000028",
+              "VAR-000031",
+              "VAR-000034",
+              "VAR-000037",
+              "VAR-000040",
+              "VAR-000043",
+              "VAR-000046",
+              "VAR-000049",
+              "VAR-000052",
+              "VAR-000055",
+              "VAR-000058",
+              "VAR-000061",
+              "VAR-000064",
+              "VAR-000067",
+              "VAR-000070",
+              "VAR-000073",
+              "VAR-000076",
+              "VAR-000079"
+            ]
+          },
+          {
+            "metrics": {
+              "drawdown": {
+                "count": 27,
+                "mean": 0.7923672112173306
+              },
+              "exposure": {
+                "count": 27,
+                "mean": 1.0
+              },
+              "fees": {
+                "count": 27,
+                "mean": 3511.364780425338
+              },
+              "funding": {
+                "count": 27,
+                "mean": 13226.363180992495
+              },
+              "pnl": {
+                "count": 27,
+                "mean": 45393.304338741444
+              },
+              "return_pct": {
+                "count": 27,
+                "mean": 4.539330433874143
+              },
+              "sharpe": {
+                "count": 27,
+                "mean": 0.37650430865139484
+              },
+              "slippage": {
+                "count": 27,
+                "mean": 877.8411951063345
+              },
+              "trade_count": {
+                "count": 27,
+                "mean": 60.333333333333336
+              },
+              "win_rate": {
+                "count": 27,
+                "mean": 0.31579766779577734
+              }
+            },
+            "parameter_value": "45",
+            "variant_ids": [
+              "VAR-000002",
+              "VAR-000005",
+              "VAR-000008",
+              "VAR-000011",
+              "VAR-000014",
+              "VAR-000017",
+              "VAR-000020",
+              "VAR-000023",
+              "VAR-000026",
+              "VAR-000029",
+              "VAR-000032",
+              "VAR-000035",
+              "VAR-000038",
+              "VAR-000041",
+              "VAR-000044",
+              "VAR-000047",
+              "VAR-000050",
+              "VAR-000053",
+              "VAR-000056",
+              "VAR-000059",
+              "VAR-000062",
+              "VAR-000065",
+              "VAR-000068",
+              "VAR-000071",
+              "VAR-000074",
+              "VAR-000077",
+              "VAR-000080"
+            ]
+          },
+          {
+            "metrics": {
+              "drawdown": {
+                "count": 27,
+                "mean": 0.7886526076962783
+              },
+              "exposure": {
+                "count": 27,
+                "mean": 1.0
+              },
+              "fees": {
+                "count": 27,
+                "mean": 3510.3607879901474
+              },
+              "funding": {
+                "count": 27,
+                "mean": 13354.355838162803
+              },
+              "pnl": {
+                "count": 27,
+                "mean": 42756.58558413829
+              },
+              "return_pct": {
+                "count": 27,
+                "mean": 4.275658558413828
+              },
+              "sharpe": {
+                "count": 27,
+                "mean": 0.3673101472817781
+              },
+              "slippage": {
+                "count": 27,
+                "mean": 877.5901969975369
+              },
+              "trade_count": {
+                "count": 27,
+                "mean": 60.333333333333336
+              },
+              "win_rate": {
+                "count": 27,
+                "mean": 0.31579766779577734
+              }
+            },
+            "parameter_value": "60",
+            "variant_ids": [
+              "VAR-000003",
+              "VAR-000006",
+              "VAR-000009",
+              "VAR-000012",
+              "VAR-000015",
+              "VAR-000018",
+              "VAR-000021",
+              "VAR-000024",
+              "VAR-000027",
+              "VAR-000030",
+              "VAR-000033",
+              "VAR-000036",
+              "VAR-000039",
+              "VAR-000042",
+              "VAR-000045",
+              "VAR-000048",
+              "VAR-000051",
+              "VAR-000054",
+              "VAR-000057",
+              "VAR-000060",
+              "VAR-000063",
+              "VAR-000066",
+              "VAR-000069",
+              "VAR-000072",
+              "VAR-000075",
+              "VAR-000078",
+              "VAR-000081"
+            ]
+          }
+        ]
+      },
+      {
+        "parameter_name": "pullback_ema_bars",
+        "value_count": 3,
+        "values": [
+          {
+            "metrics": {
+              "drawdown": {
+                "count": 27,
+                "mean": 0.6887559869802227
+              },
+              "exposure": {
+                "count": 27,
+                "mean": 1.0
+              },
+              "fees": {
+                "count": 27,
+                "mean": 5861.953111720954
+              },
+              "funding": {
+                "count": 27,
+                "mean": 13296.34839133482
+              },
+              "pnl": {
+                "count": 27,
+                "mean": 62774.29601997452
+              },
+              "return_pct": {
+                "count": 27,
+                "mean": 6.277429601997448
+              },
+              "sharpe": {
+                "count": 27,
+                "mean": 0.8119631846373091
+              },
+              "slippage": {
+                "count": 27,
+                "mean": 1465.4882779302386
+              },
+              "trade_count": {
+                "count": 27,
+                "mean": 98.33333333333333
+              },
+              "win_rate": {
+                "count": 27,
+                "mean": 0.31536865026708844
+              }
+            },
+            "parameter_value": "10",
+            "variant_ids": [
+              "VAR-000001",
+              "VAR-000002",
+              "VAR-000003",
+              "VAR-000004",
+              "VAR-000005",
+              "VAR-000006",
+              "VAR-000007",
+              "VAR-000008",
+              "VAR-000009",
+              "VAR-000010",
+              "VAR-000011",
+              "VAR-000012",
+              "VAR-000013",
+              "VAR-000014",
+              "VAR-000015",
+              "VAR-000016",
+              "VAR-000017",
+              "VAR-000018",
+              "VAR-000019",
+              "VAR-000020",
+              "VAR-000021",
+              "VAR-000022",
+              "VAR-000023",
+              "VAR-000024",
+              "VAR-000025",
+              "VAR-000026",
+              "VAR-000027"
+            ]
+          },
+          {
+            "metrics": {
+              "drawdown": {
+                "count": 27,
+                "mean": 0.674798494624908
+              },
+              "exposure": {
+                "count": 27,
+                "mean": 1.0
+              },
+              "fees": {
+                "count": 27,
+                "mean": 4372.247454016986
+              },
+              "funding": {
+                "count": 27,
+                "mean": 19493.848198894248
+              },
+              "pnl": {
+                "count": 27,
+                "mean": 76336.1143850661
+              },
+              "return_pct": {
+                "count": 27,
+                "mean": 7.63361143850661
+              },
+              "sharpe": {
+                "count": 27,
+                "mean": 0.8878956571918122
+              },
+              "slippage": {
+                "count": 27,
+                "mean": 1093.0618635042465
+              },
+              "trade_count": {
+                "count": 27,
+                "mean": 73.66666666666667
+              },
+              "win_rate": {
+                "count": 27,
+                "mean": 0.2986910197869104
+              }
+            },
+            "parameter_value": "20",
+            "variant_ids": [
+              "VAR-000028",
+              "VAR-000029",
+              "VAR-000030",
+              "VAR-000031",
+              "VAR-000032",
+              "VAR-000033",
+              "VAR-000034",
+              "VAR-000035",
+              "VAR-000036",
+              "VAR-000037",
+              "VAR-000038",
+              "VAR-000039",
+              "VAR-000040",
+              "VAR-000041",
+              "VAR-000042",
+              "VAR-000043",
+              "VAR-000044",
+              "VAR-000045",
+              "VAR-000046",
+              "VAR-000047",
+              "VAR-000048",
+              "VAR-000049",
+              "VAR-000050",
+              "VAR-000051",
+              "VAR-000052",
+              "VAR-000053",
+              "VAR-000054"
+            ]
+          },
+          {
+            "metrics": {
+              "drawdown": {
+                "count": 27,
+                "mean": 1.0
+              },
+              "exposure": {
+                "count": 27,
+                "mean": 1.0
+              },
+              "fees": {
+                "count": 27,
+                "mean": 296.1684843814694
+              },
+              "funding": {
+                "count": 27,
+                "mean": 6090.052027434903
+              },
+              "pnl": {
+                "count": 27,
+                "mean": -10000.0
+              },
+              "return_pct": {
+                "count": 27,
+                "mean": -1.0
+              },
+              "sharpe": {
+                "count": 27,
+                "mean": -0.5852260414492854
+              },
+              "slippage": {
+                "count": 27,
+                "mean": 74.04212109536735
+              },
+              "trade_count": {
+                "count": 27,
+                "mean": 9.0
+              },
+              "win_rate": {
+                "count": 27,
+                "mean": 0.33333333333333326
+              }
+            },
+            "parameter_value": "30",
+            "variant_ids": [
+              "VAR-000055",
+              "VAR-000056",
+              "VAR-000057",
+              "VAR-000058",
+              "VAR-000059",
+              "VAR-000060",
+              "VAR-000061",
+              "VAR-000062",
+              "VAR-000063",
+              "VAR-000064",
+              "VAR-000065",
+              "VAR-000066",
+              "VAR-000067",
+              "VAR-000068",
+              "VAR-000069",
+              "VAR-000070",
+              "VAR-000071",
+              "VAR-000072",
+              "VAR-000073",
+              "VAR-000074",
+              "VAR-000075",
+              "VAR-000076",
+              "VAR-000077",
+              "VAR-000078",
+              "VAR-000079",
+              "VAR-000080",
+              "VAR-000081"
+            ]
+          }
+        ]
+      },
+      {
+        "parameter_name": "trend_fast_ema_bars",
+        "value_count": 3,
+        "values": [
+          {
+            "metrics": {
+              "drawdown": {
+                "count": 27,
+                "mean": 0.7675200185437776
+              },
+              "exposure": {
+                "count": 27,
+                "mean": 1.0
+              },
+              "fees": {
+                "count": 27,
+                "mean": 3567.226981833051
+              },
+              "funding": {
+                "count": 27,
+                "mean": 12933.456836247877
+              },
+              "pnl": {
+                "count": 27,
+                "mean": 40339.16731542434
+              },
+              "return_pct": {
+                "count": 27,
+                "mean": 4.033916731542434
+              },
+              "sharpe": {
+                "count": 27,
+                "mean": 0.36204170021529086
+              },
+              "slippage": {
+                "count": 27,
+                "mean": 891.8067454582628
+              },
+              "trade_count": {
+                "count": 27,
+                "mean": 61.666666666666664
+              },
+              "win_rate": {
+                "count": 27,
+                "mean": 0.31119911991199106
+              }
+            },
+            "parameter_value": "40",
+            "variant_ids": [
+              "VAR-000001",
+              "VAR-000002",
+              "VAR-000003",
+              "VAR-000004",
+              "VAR-000005",
+              "VAR-000006",
+              "VAR-000007",
+              "VAR-000008",
+              "VAR-000009",
+              "VAR-000028",
+              "VAR-000029",
+              "VAR-000030",
+              "VAR-000031",
+              "VAR-000032",
+              "VAR-000033",
+              "VAR-000034",
+              "VAR-000035",
+              "VAR-000036",
+              "VAR-000055",
+              "VAR-000056",
+              "VAR-000057",
+              "VAR-000058",
+              "VAR-000059",
+              "VAR-000060",
+              "VAR-000061",
+              "VAR-000062",
+              "VAR-000063"
+            ]
+          },
+          {
+            "metrics": {
+              "drawdown": {
+                "count": 27,
+                "mean": 0.7980172315306765
+              },
+              "exposure": {
+                "count": 27,
+                "mean": 1.0
+              },
+              "fees": {
+                "count": 27,
+                "mean": 3483.9507888664316
+              },
+              "funding": {
+                "count": 27,
+                "mean": 12947.72310728383
+              },
+              "pnl": {
+                "count": 27,
+                "mean": 45193.50473758799
+              },
+              "return_pct": {
+                "count": 27,
+                "mean": 4.519350473758796
+              },
+              "sharpe": {
+                "count": 27,
+                "mean": 0.3806986865749703
+              },
+              "slippage": {
+                "count": 27,
+                "mean": 870.9876972166079
+              },
+              "trade_count": {
+                "count": 27,
+                "mean": 59.666666666666664
+              },
+              "win_rate": {
+                "count": 27,
+                "mean": 0.31809694173767045
+              }
+            },
+            "parameter_value": "50",
+            "variant_ids": [
+              "VAR-000010",
+              "VAR-000011",
+              "VAR-000012",
+              "VAR-000013",
+              "VAR-000014",
+              "VAR-000015",
+              "VAR-000016",
+              "VAR-000017",
+              "VAR-000018",
+              "VAR-000037",
+              "VAR-000038",
+              "VAR-000039",
+              "VAR-000040",
+              "VAR-000041",
+              "VAR-000042",
+              "VAR-000043",
+              "VAR-000044",
+              "VAR-000045",
+              "VAR-000064",
+              "VAR-000065",
+              "VAR-000066",
+              "VAR-000067",
+              "VAR-000068",
+              "VAR-000069",
+              "VAR-000070",
+              "VAR-000071",
+              "VAR-000072"
+            ]
+          },
+          {
+            "metrics": {
+              "drawdown": {
+                "count": 27,
+                "mean": 0.7980172315306765
+              },
+              "exposure": {
+                "count": 27,
+                "mean": 1.0
+              },
+              "fees": {
+                "count": 27,
+                "mean": 3479.1912794199266
+              },
+              "funding": {
+                "count": 27,
+                "mean": 12999.068674132284
+              },
+              "pnl": {
+                "count": 27,
+                "mean": 43577.738352028275
+              },
+              "return_pct": {
+                "count": 27,
+                "mean": 4.357773835202828
+              },
+              "sharpe": {
+                "count": 27,
+                "mean": 0.3718924135895741
+              },
+              "slippage": {
+                "count": 27,
+                "mean": 869.7978198549816
+              },
+              "trade_count": {
+                "count": 27,
+                "mean": 59.666666666666664
+              },
+              "win_rate": {
+                "count": 27,
+                "mean": 0.31809694173767045
+              }
+            },
+            "parameter_value": "60",
+            "variant_ids": [
+              "VAR-000019",
+              "VAR-000020",
+              "VAR-000021",
+              "VAR-000022",
+              "VAR-000023",
+              "VAR-000024",
+              "VAR-000025",
+              "VAR-000026",
+              "VAR-000027",
+              "VAR-000046",
+              "VAR-000047",
+              "VAR-000048",
+              "VAR-000049",
+              "VAR-000050",
+              "VAR-000051",
+              "VAR-000052",
+              "VAR-000053",
+              "VAR-000054",
+              "VAR-000073",
+              "VAR-000074",
+              "VAR-000075",
+              "VAR-000076",
+              "VAR-000077",
+              "VAR-000078",
+              "VAR-000079",
+              "VAR-000080",
+              "VAR-000081"
+            ]
+          }
+        ]
+      }
+    ],
+    "source_path": "research/variant_manifests/VM-0007.variant_manifest.json",
+    "source_type": "variant_manifest",
+    "status": "performed"
+  },
+  "per_trade_monte_carlo": {
+    "fabricated_per_trade_data": false,
+    "finding": "PER_TRADE_DATA_MISSING",
+    "follow_up_label": "QUEUE_PER_TRADE_INSTRUMENTATION",
+    "performed": false,
+    "reason": "Committed Result Population rows expose aggregate per-variant metrics only; no real per-trade rows were found or supplied.",
+    "source_checksum": null,
+    "source_path": null,
+    "status": "QUEUE_PER_TRADE_INSTRUMENTATION"
+  },
+  "report_type": "seeded_advisory_robustness_mc",
+  "seed": 20260619
+}

@@ -1,0 +1,13 @@
+{
+  "canonical_artifact_mutation": false,
+  "dependency_files_touched": false,
+  "output_dir": "scratch/WP-CANON-H004-EVALUATION-ADVISORY-01/robustness_depth",
+  "package_id": "WP-LAB-ROBUSTNESS-DEPTH-01",
+  "report_checksum": "sha256:64db0c29a5feca94163ba685dbeb28e2b3ae79f3d691a6f649c66d5cf291a4ea",
+  "report_json": "scratch/WP-CANON-H004-EVALUATION-ADVISORY-01/robustness_depth/robustness_depth_report.json",
+  "report_markdown": "scratch/WP-CANON-H004-EVALUATION-ADVISORY-01/robustness_depth/robustness_depth_report.md",
+  "runner_backtester_touched": false,
+  "runtime_paper_live_touched": false,
+  "source_branch": "codex/wp-canon-h004-evaluation-advisory-01",
+  "source_commit": "6994e9000aa6dcf56a7f1a4a08712ba778ea8bbe"
+}

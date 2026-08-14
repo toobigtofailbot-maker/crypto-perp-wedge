@@ -1066,6 +1066,14 @@ class IdeaFormalizerAgent:
         try:
             response = self.provider.complete(request)
             base_result["provider_metadata"]["response_source"] = response.response_source
+            if response.run_metadata is not None:
+                base_result["provider_metadata"]["runtime"] = copy.deepcopy(
+                    dict(response.run_metadata)
+                )
+            if response.provenance is not None:
+                base_result["provider_metadata"]["provenance"] = copy.deepcopy(
+                    dict(response.provenance)
+                )
             if response.status == "pending_operator":
                 base_result["status"] = "awaiting_provider_response"
                 base_result["rejection_reasons"] = [

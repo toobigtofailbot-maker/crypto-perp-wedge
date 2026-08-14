@@ -33,6 +33,15 @@ from tools.registry.validate_variant_sweep_artifacts import (
 )
 
 
+CANONICAL_RP0007_RELATIVE_PATH = Path(
+    "research/result_populations/RP-0007.result_population.json"
+)
+CANONICAL_RP0007_BYTE_LENGTH = 213_923
+CANONICAL_RP0007_SHA256 = (
+    "sha256:ff1104cebcb2775f3f64d2e5bec72b3aaaeeb4187740978e79a26a4819ee2308"
+)
+
+
 def _hash(raw: bytes) -> str:
     return "sha256:" + hashlib.sha256(raw).hexdigest()
 
@@ -2136,6 +2145,15 @@ def test_symlinked_reference_fails_closed(tmp_path, repo_root):
 def test_exact_post_kdauth_boundary_and_no_downstream_artifacts_created(repo_root):
     from tools.canon_intake import dispatch_writer, execution_event
 
+    result_population_root = repo_root / "research/result_populations"
+    result_population_path = repo_root / CANONICAL_RP0007_RELATIVE_PATH
+    assert sorted(result_population_root.glob("RP-0007*")) == [
+        result_population_path
+    ]
+    result_population_before = result_population_path.read_bytes()
+    assert len(result_population_before) == CANONICAL_RP0007_BYTE_LENGTH
+    assert _hash(result_population_before) == CANONICAL_RP0007_SHA256
+
     manifest_sha256 = (
         "sha256:cb8fdde0db1ab14282a62c217b0add134ce9615e9abee0f8215a0ae3ba4c7cb2"
     )
@@ -2410,9 +2428,13 @@ def test_exact_post_kdauth_boundary_and_no_downstream_artifacts_created(repo_roo
         "provisional_result_paths"
     ]:
         assert not (repo_root / provisional_path).exists()
-    assert not list(
-        (repo_root / "research/result_populations").glob("RP-0007*")
-    )
+    assert sorted(result_population_root.glob("RP-0007*")) == [
+        result_population_path
+    ]
+    result_population_after = result_population_path.read_bytes()
+    assert result_population_after == result_population_before
+    assert len(result_population_after) == CANONICAL_RP0007_BYTE_LENGTH
+    assert _hash(result_population_after) == CANONICAL_RP0007_SHA256
 
 
 def test_unterminated_crossing_reservation_permanently_blocks_kdauth_reuse(

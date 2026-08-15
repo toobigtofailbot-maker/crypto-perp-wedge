@@ -16,6 +16,13 @@ FIXTURES = (
 )
 VALID = FIXTURES / "valid"
 INVALID = FIXTURES / "invalid"
+CANONICAL_RP0007_RELATIVE_PATH = Path(
+    "research/result_populations/RP-0007.result_population.json"
+)
+CANONICAL_RP0007_BYTE_LENGTH = 213_923
+CANONICAL_RP0007_SHA256 = (
+    "ff1104cebcb2775f3f64d2e5bec72b3aaaeeb4187740978e79a26a4819ee2308"
+)
 ATTEMPT_OUTCOME_CATEGORIES = (
     "successful",
     "failed",
@@ -440,9 +447,20 @@ def test_valid_fixtures_contain_no_positive_authority_vocabulary():
         assert forbidden_values.isdisjoint(values(load(path)))
 
 
-def test_no_production_dispatch_execution_or_result_population_fixture_created():
+def test_production_dispatch_boundary_preserves_canonical_rp_and_has_no_fixture():
     dispatch_root = ROOT / "research/queue/dispatch_records"
     execution_root = ROOT / "research/queue/execution_events"
+    result_population_root = ROOT / "research/result_populations"
+    result_population_path = ROOT / CANONICAL_RP0007_RELATIVE_PATH
+    assert sorted(result_population_root.glob("RP-0007*")) == [
+        result_population_path
+    ]
+    result_population_before = result_population_path.read_bytes()
+    assert len(result_population_before) == CANONICAL_RP0007_BYTE_LENGTH
+    assert (
+        hashlib.sha256(result_population_before).hexdigest()
+        == CANONICAL_RP0007_SHA256
+    )
     dispatch_paths = sorted(dispatch_root.glob("*.json"))
     assert [path.name for path in dispatch_paths] == [
         "DSP-20260804-H004R2A1.dispatch_record.json"
@@ -454,8 +472,17 @@ def test_no_production_dispatch_execution_or_result_population_fixture_created()
     )
     assert json.loads(dispatch_raw)["dispatch_id"] == "DSP-20260804-H004R2A1"
     assert not list(execution_root.glob("*.jsonl"))
-    assert not list((ROOT / "research/result_populations").glob("RP-0007*"))
     assert not list(FIXTURES.rglob("RP-*.result_population.json"))
+    assert sorted(result_population_root.glob("RP-0007*")) == [
+        result_population_path
+    ]
+    result_population_after = result_population_path.read_bytes()
+    assert result_population_after == result_population_before
+    assert len(result_population_after) == CANONICAL_RP0007_BYTE_LENGTH
+    assert (
+        hashlib.sha256(result_population_after).hexdigest()
+        == CANONICAL_RP0007_SHA256
+    )
 
 
 def test_h004_queue_gate_q_and_admission_record_bytes_are_preserved():

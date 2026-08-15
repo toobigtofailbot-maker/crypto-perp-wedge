@@ -10,6 +10,13 @@ from tools.canon_intake import scratch_persistence as persistence
 
 
 REAL_RUN_ID = "RUN-20260804-H004R2A1"
+CANONICAL_RP0007_RELATIVE_PATH = Path(
+    "research/result_populations/RP-0007.result_population.json"
+)
+CANONICAL_RP0007_BYTE_LENGTH = 213_923
+CANONICAL_RP0007_SHA256 = (
+    "ff1104cebcb2775f3f64d2e5bec72b3aaaeeb4187740978e79a26a4819ee2308"
+)
 
 
 def _dispatch(
@@ -59,20 +66,40 @@ def _runner_output() -> dict:
     }
 
 
-def _assert_real_h004_absent(repo_root: Path) -> None:
+def _assert_real_h004_boundary_preserved(
+    repo_root: Path,
+    *,
+    expected_result_population: bytes | None = None,
+) -> bytes:
     assert not (
         repo_root / f"research/queue/execution_events/{REAL_RUN_ID}.execution_events.jsonl"
     ).exists()
     assert not (repo_root / f"scratch/{REAL_RUN_ID}").exists()
-    assert not list((repo_root / "research/result_populations").glob("RP-0007*"))
+    result_population_root = repo_root / "research/result_populations"
+    result_population_path = repo_root / CANONICAL_RP0007_RELATIVE_PATH
+    assert sorted(result_population_root.glob("RP-0007*")) == [
+        result_population_path
+    ]
+    result_population = result_population_path.read_bytes()
+    assert len(result_population) == CANONICAL_RP0007_BYTE_LENGTH
+    assert (
+        hashlib.sha256(result_population).hexdigest()
+        == CANONICAL_RP0007_SHA256
+    )
+    if expected_result_population is not None:
+        assert result_population == expected_result_population
+    return result_population
 
 
 @pytest.fixture(scope="session", autouse=True)
-def real_h004_absence_guard():
+def real_h004_boundary_guard():
     repo_root = Path(__file__).resolve().parents[1]
-    _assert_real_h004_absent(repo_root)
+    result_population_before = _assert_real_h004_boundary_preserved(repo_root)
     yield
-    _assert_real_h004_absent(repo_root)
+    _assert_real_h004_boundary_preserved(
+        repo_root,
+        expected_result_population=result_population_before,
+    )
 
 
 def test_deterministic_serialization_roundtrips_complete_81_row_output():

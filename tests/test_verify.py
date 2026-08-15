@@ -590,15 +590,17 @@ def test_sharded_full_pytest_timeout_fails_summary(monkeypatch, tmp_path, capsys
     assert payload["failures"][0]["timed_out"] is True
 
 
-def test_docs_only_policy_names_commands_and_status_wording():
+def test_t0_policy_and_drafting_guidance_name_current_contract():
     policy = Path("docs/ai/codex/VALIDATION_POLICY.md").read_text(encoding="utf-8")
+    drafting_guidance = Path("docs/ai/codex/WP_DRAFTING_STANDARD.md").read_text(encoding="utf-8")
 
-    assert "Docs-only packages do not run full pytest by default" in policy
-    assert "git diff --check" in policy
-    assert "git diff --cached --check" in policy
-    assert "python tools/dev/diff_scope_summary.py --check-forbidden" in policy
-    assert "full pytest: NOT RUN - docs-only policy" in policy
-    assert "full pytest: TIMED OUT after <seconds>" in policy
+    assert "| T0 | Documentation, status, or comments only |" in policy
+    assert "no pytest by default." in policy
+    assert "`git diff --check`" in policy
+    assert "python tools/dev/diff_scope_summary.py --check-forbidden" in drafting_guidance
+    assert "full pytest: NOT RUN - T0 docs/process policy; not used as merge evidence" in policy
+    assert "Do not report a timeout as a policy skip." in policy
+    assert "full pytest: TIMED OUT after <seconds>; not a pass" in policy
 
 
 def test_integrity_discovery_uses_raw_stdout_when_public_output_is_truncated(monkeypatch, tmp_path):

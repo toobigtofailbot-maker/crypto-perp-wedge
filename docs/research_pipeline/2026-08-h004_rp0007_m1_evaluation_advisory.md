@@ -4,16 +4,21 @@ Date: 2026-08-14
 
 Package: `WP-CANON-H004-EVALUATION-ADVISORY-01`
 
-Source base: `6994e9000aa6dcf56a7f1a4a08712ba778ea8bbe`
+Scientific source base: `6994e9000aa6dcf56a7f1a4a08712ba778ea8bbe`
+
+Final integration base: `ab9c201138aba621fc2954674911add602028a78`
+
+Full-release validated head before the final status-only evidence update:
+`20745c77b636b15b7991c3eb9a080ff5e9620c45`
 
 ## Decision
 
 The Lane 0 scientific evaluation is complete as advisory work. The scientific
 reading is **FAIL / insufficient / withheld as applicable**, and the strategy
-does not advance. M1 integration is **not merge-ready** because the required
-full-release validation is not green: two current-base tests still assert that
-canonical `RP-0007` is absent even though its persistence is merged repo truth.
-This package does not widen into those control-plane/persistence tests.
+does not advance. M1 integration evidence is **green / ready for review** after
+the stale-guard, lab-state, dashboard append-growth, and validation-policy
+corrections merged separately. This is engineering integration closure only;
+it does not reverse or weaken the failed scientific reading.
 
 H004 remains the designated engineering dummy: non-winning, non-promotable,
 GO-forbidden, and `reject_by_construction`. No favorable aggregate statistic in
@@ -145,7 +150,7 @@ scientific inputs, or H004's construction-level rejection.
 - The required local canonical data inputs were hydrated as exact ignored
   worktree prerequisites and remain untracked and unstaged.
 
-Focused validation is green: 72 tests passed and one environment-dependent test
+Focused validation is green: 87 tests passed and one environment-dependent test
 was skipped across the item-6, aggregate Monte Carlo, robustness-depth,
 canonical-1d, and funding-input surfaces; all five walk-forward-selected runner
 tests passed. The accepted 162-row WFO payload reproduced exactly. The item-6
@@ -154,19 +159,13 @@ declared checksum, every package JSON file parsed, the result-population corpus
 validated, the forbidden-path check found no match, and RP-0007 retained its
 fixed hash and 81 rows.
 
-The required `full-release-balanced-v1` run assigned all 162 tracked test files
-uniquely across 48 shards with no timeout. Forty-six shards passed. Shard 30 and
-shard 34 failed, and both failures reproduce serially:
-
-- `tests/test_dispatch_authorization.py` expects no `RP-0007*` file after the
-  KDAUTH boundary.
-- `tests/test_scratch_persistence.py` applies the same obsolete absence guard
-  to its session and therefore errors when the merged canonical file exists.
-
-Those assertions contradict this branch's exact base, where
-`WP-CANON-H004-RP0007-PERSIST-01` is already merged. They are outside this
-evaluation/advisory package and are not altered here. This is an open validation
-escalation, not a green full-suite result.
+The previously failing integration surfaces are green on current main:
+dashboard append-growth 30 / 30, lab-state coverage 27 / 27 with zero live
+gaps or malformed artifacts, and validation-policy verification 24 / 24. The
+required `full-release-balanced-v1` run then assigned all 167 tracked test files
+exactly once across 48 shards. All 48 shards passed with no timeout, no missing
+file, and no duplicate assignment. The assignment-manifest SHA-256 is
+`59cbcc587f0961a8ec2b50bae45e8e61b9ef0f4e1bfd3b11d303bc5fddbac5aa`.
 
 All 62 discovered integrity views ran: 60 are clean and the two non-clean views
 each return one already-known runbook disclosure:
@@ -183,8 +182,8 @@ The advisory evidence proves that the existing evaluation machinery can
 exercise canonical RP-0007 inputs end to end while withholding unsupported
 claims. It does not prove strategy readiness. H004 remains
 `reject_by_construction`, no downstream work is authorized by this report, and
-M1 closure must wait for a separately scoped reconciliation of the stale
-RP-0007-absence tests followed by green full-release evidence.
+M1 is ready for review as a completed engineering/scientific-advisory milestone
+with a failed strategy conclusion.
 
 Detailed machine-readable evidence is under
 `scratch/WP-CANON-H004-EVALUATION-ADVISORY-01/`.

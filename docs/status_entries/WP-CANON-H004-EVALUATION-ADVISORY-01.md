@@ -3,8 +3,10 @@
 ## Branch / PR
 
 - Branch: `codex/wp-canon-h004-evaluation-advisory-01`
-- Base: `6994e9000aa6dcf56a7f1a4a08712ba778ea8bbe`
-- PR: not created because required full-release validation is not green.
+- Final integration base: `ab9c201138aba621fc2954674911add602028a78`
+- Full-release validated head before this status-only evidence update:
+  `20745c77b636b15b7991c3eb9a080ff5e9620c45`
+- PR: ready to open after this evidence update is committed and pushed.
 - Package class: T1 non-canonical research evaluation / advisory artifacts,
   elevated to full-release validation because this is the M1 integration
   boundary.
@@ -45,7 +47,14 @@ path is changed.
 
 ## Validation and merge status
 
-- Focused evaluation surfaces: 72 passed, 1 environment-dependent skip.
+- Dashboard append-growth correction: 30 passed; RP-0007 appears exactly once
+  and the registry/count assertions are append-safe.
+- Lab-state coverage correction: 27 passed; the live audit reports zero
+  unmapped gaps, zero malformed artifacts, and RP-0007 as covered,
+  surface-visible, and requiring no follow-up.
+- Validation-policy correction: 24 passed; current T0 semantics are covered and
+  `tools/dev/verify.py` is unchanged by the correction.
+- Focused evaluation surfaces: 87 passed, 1 environment-dependent skip.
 - Walk-forward-selected runner tests: 5 passed, 96 deselected.
 - Accepted WFO replay: exact match across 162 rows; dry run true; writes false.
 - Deterministic artifact replay: exact item-6 and seeded-MC file hashes;
@@ -53,17 +62,15 @@ path is changed.
 - Result-population validator: pass; RP-0007 remains 81 rows at its fixed hash.
 - Scope/format checks: JSON parse pass; `git diff --check` pass; forbidden-path
   matches none.
-- Full release: fail, not a timeout. The named balanced profile assigned all
-  162 tracked test files uniquely across 48 shards; 46 shards passed and two
-  failed. `tests/test_dispatch_authorization.py` and
-  `tests/test_scratch_persistence.py` retain stale guards requiring RP-0007 to
-  be absent, contradicting the merged persistence package on this exact base.
-  Both failures reproduce serially.
+- Full release: pass, no timeout. `full-release-balanced-v1` assigned all 167
+  tracked test files exactly once across 48 / 48 passing shards with no missing
+  or duplicate assignment. Assignment-manifest SHA-256:
+  `59cbcc587f0961a8ec2b50bae45e8e61b9ef0f4e1bfd3b11d303bc5fddbac5aa`.
 - Integrity: 62 views ran; 60 clean; exactly two one-row known runbook
   disclosures (`execution_stream_missing` and the STRAT-SPEC-0007 legacy hash
   reproducibility row); no additional finding.
 
 The exact changed files were inspected and no protected or canonical mutation
-was found. This branch is not green and no ready-for-review PR is created. A
-separately scoped stale-test reconciliation is required before rerunning
-full-release and closing M1 integration.
+was found. M1 integration evidence is green and this advisory branch is ready
+for review. This does not change the failed scientific reading or create
+strategy, promotion, paper/live, runtime, or capital authority.

@@ -9,4 +9,5 @@ binance-futures-connector
 fastapi
 httpx
 jsonschema
+optuna==4.9.0
 uvicorn

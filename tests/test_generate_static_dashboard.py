@@ -36,6 +36,17 @@ NETWORK_OR_BUILD_SNIPPETS = [
     "type=\"module\"",
 ]
 
+HISTORICAL_LAB_RESULT_POPULATION_IDS = {
+    "RP-2134",
+    "RP-2592",
+    "RP-3731",
+    "RP-4492",
+    "RP-6236",
+    "RP-6688",
+    "RP-7134",
+    "RP-7520",
+}
+
 
 def test_generator_creates_valid_dashboard_data_and_index(tmp_path):
     data_dir = tmp_path / "dashboard_data"
@@ -386,13 +397,20 @@ def test_generated_dashboard_data_includes_lab_registry(tmp_path):
     dashboard_data_path, _ = generate_dashboard(Path("."), tmp_path / "data", tmp_path / "build")
     payload = json.loads(dashboard_data_path.read_text(encoding="utf-8"))
     registry = payload["pages"]["results"]["lab_registry"]
+    records = registry["records"]
+    run_ids = [record["run_id"] for record in records]
+    result_population_ids = [record["result_population_id"] for record in records]
 
     assert registry["schema_version"] == "lab_run_registry.v1"
-    assert registry["record_count"] == 8
+    assert registry["record_count"] == len(records)
+    assert len(run_ids) == len(set(run_ids))
+    assert len(result_population_ids) == len(set(result_population_ids))
+    assert HISTORICAL_LAB_RESULT_POPULATION_IDS <= set(result_population_ids)
+    assert result_population_ids.count("RP-0007") == 1
+    rp0007_record = next(record for record in records if record["result_population_id"] == "RP-0007")
+    assert rp0007_record["result_population_path"] == "research/result_populations/RP-0007.result_population.json"
     assert registry["run_order_policy"] == "run_id_ascending_only_not_quality_order"
-    assert [record["run_id"] for record in registry["records"]] == sorted(
-        record["run_id"] for record in registry["records"]
-    )
+    assert run_ids == sorted(run_ids)
     assert registry["non_authority_notes"]["no_ranking_as_authority"] is True
     assert registry["non_authority_notes"]["no_execution"] is True
 
@@ -420,35 +438,54 @@ def test_generated_dashboard_data_includes_operator_review_summary(tmp_path):
     dashboard_data_path, _ = generate_dashboard(Path("."), tmp_path / "data", tmp_path / "build")
     payload = json.loads(dashboard_data_path.read_text(encoding="utf-8"))
     review = payload["pages"]["operator_review"]
+    registry = payload["pages"]["results"]["lab_registry"]
+    records = registry["records"]
+    jobs = review["active_and_recent_jobs"]["jobs"]
+    job_ids = [job["run_id"] for job in jobs]
+    expected_jobs = sorted(jobs, key=lambda job: job["run_id"])
+    expected_jobs.sort(key=lambda job: job["created_at_utc"], reverse=True)
+    population_summary = review["population_summary"]
 
     assert review["status"] == "BLOCKED"
     assert review["active_and_recent_jobs"]["status"] == "NOT_AVAILABLE"
     assert review["active_and_recent_jobs"]["active_count"] is None
-    assert review["active_and_recent_jobs"]["recent_job_count"] == 8
-    assert review["population_summary"]["population_count"] == 8
-    assert review["population_summary"]["complete_population_count"] == 8
-    assert review["population_summary"]["committed_denominator"] == 66
-    assert review["population_summary"]["result_row_count"] == 66
-    assert review["population_summary"]["outcome_counts"] == {
-        "successful": 66,
-        "failed": 0,
-        "invalid": 0,
-        "excluded": 0,
-        "errored": 0,
-        "aborted": 0,
-        "data_unavailable": 0,
-        "unknown": 0,
-    }
+    assert review["active_and_recent_jobs"]["recent_job_count"] == len(jobs)
+    assert review["active_and_recent_jobs"]["job_order_policy"] == (
+        "created_at_desc_then_run_id_ascending_not_quality_order"
+    )
+    assert jobs == expected_jobs
+    assert len(job_ids) == len(set(job_ids))
+    assert set(job_ids) == {record["run_id"] for record in records}
+    assert job_ids.count("RP-0007") == 1
+    assert population_summary["population_count"] == registry["record_count"] == len(records)
+    assert population_summary["complete_population_count"] == population_summary["population_count"]
+    assert population_summary["incomplete_population_count"] == 0
+    assert population_summary["committed_denominator"] == sum(
+        record["committed_denominator"] for record in records
+    )
+    assert population_summary["result_row_count"] == sum(record["result_row_count"] for record in records)
+    assert sum(population_summary["outcome_counts"].values()) == population_summary["result_row_count"]
 
 
 def test_operator_review_exposes_uncertainty_and_manual_posture(tmp_path):
     dashboard_data_path, _ = generate_dashboard(Path("."), tmp_path / "data", tmp_path / "build")
     review = json.loads(dashboard_data_path.read_text(encoding="utf-8"))["pages"]["operator_review"]
+    candidates = review["candidate_reviews"]
+    walkforward = review["evidence_summary"]["walkforward_oos"]
+    robustness = review["evidence_summary"]["robustness"]
 
-    assert review["evidence_summary"]["walkforward_oos"]["available_count"] == 0
-    assert review["evidence_summary"]["walkforward_oos"]["unavailable_count"] == 8
-    assert review["evidence_summary"]["robustness"]["available_count"] == 1
-    assert review["evidence_summary"]["robustness"]["unavailable_count"] == 7
+    assert walkforward["available_count"] == sum(
+        item["walkforward_oos_status"] == "PASS" for item in candidates
+    )
+    assert walkforward["unavailable_count"] == sum(
+        item["walkforward_oos_status"] == "NOT_AVAILABLE" for item in candidates
+    )
+    assert walkforward["available_count"] + walkforward["unavailable_count"] == len(candidates)
+    assert robustness["available_count"] == sum(item["robustness_status"] == "PASS" for item in candidates)
+    assert robustness["unavailable_count"] == sum(
+        item["robustness_status"] == "NOT_AVAILABLE" for item in candidates
+    )
+    assert robustness["available_count"] + robustness["unavailable_count"] == len(candidates)
     assert review["lifecycle_summary"]["state"] == "not_available"
     assert review["approval_summary"]["state"] == "manual_approval_required"
     assert review["approval_summary"]["pending_count"] is None
@@ -459,10 +496,17 @@ def test_operator_review_exposes_uncertainty_and_manual_posture(tmp_path):
 
 def test_operator_candidate_reviews_are_stable_and_include_caveats(tmp_path):
     dashboard_data_path, _ = generate_dashboard(Path("."), tmp_path / "data", tmp_path / "build")
-    candidates = json.loads(dashboard_data_path.read_text(encoding="utf-8"))["pages"]["operator_review"]["candidate_reviews"]
+    payload = json.loads(dashboard_data_path.read_text(encoding="utf-8"))
+    candidates = payload["pages"]["operator_review"]["candidate_reviews"]
+    registry_records = payload["pages"]["results"]["lab_registry"]["records"]
+    review_ids = [item["review_id"] for item in candidates]
 
-    assert len(candidates) == 8
-    assert [item["review_id"] for item in candidates] == sorted(item["review_id"] for item in candidates)
+    assert len(candidates) == len(registry_records)
+    assert len(review_ids) == len(set(review_ids))
+    assert set(review_ids) == {record["run_id"] for record in registry_records}
+    assert HISTORICAL_LAB_RESULT_POPULATION_IDS <= set(review_ids)
+    assert review_ids.count("RP-0007") == 1
+    assert review_ids == sorted(review_ids)
     assert all(item["caveats"] for item in candidates)
     assert all(item["candidate_lifecycle_state"] == "not_available" for item in candidates)
     assert all(item["approval_state"] == "manual_approval_required" for item in candidates)

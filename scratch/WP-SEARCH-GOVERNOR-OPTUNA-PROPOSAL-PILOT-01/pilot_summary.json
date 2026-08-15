@@ -1,0 +1,62 @@
+{
+  "accepted_scientific_trials": 3,
+  "accounting": {
+    "campaign_cumulative_proposals": 20,
+    "campaign_cumulative_scientific_denominator": 3,
+    "campaign_id": "CAMPAIGN-EMA-PULLBACK-GOVERNED-PILOT-001",
+    "canonical_authority": false,
+    "contract_hash": "sha256:a3ddc562e51dd0ba6f12ce73ef77192a8f95a57583db722963ac1480a6a242ab",
+    "final_holdout_exposed_to_proposer": false,
+    "go_authority": false,
+    "noncanonical": true,
+    "ordered_tell": true,
+    "performance_pruning": false,
+    "promotion_authority": false,
+    "proposal_budget": 20,
+    "proposals_used": 20,
+    "scientific_denominator": 3,
+    "scientific_trial_budget": 4,
+    "search_id": "SEARCH-EMA-PULLBACK-OPTUNA-TPE-001",
+    "trial_attempt_counts": {
+      "PERFORMANCE_RESULT": 3
+    },
+    "winner_authority": false
+  },
+  "canonical_result_population_write": false,
+  "canonical_trial_log_write": false,
+  "contract_hash": "sha256:a3ddc562e51dd0ba6f12ce73ef77192a8f95a57583db722963ac1480a6a242ab",
+  "execution_status": "COMPLETED_NONCANONICAL_GOVERNED_OPTUNA_PILOT",
+  "final_holdout_exposed_to_proposer": false,
+  "go_or_promotion_authority": false,
+  "hidden_performance_prior_used": false,
+  "invalid_proposals_execute_scientifically": false,
+  "legal_parameter_space_frozen_before_proposal": true,
+  "noncanonical": true,
+  "optuna_version": "4.9.0",
+  "ordered_tell_independent_of_completion_order": true,
+  "package_id": "WP-SEARCH-GOVERNOR-OPTUNA-PROPOSAL-PILOT-01",
+  "performance_pruning": false,
+  "pilot_family": "STRAT-SPEC-0007 H-004-R2 EMA Pullback Continuation",
+  "proposal_budget": 20,
+  "proposal_count": 20,
+  "proposer_backend": "tpe",
+  "proposer_config": {
+    "group": true,
+    "multivariate": true,
+    "n_startup_trials": 2
+  },
+  "scientific_trial_budget": 4,
+  "seeded_sequential_reproducibility": true,
+  "snapshot_restore_exact_continuation": true,
+  "snapshot_restore_method": "seeded exact operation replay with proposal verification; no claim that study history alone reproduces continuation",
+  "summary_hash": "sha256:f38344f5f322294a3f4360373cf71ecd36eb21bebdd8dc08bce2b36f8d191093",
+  "supported_proposer_set": {
+    "gp": true,
+    "gp_posture": "adapter-capable experimental challenger; not exercised by this pilot",
+    "qmc": true,
+    "random": true,
+    "tpe": true
+  },
+  "trial_attempt_count": 3,
+  "winner_or_best_trial_authority": false
+}

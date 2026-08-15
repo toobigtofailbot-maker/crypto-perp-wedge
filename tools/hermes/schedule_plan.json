@@ -1,0 +1,27 @@
+{
+  "schema_version": "hermes_schedule_plan_v1",
+  "timezone": "UTC",
+  "jobs": [
+    {
+      "name": "crypto-perp-wedge daily research brief",
+      "schedule": "0 13 * * *",
+      "skill": "daily-research-brief",
+      "deliver": "local",
+      "prompt": "Produce today's bounded daily research/project brief from Project-Evidence MCP only. Cite repo SHA and evidence references. Mark unavailable facts UNKNOWN."
+    },
+    {
+      "name": "crypto-perp-wedge weekly science review",
+      "schedule": "0 14 * * 1",
+      "skill": "weekly-science-review",
+      "deliver": "local",
+      "prompt": "Produce the weekly science/project review from Project-Evidence MCP only. Separate FACT, INFERENCE, BLOCKER, and OPEN QUESTION."
+    },
+    {
+      "name": "crypto-perp-wedge dependency security watch",
+      "schedule": "30 13 * * *",
+      "skill": "dependency-security-watch",
+      "deliver": "local",
+      "prompt": "Run the bounded dependency and security watch. Report normalized changes only. Do not update dependencies or enable integrations."
+    }
+  ]
+}

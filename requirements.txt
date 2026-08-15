@@ -11,3 +11,4 @@ httpx
 jsonschema
 optuna==4.9.0
 uvicorn
+mcp==1.28.1

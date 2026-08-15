@@ -255,8 +255,8 @@ def test_build_coverage_audit_over_repo_covers_bound_paths() -> None:
     payload = run.build_coverage_audit()
     summary = payload["summary"]
     # All coordinator-referenced and supplemental historical paths resolve to covered.
-    assert summary["totals"]["covered_coordinator_artifacts"] == 123
-    assert summary["totals"]["surface_visible_artifacts"] == 119
+    assert summary["totals"]["covered_coordinator_artifacts"] == 124
+    assert summary["totals"]["surface_visible_artifacts"] == 120
     assert summary["totals"]["unmapped_gap_artifacts"] == 0
     assert summary["totals"]["malformed_or_unreadable_artifacts"] == 0
     # No category count is negative and they sum to the total.
@@ -274,6 +274,10 @@ def test_build_coverage_audit_over_repo_covers_bound_paths() -> None:
 def test_build_coverage_audit_covers_former_known_gaps() -> None:
     payload = run.build_coverage_audit()
     inv = {i["path"]: i for i in payload["inventory"]}
+    rp0007 = "research/result_populations/RP-0007.result_population.json"
+    assert inv[rp0007]["coverage_status"] == "covered"
+    assert inv[rp0007]["category"] == "surface_visible"
+    assert inv[rp0007]["requires_followup"] is False
     former_gap = "docs/research/PRICEONLY_SYNTHESIS_2026-06.md"
     assert inv[former_gap]["coverage_status"] == "covered"
     # The bound funding-fade conclusion is covered, not a gap.

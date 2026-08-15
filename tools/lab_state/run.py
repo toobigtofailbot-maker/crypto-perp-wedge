@@ -29,6 +29,7 @@ def _supplemental(paths: list[str], role: str, note: str) -> list[dict[str, str]
 
 LEGACY_CANONICAL_EVIDENCE_PATHS: list[str] = [
     "research/candidate_registry.jsonl",
+    "research/result_populations/RP-0007.result_population.json",
     "research/result_populations/RP-2134.result_population.json",
     "research/result_populations/RP-2592.result_population.json",
     "research/result_populations/RP-3731.result_population.json",

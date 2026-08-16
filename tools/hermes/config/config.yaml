@@ -1,4 +1,8 @@
-model: "${HERMES_MODEL}"
+_config_version: 12
+
+model:
+  provider: "openai-codex"
+  default: "${HERMES_MODEL}"
 
 agent:
   max_turns: 30

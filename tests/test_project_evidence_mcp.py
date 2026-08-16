@@ -308,6 +308,42 @@ def test_watch_strips_malicious_free_form_content_and_never_mutates(tmp_path: Pa
     assert result["mutation_policy"].startswith("digest/proposal input only")
 
 
+def test_watch_normalizes_bounded_upstream_unavailability(tmp_path: Path) -> None:
+    manifest = tmp_path / "watch.json"
+    manifest.write_text(
+        json.dumps(
+            {
+                "schema_version": "hermes_upstream_watch_v1",
+                "sources": [
+                    {
+                        "source_id": "oversized-release",
+                        "kind": "github_release",
+                        "url": "https://api.github.com/repos/example/repo/releases/latest",
+                        "pinned_version": "v1",
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    def unavailable(_url: str) -> object:
+        raise EvidenceUnavailableError("upstream watch response exceeded byte limit")
+
+    result = DependencySecurityWatch(manifest, IDENTITY, fetcher=unavailable).check()
+
+    assert result["results"] == [
+        {
+            "status": "unknown",
+            "source_id": "oversized-release",
+            "kind": "github_release",
+            "source_url": "https://api.github.com/repos/example/repo/releases/latest",
+            "pinned_version": "v1",
+            "reason": "EvidenceUnavailableError",
+        }
+    ]
+
+
 def test_daily_and_weekly_samples_are_deterministic() -> None:
     facts = [
         BriefFact(

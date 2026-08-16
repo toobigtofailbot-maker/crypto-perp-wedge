@@ -33,12 +33,12 @@ services:
 
   hermes:
     image: nousresearch/hermes-agent:v2026.8.13@sha256:68e15ae2a6d894d0ccbd9f8aacbbe13d4d28fa5dc9b6a303970b67bb2499b1a6
+    user: "10000:10000"
     depends_on:
       - project-evidence
     read_only: true
     tmpfs:
       - /tmp:size=256m,mode=1777
-      - /run:size=64m,mode=0755
     environment:
       HERMES_HOME: /opt/data
       HERMES_MODEL: "${HERMES_MODEL:?HERMES_MODEL is required}"
@@ -55,16 +55,13 @@ services:
       - ./skills/dependency-security-watch:/opt/data/skills/dependency-security-watch:ro
     cap_drop:
       - ALL
-    cap_add:
-      - CHOWN
-      - SETGID
-      - SETUID
     security_opt:
       - no-new-privileges:true
     networks:
       - evidence
     restart: unless-stopped
-    command: ["gateway", "run"]
+    entrypoint: ["/opt/hermes/hermes"]
+    command: ["gateway", "run", "--no-supervise", "--external-supervisor"]
 
 networks:
   evidence:

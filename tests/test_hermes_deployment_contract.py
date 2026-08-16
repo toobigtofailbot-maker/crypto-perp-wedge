@@ -37,6 +37,10 @@ def test_compose_pins_hermes_and_mounts_no_protected_project_family() -> None:
     assert all(line.endswith(":ro") for line in project_mounts)
     assert compose.count(":/outbox:rw") == 1
     assert compose.count(":/opt/data:rw") == 1
+    assert 'user: "10000:10000"' in compose
+    assert 'entrypoint: ["/opt/hermes/hermes"]' in compose
+    assert 'command: ["gateway", "run", "--no-supervise", "--external-supervisor"]' in compose
+    assert "cap_add:" not in compose
     assert "cap_drop:\n      - ALL" in compose
     assert compose.count("no-new-privileges:true") == 2
 
@@ -47,6 +51,7 @@ def test_project_evidence_image_is_digest_pinned_nonroot_and_lock_driven() -> No
     assert re.search(
         r"^FROM python:3\.11\.9-slim-bookworm@sha256:[0-9a-f]{64}$", dockerfile, re.MULTILINE
     )
+    assert "COPY tools/__init__.py" not in dockerfile
     assert "pip install --no-cache-dir --requirement /app/requirements.lock.txt" in dockerfile
     assert "USER 65532:65532" in dockerfile
     assert 'ENTRYPOINT ["python", "-m", "tools.mcp.project_evidence.server"]' in dockerfile
@@ -55,6 +60,9 @@ def test_project_evidence_image_is_digest_pinned_nonroot_and_lock_driven() -> No
 def test_config_exposes_only_project_evidence_and_disables_escalation() -> None:
     config = (HERMES_ROOT / "config" / "config.yaml").read_text(encoding="utf-8")
 
+    assert "_config_version: 12" in config
+    assert 'provider: "openai-codex"' in config
+    assert 'default: "${HERMES_MODEL}"' in config
     for disabled in (
         "terminal",
         "file",

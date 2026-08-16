@@ -121,7 +121,7 @@ class DependencySecurityWatch:
             try:
                 payload = self._fetcher(source["url"])
                 result = {"status": "available", **self._normalize(source, payload)}
-            except (OSError, ValueError) as exc:
+            except (OSError, ValueError, EvidenceUnavailableError) as exc:
                 result = {
                     "status": "unknown",
                     "source_id": source["source_id"],

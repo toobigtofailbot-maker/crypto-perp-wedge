@@ -13,7 +13,6 @@ WORKDIR /app
 COPY requirements.lock.txt /app/requirements.lock.txt
 RUN python -m pip install --no-cache-dir --requirement /app/requirements.lock.txt
 
-COPY tools/__init__.py /app/tools/__init__.py
 COPY tools/mcp /app/tools/mcp
 
 USER 65532:65532

@@ -46,13 +46,16 @@ write-capable DSN.
 
 ## Start
 
-Use a project-specific home outside the repository. Store Hermes model
-credentials only in that home according to upstream Hermes setup guidance.
+Use a project-specific home outside the repository. Authenticate that home with
+the pinned Hermes native `openai-codex` device flow (`hermes auth add
+openai-codex`), which stores its ChatGPT/Codex OAuth state only under the
+external Hermes home. The deployment does not require or read
+`OPENAI_API_KEY`.
 
 ```powershell
 .\tools\hermes\start.ps1 `
   -HermesProjectHome C:\Hermes\crypto-perp-wedge `
-  -HermesModel '<configured-provider/model>' `
+  -HermesModel '<Codex model available to the authenticated plan>' `
   -ResearchMemoryReadOnlyDsn $env:RESEARCH_MEMORY_READONLY_DSN `
   -InstallSchedules
 ```
@@ -60,7 +63,9 @@ credentials only in that home according to upstream Hermes setup guidance.
 The script resolves the exact Git SHA/branch, rejects a repo-contained or linked
 Hermes home, validates Compose, starts the pinned services, and idempotently
 adds the three repo-owned schedule-plan jobs by name. It prints no DSN or model
-credential.
+credential. Compose runs the pinned Hermes CLI directly as its built-in
+`hermes` user (UID/GID 10000) with Docker as the external supervisor; this
+avoids granting the image's optional `s6` bootstrap any extra capabilities.
 
 ## Physical acceptance (required on the deployment host)
 

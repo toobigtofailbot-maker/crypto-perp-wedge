@@ -76,12 +76,14 @@ class ScopedDuckDBReader:
             [registry.as_posix()],
         )
         conn.execute(
-            "CREATE TABLE approved_reports AS SELECT * FROM read_json_auto([" + report_files + "])"
+            "CREATE TABLE approved_reports AS SELECT * FROM read_json_auto(["
+            + report_files
+            + "], timestampformat='iso')"
         )
         conn.execute(
             "CREATE TABLE approved_result_populations AS SELECT * FROM read_json_auto(["
             + population_files
-            + "])"
+            + "], timestampformat='iso')"
         )
         conn.execute("SET enable_external_access = false")
         conn.execute(

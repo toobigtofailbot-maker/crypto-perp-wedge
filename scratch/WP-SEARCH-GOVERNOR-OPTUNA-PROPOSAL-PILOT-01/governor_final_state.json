@@ -1,0 +1,1242 @@
+{
+  "accepted_by_fingerprint": {
+    "sha256:1f426152b51feaeb2bebcf4415c11f6e3ebbf91dfbf075ab4dfe5aa7af9baf10": "PROP-48CDA2DB39EEB4272FE9",
+    "sha256:9206b443931728bc6bb5e0eea0c913ea2d81e4e7853957547166b87ad3d923a0": "PROP-895E1DA7BD1F40278142",
+    "sha256:a3e05e8e08a82b3b09a79a31bf28640a6d86867ff477f45bde9e9a4783f6a6d3": "PROP-E009811C287FB901C9AA"
+  },
+  "adapter_snapshot": {
+    "contains_final_holdout": false,
+    "operations": [
+      {
+        "backend_trial_number": 0,
+        "handle": "optuna-trial:0",
+        "op": "ask",
+        "params": {
+          "atr_multiplier": 2.5,
+          "max_holding_bars": 60,
+          "pullback_ema_bars": 10,
+          "trend_fast_ema_bars": 40
+        }
+      },
+      {
+        "backend_trial_number": 1,
+        "handle": "optuna-trial:1",
+        "op": "ask",
+        "params": {
+          "atr_multiplier": 2.0,
+          "max_holding_bars": 30,
+          "pullback_ema_bars": 30,
+          "trend_fast_ema_bars": 60
+        }
+      },
+      {
+        "handle": "optuna-trial:0",
+        "op": "tell",
+        "state": "complete",
+        "value": 4.225738295026
+      },
+      {
+        "handle": "optuna-trial:1",
+        "op": "tell",
+        "state": "complete",
+        "value": 6.125030751316
+      },
+      {
+        "backend_trial_number": 2,
+        "handle": "optuna-trial:2",
+        "op": "ask",
+        "params": {
+          "atr_multiplier": 2.5,
+          "max_holding_bars": 30,
+          "pullback_ema_bars": 30,
+          "trend_fast_ema_bars": 60
+        }
+      },
+      {
+        "backend_trial_number": 3,
+        "handle": "optuna-trial:3",
+        "op": "ask",
+        "params": {
+          "atr_multiplier": 2.0,
+          "max_holding_bars": 30,
+          "pullback_ema_bars": 30,
+          "trend_fast_ema_bars": 60
+        }
+      },
+      {
+        "handle": "optuna-trial:3",
+        "op": "tell",
+        "state": "duplicate",
+        "value": null
+      },
+      {
+        "backend_trial_number": 4,
+        "handle": "optuna-trial:4",
+        "op": "ask",
+        "params": {
+          "atr_multiplier": 2.5,
+          "max_holding_bars": 30,
+          "pullback_ema_bars": 30,
+          "trend_fast_ema_bars": 60
+        }
+      },
+      {
+        "handle": "optuna-trial:4",
+        "op": "tell",
+        "state": "duplicate",
+        "value": null
+      },
+      {
+        "backend_trial_number": 5,
+        "handle": "optuna-trial:5",
+        "op": "ask",
+        "params": {
+          "atr_multiplier": 2.0,
+          "max_holding_bars": 30,
+          "pullback_ema_bars": 30,
+          "trend_fast_ema_bars": 60
+        }
+      },
+      {
+        "handle": "optuna-trial:5",
+        "op": "tell",
+        "state": "duplicate",
+        "value": null
+      },
+      {
+        "backend_trial_number": 6,
+        "handle": "optuna-trial:6",
+        "op": "ask",
+        "params": {
+          "atr_multiplier": 2.0,
+          "max_holding_bars": 30,
+          "pullback_ema_bars": 30,
+          "trend_fast_ema_bars": 60
+        }
+      },
+      {
+        "handle": "optuna-trial:6",
+        "op": "tell",
+        "state": "duplicate",
+        "value": null
+      },
+      {
+        "backend_trial_number": 7,
+        "handle": "optuna-trial:7",
+        "op": "ask",
+        "params": {
+          "atr_multiplier": 2.5,
+          "max_holding_bars": 30,
+          "pullback_ema_bars": 30,
+          "trend_fast_ema_bars": 60
+        }
+      },
+      {
+        "handle": "optuna-trial:7",
+        "op": "tell",
+        "state": "duplicate",
+        "value": null
+      },
+      {
+        "backend_trial_number": 8,
+        "handle": "optuna-trial:8",
+        "op": "ask",
+        "params": {
+          "atr_multiplier": 2.0,
+          "max_holding_bars": 30,
+          "pullback_ema_bars": 30,
+          "trend_fast_ema_bars": 60
+        }
+      },
+      {
+        "handle": "optuna-trial:8",
+        "op": "tell",
+        "state": "duplicate",
+        "value": null
+      },
+      {
+        "backend_trial_number": 9,
+        "handle": "optuna-trial:9",
+        "op": "ask",
+        "params": {
+          "atr_multiplier": 2.5,
+          "max_holding_bars": 30,
+          "pullback_ema_bars": 30,
+          "trend_fast_ema_bars": 60
+        }
+      },
+      {
+        "handle": "optuna-trial:9",
+        "op": "tell",
+        "state": "duplicate",
+        "value": null
+      },
+      {
+        "backend_trial_number": 10,
+        "handle": "optuna-trial:10",
+        "op": "ask",
+        "params": {
+          "atr_multiplier": 2.0,
+          "max_holding_bars": 30,
+          "pullback_ema_bars": 30,
+          "trend_fast_ema_bars": 60
+        }
+      },
+      {
+        "handle": "optuna-trial:10",
+        "op": "tell",
+        "state": "duplicate",
+        "value": null
+      },
+      {
+        "backend_trial_number": 11,
+        "handle": "optuna-trial:11",
+        "op": "ask",
+        "params": {
+          "atr_multiplier": 2.0,
+          "max_holding_bars": 30,
+          "pullback_ema_bars": 30,
+          "trend_fast_ema_bars": 60
+        }
+      },
+      {
+        "handle": "optuna-trial:11",
+        "op": "tell",
+        "state": "duplicate",
+        "value": null
+      },
+      {
+        "backend_trial_number": 12,
+        "handle": "optuna-trial:12",
+        "op": "ask",
+        "params": {
+          "atr_multiplier": 2.0,
+          "max_holding_bars": 30,
+          "pullback_ema_bars": 30,
+          "trend_fast_ema_bars": 60
+        }
+      },
+      {
+        "handle": "optuna-trial:12",
+        "op": "tell",
+        "state": "duplicate",
+        "value": null
+      },
+      {
+        "backend_trial_number": 13,
+        "handle": "optuna-trial:13",
+        "op": "ask",
+        "params": {
+          "atr_multiplier": 2.0,
+          "max_holding_bars": 30,
+          "pullback_ema_bars": 30,
+          "trend_fast_ema_bars": 60
+        }
+      },
+      {
+        "handle": "optuna-trial:13",
+        "op": "tell",
+        "state": "duplicate",
+        "value": null
+      },
+      {
+        "backend_trial_number": 14,
+        "handle": "optuna-trial:14",
+        "op": "ask",
+        "params": {
+          "atr_multiplier": 2.0,
+          "max_holding_bars": 30,
+          "pullback_ema_bars": 30,
+          "trend_fast_ema_bars": 60
+        }
+      },
+      {
+        "handle": "optuna-trial:14",
+        "op": "tell",
+        "state": "duplicate",
+        "value": null
+      },
+      {
+        "backend_trial_number": 15,
+        "handle": "optuna-trial:15",
+        "op": "ask",
+        "params": {
+          "atr_multiplier": 2.0,
+          "max_holding_bars": 30,
+          "pullback_ema_bars": 30,
+          "trend_fast_ema_bars": 60
+        }
+      },
+      {
+        "handle": "optuna-trial:15",
+        "op": "tell",
+        "state": "duplicate",
+        "value": null
+      },
+      {
+        "backend_trial_number": 16,
+        "handle": "optuna-trial:16",
+        "op": "ask",
+        "params": {
+          "atr_multiplier": 2.0,
+          "max_holding_bars": 30,
+          "pullback_ema_bars": 30,
+          "trend_fast_ema_bars": 60
+        }
+      },
+      {
+        "handle": "optuna-trial:16",
+        "op": "tell",
+        "state": "duplicate",
+        "value": null
+      },
+      {
+        "backend_trial_number": 17,
+        "handle": "optuna-trial:17",
+        "op": "ask",
+        "params": {
+          "atr_multiplier": 2.0,
+          "max_holding_bars": 30,
+          "pullback_ema_bars": 30,
+          "trend_fast_ema_bars": 60
+        }
+      },
+      {
+        "handle": "optuna-trial:17",
+        "op": "tell",
+        "state": "duplicate",
+        "value": null
+      },
+      {
+        "backend_trial_number": 18,
+        "handle": "optuna-trial:18",
+        "op": "ask",
+        "params": {
+          "atr_multiplier": 2.0,
+          "max_holding_bars": 30,
+          "pullback_ema_bars": 30,
+          "trend_fast_ema_bars": 60
+        }
+      },
+      {
+        "handle": "optuna-trial:18",
+        "op": "tell",
+        "state": "duplicate",
+        "value": null
+      },
+      {
+        "backend_trial_number": 19,
+        "handle": "optuna-trial:19",
+        "op": "ask",
+        "params": {
+          "atr_multiplier": 2.5,
+          "max_holding_bars": 30,
+          "pullback_ema_bars": 30,
+          "trend_fast_ema_bars": 60
+        }
+      },
+      {
+        "handle": "optuna-trial:19",
+        "op": "tell",
+        "state": "duplicate",
+        "value": null
+      },
+      {
+        "handle": "optuna-trial:2",
+        "op": "tell",
+        "state": "complete",
+        "value": 6.125030751316
+      }
+    ],
+    "optuna_version": "4.9.0",
+    "restore_method": "seeded_exact_operation_replay_with_proposal_verification",
+    "snapshot_hash": "sha256:3fa0eed5202c0bb6f0382aea64c474e6c05bb2c3b2fc6b7586bbf08be5c25ab8",
+    "snapshot_version": "optuna-proposal-replay-v1",
+    "surface": {
+      "conditional_rules": [],
+      "contract_hash": "sha256:a3ddc562e51dd0ba6f12ce73ef77192a8f95a57583db722963ac1480a6a242ab",
+      "objective_direction": "maximize",
+      "parameter_space": [
+        {
+          "choices": [],
+          "high": 30,
+          "kind": "int",
+          "low": 10,
+          "name": "pullback_ema_bars",
+          "required": true,
+          "step": 10
+        },
+        {
+          "choices": [],
+          "high": 60,
+          "kind": "int",
+          "low": 40,
+          "name": "trend_fast_ema_bars",
+          "required": true,
+          "step": 10
+        },
+        {
+          "choices": [],
+          "high": 3.0,
+          "kind": "float",
+          "low": 2.0,
+          "name": "atr_multiplier",
+          "required": true,
+          "step": 0.5
+        },
+        {
+          "choices": [],
+          "high": 60,
+          "kind": "int",
+          "low": 30,
+          "name": "max_holding_bars",
+          "required": true,
+          "step": 15
+        }
+      ],
+      "proposer": {
+        "backend": "tpe",
+        "config": [
+          [
+            "multivariate",
+            true
+          ],
+          [
+            "group",
+            true
+          ],
+          [
+            "n_startup_trials",
+            2
+          ]
+        ],
+        "version": "4.9.0"
+      },
+      "search_id": "SEARCH-EMA-PULLBACK-OPTUNA-TPE-001",
+      "seed": 1729
+    }
+  },
+  "contract_hash": "sha256:a3ddc562e51dd0ba6f12ce73ef77192a8f95a57583db722963ac1480a6a242ab",
+  "objective_by_fingerprint": {
+    "sha256:1f426152b51feaeb2bebcf4415c11f6e3ebbf91dfbf075ab4dfe5aa7af9baf10": 4.225738295026,
+    "sha256:9206b443931728bc6bb5e0eea0c913ea2d81e4e7853957547166b87ad3d923a0": 6.125030751316,
+    "sha256:a3e05e8e08a82b3b09a79a31bf28640a6d86867ff477f45bde9e9a4783f6a6d3": 6.125030751316
+  },
+  "proposal_attempt_number": {
+    "PROP-48CDA2DB39EEB4272FE9": 1,
+    "PROP-895E1DA7BD1F40278142": 1,
+    "PROP-E009811C287FB901C9AA": 1
+  },
+  "proposal_records": [
+    {
+      "adapter_handle": "optuna-trial:0",
+      "backend_trial_number": 0,
+      "campaign_id": "CAMPAIGN-EMA-PULLBACK-GOVERNED-PILOT-001",
+      "campaign_proposals_before_search": 0,
+      "campaign_scientific_trials_before_search": 0,
+      "canonical_authority": false,
+      "contract_hash": "sha256:a3ddc562e51dd0ba6f12ce73ef77192a8f95a57583db722963ac1480a6a242ab",
+      "data_identity": "NONCANONICAL-SYNTHETIC-OHLCV-DEVELOPMENT-001",
+      "data_version": "deterministic-wave-score-v1",
+      "family_id": "H-004-R2-EMA-PULLBACK-CONTINUATION",
+      "go_authority": false,
+      "hypothesis_fingerprint": "35f274626543bfe1e1042b35e25c14a3a5c62ed5d76b7afa4bb798be6a0a344e",
+      "hypothesis_id": "STRAT-SPEC-0007-NONCANONICAL-PILOT",
+      "noncanonical": true,
+      "params": {
+        "atr_multiplier": 2.5,
+        "max_holding_bars": 60,
+        "pullback_ema_bars": 10,
+        "trend_fast_ema_bars": 40
+      },
+      "params_fingerprint": "sha256:1f426152b51feaeb2bebcf4415c11f6e3ebbf91dfbf075ab4dfe5aa7af9baf10",
+      "parent_search_id": null,
+      "promotion_authority": false,
+      "proposal_id": "PROP-48CDA2DB39EEB4272FE9",
+      "proposal_sequence": 0,
+      "proposer_backend": "tpe",
+      "proposer_version": "4.9.0",
+      "rejection_reasons": [],
+      "repo_sha": "56303371643d152d12bc3f6396e45939318d5921",
+      "scientific_trial_id": "SEARCH-EMA-PULLBACK-OPTUNA-TPE-001:TRIAL-0001",
+      "search_id": "SEARCH-EMA-PULLBACK-OPTUNA-TPE-001",
+      "seed": 1729,
+      "status": "ACCEPTED_FOR_SCIENTIFIC_EXECUTION",
+      "wave_id": "WAVE-0001",
+      "winner_authority": false
+    },
+    {
+      "adapter_handle": "optuna-trial:1",
+      "backend_trial_number": 1,
+      "campaign_id": "CAMPAIGN-EMA-PULLBACK-GOVERNED-PILOT-001",
+      "campaign_proposals_before_search": 0,
+      "campaign_scientific_trials_before_search": 0,
+      "canonical_authority": false,
+      "contract_hash": "sha256:a3ddc562e51dd0ba6f12ce73ef77192a8f95a57583db722963ac1480a6a242ab",
+      "data_identity": "NONCANONICAL-SYNTHETIC-OHLCV-DEVELOPMENT-001",
+      "data_version": "deterministic-wave-score-v1",
+      "family_id": "H-004-R2-EMA-PULLBACK-CONTINUATION",
+      "go_authority": false,
+      "hypothesis_fingerprint": "35f274626543bfe1e1042b35e25c14a3a5c62ed5d76b7afa4bb798be6a0a344e",
+      "hypothesis_id": "STRAT-SPEC-0007-NONCANONICAL-PILOT",
+      "noncanonical": true,
+      "params": {
+        "atr_multiplier": 2.0,
+        "max_holding_bars": 30,
+        "pullback_ema_bars": 30,
+        "trend_fast_ema_bars": 60
+      },
+      "params_fingerprint": "sha256:a3e05e8e08a82b3b09a79a31bf28640a6d86867ff477f45bde9e9a4783f6a6d3",
+      "parent_search_id": null,
+      "promotion_authority": false,
+      "proposal_id": "PROP-E009811C287FB901C9AA",
+      "proposal_sequence": 1,
+      "proposer_backend": "tpe",
+      "proposer_version": "4.9.0",
+      "rejection_reasons": [],
+      "repo_sha": "56303371643d152d12bc3f6396e45939318d5921",
+      "scientific_trial_id": "SEARCH-EMA-PULLBACK-OPTUNA-TPE-001:TRIAL-0002",
+      "search_id": "SEARCH-EMA-PULLBACK-OPTUNA-TPE-001",
+      "seed": 1729,
+      "status": "ACCEPTED_FOR_SCIENTIFIC_EXECUTION",
+      "wave_id": "WAVE-0001",
+      "winner_authority": false
+    },
+    {
+      "adapter_handle": "optuna-trial:2",
+      "backend_trial_number": 2,
+      "campaign_id": "CAMPAIGN-EMA-PULLBACK-GOVERNED-PILOT-001",
+      "campaign_proposals_before_search": 0,
+      "campaign_scientific_trials_before_search": 0,
+      "canonical_authority": false,
+      "contract_hash": "sha256:a3ddc562e51dd0ba6f12ce73ef77192a8f95a57583db722963ac1480a6a242ab",
+      "data_identity": "NONCANONICAL-SYNTHETIC-OHLCV-DEVELOPMENT-001",
+      "data_version": "deterministic-wave-score-v1",
+      "family_id": "H-004-R2-EMA-PULLBACK-CONTINUATION",
+      "go_authority": false,
+      "hypothesis_fingerprint": "35f274626543bfe1e1042b35e25c14a3a5c62ed5d76b7afa4bb798be6a0a344e",
+      "hypothesis_id": "STRAT-SPEC-0007-NONCANONICAL-PILOT",
+      "noncanonical": true,
+      "params": {
+        "atr_multiplier": 2.5,
+        "max_holding_bars": 30,
+        "pullback_ema_bars": 30,
+        "trend_fast_ema_bars": 60
+      },
+      "params_fingerprint": "sha256:9206b443931728bc6bb5e0eea0c913ea2d81e4e7853957547166b87ad3d923a0",
+      "parent_search_id": null,
+      "promotion_authority": false,
+      "proposal_id": "PROP-895E1DA7BD1F40278142",
+      "proposal_sequence": 2,
+      "proposer_backend": "tpe",
+      "proposer_version": "4.9.0",
+      "rejection_reasons": [],
+      "repo_sha": "56303371643d152d12bc3f6396e45939318d5921",
+      "scientific_trial_id": "SEARCH-EMA-PULLBACK-OPTUNA-TPE-001:TRIAL-0003",
+      "search_id": "SEARCH-EMA-PULLBACK-OPTUNA-TPE-001",
+      "seed": 1729,
+      "status": "ACCEPTED_FOR_SCIENTIFIC_EXECUTION",
+      "wave_id": "WAVE-0002",
+      "winner_authority": false
+    },
+    {
+      "adapter_handle": "optuna-trial:3",
+      "backend_trial_number": 3,
+      "campaign_id": "CAMPAIGN-EMA-PULLBACK-GOVERNED-PILOT-001",
+      "campaign_proposals_before_search": 0,
+      "campaign_scientific_trials_before_search": 0,
+      "canonical_authority": false,
+      "contract_hash": "sha256:a3ddc562e51dd0ba6f12ce73ef77192a8f95a57583db722963ac1480a6a242ab",
+      "data_identity": "NONCANONICAL-SYNTHETIC-OHLCV-DEVELOPMENT-001",
+      "data_version": "deterministic-wave-score-v1",
+      "family_id": "H-004-R2-EMA-PULLBACK-CONTINUATION",
+      "go_authority": false,
+      "hypothesis_fingerprint": "35f274626543bfe1e1042b35e25c14a3a5c62ed5d76b7afa4bb798be6a0a344e",
+      "hypothesis_id": "STRAT-SPEC-0007-NONCANONICAL-PILOT",
+      "noncanonical": true,
+      "params": {
+        "atr_multiplier": 2.0,
+        "max_holding_bars": 30,
+        "pullback_ema_bars": 30,
+        "trend_fast_ema_bars": 60
+      },
+      "params_fingerprint": "sha256:a3e05e8e08a82b3b09a79a31bf28640a6d86867ff477f45bde9e9a4783f6a6d3",
+      "parent_search_id": null,
+      "promotion_authority": false,
+      "proposal_id": "PROP-94E5C99F78D97F5414A1",
+      "proposal_sequence": 3,
+      "proposer_backend": "tpe",
+      "proposer_version": "4.9.0",
+      "rejection_reasons": [
+        "duplicate_of:PROP-E009811C287FB901C9AA"
+      ],
+      "repo_sha": "56303371643d152d12bc3f6396e45939318d5921",
+      "scientific_trial_id": null,
+      "search_id": "SEARCH-EMA-PULLBACK-OPTUNA-TPE-001",
+      "seed": 1729,
+      "status": "DUPLICATE_NOT_NEW_OBSERVATION",
+      "wave_id": "WAVE-0002",
+      "winner_authority": false
+    },
+    {
+      "adapter_handle": "optuna-trial:4",
+      "backend_trial_number": 4,
+      "campaign_id": "CAMPAIGN-EMA-PULLBACK-GOVERNED-PILOT-001",
+      "campaign_proposals_before_search": 0,
+      "campaign_scientific_trials_before_search": 0,
+      "canonical_authority": false,
+      "contract_hash": "sha256:a3ddc562e51dd0ba6f12ce73ef77192a8f95a57583db722963ac1480a6a242ab",
+      "data_identity": "NONCANONICAL-SYNTHETIC-OHLCV-DEVELOPMENT-001",
+      "data_version": "deterministic-wave-score-v1",
+      "family_id": "H-004-R2-EMA-PULLBACK-CONTINUATION",
+      "go_authority": false,
+      "hypothesis_fingerprint": "35f274626543bfe1e1042b35e25c14a3a5c62ed5d76b7afa4bb798be6a0a344e",
+      "hypothesis_id": "STRAT-SPEC-0007-NONCANONICAL-PILOT",
+      "noncanonical": true,
+      "params": {
+        "atr_multiplier": 2.5,
+        "max_holding_bars": 30,
+        "pullback_ema_bars": 30,
+        "trend_fast_ema_bars": 60
+      },
+      "params_fingerprint": "sha256:9206b443931728bc6bb5e0eea0c913ea2d81e4e7853957547166b87ad3d923a0",
+      "parent_search_id": null,
+      "promotion_authority": false,
+      "proposal_id": "PROP-381CA06F2557891D7AB6",
+      "proposal_sequence": 4,
+      "proposer_backend": "tpe",
+      "proposer_version": "4.9.0",
+      "rejection_reasons": [
+        "duplicate_of:PROP-895E1DA7BD1F40278142"
+      ],
+      "repo_sha": "56303371643d152d12bc3f6396e45939318d5921",
+      "scientific_trial_id": null,
+      "search_id": "SEARCH-EMA-PULLBACK-OPTUNA-TPE-001",
+      "seed": 1729,
+      "status": "DUPLICATE_NOT_NEW_OBSERVATION",
+      "wave_id": "WAVE-0002",
+      "winner_authority": false
+    },
+    {
+      "adapter_handle": "optuna-trial:5",
+      "backend_trial_number": 5,
+      "campaign_id": "CAMPAIGN-EMA-PULLBACK-GOVERNED-PILOT-001",
+      "campaign_proposals_before_search": 0,
+      "campaign_scientific_trials_before_search": 0,
+      "canonical_authority": false,
+      "contract_hash": "sha256:a3ddc562e51dd0ba6f12ce73ef77192a8f95a57583db722963ac1480a6a242ab",
+      "data_identity": "NONCANONICAL-SYNTHETIC-OHLCV-DEVELOPMENT-001",
+      "data_version": "deterministic-wave-score-v1",
+      "family_id": "H-004-R2-EMA-PULLBACK-CONTINUATION",
+      "go_authority": false,
+      "hypothesis_fingerprint": "35f274626543bfe1e1042b35e25c14a3a5c62ed5d76b7afa4bb798be6a0a344e",
+      "hypothesis_id": "STRAT-SPEC-0007-NONCANONICAL-PILOT",
+      "noncanonical": true,
+      "params": {
+        "atr_multiplier": 2.0,
+        "max_holding_bars": 30,
+        "pullback_ema_bars": 30,
+        "trend_fast_ema_bars": 60
+      },
+      "params_fingerprint": "sha256:a3e05e8e08a82b3b09a79a31bf28640a6d86867ff477f45bde9e9a4783f6a6d3",
+      "parent_search_id": null,
+      "promotion_authority": false,
+      "proposal_id": "PROP-6454E62D1E5E49C5290E",
+      "proposal_sequence": 5,
+      "proposer_backend": "tpe",
+      "proposer_version": "4.9.0",
+      "rejection_reasons": [
+        "duplicate_of:PROP-E009811C287FB901C9AA"
+      ],
+      "repo_sha": "56303371643d152d12bc3f6396e45939318d5921",
+      "scientific_trial_id": null,
+      "search_id": "SEARCH-EMA-PULLBACK-OPTUNA-TPE-001",
+      "seed": 1729,
+      "status": "DUPLICATE_NOT_NEW_OBSERVATION",
+      "wave_id": "WAVE-0002",
+      "winner_authority": false
+    },
+    {
+      "adapter_handle": "optuna-trial:6",
+      "backend_trial_number": 6,
+      "campaign_id": "CAMPAIGN-EMA-PULLBACK-GOVERNED-PILOT-001",
+      "campaign_proposals_before_search": 0,
+      "campaign_scientific_trials_before_search": 0,
+      "canonical_authority": false,
+      "contract_hash": "sha256:a3ddc562e51dd0ba6f12ce73ef77192a8f95a57583db722963ac1480a6a242ab",
+      "data_identity": "NONCANONICAL-SYNTHETIC-OHLCV-DEVELOPMENT-001",
+      "data_version": "deterministic-wave-score-v1",
+      "family_id": "H-004-R2-EMA-PULLBACK-CONTINUATION",
+      "go_authority": false,
+      "hypothesis_fingerprint": "35f274626543bfe1e1042b35e25c14a3a5c62ed5d76b7afa4bb798be6a0a344e",
+      "hypothesis_id": "STRAT-SPEC-0007-NONCANONICAL-PILOT",
+      "noncanonical": true,
+      "params": {
+        "atr_multiplier": 2.0,
+        "max_holding_bars": 30,
+        "pullback_ema_bars": 30,
+        "trend_fast_ema_bars": 60
+      },
+      "params_fingerprint": "sha256:a3e05e8e08a82b3b09a79a31bf28640a6d86867ff477f45bde9e9a4783f6a6d3",
+      "parent_search_id": null,
+      "promotion_authority": false,
+      "proposal_id": "PROP-98FA07D52487F62FA462",
+      "proposal_sequence": 6,
+      "proposer_backend": "tpe",
+      "proposer_version": "4.9.0",
+      "rejection_reasons": [
+        "duplicate_of:PROP-E009811C287FB901C9AA"
+      ],
+      "repo_sha": "56303371643d152d12bc3f6396e45939318d5921",
+      "scientific_trial_id": null,
+      "search_id": "SEARCH-EMA-PULLBACK-OPTUNA-TPE-001",
+      "seed": 1729,
+      "status": "DUPLICATE_NOT_NEW_OBSERVATION",
+      "wave_id": "WAVE-0002",
+      "winner_authority": false
+    },
+    {
+      "adapter_handle": "optuna-trial:7",
+      "backend_trial_number": 7,
+      "campaign_id": "CAMPAIGN-EMA-PULLBACK-GOVERNED-PILOT-001",
+      "campaign_proposals_before_search": 0,
+      "campaign_scientific_trials_before_search": 0,
+      "canonical_authority": false,
+      "contract_hash": "sha256:a3ddc562e51dd0ba6f12ce73ef77192a8f95a57583db722963ac1480a6a242ab",
+      "data_identity": "NONCANONICAL-SYNTHETIC-OHLCV-DEVELOPMENT-001",
+      "data_version": "deterministic-wave-score-v1",
+      "family_id": "H-004-R2-EMA-PULLBACK-CONTINUATION",
+      "go_authority": false,
+      "hypothesis_fingerprint": "35f274626543bfe1e1042b35e25c14a3a5c62ed5d76b7afa4bb798be6a0a344e",
+      "hypothesis_id": "STRAT-SPEC-0007-NONCANONICAL-PILOT",
+      "noncanonical": true,
+      "params": {
+        "atr_multiplier": 2.5,
+        "max_holding_bars": 30,
+        "pullback_ema_bars": 30,
+        "trend_fast_ema_bars": 60
+      },
+      "params_fingerprint": "sha256:9206b443931728bc6bb5e0eea0c913ea2d81e4e7853957547166b87ad3d923a0",
+      "parent_search_id": null,
+      "promotion_authority": false,
+      "proposal_id": "PROP-FB49FF302998589FFB7A",
+      "proposal_sequence": 7,
+      "proposer_backend": "tpe",
+      "proposer_version": "4.9.0",
+      "rejection_reasons": [
+        "duplicate_of:PROP-895E1DA7BD1F40278142"
+      ],
+      "repo_sha": "56303371643d152d12bc3f6396e45939318d5921",
+      "scientific_trial_id": null,
+      "search_id": "SEARCH-EMA-PULLBACK-OPTUNA-TPE-001",
+      "seed": 1729,
+      "status": "DUPLICATE_NOT_NEW_OBSERVATION",
+      "wave_id": "WAVE-0002",
+      "winner_authority": false
+    },
+    {
+      "adapter_handle": "optuna-trial:8",
+      "backend_trial_number": 8,
+      "campaign_id": "CAMPAIGN-EMA-PULLBACK-GOVERNED-PILOT-001",
+      "campaign_proposals_before_search": 0,
+      "campaign_scientific_trials_before_search": 0,
+      "canonical_authority": false,
+      "contract_hash": "sha256:a3ddc562e51dd0ba6f12ce73ef77192a8f95a57583db722963ac1480a6a242ab",
+      "data_identity": "NONCANONICAL-SYNTHETIC-OHLCV-DEVELOPMENT-001",
+      "data_version": "deterministic-wave-score-v1",
+      "family_id": "H-004-R2-EMA-PULLBACK-CONTINUATION",
+      "go_authority": false,
+      "hypothesis_fingerprint": "35f274626543bfe1e1042b35e25c14a3a5c62ed5d76b7afa4bb798be6a0a344e",
+      "hypothesis_id": "STRAT-SPEC-0007-NONCANONICAL-PILOT",
+      "noncanonical": true,
+      "params": {
+        "atr_multiplier": 2.0,
+        "max_holding_bars": 30,
+        "pullback_ema_bars": 30,
+        "trend_fast_ema_bars": 60
+      },
+      "params_fingerprint": "sha256:a3e05e8e08a82b3b09a79a31bf28640a6d86867ff477f45bde9e9a4783f6a6d3",
+      "parent_search_id": null,
+      "promotion_authority": false,
+      "proposal_id": "PROP-F3343F7FCBEA222C9F3E",
+      "proposal_sequence": 8,
+      "proposer_backend": "tpe",
+      "proposer_version": "4.9.0",
+      "rejection_reasons": [
+        "duplicate_of:PROP-E009811C287FB901C9AA"
+      ],
+      "repo_sha": "56303371643d152d12bc3f6396e45939318d5921",
+      "scientific_trial_id": null,
+      "search_id": "SEARCH-EMA-PULLBACK-OPTUNA-TPE-001",
+      "seed": 1729,
+      "status": "DUPLICATE_NOT_NEW_OBSERVATION",
+      "wave_id": "WAVE-0002",
+      "winner_authority": false
+    },
+    {
+      "adapter_handle": "optuna-trial:9",
+      "backend_trial_number": 9,
+      "campaign_id": "CAMPAIGN-EMA-PULLBACK-GOVERNED-PILOT-001",
+      "campaign_proposals_before_search": 0,
+      "campaign_scientific_trials_before_search": 0,
+      "canonical_authority": false,
+      "contract_hash": "sha256:a3ddc562e51dd0ba6f12ce73ef77192a8f95a57583db722963ac1480a6a242ab",
+      "data_identity": "NONCANONICAL-SYNTHETIC-OHLCV-DEVELOPMENT-001",
+      "data_version": "deterministic-wave-score-v1",
+      "family_id": "H-004-R2-EMA-PULLBACK-CONTINUATION",
+      "go_authority": false,
+      "hypothesis_fingerprint": "35f274626543bfe1e1042b35e25c14a3a5c62ed5d76b7afa4bb798be6a0a344e",
+      "hypothesis_id": "STRAT-SPEC-0007-NONCANONICAL-PILOT",
+      "noncanonical": true,
+      "params": {
+        "atr_multiplier": 2.5,
+        "max_holding_bars": 30,
+        "pullback_ema_bars": 30,
+        "trend_fast_ema_bars": 60
+      },
+      "params_fingerprint": "sha256:9206b443931728bc6bb5e0eea0c913ea2d81e4e7853957547166b87ad3d923a0",
+      "parent_search_id": null,
+      "promotion_authority": false,
+      "proposal_id": "PROP-388B24BD7AA3BB9D0498",
+      "proposal_sequence": 9,
+      "proposer_backend": "tpe",
+      "proposer_version": "4.9.0",
+      "rejection_reasons": [
+        "duplicate_of:PROP-895E1DA7BD1F40278142"
+      ],
+      "repo_sha": "56303371643d152d12bc3f6396e45939318d5921",
+      "scientific_trial_id": null,
+      "search_id": "SEARCH-EMA-PULLBACK-OPTUNA-TPE-001",
+      "seed": 1729,
+      "status": "DUPLICATE_NOT_NEW_OBSERVATION",
+      "wave_id": "WAVE-0002",
+      "winner_authority": false
+    },
+    {
+      "adapter_handle": "optuna-trial:10",
+      "backend_trial_number": 10,
+      "campaign_id": "CAMPAIGN-EMA-PULLBACK-GOVERNED-PILOT-001",
+      "campaign_proposals_before_search": 0,
+      "campaign_scientific_trials_before_search": 0,
+      "canonical_authority": false,
+      "contract_hash": "sha256:a3ddc562e51dd0ba6f12ce73ef77192a8f95a57583db722963ac1480a6a242ab",
+      "data_identity": "NONCANONICAL-SYNTHETIC-OHLCV-DEVELOPMENT-001",
+      "data_version": "deterministic-wave-score-v1",
+      "family_id": "H-004-R2-EMA-PULLBACK-CONTINUATION",
+      "go_authority": false,
+      "hypothesis_fingerprint": "35f274626543bfe1e1042b35e25c14a3a5c62ed5d76b7afa4bb798be6a0a344e",
+      "hypothesis_id": "STRAT-SPEC-0007-NONCANONICAL-PILOT",
+      "noncanonical": true,
+      "params": {
+        "atr_multiplier": 2.0,
+        "max_holding_bars": 30,
+        "pullback_ema_bars": 30,
+        "trend_fast_ema_bars": 60
+      },
+      "params_fingerprint": "sha256:a3e05e8e08a82b3b09a79a31bf28640a6d86867ff477f45bde9e9a4783f6a6d3",
+      "parent_search_id": null,
+      "promotion_authority": false,
+      "proposal_id": "PROP-61AA9722AFE7B4DE3A9C",
+      "proposal_sequence": 10,
+      "proposer_backend": "tpe",
+      "proposer_version": "4.9.0",
+      "rejection_reasons": [
+        "duplicate_of:PROP-E009811C287FB901C9AA"
+      ],
+      "repo_sha": "56303371643d152d12bc3f6396e45939318d5921",
+      "scientific_trial_id": null,
+      "search_id": "SEARCH-EMA-PULLBACK-OPTUNA-TPE-001",
+      "seed": 1729,
+      "status": "DUPLICATE_NOT_NEW_OBSERVATION",
+      "wave_id": "WAVE-0002",
+      "winner_authority": false
+    },
+    {
+      "adapter_handle": "optuna-trial:11",
+      "backend_trial_number": 11,
+      "campaign_id": "CAMPAIGN-EMA-PULLBACK-GOVERNED-PILOT-001",
+      "campaign_proposals_before_search": 0,
+      "campaign_scientific_trials_before_search": 0,
+      "canonical_authority": false,
+      "contract_hash": "sha256:a3ddc562e51dd0ba6f12ce73ef77192a8f95a57583db722963ac1480a6a242ab",
+      "data_identity": "NONCANONICAL-SYNTHETIC-OHLCV-DEVELOPMENT-001",
+      "data_version": "deterministic-wave-score-v1",
+      "family_id": "H-004-R2-EMA-PULLBACK-CONTINUATION",
+      "go_authority": false,
+      "hypothesis_fingerprint": "35f274626543bfe1e1042b35e25c14a3a5c62ed5d76b7afa4bb798be6a0a344e",
+      "hypothesis_id": "STRAT-SPEC-0007-NONCANONICAL-PILOT",
+      "noncanonical": true,
+      "params": {
+        "atr_multiplier": 2.0,
+        "max_holding_bars": 30,
+        "pullback_ema_bars": 30,
+        "trend_fast_ema_bars": 60
+      },
+      "params_fingerprint": "sha256:a3e05e8e08a82b3b09a79a31bf28640a6d86867ff477f45bde9e9a4783f6a6d3",
+      "parent_search_id": null,
+      "promotion_authority": false,
+      "proposal_id": "PROP-C62CDF1339DDB9B70B7C",
+      "proposal_sequence": 11,
+      "proposer_backend": "tpe",
+      "proposer_version": "4.9.0",
+      "rejection_reasons": [
+        "duplicate_of:PROP-E009811C287FB901C9AA"
+      ],
+      "repo_sha": "56303371643d152d12bc3f6396e45939318d5921",
+      "scientific_trial_id": null,
+      "search_id": "SEARCH-EMA-PULLBACK-OPTUNA-TPE-001",
+      "seed": 1729,
+      "status": "DUPLICATE_NOT_NEW_OBSERVATION",
+      "wave_id": "WAVE-0002",
+      "winner_authority": false
+    },
+    {
+      "adapter_handle": "optuna-trial:12",
+      "backend_trial_number": 12,
+      "campaign_id": "CAMPAIGN-EMA-PULLBACK-GOVERNED-PILOT-001",
+      "campaign_proposals_before_search": 0,
+      "campaign_scientific_trials_before_search": 0,
+      "canonical_authority": false,
+      "contract_hash": "sha256:a3ddc562e51dd0ba6f12ce73ef77192a8f95a57583db722963ac1480a6a242ab",
+      "data_identity": "NONCANONICAL-SYNTHETIC-OHLCV-DEVELOPMENT-001",
+      "data_version": "deterministic-wave-score-v1",
+      "family_id": "H-004-R2-EMA-PULLBACK-CONTINUATION",
+      "go_authority": false,
+      "hypothesis_fingerprint": "35f274626543bfe1e1042b35e25c14a3a5c62ed5d76b7afa4bb798be6a0a344e",
+      "hypothesis_id": "STRAT-SPEC-0007-NONCANONICAL-PILOT",
+      "noncanonical": true,
+      "params": {
+        "atr_multiplier": 2.0,
+        "max_holding_bars": 30,
+        "pullback_ema_bars": 30,
+        "trend_fast_ema_bars": 60
+      },
+      "params_fingerprint": "sha256:a3e05e8e08a82b3b09a79a31bf28640a6d86867ff477f45bde9e9a4783f6a6d3",
+      "parent_search_id": null,
+      "promotion_authority": false,
+      "proposal_id": "PROP-BC22E52CDB7EEDA455F2",
+      "proposal_sequence": 12,
+      "proposer_backend": "tpe",
+      "proposer_version": "4.9.0",
+      "rejection_reasons": [
+        "duplicate_of:PROP-E009811C287FB901C9AA"
+      ],
+      "repo_sha": "56303371643d152d12bc3f6396e45939318d5921",
+      "scientific_trial_id": null,
+      "search_id": "SEARCH-EMA-PULLBACK-OPTUNA-TPE-001",
+      "seed": 1729,
+      "status": "DUPLICATE_NOT_NEW_OBSERVATION",
+      "wave_id": "WAVE-0002",
+      "winner_authority": false
+    },
+    {
+      "adapter_handle": "optuna-trial:13",
+      "backend_trial_number": 13,
+      "campaign_id": "CAMPAIGN-EMA-PULLBACK-GOVERNED-PILOT-001",
+      "campaign_proposals_before_search": 0,
+      "campaign_scientific_trials_before_search": 0,
+      "canonical_authority": false,
+      "contract_hash": "sha256:a3ddc562e51dd0ba6f12ce73ef77192a8f95a57583db722963ac1480a6a242ab",
+      "data_identity": "NONCANONICAL-SYNTHETIC-OHLCV-DEVELOPMENT-001",
+      "data_version": "deterministic-wave-score-v1",
+      "family_id": "H-004-R2-EMA-PULLBACK-CONTINUATION",
+      "go_authority": false,
+      "hypothesis_fingerprint": "35f274626543bfe1e1042b35e25c14a3a5c62ed5d76b7afa4bb798be6a0a344e",
+      "hypothesis_id": "STRAT-SPEC-0007-NONCANONICAL-PILOT",
+      "noncanonical": true,
+      "params": {
+        "atr_multiplier": 2.0,
+        "max_holding_bars": 30,
+        "pullback_ema_bars": 30,
+        "trend_fast_ema_bars": 60
+      },
+      "params_fingerprint": "sha256:a3e05e8e08a82b3b09a79a31bf28640a6d86867ff477f45bde9e9a4783f6a6d3",
+      "parent_search_id": null,
+      "promotion_authority": false,
+      "proposal_id": "PROP-97027ACD5B3D67412C6A",
+      "proposal_sequence": 13,
+      "proposer_backend": "tpe",
+      "proposer_version": "4.9.0",
+      "rejection_reasons": [
+        "duplicate_of:PROP-E009811C287FB901C9AA"
+      ],
+      "repo_sha": "56303371643d152d12bc3f6396e45939318d5921",
+      "scientific_trial_id": null,
+      "search_id": "SEARCH-EMA-PULLBACK-OPTUNA-TPE-001",
+      "seed": 1729,
+      "status": "DUPLICATE_NOT_NEW_OBSERVATION",
+      "wave_id": "WAVE-0002",
+      "winner_authority": false
+    },
+    {
+      "adapter_handle": "optuna-trial:14",
+      "backend_trial_number": 14,
+      "campaign_id": "CAMPAIGN-EMA-PULLBACK-GOVERNED-PILOT-001",
+      "campaign_proposals_before_search": 0,
+      "campaign_scientific_trials_before_search": 0,
+      "canonical_authority": false,
+      "contract_hash": "sha256:a3ddc562e51dd0ba6f12ce73ef77192a8f95a57583db722963ac1480a6a242ab",
+      "data_identity": "NONCANONICAL-SYNTHETIC-OHLCV-DEVELOPMENT-001",
+      "data_version": "deterministic-wave-score-v1",
+      "family_id": "H-004-R2-EMA-PULLBACK-CONTINUATION",
+      "go_authority": false,
+      "hypothesis_fingerprint": "35f274626543bfe1e1042b35e25c14a3a5c62ed5d76b7afa4bb798be6a0a344e",
+      "hypothesis_id": "STRAT-SPEC-0007-NONCANONICAL-PILOT",
+      "noncanonical": true,
+      "params": {
+        "atr_multiplier": 2.0,
+        "max_holding_bars": 30,
+        "pullback_ema_bars": 30,
+        "trend_fast_ema_bars": 60
+      },
+      "params_fingerprint": "sha256:a3e05e8e08a82b3b09a79a31bf28640a6d86867ff477f45bde9e9a4783f6a6d3",
+      "parent_search_id": null,
+      "promotion_authority": false,
+      "proposal_id": "PROP-9E05E1927AF68EA6E1F3",
+      "proposal_sequence": 14,
+      "proposer_backend": "tpe",
+      "proposer_version": "4.9.0",
+      "rejection_reasons": [
+        "duplicate_of:PROP-E009811C287FB901C9AA"
+      ],
+      "repo_sha": "56303371643d152d12bc3f6396e45939318d5921",
+      "scientific_trial_id": null,
+      "search_id": "SEARCH-EMA-PULLBACK-OPTUNA-TPE-001",
+      "seed": 1729,
+      "status": "DUPLICATE_NOT_NEW_OBSERVATION",
+      "wave_id": "WAVE-0002",
+      "winner_authority": false
+    },
+    {
+      "adapter_handle": "optuna-trial:15",
+      "backend_trial_number": 15,
+      "campaign_id": "CAMPAIGN-EMA-PULLBACK-GOVERNED-PILOT-001",
+      "campaign_proposals_before_search": 0,
+      "campaign_scientific_trials_before_search": 0,
+      "canonical_authority": false,
+      "contract_hash": "sha256:a3ddc562e51dd0ba6f12ce73ef77192a8f95a57583db722963ac1480a6a242ab",
+      "data_identity": "NONCANONICAL-SYNTHETIC-OHLCV-DEVELOPMENT-001",
+      "data_version": "deterministic-wave-score-v1",
+      "family_id": "H-004-R2-EMA-PULLBACK-CONTINUATION",
+      "go_authority": false,
+      "hypothesis_fingerprint": "35f274626543bfe1e1042b35e25c14a3a5c62ed5d76b7afa4bb798be6a0a344e",
+      "hypothesis_id": "STRAT-SPEC-0007-NONCANONICAL-PILOT",
+      "noncanonical": true,
+      "params": {
+        "atr_multiplier": 2.0,
+        "max_holding_bars": 30,
+        "pullback_ema_bars": 30,
+        "trend_fast_ema_bars": 60
+      },
+      "params_fingerprint": "sha256:a3e05e8e08a82b3b09a79a31bf28640a6d86867ff477f45bde9e9a4783f6a6d3",
+      "parent_search_id": null,
+      "promotion_authority": false,
+      "proposal_id": "PROP-4DC1B1A87BC9219D90C6",
+      "proposal_sequence": 15,
+      "proposer_backend": "tpe",
+      "proposer_version": "4.9.0",
+      "rejection_reasons": [
+        "duplicate_of:PROP-E009811C287FB901C9AA"
+      ],
+      "repo_sha": "56303371643d152d12bc3f6396e45939318d5921",
+      "scientific_trial_id": null,
+      "search_id": "SEARCH-EMA-PULLBACK-OPTUNA-TPE-001",
+      "seed": 1729,
+      "status": "DUPLICATE_NOT_NEW_OBSERVATION",
+      "wave_id": "WAVE-0002",
+      "winner_authority": false
+    },
+    {
+      "adapter_handle": "optuna-trial:16",
+      "backend_trial_number": 16,
+      "campaign_id": "CAMPAIGN-EMA-PULLBACK-GOVERNED-PILOT-001",
+      "campaign_proposals_before_search": 0,
+      "campaign_scientific_trials_before_search": 0,
+      "canonical_authority": false,
+      "contract_hash": "sha256:a3ddc562e51dd0ba6f12ce73ef77192a8f95a57583db722963ac1480a6a242ab",
+      "data_identity": "NONCANONICAL-SYNTHETIC-OHLCV-DEVELOPMENT-001",
+      "data_version": "deterministic-wave-score-v1",
+      "family_id": "H-004-R2-EMA-PULLBACK-CONTINUATION",
+      "go_authority": false,
+      "hypothesis_fingerprint": "35f274626543bfe1e1042b35e25c14a3a5c62ed5d76b7afa4bb798be6a0a344e",
+      "hypothesis_id": "STRAT-SPEC-0007-NONCANONICAL-PILOT",
+      "noncanonical": true,
+      "params": {
+        "atr_multiplier": 2.0,
+        "max_holding_bars": 30,
+        "pullback_ema_bars": 30,
+        "trend_fast_ema_bars": 60
+      },
+      "params_fingerprint": "sha256:a3e05e8e08a82b3b09a79a31bf28640a6d86867ff477f45bde9e9a4783f6a6d3",
+      "parent_search_id": null,
+      "promotion_authority": false,
+      "proposal_id": "PROP-E434C498CF50EE5B5CA4",
+      "proposal_sequence": 16,
+      "proposer_backend": "tpe",
+      "proposer_version": "4.9.0",
+      "rejection_reasons": [
+        "duplicate_of:PROP-E009811C287FB901C9AA"
+      ],
+      "repo_sha": "56303371643d152d12bc3f6396e45939318d5921",
+      "scientific_trial_id": null,
+      "search_id": "SEARCH-EMA-PULLBACK-OPTUNA-TPE-001",
+      "seed": 1729,
+      "status": "DUPLICATE_NOT_NEW_OBSERVATION",
+      "wave_id": "WAVE-0002",
+      "winner_authority": false
+    },
+    {
+      "adapter_handle": "optuna-trial:17",
+      "backend_trial_number": 17,
+      "campaign_id": "CAMPAIGN-EMA-PULLBACK-GOVERNED-PILOT-001",
+      "campaign_proposals_before_search": 0,
+      "campaign_scientific_trials_before_search": 0,
+      "canonical_authority": false,
+      "contract_hash": "sha256:a3ddc562e51dd0ba6f12ce73ef77192a8f95a57583db722963ac1480a6a242ab",
+      "data_identity": "NONCANONICAL-SYNTHETIC-OHLCV-DEVELOPMENT-001",
+      "data_version": "deterministic-wave-score-v1",
+      "family_id": "H-004-R2-EMA-PULLBACK-CONTINUATION",
+      "go_authority": false,
+      "hypothesis_fingerprint": "35f274626543bfe1e1042b35e25c14a3a5c62ed5d76b7afa4bb798be6a0a344e",
+      "hypothesis_id": "STRAT-SPEC-0007-NONCANONICAL-PILOT",
+      "noncanonical": true,
+      "params": {
+        "atr_multiplier": 2.0,
+        "max_holding_bars": 30,
+        "pullback_ema_bars": 30,
+        "trend_fast_ema_bars": 60
+      },
+      "params_fingerprint": "sha256:a3e05e8e08a82b3b09a79a31bf28640a6d86867ff477f45bde9e9a4783f6a6d3",
+      "parent_search_id": null,
+      "promotion_authority": false,
+      "proposal_id": "PROP-35D8DE27D77E4C0DF461",
+      "proposal_sequence": 17,
+      "proposer_backend": "tpe",
+      "proposer_version": "4.9.0",
+      "rejection_reasons": [
+        "duplicate_of:PROP-E009811C287FB901C9AA"
+      ],
+      "repo_sha": "56303371643d152d12bc3f6396e45939318d5921",
+      "scientific_trial_id": null,
+      "search_id": "SEARCH-EMA-PULLBACK-OPTUNA-TPE-001",
+      "seed": 1729,
+      "status": "DUPLICATE_NOT_NEW_OBSERVATION",
+      "wave_id": "WAVE-0002",
+      "winner_authority": false
+    },
+    {
+      "adapter_handle": "optuna-trial:18",
+      "backend_trial_number": 18,
+      "campaign_id": "CAMPAIGN-EMA-PULLBACK-GOVERNED-PILOT-001",
+      "campaign_proposals_before_search": 0,
+      "campaign_scientific_trials_before_search": 0,
+      "canonical_authority": false,
+      "contract_hash": "sha256:a3ddc562e51dd0ba6f12ce73ef77192a8f95a57583db722963ac1480a6a242ab",
+      "data_identity": "NONCANONICAL-SYNTHETIC-OHLCV-DEVELOPMENT-001",
+      "data_version": "deterministic-wave-score-v1",
+      "family_id": "H-004-R2-EMA-PULLBACK-CONTINUATION",
+      "go_authority": false,
+      "hypothesis_fingerprint": "35f274626543bfe1e1042b35e25c14a3a5c62ed5d76b7afa4bb798be6a0a344e",
+      "hypothesis_id": "STRAT-SPEC-0007-NONCANONICAL-PILOT",
+      "noncanonical": true,
+      "params": {
+        "atr_multiplier": 2.0,
+        "max_holding_bars": 30,
+        "pullback_ema_bars": 30,
+        "trend_fast_ema_bars": 60
+      },
+      "params_fingerprint": "sha256:a3e05e8e08a82b3b09a79a31bf28640a6d86867ff477f45bde9e9a4783f6a6d3",
+      "parent_search_id": null,
+      "promotion_authority": false,
+      "proposal_id": "PROP-D93BB76E9BFAFF2BA5EB",
+      "proposal_sequence": 18,
+      "proposer_backend": "tpe",
+      "proposer_version": "4.9.0",
+      "rejection_reasons": [
+        "duplicate_of:PROP-E009811C287FB901C9AA"
+      ],
+      "repo_sha": "56303371643d152d12bc3f6396e45939318d5921",
+      "scientific_trial_id": null,
+      "search_id": "SEARCH-EMA-PULLBACK-OPTUNA-TPE-001",
+      "seed": 1729,
+      "status": "DUPLICATE_NOT_NEW_OBSERVATION",
+      "wave_id": "WAVE-0002",
+      "winner_authority": false
+    },
+    {
+      "adapter_handle": "optuna-trial:19",
+      "backend_trial_number": 19,
+      "campaign_id": "CAMPAIGN-EMA-PULLBACK-GOVERNED-PILOT-001",
+      "campaign_proposals_before_search": 0,
+      "campaign_scientific_trials_before_search": 0,
+      "canonical_authority": false,
+      "contract_hash": "sha256:a3ddc562e51dd0ba6f12ce73ef77192a8f95a57583db722963ac1480a6a242ab",
+      "data_identity": "NONCANONICAL-SYNTHETIC-OHLCV-DEVELOPMENT-001",
+      "data_version": "deterministic-wave-score-v1",
+      "family_id": "H-004-R2-EMA-PULLBACK-CONTINUATION",
+      "go_authority": false,
+      "hypothesis_fingerprint": "35f274626543bfe1e1042b35e25c14a3a5c62ed5d76b7afa4bb798be6a0a344e",
+      "hypothesis_id": "STRAT-SPEC-0007-NONCANONICAL-PILOT",
+      "noncanonical": true,
+      "params": {
+        "atr_multiplier": 2.5,
+        "max_holding_bars": 30,
+        "pullback_ema_bars": 30,
+        "trend_fast_ema_bars": 60
+      },
+      "params_fingerprint": "sha256:9206b443931728bc6bb5e0eea0c913ea2d81e4e7853957547166b87ad3d923a0",
+      "parent_search_id": null,
+      "promotion_authority": false,
+      "proposal_id": "PROP-645C09C58729F4278E0A",
+      "proposal_sequence": 19,
+      "proposer_backend": "tpe",
+      "proposer_version": "4.9.0",
+      "rejection_reasons": [
+        "duplicate_of:PROP-895E1DA7BD1F40278142"
+      ],
+      "repo_sha": "56303371643d152d12bc3f6396e45939318d5921",
+      "scientific_trial_id": null,
+      "search_id": "SEARCH-EMA-PULLBACK-OPTUNA-TPE-001",
+      "seed": 1729,
+      "status": "DUPLICATE_NOT_NEW_OBSERVATION",
+      "wave_id": "WAVE-0002",
+      "winner_authority": false
+    }
+  ],
+  "scientific_denominator": 3,
+  "snapshot_hash": "sha256:123ded4025ff26ff2f7ee5410d02a0cd4ee5f289f9ce1d4137ac37901c27b8c1",
+  "snapshot_version": "search-governor-state-v1",
+  "trial_attempts": [
+    {
+      "attempt_number": 1,
+      "counts_as_independent_scientific_observation": true,
+      "detail": "finite=True;position_transitions=6",
+      "objective_value": 6.125030751316,
+      "performance_constraints_passed": true,
+      "proposal_id": "PROP-E009811C287FB901C9AA",
+      "scientific_trial_id": "SEARCH-EMA-PULLBACK-OPTUNA-TPE-001:TRIAL-0002",
+      "state": "PERFORMANCE_RESULT"
+    },
+    {
+      "attempt_number": 1,
+      "counts_as_independent_scientific_observation": true,
+      "detail": "finite=True;position_transitions=2",
+      "objective_value": 4.225738295026,
+      "performance_constraints_passed": true,
+      "proposal_id": "PROP-48CDA2DB39EEB4272FE9",
+      "scientific_trial_id": "SEARCH-EMA-PULLBACK-OPTUNA-TPE-001:TRIAL-0001",
+      "state": "PERFORMANCE_RESULT"
+    },
+    {
+      "attempt_number": 1,
+      "counts_as_independent_scientific_observation": true,
+      "detail": "finite=True;position_transitions=6",
+      "objective_value": 6.125030751316,
+      "performance_constraints_passed": true,
+      "proposal_id": "PROP-895E1DA7BD1F40278142",
+      "scientific_trial_id": "SEARCH-EMA-PULLBACK-OPTUNA-TPE-001:TRIAL-0003",
+      "state": "PERFORMANCE_RESULT"
+    }
+  ],
+  "wave_number": 2
+}

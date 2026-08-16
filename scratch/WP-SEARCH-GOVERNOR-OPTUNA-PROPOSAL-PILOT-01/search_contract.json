@@ -1,0 +1,143 @@
+{
+  "authority": {
+    "canonical_authority": false,
+    "go_authority": false,
+    "mode": "noncanonical",
+    "promotion_authority": false,
+    "winner_authority": false
+  },
+  "campaign_id": "CAMPAIGN-EMA-PULLBACK-GOVERNED-PILOT-001",
+  "campaign_proposals_before_search": 0,
+  "campaign_scientific_trials_before_search": 0,
+  "concurrency": 2,
+  "conditional_rules": [],
+  "data_identity": "NONCANONICAL-SYNTHETIC-OHLCV-DEVELOPMENT-001",
+  "data_version": "deterministic-wave-score-v1",
+  "family_id": "H-004-R2-EMA-PULLBACK-CONTINUATION",
+  "forbidden_regions": [
+    {
+      "equal_values": [
+        [
+          "pullback_ema_bars",
+          30
+        ],
+        [
+          "trend_fast_ema_bars",
+          40
+        ],
+        [
+          "atr_multiplier",
+          2.0
+        ],
+        [
+          "max_holding_bars",
+          30
+        ]
+      ],
+      "reason": "Frozen structural exclusion: shortest trend gap, tightest stop, shortest hold.",
+      "region_id": "exclude_shortest_horizon_tightest_stop_corner"
+    }
+  ],
+  "hypothesis_fingerprint": "35f274626543bfe1e1042b35e25c14a3a5c62ed5d76b7afa4bb798be6a0a344e",
+  "hypothesis_id": "STRAT-SPEC-0007-NONCANONICAL-PILOT",
+  "max_proposals": 20,
+  "max_scientific_trials": 4,
+  "objective": {
+    "definition": "Daily-annualized mean/std of next-bar synthetic development returns multiplied by the existing compiler signal; non-canonical and not a project winner metric.",
+    "direction": "maximize",
+    "name": "development_signal_score_v1"
+  },
+  "parameter_space": [
+    {
+      "choices": [],
+      "high": 30,
+      "kind": "int",
+      "low": 10,
+      "name": "pullback_ema_bars",
+      "required": true,
+      "step": 10
+    },
+    {
+      "choices": [],
+      "high": 60,
+      "kind": "int",
+      "low": 40,
+      "name": "trend_fast_ema_bars",
+      "required": true,
+      "step": 10
+    },
+    {
+      "choices": [],
+      "high": 3.0,
+      "kind": "float",
+      "low": 2.0,
+      "name": "atr_multiplier",
+      "required": true,
+      "step": 0.5
+    },
+    {
+      "choices": [],
+      "high": 60,
+      "kind": "int",
+      "low": 30,
+      "name": "max_holding_bars",
+      "required": true,
+      "step": 15
+    }
+  ],
+  "parent_search_id": null,
+  "policies": {
+    "duplicate_policy": "reject_and_charge",
+    "failed_software_trial_policy": "retry_same_scientific_trial_id",
+    "invalid_trial_policy": "reject_before_scientific_execution",
+    "performance_failure_classification": "scientific_result",
+    "pruning_policy": "off",
+    "retry_limit": 1,
+    "stop_rule": "proposal_or_trial_budget_exhausted"
+  },
+  "proposer": {
+    "backend": "tpe",
+    "config": [
+      [
+        "multivariate",
+        true
+      ],
+      [
+        "group",
+        true
+      ],
+      [
+        "n_startup_trials",
+        2
+      ]
+    ],
+    "version": "4.9.0"
+  },
+  "reason_for_change": null,
+  "relational_constraints": [
+    {
+      "constraint_id": "pullback_lt_trend",
+      "left_parameter": "pullback_ema_bars",
+      "operator": "lt",
+      "right_parameter": "trend_fast_ema_bars"
+    }
+  ],
+  "repo_sha": "56303371643d152d12bc3f6396e45939318d5921",
+  "scientific_constraints": [
+    "compiled signal contains only {-1, 0, 1}",
+    "objective is finite",
+    "at least one position transition is observed"
+  ],
+  "search_id": "SEARCH-EMA-PULLBACK-OPTUNA-TPE-001",
+  "seed": 1729,
+  "split_protocol": {
+    "development_data_ref": "NONCANONICAL-SYNTHETIC-OHLCV-DEVELOPMENT-001",
+    "development_window": "synthetic daily bars [0,900); proposer/evaluator accessible",
+    "final_holdout_access": "prohibited",
+    "final_holdout_ref": "FINAL-HOLDOUT-NONCANONICAL-SYNTHETIC-OPAQUE-001",
+    "protocol_id": "SPLIT-NONCANONICAL-SYNTHETIC-001"
+  },
+  "strategy_spec_hash": "sha256:b23ebc1093df51b7fab5e39c46fd2b96b5e71d35300134eb319a5cbc32d0857c",
+  "strategy_spec_id": "STRAT-SPEC-0007",
+  "wave_size": 2
+}

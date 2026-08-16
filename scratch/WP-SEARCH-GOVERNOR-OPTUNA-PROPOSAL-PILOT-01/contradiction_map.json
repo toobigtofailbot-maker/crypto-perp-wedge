@@ -1,0 +1,15 @@
+{
+  "budget_representation": "separate frozen proposal and scientific-trial budgets",
+  "conditional_rules": "Governor contract supports them; pilot family declares none",
+  "equivalent_governor_found": false,
+  "forbidden_regions": "Governor-owned exact structural exclusions",
+  "holdout_location": "opaque final_holdout_ref retained only in Governor contract; proposer surface omits it",
+  "legal_parameter_representation": "STRAT-SPEC-0007 declared numeric ranges/allowed values; no grammar mutation",
+  "lineage_identities": "campaign/search/parent/hypothesis/family/data/repo/proposer/seed on proposals",
+  "pilot_source_repo_sha": "56303371643d152d12bc3f6396e45939318d5921",
+  "prior_optuna_surface": "tools/sidecars/optuna_search_pilot is scratch-only prior art without Governor legality, budget, holdout, anti-laundering, or retry authority",
+  "research_memory_use": "deterministic hypothesis fingerprint only; no historical performance prior",
+  "runner_overlap": "existing offline runner forbids adaptive search and remains unchanged; pilot uses the existing compiler only and writes scratch output",
+  "stop_condition_triggered": false,
+  "trial_state_mapping": "performance_result, software_failed, rejected_invalid, duplicate; pruning off"
+}

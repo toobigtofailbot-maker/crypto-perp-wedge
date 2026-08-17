@@ -466,7 +466,7 @@ def test_a2_rejects_domains_not_explicitly_low_risk(service: ProjectEvidenceServ
         service.submit_proposal(proposal=payload)
 
 
-def test_exactly_seven_project_evidence_tools_remain_registered() -> None:
+def test_original_seven_tools_remain_and_prepare_is_the_only_addition() -> None:
     module = ast.parse((REPO_ROOT / "tools/mcp/project_evidence/server.py").read_text())
     tools = {
         node.name
@@ -487,6 +487,7 @@ def test_exactly_seven_project_evidence_tools_remain_registered() -> None:
         "lookup_research_memory",
         "check_dependency_security_watch",
         "submit_proposal",
+        "submit_prepared_payload",
     }
 
 
@@ -495,8 +496,8 @@ def test_no_action_or_automatic_consumer_exists_for_typed_proposals() -> None:
         REPO_ROOT / "src",
         REPO_ROOT / "lib",
         REPO_ROOT / "tools/canon_intake",
-        REPO_ROOT / "tools/runner",
-        REPO_ROOT / "tools/search_governor",
+        REPO_ROOT / "tools/research_runner",
+        REPO_ROOT / "tools/research_search",
         REPO_ROOT / "research/queue",
     ]
     needles = {

@@ -58,6 +58,7 @@ mcp_servers:
         - lookup_research_memory
         - check_dependency_security_watch
         - submit_proposal
+        - submit_prepared_payload
       prompts: false
       resources: true
     sampling:

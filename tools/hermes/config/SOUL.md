@@ -10,6 +10,11 @@ You may read, synthesize, criticize, report, and submit proposals through the
 single Project-Evidence proposal outbox. Proposals must use the strict typed
 H2 contract, exact resolved evidence identities, and deterministic A0/A1/A2
 classification. A2 is only a classification and grants no standing authority.
+You may also prepare one strict H2.5 human-review plan lineaged to an existing
+H2 proposal in that same fixed outbox. A prepared plan is content-hashed inert
+content, never approval or action. A0 remains permanently non-executable and
+protected-human-gate-only. H2.5 never calls Governor, Prefect, Codex, a broker,
+dispatcher, network, dependency manager, project writer, or runtime.
 You may not mutate project files,
 canonical evidence, candidates, promotion/readiness state, dispatch/KDAUTH,
 execution, runtime, OMS, reconciliation, risk/safe-mode/kill-switch, exchange,
@@ -20,4 +25,5 @@ Every load-bearing project fact must cite an evidence URI/path, artifact hash,
 and repo SHA. If evidence is missing, stale, hash-mismatched, or unavailable,
 say UNKNOWN. Never repair missing evidence with memory or plausible inference.
 Never claim self-approval, direct execution, or an automatic consumer. H2 only
-generates inert proposals; H2.5, H3, and H4 are not started.
+generates inert proposals; H2.5 only prepares inert human-review plans. H3 and
+H4 are not started.

@@ -7,12 +7,14 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
+from tools.hermes.prepare.models import PreparedPayloadBase, PreparedPayloadType
+from tools.hermes.prepare.validation import COMPATIBILITY_MATRIX, PreparedPayloadValidator
 from tools.hermes.proposals.models import AuthorityClass, ProposalType, TypedProposal
 from tools.hermes.proposals.validation import ProposalValidator
 
 from .memory_reader import ReadOnlyResearchMemoryReader
 from .models import RepoIdentity
-from .outbox import ProposalOutbox
+from .outbox import PreparedPayloadOutbox, ProposalOutbox
 from .query_reader import QUERY_NAMES, ScopedDuckDBReader
 from .resources import EvidenceResourceCatalog
 from .watch import DependencySecurityWatch
@@ -36,15 +38,20 @@ class ProjectEvidenceService:
         self.resources = EvidenceResourceCatalog(self.repo_root, self.identity)
         self.queries = ScopedDuckDBReader(self.repo_root, self.identity)
         self.memory = ReadOnlyResearchMemoryReader(research_memory_readonly_dsn, self.resources)
-        self.outbox = ProposalOutbox(
-            outbox_root or self.repo_root / "scratch" / "hermes_proposal_outbox",
-            self.identity,
-        )
+        fixed_outbox_root = outbox_root or self.repo_root / "scratch" / "hermes_proposal_outbox"
+        self.outbox = ProposalOutbox(fixed_outbox_root, self.identity)
+        self.prepared_outbox = PreparedPayloadOutbox(fixed_outbox_root, self.identity)
         self.watch = DependencySecurityWatch(
             watch_manifest_path or self.repo_root / "tools" / "hermes" / "upstream_watch.json",
             self.identity,
         )
         self.proposals = ProposalValidator(self.identity, self.resources, self.queries)
+        self.prepared_payloads = PreparedPayloadValidator(
+            self.identity,
+            self.resources,
+            self.queries,
+            fixed_outbox_root,
+        )
 
     @classmethod
     def from_environment(cls) -> ProjectEvidenceService:
@@ -87,6 +94,27 @@ class ProjectEvidenceService:
                 "standing_authority": False,
                 "automatic_consumers": [],
             },
+            "prepared_payload_contract": {
+                "schema_version": "hermes_prepared_payload_v1",
+                "prepared_payload_types": [
+                    prepared_type.value for prepared_type in PreparedPayloadType
+                ],
+                "compatibility_matrix": {
+                    prepared_type.value: sorted(
+                        proposal_type.value for proposal_type in COMPATIBILITY_MATRIX[prepared_type]
+                    )
+                    for prepared_type in PreparedPayloadType
+                },
+                "source_proposal_required": True,
+                "human_review_required": True,
+                "prepared_only": True,
+                "execution_authority": False,
+                "approval_token_eligible": False,
+                "broker_eligible": False,
+                "dispatch_eligible": False,
+                "standing_authority": False,
+                "automatic_consumers": [],
+            },
             "default_policy": "deny",
             "ambient_filesystem": False,
             "arbitrary_sql": False,
@@ -102,3 +130,11 @@ class ProjectEvidenceService:
     ) -> dict[str, Any]:
         validated = self.proposals.validate(proposal)
         return self.outbox.submit(proposal=validated)
+
+    def submit_prepared_payload(
+        self,
+        *,
+        prepared_payload: PreparedPayloadBase | Mapping[str, Any],
+    ) -> dict[str, Any]:
+        validated = self.prepared_payloads.validate(prepared_payload)
+        return self.prepared_outbox.submit(prepared_payload=validated)

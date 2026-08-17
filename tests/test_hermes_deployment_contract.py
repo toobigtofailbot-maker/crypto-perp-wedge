@@ -22,6 +22,7 @@ SKILLS = {
     "weekly-science-review",
     "dependency-security-watch",
     "typed-project-proposal",
+    "prepared-project-plan",
 }
 
 
@@ -55,6 +56,7 @@ def test_project_evidence_image_is_digest_pinned_nonroot_and_lock_driven() -> No
     assert "COPY tools/__init__.py" not in dockerfile
     assert "pip install --no-cache-dir --requirement /app/requirements.lock.txt" in dockerfile
     assert "COPY tools/hermes/proposals /app/tools/hermes/proposals" in dockerfile
+    assert "COPY tools/hermes/prepare /app/tools/hermes/prepare" in dockerfile
     assert "USER 65532:65532" in dockerfile
     assert 'ENTRYPOINT ["python", "-m", "tools.mcp.project_evidence.server"]' in dockerfile
 
@@ -84,7 +86,7 @@ def test_config_exposes_only_project_evidence_and_disables_escalation() -> None:
     assert "API_KEY" not in config
 
 
-def test_exact_seven_skills_are_readonly_fail_closed_and_sha_anchored() -> None:
+def test_exact_eight_skills_are_readonly_fail_closed_and_sha_anchored() -> None:
     skill_paths = sorted((HERMES_ROOT / "skills").glob("*/SKILL.md"))
 
     assert {path.parent.name for path in skill_paths} == SKILLS
@@ -100,11 +102,12 @@ def test_exact_seven_skills_are_readonly_fail_closed_and_sha_anchored() -> None:
         assert "self-enable" in text or "enable tools" in text or "widen MCP/tool scope" in text
 
 
-def test_typed_proposal_skill_is_mounted_without_adding_an_mcp_tool() -> None:
+def test_proposal_and_prepare_skills_expose_exactly_eight_mcp_tools() -> None:
     compose = (HERMES_ROOT / "compose.yaml").read_text(encoding="utf-8")
     config = (HERMES_ROOT / "config/config.yaml").read_text(encoding="utf-8")
 
     assert compose.count("./skills/typed-project-proposal:") == 1
+    assert compose.count("./skills/prepared-project-plan:") == 1
     included = re.findall(r"^        - ([a-z_]+)$", config, re.MULTILINE)
     assert included == [
         "project_evidence_manifest",
@@ -114,6 +117,7 @@ def test_typed_proposal_skill_is_mounted_without_adding_an_mcp_tool() -> None:
         "lookup_research_memory",
         "check_dependency_security_watch",
         "submit_proposal",
+        "submit_prepared_payload",
     ]
 
 

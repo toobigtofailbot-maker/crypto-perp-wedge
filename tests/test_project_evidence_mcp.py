@@ -105,6 +105,20 @@ def test_manifest_and_list_expose_no_ambient_or_protected_surface(
         "standing_authority": False,
         "automatic_consumers": [],
     }
+    assert manifest["prepared_payload_contract"]["prepared_payload_types"] == [
+        "StrategyLabPreparedPayload",
+        "SearchGovernorCampaignPreparedPayload",
+        "CodexWorkPackagePreparedPayload",
+        "PrefectWorkflowPreparedPayload",
+        "BoundedDiagnosticPreparedPayload",
+        "DataHydrationPreparedPayload",
+        "DependencyMaintenancePreparedPayload",
+    ]
+    assert manifest["prepared_payload_contract"]["human_review_required"] is True
+    assert manifest["prepared_payload_contract"]["approval_token_eligible"] is False
+    assert manifest["prepared_payload_contract"]["broker_eligible"] is False
+    assert manifest["prepared_payload_contract"]["dispatch_eligible"] is False
+    assert manifest["prepared_payload_contract"]["automatic_consumers"] == []
     for forbidden in ("research/queue", "src/runtime", "secrets/", "dispatch_authorization"):
         assert forbidden not in listed
 

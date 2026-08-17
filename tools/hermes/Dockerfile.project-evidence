@@ -15,6 +15,7 @@ RUN python -m pip install --no-cache-dir --requirement /app/requirements.lock.tx
 
 COPY tools/mcp /app/tools/mcp
 COPY tools/hermes/proposals /app/tools/hermes/proposals
+COPY tools/hermes/prepare /app/tools/hermes/prepare
 
 USER 65532:65532
 

@@ -1,4 +1,4 @@
-# Hermes H0/H1 Read-Only Research Operator and H2 Proposal Surface
+# Hermes H0/H1 Read-Only Operator, H2 PROPOSE, and H2.5 PREPARE
 
 This directory is the repo-owned deployment/configuration surface for pinned
 Hermes Agent `v2026.8.13` (v0.20.1). The image is pinned by both tag and
@@ -26,7 +26,8 @@ Project-Evidence is default-deny and exposes:
   discarded;
 - exactly one project write surface: `scratch/hermes_proposal_outbox/`.
 
-The outbox is proposal-only, gitignored, exclusive-create, symlink/traversal
+The outbox is proposal/prepared-record-only, gitignored, exclusive-create,
+symlink/traversal
 resistant, source/repo-SHA linked, and marked `not_authority=true`. Nothing in
 runner, dispatch, KDAUTH, promotion, readiness, runtime, or protected code reads
 the outbox. Hermes state under its separate `HERMES_HOME` is not project state.
@@ -40,9 +41,20 @@ mandatory for protected or ambiguous scope; A2 is limited to explicitly low-risk
 proposal domains and grants no standing authority. The outer outbox record and
 the typed proposal both require human review and have no automatic consumer.
 
-This is PROPOSE only. There is no prepared executable payload, broker, approval
-token, dispatcher, project mutation, dependency update, data acquisition, or
-runtime/trading action. H2.5, H3, and H4 remain unstarted.
+H2.5 adds exactly one tool, `submit_prepared_payload`, for seven closed inert
+plan types. It independently finds a compatible H2 parent by proposal ID in
+this fixed outbox, validates the nested H2 object, recomputes the parent content
+hash over Hermes canonical UTF-8 JSON bytes with sorted keys and exactly one
+trailing LF, re-resolves current evidence, preserves the parent's A0/A1/A2
+class, and writes a distinct `HERMES-PREP-*.prepared.json` record. The prepared
+payload hash covers only the nested validated payload, never its own hash or
+outer metadata. A0 also requires `permanent_non_executable=true` and
+`protected_human_gate_only=true`.
+
+PREPARE is still inert human-review content. There is no executable payload,
+approval token, broker, dispatcher, automatic consumer, Governor/Prefect/Codex
+invocation, project or canonical mutation, dependency update, network hydration,
+diagnostic execution, or runtime/trading action. H3 and H4 remain unstarted.
 
 ## One-time PostgreSQL role setup
 

@@ -46,6 +46,7 @@ def test_allowed_resource_is_sha_anchored_and_read_only(service: ProjectEvidence
     assert len(result["evidence"]["artifact_sha256"]) == 64
     assert result["authority"]["not_repo_truth"] is True
     assert "current-state anchor" in result["content"]
+    assert list(result).index("evidence") < list(result).index("content")
     assert (REPO_ROOT / "docs" / "project_status.md").read_bytes() == before
 
 

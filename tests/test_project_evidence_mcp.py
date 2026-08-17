@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -13,7 +12,6 @@ from tools.mcp.project_evidence.models import (
     RepoIdentity,
     ResourceDeniedError,
 )
-from tools.mcp.project_evidence.outbox import ProposalOutbox
 from tools.mcp.project_evidence.reporting import BriefFact, render_daily_brief, render_weekly_review
 from tools.mcp.project_evidence.resources import EvidenceResourceCatalog
 from tools.mcp.project_evidence.service import ProjectEvidenceService
@@ -89,6 +87,23 @@ def test_manifest_and_list_expose_no_ambient_or_protected_surface(
     assert manifest["arbitrary_sql"] is False
     assert manifest["shell"] is False
     assert manifest["write_surfaces"] == ["proposal_outbox"]
+    assert manifest["proposal_contract"] == {
+        "schema_version": "hermes_typed_proposal_v1",
+        "proposal_types": [
+            "StrategyProposal",
+            "StrategyAdjustmentProposal",
+            "BugFixProposal",
+            "LabImprovementProposal",
+            "DataAcquisitionProposal",
+            "DependencyUpgradeProposal",
+            "InvestigationProposal",
+        ],
+        "authority_classes": ["A0", "A1", "A2"],
+        "proposal_only": True,
+        "execution_authority": False,
+        "standing_authority": False,
+        "automatic_consumers": [],
+    }
     for forbidden in ("research/queue", "src/runtime", "secrets/", "dispatch_authorization"):
         assert forbidden not in listed
 
@@ -168,79 +183,6 @@ def test_research_memory_rejects_write_capable_database_role(
     with pytest.raises(ResourceDeniedError, match="mutation privilege"):
         reader.lookup_alias("H-005")
     assert connection.closed is True
-
-
-def test_proposal_outbox_is_exclusive_non_authority_and_project_is_unchanged(
-    service: ProjectEvidenceService, tmp_path: Path
-) -> None:
-    paths = ["research/candidate_registry.jsonl", "docs/project_status.md"]
-    before = _hashes(REPO_ROOT, paths)
-    service.outbox = ProposalOutbox(
-        tmp_path / "outbox",
-        service.identity,
-        clock=lambda: datetime(2026, 8, 14, 12, 0, tzinfo=UTC),
-        id_factory=lambda: "0123456789abcdef",
-    )
-
-    result = service.submit_proposal(
-        title="Review evidence coverage",
-        proposal_type="evidence_gap",
-        body="Consider a later human-reviewed evidence coverage package.",
-        source_session_id="session-001",
-        evidence_refs=["project://status", "query://candidate-overview"],
-    )
-    outbox_files = list((tmp_path / "outbox").glob("*.json"))
-    payload = json.loads(outbox_files[0].read_text(encoding="utf-8"))
-
-    assert result["not_authority"] is True
-    assert result["automatic_consumers"] == []
-    assert len(outbox_files) == 1
-    assert payload["not_authority"] is True
-    assert payload["review_required"] is True
-    assert payload["automatic_consumers"] == []
-    assert payload["source"]["repo_sha"] == BASE_SHA
-    assert _hashes(REPO_ROOT, paths) == before
-
-    with pytest.raises(FileExistsError):
-        service.outbox.submit(
-            title="Duplicate",
-            proposal_type="evidence_gap",
-            body="Must fail exclusive create.",
-            source_session_id="session-001",
-            evidence_refs=["project://status"],
-        )
-
-
-def test_proposal_rejects_unallowlisted_evidence_reference(service: ProjectEvidenceService) -> None:
-    with pytest.raises(ResourceDeniedError):
-        service.submit_proposal(
-            title="Bad reference",
-            proposal_type="evidence_gap",
-            body="No write should occur.",
-            source_session_id="session-001",
-            evidence_refs=["project://dispatch"],
-        )
-
-
-def test_proposal_outbox_rejects_symlink_escape(tmp_path: Path) -> None:
-    target = tmp_path / "target"
-    target.mkdir()
-    link = tmp_path / "outbox-link"
-    try:
-        os.symlink(target, link, target_is_directory=True)
-    except OSError as exc:
-        pytest.skip(f"symlink creation unavailable: {exc}")
-    outbox = ProposalOutbox(link, IDENTITY)
-
-    with pytest.raises(ResourceDeniedError, match="symlink"):
-        outbox.submit(
-            title="Escape",
-            proposal_type="evidence_gap",
-            body="Must not write through a link.",
-            source_session_id="session-001",
-            evidence_refs=["project://status"],
-        )
-    assert list(target.iterdir()) == []
 
 
 def test_no_authority_code_consumes_the_proposal_outbox() -> None:

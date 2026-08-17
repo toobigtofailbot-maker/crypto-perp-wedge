@@ -53,6 +53,7 @@ services:
       - ./skills/daily-research-brief:/opt/data/skills/daily-research-brief:ro
       - ./skills/weekly-science-review:/opt/data/skills/weekly-science-review:ro
       - ./skills/dependency-security-watch:/opt/data/skills/dependency-security-watch:ro
+      - ./skills/typed-project-proposal:/opt/data/skills/typed-project-proposal:ro
     cap_drop:
       - ALL
     security_opt:

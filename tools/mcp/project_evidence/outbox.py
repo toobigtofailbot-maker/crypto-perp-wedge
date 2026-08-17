@@ -6,15 +6,14 @@ import json
 import os
 import re
 import uuid
-from collections.abc import Callable, Sequence
+from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from .models import NON_AUTHORITY, RepoIdentity, ResourceDeniedError
+from tools.hermes.proposals.models import TypedProposal
 
-_TYPE_RE = re.compile(r"^[a-z][a-z0-9_-]{0,63}$")
-_SESSION_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$")
+from .models import NON_AUTHORITY, RepoIdentity, ResourceDeniedError
 
 
 def _utc_now() -> datetime:
@@ -48,32 +47,10 @@ class ProposalOutbox:
     def submit(
         self,
         *,
-        title: str,
-        proposal_type: str,
-        body: str,
-        source_session_id: str,
-        evidence_refs: Sequence[str],
+        proposal: TypedProposal,
     ) -> dict[str, Any]:
-        if not isinstance(title, str) or not title.strip() or len(title) > 200:
-            raise ResourceDeniedError("proposal title must be 1..200 characters")
-        if not isinstance(body, str) or not body.strip() or len(body) > 50_000:
-            raise ResourceDeniedError("proposal body must be 1..50000 characters")
-        if _TYPE_RE.fullmatch(proposal_type) is None:
-            raise ResourceDeniedError("proposal type is invalid")
-        if _SESSION_RE.fullmatch(source_session_id) is None:
-            raise ResourceDeniedError("proposal source session identity is invalid")
-        refs = list(evidence_refs)
-        if (
-            not refs
-            or len(refs) > 50
-            or any(
-                not isinstance(ref, str)
-                or len(ref) > 300
-                or not ref.startswith(("project://", "evidence://", "query://", "memory://"))
-                for ref in refs
-            )
-        ):
-            raise ResourceDeniedError("proposal evidence references are missing or invalid")
+        if proposal.repo_sha != self.identity.repo_sha:
+            raise ResourceDeniedError("proposal repo SHA does not match the outbox identity")
 
         self._prepare_root()
         timestamp = self._clock().astimezone(UTC)
@@ -82,19 +59,19 @@ class ProposalOutbox:
             raise ResourceDeniedError("proposal ID factory returned an invalid token")
         proposal_id = f"HERMES-PROP-{timestamp:%Y%m%dT%H%M%SZ}-{token}"
         payload = {
-            "schema_version": "hermes_proposal_outbox_v1",
+            "schema_version": "hermes_proposal_outbox_v2",
             "proposal_id": proposal_id,
             "created_at_utc": timestamp.isoformat(timespec="seconds").replace("+00:00", "Z"),
             "source": {
                 "system": "hermes",
-                "session_id": source_session_id,
+                "session_id": proposal.source_session_id,
                 "repo_sha": self.identity.repo_sha,
                 "branch": self.identity.branch,
-                "evidence_refs": refs,
+                "evidence_refs": list(proposal.evidence_refs),
             },
-            "proposal_type": proposal_type,
-            "title": title.strip(),
-            "body": body.strip(),
+            "proposal_type": proposal.proposal_type.value,
+            "title": proposal.title,
+            "proposal": proposal.model_dump(mode="json"),
             "not_authority": True,
             "authority": dict(NON_AUTHORITY),
             "automatic_consumers": [],
@@ -112,6 +89,8 @@ class ProposalOutbox:
             "proposal_id": proposal_id,
             "outbox_file": final_path.name,
             "repo_sha": self.identity.repo_sha,
+            "proposal_type": proposal.proposal_type.value,
+            "authority_class": proposal.authority_class.value,
             "not_authority": True,
             "review_required": True,
             "automatic_consumers": [],

@@ -1,0 +1,35 @@
+{
+  "schema_version": "hermes_upstream_watch_v1",
+  "sources": [
+    {
+      "source_id": "hermes-agent-release",
+      "kind": "github_release",
+      "url": "https://api.github.com/repos/NousResearch/hermes-agent/releases/latest",
+      "pinned_version": "v2026.8.13"
+    },
+    {
+      "source_id": "hermes-agent-advisories",
+      "kind": "github_advisories",
+      "url": "https://api.github.com/repos/NousResearch/hermes-agent/security-advisories",
+      "pinned_version": "v2026.8.13"
+    },
+    {
+      "source_id": "python-mcp",
+      "kind": "pypi",
+      "url": "https://pypi.org/pypi/mcp/json",
+      "pinned_version": "1.28.1"
+    },
+    {
+      "source_id": "duckdb",
+      "kind": "pypi",
+      "url": "https://pypi.org/pypi/duckdb/json",
+      "pinned_version": "1.5.2"
+    },
+    {
+      "source_id": "psycopg",
+      "kind": "pypi",
+      "url": "https://pypi.org/pypi/psycopg/json",
+      "pinned_version": "3.3.4"
+    }
+  ]
+}

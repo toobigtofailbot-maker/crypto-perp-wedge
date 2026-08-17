@@ -1,0 +1,68 @@
+name: crypto-perp-wedge-hermes
+
+services:
+  project-evidence:
+    build:
+      context: ../..
+      dockerfile: tools/hermes/Dockerfile.project-evidence
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    environment:
+      PROJECT_REPO_SHA: "${PROJECT_REPO_SHA:?PROJECT_REPO_SHA is required}"
+      PROJECT_REPO_BRANCH: "${PROJECT_REPO_BRANCH:?PROJECT_REPO_BRANCH is required}"
+      RESEARCH_MEMORY_READONLY_DSN: "${RESEARCH_MEMORY_READONLY_DSN:-}"
+    volumes:
+      - ../../docs/project_status.md:/project/docs/project_status.md:ro
+      - ../../docs/research_pipeline:/project/docs/research_pipeline:ro
+      - ../../research/candidate_registry.jsonl:/project/research/candidate_registry.jsonl:ro
+      - ../../research/trial_log.jsonl:/project/research/trial_log.jsonl:ro
+      - ../../research/experiments:/project/research/experiments:ro
+      - ../../research/decisions:/project/research/decisions:ro
+      - ../../research/hypotheses:/project/research/hypotheses:ro
+      - ../../research/result_populations:/project/research/result_populations:ro
+      - ./upstream_watch.json:/project/tools/hermes/upstream_watch.json:ro
+      - ${HERMES_PROPOSAL_OUTBOX_HOST:?HERMES_PROPOSAL_OUTBOX_HOST is required}:/outbox:rw
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - evidence
+    restart: unless-stopped
+
+  hermes:
+    image: nousresearch/hermes-agent:v2026.8.13@sha256:68e15ae2a6d894d0ccbd9f8aacbbe13d4d28fa5dc9b6a303970b67bb2499b1a6
+    user: "10000:10000"
+    depends_on:
+      - project-evidence
+    read_only: true
+    tmpfs:
+      - /tmp:size=256m,mode=1777
+    environment:
+      HERMES_HOME: /opt/data
+      HERMES_MODEL: "${HERMES_MODEL:?HERMES_MODEL is required}"
+      HERMES_WRITE_SAFE_ROOT: /opt/data
+    volumes:
+      - ${HERMES_PROJECT_HOME:?HERMES_PROJECT_HOME is required}:/opt/data:rw
+      - ./config/config.yaml:/opt/data/config.yaml:ro
+      - ./config/SOUL.md:/opt/data/SOUL.md:ro
+      - ./skills/repo-truth:/opt/data/skills/repo-truth:ro
+      - ./skills/research-evidence-reader:/opt/data/skills/research-evidence-reader:ro
+      - ./skills/result-population-critic:/opt/data/skills/result-population-critic:ro
+      - ./skills/daily-research-brief:/opt/data/skills/daily-research-brief:ro
+      - ./skills/weekly-science-review:/opt/data/skills/weekly-science-review:ro
+      - ./skills/dependency-security-watch:/opt/data/skills/dependency-security-watch:ro
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - evidence
+    restart: unless-stopped
+    entrypoint: ["/opt/hermes/hermes"]
+    command: ["gateway", "run", "--no-supervise", "--external-supervisor"]
+
+networks:
+  evidence:
+    driver: bridge

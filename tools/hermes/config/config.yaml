@@ -1,0 +1,67 @@
+_config_version: 12
+
+model:
+  provider: "openai-codex"
+  default: "${HERMES_MODEL}"
+
+agent:
+  max_turns: 30
+  disabled_toolsets:
+    - browser
+    - web
+    - search
+    - terminal
+    - file
+    - code_execution
+    - vision
+    - image_gen
+    - video_gen
+    - video
+    - tts
+    - todo
+    - memory
+    - session_search
+    - skills
+    - cronjob
+    - delegation
+    - clarify
+    - messaging
+    - homeassistant
+    - spotify
+    - discord
+    - discord_admin
+    - debugging
+    - rl
+    - computer_use
+    - context_engine
+    - desktop_ui
+    - project
+    - kanban
+    - x_search
+    - yuanbao
+
+platform_toolsets:
+  cli: [mcp-project-evidence]
+
+terminal:
+  home_mode: profile
+
+mcp_servers:
+  project-evidence:
+    url: "http://project-evidence:8765/mcp"
+    tools:
+      include:
+        - project_evidence_manifest
+        - list_project_resources
+        - read_project_resource
+        - run_evidence_query
+        - lookup_research_memory
+        - check_dependency_security_watch
+        - submit_proposal
+      prompts: false
+      resources: true
+    sampling:
+      enabled: false
+    elicitation:
+      enabled: false
+    supports_parallel_tool_calls: false

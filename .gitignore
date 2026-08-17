@@ -44,3 +44,6 @@ Thumbs.db
 # --- Dashboard outputs ---
 /dashboard_build/
 /dashboard_data/
+
+# --- Hermes proposal outbox (local, non-authoritative) ---
+/scratch/hermes_proposal_outbox/*.json

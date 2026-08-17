@@ -1,4 +1,4 @@
-# Hermes H0/H1 Read-Only Research Operator
+# Hermes H0/H1 Read-Only Research Operator and H2 Proposal Surface
 
 This directory is the repo-owned deployment/configuration surface for pinned
 Hermes Agent `v2026.8.13` (v0.20.1). The image is pinned by both tag and
@@ -30,6 +30,19 @@ The outbox is proposal-only, gitignored, exclusive-create, symlink/traversal
 resistant, source/repo-SHA linked, and marked `not_authority=true`. Nothing in
 runner, dispatch, KDAUTH, promotion, readiness, runtime, or protected code reads
 the outbox. Hermes state under its separate `HERMES_HOME` is not project state.
+
+H2 evolves the existing `submit_proposal` input into a strict seven-type
+contract. Every proposal binds exact resource/query evidence identities, separates
+FACT/INFERENCE/OPEN QUESTION, declares an A0/A1/A2 class from closed affected
+domains, and requests only human review for a separate future work package.
+Project-Evidence re-resolves every declared path/hash before persistence. A0 is
+mandatory for protected or ambiguous scope; A2 is limited to explicitly low-risk
+proposal domains and grants no standing authority. The outer outbox record and
+the typed proposal both require human review and have no automatic consumer.
+
+This is PROPOSE only. There is no prepared executable payload, broker, approval
+token, dispatcher, project mutation, dependency update, data acquisition, or
+runtime/trading action. H2.5, H3, and H4 remain unstarted.
 
 ## One-time PostgreSQL role setup
 

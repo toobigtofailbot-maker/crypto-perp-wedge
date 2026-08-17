@@ -21,6 +21,7 @@ SKILLS = {
     "daily-research-brief",
     "weekly-science-review",
     "dependency-security-watch",
+    "typed-project-proposal",
 }
 
 
@@ -53,6 +54,7 @@ def test_project_evidence_image_is_digest_pinned_nonroot_and_lock_driven() -> No
     )
     assert "COPY tools/__init__.py" not in dockerfile
     assert "pip install --no-cache-dir --requirement /app/requirements.lock.txt" in dockerfile
+    assert "COPY tools/hermes/proposals /app/tools/hermes/proposals" in dockerfile
     assert "USER 65532:65532" in dockerfile
     assert 'ENTRYPOINT ["python", "-m", "tools.mcp.project_evidence.server"]' in dockerfile
 
@@ -82,7 +84,7 @@ def test_config_exposes_only_project_evidence_and_disables_escalation() -> None:
     assert "API_KEY" not in config
 
 
-def test_exact_six_skills_are_readonly_fail_closed_and_sha_anchored() -> None:
+def test_exact_seven_skills_are_readonly_fail_closed_and_sha_anchored() -> None:
     skill_paths = sorted((HERMES_ROOT / "skills").glob("*/SKILL.md"))
 
     assert {path.parent.name for path in skill_paths} == SKILLS
@@ -96,6 +98,23 @@ def test_exact_six_skills_are_readonly_fail_closed_and_sha_anchored() -> None:
         assert "UNKNOWN" in text
         assert "authority" in text.lower()
         assert "self-enable" in text or "enable tools" in text or "widen MCP/tool scope" in text
+
+
+def test_typed_proposal_skill_is_mounted_without_adding_an_mcp_tool() -> None:
+    compose = (HERMES_ROOT / "compose.yaml").read_text(encoding="utf-8")
+    config = (HERMES_ROOT / "config/config.yaml").read_text(encoding="utf-8")
+
+    assert compose.count("./skills/typed-project-proposal:") == 1
+    included = re.findall(r"^        - ([a-z_]+)$", config, re.MULTILINE)
+    assert included == [
+        "project_evidence_manifest",
+        "list_project_resources",
+        "read_project_resource",
+        "run_evidence_query",
+        "lookup_research_memory",
+        "check_dependency_security_watch",
+        "submit_proposal",
+    ]
 
 
 def test_schedule_plan_contains_only_daily_weekly_and_watch_jobs() -> None:
@@ -149,11 +168,14 @@ def test_docker_compose_contract_if_docker_is_available() -> None:
     docker = shutil.which("docker")
     if docker is None:
         pytest.skip("physical Docker/Compose validation requires the deployment host")
+    docker_path = Path(docker)
+    standalone_compose = docker_path.with_name("docker-compose.exe")
+    command = [str(standalone_compose)] if standalone_compose.is_file() else [docker, "compose"]
     result = subprocess.run(
-        [docker, "compose", "-f", str(HERMES_ROOT / "compose.yaml"), "config", "--quiet"],
+        [*command, "-f", str(HERMES_ROOT / "compose.yaml"), "config", "--quiet"],
         cwd=REPO_ROOT,
         env={
-            "PATH": str(Path(docker).parent),
+            "PATH": str(docker_path.parent),
             "HERMES_PROJECT_HOME": str(REPO_ROOT.parent / "test-hermes-home"),
             "HERMES_PROPOSAL_OUTBOX_HOST": str(REPO_ROOT / "scratch/hermes_proposal_outbox"),
             "HERMES_MODEL": "test/model",

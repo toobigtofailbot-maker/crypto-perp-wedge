@@ -3,8 +3,12 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
+
+from tools.hermes.proposals.models import AuthorityClass, ProposalType, TypedProposal
+from tools.hermes.proposals.validation import ProposalValidator
 
 from .memory_reader import ReadOnlyResearchMemoryReader
 from .models import RepoIdentity
@@ -40,6 +44,7 @@ class ProjectEvidenceService:
             watch_manifest_path or self.repo_root / "tools" / "hermes" / "upstream_watch.json",
             self.identity,
         )
+        self.proposals = ProposalValidator(self.identity, self.resources, self.queries)
 
     @classmethod
     def from_environment(cls) -> ProjectEvidenceService:
@@ -66,13 +71,22 @@ class ProjectEvidenceService:
     def manifest(self) -> dict[str, Any]:
         return {
             "service": "project-evidence",
-            "schema_version": "project_evidence_mcp_v1",
+            "schema_version": "project_evidence_mcp_v2",
             "repo_sha": self.identity.repo_sha,
             "branch": self.identity.branch,
             "read_resource_count": len(self.resources.list_resources()),
             "query_names": sorted(QUERY_NAMES),
             "research_memory_configured": self.memory.configured,
             "write_surfaces": ["proposal_outbox"],
+            "proposal_contract": {
+                "schema_version": "hermes_typed_proposal_v1",
+                "proposal_types": [proposal_type.value for proposal_type in ProposalType],
+                "authority_classes": [authority_class.value for authority_class in AuthorityClass],
+                "proposal_only": True,
+                "execution_authority": False,
+                "standing_authority": False,
+                "automatic_consumers": [],
+            },
             "default_policy": "deny",
             "ambient_filesystem": False,
             "arbitrary_sql": False,
@@ -84,28 +98,7 @@ class ProjectEvidenceService:
     def submit_proposal(
         self,
         *,
-        title: str,
-        proposal_type: str,
-        body: str,
-        source_session_id: str,
-        evidence_refs: list[str],
+        proposal: TypedProposal | Mapping[str, Any],
     ) -> dict[str, Any]:
-        for ref in evidence_refs:
-            if ref.startswith(("project://", "evidence://")):
-                self.resources.spec_for_uri(ref)
-            elif ref.startswith("query://"):
-                if ref.removeprefix("query://") not in QUERY_NAMES:
-                    from .models import ResourceDeniedError
-
-                    raise ResourceDeniedError("proposal query evidence is not allowlisted")
-            elif not ref.startswith("memory://"):
-                from .models import ResourceDeniedError
-
-                raise ResourceDeniedError("proposal evidence reference is not allowlisted")
-        return self.outbox.submit(
-            title=title,
-            proposal_type=proposal_type,
-            body=body,
-            source_session_id=source_session_id,
-            evidence_refs=evidence_refs,
-        )
+        validated = self.proposals.validate(proposal)
+        return self.outbox.submit(proposal=validated)

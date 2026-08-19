@@ -78,6 +78,7 @@ class ActionStateRecord:
     state: BrokerActionState
     state_version: int
     reservation_id: str | None
+    dispatch_id: str | None
     last_reason_code: str | None
     updated_at: datetime
 
@@ -101,6 +102,18 @@ class ReservationTransactionResult:
     reservation: ReservationRecord | None
 
 
+@dataclass(frozen=True)
+class DispatchRequestResult:
+    status: Literal["requested", "already_dispatched", "terminal"]
+    state: ActionStateRecord
+
+
+@dataclass(frozen=True)
+class DispatchFinalizeResult:
+    status: Literal["finalized", "already_final"]
+    state: ActionStateRecord
+
+
 _APPROVAL_COLUMNS = tuple(ApprovalRecord.__dataclass_fields__)
 _APPROVAL_IDENTITY_COLUMNS = tuple(
     column for column in _APPROVAL_COLUMNS if column != "submitted_at"
@@ -119,6 +132,7 @@ def _action_state(row: dict[str, Any]) -> ActionStateRecord:
         state=BrokerActionState(row["state"]),
         state_version=row["state_version"],
         reservation_id=row["reservation_id"],
+        dispatch_id=row.get("dispatch_id"),
         last_reason_code=row["last_reason_code"],
         updated_at=row["updated_at"],
     )
@@ -462,6 +476,149 @@ class BrokerAuthorityStore:
             ).fetchone()
         return _reservation(row) if row is not None else None
 
+    def request_dispatch(
+        self,
+        *,
+        executable_action_id: str,
+        reservation_id: str,
+        dispatch_id: str,
+        audit: BrokerAuditRecord,
+    ) -> DispatchRequestResult:
+        """Durably transition reserved -> dispatched and append dispatch_requested.
+
+        This transaction must commit before any no-op adapter invocation so a crash
+        after the commit leaves a burned nonce, a durable `dispatched` state, a
+        dispatch_id, a `dispatch_requested` event, and no completion event.
+        """
+
+        try:
+            with self._connect() as connection, connection.transaction():
+                row = self._select_action_state(connection, executable_action_id, lock=True)
+                state = row["state"]
+                if state in (
+                    BrokerActionState.COMPLETED.value,
+                    BrokerActionState.FAILED.value,
+                    BrokerActionState.RECONCILE_REQUIRED.value,
+                ):
+                    self._require_dispatch_identity(row, reservation_id, dispatch_id)
+                    return DispatchRequestResult("terminal", _action_state(row))
+                if state == BrokerActionState.DISPATCHED.value:
+                    self._require_dispatch_identity(row, reservation_id, dispatch_id)
+                    return DispatchRequestResult("already_dispatched", _action_state(row))
+                if state != BrokerActionState.RESERVED.value:
+                    raise BrokerStateConflict(f"dispatch requires reserved state, found {state}")
+                if row["reservation_id"] != reservation_id:
+                    raise BrokerStateConflict("dispatch reservation identity mismatch")
+                self._append_audit(connection, audit)
+                updated = connection.execute(
+                    """
+                    UPDATE hermes_broker.broker_action_state
+                    SET state = 'dispatched', state_version = state_version + 1,
+                        dispatch_id = %s, last_reason_code = NULL, updated_at = %s
+                    WHERE executable_action_id = %s
+                    RETURNING *
+                    """,
+                    (dispatch_id, audit.occurred_at, executable_action_id),
+                ).fetchone()
+                return DispatchRequestResult("requested", _action_state(updated))
+        except psycopg.Error as exc:
+            raise BrokerStoreError("dispatch request transaction did not commit") from exc
+
+    def finalize_dispatch(
+        self,
+        *,
+        executable_action_id: str,
+        dispatch_id: str,
+        outcome: Literal["completed", "failed"],
+        reason_code: str | None,
+        audit: BrokerAuditRecord,
+    ) -> DispatchFinalizeResult:
+        """Transition dispatched -> completed|failed after one no-op invocation."""
+
+        terminal_state = (
+            BrokerActionState.COMPLETED if outcome == "completed" else BrokerActionState.FAILED
+        )
+        try:
+            with self._connect() as connection, connection.transaction():
+                row = self._select_action_state(connection, executable_action_id, lock=True)
+                state = row["state"]
+                if state == terminal_state.value:
+                    if row.get("dispatch_id") != dispatch_id:
+                        raise BrokerStateConflict("dispatch finalize identity mismatch")
+                    return DispatchFinalizeResult("already_final", _action_state(row))
+                if state != BrokerActionState.DISPATCHED.value:
+                    raise BrokerStateConflict(
+                        f"dispatch finalize requires dispatched state, found {state}"
+                    )
+                if row.get("dispatch_id") != dispatch_id:
+                    raise BrokerStateConflict("dispatch finalize identity mismatch")
+                self._append_audit(connection, audit)
+                updated = connection.execute(
+                    """
+                    UPDATE hermes_broker.broker_action_state
+                    SET state = %s, state_version = state_version + 1,
+                        last_reason_code = %s, updated_at = %s
+                    WHERE executable_action_id = %s
+                    RETURNING *
+                    """,
+                    (terminal_state.value, reason_code, audit.occurred_at, executable_action_id),
+                ).fetchone()
+                return DispatchFinalizeResult("finalized", _action_state(updated))
+        except psycopg.Error as exc:
+            raise BrokerStoreError("dispatch finalize transaction did not commit") from exc
+
+    def classify_reconcile_required(
+        self,
+        *,
+        executable_action_id: str,
+        dispatch_id: str,
+        reason_code: str,
+        audit: BrokerAuditRecord,
+    ) -> DispatchFinalizeResult:
+        """Explicitly classify a stranded `dispatched` action as reconcile_required.
+
+        This is a recovery classification, never an automatic retry. It never
+        invokes any adapter and never unburns or reissues the nonce.
+        """
+
+        if not (reason_code and reason_code.strip()):
+            raise ValueError("reconcile classification requires a reason code")
+        try:
+            with self._connect() as connection, connection.transaction():
+                row = self._select_action_state(connection, executable_action_id, lock=True)
+                state = row["state"]
+                if state == BrokerActionState.RECONCILE_REQUIRED.value:
+                    if row.get("dispatch_id") != dispatch_id:
+                        raise BrokerStateConflict("reconcile identity mismatch")
+                    return DispatchFinalizeResult("already_final", _action_state(row))
+                if state != BrokerActionState.DISPATCHED.value:
+                    raise BrokerStateConflict(f"reconcile requires dispatched state, found {state}")
+                if row.get("dispatch_id") != dispatch_id:
+                    raise BrokerStateConflict("reconcile identity mismatch")
+                self._append_audit(connection, audit)
+                updated = connection.execute(
+                    """
+                    UPDATE hermes_broker.broker_action_state
+                    SET state = 'reconcile_required', state_version = state_version + 1,
+                        last_reason_code = %s, updated_at = %s
+                    WHERE executable_action_id = %s
+                    RETURNING *
+                    """,
+                    (reason_code, audit.occurred_at, executable_action_id),
+                ).fetchone()
+                return DispatchFinalizeResult("finalized", _action_state(updated))
+        except psycopg.Error as exc:
+            raise BrokerStoreError("reconcile transaction did not commit") from exc
+
+    @staticmethod
+    def _require_dispatch_identity(
+        row: dict[str, Any],
+        reservation_id: str,
+        dispatch_id: str,
+    ) -> None:
+        if row["reservation_id"] != reservation_id or row.get("dispatch_id") != dispatch_id:
+            raise BrokerStateConflict("durable dispatch identity conflict")
+
     @staticmethod
     def _select_action_state(
         connection: psycopg.Connection[dict[str, Any]],
@@ -507,11 +664,11 @@ class BrokerAuthorityStore:
                 executable_action_sha256, prepared_record_id, prepared_payload_sha256,
                 source_proposal_id, source_proposal_content_sha256, repo_sha,
                 action_registry_version, adapter_id, adapter_version, key_registry_version,
-                single_use_nonce, reservation_id, occurred_at, actor, reason_code,
+                single_use_nonce, reservation_id, dispatch_id, occurred_at, actor, reason_code,
                 event_payload_canonical, event_payload_sha256
             ) VALUES (
                 %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
             )
             ON CONFLICT (event_id) DO NOTHING
             RETURNING event_id
@@ -533,6 +690,7 @@ class BrokerAuthorityStore:
                 audit.key_registry_version,
                 audit.single_use_nonce,
                 audit.reservation_id,
+                audit.dispatch_id,
                 audit.occurred_at,
                 audit.actor,
                 audit.reason_code,

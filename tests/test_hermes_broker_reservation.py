@@ -257,19 +257,15 @@ def test_normal_reservation_is_terminal_and_exact_replay_is_idempotent(
     )
 
 
-def test_closed_state_audit_and_idempotency_vocabularies() -> None:
-    assert {state.value for state in BrokerActionState} == {
-        "submitted",
-        "verified",
-        "reserved",
-        "rejected",
-    }
-    assert {event.value for event in BrokerAuditEventType} == {
-        "claim_submitted",
-        "claim_verified",
-        "claim_rejected",
-        "nonce_reserved",
-    }
+def test_broker2_state_audit_subset_preserved_and_idempotency() -> None:
+    # BROKER-2 owns exactly this closed subset. BROKER-3 extends the closed
+    # vocabulary; the exact full eight-value state and audit sets are asserted in
+    # tests/test_hermes_broker_dispatch.py. This test only proves the original
+    # BROKER-2 subset is preserved and unchanged in meaning.
+    broker2_states = {"submitted", "verified", "reserved", "rejected"}
+    broker2_events = {"claim_submitted", "claim_verified", "claim_rejected", "nonce_reserved"}
+    assert broker2_states <= {state.value for state in BrokerActionState}
+    assert broker2_events <= {event.value for event in BrokerAuditEventType}
     action_hash = "a" * 64
     nonce = "b" * 64
     expected = broker_sha256(

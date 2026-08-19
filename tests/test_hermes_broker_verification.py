@@ -481,11 +481,14 @@ def test_broker_static_surface_has_no_dispatch_state_runtime_or_dynamic_executio
         "exec(",
         "import_module",
         "create_task",
-        "dispatch(",
         "automatic_retry",
     )
     database_owners = {"migrations.py", "store.py"}
-    reservation_owners = {"reservation.py", "store.py"}
+    reservation_owners = {"reservation.py", "store.py", "dispatch.py"}
+    # BROKER-3 phase-aware seam: the literal `dispatch(` is permitted only in the
+    # exact dry-run dispatch orchestration and the durable store; it stays globally
+    # prohibited everywhere else, including the pure projection and no-op adapter.
+    dispatch_owners = {"dispatch.py", "store.py"}
     violations = []
     for path in production_files:
         lowered = path.read_text(encoding="utf-8").lower()
@@ -494,4 +497,6 @@ def test_broker_static_surface_has_no_dispatch_state_runtime_or_dynamic_executio
             violations.append((path.name, "psycopg"))
         if path.name not in reservation_owners and "reserve(" in lowered:
             violations.append((path.name, "reserve("))
+        if path.name not in dispatch_owners and "dispatch(" in lowered:
+            violations.append((path.name, "dispatch("))
     assert violations == []

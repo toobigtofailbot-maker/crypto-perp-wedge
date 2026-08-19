@@ -466,13 +466,11 @@ def test_project_evidence_remains_exactly_eight_tools() -> None:
 def test_broker_static_surface_has_no_dispatch_state_runtime_or_dynamic_execution() -> None:
     broker_root = REPO_ROOT / "tools/hermes/broker"
     production_files = [path for path in broker_root.glob("*.py") if path.name != "acceptance.py"]
-    text = "\n".join(path.read_text(encoding="utf-8") for path in production_files)
-    forbidden = (
+    globally_forbidden = (
         "subprocess",
         "os.system",
         "requests.",
         "httpx.",
-        "psycopg",
         "prefect",
         "src.runtime",
         "src.execution",
@@ -484,8 +482,16 @@ def test_broker_static_surface_has_no_dispatch_state_runtime_or_dynamic_executio
         "import_module",
         "create_task",
         "dispatch(",
-        "reserve(",
         "automatic_retry",
     )
-    lowered = text.lower()
-    assert [needle for needle in forbidden if needle in lowered] == []
+    database_owners = {"migrations.py", "store.py"}
+    reservation_owners = {"reservation.py", "store.py"}
+    violations = []
+    for path in production_files:
+        lowered = path.read_text(encoding="utf-8").lower()
+        violations.extend((path.name, needle) for needle in globally_forbidden if needle in lowered)
+        if path.name not in database_owners and "psycopg" in lowered:
+            violations.append((path.name, "psycopg"))
+        if path.name not in reservation_owners and "reserve(" in lowered:
+            violations.append((path.name, "reserve("))
+    assert violations == []

@@ -18,6 +18,10 @@ class BrokerActionState(str, Enum):
     VERIFIED = "verified"
     RESERVED = "reserved"
     REJECTED = "rejected"
+    DISPATCHED = "dispatched"
+    COMPLETED = "completed"
+    FAILED = "failed"
+    RECONCILE_REQUIRED = "reconcile_required"
 
 
 class BrokerAuditEventType(str, Enum):
@@ -25,6 +29,10 @@ class BrokerAuditEventType(str, Enum):
     CLAIM_VERIFIED = "claim_verified"
     CLAIM_REJECTED = "claim_rejected"
     NONCE_RESERVED = "nonce_reserved"
+    DISPATCH_REQUESTED = "dispatch_requested"
+    DISPATCH_COMPLETED = "dispatch_completed"
+    DISPATCH_FAILED = "dispatch_failed"
+    RECONCILE_REQUIRED = "reconcile_required"
 
 
 class BrokerReservationResult(StrictBrokerModel):
@@ -71,6 +79,7 @@ class BrokerAuditRecord(StrictBrokerModel):
     key_registry_version: str | None
     single_use_nonce: str | None
     reservation_id: str | None
+    dispatch_id: str | None
     occurred_at: datetime
     actor: Literal["broker"]
     reason_code: str | None
@@ -132,6 +141,7 @@ def build_audit_record(
                 "key_registry_version",
                 "single_use_nonce",
                 "reservation_id",
+                "dispatch_id",
             )
         },
     )

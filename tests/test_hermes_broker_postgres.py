@@ -213,17 +213,24 @@ def _physical_counts(dsn: str) -> tuple[int, int]:
 def test_migration_checksum_catalog_constraints_and_triggers(
     broker_dsn: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    assert apply_migrations(broker_dsn).already_applied == ("0001_broker_authority",)
+    expected_versions = ("0001_broker_authority", "0002_broker_dry_run_dispatch")
+    assert apply_migrations(broker_dsn).already_applied == expected_versions
+    real_dir = migrations.MIGRATIONS_DIR
     migration_copy = tmp_path / "migrations"
     migration_copy.mkdir()
-    source = migrations.MIGRATIONS_DIR / "0001_broker_authority.sql"
-    copied = migration_copy / source.name
-    shutil.copyfile(source, copied)
+    for version in expected_versions:
+        shutil.copyfile(real_dir / f"{version}.sql", migration_copy / f"{version}.sql")
     monkeypatch.setattr(migrations, "MIGRATIONS_DIR", migration_copy)
-    assert apply_migrations(broker_dsn).already_applied == ("0001_broker_authority",)
-    copied.write_text(copied.read_text(encoding="utf-8") + "\n-- changed\n", encoding="utf-8")
-    with pytest.raises(RuntimeError, match="checksum mismatch"):
-        apply_migrations(broker_dsn)
+    assert apply_migrations(broker_dsn).already_applied == expected_versions
+    # Modified bytes under either applied migration version are rejected, and the
+    # historical 0001 bytes stay protected alongside the new 0002 migration.
+    for version in expected_versions:
+        target = migration_copy / f"{version}.sql"
+        original = target.read_text(encoding="utf-8")
+        target.write_text(original + "\n-- changed\n", encoding="utf-8")
+        with pytest.raises(RuntimeError, match="checksum mismatch"):
+            apply_migrations(broker_dsn)
+        target.write_text(original, encoding="utf-8")
 
     with psycopg.connect(broker_dsn) as connection:
         tables = {

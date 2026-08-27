@@ -96,8 +96,16 @@ def test_proof_registry_identity_is_exact_and_carries_no_callable() -> None:
     assert not any(callable(value) for name, value in vars(entry).items() if "model" not in name)
 
 
-def test_production_registry_still_has_zero_actions() -> None:
-    assert production_registry().entries == ()
+def test_production_registry_has_exactly_the_one_h3_1_read_only_action() -> None:
+    # BROKER-3 left this empty; H3-1 registers exactly one real read-only A1 action.
+    entries = production_registry().entries
+    assert len(entries) == 1
+    entry = entries[0]
+    assert entry.action_type == "h3_1.readonly.repo_evidence_summary_v1"
+    assert entry.required_authority_class is AuthorityClass.A1
+    assert entry.dispatch_capable is True and entry.proof_only is False
+    assert entry.read_only is True
+    assert not (entry.affected_domains & A0_DOMAINS)
 
 
 def test_typed_projection_binds_exact_reserved_identity() -> None:

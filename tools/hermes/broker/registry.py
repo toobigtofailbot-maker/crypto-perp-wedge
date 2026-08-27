@@ -1,4 +1,16 @@
-"""Closed, non-dispatching BROKER-1 executable-action registry."""
+"""Closed executable-action registry.
+
+BROKER-1 kept this registry deliberately empty and non-dispatching. H3-1 adds the
+first — and structurally the only permitted kind of — dispatch-capable entry: a
+single real, read-only A1 action. Two invariants are locked here so the registry
+*cannot express* anything more dangerous than a read-only action:
+
+* every entry is ``read_only`` (a mutating action can never be registered), and
+* an entry is either a non-dispatching ``proof_only`` entry or a dispatch-capable
+  real entry, never both and never a dispatch-capable proof entry.
+
+A0 remains registry-absent and every entry must require A1.
+"""
 
 from __future__ import annotations
 
@@ -36,6 +48,9 @@ class RegistryEntry:
     affected_domains: frozenset[AffectedDomain]
     dispatch_capable: bool
     proof_only: bool
+    # Locked: the registry can only ever express a read-only action. A mutating
+    # first action is not authorized and cannot be represented here at all.
+    read_only: bool = True
 
     def __post_init__(self) -> None:
         if self.registry_schema_version != REGISTRY_SCHEMA_VERSION:
@@ -49,13 +64,18 @@ class RegistryEntry:
         if re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,63}", self.adapter_version) is None:
             raise ValueError("invalid adapter version")
         if self.required_authority_class is not AuthorityClass.A1:
-            raise ValueError("BROKER-1 registry entries must require A1")
+            raise ValueError("registry entries must require A1")
         if self.affected_domains & A0_DOMAINS:
             raise ValueError("A0 domains have no executable registry entry")
-        if self.dispatch_capable:
-            raise ValueError("BROKER-1 registry entries cannot dispatch")
-        if not self.proof_only:
-            raise ValueError("BROKER-1 permits proof-only entries only")
+        if self.read_only is not True:
+            raise ValueError("only read-only registry entries are authorized")
+        if self.dispatch_capable == self.proof_only:
+            raise ValueError(
+                "an entry is exactly one of proof_only (non-dispatching) or "
+                "dispatch_capable (real, read-only)"
+            )
+        if self.dispatch_capable and not self.read_only:
+            raise ValueError("a dispatch-capable entry must be read-only")
         if not issubclass(self.action_model, ExecutableAction):
             raise TypeError("action_model must be an ExecutableAction model")
         if not all(
@@ -90,6 +110,13 @@ class ActionRegistry:
 
 
 def production_registry() -> ActionRegistry:
-    """BROKER-1 production default: deliberately zero executable actions."""
+    """Return the production registry: exactly one real A1 read-only action (H3-1).
 
-    return ActionRegistry(version=PRODUCTION_REGISTRY_VERSION)
+    The single entry is defined in :mod:`tools.hermes.broker.h3_readonly` and is
+    imported lazily so that low-level modules importing this registry never take a
+    dependency on the action model, the projection, or the read-only adapter.
+    """
+
+    from .h3_readonly import h3_1_readonly_registry
+
+    return h3_1_readonly_registry()

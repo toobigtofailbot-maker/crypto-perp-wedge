@@ -435,8 +435,18 @@ def test_invalid_a0_permanence_rejects_before_authority_decision(
         )
 
 
-def test_registry_has_zero_production_entries_no_a0_and_no_callable_adapter() -> None:
-    assert production_registry().entries == ()
+def test_registry_has_one_readonly_production_entry_no_a0_and_no_callable_adapter() -> None:
+    production = production_registry()
+    assert len(production.entries) == 1
+    production_entry = production.entries[0]
+    assert production_entry.required_authority_class is AuthorityClass.A1
+    assert not (production_entry.affected_domains & A0_DOMAINS)
+    assert production_entry.dispatch_capable is True and production_entry.read_only is True
+    assert not any(
+        callable(value)
+        for name, value in vars(production_entry).items()
+        if "model" not in name
+    )
     registry = proof_registry()
     assert len(registry.entries) == 1
     entry = registry.entries[0]
@@ -465,7 +475,12 @@ def test_project_evidence_remains_exactly_eight_tools() -> None:
 
 def test_broker_static_surface_has_no_dispatch_state_runtime_or_dynamic_execution() -> None:
     broker_root = REPO_ROOT / "tools/hermes/broker"
-    production_files = [path for path in broker_root.glob("*.py") if path.name != "acceptance.py"]
+    # Recursive scan so the H3-1 read-only adapter subpackage is covered too.
+    production_files = [
+        path
+        for path in broker_root.rglob("*.py")
+        if path.name != "acceptance.py" and "__pycache__" not in path.parts
+    ]
     globally_forbidden = (
         "subprocess",
         "os.system",
@@ -484,11 +499,12 @@ def test_broker_static_surface_has_no_dispatch_state_runtime_or_dynamic_executio
         "automatic_retry",
     )
     database_owners = {"migrations.py", "store.py"}
-    reservation_owners = {"reservation.py", "store.py", "dispatch.py"}
-    # BROKER-3 phase-aware seam: the literal `dispatch(` is permitted only in the
-    # exact dry-run dispatch orchestration and the durable store; it stays globally
-    # prohibited everywhere else, including the pure projection and no-op adapter.
-    dispatch_owners = {"dispatch.py", "store.py"}
+    # Phase-aware seams: `reserve(` and `dispatch(` are permitted only in the exact
+    # orchestration owners and the durable store; H3-1 adds the read-only dispatch
+    # orchestrator as an owner. Every other module -- including the pure projection,
+    # the read-only adapter, and the inert result store -- stays prohibited.
+    reservation_owners = {"reservation.py", "store.py", "dispatch.py", "readonly_dispatch.py"}
+    dispatch_owners = {"dispatch.py", "store.py", "readonly_dispatch.py"}
     violations = []
     for path in production_files:
         lowered = path.read_text(encoding="utf-8").lower()

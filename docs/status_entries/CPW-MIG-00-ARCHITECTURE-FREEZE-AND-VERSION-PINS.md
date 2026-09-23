@@ -74,11 +74,12 @@ trigger. Historical evidence remains valid and readable.
 
 ## Validation summary
 
-- Initial published-head `python tools/dev/verify.py --validation-preset docs-only
+- Final committed-head `python tools/dev/verify.py --validation-preset docs-only
   --json`: PASS (6/6 required commands).
 - `git diff --check`: PASS.
-- `python tools/dev/diff_scope_summary.py --check-forbidden`: PASS; no
-  forbidden-path matches.
+- Committed base-to-head `python tools/dev/diff_scope_summary.py --base-ref
+  08abff2ac2f368f603f217cce7867eb78a4dfa8b --head-ref HEAD
+  --check-forbidden --json`: PASS; no forbidden-path matches.
 - Revised closed allowlist: PASS; exactly 13 authorized documentation paths.
 - Internal reference and version/dependency checks: PASS.
 - Focused current-direction search: 7 material legacy-phrase hits classified
@@ -96,8 +97,8 @@ was expressly forbidden.
 
 ## Merge status
 
-PR #713 is open and non-draft. GitHub reported `MERGEABLE` / `CLEAN` at the
-initial published head. Codex will not self-merge or enable auto-merge.
+PR #713 is open and non-draft. GitHub reports `MERGEABLE` / `CLEAN` at the final
+pushed head. Codex will not self-merge or enable auto-merge.
 
 ## Next dependency
 

@@ -3,7 +3,7 @@
 ## Package identity
 
 - Branch: `codex/cpw-mig-00-architecture-freeze-version-pins`
-- Pull request: pre-publication validation state
+- Pull request: [#713](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/713)
 - Base: `08abff2ac2f368f603f217cce7867eb78a4dfa8b`
 - Package class: T0 documentation / status / process policy
 
@@ -74,7 +74,7 @@ trigger. Historical evidence remains valid and readable.
 
 ## Validation summary
 
-- Pre-publication `python tools/dev/verify.py --validation-preset docs-only
+- Initial published-head `python tools/dev/verify.py --validation-preset docs-only
   --json`: PASS (6/6 required commands).
 - `git diff --check`: PASS.
 - `python tools/dev/diff_scope_summary.py --check-forbidden`: PASS; no
@@ -96,9 +96,8 @@ was expressly forbidden.
 
 ## Merge status
 
-Pre-publication validation passed; PR creation and final committed-head checks
-remain in the original one-shot publication sequence. Never self-merge or
-enable auto-merge.
+PR #713 is open and non-draft. GitHub reported `MERGEABLE` / `CLEAN` at the
+initial published head. Codex will not self-merge or enable auto-merge.
 
 ## Next dependency
 

@@ -7,6 +7,27 @@
 
 ---
 
+## Current adoption-first clarification (D2-019 / CPW-MIG-00)
+
+D2-019 and
+`docs/architecture/2026-09-adoption_first_migration_architecture_freeze.md`
+are the current controlling architecture where earlier Phase 2 wording
+conflicts. Infrastructure buildability is not candidate-gated; economic
+activation is.
+
+Separately authorized Phase 2 migration packages may conduct bounded,
+non-capital Nautilus N1 research/simulation proof, N2
+paper/accounting/restart proof, and N3 Binance USD-M/order/reconnect proof
+before genuine edge or GO exists. This creates no candidate-performance claim,
+candidate-specific paper/shadow conclusion, promotion, live-readiness
+conclusion, live deployment, or capital authority. Generic ownership follows
+the CPW-MIG-00 map: Hermes for generic agent/reasoning runtime, Prefect for
+generic orchestration, Nautilus for generic trading mechanics after proof, CPW
+for differentiated scientific/canonical/safety semantics, and humans for
+economic authority.
+
+---
+
 ## Phase 2 Direction Update (Locked clarification)
 
 Phase 2 remains research-first, but the accepted path is no longer forced to be candidate-first with research infrastructure deferred until after Strategy v1. Phase 2 now explicitly includes a candidate-agnostic research machine foundation tranche for systematic BTCUSDT candidate discovery, testing, comparison, and later human-gated promotion.
@@ -154,6 +175,12 @@ Each decision below is structured as: **What changes / Why / Trade-offs / What r
   - **ADOPT:** Graphify (repo knowledge graph for agent context), Superpowers/Obra (development methodology via Claude Code plugin), `SKILL.md` pattern for repeatable workflows, DuckDB for Parquet analytical queries, Polars for heavy DataFrame work, CCXT for exchange abstraction.
   - **REJECT:** Ruflo (audit-confirmed non-functional), Backtrader (abandoned), Qlib (no crypto), zipline-reloaded (no futures), LangGraph and CrewAI (overkill for Claude-only stack).
   - **DEFER:** NautilusTrader (Phase 3 if research-to-live parity becomes worth the migration), Jesse (if pandas backtester outgrows itself), Anthropic Managed Agents (wait for GA), Claude Code Router (only if spend crosses $100/mo).
+- **Prospective D2-019 supersession:** the NautilusTrader `DEFER` clause above
+  is retained as the historical D2-010 decision at the time. It no longer gates
+  bounded non-capital N1/N2/N3 engineering/adoption proof on Phase 3, edge, GO,
+  or paper/shadow. Proof and every ownership transfer still require separately
+  authorized migration packages; economic activation remains candidate- and
+  human-gated.
 - **Why:** Each adoption has a direct, measurable impact on velocity or token cost. Each rejection either has no ROI or active negative ROI. Each deferral has a clear trigger condition.
 - **Trade-offs:** Committing to a Claude-centric stack creates moderate Anthropic dependency. Accepted under D2-009's reasoning.
 - **What remains protected:** No protected-boundary files are modified by any adopted tool.
@@ -282,7 +309,10 @@ The following are never modified without an explicit Decision Change entry in `d
 
 - Not a protected-runtime infrastructure refinement program.
 - Not immediate Strategy v1 lock-in.
-- Not a platform migration (no NautilusTrader in Phase 2).
+- Not an uncontrolled platform migration or real-capital activation. Bounded
+  adoption/proof of Prefect, Hermes, and Nautilus is allowed through separately
+  authorized migration work packages. Nautilus N1/N2/N3 engineering proof may
+  occur before edge/GO; economic activation remains candidate- and human-gated.
 - Not a multi-venue effort.
 - Not an agentic execution effort. Execution remains deterministic and human-controlled.
 - Not scoped to paid data sources.
@@ -294,5 +324,9 @@ The following are never modified without an explicit Decision Change entry in `d
 
 - **Initial lock** — WP-0 baseline lock PR. Decisions D2-001 through D2-017 locked. D2-008 overlay addendum locked in `docs/decisions.md` in the same PR.
 - **PRE-WP-6a direction clarification (D2-018)** — Candidate-agnostic research machine foundation work is explicitly in scope before Strategy v1 lock-in; protected deterministic execution core remains unchanged.
+- **CPW-MIG-00 adoption-first clarification (D2-019)** — Prospectively
+  supersedes the historical Nautilus Phase 3/GO/paper trigger for bounded
+  non-capital N1/N2/N3 proof, without rewriting prior evidence or weakening any
+  scientific, protected, human, live, or capital gate.
 
 Any future change to this document requires a new Decision Change entry in `docs/decisions.md` and an updated change log line here.

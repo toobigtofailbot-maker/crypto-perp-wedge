@@ -44,6 +44,15 @@ Workflow efficiency lock:
 - Do not create simultaneous open PRs that modify `docs/project_status.md`; start any package touching it from refreshed `main` and stop if another open PR already edits it.
 - Package-specific scope and current repo truth still outrank general workflow guidance.
 
+Adoption-first migration lock:
+
+- When work concerns generic agent/runtime ownership, orchestration, trading
+  mechanics, canonical migration, or legacy retirement, read
+  `docs/architecture/2026-09-adoption_first_migration_architecture_freeze.md`.
+- That record is the current migration direction; it creates no implementation
+  authority and does not weaken protected runtime, scientific, human, live, or
+  capital gates.
+
 Stop and escalate if:
 
 - the required package scope touches protected runtime, OMS, reconciliation, risk, overlay, safe-mode, live-trading, schema, validator, or query-layer behavior without explicit authorization

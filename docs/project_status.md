@@ -27,9 +27,28 @@ Startup read order:
 
 ## Key Architecture References
 
+- Current adoption-first migration architecture is locked in
+  `docs/architecture/2026-09-adoption_first_migration_architecture_freeze.md`
+  through CPW-MIG-00 and D2-019. Hermes owns future generic reasoning/runtime
+  mechanics, Prefect future generic orchestration mechanics, and Nautilus future
+  generic trading mechanics after proof; CPW and humans retain the scientific,
+  canonical, safety, approval, live, and capital authorities defined there.
 - Long-term roadmap, automation, managed-agent, dashboard, and self-improvement scope is locked in `docs/architecture/LONG_TERM_SCOPE.md`.
 - Accepted research machine direction is documented in `docs/architecture/RESEARCH_MACHINE_DIRECTION.md`.
-- External-repo adoption decision is documented in `docs/architecture/2026-06-external_repo_adoption_decision.md`: CCXT funding adapter, robustness MC, workflow-gen, and analytics metrics are adopted within bounded advisory/data/draft roles; vectorbt is non-canonical triage only; Nautilus is shelved and preserved as a viable canonical-grade simulator candidate for the future paper/shadow trigger.
+- The June external-repo adoption decision remains historical evidence in `docs/architecture/2026-06-external_repo_adoption_decision.md`; its Nautilus GO/paper-shadow trigger is prospectively superseded by CPW-MIG-00 for bounded non-capital N1/N2/N3 proof.
+
+## Current Migration Runway
+
+- Controlling principle: infrastructure buildability is not candidate-gated;
+  economic activation is.
+- CPW-MIG-00 is architecture/governance only. It installs nothing, migrates no
+  runtime, changes no framework dependency, and grants no canonical, promotion,
+  live, or capital authority.
+- The only next package unlocked after CPW-MIG-00 merges is `CPW-MIG-01 —
+  Domain Extraction & Active Storage`. Prefect, Hermes, Nautilus, canonical,
+  paper/live, and retirement lanes require later separate authorization.
+- Detailed branch-state and requirement traceability are recorded in
+  `docs/status_entries/CPW-MIG-00-ARCHITECTURE-FREEZE-AND-VERSION-PINS.md`.
 
 ## Merged Work Package Ledger
 

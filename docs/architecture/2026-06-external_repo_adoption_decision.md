@@ -1,5 +1,13 @@
 # External Repo Adoption Decision
 
+> **Prospective supersession — 2026-09-23:** This document preserves the June
+> evaluation and adoption evidence as historical truth. Current migration
+> ownership, proof sequencing, and version targets are controlled by
+> `docs/architecture/2026-09-adoption_first_migration_architecture_freeze.md`.
+> In particular, its Nautilus GO/paper-shadow trigger is superseded for bounded,
+> non-capital N1/N2/N3 engineering proof. Nautilus receives no authority until
+> the applicable proof and later ownership-transfer package pass.
+
 ## Authority / Send Condition
 
 This is a docs-only architecture decision for the external-repo integration and
@@ -38,7 +46,7 @@ The Nautilus report checksum is recorded in
 | Workflow-gen | Adopted as draft workflow accelerator | Deterministic scratch-only draft Strategy Spec / Variant Manifest / Sweep Plan-style artifact generation for human review. | Canonical preregistration, candidate evidence, screen-gate or promotion authority, optimizer/ranker/recommender authority, or artifact mutation outside scratch. | Human/Karl-gated draft-to-prereg promotion package. |
 | Analytics metrics | Adopted as repo-native advisory analytics | Repo-native advisory formulas and reports over inputs that honestly expose required chronological equity/return fields or aggregate-only limitations. | Invented return/equity paths, gate authority, candidate evidence, ranking/promotion/readiness authority, schema/runner mutation, or runtime influence. | Later advisory input-surface package if chronological equity/return data is authorized. |
 | Vectorbt | Adopted as non-canonical fast triage sidecar | Optional dependency-isolated, non-canonical variant triage ordered by variant id, with deterministic deferred output when vectorbt is unavailable. | Canonical runner/backtester replacement, metric-ranked finalist confirmation, dependency-file mutation, canonical Result Population writes, or promotion/readiness/screen-gate authority. | Later canonical runner confirmation for any surfaced finalist; no automatic bridge. |
-| Nautilus | Shelved / preserved as viable canonical-grade simulator candidate | Preserve evidence and mapping notes for future simulator evaluation when the trigger is met. | Canonical simulator authority now, runner/backtester replacement now, paper/live/runtime use now, or candidate evidence/readiness/promotion authority now. | When a GO strategy enters the paper/shadow track. |
+| Nautilus | Historical June posture: shelved / preserved as viable canonical-grade simulator candidate | Preserve the historical evaluation and mapping notes. Current proof sequencing is governed by CPW-MIG-00. | Canonical simulator authority now, runner/backtester replacement now, paper/live/runtime use now, or candidate evidence/readiness/promotion authority now. | Historical trigger was GO/paper-shadow; prospectively superseded for bounded non-capital N1/N2/N3 proof. |
 
 ## CCXT Funding Adapter
 
@@ -140,11 +148,15 @@ confirmation through the repo-owned canonical runner and evidence path.
 
 ## Nautilus
 
+The status and trigger in this section record the June 2026 decision at the
+time. CPW-MIG-00 prospectively supersedes the GO/paper-shadow prerequisite for
+engineering/adoption proof; it does not rewrite or invalidate this evidence.
+
 Status: SHELVED / preserved for future trigger.
 
 Classification: `viable-canonical-grade-simulator-candidate`.
 
-Trigger: when a GO strategy enters the paper/shadow track.
+Historical trigger: when a GO strategy enters the paper/shadow track.
 
 Fact: PR #519 merged a bounded NautilusTrader 1.221.0 offline mapping spike
 under `tools/simulators/` and scratch evidence. It attempted and expressed all
@@ -160,18 +172,18 @@ Known gaps to resolve at trigger:
 - continuous canonical quantities rounded to 8 decimal places by synthetic
   offline instrument.
 
-Decision: Nautilus is preserved as a credible future simulator candidate, but
-it is intentionally shelved now. The evidence should be retained for a future
-triggered simulator evaluation path, not promoted into canonical authority.
+Historical decision: Nautilus was preserved as a credible future simulator
+candidate and shelved pending its then-current trigger. The evidence remains
+retained and does not itself grant canonical authority.
 
 Not authorized: Nautilus is not the canonical simulator, not a runner/backtester
 replacement, not paper/live/runtime authority, and not candidate
 promotion/readiness/screen-gate authority.
 
-Future option: if a GO strategy enters the paper/shadow track, a separate
-Main-approved package must cover mapping completeness, determinism, auditability,
-provenance, explicit semantic gap closure, and authority promotion before
-canonical use.
+Current direction: bounded N1/N2/N3 non-capital proofs may occur before GO under
+separately approved packages. Mapping completeness, determinism, auditability,
+provenance, explicit semantic-gap closure, and a later ownership-transfer
+decision remain mandatory before canonical use.
 
 ## Protected Boundary
 
@@ -194,14 +206,14 @@ This decision preserves the following boundaries:
 - Per-trade MC instrumentation remains possible only if pulled by a later
   authorized package using real per-trade data.
 - Draft-to-prereg promotion remains human/Karl-gated.
-- Nautilus trigger is preserved for the paper/shadow track and remains shelved
-  until then.
+- The former Nautilus GO/paper-shadow trigger remains historical evidence and
+  is prospectively superseded by CPW-MIG-00 for bounded non-capital proof.
 - Vectorbt remains triage-only and non-canonical.
 - Analytics, MC, and dashboard-facing outputs remain advisory unless later
   explicitly promoted through an approved path.
 
 ## Next Runway Pointer
 
-The lab-completion path continues through walk-forward / OOS canonicalization and
-results-surface work. This decision closes the external-repo adoption runway; it
-does not implement either next runway package.
+Historical note: this decision closed its external-repo adoption runway without
+implementing the then-following packages. The current migration runway is
+CPW-MIG-01 only, as defined by CPW-MIG-00.

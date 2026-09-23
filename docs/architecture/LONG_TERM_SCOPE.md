@@ -8,6 +8,14 @@ This document records architecture direction that should guide future execution 
 
 ## Current Position
 
+The current adoption-first migration architecture is controlled by
+`docs/architecture/2026-09-adoption_first_migration_architecture_freeze.md`.
+Hermes is the target generic reasoning runtime, Prefect the target generic
+orchestration owner, and NautilusTrader the target generic trading-mechanics
+owner after bounded N1/N2/N3 proofs. CPW retains differentiated scientific,
+canonical, safety, and approval semantics. Infrastructure buildability is not
+candidate-gated; economic activation is. CPW-MIG-00 unlocks only CPW-MIG-01.
+
 The repo is in Phase 2 research execution. Phase 2 remains research-first, but
 engineering readiness and strategy readiness are separate under
 `docs/decisions/ENGINEERING_VS_STRATEGY_READINESS.md`. Genuine candidate
@@ -57,15 +65,20 @@ The intended end state is not one active strategy. Each active timeframe may eve
 
 ## Managed Agents
 
-Managed agents are not a near-term implementation target.
-
-They become relevant only after the repo has research automation, repeated parallel research workflows, and a clear orchestration need that cannot be handled by direct execution briefs, skills, prompts, and lightweight automation.
+The historical deferral of managed-agent infrastructure is superseded for the
+adoption-first migration. Hermes may be proven and adopted as the sole generic
+reasoning runtime through separately authorized packages; CPW-specific domain
+logic, canonical truth, promotion, risk, trading truth, and economic authority
+remain outside it.
 
 Managed agents are research, monitoring, and proposal infrastructure. They are never execution truth, risk truth, OMS truth, or promotion authority.
 
 ## Research Automation
 
-Research automation should arrive before heavy managed-agent orchestration. The safe automation surface includes:
+Research automation may proceed through target-compatible seams after MIG-01.
+Generic orchestration mechanics belong to Prefect after proof, rather than to
+continued custom scheduler/queue/retry/run-state expansion. The safe automation
+surface includes:
 
 - Parameter sweeps within approved hypothesis boundaries.
 - Experiment plans derived from registered hypotheses.
@@ -142,8 +155,8 @@ The following items remain deferred unless a later architecture package explicit
   `docs/decisions/ENGINEERING_VS_STRATEGY_READINESS.md` and separately
   authorized protected packages.
 - CCXT adoption for execution abstraction.
-- Managed agents now.
-- Broader LLM routing or multi-provider complexity now.
+- Duplicate generic agent runtimes or broader LLM-routing/provider complexity
+  outside the Hermes adoption path.
 
 These deferrals protect research focus and avoid unscoped operational
 complexity. They are not a blanket strategy-evidence prerequisite for

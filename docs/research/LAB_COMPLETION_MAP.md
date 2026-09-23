@@ -1,5 +1,14 @@
 ﻿# Research-Lab Completion Map
 
+> **Current migration-direction pointer — 2026-09-23:** This map remains the
+> authoritative record of the historical no-edge-search lab scope and its proof
+> status. It does not override
+> `docs/architecture/2026-09-adoption_first_migration_architecture_freeze.md`.
+> After CPW-MIG-01 establishes target-compatible seams, differentiated research
+> may continue, and bounded non-capital infrastructure proof is not blocked by
+> the absence of edge. This pointer grants no edge-search, promotion, live, or
+> capital authority.
+
 ## 2026-08-05 controlling readiness decision
 
 `docs/decisions/ENGINEERING_VS_STRATEGY_READINESS.md` now controls the
@@ -463,7 +472,7 @@ evidence authority through this map.
 | robustness MC | Gate posture, withheld/advisory behavior, and known-payload denominator proof are complete for no-edge; real volume belongs to real research traffic. |
 | vectorbt | Non-canonical sidecar only; no new adoption WP without explicit edge-search / triage authorization. |
 | CCXT | Public data / funding adapter runway only; no new adoption WP without real data or research need. |
-| Nautilus | Simulator realism / paper-shadow future; held until later explicit design or GO path. |
+| Nautilus | Historical Side 12 posture retained; CPW-MIG-00 prospectively permits separately authorized non-capital N1/N2/N3 proof before GO, without granting trading or economic authority. |
 
 ## 14. Drift guardrails
 

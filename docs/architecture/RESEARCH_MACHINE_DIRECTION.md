@@ -4,6 +4,13 @@
 
 This note records the accepted Phase 2 direction shift before WP-6a. It is a reference for future packages that need to build candidate-agnostic BTC research machine foundations without contradicting the locked Phase 2 baseline or weakening the protected deterministic execution core.
 
+Current migration ownership and sequencing are controlled by
+`docs/architecture/2026-09-adoption_first_migration_architecture_freeze.md`.
+Where this historical direction note implies continued bespoke generic runtime,
+orchestration, backtester, paper/accounting, or OMS mechanics, CPW-MIG-00
+prospectively supersedes that implication. CPW-specific research semantics and
+all protected boundaries below remain current.
+
 ## What Changed
 
 The earlier Phase 2 framing could be read as candidate-first: register the next hypothesis, execute it, and move directly toward Strategy v1 if something survives. That interpretation is now too narrow.
@@ -43,6 +50,12 @@ The target is a candidate-agnostic research machine for BTCUSDT perp strategy re
 - Bounded research automation that prepares evidence but does not own decisions.
 
 The long-term goal remains a BTC trading model supported by continuous candidate discovery, testing, comparison, and later human-gated promotion.
+
+After CPW-MIG-01 establishes stable target-compatible domain and storage seams,
+differentiated research may continue while generic mechanics migrate. Hermes,
+Prefect, and Nautilus receive only the ownership defined in CPW-MIG-00 and only
+after their applicable proofs. Infrastructure buildability is not
+candidate-gated; economic activation is.
 
 ## Protected And Unchanged
 

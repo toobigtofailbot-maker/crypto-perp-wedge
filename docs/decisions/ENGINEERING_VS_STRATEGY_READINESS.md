@@ -88,6 +88,15 @@ bypass a human/protected/canonical gate.
 
 ## Transition and current sequence
 
+**Current-sequence supersession (2026-09-23):** the numbered sequence below is
+preserved as the historical sequence at this decision's lock. The current
+migration sequence is controlled by
+`docs/architecture/2026-09-adoption_first_migration_architecture_freeze.md` and
+begins with CPW-MIG-01 only. BROKER-4/H3-1 continuation and further generic
+dispatch/control-plane expansion are not the current roadmap. The permanent
+engineering-vs-strategy distinction in this document remains controlling:
+infrastructure buildability is not candidate-gated; economic activation is.
+
 1. PR #685 / the post-crossing regression package is merged. Its exact
    pre-dispatch boundary remains intact.
 2. This repo-lock package makes the readiness and acceleration decisions durable.

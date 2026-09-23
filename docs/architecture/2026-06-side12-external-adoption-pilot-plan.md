@@ -1,5 +1,11 @@
 # Side 12 External Adoption Pilot Plan
 
+> **Prospective supersession — 2026-09-23:** This plan remains historical pilot
+> evidence. Current migration ownership and sequencing are controlled by
+> `docs/architecture/2026-09-adoption_first_migration_architecture_freeze.md`.
+> Its Prefect deferral, Nautilus GO/paper-shadow trigger, and bespoke generic
+> backbone direction do not control future migration work.
+
 ## Authority / Send Condition
 
 This is a docs-only planning lock for Side 12 external-repo research triage.
@@ -45,9 +51,9 @@ the point of use.
 | QuantStats | Skip now | Redundant unless a specific gap appears | Repo-native analytics and honest unavailable-field posture remain preferred. |
 | DVC | Skip now | Redundant unless a specific gap appears | Existing catalog/checksum provenance remains controlling. |
 | Panel / Bokeh | Skip now | Redundant unless a specific gap appears | Existing static dashboard/operator review surface remains controlling. |
-| Prefect | Defer to Phase C agents | No current adoption | Scheduler/orchestration authority is out of scope and must not touch runtime or protected paths. |
+| Prefect | Historical disposition: defer to Phase C agents | Prospectively superseded by CPW-MIG-00 | Prefect is the target generic orchestration owner after P1/P2/P3 proofs; this plan grants no implementation authority. |
 | LangGraph | Defer to Phase C agents only if later reopened | No current adoption; D2-010 Phase 2 rejection remains current truth | Earlier Phase 2 baseline rejected LangGraph as overkill for the Claude-only stack. This plan does not reverse that decision. |
-| NautilusTrader | Preserve | Simulator trigger remains paper/shadow or simulator-realism phase | Preserved as a viable canonical-grade simulator candidate from the external adoption decision. No current simulator authority. |
+| NautilusTrader | Historical disposition: preserve | Prospectively superseded by CPW-MIG-00 | Bounded non-capital N1/N2/N3 proofs are not GO-gated; no current simulator or trading authority is created here. |
 | LEAN | Preserve/reference | No current implementation | Concepts may be referenced later; no simulator implementation is authorized. |
 | Backtrader / Freqtrade / Backtesting.py | Reference / low-value unless a specific gap appears | No current implementation | Earlier Backtrader rejection remains controlling. Reference use creates no dependency or simulator authority. |
 
@@ -160,18 +166,22 @@ External-tool outputs must remain:
 
 ## Simulator Posture
 
+This section records the historical Side 12 posture. Its GO/paper-shadow trigger
+is not current roadmap authority after CPW-MIG-00.
+
 Fact: `docs/architecture/2026-06-external_repo_adoption_decision.md` preserves
 NautilusTrader as a viable canonical-grade simulator candidate with the
 paper/shadow trigger. That decision also records known semantic gaps and denies
 current canonical simulator authority.
 
-Decision: Side 12 preserves that simulator posture. NautilusTrader is not
-promoted now. LEAN remains reference-only. Backtrader, Freqtrade, and
-Backtesting.py remain low-value/reference unless a specific future gap appears.
+Historical decision: Side 12 preserved that simulator posture and did not
+promote NautilusTrader. LEAN remained reference-only, while Backtrader,
+Freqtrade, and Backtesting.py remained low-value/reference.
 
-Future option: a simulator-realism or paper/shadow package may reopen simulator
-evaluation only with explicit scope for mapping completeness, determinism,
-auditability, provenance, semantic gap closure, and authority promotion review.
+Current direction: separate packages may run bounded non-capital N1/N2/N3 proof
+before edge/GO, while mapping completeness, determinism, auditability,
+provenance, semantic-gap closure, and authority-promotion review remain required
+before any ownership transfer.
 
 ## Parallel Execution Runway
 
@@ -195,6 +205,7 @@ Inference from Main's Side 12 triage: net realistic savings are approximately
 Inference: largest near-term savings are notifications/approvals and
 search-sidecar triage.
 
-Decision: the bespoke backbone remains required for idea intake, agents,
-walk-forward-run, dashboard, and canonical evidence. External tools may reduce
-supporting work, but they do not replace the repo-owned research machine.
+Historical decision: the bespoke backbone was then retained for idea intake,
+agents, walk-forward-run, dashboard, and canonical evidence. Prospectively,
+generic agent, orchestration, and trading mechanics migrate according to
+CPW-MIG-00, while CPW retains differentiated research and canonical semantics.

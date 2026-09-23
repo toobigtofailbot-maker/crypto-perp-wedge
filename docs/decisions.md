@@ -258,6 +258,7 @@ The following decisions are locked for Phase 2. Full details in `docs/onboarding
 | D2-016 | Research Agent advisory briefs only |
 | D2-017 | Cold storage for failed timeframes |
 | D2-018 | Decision Change: Phase 2 research machine direction clarification |
+| D2-019 | Decision Change: Adoption-first infrastructure buildability and Nautilus proof sequencing |
 
 ### D2-003A — Irreparable official-source gap policy
 
@@ -337,3 +338,71 @@ This change applies only to docs and later explicitly scoped research-machine fo
 #### Backtest / paper validation plan
 
 None. This is a docs-only Phase 2 direction clarification and does not affect risk, execution, backtest results, paper runtime behavior, or live behavior.
+
+### D2-019 — Decision Change: Adoption-first infrastructure buildability and Nautilus proof sequencing
+
+**Status:** LOCKED
+**Decision ID:** D2-019
+**Date:** 2026-09-23
+**Scope:** Phase 2 adoption-first architecture clarification; updates
+`docs/onboarding/PHASE2_BASELINE.md`
+**Approval:** Karl/Main-approved through CPW-MIG-00
+**References:** D2-001, D2-002, D2-007, D2-010, D2-018;
+`docs/decisions/ENGINEERING_VS_STRATEGY_READINESS.md`;
+`docs/architecture/2026-09-adoption_first_migration_architecture_freeze.md`
+
+#### What changed (old -> new)
+
+Old: Phase 2 deferred NautilusTrader until Phase 3 or until research-to-live,
+GO, or paper/shadow conditions were met. That wording could be read as
+prohibiting simulator, paper, or execution-infrastructure adoption proof before
+a genuine strategy candidate existed.
+
+New: infrastructure buildability is not candidate-gated; economic activation
+is. Separately scoped packages may conduct bounded non-capital Nautilus N1
+research/simulation proof, N2 paper/accounting/restart proof, and N3 Binance
+USD-M/order/reconnect proof before genuine edge or GO exists. Proof may use
+approved fixtures, synthetic or designated non-winning engineering material,
+and authorized offline, demo, testnet, or other non-capital environments.
+
+Nautilus gains no canonical research, paper/accounting, exchange, or execution
+authority merely from this decision. Each ownership transfer requires its
+bounded proof and a later authorized migration package. Genuine candidate
+performance claims, candidate-specific paper/shadow conclusions, promotion,
+candidate live-readiness conclusions, live deployment, and real capital remain
+subject to existing scientific and human authority.
+
+#### Boundaries retained
+
+- The accepted CPW/Nautilus reconciliation split remains unchanged: Nautilus
+  may own ordinary mechanics after proof; CPW retains trust, ambiguity,
+  fail-closed escalation, safe-flatten, duplicate-economic-effect, and required
+  human recovery policy.
+- Canonical authority remains engine-neutral and CPW-controlled.
+- Hard risk, bounded overlay semantics, OMS truth, reconciliation safety and
+  economic policy, paper ledger math, human approvals, live gates, and capital
+  gates are unchanged.
+- No runtime, paper/live, code, dependency, schema, query, data, or canonical
+  artifact change occurs in D2-019, and no framework is installed.
+
+#### Why
+
+Karl/Main approved the adoption-first migration architecture in CPW-MIG-00.
+This entry reconciles that approved direction with the locked Phase 2 baseline
+through its binding Decision Change protocol while preserving the historical
+D2-010 decision text and every economic/protected boundary.
+
+#### Trigger conditions
+
+D2-019 changes planning eligibility only. N1, N2, N3, ownership transfer,
+retirement, and activation each require a separately authorized package and
+their applicable proof and human gates.
+
+#### Effective date
+
+2026-09-23
+
+#### Backtest / paper validation plan
+
+None for this decision record. It is documentation/process architecture only.
+Later N1/N2/N3 packages carry their own bounded validation.

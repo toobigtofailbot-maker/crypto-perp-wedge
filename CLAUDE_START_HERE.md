@@ -26,8 +26,13 @@ Execution-critical truth must remain deterministic and auditable:
 
 ## Phase 2 Rules
 
-- Phase 2 is research-first, not runtime-refactor-first.
-- Current next-step direction is candidate-agnostic research machine foundation work: registry, schemas, pipeline foundations, and bounded research interfaces.
+- Phase 2 remains research-first, while infrastructure buildability is not
+  candidate-gated; economic activation is. The current adoption-first migration
+  direction is locked in
+  `docs/architecture/2026-09-adoption_first_migration_architecture_freeze.md`.
+- The only next migration package unlocked by CPW-MIG-00 is CPW-MIG-01 — Domain
+  Extraction & Active Storage. Every implementation lane still requires its own
+  authorization.
 - Strategy v1 is not locked now. Candidate selection and promotion remain future human-gated decisions based on structured evidence.
 - No single global primary timeframe is fixed for research candidates.
 - Strategy candidates must declare their primary timeframe, and any allowed confirmation timeframes, within the locked set before testing.
@@ -45,6 +50,7 @@ Stop and report when a task requires a decision not present in repo truth, confl
 - Stage 2c workflow-efficiency lock: `docs/research_pipeline/2026-05-stage2c_workflow_efficiency_operating_model_lock.md` for Main/Side/Codex authority, tiered workflow, project-status overlap, reporting, and standing efficiency authorization; current merged repo truth still wins.
 - Coding-agent token-efficiency guidance: `docs/ai/codex/CODEX_TOKEN_EFFICIENCY.md` for Claude Code/Codex context hygiene and prompt/reporting efficiency; it is guidance-only and does not weaken the hard startup sequence, repo truth, validation, or protected boundaries. Shared coding-agent workflow guidance lives under `docs/ai/codex/` (current shared path; directory name is historical).
 - Long-term architecture scope: `docs/architecture/LONG_TERM_SCOPE.md` when clarifying longer-horizon roadmap, automation, agent, dashboard, or self-improvement scope
+- Adoption-first migration architecture: `docs/architecture/2026-09-adoption_first_migration_architecture_freeze.md` for current generic ownership, proof gates, version targets, supersession, retirement, and next-package authority
 - Phase map: `docs/onboarding/PHASES.md`
 - Phase 2 baseline: `docs/onboarding/PHASE2_BASELINE.md`
 - System map: `docs/onboarding/SYSTEM_MAP.md`

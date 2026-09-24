@@ -36,6 +36,9 @@ Thumbs.db
 .vscode/
 .idea/
 
+# --- CPW active/provisional and ephemeral research workspace ---
+/.cpw/
+
 # --- Reports ---
 /reports/**
 !/reports/g4_api_smoke_test/

@@ -15,7 +15,12 @@ from tools.lab_pipeline.state import (
     write_json,
     write_text,
 )
-
+from tools.research_domain.preregistration import (
+    build_approval_requirement,
+    build_approval_template,
+    build_preregistration_packet,
+    validate_prereg_approval,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 WP_ID = "WP-LABPROD-PIPELINE-ORCHESTRATOR-01"
@@ -25,26 +30,64 @@ DETERMINISTIC_TIMESTAMP_UTC = "2026-07-08T00:00:00Z"
 CREATED_AT_POLICY = "deterministic_from_request_content_no_wall_clock"
 
 _FORBIDDEN_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
-    (re.compile(r"\bcanonical\b.*\b(result population|evidence|write)\b", re.I), "canonical_result_population_write"),
-    (re.compile(r"\b(result population|evidence)\b.*\bcanonical\b", re.I), "canonical_result_population_write"),
-    (re.compile(r"\b(candidate|registry|lifecycle|admission)\b", re.I), "candidate_admission_or_lifecycle_write"),
+    (
+        re.compile(r"\bcanonical\b.*\b(result population|evidence|write)\b", re.I),
+        "canonical_result_population_write",
+    ),
+    (
+        re.compile(r"\b(result population|evidence)\b.*\bcanonical\b", re.I),
+        "canonical_result_population_write",
+    ),
+    (
+        re.compile(r"\b(candidate|registry|lifecycle|admission)\b", re.I),
+        "candidate_admission_or_lifecycle_write",
+    ),
     (re.compile(r"\bcrossing\b", re.I), "canonical_crossing"),
-    (re.compile(r"\b(promot|readiness|ready for paper|ready for live)\b", re.I), "promotion_or_readiness"),
-    (re.compile(r"\b(paper|live|runtime|OMS|risk|reconciliation|order|exchange|broker)\b", re.I), "paper_live_runtime_contact"),
-    (re.compile(r"\b(scheduler|autonomous|cron|daemon|dispatch)\b", re.I), "scheduler_or_autonomous_dispatch"),
+    (
+        re.compile(r"\b(promot|readiness|ready for paper|ready for live)\b", re.I),
+        "promotion_or_readiness",
+    ),
+    (
+        re.compile(r"\b(paper|live|runtime|OMS|risk|reconciliation|order|exchange|broker)\b", re.I),
+        "paper_live_runtime_contact",
+    ),
+    (
+        re.compile(r"\b(scheduler|autonomous|cron|daemon|dispatch)\b", re.I),
+        "scheduler_or_autonomous_dispatch",
+    ),
     (re.compile(r"\b(notification|notify|fire alert)\b", re.I), "notification_firing"),
-    (re.compile(r"\b(provider api|api key|credential|secret|network call)\b", re.I), "provider_api_or_credential_use"),
+    (
+        re.compile(r"\b(provider api|api key|credential|secret|network call)\b", re.I),
+        "provider_api_or_credential_use",
+    ),
 )
 
 _SOURCE_FORBIDDEN_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
-    (re.compile(r"\b(write|create|commit)\b.*\bcanonical\b.*\b(result population|evidence)\b", re.I), "canonical_result_population_write"),
-    (re.compile(r"\b(register|admit|write|update)\b.*\b(candidate|registry|lifecycle)\b", re.I), "candidate_admission_or_lifecycle_write"),
+    (
+        re.compile(
+            r"\b(write|create|commit)\b.*\bcanonical\b.*\b(result population|evidence)\b", re.I
+        ),
+        "canonical_result_population_write",
+    ),
+    (
+        re.compile(r"\b(register|admit|write|update)\b.*\b(candidate|registry|lifecycle)\b", re.I),
+        "candidate_admission_or_lifecycle_write",
+    ),
     (re.compile(r"\b(execute|perform|create)\b.*\bcrossing\b", re.I), "canonical_crossing"),
     (re.compile(r"\b(promote|declare readiness|mark ready)\b", re.I), "promotion_or_readiness"),
-    (re.compile(r"\b(contact|handoff to|run|touch)\b.*\b(paper|live|runtime)\b", re.I), "paper_live_runtime_contact"),
-    (re.compile(r"\b(scheduler|autonomous)\b.*\b(dispatch|run|trigger)\b", re.I), "scheduler_or_autonomous_dispatch"),
+    (
+        re.compile(r"\b(contact|handoff to|run|touch)\b.*\b(paper|live|runtime)\b", re.I),
+        "paper_live_runtime_contact",
+    ),
+    (
+        re.compile(r"\b(scheduler|autonomous)\b.*\b(dispatch|run|trigger)\b", re.I),
+        "scheduler_or_autonomous_dispatch",
+    ),
     (re.compile(r"\b(fire|send)\b.*\b(notification|alert)\b", re.I), "notification_firing"),
-    (re.compile(r"\b(use|call|read)\b.*\b(provider api|api key|credential|secret)\b", re.I), "provider_api_or_credential_use"),
+    (
+        re.compile(r"\b(use|call|read)\b.*\b(provider api|api key|credential|secret)\b", re.I),
+        "provider_api_or_credential_use",
+    ),
 )
 
 
@@ -112,9 +155,12 @@ class PipelineResult:
 
 
 def _pipeline_run_id(request_payload: Mapping[str, Any]) -> str:
-    return "LPIPE-" + sha256_payload(
-        {"pipeline": "lab_pipeline_v1", "request": request_payload}
-    ).split(":", 1)[1][:16]
+    return (
+        "LPIPE-"
+        + sha256_payload({"pipeline": "lab_pipeline_v1", "request": request_payload}).split(":", 1)[
+            1
+        ][:16]
+    )
 
 
 def _scan_forbidden(request: Mapping[str, Any]) -> list[str]:
@@ -189,57 +235,16 @@ def _prereg_packet(
     formalized: Mapping[str, Any],
     availability: Mapping[str, Any],
 ) -> dict[str, Any]:
-    packet = {
-        "schema_version": "lab_pipeline_preregistration_packet_v1",
-        "pipeline_run_id": pipeline_run_id,
-        "request_id": request["request_id"],
-        "frozen_content": {
-            "request": dict(request),
-            "formalized_idea": dict(formalized),
-            "availability_check": dict(availability),
-            "execution_scope": "noncanonical_offline_research_only",
-            "canonical_write_allowed": False,
-            "candidate_lifecycle_write_allowed": False,
-            "paper_live_runtime_contact_allowed": False,
-            "scheduler_autonomy_allowed": False,
-            "notification_firing_allowed": False,
-            "provider_api_network_allowed": False,
-            "denominator_policy": "preserve_all_generated_rows_no_winner_only_selection",
-        },
-        "approval_binding": {
-            "required_approval_scope": model.APPROVAL_SCOPE,
-            "required_approval_statement": model.APPROVAL_STATEMENT,
-            "hash_algorithm": "sha256",
-            "hash_scope": "packet_without_packet_sha256",
-        },
-        "non_authority_flags": dict(model.NON_AUTHORITY_FLAGS),
-    }
-    packet["packet_sha256"] = sha256_payload(packet)
-    return packet
+    return build_preregistration_packet(
+        pipeline_run_id=pipeline_run_id,
+        request=request,
+        formalized=formalized,
+        availability=availability,
+    )
 
 
 def _approval_requirement(packet: Mapping[str, Any]) -> dict[str, Any]:
-    return {
-        "schema_version": "lab_pipeline_approval_requirement_v1",
-        "pipeline_run_id": packet["pipeline_run_id"],
-        "request_id": packet["request_id"],
-        "preregistration_packet_sha256": packet["packet_sha256"],
-        "approval_marker_schema": model.APPROVAL_SCHEMA_VERSION,
-        "required_fields": {
-            "schema_version": model.APPROVAL_SCHEMA_VERSION,
-            "approved_by": "Karl",
-            "approval_scope": model.APPROVAL_SCOPE,
-            "approval_statement": model.APPROVAL_STATEMENT,
-            "authorizes_noncanonical_offline_research_execution": True,
-            "authorizes_canonical_write": False,
-            "authorizes_candidate_lifecycle": False,
-            "authorizes_paper_live_runtime": False,
-            "authorizes_scheduler_autonomy": False,
-            "authorizes_notifications": False,
-            "preregistration_packet_sha256": packet["packet_sha256"],
-        },
-        "non_authority_flags": dict(model.NON_AUTHORITY_FLAGS),
-    }
+    return build_approval_requirement(packet)
 
 
 def _validate_approval(
@@ -252,33 +257,7 @@ def _validate_approval(
         approval = read_json(approval_path)
     except (OSError, ValueError) as exc:
         return False, {}, [f"malformed_prereg_approval:{exc}"]
-    errors: list[str] = []
-    required_false = {
-        "authorizes_canonical_write": False,
-        "authorizes_candidate_lifecycle": False,
-        "authorizes_paper_live_runtime": False,
-        "authorizes_scheduler_autonomy": False,
-        "authorizes_notifications": False,
-    }
-    if approval.get("schema_version") != model.APPROVAL_SCHEMA_VERSION:
-        errors.append("approval_schema_version_mismatch")
-    if approval.get("approved_by") != "Karl":
-        errors.append("approval_actor_not_karl")
-    if approval.get("approval_scope") != model.APPROVAL_SCOPE:
-        errors.append("approval_scope_not_noncanonical_offline_only")
-    if approval.get("approval_statement") != model.APPROVAL_STATEMENT:
-        errors.append("approval_statement_not_exact")
-    if approval.get("authorizes_noncanonical_offline_research_execution") is not True:
-        errors.append("approval_missing_noncanonical_execution_flag")
-    if approval.get("preregistration_packet_sha256") != packet["packet_sha256"]:
-        errors.append("approval_hash_mismatch")
-    if not isinstance(approval.get("approval_timestamp_utc"), str) or not approval.get(
-        "approval_timestamp_utc"
-    ):
-        errors.append("approval_timestamp_missing")
-    for field, expected in required_false.items():
-        if approval.get(field) is not expected:
-            errors.append(f"approval_too_broad:{field}")
+    errors = list(validate_prereg_approval(approval, packet))
     return not errors, approval, errors
 
 
@@ -380,7 +359,13 @@ def run_pipeline(
 
     request_out = run_dir / "pipeline_request.json"
     artifacts["pipeline_request"] = write_json(request_out, request)
-    _set_stage(stages, "request_loaded", "complete", "Request loaded.", artifact_refs=(artifacts["pipeline_request"],))
+    _set_stage(
+        stages,
+        "request_loaded",
+        "complete",
+        "Request loaded.",
+        artifact_refs=(artifacts["pipeline_request"],),
+    )
     add_trace("request_loaded", "complete", "Request loaded.")
 
     blocked = _scan_forbidden(request)
@@ -422,8 +407,20 @@ def run_pipeline(
     }
     if availability_problems:
         reasons = tuple(f"availability_blocked:{problem}" for problem in availability_problems)
-        _set_stage(stages, "availability_checked", "blocked", "Availability check blocked.", blocked_reasons=reasons)
-        _set_stage(stages, "blocked", "blocked", "Pipeline blocked by availability.", blocked_reasons=reasons)
+        _set_stage(
+            stages,
+            "availability_checked",
+            "blocked",
+            "Availability check blocked.",
+            blocked_reasons=reasons,
+        )
+        _set_stage(
+            stages,
+            "blocked",
+            "blocked",
+            "Pipeline blocked by availability.",
+            blocked_reasons=reasons,
+        )
         add_trace("availability_checked", "blocked", "Availability check blocked.")
         return _finalize(
             run_dir=run_dir,
@@ -438,7 +435,12 @@ def run_pipeline(
             approval_requirements={},
             execution_summary=None,
         )
-    _set_stage(stages, "availability_checked", "complete", "Availability check passed for prereg packet preparation.")
+    _set_stage(
+        stages,
+        "availability_checked",
+        "complete",
+        "Availability check passed for prereg packet preparation.",
+    )
     add_trace("availability_checked", "complete", "Availability check passed.")
 
     packet = _prereg_packet(
@@ -451,7 +453,9 @@ def run_pipeline(
         run_dir / "preregistration_packet.json", packet
     )
     requirement = _approval_requirement(packet)
-    artifacts["approval_requirement"] = write_json(run_dir / "approval_requirement.json", requirement)
+    artifacts["approval_requirement"] = write_json(
+        run_dir / "approval_requirement.json", requirement
+    )
     _set_stage(
         stages,
         "prereg_packet_prepared",
@@ -501,7 +505,12 @@ def run_pipeline(
     )
     add_trace("approved_for_noncanonical_execution", "complete", "Approval accepted.")
 
-    _set_stage(stages, "noncanonical_execution_running", "complete", "Deterministic non-canonical spine step entered.")
+    _set_stage(
+        stages,
+        "noncanonical_execution_running",
+        "complete",
+        "Deterministic non-canonical spine step entered.",
+    )
     execution_summary = _noncanonical_execution_packet(request, packet, approval)
     _set_stage(
         stages,
@@ -509,10 +518,22 @@ def run_pipeline(
         "complete",
         "Non-canonical spine step completed with preserved denominator.",
     )
-    add_trace("noncanonical_execution_complete", "complete", "Scratch-only execution summary produced.")
+    add_trace(
+        "noncanonical_execution_complete", "complete", "Scratch-only execution summary produced."
+    )
 
-    _set_stage(stages, "gate_review_complete", "complete", "Gate review completed as non-authoritative packet check.")
-    _set_stage(stages, "robustness_review_complete", "complete", "Robustness review completed as non-authoritative packet check.")
+    _set_stage(
+        stages,
+        "gate_review_complete",
+        "complete",
+        "Gate review completed as non-authoritative packet check.",
+    )
+    _set_stage(
+        stages,
+        "robustness_review_complete",
+        "complete",
+        "Robustness review completed as non-authoritative packet check.",
+    )
     _set_stage(
         stages,
         "candidate_review_packet_prepared",
@@ -660,27 +681,13 @@ def _validate_output_root(output_root: Path) -> None:
         resolved.relative_to(allowed)
     except ValueError as exc:
         raise PipelineBlockedError(
-            "output_root inside repo must be under "
-            f"{allowed.as_posix()}; got {rel.as_posix()}"
+            f"output_root inside repo must be under {allowed.as_posix()}; got {rel.as_posix()}"
         ) from exc
 
 
 def approval_template_for(preregistration_packet_path: Path) -> dict[str, Any]:
     packet = read_json(preregistration_packet_path)
-    packet_hash = packet.get("packet_sha256")
-    if not isinstance(packet_hash, str):
-        raise PipelineBlockedError("preregistration packet lacks packet_sha256")
-    return {
-        "schema_version": model.APPROVAL_SCHEMA_VERSION,
-        "approved_by": "Karl",
-        "approval_scope": model.APPROVAL_SCOPE,
-        "approval_statement": model.APPROVAL_STATEMENT,
-        "approval_timestamp_utc": DETERMINISTIC_TIMESTAMP_UTC,
-        "authorizes_noncanonical_offline_research_execution": True,
-        "authorizes_canonical_write": False,
-        "authorizes_candidate_lifecycle": False,
-        "authorizes_paper_live_runtime": False,
-        "authorizes_scheduler_autonomy": False,
-        "authorizes_notifications": False,
-        "preregistration_packet_sha256": packet_hash,
-    }
+    try:
+        return build_approval_template(packet, approval_timestamp_utc=DETERMINISTIC_TIMESTAMP_UTC)
+    except ValueError as exc:
+        raise PipelineBlockedError(str(exc)) from exc

@@ -24,6 +24,12 @@ from tools.agent_sandbox.permissions import (
     WRITE_SCRATCH,
 )
 from tools.registry.validate_strategy_specs import validate_strategy_specs
+from tools.research_domain.contracts import LOCKED_TIMEFRAMES as DOMAIN_LOCKED_TIMEFRAMES
+from tools.research_domain.formalization import (
+    assess_capabilities,
+    build_strategy_spec,
+    detect_features,
+)
 
 from .provider_packets import render_chatgpt_request_packet
 from .reasoning_providers import (
@@ -34,7 +40,6 @@ from .reasoning_providers import (
     ProviderUnavailableError,
     ReasoningProvider,
 )
-
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 WP_ID = "WP-AGENT-IDEA-FORMALIZER-01"
@@ -49,7 +54,7 @@ AVAILABILITY_CATALOG_PATH = Path(
 STRATEGY_TEMPLATE_PATH = Path("research/strategy_specs/STRAT-SPEC-0003.strategy_spec.json")
 STRATEGY_SCHEMA_PATH = REPO_ROOT / "research/schemas/strategy_spec.schema.json"
 VALIDATOR_PATH = "tools/registry/validate_strategy_specs.py"
-LOCKED_TIMEFRAMES = {"15m", "30m", "1h", "4h", "1d"}
+LOCKED_TIMEFRAMES = set(DOMAIN_LOCKED_TIMEFRAMES)
 NON_AUTHORITY = {
     "draft_only": True,
     "scratch_only": True,
@@ -273,133 +278,12 @@ class IdeaFormalizerAgent:
         return hashlib.sha256(raw.encode("utf-8")).hexdigest()[:12]
 
     def _detect_features(self, idea: str, indicator_ids: set[str]) -> list[str]:
-        lower = idea.casefold()
-        features = sorted(
-            feature for feature in indicator_ids if re.search(rf"\b{re.escape(feature)}\b", lower)
-        )
-        if any(
-            term in lower for term in ("taker flow", "taker-flow", "aggressive buy", "aggtrades")
-        ):
-            features.append("taker_buy_sell_ratio")
-        if re.search(r"\b(open interest|oi divergence)\b", lower):
-            features.append("open_interest")
-        if "long/short ratio" in lower or "long short ratio" in lower:
-            features.append("global_long_short_account_ratio")
-        if "funding_rate" in lower or "funding rate" in lower:
-            features.append("funding_rate")
-        if "liquidation" in lower:
-            features.append("liquidation_volume")
-        if any(term in lower for term in ("ohlcv", "price", "close", "volume")):
-            features.append("ohlcv")
-        return list(dict.fromkeys(features))
+        return detect_features(idea, indicator_ids)
 
     def _assess_capabilities(self, idea: str) -> dict[str, Any]:
         indicator_catalog = self._read_json(INDICATOR_CATALOG_PATH)
         availability_catalog = self._read_json(AVAILABILITY_CATALOG_PATH)
-        indicator_ids = {
-            entry["indicator_id"]
-            for entry in indicator_catalog.get("entries", [])
-            if isinstance(entry, dict) and isinstance(entry.get("indicator_id"), str)
-        }
-        detected = self._detect_features(idea, indicator_ids)
-        entries = [
-            entry for entry in availability_catalog.get("entries", []) if isinstance(entry, dict)
-        ]
-        assessments: list[dict[str, Any]] = []
-        for feature in detected:
-            if feature == "ohlcv":
-                assessments.append(
-                    {
-                        "feature": feature,
-                        "compiler_field_exists": True,
-                        "historical_testability": "available_public_archive",
-                        "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
-                        "source_class": "PUBLIC_OHLCV_ARCHIVE",
-                        "warnings": [],
-                    }
-                )
-                continue
-            if feature in indicator_ids:
-                assessments.append(
-                    {
-                        "feature": feature,
-                        "compiler_field_exists": True,
-                        "historical_testability": "available_when_source_bars_exist",
-                        "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
-                        "source_class": "INDICATOR_DERIVED_FROM_OHLCV",
-                        "warnings": [],
-                    }
-                )
-                continue
-            candidates = [entry for entry in entries if entry.get("feature_name") == feature]
-            if feature == "taker_buy_sell_ratio":
-                preferred = next(
-                    (
-                        entry
-                        for entry in candidates
-                        if entry.get("source_class") == "PUBLIC_TRADE_ARCHIVE_DERIVATION"
-                    ),
-                    None,
-                )
-            else:
-                preferred = candidates[0] if candidates else None
-            if preferred is None:
-                assessments.append(
-                    {
-                        "feature": feature,
-                        "compiler_field_exists": False,
-                        "historical_testability": "blocked_unknown",
-                        "coverage_class": "UNKNOWN_OR_BLOCKED",
-                        "source_class": "UNKNOWN_SOURCE",
-                        "warnings": ["No repo availability entry exists."],
-                    }
-                )
-                continue
-            coverage = str(preferred["coverage_class"])
-            conditional_archive = (
-                coverage == "FULL_HISTORY_PUBLIC_ARCHIVE"
-                and preferred.get("canonical_full_history_allowed") == "conditional"
-            )
-            testability = (
-                "conditionally_public_archive_backfillable"
-                if conditional_archive
-                else "vendor_or_capture_constrained"
-                if preferred.get("requires_vendor_or_captured_data")
-                else "available_public_archive"
-            )
-            warnings = [str(preferred.get("history_limitation", ""))]
-            if feature in {"open_interest", "open_interest_value"}:
-                warnings.append(
-                    "Compiler field existence does not provide full historical OI data."
-                )
-                warnings.append(
-                    "Trades and aggregate trades cannot reconstruct true open interest."
-                )
-            assessments.append(
-                {
-                    "feature": feature,
-                    "compiler_field_exists": bool(preferred.get("compiler_visible")),
-                    "historical_testability": testability,
-                    "coverage_class": coverage,
-                    "source_class": preferred.get("source_class"),
-                    "warnings": warnings,
-                    "conditions": preferred.get("conditions", []),
-                }
-            )
-        blockers = [
-            item["feature"]
-            for item in assessments
-            if item["historical_testability"]
-            in {"vendor_or_capture_constrained", "blocked_unknown"}
-            or not item["compiler_field_exists"]
-        ]
-        return {
-            "detected_features": detected,
-            "feature_assessments": assessments,
-            "historically_testable_now": bool(assessments) and not blockers,
-            "blocking_features": blockers,
-            "distinction": "compiler field existence is separate from historical testability",
-        }
+        return assess_capabilities(idea, indicator_catalog, availability_catalog)
 
     def _boundary_rejection(self, idea: str) -> tuple[str, Any] | None:
         for pattern, action_type, target_path, reason in BOUNDARY_PATTERNS:
@@ -420,97 +304,13 @@ class IdeaFormalizerAgent:
         provider_metadata: Mapping[str, Any],
         formalized_path: str,
     ) -> dict[str, Any]:
-        spec = copy.deepcopy(self._read_json(STRATEGY_TEMPLATE_PATH))
-        numeric_id = 9000 + (int(run_id[:8], 16) % 1000)
-        timeframe = str(draft["timeframe"])
-        family_id = self._draft_family_id(draft)
-
-        def replace_timeframe(value: Any) -> Any:
-            if isinstance(value, dict):
-                return {key: replace_timeframe(child) for key, child in value.items()}
-            if isinstance(value, list):
-                return [replace_timeframe(child) for child in value]
-            if isinstance(value, str):
-                return re.sub(r"\b15m\b", timeframe, value)
-            return value
-
-        spec = replace_timeframe(spec)
-        spec["strategy_spec_id"] = f"STRAT-SPEC-{numeric_id:04d}"
-        spec["title"] = {
-            "donchian_channel_breakout_v1": "Draft deterministic Donchian channel-breakout Strategy Spec",
-            "funding_rate_positioning_fade_v1": "Draft funding-rate positioning-fade Strategy Spec",
-        }.get(family_id, "Draft provider-assisted SMA/stddev mean-reversion Strategy Spec")
-        spec["short_name"] = f"draft-idea-{run_id}"
-        spec["status"] = "draft"
-        spec["instruments"]["symbols"] = list(draft["symbols"])
-        spec["timeframe_and_data"]["gap_handling_assumption"] = (
-            f"Use existing cataloged {draft['symbols'][0]} {timeframe} OHLCV and the "
-            "merged research-workbench gap policy; do not interpolate or silently fill gaps."
+        return build_strategy_spec(
+            run_id=run_id,
+            draft=draft,
+            provider_metadata=provider_metadata,
+            formalized_path=formalized_path,
+            template=self._read_json(STRATEGY_TEMPLATE_PATH),
         )
-        spec["provenance"] = {
-            "source_type": "manual_idea",
-            "source_refs": [formalized_path],
-            "prepared_by": "bounded idea_formalizer agent",
-            "created_at": None,
-            "updated_at": None,
-            "rationale": str(draft["causal_rationale"]),
-            "source_constraints": [
-                f"provider_mode={provider_metadata['provider_mode']}",
-                f"provider_id={provider_metadata['provider_id']}",
-                f"request_id={provider_metadata['request_id']}",
-                f"response_source={provider_metadata['response_source']}",
-                {
-                    "donchian_channel_breakout_v1": (
-                        "Scratch-only draft produced by the bounded "
-                        "donchian_channel_breakout_v1 adapter."
-                    ),
-                    "funding_rate_positioning_fade_v1": (
-                        "Scratch-only draft produced by the bounded "
-                        "funding_rate_positioning_fade_v1 adapter."
-                    ),
-                }.get(
-                    family_id,
-                    "Scratch-only draft adapted from the merged STRAT-SPEC-0003 capability family.",
-                ),
-            ],
-            "unresolved_claims": [
-                "Provider output is advisory and requires human review.",
-                "No preregistration, sweep, evidence, or execution is authorized.",
-            ],
-        }
-        spec["review"].update(
-            {
-                "reviewer": None,
-                "reviewed_at": None,
-                "review_notes": [
-                    "Scratch-only provider-assisted draft; validator success is not approval."
-                ],
-                "approval_scope": "none",
-            }
-        )
-        spec["lineage"] = {
-            "parent_refs": [
-                {
-                    "ref_type": "concept",
-                    "ref_id": f"IDEA-{run_id.upper()}",
-                    "ref_path": formalized_path,
-                    "ref_hash": None,
-                }
-            ],
-            "supersedes": [],
-            "amendment_of": None,
-        }
-        spec["hash_pinning"].update({"canonical_spec_hash": None, "hash_status": "not_computed"})
-        spec["pre_registration_support"] = {
-            "intended_for_variant_manifest": False,
-            "variant_manifest_ref": None,
-            "frozen_snapshot_ref": None,
-        }
-        if family_id == "donchian_channel_breakout_v1":
-            self._apply_donchian_strategy_body(spec)
-        elif family_id == "funding_rate_positioning_fade_v1":
-            self._apply_funding_strategy_body(spec, exit_mode="midline_reversion_or_max_hold")
-        return spec
 
     @staticmethod
     def _funding_percentile_operand() -> dict[str, Any]:
@@ -603,9 +403,7 @@ class IdeaFormalizerAgent:
         }
 
     @classmethod
-    def _apply_funding_strategy_body(
-        cls, spec: dict[str, Any], *, exit_mode: str
-    ) -> None:
+    def _apply_funding_strategy_body(cls, spec: dict[str, Any], *, exit_mode: str) -> None:
         timeframe = spec["timeframe_and_data"]["primary_timeframe"]
         spec["short_name"] = f"funding-positioning-fade-{exit_mode}-15m"
         spec["instruments"]["directions_allowed"] = ["long", "short"]
@@ -632,12 +430,14 @@ class IdeaFormalizerAgent:
                     "group_id": "ENTRY-LONG-FUNDING-LOW-TAIL",
                     "group_role": "required",
                     "logic": "all",
-                    "conditions": [cls._funding_condition(
-                        "LONG-FUNDING-PERCENTILE-LTE-LOWER",
-                        "lte",
-                        cls._parameter_operand("lower_entry_percentile"),
-                        "required",
-                    )],
+                    "conditions": [
+                        cls._funding_condition(
+                            "LONG-FUNDING-PERCENTILE-LTE-LOWER",
+                            "lte",
+                            cls._parameter_operand("lower_entry_percentile"),
+                            "required",
+                        )
+                    ],
                     "subgroups": [],
                     "notes": "Contrarian long entry at the preregistered lower tail.",
                     "side": "long",
@@ -646,12 +446,14 @@ class IdeaFormalizerAgent:
                     "group_id": "ENTRY-SHORT-FUNDING-HIGH-TAIL",
                     "group_role": "required",
                     "logic": "all",
-                    "conditions": [cls._funding_condition(
-                        "SHORT-FUNDING-PERCENTILE-GTE-UPPER",
-                        "gte",
-                        cls._parameter_operand("upper_entry_percentile"),
-                        "required",
-                    )],
+                    "conditions": [
+                        cls._funding_condition(
+                            "SHORT-FUNDING-PERCENTILE-GTE-UPPER",
+                            "gte",
+                            cls._parameter_operand("upper_entry_percentile"),
+                            "required",
+                        )
+                    ],
                     "subgroups": [],
                     "notes": "Contrarian short entry at the preregistered upper tail.",
                     "side": "short",
@@ -666,12 +468,14 @@ class IdeaFormalizerAgent:
                     "group_id": "EXIT-LONG-FUNDING-MIDLINE",
                     "group_role": "exit",
                     "logic": "all",
-                    "conditions": [cls._funding_condition(
-                        "LONG-FUNDING-PERCENTILE-GTE-MIDLINE",
-                        "gte",
-                        cls._constant_operand(0.5),
-                        "exit",
-                    )],
+                    "conditions": [
+                        cls._funding_condition(
+                            "LONG-FUNDING-PERCENTILE-GTE-MIDLINE",
+                            "gte",
+                            cls._constant_operand(0.5),
+                            "exit",
+                        )
+                    ],
                     "subgroups": [],
                     "notes": "Long exits when funding percentile reverts to the midline.",
                     "side": "long",
@@ -680,12 +484,14 @@ class IdeaFormalizerAgent:
                     "group_id": "EXIT-SHORT-FUNDING-MIDLINE",
                     "group_role": "exit",
                     "logic": "all",
-                    "conditions": [cls._funding_condition(
-                        "SHORT-FUNDING-PERCENTILE-LTE-MIDLINE",
-                        "lte",
-                        cls._constant_operand(0.5),
-                        "exit",
-                    )],
+                    "conditions": [
+                        cls._funding_condition(
+                            "SHORT-FUNDING-PERCENTILE-LTE-MIDLINE",
+                            "lte",
+                            cls._constant_operand(0.5),
+                            "exit",
+                        )
+                    ],
                     "subgroups": [],
                     "notes": "Short exits when funding percentile reverts to the midline.",
                     "side": "short",
@@ -708,20 +514,40 @@ class IdeaFormalizerAgent:
             ),
             "parameters": [
                 cls._funding_parameter(
-                    "funding_lookback_bars", label="Funding percentile lookback", parameter_type="integer",
-                    units="bars", default=2880, allowed_values=[2880, 8640, 17280], role="entry"
+                    "funding_lookback_bars",
+                    label="Funding percentile lookback",
+                    parameter_type="integer",
+                    units="bars",
+                    default=2880,
+                    allowed_values=[2880, 8640, 17280],
+                    role="entry",
                 ),
                 cls._funding_parameter(
-                    "lower_entry_percentile", label="Lower entry percentile", parameter_type="number",
-                    units="ratio", default=0.1, allowed_values=[0.05, 0.1], role="entry"
+                    "lower_entry_percentile",
+                    label="Lower entry percentile",
+                    parameter_type="number",
+                    units="ratio",
+                    default=0.1,
+                    allowed_values=[0.05, 0.1],
+                    role="entry",
                 ),
                 cls._funding_parameter(
-                    "upper_entry_percentile", label="Upper entry percentile", parameter_type="number",
-                    units="ratio", default=0.9, allowed_values=[0.9, 0.95], role="entry"
+                    "upper_entry_percentile",
+                    label="Upper entry percentile",
+                    parameter_type="number",
+                    units="ratio",
+                    default=0.9,
+                    allowed_values=[0.9, 0.95],
+                    role="entry",
                 ),
                 cls._funding_parameter(
-                    "max_hold_bars", label="Maximum holding period", parameter_type="integer",
-                    units="bars", default=16, allowed_values=[16, 32, 96], role="exit"
+                    "max_hold_bars",
+                    label="Maximum holding period",
+                    parameter_type="integer",
+                    units="bars",
+                    default=16,
+                    allowed_values=[16, 32, 96],
+                    role="exit",
                 ),
             ],
             "no_free_parameters_declared": False,
@@ -953,7 +779,6 @@ class IdeaFormalizerAgent:
             }
         )
 
-
     def _validate_draft_dir(self, path: Path) -> list[str]:
         return self.tool_context.run_allowed(
             ToolAction(RUN_READ_ONLY_VALIDATION, VALIDATOR_PATH),
@@ -1178,8 +1003,12 @@ class IdeaFormalizerAgent:
             self._write_json(spec_path, spec)
             if family_id == "funding_rate_positioning_fade_v1":
                 fixed_spec = copy.deepcopy(spec)
-                fixed_spec["strategy_spec_id"] = f"STRAT-SPEC-{int(spec['strategy_spec_id'][-4:]) + 1:04d}"
-                fixed_spec["title"] = "Draft funding-rate positioning-fade fixed-max-hold Strategy Spec"
+                fixed_spec["strategy_spec_id"] = (
+                    f"STRAT-SPEC-{int(spec['strategy_spec_id'][-4:]) + 1:04d}"
+                )
+                fixed_spec["title"] = (
+                    "Draft funding-rate positioning-fade fixed-max-hold Strategy Spec"
+                )
                 self._apply_funding_strategy_body(fixed_spec, exit_mode="fixed_max_hold_only")
                 fixed_path = run_dir / f"{fixed_spec['strategy_spec_id']}.strategy_spec.json"
                 self._write_json(fixed_path, fixed_spec)

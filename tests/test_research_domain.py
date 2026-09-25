@@ -3,12 +3,14 @@ from __future__ import annotations
 import ast
 import copy
 import json
+from collections.abc import Mapping
 from pathlib import Path
 
 import pytest
 
 from tools.lab_pipeline import adapters, gate_actions, orchestrator
 from tools.research_agents.idea_formalizer_agent import IdeaFormalizerAgent
+from tools.research_domain import formalization as domain_formalization
 from tools.research_domain.contracts import (
     PREREG_APPROVAL_SCOPE,
     PREREG_NON_AUTHORITY_ASSERTIONS,
@@ -145,6 +147,82 @@ def test_formalization_is_deterministic_and_preserves_wrapper_output() -> None:
         pure["entry_logic"]["groups"][0]["conditions"][0]["right_operand"]["field"] == "upper_lag1"
     )
     assert template["strategy_spec_id"] == "STRAT-SPEC-0003"
+
+
+def test_legacy_family_compatibility_methods_delegate_to_domain(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[tuple[str, object]] = []
+
+    def family_id(draft: Mapping[str, object]) -> str:
+        calls.append(("family", draft))
+        return "domain-owned-family"
+
+    def funding_body(spec: dict[str, object], *, exit_mode: str) -> None:
+        calls.append(("funding", (spec, exit_mode)))
+
+    def donchian_body(spec: dict[str, object]) -> None:
+        calls.append(("donchian", spec))
+
+    monkeypatch.setattr(domain_formalization, "_draft_family_id", family_id)
+    monkeypatch.setattr(domain_formalization, "_apply_funding_strategy_body", funding_body)
+    monkeypatch.setattr(domain_formalization, "_apply_donchian_strategy_body", donchian_body)
+
+    draft: dict[str, object] = {"features": ["funding_rate"]}
+    funding_spec: dict[str, object] = {}
+    donchian_spec: dict[str, object] = {}
+    assert IdeaFormalizerAgent._draft_family_id(draft) == "domain-owned-family"
+    IdeaFormalizerAgent._apply_funding_strategy_body(funding_spec, exit_mode="fixed_max_hold_only")
+    IdeaFormalizerAgent._apply_donchian_strategy_body(donchian_spec)
+
+    assert calls == [
+        ("family", draft),
+        ("funding", (funding_spec, "fixed_max_hold_only")),
+        ("donchian", donchian_spec),
+    ]
+
+
+def test_legacy_wrapper_contains_only_thin_family_delegates() -> None:
+    source = (REPO_ROOT / "tools/research_agents/idea_formalizer_agent.py").read_text(
+        encoding="utf-8"
+    )
+    tree = ast.parse(source)
+    agent_class = next(
+        node
+        for node in tree.body
+        if isinstance(node, ast.ClassDef) and node.name == "IdeaFormalizerAgent"
+    )
+    methods = {
+        node.name: node
+        for node in agent_class.body
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    }
+    removed_support_helpers = {
+        "_funding_percentile_operand",
+        "_parameter_operand",
+        "_constant_operand",
+        "_funding_condition",
+        "_funding_parameter",
+        "_indicator_operand",
+        "_close_operand",
+        "_donchian_condition",
+    }
+    assert removed_support_helpers.isdisjoint(methods)
+
+    for method_name, domain_name in (
+        ("_draft_family_id", "_draft_family_id"),
+        ("_apply_funding_strategy_body", "_apply_funding_strategy_body"),
+        ("_apply_donchian_strategy_body", "_apply_donchian_strategy_body"),
+    ):
+        body = methods[method_name].body
+        assert len(body) == 1
+        statement = body[0]
+        expression = statement.value if isinstance(statement, (ast.Expr, ast.Return)) else None
+        assert isinstance(expression, ast.Call)
+        assert isinstance(expression.func, ast.Attribute)
+        assert isinstance(expression.func.value, ast.Name)
+        assert expression.func.value.id == "domain_formalization"
+        assert expression.func.attr == domain_name
 
 
 def test_preregistration_hash_requirement_and_approval_are_deterministic() -> None:

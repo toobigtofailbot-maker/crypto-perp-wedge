@@ -1,7 +1,7 @@
 # CPW-PREFECT-01 — P1/P2/P3 Acceptance
 
 - Branch: `codex/cpw-prefect-01-p1-p2-p3-acceptance`
-- PR: to be opened before final validation
+- PR: https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/715
 - Package class: T2, mandatory full-release
 - Scope: pin Prefect 3.8.6 and prove P1/P2/P3 against the isolated local test backend without cutover.
 - Merge status: open implementation package; not merged.

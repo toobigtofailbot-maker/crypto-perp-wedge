@@ -14,7 +14,6 @@ from pathlib import Path
 from typing import Any, Mapping
 
 from tools.agent_sandbox import MemoryAuditSink, ToolContext
-from tools.lab_pipeline import model
 from tools.lab_pipeline.adapter_contract import (
     ADAPTER_CONTRACT_VERSION,
     ADAPTER_RUN_STATUSES,
@@ -30,7 +29,7 @@ from tools.research_agents.idea_formalizer_agent import (
     IdeaFormalizerConfig,
     make_provider,
 )
-
+from tools.research_domain.preregistration import validate_prereg_approval
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 WP_ID = "WP-LABPROD-PIPELINE-AGENT-ADAPTERS-02"
@@ -106,28 +105,7 @@ def _validate_pipeline_approval(
         return False, None, ("missing_prereg_approval",)
     packet = read_json(preregistration_packet_path)
     approval = read_json(approval_path)
-    errors: list[str] = []
-    if approval.get("schema_version") != model.APPROVAL_SCHEMA_VERSION:
-        errors.append("approval_schema_version_mismatch")
-    if approval.get("approved_by") != "Karl":
-        errors.append("approval_actor_not_karl")
-    if approval.get("approval_scope") != model.APPROVAL_SCOPE:
-        errors.append("approval_scope_not_noncanonical_offline_only")
-    if approval.get("approval_statement") != model.APPROVAL_STATEMENT:
-        errors.append("approval_statement_not_exact")
-    if approval.get("authorizes_noncanonical_offline_research_execution") is not True:
-        errors.append("approval_missing_noncanonical_execution_flag")
-    if approval.get("preregistration_packet_sha256") != packet.get("packet_sha256"):
-        errors.append("approval_hash_mismatch")
-    for field in (
-        "authorizes_canonical_write",
-        "authorizes_candidate_lifecycle",
-        "authorizes_paper_live_runtime",
-        "authorizes_scheduler_autonomy",
-        "authorizes_notifications",
-    ):
-        if approval.get(field) is not False:
-            errors.append(f"approval_too_broad:{field}")
+    errors = list(validate_prereg_approval(approval, packet))
     return not errors, approval, tuple(errors)
 
 
@@ -182,7 +160,9 @@ def _formalizer_output_paths(result: Mapping[str, Any]) -> list[str]:
     return list(dict.fromkeys(paths))
 
 
-def _run_idea_formalizer(request: Mapping[str, Any]) -> tuple[dict[str, Any], list[str], list[dict[str, Any]]]:
+def _run_idea_formalizer(
+    request: Mapping[str, Any],
+) -> tuple[dict[str, Any], list[str], list[dict[str, Any]]]:
     sink = MemoryAuditSink()
     context = ToolContext(
         wp_id=WP_ID,
@@ -229,15 +209,11 @@ def _review_packet_markdown(
         "## Stage Trace",
     ]
     for event in trace:
-        lines.append(
-            f"- {event['stage']}: {event['status']} ({event['reason_code']})"
-        )
+        lines.append(f"- {event['stage']}: {event['status']} ({event['reason_code']})")
     lines.extend(["", "## Gap Register"])
     if gaps:
         for gap in gaps:
-            lines.append(
-                f"- {gap['stage']}: {gap['status']} - {gap['blocker_reason']}"
-            )
+            lines.append(f"- {gap['stage']}: {gap['status']} - {gap['blocker_reason']}")
     else:
         lines.append("- none")
     lines.extend(["", "## Non-Authority Assertions"])
@@ -324,9 +300,7 @@ def run_adapter_flow(
                     "non_authority_assertions": dict(NON_AUTHORITY_ASSERTIONS),
                 },
             )
-            invoked.append(
-                "tools.research_agents.idea_formalizer_agent.IdeaFormalizerAgent.run"
-            )
+            invoked.append("tools.research_agents.idea_formalizer_agent.IdeaFormalizerAgent.run")
             status = (
                 "adapter_complete"
                 if formalizer_result.get("status") in {"accepted", "needs_data"}
@@ -469,9 +443,7 @@ def run_adapter_flow(
         "registry_closed": True,
         "non_authority_assertions": dict(NON_AUTHORITY_ASSERTIONS),
     }
-    artifacts["pipeline_adapter_state"] = write_json(
-        run_dir / "pipeline_adapter_state.json", state
-    )
+    artifacts["pipeline_adapter_state"] = write_json(run_dir / "pipeline_adapter_state.json", state)
     artifacts["adapter_trace"] = write_json(
         run_dir / "adapter_trace.json",
         {

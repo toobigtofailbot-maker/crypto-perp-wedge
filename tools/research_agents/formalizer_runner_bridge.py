@@ -20,8 +20,13 @@ from tools.agent_sandbox.permissions import (
 )
 from tools.registry.validate_strategy_specs import validate_strategy_specs
 from tools.registry.validate_variant_sweep_artifacts import validate_variant_sweep_artifacts
+from tools.research_domain.contracts import TRIAL_STATUSES
+from tools.research_domain.scientific_accounting import (
+    build_bridge_ledger_rows,
+    compare_result_populations,
+    validate_variant_denominator,
+)
 from tools.research_runner.run_offline_sweep import run_offline_sweep
-
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 WP_ID = "WP-AGENT-FORMALIZER-RUNNER-BRIDGE-01"
@@ -64,7 +69,6 @@ VARIANT_TEMPLATE_PATH = Path("research/variant_manifests/VM-0003.variant_manifes
 SWEEP_TEMPLATE_PATH = Path("research/sweep_plans/SWEEP-PLAN-0003.sweep_plan.json")
 STRATEGY_VALIDATOR_PATH = "tools/registry/validate_strategy_specs.py"
 VARIANT_SWEEP_VALIDATOR_PATH = "tools/registry/validate_variant_sweep_artifacts.py"
-TRIAL_STATUSES = ("completed", "failed", "invalid", "pruned", "blocked")
 NON_AUTHORITY_FLAGS = (
     "not canonical",
     "not evidence",
@@ -198,7 +202,9 @@ class FormalizerRunnerBridge:
                 DONCHIAN_ADAPTER_WP_ID,
                 FUNDING_RESEARCH_WP_ID,
             }:
-                raise ValueError("FormalizerRunnerBridge requires its exact ToolContext role and WP")
+                raise ValueError(
+                    "FormalizerRunnerBridge requires its exact ToolContext role and WP"
+                )
             output_root = Path("scratch") / tool_context.wp_id / "outputs"
         else:
             if tool_context.role != ROLE or tool_context.wp_id not in PRODUCT_BRIDGE_PREPARE_WP_IDS:
@@ -284,9 +290,7 @@ class FormalizerRunnerBridge:
         self.tool_context.run_allowed(ToolAction(WRITE_SCRATCH, relative), operation)
         return relative
 
-    def _validate_formalizer_contract(
-        self, path: str, payload: Mapping[str, Any]
-    ) -> str:
+    def _validate_formalizer_contract(self, path: str, payload: Mapping[str, Any]) -> str:
         expected_prefix = (
             self._product_scratch_prefix()
             if self.bridge_invocation_mode == PRODUCT_BRIDGE_INVOCATION_MODE
@@ -308,9 +312,10 @@ class FormalizerRunnerBridge:
         research_object = payload.get("research_object")
         if not isinstance(research_object, Mapping):
             raise FormalizerRunnerBridgeError("formalizer research_object is required")
-        if research_object.get("symbols") != ["BTCUSDT"] or research_object.get(
-            "timeframe"
-        ) != "15m":
+        if (
+            research_object.get("symbols") != ["BTCUSDT"]
+            or research_object.get("timeframe") != "15m"
+        ):
             raise FormalizerRunnerBridgeError("bridge supports only BTCUSDT 15m")
         features = set(research_object.get("features", []))
         if "funding_rate" in features and not features.intersection({"sma", "stddev", "donchian"}):
@@ -339,8 +344,10 @@ class FormalizerRunnerBridge:
                 "funding research WP accepts only funding_rate_positioning_fade_v1"
             )
         draft = payload.get("draft_strategy_spec")
-        if not isinstance(draft, Mapping) or draft.get("produced") is not True or not draft.get(
-            "path"
+        if (
+            not isinstance(draft, Mapping)
+            or draft.get("produced") is not True
+            or not draft.get("path")
         ):
             raise FormalizerRunnerBridgeError(
                 "validated formalizer draft Strategy Spec is required"
@@ -433,8 +440,7 @@ class FormalizerRunnerBridge:
             except BlockedActionError:
                 raise
             raise AssertionError(
-                "invalid product bridge approval was unexpectedly allowed: "
-                + "; ".join(errors)
+                "invalid product bridge approval was unexpectedly allowed: " + "; ".join(errors)
             )
 
     def _validate_draft(self, draft_path: str, *, family_id: str) -> dict[str, Any]:
@@ -487,14 +493,14 @@ class FormalizerRunnerBridge:
                 )
         elif family_id == "funding_rate_positioning_fade_v1":
             if '"composition_type": "rolling_empirical_percentile_v1"' not in serialized:
-                raise FormalizerRunnerBridgeError("funding draft must use rolling empirical percentile")
+                raise FormalizerRunnerBridgeError(
+                    "funding draft must use rolling empirical percentile"
+                )
             if '"ref": "funding_rate"' not in serialized:
                 raise FormalizerRunnerBridgeError("funding draft must reference funding_rate")
         return draft
 
-    def _availability_blockers(
-        self, formalized: Mapping[str, Any], *, family_id: str
-    ) -> list[str]:
+    def _availability_blockers(self, formalized: Mapping[str, Any], *, family_id: str) -> list[str]:
         assessment = formalized.get("capability_assessment")
         rows = assessment.get("feature_assessments", []) if isinstance(assessment, Mapping) else []
         blockers: list[str] = []
@@ -866,9 +872,7 @@ class FormalizerRunnerBridge:
                 "multiple_testing_denominator": 2,
             }
         )
-        sweep["lineage"]["search_family_id"] = (
-            "SF-DONCHIAN-CHANNEL-BREAKOUT-15M-SCRATCH-0001"
-        )
+        sweep["lineage"]["search_family_id"] = "SF-DONCHIAN-CHANNEL-BREAKOUT-15M-SCRATCH-0001"
         sweep["lineage"]["audit_notes"] = [
             "Scratch-only Donchian adapter smoke; no canonical sweep or evidence authority.",
             "The full two-row denominator is retained regardless of runner outcome.",
@@ -983,9 +987,7 @@ class FormalizerRunnerBridge:
         ]
 
     @staticmethod
-    def _apply_funding_sweep(
-        sweep: dict[str, Any], *, exit_mode: str, variant_start: int
-    ) -> None:
+    def _apply_funding_sweep(sweep: dict[str, Any], *, exit_mode: str, variant_start: int) -> None:
         count = 18
         variant_ids = [f"VAR-{value:06d}" for value in range(variant_start, variant_start + count)]
         sweep["parent_variant_manifest"].update(
@@ -1094,24 +1096,7 @@ class FormalizerRunnerBridge:
 
     @staticmethod
     def _reconcile(bridged: Mapping[str, Any], direct: Mapping[str, Any]) -> dict[str, Any]:
-        bridged_rows = bridged["result_population"]["variant_result_rows"]
-        direct_rows = direct["result_population"]["variant_result_rows"]
-        comparisons = {
-            "trial_count": len(bridged_rows) == len(direct_rows),
-            "variant_ids": [row["variant_id"] for row in bridged_rows]
-            == [row["variant_id"] for row in direct_rows],
-            "outcomes": [row["outcome_category"] for row in bridged_rows]
-            == [row["outcome_category"] for row in direct_rows],
-            "core_metrics": [row["metrics"] for row in bridged_rows]
-            == [row["metrics"] for row in direct_rows],
-            "status_counts": bridged["outcome_category_counts"]
-            == direct["outcome_category_counts"],
-            "committed_denominator": bridged["committed_denominator"]
-            == direct["committed_denominator"],
-            "result_identity": bridged["result_population"]["result_population_identity_hash"]
-            == direct["result_population"]["result_population_identity_hash"],
-        }
-        return {"passed": all(comparisons.values()), "comparisons": comparisons}
+        return compare_result_populations(bridged, direct)
 
     @staticmethod
     def _ledger_rows(
@@ -1130,53 +1115,21 @@ class FormalizerRunnerBridge:
         timestamp_utc: str,
         strategy_family: str = "sma_stddev_mean_reversion_v1",
     ) -> list[dict[str, Any]]:
-        variants = {row["variant_id"]: row for row in manifest["variant_assignments"]}
-        if runner_result is None:
-            source_rows = [
-                {
-                    "variant_id": variant_id,
-                    "outcome_category": "not_attempted",
-                    "non_success": {"reason": "; ".join(blockers)},
-                    "metrics": None,
-                    "row_identity_hash": None,
-                }
-                for variant_id in sorted(variants)
-            ]
-        else:
-            source_rows = runner_result["result_population"]["variant_result_rows"]
-        rows: list[dict[str, Any]] = []
-        for index, runner_row in enumerate(source_rows, start=1):
-            variant = variants[runner_row["variant_id"]]
-            outcome = runner_row["outcome_category"]
-            trial_status = RUNNER_OUTCOME_TO_TRIAL_STATUS[outcome]
-            metrics = runner_row.get("metrics") if trial_status == "completed" else None
-            reason = runner_row.get("non_success", {}).get("reason") or f"runner {outcome}"
-            rows.append(
-                {
-                    "run_id": run_id,
-                    "source_formalizer_run_id": formalizer_run_id,
-                    "source_formalizer_artifact_path": formalizer_path,
-                    "approval_scope": approval_scope,
-                    "bridge_input_paths": dict(input_paths),
-                    "runner_invocation_id": runner_invocation_id,
-                    "strategy_family": strategy_family,
-                    "variant_id": runner_row["variant_id"],
-                    "trial_id": f"{run_id}-TRIAL-{index:03d}",
-                    "trial_status": trial_status,
-                    "status_reason": reason,
-                    "runner_outcome_category": outcome,
-                    "params": copy.deepcopy(variant["parameter_values"]),
-                    "funding_cost_mode": funding_cost_mode,
-                    "input_hash": _sha256(variant),
-                    "output_hash": runner_row.get("row_identity_hash"),
-                    "metrics_summary": metrics,
-                    "runner_artifact_path": runner_artifact_path,
-                    "started_at_utc": timestamp_utc,
-                    "finished_at_utc": timestamp_utc,
-                    "non_authority_flags": list(NON_AUTHORITY_FLAGS),
-                }
-            )
-        return rows
+        return build_bridge_ledger_rows(
+            run_id=run_id,
+            runner_invocation_id=runner_invocation_id,
+            formalizer_run_id=formalizer_run_id,
+            formalizer_path=formalizer_path,
+            approval_scope=approval_scope,
+            input_paths=input_paths,
+            manifest=manifest,
+            runner_result=runner_result,
+            runner_artifact_path=runner_artifact_path,
+            blockers=blockers,
+            funding_cost_mode=funding_cost_mode,
+            timestamp_utc=timestamp_utc,
+            strategy_family=strategy_family,
+        )
 
     def _assert_denominator(
         self,
@@ -1185,13 +1138,13 @@ class FormalizerRunnerBridge:
         *,
         target_path: str,
     ) -> None:
-        expected = {row["variant_id"] for row in manifest["variant_assignments"]}
-        actual = {row.get("variant_id") for row in rows}
-        if actual != expected or len(rows) != len(expected):
-            self.tool_context.require_allowed(ToolAction("evidence_suppression", target_path))
-            raise AssertionError("denominator suppression was unexpectedly allowed")
-        if any(row.get("trial_status") not in TRIAL_STATUSES for row in rows):
-            raise FormalizerRunnerBridgeError("denominator ledger contains an unsupported status")
+        try:
+            validate_variant_denominator(rows, manifest)
+        except ValueError as exc:
+            if "declared variant" in str(exc):
+                self.tool_context.require_allowed(ToolAction("evidence_suppression", target_path))
+                raise AssertionError("denominator suppression was unexpectedly allowed") from exc
+            raise FormalizerRunnerBridgeError(str(exc)) from exc
 
     def run(
         self,
@@ -1252,15 +1205,17 @@ class FormalizerRunnerBridge:
                 approval_path=approval_relative,
                 formalizer_path=formalizer_path,
             )
-        draft_paths: dict[str, str] = {
-            "default": str(formalized["draft_strategy_spec"]["path"])
-        }
+        draft_paths: dict[str, str] = {"default": str(formalized["draft_strategy_spec"]["path"])}
         if family_id == "funding_rate_positioning_fade_v1":
             metadata = formalized.get("adapter_metadata")
-            declared_paths = metadata.get("strategy_spec_paths") if isinstance(metadata, Mapping) else None
+            declared_paths = (
+                metadata.get("strategy_spec_paths") if isinstance(metadata, Mapping) else None
+            )
             expected_modes = {"midline_reversion_or_max_hold", "fixed_max_hold_only"}
             if not isinstance(declared_paths, Mapping) or set(declared_paths) != expected_modes:
-                raise FormalizerRunnerBridgeError("funding adapter must declare both frozen exit-mode specs")
+                raise FormalizerRunnerBridgeError(
+                    "funding adapter must declare both frozen exit-mode specs"
+                )
             draft_paths = {str(mode): str(path) for mode, path in declared_paths.items()}
         drafts = {
             mode: self._validate_draft(path, family_id=family_id)
@@ -1353,7 +1308,12 @@ class FormalizerRunnerBridge:
             manifest = self._read_json(input_paths["variant_manifest"])
             runner_invocation_id = hashlib.sha256(
                 _canonical_bytes(
-                    {"run_id": run_id, "mode": mode, "inputs": input_paths, "seed": self.config.deterministic_seed}
+                    {
+                        "run_id": run_id,
+                        "mode": mode,
+                        "inputs": input_paths,
+                        "seed": self.config.deterministic_seed,
+                    }
                 )
             ).hexdigest()[:16]
             runner_invocation_ids[mode] = runner_invocation_id
@@ -1364,7 +1324,9 @@ class FormalizerRunnerBridge:
                 reconciliation = {
                     "passed": False,
                     "runner_invoked": False,
-                    "not_run_reasons": list(dict.fromkeys([*blockers, PRODUCT_PREPARE_ONLY_REASON])),
+                    "not_run_reasons": list(
+                        dict.fromkeys([*blockers, PRODUCT_PREPARE_ONLY_REASON])
+                    ),
                 }
             elif not blockers:
                 runner_result = self._invoke_runner(
@@ -1383,7 +1345,9 @@ class FormalizerRunnerBridge:
                 )
                 reconciliation = self._reconcile(runner_result, direct_result)
                 if not reconciliation["passed"]:
-                    raise FormalizerRunnerBridgeError(f"manual runner reconciliation failed for {mode}")
+                    raise FormalizerRunnerBridgeError(
+                        f"manual runner reconciliation failed for {mode}"
+                    )
                 runner_artifact_path = self._repo_relative(str(runner_result["output_path"]))
                 runner_artifact_paths[mode] = runner_artifact_path
             reconciliations[mode] = reconciliation
@@ -1416,7 +1380,10 @@ class FormalizerRunnerBridge:
             )
             ledger_rows.extend(mode_rows)
         expected_count = 36 if family_id == "funding_rate_positioning_fade_v1" else len(ledger_rows)
-        if len(ledger_rows) != expected_count or len({row["variant_id"] for row in ledger_rows}) != expected_count:
+        if (
+            len(ledger_rows) != expected_count
+            or len({row["variant_id"] for row in ledger_rows}) != expected_count
+        ):
             self.tool_context.require_allowed(
                 ToolAction("evidence_suppression", (run_dir / "denominator_ledger.json").as_posix())
             )
@@ -1428,15 +1395,11 @@ class FormalizerRunnerBridge:
                 "by_exit_mode": reconciliations,
             }
             review_input_paths: Mapping[str, Any] = all_input_paths
-            invocation_identity: dict[str, Any] = {
-                "runner_invocation_ids": runner_invocation_ids
-            }
+            invocation_identity: dict[str, Any] = {"runner_invocation_ids": runner_invocation_ids}
         else:
             reconciliation = reconciliations["default"]
             review_input_paths = all_input_paths["default"]
-            invocation_identity = {
-                "runner_invocation_id": runner_invocation_ids["default"]
-            }
+            invocation_identity = {"runner_invocation_id": runner_invocation_ids["default"]}
         counts = Counter(row["trial_status"] for row in ledger_rows)
         count_packet = {status: counts.get(status, 0) for status in TRIAL_STATUSES}
         ledger = {

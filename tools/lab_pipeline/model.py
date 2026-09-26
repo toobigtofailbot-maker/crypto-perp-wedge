@@ -9,10 +9,19 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Final
 
+from tools.research_domain.contracts import (
+    LAB_NON_AUTHORITY_FLAGS,
+    PREREG_APPROVAL_SCHEMA_VERSION,
+    PREREG_APPROVAL_SCOPE,
+    PREREG_APPROVAL_STATEMENT,
+)
+from tools.research_domain.contracts import (
+    LOCKED_TIMEFRAMES as DOMAIN_LOCKED_TIMEFRAMES,
+)
 
 SCHEMA_VERSION: Final = "lab_pipeline_state_v1"
 REQUEST_SCHEMA_VERSION: Final = "lab_pipeline_request_v1"
-APPROVAL_SCHEMA_VERSION: Final = "lab_pipeline_prereg_approval_v1"
+APPROVAL_SCHEMA_VERSION: Final = PREREG_APPROVAL_SCHEMA_VERSION
 
 PIPELINE_STAGES: Final[tuple[str, ...]] = (
     "request_loaded",
@@ -37,29 +46,10 @@ STAGE_STATUSES: Final[tuple[str, ...]] = (
     "blocked",
 )
 
-LOCKED_TIMEFRAMES: Final[tuple[str, ...]] = ("15m", "30m", "1h", "4h", "1d")
-
-APPROVAL_SCOPE: Final = "noncanonical_offline_research_execution_only"
-APPROVAL_STATEMENT: Final = (
-    "Authorizes only non-canonical offline research execution for the exact "
-    "frozen preregistration packet content."
-)
-
-NON_AUTHORITY_FLAGS: Final[dict[str, bool]] = {
-    "noncanonical_only": True,
-    "scratch_only": True,
-    "offline_only": True,
-    "writes_canonical_evidence": False,
-    "writes_candidate_lifecycle": False,
-    "executes_canonical_crossing": False,
-    "authorizes_promotion_or_readiness": False,
-    "contacts_paper_live_runtime": False,
-    "uses_scheduler_or_autonomy": False,
-    "fires_notifications": False,
-    "uses_provider_api_or_credentials": False,
-    "human_review_required_for_prereg": True,
-    "separate_authorization_required_for_canonical_or_runtime": True,
-}
+LOCKED_TIMEFRAMES: Final[tuple[str, ...]] = DOMAIN_LOCKED_TIMEFRAMES
+APPROVAL_SCOPE: Final = PREREG_APPROVAL_SCOPE
+APPROVAL_STATEMENT: Final = PREREG_APPROVAL_STATEMENT
+NON_AUTHORITY_FLAGS: Final[dict[str, bool]] = dict(LAB_NON_AUTHORITY_FLAGS)
 
 FORBIDDEN_AUTHORITY_CODES: Final[tuple[str, ...]] = (
     "canonical_result_population_write",

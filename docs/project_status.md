@@ -41,14 +41,17 @@ Startup read order:
 
 - Controlling principle: infrastructure buildability is not candidate-gated;
   economic activation is.
-- CPW-MIG-00 is architecture/governance only. It installs nothing, migrates no
-  runtime, changes no framework dependency, and grants no canonical, promotion,
-  live, or capital authority.
-- The only next package unlocked after CPW-MIG-00 merges is `CPW-MIG-01 —
-  Domain Extraction & Active Storage`. Prefect, Hermes, Nautilus, canonical,
-  paper/live, and retirement lanes require later separate authorization.
-- Detailed branch-state and requirement traceability are recorded in
-  `docs/status_entries/CPW-MIG-00-ARCHITECTURE-FREEZE-AND-VERSION-PINS.md`.
+- CPW-MIG-00 is merged and remains the controlling adoption-first architecture;
+  it installed no framework and transferred no authority.
+- The CPW-MIG-01 merge target establishes framework-neutral CPW domain seams and
+  the gitignored `.cpw/active/` and `.cpw/ephemeral/` workspace contract.
+  Legacy wrappers and package-named scratch remain operational until later
+  explicit cutover or retirement packages.
+- CPW-MIG-01 transfers no Hermes, Prefect, Nautilus, canonical, runtime,
+  paper/live, or capital ownership. After merge, runway packages may proceed
+  only through separate authorization.
+- Detailed CPW-MIG-01 branch state and requirement traceability live in
+  `docs/status_entries/CPW-MIG-01.md`.
 
 ## Merged Work Package Ledger
 

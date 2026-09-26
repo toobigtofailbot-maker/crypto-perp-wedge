@@ -16,7 +16,16 @@ from typing import Any, Mapping
 
 from tools.lab_pipeline import model
 from tools.lab_pipeline.state import file_sha256, read_json, sha256_payload, write_json, write_text
-
+from tools.research_domain.contracts import (
+    PREREG_APPROVAL_EXTRA_FALSE_FIELDS,
+    PREREG_APPROVAL_REQUIRED_FIELDS,
+    PREREG_NON_AUTHORITY_ASSERTIONS,
+)
+from tools.research_domain.preregistration import (
+    build_approval_marker,
+    validate_bound_requirement,
+    validate_prereg_approval,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 WP_ID = "WP-LABPROD-INPRODUCT-GATE-ACTIONS-01"
@@ -49,7 +58,10 @@ FORBIDDEN_DECISION_VALUES = frozenset(
 
 FORBIDDEN_DECISION_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"\badmit[_ -]?candidate\b", re.I), "candidate_admission"),
-    (re.compile(r"\bcandidate[_ -]?(lifecycle|registry|write)\b", re.I), "candidate_lifecycle_write"),
+    (
+        re.compile(r"\bcandidate[_ -]?(lifecycle|registry|write)\b", re.I),
+        "candidate_lifecycle_write",
+    ),
     (re.compile(r"\bcross(ing)?\b", re.I), "crossing"),
     (re.compile(r"\bpromot(e|ion)\b", re.I), "promotion"),
     (re.compile(r"\bready[_ -]?for[_ -]?paper\b", re.I), "paper_readiness"),
@@ -58,44 +70,15 @@ FORBIDDEN_DECISION_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"\bstart[_ -]?live\b|\blive[_ -]?active\b", re.I), "live_start"),
     (re.compile(r"\bruntime\b", re.I), "runtime"),
     (re.compile(r"\bscheduler\b|\bautonom(y|ous)\b", re.I), "scheduler_autonomy"),
-    (re.compile(r"\bprovider\b|\bapi\b|\bcredential\b|\bsecret\b", re.I), "provider_api_credential"),
+    (
+        re.compile(r"\bprovider\b|\bapi\b|\bcredential\b|\bsecret\b", re.I),
+        "provider_api_credential",
+    ),
 )
 
-APPROVAL_REQUIRED_FIELDS = (
-    "schema_version",
-    "approved_by",
-    "approval_scope",
-    "approval_statement",
-    "approval_timestamp_utc",
-    "authorizes_noncanonical_offline_research_execution",
-    "authorizes_canonical_write",
-    "authorizes_candidate_lifecycle",
-    "authorizes_paper_live_runtime",
-    "authorizes_scheduler_autonomy",
-    "authorizes_notifications",
-    "preregistration_packet_sha256",
-)
-
-APPROVAL_EXTRA_FALSE_FIELDS = (
-    "authorizes_crossing",
-    "authorizes_promotion_or_readiness",
-    "authorizes_provider_api_or_credentials",
-    "authorizes_dependency_config_data_acquisition",
-    "authorizes_protected_path_touch",
-)
-
-NON_AUTHORITY_ASSERTIONS: dict[str, bool] = {
-    "canonical_write": False,
-    "candidate_lifecycle_write": False,
-    "crossing": False,
-    "promotion_or_readiness": False,
-    "paper_live_runtime": False,
-    "scheduler_autonomy": False,
-    "notification_sending": False,
-    "provider_api_credential": False,
-    "dependency_config_data_acquisition": False,
-    "protected_path_touch": False,
-}
+APPROVAL_REQUIRED_FIELDS = PREREG_APPROVAL_REQUIRED_FIELDS
+APPROVAL_EXTRA_FALSE_FIELDS = PREREG_APPROVAL_EXTRA_FALSE_FIELDS
+NON_AUTHORITY_ASSERTIONS: dict[str, bool] = dict(PREREG_NON_AUTHORITY_ASSERTIONS)
 
 
 class GateActionError(ValueError):
@@ -276,29 +259,21 @@ def _load_bound_requirement_and_packet(
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     requirement = read_json(approval_requirement_path)
     packet = read_json(preregistration_packet_path)
-    if requirement.get("schema_version") != "lab_pipeline_approval_requirement_v1":
-        raise GateActionError("approval_requirement schema_version mismatch")
-    if packet.get("schema_version") != "lab_pipeline_preregistration_packet_v1":
-        raise GateActionError("preregistration_packet schema_version mismatch")
-    packet_hash = packet.get("packet_sha256")
-    if not isinstance(packet_hash, str) or not packet_hash:
-        raise GateActionError("preregistration_packet lacks packet_sha256")
-    recomputed_hash = _recompute_packet_hash(packet)
-    if recomputed_hash != packet_hash:
-        raise GateActionError("preregistration_packet_sha256 does not match packet content")
-    if requirement.get("preregistration_packet_sha256") != packet_hash:
-        raise GateActionError("approval_requirement does not bind to preregistration packet hash")
-    if requirement.get("approval_marker_schema") != model.APPROVAL_SCHEMA_VERSION:
-        raise GateActionError("approval_requirement marker schema mismatch")
-    required_fields = requirement.get("required_fields")
-    if not isinstance(required_fields, dict):
-        raise GateActionError("approval_requirement missing required_fields")
-    if required_fields.get("preregistration_packet_sha256") != packet_hash:
-        raise GateActionError("approval_requirement required_fields hash mismatch")
-    if requirement.get("pipeline_run_id") != packet.get("pipeline_run_id"):
-        raise GateActionError("approval_requirement pipeline_run_id mismatch")
-    if requirement.get("request_id") != packet.get("request_id"):
-        raise GateActionError("approval_requirement request_id mismatch")
+    errors = validate_bound_requirement(requirement, packet)
+    if errors:
+        messages = {
+            "approval_requirement_schema_version_mismatch": "approval_requirement schema_version mismatch",
+            "preregistration_packet_schema_version_mismatch": "preregistration_packet schema_version mismatch",
+            "preregistration_packet_hash_missing": "preregistration_packet lacks packet_sha256",
+            "preregistration_packet_hash_mismatch": "preregistration_packet_sha256 does not match packet content",
+            "approval_requirement_packet_hash_mismatch": "approval_requirement does not bind to preregistration packet hash",
+            "approval_requirement_marker_schema_mismatch": "approval_requirement marker schema mismatch",
+            "approval_requirement_required_fields_missing": "approval_requirement missing required_fields",
+            "approval_requirement_required_fields_hash_mismatch": "approval_requirement required_fields hash mismatch",
+            "approval_requirement_pipeline_run_id_mismatch": "approval_requirement pipeline_run_id mismatch",
+            "approval_requirement_request_id_mismatch": "approval_requirement request_id mismatch",
+        }
+        raise GateActionError(messages[errors[0]])
     return requirement, packet
 
 
@@ -311,30 +286,23 @@ def _validate_operator_fields(
     if missing:
         raise GateActionError(f"operator fields missing required approval fields: {missing}")
 
-    required = requirement["required_fields"]
-    expected = {
-        "schema_version": model.APPROVAL_SCHEMA_VERSION,
-        "approved_by": "Karl",
-        "approval_scope": model.APPROVAL_SCOPE,
-        "approval_statement": required["approval_statement"],
-        "authorizes_noncanonical_offline_research_execution": True,
-        "authorizes_canonical_write": False,
-        "authorizes_candidate_lifecycle": False,
-        "authorizes_paper_live_runtime": False,
-        "authorizes_scheduler_autonomy": False,
-        "authorizes_notifications": False,
-        "preregistration_packet_sha256": packet["packet_sha256"],
+    domain_errors = validate_prereg_approval(operator_fields, packet, requirement=requirement)
+    translations = {
+        "approval_schema_version_mismatch": "schema_version_mismatch",
+        "approval_actor_not_karl": "approved_by_mismatch",
+        "approval_scope_not_noncanonical_offline_only": "approval_scope_mismatch",
+        "approval_statement_not_exact": "approval_statement_mismatch",
+        "approval_missing_noncanonical_execution_flag": "authorizes_noncanonical_offline_research_execution_mismatch",
+        "approval_hash_mismatch": "preregistration_packet_sha256_mismatch",
+        "approval_timestamp_missing": "approval_timestamp_utc_missing",
     }
     errors: list[str] = []
-    for field, expected_value in expected.items():
-        if operator_fields.get(field) != expected_value:
-            errors.append(f"{field}_mismatch")
-    timestamp = operator_fields.get("approval_timestamp_utc")
-    if not isinstance(timestamp, str) or not timestamp.strip():
-        errors.append("approval_timestamp_utc_missing")
-    for field in APPROVAL_EXTRA_FALSE_FIELDS:
-        if operator_fields.get(field, False) is not False:
-            errors.append(f"approval_too_broad:{field}")
+    for error in domain_errors:
+        if error.startswith("approval_too_broad:"):
+            field = error.split(":", 1)[1]
+            errors.append(error if field in APPROVAL_EXTRA_FALSE_FIELDS else f"{field}_mismatch")
+        else:
+            errors.append(translations.get(error, error))
     if errors:
         raise GateActionError("invalid prereg approval operator fields: " + ", ".join(errors))
 
@@ -346,22 +314,15 @@ def _approval_marker_payload(
     packet: Mapping[str, Any],
     operator_fields: Mapping[str, Any],
 ) -> dict[str, Any]:
-    marker = {field: operator_fields[field] for field in APPROVAL_REQUIRED_FIELDS}
-    for field in APPROVAL_EXTRA_FALSE_FIELDS:
-        marker[field] = False
-    marker.update(
-        {
-            "gate_action_id": action_id,
-            "approval_requirement_ref": {
-                "pipeline_run_id": requirement["pipeline_run_id"],
-                "request_id": requirement["request_id"],
-                "preregistration_packet_sha256": requirement["preregistration_packet_sha256"],
-            },
-            "non_authority_assertions": dict(NON_AUTHORITY_ASSERTIONS),
-            "non_authority_flags": dict(model.NON_AUTHORITY_FLAGS),
-        }
-    )
-    return marker
+    try:
+        return build_approval_marker(
+            action_id=action_id,
+            requirement=requirement,
+            packet=packet,
+            operator_fields=operator_fields,
+        )
+    except ValueError as exc:
+        raise GateActionError(str(exc)) from exc
 
 
 def _approval_preview_markdown(
@@ -427,7 +388,9 @@ def _validate_candidate_decision(decision: str, rationale: str) -> None:
     scan_text = "\n".join([decision, rationale])
     findings = [code for pattern, code in FORBIDDEN_DECISION_PATTERNS if pattern.search(scan_text)]
     if findings:
-        raise GateActionError("candidate-surface decision implies forbidden authority: " + ", ".join(findings))
+        raise GateActionError(
+            "candidate-surface decision implies forbidden authority: " + ", ".join(findings)
+        )
 
 
 def _advisory_packet_ref(advisory_packet_path: Path | None) -> dict[str, Any]:
@@ -451,7 +414,9 @@ def _resolve_output_file(
     filename: str,
     output_file: Path | None,
 ) -> Path:
-    target = Path(output_file) if output_file is not None else DEFAULT_OUTPUT_ROOT / action_id / filename
+    target = (
+        Path(output_file) if output_file is not None else DEFAULT_OUTPUT_ROOT / action_id / filename
+    )
     resolved = target.resolve()
     _validate_output_path(resolved)
     return resolved
@@ -481,7 +446,10 @@ def _validate_output_path(resolved: Path) -> None:
 
 
 def _gate_action_id(kind: str, payload: Mapping[str, Any]) -> str:
-    return "GATE-ACTION-" + sha256_payload({"kind": kind, "payload": dict(payload)}).split(":", 1)[1][:16]
+    return (
+        "GATE-ACTION-"
+        + sha256_payload({"kind": kind, "payload": dict(payload)}).split(":", 1)[1][:16]
+    )
 
 
 def _path_hash(path: Path) -> str:

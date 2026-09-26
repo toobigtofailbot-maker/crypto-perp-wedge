@@ -16,7 +16,11 @@ from tools.agent_sandbox.permissions import (
     RUN_NONCANONICAL_EXPERIMENT,
     WRITE_SCRATCH,
 )
-
+from tools.research_domain.contracts import TRIAL_STATUSES
+from tools.research_domain.scientific_accounting import (
+    validate_declared_trials,
+    validate_trial_denominator,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 WP_ID = "WP-AGENT-EXPERIMENT-RUNNER-01"
@@ -24,7 +28,6 @@ ROLE = "experiment_runner"
 OUTPUT_ROOT = Path("scratch") / WP_ID / "outputs"
 FORMALIZER_OUTPUT_PREFIX = "scratch/WP-AGENT-IDEA-FORMALIZER-01/outputs/"
 APPROVAL_SCOPE = "noncanonical_scratch_only"
-TRIAL_STATUSES = ("completed", "failed", "invalid", "pruned", "blocked")
 NON_AUTHORITY_FLAGS = (
     "not canonical",
     "not evidence",
@@ -241,31 +244,17 @@ class ExperimentRunnerAgent:
 
     @staticmethod
     def _validate_trials(trials: Sequence[Mapping[str, Any]]) -> None:
-        if not trials:
-            raise ExperimentRunnerError("at least one trial is required")
-        trial_ids: list[str] = []
-        for trial in trials:
-            for key in ("strategy_family", "variant_id", "trial_id", "params"):
-                if key not in trial:
-                    raise ExperimentRunnerError(f"trial is missing {key}")
-            if not isinstance(trial["params"], Mapping):
-                raise ExperimentRunnerError("trial params must be an object")
-            trial_ids.append(str(trial["trial_id"]))
-        if len(trial_ids) != len(set(trial_ids)):
-            raise ExperimentRunnerError("trial_id values must be unique")
+        try:
+            validate_declared_trials(trials)
+        except ValueError as exc:
+            raise ExperimentRunnerError(str(exc)) from exc
 
     @staticmethod
     def _assert_denominator(ledger: Sequence[Mapping[str, Any]], expected_ids: set[str]) -> None:
-        actual_ids = {str(row.get("trial_id")) for row in ledger}
-        if actual_ids != expected_ids or len(ledger) != len(expected_ids):
-            raise ExperimentRunnerError("denominator ledger does not preserve every declared trial")
-        invalid = [
-            row.get("trial_status")
-            for row in ledger
-            if row.get("trial_status") not in TRIAL_STATUSES
-        ]
-        if invalid:
-            raise ExperimentRunnerError(f"denominator ledger has unsupported statuses: {invalid}")
+        try:
+            validate_trial_denominator(ledger, expected_ids)
+        except ValueError as exc:
+            raise ExperimentRunnerError(str(exc)) from exc
 
     def run(
         self,

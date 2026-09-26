@@ -8,7 +8,7 @@
 - Package class: FOUNDATION / MIGRATION BASE / DOMAIN CONTRACT + NONCANONICAL STORAGE SEAM
 - Validation tier: T2, with the package-mandated full-release run
 - Exact base: `114028afbbf341e94d6c85d68bd25c0d586721da`
-- Implementation and accepted full-release head: `ade295a3b0af68937258132158473288251f3326`
+- Implementation and accepted full-release head: `b457ed75db01242ed2652ca988e8e6038c9e5ade`
 - Final head: the commit containing this status-only evidence tail; its immutable SHA is recorded in the PR body and coding-agent exact-head report because a Git commit cannot contain its own object ID.
 - Merge status: open, non-draft PR held for Side exact-head review; not merged and no auto-merge or self-merge requested.
 
@@ -81,6 +81,16 @@ parent-creation step. Absolute, drive-qualified, empty/dot, traversal, and
 existing symlink/junction escapes fail closed with `ValueError`-compatible
 behavior.
 
+The same-PR semantic-owner correction leaves that locked public surface
+unchanged. `IdeaFormalizerAgent._draft_family_id`,
+`_apply_funding_strategy_body`, and `_apply_donchian_strategy_body` remain only
+as compatibility methods and each directly returns the corresponding private
+`tools.research_domain.formalization` implementation. The supporting copied
+funding/Donchian helpers were removed from the agent, including the fixed
+max-hold funding variant's former second implementation. Family classification
+and family-specific Strategy-Spec body construction therefore have one active
+semantic owner.
+
 ## Semantic oracle and focused validation
 
 The exact immutable legacy oracle command was run before and after mutation:
@@ -90,20 +100,25 @@ python -m pytest tests/test_agent_idea_formalizer.py tests/test_agent_experiment
 ```
 
 - Pre-mutation base: `242 passed` in 29.98 seconds.
-- Post-mutation implementation: `242 passed` in 24.98 seconds.
-- Post-format confirmation: `242 passed` in 25.16 seconds.
+- Initial post-mutation implementation: `242 passed` in 24.98 seconds.
+- Initial post-format confirmation: `242 passed` in 25.16 seconds.
+- Post-correction implementation: `242 passed` in 23.01 seconds.
 - Parity: exact pass-count parity; no oracle file was edited.
-- New focused tests: `30 passed, 2 skipped` in 3.29 seconds. Both skips are the
-  Windows environment's inability to create the symlink fixtures; every
-  non-symlink containment case passed.
-- Required adjacent blast radius: `459 passed`, 24 warnings, in 97.24 seconds.
+- Formalization/domain focused tests: `19 passed` in 2.87 seconds. These include
+  direct monkeypatch delegation proofs for all three compatibility methods and
+  AST proof that the removed supporting helpers and copied method bodies are
+  absent from the legacy wrapper.
+- Storage focused regression: `13 passed, 2 skipped` in 0.41 seconds. Both skips
+  are the Windows environment's inability to create the symlink fixtures;
+  every non-symlink containment case passed.
+- Required adjacent blast radius: `459 passed`, 24 warnings, in 82.73 seconds.
 - The six wrapper-focused legacy subsets also passed independently: `188 passed`.
 - Python compilation completed successfully for the changed Python modules.
 
 ## Full-release evidence
 
 The exact mandatory command ran on the clean implementation head
-`ade295a3b0af68937258132158473288251f3326` and exited zero:
+`b457ed75db01242ed2652ca988e8e6038c9e5ade` and exited zero:
 
 ```text
 python tools/dev/verify.py --validation-preset full-release --full-pytest-sharded --pytest-shard-profile full-release-balanced-v1 --json
@@ -114,11 +129,17 @@ locked 1,800-second per-shard timeout. All 180 discovered tracked test files
 were assigned and executed exactly once: 180 discovered, 180 assigned, 180
 unique, zero missing, duplicate, untracked, incomplete, not-run, or timed-out
 assignments. All 48 shards passed and `all_shards_passed=true`. Collection
-contained 3,928 nodes; the accepted environment result was 3,883 passed and 45
-explicitly gated skips. The skip-bearing files were rerun under the same
-environment to recover the aggregate omitted by UI output truncation: 461
-passed and the same 45 skips. The slowest full-release shard was shard 41 at
-1,143.515 seconds.
+executed 3,650 nodes: 3,605 passed and 45 explicitly gated skips. The assignment
+manifest was
+`sha256:55eeff4a2a707e3cfa39644d085ba59ed64c7be83c0b57597ade966d2bded079`.
+The slowest full-release shard was shard 41 at 1,372.000 seconds, below the
+1,800-second limit.
+
+Two superseded attempts are not acceptance evidence: the first timed out on
+shard 41 after host idle/suspension effects, and the second's isolated shard
+crossed the verifier timeout after a prolonged host suspension. The accepted
+run used a process-scoped Windows execution-state guard, completed continuously,
+and reported `overall_status=pass`, zero failures, and zero timed-out shards.
 
 The validation-only 1d and funding datasets were copied from the root checkout
 into their exact gitignored worktree paths after source/destination hash checks.
@@ -164,6 +185,7 @@ byte-identical to the accepted full-release head.
 | Framework-neutral domain package | Satisfied | Pure `tools/research_domain` modules with forbidden-import proof |
 | Locked minimum public API surface | Satisfied | Exact constants/functions listed above and re-exported without a service/framework layer |
 | Formalization extraction | Satisfied | Pure detection/capability/spec functions; idea-formalizer delegates |
+| Formalization single-owner correction | Satisfied | All three retained private compatibility methods are thin delegates; copied funding/Donchian support helpers are absent; focused monkeypatch and AST ownership proofs pass |
 | Preregistration/approval extraction | Satisfied | Pure packet, requirement, template, validation, and marker functions |
 | `gate_actions` semantic-owner consolidation | Satisfied | File/path/preview I/O remains local; bound-requirement, operator, and marker semantics delegate to the domain owner |
 | Scientific-accounting extraction | Satisfied | Trial validation, denominators, bridge rows, and result comparison moved to pure functions |

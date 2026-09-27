@@ -3,6 +3,7 @@ pyarrow
 duckdb
 polars
 pydantic-ai-slim
+prefect==3.8.6
 psycopg[binary]==3.3.4
 
 binance-futures-connector

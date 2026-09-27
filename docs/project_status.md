@@ -43,15 +43,14 @@ Startup read order:
   economic activation is.
 - CPW-MIG-00 is merged and remains the controlling adoption-first architecture;
   it installed no framework and transferred no authority.
-- The CPW-MIG-01 merge target establishes framework-neutral CPW domain seams and
+- CPW-MIG-01 is merged and establishes framework-neutral CPW domain seams and
   the gitignored `.cpw/active/` and `.cpw/ephemeral/` workspace contract.
-  Legacy wrappers and package-named scratch remain operational until later
-  explicit cutover or retirement packages.
-- CPW-MIG-01 transfers no Hermes, Prefect, Nautilus, canonical, runtime,
-  paper/live, or capital ownership. After merge, runway packages may proceed
-  only through separate authorization.
-- Detailed CPW-MIG-01 branch state and requirement traceability live in
-  `docs/status_entries/CPW-MIG-01.md`.
+- CPW-PREFECT-01 is the current serialized package while its PR is open. After
+  merge, its bounded Prefect P1/P2/P3 proof is accepted without any scheduler,
+  research-automation, lab-pipeline, canonical, runtime, paper/live, or capital
+  cutover. No next package is automatically authorized.
+- Detailed CPW-PREFECT-01 branch state and requirement traceability live in
+  `docs/status_entries/CPW-PREFECT-01.md`.
 
 ## Merged Work Package Ledger
 

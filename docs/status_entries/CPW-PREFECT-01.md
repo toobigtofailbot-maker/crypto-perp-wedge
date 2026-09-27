@@ -4,7 +4,7 @@
 - PR: https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/715
 - Package class: T2, mandatory full-release
 - Scope: pin Prefect 3.8.6 and prove P1/P2/P3 against the isolated local test backend without cutover.
-- Merge status: open and not merged; blocked from Side readiness by the mandatory full-release baseline failure recorded below.
+- Merge status: open and not merged; mandatory full-release is satisfied and the PR is ready for Side exact-head review.
 
 ## Changed files
 
@@ -43,7 +43,7 @@
 | No existing orchestration cutover | 17 | closed diff and architecture record | satisfied |
 | No framework authority drift | 3 | owner matrix and source/AST test | satisfied |
 | Exact eight-path scope | 8 | committed range proof | satisfied |
-| Required T2/full-release | 22.9 | attempted at `ba318af58a5ddecd7e40644653572d0348752ae1`; exclusive query shard failed existing integrity expectations | blocked |
+| Required T2/full-release | 22.9 | passed at implementation head `9567d127b625a939eb10abd4e4a4aad7a8ef3364` under `h004-clean` | satisfied |
 | CPW-PREFECT-02 only becomes eligible | 0, 19 | architecture and project-status records | satisfied |
 
 ## Validation summary
@@ -54,17 +54,23 @@ isolated proof and bound repo environments. Focused acceptance passed 12 tests;
 post-mutation CPW domain/lab, Search Governor, scheduler/research-automation,
 and Hermes oracles passed 58, 17, 78, and 9 tests respectively.
 
-Mandatory full-release was attempted at
-`ba318af58a5ddecd7e40644653572d0348752ae1`. The exclusive
-`tests/test_research_query.py` shard failed 3 of 82 tests after 690.766 seconds,
-so the remaining 47 shards were correctly not run. Current merged query tests
-expect no dispatch-authorization crossing-reservation finding and expect the
-clean-worktree H-004 missing-stream disclosure, while current merged query/data
-truth returns one crossing-reservation finding and no execution-stream finding.
-The package changes none of the query, reservation, execution-stream, or test
-paths involved. Repair requires a ninth path outside the closed allowlist, so
-`STOP VALIDATION_SEMANTIC_FAILURE` and `STOP SCOPE_EXPANSION_REQUIRED` apply.
-This PR is not ready for Side exact-head review.
+The mandatory full-release passed at implementation head
+`9567d127b625a939eb10abd4e4a4aad7a8ef3364` under the locked `h004-clean`
+context: the exact ignored canonical 1d and funding datasets were present and
+the H-004 execution stream was absent. All 48 selected shards passed; all 181
+tracked test files were assigned exactly once; 3,942 nodes completed as 3,897
+passed and 45 accepted environment skips; and there were zero missing,
+duplicate, incomplete, not-run, or timed-out assignments. The accepted skips
+were limited to absent optional local data or PostgreSQL DSNs and unavailable
+Windows symlink/junction privileges. `overall_status=pass`.
+
+The earlier environment failures and single RP-0007 fractional-timestamp
+inference failure are superseded by 5/5 fresh-process passes of
+`test_current_integrity_views_empty_under_pre_execution_refinement`, a complete
+`tests/test_research_query.py` pass (82 passed), and the successful
+full-release exclusive query shard (82 passed). The timestamp failure was not
+reproducible on either refreshed `main` or this PR head, so no query code or
+test change was justified or made. This PR is ready for Side exact-head review.
 
 ## Boundary summary
 

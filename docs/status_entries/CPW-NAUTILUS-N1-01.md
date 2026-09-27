@@ -6,10 +6,11 @@
 - Branch: `codex/cpw-nautilus-n1-01-common-research-engine-adapter`
 - Worktree: dedicated managed N1-01 worktree
 - Base SHA: `88b7602278d915c81ea6c4bd06a3fcfd4c0b4208`
-- PR: not yet created; creation follows the validated implementation commit
-- Implementation HEAD: not yet committed
-- Final HEAD: not yet committed
-- Merge state: not merged; Side exact-head review remains required
+- PR: https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/717
+- Implementation HEAD: `c2eb1cf11ca3ffc5bb6fc9f014b1d079a62b899a`
+- Final validated semantic HEAD: `c2eb1cf11ca3ffc5bb6fc9f014b1d079a62b899a`
+- Final PR tail: this status-only factual finality update; GitHub's exact PR head is authoritative for Side review and is reported with the PR handoff.
+- Merge state: open, non-draft, GitHub `MERGEABLE`, not merged; Side exact-head review remains required
 
 ## Exact changed files
 
@@ -30,7 +31,7 @@
 - Wheel SHA-256: `0697f51e9143f9d8d040f75d2e6a45218003cc34f7ea5b0eb2f9cda6935427de` — verified.
 - Dedicated lock: `tools/nautilus_adapter/requirements-win-py312.lock.txt`.
 - Lock SHA-256: `4d39a0a1460506532671d8d947abf94c1c6a9dd8a61341352f8ae486194784d2`.
-- Clean reproduction environment: built successfully from the dedicated lock only; acceptance is run at the exact implementation head.
+- Clean reproduction environment: built successfully from the dedicated lock only; exact-head acceptance passed.
 
 ## Acceptance evidence
 
@@ -60,11 +61,14 @@
 - Historical spike oracle: 4 passed unchanged.
 - CANON oracle: 19 passed.
 - Isolated build-environment acceptance: 3 passed; no skips; full fixture executed twice.
+- Clean-lock reproduction acceptance at implementation HEAD: 3 passed; no skips; full fixture executed twice in 374.06 seconds.
 - Backtest/liquidation oracles: 81 passed / 1 skipped.
 - Signal compiler oracle: 261 passed.
 - Selected runner oracles: 6 passed / 95 deselected.
 - Committed Result Population validator: PASS.
-- Clean-lock acceptance, final scope check, and final rebase validation run at the exact implementation head before submission.
+- Final rebase: branch already current with `origin/main` at the base SHA; no rewrite.
+- Final scope checker: exact eight-file set, `allowed_file_violations=[]`, `forbidden_matches=[]`.
+- `git diff --check` and cached/index hygiene checks: PASS; clean tracked/index state.
 - Full pytest posture: not required by the bounded T2/high-risk external-adapter package when all required focused and isolated evidence passes.
 - Forbidden scope: root dependencies, CANON production code, runner, backtester, compiler, historical RPs, canonical writers/crossings, engine routing, and runtime/paper/live/protected paths are unchanged.
 

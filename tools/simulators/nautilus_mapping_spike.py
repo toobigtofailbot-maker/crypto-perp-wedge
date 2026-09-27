@@ -11,17 +11,15 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import math
-import platform
 import sys
 from dataclasses import dataclass
-from decimal import Decimal
 from pathlib import Path
 from typing import Any, Callable
 
 import pandas as pd
 
 from tools.research_runner.spec_signal_compiler import compile_signal
+from tools.nautilus_adapter.research import NautilusAdapterError, _execute_target_signals
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -202,177 +200,11 @@ def _run_nautilus_variants(
     ohlcv: pd.DataFrame,
     signals: dict[str, pd.Series],
 ) -> dict[str, dict[str, Any]]:
-    """Import Nautilus lazily so repo tests need no optional dependency."""
+    """Delegate historical spike execution to the common N1 adapter."""
     try:
-        import nautilus_trader
-        from nautilus_trader.backtest.engine import BacktestEngine
-        from nautilus_trader.config import BacktestEngineConfig, LoggingConfig, StrategyConfig
-        from nautilus_trader.model.currencies import BTC, USDT
-        from nautilus_trader.model.data import Bar, BarType
-        from nautilus_trader.model.enums import AccountType, OmsType, OrderSide, TimeInForce
-        from nautilus_trader.model.identifiers import InstrumentId, Symbol, Venue
-        from nautilus_trader.model.instruments import CryptoPerpetual
-        from nautilus_trader.model.objects import Money, Price, Quantity
-        from nautilus_trader.trading.strategy import Strategy
-    except Exception as exc:  # pragma: no cover - exercised by the isolated command
-        raise MappingSpikeError(f"NautilusTrader offline API unavailable: {type(exc).__name__}: {exc}") from exc
-
-    instrument_id = InstrumentId(Symbol("BTCUSDT-PERP"), Venue("BINANCE"))
-    bar_type = BarType.from_str("BTCUSDT-PERP.BINANCE-15-MINUTE-LAST-EXTERNAL")
-    instrument = CryptoPerpetual(
-        instrument_id=instrument_id,
-        raw_symbol=Symbol("BTCUSDT"),
-        base_currency=BTC,
-        quote_currency=USDT,
-        settlement_currency=USDT,
-        is_inverse=False,
-        price_precision=2,
-        price_increment=Price.from_str("0.01"),
-        size_precision=8,
-        size_increment=Quantity.from_str("0.00000001"),
-        max_quantity=Quantity.from_str("1000000.00000000"),
-        min_quantity=Quantity.from_str("0.00000001"),
-        max_notional=None,
-        min_notional=None,
-        max_price=Price.from_str("10000000.00"),
-        min_price=Price.from_str("0.01"),
-        margin_init=Decimal(0),
-        margin_maint=Decimal(0),
-        maker_fee=Decimal("0.0005"),
-        taker_fee=Decimal("0.0005"),
-        ts_event=0,
-        ts_init=0,
-    )
-    bars = [
-        Bar(
-            bar_type=bar_type,
-            open=Price.from_str(f"{row.open:.2f}"),
-            high=Price.from_str(f"{row.high:.2f}"),
-            low=Price.from_str(f"{row.low:.2f}"),
-            close=Price.from_str(f"{row.close:.2f}"),
-            volume=Quantity.from_str(f"{row.volume:.8f}"),
-            ts_event=int(row.close_time_ms) * 1_000_000,
-            ts_init=int(row.close_time_ms) * 1_000_000,
-        )
-        for row in ohlcv.itertuples()
-    ]
-    next_open = {
-        int(ohlcv.iloc[index]["close_time_ms"]) * 1_000_000: float(ohlcv.iloc[index + 1]["open"])
-        for index in range(len(ohlcv) - 1)
-    }
-
-    class TargetSignalStrategy(Strategy):
-        def __init__(self, targets: dict[int, int]) -> None:
-            super().__init__(StrategyConfig())
-            self.targets = targets
-            self.instrument = None
-
-        def on_start(self) -> None:
-            self.instrument = self.cache.instrument(instrument_id)
-            if self.instrument is None:
-                raise MappingSpikeError("Nautilus instrument missing from cache")
-            self.subscribe_bars(bar_type)
-
-        def on_bar(self, bar: Any) -> None:
-            desired = self.targets.get(bar.ts_init, 0)
-            is_flat = self.portfolio.is_flat(instrument_id)
-            if desired == 0:
-                if not is_flat:
-                    self.close_all_positions(instrument_id, reduce_only=True)
-                return
-            if not is_flat:
-                return
-            entry_open = next_open.get(bar.ts_init)
-            if entry_open is None:
-                return
-            account = self.portfolio.account(instrument_id.venue)
-            realized_equity = float(account.balance_total(USDT).as_decimal())
-            quantity = realized_equity / entry_open
-            if not math.isfinite(quantity) or quantity <= 0:
-                return
-            order = self.order_factory.market(
-                instrument_id=instrument_id,
-                order_side=OrderSide.BUY if desired > 0 else OrderSide.SELL,
-                quantity=self.instrument.make_qty(quantity),
-                time_in_force=TimeInForce.GTC,
-            )
-            self.submit_order(order)
-
-        def on_stop(self) -> None:
-            # Canonical RP marks an open final position; it does not force an end fill.
-            pass
-
-    results: dict[str, dict[str, Any]] = {}
-    for variant in fixture.variants:
-        variant_id = variant["variant_id"]
-        signal = signals[variant_id]
-        targets = {
-            int(close_time) * 1_000_000: int(value)
-            for close_time, value in zip(ohlcv["close_time_ms"], signal, strict=True)
-        }
-        engine = BacktestEngine(
-            config=BacktestEngineConfig(logging=LoggingConfig(log_level="ERROR"), run_analysis=False)
-        )
-        engine.add_venue(
-            venue=instrument_id.venue,
-            oms_type=OmsType.NETTING,
-            account_type=AccountType.MARGIN,
-            starting_balances=[Money(10_000, USDT)],
-            base_currency=USDT,
-            default_leverage=Decimal(1),
-            use_random_ids=False,
-            bar_execution=True,
-            bar_adaptive_high_low_ordering=False,
-        )
-        engine.add_instrument(instrument)
-        engine.add_data(bars, sort=False)
-        engine.add_strategy(TargetSignalStrategy(targets))
-        engine.run()
-
-        account = engine.portfolio.account(instrument_id.venue)
-        realized_equity = float(account.balance_total(USDT).as_decimal())
-        unrealized_money = engine.portfolio.unrealized_pnl(
-            instrument_id,
-            Price.from_str(f"{float(ohlcv.iloc[-1]['close']):.2f}"),
-        )
-        unrealized = float(unrealized_money.as_decimal()) if unrealized_money is not None else 0.0
-        commission_money = account.commission(USDT)
-        combined_cost = float(commission_money.as_decimal()) if commission_money is not None else 0.0
-        final_equity = realized_equity + unrealized
-        closed_positions = engine.cache.positions_closed(instrument_id=instrument_id)
-        open_positions = engine.cache.positions_open(instrument_id=instrument_id)
-        result = engine.get_result()
-        completed_order_count = result.total_orders - len(open_positions)
-        if completed_order_count < 0 or completed_order_count % 2:
-            raise MappingSpikeError(
-                f"cannot derive closed trade count for {variant_id}: "
-                f"orders={result.total_orders} open_positions={len(open_positions)}"
-            )
-        results[variant_id] = {
-            "variant_id": variant_id,
-            "parameters": variant["parameter_values"],
-            # NETTING retains one reusable Position object. Each canonical closed
-            # trade is an entry/exit market-order pair; a final open position
-            # contributes its one unmatched entry order.
-            "trade_count": completed_order_count // 2,
-            "nautilus_closed_position_objects": len(closed_positions),
-            "open_position_count": len(open_positions),
-            "final_equity": final_equity,
-            "return_pct": (final_equity / 10_000.0) - 1.0,
-            "combined_fee_slippage_cost": combined_cost,
-            "allocated_fees": combined_cost * 0.8,
-            "allocated_slippage": combined_cost * 0.2,
-            "funding": 0.0,
-            "total_orders": result.total_orders,
-            "total_positions": result.total_positions,
-        }
-        engine.dispose()
-    results["_environment"] = {
-        "nautilus_version": nautilus_trader.__version__,
-        "python_version": platform.python_version(),
-        "platform": platform.system(),
-    }
-    return results
+        return _execute_target_signals(fixture.variants, ohlcv, signals)
+    except NautilusAdapterError as exc:  # pragma: no cover - isolated dependency gate
+        raise MappingSpikeError(str(exc)) from exc
 
 
 def _normalize_run(run: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:

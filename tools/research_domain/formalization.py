@@ -216,6 +216,7 @@ def build_strategy_spec(
                 "Scratch-only provider-assisted draft; validator success is not approval."
             ],
             "lineage_ref_path": formalized_path,
+            "lineage_ref_hash": None,
             "default_title": "Draft provider-assisted SMA/stddev mean-reversion Strategy Spec",
         }
     try:
@@ -225,7 +226,8 @@ def build_strategy_spec(
         source_constraints = [str(item) for item in source_context["source_constraints"]]
         unresolved_claims = [str(item) for item in source_context["unresolved_claims"]]
         review_notes = [str(item) for item in source_context["review_notes"]]
-        lineage_ref_path = str(source_context["lineage_ref_path"])
+        lineage_ref_path = source_context.get("lineage_ref_path")
+        lineage_ref_hash = source_context.get("lineage_ref_hash")
         default_title = str(
             source_context.get(
                 "default_title", "Draft CPW-domain SMA/stddev mean-reversion Strategy Spec"
@@ -233,19 +235,23 @@ def build_strategy_spec(
         )
     except (KeyError, TypeError) as exc:
         raise ValueError("invalid Strategy-Spec source context") from exc
-    if (
-        not all(
-            (
-                source_type,
-                source_refs,
-                prepared_by,
-                source_constraints,
-                unresolved_claims,
-                review_notes,
-            )
+    if not all(
+        (
+            source_type,
+            source_refs,
+            prepared_by,
+            source_constraints,
+            unresolved_claims,
+            review_notes,
         )
-        or not lineage_ref_path
     ):
+        raise ValueError("invalid Strategy-Spec source context")
+    for lineage_value in (lineage_ref_path, lineage_ref_hash):
+        if lineage_value is not None and (
+            not isinstance(lineage_value, str) or not lineage_value.strip()
+        ):
+            raise ValueError("invalid Strategy-Spec source context")
+    if lineage_ref_path is None and lineage_ref_hash is None:
         raise ValueError("invalid Strategy-Spec source context")
     family_id = _draft_family_id(draft)
     spec = _replace_timeframe(copy.deepcopy(dict(template)), timeframe)
@@ -301,7 +307,7 @@ def build_strategy_spec(
                     "ref_type": "concept",
                     "ref_id": f"IDEA-{run_id.upper()}",
                     "ref_path": lineage_ref_path,
-                    "ref_hash": None,
+                    "ref_hash": lineage_ref_hash,
                 }
             ],
             "supersedes": [],

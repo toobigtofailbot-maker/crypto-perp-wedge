@@ -310,7 +310,8 @@ class CpwDomainTools:
             "review_notes": [
                 "In-memory schema validation succeeds only as a format check, not approval."
             ],
-            "lineage_ref_path": source_refs[0],
+            "lineage_ref_path": None,
+            "lineage_ref_hash": input_sha,
             "default_title": "Draft CPW-domain SMA/stddev mean-reversion Strategy Spec",
         }
         result = formalize_reasoned_strategy_draft(
@@ -360,13 +361,40 @@ class CpwDomainTools:
         self, request: ApprovalRequirementInput | Mapping[str, Any]
     ) -> dict[str, Any]:
         typed = self._typed(ApprovalRequirementInput, request)
-        result = build_approval_requirement(typed.preregistration_packet)
+        packet = self._validate_exact_preregistration_packet(typed.preregistration_packet)
+        result = build_approval_requirement(packet)
         return self._envelope(
             tool_name="cpw_build_approval_requirement",
             typed_input=typed,
             anchors=[],
             domain_semantics=result,
         )
+
+    @staticmethod
+    def _validate_exact_preregistration_packet(packet: Mapping[str, Any]) -> dict[str, Any]:
+        try:
+            pipeline_run_id = packet["pipeline_run_id"]
+            frozen_content = packet["frozen_content"]
+            if not isinstance(pipeline_run_id, str) or not pipeline_run_id:
+                raise ValueError("pipeline_run_id is required")
+            if not isinstance(frozen_content, Mapping):
+                raise TypeError("frozen_content must be an object")
+            request = frozen_content["request"]
+            formalized = frozen_content["formalized_idea"]
+            availability = frozen_content["availability_check"]
+            if not all(isinstance(item, Mapping) for item in (request, formalized, availability)):
+                raise TypeError("frozen preregistration inputs must be objects")
+            reconstructed = build_preregistration_packet(
+                pipeline_run_id=pipeline_run_id,
+                request=request,
+                formalized=formalized,
+                availability=availability,
+            )
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError("preregistration packet is not the exact locked CPW packet") from exc
+        if packet != reconstructed:
+            raise ValueError("preregistration packet is not the exact locked CPW packet")
+        return reconstructed
 
     def validate_trial_denominator(
         self, request: TrialDenominatorInput | Mapping[str, Any]

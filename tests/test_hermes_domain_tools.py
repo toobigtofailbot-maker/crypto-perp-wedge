@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import ast
 import copy
+import hashlib
 import json
 from pathlib import Path
 
@@ -77,6 +78,15 @@ def _prereg_input() -> dict[str, object]:
         "formalized": {"status": "accepted"},
         "availability": {"status": "ready", "blocking_reasons": []},
     }
+
+
+def _rehash_packet(packet: dict[str, object]) -> None:
+    unhashed = copy.deepcopy(packet)
+    unhashed.pop("packet_sha256", None)
+    canonical = json.dumps(
+        unhashed, sort_keys=True, separators=(",", ":"), ensure_ascii=True
+    ).encode("utf-8")
+    packet["packet_sha256"] = "sha256:" + hashlib.sha256(canonical).hexdigest()
 
 
 def test_inventory_is_exactly_thirteen_without_generic_invoke() -> None:
@@ -225,10 +235,16 @@ def test_supported_formalization_is_schema_valid_deterministic_and_truthful(
         {"name": "channel_lookback_bars", "minimum": 20.0, "maximum": 55.0}
     ]
     assert len(semantics["draft_strategy_specs"]) == 1
-    provenance = semantics["draft_strategy_specs"][0]["provenance"]
+    spec = semantics["draft_strategy_specs"][0]
+    provenance = spec["provenance"]
     assert provenance["prepared_by"] == "bounded CPW Project-Evidence Hermes domain tool"
+    assert provenance["source_refs"] == [item["resource_uri"] for item in first["evidence_anchors"]]
     assert "provider_mode=" not in json.dumps(provenance)
     assert "idea_formalizer agent" not in json.dumps(provenance)
+    parent = spec["lineage"]["parent_refs"][0]
+    assert parent["ref_type"] == "concept"
+    assert parent["ref_path"] is None
+    assert parent["ref_hash"] == first["input_sha256"]
 
 
 def test_formalization_preserves_rejection_unsupported_and_needs_data(
@@ -306,6 +322,38 @@ def test_preregistration_and_requirement_preserve_non_authority(
     assert "approval_token" not in encoded
     assert "gate_action_id" not in requirement
     assert "approval_timestamp_utc" not in requirement
+
+
+@pytest.mark.parametrize(
+    "tamper",
+    (
+        "canonical_write_allowed",
+        "execution_scope",
+        "non_authority_flags",
+        "extra_top_level",
+        "approval_binding",
+    ),
+)
+def test_approval_requirement_rejects_rehashed_altered_packets(
+    service: ProjectEvidenceService, tamper: str
+) -> None:
+    packet = copy.deepcopy(
+        service.domain_tools.build_preregistration_packet(_prereg_input())["domain_semantics"]
+    )
+    if tamper == "canonical_write_allowed":
+        packet["frozen_content"]["canonical_write_allowed"] = True
+    elif tamper == "execution_scope":
+        packet["frozen_content"]["execution_scope"] = "canonical_or_live"
+    elif tamper == "non_authority_flags":
+        packet["non_authority_flags"]["canonical_write"] = True
+    elif tamper == "extra_top_level":
+        packet["extra"] = "caller-controlled"
+    else:
+        packet["approval_binding"]["required_approval_scope"] = "unbounded"
+    _rehash_packet(packet)
+
+    with pytest.raises(ValueError, match="not the exact locked CPW packet"):
+        service.domain_tools.build_approval_requirement({"preregistration_packet": packet})
 
 
 def test_denominator_preserves_all_rows_and_reports_stable_failure(

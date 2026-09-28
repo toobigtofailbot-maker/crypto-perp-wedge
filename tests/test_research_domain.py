@@ -147,6 +147,14 @@ def test_formalization_is_deterministic_and_preserves_wrapper_output() -> None:
     assert (
         pure["entry_logic"]["groups"][0]["conditions"][0]["right_operand"]["field"] == "upper_lag1"
     )
+    assert pure["lineage"]["parent_refs"] == [
+        {
+            "ref_type": "concept",
+            "ref_id": "IDEA-123456789ABC",
+            "ref_path": "scratch/WP/outputs/formalized.json",
+            "ref_hash": None,
+        }
+    ]
     assert template["strategy_spec_id"] == "STRAT-SPEC-0003"
 
 
@@ -186,7 +194,8 @@ def test_reasoned_draft_domain_owner_and_legacy_delegation() -> None:
         "source_constraints": ["bounded"],
         "unresolved_claims": ["human review required"],
         "review_notes": ["not approval"],
-        "lineage_ref_path": "project://indicator-catalog",
+        "lineage_ref_path": None,
+        "lineage_ref_hash": "sha256:reasoned-draft-input",
     }
     result = formalize_reasoned_strategy_draft(
         idea="BTCUSDT price donchian breakout momentum",
@@ -205,6 +214,12 @@ def test_reasoned_draft_domain_owner_and_legacy_delegation() -> None:
         {"name": "channel_lookback_bars", "minimum": 20.0, "maximum": 55.0}
     ]
     assert len(result["draft_strategy_specs"]) == 1
+    assert result["draft_strategy_specs"][0]["lineage"]["parent_refs"][0] == {
+        "ref_type": "concept",
+        "ref_id": "IDEA-123456789ABC",
+        "ref_path": None,
+        "ref_hash": "sha256:reasoned-draft-input",
+    }
     with pytest.raises(ValueError, match="bounded to BTCUSDT"):
         formalize_reasoned_strategy_draft(
             idea="x",

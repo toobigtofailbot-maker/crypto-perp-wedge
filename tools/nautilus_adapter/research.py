@@ -16,7 +16,7 @@ from collections import Counter
 from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
-from typing import Any, Callable, Mapping, Sequence
+from typing import Any, Mapping, Sequence
 
 import pandas as pd
 
@@ -92,12 +92,6 @@ class NautilusResearchResult:
     result_envelope: Mapping[str, Any]
     semantic_gap_report: Mapping[str, str]
     variant_execution_results: Mapping[str, Mapping[str, Any]]
-
-
-Executor = Callable[
-    [ResolvedResearchInputs, pd.DataFrame, Mapping[str, pd.Series]],
-    Mapping[str, Mapping[str, Any]],
-]
 
 
 def _mapping(value: Any, label: str) -> Mapping[str, Any]:
@@ -623,13 +617,18 @@ def _compatibility_evidence(inputs: ResolvedResearchInputs) -> Mapping[str, Any]
 def _execution_provenance(
     inputs: ResolvedResearchInputs,
     environment: Mapping[str, Any],
-    override: Mapping[str, Any] | None,
 ) -> dict[str, Any]:
     source_path = Path(__file__)
     lock_path = source_path.with_name("requirements-win-py312.lock.txt")
-    provenance = {
+    observed_version = environment.get("nautilus_version")
+    if observed_version != NAUTILUS_TARGET_VERSION:
+        raise NautilusAdapterError(
+            f"executor provenance version mismatch: expected {NAUTILUS_TARGET_VERSION}, "
+            f"got {observed_version!r}"
+        )
+    return {
         "engine_id": "nautilus_trader",
-        "engine_version": str(environment.get("nautilus_version", NAUTILUS_TARGET_VERSION)),
+        "engine_version": observed_version,
         "adapter_id": ADAPTER_ID,
         "repo_commit": inputs.repo_commit,
         "environment_summary": [
@@ -649,16 +648,10 @@ def _execution_provenance(
         "source_ref": "tools/nautilus_adapter/research.py",
         "source_raw_sha256": "sha256:" + hashlib.sha256(source_path.read_bytes()).hexdigest(),
     }
-    if override is not None:
-        provenance.update(copy.deepcopy(dict(override)))
-    return provenance
 
 
 def execute_nautilus_research(
     inputs: ResolvedResearchInputs,
-    *,
-    executor: Executor | None = None,
-    execution_provenance: Mapping[str, Any] | None = None,
 ) -> NautilusResearchResult:
     """Execute and normalize the frozen RP-2592 profile without persistence."""
 
@@ -673,7 +666,7 @@ def execute_nautilus_research(
         )
         for variant in variants
     }
-    execution = dict((executor or _default_executor)(inputs, ohlcv, signals))
+    execution = dict(_default_executor(inputs, ohlcv, signals))
     environment = execution.pop("_environment", {})
     if not isinstance(environment, Mapping):
         raise NautilusAdapterError("executor _environment must be an object")
@@ -744,7 +737,7 @@ def execute_nautilus_research(
         committed_denominator=inputs.run_request["committed_denominator"],
         outcome_category_counts=counts,
         variant_result_rows=rows,
-        execution_provenance=_execution_provenance(inputs, environment, execution_provenance),
+        execution_provenance=_execution_provenance(inputs, environment),
         compatibility_evidence=_compatibility_evidence(inputs),
     )
     validate_result_envelope(envelope)

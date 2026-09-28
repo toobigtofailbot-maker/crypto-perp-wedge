@@ -323,7 +323,7 @@ def build_report(
             ),
             "funding": "zero, matching every RP-2592 row",
             "unsupported_semantics": [
-                "Nautilus 1.221.0 does not expose the RP zero-equity liquidation rule through this low-level bounded mapping; no RP-2592 variant liquidated.",
+                "N1-01 does not prove RP zero-equity liquidation parity under NautilusTrader 1.231.0; no RP-2592 variant liquidated.",
                 "Continuous canonical quantities are rounded to 8 decimal places by the synthetic offline instrument.",
             ],
         },

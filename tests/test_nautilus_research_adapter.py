@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import ast
 import copy
+import inspect
 import json
 import sys
 from pathlib import Path
@@ -9,6 +10,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
+import tools.nautilus_adapter as nautilus_adapter
 from tools.execution_evidence_contract import build_run_request, validate_result_envelope
 from tools.execution_evidence_legacy_rp import project_result_population_v1
 from tools.nautilus_adapter import research
@@ -81,7 +83,7 @@ def _fake_executor(inputs, ohlcv, signals, *, error_variant=None):
         for variant_id in inputs.run_request["declared_variant_ids"]
     }
     result["_environment"] = {
-        "nautilus_version": "test",
+        "nautilus_version": "1.231.0",
         "python_version": "test",
         "platform": "test",
         "next_bar_open_execution_proven": False,
@@ -94,6 +96,20 @@ def test_import_without_nautilus_and_public_constants() -> None:
     assert research.ADAPTER_ID == "cpw_nautilus_research_adapter_v1"
     assert research.SUPPORTED_PROFILE == "cpw_nautilus_n1_01_rp2592_profile_v1"
     assert not any(name == "nautilus_trader" for name in sys.modules)
+
+
+def test_public_api_has_no_executor_or_provenance_injection() -> None:
+    assert list(inspect.signature(research.execute_nautilus_research).parameters) == ["inputs"]
+    assert set(nautilus_adapter.__all__) == {
+        "ADAPTER_ID",
+        "NAUTILUS_TARGET_VERSION",
+        "SUPPORTED_PROFILE",
+        "NautilusAdapterError",
+        "NautilusResearchResult",
+        "ResolvedResearchInputs",
+        "execute_nautilus_research",
+        "validate_resolved_inputs",
+    }
 
 
 def test_exact_run_request_is_required() -> None:
@@ -172,21 +188,34 @@ def test_nonzero_funding_profile_fails_closed() -> None:
         )
 
 
-def test_fake_executor_builds_valid_full_denominator_envelope() -> None:
+def test_fake_executor_builds_valid_full_denominator_envelope(monkeypatch) -> None:
     inputs = _inputs()
-    result = research.execute_nautilus_research(inputs, executor=_fake_executor)
+    monkeypatch.setattr(research, "_default_executor", _fake_executor)
+    result = research.execute_nautilus_research(inputs)
     validate_result_envelope(result.result_envelope)
     rows = result.result_envelope["scientific_result"]["variant_result_rows"]
     assert [row["variant_id"] for row in rows] == inputs.run_request["declared_variant_ids"]
     assert len(rows) == inputs.run_request["committed_denominator"] == 8
-
-
-def test_fake_variant_error_remains_as_errored_denominator_row() -> None:
-    inputs = _inputs()
-    result = research.execute_nautilus_research(
-        inputs,
-        executor=lambda *args: _fake_executor(*args, error_variant="VAR-000004"),
+    provenance = result.result_envelope["execution_provenance"]
+    assert provenance["engine_id"] == "nautilus_trader"
+    assert provenance["engine_version"] == "1.231.0"
+    assert provenance["adapter_id"] == research.ADAPTER_ID
+    assert provenance["repo_commit"] == inputs.repo_commit
+    assert provenance["source_ref"] == "tools/nautilus_adapter/research.py"
+    assert provenance["source_raw_sha256"].startswith("sha256:")
+    assert provenance["dependency_summary"][0] == (
+        "tools/nautilus_adapter/requirements-win-py312.lock.txt"
     )
+
+
+def test_fake_variant_error_remains_as_errored_denominator_row(monkeypatch) -> None:
+    inputs = _inputs()
+    monkeypatch.setattr(
+        research,
+        "_default_executor",
+        lambda *args: _fake_executor(*args, error_variant="VAR-000004"),
+    )
+    result = research.execute_nautilus_research(inputs)
     rows = result.result_envelope["scientific_result"]["variant_result_rows"]
     assert len(rows) == 8
     assert rows[3]["variant_id"] == "VAR-000004"
@@ -194,14 +223,17 @@ def test_fake_variant_error_remains_as_errored_denominator_row() -> None:
     assert result.result_envelope["scientific_result"]["outcome_category_counts"]["errored"] == 1
 
 
-def test_provenance_does_not_change_evidence_identity() -> None:
+def test_provenance_does_not_change_evidence_identity(monkeypatch) -> None:
     inputs = _inputs()
-    left = research.execute_nautilus_research(
-        inputs, executor=_fake_executor, execution_provenance={"repo_commit": "left"}
+    monkeypatch.setattr(research, "_default_executor", _fake_executor)
+    left_inputs = research.ResolvedResearchInputs(
+        **{**inputs.__dict__, "repo_commit": "left"}
     )
-    right = research.execute_nautilus_research(
-        inputs, executor=_fake_executor, execution_provenance={"repo_commit": "right"}
+    right_inputs = research.ResolvedResearchInputs(
+        **{**inputs.__dict__, "repo_commit": "right"}
     )
+    left = research.execute_nautilus_research(left_inputs)
+    right = research.execute_nautilus_research(right_inputs)
     assert left.result_envelope["evidence_content_sha256"] == right.result_envelope[
         "evidence_content_sha256"
     ]
@@ -210,10 +242,11 @@ def test_provenance_does_not_change_evidence_identity() -> None:
     ]
 
 
-def test_source_artifacts_are_not_mutated() -> None:
+def test_source_artifacts_are_not_mutated(monkeypatch) -> None:
     inputs = _inputs()
     before = copy.deepcopy(inputs)
-    research.execute_nautilus_research(inputs, executor=_fake_executor)
+    monkeypatch.setattr(research, "_default_executor", _fake_executor)
+    research.execute_nautilus_research(inputs)
     assert inputs == before
 
 

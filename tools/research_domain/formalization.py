@@ -4,7 +4,11 @@ from __future__ import annotations
 
 import copy
 import re
-from typing import Any, Collection, Mapping
+from collections.abc import Collection, Mapping
+from itertools import pairwise
+from typing import Any
+
+from .contracts import LOCKED_TIMEFRAMES
 
 
 def detect_features(idea: str, indicator_ids: Collection[str]) -> list[str]:
@@ -168,9 +172,10 @@ def build_strategy_spec(
     *,
     run_id: str,
     draft: Mapping[str, Any],
-    provider_metadata: Mapping[str, Any],
-    formalized_path: str,
     template: Mapping[str, Any],
+    provider_metadata: Mapping[str, Any] | None = None,
+    formalized_path: str | None = None,
+    source_context: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Build the exact current scratch Strategy-Spec draft without I/O."""
 
@@ -179,14 +184,75 @@ def build_strategy_spec(
         timeframe = str(draft["timeframe"])
         symbols = list(draft["symbols"])
         rationale = str(draft["causal_rationale"])
-        provider_values = {
-            key: provider_metadata[key]
-            for key in ("provider_mode", "provider_id", "request_id", "response_source")
-        }
     except (KeyError, TypeError, ValueError, IndexError) as exc:
         raise ValueError("invalid Strategy-Spec draft inputs") from exc
     if not symbols:
         raise ValueError("draft symbols must not be empty")
+    if source_context is None:
+        if provider_metadata is None or not formalized_path:
+            raise ValueError("provider metadata and formalized path are required")
+        try:
+            provider_values = {
+                key: provider_metadata[key]
+                for key in ("provider_mode", "provider_id", "request_id", "response_source")
+            }
+        except (KeyError, TypeError) as exc:
+            raise ValueError("invalid Strategy-Spec source context") from exc
+        source_context = {
+            "source_type": "manual_idea",
+            "source_refs": [formalized_path],
+            "prepared_by": "bounded idea_formalizer agent",
+            "source_constraints": [
+                f"provider_mode={provider_values['provider_mode']}",
+                f"provider_id={provider_values['provider_id']}",
+                f"request_id={provider_values['request_id']}",
+                f"response_source={provider_values['response_source']}",
+            ],
+            "unresolved_claims": [
+                "Provider output is advisory and requires human review.",
+                "No preregistration, sweep, evidence, or execution is authorized.",
+            ],
+            "review_notes": [
+                "Scratch-only provider-assisted draft; validator success is not approval."
+            ],
+            "lineage_ref_path": formalized_path,
+            "lineage_ref_hash": None,
+            "default_title": "Draft provider-assisted SMA/stddev mean-reversion Strategy Spec",
+        }
+    try:
+        source_type = str(source_context["source_type"])
+        source_refs = [str(item) for item in source_context["source_refs"]]
+        prepared_by = str(source_context["prepared_by"])
+        source_constraints = [str(item) for item in source_context["source_constraints"]]
+        unresolved_claims = [str(item) for item in source_context["unresolved_claims"]]
+        review_notes = [str(item) for item in source_context["review_notes"]]
+        lineage_ref_path = source_context.get("lineage_ref_path")
+        lineage_ref_hash = source_context.get("lineage_ref_hash")
+        default_title = str(
+            source_context.get(
+                "default_title", "Draft CPW-domain SMA/stddev mean-reversion Strategy Spec"
+            )
+        )
+    except (KeyError, TypeError) as exc:
+        raise ValueError("invalid Strategy-Spec source context") from exc
+    if not all(
+        (
+            source_type,
+            source_refs,
+            prepared_by,
+            source_constraints,
+            unresolved_claims,
+            review_notes,
+        )
+    ):
+        raise ValueError("invalid Strategy-Spec source context")
+    for lineage_value in (lineage_ref_path, lineage_ref_hash):
+        if lineage_value is not None and (
+            not isinstance(lineage_value, str) or not lineage_value.strip()
+        ):
+            raise ValueError("invalid Strategy-Spec source context")
+    if lineage_ref_path is None and lineage_ref_hash is None:
+        raise ValueError("invalid Strategy-Spec source context")
     family_id = _draft_family_id(draft)
     spec = _replace_timeframe(copy.deepcopy(dict(template)), timeframe)
     try:
@@ -194,7 +260,7 @@ def build_strategy_spec(
         spec["title"] = {
             "donchian_channel_breakout_v1": "Draft deterministic Donchian channel-breakout Strategy Spec",
             "funding_rate_positioning_fade_v1": "Draft funding-rate positioning-fade Strategy Spec",
-        }.get(family_id, "Draft provider-assisted SMA/stddev mean-reversion Strategy Spec")
+        }.get(family_id, default_title)
         spec["short_name"] = f"draft-idea-{run_id}"
         spec["status"] = "draft"
         spec["instruments"]["symbols"] = symbols
@@ -203,17 +269,14 @@ def build_strategy_spec(
             "merged research-workbench gap policy; do not interpolate or silently fill gaps."
         )
         spec["provenance"] = {
-            "source_type": "manual_idea",
-            "source_refs": [formalized_path],
-            "prepared_by": "bounded idea_formalizer agent",
+            "source_type": source_type,
+            "source_refs": source_refs,
+            "prepared_by": prepared_by,
             "created_at": None,
             "updated_at": None,
             "rationale": rationale,
-            "source_constraints": [
-                f"provider_mode={provider_values['provider_mode']}",
-                f"provider_id={provider_values['provider_id']}",
-                f"request_id={provider_values['request_id']}",
-                f"response_source={provider_values['response_source']}",
+            "source_constraints": source_constraints
+            + [
                 {
                     "donchian_channel_breakout_v1": (
                         "Scratch-only draft produced by the bounded "
@@ -228,18 +291,13 @@ def build_strategy_spec(
                     "Scratch-only draft adapted from the merged STRAT-SPEC-0003 capability family.",
                 ),
             ],
-            "unresolved_claims": [
-                "Provider output is advisory and requires human review.",
-                "No preregistration, sweep, evidence, or execution is authorized.",
-            ],
+            "unresolved_claims": unresolved_claims,
         }
         spec["review"].update(
             {
                 "reviewer": None,
                 "reviewed_at": None,
-                "review_notes": [
-                    "Scratch-only provider-assisted draft; validator success is not approval."
-                ],
+                "review_notes": review_notes,
                 "approval_scope": "none",
             }
         )
@@ -248,8 +306,8 @@ def build_strategy_spec(
                 {
                     "ref_type": "concept",
                     "ref_id": f"IDEA-{run_id.upper()}",
-                    "ref_path": formalized_path,
-                    "ref_hash": None,
+                    "ref_path": lineage_ref_path,
+                    "ref_hash": lineage_ref_hash,
                 }
             ],
             "supersedes": [],
@@ -268,6 +326,123 @@ def build_strategy_spec(
     elif family_id == "funding_rate_positioning_fade_v1":
         _apply_funding_strategy_body(spec, exit_mode="midline_reversion_or_max_hold")
     return spec
+
+
+def formalize_reasoned_strategy_draft(
+    *,
+    idea: str,
+    symbol: str,
+    timeframe: str,
+    constraints: Collection[str],
+    reasoned_draft: Mapping[str, Any],
+    indicator_catalog: Mapping[str, Any],
+    availability_catalog: Mapping[str, Any],
+    strategy_spec_template: Mapping[str, Any],
+    run_id: str,
+    source_context: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Apply the current CPW reasoned-draft semantics without I/O or authority."""
+
+    if not isinstance(idea, str) or not idea.strip():
+        raise ValueError("idea must be non-empty")
+    if symbol != "BTCUSDT":
+        raise ValueError("current repo capability is bounded to BTCUSDT")
+    if timeframe not in LOCKED_TIMEFRAMES:
+        raise ValueError(f"timeframe must be one of {sorted(LOCKED_TIMEFRAMES)}")
+    if not all(isinstance(item, str) for item in constraints):
+        raise ValueError("constraints must contain strings")
+    if not isinstance(reasoned_draft, Mapping):
+        raise ValueError("reasoned_draft must be an object")  # noqa: TRY004
+
+    assessment = assess_capabilities(idea.strip(), indicator_catalog, availability_catalog)
+    declared_features = set(reasoned_draft.get("features", []))
+    detected_features = set(assessment["detected_features"])
+    response_contract_errors: list[str] = []
+    if not declared_features.issubset(detected_features):
+        response_contract_errors.append(
+            "provider response claims features not detected in the operator idea"
+        )
+    if reasoned_draft.get("symbols") != [symbol]:
+        response_contract_errors.append(
+            "provider response symbols do not match the bounded operator input"
+        )
+    if reasoned_draft.get("timeframe") != timeframe:
+        response_contract_errors.append(
+            "provider response timeframe does not match the bounded operator input"
+        )
+    if response_contract_errors:
+        return {
+            "status": "rejected",
+            "capability_assessment": assessment,
+            "research_object": None,
+            "rejection_reasons": response_contract_errors,
+            "adapter_metadata": {
+                "family_id": None,
+                "freshness_distinct_from": [],
+                "unsupported_capabilities": [],
+            },
+            "draft_strategy_specs": [],
+            "draft_strategy_spec": {"produced": False, "blockers": []},
+        }
+
+    adapted_draft = copy.deepcopy(dict(reasoned_draft))
+    family_id = _draft_family_id(adapted_draft)
+    if family_id == "donchian_channel_breakout_v1":
+        adapted_draft["parameter_bounds"] = [
+            {"name": "channel_lookback_bars", "minimum": 20.0, "maximum": 55.0}
+        ]
+    adapter_metadata = {
+        "family_id": family_id,
+        "freshness_distinct_from": (
+            ["STRAT-SPEC-0003", "VM-0003", "SWEEP-PLAN-0003", "RP-7134"]
+            if family_id == "donchian_channel_breakout_v1"
+            else []
+        ),
+        "unsupported_capabilities": (
+            ["intrabar breakout", "ATR stop/target", "session/time exit", "funding signal"]
+            if family_id == "donchian_channel_breakout_v1"
+            else []
+        ),
+        "prior_family_evidence": (
+            ["H-002/REP-0003", "H-012/REP-0032"]
+            if family_id == "donchian_channel_breakout_v1"
+            else []
+        ),
+    }
+    blockers = [
+        f"missing historical/compiler support: {item}" for item in assessment["blocking_features"]
+    ]
+    status = "needs_data" if blockers else "accepted"
+    if not blockers and (family_id is None or not assessment["historically_testable_now"]):
+        blockers = ["no validated draft adapter exists for this exact primitive family"]
+
+    specs: list[dict[str, Any]] = []
+    if status == "accepted" and not blockers:
+        primary = build_strategy_spec(
+            run_id=run_id,
+            draft=adapted_draft,
+            template=strategy_spec_template,
+            source_context=source_context,
+        )
+        specs.append(primary)
+        if family_id == "funding_rate_positioning_fade_v1":
+            fixed = copy.deepcopy(primary)
+            fixed["strategy_spec_id"] = (
+                f"STRAT-SPEC-{int(primary['strategy_spec_id'][-4:]) + 1:04d}"
+            )
+            fixed["title"] = "Draft funding-rate positioning-fade fixed-max-hold Strategy Spec"
+            _apply_funding_strategy_body(fixed, exit_mode="fixed_max_hold_only")
+            specs.append(fixed)
+
+    return {
+        "status": status,
+        "capability_assessment": assessment,
+        "research_object": adapted_draft,
+        "rejection_reasons": [],
+        "adapter_metadata": adapter_metadata,
+        "draft_strategy_specs": specs,
+        "draft_strategy_spec": {"produced": bool(specs), "blockers": blockers},
+    }
 
 
 def _funding_percentile_operand() -> dict[str, Any]:
@@ -328,13 +503,13 @@ def _funding_parameter(
     label: str,
     parameter_type: str,
     units: str,
-    default: int | float,
-    allowed_values: list[int | float],
+    default: float,
+    allowed_values: list[float],
     role: str,
 ) -> dict[str, Any]:
     numeric = [float(value) for value in allowed_values]
-    positive_steps = [b - a for a, b in zip(numeric, numeric[1:]) if b > a]
-    step: int | float = min(positive_steps) if positive_steps else 1
+    positive_steps = [b - a for a, b in pairwise(numeric) if b > a]
+    step = min(positive_steps) if positive_steps else 1
     if parameter_type == "integer":
         step = int(step)
     return {

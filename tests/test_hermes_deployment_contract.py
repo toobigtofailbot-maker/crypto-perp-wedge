@@ -23,6 +23,7 @@ SKILLS = {
     "dependency-security-watch",
     "typed-project-proposal",
     "prepared-project-plan",
+    "cpw-domain-tools",
 }
 
 
@@ -57,6 +58,16 @@ def test_project_evidence_image_is_digest_pinned_nonroot_and_lock_driven() -> No
     assert "pip install --no-cache-dir --requirement /app/requirements.lock.txt" in dockerfile
     assert "COPY tools/hermes/proposals /app/tools/hermes/proposals" in dockerfile
     assert "COPY tools/hermes/prepare /app/tools/hermes/prepare" in dockerfile
+    assert "COPY tools/research_domain /app/tools/research_domain" in dockerfile
+    for forbidden in (
+        "tools/research_agents",
+        "tools/research_runner",
+        "tools/canon_intake",
+        "COPY src",
+        "COPY lib",
+        "COPY configs",
+    ):
+        assert forbidden not in dockerfile
     assert "USER 65532:65532" in dockerfile
     assert 'ENTRYPOINT ["python", "-m", "tools.mcp.project_evidence.server"]' in dockerfile
 
@@ -86,7 +97,7 @@ def test_config_exposes_only_project_evidence_and_disables_escalation() -> None:
     assert "API_KEY" not in config
 
 
-def test_exact_eight_skills_are_readonly_fail_closed_and_sha_anchored() -> None:
+def test_exact_nine_skills_are_readonly_fail_closed_and_sha_anchored() -> None:
     skill_paths = sorted((HERMES_ROOT / "skills").glob("*/SKILL.md"))
 
     assert {path.parent.name for path in skill_paths} == SKILLS
@@ -102,12 +113,13 @@ def test_exact_eight_skills_are_readonly_fail_closed_and_sha_anchored() -> None:
         assert "self-enable" in text or "enable tools" in text or "widen MCP/tool scope" in text
 
 
-def test_proposal_and_prepare_skills_expose_exactly_eight_mcp_tools() -> None:
+def test_domain_proposal_and_prepare_skills_expose_exactly_thirteen_mcp_tools() -> None:
     compose = (HERMES_ROOT / "compose.yaml").read_text(encoding="utf-8")
     config = (HERMES_ROOT / "config/config.yaml").read_text(encoding="utf-8")
 
     assert compose.count("./skills/typed-project-proposal:") == 1
     assert compose.count("./skills/prepared-project-plan:") == 1
+    assert compose.count("./skills/cpw-domain-tools:") == 1
     included = re.findall(r"^        - ([a-z_]+)$", config, re.MULTILINE)
     assert included == [
         "project_evidence_manifest",
@@ -118,7 +130,28 @@ def test_proposal_and_prepare_skills_expose_exactly_eight_mcp_tools() -> None:
         "check_dependency_security_watch",
         "submit_proposal",
         "submit_prepared_payload",
+        "cpw_assess_research_capabilities",
+        "cpw_formalize_strategy_draft",
+        "cpw_build_preregistration_packet",
+        "cpw_build_approval_requirement",
+        "cpw_validate_trial_denominator",
     ]
+    assert len(included) == 13
+
+
+def test_domain_resource_mounts_are_exact_readonly_and_hermes_has_no_repo_mount() -> None:
+    compose = (HERMES_ROOT / "compose.yaml").read_text(encoding="utf-8")
+    for path in (
+        "IND-CATALOG-0001.indicator_catalog.json",
+        "PERP-DERIVED-FEATURE-AVAILABILITY-0001.json",
+        "STRAT-SPEC-0003.strategy_spec.json",
+        "strategy_spec.schema.json",
+    ):
+        lines = [line.strip() for line in compose.splitlines() if path in line]
+        assert len(lines) == 1
+        assert lines[0].endswith(":ro")
+    hermes_section = compose.split("  hermes:", 1)[1]
+    assert ":/project/" not in hermes_section
 
 
 def test_schedule_plan_contains_only_daily_weekly_and_watch_jobs() -> None:

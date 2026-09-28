@@ -604,6 +604,7 @@ def test_actual_surfaces_have_no_prepared_consumer_or_dispatch() -> None:
         "search_governor": REPO_ROOT / "tools/research_search",
         "dispatch_kdauth_and_canonical_writers": REPO_ROOT / "tools/canon_intake",
         "offline_runner": REPO_ROOT / "tools/research_runner",
+        "prefect_integration": REPO_ROOT / "tools/prefect_integration",
         "execution_adapter": REPO_ROOT / "tools/canon_intake/execution_runner_adapter.py",
         "runtime_paper_execution_overlay": REPO_ROOT / "src",
         "canonical_queue": REPO_ROOT / "research/queue",
@@ -636,5 +637,4 @@ def test_actual_surfaces_have_no_prepared_consumer_or_dispatch() -> None:
     implementation_text = "\n".join(
         path.read_text(encoding="utf-8", errors="ignore") for path in implementation_paths
     ).lower()
-    assert "prefect" not in implementation_text
     assert "codexworkpackagepreparedpayload" not in implementation_text

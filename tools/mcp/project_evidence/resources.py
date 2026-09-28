@@ -42,6 +42,26 @@ EXACT_RESOURCES = (
         "research/trial_log.jsonl",
         "application/x-ndjson",
     ),
+    ResourceSpec(
+        "project://indicator-catalog",
+        "research/indicator_catalogs/IND-CATALOG-0001.indicator_catalog.json",
+        "application/json",
+    ),
+    ResourceSpec(
+        "project://feature-availability",
+        "research/data_feature_availability/PERP-DERIVED-FEATURE-AVAILABILITY-0001.json",
+        "application/json",
+    ),
+    ResourceSpec(
+        "project://strategy-spec-template",
+        "research/strategy_specs/STRAT-SPEC-0003.strategy_spec.json",
+        "application/json",
+    ),
+    ResourceSpec(
+        "project://strategy-spec-schema",
+        "research/schemas/strategy_spec.schema.json",
+        "application/schema+json",
+    ),
 )
 
 _DYNAMIC_FAMILIES: tuple[tuple[str, re.Pattern[str], str, str, str], ...] = (

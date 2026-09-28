@@ -20,6 +20,7 @@ from tools.research_domain.formalization import (
     assess_capabilities,
     build_strategy_spec,
     detect_features,
+    formalize_reasoned_strategy_draft,
 )
 from tools.research_domain.preregistration import (
     build_approval_marker,
@@ -146,7 +147,96 @@ def test_formalization_is_deterministic_and_preserves_wrapper_output() -> None:
     assert (
         pure["entry_logic"]["groups"][0]["conditions"][0]["right_operand"]["field"] == "upper_lag1"
     )
+    assert pure["lineage"]["parent_refs"] == [
+        {
+            "ref_type": "concept",
+            "ref_id": "IDEA-123456789ABC",
+            "ref_path": "scratch/WP/outputs/formalized.json",
+            "ref_hash": None,
+        }
+    ]
     assert template["strategy_spec_id"] == "STRAT-SPEC-0003"
+
+
+def test_reasoned_draft_domain_owner_and_legacy_delegation() -> None:
+    indicator_catalog = json.loads(
+        (
+            REPO_ROOT / "research/indicator_catalogs/IND-CATALOG-0001.indicator_catalog.json"
+        ).read_text(encoding="utf-8")
+    )
+    availability_catalog = json.loads(
+        (
+            REPO_ROOT
+            / "research/data_feature_availability/PERP-DERIVED-FEATURE-AVAILABILITY-0001.json"
+        ).read_text(encoding="utf-8")
+    )
+    template = json.loads(
+        (REPO_ROOT / "research/strategy_specs/STRAT-SPEC-0003.strategy_spec.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    draft = {
+        "summary": "donchian breakout",
+        "causal_rationale": "breakout momentum",
+        "falsifiable_prediction": "positive OOS expectancy",
+        "symbols": ["BTCUSDT"],
+        "timeframe": "15m",
+        "features": ["donchian", "ohlcv"],
+        "entry_concept": "break channel",
+        "exit_concept": "opposite channel",
+        "parameter_bounds": [{"name": "lookback", "minimum": 10, "maximum": 100}],
+        "stop_conditions": ["stop on OOS failure"],
+    }
+    source = {
+        "source_type": "manual_idea",
+        "source_refs": ["project://indicator-catalog"],
+        "prepared_by": "CPW domain test",
+        "source_constraints": ["bounded"],
+        "unresolved_claims": ["human review required"],
+        "review_notes": ["not approval"],
+        "lineage_ref_path": None,
+        "lineage_ref_hash": "sha256:reasoned-draft-input",
+    }
+    result = formalize_reasoned_strategy_draft(
+        idea="BTCUSDT price donchian breakout momentum",
+        symbol="BTCUSDT",
+        timeframe="15m",
+        constraints=[],
+        reasoned_draft=draft,
+        indicator_catalog=indicator_catalog,
+        availability_catalog=availability_catalog,
+        strategy_spec_template=template,
+        run_id="123456789abc",
+        source_context=source,
+    )
+    assert result["status"] == "accepted"
+    assert result["research_object"]["parameter_bounds"] == [
+        {"name": "channel_lookback_bars", "minimum": 20.0, "maximum": 55.0}
+    ]
+    assert len(result["draft_strategy_specs"]) == 1
+    assert result["draft_strategy_specs"][0]["lineage"]["parent_refs"][0] == {
+        "ref_type": "concept",
+        "ref_id": "IDEA-123456789ABC",
+        "ref_path": None,
+        "ref_hash": "sha256:reasoned-draft-input",
+    }
+    with pytest.raises(ValueError, match="bounded to BTCUSDT"):
+        formalize_reasoned_strategy_draft(
+            idea="x",
+            symbol="ETHUSDT",
+            timeframe="15m",
+            constraints=[],
+            reasoned_draft=draft,
+            indicator_catalog=indicator_catalog,
+            availability_catalog=availability_catalog,
+            strategy_spec_template=template,
+            run_id="123456789abc",
+            source_context=source,
+        )
+    agent_source = (REPO_ROOT / "tools/research_agents/idea_formalizer_agent.py").read_text(
+        encoding="utf-8"
+    )
+    assert "domain_result = formalize_reasoned_strategy_draft(" in agent_source
 
 
 def test_legacy_family_compatibility_methods_delegate_to_domain(

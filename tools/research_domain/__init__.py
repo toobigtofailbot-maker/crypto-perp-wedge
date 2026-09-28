@@ -11,7 +11,12 @@ from .contracts import (
     PREREG_NON_AUTHORITY_ASSERTIONS,
     TRIAL_STATUSES,
 )
-from .formalization import assess_capabilities, build_strategy_spec, detect_features
+from .formalization import (
+    assess_capabilities,
+    build_strategy_spec,
+    detect_features,
+    formalize_reasoned_strategy_draft,
+)
 from .preregistration import (
     build_approval_marker,
     build_approval_requirement,
@@ -47,6 +52,7 @@ __all__ = [
     "build_strategy_spec",
     "compare_result_populations",
     "detect_features",
+    "formalize_reasoned_strategy_draft",
     "validate_bound_requirement",
     "validate_declared_trials",
     "validate_prereg_approval",

@@ -12,6 +12,7 @@ from tools.hermes.prepare.validation import COMPATIBILITY_MATRIX, PreparedPayloa
 from tools.hermes.proposals.models import AuthorityClass, ProposalType, TypedProposal
 from tools.hermes.proposals.validation import ProposalValidator
 
+from .domain_tools import CPW_DOMAIN_TOOL_NAMES, CPW_DOMAIN_TOOLS_SCHEMA_VERSION, CpwDomainTools
 from .memory_reader import ReadOnlyResearchMemoryReader
 from .models import RepoIdentity
 from .outbox import PreparedPayloadOutbox, ProposalOutbox
@@ -52,6 +53,7 @@ class ProjectEvidenceService:
             self.queries,
             fixed_outbox_root,
         )
+        self.domain_tools = CpwDomainTools(self.resources, self.identity)
 
     @classmethod
     def from_environment(cls) -> ProjectEvidenceService:
@@ -78,7 +80,7 @@ class ProjectEvidenceService:
     def manifest(self) -> dict[str, Any]:
         return {
             "service": "project-evidence",
-            "schema_version": "project_evidence_mcp_v2",
+            "schema_version": "project_evidence_mcp_v3",
             "repo_sha": self.identity.repo_sha,
             "branch": self.identity.branch,
             "read_resource_count": len(self.resources.list_resources()),
@@ -112,6 +114,19 @@ class ProjectEvidenceService:
                 "approval_token_eligible": False,
                 "broker_eligible": False,
                 "dispatch_eligible": False,
+                "standing_authority": False,
+                "automatic_consumers": [],
+            },
+            "cpw_domain_tools": {
+                "schema_version": CPW_DOMAIN_TOOLS_SCHEMA_VERSION,
+                "semantic_owner": "CPW",
+                "tool_names": list(CPW_DOMAIN_TOOL_NAMES),
+                "compute_only": True,
+                "canonical_write": False,
+                "execution_authority": False,
+                "approval_authority": False,
+                "promotion_authority": False,
+                "runtime_authority": False,
                 "standing_authority": False,
                 "automatic_consumers": [],
             },

@@ -6,7 +6,11 @@
 - Package class: MIGRATION; validation tier T2
 - Branch: `codex/cpw-hermes-01-typed-cpw-domain-tools`
 - Base SHA: `283969cc8b981e61fa0e8a28f620ad9a9f7b522d`
-- Implementation and physical-acceptance head: `c2efd0d4ad1dc96eef753d9fc29fe46efa928c44`
+- Original implementation and physical-acceptance head:
+  `c2efd0d4ad1dc96eef753d9fc29fe46efa928c44`
+- Side Follow-up 02 reviewed head: `cb67772813b98ac8b1f24b39f2c524d3ce4ee524`
+- Follow-up 02 implementation and physical-acceptance head:
+  `42cf701dd86d5655510f2b90fbae7457e4d62112`
 - PR: [#718 — CPW-HERMES-01: Add typed CPW domain tools](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/718)
 - Final head: the commit containing this status-only factual tail; its immutable
   SHA is recorded in the PR body and exact-head handoff because a commit cannot
@@ -38,13 +42,36 @@ The repo-owned Hermes skill count is exactly nine. Hermes has no repo mount. The
 Project-Evidence image contains `tools/research_domain` and excludes research
 agents, runners, and protected runtime code.
 
+## Side exact-head Follow-up 02
+
+Side review of `cb67772813b98ac8b1f24b39f2c524d3ce4ee524` identified and
+authorized two narrow semantic corrections. Hermes-created Strategy-Spec
+parents no longer claim the indicator catalog as the persisted path of the
+in-memory IDEA concept. Generic source context now accepts a real lineage path,
+a deterministic lineage hash, or both, and requires at least one. The Hermes
+adapter supplies `lineage_ref_path=null` and `lineage_ref_hash=input_sha256`;
+fixed and caller evidence remain in `provenance.source_refs`. The legacy
+IdeaFormalizer continues to use its real scratch path with `ref_hash=null`, and
+its fixed-input oracle remains unchanged.
+
+The approval-requirement adapter now extracts the packet's pipeline id and
+three frozen input objects, reconstructs the packet through the existing CPW
+`build_preregistration_packet` domain owner, and requires deep equality before
+calling `build_approval_requirement`. Rehashed packets with an altered
+canonical-write flag, execution scope, non-authority flags, approval binding,
+or an extra top-level field fail closed. Exact valid packet and approval-output
+bytes remain unchanged. The tool inventory, schema, dependencies, Hermes
+configuration, image, and authority boundary are unchanged.
+
 ## Validation
 
 - Pre-mutation immutable legacy oracle: `146 passed`.
-- Focused domain/new-tool validation: `39 passed`.
+- Original focused domain/new-tool validation: `39 passed`.
+- Follow-up 02 focused domain/new-tool validation: `44 passed`.
 - Post-change legacy semantic oracles: `146 passed`.
 - MCP/deployment/H2/H2.5 adjacency: `130 passed`.
-- Ruff check: passed; Ruff format check: 11 files already formatted.
+- Corrected H2.5 exact oracle: `1 passed`.
+- Ruff check: passed; Ruff format check: 12 files already formatted.
 - Compileall: passed.
 - Docker Compose configuration: passed.
 - Base-to-head scope check: `allowed_file_violations=[]` and
@@ -76,6 +103,20 @@ research-path mutation, and zero proposal/prepared outbox files. After both
 services restarted, the manifest, exact 13-tool inventory, and one bounded
 capability call succeeded again. No secret was printed or recorded.
 
+Follow-up 02 physical acceptance repeated this proof at
+`42cf701dd86d5655510f2b90fbae7457e4d62112`. Live formalization returned one
+accepted draft whose parent had `ref_path=null` and
+`ref_hash=sha256:1f2d2ebf1c0cd68c7d3f7449e38706e267e78d1d54979d461cec3807da48a9b9`,
+exactly matching that response's `input_sha256`; all four evidence URIs
+remained in both anchors and provenance source refs. A packet built by the live
+preregistration tool was accepted by the live approval-requirement tool with
+`approval_authority=false`, while a rehashed packet with
+`canonical_write_allowed=true` was rejected as not the exact locked CPW
+packet. The authenticated bounded model chain passed again. Git and research
+paths remained clean, the outbox stayed empty, and the restart proof again
+returned manifest v3, exactly 13 tools, and a successful bounded capability
+call.
+
 ## H2/H2.5 oracle correction
 
 On the base SHA,
@@ -97,7 +138,11 @@ H2.5 prepared-payload consumer or dispatch path.
 
 The final base-to-head diff contains exactly the 20 authorized files; the
 single scope expansion is `tests/test_hermes_prepare.py`, and this status entry
-is the final authorized path. `docs/project_status.md`, dependency files,
+is the final authorized path. Follow-up 02 changed only
+`tools/research_domain/formalization.py`,
+`tools/mcp/project_evidence/domain_tools.py`, `tests/test_research_domain.py`,
+`tests/test_hermes_domain_tools.py`, and this existing status entry; it created
+no file. `docs/project_status.md`, dependency files,
 Prefect production code, Search Governor, runners/backtesters, CANON, BROKER,
 runtime, paper/live, OMS, reconciliation, risk, overlay, safe mode,
 kill-switch, exchange/order, credentials, collateral, and capital surfaces are

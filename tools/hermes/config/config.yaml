@@ -59,6 +59,11 @@ mcp_servers:
         - check_dependency_security_watch
         - submit_proposal
         - submit_prepared_payload
+        - cpw_assess_research_capabilities
+        - cpw_formalize_strategy_draft
+        - cpw_build_preregistration_packet
+        - cpw_build_approval_requirement
+        - cpw_validate_trial_denominator
       prompts: false
       resources: true
     sampling:

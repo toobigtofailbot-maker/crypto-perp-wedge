@@ -21,6 +21,10 @@ services:
       - ../../research/decisions:/project/research/decisions:ro
       - ../../research/hypotheses:/project/research/hypotheses:ro
       - ../../research/result_populations:/project/research/result_populations:ro
+      - ../../research/indicator_catalogs/IND-CATALOG-0001.indicator_catalog.json:/project/research/indicator_catalogs/IND-CATALOG-0001.indicator_catalog.json:ro
+      - ../../research/data_feature_availability/PERP-DERIVED-FEATURE-AVAILABILITY-0001.json:/project/research/data_feature_availability/PERP-DERIVED-FEATURE-AVAILABILITY-0001.json:ro
+      - ../../research/strategy_specs/STRAT-SPEC-0003.strategy_spec.json:/project/research/strategy_specs/STRAT-SPEC-0003.strategy_spec.json:ro
+      - ../../research/schemas/strategy_spec.schema.json:/project/research/schemas/strategy_spec.schema.json:ro
       - ./upstream_watch.json:/project/tools/hermes/upstream_watch.json:ro
       - ${HERMES_PROPOSAL_OUTBOX_HOST:?HERMES_PROPOSAL_OUTBOX_HOST is required}:/outbox:rw
     cap_drop:
@@ -55,6 +59,7 @@ services:
       - ./skills/dependency-security-watch:/opt/data/skills/dependency-security-watch:ro
       - ./skills/typed-project-proposal:/opt/data/skills/typed-project-proposal:ro
       - ./skills/prepared-project-plan:/opt/data/skills/prepared-project-plan:ro
+      - ./skills/cpw-domain-tools:/opt/data/skills/cpw-domain-tools:ro
     cap_drop:
       - ALL
     security_opt:

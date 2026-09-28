@@ -1,4 +1,4 @@
-# Hermes H0/H1 Read-Only Operator, H2 PROPOSE, and H2.5 PREPARE
+# Hermes H0/H1, H2/H2.5, and Typed CPW Domain Tools
 
 This directory is the repo-owned deployment/configuration surface for pinned
 Hermes Agent `v2026.8.13` (v0.20.1). The image is pinned by both tag and
@@ -55,6 +55,18 @@ PREPARE is still inert human-review content. There is no executable payload,
 approval token, broker, dispatcher, automatic consumer, Governor/Prefect/Codex
 invocation, project or canonical mutation, dependency update, network hydration,
 diagnostic execution, or runtime/trading action. H3 and H4 remain unstarted.
+
+HERMES-01 adds five strict compute-only Project-Evidence tools for capability
+assessment, reasoned-draft formalization, preregistration packet construction,
+approval-requirement description, and trial-denominator validation. Hermes
+provides generic reasoning; framework-neutral CPW domain functions remain the
+single owner of research/scientific semantics. Project-Evidence re-resolves
+repo inputs and binds every result to the exact repo SHA, repo path, and
+artifact hash. Model content is untrusted reasoning input, not evidence. The
+tools write no artifact and grant no canonical, approval, execution,
+candidate/promotion, scheduler/Prefect, runtime/risk, paper/live, or capital
+authority. H2/H2.5 behavior is unchanged. HERMES-02 operational handoff and
+HERMES-03 canary/runtime consolidation remain future work.
 
 ## One-time PostgreSQL role setup
 

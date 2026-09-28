@@ -83,6 +83,7 @@ def test_manifest_and_list_expose_no_ambient_or_protected_surface(
     manifest = service.manifest()
     listed = json.dumps(service.resources.list_resources()).lower()
 
+    assert manifest["schema_version"] == "project_evidence_mcp_v3"
     assert manifest["default_policy"] == "deny"
     assert manifest["ambient_filesystem"] is False
     assert manifest["arbitrary_sql"] is False
@@ -119,8 +120,50 @@ def test_manifest_and_list_expose_no_ambient_or_protected_surface(
     assert manifest["prepared_payload_contract"]["broker_eligible"] is False
     assert manifest["prepared_payload_contract"]["dispatch_eligible"] is False
     assert manifest["prepared_payload_contract"]["automatic_consumers"] == []
+    assert manifest["cpw_domain_tools"] == {
+        "schema_version": "cpw_hermes_domain_tools_v1",
+        "semantic_owner": "CPW",
+        "tool_names": [
+            "cpw_assess_research_capabilities",
+            "cpw_formalize_strategy_draft",
+            "cpw_build_preregistration_packet",
+            "cpw_build_approval_requirement",
+            "cpw_validate_trial_denominator",
+        ],
+        "compute_only": True,
+        "canonical_write": False,
+        "execution_authority": False,
+        "approval_authority": False,
+        "promotion_authority": False,
+        "runtime_authority": False,
+        "standing_authority": False,
+        "automatic_consumers": [],
+    }
     for forbidden in ("research/queue", "src/runtime", "secrets/", "dispatch_authorization"):
         assert forbidden not in listed
+
+
+def test_four_domain_resources_are_exact_and_sha_anchored(
+    service: ProjectEvidenceService,
+) -> None:
+    expected = {
+        "project://indicator-catalog": (
+            "research/indicator_catalogs/IND-CATALOG-0001.indicator_catalog.json"
+        ),
+        "project://feature-availability": (
+            "research/data_feature_availability/PERP-DERIVED-FEATURE-AVAILABILITY-0001.json"
+        ),
+        "project://strategy-spec-template": (
+            "research/strategy_specs/STRAT-SPEC-0003.strategy_spec.json"
+        ),
+        "project://strategy-spec-schema": "research/schemas/strategy_spec.schema.json",
+    }
+    for uri, path in expected.items():
+        result = service.resources.read(uri)
+        assert result["evidence"]["path"] == path
+        assert result["evidence"]["repo_sha"] == BASE_SHA
+        assert len(result["evidence"]["artifact_sha256"]) == 64
+        assert result["content_handling"].startswith("untrusted evidence data")
 
 
 def test_predeclared_duckdb_queries_work_without_mutating_evidence(

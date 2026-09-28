@@ -11,6 +11,13 @@ from mcp.server.fastmcp import FastMCP
 from tools.hermes.prepare.models import PreparedPayload
 from tools.hermes.proposals.models import TypedProposal
 
+from .domain_tools import (
+    ApprovalRequirementInput,
+    CapabilityAssessmentInput,
+    FormalizeStrategyDraftInput,
+    PreregistrationPacketInput,
+    TrialDenominatorInput,
+)
 from .service import ProjectEvidenceService
 
 mcp = FastMCP(
@@ -92,6 +99,57 @@ def submit_prepared_payload(
     """Validate and write one H2-lineaged inert plan to the existing outbox."""
 
     return _service().submit_prepared_payload(prepared_payload=prepared_payload)
+
+
+def cpw_assess_research_capabilities(
+    request: CapabilityAssessmentInput,
+) -> dict[str, Any]:
+    """Apply CPW capability semantics to one bounded research idea."""
+
+    return _service().domain_tools.assess_research_capabilities(request)
+
+
+def cpw_formalize_strategy_draft(
+    request: FormalizeStrategyDraftInput,
+) -> dict[str, Any]:
+    """Apply CPW semantics to untrusted reasoning and return noncanonical drafts."""
+
+    return _service().domain_tools.formalize_strategy_draft(request)
+
+
+def cpw_build_preregistration_packet(
+    request: PreregistrationPacketInput,
+) -> dict[str, Any]:
+    """Build one deterministic noncanonical CPW preregistration packet."""
+
+    return _service().domain_tools.build_preregistration_packet(request)
+
+
+def cpw_build_approval_requirement(
+    request: ApprovalRequirementInput,
+) -> dict[str, Any]:
+    """Describe the exact human gate without creating approval."""
+
+    return _service().domain_tools.build_approval_requirement(request)
+
+
+def cpw_validate_trial_denominator(
+    request: TrialDenominatorInput,
+) -> dict[str, Any]:
+    """Validate full CPW trial-denominator accounting without filtering."""
+
+    return _service().domain_tools.validate_trial_denominator(request)
+
+
+_CPW_DOMAIN_TOOL_HANDLERS = (
+    cpw_assess_research_capabilities,
+    cpw_formalize_strategy_draft,
+    cpw_build_preregistration_packet,
+    cpw_build_approval_requirement,
+    cpw_validate_trial_denominator,
+)
+for _handler in _CPW_DOMAIN_TOOL_HANDLERS:
+    mcp.tool()(_handler)
 
 
 @mcp.resource("project://manifest", mime_type="application/json")

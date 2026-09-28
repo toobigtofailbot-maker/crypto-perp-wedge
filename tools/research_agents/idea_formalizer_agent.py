@@ -31,6 +31,7 @@ from tools.research_domain.formalization import (
     assess_capabilities,
     build_strategy_spec,
     detect_features,
+    formalize_reasoned_strategy_draft,
 )
 
 from .provider_packets import render_chatgpt_request_packet
@@ -243,7 +244,7 @@ class IdeaFormalizerAgent:
     def _read_json(self, path: Path | str) -> dict[str, Any]:
         payload = json.loads(self._read_text(path))
         if not isinstance(payload, dict):
-            raise ValueError(f"JSON root must be an object: {path}")
+            raise ValueError(f"JSON root must be an object: {path}")  # noqa: TRY004
         return payload
 
     def _write_text(self, path: Path | str, content: str) -> str:
@@ -409,7 +410,9 @@ class IdeaFormalizerAgent:
             self._write_json(run_dir / "human_review_packet.json", base_result)
             return base_result
 
-        assessment = self._assess_capabilities(idea)
+        indicator_catalog = self._read_json(INDICATOR_CATALOG_PATH)
+        availability_catalog = self._read_json(AVAILABILITY_CATALOG_PATH)
+        assessment = assess_capabilities(idea, indicator_catalog, availability_catalog)
         base_result["capability_assessment"] = assessment
         context = {
             "request_id": run_id,
@@ -452,102 +455,65 @@ class IdeaFormalizerAgent:
             self._write_json(run_dir / "human_review_packet.json", base_result)
             return base_result
 
-        if parsed.draft is not None:
-            declared_features = set(parsed.draft.get("features", []))
-            detected_features = set(assessment["detected_features"])
-            response_contract_errors = []
-            if not declared_features.issubset(detected_features):
-                response_contract_errors.append(
-                    "provider response claims features not detected in the operator idea"
-                )
-            if parsed.draft.get("symbols") != [symbol]:
-                response_contract_errors.append(
-                    "provider response symbols do not match the bounded operator input"
-                )
-            if parsed.draft.get("timeframe") != timeframe:
-                response_contract_errors.append(
-                    "provider response timeframe does not match the bounded operator input"
-                )
-            if response_contract_errors:
-                base_result["status"] = "rejected"
-                base_result["rejection_reasons"] = response_contract_errors
-                self._write_json(run_dir / "formalized_idea.json", base_result)
-                self._write_json(run_dir / "human_review_packet.json", base_result)
-                return base_result
-
-        adapted_draft = copy.deepcopy(parsed.draft)
-        if (
-            adapted_draft is not None
-            and self._draft_family_id(adapted_draft) == "donchian_channel_breakout_v1"
-        ):
-            adapted_draft["parameter_bounds"] = [
-                {"name": "channel_lookback_bars", "minimum": 20.0, "maximum": 55.0}
-            ]
-
-        if parsed.decision == "rejected" or parsed.draft is None:
+        if parsed.draft is None:
             base_result["status"] = "rejected"
             base_result["rejection_reasons"] = list(parsed.rejection_reasons)
         else:
-            base_result["status"] = "accepted"
-            base_result["research_object"] = copy.deepcopy(adapted_draft)
-            family_id = self._draft_family_id(adapted_draft)
-            base_result["adapter_metadata"] = {
-                "family_id": family_id,
-                "freshness_distinct_from": (
-                    ["STRAT-SPEC-0003", "VM-0003", "SWEEP-PLAN-0003", "RP-7134"]
-                    if family_id == "donchian_channel_breakout_v1"
-                    else []
-                ),
-                "unsupported_capabilities": (
-                    [
-                        "intrabar breakout",
-                        "ATR stop/target",
-                        "session/time exit",
-                        "funding signal",
-                    ]
-                    if family_id == "donchian_channel_breakout_v1"
-                    else []
-                ),
-                "prior_family_evidence": (
-                    ["H-002/REP-0003", "H-012/REP-0032"]
-                    if family_id == "donchian_channel_breakout_v1"
-                    else []
-                ),
+            formalized_path = self._repo_relative(run_dir / "formalized_idea.json")
+            source_context = {
+                "source_type": "manual_idea",
+                "source_refs": [formalized_path],
+                "prepared_by": "bounded idea_formalizer agent",
+                "source_constraints": [
+                    f"provider_mode={base_result['provider_metadata']['provider_mode']}",
+                    f"provider_id={base_result['provider_metadata']['provider_id']}",
+                    f"request_id={base_result['provider_metadata']['request_id']}",
+                    f"response_source={base_result['provider_metadata']['response_source']}",
+                ],
+                "unresolved_claims": [
+                    "Provider output is advisory and requires human review.",
+                    "No preregistration, sweep, evidence, or execution is authorized.",
+                ],
+                "review_notes": [
+                    "Scratch-only provider-assisted draft; validator success is not approval."
+                ],
+                "lineage_ref_path": formalized_path,
+                "default_title": "Draft provider-assisted SMA/stddev mean-reversion Strategy Spec",
             }
-            blockers = list(assessment["blocking_features"])
-            if blockers:
-                base_result["status"] = "needs_data"
-                base_result["draft_strategy_spec"]["blockers"] = [
-                    f"missing historical/compiler support: {item}" for item in blockers
-                ]
-            elif not self._draft_family_supported(adapted_draft, assessment):
-                base_result["draft_strategy_spec"]["blockers"] = [
-                    "no validated draft adapter exists for this exact primitive family"
-                ]
+            domain_result = formalize_reasoned_strategy_draft(
+                idea=idea,
+                symbol=symbol,
+                timeframe=timeframe,
+                constraints=constraints,
+                reasoned_draft=parsed.draft,
+                indicator_catalog=indicator_catalog,
+                availability_catalog=availability_catalog,
+                strategy_spec_template=self._read_json(STRATEGY_TEMPLATE_PATH),
+                run_id=run_id,
+                source_context=source_context,
+            )
+            base_result["status"] = domain_result["status"]
+            base_result["capability_assessment"] = domain_result["capability_assessment"]
+            base_result["research_object"] = domain_result["research_object"]
+            base_result["rejection_reasons"] = domain_result["rejection_reasons"]
+            base_result["adapter_metadata"] = domain_result["adapter_metadata"]
+            base_result["draft_strategy_spec"] = domain_result["draft_strategy_spec"]
+            if parsed.decision == "rejected" and domain_result["status"] != "rejected":
+                base_result["status"] = "rejected"
+                base_result["rejection_reasons"] = list(parsed.rejection_reasons)
+                domain_result["draft_strategy_specs"] = []
 
         formalized_path = self._write_json(run_dir / "formalized_idea.json", base_result)
-        if (
-            base_result["status"] == "accepted"
-            and adapted_draft is not None
-            and self._draft_family_supported(adapted_draft, assessment)
-        ):
-            spec = self._build_strategy_spec(
-                run_id=run_id,
-                draft=adapted_draft,
-                provider_metadata=base_result["provider_metadata"],
-                formalized_path=formalized_path,
-            )
+        if parsed.draft is not None:
+            specs = domain_result["draft_strategy_specs"]
+        else:
+            specs = []
+        if specs:
+            spec = specs[0]
             spec_path = run_dir / f"{spec['strategy_spec_id']}.strategy_spec.json"
             self._write_json(spec_path, spec)
-            if family_id == "funding_rate_positioning_fade_v1":
-                fixed_spec = copy.deepcopy(spec)
-                fixed_spec["strategy_spec_id"] = (
-                    f"STRAT-SPEC-{int(spec['strategy_spec_id'][-4:]) + 1:04d}"
-                )
-                fixed_spec["title"] = (
-                    "Draft funding-rate positioning-fade fixed-max-hold Strategy Spec"
-                )
-                self._apply_funding_strategy_body(fixed_spec, exit_mode="fixed_max_hold_only")
+            if len(specs) == 2:
+                fixed_spec = specs[1]
                 fixed_path = run_dir / f"{fixed_spec['strategy_spec_id']}.strategy_spec.json"
                 self._write_json(fixed_path, fixed_spec)
                 base_result["adapter_metadata"]["strategy_spec_paths"] = {

@@ -2,13 +2,13 @@
 
 ## Package and branch
 
-- Authorization: Karl/Main authorized the exact N1-01 eight-file implementation package.
+- Authorization: Karl authorized the exact N1-01 eight-file implementation package and Follow-up 01.
 - Branch: `codex/cpw-nautilus-n1-01-common-research-engine-adapter`
 - Worktree: dedicated managed N1-01 worktree
 - Base SHA: `88b7602278d915c81ea6c4bd06a3fcfd4c0b4208`
 - PR: https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/717
-- Implementation HEAD: `c2eb1cf11ca3ffc5bb6fc9f014b1d079a62b899a`
-- Final validated semantic HEAD: `c2eb1cf11ca3ffc5bb6fc9f014b1d079a62b899a`
+- Original implementation HEAD: `c2eb1cf11ca3ffc5bb6fc9f014b1d079a62b899a`
+- Follow-up 01 implementation and final validated semantic HEAD: `77f2dd9730cd4ee4c7bb663850997e34a925a0cb`
 - Final PR tail: this status-only factual finality update; GitHub's exact PR head is authoritative for Side review and is reported with the PR handoff.
 - Merge state: open, non-draft, GitHub `MERGEABLE`, not merged; Side exact-head review remains required
 
@@ -42,6 +42,7 @@
 - Nautilus run-1 evidence hash: `sha256:8ca48f07190e7dfc9a03c8fc7e1339884919a58149b2d290d8da1ac71b3cb832`.
 - Nautilus run-2 evidence hash: `sha256:8ca48f07190e7dfc9a03c8fc7e1339884919a58149b2d290d8da1ac71b3cb832`.
 - Repeated-run deterministic equality: PASS.
+- Follow-up 01 scientific stability: request hash and both repeated evidence hashes are unchanged from the reviewed pre-follow-up head.
 - Cross-engine evidence-hash equality is not an N1-01 acceptance condition and is not claimed.
 
 | Semantic category | State |
@@ -55,13 +56,20 @@
 | zero-equity liquidation | `NOT_PROVEN_IN_N1_01` |
 | maintenance margin | `NOT_PROVEN_IN_N1_01` |
 
+## Follow-up 01 exact-head corrections
+
+- Public `execute_nautilus_research(inputs)` no longer accepts an executor or arbitrary execution-provenance overrides.
+- Focused fake-executor tests use the private `_default_executor` monkeypatch seam; the package exports no generic executor abstraction.
+- Production provenance is derived from observed runtime facts, dedicated lock facts, adapter source identity, and `ResolvedResearchInputs`; the required fields are not caller-overridable.
+- Historical spike wording is current and non-authoritative: "N1-01 does not prove RP zero-equity liquidation parity under NautilusTrader 1.231.0; no RP-2592 variant liquidated."
+
 ## Validation and boundary
 
-- Root adapter tests: 15 passed.
+- Root adapter tests: 16 passed.
 - Historical spike oracle: 4 passed unchanged.
 - CANON oracle: 19 passed.
 - Isolated build-environment acceptance: 3 passed; no skips; full fixture executed twice.
-- Clean-lock reproduction acceptance at implementation HEAD: 3 passed; no skips; full fixture executed twice in 374.06 seconds.
+- Clean-lock reproduction acceptance at Follow-up 01 implementation HEAD: 3 passed; no skips; full fixture executed twice in 827.31 seconds; evidence hashes unchanged.
 - Backtest/liquidation oracles: 81 passed / 1 skipped.
 - Signal compiler oracle: 261 passed.
 - Selected runner oracles: 6 passed / 95 deselected.
@@ -76,5 +84,5 @@
 
 N1-01 creates no research-engine or execution authority. N1-02 remains separate
 research semantic-parity/stress work. Karl's serialized top-level order proceeds
-to HERMES-01 after N1-01 unless Karl/Main changes it. This entry authorizes no
+to HERMES-01 after N1-01 unless Karl changes it. This entry authorizes no
 later package and no merge.

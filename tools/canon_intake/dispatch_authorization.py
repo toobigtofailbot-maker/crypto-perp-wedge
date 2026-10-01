@@ -14,6 +14,7 @@ import re
 import stat
 import subprocess
 from datetime import datetime, timezone
+from enum import Enum
 from pathlib import Path, PurePosixPath
 from typing import Any, Iterable, Literal, Mapping
 
@@ -99,6 +100,11 @@ ReservationHistoryPolicy = Literal[
 
 class DispatchAuthorizationError(ValueError):
     """Authorization or lifecycle validation failed closed."""
+
+
+class _ValidationPosture(Enum):
+    CURRENT_CONSUMABILITY = "current_consumability"
+    HISTORICAL_CONSUMED_REPLAY = "historical_consumed_replay"
 
 
 def _digest(raw: bytes) -> str:
@@ -999,12 +1005,45 @@ def _validate_funding(root: Path, core: Mapping[str, Any]) -> None:
         raise DispatchAuthorizationError("funding data is empty")
 
 
-def _validate_runner(root: Path, core: Mapping[str, Any]) -> None:
+def _validate_runner_binding(core: Mapping[str, Any]) -> None:
     runner = core["runner"]
+    module = runner["module"]
+    source_path = runner["source_path"]
+    if not isinstance(module, str) or re.fullmatch(
+        r"[a-z_][a-z0-9_]*(?:\.[a-z_][a-z0-9_]*)+", module
+    ) is None:
+        raise DispatchAuthorizationError("runner module binding is invalid")
+    if (
+        not isinstance(source_path, str)
+        or PurePosixPath(source_path).is_absolute()
+        or PurePosixPath(source_path).as_posix() != source_path
+        or ".." in PurePosixPath(source_path).parts
+    ):
+        raise DispatchAuthorizationError("runner source path binding is invalid")
     expected_source_path = runner["module"].replace(".", "/") + ".py"
     _require_equal(
         "runner module/source path", expected_source_path, runner["source_path"]
     )
+    if not isinstance(runner["source_sha256"], str) or re.fullmatch(
+        r"sha256:[0-9a-f]{64}", runner["source_sha256"]
+    ) is None:
+        raise DispatchAuthorizationError("runner source_sha256 binding is invalid")
+    if (
+        isinstance(runner["source_byte_length"], bool)
+        or not isinstance(runner["source_byte_length"], int)
+        or runner["source_byte_length"] < 1
+    ):
+        raise DispatchAuthorizationError(
+            "runner source_byte_length binding is invalid"
+        )
+    if not isinstance(runner["version"], str) or not runner["version"]:
+        raise DispatchAuthorizationError("runner version binding is invalid")
+    if "src/runtime" in runner["source_path"] or "private" in runner["source_path"]:
+        raise DispatchAuthorizationError("runner source is in a forbidden path")
+
+
+def _validate_runner_current_source(root: Path, core: Mapping[str, Any]) -> None:
+    runner = core["runner"]
     raw, _ = _load_raw_ref(
         root,
         runner["source_path"],
@@ -1022,8 +1061,12 @@ def _validate_runner(root: Path, core: Mapping[str, Any]) -> None:
         raise DispatchAuthorizationError(
             "runner version/tool identity is not present in the bound source"
         )
-    if "src/runtime" in runner["source_path"] or "private" in runner["source_path"]:
-        raise DispatchAuthorizationError("runner source is in a forbidden path")
+
+
+def _validate_runner(root: Path, core: Mapping[str, Any]) -> None:
+    """Validate immutable binding plus today's exact source for active use."""
+    _validate_runner_binding(core)
+    _validate_runner_current_source(root, core)
 
 
 def _validate_denominator_budget_and_outputs(
@@ -1604,11 +1647,11 @@ def _validate_single_use(
     # deleted, or retained-only attempt, fails closed and prevents reuse.
     from tools.canon_intake.dispatch_authorization_reservation import (
         DispatchAuthorizationReservationError,
-        scan_dispatch_authorization_reservations,
+        _scan_dispatch_authorization_reservations_current_consumability,
     )
 
     try:
-        reservations = scan_dispatch_authorization_reservations(
+        reservations = _scan_dispatch_authorization_reservations_current_consumability(
             repo_root=root,
             include_retained_history=True,
         )
@@ -1725,7 +1768,15 @@ def _validate_dispatch_authorization_file(
     scan_history: bool = True,
     require_authoritative_path: bool = True,
     allowed_dispatch_record: tuple[str, str] | None = None,
+    posture: _ValidationPosture = _ValidationPosture.CURRENT_CONSUMABILITY,
 ) -> dict[str, Any]:
+    if (
+        posture is _ValidationPosture.HISTORICAL_CONSUMED_REPLAY
+        and not require_audit
+    ):
+        raise DispatchAuthorizationError(
+            "historical consumed replay requires the authoritative lifecycle audit"
+        )
     authorization, raw, relative_path = _load_authorization(
         root,
         authorization_path,
@@ -1748,7 +1799,9 @@ def _validate_dispatch_authorization_file(
     _validate_lineage(root, core)
     _validate_dataset(root, core)
     _validate_funding(root, core)
-    _validate_runner(root, core)
+    _validate_runner_binding(core)
+    if posture is _ValidationPosture.CURRENT_CONSUMABILITY:
+        _validate_runner_current_source(root, core)
     _validate_denominator_budget_and_outputs(root, core)
 
     lifecycle_state = "not_recorded"
@@ -1768,9 +1821,20 @@ def _validate_dispatch_authorization_file(
         _, lifecycle_state = _audit_events(
             root, authorization, raw, selected_audit
         )
-        if lifecycle_state != "created":
+        required_lifecycle_state = (
+            "consumed"
+            if posture is _ValidationPosture.HISTORICAL_CONSUMED_REPLAY
+            else "created"
+        )
+        if lifecycle_state != required_lifecycle_state:
+            if posture is _ValidationPosture.CURRENT_CONSUMABILITY:
+                raise DispatchAuthorizationError(
+                    "authorization is not consumable: lifecycle state is "
+                    f"{lifecycle_state}"
+                )
             raise DispatchAuthorizationError(
-                f"authorization is not consumable: lifecycle state is {lifecycle_state}"
+                "historical consumed replay requires lifecycle state consumed; "
+                f"found {lifecycle_state}"
             )
     if scan_history:
         reservation_history_policy: ReservationHistoryPolicy = (
@@ -1871,6 +1935,27 @@ def validate_dispatch_authorization(
     )
 
 
+def _validate_consumed_dispatch_authorization_for_historical_replay(
+    *,
+    repo_root: Path,
+    authorization_path: Path,
+    expected_whole_file_sha256: str | None = None,
+    expected_byte_length: int | None = None,
+) -> dict[str, Any]:
+    """Validate immutable KDAUTH/lifecycle facts without current runner bytes."""
+    root = _resolve_root(repo_root)
+    return _validate_dispatch_authorization_file(
+        root=root,
+        authorization_path=authorization_path,
+        expected_whole_file_sha256=expected_whole_file_sha256,
+        expected_byte_length=expected_byte_length,
+        require_audit=True,
+        scan_history=False,
+        require_authoritative_path=True,
+        posture=_ValidationPosture.HISTORICAL_CONSUMED_REPLAY,
+    )
+
+
 def _require_mapping_equal(
     label: str,
     actual: Mapping[str, Any],
@@ -1891,10 +1976,13 @@ def _require_exact_committed_crossing(
     root: Path,
     authorization: Mapping[str, Any],
     authorization_raw: bytes,
+    *,
+    historical_consumed_replay: bool,
 ) -> None:
     from tools.canon_intake.dispatch_authorization_reservation import (
         DispatchAuthorizationReservationError,
-        scan_dispatch_authorization_reservations,
+        _scan_dispatch_authorization_reservations_historical_consumed_replay,
+        _scan_dispatch_authorization_reservations_current_consumability,
     )
 
     core = authorization["authorization_core"]
@@ -1917,10 +2005,12 @@ def _require_exact_committed_crossing(
         ],
     }
     try:
-        reservations = scan_dispatch_authorization_reservations(
-            repo_root=root,
-            include_retained_history=True,
+        scan = (
+            _scan_dispatch_authorization_reservations_historical_consumed_replay
+            if historical_consumed_replay
+            else _scan_dispatch_authorization_reservations_current_consumability
         )
+        reservations = scan(repo_root=root, include_retained_history=True)
     except DispatchAuthorizationReservationError as exc:
         raise DispatchAuthorizationError(
             f"crossing reservation history is invalid: {exc}"
@@ -1976,13 +2066,13 @@ def _require_exact_committed_crossing(
         )
 
 
-def validate_dispatch_record_for_authorization(
+def _validate_dispatch_record_for_authorization(
     *,
     repo_root: Path,
     dispatch_path: Path,
     authorization_path: Path | None = None,
+    posture: _ValidationPosture,
 ) -> dict[str, Any]:
-    """Validate one durable dispatch against its exact KDAUTH and lifecycle."""
     root = _resolve_root(repo_root)
     dispatch_lexical = _reject_symlink_components(
         dispatch_path, "dispatch record"
@@ -2042,7 +2132,9 @@ def validate_dispatch_record_for_authorization(
     _validate_lineage(root, core)
     _validate_dataset(root, core)
     _validate_funding(root, core)
-    _validate_runner(root, core)
+    _validate_runner_binding(core)
+    if posture is _ValidationPosture.CURRENT_CONSUMABILITY:
+        _validate_runner_current_source(root, core)
     _validate_denominator_budget_and_outputs(root, core)
     events, lifecycle_state = _audit_events(
         root,
@@ -2050,7 +2142,20 @@ def validate_dispatch_record_for_authorization(
         authorization_raw,
         _repo_path(root, AUDIT_PATH.as_posix(), "dispatch-authorization audit"),
     )
-    _require_exact_committed_crossing(root, authorization, authorization_raw)
+    if (
+        posture is _ValidationPosture.HISTORICAL_CONSUMED_REPLAY
+        and lifecycle_state != "consumed"
+    ):
+        raise DispatchAuthorizationError(
+            "historical dispatch replay requires an authorization lifecycle that is "
+            "exactly consumed and permanent"
+        )
+    _require_exact_committed_crossing(
+        root,
+        authorization,
+        authorization_raw,
+        historical_consumed_replay=(lifecycle_state == "consumed"),
+    )
 
     crossing = core["crossing_identities"]
     queue = core["queue_binding"]
@@ -2252,6 +2357,36 @@ def validate_dispatch_record_for_authorization(
         "audit_path": AUDIT_PATH.as_posix(),
         "non_authority": True,
     }
+
+
+def validate_dispatch_record_for_authorization(
+    *,
+    repo_root: Path,
+    dispatch_path: Path,
+    authorization_path: Path | None = None,
+) -> dict[str, Any]:
+    """Validate a dispatch with current-source freshness kept fail-closed."""
+    return _validate_dispatch_record_for_authorization(
+        repo_root=repo_root,
+        dispatch_path=dispatch_path,
+        authorization_path=authorization_path,
+        posture=_ValidationPosture.CURRENT_CONSUMABILITY,
+    )
+
+
+def validate_consumed_dispatch_record_for_historical_replay(
+    *,
+    repo_root: Path,
+    dispatch_path: Path,
+    authorization_path: Path | None = None,
+) -> dict[str, Any]:
+    """Validate consumed immutable evidence without granting execution authority."""
+    return _validate_dispatch_record_for_authorization(
+        repo_root=repo_root,
+        dispatch_path=dispatch_path,
+        authorization_path=authorization_path,
+        posture=_ValidationPosture.HISTORICAL_CONSUMED_REPLAY,
+    )
 
 
 def validate_dispatch_authorization_for_consumption(

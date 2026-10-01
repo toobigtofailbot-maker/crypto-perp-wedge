@@ -274,6 +274,30 @@ def test_missing_and_incomplete_streams_are_visible_without_mutation(fixture):
     assert fixture["dispatch_path"].read_bytes() == before
 
 
+def test_execution_history_reader_survives_current_runner_evolution(fixture):
+    runner = fixture["authorization"]["authorization_core"]["runner"]
+    runner_path = fixture["root"] / runner["source_path"]
+    runner_path.write_bytes(runner_path.read_bytes() + b"# evolved runner\n")
+    dispatch_before = fixture["dispatch_path"].read_bytes()
+
+    result = read_and_validate_execution_stream(
+        repo_root=fixture["root"],
+        dispatch_path=fixture["dispatch_path"],
+        reviewed_dispatch_whole_file_sha256=fixture["dispatch_hash"],
+        allow_missing=True,
+    )
+
+    assert result["state"] == "missing"
+    assert result["dispatch_validation"]["lifecycle_state"] == "consumed"
+    assert [
+        finding["finding_type"]
+        for finding in collect_execution_stream_integrity_findings(
+            repo_root=fixture["root"]
+        )
+    ] == ["execution_stream_missing"]
+    assert fixture["dispatch_path"].read_bytes() == dispatch_before
+
+
 @pytest.mark.parametrize("record_state", ["canonical", "partial"])
 def test_combined_writer_uncertainty_record_is_independently_read_only_visible(
     fixture,

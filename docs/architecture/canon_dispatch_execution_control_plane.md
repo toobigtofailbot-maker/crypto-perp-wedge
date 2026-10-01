@@ -129,6 +129,18 @@ binding likewise names `tools.research_runner.run_offline_sweep`, its tracked
 source bytes, and `wp-s2c-190-build-test-v1`. These are content bindings only;
 this contract does not invoke the merged route.
 
+Runner validation has two explicit lifecycle-aware postures. Current
+consumability is content-fresh against mutable current code: precreation review,
+active KDAUTH validation, dispatch creation, and dispatch consumption require
+the current runner path, bytes, hash, length, UTF-8 content, embedded version,
+and path/symlink protections to match exactly. Historical consumed replay first
+proves the exact immutable KDAUTH, manifest, dispatch, reservation, creation,
+and permanent-consumption bindings, then validates the historical runner
+module/path/version/hash/length bindings without dereferencing today's mutable
+runner bytes. This preserves what was authorized without freezing the source
+file forever. It is not retroactive authorization for changed code, a new
+dispatch, consumption, retry/recovery, or runner invocation.
+
 The lifecycle vocabulary is closed:
 
 - `authorization_created`, exactly once and first;
@@ -226,13 +238,14 @@ identities.
 Committed-crossing publication and replay also have deliberately different
 current-lifecycle requirements. Under the held crossing lock, immediately
 before appending `crossing_committed`, the exact KDAUTH must still be in its
-created, consumable lifecycle state. Later read-only replay proves the
-historical committed crossing from the exact KDAUTH content, complete valid
-lifecycle audit, original `authorization_created` bindings, chronology, and
-raw-line link independently of current consumability. A later lawful
-`authorization_consumed`, `authorization_revoked`, or
-`authorization_superseded` terminal permanently prevents reuse but does not
-invalidate the earlier committed crossing.
+created, consumable lifecycle state and current runner bytes must match.
+Later read-only historical replay succeeds only for the exact permanently
+`authorization_consumed` lifecycle. It proves the historical committed
+crossing from the exact KDAUTH content, complete valid lifecycle audit,
+original `authorization_created` and `authorization_consumed` bindings,
+chronology, raw-line link, and durable dispatch binding without consulting
+today's runner bytes. Revoked, superseded, created-but-unconsumed, malformed,
+or non-permanent lifecycle states cannot use this replay posture.
 
 KDAUTH validation dispatches the existing `require_audit` and `scan_history`
 arguments as an explicit phase contract:
@@ -243,7 +256,7 @@ arguments as an explicit phase contract:
 | Writer-time active lifecycle | true | false | Current lifecycle must be created; the reservation writer separately proves its held-lock one-line attempt |
 | Existing precreation-review compatibility | false | true | Complete current-plus-retained reservation scan must find zero protected-identity collisions; no committed terminal is required or accepted as freshness |
 | Authoritative active KDAUTH | true | true | Current lifecycle must be created and exactly one exact committed crossing must be proven; every other collision fails |
-| Historical committed replay | separate reservation replay | separate reservation replay | Exact original creation link and complete audit remain required, while a lawful later lifecycle terminal is historical rather than consumable |
+| Historical consumed replay | required internally | separate reservation replay | Exact original creation, committed reservation, dispatch, and permanent consumption are required; only current mutable runner-byte dereference is omitted |
 
 Exactly-one committed proof applies only to authoritative active KDAUTH
 validation. `scan_history=False` is a bounded internal seam, not authority to
@@ -353,6 +366,12 @@ terminal state, a mutable status, a retry instruction, a canonical Result
 Population target, or a free-form executable command.
 `dispatch_state="dispatched"` records only that the durable one-shot dispatch
 crossing occurred; it does not mean a process started or finished.
+
+Read-only durable-dispatch and execution-history inspection uses the historical
+consumed-replay posture only after exact permanent consumption is proven.
+Writer-time dispatch creation and consumption continue to use current-source
+validation. No caller-facing generic bypass flag exists, and the historical
+reader cannot create or consume a dispatch or invoke a runner.
 
 ## Append-only execution stream
 

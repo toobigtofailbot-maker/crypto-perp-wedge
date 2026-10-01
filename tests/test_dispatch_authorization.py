@@ -5,6 +5,7 @@ import os
 import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import pandas as pd
@@ -1872,15 +1873,15 @@ def test_revoked_superseded_and_consumed_authorizations_fail(
 
 
 @pytest.mark.parametrize(
-    "event_type",
+    ("event_type", "historical_replay_allowed"),
     [
-        "authorization_consumed",
-        "authorization_revoked",
-        "authorization_superseded",
+        ("authorization_consumed", True),
+        ("authorization_revoked", False),
+        ("authorization_superseded", False),
     ],
 )
 def test_historical_committed_crossing_survives_lawful_terminal_lifecycle(
-    tmp_path, repo_root, event_type
+    tmp_path, repo_root, event_type, historical_replay_allowed
 ):
     fixture = _fixture(
         tmp_path, repo_root, reservation_state="none"
@@ -1907,10 +1908,20 @@ def test_historical_committed_crossing_survives_lawful_terminal_lifecycle(
         )
     )
     assert validated["valid"] is True
-    assert validated["findings"] == []
-    assert reservation.collect_dispatch_authorization_crossing_findings(
+    findings = validated["findings"]
+    collected = reservation.collect_dispatch_authorization_crossing_findings(
         repo_root=fixture["root"]
-    ) == []
+    )
+    if historical_replay_allowed:
+        assert findings == []
+        assert collected == []
+    else:
+        assert [row["finding_type"] for row in findings] == [
+            "crossing_committed_without_exact_authorization_created"
+        ]
+        assert [row["finding_type"] for row in collected] == [
+            "crossing_committed_without_exact_authorization_created"
+        ]
     with pytest.raises(DispatchAuthorizationError, match="not consumable"):
         _validate(fixture, scan_history=False)
 
@@ -2140,6 +2151,52 @@ def test_symlinked_reference_fails_closed(tmp_path, repo_root):
         pytest.skip("symlinks are unavailable in this Windows environment")
     with pytest.raises(DispatchAuthorizationError, match="symlinked"):
         _validate(fixture, require_audit=False, scan_history=False)
+
+
+def test_precreation_review_rejects_changed_current_runner_bytes(
+    tmp_path, repo_root
+):
+    fixture = _fixture(tmp_path, repo_root, reservation_state="none")
+    proposal = fixture["root"] / "review/proposal.json"
+    proposal.parent.mkdir(parents=True)
+    proposal.write_bytes(fixture["authorization_raw"])
+    fixture["authorization_path"].unlink()
+    fixture["audit_path"].unlink()
+    runner = fixture["authorization"]["authorization_core"]["runner"]
+    runner_path = fixture["root"] / runner["source_path"]
+    runner_path.write_bytes(runner_path.read_bytes() + b"# evolved runner\n")
+
+    with pytest.raises(DispatchAuthorizationError, match="hash mismatch"):
+        validate_dispatch_authorization_candidate(
+            repo_root=fixture["root"],
+            proposal_path=proposal,
+        )
+
+
+@pytest.mark.parametrize(
+    ("field", "replacement", "expected_error"),
+    [
+        ("source_path", "tools/fixture_runner/other.py", "module/source path"),
+        ("module", "Tools.fixture_runner.offline_research", "module binding"),
+        ("version", "", "version binding"),
+        ("source_sha256", "sha256:not-a-hash", "source_sha256 binding"),
+        ("source_byte_length", 0, "source_byte_length binding"),
+    ],
+)
+def test_runner_binding_validation_is_independent_of_current_source(
+    field, replacement, expected_error
+):
+    runner = {
+        "invocation_kind": "python_module",
+        "module": "tools.fixture_runner.offline_research",
+        "source_path": "tools/fixture_runner/offline_research.py",
+        "source_sha256": "sha256:" + "1" * 64,
+        "source_byte_length": 10,
+        "version": "fixture-v1",
+    }
+    runner[field] = replacement
+    with pytest.raises(DispatchAuthorizationError, match=expected_error):
+        validator._validate_runner_binding({"runner": runner})
 
 
 def test_exact_post_kdauth_boundary_and_no_downstream_artifacts_created(repo_root):
@@ -2620,6 +2677,7 @@ def test_committed_reservation_links_exact_kdauth_and_creation_event(
             )
         )
         assert completed["terminal_outcome"] == "crossing_committed"
+        assert completed["validation"]["findings"] == []
 
     stream = fixture["root"] / initial["reservation_stream_path"]
     validated = (
@@ -2629,7 +2687,9 @@ def test_committed_reservation_links_exact_kdauth_and_creation_event(
             require_terminal=True,
         )
     )
-    assert validated["findings"] == []
+    assert [row["finding_type"] for row in validated["findings"]] == [
+        "crossing_committed_without_exact_authorization_created"
+    ]
     assert _validate(fixture)["valid"] is True
 
 
@@ -2670,4 +2730,88 @@ def test_candidate_validator_accepts_review_path_and_requires_target_absence(
         validate_dispatch_authorization_candidate(
             repo_root=fixture["root"],
             proposal_path=proposal,
+        )
+
+
+def test_real_h004_consumed_replay_survives_current_runner_evolution(
+    repo_root, request
+):
+    temporary = tempfile.TemporaryDirectory(
+        prefix="h004-replay-",
+        dir=os.environ.get("TEMP"),
+    )
+    request.addfinalizer(temporary.cleanup)
+    copied = Path(temporary.name) / "r"
+    shutil.copytree(
+        repo_root,
+        copied,
+        ignore=shutil.ignore_patterns(
+            ".git",
+            ".venv",
+            ".pytest_cache",
+            "__pycache__",
+            "*.pyc",
+        ),
+    )
+    _git(copied, "init", "-q")
+    _commit(copied, "real H-004 historical replay fixture")
+
+    authorization_path = copied / (
+        "research/queue/dispatch_authorizations/"
+        "KDAUTH-H004-R2-0001.dispatch_authorization.json"
+    )
+    manifest_path = copied / (
+        "research/queue/dispatch_manifests/"
+        "DMAN-H004-R2-0001.dispatch_manifest.json"
+    )
+    dispatch_path = copied / (
+        "research/queue/dispatch_records/"
+        "DSP-20260804-H004R2A1.dispatch_record.json"
+    )
+    audit_path = copied / validator.AUDIT_PATH
+    protected_before = {
+        path.relative_to(copied).as_posix(): _hash(path.read_bytes())
+        for path in (
+            authorization_path,
+            manifest_path,
+            dispatch_path,
+            audit_path,
+        )
+    }
+    runner_path = copied / validator.H004_RUNNER_PATH
+    runner_path.write_bytes(runner_path.read_bytes() + b"# evolved after H-004\n")
+
+    historical = validator.validate_consumed_dispatch_record_for_historical_replay(
+        repo_root=copied,
+        dispatch_path=dispatch_path,
+        authorization_path=authorization_path,
+    )
+
+    assert historical["valid"] is True
+    assert historical["lifecycle_state"] == "consumed"
+    authorization = json.loads(authorization_path.read_bytes())
+    manifest = json.loads(manifest_path.read_bytes())
+    dispatch = json.loads(dispatch_path.read_bytes())
+    expected_runner_hash = (
+        "sha256:b23c18a66c399b8f4575c6f51d421153d30f9afbffdc0e24c10a336cd6460e1d"
+    )
+    assert authorization["authorization_core"]["runner"]["source_sha256"] == (
+        expected_runner_hash
+    )
+    assert manifest["runner"]["source_sha256"] == expected_runner_hash
+    assert dispatch["runner_binding"]["source_sha256"] == expected_runner_hash
+    assert {
+        path.relative_to(copied).as_posix(): _hash(path.read_bytes())
+        for path in (
+            authorization_path,
+            manifest_path,
+            dispatch_path,
+            audit_path,
+        )
+    } == protected_before
+    with pytest.raises(DispatchAuthorizationError, match="hash mismatch"):
+        validator.validate_dispatch_record_for_authorization(
+            repo_root=copied,
+            dispatch_path=dispatch_path,
+            authorization_path=authorization_path,
         )

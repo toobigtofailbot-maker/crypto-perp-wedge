@@ -16,6 +16,7 @@ import subprocess
 import uuid
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from enum import Enum
 from pathlib import Path, PurePosixPath
 from typing import Any, Iterable, Mapping
 
@@ -101,6 +102,12 @@ class _RequiredValidationInputUnavailableError(
     DispatchAuthorizationReservationError
 ):
     """A lineage-valid crossing cannot access one required local input."""
+
+
+class _CommittedValidationPosture(Enum):
+    CURRENT_CONSUMABILITY = "current_consumability"
+    HISTORICAL_CONSUMED_REPLAY = "historical_consumed_replay"
+    RESERVATION_LEDGER_HISTORY = "reservation_ledger_history"
 
 
 def _digest(raw: bytes) -> str:
@@ -655,10 +662,11 @@ def _validate_committed_cross_surface_common(
     initial: Mapping[str, Any],
     terminal: Mapping[str, Any],
     *,
-    require_current_consumability: bool,
+    posture: _CommittedValidationPosture,
 ) -> None:
     from tools.canon_intake.dispatch_authorization import (
         DispatchAuthorizationError,
+        _validate_consumed_dispatch_authorization_for_historical_replay,
         validate_dispatch_authorization,
     )
 
@@ -669,18 +677,26 @@ def _validate_committed_cross_surface_common(
         authorization_binding["authorization_target_path"],
         "reserved KDAUTH target",
     )
+    _validate_committed_exact_creation_binding(root, initial, terminal)
     try:
-        validation = validate_dispatch_authorization(
-            repo_root=root,
-            authorization_path=authorization_path,
-            require_audit=require_current_consumability,
-            scan_history=False,
-        )
+        if posture is _CommittedValidationPosture.CURRENT_CONSUMABILITY:
+            validation = validate_dispatch_authorization(
+                repo_root=root,
+                authorization_path=authorization_path,
+                require_audit=True,
+                scan_history=False,
+            )
+        else:
+            validation = (
+                _validate_consumed_dispatch_authorization_for_historical_replay(
+                    repo_root=root,
+                    authorization_path=authorization_path,
+                )
+            )
     except DispatchAuthorizationError as exc:
         raise DispatchAuthorizationReservationError(
             f"committed KDAUTH does not validate: {exc}"
         ) from exc
-    _validate_committed_exact_creation_binding(root, initial, terminal)
     expected_values = {
         "authorization_id": authorization_binding["authorization_id"],
         "authorization_path": authorization_binding[
@@ -708,7 +724,7 @@ def _validate_committed_before_terminal_append(
         root,
         initial,
         terminal,
-        require_current_consumability=True,
+        posture=_CommittedValidationPosture.CURRENT_CONSUMABILITY,
     )
 
 
@@ -721,7 +737,7 @@ def _validate_committed_replay(
         root,
         initial,
         terminal,
-        require_current_consumability=False,
+        posture=_CommittedValidationPosture.HISTORICAL_CONSUMED_REPLAY,
     )
 
 
@@ -817,7 +833,10 @@ def _validate_clean_rollback_replay(
 
 
 def _cross_surface_findings(
-    root: Path, events: list[dict[str, Any]]
+    root: Path,
+    events: list[dict[str, Any]],
+    *,
+    posture: _CommittedValidationPosture,
 ) -> list[dict[str, Any]]:
     if len(events) == 1:
         return [
@@ -838,7 +857,12 @@ def _cross_surface_findings(
         ]
     try:
         if terminal["event_type"] == "crossing_committed":
-            _validate_committed_cross_surface(root, initial, terminal)
+            if posture is _CommittedValidationPosture.CURRENT_CONSUMABILITY:
+                _validate_committed_before_terminal_append(root, initial, terminal)
+            elif posture is _CommittedValidationPosture.HISTORICAL_CONSUMED_REPLAY:
+                _validate_committed_cross_surface(root, initial, terminal)
+            else:
+                _validate_committed_exact_creation_binding(root, initial, terminal)
         else:
             _validate_clean_rollback_replay(root, initial, terminal)
     except DispatchAuthorizationReservationError as exc:
@@ -914,13 +938,13 @@ def _finding(
     }
 
 
-def validate_dispatch_authorization_reservation_stream(
+def _validate_dispatch_authorization_reservation_stream(
     *,
     repo_root: Path,
     reservation_path: Path,
     require_terminal: bool = False,
+    posture: _CommittedValidationPosture,
 ) -> dict[str, Any]:
-    """Validate one authoritative stream and return read-only facts/findings."""
     root = _resolve_root(repo_root)
     path = _reject_symlink_components(
         reservation_path, "reservation stream"
@@ -941,7 +965,11 @@ def validate_dispatch_authorization_reservation_stream(
         raise DispatchAuthorizationReservationError(
             "completed reservation stream requires one terminal"
         )
-    findings = _cross_surface_findings(root, events)
+    findings = _cross_surface_findings(
+        root,
+        events,
+        posture=posture,
+    )
     terminal = events[1] if len(events) == 2 else None
     return {
         "valid": True,
@@ -959,6 +987,35 @@ def validate_dispatch_authorization_reservation_stream(
         "findings": findings,
         "non_authority": True,
     }
+
+
+def validate_dispatch_authorization_reservation_stream(
+    *,
+    repo_root: Path,
+    reservation_path: Path,
+    require_terminal: bool = False,
+) -> dict[str, Any]:
+    """Validate historical reservation integrity without granting authority."""
+    return _validate_dispatch_authorization_reservation_stream(
+        repo_root=repo_root,
+        reservation_path=reservation_path,
+        require_terminal=require_terminal,
+        posture=_CommittedValidationPosture.HISTORICAL_CONSUMED_REPLAY,
+    )
+
+
+def _validate_dispatch_authorization_reservation_stream_current_consumability(
+    *,
+    repo_root: Path,
+    reservation_path: Path,
+    require_terminal: bool = False,
+) -> dict[str, Any]:
+    return _validate_dispatch_authorization_reservation_stream(
+        repo_root=repo_root,
+        reservation_path=reservation_path,
+        require_terminal=require_terminal,
+        posture=_CommittedValidationPosture.CURRENT_CONSUMABILITY,
+    )
 
 
 def _git(root: Path, *args: str, check: bool = True) -> str:
@@ -1067,10 +1124,11 @@ def _validate_raw_stream(
     raw: bytes,
     *,
     validate_cross_surfaces: bool,
+    posture: _CommittedValidationPosture,
 ) -> dict[str, Any]:
     events = _parse_stream(root, raw, path)
     findings = (
-        _cross_surface_findings(root, events)
+        _cross_surface_findings(root, events, posture=posture)
         if validate_cross_surfaces
         else []
     )
@@ -1144,6 +1202,7 @@ def _logical_attempt_model(
     root: Path,
     include_retained_history: bool,
     validate_cross_surfaces: bool,
+    posture: _CommittedValidationPosture,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     current = list(_current_streams(root))
     historical = (
@@ -1163,6 +1222,7 @@ def _logical_attempt_model(
                 path,
                 raw,
                 validate_cross_surfaces=False,
+                posture=posture,
             )
         except DispatchAuthorizationReservationError as exc:
             source = path if commit is None else f"{commit}:{path}"
@@ -1213,6 +1273,7 @@ def _logical_attempt_model(
             path,
             selected_raw,
             validate_cross_surfaces=validate_cross_surfaces,
+            posture=posture,
         )
         selected_sources = version_sources[selected_raw]
         result["source_kind"] = (
@@ -1271,12 +1332,63 @@ def scan_dispatch_authorization_reservations(
     repo_root: Path,
     include_retained_history: bool = True,
 ) -> list[dict[str, Any]]:
-    """Return one fail-closed logical state per current/retained attempt."""
+    """Return non-authoritative logical ledger state per current/retained attempt."""
     root = _resolve_root(repo_root)
     logical_attempts, collisions = _logical_attempt_model(
         root=root,
         include_retained_history=include_retained_history,
         validate_cross_surfaces=True,
+        posture=_CommittedValidationPosture.RESERVATION_LEDGER_HISTORY,
+    )
+    if collisions:
+        collision = collisions[0]
+        left = collision["left"]["events"][0]
+        right = collision["right"]["events"][0]
+        raise DispatchAuthorizationReservationError(
+            "distinct reservation attempts collide on protected identities: "
+            f"{left['attempt_id']} at {left['reservation_stream_path']} and "
+            f"{right['attempt_id']} at {right['reservation_stream_path']}: "
+            + ", ".join(collision["fields"])
+        )
+    return logical_attempts
+
+
+def _scan_dispatch_authorization_reservations_historical_consumed_replay(
+    *,
+    repo_root: Path,
+    include_retained_history: bool = True,
+) -> list[dict[str, Any]]:
+    root = _resolve_root(repo_root)
+    logical_attempts, collisions = _logical_attempt_model(
+        root=root,
+        include_retained_history=include_retained_history,
+        validate_cross_surfaces=True,
+        posture=_CommittedValidationPosture.HISTORICAL_CONSUMED_REPLAY,
+    )
+    if collisions:
+        collision = collisions[0]
+        left = collision["left"]["events"][0]
+        right = collision["right"]["events"][0]
+        raise DispatchAuthorizationReservationError(
+            "distinct reservation attempts collide on protected identities: "
+            f"{left['attempt_id']} at {left['reservation_stream_path']} and "
+            f"{right['attempt_id']} at {right['reservation_stream_path']}: "
+            + ", ".join(collision["fields"])
+        )
+    return logical_attempts
+
+
+def _scan_dispatch_authorization_reservations_current_consumability(
+    *,
+    repo_root: Path,
+    include_retained_history: bool = True,
+) -> list[dict[str, Any]]:
+    root = _resolve_root(repo_root)
+    logical_attempts, collisions = _logical_attempt_model(
+        root=root,
+        include_retained_history=include_retained_history,
+        validate_cross_surfaces=True,
+        posture=_CommittedValidationPosture.CURRENT_CONSUMABILITY,
     )
     if collisions:
         collision = collisions[0]
@@ -1668,7 +1780,7 @@ def append_dispatch_authorization_crossing_terminal_locked(
     path = _repo_path(
         root, terminal["reservation_stream_path"], "reservation target"
     )
-    before = validate_dispatch_authorization_reservation_stream(
+    before = _validate_dispatch_authorization_reservation_stream_current_consumability(
         repo_root=root,
         reservation_path=path,
         require_terminal=False,
@@ -1701,7 +1813,7 @@ def append_dispatch_authorization_crossing_terminal_locked(
         os.fsync(fd)
         os.close(fd)
         fd = None
-        after = validate_dispatch_authorization_reservation_stream(
+        after = _validate_dispatch_authorization_reservation_stream_current_consumability(
             repo_root=root,
             reservation_path=path,
             require_terminal=True,
@@ -1786,6 +1898,7 @@ def collect_dispatch_authorization_crossing_findings(
             root=root,
             include_retained_history=True,
             validate_cross_surfaces=True,
+            posture=_CommittedValidationPosture.HISTORICAL_CONSUMED_REPLAY,
         )
     except DispatchAuthorizationReservationError:
         valid_results = []

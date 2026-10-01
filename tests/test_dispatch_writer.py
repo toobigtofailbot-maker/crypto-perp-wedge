@@ -25,6 +25,7 @@ from tools.canon_intake.dispatch_authorization import (
     collect_dispatch_without_consumption_findings,
     read_and_validate_dispatch_authorization_audit,
     serialize_dispatch_authorization,
+    validate_consumed_dispatch_record_for_historical_replay,
     validate_dispatch_authorization,
     validate_dispatch_record_for_authorization,
 )
@@ -223,6 +224,111 @@ def test_end_to_end_writers_create_exact_dispatch_then_consume_once(fixture):
 
     with pytest.raises(writer.DispatchWriterError):
         writer.write_dispatch_record(**_writer_kwargs(fixture))
+
+
+def test_active_authorization_and_dispatch_creation_reject_runner_byte_drift(
+    fixture,
+):
+    runner = fixture["authorization"]["authorization_core"]["runner"]
+    runner_path = fixture["root"] / runner["source_path"]
+    runner_path.write_bytes(runner_path.read_bytes() + b"# evolved runner\n")
+
+    with pytest.raises(DispatchAuthorizationError, match="hash mismatch"):
+        validate_dispatch_authorization(
+            repo_root=fixture["root"],
+            authorization_path=fixture["authorization_path"],
+            scan_history=False,
+        )
+    with pytest.raises(writer.DispatchWriterError, match="hash mismatch"):
+        writer.write_dispatch_record(**_writer_kwargs(fixture))
+    assert not fixture["dispatch_path"].exists()
+
+
+def test_consumed_historical_dispatch_replay_is_read_only_after_runner_evolution(
+    fixture,
+):
+    writer.write_dispatch_record(**_writer_kwargs(fixture))
+    runner = fixture["authorization"]["authorization_core"]["runner"]
+    runner_path = fixture["root"] / runner["source_path"]
+    runner_path.write_bytes(runner_path.read_bytes() + b"# evolved runner\n")
+    before = authorization_support._file_snapshot(fixture["root"])
+
+    historical = validate_consumed_dispatch_record_for_historical_replay(
+        repo_root=fixture["root"],
+        dispatch_path=fixture["dispatch_path"],
+    )
+
+    assert historical["lifecycle_state"] == "consumed"
+    assert historical["non_authority"] is True
+    assert authorization_support._file_snapshot(fixture["root"]) == before
+    with pytest.raises(DispatchAuthorizationError, match="hash mismatch"):
+        validate_dispatch_record_for_authorization(
+            repo_root=fixture["root"],
+            dispatch_path=fixture["dispatch_path"],
+        )
+
+
+@pytest.mark.parametrize("surface", ["authorization", "manifest", "dispatch"])
+def test_consumed_historical_dispatch_replay_rejects_runner_binding_drift(
+    fixture,
+    surface,
+):
+    writer.write_dispatch_record(**_writer_kwargs(fixture))
+    if surface == "authorization":
+        value = json.loads(fixture["authorization_path"].read_bytes())
+        value["authorization_core"]["runner"]["source_sha256"] = (
+            "sha256:" + "0" * 64
+        )
+        value["authorization_core_sha256"] = (
+            authorization_support.authorization_core_sha256(
+                value["authorization_core"]
+            )
+        )
+        fixture["authorization_path"].write_bytes(
+            serialize_dispatch_authorization(value)
+        )
+    elif surface == "manifest":
+        value = json.loads(fixture["manifest_path"].read_bytes())
+        value["runner"]["source_sha256"] = "sha256:" + "0" * 64
+        fixture["manifest_path"].write_bytes(serialize_dispatch_manifest(value))
+    else:
+        value = json.loads(fixture["dispatch_path"].read_bytes())
+        value["runner_binding"]["source_sha256"] = "sha256:" + "0" * 64
+        fixture["dispatch_path"].write_bytes(
+            serialize_dispatch_authorization(value)
+        )
+
+    with pytest.raises(DispatchAuthorizationError):
+        validate_consumed_dispatch_record_for_historical_replay(
+            repo_root=fixture["root"],
+            dispatch_path=fixture["dispatch_path"],
+        )
+
+
+@pytest.mark.parametrize("audit_posture", ["missing_consumed", "non_permanent"])
+def test_historical_dispatch_replay_requires_exact_permanent_consumption(
+    fixture,
+    audit_posture,
+):
+    writer.write_dispatch_record(**_writer_kwargs(fixture))
+    rows = fixture["audit_path"].read_bytes().splitlines()
+    if audit_posture == "missing_consumed":
+        fixture["audit_path"].write_bytes(rows[0] + b"\n")
+    else:
+        consumed = json.loads(rows[1])
+        consumed["event_payload"]["consumption_is_permanent"] = False
+        fixture["audit_path"].write_bytes(
+            rows[0]
+            + b"\n"
+            + authorization_support.repo_canonical_json_v1(consumed)
+            + b"\n"
+        )
+
+    with pytest.raises(DispatchAuthorizationError):
+        validate_consumed_dispatch_record_for_historical_replay(
+            repo_root=fixture["root"],
+            dispatch_path=fixture["dispatch_path"],
+        )
 
 
 def test_post_dispatch_consumption_failure_preserves_visible_integrity(

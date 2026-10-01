@@ -24,16 +24,19 @@ from tools.agent_inbox_intake.models import (
 )
 from tools.agent_inbox_intake.service import (
     PACKAGE_ID,
+    _assert_no_forbidden_authorized_actions,
     append_draft_review_event,
     create_intake_draft,
     get_intake_draft,
     list_intake_drafts,
     list_draft_review_events,
 )
+from tools.agent_sandbox.audit import AuditRecord
 from tools.operator_dashboard_api.app import app as dashboard_app
 from tools.research_agents.idea_formalizer_agent import (
     AVAILABILITY_CATALOG_PATH,
     INDICATOR_CATALOG_PATH,
+    STRATEGY_TEMPLATE_PATH,
 )
 
 
@@ -51,7 +54,11 @@ FORBIDDEN_MODULES = {
 
 @pytest.fixture
 def agent_inbox_repo(tmp_path: Path) -> Path:
-    for relative in (INDICATOR_CATALOG_PATH, AVAILABILITY_CATALOG_PATH):
+    for relative in (
+        INDICATOR_CATALOG_PATH,
+        AVAILABILITY_CATALOG_PATH,
+        STRATEGY_TEMPLATE_PATH,
+    ):
         target = tmp_path / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT / relative, target)
@@ -91,17 +98,25 @@ def test_valid_intake_produces_one_scratch_only_draft_packet(agent_inbox_repo: P
     assert packet["non_authority_flags"]["not_strategy_spec"] is True
     assert packet["fabricated"] is False
 
-    files = [
+    fixture_inputs = {
+        INDICATOR_CATALOG_PATH.as_posix(),
+        AVAILABILITY_CATALOG_PATH.as_posix(),
+        STRATEGY_TEMPLATE_PATH.as_posix(),
+    }
+    files = {
         path.relative_to(agent_inbox_repo).as_posix()
         for path in agent_inbox_repo.rglob("*")
         if path.is_file()
-    ]
+    }
+    created = files - fixture_inputs
     assert packet["provenance"]["output_path"] in files
-    assert not any(path.startswith("research/strategy_specs/") for path in files)
-    assert not any(path.endswith(".strategy_spec.json") for path in files)
-    assert not any(path.endswith(".variant_manifest.json") for path in files)
-    assert not any(path.endswith(".sweep_plan.json") for path in files)
-    assert not any(path.endswith(".result_population.json") for path in files)
+    assert {
+        path for path in files if path.startswith("research/strategy_specs/")
+    } == {STRATEGY_TEMPLATE_PATH.as_posix()}
+    assert not any(path.endswith(".strategy_spec.json") for path in created)
+    assert not any(path.endswith(".variant_manifest.json") for path in created)
+    assert not any(path.endswith(".sweep_plan.json") for path in created)
+    assert not any(path.endswith(".result_population.json") for path in created)
 
 
 def test_invalid_empty_and_unbounded_input_fails_closed(agent_inbox_repo: Path):
@@ -129,6 +144,73 @@ def test_output_root_must_remain_package_scratch(agent_inbox_repo: Path):
         )
 
 
+def _allowed_audit_record(action_type: str, target_path: str) -> AuditRecord:
+    return AuditRecord(
+        timestamp_utc="2026-07-09T12:00:00Z",
+        wp_id=PACKAGE_ID,
+        role="idea_formalizer",
+        action_type=action_type,
+        target_path=target_path,
+        decision="allowed",
+        reason="allowed fixture record",
+        policy_id="bounded-research-agent-v1",
+    )
+
+
+@pytest.mark.parametrize(
+    "target_path",
+    [INDICATOR_CATALOG_PATH, AVAILABILITY_CATALOG_PATH, STRATEGY_TEMPLATE_PATH],
+)
+def test_secondary_guard_allows_only_exact_formalizer_reads(target_path: Path):
+    normalized_variant = target_path.as_posix().upper().replace("/", "\\")
+
+    _assert_no_forbidden_authorized_actions(
+        [_allowed_audit_record("READ_NON_SECRET_FILES", normalized_variant)]
+    )
+
+
+@pytest.mark.parametrize(
+    "target_path",
+    [
+        "research/strategy_specs/STRAT-SPEC-9999.strategy_spec.json",
+        "research/variant_manifests/VM-9999.variant_manifest.json",
+    ],
+)
+def test_secondary_guard_rejects_other_allowed_read_targets(target_path: str):
+    with pytest.raises(IntakeDraftError, match="unexpected read target authorized"):
+        _assert_no_forbidden_authorized_actions(
+            [_allowed_audit_record("read_non_secret_files", target_path)]
+        )
+
+
+@pytest.mark.parametrize(
+    "target_path",
+    [
+        STRATEGY_TEMPLATE_PATH.as_posix(),
+        "scratch/another-package/output.json",
+    ],
+)
+def test_secondary_guard_rejects_allowed_writes_outside_agent_inbox_scratch(
+    target_path: str,
+):
+    with pytest.raises(IntakeDraftError, match="write outside Agent Inbox scratch"):
+        _assert_no_forbidden_authorized_actions(
+            [_allowed_audit_record("write_scratch", target_path)]
+        )
+
+
+def test_secondary_guard_rejects_unexpected_allowed_action_type():
+    with pytest.raises(IntakeDraftError, match="unexpected allowed action"):
+        _assert_no_forbidden_authorized_actions(
+            [
+                _allowed_audit_record(
+                    "run_read_only_validation",
+                    "tools/registry/validate_strategy_specs.py",
+                )
+            ]
+        )
+
+
 def test_toolcontext_audit_has_no_forbidden_invocation(agent_inbox_repo: Path):
     before_modules = set(sys.modules)
     packet = create_intake_draft(
@@ -142,22 +224,21 @@ def test_toolcontext_audit_has_no_forbidden_invocation(agent_inbox_repo: Path):
     allowed = [row for row in packet["tool_context_audit"] if row["decision"] == "allowed"]
     assert allowed
     assert {row["action_type"] for row in allowed} <= {"read_non_secret_files", "write_scratch"}
-    forbidden_targets = (
-        "research/strategy_specs/",
-        "research/variant_manifests/",
-        "research/sweep_plans/",
-        "research/result_populations/",
-        "research/candidate_registry.jsonl",
-        "tools/research_runner/",
-        "tools/lab_pipeline/",
-        "tools/operator_dashboard_api/",
-        "src/",
-        "lib/",
-        "configs/",
-        "data/",
+    read_targets = {
+        row["target_path"]
+        for row in allowed
+        if row["action_type"] == "read_non_secret_files"
+    }
+    assert read_targets == {
+        INDICATOR_CATALOG_PATH.as_posix().casefold(),
+        AVAILABILITY_CATALOG_PATH.as_posix().casefold(),
+        STRATEGY_TEMPLATE_PATH.as_posix().casefold(),
+    }
+    assert all(
+        row["target_path"].startswith(f"scratch/{PACKAGE_ID.casefold()}/")
+        for row in allowed
+        if row["action_type"] == "write_scratch"
     )
-    for row in allowed:
-        assert not row["target_path"].startswith(forbidden_targets)
 
 
 def test_smuggled_execution_language_stays_rejected_and_non_authoritative(
@@ -367,7 +448,9 @@ def test_history_reads_only_scratch_and_writes_no_canonical_files(
         if path.is_file()
     )
     assert after == before
-    assert not any(path.startswith("research/strategy_specs/") for path in after)
+    assert [
+        path for path in after if path.startswith("research/strategy_specs/")
+    ] == [STRATEGY_TEMPLATE_PATH.as_posix()]
     assert not any(path.startswith("research/variant_manifests/") for path in after)
     assert not any(path.startswith("research/sweep_plans/") for path in after)
     assert not any(path.startswith("research/result_populations/") for path in after)

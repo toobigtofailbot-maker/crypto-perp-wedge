@@ -13,7 +13,7 @@ import hashlib
 import json
 import re
 from datetime import datetime, timedelta, timezone
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any, Mapping
 
 from tools.agent_inbox_intake.models import (
@@ -28,13 +28,16 @@ from tools.agent_inbox_intake.models import (
 )
 from tools.agent_sandbox import MemoryAuditSink, ToolAction, ToolContext
 from tools.agent_sandbox.audit import AuditRecord
-from tools.agent_sandbox.permissions import WRITE_SCRATCH
+from tools.agent_sandbox.permissions import READ_NON_SECRET, WRITE_SCRATCH
 from tools.lab_state.resolver import REPO_ROOT
 from tools.research_agents.idea_formalizer_agent import (
+    AVAILABILITY_CATALOG_PATH,
+    INDICATOR_CATALOG_PATH,
     IdeaFormalizerAgent,
     IdeaFormalizerConfig,
     LOCKED_TIMEFRAMES,
     ROLE as FORMALIZER_ROLE,
+    STRATEGY_TEMPLATE_PATH,
     make_provider,
 )
 
@@ -78,20 +81,15 @@ NON_AUTHORITY_FLAGS: dict[str, bool] = {
     "not_provider_api": True,
 }
 
-FORBIDDEN_TARGET_PREFIXES = (
-    "research/strategy_specs/",
-    "research/variant_manifests/",
-    "research/sweep_plans/",
-    "research/result_populations/",
-    "research/candidate_registry.jsonl",
-    "src/",
-    "lib/",
-    "configs/",
-    "data/",
-    "tools/research_runner/",
-    "tools/lab_pipeline/",
-    "tools/operator_dashboard_api/",
+ALLOWED_READ_TARGETS = frozenset(
+    path.as_posix().casefold()
+    for path in (
+        INDICATOR_CATALOG_PATH,
+        AVAILABILITY_CATALOG_PATH,
+        STRATEGY_TEMPLATE_PATH,
+    )
 )
+ALLOWED_WRITE_PREFIX = f"scratch/{PACKAGE_ID.casefold()}/"
 
 
 def _utc_now() -> datetime:
@@ -547,14 +545,34 @@ def _audit_records_to_dicts(records: list[AuditRecord]) -> list[dict[str, str]]:
     return [record.to_dict() for record in records]
 
 
+def _normalize_audit_target_path(target_path: str) -> str:
+    if not isinstance(target_path, str) or not target_path.strip():
+        raise IntakeDraftError("allowed audit target must be a non-empty repo-relative path")
+    candidate = target_path.strip().replace("\\", "/")
+    if "\x00" in candidate or candidate.startswith(("/", "//")):
+        raise IntakeDraftError("allowed audit target must be a safe repo-relative path")
+    pure = PurePosixPath(candidate)
+    if pure.is_absolute() or any(part in {"", ".", ".."} for part in pure.parts):
+        raise IntakeDraftError("allowed audit target must be a safe repo-relative path")
+    if pure.parts and pure.parts[0].endswith(":"):
+        raise IntakeDraftError("allowed audit target must be a safe repo-relative path")
+    return pure.as_posix().casefold()
+
+
 def _assert_no_forbidden_authorized_actions(records: list[AuditRecord]) -> None:
     for record in records:
         if record.decision != "allowed":
             continue
-        if record.action_type not in {"read_non_secret_files", "write_scratch"}:
+        action_type = record.action_type.strip().casefold()
+        target_path = _normalize_audit_target_path(record.target_path)
+        if action_type == READ_NON_SECRET:
+            if target_path not in ALLOWED_READ_TARGETS:
+                raise IntakeDraftError(f"unexpected read target authorized: {target_path}")
+        elif action_type == WRITE_SCRATCH:
+            if not target_path.startswith(ALLOWED_WRITE_PREFIX):
+                raise IntakeDraftError(f"write outside Agent Inbox scratch authorized: {target_path}")
+        else:
             raise IntakeDraftError(f"unexpected allowed action: {record.action_type}")
-        if any(record.target_path.startswith(prefix) for prefix in FORBIDDEN_TARGET_PREFIXES):
-            raise IntakeDraftError(f"forbidden target authorized: {record.target_path}")
 
 
 def create_intake_draft(

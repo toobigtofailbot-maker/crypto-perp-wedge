@@ -1491,17 +1491,18 @@ def test_terminal_occurred_at_must_not_precede_reserved_at(
 
 
 @pytest.mark.parametrize(
-    "lifecycle_event_type",
+    ("lifecycle_event_type", "historical_replay_allowed"),
     [
-        "authorization_consumed",
-        "authorization_revoked",
-        "authorization_superseded",
+        ("authorization_consumed", True),
+        ("authorization_revoked", False),
+        ("authorization_superseded", False),
     ],
 )
 def test_public_crossing_transition_and_terminal_lifecycle_replay(
     tmp_path: Path,
     source_repo: Path,
     lifecycle_event_type: str,
+    historical_replay_allowed: bool,
 ) -> None:
     fixture = authorization_test_support._fixture(
         tmp_path,
@@ -1598,10 +1599,19 @@ def test_public_crossing_transition_and_terminal_lifecycle_replay(
         require_terminal=True,
     )
     assert replay["valid"] is True
-    assert replay["findings"] == []
-    assert collect_dispatch_authorization_crossing_findings(
+    collected = collect_dispatch_authorization_crossing_findings(
         repo_root=fixture["root"]
-    ) == []
+    )
+    if historical_replay_allowed:
+        assert replay["findings"] == []
+        assert collected == []
+    else:
+        assert [row["finding_type"] for row in replay["findings"]] == [
+            "crossing_committed_without_exact_authorization_created"
+        ]
+        assert [row["finding_type"] for row in collected] == [
+            "crossing_committed_without_exact_authorization_created"
+        ]
 
     wrong_link = copy.deepcopy(committed)
     wrong_link["event_payload"]["lifecycle_raw_line_sha256"] = (

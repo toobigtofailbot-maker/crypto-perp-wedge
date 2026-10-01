@@ -18,7 +18,7 @@ from jsonschema import Draft7Validator, FormatChecker
 from tools.canon_intake.dispatch_authorization import (
     DispatchAuthorizationError,
     repo_canonical_json_v1,
-    validate_dispatch_record_for_authorization,
+    validate_consumed_dispatch_record_for_historical_replay,
 )
 
 EXECUTION_ROOT = Path("research/queue/execution_events")
@@ -811,7 +811,7 @@ def _validated_dispatch(
     if _digest(raw) != reviewed_dispatch_whole_file_sha256:
         raise ExecutionEventError("dispatch bytes differ from reviewed SHA-256")
     try:
-        validation = validate_dispatch_record_for_authorization(
+        validation = validate_consumed_dispatch_record_for_historical_replay(
             repo_root=root,
             dispatch_path=selected,
         )
@@ -1264,7 +1264,7 @@ def collect_execution_stream_integrity_findings(
             if not isinstance(dispatch, dict):
                 continue
             try:
-                dispatch_validation = validate_dispatch_record_for_authorization(
+                dispatch_validation = validate_consumed_dispatch_record_for_historical_replay(
                     repo_root=root,
                     dispatch_path=path,
                 )

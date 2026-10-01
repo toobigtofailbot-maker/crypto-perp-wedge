@@ -225,6 +225,198 @@ def test_online_ohlcv_schema_regression_authorized_path_is_not_forbidden(tmp_pat
     assert payload["authorized_path_writes"]["package"] == "WP-ONLINE-OHLCV-PRIMITIVE-IMPL-01"
 
 
+@pytest.mark.parametrize(
+    "path",
+    [
+        "research/schemas/research_feature_table_manifest.schema.json",
+        (
+            "research/data_feature_availability/"
+            "PERP-DERIVED-FEATURE-AVAILABILITY-0001.json"
+        ),
+    ],
+)
+def test_research_data_feature_expansion_accepts_exact_changed_family_path(
+    tmp_path, capsys, path
+):
+    repo = _repo(tmp_path)
+    _write(repo / path, "{}\n")
+
+    exit_code, stdout, _ = _run(
+        [
+            "--repo-root",
+            str(repo),
+            "--json",
+            "--check-forbidden",
+            "--authorized-package",
+            "CPW-RESEARCH-02-CONTINUATION-01",
+            "--authorized-scope",
+            "research-data-feature-expansion",
+            "--authorized-path",
+            path,
+        ],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 0
+    assert payload["forbidden_matches"] == []
+    assert payload["authorized_path_writes"]["authorized"] == [
+        {
+            "path": path,
+            "status": "authorized",
+            "scope": "research-data-feature-expansion",
+        }
+    ]
+
+
+def test_research_data_feature_expansion_accepts_both_exact_paths_together(tmp_path, capsys):
+    repo = _repo(tmp_path)
+    paths = [
+        "research/schemas/research_feature_table_manifest.schema.json",
+        (
+            "research/data_feature_availability/"
+            "PERP-DERIVED-FEATURE-AVAILABILITY-0001.json"
+        ),
+    ]
+    for path in paths:
+        _write(repo / path, "{}\n")
+
+    exit_code, stdout, _ = _run(
+        [
+            "--repo-root",
+            str(repo),
+            "--json",
+            "--check-forbidden",
+            "--authorized-package",
+            "CPW-RESEARCH-02-CONTINUATION-01",
+            "--authorized-scope",
+            "research-data-feature-expansion",
+            "--authorized-path",
+            paths[0],
+            "--authorized-path",
+            paths[1],
+        ],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 0
+    assert payload["forbidden_matches"] == []
+    assert [item["path"] for item in payload["authorized_path_writes"]["authorized"]] == paths
+
+
+def test_research_data_feature_expansion_leaves_additional_research_path_forbidden(
+    tmp_path, capsys
+):
+    repo = _repo(tmp_path)
+    schema_path = "research/schemas/research_feature_table_manifest.schema.json"
+    strategy_path = "research/strategy_specs/STRAT-SPEC-9001.strategy_spec.json"
+    _write(repo / schema_path, "{}\n")
+    _write(repo / strategy_path, "{}\n")
+
+    exit_code, stdout, _ = _run(
+        [
+            "--repo-root",
+            str(repo),
+            "--json",
+            "--check-forbidden",
+            "--authorized-package",
+            "CPW-RESEARCH-02-CONTINUATION-01",
+            "--authorized-scope",
+            "research-data-feature-expansion",
+            "--authorized-path",
+            schema_path,
+        ],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 1
+    assert payload["authorized_path_writes"]["authorized"][0]["path"] == schema_path
+    assert payload["forbidden_matches"] == [{"path": strategy_path, "prefix": "research/"}]
+
+
+@pytest.mark.parametrize(
+    ("path", "prefix"),
+    [
+        ("research/result_populations/RP-9001.result_population.json", "research/"),
+        ("lib/backtest.py", "lib/"),
+    ],
+)
+def test_research_data_feature_expansion_rejects_exact_path_outside_families(
+    tmp_path, capsys, path, prefix
+):
+    repo = _repo(tmp_path)
+    _write(repo / path, "{}\n")
+
+    exit_code, stdout, _ = _run(
+        [
+            "--repo-root",
+            str(repo),
+            "--json",
+            "--check-forbidden",
+            "--authorized-package",
+            "CPW-RESEARCH-02-CONTINUATION-01",
+            "--authorized-scope",
+            "research-data-feature-expansion",
+            "--authorized-path",
+            path,
+        ],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 1
+    assert payload["authorized_path_writes"]["rejected"] == [
+        {
+            "path": path,
+            "scope": "research-data-feature-expansion",
+            "reason": (
+                "research-data-feature-expansion scope requires an exact "
+                "research/schemas/*.schema.json or "
+                "research/data_feature_availability/*.json path"
+            ),
+        }
+    ]
+    assert payload["forbidden_matches"] == [{"path": path, "prefix": prefix}]
+
+
+def test_research_data_feature_expansion_does_not_authorize_omitted_family_path(
+    tmp_path, capsys
+):
+    repo = _repo(tmp_path)
+    schema_path = "research/schemas/research_feature_table_manifest.schema.json"
+    availability_path = (
+        "research/data_feature_availability/"
+        "PERP-DERIVED-FEATURE-AVAILABILITY-0001.json"
+    )
+    _write(repo / schema_path, "{}\n")
+    _write(repo / availability_path, "{}\n")
+
+    exit_code, stdout, _ = _run(
+        [
+            "--repo-root",
+            str(repo),
+            "--json",
+            "--check-forbidden",
+            "--authorized-package",
+            "CPW-RESEARCH-02-CONTINUATION-01",
+            "--authorized-scope",
+            "research-data-feature-expansion",
+            "--authorized-path",
+            schema_path,
+        ],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 1
+    assert payload["authorized_path_writes"]["authorized"][0]["path"] == schema_path
+    assert payload["forbidden_matches"] == [
+        {"path": availability_path, "prefix": "research/"}
+    ]
+
+
 def test_unauthorized_schema_path_remains_forbidden(tmp_path, capsys):
     repo = _repo(tmp_path)
     path = "research/schemas/strategy_spec.schema.json"

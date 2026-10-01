@@ -232,6 +232,21 @@ def _authorized_path_scope_rejection(path: str, scope: str) -> str | None:
             return None
         return "scope requires an exact research/schemas/*.schema.json path"
 
+    if normalized_scope == "research-data-feature-expansion":
+        if (
+            path.startswith("research/schemas/")
+            and path.endswith(".schema.json")
+        ) or (
+            path.startswith("research/data_feature_availability/")
+            and path.endswith(".json")
+        ):
+            return None
+        return (
+            "research-data-feature-expansion scope requires an exact "
+            "research/schemas/*.schema.json or "
+            "research/data_feature_availability/*.json path"
+        )
+
     if normalized_scope in {
         "strategy-spec",
         "strategy-spec-prereg",

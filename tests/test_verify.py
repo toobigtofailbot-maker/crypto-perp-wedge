@@ -347,6 +347,46 @@ def test_verify_passes_authorized_path_scope_to_diff_scope():
     assert "strategy-spec-schema" in diff_scope_command
 
 
+def test_verify_forwards_research_data_feature_expansion_authorization_in_order():
+    parser = helper.build_parser()
+    schema_path = "research/schemas/research_feature_table_manifest.schema.json"
+    availability_path = (
+        "research/data_feature_availability/"
+        "PERP-DERIVED-FEATURE-AVAILABILITY-0001.json"
+    )
+    args = parser.parse_args(
+        [
+            "--authorized-package",
+            "CPW-RESEARCH-02-CONTINUATION-01",
+            "--authorized-scope",
+            "research-data-feature-expansion",
+            "--authorized-path",
+            schema_path,
+            "--authorized-path",
+            availability_path,
+        ]
+    )
+
+    commands = helper.build_standard_commands(args)
+    diff_scope_command = next(
+        command.argv for command in commands if "tools/dev/diff_scope_summary.py" in command.argv
+    )
+
+    assert diff_scope_command == [
+        helper.sys.executable,
+        "tools/dev/diff_scope_summary.py",
+        "--check-forbidden",
+        "--authorized-path",
+        schema_path,
+        "--authorized-path",
+        availability_path,
+        "--authorized-scope",
+        "research-data-feature-expansion",
+        "--authorized-package",
+        "CPW-RESEARCH-02-CONTINUATION-01",
+    ]
+
+
 def test_verify_passes_committed_diff_and_authorization_evidence_to_diff_scope():
     parser = helper.build_parser()
     path = (

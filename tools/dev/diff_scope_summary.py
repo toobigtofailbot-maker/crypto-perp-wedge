@@ -42,6 +42,10 @@ CANONICAL_RESULT_POPULATION_RE = re.compile(
 STRATEGY_SPEC_RE = re.compile(r"^research/strategy_specs/STRAT-SPEC-\d+\.strategy_spec\.json$")
 RESEARCH_PIPELINE_DOC_RE = re.compile(r"^docs/research_pipeline/[^/]+\.md$")
 STATUS_ENTRY_RE = re.compile(r"^docs/status_entries/WP-[^/]+\.md$")
+DATA_SLICE_DATASET_FAMILY_RE = re.compile(r"^[a-z0-9][a-z0-9_-]*$")
+DATA_SLICE_LINEAGE_FILENAME_RE = re.compile(
+    r"^[a-z0-9][a-z0-9_-]*\.(catalog_slice|validation_report|derivation_report)\.json$"
+)
 DISPATCH_AUTHORIZATION_RE = re.compile(
     r"^research/queue/dispatch_authorizations/"
     r"KDAUTH-[A-Z0-9]+-R[0-9]+-[0-9]{4}\.dispatch_authorization\.json$"
@@ -245,6 +249,22 @@ def _authorized_path_scope_rejection(path: str, scope: str) -> str | None:
             "research-data-feature-expansion scope requires an exact "
             "research/schemas/*.schema.json or "
             "research/data_feature_availability/*.json path"
+        )
+
+    if normalized_scope == "research-data-slice-lineage":
+        components = path.split("/")
+        if (
+            len(components) == 4
+            and components[:2] == ["research", "data_slices"]
+            and DATA_SLICE_DATASET_FAMILY_RE.fullmatch(components[2])
+            and DATA_SLICE_LINEAGE_FILENAME_RE.fullmatch(components[3])
+        ):
+            return None
+        return (
+            "research-data-slice-lineage scope requires an exact four-component "
+            "research/data_slices/<dataset_family>/<artifact_filename> path with "
+            "a lowercase dataset family and a .catalog_slice.json, "
+            ".validation_report.json, or .derivation_report.json artifact"
         )
 
     if normalized_scope in {

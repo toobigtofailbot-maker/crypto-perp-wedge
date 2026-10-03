@@ -20,6 +20,15 @@ REQUIRED_KEYS = {
     "exit_reason",
 }
 
+LINEAGE_SCOPE = "research-data-slice-lineage"
+LINEAGE_PACKAGE = "WP-FT-01-TEST"
+LINEAGE_REJECTION_REASON = (
+    "research-data-slice-lineage scope requires an exact four-component "
+    "research/data_slices/<dataset_family>/<artifact_filename> path with "
+    "a lowercase dataset family and a .catalog_slice.json, "
+    ".validation_report.json, or .derivation_report.json artifact"
+)
+
 
 def _git(repo: Path, *args: str) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
@@ -415,6 +424,273 @@ def test_research_data_feature_expansion_does_not_authorize_omitted_family_path(
     assert payload["forbidden_matches"] == [
         {"path": availability_path, "prefix": "research/"}
     ]
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        (
+            "research/data_slices/binance_usdtm_btcusdt_30m/"
+            "binance_usdtm_btcusdt_30m_20200101_20260411.catalog_slice.json"
+        ),
+        (
+            "research/data_slices/binance_usdtm_btcusdt_30m/"
+            "binance_usdtm_btcusdt_30m_20200101_20260411.validation_report.json"
+        ),
+        (
+            "research/data_slices/binance_usdtm_btcusdt_30m/"
+            "binance_usdtm_btcusdt_30m_20200101_20260411.derivation_report.json"
+        ),
+        (
+            "research/data_slices/binance_usdtm_btcusdt_1h/"
+            "binance_usdtm_btcusdt_1h_20200101_20260411.catalog_slice.json"
+        ),
+    ],
+)
+def test_research_data_slice_lineage_accepts_exact_changed_lineage_path(
+    tmp_path, capsys, path
+):
+    repo = _repo(tmp_path)
+    _write(repo / path, "{}\n")
+
+    exit_code, stdout, _ = _run(
+        [
+            "--repo-root",
+            str(repo),
+            "--json",
+            "--check-forbidden",
+            "--authorized-package",
+            LINEAGE_PACKAGE,
+            "--authorized-scope",
+            LINEAGE_SCOPE,
+            "--authorized-path",
+            path,
+        ],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 0
+    assert payload["forbidden_matches"] == []
+    assert payload["authorized_path_writes"]["authorized"] == [
+        {"path": path, "status": "authorized", "scope": LINEAGE_SCOPE}
+    ]
+
+
+def test_research_data_slice_lineage_accepts_multiple_exact_paths_independently(
+    tmp_path, capsys
+):
+    repo = _repo(tmp_path)
+    paths = [
+        (
+            "research/data_slices/binance_usdtm_btcusdt_30m/"
+            "binance_usdtm_btcusdt_30m_20200101_20260411.catalog_slice.json"
+        ),
+        (
+            "research/data_slices/binance_usdtm_btcusdt_1h/"
+            "binance_usdtm_btcusdt_1h_20200101_20260411.validation_report.json"
+        ),
+    ]
+    for path in paths:
+        _write(repo / path, "{}\n")
+
+    args = [
+        "--repo-root",
+        str(repo),
+        "--json",
+        "--check-forbidden",
+        "--authorized-package",
+        LINEAGE_PACKAGE,
+        "--authorized-scope",
+        LINEAGE_SCOPE,
+    ]
+    for path in paths:
+        args.extend(["--authorized-path", path])
+
+    exit_code, stdout, _ = _run(args, capsys)
+
+    payload = json.loads(stdout)
+    assert exit_code == 0
+    assert payload["forbidden_matches"] == []
+    assert [
+        item["path"] for item in payload["authorized_path_writes"]["authorized"]
+    ] == paths
+
+
+def test_research_data_slice_lineage_leaves_omitted_changed_sibling_forbidden(
+    tmp_path, capsys
+):
+    repo = _repo(tmp_path)
+    authorized_path = (
+        "research/data_slices/binance_usdtm_btcusdt_30m/"
+        "slice.catalog_slice.json"
+    )
+    omitted_path = (
+        "research/data_slices/binance_usdtm_btcusdt_30m/"
+        "slice.validation_report.json"
+    )
+    _write(repo / authorized_path, "{}\n")
+    _write(repo / omitted_path, "{}\n")
+
+    exit_code, stdout, _ = _run(
+        [
+            "--repo-root",
+            str(repo),
+            "--json",
+            "--check-forbidden",
+            "--authorized-package",
+            LINEAGE_PACKAGE,
+            "--authorized-scope",
+            LINEAGE_SCOPE,
+            "--authorized-path",
+            authorized_path,
+        ],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 1
+    assert payload["authorized_path_writes"]["authorized"][0]["path"] == authorized_path
+    assert payload["forbidden_matches"] == [
+        {"path": omitted_path, "prefix": "research/"}
+    ]
+
+
+@pytest.mark.parametrize(
+    ("path", "forbidden_prefix"),
+    [
+        ("research/data_slices/binance_usdtm_btcusdt_30m/arbitrary.json", "research/"),
+        ("research/data_slices/binance_usdtm_btcusdt_30m/data.csv", "research/"),
+        (
+            "research/data_slices/binance_usdtm_btcusdt_30m/"
+            "foo.bar.catalog_slice.json",
+            "research/",
+        ),
+        (
+            "research/data_slices/binance_usdtm_btcusdt_30m/"
+            "NONLOWER.catalog_slice.json",
+            "research/",
+        ),
+        ("research/data_slices/binance.usdtm/foo.catalog_slice.json", "research/"),
+        (
+            "research/data_slices/binance_usdtm_btcusdt_30m/nested/"
+            "x.catalog_slice.json",
+            "research/",
+        ),
+        (
+            "research/data_slices/binance_usdtm_btcusdt_30m/"
+            "foo.catalog_slice.json.bak",
+            "research/",
+        ),
+        ("research/result_populations/RP-9001.result_population.json", "research/"),
+        ("research/schemas/research_feature_table_manifest.schema.json", "research/"),
+        ("lib/backtest.py", "lib/"),
+        ("tools/research_runner/run_offline_sweep.py", None),
+    ],
+)
+def test_research_data_slice_lineage_rejects_out_of_grammar_exact_changed_path(
+    tmp_path, capsys, path, forbidden_prefix
+):
+    repo = _repo(tmp_path)
+    _write(repo / path, "changed\n")
+
+    exit_code, stdout, _ = _run(
+        [
+            "--repo-root",
+            str(repo),
+            "--json",
+            "--check-forbidden",
+            "--authorized-package",
+            LINEAGE_PACKAGE,
+            "--authorized-scope",
+            LINEAGE_SCOPE,
+            "--authorized-path",
+            path,
+        ],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 1
+    assert payload["authorized_path_writes"]["authorized"] == []
+    assert payload["authorized_path_writes"]["rejected"] == [
+        {"path": path, "scope": LINEAGE_SCOPE, "reason": LINEAGE_REJECTION_REASON}
+    ]
+    expected_forbidden = (
+        [{"path": path, "prefix": forbidden_prefix}] if forbidden_prefix else []
+    )
+    assert payload["forbidden_matches"] == expected_forbidden
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "research/data_slices/./x.catalog_slice.json",
+        "research/data_slices/../x.catalog_slice.json",
+        "research/data_slices/Binance_usdtm/x.catalog_slice.json",
+        "research/data_slices//x.catalog_slice.json",
+        "research/data_slices/binance usdtm/x.catalog_slice.json",
+        "research/data_slices/binance+usdtm/x.catalog_slice.json",
+        "research/data_slices/binance:usdtm/x.catalog_slice.json",
+        "research/data_slices/binance%usdtm/x.catalog_slice.json",
+        "research/data_slices/binance_usdtm/Foo.catalog_slice.json",
+        "research/data_slices/binance_usdtm/foo bar.catalog_slice.json",
+        "research/data_slices/binance_usdtm/foo+bar.catalog_slice.json",
+        "research/data_slices/binance_usdtm/foo:bar.catalog_slice.json",
+        "research/data_slices/binance_usdtm/foo%bar.catalog_slice.json",
+        "research/data_slices/binance_usdtm/../x.catalog_slice.json",
+    ],
+)
+def test_research_data_slice_lineage_component_grammar_rejects_invalid_path(path):
+    assert helper._authorized_path_scope_rejection(path, LINEAGE_SCOPE) == (
+        LINEAGE_REJECTION_REASON
+    )
+
+
+def test_research_data_slice_lineage_normalized_backslash_path_uses_same_grammar():
+    raw_path = (
+        "research\\data_slices\\binance_usdtm_btcusdt_30m\\"
+        "slice.catalog_slice.json"
+    )
+    normalized_path = helper._normalize_path(raw_path)
+
+    assert normalized_path == (
+        "research/data_slices/binance_usdtm_btcusdt_30m/"
+        "slice.catalog_slice.json"
+    )
+    assert helper._authorized_path_scope_rejection(normalized_path, LINEAGE_SCOPE) is None
+
+
+def test_research_data_slice_lineage_authorized_path_must_be_changed(tmp_path, capsys):
+    repo = _repo(tmp_path)
+    path = (
+        "research/data_slices/binance_usdtm_btcusdt_30m/"
+        "slice.catalog_slice.json"
+    )
+
+    exit_code, stdout, _ = _run(
+        [
+            "--repo-root",
+            str(repo),
+            "--json",
+            "--check-forbidden",
+            "--authorized-package",
+            LINEAGE_PACKAGE,
+            "--authorized-scope",
+            LINEAGE_SCOPE,
+            "--authorized-path",
+            path,
+        ],
+        capsys,
+    )
+
+    payload = json.loads(stdout)
+    assert exit_code == 1
+    assert payload["authorized_path_writes"]["authorized"] == []
+    assert payload["authorized_path_writes"]["rejected"] == [
+        {"path": path, "scope": LINEAGE_SCOPE, "reason": "path not changed"}
+    ]
+    assert payload["forbidden_matches"] == []
 
 
 def test_unauthorized_schema_path_remains_forbidden(tmp_path, capsys):

@@ -9,6 +9,16 @@
 > the absence of edge. This pointer grants no edge-search, promotion, live, or
 > capital authority.
 
+## V2 current direction
+
+The no-edge-search, scheduler/scout default-off, and advisory-only facts below
+remain accurate historical evidence and remain operationally effective until
+Stage 5B is implemented, validated, explicitly activated, and a valid
+Karl-approved bounded research envelope exists. Under `D2-020`, they are not
+permanent architecture prohibitions on legal in-envelope research. V2-00
+activates nothing; Stage 5B is the future activation boundary. See
+`docs/architecture/2026-10-bounded_autonomous_research_v2_architecture.md`.
+
 ## 2026-08-05 controlling readiness decision
 
 `docs/decisions/ENGINEERING_VS_STRATEGY_READINESS.md` now controls the

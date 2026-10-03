@@ -259,6 +259,7 @@ The following decisions are locked for Phase 2. Full details in `docs/onboarding
 | D2-017 | Cold storage for failed timeframes |
 | D2-018 | Decision Change: Phase 2 research machine direction clarification |
 | D2-019 | Decision Change: Adoption-first infrastructure buildability and Nautilus proof sequencing |
+| D2-020 | Decision Change: Bounded Autonomous Research Envelope and V2 Operating Roadmap |
 
 ### D2-003A — Irreparable official-source gap policy
 
@@ -406,3 +407,99 @@ their applicable proof and human gates.
 
 None for this decision record. It is documentation/process architecture only.
 Later N1/N2/N3 packages carry their own bounded validation.
+
+### D2-020 — Bounded Autonomous Research Envelope and V2 Operating Roadmap
+
+**Status:** LOCKED
+
+**Decision ID:** D2-020
+
+**Date:** 2026-10-03
+
+**Scope:** V2 bounded autonomous research architecture and future roadmap
+
+**Approval:** Karl/Main-approved through V2-00
+
+**Controlling record:**
+`docs/architecture/2026-10-bounded_autonomous_research_v2_architecture.md`
+
+#### What changed (old -> new)
+
+Old: current authority required per-hypothesis human approval, made Research
+Agent/lab roles advisory-only, held initial Spec/variant/sweep execution behind
+separate human authorization, and kept edge-search and autonomous scheduling
+off. Broad HG-1/HG-4/HG-5 and permanent-human-gate wording could be read as
+forbidding all autonomous research lifecycle decisions.
+
+New: Karl approves a versioned, immutable, hash-bound bounded research
+envelope. After Stage 5B is implemented, validated, explicitly activated, and
+a valid Karl-approved envelope exists, the factory may create, run, evaluate,
+stop, disposition, and follow up legal in-envelope research without separate
+per-hypothesis approval. CPW deterministic machinery remains scientific
+authority, and humans retain promotion, economic, protected-runtime, live, and
+capital authority.
+
+#### Effective date and default-off rule
+
+This is an architecture authority change, not an autonomy activation event.
+Per-hypothesis approval and all current autonomy restrictions remain
+operationally effective until Stage 5B is implemented, validated, explicitly
+activated, and a valid Karl-approved bounded research envelope exists. Merging
+V2-00 does not activate Hermes research execution, Prefect autonomous
+scheduling, edge-search, or any factory runtime behavior.
+
+#### Prospectively superseded only where conflicting
+
+- D2-011 agent-autonomy restrictions;
+- D2-016 human-choice wording where it conflicts with legal in-envelope
+  timeframe selection under D2-014 preregistration;
+- permanent per-hypothesis approval and generic research go/no-go wording;
+- HG-1/HG-4/HG-5 only insofar as they prohibit autonomous research lifecycle
+  behavior inside a valid envelope after Stage 5B activation;
+- initial-maturity per-Spec, per-variant, and per-sweep authorization;
+- no-edge-search and autonomous scheduler/scout default-off posture only after
+  Stage 5B activation and while a valid Karl-approved envelope exists.
+
+#### Explicitly preserved
+
+D2-005 preregistration, D2-006 scientific promotion gates, D2-007
+shadow/parity, D2-014 timeframe discipline, denominator/trial accounting,
+WFO/OOS/leakage, robustness and multiple-testing, candidate promotion,
+paper/live gates, OMS/reconciliation/safe-mode/kill-switch truth, D-0001 hard
+risk caps, overlay bounds, paper accounting, canonical evidence/writers,
+exchange/order/runtime authority, and capital authority remain unchanged.
+D2-019 and CPW-MIG-00 continue to control generic ownership and adoption-first
+migration.
+
+#### Scientific lineage, holdout, and disposition boundary
+
+CPW must own the future durable authoritative scientific lineage, cumulative
+trial/search history, final-holdout state, and information-contamination
+ancestry. Research Memory may mirror and index that history but cannot define,
+erase, or reset it. An exposed final holdout is consumed across every influenced
+downstream lineage in its information-contamination domain unless strict
+information isolation is proven; renaming or creating another operational ID
+does not restore freshness. Automated research dispositions remain distinct
+from candidate rejection, promotion, readiness, or economic decisions.
+
+#### Stop and recovery boundary
+
+The factory owns automatic fail-closed research stop. Only envelope-approved,
+bounded exact-input/same-trial recovery may proceed automatically. Envelope,
+budget, scientific-policy, protected-boundary, risk, paper/live, exchange, and
+capital recovery or expansion remains human-controlled where existing policy
+requires it.
+
+#### Roadmap effect
+
+V2-00 is the sole Stage-5A-equivalent authority lock. The next implementation
+lane after merge is five-timeframe/data-feature completion, followed by Prefect
+consumer orchestration, Hermes/Research Memory/Search Governor integration,
+product integration, Stage 5B activation, and VPS acceptance. After always-on
+acceptance, serialized Stage 8A+ engineering and Stage 8R continuous
+non-capital research operate in parallel.
+
+#### Backtest / paper validation plan
+
+None. V2-00 is documentation/governance only and changes no implementation,
+runtime, paper/live, risk, or capital behavior.

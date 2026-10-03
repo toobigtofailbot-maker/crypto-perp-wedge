@@ -1,5 +1,22 @@
 # Anti-Overfit / DSR Population Design
 
+## V2 current-direction lock
+
+Under `D2-020`, multiple-testing and DSR posture uses the full applicable
+cumulative scientific history across amendments, child/follow-up searches, and
+nominally separate lineages influenced by shared evidence. It is never
+winner-only or final-child-only.
+
+The future CPW-owned durable scientific lineage is authoritative for trial and
+search history, final-holdout exposure/consumption, and
+information-contamination ancestry. Research Memory may mirror/index/retrieve
+that history but cannot define, erase, or reset it. Holdout-derived information
+consumes the holdout for every influenced downstream lineage unless strict
+information isolation is proven; changing a hypothesis, lineage, branch, or
+run ID does not restore freshness. V2-00 chooses no schema, path, backend, or
+writer. See
+`docs/architecture/2026-10-bounded_autonomous_research_v2_architecture.md`.
+
 ## 1. Scope
 
 WP-S2c-159 / WP-12gf is a Tier 1 documentation-only substantive design

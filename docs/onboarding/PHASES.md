@@ -17,6 +17,17 @@ Exit: paper loop runs offline, produces logs + state, passes tests, bounded over
 
 Goal: build a small-scale BTC research and decision-support engine that can discover, test, compare, and later promote strategy candidates without weakening the protected deterministic execution core.
 
+**Current V2 runway:** `D2-020` and
+`docs/architecture/2026-10-bounded_autonomous_research_v2_architecture.md`
+are controlling. V2-00 is the Stage-5A-equivalent architecture lock and
+activates no autonomy. After it merges, the next implementation lane is
+five-timeframe/data-feature completion, followed by Prefect consumers,
+Hermes/Research Memory/Search Governor integration, product integration, Stage
+5B envelope enforcement/activation, and VPS always-on acceptance. Non-capital
+VPS deployment is not candidate-gated. After always-on acceptance, serialized
+Stage 8A+ engineering and Stage 8R continuous research operate in parallel;
+economic activation remains candidate- and human-gated.
+
 Sub-tranches:
 
 * Phase 2a — Research machine foundations: candidate registry, evidence conventions, and pipeline foundation work.
@@ -26,7 +37,9 @@ Sub-tranches:
 
 Exit (Phase 2): structured research evidence supports a formal human-gated decision to promote, revise, discard, or pivot. Strategy v1 selection remains an eventual Phase 2 outcome, not the immediate next step.
 
-**Phase 2 baseline is locked.** See `docs/onboarding/PHASE2_BASELINE.md` for the authoritative reference containing all locked decisions (D2-001 through D2-017).
+**Phase 2 baseline is locked.** See `docs/onboarding/PHASE2_BASELINE.md` for the
+authoritative baseline and `D2-020` for the current prospective bounded
+autonomous research authorization model.
 
 ## Phase 3 — Paper hardening + staged live (future)
 

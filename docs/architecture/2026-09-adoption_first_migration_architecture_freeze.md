@@ -1,5 +1,14 @@
 # Adoption-First Migration Architecture Freeze
 
+## V2 bounded-autonomy pointer
+
+This record remains controlling for CPW/Hermes/Prefect/Nautilus/human ownership
+and N1/N2/N3 migration boundaries. `D2-020` and
+`docs/architecture/2026-10-bounded_autonomous_research_v2_architecture.md`
+control the research-autonomy authorization model and revised V2/VPS runway.
+V2 does not change this ownership map, transfer authority, or activate
+autonomy; Stage 5B and a valid Karl-approved envelope remain mandatory.
+
 ## Decision status, authority, and effective date
 
 - Status: **CURRENT CONTROLLING / LOCKED**.

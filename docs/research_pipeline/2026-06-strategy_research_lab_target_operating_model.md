@@ -1,5 +1,19 @@
 # Strategy Research Lab Target Operating Model
 
+## V2 prospective supersession
+
+`D2-020` prospectively replaces this design's initial-maturity per-Spec,
+per-variant, per-sweep, and per-hypothesis approval assumptions with
+Karl-approved bounded-envelope authority for legal in-envelope research, but
+only after Stage 5B is implemented, validated, explicitly activated, and a
+valid approved envelope exists. Until then, the current authorization posture
+remains operational.
+
+Preregistration, full denominator and result-population preservation,
+provenance, anti-overfit/multiple-testing discipline, WFO/OOS, final-holdout
+isolation, scientific gates, and human candidate promotion remain unchanged.
+See `docs/architecture/2026-10-bounded_autonomous_research_v2_architecture.md`.
+
 ## 1. Scope
 
 WP-S2c-147 / WP-12ft is a Tier 1 documentation-only package.

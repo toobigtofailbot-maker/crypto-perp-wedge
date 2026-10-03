@@ -1,5 +1,19 @@
 # Walk-Forward / OOS Gate Contract
 
+## V2 final-holdout clarification
+
+Ordinary WFO/OOS evidence under this contract is not the protected final
+holdout. Final confirmation has separate contamination-aware exposure and
+consumption semantics under `D2-020`: CPW durable scientific lineage records
+holdout identity/state and information-contamination ancestry, and Research
+Memory is non-authoritative. A new hypothesis, lineage, branch, or run ID does
+not restore holdout freshness after informative exposure unless strict
+information isolation is proven.
+
+The `pass` decision below remains scientific gate evidence only. It is not
+candidate promotion, readiness, paper/live authority, or economic approval.
+See `docs/architecture/2026-10-bounded_autonomous_research_v2_architecture.md`.
+
 ## Status and Authority
 
 This contract defines a standard non-canonical walk-forward / out-of-sample

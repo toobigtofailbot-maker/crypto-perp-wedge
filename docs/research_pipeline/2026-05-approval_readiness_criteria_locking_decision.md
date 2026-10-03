@@ -1,5 +1,19 @@
 # Approval/Readiness Criteria Locking Decision
 
+## V2 prospective supersession
+
+`D2-020` prospectively supersedes HG-1, HG-4, HG-5, and generic go/no-go
+wording only where they would prohibit autonomous legal in-envelope research
+lifecycle work after Stage 5B is implemented, validated, explicitly activated,
+and a valid Karl-approved envelope exists. Until then, the current restrictions
+remain operational.
+
+HG-1/HG-4/HG-5 remain controlling for candidate approval, promotion,
+readiness, transition, paper/live, and economic human gates. An automated
+non-candidate research disposition is not rejection, promotion, readiness, or
+a lifecycle transition. The controlling detail is
+`docs/architecture/2026-10-bounded_autonomous_research_v2_architecture.md`.
+
 ## 1. Scope
 
 WP-S2c-100 / WP-12eg is a Tier 1 documentation-only major-decision package.

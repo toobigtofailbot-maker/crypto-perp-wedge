@@ -1,5 +1,17 @@
 # Engineering vs Strategy Readiness and Balanced Acceleration
 
+## V2 controlling pointer
+
+`D2-020` and
+`docs/architecture/2026-10-bounded_autonomous_research_v2_architecture.md`
+now control bounded-autonomous research authorization and V2 sequencing. This
+document's permanent principle is preserved: infrastructure buildability is
+not candidate-gated; economic activation is. V2-00 activates no autonomy, and
+all research autonomy remains default-off until Stage 5B is implemented,
+validated, explicitly activated, and a valid Karl-approved envelope exists.
+Candidate promotion, protected execution, paper/live, risk, and capital remain
+human-gated.
+
 ## Decision status and authority
 
 - Status: **LOCKED / APPROVED**.

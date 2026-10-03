@@ -1,5 +1,19 @@
 # Lab Agent Roles / Operating Boundaries
 
+## V2 prospective supersession
+
+`D2-020` prospectively supersedes advisory-only restrictions only for legal
+in-envelope research operations after Stage 5B is implemented, validated,
+explicitly activated, and a valid Karl-approved bounded research envelope
+exists. Hermes/agents may then propose and cause permitted jobs to execute
+through deterministic CPW scientific machinery and Prefect orchestration.
+
+Agents still do not own scientific truth, durable lineage, holdout state,
+candidate promotion, protected execution, risk, paper/live, or capital
+authority. Until the effective-date conditions are satisfied, this document's
+current advisory/default-off limits remain operational. See
+`docs/architecture/2026-10-bounded_autonomous_research_v2_architecture.md`.
+
 ## 1. Scope
 
 WP-S2c-162 / WP-12gi is a Tier 1 documentation-only substantive design

@@ -8,6 +8,16 @@ This document records architecture direction that should guide future execution 
 
 ## Current Position
 
+The current V2 research-authorization and roadmap authority is `D2-020` and
+`docs/architecture/2026-10-bounded_autonomous_research_v2_architecture.md`.
+V2-00 is the sole Stage-5A-equivalent lock and activates nothing. Current
+per-hypothesis and default-off restrictions remain operational until Stage 5B
+is implemented, validated, explicitly activated, and a valid Karl-approved
+bounded research envelope exists. After that boundary, legal in-envelope
+research is envelope-authorized; out-of-envelope domains, scientific-policy
+changes, promotion, protected execution, risk, paper/live, capital, and live
+activation remain human-gated.
+
 The current adoption-first migration architecture is controlled by
 `docs/architecture/2026-09-adoption_first_migration_architecture_freeze.md`.
 Hermes is the target generic reasoning runtime, Prefect the target generic
@@ -40,6 +50,14 @@ non-winning, non-production, structurally GO-forbidden, and unable to supply
 strategy-performance or real-capital authority.
 
 ## Forward Roadmap
+
+The controlling V2 implementation sequence is five-timeframe/data-feature
+completion, Prefect real-consumer orchestration, Hermes plus Research Memory
+plus Search Governor/Optuna integration, product integration, Stage 5B
+enforcement/activation, VPS deployment, and VPS always-on acceptance. After
+that acceptance, serialized Stage 8A+ engineering and Stage 8R continuous
+research operate in parallel. Candidate discovery does not gate non-capital
+infrastructure deployment; economic activation remains candidate-gated.
 
 The long-term architecture progresses in staged layers:
 
@@ -74,6 +92,25 @@ remain outside it.
 Managed agents are research, monitoring, and proposal infrastructure. They are never execution truth, risk truth, OMS truth, or promotion authority.
 
 ## Research Automation
+
+Under V2, Karl approves a versioned immutable bounded research envelope rather
+than every legal in-envelope hypothesis. Automation may create, execute,
+evaluate, stop, disposition, and follow up in-envelope research only after the
+Stage 5B effective-date conditions are satisfied. It may never edit or enlarge
+the envelope.
+
+CPW-owned durable scientific lineage is authoritative for cumulative
+scientific history, trial/search accounting, final-holdout consumption, and
+information-contamination ancestry. Research Memory may mirror/index/retrieve
+that history but cannot define or reset it. An exposed final holdout remains
+consumed across influenced downstream lineages unless strict information
+isolation is proven; new hypothesis, lineage, branch, or run IDs do not restore
+freshness.
+
+The machine owns fail-closed research stop. Automatic recovery is limited to
+envelope-approved exact-input/same-trial bounded recovery; protected,
+authority-sensitive, scientific-policy, risk, paper/live, or capital recovery
+remains human-controlled where existing policy requires it.
 
 Research automation may proceed through target-compatible seams after MIG-01.
 Generic orchestration mechanics belong to Prefect after proof, rather than to
@@ -119,7 +156,8 @@ Human approval remains mandatory for promotions, execution changes, risk paramet
 
 The following gates remain human-controlled:
 
-- Hypothesis approval.
+- Creating, changing, expanding, replacing, or revoking the bounded research
+  envelope, and any research outside it.
 - Decision records and go/no-go decisions.
 - Shadow promotion.
 - Live promotion.
@@ -127,7 +165,9 @@ The following gates remain human-controlled:
 - Kill decisions.
 - Novel strategy-family introduction.
 
-Automation may prepare evidence for these gates, but it may not approve them.
+After Stage 5B activation, ordinary in-envelope research hypotheses and
+non-candidate research dispositions are not separate human gates. Automation
+may prepare evidence for permanent gates, but it may not approve them.
 
 ## Safe-to-Automate Areas
 

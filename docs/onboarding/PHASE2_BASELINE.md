@@ -7,6 +7,29 @@
 
 ---
 
+## Current V2 bounded-autonomy clarification (D2-020 / V2-00)
+
+`D2-020` and
+`docs/architecture/2026-10-bounded_autonomous_research_v2_architecture.md`
+are the controlling future research-authorization and roadmap authority where
+earlier wording conflicts. V2 prospectively replaces per-hypothesis approval
+with Karl-approved bounded-envelope authority for legal in-envelope research.
+D2-011 and D2-016 are superseded only to that extent; D2-005
+preregistration, D2-006 promotion gates, D2-007 shadow/parity, D2-014
+timeframe-at-hypothesis discipline, and D2-019 adoption-first ownership remain
+intact.
+
+This is not operational on merge. Per-hypothesis approval and all current
+default-off/autonomy restrictions remain effective until Stage 5B is
+implemented, validated, explicitly activated, and a valid Karl-approved
+bounded research envelope exists. Humans permanently retain envelope changes,
+scientific-policy changes, candidate promotion, protected execution, risk,
+paper/live, capital, and live-activation authority. CPW owns authoritative
+scientific lineage and contamination-aware final-holdout state; Research
+Memory is indexing/retrieval only.
+
+---
+
 ## Current adoption-first clarification (D2-019 / CPW-MIG-00)
 
 D2-019 and
@@ -328,5 +351,10 @@ The following are never modified without an explicit Decision Change entry in `d
   supersedes the historical Nautilus Phase 3/GO/paper trigger for bounded
   non-capital N1/N2/N3 proof, without rewriting prior evidence or weakening any
   scientific, protected, human, live, or capital gate.
+- **V2-00 bounded autonomous research clarification (D2-020)** — Prospectively
+  replaces per-hypothesis approval with bounded-envelope authority only after
+  Stage 5B activation and a valid Karl-approved envelope; V2-00 itself
+  activates nothing and preserves scientific, candidate, protected, economic,
+  live, and capital gates.
 
 Any future change to this document requires a new Decision Change entry in `docs/decisions.md` and an updated change log line here.

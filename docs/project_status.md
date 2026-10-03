@@ -15,6 +15,8 @@ Startup read order:
 - Current program: Phase 2 candidate-agnostic research machine progression toward structured BTC strategy evidence, comparison, and later human-gated promotion.
 - Locked Phase 2 timeframe set: `15m`, `30m`, `1h`, `4h`, `1d`.
 - Timeframe rule: no single global primary timeframe is fixed. Each candidate declares its primary timeframe and any allowed confirmation timeframes before testing.
+- Current V2 authority: D2-020 and
+  `docs/architecture/2026-10-bounded_autonomous_research_v2_architecture.md`.
 
 ## Current Phase / Repo State
 
@@ -24,9 +26,15 @@ Startup read order:
 - Current repo state is research-first: build a candidate-agnostic BTC research machine for systematic candidate discovery, testing, comparison, and later human-gated promotion without weakening protected execution boundaries.
 - Strategy v1 is not locked. Immediate architecture work may be registry / schemas / pipeline foundations rather than candidate-specific execution.
 - H-011 remains a possible future backlog candidate, not the organizing principle of the next architecture step.
+- RESEARCH-02 is merged through PR #722 at merge commit
+  `afcd5ebee90514b9a06569023b148326361e734d`; its D4-native taker-flow
+  feature contract is current merged evidence.
 
 ## Key Architecture References
 
+- The controlling V2 research-authorization and roadmap authority is D2-020 and
+  `docs/architecture/2026-10-bounded_autonomous_research_v2_architecture.md`.
+  V2-00 is the sole Stage-5A-equivalent lock. It activates no autonomy.
 - Current adoption-first migration architecture is locked in
   `docs/architecture/2026-09-adoption_first_migration_architecture_freeze.md`
   through CPW-MIG-00 and D2-019. Hermes owns future generic reasoning/runtime
@@ -45,12 +53,16 @@ Startup read order:
   it installed no framework and transferred no authority.
 - CPW-MIG-01 is merged and establishes framework-neutral CPW domain seams and
   the gitignored `.cpw/active/` and `.cpw/ephemeral/` workspace contract.
-- CPW-PREFECT-01 is the current serialized package while its PR is open. After
-  merge, its bounded Prefect P1/P2/P3 proof is accepted without any scheduler,
-  research-automation, lab-pipeline, canonical, runtime, paper/live, or capital
-  cutover. No next package is automatically authorized.
-- Detailed CPW-PREFECT-01 branch state and requirement traceability live in
-  `docs/status_entries/CPW-PREFECT-01.md`.
+- CPW-PREFECT-01 and RESEARCH-02 are merged. The prior bounded Prefect proof did
+  not cut over scheduler, research automation, lab pipelines, canonical,
+  runtime, paper/live, or capital authority.
+- After V2-00 merges, the next dependency-correct implementation lane is
+  five-timeframe/data-feature completion. That work is not part of V2-00.
+- Per-hypothesis approval and all current autonomy restrictions remain
+  operational until Stage 5B is implemented, validated, explicitly activated,
+  and a valid Karl-approved bounded research envelope exists.
+- After VPS always-on acceptance, Stage 8A+ implementation remains serialized
+  while Stage 8R continuous non-capital research operates in parallel.
 
 ## Merged Work Package Ledger
 

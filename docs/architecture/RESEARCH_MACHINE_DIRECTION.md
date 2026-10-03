@@ -11,6 +11,26 @@ orchestration, backtester, paper/accounting, or OMS mechanics, CPW-MIG-00
 prospectively supersedes that implication. CPW-specific research semantics and
 all protected boundaries below remain current.
 
+## Current V2 authority
+
+`D2-020` and
+`docs/architecture/2026-10-bounded_autonomous_research_v2_architecture.md`
+prospectively control research authorization and the V2 runway. Earlier
+per-hypothesis, advisory-only, and candidate-before-infrastructure wording is
+superseded only where it conflicts with legal bounded in-envelope research or
+the V2 sequence. V2-00 activates nothing: current approval and default-off
+restrictions remain operational until Stage 5B is implemented, validated,
+explicitly activated, and a valid Karl-approved envelope exists.
+
+After that boundary, Hermes/agents may cause legal in-envelope research jobs
+to be proposed and executed through deterministic CPW scientific machinery and
+Prefect orchestration. CPW owns scientific truth and durable lineage; Research
+Memory is non-authoritative. Humans retain envelope, scientific-policy,
+promotion, protected execution, risk, paper/live, capital, and live authority.
+The V2 runway places non-capital VPS acceptance before candidate discovery must
+be complete and then permits continuous research to operate in parallel with
+serialized engineering.
+
 ## What Changed
 
 The earlier Phase 2 framing could be read as candidate-first: register the next hypothesis, execute it, and move directly toward Strategy v1 if something survives. That interpretation is now too narrow.

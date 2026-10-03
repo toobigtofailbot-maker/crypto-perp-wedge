@@ -1,5 +1,19 @@
 # Sweep Orchestration Design
 
+## V2 prospective authorization update
+
+After Stage 5B is implemented, validated, explicitly activated, and a valid
+Karl-approved bounded research envelope exists, a sweep inside that envelope
+is envelope-authorized rather than individually Karl-authorized. Until then,
+the current execution-authorization restrictions remain operational.
+
+Proposal/trial/search budgets remain frozen, bounded, and cumulative across
+amendments and follow-ups; no child or new operational ID resets accounting.
+The final holdout remains outside adaptive sweep search. Recovery is limited to
+envelope-approved bounded exact-input/same-trial behavior and may not change
+science, expand scope/budget, or create another holdout exposure. See
+`docs/architecture/2026-10-bounded_autonomous_research_v2_architecture.md`.
+
 ## 1. Scope
 
 WP-S2c-155 / WP-12gb is a Tier 1 documentation-only substantive design

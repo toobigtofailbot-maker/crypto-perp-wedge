@@ -216,10 +216,14 @@ class ExperimentRunnerAgent:
             coverage = str(row.get("coverage_class", ""))
             source = str(row.get("source_class", ""))
             testability = str(row.get("historical_testability", ""))
-            if feature == "taker_buy_sell_ratio" and source == "PUBLIC_TRADE_ARCHIVE_DERIVATION":
+            if feature in {
+                "taker_buy_sell_ratio",
+                "taker_buy_volume",
+                "taker_sell_volume",
+            } and source == "CANONICAL_D4_KLINE_DERIVATION":
                 if not fixture_hashes:
                     blockers.append(
-                        "taker_buy_sell_ratio requires a present archive-derived fixture/source"
+                        f"{feature} requires a present provenance-bound D4-derived feature table/manifest"
                     )
                 continue
             constrained = coverage in {

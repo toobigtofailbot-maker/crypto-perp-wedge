@@ -51,6 +51,24 @@ def assess_capabilities(
     entries = [
         entry for entry in availability_catalog.get("entries", []) if isinstance(entry, Mapping)
     ]
+    availability_features = {
+        str(entry["feature_name"])
+        for entry in entries
+        if isinstance(entry.get("feature_name"), str)
+    }
+    lower_idea = idea.casefold()
+    detected = list(
+        dict.fromkeys(
+            [
+                *detected,
+                *sorted(
+                    feature
+                    for feature in availability_features
+                    if re.search(rf"\b{re.escape(feature)}\b", lower_idea)
+                ),
+            ]
+        )
+    )
     assessments: list[dict[str, Any]] = []
     for feature in detected:
         if feature == "ohlcv":
@@ -78,12 +96,16 @@ def assess_capabilities(
             )
             continue
         candidates = [entry for entry in entries if entry.get("feature_name") == feature]
-        if feature == "taker_buy_sell_ratio":
+        if feature in {
+            "taker_buy_sell_ratio",
+            "taker_buy_volume",
+            "taker_sell_volume",
+        }:
             preferred = next(
                 (
                     entry
                     for entry in candidates
-                    if entry.get("source_class") == "PUBLIC_TRADE_ARCHIVE_DERIVATION"
+                    if entry.get("source_class") == "CANONICAL_D4_KLINE_DERIVATION"
                 ),
                 None,
             )
@@ -107,7 +129,9 @@ def assess_capabilities(
             and preferred.get("canonical_full_history_allowed") == "conditional"
         )
         testability = (
-            "conditionally_public_archive_backfillable"
+            "available_when_source_bars_exist"
+            if preferred.get("source_class") == "CANONICAL_D4_KLINE_DERIVATION"
+            else "conditionally_public_archive_backfillable"
             if conditional_archive
             else "vendor_or_capture_constrained"
             if preferred.get("requires_vendor_or_captured_data")

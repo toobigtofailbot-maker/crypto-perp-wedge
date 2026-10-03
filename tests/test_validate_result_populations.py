@@ -649,14 +649,15 @@ def test_open_interest_full_history_claim_accepts_explicit_vendor_override(tmp_p
     assert _validate(tmp_path) == []
 
 
-def test_taker_flow_archive_source_may_claim_conditional_full_history(tmp_path):
+def test_taker_flow_d4_source_may_claim_conditional_full_history(tmp_path):
     _write_full_history_claim_fixture(
         tmp_path,
         "taker_buy_volume",
-        "PUBLIC_TRADE_ARCHIVE_DERIVATION",
+        "CANONICAL_D4_KLINE_DERIVATION",
         condition_assertions=[
-            "Archive files cover the claimed window.",
-            "Buy volume is deterministically reconstructed from aligned trade records.",
+            "Canonical D4 bars cover the claimed evidence window.",
+            "Buy volume is deterministically derived from the exact bound D4 parent.",
+            "Feature values are available only at completed-bar close.",
         ],
     )
     assert _validate(tmp_path) == []

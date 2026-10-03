@@ -18,6 +18,10 @@ from jsonschema import Draft7Validator
 
 from lib.backtest import run_backtest
 from lib.evaluation import max_drawdown, sharpe
+from tools.data.research_feature_table import (
+    ResearchFeatureTableError,
+    resolve_research_feature_table,
+)
 from tools.data.register_binance_usdtm_1d_lineage import (
     CADENCE_MS as CANONICAL_1D_CADENCE_MS,
     DATASET_ID as CANONICAL_1D_DATASET_ID,
@@ -1509,6 +1513,85 @@ def _d4_catalog_execution_input(
             f"normalized_sha256={normalized_sha256}",
         ],
         funding_input_identity=_funding_input_identity_off(),
+    )
+
+
+def _bind_research_feature_input(
+    execution_input: _ExecutionInput,
+    *,
+    ohlcv_input_path: Path,
+    d4_catalog_slice_path: Path,
+    feature_manifest_path: Path,
+    feature_input_path: Path,
+    requested_feature_names: tuple[str, ...],
+) -> _ExecutionInput:
+    """Thin transitional consumer of the generic feature-table resolver."""
+
+    catalog = _load_json(d4_catalog_slice_path)
+    if _required_non_empty_string(catalog, "symbol") != "BTCUSDT":
+        raise OfflineSweepError("research feature input requires the BTCUSDT D4 parent")
+    if _required_non_empty_string(catalog, "venue") != "Binance":
+        raise OfflineSweepError("research feature input requires the Binance D4 parent")
+    if _required_non_empty_string(catalog, "timeframe") != "15m":
+        raise OfflineSweepError("research feature input requires the 15m D4 parent")
+    if _required_non_empty_string(catalog, "market_type") not in {
+        "USDT-M perpetual",
+        "USD-M perpetual",
+    }:
+        raise OfflineSweepError("research feature input requires the USD-M perpetual D4 parent")
+    start = _parse_metadata_timestamp(
+        _required_non_empty_string(catalog, "range.start_utc"),
+        "D4 range.start_utc",
+    )
+    last_open = _parse_metadata_timestamp(
+        _required_non_empty_string(catalog, "range.end_utc"),
+        "D4 range.end_utc",
+    )
+
+    def iso_ms(value: pd.Timestamp) -> str:
+        return value.tz_convert("UTC").strftime("%Y-%m-%dT%H:%M:%S.000Z")
+
+    try:
+        resolved = resolve_research_feature_table(
+            base_frame=execution_input.ohlcv,
+            base_input_path=ohlcv_input_path.resolve(),
+            base_data_slice_identity=execution_input.data_slice_identity,
+            base_normalized_sha256=_required_non_empty_string(
+                catalog, "normalized.sha256"
+            ),
+            base_market_identity={
+                "venue": "Binance",
+                "market_type": "USD-M perpetual",
+                "symbol": "BTCUSDT",
+            },
+            base_timeframe="15m",
+            base_coverage_start_utc_inclusive=iso_ms(start),
+            base_coverage_end_utc_exclusive=iso_ms(
+                last_open + pd.Timedelta(minutes=15)
+            ),
+            feature_manifest_path=feature_manifest_path,
+            feature_csv_path=feature_input_path,
+            requested_feature_names=requested_feature_names,
+        )
+    except ResearchFeatureTableError as exc:
+        raise OfflineSweepError(f"research feature-table resolution failed: {exc}") from exc
+    return _ExecutionInput(
+        mode=execution_input.mode + ":research_feature_table",
+        execution_provenance_class=execution_input.execution_provenance_class,
+        ohlcv=resolved.joined_frame,
+        funding=execution_input.funding,
+        timeframe=execution_input.timeframe,
+        data_catalog_ref=execution_input.data_catalog_ref,
+        data_slice_identity=resolved.composite_data_slice_identity,
+        environment_summary=[
+            *execution_input.environment_summary,
+            "research_feature_table_compatibility_consumer",
+        ],
+        data_coverage_notes=[
+            *execution_input.data_coverage_notes,
+            *resolved.provenance_notes,
+        ],
+        funding_input_identity=execution_input.funding_input_identity,
     )
 
 
@@ -3322,6 +3405,8 @@ def run_offline_sweep(
     d4h_catalog_slice_path: Path | None = None,
     d4h_validation_report_path: Path | None = None,
     d4h_derivation_report_path: Path | None = None,
+    research_feature_manifest_path: Path | None = None,
+    research_feature_input_path: Path | None = None,
     sizing_mode: str = SIZING_MODE_FIXED_ORDER_SIZE,
     target_leverage: float = DEFAULT_TARGET_LEVERAGE,
     walkforward: bool = False,
@@ -3356,6 +3441,16 @@ def run_offline_sweep(
         raise OfflineSweepError("--funding-provenance is required when --funding-cost-mode=on")
     if sum((canonical_15m, canonical_4h, canonical_1d)) > 1:
         raise OfflineSweepError("canonical 15m, 4h, and 1d routes are mutually exclusive")
+    feature_args_present = (
+        research_feature_manifest_path is not None,
+        research_feature_input_path is not None,
+    )
+    if any(feature_args_present) and not all(feature_args_present):
+        raise OfflineSweepError(
+            "--research-feature-manifest and --research-feature-input are a required pair"
+        )
+    if all(feature_args_present) and not canonical_15m:
+        raise OfflineSweepError("research feature-table inputs are supported only with --canonical-15m")
     guarded_output_dir = _guard_output_dir(output_dir, write_result_population)
     strategy_spec, manifest, sweep_plan = _validate_parent_inputs(
         strategy_spec_path,
@@ -3376,12 +3471,29 @@ def run_offline_sweep(
                 ohlcv_input_path,
                 d4_catalog_slice_path,
                 d2_import_report_path,
-                declared_non_ohlcv_columns,
+                () if all(feature_args_present) else declared_non_ohlcv_columns,
             )
         else:
             execution_input = _canonical_15m_execution_input(
                 ohlcv_input_path,
                 declared_non_ohlcv_columns,
+            )
+        if all(feature_args_present):
+            if d4_catalog_slice_path is None or d2_import_report_path is None:
+                raise OfflineSweepError(
+                    "research feature-table inputs require D4 15m provenance mode"
+                )
+            assert execution_input is not None
+            assert ohlcv_input_path is not None
+            assert research_feature_manifest_path is not None
+            assert research_feature_input_path is not None
+            execution_input = _bind_research_feature_input(
+                execution_input,
+                ohlcv_input_path=ohlcv_input_path,
+                d4_catalog_slice_path=d4_catalog_slice_path,
+                feature_manifest_path=research_feature_manifest_path,
+                feature_input_path=research_feature_input_path,
+                requested_feature_names=declared_non_ohlcv_columns,
             )
     elif canonical_4h:
         primary_timeframe = strategy_spec.get("timeframe_and_data", {}).get("primary_timeframe")
@@ -3548,6 +3660,8 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--d4h-catalog-slice", type=Path)
     parser.add_argument("--d4h-validation-report", type=Path)
     parser.add_argument("--d4h-derivation-report", type=Path)
+    parser.add_argument("--research-feature-manifest", type=Path)
+    parser.add_argument("--research-feature-input", type=Path)
     parser.add_argument(
         "--sizing-mode",
         choices=SIZING_MODES,
@@ -3631,6 +3745,8 @@ def main(argv: list[str] | None = None) -> int:
             d4h_catalog_slice_path=args.d4h_catalog_slice,
             d4h_validation_report_path=args.d4h_validation_report,
             d4h_derivation_report_path=args.d4h_derivation_report,
+            research_feature_manifest_path=args.research_feature_manifest,
+            research_feature_input_path=args.research_feature_input,
             sizing_mode=args.sizing_mode,
             target_leverage=args.target_leverage,
             walkforward=args.walkforward,

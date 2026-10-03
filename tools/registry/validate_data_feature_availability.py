@@ -28,6 +28,7 @@ COVERAGE_CLASSES = {
     "UNKNOWN_OR_BLOCKED",
 }
 TAKER_FLOW_FEATURES = {"taker_buy_sell_ratio", "taker_buy_volume", "taker_sell_volume"}
+D4_TAKER_SOURCE_CLASS = "CANONICAL_D4_KLINE_DERIVATION"
 
 
 def _load_compiler_literal_set(name: str) -> set[str]:
@@ -115,9 +116,9 @@ def validate_catalog_payload(catalog: Mapping[str, Any]) -> list[str]:
             errors.append(
                 f"entries.{index}: full-history public archive entry must be yes or conditional"
             )
-        if source == "PUBLIC_TRADE_ARCHIVE_DERIVATION" and feature not in TAKER_FLOW_FEATURES:
+        if source == D4_TAKER_SOURCE_CLASS and feature not in TAKER_FLOW_FEATURES:
             errors.append(
-                f"entries.{index}: trade archives may classify taker-flow features only, not {feature}"
+                f"entries.{index}: canonical D4 taker derivation may classify taker-flow features only, not {feature}"
             )
 
     missing = sorted(CURRENT_COMPILER_FEATURES - compiler_labeled)
@@ -158,11 +159,18 @@ def validate_catalog_payload(catalog: Mapping[str, Any]) -> list[str]:
         ):
             errors.append(f"{feature} must retain a recent-only public REST classification")
         if not any(
+            entry.get("source_class") == D4_TAKER_SOURCE_CLASS
+            and entry.get("coverage_class") == "FULL_HISTORY_PUBLIC_ARCHIVE"
+            and entry.get("canonical_full_history_allowed") == "conditional"
+            for entry in feature_entries
+        ):
+            errors.append(f"{feature} must expose the conditional canonical D4 kline derivation")
+        if any(
             entry.get("source_class") == "PUBLIC_TRADE_ARCHIVE_DERIVATION"
             and entry.get("coverage_class") == "FULL_HISTORY_PUBLIC_ARCHIVE"
             for entry in feature_entries
         ):
-            errors.append(f"{feature} must expose the conditional public archive derivation")
+            errors.append(f"{feature} must not retain authoritative trade-archive derivation")
 
     return errors
 

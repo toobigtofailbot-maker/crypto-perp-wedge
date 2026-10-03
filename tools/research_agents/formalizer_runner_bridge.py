@@ -522,10 +522,14 @@ class FormalizerRunnerBridge:
                 blockers.append(
                     f"{feature} is not encoded by the supported {family_id} draft adapter"
                 )
-            if feature == "taker_buy_sell_ratio" and source == "PUBLIC_TRADE_ARCHIVE_DERIVATION":
+            if feature in {
+                "taker_buy_sell_ratio",
+                "taker_buy_volume",
+                "taker_sell_volume",
+            } and source == "CANONICAL_D4_KLINE_DERIVATION":
                 blockers.append(
-                    "taker flow requires a distinct referenced archive-derived fixture/source; "
-                    "the OHLCV runner fixture is insufficient"
+                    "taker flow requires a referenced provenance-bound D4-derived feature "
+                    "table/manifest; plain five-column OHLCV is insufficient"
                 )
                 continue
             constrained = coverage in {

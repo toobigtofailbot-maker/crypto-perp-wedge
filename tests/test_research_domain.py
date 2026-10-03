@@ -37,6 +37,13 @@ from tools.research_domain.scientific_accounting import (
     validate_trial_denominator,
     validate_variant_denominator,
 )
+from tools.research_domain.feature_data import (
+    FeatureDataContractError,
+    build_composite_research_data_identity,
+    build_feature_table_identity,
+    build_source_set_identity,
+    validate_feature_table_contract,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
@@ -98,12 +105,12 @@ def test_formalization_is_deterministic_and_preserves_wrapper_output() -> None:
         "entries": [
             {
                 "feature_name": "taker_buy_sell_ratio",
-                "source_class": "PUBLIC_TRADE_ARCHIVE_DERIVATION",
+                "source_class": "CANONICAL_D4_KLINE_DERIVATION",
                 "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
                 "canonical_full_history_allowed": "conditional",
                 "compiler_visible": True,
-                "history_limitation": "requires archive materialization",
-                "conditions": ["public archive"],
+                "history_limitation": "requires D4-native materialization",
+                "conditions": ["canonical D4 parent"],
             }
         ]
     }
@@ -156,6 +163,36 @@ def test_formalization_is_deterministic_and_preserves_wrapper_output() -> None:
         }
     ]
     assert template["strategy_spec_id"] == "STRAT-SPEC-0003"
+
+
+@pytest.mark.parametrize(
+    "feature",
+    ["taker_buy_volume", "taker_sell_volume", "taker_buy_sell_ratio"],
+)
+def test_all_taker_fields_prefer_canonical_d4_source(feature: str) -> None:
+    catalog = {
+        "entries": [
+            {
+                "feature_name": name,
+                "source_class": source,
+                "coverage_class": coverage,
+                "canonical_full_history_allowed": allowed,
+                "compiler_visible": True,
+                "requires_vendor_or_captured_data": source == "PUBLIC_REST_TAKER_RATIO",
+                "history_limitation": source,
+                "conditions": ["canonical D4 parent"] if "D4" in source else [],
+            }
+            for name in ("taker_buy_volume", "taker_sell_volume", "taker_buy_sell_ratio")
+            for source, coverage, allowed in (
+                ("PUBLIC_REST_TAKER_RATIO", "RECENT_ONLY_PUBLIC_REST", "no"),
+                ("CANONICAL_D4_KLINE_DERIVATION", "FULL_HISTORY_PUBLIC_ARCHIVE", "conditional"),
+            )
+        ]
+    }
+    assessment = assess_capabilities(feature, {"entries": []}, catalog)
+    item = next(row for row in assessment["feature_assessments"] if row["feature"] == feature)
+    assert item["source_class"] == "CANONICAL_D4_KLINE_DERIVATION"
+    assert item["historical_testability"] == "available_when_source_bars_exist"
 
 
 def test_reasoned_draft_domain_owner_and_legacy_delegation() -> None:
@@ -471,3 +508,70 @@ def test_domain_functions_expose_no_authority_or_side_effect_fields(tmp_path: Pa
         if hasattr(__import__("tools.research_domain", fromlist=[name]), name)
     }
     assert public_names == set()
+
+
+def _feature_contract() -> dict[str, object]:
+    contract: dict[str, object] = {
+        "schema_version": "cpw_research_feature_table_v1",
+        "family_id": "fixture_family_v1",
+        "market_identity": {"venue": "Binance", "market_type": "USD-M perpetual", "symbol": "BTCUSDT"},
+        "timeframe": "15m",
+        "feature_names": ["taker_buy_volume"],
+        "source_class": "PUBLIC_DIAGNOSTIC_FIXTURE",
+        "availability_assertions": [{"feature_name": "taker_buy_volume", "source_class": "PUBLIC_DIAGNOSTIC_FIXTURE", "condition_assertions": ["fixture complete"]}],
+        "source_set_identity": "sha256:" + "1" * 64,
+        "output_identity": {"format": "CSV UTF-8 LF", "sha256": "2" * 64, "row_count": 2, "columns": ["timestamp", "taker_buy_volume"]},
+        "coverage": {"start_utc_inclusive": "2024-01-01T00:00:00.000Z", "end_utc_exclusive": "2024-01-01T00:30:00.000Z", "expected_row_count": 2, "observed_row_count": 2, "complete": True},
+        "causality": {"timestamp_semantics": "UTC bar open", "feature_available_at_semantics": "exclusive bar close", "completed_bar_only": True, "future_events_can_change_prior_completed_bars": False},
+        "quality_policy": {"fill": "forbidden", "forward_fill": "forbidden", "backfill": "forbidden", "interpolation": "forbidden", "timestamp_tolerance": "forbidden", "missing_row": "fail_closed", "duplicate_join_key": "fail_closed"},
+        "feature_table_identity": "",
+        "non_authority": {"authorizes_execution": False, "authorizes_result_population": False, "authorizes_candidate": False, "authorizes_promotion": False, "authorizes_runtime_paper_live": False, "authorizes_oms_risk_reconciliation": False},
+    }
+    contract["feature_table_identity"] = build_feature_table_identity(contract)
+    return contract
+
+
+def test_feature_source_set_identity_is_order_and_path_independent() -> None:
+    first = {"logical_filename": "b.zip", "sha256": "b" * 64, "size_bytes": 2, "parsed_row_count": 3, "source_type": "aggTrades", "path": "C:/one/b.zip"}
+    second = {"logical_filename": "a.zip", "sha256": "a" * 64, "size_bytes": 1, "parsed_row_count": 2, "source_type": "aggTrades", "path": "D:/two/a.zip"}
+    identity = build_source_set_identity([first, second])
+    assert identity == build_source_set_identity([{**second, "path": "X:/elsewhere/a.zip"}, {**first, "path": "Y:/elsewhere/b.zip"}])
+    assert identity != build_source_set_identity([{**first, "sha256": "c" * 64}, second])
+
+
+def test_feature_table_and_composite_identities_are_deterministic_and_material() -> None:
+    contract = _feature_contract()
+    assert build_feature_table_identity(contract) == contract["feature_table_identity"]
+    changed = copy.deepcopy(contract)
+    changed["coverage"]["end_utc_exclusive"] = "2024-01-01T00:45:00.000Z"
+    assert build_feature_table_identity(changed) != contract["feature_table_identity"]
+    kwargs = dict(
+        base_data_slice_identity="base:sha256:" + "3" * 64,
+        base_normalized_sha256="4" * 64,
+        feature_table_identity=str(contract["feature_table_identity"]),
+        feature_output_sha256="2" * 64,
+        market_identity={"venue": "Binance", "market_type": "USD-M perpetual", "symbol": "BTCUSDT"},
+        timeframe="15m",
+        coverage_start_utc_inclusive="2024-01-01T00:00:00.000Z",
+        coverage_end_utc_exclusive="2024-01-01T00:30:00.000Z",
+        joined_row_count=2,
+        selected_feature_names=["taker_buy_volume"],
+    )
+    identity = build_composite_research_data_identity(**kwargs)
+    assert identity == build_composite_research_data_identity(**kwargs)
+    assert identity != build_composite_research_data_identity(**{**kwargs, "base_data_slice_identity": "other"})
+    assert identity != build_composite_research_data_identity(**{**kwargs, "feature_output_sha256": "5" * 64})
+
+
+def test_feature_contract_rejects_unknown_semantics_and_authority_expansion() -> None:
+    contract = _feature_contract()
+    validate_feature_table_contract(contract)
+    unknown = copy.deepcopy(contract)
+    unknown["unknown"] = True
+    with pytest.raises(FeatureDataContractError, match="unknown"):
+        validate_feature_table_contract(unknown)
+    authority = copy.deepcopy(contract)
+    authority["non_authority"]["authorizes_execution"] = True
+    authority["feature_table_identity"] = build_feature_table_identity(authority)
+    with pytest.raises(FeatureDataContractError, match="authority"):
+        validate_feature_table_contract(authority)

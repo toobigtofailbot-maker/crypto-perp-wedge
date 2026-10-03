@@ -61,7 +61,7 @@ def test_open_interest_never_uses_trade_archives_or_full_history_public_archive(
     assert all(entry["source_class"] != "PUBLIC_TRADE_ARCHIVE_DERIVATION" for entry in oi_entries)
 
 
-def test_taker_rest_is_recent_only_and_archive_derivation_is_conditional_full_history():
+def test_taker_rest_is_recent_only_and_d4_derivation_is_conditional_full_history():
     catalog = load_json(DEFAULT_CATALOG_PATH)
     entries = catalog["entries"]
     for feature in {"taker_buy_sell_ratio", "taker_buy_volume", "taker_sell_volume"}:
@@ -73,11 +73,37 @@ def test_taker_rest_is_recent_only_and_archive_derivation_is_conditional_full_hi
             for entry in feature_entries
         )
         assert any(
-            entry["source_class"] == "PUBLIC_TRADE_ARCHIVE_DERIVATION"
+            entry["source_class"] == "CANONICAL_D4_KLINE_DERIVATION"
             and entry["coverage_class"] == "FULL_HISTORY_PUBLIC_ARCHIVE"
             and entry["canonical_full_history_allowed"] == "conditional"
             for entry in feature_entries
         )
+        assert not any(
+            entry["source_class"] == "PUBLIC_TRADE_ARCHIVE_DERIVATION"
+            and entry["coverage_class"] == "FULL_HISTORY_PUBLIC_ARCHIVE"
+            for entry in feature_entries
+        )
+
+
+def test_d4_taker_source_class_is_rejected_for_unrelated_features():
+    catalog = copy.deepcopy(load_json(DEFAULT_CATALOG_PATH))
+    catalog["entries"].append(
+        {
+            "feature_name": "funding_rate",
+            "compiler_visible": True,
+            "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+            "source_class": "CANONICAL_D4_KLINE_DERIVATION",
+            "history_limitation": "invalid fixture",
+            "canonical_full_history_allowed": "conditional",
+            "requires_vendor_or_captured_data": False,
+            "conditions": ["invalid"],
+            "notes": "invalid",
+        }
+    )
+    assert any(
+        "canonical D4 taker derivation" in error
+        for error in validate_catalog_payload(catalog)
+    )
 
 
 def test_unknown_compiler_visible_feature_label_fails_closed():

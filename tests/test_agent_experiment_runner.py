@@ -214,17 +214,17 @@ def test_default_funding_is_off_and_explicit_on_is_visible(tmp_path: Path):
     assert on_packet["runner_configuration"]["funding_explicitly_enabled"] is True
 
 
-def test_taker_flow_archive_can_proceed_only_with_present_fixture(tmp_path: Path):
+def test_taker_flow_d4_native_can_proceed_only_with_bound_feature_evidence(tmp_path: Path):
     assessment = _feature_assessment(
         "taker_buy_sell_ratio",
-        source="PUBLIC_TRADE_ARCHIVE_DERIVATION",
-        testability="conditionally_public_archive_backfillable",
+        source="CANONICAL_D4_KLINE_DERIVATION",
+        testability="available_when_source_bars_exist",
     )
     payload = _formalizer_payload(assessment=assessment)
-    fixture = "tests/fixtures/takerflow/archive.csv"
+    fixture = "tests/fixtures/takerflow/d4-native-feature-table.manifest.json"
     fixture_path = tmp_path / fixture
     fixture_path.parent.mkdir(parents=True)
-    fixture_path.write_text("timestamp,buyer_maker,qty\n1,false,2\n", encoding="utf-8")
+    fixture_path.write_text('{"research_feature_table": {}}\n', encoding="utf-8")
 
     result, _ = _run(
         tmp_path,
@@ -234,6 +234,17 @@ def test_taker_flow_archive_can_proceed_only_with_present_fixture(tmp_path: Path
 
     assert result["status"] == "completed"
     assert not result["blockers"]
+
+
+def test_taker_flow_d4_native_blocks_without_bound_feature_evidence(tmp_path: Path):
+    assessment = _feature_assessment(
+        "taker_buy_volume",
+        source="CANONICAL_D4_KLINE_DERIVATION",
+        testability="available_when_source_bars_exist",
+    )
+    result, _ = _run(tmp_path, payload=_formalizer_payload(assessment=assessment))
+    assert result["status"] == "blocked"
+    assert any("provenance-bound D4-derived" in item for item in result["blockers"])
 
 
 @pytest.mark.parametrize(

@@ -135,12 +135,12 @@
       "feature_name": "taker_buy_sell_ratio",
       "compiler_visible": true,
       "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
-      "source_class": "PUBLIC_TRADE_ARCHIVE_DERIVATION",
-      "history_limitation": "Coverage depends on verified trade or aggregate-trade archive files and deterministic reconstruction.",
+      "source_class": "CANONICAL_D4_KLINE_DERIVATION",
+      "history_limitation": "Coverage is bounded by the exact validated canonical D4 Binance 15m parent identity and coverage window.",
       "canonical_full_history_allowed": "conditional",
       "requires_vendor_or_captured_data": false,
-      "conditions": ["Archive files cover the claimed window.", "The ratio is deterministically reconstructed from aligned trade or aggregate-trade records."],
-      "notes": "This archive derivation is trade-flow evidence and does not reconstruct open interest."
+      "conditions": ["Canonical D4 bars cover the claimed evidence window.", "The ratio is deterministically derived from the exact bound D4 parent.", "Feature values are available only at completed-bar close."],
+      "notes": "This row-local D4 kline derivation makes no independent trade-archive completeness claim."
     },
     {
       "feature_name": "taker_buy_volume",
@@ -157,12 +157,12 @@
       "feature_name": "taker_buy_volume",
       "compiler_visible": true,
       "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
-      "source_class": "PUBLIC_TRADE_ARCHIVE_DERIVATION",
-      "history_limitation": "Coverage depends on verified trade or aggregate-trade archive files and deterministic reconstruction.",
+      "source_class": "CANONICAL_D4_KLINE_DERIVATION",
+      "history_limitation": "Coverage is bounded by the exact validated canonical D4 Binance 15m parent identity and coverage window.",
       "canonical_full_history_allowed": "conditional",
       "requires_vendor_or_captured_data": false,
-      "conditions": ["Archive files cover the claimed window.", "Buy volume is deterministically reconstructed from aligned trade or aggregate-trade records."],
-      "notes": "Trade archives can backfill taker-flow features but not true open interest."
+      "conditions": ["Canonical D4 bars cover the claimed evidence window.", "Buy volume is deterministically derived from the exact bound D4 parent.", "Feature values are available only at completed-bar close."],
+      "notes": "This row-local D4 kline derivation makes no independent trade-archive completeness claim."
     },
     {
       "feature_name": "taker_sell_volume",
@@ -179,12 +179,12 @@
       "feature_name": "taker_sell_volume",
       "compiler_visible": true,
       "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
-      "source_class": "PUBLIC_TRADE_ARCHIVE_DERIVATION",
-      "history_limitation": "Coverage depends on verified trade or aggregate-trade archive files and deterministic reconstruction.",
+      "source_class": "CANONICAL_D4_KLINE_DERIVATION",
+      "history_limitation": "Coverage is bounded by the exact validated canonical D4 Binance 15m parent identity and coverage window.",
       "canonical_full_history_allowed": "conditional",
       "requires_vendor_or_captured_data": false,
-      "conditions": ["Archive files cover the claimed window.", "Sell volume is deterministically reconstructed from aligned trade or aggregate-trade records."],
-      "notes": "Trade archives can backfill taker-flow features but not true open interest."
+      "conditions": ["Canonical D4 bars cover the claimed evidence window.", "Sell volume is deterministically derived from the exact bound D4 parent.", "Feature values are available only at completed-bar close."],
+      "notes": "This row-local D4 kline derivation makes no independent trade-archive completeness claim."
     },
     {
       "feature_name": "hour_of_day_utc",

@@ -169,7 +169,7 @@ def test_draft_template_timeframe_is_rebound_without_stale_15m_claims(agent_repo
             "Taker flow predicts BTCUSDT because aggressive trade pressure persists.",
             "taker_buy_sell_ratio",
             "FULL_HISTORY_PUBLIC_ARCHIVE",
-            "conditionally_public_archive_backfillable",
+            "available_when_source_bars_exist",
         ),
         (
             "Open interest divergence predicts BTCUSDT because positioning pressure unwinds.",
@@ -205,7 +205,10 @@ def test_data_availability_is_read_from_repo_catalog(
     assert item["coverage_class"] == coverage
     assert item["historical_testability"] == testability
     assert result["status"] == (
-        "accepted" if testability == "conditionally_public_archive_backfillable" else "needs_data"
+        "accepted"
+        if testability
+        in {"conditionally_public_archive_backfillable", "available_when_source_bars_exist"}
+        else "needs_data"
     )
     if feature == "open_interest":
         assert any("cannot reconstruct" in warning for warning in item["warnings"])

@@ -39,7 +39,7 @@ def test_minimum_coverage_rows_are_present() -> None:
         "READINESS-OHLCV-INDICATORS",
         "READINESS-FUNDING-RATE-FEATURE-HISTORY",
         "READINESS-FUNDING-PNL-COST-REALISM",
-        "READINESS-TAKER-FLOW-ARCHIVE",
+        "READINESS-TAKER-FLOW-D4-NATIVE",
         "READINESS-OPEN-INTEREST",
         "READINESS-LONG-SHORT-RATIO",
         "READINESS-LIQUIDATION-HISTORY",
@@ -77,12 +77,15 @@ def test_oi_liquidation_l2_are_not_full_history_testable() -> None:
 
 def test_taker_flow_uses_repo_truth_availability_class() -> None:
     data = build_readiness_projection()
-    item = _item(data, "READINESS-TAKER-FLOW-ARCHIVE")
+    item = _item(data, "READINESS-TAKER-FLOW-D4-NATIVE")
     support = " ".join(item["current_repo_support"])
-    assert "PUBLIC_TRADE_ARCHIVE_DERIVATION" in support
+    assert "CANONICAL_D4_KLINE_DERIVATION" in support
     assert "FULL_HISTORY_PUBLIC_ARCHIVE" in support
     assert "PUBLIC_REST_TAKER_RATIO" in support
     assert item["status"] == "needs_local_full_history_materialization"
+    assert "trade archive" not in (
+        item["label"] + " " + item["blocker_detail"]
+    ).lower()
 
 
 def test_unknown_missing_evidence_fails_closed(tmp_path: Path) -> None:

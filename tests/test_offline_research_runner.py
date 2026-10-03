@@ -21,6 +21,15 @@ from tests.test_validate_variant_sweep_artifacts import (
 from tools.registry.validate_result_populations import OUTCOME_CATEGORIES, validate_result_populations
 from tools.research_runner import run_offline_sweep as runner
 from tools.research_runner.spec_signal_compiler import compile_signal as real_compile_signal
+from tools.data.materialize_takerflow_features import D4_OUTPUT_COLUMNS
+from tools.research_domain.feature_data import (
+    D4_TAKER_DERIVATION_VERSION,
+    D4_TAKER_FEATURE_DEFINITIONS,
+    D4_TAKER_PARENT_FIELDS,
+    D4_TAKER_SOURCE_CLASS,
+    build_feature_table_identity,
+    build_source_set_identity,
+)
 
 
 D4_CATALOG_REF = (
@@ -294,6 +303,117 @@ def _write_15m_ohlcv_fixture(
     frame = pd.DataFrame(rows)[ordered_columns]
     frame.to_csv(path, index=False)
     return path
+
+
+def _write_small_d4_metadata(tmp_path: Path, ohlcv_path: Path) -> tuple[Path, Path]:
+    catalog_path, import_path = _d4_artifact_paths()
+    catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+    import_report = json.loads(import_path.read_text(encoding="utf-8"))
+    frame = pd.read_csv(ohlcv_path)
+    digest = runner._sha256_file_hex(ohlcv_path)
+    timestamps = pd.to_datetime(frame["timestamp"], utc=True)
+    catalog["catalog_ref"] = "test_d4_feature_parent"
+    catalog["slice_identity"]["data_slice_identity"] = (
+        "binance_usdtm_btcusdt_ohlcv_15m:sha256:" + digest
+    )
+    catalog["normalized"]["sha256"] = digest
+    catalog["range"].update(
+        start_utc=timestamps.iloc[0].isoformat().replace("+00:00", "Z"),
+        end_utc=timestamps.iloc[-1].isoformat().replace("+00:00", "Z"),
+        row_count=len(frame),
+        expected_row_count=len(frame),
+    )
+    import_report["normalized"]["sha256"] = digest
+    out_catalog = tmp_path / "small.catalog.json"
+    out_import = tmp_path / "small.import.json"
+    _write_json(out_catalog, catalog)
+    _write_json(out_import, import_report)
+    return out_catalog, out_import
+
+
+def _write_research_feature_fixture(
+    tmp_path: Path,
+    ohlcv_path: Path,
+    *,
+    timestamp_shift_minutes: int = 0,
+    availability_shift_minutes: int = 15,
+) -> tuple[Path, Path]:
+    tmp_path.mkdir(parents=True, exist_ok=True)
+    base = pd.read_csv(ohlcv_path)
+    timestamps = pd.to_datetime(base["timestamp"], utc=True) + pd.Timedelta(
+        minutes=timestamp_shift_minutes
+    )
+    available = timestamps + pd.Timedelta(minutes=availability_shift_minutes)
+    rows = pd.DataFrame(
+        {
+            "timestamp": timestamps.map(lambda value: value.strftime("%Y-%m-%dT%H:%M:%S.000Z")),
+            "open_time_ms": timestamps.map(lambda value: int(value.timestamp() * 1000)),
+            "feature_available_at": available.map(lambda value: value.strftime("%Y-%m-%dT%H:%M:%S.000Z")),
+            "feature_available_at_ms": available.map(lambda value: int(value.timestamp() * 1000)),
+            "taker_buy_volume": base["taker_buy_base_vol"],
+            "taker_sell_volume": base["volume"] - base["taker_buy_base_vol"],
+            "taker_buy_sell_ratio": ["0"] * len(base),
+        }
+    )[list(D4_OUTPUT_COLUMNS)]
+    feature_path = tmp_path / "research_features.csv"
+    rows.to_csv(feature_path, index=False, lineterminator="\n")
+    feature_sha = runner._sha256_file_hex(feature_path)
+    base_sha = runner._sha256_file_hex(ohlcv_path)
+    parent_identity = "binance_usdtm_btcusdt_ohlcv_15m:sha256:" + base_sha
+    source_files = [{"logical_filename": ohlcv_path.name, "sha256": base_sha, "size_bytes": ohlcv_path.stat().st_size, "parsed_row_count": len(base), "source_type": "canonical_d4_kline"}]
+    source_identity_context = {
+        "data_slice_identity": parent_identity,
+        "normalized_sha256": base_sha,
+        "derivation_version": D4_TAKER_DERIVATION_VERSION,
+    }
+    coverage_start = pd.to_datetime(base["timestamp"].iloc[0], utc=True).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+    coverage_end = (pd.to_datetime(base["timestamp"].iloc[-1], utc=True) + pd.Timedelta(minutes=15)).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+    contract = {
+        "schema_version": "cpw_research_feature_table_v1",
+        "family_id": "binance_usdm_takerflow_v1",
+        "market_identity": {"venue": "Binance", "market_type": "USD-M perpetual", "symbol": "BTCUSDT"},
+        "timeframe": "15m",
+        "feature_names": ["taker_buy_volume", "taker_sell_volume", "taker_buy_sell_ratio"],
+        "source_class": D4_TAKER_SOURCE_CLASS,
+        "availability_assertions": [
+            {"feature_name": name, "source_class": D4_TAKER_SOURCE_CLASS, "condition_assertions": ["fixture complete"]}
+            for name in ("taker_buy_volume", "taker_sell_volume", "taker_buy_sell_ratio")
+        ],
+        "source_set_identity": build_source_set_identity(source_files, identity_context=source_identity_context),
+        "parent_identity": {
+            "data_slice_identity": parent_identity,
+            "normalized_sha256": base_sha,
+            "row_count": len(base),
+            "coverage_start_utc_inclusive": coverage_start,
+            "coverage_end_utc_exclusive": coverage_end,
+        },
+        "derivation": {
+            "derivation_version": D4_TAKER_DERIVATION_VERSION,
+            "parent_fields": list(D4_TAKER_PARENT_FIELDS),
+            "features": [dict(item) for item in D4_TAKER_FEATURE_DEFINITIONS],
+        },
+        "output_identity": {"format": "CSV UTF-8 LF", "sha256": feature_sha, "row_count": len(base), "columns": list(D4_OUTPUT_COLUMNS)},
+        "coverage": {
+            "start_utc_inclusive": coverage_start,
+            "end_utc_exclusive": coverage_end,
+            "expected_row_count": len(base), "observed_row_count": len(base), "complete": True,
+        },
+        "causality": {"timestamp_semantics": "UTC bar open", "feature_available_at_semantics": "exclusive bar close", "completed_bar_only": True, "future_events_can_change_prior_completed_bars": False},
+        "quality_policy": {"fill": "forbidden", "forward_fill": "forbidden", "backfill": "forbidden", "interpolation": "forbidden", "timestamp_tolerance": "forbidden", "missing_row": "fail_closed", "duplicate_join_key": "fail_closed"},
+        "feature_table_identity": "",
+        "non_authority": {"authorizes_execution": False, "authorizes_result_population": False, "authorizes_candidate": False, "authorizes_promotion": False, "authorizes_runtime_paper_live": False, "authorizes_oms_risk_reconciliation": False},
+    }
+    contract["feature_table_identity"] = build_feature_table_identity(contract)
+    manifest = {
+        "source_type": "canonical_d4_kline",
+        "source_files": [{"path": ohlcv_path.as_posix(), **source_files[0]}],
+        "source_set_identity_context": source_identity_context,
+        "output": {"sha256": feature_sha},
+        "research_feature_table": contract,
+    }
+    manifest_path = tmp_path / "research_features.manifest.json"
+    _write_json(manifest_path, manifest)
+    return manifest_path, feature_path
 
 
 def _write_4h_ohlcv_fixture(tmp_path: Path, *, freq: str = "4h", periods: int = 32) -> Path:
@@ -2115,6 +2235,100 @@ def test_15m_input_identity_scope_remains_unchanged():
     ]
 
 
+def test_research_feature_cli_arguments_are_a_required_pair_and_15m_only(tmp_path):
+    strategy_path, manifest_path, sweep_path, *_ = _write_fixture(tmp_path)
+    feature = tmp_path / "feature.csv"
+    manifest = tmp_path / "feature.json"
+    with pytest.raises(runner.OfflineSweepError, match="required pair"):
+        _run(
+            strategy_path, manifest_path, sweep_path,
+            research_feature_manifest_path=manifest,
+        )
+    with pytest.raises(runner.OfflineSweepError, match="only with --canonical-15m"):
+        _run(
+            strategy_path, manifest_path, sweep_path,
+            research_feature_manifest_path=manifest,
+            research_feature_input_path=feature,
+        )
+    parsed = runner._build_parser().parse_args(
+        ["--strategy-spec", str(strategy_path), "--variant-manifest", str(manifest_path),
+         "--sweep-plan", str(sweep_path), "--canonical-15m", "--ohlcv-input", str(tmp_path / "base.csv"),
+         "--research-feature-manifest", str(manifest), "--research-feature-input", str(feature)]
+    )
+    assert parsed.research_feature_manifest == manifest
+    assert parsed.research_feature_input == feature
+
+
+def test_generic_feature_table_joins_declared_fields_and_changes_identity(tmp_path, monkeypatch):
+    strategy_path, manifest_path, sweep_path, *_ = _write_fixture(
+        tmp_path,
+        strategy_mutator=lambda strategy: (
+            _set_primary_timeframe(strategy, "15m"),
+            _replace_first_data_ref_field(strategy, "taker_buy_sell_ratio"),
+        ),
+    )
+    base_path = _write_15m_ohlcv_fixture(tmp_path, include_open_time_ms=True)
+    catalog_path, import_path = _write_small_d4_metadata(tmp_path, base_path)
+    feature_manifest, feature_input = _write_research_feature_fixture(tmp_path, base_path)
+    observed_columns = []
+
+    def fake_compile_signal(strategy_spec, variant, ohlcv, funding=None):
+        del strategy_spec, variant, funding
+        observed_columns.append(list(ohlcv.columns))
+        return pd.Series(0.0, index=ohlcv.index)
+
+    monkeypatch.setattr(runner, "compile_signal", fake_compile_signal)
+    result = _run(
+        strategy_path, manifest_path, sweep_path,
+        canonical_15m=True, ohlcv_input_path=base_path,
+        d4_catalog_slice_path=catalog_path, d2_import_report_path=import_path,
+        research_feature_manifest_path=feature_manifest,
+        research_feature_input_path=feature_input,
+        deterministic_seed=7,
+    )
+    coverage = result["result_population"]["data_coverage_summary"]
+    assert coverage["data_slice_identity"].startswith("cpw_research_composite_15m:sha256:")
+    assert all("taker_buy_sell_ratio" in columns for columns in observed_columns)
+    assert all("taker_total_volume" not in columns for columns in observed_columns)
+    assert any(note.startswith("feature_table_identity=sha256:") for note in coverage["data_coverage_notes"])
+
+
+def test_generic_feature_table_rejects_hash_timestamp_and_lookahead_mismatch(tmp_path):
+    strategy_path, manifest_path, sweep_path, *_ = _write_fixture(
+        tmp_path,
+        strategy_mutator=lambda strategy: (
+            _set_primary_timeframe(strategy, "15m"),
+            _replace_first_data_ref_field(strategy, "taker_buy_volume"),
+        ),
+    )
+    base_path = _write_15m_ohlcv_fixture(tmp_path, include_open_time_ms=True)
+    catalog_path, import_path = _write_small_d4_metadata(tmp_path, base_path)
+
+    def run_with(feature_manifest: Path, feature_input: Path):
+        return _run(
+            strategy_path, manifest_path, sweep_path,
+            canonical_15m=True, ohlcv_input_path=base_path,
+            d4_catalog_slice_path=catalog_path, d2_import_report_path=import_path,
+            research_feature_manifest_path=feature_manifest,
+            research_feature_input_path=feature_input,
+        )
+
+    hash_manifest, hash_input = _write_research_feature_fixture(tmp_path / "hash", base_path)
+    hash_input.write_bytes(hash_input.read_bytes() + b"\n")
+    with pytest.raises(runner.OfflineSweepError, match="SHA-256"):
+        run_with(hash_manifest, hash_input)
+    timestamp_manifest, timestamp_input = _write_research_feature_fixture(
+        tmp_path / "timestamp", base_path, timestamp_shift_minutes=15
+    )
+    with pytest.raises(runner.OfflineSweepError, match="timestamp"):
+        run_with(timestamp_manifest, timestamp_input)
+    causal_manifest, causal_input = _write_research_feature_fixture(
+        tmp_path / "causal", base_path, availability_shift_minutes=0
+    )
+    with pytest.raises(runner.OfflineSweepError, match="availability"):
+        run_with(causal_manifest, causal_input)
+
+
 def test_declared_non_ohlcv_column_is_retained_for_compiler(tmp_path, monkeypatch):
     strategy_path, manifest_path, sweep_path, *_ = _write_fixture(
         tmp_path,
@@ -2150,10 +2364,11 @@ def test_declared_non_ohlcv_column_is_retained_for_compiler(tmp_path, monkeypatc
     assert result["result_population"]["data_availability_claim"]["feature_sources"] == [
         {
             "feature_name": "taker_buy_sell_ratio",
-            "source_class": "PUBLIC_TRADE_ARCHIVE_DERIVATION",
+            "source_class": "CANONICAL_D4_KLINE_DERIVATION",
             "condition_assertions": [
-                "Archive files cover the claimed window.",
-                "The ratio is deterministically reconstructed from aligned trade or aggregate-trade records.",
+                "Canonical D4 bars cover the claimed evidence window.",
+                "The ratio is deterministically derived from the exact bound D4 parent.",
+                "Feature values are available only at completed-bar close.",
             ],
         }
     ]

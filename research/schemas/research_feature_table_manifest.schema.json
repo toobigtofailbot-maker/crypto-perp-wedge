@@ -1,0 +1,123 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://crypto-perp-wedge.local/research/schemas/research_feature_table_manifest.schema.json",
+  "title": "CPW Research Feature Table",
+  "description": "Engine-neutral research feature-data identity. Grants no execution, Result Population, candidate, promotion, runtime, OMS, risk, or reconciliation authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "family_id", "market_identity", "timeframe", "feature_names", "source_class", "availability_assertions", "source_set_identity", "output_identity", "coverage", "causality", "quality_policy", "feature_table_identity", "non_authority"],
+  "properties": {
+    "schema_version": {"const": "cpw_research_feature_table_v1"},
+    "family_id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+    "market_identity": {
+      "type": "object", "additionalProperties": false,
+      "required": ["venue", "market_type", "symbol"],
+      "properties": {
+        "venue": {"type": "string", "minLength": 1},
+        "market_type": {"type": "string", "minLength": 1},
+        "symbol": {"type": "string", "pattern": "^[A-Z0-9_-]+$"}
+      }
+    },
+    "timeframe": {"type": "string", "pattern": "^[1-9][0-9]*[mhd]$"},
+    "feature_names": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"}},
+    "source_class": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]*$"},
+    "availability_assertions": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["feature_name", "source_class", "condition_assertions"],
+        "properties": {
+          "feature_name": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+          "source_class": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]*$"},
+          "condition_assertions": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+        }
+      }
+    },
+    "source_set_identity": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "output_identity": {
+      "type": "object", "additionalProperties": false,
+      "required": ["format", "sha256", "row_count", "columns"],
+      "properties": {
+        "format": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "row_count": {"type": "integer", "minimum": 1},
+        "columns": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "coverage": {
+      "type": "object", "additionalProperties": false,
+      "required": ["start_utc_inclusive", "end_utc_exclusive", "expected_row_count", "observed_row_count", "complete"],
+      "properties": {
+        "start_utc_inclusive": {"type": "string", "minLength": 1},
+        "end_utc_exclusive": {"type": "string", "minLength": 1},
+        "expected_row_count": {"type": "integer", "minimum": 1},
+        "observed_row_count": {"type": "integer", "minimum": 1},
+        "complete": {"type": "boolean"}
+      }
+    },
+    "causality": {
+      "type": "object", "additionalProperties": false,
+      "required": ["timestamp_semantics", "feature_available_at_semantics", "completed_bar_only", "future_events_can_change_prior_completed_bars"],
+      "properties": {
+        "timestamp_semantics": {"const": "UTC bar open"},
+        "feature_available_at_semantics": {"const": "exclusive bar close"},
+        "completed_bar_only": {"const": true},
+        "future_events_can_change_prior_completed_bars": {"const": false}
+      }
+    },
+    "quality_policy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["fill", "forward_fill", "backfill", "interpolation", "timestamp_tolerance", "missing_row", "duplicate_join_key"],
+      "properties": {
+        "fill": {"const": "forbidden"}, "forward_fill": {"const": "forbidden"}, "backfill": {"const": "forbidden"},
+        "interpolation": {"const": "forbidden"}, "timestamp_tolerance": {"const": "forbidden"},
+        "missing_row": {"const": "fail_closed"}, "duplicate_join_key": {"const": "fail_closed"}
+      }
+    },
+    "feature_table_identity": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "parent_identity": {
+      "type": "object", "additionalProperties": false,
+      "required": ["data_slice_identity", "normalized_sha256", "row_count", "coverage_start_utc_inclusive", "coverage_end_utc_exclusive"],
+      "properties": {
+        "data_slice_identity": {"type": "string", "pattern": "^binance_usdtm_btcusdt_ohlcv_15m:sha256:[0-9a-f]{64}$"},
+        "normalized_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "row_count": {"type": "integer", "minimum": 1},
+        "coverage_start_utc_inclusive": {"type": "string", "minLength": 1},
+        "coverage_end_utc_exclusive": {"type": "string", "minLength": 1}
+      }
+    },
+    "derivation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["derivation_version", "parent_fields", "features"],
+      "properties": {
+        "derivation_version": {"const": "cpw_d4_native_takerflow_v1"},
+        "parent_fields": {
+          "const": ["volume", "num_trades", "taker_buy_base_vol"]
+        },
+        "features": {
+          "const": [
+            {"feature_name": "taker_buy_volume", "formula": "taker_buy_base_vol", "null_policy": "forbidden"},
+            {"feature_name": "taker_sell_volume", "formula": "volume - taker_buy_base_vol", "null_policy": "forbidden"},
+            {"feature_name": "taker_buy_sell_ratio", "formula": "null if taker_sell_volume == 0 else taker_buy_volume / taker_sell_volume", "null_policy": "null_when_taker_sell_volume_zero"}
+          ]
+        }
+      }
+    },
+    "non_authority": {
+      "type": "object", "additionalProperties": false,
+      "required": ["authorizes_execution", "authorizes_result_population", "authorizes_candidate", "authorizes_promotion", "authorizes_runtime_paper_live", "authorizes_oms_risk_reconciliation"],
+      "properties": {
+        "authorizes_execution": {"const": false}, "authorizes_result_population": {"const": false},
+        "authorizes_candidate": {"const": false}, "authorizes_promotion": {"const": false},
+        "authorizes_runtime_paper_live": {"const": false}, "authorizes_oms_risk_reconciliation": {"const": false}
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"source_class": {"const": "CANONICAL_D4_KLINE_DERIVATION"}}},
+      "then": {"required": ["parent_identity", "derivation"]},
+      "else": {"not": {"anyOf": [{"required": ["parent_identity"]}, {"required": ["derivation"]}]}}
+    }
+  ]
+}

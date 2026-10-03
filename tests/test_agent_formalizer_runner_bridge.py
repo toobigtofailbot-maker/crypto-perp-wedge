@@ -924,10 +924,10 @@ def test_explicit_funding_on_without_matching_approval_is_blocked_and_audited(tm
             _feature_assessment(
                 "taker_buy_sell_ratio",
                 coverage="FULL_HISTORY_PUBLIC_ARCHIVE",
-                source="PUBLIC_TRADE_ARCHIVE_DERIVATION",
+                source="CANONICAL_D4_KLINE_DERIVATION",
                 testability="available_when_source_bars_exist",
             ),
-            "the OHLCV runner fixture is insufficient",
+            "plain five-column OHLCV is insufficient",
         ),
     ],
 )

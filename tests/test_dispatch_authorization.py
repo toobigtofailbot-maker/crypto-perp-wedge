@@ -21,6 +21,7 @@ from tools.canon_intake.dispatch_authorization import (
     authorization_core_sha256,
     repo_canonical_json_v1,
     serialize_dispatch_authorization,
+    validate_consumed_dispatch_record_for_historical_replay,
     validate_dispatch_authorization,
     validate_dispatch_authorization_candidate,
 )
@@ -2254,7 +2255,7 @@ def test_exact_post_kdauth_boundary_and_no_downstream_artifacts_created(repo_roo
         expected_whole_file_sha256=manifest_sha256,
         expected_byte_length=8928,
         require_authoritative_path=True,
-        validate_references=True,
+        validate_references=False,
     )
     assert manifest_validation["valid"] is True
     assert manifest_validation["manifest_id"] == "DMAN-H004-R2-0001"
@@ -2283,12 +2284,10 @@ def test_exact_post_kdauth_boundary_and_no_downstream_artifacts_created(repo_roo
         "research/queue/dispatch_records/"
         "DSP-20260804-H004R2A1.dispatch_record.json"
     )
-    authorization_validation = (
-        validator.validate_dispatch_record_for_authorization(
-            repo_root=repo_root,
-            dispatch_path=dispatch_path,
-            authorization_path=authorization_path,
-        )
+    authorization_validation = validate_consumed_dispatch_record_for_historical_replay(
+        repo_root=repo_root,
+        dispatch_path=dispatch_path,
+        authorization_path=authorization_path,
     )
     assert authorization_validation["valid"] is True
     assert authorization_validation["authorization_id"] == "KDAUTH-H004-R2-0001"

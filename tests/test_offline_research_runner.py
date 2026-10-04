@@ -499,6 +499,120 @@ def _write_4h_metadata_fixture(
     return out_catalog_path, out_validation_path, out_derivation_path, catalog
 
 
+def _write_intraday_derived_fixture(
+    tmp_path: Path,
+    monkeypatch,
+    timeframe: str,
+    *,
+    periods: int = 32,
+    freq: str | None = None,
+    validation_status: str = "PASS",
+    partial_window_count: int = 0,
+    gap_count: int = 0,
+    duplicate_row_count: int = 0,
+    identity_suffix: str | None = None,
+) -> tuple[Path, Path, Path, Path, dict]:
+    tmp_path.mkdir(parents=True, exist_ok=True)
+    base_config = runner.CANONICAL_INTRADAY_DERIVED_CONFIG[timeframe]
+    cadence = base_config["cadence"]
+    index = pd.date_range(
+        "2026-01-01T00:00:00Z",
+        periods=periods,
+        freq=freq or ("30min" if timeframe == "30m" else timeframe),
+    )
+    csv_path = tmp_path / f"canonical_{timeframe}.csv"
+    close = [100.0 + index_number for index_number in range(periods)]
+    frame = pd.DataFrame(
+        {
+            "open_time_ms": [int(timestamp.timestamp() * 1000) for timestamp in index],
+            "open_time": index,
+            "open": [value - 0.1 for value in close],
+            "high": [value + 1.0 for value in close],
+            "low": [value - 1.0 for value in close],
+            "close": close,
+            "volume": [1000.0] * periods,
+            "close_time_ms": [
+                int((timestamp + cadence).timestamp() * 1000) - 1 for timestamp in index
+            ],
+            "quote_asset_volume": [100000.0] * periods,
+            "num_trades": [10] * periods,
+            "taker_buy_base_vol": [500.0] * periods,
+            "taker_buy_quote_vol": [50000.0] * periods,
+            "ignore": [0] * periods,
+        }
+    )
+    frame.to_csv(csv_path, index=False, lineterminator="\n")
+    csv_sha = runner._sha256_file_hex(csv_path)
+    config = dict(base_config)
+    config.update(
+        row_count=periods,
+        start_utc=index[0].isoformat().replace("+00:00", "Z"),
+        end_utc=index[-1].isoformat().replace("+00:00", "Z"),
+    )
+    configs = copy.deepcopy(runner.CANONICAL_INTRADAY_DERIVED_CONFIG)
+    configs[timeframe] = config
+    monkeypatch.setattr(runner, "CANONICAL_INTRADAY_DERIVED_CONFIG", configs)
+
+    catalog = json.loads(Path(base_config["catalog"]).read_text(encoding="utf-8"))
+    validation = json.loads(Path(base_config["validation"]).read_text(encoding="utf-8"))
+    derivation = json.loads(Path(base_config["derivation"]).read_text(encoding="utf-8"))
+    identity_hash = identity_suffix or csv_sha
+    catalog["catalog_ref"] = f"fixture_{timeframe}_{identity_hash[:16]}"
+    catalog["slice_identity"]["data_slice_identity"] = (
+        f"{config['dataset_id']}:sha256:{identity_hash}"
+    )
+    catalog["normalized"]["sha256"] = csv_sha
+    catalog["range"].update(
+        row_count=periods,
+        expected_row_count=periods,
+        start_utc=config["start_utc"],
+        end_utc=config["end_utc"],
+    )
+    catalog["gap_summary"]["gap_count"] = gap_count
+    catalog["gap_summary"]["missing_bar_count"] = gap_count
+    catalog["gap_summary"]["gaps"] = [] if gap_count == 0 else [{"fixture": True}]
+    catalog["duplicate_summary"]["duplicate_group_count"] = int(duplicate_row_count > 0)
+    catalog["duplicate_summary"]["duplicate_row_count"] = duplicate_row_count
+    catalog["duplicate_summary"]["duplicates"] = (
+        [] if duplicate_row_count == 0 else [{"fixture": True}]
+    )
+    catalog["validation_report"]["status"] = validation_status
+
+    validation["ok"] = validation_status == "PASS"
+    validation["normalized"]["sha256"] = csv_sha
+    validation["range"].update(
+        row_count=periods,
+        expected_row_count=periods,
+        start_utc=config["start_utc"],
+        end_utc=config["end_utc"],
+    )
+    validation["validation"]["status"] = validation_status
+    validation["validation"]["partial_window_count"] = partial_window_count
+    validation["validation"]["cadence_ms"] = config["cadence_ms"]
+
+    derivation["output"].update(
+        sha256=csv_sha,
+        row_count=periods,
+        expected_row_count=periods,
+        start_utc=config["start_utc"],
+        end_utc=config["end_utc"],
+    )
+    validation_path = tmp_path / f"{timeframe}.validation.json"
+    derivation_path = tmp_path / f"{timeframe}.derivation.json"
+    catalog_path = tmp_path / f"{timeframe}.catalog.json"
+    _write_json(validation_path, validation)
+    _write_json(derivation_path, derivation)
+    catalog["validation_report"]["sha256"] = runner._sha256_file_hex(validation_path)
+    catalog["derivation_report"]["sha256"] = runner._sha256_file_hex(derivation_path)
+    _write_json(catalog_path, catalog)
+    config.update(
+        catalog=catalog_path,
+        validation=validation_path,
+        derivation=derivation_path,
+    )
+    return csv_path, catalog_path, validation_path, derivation_path, catalog
+
+
 def _identity_payload(result: dict) -> dict:
     payload = copy.deepcopy(result["result_population"])
     payload.pop("audit_envelope")
@@ -3036,3 +3150,272 @@ def test_walkforward_mode_is_dry_run_only(tmp_path):
             walkforward_is_bars=24,
             walkforward_oos_bars=24,
         )
+
+
+def test_canonical_cli_flags_accept_30m_and_1h_modes(tmp_path):
+    strategy_path, manifest_path, sweep_path, *_ = _write_fixture(tmp_path)
+    common = [
+        "--strategy-spec",
+        str(strategy_path),
+        "--variant-manifest",
+        str(manifest_path),
+        "--sweep-plan",
+        str(sweep_path),
+        "--ohlcv-input",
+        str(tmp_path / "input.csv"),
+    ]
+    parsed_30m = runner._build_parser().parse_args([*common, "--canonical-30m"])
+    parsed_1h = runner._build_parser().parse_args([*common, "--canonical-1h"])
+    assert parsed_30m.canonical_30m is True
+    assert parsed_30m.canonical_1h is False
+    assert parsed_1h.canonical_30m is False
+    assert parsed_1h.canonical_1h is True
+
+
+def test_all_five_canonical_routes_are_mutually_exclusive(tmp_path):
+    strategy_path, manifest_path, sweep_path, *_ = _write_fixture(tmp_path)
+    selectors = {
+        "canonical_15m": True,
+        "canonical_30m": True,
+        "canonical_1h": True,
+        "canonical_4h": True,
+        "canonical_1d": True,
+    }
+    for first, second in zip(selectors, list(selectors)[1:]):
+        with pytest.raises(runner.OfflineSweepError, match="mutually exclusive"):
+            _run(
+                strategy_path,
+                manifest_path,
+                sweep_path,
+                **{first: True, second: True},
+            )
+
+
+@pytest.mark.parametrize("timeframe", ["30m", "1h"])
+def test_intraday_route_requires_matching_strategy_and_sweep_timeframe(
+    tmp_path,
+    timeframe,
+):
+    strategy_path, manifest_path, sweep_path, *_ = _write_fixture(
+        tmp_path,
+        strategy_mutator=lambda strategy: _set_primary_timeframe(strategy, "15m"),
+    )
+    with pytest.raises(
+        runner.OfflineSweepError,
+        match=rf"canonical_{timeframe} requires {timeframe}",
+    ):
+        _run(
+            strategy_path,
+            manifest_path,
+            sweep_path,
+            **{f"canonical_{timeframe}": True},
+            ohlcv_input_path=tmp_path / "missing.csv",
+        )
+
+
+@pytest.mark.parametrize("timeframe", ["30m", "1h"])
+def test_intraday_route_binds_timeframe_lineage_and_does_not_write(
+    tmp_path,
+    monkeypatch,
+    timeframe,
+):
+    strategy_path, manifest_path, sweep_path, *_ = _write_fixture(
+        tmp_path / "parents",
+        strategy_mutator=lambda strategy: _set_primary_timeframe(strategy, timeframe),
+    )
+    csv_path, _, _, _, catalog = _write_intraday_derived_fixture(
+        tmp_path / "data",
+        monkeypatch,
+        timeframe,
+    )
+    before = sorted(runner.CANONICAL_RESULT_POPULATIONS_DIR.glob("*.result_population.json"))
+    result = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        **{f"canonical_{timeframe}": True},
+        ohlcv_input_path=csv_path,
+        deterministic_seed=7,
+    )
+    coverage = result["result_population"]["data_coverage_summary"]
+    assert result["dry_run"] is True
+    assert result["wrote"] is False
+    assert coverage["timeframe"] == timeframe
+    assert coverage["data_catalog_ref"] == catalog["catalog_ref"]
+    assert coverage["data_slice_identity"] == catalog["slice_identity"]["data_slice_identity"]
+    assert runner.FT01_PROVENANCE_MODE_NOTE in coverage["data_coverage_notes"]
+    assert {row["data_coverage"]["timeframe"] for row in result["result_population"]["variant_result_rows"]} == {timeframe}
+    assert sorted(runner.CANONICAL_RESULT_POPULATIONS_DIR.glob("*.result_population.json")) == before
+
+
+@pytest.mark.parametrize("timeframe", ["30m", "1h"])
+def test_intraday_route_rejects_missing_and_wrong_csv(tmp_path, monkeypatch, timeframe):
+    csv_path, catalog_path, validation_path, derivation_path, _ = (
+        _write_intraday_derived_fixture(tmp_path, monkeypatch, timeframe)
+    )
+    with pytest.raises(runner.OfflineSweepError, match="does not exist"):
+        runner._canonical_intraday_derived_execution_input(
+            timeframe,
+            tmp_path / "missing.csv",
+            catalog_path,
+            validation_path,
+            derivation_path,
+        )
+    frame = pd.read_csv(csv_path)
+    frame.loc[0, "close"] = 999.0
+    frame.to_csv(csv_path, index=False, lineterminator="\n")
+    with pytest.raises(runner.OfflineSweepError, match="CSV SHA256"):
+        runner._canonical_intraday_derived_execution_input(
+            timeframe,
+            csv_path,
+            catalog_path,
+            validation_path,
+            derivation_path,
+        )
+
+
+@pytest.mark.parametrize(
+    ("mutation", "message"),
+    [
+        ("report_sha", "validation report SHA256"),
+        ("parent_identity", "parent identity differs"),
+        ("gap", "gap facts differ"),
+        ("duplicate", "duplicate facts differ"),
+        ("partial", "partial-window facts differ"),
+        ("range", "coverage end differs"),
+    ],
+)
+def test_intraday_route_rejects_broken_lineage_facts(
+    tmp_path,
+    monkeypatch,
+    mutation,
+    message,
+):
+    csv_path, catalog_path, validation_path, derivation_path, _ = (
+        _write_intraday_derived_fixture(tmp_path, monkeypatch, "30m")
+    )
+    catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+    validation = json.loads(validation_path.read_text(encoding="utf-8"))
+    if mutation == "report_sha":
+        catalog["validation_report"]["sha256"] = "0" * 64
+    elif mutation == "parent_identity":
+        catalog["parent"]["data_slice_identity"] = "wrong"
+    elif mutation == "gap":
+        catalog["gap_summary"]["gap_count"] = 1
+        catalog["gap_summary"]["gaps"] = [{"fixture": True}]
+    elif mutation == "duplicate":
+        catalog["duplicate_summary"]["duplicate_row_count"] = 1
+        catalog["duplicate_summary"]["duplicates"] = [{"fixture": True}]
+    elif mutation == "partial":
+        validation["validation"]["partial_window_count"] = 1
+        _write_json(validation_path, validation)
+        catalog["validation_report"]["sha256"] = runner._sha256_file_hex(validation_path)
+    else:
+        catalog["range"]["end_utc"] = "2026-12-31T00:00:00Z"
+    _write_json(catalog_path, catalog)
+    with pytest.raises(runner.OfflineSweepError, match=message):
+        runner._canonical_intraday_derived_execution_input(
+            "30m",
+            csv_path,
+            catalog_path,
+            validation_path,
+            derivation_path,
+        )
+
+
+def test_intraday_route_rejects_wrong_cadence(tmp_path, monkeypatch):
+    csv_path, catalog_path, validation_path, derivation_path, _ = (
+        _write_intraday_derived_fixture(
+            tmp_path,
+            monkeypatch,
+            "30m",
+            freq="1h",
+        )
+    )
+    with pytest.raises(runner.OfflineSweepError, match="exactly 30m-spaced"):
+        runner._canonical_intraday_derived_execution_input(
+            "30m",
+            csv_path,
+            catalog_path,
+            validation_path,
+            derivation_path,
+        )
+
+
+@pytest.mark.parametrize("timeframe", ["30m", "1h"])
+def test_research_features_remain_15m_only_for_new_routes(tmp_path, timeframe):
+    strategy_path, manifest_path, sweep_path, *_ = _write_fixture(tmp_path)
+    with pytest.raises(runner.OfflineSweepError, match="only with --canonical-15m"):
+        _run(
+            strategy_path,
+            manifest_path,
+            sweep_path,
+            **{f"canonical_{timeframe}": True},
+            research_feature_manifest_path=tmp_path / "feature.json",
+            research_feature_input_path=tmp_path / "feature.csv",
+        )
+
+
+@pytest.mark.parametrize("timeframe", ["30m", "1h"])
+def test_intraday_identity_changes_result_identity_and_funding_binding_is_compatible(
+    tmp_path,
+    monkeypatch,
+    timeframe,
+):
+    strategy_path, manifest_path, sweep_path, *_ = _write_fixture(
+        tmp_path / "parents",
+        strategy_mutator=lambda strategy: _set_primary_timeframe(strategy, timeframe),
+    )
+    csv_path, _, _, _, _ = _write_intraday_derived_fixture(
+        tmp_path / "data",
+        monkeypatch,
+        timeframe,
+    )
+    first = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        **{f"canonical_{timeframe}": True},
+        ohlcv_input_path=csv_path,
+    )
+    csv_path, catalog_path, validation_path, derivation_path, catalog = (
+        _write_intraday_derived_fixture(
+            tmp_path / "data",
+            monkeypatch,
+            timeframe,
+            identity_suffix="a" * 64,
+        )
+    )
+    second = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        **{f"canonical_{timeframe}": True},
+        ohlcv_input_path=csv_path,
+    )
+    assert first["result_population_id"] != second["result_population_id"]
+    execution_input = runner._canonical_intraday_derived_execution_input(
+        timeframe,
+        csv_path,
+        catalog_path,
+        validation_path,
+        derivation_path,
+    )
+    funding = pd.DataFrame(
+        {"funding_rate": [0.0001]},
+        index=pd.DatetimeIndex([execution_input.ohlcv.index[0]]),
+    )
+    bound = runner._bind_funding_input(
+        execution_input,
+        funding_cost_mode="on",
+        funding=funding,
+        funding_identity={
+            "funding_mode": "on",
+            "fixture": True,
+            "coverage_start_utc": execution_input.ohlcv.index[0].isoformat(),
+            "coverage_end_utc": execution_input.ohlcv.index[-1].isoformat(),
+        },
+    )
+    assert bound.timeframe == timeframe
+    assert bound.data_slice_identity == catalog["slice_identity"]["data_slice_identity"]
+    assert bound.funding_input_identity["funding_mode"] == "on"

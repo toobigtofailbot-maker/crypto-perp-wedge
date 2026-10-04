@@ -1,0 +1,91 @@
+{
+  "boundary": {
+    "no_exchange_contact": true,
+    "no_paper_live_contact": true,
+    "no_result_population_write": true,
+    "no_runtime_contact": true,
+    "no_strategy_artifact_mutation": true,
+    "offline_local_input_only": true
+  },
+  "data_contract_version": "2026-10-binance-usdtm-30m-derived-contract-v1",
+  "derivation": {
+    "aggregation_map": {
+      "close": "last",
+      "close_time_ms": "last_15m_close_time_ms",
+      "high": "max",
+      "ignore": "sum_numeric",
+      "low": "min",
+      "num_trades": "sum",
+      "open": "first",
+      "open_time": "first",
+      "open_time_ms": "first",
+      "quote_asset_volume": "sum",
+      "taker_buy_base_vol": "sum",
+      "taker_buy_quote_vol": "sum",
+      "volume": "sum"
+    },
+    "close_time_ms_rule": "last 15m row close_time_ms; validated to equal 30m open_time_ms + 1800000ms - 1ms",
+    "expected_bars_per_output_row": 2,
+    "method": "deterministic 15m-to-30m UTC-boundary resampling",
+    "no_deduplication": true,
+    "no_fill": true,
+    "no_interpolation": true,
+    "no_synthetic_bars": true,
+    "resampling_version": "wp-ft-01-30m-resample-v1"
+  },
+  "duplicate_summary": {
+    "duplicate_group_count": 0,
+    "duplicate_row_count": 0,
+    "duplicates": [],
+    "policy": "detect_report_do_not_deduplicate"
+  },
+  "gap_summary": {
+    "gap_count": 0,
+    "gaps": [],
+    "missing_bar_count": 0,
+    "policy": "detect_report_do_not_fill_or_interpolate"
+  },
+  "market_type": "USDT-M perpetual",
+  "normalized": {
+    "path": "data/processed/d4_30m/binance_um_perp_BTCUSDT_30m_2020-01-01_2026-04-11_d4_resampled.csv",
+    "sha256": "05c5857d668d2d12bcc743a13ad92a34590bc1c37ff8ea1f5f54d5d1fbf379ba"
+  },
+  "ok": true,
+  "range": {
+    "end_utc": "2026-04-11T23:30:00Z",
+    "expected_row_count": 110064,
+    "row_count": 110064,
+    "start_utc": "2020-01-01T00:00:00Z"
+  },
+  "source": {
+    "offline_only": true,
+    "parent_catalog_ref": "binance_usdtm_btcusdt_ohlcv_15m.offline_local.15m.20200101T000000Z.20260411T234500Z.sha256_3daace53d727599b",
+    "parent_catalog_slice_path": "research/data_slices/binance_usdtm_btcusdt_15m/binance_usdtm_btcusdt_15m_20200101_20260411.catalog_slice.json",
+    "parent_data_slice_identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+    "parent_dataset_id": "binance_usdtm_btcusdt_ohlcv_15m",
+    "parent_local_processed_file_path": "data/processed/d4a/binance_um_perp_BTCUSDT_15m_2020-01-01_2026-04-11_d4a_normalized.csv",
+    "parent_normalized_sha256": "c30fd7f07fdf513cdaf234b1bee4eff03b430a479cc572a2cc8b57394f22e0ab",
+    "parent_validation_report_sha256": "785a8d53797155dcc80e646e8610db8d510825b9fa3dbccd21e79aa2700a6c1c"
+  },
+  "source_type": "derived_offline_resample",
+  "stream": "ohlcv",
+  "symbol": "BTCUSDT",
+  "timeframe": "30m",
+  "validation": {
+    "cadence_ms": 1800000,
+    "duplicate_count": 0,
+    "errors": [],
+    "gap_count": 0,
+    "missing_bar_count": 0,
+    "no_deduplication": true,
+    "no_fill": true,
+    "no_interpolation": true,
+    "no_synthesis": true,
+    "ohlc_integrity": "PASS",
+    "partial_window_count": 0,
+    "status": "PASS",
+    "utc_boundary_alignment": "PASS"
+  },
+  "validator_version": "wp-ft-01-30m-validator-v1",
+  "venue": "Binance"
+}

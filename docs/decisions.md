@@ -260,6 +260,7 @@ The following decisions are locked for Phase 2. Full details in `docs/onboarding
 | D2-018 | Decision Change: Phase 2 research machine direction clarification |
 | D2-019 | Decision Change: Adoption-first infrastructure buildability and Nautilus proof sequencing |
 | D2-020 | Decision Change: Bounded Autonomous Research Envelope and V2 Operating Roadmap |
+| D2-021 | Five-Timeframe Canonical Base and Feature Parent Identity |
 
 ### D2-003A — Irreparable official-source gap policy
 
@@ -503,3 +504,42 @@ non-capital research operate in parallel.
 
 None. V2-00 is documentation/governance only and changes no implementation,
 runtime, paper/live, risk, or capital behavior.
+
+### D2-021 — Five-Timeframe Canonical Base and Feature Parent Identity
+
+**Status:** LOCKED
+
+**Decision ID:** D2-021
+
+**Date:** 2026-10-04
+
+**Scope:** Canonical primary-timeframe source identity and future row-local
+feature parent identity
+
+**Approval:** Karl/Main-approved through
+`WP-FT-01-CANONICAL-30M-1H-LINEAGE-RUNNER-ROUTES-01`
+
+#### Decision
+
+- `15m` uses the existing canonical D4 base.
+- `30m` uses a deterministic canonical base derived from the exact canonical
+  D4 15m parent.
+- `1h` uses a deterministic canonical base derived from the exact canonical D4
+  15m parent.
+- `4h` uses the existing D4-derived canonical base.
+- `1d` keeps the existing direct canonical 1d base unchanged.
+- Future taker features derive row-locally from the exact canonical base
+  selected as the primary timeframe.
+- Feature parent identity equals execution-base identity.
+- Existing direct 30m and 1h Parquets are diagnostic reconciliation evidence
+  only and never a second authority.
+- Diagnostic disagreement does not create dual authority. No tolerance,
+  repair, splicing, averaging, or source switching is authorized.
+- Child ratios are never averaged.
+- The existing canonical 1d route is not replaced.
+
+#### Non-authority and package boundary
+
+D2-021 does not implement FT-02, activate autonomy, change promotion or
+timeframe policy, or create runtime, paper, live, risk, capital, or economic
+authority. It changes no protected execution boundary.

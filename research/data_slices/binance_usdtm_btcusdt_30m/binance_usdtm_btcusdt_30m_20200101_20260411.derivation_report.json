@@ -1,0 +1,73 @@
+{
+  "aggregation_map": {
+    "close": "last",
+    "close_time_ms": "last_15m_close_time_ms",
+    "high": "max",
+    "ignore": "sum_numeric",
+    "low": "min",
+    "num_trades": "sum",
+    "open": "first",
+    "open_time": "first",
+    "open_time_ms": "first",
+    "quote_asset_volume": "sum",
+    "taker_buy_base_vol": "sum",
+    "taker_buy_quote_vol": "sum",
+    "volume": "sum"
+  },
+  "boundary": {
+    "no_exchange_contact": true,
+    "no_paper_live_contact": true,
+    "no_result_population_write": true,
+    "no_runtime_contact": true,
+    "no_strategy_artifact_mutation": true,
+    "offline_local_input_only": true
+  },
+  "close_time_ms_rule": "last 15m row close_time_ms; validated to equal 30m open_time_ms + 1800000ms - 1ms",
+  "derivation_type": "derived_offline_resample",
+  "determinism": {
+    "canonical_json_sort_keys_minified_ascii_for_identity": true,
+    "no_timezone_local_alignment": true,
+    "utf8_lf_artifacts": true
+  },
+  "expected_bars_per_output_row": 2,
+  "market_type": "USDT-M perpetual",
+  "method": "deterministic 15m-to-30m UTC-boundary resampling",
+  "no_deduplication": true,
+  "no_fill": true,
+  "no_interpolation": true,
+  "no_synthetic_bars": true,
+  "ok": true,
+  "output": {
+    "dataset_id": "binance_usdtm_btcusdt_ohlcv_30m",
+    "end_utc": "2026-04-11T23:30:00Z",
+    "expected_row_count": 110064,
+    "path": "data/processed/d4_30m/binance_um_perp_BTCUSDT_30m_2020-01-01_2026-04-11_d4_resampled.csv",
+    "row_count": 110064,
+    "sha256": "05c5857d668d2d12bcc743a13ad92a34590bc1c37ff8ea1f5f54d5d1fbf379ba",
+    "start_utc": "2020-01-01T00:00:00Z"
+  },
+  "package": "WP-FT-01-CANONICAL-30M-1H-LINEAGE-RUNNER-ROUTES-01",
+  "parent": {
+    "catalog_ref": "binance_usdtm_btcusdt_ohlcv_15m.offline_local.15m.20200101T000000Z.20260411T234500Z.sha256_3daace53d727599b",
+    "catalog_slice_path": "research/data_slices/binance_usdtm_btcusdt_15m/binance_usdtm_btcusdt_15m_20200101_20260411.catalog_slice.json",
+    "data_slice_identity": "binance_usdtm_btcusdt_ohlcv_15m:sha256:3daace53d727599b4cf5cc9d27ac2a3d53997bbf5b8401470097934e776bd664",
+    "dataset_id": "binance_usdtm_btcusdt_ohlcv_15m",
+    "duplicate_row_count": 0,
+    "gap_count": 0,
+    "local_processed_file_path": "data/processed/d4a/binance_um_perp_BTCUSDT_15m_2020-01-01_2026-04-11_d4a_normalized.csv",
+    "normalized_sha256": "c30fd7f07fdf513cdaf234b1bee4eff03b430a479cc572a2cc8b57394f22e0ab",
+    "range": {
+      "end_utc": "2026-04-11T23:45:00Z",
+      "start_utc": "2020-01-01T00:00:00Z"
+    },
+    "row_count": 220128,
+    "validation_report_path": "research/data_slices/binance_usdtm_btcusdt_15m/binance_usdtm_btcusdt_15m_20200101_20260411.validation_report.json",
+    "validation_report_sha256": "785a8d53797155dcc80e646e8610db8d510825b9fa3dbccd21e79aa2700a6c1c"
+  },
+  "parent_timeframe": "15m",
+  "resampling_version": "wp-ft-01-30m-resample-v1",
+  "stream": "ohlcv",
+  "symbol": "BTCUSDT",
+  "timeframe": "30m",
+  "venue": "Binance"
+}

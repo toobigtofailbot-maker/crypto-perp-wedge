@@ -387,6 +387,57 @@ def test_verify_forwards_research_data_feature_expansion_authorization_in_order(
     ]
 
 
+def test_verify_forwards_research_data_slice_lineage_authorization_in_order():
+    parser = helper.build_parser()
+    catalog_path = (
+        "research/data_slices/binance_usdtm_btcusdt_30m/"
+        "binance_usdtm_btcusdt_30m_20200101_20260411.catalog_slice.json"
+    )
+    validation_path = (
+        "research/data_slices/binance_usdtm_btcusdt_1h/"
+        "binance_usdtm_btcusdt_1h_20200101_20260411.validation_report.json"
+    )
+    args = parser.parse_args(
+        [
+            "--base-ref",
+            "base-sha",
+            "--head-ref",
+            "head-sha",
+            "--authorized-package",
+            "WP-FT-01-TEST",
+            "--authorized-scope",
+            "research-data-slice-lineage",
+            "--authorized-path",
+            catalog_path,
+            "--authorized-path",
+            validation_path,
+        ]
+    )
+
+    commands = helper.build_standard_commands(args)
+    diff_scope_command = next(
+        command.argv for command in commands if "tools/dev/diff_scope_summary.py" in command.argv
+    )
+
+    assert diff_scope_command == [
+        helper.sys.executable,
+        "tools/dev/diff_scope_summary.py",
+        "--check-forbidden",
+        "--authorized-path",
+        catalog_path,
+        "--authorized-path",
+        validation_path,
+        "--authorized-scope",
+        "research-data-slice-lineage",
+        "--authorized-package",
+        "WP-FT-01-TEST",
+        "--base-ref",
+        "base-sha",
+        "--head-ref",
+        "head-sha",
+    ]
+
+
 def test_verify_passes_committed_diff_and_authorization_evidence_to_diff_scope():
     parser = helper.build_parser()
     path = (

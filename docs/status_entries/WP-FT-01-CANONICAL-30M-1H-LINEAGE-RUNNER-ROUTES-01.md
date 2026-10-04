@@ -5,9 +5,13 @@
 - Package: `WP-FT-01-CANONICAL-30M-1H-LINEAGE-RUNNER-ROUTES-01`
 - Branch: `codex/wp-ft-01-canonical-30m-1h-lineage-runner-routes-01`
 - Locked base and `origin/main`: `c6ae5c1d81b095c128579b0633da0d0908c3f385`
-- Validated semantic implementation head: pending committed validation
-- Publication-evidence head: pending publication
-- Pull request: pending publication
+- Validated semantic implementation head:
+  `c46feb28f4fa9497a403972bcc8c98b390c835ab`
+- Publication-evidence commit: the status-only descendant containing this
+  record on PR #725; no implementation or lineage bytes changed after the
+  validated semantic head
+- Pull request: #725
+  (`https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/725`)
 - Self-merge: no
 
 The final committed comparison is restricted to the 13 paths listed below.
@@ -114,13 +118,21 @@ Pre-commit evidence:
 - deterministic scratch reproduction: all eight generated outputs
   byte-identical.
 
-Committed exact-scope and mandatory full-release evidence will be recorded on
-the validated semantic implementation head before publication.
+Committed exact-scope validation passed at the semantic implementation head:
+exactly 13 paths, all six lineage artifacts independently authorized under
+`research-data-slice-lineage`, zero rejected authorizations, zero forbidden
+matches, and zero allowlist violations.
+
+Mandatory full release passed at exact semantic implementation head
+`c46feb28f4fa9497a403972bcc8c98b390c835ab` using
+`full-release-balanced-v1`. All 187 tracked test files were uniquely assigned
+once across 48 completed shards. Failed shards: 0. Timed-out shards: 0. The
+slowest shard was shard 41 at 1202.125 seconds.
 
 ## Preservation
 
 The package creates no Strategy Spec, Variant Manifest, Sweep Plan, Result
 Population, candidate, lifecycle, or trial-log artifact. It does not change the
 existing canonical 15m/4h/1d artifacts or routes. Validation-only ignored input
-corpora and generated CSVs are not tracked or staged and will be removed from
-the dedicated worktree after accepted final validation.
+corpora and generated CSVs were not tracked or staged and were removed from the
+dedicated worktree after accepted final validation.

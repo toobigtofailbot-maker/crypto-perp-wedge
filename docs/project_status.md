@@ -29,6 +29,9 @@ Startup read order:
 - RESEARCH-02 is merged through PR #722 at merge commit
   `afcd5ebee90514b9a06569023b148326361e734d`; its D4-native taker-flow
   feature contract is current merged evidence.
+- FT-01 is merged and D2-021 is the durable five-timeframe canonical-base and
+  feature-parent identity authority. FT-02 is the open package intended to
+  complete the five-timeframe/data-feature foundation if its PR merges.
 
 ## Key Architecture References
 
@@ -56,11 +59,13 @@ Startup read order:
 - CPW-PREFECT-01 and RESEARCH-02 are merged. The prior bounded Prefect proof did
   not cut over scheduler, research automation, lab pipelines, canonical,
   runtime, paper/live, or capital authority.
-- After V2-00 merges, the next dependency-correct implementation lane is
-  five-timeframe/data-feature completion. That work is not part of V2-00.
+- FT-02 remains the current five-timeframe/data-feature completion package.
+  After it merges, the next dependency-correct V2 lane is Prefect
+  real-consumer orchestration.
 - Per-hypothesis approval and all current autonomy restrictions remain
   operational until Stage 5B is implemented, validated, explicitly activated,
-  and a valid Karl-approved bounded research envelope exists.
+  and a valid Karl-approved bounded research envelope exists; FT-02 does not
+  relax those default-off restrictions.
 - After VPS always-on acceptance, Stage 8A+ implementation remains serialized
   while Stage 8R continuous non-capital research operates in parallel.
 

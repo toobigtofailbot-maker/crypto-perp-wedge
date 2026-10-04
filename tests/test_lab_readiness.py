@@ -80,9 +80,12 @@ def test_taker_flow_uses_repo_truth_availability_class() -> None:
     item = _item(data, "READINESS-TAKER-FLOW-D4-NATIVE")
     support = " ".join(item["current_repo_support"])
     assert "CANONICAL_D4_KLINE_DERIVATION" in support
+    assert "CANONICAL_KLINE_TAKERFLOW_DERIVATION" in support
     assert "FULL_HISTORY_PUBLIC_ARCHIVE" in support
     assert "PUBLIC_REST_TAKER_RATIO" in support
     assert item["status"] == "needs_local_full_history_materialization"
+    assert "five-timeframe" in item["label"].lower()
+    assert "30m/1h/4h/1d" in item["blocker_detail"]
     assert "trade archive" not in (
         item["label"] + " " + item["blocker_detail"]
     ).lower()

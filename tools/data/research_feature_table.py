@@ -15,6 +15,9 @@ import pandas as pd
 
 from tools.registry.validate_research_feature_table_manifest import validate_manifest_payload
 from tools.research_domain.feature_data import (
+    CANONICAL_KLINE_TAKER_SOURCE_CLASS,
+    CANONICAL_KLINE_TAKER_TIMEFRAMES,
+    D4_TAKER_SOURCE_CLASS,
     FEATURE_JOIN_CONTRACT_VERSION,
     FeatureDataContractError,
     build_composite_research_data_identity,
@@ -52,13 +55,17 @@ def _utc(value: Any, label: str) -> pd.Timestamp:
 
 
 def _interval_delta(timeframe: str) -> pd.Timedelta:
+    deltas = {
+        "15m": pd.Timedelta(minutes=15),
+        "30m": pd.Timedelta(minutes=30),
+        "1h": pd.Timedelta(hours=1),
+        "4h": pd.Timedelta(hours=4),
+        "1d": pd.Timedelta(days=1),
+    }
     try:
-        delta = pd.to_timedelta(timeframe)
-    except ValueError as exc:
+        return deltas[timeframe]
+    except KeyError as exc:
         raise ResearchFeatureTableError(f"unsupported timeframe: {timeframe}") from exc
-    if delta <= pd.Timedelta(0):
-        raise ResearchFeatureTableError("timeframe must be positive")
-    return delta
 
 
 def _load_manifest(path: Path) -> dict[str, Any]:
@@ -103,32 +110,47 @@ def _ratio(numerator: Decimal, denominator: Decimal) -> str:
         return _decimal_text(numerator / denominator)
 
 
-def _validate_d4_taker_values(feature: pd.DataFrame, parent_path: Path) -> None:
+def _validate_taker_values(feature: pd.DataFrame, parent_path: Path) -> None:
     required = {"open_time_ms", "volume", "num_trades", "taker_buy_base_vol"}
-    try:
-        with parent_path.open("r", encoding="utf-8", newline="") as handle:
-            reader = csv.DictReader(handle)
-            if reader.fieldnames is None or not required.issubset(reader.fieldnames):
-                raise ResearchFeatureTableError(
-                    "canonical D4 parent lacks required taker derivation columns"
-                )
-            parent_rows = list(reader)
-    except (OSError, UnicodeDecodeError) as exc:
-        raise ResearchFeatureTableError("canonical D4 parent cannot be parsed") from exc
+    if parent_path.suffix.lower() == ".parquet":
+        try:
+            parent_frame = pd.read_parquet(parent_path)
+        except Exception as exc:
+            raise ResearchFeatureTableError(
+                "canonical kline Parquet parent cannot be parsed"
+            ) from exc
+        if not required.issubset(parent_frame.columns):
+            raise ResearchFeatureTableError(
+                "canonical kline parent lacks required taker derivation columns"
+            )
+        parent_rows = parent_frame.to_dict("records")
+    else:
+        try:
+            with parent_path.open("r", encoding="utf-8", newline="") as handle:
+                reader = csv.DictReader(handle)
+                if reader.fieldnames is None or not required.issubset(reader.fieldnames):
+                    raise ResearchFeatureTableError(
+                        "canonical kline parent lacks required taker derivation columns"
+                    )
+                parent_rows = list(reader)
+        except (OSError, UnicodeDecodeError) as exc:
+            raise ResearchFeatureTableError(
+                "canonical kline parent cannot be parsed"
+            ) from exc
     if len(parent_rows) != len(feature):
         raise ResearchFeatureTableError("canonical D4 parent/feature row counts differ")
     for index, (parent, derived) in enumerate(
         zip(parent_rows, feature.to_dict("records"), strict=True), start=1
     ):
         try:
-            volume = Decimal(parent["volume"])
-            buy = Decimal(parent["taker_buy_base_vol"])
+            volume = Decimal(str(parent["volume"]))
+            buy = Decimal(str(parent["taker_buy_base_vol"]))
             trades = int(parent["num_trades"])
             derived_buy = Decimal(str(derived["taker_buy_volume"]))
             derived_sell = Decimal(str(derived["taker_sell_volume"]))
         except (InvalidOperation, ValueError, TypeError, KeyError) as exc:
             raise ResearchFeatureTableError(
-                f"canonical D4 taker values are invalid at row {index}"
+                f"canonical kline taker values are invalid at row {index}"
             ) from exc
         if (
             not volume.is_finite()
@@ -139,16 +161,16 @@ def _validate_d4_taker_values(feature: pd.DataFrame, parent_path: Path) -> None:
             or trades < 0
         ):
             raise ResearchFeatureTableError(
-                f"canonical D4 parent values are invalid at row {index}"
+                f"canonical kline parent values are invalid at row {index}"
             )
         sell = volume - buy
         if derived_buy != buy or derived_sell != sell:
             raise ResearchFeatureTableError(
-                f"canonical D4 feature formula mismatch at row {index}"
+                f"canonical kline feature formula mismatch at row {index}"
             )
-        if str(derived["open_time_ms"]) != parent["open_time_ms"]:
+        if int(str(derived["open_time_ms"])) != int(parent["open_time_ms"]):
             raise ResearchFeatureTableError(
-                f"canonical D4 parent timestamp mismatch at row {index}"
+                f"canonical kline parent timestamp mismatch at row {index}"
             )
         ratio = str(derived["taker_buy_sell_ratio"])
         if sell == 0:
@@ -158,7 +180,7 @@ def _validate_d4_taker_values(feature: pd.DataFrame, parent_path: Path) -> None:
                 )
         elif ratio != _ratio(buy, sell):
             raise ResearchFeatureTableError(
-                f"canonical D4 ratio formula mismatch at row {index}"
+                f"canonical kline ratio formula mismatch at row {index}"
             )
 
 
@@ -190,9 +212,16 @@ def resolve_research_feature_table(
 
     manifest = _load_manifest(feature_manifest_path)
     contract = manifest["research_feature_table"]
-    if contract["source_class"] != "CANONICAL_D4_KLINE_DERIVATION":
+    expected_source_class = (
+        D4_TAKER_SOURCE_CLASS
+        if base_timeframe == "15m"
+        else CANONICAL_KLINE_TAKER_SOURCE_CLASS
+        if base_timeframe in CANONICAL_KLINE_TAKER_TIMEFRAMES
+        else None
+    )
+    if expected_source_class is None or contract["source_class"] != expected_source_class:
         raise ResearchFeatureTableError(
-            "research taker feature input must use canonical D4 kline derivation"
+            "research taker feature source class does not match the canonical base timeframe"
         )
     parent = contract["parent_identity"]
     if (
@@ -205,7 +234,7 @@ def resolve_research_feature_table(
         != base_coverage_end_utc_exclusive
     ):
         raise ResearchFeatureTableError(
-            "feature manifest parent identity does not match the physical D4 parent"
+            "feature manifest parent identity does not match the physical canonical parent"
         )
     if dict(contract["market_identity"]) != dict(base_market_identity):
         raise ResearchFeatureTableError("base and feature market identities differ")
@@ -236,7 +265,7 @@ def resolve_research_feature_table(
     feature = _load_feature_csv(feature_csv_path, output["columns"])
     if len(feature) != output["row_count"] or len(feature) != len(base_frame):
         raise ResearchFeatureTableError("feature/base row counts are not exactly equal")
-    _validate_d4_taker_values(feature, base_input_path)
+    _validate_taker_values(feature, base_input_path)
 
     timestamps = pd.to_datetime(feature["timestamp"], utc=True, errors="coerce")
     available = pd.to_datetime(feature["feature_available_at"], utc=True, errors="coerce")

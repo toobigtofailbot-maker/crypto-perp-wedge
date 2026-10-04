@@ -14,18 +14,23 @@ from decimal import Decimal, localcontext
 from pathlib import Path
 
 import pytest
+import pandas as pd
 
 from tools.data.materialize_takerflow_features import (
+    CANONICAL_KLINE_PARENT_CONFIG,
+    CANONICAL_KLINE_TAKER_SOURCE_CLASS,
     CANONICAL_ORDER_VERSION,
     D4_PROJECTION_SHA256,
     D4_TAKER_SOURCE_CLASS,
     PARTITION_CACHE_VERSION,
     SOURCE_POLICY_VERSION,
     TakerflowMaterializationError,
+    _build_parser,
     build_completed_bar_features,
     inspect_hydration_manifest,
     materialize_takerflow_features,
     materialize_d4_native_takerflow_features,
+    materialize_canonical_kline_takerflow_features,
     materialize_partitioned_takerflow_features,
 )
 from tools.data_ingestion.takerflow_archive_recon import (
@@ -111,6 +116,57 @@ def _materialize_d4(tmp_path: Path, *, rows=None, identity: str | None = None):
         **kwargs,
     )
     return d4, output, manifest_path, manifest
+
+
+def _write_generic_parent(tmp_path: Path, timeframe: str, *, parquet: bool = False) -> tuple[Path, dict]:
+    delta = {"30m": 1_800_000, "1h": 3_600_000, "4h": 14_400_000, "1d": 86_400_000}[timeframe]
+    start_ms = 1704067200000
+    rows = [
+        {"open_time_ms": start_ms + index * delta, "open_time": _iso, "volume": volume,
+         "close_time_ms": start_ms + (index + 1) * delta - 1, "num_trades": trades,
+         "taker_buy_base_vol": buy}
+        for index, (volume, trades, buy) in enumerate((("6", 3, "4"), ("4", 0, "4"), ("5", 2, "0")))
+        for _iso in [datetime.fromtimestamp((start_ms + index * delta) / 1000, tz=UTC).isoformat(timespec="milliseconds").replace("+00:00", "Z")]
+    ]
+    path = tmp_path / ("parent.parquet" if parquet else "parent.csv")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if parquet:
+        pd.DataFrame(rows).drop(columns=["open_time"]).to_parquet(path, index=False)
+    else:
+        with path.open("w", encoding="utf-8", newline="") as handle:
+            writer = csv.DictWriter(handle, fieldnames=list(rows[0]), lineterminator="\n")
+            writer.writeheader()
+            writer.writerows(rows)
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    hash_label = "identity_sha256" if timeframe == "1d" else "sha256"
+    config = {
+        "sha256": digest,
+        "row_count": 3,
+        "coverage_start": "2024-01-01T00:00:00.000Z",
+        "coverage_end": datetime.fromtimestamp((start_ms + 3 * delta) / 1000, tz=UTC).isoformat(timespec="milliseconds").replace("+00:00", "Z"),
+        "data_slice_identity": f"binance_usdtm_btcusdt_ohlcv_{timeframe}:{hash_label}:" + "1" * 64,
+        "format": "parquet" if parquet else "csv",
+    }
+    return path, config
+
+
+def _materialize_generic(tmp_path: Path, timeframe: str, *, parquet: bool = False, config_override=None):
+    parent, config = _write_generic_parent(tmp_path, timeframe, parquet=parquet)
+    original_parent_bytes = parent.read_bytes()
+    original_parent_mtime_ns = parent.stat().st_mtime_ns
+    if config_override:
+        config.update(config_override)
+    manifest = materialize_canonical_kline_takerflow_features(
+        canonical_kline_path=parent,
+        timeframe=timeframe,
+        output_path=tmp_path / "features.csv",
+        manifest_path=tmp_path / "features.manifest.json",
+        availability_catalog_path=AVAILABILITY,
+        _parent_config=config,
+    )
+    assert parent.read_bytes() == original_parent_bytes
+    assert parent.stat().st_mtime_ns == original_parent_mtime_ns
+    return parent, tmp_path / "features.csv", manifest
 
 
 def _write_zip(path: Path, rows: list[list[str]]) -> None:
@@ -229,6 +285,74 @@ def test_d4_native_materializer_has_exact_formulas_nulls_and_identity(tmp_path: 
     assert validate_manifest_payload(manifest) == []
 
 
+@pytest.mark.parametrize("timeframe", ["30m", "1h", "4h"])
+def test_generic_canonical_kline_materializer_is_closed_and_row_local(
+    tmp_path: Path, timeframe: str
+) -> None:
+    _, output, manifest = _materialize_generic(tmp_path, timeframe)
+    rows = list(csv.DictReader(output.open(encoding="utf-8", newline="")))
+    assert [(row["taker_buy_volume"], row["taker_sell_volume"]) for row in rows] == [
+        ("4", "2"), ("4", "0"), ("0", "5")
+    ]
+    assert [row["taker_buy_sell_ratio"] for row in rows] == ["2", "", "0"]
+    contract = manifest["research_feature_table"]
+    assert contract["source_class"] == CANONICAL_KLINE_TAKER_SOURCE_CLASS
+    assert contract["derivation"]["derivation_version"] == "cpw_canonical_kline_takerflow_v2"
+    assert contract["timeframe"] == timeframe
+    assert manifest["proof"]["zero_sell_count"] == manifest["proof"]["null_ratio_count"] == 1
+    assert validate_manifest_payload(manifest) == []
+
+
+def test_generic_one_day_materializer_reads_exact_parquet_parent(tmp_path: Path) -> None:
+    _, output, manifest = _materialize_generic(tmp_path, "1d", parquet=True)
+    assert len(list(csv.DictReader(output.open(encoding="utf-8", newline="")))) == 3
+    assert manifest["source_type"] == "canonical_1d_kline_parquet"
+    assert manifest["research_feature_table"]["parent_identity"]["data_slice_identity"].startswith(
+        "binance_usdtm_btcusdt_ohlcv_1d:identity_sha256:"
+    )
+
+
+def test_generic_materializer_rejects_15m_and_locked_parent_drift(tmp_path: Path) -> None:
+    parent, _ = _write_generic_parent(tmp_path, "30m")
+    with pytest.raises(TakerflowMaterializationError, match="limited"):
+        materialize_canonical_kline_takerflow_features(
+            canonical_kline_path=parent,
+            timeframe="15m",
+            output_path=tmp_path / "features.csv",
+            manifest_path=tmp_path / "manifest.json",
+            availability_catalog_path=AVAILABILITY,
+        )
+    for override, error in (({"sha256": "0" * 64}, "IDENTITY_BLOCKER"), ({"row_count": 4}, "row count")):
+        with pytest.raises(TakerflowMaterializationError, match=error):
+            _materialize_generic(tmp_path / error, "30m", config_override=override)
+
+
+def test_generic_production_parent_config_is_exact() -> None:
+    assert set(CANONICAL_KLINE_PARENT_CONFIG) == {"30m", "1h", "4h", "1d"}
+    assert CANONICAL_KLINE_PARENT_CONFIG["30m"]["row_count"] == 110064
+    assert CANONICAL_KLINE_PARENT_CONFIG["1h"]["sha256"] == "28b750e90ee9957e6fc22811c4ae632355a239f2b958ed65c9b3c56cb2d9e79e"
+    assert CANONICAL_KLINE_PARENT_CONFIG["4h"]["data_slice_identity"].endswith("4379d2f0fad5e79bfd5576b308d01fb6134b0f5acf04013e73e00ce33ca96b30")
+    assert CANONICAL_KLINE_PARENT_CONFIG["1d"]["format"] == "parquet"
+
+
+def test_generic_cli_mode_requires_closed_path_timeframe_pair(tmp_path: Path) -> None:
+    parser = _build_parser()
+    parsed = parser.parse_args(
+        [
+            "--canonical-kline-path", str(tmp_path / "parent.csv"),
+            "--canonical-kline-timeframe", "30m",
+            "--output-path", str(tmp_path / "features.csv"),
+            "--manifest-path", str(tmp_path / "manifest.json"),
+            "--availability-catalog-path", str(AVAILABILITY),
+        ]
+    )
+    assert parsed.canonical_kline_timeframe == "30m"
+    with pytest.raises(SystemExit):
+        parser.parse_args(
+            ["--d4-path", str(tmp_path / "d4.csv"), "--canonical-kline-path", str(tmp_path / "parent.csv")]
+        )
+
+
 @pytest.mark.parametrize(
     "rows",
     [
@@ -311,6 +435,15 @@ def test_full_history_d4_native_physical_proof(tmp_path: Path) -> None:
         "three_column_projection_sha256": D4_PROJECTION_SHA256,
     }
     assert first["output"]["sha256"] == second["output"]["sha256"]
+    assert first["output"]["sha256"] == (
+        "c726d5a73a2d2168404c2a3599c477f9bea7ab5066d59c3f090a456b8efeffba"
+    )
+    assert first["research_feature_table"]["source_set_identity"] == (
+        "sha256:a706affa0f3b3be362ffeb523d8dcd6805235127618760e13a16b7d6969f411e"
+    )
+    assert first["research_feature_table"]["feature_table_identity"] == (
+        "sha256:0ab8af18c78d274d7ac4e3b11a9701d7e604e5c9a8e746b6000e1cca4f79403c"
+    )
     assert (
         first["research_feature_table"]["feature_table_identity"]
         == second["research_feature_table"]["feature_table_identity"]

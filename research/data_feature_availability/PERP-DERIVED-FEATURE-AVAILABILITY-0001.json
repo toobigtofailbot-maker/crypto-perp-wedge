@@ -143,6 +143,17 @@
       "notes": "This row-local D4 kline derivation makes no independent trade-archive completeness claim."
     },
     {
+      "feature_name": "taker_buy_sell_ratio",
+      "compiler_visible": true,
+      "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+      "source_class": "CANONICAL_KLINE_TAKERFLOW_DERIVATION",
+      "history_limitation": "Coverage is bounded by the exact canonical D2-021 execution base selected for 30m, 1h, 4h, or 1d.",
+      "canonical_full_history_allowed": "conditional",
+      "requires_vendor_or_captured_data": false,
+      "conditions": ["The exact canonical D2-021 base covers the claimed evidence window.", "The feature is derived row-locally from that exact bound canonical base.", "Feature values are available only at completed-bar close.", "Feature parent identity equals execution-base identity."],
+      "notes": "This source class is limited to canonical 30m, 1h, 4h, and 1d bases; legacy 15m remains CANONICAL_D4_KLINE_DERIVATION."
+    },
+    {
       "feature_name": "taker_buy_volume",
       "compiler_visible": true,
       "coverage_class": "RECENT_ONLY_PUBLIC_REST",
@@ -165,6 +176,17 @@
       "notes": "This row-local D4 kline derivation makes no independent trade-archive completeness claim."
     },
     {
+      "feature_name": "taker_buy_volume",
+      "compiler_visible": true,
+      "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+      "source_class": "CANONICAL_KLINE_TAKERFLOW_DERIVATION",
+      "history_limitation": "Coverage is bounded by the exact canonical D2-021 execution base selected for 30m, 1h, 4h, or 1d.",
+      "canonical_full_history_allowed": "conditional",
+      "requires_vendor_or_captured_data": false,
+      "conditions": ["The exact canonical D2-021 base covers the claimed evidence window.", "The feature is derived row-locally from that exact bound canonical base.", "Feature values are available only at completed-bar close.", "Feature parent identity equals execution-base identity."],
+      "notes": "This source class is limited to canonical 30m, 1h, 4h, and 1d bases; legacy 15m remains CANONICAL_D4_KLINE_DERIVATION."
+    },
+    {
       "feature_name": "taker_sell_volume",
       "compiler_visible": true,
       "coverage_class": "RECENT_ONLY_PUBLIC_REST",
@@ -185,6 +207,17 @@
       "requires_vendor_or_captured_data": false,
       "conditions": ["Canonical D4 bars cover the claimed evidence window.", "Sell volume is deterministically derived from the exact bound D4 parent.", "Feature values are available only at completed-bar close."],
       "notes": "This row-local D4 kline derivation makes no independent trade-archive completeness claim."
+    },
+    {
+      "feature_name": "taker_sell_volume",
+      "compiler_visible": true,
+      "coverage_class": "FULL_HISTORY_PUBLIC_ARCHIVE",
+      "source_class": "CANONICAL_KLINE_TAKERFLOW_DERIVATION",
+      "history_limitation": "Coverage is bounded by the exact canonical D2-021 execution base selected for 30m, 1h, 4h, or 1d.",
+      "canonical_full_history_allowed": "conditional",
+      "requires_vendor_or_captured_data": false,
+      "conditions": ["The exact canonical D2-021 base covers the claimed evidence window.", "The feature is derived row-locally from that exact bound canonical base.", "Feature values are available only at completed-bar close.", "Feature parent identity equals execution-base identity."],
+      "notes": "This source class is limited to canonical 30m, 1h, 4h, and 1d bases; legacy 15m remains CANONICAL_D4_KLINE_DERIVATION."
     },
     {
       "feature_name": "hour_of_day_utc",

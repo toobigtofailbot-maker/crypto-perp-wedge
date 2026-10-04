@@ -241,6 +241,11 @@ class _ExecutionInput:
     funding_input_identity: dict[str, Any] = field(
         default_factory=lambda: _funding_input_identity_off()
     )
+    base_input_path: Path | None = None
+    base_normalized_sha256: str | None = None
+    base_coverage_start_utc_inclusive: str | None = None
+    base_coverage_end_utc_exclusive: str | None = None
+    bound_feature_sources: tuple[tuple[str, str], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -499,6 +504,11 @@ def _bind_funding_input(
         environment_summary=[*execution_input.environment_summary, note],
         data_coverage_notes=[*execution_input.data_coverage_notes, note],
         funding_input_identity=identity,
+        base_input_path=execution_input.base_input_path,
+        base_normalized_sha256=execution_input.base_normalized_sha256,
+        base_coverage_start_utc_inclusive=execution_input.base_coverage_start_utc_inclusive,
+        base_coverage_end_utc_exclusive=execution_input.base_coverage_end_utc_exclusive,
+        bound_feature_sources=execution_input.bound_feature_sources,
     )
 
 
@@ -803,7 +813,11 @@ def _availability_catalog_entries() -> dict[str, list[dict[str, Any]]]:
     return entries
 
 
-def _availability_entry_for_feature(feature_name: str) -> dict[str, Any]:
+def _availability_entry_for_feature(
+    feature_name: str,
+    *,
+    source_class: str | None = None,
+) -> dict[str, Any]:
     entries = _availability_catalog_entries().get(feature_name, [])
     if not entries:
         raise OfflineSweepError(f"unknown data-derived feature availability label: {feature_name}")
@@ -813,8 +827,23 @@ def _availability_entry_for_feature(feature_name: str) -> dict[str, Any]:
         if entry.get("coverage_class") == "FULL_HISTORY_PUBLIC_ARCHIVE"
         and entry.get("compiler_visible") is True
     ]
-    if full_history:
+    if source_class is not None:
+        matches = [
+            entry for entry in full_history if entry.get("source_class") == source_class
+        ]
+        if len(matches) == 1:
+            return matches[0]
+        raise OfflineSweepError(
+            f"{feature_name} has no unique FULL_HISTORY_PUBLIC_ARCHIVE entry for "
+            f"bound source_class={source_class}"
+        )
+    if len(full_history) == 1:
         return full_history[0]
+    if len(full_history) > 1:
+        raise OfflineSweepError(
+            f"{feature_name} has ambiguous FULL_HISTORY_PUBLIC_ARCHIVE sources; "
+            "an explicit bound feature source is required"
+        )
     source_classes = sorted(
         str(entry.get("source_class"))
         for entry in entries
@@ -826,13 +855,22 @@ def _availability_entry_for_feature(feature_name: str) -> dict[str, Any]:
     )
 
 
-def _data_availability_claim(strategy_spec: dict[str, Any]) -> dict[str, Any] | None:
+def _data_availability_claim(
+    strategy_spec: dict[str, Any],
+    execution_input: _ExecutionInput | None = None,
+) -> dict[str, Any] | None:
     declared_fields = _declared_non_ohlcv_columns(strategy_spec)
     if not declared_fields:
         return None
     feature_sources = []
+    bound_sources = dict(
+        execution_input.bound_feature_sources if execution_input is not None else ()
+    )
     for field in declared_fields:
-        entry = _availability_entry_for_feature(field)
+        entry = _availability_entry_for_feature(
+            field,
+            source_class=bound_sources.get(field),
+        )
         source_class = entry.get("source_class")
         if not isinstance(source_class, str):
             raise OfflineSweepError(f"availability entry for {field} missing source_class")
@@ -1217,6 +1255,15 @@ def _canonical_1d_execution_input(
             "not live/paper input",
         ],
         funding_input_identity=_funding_input_identity_off(),
+        base_input_path=source_path,
+        base_normalized_sha256=post_read_source_sha256,
+        base_coverage_start_utc_inclusive=_iso_milliseconds(
+            _parse_metadata_timestamp(coverage["start_open_utc"], "1d coverage start")
+        ),
+        base_coverage_end_utc_exclusive=_iso_milliseconds(
+            _parse_metadata_timestamp(coverage["end_open_utc"], "1d coverage end")
+            + pd.Timedelta(days=1)
+        ),
     )
 
 
@@ -1287,6 +1334,11 @@ def _slice_execution_input(
         environment_summary=execution_input.environment_summary,
         data_coverage_notes=execution_input.data_coverage_notes,
         funding_input_identity=execution_input.funding_input_identity,
+        base_input_path=execution_input.base_input_path,
+        base_normalized_sha256=execution_input.base_normalized_sha256,
+        base_coverage_start_utc_inclusive=execution_input.base_coverage_start_utc_inclusive,
+        base_coverage_end_utc_exclusive=execution_input.base_coverage_end_utc_exclusive,
+        bound_feature_sources=execution_input.bound_feature_sources,
     )
 
 
@@ -1319,6 +1371,11 @@ def _slice_execution_input_for_evaluation_end(
         environment_summary=execution_input.environment_summary,
         data_coverage_notes=execution_input.data_coverage_notes,
         funding_input_identity=execution_input.funding_input_identity,
+        base_input_path=execution_input.base_input_path,
+        base_normalized_sha256=execution_input.base_normalized_sha256,
+        base_coverage_start_utc_inclusive=execution_input.base_coverage_start_utc_inclusive,
+        base_coverage_end_utc_exclusive=execution_input.base_coverage_end_utc_exclusive,
+        bound_feature_sources=execution_input.bound_feature_sources,
     )
 
 
@@ -1452,6 +1509,10 @@ def _parse_metadata_timestamp(value: str, label: str) -> pd.Timestamp:
     return pd.Timestamp(parsed)
 
 
+def _iso_milliseconds(value: pd.Timestamp) -> str:
+    return value.tz_convert("UTC").strftime("%Y-%m-%dT%H:%M:%S.000Z")
+
+
 def _d4_catalog_execution_input(
     ohlcv_input_path: Path | None,
     d4_catalog_slice_path: Path | None,
@@ -1508,6 +1569,9 @@ def _d4_catalog_execution_input(
     d2_import_report_sha256 = _sha256_file_hex(d2_import_report_path)
     d4_catalog_artifact_sha256 = _sha256_file_hex(d4_catalog_slice_path)
     execution_input = _canonical_15m_execution_input(ohlcv_input_path, additional_columns)
+    start_timestamp = _parse_metadata_timestamp(start_utc, "D4 range.start_utc")
+    last_open_timestamp = _parse_metadata_timestamp(end_utc, "D4 range.end_utc")
+    assert ohlcv_input_path is not None
     return _ExecutionInput(
         mode="canonical_15m_d4_provenance",
         execution_provenance_class="canonical_real_data",
@@ -1549,61 +1613,51 @@ def _d4_catalog_execution_input(
             f"normalized_sha256={normalized_sha256}",
         ],
         funding_input_identity=_funding_input_identity_off(),
+        base_input_path=ohlcv_input_path.resolve(),
+        base_normalized_sha256=normalized_sha256,
+        base_coverage_start_utc_inclusive=_iso_milliseconds(start_timestamp),
+        base_coverage_end_utc_exclusive=_iso_milliseconds(
+            last_open_timestamp + pd.Timedelta(minutes=15)
+        ),
     )
 
 
 def _bind_research_feature_input(
     execution_input: _ExecutionInput,
     *,
-    ohlcv_input_path: Path,
-    d4_catalog_slice_path: Path,
     feature_manifest_path: Path,
     feature_input_path: Path,
     requested_feature_names: tuple[str, ...],
 ) -> _ExecutionInput:
     """Thin transitional consumer of the generic feature-table resolver."""
 
-    catalog = _load_json(d4_catalog_slice_path)
-    if _required_non_empty_string(catalog, "symbol") != "BTCUSDT":
-        raise OfflineSweepError("research feature input requires the BTCUSDT D4 parent")
-    if _required_non_empty_string(catalog, "venue") != "Binance":
-        raise OfflineSweepError("research feature input requires the Binance D4 parent")
-    if _required_non_empty_string(catalog, "timeframe") != "15m":
-        raise OfflineSweepError("research feature input requires the 15m D4 parent")
-    if _required_non_empty_string(catalog, "market_type") not in {
-        "USDT-M perpetual",
-        "USD-M perpetual",
-    }:
-        raise OfflineSweepError("research feature input requires the USD-M perpetual D4 parent")
-    start = _parse_metadata_timestamp(
-        _required_non_empty_string(catalog, "range.start_utc"),
-        "D4 range.start_utc",
-    )
-    last_open = _parse_metadata_timestamp(
-        _required_non_empty_string(catalog, "range.end_utc"),
-        "D4 range.end_utc",
-    )
-
-    def iso_ms(value: pd.Timestamp) -> str:
-        return value.tz_convert("UTC").strftime("%Y-%m-%dT%H:%M:%S.000Z")
+    if (
+        execution_input.base_input_path is None
+        or execution_input.base_normalized_sha256 is None
+        or execution_input.base_coverage_start_utc_inclusive is None
+        or execution_input.base_coverage_end_utc_exclusive is None
+    ):
+        raise OfflineSweepError(
+            "canonical route does not expose complete feature-parent metadata"
+        )
 
     try:
         resolved = resolve_research_feature_table(
             base_frame=execution_input.ohlcv,
-            base_input_path=ohlcv_input_path.resolve(),
+            base_input_path=execution_input.base_input_path,
             base_data_slice_identity=execution_input.data_slice_identity,
-            base_normalized_sha256=_required_non_empty_string(
-                catalog, "normalized.sha256"
-            ),
+            base_normalized_sha256=execution_input.base_normalized_sha256,
             base_market_identity={
                 "venue": "Binance",
                 "market_type": "USD-M perpetual",
                 "symbol": "BTCUSDT",
             },
-            base_timeframe="15m",
-            base_coverage_start_utc_inclusive=iso_ms(start),
-            base_coverage_end_utc_exclusive=iso_ms(
-                last_open + pd.Timedelta(minutes=15)
+            base_timeframe=execution_input.timeframe,
+            base_coverage_start_utc_inclusive=(
+                execution_input.base_coverage_start_utc_inclusive
+            ),
+            base_coverage_end_utc_exclusive=(
+                execution_input.base_coverage_end_utc_exclusive
             ),
             feature_manifest_path=feature_manifest_path,
             feature_csv_path=feature_input_path,
@@ -1628,6 +1682,13 @@ def _bind_research_feature_input(
             *resolved.provenance_notes,
         ],
         funding_input_identity=execution_input.funding_input_identity,
+        base_input_path=execution_input.base_input_path,
+        base_normalized_sha256=execution_input.base_normalized_sha256,
+        base_coverage_start_utc_inclusive=execution_input.base_coverage_start_utc_inclusive,
+        base_coverage_end_utc_exclusive=execution_input.base_coverage_end_utc_exclusive,
+        bound_feature_sources=tuple(
+            (name, resolved.source_class) for name in resolved.selected_feature_names
+        ),
     )
 
 
@@ -1772,6 +1833,12 @@ def _canonical_4h_execution_input(
             f"partial_window_count={partial_window_count}",
         ],
         funding_input_identity=_funding_input_identity_off(),
+        base_input_path=resolved,
+        base_normalized_sha256=normalized_sha256,
+        base_coverage_start_utc_inclusive=_iso_milliseconds(metadata_start),
+        base_coverage_end_utc_exclusive=_iso_milliseconds(
+            metadata_end + pd.Timedelta(hours=4)
+        ),
     )
 
 
@@ -1938,6 +2005,14 @@ def _canonical_intraday_derived_execution_input(
             f"partial_window_count={partial_window_count}",
         ],
         funding_input_identity=_funding_input_identity_off(),
+        base_input_path=resolved,
+        base_normalized_sha256=normalized_sha,
+        base_coverage_start_utc_inclusive=_iso_milliseconds(
+            _parse_metadata_timestamp(start_utc, "range.start_utc")
+        ),
+        base_coverage_end_utc_exclusive=_iso_milliseconds(
+            _parse_metadata_timestamp(end_utc, "range.end_utc") + config["cadence"]
+        ),
     )
 
 
@@ -3178,7 +3253,7 @@ def _build_result_population(
         funding_input_identity,
     )
     sizing_metadata = _sizing_metadata(sizing_context)
-    data_availability_claim = _data_availability_claim(strategy_spec)
+    data_availability_claim = _data_availability_claim(strategy_spec, execution_input)
     input_scope = _input_scope(
         include_sizing_metadata=sizing_metadata is not None,
         include_data_availability_claim=data_availability_claim is not None,
@@ -3653,8 +3728,12 @@ def run_offline_sweep(
         raise OfflineSweepError(
             "--research-feature-manifest and --research-feature-input are a required pair"
         )
-    if all(feature_args_present) and not canonical_15m:
-        raise OfflineSweepError("research feature-table inputs are supported only with --canonical-15m")
+    if all(feature_args_present) and not any(
+        (canonical_15m, canonical_30m, canonical_1h, canonical_4h, canonical_1d)
+    ):
+        raise OfflineSweepError(
+            "research feature-table inputs require one canonical timeframe route"
+        )
     guarded_output_dir = _guard_output_dir(output_dir, write_result_population)
     strategy_spec, manifest, sweep_plan = _validate_parent_inputs(
         strategy_spec_path,
@@ -3693,8 +3772,6 @@ def run_offline_sweep(
             assert research_feature_input_path is not None
             execution_input = _bind_research_feature_input(
                 execution_input,
-                ohlcv_input_path=ohlcv_input_path,
-                d4_catalog_slice_path=d4_catalog_slice_path,
                 feature_manifest_path=research_feature_manifest_path,
                 feature_input_path=research_feature_input_path,
                 requested_feature_names=declared_non_ohlcv_columns,
@@ -3720,8 +3797,19 @@ def run_offline_sweep(
         execution_input = _canonical_intraday_derived_execution_input(
             timeframe,
             ohlcv_input_path,
-            additional_columns=declared_non_ohlcv_columns,
+            additional_columns=(
+                () if all(feature_args_present) else declared_non_ohlcv_columns
+            ),
         )
+        if all(feature_args_present):
+            assert research_feature_manifest_path is not None
+            assert research_feature_input_path is not None
+            execution_input = _bind_research_feature_input(
+                execution_input,
+                feature_manifest_path=research_feature_manifest_path,
+                feature_input_path=research_feature_input_path,
+                requested_feature_names=declared_non_ohlcv_columns,
+            )
     elif canonical_4h:
         primary_timeframe = strategy_spec.get("timeframe_and_data", {}).get("primary_timeframe")
         sweep_timeframe = sweep_plan.get("data_and_timeframe_assumptions", {}).get("primary_timeframe")
@@ -3734,8 +3822,17 @@ def run_offline_sweep(
             d4h_catalog_slice_path,
             d4h_validation_report_path,
             d4h_derivation_report_path,
-            declared_non_ohlcv_columns,
+            () if all(feature_args_present) else declared_non_ohlcv_columns,
         )
+        if all(feature_args_present):
+            assert research_feature_manifest_path is not None
+            assert research_feature_input_path is not None
+            execution_input = _bind_research_feature_input(
+                execution_input,
+                feature_manifest_path=research_feature_manifest_path,
+                feature_input_path=research_feature_input_path,
+                requested_feature_names=declared_non_ohlcv_columns,
+            )
     elif canonical_1d:
         primary_timeframe = strategy_spec.get("timeframe_and_data", {}).get("primary_timeframe")
         sweep_timeframe = sweep_plan.get("data_and_timeframe_assumptions", {}).get(
@@ -3753,7 +3850,18 @@ def run_offline_sweep(
             or d4h_derivation_report_path is not None
         ):
             raise OfflineSweepError("D4H provenance flags require --canonical-4h")
-        execution_input = _canonical_1d_execution_input(declared_non_ohlcv_columns)
+        execution_input = _canonical_1d_execution_input(
+            () if all(feature_args_present) else declared_non_ohlcv_columns
+        )
+        if all(feature_args_present):
+            assert research_feature_manifest_path is not None
+            assert research_feature_input_path is not None
+            execution_input = _bind_research_feature_input(
+                execution_input,
+                feature_manifest_path=research_feature_manifest_path,
+                feature_input_path=research_feature_input_path,
+                requested_feature_names=declared_non_ohlcv_columns,
+            )
     elif d4_catalog_slice_path is not None or d2_import_report_path is not None:
         raise OfflineSweepError("D4 provenance mode requires --canonical-15m")
     elif (

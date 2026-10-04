@@ -21,8 +21,13 @@ from tests.test_validate_variant_sweep_artifacts import (
 from tools.registry.validate_result_populations import OUTCOME_CATEGORIES, validate_result_populations
 from tools.research_runner import run_offline_sweep as runner
 from tools.research_runner.spec_signal_compiler import compile_signal as real_compile_signal
-from tools.data.materialize_takerflow_features import D4_OUTPUT_COLUMNS
+from tools.data.materialize_takerflow_features import (
+    D4_OUTPUT_COLUMNS,
+    materialize_canonical_kline_takerflow_features,
+)
 from tools.research_domain.feature_data import (
+    CANONICAL_KLINE_TAKER_DERIVATION_VERSION,
+    CANONICAL_KLINE_TAKER_SOURCE_CLASS,
     D4_TAKER_DERIVATION_VERSION,
     D4_TAKER_FEATURE_DEFINITIONS,
     D4_TAKER_PARENT_FIELDS,
@@ -336,14 +341,27 @@ def _write_research_feature_fixture(
     ohlcv_path: Path,
     *,
     timestamp_shift_minutes: int = 0,
-    availability_shift_minutes: int = 15,
+    availability_shift_minutes: int | None = None,
+    timeframe: str = "15m",
+    parent_identity: str | None = None,
 ) -> tuple[Path, Path]:
     tmp_path.mkdir(parents=True, exist_ok=True)
     base = pd.read_csv(ohlcv_path)
-    timestamps = pd.to_datetime(base["timestamp"], utc=True) + pd.Timedelta(
+    timestamp_column = "timestamp" if "timestamp" in base.columns else "open_time"
+    timestamps = pd.to_datetime(base[timestamp_column], utc=True) + pd.Timedelta(
         minutes=timestamp_shift_minutes
     )
-    available = timestamps + pd.Timedelta(minutes=availability_shift_minutes)
+    timeframe_delta = pd.to_timedelta(timeframe)
+    available = timestamps + (
+        timeframe_delta
+        if availability_shift_minutes is None
+        else pd.Timedelta(minutes=availability_shift_minutes)
+    )
+    sell = base["volume"] - base["taker_buy_base_vol"]
+    ratio = [
+        "" if value == 0 else format(buy / value, ".15g")
+        for buy, value in zip(base["taker_buy_base_vol"], sell, strict=True)
+    ]
     rows = pd.DataFrame(
         {
             "timestamp": timestamps.map(lambda value: value.strftime("%Y-%m-%dT%H:%M:%S.000Z")),
@@ -351,32 +369,45 @@ def _write_research_feature_fixture(
             "feature_available_at": available.map(lambda value: value.strftime("%Y-%m-%dT%H:%M:%S.000Z")),
             "feature_available_at_ms": available.map(lambda value: int(value.timestamp() * 1000)),
             "taker_buy_volume": base["taker_buy_base_vol"],
-            "taker_sell_volume": base["volume"] - base["taker_buy_base_vol"],
-            "taker_buy_sell_ratio": ["0"] * len(base),
+            "taker_sell_volume": sell,
+            "taker_buy_sell_ratio": ratio,
         }
     )[list(D4_OUTPUT_COLUMNS)]
     feature_path = tmp_path / "research_features.csv"
     rows.to_csv(feature_path, index=False, lineterminator="\n")
     feature_sha = runner._sha256_file_hex(feature_path)
     base_sha = runner._sha256_file_hex(ohlcv_path)
-    parent_identity = "binance_usdtm_btcusdt_ohlcv_15m:sha256:" + base_sha
+    source_class = (
+        D4_TAKER_SOURCE_CLASS
+        if timeframe == "15m"
+        else CANONICAL_KLINE_TAKER_SOURCE_CLASS
+    )
+    parent_identity = parent_identity or (
+        "binance_usdtm_btcusdt_ohlcv_15m:sha256:" + base_sha
+    )
     source_files = [{"logical_filename": ohlcv_path.name, "sha256": base_sha, "size_bytes": ohlcv_path.stat().st_size, "parsed_row_count": len(base), "source_type": "canonical_d4_kline"}]
     source_identity_context = {
         "data_slice_identity": parent_identity,
         "normalized_sha256": base_sha,
-        "derivation_version": D4_TAKER_DERIVATION_VERSION,
+        "derivation_version": (
+            D4_TAKER_DERIVATION_VERSION
+            if timeframe == "15m"
+            else CANONICAL_KLINE_TAKER_DERIVATION_VERSION
+        ),
     }
-    coverage_start = pd.to_datetime(base["timestamp"].iloc[0], utc=True).strftime("%Y-%m-%dT%H:%M:%S.000Z")
-    coverage_end = (pd.to_datetime(base["timestamp"].iloc[-1], utc=True) + pd.Timedelta(minutes=15)).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+    coverage_start = pd.to_datetime(base[timestamp_column].iloc[0], utc=True).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+    coverage_end = (
+        pd.to_datetime(base[timestamp_column].iloc[-1], utc=True) + timeframe_delta
+    ).strftime("%Y-%m-%dT%H:%M:%S.000Z")
     contract = {
         "schema_version": "cpw_research_feature_table_v1",
         "family_id": "binance_usdm_takerflow_v1",
         "market_identity": {"venue": "Binance", "market_type": "USD-M perpetual", "symbol": "BTCUSDT"},
-        "timeframe": "15m",
+        "timeframe": timeframe,
         "feature_names": ["taker_buy_volume", "taker_sell_volume", "taker_buy_sell_ratio"],
-        "source_class": D4_TAKER_SOURCE_CLASS,
+        "source_class": source_class,
         "availability_assertions": [
-            {"feature_name": name, "source_class": D4_TAKER_SOURCE_CLASS, "condition_assertions": ["fixture complete"]}
+            {"feature_name": name, "source_class": source_class, "condition_assertions": ["fixture complete"]}
             for name in ("taker_buy_volume", "taker_sell_volume", "taker_buy_sell_ratio")
         ],
         "source_set_identity": build_source_set_identity(source_files, identity_context=source_identity_context),
@@ -388,7 +419,11 @@ def _write_research_feature_fixture(
             "coverage_end_utc_exclusive": coverage_end,
         },
         "derivation": {
-            "derivation_version": D4_TAKER_DERIVATION_VERSION,
+            "derivation_version": (
+                D4_TAKER_DERIVATION_VERSION
+                if timeframe == "15m"
+                else CANONICAL_KLINE_TAKER_DERIVATION_VERSION
+            ),
             "parent_fields": list(D4_TAKER_PARENT_FIELDS),
             "features": [dict(item) for item in D4_TAKER_FEATURE_DEFINITIONS],
         },
@@ -417,6 +452,7 @@ def _write_research_feature_fixture(
 
 
 def _write_4h_ohlcv_fixture(tmp_path: Path, *, freq: str = "4h", periods: int = 32) -> Path:
+    tmp_path.mkdir(parents=True, exist_ok=True)
     path = tmp_path / "canonical_4h_ohlcv_fixture.csv"
     index = pd.date_range("2026-01-01T00:00:00Z", periods=periods, freq=freq)
     close = [100.0 + index_number for index_number in range(len(index))]
@@ -2235,6 +2271,135 @@ def test_canonical_4h_path_uses_4h_interval_and_binds_lineage(tmp_path, monkeypa
     assert payload["outcome_category_counts"]["counts_sum"] == 8
 
 
+def test_research_features_bind_on_canonical_4h_route(tmp_path, monkeypatch):
+    strategy_path, manifest_path, sweep_path, *_ = _write_fixture(
+        tmp_path / "parents",
+        strategy_mutator=lambda strategy: (
+            _set_primary_timeframe(strategy, "4h"),
+            _replace_first_data_ref_field(strategy, "taker_sell_volume"),
+        ),
+    )
+    csv_path = _write_4h_ohlcv_fixture(tmp_path / "data")
+    parent_identity = (
+        "binance_usdtm_btcusdt_ohlcv_4h:sha256:"
+        + runner._sha256_file_hex(csv_path)
+    )
+    catalog_path, validation_path, derivation_path, catalog = _write_4h_metadata_fixture(
+        tmp_path / "metadata", csv_path, data_slice_identity=parent_identity
+    )
+    feature_manifest, feature_input = _write_research_feature_fixture(
+        tmp_path / "features",
+        csv_path,
+        timeframe="4h",
+        parent_identity=catalog["slice_identity"]["data_slice_identity"],
+    )
+    monkeypatch.setattr(
+        runner,
+        "compile_signal",
+        lambda strategy_spec, variant, ohlcv, funding=None: pd.Series(0.0, index=ohlcv.index),
+    )
+    result = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_4h=True,
+        ohlcv_input_path=csv_path,
+        d4h_catalog_slice_path=catalog_path,
+        d4h_validation_report_path=validation_path,
+        d4h_derivation_report_path=derivation_path,
+        research_feature_manifest_path=feature_manifest,
+        research_feature_input_path=feature_input,
+    )
+    assert result["wrote"] is False
+    assert result["result_population"]["data_coverage_summary"]["data_slice_identity"].startswith(
+        "cpw_research_composite_4h:sha256:"
+    )
+
+
+def test_research_features_bind_on_canonical_1d_parquet_route(tmp_path, monkeypatch):
+    strategy_path, manifest_path, sweep_path, *_ = _write_fixture(
+        tmp_path / "parents",
+        strategy_mutator=lambda strategy: (
+            _set_primary_timeframe(strategy, "1d"),
+            _replace_first_data_ref_field(strategy, "taker_buy_volume"),
+        ),
+    )
+    index = pd.date_range("2024-01-01", periods=32, freq="1D", tz="UTC")
+    parent = pd.DataFrame(
+        {
+            "open_time_ms": index.as_unit("ms").asi8,
+            "open": [100.0] * 32,
+            "high": [101.0] * 32,
+            "low": [99.0] * 32,
+            "close": [100.0] * 32,
+            "volume": [10.0] * 32,
+            "close_time_ms": (index + pd.Timedelta(days=1)).as_unit("ms").asi8 - 1,
+            "num_trades": [2] * 32,
+            "taker_buy_base_vol": [4.0] * 32,
+        }
+    )
+    parent_path = tmp_path / "canonical_1d.parquet"
+    parent.to_parquet(parent_path, index=False)
+    parent_sha = runner._sha256_file_hex(parent_path)
+    parent_identity = (
+        "binance_usdtm_btcusdt_ohlcv_1d:identity_sha256:" + "5" * 64
+    )
+    coverage_start = "2024-01-01T00:00:00.000Z"
+    coverage_end = "2024-02-02T00:00:00.000Z"
+    feature_path = tmp_path / "features.csv"
+    feature_manifest = tmp_path / "features.manifest.json"
+    materialize_canonical_kline_takerflow_features(
+        canonical_kline_path=parent_path,
+        timeframe="1d",
+        output_path=feature_path,
+        manifest_path=feature_manifest,
+        availability_catalog_path=runner.DATA_FEATURE_AVAILABILITY_CATALOG_PATH,
+        _parent_config={
+            "sha256": parent_sha,
+            "row_count": 32,
+            "coverage_start": coverage_start,
+            "coverage_end": coverage_end,
+            "data_slice_identity": parent_identity,
+            "format": "parquet",
+        },
+    )
+    base_frame = parent[list(runner.REQUIRED_OHLCV_COLUMNS)].astype(float).copy()
+    base_frame.index = index
+    execution_input = runner._ExecutionInput(
+        mode="canonical_1d_test",
+        execution_provenance_class="canonical_direct_real_data",
+        ohlcv=base_frame,
+        funding=runner._zero_funding_for_ohlcv(base_frame),
+        timeframe="1d",
+        data_catalog_ref="fixture_1d",
+        data_slice_identity=parent_identity,
+        environment_summary=["offline_only_no_exchange_api"],
+        data_coverage_notes=["fixture canonical 1d"],
+        base_input_path=parent_path,
+        base_normalized_sha256=parent_sha,
+        base_coverage_start_utc_inclusive=coverage_start,
+        base_coverage_end_utc_exclusive=coverage_end,
+    )
+    monkeypatch.setattr(runner, "_canonical_1d_execution_input", lambda additional_columns=(): execution_input)
+    monkeypatch.setattr(
+        runner,
+        "compile_signal",
+        lambda strategy_spec, variant, ohlcv, funding=None: pd.Series(0.0, index=ohlcv.index),
+    )
+    result = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        canonical_1d=True,
+        research_feature_manifest_path=feature_manifest,
+        research_feature_input_path=feature_path,
+    )
+    assert result["wrote"] is False
+    assert result["result_population"]["data_coverage_summary"]["data_slice_identity"].startswith(
+        "cpw_research_composite_1d:sha256:"
+    )
+
+
 def test_canonical_4h_rejects_non_4h_spacing(tmp_path):
     ohlcv_path = _write_4h_ohlcv_fixture(tmp_path, freq="1h")
 
@@ -2349,7 +2514,7 @@ def test_15m_input_identity_scope_remains_unchanged():
     ]
 
 
-def test_research_feature_cli_arguments_are_a_required_pair_and_15m_only(tmp_path):
+def test_research_feature_cli_arguments_are_a_required_pair_and_need_canonical_route(tmp_path):
     strategy_path, manifest_path, sweep_path, *_ = _write_fixture(tmp_path)
     feature = tmp_path / "feature.csv"
     manifest = tmp_path / "feature.json"
@@ -2358,7 +2523,7 @@ def test_research_feature_cli_arguments_are_a_required_pair_and_15m_only(tmp_pat
             strategy_path, manifest_path, sweep_path,
             research_feature_manifest_path=manifest,
         )
-    with pytest.raises(runner.OfflineSweepError, match="only with --canonical-15m"):
+    with pytest.raises(runner.OfflineSweepError, match="one canonical timeframe route"):
         _run(
             strategy_path, manifest_path, sweep_path,
             research_feature_manifest_path=manifest,
@@ -2371,6 +2536,23 @@ def test_research_feature_cli_arguments_are_a_required_pair_and_15m_only(tmp_pat
     )
     assert parsed.research_feature_manifest == manifest
     assert parsed.research_feature_input == feature
+
+
+def test_15m_feature_binding_still_requires_d4_provenance(tmp_path):
+    strategy_path, manifest_path, sweep_path, *_ = _write_fixture(
+        tmp_path,
+        strategy_mutator=lambda strategy: _set_primary_timeframe(strategy, "15m"),
+    )
+    with pytest.raises(runner.OfflineSweepError, match="require D4 15m provenance"):
+        _run(
+            strategy_path,
+            manifest_path,
+            sweep_path,
+            canonical_15m=True,
+            ohlcv_input_path=_write_15m_ohlcv_fixture(tmp_path),
+            research_feature_manifest_path=tmp_path / "feature.json",
+            research_feature_input_path=tmp_path / "feature.csv",
+        )
 
 
 def test_generic_feature_table_joins_declared_fields_and_changes_identity(tmp_path, monkeypatch):
@@ -2405,6 +2587,9 @@ def test_generic_feature_table_joins_declared_fields_and_changes_identity(tmp_pa
     assert all("taker_buy_sell_ratio" in columns for columns in observed_columns)
     assert all("taker_total_volume" not in columns for columns in observed_columns)
     assert any(note.startswith("feature_table_identity=sha256:") for note in coverage["data_coverage_notes"])
+    assert result["result_population"]["data_availability_claim"]["feature_sources"][0][
+        "source_class"
+    ] == D4_TAKER_SOURCE_CLASS
 
 
 def test_generic_feature_table_rejects_hash_timestamp_and_lookahead_mismatch(tmp_path):
@@ -2443,7 +2628,7 @@ def test_generic_feature_table_rejects_hash_timestamp_and_lookahead_mismatch(tmp
         run_with(causal_manifest, causal_input)
 
 
-def test_declared_non_ohlcv_column_is_retained_for_compiler(tmp_path, monkeypatch):
+def test_unbound_taker_source_is_ambiguous_and_fails_closed(tmp_path):
     strategy_path, manifest_path, sweep_path, *_ = _write_fixture(
         tmp_path,
         strategy_mutator=lambda strategy: (
@@ -2455,40 +2640,15 @@ def test_declared_non_ohlcv_column_is_retained_for_compiler(tmp_path, monkeypatc
         tmp_path,
         extra_columns={"taker_buy_sell_ratio": [1.1] * 96},
     )
-    observed_columns = []
-
-    def fake_compile_signal(strategy_spec, variant, ohlcv, funding=None):
-        del strategy_spec, variant, funding
-        observed_columns.append(list(ohlcv.columns))
-        return pd.Series(0.0, index=ohlcv.index)
-
-    monkeypatch.setattr(runner, "compile_signal", fake_compile_signal)
-
-    result = _run(
-        strategy_path,
-        manifest_path,
-        sweep_path,
-        canonical_15m=True,
-        ohlcv_input_path=ohlcv_path,
-        deterministic_seed=7,
-    )
-
-    assert observed_columns
-    assert all("taker_buy_sell_ratio" in columns for columns in observed_columns)
-    assert result["result_population"]["data_availability_claim"]["feature_sources"] == [
-        {
-            "feature_name": "taker_buy_sell_ratio",
-            "source_class": "CANONICAL_D4_KLINE_DERIVATION",
-            "condition_assertions": [
-                "Canonical D4 bars cover the claimed evidence window.",
-                "The ratio is deterministically derived from the exact bound D4 parent.",
-                "Feature values are available only at completed-bar close.",
-            ],
-        }
-    ]
-    assert "data_availability_claim" in result["result_population"]["input_identity_hash"][
-        "hash_scope"
-    ]
+    with pytest.raises(runner.OfflineSweepError, match="ambiguous FULL_HISTORY"):
+        _run(
+            strategy_path,
+            manifest_path,
+            sweep_path,
+            canonical_15m=True,
+            ohlcv_input_path=ohlcv_path,
+            deterministic_seed=7,
+        )
 
 
 def test_multiple_declared_non_ohlcv_columns_are_retained(tmp_path, monkeypatch):
@@ -2501,14 +2661,9 @@ def test_multiple_declared_non_ohlcv_columns_are_retained(tmp_path, monkeypatch)
         tmp_path,
         strategy_mutator=mutate,
     )
-    ohlcv_path = _write_15m_ohlcv_fixture(
-        tmp_path,
-        extra_columns={
-            "taker_buy_sell_ratio": [1.1] * 96,
-            "taker_buy_volume": [11.0] * 96,
-            "undeclared_extra": [999.0] * 96,
-        },
-    )
+    ohlcv_path = _write_15m_ohlcv_fixture(tmp_path, include_open_time_ms=True)
+    catalog_path, import_path = _write_small_d4_metadata(tmp_path, ohlcv_path)
+    feature_manifest, feature_input = _write_research_feature_fixture(tmp_path, ohlcv_path)
     observed_columns = []
 
     def fake_compile_signal(strategy_spec, variant, ohlcv, funding=None):
@@ -2524,6 +2679,10 @@ def test_multiple_declared_non_ohlcv_columns_are_retained(tmp_path, monkeypatch)
         sweep_path,
         canonical_15m=True,
         ohlcv_input_path=ohlcv_path,
+        d4_catalog_slice_path=catalog_path,
+        d2_import_report_path=import_path,
+        research_feature_manifest_path=feature_manifest,
+        research_feature_input_path=feature_input,
         deterministic_seed=7,
     )
 
@@ -2622,10 +2781,9 @@ def test_declared_non_ohlcv_runner_smoke_reaches_backtester(tmp_path, monkeypatc
             _replace_first_data_ref_field(strategy, "taker_buy_sell_ratio"),
         ),
     )
-    ohlcv_path = _write_15m_ohlcv_fixture(
-        tmp_path,
-        extra_columns={"taker_buy_sell_ratio": [1.1] * 96},
-    )
+    ohlcv_path = _write_15m_ohlcv_fixture(tmp_path, include_open_time_ms=True)
+    catalog_path, import_path = _write_small_d4_metadata(tmp_path, ohlcv_path)
+    feature_manifest, feature_input = _write_research_feature_fixture(tmp_path, ohlcv_path)
     calls = []
     real_backtest = runner.run_backtest
 
@@ -2649,6 +2807,10 @@ def test_declared_non_ohlcv_runner_smoke_reaches_backtester(tmp_path, monkeypatc
         sweep_path,
         canonical_15m=True,
         ohlcv_input_path=ohlcv_path,
+        d4_catalog_slice_path=catalog_path,
+        d2_import_report_path=import_path,
+        research_feature_manifest_path=feature_manifest,
+        research_feature_input_path=feature_input,
         deterministic_seed=7,
     )
 
@@ -3343,17 +3505,51 @@ def test_intraday_route_rejects_wrong_cadence(tmp_path, monkeypatch):
 
 
 @pytest.mark.parametrize("timeframe", ["30m", "1h"])
-def test_research_features_remain_15m_only_for_new_routes(tmp_path, timeframe):
-    strategy_path, manifest_path, sweep_path, *_ = _write_fixture(tmp_path)
-    with pytest.raises(runner.OfflineSweepError, match="only with --canonical-15m"):
-        _run(
-            strategy_path,
-            manifest_path,
-            sweep_path,
-            **{f"canonical_{timeframe}": True},
-            research_feature_manifest_path=tmp_path / "feature.json",
-            research_feature_input_path=tmp_path / "feature.csv",
-        )
+def test_research_features_bind_on_intraday_canonical_routes(
+    tmp_path, monkeypatch, timeframe
+):
+    strategy_path, manifest_path, sweep_path, *_ = _write_fixture(
+        tmp_path / "parents",
+        strategy_mutator=lambda strategy: (
+            _set_primary_timeframe(strategy, timeframe),
+            _replace_first_data_ref_field(strategy, "taker_buy_sell_ratio"),
+        ),
+    )
+    csv_path, _, _, _, catalog = _write_intraday_derived_fixture(
+        tmp_path / "data", monkeypatch, timeframe
+    )
+    feature_manifest, feature_input = _write_research_feature_fixture(
+        tmp_path / "features",
+        csv_path,
+        timeframe=timeframe,
+        parent_identity=catalog["slice_identity"]["data_slice_identity"],
+    )
+    observed = []
+
+    def fake_compile_signal(strategy_spec, variant, ohlcv, funding=None):
+        del strategy_spec, variant, funding
+        observed.append(tuple(ohlcv.columns))
+        return pd.Series(0.0, index=ohlcv.index)
+
+    monkeypatch.setattr(runner, "compile_signal", fake_compile_signal)
+    result = _run(
+        strategy_path,
+        manifest_path,
+        sweep_path,
+        **{f"canonical_{timeframe}": True},
+        ohlcv_input_path=csv_path,
+        research_feature_manifest_path=feature_manifest,
+        research_feature_input_path=feature_input,
+    )
+    coverage = result["result_population"]["data_coverage_summary"]
+    assert result["wrote"] is False
+    assert coverage["data_slice_identity"].startswith(
+        f"cpw_research_composite_{timeframe}:sha256:"
+    )
+    assert all("taker_buy_sell_ratio" in columns for columns in observed)
+    assert result["result_population"]["data_availability_claim"]["feature_sources"][0][
+        "source_class"
+    ] == CANONICAL_KLINE_TAKER_SOURCE_CLASS
 
 
 @pytest.mark.parametrize("timeframe", ["30m", "1h"])

@@ -36,6 +36,11 @@ D4_TAKER_FEATURE_DEFINITIONS = (
         "null_policy": "null_when_taker_sell_volume_zero",
     },
 )
+CANONICAL_KLINE_TAKER_SOURCE_CLASS = "CANONICAL_KLINE_TAKERFLOW_DERIVATION"
+CANONICAL_KLINE_TAKER_DERIVATION_VERSION = "cpw_canonical_kline_takerflow_v2"
+CANONICAL_KLINE_TAKER_TIMEFRAMES = ("30m", "1h", "4h", "1d")
+CANONICAL_KLINE_TAKER_PARENT_FIELDS = D4_TAKER_PARENT_FIELDS
+CANONICAL_KLINE_TAKER_FEATURE_DEFINITIONS = D4_TAKER_FEATURE_DEFINITIONS
 
 _SHA256 = re.compile(r"^sha256:[0-9a-f]{64}$")
 _HEX_SHA256 = re.compile(r"^[0-9a-f]{64}$")
@@ -242,7 +247,7 @@ def build_composite_research_data_identity(
         "selected_feature_names": names,
     }
     digest = content_sha256(payload).split(":", 1)[1]
-    return f"cpw_research_composite_15m:sha256:{digest}"
+    return f"cpw_research_composite_{timeframe}:sha256:{digest}"
 
 
 def validate_feature_table_contract(
@@ -270,24 +275,51 @@ def validate_feature_table_contract(
     _closed(market, _MARKET_FIELDS, "market_identity")
     for field in sorted(_MARKET_FIELDS):
         _non_empty(market.get(field), f"market_identity.{field}")
-    _non_empty(contract.get("timeframe"), "timeframe")
+    timeframe = _non_empty(contract.get("timeframe"), "timeframe")
     source_class = _non_empty(contract.get("source_class"), "source_class")
     if not _SOURCE_CLASS.fullmatch(source_class):
         raise FeatureDataContractError("source_class must be uppercase underscore notation")
 
     parent_identity = contract.get("parent_identity")
     derivation = contract.get("derivation")
-    if source_class == D4_TAKER_SOURCE_CLASS:
+    taker_source_classes = {
+        D4_TAKER_SOURCE_CLASS,
+        CANONICAL_KLINE_TAKER_SOURCE_CLASS,
+    }
+    if source_class in taker_source_classes:
         if not isinstance(parent_identity, Mapping) or not isinstance(derivation, Mapping):
             raise FeatureDataContractError(
-                "canonical D4 kline derivation requires parent_identity and derivation"
+                "canonical taker derivation requires parent_identity and derivation"
             )
         _closed(parent_identity, _PARENT_IDENTITY_FIELDS, "parent_identity")
-        if not _non_empty(
+        data_slice_identity = _non_empty(
             parent_identity.get("data_slice_identity"),
             "parent_identity.data_slice_identity",
-        ).startswith("binance_usdtm_btcusdt_ohlcv_15m:sha256:"):
-            raise FeatureDataContractError("parent identity must be canonical BTCUSDT 15m D4")
+        )
+        if source_class == D4_TAKER_SOURCE_CLASS:
+            if timeframe != "15m":
+                raise FeatureDataContractError(
+                    "canonical D4 taker derivation is valid only for 15m"
+                )
+            expected_identity_prefix = "binance_usdtm_btcusdt_ohlcv_15m:sha256:"
+            expected_derivation_version = D4_TAKER_DERIVATION_VERSION
+        else:
+            if timeframe not in CANONICAL_KLINE_TAKER_TIMEFRAMES:
+                raise FeatureDataContractError(
+                    "canonical kline taker derivation is valid only for 30m/1h/4h/1d"
+                )
+            identity_hash_label = "identity_sha256" if timeframe == "1d" else "sha256"
+            expected_identity_prefix = (
+                f"binance_usdtm_btcusdt_ohlcv_{timeframe}:{identity_hash_label}:"
+            )
+            expected_derivation_version = CANONICAL_KLINE_TAKER_DERIVATION_VERSION
+        if not data_slice_identity.startswith(expected_identity_prefix):
+            raise FeatureDataContractError(
+                "parent identity family must match the feature-table timeframe"
+            )
+        identity_digest = data_slice_identity.removeprefix(expected_identity_prefix)
+        if not _HEX_SHA256.fullmatch(identity_digest):
+            raise FeatureDataContractError("parent data-slice identity digest is invalid")
         if not _HEX_SHA256.fullmatch(str(parent_identity.get("normalized_sha256", ""))):
             raise FeatureDataContractError("parent normalized SHA-256 must be 64 lowercase hex")
         if not isinstance(parent_identity.get("row_count"), int) or parent_identity["row_count"] <= 0:
@@ -301,15 +333,15 @@ def validate_feature_table_contract(
             "parent_identity.coverage_end_utc_exclusive",
         )
         _closed(derivation, _DERIVATION_FIELDS, "derivation")
-        if derivation.get("derivation_version") != D4_TAKER_DERIVATION_VERSION:
-            raise FeatureDataContractError("unsupported canonical D4 taker derivation version")
+        if derivation.get("derivation_version") != expected_derivation_version:
+            raise FeatureDataContractError("unsupported canonical taker derivation version")
         if derivation.get("parent_fields") != list(D4_TAKER_PARENT_FIELDS):
-            raise FeatureDataContractError("canonical D4 taker parent fields mismatch")
+            raise FeatureDataContractError("canonical taker parent fields mismatch")
         if derivation.get("features") != [dict(item) for item in D4_TAKER_FEATURE_DEFINITIONS]:
-            raise FeatureDataContractError("canonical D4 taker feature formulas/null policy mismatch")
+            raise FeatureDataContractError("canonical taker feature formulas/null policy mismatch")
     elif parent_identity is not None or derivation is not None:
         raise FeatureDataContractError(
-            "parent_identity and derivation are reserved for canonical D4 kline derivation"
+            "parent_identity and derivation are reserved for canonical taker derivations"
         )
 
     names = contract.get("feature_names")
@@ -364,7 +396,7 @@ def validate_feature_table_contract(
         raise FeatureDataContractError("complete feature tables require exact expected/observed equality")
     _non_empty(coverage.get("start_utc_inclusive"), "coverage.start_utc_inclusive")
     _non_empty(coverage.get("end_utc_exclusive"), "coverage.end_utc_exclusive")
-    if source_class == D4_TAKER_SOURCE_CLASS:
+    if source_class in taker_source_classes:
         assert isinstance(parent_identity, Mapping)
         if (
             parent_identity["row_count"] != expected
@@ -374,7 +406,7 @@ def validate_feature_table_contract(
             != coverage["end_utc_exclusive"]
         ):
             raise FeatureDataContractError(
-                "canonical D4 parent row count/coverage must equal feature coverage"
+                "canonical taker parent row count/coverage must equal feature coverage"
             )
 
     causality = _mapping(contract.get("causality"), "causality")

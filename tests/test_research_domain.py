@@ -38,6 +38,12 @@ from tools.research_domain.scientific_accounting import (
     validate_variant_denominator,
 )
 from tools.research_domain.feature_data import (
+    CANONICAL_KLINE_TAKER_DERIVATION_VERSION,
+    CANONICAL_KLINE_TAKER_SOURCE_CLASS,
+    D4_TAKER_DERIVATION_VERSION,
+    D4_TAKER_FEATURE_DEFINITIONS,
+    D4_TAKER_PARENT_FIELDS,
+    D4_TAKER_SOURCE_CLASS,
     FeatureDataContractError,
     build_composite_research_data_identity,
     build_feature_table_identity,
@@ -575,3 +581,55 @@ def test_feature_contract_rejects_unknown_semantics_and_authority_expansion() ->
     authority["feature_table_identity"] = build_feature_table_identity(authority)
     with pytest.raises(FeatureDataContractError, match="authority"):
         validate_feature_table_contract(authority)
+
+
+def _canonical_taker_contract(timeframe: str, *, legacy: bool = False) -> dict[str, object]:
+    contract = _feature_contract()
+    source_class = D4_TAKER_SOURCE_CLASS if legacy else CANONICAL_KLINE_TAKER_SOURCE_CLASS
+    hash_label = "identity_sha256" if timeframe == "1d" else "sha256"
+    contract.update(
+        {
+            "timeframe": timeframe,
+            "feature_names": [item["feature_name"] for item in D4_TAKER_FEATURE_DEFINITIONS],
+            "source_class": source_class,
+            "availability_assertions": [
+                {"feature_name": item["feature_name"], "source_class": source_class, "condition_assertions": ["bound canonical parent"]}
+                for item in D4_TAKER_FEATURE_DEFINITIONS
+            ],
+            "parent_identity": {
+                "data_slice_identity": f"binance_usdtm_btcusdt_ohlcv_{timeframe}:{hash_label}:" + "3" * 64,
+                "normalized_sha256": "4" * 64,
+                "row_count": 2,
+                "coverage_start_utc_inclusive": "2024-01-01T00:00:00.000Z",
+                "coverage_end_utc_exclusive": "2024-01-01T00:30:00.000Z",
+            },
+            "derivation": {
+                "derivation_version": D4_TAKER_DERIVATION_VERSION if legacy else CANONICAL_KLINE_TAKER_DERIVATION_VERSION,
+                "parent_fields": list(D4_TAKER_PARENT_FIELDS),
+                "features": [dict(item) for item in D4_TAKER_FEATURE_DEFINITIONS],
+            },
+            "output_identity": {
+                "format": "CSV UTF-8 LF", "sha256": "2" * 64, "row_count": 2,
+                "columns": ["timestamp", *[item["feature_name"] for item in D4_TAKER_FEATURE_DEFINITIONS]],
+            },
+        }
+    )
+    contract["feature_table_identity"] = build_feature_table_identity(contract)
+    return contract
+
+
+@pytest.mark.parametrize("timeframe", ["30m", "1h", "4h", "1d"])
+def test_generic_canonical_taker_contract_accepts_exact_identity_family(timeframe: str) -> None:
+    validate_feature_table_contract(_canonical_taker_contract(timeframe))
+
+
+def test_canonical_taker_contract_rejects_source_timeframe_and_identity_mismatch() -> None:
+    with pytest.raises(FeatureDataContractError, match="only for"):
+        validate_feature_table_contract(_canonical_taker_contract("15m"))
+    with pytest.raises(FeatureDataContractError, match="only for"):
+        validate_feature_table_contract(_canonical_taker_contract("30m", legacy=True))
+    mismatch = _canonical_taker_contract("30m")
+    mismatch["parent_identity"]["data_slice_identity"] = "binance_usdtm_btcusdt_ohlcv_1h:sha256:" + "3" * 64
+    mismatch["feature_table_identity"] = build_feature_table_identity(mismatch)
+    with pytest.raises(FeatureDataContractError, match="identity family"):
+        validate_feature_table_contract(mismatch)

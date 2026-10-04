@@ -79,7 +79,16 @@
       "type": "object", "additionalProperties": false,
       "required": ["data_slice_identity", "normalized_sha256", "row_count", "coverage_start_utc_inclusive", "coverage_end_utc_exclusive"],
       "properties": {
-        "data_slice_identity": {"type": "string", "pattern": "^binance_usdtm_btcusdt_ohlcv_15m:sha256:[0-9a-f]{64}$"},
+        "data_slice_identity": {
+          "type": "string",
+          "oneOf": [
+            {"pattern": "^binance_usdtm_btcusdt_ohlcv_15m:sha256:[0-9a-f]{64}$"},
+            {"pattern": "^binance_usdtm_btcusdt_ohlcv_30m:sha256:[0-9a-f]{64}$"},
+            {"pattern": "^binance_usdtm_btcusdt_ohlcv_1h:sha256:[0-9a-f]{64}$"},
+            {"pattern": "^binance_usdtm_btcusdt_ohlcv_4h:sha256:[0-9a-f]{64}$"},
+            {"pattern": "^binance_usdtm_btcusdt_ohlcv_1d:identity_sha256:[0-9a-f]{64}$"}
+          ]
+        },
         "normalized_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
         "row_count": {"type": "integer", "minimum": 1},
         "coverage_start_utc_inclusive": {"type": "string", "minLength": 1},
@@ -90,7 +99,7 @@
       "type": "object", "additionalProperties": false,
       "required": ["derivation_version", "parent_fields", "features"],
       "properties": {
-        "derivation_version": {"const": "cpw_d4_native_takerflow_v1"},
+        "derivation_version": {"enum": ["cpw_d4_native_takerflow_v1", "cpw_canonical_kline_takerflow_v2"]},
         "parent_fields": {
           "const": ["volume", "num_trades", "taker_buy_base_vol"]
         },
@@ -116,8 +125,45 @@
   "allOf": [
     {
       "if": {"properties": {"source_class": {"const": "CANONICAL_D4_KLINE_DERIVATION"}}},
-      "then": {"required": ["parent_identity", "derivation"]},
-      "else": {"not": {"anyOf": [{"required": ["parent_identity"]}, {"required": ["derivation"]}]}}
+      "then": {
+        "required": ["parent_identity", "derivation"],
+        "properties": {
+          "timeframe": {"const": "15m"},
+          "parent_identity": {
+            "properties": {
+              "data_slice_identity": {"pattern": "^binance_usdtm_btcusdt_ohlcv_15m:sha256:[0-9a-f]{64}$"}
+            }
+          },
+          "derivation": {
+            "properties": {"derivation_version": {"const": "cpw_d4_native_takerflow_v1"}}
+          }
+        }
+      },
+      "else": {
+        "if": {"properties": {"source_class": {"const": "CANONICAL_KLINE_TAKERFLOW_DERIVATION"}}},
+        "then": {
+          "required": ["parent_identity", "derivation"],
+          "properties": {
+            "timeframe": {"enum": ["30m", "1h", "4h", "1d"]},
+            "parent_identity": {
+              "properties": {
+                "data_slice_identity": {
+                  "oneOf": [
+                    {"pattern": "^binance_usdtm_btcusdt_ohlcv_30m:sha256:[0-9a-f]{64}$"},
+                    {"pattern": "^binance_usdtm_btcusdt_ohlcv_1h:sha256:[0-9a-f]{64}$"},
+                    {"pattern": "^binance_usdtm_btcusdt_ohlcv_4h:sha256:[0-9a-f]{64}$"},
+                    {"pattern": "^binance_usdtm_btcusdt_ohlcv_1d:identity_sha256:[0-9a-f]{64}$"}
+                  ]
+                }
+              }
+            },
+            "derivation": {
+              "properties": {"derivation_version": {"const": "cpw_canonical_kline_takerflow_v2"}}
+            }
+          }
+        },
+        "else": {"not": {"anyOf": [{"required": ["parent_identity"]}, {"required": ["derivation"]}]}}
+      }
     }
   ]
 }

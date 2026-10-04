@@ -663,6 +663,21 @@ def test_taker_flow_d4_source_may_claim_conditional_full_history(tmp_path):
     assert _validate(tmp_path) == []
 
 
+def test_taker_flow_generic_canonical_source_may_claim_conditional_full_history(tmp_path):
+    _write_full_history_claim_fixture(
+        tmp_path,
+        "taker_sell_volume",
+        "CANONICAL_KLINE_TAKERFLOW_DERIVATION",
+        condition_assertions=[
+            "The exact canonical D2-021 base covers the claimed evidence window.",
+            "The feature is derived row-locally from that exact bound canonical base.",
+            "Feature values are available only at completed-bar close.",
+            "Feature parent identity equals execution-base identity.",
+        ],
+    )
+    assert _validate(tmp_path) == []
+
+
 def test_taker_ratio_rest_source_remains_recent_only(tmp_path):
     _write_full_history_claim_fixture(
         tmp_path,

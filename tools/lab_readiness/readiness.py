@@ -232,18 +232,22 @@ def build_readiness_items(repo_root: Path = REPO_ROOT) -> list[dict[str, Any]]:
         ),
         _item(
             subject_id="READINESS-TAKER-FLOW-D4-NATIVE",
-            label="Taker-flow canonical D4-native support",
+            label="Taker-flow canonical five-timeframe support",
             feature_or_family="taker_flow",
             status="needs_local_full_history_materialization",
-            reason_code="TAKER_FLOW_D4_DERIVATION_CONDITIONAL_NOT_MATERIALIZED",
-            evidence=["exact canonical D4 parent identity", "deterministic D4-native feature table and provenance-bound manifest"],
+            reason_code="TAKER_FLOW_CANONICAL_DERIVATION_CONDITIONAL_NOT_MATERIALIZED",
+            evidence=[
+                "exact legacy 15m canonical D4 parent identity",
+                "exact D2-021 canonical 30m/1h/4h/1d parent identity",
+                "deterministic row-local feature table and provenance-bound manifest",
+            ],
             support=[
                 *_availability_support("taker_buy_sell_ratio", availability),
                 *_availability_support("taker_buy_volume", availability),
                 *_availability_support("taker_sell_volume", availability),
                 f"runner declared non-OHLCV support present={support['runner_declared_non_ohlcv']}",
             ],
-            blocker="Repo truth permits conditional canonical-D4 derivation for taker-flow features, but the local provenance-bound derived feature table must be materialized before use.",
+            blocker="Repo truth permits conditional legacy 15m D4 and D2-021 canonical-kline derivation for 30m/1h/4h/1d, but a local provenance-bound feature table must be materialized before use.",
             next_category="local_full_history_materialization",
         ),
         _item(

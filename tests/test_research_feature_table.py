@@ -11,6 +11,7 @@ import pandas as pd
 import pytest
 
 from tools.data.materialize_takerflow_features import (
+    materialize_canonical_kline_takerflow_features,
     materialize_d4_native_takerflow_features,
 )
 from tools.data.research_feature_table import (
@@ -81,6 +82,67 @@ def _resolve(tmp_path: Path, **overrides):
     return resolve_research_feature_table(**kwargs), (base, base_path, base_sha, feature_csv, manifest_path, manifest)
 
 
+def _generic_fixture(tmp_path: Path, timeframe: str):
+    tmp_path.mkdir(parents=True, exist_ok=True)
+    delta = pd.to_timedelta(timeframe)
+    index = pd.date_range("2024-01-01", periods=3, freq=delta, tz="UTC")
+    parent = pd.DataFrame(
+        {
+            "open_time_ms": index.as_unit("ms").asi8,
+            "volume": [6.0, 4.0, 5.0],
+            "close_time_ms": (index + delta).as_unit("ms").asi8 - 1,
+            "num_trades": [3, 0, 2],
+            "taker_buy_base_vol": [4.0, 4.0, 0.0],
+        }
+    )
+    parent_path = tmp_path / ("parent.parquet" if timeframe == "1d" else "parent.csv")
+    if timeframe == "1d":
+        parent.to_parquet(parent_path, index=False)
+        parent_format = "parquet"
+    else:
+        parent.insert(1, "open_time", index.strftime("%Y-%m-%dT%H:%M:%S.000Z"))
+        parent.to_csv(parent_path, index=False, lineterminator="\n")
+        parent_format = "csv"
+    parent_sha = hashlib.sha256(parent_path.read_bytes()).hexdigest()
+    hash_label = "identity_sha256" if timeframe == "1d" else "sha256"
+    parent_identity = f"binance_usdtm_btcusdt_ohlcv_{timeframe}:{hash_label}:" + "2" * 64
+    end = index[-1] + delta
+    manifest_path = tmp_path / "manifest.json"
+    feature_csv = tmp_path / "features.csv"
+    materialize_canonical_kline_takerflow_features(
+        canonical_kline_path=parent_path,
+        timeframe=timeframe,
+        output_path=feature_csv,
+        manifest_path=manifest_path,
+        availability_catalog_path=AVAILABILITY,
+        _parent_config={
+            "sha256": parent_sha,
+            "row_count": 3,
+            "coverage_start": "2024-01-01T00:00:00.000Z",
+            "coverage_end": end.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
+            "data_slice_identity": parent_identity,
+            "format": parent_format,
+        },
+    )
+    base = pd.DataFrame(
+        {"open": [100, 101, 102], "high": [101, 102, 103], "low": [99, 100, 101], "close": [100, 101, 102], "volume": [6, 4, 5]},
+        index=index,
+    ).astype(float)
+    return {
+        "base_frame": base,
+        "base_input_path": parent_path,
+        "base_data_slice_identity": parent_identity,
+        "base_normalized_sha256": parent_sha,
+        "base_market_identity": MARKET,
+        "base_timeframe": timeframe,
+        "base_coverage_start_utc_inclusive": "2024-01-01T00:00:00.000Z",
+        "base_coverage_end_utc_exclusive": end.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
+        "feature_manifest_path": manifest_path,
+        "feature_csv_path": feature_csv,
+        "requested_feature_names": ["taker_buy_sell_ratio", "taker_buy_volume", "taker_sell_volume"],
+    }
+
+
 def test_exact_join_is_causal_selective_and_identity_bearing(tmp_path: Path) -> None:
     resolved, (_, _, _, _, manifest_path, _) = _resolve(tmp_path)
     assert list(resolved.joined_frame.columns) == ["open", "high", "low", "close", "volume", "taker_buy_volume", "taker_sell_volume"]
@@ -89,6 +151,27 @@ def test_exact_join_is_causal_selective_and_identity_bearing(tmp_path: Path) -> 
     assert validate_research_feature_table_manifest(manifest_path) == []
     repeated, _ = _resolve(tmp_path / "repeat")
     assert repeated.composite_data_slice_identity == resolved.composite_data_slice_identity
+
+
+@pytest.mark.parametrize("timeframe", ["30m", "1h", "4h", "1d"])
+def test_generic_canonical_feature_table_exact_join_and_identity_prefix(
+    tmp_path: Path, timeframe: str
+) -> None:
+    resolved = resolve_research_feature_table(**_generic_fixture(tmp_path, timeframe))
+    assert len(resolved.joined_frame) == 3
+    assert resolved.source_class == "CANONICAL_KLINE_TAKERFLOW_DERIVATION"
+    assert resolved.composite_data_slice_identity.startswith(
+        f"cpw_research_composite_{timeframe}:sha256:"
+    )
+    assert resolved.joined_frame["taker_buy_sell_ratio"].isna().tolist() == [False, True, False]
+
+
+def test_generic_parent_timeframe_and_hash_mismatch_fail_closed(tmp_path: Path) -> None:
+    kwargs = _generic_fixture(tmp_path, "30m")
+    with pytest.raises(ResearchFeatureTableError, match="source class"):
+        resolve_research_feature_table(**{**kwargs, "base_timeframe": "15m"})
+    with pytest.raises(ResearchFeatureTableError, match="SHA-256"):
+        resolve_research_feature_table(**{**kwargs, "base_normalized_sha256": "0" * 64})
 
 
 def test_ratio_null_is_allowed_only_when_sell_is_zero(tmp_path: Path) -> None:

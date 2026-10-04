@@ -21,6 +21,7 @@ import io
 import json
 import re
 import shutil
+import stat
 import tempfile
 import zipfile
 from dataclasses import dataclass
@@ -30,11 +31,18 @@ from itertools import chain
 from pathlib import Path, PurePosixPath
 from typing import Any, Callable, Iterable, Iterator, Mapping, TextIO
 
+import pandas as pd
+
 from tools.data_ingestion.takerflow_archive_recon import (
     TradeRow,
     derive_taker_side,
 )
 from tools.research_domain.feature_data import (
+    CANONICAL_KLINE_TAKER_DERIVATION_VERSION,
+    CANONICAL_KLINE_TAKER_FEATURE_DEFINITIONS,
+    CANONICAL_KLINE_TAKER_PARENT_FIELDS,
+    CANONICAL_KLINE_TAKER_SOURCE_CLASS,
+    CANONICAL_KLINE_TAKER_TIMEFRAMES,
     D4_TAKER_DERIVATION_VERSION,
     D4_TAKER_FEATURE_DEFINITIONS,
     D4_TAKER_PARENT_FIELDS,
@@ -62,6 +70,40 @@ D4_EXPECTED_ROWS = 220128
 D4_COVERAGE_START = "2020-01-01T00:00:00.000Z"
 D4_COVERAGE_END = "2026-04-12T00:00:00.000Z"
 D4_PROJECTION_SHA256 = "35b29807d6347cb46c552f8b2a1f0f409221d601f9c6a8b503d3d48890de5aba"
+CANONICAL_KLINE_PARENT_CONFIG: dict[str, dict[str, Any]] = {
+    "30m": {
+        "sha256": "05c5857d668d2d12bcc743a13ad92a34590bc1c37ff8ea1f5f54d5d1fbf379ba",
+        "row_count": 110064,
+        "coverage_start": "2020-01-01T00:00:00.000Z",
+        "coverage_end": "2026-04-12T00:00:00.000Z",
+        "data_slice_identity": "binance_usdtm_btcusdt_ohlcv_30m:sha256:090f4fac75bedf64fd19dbbeec141169bd7eaeaaaef187038878a6242022b94e",
+        "format": "csv",
+    },
+    "1h": {
+        "sha256": "28b750e90ee9957e6fc22811c4ae632355a239f2b958ed65c9b3c56cb2d9e79e",
+        "row_count": 55032,
+        "coverage_start": "2020-01-01T00:00:00.000Z",
+        "coverage_end": "2026-04-12T00:00:00.000Z",
+        "data_slice_identity": "binance_usdtm_btcusdt_ohlcv_1h:sha256:9e0faa68eb84b1aa176a5857432840b71a6049765963637236241b91ae807877",
+        "format": "csv",
+    },
+    "4h": {
+        "sha256": "828ad4a975c157c7ac4d3c873a39a8b6bbfec3cb306e25eb74209c8a01da6ca1",
+        "row_count": 13758,
+        "coverage_start": "2020-01-01T00:00:00.000Z",
+        "coverage_end": "2026-04-12T00:00:00.000Z",
+        "data_slice_identity": "binance_usdtm_btcusdt_ohlcv_4h:sha256:4379d2f0fad5e79bfd5576b308d01fb6134b0f5acf04013e73e00ce33ca96b30",
+        "format": "csv",
+    },
+    "1d": {
+        "sha256": "c6e2e7ce030db6a710d95e48325fc77b27efbbdd441199b3d7458d4394795802",
+        "row_count": 2293,
+        "coverage_start": "2020-01-01T00:00:00.000Z",
+        "coverage_end": "2026-04-12T00:00:00.000Z",
+        "data_slice_identity": "binance_usdtm_btcusdt_ohlcv_1d:identity_sha256:05ce3d5fdb5186ae36f612e2c51393eaecb110a66b0c3506e5583f3acedd443f",
+        "format": "parquet",
+    },
+}
 SUPPORTED_INTERVALS_MS = {
     "15m": 15 * 60_000,
     "30m": 30 * 60_000,
@@ -2376,6 +2418,313 @@ def materialize_d4_native_takerflow_features(
     return manifest
 
 
+def _require_regular_non_reparse_file(path: Path, label: str) -> None:
+    try:
+        facts = path.lstat()
+    except OSError as exc:
+        raise TakerflowMaterializationError(f"{label} is missing: {path}") from exc
+    file_attributes = getattr(facts, "st_file_attributes", 0)
+    if (
+        path.is_symlink()
+        or not stat.S_ISREG(facts.st_mode)
+        or file_attributes & 0x400
+    ):
+        raise TakerflowMaterializationError(
+            f"{label} must be a regular non-reparse file: {path}"
+        )
+
+
+def _canonical_parent_records(path: Path, parent_format: str) -> Iterator[Mapping[str, Any]]:
+    required = {
+        "open_time_ms",
+        "volume",
+        "close_time_ms",
+        "num_trades",
+        "taker_buy_base_vol",
+    }
+    if parent_format == "csv":
+        try:
+            with path.open("r", encoding="utf-8", newline="") as handle:
+                reader = csv.DictReader(handle)
+                if reader.fieldnames is None or not required.issubset(reader.fieldnames):
+                    raise TakerflowMaterializationError(
+                        "canonical kline CSV lacks required timestamp/taker columns"
+                    )
+                yield from reader
+        except UnicodeDecodeError as exc:
+            raise TakerflowMaterializationError(
+                "canonical kline CSV is not UTF-8"
+            ) from exc
+        return
+    if parent_format != "parquet":
+        raise TakerflowMaterializationError("unsupported canonical kline parent format")
+    try:
+        frame = pd.read_parquet(path)
+    except Exception as exc:
+        raise TakerflowMaterializationError(
+            "canonical kline Parquet cannot be parsed"
+        ) from exc
+    if not required.issubset(frame.columns):
+        raise TakerflowMaterializationError(
+            "canonical kline Parquet lacks required timestamp/taker columns"
+        )
+    yield from frame.to_dict("records")
+
+
+def materialize_canonical_kline_takerflow_features(
+    *,
+    canonical_kline_path: Path,
+    timeframe: str,
+    output_path: Path,
+    manifest_path: Path,
+    availability_catalog_path: Path,
+    _parent_config: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Derive row-local taker features from one exact D2-021 canonical base."""
+
+    if timeframe not in CANONICAL_KLINE_TAKER_TIMEFRAMES:
+        raise TakerflowMaterializationError(
+            "canonical kline taker materialization is limited to 30m/1h/4h/1d"
+        )
+    config = dict(_parent_config or CANONICAL_KLINE_PARENT_CONFIG[timeframe])
+    _require_regular_non_reparse_file(canonical_kline_path, "canonical kline parent")
+    actual_sha256 = _sha256(canonical_kline_path)
+    if actual_sha256 != config["sha256"]:
+        raise TakerflowMaterializationError(
+            "CANONICAL_KLINE_PARENT_IDENTITY_BLOCKER: "
+            f"expected {config['sha256']}, observed {actual_sha256}"
+        )
+    expected_rows = int(config["row_count"])
+    coverage_start = str(config["coverage_start"])
+    coverage_end = str(config["coverage_end"])
+    start_ms = _utc_ms(coverage_start, "coverage_start")
+    end_ms = _utc_ms(coverage_end, "coverage_end")
+    interval_ms = SUPPORTED_INTERVALS_MS[timeframe]
+    if start_ms >= end_ms or (end_ms - start_ms) // interval_ms != expected_rows:
+        raise TakerflowMaterializationError(
+            "canonical kline coverage and expected row count disagree"
+        )
+    availability = _availability_contract(
+        availability_catalog_path,
+        source_class=CANONICAL_KLINE_TAKER_SOURCE_CLASS,
+    )
+    output_rows: list[dict[str, Any]] = []
+    projection = hashlib.sha256()
+    projection.update(b"taker_buy_volume,taker_sell_volume,taker_buy_sell_ratio\n")
+    zero_sell_count = 0
+    for index, parent in enumerate(
+        _canonical_parent_records(canonical_kline_path, str(config["format"]))
+    ):
+        row_number = index + 2
+        try:
+            open_ms = int(parent["open_time_ms"])
+            close_ms = int(parent["close_time_ms"])
+            volume = Decimal(str(parent["volume"]))
+            trades = int(parent["num_trades"])
+            buy = Decimal(str(parent["taker_buy_base_vol"]))
+        except (ValueError, TypeError, InvalidOperation, KeyError) as exc:
+            raise TakerflowMaterializationError(
+                f"canonical kline row {row_number} contains invalid parent values"
+            ) from exc
+        expected_open = start_ms + index * interval_ms
+        if open_ms != expected_open or close_ms != open_ms + interval_ms - 1:
+            raise TakerflowMaterializationError(
+                f"canonical kline row {row_number} violates exact completed-bar alignment"
+            )
+        open_time = parent.get("open_time")
+        if open_time not in (None, "") and _utc_ms(
+            str(open_time), f"canonical kline row {row_number} open_time"
+        ) != open_ms:
+            raise TakerflowMaterializationError(
+                f"canonical kline row {row_number} open timestamp disagrees"
+            )
+        if (
+            not volume.is_finite()
+            or not buy.is_finite()
+            or volume < 0
+            or buy < 0
+            or buy > volume
+            or trades < 0
+        ):
+            raise TakerflowMaterializationError(
+                f"canonical kline row {row_number} violates taker derivation bounds"
+            )
+        sell = volume - buy
+        ratio = _ratio(buy, sell)
+        if sell == 0:
+            zero_sell_count += 1
+        buy_text = _decimal_text(buy)
+        sell_text = _decimal_text(sell)
+        ratio_text = ratio or ""
+        projection.update(f"{buy_text},{sell_text},{ratio_text}\n".encode("utf-8"))
+        available_ms = open_ms + interval_ms
+        output_rows.append(
+            {
+                "timestamp": _iso_ms(open_ms),
+                "open_time_ms": open_ms,
+                "feature_available_at": _iso_ms(available_ms),
+                "feature_available_at_ms": available_ms,
+                "taker_buy_volume": buy_text,
+                "taker_sell_volume": sell_text,
+                "taker_buy_sell_ratio": ratio,
+            }
+        )
+    if len(output_rows) != expected_rows:
+        raise TakerflowMaterializationError(
+            f"canonical kline row count mismatch: expected {expected_rows}, observed {len(output_rows)}"
+        )
+    if not output_rows or output_rows[-1]["feature_available_at_ms"] != end_ms:
+        raise TakerflowMaterializationError(
+            "canonical kline final completed-bar boundary is incorrect"
+        )
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=D4_OUTPUT_COLUMNS, lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(output_rows)
+    output_sha256 = _sha256(output_path)
+    parent_identity = {
+        "data_slice_identity": str(config["data_slice_identity"]),
+        "normalized_sha256": actual_sha256,
+        "row_count": len(output_rows),
+        "coverage_start_utc_inclusive": coverage_start,
+        "coverage_end_utc_exclusive": coverage_end,
+    }
+    source_type = f"canonical_{timeframe}_kline_{config['format']}"
+    stable_source_files = [
+        {
+            "logical_filename": canonical_kline_path.name,
+            "sha256": actual_sha256,
+            "size_bytes": canonical_kline_path.stat().st_size,
+            "parsed_row_count": len(output_rows),
+            "source_type": source_type,
+        }
+    ]
+    source_identity_context = {
+        "data_slice_identity": str(config["data_slice_identity"]),
+        "normalized_sha256": actual_sha256,
+        "timeframe": timeframe,
+        "derivation_version": CANONICAL_KLINE_TAKER_DERIVATION_VERSION,
+    }
+    contract = {
+        "schema_version": FEATURE_TABLE_SCHEMA_VERSION,
+        "family_id": "binance_usdm_takerflow_v1",
+        "market_identity": {
+            "venue": "Binance",
+            "market_type": "USD-M perpetual",
+            "symbol": "BTCUSDT",
+        },
+        "timeframe": timeframe,
+        "feature_names": list(REQUIRED_FEATURES),
+        "source_class": CANONICAL_KLINE_TAKER_SOURCE_CLASS,
+        "availability_assertions": [
+            {
+                "feature_name": item["feature_name"],
+                "source_class": CANONICAL_KLINE_TAKER_SOURCE_CLASS,
+                "condition_assertions": list(item["conditions"]),
+            }
+            for item in availability["features"]
+        ],
+        "source_set_identity": build_source_set_identity(
+            stable_source_files, identity_context=source_identity_context
+        ),
+        "parent_identity": parent_identity,
+        "derivation": {
+            "derivation_version": CANONICAL_KLINE_TAKER_DERIVATION_VERSION,
+            "parent_fields": list(CANONICAL_KLINE_TAKER_PARENT_FIELDS),
+            "features": [
+                dict(item) for item in CANONICAL_KLINE_TAKER_FEATURE_DEFINITIONS
+            ],
+        },
+        "output_identity": {
+            "format": "CSV UTF-8 LF",
+            "sha256": output_sha256,
+            "row_count": len(output_rows),
+            "columns": list(D4_OUTPUT_COLUMNS),
+        },
+        "coverage": {
+            "start_utc_inclusive": coverage_start,
+            "end_utc_exclusive": coverage_end,
+            "expected_row_count": expected_rows,
+            "observed_row_count": len(output_rows),
+            "complete": True,
+        },
+        "causality": {
+            "timestamp_semantics": "UTC bar open",
+            "feature_available_at_semantics": "exclusive bar close",
+            "completed_bar_only": True,
+            "future_events_can_change_prior_completed_bars": False,
+        },
+        "quality_policy": {
+            "fill": "forbidden",
+            "forward_fill": "forbidden",
+            "backfill": "forbidden",
+            "interpolation": "forbidden",
+            "timestamp_tolerance": "forbidden",
+            "missing_row": "fail_closed",
+            "duplicate_join_key": "fail_closed",
+        },
+        "feature_table_identity": "",
+        "non_authority": {
+            "authorizes_execution": False,
+            "authorizes_result_population": False,
+            "authorizes_candidate": False,
+            "authorizes_promotion": False,
+            "authorizes_runtime_paper_live": False,
+            "authorizes_oms_risk_reconciliation": False,
+        },
+    }
+    contract["feature_table_identity"] = build_feature_table_identity(contract)
+    validate_feature_table_contract(
+        contract,
+        source_files=stable_source_files,
+        source_identity_context=source_identity_context,
+    )
+    manifest = {
+        "materialization_version": CANONICAL_KLINE_TAKER_DERIVATION_VERSION,
+        "source_type": source_type,
+        "source_files": [
+            {"path": canonical_kline_path.as_posix(), **stable_source_files[0]}
+        ],
+        "source_set_identity_context": source_identity_context,
+        "availability": availability,
+        "research_feature_table": contract,
+        "proof": {
+            "parent_row_count": len(output_rows),
+            "feature_row_count": len(output_rows),
+            "missing_bar_count": 0,
+            "duplicate_timestamp_count": 0,
+            "invalid_buy_count": 0,
+            "invalid_sell_count": 0,
+            "zero_sell_count": zero_sell_count,
+            "null_ratio_count": zero_sell_count,
+            "three_column_projection_sha256": projection.hexdigest(),
+        },
+        "output": {
+            "path": output_path.as_posix(),
+            "format": "CSV UTF-8 LF",
+            "columns": list(D4_OUTPUT_COLUMNS),
+            "row_count": len(output_rows),
+            "size_bytes": output_path.stat().st_size,
+            "sha256": output_sha256,
+            "git_tracking_status": "local_ignored_data",
+        },
+        "network_used": False,
+        "authority": (
+            "noncanonical offline research feature data only; no candidate, Result "
+            "Population, promotion, runtime, paper/live, OMS, risk, or reconciliation authority"
+        ),
+    }
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+    return manifest
+
+
 def _month_starts(start_ms: int, end_ms: int) -> list[datetime]:
     current = datetime.fromtimestamp(start_ms / 1000, tz=UTC).replace(
         day=1, hour=0, minute=0, second=0, microsecond=0
@@ -2534,6 +2883,11 @@ def _build_parser() -> argparse.ArgumentParser:
     inputs.add_argument("--input", action="append", type=Path)
     inputs.add_argument("--hydration-manifest", type=Path)
     inputs.add_argument("--d4-path", type=Path)
+    inputs.add_argument("--canonical-kline-path", type=Path)
+    parser.add_argument(
+        "--canonical-kline-timeframe",
+        choices=CANONICAL_KLINE_TAKER_TIMEFRAMES,
+    )
     parser.add_argument("--archive-type", choices=sorted(SUPPORTED_ARCHIVE_TYPES))
     parser.add_argument("--interval", choices=sorted(SUPPORTED_INTERVALS_MS))
     parser.add_argument("--start-utc")
@@ -2563,6 +2917,22 @@ def main(argv: list[str] | None = None) -> int:
             raise TakerflowMaterializationError(
                 "materialization arguments missing: " + ", ".join(missing_outputs)
             )
+        if (args.canonical_kline_path is None) != (
+            args.canonical_kline_timeframe is None
+        ):
+            raise TakerflowMaterializationError(
+                "--canonical-kline-path and --canonical-kline-timeframe are a required pair"
+            )
+        if args.canonical_kline_path is not None:
+            manifest = materialize_canonical_kline_takerflow_features(
+                canonical_kline_path=args.canonical_kline_path,
+                timeframe=args.canonical_kline_timeframe,
+                output_path=args.output_path,
+                manifest_path=args.manifest_path,
+                availability_catalog_path=args.availability_catalog_path,
+            )
+            print(json.dumps({"ok": True, "manifest": manifest}, indent=2, sort_keys=True))
+            return 0
         if args.d4_path is not None:
             manifest = materialize_d4_native_takerflow_features(
                 d4_path=args.d4_path,

@@ -122,3 +122,25 @@ boundary.
 This capability creates noncanonical offline research/workbench data only. It
 grants no strategy, candidate, Result Population, edge, promotion, runtime,
 paper/live, OMS, reconciliation, risk, capital, or canonical-result authority.
+
+## Prospective FT-02 five-timeframe generalization
+
+D2-021 is the source authority for the locked five-timeframe canonical-base
+family. FT-02 preserves the legacy 15-minute D4 compatibility path and its
+accepted source-set, feature-table, feature CSV, projection, and composite
+identity family. It adds a separate `CANONICAL_KLINE_TAKERFLOW_DERIVATION` source
+class for the canonical 30-minute, 1-hour, 4-hour, and 1-day bases. For each
+generic route, the feature parent identity must equal the execution-base
+identity; no substitute parent or dual authority is accepted.
+
+The formulas and ratio-null rule above remain row-local and unchanged. Generic
+feature tables inherit the parent timestamp grid and publish each row only at
+the exclusive bar close. Resolution is an exact one-to-one join with no fill,
+tolerance, interpolation, or as-of behavior. The composite identity is
+timeframe-specific (`cpw_research_composite_<timeframe>`) and commits to the
+verified parent, feature table, selected features, and exact join contract.
+
+This prospective expansion remains conditional on local, provenance-bound
+materialization. It grants no product integration, agent, Prefect, Hermes,
+autonomy, promotion, runtime, paper/live, risk, capital, or scheduling
+authority.

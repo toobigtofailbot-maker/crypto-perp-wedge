@@ -82,17 +82,21 @@ exactly reproduce the locked RESEARCH-02 identities.
 - Semantic-head exact scope: 17 changed files, both research paths authorized,
   zero rejected authorized paths, zero forbidden matches, and zero allowlist
   violations.
-- Full-release profile `full-release-balanced-v1`: all 187 tracked test files
-  uniquely assigned once across 48 completed shards; failed shards `0`;
-  timed-out shards `0`; slowest shard 41 at 1500.594 seconds.
-- Integrity views reproduced only the two repo-documented FT-01 baseline
-  disclosures: `v_integrity_execution_streams` reports the intentionally absent
-  H-004 local stream, and
-  `v_integrity_strategy_spec_legacy_hash_scope_reproducibility` reports the
-  preserved `STRAT-SPEC-0007` unresolved legacy hash scope. The semantic diff
-  changes neither surface. These two known rows make the generic verifier's
-  aggregate status nonzero; all required commands, shards, and all other
-  integrity views passed.
+- Canonical full-release verification without integrity aggregation passed at
+  semantic head `81660eb34b276c02723d4fea17d81ddba7426828` against exact
+  base `a9ce8963569581476d6039fa978f55161db946b1`. Profile
+  `full-release-balanced-v1` assigned all 187 tracked test files uniquely once
+  across 48 completed shards; failed shards `0`; timed-out shards `0`; slowest
+  shard 41 at 1467.188 seconds; verifier overall status `pass`.
+- Separate integrity verification at the same semantic head discovered 62
+  integrity views: 60 were clean and exactly two reproduced the documented
+  FT-01 baseline disclosures. `v_integrity_execution_streams` returned only the
+  intentionally absent H-004 local stream, and
+  `v_integrity_strategy_spec_legacy_hash_scope_reproducibility` returned only
+  the preserved `STRAT-SPEC-0007` unresolved legacy hash scope. The semantic
+  diff changes neither surface. Those two known rows make only the separate
+  integrity aggregate nonzero; they do not alter the canonical full-release
+  pass above.
 
 ## Boundary summary
 

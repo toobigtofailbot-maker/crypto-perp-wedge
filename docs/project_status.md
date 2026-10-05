@@ -60,15 +60,19 @@ Startup read order:
 - CPW-PREFECT-01 and RESEARCH-02 are merged. The prior bounded Prefect proof did
   not cut over scheduler, research automation, lab pipelines, canonical,
   runtime, paper/live, or capital authority.
-- CPW-PREFECT-02 is the current branch-state implementation package. It transfers
-  operational invocation and Prefect run-state/history ownership only for the
-  existing local JSON parameter-sweep consumer, subject to review and merge.
-  Physical PostgreSQL-backed acceptance, direct-vs-Prefect byte parity, focused
-  validation, and the mandatory 48-shard/188-file full-release profile passed.
+- CPW-PREFECT-02 / PR #727 is the first real Prefect consumer cutover package.
+  Its accepted effect, once merged, is limited to top-level operational
+  invocation plus Prefect flow/run-history ownership for the existing local JSON
+  parameter-sweep consumer. Live GitHub is authoritative for whether PR #727 is
+  pending or merged. Physical PostgreSQL-backed acceptance, direct-vs-Prefect
+  byte parity, focused validation, and the mandatory 48-shard/188-file
+  full-release profile passed.
 - CPW-PREFECT-02 adds no schedule or autonomous dispatch and activates no Stage
-  5B, paper/live, protected-runtime, or capital authority. After review and
-  merge, Side/Main must decide whether a remaining-consumer/legacy-retirement
-  assessment is required before the next V2 roadmap lane.
+  5B, paper/live, protected-runtime, or capital authority. After merge, Side 21
+  refreshes repo truth and performs the remaining-consumer / legacy-retirement
+  assessment before the next V2 roadmap lane. Karl retains authorization for
+  any new implementation or architecture package; Main is not an automatic gate
+  unless Karl explicitly invokes it.
 - Per-hypothesis approval and all current autonomy restrictions remain
   operational until Stage 5B is implemented, validated, explicitly activated,
   and a valid Karl-approved bounded research envelope exists; FT-02 does not

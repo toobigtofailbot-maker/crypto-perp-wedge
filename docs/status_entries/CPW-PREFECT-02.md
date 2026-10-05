@@ -104,6 +104,10 @@ scientific runner, canonical/query/schema surfaces, and every protected runtime,
 OMS, reconciliation, risk, safe-mode, overlay, broker/order, paper/live, and
 capital path are unchanged. No `.cpw` proof material is committed.
 
-After accepted merge, Side/Main must decide whether a remaining Prefect consumer
-or legacy-retirement assessment is required before the Hermes + Research Memory
-+ Search Governor/Optuna lane. This package pre-authorizes neither route.
+After accepted merge, Side 21 refreshes live repo truth and assesses whether a
+remaining Prefect consumer / legacy-retirement tranche is required before the
+Hermes + Research Memory + Search Governor/Optuna lane. Karl authorizes any
+later implementation or architecture package; Main is not an automatic gate
+unless Karl explicitly invokes it. This documentation-only continuity
+correction changes no Prefect ownership, implementation, validation, or
+authority, and this package pre-authorizes neither route.

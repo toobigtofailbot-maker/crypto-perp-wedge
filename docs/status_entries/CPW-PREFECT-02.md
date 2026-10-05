@@ -4,8 +4,8 @@
 - Pull request: not opened during pre-PR validation
 - Locked start base: `d4d16278ed68bdfa65c7a85bc778981291f60030`
 - Implementation/physical-proof head: `2e60093165e069dff6449610d0355cbc8bb28473`
-- Final semantic head: the committed status/project-status tail based on the
-  unchanged implementation/test blobs from the physical-proof head
+- Full-release validation head: `c479df73b636907f3ac99e06e32c449bbfbf45ac`,
+  based on the unchanged implementation/test blobs from the physical-proof head
 - Package class: T2; mandatory full-release
 - Self-merge: no
 
@@ -80,8 +80,18 @@ two `Completed`, invalid-spec `Failed`, duplicate-namespace `Failed`, all with
 - Domain/scheduler/operator non-coupling adjacency: `61 passed`.
 - Physical self-hosted acceptance: passed all five required cases.
 - Direct-vs-Prefect artifact difference count: `0`.
-- Remaining final diff, integrity, full-release, rebase, and GitHub mergeability
-  results are recorded in the final publication tail before review handoff.
+- Integrity profile `h004-clean`: 61 clean views plus exactly the two expected
+  disclosures for the missing H004 execution stream and the scoped legacy
+  `STRAT-SPEC-0007` hash; zero unexpected rows.
+- Mandatory `full-release-balanced-v1`: overall `pass`; 48/48 shards completed
+  and passed; 188/188 tracked test files assigned exactly once; 3,875 passed,
+  49 accepted environment/capability skips; zero failed, timed-out, incomplete,
+  missing, duplicate, or untracked shard assignments.
+- Validation continuation fixture: the ignored D4A CSV was copied from the
+  primary checkout at 29,300,290 bytes with SHA-256
+  `c30fd7f07fdf513cdaf234b1bee4eff03b430a479cc572a2cc8b57394f22e0ab`.
+  The previously failing exact test passed (`1 passed`), the mandatory full
+  release passed, and the ignored copy was removed without staging or commit.
 
 ## Forbidden-scope result and next dependency
 

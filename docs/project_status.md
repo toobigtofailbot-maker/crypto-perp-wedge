@@ -63,6 +63,8 @@ Startup read order:
 - CPW-PREFECT-02 is the current branch-state implementation package. It transfers
   operational invocation and Prefect run-state/history ownership only for the
   existing local JSON parameter-sweep consumer, subject to review and merge.
+  Physical PostgreSQL-backed acceptance, direct-vs-Prefect byte parity, focused
+  validation, and the mandatory 48-shard/188-file full-release profile passed.
 - CPW-PREFECT-02 adds no schedule or autonomous dispatch and activates no Stage
   5B, paper/live, protected-runtime, or capital authority. After review and
   merge, Side/Main must decide whether a remaining-consumer/legacy-retirement

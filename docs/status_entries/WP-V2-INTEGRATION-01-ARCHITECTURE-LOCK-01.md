@@ -5,8 +5,9 @@
 - Execution base: `a295299cb18ca247c14114cd9f06f7b4e29c90c5`
 - Decision: `D2-022`
 - Package class: T0 documentation/process-policy architecture lock
-- Pull request: pending creation
-- Substantive head: pending first commit
+- Pull request: [#728](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/728),
+  open and non-draft
+- Substantive head: `10e09a1db3f810defddf149bc7569067080ec22d`
 - Merge posture: held for Side exact-head review; no self-merge
 
 ## Exact changed-file set

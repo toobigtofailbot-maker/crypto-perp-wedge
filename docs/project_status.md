@@ -80,6 +80,12 @@ Startup read order:
   eligible activity is Side pre-draft confirmation for V2-INTEGRATION-01A.
   01A remains manual/default-off and stops before Governor/Optuna; 01B remains
   separately gated. Neither package is implemented or authorized here.
+- V2-INTEGRATION-01A branch-state implements the separately authorized manual,
+  default-off Hermes bounded handoff from Prefect through Project-Evidence v4
+  and exact read-only Research Memory to a strict non-authoritative intent. Its
+  mandatory physical Cases A-E and full-release evidence remain pending; no
+  Governor, Optuna, runner, canonical, autonomous, runtime, paper/live, or
+  capital authority is active. This entry is not a merge claim.
 - Per-hypothesis approval and all current autonomy restrictions remain
   operational until Stage 5B is implemented, validated, explicitly activated,
   and a valid Karl-approved bounded research envelope exists; FT-02 and D2-022

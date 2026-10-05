@@ -4,10 +4,17 @@ from __future__ import annotations
 
 import hashlib
 import re
+from collections.abc import Mapping
 from typing import Any
 
 import psycopg
 from psycopg.rows import dict_row
+
+from tools.research_memory.fingerprint import (
+    FINGERPRINT_VERSION,
+    HypothesisDefinition,
+    fingerprint,
+)
 
 from .models import NON_AUTHORITY, EvidenceUnavailableError, ResourceDeniedError
 from .resources import EvidenceResourceCatalog
@@ -116,6 +123,58 @@ class ReadOnlyResearchMemoryReader:
                     "definition": item["canonical_definition"],
                     "index_not_truth": True,
                     "records": materialized,
+                    "repo_sha": self._catalog.identity.repo_sha,
+                    "postgres_boundary": (
+                        "default_transaction_read_only=on; SET TRANSACTION READ ONLY; "
+                        "role rejected if any mutation privilege exists"
+                    ),
+                    "authority": dict(NON_AUTHORITY),
+                }
+        finally:
+            connection.close()
+
+    def lookup_definition(
+        self, definition: HypothesisDefinition | Mapping[str, Any]
+    ) -> dict[str, Any]:
+        """Look up one exact normalized hypothesis fingerprint, read-only."""
+
+        normalized = (
+            definition
+            if isinstance(definition, HypothesisDefinition)
+            else HypothesisDefinition.from_mapping(definition)
+        )
+        fingerprint_sha256 = fingerprint(normalized)
+        connection = self._connect()
+        try:
+            with connection.transaction():
+                connection.execute("SET TRANSACTION READ ONLY")
+                item = connection.execute(
+                    """
+                    SELECT * FROM research_memory.hypothesis_items
+                    WHERE fingerprint_sha256 = %s
+                    ORDER BY memory_item_id
+                    LIMIT 1
+                    """,
+                    (fingerprint_sha256,),
+                ).fetchone()
+                records: list[dict[str, Any]] = []
+                if item is not None:
+                    rows = connection.execute(
+                        """
+                        SELECT * FROM research_memory.memory_records
+                        WHERE memory_item_id = %s
+                        ORDER BY authority_state, source_key
+                        """,
+                        (item["memory_item_id"],),
+                    ).fetchall()
+                    records = [self._materialize(connection, dict(row)) for row in rows]
+                return {
+                    "matched": item is not None,
+                    "fingerprint_version": FINGERPRINT_VERSION,
+                    "fingerprint_sha256": fingerprint_sha256,
+                    "definition": normalized.canonical_mapping(),
+                    "index_not_truth": True,
+                    "records": records,
                     "repo_sha": self._catalog.identity.repo_sha,
                     "postgres_boundary": (
                         "default_transaction_read_only=on; SET TRANSACTION READ ONLY; "

@@ -65,8 +65,12 @@ repo inputs and binds every result to the exact repo SHA, repo path, and
 artifact hash. Model content is untrusted reasoning input, not evidence. The
 tools write no artifact and grant no canonical, approval, execution,
 candidate/promotion, scheduler/Prefect, runtime/risk, paper/live, or capital
-authority. H2/H2.5 behavior is unchanged. HERMES-02 operational handoff and
-HERMES-03 canary/runtime consolidation remain future work.
+authority. H2/H2.5 behavior is unchanged. HERMES-02 01A adds one manually
+triggered, fixed-command, non-authoritative bounded research-intent handoff.
+Project-Evidence resolves exact evidence and performs exact read-only Research
+Memory dedup before emitting a strict intent; the handoff stops before Governor,
+Optuna, runner, canonical, promotion, runtime, paper/live, or capital authority.
+HERMES-03 canary/runtime consolidation remains future work.
 
 ## One-time PostgreSQL role setup
 

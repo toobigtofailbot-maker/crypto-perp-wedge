@@ -28,6 +28,10 @@ metadata:
    gate. An approval requirement is not approval.
 9. Use `cpw_validate_trial_denominator` only as a CPW semantic validator and
    preserve failed, invalid, pruned, and blocked trials.
+10. For a manually triggered HERMES-02 01A prompt only, preserve its fixed
+    hypothesis identity, call `cpw_build_bounded_research_intent` once with
+    bounded reasoning, and return exactly the tool-produced JSON without prose
+    or fences. Research Memory is read-only context and is not truth.
 
 ## Authority boundary
 
@@ -37,4 +41,6 @@ candidate; approve; dispatch; trade; change dependencies; or enable tools.
 They grant no execution, scheduler, canonical, approval, promotion, runtime,
 risk, paper/live, or capital authority. They cannot self-enable or widen
 MCP/tool scope. Existing H2 proposals and H2.5 prepared payloads remain separate
-inert workflows. HERMES-02 and HERMES-03 are future work.
+inert workflows. The HERMES-02 01A handoff stops before Search Governor,
+Optuna, runner/backtest, canonical, promotion, runtime, paper/live, capital, or
+any autonomous successor job. HERMES-03 remains future work.

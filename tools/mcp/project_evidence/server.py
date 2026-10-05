@@ -18,6 +18,7 @@ from .domain_tools import (
     PreregistrationPacketInput,
     TrialDenominatorInput,
 )
+from .research_intent import BoundedResearchIntentDraftInput
 from .service import ProjectEvidenceService
 
 mcp = FastMCP(
@@ -149,6 +150,19 @@ _CPW_DOMAIN_TOOL_HANDLERS = (
     cpw_validate_trial_denominator,
 )
 for _handler in _CPW_DOMAIN_TOOL_HANDLERS:
+    mcp.tool()(_handler)
+
+
+def cpw_build_bounded_research_intent(
+    request: BoundedResearchIntentDraftInput,
+) -> dict[str, Any]:
+    """Build one exact non-authoritative HERMES-02 research intent."""
+
+    return _service().build_bounded_research_intent(request=request)
+
+
+_BOUNDED_RESEARCH_INTENT_HANDLERS = (cpw_build_bounded_research_intent,)
+for _handler in _BOUNDED_RESEARCH_INTENT_HANDLERS:
     mcp.tool()(_handler)
 
 

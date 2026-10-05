@@ -1,7 +1,8 @@
 # CPW-PREFECT-02 — First Real Research-Consumer Orchestration Cutover
 
 - Branch: `codex/cpw-prefect-02-real-consumer-cutover`
-- Pull request: not opened during pre-PR validation
+- Pull request: [#727](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/727),
+  non-draft; exact-head Side 21 review required before merge readiness
 - Locked start base: `d4d16278ed68bdfa65c7a85bc778981291f60030`
 - Implementation/physical-proof head: `2e60093165e069dff6449610d0355cbc8bb28473`
 - Full-release validation head: `c479df73b636907f3ac99e06e32c449bbfbf45ac`,
@@ -92,6 +93,9 @@ two `Completed`, invalid-spec `Failed`, duplicate-namespace `Failed`, all with
   `c30fd7f07fdf513cdaf234b1bee4eff03b430a479cc572a2cc8b57394f22e0ab`.
   The previously failing exact test passed (`1 passed`), the mandatory full
   release passed, and the ignored copy was removed without staging or commit.
+- Final rebase gate: `origin/main` remained the locked start base
+  `d4d16278ed68bdfa65c7a85bc778981291f60030`; rebase was a no-op and did not
+  invalidate semantic, physical, or full-release evidence.
 
 ## Forbidden-scope result and next dependency
 

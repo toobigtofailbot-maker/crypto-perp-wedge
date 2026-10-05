@@ -261,6 +261,7 @@ The following decisions are locked for Phase 2. Full details in `docs/onboarding
 | D2-019 | Decision Change: Adoption-first infrastructure buildability and Nautilus proof sequencing |
 | D2-020 | Decision Change: Bounded Autonomous Research Envelope and V2 Operating Roadmap |
 | D2-021 | Five-Timeframe Canonical Base and Feature Parent Identity |
+| D2-022 | Hermes Bounded Research Handoff and SearchContract Ownership |
 
 ### D2-003A — Irreparable official-source gap policy
 
@@ -543,3 +544,48 @@ feature parent identity
 D2-021 does not implement FT-02, activate autonomy, change promotion or
 timeframe policy, or create runtime, paper, live, risk, capital, or economic
 authority. It changes no protected execution boundary.
+
+### D2-022 — Hermes Bounded Research Handoff and SearchContract Ownership
+
+**Status:** LOCKED
+
+**Decision ID:** D2-022
+
+**Date:** 2026-10-05
+
+**Scope:** Hermes operational handoff and CPW `SearchContract` ownership
+
+**Approval:** Karl-authorized through
+`WP-V2-INTEGRATION-01-ARCHITECTURE-LOCK-01`
+
+**Controlling record:**
+`docs/architecture/2026-10-hermes_research_integration_handoff_lock.md`
+
+#### Decision
+
+- The first proof uses a CPW-owned fixed-command host-side invocation adapter,
+  under Prefect operational control, to one non-interactive turn in the
+  existing pinned Hermes container. The adapter is narrow: it grants no
+  caller-selectable command, generic Docker/subprocess authority, repository
+  mount, Docker socket, or new Hermes API.
+- `BoundedResearchIntent v1` is the strict, non-authoritative typed handoff.
+  Hermes supplies untrusted reasoning; Project-Evidence / CPW re-resolves
+  evidence, validates the envelope, normalizes the exact `hypothesis-v1`
+  fingerprint, and performs read-only exact Research Memory deduplication.
+- CPW alone may deterministically convert an accepted intent plus explicit
+  scientific policy, evidence, and lineage into a frozen `SearchContract`.
+- Search Governor alone owns search legality, scientific IDs and denominator,
+  proposal/trial budgets, duplicate policy, final-holdout isolation, retry
+  meaning, and bounded snapshot/restore. Optuna remains proposer-only behind
+  the Governor; Prefect remains operational-only.
+- H2/H2.5 proposal and prepared-payload surfaces remain inert and cannot become
+  integration inputs or automatic consumer messages.
+- V2-INTEGRATION-01A and 01B are separate future implementation packages. 01A
+  stops before Governor/Optuna; 01B remains separately gated and stops before
+  real product-runner execution.
+
+#### Non-authority
+
+D2-022 implements no code and activates no Stage 5B, autonomous research,
+schedule/trigger, runner, canonical write, promotion, protected runtime,
+paper/live, exchange/order, or capital authority.

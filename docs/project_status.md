@@ -33,6 +33,10 @@ Startup read order:
   feature-parent identity authority. FT-02 merged through PR #726 at
   `d4d16278ed68bdfa65c7a85bc778981291f60030`, completing the planned
   five-timeframe/data-feature foundation.
+- CPW-PREFECT-02 merged through PR #727 at
+  `a295299cb18ca247c14114cd9f06f7b4e29c90c5`, completing the first real
+  Prefect consumer cutover without a schedule, trigger, or scientific-authority
+  transfer.
 
 ## Key Architecture References
 
@@ -60,23 +64,27 @@ Startup read order:
 - CPW-PREFECT-01 and RESEARCH-02 are merged. The prior bounded Prefect proof did
   not cut over scheduler, research automation, lab pipelines, canonical,
   runtime, paper/live, or capital authority.
-- CPW-PREFECT-02 / PR #727 is the first real Prefect consumer cutover package.
-  Its accepted effect, once merged, is limited to top-level operational
-  invocation plus Prefect flow/run-history ownership for the existing local JSON
-  parameter-sweep consumer. Live GitHub is authoritative for whether PR #727 is
-  pending or merged. Physical PostgreSQL-backed acceptance, direct-vs-Prefect
-  byte parity, focused validation, and the mandatory 48-shard/188-file
-  full-release profile passed.
+- CPW-PREFECT-02 / PR #727 is merged as the first real Prefect consumer
+  cutover. Its effect is limited to top-level operational invocation plus
+  Prefect flow/run-history ownership for the existing local JSON
+  parameter-sweep consumer. Physical PostgreSQL-backed acceptance,
+  direct-vs-Prefect byte parity, focused validation, and the mandatory
+  48-shard/188-file full-release profile passed.
 - CPW-PREFECT-02 adds no schedule or autonomous dispatch and activates no Stage
-  5B, paper/live, protected-runtime, or capital authority. After merge, Side 21
-  refreshes repo truth and performs the remaining-consumer / legacy-retirement
-  assessment before the next V2 roadmap lane. Karl retains authorization for
-  any new implementation or architecture package; Main is not an automatic gate
-  unless Karl explicitly invokes it.
+  5B, paper/live, protected-runtime, or capital authority.
+- The current directed V2 lane is Hermes + Research Memory + Search
+  Governor/Optuna integration. `WP-V2-INTEGRATION-01-ARCHITECTURE-LOCK-01` is
+  documentation/architecture only: D2-022 locks the fixed-command Hermes
+  handoff, non-authoritative `BoundedResearchIntent v1`, exact read-only dedup
+  seam, and CPW-only intent-to-`SearchContract` ownership. After merge, the next
+  eligible activity is Side pre-draft confirmation for V2-INTEGRATION-01A.
+  01A remains manual/default-off and stops before Governor/Optuna; 01B remains
+  separately gated. Neither package is implemented or authorized here.
 - Per-hypothesis approval and all current autonomy restrictions remain
   operational until Stage 5B is implemented, validated, explicitly activated,
-  and a valid Karl-approved bounded research envelope exists; FT-02 does not
-  relax those default-off restrictions.
+  and a valid Karl-approved bounded research envelope exists; FT-02 and D2-022
+  do not relax those default-off restrictions. No autonomous research, runner,
+  runtime, paper/live, or capital authority is created.
 - After VPS always-on acceptance, Stage 8A+ implementation remains serialized
   while Stage 8R continuous non-capital research operates in parallel.
 

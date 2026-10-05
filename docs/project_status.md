@@ -30,8 +30,9 @@ Startup read order:
   `afcd5ebee90514b9a06569023b148326361e734d`; its D4-native taker-flow
   feature contract is current merged evidence.
 - FT-01 is merged and D2-021 is the durable five-timeframe canonical-base and
-  feature-parent identity authority. FT-02 is the open package intended to
-  complete the five-timeframe/data-feature foundation if its PR merges.
+  feature-parent identity authority. FT-02 merged through PR #726 at
+  `d4d16278ed68bdfa65c7a85bc778981291f60030`, completing the planned
+  five-timeframe/data-feature foundation.
 
 ## Key Architecture References
 
@@ -59,9 +60,19 @@ Startup read order:
 - CPW-PREFECT-01 and RESEARCH-02 are merged. The prior bounded Prefect proof did
   not cut over scheduler, research automation, lab pipelines, canonical,
   runtime, paper/live, or capital authority.
-- FT-02 remains the current five-timeframe/data-feature completion package.
-  After it merges, the next dependency-correct V2 lane is Prefect
-  real-consumer orchestration.
+- CPW-PREFECT-02 / PR #727 is the first real Prefect consumer cutover package.
+  Its accepted effect, once merged, is limited to top-level operational
+  invocation plus Prefect flow/run-history ownership for the existing local JSON
+  parameter-sweep consumer. Live GitHub is authoritative for whether PR #727 is
+  pending or merged. Physical PostgreSQL-backed acceptance, direct-vs-Prefect
+  byte parity, focused validation, and the mandatory 48-shard/188-file
+  full-release profile passed.
+- CPW-PREFECT-02 adds no schedule or autonomous dispatch and activates no Stage
+  5B, paper/live, protected-runtime, or capital authority. After merge, Side 21
+  refreshes repo truth and performs the remaining-consumer / legacy-retirement
+  assessment before the next V2 roadmap lane. Karl retains authorization for
+  any new implementation or architecture package; Main is not an automatic gate
+  unless Karl explicitly invokes it.
 - Per-hypothesis approval and all current autonomy restrictions remain
   operational until Stage 5B is implemented, validated, explicitly activated,
   and a valid Karl-approved bounded research envelope exists; FT-02 does not

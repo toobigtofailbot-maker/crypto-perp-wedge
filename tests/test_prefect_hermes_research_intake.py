@@ -232,6 +232,7 @@ def test_fixed_subprocess_vector_success_and_session_hash_exclusion(
     assert command[4:9] == ["exec", "-T", "hermes", "/opt/hermes/hermes", "chat"]
     assert command[-3:] == ["--quiet", "--source", "tool"]
     assert captured["shell"] is False
+    assert "LOCALAPPDATA" in captured["env"]
     assert result["hermes_session_id"] == "session-1"
     assert semantic_content_sha256(result) == result["content_sha256"]
 

@@ -48,7 +48,10 @@ _REQUIRED_ENV = (
 )
 _PASSTHROUGH_ENV = (
     "PATH", "SystemRoot", "SYSTEMROOT", "ComSpec", "COMSPEC", "TEMP", "TMP",
-    "HOME", "USERPROFILE", "DOCKER_HOST", "DOCKER_CONTEXT", "DOCKER_CONFIG",
+    "HOME", "USERPROFILE", "APPDATA", "LOCALAPPDATA", "ProgramData",
+    "ProgramFiles", "ProgramFiles(x86)", "ProgramW6432", "CommonProgramFiles",
+    "CommonProgramFiles(x86)", "CommonProgramW6432", "DOCKER_HOST",
+    "DOCKER_CONTEXT", "DOCKER_CONFIG", "DOCKER_CLI_PLUGIN_EXTRA_DIRS",
 )
 
 

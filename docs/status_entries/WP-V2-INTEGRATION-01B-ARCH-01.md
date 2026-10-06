@@ -4,8 +4,9 @@
 - Exact base: `f2dbcb73a25d5ce271a29915b54ae6647aee5570`
 - Decision: `D2-023`
 - Package class: T0 documentation-only architecture lock
-- Pull request: pending publication; to be replaced before the final commit
-- Substantive head: to be recorded after the validated substantive commit
+- Pull request:
+  [PR #730](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/730)
+- Substantive head: `0ba5078434b1d5194f6dee8288075658d60b5973`
 - Review state: held for Side exact-head review
 - Self-merge: no
 

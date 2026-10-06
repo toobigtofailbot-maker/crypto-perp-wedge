@@ -648,7 +648,7 @@ paper/live, exchange/order, capital, or self-merge authority.
 
 **Scope:** Extreme Hermes target architecture and roadmap supersession
 
-**Approval:** Karl/Main-approved through
+**Approval:** Karl-approved through
 `WP-EXTREME-HERMES-00-AUTONOMOUS-RESEARCH-DIRECTOR-ARCH-01`
 
 **Controlling record:**

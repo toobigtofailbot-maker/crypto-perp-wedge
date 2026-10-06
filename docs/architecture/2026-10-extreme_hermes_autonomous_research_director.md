@@ -5,7 +5,7 @@
 - Status: **CURRENT CONTROLLING / LOCKED TARGET ARCHITECTURE**.
 - Package: `WP-EXTREME-HERMES-00-AUTONOMOUS-RESEARCH-DIRECTOR-ARCH-01`.
 - Decision: `D2-024 — Extreme Hermes Autonomous Research Director`.
-- Approved by: Karl/Main.
+- Approved by: Karl (project owner).
 - Authority class: architecture and roadmap only.
 
 This record controls the intended Hermes target and prospectively supersedes

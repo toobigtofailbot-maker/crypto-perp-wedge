@@ -13,14 +13,29 @@ evidence are pending at the implementation stage.
 The manual/default-off path is human-triggered Prefect deployment -> local
 process pool/worker -> one zero-retry task -> a fixed host `docker compose exec`
 argument vector -> the existing pinned Hermes container -> one `hermes chat -q
---quiet --source tool` turn -> Project-Evidence only -> strict host validation ->
-return of a non-authoritative intent. There is no schedule, trigger, successor
-flow, output file, handoff queue, or `.cpw` artifact.
+--quiet --source tool` turn -> Project-Evidence only -> read-only extraction of
+the exact persisted bounded-builder result from that Hermes session -> strict
+host validation -> return of a non-authoritative intent. There is no schedule,
+trigger, successor flow, output file, handoff queue, or `.cpw` artifact.
 
 The operator supplies only a strict `cpw_bounded_research_request_v1` JSON
 object. Code owns the prompt, compose file, service, executable, subcommand,
 flags, timeout, and stdout/stderr limits. The fixed timeout is 300 seconds;
 stdout is limited to 1,000,000 bytes and stderr to 64,000 bytes.
+
+The stderr session identity selects one external Hermes `state.db` session.
+The adapter opens that ordinary, non-linked database through stdlib `sqlite3`
+with a `mode=ro` URI and executes one ordered `SELECT` over active messages. It
+requires exactly one `cpw_build_bounded_research_intent` call and exactly one
+result linked by its persisted `tool_call_id`. The linked result envelope and
+strict intent are parsed deterministically. Hermes `SessionDB` is not imported
+or instantiated, and the extractor performs no PRAGMA, DML, DDL, checkpoint,
+schema reconciliation, or migration.
+
+Hermes final stdout remains size-bounded operational diagnostic material. It
+is neither the accepted handoff nor research truth, so model-authored
+rephrasing cannot replace or modify the exact Project-Evidence result. The
+prompt still asks Hermes to return that result exactly as behavioral guidance.
 
 ## Request, intent, and content identity
 

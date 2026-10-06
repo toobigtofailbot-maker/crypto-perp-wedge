@@ -6,6 +6,8 @@ import argparse
 import json
 import os
 import re
+import sqlite3
+import stat
 import subprocess
 from collections.abc import Mapping, Sequence
 from pathlib import Path
@@ -33,11 +35,19 @@ TASK_NAME: Final = "cpw-hermes-one-shot"
 HERMES_TIMEOUT_SECONDS: Final = 300
 MAX_STDOUT_BYTES: Final = 1_000_000
 MAX_STDERR_BYTES: Final = 64_000
+MAX_TOOL_RESULT_BYTES: Final = 1_000_000
 _ENTRYPOINT: Final = (
     "tools/prefect_integration/hermes_research_intake.py:hermes_research_intake"
 )
 _FULL_GIT_SHA = re.compile(r"^[0-9a-f]{40}$")
 _SESSION_LINE = re.compile(r"^session_id: ([A-Za-z0-9][A-Za-z0-9._:-]{0,127})$")
+_TARGET_TOOL_NAME: Final = (
+    "mcp__project_evidence__cpw_build_bounded_research_intent"
+)
+_TOOL_WRAPPER_OPEN: Final = (
+    f'<untrusted_tool_result source="{_TARGET_TOOL_NAME}">'
+)
+_TOOL_WRAPPER_CLOSE: Final = "</untrusted_tool_result>"
 _REQUIRED_ENV = (
     "HERMES_PROJECT_HOME",
     "HERMES_PROPOSAL_OUTBOX_HOST",
@@ -116,20 +126,167 @@ def _bounded_environment(repo_root: Path) -> dict[str, str]:
     return environment
 
 
-def _parse_single_json_object(stdout: bytes) -> dict[str, Any]:
-    if len(stdout) > MAX_STDOUT_BYTES:
-        raise HermesResearchIntakeError("Hermes stdout exceeded the fixed byte limit")
+def _parse_single_json_object(raw: bytes) -> dict[str, Any]:
+    if len(raw) > MAX_TOOL_RESULT_BYTES:
+        raise HermesResearchIntakeError("JSON payload exceeded the fixed byte limit")
     try:
-        text = stdout.decode("utf-8")
+        text = raw.decode("utf-8")
     except UnicodeDecodeError as exc:
-        raise HermesResearchIntakeError("Hermes stdout is not valid UTF-8") from exc
+        raise HermesResearchIntakeError("JSON payload is not valid UTF-8") from exc
     try:
         parsed = json.loads(text)
     except json.JSONDecodeError as exc:
-        raise HermesResearchIntakeError("Hermes stdout is not exactly one JSON value") from exc
+        raise HermesResearchIntakeError("payload is not exactly one JSON value") from exc
     if not isinstance(parsed, dict):
-        raise HermesResearchIntakeError("Hermes stdout JSON root must be an object")
+        raise HermesResearchIntakeError("JSON payload root must be an object")
     return parsed
+
+
+def _is_reparse_or_symlink(path: Path) -> bool:
+    metadata = path.lstat()
+    file_attributes = getattr(metadata, "st_file_attributes", 0)
+    reparse_flag = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
+    return path.is_symlink() or bool(file_attributes & reparse_flag)
+
+
+def _validated_state_db_path(hermes_home_value: str, repo_root: Path) -> Path:
+    raw_home = Path(hermes_home_value)
+    try:
+        if _is_reparse_or_symlink(raw_home):
+            raise HermesResearchIntakeError("HERMES_PROJECT_HOME must not be linked")
+        hermes_home = raw_home.resolve(strict=True)
+        resolved_repo = repo_root.resolve(strict=True)
+    except OSError as exc:
+        raise HermesResearchIntakeError("HERMES_PROJECT_HOME is unavailable") from exc
+    if hermes_home == resolved_repo or resolved_repo in hermes_home.parents:
+        raise HermesResearchIntakeError("HERMES_PROJECT_HOME must remain outside the repo")
+
+    state_db = raw_home / "state.db"
+    try:
+        if _is_reparse_or_symlink(state_db):
+            raise HermesResearchIntakeError("Hermes state.db must not be linked")
+        metadata = state_db.lstat()
+        resolved_state_db = state_db.resolve(strict=True)
+    except OSError as exc:
+        raise HermesResearchIntakeError("Hermes state.db is unavailable") from exc
+    if not stat.S_ISREG(metadata.st_mode):
+        raise HermesResearchIntakeError("Hermes state.db must be a regular file")
+    if resolved_state_db.parent != hermes_home:
+        raise HermesResearchIntakeError("Hermes state.db escapes HERMES_PROJECT_HOME")
+    return resolved_state_db
+
+
+def _target_call_id(tool_calls_text: str) -> str | None:
+    try:
+        tool_calls = json.loads(tool_calls_text)
+    except json.JSONDecodeError as exc:
+        raise HermesResearchIntakeError("Hermes tool-call metadata is malformed") from exc
+    if not isinstance(tool_calls, list):
+        raise HermesResearchIntakeError("Hermes tool-call metadata must be a list")
+    matches: list[str] = []
+    for tool_call in tool_calls:
+        if not isinstance(tool_call, dict):
+            raise HermesResearchIntakeError("Hermes tool-call entry is malformed")
+        function = tool_call.get("function")
+        if not isinstance(function, dict):
+            raise HermesResearchIntakeError("Hermes tool-call function is malformed")
+        function_name = function.get("name")
+        target_name: object = function_name
+        if function_name == "tool_call":
+            arguments_text = function.get("arguments")
+            if not isinstance(arguments_text, str):
+                raise HermesResearchIntakeError("Hermes tool-call arguments are malformed")
+            try:
+                arguments = json.loads(arguments_text)
+            except json.JSONDecodeError as exc:
+                raise HermesResearchIntakeError(
+                    "Hermes tool-call arguments are malformed"
+                ) from exc
+            if not isinstance(arguments, dict):
+                raise HermesResearchIntakeError("Hermes tool-call arguments are malformed")
+            target_name = arguments.get("name")
+        if target_name != _TARGET_TOOL_NAME:
+            continue
+        call_id = tool_call.get("call_id")
+        legacy_id = tool_call.get("id")
+        if not isinstance(call_id, str) or not call_id:
+            raise HermesResearchIntakeError("target tool call has no exact call ID")
+        if legacy_id is not None and legacy_id != call_id:
+            raise HermesResearchIntakeError("target tool call IDs disagree")
+        matches.append(call_id)
+    if len(matches) > 1:
+        raise HermesResearchIntakeError("target builder tool was called multiple times")
+    return matches[0] if matches else None
+
+
+def _intent_from_persisted_tool_content(content: str) -> dict[str, Any]:
+    if not content or len(content.encode("utf-8")) > MAX_TOOL_RESULT_BYTES:
+        raise HermesResearchIntakeError("persisted target tool result is empty or oversized")
+    if not content.startswith(_TOOL_WRAPPER_OPEN + "\n") or not content.endswith(
+        "\n" + _TOOL_WRAPPER_CLOSE
+    ):
+        raise HermesResearchIntakeError("persisted target tool result wrapper is invalid")
+    body = content[len(_TOOL_WRAPPER_OPEN) + 1 : -len(_TOOL_WRAPPER_CLOSE) - 1]
+    parts = body.split("\n\n", 1)
+    if len(parts) != 2 or not parts[0]:
+        raise HermesResearchIntakeError("persisted target tool result wrapper is invalid")
+    envelope = _parse_single_json_object(parts[1].encode("utf-8"))
+    if set(envelope) != {"result"} or not isinstance(envelope["result"], str):
+        raise HermesResearchIntakeError("persisted target tool result envelope is invalid")
+    return _parse_single_json_object(envelope["result"].encode("utf-8"))
+
+
+def _read_persisted_target_intent(
+    *, hermes_home: str, repo_root: Path, session_id: str
+) -> dict[str, Any]:
+    state_db = _validated_state_db_path(hermes_home, repo_root)
+    uri = state_db.as_uri() + "?mode=ro"
+    try:
+        with sqlite3.connect(uri, uri=True) as connection:
+            rows = connection.execute(
+                "SELECT id, role, content, tool_call_id, tool_calls, tool_name "
+                "FROM messages WHERE session_id = ? AND active = 1 ORDER BY id",
+                (session_id,),
+            ).fetchall()
+    except sqlite3.Error as exc:
+        raise HermesResearchIntakeError("Hermes session state is unavailable") from exc
+    if not rows:
+        raise HermesResearchIntakeError("Hermes session was not found in read-only state")
+
+    target_call_ids = [
+        call_id
+        for _id, role, _content, _tool_call_id, tool_calls, _tool_name in rows
+        if role == "assistant" and isinstance(tool_calls, str)
+        for call_id in [_target_call_id(tool_calls)]
+        if call_id is not None
+    ]
+    if len(target_call_ids) != 1:
+        qualifier = "multiple" if target_call_ids else "zero"
+        raise HermesResearchIntakeError(
+            f"Hermes session has {qualifier} target builder tool calls"
+        )
+    call_id = target_call_ids[0]
+    results = [
+        content
+        for _id, role, content, result_call_id, _tool_calls, tool_name in rows
+        if role == "tool"
+        and result_call_id == call_id
+        and tool_name == _TARGET_TOOL_NAME
+    ]
+    if len(results) != 1:
+        qualifier = "multiple" if results else "zero"
+        raise HermesResearchIntakeError(
+            f"Hermes session has {qualifier} linked target tool results"
+        )
+    if not isinstance(results[0], str):
+        raise HermesResearchIntakeError("persisted target tool result has no content")
+    raw_intent = _intent_from_persisted_tool_content(results[0])
+    try:
+        return BoundedResearchIntentV1.model_validate(raw_intent).model_dump(mode="json")
+    except ValueError as exc:
+        raise HermesResearchIntakeError(
+            "persisted target tool result is not a strict bounded intent"
+        ) from exc
 
 
 def _session_id(stderr: bytes) -> str | None:
@@ -232,17 +389,23 @@ def invoke_hermes_once(request: Mapping[str, Any]) -> dict[str, Any]:
             f"Hermes invocation failed with exit code {process.returncode}"
         )
     session_id = _session_id(stderr)
+    if session_id is None:
+        raise HermesResearchIntakeError("Hermes did not return one session identity")
+    raw_intent = _read_persisted_target_intent(
+        hermes_home=environment["HERMES_PROJECT_HOME"],
+        repo_root=repo_root,
+        session_id=session_id,
+    )
     intent = _cross_check(
-        _parse_single_json_object(stdout),
+        raw_intent,
         validated,
         expected_repo_sha=environment["PROJECT_REPO_SHA"],
     )
-    if session_id is not None:
-        intent = BoundedResearchIntentV1.model_validate(
-            {**intent.model_dump(mode="json"), "hermes_session_id": session_id}
-        )
-        if semantic_content_sha256(intent) != intent.content_sha256:
-            raise HermesResearchIntakeError("operational session identity changed semantic hash")
+    intent = BoundedResearchIntentV1.model_validate(
+        {**intent.model_dump(mode="json"), "hermes_session_id": session_id}
+    )
+    if semantic_content_sha256(intent) != intent.content_sha256:
+        raise HermesResearchIntakeError("operational session identity changed semantic hash")
     return intent.model_dump(mode="json")
 
 

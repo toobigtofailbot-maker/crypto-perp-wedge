@@ -82,8 +82,10 @@ Startup read order:
   separately gated. Neither package is implemented or authorized here.
 - V2-INTEGRATION-01A branch-state implements the separately authorized manual,
   default-off Hermes bounded handoff from Prefect through Project-Evidence v4
-  and exact read-only Research Memory to a strict non-authoritative intent. Its
-  mandatory physical Cases A-E and full-release evidence remain pending; no
+  and exact read-only Research Memory to a strict non-authoritative intent. The
+  accepted intent comes from the exact persisted bounded-builder tool result;
+  final model-authored stdout is non-authoritative. Its mandatory physical
+  Cases A-E and full-release evidence remain pending; no
   Governor, Optuna, runner, canonical, autonomous, runtime, paper/live, or
   capital authority is active. This entry is not a merge claim.
 - Per-hypothesis approval and all current autonomy restrictions remain

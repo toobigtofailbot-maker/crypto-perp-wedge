@@ -12,7 +12,9 @@
 
 This package implements the manual/default-off Prefect -> fixed host Docker
 command -> pinned Hermes -> Project-Evidence v4 -> exact read-only Research
-Memory -> strict `BoundedResearchIntent v1` handoff. It stops after host-side
+Memory -> exact read-only persisted tool-result extraction -> strict
+`BoundedResearchIntent v1` handoff. The final model-authored stdout is bounded
+operational diagnostic material only. The package stops after host-side
 validation. The exact changed-file list, physical Cases A-E, focused/adjacent
 tests, full-release result, integrity proof, and implementation blob SHAs will
 be recorded only after those facts exist.

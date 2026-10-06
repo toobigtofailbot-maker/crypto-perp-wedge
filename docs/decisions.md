@@ -262,6 +262,7 @@ The following decisions are locked for Phase 2. Full details in `docs/onboarding
 | D2-020 | Decision Change: Bounded Autonomous Research Envelope and V2 Operating Roadmap |
 | D2-021 | Five-Timeframe Canonical Base and Feature Parent Identity |
 | D2-022 | Hermes Bounded Research Handoff and SearchContract Ownership |
+| D2-023 | Search Policy Binding and Proposal-Wave Handoff |
 
 ### D2-003A — Irreparable official-source gap policy
 
@@ -589,3 +590,49 @@ authority. It changes no protected execution boundary.
 D2-022 implements no code and activates no Stage 5B, autonomous research,
 schedule/trigger, runner, canonical write, promotion, protected runtime,
 paper/live, exchange/order, or capital authority.
+
+### D2-023 — Search Policy Binding and Proposal-Wave Handoff
+
+**Status:** LOCKED
+
+**Decision ID:** D2-023
+
+**Date:** 2026-10-06
+
+**Scope:** Authoritative search-policy input and noncanonical active proposal-
+wave recovery for the first V2-INTEGRATION-01B proof
+
+**Approval:** Karl-authorized through `WP-V2-INTEGRATION-01B-ARCH-01`
+
+**Controlling record:**
+`docs/architecture/2026-10-search_policy_proposal_handoff_lock.md`
+
+#### Decision
+
+- A human/manual, strict CPW-owned `SearchPolicyBinding v1` supplies every
+  authoritative scientific-policy field; Hermes, Prefect, and Optuna do not.
+- The first 01B proof supports a brand-new campaign/search only. Parent and
+  reason-for-change fields are null, and cumulative pre-search proposal and
+  scientific-trial counts are fixed to zero.
+- CPW alone builds the frozen `SearchContract` from the accepted intent,
+  validated policy binding, and exact repo evidence, failing closed on missing
+  or mismatched identity, policy, history, strategy, data, or holdout inputs.
+- `ProposalWaveHandoff v1` is noncanonical active-wave state stored only under
+  `.cpw/active/` through the safe CPW resolver. It is not canonical evidence,
+  a Result Population, a result store, approval, or durable lineage.
+- Recovery restores the exact finalized pre-wave Governor snapshot, reproduces
+  exactly one recorded proposal wave, and requires equality of order, IDs,
+  parameters, fingerprints, contract hash, and scientific denominator.
+  Divergence fails closed.
+- Prefect remains operational-only. Search Governor remains the sole
+  scientific/search owner, and Optuna remains proposer-only behind it.
+- 01B stops before runner execution, results, wave finalization, final holdout,
+  candidate review, promotion, or canonical write.
+- Durable cumulative scientific lineage remains deferred; the `.cpw` handoff
+  cannot substitute for it.
+
+#### Non-authority
+
+D2-023 implements no code and grants no Stage 5B, autonomous scheduling,
+runner, canonical-write, candidate/promotion, protected-runtime, risk,
+paper/live, exchange/order, capital, or self-merge authority.

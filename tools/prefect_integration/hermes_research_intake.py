@@ -231,9 +231,16 @@ def _intent_from_persisted_tool_content(content: str) -> dict[str, Any]:
     if len(parts) != 2 or not parts[0]:
         raise HermesResearchIntakeError("persisted target tool result wrapper is invalid")
     envelope = _parse_single_json_object(parts[1].encode("utf-8"))
-    if set(envelope) != {"result"} or not isinstance(envelope["result"], str):
+    if set(envelope) not in ({"result"}, {"result", "structuredContent"}):
         raise HermesResearchIntakeError("persisted target tool result envelope is invalid")
-    return _parse_single_json_object(envelope["result"].encode("utf-8"))
+    if not isinstance(envelope["result"], str):
+        raise HermesResearchIntakeError("persisted target tool result envelope is invalid")
+    intent = _parse_single_json_object(envelope["result"].encode("utf-8"))
+    if "structuredContent" in envelope and envelope["structuredContent"] != intent:
+        raise HermesResearchIntakeError(
+            "persisted target tool result representations disagree"
+        )
+    return intent
 
 
 def _read_persisted_target_intent(

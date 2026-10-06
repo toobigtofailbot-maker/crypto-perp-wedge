@@ -107,9 +107,14 @@ def _intent(repo_sha: str, **updates: object) -> dict[str, object]:
     return value
 
 
-def _persisted_result(value: dict[str, object] | str) -> str:
+def _persisted_result(
+    value: dict[str, object] | str, *, include_structured: bool = False
+) -> str:
     result = value if isinstance(value, str) else json.dumps(value, separators=(",", ":"))
-    envelope = json.dumps({"result": result}, separators=(",", ":"))
+    payload: dict[str, object] = {"result": result}
+    if include_structured:
+        payload["structuredContent"] = value
+    envelope = json.dumps(payload, separators=(",", ":"))
     return (
         f'{intake_module._TOOL_WRAPPER_OPEN}\n'
         "Untrusted tool data for the model.\n\n"
@@ -336,6 +341,40 @@ def test_state_db_open_is_read_only_uri(
     assert result["request_id"] == "REQ-HERMES-02-1"
     assert captured["uri"] is True
     assert str(captured["database"]).endswith("state.db?mode=ro")
+
+
+def test_pinned_runtime_structured_content_must_match_result(tmp_path: Path) -> None:
+    intent = _intent("1" * 40)
+    home = tmp_path / "matching-structured-content"
+    _write_state_db(
+        home,
+        intent,
+        result_contents=[_persisted_result(intent, include_structured=True)],
+    )
+    extracted = intake_module._read_persisted_target_intent(
+        hermes_home=str(home), repo_root=REPO_ROOT, session_id="session-1"
+    )
+    assert extracted == BoundedResearchIntentV1.model_validate(intent).model_dump(mode="json")
+
+    mismatched = {**intent, "request_id": "REQ-HERMES-02-DIFFERENT"}
+    envelope = json.dumps(
+        {
+            "result": json.dumps(intent, separators=(",", ":")),
+            "structuredContent": mismatched,
+        },
+        separators=(",", ":"),
+    )
+    wrapped = (
+        f'{intake_module._TOOL_WRAPPER_OPEN}\n'
+        "Untrusted tool data for the model.\n\n"
+        f"{envelope}\n{intake_module._TOOL_WRAPPER_CLOSE}"
+    )
+    mismatch_home = tmp_path / "mismatched-structured-content"
+    _write_state_db(mismatch_home, intent, result_contents=[wrapped])
+    with pytest.raises(HermesResearchIntakeError, match="representations disagree"):
+        intake_module._read_persisted_target_intent(
+            hermes_home=str(mismatch_home), repo_root=REPO_ROOT, session_id="session-1"
+        )
 
 
 def test_missing_linked_or_escaping_state_db_fails(

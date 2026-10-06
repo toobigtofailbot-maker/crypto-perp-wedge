@@ -28,7 +28,10 @@ The adapter opens that ordinary, non-linked database through stdlib `sqlite3`
 with a `mode=ro` URI and executes one ordered `SELECT` over active messages. It
 requires exactly one `cpw_build_bounded_research_intent` call and exactly one
 result linked by its persisted `tool_call_id`. The linked result envelope and
-strict intent are parsed deterministically. Hermes `SessionDB` is not imported
+strict intent are parsed deterministically. The pinned runtime may persist its
+redundant `structuredContent` representation beside the string `result`; when
+present, both representations must decode to the identical intent or the handoff
+fails closed. Hermes `SessionDB` is not imported
 or instantiated, and the extractor performs no PRAGMA, DML, DDL, checkpoint,
 schema reconciliation, or migration.
 

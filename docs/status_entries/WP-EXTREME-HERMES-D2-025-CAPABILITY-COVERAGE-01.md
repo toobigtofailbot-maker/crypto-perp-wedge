@@ -5,9 +5,12 @@
 - Exact base: `c40dc2caf7d725c12163a3841d6bf55b65546291`
 - Decision: `D2-025 — Extreme Hermes Capability Coverage and Orchestration Ownership`
 - Validation class: T0 docs-only
-- PR: pending publication
-- Final head: pending publication
-- Review state: Side 21 exact-head review required after publication
+- PR: [#732](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/732)
+- Substantive head: `322c1328c92c815ff2c6ab9377b9d6b51607bd72`
+- Final head: the publication-metadata commit that contains this status update;
+  resolve its exact identity from PR #732 / Git rather than a self-referential
+  in-file hash
+- Review state: held for Side 21 exact-head review
 - Self-merge: **NO**
 
 ## Scope

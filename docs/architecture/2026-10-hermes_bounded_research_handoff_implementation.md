@@ -6,7 +6,8 @@ D2-022 and
 `docs/architecture/2026-10-hermes_research_integration_handoff_lock.md` are the
 controlling authority. This record describes V2-INTEGRATION-01A implementation;
 it does not redefine that decision. Physical acceptance and full-release
-evidence are pending at the implementation stage.
+validation passed at implementation head
+`f7529380108b2e1c4e9b2a53cc827e67775c7001`.
 
 ## Implemented topology
 
@@ -100,7 +101,18 @@ future separately researched and authorized package.
 
 ## Physical acceptance
 
-Pending the exact implementation commit and mandatory Cases A-E. Acceptance
-must use the pinned Hermes image, Project-Evidence v4, an isolated read-only
-Research Memory database role, Prefect 3.8.6 with PostgreSQL, and the process
-pool/worker topology required by the work package.
+Mandatory Cases A-E passed using the pinned Hermes image, Project-Evidence v4,
+an isolated DB-enforced read-only Research Memory role, Prefect 3.8.6 with
+PostgreSQL, and the required process pool/worker topology. Known and unseen
+memory cases each produced exactly one persisted bounded-builder call/result;
+worker-off submission produced no Hermes session until the same worker resumed;
+malformed and authority-widening controlled outputs failed closed; and the
+rebuilt exact-head container surface retained 14 tools, no Hermes repo mount,
+no Docker socket, and no published Hermes port.
+
+The mandatory `full-release-balanced-v1` profile also passed at that exact
+head: 56 of 56 required commands and 48 of 48 shards passed, with exact-once
+assignment of all 190 tracked test files and no missing, duplicate, timed-out,
+failed, or incomplete shard. These results establish implementation acceptance
+only. They create no merge, scientific, execution, scheduling, runtime,
+paper/live, or capital authority, and Side exact-head review remains required.

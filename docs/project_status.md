@@ -99,14 +99,18 @@ Startup read order:
   intelligence wake-ups from Prefect durable workflow execution, governs
   plugin/MCP expansion and non-authoritative memory/skills, and retains
   Computer Use as conditional/later. It activates none of those capabilities.
-- The independent `EXTREME-HERMES-01` security review remains pending/in
-  parallel and mandatory. `EXTREME-HERMES-01` is not implementation-authorized.
-  The review must cover the live browser-execution topology, isolation of Bot
-  credentials with director-key cloning disabled, and CLI/service/headless VPS
-  operation of persistent Bots without a Desktop runtime dependency.
-  After D2-025 merges unchanged and that review is accepted with required
-  corrections incorporated, only a narrow final draftability confirmation
-  should remain unless repo truth or the review exposes a material flaw.
+- D2-025 PR #732 remains pending until merged; live GitHub is authoritative.
+  Karl's later owner direction supersedes external independent review as a
+  prerequisite for the F1/F2 canary. Side 21 security review plus mandatory
+  physical canary acceptance now controls `EXTREME-HERMES-01`; external
+  independent challenge is deferred to pre-Stage-5B / `EXTREME-HERMES-02`, or
+  earlier if Side 21 identifies material unresolved security uncertainty.
+  Hermes `v2026.9.24 / v0.21.5` is not acceptable as an unchanged canary
+  because the required tool-scope fix is absent. Final version selection remains
+  in the implementation package after a fresh upstream check. This docs change
+  activates no runtime capability, and `EXTREME-HERMES-01` remains not
+  implementation-authorized until D2-025 merges and the Side 21 plus physical-
+  acceptance gate is satisfied.
 - The prior narrow 01B implementation is no longer the main next destination.
   The next implementation lane after D2-024 is `EXTREME-HERMES-01`, followed by
   `V2-AUTONOMY-KERNEL-01`, `V2-RESEARCH-FACTORY-LOOP-01`, and

@@ -268,25 +268,58 @@ autonomous cron research, nested delegation, broad external-memory-provider
 adoption, Computer Use, Lab Engineer code writes, paper/live, and economic
 authority. These are sequencing decisions, not permanent rejection.
 
-## Independent review and draftability dependency
+## Upstream tool-scope constraint and live-behavior proof
 
-The independent `EXTREME-HERMES-01` security review remains mandatory and
-separate. It must cover director/execution-sandbox separation, terminal/file/
-code isolation, the live browser-execution topology and its separation from
-director credentials/protected surfaces, Bot profile isolation and
-collaboration, minimum Bot credentials and disabled director-key cloning,
-headless/VPS specialist operation without a Desktop runtime dependency, plugin
-governance, MCP provenance/tools/credentials, memory/session search,
-self-improving skills, delegation containment, network/egress,
-filesystem/mounts, provider/auth credentials, live tool-schema verification,
-rollback, and Computer Use deferral. This decision neither replaces nor
-satisfies that gate.
+Hermes `v2026.9.24 / v0.21.5` must not be accepted unchanged merely because it
+is a stable release. The project has independently verified that the upstream
+tool-scope fix associated with issue `#121089` and commit
+`59559b858fb1a4578f51029112099462a431c3f1` is not contained in that stable
+tag. `EXTREME-HERMES-01` must select either a later reviewed stable release
+that contains the required fix or an explicitly reviewed pinned build/backport
+containing the required fix. This docs package does not select the final
+version; the implementation package must refresh upstream truth immediately
+before selecting the canary pin.
 
-After D2-025 is merged unchanged and the independent review returns PASS or
-PASS WITH REQUIRED CORRECTIONS incorporated into the planned package, Side
-should perform only a narrow final draftability check. Unless the review finds
-a material architecture flaw or repo truth changes, the expected result is
-`EXTREME-HERMES-01 Draftable: YES`; no broad new research round is required.
+Hermes YAML/toolset configuration is defense-in-depth only. The F1/F2 canary
+must validate the actual effective and reachable tool surface. A capability
+marked disabled in configuration that remains reachable is a failed canary
+unless external isolation renders it physically harmless and Side 21
+explicitly accepts that exact behavior.
+
+## Security review and draftability dependency
+
+For the `EXTREME-HERMES-01` F1/F2 canary, Karl has explicitly waived an
+external independent reviewer as a mandatory prerequisite. Side 21 security
+review plus mandatory physical canary acceptance is the controlling
+pre-implementation security gate.
+
+No security requirement is removed. Side 21 must ensure the final work package
+and physical acceptance cover:
+
+- director versus execution-sandbox separation;
+- no Docker socket;
+- no live, exchange, or capital credentials;
+- filesystem and protected-path isolation;
+- network/private/LAN/metadata blocking;
+- browser-execution isolation;
+- live effective-tool-schema verification;
+- Bot minimum-credential isolation and disabled automatic director-key cloning;
+- delegation containment;
+- plugin and MCP governance;
+- memory and skill non-authority;
+- headless/VPS Bot operation; and
+- rollback.
+
+External independent security challenge remains a useful later gate and should
+be performed before `EXTREME-HERMES-02` / Stage 5B autonomous scientific
+activation, or earlier if Side 21 detects a material unresolved security
+uncertainty. It is deferred, not permanently abandoned, unless Karl explicitly
+changes that later gate.
+
+After D2-025 merges and Side 21 confirms the final implementation package
+contains the accepted security controls and physical acceptance tests,
+`EXTREME-HERMES-01` may be `Draftable: YES` without another broad research
+round.
 
 ## Zero activation
 

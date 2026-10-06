@@ -767,11 +767,24 @@ paper/live action, credential, or capital use.
 - Deeper/nested multi-agent orchestration remains conditional on measured value
   and explicit depth, concurrency, cost, runtime, containment, visibility, and
   auditability bounds.
+- Karl's later owner decision removes external independent review as a
+  mandatory prerequisite for the `EXTREME-HERMES-01` F1/F2 canary. Side 21
+  security review plus explicit physical canary acceptance is the controlling
+  pre-implementation gate. No security control is removed.
+- External independent security challenge is deferred to the pre-Stage-5B /
+  `EXTREME-HERMES-02` gate, or earlier if Side 21 detects material unresolved
+  security uncertainty, unless Karl explicitly changes that later gate.
+- Hermes `v2026.9.24 / v0.21.5` is not acceptable unchanged because it lacks
+  the required upstream tool-scope fix associated with issue `#121089` and
+  commit `59559b858fb1a4578f51029112099462a431c3f1`. The selected canary release
+  must include that fix or an explicitly reviewed equivalent, and final version
+  selection requires a fresh upstream check in the implementation package.
 
 #### Non-authority
 
 D2-025 is an addendum to D2-024 and does not weaken D2-024's permanent
-scientific, protected-runtime, or economic boundaries. It activates no Hermes
-upgrade, tool, Bot, plugin, MCP, routine, Computer Use, Stage 5B, autonomous
-scientific execution, code/runtime path, paper/live action, credential,
-exchange/order authority, or capital use.
+scientific, protected-runtime, or economic boundaries. Changing the F1/F2
+review authority weakens no physical security control. D2-025 activates no
+Hermes upgrade, tool, Bot, plugin, MCP, routine, Computer Use, Stage 5B,
+autonomous scientific execution, code/runtime path, paper/live action,
+credential, exchange/order authority, or capital use.

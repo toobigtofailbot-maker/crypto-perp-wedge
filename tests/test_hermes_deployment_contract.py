@@ -59,6 +59,10 @@ def test_project_evidence_image_is_digest_pinned_nonroot_and_lock_driven() -> No
     assert "COPY tools/hermes/proposals /app/tools/hermes/proposals" in dockerfile
     assert "COPY tools/hermes/prepare /app/tools/hermes/prepare" in dockerfile
     assert "COPY tools/research_domain /app/tools/research_domain" in dockerfile
+    assert "COPY tools/research_memory/__init__.py" in dockerfile
+    assert "COPY tools/research_memory/fingerprint.py" in dockerfile
+    for forbidden_memory in ("repository.py", "migrations.py", "repo_source.py", "run.py"):
+        assert f"tools/research_memory/{forbidden_memory}" not in dockerfile
     for forbidden in (
         "tools/research_agents",
         "tools/research_runner",
@@ -113,7 +117,7 @@ def test_exact_nine_skills_are_readonly_fail_closed_and_sha_anchored() -> None:
         assert "self-enable" in text or "enable tools" in text or "widen MCP/tool scope" in text
 
 
-def test_domain_proposal_and_prepare_skills_expose_exactly_thirteen_mcp_tools() -> None:
+def test_domain_proposal_prepare_and_intake_expose_exactly_fourteen_mcp_tools() -> None:
     compose = (HERMES_ROOT / "compose.yaml").read_text(encoding="utf-8")
     config = (HERMES_ROOT / "config/config.yaml").read_text(encoding="utf-8")
 
@@ -135,8 +139,9 @@ def test_domain_proposal_and_prepare_skills_expose_exactly_thirteen_mcp_tools() 
         "cpw_build_preregistration_packet",
         "cpw_build_approval_requirement",
         "cpw_validate_trial_denominator",
+        "cpw_build_bounded_research_intent",
     ]
-    assert len(included) == 13
+    assert len(included) == 14
 
 
 def test_domain_resource_mounts_are_exact_readonly_and_hermes_has_no_repo_mount() -> None:

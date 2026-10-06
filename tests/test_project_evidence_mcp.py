@@ -83,7 +83,7 @@ def test_manifest_and_list_expose_no_ambient_or_protected_surface(
     manifest = service.manifest()
     listed = json.dumps(service.resources.list_resources()).lower()
 
-    assert manifest["schema_version"] == "project_evidence_mcp_v3"
+    assert manifest["schema_version"] == "project_evidence_mcp_v4"
     assert manifest["default_policy"] == "deny"
     assert manifest["ambient_filesystem"] is False
     assert manifest["arbitrary_sql"] is False
@@ -137,6 +137,24 @@ def test_manifest_and_list_expose_no_ambient_or_protected_surface(
         "promotion_authority": False,
         "runtime_authority": False,
         "standing_authority": False,
+        "automatic_consumers": [],
+    }
+    assert manifest["bounded_research_intent"] == {
+        "schema_version": "cpw_bounded_research_intent_v1",
+        "semantic_owner": "CPW",
+        "tool_names": ["cpw_build_bounded_research_intent"],
+        "research_memory_lookup": "exact_read_only",
+        "index_not_truth": True,
+        "canonical_write": False,
+        "execution_authority": False,
+        "approval_authority": False,
+        "promotion_authority": False,
+        "search_governor_authority": False,
+        "runner_authority": False,
+        "scheduler_or_autonomy_authority": False,
+        "runtime_authority": False,
+        "paper_live_authority": False,
+        "capital_authority": False,
         "automatic_consumers": [],
     }
     for forbidden in ("research/queue", "src/runtime", "secrets/", "dispatch_authorization"):

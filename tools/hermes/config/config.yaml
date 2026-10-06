@@ -64,6 +64,7 @@ mcp_servers:
         - cpw_build_preregistration_packet
         - cpw_build_approval_requirement
         - cpw_validate_trial_denominator
+        - cpw_build_bounded_research_intent
       prompts: false
       resources: true
     sampling:

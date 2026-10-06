@@ -89,7 +89,7 @@ def _rehash_packet(packet: dict[str, object]) -> None:
     packet["packet_sha256"] = "sha256:" + hashlib.sha256(canonical).hexdigest()
 
 
-def test_inventory_is_exactly_thirteen_without_generic_invoke() -> None:
+def test_inventory_is_exactly_fourteen_without_generic_invoke() -> None:
     source = (REPO_ROOT / "tools/mcp/project_evidence/server.py").read_text(encoding="utf-8")
     tree = ast.parse(source)
     registered = {
@@ -120,8 +120,25 @@ def test_inventory_is_exactly_thirteen_without_generic_invoke() -> None:
     }
     inventory = registered | handlers
     assert handlers == set(CPW_DOMAIN_TOOL_NAMES)
-    assert inventory == OLD_TOOL_NAMES | set(CPW_DOMAIN_TOOL_NAMES)
-    assert len(inventory) == 13
+    integration_assignment = next(
+        node
+        for node in tree.body
+        if isinstance(node, ast.Assign)
+        and any(
+            isinstance(target, ast.Name)
+            and target.id == "_BOUNDED_RESEARCH_INTENT_HANDLERS"
+            for target in node.targets
+        )
+    )
+    integration_handlers = {
+        item.id
+        for item in integration_assignment.value.elts
+        if isinstance(item, ast.Name)  # type: ignore[union-attr]
+    }
+    inventory |= integration_handlers
+    assert integration_handlers == {"cpw_build_bounded_research_intent"}
+    assert inventory == OLD_TOOL_NAMES | set(CPW_DOMAIN_TOOL_NAMES) | integration_handlers
+    assert len(inventory) == 14
     assert not any("invoke" in name for name in inventory)
 
 

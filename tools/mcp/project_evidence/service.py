@@ -17,6 +17,11 @@ from .memory_reader import ReadOnlyResearchMemoryReader
 from .models import RepoIdentity
 from .outbox import PreparedPayloadOutbox, ProposalOutbox
 from .query_reader import QUERY_NAMES, ScopedDuckDBReader
+from .research_intent import (
+    INTENT_SCHEMA_VERSION,
+    BoundedResearchIntentBuilder,
+    BoundedResearchIntentDraftInput,
+)
 from .resources import EvidenceResourceCatalog
 from .watch import DependencySecurityWatch
 
@@ -54,6 +59,9 @@ class ProjectEvidenceService:
             fixed_outbox_root,
         )
         self.domain_tools = CpwDomainTools(self.resources, self.identity)
+        self.research_intents = BoundedResearchIntentBuilder(
+            self.resources, self.memory, self.identity
+        )
 
     @classmethod
     def from_environment(cls) -> ProjectEvidenceService:
@@ -80,7 +88,7 @@ class ProjectEvidenceService:
     def manifest(self) -> dict[str, Any]:
         return {
             "service": "project-evidence",
-            "schema_version": "project_evidence_mcp_v3",
+            "schema_version": "project_evidence_mcp_v4",
             "repo_sha": self.identity.repo_sha,
             "branch": self.identity.branch,
             "read_resource_count": len(self.resources.list_resources()),
@@ -130,6 +138,24 @@ class ProjectEvidenceService:
                 "standing_authority": False,
                 "automatic_consumers": [],
             },
+            "bounded_research_intent": {
+                "schema_version": INTENT_SCHEMA_VERSION,
+                "semantic_owner": "CPW",
+                "tool_names": ["cpw_build_bounded_research_intent"],
+                "research_memory_lookup": "exact_read_only",
+                "index_not_truth": True,
+                "canonical_write": False,
+                "execution_authority": False,
+                "approval_authority": False,
+                "promotion_authority": False,
+                "search_governor_authority": False,
+                "runner_authority": False,
+                "scheduler_or_autonomy_authority": False,
+                "runtime_authority": False,
+                "paper_live_authority": False,
+                "capital_authority": False,
+                "automatic_consumers": [],
+            },
             "default_policy": "deny",
             "ambient_filesystem": False,
             "arbitrary_sql": False,
@@ -153,3 +179,12 @@ class ProjectEvidenceService:
     ) -> dict[str, Any]:
         validated = self.prepared_payloads.validate(prepared_payload)
         return self.prepared_outbox.submit(prepared_payload=validated)
+
+    def build_bounded_research_intent(
+        self,
+        *,
+        request: BoundedResearchIntentDraftInput | Mapping[str, Any],
+    ) -> dict[str, Any]:
+        """Bind one Hermes reasoning draft to exact CPW evidence and memory."""
+
+        return self.research_intents.build(request).model_dump(mode="json")

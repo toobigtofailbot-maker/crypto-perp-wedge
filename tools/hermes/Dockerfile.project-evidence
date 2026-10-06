@@ -14,6 +14,8 @@ COPY requirements.lock.txt /app/requirements.lock.txt
 RUN python -m pip install --no-cache-dir --requirement /app/requirements.lock.txt
 
 COPY tools/mcp /app/tools/mcp
+COPY tools/research_memory/__init__.py /app/tools/research_memory/__init__.py
+COPY tools/research_memory/fingerprint.py /app/tools/research_memory/fingerprint.py
 COPY tools/research_domain /app/tools/research_domain
 COPY tools/hermes/proposals /app/tools/hermes/proposals
 COPY tools/hermes/prepare /app/tools/hermes/prepare

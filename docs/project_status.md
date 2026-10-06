@@ -78,14 +78,15 @@ Startup read order:
   through PR #729 at `f2dbcb73a25d5ce271a29915b54ae6647aee5570`; its manual,
   default-off `BoundedResearchIntent v1` path and mandatory physical Cases A-E
   are proven, and it stops before Governor/Optuna.
-- `WP-V2-INTEGRATION-01B-ARCH-01` branch-state adds D2-023 as the current
-  architecture lock for 01B: manual CPW `SearchPolicyBinding v1`, a first-proof
-  new-campaign-only rule with zero prior cumulative counts, CPW-only contract
-  construction, and noncanonical `.cpw/active/` proposal-wave handoff recovery
-  by exact replay from a finalized pre-wave Governor snapshot. After D2-023
-  merges, Side should perform a narrow final draftability confirmation for the
-  01B implementation. This lock implements no 01B code and grants no runner,
-  Stage 5B, autonomous, runtime, paper/live, or capital authority.
+- PR #730 carries D2-023, the 01B architecture lock; live GitHub is
+  authoritative for whether that PR remains pending or has merged. D2-023
+  defines manual CPW `SearchPolicyBinding v1`, a new-campaign-only first proof
+  with zero prior cumulative counts, CPW-only `SearchContract` construction,
+  and a noncanonical `.cpw/active/` proposal-wave handoff recovered by exact
+  replay from a finalized pre-wave Governor snapshot. Once D2-023 is accepted
+  on `main`, Side performs the narrow final 01B implementation draftability
+  confirmation. This architecture package implements no 01B code and grants
+  no runner, Stage 5B, autonomy, runtime, paper/live, or capital authority.
 - Per-hypothesis approval and all current autonomy restrictions remain
   operational until Stage 5B is implemented, validated, explicitly activated,
   and a valid Karl-approved bounded research envelope exists; FT-02, D2-022,

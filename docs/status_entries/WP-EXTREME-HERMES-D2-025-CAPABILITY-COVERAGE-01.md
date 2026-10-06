@@ -30,8 +30,14 @@ The package locks the complete capability roadmap; persistent Bots plus
 ephemeral delegation; Hermes-routine versus Prefect ownership; curated plugin
 and MCP governance; the non-authoritative memory hierarchy; controlled
 self-improving skills; conditional Computer Use; flat-first multi-agent depth;
-and the observability/reporting target. The independent
-`EXTREME-HERMES-01` security review remains separate, pending, and mandatory.
+and the observability/reporting target. The completed independent security
+review returned `PASS WITH REQUIRED CORRECTIONS`; its substantive physical
+and security corrections remain required inputs to `EXTREME-HERMES-01`.
+Karl later waived a separate external independent reviewer as a mandatory
+prerequisite for the initial F1/F2 canary. Side security review plus mandatory
+physical canary acceptance control that initial gate. External independent
+challenge remains intended before `EXTREME-HERMES-02` / Stage 5B, or earlier
+if material unresolved security uncertainty remains.
 
 ## Validation and non-authority
 

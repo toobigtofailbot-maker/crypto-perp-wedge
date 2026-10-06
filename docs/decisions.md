@@ -263,6 +263,7 @@ The following decisions are locked for Phase 2. Full details in `docs/onboarding
 | D2-021 | Five-Timeframe Canonical Base and Feature Parent Identity |
 | D2-022 | Hermes Bounded Research Handoff and SearchContract Ownership |
 | D2-023 | Search Policy Binding and Proposal-Wave Handoff |
+| D2-024 | Extreme Hermes Autonomous Research Director |
 
 ### D2-003A — Irreparable official-source gap policy
 
@@ -636,3 +637,77 @@ wave recovery for the first V2-INTEGRATION-01B proof
 D2-023 implements no code and grants no Stage 5B, autonomous scheduling,
 runner, canonical-write, candidate/promotion, protected-runtime, risk,
 paper/live, exchange/order, capital, or self-merge authority.
+
+### D2-024 — Extreme Hermes Autonomous Research Director
+
+**Status:** LOCKED
+
+**Decision ID:** D2-024
+
+**Date:** 2026-10-06
+
+**Scope:** Extreme Hermes target architecture and roadmap supersession
+
+**Approval:** Karl-approved through
+`WP-EXTREME-HERMES-00-AUTONOMOUS-RESEARCH-DIRECTOR-ARCH-01`
+
+**Controlling record:**
+`docs/architecture/2026-10-extreme_hermes_autonomous_research_director.md`
+
+#### Decision
+
+Extreme Hermes is the owner-approved target generic intelligence/runtime,
+always-on research director, and continuous-improvement brain for the
+non-capital research factory. The controlling principle is broad capability
+inside an externally isolated research sandbox and narrow authority at CPW,
+scientific, protected-runtime, and economic gateways.
+
+After Stage 5B is implemented, validated, explicitly activated, and bound to a
+valid Karl-approved immutable envelope, Hermes may continuously direct ordinary
+legal in-envelope research without separate per-job approval. CPW remains
+authoritative for scientific truth, durable lineage, holdout state, Search
+Governor legality, evidence, and canonical semantics. Humans retain envelope
+and scientific-policy changes, candidate promotion, protected recovery/risk,
+paper/live, credentials, capital allocation, and live activation.
+
+#### Proof-only and permanent boundaries
+
+The current 01A one-shot, fixed-14-tool, Project-Evidence-only posture and its
+disabled browser/web, terminal/code/files, memory/session-search, skills,
+delegation, cron, and successor-research capabilities are a safety/control
+proof baseline, not the permanent architecture. They remain disabled until
+separately proven and authorized.
+
+Hermes may never unilaterally manufacture scientific truth, turn FAIL into
+PASS, erase or reset scientific history, refresh a contaminated holdout,
+bypass Governor budgets/legality, redefine scientific/gate policy, promote a
+candidate, alter protected risk/OMS/reconciliation/safe-mode/kill-switch
+authority, hold unrestricted live/capital credentials, authorize live trading,
+or allocate capital.
+
+#### Prospective supersession and roadmap
+
+D2-019 ownership remains intact. D2-020's envelope, Stage 5B, lineage,
+holdout, fail-closed, and economic boundaries remain intact, while its
+sole-future-lock statement and older sequence are prospectively superseded.
+D2-022/01A controls remain valid proof and fallback controls rather than the
+permanent capability ceiling. D2-023's policy, contract, Governor, identity,
+replay, and noncanonical-state primitives remain useful, while its manual,
+new-campaign-only, zero-history constraints are temporary first-proof limits
+to be replaced by the autonomy kernel.
+
+The controlling sequence is `EXTREME-HERMES-01` isolated sandbox,
+`V2-AUTONOMY-KERNEL-01`, `V2-RESEARCH-FACTORY-LOOP-01`,
+`EXTREME-HERMES-02` Stage 5B/always-on activation, and later
+`EXTREME-HERMES-03` non-protected lab engineering. Future work must not default
+to one permission per package absent a concrete security or compatibility
+dependency.
+
+#### Version policy and non-activation
+
+D2-024 selects no replacement Hermes version. `EXTREME-HERMES-01` must freshly
+verify official releases/tags, security, compatibility, image/digest,
+capabilities, isolation, and rollback immediately before selecting a canary
+pin. D2-024 changes documentation and architecture only; it enables no tool,
+upgrade, schedule, autonomous research, Stage 5B, code path, protected runtime,
+paper/live action, credential, or capital use.

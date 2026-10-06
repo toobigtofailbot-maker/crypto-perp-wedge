@@ -15,8 +15,10 @@ Startup read order:
 - Current program: Phase 2 candidate-agnostic research machine progression toward structured BTC strategy evidence, comparison, and later human-gated promotion.
 - Locked Phase 2 timeframe set: `15m`, `30m`, `1h`, `4h`, `1d`.
 - Timeframe rule: no single global primary timeframe is fixed. Each candidate declares its primary timeframe and any allowed confirmation timeframes before testing.
-- Current V2 authority: D2-020 and
-  `docs/architecture/2026-10-bounded_autonomous_research_v2_architecture.md`.
+- Current V2 research-authorization authority remains D2-020. The controlling
+  Hermes target and roadmap is D2-024 and
+  `docs/architecture/2026-10-extreme_hermes_autonomous_research_director.md`
+  once its PR merges unchanged; live GitHub is authoritative for PR state.
 
 ## Current Phase / Repo State
 
@@ -40,9 +42,11 @@ Startup read order:
 
 ## Key Architecture References
 
-- The controlling V2 research-authorization and roadmap authority is D2-020 and
+- The controlling V2 research-authorization authority remains D2-020 and
   `docs/architecture/2026-10-bounded_autonomous_research_v2_architecture.md`.
-  V2-00 is the sole Stage-5A-equivalent lock. It activates no autonomy.
+  D2-024 controls the intended Extreme Hermes target and prospectively replaces
+  the older roadmap once its PR merges unchanged. Neither decision activates
+  autonomy.
 - Current adoption-first migration architecture is locked in
   `docs/architecture/2026-09-adoption_first_migration_architecture_freeze.md`
   through CPW-MIG-00 and D2-019. Hermes owns future generic reasoning/runtime
@@ -78,15 +82,22 @@ Startup read order:
   through PR #729 at `f2dbcb73a25d5ce271a29915b54ae6647aee5570`; its manual,
   default-off `BoundedResearchIntent v1` path and mandatory physical Cases A-E
   are proven, and it stops before Governor/Optuna.
-- PR #730 carries D2-023, the 01B architecture lock; live GitHub is
-  authoritative for whether that PR remains pending or has merged. D2-023
-  defines manual CPW `SearchPolicyBinding v1`, a new-campaign-only first proof
-  with zero prior cumulative counts, CPW-only `SearchContract` construction,
-  and a noncanonical `.cpw/active/` proposal-wave handoff recovered by exact
-  replay from a finalized pre-wave Governor snapshot. Once D2-023 is accepted
-  on `main`, Side performs the narrow final 01B implementation draftability
-  confirmation. This architecture package implements no 01B code and grants
-  no runner, Stage 5B, autonomy, runtime, paper/live, or capital authority.
+- PR #730 is merged at `fad4192403375036b50c33ea99ec15307bfddc6b`, locking
+  D2-023's manual first-proof policy binding, CPW-only `SearchContract`, and
+  proposal-wave replay controls.
+- Karl's current target direction is Extreme Hermes: the intended always-on
+  non-capital research director and continuous-improvement brain. D2-024 is the
+  controlling Hermes-target architecture once its PR merges unchanged; live
+  GitHub remains authoritative for whether that PR is pending or merged.
+- The restrictive 01A one-shot, exact-14-tool, Project-Evidence-only
+  configuration remains a proven safety/control baseline and fallback, not
+  Hermes's permanent ceiling. D2-024 enables no upgrade, broad tool, schedule,
+  Stage 5B, or research autonomy.
+- The prior narrow 01B implementation is no longer the main next destination.
+  The next implementation lane after D2-024 is `EXTREME-HERMES-01`, followed by
+  `V2-AUTONOMY-KERNEL-01`, `V2-RESEARCH-FACTORY-LOOP-01`, and
+  `EXTREME-HERMES-02` Stage 5B/always-on activation. Scientific, protected,
+  promotion, paper/live, credential, and capital boundaries remain unchanged.
 - Per-hypothesis approval and all current autonomy restrictions remain
   operational until Stage 5B is implemented, validated, explicitly activated,
   and a valid Karl-approved bounded research envelope exists; FT-02, D2-022,

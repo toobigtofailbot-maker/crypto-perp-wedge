@@ -8,9 +8,12 @@ This document records architecture direction that should guide future execution 
 
 ## Current Position
 
-The current V2 research-authorization and roadmap authority is `D2-020` and
-`docs/architecture/2026-10-bounded_autonomous_research_v2_architecture.md`.
-V2-00 is the sole Stage-5A-equivalent lock and activates nothing. Current
+The current Extreme Hermes target and roadmap authority is `D2-024` and
+`docs/architecture/2026-10-extreme_hermes_autonomous_research_director.md`.
+It preserves the V2 research-authorization model in `D2-020` and
+`docs/architecture/2026-10-bounded_autonomous_research_v2_architecture.md`
+while prospectively superseding V2-00's sole-future-lock statement and older
+implementation sequence. D2-024 activates nothing. Current
 per-hypothesis and default-off restrictions remain operational until Stage 5B
 is implemented, validated, explicitly activated, and a valid Karl-approved
 bounded research envelope exists. After that boundary, legal in-envelope
@@ -51,13 +54,15 @@ strategy-performance or real-capital authority.
 
 ## Forward Roadmap
 
-The controlling V2 implementation sequence is five-timeframe/data-feature
-completion, Prefect real-consumer orchestration, Hermes plus Research Memory
-plus Search Governor/Optuna integration, product integration, Stage 5B
-enforcement/activation, VPS deployment, and VPS always-on acceptance. After
-that acceptance, serialized Stage 8A+ engineering and Stage 8R continuous
-research operate in parallel. Candidate discovery does not gate non-capital
-infrastructure deployment; economic activation remains candidate-gated.
+The controlling sequence is `EXTREME-HERMES-01` (reviewed Hermes upgrade and
+isolated broad research sandbox), `V2-AUTONOMY-KERNEL-01` (immutable envelope,
+durable lineage, holdout state, and generalized Governor/Optuna continuation),
+`V2-RESEARCH-FACTORY-LOOP-01` (the end-to-end research product loop),
+`EXTREME-HERMES-02` (explicit Stage 5B and always-on director activation), and
+later `EXTREME-HERMES-03` (non-protected autonomous lab engineering). A later
+paper/live observer role remains read-only/advisory and economically
+non-authoritative. Candidate discovery does not gate non-capital infrastructure
+deployment; economic activation remains candidate-gated.
 
 The long-term architecture progresses in staged layers:
 
@@ -88,6 +93,13 @@ adoption-first migration. Hermes may be proven and adopted as the sole generic
 reasoning runtime through separately authorized packages; CPW-specific domain
 logic, canonical truth, promotion, risk, trading truth, and economic authority
 remain outside it.
+
+Hermes is intended to become the persistent, always-on non-capital research
+director. The current 01A one-shot, exact-14-tool, Project-Evidence-only
+deployment is a proven safety baseline and fallback, not the final ceiling.
+Broad web/browser, terminal/Python/file, memory, skill, delegation, specialist,
+and scheduled capability is intended inside external isolation. Authority
+boundaries remain external, deterministic, and fail-closed.
 
 Managed agents are research, monitoring, and proposal infrastructure. They are never execution truth, risk truth, OMS truth, or promotion authority.
 
@@ -126,6 +138,10 @@ surface includes:
 
 Automation should reduce manual repetition and improve evidence quality. It must not bypass pre-registration, inflate trial counts with non-evidence runs, silently modify promotion gates, or promote candidates without human review.
 
+Future packages should use coherent capability tranches rather than defaulting
+to one Hermes permission per package. A narrower split remains appropriate
+where a concrete security or compatibility dependency requires it.
+
 Future BTC-perp-specific research, data, regime, execution-realism, and paper/live operational capabilities are tracked in `docs/architecture/BTC_PERP_FUTURE_CAPABILITY_BACKLOG.md`. That backlog is planning memory only; each capability still requires an explicit package, validation path, and authorization before implementation.
 
 ## Decision Pipeline
@@ -146,11 +162,18 @@ If a dashboard disagrees with repo artifacts, the repo artifacts win until the d
 
 ## Monitor / Self-Improvement Layer
 
-The monitor and self-improvement layer is a long-term target, not an immediate Phase 2 deliverable.
+The monitor and self-improvement layer is the F5 Extreme Hermes target after
+the autonomy kernel, end-to-end loop, Stage 5B activation, and valid envelope
+exist. It is not activated by D2-024.
 
 Its role is to detect performance deterioration, identify regime or cost changes, propose new hypotheses or variants, and initiate safe research workflows inside approved boundaries.
 
 Human approval remains mandatory for promotions, execution changes, risk parameter changes, and any change that alters live or shadow behavior.
+
+At the later F6 / `EXTREME-HERMES-03` level, Hermes may improve only
+non-protected research tooling inside disposable worktrees and prepare PRs for
+human review. Human merge remains mandatory and protected paths remain outside
+Hermes write authority.
 
 ## Permanent Human Gates
 

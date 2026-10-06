@@ -73,28 +73,25 @@ Startup read order:
 - CPW-PREFECT-02 adds no schedule or autonomous dispatch and activates no Stage
   5B, paper/live, protected-runtime, or capital authority.
 - The current directed V2 lane is Hermes + Research Memory + Search
-  Governor/Optuna integration. `WP-V2-INTEGRATION-01-ARCHITECTURE-LOCK-01` is
-  documentation/architecture only: D2-022 locks the fixed-command Hermes
-  handoff, non-authoritative `BoundedResearchIntent v1`, exact read-only dedup
-  seam, and CPW-only intent-to-`SearchContract` ownership. After merge, the next
-  eligible activity is Side pre-draft confirmation for V2-INTEGRATION-01A.
-  01A remains manual/default-off and stops before Governor/Optuna; 01B remains
-  separately gated. Neither package is implemented or authorized here.
-- V2-INTEGRATION-01A branch-state has implemented and physically proven the
-  separately authorized manual, default-off Hermes bounded handoff from
-  Prefect through Project-Evidence v4 and exact read-only Research Memory to a
-  strict non-authoritative intent. The accepted intent comes from the exact
-  persisted bounded-builder tool result; final model-authored stdout is
-  non-authoritative. Mandatory physical Cases A-E and the exact-head
-  `full-release-balanced-v1` profile passed. The branch remains unmerged and
-  held for Side exact-head review; no Governor, Optuna, runner, canonical,
-  autonomous, runtime, paper/live, or
-  capital authority is active. This entry is not a merge claim.
+  Governor/Optuna integration. D2-022 locks the bounded Hermes handoff and
+  CPW-only intent-to-`SearchContract` ownership. V2-INTEGRATION-01A is merged
+  through PR #729 at `f2dbcb73a25d5ce271a29915b54ae6647aee5570`; its manual,
+  default-off `BoundedResearchIntent v1` path and mandatory physical Cases A-E
+  are proven, and it stops before Governor/Optuna.
+- PR #730 carries D2-023, the 01B architecture lock; live GitHub is
+  authoritative for whether that PR remains pending or has merged. D2-023
+  defines manual CPW `SearchPolicyBinding v1`, a new-campaign-only first proof
+  with zero prior cumulative counts, CPW-only `SearchContract` construction,
+  and a noncanonical `.cpw/active/` proposal-wave handoff recovered by exact
+  replay from a finalized pre-wave Governor snapshot. Once D2-023 is accepted
+  on `main`, Side performs the narrow final 01B implementation draftability
+  confirmation. This architecture package implements no 01B code and grants
+  no runner, Stage 5B, autonomy, runtime, paper/live, or capital authority.
 - Per-hypothesis approval and all current autonomy restrictions remain
   operational until Stage 5B is implemented, validated, explicitly activated,
-  and a valid Karl-approved bounded research envelope exists; FT-02 and D2-022
-  do not relax those default-off restrictions. No autonomous research, runner,
-  runtime, paper/live, or capital authority is created.
+  and a valid Karl-approved bounded research envelope exists; FT-02, D2-022,
+  and D2-023 do not relax those default-off restrictions. No autonomous
+  research, runner, runtime, paper/live, or capital authority is created.
 - After VPS always-on acceptance, Stage 8A+ implementation remains serialized
   while Stage 8R continuous non-capital research operates in parallel.
 

@@ -54,6 +54,26 @@ silently remove a capability merely because it is sequenced later.
 | Observability / alerts | **Later Stage 5B** | Persistent lab/data/strategy-health supervision; read-only canary probes may precede activation. |
 | Reporting | **Later Stage 5B** | Scheduled daily/weekly reports and useful alerts; manual generation may be proven earlier. |
 
+## Browser execution isolation
+
+Upstream Hermes Browser Use can expose `browser_exec`, which executes
+model-written Python and is gated by terminal capability. The project must not
+assume that giving the director browser access while withholding an ordinary
+terminal prevents local browser code execution.
+
+Browser research is allowed, but model-written browser execution must not run
+in or gain access to the credential-bearing Hermes director environment.
+`EXTREME-HERMES-01` must select and prove an accepted topology, such as a
+reviewed cloud/remote browser backend, browser execution inside the isolated
+research execution sandbox, or an equivalent independently reviewed topology.
+This docs package does not choose the final browser backend.
+
+Physical acceptance must inspect the live effective browser/tool behavior;
+configuration labels are not proof. It must prove browser-execution code cannot
+reach director `HERMES_HOME`, director/provider authentication material,
+private/LAN/metadata/control-plane networks except an explicitly reviewed
+narrow internal exception, or protected repo/runtime write surfaces.
+
 ## Persistent research organization
 
 Extreme Hermes uses both persistent specialist Bots/profiles and ephemeral
@@ -71,6 +91,32 @@ validate profile isolation, role-specific instructions, memory, skills, models
 where useful, tool/MCP access, Bot-to-Bot messaging, bounded group
 collaboration, director synthesis, and credential separation. No Bot may widen
 its own tool, MCP, credential, authority, or protected-path access.
+
+Specialist Bots receive only explicitly reviewed minimum credentials.
+Automatic credential copying or cloning from the director profile is disabled:
+no Bot receives live/exchange/capital credentials or automatically receives
+the director's complete provider/API-key set. Each Bot's provider/model and
+tool/MCP credentials are independently reviewed. Bot creation or cloning must
+not silently widen credential access, and delegated children cannot acquire or
+widen credentials beyond those held by their parent.
+
+`EXTREME-HERMES-01` physical acceptance must create a representative specialist
+Bot/profile with automatic main-profile key copying disabled, inspect its
+effective credential store and environment, prove director-only secrets are
+absent and only approved minimum credentials are present, and repeat the proof
+with a second role having a different minimum credential set. It must also
+prove clone/profile creation does not restore director-wide keys and ephemeral
+delegates cannot gain credentials their parent lacks.
+
+The persistent specialist organization is built on the underlying Hermes
+profile/Bot primitive and must remain CLI/service/headless compatible. Hermes
+Desktop Bot Mode is optional operator UI only. The future research VPS must be
+able to operate the organization without an interactive Desktop session through
+supported profile/service/gateway mechanisms, with profile-scoped
+configuration, memory, skills, tools/MCP, credentials, routines, and supported
+Bot/profile communication. Desktop may support configuration, visualization,
+inspection, manual intervention, and group-chat UI, but it must not become a
+runtime dependency for the autonomous factory.
 
 ## Persistent Bots and ephemeral delegation
 
@@ -182,6 +228,7 @@ complexity; it is not permanent rejection.
 
 The F1/F2 canary includes persistent Bots, flat delegated subagents, low fixed
 concurrency, no nested delegation, and no capability widening by children.
+Delegated children also cannot widen or acquire credentials beyond the parent.
 
 Later packages may add richer Bot groups, a broader specialist roster,
 director synthesis, orchestrator children, or nested delegation only when
@@ -225,11 +272,15 @@ authority. These are sequencing decisions, not permanent rejection.
 
 The independent `EXTREME-HERMES-01` security review remains mandatory and
 separate. It must cover director/execution-sandbox separation, terminal/file/
-code isolation, Bot profile isolation and collaboration, plugin governance,
-MCP provenance/tools/credentials, memory/session search, self-improving skills,
-delegation containment, network/egress, filesystem/mounts, provider/auth
-credentials, live tool-schema verification, rollback, and Computer Use
-deferral. This decision neither replaces nor satisfies that gate.
+code isolation, the live browser-execution topology and its separation from
+director credentials/protected surfaces, Bot profile isolation and
+collaboration, minimum Bot credentials and disabled director-key cloning,
+headless/VPS specialist operation without a Desktop runtime dependency, plugin
+governance, MCP provenance/tools/credentials, memory/session search,
+self-improving skills, delegation containment, network/egress,
+filesystem/mounts, provider/auth credentials, live tool-schema verification,
+rollback, and Computer Use deferral. This decision neither replaces nor
+satisfies that gate.
 
 After D2-025 is merged unchanged and the independent review returns PASS or
 PASS WITH REQUIRED CORRECTIONS incorporated into the planned package, Side

@@ -110,8 +110,13 @@ intended extensibility surfaces. Hermes, Bot, session-search, skill, optional
 external-provider, and Research Memory content remains non-authoritative; CPW
 durable lineage remains authoritative scientific truth. Computer Use remains a
 conditional later capability requiring a dedicated reviewed GUI sandbox, not a
-first-canary capability. Authority boundaries remain external, deterministic,
-and fail-closed.
+first-canary capability. Model-written browser execution is isolated from
+director credentials and protected surfaces. Specialist Bots receive only
+independently reviewed minimum credentials and do not clone director secrets by
+default. Persistent specialist operation remains CLI/service/headless
+compatible on the research VPS; Desktop is optional operator UI, not a runtime
+dependency. Authority boundaries remain external, deterministic, and
+fail-closed.
 
 Managed agents are research, monitoring, and proposal infrastructure. They are never execution truth, risk truth, OMS truth, or promotion authority.
 

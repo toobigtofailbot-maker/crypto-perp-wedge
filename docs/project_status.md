@@ -101,6 +101,9 @@ Startup read order:
   Computer Use as conditional/later. It activates none of those capabilities.
 - The independent `EXTREME-HERMES-01` security review remains pending/in
   parallel and mandatory. `EXTREME-HERMES-01` is not implementation-authorized.
+  The review must cover the live browser-execution topology, isolation of Bot
+  credentials with director-key cloning disabled, and CLI/service/headless VPS
+  operation of persistent Bots without a Desktop runtime dependency.
   After D2-025 merges unchanged and that review is accepted with required
   corrections incorporated, only a narrow final draftability confirmation
   should remain unless repo truth or the review exposes a material flaw.

@@ -735,6 +735,18 @@ paper/live action, credential, or capital use.
   the first canary is sequencing, not silent rejection.
 - Persistent Bot Mode is adopted as a research-organization primitive, with
   ephemeral flat delegation as a complementary bounded mechanism.
+- Browser research is allowed, but model-written browser execution must be
+  isolated from the credential-bearing director environment, director secrets,
+  private/LAN/metadata/control-plane networks except an explicitly reviewed
+  narrow exception, and protected repo/runtime write surfaces. Live effective
+  behavior, not configuration labels, is the acceptance proof.
+- Specialist Bots receive independently reviewed minimum credentials;
+  automatic director-profile credential copying/cloning is disabled. Bot
+  creation and delegated children cannot silently widen credential access.
+- Persistent specialist Bots must operate through supported
+  CLI/service/gateway profile mechanisms on the research VPS without an
+  interactive Desktop session. Desktop Bot Mode is optional operator UI, not
+  an autonomous-factory runtime dependency.
 - Hermes cron/routines own intelligence wake-ups. Prefect owns durable
   scientific workflow execution, workers, queues, operational retries, and
   durable flow/run state.

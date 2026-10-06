@@ -15,10 +15,10 @@ Startup read order:
 - Current program: Phase 2 candidate-agnostic research machine progression toward structured BTC strategy evidence, comparison, and later human-gated promotion.
 - Locked Phase 2 timeframe set: `15m`, `30m`, `1h`, `4h`, `1d`.
 - Timeframe rule: no single global primary timeframe is fixed. Each candidate declares its primary timeframe and any allowed confirmation timeframes before testing.
-- Current V2 research-authorization authority remains D2-020. The controlling
-  Hermes target and roadmap is D2-024 and
-  `docs/architecture/2026-10-extreme_hermes_autonomous_research_director.md`
-  once its PR merges unchanged; live GitHub is authoritative for PR state.
+- Current V2 research-authorization authority remains D2-020. D2-024 is merged
+  and remains the controlling Hermes target and roadmap. D2-025 is its accepted
+  capability-completeness and orchestration-ownership addendum once the D2-025
+  PR merges unchanged; live GitHub is authoritative for PR state.
 
 ## Current Phase / Repo State
 
@@ -44,9 +44,10 @@ Startup read order:
 
 - The controlling V2 research-authorization authority remains D2-020 and
   `docs/architecture/2026-10-bounded_autonomous_research_v2_architecture.md`.
-  D2-024 controls the intended Extreme Hermes target and prospectively replaces
-  the older roadmap once its PR merges unchanged. Neither decision activates
-  autonomy.
+  D2-024 controls the intended Extreme Hermes target. D2-025 adds the explicit
+  capability matrix, persistent-Bot target, and orchestration ownership once
+  its PR merges unchanged. Neither decision activates autonomy or a runtime
+  capability.
 - Current adoption-first migration architecture is locked in
   `docs/architecture/2026-09-adoption_first_migration_architecture_freeze.md`
   through CPW-MIG-00 and D2-019. Hermes owns future generic reasoning/runtime
@@ -86,13 +87,23 @@ Startup read order:
   D2-023's manual first-proof policy binding, CPW-only `SearchContract`, and
   proposal-wave replay controls.
 - Karl's current target direction is Extreme Hermes: the intended always-on
-  non-capital research director and continuous-improvement brain. D2-024 is the
-  controlling Hermes-target architecture once its PR merges unchanged; live
-  GitHub remains authoritative for whether that PR is pending or merged.
+  non-capital research director, persistent research organization, and
+  continuous-improvement brain. D2-024 is merged and controlling. D2-025 is the
+  capability-completeness addendum once its PR merges unchanged; live GitHub
+  remains authoritative for whether that PR is pending or merged.
 - The restrictive 01A one-shot, exact-14-tool, Project-Evidence-only
   configuration remains a proven safety/control baseline and fallback, not
   Hermes's permanent ceiling. D2-024 enables no upgrade, broad tool, schedule,
   Stage 5B, or research autonomy.
+- D2-025 preserves persistent Bots plus ephemeral agents, separates Hermes
+  intelligence wake-ups from Prefect durable workflow execution, governs
+  plugin/MCP expansion and non-authoritative memory/skills, and retains
+  Computer Use as conditional/later. It activates none of those capabilities.
+- The independent `EXTREME-HERMES-01` security review remains pending/in
+  parallel and mandatory. `EXTREME-HERMES-01` is not implementation-authorized.
+  After D2-025 merges unchanged and that review is accepted with required
+  corrections incorporated, only a narrow final draftability confirmation
+  should remain unless repo truth or the review exposes a material flaw.
 - The prior narrow 01B implementation is no longer the main next destination.
   The next implementation lane after D2-024 is `EXTREME-HERMES-01`, followed by
   `V2-AUTONOMY-KERNEL-01`, `V2-RESEARCH-FACTORY-LOOP-01`, and

@@ -8,7 +8,10 @@ This document records architecture direction that should guide future execution 
 
 ## Current Position
 
-The current Extreme Hermes target and roadmap authority is `D2-024` and
+The current Extreme Hermes target and roadmap authority is `D2-024`, with the
+capability-completeness and orchestration-ownership addendum in `D2-025` and
+`docs/architecture/2026-10-extreme_hermes_capability_coverage_and_orchestration_ownership.md`.
+The controlling target record remains
 `docs/architecture/2026-10-extreme_hermes_autonomous_research_director.md`.
 It preserves the V2 research-authorization model in `D2-020` and
 `docs/architecture/2026-10-bounded_autonomous_research_v2_architecture.md`
@@ -98,8 +101,17 @@ Hermes is intended to become the persistent, always-on non-capital research
 director. The current 01A one-shot, exact-14-tool, Project-Evidence-only
 deployment is a proven safety baseline and fallback, not the final ceiling.
 Broad web/browser, terminal/Python/file, memory, skill, delegation, specialist,
-and scheduled capability is intended inside external isolation. Authority
-boundaries remain external, deterministic, and fail-closed.
+and scheduled capability is intended inside external isolation. Persistent Bot
+Mode specialists and ephemeral delegation are complementary parts of the
+target research organization. Hermes routines are the intelligence wake-up
+layer; Prefect remains the durable scientific-workflow execution layer.
+Reviewed/pinned/allowlisted plugins and curated reviewed MCP servers are the
+intended extensibility surfaces. Hermes, Bot, session-search, skill, optional
+external-provider, and Research Memory content remains non-authoritative; CPW
+durable lineage remains authoritative scientific truth. Computer Use remains a
+conditional later capability requiring a dedicated reviewed GUI sandbox, not a
+first-canary capability. Authority boundaries remain external, deterministic,
+and fail-closed.
 
 Managed agents are research, monitoring, and proposal infrastructure. They are never execution truth, risk truth, OMS truth, or promotion authority.
 
@@ -174,6 +186,11 @@ At the later F6 / `EXTREME-HERMES-03` level, Hermes may improve only
 non-protected research tooling inside disposable worktrees and prepare PRs for
 human review. Human merge remains mandatory and protected paths remain outside
 Hermes write authority.
+
+Self-improving Hermes skills are intended procedural memory only. Their first
+proof requires isolated storage, controlled writes, audit, rollback, and proof
+that skill content cannot widen tools, MCP, credentials, filesystem scope, or
+scientific/protected authority.
 
 ## Permanent Human Gates
 

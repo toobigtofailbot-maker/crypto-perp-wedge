@@ -264,6 +264,7 @@ The following decisions are locked for Phase 2. Full details in `docs/onboarding
 | D2-022 | Hermes Bounded Research Handoff and SearchContract Ownership |
 | D2-023 | Search Policy Binding and Proposal-Wave Handoff |
 | D2-024 | Extreme Hermes Autonomous Research Director |
+| D2-025 | Extreme Hermes Capability Coverage and Orchestration Ownership |
 
 ### D2-003A — Irreparable official-source gap policy
 
@@ -711,3 +712,54 @@ capabilities, isolation, and rollback immediately before selecting a canary
 pin. D2-024 changes documentation and architecture only; it enables no tool,
 upgrade, schedule, autonomous research, Stage 5B, code path, protected runtime,
 paper/live action, credential, or capital use.
+
+### D2-025 — Extreme Hermes Capability Coverage and Orchestration Ownership
+
+**Status:** LOCKED
+
+**Decision ID:** D2-025
+
+**Date:** 2026-10-06
+
+**Scope:** Extreme Hermes capability completeness and orchestration ownership
+
+**Approval:** Karl-authorized through
+`WP-EXTREME-HERMES-D2-025-CAPABILITY-COVERAGE-01`
+
+**Controlling addendum:**
+`docs/architecture/2026-10-extreme_hermes_capability_coverage_and_orchestration_ownership.md`
+
+#### Decision
+
+- The full useful Hermes capability set remains on the roadmap; omission from
+  the first canary is sequencing, not silent rejection.
+- Persistent Bot Mode is adopted as a research-organization primitive, with
+  ephemeral flat delegation as a complementary bounded mechanism.
+- Hermes cron/routines own intelligence wake-ups. Prefect owns durable
+  scientific workflow execution, workers, queues, operational retries, and
+  durable flow/run state.
+- Plugins are privileged and must be reviewed, pinned where possible,
+  allowlisted, provenance-recorded, and prevented from arbitrary self-install
+  or self-update.
+- MCP expands beyond Project-Evidence only through curated, reviewed servers,
+  explicit tool filters, explicit credentials, and live effective-tool
+  verification. Authority-bearing CPW interfaces remain narrow and fail-closed.
+- Hermes, Bot, session-search, skill, and optional external memory remain
+  non-authoritative. Research Memory remains a non-authoritative retrieval and
+  deduplication index. CPW durable lineage remains authoritative scientific
+  truth.
+- Self-improving skills are adopted under isolated storage, controlled writes,
+  audit, rollback, and capability-containment proof.
+- Computer Use remains a conditional later capability in a dedicated reviewed
+  GUI sandbox; it is not part of the first F1/F2 canary and is not forgotten.
+- Deeper/nested multi-agent orchestration remains conditional on measured value
+  and explicit depth, concurrency, cost, runtime, containment, visibility, and
+  auditability bounds.
+
+#### Non-authority
+
+D2-025 is an addendum to D2-024 and does not weaken D2-024's permanent
+scientific, protected-runtime, or economic boundaries. It activates no Hermes
+upgrade, tool, Bot, plugin, MCP, routine, Computer Use, Stage 5B, autonomous
+scientific execution, code/runtime path, paper/live action, credential,
+exchange/order authority, or capital use.

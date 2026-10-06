@@ -6,7 +6,7 @@
 - Decision: `D2-025 — Extreme Hermes Capability Coverage and Orchestration Ownership`
 - Validation class: T0 docs-only
 - PR: [#732](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/732)
-- Substantive head: `322c1328c92c815ff2c6ab9377b9d6b51607bd72`
+- Substantive head: `322c1325b126f78d9a964b5cc690f24d61bcccf1`
 - Final head: the publication-metadata commit that contains this status update;
   resolve its exact identity from PR #732 / Git rather than a self-referential
   in-file hash

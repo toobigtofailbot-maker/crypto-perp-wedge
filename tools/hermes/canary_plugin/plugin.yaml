@@ -1,0 +1,8 @@
+name: cpw-canary
+version: 1.0.0
+description: Inert CPW-owned deterministic research canary.
+author: CPW
+kind: standalone
+provides_tools: [cpw_canary_ping]
+requires_env: []
+provides_hooks: []

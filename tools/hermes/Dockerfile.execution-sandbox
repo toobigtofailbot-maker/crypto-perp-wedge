@@ -1,0 +1,11 @@
+FROM python:3.11.9-slim-bookworm@sha256:8fb099199b9f2d70342674bd9dbccd3ed03a258f26bbd1d556822c6dfc60c317
+RUN apt-get update && apt-get install -y --no-install-recommends openssh-server openssh-client bash \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -f /etc/ssh/ssh_host_* \
+    && useradd --uid 10001 --create-home --home-dir /workspace --shell /bin/bash cpw \
+    && usermod --password '*' cpw
+COPY tools/hermes/execution_sandbox/sshd_config /etc/ssh/sshd_config
+COPY --chmod=0755 tools/hermes/execution_sandbox/entrypoint.sh /usr/local/bin/cpw-sandbox
+COPY --chmod=0755 tools/hermes/execution_sandbox/keygen.sh /usr/local/bin/cpw-sandbox-keygen
+WORKDIR /workspace
+ENTRYPOINT ["/usr/local/bin/cpw-sandbox"]

@@ -22,6 +22,13 @@ Startup read order:
 
 ## Current Phase / Repo State
 
+- WP-EXTREME-HERMES-01 Revision 2 is in progress on its isolated package branch
+  from `11214acfb6d8af44586c50089eb9965063a505ee`. It preserves F0 and authors
+  a pinned F1/F2 capability canary within the exact 24-file closure. Physical
+  Cases A-K and full-release validation remain pending; nothing is accepted or
+  activated. See `docs/status_entries/WP-EXTREME-HERMES-01.md`. Side 22 exact-head
+  review is required after all acceptance gates and publication; no self-merge.
+
 - Phase 1 is closed.
 - Phase 2 baseline is locked in `docs/onboarding/PHASE2_BASELINE.md`.
 - WP-1a Batch 1, WP-1a Batch 2 corrected, WP-1b, WP-1c, the current-state-anchor package, OPS-02, WP-2b, WP-2c, WP-3b, WP-3c, WP-4a, WP-4b1, WP-4b2, WP-5a, and WP-5b are merged to `main`.

@@ -371,7 +371,7 @@ def invoke_hermes_once(request: Mapping[str, Any]) -> dict[str, Any]:
     compose_file = repo_root / "tools" / "hermes" / "compose.yaml"
     command = [
         "docker", "compose", "-f", str(compose_file), "exec", "-T", "hermes",
-        "/opt/hermes/hermes", "chat", "-q", build_hermes_prompt(validated),
+        "hermes", "chat", "-q", build_hermes_prompt(validated),
         "--quiet", "--source", "tool",
     ]
     process = subprocess.Popen(

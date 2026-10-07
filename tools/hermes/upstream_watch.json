@@ -5,13 +5,13 @@
       "source_id": "hermes-agent-release",
       "kind": "github_release",
       "url": "https://api.github.com/repos/NousResearch/hermes-agent/releases/latest",
-      "pinned_version": "v2026.8.13"
+      "pinned_version": "v2026.9.24"
     },
     {
       "source_id": "hermes-agent-advisories",
       "kind": "github_advisories",
       "url": "https://api.github.com/repos/NousResearch/hermes-agent/security-advisories",
-      "pinned_version": "v2026.8.13"
+      "pinned_version": "v2026.9.24"
     },
     {
       "source_id": "python-mcp",

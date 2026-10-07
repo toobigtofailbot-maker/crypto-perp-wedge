@@ -1,5 +1,4 @@
 name: crypto-perp-wedge-hermes
-
 services:
   project-evidence:
     build:
@@ -7,69 +6,179 @@ services:
       dockerfile: tools/hermes/Dockerfile.project-evidence
     read_only: true
     tmpfs:
-      - /tmp:size=64m,mode=1777
+    - /tmp:size=64m,mode=1777
     environment:
-      PROJECT_REPO_SHA: "${PROJECT_REPO_SHA:?PROJECT_REPO_SHA is required}"
-      PROJECT_REPO_BRANCH: "${PROJECT_REPO_BRANCH:?PROJECT_REPO_BRANCH is required}"
-      RESEARCH_MEMORY_READONLY_DSN: "${RESEARCH_MEMORY_READONLY_DSN:-}"
+      PROJECT_REPO_SHA: ${PROJECT_REPO_SHA:?PROJECT_REPO_SHA is required}
+      PROJECT_REPO_BRANCH: ${PROJECT_REPO_BRANCH:?PROJECT_REPO_BRANCH is required}
+      RESEARCH_MEMORY_READONLY_DSN: ${RESEARCH_MEMORY_READONLY_DSN:-}
     volumes:
-      - ../../docs/project_status.md:/project/docs/project_status.md:ro
-      - ../../docs/research_pipeline:/project/docs/research_pipeline:ro
-      - ../../research/candidate_registry.jsonl:/project/research/candidate_registry.jsonl:ro
-      - ../../research/trial_log.jsonl:/project/research/trial_log.jsonl:ro
-      - ../../research/experiments:/project/research/experiments:ro
-      - ../../research/decisions:/project/research/decisions:ro
-      - ../../research/hypotheses:/project/research/hypotheses:ro
-      - ../../research/result_populations:/project/research/result_populations:ro
-      - ../../research/indicator_catalogs/IND-CATALOG-0001.indicator_catalog.json:/project/research/indicator_catalogs/IND-CATALOG-0001.indicator_catalog.json:ro
-      - ../../research/data_feature_availability/PERP-DERIVED-FEATURE-AVAILABILITY-0001.json:/project/research/data_feature_availability/PERP-DERIVED-FEATURE-AVAILABILITY-0001.json:ro
-      - ../../research/strategy_specs/STRAT-SPEC-0003.strategy_spec.json:/project/research/strategy_specs/STRAT-SPEC-0003.strategy_spec.json:ro
-      - ../../research/schemas/strategy_spec.schema.json:/project/research/schemas/strategy_spec.schema.json:ro
-      - ./upstream_watch.json:/project/tools/hermes/upstream_watch.json:ro
-      - ${HERMES_PROPOSAL_OUTBOX_HOST:?HERMES_PROPOSAL_OUTBOX_HOST is required}:/outbox:rw
+    - ../../docs/project_status.md:/project/docs/project_status.md:ro
+    - ../../docs/research_pipeline:/project/docs/research_pipeline:ro
+    - ../../research/candidate_registry.jsonl:/project/research/candidate_registry.jsonl:ro
+    - ../../research/trial_log.jsonl:/project/research/trial_log.jsonl:ro
+    - ../../research/experiments:/project/research/experiments:ro
+    - ../../research/decisions:/project/research/decisions:ro
+    - ../../research/hypotheses:/project/research/hypotheses:ro
+    - ../../research/result_populations:/project/research/result_populations:ro
+    - ../../research/indicator_catalogs/IND-CATALOG-0001.indicator_catalog.json:/project/research/indicator_catalogs/IND-CATALOG-0001.indicator_catalog.json:ro
+    - ../../research/data_feature_availability/PERP-DERIVED-FEATURE-AVAILABILITY-0001.json:/project/research/data_feature_availability/PERP-DERIVED-FEATURE-AVAILABILITY-0001.json:ro
+    - ../../research/strategy_specs/STRAT-SPEC-0003.strategy_spec.json:/project/research/strategy_specs/STRAT-SPEC-0003.strategy_spec.json:ro
+    - ../../research/schemas/strategy_spec.schema.json:/project/research/schemas/strategy_spec.schema.json:ro
+    - ./upstream_watch.json:/project/tools/hermes/upstream_watch.json:ro
+    - ${HERMES_PROPOSAL_OUTBOX_HOST:?HERMES_PROPOSAL_OUTBOX_HOST is required}:/outbox:rw
     cap_drop:
-      - ALL
+    - ALL
     security_opt:
-      - no-new-privileges:true
+    - no-new-privileges:true
     networks:
-      - evidence
+    - evidence
     restart: unless-stopped
-
   hermes:
-    image: nousresearch/hermes-agent:v2026.8.13@sha256:68e15ae2a6d894d0ccbd9f8aacbbe13d4d28fa5dc9b6a303970b67bb2499b1a6
-    user: "10000:10000"
+    image: cpw-extreme-hermes:wp-extreme-hermes-01
     depends_on:
-      - project-evidence
+      project-evidence:
+        condition: service_started
+      canary-mcp:
+        condition: service_started
+      sandbox-keygen:
+        condition: service_completed_successfully
+      execution-sandbox:
+        condition: service_started
     read_only: true
     tmpfs:
-      - /tmp:size=256m,mode=1777
+    - /tmp:size=256m,mode=1777
+    - /run:size=64m,mode=755,exec
     environment:
       HERMES_HOME: /opt/data
-      HERMES_MODEL: "${HERMES_MODEL:?HERMES_MODEL is required}"
-      HERMES_WRITE_SAFE_ROOT: /opt/data
+      HERMES_MODEL: ${HERMES_MODEL:?HERMES_MODEL is required}
+      HERMES_WRITE_SAFE_ROOT: /opt/data:/workspace
+      HERMES_SKIP_CONFIG_MIGRATION: '1'
+      HERMES_DISABLE_LAZY_INSTALLS: '1'
+      S6_READ_ONLY_ROOT: '1'
+      BROWSERBASE_API_KEY: ${BROWSERBASE_API_KEY:-}
+      BROWSERBASE_PROJECT_ID: ${BROWSERBASE_PROJECT_ID:-}
+      TERMINAL_SSH_HOST: execution-sandbox
+      TERMINAL_SSH_USER: cpw
+      TERMINAL_SSH_PORT: '2222'
+      TERMINAL_SSH_KEY: /run/cpw-sandbox-ssh/id_ed25519
     volumes:
-      - ${HERMES_PROJECT_HOME:?HERMES_PROJECT_HOME is required}:/opt/data:rw
-      - ./config/config.yaml:/opt/data/config.yaml:ro
-      - ./config/SOUL.md:/opt/data/SOUL.md:ro
-      - ./skills/repo-truth:/opt/data/skills/repo-truth:ro
-      - ./skills/research-evidence-reader:/opt/data/skills/research-evidence-reader:ro
-      - ./skills/result-population-critic:/opt/data/skills/result-population-critic:ro
-      - ./skills/daily-research-brief:/opt/data/skills/daily-research-brief:ro
-      - ./skills/weekly-science-review:/opt/data/skills/weekly-science-review:ro
-      - ./skills/dependency-security-watch:/opt/data/skills/dependency-security-watch:ro
-      - ./skills/typed-project-proposal:/opt/data/skills/typed-project-proposal:ro
-      - ./skills/prepared-project-plan:/opt/data/skills/prepared-project-plan:ro
-      - ./skills/cpw-domain-tools:/opt/data/skills/cpw-domain-tools:ro
+    - ${HERMES_PROJECT_HOME:?HERMES_PROJECT_HOME is required}:/opt/data:rw
+    - ./config/config.f1f2.yaml:/opt/data/config.yaml:ro
+    - ./config/SOUL.f1f2.md:/opt/data/SOUL.md:ro
+    - ./skills/repo-truth:/opt/data/skills/repo-truth:ro
+    - ./skills/research-evidence-reader:/opt/data/skills/research-evidence-reader:ro
+    - ./skills/result-population-critic:/opt/data/skills/result-population-critic:ro
+    - ./skills/daily-research-brief:/opt/data/skills/daily-research-brief:ro
+    - ./skills/weekly-science-review:/opt/data/skills/weekly-science-review:ro
+    - ./skills/dependency-security-watch:/opt/data/skills/dependency-security-watch:ro
+    - ./skills/typed-project-proposal:/opt/data/skills/typed-project-proposal:ro
+    - ./skills/prepared-project-plan:/opt/data/skills/prepared-project-plan:ro
+    - ./skills/cpw-domain-tools:/opt/data/skills/cpw-domain-tools:ro
+    - sandbox-private:/run/cpw-sandbox-ssh:ro
+    - ./canary_plugin:/opt/data/plugins/cpw-canary:ro
     cap_drop:
-      - ALL
+    - ALL
     security_opt:
-      - no-new-privileges:true
+    - no-new-privileges:true
     networks:
-      - evidence
+    - evidence
+    - canary
+    - execution
     restart: unless-stopped
-    entrypoint: ["/opt/hermes/hermes"]
-    command: ["gateway", "run", "--no-supervise", "--external-supervisor"]
-
+    command:
+    - gateway
+    - run
+    - --no-supervise
+    - --external-supervisor
+    build:
+      context: ../..
+      dockerfile: tools/hermes/Dockerfile.extreme
+    cap_add:
+    - CHOWN
+    - DAC_OVERRIDE
+    - FOWNER
+    - SETUID
+    - SETGID
+  sandbox-keygen:
+    image: cpw-hermes-execution-sandbox:wp-extreme-hermes-01
+    build:
+      context: ../..
+      dockerfile: tools/hermes/Dockerfile.execution-sandbox
+    read_only: true
+    cap_drop:
+    - ALL
+    security_opt:
+    - no-new-privileges:true
+    entrypoint:
+    - /usr/local/bin/cpw-sandbox-keygen
+    network_mode: none
+    cap_add:
+    - CHOWN
+    - DAC_OVERRIDE
+    tmpfs:
+    - /tmp:size=1m,mode=1777
+    volumes:
+    - sandbox-private:/keys/private:rw
+    - sandbox-public:/keys/public:rw
+    restart: 'no'
+  execution-sandbox:
+    image: cpw-hermes-execution-sandbox:wp-extreme-hermes-01
+    build:
+      context: ../..
+      dockerfile: tools/hermes/Dockerfile.execution-sandbox
+    read_only: true
+    cap_drop:
+    - ALL
+    security_opt:
+    - no-new-privileges:true
+    hostname: execution-sandbox
+    depends_on:
+      sandbox-keygen:
+        condition: service_completed_successfully
+    cap_add:
+    - CHOWN
+    - SETUID
+    - SETGID
+    - SYS_CHROOT
+    tmpfs:
+    - /run:size=8m,mode=755
+    - /tmp:size=64m,mode=1777
+    volumes:
+    - sandbox-workspace:/workspace:rw
+    - sandbox-hostkeys:/run/cpw-sandbox-hostkeys:rw
+    - sandbox-public:/run/cpw-sandbox-public:ro
+    networks:
+    - execution
+    restart: unless-stopped
+  canary-mcp:
+    build:
+      context: ../..
+      dockerfile: tools/hermes/Dockerfile.canary-mcp
+    read_only: true
+    tmpfs:
+    - /tmp:size=16m,mode=1777
+    cap_drop:
+    - ALL
+    security_opt:
+    - no-new-privileges:true
+    networks:
+    - canary
+    restart: unless-stopped
 networks:
   evidence:
     driver: bridge
+  canary:
+    driver: bridge
+    internal: true
+    driver_opts:
+      com.docker.network.bridge.gateway_mode_ipv4: isolated
+  execution:
+    driver: bridge
+    internal: true
+    driver_opts:
+      com.docker.network.bridge.gateway_mode_ipv4: isolated
+volumes:
+  sandbox-private: {}
+  sandbox-public: {}
+  sandbox-workspace: {}
+  sandbox-hostkeys: {}

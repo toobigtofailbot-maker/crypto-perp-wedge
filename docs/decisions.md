@@ -265,6 +265,7 @@ The following decisions are locked for Phase 2. Full details in `docs/onboarding
 | D2-023 | Search Policy Binding and Proposal-Wave Handoff |
 | D2-024 | Extreme Hermes Autonomous Research Director |
 | D2-025 | Extreme Hermes Capability Coverage and Orchestration Ownership |
+| D2-026 | Scientific Autonomy Kernel Durable Authority and Storage |
 
 ### D2-003A — Irreparable official-source gap policy
 
@@ -788,3 +789,99 @@ review authority weakens no physical security control. D2-025 activates no
 Hermes upgrade, tool, Bot, plugin, MCP, routine, Computer Use, Stage 5B,
 autonomous scientific execution, code/runtime path, paper/live action,
 credential, exchange/order authority, or capital use.
+
+### D2-026 — Scientific Autonomy Kernel Durable Authority and Storage
+
+**Status:** KARL-APPROVED / PROPOSED FOR MERGE
+
+**Decision ID:** D2-026
+
+**Date:** 2026-10-07
+
+**Scope:** T0 docs-only scientific autonomy kernel authority/storage lock
+
+**Approval:** Karl-approved through `WP-V2-AUTONOMY-KERNEL-ARCH-01`
+
+**Exact base:** `200276fd4407e4a13a912a6b475ab9ab38a1de70`
+
+**Controlling record:**
+`docs/architecture/2026-10-v2_autonomy_kernel_durable_authority.md`
+
+#### Decision
+
+- The future production envelope is a human-owned CPW repo artifact under
+  `research/autonomy/envelopes/`, with strict schema family under
+  `research/schemas/`. It is versioned, immutable, content-hash bound, and binds
+  exact repo identity and explicit human/Karl approval metadata. Automation
+  may read/validate but cannot create, edit, expand, reinterpret, replace, or
+  self-authorize it. Revocation/replacement creates explicit new human-controlled
+  state. No schema or real envelope is created here; the later kernel may use
+  test fixtures only. Production operation requires later Stage 5B activation.
+- CPW's future autonomy kernel owns a separate logical PostgreSQL scientific-
+  authority database, separate migrations, and separate write role. The same
+  physical server/cluster may be reused. Recommended database/role name family
+  is `cpw_research_authority`, schema family `research_authority`; deployment
+  credentials/host/port remain environment configuration, not scientific
+  identity. Research Memory rebuild/deletion cannot reset scientific history;
+  Hermes, Prefect, and broker state cannot own scientific lineage.
+- Durable state combines transactional current authority with append-only
+  audit/event history, deterministic IDs/hashes, DB uniqueness/check constraints,
+  atomic transitions, and fail-closed idempotency/conflicts. It covers envelope
+  binding, campaign/search/trial lineage, cumulative proposal/trial accounting,
+  exact evidence/result references/hashes, holdout, contamination domains/ancestry,
+  and authority audit. No universal event-sourcing framework is required.
+- The store is not a second performance/result warehouse. Existing/future CPW
+  evidence and Result Population surfaces retain scientific payload semantics;
+  no candidate or promotion authority is created.
+- `.cpw/active` remains active/provisional only. In-flight recovery state must
+  bind exact authoritative campaign/search/contract/lineage identity. Deletion
+  or recreation of `.cpw` cannot reset history; file presence creates no authority.
+- CPW alone derives a frozen `SearchContract` from accepted
+  `BoundedResearchIntent`, exact valid Karl-approved envelope, exact repo/evidence
+  identity, and durable authoritative lineage. It binds envelope ID/version/hash,
+  contamination domain, lineage state/version/hash, and cumulative proposal/trial
+  counts. Hermes/Prefect/Optuna cannot supply or override counts, remaining budget,
+  holdout freshness, envelope policy, scientific retry, or search-space widening.
+  Caller-supplied cumulative history is not production continuation.
+- A successor requires exact campaign/parent-search/parent-lineage identity,
+  reason for change, authoritative cumulative history, immutable-envelope
+  revalidation, and a new frozen contract. Rename/restart/new operational ID
+  cannot reset budget; domains cannot widen beyond the envelope. Search Governor
+  retains search legality/proposal/accounting/scientific-trial identity; Optuna
+  remains proposal-only.
+- Final holdout is unavailable to adaptive search. Informative exposure is
+  durable; escaped informative results consume it across influenced downstream
+  lineage in the same contamination domain. New hypothesis/search/branch/session/
+  run/memory IDs do not restore freshness. Exact retry avoids another exposure
+  only if no informative result escaped; missing contamination edges do not
+  prove isolation. The first kernel has no automatic strict-isolation declaration
+  or freshness-restoration path. Any isolation exemption needs a separate
+  reviewed architecture/authority decision.
+- The envelope defines ceilings; the durable authority store owns atomic
+  campaign usage/reservation. Search-local budgets fit remaining envelope/campaign
+  budget, concurrent starts cannot oversubscribe, and same-trial software retries
+  do not create independent trials. Successors/restarts/new IDs cannot reset
+  totals. Expansion requires human envelope replacement/expansion.
+- Ownership remains explicit: Karl-approved envelope owns scope/budget/policy;
+  CPW kernel owns validation/binding, durable lineage, and holdout contamination;
+  Governor owns search legality and scientific identity; Optuna proposes; Hermes
+  reasons/proposes next actions; Prefect owns operational flows/runs/retries;
+  Research Memory retrieves/deduplicates without authority; CPW evidence surfaces
+  own payloads; humans retain promotion and existing protected owners retain
+  runtime/OMS/reconciliation/hard risk.
+
+#### Dependency and non-activation
+
+D2-020's previously deferred storage/ownership choice is closed on accepted
+merge; D2-021 identity, D2-022 ownership, D2-023 existing proof restrictions,
+and D2-024/D2-025 capability/roadmap boundaries remain intact. Side 22 may draft
+`V2-AUTONOMY-KERNEL-01` only after accepted merge and refreshed exact-head truth.
+That implementation is not executable merely because this decision exists.
+
+This decision implements no database, schema, production envelope, or kernel;
+activates no Stage 5B; schedules no research; allows no Hermes scientific
+experiment execution; calls no runner/backtester; performs no WFO/OOS,
+robustness, or Monte Carlo; writes no Result Population; promotes no candidate;
+changes no protected runtime/risk/OMS/reconciliation/overlay/safe-mode control;
+enables no paper/live or exchange/order; and allocates no capital. No scientific
+threshold or existing gate semantics change.

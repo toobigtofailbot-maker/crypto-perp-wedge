@@ -16,20 +16,33 @@ Startup read order:
 - Locked Phase 2 timeframe set: `15m`, `30m`, `1h`, `4h`, `1d`.
 - Timeframe rule: no single global primary timeframe is fixed. Each candidate declares its primary timeframe and any allowed confirmation timeframes before testing.
 - Current V2 research-authorization authority remains D2-020. D2-024 is merged
-  and remains the controlling Hermes target and roadmap. D2-025 is its accepted
-  capability-completeness and orchestration-ownership addendum once the D2-025
-  PR merges unchanged; live GitHub is authoritative for PR state.
+  and remains the controlling Hermes target and roadmap. Merged D2-025 is its
+  capability-completeness and orchestration-ownership addendum.
 
 ## Current Phase / Repo State
 
-- WP-EXTREME-HERMES-01 Revision 2 completed Cases A-K and fresh full-release
+- WP-EXTREME-HERMES-01 / PR #733 is merged at
+  `200276fd4407e4a13a912a6b475ab9ab38a1de70`. F1/F2 capability proof is
+  complete. Revision 2 completed Cases A-K and fresh full-release
   at semantic head `cba25971c8365f331d2e2240fb639949de1ff3cc`. Exact 16-created /
   8-modified closure; no protected or scientific authority activation. Case J
   proved parent/leaf subset; native /tmp placement repaired the Windows-backed
   SSH control-socket defect without an upstream patch or topology change.
-  F1/F2 stopped; exact F0 rollback passed. Hold for Side 22 exact-head review;
-  no self-merge or Codex merge-readiness declaration.
+  F1/F2 stopped; exact F0 rollback passed. This proof does not activate Stage 5B.
   See `docs/status_entries/WP-EXTREME-HERMES-01.md`.
+
+- Current open architecture-lock package: `WP-V2-AUTONOMY-KERNEL-ARCH-01` /
+  PR #734 (branch-state T0 docs/process-policy lock). D2-026 is the Karl-approved
+  LOCKED decision carried by this PR; it becomes merged repo authority only
+  if PR #734 is accepted. Exact four-file closure creates
+  `docs/architecture/2026-10-v2_autonomy_kernel_durable_authority.md` and
+  `docs/status_entries/WP-V2-AUTONOMY-KERNEL-ARCH-01.md`, and modifies
+  `docs/decisions.md` and this file. It locks human envelope authority and a
+  separate CPW PostgreSQL lineage/accounting/holdout authority database, with
+  zero implementation or activation. Executable `V2-AUTONOMY-KERNEL-01`
+  remains blocked until D2-026 merges and Side 22 refreshes exact-head repo
+  truth to draft its separate package. No open autonomous research execution
+  is authorized; hold this package for Side 22 exact-head review, no self-merge.
 
 - Phase 1 is closed.
 - Phase 2 baseline is locked in `docs/onboarding/PHASE2_BASELINE.md`.
@@ -54,9 +67,10 @@ Startup read order:
 - The controlling V2 research-authorization authority remains D2-020 and
   `docs/architecture/2026-10-bounded_autonomous_research_v2_architecture.md`.
   D2-024 controls the intended Extreme Hermes target. D2-025 adds the explicit
-  capability matrix, persistent-Bot target, and orchestration ownership once
-  its PR merges unchanged. Neither decision activates autonomy or a runtime
-  capability.
+  capability matrix, persistent-Bot target, and orchestration ownership.
+  Neither decision activates autonomy or a runtime capability. LOCKED D2-026
+  in `docs/architecture/2026-10-v2_autonomy_kernel_durable_authority.md` closes
+  durable authority/storage design only on accepted merge; it activates nothing.
 - Current adoption-first migration architecture is locked in
   `docs/architecture/2026-09-adoption_first_migration_architecture_freeze.md`
   through CPW-MIG-00 and D2-019. Hermes owns future generic reasoning/runtime
@@ -98,8 +112,7 @@ Startup read order:
 - Karl's current target direction is Extreme Hermes: the intended always-on
   non-capital research director, persistent research organization, and
   continuous-improvement brain. D2-024 is merged and controlling. D2-025 is the
-  capability-completeness addendum once its PR merges unchanged; live GitHub
-  remains authoritative for whether that PR is pending or merged.
+  merged capability-completeness addendum.
 - The restrictive 01A one-shot, exact-14-tool, Project-Evidence-only
   configuration remains a proven safety/control baseline and fallback, not
   Hermes's permanent ceiling. D2-024 enables no upgrade, broad tool, schedule,
@@ -108,21 +121,20 @@ Startup read order:
   intelligence wake-ups from Prefect durable workflow execution, governs
   plugin/MCP expansion and non-authoritative memory/skills, and retains
   Computer Use as conditional/later. It activates none of those capabilities.
-- D2-025 PR #732 remains pending until merged; live GitHub is authoritative.
+- D2-025 PR #732 is merged.
   Karl's later owner direction supersedes external independent review as a
   prerequisite for the F1/F2 canary. Side 21 security review plus mandatory
   physical canary acceptance now controls `EXTREME-HERMES-01`; external
   independent challenge is deferred to pre-Stage-5B / `EXTREME-HERMES-02`, or
   earlier if Side 21 identifies material unresolved security uncertainty.
   Hermes `v2026.9.24 / v0.21.5` is not acceptable as an unchanged canary
-  because the required tool-scope fix is absent. Final version selection remains
-  in the implementation package after a fresh upstream check. This docs change
-  activates no runtime capability, and `EXTREME-HERMES-01` remains not
-  implementation-authorized until D2-025 merges and the Side 21 plus physical-
-  acceptance gate is satisfied.
+  because the required tool-scope fix is absent. The merged `EXTREME-HERMES-01`
+  proof records the accepted canary and physical acceptance; its F1/F2 capability
+  proof creates no Stage 5B or scientific execution authority.
 - The prior narrow 01B implementation is no longer the main next destination.
-  The next implementation lane after D2-024 is `EXTREME-HERMES-01`, followed by
-  `V2-AUTONOMY-KERNEL-01`, `V2-RESEARCH-FACTORY-LOOP-01`, and
+  After merged `EXTREME-HERMES-01`, the current docs-only D2-026 lock must merge
+  before Side 22 drafts executable `V2-AUTONOMY-KERNEL-01`. The later roadmap is
+  `V2-RESEARCH-FACTORY-LOOP-01` and
   `EXTREME-HERMES-02` Stage 5B/always-on activation. Scientific, protected,
   promotion, paper/live, credential, and capital boundaries remain unchanged.
 - Per-hypothesis approval and all current autonomy restrictions remain

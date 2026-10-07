@@ -73,6 +73,7 @@ def test_execution_and_canary_topology_has_no_host_or_director_surface():
 def test_locked_config_and_non_authoritative_surface():
     config = document("config/config.f1f2.yaml")
     assert config["_config_version"] == 46
+    assert config["tools"]["tool_search"]["enabled"] == "off"
     assert config["model"] == {"provider": "openai-codex", "default": "${HERMES_MODEL}"}
     assert config["browser"] == {"cloud_provider": "browserbase", "backend": "off",
                                  "auto_local_for_private_urls": False, "allow_private_urls": False,

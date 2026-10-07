@@ -1,4 +1,7 @@
 _config_version: 46
+tools:
+  tool_search:
+    enabled: 'off'
 model:
   provider: openai-codex
   default: ${HERMES_MODEL}

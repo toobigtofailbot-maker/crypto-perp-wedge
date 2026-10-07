@@ -82,6 +82,16 @@ hermes; its exact argument vector, shell=False, timeout, single-call/session
 extraction and intent validation remain intact. Physical Prefect-worker proof
 and F0 rollback startup are still pending.
 
+The first process-worker attempt failed closed because upstream progressive
+tool disclosure persisted a batched tool_call envelope that the unchanged
+strict HERMES-02 extractor does not accept. The supported
+tools.tool_search.enabled: off setting advertises the same allowlisted schemas
+directly, avoiding that envelope without changing the fixed command, persisted
+result extraction, call-count checks or CPW semantics. Affected acceptance is
+rerun at the repaired head. A small existing evidence resource is used for the
+bounded canary instead of spilling the large status resource into director
+files, which the isolated SSH file tools correctly cannot read.
+
 ## Preliminary physical observations
 
 These are individual observations, not final Case A–K PASS declarations.

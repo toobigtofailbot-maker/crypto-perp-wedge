@@ -55,6 +55,12 @@ def make_contract(
     if backend != "tpe":
         proposer_config = ()
     return SearchContract(
+        envelope_id="ENVELOPE-TEST-FIXTURE",
+        envelope_version=1,
+        envelope_content_sha256="sha256:" + "c" * 64,
+        contamination_domain_id="DOMAIN-TEST-FIXTURE",
+        authority_lineage_version=0,
+        authority_lineage_sha256="sha256:" + "0" * 64,
         campaign_id="CAMPAIGN-TEST-001",
         search_id="SEARCH-TEST-001",
         parent_search_id=None,

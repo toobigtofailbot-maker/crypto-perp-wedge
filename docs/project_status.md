@@ -31,18 +31,19 @@ Startup read order:
   F1/F2 stopped; exact F0 rollback passed. This proof does not activate Stage 5B.
   See `docs/status_entries/WP-EXTREME-HERMES-01.md`.
 
-- Current open architecture-lock package: `WP-V2-AUTONOMY-KERNEL-ARCH-01` /
-  PR #734 (branch-state T0 docs/process-policy lock). D2-026 is the Karl-approved
-  LOCKED decision carried by this PR; it becomes merged repo authority only
-  if PR #734 is accepted. Exact four-file closure creates
-  `docs/architecture/2026-10-v2_autonomy_kernel_durable_authority.md` and
-  `docs/status_entries/WP-V2-AUTONOMY-KERNEL-ARCH-01.md`, and modifies
-  `docs/decisions.md` and this file. It locks human envelope authority and a
-  separate CPW PostgreSQL lineage/accounting/holdout authority database, with
-  zero implementation or activation. Executable `V2-AUTONOMY-KERNEL-01`
-  remains blocked until D2-026 merges and Side 22 refreshes exact-head repo
-  truth to draft its separate package. No open autonomous research execution
-  is authorized; hold this package for Side 22 exact-head review, no self-merge.
+- `WP-V2-AUTONOMY-KERNEL-ARCH-01` / PR #734 is merged at
+  `9d9f8a94405ded76bbef0163488b9a8e0596371a`. D2-026 is the merged LOCKED
+  authority for immutable human envelopes and a separate CPW PostgreSQL
+  scientific lineage/accounting/holdout database. The lock activated nothing.
+- `WP-V2-AUTONOMY-KERNEL-01` is current branch-state T3 implementation on
+  `codex/wp-v2-autonomy-kernel-01`, from that exact base. Exact 21-created /
+  4-modified closure implements envelope/control schemas and fixtures, durable
+  authority migrations/store/role, CPW contract construction and active-wave
+  replay, with explicit SearchContract fixture bindings. Final validation and
+  PR evidence are pending in `docs/status_entries/WP-V2-AUTONOMY-KERNEL-01.md`.
+  No Stage 5B, runner/real holdout/canonical/candidate/protected/economic
+  activation. Hold for Side 22 exact-head review; no self-merge. The next
+  separately authorized dependency is `V2-RESEARCH-FACTORY-LOOP-01`.
 
 - Phase 1 is closed.
 - Phase 2 baseline is locked in `docs/onboarding/PHASE2_BASELINE.md`.
@@ -70,7 +71,7 @@ Startup read order:
   capability matrix, persistent-Bot target, and orchestration ownership.
   Neither decision activates autonomy or a runtime capability. LOCKED D2-026
   in `docs/architecture/2026-10-v2_autonomy_kernel_durable_authority.md` closes
-  durable authority/storage design only on accepted merge; it activates nothing.
+  merged durable authority/storage design; it activates nothing.
 - Current adoption-first migration architecture is locked in
   `docs/architecture/2026-09-adoption_first_migration_architecture_freeze.md`
   through CPW-MIG-00 and D2-019. Hermes owns future generic reasoning/runtime
@@ -132,8 +133,8 @@ Startup read order:
   proof records the accepted canary and physical acceptance; its F1/F2 capability
   proof creates no Stage 5B or scientific execution authority.
 - The prior narrow 01B implementation is no longer the main next destination.
-  After merged `EXTREME-HERMES-01`, the current docs-only D2-026 lock must merge
-  before Side 22 drafts executable `V2-AUTONOMY-KERNEL-01`. The later roadmap is
+  D2-026 is merged through PR #734; its separately authorized executable
+  `V2-AUTONOMY-KERNEL-01` is now branch-state implementation. The later roadmap is
   `V2-RESEARCH-FACTORY-LOOP-01` and
   `EXTREME-HERMES-02` Stage 5B/always-on activation. Scientific, protected,
   promotion, paper/live, credential, and capital boundaries remain unchanged.

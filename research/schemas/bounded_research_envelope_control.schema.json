@@ -1,0 +1,170 @@
+{
+  "$defs": {
+    "EnvelopeSuccessor": {
+      "additionalProperties": false,
+      "properties": {
+        "envelope_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$",
+          "title": "Envelope Id",
+          "type": "string"
+        },
+        "envelope_version": {
+          "exclusiveMinimum": 0,
+          "title": "Envelope Version",
+          "type": "integer"
+        },
+        "content_sha256": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Content Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "envelope_id",
+        "envelope_version",
+        "content_sha256"
+      ],
+      "title": "EnvelopeSuccessor",
+      "type": "object"
+    },
+    "NoAuthority": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_promotion": {
+          "const": false,
+          "title": "Candidate Promotion",
+          "type": "boolean"
+        },
+        "canonical_result_population": {
+          "const": false,
+          "title": "Canonical Result Population",
+          "type": "boolean"
+        },
+        "protected_runtime": {
+          "const": false,
+          "title": "Protected Runtime",
+          "type": "boolean"
+        },
+        "risk_changes": {
+          "const": false,
+          "title": "Risk Changes",
+          "type": "boolean"
+        },
+        "paper_live": {
+          "const": false,
+          "title": "Paper Live",
+          "type": "boolean"
+        },
+        "exchange_order": {
+          "const": false,
+          "title": "Exchange Order",
+          "type": "boolean"
+        },
+        "capital": {
+          "const": false,
+          "title": "Capital",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "candidate_promotion",
+        "canonical_result_population",
+        "protected_runtime",
+        "risk_changes",
+        "paper_live",
+        "exchange_order",
+        "capital"
+      ],
+      "title": "NoAuthority",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "cpw_bounded_research_envelope_control_v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "control_action_id": {
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$",
+      "title": "Control Action Id",
+      "type": "string"
+    },
+    "envelope_id": {
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$",
+      "title": "Envelope Id",
+      "type": "string"
+    },
+    "envelope_version": {
+      "exclusiveMinimum": 0,
+      "title": "Envelope Version",
+      "type": "integer"
+    },
+    "envelope_content_sha256": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "title": "Envelope Content Sha256",
+      "type": "string"
+    },
+    "repo_sha": {
+      "pattern": "^[0-9a-f]{40}$",
+      "title": "Repo Sha",
+      "type": "string"
+    },
+    "action": {
+      "enum": [
+        "revoke",
+        "replace"
+      ],
+      "title": "Action",
+      "type": "string"
+    },
+    "approved_by": {
+      "const": "Karl",
+      "title": "Approved By",
+      "type": "string"
+    },
+    "approved_at": {
+      "maxLength": 8192,
+      "minLength": 1,
+      "title": "Approved At",
+      "type": "string"
+    },
+    "reason": {
+      "maxLength": 8192,
+      "minLength": 1,
+      "title": "Reason",
+      "type": "string"
+    },
+    "successor": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/EnvelopeSuccessor"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "authority": {
+      "$ref": "#/$defs/NoAuthority"
+    }
+  },
+  "required": [
+    "schema_version",
+    "control_action_id",
+    "envelope_id",
+    "envelope_version",
+    "envelope_content_sha256",
+    "repo_sha",
+    "action",
+    "approved_by",
+    "approved_at",
+    "reason",
+    "successor",
+    "authority"
+  ],
+  "title": "EnvelopeControlAction",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

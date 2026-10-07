@@ -188,6 +188,12 @@ class SearchContract:
     policies: SearchPolicies
     campaign_proposals_before_search: int
     campaign_scientific_trials_before_search: int
+    envelope_id: str
+    envelope_version: int
+    envelope_content_sha256: str
+    contamination_domain_id: str
+    authority_lineage_version: int
+    authority_lineage_sha256: str
     authority: AuthoritySemantics = AuthoritySemantics()
 
     def __post_init__(self) -> None:
@@ -202,10 +208,18 @@ class SearchContract:
             "repo_sha": self.repo_sha,
             "strategy_spec_id": self.strategy_spec_id,
             "strategy_spec_hash": self.strategy_spec_hash,
+            "envelope_id": self.envelope_id,
+            "envelope_content_sha256": self.envelope_content_sha256,
+            "contamination_domain_id": self.contamination_domain_id,
+            "authority_lineage_sha256": self.authority_lineage_sha256,
         }
         missing = [name for name, value in required.items() if not value]
         if missing:
             raise SearchContractError(f"missing contract identities: {', '.join(missing)}")
+        if type(self.envelope_version) is not int or self.envelope_version <= 0:
+            raise SearchContractError("envelope version must be positive")
+        if type(self.authority_lineage_version) is not int or self.authority_lineage_version < 0:
+            raise SearchContractError("authority lineage version must be non-negative")
         if self.max_proposals <= 0 or self.max_scientific_trials <= 0:
             raise SearchContractError("proposal and scientific-trial budgets must be positive")
         if (

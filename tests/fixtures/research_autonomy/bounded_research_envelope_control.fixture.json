@@ -1,0 +1,22 @@
+{
+  "schema_version": "cpw_bounded_research_envelope_control_v1",
+  "control_action_id": "CONTROL-FIXTURE",
+  "envelope_id": "ENVELOPE-FIXTURE",
+  "envelope_version": 1,
+  "envelope_content_sha256": "sha256:75f99517eeedd629689dbc571ece582bddf42ee93570ec471c88a9581b94df37",
+  "repo_sha": "9d9f8a94405ded76bbef0163488b9a8e0596371a",
+  "action": "revoke",
+  "approved_by": "Karl",
+  "approved_at": "2026-10-07T01:00:00Z",
+  "reason": "synthetic control acceptance only",
+  "successor": null,
+  "authority": {
+    "candidate_promotion": false,
+    "canonical_result_population": false,
+    "protected_runtime": false,
+    "risk_changes": false,
+    "paper_live": false,
+    "exchange_order": false,
+    "capital": false
+  }
+}

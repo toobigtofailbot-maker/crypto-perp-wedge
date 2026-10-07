@@ -4,9 +4,8 @@ Controlling package: executable Revision 2. Exact base:
 `11214acfb6d8af44586c50089eb9965063a505ee`.
 Branch: `codex/wp-extreme-hermes-01-f1f2-canary-01`.
 
-Implementation is in progress. This preliminary record is not final physical
-acceptance, publication, or Side exact-head review evidence. All Cases A–K must
-pass before one PR is published. Self-merge is forbidden.
+Execution STOP at Case J. This record is failure evidence, not acceptance or
+Side exact-head review readiness. No PR is published. Self-merge is forbidden.
 
 ## Repo and upstream facts
 
@@ -44,13 +43,13 @@ The scratch-supported migration reached schema 46; F0 configuration was not
 migrated in place. F1/F2 deliberately allowlists the required research toolsets.
 OpenAI-native search is search-only. Browserbase uses built-in browser tools,
 backend off, no private/local fallback and no real profile. Live browser/search
-proof is pending; config text is not acceptance.
+proof passed at the physical-validation head; config text alone is not acceptance.
 
 The director inherits upstream s6 and reasoning runs as UID 10000. Its root
 filesystem is read-only, /run is an executable tmpfs required by s6, lazy
 installation and config migration are disabled. Its limited bootstrap caps
-support ownership and runtime UID/GID dropping; runtime capability verification
-remains part of final acceptance. No host ports or Docker socket are provided.
+support ownership and runtime UID/GID dropping; physical verification found the reasoning gateway
+at UID 10000 with zero effective capabilities. No host ports or Docker socket are provided.
 
 The repo-owned SSH sandbox has only an internal isolated execution bridge,
 an external named workspace, a public authorized-key volume, and a private
@@ -73,14 +72,15 @@ also declared as an external discovery directory using upstream-supported
 configuration. Curator/background consolidation is off. Two fresh profiles,
 research-scout and research-critic, were created with --no-skills, --no-alias
 and no cloning. Their external configs allow only memory/session-search; live
-headless model access, OAuth root fallback and isolation are pending.
+headless model access, OAuth root fallback and isolation passed after restart.
 
 Delegation is capped at two children / depth one, no orchestrator, no
-auto-approval, no inherited MCP toolsets. Its live bounded task is pending.
+auto-approval, no inherited MCP toolsets. The original progressive-disclosure task passed, but the repaired direct-schema
+configuration failed MCP inheritance containment in final Case J.
 HERMES-02 changes only its fixed executable to the inherited PATH command
 hermes; its exact argument vector, shell=False, timeout, single-call/session
 extraction and intent validation remain intact. Physical Prefect-worker proof
-and F0 rollback startup are still pending.
+and F0 rollback both passed at the physical-validation head.
 
 The first process-worker attempt failed closed because upstream progressive
 tool disclosure persisted a batched tool_call envelope that the unchanged
@@ -94,7 +94,7 @@ files, which the isolated SSH file tools correctly cannot read.
 
 ## Preliminary physical observations
 
-These are individual observations, not final Case A–K PASS declarations.
+The final case outcomes and the hard STOP are recorded below.
 
 - Terminal reported execution-sandbox, UID/GID 10001, /workspace. Actual
   write_file/read_file round-tripped a benign workspace file; execute_code
@@ -148,14 +148,15 @@ role were applied. Identity, read-only default, four-table SELECT and DML denial
 passed physically; three PostgreSQL integration tests passed unskipped. The
 container can reach the host loopback service through Docker Desktop's existing
 host.docker.internal route. No secret value is recorded.
-No PR has been published. Final Cases A–K and exact-head evidence are pending.
+No PR has been published. Case J fails; publication and full-release validation
+are halted by the package STOP.
 
 ## F0 preservation
 
 compose.f0.yaml is the exact pre-package Compose byte copy; config.yaml,
 SOUL.md and schedule_plan.json remain unchanged. Rollback keeps the original
 v2026.8.13 digest and Project-Evidence-only posture. F0 needs no Browserbase
-credential and requires no Hermes reasoning. Physical rollback remains a gate.
+credential and requires no Hermes reasoning. Physical rollback passed without model reasoning or Browserbase credentials.
 
 - `compose.f0.yaml` SHA-256: `0ba9dc88352c7d8b79da5e2a4a9b3eeb3c4b6127b858048516a7fa62a514b49a`.
 - `config/config.yaml` SHA-256: `7993c5fcdaa9df3a7c42a698a61d22b92feca49f83e08d714c159bb976326899`.
@@ -169,3 +170,88 @@ runtime/OMS/reconciliation/risk/overlay/safe-mode, paper/live, exchange/order,
 or capital authority. Search Governor and CPW retain their existing ownership.
 Prefect owns durable operational flow state only. Side 22 exact-head review
 is required; Codex does not declare merge readiness.
+
+## Final physical outcome and STOP
+
+Implementation/physical-validation head:
+`f5f9bac9f5a808e9201184386523028726f735de`.
+
+| Case | Result | Physical evidence |
+|---|---|---|
+| A | PASS | Stable source/digests and exact backport verified; derived image unchanged; 9 upstream adversarial tests passed. |
+| B | PASS | Live director inventory includes required research tools and excludes forbidden browser/Computer Use/install/Docker/broker/live tools. |
+| C | PASS | Actual terminal/file/Python run in the sandbox at UID 10001; path/credential/network denial repeated after restart; no published port/socket. |
+| D | PASS | Real Browserbase navigation/snapshot; private/metadata rejection; no local Chromium/profile; session released COMPLETED. |
+| E | PASS | Native Codex transport web_search sent; one completed provider search call received. |
+| F | PASS | Only the new inert CPW plugin; deterministic fixed response; no effectful handler/import. |
+| G | PASS | Raw MCP server inventory: 14 Project-Evidence tools and exactly one canary tool; no canary mounts/credentials/resources/prompts. |
+| H | PASS | Mutation ledger 0f6528eebda7 rolled back exact prior bytes; benign memory roundtrip cleaned; nine repo skill mounts physically read-only. |
+| I | PASS | Exactly two distinct fresh profiles persist after restart; live headless auth fallback works; only memory/session_search; no copied or inherited director credentials. |
+| J | FAIL | With tools.tool_search.enabled=off, a depth-1 leaf child's effective inventory includes Project-Evidence and canary MCP tools despite inherit_mcp_toolsets=false. Observer aborts before child execution. |
+| K | PASS | Real process-worker handoff passed strict extraction/cross-check; F0 rollback passed without model reasoning or Browserbase. |
+
+Successful handoff: flow `886ab651-66be-4485-9b29-11300b6a0738`, session
+`20261007_145141_8e70dd`. Exactly one invocation/session, one task, one target
+builder call and linked result. Only read_project_resource and the target
+builder were called. Request/repo/fingerprint/semantic hash checks passed;
+no successor flow or outbox artifact was created. Earlier attempts failed closed
+on the batched bridge envelope and on a native-resource-wrapper URI mismatch.
+
+Case J is a hard containment failure. The configured child remains a depth-1
+leaf with max_concurrent_children=2, but receives the 14 Project-Evidence tools,
+their two preserved resource wrappers, and canary_ping. No such child was allowed
+to execute a tool. No upstream scope patch was widened, no extraction rule was
+relaxed, and no provider/topology was substituted. Resolving this compatibility
+and containment interaction requires Side 22 direction; execution stopped.
+
+F1/F2 services are stopped. F0 runs the exact v2026.8.13 digest, UID 10000,
+old config/SOUL hashes, and the original Project-Evidence-only scope. Its
+model-visible progressive-disclosure wrappers are tool_search/tool_describe/
+tool_call; their underlying catalog contains the exact 14 explicit tools plus
+the two already-enabled MCP resource wrappers. No broad F1/F2 tool is available.
+Rollback performed zero Hermes reasoning invocations.
+
+Latest focused checks: 45 passed (one existing Pydantic warning). Earlier
+adjacent checks: 175 passed. PostgreSQL integration: 3 passed unskipped.
+The previously interrupted full-release run produced no accepted result;
+no new full-release run is claimed after the mandatory physical STOP.
+
+Browserbase PRESENT/VALIDATED; Hermes openai-codex OAuth READY/VALIDATED;
+required Research Memory/PostgreSQL variables READY/VALIDATED. Temporary
+user-scope Browserbase cleanup reminder issued: YES. No values are recorded.
+Existing PostgreSQL 17.10 tooling was reused; no binaries were installed.
+Prefect used a separate local-validation database on the same isolated cluster.
+Optional upstream disclosures: Browserbase residential proxies unavailable;
+tirith scanner unavailable, using upstream pattern fallback. No substitution.
+
+## Exact file closure
+
+The following is the complete base-to-implementation closure (A=create, M=modify).
+No protected, schema, query-layer, dependency-lock, or other forbidden path changed.
+
+```text
+A	docs/architecture/2026-10-extreme_hermes_f1f2_canary_implementation.md
+M	docs/project_status.md
+A	docs/status_entries/WP-EXTREME-HERMES-01.md
+A	tests/test_extreme_hermes_canaries.py
+M	tests/test_hermes_deployment_contract.py
+M	tests/test_prefect_hermes_research_intake.py
+A	tools/hermes/Dockerfile.canary-mcp
+A	tools/hermes/Dockerfile.execution-sandbox
+A	tools/hermes/Dockerfile.extreme
+M	tools/hermes/README.md
+A	tools/hermes/canary_mcp_server.py
+A	tools/hermes/canary_plugin/__init__.py
+A	tools/hermes/canary_plugin/plugin.yaml
+A	tools/hermes/compose.f0.yaml
+M	tools/hermes/compose.yaml
+A	tools/hermes/config/SOUL.f1f2.md
+A	tools/hermes/config/config.f1f2.yaml
+A	tools/hermes/execution_sandbox/entrypoint.sh
+A	tools/hermes/execution_sandbox/keygen.sh
+A	tools/hermes/execution_sandbox/sshd_config
+M	tools/hermes/start.ps1
+A	tools/hermes/upstream_patches/59559-tool-scope.patch
+M	tools/hermes/upstream_watch.json
+M	tools/prefect_integration/hermes_research_intake.py
+```

@@ -1,36 +1,37 @@
-# WP-EXTREME-HERMES-01 — Revision 2 in progress
+# WP-EXTREME-HERMES-01 — Revision 2 execution STOP
 
-Exact base: `11214acfb6d8af44586c50089eb9965063a505ee`.
+Base: `11214acfb6d8af44586c50089eb9965063a505ee`.
 Branch: `codex/wp-extreme-hermes-01-f1f2-canary-01`.
-Exact authorized closure: 16 created + 8 modified files.
+Implementation/physical head: `f5f9bac9f5a808e9201184386523028726f735de`.
+Scope: exact 16 created + 8 modified files; no forbidden tracked path changed.
 
-Implementation, pinned security backport, F0 preservation, sandbox and canaries
-are authored. Preliminary focused checks passed 45 tests, adjacent checks 175,
-and upstream patch checks 9. Sandbox terminal/file/Python, canary plugin/MCP,
-and external skill/memory rollback observations are recorded in
-`docs/architecture/2026-10-extreme_hermes_f1f2_canary_implementation.md`.
+Cases A-I passed. Case J FAILED: the direct-schema configuration needed to
+preserve strict HERMES-02 extraction gives a depth-1 leaf child Project-Evidence
+and canary MCP tools despite inherit_mcp_toolsets=false. The observer aborted
+before child execution. No scope/patch/extractor/provider/topology expansion.
 
-Browserbase variables are now PRESENT in the current process. A real session
-passed navigation/snapshot and private-address rejection, ran no local Chromium,
-and was released (provider status COMPLETED). Same branch/worktree retained.
-Hermes-managed openai-codex OAuth is READY in the isolated home. Live native
-search sent `web_search` and received a completed provider search call. Both
-fresh specialists passed headless OAuth access with only memory/session search,
-no copied auth state, stripped director credentials, and denied out-of-scope calls.
-One bounded delegation completed with a leaf child at depth 1, no inherited MCP,
-and a denied nested spawn. Karl authorized environment-only provisioning with
-the existing official PostgreSQL 17.10 Windows binaries. The isolated external
-cluster listens only on 127.0.0.1:60619, with separate research_memory_test and
-research_memory databases, SCRAM authentication and DPAPI-protected local DSNs.
-Repo migrations/bootstrap and the fixed reader-role script were applied.
-Read-only identity/default/SELECT/DML denial and container connectivity passed;
-the three Research Memory PostgreSQL integration tests passed unskipped.
-The same WP resumed from its database gate. Preliminary full-release
-was interrupted across restart and left no result; it is not a pass.
-All final Cases A–K, exact-head verification,
-physical HERMES-02 and rollback evidence remain required before publication.
+Case K passed: real Prefect process-worker flow
+886ab651-66be-4485-9b29-11300b6a0738 / session 20261007_145141_8e70dd had
+one invocation and one target call/result with strict request/repo/fingerprint/
+content-hash checks, no successor and no outbox write. F1/F2 is stopped; exact
+F0 image/config/SOUL and Project-Evidence-only rollback passed without reasoning
+or Browserbase credentials. Existing protocol/resource wrappers remain unchanged.
 
-No PR, final acceptance, review readiness or merge readiness is claimed.
-Self-merge is forbidden; hold the eventual PR for Side 22 exact-head review.
-No Stage 5B, autonomous scientific, canonical write, promotion, protected
-runtime/risk, paper/live, exchange/order or capital authority is gained.
+Focused 45 passed; earlier adjacent 175 passed; upstream patch 9 passed;
+Research Memory PostgreSQL 3 passed unskipped. Full-release has no accepted
+result: its preliminary run was interrupted; final execution stopped at Case J.
+
+Karl authorized isolated environment setup using existing official PostgreSQL
+17.10 Windows binaries. External loopback-only port 60619, SCRAM, separate
+research_memory_test/research_memory databases, repo migration/bootstrap, fixed
+reader role, SELECT/DML denial and container connectivity were validated.
+Credentials are DPAPI-protected outside the repo; no values are recorded.
+Browserbase PRESENT/VALIDATED; OAuth READY/VALIDATED; required PostgreSQL
+variables READY/VALIDATED. User-scope Browserbase cleanup reminder issued: YES.
+
+No PR/push, acceptance, merge readiness or Side exact-head review readiness is
+claimed. Side 22 direction is required on the exact Case J blocker.
+Self-merge remains forbidden. No Stage 5B, scientific/canonical/promotion,
+protected runtime/risk, paper/live, exchange/order or capital authority gained.
+See docs/architecture/2026-10-extreme_hermes_f1f2_canary_implementation.md for
+exact file closure, provenance, physical outcomes and environment disclosures.

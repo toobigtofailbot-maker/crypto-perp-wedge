@@ -22,12 +22,13 @@ Startup read order:
 
 ## Current Phase / Repo State
 
-- WP-EXTREME-HERMES-01 Revision 2 is in progress on its isolated package branch
-  from `11214acfb6d8af44586c50089eb9965063a505ee`. It preserves F0 and authors
-  a pinned F1/F2 capability canary within the exact 24-file closure. Physical
-  Cases A-K and full-release validation remain pending; nothing is accepted or
-  activated. See `docs/status_entries/WP-EXTREME-HERMES-01.md`. Side 22 exact-head
-  review is required after all acceptance gates and publication; no self-merge.
+- WP-EXTREME-HERMES-01 Revision 2 stopped on Case J at physical head
+  `f5f9bac9f5a808e9201184386523028726f735de`: direct tool schemas preserve
+  strict HERMES-02 extraction but expose MCP tools to a leaf child despite the
+  inheritance prohibition. Cases A-I and K passed; F1/F2 is stopped and exact F0
+  rollback passed. The exact 24-file branch remains unpublished, with no accepted
+  full-release result or authority activation. Side 22 direction is required.
+  See `docs/status_entries/WP-EXTREME-HERMES-01.md`; no self-merge.
 
 - Phase 1 is closed.
 - Phase 2 baseline is locked in `docs/onboarding/PHASE2_BASELINE.md`.

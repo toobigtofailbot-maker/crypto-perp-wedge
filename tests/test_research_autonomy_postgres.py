@@ -120,6 +120,13 @@ def test_initial_wave_retry_successor_and_reconnect(authority_db, tmp_path):
     assert after.budget.scientific_trials_used == governor.scientific_denominator
     assert after.lineage_version == initial.lineage_version + 1
     assert store.record_proposal_wave(contract.search_id, pre_snapshot=pre, requested_count=2, records=governor.proposal_records) == after
+    altered=json.loads(canonical_json([p.to_dict() for p in governor.proposal_records]))
+    altered[0]['params']['lookback']=float(altered[0]['params']['lookback'])
+    with pytest.raises(AuthorityConflict,match='divergence'):
+        store.record_proposal_wave(contract.search_id,pre_snapshot=pre,requested_count=2,records=altered)
+    with pytest.raises(AuthorityConflict,match='integer'):
+        store.record_proposal_wave(contract.search_id,pre_snapshot=pre,requested_count=True,records=governor.proposal_records)
+    assert store.load_snapshot(contract.campaign_id)==after
     trial = governor.proposal_records[0].scientific_trial_id
     store.record_software_attempt(trial, attempt_number=1)
     store.record_software_attempt(trial, attempt_number=2)

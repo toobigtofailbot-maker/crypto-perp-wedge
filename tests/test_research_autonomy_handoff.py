@@ -50,6 +50,15 @@ def test_active_wave_roundtrip_and_exact_replay(tmp_path):
     assert loaded.noncanonical and not loaded.runner_authority
 
 
+def test_rehashed_numeric_type_tamper_cannot_replay(tmp_path):
+    repo, store, _, handoff = handoff_fixture(tmp_path)
+    raw = handoff.model_dump(mode="json")
+    raw["proposal_records"][0]["params"]["lookback"] = float(raw["proposal_records"][0]["params"]["lookback"])
+    raw["content_sha256"] = content_hash({k:v for k,v in raw.items() if k != "content_sha256"})
+    with pytest.raises(ValueError, match="divergence"):
+        replay_handoff(raw, store=store, repo_root=repo)
+
+
 @pytest.mark.parametrize("field", ["authority_lineage_sha256", "contract_hash", "resulting_denominator", "proposal_records"])
 def test_tampered_hash_and_rehashed_binding_fail(tmp_path, field):
     repo, store, _, handoff = handoff_fixture(tmp_path)

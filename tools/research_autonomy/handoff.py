@@ -124,6 +124,6 @@ def replay_handoff(handoff, *, store, repo_root: Path):
     governor.propose_wave(handoff.requested_wave_count)
     actual = json.loads(canonical_json([p.to_dict() for p in governor.proposal_records[before:]]))
     expected = [p.model_dump(mode="json") for p in handoff.proposal_records]
-    if actual != expected or governor.scientific_denominator != handoff.resulting_denominator:
+    if canonical_json(actual) != canonical_json(expected) or governor.scientific_denominator != handoff.resulting_denominator:
         raise ValueError("exact proposal-wave replay divergence")
     return governor

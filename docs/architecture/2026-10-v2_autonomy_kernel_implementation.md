@@ -62,6 +62,8 @@ new events and conflicting input fails closed. Audited outcomes retain the
 original accounting/holdout snapshot without a self-referential lineage hash;
 replay restores that event's version/hash, even after later transactions.
 Current authority is always read separately from the durable current state.
+Input and proposal replay comparisons use canonical JSON, preserving numeric
+and boolean types; mathematical equality cannot substitute for exact identity.
 
 Search open reserves local proposal/trial ceilings before returning its frozen
 contract. Campaign used plus reserved cannot exceed its immutable ceilings.

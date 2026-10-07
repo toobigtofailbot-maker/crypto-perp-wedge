@@ -56,7 +56,7 @@ class ResearchAuthorityStore:
             stored = json.loads(row["normalized_payload"])
             if content_hash(stored) != row["event_content_sha256"]:
                 raise AuthorityConflict("idempotency audit hash mismatch")
-            if row["event_type"] != event_type or stored["input"] != json.loads(canonical_json(payload)):
+            if row["event_type"] != event_type or canonical_json(stored["input"]) != canonical_json(payload):
                 raise AuthorityConflict("conflicting idempotency replay")
             return stored
         return None
@@ -256,6 +256,8 @@ class ResearchAuthorityStore:
     def record_proposal_wave(self, search_id, *, pre_snapshot, requested_count, records):
         from tools.research_search.governor import SearchGovernor
 
+        if type(requested_count) is not int:
+            raise AuthorityConflict("explicit integer wave count required")
         records = json.loads(canonical_json([r.to_dict() if hasattr(r, "to_dict") else r for r in records]))
         with self._transaction() as conn:
             contract = self._load_contract(conn, search_id)
@@ -264,7 +266,7 @@ class ResearchAuthorityStore:
             before = replay.proposal_count
             replay.propose_wave(requested_count)
             expected = json.loads(canonical_json([r.to_dict() for r in replay.proposal_records[before:]]))
-            if expected != records:
+            if canonical_json(expected) != canonical_json(records):
                 raise AuthorityConflict("Governor proposal replay divergence")
             payload = {"search_id": search_id, "wave_id": records[0]["wave_id"],
                 "pre_snapshot_hash": pre_snapshot["snapshot_hash"], "requested_count": requested_count,

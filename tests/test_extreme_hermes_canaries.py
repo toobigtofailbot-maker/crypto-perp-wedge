@@ -85,6 +85,9 @@ def test_locked_config_and_non_authoritative_surface():
     assert config["delegation"]["max_concurrent_children"] == config["delegation"]["oneshot_max_children"] == 2
     assert config["delegation"]["orchestrator_enabled"] is False
     assert config["delegation"]["subagent_auto_approve"] is False
+    # This upstream knob only affects explicitly narrowed internal children.
+    # Normal delegate_task inherits approved parent tools; physical Case J proves subset.
+    assert "inherit_mcp_toolsets" not in config["delegation"]
     tools = config["platform_toolsets"]["cli"]
     assert config["toolsets"] == tools
     assert not {"all", "*", "web", "web_extract", "browser_exec", "computer_use", "cronjob", "kanban", "project", "desktop_ui"} & set(tools)
@@ -103,6 +106,14 @@ def test_locked_config_and_non_authoritative_surface():
     for name in ["BROWSERBASE_API_KEY", "BROWSERBASE_PROJECT_ID"]:
         assert env[name] == "${" + name + ":-}"
     assert env["HERMES_WRITE_SAFE_ROOT"] == "/opt/data:/workspace"
+    assert {name: env[name] for name in ("TMPDIR", "TMP", "TEMP")} == {
+        "TMPDIR": "/tmp", "TMP": "/tmp", "TEMP": "/tmp"}
+    director = compose["services"]["hermes"]
+    assert "/tmp:size=256m,mode=1777" in director["tmpfs"]
+    assert env["HERMES_HOME"] == "/opt/data"
+    assert "${HERMES_PROJECT_HOME:?HERMES_PROJECT_HOME is required}:/opt/data:rw" in director["volumes"]
+    assert not director.get("ports")
+    assert not any("docker.sock" in mount or ":/project" in mount for mount in director["volumes"])
     assert "/run:size=64m,mode=755,exec" in compose["services"]["hermes"]["tmpfs"]
     assert env["TERMINAL_SSH_KEY"] == "/run/cpw-sandbox-ssh/id_ed25519"
     assert env["TERMINAL_SSH_HOST"] == "execution-sandbox"

@@ -121,7 +121,6 @@ delegation:
   orchestrator_enabled: false
   oneshot_max_children: 2
   subagent_auto_approve: false
-  inherit_mcp_toolsets: false
 skills:
   create_dir: /opt/data/writable-skills
   external_dirs:

@@ -50,6 +50,9 @@ services:
     - /run:size=64m,mode=755,exec
     environment:
       HERMES_HOME: /opt/data
+      TMPDIR: /tmp
+      TMP: /tmp
+      TEMP: /tmp
       HERMES_MODEL: ${HERMES_MODEL:?HERMES_MODEL is required}
       HERMES_WRITE_SAFE_ROOT: /opt/data:/workspace
       HERMES_SKIP_CONFIG_MIGRATION: '1'

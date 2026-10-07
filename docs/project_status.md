@@ -22,13 +22,14 @@ Startup read order:
 
 ## Current Phase / Repo State
 
-- WP-EXTREME-HERMES-01 Revision 2 stopped on Case J at physical head
-  `f5f9bac9f5a808e9201184386523028726f735de`: direct tool schemas preserve
-  strict HERMES-02 extraction but expose MCP tools to a leaf child despite the
-  inheritance prohibition. Cases A-I and K passed; F1/F2 is stopped and exact F0
-  rollback passed. The exact 24-file branch remains unpublished, with no accepted
-  full-release result or authority activation. Side 22 direction is required.
-  See `docs/status_entries/WP-EXTREME-HERMES-01.md`; no self-merge.
+- WP-EXTREME-HERMES-01 Revision 2 completed Cases A-K and fresh full-release
+  at semantic head `cba25971c8365f331d2e2240fb639949de1ff3cc`. Exact 16-created /
+  8-modified closure; no protected or scientific authority activation. Case J
+  proved parent/leaf subset; native /tmp placement repaired the Windows-backed
+  SSH control-socket defect without an upstream patch or topology change.
+  F1/F2 stopped; exact F0 rollback passed. Hold for Side 22 exact-head review;
+  no self-merge or Codex merge-readiness declaration.
+  See `docs/status_entries/WP-EXTREME-HERMES-01.md`.
 
 - Phase 1 is closed.
 - Phase 2 baseline is locked in `docs/onboarding/PHASE2_BASELINE.md`.

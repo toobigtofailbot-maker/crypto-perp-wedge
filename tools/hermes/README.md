@@ -31,6 +31,13 @@ remote sessions with built-in tools and private/local fallback disabled.
 Search is OpenAI-native and search-only. The existing nine CPW skills remain
 read-only; writable skills/memory live solely in the external home.
 
+F1/F2 sets TMPDIR, TMP and TEMP to /tmp on its existing 256 MiB container tmpfs.
+HERMES_HOME remains external and persistent. Linux ControlMaster sockets stay
+off the Windows-backed home; multiplexing remains enabled. Ordinary delegated
+leaves inherit approved parent tools/MCP minus hard child blocks. Case J requires
+strict subset, credential/filesystem containment and one completed task, rather
+than zero inherited approved MCP tools.
+
 During physical acceptance create exactly these fresh profiles:
 
 ```text

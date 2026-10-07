@@ -1,37 +1,28 @@
-# WP-EXTREME-HERMES-01 — Revision 2 execution STOP
+# WP-EXTREME-HERMES-01 — Revision 2 validation record
 
 Base: `11214acfb6d8af44586c50089eb9965063a505ee`.
 Branch: `codex/wp-extreme-hermes-01-f1f2-canary-01`.
-Implementation/physical head: `f5f9bac9f5a808e9201184386523028726f735de`.
-Scope: exact 16 created + 8 modified files; no forbidden tracked path changed.
+Final semantic/validation head: `cba25971c8365f331d2e2240fb639949de1ff3cc`.
+Exact 16-created + 8-modified closure; forbidden paths unchanged.
 
-Cases A-I passed. Case J FAILED: the direct-schema configuration needed to
-preserve strict HERMES-02 extraction gives a depth-1 leaf child Project-Evidence
-and canary MCP tools despite inherit_mcp_toolsets=false. The observer aborted
-before child execution. No scope/patch/extractor/provider/topology expansion.
+Cases A-K PASS. B/C/J/K refreshed after the temp correction; unchanged A/D/E/H/I
+evidence retained per Side 22. Case J: leaf 44 tools subset of parent 47; same
+17 MCP tools; credential/filesystem containment; one completed task; nested and
+over-two-child requests denied. Original zero-MCP failure was an expectation
+defect. Windows-backed ControlMaster socket failure repaired with TMPDIR/TMP/TEMP
+on existing /tmp tmpfs, without upstream patch, multiplexing disablement or topology change.
 
-Case K passed: real Prefect process-worker flow
-886ab651-66be-4485-9b29-11300b6a0738 / session 20261007_145141_8e70dd had
-one invocation and one target call/result with strict request/repo/fingerprint/
-content-hash checks, no successor and no outbox write. F1/F2 is stopped; exact
-F0 image/config/SOUL and Project-Evidence-only rollback passed without reasoning
-or Browserbase credentials. Existing protocol/resource wrappers remain unchanged.
+K flow 75322716-6834-4f1e-83be-3ccf2608fec0 / session 20261007_162055_a172fb:
+one invocation/target-call/result, strict identity/hash checks, no successor/outbox.
+Prior extra read-only skill-call attempt is not acceptance. F1/F2 stopped; exact
+F0 image/config/SOUL/PE-only rollback passed without reasoning or Browserbase.
+Focused 45; adjacent 178 including live PostgreSQL 3; upstream 9 passed.
+Fresh full-release PASS at `cba25971c8365f331d2e2240fb639949de1ff3cc`: all 56 command results passed, all 48 full-release-balanced-v1 shards passed, exact tracked test-file coverage verified, zero failures.
+Credentials validated by presence/readiness only. Existing PostgreSQL 17.10
+reused; isolated SCRAM databases and reader physical checks passed. Browserbase
+cleanup reminder: YES. No secret values tracked.
 
-Focused 45 passed; earlier adjacent 175 passed; upstream patch 9 passed;
-Research Memory PostgreSQL 3 passed unskipped. Full-release has no accepted
-result: its preliminary run was interrupted; final execution stopped at Case J.
-
-Karl authorized isolated environment setup using existing official PostgreSQL
-17.10 Windows binaries. External loopback-only port 60619, SCRAM, separate
-research_memory_test/research_memory databases, repo migration/bootstrap, fixed
-reader role, SELECT/DML denial and container connectivity were validated.
-Credentials are DPAPI-protected outside the repo; no values are recorded.
-Browserbase PRESENT/VALIDATED; OAuth READY/VALIDATED; required PostgreSQL
-variables READY/VALIDATED. User-scope Browserbase cleanup reminder issued: YES.
-
-No PR/push, acceptance, merge readiness or Side exact-head review readiness is
-claimed. Side 22 direction is required on the exact Case J blocker.
-Self-merge remains forbidden. No Stage 5B, scientific/canonical/promotion,
-protected runtime/risk, paper/live, exchange/order or capital authority gained.
-See docs/architecture/2026-10-extreme_hermes_f1f2_canary_implementation.md for
-exact file closure, provenance, physical outcomes and environment disclosures.
+Hold for Side 22 exact-head review; no Codex merge-readiness declaration or self-merge.
+No Stage 5B, scientific/canonical/promotion, protected runtime/risk, paper/live,
+exchange/order or capital authority. Full record/closure:
+docs/architecture/2026-10-extreme_hermes_f1f2_canary_implementation.md.

@@ -1,11 +1,11 @@
 # WP-EXTREME-HERMES-01 — F1/F2 implementation and acceptance record
 
-Controlling package: executable Revision 2. Exact base:
-`11214acfb6d8af44586c50089eb9965063a505ee`.
+Controlling package: executable Revision 2 and Side 22 Case J / SSH-temp follow-ups.
+Base: `11214acfb6d8af44586c50089eb9965063a505ee`.
 Branch: `codex/wp-extreme-hermes-01-f1f2-canary-01`.
-
-Execution STOP at Case J. This record is failure evidence, not acceptance or
-Side exact-head review readiness. No PR is published. Self-merge is forbidden.
+Final semantic implementation/validation head: `cba25971c8365f331d2e2240fb639949de1ff3cc`.
+Final documentation commit records evidence only. Hold for Side 22 exact-head
+review; Codex does not declare merge readiness. Self-merge is forbidden.
 
 ## Repo and upstream facts
 
@@ -74,82 +74,97 @@ research-scout and research-critic, were created with --no-skills, --no-alias
 and no cloning. Their external configs allow only memory/session-search; live
 headless model access, OAuth root fallback and isolation passed after restart.
 
-Delegation is capped at two children / depth one, no orchestrator, no
-auto-approval, no inherited MCP toolsets. The original progressive-disclosure task passed, but the repaired direct-schema
-configuration failed MCP inheritance containment in final Case J.
-HERMES-02 changes only its fixed executable to the inherited PATH command
-hermes; its exact argument vector, shell=False, timeout, single-call/session
-extraction and intent validation remain intact. Physical Prefect-worker proof
-and F0 rollback both passed at the physical-validation head.
 
-The first process-worker attempt failed closed because upstream progressive
-tool disclosure persisted a batched tool_call envelope that the unchanged
-strict HERMES-02 extractor does not accept. The supported
-tools.tool_search.enabled: off setting advertises the same allowlisted schemas
-directly, avoiding that envelope without changing the fixed command, persisted
-result extraction, call-count checks or CPW semantics. Affected acceptance is
-rerun at the repaired head. A small existing evidence resource is used for the
-bounded canary instead of spilling the large status resource into director
-files, which the isolated SSH file tools correctly cannot read.
+Delegation: max children two, depth one, leaf role, orchestrator and auto-approval
+off. Normal model-facing delegate_task inherits approved parent tools minus hard
+child blocks. Parent 47 / child 44 tools; no child-only tool or MCP tool; both have
+17 approved MCP tools. delegate_task, memory and skill_manage are removed. Nested
+spawning and over-two-child requests are denied. Model auth remains the same
+openai-codex OAuth class. Browserbase remains backend-only for the explicitly
+inherited approved browser surface. Sandbox execution has no director credentials,
+Research Memory DSNs, SSH private-key mount, protected repo or Docker surface.
 
-## Preliminary physical observations
+The original zero-MCP Case J assertion was an expectation defect, not proof of
+widening. inherit_mcp_toolsets=false applies only to explicitly narrowed internal
+children, not normal delegate_task; it was removed as a misleading global control.
+No delegation source patch or per-child toolset surgery was introduced.
 
-The final case outcomes and the hard STOP are recorded below.
+The normal-CLI SSH failure was reproduced as a linked Unix-socket failure under
+Windows-backed /opt/data/cache/scratch; equivalent sockets worked in native /tmp.
+F1/F2 Compose now sets TMPDIR/TMP/TEMP=/tmp, retaining the existing 256 MiB tmpfs.
+Mechanical proof confirmed temp variables, tmpfs, tempfile.gettempdir(), and normal
+SSHEnvironment ControlMaster sockets under /tmp/hermes-ssh. HERMES_HOME remains
+external persistent state. No upstream SSH patch, multiplexing disablement,
+mount/port expansion, dependency, provider or topology change was needed.
 
-- Terminal reported execution-sandbox, UID/GID 10001, /workspace. Actual
-  write_file/read_file round-tripped a benign workspace file; execute_code
-  reported remote:true, the sandbox hostname and UID 10001. Cleanup removed
-  the file.
-- Sandbox paths /opt/data, /opt/hermes, /project, director SSH private volume
-  and Docker socket were absent. Named credential environment variables were
-  absent. Connections to public 1.1.1.1, metadata 169.254.169.254, representative
-  RFC1918 endpoints, host.docker.internal and Project-Evidence failed.
-- Plugin and MCP canaries returned the fixed deterministic object. Runtime
-  discovery showed the existing 14 explicit Project-Evidence tools, its two
-  preserved resource wrappers, and one additional canary MCP tool. Browser
-  definitions remain absent until its live credential gate is satisfied.
-- Writable skill create/read/patch worked. Ledger entry 5d8b0b63010c recorded
-  the patch; hermes curator rollback 5d8b0b63010c --yes restored exact prior
-  bytes. The skill was then deleted. Audit/rollback entries remain in external
-  state only.
-- The real memory tool with its agent-loop store wrote/read back one benign
-  item from external state and removed it, restoring the empty prior entries.
-- SSH host-key changes failed closed during an intentional sandbox rebuild;
-  server keys now persist in their dedicated root-only volume. Strict host-key
-  checking was retained. Sandbox/director restart preserved the host identity; terminal/file/Python and network-denial checks passed again. Both profile homes persisted.
+HERMES-02 changes only its fixed executable to inherited PATH command hermes.
+Argument vector, shell=False, 300-second timeout, single-call/session extraction
+and request/repo/fingerprint/content-hash checks remain unchanged. Supported
+tools.tool_search.enabled=off advertises the same allowlisted direct schemas,
+avoiding the batched disclosure envelope rejected by the strict extractor.
 
-## Validation and gates
+## Physical acceptance and finality
 
-Focused deployment/canary/HERMES-02 checks passed 45 tests (one existing MCP
-Pydantic settings warning). Adjacent Hermes/Project-Evidence/research-memory
-checks passed 175 tests. Ruff passed and start.ps1 parsed without errors.
-The exact two ignored H-004 corpus inputs were verified against runbook sizes
-and SHA-256, copied byte-for-byte, and kept untracked under h004-clean.
-The preliminary full-release process was interrupted across the environment
-restart and left no result; it is not a pass. Full-release must be rerun at the
-accepted implementation head after live acceptance.
+B/C/J and process-worker K plus rollback passed at the final semantic head.
+A/D/E/H/I evidence at f5f9bac9f5a808e9201184386523028726f735de remains valid per
+the Side 22 follow-up: the correction does not change relevant source/image,
+browser/search, skill/memory or profile semantics. Plugin/MCP/container boundaries
+were also refreshed. Memory/skill atomic writes use temporary files beside
+their persistent targets; profile creation stages beside its target. These
+exercised persistence paths do not depend on process TMPDIR.
 
-Browserbase variables are PRESENT in the current execution process. A real
-Browserbase session navigated to example.com and returned a snapshot. Localhost,
-IPv4/IPv6 loopback, RFC1918 and metadata attempts failed closed. No local
-Chromium or real browser-profile snapshot was observed. The session was released
-(provider status COMPLETED, HTTP 200). Basic stealth worked; residential proxies
-were unavailable, an optional feature disclosure. Live inventory excludes
-browser_exec, Computer Use, catalog management and web_extract.
-Refreshed origin/main is still the exact base, no PR is open, and latest stable
-is still v2026.9.24. Hermes-managed openai-codex OAuth is READY and live native
-search completed. Both headless specialists passed with stripped director
-credentials; one leaf delegation completed at depth 1 with nested spawning
-denied and no inherited MCP. Karl authorized reuse of existing official
-PostgreSQL 17.10 Windows binaries for an isolated external loopback-only cluster
-on port 60619. Separate research_memory_test/research_memory databases use SCRAM;
-local DSNs are DPAPI-protected. Repo migrations/bootstrap and the fixed reader
-role were applied. Identity, read-only default, four-table SELECT and DML denial
-passed physically; three PostgreSQL integration tests passed unskipped. The
-container can reach the host loopback service through Docker Desktop's existing
-host.docker.internal route. No secret value is recorded.
-No PR has been published. Case J fails; publication and full-release validation
-are halted by the package STOP.
+| Case | Result | Evidence |
+|---|---|---|
+| A | PASS | Exact stable source/digests and five-file backport; unchanged runtime image; 9 upstream adversarial tests. |
+| B | PASS | Live 47-tool director inventory; forbidden browser/Computer Use/install/Docker/broker/live tools absent. |
+| C | PASS | Normal SSH under /tmp; terminal/file/Python in sandbox UID 10001; private paths/credentials absent; public/private/metadata/host/PE network denied. |
+| D | PASS | Real Browserbase navigation/snapshot; private/loopback/metadata rejection; no local Chromium/profile; session released COMPLETED. |
+| E | PASS | Native Codex search transport with one completed provider search. |
+| F | PASS | Only inert CPW plugin, fixed deterministic response, no effectful handler/import. |
+| G | PASS | 14 PE tools plus two preserved resource wrappers; one canary MCP tool, no canary resources/prompts/mounts/credentials. |
+| H | PASS | Ledger 0f6528eebda7 rollback restored exact bytes; benign memory cleaned; nine read-only skill mounts reverified. |
+| I | PASS | Exactly two fresh distinct persistent profiles; headless OAuth fallback; narrow memory/session_search without director credentials. |
+| J | PASS | One real leaf task completed; strict 44-of-47 tool and same-17 MCP subset; credential/filesystem proof passed before task; nested/over-two-child denied. |
+| K | PASS | Real process-worker handoff, strict extraction, no successor/outbox; exact F0 rollback without reasoning/Browserbase. |
+
+Accepted K flow: 75322716-6834-4f1e-83be-3ccf2608fec0.
+Session: 20261007_162055_a172fb. One invocation/session, one task, one target
+builder call/result. Only read_project_resource and the builder were called.
+An earlier attempt completed strict extraction but violated the validation
+fixture's two-tool constraint by reading approved read-only cpw-domain-tools;
+it is not counted as acceptance. The explicit transport-only retry passed the
+unchanged assertion. No production code or gate was weakened.
+
+F1/F2 is stopped and exact F0 is active. F0 model-facing progressive wrappers
+are tool_search/tool_describe/tool_call, backed only by the original 14 PE tools
+and two existing resource wrappers. No broad F1/F2 tool; zero rollback reasoning.
+
+## Validation and environment
+
+Focused 45 passed (one existing Pydantic warning). Adjacent 178 passed including
+three unskipped live PostgreSQL tests. Prior upstream backport tests: 9 passed.
+Fresh full-release PASS at `cba25971c8365f331d2e2240fb639949de1ff3cc`: all 56 command results passed, all 48 full-release-balanced-v1 shards passed, exact tracked test-file coverage verified, zero failures.
+The earlier interrupted run had no accepted result. The first complete run
+failed five tests because the worktree lacked the canonical D4 normalized CSV.
+Two existing repo-provenance-named copies matched committed SHA-256
+c30fd7f07fdf513cdaf234b1bee4eff03b430a479cc572a2cc8b57394f22e0ab.
+The 220128-row file was copied byte-for-byte into the existing ignored validation
+path; no data was generated or substituted. A fresh full-release supersedes
+those earlier non-accepted runs.
+Exact 16-created + 8-modified closure and forbidden-path preservation checked
+against the required base; git diff --check passes. No tracked semantic change
+follows this validation head.
+
+Existing official PostgreSQL 17.10 Windows binaries were reused for an isolated
+external 127.0.0.1:60619 SCRAM cluster. Separate research_memory_test/research_memory,
+repo migrations/bootstrap, fixed hermes_research_memory_reader, default read-only,
+four-table SELECT and INSERT/UPDATE/DELETE denial passed physically. DSNs remain
+DPAPI-protected outside the repo and injected into validation processes. Prefect
+used its separate local-validation database on the same isolated cluster.
+Browserbase PRESENT/VALIDATED; OAuth READY/VALIDATED; Research Memory DSNs
+READY/VALIDATED. User-scope Browserbase cleanup reminder: YES. No secret value
+recorded. Optional residential proxies unavailable; tirith unavailable with
+upstream pattern fallback. No substitution.
 
 ## F0 preservation
 
@@ -170,59 +185,6 @@ runtime/OMS/reconciliation/risk/overlay/safe-mode, paper/live, exchange/order,
 or capital authority. Search Governor and CPW retain their existing ownership.
 Prefect owns durable operational flow state only. Side 22 exact-head review
 is required; Codex does not declare merge readiness.
-
-## Final physical outcome and STOP
-
-Implementation/physical-validation head:
-`f5f9bac9f5a808e9201184386523028726f735de`.
-
-| Case | Result | Physical evidence |
-|---|---|---|
-| A | PASS | Stable source/digests and exact backport verified; derived image unchanged; 9 upstream adversarial tests passed. |
-| B | PASS | Live director inventory includes required research tools and excludes forbidden browser/Computer Use/install/Docker/broker/live tools. |
-| C | PASS | Actual terminal/file/Python run in the sandbox at UID 10001; path/credential/network denial repeated after restart; no published port/socket. |
-| D | PASS | Real Browserbase navigation/snapshot; private/metadata rejection; no local Chromium/profile; session released COMPLETED. |
-| E | PASS | Native Codex transport web_search sent; one completed provider search call received. |
-| F | PASS | Only the new inert CPW plugin; deterministic fixed response; no effectful handler/import. |
-| G | PASS | Raw MCP server inventory: 14 Project-Evidence tools and exactly one canary tool; no canary mounts/credentials/resources/prompts. |
-| H | PASS | Mutation ledger 0f6528eebda7 rolled back exact prior bytes; benign memory roundtrip cleaned; nine repo skill mounts physically read-only. |
-| I | PASS | Exactly two distinct fresh profiles persist after restart; live headless auth fallback works; only memory/session_search; no copied or inherited director credentials. |
-| J | FAIL | With tools.tool_search.enabled=off, a depth-1 leaf child's effective inventory includes Project-Evidence and canary MCP tools despite inherit_mcp_toolsets=false. Observer aborts before child execution. |
-| K | PASS | Real process-worker handoff passed strict extraction/cross-check; F0 rollback passed without model reasoning or Browserbase. |
-
-Successful handoff: flow `886ab651-66be-4485-9b29-11300b6a0738`, session
-`20261007_145141_8e70dd`. Exactly one invocation/session, one task, one target
-builder call and linked result. Only read_project_resource and the target
-builder were called. Request/repo/fingerprint/semantic hash checks passed;
-no successor flow or outbox artifact was created. Earlier attempts failed closed
-on the batched bridge envelope and on a native-resource-wrapper URI mismatch.
-
-Case J is a hard containment failure. The configured child remains a depth-1
-leaf with max_concurrent_children=2, but receives the 14 Project-Evidence tools,
-their two preserved resource wrappers, and canary_ping. No such child was allowed
-to execute a tool. No upstream scope patch was widened, no extraction rule was
-relaxed, and no provider/topology was substituted. Resolving this compatibility
-and containment interaction requires Side 22 direction; execution stopped.
-
-F1/F2 services are stopped. F0 runs the exact v2026.8.13 digest, UID 10000,
-old config/SOUL hashes, and the original Project-Evidence-only scope. Its
-model-visible progressive-disclosure wrappers are tool_search/tool_describe/
-tool_call; their underlying catalog contains the exact 14 explicit tools plus
-the two already-enabled MCP resource wrappers. No broad F1/F2 tool is available.
-Rollback performed zero Hermes reasoning invocations.
-
-Latest focused checks: 45 passed (one existing Pydantic warning). Earlier
-adjacent checks: 175 passed. PostgreSQL integration: 3 passed unskipped.
-The previously interrupted full-release run produced no accepted result;
-no new full-release run is claimed after the mandatory physical STOP.
-
-Browserbase PRESENT/VALIDATED; Hermes openai-codex OAuth READY/VALIDATED;
-required Research Memory/PostgreSQL variables READY/VALIDATED. Temporary
-user-scope Browserbase cleanup reminder issued: YES. No values are recorded.
-Existing PostgreSQL 17.10 tooling was reused; no binaries were installed.
-Prefect used a separate local-validation database on the same isolated cluster.
-Optional upstream disclosures: Browserbase residential proxies unavailable;
-tirith scanner unavailable, using upstream pattern fallback. No substitution.
 
 ## Exact file closure
 

@@ -125,12 +125,15 @@ def test_initial_wave_retry_successor_and_reconnect(authority_db, tmp_path):
     store.record_software_attempt(trial, attempt_number=2)
     retried = store.load_snapshot(contract.campaign_id)
     assert retried.budget.scientific_trials_used == after.budget.scientific_trials_used
+    assert store.record_proposal_wave(contract.search_id, pre_snapshot=pre, requested_count=2, records=governor.proposal_records) == after
+    assert store.load_snapshot(contract.campaign_id) == retried
     with pytest.raises(AuthorityConflict):
         store.record_software_attempt(trial, attempt_number=3)
     closed = store.finalize_search(contract.search_id)
     assert closed.budget.reserved_proposals == closed.budget.reserved_trials == 0
     successor = request.model_copy(update={"search_id":"SEARCH-SUCCESSOR", "parent_search_id":contract.search_id, "reason_for_change":"bounded fixture continuation"})
     child = builder.build(intent, envelope, successor)
+    assert store.finalize_search(contract.search_id) == closed
     assert child.parent_search_id == contract.search_id
     assert child.campaign_proposals_before_search == closed.budget.proposals_used
     assert child.campaign_scientific_trials_before_search == closed.budget.scientific_trials_used
@@ -182,6 +185,8 @@ def test_holdout_consumption_propagates_without_freshness_restore(authority_db,t
     assert isolated.state=='attempted_isolated' and not isolated.contaminated
     consumed=store.record_holdout_event(contract.search_id,event_id='HOLDOUT-ESCAPE',informative_escape=True)
     assert consumed.state=='consumed' and consumed.contaminated
+    assert store.record_holdout_event(contract.search_id,event_id='HOLDOUT-ATTEMPT',informative_escape=False)==isolated
+    assert store.load_snapshot(contract.campaign_id).holdout==consumed
     store.finalize_search(contract.search_id)
     successor=request.model_copy(update={"search_id":"SEARCH-CONTAMINATED","parent_search_id":contract.search_id,"reason_for_change":"cannot restore freshness"})
     with pytest.raises(ValueError,match='contamination'):

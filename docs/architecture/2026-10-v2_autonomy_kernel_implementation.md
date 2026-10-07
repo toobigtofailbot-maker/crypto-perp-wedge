@@ -58,7 +58,10 @@ Each accepted transaction appends one event with deterministic input, type,
 campaign, sequence, previous hash, content hash and transaction timestamp.
 Current campaign version/hash points to the last event. Database guards and
 recovery reads reject discontinuity; exact idempotency replays do not append
-new events and conflicting input fails closed.
+new events and conflicting input fails closed. Audited outcomes retain the
+original accounting/holdout snapshot without a self-referential lineage hash;
+replay restores that event's version/hash, even after later transactions.
+Current authority is always read separately from the durable current state.
 
 Search open reserves local proposal/trial ceilings before returning its frozen
 contract. Campaign used plus reserved cannot exceed its immutable ceilings.

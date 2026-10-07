@@ -54,18 +54,30 @@ class ResearchAuthorityStore:
         row = conn.execute("SELECT * FROM research_authority.authority_audit WHERE event_id=%s", (event_id,)).fetchone()
         if row:
             stored = json.loads(row["normalized_payload"])
+            if content_hash(stored) != row["event_content_sha256"]:
+                raise AuthorityConflict("idempotency audit hash mismatch")
             if row["event_type"] != event_type or stored["input"] != json.loads(canonical_json(payload)):
                 raise AuthorityConflict("conflicting idempotency replay")
             return stored
         return None
 
     @staticmethod
+    def _prior_outcome(event):
+        return DurableLineageSnapshot.model_validate_json(canonical_json({
+            **event["outcome"], "lineage_version": event["event_sequence"],
+            "lineage_sha256": content_hash(event),
+        }))
+
+    @staticmethod
     def _audit(conn, *, event_id, event_type, payload, campaign=None):
         sequence = campaign["lineage_version"] + 1 if campaign else 1
         previous = campaign["lineage_sha256"] if campaign else ZERO_HASH
+        outcome = None
+        if campaign:
+            outcome = ResearchAuthorityStore._state_snapshot(conn, campaign["campaign_id"]).model_dump(mode="json", exclude={"lineage_version", "lineage_sha256"})
         normalized = canonical_json({"campaign_id": campaign["campaign_id"] if campaign else None,
             "event_type": event_type, "event_sequence": sequence,
-            "previous_lineage_sha256": previous, "input": payload})
+            "previous_lineage_sha256": previous, "input": payload, "outcome": outcome})
         digest = content_hash(json.loads(normalized))
         conn.execute("""INSERT INTO research_authority.authority_audit
             (event_id,campaign_id,event_type,event_sequence,previous_lineage_sha256,normalized_payload,event_content_sha256)
@@ -111,7 +123,10 @@ class ResearchAuthorityStore:
         payload = {"campaign_id": campaign_id, "envelope": [envelope.envelope_id, envelope.envelope_version, envelope.content_sha256], "domain": contamination_domain_id, "holdout_id": holdout_id, "hypothesis_fingerprint": hypothesis_fingerprint}
         with self._transaction() as conn:
             self._active_envelope(conn, envelope)
-            if not self._replay(conn, f"campaign:{campaign_id}", "open_campaign", payload):
+            replay = self._replay(conn, f"campaign:{campaign_id}", "open_campaign", payload)
+            if replay:
+                return self._prior_outcome(replay)
+            if not replay:
                 b = envelope.budgets
                 conn.execute("""INSERT INTO research_authority.campaign_state
                     (campaign_id,envelope_id,envelope_version,envelope_content_sha256,contamination_domain_id,holdout_id,hypothesis_fingerprint,proposal_ceiling,trial_ceiling,search_ceiling,lineage_sha256,state)
@@ -132,6 +147,11 @@ class ResearchAuthorityStore:
             previous = row["event_content_sha256"]
         if c["lineage_version"] != len(events) or c["lineage_sha256"] != previous:
             raise AuthorityConflict("durable current lineage mismatch")
+        return ResearchAuthorityStore._state_snapshot(conn, campaign_id)
+
+    @staticmethod
+    def _state_snapshot(conn, campaign_id):
+        c = ResearchAuthorityStore._campaign(conn, campaign_id)
         h = conn.execute("SELECT * FROM research_authority.holdout_state WHERE contamination_domain_id=%s AND holdout_id=%s", (c["contamination_domain_id"], c["holdout_id"])).fetchone()
         contaminated = conn.execute("SELECT EXISTS(SELECT 1 FROM research_authority.contamination_edge WHERE contamination_domain_id=%s) AS contaminated", (c["contamination_domain_id"],)).fetchone()["contaminated"]
         return DurableLineageSnapshot(
@@ -250,8 +270,9 @@ class ResearchAuthorityStore:
                 "pre_snapshot_hash": pre_snapshot["snapshot_hash"], "requested_count": requested_count,
                 "proposal_identities": [{key: r[key] for key in ("proposal_id", "proposal_sequence", "params_fingerprint", "status", "scientific_trial_id", "contract_hash")} for r in records]}
             event_id = f"wave:{search_id}:{records[0]['wave_id']}"
-            if self._replay(conn, event_id, "proposal_wave", payload):
-                return self._snapshot(conn, contract.campaign_id)
+            replayed = self._replay(conn, event_id, "proposal_wave", payload)
+            if replayed:
+                return self._prior_outcome(replayed)
             c = self._campaign(conn, contract.campaign_id)
             s = conn.execute("SELECT state FROM research_authority.search_lineage WHERE search_id=%s", (search_id,)).fetchone()
             if s["state"] != "open":
@@ -301,7 +322,10 @@ class ResearchAuthorityStore:
         with self._transaction() as conn:
             contract = self._load_contract(conn, search_id)
             payload = {"search_id": search_id, "contract_hash": contract.contract_hash}
-            if not self._replay(conn, f"finalize:{search_id}", "finalize_search", payload):
+            replayed = self._replay(conn, f"finalize:{search_id}", "finalize_search", payload)
+            if replayed:
+                return self._prior_outcome(replayed)
+            if not replayed:
                 c = self._campaign(conn, contract.campaign_id)
                 r = conn.execute("SELECT * FROM research_authority.search_budget_reservation WHERE search_id=%s FOR UPDATE", (search_id,)).fetchone()
                 conn.execute("UPDATE research_authority.search_lineage SET state='finalized' WHERE search_id=%s", (search_id,))
@@ -318,8 +342,9 @@ class ResearchAuthorityStore:
             c = self._campaign(conn, contract.campaign_id)
             payload = {"search_id": search_id, "campaign_id": contract.campaign_id, "domain": c["contamination_domain_id"], "holdout_id": c["holdout_id"], "informative_escape": informative_escape}
             kind = "holdout_escape" if informative_escape else "holdout_attempt"
-            if self._replay(conn, event_id, kind, payload):
-                return self._snapshot(conn, contract.campaign_id).holdout
+            replayed = self._replay(conn, event_id, kind, payload)
+            if replayed:
+                return self._prior_outcome(replayed).holdout
             state = conn.execute("SELECT state FROM research_authority.holdout_state WHERE contamination_domain_id=%s AND holdout_id=%s FOR UPDATE", (c["contamination_domain_id"], c["holdout_id"])).fetchone()["state"]
             if state == "consumed":
                 raise AuthorityConflict("holdout permanently consumed")

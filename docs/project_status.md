@@ -22,6 +22,15 @@ Startup read order:
 
 ## Current Phase / Repo State
 
+- WP-EXTREME-HERMES-01 Revision 2 completed Cases A-K and fresh full-release
+  at semantic head `cba25971c8365f331d2e2240fb639949de1ff3cc`. Exact 16-created /
+  8-modified closure; no protected or scientific authority activation. Case J
+  proved parent/leaf subset; native /tmp placement repaired the Windows-backed
+  SSH control-socket defect without an upstream patch or topology change.
+  F1/F2 stopped; exact F0 rollback passed. Hold for Side 22 exact-head review;
+  no self-merge or Codex merge-readiness declaration.
+  See `docs/status_entries/WP-EXTREME-HERMES-01.md`.
+
 - Phase 1 is closed.
 - Phase 2 baseline is locked in `docs/onboarding/PHASE2_BASELINE.md`.
 - WP-1a Batch 1, WP-1a Batch 2 corrected, WP-1b, WP-1c, the current-state-anchor package, OPS-02, WP-2b, WP-2c, WP-3b, WP-3c, WP-4a, WP-4b1, WP-4b2, WP-5a, and WP-5b are merged to `main`.

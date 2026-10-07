@@ -28,7 +28,7 @@ SKILLS = {
 
 
 def test_compose_pins_hermes_and_mounts_no_protected_project_family() -> None:
-    compose = (HERMES_ROOT / "compose.yaml").read_text(encoding="utf-8")
+    compose = (HERMES_ROOT / "compose.f0.yaml").read_text(encoding="utf-8")
 
     assert HERMES_IMAGE in compose
     assert "ports:" not in compose
@@ -118,7 +118,7 @@ def test_exact_nine_skills_are_readonly_fail_closed_and_sha_anchored() -> None:
 
 
 def test_domain_proposal_prepare_and_intake_expose_exactly_fourteen_mcp_tools() -> None:
-    compose = (HERMES_ROOT / "compose.yaml").read_text(encoding="utf-8")
+    compose = (HERMES_ROOT / "compose.f0.yaml").read_text(encoding="utf-8")
     config = (HERMES_ROOT / "config/config.yaml").read_text(encoding="utf-8")
 
     assert compose.count("./skills/typed-project-proposal:") == 1
@@ -145,7 +145,7 @@ def test_domain_proposal_prepare_and_intake_expose_exactly_fourteen_mcp_tools() 
 
 
 def test_domain_resource_mounts_are_exact_readonly_and_hermes_has_no_repo_mount() -> None:
-    compose = (HERMES_ROOT / "compose.yaml").read_text(encoding="utf-8")
+    compose = (HERMES_ROOT / "compose.f0.yaml").read_text(encoding="utf-8")
     for path in (
         "IND-CATALOG-0001.indicator_catalog.json",
         "PERP-DERIVED-FEATURE-AVAILABILITY-0001.json",
@@ -214,7 +214,7 @@ def test_docker_compose_contract_if_docker_is_available() -> None:
     standalone_compose = docker_path.with_name("docker-compose.exe")
     command = [str(standalone_compose)] if standalone_compose.is_file() else [docker, "compose"]
     result = subprocess.run(
-        [*command, "-f", str(HERMES_ROOT / "compose.yaml"), "config", "--quiet"],
+        [*command, "-f", str(HERMES_ROOT / "compose.f0.yaml"), "config", "--quiet"],
         cwd=REPO_ROOT,
         env={
             "PATH": str(docker_path.parent),

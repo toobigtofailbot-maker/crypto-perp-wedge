@@ -1,0 +1,138 @@
+_config_version: 46
+tools:
+  tool_search:
+    enabled: 'off'
+model:
+  provider: openai-codex
+  default: ${HERMES_MODEL}
+agent:
+  max_turns: 30
+  disabled_toolsets:
+  - vision
+  - image_gen
+  - video_gen
+  - video
+  - tts
+  - todo
+  - cronjob
+  - clarify
+  - messaging
+  - homeassistant
+  - spotify
+  - discord
+  - discord_admin
+  - rl
+  - computer_use
+  - context_engine
+  - desktop_ui
+  - project
+  - kanban
+  - x_search
+  - yuanbao
+  coding_context: 'off'
+platform_toolsets:
+  cli:
+  - search
+  - browser
+  - terminal
+  - file
+  - code_execution
+  - memory
+  - session_search
+  - skills
+  - delegation
+  - mcp-project-evidence
+  - mcp-cpw-canary
+  - cpw-canary
+terminal:
+  backend: ssh
+  cwd: /workspace
+  home_mode: profile
+  env_passthrough: []
+  credential_files: []
+mcp_servers:
+  project-evidence:
+    url: http://project-evidence:8765/mcp
+    tools:
+      include:
+      - project_evidence_manifest
+      - list_project_resources
+      - read_project_resource
+      - run_evidence_query
+      - lookup_research_memory
+      - check_dependency_security_watch
+      - submit_proposal
+      - submit_prepared_payload
+      - cpw_assess_research_capabilities
+      - cpw_formalize_strategy_draft
+      - cpw_build_preregistration_packet
+      - cpw_build_approval_requirement
+      - cpw_validate_trial_denominator
+      - cpw_build_bounded_research_intent
+      prompts: false
+      resources: true
+    sampling:
+      enabled: false
+    elicitation:
+      enabled: false
+    supports_parallel_tool_calls: false
+  cpw-canary:
+    url: http://canary-mcp:8766/mcp
+    tools:
+      include:
+      - canary_ping
+      prompts: false
+      resources: false
+    sampling:
+      enabled: false
+    elicitation:
+      enabled: false
+    supports_parallel_tool_calls: false
+plugins:
+  enabled:
+  - cpw-canary
+  entries:
+    cpw-canary:
+      allow_tool_override: false
+toolsets:
+- search
+- browser
+- terminal
+- file
+- code_execution
+- memory
+- session_search
+- skills
+- delegation
+- mcp-project-evidence
+- mcp-cpw-canary
+- cpw-canary
+web:
+  search_backend: openai-native
+browser:
+  cloud_provider: browserbase
+  backend: 'off'
+  auto_local_for_private_urls: false
+  allow_private_urls: false
+  use_real_profile: false
+delegation:
+  max_concurrent_children: 2
+  max_spawn_depth: 1
+  orchestrator_enabled: false
+  oneshot_max_children: 2
+  subagent_auto_approve: false
+skills:
+  create_dir: /opt/data/writable-skills
+  external_dirs:
+  - /opt/data/writable-skills
+  project_discovery: false
+  trusted_project_dirs: []
+curator:
+  enabled: false
+  consolidate: false
+  backup:
+    enabled: true
+    keep: 2
+auxiliary:
+  background_review:
+    enabled: false

@@ -1,3 +1,70 @@
+# Extreme Hermes F1/F2 canary and exact F0 rollback
+
+The active Compose builds the exact stable `v2026.9.24 / v0.21.5` image plus
+upstream `59559b858fb1a4578f51029112099462a431c3f1`. This package is a bounded
+non-capital capability proof. Physical Cases A-K and full-release validation
+remain mandatory before publication; no Stage 5B or scientific autonomy is active.
+
+Select `start.ps1 -Mode F1F2` explicitly with a fresh external home. The launcher
+requires Browserbase variables in its process, `.no-bundled-skills`, the exact
+package branch/base, and Docker/Compose. Supply secrets only through the existing
+operator environment/auth store. At the first missing live credential gate use
+WP Revision 2 §6.3. No DSN/token/key belongs in Git or operator output.
+
+`-Mode F0` selects the unchanged `compose.f0.yaml`, old image, config and SOUL.
+Stop the F1F2 deployment before starting F0. F0 needs no Browserbase secret.
+`-InstallSchedules` is rejected for F1F2; schedule_plan.json remains inert there.
+
+The director inherits upstream s6 supervision and drops runtime reasoning to
+UID 10000. Bootstrap-only CHOWN/DAC_OVERRIDE/FOWNER/SETUID/SETGID capabilities
+support volume ownership and that drop; runtime acceptance must confirm it.
+The SSH sandbox begins with ALL capabilities dropped and adds only CHOWN,
+SETUID, SETGID and SYS_CHROOT for workspace ownership,
+sshd privilege separation and unprivileged login. Acceptance must verify each
+is necessary. There is no SYS_ADMIN or Docker socket. SSH receives public key
+material only, port 2222 is internal, and the cpw home is /workspace.
+
+Both canary and execution bridges are internal with gateway mode `isolated`:
+no host bridge IP/default egress route. The sandbox attaches only to execution.
+Hermes gets the private key read-only; keygen has no network. Browserbase runs
+remote sessions with built-in tools and private/local fallback disabled.
+Search is OpenAI-native and search-only. The existing nine CPW skills remain
+read-only; writable skills/memory live solely in the external home.
+
+F1/F2 sets TMPDIR, TMP and TEMP to /tmp on its existing 256 MiB container tmpfs.
+HERMES_HOME remains external and persistent. Linux ControlMaster sockets stay
+off the Windows-backed home; multiplexing remains enabled. Ordinary delegated
+leaves inherit approved parent tools/MCP minus hard child blocks. Case J requires
+strict subset, credential/filesystem containment and one completed task, rather
+than zero inherited approved MCP tools.
+
+During physical acceptance create exactly these fresh profiles:
+
+```text
+hermes profile create research-scout --no-skills
+hermes profile create research-critic --no-skills
+```
+
+Use no clone/clone-all, channel credentials or static API-key mirroring. Author
+narrow profile role/configuration in external state, permit only model OAuth root
+fallback, and verify no Browserbase/SSH/Research Memory/broker/live credential
+is reachable. Verify persistence after restart and headless access. Profile and
+delegation containment require live proof; documentation is not that proof.
+
+For headless specialist execution, strip director-only credentials from the
+child process environment before selecting the profile. This preserves the
+upstream model OAuth root fallback without copying auth state into profiles:
+
+```text
+docker compose -f tools/hermes/compose.yaml exec -T --user 10000:10000 hermes env -u BROWSERBASE_API_KEY -u BROWSERBASE_PROJECT_ID -u TERMINAL_SSH_KEY -u TERMINAL_SSH_HOST -u TERMINAL_SSH_USER -u TERMINAL_SSH_PORT -u RESEARCH_MEMORY_READONLY_DSN -u OPENAI_API_KEY hermes -p research-scout chat -q "Bounded non-authoritative research question" --quiet --source tool
+```
+
+Use the same command with `research-critic` for the second specialist. Their
+external configurations allow only memory and session search; acceptance must
+also check that credentials are absent and out-of-scope calls are denied.
+
+The following sections retain the historical F0 deployment description.
+
 # Hermes H0/H1, H2/H2.5, and Typed CPW Domain Tools
 
 This directory is the repo-owned deployment/configuration surface for pinned
@@ -95,6 +162,7 @@ external Hermes home. The deployment does not require or read
 
 ```powershell
 .\tools\hermes\start.ps1 `
+  -Mode F0 `
   -HermesProjectHome C:\Hermes\crypto-perp-wedge `
   -HermesModel '<Codex model available to the authenticated plan>' `
   -ResearchMemoryReadOnlyDsn $env:RESEARCH_MEMORY_READONLY_DSN `

@@ -313,7 +313,7 @@ def test_fixed_subprocess_vector_success_and_session_hash_exclusion(
     result = invoke_hermes_once.fn(_request())
     command = captured["command"]
     assert command[:2] == ["docker", "compose"]
-    assert command[4:9] == ["exec", "-T", "hermes", "/opt/hermes/hermes", "chat"]
+    assert command[4:9] == ["exec", "-T", "hermes", "hermes", "chat"]
     assert command[-3:] == ["--quiet", "--source", "tool"]
     assert captured["shell"] is False
     assert "LOCALAPPDATA" in captured["env"]

@@ -1,0 +1,403 @@
+diff --git a/gateway/run_agent_cache.py b/gateway/run_agent_cache.py
+index 22db90dbb0a8..279579b6c74a 100644
+--- a/gateway/run_agent_cache.py
++++ b/gateway/run_agent_cache.py
+@@ -98,7 +98,7 @@ def _memory_provider_identity_signature(cls, provider_name: Any) -> dict[str, An
+     def _agent_config_signature(
+         model: str, runtime: dict, enabled_toolsets: list, ephemeral_prompt: str,
+         cache_keys: dict | None = None, user_id: str | None = None, user_id_alt: str | None = None,
+-        skip_context_files: bool = False,
++        skip_context_files: bool = False, disabled_toolsets: list | None = None,
+     ) -> str:
+         """Stable key from agent config: change → cached AIAgent rebuilt; unchanged → reused (frozen
+         prompt + schemas for cache hits). ``user_id`` / ``user_id_alt`` participate because Honcho
+@@ -113,6 +113,12 @@ def _agent_config_signature(
+         causing the second user's messages to be attributed to the first user's resolved Honcho peer. This
+         broke #27371's per-user-peer contract in multi-user gateways. Per-user agent rebuilds in shared
+         threads trade prompt-cache warmth for correct memory attribution.
++
++        ``disabled_toolsets`` participates for the same reason ``enabled_toolsets`` does: ``AIAgent``
++        freezes its tool surface and its own toolset fields at construction, so a grant that narrowed
++        only through the disabled list (``agent.disabled_toolsets`` in config) must rebuild the agent
++        rather than reuse the one cached under the wider grant — otherwise the disabled tool stays
++        admitted for the life of the session (#121089).
+         """
+         import hashlib, json as _j
+         # Fingerprint the FULL credential, not a short prefix: OAuth/JWT-style tokens often share a
+@@ -126,6 +132,7 @@ def _agent_config_signature(
+                 runtime.get("requested_provider", ""), runtime.get("api_mode", ""),
+                 sorted((runtime.get("capabilities") or {}).items()),
+                 sorted(enabled_toolsets) if enabled_toolsets else [],
++                sorted(disabled_toolsets) if disabled_toolsets else [],
+                 # reasoning_config excluded — set per-message on the cached agent; no prompt/tool effect.
+                 ephemeral_prompt or "",
+                 sorted((cache_keys or {}).items()),
+diff --git a/gateway/run_turn_runner.py b/gateway/run_turn_runner.py
+index 1b2e2c0bd31b..fd70c84d728f 100644
+--- a/gateway/run_turn_runner.py
++++ b/gateway/run_turn_runner.py
+@@ -1141,6 +1141,7 @@ def _resolve_turn_agent(self, turn_route, platform_key, combined_ephemeral, max_
+             user_id=getattr(ctx.source, "user_id", None),
+             user_id_alt=getattr(ctx.source, "user_id_alt", None),
+             skip_context_files=skip_context_files,
++            disabled_toolsets=ctx.disabled_toolsets,
+         )
+         cache_lock = getattr(runner, "_agent_cache_lock", None)
+         cache = getattr(runner, "_agent_cache", None)
+diff --git a/model_tools.py b/model_tools.py
+index 9a068d5a1b42..ba824e853963 100644
+--- a/model_tools.py
++++ b/model_tools.py
+@@ -882,8 +882,8 @@ def handle_function_call(
+     task_id isolates terminal/browser sessions; user_task feeds browser_snapshot.
+     enabled_tools picks execute_code's sandbox tools (default: the process-global
+     ``_last_resolved_tool_names``). skip_pre_tool_call_hook: caller already fired
+-    it (single-fire contract). enabled/disabled_toolsets scope the Tool Search
+-    bridge catalog to this session's grant (None = unrestricted).
++    it (single-fire contract). enabled/disabled_toolsets scope this session's tool
++    grant — bridge and direct calls alike (None = unrestricted).
+     """
+     function_args = coerce_tool_args(function_name, function_args)
+     if not isinstance(function_args, dict):
+@@ -937,6 +937,17 @@ def _emit(result: Any, **extra: Any) -> Any:
+         if function_name in _AGENT_LOOP_TOOLS:
+             return tool_error(f"{function_name} must be handled by the agent loop")
+
++        # Session toolset scope binds direct calls exactly like the Tool Search
++        # bridge: a scoped session (e.g. a gateway platform without the terminal
++        # toolset) must not execute tools outside its grant even when the model
++        # emits the call directly instead of via tool_call (#121089). Dynamic
++        # connector names carry their own scope path above and at dispatch.
++        if (enabled_toolsets is not None or disabled_toolsets) and not is_connector_name(function_name):
++            if function_name not in _select_tool_names(enabled_toolsets, disabled_toolsets, quiet_mode=True):
++                return _emit(tool_error(
++                    f"'{function_name}' is not available in this session. "
++                    "Use tool_search to find tools you can call."))
++
+         function_args, blocked = _pre_dispatch_guards(function_name, function_args, skip_pre_tool_call_hook, ids, trace)
+         if blocked is not None:
+             result, error_type, error_message = blocked
+diff --git a/tests/gateway/test_gateway_turn_toolset_scope.py b/tests/gateway/test_gateway_turn_toolset_scope.py
+new file mode 100644
+index 000000000000..637162d06983
+--- /dev/null
++++ b/tests/gateway/test_gateway_turn_toolset_scope.py
+@@ -0,0 +1,230 @@
++"""Gateway turns cannot run tools outside the session's toolset grant (#121089).
++
++The field report is a Telegram session saved as ``[file, skills, vision]`` with
++``terminal`` disabled that still reached host shell execution. This module drives
++that boundary end to end instead of calling the dispatcher directly: an isolated
++profile home writes the reporter's config, the turn grant is resolved by the real
++``GatewayRunner._resolve_turn_toolsets``, a real ``AIAgent`` is built from that
++grant, and a model-emitted ``terminal`` call is fed through the real
++``validate_tool_calls`` + ``AIAgent._execute_tool_calls`` executor — with an
++in-scope ``read_file`` call as the control. ``agent/tool_executor.py`` forwards
++``agent.enabled_toolsets`` / ``agent.disabled_toolsets`` into
++``model_tools.handle_function_call``, so this is the same chain a gateway turn
++runs.
++
++Covered gate: the gateway agent path, fresh and cached. Not covered (pinned as a
++characterization in ``test_absent_platform_key_grants_every_toolset``): a session
++whose profile config never reaches the gateway, which is a separate decision.
++"""
++
++import json
++from types import SimpleNamespace
++
++import pytest
++
++import gateway.run as gateway_run
++from gateway.run import GatewayRunner, _gateway_config_home, _load_gateway_config
++
++REPORTER_CONFIG = """platform_toolsets:
++  telegram: [file, skills, vision]
++agent:
++  disabled_toolsets: [terminal]
++"""
++
++
++class _Source:
++    platform = "telegram"
++    chat_id = "telegram:4242"
++    user_id = "4242"
++    user_id_alt = None
++    user_name = "reporter"
++    chat_name = "reporter"
++    chat_type = "private"
++    thread_id = None
++
++
++@pytest.fixture
++def isolated_profile(tmp_path, monkeypatch):
++    """A profile home the gateway can actually read, isolated per test.
++
++    ``gateway.run`` caches ``_hermes_home`` at import time; production resolves the
++    effective config through it, so the gateway sees a different profile whenever
++    it is wrong — assert on that identity before asserting on tool grants.
++    """
++    monkeypatch.setattr(gateway_run, "_hermes_home", tmp_path, raising=False)
++    return tmp_path
++
++
++def _runner():
++    runner = object.__new__(GatewayRunner)
++    runner._delivery_adapter_for = lambda source: None
++    return runner
++
++
++def _write_profile(home, text=REPORTER_CONFIG):
++    (home / "config.yaml").write_text(text, encoding="utf-8")
++
++
++def _turn_grant(home, text=REPORTER_CONFIG):
++    _write_profile(home, text)
++    return GatewayRunner._resolve_turn_toolsets(
++        _runner(), _load_gateway_config(), _Source(), "telegram",
++    )
++
++
++def _tool_call(name, arguments, call_id):
++    return SimpleNamespace(
++        id=call_id, type="function",
++        function=SimpleNamespace(name=name, arguments=json.dumps(arguments)),
++    )
++
++
++def _scoped_agent(enabled, disabled):
++    from run_agent import AIAgent
++
++    return AIAgent(
++        api_key="test-key", base_url="http://127.0.0.1:9/v1", model="test-model",
++        provider="custom", quiet_mode=True, skip_context_files=True, skip_memory=True,
++        enabled_toolsets=list(enabled), disabled_toolsets=list(disabled) if disabled else None,
++        max_iterations=1,
++    )
++
++
++def test_turn_grant_binds_to_the_profile_home_and_excludes_terminal(isolated_profile):
++    _write_profile(isolated_profile)
++
++    # Identity read-back: the gateway's effective config home is the profile just
++    # written, so a wrong-home binding cannot masquerade as a grant fix.
++    assert _gateway_config_home() == isolated_profile
++    loaded = _load_gateway_config()
++    assert loaded["platform_toolsets"]["telegram"] == ["file", "skills", "vision"]
++    assert loaded["agent"]["disabled_toolsets"] == ["terminal"]
++
++    enabled, disabled = GatewayRunner._resolve_turn_toolsets(
++        _runner(), loaded, _Source(), "telegram",
++    )
++    assert enabled == ["file", "skills", "vision"]
++    assert disabled == ["terminal"]
++
++
++def test_scoped_turn_refuses_model_emitted_terminal_call(isolated_profile, monkeypatch):
++    enabled, disabled = _turn_grant(isolated_profile)
++    agent = _scoped_agent(enabled, disabled)
++    assert "terminal" not in agent.valid_tool_names
++    assert "read_file" in agent.valid_tool_names  # control is admitted
++
++    dispatched, reached_dispatcher = [], []
++    import model_tools
++    import tools.registry as registry_module
++
++    real_handle = model_tools.handle_function_call
++
++    def _recording_handle(name, args, *a, **kw):
++        reached_dispatcher.append(name)
++        return real_handle(name, args, *a, **kw)
++
++    monkeypatch.setattr(model_tools, "handle_function_call", _recording_handle)
++    monkeypatch.setattr(
++        registry_module.registry, "dispatch",
++        lambda name, args, **kw: (dispatched.append(name), '{"ok": true}')[1],
++    )
++
++    from agent.conversation_loop import _invalid_tool_name_error_content
++    from agent.message_metadata import append_message
++    from agent.message_sanitization import coalesce_tool_call_id
++    from agent.turn_tool_validation import validate_tool_calls
++
++    assistant_message = SimpleNamespace(content=None, model="test-model", tool_calls=[
++        _tool_call("terminal", {"command": "id"}, "call_terminal"),
++        _tool_call("read_file", {"path": "notes.txt"}, "call_control"),
++    ])
++    messages = [{"role": "user", "content": "run id"}]
++
++    verdict = validate_tool_calls(
++        agent, assistant_message, "tool_calls", messages=messages,
++        conversation_history=[], api_call_count=1, effective_task_id="task",
++    )
++    # A mixed batch proceeds with the invalid call error-resulted and dropped —
++    # same handling agent/turn_tool_round.py::run_tool_round applies before execution.
++    assert verdict.action == "ok" and verdict.mixed_invalid_batch is True
++    invalid = [tc for tc in assistant_message.tool_calls if tc.function.name not in agent.valid_tool_names]
++    assert [tc.function.name for tc in invalid] == ["terminal"]
++    for tc in invalid:
++        append_message(messages, {
++            "role": "tool", "name": tc.function.name, "tool_call_id": coalesce_tool_call_id(tc),
++            "content": _invalid_tool_name_error_content(tc.function.name, agent.valid_tool_names),
++        })
++    assistant_message.tool_calls = [
++        tc for tc in assistant_message.tool_calls if tc.function.name in agent.valid_tool_names
++    ]
++
++    agent._execute_tool_calls(assistant_message, messages, "task", 1)
++
++    assert dispatched == ["read_file"], f"executor dispatched {dispatched}"
++    assert "terminal" not in reached_dispatcher, "the refusal must happen before dispatch"
++    refusal = next(m["content"] for m in messages if m.get("name") == "terminal")
++    # On a freshly built agent the admission layer refuses first and names the tool —
++    # the dispatcher guard's message below is what a session that admitted the name
++    # (stale cached agent, restored transcript) sees instead.
++    assert "terminal" in refusal and "does not exist" in refusal
++
++    # The dispatcher guard is the second layer: the same grant, the call past
++    # admission, and still no registry dispatch.
++    dispatched.clear()
++    direct = json.loads(real_handle(
++        "terminal", {"command": "id"}, "task",
++        enabled_tools=list(agent.valid_tool_names),
++        skip_pre_tool_call_hook=True, skip_tool_request_middleware=True,
++        skip_tool_execution_middleware=True,
++        enabled_toolsets=agent.enabled_toolsets, disabled_toolsets=agent.disabled_toolsets,
++    ))
++    assert dispatched == []
++    assert "not available in this session" in direct["error"]
++
++
++def test_cached_agent_grant_is_invalidated_when_disabled_toolsets_change():
++    """A cached agent is only rebuilt when the cache key changes.
++
++    ``AIAgent`` freezes ``valid_tool_names`` (and its own toolset fields) at
++    construction, so a grant that narrowed via ``disabled_toolsets`` must not reuse
++    the agent cached under the wider grant — otherwise a tool the config disabled
++    stays admitted for the life of the session.
++    """
++    runtime = {"api_key": "test-key", "base_url": "http://127.0.0.1:9/v1", "provider": "custom"}
++    enabled = ["file", "skills", "vision", "terminal"]
++
++    wide = GatewayRunner._agent_config_signature("test-model", runtime, enabled, "")
++    narrow = GatewayRunner._agent_config_signature(
++        "test-model", runtime, enabled, "", disabled_toolsets=["terminal"],
++    )
++    assert wide != narrow
++
++    stable = GatewayRunner._agent_config_signature(
++        "test-model", runtime, enabled, "", disabled_toolsets=["terminal"],
++    )
++    assert stable == narrow  # unchanged grant ⇒ reuse, no needless rebuild
++
++
++def test_absent_platform_key_grants_every_toolset(isolated_profile):
++    """Characterization, not endorsement.
++
++    With nothing to read, ``platform_toolsets`` resolution returns every toolset —
++    ``terminal`` included — so a session whose profile config never reaches the
++    gateway is granted shell execution no matter what this fix does downstream.
++    ``disabled_toolsets`` still subtracts (see the second half), which is why the
++    reported config would be refused at every layer once it is actually read.
++    """
++    _write_profile(isolated_profile, "model:\n  default: test-model\n")
++    enabled, disabled = _turn_grant(isolated_profile, "model:\n  default: test-model\n")
++    assert disabled is None
++    assert "terminal" in enabled
++    import model_tools
++
++    assert "terminal" in model_tools._select_tool_names(enabled, disabled, quiet_mode=True)
++
++    _write_profile(isolated_profile, "agent:\n  disabled_toolsets: [terminal]\n")
++    enabled_disabled, disabled = _turn_grant(isolated_profile, "agent:\n  disabled_toolsets: [terminal]\n")
++    # _get_platform_tools already subtracts the disabled set from the platform list,
++    # so the disabled half holds even when no platform_toolsets entry was readable.
++    assert disabled == ["terminal"]
++    assert "terminal" not in model_tools._select_tool_names(enabled_disabled, disabled, quiet_mode=True)
+diff --git a/tests/tools/test_direct_tool_scope_enforcement.py b/tests/tools/test_direct_tool_scope_enforcement.py
+new file mode 100644
+index 000000000000..a5de3462bc0a
+--- /dev/null
++++ b/tests/tools/test_direct_tool_scope_enforcement.py
+@@ -0,0 +1,82 @@
++"""Direct tool calls must honor the session toolset scope (#121089).
++
++``platform_toolsets`` / ``disabled_toolsets`` hid restricted tools from the
++advertised definitions, but ``handle_function_call`` only scoped the Tool
++Search bridge (``tool_search`` / ``tool_call``). A direct call such as
++``terminal(...)`` executed regardless of scope, so a platform configured
++without the terminal toolset (e.g. Telegram with ``[file, skills, vision]``)
++could still run shell commands.
++"""
++
++import json
++
++import model_tools
++from model_tools import handle_function_call
++
++RESTRICTED_ENABLED = ["file", "skills", "vision"]
++RESTRICTED_DISABLED = ["terminal"]
++
++_SCOPE_KWARGS = dict(
++    skip_pre_tool_call_hook=True,
++    skip_tool_request_middleware=True,
++    skip_tool_execution_middleware=True,
++)
++
++
++def _patch_dispatch(monkeypatch):
++    calls = []
++
++    def fake_dispatch(name, args, **kwargs):
++        calls.append(name)
++        return '{"ok": true}'
++
++    monkeypatch.setattr(model_tools.registry, "dispatch", fake_dispatch)
++    return calls
++
++
++class TestDirectCallScopeEnforcement:
++    def test_terminal_tool_is_registered(self):
++        """Guard against a vacuous pass: the refusal must be the scope check."""
++        names = model_tools._select_tool_names(None, None, quiet_mode=True)
++        assert "terminal" in names
++
++    def test_out_of_scope_direct_call_is_refused_without_executing(self, monkeypatch):
++        calls = _patch_dispatch(monkeypatch)
++        result = json.loads(handle_function_call(
++            "terminal", {"command": "uptime"},
++            enabled_toolsets=list(RESTRICTED_ENABLED),
++            disabled_toolsets=list(RESTRICTED_DISABLED),
++            **_SCOPE_KWARGS,
++        ))
++        assert calls == [], "out-of-scope direct call reached the registry"
++        assert "not available in this session" in result.get("error", "")
++
++    def test_disabled_toolset_is_subtracted_from_full_grant(self, monkeypatch):
++        """No enabled allowlist: disabled terminal alone must still block."""
++        calls = _patch_dispatch(monkeypatch)
++        result = json.loads(handle_function_call(
++            "terminal", {"command": "uptime"},
++            disabled_toolsets=list(RESTRICTED_DISABLED),
++            **_SCOPE_KWARGS,
++        ))
++        assert calls == []
++        assert "not available in this session" in result.get("error", "")
++
++    def test_in_scope_direct_call_still_executes(self, monkeypatch):
++        calls = _patch_dispatch(monkeypatch)
++        result = json.loads(handle_function_call(
++            "terminal", {"command": "uptime"},
++            enabled_toolsets=["terminal"],
++            **_SCOPE_KWARGS,
++        ))
++        assert calls == ["terminal"]
++        assert result.get("ok") is True
++
++    def test_unrestricted_session_preserves_direct_execution(self, monkeypatch):
++        calls = _patch_dispatch(monkeypatch)
++        result = json.loads(handle_function_call(
++            "terminal", {"command": "uptime"},
++            **_SCOPE_KWARGS,
++        ))
++        assert calls == ["terminal"]
++        assert result.get("ok") is True

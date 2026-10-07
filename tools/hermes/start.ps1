@@ -1,6 +1,10 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)]
+    [ValidateSet("F0", "F1F2")]
+    [string]$Mode,
+
+    [Parameter(Mandatory = $true)]
     [string]$HermesProjectHome,
 
     [Parameter(Mandatory = $true)]
@@ -19,12 +23,22 @@ $outbox = [System.IO.Path]::GetFullPath(
     (Join-Path $repoRoot "scratch\hermes_proposal_outbox")
 )
 
-if ($hermesHome.StartsWith($repoRoot + [System.IO.Path]::DirectorySeparatorChar)) {
+if ($hermesHome.Equals($repoRoot, [StringComparison]::OrdinalIgnoreCase) -or
+    $hermesHome.StartsWith($repoRoot + [System.IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) {
     throw "HermesProjectHome must be separate from the repository"
 }
+# Reject indirection through every existing ancestor, not only the leaf.
+$ancestor = [IO.DirectoryInfo]::new($hermesHome)
+while ($null -ne $ancestor) {
+    if ($ancestor.Exists -and ($ancestor.Attributes -band [IO.FileAttributes]::ReparsePoint)) {
+        throw "HermesProjectHome must not be a symlink or junction"
+    }
+    $ancestor = $ancestor.Parent
+}
+
 if (Test-Path -LiteralPath $hermesHome) {
     $homeItem = Get-Item -LiteralPath $hermesHome -Force
-    if ($homeItem.LinkType) {
+    if ($homeItem.Attributes -band [IO.FileAttributes]::ReparsePoint) {
         throw "HermesProjectHome must not be a symlink or junction"
     }
 } else {
@@ -48,6 +62,25 @@ if ($LASTEXITCODE -ne 0 -or $repoSha -notmatch '^[0-9a-f]{40}$' -or -not $repoBr
     throw "Unable to resolve exact repository identity"
 }
 
+& docker compose version | Out-Null
+if ($LASTEXITCODE -ne 0) { throw "Docker Compose is required" }
+& docker info --format '{{.ServerVersion}}' | Out-Null
+if ($LASTEXITCODE -ne 0) { throw "Docker daemon is required" }
+if ($Mode -eq "F1F2") {
+    if ($InstallSchedules) { throw "InstallSchedules is forbidden in F1F2 mode" }
+    if ($repoBranch -ne "codex/wp-extreme-hermes-01-f1f2-canary-01") {
+        throw "F1F2 requires the exact package branch"
+    }
+    & git -C $repoRoot merge-base --is-ancestor 11214acfb6d8af44586c50089eb9965063a505ee HEAD
+    if ($LASTEXITCODE -ne 0) { throw "F1F2 requires the exact package base" }
+    foreach ($name in @("BROWSERBASE_API_KEY", "BROWSERBASE_PROJECT_ID")) {
+        if ([string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($name, "Process"))) {
+            throw "F1F2 requires the Browserbase credential gate; missing variable: $name"
+        }
+    }
+    New-Item -ItemType File -Path (Join-Path $hermesHome ".no-bundled-skills") -Force | Out-Null
+}
+
 $env:HERMES_PROJECT_HOME = $hermesHome
 $env:HERMES_PROPOSAL_OUTBOX_HOST = $outbox
 $env:HERMES_MODEL = $HermesModel
@@ -55,7 +88,8 @@ $env:PROJECT_REPO_SHA = $repoSha
 $env:PROJECT_REPO_BRANCH = $repoBranch
 $env:RESEARCH_MEMORY_READONLY_DSN = $ResearchMemoryReadOnlyDsn
 
-$compose = Join-Path $scriptRoot "compose.yaml"
+$composeName = if ($Mode -eq "F0") { "compose.f0.yaml" } else { "compose.yaml" }
+$compose = Join-Path $scriptRoot $composeName
 & docker compose -f $compose config --quiet
 if ($LASTEXITCODE -ne 0) { throw "Hermes compose validation failed" }
 & docker compose -f $compose up -d --build

@@ -2,7 +2,7 @@
 
 ## 1. Status and controlling authority
 
-- Status: **KARL-APPROVED ARCHITECTURE LOCK / PROPOSED FOR MERGE**.
+- Status: **LOCKED ARCHITECTURE / DECISION ONLY**.
 - Package: `WP-V2-AUTONOMY-KERNEL-ARCH-01`.
 - Decision: `D2-026 — Scientific Autonomy Kernel Durable Authority and Storage`.
 - Approval: Karl, 2026-10-07, through the executable docs-only package.

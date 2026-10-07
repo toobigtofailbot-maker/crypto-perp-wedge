@@ -31,8 +31,10 @@ Startup read order:
   F1/F2 stopped; exact F0 rollback passed. This proof does not activate Stage 5B.
   See `docs/status_entries/WP-EXTREME-HERMES-01.md`.
 
-- Current moving front: `WP-V2-AUTONOMY-KERNEL-ARCH-01` (branch-state T0
-  docs/process-policy lock proposing D2-026). Exact four-file closure creates
+- Current open architecture-lock package: `WP-V2-AUTONOMY-KERNEL-ARCH-01` /
+  PR #734 (branch-state T0 docs/process-policy lock). D2-026 is the Karl-approved
+  LOCKED decision carried by this PR; it becomes merged repo authority only
+  if PR #734 is accepted. Exact four-file closure creates
   `docs/architecture/2026-10-v2_autonomy_kernel_durable_authority.md` and
   `docs/status_entries/WP-V2-AUTONOMY-KERNEL-ARCH-01.md`, and modifies
   `docs/decisions.md` and this file. It locks human envelope authority and a
@@ -66,7 +68,7 @@ Startup read order:
   `docs/architecture/2026-10-bounded_autonomous_research_v2_architecture.md`.
   D2-024 controls the intended Extreme Hermes target. D2-025 adds the explicit
   capability matrix, persistent-Bot target, and orchestration ownership.
-  Neither decision activates autonomy or a runtime capability. Proposed D2-026
+  Neither decision activates autonomy or a runtime capability. LOCKED D2-026
   in `docs/architecture/2026-10-v2_autonomy_kernel_durable_authority.md` closes
   durable authority/storage design only on accepted merge; it activates nothing.
 - Current adoption-first migration architecture is locked in

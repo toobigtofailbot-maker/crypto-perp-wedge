@@ -792,7 +792,7 @@ credential, exchange/order authority, or capital use.
 
 ### D2-026 — Scientific Autonomy Kernel Durable Authority and Storage
 
-**Status:** KARL-APPROVED / PROPOSED FOR MERGE
+**Status:** LOCKED
 
 **Decision ID:** D2-026
 

@@ -3,7 +3,9 @@
 - Package class: T0 docs/process-policy architecture lock.
 - Branch: `codex/wp-v2-autonomy-kernel-arch-01`.
 - Exact base: `200276fd4407e4a13a912a6b475ab9ab38a1de70`.
-- Approval: Karl, 2026-10-07; proposed D2-026, pending accepted merge.
+- Approval: Karl, 2026-10-07.
+- Decision: D2-026 — LOCKED in this package; effective as merged repo authority
+  only on accepted merge.
 - Controlling record:
   `docs/architecture/2026-10-v2_autonomy_kernel_durable_authority.md`.
 
@@ -71,8 +73,9 @@ promotion, and protected owners retain runtime/OMS/reconciliation/hard risk.
 
 `git diff --check`: PASS. Docs-only verifier
 (`python tools/dev/verify.py --validation-preset docs-only --json`): PASS,
-all six command results, zero failures. Rerun after the final tracked semantic
-edit is required before commit. Exact four Markdown files (two creates/two
+all six command results, zero failures. Docs-only validation was rerun after
+the final tracked semantic edit and passed before the final commit.
+Exact four Markdown files (two creates/two
 modifies): PASS. One new D2-026 decision entry (one heading, one Decision ID,
 one index row), all 20 architecture sections, D2-020 through D2-025 references,
 and direct changed-file/authority wording review: PASS.

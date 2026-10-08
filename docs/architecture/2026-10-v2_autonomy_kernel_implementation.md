@@ -5,9 +5,11 @@ this record creates no new architecture decision or activation authority.
 
 Exact base: `9d9f8a94405ded76bbef0163488b9a8e0596371a`.
 Semantic implementation head: `51a05391a7703691a6adf2bee3588cddbdcda832`.
-Physical acceptance passed; full-release failed on existing missing-D4 inputs.
-The explicit product-backtest STOP and exact evidence are recorded in
-`docs/status_entries/WP-V2-AUTONOMY-KERNEL-01.md`; this is not accepted finality.
+Physical acceptance and complete full-release passed after Karl's approved
+2026-10-08 validation-only continuation. Full-release ran at
+`d98bf03376f8e1fc4b3450ff77186fc0f2091c6c`; the final tail changes only docs.
+Exact evidence and the bounded exception are recorded in
+`docs/status_entries/WP-V2-AUTONOMY-KERNEL-01.md`. Side 22 review remains pending.
 
 ## Human envelope and control contracts
 
@@ -132,13 +134,15 @@ loopback logical test databases; connection strings are not evidence artifacts.
 
 ## Acceptance and boundary
 
-Cases A-K and focused, adjacent, live PostgreSQL, validator and full-release
-results are recorded at the committed semantic head in the companion status
-entry. Cases A-K, focused 46, adjacent 60 and live PostgreSQL 13 (zero skips)
-passed. All 48 release shards completed, with three missing-D4-input failures
-and zero timeouts; the package is stopped without push or PR. The native N1
-acceptance test would execute the real corpus through a backtest engine, which
-is outside the package boundary. No validation gate was weakened.
+The companion status entry records Cases A-K PASS, focused 46, adjacent 60,
+live PostgreSQL 13 (zero skips), and validator PASS at the unchanged semantic
+head. The approved validation-only continuation verified the retained D4 source
+against the committed catalog, ran the existing suite and removed its exact
+ignored copy afterward. Full-release PASS: all 48 shards complete and passing,
+4,000 passed tests, 23 accounted existing skips, zero timeouts, all 196 tracked
+test files assigned exactly once, and all eight required non-shard commands PASS.
+The existing N1 deterministic backtests ran only under that narrow historical
+regression exception. No test or semantic file changed and no gate was weakened.
 
 No Stage 5B or autonomous research activation, Hermes/Prefect coupling,
 product runner/backtest/WFO-OOS/robustness/Monte Carlo, real final-holdout access,

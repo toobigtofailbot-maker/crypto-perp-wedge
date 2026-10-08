@@ -41,11 +41,16 @@ Startup read order:
   authority migrations/store/role, CPW contract construction and active-wave
   replay, with explicit SearchContract fixture bindings. Physical Cases A-K,
   focused/adjacent/live PostgreSQL and validator checks passed at semantic head
-  `51a05391a7703691a6adf2bee3588cddbdcda832`. Full-release completed all 48 shards
-  with three missing-D4-input failures and zero timeouts. The native acceptance
-  test requires a real corpus backtest, triggering the package STOP boundary.
-  The branch is local/unpushed, with no PR; see exact evidence and Side 22 scope
-  escalation in `docs/status_entries/WP-V2-AUTONOMY-KERNEL-01.md`.
+  `51a05391a7703691a6adf2bee3588cddbdcda832`. Karl's approved 2026-10-08
+  validation-only continuation resolved the prior missing-D4 STOP without
+  semantic changes. Complete full-release PASS at
+  `d98bf03376f8e1fc4b3450ff77186fc0f2091c6c`: all 48 shards PASS/complete,
+  4,000 passed tests, 23 accounted existing skips, zero timeouts, 196 tracked
+  files assigned exactly once, and all eight non-shard commands PASS. Exact
+  ignored D4 bytes were catalog-verified, then the continuation-created copy
+  was removed. The documentation-only final tail is prepared for publication;
+  the package remains unmerged, pending Side 22 exact-head review. See
+  `docs/status_entries/WP-V2-AUTONOMY-KERNEL-01.md`.
   No Stage 5B, runner/real holdout/canonical/candidate/protected/economic
   activation. Hold for Side 22 exact-head review; no self-merge. The next
   separately authorized dependency is `V2-RESEARCH-FACTORY-LOOP-01`.

@@ -174,7 +174,7 @@ class ResearchAuthorityStore:
         with self._transaction() as conn:
             self._active_envelope(conn, envelope)
             c = self._campaign(conn, request.campaign_id)
-            if c["state"] != "open" or (request.parent_search_id is None and c["hypothesis_fingerprint"] != intent.fingerprint_sha256):
+            if c["state"] != "open" or c["hypothesis_fingerprint"] != intent.fingerprint_sha256:
                 raise AuthorityConflict("campaign state/hypothesis mismatch")
             replay = self._replay(conn, f"search:{request.search_id}", "open_search", payload)
             if replay:
@@ -183,6 +183,12 @@ class ResearchAuthorityStore:
                 parent = conn.execute("SELECT campaign_id,state FROM research_authority.search_lineage WHERE search_id=%s", (request.parent_search_id,)).fetchone()
                 if parent is None or parent["campaign_id"] != request.campaign_id or parent["state"] != "finalized":
                     raise AuthorityConflict("exact finalized same-campaign parent required")
+                parent_contract = self._load_contract(conn, request.parent_search_id)
+                if ((parent_contract.campaign_id, parent_contract.search_id) !=
+                        (request.campaign_id, request.parent_search_id) or
+                        (parent_contract.hypothesis_id, parent_contract.family_id, parent_contract.hypothesis_fingerprint) !=
+                        (request.hypothesis_id, request.family_id, intent.fingerprint_sha256)):
+                    raise AuthorityConflict("successor must preserve frozen parent hypothesis/family identity")
             snapshot = self._snapshot(conn, request.campaign_id)
             # A hypothesis cannot evade its ceiling by creating another campaign.
             totals = conn.execute("""SELECT coalesce(sum(

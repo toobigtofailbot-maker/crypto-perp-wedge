@@ -84,6 +84,137 @@ def wave(store, contract):
     return governor, pre, result
 
 
+def approved_lineage_fixture(authority_db, tmp_path):
+    from tools.mcp.project_evidence.research_intent import BoundedResearchIntentV1, semantic_content_sha256
+    from tools.research_autonomy.contract_builder import validate_inputs
+    from tools.research_autonomy.envelope import envelope_hash, validate_envelope
+    from tools.research_memory.fingerprint import fingerprint
+
+    repo, intent, envelope, request = fixture_inputs(tmp_path)
+    alternate_mechanism = "alternative synthetic mechanism"
+    payload = envelope.model_dump(mode="json")
+    payload["surface"]["mechanisms"].append(alternate_mechanism)
+    payload["content_sha256"] = envelope_hash(payload)
+    envelope = validate_envelope(payload, repo_sha=envelope.repo_sha)
+    payload = intent.model_dump(mode="json")
+    payload["mechanism"] = alternate_mechanism
+    payload["fingerprint_sha256"] = fingerprint(payload)
+    payload["research_memory"]["fingerprint_sha256"] = payload["fingerprint_sha256"]
+    alternate = BoundedResearchIntentV1.model_validate_json(canonical_json(payload))
+    alternate = alternate.model_copy(update={"content_sha256": semantic_content_sha256(alternate)})
+    assert alternate.fingerprint_sha256 != intent.fingerprint_sha256
+    # Both hypotheses are otherwise valid under the same explicit human envelope.
+    validate_inputs(intent, envelope, request, repo_root=repo)
+    validate_inputs(alternate, envelope, request.model_copy(update={"intent_sha256": alternate.content_sha256}), repo_root=repo)
+    store = ResearchAuthorityStore(authority_db[0])
+    store.register_envelope(envelope)
+    store.open_campaign(envelope, campaign_id=request.campaign_id, contamination_domain_id=envelope.contamination_domain_id,
+                        holdout_id=request.split_protocol.final_holdout_ref, hypothesis_fingerprint=intent.fingerprint_sha256)
+    builder = ContractBuilder(store, repo)
+    parent = builder.build(intent, envelope, request)
+    wave(store, parent)
+    store.finalize_search(parent.search_id)
+    return repo, intent, alternate, envelope, request, store, builder, parent
+
+
+def authority_rows(dsn):
+    """Compare all durable rows, including reservations, counters and audit."""
+    from psycopg import sql
+
+    with psycopg.connect(dsn) as conn:
+        tables = [r[0] for r in conn.execute("SELECT tablename FROM pg_tables WHERE schemaname='research_authority' ORDER BY tablename")]
+        return {table: conn.execute(sql.SQL(
+            "SELECT coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text),'[]'::jsonb) FROM research_authority.{} t"
+        ).format(sql.Identifier(table))).fetchone()[0] for table in tables}
+
+
+def insert_guard_probe(conn, contract):
+    conn.execute("""INSERT INTO research_authority.search_lineage
+        (search_id,campaign_id,parent_search_id,reason_for_change,contract_sha256,contract_payload,envelope_id,envelope_version,envelope_content_sha256,pre_lineage_version,pre_lineage_sha256,proposals_before_search,trials_before_search,reserved_proposals,reserved_trials,state)
+        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'open')""",
+        (contract.search_id, contract.campaign_id, contract.parent_search_id, contract.reason_for_change,
+         contract.contract_hash, canonical_json(contract.to_dict()), contract.envelope_id, contract.envelope_version,
+         contract.envelope_content_sha256, contract.authority_lineage_version, contract.authority_lineage_sha256,
+         contract.campaign_proposals_before_search, contract.campaign_scientific_trials_before_search,
+         contract.max_proposals, contract.max_scientific_trials))
+
+
+def test_successor_rejects_other_approved_hypothesis_without_mutation(authority_db, tmp_path):
+    repo, intent, alternate, envelope, request, store, builder, parent = approved_lineage_fixture(authority_db, tmp_path)
+    successor = request.model_copy(update={"search_id": "SEARCH-DIFFERENT-HYPOTHESIS", "parent_search_id": parent.search_id,
+                                           "reason_for_change": "envelope-legal but different hypothesis", "intent_sha256": alternate.content_sha256})
+    before = authority_rows(authority_db[0])
+    with pytest.raises(AuthorityConflict, match="campaign state/hypothesis mismatch"):
+        builder.build(alternate, envelope, successor)
+    assert authority_rows(authority_db[0]) == before
+    closed = store.load_snapshot(parent.campaign_id)
+    # Bounded parameter/search-setting changes remain legal for the same lineage.
+    successor = successor.model_copy(update={"search_id": "SEARCH-SAME-HYPOTHESIS", "intent_sha256": intent.content_sha256,
+        "parameter_space": (request.parameter_space[0].model_copy(update={"high": 50}),), "seed": request.seed + 1})
+    child = builder.build(intent, envelope, successor)
+    assert (child.hypothesis_id, child.family_id, child.hypothesis_fingerprint) == (parent.hypothesis_id, parent.family_id, parent.hypothesis_fingerprint)
+    assert child.parent_search_id == parent.search_id
+    assert child.parameter_space != parent.parameter_space and child.seed != parent.seed
+    assert child.campaign_proposals_before_search == closed.budget.proposals_used > 0
+    assert child.campaign_scientific_trials_before_search == closed.budget.scientific_trials_used > 0
+    assert (child.authority_lineage_version, child.authority_lineage_sha256) == (closed.lineage_version, closed.lineage_sha256)
+    after = store.load_snapshot(parent.campaign_id)
+    assert after.budget.proposals_used == closed.budget.proposals_used
+    assert after.budget.scientific_trials_used == closed.budget.scientific_trials_used
+    assert after.budget.reserved_proposals == child.max_proposals
+    assert after.budget.reserved_trials == child.max_scientific_trials
+    assert after.budget.search_count == closed.budget.search_count + 1
+    assert after.budget.proposal_ceiling == closed.budget.proposal_ceiling
+    assert after.budget.trial_ceiling == closed.budget.trial_ceiling
+
+
+@pytest.mark.parametrize("identity", ["hypothesis_id", "family_id"])
+def test_successor_rejects_parent_identity_relabel_without_mutation(authority_db, tmp_path, identity):
+    _, intent, _, envelope, request, _, builder, parent = approved_lineage_fixture(authority_db, tmp_path)
+    successor = request.model_copy(update={"search_id": "SEARCH-RELABEL", "parent_search_id": parent.search_id,
+        "reason_for_change": "same fingerprint cannot relabel", identity: "RELABEL-FIXTURE"})
+    before = authority_rows(authority_db[0])
+    with pytest.raises(AuthorityConflict, match="preserve frozen parent hypothesis/family identity"):
+        builder.build(intent, envelope, successor)
+    assert authority_rows(authority_db[0]) == before
+
+
+@pytest.mark.parametrize("successor", [False, True], ids=["initial", "successor"])
+def test_sql_rejects_campaign_hypothesis_mismatch_without_mutation(authority_db, tmp_path, successor):
+    from tools.research_autonomy.contract_builder import construct_contract
+
+    _, _, alternate, envelope, request, store, _, parent = approved_lineage_fixture(authority_db, tmp_path)
+    if successor:
+        candidate = request.model_copy(update={"search_id": "SEARCH-SQL-MISMATCH", "parent_search_id": parent.search_id,
+            "reason_for_change": "direct SQL hypothesis mismatch", "intent_sha256": alternate.content_sha256})
+    else:
+        store.open_campaign(envelope, campaign_id="CAMPAIGN-SQL-INITIAL", contamination_domain_id=envelope.contamination_domain_id,
+            holdout_id=request.split_protocol.final_holdout_ref, hypothesis_fingerprint=parent.hypothesis_fingerprint)
+        candidate = request.model_copy(update={"campaign_id": "CAMPAIGN-SQL-INITIAL", "search_id": "SEARCH-SQL-MISMATCH",
+                                               "intent_sha256": alternate.content_sha256})
+    contract = construct_contract(alternate, envelope, candidate, store.load_snapshot(candidate.campaign_id))
+    before = authority_rows(authority_db[0])
+    with psycopg.connect(authority_db[0], autocommit=True) as conn:
+        with pytest.raises(psycopg.Error, match="search campaign hypothesis fingerprint mismatch"), conn.transaction():
+            insert_guard_probe(conn, contract)
+    assert authority_rows(authority_db[0]) == before
+
+
+@pytest.mark.parametrize("identity", ["hypothesis_id", "family_id"])
+def test_sql_rejects_parent_identity_relabel_without_mutation(authority_db, tmp_path, identity):
+    from tools.research_autonomy.contract_builder import construct_contract
+
+    _, intent, _, envelope, request, store, _, parent = approved_lineage_fixture(authority_db, tmp_path)
+    candidate = request.model_copy(update={"search_id": "SEARCH-SQL-RELABEL", "parent_search_id": parent.search_id,
+        "reason_for_change": "direct SQL relabel", identity: "RELABEL-FIXTURE"})
+    contract = construct_contract(intent, envelope, candidate, store.load_snapshot(candidate.campaign_id))
+    before = authority_rows(authority_db[0])
+    with psycopg.connect(authority_db[0], autocommit=True) as conn:
+        with pytest.raises(psycopg.Error, match="preserve frozen parent hypothesis/family identity"), conn.transaction():
+            insert_guard_probe(conn, contract)
+    assert authority_rows(authority_db[0]) == before
+
+
 def test_migration_catalog_checksum_and_separation(authority_db, tmp_path, monkeypatch):
     authority, memory = authority_db
     with psycopg.connect(authority) as conn:

@@ -283,6 +283,9 @@ BEGIN
     ELSIF TG_TABLE_NAME = 'search_lineage' THEN
         SELECT * INTO c FROM research_authority.campaign_state WHERE campaign_id=NEW.campaign_id FOR UPDATE;
         contract := NEW.contract_payload::jsonb;
+        IF contract->>'hypothesis_fingerprint' IS DISTINCT FROM c.hypothesis_fingerprint THEN
+            RAISE EXCEPTION 'search campaign hypothesis fingerprint mismatch';
+        END IF;
         IF NEW.contract_sha256 <> 'sha256:' || encode(sha256(convert_to(NEW.contract_payload,'UTF8')),'hex') OR
             (NEW.envelope_id,NEW.envelope_version,NEW.envelope_content_sha256,NEW.pre_lineage_version,NEW.pre_lineage_sha256,NEW.proposals_before_search,NEW.trials_before_search) IS DISTINCT FROM
             (c.envelope_id,c.envelope_version,c.envelope_content_sha256,c.lineage_version,c.lineage_sha256,c.proposals_used,c.scientific_trials_used) OR
@@ -295,6 +298,10 @@ BEGIN
             SELECT * INTO parent FROM research_authority.search_lineage WHERE search_id=NEW.parent_search_id;
             IF parent.campaign_id IS DISTINCT FROM NEW.campaign_id OR parent.state <> 'finalized' THEN
                 RAISE EXCEPTION 'successor requires finalized same-campaign parent';
+            END IF;
+            IF (contract->>'hypothesis_id',contract->>'family_id',contract->>'hypothesis_fingerprint') IS DISTINCT FROM
+                (parent.contract_payload::jsonb->>'hypothesis_id',parent.contract_payload::jsonb->>'family_id',parent.contract_payload::jsonb->>'hypothesis_fingerprint') THEN
+                RAISE EXCEPTION 'successor must preserve frozen parent hypothesis/family identity';
             END IF;
         END IF;
     ELSIF TG_TABLE_NAME = 'holdout_state' THEN

@@ -1,0 +1,162 @@
+{
+  "schema_version": "cpw_bounded_research_envelope_v1",
+  "envelope_id": "ENVELOPE-FIXTURE",
+  "envelope_version": 1,
+  "repo_sha": "9d9f8a94405ded76bbef0163488b9a8e0596371a",
+  "content_sha256": "sha256:75f99517eeedd629689dbc571ece582bddf42ee93570ec471c88a9581b94df37",
+  "approved_by": "Karl",
+  "approved_at": "2026-10-07T00:00:00Z",
+  "surface": {
+    "instruments": [
+      "BTCUSDT"
+    ],
+    "venues": [
+      "Binance USDT-M"
+    ],
+    "market_types": [
+      "perpetual"
+    ],
+    "timeframes": [
+      "1h"
+    ],
+    "strategy_families": [
+      "fixture family"
+    ],
+    "mechanisms": [
+      "synthetic mechanism"
+    ],
+    "data_source_classes": [
+      "synthetic"
+    ],
+    "feature_families": [
+      "ohlcv"
+    ],
+    "strategy_spec_ids": [
+      "STRAT-SPEC-FIXTURE"
+    ],
+    "dsl_versions": [
+      "v1"
+    ]
+  },
+  "search_policy": {
+    "parameter_domains": [
+      {
+        "name": "lookback",
+        "kind": "int",
+        "low": 2,
+        "high": 100,
+        "step": 1,
+        "choices": [],
+        "required": true
+      }
+    ],
+    "proposers": [
+      {
+        "backend": "random",
+        "version": "4.9.0",
+        "config": []
+      }
+    ],
+    "wave_size_limit": 2,
+    "concurrency_limit": 2,
+    "policies": {
+      "duplicate_policy": "reject_and_charge",
+      "invalid_trial_policy": "reject_before_scientific_execution",
+      "failed_software_trial_policy": "retry_same_scientific_trial_id",
+      "performance_failure_classification": "scientific_result",
+      "pruning_policy": "off",
+      "retry_limit": 1,
+      "stop_rule": "proposal_or_trial_budget_exhausted"
+    },
+    "objectives": [
+      {
+        "name": "fixture_score",
+        "direction": "maximize",
+        "definition": "synthetic fixture only; no evaluation in this package"
+      }
+    ],
+    "conditional_rules": [],
+    "relational_constraints": [],
+    "forbidden_regions": [],
+    "data_bindings": [
+      {
+        "data_identity": "SYNTHETIC-DATA",
+        "data_version": "v1",
+        "evidence": {
+          "resource_uri": "project://synthetic-metadata",
+          "repo_path": "docs/architecture/2026-10-v2_autonomy_kernel_durable_authority.md",
+          "artifact_sha256": "b35c5b8d6e600fbe0993e66afa28b190a1be1383c8eaf4e501886093d65a71f7",
+          "repo_sha": "9d9f8a94405ded76bbef0163488b9a8e0596371a"
+        }
+      }
+    ],
+    "split_protocols": [
+      {
+        "protocol_id": "SPLIT-FIXTURE",
+        "development_data_ref": "synthetic-development",
+        "development_window": "synthetic-bars-0-100",
+        "final_holdout_ref": "HOLDOUT-FIXTURE",
+        "final_holdout_access": "prohibited"
+      }
+    ]
+  },
+  "budgets": {
+    "job_proposals": 6,
+    "job_trials": 4,
+    "hypothesis_proposals": 12,
+    "hypothesis_trials": 8,
+    "campaign_proposals": 12,
+    "campaign_trials": 8,
+    "campaign_searches": 3,
+    "compute_seconds": 30,
+    "runtime_seconds": 60,
+    "concurrency": 2,
+    "retries": 1,
+    "recoveries": 2
+  },
+  "scientific_protocol": {
+    "development_construction": "fixture construction only",
+    "wfo_oos_requirements": [
+      "preregistered WFO/OOS required before later evaluation"
+    ],
+    "purge_bars": 1,
+    "embargo_bars": 1,
+    "leakage_policy": "completed bars only",
+    "robustness_requirements": [
+      "later robustness required"
+    ],
+    "multiple_testing_dsr": "full applicable scientific history",
+    "final_holdout_policy": "prohibited_to_adaptive_search_consumed_on_informative_escape",
+    "scientific_constraints": [
+      "finite objective"
+    ]
+  },
+  "evidence_policy": {
+    "provenance_requirements": [
+      "exact repo metadata hashes"
+    ],
+    "memory_indexing": "index_not_truth",
+    "memory_dedup": "hypothesis-v1",
+    "dispositions": [
+      "research_blocked",
+      "research_completed_no_edge"
+    ],
+    "stop_conditions": [
+      "budget exhausted",
+      "authority mismatch"
+    ],
+    "escalation_conditions": [
+      "protected boundary contact"
+    ]
+  },
+  "authority": {
+    "candidate_promotion": false,
+    "canonical_result_population": false,
+    "protected_runtime": false,
+    "risk_changes": false,
+    "paper_live": false,
+    "exchange_order": false,
+    "capital": false
+  },
+  "contamination_domain_id": "DOMAIN-FIXTURE"
+}

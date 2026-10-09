@@ -31,18 +31,33 @@ Startup read order:
   F1/F2 stopped; exact F0 rollback passed. This proof does not activate Stage 5B.
   See `docs/status_entries/WP-EXTREME-HERMES-01.md`.
 
-- Current open architecture-lock package: `WP-V2-AUTONOMY-KERNEL-ARCH-01` /
-  PR #734 (branch-state T0 docs/process-policy lock). D2-026 is the Karl-approved
-  LOCKED decision carried by this PR; it becomes merged repo authority only
-  if PR #734 is accepted. Exact four-file closure creates
-  `docs/architecture/2026-10-v2_autonomy_kernel_durable_authority.md` and
-  `docs/status_entries/WP-V2-AUTONOMY-KERNEL-ARCH-01.md`, and modifies
-  `docs/decisions.md` and this file. It locks human envelope authority and a
-  separate CPW PostgreSQL lineage/accounting/holdout authority database, with
-  zero implementation or activation. Executable `V2-AUTONOMY-KERNEL-01`
-  remains blocked until D2-026 merges and Side 22 refreshes exact-head repo
-  truth to draft its separate package. No open autonomous research execution
-  is authorized; hold this package for Side 22 exact-head review, no self-merge.
+- `WP-V2-AUTONOMY-KERNEL-ARCH-01` / PR #734 is merged at
+  `9d9f8a94405ded76bbef0163488b9a8e0596371a`. D2-026 is the merged LOCKED
+  authority for immutable human envelopes and a separate CPW PostgreSQL
+  scientific lineage/accounting/holdout database. The lock activated nothing.
+- `WP-V2-AUTONOMY-KERNEL-01` / PR #735 is current branch-state implementation,
+  OPEN and unmerged, from exact base `9d9f8a94405ded76bbef0163488b9a8e0596371a`.
+  Side 22 found a successor identity bypass at old reviewed remote head
+  `322a02028896893d415eae71d48d987fd335406a`. Corrected semantic head
+  `69d686dc1d22d283ff5a5b6490775092a463b80a` binds every search to the campaign
+  fingerprint and preserves frozen parent hypothesis/family identity in the
+  application and new/unmerged SQL guard. Seven new adversarial physical cases
+  PASS. Focused 46, adjacent 60, live PostgreSQL 20 (zero skips), validator and
+  Cases A-K PASS. The first corrected-head release FAILed 47/48 with an unchanged
+  fixture setup error; cause remains unknown, transient failure unproven.
+  Side 22 validation-only triage then PASSed the exact shard-40 group (74 tests)
+  and complete release at the corrected semantic head: **48/48 shards PASS**,
+  4,007 passed tests, 23 accounted existing skips, zero timeouts, 196 files exactly
+  once and all eight non-shard commands PASS. Full raw output is retained outside
+  the repo. The final three-doc evidence tail preserves failed-run history and
+  exact semantic bytes. Exact closure remains 21 created/four modified; verified
+  run-created ignored D4 copy removed, source retained. No protected test/code
+  edits or gate weakening. Hold the updated same PR for Side 22 exact-head
+  re-review; no merge or activation. See
+  `docs/status_entries/WP-V2-AUTONOMY-KERNEL-01.md`.
+  No Stage 5B, autonomous/runner/real holdout/canonical/candidate/protected or
+  economic activation. No self-merge. Next dependency
+  `V2-RESEARCH-FACTORY-LOOP-01` remains separately authorized.
 
 - Phase 1 is closed.
 - Phase 2 baseline is locked in `docs/onboarding/PHASE2_BASELINE.md`.
@@ -70,7 +85,7 @@ Startup read order:
   capability matrix, persistent-Bot target, and orchestration ownership.
   Neither decision activates autonomy or a runtime capability. LOCKED D2-026
   in `docs/architecture/2026-10-v2_autonomy_kernel_durable_authority.md` closes
-  durable authority/storage design only on accepted merge; it activates nothing.
+  merged durable authority/storage design; it activates nothing.
 - Current adoption-first migration architecture is locked in
   `docs/architecture/2026-09-adoption_first_migration_architecture_freeze.md`
   through CPW-MIG-00 and D2-019. Hermes owns future generic reasoning/runtime
@@ -132,8 +147,8 @@ Startup read order:
   proof records the accepted canary and physical acceptance; its F1/F2 capability
   proof creates no Stage 5B or scientific execution authority.
 - The prior narrow 01B implementation is no longer the main next destination.
-  After merged `EXTREME-HERMES-01`, the current docs-only D2-026 lock must merge
-  before Side 22 drafts executable `V2-AUTONOMY-KERNEL-01`. The later roadmap is
+  D2-026 is merged through PR #734; its separately authorized executable
+  `V2-AUTONOMY-KERNEL-01` is now branch-state implementation. The later roadmap is
   `V2-RESEARCH-FACTORY-LOOP-01` and
   `EXTREME-HERMES-02` Stage 5B/always-on activation. Scientific, protected,
   promotion, paper/live, credential, and capital boundaries remain unchanged.

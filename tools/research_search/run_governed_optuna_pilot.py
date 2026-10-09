@@ -97,6 +97,12 @@ def build_pilot_contract(
         "free_parameter_count": 4,
     }
     return SearchContract(
+        envelope_id="ENVELOPE-NONCANONICAL-PILOT-FIXTURE",
+        envelope_version=1,
+        envelope_content_sha256="sha256:" + "0" * 64,
+        contamination_domain_id="DOMAIN-NONCANONICAL-PILOT-FIXTURE",
+        authority_lineage_version=0,
+        authority_lineage_sha256="sha256:" + "0" * 64,
         campaign_id="CAMPAIGN-EMA-PULLBACK-GOVERNED-PILOT-001",
         search_id="SEARCH-EMA-PULLBACK-OPTUNA-TPE-001",
         parent_search_id=None,

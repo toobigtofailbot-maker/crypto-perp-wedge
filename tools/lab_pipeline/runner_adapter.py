@@ -12,6 +12,7 @@ from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
+import stat
 from typing import Any, Mapping
 
 from tools.agent_sandbox import MemoryAuditSink, ToolAction, ToolContext
@@ -19,6 +20,7 @@ from tools.agent_sandbox.permissions import RUN_NONCANONICAL_OFFLINE_SWEEP
 from tools.lab_pipeline.state import file_sha256, read_json, sha256_payload, write_json
 from tools.research_replay.normalization import compare_result_populations
 from tools.research_runner.run_offline_sweep import run_offline_sweep
+from tools.research_runner import run_offline_sweep as offline_runner
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -26,6 +28,7 @@ WP_ID = "WP-LABPROD-PIPELINE-RUNNER-ADAPTER-04"
 DEFAULT_OUTPUT_ROOT = REPO_ROOT / "scratch" / WP_ID / "outputs"
 RUNNER_ADAPTER_STAGE_IDENTITY = "noncanonical_offline_runner_execution"
 EXECUTE_APPROVAL_SCHEMA_VERSION = "product_runner_execute_approval_v1"
+REAL_EXECUTE_APPROVAL_SCHEMA_VERSION = "product_runner_execute_approval_v2"
 EXECUTE_APPROVAL_SCOPE = "noncanonical_product_runner_execution_only"
 EXECUTE_APPROVAL_STATEMENT = (
     "Authorizes only non-canonical product runner execution for the exact "
@@ -64,6 +67,104 @@ ALLOWED_DENOMINATOR_STATUSES = ("completed", "failed", "invalid", "blocked", "pr
 
 class RunnerAdapterError(ValueError):
     """Raised when the product runner adapter must fail closed."""
+
+
+def _ordinary_input(path: Path | str) -> Path:
+    """Reject indirection before resolving any real-data or approval input."""
+    candidate = Path(path)
+    if not candidate.is_absolute():
+        candidate = REPO_ROOT / candidate
+    try:
+        parts = candidate.absolute().relative_to(REPO_ROOT.absolute()).parts
+    except ValueError as exc:
+        raise RunnerAdapterError("input outside repository") from exc
+    if any(part in {".", ".."} for part in parts):
+        raise RunnerAdapterError("unsafe input path")
+    cursor = REPO_ROOT
+    for part in parts:
+        cursor /= part
+        attrs = cursor.lstat()
+        if stat.S_ISLNK(attrs.st_mode) or getattr(attrs, "st_file_attributes", 0) & 0x400:
+            raise RunnerAdapterError("input indirection denied")
+    if not cursor.is_file():
+        raise RunnerAdapterError("ordinary input file required")
+    return cursor
+
+
+def _execution_binding(
+    *,
+    canonical_15m=False,
+    ohlcv_input_path=None,
+    d4_catalog_slice_path=None,
+    d2_import_report_path=None,
+    deterministic_seed=0,
+) -> dict[str, Any] | None:
+    if type(canonical_15m) is not bool or type(deterministic_seed) is not int:
+        raise RunnerAdapterError("explicit boolean mode and integer seed required")
+    paths = (ohlcv_input_path, d4_catalog_slice_path, d2_import_report_path)
+    if not canonical_15m:
+        if any(path is not None for path in paths):
+            raise RunnerAdapterError("real input requires explicit 15m D4 route")
+        return None
+    if any(path is None for path in paths):
+        raise RunnerAdapterError("15m D4 route requires OHLCV, catalog and import report")
+    files = [_ordinary_input(path) for path in paths]
+    binding = {
+        "mode": "canonical_15m_d4_provenance",
+        "canonical_15m": True,
+        "deterministic_seed": deterministic_seed,
+        "funding_cost_mode": "off",
+        "sizing_mode": offline_runner.SIZING_MODE_DYNAMIC_EQUITY_TARGET_LEVERAGE,
+        "target_leverage": 1.0,
+    }
+    for name, path in zip(("ohlcv_input", "d4_catalog_slice", "d2_import_report"), files):
+        binding[name + "_path"] = _safe_repo_relative(path)
+        binding[name + "_sha256"] = file_sha256(path)
+    catalog = read_json(files[1])
+    binding.update(
+        timeframe="15m",
+        data_catalog_ref=catalog.get("catalog_ref"),
+        data_slice_identity=catalog.get("slice_identity", {}).get("data_slice_identity"),
+    )
+    if not binding["data_catalog_ref"] or not binding["data_slice_identity"]:
+        raise RunnerAdapterError("D4 catalog identities required")
+    return binding
+
+
+def _validate_real_execution(binding: Mapping[str, Any]) -> None:
+    paths = [
+        _ordinary_input(binding[name + "_path"])
+        for name in ("ohlcv_input", "d4_catalog_slice", "d2_import_report")
+    ]
+    before = [file_sha256(path) for path in paths]
+    for name, digest in zip(("ohlcv_input", "d4_catalog_slice", "d2_import_report"), before):
+        if binding[name + "_sha256"] != digest:
+            raise RunnerAdapterError("real execution bytes changed")
+    catalog = read_json(paths[1])
+    if catalog.get("normalized", {}).get("sha256") != before[0].removeprefix("sha256:"):
+        raise RunnerAdapterError("D4 normalized bytes hash mismatch")
+    try:
+        execution = offline_runner._d4_catalog_execution_input(*paths)
+    except (OSError, ValueError, RuntimeError) as exc:
+        raise RunnerAdapterError(f"invalid real D4 execution input: {exc}") from exc
+    if (
+        execution.timeframe != "15m"
+        or execution.execution_provenance_class != "canonical_real_data"
+        or execution.data_catalog_ref != binding["data_catalog_ref"]
+        or execution.data_slice_identity != binding["data_slice_identity"]
+    ):
+        raise RunnerAdapterError("real 15m provenance required")
+    coverage = catalog["range"]
+    import pandas as pd
+
+    if (
+        len(execution.ohlcv) != coverage["row_count"]
+        or execution.ohlcv.index[0] != pd.Timestamp(coverage["start_utc"])
+        or execution.ohlcv.index[-1] != pd.Timestamp(coverage["end_utc"])
+    ):
+        raise RunnerAdapterError("D4 physical coverage mismatch")
+    if before != [file_sha256(path) for path in paths]:
+        raise RunnerAdapterError("real input changed during validation")
 
 
 @dataclass(frozen=True)
@@ -269,6 +370,11 @@ def approval_template(
     output_root: Path | str = DEFAULT_OUTPUT_ROOT,
     approval_timestamp_utc: str = "2026-07-08T00:00:00Z",
     max_variant_count: int | None = None,
+    canonical_15m: bool = False,
+    ohlcv_input_path: Path | str | None = None,
+    d4_catalog_slice_path: Path | str | None = None,
+    d2_import_report_path: Path | str | None = None,
+    deterministic_seed: int = 0,
 ) -> dict[str, Any]:
     """Return an exact-content execute approval marker template."""
 
@@ -286,8 +392,18 @@ def approval_template(
         prepared_sweep_plan_path=sweep_rel,
         max_variant_count=max_variant_count if max_variant_count is not None else committed,
     )
+    execution = _execution_binding(
+        canonical_15m=canonical_15m,
+        ohlcv_input_path=ohlcv_input_path,
+        d4_catalog_slice_path=d4_catalog_slice_path,
+        d2_import_report_path=d2_import_report_path,
+        deterministic_seed=deterministic_seed,
+    )
     return {
-        "schema_version": EXECUTE_APPROVAL_SCHEMA_VERSION,
+        **({"execution": execution} if execution else {}),
+        "schema_version": REAL_EXECUTE_APPROVAL_SCHEMA_VERSION
+        if execution
+        else EXECUTE_APPROVAL_SCHEMA_VERSION,
         "approved_by": "Karl",
         "approval_scope": EXECUTE_APPROVAL_SCOPE,
         "approval_statement": EXECUTE_APPROVAL_STATEMENT,
@@ -317,13 +433,24 @@ def _require_execute_approval(
     bridge_preparation_run_id: str,
     product_pipeline_run_id: str,
     output_root: str,
+    execution: Mapping[str, Any] | None = None,
 ) -> tuple[dict[str, Any], str]:
+    if execution:
+        _ordinary_input(approval_path)
+        for path in (
+            prepared_strategy_spec_path,
+            prepared_variant_manifest_path,
+            prepared_sweep_plan_path,
+        ):
+            _ordinary_input(path)
     approval = read_json(approval_path)
     approval_hash = file_sha256(approval_path)
     errors: list[str] = []
 
     expected = {
-        "schema_version": EXECUTE_APPROVAL_SCHEMA_VERSION,
+        "schema_version": REAL_EXECUTE_APPROVAL_SCHEMA_VERSION
+        if execution
+        else EXECUTE_APPROVAL_SCHEMA_VERSION,
         "approved_by": "Karl",
         "approval_scope": EXECUTE_APPROVAL_SCOPE,
         "approval_statement": EXECUTE_APPROVAL_STATEMENT,
@@ -339,8 +466,17 @@ def _require_execute_approval(
         "product_output_root": output_root,
         "authorizes_runner_execution": True,
     }
+    if execution:
+        expected["execution"] = dict(execution)
+    elif "execution" in approval:
+        errors.append("v1 approval cannot contain real execution settings")
     for field, expected_value in expected.items():
-        if approval.get(field) != expected_value:
+        matches = (
+            (sha256_payload(approval.get(field)) == sha256_payload(expected_value))
+            if execution
+            else (approval.get(field) == expected_value)
+        )
+        if not matches:
             errors.append(f"execute_approval_mismatch:{field}")
     approved_budget = approval.get("approved_sweep_budget")
     if not isinstance(approved_budget, Mapping):
@@ -353,7 +489,12 @@ def _require_execute_approval(
                 prepared_sweep_plan_path=prepared_sweep_plan_path,
                 max_variant_count=approved_budget.get("max_variant_count"),
             )
-            if dict(approved_budget) != expected_budget:
+            budget_matches = (
+                (sha256_payload(dict(approved_budget)) == sha256_payload(expected_budget))
+                if execution
+                else (dict(approved_budget) == expected_budget)
+            )
+            if not budget_matches:
                 errors.append("execute_approval_mismatch:approved_sweep_budget")
         except RunnerAdapterError as exc:
             errors.append(f"approved_sweep_budget_invalid:{exc}")
@@ -423,7 +564,20 @@ def _invoke_existing_runner(
     variant_manifest_path: Path,
     sweep_plan_path: Path,
     deterministic_seed: int,
+    execution: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
+    settings = {}
+    if execution:
+        _validate_real_execution(execution)
+        settings = {
+            "canonical_15m": True,
+            "ohlcv_input_path": _repo_path(execution["ohlcv_input_path"]),
+            "d4_catalog_slice_path": _repo_path(execution["d4_catalog_slice_path"]),
+            "d2_import_report_path": _repo_path(execution["d2_import_report_path"]),
+            "funding_cost_mode": execution["funding_cost_mode"],
+            "sizing_mode": execution["sizing_mode"],
+            "target_leverage": execution["target_leverage"],
+        }
     return run_offline_sweep(
         strategy_spec_path,
         variant_manifest_path,
@@ -431,6 +585,7 @@ def _invoke_existing_runner(
         output_dir=output_dir,
         write_result_population=True,
         deterministic_seed=deterministic_seed,
+        **settings,
     )
 
 
@@ -459,6 +614,23 @@ def _reconcile_outputs(adapter_path: Path, direct_path: Path) -> dict[str, Any]:
     }
 
 
+def _assert_real_population_inputs(
+    population: Mapping[str, Any], execution: Mapping[str, Any]
+) -> None:
+    """Reject synthetic fallback and substituted provenance on either invocation."""
+    coverage = [population.get("data_coverage_summary", {})]
+    coverage.extend(row.get("data_coverage", {}) for row in population["variant_result_rows"])
+    for item in coverage:
+        if any(
+            item.get(key) != execution[key]
+            for key in ("timeframe", "data_catalog_ref", "data_slice_identity")
+        ):
+            raise RunnerAdapterError("real D4 output provenance mismatch; investigate before rerun")
+    notes = population["data_coverage_summary"].get("data_coverage_notes", [])
+    if offline_runner.D4_PROVENANCE_MODE_NOTE not in notes:
+        raise RunnerAdapterError("real D4 execution provenance missing")
+
+
 def run_product_runner_adapter(
     *,
     prepared_strategy_spec_path: Path | str,
@@ -470,15 +642,50 @@ def run_product_runner_adapter(
     output_root: Path | str = DEFAULT_OUTPUT_ROOT,
     deterministic_seed: int = 0,
     tool_context: ToolContext | None = None,
+    canonical_15m: bool = False,
+    ohlcv_input_path: Path | str | None = None,
+    d4_catalog_slice_path: Path | str | None = None,
+    d2_import_report_path: Path | str | None = None,
 ) -> RunnerAdapterResult:
     """Execute the product runner adapter over bridge prepare-only outputs."""
 
+    if canonical_15m:
+        for source in (
+            prepared_strategy_spec_path,
+            prepared_variant_manifest_path,
+            prepared_sweep_plan_path,
+            execute_approval_path,
+        ):
+            _ordinary_input(source)
+        destination = Path(output_root)
+        if not destination.is_absolute():
+            destination = REPO_ROOT / destination
+        try:
+            parts = destination.absolute().relative_to(REPO_ROOT.absolute()).parts
+        except ValueError as exc:
+            raise RunnerAdapterError("output outside repository") from exc
+        cursor = REPO_ROOT
+        for part in parts:
+            if part in {".", ".."}:
+                raise RunnerAdapterError("unsafe output path")
+            cursor /= part
+            if cursor.exists() or cursor.is_symlink():
+                attrs = cursor.lstat()
+                if stat.S_ISLNK(attrs.st_mode) or getattr(attrs, "st_file_attributes", 0) & 0x400:
+                    raise RunnerAdapterError("output indirection denied")
     output_root_path = Path(output_root)
     output_root_rel = _validate_product_output_root(output_root_path)
     strategy_rel = _safe_repo_relative(prepared_strategy_spec_path)
     manifest_rel = _safe_repo_relative(prepared_variant_manifest_path)
     sweep_rel = _safe_repo_relative(prepared_sweep_plan_path)
     approval_rel = _safe_repo_relative(execute_approval_path)
+    execution = _execution_binding(
+        canonical_15m=canonical_15m,
+        ohlcv_input_path=ohlcv_input_path,
+        d4_catalog_slice_path=d4_catalog_slice_path,
+        d2_import_report_path=d2_import_report_path,
+        deterministic_seed=deterministic_seed,
+    )
     approval, approval_hash = _require_execute_approval(
         approval_path=_repo_path(approval_rel),
         prepared_strategy_spec_path=strategy_rel,
@@ -487,7 +694,10 @@ def run_product_runner_adapter(
         bridge_preparation_run_id=bridge_preparation_run_id,
         product_pipeline_run_id=product_pipeline_run_id,
         output_root=output_root_rel,
+        execution=execution,
     )
+    if execution:
+        _validate_real_execution(execution)
     approved_budget = dict(approval["approved_sweep_budget"])
     expected_variant_ids = _expected_variant_ids_from_sweep(sweep_rel)
     bindings = {
@@ -506,8 +716,21 @@ def run_product_runner_adapter(
         "deterministic_seed": deterministic_seed,
         "approved_sweep_budget": approved_budget,
     }
+    if execution:
+        bindings["execution"] = execution
     run_id = _runner_adapter_run_id(bindings)
     run_dir = output_root_path / run_id
+
+    if execution and run_dir.exists():
+        raise RunnerAdapterError("possible prior physical execution: reconcile before rerun")
+    if execution:
+        cursor = REPO_ROOT
+        for part in Path(_safe_repo_relative(run_dir)).parts:
+            cursor /= part
+            if cursor.exists() or cursor.is_symlink():
+                attrs = cursor.lstat()
+                if stat.S_ISLNK(attrs.st_mode) or getattr(attrs, "st_file_attributes", 0) & 0x400:
+                    raise RunnerAdapterError("output indirection denied")
 
     sink = None
     if tool_context is None:
@@ -535,23 +758,57 @@ def run_product_runner_adapter(
         )
     )
 
+    if execution:
+        # Atomic reservation survives failure and prevents two callers from
+        # starting the same approved physical run concurrently.
+        try:
+            run_dir.mkdir(parents=True, exist_ok=False)
+        except FileExistsError as exc:
+            raise RunnerAdapterError(
+                "possible prior physical execution: reconcile before rerun"
+            ) from exc
     adapter_result = _invoke_existing_runner(
         output_dir=run_dir / "runner_artifacts" / "adapter",
         strategy_spec_path=_repo_path(strategy_rel),
         variant_manifest_path=_repo_path(manifest_rel),
         sweep_plan_path=_repo_path(sweep_rel),
         deterministic_seed=deterministic_seed,
+        **({"execution": execution} if execution else {}),
     )
+    if execution:
+        _assert_real_population_inputs(adapter_result["result_population"], execution)
+        adapter_approval, current_hash = _require_execute_approval(
+            approval_path=_repo_path(approval_rel),
+            prepared_strategy_spec_path=strategy_rel,
+            prepared_variant_manifest_path=manifest_rel,
+            prepared_sweep_plan_path=sweep_rel,
+            bridge_preparation_run_id=bridge_preparation_run_id,
+            product_pipeline_run_id=product_pipeline_run_id,
+            output_root=output_root_rel,
+            execution=execution,
+        )
+        if current_hash != approval_hash:
+            raise RunnerAdapterError(
+                "approval changed after possible physical execution; investigate"
+            )
     direct_result = _invoke_existing_runner(
         output_dir=run_dir / "runner_artifacts" / "direct",
         strategy_spec_path=_repo_path(strategy_rel),
         variant_manifest_path=_repo_path(manifest_rel),
         sweep_plan_path=_repo_path(sweep_rel),
         deterministic_seed=deterministic_seed,
+        **({"execution": execution} if execution else {}),
     )
+    if execution:
+        _assert_real_population_inputs(direct_result["result_population"], execution)
+        _validate_real_execution(execution)
+        if file_sha256(_repo_path(approval_rel)) != approval_hash:
+            raise RunnerAdapterError("approval bytes changed during execution")
     adapter_output_path = Path(str(adapter_result["output_path"]))
     direct_output_path = Path(str(direct_result["output_path"]))
     reconciliation = _reconcile_outputs(adapter_output_path, direct_output_path)
+    if execution:
+        reconciliation["execution_binding"] = dict(execution)
     _assert_result_population_preserves_budget(
         result_population=adapter_result["result_population"],
         approved_budget=approved_budget,

@@ -13,7 +13,8 @@ GRANT INSERT ON research_authority.envelope_registry, research_authority.envelop
     research_authority.search_budget_reservation, research_authority.proposal_record,
     research_authority.scientific_trial, research_authority.trial_attempt,
     research_authority.holdout_state, research_authority.contamination_edge,
-    research_authority.evidence_reference, research_authority.authority_audit
+    research_authority.evidence_reference, research_authority.authority_audit,
+    research_authority.trial_result_binding
     TO cpw_research_authority_writer;
 GRANT UPDATE ON research_authority.envelope_control_state, research_authority.campaign_state,
     research_authority.search_lineage, research_authority.search_budget_reservation,

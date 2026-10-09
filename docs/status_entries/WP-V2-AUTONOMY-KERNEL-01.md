@@ -1,25 +1,29 @@
 # WP-V2-AUTONOMY-KERNEL-01
 
-Branch-state T3 implementation; required acceptance complete under the
-Karl-approved validation-only continuation dated 2026-10-08. Not merged or
-activated; hold for Side 22 exact-head review. No self-merge.
+Branch-state T3 implementation; corrected scientific-lineage invariant and all
+required release gates now PASS after Side 22's validation-only triage.
+Not merged or activated; hold for Side 22 exact-head re-review. No self-merge.
 Branch: `codex/wp-v2-autonomy-kernel-01`.
 Exact base: `9d9f8a94405ded76bbef0163488b9a8e0596371a`.
-Semantic implementation head: `51a05391a7703691a6adf2bee3588cddbdcda832`.
-Complete passing full-release head: `d98bf03376f8e1fc4b3450ff77186fc0f2091c6c`.
-Final head is the documentation-only evidence tail; its exact SHA and the PR
-identity are recorded in the publication report. Independent exact-head review
-has not occurred. Publication is authorized after final documentation checks.
+Old reviewed remote head: `322a02028896893d415eae71d48d987fd335406a`.
+Corrected semantic and passing full-release head:
+`69d686dc1d22d283ff5a5b6490775092a463b80a`.
+Final head is a documentation-only evidence tail; its exact SHA and the updated
+PR #735 remote identity are recorded in the publication report. No independent
+review of the corrected head is claimed. Ready for Side exact-head re-review: YES.
 
 ## Repo truth
 
-Refreshed `origin/main` matched the exact base before validation and again
-before the evidence tail. No open/competing PR or remote package branch existed.
+Refreshed `origin/main` matched the exact base before correction and again
+before this evidence tail. PR #735 was the only open PR and its old exact remote
+head remained unchanged before publication; no competing PR existed.
 D2-026 remains LOCKED and unsuperseded. Consumers are the governed pilot and
 focused tests; no factory/production successor consumer was found. Existing
 psycopg/Optuna/Prefect and jsonschema/Pydantic dependencies suffice.
-All 22 non-documentation files are byte-identical to the semantic head. The
-semantic-to-final diff is restricted to the three permitted documentation files.
+The correction changed only store.py, the new/unmerged 0001 migration, and
+test_research_autonomy_postgres.py. All 22 non-documentation files remain
+byte-identical to the corrected semantic head through the local evidence tail.
+The semantic-to-final diff is restricted to the three permitted docs.
 
 ## Exact closure
 
@@ -59,8 +63,9 @@ are in `docs/architecture/2026-10-v2_autonomy_kernel_implementation.md`.
 
 ## Acceptance evidence
 
-Physical Cases A-K ran at the semantic head. Their evidence remains valid:
-no implementation, SQL, schema, fixture or test changed in the continuation.
+Physical Cases A-K were revalidated by the focused, adjacent and expanded live
+PostgreSQL suites at the corrected semantic head. The mandatory complete
+full-release rerun also PASSes at that exact head.
 
 | Case | Result | Evidence |
 | --- | --- | --- |
@@ -68,7 +73,7 @@ no implementation, SQL, schema, fixture or test changed in the continuation.
 | B DB/migration/role | PASS | 13 tables, 102 constraints, 91 columns and exact triggers; repeat/checksum/immutability/privilege proofs |
 | C Initial campaign | PASS | Registered exact envelope, zero prior history, atomic 6-proposal/4-trial reservation, frozen lineage binding |
 | D Wave/accounting | PASS | Exact Governor identities/counts; one audit advance; original idempotent outcomes; numeric-type tamper rejected; retries retain trial ID |
-| E Successor | PASS | Finalized parent, inherited DB totals, bounded reservation and current lineage |
+| E Successor | PASS | Exact frozen parent identity and fixed campaign fingerprint; rejected relabel/substitution leaves every authority row unchanged; bounded same-hypothesis continuation succeeds |
 | F Concurrency | PASS | One of two conflicting successors wins; cumulative used/reserved remain within ceilings |
 | G Holdout/contamination | PASS | Isolated attempt stays unconsumed; informative escape persists; restoration/new-domain/new-ID bypass rejected |
 | H Memory independence | PASS | Unchanged Memory rebuild/bootstrap in separate DB and complete synthetic .cpw deletion preserve authority |
@@ -78,21 +83,30 @@ no implementation, SQL, schema, fixture or test changed in the continuation.
 
 - Focused: **46 passed**, 24 expected Optuna experimental warnings.
 - Adjacent: **60 passed**.
-- Live PostgreSQL: **13 passed, zero skips** (authority and existing Memory suites).
+- Live PostgreSQL: **20 passed, zero skips** (17 authority cases, including seven new adversarial cases, and three existing Memory cases).
 - Envelope validator: **PASS**, default zero files and two fixture files.
 - Exact 21-created / 4-modified closure and base-to-head diff checks: **PASS**.
-- Complete full-release at the committed validation head: **PASS**, **4,000
-  passed tests**, **23 accounted existing skips**. All **48 shards PASS** and
-  complete; **zero timeouts**. All **196 discovered tracked test files** were
-  assigned exactly once, with no missing, duplicate or untracked assignments.
+- Complete full-release rerun at the corrected semantic head: **PASS**,
+  **4,007 passed tests**, **23 accounted existing skips**. All **48 shards PASS
+  and complete**, **zero timeouts**, all **196 tracked files assigned exactly
+  once**, no missing/duplicate/untracked assignments.
 - All **eight required non-shard commands PASS**, including exact schema-path
-  authorization, forbidden-path check, Result Population validator and query views.
+  authorization and forbidden-scope checks.
 - Assignment manifest:
   `sha256:58844f89d411d5626e06c4755d73f9b3d1be3dbc648c67c8439209c0c46c99c8`.
-- Slowest shard: 41, **703.672 seconds**, below the profile's 1,800-second limit.
-- Shards 5, 6 and 33 now PASS; the corpus-backed N1 test executed its two
-  existing deterministic backtests inside the unmodified full-release suite.
-- Required authority/Memory PostgreSQL tests also executed in the full suite.
+- Slowest shard: 5, **1,029.86 seconds**, below the unchanged 1,800-second limit.
+- The exact shard-40 four-file triage group PASSed: **74 passed**, complete
+  untruncated stdout/stderr retained outside the repo. Shard 40 then PASSed
+  inside the complete release rerun as well.
+- Required authority/Memory PostgreSQL proof is **20 executed / zero skips**.
+  Shard 41 PASS (84 passed, three unrelated directory-redirect skips);
+  shard 46 PASS (102 passed, zero skips). N1/adapter/taker-flow shards 5/6/33 PASS.
+- Full raw stdout/stderr pairs and individual statuses for all 48 shards and
+  eight non-shard commands are retained outside the repo, alongside the JSON
+  verifier result and exact command. No output was limited to the 4,000-character
+  per-command excerpts. Capture-only external observation wrapped the unchanged
+  verifier command executor; test commands, concurrency, timeout and pass/fail
+  logic were unchanged. No repo helper or test file was modified.
 
 | Shard | Result | Shard | Result | Shard | Result |
 | --- | --- | --- | --- | --- | --- |
@@ -115,7 +129,8 @@ no implementation, SQL, schema, fixture or test changed in the continuation.
 
 ### Existing skip accounting
 
-No test was changed, mocked, weakened, deselected, marked xfail or newly skipped.
+No existing test was modified, mocked, weakened, deselected, marked xfail or
+newly skipped. Seven new adversarial cases were added in the authorized test file.
 The 23 skips follow unchanged test conditions:
 
 | Shard | Count | Existing prerequisite |
@@ -137,17 +152,74 @@ Run with the retained CPW full-release Python 3.12 environment and process-only
 isolated test database variables; no connection strings are recorded here.
 
 ```text
-python tools/dev/verify.py --validation-preset full-release --full-pytest-sharded --pytest-shard-profile full-release-balanced-v1 --authorized-path research/schemas/bounded_research_envelope.schema.json --authorized-path research/schemas/bounded_research_envelope_control.schema.json --authorized-scope research-schema --authorized-package WP-V2-AUTONOMY-KERNEL-01 --base-ref 9d9f8a94405ded76bbef0163488b9a8e0596371a --head-ref d98bf03376f8e1fc4b3450ff77186fc0f2091c6c --json
+python tools/dev/verify.py --validation-preset full-release --full-pytest-sharded --pytest-shard-profile full-release-balanced-v1 --authorized-path research/schemas/bounded_research_envelope.schema.json --authorized-path research/schemas/bounded_research_envelope_control.schema.json --authorized-scope research-schema --authorized-package WP-V2-AUTONOMY-KERNEL-01 --base-ref 9d9f8a94405ded76bbef0163488b9a8e0596371a --head-ref 69d686dc1d22d283ff5a5b6490775092a463b80a --json
 ```
 
 Raw command/results, all shard outcomes, skip accounting, provenance and semantic
 blob comparison are retained outside the repo in the package validation directory.
-The final documentation-only tail receives docs-only verification and diff checks.
+The final documentation-only tail receives docs-only verification and diff
+checks. All non-documentation Git blobs remain identical to the passing
+corrected semantic head.
+
+## Side 22 correction, failed-run history and passing triage
+
+Side 22 inspected remote head `322a02028896893d415eae71d48d987fd335406a`
+and found that parent-linked successors could substitute another envelope-legal
+hypothesis fingerprint and misattribute hypothesis budgets. Prior green tests
+did not prove this invariant.
+
+At corrected semantic head `69d686dc1d22d283ff5a5b6490775092a463b80a`:
+
+- Every new search must match the campaign's fixed fingerprint before mutation.
+- Successors load and hash-verify the exact finalized same-campaign parent's
+  frozen contract and retain its hypothesis_id, family_id and fingerprint.
+- The new/unmerged migration rejects mismatched campaign fingerprints on every
+  search INSERT and rejects successor parent-identity relabeling independently.
+- Seven new physical cases use two otherwise valid, explicitly allowed
+  synthetic mechanisms and recomputed envelope/intent hashes. They prove
+  application rejection of fingerprint substitution and either identity relabel;
+  direct SQL rejection on initial/successor fingerprints and parent identities;
+  no change to any authority table; and legal narrowed bounds/changed seed with
+  exact durable counts and campaign ceilings. These cases all PASS.
+
+The first corrected-head full-release genuinely FAILed: all 48 completed,
+47 PASS / shard 40 FAIL, zero timeouts. Setup failed for:
+`tests/test_execution_event.py::test_malformed_or_conflicting_streams_fail_closed[duplicate_variant-variant ID recurs]`.
+The captured traceback entered the unchanged dispatch-authorization writer;
+the underlying exception was truncated by the verifier's excerpt limit.
+One isolated diagnostic PASSed. That diagnostic did not constitute acceptance,
+and the correction remained unpublished pending Side 22's disposition.
+
+Side 22 then explicitly authorized validation-only triage: same branch,
+worktree and PR, unchanged corrected semantic bytes, exact four-file group
+first, then the complete release at that semantic head with raw output retained.
+Both the group (74 passed) and all 48 release shards PASSed. The original cause
+remains unknown; a transient setup failure is plausible but unproven. No
+protected writer, runner or existing test was edited to obtain this result.
+No test was mocked, weakened, deselected, marked xfail or newly skipped.
+
+The earlier STOP docs-tail commit `2590b10aeef7e897805877fef13ec6a4121d42c7`
+remains retained locally. To test the exact prescribed semantic commit, the same
+branch/worktree selected `69d686dc1d22d283ff5a5b6490775092a463b80a` with a
+clean `git reset --keep`; only the earlier three-doc tail was set aside.
+Its factual failed-run evidence was preserved in this final documentation tail.
+An initial capture-wrapper entrypoint error occurred before any release command
+ran; it was corrected outside the repo. It is not presented as a test result.
+
+The previous failed release and one passed diagnostic were never accepted as
+release success. This new complete passing invocation is the acceptance proof.
+Publish the same branch and update only PR #735 after final docs/scope/clean
+checks. Hold for Side 22 exact-head re-review; do not merge or claim independent
+review/merge readiness.
 
 ## Prior STOP and approved resolution
 
-The previous full-release failed solely on the absent ignored D4 normalized
-CSV in shards 5, 6 and 33. Its failure and STOP were not accepted as a pass.
+The original full-release failed on missing D4 data. The approved validation
+continuation later PASSed at `d98bf03376f8e1fc4b3450ff77186fc0f2091c6c`
+(4,000 passed / 23 accounted skips), published as remote head
+`322a02028896893d415eae71d48d987fd335406a`.
+That historical PASS neither proved the missing lineage invariant nor replaces
+the corrected head's invariant proof or its passing complete rerun.
 The user explicitly authorized Karl's 2026-10-08 validation-only continuation,
 superseding only WP section 40's product/backtest regression prohibition for
 existing mandatory full-release tests. All other boundaries remain intact.
@@ -158,9 +230,12 @@ committed 15m D4 catalog before copying: SHA-256
 **220,128 data rows**. Source and destination ancestors were checked for
 symlink/reparse redirects; no web download, regeneration or substitute data.
 The destination was absent, was copied to the exact ignored D4 path, and was
-verified byte-identical. After the full-release PASS, only that continuation-
-created ignored copy was removed; the original source was retained. No D4 file
-was committed. Cleanup left the tracked worktree clean.
+verified byte-identical. Both corrected-head attempts reverified the same
+retained source against the
+committed catalog and used byte-identical ignored copies. Each run-created copy
+was removed after its validation, including the final passing triage run; the
+original source was retained. No D4 file was committed. Cleanup left the
+tracked worktree clean.
 
 The earlier H-004 `h004-clean` context retains its two verified ignored inputs;
 no execution stream was hydrated. Known missing legacy execution-stream and
@@ -173,7 +248,7 @@ PostgreSQL 16.15 from a retained image, dedicated isolated loopback cluster on a
 non-default port, no repository/service mounts, no production connection.
 Authority and Research Memory use separate logical test databases. Actual
 logical separation and bounded writer-role physical proof PASS; required
-PostgreSQL proof is 13 passed / zero skips. No credentials or connection strings
+PostgreSQL proof is 20 passed / zero skips. No credentials or connection strings
 are retained in this evidence.
 
 ## Authority and next dependency

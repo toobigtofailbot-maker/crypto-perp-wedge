@@ -4,12 +4,13 @@ Package: `WP-V2-AUTONOMY-KERNEL-01`. Branch implementation under D2-026;
 this record creates no new architecture decision or activation authority.
 
 Exact base: `9d9f8a94405ded76bbef0163488b9a8e0596371a`.
-Semantic implementation head: `51a05391a7703691a6adf2bee3588cddbdcda832`.
-Physical acceptance and complete full-release passed after Karl's approved
-2026-10-08 validation-only continuation. Full-release ran at
-`d98bf03376f8e1fc4b3450ff77186fc0f2091c6c`; the final tail changes only docs.
-Exact evidence and the bounded exception are recorded in
-`docs/status_entries/WP-V2-AUTONOMY-KERNEL-01.md`. Side 22 review remains pending.
+Corrected semantic head: `69d686dc1d22d283ff5a5b6490775092a463b80a`.
+Side 22 reviewed remote head `322a02028896893d415eae71d48d987fd335406a`
+and identified a successor scientific-identity bypass. The narrow correction
+and physical proof PASS. An initial release FAILed on an unchanged fixture
+setup; Side 22 triage then PASSed the exact four-file group and all 48 release
+shards at this corrected semantic head. Exact failure/rerun evidence is in
+`docs/status_entries/WP-V2-AUTONOMY-KERNEL-01.md`.
 
 ## Human envelope and control contracts
 
@@ -134,15 +135,26 @@ loopback logical test databases; connection strings are not evidence artifacts.
 
 ## Acceptance and boundary
 
-The companion status entry records Cases A-K PASS, focused 46, adjacent 60,
-live PostgreSQL 13 (zero skips), and validator PASS at the unchanged semantic
-head. The approved validation-only continuation verified the retained D4 source
-against the committed catalog, ran the existing suite and removed its exact
-ignored copy afterward. Full-release PASS: all 48 shards complete and passing,
-4,000 passed tests, 23 accounted existing skips, zero timeouts, all 196 tracked
-test files assigned exactly once, and all eight required non-shard commands PASS.
-The existing N1 deterministic backtests ran only under that narrow historical
-regression exception. No test or semantic file changed and no gate was weakened.
+Every new search is bound to the campaign's immutable hypothesis fingerprint.
+Successors load/hash-verify the exact finalized same-campaign frozen parent and
+retain its hypothesis_id, family_id and fingerprint. The unmerged INSERT guard
+independently enforces campaign fingerprint and successor parent identity.
+Bounded parameter/search-setting changes remain legal; accounting, retry and
+idempotency semantics are unchanged. Seven adversarial physical cases compare
+all authority rows after rejection and prove a valid bounded continuation.
+
+At the corrected head: focused 46, adjacent 60, live PostgreSQL 20 (zero skips),
+validator and Cases A-K PASS. The initial 47/48 passing release was FAIL and
+was not published. The failed setup's exact underlying cause remains unknown;
+a transient failure is plausible but unproven. Side 22 authorized the unchanged
+four-file shard-40 group (74 passed), then complete release rerun: **48/48 PASS**,
+4,007 passed tests, 23 accounted existing skips, zero timeouts, 196 tracked test
+files exactly once and eight non-shard commands PASS. Full raw command output
+is retained outside the repo. No protected code/test or gate was weakened.
+The same catalog-verified ignored D4 input was used only for existing mandatory
+regressions and the run-created copy removed afterward. The final tail changes
+only the three authorized docs, preserving exact corrected semantic bytes.
+PR #735 is held for Side 22 exact-head re-review; no self-merge.
 
 No Stage 5B or autonomous research activation, Hermes/Prefect coupling,
 product runner/backtest/WFO-OOS/robustness/Monte Carlo, real final-holdout access,

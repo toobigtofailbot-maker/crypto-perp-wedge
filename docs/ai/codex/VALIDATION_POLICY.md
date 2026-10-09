@@ -37,12 +37,13 @@ full pytest: TIMED OUT after <seconds>; not a pass
 
 ## Blast-radius test selection
 
-Every work package must name:
-
-- mandatory focused tests;
-- adjacent subsystem tests;
-- relevant validators and integrity views;
-- whether full-suite evidence is required and why.
+Every work package must name the smallest sufficient focused, adjacent,
+affected-contract, validator/integrity checks and explain whether broad/full
+validation is required. Select checks by distinct actual behaviors, direct
+consumers, and credible failure modes, not test counts. Cover each material
+contract and failure class; do not multiply equivalent negative matrices or
+repeat the same assertion without additional risk coverage. Mark inapplicable
+checks with a reason; this cannot waive a tier floor or active-WP stronger gate.
 
 The selection must follow affected semantics and direct consumers, including
 append-only growth. Tests over append-only registries, ledgers, streams, or
@@ -66,7 +67,7 @@ Use this order:
 6. Run adjacent tests.
 7. Run relevant validators and integrity views.
 8. Run a broad/full suite only when the tier or active package requires it.
-9. Complete the final rebase and exact-head evidence.
+9. Complete the final base/mergeability gate and exact-head evidence.
 
 Never start a long full suite merely to discover a missing known gitignored
 dataset or an already-recorded baseline disclosure. A focused failure returns
@@ -97,8 +98,15 @@ proved its bounded delta; that sequence does not create a general exemption.
 
 ## Full-release evidence
 
-Full pytest and the full-release profile are integration and
-protected-boundary tools, not the routine inner loop. When a package requires
+Full pytest and the full-release profile are integration and protected-boundary
+tools, not the routine inner loop. Require them for T3/protected gates, explicit
+WP/release/milestone requirements, or genuinely broad integration risk supported
+by the affected dependency graph. T4 retains maximum rigor and all applicable
+protected/full-release floors. T0-T2 do not automatically require full release.
+Prefer one broad run on the stable candidate; repeat only when changed semantics
+invalidate the covered evidence, while preserving stronger exact-head gates.
+
+When a package requires
 full-suite evidence, `tools/dev/verify.py --full-pytest-sharded --pytest-shards
 N` may be used only when all required shards pass. A failed or timed-out shard
 fails the overall verification.
@@ -130,6 +138,13 @@ Raw `--pytest-shards N` index-modulo mode remains available. A named profile
 cannot be combined with `--pytest-shards`; ambiguous combinations are rejected.
 `--pytest-shard-index` remains available for deterministic diagnostics, but a
 selected-shard run is not complete full-suite evidence.
+
+## Local-first validation and future hosted checks
+
+Run the required local checks first. Before selecting minimal hosted exact-head
+validation in a later authorized package, inspect the actual ruleset, branch
+protection, and trusted classification. This guidance designs or implements no
+CI and cannot waive required hosted or protected checks.
 
 ## Protected-core invariants
 

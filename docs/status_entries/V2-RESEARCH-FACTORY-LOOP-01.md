@@ -3,7 +3,8 @@
 Branch-state implementation; exact-run physical acceptance PASS; final T3 PASS.
 Branch: `codex/wp-v2-research-factory-loop-01`.
 Exact refreshed base: `712f158d51f36447152e5812a26d725f31d0a1d2`.
-No PR or self-merge. Factory default OFF; Stage 5B OFF.
+Non-draft PR [#737](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/737)
+is open for Side 22 exact-head review; not merged. Factory default OFF; Stage 5B OFF.
 
 ## Repo truth and delivered integration
 
@@ -251,3 +252,8 @@ After complete passing validation and preservation, only the two ignored 1d/fund
 validation copies created by the continuation were removed. Root sources, the
 preexisting 15m copy, approvals, scratch evidence and scientific database were
 retained. The scoped cleanup record is outside the repository.
+
+Publication evidence is a docs-only tail after accepted semantic head
+`54eb10e792f7afd64ea6f3d732c5352661dded1b`. The exact final remote commit is
+reported in PR #737 and the external report-back; no semantic edits followed the
+accepted release. This package does not grant merge or activation authority.

@@ -42,7 +42,8 @@ Startup read order:
   the earlier failed release and baseline disclosures remain historical evidence
   in `docs/status_entries/WP-V2-AUTONOMY-KERNEL-01.md`. No activation follows
   from those merges.
-- `V2-RESEARCH-FACTORY-LOOP-01` is scoped branch-state implementation from
+- `V2-RESEARCH-FACTORY-LOOP-01` / PR #737 is open for review as scoped
+  branch-state implementation from
   `712f158d51f36447152e5812a26d725f31d0a1d2`, with the explicitly amended 16-file closure.
   The manual factory remains default OFF. Legacy synthetic v1 is preserved;
   real 15m D4 execution requires a separate exact v2 operator marker. Mapping,

@@ -1,6 +1,6 @@
 # V2-RESEARCH-FACTORY-LOOP-01
 
-Branch-state implementation; exact-run physical acceptance PASS; final T3 pending.
+Branch-state implementation; exact-run physical acceptance PASS; final T3 PASS.
 Branch: `codex/wp-v2-research-factory-loop-01`.
 Exact refreshed base: `712f158d51f36447152e5812a26d725f31d0a1d2`.
 No PR or self-merge. Factory default OFF; Stage 5B OFF.
@@ -11,7 +11,8 @@ PR #735 is merged at `144c4543f839f1415d0824458af576c7f83b164e` and PR #736
 at the required base. No competing open PR was found. The existing adapter
 needed the separately authorized two-file correction because its v1 route
 was synthetic. All existing runner, Governor, bridge, fold, OOS and schema
-implementations remain unchanged.
+implementations remain unchanged. The later explicit query amendment adds only
+the read-only JSON compatibility owner and its regression test.
 
 The mapper accepts only the committed 15m SMA/StdDev family and frozen random
 Governor proposals, preserves exact integer values and full denominators,
@@ -44,7 +45,7 @@ schedule, retry physical work, start another wave, or register a Prefect flow.
 `prefect_operational_summary: not_integrated` is intentional. Reports have bounded
 research dispositions and no candidate, canonical, runtime or capital authority.
 
-## Exact 14-file closure
+## Exact 16-file closure (authorized same-WP amendments)
 
 Create:
 
@@ -65,6 +66,8 @@ Modify:
 - `docs/project_status.md`
 - `tools/lab_pipeline/runner_adapter.py`
 - `tests/test_lab_pipeline_runner_adapter.py`
+- `tools/research_query/query_layer.py`
+- `tests/test_research_query.py`
 
 ## Validation and remaining gates
 
@@ -91,13 +94,13 @@ This was data validation only, with zero strategy runner invocations.
 
 Completed: actual operator-approved D4 adapter/direct byte parity, genuine
 mapped real purged IS/OOS, seeded advisory MC and unstubbed durable terminal
-result/recovery proof. NOT RUN: mandatory final full-release at committed
-semantic head. No PR may open until all mandatory gates pass. The original
+result/recovery proof. The initial final-release gate was pending at that
+checkpoint; the corrected committed-head release below subsequently passed. The original
 unsigned request itself was never treated as approval.
 
 Rollback: revert package code and keep manual invocation disabled. Retain immutable
 historical authority/audit evidence; do not delete committed history silently.
-Ready for Side exact-head review: NO.
+Ready for Side exact-head review: YES, subject to review of the final remote head.
 
 The current exact unsigned operator request is in ignored scratch namespace
 `edc33653918c36d65af052f1589ae6dd6a74b8532de0771d154dfc4ba41eefe0`;
@@ -153,4 +156,98 @@ separately from disposable authority-fixture and Research Memory test databases.
 Final pre-commit focused suite: **88 passed, zero skips**, including all 26
 physical PostgreSQL cases, mapper/manual and legacy/v2 adapter regression.
 Raw log: `%LOCALAPPDATA%/Temp/cpw-factory-loop-01-validation/focused-final.log`.
-The candidate is committed for mandatory full-release; no PR until that gate passes.
+The original implementation was committed at
+`c7d5226eda39d7cc1f9974003194dbd28a5a3cf3`; its failed release history and the
+later passing committed-head release are recorded below.
+
+## Query correction and final T3 release
+
+The same-WP correction explicitly expanded the original 14-file closure to the
+16 paths listed above. It changed only `tools/research_query/query_layer.py` and
+`tests/test_research_query.py`. The original factory implementation is byte-identical
+between old semantic head `c7d5226eda39d7cc1f9974003194dbd28a5a3cf3` and corrected
+semantic head `54eb10e792f7afd64ea6f3d732c5352661dded1b`.
+
+Historical failures are retained. The original full release failed three H-004
+input-presence assertions; 47 other shards were NOT RUN. Authorized validation-only
+canonical 1d/funding copies resolved that context. The next complete query shard
+failed with 81 passed / 1 failed. Five fresh isolated runs of the reported node
+passed, but a further complete shard again failed with 81 passed / 1 failed.
+Those isolated successes were not treated as release acceptance.
+
+The untruncated traceback identified `test_named_views_present`, SQL
+`SELECT * FROM "v_result_population_append_only_ledger" LIMIT 1`, DuckDB 1.5.2,
+and unchanged RP-0007 timestamp `2026-08-12T00:42:41.600118Z` rejected by an
+inferred whole-second `%Y-%m-%dT%H:%M:%SZ` conversion. RP-0007 whole-file SHA is
+`sha256:ff1104cebcb2775f3f64d2e5bec72b3aaaeeb4187740978e79a26a4819ee2308`.
+
+The owner now binds the inferred full JSON schema while retaining the three
+administrative timestamp leaves as VARCHAR, matching the existing typed-empty
+relation and stable baseline. Valid fractional text retains full precision;
+invalid date/time strings fail explicitly. Numeric and nested types, row counts,
+complete denominators, ledger meaning and integrity findings are preserved.
+No artifact rewriting, global all-varchar conversion, dropped rows, NULL fallback,
+skip/xfail, dependency or schema change was used. Read-only schema/artifact/consumer
+comparisons before and after editing proved all 25 affected views have identical
+schemas and rows; all nine canonical Result Populations remain byte-identical.
+
+The focused mixed-precision/invalid-input regression passed all four cases.
+Its initial development run failed because the new fixture omitted the required
+manifest argument; that fixture wiring was corrected before any complete shard.
+Three complete fresh-process query shards then each passed 86 tests with zero
+skips (pytest times 1337.01s, 1314.97s and 1310.18s).
+
+The required single final full release ran at committed semantic head
+`54eb10e792f7afd64ea6f3d732c5352661dded1b` with `full-release-balanced-v1`.
+All 56 commands and all 48 shards PASS; 198 tracked test files assigned exactly
+once; no failures, timeouts or NOT RUN shards. Totals: 4,046 passed / 24 permitted
+environment-dependent skips. All 26 authority PostgreSQL cases and all three
+Research Memory PostgreSQL cases were unskipped. The slowest shard was 1658.329s,
+within the unchanged 1800s budget. The assignment manifest SHA is
+`sha256:d0449cbdf9e702e4a6f4f010f97670f0f44afb9bcd35c3eafa31b3a3d55cb4d1`.
+Reporting-only `--max-output-chars 10000000` and pytest `-ra` retained complete
+output and skip reasons; no test ordering, acceptance or timeout overrides.
+
+The 24 skips are disclosed, not labeled PASS: 18 Windows symlink/directory-redirect
+privilege cases; one isolated Python 3.12/NautilusTrader environment case; one
+optional FUNDING_PROVENANCE_DATA_ROOT case; one absent ignored 4h parquet case;
+two explicitly gated taker-flow physical/evidence cases; one explicitly gated
+feature-table physical case. Complete individual reasons are retained in the
+final release summary. Required real-D4 factory acceptance and PostgreSQL cases
+are not among these skips.
+
+All 62 integrity views were executed read-only. Result Population integrity
+views were empty. Two existing findings remain: H-004 dispatch
+DSP-20260804-H004R2A1 has no execution stream, and STRAT-SPEC-0007 has unresolved
+legacy internal hash scope. Both are compared with locked-base query output;
+no scientific authority is inferred from them or changed by this package.
+
+Post-release preservation proved all 14 scientific table row/hash snapshots,
+22 retained prepared/runner files including Karl's marker, nine canonical
+populations, real 15m input, committed D4/D2 provenance and active handoff unchanged.
+Exactly two scientific trials and two durable PERFORMANCE_RESULT/audit identities
+remain; zero additional factory executions. Holdout remains unexposed; candidate
+OOS withheld; factory and Stage 5B OFF.
+
+Validation-only source/destination hashes were reverified after the release:
+1d OHLCV `sha256:c6e2e7ce030db6a710d95e48325fc77b27efbbdd441199b3d7458d4394795802`;
+funding `sha256:5f0da7478ccf3514af41dff9958b579cd2f797a2716001b0fa10a11059912798`.
+The approved real 15m input remains
+`sha256:c30fd7f07fdf513cdaf234b1bee4eff03b430a479cc572a2cc8b57394f22e0ab`;
+D4 catalog `sha256:f7b98c4d7759b6ba0c9bf8559bcea5e3311d3abe877930da254aeca96f53105a`;
+D2 import `sha256:543c944f727b2b9a7ad06742946ecefc91aa8b94723f46509e4041f622ef57ad`.
+
+Complete raw evidence is retained outside the repository in
+`%LOCALAPPDATA%/Temp/cpw-factory-loop-01-validation/`: the prior failed release
+and exclusive logs, five isolated-node logs, focused corrected log, three
+`compatibility-exclusive-N.log` files, before/after 25-view schema/row proofs,
+`full-release-compatibility.json`, its summary and physical shard logs,
+`integrity-continuation.json`, locked-base integrity comparison, and
+`final-release-preservation-proof.json`. Evidence documentation after the accepted
+semantic head must remain docs-only. Hold for Side 22 exact-final-remote-head
+review; do not self-merge or activate any protected/economic path.
+
+After complete passing validation and preservation, only the two ignored 1d/funding
+validation copies created by the continuation were removed. Root sources, the
+preexisting 15m copy, approvals, scratch evidence and scientific database were
+retained. The scoped cleanup record is outside the repository.

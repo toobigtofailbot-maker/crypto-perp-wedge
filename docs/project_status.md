@@ -43,14 +43,20 @@ Startup read order:
   in `docs/status_entries/WP-V2-AUTONOMY-KERNEL-01.md`. No activation follows
   from those merges.
 - `V2-RESEARCH-FACTORY-LOOP-01` is scoped branch-state implementation from
-  `712f158d51f36447152e5812a26d725f31d0a1d2`, with the authorized 14-file closure.
+  `712f158d51f36447152e5812a26d725f31d0a1d2`, with the explicitly amended 16-file closure.
   The manual factory remains default OFF. Legacy synthetic v1 is preserved;
   real 15m D4 execution requires a separate exact v2 operator marker. Mapping,
   scratch evidence verification and append-only trial binding are implemented.
   Karl's exact v2 marker authorized the completed scratch-only two-trial run.
   Real D4 byte parity, two January 2020 folds, advisory MC and two durable
   terminal bindings passed. These folds prove technical integration only;
-  candidate OOS remains withheld. Final T3 release is pending; no accepted PR,
+  candidate OOS remains withheld. The narrow read-only mixed-timestamp query
+  correction preserved all 25 affected view schemas/rows. Three fresh full query
+  shards passed; final T3 at semantic head
+  `54eb10e792f7afd64ea6f3d732c5352661dded1b` passed 48/48 shards,
+  4,046 tests with 24 disclosed environment skips and all mandatory PostgreSQL
+  cases unskipped. Prior failed releases remain recorded. No additional factory
+  executions occurred. Awaiting Side 22 exact-head review; no merge,
   unattended research, Stage 5B, canonical/candidate, runtime or capital authority
   is claimed. See `docs/status_entries/V2-RESEARCH-FACTORY-LOOP-01.md`.
 

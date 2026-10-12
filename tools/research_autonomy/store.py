@@ -1,4 +1,4 @@
-"""Transactional scientific authority. No runner, scheduler or result writer."""
+"""Transactional scientific authority and append-only evidence commitments."""
 
 from __future__ import annotations
 
@@ -374,3 +374,180 @@ class ResearchAuthorityStore:
             c = self._campaign(conn, contract.campaign_id)
             conn.execute("INSERT INTO research_authority.evidence_reference VALUES (%s,%s,%s,%s,%s,%s)", (reference_id, contract.campaign_id, search_id, binding.repo_path, binding.repo_sha, binding.artifact_sha256))
             self._audit(conn, event_id=f"reference:{reference_id}", event_type="evidence_reference", payload=payload, campaign=c)
+
+    def commit_trial_result(self, payload, *, repo_root: Path):
+        """Atomically commit reverified scratch evidence and its ordered audit event."""
+        from tools.research_factory.evidence import verify_commitment
+
+        payload = json.loads(canonical_json(payload))
+        event_id = "result:" + payload["idempotency_id"]
+        with self._transaction() as conn:
+            contract = self._load_contract(conn, payload["search_id"])
+            self._search_active(conn, contract)
+            current = self._snapshot(conn, contract.campaign_id)
+            if current.holdout.state != "unexposed" or current.holdout.contaminated:
+                raise AuthorityConflict("unexposed uncontaminated development authority required")
+            verify_commitment(repo_root, payload, contract)
+            if payload.get("fold_binding"):
+                protocol_row = conn.execute(
+                    "SELECT semantic_payload FROM research_authority.envelope_registry WHERE envelope_id=%s AND envelope_version=%s",
+                    (contract.envelope_id, contract.envelope_version),
+                ).fetchone()
+                protocol = json.loads(protocol_row["semantic_payload"])["scientific_protocol"]
+                if (payload["purge_bars"], payload["embargo_bars"]) != (
+                    protocol["purge_bars"],
+                    protocol["embargo_bars"],
+                ):
+                    raise AuthorityConflict("fold protocol differs from frozen envelope")
+            proposal = conn.execute(
+                "SELECT p.* FROM research_authority.proposal_record p JOIN research_authority.scientific_trial t USING(proposal_id) WHERE t.scientific_trial_id=%s",
+                (payload["scientific_trial_id"],),
+            ).fetchone()
+            if proposal is None:
+                raise AuthorityConflict("scientific trial absent")
+            identity = (
+                payload["proposal_id"],
+                payload["scientific_trial_id"],
+                payload["search_id"],
+                payload["campaign_id"],
+                payload["contract_hash"],
+                payload["params_fingerprint"],
+            )
+            actual = tuple(
+                proposal[k]
+                for k in (
+                    "proposal_id",
+                    "scientific_trial_id",
+                    "search_id",
+                    "campaign_id",
+                    "contract_sha256",
+                    "parameters_fingerprint",
+                )
+            )
+            if (
+                identity != actual
+                or payload["variant_id"] != f"VAR-{proposal['proposal_sequence'] + 1:06d}"
+            ):
+                raise AuthorityConflict("durable proposal/trial/variant substitution")
+            kind = (
+                "trial_attempt"
+                if payload["classification"] == "SOFTWARE_FAILED"
+                else "trial_result"
+            )
+            old = conn.execute(
+                "SELECT * FROM research_authority.trial_result_binding WHERE idempotency_id=%s",
+                (payload["idempotency_id"],),
+            ).fetchone()
+            if old:
+                if old["evidence_payload"] != canonical_json(payload) or not self._replay(
+                    conn, event_id, kind, payload
+                ):
+                    raise AuthorityConflict("conflicting terminal idempotency replay")
+                return dict(old)
+            if (current.lineage_version, current.lineage_sha256) != (
+                payload["authority_lineage_version"],
+                payload["authority_lineage_sha256"],
+            ):
+                raise AuthorityConflict("terminal commitment current lineage mismatch")
+            if conn.execute(
+                "SELECT 1 FROM research_authority.trial_result_binding WHERE scientific_trial_id=%s AND classification='PERFORMANCE_RESULT'",
+                (payload["scientific_trial_id"],),
+            ).fetchone():
+                raise AuthorityConflict("scientific trial already terminal")
+            last = conn.execute(
+                "SELECT coalesce(max(attempt_number),0) AS n FROM research_authority.trial_attempt WHERE scientific_trial_id=%s",
+                (payload["scientific_trial_id"],),
+            ).fetchone()["n"]
+            number = payload["attempt_number"]
+            if (
+                type(number) is not int
+                or number != last + 1
+                or number > contract.policies.retry_limit + 1
+            ):
+                raise AuthorityConflict("same-trial retry sequence/ceiling exhausted")
+            if kind == "trial_attempt":
+                conn.execute(
+                    "INSERT INTO research_authority.trial_attempt VALUES (%s,%s,'SOFTWARE_FAILED')",
+                    (payload["scientific_trial_id"], number),
+                )
+            campaign = self._campaign(conn, contract.campaign_id)
+            self._audit(
+                conn, event_id=event_id, event_type=kind, payload=payload, campaign=campaign
+            )
+            values = (
+                payload["scientific_trial_id"],
+                number,
+                payload["idempotency_id"],
+                payload["campaign_id"],
+                payload["search_id"],
+                payload["contract_hash"],
+                payload["proposal_id"],
+                payload["variant_id"],
+                payload["params_fingerprint"],
+                payload["approval_id"],
+                payload["approval_sha256"],
+                payload["prepared_hashes"]["spec"],
+                payload["prepared_hashes"]["vm"],
+                payload["prepared_hashes"]["sweep"],
+                payload["runner_result_sha256"],
+                payload["fold_sha256"],
+                payload["robustness_sha256"],
+                payload["classification"],
+                canonical_json(payload),
+                content_hash(payload),
+                event_id,
+            )
+            conn.execute(
+                "INSERT INTO research_authority.trial_result_binding VALUES ("
+                + ",".join(["%s"] * len(values))
+                + ")",
+                values,
+            )
+            # Recheck the external bytes before releasing the transaction lock.
+            verify_commitment(repo_root, payload, contract)
+            return dict(
+                conn.execute(
+                    "SELECT * FROM research_authority.trial_result_binding WHERE idempotency_id=%s",
+                    (payload["idempotency_id"],),
+                ).fetchone()
+            )
+
+    def load_trial_result(self, scientific_trial_id, *, repo_root: Path, attempt_number=None):
+        """Recover durable completion only after revalidating retained external evidence."""
+        from tools.research_factory.evidence import verify_commitment
+
+        with self._transaction() as conn:
+            if attempt_number is None:
+                row = conn.execute(
+                    "SELECT * FROM research_authority.trial_result_binding WHERE scientific_trial_id=%s ORDER BY attempt_number DESC LIMIT 1",
+                    (scientific_trial_id,),
+                ).fetchone()
+            else:
+                row = conn.execute(
+                    "SELECT * FROM research_authority.trial_result_binding WHERE scientific_trial_id=%s AND attempt_number=%s",
+                    (scientific_trial_id, attempt_number),
+                ).fetchone()
+            if row is None:
+                return None
+            payload = json.loads(row["evidence_payload"])
+            if content_hash(payload) != row["evidence_sha256"]:
+                raise AuthorityConflict("terminal evidence payload hash mismatch")
+            contract = self._load_contract(conn, row["search_id"])
+            self._snapshot(conn, row["campaign_id"])
+            kind = "trial_attempt" if row["classification"] == "SOFTWARE_FAILED" else "trial_result"
+            if not self._replay(conn, row["audit_event_id"], kind, payload):
+                raise AuthorityConflict("terminal audit absent")
+            verify_commitment(repo_root, payload, contract)
+            return dict(row)
+
+    def load_scientific_protocol(self, search_id):
+        """Read the exact envelope-owned fold requirements; never infer policy."""
+        with self._transaction() as conn:
+            contract = self._load_contract(conn, search_id)
+            row = conn.execute(
+                "SELECT semantic_payload FROM research_authority.envelope_registry WHERE envelope_id=%s AND envelope_version=%s AND content_sha256=%s",
+                (contract.envelope_id, contract.envelope_version, contract.envelope_content_sha256),
+            ).fetchone()
+            if row is None:
+                raise AuthorityConflict("frozen envelope absent")
+            return json.loads(row["semantic_payload"])["scientific_protocol"]

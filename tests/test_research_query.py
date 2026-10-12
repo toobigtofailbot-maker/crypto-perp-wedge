@@ -4604,6 +4604,66 @@ def test_sweep_plan_no_computation_integrity_flags_violation(monkeypatch, tmp_pa
         connection.close()
 
 
+@pytest.mark.parametrize("invalid_field", [None, "audit", "ledger", "validation"])
+def test_result_population_mixed_timestamp_precision(monkeypatch, tmp_path, invalid_field):
+    populations = [_valid_result_population("RP-9010"), _valid_result_population("RP-9011")]
+    timestamps = ["2026-08-12T00:42:41Z", "2026-08-12T00:42:41.600118123Z"]
+    for population, timestamp in zip(populations, timestamps):
+        population["audit_envelope"]["created_at"] = timestamp
+        population["validation_summary"]["validation_timestamp"] = timestamp
+        population["append_only_ledger"]["events"][0]["event_timestamp"] = timestamp
+    if invalid_field == "audit":
+        populations[1]["audit_envelope"]["created_at"] = "2026-02-30T00:00:00Z"
+    elif invalid_field == "ledger":
+        populations[1]["append_only_ledger"]["events"][0]["event_timestamp"] = "not-a-timestamp"
+    elif invalid_field == "validation":
+        populations[1]["validation_summary"]["validation_timestamp"] = "2026-08-12T00:42:41"
+
+    def initialize():
+        manifest = _valid_variant_manifest()
+        return _init_temp_query_layer(
+            monkeypatch,
+            tmp_path,
+            [_valid_candidate_row()],
+            [_valid_plan()],
+            [_valid_report()],
+            strategy_specs=[_valid_strategy_spec()],
+            variant_manifests=[manifest],
+            sweep_plans=[_valid_sweep_plan(manifest)],
+            result_populations=populations,
+        )
+
+    if invalid_field:
+        with pytest.raises(ValueError, match="Invalid Result Population timestamp"):
+            initialize()
+        return
+    connection = initialize()
+    try:
+        assert connection.execute(
+            "SELECT result_population_id, audit_envelope.created_at, "
+            "validation_summary.validation_timestamp, append_only_ledger.events[1].event_timestamp "
+            "FROM result_populations ORDER BY result_population_id"
+        ).fetchall() == [
+            (population["result_population_id"], value, value, value)
+            for population, value in zip(populations, timestamps)
+        ]
+        assert connection.execute(
+            "SELECT typeof(audit_envelope.created_at), typeof(validation_summary.validation_timestamp), "
+            "typeof(append_only_ledger.events[1].event_timestamp), "
+            "typeof(committed_denominator_snapshot.committed_denominator), "
+            "typeof(variant_result_rows[1].metrics.pnl) FROM result_populations LIMIT 1"
+        ).fetchone() == ("VARCHAR", "VARCHAR", "VARCHAR", "BIGINT", "DOUBLE")
+        assert len(run_named_view(connection, "v_result_population_append_only_ledger")) == 2
+        assert (
+            run_named_view(connection, "v_integrity_result_population_append_only_violation") == []
+        )
+        assert (
+            run_named_view(connection, "v_integrity_result_population_denominator_mismatch") == []
+        )
+    finally:
+        connection.close()
+
+
 def test_result_population_relation_empty_without_directory(monkeypatch, tmp_path):
     connection = _init_temp_query_layer(
         monkeypatch,

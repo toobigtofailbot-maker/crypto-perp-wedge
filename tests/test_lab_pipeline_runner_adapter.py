@@ -452,3 +452,217 @@ def test_execute_approval_template_binds_runner_stage_identity(
     assert payload["runner_adapter_stage_identity"] == RUNNER_ADAPTER_STAGE_IDENTITY
     assert payload["authorizes_runner_execution"] is True
     assert all(payload[field] is False for field in FALSE_AUTHORITY_FLAGS)
+
+
+# These v2 markers and D4 bytes are unit-test fixtures, never operator approval.
+def _real_route_fixture(monkeypatch, tmp_path, output_root):
+    from types import SimpleNamespace
+    import pandas as pd
+
+    data = tmp_path / "data" / "fixture.csv"
+    data.parent.mkdir()
+    data.write_text("UNIT TEST ONLY\n")
+    catalog = tmp_path / "research" / "fixture.catalog.json"
+    imported = tmp_path / "research" / "fixture.import.json"
+    index = pd.date_range("2020-01-01", periods=2, freq="15min", tz="UTC")
+    write_json(
+        catalog,
+        {
+            "catalog_ref": "UNIT-TEST-ONLY-D4",
+            "slice_identity": {"data_slice_identity": "UNIT-TEST-ONLY-SLICE"},
+            "normalized": {"sha256": file_sha256(data).removeprefix("sha256:")},
+            "range": {
+                "row_count": 2,
+                "start_utc": index[0].isoformat(),
+                "end_utc": index[-1].isoformat(),
+            },
+        },
+    )
+    write_json(imported, {"unit_test_fixture": True})
+    monkeypatch.setattr(
+        runner_adapter.offline_runner,
+        "_d4_catalog_execution_input",
+        lambda *args: SimpleNamespace(
+            timeframe="15m",
+            data_catalog_ref="UNIT-TEST-ONLY-D4",
+            data_slice_identity="UNIT-TEST-ONLY-SLICE",
+            execution_provenance_class="canonical_real_data",
+            ohlcv=pd.DataFrame(index=index),
+        ),
+    )
+    return dict(
+        canonical_15m=True,
+        ohlcv_input_path=data,
+        d4_catalog_slice_path=catalog,
+        d2_import_report_path=imported,
+    )
+
+
+def test_v2_forwards_frozen_real_route_to_both_parity_calls(monkeypatch, tmp_path):
+    output_root = _configure_temp_repo(monkeypatch, tmp_path)
+    bridge, review = _prepared_bridge_packet(tmp_path)
+    route = _real_route_fixture(monkeypatch, tmp_path, output_root)
+    kwargs = dict(
+        prepared_strategy_spec_path=bridge["artifact_paths"]["strategy_spec"],
+        prepared_variant_manifest_path=bridge["artifact_paths"]["variant_manifest"],
+        prepared_sweep_plan_path=bridge["artifact_paths"]["sweep_plan"],
+        bridge_preparation_run_id=bridge["run_id"],
+        product_pipeline_run_id=review["product_bridge_preparation_metadata"][
+            "product_pipeline_run_id"
+        ],
+        output_root=output_root,
+        deterministic_seed=19,
+        **route,
+    )
+    marker = output_root / "UNIT-TEST-ONLY-v2.json"
+    write_json(marker, approval_template(**kwargs))
+    calls = []
+    original = runner_adapter.run_offline_sweep
+
+    def fixture_runner(*args, **settings):
+        calls.append(dict(settings))
+        # Synthetic outputs verify only forwarding/parity mechanics in this unit test.
+        synthetic = {
+            k: v
+            for k, v in settings.items()
+            if k in {"output_dir", "write_result_population", "deterministic_seed"}
+        }
+        return original(*args, **synthetic)
+
+    monkeypatch.setattr(runner_adapter, "run_offline_sweep", fixture_runner)
+    # Forwarding only: synthetic output cannot satisfy the physical acceptance gate.
+    monkeypatch.setattr(runner_adapter, "_assert_real_population_inputs", lambda *args: None)
+    result = run_product_runner_adapter(**kwargs, execute_approval_path=marker)
+    assert len(calls) == 2
+    for call in calls:
+        assert all(call[k] == v for k, v in route.items())
+        assert call["deterministic_seed"] == 19
+        assert call["sizing_mode"] == "dynamic_equity_target_leverage"
+        assert call["funding_cost_mode"] == "off"
+        assert call["target_leverage"] == 1.0
+    assert result.reconciliation["verdict"] == "passed"
+    source = read_json(tmp_path / result.artifact_paths["runner_adapter_result"])["source_bindings"]
+    assert source["execution"]["ohlcv_input_sha256"] == file_sha256(route["ohlcv_input_path"])
+    with pytest.raises(RunnerAdapterError, match="prior physical"):
+        run_product_runner_adapter(**kwargs, execute_approval_path=marker)
+    assert len(calls) == 2
+
+
+@pytest.mark.parametrize(
+    "tamper",
+    [
+        "v1",
+        "seed",
+        "scope",
+        "data",
+        "catalog",
+        "import",
+        "missing_catalog",
+        "timestamp",
+        "swapped_data",
+        "prepared_bytes",
+        "boolean_seed",
+        "budget_type",
+        "unsafe_data",
+        "symlink_data",
+    ],
+)
+def test_v2_invalid_inputs_never_invoke_runner(monkeypatch, tmp_path, tamper):
+    output_root = _configure_temp_repo(monkeypatch, tmp_path)
+    bridge, review = _prepared_bridge_packet(tmp_path)
+    route = _real_route_fixture(monkeypatch, tmp_path, output_root)
+    kwargs = dict(
+        prepared_strategy_spec_path=bridge["artifact_paths"]["strategy_spec"],
+        prepared_variant_manifest_path=bridge["artifact_paths"]["variant_manifest"],
+        prepared_sweep_plan_path=bridge["artifact_paths"]["sweep_plan"],
+        bridge_preparation_run_id=bridge["run_id"],
+        product_pipeline_run_id=review["product_bridge_preparation_metadata"][
+            "product_pipeline_run_id"
+        ],
+        output_root=output_root,
+        **route,
+    )
+    marker = output_root / "UNIT-TEST-ONLY-v2.json"
+    payload = approval_template(**kwargs)
+    if tamper == "v1":
+        payload["schema_version"] = "product_runner_execute_approval_v1"
+    if tamper == "seed":
+        kwargs["deterministic_seed"] = 33
+    if tamper == "scope":
+        payload["approval_scope"] = "anything"
+    if tamper == "timestamp":
+        payload["approval_timestamp_utc"] = "invalid"
+    if tamper == "swapped_data":
+        kwargs["ohlcv_input_path"] = route["d2_import_report_path"]
+    if tamper == "prepared_bytes":
+        (tmp_path / kwargs["prepared_variant_manifest_path"]).write_text("CHANGED FIXTURE")
+    if tamper == "boolean_seed":
+        kwargs["deterministic_seed"] = False
+    if tamper == "budget_type":
+        payload["approved_sweep_budget"]["committed_population_count"] = float(
+            payload["approved_sweep_budget"]["committed_population_count"]
+        )
+    if tamper == "unsafe_data":
+        kwargs["ohlcv_input_path"] = tmp_path / "data" / ".." / "data" / "fixture.csv"
+    if tamper == "symlink_data":
+        # Negative enforcement fixture, independent of host symlink privileges.
+        import stat
+        from types import SimpleNamespace
+
+        original_lstat = Path.lstat
+
+        def linked(path, *args, **settings):
+            if path == route["ohlcv_input_path"]:
+                return SimpleNamespace(st_mode=stat.S_IFLNK, st_file_attributes=0)
+            return original_lstat(path, *args, **settings)
+
+        monkeypatch.setattr(Path, "lstat", linked)
+    path_key = {
+        "data": "ohlcv_input_path",
+        "catalog": "d4_catalog_slice_path",
+        "import": "d2_import_report_path",
+    }.get(tamper)
+    if path_key:
+        route[path_key].write_text("CHANGED UNIT TEST BYTES")
+    if tamper == "missing_catalog":
+        kwargs["d4_catalog_slice_path"] = None
+    write_json(marker, payload)
+    calls = []
+    monkeypatch.setattr(runner_adapter, "run_offline_sweep", lambda *a, **k: calls.append(k))
+    with pytest.raises((RunnerAdapterError, OSError, ValueError)):
+        run_product_runner_adapter(**kwargs, execute_approval_path=marker)
+    assert calls == []
+    assert not list(output_root.glob("LRUN-*/runner_adapter_result.json"))
+
+
+def test_v2_rejects_synthetic_or_substituted_output_provenance():
+    execution = dict(
+        timeframe="15m", data_catalog_ref="D4-UNIT-ONLY", data_slice_identity="SLICE-UNIT-ONLY"
+    )
+    coverage = dict(execution)
+    coverage["data_coverage_notes"] = [runner_adapter.offline_runner.D4_PROVENANCE_MODE_NOTE]
+    population = {
+        "data_coverage_summary": coverage,
+        "variant_result_rows": [{"data_coverage": dict(execution)}],
+    }
+    runner_adapter._assert_real_population_inputs(population, execution)
+    population["variant_result_rows"][0]["data_coverage"]["data_slice_identity"] = (
+        "synthetic-offline-runner-v1"
+    )
+    with pytest.raises(RunnerAdapterError, match="provenance mismatch"):
+        runner_adapter._assert_real_population_inputs(population, execution)
+
+
+def test_nonmatching_parity_cannot_produce_success(monkeypatch, tmp_path):
+    _configure_temp_repo(monkeypatch, tmp_path)
+    first = tmp_path / "UNIT-TEST-ONLY-adapter.json"
+    second = tmp_path / "UNIT-TEST-ONLY-direct.json"
+    write_json(first, {"unit_test_only": "adapter"})
+    write_json(second, {"unit_test_only": "different direct evidence"})
+    monkeypatch.setattr(
+        runner_adapter,
+        "compare_result_populations",
+        lambda *args: {"normalized_stable_hash_match": False},
+    )
+    with pytest.raises(RunnerAdapterError, match="reconciliation failed"):
+        runner_adapter._reconcile_outputs(first, second)

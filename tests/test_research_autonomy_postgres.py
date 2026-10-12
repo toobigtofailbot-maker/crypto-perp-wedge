@@ -45,15 +45,22 @@ def _test_dsns():
 
 
 @pytest.fixture
-def authority_db():
+def authority_db(tmp_path, monkeypatch):
     authority, memory = _test_dsns()
     lock = psycopg.connect(authority, autocommit=True)
     lock.execute("SELECT pg_advisory_lock(721026003)")
     try:
         with psycopg.connect(authority, autocommit=True) as conn:
             conn.execute("DROP SCHEMA IF EXISTS research_authority CASCADE")
-        assert migrations.apply_migrations(authority).applied == ("0001_research_authority",)
-        assert migrations.apply_migrations(authority).already_applied == ("0001_research_authority",)
+        legacy = tmp_path / "migration_0001"
+        legacy.mkdir()
+        original = migrations.MIGRATIONS_DIR
+        (legacy / "0001_research_authority.sql").write_bytes((original / "0001_research_authority.sql").read_bytes())
+        with monkeypatch.context() as context:
+            context.setattr(migrations, "MIGRATIONS_DIR", legacy)
+            assert migrations.apply_migrations(authority).applied == ("0001_research_authority",)
+        assert migrations.apply_migrations(authority).applied == ("0002_trial_result_binding",)
+        assert migrations.apply_migrations(authority).already_applied == ("0001_research_authority", "0002_trial_result_binding")
         with psycopg.connect(authority) as conn:
             conn.execute((ROOT / "tools/research_autonomy/research_authority_writer_role.sql").read_text())
         yield authority, memory
@@ -64,9 +71,11 @@ def authority_db():
         lock.close()
 
 
-def opened(authority_db, tmp_path, *, writer=False):
+def opened(authority_db, tmp_path, *, writer=False, max_scientific_trials=None):
     authority, _ = authority_db
     repo, intent, envelope, request = fixture_inputs(tmp_path)
+    if max_scientific_trials is not None:
+        request=request.model_copy(update={"max_scientific_trials":max_scientific_trials})
     dsn = SecretDsn(make_conninfo(authority, options="-c role=cpw_research_authority_writer")) if writer else authority
     store = ResearchAuthorityStore(dsn)
     store.register_envelope(envelope)
@@ -219,19 +228,31 @@ def test_migration_catalog_checksum_and_separation(authority_db, tmp_path, monke
     authority, memory = authority_db
     with psycopg.connect(authority) as conn:
         tables = {r[0] for r in conn.execute("SELECT tablename FROM pg_tables WHERE schemaname='research_authority'")}
-        assert tables == {"schema_migrations", "envelope_registry", "envelope_control_state", "campaign_state", "search_lineage", "search_budget_reservation", "proposal_record", "scientific_trial", "trial_attempt", "holdout_state", "contamination_edge", "evidence_reference", "authority_audit"}
+        assert tables == {"schema_migrations", "envelope_registry", "envelope_control_state", "campaign_state", "search_lineage", "search_budget_reservation", "proposal_record", "scientific_trial", "trial_attempt", "holdout_state", "contamination_edge", "evidence_reference", "authority_audit", "trial_result_binding"}
         triggers = {(r[0],r[1]) for r in conn.execute("""SELECT c.relname,t.tgname FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='research_authority' AND NOT t.tgisinternal""")}
-        immutable = {"envelope_registry", "authority_audit", "proposal_record", "scientific_trial", "trial_attempt", "contamination_edge", "evidence_reference", "schema_migrations"}
+        immutable = {"envelope_registry", "authority_audit", "proposal_record", "scientific_trial", "trial_attempt", "contamination_edge", "evidence_reference", "schema_migrations", "trial_result_binding"}
         guarded = {"campaign_state", "search_lineage", "envelope_control_state", "holdout_state", "search_budget_reservation"}
         expected = {(t,n) for t in immutable for n in ("immutable_rows","immutable_truncate")} | {(t,n) for t in guarded for n in ("guarded_rows","guarded_truncate")}
         expected |= {("authority_audit","hash_chain"),("campaign_state","campaign_integrity"),("authority_audit","audit_current_binding"),("proposal_record","proposal_conservation"),("search_lineage","search_conservation"),("envelope_control_state","control_audit"),("holdout_state","holdout_audit")}
         expected |= {(t,"scientific_insert") for t in ("campaign_state","search_lineage","holdout_state")}
         expected |= {('proposal_record','proposal_audit'),('trial_attempt','attempt_audit'),('search_lineage','search_audit')}
+        expected |= {("trial_result_binding","trial_result_audit"),("trial_attempt","trial_attempt_terminal")}
         assert triggers == expected
         constraints=conn.execute("SELECT cl.relname,co.conname,pg_get_constraintdef(co.oid) FROM pg_constraint co JOIN pg_class cl ON cl.oid=co.conrelid WHERE co.connamespace='research_authority'::regnamespace ORDER BY cl.relname,co.conname").fetchall()
         columns=conn.execute("SELECT table_name,column_name,data_type,is_nullable FROM information_schema.columns WHERE table_schema='research_authority' ORDER BY table_name,ordinal_position").fetchall()
-        assert len(constraints)==102 and len(columns)==91
-        assert content_hash({'constraints':constraints,'columns':columns})=='sha256:9e1b65a6e5210660fe7681bbfe516299c8b295fc5e7dc05d1cfecddfd48d589b'
+        # Retain the original exact catalog lock; only the authorized audit enum
+        # extension and two new identity constraints differ on old tables.
+        legacy_constraints=[(table,name,definition.replace("'trial_result'::text, ",""))
+            for table,name,definition in constraints if table!='trial_result_binding'
+            and name not in {'proposal_result_identity','audit_result_identity'}]
+        legacy_columns=[r for r in columns if r[0]!='trial_result_binding']
+        assert len(legacy_constraints)==102 and len(legacy_columns)==91
+        assert content_hash({'constraints':legacy_constraints,'columns':legacy_columns})=='sha256:9e1b65a6e5210660fe7681bbfe516299c8b295fc5e7dc05d1cfecddfd48d589b'
+        assert len([r for r in columns if r[0]!='trial_result_binding'])==91
+        assert len([r for r in columns if r[0]=='trial_result_binding'])==21
+        assert any(r[1]=='proposal_result_identity' for r in constraints)
+        assert any(r[1]=='audit_result_identity' for r in constraints)
+        assert any(r[0]=='trial_result_binding' and 'FOREIGN KEY' in r[2] for r in constraints)
     altered = tmp_path / "migrations"
     altered.mkdir()
     source = migrations.MIGRATIONS_DIR / "0001_research_authority.sql"
@@ -477,3 +498,284 @@ def test_registered_replacement_and_exact_idempotency(authority_db,tmp_path):
     conflicting['content_sha256']=envelope_hash(conflicting)
     with pytest.raises(AuthorityConflict):
         store.register_envelope(validate_envelope(conflicting,repo_sha=envelope.repo_sha))
+
+
+# Test-only evidence stubs isolate the real SQL transaction boundary. These cases
+# do not count as real runner acceptance; the manual approved D4 proof is separate.
+def terminal_fixture(authority_db, tmp_path, monkeypatch, *, exhausted=False):
+    from tools.research_factory import evidence
+
+    repo, intent, envelope, request, store, builder, contract = opened(
+        authority_db, tmp_path, writer=True,max_scientific_trials=2 if exhausted else None
+    )
+    governor, pre, current = wave(store, contract)
+    record = next(p for p in governor.proposal_records if p.scientific_trial_id)
+
+    def verify(root, payload, frozen):
+        assert root == repo and frozen.contract_hash == contract.contract_hash
+        return {}, {}, {"outcome_category": "successful"}
+
+    monkeypatch.setattr(evidence, "verify_commitment", verify)
+    digest = "sha256:" + "a" * 64
+    payload = {
+        "campaign_id": contract.campaign_id,
+        "search_id": contract.search_id,
+        "contract_hash": contract.contract_hash,
+        "proposal_id": record.proposal_id,
+        "scientific_trial_id": record.scientific_trial_id,
+        "variant_id": f"VAR-{record.proposal_sequence + 1:06d}",
+        "params_fingerprint": record.params_fingerprint,
+        "attempt_number": 1,
+        "idempotency_id": "UNIT-TEST-RESULT-1",
+        "classification": "PERFORMANCE_RESULT",
+        "approval_id": "UNIT-TEST-APPROVAL-FIXTURE",
+        "approval_sha256": digest,
+        "prepared_hashes": {"spec": digest, "vm": digest, "sweep": digest},
+        "runner_result_sha256": digest,
+        "fold_sha256": None,
+        "robustness_sha256": None,
+        "mapping_binding": None,
+        "summary_binding": None,
+        "fold_binding": None,
+        "fold_manifest_binding": None,
+        "robustness_binding": None,
+        "purge_bars": 96,
+        "embargo_bars": 32,
+        "authority_lineage_version": current.lineage_version,
+        "authority_lineage_sha256": current.lineage_sha256,
+    }
+    return repo, store, contract, payload
+
+
+def test_terminal_exact_replay_concurrent_delivery_and_no_budget_charge(
+    authority_db, tmp_path, monkeypatch
+):
+    repo, store, contract, payload = terminal_fixture(authority_db, tmp_path, monkeypatch)
+    before = store.load_snapshot(contract.campaign_id)
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        rows = list(
+            executor.map(lambda _: store.commit_trial_result(payload, repo_root=repo), range(2))
+        )
+    assert rows[0] == rows[1]
+    after = store.load_snapshot(contract.campaign_id)
+    assert after.budget == before.budget
+    assert after.lineage_version == before.lineage_version + 1
+    assert store.load_trial_result(payload["scientific_trial_id"], repo_root=repo) == rows[0]
+    with psycopg.connect(authority_db[0]) as conn:
+        assert (
+            conn.execute("SELECT count(*) FROM research_authority.trial_result_binding").fetchone()[
+                0
+            ]
+            == 1
+        )
+        assert (
+            conn.execute(
+                "SELECT count(*) FROM research_authority.authority_audit WHERE event_type='trial_result'"
+            ).fetchone()[0]
+            == 1
+        )
+    changed = {**payload, "runner_result_sha256": "sha256:" + "b" * 64}
+    with pytest.raises(AuthorityConflict):
+        store.commit_trial_result(changed, repo_root=repo)
+    with pytest.raises(psycopg.Error):
+        store.record_software_attempt(payload["scientific_trial_id"], attempt_number=1)
+
+
+def test_terminal_failure_and_retry_use_one_atomic_attempt_path(
+    authority_db, tmp_path, monkeypatch
+):
+    repo, store, contract, payload = terminal_fixture(authority_db, tmp_path, monkeypatch)
+    failed = {**payload, "classification": "SOFTWARE_FAILED"}
+    store.commit_trial_result(failed, repo_root=repo)
+    state = store.load_snapshot(contract.campaign_id)
+    success = {
+        **payload,
+        "attempt_number": 2,
+        "idempotency_id": "UNIT-TEST-RESULT-2",
+        "authority_lineage_version": state.lineage_version,
+        "authority_lineage_sha256": state.lineage_sha256,
+    }
+    store.commit_trial_result(success, repo_root=repo)
+    with psycopg.connect(authority_db[0]) as conn:
+        assert conn.execute(
+            "SELECT attempt_number,state FROM research_authority.trial_attempt"
+        ).fetchall() == [(1, "SOFTWARE_FAILED")]
+        assert conn.execute(
+            "SELECT classification FROM research_authority.trial_result_binding ORDER BY attempt_number"
+        ).fetchall() == [("SOFTWARE_FAILED",), ("PERFORMANCE_RESULT",)]
+    assert store.load_snapshot(contract.campaign_id).budget == state.budget
+
+
+def test_terminal_conflicting_delivery_has_one_winner(authority_db, tmp_path, monkeypatch):
+    repo, store, contract, payload = terminal_fixture(authority_db, tmp_path, monkeypatch)
+    different = {
+        **payload,
+        "idempotency_id": "UNIT-TEST-CONFLICT",
+        "runner_result_sha256": "sha256:" + "b" * 64,
+    }
+
+    def attempt(value):
+        try:
+            store.commit_trial_result(value, repo_root=repo)
+            return "committed"
+        except (AuthorityConflict, psycopg.Error):
+            return "denied"
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        assert sorted(executor.map(attempt, (payload, different))) == ["committed", "denied"]
+
+
+def test_terminal_immutable_privileges_cross_identity_and_audit(
+    authority_db, tmp_path, monkeypatch
+):
+    repo, store, contract, payload = terminal_fixture(authority_db, tmp_path, monkeypatch)
+    row = store.commit_trial_result(payload, repo_root=repo)
+    for query in (
+        "UPDATE research_authority.trial_result_binding SET variant_id='VAR-999999'",
+        "DELETE FROM research_authority.trial_result_binding",
+        "TRUNCATE research_authority.trial_result_binding",
+    ):
+        with pytest.raises(psycopg.Error):
+            with psycopg.connect(authority_db[0]) as conn:
+                conn.execute(query)
+    for field, value in (
+        ("campaign_id", "OTHER-CAMPAIGN"),
+        ("proposal_id", "OTHER-PROPOSAL"),
+        ("params_fingerprint", "sha256:" + "b" * 64),
+        ("variant_id", "VAR-999999"),
+    ):
+        with pytest.raises(AuthorityConflict):
+            store.commit_trial_result({**payload, field: value}, repo_root=repo)
+    with psycopg.connect(authority_db[0]) as conn:
+        assert not conn.execute(
+            "SELECT has_table_privilege('cpw_research_authority_writer','research_authority.trial_result_binding','UPDATE')"
+        ).fetchone()[0]
+        assert not conn.execute(
+            "SELECT has_table_privilege('cpw_research_authority_writer','research_authority.trial_result_binding','DELETE')"
+        ).fetchone()[0]
+
+
+def test_terminal_consumed_holdout_denies_without_mutation(authority_db, tmp_path, monkeypatch):
+    repo, store, contract, payload = terminal_fixture(authority_db, tmp_path, monkeypatch)
+    store.record_holdout_event(
+        contract.search_id, event_id="UNIT-TEST-ESCAPE", informative_escape=True
+    )
+    before = authority_rows(authority_db[0])
+    with pytest.raises(AuthorityConflict):
+        store.commit_trial_result(payload, repo_root=repo)
+    assert authority_rows(authority_db[0]) == before
+
+
+def test_terminal_retry_ceiling_is_atomic(authority_db, tmp_path, monkeypatch):
+    repo, store, contract, payload = terminal_fixture(authority_db, tmp_path, monkeypatch)
+    for number in range(1, contract.policies.retry_limit + 2):
+        state = store.load_snapshot(contract.campaign_id)
+        failed = {
+            **payload,
+            "classification": "SOFTWARE_FAILED",
+            "attempt_number": number,
+            "idempotency_id": f"UNIT-TEST-FAILURE-{number}",
+            "authority_lineage_version": state.lineage_version,
+            "authority_lineage_sha256": state.lineage_sha256,
+        }
+        store.commit_trial_result(failed, repo_root=repo)
+    before = authority_rows(authority_db[0])
+    state = store.load_snapshot(contract.campaign_id)
+    with pytest.raises(AuthorityConflict, match="ceiling"):
+        store.commit_trial_result(
+            {
+                **payload,
+                "attempt_number": contract.policies.retry_limit + 2,
+                "idempotency_id": "UNIT-TEST-EXHAUSTED",
+                "authority_lineage_version": state.lineage_version,
+                "authority_lineage_sha256": state.lineage_sha256,
+            },
+            repo_root=repo,
+        )
+    assert authority_rows(authority_db[0]) == before
+
+
+def test_terminal_evidence_disappearance_rolls_back_then_recovery_requires_bytes(
+    authority_db, tmp_path, monkeypatch
+):
+    from tools.research_factory import evidence
+    from tools.research_factory.mapper import file_hash, write_once
+
+    repo, store, contract, payload = terminal_fixture(authority_db, tmp_path, monkeypatch)
+    path = write_once(repo / "scratch/UNIT-TEST-ONLY.json", {"unit_test_only": True})
+    payload["mapping_binding"] = {"path": "scratch/UNIT-TEST-ONLY.json", "sha256": file_hash(path)}
+    original = path.read_bytes()
+    calls = []
+
+    def interrupted(root, value, frozen):
+        evidence.bound_json(root, value["mapping_binding"])
+        calls.append(True)
+        if len(calls) == 2:
+            raise evidence.EvidenceBlocked("fixture interruption before commit")
+        return {}, {}, {}
+
+    monkeypatch.setattr(evidence, "verify_commitment", interrupted)
+    before = authority_rows(authority_db[0])
+    with pytest.raises(evidence.EvidenceBlocked):
+        store.commit_trial_result(payload, repo_root=repo)
+    assert authority_rows(authority_db[0]) == before
+
+    def retained(root, value, frozen):
+        evidence.bound_json(root, value["mapping_binding"])
+        return {}, {}, {}
+
+    monkeypatch.setattr(evidence, "verify_commitment", retained)
+    committed = store.commit_trial_result(payload, repo_root=repo)
+    # Active cache is not authority; its absence does not remove the SQL row.
+    assert store.load_trial_result(payload["scientific_trial_id"], repo_root=repo) == committed
+    path.unlink()
+    with pytest.raises(OSError):
+        store.load_trial_result(payload["scientific_trial_id"], repo_root=repo)
+    path.write_bytes(original)
+    assert store.load_trial_result(payload["scientific_trial_id"], repo_root=repo) == committed
+
+
+def test_terminal_existing_trial_commits_after_trial_budget_exhaustion(authority_db,tmp_path,monkeypatch):
+    repo,store,contract,payload=terminal_fixture(authority_db,tmp_path,monkeypatch,exhausted=True)
+    before = store.load_snapshot(contract.campaign_id)
+    assert before.budget.scientific_trials_used == contract.max_scientific_trials == 2
+    with psycopg.connect(authority_db[0]) as conn:
+        assert (
+            conn.execute(
+                "SELECT trials_remaining FROM research_authority.search_budget_reservation WHERE search_id=%s",
+                (contract.search_id,),
+            ).fetchone()[0]
+            == 0
+        )
+    committed = store.commit_trial_result(payload, repo_root=repo)
+    assert committed["classification"] == "PERFORMANCE_RESULT"
+    assert store.load_snapshot(contract.campaign_id).budget == before.budget
+
+
+def test_terminal_survives_active_cache_deletion_and_memory_rebuild(
+    authority_db, tmp_path, monkeypatch
+):
+    import shutil
+    from tools.research_memory.migrations import apply_migrations
+    from tools.research_memory.repository import ResearchMemoryRepository
+
+    repo, store, contract, payload = terminal_fixture(authority_db, tmp_path, monkeypatch)
+    committed = store.commit_trial_result(payload, repo_root=repo)
+    cache = repo / ".cpw/active/UNIT-TEST-ONLY.json"
+    cache.parent.mkdir(parents=True)
+    cache.write_text('{"unit_test_only":true}')
+    cpw = (repo / ".cpw").resolve(strict=True)
+    assert cpw == repo.resolve() / ".cpw" and cpw.is_relative_to(repo.resolve())
+    shutil.rmtree(cpw)
+    before = authority_rows(authority_db[0])
+    apply_migrations(authority_db[1])
+    with ResearchMemoryRepository.connect(authority_db[1]) as repository:
+        assert (
+            repository.refresh_from_repo(
+                ROOT / "tests/fixtures/research_memory/repo", rebuild=True
+            )["memory_records"]
+            >= 2
+        )
+    assert authority_rows(authority_db[0]) == before
+    reconnect = ResearchAuthorityStore(store._dsn)
+    assert reconnect.load_trial_result(payload["scientific_trial_id"], repo_root=repo) == committed

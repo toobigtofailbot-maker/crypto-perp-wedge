@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 import duckdb
+from jsonschema import FormatChecker
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -1934,6 +1935,55 @@ def _register_data_feature_availability(conn: duckdb.DuckDBPyConnection) -> None
     )
 
 
+def _result_population_columns(conn, files: list[Path], glob: str) -> str:
+    """Keep administrative RFC3339 text precise without temporal format inference."""
+    checker = FormatChecker()
+    for path in files:
+        population = json.loads(path.read_text(encoding="utf-8"))
+        timestamps = [
+            (
+                "audit_envelope.created_at",
+                (population.get("audit_envelope") or {}).get("created_at"),
+            ),
+            (
+                "validation_summary.validation_timestamp",
+                (population.get("validation_summary") or {}).get("validation_timestamp"),
+            ),
+        ]
+        for index, event in enumerate(
+            (population.get("append_only_ledger") or {}).get("events") or []
+        ):
+            timestamps.append(
+                (
+                    f"append_only_ledger.events[{index}].event_timestamp",
+                    event.get("event_timestamp"),
+                )
+            )
+        for field, value in timestamps:
+            if value is not None and (
+                not isinstance(value, str) or not checker.conforms(value, "date-time")
+            ):
+                raise ValueError(f"Invalid Result Population timestamp: {path.name}:{field}")
+
+    # Preserve all other inferred numeric/nested types. The typed-empty relation
+    # below already declares these three administrative timestamp leaves VARCHAR.
+    # Binding the complete schema prevents read_json_auto from choosing a
+    # whole-second conversion format for later fractional-second strings.
+    inferred = conn.execute(
+        f"DESCRIBE SELECT * FROM read_json_auto('{_sql_path(Path(glob))}')"
+    ).fetchall()
+    columns = []
+    for name, data_type, *_ in inferred:
+        if name in ("audit_envelope", "append_only_ledger", "validation_summary"):
+            data_type = re.sub(
+                r"\b(created_at|event_timestamp|validation_timestamp) (?:TIMESTAMP(?: WITH TIME ZONE)?|DATE|VARCHAR|JSON)\b",
+                r"\1 VARCHAR",
+                data_type,
+            )
+        columns.append(f"{_sql_literal(name)}: {_sql_literal(data_type)}")
+    return "{" + ", ".join(columns) + "}"
+
+
 def _register_result_populations(conn: duckdb.DuckDBPyConnection) -> None:
     result_population_files = (
         sorted(RESULT_POPULATIONS_DIR.glob("*.result_population.json"))
@@ -1941,10 +1991,12 @@ def _register_result_populations(conn: duckdb.DuckDBPyConnection) -> None:
         else []
     )
     if result_population_files:
+        glob = RESULT_POPULATIONS_DIR / "*.result_population.json"
+        columns = _result_population_columns(conn, result_population_files, str(glob))
         conn.execute(
             f"""
             CREATE VIEW result_populations AS
-            SELECT * FROM read_json_auto('{_sql_path(RESULT_POPULATIONS_DIR / "*.result_population.json")}')
+            SELECT * FROM read_json_auto('{_sql_path(glob)}', auto_detect=false, columns={columns})
             """
         )
         return

@@ -35,29 +35,31 @@ Startup read order:
   `9d9f8a94405ded76bbef0163488b9a8e0596371a`. D2-026 is the merged LOCKED
   authority for immutable human envelopes and a separate CPW PostgreSQL
   scientific lineage/accounting/holdout database. The lock activated nothing.
-- `WP-V2-AUTONOMY-KERNEL-01` / PR #735 is current branch-state implementation,
-  OPEN and unmerged, from exact base `9d9f8a94405ded76bbef0163488b9a8e0596371a`.
-  Side 22 found a successor identity bypass at old reviewed remote head
-  `322a02028896893d415eae71d48d987fd335406a`. Corrected semantic head
-  `69d686dc1d22d283ff5a5b6490775092a463b80a` binds every search to the campaign
-  fingerprint and preserves frozen parent hypothesis/family identity in the
-  application and new/unmerged SQL guard. Seven new adversarial physical cases
-  PASS. Focused 46, adjacent 60, live PostgreSQL 20 (zero skips), validator and
-  Cases A-K PASS. The first corrected-head release FAILed 47/48 with an unchanged
-  fixture setup error; cause remains unknown, transient failure unproven.
-  Side 22 validation-only triage then PASSed the exact shard-40 group (74 tests)
-  and complete release at the corrected semantic head: **48/48 shards PASS**,
-  4,007 passed tests, 23 accounted existing skips, zero timeouts, 196 files exactly
-  once and all eight non-shard commands PASS. Full raw output is retained outside
-  the repo. The final three-doc evidence tail preserves failed-run history and
-  exact semantic bytes. Exact closure remains 21 created/four modified; verified
-  run-created ignored D4 copy removed, source retained. No protected test/code
-  edits or gate weakening. Hold the updated same PR for Side 22 exact-head
-  re-review; no merge or activation. See
-  `docs/status_entries/WP-V2-AUTONOMY-KERNEL-01.md`.
-  No Stage 5B, autonomous/runner/real holdout/canonical/candidate/protected or
-  economic activation. No self-merge. Next dependency
-  `V2-RESEARCH-FACTORY-LOOP-01` remains separately authorized.
+- `WP-V2-AUTONOMY-KERNEL-01` / PR #735 is merged at
+  `144c4543f839f1415d0824458af576c7f83b164e`; PR #736 merged the current-state
+  follow-up at `712f158d51f36447152e5812a26d725f31d0a1d2`. The durable kernel is
+  merged repo truth. Its corrected semantic-head release passed 48/48 shards;
+  the earlier failed release and baseline disclosures remain historical evidence
+  in `docs/status_entries/WP-V2-AUTONOMY-KERNEL-01.md`. No activation follows
+  from those merges.
+- `V2-RESEARCH-FACTORY-LOOP-01` / PR #737 is open for review as scoped
+  branch-state implementation from
+  `712f158d51f36447152e5812a26d725f31d0a1d2`, with the explicitly amended 16-file closure.
+  The manual factory remains default OFF. Legacy synthetic v1 is preserved;
+  real 15m D4 execution requires a separate exact v2 operator marker. Mapping,
+  scratch evidence verification and append-only trial binding are implemented.
+  Karl's exact v2 marker authorized the completed scratch-only two-trial run.
+  Real D4 byte parity, two January 2020 folds, advisory MC and two durable
+  terminal bindings passed. These folds prove technical integration only;
+  candidate OOS remains withheld. The narrow read-only mixed-timestamp query
+  correction preserved all 25 affected view schemas/rows. Three fresh full query
+  shards passed; final T3 at semantic head
+  `54eb10e792f7afd64ea6f3d732c5352661dded1b` passed 48/48 shards,
+  4,046 tests with 24 disclosed environment skips and all mandatory PostgreSQL
+  cases unskipped. Prior failed releases remain recorded. No additional factory
+  executions occurred. Awaiting Side 22 exact-head review; no merge,
+  unattended research, Stage 5B, canonical/candidate, runtime or capital authority
+  is claimed. See `docs/status_entries/V2-RESEARCH-FACTORY-LOOP-01.md`.
 
 - Phase 1 is closed.
 - Phase 2 baseline is locked in `docs/onboarding/PHASE2_BASELINE.md`.

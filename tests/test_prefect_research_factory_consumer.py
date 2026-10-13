@@ -16,6 +16,8 @@ from tools.prefect_integration import research_factory_consumer as consumer
 from tools.research_autonomy.handoff import write_handoff
 from tools.research_factory.mapper import file_hash, prepare_wave, write_once
 
+REAL_APPROVAL = consumer._approval
+
 
 @pytest.fixture
 def fixture(tmp_path, monkeypatch):
@@ -248,6 +250,44 @@ def test_revoked_envelope_blocks_before_dispatch(fixture):
 
     fixture[1]._search_active = revoked
     assert invoke(fixture)["runner_calls"] == 0 and fixture[-1] == []
+
+
+@pytest.mark.parametrize(
+    "field",
+    [
+        "data_slice_identity",
+        "ohlcv_input_sha256",
+        "d4_catalog_slice_sha256",
+        "d2_import_report_sha256",
+    ],
+)
+def test_wrong_frozen_data_blocks_before_approval_and_dispatch(fixture, monkeypatch, field):
+    root, _, contract, _, _, calls = fixture
+    catalog = json.loads((root / consumer.SOURCE_CATALOG).read_text())
+    route = {
+        "data_slice_identity": contract.data_identity,
+        "ohlcv_input_sha256": "sha256:" + catalog["normalized"]["sha256"],
+        "d4_catalog_slice_sha256": file_hash(root / consumer.SOURCE_CATALOG),
+        "d2_import_report_sha256": file_hash(
+            root / consumer.SOURCE_CATALOG.replace(".catalog_slice.json", ".import_report.json")
+        ),
+    }
+    route[field] = "substituted scientific input"
+    gates = []
+    monkeypatch.setattr(consumer, "_approval", REAL_APPROVAL)
+    monkeypatch.setattr(consumer.adapter, "_execution_binding", lambda **kwargs: route)
+    monkeypatch.setattr(
+        consumer.adapter, "_require_execute_approval", lambda **kwargs: gates.append(kwargs)
+    )
+    assert invoke(fixture)["operational_status"] == "blocked"
+    assert calls == gates == []
+
+
+def test_protected_input_namespace_is_denied_before_read(fixture):
+    request = copy.deepcopy(fixture[4])
+    request["ohlcv_input"]["path"] = "secrets/never-read.key"
+    assert invoke(fixture, request)["runner_calls"] == 0
+    assert fixture[-1] == []
 
 
 def test_terminal_recovery_resolves_original_checkpoint_without_dispatch(fixture, monkeypatch):

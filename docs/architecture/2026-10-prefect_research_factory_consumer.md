@@ -25,7 +25,11 @@ The handoff uses its existing `.cpw/active/research-autonomy` namespace. Prepare
 artifacts stay in scratch; outputs must satisfy the unchanged adapter output
 root. Paths reject traversal and Windows reparse/symlink components. Files are
 rehash-checked, and HEAD must match the frozen handoff in a clean tracked tree.
-Requests contain no executable plans, commands, DSNs or credentials.
+Requests contain no executable plans, commands, DSNs or credentials. Input
+bindings are restricted to active/scratch research work, data slices, and D4
+processed data. Before approval or dispatch, the execution data identity and
+OHLCV/catalog/import hashes must match the frozen contract and committed
+source provenance; matching caller-supplied hashes alone is insufficient.
 
 An operator prepares the existing deterministic wave without executing it,
 freezes its timestamp and fold manifest, and supplies an actual exact human v2

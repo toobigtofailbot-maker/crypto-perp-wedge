@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -23,7 +24,13 @@ from tools.research_autonomy.handoff import load_handoff
 from tools.research_autonomy.store import ResearchAuthorityStore
 from tools.research_factory.evidence import bound_json, safe_file, verify_fold_manifest
 from tools.research_factory.manual_loop import manual_research_loop
-from tools.research_factory.mapper import file_hash, prepare_wave, write_once
+from tools.research_factory.mapper import (
+    SOURCE_CATALOG,
+    committed_json,
+    file_hash,
+    prepare_wave,
+    write_once,
+)
 from tools.research_storage.workspace import resolve_workspace_path
 
 FLOW_NAME = "cpw-research-factory-manual"
@@ -85,6 +92,11 @@ def _binding(root, value, *, prefix=None):
         raise ValueError("closed binding required")
     if not isinstance(value["sha256"], str) or not HASH.fullmatch(value["sha256"]):
         raise ValueError("exact file hash required")
+    if not any(
+        value["path"].startswith(namespace + "/")
+        for namespace in (".cpw/active", "scratch", "research/data_slices", "data/processed/d4a")
+    ):
+        raise ValueError("input outside permitted research namespaces")
     path = _path(root, value["path"], prefix=prefix)
     safe_file(root, value["path"])
     if file_hash(path) != value["sha256"]:
@@ -179,6 +191,19 @@ def _approval(root, request, prepared, contract):
             )
         },
     )
+    catalog = committed_json(root, SOURCE_CATALOG, contract.repo_sha)
+    import_ref = SOURCE_CATALOG.replace(".catalog_slice.json", ".import_report.json")
+    import_bytes = subprocess.check_output(
+        ["git", "show", f"{contract.repo_sha}:{import_ref}"], cwd=root
+    )
+    if (
+        route["data_slice_identity"] != contract.data_identity
+        or catalog["catalog_version"] != contract.data_version
+        or route["ohlcv_input_sha256"] != "sha256:" + catalog["normalized"]["sha256"]
+        or route["d4_catalog_slice_sha256"] != file_hash(root / SOURCE_CATALOG)
+        or route["d2_import_report_sha256"] != "sha256:" + hashlib.sha256(import_bytes).hexdigest()
+    ):
+        raise ValueError("execution differs from frozen scientific data")
     adapter._require_execute_approval(
         approval_path=root / request["execute_approval"]["path"],
         **{

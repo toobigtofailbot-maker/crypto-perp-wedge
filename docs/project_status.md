@@ -62,8 +62,8 @@ Startup read order:
   See `docs/status_entries/V2-RESEARCH-FACTORY-LOOP-01.md`.
 
 - `CPW-PREFECT-FACTORY-01` is local branch-state only, based on merged PR #737.
-  Its manual Prefect consumer remains default OFF; local validation is in
-  progress and real-science recovery acceptance requires separate exact approval.
+  Its manual Prefect consumer remains default OFF. Local T3 is blocked on two
+  missing validation Parquets; real-science recovery also requires fresh exact approval.
   No publication, Stage 5B or trading authority is granted.
   See `docs/status_entries/CPW-PREFECT-FACTORY-01.md`.
 

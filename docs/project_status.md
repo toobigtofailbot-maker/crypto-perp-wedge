@@ -58,8 +58,8 @@ Startup read order:
   4,046 tests with 24 disclosed environment skips and all mandatory PostgreSQL
   cases unskipped. Prior failed releases remain recorded. No additional factory
   executions occurred. The merge grants no unattended research, Stage 5B,
-  canonical/candidate, runtime or capital authority
-  is claimed. See `docs/status_entries/V2-RESEARCH-FACTORY-LOOP-01.md`.
+  canonical/candidate, runtime or capital authority.
+  See `docs/status_entries/V2-RESEARCH-FACTORY-LOOP-01.md`.
 
 - `CPW-PREFECT-FACTORY-01` is local branch-state only, based on merged PR #737.
   Its manual Prefect consumer remains default OFF; local validation is in

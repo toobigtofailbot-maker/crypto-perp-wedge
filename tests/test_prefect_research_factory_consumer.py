@@ -8,6 +8,8 @@ from pathlib import Path
 from threading import Barrier, Event
 
 import pytest
+from prefect.exceptions import FailedRun
+from prefect.states import get_state_exception
 
 from tests.test_research_factory_mapper import factory_fixture
 from tools.prefect_integration import research_factory_consumer as consumer
@@ -332,7 +334,10 @@ def test_flow_deployment_contract_and_no_success_on_block(monkeypatch, tmp_path)
         consumer, "run_manual_factory_request", lambda *args, **kwargs: consumer._result()
     )
     state = consumer.research_factory_consumer.fn("manifest", "hash")
-    assert state.is_failed() and state.data["runner_calls"] == 0
+    assert state.is_failed() and json.loads(state.message)["runner_calls"] == 0
+    exception = get_state_exception(state)
+    assert isinstance(exception, FailedRun)
+    assert json.loads(str(exception))["operational_status"] == "blocked"
     captured = {}
 
     class Sourced:

@@ -457,7 +457,8 @@ def research_factory_consumer(
         manifest_path, manifest_sha256, human_invocation=human_invocation
     )
     if result["operational_status"] in {"blocked", "failed"}:
-        return Failed(message="CPW manual factory blocked; investigation required", data=result)
+        # Prefect Failed-state data must be an exception, not an operational map.
+        return Failed(message=json.dumps(result, sort_keys=True, allow_nan=False))
     return result
 
 

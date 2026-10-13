@@ -62,7 +62,9 @@ retained evidence blocks. No new scientific result store is introduced.
 Operational outputs distinguish `completed`, `recovered`, `blocked`, `failed`,
 preserve CPW dispositions/withholding reasons, and assert default-OFF and no
 authority. Blocked/failed outcomes return a Prefect Failed state, never a silent
-Prefect Completed state. Operational infrastructure failure is not a scientific
+Prefect Completed state. Their finite operational JSON is retained in the Failed
+state message; placing a map in Failed-state data is incompatible with Prefect's
+exception decoder. Operational infrastructure failure is not a scientific
 `SOFTWARE_FAILED` classification.
 
 ## Deployment and isolation

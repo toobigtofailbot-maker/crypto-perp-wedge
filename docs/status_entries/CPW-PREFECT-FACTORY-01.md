@@ -4,6 +4,8 @@ Branch-state implementation. **LOCAL_VALIDATION_PASS / PHYSICAL_ACCEPTANCE_PASS 
 NOT MERGED.** Manual factory and Stage 5B remain OFF.
 
 - Branch: `codex/cpw-prefect-factory-01-manual-consumer`.
+- Review PR: [#740](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/740),
+  non-draft; public `smoke` is required on the actual PR head. Merge remains Karl-only.
 - Original scientific base: `e1ad31672ae2a6c3b995ddae9cd51b897483747f` (PR #737).
 - Post-proof review base: `64c0d508675e98a21bd2d12188666193048ec847`.
 - Implementation semantic head: `95e0c0221bab0c19b4ba70168c287d0eaa4fffc3`.

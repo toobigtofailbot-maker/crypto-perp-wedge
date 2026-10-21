@@ -67,7 +67,8 @@ Startup read order:
   proof passed with two original trials and no additional backtests on recovery.
   Historical unchanged-source T3 passed 48/48 shards (4,075 passed, 24 disclosed
   skips). Native MC integrity recomputations used Karl's exact bounded exception.
-  The scoped PR requires local validation, public `smoke` and Side/Karl review;
+  Fresh focused/adjacent/developer tests and62 integrity views passed. The
+  scoped PR requires public `smoke` and Side/Karl review;
   no merge, Stage 5B or trading activation follows from this proof.
   See `docs/status_entries/CPW-PREFECT-FACTORY-01.md`.
 

@@ -1,6 +1,6 @@
 # CPW-PREFECT-FACTORY-01
 
-Branch-state implementation. **PHYSICAL_ACCEPTANCE_PASS / SIDE_REVIEW_REQUIRED /
+Branch-state implementation. **LOCAL_VALIDATION_PASS / PHYSICAL_ACCEPTANCE_PASS / SIDE_REVIEW_REQUIRED /
 NOT MERGED.** Manual factory and Stage 5B remain OFF.
 
 - Branch: `codex/cpw-prefect-factory-01-manual-consumer`.
@@ -135,12 +135,19 @@ No enrollment, proposal wave, source verifier or scientific identity was reset.
   attempts0, holdout unexposed, contamination0. Original #737 study untouched.
   Owned Prefect services stopped/deployments and pools deleted; isolated PG16.15
   container stopped with volume/backup retained. Credentials remain outside
-  shared evidence. The authentic D4 copy is retained only through local checks.
+  shared evidence. The three owned validation input copies were rehashed and
+  removed after completed checks; authentic source bytes remain unchanged.
 
 After frozen-head proof preservation, the existing branch rebased cleanly onto
 public main; consumer/test and native scientific source bytes were unchanged.
-Historical T3 remains the unchanged-source baseline, with fresh final focused,
-adjacent and integrity checks required for publication. The final A–H packet
+Historical T3 remains the unchanged-source baseline. Fresh final local validation
+at `c688c29daa8a36c82944d6f096b26b8a62607c8e` passed: 29 focused tests,
+95 adjacent tests / 1 existing Windows symlink-permission skip, 109 developer
+smoke tests, registry validation and all62 integrity views. Exactly the two
+disclosed historical integrity findings remain unchanged. All7 local validation
+commands passed. Consumer/test/factory/store/verifier/MC blobs match both prior
+T3 and the frozen scientific head; this later documentation-only tail reuses
+those results with fresh exact-head/scope checks. The final A–H packet
 records exact review HEAD, validation outcomes, five-file diff and PR/check
 metadata. The reviewed continuation authorizes one public PR and required
 `smoke`; Karl retains merge authority. Future scientific execution needs its

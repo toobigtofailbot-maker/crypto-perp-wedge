@@ -1,7 +1,7 @@
 # Manual Prefect Research Factory Consumer
 
-CPW-PREFECT-FACTORY-01 is a local-only implementation, pending validation and
-separate real-science acceptance. It activates neither the factory nor Stage 5B.
+CPW-PREFECT-FACTORY-01 implements a manual consumer with bounded scratch-only
+physical crash/recovery acceptance. It activates neither the factory nor Stage 5B.
 The frozen factory, kernel, adapter and other Prefect consumers are unchanged.
 
 ## Interface and authority
@@ -95,7 +95,26 @@ fixtures prove code behavior only. Real-science recovery acceptance requires a
 fresh exact-source request/fixture/marker and Karl's separate explicit approval;
 the historical PR #737 study and marker must not be reused.
 
-No push, PR, hosted CI or merge is authorized. Candidate, canonical, runtime,
+The accepted continuation permits one reviewed PR and its required public
+`smoke` check after physical acceptance and local validation. Merge remains
+Karl-only. Candidate, canonical, runtime,
 OMS, reconciliation, risk, safe mode, overlays, paper/live and capital boundaries
 remain protected. Current validation and blockers are recorded in
 `docs/status_entries/CPW-PREFECT-FACTORY-01.md`.
+
+The accepted physical proof retains its original scientific HEAD
+`627e4c0161afd8d90817e07d32727546f3338a9c`, request and two trial IDs. A verified
+Windows Prefect child was suspended and hard-killed at the original native
+`reconcile_manual_run` call entry, after complete physical evidence and before
+terminal commits. Explicit native recovery, idempotent replay and a fresh
+Prefect operational-ID duplicate preserved two terminal results with zero
+additional adapter, population, fold or backtest calls.
+
+Native result commits and loads rebuild seeded MC diagnostics to verify retained
+evidence. Karl's exact acceptance-only budget amendment authorized ten such
+verification calls, separate from the single scientific advisory report.
+Actual totals were 12 variant backtests, one 10,000-resample scientific report
+and ten matching verification recomputations / 100,000 validation resamples,
+within 260.375 seconds. The native verifier was unchanged. This exception is
+specific to the recorded acceptance; it grants no future execution authority.
+The later documentation/review head preserves the old scientific bindings.

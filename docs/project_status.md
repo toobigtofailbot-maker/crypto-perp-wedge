@@ -61,10 +61,14 @@ Startup read order:
   canonical/candidate, runtime or capital authority.
   See `docs/status_entries/V2-RESEARCH-FACTORY-LOOP-01.md`.
 
-- `CPW-PREFECT-FACTORY-01` is local branch-state only, based on merged PR #737.
-  Its manual Prefect consumer remains default OFF. Local T3 passed 48/48 shards
-  (4,075 passed, 24 disclosed skips); real-science recovery still requires fresh exact approval.
-  No publication, Stage 5B or trading authority is granted.
+- `CPW-PREFECT-FACTORY-01` remains branch-state work, incorporating public main
+  `64c0d508675e98a21bd2d12188666193048ec847`. Its manual consumer remains default
+  OFF. Frozen-head physical crash, explicit recovery, idempotence and duplicate
+  proof passed with two original trials and no additional backtests on recovery.
+  Historical unchanged-source T3 passed 48/48 shards (4,075 passed, 24 disclosed
+  skips). Native MC integrity recomputations used Karl's exact bounded exception.
+  The scoped PR requires local validation, public `smoke` and Side/Karl review;
+  no merge, Stage 5B or trading activation follows from this proof.
   See `docs/status_entries/CPW-PREFECT-FACTORY-01.md`.
 
 - Phase 1 is closed.

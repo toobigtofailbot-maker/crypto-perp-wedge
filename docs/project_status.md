@@ -42,9 +42,9 @@ Startup read order:
   the earlier failed release and baseline disclosures remain historical evidence
   in `docs/status_entries/WP-V2-AUTONOMY-KERNEL-01.md`. No activation follows
   from those merges.
-- `V2-RESEARCH-FACTORY-LOOP-01` / PR #737 is open for review as scoped
-  branch-state implementation from
-  `712f158d51f36447152e5812a26d725f31d0a1d2`, with the explicitly amended 16-file closure.
+- `V2-RESEARCH-FACTORY-LOOP-01` / PR #737 is merged at
+  `e1ad31672ae2a6c3b995ddae9cd51b897483747f`, with the explicitly amended
+  16-file closure and reviewed head `e2cc4f71188c2d2c729b06ff394d0d3ed07c6db3`.
   The manual factory remains default OFF. Legacy synthetic v1 is preserved;
   real 15m D4 execution requires a separate exact v2 operator marker. Mapping,
   scratch evidence verification and append-only trial binding are implemented.
@@ -57,9 +57,20 @@ Startup read order:
   `54eb10e792f7afd64ea6f3d732c5352661dded1b` passed 48/48 shards,
   4,046 tests with 24 disclosed environment skips and all mandatory PostgreSQL
   cases unskipped. Prior failed releases remain recorded. No additional factory
-  executions occurred. Awaiting Side 22 exact-head review; no merge,
-  unattended research, Stage 5B, canonical/candidate, runtime or capital authority
-  is claimed. See `docs/status_entries/V2-RESEARCH-FACTORY-LOOP-01.md`.
+  executions occurred. The merge grants no unattended research, Stage 5B,
+  canonical/candidate, runtime or capital authority.
+  See `docs/status_entries/V2-RESEARCH-FACTORY-LOOP-01.md`.
+
+- `CPW-PREFECT-FACTORY-01` remains branch-state work, incorporating public main
+  `64c0d508675e98a21bd2d12188666193048ec847`. Its manual consumer remains default
+  OFF. Frozen-head physical crash, explicit recovery, idempotence and duplicate
+  proof passed with two original trials and no additional backtests on recovery.
+  Historical unchanged-source T3 passed 48/48 shards (4,075 passed, 24 disclosed
+  skips). Native MC integrity recomputations used Karl's exact bounded exception.
+  Fresh focused/adjacent/developer tests and62 integrity views passed. The
+  scoped PR requires public `smoke` and Side/Karl review;
+  no merge, Stage 5B or trading activation follows from this proof.
+  See `docs/status_entries/CPW-PREFECT-FACTORY-01.md`.
 
 - Phase 1 is closed.
 - Phase 2 baseline is locked in `docs/onboarding/PHASE2_BASELINE.md`.

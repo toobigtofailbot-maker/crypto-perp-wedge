@@ -98,6 +98,9 @@ def test_full_rp2592_acceptance_is_deterministic() -> None:
     assert first.result_envelope["request_content_sha256"] == (
         "sha256:179ef4d8e20af186ead25e7b482175b441863070e4a90f4e7f02c0188cd9da01"
     )
+    assert first.result_envelope["evidence_content_sha256"] == (
+        "sha256:8ca48f07190e7dfc9a03c8fc7e1339884919a58149b2d290d8da1ac71b3cb832"
+    )
     rows = first_science["variant_result_rows"]
     assert first_science["committed_denominator"] == len(rows) == 8
     assert first_science["outcome_category_counts"]["successful"] == 8

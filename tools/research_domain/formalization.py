@@ -10,6 +10,11 @@ from typing import Any
 
 from .contracts import LOCKED_TIMEFRAMES
 
+_PRICE_SMA_TREND_CONFLICT = (
+    r"\b(?:mean[ -]?rever\w*|contrarian|long.only|short.only|intrabar|stop.loss|take.profit|trailing.stop|atr|target|leverage)\b"
+    r"|\b(?:long|buy)\b[^.;]{0,40}\bbelow\b|\b(?:short|sell)\b[^.;]{0,40}\babove\b"
+)
+
 
 def detect_features(idea: str, indicator_ids: Collection[str]) -> list[str]:
     """Detect the current supported features in stable legacy order."""
@@ -171,8 +176,46 @@ def assess_capabilities(
     }
 
 
+def _is_price_sma_trend(draft: Mapping[str, Any]) -> bool:
+    """Recognize only the declared fixed baseline, never infer rules from SMA mentions."""
+    entry = str(draft.get("entry_concept", "")).strip().casefold()
+    exit_concept = str(draft.get("exit_concept", "")).strip().casefold()
+    bounds = draft.get("parameter_bounds")
+    # Closed concept forms deliberately fail closed on extra mechanics or reversed sides.
+    return (
+        draft.get("symbols") == ["BTCUSDT"]
+        and draft.get("timeframe") == "4h"
+        and set(draft.get("features", [])) == {"sma", "ohlcv"}
+        and entry
+        in {
+            "completed close above/below trailing sma(50); next open only.",
+            "long when completed close > trailing sma(50); short when completed close < trailing sma(50); next open only.",
+        }
+        and exit_concept
+        in {
+            "persist until relationship changes; flat warmup or invalid input.",
+            "long exits on completed close <= sma(50); short exits on completed close >= sma(50).",
+        }
+        and bounds == [{"name": "lookback", "minimum": 50.0, "maximum": 50.0}]
+        and not re.search(
+            _PRICE_SMA_TREND_CONFLICT,
+            " ".join(
+                str(draft.get(key, ""))
+                for key in (
+                    "summary",
+                    "causal_rationale",
+                    "falsifiable_prediction",
+                    "stop_conditions",
+                )
+            ).casefold(),
+        )
+    )
+
+
 def _draft_family_id(draft: Mapping[str, Any]) -> str | None:
     features = set(draft.get("features", []))
+    if _is_price_sma_trend(draft):
+        return "price_sma_trend_persistence_v1"
     if "funding_rate" in features and not features.intersection({"sma", "stddev", "donchian"}):
         return "funding_rate_positioning_fade_v1"
     if "donchian" in features and not features.intersection({"sma", "stddev"}):
@@ -282,6 +325,7 @@ def build_strategy_spec(
     try:
         spec["strategy_spec_id"] = f"STRAT-SPEC-{numeric_id:04d}"
         spec["title"] = {
+            "price_sma_trend_persistence_v1": "Draft 4h price/SMA(50) trend-persistence Strategy Spec",
             "donchian_channel_breakout_v1": "Draft deterministic Donchian channel-breakout Strategy Spec",
             "funding_rate_positioning_fade_v1": "Draft funding-rate positioning-fade Strategy Spec",
         }.get(family_id, default_title)
@@ -302,6 +346,9 @@ def build_strategy_spec(
             "source_constraints": source_constraints
             + [
                 {
+                    "price_sma_trend_persistence_v1": (
+                        "Scratch-only draft produced by the bounded price_sma_trend_persistence_v1 adapter."
+                    ),
                     "donchian_channel_breakout_v1": (
                         "Scratch-only draft produced by the bounded "
                         "donchian_channel_breakout_v1 adapter."
@@ -345,7 +392,9 @@ def build_strategy_spec(
         }
     except (KeyError, TypeError) as exc:
         raise ValueError("invalid Strategy-Spec template") from exc
-    if family_id == "donchian_channel_breakout_v1":
+    if family_id == "price_sma_trend_persistence_v1":
+        _apply_sma_trend_strategy_body(spec)
+    elif family_id == "donchian_channel_breakout_v1":
         _apply_donchian_strategy_body(spec)
     elif family_id == "funding_rate_positioning_fade_v1":
         _apply_funding_strategy_body(spec, exit_mode="midline_reversion_or_max_hold")
@@ -411,6 +460,17 @@ def formalize_reasoned_strategy_draft(
 
     adapted_draft = copy.deepcopy(dict(reasoned_draft))
     family_id = _draft_family_id(adapted_draft)
+    if family_id == "price_sma_trend_persistence_v1" and (
+        detected_features != declared_features
+        or re.search(_PRICE_SMA_TREND_CONFLICT, idea.casefold())
+        or any(match != "50" for match in re.findall(r"\bsma\s*\((\d+)\)", idea.casefold()))
+        or any(
+            item != "Noncanonical supervised admission only; no scientific execution."
+            for item in constraints
+        )
+    ):
+        # Do not silently discard operator features or additional constraint mechanics.
+        family_id = None
     if family_id == "donchian_channel_breakout_v1":
         adapted_draft["parameter_bounds"] = [
             {"name": "channel_lookback_bars", "minimum": 20.0, "maximum": 55.0}
@@ -899,5 +959,94 @@ def _apply_donchian_strategy_body(spec: dict[str, Any]) -> None:
         {
             "order_size_assumption": "Scratch offline runner validation uses the existing dynamic_equity_target_leverage model at target_leverage=1.0.",
             "liquidity_capacity_assumption": "Not active in this scratch adapter-validation artifact.",
+        }
+    )
+
+
+def _apply_sma_trend_strategy_body(spec: dict[str, Any]) -> None:
+    # Fixed and caller-supplied anchors can overlap; retain every distinct identity.
+    for key in ("source_refs", "source_constraints"):
+        spec["provenance"][key] = list(dict.fromkeys(spec["provenance"][key]))
+    spec["instruments"]["directions_allowed"] = ["long", "short"]
+    spec["timeframe_and_data"]["confirmation_timeframes"] = []
+    spec["timeframe_and_data"]["host_data_refs"] = [
+        {"stream": "ohlcv", "timeframe": "4h", "field": field, "availability": "required"}
+        for field in ("open", "high", "low", "close", "volume")
+    ] + [
+        {
+            "stream": "indicator_catalog",
+            "timeframe": None,
+            "field": "sma",
+            "availability": "required",
+        }
+    ]
+    for name, role, operators in (
+        ("entry_logic", "required", ("gt", "lt")),
+        ("exit_logic", "exit", ("lte", "gte")),
+    ):
+        groups = []
+        for side, operator in zip(("long", "short"), operators, strict=True):
+            groups.append(
+                {
+                    "group_id": f"{name.upper()}-{side.upper()}-SMA50",
+                    "group_role": role,
+                    "logic": "all",
+                    "conditions": [
+                        {
+                            "condition_id": f"{side.upper()}-CLOSE-{operator.upper()}-SMA50",
+                            "condition_role": role,
+                            "left_operand": _close_operand(),
+                            "operator": operator,
+                            "right_operand": {
+                                "operand_type": "indicator_ref",
+                                "ref": "sma",
+                                "field": "value",
+                                "timeframe": None,
+                                "lookback": {"bars": 50},
+                            },
+                            "units": None,
+                            "notes": "Completed 4h close versus trailing full-window SMA(50).",
+                        }
+                    ],
+                    "subgroups": [],
+                    "side": side,
+                    "notes": "Explicit side-specific trend persistence; equality permits no entry.",
+                }
+            )
+        spec[name] = {"groups": groups, "notes": "Fixed completed-close/SMA(50) relationship."}
+    spec["entry_logic"]["direction"] = "both"
+    spec["exit_logic"]["max_holding_period"] = {"enabled": False, "bars": None}
+    spec["filters"] = {"groups": [], "none_declared": True}
+    spec["free_parameters"]["parameters"] = []
+    spec["free_parameters"]["no_free_parameters_declared"] = True
+    spec["risk_model"].update(
+        {
+            "stop_distance": None,
+            "target_distance": None,
+            "exposure_limits": ["Review-only draft; no approved sizing or capital allocation."],
+            "leverage_visibility": "No runtime, paper/live, or capital authority.",
+            "liquidation_sensitivity_notes": "No stop or target encoded; cost and funding reconciliation unverified.",
+        }
+    )
+    spec["constraints"] = {
+        "invalid_parameter_combinations": [],
+        "unavailable_data_blockers": [],
+        "deferred_pattern_blockers": [
+            "No extra filters, entry throttle, intrabar operation, stop, target, or lookback grid.",
+            "Research formalization only; the current factory mapper remains STRAT-SPEC-0003 / 15m only.",
+        ],
+        "none_declared": False,
+    }
+    spec["provenance"]["unresolved_claims"] += [
+        "Cataloged 4h OHLCV/SMA reuse is conditional; physical parent bytes and completeness are unverified.",
+        "Compiler full-window warmup and NaN comparisons prevent new entries; an already held side may persist through NaN, so invalid-input flatness is not guaranteed.",
+        "Existing both-side compiler exits produce a flat bar before a later opposite entry; immediate flip parity is not established.",
+        "The next-bar-open convention is an existing backtest assumption, not verified fills; costs, funding, holdout and scientific results are unverified.",
+        "Current 15m-only factory mapping cannot execute this 4h draft; no canonical or scientific execution authority.",
+    ]
+    spec["backtest_realism_assumptions"].update(
+        {
+            "order_size_assumption": "Unverified future offline sizing; no run or sizing approval.",
+            "liquidity_capacity_assumption": "Unverified; no attainable fill or capacity claim.",
         }
     )

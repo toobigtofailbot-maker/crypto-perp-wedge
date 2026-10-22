@@ -633,3 +633,221 @@ def test_canonical_taker_contract_rejects_source_timeframe_and_identity_mismatch
     mismatch["feature_table_identity"] = build_feature_table_identity(mismatch)
     with pytest.raises(FeatureDataContractError, match="identity family"):
         validate_feature_table_contract(mismatch)
+
+
+# SYNTHETIC_FIXTURE: bounded adapter mechanics, never a model run or science.
+def _sma_trend_inputs():
+    def load(path):
+        return json.loads((REPO_ROOT / path).read_text(encoding="utf-8"))
+
+    return {
+        "idea": "BTCUSDT 4h price SMA trend persistence",
+        "symbol": "BTCUSDT",
+        "timeframe": "4h",
+        "constraints": [],
+        "reasoned_draft": {
+            "summary": "SYNTHETIC_FIXTURE: price trend test, not actual research",
+            "causal_rationale": "Persistence is an unproven possibility.",
+            "falsifiable_prediction": "A future held-out test may reject persistence.",
+            "symbols": ["BTCUSDT"],
+            "timeframe": "4h",
+            "features": ["sma", "ohlcv"],
+            "entry_concept": "Completed close above/below trailing SMA(50); next open only.",
+            "exit_concept": "Persist until relationship changes; flat warmup or invalid input.",
+            "parameter_bounds": [{"name": "lookback", "minimum": 50.0, "maximum": 50.0}],
+            "stop_conditions": [
+                "No execution; uncertain costs, funding, holdout and prior history."
+            ],
+        },
+        "indicator_catalog": load(
+            "research/indicator_catalogs/IND-CATALOG-0001.indicator_catalog.json"
+        ),
+        "availability_catalog": load(
+            "research/data_feature_availability/PERP-DERIVED-FEATURE-AVAILABILITY-0001.json"
+        ),
+        "strategy_spec_template": load(
+            "research/strategy_specs/STRAT-SPEC-0003.strategy_spec.json"
+        ),
+        "run_id": "123456789abc",
+        "source_context": {
+            "source_type": "manual_idea",
+            "source_refs": ["project://indicator-catalog"],
+            "prepared_by": "SYNTHETIC_FIXTURE",
+            "source_constraints": ["scratch only"],
+            "unresolved_claims": ["human review required"],
+            "review_notes": ["not approval"],
+            "lineage_ref_path": None,
+            "lineage_ref_hash": "sha256:synthetic-input",
+        },
+    }
+
+
+def test_sma_trend_body_schema_lineage_and_no_template_leakage():
+    from jsonschema import Draft7Validator
+
+    inputs = _sma_trend_inputs()
+    before = copy.deepcopy(inputs)
+    result = formalize_reasoned_strategy_draft(**inputs)
+    assert result == formalize_reasoned_strategy_draft(**inputs)
+    assert inputs == before
+    assert result["status"] == "accepted"
+    assert result["adapter_metadata"]["family_id"] == "price_sma_trend_persistence_v1"
+    assert len(result["draft_strategy_specs"]) == 1
+    spec = result["draft_strategy_specs"][0]
+    schema = json.loads((REPO_ROOT / "research/schemas/strategy_spec.schema.json").read_text())
+    Draft7Validator(schema).validate(spec)
+    assert spec["strategy_spec_id"] == "STRAT-SPEC-9896"
+    assert spec["status"] == "draft"
+    assert spec["review"]["reviewer"] is None
+    assert spec["review"]["approval_scope"] == "none"
+    assert all(spec["review"]["non_authority_acknowledgement"].values())
+    assert spec["hash_pinning"]["hash_status"] == "not_computed"
+    assert spec["hash_pinning"]["canonical_spec_hash"] is None
+    assert spec["pre_registration_support"] == {
+        "intended_for_variant_manifest": False,
+        "variant_manifest_ref": None,
+        "frozen_snapshot_ref": None,
+    }
+    assert spec["lineage"]["parent_refs"][0]["ref_hash"] == "sha256:synthetic-input"
+    assert spec["provenance"]["source_refs"] == inputs["source_context"]["source_refs"]
+    assert spec["entry_logic"]["direction"] == "both"
+    assert "entry_controls" not in spec["entry_logic"]
+    assert spec["timeframe_and_data"]["primary_timeframe"] == "4h"
+    assert {ref["field"] for ref in spec["timeframe_and_data"]["host_data_refs"]} == {
+        "open",
+        "high",
+        "low",
+        "close",
+        "volume",
+        "sma",
+    }
+    assert spec["filters"] == {"groups": [], "none_declared": True}
+    assert spec["free_parameters"]["parameters"] == []
+    assert spec["free_parameters"]["no_free_parameters_declared"] is True
+    assert spec["exit_logic"]["max_holding_period"] == {"enabled": False, "bars": None}
+    assert spec["risk_model"]["stop_distance"] is spec["risk_model"]["target_distance"] is None
+    for name, operators in [("entry_logic", ["gt", "lt"]), ("exit_logic", ["lte", "gte"])]:
+        groups = spec[name]["groups"]
+        assert [g["side"] for g in groups] == ["long", "short"]
+        for group, operator in zip(groups, operators, strict=True):
+            assert group["logic"] == "all" and group["subgroups"] == []
+            (condition,) = group["conditions"]
+            assert condition["operator"] == operator
+            assert condition["left_operand"] == domain_formalization._close_operand()
+            assert condition["right_operand"] == {
+                "operand_type": "indicator_ref",
+                "ref": "sma",
+                "field": "value",
+                "timeframe": None,
+                "lookback": {"bars": 50},
+            }
+    claims = " ".join(spec["provenance"]["unresolved_claims"])
+    assert all(word in claims for word in ["bytes", "warmup", "NaN", "flip", "15m", "next"])
+    assert "human review required" in claims
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("timeframe", "1h"),
+        ("symbols", ["ETHUSDT"]),
+        ("features", ["sma"]),
+        ("features", ["sma", "ohlcv", "ema"]),
+        ("entry_concept", "SMA trend"),
+        ("entry_concept", "Long below SMA(50), short above; mean reversion."),
+        ("entry_concept", "Completed close above/below trailing SMA(20); next open only."),
+        (
+            "entry_concept",
+            "Completed close above/below trailing SMA(50); next open only. Add ATR stop.",
+        ),
+        ("exit_concept", "Take profit at 2R or stop loss at 1%."),
+        ("exit_concept", "Persist forever."),
+        ("summary", "SMA mean reversion"),
+        ("summary", "Buy below SMA and sell above."),
+        ("parameter_bounds", []),
+        ("parameter_bounds", [{"name": "lookback", "minimum": 20, "maximum": 50}]),
+        ("parameter_bounds", [{"name": "lookback", "minimum": True, "maximum": 50}]),
+        ("parameter_bounds", [{"name": "other", "minimum": 50, "maximum": 50}]),
+    ],
+)
+def test_sma_trend_unsupported_drafts_produce_no_spec(field, value):
+    inputs = _sma_trend_inputs()
+    inputs["reasoned_draft"][field] = value
+    if field == "features":
+        inputs["idea"] += " ema"
+    result = formalize_reasoned_strategy_draft(**inputs)
+    assert result["draft_strategy_specs"] == []
+    assert result["draft_strategy_spec"]["produced"] is False
+
+
+@pytest.mark.parametrize(
+    "idea,constraints",
+    [
+        ("BTCUSDT 4h price SMA trend persistence with ema", []),
+        ("BTCUSDT 4h price SMA(20) trend persistence", []),
+        ("BTCUSDT 4h price SMA trend persistence with a stop loss", []),
+        ("BTCUSDT 4h price SMA trend persistence", ["Add a trailing stop"]),
+    ],
+)
+def test_sma_trend_does_not_drop_operator_mechanics(idea, constraints):
+    inputs = _sma_trend_inputs()
+    inputs.update(idea=idea, constraints=constraints)
+    assert formalize_reasoned_strategy_draft(**inputs)["draft_strategy_specs"] == []
+
+
+def test_sma_trend_missing_indicator_catalog_is_blocked():
+    inputs = _sma_trend_inputs()
+    inputs["indicator_catalog"] = {"entries": []}
+    result = formalize_reasoned_strategy_draft(**inputs)
+    assert result["draft_strategy_specs"] == []
+
+
+def test_sma_trend_compiler_observed_semantics():
+    import pandas as pd
+
+    from tools.research_runner.spec_signal_compiler import compile_signal
+
+    (spec,) = formalize_reasoned_strategy_draft(**_sma_trend_inputs())["draft_strategy_specs"]
+    close = [100.0] * 50 + [110.0, 110.0, 90.0, 90.0, 120.0, 120.0]
+    index = pd.date_range("2026-01-01", periods=len(close), freq="4h", tz="UTC")
+    bars = pd.DataFrame(
+        {
+            "open": close,
+            "high": [x + 1 for x in close],
+            "low": [x - 1 for x in close],
+            "close": close,
+            "volume": 1000.0,
+        },
+        index=index,
+    )
+    before = bars.copy(deep=True)
+    signal = compile_signal(spec, {"parameter_values": {}}, bars)
+    assert signal.tolist() == [0.0] * 50 + [1.0, 1.0, 0.0, -1.0, 0.0, 1.0]
+    pd.testing.assert_frame_equal(bars, before)
+    pd.testing.assert_series_equal(signal, compile_signal(spec, {}, bars))
+    altered = bars.copy()
+    altered.loc[index[-1], ["open", "high", "low", "close"]] = [50, 51, 49, 50]
+    pd.testing.assert_series_equal(signal.iloc[:-1], compile_signal(spec, {}, altered).iloc[:-1])
+    # Equality closes an existing side; the compiler never flips on the exit bar.
+    equal = bars.iloc[:52].copy()
+    equal.iloc[-1, equal.columns.get_loc("close")] = (49 * 100.0 + 110.0) / 50
+    assert compile_signal(spec, {}, equal).iloc[-1] == 0.0
+    # Existing compiler comparisons are false for NaN: no new entry, but a held side persists.
+    invalid = bars.copy()
+    invalid.loc[index[51], "close"] = float("nan")
+    assert compile_signal(spec, {}, invalid).iloc[50:54].tolist() == [1.0] * 4
+    invalid.loc[index[49], "close"] = float("nan")
+    assert compile_signal(spec, {}, invalid).eq(0.0).all()
+
+
+@pytest.mark.parametrize(
+    "constraints", [[], ["Noncanonical supervised admission only; no scientific execution."]]
+)
+def test_sma_trend_explicit_sides_and_native_admission_constraint(constraints):
+    inputs = _sma_trend_inputs()
+    inputs["constraints"] = constraints
+    inputs["reasoned_draft"].update(
+        entry_concept="Long when completed close > trailing SMA(50); short when completed close < trailing SMA(50); next open only.",
+        exit_concept="Long exits on completed close <= SMA(50); short exits on completed close >= SMA(50).",
+    )
+    assert len(formalize_reasoned_strategy_draft(**inputs)["draft_strategy_specs"]) == 1

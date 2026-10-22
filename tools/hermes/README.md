@@ -77,7 +77,7 @@ Browserbase variables remain mandatory. No new purchase is authorized.
 ```powershell
 $env:COMPOSE_PROJECT_NAME = 'cpw-hermes-research-turn-01'
 $env:HERMES_PROJECT_HOME = 'C:\Hermes\research-turn-01' # fresh, external
-./tools/hermes/start.ps1 -Mode F1F2 -HermesProjectHome $env:HERMES_PROJECT_HOME -HermesModel 'gpt-6.1'
+./tools/hermes/start.ps1 -Mode F1F2 -HermesProjectHome $env:HERMES_PROJECT_HOME -HermesModel 'gpt-6.1-sol'
 # In this project's director container, authenticate and create both profiles:
 docker compose -f tools/hermes/compose.yaml exec -T --user 10000:10000 hermes hermes auth add openai-codex --no-browser
 docker compose -f tools/hermes/compose.yaml exec -T --user 10000:10000 hermes hermes profile create research-scout --no-skills

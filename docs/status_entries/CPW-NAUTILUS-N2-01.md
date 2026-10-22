@@ -143,3 +143,28 @@ Boundary review: Lane A, project_status, `src/**`, configs, OMS, reconciliation,
 risk, overlays, safe mode, science/CANON, dependencies and CI remain untouched.
 All synthetic proof sessions close. No paper/live service, trading activation,
 capital action, deployment, merge or authority promotion occurs.
+
+## Completion record
+
+**N2-01 bounded proof PASS. Full N2 remains unproven.** Ready for independent
+engineering review, with no merge approval or promotion claim.
+
+- PR: https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/743
+  (open, non-draft; not merged).
+- Tested semantic commit: `ddaa9249fd3581e13abb05c2c1fc70465acbbe00`.
+- Committed-code physical/reconstruction tests: **64 passed, zero skipped,
+  40.70s**; retained evidence under `committed-proof/` and `committed-proof.log`.
+- Final status-only commit preserves all tested code/test bytes. Final public
+  head, mergeability and required smoke receipt are bound in `github-final.json`
+  and `EXECUTION_REPORT_A-I.md` outside the repository; no stale earlier check
+  is substituted for the final head.
+- Evidence ZIP: `CPW-NAUTILUS-N2-01-evidence.zip`, with an internal SHA256 index
+  and external archive SHA256, in the evidence root identified above.
+
+Validated working-file SHA256 (exact tested bytes):
+
+| File | SHA256 |
+| --- | --- |
+| paper_sandbox.py | 51c3488f8800c1c3ac2a6fde59d6e067616a42e03953cdc5c22f8763ce34f639 |
+| test_nautilus_n2_sandbox.py | 46b489950433770eba7916b4051d7a97fb4dfe4c5aa65264204cd586a66fa090 |
+| test_nautilus_n2_restart.py | d15a44a46316102347a89dc59134a639523742da3f5fe4bd1a1be22bf27a5065 |

@@ -14,7 +14,7 @@ import platform
 import sys
 from collections import Counter
 from dataclasses import dataclass
-from decimal import Decimal
+from decimal import Decimal, ROUND_DOWN
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
@@ -332,27 +332,124 @@ def _load_nautilus() -> dict[str, Any]:
     return locals()
 
 
-def _fill_records(engine: Any, instrument_id: Any) -> list[dict[str, Any]]:
+def _fill_records(
+    engine: Any, instrument_id: Any, *, exact: bool = False,
+) -> list[dict[str, Any]]:
     fills: list[dict[str, Any]] = []
     for order in engine.cache.orders(instrument_id=instrument_id):
         for event in order.events:
             if event.__class__.__name__ != "OrderFilled":
                 continue
-            fills.append(
-                {
-                    "side": "BUY" if event.is_buy else "SELL",
-                    "price": float(event.last_px.as_decimal()),
-                    "quantity": float(event.last_qty.as_decimal()),
-                    "ts_event_ns": int(event.ts_event),
-                }
-            )
+            record = {
+                "side": "BUY" if event.is_buy else "SELL",
+                "price": float(event.last_px.as_decimal()),
+                "quantity": float(event.last_qty.as_decimal()),
+                "ts_event_ns": int(event.ts_event),
+            }
+            if exact:
+                record.update(
+                    price=str(event.last_px.as_decimal()),
+                    quantity=str(event.last_qty.as_decimal()),
+                    commission=str(event.commission.as_decimal()),
+                )
+            fills.append(record)
     return sorted(fills, key=lambda row: row["ts_event_ns"])
+
+
+@dataclass(frozen=True)
+class _N1Probe:
+    """Private N1-02 mechanics only; never a scientific execution profile."""
+
+    size_precision: int = 8
+    quantity: Decimal = Decimal("1")
+    fee_bps: Decimal = Decimal("0")
+    slippage_bps: Decimal = Decimal("0")
+    margin_maint: Decimal = Decimal("0")
+    funding_rate: Decimal | None = None
+
+
+def _execute_n1_02_probe(
+    scenario: str,
+    ohlcv: pd.DataFrame,
+    signal: pd.Series,
+    *,
+    requested_quantity: Decimal = Decimal("1"),
+) -> dict[str, Any]:
+    """Run a closed offline capability probe, without CANON normalization.
+
+    Quantity floors to the instrument quantum. This is probe policy, not a
+    change to CPW sizing; native funding settlement/liquidation is not added.
+    """
+    profiles = {
+        "costs": _N1Probe(fee_bps=Decimal("4"), slippage_bps=Decimal("1")),
+        "flip": _N1Probe(fee_bps=Decimal("4")),
+        "zero_equity": _N1Probe(),
+        "maintenance": _N1Probe(margin_maint=Decimal("0.05")),
+        "funding_positive": _N1Probe(funding_rate=Decimal("0.01")),
+        "funding_negative": _N1Probe(funding_rate=Decimal("-0.01")),
+        **{f"precision_{dp}": _N1Probe(size_precision=dp) for dp in (2, 3, 6, 8)},
+    }
+    if scenario not in profiles:
+        raise NautilusAdapterError("unknown N1-02 probe")
+    if (
+        not isinstance(requested_quantity, Decimal)
+        or not requested_quantity.is_finite()
+        or requested_quantity <= 0
+        or requested_quantity > Decimal("1000000")
+    ):
+        raise NautilusAdapterError("invalid probe quantity")
+    profile = profiles[scenario]
+    quantum = Decimal(1).scaleb(-profile.size_precision)
+    quantity = requested_quantity.quantize(quantum, rounding=ROUND_DOWN)
+    if quantity < quantum:
+        raise NautilusAdapterError("probe quantity below minimum")
+    if (
+        len(ohlcv) < 3
+        or not signal.index.equals(ohlcv.index)
+        or not signal.isin([-1, 0, 1]).all()
+        or not ohlcv.index.is_monotonic_increasing
+        or ohlcv.index.has_duplicates
+        or ohlcv.index.tz is None
+    ):
+        raise NautilusAdapterError("invalid probe timeline or signal")
+    prices = ohlcv[["open", "high", "low", "close", "volume"]]
+    if not prices.map(lambda value: math.isfinite(value) and value > 0).all().all():
+        raise NautilusAdapterError("invalid probe prices")
+    if not all(
+        Decimal(str(value)) % Decimal("0.01") == 0
+        for value in ohlcv[["open", "high", "low", "close"]].to_numpy().flat
+    ):
+        raise NautilusAdapterError("probe prices must be on the 0.01 tick")
+    if not all(
+        int(close) == int(timestamp.value // 1_000_000) + 899999
+        for timestamp, close in zip(ohlcv.index, ohlcv["close_time_ms"], strict=True)
+    ):
+        raise NautilusAdapterError("probe requires completed 15-minute bars")
+    profile = _N1Probe(
+        size_precision=profile.size_precision,
+        quantity=quantity,
+        fee_bps=profile.fee_bps,
+        slippage_bps=profile.slippage_bps,
+        margin_maint=profile.margin_maint,
+        funding_rate=profile.funding_rate,
+    )
+    result = _execute_target_signals(
+        [{"variant_id": scenario, "parameter_values": {}}],
+        ohlcv,
+        {scenario: signal},
+        _probe=profile,
+    )[scenario]
+    if "error" in result:
+        raise NautilusAdapterError(str(result["error"]))
+    return result
 
 
 def _execute_target_signals(
     variant_assignments: Sequence[Mapping[str, Any]],
     ohlcv: pd.DataFrame,
     signals: Mapping[str, pd.Series],
+    *,
+    _probe: _N1Probe | None = None,
 ) -> dict[str, dict[str, Any]]:
     """Execute CPW target signals through one exact Nautilus 1.231.0 mapping."""
 
@@ -382,6 +479,9 @@ def _execute_target_signals(
 
     instrument_id = InstrumentId(Symbol("BTCUSDT-PERP"), Venue("BINANCE"))
     bar_type = BarType.from_str("BTCUSDT-PERP.BINANCE-15-MINUTE-LAST-EXTERNAL")
+    precision = _probe.size_precision if _probe else 8
+    quantum = Decimal(1).scaleb(-precision)
+    fee = _probe.fee_bps / Decimal(10000) if _probe else Decimal("0.0005")
     instrument = CryptoPerpetual(
         instrument_id=instrument_id,
         raw_symbol=Symbol("BTCUSDT"),
@@ -391,18 +491,18 @@ def _execute_target_signals(
         is_inverse=False,
         price_precision=2,
         price_increment=Price.from_str("0.01"),
-        size_precision=8,
-        size_increment=Quantity.from_str("0.00000001"),
-        max_quantity=Quantity.from_str("1000000.00000000"),
-        min_quantity=Quantity.from_str("0.00000001"),
+        size_precision=precision,
+        size_increment=Quantity.from_str(str(quantum)),
+        max_quantity=Quantity.from_str(f"{Decimal(1000000):.{precision}f}"),
+        min_quantity=Quantity.from_str(str(quantum)),
         max_notional=None,
         min_notional=None,
         max_price=Price.from_str("10000000.00"),
         min_price=Price.from_str("0.01"),
         margin_init=Decimal(0),
-        margin_maint=Decimal(0),
-        maker_fee=Decimal("0.0005"),
-        taker_fee=Decimal("0.0005"),
+        margin_maint=_probe.margin_maint if _probe else Decimal(0),
+        maker_fee=fee,
+        taker_fee=fee,
         ts_event=0,
         ts_init=0,
     )
@@ -431,13 +531,19 @@ def _execute_target_signals(
     open_ticks: list[Any] = []
     for index, row in enumerate(ohlcv.itertuples()):
         price = Price.from_str(f"{row.open:.2f}")
-        size = Quantity.from_str("1000000.00000000")
+        size = Quantity.from_str(f"{Decimal(1000000):.{precision}f}")
+        if _probe:
+            displacement = Decimal(str(row.open)) * _probe.slippage_bps / Decimal(10000)
+            bid = Price.from_str(f"{Decimal(str(row.open)) - displacement:.2f}")
+            ask = Price.from_str(f"{Decimal(str(row.open)) + displacement:.2f}")
+        else:
+            bid = ask = price
         open_ticks.extend(
             (
                 QuoteTick(
                     instrument_id,
-                    price,
-                    price,
+                    bid,
+                    ask,
                     size,
                     size,
                     open_ns[index],
@@ -445,8 +551,8 @@ def _execute_target_signals(
                 ),
                 QuoteTick(
                     instrument_id,
-                    price,
-                    price,
+                    bid,
+                    ask,
                     size,
                     size,
                     open_ns[index] + 1,
@@ -466,19 +572,38 @@ def _execute_target_signals(
             super().__init__(StrategyConfig())
             self.targets = targets
             self.instrument = None
+            self.funding_updates: list[dict[str, Any]] = []
+            self.position_events: list[dict[str, Any]] = []
 
         def on_start(self) -> None:
             self.instrument = self.cache.instrument(instrument_id)
             if self.instrument is None:
                 raise NautilusAdapterError("Nautilus instrument missing from cache")
             self.subscribe_bars(bar_type)
+            if _probe and _probe.funding_rate is not None:
+                self.subscribe_funding_rates(instrument_id)
 
         def on_bar(self, bar: Any) -> None:
+            if _probe and bar.ts_init not in next_open:
+                return
             desired = self.targets.get(bar.ts_init, 0)
             is_flat = self.portfolio.is_flat(instrument_id)
             if desired == 0:
                 if not is_flat:
                     self.close_all_positions(instrument_id, reduce_only=True)
+                return
+            if _probe:
+                # A single NETTING delta lets Nautilus own the close/open split.
+                current = self.portfolio.net_position(instrument_id)
+                target = _probe.quantity * desired
+                delta = target - current
+                if delta:
+                    self.submit_order(self.order_factory.market(
+                        instrument_id=instrument_id,
+                        order_side=OrderSide.BUY if delta > 0 else OrderSide.SELL,
+                        quantity=Quantity.from_str(f"{abs(delta):.{precision}f}"),
+                        time_in_force=TimeInForce.GTC,
+                    ))
                 return
             if not is_flat:
                 return
@@ -497,6 +622,25 @@ def _execute_target_signals(
                 time_in_force=TimeInForce.GTC,
             )
             self.submit_order(order)
+
+        def on_funding_rate(self, update: Any) -> None:
+            account = self.portfolio.account(instrument_id.venue)
+            self.funding_updates.append({
+                "ts_event_ns": int(update.ts_event),
+                "rate": str(update.rate),
+                "net_quantity": str(self.portfolio.net_position(instrument_id)),
+                "balance": str(account.balance_total(USDT).as_decimal()),
+            })
+
+        def on_position_event(self, event: Any) -> None:
+            if _probe:
+                self.position_events.append({
+                    "type": type(event).__name__,
+                    "side": event.side.name,
+                    "quantity": str(event.quantity.as_decimal()),
+                    "realized_pnl": str(event.realized_pnl.as_decimal()),
+                    "ts_event_ns": int(event.ts_event),
+                })
 
         def on_stop(self) -> None:
             pass
@@ -534,8 +678,20 @@ def _execute_target_signals(
                 bar_adaptive_high_low_ordering=False,
             )
             engine.add_instrument(instrument)
-            engine.add_data([*bars, *open_ticks], sort=True)
-            engine.add_strategy(TargetSignalStrategy(targets))
+            funding_updates = []
+            if _probe and _probe.funding_rate is not None:
+                from nautilus_trader.model.data import FundingRateUpdate
+
+                funding_updates = [
+                    FundingRateUpdate(
+                        instrument_id, _probe.funding_rate,
+                        ts_event=open_ns[index], ts_init=open_ns[index],
+                    )
+                    for index in sorted({0, 2, len(open_ns) - 1})
+                ]
+            engine.add_data([*bars, *open_ticks, *funding_updates], sort=True)
+            strategy = TargetSignalStrategy(targets)
+            engine.add_strategy(strategy)
             engine.run()
 
             account = engine.portfolio.account(instrument_id.venue)
@@ -555,7 +711,7 @@ def _execute_target_signals(
             open_positions = engine.cache.positions_open(instrument_id=instrument_id)
             result = engine.get_result()
             completed_order_count = result.total_orders - len(open_positions)
-            if completed_order_count < 0 or completed_order_count % 2:
+            if not _probe and (completed_order_count < 0 or completed_order_count % 2):
                 raise NautilusAdapterError(
                     f"cannot derive closed trade count for {variant_id}: "
                     f"orders={result.total_orders} open_positions={len(open_positions)}"
@@ -575,6 +731,34 @@ def _execute_target_signals(
                 "total_positions": result.total_positions,
                 "fills": _fill_records(engine, instrument_id),
             }
+            if _probe:
+                orders = engine.cache.orders(instrument_id=instrument_id)
+                fills = _fill_records(engine, instrument_id, exact=True)
+                margin = account.margin_maint(instrument_id)
+                margin_at_close = sum(
+                    (account.calculate_margin_maint(
+                        instrument, position.side, position.quantity,
+                        Price.from_str(f"{float(ohlcv.iloc[-1]['close']):.2f}"),
+                    ).as_decimal() for position in open_positions),
+                    Decimal(0),
+                )
+                results[variant_id] = {
+                    "scenario": variant_id,
+                    "non_authoritative": True,
+                    "engine_version": api["nautilus_trader"].__version__,
+                    "fills": fills,
+                    "orders": len(orders),
+                    "order_statuses": [order.status.name for order in orders],
+                    "position_events": strategy.position_events,
+                    "open_position_count": len(open_positions),
+                    "net_quantity": str(engine.portfolio.net_position(instrument_id)),
+                    "balance": str(account.balance_total(USDT).as_decimal()),
+                    "unrealized_pnl": str(unrealized_money.as_decimal()) if unrealized_money else "0",
+                    "commission": str(commission_money.as_decimal()) if commission_money else "0",
+                    "margin_maint": str(margin.as_decimal()) if margin else "0",
+                    "margin_at_close": str(margin_at_close),
+                    "funding_updates": strategy.funding_updates,
+                }
         except Exception as exc:
             results[variant_id] = {
                 "variant_id": variant_id,

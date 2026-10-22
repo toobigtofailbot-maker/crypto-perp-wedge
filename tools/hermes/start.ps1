@@ -68,11 +68,8 @@ if ($LASTEXITCODE -ne 0) { throw "Docker Compose is required" }
 if ($LASTEXITCODE -ne 0) { throw "Docker daemon is required" }
 if ($Mode -eq "F1F2") {
     if ($InstallSchedules) { throw "InstallSchedules is forbidden in F1F2 mode" }
-    if ($repoBranch -ne "codex/wp-extreme-hermes-01-f1f2-canary-01") {
-        throw "F1F2 requires the exact package branch"
-    }
-    & git -C $repoRoot merge-base --is-ancestor 11214acfb6d8af44586c50089eb9965063a505ee HEAD
-    if ($LASTEXITCODE -ne 0) { throw "F1F2 requires the exact package base" }
+    & git -C $repoRoot merge-base --is-ancestor 200276fd4407e4a13a912a6b475ab9ab38a1de70 HEAD
+    if ($LASTEXITCODE -ne 0) { throw "F1F2 requires the merged PR #733 implementation in HEAD ancestry" }
     foreach ($name in @("BROWSERBASE_API_KEY", "BROWSERBASE_PROJECT_ID")) {
         if ([string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($name, "Process"))) {
             throw "F1F2 requires the Browserbase credential gate; missing variable: $name"

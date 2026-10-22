@@ -6,8 +6,10 @@ non-capital capability proof. Physical Cases A-K and full-release validation
 remain mandatory before publication; no Stage 5B or scientific autonomy is active.
 
 Select `start.ps1 -Mode F1F2` explicitly with a fresh external home. The launcher
-requires Browserbase variables in its process, `.no-bundled-skills`, the exact
-package branch/base, and Docker/Compose. Supply secrets only through the existing
+requires Browserbase variables in its process, `.no-bundled-skills`, merged PR
+#733 (`200276fd4407e4a13a912a6b475ab9ab38a1de70`) in HEAD ancestry, and
+Docker/Compose. It accepts a new supervised work branch descended from that
+implementation. Supply secrets only through the existing
 operator environment/auth store. At the first missing live credential gate use
 WP Revision 2 §6.3. No DSN/token/key belongs in Git or operator output.
 
@@ -62,6 +64,74 @@ docker compose -f tools/hermes/compose.yaml exec -T --user 10000:10000 hermes en
 Use the same command with `research-critic` for the second specialist. Their
 external configurations allow only memory and session search; acceptance must
 also check that credentials are absent and out-of-scope calls are denied.
+
+## Manual research opportunity cycle
+
+Use PowerShell 7.2+ and a new dedicated worktree descended from merged #733.
+Inspect `docker compose ls` first. Choose a unique project and fresh external
+home; never reuse another package's home, profiles, or Compose project. Authenticate
+the fresh director home with native `hermes auth add openai-codex`; do not copy
+auth stores, `.env` files or credentials from another deployment. Existing
+Browserbase variables remain mandatory. No new purchase is authorized.
+
+```powershell
+$env:COMPOSE_PROJECT_NAME = 'cpw-hermes-research-turn-01'
+$env:HERMES_PROJECT_HOME = 'C:\Hermes\research-turn-01' # fresh, external
+./tools/hermes/start.ps1 -Mode F1F2 -HermesProjectHome $env:HERMES_PROJECT_HOME -HermesModel 'gpt-6.1'
+# In this project's director container, authenticate and create both profiles:
+docker compose -f tools/hermes/compose.yaml exec -T --user 10000:10000 hermes hermes auth add openai-codex --no-browser
+docker compose -f tools/hermes/compose.yaml exec -T --user 10000:10000 hermes hermes profile create research-scout --no-skills
+docker compose -f tools/hermes/compose.yaml exec -T --user 10000:10000 hermes hermes profile create research-critic --no-skills
+```
+
+Before invoking models, author each fresh external profile's `config.yaml` with
+the accepted restricted configuration below, and a `SOUL.md` limiting it to
+analysis of supplied source materials. Do not clone profiles or mirror auth.
+Verify no director credential is present in either profile. Both specialists
+use upstream model OAuth root fallback only; the wrapper strips director-only
+credentials from their process environments.
+
+```yaml
+_config_version: 46
+model: {provider: openai-codex, default: '${HERMES_MODEL}'}
+toolsets: [memory, session_search]
+platform_toolsets: {cli: [memory, session_search]}
+agent: {max_turns: 4, coding_context: 'off'}
+plugins: {enabled: []}
+mcp_servers: {}
+skills: {project_discovery: false}
+curator: {enabled: false, consolidate: false}
+auxiliary: {background_review: {enabled: false}}
+delegation: {max_concurrent_children: 2, max_spawn_depth: 1, orchestrator_enabled: false, oneshot_max_children: 2, subagent_auto_approve: false, inherit_mcp_toolsets: false}
+```
+
+With the project still selected and profiles verified:
+
+```powershell
+./tools/hermes/research_turn.ps1 -OutputRoot 'C:\HermesReports\turn-01' `
+  -RepoSha (git rev-parse HEAD) -RepoBranch (git branch --show-current) `
+  -Theme 'BTCUSDT perpetual opportunities using existing five-timeframe evidence'
+```
+
+The output parent must exist; the destination must be new and external. The
+command verifies exact repo identity and running service/worktree/home ownership,
+then invokes director source collection, `research-scout`, `research-critic`,
+and director synthesis once each, synchronously. Prompts travel through stdin,
+never a shell. Each invocation has a timeout and no automatic retries. Native
+session IDs, tool observations, source index, scout/critic outputs, brief and
+artifact hashes are finalized by one directory rename. This is operational
+evidence, not canonical scientific evidence. Inspect the sources and tool
+observations before accepting usefulness; script completion alone is insufficient.
+
+A missing/failed result or detected credential text returns nonzero and retains
+a FAILED manifest and sanitized observations. A failure stops only the verified
+project's director, including in-flight execs. It never publishes a success brief
+for an incomplete cycle. Finish cleanup with `docker compose -f
+tools/hermes/compose.yaml down` while the same unique project is selected;
+leave unrelated services untouched. For another supervised cycle select a new
+output directory. No schedules, trials, Prefect consumers, or scientific jobs
+are invoked. F0 rollback still uses the unchanged `-Mode F0` surface described
+above, with its own original home/project.
 
 The following sections retain the historical F0 deployment description.
 

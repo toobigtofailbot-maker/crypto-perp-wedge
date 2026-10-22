@@ -428,3 +428,97 @@ def test_domain_tool_module_cannot_import_protected_surfaces() -> None:
         "src.",
     )
     assert not [name for name in imports if name.startswith(forbidden)]
+
+
+# SYNTHETIC_FIXTURE, matching the historical blocked request; no model invocation.
+def _sma_trend_request():
+    draft = _draft(features=["sma", "ohlcv"], timeframe="4h")
+    draft.update(
+        summary="SYNTHETIC_FIXTURE: price trend test, not actual research",
+        entry_concept="Completed close above/below trailing SMA(50); next open only.",
+        exit_concept="Persist until relationship changes; flat warmup or invalid input.",
+        parameter_bounds=[{"name": "lookback", "minimum": 50.0, "maximum": 50.0}],
+    )
+    return _formalize_input(
+        idea="BTCUSDT 4h price SMA trend persistence",
+        timeframe="4h",
+        reasoned_draft=draft,
+        evidence_resource_uris=[
+            "project://feature-availability",
+            "project://indicator-catalog",
+            "project://strategy-spec-template",
+            "evidence://decision/DEC-0001",
+            "evidence://decision/DEC-0002",
+        ],
+    )
+
+
+def test_sma_trend_native_transport_schema_and_non_authority(service):
+    from jsonschema import Draft7Validator
+
+    request = _sma_trend_request()
+    first = service.domain_tools.formalize_strategy_draft(request)
+    assert first == service.domain_tools.formalize_strategy_draft(copy.deepcopy(request))
+    assert first["domain_semantics"]["status"] == "accepted"
+    (spec,) = first["domain_semantics"]["draft_strategy_specs"]
+    schema = json.loads((REPO_ROOT / "research/schemas/strategy_spec.schema.json").read_text())
+    Draft7Validator(schema).validate(spec)
+    assert spec["status"] == "draft"
+    assert spec["review"]["approval_scope"] == "none"
+    assert spec["review"]["reviewer"] is None
+    assert spec["hash_pinning"]["canonical_spec_hash"] is None
+    assert spec["pre_registration_support"]["intended_for_variant_manifest"] is False
+    assert all(spec["review"]["non_authority_acknowledgement"].values())
+    assert spec["lineage"]["parent_refs"][0]["ref_hash"] == first["input_sha256"]
+    assert spec["provenance"]["source_refs"] == list(
+        dict.fromkeys(a["resource_uri"] for a in first["evidence_anchors"])
+    )
+    assert first["boundary"]["automatic_consumers"] == []
+    assert not any(v for k, v in first["boundary"].items() if k.endswith("authority"))
+    for section, operators in [("entry_logic", ["gt", "lt"]), ("exit_logic", ["lte", "gte"])]:
+        groups = spec[section]["groups"]
+        assert [g["side"] for g in groups] == ["long", "short"]
+        assert [g["conditions"][0]["operator"] for g in groups] == operators
+        for group in groups:
+            (condition,) = group["conditions"]
+            assert condition["left_operand"]["operand_type"] == "data_ref"
+            assert condition["left_operand"]["ref"] == "close"
+            assert condition["right_operand"] == {
+                "operand_type": "indicator_ref",
+                "ref": "sma",
+                "field": "value",
+                "timeframe": None,
+                "lookback": {"bars": 50},
+            }
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("timeframe", "1h"),
+        ("symbols", ["ETHUSDT"]),
+        ("entry_concept", "SMA with unspecified direction."),
+        ("entry_concept", "Long below SMA, short above."),
+        ("exit_concept", "Exit using stop loss or target."),
+        ("features", ["sma", "ohlcv", "ema"]),
+        ("parameter_bounds", [{"name": "lookback", "minimum": 49.0, "maximum": 50.0}]),
+    ],
+)
+def test_sma_trend_native_unsupported_or_mismatched(service, field, value):
+    request = _sma_trend_request()
+    request["idea"] += " ema" if field == "features" else ""
+    request["reasoned_draft"][field] = value
+    result = service.domain_tools.formalize_strategy_draft(request)["domain_semantics"]
+    assert result["draft_strategy_specs"] == []
+    assert result["draft_strategy_spec"]["produced"] is False
+
+
+def test_sma_trend_native_fabricated_provenance_is_denied(service):
+    request = _sma_trend_request()
+    request["reasoned_draft"]["provenance"] = {"approved_by": "Karl"}
+    with pytest.raises(ValidationError):
+        service.domain_tools.formalize_strategy_draft(request)
+    request["reasoned_draft"].pop("provenance")
+    request["evidence_resource_uris"] = ["evidence://decision/FABRICATED"]
+    with pytest.raises(ResourceDeniedError):
+        service.domain_tools.formalize_strategy_draft(request)

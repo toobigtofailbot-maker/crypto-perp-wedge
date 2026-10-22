@@ -228,17 +228,19 @@ def test_unknown_source_is_denied(setup):
         admission.refresh_sources(setup["root"], catalog, sources)
 
 
-def test_real_native_trend_limitation_with_synthetic_receipt(setup):
+def test_native_trend_draft_with_synthetic_receipt(setup):
     report = admission.run_admission(**setup)
-    assert report["status"] == "BLOCKED_ADMISSION"
+    assert report["status"] == "COMPLETED_ADMISSION"
     assert report["native_status"] == "accepted"
-    assert report["admission_disposition"] == "unsupported"
+    assert report["admission_disposition"] == "accepted"
     native = json.loads((setup["output"] / "artifacts/native_results.json").read_bytes())
-    assert native["formalization"]["domain_semantics"]["draft_strategy_specs"] == []
-    assert report["blockers"] == [
-        "no validated draft adapter exists for this exact primitive family"
-    ]
-    assert native["preregistration"] is native["approval_requirement"] is None
+    (spec,) = native["formalization"]["domain_semantics"]["draft_strategy_specs"]
+    assert spec["status"] == "draft"
+    assert spec["review"]["approval_scope"] == "none"
+    assert (
+        native["preregistration"]["domain_semantics"]["frozen_content"]["canonical_write_allowed"]
+        is False
+    )
     assert report["scientific_execution_authorized"] is False
 
 
@@ -447,7 +449,7 @@ def test_malformed_native_result_never_publishes_success(setup, monkeypatch):
 
     def malformed(self, request):
         result = original(self, request)
-        result["domain_semantics"]["draft_strategy_spec"]["produced"] = True
+        result["domain_semantics"]["draft_strategy_spec"]["produced"] = False
         return result
 
     monkeypatch.setattr(CpwDomainTools, "formalize_strategy_draft", malformed)
@@ -480,3 +482,25 @@ def test_no_protected_imports_or_state_writes():
         isinstance(node, ast.Attribute) and node.attr in {"shell", "system", "eval", "exec"}
         for node in ast.walk(tree)
     )
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("entry_concept", "Long below SMA; short above."),
+        ("exit_concept", "Exit on an ATR stop."),
+        ("parameter_bounds", [{"name": "lookback", "minimum": 20.0, "maximum": 50.0}]),
+    ],
+)
+def test_synthetic_unsupported_trend_receipt_remains_blocked(setup, field, value):
+    events = [json.loads(line) for line in setup["agent_output"].read_bytes().splitlines()]
+    draft = json.loads(events[-1]["text"])
+    draft["reasoned_draft"][field] = value
+    events[-1]["text"] = json.dumps(draft)
+    setup["agent_output"].write_bytes(b"\n".join(_dump(e) for e in events))
+    report = admission.run_admission(**setup)
+    assert report["status"] == "BLOCKED_ADMISSION"
+    assert report["admission_disposition"] == "unsupported"
+    native = json.loads((setup["output"] / "artifacts/native_results.json").read_bytes())
+    assert native["formalization"]["domain_semantics"]["draft_strategy_specs"] == []
+    assert native["preregistration"] is native["approval_requirement"] is None

@@ -6,9 +6,11 @@ import hashlib
 import importlib.util
 import json
 import subprocess
+import shutil
 from pathlib import Path
 
 import yaml
+import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 HERMES = ROOT / "tools/hermes"
@@ -159,3 +161,41 @@ def test_fixed_intake_and_explicit_start_modes_without_autonomous_schedules():
     assert 'HERMES_HOME' not in source.split('command = [',1)[1].split('process =',1)[0]
     readme = (HERMES / "README.md").read_text()
     assert "--no-skills" in readme and "research-scout" in readme and "research-critic" in readme
+
+
+@pytest.mark.parametrize('mode,ancestor,schedules,credentials,allowed', [
+    ('F1F2', True, False, True, True),
+    ('F1F2', False, False, True, False),
+    ('F1F2', True, True, True, False),
+    ('F1F2', True, False, False, False),
+    ('F0', False, False, False, True),
+])
+def test_launcher_merged_lineage_on_new_branch(tmp_path, mode, ancestor, schedules, credentials, allowed):
+    pwsh = shutil.which('pwsh')
+    if not pwsh:
+        pytest.skip('PowerShell 7 required for launcher behavior tests')
+    script = HERMES / 'start.ps1'
+    harness = tmp_path / 'launcher.ps1'
+    harness.write_text(f"""
+$ErrorActionPreference = 'Stop'
+function global:git {{
+    $global:LASTEXITCODE = 0
+    if ($args -contains 'rev-parse') {{ return ('a' * 40) }}
+    if ($args -contains 'branch') {{ return 'codex/new-lane-a' }}
+    if ($args -contains 'merge-base') {{
+        if ($args -notcontains '200276fd4407e4a13a912a6b475ab9ab38a1de70') {{ throw 'Wrong lineage anchor' }}
+        $global:LASTEXITCODE = {0 if ancestor else 1}
+    }}
+}}
+function global:docker {{
+    $global:LASTEXITCODE = 0
+    if ($args -contains 'up') {{ Write-Output 'MOCK_STARTED' }}
+}}
+$env:BROWSERBASE_API_KEY = '{'dummy-not-a-secret' if credentials else ''}'
+$env:BROWSERBASE_PROJECT_ID = '{'dummy-project' if credentials else ''}'
+& '{script.as_posix()}' -Mode {mode} -HermesProjectHome '{(tmp_path / 'home').as_posix()}' -HermesModel test {'-InstallSchedules' if schedules else ''}
+""", encoding='utf-8')
+    result = subprocess.run([pwsh, '-NoProfile', '-File', str(harness)], capture_output=True, text=True, timeout=30)
+    assert (result.returncode == 0) is allowed, result.stdout + result.stderr
+    assert ('MOCK_STARTED' in result.stdout) is allowed
+    assert 'dummy-not-a-secret' not in result.stdout + result.stderr

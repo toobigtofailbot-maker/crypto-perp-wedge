@@ -1,16 +1,23 @@
-# CPW-NAUTILUS-N2-02 — Native Redis durability and restart characterization
+# CPW-NAUTILUS-N2-02 — PARTIAL native Redis restart characterization
 
-**PARTIAL — not merge-ready. No PR, push, merge, activation, or ownership transfer.**
+**PARTIAL CHARACTERIZATION — REVIEWABLE NON-AUTHORITATIVE EVIDENCE / FULL N2-02 ACCEPTANCE FAILS.**
 Native account/order/current-position persistence is genuine. Complete native
 NETTING history and portfolio realized-PnL restoration fails on the pinned engine.
+Karl's partial-evidence publication follow-up amends the original success-only
+publication condition. Publication and independent merge review concern this
+diagnostic evidence only; they do not complete N2-02 engineering acceptance,
+transfer N2 ownership, or authorize paper/live/capital activity. No merge occurs.
 
 ## Scope and provenance
 
 Karl authorized this bounded T2 proof. Dedicated Lane B worktree:
 `C:/Users/dersu/.codex/worktrees/cpw-nautilus-n2-02-lane-b/crypto-perp-wedge`.
 Branch: `codex/cpw-nautilus-n2-02-native-restart-01`.
-Refreshed base: `884483db2bf3d071bd87107a0854c18f4b4b8e9f` (#743 merged).
-Initial open PR count was zero; later Lane A #745 has disjoint changed files.
+Original proof base: `884483db2bf3d071bd87107a0854c18f4b4b8e9f` (#743 merged).
+Original tested commit: `a1d75c1724419318a4555271101af7cffec8f470`.
+Publication base: `73526f58e0cb9ca6136606338fd373ab66cb7312` (#745 merged).
+Rebased source-identical commit: `0a7f3d4ab21d7a7466a8f7d7f97fdae9ca14a0cd`.
+Initial open PR count was zero; Lane A #745 changed four disjoint files.
 Root checkout and other lanes remain unchanged.
 
 Exactly four additions: private `tools/nautilus_adapter/native_cache_restart.py`,
@@ -22,7 +29,8 @@ Physical environment: established isolated CPython 3.12.10 / NautilusTrader
 1.231.0. All 20 lock entries and installed native binaries/sandbox/cache/kernel
 sources are checked against wheel RECORD. No dependency or native-source patch.
 Existing Redis Python client 8.1.0 is used without installation. Requested model
-and effort were GPT 6.1 Sol / HIGH; this chat cannot independently verify or
+and effort for the physical proof were GPT 6.1 Sol / HIGH; the publication
+follow-up requests MEDIUM. This chat cannot independently verify or
 change those settings, so no verified-model claim is made.
 
 Owned temporary Redis 7.4.2 container `cpw-n2-02-redis-20261022`, unique volume,
@@ -107,12 +115,23 @@ validator: PASS. Research-adapter tests reproduce **4 failed / 12 passed** on
 both this checkout and exact base without the ignored CSV; all **16 passed**
 in the external exact-base snapshot with the verified retained CSV. No worktree
 data was hydrated. Full pytest/full-release is not required by this disjoint T2
-WP and was not run. Hosted smoke was not run because no PR is permitted yet.
+WP and was not run. Physical tests are not repeated for this documentation-only
+follow-up: the three code/test files match the original tested Git blobs and
+retained ZIP source bytes exactly. The inherited PR remains T2. Required hosted
+`smoke` checks publication integrity, not historical-PnL recovery.
 
 Final exact-byte characterization results, command logs, source hashes, process
 receipts, negative matrix, scope checks and local commit identity are retained
 in the external `EXECUTION_REPORT_A-I.md` and SHA256-indexed evidence ZIP under
 `C:/Users/dersu/AppData/Local/Temp/cpw-nautilus-n2-02-evidence`.
+The original ZIP remains unchanged, SHA256
+`08d6fee2203b34df44ce082a3b2dd0be33fba41d19f3f505f4dddf1b341bcec2`;
+all 117 payload hashes, raw final logs, native-history failure, stopped-Redis
+receipt and three source/test snapshots were reverified before publication.
+The original A–I report's no-publication disposition is historical; Karl's
+follow-up changes only that publication gate. Fresh publication/rebase/source-
+identity and final-head PR evidence is retained separately under
+`C:/Users/dersu/AppData/Local/Temp/cpw-nautilus-n2-02-publication`.
 
 - WP §4A/B: physical pinned environment, isolated Redis, both native scenarios,
   repeated economics and CPW references observed.
@@ -123,8 +142,9 @@ in the external `EXECUTION_REPORT_A-I.md` and SHA256-indexed evidence ZIP under
   native venue reset and resume-refusal controls are covered.
 - WP §5: focused characterization, adjacent suites, paper-state validator,
   local smoke, four-file scope and unchanged-source checks are recorded.
-- WP §7: success-gated publication is withheld. No PR URL or hosted final-head
-  smoke exists; neither is represented as a passed gate.
+- Original WP §7 is amended by Karl's partial-evidence publication follow-up:
+  publish truthful PARTIAL characterization only. Full N2-02 and N2 acceptance
+  remain failed; neither green tests nor hosted smoke repairs the native gap.
 
 Skills applied: installed pre-draft/readiness/migration-parity/minimum-test-plan/
 boundary/one-shot/evidence/PR-reconcile instructions and SOURCE_LOCATED locators;
@@ -132,7 +152,10 @@ Ponytail, systematic debugging, Ponytail review and verification instructions.
 Locators grant no authority and are not acceptance certificates. Post-patch
 security validation is inapplicable: this is a new proof, not a security patch.
 
-**Decision required:** a separately authorized upstream/pinned-native remediation
+**Review disposition: PARTIAL EVIDENCE ONLY.** Independent Side B review and
+Karl's merge decision concern reproducible diagnostic evidence, with no release
+or trading authority. **Separate native-remediation decision required:**
+a separately authorized upstream/pinned-native remediation
 for closed NETTING history restoration through the native cache loader, followed
 by rerunning this proof. Native patch/version change is outside this WP. This
 finding does not authorize a custom second accounting owner.

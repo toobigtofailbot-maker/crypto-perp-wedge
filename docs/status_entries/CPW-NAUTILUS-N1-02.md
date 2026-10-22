@@ -82,3 +82,9 @@ WP traceability: sections 4/6 isolation and allowlist -> boundary-identities.jso
 10 skill use -> skills-applied.json; 12 review handoff -> actual PR and final checks.
 All implementation requirements satisfied for the expressly permitted PARTIAL
 delivery; full six-gap parity and engine promotion remain unproven.
+
+PR: https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/741
+Merge state: open, non-draft, not merged. This status-only tail preserves the
+validated code bytes; public check and mergeability are reconciled on the final
+GitHub head in the execution report. Ready for independent partial-result review;
+no merge-ready declaration or engine promotion approval is made.

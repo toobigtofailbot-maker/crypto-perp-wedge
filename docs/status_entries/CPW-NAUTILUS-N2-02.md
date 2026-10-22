@@ -17,6 +17,10 @@ Original proof base: `884483db2bf3d071bd87107a0854c18f4b4b8e9f` (#743 merged).
 Original tested commit: `a1d75c1724419318a4555271101af7cffec8f470`.
 Publication base: `73526f58e0cb9ca6136606338fd373ab66cb7312` (#745 merged).
 Rebased source-identical commit: `0a7f3d4ab21d7a7466a8f7d7f97fdae9ca14a0cd`.
+PR: [#746 — native Redis restart characterization (PARTIAL)](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/746),
+published non-draft for independent partial-evidence review. The current final
+head and required hosted `smoke` receipt are recorded in the publication A–I
+report and actual PR checks; they do not replace the original tested identity.
 Initial open PR count was zero; Lane A #745 changed four disjoint files.
 Root checkout and other lanes remain unchanged.
 

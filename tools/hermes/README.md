@@ -209,6 +209,59 @@ Memory dedup before emitting a strict intent; the handoff stops before Governor,
 Optuna, runner, canonical, promotion, runtime, paper/live, or capital authority.
 HERMES-03 canary/runtime consolidation remains future work.
 
+## Manual research admission (first 4h trend hypothesis)
+
+`research_admission.py` consumes the original, externally extracted
+`CPW-HERMES-RESEARCH-TO-INTAKE-01` package. It pins its input manifest and
+re-resolves R1–R5 through Project-Evidence against current committed bytes.
+R0 and public sources remain non-authoritative references. It invokes the
+existing CPW domain functions in process; it opens no data or database and
+invokes no model, scientific runner, scheduler or trading path.
+
+```powershell
+python -B -m tools.hermes.research_admission `
+  --repo-root (Get-Location).Path `
+  --package-dir '<external extracted package>' `
+  --expected-repo-sha (git rev-parse HEAD) `
+  --output-dir '<new external output directory>'
+```
+
+Without `--agent-output`, this emits `BLOCKED_ADMISSION / PENDING_MODEL_INPUT`
+(exit 2), the native capability assessment and a bounded `draft_prompt.txt`.
+It does not infer a machine-readable agent draft from the historical prose.
+Use the existing authenticated, isolated F1/F2 director and native CLI once,
+with that prompt on stdin, `--query-file - --oneshot --quiet --format
+stream-json --reasoning high --run-budget 600 --source tool --toolsets
+memory,session_search`. Strip director-only Browserbase/SSH/Research Memory/API
+credentials as in the headless command above. No browsing, delegation, tools or
+automatic retry is allowed for this supplied-materials-only turn. Preserve the
+native stream-json stdout and the operator's invocation/exit/model provenance
+outside Git. A receipt alone cannot authenticate who invoked the model.
+
+Run the admission command again with `--agent-output '<native stdout file>'`
+and another **new** external output directory. It requires one successful
+native terminal result, exact current repo/brief/source identities and the
+strict `cpw_hermes_admission_draft_v1` JSON schema printed in the prompt.
+Never pass fixtures as genuine agent output. Current scope admits only the
+first 4h price/SMA trend hypothesis; other families in tests are fixtures.
+
+Outputs appear together under `artifacts/` with exact-byte SHA-256 manifest.
+The caller directory is reserved exclusively; duplicates never overwrite it.
+Failures publish only sanitized failure metadata, or leave no published bundle
+if output safety itself fails. `FAILED` exits 1; completed or scientifically
+blocked native dispositions exit 0. Inspect the status, not just the exit code.
+
+The current formalizer can return `status=accepted` while producing **zero**
+Strategy Specs with `no validated draft adapter exists for this exact primitive
+family`. The bridge preserves that native result and reports admission as
+`unsupported / BLOCKED_ADMISSION`; it calls neither preregistration nor approval
+requirement in that case. Catalog availability is conditional, not verified 4h
+data coverage. Native preregistration describes a hypothesis only; it is not a
+SearchContract, stored envelope, Governor proposal, Prefect dispatch or approval.
+The existing manual factory mapper remains restricted to STRAT-SPEC-0003 / 15m.
+No Stage 5B, scientific execution, canonical, promotion or capital authority is
+created. A 4h SMA-trend draft adapter needs a separately scoped follow-up WP.
+
 ## One-time PostgreSQL role setup
 
 Run `research_memory_readonly_role.sql` as the Research Memory database owner,

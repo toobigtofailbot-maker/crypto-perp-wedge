@@ -76,11 +76,16 @@ $inspection = Invoke-Docker @('inspect', '--format', '{{json .}}', $container)
 if ($inspection.Code -ne 0) { throw 'Unable to verify service ownership' }
 $service = $inspection.Text | ConvertFrom-Json
 $homeMount = @($service.Mounts | Where-Object Destination -eq '/opt/data')
+$homeSource = if ($homeMount.Count -eq 1) { $homeMount[0].Source.Replace('\', '/') } else { '' }
+# Docker Desktop may report a Windows bind through its Linux host-mount path.
+if ($IsWindows -and $homeSource -match '^/run/desktop/mnt/host/([a-z])/(.*)$') {
+    $homeSource = "$($Matches[1]):/$($Matches[2])"
+}
 if ($service.Config.Labels.'com.docker.compose.project' -ne $project -or
     $service.Config.Labels.'com.docker.compose.service' -ne 'hermes' -or
     $service.Config.Labels.'com.docker.compose.project.working_dir'.Replace('\', '/') -ne $PSScriptRoot.Replace('\', '/') -or
     $homeMount.Count -ne 1 -or -not $env:HERMES_PROJECT_HOME -or
-    $homeMount[0].Source.Replace('\', '/') -ne ([IO.Path]::GetFullPath($env:HERMES_PROJECT_HOME)).Replace('\', '/')) {
+    $homeSource -ne ([IO.Path]::GetFullPath($env:HERMES_PROJECT_HOME)).Replace('\', '/')) {
     throw 'Service is not owned by this worktree/home/project'
 }
 

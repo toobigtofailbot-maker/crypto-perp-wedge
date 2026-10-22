@@ -40,6 +40,12 @@ function New-MockDockerProcess($info) {
             'com.docker.compose.service'='hermes'
             'com.docker.compose.project.working_dir'=$PSScriptRoot
         }};Mounts=@(@{Destination='/opt/data';Source=$env:HERMES_PROJECT_HOME})} | ConvertTo-Json -Depth 10 -Compress
+        if ($env:MOCK_CASE -eq 'desktop-mount') {
+            $mount = $env:HERMES_PROJECT_HOME.Replace('\', '/') -replace '^([a-zA-Z]):/', '/run/desktop/mnt/host/$1/'
+            $object = $text | ConvertFrom-Json
+            $object.Mounts[0].Source = $mount
+            $text = $object | ConvertTo-Json -Depth 10 -Compress
+        }
         if ($env:MOCK_CASE -eq 'ownership') { $text = $text.Replace('"hermes"','"unrelated"') }
     } elseif ($a -contains 'exec') {
         $script:turnCount++
@@ -104,8 +110,9 @@ def run_script(tmp_path, case='success', extra=()):
     return result, output, calls
 
 
-def test_one_cycle_exact_commands_profiles_and_atomic_artifacts(tmp_path):
-    result, output, calls = run_script(tmp_path)
+@pytest.mark.parametrize('case', ['success', 'desktop-mount'])
+def test_one_cycle_exact_commands_profiles_and_atomic_artifacts(tmp_path, case):
+    result, output, calls = run_script(tmp_path, case)
     assert result.returncode == 0, result.stdout + result.stderr
     manifest = json.loads((output / 'run_manifest.json').read_text())
     assert manifest['state'] == 'COMPLETED'

@@ -125,7 +125,7 @@ def test_one_cycle_exact_commands_profiles_and_atomic_artifacts(tmp_path, case):
         assert args[args.index('--query-file') + 1] == '-'
         assert 'timeout' in args and '--kill-after=10' in args
         assert '--oneshot' in args and '--reasoning' in args and 'high' in args
-        assert args[args.index('--toolsets') + 1] == ('search,skills,mcp-project-evidence' if role == 'director-sources' else 'memory,session_search')
+        assert args[args.index('--toolsets') + 1] == ('search,skills,project-evidence' if role == 'director-sources' else 'memory,session_search')
         assert '$(do-not-execute)' in call['input'] and '$(do-not-execute)' not in args
         if role.startswith('research-'):
             assert args[args.index('-p', 2) + 1] == role

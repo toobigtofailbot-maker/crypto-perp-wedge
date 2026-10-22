@@ -116,7 +116,7 @@ function Invoke-Turn([string]$Role, [string]$Prompt, [string]$File) {
     if ($Role -in @('research-scout', 'research-critic')) { $args += @('-p', $Role) }
     $args += @('chat', '--query-file', '-', '--oneshot', '--quiet', '--format', 'stream-json',
                '--reasoning', 'high', '--run-budget', "$TimeoutSeconds", '--source', 'tool')
-    $allowedTools = if ($Role -eq 'director-sources') { 'search,skills,mcp-project-evidence' } else { 'memory,session_search' }
+    $allowedTools = if ($Role -eq 'director-sources') { 'search,skills,project-evidence' } else { 'memory,session_search' }
     $args += @('--toolsets', $allowedTools)
     $receipt = [ordered]@{ role = $Role; invocation_id = [guid]::NewGuid().ToString()
         started_utc = [DateTime]::UtcNow.ToString('o'); exit_code = $null; session_id = $null

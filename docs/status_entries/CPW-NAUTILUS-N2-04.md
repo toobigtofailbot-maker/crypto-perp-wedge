@@ -7,7 +7,8 @@ Karl's full authorization, verbatim: "I approve everything so please proceed and
 T2 private isolated fixture, based on `617a2d645800d3a44e2bfcf133384903bea35dd0`
 (#747 merged). Dedicated branch `codex/cpw-nautilus-n2-04-restart-safety-01`;
 worktree `C:/GitHub/crypto-perp-wedge-worktrees/cpw-nautilus-n2-04-restart-safety-01`.
-PR status: not published at this local validation checkpoint. No merge.
+PR: [#749](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/749),
+open non-draft for independent Side B review. No merge.
 Only open #748 was inspected: its six Lane A files are disjoint. Side B owns
 independent review; Karl alone decides merge. Historical references to a Main
 role do not create a current additional approval step for this authorized WP.
@@ -77,6 +78,8 @@ The authentic open position had 1.000 BTC quantity, 10.00000000 unrealized PnL,
   differ. Exact-source reuse evidence is retained. Final rebuilt binary separately
   passed one fresh sealed producer/restore and four CLI refusals. The complete
   matrix was not repeated or misattributed to that final binary.
+- Final-head hosted smoke is recorded in the external A-I report and actual
+  PR checks; it is publication evidence only, not native recovery proof.
 - Full pytest/full-release: NOT RUN - scoped T2 private fixture policy; not used
   as N2 or merge evidence. No earlier v1 physical matrix is counted as this proof.
 

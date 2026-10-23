@@ -1,0 +1,25 @@
+[package]
+name = "cpw-n2-history-route"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+anyhow = "1"
+nautilus-backtest = { version = "=0.66.0", default-features = false }
+nautilus-common = { version = "=0.66.0", default-features = false }
+nautilus-core = { version = "=0.66.0", default-features = false }
+nautilus-event-store = { version = "=0.66.0", default-features = false }
+nautilus-execution = { version = "=0.66.0", default-features = false }
+nautilus-infrastructure = { version = "=0.66.0", default-features = false, features = ["redis"] }
+nautilus-model = { version = "=0.66.0", default-features = false }
+nautilus-portfolio = { version = "=0.66.0", default-features = false }
+nautilus-system = { version = "=0.66.0", default-features = false }
+nautilus-trading = { version = "=0.66.0", default-features = false }
+rust_decimal = "1"
+serde_json = "1"
+sha2 = "0.10"
+tokio = { version = "1", features = ["rt-multi-thread"] }
+
+[profile.dev]
+debug = 0

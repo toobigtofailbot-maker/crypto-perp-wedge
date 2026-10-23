@@ -1,18 +1,20 @@
 //! Private offline route fixture. Native engines own every economic and replay operation.
-use std::{any::Any, cell::RefCell, collections::{BTreeMap, BTreeSet}, fmt, fs, path::Path, process::Command, rc::Rc, time::Duration};
+use std::{any::Any, cell::RefCell, collections::{BTreeMap, BTreeSet}, fmt, fs, path::Path, process::Command, rc::Rc,
+    sync::{Arc, Mutex}, time::Duration};
 use anyhow::{Result, ensure};
 use nautilus_backtest::{config::{BacktestEngineConfig, SimulatedVenueConfig}, engine::BacktestEngine};
 use nautilus_common::{cache::{Cache, CacheConfig}, cache::database::CacheDatabaseFactory,
     clock::{Clock, VirtualClock}, enums::Environment, actor::DataActor,
     msgbus::{self, BusTap, MStr, Topic, Endpoint}};
 use nautilus_core::{UUID4, UnixNanos};
-use nautilus_event_store::{EventStoreLifecycle, ScanDirection, apply_cache_replay_entry,
+use nautilus_event_store::{EventStoreEntry, EventStoreError, EventStoreLifecycle, EventStoreLifecycleOptions,
+    RunManifest, RunStatus, ScanDirection, SnapshotAnchor, apply_cache_replay_entry, compute_snapshot_content_hash,
     open_event_store_replay_source, restore_cache_snapshot_blob};
-use nautilus_event_store::backend::{AppendEntry, EventStore, RedbBackend};
+use nautilus_event_store::backend::{AppendEntry, EventStore, IndexKind, RedbBackend};
 use nautilus_event_store::capture::encode_order_filled;
 use nautilus_execution::models::fee::{FeeModelAny, MakerTakerFeeModel};
 use nautilus_infrastructure::redis::cache::RedisCacheConfig;
-use nautilus_model::{accounts::Account, data::{Data, QuoteTick}, enums::{AccountType, BookType, OmsType, OrderSide},
+use nautilus_model::{accounts::{Account, AccountAny}, data::{Data, QuoteTick}, enums::{AccountType, BookType, OmsType, OrderSide},
     identifiers::{InstrumentId, StrategyId, Symbol, TraderId, Venue},
     instruments::{CryptoPerpetual, Instrument, InstrumentAny}, orders::Order, events::{OrderEventAny, OrderFilled},
     types::{Currency, Money, Price, Quantity}};
@@ -52,6 +54,64 @@ fn authority(checkpoint: &Value) -> Result<()> {
         ensure!(ids.insert((fill["order_id"].to_string(), fill["trade_id"].to_string())), "REPEATED_OR_CONFLICTING_FILL");
     }
     Ok(())
+}
+
+// Producer-retained native anchors are provenance only. Each must name its contiguous archived
+// frame, hash natively to that frame's exact producer bytes, advance the native watermark and
+// end at the native latest anchor. Missing, reordered, stale, altered or cross-paired chains refuse.
+fn anchor_chain(checkpoint: &Value, latest: Option<&SnapshotAnchor>, durable: u64) -> Result<Vec<SnapshotAnchor>> {
+    let chain: Vec<SnapshotAnchor> = serde_json::from_value(checkpoint["anchor_chain"].clone())
+        .map_err(|_| anyhow::anyhow!("ARCHIVE_CONTINUITY_BLOCKED: missing native anchor chain"))?;
+    let frames = checkpoint["state"]["snapshots"].as_array().ok_or_else(|| anyhow::anyhow!("MISSING_ARCHIVE_IDENTITIES"))?;
+    ensure!(chain.len() == frames.len(), "ARCHIVE_CONTINUITY_BLOCKED: {} anchors for {} frames", chain.len(), frames.len());
+    ensure!(chain.last() == latest, "ARCHIVE_CONTINUITY_BLOCKED: chain does not end at native latest anchor");
+    let mut next = BTreeMap::<&str, u64>::new();
+    let mut previous = 0;
+    for anchor in &chain {
+        let (prefix, index) = anchor.blob_ref.rsplit_once('/')
+            .ok_or_else(|| anyhow::anyhow!("ARCHIVE_CONTINUITY_BLOCKED: blob reference"))?;
+        let position = prefix.strip_prefix("cache://position-snapshots/")
+            .ok_or_else(|| anyhow::anyhow!("ARCHIVE_CONTINUITY_BLOCKED: blob reference"))?;
+        let expected = next.entry(position).or_default();
+        ensure!(index == expected.to_string(), "ARCHIVE_CONTINUITY_BLOCKED: frame {position}/{index} is not frame {expected}");
+        let frame = frames.iter().find(|f| f["position_id"] == position && f["index"] == json!(*expected))
+            .ok_or_else(|| anyhow::anyhow!("ARCHIVE_CONTINUITY_BLOCKED: anchored frame absent"))?;
+        *expected += 1;
+        let bytes: Vec<u8> = serde_json::from_value(frame["bytes"].clone())?;
+        ensure!(frame["sha256"] == hash(&bytes), "ARCHIVE_CONTINUITY_BLOCKED: frame bytes");
+        ensure!(compute_snapshot_content_hash(&bytes) == anchor.content_hash, "ARCHIVE_CONTINUITY_BLOCKED: anchor hash differs from frame");
+        ensure!(anchor.high_watermark > previous && anchor.high_watermark <= durable, "ARCHIVE_CONTINUITY_BLOCKED: anchor watermark");
+        previous = anchor.high_watermark;
+    }
+    Ok(chain)
+}
+
+// Open exposure may be priced only by the exact producer-observed native quote. It is applied to the
+// disposable in-memory cache; missing, altered, stale or mismatched market context refuses.
+fn market_context(checkpoint: &Value) -> Result<Option<QuoteTick>> {
+    let positions = checkpoint["state"]["positions"].as_array().ok_or_else(|| anyhow::anyhow!("MISSING_POSITIONS"))?;
+    let open = positions.iter().filter(|p| p["closed"] != true).collect::<Vec<_>>();
+    if open.is_empty() { return Ok(None); }
+    let context = &checkpoint["market_context"];
+    let native = context["native"].as_str()
+        .ok_or_else(|| anyhow::anyhow!("OPEN_EXPOSURE_REQUIRES_RECONCILIATION: missing producer quote"))?;
+    ensure!(context["sha256"] == hash(native.as_bytes()), "OPEN_EXPOSURE_REQUIRES_RECONCILIATION: quote bytes");
+    for field in ["pid", "instance_id", "run_id"] {
+        ensure!(context["source"][field] == checkpoint[field], "OPEN_EXPOSURE_REQUIRES_RECONCILIATION: quote source {field}");
+    }
+    let quote: QuoteTick = serde_json::from_str(native)?;
+    ensure!(context["instrument_id"] == quote.instrument_id.to_string()
+        && context["ts_event"] == quote.ts_event.as_u64(), "OPEN_EXPOSURE_REQUIRES_RECONCILIATION: quote identity");
+    ensure!(quote.bid_price.as_decimal() > Decimal::ZERO && quote.bid_price <= quote.ask_price,
+        "OPEN_EXPOSURE_REQUIRES_RECONCILIATION: quote prices");
+    ensure!(checkpoint["manifest"]["end_ts_init"].as_u64().is_some_and(|end| quote.ts_event.as_u64() <= end),
+        "OPEN_EXPOSURE_REQUIRES_RECONCILIATION: quote after seal");
+    for position in open {
+        ensure!(position["native"]["instrument_id"] == quote.instrument_id.to_string(), "OPEN_EXPOSURE_REQUIRES_RECONCILIATION: quote instrument");
+        ensure!(position["native"]["ts_last"].as_u64().is_some_and(|last| quote.ts_event.as_u64() >= last),
+            "OPEN_EXPOSURE_REQUIRES_RECONCILIATION: stale quote");
+    }
+    Ok(Some(quote))
 }
 
 fn redis_read(args: &[&str]) -> Result<Value> {
@@ -118,13 +178,44 @@ fn instrument() -> InstrumentAny {
 }
 fn config() -> CacheConfig { CacheConfig { use_trader_prefix: true, use_instance_id: false,
     flush_on_start: false, buffer_interval_ms: Some(0), ..Default::default() } }
-fn db(rt: &tokio::runtime::Runtime, trader: TraderId, instance: UUID4)
+fn db(rt: &tokio::runtime::Runtime, trader: TraderId, instance: UUID4, restore: bool)
     -> Result<Box<dyn nautilus_common::cache::database::CacheDatabaseAdapter>> {
     let port = std::env::var("CPW_ROUTE_REDIS_PORT").unwrap_or_else(|_| "6397".into()).parse::<u16>()?;
     ensure!([6397, 6398].contains(&port), "only owned fixture Redis ports permitted");
-    let redis = RedisCacheConfig { host: Some("127.0.0.1".into()), port: Some(port),
+    // Restores connect as the clone's controller-created read-only ACL user, so native Portfolio
+    // initialization updates only the disposable in-memory cache and Redis itself denies any write.
+    let (username, password) = if restore {
+        let user = std::env::var("CPW_ROUTE_REDIS_READONLY_USER").map_err(|_| anyhow::anyhow!("READ_ONLY_RESTORE_CONNECTION_REQUIRED"))?;
+        let rules = redis_read(&["ACL", "GETUSER", &user])?.to_string();
+        ensure!(rules.contains("-@write"), "READ_ONLY_RESTORE_CONNECTION_REQUIRED");
+        (Some(user), Some(std::env::var("CPW_ROUTE_REDIS_READONLY_TOKEN")?))
+    } else { (None, None) };
+    let redis = RedisCacheConfig { host: Some("127.0.0.1".into()), port: Some(port), username, password,
         number_of_retries: 0, connection_timeout: 2, response_timeout: 2, ..Default::default() };
     rt.block_on(redis.create(trader, instance, config()))
+}
+
+// Pass-through observer of the native redb backend. The native writer derives each anchor's
+// durable watermark and the native lifecycle its content hash; this only retains accepted anchors.
+struct AnchorTap { inner: RedbBackend, chain: Arc<Mutex<Vec<SnapshotAnchor>>> }
+impl EventStore for AnchorTap {
+    fn open_run(&mut self, manifest: RunManifest) -> Result<(), EventStoreError> { self.inner.open_run(manifest) }
+    fn append_batch(&mut self, entries: &[AppendEntry]) -> Result<u64, EventStoreError> { self.inner.append_batch(entries) }
+    fn scan_range(&self, from: u64, to: u64, direction: ScanDirection) -> Result<Vec<EventStoreEntry>, EventStoreError> {
+        self.inner.scan_range(from, to, direction)
+    }
+    fn scan_seq(&self, seq: u64) -> Result<Option<EventStoreEntry>, EventStoreError> { self.inner.scan_seq(seq) }
+    fn lookup(&self, kind: IndexKind, key: &str) -> Result<Option<u64>, EventStoreError> { self.inner.lookup(kind, key) }
+    fn iter_index_keys(&self, kind: IndexKind) -> Result<Vec<(String, u64)>, EventStoreError> { self.inner.iter_index_keys(kind) }
+    fn record_snapshot_anchor(&mut self, anchor: SnapshotAnchor) -> Result<(), EventStoreError> {
+        self.inner.record_snapshot_anchor(anchor.clone())?;
+        self.chain.lock().unwrap().push(anchor);
+        Ok(())
+    }
+    fn latest_snapshot_anchor(&self) -> Result<Option<SnapshotAnchor>, EventStoreError> { self.inner.latest_snapshot_anchor() }
+    fn seal(&mut self, status: RunStatus) -> Result<(), EventStoreError> { self.inner.seal(status) }
+    fn manifest(&self) -> Result<RunManifest, EventStoreError> { self.inner.manifest() }
+    fn high_watermark(&self) -> Result<u64, EventStoreError> { self.inner.high_watermark() }
 }
 
 struct Script { core: StrategyCore, id: InstrumentId, scenario: String, step: usize }
@@ -200,8 +291,21 @@ fn observation(cache: &Rc<RefCell<Cache>>, portfolio: &mut Portfolio) -> Result<
     order_rows.sort_by_key(|x| x["id"].to_string());
     position_rows.sort_by_key(|x| x["id"].to_string());
     let accounts = cache.accounts_all_owned();
-    let account_rows = accounts.iter().map(|account| json!({"id": account.id().to_string(),
-        "equity": account.balance_total(Some(Currency::USDT())).map(|x| x.as_decimal().to_string())})).collect::<Vec<_>>();
+    fn margins<'a>(rows: impl IntoIterator<Item = (&'a InstrumentId, &'a Money)>) -> Vec<Value> {
+        rows.into_iter().map(|(id, x)| json!([id.to_string(), x.as_decimal().to_string()])).collect()
+    }
+    let account_rows = accounts.iter().map(|account| {
+        let mut row = json!({"id": account.id().to_string(),
+            "equity": account.balance_total(Some(Currency::USDT())).map(|x| x.as_decimal().to_string()),
+            "balances": account.balances().values().map(|b| json!({"currency": b.currency.code.to_string(),
+                "total": b.total.as_decimal().to_string(), "locked": b.locked.as_decimal().to_string(),
+                "free": b.free.as_decimal().to_string()})).collect::<Vec<_>>()});
+        if let AccountAny::Margin(margin) = account {
+            row["initial_margins"] = json!(margins(margin.initial_margins().iter()));
+            row["maintenance_margins"] = json!(margins(margin.maintenance_margins().iter()));
+        }
+        row
+    }).collect::<Vec<_>>();
     Ok(json!({"portfolio_realized_pnl": pnl, "portfolio_unrealized_pnl": unrealized,
         "portfolio_net_exposure": exposure, "positions": position_rows, "orders": order_rows,
         "accounts": account_rows, "snapshots": snapshots, "archived": archived, "fills": fills}))
@@ -216,13 +320,21 @@ fn produce(root: &Path, scenario: &str, hold: bool) -> Result<()> {
     let mut engine = BacktestEngine::new(BacktestEngineConfig { trader_id: trader,
         bypass_logging: true, run_analysis: false, cache: Some(config()), ..Default::default() })?;
     let instance = engine.kernel().instance_id;
-    engine.kernel().cache.borrow_mut().set_database(db(&rt, trader, instance)?);
+    engine.kernel().cache.borrow_mut().set_database(db(&rt, trader, instance, false)?);
     let clock = engine.kernel().clock.clone();
     let identity = RunIdentity { binary_hash: binary_hash()?, schema_version: 1,
         crate_versions: lock_hash(), config_hash: hash(scenario.as_bytes()),
         feature_flags: vec![SOURCE.into()], ..Default::default() };
-    let mut store = EventStoreLifecycle::boot(Some(EventStoreConfig {
-        base_dir: root.join("event_store"), identity, ..Default::default() }), instance, clock)?;
+    // Same native backend as the default opener, observed at the point each native anchor is accepted.
+    let chain = Arc::new(Mutex::new(Vec::new()));
+    let tap = chain.clone();
+    let options = EventStoreLifecycleOptions::new().with_backend_opener(move |config, manifest| {
+        let mut inner = RedbBackend::new(config.base_dir.clone());
+        inner.open_run(manifest.clone())?;
+        Ok(Box::new(AnchorTap { inner, chain: tap.clone() }))
+    });
+    let mut store = EventStoreLifecycle::boot_with_options(Some(EventStoreConfig {
+        base_dir: root.join("event_store"), identity, ..Default::default() }), instance, clock, options)?;
     store.open(instance, &RegisteredComponents::default(), Environment::Backtest)?;
     engine.kernel().exec_engine.borrow_mut().set_snapshot_anchorer(store.snapshot_anchorer());
     engine.add_venue(SimulatedVenueConfig::builder().venue(Venue::from("SIM"))
@@ -249,6 +361,10 @@ fn produce(root: &Path, scenario: &str, hold: bool) -> Result<()> {
     engine.add_data(quotes, None, true, true)?;
     engine.run(None, None, None, false)?;
     let state = observation(&engine.kernel().cache, &mut engine.kernel().portfolio.borrow_mut())?;
+    // Exact native quote that priced the producer's portfolio, retained with its native encoding.
+    let quote = engine.kernel().cache.borrow().quote(&id).copied()
+        .ok_or_else(|| anyhow::anyhow!("producer quote absent"))?;
+    let quote_native = serde_json::to_string(&quote)?;
     write(&root.join("native-position-witness.json"), &serde_json::to_value(
         engine.kernel().cache.borrow().positions(None,None,None,None,None).iter()
             .map(|p| serde_json::to_value(&**p)).collect::<std::result::Result<Vec<_>, _>>()?)?)?;
@@ -268,13 +384,19 @@ fn produce(root: &Path, scenario: &str, hold: bool) -> Result<()> {
     let watermark = reader.high_watermark()?;
     let plan = reader.snapshot_replay_plan()?;
     drop(reader);
+    let chain = chain.lock().unwrap().clone();
+    ensure!(chain.last() == plan.anchor.as_ref(), "NATIVE_ANCHOR_TAP_DIVERGED");
+    let market_context = json!({"native": quote_native, "sha256": hash(quote_native.as_bytes()),
+        "instrument_id": quote.instrument_id.to_string(), "ts_event": quote.ts_event.as_u64(),
+        "source": {"pid": std::process::id(), "instance_id": instance.to_string(), "run_id": run_id}});
     lifecycle.push("acknowledged".into());
     write(&root.join("checkpoint.json"), &json!({"source": SOURCE, "binary_sha256": binary_hash()?,
         "cargo_lock_sha256": lock_hash(), "pid": std::process::id(), "instance_id": instance.to_string(),
         "trader": trader.to_string(), "run_id": run_id, "scenario": scenario, "state": state,
         "checkpoint": "NATIVE_SEALED_AND_CACHE_DATABASE_CLOSED", "resume": "RECONCILIATION_UNVERIFIED",
         "lifecycle": lifecycle, "watermark": watermark, "manifest": serde_json::to_value(manifest)?,
-        "anchor": serde_json::to_value(plan.anchor)?, "redis_contents": redis_contents()?,
+        "anchor": serde_json::to_value(plan.anchor)?, "anchor_chain": serde_json::to_value(&chain)?,
+        "market_context": market_context, "redis_contents": redis_contents()?,
         "source_files": source_files(&root.join("event_store"))?}))?;
     lifecycle.pop();
     boundary(root, "acknowledged", &mut lifecycle)?;
@@ -290,7 +412,7 @@ impl BusTap for Traffic {
     fn on_response(&self, _: &UUID4, _: &dyn Any) { *self.responses.borrow_mut() += 1; }
 }
 
-fn restore(root: &Path, mode: &str) -> Result<()> {
+fn restore(root: &Path, mode: &str) -> Result<&'static str> {
     let process_run = json!({"pid": std::process::id(), "process_run_id": UUID4::new().to_string(),
         "binary_sha256": binary_hash()?});
     write(&root.join("restore-process.json"), &process_run)?;
@@ -299,12 +421,13 @@ fn restore(root: &Path, mode: &str) -> Result<()> {
     ensure!(trusted.len() == 64 && trusted == hash(&checkpoint_bytes), "UNVERIFIED_AUTHORITY_RECEIPT");
     let checkpoint: Value = serde_json::from_slice(&checkpoint_bytes)?;
     authority(&checkpoint)?;
-    ensure!(redis_contents()? == checkpoint["redis_contents"], "REDIS_PRODUCER_PAIR_MISMATCH");
+    let contents = redis_contents()?;
+    ensure!(contents == checkpoint["redis_contents"], "REDIS_PRODUCER_PAIR_MISMATCH");
     ensure!(source_files(&root.join("event_store"))? == checkpoint["source_files"], "EVENT_STORE_PRODUCER_PAIR_MISMATCH");
     let instance: UUID4 = checkpoint["instance_id"].as_str().unwrap().parse().map_err(anyhow::Error::msg)?;
     let trader = TraderId::new(checkpoint["trader"].as_str().unwrap());
     let rt = tokio::runtime::Runtime::new()?;
-    let cache = Rc::new(RefCell::new(Cache::new(Some(config()), Some(db(&rt, trader, instance)?))));
+    let cache = Rc::new(RefCell::new(Cache::new(Some(config()), Some(db(&rt, trader, instance, true)?))));
     ensure!(checkpoint["checkpoint"] == "NATIVE_SEALED_AND_CACHE_DATABASE_CLOSED", "unsealed checkpoint");
     let mutable_before = json!({"orders": cache.borrow().orders(None,None,None,None,None).len(),
         "positions": cache.borrow().positions(None,None,None,None,None).len(),
@@ -327,13 +450,19 @@ fn restore(root: &Path, mode: &str) -> Result<()> {
     for entry in entries.iter().filter(|e| e.seq >= plan.from_seq) {
         *payloads.entry(entry.payload_type.to_string()).or_default() += 1;
     }
-    // The pinned reader exposes only the latest native anchor. Never invent earlier anchors.
-    let frames = checkpoint["state"]["snapshots"].as_array().ok_or_else(|| anyhow::anyhow!("MISSING_ARCHIVE_IDENTITIES"))?;
-    ensure!(frames.len() <= 1, "ARCHIVE_CONTINUITY_BLOCKED: prior frame has no retained native anchor");
-    // Current-cache persistence does not provide a qualified quote/exposure reconstruction.
-    // Open exposure is deliberately refused before restoration; no venue reconnect or flatten.
-    ensure!(!checkpoint["state"]["positions"].as_array().unwrap().iter().any(|p| p["closed"] != true),
-        "OPEN_EXPOSURE_REQUIRES_RECONCILIATION");
+    // The pinned reader exposes only the latest native anchor; earlier anchors come from the
+    // trusted producer receipt and must bind to the native log, Redis blob bytes and latest anchor.
+    let chain = anchor_chain(&checkpoint, plan.anchor.as_ref(), reader.high_watermark()?)?;
+    for anchor in &chain {
+        ensure!(reader.scan_seq(anchor.high_watermark)?.is_some(), "ARCHIVE_CONTINUITY_BLOCKED: anchor watermark absent from native log");
+        let blobs = contents.as_object().unwrap().iter()
+            .filter(|(key, _)| key.ends_with(&format!(":general:{}", anchor.blob_ref))).collect::<Vec<_>>();
+        ensure!(blobs.len() == 1, "ARCHIVE_CONTINUITY_BLOCKED: archived Redis blob absent or ambiguous");
+        let blob = blobs[0].1["value"].as_str().unwrap_or_default();
+        ensure!(compute_snapshot_content_hash(blob.as_bytes()) == anchor.content_hash, "ARCHIVE_CONTINUITY_BLOCKED: Redis frame overwritten");
+    }
+    // Open exposure needs the exact producer quote. No venue reconnect, flatten or resume follows.
+    let quote = market_context(&checkpoint)?;
     let source_plan = json!({"run_id": run_id, "instance_id": instance.to_string(),
         "from_seq": plan.from_seq, "to_seq": plan.to_seq, "anchor": format!("{:?}", plan.anchor),
         "tail_payload_counts_inspected_only": payloads, "tail_replay_invoked": false,
@@ -366,7 +495,7 @@ fn restore(root: &Path, mode: &str) -> Result<()> {
         write(&root.join("collision-receipt.json"), &receipt)?;
         println!("{}", receipt);
         cache.borrow_mut().dispose();
-        return Ok(());
+        return Ok("COLLISION_PROBE_ONLY");
     }
     // Native current load and index build; no event-store tail application.
     let loaded = rt.block_on(cache.borrow_mut().cache_all());
@@ -377,15 +506,15 @@ fn restore(root: &Path, mode: &str) -> Result<()> {
     let current_equal = ["accounts", "orders", "positions", "fills"].iter()
         .all(|key| current[*key] == checkpoint["state"][*key]);
     let expected_frames = checkpoint["state"]["snapshots"].as_array().unwrap();
-    let archive_contract = if checkpoint["scenario"] == "reversal" {
-        expected_frames.len() == 1 && plan.anchor.as_ref().is_some_and(|a| a.blob_ref.ends_with("/0"))
-    } else { expected_frames.is_empty() && plan.anchor.is_none() };
+    let archive_contract = expected_frames.len() == chain.len() && chain.last() == plan.anchor.as_ref();
     // Prefix probes stop at these boundaries and close/drain in the common epilogue.
     let replay = loaded.and_then(|_| {
         ensure!(current_equal, "CURRENT_IDENTITY_MISMATCH");
         ensure!(archive_contract, "ARCHIVE_INDEX_CONTRACT_BLOCKED");
         if mode != "cache_only" {
-            restore_cache_snapshot_blob(&mut cache.borrow_mut(), plan.anchor.as_ref())?;
+            // Native fetch, BLAKE3 check and in-order frame restore for every archived cycle.
+            for anchor in &chain { restore_cache_snapshot_blob(&mut cache.borrow_mut(), Some(anchor))?; }
+            if let Some(quote) = quote.clone() { cache.borrow_mut().add_quote(quote)?; }
         }
         Ok(())
     });
@@ -440,7 +569,9 @@ fn restore(root: &Path, mode: &str) -> Result<()> {
         "bus_publishes": traffic.publish.borrow().clone(), "bus_sends": traffic.send.borrow().clone(),
         "bus_responses": *traffic.responses.borrow(),
         "registered_endpoints": msgbus::get_message_bus().borrow().endpoints().iter().map(|s| s.to_string()).collect::<Vec<_>>(),
-        "duplicate": duplicate_receipt, "resume": "RECONCILIATION_UNVERIFIED / NO_NEW_ORDERS",
+        "duplicate": duplicate_receipt, "resume": "VENUE_RECONCILIATION_REQUIRED / NO_NEW_ORDERS / NO_RESUME",
+        "anchor_chain": serde_json::to_value(&chain)?, "market_context_applied": quote.is_some(),
+        "restored_mark": cache.borrow().quote(&instrument().id()).map(serde_json::to_value).transpose()?,
         "equal": state == checkpoint["state"]});
     write(&root.join("restore-receipt.json"), &receipt)?;
     println!("{}", receipt);
@@ -451,7 +582,8 @@ fn restore(root: &Path, mode: &str) -> Result<()> {
     ensure!(mode != "duplicate" || duplicate_receipt["unchanged"] == true, "DUPLICATE_FILL_MUTATED_STATE");
     ensure!(redis_contents()? == checkpoint["redis_contents"], "RESTORE_ECONOMIC_WRITE");
     ensure!(source_files(&root.join("event_store"))? == checkpoint["source_files"], "RESTORE_EVENT_STORE_WRITE");
-    Ok(())
+    // A reconstructed open position is diagnostic state only; any future activation needs venue reconciliation.
+    Ok(if quote.is_some() { "OPEN_EXPOSURE_RECONSTRUCTED_NO_RESUME" } else { "RECOVERY_ADMITTED_SEALED" })
 }
 
 fn main() -> Result<()> {
@@ -463,11 +595,12 @@ fn main() -> Result<()> {
         "restore" | "duplicate" => {
             let result = restore(root, &args[1]);
             let receipt = json!({"pid": std::process::id(), "binary_sha256": binary_hash()?,
-                "decision": if result.is_ok() { "RECOVERY_ADMITTED_SEALED" } else { "RECONCILIATION_REQUIRED" },
+                "decision": result.as_ref().map_or("RECONCILIATION_REQUIRED", |d| *d),
                 "error": result.as_ref().err().map(|e| format!("{e:#}")),
-                "order_authority": "NO_NEW_ORDERS / NO_RESUME"});
+                "order_authority": "NO_NEW_ORDERS / NO_RESUME",
+                "venue_reconciliation_required_before_activation": true});
             write(&root.join("admission.json"), &receipt)?;
-            result
+            result.map(|_| ())
         },
         "produce" | "hold" => { ensure!(args.len() == 4 && ["round_trip", "reversal", "multi_cycle", "open"].contains(&args[3].as_str()), "scenario");
             produce(root, &args[3], args[1] == "hold") },
@@ -508,6 +641,82 @@ mod admission_tests {
         cp = receipt();
         cp["state"]["fills"] = json!([{"order_id": "o", "trade_id": "t"}, {"order_id": "o", "trade_id": "t", "qty": "9"}]);
         assert!(authority(&cp).unwrap_err().to_string().contains("CONFLICTING_FILL"));
+    }
+
+    fn archived(frames: &[&[u8]]) -> (Value, Vec<SnapshotAnchor>) {
+        let position = "BTCUSDT-PERP.SIM-HISTORY-001";
+        let mut rows = Vec::new();
+        let mut chain = Vec::new();
+        for (index, bytes) in frames.iter().enumerate() {
+            rows.push(json!({"position_id": position, "index": index, "sha256": hash(bytes), "bytes": bytes.to_vec()}));
+            chain.push(SnapshotAnchor::new(10 * (index as u64 + 1),
+                format!("cache://position-snapshots/{position}/{index}"), compute_snapshot_content_hash(bytes)));
+        }
+        let mut cp = receipt();
+        cp["state"]["snapshots"] = json!(rows);
+        cp["anchor_chain"] = serde_json::to_value(&chain).unwrap();
+        (cp, chain)
+    }
+
+    #[test]
+    fn complete_native_anchor_chain_passes() {
+        let (cp, chain) = archived(&[b"cycle-0", b"cycle-1"]);
+        assert_eq!(anchor_chain(&cp, chain.last(), 30).unwrap(), chain);
+    }
+
+    #[test]
+    fn missing_reordered_stale_altered_or_unbound_anchors_refuse() {
+        let (base, chain) = archived(&[b"cycle-0", b"cycle-1"]);
+        let mut faults = Vec::new();
+        let mut cp = base.clone(); cp["anchor_chain"].as_array_mut().unwrap().remove(0); faults.push(cp);
+        let mut cp = base.clone(); cp["anchor_chain"].as_array_mut().unwrap().swap(0, 1); faults.push(cp);
+        let mut cp = base.clone(); cp["anchor_chain"][0]["high_watermark"] = json!(25); faults.push(cp);
+        let mut cp = base.clone(); cp["anchor_chain"][0]["content_hash"] = json!("blake3:00"); faults.push(cp);
+        let mut cp = base.clone(); cp["state"]["snapshots"][0]["bytes"] = json!(b"cycle-1".to_vec()); faults.push(cp);
+        let mut cp = base.clone(); cp.as_object_mut().unwrap().remove("anchor_chain"); faults.push(cp);
+        for cp in &faults {
+            assert!(anchor_chain(cp, chain.last(), 30).unwrap_err().to_string().contains("ARCHIVE_CONTINUITY_BLOCKED"));
+        }
+        // Not ending at the native latest anchor, or past the durable watermark, also refuses.
+        assert!(anchor_chain(&base, chain.first(), 30).is_err());
+        assert!(anchor_chain(&base, None, 30).is_err());
+        assert!(anchor_chain(&base, chain.last(), 15).is_err());
+    }
+
+    fn open_receipt() -> Value {
+        let quote = QuoteTick::new(InstrumentId::from("BTCUSDT-PERP.SIM"), Price::from("110.00"), Price::from("110.00"),
+            Quantity::from("100.000"), Quantity::from("100.000"), UnixNanos::from(30), UnixNanos::from(30));
+        let native = serde_json::to_string(&quote).unwrap();
+        let mut cp = receipt();
+        cp["manifest"]["end_ts_init"] = json!(40);
+        cp["state"]["positions"] = json!([{"closed": false, "native": {"instrument_id": "BTCUSDT-PERP.SIM", "ts_last": 10}}]);
+        cp["market_context"] = json!({"native": native, "sha256": hash(native.as_bytes()),
+            "instrument_id": "BTCUSDT-PERP.SIM", "ts_event": 30,
+            "source": {"pid": cp["pid"], "instance_id": cp["instance_id"], "run_id": cp["run_id"]}});
+        cp
+    }
+
+    #[test]
+    fn exact_producer_quote_prices_open_exposure() {
+        let quote = market_context(&open_receipt()).unwrap().unwrap();
+        assert_eq!(quote.bid_price, Price::from("110.00"));
+        let mut closed = open_receipt(); closed["state"]["positions"][0]["closed"] = json!(true);
+        assert!(market_context(&closed).unwrap().is_none());
+    }
+
+    #[test]
+    fn missing_stale_wrong_or_cross_paired_quotes_refuse() {
+        let mut faults = Vec::new();
+        let mut cp = open_receipt(); cp.as_object_mut().unwrap().remove("market_context"); faults.push(cp);
+        let mut cp = open_receipt(); cp["market_context"]["sha256"] = json!("0"); faults.push(cp);
+        let mut cp = open_receipt(); cp["market_context"]["source"]["run_id"] = json!("other-run"); faults.push(cp);
+        let mut cp = open_receipt(); cp["market_context"]["ts_event"] = json!(31); faults.push(cp);
+        let mut cp = open_receipt(); cp["state"]["positions"][0]["native"]["ts_last"] = json!(35); faults.push(cp);
+        let mut cp = open_receipt(); cp["state"]["positions"][0]["native"]["instrument_id"] = json!("ETHUSDT-PERP.SIM"); faults.push(cp);
+        let mut cp = open_receipt(); cp["manifest"]["end_ts_init"] = json!(20); faults.push(cp);
+        for cp in &faults {
+            assert!(market_context(cp).unwrap_err().to_string().contains("OPEN_EXPOSURE_REQUIRES_RECONCILIATION"));
+        }
     }
 
     #[test]

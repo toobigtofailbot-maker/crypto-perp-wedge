@@ -36,9 +36,12 @@
   check) nor any edge. Mechanism support must come from public research. The
   earlier H-005 (MACD) anchor was not relevant to this mechanism and was removed.
   Semantic relevance remains a reviewer check.
-- Research Memory Postgres: the local database has no
-  `hermes_research_memory_reader` role and no read-only DSN is configured, so
-  Postgres lookups report `UNKNOWN_MEMORY_STATE`; no role was created.
+- Research Memory Postgres: the local database already contains the
+  `hermes_research_memory_reader` login role; this package did not create it.
+  An earlier note wrongly said it was absent. No read-only DSN is configured for
+  this environment, so Postgres lookups report `UNAVAILABLE` and no idea can be
+  `NEW_UNMATCHED`. Repo-index lookups succeeded. The database still holds
+  12 items and 12 records, unchanged.
 - Physical F1/F2 cycle: one bounded cycle ran at `6c90ec8` after owner device
   sign-in. The project was `cpw-hermes-research-02a-intent-01`, with a fresh
   external home and fresh scout/critic profiles, and there were no retries. All
@@ -57,8 +60,30 @@
   `director-synthesis` exited 1 with provider HTTP 429 "usage limit has been
   reached", after the Hermes client's own three internal attempts. The wrapper
   stopped the director, retained a FAILED manifest and published no brief or
-  packet. The prompt fix is therefore physically unproven, and the "at least one
-  genuine typed-valid draft" criterion remains **NOT MET**.
+  packet.
+- Owner-authorized third cycle at `023d51c` (the prompt fix plus a status-only
+  commit; same project and home rebound; no retries), run after the provider
+  usage reset: **COMPLETED**. All five turns exited 0 with distinct native
+  sessions. The source index held 6 repo sources (one unverified summary) and
+  9 public sources; the independent critic stance was MIXED for each idea. The
+  packet verifies, and replay reproduces `ca3de60e...`. Result: **2
+  `TYPED_VALID`, 1 `NOT_READY` lead**.
+  - `DISCOVERY-TAKER-ABSORPTION` (30m): anchored to `project://feature-availability`
+    as CONSTRAINT with a verbatim completed-bar-timing quote. Its mechanism is a
+    labelled INFERENCE attributed to public sources.
+  - `DISCOVERY-VOLATILITY-TRANSITION` (1h): anchored to feature-availability and
+    the indicator catalog (CONSTRAINT, lagged Donchian quote), and to
+    `evidence://hypothesis/H-006` (PRIOR_INVESTIGATION, NO-GO squeeze breakout).
+  - `DISCOVERY-LOB-PERSISTENCE` (15m): Hermes set `native_draft` null because no
+    CPW order-book capture exists; it is retained as an unadmitted lead.
+
+  The anchors pass a manual reviewer relevance read. The structured similarity
+  flag did not fire against H-006 because the family and timeframe differ, but
+  the critic explicitly flagged unresolved novelty against H-006. Memory state is
+  `UNKNOWN_MEMORY_STATE` for all three: the repo index had no exact match, but
+  Postgres was unavailable. The acceptance criterion "at least one genuine
+  typed-valid draft" is **MET physically**; `NEW_UNMATCHED` is not demonstrated
+  physically.
 
 ## Authority
 

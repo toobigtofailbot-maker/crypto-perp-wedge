@@ -1,5 +1,84 @@
 # Private rc7 native history/bootstrap fixture
 
+## N2-04 restart admission (2026-10-23)
+
+Karl's full authorization, verbatim: "I approve everything so please proceed and always include my full authorization"
+
+This is a private T2 engineering fixture. `restore DIRECTORY` returns
+`RECOVERY_ADMITTED_SEALED` only for its qualified native sealed checkpoint;
+all failures return `RECONCILIATION_REQUIRED`. Neither disposition permits
+orders or resume. The earlier partial-diagnostic CLI modes are refused; only
+`restore` and the isolated `duplicate` probe enter the recovery function.
+Historical sections and previous evidence below remain unchanged.
+
+The owning controller supplies `CPW_EXPECTED_CHECKPOINT_SHA256` from the
+original producer, outside the recovered stores. That digest is required and
+is never recomputed from a faulted clone. This fixture trust root is an integrity
+and pairing reference, not a signature, globally atomic checkpoint protocol,
+production interface, or human recovery authorization.
+
+Before native restore, Rust validates the acknowledged lifecycle, source,
+binary/lock/run/instance/PID identity, all Redis record types and contents,
+exact event-store file hashes, native ended manifest, durable watermark and
+latest anchor. The source and Redis must belong to the same recorded producer.
+Redis set ordering is normalized only for native-content comparison; exact
+DUMPs are retained and each clone's raw before/after bytes must be unchanged.
+Missing, truncated, changed, unacknowledged or differently paired state refuses.
+
+Native `cache_all()`/`build_index()`, `restore_cache_snapshot_blob()` and
+`Portfolio` reconstruct and compare the producer's actual identities, frame
+bytes/hashes, exact decimal PnL, quantities, commissions and account equity.
+No expected numerical answer supplies the recovery state. Approximate native
+floating-point price/return metrics are retained in a separate producer witness:
+the locked default JSON float parser changes some values by one ULP. Exact
+position events, decimal quantities/fees/PnL and source record bytes remain
+required. No dependencies or serialization policy are changed.
+
+The duplicate probe selects a genuine cached-order fill whose native position
+and trade exist. Nautilus itself assigned that position ID. The native
+MessagePack encoder correlates its pre-association capture bytes and encodes
+the associated fill for native replay. Two identical repeats and one changed
+quantity with the same trade ID must leave all economics and persistent data
+unchanged. No position ID, fill identity, fee repair or ledger is invented.
+
+Crash producers are separate owned processes, killed at PID-bound hooks:
+before seal; after seal but before Redis close/drain; after drain but before
+acknowledgment; and after acknowledgment. The first three must refuse. The
+last must reconstruct exactly. No post-seal kill is called an in-flight seal.
+A truncated checkpoint write is untrusted and refuses.
+
+Multi-cycle production uses two genuine closed NETTING cycles and current
+state. This fixture refuses `ARCHIVE_CONTINUITY_BLOCKED` when earlier frames
+have no retained native anchor: the pinned reader exposes the latest anchor,
+not a complete earlier-anchor map. It does not manufacture anchors or accept
+partial realized PnL. An authentic OPEN-position producer retains its native
+account, orders, unrealized PnL and exposure; restart deliberately refuses
+`OPEN_EXPOSURE_REQUIRES_RECONCILIATION`. No quote/exposure reconstruction,
+venue reconnect, flatten or order resume is claimed.
+
+Reproduce in a new owned network-none Linux container from the verified cached
+setup, with a fresh empty `/evidence` mount and the fixture at `/continuation`:
+
+```sh
+CARGO_TARGET_DIR=/tmp/cpw-target cargo check --locked --offline -j 4 --manifest-path /continuation/Cargo.toml
+CARGO_TARGET_DIR=/tmp/cpw-target cargo test --locked --offline -j 4 --manifest-path /continuation/Cargo.toml
+CARGO_TARGET_DIR=/tmp/cpw-target cargo build --locked --offline -j 4 --manifest-path /continuation/Cargo.toml
+python3 -m py_compile /continuation/run_proof.py
+python3 -B /continuation/run_proof.py
+```
+
+The controller owns fresh loopback-only Redis at 6397/6398, performs Stage B
+before Stage C, retains raw process errors and DUMPs, and stops owned Redis in
+`finally` blocks. Stop the owned container after the run. It refuses an existing
+`/evidence/physical-final` directory. See [CPW-NAUTILUS-N2-04](../../../docs/status_entries/CPW-NAUTILUS-N2-04.md) for measured
+results and final identity/evidence references. All earlier #747 feasibility
+and failure histories below are historical, not N2-04 acceptance evidence.
+
+Full N2 acceptance, funding/margin/liquidation, installed-engine integration,
+exchange reconciliation, N3, paper/live activation, capital and merge remain
+separate gates. No CPW production path consumes this fixture.
+
+
 ## CURRENT-ARCHIVE-03 continuation (2026-10-23)
 
 Owner authorization, verbatim: "I approve everything so please proceed and always include my full authorization"

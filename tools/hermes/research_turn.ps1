@@ -194,6 +194,10 @@ free_parameter_count (integer 0-32), evidence_resource_uris, constraints,
 causal_rationale, falsifiable_prediction, falsification_stop_conditions,
 proposed_parameter_bounds (array of {name, minimum, maximum}),
 proposed_objective_intent, unresolved_assumptions.
+constraints hold research-reasoning constraints only. The native contract rejects
+any constraint containing shell, terminal, command, executable (including
+non-executable), docker, subprocess, install, curl, wget or tool-enable; do not
+restate draft authority there, as non-authority is fixed outside the draft.
 evidence_resource_uris may hold ONLY project:// or evidence:// resources listed as
 repo sources below with their resolved hash, and only when genuinely relevant to
 that idea; justify each in anchor_relevance. Repo resources never support the

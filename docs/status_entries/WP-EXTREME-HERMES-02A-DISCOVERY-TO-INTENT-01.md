@@ -39,9 +39,20 @@
 - Research Memory Postgres: the local database has no
   `hermes_research_memory_reader` role and no read-only DSN is configured, so
   Postgres lookups report `UNKNOWN_MEMORY_STATE`; no role was created.
-- Physical F1/F2 cycle: `PHYSICAL_BLOCKED` at the fresh-home
-  `hermes auth add openai-codex` device-login gate, which needs the owner.
-  The end-to-end model-authored packet is unproven.
+- Physical F1/F2 cycle: one bounded cycle ran at `6c90ec8` after owner device
+  sign-in. The project was `cpw-hermes-research-02a-intent-01`, with a fresh
+  external home and fresh scout/critic profiles, and there were no retries. All
+  five turns exited 0 with distinct native sessions. The source index held 8 repo
+  sources (one unverified summary) and 7 public sources; the critic stance was
+  MIXED. The packet verifies and replays (`c534a995...`). Result: 3 model-authored
+  ideas, **0 `TYPED_VALID`**, 3 `NOT_READY` leads. Every draft was rejected by the
+  unmodified native constraint lexicon: Hermes wrote "non-executable" and
+  "executable" into `constraints`. One idea also cited a quote that is absent
+  from its source. Memory state is UNKNOWN because the fingerprint path failed
+  closed. Acceptance criterion "at least one genuine typed-valid draft" is
+  therefore **NOT MET** physically. The `director-intent` prompt now states the
+  native constraint vocabulary rule; a second cycle would be a retry and needs
+  owner authorization.
 
 ## Authority
 

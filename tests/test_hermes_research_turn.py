@@ -206,6 +206,7 @@ def test_structured_intent_handoff_is_opt_in_fifth_turn_and_packet(tmp_path, mon
     assert 'cpw_bounded_research_request_v1' in intent['input'] and 'Independent critic:' in intent['input']
     assert 'admitted or executable intents, dispatch' in intent['input'] and 'RESEARCH-INTENT DRAFTS' in intent['input']
     assert 'prepared payloads, intents, canonical writes' not in intent['input']
+    assert 'executable (including\nnon-executable)' in intent['input'].replace('\r\n', '\n')
     assert all('prepared payloads, intents, canonical writes' in t['input'] for t in turns[:4])
     assert (output / 'structured_intent_drafts.json').is_file()
     assert json.loads(stub_log.read_text()) == ['build', '--cycle-dir', str(output),

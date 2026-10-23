@@ -133,6 +133,31 @@ output directory. No schedules, trials, Prefect consumers, or scientific jobs
 are invoked. F0 rollback still uses the unchanged `-Mode F0` surface described
 above, with its own original home/project.
 
+### Optional structured intent handoff (default OFF)
+
+Add `-StructuredIntentHandoff -PythonExe <repo venv python>` to the same command.
+After the unchanged four turns, one extra director turn (`director-intent`,
+memory/session_search only) authors `structured_intent_drafts.json`: one draft
+per idea (max three) with native `BoundedResearchIntentDraftInput` fields plus
+source claims, scout observation, a verbatim-traced critic assessment and anchor
+relevance. Then `discovery_intent.py` validates it deterministically into a new
+sibling directory `<OutputRoot>.discovery-intent` (`packet.json`, retained
+`inputs/`, `SHA256SUMS`). Each idea is `TYPED_VALID` only when native strict
+validation, catalog/HEAD-blob anchor identity, cited source hashes and verbatim
+HEAD-content repo quotes all hold, and the mechanism cites public research.
+Otherwise it is a retained `NOT_READY` lead with exact failed fields.
+Repo anchors carry a role (data availability, prior investigation, constraint),
+never mechanism support. Their semantic relevance stays a visible
+`REVIEWER_CHECK_REQUIRED`; identity and quote checks do not prove relevance. Memory
+state (exact duplicate, prior failure, flagged similarity, new, unknown) comes
+from the native fingerprint over the repo index, the read-only Postgres reader
+(`RESEARCH_MEMORY_READONLY_DSN`; absent means UNKNOWN, never novelty; `NEW_UNMATCHED`
+needs both repo index and Postgres lookups to succeed), the same
+packet and any `--prior-packet`. Recheck or replay with
+`python tools/hermes/discovery_intent.py verify --packet-dir <dir> --replay`.
+The packet has zero admission, experiment, approval or scheduler authority and
+no consumer; it triggers nothing.
+
 The following sections retain the historical F0 deployment description.
 
 # Hermes H0/H1, H2/H2.5, and Typed CPW Domain Tools

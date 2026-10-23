@@ -82,7 +82,7 @@ def run_script(tmp_path, case='success', extra=()):
     if not pwsh:
         pytest.skip('PowerShell 7 required for operator behavior tests')
     folder = tmp_path / 'repo/tools/hermes'
-    folder.mkdir(parents=True)
+    folder.mkdir(parents=True, exist_ok=True)
     source = SCRIPT.read_text(encoding='utf-8')
     # Keep all validation/argv/I/O/finalization code. Replace only Process.Start.
     source = source.replace('$process = [Diagnostics.Process]::Start($info)', '$process = New-MockDockerProcess $info')
@@ -177,3 +177,46 @@ def test_invalid_operator_inputs_do_not_invoke_docker_or_overwrite(tmp_path, cas
         assert (output / 'preserve.txt').read_text() == 'untouched'
     else:
         assert not output.exists()
+
+
+ADAPTER_STUB = '''import json, os, sys
+with open(os.environ["MOCK_ADAPTER_LOG"], "w", encoding="utf-8") as handle:
+    json.dump(sys.argv[1:], handle)
+raise SystemExit(int(os.environ.get("MOCK_ADAPTER_EXIT", "0")))
+'''
+
+
+@pytest.mark.parametrize('adapter_exit', [0, 3])
+def test_structured_intent_handoff_is_opt_in_fifth_turn_and_packet(tmp_path, monkeypatch, adapter_exit):
+    import sys
+    stub_log = tmp_path / 'adapter.json'
+    monkeypatch.setenv('MOCK_ADAPTER_LOG', str(stub_log))
+    monkeypatch.setenv('MOCK_ADAPTER_EXIT', str(adapter_exit))
+    (tmp_path / 'repo/tools/hermes').mkdir(parents=True)
+    (tmp_path / 'repo/tools/hermes/discovery_intent.py').write_text(ADAPTER_STUB, encoding='utf-8')
+    result, output, calls = run_script(tmp_path, extra=('-StructuredIntentHandoff', '-PythonExe', sys.executable))
+    manifest = json.loads((output / 'run_manifest.json').read_text())
+    assert manifest['state'] == 'COMPLETED'
+    roles = [x['role'] for x in manifest['invocations']]
+    assert roles == ['director-sources', 'research-scout', 'research-critic', 'director-synthesis', 'director-intent']
+    turns = [c for c in calls if 'exec' in c['args']]
+    intent = turns[4]
+    assert intent['args'][intent['args'].index('--toolsets') + 1] == 'memory,session_search'
+    assert '-p' not in intent['args'][intent['args'].index('hermes', 5):]
+    assert 'cpw_bounded_research_request_v1' in intent['input'] and 'Independent critic:' in intent['input']
+    assert 'admitted or executable intents, dispatch' in intent['input'] and 'RESEARCH-INTENT DRAFTS' in intent['input']
+    assert 'prepared payloads, intents, canonical writes' not in intent['input']
+    assert 'executable (including\nnon-executable)' in intent['input'].replace('\r\n', '\n')
+    assert all('prepared payloads, intents, canonical writes' in t['input'] for t in turns[:4])
+    assert (output / 'structured_intent_drafts.json').is_file()
+    assert json.loads(stub_log.read_text()) == ['build', '--cycle-dir', str(output),
+                                                '--output', str(output) + '.discovery-intent']
+    assert (result.returncode == 0) == (adapter_exit == 0)
+
+
+def test_default_cycle_never_runs_intent_turn_or_adapter(tmp_path):
+    result, output, calls = run_script(tmp_path)
+    assert result.returncode == 0
+    assert not any('director-intent' in json.dumps(c) for c in calls)
+    assert not (output / 'structured_intent_drafts.json').exists()
+    assert not list(tmp_path.glob('*.discovery-intent'))

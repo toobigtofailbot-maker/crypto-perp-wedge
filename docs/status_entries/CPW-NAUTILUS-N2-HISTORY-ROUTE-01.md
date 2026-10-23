@@ -5,6 +5,11 @@ is not proven; production N2 remediation is not yet draftable from this evidence
 This result is not an upstream-wide impossibility claim or N2 acceptance.
 No migration, version promotion, resume, paper/live/capital, or merge is authorized.
 
+Publication: [draft PR #747 — partial native route failure evidence](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/747).
+This is a partial-evidence draft, not a merge-ready engineering delivery.
+Final exact-head GitHub smoke/mergeability and the verified local evidence ZIP
+are recorded in the owner A–I report; smoke cannot qualify the native route.
+
 ## Facts and method
 
 - Dedicated Lane B branch: `codex/cpw-nautilus-n2-history-route-01`, based on
@@ -107,8 +112,8 @@ not retrospectively invented.
 | Complete healthy/crash restore and idempotency | 5 | eight errors and Redis hash comparisons | failed |
 | Corruption and source guards | 5 | eleven refusal logs | observed; narrower collision control disclosed |
 | Duplicate fill and recovered zero-effects | 5 | duplicate control log, failed normal restores | unverified / masked |
-| Exact scope, original identities, owner ZIP/report | 6 | owner audit and A–I report | required publication evidence |
-| PR, exact-head smoke, independent review | 7 | final PR evidence | publication only; never N2 proof |
+| Exact scope and original identities | 6 | six-file inventory, diff check, native-source and original-blob audit | satisfied |
+| Owner ZIP/report and exact-head publication | 6–7 | final owner A–I report and PR receipts | partial-evidence publication; never N2 proof |
 
 Installed skills applied: pre-draft inspector, readiness preflight, minimum-test
 plan, one-shot WP review, CPW migration parity, canonical evidence audit, runtime

@@ -7,7 +7,8 @@ Karl's full authorization, verbatim: "I approve everything so please proceed and
 T2 private isolated fixture, based on `f3a5ece7b27286063de55f069ef2966646b02f8d`
 (#749 merged; its five N2-04 files are in ancestry). Branch
 `claude/cpw-nautilus-n2-05-native-continuity-01`, executed in a new dedicated
-Claude Code worktree from refreshed origin/main. PR: PENDING_PUBLICATION.
+Claude Code worktree from refreshed origin/main. PR:
+[#750](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/750), open non-draft for Side B review. No merge.
 Only open #748 was inspected; its six Lane A files are disjoint. Side B owns
 independent exact-head review; Karl alone decides merge.
 

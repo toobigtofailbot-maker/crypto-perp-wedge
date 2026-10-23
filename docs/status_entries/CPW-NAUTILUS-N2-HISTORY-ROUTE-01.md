@@ -1,5 +1,67 @@
 # CPW-NAUTILUS-N2-HISTORY-ROUTE-01 — PARTIAL / NATIVE_V2_ROUTE_FAILED
 
+## Continuation: CPW-NAUTILUS-N2-CURRENT-ARCHIVE-03
+
+Owner authorization, verbatim: "I approve everything so please proceed and always include my full authorization"
+
+One bounded native current-cache plus exact archived-frame diagnostic, on
+existing draft #747 at `bf94917ae55be99fd323cbe720fb8f1a6e048da7`, base
+`a1d83b9157ee9e9892cd7fc92fe6471b5d8349c2`. The four existing allowed fixture/status
+paths are the only continuation changes; Cargo manifest/lock remain immutable.
+Prior HISTORY-ROUTE-01 and BOOTSTRAP-REPLAY-02 failures remain historical below.
+
+Frozen contract: native current-cache load and index rebuild, then native
+BLAKE3-checked restoration of one exact index-zero archived reversal frame;
+round trip has no archive. No tail replay. Prefix phase probes and complete
+restores each use fresh native Redis/redb clones and close/drain the native
+writer before external measurement. Cross-process prefix comparisons are
+distinct from same-process phase instrumentation. This observes a measured
+sealed/drained checkpoint pairing, not cross-store atomicity or general crash
+recovery. Native frame-index overwrite limitations remain excluded.
+
+**Verdict: `SEALED_CHECKPOINT_FEASIBILITY_ONLY`.** One frozen native build,
+290.296-second matrix, controller exit 0; quick gate passed before the remaining
+producers. Two fresh restores per producer matched every recorded native
+account/current-position/order/fill/trade, archived identity and frame byte.
+
+| Producer | Native producer/restored PnL | Equity | Full restores |
+| --- | --- | --- | --- |
+| reversal / healthy | 29.836 USDT | 10029.836 USDT | 2/2 exact |
+| round trip / healthy | 9.916 USDT | 10009.916 USDT | 2/2 exact |
+| round trip / post-seal SIGKILL | 9.916 USDT | 10009.916 USDT | 2/2 exact |
+| reversal / post-seal SIGKILL | 29.836 USDT | 10029.836 USDT | 2/2 exact |
+
+Eight prefix probes and eight full restores had zero raw/semantic Redis deltas;
+authoritative native records, sealed redb and checkpoints remained unchanged.
+All twelve negative controls refused, including native snapshot missing/hash
+failures, without semantic mutation. Two native duplicate sequences refused at
+unchanged watermark 7. Two genuine captured duplicate fills refused at the
+order layer before position application, preserving economics and Redis. This
+does not prove associated duplicate-position/economic safety: current receipts
+omit the captured fill association; prior verified captures had null position
+IDs. These controls and negative cases also had zero raw clone deltas.
+
+Locked offline native check/build, controller syntax, 211 active Linux registry
+package archive/source checksums, 15 exact-commit native crate identities,
+independent receipt audit and four-path scope checks passed. Audit assumptions
+about registry checksum files, inactive lock targets and duplicate application
+were corrected offline; original errors are retained, with no physical rerun.
+Thirty-five distinct producer/native-receipt PIDs bind the evidence. Native bus
+taps measured no traffic/endpoints in ordinary restores; source inspection
+confirms no recovery execution client. No syscall-level venue audit or client
+counter is claimed. The owned network-none container and all Redis are stopped.
+
+Full v1/whole-repo pytest or release: NOT RUN - scoped T2 private fixture policy;
+not used as N2 economic or merge evidence. Exact final-head hosted smoke is
+publication evidence in the external A–I report/ZIP, not recovery acceptance.
+Publication remains [draft PR #747](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/747).
+
+Next: Side B independent exact-head review; Karl's merge decision remains
+separate. Cross-store atomicity, in-flight/power-loss recovery, same-namespace
+recovery, frame-index overwrite/multi-cycle continuity, funding/margin and real
+venue reconciliation remain unproven. No production N2 remediation, N2
+acceptance, N3, resume, deployment, paper/live/capital or merge authority follows.
+
 ## Continuation: CPW-NAUTILUS-N2-BOOTSTRAP-REPLAY-02
 
 **NATIVE_V2_BOOTSTRAP_ROUTE_FAILED. Production N2 remediation draftable: NO.**

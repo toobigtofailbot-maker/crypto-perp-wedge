@@ -1,5 +1,72 @@
 # Private rc7 native history/bootstrap fixture
 
+## CURRENT-ARCHIVE-03 continuation (2026-10-23)
+
+Owner authorization, verbatim: "I approve everything so please proceed and always include my full authorization"
+
+This separate diagnostic tests native `cache_all()` plus native
+`restore_cache_snapshot_blob()` at one sealed, drained checkpoint. Native
+`build_index()` rebuilds the loaded cache indexes. It does not invoke the tail
+loader; captured entries are inspected and used only in separate duplicate
+controls. The earlier failures below remain historical findings.
+
+Claim frozen before physical work: a measured Redis/redb pairing from one
+`NATIVE_SEALED_AND_CACHE_DATABASE_CLOSED` producer, with exactly one archived
+frame at index zero for reversal and none for round trip. This is not an atomic
+cross-store commit, in-flight crash recovery or complete restart scheme. Native
+settling/purging can reset indices and overwrite earlier anchor bytes; general
+multi-cycle continuity remains excluded.
+
+Phase instrumentation uses independent cache-only and cache-plus-archive
+prefix processes on fresh identical native clones, each closed/drained before
+Redis measurement, plus two complete restore processes. Phase differences are
+cross-process prefix comparisons, not same-process stage timestamps. Every
+process retains raw Redis DUMPs, native type/content and native identity
+receipts; archived bytes are compared with the exact producer bytes. The
+reversal/healthy quick gate runs first and failure stops the remaining matrix.
+
+**Result: `SEALED_CHECKPOINT_FEASIBILITY_ONLY`.** The single frozen-binary
+matrix completed in 290.296 seconds, controller exit 0. All eight full restores
+matched exact producer account/current-position/order/fill/trade identities,
+archived identities and frame bytes. Reversal recovered 29.836 USDT PnL and
+10029.836 equity; round trip recovered 9.916 and 10009.916. Both healthy and
+post-seal SIGKILL producers passed two fresh restores. All eight prefix probes,
+eight full restores and sixteen controls had zero raw or semantic Redis deltas
+relative to their own clone baselines. Native clone creation may re-encode
+unordered sets; that source-to-clone raw comparison remains separate.
+
+All twelve negative controls refused without semantic mutation. Missing
+snapshot reached native blob-not-found; corrupt/truncated snapshot reached
+native BLAKE3 mismatch. Wrong source/binary/lock/run/instance, damaged anchor
+sources and resume also refused. Two duplicate sequences were rejected by the
+native backend at watermark 7, unchanged. Two captured duplicate fills were
+rejected at the native order layer before position application, with unchanged
+economics. Current receipts omit their captured position association; prior
+verified capture had null `position_id`. Neither result proves associated
+position/economic duplicate safety.
+
+Locked offline `cargo check`/`cargo build` and controller syntax passed. Cache
+provenance verified 211 active Linux registry packages against lock/archive
+hashes and extracted bytes, including all 15 native 0.66.0 crates at the pinned
+commit. No production/full-release tests ran under scoped T2 policy. The
+read-only audit verified 35 distinct producer/native-receipt PIDs, all native
+record/source/checkpoint preservation and the four-path continuation scope.
+Initial audit assumptions about registry checksum files, inactive target
+packages and successful duplicate application are retained with their errors;
+only offline audit code was corrected, with no physical rerun or binary change.
+
+Native bus taps measured no publishes/sends/responses/endpoints in ordinary
+restores; source flow constructs no execution engine or client in recovery.
+There is no syscall-level venue audit or fabricated client count. All owned
+Redis processes and the network-none container are stopped. Full A–I report,
+raw logs, exact-head hosted smoke and ZIP digest are in the external owner
+evidence/publication record for [draft PR #747](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/747).
+Side B independent exact-head review remains separate. No full N2 acceptance,
+production remediation, N3, multi-cycle continuity, same-namespace crash
+atomicity, in-flight recovery, resume, paper/live/capital or merge is authorized.
+
+## Preserved BOOTSTRAP-REPLAY-02 history
+
 Current continuation: **CPW-NAUTILUS-N2-BOOTSTRAP-REPLAY-02**.
 **NATIVE_V2_BOOTSTRAP_ROUTE_FAILED**: fresh-cache replay restores no current
 positions and reports zero portfolio PnL. Producer economics pass; recovery does

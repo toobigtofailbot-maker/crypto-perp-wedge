@@ -7,7 +7,7 @@ use nautilus_common::{cache::{Cache, CacheConfig}, cache::database::CacheDatabas
     msgbus::{self, BusTap, MStr, Topic, Endpoint}};
 use nautilus_core::{UUID4, UnixNanos};
 use nautilus_event_store::{EventStoreLifecycle, ScanDirection, apply_cache_replay_entry,
-    open_event_store_replay_source, restore_cache_from_sealed_run};
+    open_event_store_replay_source, restore_cache_snapshot_blob};
 use nautilus_event_store::backend::{AppendEntry, EventStore, RedbBackend};
 use nautilus_execution::models::fee::{FeeModelAny, MakerTakerFeeModel};
 use nautilus_infrastructure::redis::cache::RedisCacheConfig;
@@ -80,7 +80,7 @@ fn observation(cache: &Rc<RefCell<Cache>>, portfolio: &mut Portfolio) -> Result<
     let mut position_rows = Vec::new();
     for position in positions {
         let bytes = cache.position_snapshot_bytes(&position.id).unwrap_or_default();
-        for frame in bytes { snapshots.push(json!({"position_id": position.id.to_string(), "sha256": hash(&frame)})); }
+        for frame in bytes { snapshots.push(json!({"position_id": position.id.to_string(), "sha256": hash(&frame), "bytes": frame})); }
         position_rows.push(json!({"id": position.id.to_string(), "closed": position.is_closed(),
             "pnl": position.realized_pnl.map(|x| x.as_decimal().to_string()),
             "trades": position.trade_ids().iter().map(ToString::to_string).collect::<Vec<_>>() }));
@@ -95,9 +95,11 @@ fn observation(cache: &Rc<RefCell<Cache>>, portfolio: &mut Portfolio) -> Result<
         }
     }
     fills.sort_by_key(|x| x["trade_id"].to_string());
-    let archived = cache.position_snapshots(None, None).iter().map(|p| json!({
+    let mut archived = cache.position_snapshots(None, None).iter().map(|p| json!({
         "id": p.id.to_string(), "closed": p.is_closed(),
         "pnl": p.realized_pnl.map(|x| x.as_decimal().to_string())})).collect::<Vec<_>>();
+    archived.sort_by_key(|x| x["id"].to_string());
+    snapshots.sort_by_key(|x| x["sha256"].to_string());
     let mut order_rows = orders.iter().map(|order| json!({"id": order.client_order_id().to_string(),
         "status": order.status().to_string(), "filled": order.filled_qty().to_string(),
         "events": order.events().len()})).collect::<Vec<_>>();
@@ -182,9 +184,7 @@ fn restore(root: &Path, mode: &str) -> Result<()> {
     let trader = TraderId::new(checkpoint["trader"].as_str().unwrap());
     let rt = tokio::runtime::Runtime::new()?;
     let cache = Rc::new(RefCell::new(Cache::new(Some(config()), Some(db(&rt, trader, instance)?))));
-    // Reference-only native bootstrap. Never preload mutable current records.
-    rt.block_on(cache.borrow_mut().cache_currencies())?;
-    rt.block_on(cache.borrow_mut().cache_instruments())?;
+    ensure!(checkpoint["checkpoint"] == "NATIVE_SEALED_AND_CACHE_DATABASE_CLOSED", "unsealed checkpoint");
     let mutable_before = json!({"orders": cache.borrow().orders(None,None,None,None,None).len(),
         "positions": cache.borrow().positions(None,None,None,None,None).len(),
         "accounts": cache.borrow().accounts_all_owned().len(),
@@ -204,7 +204,8 @@ fn restore(root: &Path, mode: &str) -> Result<()> {
     }
     let source_plan = json!({"run_id": run_id, "instance_id": instance.to_string(),
         "from_seq": plan.from_seq, "to_seq": plan.to_seq, "anchor": format!("{:?}", plan.anchor),
-        "tail_payload_counts": payloads});
+        "tail_payload_counts_inspected_only": payloads, "tail_replay_invoked": false,
+        "manifest": serde_json::to_value(&manifest)?});
     write(&root.join("replay-contract.json"), &json!({"process": process_run,
         "mutable_before": mutable_before, "plan": source_plan}))?;
     // redb permits only one open handle per file, including read-only handles.
@@ -235,11 +236,31 @@ fn restore(root: &Path, mode: &str) -> Result<()> {
         cache.borrow_mut().dispose();
         return Ok(());
     }
-    let replay = restore_cache_from_sealed_run(&mut cache.borrow_mut(), root.join("event_store"),
-        &instance.to_string(), run_id);
+    // Native current load and index build; no event-store tail application.
+    let loaded = rt.block_on(cache.borrow_mut().cache_all());
+    if loaded.is_ok() { cache.borrow_mut().build_index(); }
     let clock: Rc<RefCell<dyn Clock>> = Rc::new(RefCell::new(VirtualClock::new()));
     let mut portfolio = Portfolio::new(clock, cache.clone(), None);
-    portfolio.initialize_orders(); portfolio.initialize_positions();
+    let current = observation(&cache, &mut portfolio)?;
+    let current_equal = ["accounts", "orders", "positions", "fills"].iter()
+        .all(|key| current[*key] == checkpoint["state"][*key]);
+    let expected_frames = checkpoint["state"]["snapshots"].as_array().unwrap();
+    let archive_contract = if checkpoint["scenario"] == "reversal" {
+        expected_frames.len() == 1 && plan.anchor.as_ref().is_some_and(|a| a.blob_ref.ends_with("/0"))
+    } else { expected_frames.is_empty() && plan.anchor.is_none() };
+    // Prefix probes stop at these boundaries and close/drain in the common epilogue.
+    let replay = loaded.and_then(|_| {
+        ensure!(current_equal, "CURRENT_IDENTITY_MISMATCH");
+        ensure!(archive_contract, "ARCHIVE_INDEX_CONTRACT_BLOCKED");
+        if mode != "cache_only" {
+            restore_cache_snapshot_blob(&mut cache.borrow_mut(), plan.anchor.as_ref())?;
+        }
+        Ok(())
+    });
+    let archive_state = observation(&cache, &mut portfolio)?;
+    if replay.is_ok() && !["cache_only", "archive_only"].contains(&mode) {
+        portfolio.initialize_orders(); portfolio.initialize_positions();
+    }
     let state = observation(&cache, &mut portfolio)?;
     let mut duplicate_receipt = Value::Null;
     if mode == "duplicate" && replay.is_ok() && state == checkpoint["state"] {
@@ -252,8 +273,8 @@ fn restore(root: &Path, mode: &str) -> Result<()> {
     }
     let receipt = json!({"process": process_run, "source": source_plan, "mutable_before": mutable_before,
         "state": state, "native_error": replay.as_ref().err().map(|x| x.to_string()),
-        "applied_entries": replay.as_ref().ok().map(|r| r.cache.applied_entries),
-        "ignored_entries": replay.as_ref().ok().map(|r| r.cache.ignored_entries),
+        "current_state": current, "current_equal": current_equal, "archive_state": archive_state,
+        "archive_contract": archive_contract, "tail_replay_invoked": false, "mode": mode,
         "bus_publishes": traffic.publish.borrow().clone(), "bus_sends": traffic.send.borrow().clone(),
         "bus_responses": *traffic.responses.borrow(),
         "registered_endpoints": msgbus::get_message_bus().borrow().endpoints().iter().map(|s| s.to_string()).collect::<Vec<_>>(),
@@ -263,7 +284,8 @@ fn restore(root: &Path, mode: &str) -> Result<()> {
     println!("{}", receipt);
     cache.borrow_mut().dispose();
     msgbus::clear_bus_tap();
-    ensure!(replay.is_ok() && state == checkpoint["state"], "RECOVERY_NOT_QUALIFIED");
+    ensure!(replay.is_ok(), "NATIVE_CURRENT_ARCHIVE_ERROR");
+    ensure!(mode == "cache_only" || state == checkpoint["state"], "RECOVERY_NOT_QUALIFIED");
     ensure!(mode != "duplicate" || duplicate_receipt["unchanged"] == true, "DUPLICATE_FILL_MUTATED_STATE");
     Ok(())
 }
@@ -274,7 +296,7 @@ fn main() -> Result<()> {
     let root = Path::new(&args[2]);
     match args[1].as_str() {
         "resume" => anyhow::bail!("RECONCILIATION_UNVERIFIED / NO_NEW_ORDERS"),
-        "restore" | "duplicate" | "collision" => restore(root, &args[1]),
+        "restore" | "cache_only" | "archive_only" | "duplicate" | "collision" => restore(root, &args[1]),
         "produce" | "hold" => { ensure!(args.len() == 4 && ["round_trip", "reversal"].contains(&args[3].as_str()), "scenario");
             produce(root, &args[3], args[1] == "hold") },
         _ => anyhow::bail!("unsupported mode"),

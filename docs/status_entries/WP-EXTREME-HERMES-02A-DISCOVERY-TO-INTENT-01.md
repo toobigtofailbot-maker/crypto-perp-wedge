@@ -51,8 +51,14 @@
   from its source. Memory state is UNKNOWN because the fingerprint path failed
   closed. Acceptance criterion "at least one genuine typed-valid draft" is
   therefore **NOT MET** physically. The `director-intent` prompt now states the
-  native constraint vocabulary rule; a second cycle would be a retry and needs
-  owner authorization.
+  native constraint vocabulary rule.
+- Owner-authorized second cycle at `ba68f2b` (same project and home, rebound to
+  `ba68f2b`, no retries): **FAILED**. Sources, scout and critic exited 0.
+  `director-synthesis` exited 1 with provider HTTP 429 "usage limit has been
+  reached", after the Hermes client's own three internal attempts. The wrapper
+  stopped the director, retained a FAILED manifest and published no brief or
+  packet. The prompt fix is therefore physically unproven, and the "at least one
+  genuine typed-valid draft" criterion remains **NOT MET**.
 
 ## Authority
 

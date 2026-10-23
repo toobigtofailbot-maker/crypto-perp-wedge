@@ -1,15 +1,18 @@
-"""Offline N2-04 staged safety proof. Native clones have no production authority."""
+"""Offline N2-05 continuity proof. Native clones have no production or order authority."""
 import hashlib
 import json
 import os
 from pathlib import Path
+import secrets
 import shutil
 import subprocess
 import time
 from decimal import Decimal
 
 BINARY = Path('/tmp/cpw-target/debug/cpw-n2-history-route')
-ROOT = Path('/evidence/physical-final')
+ROOT = Path(os.environ.get('CPW_PROOF_ROOT', '/evidence/physical-n2-05'))
+READONLY_USER = 'cpw-restore-readonly'
+NO_AUTHORITY = 'NO_NEW_ORDERS / NO_RESUME'
 
 
 def sha(data):
@@ -88,7 +91,28 @@ def stop_redis(process, port):
     assert process.returncode == 0
 
 
-def child(root, mode, label, checkpoint, source, records, source_contents, fault=None):
+def run_binary(mode, target, env):
+    with subprocess.Popen([str(BINARY), mode, str(target)], env=env,
+                          stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
+        try:
+            stdout, stderr = process.communicate(timeout=60)
+        except BaseException:
+            process.kill()
+            process.communicate()
+            raise
+
+    def read(name):
+        path = target / name
+        return json.loads(path.read_bytes()) if path.exists() else None
+    return {'exit': process.returncode, 'pid': process.pid, 'log': (stdout + stderr).decode(errors='replace'),
+            'admission': read('admission.json'), 'process': read('restore-process.json'),
+            'native_receipt': read('restore-receipt.json'), 'collision_receipt': read('collision-receipt.json')}
+
+
+def child(root, mode, label, checkpoint, source, records, source_contents, fault=None,
+          resign=False, runs=1, readonly=True):
+    """One disposable native clone. `resign` models a defective producer receipt that still
+    carries a trusted digest, so the semantic gate itself (not the digest) must refuse it."""
     target = root / label
     target.mkdir()
     if checkpoint.exists():
@@ -99,41 +123,51 @@ def child(root, mode, label, checkpoint, source, records, source_contents, fault
     clone_contents = contents(6398)
     try:
         mutation = fault(target) if fault else None
+        env = dict(os.environ, CPW_ROUTE_REDIS_PORT='6398')
+        acl = None
+        if readonly:
+            # Fresh per-clone loopback ACL user; Redis itself denies every write command.
+            token = secrets.token_hex(16)
+            redis(6398, 'ACL', 'SETUSER', READONLY_USER, 'on', '>' + token, '~*', '&*', '+@all', '-@write')
+            acl = redis(6398, 'ACL', 'GETUSER', READONLY_USER).decode()
+            env.update(CPW_ROUTE_REDIS_READONLY_USER=READONLY_USER, CPW_ROUTE_REDIS_READONLY_TOKEN=token)
+        redis(6398, 'ACL', 'LOG', 'RESET')
         fault_before = native_records(6398)
         content_before = contents(6398)
         source_before = files(target / 'event_store')
-        # Trusted digest belongs to the original producer, never to a mutated clone receipt.
-        digest = sha(checkpoint.read_bytes()) if checkpoint.exists() else '0' * 64
-        with subprocess.Popen([str(BINARY), mode, str(target)],
-                env=dict(os.environ, CPW_ROUTE_REDIS_PORT='6398', CPW_EXPECTED_CHECKPOINT_SHA256=digest),
-                stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
-            try:
-                stdout, stderr = process.communicate(timeout=60)
-            except BaseException:
-                process.kill()
-                process.communicate()
-                raise
-        (target / 'child.log').write_bytes(stdout + stderr)
+        trusted = target / 'checkpoint.json' if resign else checkpoint
+        # Trusted digest belongs to the original producer unless this is a re-signed defect model.
+        env['CPW_EXPECTED_CHECKPOINT_SHA256'] = sha(trusted.read_bytes()) if trusted.exists() else '0' * 64
+        attempts = []
+        for run in range(runs):
+            attempt = run_binary(mode, target, env)
+            if runs > 1:
+                directory = target / f'run-{run + 1}'
+                directory.mkdir()
+                for name in ('admission.json', 'restore-process.json', 'restore-receipt.json'):
+                    if (target / name).exists():
+                        shutil.copyfile(target / name, directory / name)
+            attempts.append(attempt)
+        (target / 'child.log').write_text(''.join(a['log'] for a in attempts))
         # Native process closes its backing writer before exit; no sleep-based drain claim.
         after = native_records(6398)
         content_after = contents(6398)
-        def read(name):
-            path = target / name
-            return json.loads(path.read_bytes()) if path.exists() else None
-        row = {'mode': mode, 'exit': process.returncode, 'pid': process.pid,
-            'admission': read('admission.json'), 'process': read('restore-process.json'),
-            'native_receipt': read('restore-receipt.json'), 'collision_receipt': read('collision-receipt.json'),
-            'mutation': mutation, 'native_clone_exact': before == records,
-            'native_clone_content_equal': clone_contents == source_contents,
-            'contents_before': content_before, 'contents_after': content_after,
-            'content_changed_keys': [key for key in sorted(set(content_before) | set(content_after))
-                                     if content_before.get(key) != content_after.get(key)],
-            'records_before': hashes(fault_before), 'records_after': hashes(after),
-            'changed_keys': [key for key in sorted(set(fault_before) | set(after)) if fault_before.get(key) != after.get(key)],
-            'source_files_before': source_before, 'source_files_after': files(target / 'event_store'),
-            'checkpoint_after': sha((target / 'checkpoint.json').read_bytes()) if (target / 'checkpoint.json').exists() else None}
-        for label, values in [('before', fault_before), ('after', after)]:
-            directory = target / ('native-record-' + label)
+        denied = json.loads(subprocess.check_output(['redis-cli', '-p', '6398', '--json', 'ACL', 'LOG', '1000']))
+        row = dict(attempts[-1], mode=mode, mutation=mutation, resigned=resign, readonly_acl=acl,
+            runs=[{k: a[k] for k in ('exit', 'pid', 'admission', 'process', 'native_receipt')} for a in attempts],
+            acl_denied=denied,
+            acl_denied_commands=[entry.get('object') if isinstance(entry, dict) else entry for entry in denied],
+            native_clone_exact=before == records, native_clone_content_equal=clone_contents == source_contents,
+            contents_before=content_before, contents_after=content_after,
+            content_changed_keys=[key for key in sorted(set(content_before) | set(content_after))
+                                  if content_before.get(key) != content_after.get(key)],
+            records_before=hashes(fault_before), records_after=hashes(after),
+            changed_keys=[key for key in sorted(set(fault_before) | set(after)) if fault_before.get(key) != after.get(key)],
+            source_files_before=source_before, source_files_after=files(target / 'event_store'),
+            checkpoint_after=sha((target / 'checkpoint.json').read_bytes()) if (target / 'checkpoint.json').exists() else None)
+        del row['log']
+        for name, values in [('before', fault_before), ('after', after)]:
+            directory = target / ('native-record-' + name)
             directory.mkdir()
             save(directory / 'keys.json', {str(i): key for i, key in enumerate(values)})
             for i, value in enumerate(values.values()):
@@ -142,6 +176,17 @@ def child(root, mode, label, checkpoint, source, records, source_contents, fault
         return row
     finally:
         stop_redis(clone, 6398)
+
+
+def resigned(change):
+    """Rewrite the clone receipt; used only together with resign=True."""
+    def mutate(target):
+        path = target / 'checkpoint.json'
+        data = json.loads(path.read_bytes())
+        detail = change(data, target)
+        save(path, data)
+        return {'resigned_receipt_change': detail}
+    return mutate
 
 
 def mutate_identity(field):
@@ -154,53 +199,87 @@ def mutate_identity(field):
     return mutate
 
 
-def mutate_snapshot(kind):
-    def mutate(target):
-        keys = [key for key in native_records(6398) if 'position-snapshots' in key]
-        assert len(keys) == 1, keys
-        key = keys[0]
-        value = redis(6398, 'GET', key)
-        if kind == 'missing':
-            redis(6398, 'DEL', key)
-        else:
-            redis(6398, 'SET', key, data=(b'corrupt' if kind == 'corrupt' else value[:len(value)//2]))
-        return {'snapshot': kind, 'key': key}
-    return mutate
+def frame_key(keys, index):
+    found = [key for key in keys if key.endswith(f'/{index}') and ':general:cache://position-snapshots/' in key]
+    assert len(found) == 1, keys
+    return found[0]
 
 
-def mutate_anchor(kind):
-    def mutate(target):
-        path = next((target / 'event_store').rglob('*.redb'))
-        if kind == 'missing':
-            path.unlink()
-        else:
-            path.write_bytes(b'corrupt' if kind == 'corrupt' else path.read_bytes()[:32])
-        return {'native_anchor_source': kind}
-    return mutate
-
-
-def require_result(row, admitted=False, reason=None, duplicate=False):
+def require_result(row, admitted=False, reason=None, duplicate=False, open_exposure=False):
     """Fail the matrix on any mutation, mismatched PID, or weakened disposition."""
     assert not row['changed_keys'], row
     assert not row['content_changed_keys'], row
     assert row['source_files_before'] == row['source_files_after'], row
-    assert row['process']['pid'] == row['pid'], row
-    decision = row['admission']
-    assert decision['pid'] == row['pid'], row
-    assert decision['decision'] == ('RECOVERY_ADMITTED_SEALED' if admitted else 'RECONCILIATION_REQUIRED'), row
-    assert (row['exit'] == 0) is admitted, row
-    if reason:
-        assert reason in decision['error'], row
-    if admitted:
-        native = row['native_receipt']
-        assert native['equal'] is True and native['tail_replay_invoked'] is False, row
-        assert native['bus_publishes'] == native['bus_sends'] == [], row
-        assert native['bus_responses'] == 0 and native['registered_endpoints'] == [], row
-        if duplicate:
-            probe = native['duplicate']
-            assert probe['position_id'] and probe['unchanged'], row
-            assert len(probe['attempts']) == 3, row
-            assert all(a['unchanged'] and a['native_error'] for a in probe['attempts']), row
+    for run in row.get('runs') or [row]:
+        assert run['process']['pid'] == run['pid'], row
+        decision = run['admission']
+        assert decision['pid'] == run['pid'], row
+        assert decision.get('order_authority', NO_AUTHORITY) == NO_AUTHORITY, row
+        expected = ('OPEN_EXPOSURE_RECONSTRUCTED_NO_RESUME' if open_exposure else
+                    'RECOVERY_ADMITTED_SEALED' if admitted else 'RECONCILIATION_REQUIRED')
+        assert decision['decision'] == expected, row
+        assert (run['exit'] == 0) is (admitted or open_exposure), row
+        if reason:
+            assert reason in decision['error'], row
+        if admitted or open_exposure:
+            native = run['native_receipt']
+            assert native['equal'] is True and native['tail_replay_invoked'] is False, row
+            assert native['bus_publishes'] == native['bus_sends'] == [], row
+            assert native['bus_responses'] == 0 and native['registered_endpoints'] == [], row
+            assert native.get('market_context_applied', False) is open_exposure, row
+            if open_exposure:
+                assert decision['venue_reconciliation_required_before_activation'] is True, row
+                assert native['resume'] == 'VENUE_RECONCILIATION_REQUIRED / NO_NEW_ORDERS / NO_RESUME', row
+            if duplicate:
+                probe = native['duplicate']
+                assert probe['position_id'] and probe['unchanged'], row
+                assert len(probe['attempts']) == 3, row
+                assert all(a['unchanged'] and a['native_error'] for a in probe['attempts']), row
+    return True
+
+
+def dec(value):
+    return Decimal(value) if value is not None else None
+
+
+def require_continuity(row, producer, witness):
+    """Independent producer-vs-restore comparison from native observations of each process.
+    The fixture witness values are acceptance assertions only; they never feed restoration."""
+    expected = producer['checkpoint']['state']
+    for run in row['runs']:
+        native = run['native_receipt']
+        state = native['state']
+        assert run['pid'] != producer['pid'], row
+        for key in ('accounts', 'orders', 'positions', 'fills', 'archived', 'snapshots'):
+            assert state[key] == expected[key], key
+        for key in ('portfolio_realized_pnl', 'portfolio_unrealized_pnl', 'portfolio_net_exposure'):
+            assert dec(state[key]) == dec(expected[key]), key
+        frames = sorted(state['snapshots'], key=lambda f: f['index'])
+        assert [f['index'] for f in frames] == list(range(len(frames))), frames
+        assert [f['sha256'] for f in frames] == [sha(bytes(f['bytes'])) for f in frames]
+        chain = native['anchor_chain']
+        assert chain == producer['checkpoint']['anchor_chain'], chain
+        assert len(chain) == len(frames) == witness['frames'], chain
+        assert chain[-1:] == ([producer['checkpoint']['anchor']] if producer['checkpoint']['anchor'] else []), chain
+        assert all(a['blob_ref'].endswith(f'/{i}') for i, a in enumerate(chain)), chain
+        assert [a['high_watermark'] for a in chain] == sorted({a['high_watermark'] for a in chain}), chain
+        # Total realized PnL must include every archived cycle plus the current position.
+        archived = sum(Decimal(p['pnl']) for p in state['archived'])
+        current = sum(Decimal(p['pnl']) for p in state['positions'])
+        assert archived + current == dec(state['portfolio_realized_pnl']), (archived, current)
+        commissions = [c for p in state['positions'] for c in p['native']['commissions']]
+        assert commissions == [c for p in expected['positions'] for c in p['native']['commissions']]
+        equity = dec(state['accounts'][0]['equity'])
+        for key, value in witness['decimal'].items():
+            assert (equity if key == 'equity' else dec(state[key])) == Decimal(value), (key, state)
+        if witness.get('open'):
+            context = producer['checkpoint']['market_context']
+            assert native['restored_mark'] == json.loads(context['native']), native['restored_mark']
+            assert native['restored_mark']['ts_event'] == context['ts_event']
+            open_positions = [p for p in state['positions'] if not p['closed']]
+            assert [p['native']['quantity'] for p in open_positions] == [witness['quantity']], open_positions
+            assert state['accounts'][0].get('maintenance_margins') == expected['accounts'][0].get('maintenance_margins')
+            assert state['accounts'][0].get('initial_margins') == expected['accounts'][0].get('initial_margins')
     return True
 
 
@@ -248,14 +327,21 @@ def produce_case(label, scenario='reversal', boundary=None):
         assert state['pid'] == producer.pid
         if checkpoint:
             assert checkpoint['pid'] == producer.pid
-        receipt = {'pid': producer.pid, 'exit': producer.returncode, 'boundary': boundary,
+        receipt = {'label': label, 'pid': producer.pid, 'exit': producer.returncode, 'boundary': boundary,
                    'checkpoint_sha256': sha(cp.read_bytes()) if cp.exists() else None,
                    'checkpoint': checkpoint, 'state': state, 'records': hashes(records),
-                   'contents': semantic, 'source_files': files(root / 'event_store')}
+                   'contents': semantic, 'source_files': files(root / 'event_store'),
+                   'record_files': files(directory)}
         save(root / 'producer-receipt.json', receipt)
         return root, records, semantic, receipt
     finally:
         stop_redis(authority, 6397)
+
+
+MULTI_WITNESS = {'frames': 2, 'decimal': {'portfolio_realized_pnl': '59.752', 'equity': '10059.752',
+                                          'portfolio_unrealized_pnl': '0', 'portfolio_net_exposure': '0'}}
+OPEN_WITNESS = {'frames': 0, 'open': True, 'quantity': '1.000',
+                'decimal': {'portfolio_unrealized_pnl': '10', 'portfolio_net_exposure': '110', 'equity': '9999.96'}}
 
 
 def main():
@@ -264,84 +350,188 @@ def main():
     ROOT.mkdir()
     started = time.monotonic()
     matrix = {'controller_pid': os.getpid(), 'binary_sha256': sha(BINARY.read_bytes()),
-              'producers': [], 'cases': [], 'stage_b_passed': False, 'outcome': 'N2_04_FAILED'}
+              'producers': [], 'cases': [], 'stage_a_passed': False, 'outcome': 'N2_05_BLOCKED'}
 
     def retain(row, **requirements):
         matrix['cases'].append(row)
         save(ROOT / 'results.json', matrix)
         require_result(row, **requirements)
 
-    try:
-        # B: one sealed reversal, one torn pairing, one associated duplicate probe.
-        root, records, semantic, producer = produce_case('quick_reversal')
-        matrix['producers'].append(producer)
-        checkpoint, store = root / 'checkpoint.json', root / 'event_store'
-        retain(child(root, 'restore', 'sealed-restore', checkpoint, store, records, semantic), admitted=True)
+    def produce(label, scenario, boundary=None):
+        produced = produce_case(label, scenario, boundary)
+        matrix['producers'].append(produced[3])
+        return produced
 
-        def torn(target):
-            key = next(k for k in records if ':accounts:' in k)
+    try:
+        # A: mandatory positives, each restored twice in one clone. Failure stops the matrix.
+        multi, multi_records, multi_semantic, multi_p = produce('multi_cycle', 'multi_cycle')
+        multi_cp, multi_store = multi / 'checkpoint.json', multi / 'event_store'
+        row = child(multi, 'restore', 'restore-twice', multi_cp, multi_store, multi_records, multi_semantic, runs=2)
+        retain(row, admitted=True)
+        require_continuity(row, multi_p, MULTI_WITNESS)
+        opened, open_records, open_semantic, open_p = produce('open', 'open')
+        open_cp, open_store = opened / 'checkpoint.json', opened / 'event_store'
+        row = child(opened, 'restore', 'restore-twice', open_cp, open_store, open_records, open_semantic, runs=2)
+        retain(row, open_exposure=True)
+        require_continuity(row, open_p, OPEN_WITNESS)
+        matrix['stage_a_passed'] = True
+        save(ROOT / 'results.json', matrix)
+
+        # B: associated duplicates and negative controls on both genuine producers.
+        retain(child(multi, 'duplicate', 'associated-duplicates', multi_cp, multi_store, multi_records, multi_semantic),
+               admitted=True, duplicate=True)
+        retain(child(opened, 'duplicate', 'associated-duplicates', open_cp, open_store, open_records, open_semantic),
+               open_exposure=True, duplicate=True)
+        reversal, rev_records, rev_semantic, rev_p = produce('quick_reversal', 'reversal')
+        rev_cp, rev_store = reversal / 'checkpoint.json', reversal / 'event_store'
+        foreign_anchor = rev_p['checkpoint']['anchor_chain'][0]
+        keys = list(multi_records)
+        frame0, frame1 = frame_key(keys, 0), frame_key(keys, 1)
+
+        def chain_change(kind):
+            def change(data, _):
+                chain = data['anchor_chain']
+                if kind == 'missing_prior_anchor':
+                    chain.pop(0)
+                elif kind == 'corrupt_prior_anchor':
+                    chain[0]['content_hash'] = 'blake3:' + '0' * 64
+                elif kind == 'stale_prior_anchor':
+                    chain[0]['high_watermark'] = chain[1]['high_watermark'] + 1
+                elif kind == 'cross_paired_anchor':
+                    chain[0] = foreign_anchor
+                else:
+                    chain.reverse()
+                return kind
+            return change
+
+        for kind in ('missing_prior_anchor', 'corrupt_prior_anchor', 'stale_prior_anchor',
+                     'cross_paired_anchor', 'reordered_anchors'):
+            retain(child(multi, 'restore', kind, multi_cp, multi_store, multi_records, multi_semantic,
+                         resigned(chain_change(kind)), resign=True), reason='ARCHIVE_CONTINUITY_BLOCKED')
+
+        def overwrite(target):
+            redis(6398, 'SET', frame0, data=redis(6398, 'GET', frame1))
+            return {'overwritten': frame0, 'with': frame1}
+        retain(child(multi, 'restore', 'overwritten-frame', multi_cp, multi_store, multi_records, multi_semantic,
+                     overwrite), reason='REDIS_PRODUCER_PAIR_MISMATCH')
+
+        def overwrite_resigned(data, target):
+            overwrite(target)
+            data['redis_contents'][frame0] = data['redis_contents'][frame1]
+            return 'Redis frame 0 overwritten after anchoring; receipt contents follow it'
+        retain(child(multi, 'restore', 'overwritten-frame-resigned', multi_cp, multi_store, multi_records,
+                     multi_semantic, resigned(overwrite_resigned), resign=True),
+               reason='ARCHIVE_CONTINUITY_BLOCKED: Redis frame overwritten')
+
+        def missing_frame_resigned(data, target):
+            redis(6398, 'DEL', frame0)
+            del data['redis_contents'][frame0]
+            return 'Redis frame 0 deleted; receipt contents follow it'
+        retain(child(multi, 'restore', 'missing-frame-resigned', multi_cp, multi_store, multi_records,
+                     multi_semantic, resigned(missing_frame_resigned), resign=True),
+               reason='ARCHIVE_CONTINUITY_BLOCKED: archived Redis blob absent')
+
+        def truncate_store(target):
+            path = next((target / 'event_store').rglob('*.redb'))
+            path.write_bytes(path.read_bytes()[:32])
+            return {'native_anchor_source': 'truncated'}
+        retain(child(multi, 'restore', 'truncated-redb', multi_cp, multi_store, multi_records, multi_semantic,
+                     truncate_store), reason='EVENT_STORE_PRODUCER_PAIR_MISMATCH')
+
+        def quote_change(kind):
+            def change(data, _):
+                context = data['market_context']
+                if kind == 'missing_quote':
+                    del data['market_context']
+                    return kind
+                quote = json.loads(context['native'])
+                if kind == 'altered_quote_bytes':
+                    quote['bid_price'] = quote['ask_price'] = '120.00'
+                    context['native'] = json.dumps(quote, separators=(',', ':'))
+                    return kind
+                if kind == 'stale_quote':
+                    quote['ts_event'] = quote['ts_init'] = data['state']['positions'][0]['native']['ts_last'] - 1
+                elif kind == 'wrong_instrument_quote':
+                    quote['instrument_id'] = 'ETHUSDT-PERP.SIM'
+                elif kind == 'divergent_mark':
+                    quote['bid_price'] = quote['ask_price'] = '120.00'
+                elif kind == 'cross_paired_quote':
+                    context['source']['run_id'] = multi_p['checkpoint']['run_id']
+                context['native'] = json.dumps(quote, separators=(',', ':'))
+                context['sha256'] = sha(context['native'].encode())
+                context['instrument_id'] = quote['instrument_id']
+                context['ts_event'] = quote['ts_event']
+                return kind
+            return change
+
+        for kind, reason in [('missing_quote', 'OPEN_EXPOSURE_REQUIRES_RECONCILIATION'),
+                             ('altered_quote_bytes', 'OPEN_EXPOSURE_REQUIRES_RECONCILIATION: quote bytes'),
+                             ('stale_quote', 'OPEN_EXPOSURE_REQUIRES_RECONCILIATION: stale quote'),
+                             ('wrong_instrument_quote', 'OPEN_EXPOSURE_REQUIRES_RECONCILIATION: quote instrument'),
+                             ('cross_paired_quote', 'OPEN_EXPOSURE_REQUIRES_RECONCILIATION: quote source'),
+                             ('divergent_mark', 'RECOVERY_NOT_QUALIFIED')]:
+            retain(child(opened, 'restore', kind, open_cp, open_store, open_records, open_semantic,
+                         resigned(quote_change(kind)), resign=True), reason=reason)
+
+        def contradictory_order(target):
+            key = next(k for k in open_records if ':orders:' in k)
             redis(6398, 'DEL', key)
             return {'deleted_native_key': key}
-        retain(child(root, 'restore', 'torn-pair', checkpoint, store, records, semantic, torn),
+        retain(child(opened, 'restore', 'contradictory-order', open_cp, open_store, open_records, open_semantic,
+                     contradictory_order), reason='REDIS_PRODUCER_PAIR_MISMATCH')
+        retain(child(opened, 'restore', 'writable-connection', open_cp, open_store, open_records, open_semantic,
+                     readonly=False), reason='READ_ONLY_RESTORE_CONNECTION_REQUIRED')
+        retain(child(opened, 'restore', 'different-valid-redis', open_cp, open_store, multi_records, multi_semantic),
                reason='REDIS_PRODUCER_PAIR_MISMATCH')
-        row = child(root, 'duplicate', 'associated-duplicates', checkpoint, store, records, semantic)
-        matrix['cases'].append(row)
-        save(ROOT / 'results.json', matrix)
-        if row['admission'] and 'NATIVE_ASSOCIATION_BLOCKED' in (row['admission']['error'] or ''):
-            matrix['outcome'] = 'NATIVE_ASSOCIATION_BLOCKED'
-            raise RuntimeError('NATIVE_ASSOCIATION_BLOCKED')
-        require_result(row, admitted=True, duplicate=True)
-        matrix['stage_b_passed'] = True
-        save(ROOT / 'results.json', matrix)
-
-        # C: truthful windows, one multi-cycle, one authentic open position.
-        acknowledged = None
-        for boundary in ('before_seal', 'after_seal', 'after_drain', 'acknowledged'):
-            case_root, case_records, case_semantic, cp = produce_case('crash_' + boundary, boundary=boundary)
-            matrix['producers'].append(cp)
-            row = child(case_root, 'restore', 'restart', case_root / 'checkpoint.json',
-                        case_root / 'event_store', case_records, case_semantic)
-            retain(row, admitted=boundary == 'acknowledged')
-            if boundary == 'acknowledged':
-                acknowledged = (case_root, case_records, case_semantic)
-        other, other_records, other_semantic = acknowledged
-        # Both producer stores are valid separately; pairing either with the other's receipt refuses.
-        retain(child(root, 'restore', 'different-valid-redis', checkpoint, store, other_records, other_semantic),
-               reason='REDIS_PRODUCER_PAIR_MISMATCH')
-        retain(child(root, 'restore', 'different-valid-redb', checkpoint, other / 'event_store', records, semantic),
+        retain(child(multi, 'restore', 'different-valid-redb', multi_cp, open_store, multi_records, multi_semantic),
                reason='EVENT_STORE_PRODUCER_PAIR_MISMATCH')
+        retain(child(multi, 'restore', 'truncated_receipt', multi_cp, multi_store, multi_records, multi_semantic,
+                     lambda t: (t / 'checkpoint.json').write_bytes(b'{')))
 
-        for label, fault in [('truncated_receipt', lambda t: (t / 'checkpoint.json').write_bytes(b'{')),
-                             ('absent_receipt', lambda t: (t / 'checkpoint.json').unlink()),
+        # C: N2-04 regressions on the frozen binary: one-cycle, zero-cycle, torn pair, crash windows.
+        retain(child(reversal, 'restore', 'sealed-restore', rev_cp, rev_store, rev_records, rev_semantic), admitted=True)
+        retain(child(reversal, 'duplicate', 'associated-duplicates', rev_cp, rev_store, rev_records, rev_semantic),
+               admitted=True, duplicate=True)
+
+        def torn(target):
+            key = next(k for k in rev_records if ':accounts:' in k)
+            redis(6398, 'DEL', key)
+            return {'deleted_native_key': key}
+        retain(child(reversal, 'restore', 'torn-pair', rev_cp, rev_store, rev_records, rev_semantic, torn),
+               reason='REDIS_PRODUCER_PAIR_MISMATCH')
+        rt, rt_records, rt_semantic, _ = produce('round_trip', 'round_trip')
+        retain(child(rt, 'restore', 'sealed-restore', rt / 'checkpoint.json', rt / 'event_store', rt_records,
+                     rt_semantic), admitted=True)
+        for label, fault in [('absent_receipt', lambda t: (t / 'checkpoint.json').unlink()),
                              ('wrong_run', mutate_identity('run_id')),
                              ('stale_watermark', mutate_identity('watermark')),
                              ('invalid_marker', mutate_identity('checkpoint'))]:
-            retain(child(root, 'restore', label, checkpoint, store, records, semantic, fault))
-        for scenario in ('multi_cycle', 'open'):
-            case_root, case_records, case_semantic, cp = produce_case(scenario, scenario)
-            matrix['producers'].append(cp)
-            state = cp['checkpoint']['state']
-            if scenario == 'multi_cycle':
-                assert len(state['snapshots']) >= 2, state
-                assert {frame['index'] for frame in state['snapshots']} == {0, 1}, state
-                reason = 'ARCHIVE_CONTINUITY_BLOCKED'
-            else:
-                assert any(not p['closed'] for p in state['positions']), state
-                assert state['portfolio_unrealized_pnl'] is not None, state
-                assert state['portfolio_net_exposure'] is not None, state
-                reason = 'OPEN_EXPOSURE_REQUIRES_RECONCILIATION'
+            retain(child(reversal, 'restore', label, rev_cp, rev_store, rev_records, rev_semantic, fault))
+        for boundary in ('before_seal', 'after_seal', 'after_drain', 'acknowledged'):
+            case_root, case_records, case_semantic, _ = produce('crash_' + boundary, 'reversal', boundary)
             retain(child(case_root, 'restore', 'restart', case_root / 'checkpoint.json',
-                         case_root / 'event_store', case_records, case_semantic), reason=reason)
-        matrix['outcome'] = 'N2_04_SAFETY_GATE_PASSED'
+                         case_root / 'event_store', case_records, case_semantic), admitted=boundary == 'acknowledged')
+
+        # Original producer stores and receipts are byte-identical after every restore.
+        for producer in matrix['producers']:
+            root = ROOT / producer['label']
+            assert files(root / 'event_store') == producer['source_files'], producer['label']
+            assert files(root / 'native-record-bytes') == producer['record_files'], producer['label']
+            if producer['checkpoint_sha256']:
+                assert sha((root / 'checkpoint.json').read_bytes()) == producer['checkpoint_sha256']
+        matrix['producers_unchanged'] = True
+        matrix['outcome'] = 'N2_05_NATIVE_CONTINUITY_PASSED'
     except BaseException as error:
         matrix['hard_stop'] = repr(error)
+        if matrix['stage_a_passed']:
+            matrix['outcome'] = 'N2_05_FAILED'
         raise
     finally:
         matrix['physical_seconds'] = time.monotonic() - started
         matrix['binary_unchanged'] = sha(BINARY.read_bytes()) == matrix['binary_sha256']
-        assert matrix['binary_unchanged']
         save(ROOT / 'results.json', matrix)
-        print(json.dumps({k: matrix[k] for k in ('outcome', 'stage_b_passed', 'physical_seconds')}))
+        print(json.dumps({k: matrix[k] for k in ('outcome', 'stage_a_passed', 'physical_seconds')}))
+        assert matrix['binary_unchanged']
     return 0
 
 

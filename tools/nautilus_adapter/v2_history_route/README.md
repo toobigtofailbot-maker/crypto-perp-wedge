@@ -1,5 +1,73 @@
 # Private rc7 native history/bootstrap fixture
 
+## N2-05 native continuity (2026-10-23)
+
+Karl's full authorization, verbatim: "I approve everything so please proceed and always include my full authorization"
+
+Private T2 fixture. It narrows two N2-04 refusals to physically proven exact
+cases only: a genuine two-cycle NETTING history (`RECOVERY_ADMITTED_SEALED`)
+and a genuine OPEN position (`OPEN_EXPOSURE_RECONSTRUCTED_NO_RESUME`). Every
+disposition still carries `NO_NEW_ORDERS / NO_RESUME`; the open result also
+requires venue reconciliation before any future activation. All other inputs
+refuse with `RECONCILIATION_REQUIRED`. Nothing here flattens, reconnects,
+submits, cancels, signals, schedules or resumes.
+
+**Archived-cycle provenance.** The pinned redb backend keeps only the latest
+snapshot anchor. The producer therefore boots `EventStoreLifecycle` with the
+same native `RedbBackend` the default opener uses, wrapped in a pass-through
+`AnchorTap`: every `EventStore` method delegates unchanged, and an anchor is
+retained only after the native backend accepts it. The native writer computes
+each watermark and the native lifecycle its BLAKE3 content hash; the tap only
+keeps the list. The producer refuses if the list's last entry differs from the
+native latest anchor. The list is written into the acknowledged checkpoint,
+whose digest the controller supplies from outside the recovered stores.
+
+Restore requires one anchor per archived frame, contiguous indices per position,
+strictly increasing watermarks within the durable range, a native log entry at
+each watermark, a native BLAKE3 match against the producer frame bytes and the
+Redis blob bytes, and a chain ending exactly at the native latest anchor. Frames
+are then restored in order with native `restore_cache_snapshot_blob`, which
+repeats its own fetch/BLAKE3 check. The list is provenance only. It computes no
+PnL, creates no anchor and is never an alternate ledger.
+
+**Open exposure.** The producer retains its native `QuoteTick` from the cache
+that priced its own Portfolio. The checkpoint stores the exact serde bytes,
+SHA-256, instrument, event timestamp and producer PID/run/instance. Restore
+requires matching bytes, identity and instrument. The quote must be no older
+than the open position's last event and no later than the native seal. It is
+added only to the disposable in-memory cache with native `add_quote`. Native
+`Portfolio` initialization then derives unrealized PnL, exposure and margins.
+No restore-time price is invented.
+
+Native `Portfolio::initialize_positions` writes margin-updated accounts back
+through the cache database. Each restore clone therefore connects as a fresh
+controller-created loopback ACL user with `+@all -@write`; Rust refuses
+`READ_ONLY_RESTORE_CONNECTION_REQUIRED` otherwise. Redis itself denies the native
+account `RPUSHX`. The controller retains the denial from `ACL LOG` and also checks
+that raw/semantic DUMPs and redb hashes are unchanged.
+
+Run in a new owned network-none container from the verified cached setup, with
+a fresh empty `/evidence` mount and this directory at `/continuation`:
+
+```sh
+CARGO_TARGET_DIR=/tmp/cpw-target cargo check --locked --offline -j 4 --manifest-path /continuation/Cargo.toml
+CARGO_TARGET_DIR=/tmp/cpw-target cargo test --locked --offline -j 4 --manifest-path /continuation/Cargo.toml
+CARGO_TARGET_DIR=/tmp/cpw-target cargo build --locked --offline -j 4 --manifest-path /continuation/Cargo.toml
+python3 -m py_compile /continuation/run_proof.py
+python3 -B /continuation/run_proof.py
+```
+
+The controller writes `/evidence/physical-n2-05` and refuses an existing one.
+Stage A restores both positives twice in one clone and stops on failure.
+Stage B runs the associated duplicate probes and negative controls. Stage C
+runs the N2-04 one-cycle, zero-cycle, torn-pair, receipt and crash-window
+regressions. "Re-signed" controls model a defective producer receipt that still
+carries a trusted digest. They test the semantic gate itself, not the digest.
+See [CPW-NAUTILUS-N2-05](../../../docs/status_entries/CPW-NAUTILUS-N2-05.md)
+for measured results and limits. Funding, liquidation, installed-engine
+integration, exchange reconciliation, N3, paper/live, capital and merge remain
+separate gates. No CPW production path consumes this fixture.
+
 ## N2-04 restart admission (2026-10-23)
 
 Karl's full authorization, verbatim: "I approve everything so please proceed and always include my full authorization"

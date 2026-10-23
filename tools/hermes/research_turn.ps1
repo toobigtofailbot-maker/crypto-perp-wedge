@@ -5,7 +5,10 @@ param(
     [Parameter(Mandatory)][ValidatePattern('^[0-9a-f]{40}$')][string]$RepoSha,
     [Parameter(Mandatory)][string]$RepoBranch,
     [Parameter(Mandatory)][ValidateLength(1, 500)][string]$Theme,
-    [ValidateRange(30, 1800)][int]$TimeoutSeconds = 600
+    [ValidateRange(30, 1800)][int]$TimeoutSeconds = 600,
+    # Default OFF. Adds one director-authored draft turn and a non-authoritative packet.
+    [switch]$StructuredIntentHandoff,
+    [string]$PythonExe = 'python'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -163,7 +166,35 @@ Numerical edge, Sharpe, OOS, profitability are UNKNOWN. Do not invent citations.
     ConvertTo-Json -InputObject @($index.sources) -Depth 40 | Set-Content -LiteralPath (Join-Path $stage 'source_index.json') -Encoding utf8NoBOM
     $scout = Invoke-Turn 'research-scout' ($boundary + "`nCompare the THREE supplied hypotheses. Use only these materials; no browsing, shell or new tools. Give a concise comparison and explicit unsupported-claim list. Materials:`n" + $sources) 'scout_result.md'
     $critic = Invoke-Turn 'research-critic' ($boundary + "`nIndependently challenge the sources and scout. Reject unsupported claims, regime, overfit, leakage and cost failures; give dissent and which ideas to defer. Rank what to TEST, never a strategy winner. Use only supplied materials.`nMaterials:`n" + $sources + "`nScout:`n" + $scout) 'critic_result.md'
-    $null = Invoke-Turn 'director-synthesis' ($boundary + "`nSynthesize a Research Opportunity Brief with at most three hypotheses, ranked for investigation only. Include critic verdict and dissent per idea, evidence coverage, exact public URL and repo URI/path/hash/HEAD references, data/tool reuse and smallest next tests WITHOUT running them. Mark numerical edge estimates and missing evidence UNKNOWN. Use only supplied materials; do not call tools.`nMaterials:`n" + $sources + "`nScout:`n" + $scout + "`nIndependent critic:`n" + $critic) 'research_opportunity_brief.md'
+    $brief = Invoke-Turn 'director-synthesis' ($boundary + "`nSynthesize a Research Opportunity Brief with at most three hypotheses, ranked for investigation only. Include critic verdict and dissent per idea, evidence coverage, exact public URL and repo URI/path/hash/HEAD references, data/tool reuse and smallest next tests WITHOUT running them. Mark numerical edge estimates and missing evidence UNKNOWN. Use only supplied materials; do not call tools.`nMaterials:`n" + $sources + "`nScout:`n" + $scout + "`nIndependent critic:`n" + $critic) 'research_opportunity_brief.md'
+    if ($StructuredIntentHandoff) {
+        $null = Invoke-Turn 'director-intent' ($boundary + @'
+
+Author the structured handoff for at most three ideas from the brief. You author
+every field; nothing is inferred or filled in later. Return ONLY one JSON object
+(no fences): {"schema_version":"cpw_hermes_structured_intent_handoff_v1","ideas":[...]}.
+Each idea has exactly: idea_id, title, source_ids, source_claims (array of
+{source_id, claim, excerpt} with excerpt copied verbatim from that source's excerpt),
+scout_observation, critic_assessment ({stance: AGREE|DISAGREE|MIXED as the
+independent critic actually judged, critic_excerpt copied verbatim from the critic
+text, evidence_gaps, failure_modes, counterarguments}), anchor_relevance (array of
+{resource_uri, relevance}), native_draft (object or null), missing_evidence,
+next_investigation. native_draft has exactly: schema_version
+"cpw_bounded_research_request_v1", request_id, research_question, strategy_family,
+mechanism, primary_timeframe (15m|30m|1h|4h|1d), required_data_features,
+free_parameter_count (integer 0-32), evidence_resource_uris, constraints,
+causal_rationale, falsifiable_prediction, falsification_stop_conditions,
+proposed_parameter_bounds (array of {name, minimum, maximum}),
+proposed_objective_intent, unresolved_assumptions.
+evidence_resource_uris may hold ONLY project:// or evidence:// resources listed as
+repo sources below with their resolved hash, and only when genuinely relevant to
+that idea; justify each in anchor_relevance. Never place public URLs there or
+repurpose an unrelated resource. Without relevant repo evidence set native_draft
+null and state missing_evidence; the idea stays an unadmitted lead. No
+profitability, Sharpe or return claims. Do not invent dissent or agreement. Use
+only supplied materials; do not call tools.
+'@ + "`nMaterials:`n" + $sources + "`nScout:`n" + $scout + "`nIndependent critic:`n" + $critic + "`nBrief:`n" + $brief) 'structured_intent_drafts.json'
+    }
     $manifest.state = 'COMPLETED'
 } catch {
     $manifest.state = 'FAILED'
@@ -181,4 +212,9 @@ Numerical edge, Sharpe, OOS, profitability are UNKNOWN. Do not invent citations.
     [IO.Directory]::Move($stage, $output)
 }
 if ($manifest.state -ne 'COMPLETED') { Write-Error 'Hermes research cycle FAILED; external evidence retained'; exit 1 }
+if ($StructuredIntentHandoff) {
+    # Deterministic validation only; the packet has no admission or experiment authority.
+    & $PythonExe -I (Join-Path $PSScriptRoot 'discovery_intent.py') build --cycle-dir $output --output ($output + '.discovery-intent')
+    if ($LASTEXITCODE -ne 0) { Write-Error 'Discovery-intent packet FAILED; cycle evidence retained'; exit 1 }
+}
 Write-Output "Completed one non-authoritative cycle: $output"

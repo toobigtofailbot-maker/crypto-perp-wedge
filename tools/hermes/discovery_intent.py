@@ -53,6 +53,7 @@ CYCLE_FILES = (
     "critic_result.md", "research_opportunity_brief.md", HANDOFF_FILE,
 )
 MAX_IDEAS = 3
+MIN_QUOTE_CHARS = 24
 NON_AUTHORITY = {
     "draft_only_not_strategy_spec": True, "admission_authority": False,
     "experiment_authority": False, "approval_authority": False,
@@ -95,7 +96,10 @@ class SourceClaim(_Strict):
 
 
 class AnchorRelevance(_Strict):
+    # No MECHANISM role: causal support must come from cited public research.
     resource_uri: Text
+    support_role: Literal["DATA_AVAILABILITY", "PRIOR_INVESTIGATION", "CONSTRAINT"]
+    quote: Text
     relevance: Text
 
 
@@ -165,15 +169,19 @@ def _contains_secret(text: str) -> bool:
 
 
 class GitHead:
-    """Exact HEAD-blob identity for anchored repo paths."""
+    """Exact HEAD-blob identity and content for anchored repo paths."""
 
     def __init__(self, repo_root: Path) -> None:
         self._root = repo_root
 
-    def blob_sha256(self, relative_path: str) -> str | None:
+    def blob(self, relative_path: str) -> bytes | None:
         result = subprocess.run(["git", "cat-file", "blob", f"HEAD:{relative_path}"],
                                 cwd=self._root, capture_output=True, timeout=30, check=False)
-        return hashlib.sha256(result.stdout).hexdigest() if result.returncode == 0 else None
+        return result.stdout if result.returncode == 0 else None
+
+    def blob_sha256(self, relative_path: str) -> str | None:
+        content = self.blob(relative_path)
+        return hashlib.sha256(content).hexdigest() if content is not None else None
 
 
 class MemoryTriage:
@@ -269,11 +277,11 @@ class MemoryTriage:
             state, basis = "EXACT_DUPLICATE", "exact fingerprint matches an existing identity"
         elif similar:
             state, basis = "POSSIBLE_SEMANTIC_SIMILARITY", "structured-field similarity only"
-        elif postgres["status"] == "OK":
+        elif postgres["status"] == "OK" and self._repo_status["status"] == "OK":
             state, basis = "NEW_UNMATCHED", "no exact match after successful repo and Postgres lookups"
         else:
             state = "UNKNOWN_MEMORY_STATE"
-            basis = "no exact match in available lookups, but Research Memory Postgres was unavailable"
+            basis = "no exact match in available lookups, but a mandatory identity index was unavailable"
         return {"state": state, "basis": basis, "lookups": lookups,
                 "retained_negative_findings": failed, "semantic_similarity_flags": similar}
 
@@ -325,8 +333,18 @@ class DiscoveryIntentAdapter:
         return {"manifest": manifest, "invocations": invocations, "sources": sources,
                 "handoff": handoff, "critic_text": (cycle / "critic_result.md").read_text(encoding="utf-8-sig")}
 
+    def _quote_in_head(self, uri: Any, quote: Any) -> bool:
+        """Deterministic quote provenance against the committed blob; no interpretation."""
+        if not isinstance(uri, str) or not isinstance(quote, str) or len(_compact(quote)) < MIN_QUOTE_CHARS:
+            return False
+        try:
+            content = self._git.blob(self._catalog.spec_for_uri(uri).relative_path)
+        except ProjectEvidenceError:
+            return False
+        return content is not None and _compact(quote) in _compact(content.decode("utf-8", "replace"))
+
     def _anchor(self, uri: str, sources_by_uri: dict[str, dict[str, Any]],
-                failures: list[dict[str, str]]) -> dict[str, Any] | None:
+                relevance: AnchorRelevance | None, failures: list[dict[str, str]]) -> dict[str, Any] | None:
         try:
             evidence = self._catalog.read(uri)["evidence"]
         except (ProjectEvidenceError, OSError) as exc:
@@ -336,7 +354,19 @@ class DiscoveryIntentAdapter:
         head_sha = self._git.blob_sha256(evidence["path"])
         anchor = {"resource_uri": uri, "repo_path": evidence["path"],
                   "artifact_sha256": evidence["artifact_sha256"], "repo_sha": evidence["repo_sha"],
-                  "head_blob_sha256": head_sha}
+                  "head_blob_sha256": head_sha,
+                  # Identity and quote are proven here; whether the anchor bears on the idea is not.
+                  "semantic_relevance": "REVIEWER_CHECK_REQUIRED"}
+        if relevance is None:
+            failures.append({"field": f"anchor_relevance[{uri}]",
+                             "reason": "Hermes gave no role, quote and relevance for this anchor"})
+        else:
+            anchor.update(support_role=relevance.support_role, quote=relevance.quote,
+                          relevance=relevance.relevance,
+                          quote_verified=self._quote_in_head(uri, relevance.quote))
+            if not anchor["quote_verified"]:
+                failures.append({"field": f"anchor_relevance[{uri}].quote",
+                                 "reason": f"not a verbatim quote (>= {MIN_QUOTE_CHARS} chars) of the HEAD blob"})
         if head_sha != evidence["artifact_sha256"]:
             failures.append({"field": f"evidence_resource_uris[{uri}]",
                              "reason": "working-tree content differs from the HEAD blob"})
@@ -351,6 +381,9 @@ class DiscoveryIntentAdapter:
             if source.get(key) != actual:
                 failures.append({"field": f"evidence_resource_uris[{uri}]",
                                  "reason": f"source {source.get('id')} {key} does not match resolved identity"})
+        if not self._quote_in_head(uri, source.get("excerpt")):
+            failures.append({"field": f"evidence_resource_uris[{uri}]",
+                             "reason": f"source {source.get('id')} excerpt is an unverified summary, not HEAD content"})
         anchor["source_id"] = source.get("id")
         return anchor
 
@@ -380,6 +413,13 @@ class DiscoveryIntentAdapter:
             if source is None or _compact(claim.excerpt) not in _compact(str(source.get("excerpt", ""))):
                 failures.append({"field": f"source_claims[{index}]",
                                  "reason": "excerpt is not traceable to the cited source excerpt"})
+            elif source.get("kind") == "repo" and not self._quote_in_head(source.get("url_or_uri"), claim.excerpt):
+                failures.append({"field": f"source_claims[{index}]",
+                                 "reason": "repo excerpt is not verbatim HEAD content; unverified summary"})
+        if idea.native_draft is not None and not any(
+                sources.get(claim.source_id, {}).get("kind") == "public" for claim in idea.source_claims):
+            failures.append({"field": "source_claims",
+                             "reason": "mechanism needs a claim attributed to a cited public research source"})
         if _compact(idea.critic_assessment.critic_excerpt) not in _compact(critic_text):
             failures.append({"field": "critic_assessment.critic_excerpt",
                              "reason": "not a verbatim excerpt of the independent critic result"})
@@ -399,12 +439,9 @@ class DiscoveryIntentAdapter:
                     {key: getattr(draft, key) for key in ("strategy_family", "mechanism",
                      "primary_timeframe", "required_data_features", "free_parameter_count")})
                 result["fingerprint"] = {"version": FINGERPRINT_VERSION, "sha256": fingerprint(definition)}
-                relevance = {item.resource_uri for item in idea.anchor_relevance}
+                relevance = {item.resource_uri: item for item in idea.anchor_relevance}
                 for uri in draft.evidence_resource_uris:
-                    if uri not in relevance:
-                        failures.append({"field": f"anchor_relevance[{uri}]",
-                                         "reason": "Hermes gave no relevance statement for this anchor"})
-                    anchor = self._anchor(uri, sources_by_uri, failures)
+                    anchor = self._anchor(uri, sources_by_uri, relevance.get(uri), failures)
                     if anchor is not None:
                         result["evidence_anchors"].append(anchor)
             except ValidationError as exc:
@@ -444,7 +481,11 @@ class DiscoveryIntentAdapter:
                 "role", "invocation_id", "session_id", "exit_code", "prompt_sha256")}
                 for item in loaded["manifest"]["invocations"]],
             "sources": [{**source, "screen": "INJECTION_PATTERN_TREATED_AS_DATA"
-                         if _INJECTION.search("\n".join(_strings(source))) else "NONE"}
+                         if _INJECTION.search("\n".join(_strings(source))) else "NONE",
+                         "excerpt_verification": "PUBLIC_NOT_REPO_EVIDENCE" if source.get("kind") != "repo"
+                         else "VERIFIED_IN_HEAD_BLOB" if self._quote_in_head(source.get("url_or_uri"),
+                                                                             source.get("excerpt"))
+                         else "UNVERIFIED_SUMMARY"}
                         for source in loaded["sources"]],
             "independent_critic": {
                 "role": "research-critic", "session_id": invocations["research-critic"]["session_id"],

@@ -143,11 +143,16 @@ source claims, scout observation, a verbatim-traced critic assessment and anchor
 relevance. Then `discovery_intent.py` validates it deterministically into a new
 sibling directory `<OutputRoot>.discovery-intent` (`packet.json`, retained
 `inputs/`, `SHA256SUMS`). Each idea is `TYPED_VALID` only when native strict
-validation, catalog/HEAD-blob anchor identity and cited source hashes all hold;
-otherwise it is a retained `NOT_READY` lead with exact failed fields. Memory
+validation, catalog/HEAD-blob anchor identity, cited source hashes and verbatim
+HEAD-content repo quotes all hold, and the mechanism cites public research.
+Otherwise it is a retained `NOT_READY` lead with exact failed fields.
+Repo anchors carry a role (data availability, prior investigation, constraint),
+never mechanism support. Their semantic relevance stays a visible
+`REVIEWER_CHECK_REQUIRED`; identity and quote checks do not prove relevance. Memory
 state (exact duplicate, prior failure, flagged similarity, new, unknown) comes
 from the native fingerprint over the repo index, the read-only Postgres reader
-(`RESEARCH_MEMORY_READONLY_DSN`; absent means UNKNOWN, never novelty), the same
+(`RESEARCH_MEMORY_READONLY_DSN`; absent means UNKNOWN, never novelty; `NEW_UNMATCHED`
+needs both repo index and Postgres lookups to succeed), the same
 packet and any `--prior-packet`. Recheck or replay with
 `python tools/hermes/discovery_intent.py verify --packet-dir <dir> --replay`.
 The packet has zero admission, experiment, approval or scheduler authority and

@@ -168,8 +168,14 @@ Numerical edge, Sharpe, OOS, profitability are UNKNOWN. Do not invent citations.
     $critic = Invoke-Turn 'research-critic' ($boundary + "`nIndependently challenge the sources and scout. Reject unsupported claims, regime, overfit, leakage and cost failures; give dissent and which ideas to defer. Rank what to TEST, never a strategy winner. Use only supplied materials.`nMaterials:`n" + $sources + "`nScout:`n" + $scout) 'critic_result.md'
     $brief = Invoke-Turn 'director-synthesis' ($boundary + "`nSynthesize a Research Opportunity Brief with at most three hypotheses, ranked for investigation only. Include critic verdict and dissent per idea, evidence coverage, exact public URL and repo URI/path/hash/HEAD references, data/tool reuse and smallest next tests WITHOUT running them. Mark numerical edge estimates and missing evidence UNKNOWN. Use only supplied materials; do not call tools.`nMaterials:`n" + $sources + "`nScout:`n" + $scout + "`nIndependent critic:`n" + $critic) 'research_opportunity_brief.md'
     if ($StructuredIntentHandoff) {
-        $null = Invoke-Turn 'director-intent' ($boundary + @'
+        # Only this opt-in turn may author typed draft intents; the default boundary stays byte-identical.
+        $intentBoundary = $boundary.Replace('prepared payloads, intents, canonical writes',
+            'prepared payloads, admitted or executable intents, dispatch, canonical writes')
+        if ($intentBoundary -eq $boundary) { throw 'Intent boundary template drifted' }
+        $null = Invoke-Turn 'director-intent' ($intentBoundary + @'
 
+This turn may author only non-authoritative typed RESEARCH-INTENT DRAFTS for later
+review. They are never admitted, executable, proposed, approved or dispatched.
 Author the structured handoff for at most three ideas from the brief. You author
 every field; nothing is inferred or filled in later. Return ONLY one JSON object
 (no fences): {"schema_version":"cpw_hermes_structured_intent_handoff_v1","ideas":[...]}.
@@ -178,7 +184,9 @@ Each idea has exactly: idea_id, title, source_ids, source_claims (array of
 scout_observation, critic_assessment ({stance: AGREE|DISAGREE|MIXED as the
 independent critic actually judged, critic_excerpt copied verbatim from the critic
 text, evidence_gaps, failure_modes, counterarguments}), anchor_relevance (array of
-{resource_uri, relevance}), native_draft (object or null), missing_evidence,
+{resource_uri, support_role: DATA_AVAILABILITY|PRIOR_INVESTIGATION|CONSTRAINT,
+quote copied verbatim from that resource's content, relevance}), native_draft
+(object or null), missing_evidence,
 next_investigation. native_draft has exactly: schema_version
 "cpw_bounded_research_request_v1", request_id, research_question, strategy_family,
 mechanism, primary_timeframe (15m|30m|1h|4h|1d), required_data_features,
@@ -188,7 +196,9 @@ proposed_parameter_bounds (array of {name, minimum, maximum}),
 proposed_objective_intent, unresolved_assumptions.
 evidence_resource_uris may hold ONLY project:// or evidence:// resources listed as
 repo sources below with their resolved hash, and only when genuinely relevant to
-that idea; justify each in anchor_relevance. Never place public URLs there or
+that idea; justify each in anchor_relevance. Repo resources never support the
+causal mechanism; attribute it to a cited public research source in source_claims.
+Never place public URLs there or
 repurpose an unrelated resource. Without relevant repo evidence set native_draft
 null and state missing_evidence; the idea stays an unadmitted lead. No
 profitability, Sharpe or return claims. Do not invent dissent or agreement. Use

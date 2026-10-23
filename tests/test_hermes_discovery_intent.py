@@ -17,10 +17,21 @@ ROOT = Path(__file__).resolve().parents[1]
 SHA = "c" * 40
 FEATURES = "research/data_feature_availability/PERP-DERIVED-FEATURE-AVAILABILITY-0001.json"
 CRITIC = "The critic dissents: taker archive alignment to 1h bars is unverified and costs may dominate."
+# Genuine verbatim lines of the committed resources; repo quotes must be HEAD content.
+QUOTES = {
+    "project://feature-availability": "This source class is limited to canonical 30m, 1h, 4h, and 1d bases; "
+                                      "legacy 15m remains CANONICAL_D4_KLINE_DERIVATION.",
+    "evidence://hypothesis/H-002": "# Hypothesis H-002: Donchian Channel Trend-Following (4h)",
+    "evidence://hypothesis/H-005": "# Hypothesis H-005: Hourly MACD with Price Structure Confirmation",
+}
+ROLES = {"project://feature-availability": "DATA_AVAILABILITY"}
 
 
 class _Git:
     """HEAD blob identity equals the working tree for untouched research files."""
+
+    def blob(self, relative_path: str) -> bytes | None:
+        return (ROOT / relative_path).read_bytes()
 
     def blob_sha256(self, relative_path: str) -> str | None:
         return hashlib.sha256((ROOT / relative_path).read_bytes()).hexdigest()
@@ -41,10 +52,10 @@ def _sha(path: str) -> str:
     return hashlib.sha256((ROOT / path).read_bytes()).hexdigest()
 
 
-def _repo_source(source_id: str, uri: str, path: str) -> dict:
+def _repo_source(source_id: str, uri: str, path: str, excerpt: str | None = None) -> dict:
     return {"id": source_id, "kind": "repo", "title": path, "publisher": "CPW", "date_or_unknown": "UNKNOWN",
             "observed_utc": "2026-10-23T00:00:00Z", "url_or_uri": uri, "evidence_path_or_unknown": path,
-            "sha256_or_unknown": _sha(path), "repo_sha_or_unknown": SHA, "excerpt": f"Resolved {uri}."}
+            "sha256_or_unknown": _sha(path), "repo_sha_or_unknown": SHA, "excerpt": excerpt or QUOTES[uri]}
 
 
 SOURCES = [
@@ -70,14 +81,14 @@ def _native(**updates) -> dict:
         "mechanism": "Aggressive taker imbalance may reflect demand not absorbed within one bar.",
         "primary_timeframe": "1h", "required_data_features": ["ohlcv_1h", "taker_buy_volume", "taker_sell_volume"],
         "free_parameter_count": 2,
-        "evidence_resource_uris": ["project://feature-availability", "evidence://hypothesis/H-005"],
+        "evidence_resource_uris": ["project://feature-availability"],
         "constraints": ["Use completed bars only"],
         "causal_rationale": "Liquidity providers may re-price slowly after one-sided flow.",
         "falsifiable_prediction": "Imbalance-conditioned forward return is indistinguishable from zero after costs.",
         "falsification_stop_conditions": ["Stop if preregistered OOS expectancy after costs is not positive"],
         "proposed_parameter_bounds": [{"name": "lookback", "minimum": 1.0, "maximum": 24.0}],
         "proposed_objective_intent": "Evaluate OOS after-cost expectancy only.",
-        "unresolved_assumptions": ["Archive alignment to 1h bars is UNKNOWN"],
+        "unresolved_assumptions": ["1h taker volume exists only if the exact canonical D2-021 base covers the window"],
     }
     value.update(updates)
     return value
@@ -94,7 +105,8 @@ def _idea(idea_id: str = "I1", native: dict | None | str = "default", **updates)
         "scout_observation": "Scout ranked this first for testability.",
         "critic_assessment": {"stance": "DISAGREE", "critic_excerpt": "taker archive alignment to 1h bars is unverified",
                               "evidence_gaps": ["alignment"], "failure_modes": ["costs"], "counterarguments": ["regime"]},
-        "anchor_relevance": [{"resource_uri": uri, "relevance": "Documents the needed feature or prior result."}
+        "anchor_relevance": [{"resource_uri": uri, "support_role": ROLES.get(uri, "PRIOR_INVESTIGATION"),
+                              "quote": QUOTES.get(uri, "unquoted"), "relevance": "Documents feature lineage or prior work."}
                              for uri in uris],
         "native_draft": native, "missing_evidence": [], "next_investigation": "Verify taker archive alignment.",
     }
@@ -274,3 +286,65 @@ def test_adapter_never_imports_execution_surfaces():
                       "research_autonomy", "nautilus", "broker", "compiler"):
         assert forbidden not in source
     assert fingerprint  # native fingerprint is the only identity function used
+
+
+def test_repo_quote_provenance_is_checked_against_head_content(tmp_path):
+    packet = adapter().build(write_cycle(tmp_path / "ok", [_idea()]))
+    verdicts = {source["id"]: source["excerpt_verification"] for source in packet["sources"]}
+    assert verdicts["R1"] == "VERIFIED_IN_HEAD_BLOB" and verdicts["P1"] == "PUBLIC_NOT_REPO_EVIDENCE"
+    anchor = packet["ideas"][0]["evidence_anchors"][0]
+    assert anchor["quote_verified"] is True and anchor["support_role"] == "DATA_AVAILABILITY"
+    assert anchor["semantic_relevance"] == "REVIEWER_CHECK_REQUIRED"
+
+    def invent(files, manifest):
+        sources = copy.deepcopy(SOURCES)
+        sources[2]["excerpt"] = "Resolved project://feature-availability with full 1h taker history."
+        files["source_index.json"] = json.dumps(sources)
+    got = adapter().build(write_cycle(tmp_path / "bad", [_idea()], mutate=invent))
+    assert {s["id"]: s["excerpt_verification"] for s in got["sources"]}["R1"] == "UNVERIFIED_SUMMARY"
+    assert got["ideas"][0]["typed_status"] == "NOT_READY"
+    assert any("unverified summary" in f["reason"] for f in got["ideas"][0]["failures"])
+
+
+def _h005_idea(**relevance) -> dict:
+    uri = "evidence://hypothesis/H-005"
+    idea = _idea(native=_native(evidence_resource_uris=["project://feature-availability", uri]))
+    idea["anchor_relevance"][1].update(relevance)
+    return idea
+
+
+@pytest.mark.parametrize(("relevance", "field"), [
+    ({"quote": "H-005 directly supports the taker-imbalance mechanism."},
+     "anchor_relevance[evidence://hypothesis/H-005].quote"),
+    ({"support_role": "MECHANISM"}, "idea.anchor_relevance.1.support_role"),
+])
+def test_unrelated_resolvable_anchor_cannot_be_claimed_as_mechanism_by_a_sentence(tmp_path, relevance, field):
+    got = adapter().build(write_cycle(tmp_path / "c", [_h005_idea(**relevance)]))["ideas"][0]
+    assert got["typed_status"] == "NOT_READY"
+    assert field in [f["field"] for f in got["failures"]]
+
+
+def test_quoted_anchor_stays_a_reviewer_relevance_check_never_mechanism(tmp_path):
+    got = adapter().build(write_cycle(tmp_path / "c", [_h005_idea()]))["ideas"][0]
+    h005 = got["evidence_anchors"][1]
+    assert h005["support_role"] == "PRIOR_INVESTIGATION"
+    assert h005["semantic_relevance"] == "REVIEWER_CHECK_REQUIRED"
+
+
+def test_mechanism_requires_a_public_research_claim(tmp_path):
+    idea = _idea(source_claims=[{"source_id": "R1", "claim": "1h taker lineage is conditional",
+                                 "excerpt": "limited to canonical 30m, 1h, 4h, and 1d bases"}])
+    got = adapter().build(write_cycle(tmp_path / "c", [idea]))["ideas"][0]
+    assert got["typed_status"] == "NOT_READY"
+    assert "source_claims" in [f["field"] for f in got["failures"]]
+
+
+def test_failed_repo_index_with_empty_postgres_is_unknown_not_new(tmp_path, monkeypatch):
+    def unavailable(root):
+        raise ValueError("registry unreadable")
+    monkeypatch.setattr(di, "load_repo_memory_seeds", unavailable)
+    memory = adapter(_Postgres()).build(write_cycle(tmp_path / "c", [_idea()]))["ideas"][0]["memory"]
+    assert memory["state"] == "UNKNOWN_MEMORY_STATE"
+    assert memory["lookups"][0]["status"] == "UNAVAILABLE" and memory["lookups"][1]["status"] == "OK"
+    duplicate = adapter(_Postgres(matched=True)).build(write_cycle(tmp_path / "d", [_idea()]))["ideas"][0]
+    assert duplicate["memory"]["state"] == "EXACT_DUPLICATE"

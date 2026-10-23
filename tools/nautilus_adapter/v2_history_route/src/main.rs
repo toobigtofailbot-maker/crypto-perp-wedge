@@ -1,17 +1,19 @@
 //! Private offline route fixture. Native engines own every economic and replay operation.
-use std::{cell::RefCell, fmt, fs, path::Path, rc::Rc, time::Duration};
+use std::{any::Any, cell::RefCell, collections::BTreeMap, fmt, fs, path::Path, rc::Rc, time::Duration};
 use anyhow::{Result, ensure};
 use nautilus_backtest::{config::{BacktestEngineConfig, SimulatedVenueConfig}, engine::BacktestEngine};
 use nautilus_common::{cache::{Cache, CacheConfig}, cache::database::CacheDatabaseFactory,
-    clock::{Clock, VirtualClock}, enums::Environment, actor::DataActor};
+    clock::{Clock, VirtualClock}, enums::Environment, actor::DataActor,
+    msgbus::{self, BusTap, MStr, Topic, Endpoint}};
 use nautilus_core::{UUID4, UnixNanos};
 use nautilus_event_store::{EventStoreLifecycle, ScanDirection, apply_cache_replay_entry,
     open_event_store_replay_source, restore_cache_from_sealed_run};
+use nautilus_event_store::backend::{AppendEntry, EventStore, RedbBackend};
 use nautilus_execution::models::fee::{FeeModelAny, MakerTakerFeeModel};
 use nautilus_infrastructure::redis::cache::RedisCacheConfig;
 use nautilus_model::{accounts::Account, data::{Data, QuoteTick}, enums::{AccountType, BookType, OmsType, OrderSide},
     identifiers::{InstrumentId, StrategyId, Symbol, TraderId, Venue},
-    instruments::{CryptoPerpetual, Instrument, InstrumentAny}, orders::Order,
+    instruments::{CryptoPerpetual, Instrument, InstrumentAny}, orders::Order, events::OrderEventAny,
     types::{Currency, Money, Price, Quantity}};
 use nautilus_portfolio::Portfolio;
 use nautilus_system::{RegisteredComponents, event_store::{EventStoreConfig, RunIdentity}};
@@ -38,7 +40,9 @@ fn config() -> CacheConfig { CacheConfig { use_trader_prefix: true, use_instance
     flush_on_start: false, buffer_interval_ms: Some(0), ..Default::default() } }
 fn db(rt: &tokio::runtime::Runtime, trader: TraderId, instance: UUID4)
     -> Result<Box<dyn nautilus_common::cache::database::CacheDatabaseAdapter>> {
-    let redis = RedisCacheConfig { host: Some("127.0.0.1".into()), port: Some(6397),
+    let port = std::env::var("CPW_ROUTE_REDIS_PORT").unwrap_or_else(|_| "6397".into()).parse::<u16>()?;
+    ensure!([6397, 6398].contains(&port), "only owned fixture Redis ports permitted");
+    let redis = RedisCacheConfig { host: Some("127.0.0.1".into()), port: Some(port),
         number_of_retries: 0, connection_timeout: 2, response_timeout: 2, ..Default::default() };
     rt.block_on(redis.create(trader, instance, config()))
 }
@@ -81,6 +85,19 @@ fn observation(cache: &Rc<RefCell<Cache>>, portfolio: &mut Portfolio) -> Result<
             "pnl": position.realized_pnl.map(|x| x.as_decimal().to_string()),
             "trades": position.trade_ids().iter().map(ToString::to_string).collect::<Vec<_>>() }));
     }
+    let mut fills = Vec::new();
+    for order in &orders {
+        for event in order.events() {
+            if let OrderEventAny::Filled(fill) = event {
+                fills.push(json!({"trade_id": fill.trade_id.to_string(), "order_id": fill.client_order_id.to_string(),
+                    "event_id": fill.event_id.to_string(), "payload": serde_json::to_value(fill)?}));
+            }
+        }
+    }
+    fills.sort_by_key(|x| x["trade_id"].to_string());
+    let archived = cache.position_snapshots(None, None).iter().map(|p| json!({
+        "id": p.id.to_string(), "closed": p.is_closed(),
+        "pnl": p.realized_pnl.map(|x| x.as_decimal().to_string())})).collect::<Vec<_>>();
     let mut order_rows = orders.iter().map(|order| json!({"id": order.client_order_id().to_string(),
         "status": order.status().to_string(), "filled": order.filled_qty().to_string(),
         "events": order.events().len()})).collect::<Vec<_>>();
@@ -90,7 +107,7 @@ fn observation(cache: &Rc<RefCell<Cache>>, portfolio: &mut Portfolio) -> Result<
     let account_rows = accounts.iter().map(|account| json!({"id": account.id().to_string(),
         "equity": account.balance_total(Some(Currency::USDT())).map(|x| x.as_decimal().to_string())})).collect::<Vec<_>>();
     Ok(json!({"portfolio_realized_pnl": pnl, "positions": position_rows, "orders": order_rows,
-        "accounts": account_rows, "snapshots": snapshots}))
+        "accounts": account_rows, "snapshots": snapshots, "archived": archived, "fills": fills}))
 }
 
 fn produce(root: &Path, scenario: &str, hold: bool) -> Result<()> {
@@ -145,7 +162,18 @@ fn produce(root: &Path, scenario: &str, hold: bool) -> Result<()> {
     Ok(())
 }
 
-fn restore(root: &Path, duplicate: bool) -> Result<()> {
+#[derive(Default)]
+struct Traffic { publish: RefCell<Vec<String>>, send: RefCell<Vec<String>>, responses: RefCell<usize> }
+impl BusTap for Traffic {
+    fn on_publish(&self, topic: MStr<Topic>, _: &dyn Any) { self.publish.borrow_mut().push(topic.to_string()); }
+    fn on_send(&self, endpoint: MStr<Endpoint>, _: &dyn Any) { self.send.borrow_mut().push(endpoint.to_string()); }
+    fn on_response(&self, _: &UUID4, _: &dyn Any) { *self.responses.borrow_mut() += 1; }
+}
+
+fn restore(root: &Path, mode: &str) -> Result<()> {
+    let process_run = json!({"pid": std::process::id(), "process_run_id": UUID4::new().to_string(),
+        "binary_sha256": binary_hash()?});
+    write(&root.join("restore-process.json"), &process_run)?;
     let checkpoint: Value = serde_json::from_slice(&fs::read(root.join("checkpoint.json"))?)?;
     ensure!(checkpoint["source"] == SOURCE, "wrong source identity");
     ensure!(checkpoint["binary_sha256"] == binary_hash()?, "wrong native binary identity");
@@ -154,33 +182,89 @@ fn restore(root: &Path, duplicate: bool) -> Result<()> {
     let trader = TraderId::new(checkpoint["trader"].as_str().unwrap());
     let rt = tokio::runtime::Runtime::new()?;
     let cache = Rc::new(RefCell::new(Cache::new(Some(config()), Some(db(&rt, trader, instance)?))));
-    rt.block_on(cache.borrow_mut().cache_all())?;
-    let report = restore_cache_from_sealed_run(&mut cache.borrow_mut(), root.join("event_store"),
-        &instance.to_string(), checkpoint["run_id"].as_str().unwrap())?;
+    // Reference-only native bootstrap. Never preload mutable current records.
+    rt.block_on(cache.borrow_mut().cache_currencies())?;
+    rt.block_on(cache.borrow_mut().cache_instruments())?;
+    let mutable_before = json!({"orders": cache.borrow().orders(None,None,None,None,None).len(),
+        "positions": cache.borrow().positions(None,None,None,None,None).len(),
+        "accounts": cache.borrow().accounts_all_owned().len(),
+        "archived": cache.borrow().position_snapshots(None,None).len()});
+    ensure!(mutable_before.as_object().unwrap().values().all(|x| x == 0), "mutable preload");
+    let traffic = Rc::new(Traffic::default());
+    msgbus::set_bus_tap(traffic.clone());
+    let run_id = checkpoint["run_id"].as_str().unwrap();
+    let (manifest, reader) = open_event_store_replay_source(root.join("event_store"), &instance.to_string(), run_id)?;
+    ensure!(manifest.binary_hash == binary_hash()? && manifest.crate_versions == lock_hash(), "native manifest identity mismatch");
+    let plan = reader.snapshot_replay_plan()?;
+    let mut payloads = BTreeMap::<String, usize>::new();
+    let entries = reader.scan_range(1, reader.high_watermark()?, ScanDirection::Forward)
+        .collect::<std::result::Result<Vec<_>, _>>()?;
+    for entry in entries.iter().filter(|e| e.seq >= plan.from_seq) {
+        *payloads.entry(entry.payload_type.to_string()).or_default() += 1;
+    }
+    let source_plan = json!({"run_id": run_id, "instance_id": instance.to_string(),
+        "from_seq": plan.from_seq, "to_seq": plan.to_seq, "anchor": format!("{:?}", plan.anchor),
+        "tail_payload_counts": payloads});
+    write(&root.join("replay-contract.json"), &json!({"process": process_run,
+        "mutable_before": mutable_before, "plan": source_plan}))?;
+    // redb permits only one open handle per file, including read-only handles.
+    drop(reader);
+    if mode == "collision" {
+        let entry = entries.iter().find(|e| e.payload_type.as_str() == "OrderFilled")
+            .ok_or_else(|| anyhow::anyhow!("captured fill absent"))?.clone();
+        let mut scratch_manifest = manifest.clone();
+        scratch_manifest.run_id = "duplicate-sequence".into();
+        scratch_manifest.high_watermark = 0;
+        scratch_manifest.status = nautilus_event_store::RunStatus::Running;
+        let mut backend = RedbBackend::new(root.join("collision"));
+        backend.open_run(scratch_manifest)?;
+        let captured_seq = entry.seq;
+        let append = AppendEntry::without_indices(entry);
+        // A real duplicate sequence is sent to the native backend; no CPW collision filter.
+        let prefix = entries.iter().filter(|e| e.seq <= captured_seq).cloned()
+            .map(AppendEntry::without_indices).collect::<Vec<_>>();
+        let first = backend.append_batch(&prefix);
+        let before = backend.high_watermark()?;
+        let second = backend.append_batch(&[append]);
+        let after = backend.high_watermark()?;
+        let receipt = json!({"process": process_run, "captured_seq": captured_seq,
+            "first_error": first.err().map(|e| e.to_string()), "duplicate_error": second.err().map(|e| e.to_string()),
+            "high_watermark_before": before, "high_watermark_after": after});
+        write(&root.join("collision-receipt.json"), &receipt)?;
+        println!("{}", receipt);
+        cache.borrow_mut().dispose();
+        return Ok(());
+    }
+    let replay = restore_cache_from_sealed_run(&mut cache.borrow_mut(), root.join("event_store"),
+        &instance.to_string(), run_id);
     let clock: Rc<RefCell<dyn Clock>> = Rc::new(RefCell::new(VirtualClock::new()));
     let mut portfolio = Portfolio::new(clock, cache.clone(), None);
     portfolio.initialize_orders(); portfolio.initialize_positions();
     let state = observation(&cache, &mut portfolio)?;
-    if duplicate {
-        let (_, reader) = open_event_store_replay_source(root.join("event_store"),
-            &instance.to_string(), checkpoint["run_id"].as_str().unwrap())?;
-        let entries = reader.scan_range(1, reader.high_watermark()?, ScanDirection::Forward)
-            .collect::<std::result::Result<Vec<_>, _>>()?;
+    let mut duplicate_receipt = Value::Null;
+    if mode == "duplicate" && replay.is_ok() && state == checkpoint["state"] {
         let fill = entries.iter().rev().find(|entry| entry.payload_type.as_str() == "OrderFilled")
             .ok_or_else(|| anyhow::anyhow!("no genuine captured fill for duplicate control"))?;
         let applied = apply_cache_replay_entry(&mut cache.borrow_mut(), fill);
         let after = observation(&cache, &mut portfolio)?;
-        ensure!(state == after, "DUPLICATE_FILL_CHANGED_NATIVE_STATE");
-        println!("{}", json!({"duplicate_fill": "REJECTED_OR_NATIVE_NOOP", "native_error": applied.err().map(|x| x.to_string())}));
-        cache.borrow_mut().dispose();
-        return Ok(());
+        duplicate_receipt = json!({"native_error": applied.err().map(|x| x.to_string()),
+            "state_before": state, "state_after": after, "unchanged": state == after});
     }
-    let receipt = json!({"pid": std::process::id(), "instance_id": UUID4::new().to_string(), "state": state,
-        "applied_entries": report.cache.applied_entries, "ignored_entries": report.cache.ignored_entries,
-        "new_orders": 0, "new_fills": 0, "execution_clients": 0,
-        "resume": "RECONCILIATION_UNVERIFIED / NO_NEW_ORDERS", "equal": state == checkpoint["state"]});
-    println!("{}", serde_json::to_string(&receipt)?);
+    let receipt = json!({"process": process_run, "source": source_plan, "mutable_before": mutable_before,
+        "state": state, "native_error": replay.as_ref().err().map(|x| x.to_string()),
+        "applied_entries": replay.as_ref().ok().map(|r| r.cache.applied_entries),
+        "ignored_entries": replay.as_ref().ok().map(|r| r.cache.ignored_entries),
+        "bus_publishes": traffic.publish.borrow().clone(), "bus_sends": traffic.send.borrow().clone(),
+        "bus_responses": *traffic.responses.borrow(),
+        "registered_endpoints": msgbus::get_message_bus().borrow().endpoints().iter().map(|s| s.to_string()).collect::<Vec<_>>(),
+        "duplicate": duplicate_receipt, "resume": "RECONCILIATION_UNVERIFIED / NO_NEW_ORDERS",
+        "equal": state == checkpoint["state"]});
+    write(&root.join("restore-receipt.json"), &receipt)?;
+    println!("{}", receipt);
     cache.borrow_mut().dispose();
+    msgbus::clear_bus_tap();
+    ensure!(replay.is_ok() && state == checkpoint["state"], "RECOVERY_NOT_QUALIFIED");
+    ensure!(mode != "duplicate" || duplicate_receipt["unchanged"] == true, "DUPLICATE_FILL_MUTATED_STATE");
     Ok(())
 }
 
@@ -190,8 +274,7 @@ fn main() -> Result<()> {
     let root = Path::new(&args[2]);
     match args[1].as_str() {
         "resume" => anyhow::bail!("RECONCILIATION_UNVERIFIED / NO_NEW_ORDERS"),
-        "restore" => restore(root, false),
-        "duplicate" => restore(root, true),
+        "restore" | "duplicate" | "collision" => restore(root, &args[1]),
         "produce" | "hold" => { ensure!(args.len() == 4 && ["round_trip", "reversal"].contains(&args[3].as_str()), "scenario");
             produce(root, &args[3], args[1] == "hold") },
         _ => anyhow::bail!("unsupported mode"),

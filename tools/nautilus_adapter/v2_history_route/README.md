@@ -1,103 +1,109 @@
-# Private native rc7 history-route fixture
+# Private rc7 native history/bootstrap fixture
 
-CPW-NAUTILUS-N2-HISTORY-ROUTE-01 only. This executable has no production import
-or entry point. It does not upgrade CPW's Python 3.12 / Nautilus 1.231.0 environment.
-It grants no resume, paper/live/capital, migration, or N2 acceptance authority.
+Current continuation: **CPW-NAUTILUS-N2-BOOTSTRAP-REPLAY-02**.
+**NATIVE_V2_BOOTSTRAP_ROUTE_FAILED**: fresh-cache replay restores no current
+positions and reports zero portfolio PnL. Producer economics pass; recovery does
+not. Retain as diagnostic evidence only. Production remediation draftability is
+NO; draft PR #747 awaits Side B review. No N2 acceptance, engine upgrade, resume,
+paper/live/capital authority or merge follows.
 
-**Observed result: NATIVE_V2_ROUTE_FAILED for this tested composition.**
-`cache_all` preloads current orders, and subsequent native event-store replay
-rejects an already-cached `OrderInitialized`. All eight corrective-run restores
-fail; native Redis record hashes also change before rejection. The duplicate-fill
-control is masked by this earlier error. This fixture is retained as failed
-diagnostic evidence. It does not disprove other upstream bootstrap/replay
-compositions. The one clean corrective physical rerun is consumed; another
-attempt requires a new bounded WP. See the status entry for the full limitations.
+The original HISTORY-ROUTE-01 failure, source at `fc053f9`, and all 190 payloads
+remain preserved in owner ZIP SHA-256
+`88205135df66802eab22132e5cc512d289feef70c7784df3b2e77abd8fb4c30a`.
+The package status entry separates that history from this continuation.
 
-## Native ownership
+## Native contract
 
-The exact upstream tag is `v2.0.0rc7`, commit
-`55c0e82053142bce3a5cba4de4221d3929c2d3bc`. Its published Rust crates are
-`0.66.0`; every Nautilus dependency is pinned to that version. `Cargo.lock`
-pins the dependency tree and registry checksums. Verify the downloaded
-Nautilus crates' `.cargo_vcs_info.json` against this commit before running.
+Exact upstream tag `v2.0.0rc7` / commit
+`55c0e82053142bce3a5cba4de4221d3929c2d3bc`; published Rust crates 0.66.0.
+Cargo manifest/lock are unchanged. Check `.cargo_vcs_info.json` and all lock
+checksums before building. CPW's existing Python 3.12 / Nautilus 1.231.0 remains
+frozen. The Windows rc7 wheel lacks these durable restore bindings; this fixture
+uses native Rust, not a custom Python bridge or rebuilt runtime.
 
-The Python rc7 Windows wheel imports successfully but does not bind
-`Cache.snapshot_position_encoded`, `load_snapshot_blob`, or
-`restore_snapshot_blob`, and exposes no event-store replay module. The fixture
-therefore uses the public Rust APIs:
+- The native backtest engine, simulated venue and bounded script produce
+  orders, fills, accounts and positions. Quotes are 100/105/110 for round trip,
+  100/110/90 for reversal, quantity one, 4 bps fees, initial equity 10000 USDT.
+  Expected native net PnL: 9.916 / 29.836 USDT.
+- Native Redis cache and `EventStoreLifecycle` own persistence, capture and
+  archived-cycle snapshots. The execution snapshot callback is released before
+  seal; database close drains native writes before checkpoint acknowledgement.
+- A fresh native cache loads only currencies and instruments through upstream
+  methods. Mutable counts are asserted zero. `cache_all`, mutable preload,
+  duplicate suppression and custom prefix replay are forbidden.
+- `restore_cache_from_sealed_run` fetches the cache-owned archived blob, checks
+  native BLAKE3 identity, restores it and applies native tail events. Latest
+  anchor watermark + 1 determines the start; absent anchor means seq 1.
+  The archived frame is not a complete order/position/account snapshot.
+- Native `Portfolio` derives the result. No numerical answer or synthetic
+  position association is injected. Native captured fills have null position
+  association; this composition restores no current position. Reversal's
+  9.916 archived cycle survives but its 19.92 current cycle does not.
 
-- `BacktestEngine`, a three-quote scripted strategy, and the native simulated
-  venue generate orders, fills, positions, account balances and portfolio PnL.
-- `RedisCacheConfig.create` and `Cache.set_database` provide upstream-owned
-  persistence. The execution engine calls `snapshot_position_encoded` through
-  the callback from `EventStoreLifecycle.snapshot_anchorer`.
-- `EventStoreLifecycle.open` captures the native bus traffic into its own redb
-  store. Release the execution engine's snapshot callback before `seal`, as the
-  upstream kernel does. `Cache.dispose` closes the native database and drains
-  queued writes. CPW implements no snapshot serializer or economic replay.
-- A fresh process uses `Cache.cache_all` and
-  `restore_cache_from_sealed_run`; native code loads/verifies/restores the
-  anchored snapshot and replays the tail. `Portfolio.initialize_positions`
-  computes the native result. No execution engine or venue client is built in
-  restore mode.
+## Reproduction and evidence
 
-The source identity checks and JSON receipts are evidence guards, not an
-accounting ledger. Redis `DUMP` hashes measure whether restores changed native
-records. The duplicate-fill control applies a genuine captured fill a second
-time through `apply_cache_replay_entry` and requires native rejection or no
-change to observed state. Resume always fails with `RECONCILIATION_UNVERIFIED`.
-
-## Isolated reproduction
-
-Use a dedicated Linux x86_64 container, Rust **1.99.0**, Redis and Python 3.
-The execution used official image
-`rust@sha256:114c7a4425406451c2866b6aafe69fe29b1b298832db1277d411ac73c82d04d6`.
-Mount an empty owner-only evidence directory at `/evidence` and copy this
-directory to `/proof`. Label the container with this WP identity; do not mount
-CPW runtime directories, credentials, Lane A, or the N2-02 environment.
-
-During setup only, install Redis and the Linux linker, then build:
+Use a **new owner-labelled Linux container with no external network and no
+published ports**. Rust 1.99.0, Redis 7.0.15 and Python 3 were reused from the
+prior stopped private setup. The original base image was
+`rust@sha256:114c7a4425406451c2866b6aafe69fe29b1b298832db1277d411ac73c82d04d6`;
+the continuation setup snapshot and package versions are in owner evidence.
+Mount a new empty evidence directory at `/evidence`, copy this directory to
+`/continuation`. Do not mount old evidence writable or any runtime/Lane A paths.
 
 ```sh
-apt-get update
-apt-get install -y --no-install-recommends redis-server lld
-CARGO_TARGET_DIR=/evidence/build_gate/target cargo build --locked -j 4 --manifest-path /proof/Cargo.toml
-mkdir -p /evidence/native-redis
-redis-server --bind 127.0.0.1 --port 6397 --appendonly yes --appendfsync always \
-  --daemonize yes --dir /evidence/native-redis --save ""
-redis-cli -p 6397 DBSIZE
+CARGO_TARGET_DIR=/tmp/cpw-target cargo check --locked --offline -j 4 --manifest-path /continuation/Cargo.toml
+CARGO_TARGET_DIR=/tmp/cpw-target cargo build --locked --offline -j 4 --manifest-path /continuation/Cargo.toml
+python3 -m py_compile /continuation/run_proof.py
+python3 -B /continuation/run_proof.py
 ```
 
-Record the image digest, package versions, crate provenance, exact build command,
-binary hash and lock hash. Disconnect the container's external Docker network
-before running any simulated trades. The only remaining connection is the
-container's own loopback Redis. The controller checks for no external route
-and an empty Redis before creating its physical directory.
+Dependencies must be cached during separate pinned setup before going offline.
+Freeze the executable before physical work. Do not rebuild while a producer or
+controller runs. The controller refuses existing physical evidence or an
+external route. It owns a new empty Redis at port 6397 per producer and a new
+empty Redis at port 6398 per recovery/fault clone; both bind container loopback.
+`CPW_ROUTE_REDIS_PORT` permits only those two private ports.
 
-```sh
-python3 -B /proof/run_proof.py
-```
+Native `DUMP` inputs are retained exactly and copied with native `RESTORE`, with
+no economic reinterpretation. Unordered Redis sets may re-encode: raw clone
+hash equality is recorded separately; native type/content equality is required
+at entry. Generic index set sorting is only for content comparison. Each clone
+uses its own before/after raw hashes and content snapshot. Authoritative native
+records, checkpoint and redb hashes must remain unchanged. This is disposable
+test isolation, not a production overlay, rollback or promotion scheme.
 
-Preserve stdout/stderr, all files under `/evidence/native-physical`, Redis AOF
-files, binary and source hashes. The controller exits 2 when comparisons fail;
-its JSON result preserves mismatches. An assertion/timeout is a diagnostic
-failure, not proof of an upstream economic defect. Do not rerun into existing
-state. Preserve a diagnostic run and use at most the WP's one clean corrective
-physical rerun with a fresh owned Redis directory. Stop the owned Redis and
-container after collecting evidence. No Redis port is published to the host.
+Receipts bind real PIDs/process-run UUIDs, original replay source IDs, native
+anchor/ranges/payload counts, account/order/fill/trade/frame identity and all
+numeric comparisons. Native bus taps measure dispatches; sealed-source hashes
+measure event-store appends. No execution engine/client is created during
+restore. No literal-zero client/effect receipt is used. A runtime client registry
+and syscall-level venue audit are not measured; keep that limitation visible.
 
-## Limits of the proof
+Controls apply actual captured seq 7 twice to a separate native backend; the
+second append is rejected with unchanged high-watermark. Duplicate-fill
+application is gated on qualified economic recovery, so remains unproven in
+this result. Source/run/binary/lock, snapshot/source-file corruption and resume
+refusal run in independent native clones. Every effect/mutation is retained,
+including failed recovery account-event appends and order-list rewrites.
 
-Initial equity is 10000 USDT, fees 4 bps, quantity one, and quotes have no spread.
-Round trip quotes are 100/105/110; reversal quotes are 100/110/90. Expected net
-PnL is 9.916/29.836 USDT. Synthetic timestamps are fixture times, not evidence
-collection timestamps. Producer instances, event-store run IDs and fill IDs are
-native identities and need not repeat between runs.
+## Observed limits and stop
 
-The hard termination occurs **after the native event store is sealed and the
-cache database is closed and drained**, while the owned producer is held alive.
-It proves recovery from this acknowledged closed checkpoint only. It does not
-prove recovery during an in-flight write, an unsealed log, a Redis restart,
-host-power loss, open exposure, funding, liquidation or margin stress, or venue
-reconciliation. These limitations must remain visible even if every bounded
-comparison passes. See the package status entry for observed results.
+The clean corrective matrix took 221.27 seconds: four native producers pass,
+eight native APIs return without error but economic checks fail with zero PnL
+and no current positions. Recovered equity matches. Round trip preserves two
+orders/fills; reversal restores only one of three. Account lists grow 8→11 or
+13→16 from repeated existing event IDs; order lists remain length three. Do not
+equate repeated persisted state events with observed double monetary profit.
+
+Both hard kills occur after native seal/database drain. No in-flight crash,
+power-loss, Redis restart, open exposure, funding, margin/liquidation, venue
+reconciliation or real-capital proof. Snapshot faults reach native hash checks;
+anchor-source faults damage the whole native source file, not only its anchor.
+Clone preservation does not prove failure atomicity against an authoritative
+same-namespace target. Exact duplicate-fill safety remains unverified.
+
+The initial diagnostic reader-lock defect and premature diagnostic rebuild are
+preserved and excluded. The single corrective matrix is consumed; no speculative
+rerun or alternate replay implementation is authorized. Stop owned Redis and
+container after collecting evidence. Side B reviews the exact updated draft
+head before any next WP. See the status entry and owner A–I report/ZIP.

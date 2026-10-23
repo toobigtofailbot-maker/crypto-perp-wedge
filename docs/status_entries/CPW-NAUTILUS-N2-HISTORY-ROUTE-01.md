@@ -1,5 +1,125 @@
 # CPW-NAUTILUS-N2-HISTORY-ROUTE-01 — PARTIAL / NATIVE_V2_ROUTE_FAILED
 
+## Continuation: CPW-NAUTILUS-N2-BOOTSTRAP-REPLAY-02
+
+**NATIVE_V2_BOOTSTRAP_ROUTE_FAILED. Production N2 remediation draftable: NO.**
+This distinct continuation WP keeps draft PR #747 and its six-file scope. Old
+reviewed head: `fc053f97600f3311f72ce9ae15b1d207613b628c`; refreshed base remains
+`a1d83b9157ee9e9892cd7fc92fe6471b5d8349c2`. No merge, PR-state change, engine
+upgrade, Lane A change, resume, N2 completion or trading authority follows.
+
+The original HISTORY-ROUTE-01 evidence remains immutable: ZIP SHA-256
+`88205135df66802eab22132e5cc512d289feef70c7784df3b2e77abd8fb4c30a`, all
+190 indexed payloads reverified. Its failed verdict below is historical evidence,
+not overwritten by this continuation. The original N2-02 ZIP and four file blobs
+plus v1 lock are also preserved. Only Rust source, controller, README and this
+status entry change; Cargo manifest/lock and upstream sources are unchanged.
+
+### Source-grounded native bootstrap contract
+
+Exact rc7 source/crates remain commit
+`55c0e82053142bce3a5cba4de4221d3929c2d3bc` / Rust crates 0.66.0.
+
+| Entity | Native owner | Bootstrap rule |
+| --- | --- | --- |
+| Current accounts/orders/positions | Redis cache adapter / `cache_all` | Do not preload mutable state before replay |
+| Archived-cycle blob | `Cache.snapshot_position_encoded` / general Redis state | Native loader fetches via `load_snapshot_blob` / `cache_general` |
+| Anchor/range | Event-store reader | Latest anchor watermark + 1 through durable high-watermark; otherwise seq 1 |
+| Reference data | `cache_currencies`, `cache_instruments` | Native reference-only bootstrap |
+| Archived frames | `restore_snapshot_blob` | Native BLAKE3 validation and restoration, no fabricated cycles |
+| Tail | `restore_cache_from_sealed_run` | Upstream state-only replay, no custom prefix replay or duplicate suppression |
+| Portfolio PnL | Native `Portfolio` | Derived from native recovered cache, never injected |
+| Reconstruction writes | Native cache backing adapter | Directly measured in isolated native Redis clones |
+
+The fixture now proves zero mutable orders/positions/accounts/archived frames
+in memory before replay. It records the native anchor, exact range, payload
+counts, source run/instance IDs and a separately PID-bound process-run ID.
+An inspection reader is dropped before reopening through the official loader,
+as redb rejects simultaneous handles even when read-only.
+
+### Physical result
+
+One corrective clean matrix, **221.27 seconds**, controller **exit 2**. All native
+loader calls in the eight ordinary recoveries return successfully, but the
+fixture rejects their economic results with `RECOVERY_NOT_QUALIFIED`.
+
+| Scenario / stop | Producer PnL / equity (USDT) | Two recovered PnLs | Position count | Order/fill counts producer → restore | Native range |
+| --- | --- | --- | --- | --- | --- |
+| Round trip / healthy | 9.916 / 10009.916 | 0 / 0 | 1 → 0 | 2/2 → 2/2 | 1–16, no anchor |
+| Round trip / post-seal SIGKILL | 9.916 / 10009.916 | 0 / 0 | 1 → 0 | 2/2 → 2/2 | 1–16, no anchor |
+| Reversal / healthy | 29.836 / 10029.836 | 0 / 0 | 1 → 0 | 3/3 → 1/1 | 14–24, anchor 13 |
+| Reversal / post-seal SIGKILL | 29.836 / 10029.836 | 0 / 0 | 1 → 0 | 3/3 → 1/1 | 14–24, anchor 13 |
+
+Recovered equity matches all four producers. Reversal restores the original
+archived frame identity and **9.916** PnL, but not the current **19.92** cycle.
+With no current position the portfolio total is still zero. No complete history,
+order/fill/trade identity conservation or idempotent recovery acceptance follows.
+Round-trip order/fill identities match; reversal omits the pre-anchor orders/fills.
+
+Captured native order fills have `position_id=null`. Exact source
+`replay.rs::apply_fill_to_position` returns without creating a position for that
+case; the following position events require a position already in cache. The
+archived-cycle anchor is not a complete cache snapshot. This explains this
+fixture's mismatch; it is not a proof that every upstream configuration fails.
+No synthetic binding, hand-written prefix replay or upstream patch was tried.
+
+### Effects, negative controls and limits
+
+- Each attempt uses native Redis DUMP/RESTORE inputs and a copied sealed redb in
+  a new empty, disposable loopback instance. Exact source DUMP bytes are retained.
+  Native RESTORE may re-encode unordered sets, so raw clone-byte equality is
+  reported separately from verified native type/content equality. Each clone
+  has its own before/after raw and content baseline. This test isolation is not
+  a CPW persistence overlay, production promotion protocol or rollback repair.
+- All eight ordinary failed economic recoveries mutate their clone: three
+  keys for round trip, two for reversal. Account event lists grow **8→11** and
+  **13→16** respectively, appending three already-existing event IDs; no new
+  event identities. Order lists are rewritten at length three, not extra fills.
+  Recovered equity does not grow twice; the persistent repeated account-state
+  events are a real write/atomicity gap, not proven duplicate monetary profit.
+- Measured bus publishes/sends/responses and registered endpoints are empty in
+  all ordinary receipts. Sealed source file hashes stay unchanged (no append).
+  No execution engine/client is constructed in restore. There is no exposed
+  runtime client-registry measurement; absence is also checked by source/control
+  flow, not a literal `execution_clients=0` receipt. No syscall-level venue audit
+  or complete zero-effect claim is made.
+- Two genuine native duplicate-sequence controls first append captured entries
+  1–7, then reapply captured seq 7 to a separate native backend. Both reject
+  out-of-order seq with high-watermark **7→7**, no authoritative/economic state
+  mutation. Exact `OrderFilled` reapplication remains **unproven**: neither
+  scenario has a qualified ordinary recovery, so that control is gated/masked.
+- Twelve negative cases cover wrong source/binary/lock/run/instance, missing/
+  corrupt/truncated snapshot, missing/corrupt/truncated anchor-source file, and
+  resume refusal. All return failure; snapshot faults reach native missing/hash
+  errors. No negative clone has a native record-content delta. Anchor tests
+  damage the source file, not an independently edited anchor record.
+- Every authoritative producer checkpoint, native Redis record and sealed
+  source file remains unchanged, including after fault injection. This proves
+  preservation through disposable native clones, **not same-namespace recovery
+  failure atomicity**. Ordinary reconstruction writes before economic refusal
+  remain unsafe for a direct authoritative target.
+- The initial diagnostic was segregated: an open inspection reader caused
+  native lock errors. A premature rebuild while that diagnostic was active also
+  invalidated a later producer's executable reread. Those partial results are
+  retained and excluded. One source correction released the reader; the single
+  corrective matrix used a frozen binary. No further physical iteration occurred.
+- Both crashes are post-seal, database-drained SIGKILL checkpoints. In-flight
+  logs, Redis/power-loss restart, open exposure, funding, margin/liquidation,
+  reconciliation and real venues remain outside this proof.
+
+Locked offline `cargo check`/`cargo build`, controller syntax and native clone
+preflight passed (an earlier raw-clone equality assumption failed and is retained).
+No v1/full-release rerun. T2 scope/source/evidence checks and final exact-head
+hosted smoke are retained in the new owner A–I report/ZIP. Smoke is publication
+evidence only. The owned continuation container has no external network or
+published ports; all its Redis processes and the container are stopped.
+
+**Next action:** Side B independent exact-head review of the failed route and
+producer association/anchor contract evidence before any further WP. Production
+remediation remains **NO**. No speculative continuation is authorized here.
+
+## Preserved HISTORY-ROUTE-01 result (historical)
+
 The tested native bootstrap/replay composition fails. **Complete native recovery
 is not proven; production N2 remediation is not yet draftable from this evidence.**
 This result is not an upstream-wide impossibility claim or N2 acceptance.

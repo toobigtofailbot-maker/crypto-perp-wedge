@@ -63,6 +63,33 @@ collision or secret means nothing is written.
   `BLOCKED_MEMORY_UNAVAILABLE` and leads are retained. No role, credential or
   database change was made.
 
+## Side 23 correction: atomic no-replace publication
+
+Reviewed head `9fc8038` published the batch with a check followed by
+`rename`. On POSIX, that rename could replace an empty target created after the
+check. Publication now goes through `_rename_noreplace`:
+
+- Windows: `os.rename`. CPython implements it as `MoveFileExW` without
+  `MOVEFILE_REPLACE_EXISTING`, so an existing target always fails.
+- Linux: `renameat2(..., RENAME_NOREPLACE)`, called through `ctypes`. `EEXIST`
+  is refused. A missing symbol or an unsupported filesystem (for example
+  `EINVAL`) fails explicitly.
+- Any other platform: publication is refused explicitly. There is no
+  check-then-rename fallback.
+
+Evidence:
+
+- Windows tests: four new regression tests. A competitor creates the target
+  after preflight and before publication, as an empty directory, a non-empty
+  directory, or a file. The target survives unchanged, nothing is published and
+  staging is cleaned. Ordinary publication still verifies and replays.
+  Focused 96 passed; adjacent 64 passed; PostgreSQL 3 environment skips.
+- Linux: a harness run in a local Debian container (Python 3.11.9, glibc 2.36,
+  WSL2 kernel 6.18, tmpfs) passed 12/12 checks against the real `renameat2`
+  primitive. On the same race, the previous `Path.rename` did replace the empty
+  target, which reproduces the defect. macOS and other POSIX systems are not
+  supported and fail closed; none was tested.
+
 ## Authority
 
 No new Hermes model turn, backtest, experiment, admission, Prefect, Optuna,

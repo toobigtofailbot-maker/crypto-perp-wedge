@@ -421,6 +421,52 @@ def test_links_traversal_names_and_output_collision(tmp_path, batch_packet):
     assert not list(tmp_path.glob("*.partial-*"))
 
 
+@pytest.mark.parametrize("competitor", ["empty_dir", "dir_with_file", "file"])
+def test_target_created_after_preflight_is_never_replaced(tmp_path, batch_packet, monkeypatch, competitor):
+    summary, intents = consumer(FrozenMemory()).build_batch(batch_packet)
+    output = tmp_path / "raced"
+    real_verify = dc.verify_batch
+
+    def verify_then_competitor_creates_target(directory):
+        result = real_verify(directory)  # the staged batch is complete and valid at this point
+        if competitor == "file":
+            output.write_bytes(b"competitor")
+        else:
+            output.mkdir()
+            if competitor == "dir_with_file":
+                (output / "keep.txt").write_bytes(b"competitor")
+        return result
+
+    monkeypatch.setattr(dc, "verify_batch", verify_then_competitor_creates_target)
+    with pytest.raises(dc.ConsumerError, match="no overwrite"):
+        dc.write_batch(summary, intents, output)
+    if competitor == "file":
+        assert output.read_bytes() == b"competitor"
+    else:
+        assert sorted(p.name for p in output.iterdir()) == ([] if competitor == "empty_dir" else ["keep.txt"])
+    assert not (output / dc.SUMMARY_FILE).exists() if output.is_dir() else True
+    assert not list(tmp_path.glob("raced.partial-*"))  # staging cleaned up, nothing published
+    monkeypatch.setattr(dc, "verify_batch", real_verify)
+    dc.write_batch(summary, intents, tmp_path / "ordinary")  # ordinary publication still works
+    assert dc.replay_batch(consumer(FrozenMemory()), tmp_path / "ordinary", batch_packet)
+
+
+def test_noreplace_primitive_on_this_platform_and_explicit_refusal_elsewhere(tmp_path, monkeypatch):
+    source, target = tmp_path / "src", tmp_path / "dst"
+    source.mkdir()
+    (source / "a.txt").write_bytes(b"a")
+    target.mkdir()
+    with pytest.raises(dc.ConsumerError, match="no overwrite"):
+        dc._rename_noreplace(source, target)  # the real OS primitive (MoveFileExW / renameat2)
+    assert (source / "a.txt").read_bytes() == b"a" and list(target.iterdir()) == []
+    dc._rename_noreplace(source, tmp_path / "fresh")
+    assert (tmp_path / "fresh" / "a.txt").read_bytes() == b"a" and not source.exists()
+    monkeypatch.setattr(dc.sys, "platform", "sunos5")
+    with pytest.raises(dc.ConsumerError, match="refusing to publish"):
+        dc._rename_noreplace(tmp_path / "fresh", tmp_path / "other")
+    assert (tmp_path / "fresh" / "a.txt").exists() and not (tmp_path / "other").exists()
+
+
 def test_verify_detects_batch_tampering(tmp_path, batch_packet):
     summary, intents = consumer(FrozenMemory()).build_batch(batch_packet)
     for case in ("intent", "extra", "authority", "built-without-file"):

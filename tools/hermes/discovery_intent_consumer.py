@@ -12,6 +12,7 @@ and no consumer: it never admits, schedules, runs or promotes anything.
 from __future__ import annotations
 
 import argparse
+import errno
 import hashlib
 import json
 import os
@@ -48,6 +49,8 @@ INTENT_DIR = "intents"
 MAX_FILES = 64
 MAX_FILE_BYTES = 4_000_000
 MAX_TOTAL_BYTES = 32_000_000
+_AT_FDCWD = -100  # Linux <fcntl.h>
+_RENAME_NOREPLACE = 1  # Linux <linux/fs.h>; renameat2 fails with EEXIST instead of replacing
 BUILT = "NATIVE_INTENT_BUILT_REVIEW_REQUIRED"
 LEAD = "NOT_READY_LEAD"
 BLOCKED_MEMORY = "BLOCKED_MEMORY_UNAVAILABLE"
@@ -416,6 +419,30 @@ def _check_output_target(output: Path) -> Path:
     raise ConsumerError("output must be external to the repository (noncanonical)")
 
 
+def _rename_noreplace(source: Path, target: Path) -> None:
+    """Atomically publish a directory; an existing target, even one created after preflight, is never replaced."""
+    if sys.platform == "win32":
+        # CPython's os.rename is MoveFileExW without MOVEFILE_REPLACE_EXISTING: an existing target always fails.
+        try:
+            os.rename(source, target)
+        except FileExistsError as exc:
+            raise ConsumerError("output appeared during publication; no overwrite") from exc
+        return
+    if sys.platform.startswith("linux"):
+        import ctypes
+        renameat2 = getattr(ctypes.CDLL(None, use_errno=True), "renameat2", None)
+        if renameat2 is None:
+            raise ConsumerError("renameat2 is unavailable; refusing non-atomic publication")
+        renameat2.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
+        if renameat2(_AT_FDCWD, os.fsencode(source), _AT_FDCWD, os.fsencode(target), _RENAME_NOREPLACE) != 0:
+            code = ctypes.get_errno()
+            if code == errno.EEXIST:
+                raise ConsumerError("output appeared during publication; no overwrite")
+            raise ConsumerError(f"no-replace publication failed or unsupported: {errno.errorcode.get(code, code)}")
+        return
+    raise ConsumerError(f"no atomic no-replace directory primitive on {sys.platform}; refusing to publish")
+
+
 def write_batch(summary: dict[str, Any], intents: dict[str, bytes], output: Path) -> None:
     output = _check_output_target(output)
     stage = output.with_name(f"{output.name}.partial-{uuid.uuid4().hex}")
@@ -427,7 +454,7 @@ def write_batch(summary: dict[str, Any], intents: dict[str, bytes], output: Path
             with open(target, "xb") as handle:  # exclusive create
                 handle.write(raw)
         verify_batch(stage)
-        stage.rename(output)
+        _rename_noreplace(stage, output)
     except BaseException:
         shutil.rmtree(stage, ignore_errors=True)
         raise

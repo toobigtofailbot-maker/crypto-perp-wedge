@@ -158,6 +158,37 @@ packet and any `--prior-packet`. Recheck or replay with
 The packet has zero admission, experiment, approval or scheduler authority and
 no consumer; it triggers nothing.
 
+### Manual native-intent batch from a verified packet (default OFF)
+
+`discovery_intent_consumer.py` turns one verified `*.discovery-intent` packet
+into review-only native `BoundedResearchIntentV1` files. It handles every
+`TYPED_VALID` idea, in source order, with no ranking. It is never run
+automatically. The packet's `repo_sha` must equal the current HEAD. A historical
+packet can be inspected but is never rebound or materialized.
+
+```powershell
+python tools/hermes/discovery_intent_consumer.py inspect --packet-dir <dir>.discovery-intent   # writes nothing
+python tools/hermes/discovery_intent_consumer.py materialize --packet-dir <dir>.discovery-intent --output <new external dir>
+python tools/hermes/discovery_intent_consumer.py verify --batch-dir <batch> [--packet-dir <dir>.discovery-intent]
+```
+
+Source checks reuse the 02A verifier and cycle gate. They also cover receipts,
+the retained-input inventory, Hermes-authored fields, the native draft and
+fingerprint, and the authority flags. Any mismatch, link, junction, unrecorded
+file, stale SHA or secret means nothing is written. Each typed idea's anchors are
+re-resolved against current HEAD bytes and verbatim quotes. Only then does the
+unmodified `BoundedResearchIntentBuilder` bind it, using the read-only reader on
+`RESEARCH_MEMORY_READONLY_DSN`. If the DSN is missing or the role is unsafe, the
+idea is `BLOCKED_MEMORY_UNAVAILABLE` and gets no intent file. Evidence drift
+gives `BLOCKED_EVIDENCE_UNVERIFIED`. Leads stay `NOT_READY_LEAD`. A built idea is
+`NATIVE_INTENT_BUILT_REVIEW_REQUIRED`: anchor relevance, data coverage and
+mechanism remain reviewer checks. The original 02A memory state and the fresh
+read-only lookup are both recorded, and no match is never treated as novelty.
+The external output holds `summary.json`, `intents/NN.native_intent.json` and
+`SHA256SUMS`. It is deterministic for the same repo, source and memory state;
+`verify --packet-dir` replays it byte-for-byte. The output has `not_authority`
+set and no consumer. It admits, schedules and runs nothing.
+
 The following sections retain the historical F0 deployment description.
 
 # Hermes H0/H1, H2/H2.5, and Typed CPW Domain Tools

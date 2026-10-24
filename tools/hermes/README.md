@@ -189,6 +189,58 @@ The external output holds `summary.json`, `intents/NN.native_intent.json` and
 `verify --packet-dir` replays it byte-for-byte. The output has `not_authority`
 set and no consumer. It admits, schedules and runs nothing.
 
+### Manual Strategy Spec draft handoff from a native-intent batch (default OFF)
+
+`intent_strategy_spec_handoff.py` takes one verified 02B batch and returns, per
+idea, either a noncanonical Strategy Spec draft or an explicit `NOT_READY`. It is
+never run automatically and it never launches Hermes.
+
+```powershell
+python tools/hermes/intent_strategy_spec_handoff.py prepare --batch-dir <02B batch> --output <new external dir>
+python tools/hermes/intent_strategy_spec_handoff.py build --prepared-dir <prepared> --responses-dir <captured replies> --output <new external dir>
+python tools/hermes/intent_strategy_spec_handoff.py verify --dir <prepared or built> [--prepared-dir <prepared> --responses-dir <replies>]
+```
+
+`prepare` re-verifies the batch: `verify_batch`, the closed field set, every native
+`BoundedResearchIntentV1`, its semantic hash and fingerprint, and that `repo_sha`
+equals the current HEAD. It then writes one request and one prompt per built intent
+(`requests/NN.request.json`, `requests/NN.prompt.md`). Each prompt binds the intent
+identity, features, parameter bounds, critic, sources and memory state as data. A
+byte copy of the batch goes in `source/`. Leads and blocked ideas are retained in
+order. Status: `AWAITING_MODEL_REASONING`, which is not authority.
+
+The model step is manual. The operator sends one prompt through the existing
+director one-shot path above (`hermes -p <existing director profile> chat -q
+"<contents of NN.prompt.md>" --quiet --source tool`, with the same credential
+stripping). They save the reply's JSON object as `NN.response.json` and record
+the invocation in `NN.capture.json` (`capture_kind`
+`OPERATOR_CAPTURED_HERMES_CHAT_ONE_SHOT`, profile, session id, exit code, the
+prompt's sha256). Engineering fixtures must use
+`LABELED_FIXTURE_NOT_MODEL_OUTPUT`. A capture is recorded but never treated as
+proof of authorship.
+
+`build` re-renders the prepared directory from its source copy and the current HEAD,
+byte for byte. It fails globally on replayed or substituted request, intent or prompt
+hashes, and on unexpected, unpaired, nested or oversize files. Per idea, a missing,
+malformed, unknown-field, role-substituted or identity-mismatched reply stays
+`NOT_READY_RESPONSE_*`. So do changed symbol, timeframe, features or parameter count,
+a widened bound, URLs or resource identities, and tool or execution requests. A
+model `NOT_READY` is kept with its uncertainty. Families outside the four native
+adapters become `NOT_READY_UNSUPPORTED_FAMILY` (`NEEDS_CAPABILITY`), and are never
+forced into a template. A typed-safe `ReasonedDraft` goes unchanged to
+`CpwDomainTools.formalize_strategy_draft`. Its native outcome is recorded as
+rejected, family mismatch (never relabeled), needs data, no draft or evidence drift.
+A draft is emitted only when the native producer returns one and
+`validate_strategy_specs` accepts it. Its status is
+`DRAFT_SPEC_SCHEMA_VALID_REVIEW_REQUIRED`, and `COMPILER_CHECK_NOT_PROVEN`,
+`DATA_COVERAGE_UNVERIFIED` and `NOT_ADMITTED` stay explicit. A schema pass is not
+compiled, backtestable, data-covered or profitable. The native `source_type:
+manual_idea` is an internal label only; the receipts record the true 02A->02B->02C
+chain. Output: `summary.json`, `ideas/NN.receipt.json`,
+`drafts/NN/<id>.strategy_spec.json` and `SHA256SUMS`, published exclusive-create
+with atomic no-replace, external to the repo. It creates no canonical spec,
+pre-registration, SearchContract, run, schedule, trade or capital authority.
+
 The following sections retain the historical F0 deployment description.
 
 # Hermes H0/H1, H2/H2.5, and Typed CPW Domain Tools

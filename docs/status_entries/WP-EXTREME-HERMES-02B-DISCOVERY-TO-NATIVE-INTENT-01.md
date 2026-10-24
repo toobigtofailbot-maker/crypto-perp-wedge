@@ -3,7 +3,8 @@
 - Branch: `claude/wp-extreme-hermes-02b-discovery-to-native-intent-01-cc`
 - Exact base: `aee8e71f969297ffe29c1c1a1e97a600444bcecf` (origin/main; contains PR #748
   merge `6c5df27e2a563de8cecabaca96f41fb9886f6ba1`)
-- PR: PR_URL_PENDING
+- PR: https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/751
+- Implementation head: `599cb948`; this PR-URL-only commit follows it (a commit cannot contain its own SHA)
 - Lane A, T2, default OFF, non-capital, no scientific execution; self-merge: no
 
 ## Delivered (exact four-file allowlist)

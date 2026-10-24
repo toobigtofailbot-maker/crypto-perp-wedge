@@ -70,3 +70,29 @@ External A–I report and SHA-256-indexed evidence live outside Git under
 compile/scope checks, exact-head PR state and archive digest are recorded there.
 No GitHub Actions dispatch or purchased compute; publication commits carry
 `[skip ci]`. Side B reviews the exact PR head; Karl alone merges. No self-merge.
+
+## Publication and requirement traceability
+
+PR: [#753](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/753),
+open non-draft for independent Side B review. Tested semantic commit:
+`69038f01bc85196296cc7e7779bd7861fc27e366`. Cloud developer-tool smoke:
+109 passed; focused: 58 passed; py_compile, exact allowlist/scope and diff checks
+passed. This publication-only documentation commit preserves all three tested
+module/test/tape blobs; their SHA-256 identities and final PR head are recorded
+in the external A–I report and `final-head.json`.
+
+At semantic-head publication GitHub reported mergeable=true, zero commit status
+contexts and zero workflow runs. Hosted checks were not launched. Available
+access did not establish branch-protection requirements; no mandatory check is
+waived and no merge-ready declaration is made. Review readiness is independent
+of Karl's merge decision.
+
+| Active requirement | Source | Evidence | Disposition |
+| --- | --- | --- | --- |
+| Native reports/filter/identity/duplicate/snapshot mechanics | original §5.A–F | module, fixture, 27 raw reports per final run | satisfied |
+| Malformed, enum, amount, identity and ordering refusal | original §5.G | 33 recorded negatives and 58 focused tests | satisfied |
+| Passive imports allowed; forbidden behavior rejected | correction §§1–2 | source audit, audit/profile sentinels, seccomp fresh runs | satisfied within stated coverage |
+| Repeat semantics and no input/source mutation | original §5.I | two distinct retained process receipts and before/after hashes | satisfied |
+| T2 focus/adjacent/Cloud/scope validation | original §8; Linux addendum §4 | 58/46/109 passes; four extra CSV failures reproduced on base | satisfied with disclosed environment limit |
+| External A–I and archive; final PR state | original §§8.9,10 | external report, SHA256SUMS, exact-head GitHub receipts | retained outside Git |
+| Windows/full N2/N3/live authority | original §9; addendum §§4–5 | explicit limitations above | excluded |

@@ -5,8 +5,11 @@ Karl's full authorization: “I approve everything so please proceed and always 
 T2, synthetic offline evidence only (Batch A1). Lane B branch
 `claude/cpw-nautilus-n3-05-admission-contract-01` starts at refreshed main
 `cf4a456e54b7d0553c0be9282dcdc9f40cfe7ff5` (contains #758 N3-04, #760). No
-open PR at start. The PR is the one opened from this branch; Side B reviews
-the exact head and Karl alone merges.
+open PR at start. PR: https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/761.
+Final-head provenance: a commit cannot contain its own SHA, so the reviewed
+head is GitHub's PR `headRefOid` (`gh pr view 761 --json headRefOid`) and its
+exact-head `smoke` run, recorded in the report-back. Side B reviews that exact
+head and Karl alone merges.
 
 Exactly three new files: the proof module
 `tools/nautilus_adapter/binance_usdm_reconcile_admission.py`, its focused tests,
@@ -88,8 +91,11 @@ In the pinned image, `--network none`, read-only repo:
 - Adjacent N3-01 + N3-02: 95 passed.
 - N2-04 + N2-05: 44 passed.
 - Two fresh CLI processes under the seccomp socket filter produce a
-  byte-identical `semantic.json`. Volatile engine IDs and PIDs are in
-  provenance only.
+  byte-identical `semantic.json`, SHA-256
+  `ffeb6f72081e6529f88b47f24b9a136fc3c228a7349d3dcb16dc5d7555cd0cdc`, with
+  semantic digest
+  `54248cd34ea4ae5e25465db33437704e9312c5265f759cb413e3bbf3b4967e86`.
+  Volatile engine IDs and PIDs are in provenance only.
 - N3-03 semantic SHA `5c38389f…` is untouched (no N3-03 change; its suite
   passes).
 - N2 sandbox/restart: environment-blocked as before (no `colorama`), unchanged.

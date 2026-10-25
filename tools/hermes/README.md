@@ -572,3 +572,59 @@ costs/funding PnL, preregistration, search domains, holdout/split/purge/embargo,
 multiple testing and cumulative trial lineage separately `NOT_READY`.
 Data checks issue no experiment, approval, canonical spec or SearchContract.
 No model, database, scheduler, runner/backtest, runtime or trading is invoked.
+
+## Manual 02G verified-data signal bridge (default OFF)
+
+`verified_data_signal_bridge.py` adds pure native technical compilation to the
+02F verified-input chain. Supply every original 02F verification argument,
+including the original source root/inventory/materialization flag where used:
+
+```powershell
+python -B -m tools.hermes.verified_data_signal_bridge build `
+  --preparation-dir C:\scratch\02f --evidence-dir C:\scratch\02e `
+  --readiness-dir C:\scratch\02d --built-dir C:\scratch\02c `
+  --prepared-dir C:\scratch\prepared --responses-dir C:\scratch\responses `
+  --workspace C:\scratch\02f-workspace --output C:\scratch\new-02g
+```
+
+`verify` and `replay` take the same arguments, reproduce exact bytes, and write
+nothing. Build publishes a new immutable external packet, disjoint from all
+inputs and the 02F workspace. Unknown fields, stale heads, links/hardlinks,
+changed inputs and overlapping output fail closed. No default invocation runs.
+Every idea, upstream status, memory, critic context and scientific gap survives.
+Only schema-valid, review-required 02C drafts can compile, with one native
+default parameter assignment. Receipts contain identities and a little-endian
+float64 signal digest; raw per-bar signals are never published.
+
+An optional `--designation C:\scratch\designation.json` binds the technical
+window to the **exact** 02F content hash and source bytes:
+
+```json
+{"purpose":"ENGINEERING_VALIDATION_ONLY","label":"HISTORICAL","source_02f":"<content_sha256>","fixture_recipe":null,"windows":{"DON":{"start":"2020-01-01T00:00:00Z","end":"2020-01-11T16:00:00Z","timeframe":"4h","source_sha256":"<verified-source-sha256>"}}}
+```
+
+An investigation window or historical designation is **not partition proof**.
+The current upstream contracts supply no independently verified non-holdout
+partition certificate. Historical compilation therefore returns
+`NOT_READY_NON_HOLDOUT_WINDOW_UNVERIFIED`, including when an operator self-labels
+the window. This adapter neither invents a partition certifier nor opens a
+holdout. Do not supply protected holdout files to the upstream verification
+chain. Adding a genuine native partition admission path requires its actual
+contract/evidence to be established; no historical compiler PASS is claimed.
+
+The disposable tests exercise `SOFTWARE_FIXTURE_PROOF` with recipe
+`fixed_15m_v1`: the entire parent must independently match the fixed synthetic
+D3-format values, timestamps starting 2020-01-01 and complete 15m grid. Native
+derived bars must have 02F's physical parent rederivation proof. Fixture catalogs
+are substituted **only in tests**; the CLI has no catalog override or fixture
+generator. A fixture label alone cannot admit arbitrary historical bytes.
+Native operand evaluation establishes usable warmup without filling missing
+values; required taker fields use only the native completed-bar feature join.
+Unsupported/missing features remain explicit blockers. Multi-timeframe inputs
+remain blocked by the native single-frame compilation boundary.
+
+All results remain `TECHNICAL_COMPILATION_ONLY`, science `NOT_READY`,
+SearchContract `NOT_ISSUABLE`, and noncanonical/review-required. No backtest,
+scientific trial, model, dispatch, preregistration, trading or capital action
+occurs. Physical history, partition provenance, costs, human semantic review,
+scientific protocol, envelope and Stage 5B gates remain unresolved.

@@ -8,6 +8,12 @@ Lane A/#752 is file-disjoint. The transport-fault continuation supersedes only
 the original requirement for a native deliberate-abort API; the pinned native
 Binance public data integration remains unmodified.
 
+PR: [#754](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/754),
+non-draft for independent Side B review; not merged. Tested implementation
+commit `9b928ea4ff5216b54d5bc58e860f99c2860844fb`. This PR-provenance-only
+documentation update preserves all three tested module/test/fixture blobs.
+The external final-head/check receipt binds the later publication head.
+
 Exactly four new files: bounded proof CLI, native contract/negative tests,
 explicitly synthetic invalid-case fixture, and this status fragment. No existing
 tracked file, dependency, protected path, CI, or project-status edit.

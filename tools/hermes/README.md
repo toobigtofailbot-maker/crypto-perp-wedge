@@ -1,5 +1,52 @@
 # Extreme Hermes F1/F2 canary and exact F0 rollback
 
+## 02F offline queue to verified inputs (manual, default OFF)
+
+`queue_input_preparation` consumes a current-HEAD verified 02E packet plus its
+02D/02C inputs. Supply the original 02E `--requests` and `--evidence-local-root`
+only if they were used to build that packet. The separate `--local-root` is the
+explicit source root for this new investigation; it is never searched outside
+the canonical paths requested by the batch. Missing corpus is normal NOT_READY.
+
+```powershell
+python -B -m tools.hermes.queue_input_preparation build --evidence-dir C:\proof\02e --readiness-dir C:\proof\02d --built-dir C:\proof\built --prepared-dir C:\proof\prepared --responses-dir C:\proof\responses --local-root C:\corpus --inventory C:\proof\inventory.json --workspace C:\proof\inputs-new --output C:\proof\02f-new --materialize
+```
+
+Both output and workspace must be new, disjoint external directories with
+existing ordinary parents. `--materialize` opts into native offline 30m/1h/4h
+derivation and taker-flow tables. Exact canonical parent bytes, lineage and
+expected derived digest are required; direct 1d is never reconstructed.
+No native resampler CLI/default tracked-path writer is called. Source files
+are read-only; prepared copies and derivatives remain in the disposable workspace.
+
+The optional inventory has only these fields (windows are data investigations,
+never inferred train/OOS/holdout assignments):
+
+```json
+{
+  "windows": {"IDEA-ID": {"start": "2020-01-01T00:00:00Z", "end": "2020-01-02T00:00:00Z"}},
+  "features": {"4h": {"feature_manifest": "tables/4h.manifest.json", "feature_csv": "tables/4h.csv"}}
+}
+```
+
+Feature paths are relative to the supplied local root. Existing original 02E
+feature selections are retained; conflicting inventories are rejected. The
+consumer shares canonical inputs across all qualifying ideas. It writes
+`requests.json`, a native 02E `recheck/` packet and a hashed summary containing
+source/workspace hashes, parent proofs, batch order and unresolved queue.
+Use the same arguments with `verify` or `replay`; neither mutates the packet,
+workspace or source inputs. Native 02C validation uses temporary external files.
+Changing HEAD, upstream inputs, inventory, source bytes or workspace files
+invalidates replay. A failed build can leave its disposable workspace for
+inspection; retry with fresh destinations.
+
+Native 02E still reports its own physical-parent limitation. 02F supplements
+that evidence only when native rederivation reproduces exact expected bytes;
+it never edits the native receipt. Funding/OI/sentiment/liquidation and indicator
+warmup remain unresolved where no exact supported verifier exists. Science is
+always NOT_READY and SearchContract NOT_ISSUABLE. No model, network download,
+scientific trial, activation, trading or capital operation is performed.
+
 ## 02D manual science-readiness handoff (default OFF)
 
 `science_readiness.py` consumes a built 02C batch **and** its original prepared

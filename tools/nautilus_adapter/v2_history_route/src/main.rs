@@ -5,7 +5,7 @@ use anyhow::{Result, ensure};
 use nautilus_backtest::{config::{BacktestEngineConfig, SimulatedVenueConfig}, engine::BacktestEngine};
 use nautilus_common::{cache::{Cache, CacheConfig}, cache::database::CacheDatabaseFactory,
     clock::{Clock, VirtualClock}, enums::Environment, actor::DataActor,
-    msgbus::{self, BusTap, MStr, Topic, Endpoint}};
+    msgbus::{self, BusTap, MStr, ShareableMessageHandler, Topic, Endpoint}};
 use nautilus_core::{UUID4, UnixNanos};
 use nautilus_event_store::{EventStoreEntry, EventStoreError, EventStoreLifecycle, EventStoreLifecycleOptions,
     RunManifest, RunStatus, ScanDirection, SnapshotAnchor, apply_cache_replay_entry, compute_snapshot_content_hash,
@@ -198,18 +198,6 @@ fn funding_updates(scenario: &str, id: InstrumentId) -> Vec<Data> {
         s if s.starts_with("funding_") => vec![update(id, 500, boundary)],
         _ => vec![],
     }
-}
-
-// Pass-through producer observer: retains each native FundingSettlement exactly as published.
-#[derive(Default)]
-struct Settlements(RefCell<Vec<Value>>);
-impl BusTap for Settlements {
-    fn on_publish(&self, _: MStr<Topic>, message: &dyn Any) {
-        if let Some(event) = message.downcast_ref::<FundingSettlement>() {
-            self.0.borrow_mut().push(serde_json::to_value(event).unwrap_or(Value::Null));
-        }
-    }
-    fn on_send(&self, _: MStr<Endpoint>, _: &dyn Any) {}
 }
 
 fn config() -> CacheConfig { CacheConfig { use_trader_prefix: true, use_instance_id: false,
@@ -405,15 +393,19 @@ fn produce(root: &Path, scenario: &str, hold: bool) -> Result<()> {
     }).collect();
     data.extend(funding_updates(scenario, id));
     engine.add_data(data, None, true, true)?;
-    let settlements = Rc::new(Settlements::default());
-    msgbus::set_bus_tap(settlements.clone());
+    // Passive subscriber retains each native FundingSettlement as published. Not a BusTap: the bus has one
+    // tap slot, and replacing it would disable native event-store capture.
+    let settlements = Rc::new(RefCell::new(Vec::new()));
+    let sink = settlements.clone();
+    let topic = msgbus::switchboard::get_funding_settlement_topic(id);
+    msgbus::subscribe_any(topic.as_str().into(), ShareableMessageHandler::from_typed(move |event: &FundingSettlement|
+        sink.borrow_mut().push(serde_json::to_value(event).unwrap_or(Value::Null))), None);
     let run = engine.run(None, None, None, false);
-    msgbus::clear_bus_tap();
     // N2-06 cases retain a native fail-closed run error for refusal tests; N2-05 cases still require success.
     let run_error = run.err().map(|e| format!("{e:#}"));
     ensure!(run_error.is_none() || scenario.starts_with("funding_") || scenario.starts_with("liquidation_"),
         "native run failed: {run_error:?}");
-    let funding_settlements = settlements.0.borrow().clone();
+    let funding_settlements = settlements.borrow().clone();
     let state = observation(&engine.kernel().cache, &mut engine.kernel().portfolio.borrow_mut())?;
     // Exact native quote that priced the producer's portfolio, retained with its native encoding.
     let quote = engine.kernel().cache.borrow().quote(&id).copied()

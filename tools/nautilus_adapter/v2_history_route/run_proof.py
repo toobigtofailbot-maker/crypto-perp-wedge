@@ -300,7 +300,7 @@ def produce_case(label, scenario='reversal', boundary=None):
                     marker = root / 'boundary.json'
                     try:
                         reached = json.loads(marker.read_bytes())
-                    except (FileNotFoundError, json.JSONDecodeError):
+                    except (OSError, json.JSONDecodeError):  # absent or mid-write on the bind mount; retried
                         reached = None
                     if boundary and reached and reached['boundary'] == boundary:
                         assert reached['pid'] == producer.pid

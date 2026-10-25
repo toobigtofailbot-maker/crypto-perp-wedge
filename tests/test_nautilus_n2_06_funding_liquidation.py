@@ -202,6 +202,8 @@ def test_fixture_adds_inputs_only_and_no_synthetic_accounting():
                       "process_funding_settlement", "settle_funding"):
         assert forbidden not in source, forbidden
     assert source.count("FundingRateUpdate::new(") == 1
+    # The bus has one tap slot and native event-store capture owns it while producing; only restore taps.
+    assert source.count("set_bus_tap(") == 1 and source.index("set_bus_tap(") > source.index("fn restore(")
     assert ".liquidation_enabled(scenario.starts_with(\"liquidation_on\"))" in source
     assert re.search(r'"round_trip", "reversal", "multi_cycle", "open",', source)
     assert 'ensure!(checkpoint["run_error"].is_null(), "NATIVE_RUN_FAILED")' in source

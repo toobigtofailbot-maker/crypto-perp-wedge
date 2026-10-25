@@ -470,3 +470,58 @@ acceptance until those checks pass.
 deterministic repo-only acceptance outputs anchored to base SHA
 `12ea35c8a6cfc60fc439527104ad9a67a162e4fb`. They intentionally mark physical
 deployment state UNKNOWN rather than fabricating it.
+
+## Manual 02E data-evidence investigation (default OFF)
+
+`data_evidence_resolution.py` consumes the verified current-HEAD 02D packet
+and its 02C inputs. It retains every idea in order, critic/fingerprint data,
+unknown/failed and negative memory, and upstream investigation instructions.
+It reads committed canonical slice/report and feature/indicator metadata from
+Git; catalog existence proves metadata only. D2-021 D4-derived 30m/1h/4h parents
+remain authoritative; direct 30m/1h sources cannot replace them.
+
+```powershell
+python -B -m tools.hermes.data_evidence_resolution build `
+  --readiness-dir C:\scratch\02d --built-dir C:\scratch\02c `
+  --prepared-dir C:\scratch\prepared --responses-dir C:\scratch\responses `
+  --output C:\scratch\new-02e
+```
+
+Use `verify` or `replay` with the same arguments and existing output to reproduce
+exact bytes without writes. Build requires a new external directory; no command
+runs by default. All upstream packets must be generated at the current HEAD;
+historical captures must never be rebound. Hashes prove bytes, not authorship,
+source truth, trading edge or scientific admission.
+
+Optional `--requests C:\scratch\requests.json --local-root C:\research-copy`
+permits checks of explicitly admitted local files. Local-root mirrors the
+catalog's repository-relative `data/processed/...` paths; the adapter never
+searches another root or fetches data. Example request keyed by actual idea ID:
+
+```json
+{"DON":{"window":{"start":"2024-01-01T00:00:00Z","end":"2024-02-01T00:00:00Z"},"sources":{"4h":{"path":"data/processed/d4h/binance_um_perp_BTCUSDT_4h_2020-01-01_2026-04-11_d4h_resampled.csv","feature_manifest":"features/manifest.json","feature_csv":"features/taker.csv"}}}}
+```
+
+`window`, `sources` and each source selection are optional. Omit feature inputs
+for OHLCV-only ideas. Paths must be ordinary relative paths under the admitted
+root; traversal, links/junctions, hardlinks and alternate canonical sources fail
+closed. Missing bytes/window produce useful `NOT_READY` investigations. Digest
+or provenance corruption fails the batch. Target windows are caller-selected
+historical coverage requests, never inferred OOS/holdout assignments.
+
+Receipts separate `REPOSITORY_METADATA_VERIFIED_ONLY`, `LOCAL_BYTES_VERIFIED`,
+`WINDOW_VERIFIED`, and native `LOCAL_FEATURE_TABLE_VERIFIED` facts. Whole-source
+hash/count/range must match the committed manifest before window success.
+Native D3 and 1d checks are reused; derived intraday bases explicitly retain the
+physical-parent-rederivation gap. Native feature resolution checks exact parent,
+manifest, values, cardinality and exclusive-close availability for taker tables.
+Funding and other conditional fields retain their source requirements; recent,
+snapshot, vendor-only and unknown features remain unresolved. Indicator warmup
+is not established by base-window coverage. No feature table is synthesized.
+
+`summary.json` binds repo/source/input hashes and contains a deterministic
+investigation queue in input order. Receipts preserve upstream status and keep
+costs/funding PnL, preregistration, search domains, holdout/split/purge/embargo,
+multiple testing and cumulative trial lineage separately `NOT_READY`.
+Data checks issue no experiment, approval, canonical spec or SearchContract.
+No model, database, scheduler, runner/backtest, runtime or trading is invoked.

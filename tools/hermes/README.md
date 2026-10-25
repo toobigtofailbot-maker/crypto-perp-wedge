@@ -1,5 +1,44 @@
 # Extreme Hermes F1/F2 canary and exact F0 rollback
 
+## 02D manual science-readiness handoff (default OFF)
+
+`science_readiness.py` consumes a built 02C batch **and** its original prepared
+directory and captured replies. It reuses 02C verification and byte-for-byte
+replay, checks the retained 02B current-HEAD identity and committed native
+evidence, then produces one external summary plus one receipt for every idea
+in source order. Blocked and weak ideas, critic agreement/dissent, fingerprints,
+source claims and negative/unknown memory history remain present. Memory is
+retained history; this command never connects to Research Memory.
+
+```powershell
+python -m tools.hermes.science_readiness build --built-dir C:\proof\02c-built --prepared-dir C:\proof\02c-prepared --responses-dir C:\proof\02c-responses --output C:\proof\02d-new
+python -m tools.hermes.science_readiness verify --built-dir C:\proof\02c-built --prepared-dir C:\proof\02c-prepared --responses-dir C:\proof\02c-responses --output C:\proof\02d-new
+python -m tools.hermes.science_readiness replay --built-dir C:\proof\02c-built --prepared-dir C:\proof\02c-prepared --responses-dir C:\proof\02c-responses --output C:\proof\02d-new
+```
+
+All three commands require the original inputs; verify/replay write nothing
+and regenerate identical bytes. Build requires a new external directory with
+an existing ordinary parent. Collisions, links/junctions and changed inventories
+fail closed. Rebuild the upstream fixture chain after any HEAD change.
+
+Schema-valid drafts receive one fixed 128-bar `SYNTHETIC_TECHNICAL_ONLY`
+`compile_signal` probe at native defaults, with fabricated host fields and
+fixture/signal hashes. This establishes only that assignment's technical
+compilability; there is no separate static compiler API assertion, historical
+data read, backtest, cost validation, OOS test or profitability claim. Each
+receipt exposes intent, model, formalized and spec parameter domains and adapter
+mechanics for review, without claiming semantic equivalence.
+
+Science/preregistration remain `NOT_READY`: there is no verified pipeline run,
+native pipeline request, formalized pipeline object or historical availability
+context. The pure native preregistration builder is consequently not called.
+SearchContracts remain `NOT_ISSUABLE`, with separate canonical-admission,
+envelope/durable-state and request gaps. No contract builder, approval writer,
+model, runner, scheduler, trading path or authority store is invoked. Existing
+approved-envelope semantics remain unchanged; this adds no per-experiment gate.
+Hashes establish byte identity, never model authorship or public-source truth.
+Tests are **SOFTWARE_FIXTURE_PROOF**, never a physical Hermes research run.
+
 The active Compose builds the exact stable `v2026.9.24 / v0.21.5` image plus
 upstream `59559b858fb1a4578f51029112099462a431c3f1`. This package is a bounded
 non-capital capability proof. Physical Cases A-K and full-release validation

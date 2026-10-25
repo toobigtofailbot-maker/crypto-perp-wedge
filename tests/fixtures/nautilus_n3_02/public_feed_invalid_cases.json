@@ -1,0 +1,33 @@
+{
+  "notice": "Fixed synthetic controls only; never real market receipts.",
+  "cases": [
+    {"name": "spot", "target": "instrument", "field": "contractType", "value": "SPOT"},
+    {"name": "coin_m", "target": "instrument", "field": "marginAsset", "value": "BTC"},
+    {"name": "wrong_symbol", "target": "instrument", "field": "symbol", "value": "ETHUSDT"},
+    {"name": "halted", "target": "instrument", "field": "status", "value": "HALT"},
+    {"name": "invalid_tick", "target": "filter", "field": "price_increment", "value": "0"},
+    {"name": "invalid_step", "target": "filter", "field": "size_increment", "value": "0"},
+    {"name": "nonfinite_quote", "target": "quote", "field": "bid", "value": "NaN"},
+    {"name": "negative_quote", "target": "quote", "field": "bid", "value": "-1"},
+    {"name": "crossed", "target": "quote", "field": "bid", "value": "70000"},
+    {"name": "negative_mark", "target": "mark", "field": "mark", "value": "-1"},
+    {"name": "negative_index", "target": "mark", "field": "index", "value": "-1"},
+    {"name": "malformed_funding", "target": "mark", "field": "funding_rate", "value": "bad"},
+    {"name": "nonfinite_funding", "target": "mark", "field": "funding_rate", "value": "NaN"},
+    {"name": "missing_funding_time", "target": "mark", "field": "next_funding_ns", "value": 0},
+    {"name": "absent_timestamp", "target": "quote", "field": "ts_event", "value": 0},
+    {"name": "stale", "target": "quote", "field": "ts_event", "value": 1699999980000000000},
+    {"name": "future", "target": "quote", "field": "ts_event", "value": 1700000002000000000},
+    {"name": "inconsistent_timestamp", "target": "quote", "field": "ts_init", "value": 1699999998000000000},
+    {"name": "out_of_order", "target": "sequence"},
+    {"name": "gap", "target": "sequence"},
+    {"name": "duplicate", "target": "sequence"},
+    {"name": "timeout", "target": "reconnect"},
+    {"name": "forged_callback", "target": "reconnect"},
+    {"name": "graceful_disconnect", "target": "reconnect"},
+    {"name": "new_process", "target": "reconnect"},
+    {"name": "new_client", "target": "reconnect"},
+    {"name": "old_socket", "target": "reconnect"},
+    {"name": "no_fresh_data", "target": "reconnect"}
+  ]
+}

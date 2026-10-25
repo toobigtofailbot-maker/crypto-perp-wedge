@@ -1,0 +1,1551 @@
+{
+ "fixture_id": "N3-03-BTCUSDT-USDM-PRIVATE-SYNTHETIC-v1",
+ "notice": "TEST FIXTURE ONLY; synthetic Binance USD-M private HTTP responses for an offline in-process transport. Not exchange data, credentials, account state or trading authority. Order/trade/position rows are references into the hash-bound N3-01 tape.",
+ "n3_01_fixture_sha256": "13edc5e485e45c862b2a776e181746057d9522f51c8779d5d2aaa9ce48bd3206",
+ "expected_config": {
+  "margin_type": "CROSSED",
+  "leverage": "1"
+ },
+ "defaults": {
+  "account": {
+   "feeTier": 0,
+   "canTrade": true,
+   "canDeposit": true,
+   "canWithdraw": true,
+   "updateTime": 1700000004500,
+   "totalInitialMargin": "0.00000000",
+   "totalMaintMargin": "0.00000000",
+   "totalWalletBalance": "1000.00000000",
+   "totalUnrealizedProfit": "0.00000000",
+   "totalMarginBalance": "1000.00000000",
+   "totalPositionInitialMargin": "0.00000000",
+   "totalOpenOrderInitialMargin": "0.00000000",
+   "totalCrossWalletBalance": "1000.00000000",
+   "totalCrossUnPnl": "0.00000000",
+   "availableBalance": "1000.00000000",
+   "maxWithdrawAmount": "1000.00000000",
+   "assets": [
+    {
+     "asset": "USDT",
+     "walletBalance": "1000.00000000",
+     "unrealizedProfit": "0.00000000",
+     "marginBalance": "1000.00000000",
+     "maintMargin": "0.00000000",
+     "initialMargin": "0.00000000",
+     "positionInitialMargin": "0.00000000",
+     "openOrderInitialMargin": "0.00000000",
+     "crossWalletBalance": "1000.00000000",
+     "crossUnPnl": "0.00000000",
+     "availableBalance": "1000.00000000",
+     "maxWithdrawAmount": "1000.00000000",
+     "marginAvailable": true,
+     "updateTime": 1700000004500
+    }
+   ]
+  },
+  "symbolConfig": [
+   {
+    "symbol": "BTCUSDT",
+    "marginType": "CROSSED",
+    "isAutoAddMargin": false,
+    "leverage": 1,
+    "maxNotionalValue": "1000000"
+   }
+  ],
+  "dual": {
+   "dualSidePosition": false
+  },
+  "time": {
+   "serverTime": 1700000005000
+  },
+  "openAlgoOrders": [],
+  "allAlgoOrders": [],
+  "positionRisk": [
+   "positions/0"
+  ],
+  "openOrders": [],
+  "allOrders": [],
+  "userTrades": [],
+  "order": {
+   "fail": "status",
+   "status": 400,
+   "body": {
+    "code": -2013,
+    "msg": "Order does not exist."
+   }
+  },
+  "algoOrder": {
+   "fail": "status",
+   "status": 400,
+   "body": {
+    "code": -2013,
+    "msg": "Order does not exist."
+   }
+  }
+ },
+ "scenarios": {
+  "clean_flat": {
+   "held": {
+    "as_of_ms": 1700000004000,
+    "orders": {},
+    "trades": {},
+    "position_amt": "0"
+   },
+   "phases": [
+    {}
+   ]
+  },
+  "active": {
+   "held": {
+    "as_of_ms": 1700000004000,
+    "orders": {
+     "101": {
+      "status": "FILLED",
+      "client_order_id": "N3-ENTRY"
+     },
+     "202": {
+      "status": "ACCEPTED",
+      "client_order_id": "N3-REDUCE"
+     }
+    },
+    "trades": {
+     "501": {
+      "qty": "0.004",
+      "price": "60000.00",
+      "commission": "0.04800000"
+     },
+     "502": {
+      "qty": "0.006",
+      "price": "60000.00",
+      "commission": "0.18000000"
+     }
+    },
+    "position_amt": "0.010"
+   },
+   "phases": [
+    {
+     "account": {
+      "feeTier": 0,
+      "canTrade": true,
+      "canDeposit": true,
+      "canWithdraw": true,
+      "updateTime": 1700000004500,
+      "totalInitialMargin": "600.00000000",
+      "totalMaintMargin": "0.00000000",
+      "totalWalletBalance": "1000.00000000",
+      "totalUnrealizedProfit": "0.00000000",
+      "totalMarginBalance": "1000.00000000",
+      "totalPositionInitialMargin": "600.00000000",
+      "totalOpenOrderInitialMargin": "0.00000000",
+      "totalCrossWalletBalance": "1000.00000000",
+      "totalCrossUnPnl": "0.00000000",
+      "availableBalance": "400.00000000",
+      "maxWithdrawAmount": "400.00000000",
+      "assets": [
+       {
+        "asset": "USDT",
+        "walletBalance": "1000.00000000",
+        "unrealizedProfit": "0.00000000",
+        "marginBalance": "1000.00000000",
+        "maintMargin": "0.00000000",
+        "initialMargin": "600.00000000",
+        "positionInitialMargin": "600.00000000",
+        "openOrderInitialMargin": "0.00000000",
+        "crossWalletBalance": "1000.00000000",
+        "crossUnPnl": "0.00000000",
+        "availableBalance": "400.00000000",
+        "maxWithdrawAmount": "400.00000000",
+        "marginAvailable": true,
+        "updateTime": 1700000004500
+       }
+      ]
+     },
+     "positionRisk": [
+      "positions/1"
+     ],
+     "openOrders": [
+      "rest_orders/3"
+     ],
+     "allOrders": [
+      "rest_orders/2",
+      "rest_orders/3"
+     ],
+     "userTrades": [
+      "trades/0",
+      "trades/1"
+     ]
+    }
+   ]
+  },
+  "reconnect_gap": {
+   "held": {
+    "as_of_ms": 1700000002000,
+    "orders": {
+     "101": {
+      "status": "PARTIALLY_FILLED",
+      "client_order_id": "N3-ENTRY"
+     }
+    },
+    "trades": {
+     "501": {
+      "qty": "0.004",
+      "price": "60000.00",
+      "commission": "0.04800000"
+     }
+    },
+    "position_amt": "0.004"
+   },
+   "phases": [
+    {
+     "positionRisk": [
+      {
+       "ref": "positions/1",
+       "patch": {
+        "positionAmt": "0.004",
+        "updateTime": 1700000002000
+       }
+      }
+     ],
+     "openOrders": [
+      "rest_orders/1"
+     ],
+     "allOrders": [
+      "rest_orders/1"
+     ],
+     "userTrades": [
+      "trades/0"
+     ]
+    },
+    {
+     "account": {
+      "feeTier": 0,
+      "canTrade": true,
+      "canDeposit": true,
+      "canWithdraw": true,
+      "updateTime": 1700000004500,
+      "totalInitialMargin": "600.00000000",
+      "totalMaintMargin": "0.00000000",
+      "totalWalletBalance": "1000.00000000",
+      "totalUnrealizedProfit": "0.00000000",
+      "totalMarginBalance": "1000.00000000",
+      "totalPositionInitialMargin": "600.00000000",
+      "totalOpenOrderInitialMargin": "0.00000000",
+      "totalCrossWalletBalance": "1000.00000000",
+      "totalCrossUnPnl": "0.00000000",
+      "availableBalance": "400.00000000",
+      "maxWithdrawAmount": "400.00000000",
+      "assets": [
+       {
+        "asset": "USDT",
+        "walletBalance": "1000.00000000",
+        "unrealizedProfit": "0.00000000",
+        "marginBalance": "1000.00000000",
+        "maintMargin": "0.00000000",
+        "initialMargin": "600.00000000",
+        "positionInitialMargin": "600.00000000",
+        "openOrderInitialMargin": "0.00000000",
+        "crossWalletBalance": "1000.00000000",
+        "crossUnPnl": "0.00000000",
+        "availableBalance": "400.00000000",
+        "maxWithdrawAmount": "400.00000000",
+        "marginAvailable": true,
+        "updateTime": 1700000004500
+       }
+      ]
+     },
+     "positionRisk": [
+      "positions/1"
+     ],
+     "openOrders": [],
+     "allOrders": [
+      "rest_orders/2",
+      "rest_orders/4"
+     ],
+     "userTrades": [
+      "trades/0",
+      "trades/1"
+     ]
+    }
+   ]
+  },
+  "missing_fill": {
+   "held": {
+    "as_of_ms": 1700000004000,
+    "orders": {
+     "101": {
+      "status": "FILLED",
+      "client_order_id": "N3-ENTRY"
+     },
+     "202": {
+      "status": "ACCEPTED",
+      "client_order_id": "N3-REDUCE"
+     }
+    },
+    "trades": {
+     "501": {
+      "qty": "0.004",
+      "price": "60000.00",
+      "commission": "0.04800000"
+     },
+     "502": {
+      "qty": "0.006",
+      "price": "60000.00",
+      "commission": "0.18000000"
+     }
+    },
+    "position_amt": "0.010"
+   },
+   "phases": [
+    {
+     "account": {
+      "feeTier": 0,
+      "canTrade": true,
+      "canDeposit": true,
+      "canWithdraw": true,
+      "updateTime": 1700000004500,
+      "totalInitialMargin": "600.00000000",
+      "totalMaintMargin": "0.00000000",
+      "totalWalletBalance": "1000.00000000",
+      "totalUnrealizedProfit": "0.00000000",
+      "totalMarginBalance": "1000.00000000",
+      "totalPositionInitialMargin": "600.00000000",
+      "totalOpenOrderInitialMargin": "0.00000000",
+      "totalCrossWalletBalance": "1000.00000000",
+      "totalCrossUnPnl": "0.00000000",
+      "availableBalance": "400.00000000",
+      "maxWithdrawAmount": "400.00000000",
+      "assets": [
+       {
+        "asset": "USDT",
+        "walletBalance": "1000.00000000",
+        "unrealizedProfit": "0.00000000",
+        "marginBalance": "1000.00000000",
+        "maintMargin": "0.00000000",
+        "initialMargin": "600.00000000",
+        "positionInitialMargin": "600.00000000",
+        "openOrderInitialMargin": "0.00000000",
+        "crossWalletBalance": "1000.00000000",
+        "crossUnPnl": "0.00000000",
+        "availableBalance": "400.00000000",
+        "maxWithdrawAmount": "400.00000000",
+        "marginAvailable": true,
+        "updateTime": 1700000004500
+       }
+      ]
+     },
+     "positionRisk": [
+      "positions/1"
+     ],
+     "openOrders": [
+      "rest_orders/3"
+     ],
+     "allOrders": [
+      "rest_orders/2",
+      "rest_orders/3"
+     ],
+     "userTrades": [
+      "trades/0"
+     ]
+    }
+   ]
+  },
+  "external_order": {
+   "held": {
+    "as_of_ms": 1700000004000,
+    "orders": {
+     "101": {
+      "status": "FILLED",
+      "client_order_id": "N3-ENTRY"
+     },
+     "202": {
+      "status": "ACCEPTED",
+      "client_order_id": "N3-REDUCE"
+     }
+    },
+    "trades": {
+     "501": {
+      "qty": "0.004",
+      "price": "60000.00",
+      "commission": "0.04800000"
+     },
+     "502": {
+      "qty": "0.006",
+      "price": "60000.00",
+      "commission": "0.18000000"
+     }
+    },
+    "position_amt": "0.010"
+   },
+   "phases": [
+    {
+     "account": {
+      "feeTier": 0,
+      "canTrade": true,
+      "canDeposit": true,
+      "canWithdraw": true,
+      "updateTime": 1700000004500,
+      "totalInitialMargin": "600.00000000",
+      "totalMaintMargin": "0.00000000",
+      "totalWalletBalance": "1000.00000000",
+      "totalUnrealizedProfit": "0.00000000",
+      "totalMarginBalance": "1000.00000000",
+      "totalPositionInitialMargin": "600.00000000",
+      "totalOpenOrderInitialMargin": "0.00000000",
+      "totalCrossWalletBalance": "1000.00000000",
+      "totalCrossUnPnl": "0.00000000",
+      "availableBalance": "400.00000000",
+      "maxWithdrawAmount": "400.00000000",
+      "assets": [
+       {
+        "asset": "USDT",
+        "walletBalance": "1000.00000000",
+        "unrealizedProfit": "0.00000000",
+        "marginBalance": "1000.00000000",
+        "maintMargin": "0.00000000",
+        "initialMargin": "600.00000000",
+        "positionInitialMargin": "600.00000000",
+        "openOrderInitialMargin": "0.00000000",
+        "crossWalletBalance": "1000.00000000",
+        "crossUnPnl": "0.00000000",
+        "availableBalance": "400.00000000",
+        "maxWithdrawAmount": "400.00000000",
+        "marginAvailable": true,
+        "updateTime": 1700000004500
+       }
+      ]
+     },
+     "positionRisk": [
+      "positions/1"
+     ],
+     "openOrders": [
+      "rest_orders/3",
+      {
+       "ref": "rest_orders/3",
+       "patch": {
+        "orderId": 303,
+        "clientOrderId": "N3-EXTERNAL"
+       }
+      }
+     ],
+     "allOrders": [
+      "rest_orders/2",
+      "rest_orders/3",
+      {
+       "ref": "rest_orders/3",
+       "patch": {
+        "orderId": 303,
+        "clientOrderId": "N3-EXTERNAL"
+       }
+      }
+     ],
+     "userTrades": [
+      "trades/0",
+      "trades/1"
+     ]
+    }
+   ]
+  },
+  "internal_not_found": {
+   "held": {
+    "as_of_ms": 1700000004000,
+    "orders": {
+     "101": {
+      "status": "FILLED",
+      "client_order_id": "N3-ENTRY"
+     },
+     "202": {
+      "status": "ACCEPTED",
+      "client_order_id": "N3-REDUCE"
+     },
+     "404": {
+      "status": "ACCEPTED",
+      "client_order_id": "N3-INTERNAL"
+     }
+    },
+    "trades": {
+     "501": {
+      "qty": "0.004",
+      "price": "60000.00",
+      "commission": "0.04800000"
+     },
+     "502": {
+      "qty": "0.006",
+      "price": "60000.00",
+      "commission": "0.18000000"
+     }
+    },
+    "position_amt": "0.010"
+   },
+   "phases": [
+    {
+     "account": {
+      "feeTier": 0,
+      "canTrade": true,
+      "canDeposit": true,
+      "canWithdraw": true,
+      "updateTime": 1700000004500,
+      "totalInitialMargin": "600.00000000",
+      "totalMaintMargin": "0.00000000",
+      "totalWalletBalance": "1000.00000000",
+      "totalUnrealizedProfit": "0.00000000",
+      "totalMarginBalance": "1000.00000000",
+      "totalPositionInitialMargin": "600.00000000",
+      "totalOpenOrderInitialMargin": "0.00000000",
+      "totalCrossWalletBalance": "1000.00000000",
+      "totalCrossUnPnl": "0.00000000",
+      "availableBalance": "400.00000000",
+      "maxWithdrawAmount": "400.00000000",
+      "assets": [
+       {
+        "asset": "USDT",
+        "walletBalance": "1000.00000000",
+        "unrealizedProfit": "0.00000000",
+        "marginBalance": "1000.00000000",
+        "maintMargin": "0.00000000",
+        "initialMargin": "600.00000000",
+        "positionInitialMargin": "600.00000000",
+        "openOrderInitialMargin": "0.00000000",
+        "crossWalletBalance": "1000.00000000",
+        "crossUnPnl": "0.00000000",
+        "availableBalance": "400.00000000",
+        "maxWithdrawAmount": "400.00000000",
+        "marginAvailable": true,
+        "updateTime": 1700000004500
+       }
+      ]
+     },
+     "positionRisk": [
+      "positions/1"
+     ],
+     "openOrders": [
+      "rest_orders/3"
+     ],
+     "allOrders": [
+      "rest_orders/2",
+      "rest_orders/3"
+     ],
+     "userTrades": [
+      "trades/0",
+      "trades/1"
+     ]
+    }
+   ]
+  },
+  "duplicate_trade": {
+   "held": {
+    "as_of_ms": 1700000004000,
+    "orders": {
+     "101": {
+      "status": "FILLED",
+      "client_order_id": "N3-ENTRY"
+     },
+     "202": {
+      "status": "ACCEPTED",
+      "client_order_id": "N3-REDUCE"
+     }
+    },
+    "trades": {
+     "501": {
+      "qty": "0.004",
+      "price": "60000.00",
+      "commission": "0.04800000"
+     },
+     "502": {
+      "qty": "0.006",
+      "price": "60000.00",
+      "commission": "0.18000000"
+     }
+    },
+    "position_amt": "0.010"
+   },
+   "phases": [
+    {
+     "account": {
+      "feeTier": 0,
+      "canTrade": true,
+      "canDeposit": true,
+      "canWithdraw": true,
+      "updateTime": 1700000004500,
+      "totalInitialMargin": "600.00000000",
+      "totalMaintMargin": "0.00000000",
+      "totalWalletBalance": "1000.00000000",
+      "totalUnrealizedProfit": "0.00000000",
+      "totalMarginBalance": "1000.00000000",
+      "totalPositionInitialMargin": "600.00000000",
+      "totalOpenOrderInitialMargin": "0.00000000",
+      "totalCrossWalletBalance": "1000.00000000",
+      "totalCrossUnPnl": "0.00000000",
+      "availableBalance": "400.00000000",
+      "maxWithdrawAmount": "400.00000000",
+      "assets": [
+       {
+        "asset": "USDT",
+        "walletBalance": "1000.00000000",
+        "unrealizedProfit": "0.00000000",
+        "marginBalance": "1000.00000000",
+        "maintMargin": "0.00000000",
+        "initialMargin": "600.00000000",
+        "positionInitialMargin": "600.00000000",
+        "openOrderInitialMargin": "0.00000000",
+        "crossWalletBalance": "1000.00000000",
+        "crossUnPnl": "0.00000000",
+        "availableBalance": "400.00000000",
+        "maxWithdrawAmount": "400.00000000",
+        "marginAvailable": true,
+        "updateTime": 1700000004500
+       }
+      ]
+     },
+     "positionRisk": [
+      "positions/1"
+     ],
+     "openOrders": [
+      "rest_orders/3"
+     ],
+     "allOrders": [
+      "rest_orders/2",
+      "rest_orders/3"
+     ],
+     "userTrades": [
+      "trades/0",
+      "trades/1",
+      "duplicates/1"
+     ]
+    }
+   ]
+  },
+  "position_fee_changed": {
+   "held": {
+    "as_of_ms": 1700000004000,
+    "orders": {
+     "101": {
+      "status": "FILLED",
+      "client_order_id": "N3-ENTRY"
+     },
+     "202": {
+      "status": "ACCEPTED",
+      "client_order_id": "N3-REDUCE"
+     }
+    },
+    "trades": {
+     "501": {
+      "qty": "0.004",
+      "price": "60000.00",
+      "commission": "0.04800000"
+     },
+     "502": {
+      "qty": "0.006",
+      "price": "60000.00",
+      "commission": "0.18000000"
+     }
+    },
+    "position_amt": "0.010"
+   },
+   "phases": [
+    {
+     "account": {
+      "feeTier": 0,
+      "canTrade": true,
+      "canDeposit": true,
+      "canWithdraw": true,
+      "updateTime": 1700000004500,
+      "totalInitialMargin": "600.00000000",
+      "totalMaintMargin": "0.00000000",
+      "totalWalletBalance": "1000.00000000",
+      "totalUnrealizedProfit": "0.00000000",
+      "totalMarginBalance": "1000.00000000",
+      "totalPositionInitialMargin": "600.00000000",
+      "totalOpenOrderInitialMargin": "0.00000000",
+      "totalCrossWalletBalance": "1000.00000000",
+      "totalCrossUnPnl": "0.00000000",
+      "availableBalance": "400.00000000",
+      "maxWithdrawAmount": "400.00000000",
+      "assets": [
+       {
+        "asset": "USDT",
+        "walletBalance": "1000.00000000",
+        "unrealizedProfit": "0.00000000",
+        "marginBalance": "1000.00000000",
+        "maintMargin": "0.00000000",
+        "initialMargin": "600.00000000",
+        "positionInitialMargin": "600.00000000",
+        "openOrderInitialMargin": "0.00000000",
+        "crossWalletBalance": "1000.00000000",
+        "crossUnPnl": "0.00000000",
+        "availableBalance": "400.00000000",
+        "maxWithdrawAmount": "400.00000000",
+        "marginAvailable": true,
+        "updateTime": 1700000004500
+       }
+      ]
+     },
+     "positionRisk": [
+      {
+       "ref": "positions/1",
+       "patch": {
+        "positionAmt": "0.012"
+       }
+      }
+     ],
+     "openOrders": [
+      "rest_orders/3"
+     ],
+     "allOrders": [
+      "rest_orders/2",
+      "rest_orders/3"
+     ],
+     "userTrades": [
+      "trades/0",
+      {
+       "ref": "trades/1",
+       "patch": {
+        "commission": "0.19000000"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  "stale_response": {
+   "held": {
+    "as_of_ms": 1700000004000,
+    "orders": {
+     "101": {
+      "status": "FILLED",
+      "client_order_id": "N3-ENTRY"
+     },
+     "202": {
+      "status": "ACCEPTED",
+      "client_order_id": "N3-REDUCE"
+     }
+    },
+    "trades": {
+     "501": {
+      "qty": "0.004",
+      "price": "60000.00",
+      "commission": "0.04800000"
+     },
+     "502": {
+      "qty": "0.006",
+      "price": "60000.00",
+      "commission": "0.18000000"
+     }
+    },
+    "position_amt": "0.010"
+   },
+   "phases": [
+    {
+     "account": {
+      "feeTier": 0,
+      "canTrade": true,
+      "canDeposit": true,
+      "canWithdraw": true,
+      "updateTime": 1700000001500,
+      "totalInitialMargin": "600.00000000",
+      "totalMaintMargin": "0.00000000",
+      "totalWalletBalance": "1000.00000000",
+      "totalUnrealizedProfit": "0.00000000",
+      "totalMarginBalance": "1000.00000000",
+      "totalPositionInitialMargin": "600.00000000",
+      "totalOpenOrderInitialMargin": "0.00000000",
+      "totalCrossWalletBalance": "1000.00000000",
+      "totalCrossUnPnl": "0.00000000",
+      "availableBalance": "400.00000000",
+      "maxWithdrawAmount": "400.00000000",
+      "assets": [
+       {
+        "asset": "USDT",
+        "walletBalance": "1000.00000000",
+        "unrealizedProfit": "0.00000000",
+        "marginBalance": "1000.00000000",
+        "maintMargin": "0.00000000",
+        "initialMargin": "600.00000000",
+        "positionInitialMargin": "600.00000000",
+        "openOrderInitialMargin": "0.00000000",
+        "crossWalletBalance": "1000.00000000",
+        "crossUnPnl": "0.00000000",
+        "availableBalance": "400.00000000",
+        "maxWithdrawAmount": "400.00000000",
+        "marginAvailable": true,
+        "updateTime": 1700000001500
+       }
+      ]
+     },
+     "positionRisk": [
+      {
+       "ref": "positions/1",
+       "patch": {
+        "updateTime": 1700000001500
+       }
+      }
+     ],
+     "openOrders": [
+      "rest_orders/3"
+     ],
+     "allOrders": [
+      "rest_orders/2",
+      "rest_orders/3"
+     ],
+     "userTrades": [
+      "trades/0",
+      "trades/1"
+     ]
+    }
+   ]
+  },
+  "hedge_mode": {
+   "held": {
+    "as_of_ms": 1700000004000,
+    "orders": {
+     "101": {
+      "status": "FILLED",
+      "client_order_id": "N3-ENTRY"
+     },
+     "202": {
+      "status": "ACCEPTED",
+      "client_order_id": "N3-REDUCE"
+     }
+    },
+    "trades": {
+     "501": {
+      "qty": "0.004",
+      "price": "60000.00",
+      "commission": "0.04800000"
+     },
+     "502": {
+      "qty": "0.006",
+      "price": "60000.00",
+      "commission": "0.18000000"
+     }
+    },
+    "position_amt": "0.010"
+   },
+   "phases": [
+    {
+     "account": {
+      "feeTier": 0,
+      "canTrade": true,
+      "canDeposit": true,
+      "canWithdraw": true,
+      "updateTime": 1700000004500,
+      "totalInitialMargin": "600.00000000",
+      "totalMaintMargin": "0.00000000",
+      "totalWalletBalance": "1000.00000000",
+      "totalUnrealizedProfit": "0.00000000",
+      "totalMarginBalance": "1000.00000000",
+      "totalPositionInitialMargin": "600.00000000",
+      "totalOpenOrderInitialMargin": "0.00000000",
+      "totalCrossWalletBalance": "1000.00000000",
+      "totalCrossUnPnl": "0.00000000",
+      "availableBalance": "400.00000000",
+      "maxWithdrawAmount": "400.00000000",
+      "assets": [
+       {
+        "asset": "USDT",
+        "walletBalance": "1000.00000000",
+        "unrealizedProfit": "0.00000000",
+        "marginBalance": "1000.00000000",
+        "maintMargin": "0.00000000",
+        "initialMargin": "600.00000000",
+        "positionInitialMargin": "600.00000000",
+        "openOrderInitialMargin": "0.00000000",
+        "crossWalletBalance": "1000.00000000",
+        "crossUnPnl": "0.00000000",
+        "availableBalance": "400.00000000",
+        "maxWithdrawAmount": "400.00000000",
+        "marginAvailable": true,
+        "updateTime": 1700000004500
+       }
+      ]
+     },
+     "positionRisk": [
+      "positions/1"
+     ],
+     "openOrders": [
+      "rest_orders/3"
+     ],
+     "allOrders": [
+      "rest_orders/2",
+      "rest_orders/3"
+     ],
+     "userTrades": [
+      "trades/0",
+      "trades/1"
+     ],
+     "dual": {
+      "dualSidePosition": true
+     }
+    }
+   ]
+  },
+  "margin_config": {
+   "held": {
+    "as_of_ms": 1700000004000,
+    "orders": {
+     "101": {
+      "status": "FILLED",
+      "client_order_id": "N3-ENTRY"
+     },
+     "202": {
+      "status": "ACCEPTED",
+      "client_order_id": "N3-REDUCE"
+     }
+    },
+    "trades": {
+     "501": {
+      "qty": "0.004",
+      "price": "60000.00",
+      "commission": "0.04800000"
+     },
+     "502": {
+      "qty": "0.006",
+      "price": "60000.00",
+      "commission": "0.18000000"
+     }
+    },
+    "position_amt": "0.010"
+   },
+   "phases": [
+    {
+     "account": {
+      "feeTier": 0,
+      "canTrade": true,
+      "canDeposit": true,
+      "canWithdraw": true,
+      "updateTime": 1700000004500,
+      "totalInitialMargin": "600.00000000",
+      "totalMaintMargin": "0.00000000",
+      "totalWalletBalance": "1000.00000000",
+      "totalUnrealizedProfit": "0.00000000",
+      "totalMarginBalance": "1000.00000000",
+      "totalPositionInitialMargin": "600.00000000",
+      "totalOpenOrderInitialMargin": "0.00000000",
+      "totalCrossWalletBalance": "1000.00000000",
+      "totalCrossUnPnl": "0.00000000",
+      "availableBalance": "400.00000000",
+      "maxWithdrawAmount": "400.00000000",
+      "assets": [
+       {
+        "asset": "USDT",
+        "walletBalance": "1000.00000000",
+        "unrealizedProfit": "0.00000000",
+        "marginBalance": "1000.00000000",
+        "maintMargin": "0.00000000",
+        "initialMargin": "600.00000000",
+        "positionInitialMargin": "600.00000000",
+        "openOrderInitialMargin": "0.00000000",
+        "crossWalletBalance": "1000.00000000",
+        "crossUnPnl": "0.00000000",
+        "availableBalance": "400.00000000",
+        "maxWithdrawAmount": "400.00000000",
+        "marginAvailable": true,
+        "updateTime": 1700000004500
+       }
+      ]
+     },
+     "positionRisk": [
+      "positions/1"
+     ],
+     "openOrders": [
+      "rest_orders/3"
+     ],
+     "allOrders": [
+      "rest_orders/2",
+      "rest_orders/3"
+     ],
+     "userTrades": [
+      "trades/0",
+      "trades/1"
+     ],
+     "symbolConfig": [
+      {
+       "symbol": "BTCUSDT",
+       "marginType": "ISOLATED",
+       "isAutoAddMargin": false,
+       "leverage": 20,
+       "maxNotionalValue": "1000000"
+      }
+     ]
+    }
+   ]
+  },
+  "timeout": {
+   "held": {
+    "as_of_ms": 1700000004000,
+    "orders": {
+     "101": {
+      "status": "FILLED",
+      "client_order_id": "N3-ENTRY"
+     },
+     "202": {
+      "status": "ACCEPTED",
+      "client_order_id": "N3-REDUCE"
+     }
+    },
+    "trades": {
+     "501": {
+      "qty": "0.004",
+      "price": "60000.00",
+      "commission": "0.04800000"
+     },
+     "502": {
+      "qty": "0.006",
+      "price": "60000.00",
+      "commission": "0.18000000"
+     }
+    },
+    "position_amt": "0.010"
+   },
+   "phases": [
+    {
+     "account": {
+      "feeTier": 0,
+      "canTrade": true,
+      "canDeposit": true,
+      "canWithdraw": true,
+      "updateTime": 1700000004500,
+      "totalInitialMargin": "600.00000000",
+      "totalMaintMargin": "0.00000000",
+      "totalWalletBalance": "1000.00000000",
+      "totalUnrealizedProfit": "0.00000000",
+      "totalMarginBalance": "1000.00000000",
+      "totalPositionInitialMargin": "600.00000000",
+      "totalOpenOrderInitialMargin": "0.00000000",
+      "totalCrossWalletBalance": "1000.00000000",
+      "totalCrossUnPnl": "0.00000000",
+      "availableBalance": "400.00000000",
+      "maxWithdrawAmount": "400.00000000",
+      "assets": [
+       {
+        "asset": "USDT",
+        "walletBalance": "1000.00000000",
+        "unrealizedProfit": "0.00000000",
+        "marginBalance": "1000.00000000",
+        "maintMargin": "0.00000000",
+        "initialMargin": "600.00000000",
+        "positionInitialMargin": "600.00000000",
+        "openOrderInitialMargin": "0.00000000",
+        "crossWalletBalance": "1000.00000000",
+        "crossUnPnl": "0.00000000",
+        "availableBalance": "400.00000000",
+        "maxWithdrawAmount": "400.00000000",
+        "marginAvailable": true,
+        "updateTime": 1700000004500
+       }
+      ]
+     },
+     "positionRisk": [
+      "positions/1"
+     ],
+     "openOrders": [
+      "rest_orders/3"
+     ],
+     "allOrders": {
+      "fail": "timeout"
+     },
+     "userTrades": [
+      "trades/0",
+      "trades/1"
+     ]
+    }
+   ]
+  },
+  "rate_limited": {
+   "held": {
+    "as_of_ms": 1700000004000,
+    "orders": {
+     "101": {
+      "status": "FILLED",
+      "client_order_id": "N3-ENTRY"
+     },
+     "202": {
+      "status": "ACCEPTED",
+      "client_order_id": "N3-REDUCE"
+     }
+    },
+    "trades": {
+     "501": {
+      "qty": "0.004",
+      "price": "60000.00",
+      "commission": "0.04800000"
+     },
+     "502": {
+      "qty": "0.006",
+      "price": "60000.00",
+      "commission": "0.18000000"
+     }
+    },
+    "position_amt": "0.010"
+   },
+   "phases": [
+    {
+     "account": {
+      "feeTier": 0,
+      "canTrade": true,
+      "canDeposit": true,
+      "canWithdraw": true,
+      "updateTime": 1700000004500,
+      "totalInitialMargin": "600.00000000",
+      "totalMaintMargin": "0.00000000",
+      "totalWalletBalance": "1000.00000000",
+      "totalUnrealizedProfit": "0.00000000",
+      "totalMarginBalance": "1000.00000000",
+      "totalPositionInitialMargin": "600.00000000",
+      "totalOpenOrderInitialMargin": "0.00000000",
+      "totalCrossWalletBalance": "1000.00000000",
+      "totalCrossUnPnl": "0.00000000",
+      "availableBalance": "400.00000000",
+      "maxWithdrawAmount": "400.00000000",
+      "assets": [
+       {
+        "asset": "USDT",
+        "walletBalance": "1000.00000000",
+        "unrealizedProfit": "0.00000000",
+        "marginBalance": "1000.00000000",
+        "maintMargin": "0.00000000",
+        "initialMargin": "600.00000000",
+        "positionInitialMargin": "600.00000000",
+        "openOrderInitialMargin": "0.00000000",
+        "crossWalletBalance": "1000.00000000",
+        "crossUnPnl": "0.00000000",
+        "availableBalance": "400.00000000",
+        "maxWithdrawAmount": "400.00000000",
+        "marginAvailable": true,
+        "updateTime": 1700000004500
+       }
+      ]
+     },
+     "positionRisk": [
+      "positions/1"
+     ],
+     "openOrders": [
+      "rest_orders/3"
+     ],
+     "allOrders": [
+      "rest_orders/2",
+      "rest_orders/3"
+     ],
+     "userTrades": {
+      "fail": "status",
+      "status": 429,
+      "body": {
+       "code": -1003,
+       "msg": "Synthetic: too many requests."
+      }
+     }
+    }
+   ]
+  },
+  "server_error": {
+   "held": {
+    "as_of_ms": 1700000004000,
+    "orders": {
+     "101": {
+      "status": "FILLED",
+      "client_order_id": "N3-ENTRY"
+     },
+     "202": {
+      "status": "ACCEPTED",
+      "client_order_id": "N3-REDUCE"
+     }
+    },
+    "trades": {
+     "501": {
+      "qty": "0.004",
+      "price": "60000.00",
+      "commission": "0.04800000"
+     },
+     "502": {
+      "qty": "0.006",
+      "price": "60000.00",
+      "commission": "0.18000000"
+     }
+    },
+    "position_amt": "0.010"
+   },
+   "phases": [
+    {
+     "account": {
+      "feeTier": 0,
+      "canTrade": true,
+      "canDeposit": true,
+      "canWithdraw": true,
+      "updateTime": 1700000004500,
+      "totalInitialMargin": "600.00000000",
+      "totalMaintMargin": "0.00000000",
+      "totalWalletBalance": "1000.00000000",
+      "totalUnrealizedProfit": "0.00000000",
+      "totalMarginBalance": "1000.00000000",
+      "totalPositionInitialMargin": "600.00000000",
+      "totalOpenOrderInitialMargin": "0.00000000",
+      "totalCrossWalletBalance": "1000.00000000",
+      "totalCrossUnPnl": "0.00000000",
+      "availableBalance": "400.00000000",
+      "maxWithdrawAmount": "400.00000000",
+      "assets": [
+       {
+        "asset": "USDT",
+        "walletBalance": "1000.00000000",
+        "unrealizedProfit": "0.00000000",
+        "marginBalance": "1000.00000000",
+        "maintMargin": "0.00000000",
+        "initialMargin": "600.00000000",
+        "positionInitialMargin": "600.00000000",
+        "openOrderInitialMargin": "0.00000000",
+        "crossWalletBalance": "1000.00000000",
+        "crossUnPnl": "0.00000000",
+        "availableBalance": "400.00000000",
+        "maxWithdrawAmount": "400.00000000",
+        "marginAvailable": true,
+        "updateTime": 1700000004500
+       }
+      ]
+     },
+     "positionRisk": {
+      "fail": "status",
+      "status": 503,
+      "body": {
+       "code": -1001,
+       "msg": "Synthetic: internal error."
+      }
+     },
+     "openOrders": [
+      "rest_orders/3"
+     ],
+     "allOrders": [
+      "rest_orders/2",
+      "rest_orders/3"
+     ],
+     "userTrades": [
+      "trades/0",
+      "trades/1"
+     ]
+    }
+   ]
+  },
+  "malformed": {
+   "held": {
+    "as_of_ms": 1700000004000,
+    "orders": {
+     "101": {
+      "status": "FILLED",
+      "client_order_id": "N3-ENTRY"
+     },
+     "202": {
+      "status": "ACCEPTED",
+      "client_order_id": "N3-REDUCE"
+     }
+    },
+    "trades": {
+     "501": {
+      "qty": "0.004",
+      "price": "60000.00",
+      "commission": "0.04800000"
+     },
+     "502": {
+      "qty": "0.006",
+      "price": "60000.00",
+      "commission": "0.18000000"
+     }
+    },
+    "position_amt": "0.010"
+   },
+   "phases": [
+    {
+     "account": {
+      "feeTier": 0,
+      "canTrade": true,
+      "canDeposit": true,
+      "canWithdraw": true,
+      "updateTime": 1700000004500,
+      "totalInitialMargin": "600.00000000",
+      "totalMaintMargin": "0.00000000",
+      "totalWalletBalance": "1000.00000000",
+      "totalUnrealizedProfit": "0.00000000",
+      "totalMarginBalance": "1000.00000000",
+      "totalPositionInitialMargin": "600.00000000",
+      "totalOpenOrderInitialMargin": "0.00000000",
+      "totalCrossWalletBalance": "1000.00000000",
+      "totalCrossUnPnl": "0.00000000",
+      "availableBalance": "400.00000000",
+      "maxWithdrawAmount": "400.00000000",
+      "assets": [
+       {
+        "asset": "USDT",
+        "walletBalance": "1000.00000000",
+        "unrealizedProfit": "0.00000000",
+        "marginBalance": "1000.00000000",
+        "maintMargin": "0.00000000",
+        "initialMargin": "600.00000000",
+        "positionInitialMargin": "600.00000000",
+        "openOrderInitialMargin": "0.00000000",
+        "crossWalletBalance": "1000.00000000",
+        "crossUnPnl": "0.00000000",
+        "availableBalance": "400.00000000",
+        "maxWithdrawAmount": "400.00000000",
+        "marginAvailable": true,
+        "updateTime": 1700000004500
+       }
+      ]
+     },
+     "positionRisk": [
+      "positions/1"
+     ],
+     "openOrders": {
+      "fail": "raw",
+      "status": 200,
+      "raw": "<html>synthetic gateway page</html>"
+     },
+     "allOrders": [
+      "rest_orders/2",
+      "rest_orders/3"
+     ],
+     "userTrades": [
+      "trades/0",
+      "trades/1"
+     ]
+    }
+   ]
+  },
+  "partial_json": {
+   "held": {
+    "as_of_ms": 1700000004000,
+    "orders": {
+     "101": {
+      "status": "FILLED",
+      "client_order_id": "N3-ENTRY"
+     },
+     "202": {
+      "status": "ACCEPTED",
+      "client_order_id": "N3-REDUCE"
+     }
+    },
+    "trades": {
+     "501": {
+      "qty": "0.004",
+      "price": "60000.00",
+      "commission": "0.04800000"
+     },
+     "502": {
+      "qty": "0.006",
+      "price": "60000.00",
+      "commission": "0.18000000"
+     }
+    },
+    "position_amt": "0.010"
+   },
+   "phases": [
+    {
+     "account": {
+      "feeTier": 0,
+      "canTrade": true,
+      "canDeposit": true,
+      "canWithdraw": true,
+      "updateTime": 1700000004500,
+      "totalInitialMargin": "600.00000000",
+      "totalMaintMargin": "0.00000000",
+      "totalWalletBalance": "1000.00000000",
+      "totalUnrealizedProfit": "0.00000000",
+      "totalMarginBalance": "1000.00000000",
+      "totalPositionInitialMargin": "600.00000000",
+      "totalOpenOrderInitialMargin": "0.00000000",
+      "totalCrossWalletBalance": "1000.00000000",
+      "totalCrossUnPnl": "0.00000000",
+      "availableBalance": "400.00000000",
+      "maxWithdrawAmount": "400.00000000",
+      "assets": [
+       {
+        "asset": "USDT",
+        "walletBalance": "1000.00000000",
+        "unrealizedProfit": "0.00000000",
+        "marginBalance": "1000.00000000",
+        "maintMargin": "0.00000000",
+        "initialMargin": "600.00000000",
+        "positionInitialMargin": "600.00000000",
+        "openOrderInitialMargin": "0.00000000",
+        "crossWalletBalance": "1000.00000000",
+        "crossUnPnl": "0.00000000",
+        "availableBalance": "400.00000000",
+        "maxWithdrawAmount": "400.00000000",
+        "marginAvailable": true,
+        "updateTime": 1700000004500
+       }
+      ]
+     },
+     "positionRisk": [
+      "positions/1"
+     ],
+     "openOrders": [
+      "rest_orders/3"
+     ],
+     "allOrders": [
+      "rest_orders/2",
+      "rest_orders/3"
+     ],
+     "userTrades": {
+      "fail": "raw",
+      "status": 200,
+      "raw": "[{\"symbol\":\"BTCUSDT\",\"id\":501"
+     }
+    }
+   ]
+  },
+  "lookup_ceiling": {
+   "held": {
+    "as_of_ms": 1700000004000,
+    "orders": {},
+    "trades": {
+     "501": {
+      "qty": "0.004",
+      "price": "60000.00",
+      "commission": "0.04800000"
+     },
+     "502": {
+      "qty": "0.006",
+      "price": "60000.00",
+      "commission": "0.18000000"
+     }
+    },
+    "position_amt": "0.010"
+   },
+   "phases": [
+    {
+     "account": {
+      "feeTier": 0,
+      "canTrade": true,
+      "canDeposit": true,
+      "canWithdraw": true,
+      "updateTime": 1700000004500,
+      "totalInitialMargin": "600.00000000",
+      "totalMaintMargin": "0.00000000",
+      "totalWalletBalance": "1000.00000000",
+      "totalUnrealizedProfit": "0.00000000",
+      "totalMarginBalance": "1000.00000000",
+      "totalPositionInitialMargin": "600.00000000",
+      "totalOpenOrderInitialMargin": "0.00000000",
+      "totalCrossWalletBalance": "1000.00000000",
+      "totalCrossUnPnl": "0.00000000",
+      "availableBalance": "400.00000000",
+      "maxWithdrawAmount": "400.00000000",
+      "assets": [
+       {
+        "asset": "USDT",
+        "walletBalance": "1000.00000000",
+        "unrealizedProfit": "0.00000000",
+        "marginBalance": "1000.00000000",
+        "maintMargin": "0.00000000",
+        "initialMargin": "600.00000000",
+        "positionInitialMargin": "600.00000000",
+        "openOrderInitialMargin": "0.00000000",
+        "crossWalletBalance": "1000.00000000",
+        "crossUnPnl": "0.00000000",
+        "availableBalance": "400.00000000",
+        "maxWithdrawAmount": "400.00000000",
+        "marginAvailable": true,
+        "updateTime": 1700000004500
+       }
+      ]
+     },
+     "positionRisk": [
+      "positions/1"
+     ],
+     "openOrders": [],
+     "allOrders": {
+      "generate": "rest_orders/4",
+      "count": 1000
+     },
+     "userTrades": [
+      "trades/0",
+      "trades/1"
+     ]
+    }
+   ]
+  },
+  "ordering_collision": {
+   "held": {
+    "as_of_ms": 1700000004000,
+    "orders": {
+     "101": {
+      "status": "FILLED",
+      "client_order_id": "N3-ENTRY"
+     }
+    },
+    "trades": {
+     "1000": {
+      "qty": "0.004",
+      "price": "60000.00",
+      "commission": "0.04800000"
+     },
+     "999": {
+      "qty": "0.006",
+      "price": "60000.00",
+      "commission": "0.18000000"
+     }
+    },
+    "position_amt": "0.010"
+   },
+   "phases": [
+    {
+     "account": {
+      "feeTier": 0,
+      "canTrade": true,
+      "canDeposit": true,
+      "canWithdraw": true,
+      "updateTime": 1700000004500,
+      "totalInitialMargin": "600.00000000",
+      "totalMaintMargin": "0.00000000",
+      "totalWalletBalance": "1000.00000000",
+      "totalUnrealizedProfit": "0.00000000",
+      "totalMarginBalance": "1000.00000000",
+      "totalPositionInitialMargin": "600.00000000",
+      "totalOpenOrderInitialMargin": "0.00000000",
+      "totalCrossWalletBalance": "1000.00000000",
+      "totalCrossUnPnl": "0.00000000",
+      "availableBalance": "400.00000000",
+      "maxWithdrawAmount": "400.00000000",
+      "assets": [
+       {
+        "asset": "USDT",
+        "walletBalance": "1000.00000000",
+        "unrealizedProfit": "0.00000000",
+        "marginBalance": "1000.00000000",
+        "maintMargin": "0.00000000",
+        "initialMargin": "600.00000000",
+        "positionInitialMargin": "600.00000000",
+        "openOrderInitialMargin": "0.00000000",
+        "crossWalletBalance": "1000.00000000",
+        "crossUnPnl": "0.00000000",
+        "availableBalance": "400.00000000",
+        "maxWithdrawAmount": "400.00000000",
+        "marginAvailable": true,
+        "updateTime": 1700000004500
+       }
+      ]
+     },
+     "positionRisk": [
+      "positions/1"
+     ],
+     "openOrders": [],
+     "allOrders": [
+      "rest_orders/2"
+     ],
+     "userTrades": [
+      {
+       "ref": "trades/0",
+       "patch": {
+        "id": 1000,
+        "time": 1700000003000
+       }
+      },
+      {
+       "ref": "trades/1",
+       "patch": {
+        "id": 999
+       }
+      }
+     ]
+    }
+   ]
+  }
+ }
+}

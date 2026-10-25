@@ -1,5 +1,54 @@
 # Private rc7 native history/bootstrap fixture
 
+## N2-06 native funding and liquidation characterization (2026-10-25)
+
+Karl's full authorization, verbatim: "I approve everything so please proceed and always include my full authorization"
+
+Karl's bundle authorization, verbatim: "I authorize this bundle execution plan, start now!"
+
+Private T2 fixture, offline only. It characterizes the rc7 (crates 0.66.0)
+native funding settlement and maintenance-margin liquidation. It is **not**
+Python 1.231.0 N1 parity, cross-version integration or production readiness.
+Posture stays `NO_NEW_ORDERS / NO_RESUME / NOT_PAPER_OR_LIVE_READY`.
+
+**Inputs only.** The new scenarios add controlled fixture inputs and nothing else:
+- native `FundingRateUpdate` data with boundary 1.5 s, between the 1 s and 2 s quotes;
+- the venue switch `liquidation_enabled`;
+- fixed script orders: long/short/flat q=1 at 100, or short 100 at 100 followed by the
+  unchanged N1-02 adverse closes 195/200/250.
+
+The native exchange owns settlement timing, price basis, sign, cash and
+position adjustment, and the liquidation trigger and its order and fill. A
+pass-through producer `BusTap` retains each published native
+`FundingSettlement`. A native `run` error is retained only for N2-06 scenarios;
+the N2-05 scenarios still require a successful run. Restore refuses any
+checkpoint with a run error (`NATIVE_RUN_FAILED`). Nothing adjusts cash or
+equity, injects a liquidation, synthesizes an event or patches upstream.
+
+**Controller Stage D** runs after the unchanged N2-05 Stages A–C on the same
+frozen binary:
+1. It produces every N2-06 scenario twice and requires identical stable native economics.
+2. It derives exactly one verdict per case, from native observations compared with the
+   unchanged N1-02 CPW references.
+3. It restores each successful terminal state twice through the existing read-only
+   N2-05 path.
+4. It runs tamper, binding, missing-history, widened-authority and `resume` refusals.
+
+Verdicts are `PROVEN`, `BOUNDED_DIVERGENCE`, `UNSUPPORTED_PINNED` or
+`UNVERIFIED`. Divergences are reported, never repaired. Reproduce with the
+N2-05 commands below; the controller writes `/evidence/physical-n2-06`. See
+[CPW-NAUTILUS-N2-06](../../../docs/status_entries/CPW-NAUTILUS-N2-06.md) for
+measured results.
+
+Hard limits:
+- one deterministic BTCUSDT-PERP NETTING Margin fixture, leverage 1, 4 bps fees;
+- funding priced from the top-of-book midpoint, with no mark-price feed;
+- liquidation uses native entry-price maintenance margin and fills at market;
+- no mark/index divergence, multi-position, cross-currency or partial-liquidity case.
+
+Venue funding, exchange reconciliation, installed 1.231.0 behaviour, paper/live,
+capital and merge remain separate gates.
+
 ## N2-05 native continuity (2026-10-23)
 
 Karl's full authorization, verbatim: "I approve everything so please proceed and always include my full authorization"

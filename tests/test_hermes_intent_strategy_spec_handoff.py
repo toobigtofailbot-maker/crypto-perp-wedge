@@ -138,7 +138,9 @@ def receipt(built: Path, index: int) -> dict:
 
 @pytest.fixture
 def batch_a(tmp_path):
-    return make_batch(tmp_path, [_idea("DON", _don_native()), _idea("FLOW", _native()), _idea("LOB", None)])
+    # FLOW declares one parameter per proposed bound so its reply can bind; it still has no native adapter.
+    flow = _native(free_parameter_count=1)
+    return make_batch(tmp_path, [_idea("DON", _don_native()), _idea("FLOW", flow), _idea("LOB", None)])
 
 
 @pytest.fixture
@@ -244,7 +246,7 @@ def test_needs_data_family_mismatch_and_second_unsupported_family(tmp_path):
 
 @pytest.mark.parametrize("case", [
     "unknown_field", "draft_evidence_anchor", "role", "timeframe", "features", "param_count", "widened_bound",
-    "conflicting", "malformed", "duplicate_key", "url_in_text", "nan", "tool_request", "symbol",
+    "conflicting", "malformed", "duplicate_key", "url_in_text", "nan", "tool_request", "symbol", "invented_name",
 ])
 def test_invalid_model_responses_stay_not_ready_with_cause(tmp_path, prepared_a, case):
     responses = tmp_path / "responses"
@@ -280,11 +282,38 @@ def test_invalid_model_responses_stay_not_ready_with_cause(tmp_path, prepared_a,
         kwargs["uncertainty"] = ["Please run the backtest in a shell first."]
     elif case == "symbol":
         kwargs["draft"] = _draft(request, symbols=["ETHUSDT"])
+    elif case == "invented_name":
+        # Correct count and an in-range value, but a parameter the intent never declared.
+        kwargs["draft"] = _draft(request, parameter_bounds=[{"name": "fast_window", "minimum": 20.0, "maximum": 40.0}])
     respond(prepared_a, responses, 0, **kwargs)
     built, summary = build(tmp_path, prepared_a, responses)
     assert summary["counts"][hs.INVALID] == ["DON"]
     don = receipt(built, 0)
     assert don["block_reasons"] and don["drafts"] == [] and don["native_formalization"] is None
+
+
+@pytest.mark.parametrize("names, status", [
+    (["channel_lookback_bars", "CHANNEL_LOOKBACK_BARS"], hs.INVALID),  # duplicate after normalization
+    (["channel_lookback_bars", "breakout_buffer"], hs.INVALID),  # substituted second name
+    (["Channel_Lookback_Bars", "Confirm  Bars"], hs.DRAFTED),  # declared names, case/space variants
+])
+def test_parameter_names_must_be_the_declared_ones(tmp_path, names, status):
+    native = _don_native(free_parameter_count=2, proposed_parameter_bounds=[
+        {"name": "channel_lookback_bars", "minimum": 10.0, "maximum": 60.0},
+        {"name": "confirm bars", "minimum": 1.0, "maximum": 3.0}])
+    prepared = prepare(tmp_path, make_batch(tmp_path, [_idea("DON2", native)]))
+    request, _ = _request(prepared, 0)
+    bounds = [{"name": names[0], "minimum": 20.0, "maximum": 55.0}, {"name": names[1], "minimum": 1.0, "maximum": 2.0}]
+    responses = tmp_path / "responses"
+    respond(prepared, responses, 0, draft=_draft(request, parameter_bounds=bounds))
+    built, summary = build(tmp_path, prepared, responses)
+    don = receipt(built, 0)
+    assert summary["counts"][status] == ["DON2"]
+    if status == hs.INVALID:
+        assert don["drafts"] == [] and don["native_formalization"] is None
+        assert any("parameter" in reason for reason in don["block_reasons"])
+    else:  # accepted names reach the unchanged native path, which applies its own adapter bounds
+        assert don["native_formalization"]["family_id"] == "donchian_channel_breakout_v1" and len(don["drafts"]) == 1
 
 
 @pytest.mark.parametrize("case", ["other_request_sha", "intent_hash", "prompt_sha", "unexpected_file",

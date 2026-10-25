@@ -224,7 +224,8 @@ byte for byte. It fails globally on replayed or substituted request, intent or p
 hashes, and on unexpected, unpaired, nested or oversize files. Per idea, a missing,
 malformed, unknown-field, role-substituted or identity-mismatched reply stays
 `NOT_READY_RESPONSE_*`. So do changed symbol, timeframe, features or parameter count,
-a widened bound, URLs or resource identities, and tool or execution requests. A
+a widened bound, a parameter name the intent did not declare (or a duplicate after
+normalization), URLs or resource identities, and tool or execution requests. A
 model `NOT_READY` is kept with its uncertainty. Families outside the four native
 adapters become `NOT_READY_UNSUPPORTED_FAMILY` (`NEEDS_CAPABILITY`), and are never
 forced into a template. A typed-safe `ReasonedDraft` goes unchanged to

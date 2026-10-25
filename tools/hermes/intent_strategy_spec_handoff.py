@@ -325,7 +325,7 @@ class IntentStrategySpecHandoff:
              f"timeframe \"{intent['primary_timeframe']}\","),
             (f"  features exactly {json.dumps(intent['required_data_features'])}, "
              f"and exactly {intent['free_parameter_count']} parameter_bounds"),
-            "  (inside any bound already proposed for the same name).",
+            "  (when bounds are already proposed, use only those names and stay inside their ranges).",
             "- Do not call tools, run research, execute code, cite URLs or resource identities, or claim an edge.",
             "- Keep your uncertainty and contradictions; respond to the independent critic honestly.",
             "  Dissent is not required. If the idea cannot be stated safely, use disposition NOT_READY.",
@@ -439,9 +439,15 @@ class IntentStrategySpecHandoff:
         if len(draft.parameter_bounds) != intent["free_parameter_count"]:
             problems.append("parameter_bounds count differs from the bound free_parameter_count")
         proposed = {b["name"]: b for b in intent["proposed_parameter_bounds"]}
-        for bound in draft.parameter_bounds:
-            prior = proposed.get(" ".join(bound.name.split()).lower())
-            if prior and not prior["minimum"] <= bound.minimum <= bound.maximum <= prior["maximum"]:
+        names = [" ".join(bound.name.split()).lower() for bound in draft.parameter_bounds]
+        if len(names) != len(set(names)):
+            problems.append("parameter_bounds names are duplicated after normalization")
+        for bound, name in zip(draft.parameter_bounds, names):
+            prior = proposed.get(name)
+            if proposed and prior is None:
+                problems.append(f"parameter {bound.name} is not one of the bound intent's declared parameters "
+                                f"{sorted(proposed)}")
+            elif prior and not prior["minimum"] <= bound.minimum <= bound.maximum <= prior["maximum"]:
                 problems.append(f"parameter {bound.name} widens the bound intent's proposed range")
         return problems
 

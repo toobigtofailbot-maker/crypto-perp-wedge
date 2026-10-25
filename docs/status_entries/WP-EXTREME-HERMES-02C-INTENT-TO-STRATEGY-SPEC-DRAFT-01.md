@@ -21,7 +21,7 @@
     `validate_strategy_specs`.
   - `verify` rechecks bytes and links and re-validates the drafts. With
     `--prepared-dir/--responses-dir` it replays the build byte-for-byte.
-- `tests/test_hermes_intent_strategy_spec_handoff.py`: 35 offline tests. They reuse the merged 02B
+- `tests/test_hermes_intent_strategy_spec_handoff.py`: 39 offline tests. They reuse the merged 02B
   fixtures (`make_packet`, `FrozenMemory`) to build real current-HEAD 02B batches.
 - `tools/hermes/README.md`: a concise opt-in operator section (input/output, manual model step,
   non-authority).
@@ -37,7 +37,7 @@ are all unchanged.
 |---|---|
 | Verify all 02B inputs; whole-batch tamper/stale fails closed | `test_stale_head_and_tampered_prepared_or_source_fail_closed`, CLI stale refusal in `test_cli_prepare_build_verify_replay_and_stale_refusal` |
 | Preserve all ideas, order, leads | `test_prepare_keeps_every_idea_in_order_and_binds_each_request` (DON, FLOW, LOB) |
-| Strict `ReasonedDraft` reply with exact id/hash echo | `test_invalid_model_responses_stay_not_ready_with_cause` (14 cases), `test_replay_substitution_and_inventory_tampering_fail_globally` (8 cases) |
+| Strict `ReasonedDraft` reply with exact id/hash echo | `test_invalid_model_responses_stay_not_ready_with_cause` (15 cases), `test_replay_substitution_and_inventory_tampering_fail_globally` (8 cases) |
 | Supported native family -> schema-valid noncanonical draft | `test_supported_family_drafts_unsupported_stays_not_ready_and_replay_is_exact` (donchian 4h; `validate_strategy_specs == []`; draft/none/no-reviewer flags) |
 | Unsupported order-flow / volatility -> `NOT_READY_UNSUPPORTED_FAMILY` / `NEEDS_CAPABILITY` | same test (FLOW) + `test_needs_data_family_mismatch_and_second_unsupported_family` (VOL) |
 | Compiler-visible but no history -> no testability claim | same test (OI: `NOT_READY_NEEDS_DATA`, `historically_testable_now is False`) |
@@ -84,6 +84,36 @@ are all unchanged.
 - Research Memory: no DSN here. The 02B fixtures use the frozen read-only memory fixture.
 - Science: no scientific, backtest, holdout, Stage 5B, Prefect, trading or capital action and no
   claim. A schema-valid draft is not a compiled, data-covered or profitable strategy.
+
+## Side 23 correction: declared parameter names
+
+Reviewed head `124fdda` checked a reply's parameter range only when its name matched one of the
+intent's proposed bounds. A reply with the right count but an invented name therefore passed. For
+Donchian, the native adapter then replaced the bounds with its own, so the result looked like a
+cleanly bound `DRAFT_SPEC_SCHEMA_VALID_REVIEW_REQUIRED`.
+
+`_binding` now rejects the reply as `NOT_READY_RESPONSE_INVALID`, with the exact reason, when:
+
+- the intent declares proposed bounds and a parameter name is not one of them (unknown or
+  substituted), or
+- two names are duplicates after normalization (whitespace collapse plus lowercase, the same rule as
+  the native intent).
+
+The count, finite-value and range checks are unchanged. When an intent declares no proposed bounds
+(only a count), there is no name to check, and nothing is invented or reassigned. The input model
+and native formalization semantics are unchanged.
+
+Evidence:
+
+- `test_invalid_model_responses_stay_not_ready_with_cause[invented_name]`: correct count and an
+  in-range value, emits no draft.
+- `test_parameter_names_must_be_the_declared_ones`: a duplicate after normalization and a
+  substituted second name are INVALID with no draft. The declared names in case/space variants
+  still reach the unchanged native path (`donchian_channel_breakout_v1`, one draft).
+- Fixture adjustment: the batch-A FLOW intent now declares one parameter for its one proposed bound,
+  so it still shows `NOT_READY_UNSUPPORTED_FAMILY`. The 02B fixture file is not modified.
+- The WP's five-file pytest command: 257 passed. The module alone: 39 passed. Ruff and
+  `git diff --check` are clean.
 
 ## Limitations
 

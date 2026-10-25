@@ -482,6 +482,9 @@ def stage_d(matrix, retain, produce):
         row = child(root, 'restore', 'restore-twice', cp, store, records, semantic, runs=2)
         if funding_not_persisted(receipt['checkpoint']):
             retain(row, reason='NATIVE_CURRENT_ARCHIVE_ERROR')  # fails closed, zero store mutation
+            # Only the observed native cause qualifies: the native load rebuilt no position at all.
+            assert all(r['native_receipt']['native_error'] == 'CURRENT_IDENTITY_MISMATCH'
+                       and r['native_receipt']['current_state']['positions'] == [] for r in row['runs']), scenario
             case['restore'] = 'RECONCILIATION_REQUIRED'
             case['restore_verdict'] = 'UNSUPPORTED_PINNED'
             continue

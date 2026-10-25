@@ -50,7 +50,14 @@ TRACE = {"_connect", "_update_account_state", "_init_dual_side_position", "gener
          "_reconcile_after_resubscribe", "_handle_stream_reconnect", "_resubscribe", "_resubscribe_locked",
          "_subscribe_rest", "_connect_stream_with_hook", "_safe_pre_dispatch_hook", "send_request",
          "query_futures_account_info", "query_futures_position_risk", "query_open_orders",
-         "query_all_orders", "query_user_trades", "query_order", "create_listen_key", "load_all_async"}
+         "query_all_orders", "query_user_trades", "query_order", "create_listen_key", "load_all_async",
+         # N3-04 LiveExecutionEngine reconciliation path (only reached under the engine opt-in).
+         "reconcile_execution_mass_status", "_reconcile_execution_mass_status", "_adjust_mass_status_fills",
+         "_deduplicate_mass_status_orders", "_reconcile_order_report", "_generate_order",
+         "_handle_order_status_transitions", "_reconcile_fill_report", "_check_and_skip_duplicate_fill",
+         "_generate_order_filled", "_handle_fill_quantity_mismatch", "_generate_inferred_fill",
+         "_handle_event_with_tracking", "_reconcile_position_report", "_reconcile_position_report_netting",
+         "_create_position_reconciliation_report", "_validate_reconciliation_state"}
 FORBIDDEN = {"submit_order", "submit_order_list", "modify_order", "cancel_order", "cancel_all_orders",
              "batch_cancel_orders", "_submit_order", "_submit_order_inner", "_submit_order_list",
              "_modify_order", "_cancel_order", "_cancel_all_orders", "_batch_cancel_orders",
@@ -119,7 +126,7 @@ def _profile(frame, event, arg):
 def _on_call(code, offset, target, arg0):
     """CALL monitor: sees Cython authority classes (invisible to the profile hook) at the Python call site."""
     state = _STATE
-    if state is None or not isinstance(target, type):
+    if state is None or not isinstance(target, type) or target is state["allow"]:
         return
     for cls in target.__mro__:
         if cls.__name__ in FORBIDDEN_CLASSES and cls.__module__.startswith("nautilus_trader."):
@@ -129,8 +136,11 @@ def _on_call(code, offset, target, arg0):
 
 
 @contextmanager
-def safety_boundary(output=None):
+def safety_boundary(output=None, allow=None):
     """Python audit/profile/CALL-monitor boundary; the CLI adds a Linux seccomp socket filter.
+
+    ``allow`` is the N3-04 offline-harness opt-in: it may only be exactly
+    ``LiveExecutionEngine`` (no subclass); every other authority class still refuses.
 
     Limit: construction performed inside compiled Cython/Rust code without a
     Python call site is not visible; the static tests forbid authority imports.
@@ -138,11 +148,18 @@ def safety_boundary(output=None):
     global _STATE, _HOOKED
     require(_STATE is None, "nested boundary")
     import nautilus_trader  # passive import, needed to bind upstream-file call evidence
+    upstream = str(Path(nautilus_trader.__file__).resolve().parent) + os.sep
+    if allow is not None:
+        # Object identity, not __module__/__qualname__ (assignable): the loaded upstream class itself.
+        engine = sys.modules.get("nautilus_trader.live.execution_engine")
+        require(engine is not None and allow is getattr(engine, "LiveExecutionEngine", None)
+                and str(Path(engine.__file__).resolve()).startswith(upstream), "only LiveExecutionEngine may be opted in")
     if not _HOOKED:
         sys.addaudithook(_audit)
         _HOOKED = True
     _STATE = state = {"output": None if output is None else Path(output).resolve(), "violations": [], "calls": {},
-                      "upstream": str(Path(nautilus_trader.__file__).resolve().parent) + os.sep}
+                      "allow": allow,
+                      "upstream": upstream}
     monitoring = sys.monitoring
     monitoring.use_tool_id(MONITOR_ID, "cpw-n3-03-boundary")
     monitoring.register_callback(MONITOR_ID, monitoring.events.CALL, _on_call)
@@ -342,7 +359,8 @@ def _mass(mass):
             "orders": orders, "fills": fills, "positions": positions}
 
 
-async def _native_run(fixture, tape, name):
+async def _native_run(fixture, tape, name, native=None):
+    """``native``, if given, collects the raw native objects (mass statuses, instrument, account state) for N3-04."""
     from nautilus_trader.adapters.binance.common.enums import BinanceAccountType, BinanceEnvironment
     from nautilus_trader.adapters.binance.config import BinanceExecClientConfig
     from nautilus_trader.adapters.binance.futures.execution import BinanceFuturesExecutionClient
@@ -399,7 +417,10 @@ async def _native_run(fixture, tape, name):
             receipt["startup"] = {"status": "REFUSED", "error_type": type(exc).__name__, "error": str(exc)}
         if receipt["startup"]["status"] == "OK":
             # Native startup reconciliation input, as the live engine requests it (no lookback cap).
-            receipt["routes"].append({"route": "startup", "mass_status": _mass(await client.generate_mass_status(lookback_mins=None))})
+            mass = await client.generate_mass_status(lookback_mins=None)
+            if native is not None:
+                native["mass"] = [("startup", mass)]
+            receipt["routes"].append({"route": "startup", "mass_status": _mass(mass)})
             for index in (1, 2) if name == "reconnect_gap" else ():
                 before = len(received["mass"])
                 transport.interrupt(1)
@@ -409,6 +430,8 @@ async def _native_run(fixture, tape, name):
                     await asyncio.sleep(0)
                 require(len(received["mass"]) == before + 1, "native after-resubscribe mass status not delivered")
                 receipt["routes"].append({"route": f"reconnect/{index}", "mass_status": _mass(received["mass"][-1])})
+                if native is not None:
+                    native["mass"].append((f"reconnect/{index}", received["mass"][-1]))
             held = fixture["scenarios"][name]["held"]["orders"]
             observed = {o["venue_order_id"] for r in receipt["routes"] if r["mass_status"] for o in r["mass_status"]["orders"]}
             # Absence from a failed mass status is not evidence; only complete routes trigger the native lookup.
@@ -420,6 +443,9 @@ async def _native_run(fixture, tape, name):
                         venue_order_id=VenueOrderId(voi), command_id=UUID4(), ts_init=clock.timestamp_ns()))
                     receipt.setdefault("single_lookups", []).append({"venue_order_id": voi, "report": None if report is None else _stable(report)})
         account = cache.account(client.account_id)
+        if native is not None:
+            native.update(instrument=provider.find(InstrumentId.from_str(n3_01.NATIVE_ID)),
+                          account_state=None if account is None else account.last_event)
         receipt["account"] = None if account is None else {
             "type": type(account).__name__, "id": str(account.id), "last_event": _stable_event(AccountState, account.last_event),
             "leverages": {str(k): str(v) for k, v in sorted(account.leverages().items(), key=lambda kv: kv[0].value)}}

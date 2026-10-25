@@ -54,10 +54,14 @@ opened on `claude/wp-extreme-hermes-02h-scientific-protocol-preflight-01` at
 `e2f2fb19249d601635007b5770844ba32627e4d7` for this exact WP. Its actual
 `build_files` calls native 02G verification for every input, conflicting with
 R2's historical/unknown metadata-only boundary. R2 explicitly forbids a second
-PR. This local R2 implementation is preserved on the requested existing Codex
-branch; remote publication/reconciliation requires owner direction. No
-competing PR is created and the other branch is left unchanged. The other
-PR's green smoke is not evidence for this implementation.
+PR. Karl subsequently authorized Option 1: integrate local R2 commit
+`27194c84a4c2426ea4e23e72aecb78c7182387cd` into existing PR #762 while
+preserving both histories. The reconciliation merge retains the R2 versions
+of these four files, supersedes the earlier implementation, and updates only
+this entry to record the resolution. The existing PR branch is updated by a
+normal fast-forward push; no force push or second PR is authorized or needed.
+Final-HEAD focused validation and hosted smoke are recorded in the updated PR
+description. Side 23 reviews the final PR; Karl alone decides whether to merge.
 
 Installed ponytail guided reuse of native fixtures, hash/publication/path
 helpers and installed Pydantic without a dependency or new trust mechanism.

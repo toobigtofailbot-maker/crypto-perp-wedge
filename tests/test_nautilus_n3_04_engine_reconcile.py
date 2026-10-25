@@ -180,9 +180,19 @@ def test_engine_opt_in_is_exact_and_other_guards_stay_active(tmp_path):
     class Subclass(LiveExecutionEngine):
         pass
 
-    with pytest.raises(proof.Rejected, match="only LiveExecutionEngine"):
-        with n3_03.safety_boundary(allow=RiskEngine):
-            pass
+    constructed = []
+
+    class Spoof(LiveExecutionEngine):
+        def __init__(self, *args):
+            constructed.append(args)
+
+    # A subclass forging the exact module/qualname is still refused, before any construction.
+    Spoof.__module__, Spoof.__qualname__ = LiveExecutionEngine.__module__, LiveExecutionEngine.__qualname__
+    for forged in (RiskEngine, Subclass, Spoof):
+        with pytest.raises(proof.Rejected, match="only LiveExecutionEngine"):
+            with n3_03.safety_boundary(allow=forged):
+                Spoof(None, None, None, None)
+    assert constructed == [] and n3_03._STATE is None
     for call in (lambda: RiskEngine(None, None, None), lambda: Trader(None, None, None), lambda: Subclass(None, None, None, None),
                  lambda: socket.socket(), lambda: hmac.new(b"k", b"m", "sha256"), lambda: (tmp_path / "x").write_text("x")):
         with n3_03.safety_boundary(tmp_path / "evidence", allow=LiveExecutionEngine) as state:

@@ -147,16 +147,19 @@ def safety_boundary(output=None, allow=None):
     """
     global _STATE, _HOOKED
     require(_STATE is None, "nested boundary")
-    require(allow is None or (allow.__module__, allow.__qualname__) == ("nautilus_trader.live.execution_engine",
-                                                                        "LiveExecutionEngine"),
-            "only LiveExecutionEngine may be opted in")
     import nautilus_trader  # passive import, needed to bind upstream-file call evidence
+    upstream = str(Path(nautilus_trader.__file__).resolve().parent) + os.sep
+    if allow is not None:
+        # Object identity, not __module__/__qualname__ (assignable): the loaded upstream class itself.
+        engine = sys.modules.get("nautilus_trader.live.execution_engine")
+        require(engine is not None and allow is getattr(engine, "LiveExecutionEngine", None)
+                and str(Path(engine.__file__).resolve()).startswith(upstream), "only LiveExecutionEngine may be opted in")
     if not _HOOKED:
         sys.addaudithook(_audit)
         _HOOKED = True
     _STATE = state = {"output": None if output is None else Path(output).resolve(), "violations": [], "calls": {},
                       "allow": allow,
-                      "upstream": str(Path(nautilus_trader.__file__).resolve().parent) + os.sep}
+                      "upstream": upstream}
     monitoring = sys.monitoring
     monitoring.use_tool_id(MONITOR_ID, "cpw-n3-03-boundary")
     monitoring.register_callback(MONITOR_ID, monitoring.events.CALL, _on_call)

@@ -628,3 +628,62 @@ SearchContract `NOT_ISSUABLE`, and noncanonical/review-required. No backtest,
 scientific trial, model, dispatch, preregistration, trading or capital action
 occurs. Physical history, partition provenance, costs, human semantic review,
 scientific protocol, envelope and Stage 5B gates remain unresolved.
+
+## Manual 02H scientific protocol preflight (default OFF)
+
+`scientific_protocol_preflight.py` re-verifies a 02G packet (`--signal-dir`)
+with every original 02G argument, then checks an optional operator study-plan
+proposal against that verified evidence. It reads no bars, compiles nothing new
+and calls no preregistration, pipeline, model or dispatch path.
+
+```powershell
+python -B -m tools.hermes.scientific_protocol_preflight build `
+  --signal-dir C:\scratch\02g --preparation-dir C:\scratch\02f `
+  --evidence-dir C:\scratch\02e --readiness-dir C:\scratch\02d `
+  --built-dir C:\scratch\02c --prepared-dir C:\scratch\prepared `
+  --responses-dir C:\scratch\responses --workspace C:\scratch\02f-workspace `
+  --proposal C:\scratch\proposal.json --output C:\scratch\new-02h
+```
+
+`verify`/`replay` take the same arguments and reproduce exact bytes. The
+proposal is a closed schema bound to the exact 02G content hash; any field may
+be omitted per idea and becomes a listed gap, never a default:
+
+```json
+{"schema_version":"cpw_hermes_scientific_protocol_proposal_v1","source_02g":"<02G content_sha256>",
+ "provenance":"OPERATOR_PROPOSED_HISTORICAL","non_holdout_certificate":"NOT_AVAILABLE",
+ "operator":"karl","rationale":"...","ideas":{"DON":{
+  "source_sha256":"<verified source sha256>","primary_timeframe":"4h",
+  "windows":{"construction":{"start":"...Z","end":"...Z"},"validation":{...},"final_holdout":{...}},
+  "purge_bars":1,"embargo_bars":1,"warmup_bars":20,"leakage_considerations":"...",
+  "costs":{"fee_bps":4.5,"slippage_bps":2,"funding_source":"...","cost_source":"..."},
+  "budget":{"max_trials":2,"max_compute_minutes":30},"robustness_plan":"...",
+  "multiple_testing_plan":"...","lineage_refs":["..."],"parameters":["channel_lookback_bars"],
+  "features":[]}}}
+```
+
+Refused outright (nothing written): unknown fields/ideas/parameters/features,
+a different 02G hash, source or timeframe substitution, any certificate value
+other than `NOT_AVAILABLE`, fixture/historical provenance confusion, negative,
+non-finite or zero budgets/costs, stale HEAD or tampered upstream packets.
+
+Per idea, results are `NOT_READY_PROPOSAL_MISSING`, `NOT_READY_UPSTREAM_NOT_COMPILED`
+(includes no verified source), `NOT_READY_PROPOSAL_INCOMPLETE`,
+`NOT_READY_STRUCTURE_INVALID` (with findings) or
+`PROPOSED_STRUCTURE_ONLY_REVIEW_REQUIRED`. The structural check covers only
+timezone-aware, bar-aligned, ordered, disjoint windows; gaps that fit the
+declared purge+embargo bars; declared warmup inside verified coverage; and a
+holdout boundary inside verified coverage **metadata**. It does not choose or
+judge thresholds, leakage, cost models or holdout isolation, and it never reads
+final-holdout contents. Every idea stays in source order with its complete 02G
+entry; nothing is ranked or selected. Shared source requirements are
+deduplicated with their idea lineage.
+
+The packet has `summary.json`, a human `review.md` and `SHA256SUMS`. Each idea
+carries a non-executable `input_map`: drafts are hashes for review only, and
+preregistration/SearchContract are `NOT_ISSUABLE`, no pipeline request is emitted,
+and envelope/lineage is `ABSENT`. Science is always `NOT_READY`, Stage 5B is
+inactive and there are no canonical writes. `material_decisions` lists what only
+future authority can decide: partition certification, protocol and cost
+authority, Strategy Spec review, native pipeline/preregistration binding, and
+envelope/lineage/Stage 5B.

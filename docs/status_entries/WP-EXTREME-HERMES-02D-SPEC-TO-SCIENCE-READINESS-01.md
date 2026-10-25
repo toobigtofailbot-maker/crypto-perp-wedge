@@ -1,6 +1,7 @@
 # WP-EXTREME-HERMES-02D-SPEC-TO-SCIENCE-READINESS-01
 
 - Branch: `codex/wp-extreme-hermes-02d-spec-to-science-readiness-01`.
+- PR: https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/755.
 - Base: `a75c7e49cebccfab4467d1ff3ad1dfbf244d86cb`, refreshed origin/main,
   containing merged 02C / PR #752. No competing PR or 02D remote branch at preflight.
 - Class: T2 bounded offline adapter; Lane A; manual, default OFF.

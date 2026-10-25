@@ -27,7 +27,7 @@ object/availability context. SearchContract is `NOT_ISSUABLE`: canonical admissi
 valid bounded request and approved envelope/durable lineage are missing. The
 adapter never calls those authority builders or synthesizes their inputs.
 
-## Requirement traceability and validation
+## Initial implementation requirement traceability and validation
 
 - `test_population_parameters_memory_and_honest_science`: full population,
   narrowed parameters, separate technical/scientific checks and exact missing inputs.
@@ -48,6 +48,24 @@ adapter never calls those authority builders or synthesizes their inputs.
   02C semantic capture binding from 02D exact raw-byte binding. No unresolved failure.
 - Ponytail review: full changed files and connected native APIs inspected for one
   manual bounded batch (at most eight ideas); no outstanding actionable finding.
+
+## PR #755 parameter-delta correction
+
+Reviewed head: `ff84e8627a615c5ace916bf938f4577cc82814ac`; base unchanged.
+`model_to_formalized_changed` now compares only the raw `parameter_bounds`
+lists. All model/intent/native/spec fields and the mandatory review status remain.
+No name normalization or general semantic-equivalence assertion is added.
+
+Repo-truth qualification: the current native producer copies the draft, so matching
+bounds already return False in the ordinary case. A labeled fixture changing only
+the native summary demonstrates why the broader whole-object comparison is wrong
+for this parameter-only field. That regression failed before the one-line fix.
+Both equal-bounds cases now pass, while genuine Donchian narrowing still returns True.
+
+Correction validation: 15 focused 02D tests and 39 adjacent 02C tests passed;
+Ruff and diff whitespace checks passed. Ponytail review found no remaining issue.
+Only the adapter, its focused test file and this existing fragment change; the PR
+retains its original four-file scope. No authority or protected-path change.
 
 ## Boundary and next dependency
 

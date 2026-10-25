@@ -55,6 +55,7 @@ def test_population_parameters_memory_and_honest_science(chain):
     assert review["intent_bounds"][0]["minimum"] == 10
     assert review["formalized_bounds"][0]["minimum"] == 20
     assert review["model_to_formalized_changed"] is True
+    assert review["status"] == "REQUIRES_REVIEW_NO_SEMANTIC_EQUIVALENCE_ASSERTED"
     assert check["compiler"]["status"] == "PASSED"
     assert check["compiler"]["label"] == "SYNTHETIC_TECHNICAL_ONLY"
     assert result["preregistration"]["missing_inputs"] == sr.PREREG_MISSING
@@ -66,6 +67,34 @@ def test_population_parameters_memory_and_honest_science(chain):
         assert receipt["science_status"] == "NOT_READY"
         assert receipt["next_legal_investigation"]
     assert result["source_02c"]["model_response"]["authorship"] == "NOT_MODEL_OUTPUT_LABELED_FIXTURE"
+
+
+@pytest.mark.parametrize("summary_changed", [False, True])
+def test_matching_parameter_bounds_do_not_claim_a_change(tmp_path, monkeypatch, summary_changed):
+    if summary_changed:
+        formalize = hs.CpwDomainTools.formalize_strategy_draft
+
+        def with_summary_change(self, request):
+            result = formalize(self, request)
+            result["domain_semantics"]["research_object"]["summary"] = "Labeled fixture: unrelated summary edit."
+            return result
+
+        monkeypatch.setattr(hs.CpwDomainTools, "formalize_strategy_draft", with_summary_change)
+    native = _don_native(proposed_parameter_bounds=[
+        {"name": "channel_lookback_bars", "minimum": 20.0, "maximum": 55.0}])
+    batch = make_batch(tmp_path, [_idea("DON", native)])
+    prepared = prepare(tmp_path, batch)
+    responses = tmp_path / "responses"
+    respond(prepared, responses, 0)
+    built, _ = build(tmp_path, prepared, responses)
+    files = sr.ScienceReadiness().build_files(built, prepared, responses)
+    result = json.loads(files["ideas/00.receipt.json"])
+    review = result["technical_checks"][0]["parameter_review"]
+    assert review["model_bounds"] == review["formalized_bounds"]
+    assert (result["source_02c"]["model_response"]["reasoned_draft"] !=
+            result["source_02c"]["native_formalization"]["research_object"]) is summary_changed
+    assert review["model_to_formalized_changed"] is False
+    assert review["status"] == "REQUIRES_REVIEW_NO_SEMANTIC_EQUIVALENCE_ASSERTED"
 
 
 def test_cli_build_verify_replay_identical_bytes_and_no_repo_writes(chain, tmp_path):

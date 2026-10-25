@@ -134,7 +134,7 @@ class ScienceReadiness:
                         "intent_bounds": request["bound_intent"]["proposed_parameter_bounds"],
                         "model_bounds": model_draft["parameter_bounds"],
                         "formalized_bounds": formalized["parameter_bounds"],
-                        "model_to_formalized_changed": model_draft != formalized,
+                        "model_to_formalized_changed": model_draft["parameter_bounds"] != formalized["parameter_bounds"],
                         "spec_parameters": spec["free_parameters"],
                         "next_action": "review all adapter changes, fixed mechanics and emitted parameter domains",
                     },

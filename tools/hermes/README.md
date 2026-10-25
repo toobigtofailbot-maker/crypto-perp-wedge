@@ -628,3 +628,61 @@ SearchContract `NOT_ISSUABLE`, and noncanonical/review-required. No backtest,
 scientific trial, model, dispatch, preregistration, trading or capital action
 occurs. Physical history, partition provenance, costs, human semantic review,
 scientific protocol, envelope and Stage 5B gates remain unresolved.
+
+## Manual 02H protocol proposal preflight (default OFF)
+
+`scientific_protocol_preflight.py` reviews an explicitly supplied **stand-alone
+02G summary JSON** and operator-authored proposal. It never follows paths in
+that summary, traverses a workspace, loads bars/features, or invokes upstream
+verification, compilation, science, models or execution:
+
+```powershell
+python -B -m tools.hermes.scientific_protocol_preflight build `
+  --summary C:\scratch\supplied-02g-summary.json `
+  --proposal C:\scratch\protocol-proposal.json --output C:\scratch\new-02h
+```
+
+`verify`/`replay` take the same arguments and check **02H output integrity only**.
+Inputs must be stand-alone external `.json` files, bounded, ordinary and unlinked. Output is new,
+external to Git, immutable, and disjoint from the explicit inputs. The summary's
+own digest is a self-declared tamper check, never native/source verification.
+All operator results are `METADATA_ONLY_UNVERIFIED` /
+`PROPOSED_METADATA_ONLY_UNVERIFIED`, science `NOT_READY`, SearchContract
+`NOT_ISSUABLE`. A source claiming `SOFTWARE_FIXTURE_PROOF` cannot change this.
+There is no CLI fixture/provenance override or real-data acceptance path.
+
+The exact proposal schema is `cpw_hermes_protocol_proposal_v1`: `repo_sha`,
+`source_02g` (content hash), and `ideas` in the complete original order. Each
+idea supplies `idea_id`, `source_idea_sha256` (native canonical hash of that
+02G idea), `parameters` (unchanged declared compilation assignment, or `{}`),
+`timeframe`, `cadence_bars`, and `windows` (`kind`, `start`, `end`). Windows are
+explicit UTC half-open ranges, ordered construction, validation, final_holdout;
+multiple disjoint construction/validation ranges and exactly one final_holdout
+are supported. Endpoints align to the declared cadence. Supply `purge_bars`,
+`embargo_bars`, `gap_convention` (`purge_plus_embargo_between_windows`),
+`indicator_warmup_bars`, `warmup_bars`, `warmup_convention`
+(`within_each_window`), `costs`, `budget`,
+`family_data_requirements`, and `review_rationale`. Costs contain `fee_bps`,
+`slippage_bps`, `funding_bps`, `other_cost_bps`, each with positive finite `value`
+and `provenance`; budget contains positive `trials`, `cpu_seconds`, `memory_mb`,
+and `rationale`. No numeric defaults, policy thresholds or partition boundaries
+are supplied. Warmup/gaps are checked only against the operator's own declared
+requirements and explicit accounting conventions; their scientific adequacy
+remains unapproved. Other conventions need later separately scoped support.
+The test's
+`proposal_for` shows a complete synthetic example, not a recommended protocol.
+
+Every upstream idea, draft/parameters, critic, Research Memory history, queue
+entry and unresolved gap is retained as explicitly **unverified metadata**.
+Per-idea and shared next-input lists retain physical validation, independent
+non-holdout admission, semantic/protocol review, true native spec/data/protocol
+binding, preregistration, trial lineage, envelope and Stage 5B blockers. No
+PipelineRequest or pipeline ID is invented.
+
+The separate `SOFTWARE_FIXTURE_NATIVE_REPLAY` dossier is produced **only by the
+test creator**, after generating a fresh synthetic-only 02B–02G chain and
+running unchanged native replay. It retains `PROPOSED_STRUCTURE_ONLY_REVIEW_REQUIRED`,
+`NOT_READY` and `NOT_ISSUABLE`. That deterministic dossier proves software
+integration only; it cannot certify history or a non-holdout partition. 02H
+does not accept a caller's label/hash as evidence for this class. Neither
+evidence class is consumed by native trust/admission machinery.

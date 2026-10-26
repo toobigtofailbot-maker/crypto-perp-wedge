@@ -686,3 +686,53 @@ running unchanged native replay. It retains `PROPOSED_STRUCTURE_ONLY_REVIEW_REQU
 integration only; it cannot certify history or a non-holdout partition. 02H
 does not accept a caller's label/hash as evidence for this class. Neither
 evidence class is consumed by native trust/admission machinery.
+
+### 02J CPW guarded synthetic byte proof
+
+`tools.research_autonomy.nonholdout_qualification.NonHoldoutQualification`
+adds a separate, explicit software-only consumer. Existing 02E–02H operator
+interfaces and historical refusals are unchanged. No CLI, automatic native
+replay, compiler/model callback or scientific execution is added.
+
+The owner control connection records an immutable custodian public key and exact
+partition designation in the existing authority DB. `cpw_nonholdout_owner` is a
+NOLOGIN role, has no membership grant to the writer, and seeds no key, partition
+or real custodian. Only isolated tests exercise it. The operator writer can read
+these records but cannot appoint, replace or revoke them. Replacement appends a
+revocation of the old ID and a new immutable designation; revocation also supports
+custodian and attestation IDs. All controls bind to the existing authority audit.
+
+The closed request binds code commit, envelope, campaign/domain/holdout lineage,
+protocol and manifest hashes, whole-object identities, evaluation/warmup and
+transitive physical ancestry. All records reject unknown fields. Ed25519 custody
+signatures use a domain-separated canonical message and resolve their key only
+from owner-controlled DB records. Missing/revoked/stale evidence, protected
+overlap (including the envelope's purge/embargo), incomplete availability or
+ancestry refuses before object byte reads. A missing DB has no cached fallback.
+
+The only supported storage route accepts existing **Linux sealed anonymous
+handles**, never paths. It duplicates each handle, checks the signed device,
+inode, ctime and size, requires zero filesystem links and all four immutable
+seals, and pins every dependency before reading any bytes. This is the
+[Linux file-sealing contract](https://www.man7.org/linux/man-pages/man2/F_GET_SEALS.2const.html).
+Windows and Linux builds lacking the required primitives refuse; no Windows
+ACL/ancestor rule is relaxed. Ordinary files, hardlinks and pathname aliases
+cannot enter this interface. A denied write may still advance Linux ctime and
+invalidate the signed identity even though sealed bytes remain unchanged.
+
+Validation consumes only the closed synthetic CSV grammar
+`open_ms,available_ms,value`: exact aligned rows, exclusive completed-bar
+availability and sequential fixture values. It preserves distinct full-parent,
+catalog/validation/recipe and bounded-object hashes. Derived and feature objects
+require explicitly covered parents; it does **not** validate historical OHLCV or
+replace native canonical loaders. Metadata, keys and handles are externally
+prepared; this API never extracts a subset from a full parent. The tests are the
+fixture creator and independent test custodian, with ephemeral signing keys.
+
+The authority transaction remains locked through pinned-byte validation and its
+campaign audit append. Revocation/contamination serialize with that use. A crash
+rolls back the audit without changing domain; successful use advances lineage,
+so an old request/receipt is not permission to read again. The result returns
+only validation metadata: `SYNTHETIC_BYTES_VALIDATED`, science `NOT_READY`,
+SearchContract `NOT_ISSUABLE`, `NATIVE_HANDOFF_NOT_INTEGRATED`.
+No real-history admission, trust provisioning or Stage 5B activation follows.

@@ -1,4 +1,4 @@
-"""Offline N2-05 continuity proof. Native clones have no production or order authority."""
+"""Offline N2-05 continuity and N2-06 funding/liquidation proof. Native clones have no production or order authority."""
 import hashlib
 import json
 import os
@@ -10,7 +10,7 @@ import time
 from decimal import Decimal
 
 BINARY = Path('/tmp/cpw-target/debug/cpw-n2-history-route')
-ROOT = Path(os.environ.get('CPW_PROOF_ROOT', '/evidence/physical-n2-05'))
+ROOT = Path(os.environ.get('CPW_PROOF_ROOT', '/evidence/physical-n2-06'))
 READONLY_USER = 'cpw-restore-readonly'
 NO_AUTHORITY = 'NO_NEW_ORDERS / NO_RESUME'
 
@@ -300,7 +300,7 @@ def produce_case(label, scenario='reversal', boundary=None):
                     marker = root / 'boundary.json'
                     try:
                         reached = json.loads(marker.read_bytes())
-                    except (FileNotFoundError, json.JSONDecodeError):
+                    except (OSError, json.JSONDecodeError):  # absent or mid-write on the bind mount; retried
                         reached = None
                     if boundary and reached and reached['boundary'] == boundary:
                         assert reached['pid'] == producer.pid
@@ -342,6 +342,219 @@ MULTI_WITNESS = {'frames': 2, 'decimal': {'portfolio_realized_pnl': '59.752', 'e
                                           'portfolio_unrealized_pnl': '0', 'portfolio_net_exposure': '0'}}
 OPEN_WITNESS = {'frames': 0, 'open': True, 'quantity': '1.000',
                 'decimal': {'portfolio_unrealized_pnl': '10', 'portfolio_net_exposure': '110', 'equity': '9999.96'}}
+
+# N2-06. CPW references are the unchanged N1-02 oracle (tests/test_nautilus_n1_02_parity.py):
+# funding_paid = side * rate * 100 for q=1 at 100; short 100 @ 100 liquidates at the first adverse
+# close (195 maintenance, 200/250 zero floor) with final equity 0. Native values are never adjusted.
+BOUNDARY_NS = 1_800_000_001_500_000_000
+FIRST_STRESS_NS = 1_800_000_001_000_000_000
+FUNDING = {'funding_long_pos': (1, '0.01'), 'funding_long_neg': (1, '-0.01'), 'funding_short_pos': (-1, '0.01'),
+           'funding_short_neg': (-1, '-0.01'), 'funding_flat_pos': (0, '0.01'), 'funding_flat_neg': (0, '-0.01'),
+           'funding_duplicate': (1, '0.01'), 'funding_missing': (1, None), 'funding_no_boundary': (1, None)}
+FUNDING_REFUSALS = {'funding_stale': 'Late funding boundary', 'funding_cross_instrument': 'Funding settlement failed'}
+LIQUIDATION = [f'liquidation_{mode}_{price}' for price in (195, 200, 250) for mode in ('on', 'off')]
+VERDICTS = ('PROVEN', 'BOUNDED_DIVERGENCE', 'UNSUPPORTED_PINNED', 'UNVERIFIED')
+
+
+def money(value):
+    return Decimal(value.split()[0])
+
+
+def economics(checkpoint):
+    """Stable native projection for repeat comparison; volatile UUIDs, PIDs and run IDs are excluded."""
+    state = checkpoint['state']
+    return {'run_error': checkpoint['run_error'],
+            'settlements': [{k: s[k] for k in ('instrument_id', 'rate', 'settlement_price', 'currency', 'ts_event')}
+                            for s in checkpoint['funding_settlements']],
+            'accounts': [{k: a.get(k) for k in ('equity', 'balances', 'initial_margins', 'maintenance_margins')}
+                         for a in state['accounts']],
+            'positions': [{'closed': p['closed'], 'pnl': p['pnl'], 'side': p['native']['side'],
+                           'quantity': p['native']['quantity'], 'commissions': p['native']['commissions'],
+                           'adjustments': [{k: a[k] for k in ('adjustment_type', 'pnl_change', 'ts_event')}
+                                           for a in p['native']['adjustments']]} for p in state['positions']],
+            'orders': sorted((o['id'].startswith('LIQUIDATION-'), o['status'], o['filled']) for o in state['orders']),
+            'fills': sorted((f['payload']['order_side'], f['payload']['last_qty'], f['payload']['last_px'],
+                             f['payload']['ts_event'], f['order_id'].startswith('LIQUIDATION-')) for f in state['fills']),
+            'pnl': [state[k] for k in ('portfolio_realized_pnl', 'portfolio_unrealized_pnl', 'portfolio_net_exposure')]}
+
+
+def funding_verdict(scenario, view):
+    """One verdict from native observations against the unchanged CPW funding reference."""
+    side, rate = FUNDING.get(scenario, (1, '0.01'))
+    adjustments = [a for p in view['positions'] for a in p['adjustments'] if a['adjustment_type'] == 'FUNDING']
+    commissions = sum(money(c) for p in view['positions'] for c in p['commissions'].values())
+    cash = sum((money(a['pnl_change']) for a in adjustments), Decimal(0))
+    equity = Decimal(view['accounts'][0]['equity'])
+    expected = -side * Decimal(rate) * 100 if rate else Decimal(0)
+    row = {'scenario': scenario, 'cpw_reference_cash': str(expected), 'native_cash': str(cash),
+           'native_settlements': view['settlements'], 'native_adjustments': adjustments,
+           'native_equity': str(equity), 'native_commissions': str(commissions), 'run_error': view['run_error']}
+    if scenario in FUNDING_REFUSALS:
+        refused = FUNDING_REFUSALS[scenario] in (view['run_error'] or '') and not adjustments and not view['settlements']
+        row['verdict'] = 'PROVEN' if refused else 'UNVERIFIED'
+        row['proven'] = 'native fail-closed run error at the settlement gate; no cash effect' if refused else None
+        return row
+    if view['run_error']:
+        row['verdict'] = 'UNVERIFIED'
+    elif expected and not view['settlements']:
+        row['verdict'] = 'UNSUPPORTED_PINNED'
+    else:
+        settled = [(s['rate'], s['settlement_price'], s['ts_event']) for s in view['settlements']]
+        exact = (settled == ([(rate, '100.00', BOUNDARY_NS)] if expected else [])
+                 and len(adjustments) == (1 if expected else 0)
+                 and cash == expected and equity == 10000 - commissions + cash)
+        row['verdict'] = 'PROVEN' if exact else 'BOUNDED_DIVERGENCE'
+    return row
+
+
+def liquidation_verdict(scenario, view, paired_on=None):
+    """Native mechanism vs the unchanged CPW liquidation reference; `off` proves the disable switch."""
+    liquidations = [f for f in view['fills'] if f[4]]
+    position = view['positions'][0]
+    equity = Decimal(view['accounts'][0]['equity'])
+    row = {'scenario': scenario, 'native_liquidation_fills': liquidations, 'native_equity': str(equity),
+           'native_position': position, 'native_maintenance_margins': view['accounts'][0]['maintenance_margins'],
+           'cpw_reference': {'liquidated_at_ns': FIRST_STRESS_NS, 'final_equity': '0', 'surviving_position': False},
+           'run_error': view['run_error']}
+    if view['run_error']:
+        row['verdict'] = 'UNVERIFIED'
+    elif '_off_' in scenario:
+        disabled = (not liquidations and not position['closed'] and position['quantity'] == '100.000'
+                    and paired_on is not None and paired_on['native_liquidation_fills'])
+        row['verdict'] = 'PROVEN' if disabled else 'UNVERIFIED'
+    elif not liquidations:
+        row['verdict'] = 'UNSUPPORTED_PINNED'
+    else:
+        at_first_stress = [f[3] for f in liquidations] == [FIRST_STRESS_NS] and position['closed']
+        row['verdict'] = ('UNVERIFIED' if not at_first_stress else 'PROVEN' if equity == 0 else 'BOUNDED_DIVERGENCE')
+    return row
+
+
+def funding_not_persisted(checkpoint):
+    """Native rc7 Redis `update_position` re-appends the position's last fill for a funding adjustment and
+    the native loader rejects the duplicate (redis/queries.rs `Duplicate fill event`): the funded position
+    cannot be rebuilt from the cache. True only when the producer's own native records show exactly that."""
+    adjusted = any(a['adjustment_type'] == 'FUNDING'
+                   for p in checkpoint['state']['positions'] for a in p['native']['adjustments'])
+    records = [r['value'] for key, r in checkpoint['redis_contents'].items() if ':positions:' in key]
+    events = [[json.loads(e) for e in record] for record in records]
+    duplicated = any(len(rows) != len({e['event_id'] for e in rows}) for rows in events)
+    return adjusted and duplicated and all(e['type'] == 'OrderFilled' for rows in events for e in rows)
+
+
+def require_refusal_without_admission(row):
+    """`resume` must exit non-zero before any admission receipt and leave every store unchanged."""
+    assert row['exit'] != 0 and row['admission'] is None and row['native_receipt'] is None, row
+    assert not row['changed_keys'] and not row['content_changed_keys'], row
+    assert row['source_files_before'] == row['source_files_after'], row
+    return True
+
+
+def stage_d(matrix, retain, produce):
+    """N2-06: every scenario produced twice on the frozen binary; verdicts from native observations only;
+    each successful producer restored twice through the unchanged N2-05 read-only path."""
+    matrix['n2_06_cases'] = []
+    producers = {}
+    for scenario in list(FUNDING) + list(FUNDING_REFUSALS) + LIQUIDATION:
+        runs = [produce(f'{scenario}_{repeat}', scenario) for repeat in 'ab']
+        views = [economics(run[3]['checkpoint']) for run in runs]
+        assert views[0] == views[1], ('NONDETERMINISTIC_NATIVE_ECONOMICS', scenario, views)
+        producers[scenario] = runs[0]
+        if scenario.startswith('liquidation_'):
+            paired = (next(c for c in matrix['n2_06_cases'] if c['scenario'] == scenario.replace('_off_', '_on_'))
+                      if '_off_' in scenario else None)
+            case = liquidation_verdict(scenario, views[0], paired)
+        else:
+            case = funding_verdict(scenario, views[0])
+        assert case['verdict'] in VERDICTS
+        case['repeat_identical'] = True
+        case['producer_pids'] = [run[3]['pid'] for run in runs]
+        matrix['n2_06_cases'].append(case)
+        save(ROOT / 'results.json', matrix)
+
+    # Funded and liquidated terminal states through the existing read-only restore, twice per clone.
+    for scenario, (root, records, semantic, receipt) in producers.items():
+        cp, store = root / 'checkpoint.json', root / 'event_store'
+        if receipt['checkpoint']['run_error']:
+            retain(child(root, 'restore', 'native-run-failed', cp, store, records, semantic), reason='NATIVE_RUN_FAILED')
+            continue
+        case = next(c for c in matrix['n2_06_cases'] if c['scenario'] == scenario)
+        row = child(root, 'restore', 'restore-twice', cp, store, records, semantic, runs=2)
+        if funding_not_persisted(receipt['checkpoint']):
+            retain(row, reason='NATIVE_CURRENT_ARCHIVE_ERROR')  # fails closed, zero store mutation
+            # Only the observed native cause qualifies: the native load rebuilt no position at all.
+            assert all(r['native_receipt']['native_error'] == 'CURRENT_IDENTITY_MISMATCH'
+                       and r['native_receipt']['current_state']['positions'] == [] for r in row['runs']), scenario
+            case['restore'] = 'RECONCILIATION_REQUIRED'
+            case['restore_verdict'] = 'UNSUPPORTED_PINNED'
+            continue
+        is_open = any(not p['closed'] for p in receipt['checkpoint']['state']['positions'])
+        retain(row, admitted=not is_open, open_exposure=is_open)  # native `equal`: full producer state, both runs
+        case['restore'] = 'OPEN_EXPOSURE_RECONSTRUCTED_NO_RESUME' if is_open else 'RECOVERY_ADMITTED_SEALED'
+        case['restore_verdict'] = 'PROVEN'
+
+    # Adversarial controls. Receipt/binding gates run before any native load, so they use the funded
+    # producer; history and authority controls use producers whose genuine restore is admitted.
+    funded, f_records, f_semantic, _ = producers['funding_long_pos']
+    f_cp, f_store = funded / 'checkpoint.json', funded / 'event_store'
+    liquidated, l_records, l_semantic, _ = producers['liquidation_on_195']
+    l_cp, l_store = liquidated / 'checkpoint.json', liquidated / 'event_store'
+    survived, s_records, s_semantic, _ = producers['liquidation_off_195']
+    s_cp, s_store = survived / 'checkpoint.json', survived / 'event_store'
+
+    def funded_cash(data, _):
+        data['state']['positions'][0]['native']['adjustments'][0]['pnl_change'] = '-2.00000000 USDT'
+        return 'funding adjustment doubled in receipt'
+
+    def binding(field, value):
+        def change(data, _):
+            data[field] = value
+            return field
+        return change
+
+    def missing_position(target):
+        key = next(k for k in redis(6398, '--scan').decode().splitlines() if ':positions:' in k)
+        redis(6398, 'DEL', key)
+        return {'deleted_native_key': key}
+
+    def missing_position_resigned(data, target):
+        key = missing_position(target)['deleted_native_key']
+        del data['redis_contents'][key]
+        return 'liquidated position record deleted; receipt contents follow it'
+
+    def widened(data, _):
+        data['resume'] = 'RESUME_AUTHORIZED'
+        data['order_authority'] = 'ORDERS_PERMITTED'
+        return 'receipt claims resume/order authority'
+
+    def liquidation_order(data, _):
+        order = next(o for o in data['state']['orders'] if o['id'].startswith('LIQUIDATION-'))
+        order['status'] = 'CANCELED'
+        return 'liquidation order status altered'
+
+    for label, args, kwargs, expect in [
+            ('tampered-funded-receipt', (resigned(funded_cash),), {}, {'reason': 'UNVERIFIED_AUTHORITY_RECEIPT'}),
+            ('altered-source-binding', (resigned(binding('source', '0' * 40)),), {'resign': True},
+             {'reason': 'SOURCE_IDENTITY'}),
+            ('altered-lock-binding', (resigned(binding('cargo_lock_sha256', '0' * 64)),), {'resign': True},
+             {'reason': 'LOCK_IDENTITY'}),
+            ('missing-funded-position', (missing_position,), {}, {'reason': 'REDIS_PRODUCER_PAIR_MISMATCH'})]:
+        retain(child(funded, 'restore', label, f_cp, f_store, f_records, f_semantic, *args, **kwargs), **expect)
+    for label, args, kwargs, expect in [
+            ('tampered-liquidation-resigned', (resigned(liquidation_order),), {'resign': True},
+             {'reason': 'NATIVE_CURRENT_ARCHIVE_ERROR'}),
+            ('missing-liquidated-position', (missing_position,), {}, {'reason': 'REDIS_PRODUCER_PAIR_MISMATCH'}),
+            ('missing-liquidated-position-resigned', (resigned(missing_position_resigned),), {'resign': True},
+             {'reason': 'NATIVE_CURRENT_ARCHIVE_ERROR'})]:
+        retain(child(liquidated, 'restore', label, l_cp, l_store, l_records, l_semantic, *args, **kwargs), **expect)
+    retain(child(survived, 'restore', 'widened-authority-receipt', s_cp, s_store, s_records, s_semantic,
+                 resigned(widened), resign=True), open_exposure=True)
+    for root, records, semantic in ((funded, f_records, f_semantic), (liquidated, l_records, l_semantic)):
+        row = child(root, 'resume', 'resume-refused', root / 'checkpoint.json', root / 'event_store',
+                    records, semantic)
+        matrix['cases'].append(row)
+        require_refusal_without_admission(row)
+    save(ROOT / 'results.json', matrix)
 
 
 def main():
@@ -512,6 +725,9 @@ def main():
             retain(child(case_root, 'restore', 'restart', case_root / 'checkpoint.json',
                          case_root / 'event_store', case_records, case_semantic), admitted=boundary == 'acknowledged')
 
+        matrix['n2_05_regression'] = 'N2_05_NATIVE_CONTINUITY_PASSED'
+        stage_d(matrix, retain, produce)
+
         # Original producer stores and receipts are byte-identical after every restore.
         for producer in matrix['producers']:
             root = ROOT / producer['label']
@@ -520,7 +736,11 @@ def main():
             if producer['checkpoint_sha256']:
                 assert sha((root / 'checkpoint.json').read_bytes()) == producer['checkpoint_sha256']
         matrix['producers_unchanged'] = True
-        matrix['outcome'] = 'N2_05_NATIVE_CONTINUITY_PASSED'
+        cases = matrix['n2_06_cases']
+        accepted = all(c['verdict'] in ('PROVEN', 'BOUNDED_DIVERGENCE') for c in cases)
+        restored = all(c.get('restore_verdict', 'PROVEN') == 'PROVEN' for c in cases)
+        matrix['outcome'] = ('N2_06_BLOCKED_UNPROVEN_POSITIVE' if not accepted else 'N2_06_NATIVE_CHARACTERIZED'
+                             if restored else 'N2_06_NATIVE_CHARACTERIZED_FUNDED_RESTORE_UNSUPPORTED')
     except BaseException as error:
         matrix['hard_stop'] = repr(error)
         if matrix['stage_a_passed']:

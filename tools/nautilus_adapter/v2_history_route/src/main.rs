@@ -5,7 +5,7 @@ use anyhow::{Result, ensure};
 use nautilus_backtest::{config::{BacktestEngineConfig, SimulatedVenueConfig}, engine::BacktestEngine};
 use nautilus_common::{cache::{Cache, CacheConfig}, cache::database::CacheDatabaseFactory,
     clock::{Clock, VirtualClock}, enums::Environment, actor::DataActor,
-    msgbus::{self, BusTap, MStr, Topic, Endpoint}};
+    msgbus::{self, BusTap, MStr, ShareableMessageHandler, Topic, Endpoint}};
 use nautilus_core::{UUID4, UnixNanos};
 use nautilus_event_store::{EventStoreEntry, EventStoreError, EventStoreLifecycle, EventStoreLifecycleOptions,
     RunManifest, RunStatus, ScanDirection, SnapshotAnchor, apply_cache_replay_entry, compute_snapshot_content_hash,
@@ -14,9 +14,9 @@ use nautilus_event_store::backend::{AppendEntry, EventStore, IndexKind, RedbBack
 use nautilus_event_store::capture::encode_order_filled;
 use nautilus_execution::models::fee::{FeeModelAny, MakerTakerFeeModel};
 use nautilus_infrastructure::redis::cache::RedisCacheConfig;
-use nautilus_model::{accounts::{Account, AccountAny}, data::{Data, QuoteTick}, enums::{AccountType, BookType, OmsType, OrderSide},
+use nautilus_model::{accounts::{Account, AccountAny}, data::{Data, FundingRateUpdate, QuoteTick}, enums::{AccountType, BookType, OmsType, OrderSide},
     identifiers::{InstrumentId, StrategyId, Symbol, TraderId, Venue},
-    instruments::{CryptoPerpetual, Instrument, InstrumentAny}, orders::Order, events::{OrderEventAny, OrderFilled},
+    instruments::{CryptoPerpetual, Instrument, InstrumentAny}, orders::Order, events::{FundingSettlement, OrderEventAny, OrderFilled},
     types::{Currency, Money, Price, Quantity}};
 use nautilus_portfolio::Portfolio;
 use nautilus_system::{RegisteredComponents, event_store::{EventStoreConfig, RunIdentity}};
@@ -26,6 +26,11 @@ use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 
 const SOURCE: &str = "55c0e82053142bce3a5cba4de4221d3929c2d3bc";
+const SCENARIOS: &[&str] = &["round_trip", "reversal", "multi_cycle", "open",
+    "funding_long_pos", "funding_long_neg", "funding_short_pos", "funding_short_neg", "funding_flat_pos",
+    "funding_flat_neg", "funding_duplicate", "funding_missing", "funding_no_boundary", "funding_stale",
+    "funding_cross_instrument", "liquidation_on_195", "liquidation_off_195", "liquidation_on_200",
+    "liquidation_off_200", "liquidation_on_250", "liquidation_off_250"];
 fn hash(bytes: &[u8]) -> String { format!("{:x}", Sha256::digest(bytes)) }
 fn binary_hash() -> Result<String> { Ok(hash(&fs::read(std::env::current_exe()?)?)) }
 fn lock_hash() -> String { hash(include_bytes!("../Cargo.lock")) }
@@ -44,6 +49,7 @@ fn authority(checkpoint: &Value) -> Result<()> {
         ensure!(checkpoint[field].as_str().is_some_and(|s| !s.is_empty()), "MISSING_IDENTITY: {field}");
     }
     ensure!(checkpoint["watermark"].as_u64().is_some_and(|n| n > 0), "STALE_WATERMARK");
+    ensure!(checkpoint["run_error"].is_null(), "NATIVE_RUN_FAILED");
     for field in ["redis_contents", "source_files", "state", "manifest"] {
         ensure!(checkpoint[field].as_object().is_some_and(|v| !v.is_empty()), "MISSING_RECEIPT: {field}");
     }
@@ -176,6 +182,24 @@ fn instrument() -> InstrumentAny {
         .margin_init(Decimal::new(1, 1)).margin_maint(Decimal::new(5, 2))
         .ts_event(UnixNanos::default()).ts_init(UnixNanos::default()).build().unwrap().into()
 }
+// N2-06 controlled fixture input only: native funding-rate updates. Settlement, sign, basis and
+// cash effect belong to the native exchange; boundary 1.5s falls between the 1s and 2s quotes.
+fn funding_updates(scenario: &str, id: InstrumentId) -> Vec<Data> {
+    let t = |ms: u64| UnixNanos::from(1_800_000_000_000_000_000u64 + ms * 1_000_000);
+    let rate = if scenario.ends_with("_neg") { Decimal::new(-1, 2) } else { Decimal::new(1, 2) };
+    let update = |id, at, boundary| Data::FundingRate(FundingRateUpdate::new(id, rate, None, boundary, t(at), t(at)));
+    let boundary = Some(t(1500));
+    match scenario {
+        "funding_missing" => vec![],
+        "funding_no_boundary" => vec![update(id, 500, None)],
+        "funding_stale" => vec![update(id, 1600, boundary)],
+        "funding_cross_instrument" => vec![update(InstrumentId::from("ETHUSDT-PERP.SIM"), 500, boundary)],
+        "funding_duplicate" => vec![update(id, 500, boundary), update(id, 1200, boundary), update(id, 2500, boundary)],
+        s if s.starts_with("funding_") => vec![update(id, 500, boundary)],
+        _ => vec![],
+    }
+}
+
 fn config() -> CacheConfig { CacheConfig { use_trader_prefix: true, use_instance_id: false,
     flush_on_start: false, buffer_interval_ms: Some(0), ..Default::default() } }
 fn db(rt: &tokio::runtime::Runtime, trader: TraderId, instance: UUID4, restore: bool)
@@ -231,6 +255,10 @@ impl DataActor for Script {
             "multi_cycle" => vec![(OrderSide::Buy, "1.000"), (OrderSide::Sell, "2.000"),
                 (OrderSide::Buy, "2.000"), (OrderSide::Sell, "1.000")],
             "open" => vec![(OrderSide::Buy, "1.000")],
+            s if s.starts_with("liquidation_") => vec![(OrderSide::Sell, "100.000")],
+            s if s.starts_with("funding_short") => vec![(OrderSide::Sell, "1.000")],
+            s if s.starts_with("funding_flat") => vec![(OrderSide::Buy, "1.000"), (OrderSide::Sell, "1.000")],
+            s if s.starts_with("funding_") => vec![(OrderSide::Buy, "1.000")],
             _ => vec![(OrderSide::Buy, "1.000"), (OrderSide::Sell, "0.000"), (OrderSide::Sell, "1.000")],
         };
         if self.step < action.len() {
@@ -342,24 +370,42 @@ fn produce(root: &Path, scenario: &str, hold: bool) -> Result<()> {
         .starting_balances(vec![Money::from("10000 USDT")])
         .base_currency(Currency::USDT()).default_leverage(Decimal::ONE)
         .fee_model(FeeModelAny::MakerTaker(MakerTakerFeeModel::new(Decimal::new(4, 4), Decimal::new(4, 4))).into())
+        .liquidation_enabled(scenario.starts_with("liquidation_on"))
         .build()?)?;
     let inst = instrument(); let id = inst.id();
     engine.add_instrument(&inst)?;
     engine.add_strategy(Script { core: StrategyCore::new(StrategyConfig {
         strategy_id: Some(StrategyId::from("HISTORY-001")), order_id_tag: Some("001".into()),
         ..Default::default() }), id, scenario: scenario.into(), step: 0 })?;
+    // Liquidation stress closes are the unchanged N1-02 oracle adverse prices (195/200/250).
+    let stress = format!("{}.00", scenario.rsplit('_').next().unwrap_or_default());
     let prices = match scenario {
         "multi_cycle" => vec!["100.00", "110.00", "90.00", "120.00"],
         "reversal" => vec!["100.00", "110.00", "90.00"],
+        s if s.starts_with("funding_") => vec!["100.00"; 4],
+        s if s.starts_with("liquidation_") => vec!["100.00", stress.as_str(), stress.as_str()],
         _ => vec!["100.00", "105.00", "110.00"],
     };
-    let quotes = prices.iter().enumerate().map(|(i, price)| {
+    let mut data: Vec<Data> = prices.iter().enumerate().map(|(i, price)| {
         let ts = UnixNanos::from(1_800_000_000_000_000_000u64 + i as u64 * 1_000_000_000);
         Data::Quote(QuoteTick::new(id, Price::from(*price), Price::from(*price),
             Quantity::from("100.000"), Quantity::from("100.000"), ts, ts))
     }).collect();
-    engine.add_data(quotes, None, true, true)?;
-    engine.run(None, None, None, false)?;
+    data.extend(funding_updates(scenario, id));
+    engine.add_data(data, None, true, true)?;
+    // Passive subscriber retains each native FundingSettlement as published. Not a BusTap: the bus has one
+    // tap slot, and replacing it would disable native event-store capture.
+    let settlements = Rc::new(RefCell::new(Vec::new()));
+    let sink = settlements.clone();
+    let topic = msgbus::switchboard::get_funding_settlement_topic(id);
+    msgbus::subscribe_any(topic.as_str().into(), ShareableMessageHandler::from_typed(move |event: &FundingSettlement|
+        sink.borrow_mut().push(serde_json::to_value(event).unwrap_or(Value::Null))), None);
+    let run = engine.run(None, None, None, false);
+    // N2-06 cases retain a native fail-closed run error for refusal tests; N2-05 cases still require success.
+    let run_error = run.err().map(|e| format!("{e:#}"));
+    ensure!(run_error.is_none() || scenario.starts_with("funding_") || scenario.starts_with("liquidation_"),
+        "native run failed: {run_error:?}");
+    let funding_settlements = settlements.borrow().clone();
     let state = observation(&engine.kernel().cache, &mut engine.kernel().portfolio.borrow_mut())?;
     // Exact native quote that priced the producer's portfolio, retained with its native encoding.
     let quote = engine.kernel().cache.borrow().quote(&id).copied()
@@ -396,7 +442,8 @@ fn produce(root: &Path, scenario: &str, hold: bool) -> Result<()> {
         "checkpoint": "NATIVE_SEALED_AND_CACHE_DATABASE_CLOSED", "resume": "RECONCILIATION_UNVERIFIED",
         "lifecycle": lifecycle, "watermark": watermark, "manifest": serde_json::to_value(manifest)?,
         "anchor": serde_json::to_value(plan.anchor)?, "anchor_chain": serde_json::to_value(&chain)?,
-        "market_context": market_context, "redis_contents": redis_contents()?,
+        "market_context": market_context, "run_error": run_error, "funding_settlements": funding_settlements,
+        "redis_contents": redis_contents()?,
         "source_files": source_files(&root.join("event_store"))?}))?;
     lifecycle.pop();
     boundary(root, "acknowledged", &mut lifecycle)?;
@@ -602,7 +649,7 @@ fn main() -> Result<()> {
             write(&root.join("admission.json"), &receipt)?;
             result.map(|_| ())
         },
-        "produce" | "hold" => { ensure!(args.len() == 4 && ["round_trip", "reversal", "multi_cycle", "open"].contains(&args[3].as_str()), "scenario");
+        "produce" | "hold" => { ensure!(args.len() == 4 && SCENARIOS.contains(&args[3].as_str()), "scenario");
             produce(root, &args[3], args[1] == "hold") },
         _ => anyhow::bail!("RECONCILIATION_REQUIRED / unsupported diagnostic mode / NO_NEW_ORDERS"),
     }
@@ -632,6 +679,12 @@ mod admission_tests {
             cp.as_object_mut().unwrap().remove(field);
             assert!(authority(&cp).is_err(), "missing {field}");
         }
+    }
+
+    #[test]
+    fn failed_native_run_refuses() {
+        let mut cp = receipt(); cp["run_error"] = json!("Late funding boundary");
+        assert!(authority(&cp).unwrap_err().to_string().contains("NATIVE_RUN_FAILED"));
     }
 
     #[test]

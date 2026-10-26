@@ -717,3 +717,43 @@ def test_reused_attestation_id_denied_before_new_read(case, monkeypatch):
         ),
     )
     _refused(case, monkeypatch)
+
+
+def test_revoked_envelope_denies_before_read(case, monkeypatch):
+    from tools.research_autonomy.models import EnvelopeControlAction
+
+    envelope = case["envelope"]
+    control = EnvelopeControlAction(
+        schema_version="cpw_bounded_research_envelope_control_v1",
+        control_action_id="REVOKE-ENVELOPE-TEST",
+        envelope_id=envelope.envelope_id,
+        envelope_version=envelope.envelope_version,
+        envelope_content_sha256=envelope.content_sha256,
+        repo_sha=envelope.repo_sha,
+        action="revoke",
+        approved_by="Karl",
+        approved_at="2026-10-25T00:00:00Z",
+        reason="synthetic revocation test",
+        successor=None,
+        authority=envelope.authority,
+    )
+    case["store"].apply_control(envelope, control)
+    _refused(case, monkeypatch)
+
+
+def test_control_requires_matching_audit_and_separate_owner_role(case, authority_db):
+    with psycopg.connect(authority_db[0], autocommit=True) as conn:
+        assert not conn.execute(
+            "SELECT pg_has_role('cpw_research_authority_writer','cpw_nonholdout_owner','MEMBER')"
+        ).fetchone()[0]
+        assert (
+            conn.execute(
+                "SELECT rolcanlogin,rolsuper,rolcreatedb,rolcreaterole,rolinherit,rolbypassrls FROM pg_roles WHERE rolname='cpw_nonholdout_owner'"
+            ).fetchone()
+            == (False,) * 6
+        )
+        with pytest.raises(psycopg.Error), conn.transaction():
+            conn.execute(
+                "INSERT INTO research_authority.nonholdout_control VALUES (%s,%s,%s,%s,%s)",
+                ("UNAUDITED", "custodian", "{}", H, "envelope:ENVELOPE-FIXTURE:2"),
+            )

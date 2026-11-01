@@ -4,7 +4,7 @@ Owner: Karl's 2026-10-25 consolidated software-only authorization in the executi
 WP. Base: `1731d6bd75f403d5a40c4cc9c9ff7eb4cc0e3602`, merged PR #763.
 Branch: `codex/wp-extreme-hermes-02j-cpw-nonholdout-authority-01`.
 PR: [#765](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/765),
-**DRAFT / BLOCKED / unmerged**. Semantic head:
+**DRAFT / T3 validation continuation / unmerged**. Initial boundary validation head:
 `74a0038d90a36c844aa61b36529ea726640e9767`.
 
 ## Delivered boundary
@@ -39,6 +39,23 @@ SearchContract `NOT_ISSUABLE`, `NATIVE_HANDOFF_NOT_INTEGRATED`. All existing
 
 ## Acceptance traceability and validation
 
+### Karl-authorized scope amendment, 2026-11-01
+
+Karl explicitly authorized `tests/test_research_query.py` solely to correct the
+three demonstrated clean-base expectations for `canonical_1d_dataset_unavailable`.
+The test now asserts the complete, exact H-004 unavailable-input finding when
+the canonical input is absent. It expects no execution-stream finding for a
+dispatch that cannot be validated; the actual uncertainty remains visible in
+crossing-reservation integrity. Every view still uses full result-set equality,
+so extra findings or changed identity/reason/security flags fail the tests.
+
+The three corrected tests pass; an assertion-sensitivity probe rejects eight
+missing/extra/misbound finding variants and preserves the previous available-input
+expectation. The helper inspects file presence only and opens no historical data.
+No production query/dispatch/validation file changed. The prior scope escalation
+is resolved by this explicit amendment; fresh complete T3 validation remains
+required before readiness. Prior failures below are retained historical evidence.
+
 | WP requirement | Evidence | State |
 | --- | --- | --- |
 | §2 refreshed truth / one clean worktree | #763 merged; exact base above; separate managed worktree | satisfied |
@@ -72,10 +89,10 @@ The H-004 integrity context reports
 `crossing_committed_required_validation_input_unavailable` /
 `canonical_1d_dataset_unavailable`. No historical input was hydrated, synthetic
 replacement impersonated a canonical dataset, test skipped, or production gate
-weakened. The affected query tests, query layer and dispatch validators have no
-diff. WP sections 3/5 do not authorize their repair or real historical access;
-this mandatory validation conflict needs an explicit software-only scope/gate
-resolution. A clean-base reproduction is disclosure, not a waiver.
+weakened. The original query tests were unchanged during that failed run. Karl's
+2026-11-01 amendment now authorizes only their expectation correction; production
+query/dispatch validators and the historical-data prohibition remain unchanged.
+A clean-base reproduction is disclosure, not a waiver.
 
 New Python files pass Ruff and formatting. The older PostgreSQL test file retains
 the same 28 lint findings as clean base, with no new lint findings; its existing

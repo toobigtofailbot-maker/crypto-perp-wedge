@@ -4,7 +4,7 @@ Owner: Karl's 2026-10-25 consolidated software-only authorization in the executi
 WP. Base: `1731d6bd75f403d5a40c4cc9c9ff7eb4cc0e3602`, merged PR #763.
 Branch: `codex/wp-extreme-hermes-02j-cpw-nonholdout-authority-01`.
 PR: [#765](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/765),
-**DRAFT / BLOCKED on mandatory T3 / unmerged**. Initial boundary validation head:
+**DRAFT / authorized conditional software validation in progress / unmerged**. Initial boundary validation head:
 `74a0038d90a36c844aa61b36529ea726640e9767`.
 
 ## Delivered boundary
@@ -35,7 +35,7 @@ The positive validates a closed synthetic CSV grammar, including a declared
 15m-parent/30m-derived/row-local-feature chain. It is software evidence, not
 historical OHLCV/canonical-loader parity. Results remain science `NOT_READY`,
 SearchContract `NOT_ISSUABLE`, `NATIVE_HANDOFF_NOT_INTEGRATED`. All existing
-02BÃ¢â‚¬â€œ02H consumer behavior and DON/FLOW/LOB fixtures remain unchanged.
+02BÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“02H consumer behavior and DON/FLOW/LOB fixtures remain unchanged.
 
 ## Acceptance traceability and validation
 
@@ -58,14 +58,14 @@ is current; the original 83-pass/3-failure query result is historical evidence.
 
 | WP requirement | Evidence | State |
 | --- | --- | --- |
-| Â§2 repository truth | #763 merged at original base; #764 merged at `c144c821d1decc48253b60901bf44377811954b0`; incorporated by normal merge `f7819c4` | refreshed; eight-file WP diff |
-| Â§4A authority | module, additive migration 0003, role SQL; PostgreSQL audit/role tests | software/fixtures satisfied |
-| Â§4B pre-open | sealed handle checks, metadata/refusal tripwires, ancestry and transaction tests | supported sealed fixtures satisfied |
-| Â§4C synthetic positive | guarded exact-code consumer and derived/feature dependencies | satisfied; no historical qualification |
-| Â§4C native 02G handoff | original historical refusal preserved | optional; not integrated |
-| Â§5 focused/adjacent/PostgreSQL/security | Linux 96 passed; Windows 182 passed / 19 Linux-specific skips; amendment query 3 passed | covered; exact heads in Aâ€“I report |
-| Â§5 mandatory T3 | amended native full-release completed all 48 shards: 36 passed, 12 failed | FAIL; cannot waive |
-| Â§6 one PR / Side 23 | draft PR #765; exact final head and smoke in Aâ€“I report | readiness NO |
+| Ã‚Â§2 repository truth | #763 merged at original base; #764 merged at `c144c821d1decc48253b60901bf44377811954b0`; incorporated by normal merge `f7819c4` | refreshed; eight-file WP diff |
+| Ã‚Â§4A authority | module, additive migration 0003, role SQL; PostgreSQL audit/role tests | software/fixtures satisfied |
+| Ã‚Â§4B pre-open | sealed handle checks, metadata/refusal tripwires, ancestry and transaction tests | supported sealed fixtures satisfied |
+| Ã‚Â§4C synthetic positive | guarded exact-code consumer and derived/feature dependencies | satisfied; no historical qualification |
+| Ã‚Â§4C native 02G handoff | original historical refusal preserved | optional; not integrated |
+| Ã‚Â§5 focused/adjacent/PostgreSQL/security | Linux 96 passed; Windows 182 passed / 19 Linux-specific skips; amendment query 3 passed | covered; exact heads in AÃ¢â‚¬â€œI report |
+| Ã‚Â§5 mandatory T3 | amended native full-release completed all 48 shards: 36 passed, 12 failed | FAIL; cannot waive |
+| Ã‚Â§6 one PR / Side 23 | draft PR #765; exact final head and smoke in AÃ¢â‚¬â€œI report | readiness NO |
 
 ### Completed amended release and genuine scope conflict
 
@@ -130,26 +130,53 @@ No expensive full-release rerun was started with these prerequisites unresolved.
 
 Linux authority/PostgreSQL at `38c2d08`: **96 passed**, 49.37 seconds.
 Windows focused/adjacent at `74a0038`: **182 passed / 19 Linux-only skips**,
-1810.08 seconds. Linux covers the physical sealing cases. Existing 02Eâ€“02H
+1810.08 seconds. Linux covers the physical sealing cases. Existing 02EÃ¢â‚¬â€œ02H
 fixture/refusal and DON/FLOW/LOB regressions retain their evidence. New Python
 files pass Ruff/format; existing PostgreSQL and query files retain respectively
 28 and 3 baseline lint findings, with no new findings. Changed-file secrets:
 zero at amendment head; final-tail checks and exact-head synthetic proof are
-recorded in the final Aâ€“I report. Migration 0001/0002 Git bytes are unchanged.
+recorded in the final AÃ¢â‚¬â€œI report. Migration 0001/0002 Git bytes are unchanged.
 
 Original failed logs remain retained outside Git: the old 83/3 query failure,
 namespace/interpreter/checkout-mode fixture setup failures, and the early run
 invalidated by a HEAD commit. None count as passing evidence. The completed
 amended release kept HEAD fixed for its entire execution.
 
-## Review and remaining gates
+## Karl-approved bounded software-validation amendment
 
-**READY FOR SIDE 23 REVIEW: NO.** Required T3 proof is absent. PR #765 remains
-draft and unmerged. One explicit owner validation-contract/data-authority
-decision remains as described above;
-this document grants neither permission nor a waiver. No real data access is
-proposed. Side 23 exact-head review and Karl's merge decision remain gates.
-Real custody designation, scientific approval, Stage 5B, paper/live and capital
-remain separate future authorities. No runtime, OMS, risk, overlay, safe-mode,
-config, live, production query/dispatch or existing validator path changed.
-`docs/project_status.md` and the 02I proposal remain unchanged.
+On 2026-11-01 Karl explicitly approved the attached same-PR 02J-only validation
+contract amendment. It supersedes the earlier request for a validation-contract
+decision above; those paragraphs retain historical evidence, not a new approval
+request. Current merged main is PR #766 at `77a5a84`; its three Lane B additions
+were incorporated by file-disjoint normal merge `36677ef`. No Lane B file edited.
+
+Two additional authorized test paths bring this WP diff to ten files. The queue-
+input fixture normalizes committed Windows separators only when constructing its
+synthetic parent path. Production catalogs/path guards and every assertion remain
+unchanged. Both amended modules pass **34/34 Linux** and **34/34 Windows**; the
+original 15 Linux fixture errors now pass. Negative hash/gap/truncation/parent,
+window, mutation, network/science/writer cases remain enforced.
+
+Four fake-executor tests use a clearly named temporary synthetic CSV containing
+their existing mocked frame. Existing hash/count/loader/compiler mocks and all
+assertions are unchanged; no new production monkeypatch is introduced. These
+prove envelope/provenance behavior only. Separate unmocked probes reject those
+synthetic bytes as canonical history at the SHA guard and reject a missing file;
+actual count/loader helpers are exercised on synthetic bytes. No canonical path,
+real history identity or production integrity check is bypassed or provisioned.
+
+The three genuine historical discrepancy/dispatch tests remain unchanged. The
+external, report-only exact-node driver retains all 48 original shard assignments
+as immutable reference, accounts for newly merged test files, records every node,
+command, OS, pin, raw JUnit/JSON/log hash and explicit historical exclusion. Only
+those three exact nodes may be `UNEXECUTED_HISTORICAL_DATA_DEPENDENCY`; they are
+never passed, silently skipped or scientifically verified. Native verifier,
+profile, pytest defaults, CI and global T3 policy remain unchanged.
+
+The stable candidate will run the complete eligible software suite and standard
+non-physical command set. `02J_SOFTWARE_RELEASE_CONDITIONAL_ACCEPTED` may be
+reported only after all eligible checks pass with no unexplained regression.
+The prior unmodified T3 remains FAIL; current-head unmodified T3 is NOT VERIFIED.
+This amendment grants no physical data, science/Stage 5B, trading or merge
+permission. PR #765 remains draft until the actual conditional evidence is
+reconciled in the final exact-head A–I report. Side 23/Karl retain review/merge.

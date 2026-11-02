@@ -100,5 +100,54 @@ failed-launch/no-retry tests cover both. Source review also tightened unknown
 file refusal before opening any payload and prevented staging within input
 evidence. None of these corrections changes native scientific contracts.
 
-Actual validation counts, exact source/HEAD evidence and final review/PR
-disposition follow after verification. No physical milestone claim.
+PR: [#769](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/769),
+one draft/unmerged PR. Semantic implementation and independent review HEAD:
+`59a31e3febe8312ebb2f845d933714c944050ce0`. The final evidence tail changes
+only this status fragment; both Python files and the operator runbook are frozen.
+
+| Evidence | Actual result |
+| --- | --- |
+| Coordinator focused suite at semantic HEAD | 24 PASS, 0 skips |
+| Native Memory/approval/Governor/Optuna/Prefect/formalizer/compiler suites | 428 PASS, 20 existing Optuna experimental warnings |
+| Hermes 02A–02H, 02J qualification, PowerShell adjacent suites, unique aggregate | 232 PASS, 70 existing environment SKIP |
+| Standard native verifier at semantic HEAD | 8 checks PASS |
+| Actual CLI fixture build + whole-packet byte replay | PASS, summary `0f0876b01be6916fffef40a66603bf09c26fd6bb2ca0f25b662bd3a3f0e950b4` |
+| Semantic-head hosted smoke | [SUCCESS](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/actions/runs/41504763836) |
+
+Aggregate: **684 passing unique test nodes, 70 existing skips**, not a global
+full-suite/T3 claim. The initial long Hermes command was **not PASS**: 185 PASS,
+70 SKIP, 47 ERROR after the executor committed while that process retained old
+HEAD-bound fixtures. The exact error was the unchanged native refusal
+`source batch is bound to a different repo SHA (historical/stale); never rebound`.
+The complete affected 02G/02H suites were rerun on frozen semantic HEAD:
+**47 PASS in 457.42s**, no skips, test edits or guard weakening. Original errors
+are retained at `C:/GitHub/02k-evidence/adjacent-hermes.log`; corrected raw/JUnit
+logs are `adjacent-47-59a31e3.log` and `.xml` in that same external directory.
+All 28 inspected native source/test files are byte-identical to the starting
+base; their hashes distinguish this retained evidence from new implementation.
+
+All 70 skips are in unchanged 02J qualification tests requiring Linux sealed
+anonymous handles or two isolated local PostgreSQL test variables. These are
+not PASS or authentic data qualification. No new skips or historical exclusions
+were added. No authentic data file was opened, hashed, copied or mounted.
+
+The actual CLI fixture (without a Memory DSN) retained three hypotheses and
+three criticized/blocked dispositions, zero eligible studies/experiments,
+three pending Memory records, zero human strategy selections and unauthorized
+trials. The supported-family native draft/compiler positive path is separately
+covered with the labeled read-only Memory fixture in the focused suite.
+Model cycles independently verified: 0; captured fixture cycles: 1. The new
+cycle denominator is 0; existing cumulative scientific history is UNKNOWN,
+not read or reset. No observed performance metrics or genuine result claims.
+
+Disposition: **ENGINEERING_READY_PHYSICAL_PENDING**;
+**PHYSICAL_MILESTONE_NOT_YET_PROVEN**. The blocked study packet is not
+approval-ready: there is no eligible exact strategy/data/protocol population
+or native execution command to ask Karl to approve. Preserve it; the missing
+generic native mapping/canonical/protocol/data qualification must be resolved
+before requesting exact scientific execution approval. No strategy selection
+is delegated to Karl. Stage 5B, unattended successors and trading stay OFF.
+
+Final exact-head verification/CI and A–I reconciliation are reported in this
+same PR and Side 23 report. Lane B's later open PR #768 changes only its three
+N4-03-owned files; its file inventory has no overlap with these four paths.

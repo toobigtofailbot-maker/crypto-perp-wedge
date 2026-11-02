@@ -1,177 +1,112 @@
 # 02J CPW non-holdout authority and guarded synthetic admission
 
-Owner: Karl's 2026-10-25 consolidated software-only authorization in the execution
-WP. Base: `1731d6bd75f403d5a40c4cc9c9ff7eb4cc0e3602`, merged PR #763.
+Owner: Karl's software-only authorization and explicit bounded amendments,
+including the final four-node disposition approved 2026-11-02.
+Dependency PR #763 is merged at `1731d6bd75f403d5a40c4cc9c9ff7eb4cc0e3602`.
 Branch: `codex/wp-extreme-hermes-02j-cpw-nonholdout-authority-01`.
 PR: [#765](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/765),
-**DRAFT / final four-node validation in progress / unmerged**. Initial boundary validation head:
-`74a0038d90a36c844aa61b36529ea726640e9767`.
+**DRAFT / unmerged / ready for Side 23 conditional-software review**.
 
 ## Delivered boundary
 
-The new CPW module extends the existing D2-026 transaction/audit boundary with
-strict owner-controlled custodian/designation/revocation records and signed,
-exact-request custody evidence. Migration 0003 is additive; 0001/0002 bytes are
-unchanged. The separate NOLOGIN owner role receives control-table insert;
-the research writer receives select only. No role membership, trusted issuer,
-private key, actual custodian or historical partition is provisioned.
+The CPW module extends the existing D2-026 transaction/audit boundary with
+owner-controlled custodian/designation/revocation and exact signed requests.
+Additive migration 0003 preserves 0001/0002. A separate NOLOGIN owner role can
+insert control records; the research writer can only select them. No actual
+custodian, trusted issuer, private key, partition or role membership is supplied.
 
-Requests bind the registered envelope, current Git code, protocol, manifests,
-campaign/domain/holdout audit lineage, bounded intervals and every transitive
-physical input. Unknown fields, missing ancestry, stale/revoked evidence,
-incomplete bars, hidden warmup and protected overlap fail closed. Completed use
-advances the same campaign audit; reuse of an attestation ID fails before read.
-Replacement appends revocation of the old immutable ID and a new designation.
+Requests bind current code, registered envelope, protocol/manifests, campaign/
+domain/holdout audit lineage, bounded intervals and all transitive physical
+inputs. Unknown fields, stale/revoked evidence, incomplete bars, hidden warmup
+and protected overlap deny. Attestation reuse fails before read. All sealed
+anonymous Linux handles are authenticated before any read; unsupported storage
+denies. No pathname fallback, compiler/model callback or raw-byte release exists.
+The authority lock covers byte use and audit commit; revocation/contamination
+serialize against use. Crash/retry preserves the domain.
 
-Only sealed anonymous Linux handles are supported. All handles are duplicated,
-authenticated against the signed identity and checked for immutable seals before
-any byte read. No pathname, full-parent fallback, compiler/model callback or raw
-byte release exists. The global authority lock remains held through byte use and
-audit commit; concurrent revocation and contamination serialize against that use.
-Crash/retry preserves the domain. Windows and unsupported Linux primitives deny.
-Failed Linux writes can advance ctime; stale identity is conservatively refused.
+The positive proves closed synthetic CSV grammar and transitive 15m-parent/
+30m-derived/row-local-feature behavior. It is not historical loader parity.
+Science stays `NOT_READY`, SearchContract `NOT_ISSUABLE`, optional native handoff
+`NATIVE_HANDOFF_NOT_INTEGRATED`. Existing consumers remain unchanged.
 
-The positive validates a closed synthetic CSV grammar, including a declared
-15m-parent/30m-derived/row-local-feature chain. It is software evidence, not
-historical OHLCV/canonical-loader parity. Results remain science `NOT_READY`,
-SearchContract `NOT_ISSUABLE`, `NATIVE_HANDOFF_NOT_INTEGRATED`. All existing
-02BÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã¢â‚¬Å“02H consumer behavior and DON/FLOW/LOB fixtures remain unchanged.
+## Narrow fixture amendments
 
-## Owner-approved amendments and delivered fixture repairs
+The earlier query amendment preserves full actual H-004 unavailable-input
+findings and result equality. Temporary queue-path separator normalization fixes
+15 Linux fixture errors without changing assertions. Four fake-executor cases
+receive an explicitly synthetic temporary CSV; existing mocks and assertions are
+unchanged. Unmocked probes preserve actual historical guards and reject the
+synthetic bytes as canonical history.
 
-Karl explicitly approved the narrow three-query-expectation amendment and, on
-2026-11-01, the bounded 02J-only software-validation contract amendment. The
-attachment's proposed wording is authorized by Karl's direct instruction. No
-routine reapproval is requested. Neither amendment grants historical/holdout,
-scientific, Stage-5B, runtime, trading, capital or merge authority.
+The final continuation changes only the three authorized writer observations
+and their exclusively used helper. Both stream-parent and lock-parent attacks
+move the physical stream; the tests now inspect it under the retained directory.
+Every original assertion remains; four added assertions require no stream at
+the substituted alias and exactly one appended event. The helper recognizes two
+complete specific native symlink/reparse diagnostics. Attack timing, real
+anchored operations, primary failure precedence, uncertainty, integrity/query
+visibility and outside-write checks remain intact. Production writer/event/
+query/dispatch behavior is unchanged.
 
-Current merged base is `77a5a840128fae6cb46d085862a15fd5e204d61f` (#766);
-file-disjoint Lane B changes were incorporated by normal merge `36677ef`.
-The WP diff is ten paths: the original seven, the authorized query test, and the
-two fixture files explicitly permitted by the latest amendment. No Lane B edit.
+All three required cases PASS unskipped on Linux; complete writer/event modules
+PASS 63/63. Fourteen external negative controls fail at intended assertions:
+unrelated/missing refusal, extra event, outside write, missing collector findings
+and missing query findings. Real operations run before observation mutation.
+An invalid first DuckDB control is retained separately and not counted.
 
-At semantic head `0a9739d37ca6e4edf23cedfead9d1f3e8cbd05df`:
+## Conditional software validation
 
-- Queue-input fixture normalizes committed Windows separators only when joining
-  its synthetic parent path. All assertions and production path/catalog/escape
-  checks are unchanged. Its original 15 Linux-error nodes now pass.
-- Four fake-executor cases use a named temporary synthetic CSV with their existing
-  mocked frame. Existing hash/count/loader/compiler mocks and every assertion
-  remain unchanged; no production monkeypatch was added. They prove envelope and
-  provenance behavior, not canonical history. Unmocked production SHA/file guards
-  separately reject the exact four-row fixture as canonical history or missing
-  input; real count/loader helpers are exercised on those synthetic bytes.
-- Both amended modules pass **34/34 Linux** and **34/34 Windows**. Assertion-AST
-  comparisons and unmodified data/validator/profile hashes are retained.
+Refreshed main `fff1aeee85d89374fbd9e917fb4f7957fe0a7d3c` includes disjoint
+PR #767, incorporated without editing its four files. Frozen semantic head:
+`b8df376018c6eec0432787af2cc360c8000ca270`. This status-only tail preserves all
+test/production bytes; final-head checks, hosted smoke and hashes are reported
+in the exact-head A-I evidence and PR body.
 
-## Complete conditional-release evidence
-
-The external, owner-authorized report-only driver preserved the original 48
-assignments/222 files and their manifest
+Current inventory: **225 tracked files / 4,911 unique nodes / 4,907 selected**.
+Original 48 assignments/222 files remain intact, reference manifest:
 `sha256:661af921dbfd1534de4b30115cb868117e0658571c08535cb82ca8b482b616c2`.
-Two newly merged test files extend coverage to **224 files / 4,878 nodes**.
-Exactly **4,875 nodes were selected**, with only the three authorized genuine
-historical nodes classified `UNEXECUTED_HISTORICAL_DATA_DEPENDENCY`. No wildcard,
-file exclusion, added skip/xfail, data substitution or global policy change.
-
-All eight standard non-physical commands passed. All 48 groups were attempted
-once at the frozen semantic head: 40 commands passed, eight failed. Initial
-outcomes: 4,727 pass, 28 existing skips, 12 failures, 108 missing report outcomes
-from an observer/tripwire collision. This is not passing T3 or conditional proof.
-
-The external observer's per-test writes collided with the read-only replay
-tripwire. Its replacement buffers observations until teardown; the affected
-120-node group then passes in full. No test or production tripwire was relaxed.
-All interrupted nodes are accounted for by that exact-node delta, without a full
-rerun. Raw initial failure/observer code and repaired observer are both retained.
-Missing clone `origin/main` and an expected cache environment variable were fixed
-and their two affected nodes passed. Six additional POSIX baseline cases have
-matching clean-main failures and unmodified Windows passes. No production code
-was changed to hide platform behavior.
-
-Final adjudication, preserving every failed attempt and platform distinction:
+Prior 224-file evidence and raw failed attempts are retained. Source hashes
+reconcile unchanged evidence; the new main N4 file adds 33 actual native passes.
+No blanket full-release rerun or native profile modification was made.
 
 | Classification | Nodes |
 | --- | ---: |
-| Linux pass | 4,837 |
-| Windows pass with matching Linux clean-main exception | 6 |
-| Existing pytest skip, exact reasons retained | 28 |
-| Unresolved Linux baseline execution-writer failures | 3 |
-| Additional historical N1 failure outside approved exclusion list | 1 |
-| Authorized historical nodes unexecuted | 3 |
+| Linux PASS | 4,873 |
+| Windows PASS with matching Linux baseline exception | 6 |
+| Existing pytest SKIP, exact nodes/reasons retained | 28 |
+| Historical dependency UNEXECUTED, never PASS | 4 |
+| Residual FAIL / ERROR | 0 / 0 |
 
-Every one of the 4,878 nodes is accounted for; no unclassified failure remains.
-All **70 new authority tests + 26 existing PostgreSQL tests pass** on Linux.
-Query shard **86/86 passes**, preserving actual H-004 unavailable-input findings.
-The original 162-node classification and repaired 155-node native evidence remain
-retained, not generalized beyond the exact tested nodes.
+Fresh semantic-head evidence: **96 authority/PostgreSQL PASS**, **86 query PASS**,
+**63 writer/event PASS**, **33 new-main N4 PASS**, and **eight standard checks PASS**.
+The six platform exceptions and 28 existing skips remain separately named; no
+new split-platform exception or skip. Earlier observer I/O, clone-ref/cache
+failures and exact-node repairs remain disclosed, with original logs intact.
 
-## Precise remaining acceptance gaps
+Exactly four historical dependencies remain UNEXECUTED:
 
-**`02J_SOFTWARE_RELEASE_CONDITIONAL_ACCEPTED` is NOT reported.**
+- `tests/test_takerflow_feature_materialization.py::test_may_2024_d4_native_authoritative_discrepancy_is_exact`
+- `tests/test_dispatch_authorization.py::test_exact_post_kdauth_boundary_and_no_downstream_artifacts_created`
+- `tests/test_dispatch_authorization.py::test_real_h004_consumed_replay_survives_current_runner_evolution`
+- `tests/test_nautilus_n1_acceptance.py::test_full_rp2592_acceptance_is_deterministic`
 
-1. `tests/test_nautilus_n1_acceptance.py::test_full_rp2592_acceptance_is_deterministic`
-   requires the authentic D4 file and real native full-RP execution. A correct
-   pinned backend exposes this test, previously hidden by module import-skip.
-   It fails identically on clean main before opening data or executing a trial.
-   It is not one of the amendment's exact permitted exclusions and is not omitted.
-2. Three `tests/test_execution_event_writer.py` nodes fail identically on Linux
-   clean main: `test_post_proof_lock_parent_substitution_reports_real_cleanup_uncertainty`,
-   `test_pre_append_post_anchor_parent_substitution_preserves_primary_precedence[lock-parent]`,
-   and the same function `[stream-parent]`. Windows runs retain three existing
-   skips because protected directory handles deny the required directory rename.
-   This is not Windows PASS evidence. Linux failures concern retained-stream
-   paths and an error-message assertion; no protected writer/test change or
-   additional conditional exception is authorized by the two-file fixture scope.
-
-An exact, further owner/Side 23 disposition for these four nodes is necessary
-before conditional acceptance. No authentic-data use or authority expansion is
-inferred. Detailed raw causes, clean-main comparisons and the executable node
-manifest are in the final Aâ€“I evidence. No expensive full run was repeated.
+Tests and future authentic-data scientific requirements are unchanged. The fourth
+node fails identically on refreshed clean main before opening absent D4 input or
+executing a trial. This external classification is 02J-specific; no fifth
+exclusion, pytest skip/xfail or global T3 waiver.
 
 ## Review and boundaries
 
-**READY FOR SIDE 23 REVIEW: NO.** PR #765 remains draft and unmerged. The approved
-fixture changes are complete and reviewable; the acceptance contract is not met.
-The unmodified historical T3 remains FAIL; unmodified T3 at this head is NOT
-VERIFIED. Global verifier/profile, pytest defaults, CI and T3 policy are unchanged.
+`02J_SOFTWARE_RELEASE_CONDITIONAL_ACCEPTED` is **proposed for Side 23 review**.
+PR #765 stays draft/unmerged. Native global T3 is **FAIL historically / NOT
+VERIFIED at current head**. Conditional software acceptance does not confer
+historical scientific acceptance, qualified data, SearchContract issuance,
+scientific activation or Stage 5B.
 
-No authentic history/holdout bytes were opened, copied, staged, hashed or parsed;
-no real credentials, production custodian/key/partition/trust, VPS, actual
-scientific trials, runtime/OMS/risk/reconciliation/overlay/safe-mode/config/live,
-trading or capital were used or changed. Existing migration bytes and all 02J
-production authority code remain identical to the pre-amendment implementation.
-No query/dispatch/production data guard was changed. No 02K work or second PR.
-Final-head hosted/delta/security and remote reconciliation are in the Aâ€“I report.
-
-## Karl-authorized final four-node continuation, 2026-11-02
-
-Karl explicitly approved the final four-node disposition. It supersedes the
-prior request for authority concerning those four nodes; no further routine
-approval is needed. The exact N1 full-RP historical node may now be classified
-as the fourth `UNEXECUTED_HISTORICAL_DATA_DEPENDENCY` only in external 02J
-conditional evidence. Its test and future authentic-data requirement are intact.
-No fifth exclusion, data access, global T3 change or scientific authority.
-
-The three writer observations are corrected only in their existing test file
-and their exclusively used helper. They read the original retained stream after
-both lock-parent and stream-parent substitution, retain all existing assertions,
-and additionally require the old alias to have no stream and exactly one
-appended event. The error check recognizes two complete, specific native symlink/
-reparse diagnostics. Production writer/event/query code is unchanged.
-
-Initial supported-Linux proof: all three PASS unskipped; the complete writer and
-event modules PASS 63/63. Fourteen counterfactual observations in six classes
-are rejected at the intended security assertions: unrelated or missing refusal,
-extra persisted event, outside-directory write, lost collector findings and lost
-query findings. The real writer/validator executes before observation mutation;
-no security tripwire is bypassed. An invalid first DuckDB view-mutation probe
-is retained and is not counted as a meaningful negative control.
-
-Merged Lane B #767 is file-disjoint and incorporated before the frozen final
-validation head. The new native test file will be collected and executed in its
-own isolated pinned fixture environment, and the denominator recomputed. No Lane
-B source is edited. Final-head affected regression, query/PostgreSQL/security,
-manifest reconciliation, hosted CI and disposition are recorded in the A–I
-report. The PR stays draft/unmerged even if conditional acceptance is proposed;
-native global T3 remains FAIL historically / NOT VERIFIED at the current head.
+No authentic history/holdout bytes opened/copied/staged/hashed/parsed; no real
+credentials, custody/trust provisioning, VPS, trading or capital. No protected
+runtime/OMS/risk/reconciliation/overlay/safe-mode/config/live, production writer/
+query/dispatch/data guard, existing migration, native verifier/profile/default/
+CI or global policy change. Original 02J authority/SQL bytes remain identical to
+the pre-amendment implementation. No second PR, merge, 02K or open routine
+approval request.

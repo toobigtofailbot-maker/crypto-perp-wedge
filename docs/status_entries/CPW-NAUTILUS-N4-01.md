@@ -9,7 +9,9 @@ T2 isolated manual proof, default OFF. Branch
 refreshed `origin/main` `c144c821d1decc48253b60901bf44377811954b0` (#764).
 The only other open PR at preflight and publication check was #765, draft,
 with eight disjoint Hermes/research files. No edits to that PR or its worktree.
-PR provenance and exact final head/check are recorded in the external report.
+PR: [#766](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/766),
+non-draft for independent Side B review. Exact final head/check are recorded in
+the external report; a commit cannot contain its own SHA.
 
 Exactly three additions: `tools/nautilus_adapter/noncapital_integrated_session.py`,
 `tests/test_nautilus_noncapital_integrated_session.py`, and this entry. No
@@ -87,7 +89,7 @@ No custom restore engine or active-cache claim is introduced.
 N2 sandbox/restart; N3-01/02 public reports/feed; N3-03/04/05 offline execution
 and admission; paper broker/ledger interface/accounting contracts; developer-tool
 smoke. Changed Python compile checks, exact three-file scope and diff checks
-pass. Hosted `smoke` must be bound to the final PR head in the external report.
+pass. The external report binds required hosted `smoke` to the exact final PR head.
 Full pytest/full-release: NOT RUN — isolated T2, no production consumer or
 protected changes. Paper-state validator: inapplicable; no CPW paper records
 are created/consumed. The unchanged N3-02 physical 65-second reconnect proof and

@@ -4,7 +4,7 @@ Owner: Karl's 2026-10-25 consolidated software-only authorization in the executi
 WP. Base: `1731d6bd75f403d5a40c4cc9c9ff7eb4cc0e3602`, merged PR #763.
 Branch: `codex/wp-extreme-hermes-02j-cpw-nonholdout-authority-01`.
 PR: [#765](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/765),
-**DRAFT / conditional software acceptance NOT ACHIEVED / unmerged**. Initial boundary validation head:
+**DRAFT / final four-node validation in progress / unmerged**. Initial boundary validation head:
 `74a0038d90a36c844aa61b36529ea726640e9767`.
 
 ## Delivered boundary
@@ -35,7 +35,7 @@ The positive validates a closed synthetic CSV grammar, including a declared
 15m-parent/30m-derived/row-local-feature chain. It is software evidence, not
 historical OHLCV/canonical-loader parity. Results remain science `NOT_READY`,
 SearchContract `NOT_ISSUABLE`, `NATIVE_HANDOFF_NOT_INTEGRATED`. All existing
-02BÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ02H consumer behavior and DON/FLOW/LOB fixtures remain unchanged.
+02BÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã¢â‚¬Å“02H consumer behavior and DON/FLOW/LOB fixtures remain unchanged.
 
 ## Owner-approved amendments and delivered fixture repairs
 
@@ -127,7 +127,7 @@ retained, not generalized beyond the exact tested nodes.
 An exact, further owner/Side 23 disposition for these four nodes is necessary
 before conditional acceptance. No authentic-data use or authority expansion is
 inferred. Detailed raw causes, clean-main comparisons and the executable node
-manifest are in the final A–I evidence. No expensive full run was repeated.
+manifest are in the final Aâ€“I evidence. No expensive full run was repeated.
 
 ## Review and boundaries
 
@@ -142,4 +142,36 @@ scientific trials, runtime/OMS/risk/reconciliation/overlay/safe-mode/config/live
 trading or capital were used or changed. Existing migration bytes and all 02J
 production authority code remain identical to the pre-amendment implementation.
 No query/dispatch/production data guard was changed. No 02K work or second PR.
-Final-head hosted/delta/security and remote reconciliation are in the A–I report.
+Final-head hosted/delta/security and remote reconciliation are in the Aâ€“I report.
+
+## Karl-authorized final four-node continuation, 2026-11-02
+
+Karl explicitly approved the final four-node disposition. It supersedes the
+prior request for authority concerning those four nodes; no further routine
+approval is needed. The exact N1 full-RP historical node may now be classified
+as the fourth `UNEXECUTED_HISTORICAL_DATA_DEPENDENCY` only in external 02J
+conditional evidence. Its test and future authentic-data requirement are intact.
+No fifth exclusion, data access, global T3 change or scientific authority.
+
+The three writer observations are corrected only in their existing test file
+and their exclusively used helper. They read the original retained stream after
+both lock-parent and stream-parent substitution, retain all existing assertions,
+and additionally require the old alias to have no stream and exactly one
+appended event. The error check recognizes two complete, specific native symlink/
+reparse diagnostics. Production writer/event/query code is unchanged.
+
+Initial supported-Linux proof: all three PASS unskipped; the complete writer and
+event modules PASS 63/63. Fourteen counterfactual observations in six classes
+are rejected at the intended security assertions: unrelated or missing refusal,
+extra persisted event, outside-directory write, lost collector findings and lost
+query findings. The real writer/validator executes before observation mutation;
+no security tripwire is bypassed. An invalid first DuckDB view-mutation probe
+is retained and is not counted as a meaningful negative control.
+
+Merged Lane B #767 is file-disjoint and incorporated before the frozen final
+validation head. The new native test file will be collected and executed in its
+own isolated pinned fixture environment, and the denominator recomputed. No Lane
+B source is edited. Final-head affected regression, query/PostgreSQL/security,
+manifest reconciliation, hosted CI and disposition are recorded in the A–I
+report. The PR stays draft/unmerged even if conditional acceptance is proposed;
+native global T3 remains FAIL historically / NOT VERIFIED at the current head.

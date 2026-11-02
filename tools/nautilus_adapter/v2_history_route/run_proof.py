@@ -6,11 +6,24 @@ from pathlib import Path
 import secrets
 import shutil
 import subprocess
+import sys
 import time
 from decimal import Decimal
 
 BINARY = Path('/tmp/cpw-target/debug/cpw-n2-history-route')
-ROOT = Path(os.environ.get('CPW_PROOF_ROOT', '/evidence/physical-n2-06'))
+
+
+def route(argv, environ=os.environ):
+    """No argument: the original N2-05 Stages A-C. `--n2-06`: the same A-C on one binary, then Stage D.
+    Each mode has its own default evidence root; `main` refuses any root that already exists."""
+    if argv not in ([], ['--n2-06']):
+        raise SystemExit(f'usage: run_proof.py [--n2-06]; got {argv}')
+    n2_06 = argv == ['--n2-06']
+    default = '/evidence/physical-n2-06' if n2_06 else '/evidence/physical-n2-05'
+    return n2_06, Path(environ.get('CPW_PROOF_ROOT', default))
+
+
+ROOT = route([])[1]
 READONLY_USER = 'cpw-restore-readonly'
 NO_AUTHORITY = 'NO_NEW_ORDERS / NO_RESUME'
 
@@ -557,7 +570,9 @@ def stage_d(matrix, retain, produce):
     save(ROOT / 'results.json', matrix)
 
 
-def main():
+def main(argv=None):
+    global ROOT
+    n2_06, ROOT = route(sys.argv[1:] if argv is None else argv)
     assert not ROOT.exists(), 'fresh physical evidence required'
     assert len(Path('/proc/net/route').read_text().splitlines()) == 1, 'external network present'
     ROOT.mkdir()
@@ -725,8 +740,9 @@ def main():
             retain(child(case_root, 'restore', 'restart', case_root / 'checkpoint.json',
                          case_root / 'event_store', case_records, case_semantic), admitted=boundary == 'acknowledged')
 
-        matrix['n2_05_regression'] = 'N2_05_NATIVE_CONTINUITY_PASSED'
-        stage_d(matrix, retain, produce)
+        if n2_06:
+            matrix['n2_05_regression'] = 'N2_05_NATIVE_CONTINUITY_PASSED'
+            stage_d(matrix, retain, produce)
 
         # Original producer stores and receipts are byte-identical after every restore.
         for producer in matrix['producers']:
@@ -736,11 +752,13 @@ def main():
             if producer['checkpoint_sha256']:
                 assert sha((root / 'checkpoint.json').read_bytes()) == producer['checkpoint_sha256']
         matrix['producers_unchanged'] = True
-        cases = matrix['n2_06_cases']
-        accepted = all(c['verdict'] in ('PROVEN', 'BOUNDED_DIVERGENCE') for c in cases)
-        restored = all(c.get('restore_verdict', 'PROVEN') == 'PROVEN' for c in cases)
-        matrix['outcome'] = ('N2_06_BLOCKED_UNPROVEN_POSITIVE' if not accepted else 'N2_06_NATIVE_CHARACTERIZED'
-                             if restored else 'N2_06_NATIVE_CHARACTERIZED_FUNDED_RESTORE_UNSUPPORTED')
+        matrix['outcome'] = 'N2_05_NATIVE_CONTINUITY_PASSED'
+        if n2_06:
+            cases = matrix['n2_06_cases']
+            accepted = all(c['verdict'] in ('PROVEN', 'BOUNDED_DIVERGENCE') for c in cases)
+            restored = all(c.get('restore_verdict', 'PROVEN') == 'PROVEN' for c in cases)
+            matrix['outcome'] = ('N2_06_BLOCKED_UNPROVEN_POSITIVE' if not accepted else 'N2_06_NATIVE_CHARACTERIZED'
+                                 if restored else 'N2_06_NATIVE_CHARACTERIZED_FUNDED_RESTORE_UNSUPPORTED')
     except BaseException as error:
         matrix['hard_stop'] = repr(error)
         if matrix['stage_a_passed']:

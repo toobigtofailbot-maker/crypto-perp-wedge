@@ -231,3 +231,34 @@ def test_cpw_oracle_references_are_unchanged():
     assert oracle.count("assert cpw.equity_curve.iloc[-1] == 0") == 2
     assert proof.LIQUIDATION == ["liquidation_on_195", "liquidation_off_195", "liquidation_on_200",
                                  "liquidation_off_200", "liquidation_on_250", "liquidation_off_250"]
+
+
+# Controller routing: the original no-argument N2-05 contract is preserved; N2-06 is an explicit opt-in.
+def test_no_argument_route_is_the_original_n2_05_proof():
+    assert proof.route([], {}) == (False, Path("/evidence/physical-n2-05"))
+
+
+def test_n2_06_route_is_explicit_and_isolated():
+    assert proof.route(["--n2-06"], {}) == (True, Path("/evidence/physical-n2-06"))
+    assert proof.route(["--n2-06"], {"CPW_PROOF_ROOT": "/evidence/x"}) == (True, Path("/evidence/x"))
+    for argv in (["--n2-05"], ["--n2-06", "--n2-06"], ["-n2-06"], ["extra"]):
+        with pytest.raises(SystemExit, match="usage"):
+            proof.route(argv, {})
+
+
+@pytest.mark.parametrize("argv", [[], ["--n2-06"]])
+def test_both_routes_refuse_preexisting_evidence(argv, tmp_path, monkeypatch):
+    monkeypatch.setattr(proof, "ROOT", proof.ROOT)  # main rebinds the global; restore it afterwards
+    monkeypatch.setenv("CPW_PROOF_ROOT", str(tmp_path))
+    with pytest.raises(AssertionError, match="fresh physical evidence required"):
+        proof.main(argv)
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_stage_d_runs_only_on_opt_in_after_stages_a_to_c():
+    body = (FIXTURE / "run_proof.py").read_text().split("\ndef main(", 1)[1]
+    gate = "        if n2_06:\n            matrix['n2_05_regression'] = 'N2_05_NATIVE_CONTINUITY_PASSED'\n" \
+           "            stage_d(matrix, retain, produce)\n"
+    assert body.count("stage_d(") == 1 and gate in body
+    assert body.index("'crash_' + boundary") < body.index(gate) < body.index("matrix['producers_unchanged'] = True")
+    assert "        matrix['outcome'] = 'N2_05_NATIVE_CONTINUITY_PASSED'\n        if n2_06:\n" in body

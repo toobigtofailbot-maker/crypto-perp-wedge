@@ -19,14 +19,16 @@ Posture stays `NO_NEW_ORDERS / NO_RESUME / NOT_PAPER_OR_LIVE_READY`.
 
 The native exchange owns settlement timing, price basis, sign, cash and
 position adjustment, and the liquidation trigger and its order and fill. A
-pass-through producer `BusTap` retains each published native
-`FundingSettlement`. A native `run` error is retained only for N2-06 scenarios;
+passive typed subscriber (`msgbus::subscribe_any` with a `FundingSettlement`
+handler) retains each published native settlement. It is not a `BusTap`: the
+bus has one tap slot, which native event-store capture owns while producing.
+A native `run` error is retained only for N2-06 scenarios;
 the N2-05 scenarios still require a successful run. Restore refuses any
 checkpoint with a run error (`NATIVE_RUN_FAILED`). Nothing adjusts cash or
 equity, injects a liquidation, synthesizes an event or patches upstream.
 
-**Controller Stage D** runs after the unchanged N2-05 Stages A–C on the same
-frozen binary:
+**Controller Stage D** is opt-in (`--n2-06`). It runs after the unchanged
+N2-05 Stages A–C on the same frozen binary:
 1. It produces every N2-06 scenario twice and requires identical stable native economics.
 2. It derives exactly one verdict per case, from native observations compared with the
    unchanged N1-02 CPW references.
@@ -36,7 +38,15 @@ frozen binary:
 
 Verdicts are `PROVEN`, `BOUNDED_DIVERGENCE`, `UNSUPPORTED_PINNED` or
 `UNVERIFIED`. Divergences are reported, never repaired. Reproduce with the
-N2-05 commands below; the controller writes `/evidence/physical-n2-06`. See
+N2-05 setup and Cargo commands below, then run the controller with the flag:
+
+```sh
+python3 -B /continuation/run_proof.py --n2-06
+```
+
+It writes `/evidence/physical-n2-06` and refuses an existing one. Without the
+flag the controller runs only the original N2-05 proof into
+`/evidence/physical-n2-05`. See
 [CPW-NAUTILUS-N2-06](../../../docs/status_entries/CPW-NAUTILUS-N2-06.md) for
 measured results.
 

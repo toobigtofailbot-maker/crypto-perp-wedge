@@ -9,7 +9,8 @@ Karl's bundle authorization, verbatim: "I authorize this bundle execution plan, 
 T2 private isolated offline fixture. Base: `b4ff62b99ffcf93a896de85f796d2bf88b87b52b`
 (#761 N3-05 and #762 merged; no open PR at start). Branch
 `claude/cpw-nautilus-n2-06-funding-liquidation-01`. Tested code commit
-`5485ca0c99ddfaa7172ea099510cdc40e45d4df3`; this fragment is added afterwards and is docs-only.
+`98dbd06057ced8ebadcf3f026e96bcee76cf1df2` (Side B follow-up, 2026-11-01); the first counted
+run tested `5485ca0c99ddfaa7172ea099510cdc40e45d4df3`. This fragment is docs-only.
 Side B owns the independent exact-head review; Karl alone decides merge.
 
 The allowed files are exactly five:
@@ -42,7 +43,13 @@ Supporting changes:
 - Restore refuses any checkpoint that has a run error (`NATIVE_RUN_FAILED`).
 - No cash or equity clamp, synthetic event, injected liquidation, ledger or upstream patch.
 
-Controller Stage D runs after the unchanged N2-05 Stages A–C on the same frozen binary:
+**Entrypoint.** With no argument, `run_proof.py` is the unchanged N2-05 proof: Stages A–C only,
+default root `/evidence/physical-n2-05`, outcome `N2_05_NATIVE_CONTINUITY_PASSED`. N2-06 is opt-in
+with `--n2-06`, default root `/evidence/physical-n2-06`. Any other argument is a usage error, and
+both modes refuse an existing evidence root. (Until `98dbd06` the no-argument run also ran Stage D
+into `/evidence/physical-n2-06`; Side B flagged this as an N2-05 compatibility break.)
+
+With `--n2-06`, Controller Stage D runs after the unchanged N2-05 Stages A–C on the same frozen binary:
 1. Every scenario is produced twice. The stable native economics must be identical across the
    pair (UUIDs, PIDs and run IDs excluded).
 2. Each case gets exactly one verdict, derived from native observations compared with the
@@ -51,13 +58,18 @@ Controller Stage D runs after the unchanged N2-05 Stages A–C on the same froze
 
 ## Measured outcome
 
-**`N2_06_NATIVE_CHARACTERIZED_FUNDED_RESTORE_UNSUPPORTED`** — one counted matrix:
-- binary `1ebbead3a97553085d02ea0ca905f022f564627431a19bba41e2ee67b5f8d301`;
-- new owned network-none container, image `sha256:031c1c78…`;
-- 1565.86 s, controller exit 0;
-- 42 genuine native producers, 63 restore/control cases, 80 distinct restore/resume PIDs.
+**`N2_06_NATIVE_CHARACTERIZED_FUNDED_RESTORE_UNSUPPORTED`**. Binary
+`1ebbead3a97553085d02ea0ca905f022f564627431a19bba41e2ee67b5f8d301` in every run; each run used a
+new owned network-none container on image `sha256:031c1c78…`.
 
-The N2-05 regression `N2_05_NATIVE_CONTINUITY_PASSED` held on the same binary. Across every case:
+| Run | Command | Result | Seconds | Producers / cases / PIDs |
+| --- | --- | --- | --- | --- |
+| first counted, `5485ca0` (2026-10-25) | `run_proof.py` (then always ran Stage D) | N2-06 outcome above | 1565.86 | 42 / 63 / 80 |
+| follow-up, `98dbd06` (2026-11-01) | `run_proof.py` | `N2_05_NATIVE_CONTINUITY_PASSED`, no Stage D keys | 474.79 | 8 / 36 / 38 |
+| follow-up, `98dbd06` (2026-11-01) | `run_proof.py --n2-06` | N2-06 outcome above | 1358.77 | 42 / 63 / 80 |
+
+Both N2-06 runs gave identical verdicts and native values. The N2-05 regression
+`N2_05_NATIVE_CONTINUITY_PASSED` held on the same binary. Across every case:
 - zero raw or semantic Redis deltas and unchanged redb hashes;
 - all producer stores and receipts are byte-identical afterwards;
 - the native Portfolio `RPUSHX` was denied 9 times by the read-only ACL user.
@@ -117,11 +129,12 @@ Adversarial controls:
 
 ## Validation and evidence limits
 
-- **Cargo** (locked, offline, fresh copy of the tested commit): check PASS; test 9 passed
-  (including the new `failed_native_run_refuses`); build PASS.
+- **Cargo** (locked, offline, fresh copy of the tested commit, rerun in the follow-up container):
+  check PASS; test 9 passed (including `failed_native_run_refuses`); build PASS. `src/main.rs`
+  (`946bb669…`), `Cargo.toml` and `Cargo.lock` are byte-identical to `5485ca0`.
 - **Pinned image** `cpw-n3-02-proof:pinned` (CPython 3.12.10 / Nautilus 1.231.0 / PyArrow
   25.0.1, network none, read-only repo):
-  - N2-06 focused: 29 passed;
+  - N2-06 focused: 34 passed (29 at `5485ca0`, plus 5 entrypoint-route tests);
   - N2-05 + N2-04: 44 passed;
   - N1-02 oracle, unaltered: 39 passed;
   - native-cache guards: 6 passed.
@@ -139,9 +152,13 @@ Adversarial controls:
 - **Fixture limits**: one deterministic BTCUSDT-PERP fixture, top-of-book funding price with no
   mark feed, single position, no partial-liquidity, multi-currency or venue funding.
 
-Evidence is outside Git at `C:/Users/dersu/Downloads/CPW-N2-06-evidence-20261025`:
-- `physical-n2-06/results.json`, sha256 `4d18286f…4fb95e1a`;
-- `counted-04-final-logs/` (controller, cargo, source/binary hashes, toolchain, process check).
+Evidence is outside Git, and the first run is kept unedited:
+- `C:/Users/dersu/Downloads/CPW-N2-06-evidence-20261025`: `physical-n2-06/results.json`, sha256
+  `4d18286f…4fb95e1a`, and `counted-04-final-logs/`;
+- `C:/Users/dersu/Downloads/CPW-N2-06-followup-evidence-20261101`:
+  - `physical-n2-05/results.json`, sha256 `46145be0…08795947`;
+  - `physical-n2-06/results.json`, sha256 `0d2f8db3…57e3df74`;
+  - `logs/` (cargo, both controller logs, source/binary hashes, toolchain, process checks).
 
 ## Boundaries and next dependency
 

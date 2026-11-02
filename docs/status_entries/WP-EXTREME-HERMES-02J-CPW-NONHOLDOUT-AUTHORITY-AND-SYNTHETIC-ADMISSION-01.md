@@ -35,7 +35,7 @@ The positive validates a closed synthetic CSV grammar, including a declared
 15m-parent/30m-derived/row-local-feature chain. It is software evidence, not
 historical OHLCV/canonical-loader parity. Results remain science `NOT_READY`,
 SearchContract `NOT_ISSUABLE`, `NATIVE_HANDOFF_NOT_INTEGRATED`. All existing
-02Bâ€“02H consumer behavior and DON/FLOW/LOB fixtures remain unchanged.
+02BÃ¢â‚¬â€œ02H consumer behavior and DON/FLOW/LOB fixtures remain unchanged.
 
 ## Acceptance traceability and validation
 
@@ -58,14 +58,14 @@ is current; the original 83-pass/3-failure query result is historical evidence.
 
 | WP requirement | Evidence | State |
 | --- | --- | --- |
-| §2 repository truth | #763 merged at original base; #764 merged at `c144c821d1decc48253b60901bf44377811954b0`; incorporated by normal merge `f7819c4` | refreshed; eight-file WP diff |
-| §4A authority | module, additive migration 0003, role SQL; PostgreSQL audit/role tests | software/fixtures satisfied |
-| §4B pre-open | sealed handle checks, metadata/refusal tripwires, ancestry and transaction tests | supported sealed fixtures satisfied |
-| §4C synthetic positive | guarded exact-code consumer and derived/feature dependencies | satisfied; no historical qualification |
-| §4C native 02G handoff | original historical refusal preserved | optional; not integrated |
-| §5 focused/adjacent/PostgreSQL/security | Linux 96 passed; Windows 182 passed / 19 Linux-specific skips; amendment query 3 passed | covered; exact heads in A–I report |
-| §5 mandatory T3 | amended native full-release completed all 48 shards: 36 passed, 12 failed | FAIL; cannot waive |
-| §6 one PR / Side 23 | draft PR #765; exact final head and smoke in A–I report | readiness NO |
+| Â§2 repository truth | #763 merged at original base; #764 merged at `c144c821d1decc48253b60901bf44377811954b0`; incorporated by normal merge `f7819c4` | refreshed; eight-file WP diff |
+| Â§4A authority | module, additive migration 0003, role SQL; PostgreSQL audit/role tests | software/fixtures satisfied |
+| Â§4B pre-open | sealed handle checks, metadata/refusal tripwires, ancestry and transaction tests | supported sealed fixtures satisfied |
+| Â§4C synthetic positive | guarded exact-code consumer and derived/feature dependencies | satisfied; no historical qualification |
+| Â§4C native 02G handoff | original historical refusal preserved | optional; not integrated |
+| Â§5 focused/adjacent/PostgreSQL/security | Linux 96 passed; Windows 182 passed / 19 Linux-specific skips; amendment query 3 passed | covered; exact heads in Aâ€“I report |
+| Â§5 mandatory T3 | amended native full-release completed all 48 shards: 36 passed, 12 failed | FAIL; cannot waive |
+| Â§6 one PR / Side 23 | draft PR #765; exact final head and smoke in Aâ€“I report | readiness NO |
 
 ### Completed amended release and genuine scope conflict
 
@@ -77,33 +77,65 @@ exactly once and executed every shard. Assignment manifest:
 Query shard passed **86/86**. Total: **4,560 passed, 52 failed, 110 errors,
 45 skipped**. No shard timed out. This is completed execution, not passing T3.
 
-Seven failures in `test_takerflow_feature_materialization.py`,
-`test_nautilus_research_adapter.py`, and `test_dispatch_authorization.py`
-require the absent canonical D4 CSV or 1d Parquet. The exact clean base
-`1731d6b` reproduced **all seven failures** in 41.25 seconds. Their source
-and production dependencies are outside the WP diff. The takerflow test opens
-real May-2024 history; the dispatch test explicitly replays real H-004.
-Hydrating those data, substituting invented canonical evidence, disabling tests,
-or changing additional test/validation paths is not authorized. This is a new,
-concrete mandatory-validation/scope conflict; Karl's three-expectation amendment
-is fully implemented and is not being requested again.
+### Same-PR supported-toolchain continuation, 2026-11-01
 
-Other failed shards expose validation-environment requirements (CPython 3.12,
-pinned Nautilus, Linux libseccomp and Windows symlink privilege). These are not
-claimed as production regressions or repaired. Resolving those alone cannot
-satisfy T3 while the independently reproduced historical-data conflict remains.
-No broad run is repeated just to rediscover the absent datasets. New main adds
-one file-disjoint native test; the 222-file release result predates that merge
-and is not final-main full-suite proof.
+All **162 original failed/error nodes** were classified by their full earliest
+causal tracebacks before repaired execution: absent D4 CSV 5; absent 1d Parquet 2;
+unsupported CPython 106; missing pinned Nautilus 44; Python 3.12 filesystem API 1;
+Windows symlink privilege 1; missing Linux libseccomp 3. No blanket baseline
+claim was made for the 155 environment nodes.
+
+At `f8cc896e004bba1420a8927266734dac98e3b789`, all **155 environment nodes now
+PASS**, matched by exact JUnit node. The supported Linux CPython 3.12.10 image
+verifies all 20 committed native lock versions and installed wheel RECORD.
+Missing Git, colorama, Redis client, Docker CLI, supplemental repo dependencies
+and Compose plugin were supplied only inside disposable validation environments.
+The existing dedicated, labeled, loopback Redis 7.4.2 synthetic proof fixture was
+verified, started for isolated random test namespaces, then restored to stopped.
+No dependency pin, production source, platform guard or test expectation changed.
+
+All nine original affected native shard assignments were exercised directly:
+17: 92 passed; 18: 130 passed / 1 missing-Compose failure, followed by the fixed
+Compose test passing; 21: 180 passed / 1 existing explicit-physical skip;
+22: 121 passed; 23: 246 passed; 24: 203 passed; 25: 105 passed / 15 Linux fixture
+setup errors; 26: 149 passed; 27: 67 passed. These are diagnostic pytest runs,
+not one native full-release PASS. Initial missing-prerequisite logs are retained.
+
+The 15 additional queue-input fixture errors reproduce on **current clean main
+`c144c82` in the same Linux environment** (3 passed / 15 errors). Committed
+Windows backslash paths become basenames on POSIX, so fixture setup tries to
+mkdir its already-created source directory. Unmodified Windows rerun: **18/18
+passed**, 476.20 seconds. No platform monkeypatch or fixture/catalog rewrite.
+The native verifier does not authorize combining this split-platform evidence
+into one passing T3 certificate.
+
+The seven data-dependent nodes also reproduce on **current clean main in the
+same corrected Linux environment**, with identical absent-source visibility:
+PR **7 failed**, 6.46 seconds; clean main **7 failed**, 5.97 seconds. One takerflow
+test reads an exact real May-2024 discrepancy; two dispatch tests require whole
+1d file/hash/lineage. Four fake-executor tests already mock hash/count/loader/
+compiler but still demand the authentic canonical path's presence. A fabricated
+canonical placeholder remains prohibited. No existing approved nonhistorical
+route satisfies these seven original assertions.
+
+Committed metadata covers full 2020-01-01 through 2026-04-11 historical objects;
+02I explicitly states that opaque holdout IDs do not map to physical intervals.
+Whole-object holdout exclusion and eligible real-data validation isolation are
+**not proved**. No real dataset was opened, copied, materialized or hashed.
+The smallest remaining owner gate is an explicit software-only T3 validation-
+contract decision for these exact historical checks and split-platform evidence;
+otherwise any authentic-data option first requires specific permission and
+independent proof of eligible holdout-safe isolation. No waiver is inferred.
+No expensive full-release rerun was started with these prerequisites unresolved.
 
 Linux authority/PostgreSQL at `38c2d08`: **96 passed**, 49.37 seconds.
 Windows focused/adjacent at `74a0038`: **182 passed / 19 Linux-only skips**,
-1810.08 seconds. Linux covers the physical sealing cases. Existing 02E–02H
+1810.08 seconds. Linux covers the physical sealing cases. Existing 02Eâ€“02H
 fixture/refusal and DON/FLOW/LOB regressions retain their evidence. New Python
 files pass Ruff/format; existing PostgreSQL and query files retain respectively
 28 and 3 baseline lint findings, with no new findings. Changed-file secrets:
 zero at amendment head; final-tail checks and exact-head synthetic proof are
-recorded in the final A–I report. Migration 0001/0002 Git bytes are unchanged.
+recorded in the final Aâ€“I report. Migration 0001/0002 Git bytes are unchanged.
 
 Original failed logs remain retained outside Git: the old 83/3 query failure,
 namespace/interpreter/checkout-mode fixture setup failures, and the early run
@@ -113,8 +145,8 @@ amended release kept HEAD fixed for its entire execution.
 ## Review and remaining gates
 
 **READY FOR SIDE 23 REVIEW: NO.** Required T3 proof is absent. PR #765 remains
-draft and unmerged. Scope resolution for the seven historical-dependent tests
-(or an explicit owner resolution of the validation contract) is required;
+draft and unmerged. One explicit owner validation-contract/data-authority
+decision remains as described above;
 this document grants neither permission nor a waiver. No real data access is
 proposed. Side 23 exact-head review and Karl's merge decision remain gates.
 Real custody designation, scientific approval, Stage 5B, paper/live and capital

@@ -23,10 +23,12 @@ class Controller:
         if not self.output.is_dir() or self.output.is_symlink() or self.output.is_junction() or any(self.output.iterdir()) or self.output.is_relative_to(ROOT):
             raise ValueError("empty ordinary external output required")
         self.prefix = "cpw-n4-02-" + uuid.uuid4().hex[:12]
+        self.network = self.prefix + "-public"
         self.owned = []
         self.receipts = []
         self.counter = 0
         self.image = self.call(["docker", "image", "inspect", IMAGE, "--format", "{{.Id}}"])["stdout"].strip()
+        self.call(["docker", "network", "create", "--label", "cpw.wp=CPW-NAUTILUS-N4-02", self.network])
 
     def call(self, args, *, ok=True, timeout=150):
         result = subprocess.run(args, capture_output=True, text=True, timeout=timeout, check=False)
@@ -68,11 +70,19 @@ class Controller:
         result = self.call(command, ok=False)
         return name, result
 
-    def readonly(self, name):
-        self.call(["docker", "network", "disconnect", "bridge", name])
+    def offline(self, name):
         info = self.owned_container(name)
+        networks = info["NetworkSettings"]["Networks"]
+        if networks:
+            if set(networks) != {self.network}:
+                raise ValueError("unowned network attachment")
+            self.call(["docker", "network", "disconnect", self.network, name])
+            info = self.owned_container(name)
         if info["NetworkSettings"]["Networks"]:
             raise ValueError("reader namespace retains external network")
+
+    def readonly(self, name):
+        self.offline(name)
         self.python(name, "import redis; d=redis.Redis(); d.acl_setuser('controller',enabled=True,nopass=True,keys=['*'],commands=['+@all']); "
                     "d.execute_command('ACL','SETUSER','default','on','nopass','~*','-@all','+@read','+ping','+info','+config|get','+acl|getuser','+client|setinfo','+client|setname')")
 
@@ -82,7 +92,7 @@ class Controller:
         case_root.mkdir()
         trader = "N2R" + uuid.uuid4().hex[:12] + "-001"
         self.call(["docker", "run", "-d", "--name", name, "--label", "cpw.wp=CPW-NAUTILUS-N4-02",
-                   "--network", "bridge", REDIS, "redis-server", "--bind", "127.0.0.1", "--appendonly", "yes", "--appendfsync", "always"])
+                   "--network", self.network, REDIS, "redis-server", "--bind", "127.0.0.1", "--appendonly", "yes", "--appendfsync", "always"])
         self.owned.append(name)
         self.owned_container(name)
         self.python(name, "import redis,json; from tools.nautilus_adapter import noncapital_persistent_session as p; "
@@ -105,6 +115,7 @@ class Controller:
             command_line = self.call(["docker", "exec", name, "cat", f"/proc/{int(ack['pid'])}/cmdline"])["stdout"]
             if "tools.nautilus_adapter.noncapital_persistent_session" not in command_line or "produce" not in command_line:
                 raise ValueError("checkpoint PID does not identify owned native producer")
+            self.offline(name)
             if not before_ack:
                 if session.public.file_hash(case_root / "manifest.json") != ack["sha256"]:
                     raise ValueError("pre-kill independent digest mismatch")
@@ -245,7 +256,11 @@ class Controller:
         for name in reversed(self.owned):
             self.owned_container(name)
             results.append(self.call(["docker", "rm", "-f", "-v", name]))
-        (self.output / "cleanup.json").write_text(json.dumps({**session.LABELS, "removed": len(results)}, indent=2), encoding="utf-8")
+        info = json.loads(self.call(["docker", "network", "inspect", self.network])["stdout"])[0]
+        if info["Labels"].get("cpw.wp") != "CPW-NAUTILUS-N4-02" or info["Containers"]:
+            raise ValueError("network cleanup ownership/attachment mismatch")
+        self.call(["docker", "network", "rm", self.network])
+        (self.output / "cleanup.json").write_text(json.dumps({**session.LABELS, "removed": len(results), "network_removed": self.network}, indent=2), encoding="utf-8")
 
 
 def main(argv=None):

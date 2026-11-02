@@ -38,13 +38,13 @@ No source image, host package, dependency lock or native wheel/source changed.
 
 ## Native capability and physical result
 
-The final frozen-source physical matrix (`frozen-physical-03`) passed:
+The final frozen-source physical matrix (`frozen-physical-04`) passed:
 
 | Case | Actual outcome | Native balance / equity / fees, USDT |
 | --- | --- | --- |
-| Clean OPEN | Native single-exposure recovery, two fresh readers | 9999.96900436 / 9999.96890436 / .03099564 |
-| Clean FLAT | Native completed-cycle recovery, two fresh readers | 9999.93803532 / 9999.93803532 / .06206468 |
-| Acknowledged OPEN SIGKILL | Durable checkpoint, exit 137, two fresh equivalent readers | 9999.96896 / 9999.96886 / .03104000 |
+| Clean OPEN | Native single-exposure recovery, two fresh readers | 9999.96904436 / 9999.96894436 / .03095564 |
+| Clean FLAT | Native completed-cycle recovery, two fresh readers | 9999.94257644 / 9999.94257644 / .06192356 |
+| Acknowledged OPEN SIGKILL | Durable checkpoint, exit 137, two fresh equivalent readers | 9999.9690548 / 9999.9689548 / .03094520 |
 | Before-ack OPEN SIGKILL | Exit 137; both fresh readers refuse missing seal | No admitted recovery |
 
 Fresh unsigned Binance exchangeInfo/bookTicker/mark-price data reaches the
@@ -59,11 +59,12 @@ are explicitly checked.
 
 Native Redis 7.4.2 owns economic persistence, with `appendfsync always` and
 account-event persistence. Controller-labelled isolated containers bind
-Redis only to loopback; no host port is published. A task-owner marker and
+Redis only to loopback on a task-owned network; no host port is published. A task-owner marker and
 server run ID guard the fixed backend. Event-ID read-back, stable native
 record hashes and successful AOF status precede the fsynced acknowledgment.
 The kill controller independently checks digest, native records, AOF and
-the producer's `/proc` identity, retains a fsynced checkpoint, then SIGKILLs
+the producer's `/proc` identity, removes external networking before its
+independent durability read, retains a fsynced checkpoint, then SIGKILLs
 only its owned producer. PID namespace plus PID identifies a process.
 
 Readers use real `TradingNode`/`exec_engine.load_cache`, construct no execution
@@ -80,7 +81,8 @@ economics, stale quote, filter/mark mismatch, and missing/corrupt/out-of-order
 native records in disposable genuine-byte clones. Original source records
 remain intact and an additional original reload succeeds. All 33 final
 controller-owned containers, including transient producers/readers/Redis
-fixtures, are removed; the separately owned debugging resource is removed too.
+fixtures, and the task-owned network are removed; separately owned debugging
+and focused-test resources are removed too.
 
 ## Validation, history and limits
 
@@ -102,7 +104,9 @@ refuses this shape as `MULTICYCLE_NATIVE_HISTORY_UNSUPPORTED_PINNED`.
 
 Earlier failed physical runs remain failed external evidence: ACL result
 parsing, cross-namespace PID collision and startup quote freshness were
-corrected within scope; only the final source-matched run is counted.
+corrected within scope. A final network-isolation review moved the durability
+observer offline and replaced shared bridging with a task-owned network;
+only the final source-matched rerun is counted.
 Ponytail FULL ran first; mandatory installed skills were read/applied, their
 locator scripts executed where supplied, and final actual-diff financial,
 authority, security, lean and verification reviews were performed. Locators

@@ -97,7 +97,8 @@ def corpus(tmp_path, monkeypatch):
     frame["close_time_ms"] = frame["open_time_ms"] + 899999
     adapter = de.DataEvidenceResolution()
     catalogs = {tf: copy.deepcopy(adapter._catalog(tf)) for tf in ("15m", "4h")}
-    parent = source / catalogs["15m"]["normalized"]["path"]
+    # The committed catalog uses Windows separators; normalize this synthetic fixture only.
+    parent = source / catalogs["15m"]["normalized"]["path"].replace("\\", "/")
     parent.parent.mkdir(parents=True)
     frame.to_csv(parent, index=False, lineterminator="\n")
     for tf, rows, end in (("15m", 16, "03:45:00"), ("4h", 1, "00:00:00")):

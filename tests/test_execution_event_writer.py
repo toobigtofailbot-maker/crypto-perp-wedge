@@ -530,7 +530,11 @@ def _assert_redirect_remains_integrity_visible(
     *,
     durable_combined_uncertainty: bool = False,
 ) -> None:
-    with pytest.raises(ExecutionEventError, match="symlink or reparse") as direct:
+    redirect_error = (
+        r"contains (?:a symlink or reparse component"
+        r"|a symlinked or reparse-point path component:)"
+    )
+    with pytest.raises(ExecutionEventError, match=redirect_error) as direct:
         _validated(fixture)
     monkeypatch.setattr(query_layer, "REPO_ROOT", fixture["root"])
     conn = duckdb.connect(database=":memory:")
@@ -553,12 +557,12 @@ def _assert_redirect_remains_integrity_visible(
         else:
             with pytest.raises(
                 ExecutionEventError,
-                match="symlink or reparse",
+                match=redirect_error,
             ) as findings:
                 collect_execution_stream_integrity_findings(repo_root=fixture["root"])
             with pytest.raises(
                 ExecutionEventError,
-                match="symlink or reparse",
+                match=redirect_error,
             ) as query:
                 query_layer._register_execution_stream_integrity_findings(conn)
             assert str(findings.value)
@@ -738,14 +742,13 @@ def test_pre_append_post_anchor_parent_substitution_preserves_primary_precedence
     assert trace["lock_cleanup_completed"] is True
     retained_parent = trace["retained_parent"]
     assert retained_parent is not None
-    physical_stream = (
-        retained_parent / fixture["stream_path"].name
-        if substitution_target == "execution stream parent"
-        else fixture["stream_path"]
-    )
+    # The lock parent also contains the stream; the old pathname now follows the attack.
+    physical_stream = retained_parent / fixture["stream_path"].relative_to(substitution_path)
     after = physical_stream.read_bytes()
+    assert not fixture["stream_path"].exists()
     assert after.startswith(before)
     assert len(after) > len(before)
+    assert after.splitlines()[:-1] == before.splitlines()
     assert json.loads(after.splitlines()[-1])["event_type"] == "attempt_outcome"
     assert list(outside.iterdir()) == []
     assert substitution_path.resolve() == outside.resolve()
@@ -1147,9 +1150,12 @@ def test_post_proof_lock_parent_substitution_reports_real_cleanup_uncertainty(
     assert trace["lock_cleanup_completed"] is True
     retained_parent = trace["retained_parent"]
     assert retained_parent is not None
-    after = fixture["stream_path"].read_bytes()
+    physical_stream = retained_parent / fixture["stream_path"].relative_to(lock_parent_path)
+    after = physical_stream.read_bytes()
+    assert not fixture["stream_path"].exists()
     assert after.startswith(before)
     assert len(after) > len(before)
+    assert after.splitlines()[:-1] == before.splitlines()
     assert json.loads(after.splitlines()[-1])["event_type"] == "attempt_outcome"
     assert not list(retained_parent.glob(".*.execution_event_append.lock"))
     assert list(outside.iterdir()) == []

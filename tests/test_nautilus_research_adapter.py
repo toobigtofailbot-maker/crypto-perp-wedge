@@ -65,6 +65,15 @@ def _fast_scientific_inputs(monkeypatch):
         "compile_signal",
         lambda strategy_spec, variant, ohlcv: pd.Series(0.0, index=ohlcv.index),
     )
+    return frame
+
+
+@pytest.fixture
+def software_inputs(tmp_path, _fast_scientific_inputs):
+    """Existing byte-loader mocks prove envelope behavior, never canonical data integrity."""
+    path = tmp_path / "synthetic-software-input.csv"
+    _fast_scientific_inputs.to_csv(path, index_label="open_time")
+    return research.ResolvedResearchInputs(**{**_inputs().__dict__, "ohlcv_path": path})
 
 
 def _fake_executor(inputs, ohlcv, signals, *, error_variant=None):
@@ -188,8 +197,8 @@ def test_nonzero_funding_profile_fails_closed() -> None:
         )
 
 
-def test_fake_executor_builds_valid_full_denominator_envelope(monkeypatch) -> None:
-    inputs = _inputs()
+def test_fake_executor_builds_valid_full_denominator_envelope(monkeypatch, software_inputs) -> None:
+    inputs = software_inputs
     monkeypatch.setattr(research, "_default_executor", _fake_executor)
     result = research.execute_nautilus_research(inputs)
     validate_result_envelope(result.result_envelope)
@@ -208,8 +217,8 @@ def test_fake_executor_builds_valid_full_denominator_envelope(monkeypatch) -> No
     )
 
 
-def test_fake_variant_error_remains_as_errored_denominator_row(monkeypatch) -> None:
-    inputs = _inputs()
+def test_fake_variant_error_remains_as_errored_denominator_row(monkeypatch, software_inputs) -> None:
+    inputs = software_inputs
     monkeypatch.setattr(
         research,
         "_default_executor",
@@ -223,8 +232,8 @@ def test_fake_variant_error_remains_as_errored_denominator_row(monkeypatch) -> N
     assert result.result_envelope["scientific_result"]["outcome_category_counts"]["errored"] == 1
 
 
-def test_provenance_does_not_change_evidence_identity(monkeypatch) -> None:
-    inputs = _inputs()
+def test_provenance_does_not_change_evidence_identity(monkeypatch, software_inputs) -> None:
+    inputs = software_inputs
     monkeypatch.setattr(research, "_default_executor", _fake_executor)
     left_inputs = research.ResolvedResearchInputs(
         **{**inputs.__dict__, "repo_commit": "left"}
@@ -242,8 +251,8 @@ def test_provenance_does_not_change_evidence_identity(monkeypatch) -> None:
     ]
 
 
-def test_source_artifacts_are_not_mutated(monkeypatch) -> None:
-    inputs = _inputs()
+def test_source_artifacts_are_not_mutated(monkeypatch, software_inputs) -> None:
+    inputs = software_inputs
     before = copy.deepcopy(inputs)
     monkeypatch.setattr(research, "_default_executor", _fake_executor)
     research.execute_nautilus_research(inputs)

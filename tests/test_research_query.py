@@ -26,6 +26,34 @@ from tools.research_query.query_layer import (
 H004_EXECUTION_STREAM_RELATIVE_PATH = Path(
     "research/queue/execution_events/RUN-20260804-H004R2A1.execution_events.jsonl"
 )
+H004_CANONICAL_1D_RELATIVE_PATH = Path(
+    "data/processed/"
+    "binance_um_perp_BTCUSDT_1d_2020-01-01_2026-04-11_2026-04-12T1655Z.parquet"
+)
+H004_REQUIRED_INPUT_UNAVAILABLE_FINDING = {
+    "finding_type": "crossing_committed_required_validation_input_unavailable",
+    "attempt_id": "KDAUTH-XING-20260804-C3N4RPZN",
+    "reservation_stream_path": (
+        "research/queue/dispatch_authorization_reservations/"
+        "KDAUTH-XING-20260804-C3N4RPZN.crossing_reservation.jsonl"
+    ),
+    "authorization_id": "KDAUTH-H004-R2-0001",
+    "authorization_target_path": (
+        "research/queue/dispatch_authorizations/"
+        "KDAUTH-H004-R2-0001.dispatch_authorization.json"
+    ),
+    "dispatch_id": "DSP-20260804-H004R2A1",
+    "dispatch_record_path": (
+        "research/queue/dispatch_records/DSP-20260804-H004R2A1.dispatch_record.json"
+    ),
+    "run_id": "RUN-20260804-H004R2A1",
+    "execution_event_stream_path": H004_EXECUTION_STREAM_RELATIVE_PATH.as_posix(),
+    "queue_item_id": "QI-20260717-H004R2B1",
+    "terminal_outcome": "crossing_committed",
+    "reason_code": "canonical_1d_dataset_unavailable",
+    "operator_inspection_required": True,
+    "non_authority": True,
+}
 H004_EXECUTION_STREAM_MISSING_FINDING = {
     "finding_type": "execution_stream_missing",
     "dispatch_id": "DSP-20260804-H004R2A1",
@@ -41,7 +69,18 @@ H004_EXECUTION_STREAM_MISSING_FINDING = {
 }
 
 
+def _expected_h004_crossing_reservation_integrity_findings():
+    # Inspect presence only; never open history to establish test expectations.
+    if not (query_layer.REPO_ROOT / H004_CANONICAL_1D_RELATIVE_PATH).is_file():
+        return [H004_REQUIRED_INPUT_UNAVAILABLE_FINDING]
+    return []
+
+
 def _expected_h004_execution_stream_integrity_findings():
+    # Without required input, the dispatch cannot be validated as consumed.
+    # That uncertainty remains visible in crossing-reservation integrity.
+    if _expected_h004_crossing_reservation_integrity_findings():
+        return []
     if (query_layer.REPO_ROOT / H004_EXECUTION_STREAM_RELATIVE_PATH).is_file():
         return []
     return [H004_EXECUTION_STREAM_MISSING_FINDING]
@@ -1681,7 +1720,7 @@ def test_dispatch_authorization_crossing_reservation_integrity_is_empty_on_main(
     assert run_named_view(
         conn,
         "v_integrity_dispatch_authorization_crossing_reservations",
-    ) == []
+    ) == _expected_h004_crossing_reservation_integrity_findings()
 
 
 def test_dispatch_without_consumption_integrity_is_empty_on_main(conn):
@@ -1692,9 +1731,8 @@ def test_dispatch_without_consumption_integrity_is_empty_on_main(conn):
 
 
 def test_execution_stream_integrity_matches_repo_or_local_evidence_context(conn):
-    # A clean checkout must disclose the exact missing stream. The evidence-bearing
-    # H-004 worktree may contain that exact untracked stream, in which case the view
-    # must be clean; this does not claim that local evidence is merged repo truth.
+    # Expect a missing stream only when required input permits dispatch validation.
+    # Neither local evidence nor unavailable input is merged execution authority.
     assert run_named_view(
         conn, "v_integrity_execution_streams"
     ) == _expected_h004_execution_stream_integrity_findings()
@@ -1960,6 +1998,17 @@ def test_current_integrity_views_empty_under_pre_execution_refinement(conn):
             )
         ]
     }
+    crossing_findings = _expected_h004_crossing_reservation_integrity_findings()
+    if crossing_findings:
+        expected_rows["v_integrity_dispatch_authorization_crossing_reservations"] = [
+            tuple(
+                finding[column]
+                for column in EXPECTED_COLUMNS[
+                    "v_integrity_dispatch_authorization_crossing_reservations"
+                ]
+            )
+            for finding in crossing_findings
+        ]
     execution_stream_findings = _expected_h004_execution_stream_integrity_findings()
     if execution_stream_findings:
         expected_rows["v_integrity_execution_streams"] = [

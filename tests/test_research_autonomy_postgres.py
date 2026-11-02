@@ -59,8 +59,9 @@ def authority_db(tmp_path, monkeypatch):
         with monkeypatch.context() as context:
             context.setattr(migrations, "MIGRATIONS_DIR", legacy)
             assert migrations.apply_migrations(authority).applied == ("0001_research_authority",)
-        assert migrations.apply_migrations(authority).applied == ("0002_trial_result_binding",)
-        assert migrations.apply_migrations(authority).already_applied == ("0001_research_authority", "0002_trial_result_binding")
+        versions = tuple(path.stem for path in sorted(original.glob("[0-9][0-9][0-9][0-9]_*.sql")))
+        assert migrations.apply_migrations(authority).applied == versions[1:]
+        assert migrations.apply_migrations(authority).already_applied == versions
         with psycopg.connect(authority) as conn:
             conn.execute((ROOT / "tools/research_autonomy/research_authority_writer_role.sql").read_text())
         yield authority, memory
@@ -228,28 +229,30 @@ def test_migration_catalog_checksum_and_separation(authority_db, tmp_path, monke
     authority, memory = authority_db
     with psycopg.connect(authority) as conn:
         tables = {r[0] for r in conn.execute("SELECT tablename FROM pg_tables WHERE schemaname='research_authority'")}
-        assert tables == {"schema_migrations", "envelope_registry", "envelope_control_state", "campaign_state", "search_lineage", "search_budget_reservation", "proposal_record", "scientific_trial", "trial_attempt", "holdout_state", "contamination_edge", "evidence_reference", "authority_audit", "trial_result_binding"}
+        assert tables == {"schema_migrations", "envelope_registry", "envelope_control_state", "campaign_state", "search_lineage", "search_budget_reservation", "proposal_record", "scientific_trial", "trial_attempt", "holdout_state", "contamination_edge", "evidence_reference", "authority_audit", "trial_result_binding", "nonholdout_control"}
         triggers = {(r[0],r[1]) for r in conn.execute("""SELECT c.relname,t.tgname FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='research_authority' AND NOT t.tgisinternal""")}
-        immutable = {"envelope_registry", "authority_audit", "proposal_record", "scientific_trial", "trial_attempt", "contamination_edge", "evidence_reference", "schema_migrations", "trial_result_binding"}
+        immutable = {"envelope_registry", "authority_audit", "proposal_record", "scientific_trial", "trial_attempt", "contamination_edge", "evidence_reference", "schema_migrations", "trial_result_binding", "nonholdout_control"}
         guarded = {"campaign_state", "search_lineage", "envelope_control_state", "holdout_state", "search_budget_reservation"}
         expected = {(t,n) for t in immutable for n in ("immutable_rows","immutable_truncate")} | {(t,n) for t in guarded for n in ("guarded_rows","guarded_truncate")}
         expected |= {("authority_audit","hash_chain"),("campaign_state","campaign_integrity"),("authority_audit","audit_current_binding"),("proposal_record","proposal_conservation"),("search_lineage","search_conservation"),("envelope_control_state","control_audit"),("holdout_state","holdout_audit")}
         expected |= {(t,"scientific_insert") for t in ("campaign_state","search_lineage","holdout_state")}
         expected |= {('proposal_record','proposal_audit'),('trial_attempt','attempt_audit'),('search_lineage','search_audit')}
         expected |= {("trial_result_binding","trial_result_audit"),("trial_attempt","trial_attempt_terminal")}
+        expected |= {("nonholdout_control", "control_audit")}
         assert triggers == expected
         constraints=conn.execute("SELECT cl.relname,co.conname,pg_get_constraintdef(co.oid) FROM pg_constraint co JOIN pg_class cl ON cl.oid=co.conrelid WHERE co.connamespace='research_authority'::regnamespace ORDER BY cl.relname,co.conname").fetchall()
         columns=conn.execute("SELECT table_name,column_name,data_type,is_nullable FROM information_schema.columns WHERE table_schema='research_authority' ORDER BY table_name,ordinal_position").fetchall()
         # Retain the original exact catalog lock; only the authorized audit enum
-        # extension and two new identity constraints differ on old tables.
-        legacy_constraints=[(table,name,definition.replace("'trial_result'::text, ",""))
-            for table,name,definition in constraints if table!='trial_result_binding'
+        # extensions and two new identity constraints differ on old tables.
+        legacy_constraints=[(table,name,definition.replace("'trial_result'::text, ","").replace("'nonholdout_control'::text, ","").replace(", 'nonholdout_read'::text",""))
+            for table,name,definition in constraints if table not in {'trial_result_binding','nonholdout_control'}
             and name not in {'proposal_result_identity','audit_result_identity'}]
-        legacy_columns=[r for r in columns if r[0]!='trial_result_binding']
+        legacy_columns=[r for r in columns if r[0] not in {'trial_result_binding','nonholdout_control'}]
         assert len(legacy_constraints)==102 and len(legacy_columns)==91
         assert content_hash({'constraints':legacy_constraints,'columns':legacy_columns})=='sha256:9e1b65a6e5210660fe7681bbfe516299c8b295fc5e7dc05d1cfecddfd48d589b'
-        assert len([r for r in columns if r[0]!='trial_result_binding'])==91
+        assert len(legacy_columns)==91
         assert len([r for r in columns if r[0]=='trial_result_binding'])==21
+        assert [r[1] for r in columns if r[0]=='nonholdout_control']==['record_id','kind','semantic_payload','content_sha256','event_id']
         assert any(r[1]=='proposal_result_identity' for r in constraints)
         assert any(r[1]=='audit_result_identity' for r in constraints)
         assert any(r[0]=='trial_result_binding' and 'FOREIGN KEY' in r[2] for r in constraints)

@@ -105,6 +105,8 @@ def checkpoint(root, trusted, sealed_ns):
     require(set(m) == MANIFEST_KEYS, "unsupported native manifest fields")
     labels(m)
     no_authority(m)
+    require(m["case"] in ("open", "flat") and isinstance(m["quotes"], list)
+            and len(m["quotes"]) == (1 if m["case"] == "open" else 2), "missing/unsupported quote case")
     require(set(m["state"]) == {"native", "snapshots", "realized", "unrealized", "balance", "equity"}
             and set(m["state"]["native"]) == {"instruments", "accounts", "orders", "positions"}, "native state schema")
     require(sha(root / "manifest.json") == trusted and load(root / "ack.json") ==

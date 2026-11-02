@@ -11,7 +11,9 @@ T2 isolated, manual proof; no production consumer. Dedicated Lane B branch
 `77a5a840128fae6cb46d085862a15fd5e204d61f` (merged #766).
 The only competing open PR at startup and prepublication was #765, with eight
 disjoint Hermes/research files. Root checkout and other lanes were not edited.
-PR identity and exact head are recorded in the external A–I report.
+PR: [#767](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/767),
+non-draft for independent bounded-proof review; no merge. Exact final head
+and hosted smoke receipt are recorded in the external A–I report.
 
 Exactly four additions: `tools/nautilus_adapter/noncapital_persistent_session.py`,
 `tools/nautilus_adapter/noncapital_persistent_proof.py`,

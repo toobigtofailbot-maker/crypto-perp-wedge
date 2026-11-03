@@ -35,7 +35,35 @@ logging collision; separate-process runs passed 33 N4-02 and 252 adjacent tests,
 zero skips. A reproduced original-binding read-order gap was corrected before
 the final equality check; its regression failed before and passed afterward.
 The provisional release was interrupted for this correction and is not PASS.
-T4 full-release and exact-head hosted smoke remain required before PR publication.
+
+## Final validation disposition: BLOCKED / NOT MERGE-READY
+
+T4 full-release at semantic head `c93fab3eb9cf21626bd6cc82e1bb2ff336039e5c`
+completed all 48 shards and assigned all 229 tracked test files exactly once:
+42 shards passed, six failed; 5,022 tests passed, ten failed, 28 skipped.
+Every failed node reproduced on merged base `b92d8cda01901105d87e08a60d341ab717a45687`
+in the same environment. The six affected existing test files are byte-identical.
+This is baseline attribution, never a T4 waiver or acceptance result.
+
+The hard platform blocker is explicit: four existing execution-readiness tests
+require Windows deny-write/delete leases, unavailable in the Linux native
+profile. Other failures are the existing legacy bridge byte expectation,
+`LOCALAPPDATA` expectation, missing normalized D4A CSV (two tests), missing
+`origin/main` in the isolated clone, and Windows absolute-path normalization.
+The 28 skips were independently reproduced and enumerated on merged base;
+none is in the new N4-04 tests. No required test was excluded or weakened.
+
+Final corrected-source CPW decision SHA-256:
+`948e6e7d1da8235672c93bee03c7f665c58b83466d2dab719aced233b14a5dd0`.
+Two fresh inspectors agree; all underlying sink counters are zero and original
+evidence bytes are unchanged. All owned validation services were removed.
+
+No push or PR publication; hosted smoke and GitHub mergeability were not run.
+The package prohibits publication before a passing T4 release. A compatible
+release environment/profile and exact historical fixture provisioning must be
+qualified in a separate unblock scope, preserving Windows leases and native
+proofs, before resuming this branch and rerunning T4. No existing protected
+file, validator, query behavior or test is amended by N4-04.
 
 External raw evidence, failed attempts, source inventories and reports are under
 `C:/Users/dersu/Downloads/CPW-N4-04-evidence`. Exact head and final release/PR

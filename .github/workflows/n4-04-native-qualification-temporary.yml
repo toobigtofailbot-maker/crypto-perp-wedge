@@ -1,0 +1,103 @@
+name: N4-04 temporary native qualification - NOT RELEASE
+
+on:
+  push:
+    branches:
+      - codex/cpw-nautilus-n4-04-safety-integration-01
+    paths:
+      - .github/workflows/n4-04-native-qualification-temporary.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: n4-04-native-qualification
+  cancel-in-progress: false
+
+jobs:
+  native-import-only:
+    runs-on: windows-2022
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Preserve exact repository bytes
+        run: git config --global core.autocrlf false
+      - name: Check out public source only
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up exact CPython x64
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12.10'
+          architecture: x64
+      - name: Create isolated runtime and obtain official pinned wheels
+        run: |
+          python -c "import sys,struct; assert sys.version_info[:3] == (3,12,10); assert struct.calcsize('P') == 8"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m venv "$env:RUNNER_TEMP\n4-native"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $nativePython = "$env:RUNNER_TEMP\n4-native\Scripts\python.exe"
+          & $nativePython -m pip --disable-pip-version-check download --index-url https://pypi.org/simple --no-cache-dir --no-deps --only-binary=:all: --dest "$env:RUNNER_TEMP\n4-wheels" -r tools/nautilus_adapter/requirements-win-py312.lock.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Verify original official wheel and extension before installation
+        run: |
+          $nativePython = "$env:RUNNER_TEMP\n4-native\Scripts\python.exe"
+          @'
+          import hashlib, json, os, pathlib, zipfile
+          wheel = pathlib.Path(os.environ['RUNNER_TEMP']) / 'n4-wheels' / 'nautilus_trader-1.231.0-cp312-cp312-win_amd64.whl'
+          expected_wheel = '0697f51e9143f9d8d040f75d2e6a45218003cc34f7ea5b0eb2f9cda6935427de'
+          expected_extension = '7266fb06016e6349fc6eea82a18230bfa9e30c45dd6e801c72fbdd2eac9e349e'
+          assert hashlib.sha256(wheel.read_bytes()).hexdigest() == expected_wheel
+          with zipfile.ZipFile(wheel) as archive:
+              raw = archive.read('nautilus_trader/cache/facade.cp312-win_amd64.pyd')
+              assert hashlib.sha256(raw).hexdigest() == expected_extension
+          print(json.dumps({'official_wheel_sha256': expected_wheel, 'extension_sha256': expected_extension, 'verified': True}))
+          '@ | & $nativePython -B -
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Install unchanged twenty-entry lock from verified download directory
+        run: |
+          $nativePython = "$env:RUNNER_TEMP\n4-native\Scripts\python.exe"
+          & $nativePython -m pip --disable-pip-version-check install --no-deps --no-index --only-binary=:all: --find-links "$env:RUNNER_TEMP\n4-wheels" -r tools/nautilus_adapter/requirements-win-py312.lock.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Verify installed versions RECORDs and genuine native adapter imports
+        run: |
+          $nativePython = "$env:RUNNER_TEMP\n4-native\Scripts\python.exe"
+          @'
+          import base64, csv, hashlib, importlib, importlib.metadata as md, json, os, pathlib, platform, struct, subprocess, sys
+          assert sys.version_info[:3] == (3, 12, 10) and struct.calcsize('P') == 8
+          assert sys.platform == 'win32'
+          lock = pathlib.Path('tools/nautilus_adapter/requirements-win-py312.lock.txt')
+          pins = [line.split('==') for line in lock.read_text().splitlines() if line.strip()]
+          assert len(pins) == 20
+          records = {}
+          for name, version in pins:
+              dist = md.distribution(name)
+              assert dist.version == version, name
+              count = 0
+              for entry in dist.files or ():
+                  if entry.hash:
+                      raw = pathlib.Path(dist.locate_file(entry)).read_bytes()
+                      actual = base64.urlsafe_b64encode(hashlib.new(entry.hash.mode, raw).digest()).rstrip(b'=').decode()
+                      assert actual == entry.hash.value, name
+                      if entry.size is not None:
+                          assert len(raw) == entry.size, name
+                      count += 1
+              assert count > 0, name
+              records[name] = {'version': version, 'hashed_record_files': count}
+          extension = pathlib.Path(md.distribution('nautilus-trader').locate_file('nautilus_trader/cache/facade.cp312-win_amd64.pyd'))
+          extension_sha = hashlib.sha256(extension.read_bytes()).hexdigest()
+          assert extension_sha == '7266fb06016e6349fc6eea82a18230bfa9e30c45dd6e801c72fbdd2eac9e349e'
+          source_paths = ['src/execution/nautilus_recovery_hold_guard.py', 'tools/nautilus_adapter/noncapital_cpw_safety_integration.py', 'tests/test_nautilus_n4_04_cpw_guard.py', 'tests/test_nautilus_n4_04_integration.py', 'tests/test_nautilus_n1_acceptance.py', str(lock)]
+          source_hashes = {p: hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest() for p in source_paths}
+          print(json.dumps({'stage': 'BEFORE_NATIVE_IMPORT', 'python': platform.python_version(), 'machine': platform.machine(), 'windows_version': platform.version(), 'runner_os': os.environ.get('RUNNER_OS'), 'image_os': os.environ.get('ImageOS'), 'image_version': os.environ.get('ImageVersion'), 'head': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(), 'records': records, 'source_hashes': source_hashes, 'extension_sha256': extension_sha}, sort_keys=True))
+          importlib.import_module('nautilus_trader.cache.facade')
+          # Same native imports the real research acceptance executor uses; no injected executor.
+          from tools.nautilus_adapter import research
+          native = research._load_nautilus()
+          assert native and md.version('nautilus-trader') == '1.231.0'
+          print(json.dumps({'result': 'WINDOWS_NATIVE_QUALIFIED_ONLY', 'native_facade_import': 'PASS', 'real_adapter_native_imports': 'PASS', 'n1_executed': False, 't4_executed': False, 'private_fixture_transferred': False, 'not_release_not_merge_ready': True}, sort_keys=True))
+          '@ | & $nativePython -B -
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

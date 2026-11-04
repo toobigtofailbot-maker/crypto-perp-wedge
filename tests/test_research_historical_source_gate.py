@@ -41,13 +41,21 @@ class Tripwire(AssertionError):
 def _write_objects(root: Path, data_identity: str):
     folder = root / "research/data_slices/hist_test_only"
     folder.mkdir(parents=True)
-    ohlcv = b"TEST_ONLY_SYNTHETIC_PLACEHOLDER_NOT_MARKET_DATA\n" * 64
-    (folder / "ohlcv.parquet").write_bytes(ohlcv)
+    data = root / "data/processed/d4a/TEST_ONLY.csv"
+    data.parent.mkdir(parents=True)
+    start, step, count = 1_609_459_200_000, hsg.CADENCE["15m"], 30 * 96
+    ohlcv = ("open_time_ms\n" + "\n".join(str(start + i * step) for i in range(count)) + "\n").encode()
+    data.write_bytes(ohlcv)
+    coverage = {"start_utc": "2021-01-01T00:00:00Z", "end_utc": "2021-01-30T23:45:00Z",
+                "row_count": count, "expected_row_count": count}
+    normalized = {"sha256": hashlib.sha256(ohlcv).hexdigest(), "path": data.relative_to(root).as_posix()}
     catalog = {"slice_identity": {"data_slice_identity": data_identity},
-               "normalized": {"sha256": hashlib.sha256(ohlcv).hexdigest()}}
+               "normalized": normalized, "range": coverage, "catalog_version": "v1",
+               "source_type": "offline_bulk_or_local_file", "stream": "ohlcv"}
     (folder / "slice.catalog_slice.json").write_text(json.dumps(catalog))
-    (folder / "slice.import_report.json").write_text(json.dumps({"label": "TEST_ONLY"}))
-    paths = [folder / n for n in ("ohlcv.parquet", "slice.catalog_slice.json", "slice.import_report.json")]
+    (folder / "slice.import_report.json").write_text(json.dumps(
+        {"label": "TEST_ONLY", "range": coverage, "normalized": normalized}))
+    paths = [data, folder / "slice.catalog_slice.json", folder / "slice.import_report.json"]
     objects = []
     for role, path in zip(hsg.ROLES, paths):
         facts = path.stat()
@@ -59,6 +67,21 @@ def _write_objects(root: Path, data_identity: str):
 
 @pytest.fixture
 def hcase(authority_db, tmp_path, monkeypatch):
+    from tools.research_autonomy.envelope import envelope_hash, validate_envelope
+
+    original_inputs = pgtests.fixture_inputs
+
+    def historical_inputs(path):
+        repo, intent, envelope, request = original_inputs(path)
+        payload = envelope.model_dump(mode="json")
+        window = "2021-01-01T00:00:00Z/2021-01-31T00:00:00Z"
+        payload["search_policy"]["split_protocols"][0]["development_window"] = window
+        payload["content_sha256"] = envelope_hash(payload)
+        envelope = validate_envelope(payload, repo_sha=envelope.repo_sha)
+        split = request.split_protocol.model_copy(update={"development_window": window})
+        return repo, intent, envelope, request.model_copy(update={"split_protocol": split})
+
+    monkeypatch.setattr(pgtests, "fixture_inputs", historical_inputs)
     repo, _intent, envelope, _request, store, _, contract = pgtests.opened(authority_db, tmp_path, writer=True)
     monkeypatch.setattr(hsg, "_code_sha", lambda: envelope.repo_sha)
     owner_store = ResearchAuthorityStore(make_conninfo(authority_db[0], options="-c role=cpw_nonholdout_owner"))
@@ -145,7 +168,7 @@ def test_valid_custody_leases_bytes_then_single_use_and_commit_check(hcase):
             target.rename(target.with_suffix(".swapped"))
         with pytest.raises(PermissionError):
             target.parent.rename(target.parent.with_name("swapped_dir"))
-        assert target.read_bytes().startswith(b"TEST_ONLY")  # ordinary readers still work
+        assert target.read_bytes().startswith(b"open_time_ms")  # ordinary readers still work
         receipt = lease.consume_for_run(execution=_execution(lease), approval_sha256="sha256:" + "a" * 64)
         assert receipt["not_authority"] is True and receipt["audit_event_id"].startswith("nonholdout-read:")
         with pytest.raises(hsg.Refused, match="ATTESTATION_ALREADY_USED"):
@@ -262,10 +285,10 @@ def test_execution_binding_asks_custody_before_any_hash_or_parse(monkeypatch):
     monkeypatch.setattr(adapter, "file_sha256", tripwire)
     monkeypatch.setattr(adapter, "read_json", tripwire)
     monkeypatch.setattr(adapter, "_ordinary_input", tripwire)
-    with pytest.raises(hsg.Refused):
+    with pytest.raises(adapter.RunnerAdapterError, match="BLOCKED_NONHOLDOUT_CUSTODY"):
         adapter._execution_binding(canonical_15m=True, ohlcv_input_path="a", d4_catalog_slice_path="b",
                                    d2_import_report_path="c", deterministic_seed=1, custody=Deny())
-    assert calls == [("a", "b", "c")]
+    assert calls == []  # duck-typed custody is not a lease
 
 
 def test_approval_template_forwards_custody_to_binding(monkeypatch):
@@ -333,3 +356,64 @@ def test_manual_original_route_without_custody_blocks_before_reads(tmp_path, mon
     assert report["disposition"] == "research_blocked" and report["runner_calls"] == 0
     assert report["withholding_reasons"][0].startswith("BLOCKED_NONHOLDOUT_CUSTODY")
     assert report["prepared"]["schema_version"] == "research_factory_mapping_original_v1"
+
+
+@windows_only
+@pytest.mark.parametrize("target", ["designation", "custodian", "attestation", "envelope", "expired"])
+def test_use_and_commit_recheck_current_authority(hcase, monkeypatch, target):
+    designation = hcase["designate"]()
+    attestation = hcase["attest"](designation)
+    with hcase["authorize"](attestation) as lease:
+        receipt = lease.consume_for_run(execution=_execution(lease), approval_sha256="sha256:" + "a" * 64)
+        if target == "envelope":
+            envelope = hcase["envelope"]
+            hcase["store"].apply_control(envelope, {
+                "schema_version": "cpw_bounded_research_envelope_control_v1", "control_action_id": "TEST-REVOKE",
+                "envelope_id": envelope.envelope_id, "envelope_version": envelope.envelope_version,
+                "envelope_content_sha256": envelope.content_sha256, "repo_sha": envelope.repo_sha,
+                "action": "revoke", "approved_by": "Karl", "approved_at": "2026-10-07T01:00:00Z",
+                "reason": "TEST_ONLY", "successor": None, "authority": envelope.authority.model_dump()})
+        elif target == "expired":
+            monkeypatch.setattr(hsg, "_now", lambda conn: attestation.valid_until_ms + 1)
+        else:
+            identity = {"designation": designation["record_id"], "custodian": attestation.custodian_id,
+                        "attestation": attestation.attestation_id}[target]
+            hcase["owner"].control("revocation", Revocation(
+                record_id="REVOKE-TEST", approved_by="Karl", approval_reference="TEST-ONLY",
+                target_id=identity, action="revoke", successor_id=None))
+        with pytest.raises(ValueError):
+            lease.require_preread([o.repo_path for o in lease.request.objects])
+        with pytest.raises(hsg.Refused):
+            hcase["gate"].verify_commit(receipt)
+
+
+@windows_only
+def test_revoked_custody_reconcile_cannot_commit_or_rerun(hcase, monkeypatch):
+    from tools.research_factory import manual_loop
+    from tools.research_factory.mapper import file_hash, write_once
+
+    designation = hcase["designate"]()
+    with hcase["authorize"](hcase["attest"](designation)) as lease:
+        receipt = lease.consume_for_run(execution=_execution(lease), approval_sha256="sha256:" + "a" * 64)
+    hcase["owner"].control("revocation", Revocation(
+        record_id="REVOKE-RECONCILE", approved_by="Karl", approval_reference="TEST-ONLY",
+        target_id=designation["record_id"], action="revoke", successor_id=None))
+    root = hcase["repo"]
+    prepared = {"schema_version": manual_loop.ORIGINAL_SCHEMA, "mapping": [{"scientific_trial_id": "TEST"}],
+                "scientific_denominator": 1, "proposal_counts": {"accepted": 1}}
+    mapping_path = write_once(root / "scratch/mapping.json", prepared)
+    binding = {"path": "scratch/mapping.json", "sha256": file_hash(mapping_path)}
+    checkpoint = write_once(root / "scratch/checkpoint.json", {
+        "mapping_binding": binding, "mapping_sha256": binding["sha256"],
+        "contract": hcase["contract"].to_dict(), "summary_binding": {"TEST_ONLY": True}})
+    # Isolate reconciliation ordering; native PostgreSQL custody validation is real.
+    monkeypatch.setattr(manual_loop, "verify_population", lambda *a: (
+        None, {}, {"source_bindings": {"custody_receipt": receipt}}, "sha256:" + "a" * 64))
+    monkeypatch.setattr(hcase["store"], "commit_trial_result", lambda *a, **k: pytest.fail("terminal write"))
+    monkeypatch.setattr(adapter, "run_product_runner_adapter", lambda **k: pytest.fail("rerun"))
+    before = checkpoint.read_bytes()
+    for _ in range(2):
+        report = manual_loop.reconcile_manual_run(store=hcase["store"], repo_root=root, checkpoint_path=checkpoint)
+        assert report["withholding_reasons"][0].startswith("BLOCKED_DATA_USE_OR_REVOKED")
+        assert report["runner_calls"] == 0 and report["terminal_commitments"] == []
+    assert checkpoint.read_bytes() == before

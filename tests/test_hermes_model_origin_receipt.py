@@ -49,11 +49,13 @@ def build(tmp_path: Path, *, observer=mor.TEST_OBSERVER, mutate=None):
         (cycle / f"{role}.observations.json").write_bytes(obs)
         prompt = _h(f"prompt-{role}".encode())
         invocations.append({"role": role, "invocation_id": f"inv-{n}", "exit_code": 0,
-                            "session_id": session, "prompt_sha256": prompt})
+                            "session_id": session, "prompt_sha256": prompt,
+                            "command": ["TEST_ONLY", role]})
         artifacts[name] = _h(raw)
         artifacts[f"{role}.observations.json"] = _h(obs)
         turns.append({"role": role, "invocation_id": f"inv-{n}", "started_utc": "t0", "finished_utc": "t1",
-                      "docker_exit_code": 0, "session_id": session, "command_sha256": _h(b"cmd" + bytes([n])),
+                      "docker_exit_code": 0, "session_id": session,
+                      "command_sha256": _h(json.dumps(["TEST_ONLY", role], separators=(",", ":")).encode()),
                       "prompt_sha256": prompt, "stdout_sha256": _h(b"out" + bytes([n])),
                       "terminal_text_sha256": _h(texts[role].encode()), "response_file": name,
                       "response_file_sha256": _h(raw), "observations_file_sha256": _h(obs)})
@@ -148,7 +150,7 @@ def _stale_source_quote(cycle, manifest, receipt):
     (_turn(4, "response_file_sha256", "4" * 64), "RESPONSE_HASH"),
     (_critic_substituted, "RESPONSE_HASH"),
     (_self_declared, "SELF_DECLARED_AUTHORSHIP"),
-    (_stale_source_quote, "SOURCE_CHAIN"),
+    (_stale_source_quote, "SOURCE_INDEX_HASH"),
 ])
 def test_forged_or_mutated_receipts_are_blocked(tmp_path, mutate, reason):
     result = verify(*build(tmp_path, mutate=mutate))

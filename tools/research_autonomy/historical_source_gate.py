@@ -18,6 +18,7 @@ requires FS_IMMUTABLE_FL on Linux; it does not stop other local processes from r
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import os
 import stat
@@ -49,7 +50,7 @@ ROLES = ("ohlcv_input", "d4_catalog_slice", "d2_import_report")
 STORAGE = {"win32": "windows_share_deny_write_v1", "linux": "linux_immutable_flag_v1"}
 REFUSAL = "BLOCKED_NONHOLDOUT_CUSTODY"
 REVOKED = "BLOCKED_DATA_USE_OR_REVOKED"
-RepoPath = Annotated[str, Field(pattern=r"^research/[A-Za-z0-9_./-]+$", max_length=400)]
+RepoPath = Annotated[str, Field(pattern=r"^[A-Za-z0-9_./-]+$", max_length=400)]
 
 
 class Refused(AuthorityConflict):
@@ -63,6 +64,18 @@ class HistoricalObject(StrictModel):
     byte_length: Positive
     device: Count
     inode: Positive
+
+    @model_validator(mode="after")
+    def role_path(self):
+        root, suffix = {
+            "ohlcv_input": ("data/processed/d4a/", ".csv"),
+            "d4_catalog_slice": ("research/data_slices/", ".catalog_slice.json"),
+            "d2_import_report": ("research/data_slices/", ".import_report.json"),
+        }[self.role]
+        if (not self.repo_path.startswith(root) or not self.repo_path.endswith(suffix)
+                or any(p in {"", ".", ".."} for p in self.repo_path.split("/"))):
+            raise ValueError("role-scoped ordinary repo path required")
+        return self
 
 
 class HistoricalRequest(StrictModel):
@@ -274,6 +287,8 @@ class HistoricalLease:
         given = [(Path(p) if Path(p).is_absolute() else self._root / p).absolute() for p in paths]
         if given != expected:
             raise Refused(REFUSAL)
+        with self._gate.store._transaction() as conn:
+            self._gate._durable(conn, self.attestation, self.request)
         for obj in self.request.objects:
             self._identity(obj)
 
@@ -360,7 +375,16 @@ class HistoricalSourceGate:
         designation = self._native._record(conn, attestation.designation_id, "designation", HistoricalDesignation)
         custodian = self._native._record(conn, attestation.custodian_id, "custodian", Custodian)
         self._native._unrevoked(conn, attestation.attestation_id)
-        if self.store._campaign(conn, request.campaign_id)["state"] != "open":
+        contract = self.store._load_contract(conn, request.search_id)
+        if contract.contract_hash != request.contract_hash:
+            raise Refused("DURABLE_BINDING")
+        campaign = self.store._campaign(conn, request.campaign_id)
+        row = conn.execute("SELECT semantic_payload FROM research_authority.envelope_registry "
+                           "WHERE envelope_id=%s AND envelope_version=%s",
+                           (campaign["envelope_id"], campaign["envelope_version"])).fetchone()
+        envelope = validate_envelope(json.loads(row["semantic_payload"]), repo_sha=request.repo_sha)
+        self.store._active_envelope(conn, envelope)
+        if campaign["state"] != "open":
             raise Refused("CLOSED_CAMPAIGN")
         snapshot = self.store._snapshot(conn, request.campaign_id)
         if (snapshot.envelope_content_sha256 != request.envelope_sha256
@@ -419,8 +443,14 @@ class HistoricalSourceGate:
             lease.verify_unchanged()
             catalog = json.loads(_read_handle(leases["d4_catalog_slice"].fd))
             if (catalog.get("slice_identity", {}).get("data_slice_identity") != request.data_identity
-                    or catalog.get("normalized", {}).get("sha256") != request.objects[0].sha256.removeprefix("sha256:")):
+                    or catalog.get("normalized", {}).get("sha256") != request.objects[0].sha256.removeprefix("sha256:")
+                    or catalog.get("normalized", {}).get("path", "").replace("\\", "/") != request.objects[0].repo_path):
                 raise Refused(REFUSAL)
+            report = json.loads(_read_handle(leases["d2_import_report"].fd))
+            if (report.get("normalized", {}).get("sha256") != catalog["normalized"]["sha256"]
+                    or report.get("normalized", {}).get("path", "").replace("\\", "/") != request.objects[0].repo_path):
+                raise Refused(REFUSAL)
+            _verify_coverage(request, contract, catalog, report, leases["ohlcv_input"].fd)
             return lease
         except Refused:
             for item in leases.values():
@@ -449,10 +479,10 @@ class HistoricalSourceGate:
                     raise Refused(REVOKED)
                 designation = self._native._record(conn, attestation.designation_id, "designation",
                                                    HistoricalDesignation)
-                self._native._record(conn, attestation.custodian_id, "custodian", Custodian)
-                self._native._unrevoked(conn, attestation.attestation_id)
-                snapshot = self.store._snapshot(conn, designation.request.campaign_id)
-                if snapshot.holdout.state != "unexposed" or snapshot.holdout.contaminated:
+                self._durable(conn, attestation, designation.request)
+                if (receipt.get("designation_id") != designation.record_id
+                        or receipt.get("campaign_id") != designation.request.campaign_id
+                        or receipt.get("request_sha256") != attestation.request_sha256):
                     raise Refused(REVOKED)
         except Refused:
             raise
@@ -466,3 +496,42 @@ def _read_handle(fd: int) -> bytes:
     while chunk := os.read(fd, 1 << 20):
         chunks.append(chunk)
     return b"".join(chunks)
+
+
+def _verify_coverage(request, contract, catalog, report, fd):
+    """Bind the entire leased primitive D4 CSV, not a selected strategy window."""
+    import pandas as pd
+
+    def ms(value):
+        stamp = pd.Timestamp(value)
+        if stamp.tzinfo is None or stamp.utcoffset().total_seconds() != 0:
+            raise ValueError("UTC required")
+        if stamp.value % 1_000_000:
+            raise ValueError("millisecond precision required")
+        return stamp.value // 1_000_000
+
+    try:
+        step = CADENCE["15m"]
+        window = request.effective_window
+        expected = (window.start_ms, window.end_ms)
+        development = tuple(ms(v) for v in contract.split_protocol.development_window.split("/"))
+        coverage = catalog["range"]
+        count = (window.end_ms - window.start_ms) // step
+        if (development != expected or catalog["catalog_version"] != request.data_version
+                or catalog["source_type"] != "offline_bulk_or_local_file" or catalog["stream"] != "ohlcv"
+                or (ms(coverage["start_utc"]), ms(coverage["end_utc"]) + step) != expected
+                or coverage != report["range"]
+                or type(coverage["row_count"]) is not int or coverage["row_count"] != count
+                or type(coverage["expected_row_count"]) is not int or coverage["expected_row_count"] != count):
+            raise Refused("PHYSICAL_COVERAGE_MISMATCH")
+        frame = pd.read_csv(io.BytesIO(_read_handle(fd)))
+        times = frame["open_time_ms"]
+        if (len(frame) != count or times.dtype.kind not in "iu"
+                or times.tolist() != list(range(*expected, step))):
+            raise Refused("PHYSICAL_COVERAGE_MISMATCH")
+        if "open_time" in frame and [ms(v) for v in frame["open_time"]] != times.tolist():
+            raise Refused("PHYSICAL_COVERAGE_MISMATCH")
+        if "close_time_ms" in frame and (frame["close_time_ms"] != times + step - 1).any():
+            raise Refused("PHYSICAL_COVERAGE_MISMATCH")
+    except (ValueError, TypeError, KeyError, OverflowError):
+        raise Refused("PHYSICAL_COVERAGE_MISMATCH") from None

@@ -14,7 +14,7 @@ from pathlib import Path
 
 from tools.agent_inbox_intake.service import original_parent_sha256
 from tools.hermes import discovery_intent as di
-from tools.hermes.model_origin_receipt import BLOCKED, FIXTURE, VERIFIED
+from tools.hermes.model_origin_receipt import BLOCKED, FIXTURE
 
 SCHEMA = "cpw_origin_to_science_report_v1"
 ORIGINAL_MAPPING = "research_factory_mapping_original_v1"
@@ -166,10 +166,10 @@ def build_report(*, origin: dict | None, idea: dict | None = None, fingerprint_s
                              scratch_result_sha256=report.get("scratch_result_sha256"),
                              terminal_commitments=report["terminal_commitments"],
                              runner_parity=report.get("runner_parity"))
-    b = bool(origin and origin.get("status") == VERIFIED and parent and parent["origin_status"] == VERIFIED)
     fixture = bool(origin and origin.get("status") == FIXTURE)
-    # A labeled test-origin chain is software evidence only; it can never be proof A.
-    a = executed and blocked is None and not fixture
+    # This dictionary-only projection has neither a host anchor nor a durable store.
+    # Native origin verification and trial/custody reconciliation own physical proof.
+    a = b = False
     return {
         "schema_version": SCHEMA,
         "not_authority": True,
@@ -188,7 +188,7 @@ def build_report(*, origin: dict | None, idea: dict | None = None, fingerprint_s
         "fixture_origin": fixture,
         "economics": ECONOMICS,
         "limitations": [
-            "projection re-reads supplied evidence; durable store rows and custody use must be checked natively",
+            "supplied dictionaries cannot establish A or B; native host and durable trial/custody verification required",
             "B is host-observed with an operator-pinned anchor, not provider-signed",
         ],
     }

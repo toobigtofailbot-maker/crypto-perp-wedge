@@ -106,6 +106,7 @@ def _verify(cycle: Path, receipt_path: Path, anchor_sha256: str | None, expected
     invocations = manifest.get("invocations", [])
     _check([i.get("role") for i in invocations] == list(ROLES), "MANIFEST_ROLE_ORDER")
     artifacts = {a["path"]: a["sha256"] for a in manifest.get("artifacts", [])}
+    _check(len(artifacts) == len(manifest.get("artifacts", [])), "DUPLICATE_ARTIFACT")
     turns = receipt["turns"]
     _check(isinstance(turns, list) and len(turns) == len(ROLES), "TURN_COUNT")
     sessions, invocation_ids = set(), set()
@@ -121,6 +122,11 @@ def _verify(cycle: Path, receipt_path: Path, anchor_sha256: str | None, expected
         for key in ("command_sha256", "prompt_sha256", "stdout_sha256", "terminal_text_sha256",
                     "response_file_sha256", "observations_file_sha256"):
             _check(HEX.fullmatch(str(turn[key])) is not None and turn[key] != "0" * 64, "ZERO_OR_MALFORMED_DIGEST")
+        command = invoked.get("command")
+        _check(isinstance(command, list) and bool(command)
+               and all(isinstance(arg, str) for arg in command), "COMMAND_BINDING")
+        _check(_sha(json.dumps(command, ensure_ascii=False, separators=(",", ":")).encode("utf-8"))
+               == turn["command_sha256"], "COMMAND_BINDING")
         _check(turn["response_file"] == RESPONSE_FILES[role], "RESPONSE_FILE_ROLE")
         raw = _read(cycle / RESPONSE_FILES[role])
         _check(_sha(raw) == turn["response_file_sha256"] == artifacts.get(RESPONSE_FILES[role]), "RESPONSE_HASH")
@@ -140,7 +146,12 @@ def _verify(cycle: Path, receipt_path: Path, anchor_sha256: str | None, expected
 
     # Intent/critic/source content chain: verbatim excerpts must come from the observed turns.
     handoff = _json(texts[di.HANDOFF_ROLE].encode())
-    sources = {s.get("id"): s for s in _json(_read(cycle / "source_index.json"))}
+    source_raw = _read(cycle / "source_index.json")
+    _check(_sha(source_raw) == artifacts.get("source_index.json"), "SOURCE_INDEX_HASH")
+    source_rows = _json(source_raw)
+    _check(source_rows == _json(texts["director-sources"].encode()).get("sources"), "SOURCE_TURN_BINDING")
+    sources = {s.get("id"): s for s in source_rows}
+    _check(len(sources) == len(source_rows), "DUPLICATE_SOURCE")
     ideas = []
     _check(isinstance(handoff, dict) and isinstance(handoff.get("ideas"), list) and handoff["ideas"], "INTENT_IDEAS")
     for idea in handoff["ideas"]:

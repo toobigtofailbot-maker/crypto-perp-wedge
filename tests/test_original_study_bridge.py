@@ -81,6 +81,11 @@ def test_unanchored_origin_is_never_b(tmp_path):
     assert report["proof_status"]["A_PLUS_B_HERMES_AUTHORED_STUDY"] == "NOT_PROVEN"
 
 
+def test_caller_declared_verified_origin_and_completed_factory_cannot_promote_proof(tmp_path):
+    report = bridge.build_report(**chain(tmp_path, origin=_origin(status=mor.VERIFIED)))
+    assert all(value == "NOT_PROVEN" for value in report["proof_status"].values())
+
+
 def _idea(**draft):
     idea = copy.deepcopy(IDEA)
     idea["native_draft"].update(draft)

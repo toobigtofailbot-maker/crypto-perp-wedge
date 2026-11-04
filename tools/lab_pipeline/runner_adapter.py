@@ -113,6 +113,11 @@ def _execution_binding(
 ) -> dict[str, Any] | None:
     if type(canonical_15m) is not bool or type(deterministic_seed) is not int:
         raise RunnerAdapterError("explicit boolean mode and integer seed required")
+    if custody is not None:
+        from tools.research_autonomy.historical_source_gate import HistoricalLease
+
+        if type(custody) is not HistoricalLease or not canonical_15m:
+            raise RunnerAdapterError("BLOCKED_NONHOLDOUT_CUSTODY: genuine historical lease required")
     paths = (ohlcv_input_path, d4_catalog_slice_path, d2_import_report_path)
     if not canonical_15m:
         if any(path is not None for path in paths):

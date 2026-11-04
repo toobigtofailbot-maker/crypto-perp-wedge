@@ -165,8 +165,10 @@ def manual_research_loop(
     )
     custody_kw = {}
     if original is not None:
+        from tools.research_autonomy.historical_source_gate import HistoricalLease
+
         if any(p is not None for p in (ohlcv_input_path, d4_catalog_slice_path, d2_import_report_path)) and (
-            custody is None
+            type(custody) is not HistoricalLease
             or custody.request.contract_hash != contract.contract_hash
             or custody.request.original_parent_sha256 != original["original_parent_sha256"]
         ):

@@ -575,24 +575,62 @@ def _assert_no_forbidden_authorized_actions(records: list[AuditRecord]) -> None:
             raise IntakeDraftError(f"unexpected allowed action: {record.action_type}")
 
 
+ORIGINAL_PARENT_KEYS = frozenset(
+    {"idea_id", "original_hypothesis_sha256", "fingerprint_sha256", "cycle_manifest_sha256",
+     "origin_status", "original_parent_sha256"}
+)
+_SHA_PREFIXED = re.compile(r"^sha256:[0-9a-f]{64}$")
+
+
+def original_parent_sha256(parent: Mapping[str, Any]) -> str:
+    """Hash of the immutable original-parent reference (excluding its own hash)."""
+    body = {k: parent[k] for k in sorted(ORIGINAL_PARENT_KEYS - {"original_parent_sha256"})}
+    return _sha256_json(body)
+
+
+def _validate_original_parent(parent: Mapping[str, Any]) -> dict[str, Any]:
+    if not isinstance(parent, Mapping) or set(parent) != ORIGINAL_PARENT_KEYS:
+        raise IntakeDraftError("original_parent must be the exact closed reference")
+    if not isinstance(parent["idea_id"], str) or not parent["idea_id"].strip():
+        raise IntakeDraftError("original_parent.idea_id must be non-empty")
+    for key in ("original_hypothesis_sha256", "fingerprint_sha256", "cycle_manifest_sha256",
+                "original_parent_sha256"):
+        if not isinstance(parent[key], str) or not _SHA_PREFIXED.fullmatch(parent[key]):
+            raise IntakeDraftError(f"original_parent.{key} must be sha256-prefixed")
+    if parent["origin_status"] not in {"B_MODEL_ORIGIN_VERIFIED", "B_TEST_FIXTURE_ONLY", "BLOCKED_ORIGIN_UNVERIFIED"}:
+        raise IntakeDraftError("original_parent.origin_status must come from the origin verifier")
+    if original_parent_sha256(parent) != parent["original_parent_sha256"]:
+        raise IntakeDraftError("original_parent hash does not match its content")
+    return dict(parent)
+
+
 def create_intake_draft(
     request: IntakeDraftRequest,
     *,
     repo_root: Path = REPO_ROOT,
     output_root: Path = DEFAULT_OUTPUT_ROOT,
     clock: Any = _utc_now,
+    original_parent: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Create one scratch-only Agent Inbox draft packet and return it."""
+    """Create one scratch-only Agent Inbox draft packet and return it.
+
+    ``original_parent`` (default None, legacy bytes unchanged) carries a verified original
+    Hermes hypothesis reference into ``source_hashes`` so Gate C's exact source-hash match
+    binds it; the reviewer sees it under ``provenance``. It grants no authority.
+    """
 
     repo_root = repo_root.resolve()
     output_root = _draft_root(repo_root, output_root)
     source_request = _normalise_request(request)
+    parent = _validate_original_parent(original_parent) if original_parent is not None else None
     constraints = []
     if source_request.get("constraints_notes"):
         constraints.append(str(source_request["constraints_notes"]))
     idea = f"{source_request['title']}. {source_request['hypothesis_text']}"
     source_hash = _sha256_json(source_request)
     draft_basis = source_request.get("client_draft_id") or source_hash
+    if parent:
+        draft_basis = f"{draft_basis}|{parent['original_parent_sha256']}"
     draft_id = (
         "AIDRAFT-"
         + hashlib.sha256(str(draft_basis).encode("utf-8")).hexdigest()[:16].upper()
@@ -645,5 +683,8 @@ def create_intake_draft(
         "tool_context_audit": _audit_records_to_dicts(audit_records),
         "fabricated": False,
     }
+    if parent:
+        packet["provenance"]["original_hermes_parent"] = parent
+        packet["source_hashes"]["original_hermes_parent_sha256"] = parent["original_parent_sha256"]
     _write_json_scratch(output_path, packet, repo_root)
     return packet

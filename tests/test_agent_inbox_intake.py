@@ -614,3 +614,61 @@ def test_canonicalization_flag_is_annotation_only_and_writes_only_review_jsonl(
     assert not any(
         fragment in path for path in created for fragment in forbidden_fragments
     )
+
+
+def _original_parent(**overrides: object) -> dict:
+    from tools.agent_inbox_intake.service import original_parent_sha256
+
+    parent = {
+        "idea_id": "IDEA-1",
+        "original_hypothesis_sha256": "sha256:" + "1" * 64,
+        "fingerprint_sha256": "sha256:" + "2" * 64,
+        "cycle_manifest_sha256": "sha256:" + "3" * 64,
+        "origin_status": "B_TEST_FIXTURE_ONLY",
+    }
+    parent.update(overrides)
+    parent["original_parent_sha256"] = original_parent_sha256(parent)
+    return parent
+
+
+def test_original_parent_is_opt_in_and_legacy_packet_has_no_parent(agent_inbox_repo: Path):
+    legacy = create_intake_draft(_valid_request(), repo_root=agent_inbox_repo, clock=lambda: FIXED_TIME)
+    assert set(legacy["source_hashes"]) == {"source_request_sha256", "formalizer_result_sha256"}
+    assert "original_hermes_parent" not in legacy["provenance"]
+
+
+def test_original_parent_reaches_source_hashes_bound_by_gate_c(agent_inbox_repo: Path):
+    from tools.canon_intake import spec_writer
+
+    parent = _original_parent()
+    packet = create_intake_draft(
+        _valid_request(), repo_root=agent_inbox_repo, clock=lambda: FIXED_TIME, original_parent=parent
+    )
+    assert packet["provenance"]["original_hermes_parent"] == parent
+    assert packet["source_hashes"]["original_hermes_parent_sha256"] == parent["original_parent_sha256"]
+    assert packet["source_request"]["hypothesis_text"] == _valid_request().hypothesis_text
+    assert packet["non_authority_flags"]["not_approval"] is True
+    path = packet["provenance"]["output_path"]
+    # The unchanged strict Gate C writer validation binds the exact extended source hashes.
+    spec_writer._validate_draft(packet, path, packet["draft_id"], dict(packet["source_hashes"]))
+    dropped = {k: v for k, v in packet["source_hashes"].items() if k != "original_hermes_parent_sha256"}
+    with pytest.raises(spec_writer.GateCWriteError):
+        spec_writer._validate_draft(packet, path, packet["draft_id"], dropped)
+
+
+@pytest.mark.parametrize(
+    "parent",
+    [
+        {"idea_id": "IDEA-1"},
+        _original_parent(origin_status="hermes_authored"),
+        _original_parent(fingerprint_sha256="2" * 64),
+        dict(_original_parent(), original_parent_sha256="sha256:" + "9" * 64),
+        dict(_original_parent(), approved=True),
+    ],
+)
+def test_malformed_or_self_declared_original_parent_fails_closed(agent_inbox_repo: Path, parent):
+    with pytest.raises(IntakeDraftError):
+        create_intake_draft(
+            _valid_request(), repo_root=agent_inbox_repo, clock=lambda: FIXED_TIME, original_parent=parent
+        )
+    assert not (agent_inbox_repo / "scratch").exists() or not list((agent_inbox_repo / "scratch").rglob("*.json"))

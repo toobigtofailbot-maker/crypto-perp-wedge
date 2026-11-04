@@ -19,7 +19,7 @@ from .evidence import (
     verify_fold_report,
     verify_population,
 )
-from .mapper import MappingBlocked, file_hash, prepare_wave, write_once
+from .mapper import ORIGINAL_SCHEMA, MappingBlocked, file_hash, prepare_wave, write_once
 
 
 def _binding(root, path):
@@ -87,8 +87,15 @@ def manual_research_loop(
     d2_import_report_path=None,
     fold_manifest_binding=None,
     tool_context=None,
+    original=None,
+    custody=None,
 ):
-    """One human-triggered wave. Reconcile an interrupted run before any rerun."""
+    """One human-triggered wave. Reconcile an interrupted run before any rerun.
+
+    ``original``/``custody`` (default None) select the versioned original-study route: the
+    reviewed original-parent Spec/VM/Sweep and a D3-2 historical custody lease, required
+    before any historical byte is hashed, parsed or run. Legacy 0003 calls are unchanged.
+    """
     if human_invocation is not True:
         return _report(reason="factory_default_OFF")
     root = repo_root.resolve(strict=True)
@@ -131,6 +138,7 @@ def manual_research_loop(
             repo_root=root,
             output_root=preparation_root,
             created_at_utc=created_at_utc,
+            **({"original": original} if original is not None else {}),
         )
     except MappingBlocked as exc:
         return _report(reason=str(exc), runner_calls=0)
@@ -155,6 +163,19 @@ def manual_research_loop(
         d2_import_report_path=d2_import_report_path,
         deterministic_seed=contract.seed,
     )
+    custody_kw = {}
+    if original is not None:
+        if any(p is not None for p in (ohlcv_input_path, d4_catalog_slice_path, d2_import_report_path)) and (
+            custody is None
+            or custody.request.contract_hash != contract.contract_hash
+            or custody.request.original_parent_sha256 != original["original_parent_sha256"]
+        ):
+            return _report(
+                prepared,
+                reason="BLOCKED_NONHOLDOUT_CUSTODY: exact study custody lease required before any historical read",
+                runner_calls=0,
+            )
+        custody_kw = {"custody": custody}
     kwargs = dict(
         prepared_strategy_spec_path=prepared["paths"]["spec"],
         prepared_variant_manifest_path=prepared["paths"]["vm"],
@@ -181,7 +202,7 @@ def manual_research_loop(
         if all(
             p is not None for p in (ohlcv_input_path, d4_catalog_slice_path, d2_import_report_path)
         ):
-            template = adapter.approval_template(**kwargs)
+            template = adapter.approval_template(**kwargs, **custody_kw)
             # Explicit unsigned request; cannot pass _require_execute_approval.
             template.update(
                 approved_by=None, approval_timestamp_utc=None, authorizes_runner_execution=False
@@ -196,7 +217,7 @@ def manual_research_loop(
             .relative_to(root)
             .as_posix(),
         )
-    execution = adapter._execution_binding(**route)
+    execution = adapter._execution_binding(**route, **custody_kw)
     approval_rel = adapter._safe_repo_relative(execute_approval_path)
     approval, approval_hash = adapter._require_execute_approval(
         approval_path=root / approval_rel,
@@ -246,7 +267,7 @@ def manual_research_loop(
         )
     # A failure from this point retains the checkpoint and every run artifact. No automatic retry.
     result = adapter.run_product_runner_adapter(
-        **kwargs, execute_approval_path=execute_approval_path, tool_context=tool_context
+        **kwargs, execute_approval_path=execute_approval_path, tool_context=tool_context, **custody_kw
     )
     summary_path = root / result.artifact_paths["runner_adapter_result"]
     checkpoint["summary_binding"] = _binding(root, summary_path)
@@ -299,6 +320,19 @@ def reconcile_manual_run(
         root, prepared, checkpoint["summary_binding"], contract
     )
     commitments = []
+    if prepared["schema_version"] == ORIGINAL_SCHEMA:
+        from tools.research_autonomy.historical_source_gate import HistoricalSourceGate, Refused
+
+        try:
+            # Revocation or holdout exposure since physical use refuses terminal success.
+            HistoricalSourceGate(store, root).verify_commit(summary["source_bindings"]["custody_receipt"])
+        except (Refused, KeyError):
+            return _report(
+                prepared,
+                reason="BLOCKED_DATA_USE_OR_REVOKED: custody revoked or holdout changed; may-have-run evidence retained",
+                terminal_commitments=commitments,
+                runner_calls=0,
+            )
     for mapping in prepared["mapping"]:
         prior = store.load_trial_result(mapping["scientific_trial_id"], repo_root=root)
         if prior:

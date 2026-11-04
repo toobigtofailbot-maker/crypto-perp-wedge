@@ -69,6 +69,17 @@ class RunnerAdapterError(ValueError):
     """Raised when the product runner adapter must fail closed."""
 
 
+# D3-2: prepared inputs from the original-study factory route require historical custody.
+ORIGINAL_ROUTE_MAPPING_SCHEMA = "research_factory_mapping_original_v1"
+
+
+def _requires_custody(prepared_strategy_spec_path: Path | str) -> bool:
+    mapping = _repo_path(prepared_strategy_spec_path).parent / "mapping.json"
+    if not mapping.is_file():
+        return False
+    return read_json(mapping).get("schema_version") == ORIGINAL_ROUTE_MAPPING_SCHEMA
+
+
 def _ordinary_input(path: Path | str) -> Path:
     """Reject indirection before resolving any real-data or approval input."""
     candidate = Path(path)
@@ -98,6 +109,7 @@ def _execution_binding(
     d4_catalog_slice_path=None,
     d2_import_report_path=None,
     deterministic_seed=0,
+    custody=None,
 ) -> dict[str, Any] | None:
     if type(canonical_15m) is not bool or type(deterministic_seed) is not int:
         raise RunnerAdapterError("explicit boolean mode and integer seed required")
@@ -108,6 +120,9 @@ def _execution_binding(
         return None
     if any(path is None for path in paths):
         raise RunnerAdapterError("15m D4 route requires OHLCV, catalog and import report")
+    if custody is not None:
+        # Custodial lease must cover these exact objects before any byte is hashed or parsed.
+        custody.require_preread(paths)
     files = [_ordinary_input(path) for path in paths]
     binding = {
         "mode": "canonical_15m_d4_provenance",
@@ -375,6 +390,7 @@ def approval_template(
     d4_catalog_slice_path: Path | str | None = None,
     d2_import_report_path: Path | str | None = None,
     deterministic_seed: int = 0,
+    custody=None,
 ) -> dict[str, Any]:
     """Return an exact-content execute approval marker template."""
 
@@ -398,6 +414,7 @@ def approval_template(
         d4_catalog_slice_path=d4_catalog_slice_path,
         d2_import_report_path=d2_import_report_path,
         deterministic_seed=deterministic_seed,
+        custody=custody,
     )
     return {
         **({"execution": execution} if execution else {}),
@@ -646,9 +663,12 @@ def run_product_runner_adapter(
     ohlcv_input_path: Path | str | None = None,
     d4_catalog_slice_path: Path | str | None = None,
     d2_import_report_path: Path | str | None = None,
+    custody=None,
 ) -> RunnerAdapterResult:
     """Execute the product runner adapter over bridge prepare-only outputs."""
 
+    if custody is None and _requires_custody(prepared_strategy_spec_path):
+        raise RunnerAdapterError("BLOCKED_NONHOLDOUT_CUSTODY: original-study route requires custody")
     if canonical_15m:
         for source in (
             prepared_strategy_spec_path,
@@ -685,6 +705,7 @@ def run_product_runner_adapter(
         d4_catalog_slice_path=d4_catalog_slice_path,
         d2_import_report_path=d2_import_report_path,
         deterministic_seed=deterministic_seed,
+        custody=custody,
     )
     approval, approval_hash = _require_execute_approval(
         approval_path=_repo_path(approval_rel),
@@ -767,6 +788,11 @@ def run_product_runner_adapter(
             raise RunnerAdapterError(
                 "possible prior physical execution: reconcile before rerun"
             ) from exc
+    if custody is not None:
+        # Fresh marker verified; durable revocation/holdout recheck and single use before the runner.
+        bindings["custody_receipt"] = custody.consume_for_run(
+            execution=execution, approval_sha256=approval_hash
+        )
     adapter_result = _invoke_existing_runner(
         output_dir=run_dir / "runner_artifacts" / "adapter",
         strategy_spec_path=_repo_path(strategy_rel),
@@ -775,6 +801,8 @@ def run_product_runner_adapter(
         deterministic_seed=deterministic_seed,
         **({"execution": execution} if execution else {}),
     )
+    if custody is not None:
+        custody.verify_unchanged()
     if execution:
         _assert_real_population_inputs(adapter_result["result_population"], execution)
         adapter_approval, current_hash = _require_execute_approval(
@@ -799,6 +827,8 @@ def run_product_runner_adapter(
         deterministic_seed=deterministic_seed,
         **({"execution": execution} if execution else {}),
     )
+    if custody is not None:
+        custody.verify_unchanged()
     if execution:
         _assert_real_population_inputs(direct_result["result_population"], execution)
         _validate_real_execution(execution)

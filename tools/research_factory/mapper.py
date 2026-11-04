@@ -20,6 +20,15 @@ SOURCE_SPEC = "research/strategy_specs/STRAT-SPEC-0003.strategy_spec.json"
 SOURCE_VM = "research/variant_manifests/VM-0003.variant_manifest.json"
 SOURCE_SWEEP = "research/sweep_plans/SWEEP-PLAN-0003.sweep_plan.json"
 SOURCE_CATALOG = "research/data_slices/binance_usdtm_btcusdt_15m/binance_usdtm_btcusdt_15m_20200101_20260411.catalog_slice.json"
+# Versioned opt-in route for a reviewed original (Hermes-parent) canonical Spec/VM/Sweep.
+ORIGINAL_SCHEMA = "research_factory_mapping_original_v1"
+ORIGINAL_KEYS = {"idea_id", "original_hypothesis_sha256", "fingerprint_sha256", "original_parent_sha256"}
+ORIGINAL_ROOTS = (
+    "research/strategy_specs/",
+    "research/variant_manifests/",
+    "research/sweep_plans/",
+    "research/data_slices/",
+)
 
 
 class MappingBlocked(ValueError):
@@ -30,10 +39,13 @@ def file_hash(path):
     return "sha256:" + hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def committed_json(root, path, repo_sha):
+def committed_json(root, path, repo_sha, *, original=False):
     # VM/Sweep are immutable templates, outside the kernel evidence-anchor surface.
     # Verify their exact committed bytes locally rather than widening that API.
-    if path not in {SOURCE_SPEC, SOURCE_VM, SOURCE_SWEEP, SOURCE_CATALOG}:
+    if original:
+        if not path.startswith(ORIGINAL_ROOTS) or ".." in Path(path).parts or "\\" in path:
+            raise MappingBlocked("unsupported committed canonical artifact")
+    elif path not in {SOURCE_SPEC, SOURCE_VM, SOURCE_SWEEP, SOURCE_CATALOG}:
         raise MappingBlocked("unsupported committed template")
     import stat
 
@@ -80,21 +92,88 @@ def write_once(path, payload, *, exclusive=False):
     return path
 
 
+def _committed_paths(root, repo_sha, prefix, suffix):
+    listed = subprocess.run(
+        ["git", "ls-tree", "-r", "--name-only", repo_sha, "--", prefix],
+        cwd=root,
+        capture_output=True,
+        check=True,
+        text=True,
+    ).stdout.splitlines()
+    return [p for p in listed if p.endswith(suffix)]
+
+
+def _original_sources(root, frozen, original):
+    """Resolve the exact reviewed canonical Spec/VM/Sweep/catalog bound by the frozen contract."""
+    if not isinstance(original, dict) or set(original) != ORIGINAL_KEYS:
+        raise MappingBlocked("blocked_original_parent: exact original parent reference required")
+    if frozen.hypothesis_fingerprint != original["fingerprint_sha256"]:
+        raise MappingBlocked("BLOCKED_SEMANTIC_SUBSTITUTION: contract fingerprint differs from original")
+    sha = frozen.repo_sha
+    spec_path = f"research/strategy_specs/{frozen.strategy_spec_id}.strategy_spec.json"
+    spec = committed_json(root, spec_path, sha, original=True)
+    if (
+        spec.get("strategy_spec_id") != frozen.strategy_spec_id
+        or file_hash(root / spec_path) != frozen.strategy_spec_hash
+    ):
+        raise MappingBlocked("blocked_unsupported_mapping: exact reviewed canonical spec bytes required")
+    vm_id = spec["pre_registration_support"]["variant_manifest_ref"]
+    vm_path = f"research/variant_manifests/{vm_id}.variant_manifest.json"
+    vm = committed_json(root, vm_path, sha, original=True)
+    if (
+        vm["variant_manifest_id"] != vm_id
+        or vm["parent_strategy_spec"]["strategy_spec_id"] != frozen.strategy_spec_id
+    ):
+        raise MappingBlocked("blocked_unsupported_mapping: Variant Manifest does not bind the spec")
+    sweeps = [
+        p
+        for p in _committed_paths(root, sha, "research/sweep_plans/", ".sweep_plan.json")
+        if committed_json(root, p, sha, original=True)["parent_variant_manifest"]["variant_manifest_id"]
+        == vm_id
+    ]
+    catalogs = [
+        p
+        for p in _committed_paths(root, sha, "research/data_slices/", ".catalog_slice.json")
+        if committed_json(root, p, sha, original=True).get("slice_identity", {}).get("data_slice_identity")
+        == frozen.data_identity
+    ]
+    if len(sweeps) != 1 or len(catalogs) != 1:
+        raise MappingBlocked(
+            "blocked_unsupported_mapping: exactly one Sweep Plan and data catalog required"
+        )
+    return spec_path, vm_path, sweeps[0], catalogs[0]
+
+
 def prepare_wave(
-    *, store, handoff, contract, repo_root: Path, output_root: Path, created_at_utc: str
+    *,
+    store,
+    handoff,
+    contract,
+    repo_root: Path,
+    output_root: Path,
+    created_at_utc: str,
+    original=None,
 ):
-    """Validate authority before emitting legal planning artifacts, never approval."""
+    """Validate authority before emitting legal planning artifacts, never approval.
+
+    ``original`` (default None) selects the versioned original-parent route; the legacy
+    STRAT-SPEC-0003 branch and its output bytes are unchanged.
+    """
     root = repo_root.resolve(strict=True)
     handoff = validate_handoff(handoff)
     frozen = contract_from_payload(contract.to_dict())
     if frozen.contract_hash != handoff.contract_hash:
         raise MappingBlocked("contract/handoff mismatch")
     governor = replay_handoff(handoff, store=store, repo_root=root)
-    spec = committed_json(root, SOURCE_SPEC, frozen.repo_sha)
-    vm = committed_json(root, SOURCE_VM, frozen.repo_sha)
-    sweep = committed_json(root, SOURCE_SWEEP, frozen.repo_sha)
-    catalog = committed_json(root, SOURCE_CATALOG, frozen.repo_sha)
-    if (
+    if original is None:
+        sources = (SOURCE_SPEC, SOURCE_VM, SOURCE_SWEEP, SOURCE_CATALOG)
+    else:
+        sources = _original_sources(root, frozen, original)
+    spec, vm, sweep, catalog = (
+        committed_json(root, path, frozen.repo_sha, original=original is not None)
+        for path in sources
+    )
+    if original is None and (
         frozen.family_id != "sma_stddev_mean_reversion_v1"
         or frozen.strategy_spec_id != "STRAT-SPEC-0003"
         or frozen.strategy_spec_hash != file_hash(root / SOURCE_SPEC)
@@ -138,7 +217,9 @@ def prepare_wave(
             "blocked_unsupported_mapping: unsupported proposer or conditional rules"
         )
     declared = {p["name"]: p for p in spec["free_parameters"]["parameters"]}
-    if set(declared) != PARAMETERS or {p.name for p in frozen.parameter_space} != PARAMETERS:
+    # The original route uses the reviewed spec's own axes, never the 0003 template domains.
+    parameters = PARAMETERS if original is None else set(declared)
+    if set(declared) != parameters or {p.name for p in frozen.parameter_space} != parameters:
         raise MappingBlocked("blocked_unsupported_mapping: parameter surface mismatch")
     for domain in frozen.parameter_space:
         allowed = declared[domain.name]["allowed_values"]
@@ -166,7 +247,7 @@ def prepare_wave(
     for r in accepted:
         params = r["params"]
         if (
-            set(params) != PARAMETERS
+            set(params) != parameters
             or any(
                 type(v) is not int or v not in declared[k]["allowed_values"]
                 for k, v in params.items()
@@ -233,8 +314,8 @@ def prepare_wave(
         "parent_refs": [
             {
                 "ref_type": "prior_strategy_spec",
-                "ref_id": "STRAT-SPEC-0003",
-                "ref_path": SOURCE_SPEC,
+                "ref_id": frozen.strategy_spec_id,
+                "ref_path": sources[0],
                 "ref_hash": frozen.strategy_spec_hash,
             }
         ],
@@ -379,5 +460,11 @@ def prepare_wave(
         "scientific_denominator": n,
         "search_denominator": governor.scientific_denominator,
     }
+    if original is not None:
+        metadata.update(
+            schema_version=ORIGINAL_SCHEMA,
+            original_parent=dict(original),
+            source_paths=dict(zip(("spec", "vm", "sweep", "catalog"), sources)),
+        )
     write_once(namespace / "mapping.json", metadata)
     return metadata

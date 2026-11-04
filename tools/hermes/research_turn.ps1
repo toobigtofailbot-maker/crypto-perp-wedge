@@ -8,6 +8,8 @@ param(
     [ValidateRange(30, 1800)][int]$TimeoutSeconds = 600,
     # Default OFF. Adds one director-authored draft turn and a non-authoritative packet.
     [switch]$StructuredIntentHandoff,
+    # Default OFF. The host launcher (not Hermes) writes a sibling observation receipt.
+    [switch]$HostObservationReceipt,
     [string]$PythonExe = 'python'
 )
 
@@ -99,6 +101,10 @@ $manifest = [ordered]@{
     repo_sha = $RepoSha; repo_branch = $RepoBranch; compose_project = $project
     started_utc = [DateTime]::UtcNow.ToString('o'); state = 'RUNNING'; invocations = @()
 }
+$hostTurns = [Collections.Generic.List[object]]::new()
+function Get-Sha256Hex([string]$Text) {
+    [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($Text))).ToLower()
+}
 $boundary = @"
 This is one supervised non-authoritative research cycle. No scientific jobs, tests,
 trials, proposals, prepared payloads, intents, canonical writes, schedules, purchases,
@@ -141,6 +147,17 @@ function Invoke-Turn([string]$Role, [string]$Prompt, [string]$File) {
     }
     $text = $terminal[0].text
     Set-Content -LiteralPath (Join-Path $stage $File) -Value $text -Encoding utf8NoBOM
+    if ($HostObservationReceipt) {
+        # Observed by this host process from the Docker exec stdout; never parsed from model claims.
+        $hostTurns.Add([ordered]@{ role = $Role; invocation_id = $receipt.invocation_id
+            started_utc = $receipt.started_utc; finished_utc = [DateTime]::UtcNow.ToString('o')
+            docker_exit_code = $result.Code; session_id = $receipt.session_id
+            command_sha256 = Get-Sha256Hex ($args | ConvertTo-Json -Compress)
+            prompt_sha256 = $receipt.prompt_sha256; stdout_sha256 = Get-Sha256Hex $result.Text
+            terminal_text_sha256 = Get-Sha256Hex $text; response_file = $File
+            response_file_sha256 = (Get-FileHash -LiteralPath (Join-Path $stage $File) -Algorithm SHA256).Hash.ToLower()
+            observations_file_sha256 = (Get-FileHash -LiteralPath (Join-Path $stage "$Role.observations.json") -Algorithm SHA256).Hash.ToLower() })
+    }
     return $text
 }
 
@@ -224,6 +241,24 @@ only supplied materials; do not call tools.
     })
     $manifest | ConvertTo-Json -Depth 60 | Set-Content -LiteralPath (Join-Path $stage 'run_manifest.json') -Encoding utf8NoBOM
     [IO.Directory]::Move($stage, $output)
+}
+if ($HostObservationReceipt) {
+    # Sibling file keeps the cycle inventory unchanged. Its hash must be anchored out of band.
+    $hostReceipt = [ordered]@{
+        schema_version = 'cpw_hermes_host_observation_receipt_v1'; not_authority = $true
+        observer = [ordered]@{ identity = 'cpw_research_turn_host_observer_v1'
+            host_fingerprint_sha256 = Get-Sha256Hex ([Environment]::MachineName)
+            observer_process_id = $PID; powershell_version = $PSVersionTable.PSVersion.ToString() }
+        repo_sha = $RepoSha; repo_branch = $RepoBranch; compose_project = $project
+        container_id = $container; image_id = [string]$service.Image; image_ref = [string]$service.Config.Image
+        cycle_state = $manifest.state; cycle_directory = [IO.Path]::GetFileName($output)
+        run_manifest_sha256 = (Get-FileHash -LiteralPath (Join-Path $output 'run_manifest.json') -Algorithm SHA256).Hash.ToLower()
+        role_order = @($hostTurns | ForEach-Object { $_.role }); turns = @($hostTurns)
+        assurance_limits = 'Host-observed Docker exec stdout only; not provider-signed; does not defend against a compromised host or administrator.'
+    }
+    $receiptPath = $output + '.host-receipt.json'
+    $hostReceipt | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $receiptPath -Encoding utf8NoBOM
+    Write-Output ('Host observation receipt sha256: ' + (Get-FileHash -LiteralPath $receiptPath -Algorithm SHA256).Hash.ToLower())
 }
 if ($manifest.state -ne 'COMPLETED') { Write-Error 'Hermes research cycle FAILED; external evidence retained'; exit 1 }
 if ($StructuredIntentHandoff) {

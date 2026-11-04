@@ -13,7 +13,7 @@ from tools.registry.validate_walkforward_run_report import validate_walkforward_
 from tools.research_runner import run_offline_sweep as runner
 from tools.research_search.contract import sha256_payload
 
-from .mapper import SOURCE_SPEC, committed_json, file_hash
+from .mapper import ORIGINAL_SCHEMA, SOURCE_SPEC, committed_json, file_hash
 
 
 class EvidenceBlocked(ValueError):
@@ -68,8 +68,10 @@ def verify_population(root, prepared, summary_binding, contract):
         if file_hash(path) != prepared["hashes"][k]:
             raise EvidenceBlocked("prepared input bytes changed")
     spec, vm, sweep = runner._validate_parent_inputs(*paths)
-    source = committed_json(root, SOURCE_SPEC, contract.repo_sha)
-    if file_hash(root / SOURCE_SPEC) != contract.strategy_spec_hash:
+    original = prepared.get("schema_version") == ORIGINAL_SCHEMA
+    source_path = prepared["source_paths"]["spec"] if original else SOURCE_SPEC
+    source = committed_json(root, source_path, contract.repo_sha, original=original)
+    if file_hash(root / source_path) != contract.strategy_spec_hash:
         raise EvidenceBlocked("committed source spec mismatch")
     for field in (
         "entry_logic",
@@ -84,15 +86,36 @@ def verify_population(root, prepared, summary_binding, contract):
     ):
         if sha256_payload(source[field]) != sha256_payload(spec[field]):
             raise EvidenceBlocked("prepared strategy semantics differ from frozen source")
-    expected_execution = adapter._execution_binding(
-        canonical_15m=True,
-        ohlcv_input_path=execution["ohlcv_input_path"],
-        d4_catalog_slice_path=execution["d4_catalog_slice_path"],
-        d2_import_report_path=execution["d2_import_report_path"],
-        deterministic_seed=contract.seed,
-    )
-    if execution != expected_execution:
-        raise EvidenceBlocked("execution settings/seed mismatch")
+    if original:
+        # No historical re-read outside custody: bind to the durable custody use receipt instead.
+        from tools.research_autonomy.envelope import content_hash
+
+        receipt = bindings.get("custody_receipt") or {}
+        settings = {
+            "mode": "canonical_15m_d4_provenance",
+            "canonical_15m": True,
+            "deterministic_seed": contract.seed,
+            "funding_cost_mode": "off",
+            "sizing_mode": runner.SIZING_MODE_DYNAMIC_EQUITY_TARGET_LEVERAGE,
+            "target_leverage": 1.0,
+            "timeframe": "15m",
+        }
+        if (
+            receipt.get("execution_sha256") != content_hash(dict(execution))
+            or receipt.get("approval_sha256") != bindings["execute_approval_sha256"]
+            or any(execution.get(k) != v for k, v in settings.items())
+        ):
+            raise EvidenceBlocked("BLOCKED_NONHOLDOUT_CUSTODY: custody receipt/execution mismatch")
+    else:
+        expected_execution = adapter._execution_binding(
+            canonical_15m=True,
+            ohlcv_input_path=execution["ohlcv_input_path"],
+            d4_catalog_slice_path=execution["d4_catalog_slice_path"],
+            d2_import_report_path=execution["d2_import_report_path"],
+            deterministic_seed=contract.seed,
+        )
+        if execution != expected_execution:
+            raise EvidenceBlocked("execution settings/seed mismatch")
     approval_path = safe_file(root, bindings["execute_approval_path"])
     approval, approval_hash = adapter._require_execute_approval(
         approval_path=approval_path,
@@ -106,9 +129,13 @@ def verify_population(root, prepared, summary_binding, contract):
     )
     if approval_hash != bindings["execute_approval_sha256"]:
         raise EvidenceBlocked("runner approval bytes changed")
-    adapter._validate_real_execution(execution)
-    catalog = json.loads(safe_file(root, execution["d4_catalog_slice_path"]).read_text())
-    if catalog["slice_identity"]["data_slice_identity"] != contract.data_identity:
+    if original:
+        identity = execution["data_slice_identity"]
+    else:
+        adapter._validate_real_execution(execution)
+        catalog = json.loads(safe_file(root, execution["d4_catalog_slice_path"]).read_text())
+        identity = catalog["slice_identity"]["data_slice_identity"]
+    if identity != contract.data_identity:
         raise EvidenceBlocked("frozen development data identity mismatch")
     outputs = summary["runner_outputs"]
     result_path = safe_file(root, outputs["adapter_result_population_path"], scratch=True)

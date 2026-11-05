@@ -87,6 +87,26 @@ def verify_population(root, prepared, summary_binding, contract):
         if sha256_payload(source[field]) != sha256_payload(spec[field]):
             raise EvidenceBlocked("prepared strategy semantics differ from frozen source")
     if original:
+        from .original_source import ROUTE_PREFIX, OriginalBlocked, verify
+
+        try:
+            proof = verify(root, contract, prepared.get("original_evidence"))
+        except OriginalBlocked as exc:
+            raise EvidenceBlocked(str(exc)) from None
+        if proof["original_parent"] != prepared["original_parent"]:
+            raise EvidenceBlocked("BLOCKED_ORIGINAL_PARENT_SUBSTITUTION")
+        source_ref = [r for r in spec["provenance"]["source_refs"] if r.startswith(ROUTE_PREFIX)]
+        expected_route = {"schema_version": "cpw_original_runner_route_v1",
+                          "source_proof_sha256": prepared["source_proof_sha256"],
+                          "contract_hash": contract.contract_hash,
+                          "original_parent_sha256": proof["original_parent"]["original_parent_sha256"]}
+        if len(source_ref) != 1 or not source_ref[0].endswith("#" + prepared["source_proof_sha256"]) or bindings.get("original_route") != expected_route:
+            raise EvidenceBlocked("BLOCKED_ORIGINAL_ROUTE_EVIDENCE")
+        source_relative, source_sha = source_ref[0][len(ROUTE_PREFIX):].split("#")
+        _, source_snapshot = bound_json(root, {"path": source_relative, "sha256": source_sha})
+        if source_snapshot != {"evidence": prepared["original_evidence"], "contract_hash": contract.contract_hash,
+                              "parent": prepared["original_parent"]}:
+            raise EvidenceBlocked("BLOCKED_ORIGINAL_SOURCE_SNAPSHOT")
         # No historical re-read outside custody: bind to the durable custody use receipt instead.
         from tools.research_autonomy.envelope import content_hash
 
@@ -130,6 +150,8 @@ def verify_population(root, prepared, summary_binding, contract):
     if approval_hash != bindings["execute_approval_sha256"]:
         raise EvidenceBlocked("runner approval bytes changed")
     if original:
+        if approval.get("original_route") != expected_route:
+            raise EvidenceBlocked("BLOCKED_ORIGINAL_ROUTE_APPROVAL")
         identity = execution["data_slice_identity"]
     else:
         adapter._validate_real_execution(execution)
@@ -341,6 +363,10 @@ def verify_commitment(root, payload, contract):
     if set(payload) != required:
         raise EvidenceBlocked("closed trial commitment metadata required; no metric payloads")
     _, prepared = bound_json(root, payload["mapping_binding"])
+    if prepared.get("schema_version") == ORIGINAL_SCHEMA:
+        raise EvidenceBlocked(
+            "BLOCKED_ATOMIC_CUSTODY_COMMIT: native kernel verifier needs its transaction's custody context; store.py is outside this package"
+        )
     result_path, result, summary, approval_hash = verify_population(
         root, prepared, payload["summary_binding"], contract
     )

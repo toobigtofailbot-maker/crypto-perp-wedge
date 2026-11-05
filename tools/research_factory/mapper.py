@@ -22,7 +22,6 @@ SOURCE_SWEEP = "research/sweep_plans/SWEEP-PLAN-0003.sweep_plan.json"
 SOURCE_CATALOG = "research/data_slices/binance_usdtm_btcusdt_15m/binance_usdtm_btcusdt_15m_20200101_20260411.catalog_slice.json"
 # Versioned opt-in route for a reviewed original (Hermes-parent) canonical Spec/VM/Sweep.
 ORIGINAL_SCHEMA = "research_factory_mapping_original_v1"
-ORIGINAL_KEYS = {"idea_id", "original_hypothesis_sha256", "fingerprint_sha256", "original_parent_sha256"}
 ORIGINAL_ROOTS = (
     "research/strategy_specs/",
     "research/variant_manifests/",
@@ -105,10 +104,12 @@ def _committed_paths(root, repo_sha, prefix, suffix):
 
 def _original_sources(root, frozen, original):
     """Resolve the exact reviewed canonical Spec/VM/Sweep/catalog bound by the frozen contract."""
-    if not isinstance(original, dict) or set(original) != ORIGINAL_KEYS:
-        raise MappingBlocked("blocked_original_parent: exact original parent reference required")
-    if frozen.hypothesis_fingerprint != original["fingerprint_sha256"]:
-        raise MappingBlocked("BLOCKED_SEMANTIC_SUBSTITUTION: contract fingerprint differs from original")
+    from .original_source import OriginalBlocked, verify
+
+    try:
+        verify(root, frozen, original)
+    except OriginalBlocked as exc:
+        raise MappingBlocked(str(exc)) from None
     sha = frozen.repo_sha
     spec_path = f"research/strategy_specs/{frozen.strategy_spec_id}.strategy_spec.json"
     spec = committed_json(root, spec_path, sha, original=True)
@@ -332,6 +333,15 @@ def prepare_wave(
     # Historical internal scope is not reproducible from this schema. Do not
     # manufacture a new scope: the exact external bytes and parent hashes bind it.
     spec["hash_pinning"].update(canonical_spec_hash=None, hash_status="not_computed")
+    if original is not None:
+        from .original_source import ROUTE_PREFIX, verify
+
+        proof = verify(root, frozen, original)
+        source_path = namespace / "original_source.json"
+        write_once(source_path, {"evidence": original, "contract_hash": frozen.contract_hash,
+                                 "parent": proof["original_parent"]})
+        spec["provenance"]["source_refs"].append(
+            ROUTE_PREFIX + source_path.relative_to(root).as_posix() + "#" + file_hash(source_path))
     spec_hash = runner._sha256_prefixed(spec)
     n = len(mapping)
     vm["variant_manifest_id"] = ids[1]
@@ -463,7 +473,9 @@ def prepare_wave(
     if original is not None:
         metadata.update(
             schema_version=ORIGINAL_SCHEMA,
-            original_parent=dict(original),
+            original_parent=proof["original_parent"],
+            original_evidence=dict(original),
+            source_proof_sha256=file_hash(source_path),
             source_paths=dict(zip(("spec", "vm", "sweep", "catalog"), sources)),
         )
     write_once(namespace / "mapping.json", metadata)

@@ -80,3 +80,36 @@
 - Remaining owner action is a bounded native ancestry/semantic-review and
   route-binding decision plus separately authorized validation-data custody;
   this entry grants none of those permissions.
+
+## Side 24 native origin and route completion (2026-11-04)
+
+- Outcome: **BLOCKED / NOT MERGE READY**, same draft PR #771. Pre-head:
+  `d2fef875e5e43ee02b7f55d7a07f60e768a92955`. Original worktrees preserved.
+- F3: native capture/02B/02C reconstruction, fingerprint, full supported DSL
+  semantics and existing Gate C audit/approval references now gate admission.
+  Invented hashes, copied 0003 mechanics and unsupported operator prose refuse.
+  A TEST_ONLY native chain reaches prepared artifacts and compiles both eligible
+  variants; it establishes no real scientific or model-origin proof.
+- F4: an intrinsic prepared-Spec source hash replaces optional mapping-sidecar
+  route inference. Unknown routes refuse. Native custody and exact existing v2
+  owner marker/prepared bytes are checked before historical source reads.
+  Metadata-role guards apply to synthetic entrypoints too. Legacy 0003 prepared
+  Spec/VM/Sweep/mapping bytes match both merged main and pre-head (4/4 each).
+- F5: a native read-only durable proof projection replaces dictionary-based proof
+  promotion. Complete positive durable original-result proof remains blocked:
+  `ResearchAuthorityStore.commit_trial_result` opens its own transaction and offers
+  no same-transaction custody context to its evidence verifier. A separate custody
+  transaction cannot close the revocation/append race; nested transactions would
+  contend on the existing advisory lock. Original terminal commitment/recovery
+  therefore refuses with `BLOCKED_ATOMIC_CUSTODY_COMMIT`, preserving checkpoints
+  and zero retry runner calls. The explicitly forbidden `store.py` is unchanged.
+- Smallest next owner action: authorize a minimal native kernel same-transaction
+  custody verification/context change, with no schema/SQL/approval-policy change.
+  This status entry does not authorize it.
+- T3 full-release is not accepted: required ignored D4 CSV and 1d Parquet inputs
+  are absent. Later validation-only immutable-input availability is separate from
+  permission for a new study. No protected input was read or copied.
+- A NOT_EXECUTED; B, A+B and C NOT_PROVEN. No real Hermes call, scientific run,
+  real approval/signature, Stage 5B, paper/LIVE, trading or capital action.
+- Exact tests, failed attempts, native/environment limits, scope diff and hashes
+  are returned in `CODEX_PR771_ORIGIN_ROUTE_COMPLETION_TO_SIDE24.zip`; do not merge.

@@ -169,7 +169,7 @@ def test_original_population_requires_exact_custody_execution_receipt(
 
     monkeypatch.setattr(adapter, "_execution_binding", forbidden)
     monkeypatch.setattr(adapter, "_validate_real_execution", forbidden)
-    with pytest.raises(evidence.EvidenceBlocked, match="custody receipt/execution mismatch"):
+    with pytest.raises(evidence.EvidenceBlocked, match="BLOCKED_ORIGINAL_SOURCE_REQUIRED"):
         evidence.verify_population(
             root,
             prepared,

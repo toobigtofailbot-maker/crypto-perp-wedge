@@ -192,3 +192,74 @@ def build_report(*, origin: dict | None, idea: dict | None = None, fingerprint_s
             "B is host-observed with an operator-pinned anchor, not provider-signed",
         ],
     }
+
+
+def verify_native_report(*, store, repo_root, mapping_binding, summary_binding, anchor_sha256=None):
+    """Read native durable rows and exact external bytes; dictionaries confer no proof."""
+    from psycopg import Error as DatabaseError
+
+    from tools.hermes import model_origin_receipt as native_origin
+    from tools.research_autonomy.historical_source_gate import HistoricalSourceGate
+    from tools.research_autonomy.store import ResearchAuthorityStore
+
+    from .evidence import bound_json, verify_population
+    from .original_source import verify
+
+    result = {"schema_version": SCHEMA, "not_authority": True, "permission_token": False,
+              "status": "BLOCKED_NATIVE_PROOF", "proof_status": {
+                  "A_CAPTURED_STUDY_REAL": "NOT_EXECUTED", "B_MODEL_ORIGIN_VERIFIED": "NOT_PROVEN",
+                  "A_PLUS_B_HERMES_AUTHORED_STUDY": "NOT_PROVEN", "C_AUTONOMOUS_SELECTION_VERIFIED": "NOT_PROVEN"},
+              "economics": ECONOMICS}
+    try:
+        if type(store) is not ResearchAuthorityStore:
+            raise ValueError("NATIVE_AUTHORITY_STORE_REQUIRED")
+        root = Path(repo_root).resolve(strict=True)
+        _, prepared = bound_json(root, mapping_binding)
+        if prepared["schema_version"] != ORIGINAL_MAPPING or not prepared["mapping"]:
+            raise ValueError("ORIGINAL_MAPPING_REQUIRED")
+        contract = store.load_contract(prepared["mapping"][0]["search_id"])
+        proof = verify(root, contract, prepared["original_evidence"])
+        source = prepared["original_evidence"]
+        anchored_origin = native_origin.verify_origin(root / source["cycle"], root / source["host_receipt"],
+            anchor_sha256=anchor_sha256, expected_repo_sha=proof["origin"]["repo_sha"])
+        b = not proof["fixture"] and anchored_origin["B_verified"]
+        if b:
+            result["proof_status"]["B_MODEL_ORIGIN_VERIFIED"] = "PROVEN"
+        _, population, summary, approval_hash = verify_population(root, prepared, summary_binding, contract)
+        snapshot = store.load_snapshot(contract.campaign_id)
+        if snapshot.holdout.state != "unexposed" or snapshot.holdout.contaminated:
+            raise ValueError("HOLDOUT_NOT_UNEXPOSED")
+        HistoricalSourceGate(store, root).verify_commit(summary["source_bindings"]["custody_receipt"])
+        commitments, trials = [], set()
+        for assignment in prepared["mapping"]:
+            trial = assignment["scientific_trial_id"]
+            if trial in trials:
+                raise ValueError("DUPLICATE_TRIAL")
+            trials.add(trial)
+            row = store.load_trial_result(trial, repo_root=root)
+            if row is None:
+                raise ValueError("MISSING_DURABLE_TRIAL")
+            payload = json.loads(row["evidence_payload"])
+            if (payload["mapping_binding"] != mapping_binding or payload["summary_binding"] != summary_binding
+                    or payload["approval_sha256"] != approval_hash
+                    or any(payload[key] != assignment[key] for key in (
+                        "campaign_id", "search_id", "contract_hash", "proposal_id", "scientific_trial_id",
+                        "variant_id", "params_fingerprint"))):
+                raise ValueError("DURABLE_TRIAL_SOURCE_MISMATCH")
+            commitments.append(row["audit_event_id"])
+        if len(trials) != prepared["scientific_denominator"] or len(population["variant_result_rows"]) != len(trials):
+            raise ValueError("INCOMPLETE_DENOMINATOR")
+        fixture = proof["fixture"]
+        HistoricalSourceGate(store, root).verify_commit(summary["source_bindings"]["custody_receipt"])
+        a = not fixture
+        result.update(status="NATIVE_SOFTWARE_CHAIN_VERIFIED" if fixture else "NATIVE_EVIDENCE_VERIFIED",
+                      fixture_origin=fixture, original_parent=proof["original_parent"],
+                      terminal_commitments=commitments, scientific_denominator=len(trials),
+                      gate_c_audit_sha256=proof["gate_c_audit_sha256"],
+                      proof_status={"A_CAPTURED_STUDY_REAL": "PROVEN" if a else "NOT_EXECUTED",
+                                    "B_MODEL_ORIGIN_VERIFIED": "PROVEN" if b else "NOT_PROVEN",
+                                    "A_PLUS_B_HERMES_AUTHORED_STUDY": "PROVEN" if a and b else "NOT_PROVEN",
+                                    "C_AUTONOMOUS_SELECTION_VERIFIED": "NOT_PROVEN"})
+    except (ValueError, TypeError, KeyError, OSError, DatabaseError) as exc:
+        result["reason"] = type(exc).__name__
+    return result

@@ -299,12 +299,13 @@ def test_approval_template_forwards_custody_to_binding(monkeypatch):
         raise Tripwire("stop after custody forwarding")
 
     monkeypatch.setattr(adapter, "_execution_binding", binding)
+    monkeypatch.setattr(adapter, "_route_before_read", lambda *a, **k: None)
     monkeypatch.setattr(adapter, "_sweep_budget_contract", lambda **k: {})
     monkeypatch.setattr(adapter, "read_json", lambda path: {"population_governance": {"declared_population": {"committed_population_count": 1}}})
     marker = object()
     with pytest.raises(Tripwire):
-        adapter.approval_template(prepared_strategy_spec_path="scratch/x", prepared_variant_manifest_path="scratch/y",
-                                  prepared_sweep_plan_path="scratch/z", bridge_preparation_run_id="p",
+        adapter.approval_template(prepared_strategy_spec_path="scratch/x.strategy_spec.json", prepared_variant_manifest_path="scratch/y.variant_manifest.json",
+                                  prepared_sweep_plan_path="scratch/z.sweep_plan.json", bridge_preparation_run_id="p",
                                   product_pipeline_run_id="q",
                                   canonical_15m=True, ohlcv_input_path="a", d4_catalog_slice_path="b",
                                   d2_import_report_path="c", custody=marker)
@@ -326,16 +327,21 @@ def test_original_route_runner_entry_without_custody_is_refused(monkeypatch):
 def _runner_entry(tmp_path, monkeypatch):
     spec = tmp_path / "STRAT-SPEC-9001.strategy_spec.json"
     spec.write_text("{}")
+    vm = tmp_path / "VARIANT-9001.variant_manifest.json"
+    sweep = tmp_path / "SWEEP-9001.sweep_plan.json"
+    vm.write_text("{}")
+    sweep.write_text("{}")
     (tmp_path / "mapping.json").write_text(json.dumps({"schema_version": adapter.ORIGINAL_ROUTE_MAPPING_SCHEMA}))
     monkeypatch.setattr(adapter, "_execution_binding", lambda **k: (_ for _ in ()).throw(Tripwire("read")))
     with pytest.raises(adapter.RunnerAdapterError, match="BLOCKED_NONHOLDOUT_CUSTODY"):
-        adapter.run_product_runner_adapter(prepared_strategy_spec_path=spec, prepared_variant_manifest_path=spec,
-                                           prepared_sweep_plan_path=spec, bridge_preparation_run_id="p",
+        adapter.run_product_runner_adapter(prepared_strategy_spec_path=spec, prepared_variant_manifest_path=vm,
+                                           prepared_sweep_plan_path=sweep, bridge_preparation_run_id="p",
                                            product_pipeline_run_id="q", execute_approval_path=spec,
                                            canonical_15m=True, ohlcv_input_path="a", d4_catalog_slice_path="b",
                                            d2_import_report_path="c")
     (tmp_path / "mapping.json").write_text(json.dumps({"schema_version": "research_factory_mapping_v1"}))
-    assert adapter._requires_custody(spec) is False
+    with pytest.raises(adapter.RunnerAdapterError, match="BLOCKED_NONHOLDOUT_CUSTODY"):
+        adapter._route_before_read(spec)
 
 
 def test_manual_original_route_without_custody_blocks_before_reads(tmp_path, monkeypatch):
@@ -354,8 +360,8 @@ def test_manual_original_route_without_custody_blocks_before_reads(tmp_path, mon
         ohlcv_input_path="research/a", d4_catalog_slice_path="research/b", d2_import_report_path="research/c",
         original=original)
     assert report["disposition"] == "research_blocked" and report["runner_calls"] == 0
-    assert report["withholding_reasons"][0].startswith("BLOCKED_NONHOLDOUT_CUSTODY")
-    assert report["prepared"]["schema_version"] == "research_factory_mapping_original_v1"
+    assert report["withholding_reasons"][0].startswith("BLOCKED_ORIGINAL_SOURCE_REQUIRED")
+    assert report["prepared"] is None
 
 
 @windows_only
@@ -388,16 +394,18 @@ def test_use_and_commit_recheck_current_authority(hcase, monkeypatch, target):
 
 
 @windows_only
-def test_revoked_custody_reconcile_cannot_commit_or_rerun(hcase, monkeypatch):
+@pytest.mark.parametrize("revoked", [True, False])
+def test_revoked_custody_reconcile_cannot_commit_or_rerun(hcase, monkeypatch, revoked):
     from tools.research_factory import manual_loop
     from tools.research_factory.mapper import file_hash, write_once
 
     designation = hcase["designate"]()
     with hcase["authorize"](hcase["attest"](designation)) as lease:
         receipt = lease.consume_for_run(execution=_execution(lease), approval_sha256="sha256:" + "a" * 64)
-    hcase["owner"].control("revocation", Revocation(
-        record_id="REVOKE-RECONCILE", approved_by="Karl", approval_reference="TEST-ONLY",
-        target_id=designation["record_id"], action="revoke", successor_id=None))
+    if revoked:
+        hcase["owner"].control("revocation", Revocation(
+            record_id="REVOKE-RECONCILE", approved_by="Karl", approval_reference="TEST-ONLY",
+            target_id=designation["record_id"], action="revoke", successor_id=None))
     root = hcase["repo"]
     prepared = {"schema_version": manual_loop.ORIGINAL_SCHEMA, "mapping": [{"scientific_trial_id": "TEST"}],
                 "scientific_denominator": 1, "proposal_counts": {"accepted": 1}}
@@ -414,6 +422,7 @@ def test_revoked_custody_reconcile_cannot_commit_or_rerun(hcase, monkeypatch):
     before = checkpoint.read_bytes()
     for _ in range(2):
         report = manual_loop.reconcile_manual_run(store=hcase["store"], repo_root=root, checkpoint_path=checkpoint)
-        assert report["withholding_reasons"][0].startswith("BLOCKED_DATA_USE_OR_REVOKED")
+        expected = "BLOCKED_DATA_USE_OR_REVOKED" if revoked else "BLOCKED_ATOMIC_CUSTODY_COMMIT"
+        assert report["withholding_reasons"][0].startswith(expected)
         assert report["runner_calls"] == 0 and report["terminal_commitments"] == []
     assert checkpoint.read_bytes() == before

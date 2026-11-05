@@ -391,22 +391,14 @@ def test_original_route_maps_reviewed_spec_axes_without_template_substitution(tm
     legacy = mapper.prepare_wave(**args)
     assert legacy["schema_version"] == "research_factory_mapping_v1" and "original_parent" not in legacy
     original = _original(contract)
-    result = mapper.prepare_wave(**dict(args, output_root=root / "scratch/original"), original=original)
-    assert result["schema_version"] == mapper.ORIGINAL_SCHEMA
-    assert result["original_parent"] == original
-    assert result["source_paths"] == {"spec": mapper.SOURCE_SPEC, "vm": mapper.SOURCE_VM,
-                                      "sweep": mapper.SOURCE_SWEEP, "catalog": CATALOG}
-    assert result["mapping"] == legacy["mapping"] and result["noncanonical"] is True
-    assert result["runner_authority"] is False and result["approval_authority"] is False
-    spec = json.loads((root / result["paths"]["spec"]).read_text())
-    assert spec["lineage"]["parent_refs"][0]["ref_path"] == mapper.SOURCE_SPEC
-    declared = {p["name"] for p in spec["free_parameters"]["parameters"]}
-    assert all(set(m["parameter_values"]) == declared for m in result["mapping"])
+    with pytest.raises(mapper.MappingBlocked, match="BLOCKED_ORIGINAL_SOURCE_REQUIRED"):
+        mapper.prepare_wave(**dict(args, output_root=root / "scratch/original"), original=original)
+    assert not (root / "scratch/original").exists()
 
 
 @pytest.mark.parametrize("change,message", [
-    ({"fingerprint_sha256": "sha256:" + "9" * 64}, "BLOCKED_SEMANTIC_SUBSTITUTION"),
-    ({"extra": True}, "blocked_original_parent"),
+    ({"fingerprint_sha256": "sha256:" + "9" * 64}, "BLOCKED_ORIGINAL_SOURCE_REQUIRED"),
+    ({"extra": True}, "BLOCKED_ORIGINAL_SOURCE_REQUIRED"),
 ])
 def test_original_route_refuses_substituted_or_unbound_parent(tmp_path, change, message):
     root, store, contract, handoff = factory_fixture(tmp_path)

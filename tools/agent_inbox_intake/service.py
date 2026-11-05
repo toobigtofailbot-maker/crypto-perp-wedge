@@ -497,6 +497,11 @@ class PacketOnlyIdeaFormalizer(IdeaFormalizerAgent):
         self.captured_json_writes[relative] = json.loads(json.dumps(payload, sort_keys=True))
         return relative
 
+    def _validate_draft_dir(self, path: Path) -> list[str]:
+        # Native family producers can now propose drafts despite the older family hook.
+        # These writes were captured in memory; never validate or emit a disk Spec here.
+        return ["Packet-only intake: native Strategy Spec emission/validation requires the separate 02C path."]
+
 
 def _formalize_packet_only(
     *,

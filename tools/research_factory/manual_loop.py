@@ -170,7 +170,7 @@ def manual_research_loop(
         if any(p is not None for p in (ohlcv_input_path, d4_catalog_slice_path, d2_import_report_path)) and (
             type(custody) is not HistoricalLease
             or custody.request.contract_hash != contract.contract_hash
-            or custody.request.original_parent_sha256 != original["original_parent_sha256"]
+            or custody.request.original_parent_sha256 != prepared["original_parent"]["original_parent_sha256"]
         ):
             return _report(
                 prepared,
@@ -219,6 +219,14 @@ def manual_research_loop(
             .relative_to(root)
             .as_posix(),
         )
+    adapter._route_before_read(
+            kwargs["prepared_strategy_spec_path"], custody=custody,
+            approval_path=execute_approval_path,
+            prepared_paths=[kwargs["prepared_" + k + "_path"] for k in ("strategy_spec", "variant_manifest", "sweep_plan")],
+            source_paths=(ohlcv_input_path, d4_catalog_slice_path, d2_import_report_path), deterministic_seed=contract.seed,
+            approval_kwargs={k: kwargs[k] for k in ("prepared_strategy_spec_path", "prepared_variant_manifest_path",
+                                                    "prepared_sweep_plan_path", "bridge_preparation_run_id", "product_pipeline_run_id")}
+            | {"output_root": adapter._validate_product_output_root(output_root)})
     execution = adapter._execution_binding(**route, **custody_kw)
     approval_rel = adapter._safe_repo_relative(execute_approval_path)
     approval, approval_hash = adapter._require_execute_approval(
@@ -335,6 +343,12 @@ def reconcile_manual_run(
                 terminal_commitments=commitments,
                 runner_calls=0,
             )
+        # The kernel opens its own transaction; its verifier has no custody/connection hook.
+        # A separate preread transaction cannot make revocation and terminal append atomic.
+        return _report(
+            prepared, reason="BLOCKED_ATOMIC_CUSTODY_COMMIT: ResearchAuthorityStore.commit_trial_result requires a native same-transaction custody check; store.py is outside this package",
+            terminal_commitments=commitments, runner_calls=0,
+        )
     for mapping in prepared["mapping"]:
         prior = store.load_trial_result(mapping["scientific_trial_id"], repo_root=root)
         if prior:

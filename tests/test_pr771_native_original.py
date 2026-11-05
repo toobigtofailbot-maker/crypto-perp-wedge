@@ -337,6 +337,13 @@ def test_native_source_refuses_critic_host_missing02c_and_wrong_contract(native_
         original_source.verify(
             repo, replace(contract, hypothesis_fingerprint="sha256:" + "0" * 64), evidence
         )
+    with pytest.raises(original_source.OriginalBlocked, match="SEMANTIC_SUBSTITUTION"):
+        original_source.verify(
+            repo,
+            replace(contract, strategy_spec_id="STRAT-SPEC-0003",
+                    strategy_spec_hash=mapper.file_hash(repo / mapper.SOURCE_SPEC)),
+            evidence,
+        )
     critic = repo / evidence["cycle"] / "critic_result.md"
     critic.write_bytes(b"TEST_ONLY forged critic")
     with pytest.raises(original_source.OriginalBlocked):
@@ -501,10 +508,10 @@ def test_metadata_role_guard_also_applies_to_synthetic_entrypoints(monkeypatch, 
     from tools.lab_pipeline import runner_adapter as adapter
 
     monkeypatch.setattr(adapter, "read_json", lambda *a: pytest.fail("historical byte read"))
-    args = dict(prepared_strategy_spec_path="data/processed/d4a/TEST_ONLY.csv",
-                prepared_variant_manifest_path="scratch/x.variant_manifest.json",
-                prepared_sweep_plan_path="scratch/x.sweep_plan.json",
-                bridge_preparation_run_id="TEST", product_pipeline_run_id="TEST", canonical_15m=False)
+    args = {"prepared_strategy_spec_path": "data/processed/d4a/TEST_ONLY.csv",
+            "prepared_variant_manifest_path": "scratch/x.variant_manifest.json",
+            "prepared_sweep_plan_path": "scratch/x.sweep_plan.json",
+            "bridge_preparation_run_id": "TEST", "product_pipeline_run_id": "TEST", "canonical_15m": False}
     if entrypoint == "run_product_runner_adapter":
         args["execute_approval_path"] = "scratch/TEST_ONLY.json"
     with pytest.raises(adapter.RunnerAdapterError, match="BLOCKED_PREPARED_METADATA_ROLE"):
@@ -515,7 +522,11 @@ def test_metadata_role_guard_also_applies_to_synthetic_entrypoints(monkeypatch, 
     {"prepared_strategy_spec_sha256": "sha256:" + "0" * 64},
     {"original_route": {"contract_hash": "invented"}}])
 def test_legacy_lookalike_still_requires_exact_owner_marker_before_source_read(tmp_path, monkeypatch, tamper):
-    from tests.test_lab_pipeline_runner_adapter import _configure_temp_repo, _prepared_bridge_packet, _real_route_fixture
+    from tests.test_lab_pipeline_runner_adapter import (
+        _configure_temp_repo,
+        _prepared_bridge_packet,
+        _real_route_fixture,
+    )
     from tools.lab_pipeline import runner_adapter as adapter
     from tools.lab_pipeline.state import write_json
 

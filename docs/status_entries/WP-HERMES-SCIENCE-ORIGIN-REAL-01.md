@@ -113,3 +113,8 @@
   real approval/signature, Stage 5B, paper/LIVE, trading or capital action.
 - Exact tests, failed attempts, native/environment limits, scope diff and hashes
   are returned in `CODEX_PR771_ORIGIN_ROUTE_COMPLETION_TO_SIDE24.zip`; do not merge.
+- Input-location clarification (existence checks only): both required datasets
+  exist in the preserved `C:/GitHub/crypto-perp-wedge` checkout, but not in this
+  continuation worktree or the old Claude worktree. Their presence is not custody
+  or validation-specific immutable-input authorization. No bytes were opened,
+  hashed or copied; T3 remains blocked on that authorization/availability here.

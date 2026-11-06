@@ -364,12 +364,25 @@ def verify_commitment(root, payload, contract):
         raise EvidenceBlocked("closed trial commitment metadata required; no metric payloads")
     _, prepared = bound_json(root, payload["mapping_binding"])
     if prepared.get("schema_version") == ORIGINAL_SCHEMA:
-        raise EvidenceBlocked(
-            "BLOCKED_ATOMIC_CUSTODY_COMMIT: native kernel verifier needs its transaction's custody context; store.py is outside this package"
-        )
+        from tools.research_autonomy.store import ResearchAuthorityStore, _terminal_evidence
+
+        transaction = _terminal_evidence.get()
+        if (transaction is None or type(transaction[0]) is not ResearchAuthorityStore
+                or transaction[2] != Path(root).resolve() or transaction[3] != contract):
+            raise EvidenceBlocked("BLOCKED_ATOMIC_CUSTODY_COMMIT: active native terminal transaction required")
     result_path, result, summary, approval_hash = verify_population(
         root, prepared, payload["summary_binding"], contract
     )
+    if prepared.get("schema_version") == ORIGINAL_SCHEMA:
+        from tools.research_autonomy.historical_source_gate import HistoricalSourceGate
+
+        request = HistoricalSourceGate(transaction[0], root).verify_commit(
+            summary["source_bindings"]["custody_receipt"], _transaction=transaction)
+        transaction[0]._search_active(transaction[1], contract)
+        if (request.search_id != contract.search_id or request.campaign_id != contract.campaign_id
+                or request.contract_hash != contract.contract_hash
+                or request.original_parent_sha256 != prepared["original_parent"]["original_parent_sha256"]):
+            raise EvidenceBlocked("BLOCKED_ORIGINAL_CUSTODY_STUDY_BINDING")
     mapping = [
         m for m in prepared["mapping"] if m["scientific_trial_id"] == payload["scientific_trial_id"]
     ]

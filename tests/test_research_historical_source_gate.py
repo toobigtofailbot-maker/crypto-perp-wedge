@@ -394,18 +394,16 @@ def test_use_and_commit_recheck_current_authority(hcase, monkeypatch, target):
 
 
 @windows_only
-@pytest.mark.parametrize("revoked", [True, False])
-def test_revoked_custody_reconcile_cannot_commit_or_rerun(hcase, monkeypatch, revoked):
+def test_revoked_custody_reconcile_cannot_commit_or_rerun(hcase, monkeypatch):
     from tools.research_factory import manual_loop
     from tools.research_factory.mapper import file_hash, write_once
 
     designation = hcase["designate"]()
     with hcase["authorize"](hcase["attest"](designation)) as lease:
         receipt = lease.consume_for_run(execution=_execution(lease), approval_sha256="sha256:" + "a" * 64)
-    if revoked:
-        hcase["owner"].control("revocation", Revocation(
-            record_id="REVOKE-RECONCILE", approved_by="Karl", approval_reference="TEST-ONLY",
-            target_id=designation["record_id"], action="revoke", successor_id=None))
+    hcase["owner"].control("revocation", Revocation(
+        record_id="REVOKE-RECONCILE", approved_by="Karl", approval_reference="TEST-ONLY",
+        target_id=designation["record_id"], action="revoke", successor_id=None))
     root = hcase["repo"]
     prepared = {"schema_version": manual_loop.ORIGINAL_SCHEMA, "mapping": [{"scientific_trial_id": "TEST"}],
                 "scientific_denominator": 1, "proposal_counts": {"accepted": 1}}
@@ -422,7 +420,265 @@ def test_revoked_custody_reconcile_cannot_commit_or_rerun(hcase, monkeypatch, re
     before = checkpoint.read_bytes()
     for _ in range(2):
         report = manual_loop.reconcile_manual_run(store=hcase["store"], repo_root=root, checkpoint_path=checkpoint)
-        expected = "BLOCKED_DATA_USE_OR_REVOKED" if revoked else "BLOCKED_ATOMIC_CUSTODY_COMMIT"
+        expected = "BLOCKED_DATA_USE_OR_REVOKED"
         assert report["withholding_reasons"][0].startswith(expected)
         assert report["runner_calls"] == 0 and report["terminal_commitments"] == []
     assert checkpoint.read_bytes() == before
+
+
+@pytest.fixture
+def atomic_case(hcase, monkeypatch):
+    """Real native ledger/custody, stubbed physical population. Never physical proof."""
+    from tools.research_factory import evidence
+    from tools.research_factory.mapper import file_hash, write_once
+
+    store, root, contract = hcase["store"], hcase["repo"], hcase["contract"]
+    designation = hcase["designate"]()
+    attestation = hcase["attest"](designation)
+    execution = {"TEST_ONLY": True}
+    approval_hash = "sha256:" + "a" * 64
+    # TEST_ONLY use event: no model or market data access; not a physical receipt proof.
+    used = {"phase": "historical_runner_use", "request_sha256": attestation.request_sha256,
+            "attestation": attestation.model_dump(mode="json"),
+            "execution_sha256": content_hash(execution), "approval_sha256": approval_hash}
+    event = "nonholdout-read:" + attestation.attestation_id
+    with store._transaction() as conn:
+        hcase["gate"]._durable(conn, attestation, hsg._parse(hsg.HistoricalRequest, designation["request"]))
+        store._audit(conn, event_id=event, event_type="nonholdout_read", payload=used,
+                     campaign=store._campaign(conn, contract.campaign_id))
+    receipt = {"schema_version": "cpw_historical_custody_use_receipt_v1", "audit_event_id": event,
+               "attestation_id": attestation.attestation_id, "designation_id": designation["record_id"],
+               "campaign_id": contract.campaign_id, "request_sha256": attestation.request_sha256,
+               "execution_sha256": used["execution_sha256"], "approval_sha256": approval_hash,
+               "not_authority": True}
+    governor, _, current = pgtests.wave(store, contract)
+    accepted = [p for p in governor.proposal_records if p.scientific_trial_id]
+    mappings = [{"campaign_id": contract.campaign_id, "search_id": contract.search_id,
+                 "contract_hash": contract.contract_hash, "proposal_id": p.proposal_id,
+                 "scientific_trial_id": p.scientific_trial_id, "variant_id": f"VAR-{p.proposal_sequence + 1:06d}",
+                 "params_fingerprint": p.params_fingerprint} for p in accepted]
+    hashes = {k: approval_hash for k in ("spec", "vm", "sweep")}
+    prepared = {"schema_version": evidence.ORIGINAL_SCHEMA, "mapping": mappings, "hashes": hashes,
+                "scientific_denominator": len(mappings), "proposal_counts": {"accepted": len(mappings), "rejected": 0, "duplicate": 0},
+                "original_parent": {"original_parent_sha256": hcase["req"]["original_parent_sha256"]}}
+    mapping_path = write_once(root / "scratch/TEST_ONLY_mapping.json", prepared)
+    result = {"variant_result_rows": [{"variant_id": m["variant_id"], "outcome_category": "successful"}
+                                      for m in mappings]}
+    result_path = write_once(root / "scratch/TEST_ONLY_population_stub.json", result)
+    summary = {"source_bindings": {"custody_receipt": receipt}, "runner_adapter_run_id": "TEST_ONLY",
+               "direct_runner_reconciliation": {"TEST_ONLY": True}}
+    summary_path = write_once(root / "scratch/TEST_ONLY_summary_stub.json", summary)
+    def binding(p):
+        return {"path": p.relative_to(root).as_posix(), "sha256": file_hash(p)}
+    def population(repo, value, bound_summary, frozen):
+        # Only population is stubbed; native verify_commitment/SQL/custody are unmodified.
+        assert frozen == contract and repo == root
+        _, read_summary = evidence.bound_json(root, bound_summary)
+        _, read_result = evidence.bound_json(root, binding(result_path))
+        return result_path, read_result, read_summary, approval_hash
+    monkeypatch.setattr(evidence, "verify_population", population)
+    payloads = []
+    for mapping in mappings:
+        payloads.append({**mapping, "attempt_number": 1, "idempotency_id": "TEST_ONLY-" + mapping["variant_id"],
+            "classification": "PERFORMANCE_RESULT", "approval_id": "TEST_ONLY", "approval_sha256": approval_hash,
+            "prepared_hashes": hashes, "runner_result_sha256": file_hash(result_path),
+            "authority_lineage_version": current.lineage_version, "authority_lineage_sha256": current.lineage_sha256,
+            "mapping_binding": binding(mapping_path), "summary_binding": binding(summary_path),
+            "fold_binding": None, "fold_manifest_binding": None, "fold_sha256": None,
+            "robustness_binding": None, "robustness_sha256": None, "purge_bars": 1, "embargo_bars": 1})
+    return hcase | {"receipt": receipt, "payloads": payloads, "prepared": prepared, "summary_path": summary_path,
+                    "result_path": result_path, "mapping_path": mapping_path}
+
+
+def revoke_atomic(case):
+    case["owner"].control("revocation", Revocation(
+        record_id="REVOKE-ATOMIC-TEST", approved_by="Karl", approval_reference="TEST-ONLY",
+        target_id=case["receipt"]["designation_id"], action="revoke", successor_id=None))
+
+
+def test_native_atomic_positive_full_fixture_denominator_replay_recovery(atomic_case, monkeypatch):
+    from contextlib import contextmanager
+
+    from tools.research_autonomy.store import _terminal_evidence
+
+    c = atomic_case
+    store = c["store"]
+    native_transaction = store._transaction
+    @contextmanager
+    def no_nested_transaction():
+        assert _terminal_evidence.get() is None, "nested native transaction would deadlock"
+        with native_transaction() as conn:
+            yield conn
+    monkeypatch.setattr(store, "_transaction", no_nested_transaction)
+    original = hsg.HistoricalSourceGate._verify_commit
+    observed = []
+    def checked(gate, conn, receipt):
+        ctx = _terminal_evidence.get()
+        assert ctx is not None and ctx[0] is store and ctx[1] is conn
+        observed.append(conn.info.backend_pid)
+        # Any accidental nested acquisition would fail promptly, not hang the suite.
+        conn.execute("SET LOCAL lock_timeout='500ms'")
+        return original(gate, conn, receipt)
+    monkeypatch.setattr(hsg.HistoricalSourceGate, "_verify_commit", checked)
+    rows = []
+    for payload in c["payloads"]:
+        current = store.load_snapshot(c["contract"].campaign_id)
+        payload.update(authority_lineage_version=current.lineage_version, authority_lineage_sha256=current.lineage_sha256)
+        before_calls = len(observed)
+        row = store.commit_trial_result(payload, repo_root=c["repo"])
+        assert observed[before_calls] == observed[before_calls + 1]
+        assert store.commit_trial_result(payload, repo_root=c["repo"]) == row
+        assert store.load_trial_result(payload["scientific_trial_id"], repo_root=c["repo"]) == row
+        rows.append(row)
+    assert len(rows) == len(c["payloads"]) == 2 and _terminal_evidence.get() is None
+    with store._transaction() as conn:
+        assert conn.execute("SELECT count(*) AS n FROM research_authority.trial_result_binding").fetchone()["n"] == 2
+        assert conn.execute("SELECT count(*) AS n FROM research_authority.authority_audit WHERE event_type='trial_result'").fetchone()["n"] == 2
+
+
+@pytest.mark.parametrize("mutation", ["revoke", "holdout", "receipt", "parent", "post_write", "post_holdout", "post_revoke", "post_bytes"])
+def test_native_atomic_refusal_and_postwrite_rollback(atomic_case, monkeypatch, mutation):
+    from tools.research_factory import evidence
+
+    c = atomic_case
+    store, root = c["store"], c["repo"]
+    if mutation == "revoke":
+        revoke_atomic(c)
+    elif mutation == "holdout":
+        store.record_holdout_event(c["contract"].search_id, event_id="TEST-ESCAPE", informative_escape=True)
+    elif mutation == "receipt":
+        value = json.loads(c["summary_path"].read_text())
+        value["source_bindings"]["custody_receipt"]["approval_sha256"] = "sha256:" + "f" * 64
+        c["summary_path"].write_text(json.dumps(value))
+        c["payloads"][0]["summary_binding"]["sha256"] = evidence.file_hash(c["summary_path"])
+    elif mutation == "parent":
+        value = json.loads(c["mapping_path"].read_text())
+        value["original_parent"]["original_parent_sha256"] = "sha256:" + "e" * 64
+        c["mapping_path"].write_text(json.dumps(value))
+        c["payloads"][0]["mapping_binding"]["sha256"] = evidence.file_hash(c["mapping_path"])
+    else:
+        if mutation == "post_revoke":
+            # TEST_ONLY owner connection permits injecting an owner mutation in this transaction.
+            store._dsn = pgtests._test_dsns()[0]
+        original = hsg.HistoricalSourceGate._verify_commit
+        calls = []
+        def changed(gate, conn, receipt):
+            calls.append(True)
+            if len(calls) == 2:
+                if mutation == "post_holdout":
+                    conn.execute("UPDATE research_authority.holdout_state SET state='consumed'")
+                elif mutation == "post_revoke":
+                    raw = Revocation(record_id="REVOKE-POST-TEST", approved_by="Karl", approval_reference="TEST-ONLY",
+                        target_id=c["receipt"]["designation_id"], action="revoke", successor_id=None).model_dump(mode="json")
+                    value = {"record_id": raw["record_id"], "kind": "revocation", "record": raw, "content_sha256": content_hash(raw)}
+                    event_id = "nonholdout:" + raw["record_id"]
+                    store._audit(conn, event_id=event_id, event_type="nonholdout_control", payload=value)
+                    conn.execute("INSERT INTO research_authority.nonholdout_control VALUES (%s,%s,%s,%s,%s)",
+                        (raw["record_id"], "revocation", hsg.canonical_json(raw), content_hash(raw), event_id))
+                elif mutation == "post_bytes":
+                    c["result_path"].write_text("TEST_ONLY changed after population verification")
+                else:
+                    raise hsg.Refused(hsg.REVOKED)
+            return original(gate, conn, receipt)
+        monkeypatch.setattr(hsg.HistoricalSourceGate, "_verify_commit", changed)
+    before = pgtests.authority_rows(pgtests._test_dsns()[0])
+    with pytest.raises((hsg.Refused, evidence.EvidenceBlocked, pgtests.AuthorityConflict)):
+        store.commit_trial_result(c["payloads"][0], repo_root=root)
+    assert pgtests.authority_rows(pgtests._test_dsns()[0]) == before
+
+
+def test_native_atomic_revocation_serializes_then_recovery_refuses(atomic_case, monkeypatch):
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Event
+
+    import psycopg
+
+    from tools.research_autonomy.store import _terminal_evidence
+
+    c = atomic_case
+    entered, release, revoke_started = Event(), Event(), Event()
+    original = hsg.HistoricalSourceGate._verify_commit
+    calls = []
+    def paused(gate, conn, receipt):
+        calls.append(True)
+        if len(calls) == 1:
+            entered.set()
+            assert release.wait(10), "test coordination failed; not a pass"
+        return original(gate, conn, receipt)
+    monkeypatch.setattr(hsg.HistoricalSourceGate, "_verify_commit", paused)
+    def revoke():
+        revoke_started.set()
+        revoke_atomic(c)
+    try:
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            committed = pool.submit(c["store"].commit_trial_result, c["payloads"][0], repo_root=c["repo"])
+            assert entered.wait(10)
+            revoked = pool.submit(revoke)
+            assert revoke_started.wait(10)
+            with psycopg.connect(pgtests._test_dsns()[0], autocommit=True) as observer:
+                for _ in range(200):
+                    waiting = observer.execute("SELECT count(*) FROM pg_stat_activity WHERE wait_event='advisory' AND query LIKE 'SELECT pg_advisory_xact_lock(721026002)%'").fetchone()[0]
+                    if waiting:
+                        break
+                    time.sleep(.01)
+                assert waiting, "revoker was not observed waiting on native lock"
+            release.set()
+            row = committed.result(timeout=10)
+            revoked.result(timeout=10)
+    finally:
+        release.set()
+    assert row["scientific_trial_id"] == c["payloads"][0]["scientific_trial_id"]
+    assert _terminal_evidence.get() is None
+    with pytest.raises(hsg.Refused):
+        c["store"].load_trial_result(row["scientific_trial_id"], repo_root=c["repo"])
+    with pytest.raises(hsg.Refused):
+        c["store"].commit_trial_result(c["payloads"][0], repo_root=c["repo"])
+
+
+def test_native_atomic_rejects_foreign_context_and_standalone_verification(atomic_case):
+    from tools.research_factory import evidence
+
+    c = atomic_case
+    with pytest.raises(hsg.Refused):
+        c["gate"].verify_commit(c["receipt"], _transaction=(c["store"], object(), c["repo"], c["contract"]))
+    with pytest.raises(evidence.EvidenceBlocked, match="BLOCKED_ATOMIC_CUSTODY_COMMIT"):
+        evidence.verify_commitment(c["repo"], c["payloads"][0], c["contract"])
+
+
+@pytest.mark.parametrize("mutation", ["holdout", "revoke", "missing_bytes"])
+def test_native_atomic_recovery_preserves_history_but_requires_current_evidence(atomic_case, mutation):
+    c = atomic_case
+    row = c["store"].commit_trial_result(c["payloads"][0], repo_root=c["repo"])
+    if mutation == "holdout":
+        c["store"].record_holdout_event(c["contract"].search_id, event_id="ESCAPE-AFTER-RESULT", informative_escape=True)
+    elif mutation == "revoke":
+        revoke_atomic(c)
+    else:
+        c["result_path"].unlink()
+    before = pgtests.authority_rows(pgtests._test_dsns()[0])
+    with pytest.raises((hsg.Refused, OSError)):
+        c["store"].load_trial_result(row["scientific_trial_id"], repo_root=c["repo"])
+    assert pgtests.authority_rows(pgtests._test_dsns()[0]) == before
+
+
+def test_native_atomic_manual_reconciliation_does_not_rerun_or_duplicate(atomic_case, monkeypatch):
+    from tools.research_factory import evidence, manual_loop
+    from tools.research_factory.mapper import write_once
+
+    c = atomic_case
+    monkeypatch.setattr(manual_loop, "verify_population", evidence.verify_population)
+    monkeypatch.setattr(adapter, "run_product_runner_adapter", lambda **k: pytest.fail("must not rerun"))
+    mapping_binding = c["payloads"][0]["mapping_binding"]
+    path = write_once(c["repo"] / "scratch/TEST_ONLY_checkpoint.json", {
+        "mapping_binding": mapping_binding, "mapping_sha256": mapping_binding["sha256"],
+        "contract": c["contract"].to_dict(), "summary_binding": c["payloads"][0]["summary_binding"],
+        "fold_binding": None, "fold_manifest_binding": None, "robustness_binding": None,
+        "purge_bars": 1, "embargo_bars": 1})
+    before = path.read_bytes()
+    for _ in range(2):
+        report = manual_loop.reconcile_manual_run(store=c["store"], repo_root=c["repo"], checkpoint_path=path)
+        assert report["disposition"] == "research_insufficient_evidence"
+        assert report["runner_calls"] == 0 and len(report["terminal_commitments"]) == 2
+        assert path.read_bytes() == before
+    with c["store"]._transaction() as conn:
+        assert conn.execute("SELECT count(*) AS n FROM research_authority.trial_result_binding").fetchone()["n"] == 2

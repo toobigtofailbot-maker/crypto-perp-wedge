@@ -28,7 +28,9 @@ from typing import Annotated, Literal
 
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
+from psycopg import Connection
 from psycopg import Error as DatabaseError
+from psycopg.pq import TransactionStatus
 from pydantic import Field, ValidationError, model_validator
 
 from .envelope import canonical_json, content_hash, validate_envelope
@@ -462,32 +464,45 @@ class HistoricalSourceGate:
                 item.close()
             raise Refused(REFUSAL) from None
 
-    def verify_commit(self, receipt: dict) -> None:
-        """Before terminal commit: the durable use event exists and nothing was revoked since."""
+    def verify_commit(self, receipt: dict, *, _transaction=None):
+        """Recheck custody in the native terminal transaction, or as a standalone diagnostic."""
+        from .store import _terminal_evidence
+
         try:
+            if _transaction is not None:
+                if (_transaction is not _terminal_evidence.get()
+                        or _transaction[0] is not self.store or _transaction[2] != self.root
+                        or type(_transaction[1]) is not Connection
+                        or _transaction[1].info.transaction_status != TransactionStatus.INTRANS):
+                    raise Refused(REVOKED)
+                return self._verify_commit(_transaction[1], receipt)
             with self.store._transaction() as conn:
-                row = conn.execute("SELECT normalized_payload FROM research_authority.authority_audit "
-                                   "WHERE event_id=%s AND event_type='nonholdout_read'",
-                                   (receipt["audit_event_id"],)).fetchone()
-                if row is None:
-                    raise Refused(REVOKED)
-                used = json.loads(row["normalized_payload"])["input"]
-                attestation = _parse(HistoricalAttestation, used["attestation"])
-                if (used["execution_sha256"] != receipt["execution_sha256"]
-                        or used["approval_sha256"] != receipt["approval_sha256"]
-                        or attestation.attestation_id != receipt["attestation_id"]):
-                    raise Refused(REVOKED)
-                designation = self._native._record(conn, attestation.designation_id, "designation",
-                                                   HistoricalDesignation)
-                self._durable(conn, attestation, designation.request)
-                if (receipt.get("designation_id") != designation.record_id
-                        or receipt.get("campaign_id") != designation.request.campaign_id
-                        or receipt.get("request_sha256") != attestation.request_sha256):
-                    raise Refused(REVOKED)
+                return self._verify_commit(conn, receipt)
         except Refused:
             raise
-        except (AuthorityConflict, ValidationError, ValueError, TypeError, KeyError, DatabaseError):
+        except (AuthorityConflict, ValidationError, ValueError, TypeError, KeyError, IndexError, DatabaseError):
             raise Refused(REVOKED) from None
+
+    def _verify_commit(self, conn, receipt):
+        row = conn.execute("SELECT normalized_payload FROM research_authority.authority_audit "
+                           "WHERE event_id=%s AND event_type='nonholdout_read'",
+                           (receipt["audit_event_id"],)).fetchone()
+        if row is None:
+            raise Refused(REVOKED)
+        used = json.loads(row["normalized_payload"])["input"]
+        attestation = _parse(HistoricalAttestation, used["attestation"])
+        if (used["execution_sha256"] != receipt["execution_sha256"]
+                or used["approval_sha256"] != receipt["approval_sha256"]
+                or attestation.attestation_id != receipt["attestation_id"]):
+            raise Refused(REVOKED)
+        designation = self._native._record(conn, attestation.designation_id, "designation",
+                                           HistoricalDesignation)
+        self._durable(conn, attestation, designation.request)
+        if (receipt.get("designation_id") != designation.record_id
+                or receipt.get("campaign_id") != designation.request.campaign_id
+                or receipt.get("request_sha256") != attestation.request_sha256):
+            raise Refused(REVOKED)
+        return designation.request
 
 
 def _read_handle(fd: int) -> bytes:

@@ -118,3 +118,38 @@
   continuation worktree or the old Claude worktree. Their presence is not custody
   or validation-specific immutable-input authorization. No bytes were opened,
   hashed or copied; T3 remains blocked on that authorization/availability here.
+
+## Side 24 native atomic custody correction (2026-11-06)
+
+- Same draft PR #771; prior head `b1121608dec6d7ecfbde9fc78e4a0db3e79838c0`.
+  Main remains `b92d8cda01901105d87e08a60d341ab717a45687`. No merge.
+- The newly authorized native store change retains its existing transaction and
+  advisory lock through original evidence/custody checks before and after append
+  and during recovery. Private dynamic context binds the current store, actual
+  connection, repository and frozen contract; no new approval flag or ledger.
+  Standalone diagnostics remain separate and cannot authorize terminal evidence.
+- Existing durable custody/revocation/signature/holdout checks reuse that exact
+  connection. Original request campaign/search/contract/parent are checked. The
+  unconditional original reconciliation stop is removed; native commit remains
+  final authority, with zero automatic runner retries and preserved checkpoints.
+- Windows focused validation: 111 passed / one Linux-only skip. Final atomic
+  selection: 15 passed, including two native TEST_ONLY result rows, replay,
+  recovery, concurrent revocation serialization, postwrite rollback and explicit
+  reconciliation without duplicate writes/reruns. Physical population is stubbed
+  in these boundary tests; do not call them a complete original physical positive.
+- Legacy 0003 prepared Spec/VM/Sweep/mapping bytes match main and prior head.
+  Schemas, SQL migrations, policy, native runner, original source/mapper, risk/OMS,
+  runtime, Lane B and capital paths are unchanged by this correction.
+- Status: **BLOCKED / PHYSICAL_VALIDATION_PENDING / T3_NOT_ACCEPTED**. Complete
+  source-aware physical original result/projection remains unproven. Production
+  requires canonical-real D4 provenance and rejects fixture provenance; no test
+  fixture was relabeled to bypass that boundary. Native/adjacent/integrity/CI
+  evidence and retained failures are returned in the single exact-head ZIP.
+- Smallest next owner action: separately authorize validation-specific immutable
+  input access/availability for the exact D4 CSV and canonical 1d Parquet already
+  identified in the package. Root existence grants no read/copy/hash permission.
+  No such bytes were opened or copied. Full-release remains NOT RUN / NOT ACCEPTED.
+- A NOT_EXECUTED; B, A+B and C NOT_PROVEN. No real Hermes invocation, Gate C
+  approval/signing, historical experiment, Stage 5B, paper/LIVE or capital action.
+  Return `CODEX_PR771_NATIVE_ATOMIC_CUSTODY_TO_SIDE24.zip`; Side 24 reviews, Karl
+  alone decides merge. This entry creates no physical or scientific authority.

@@ -343,12 +343,6 @@ def reconcile_manual_run(
                 terminal_commitments=commitments,
                 runner_calls=0,
             )
-        # The kernel opens its own transaction; its verifier has no custody/connection hook.
-        # A separate preread transaction cannot make revocation and terminal append atomic.
-        return _report(
-            prepared, reason="BLOCKED_ATOMIC_CUSTODY_COMMIT: ResearchAuthorityStore.commit_trial_result requires a native same-transaction custody check; store.py is outside this package",
-            terminal_commitments=commitments, runner_calls=0,
-        )
     for mapping in prepared["mapping"]:
         prior = store.load_trial_result(mapping["scientific_trial_id"], repo_root=root)
         if prior:

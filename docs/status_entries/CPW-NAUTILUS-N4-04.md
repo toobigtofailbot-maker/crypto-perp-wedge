@@ -76,3 +76,41 @@ No existing protected code, configuration, dependency or scientific authority
 changed. Funded/multi-cycle accounting and actual production integration remain
 separate gates. Side B reviews exact head/evidence; Karl alone decides merge.
 No trading activation or self-merge.
+
+## Follow-up 09: scoped T4 disposition (2026-11-06)
+
+**SCOPED_T4_ELIGIBLE / HISTORICAL_GLOBAL_INTEGRITY_DIRTY.** The original
+observations above remain historical evidence. Follow-up 08 completed the
+owner-approved combined dual-OS profile: all 48 unchanged shards, 229 tracked
+files exactly once, 5,032 passed, zero failed/errors and 28 disclosed existing
+skips. Required N4 guard, native and physical cases passed without skips;
+the frozen N1 and physical no-send proofs remain source-bound. The four Python
+files are unchanged from the tested source; this follow-up adds only this note.
+
+The original WP section 8 requires full-release and every required affected
+protected validator. The stock full-release command does not enable the
+optional `--integrity-views` audit. The two dirty views have no dependency on
+the denial-only guard, external HOLD verification or isolated pre-send sink;
+their historical source records and query definitions are unchanged. The
+required standard commands and all pytest shards passed. Follow-up 09's
+five-condition dossier records the original WP, native flag behavior,
+protected policy, dependency trace and exact reused receipts.
+
+`global_integrity_audit=FAIL (2 pre-existing)` remains explicit: the missing
+`RUN-20260804-H004R2A1` stream for `DSP-20260804-H004R2A1`, and unresolved
+`STRAT-SPEC-0007` / `SS-ECR-STRAT-SPEC-0007` legacy hash scope. The earlier
+query-shard wrapper's additional-audit failure is preserved, not relabelled
+PASS. These findings remain OPEN, non-authoritative historical research debt;
+affected outcomes gain no scientific, canonical or runtime authority.
+
+Karl: "I approve everything so please proceed and always include my full
+authorization". Karl's conditional Follow-up 09 authorization applies only to
+this proven N4-04 acceptance jurisdiction. It waives no required gate, changes
+no policy or historical record and supplies no general baseline exemption.
+
+PR: https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/770.
+Ready for Side B exact-head review after final scope checks and hosted smoke;
+the final head and CI receipts belong to the external Follow-up 09 dossier.
+Side B review and Karl's merge decision remain pending. FROZEN,
+NO_NEW_ORDERS, NO_RESUME and all three false authority flags above remain.
+No merge, trading activation or production consumer is authorized.

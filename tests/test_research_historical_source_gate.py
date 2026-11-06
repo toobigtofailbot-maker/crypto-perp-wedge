@@ -639,6 +639,7 @@ def test_native_atomic_rejects_foreign_context_and_standalone_verification(atomi
     from tools.research_factory import evidence
 
     c = atomic_case
+    assert c["gate"].verify_commit(c["receipt"]) is None  # Existing diagnostic return contract.
     with pytest.raises(hsg.Refused):
         c["gate"].verify_commit(c["receipt"], _transaction=(c["store"], object(), c["repo"], c["contract"]))
     with pytest.raises(evidence.EvidenceBlocked, match="BLOCKED_ATOMIC_CUSTODY_COMMIT"):

@@ -477,7 +477,7 @@ class HistoricalSourceGate:
                     raise Refused(REVOKED)
                 return self._verify_commit(_transaction[1], receipt)
             with self.store._transaction() as conn:
-                return self._verify_commit(conn, receipt)
+                self._verify_commit(conn, receipt)
         except Refused:
             raise
         except (AuthorityConflict, ValidationError, ValueError, TypeError, KeyError, IndexError, DatabaseError):

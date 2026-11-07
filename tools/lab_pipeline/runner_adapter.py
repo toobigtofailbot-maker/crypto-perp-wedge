@@ -69,6 +69,69 @@ class RunnerAdapterError(ValueError):
     """Raised when the product runner adapter must fail closed."""
 
 
+# D3-2: prepared inputs from the original-study factory route require historical custody.
+ORIGINAL_ROUTE_MAPPING_SCHEMA = "research_factory_mapping_original_v1"
+
+
+def _check_prepared_roles(paths):
+    for source, suffix, canonical_root in zip(paths,
+            (".strategy_spec.json", ".variant_manifest.json", ".sweep_plan.json"),
+            ("research/strategy_specs/", "research/variant_manifests/", "research/sweep_plans/")):
+        relative = _safe_repo_relative(source)
+        if not relative.startswith(("scratch/", canonical_root)) or not relative.endswith(suffix):
+            raise RunnerAdapterError("BLOCKED_PREPARED_METADATA_ROLE")
+
+
+def _route_before_read(spec, *, custody=None, approval_path=None, prepared_paths=None,
+                       approval_kwargs=None, source_paths=None, deterministic_seed=None):
+    from tools.research_factory.original_source import OriginalBlocked, route
+
+    try:
+        relative = _safe_repo_relative(spec)
+        if not relative.startswith(("scratch/", "research/strategy_specs/")) or not relative.endswith(".strategy_spec.json"):
+            raise RunnerAdapterError("BLOCKED_UNKNOWN_EXECUTION_ROUTE: prepared metadata role required")
+        if prepared_paths is not None:
+            _check_prepared_roles(prepared_paths)
+        binding = route(REPO_ROOT, _ordinary_input(spec), custody=custody)
+        if approval_path is not None:
+            approval_relative = _safe_repo_relative(approval_path)
+            if approval_relative.startswith(("data/", "research/data_slices/", "configs/")):
+                raise RunnerAdapterError("BLOCKED_APPROVAL_METADATA_ROLE")
+            if binding and not approval_relative.startswith("scratch/"):
+                raise RunnerAdapterError("BLOCKED_ORIGINAL_APPROVAL_SOURCE_PATH")
+            approval = read_json(_ordinary_input(approval_path))
+            if (approval.get("schema_version") != REAL_EXECUTE_APPROVAL_SCHEMA_VERSION
+                    or approval.get("approved_by") != "Karl" or approval.get("authorizes_runner_execution") is not True
+                    or (binding is not None and approval.get("original_route") != binding)
+                    or (binding is None and "original_route" in approval)):
+                raise RunnerAdapterError("BLOCKED_ORIGINAL_ROUTE_APPROVAL")
+            for name, source in zip(("strategy_spec", "variant_manifest", "sweep_plan"), prepared_paths):
+                if approval.get("prepared_" + name + "_sha256") != file_sha256(_ordinary_input(source)):
+                    raise RunnerAdapterError("BLOCKED_ORIGINAL_PREPARED_BYTES")
+            execution = approval.get("execution") or {}
+            expected = {"mode": "canonical_15m_d4_provenance", "canonical_15m": True,
+                        "deterministic_seed": deterministic_seed, "funding_cost_mode": "off",
+                        "target_leverage": 1.0, "sizing_mode": "dynamic_equity_target_leverage", "timeframe": "15m"}
+            if source_paths is not None:
+                for role, source in zip(("ohlcv_input", "d4_catalog_slice", "d2_import_report"), source_paths):
+                    expected[role + "_path"] = _safe_repo_relative(source)
+            if binding:
+                contract = custody._gate.store.load_contract(custody.request.search_id)
+                expected.update(deterministic_seed=contract.seed, data_slice_identity=custody.request.data_identity)
+                if deterministic_seed != contract.seed:
+                    raise RunnerAdapterError("BLOCKED_ORIGINAL_SEED")
+                for obj in custody.request.objects:
+                    expected[obj.role + "_path"] = obj.repo_path
+                    expected[obj.role + "_sha256"] = obj.sha256
+            if any(execution.get(k) != v for k, v in expected.items()):
+                raise RunnerAdapterError("BLOCKED_ORIGINAL_SOURCE_APPROVAL")
+            _require_execute_approval(approval_path=_ordinary_input(approval_path), execution=execution,
+                                      **approval_kwargs)
+        return binding
+    except (OriginalBlocked, KeyError, TypeError, ValueError, AttributeError, OSError) as exc:
+        raise RunnerAdapterError("BLOCKED_NONHOLDOUT_CUSTODY: " + str(exc)) from None
+
+
 def _ordinary_input(path: Path | str) -> Path:
     """Reject indirection before resolving any real-data or approval input."""
     candidate = Path(path)
@@ -98,9 +161,15 @@ def _execution_binding(
     d4_catalog_slice_path=None,
     d2_import_report_path=None,
     deterministic_seed=0,
+    custody=None,
 ) -> dict[str, Any] | None:
     if type(canonical_15m) is not bool or type(deterministic_seed) is not int:
         raise RunnerAdapterError("explicit boolean mode and integer seed required")
+    if custody is not None:
+        from tools.research_autonomy.historical_source_gate import HistoricalLease
+
+        if type(custody) is not HistoricalLease or not canonical_15m or custody._root != REPO_ROOT.resolve():
+            raise RunnerAdapterError("BLOCKED_NONHOLDOUT_CUSTODY: genuine historical lease required")
     paths = (ohlcv_input_path, d4_catalog_slice_path, d2_import_report_path)
     if not canonical_15m:
         if any(path is not None for path in paths):
@@ -108,6 +177,9 @@ def _execution_binding(
         return None
     if any(path is None for path in paths):
         raise RunnerAdapterError("15m D4 route requires OHLCV, catalog and import report")
+    if custody is not None:
+        # Custodial lease must cover these exact objects before any byte is hashed or parsed.
+        custody.require_preread([Path(p) if Path(p).is_absolute() else REPO_ROOT / p for p in paths])
     files = [_ordinary_input(path) for path in paths]
     binding = {
         "mode": "canonical_15m_d4_provenance",
@@ -375,13 +447,17 @@ def approval_template(
     d4_catalog_slice_path: Path | str | None = None,
     d2_import_report_path: Path | str | None = None,
     deterministic_seed: int = 0,
+    custody=None,
 ) -> dict[str, Any]:
     """Return an exact-content execute approval marker template."""
 
+    _check_prepared_roles((prepared_strategy_spec_path, prepared_variant_manifest_path, prepared_sweep_plan_path))
     output_root_rel = _validate_product_output_root(Path(output_root))
     strategy_rel = _safe_repo_relative(prepared_strategy_spec_path)
     manifest_rel = _safe_repo_relative(prepared_variant_manifest_path)
     sweep_rel = _safe_repo_relative(prepared_sweep_plan_path)
+    original_route = _route_before_read(strategy_rel, custody=custody,
+        prepared_paths=(strategy_rel, manifest_rel, sweep_rel)) if canonical_15m else None
     manifest = read_json(_repo_path(manifest_rel))
     committed = _require_int(
         manifest, "population_governance.declared_population.committed_population_count"
@@ -398,8 +474,9 @@ def approval_template(
         d4_catalog_slice_path=d4_catalog_slice_path,
         d2_import_report_path=d2_import_report_path,
         deterministic_seed=deterministic_seed,
+        custody=custody,
     )
-    return {
+    result = {
         **({"execution": execution} if execution else {}),
         "schema_version": REAL_EXECUTE_APPROVAL_SCHEMA_VERSION
         if execution
@@ -422,6 +499,9 @@ def approval_template(
         "authorizes_runner_execution": True,
         **{field: False for field in FALSE_AUTHORITY_FLAGS},
     }
+    if original_route:
+        result["original_route"] = original_route
+    return result
 
 
 def _require_execute_approval(
@@ -435,6 +515,8 @@ def _require_execute_approval(
     output_root: str,
     execution: Mapping[str, Any] | None = None,
 ) -> tuple[dict[str, Any], str]:
+    if _safe_repo_relative(approval_path).startswith(("data/", "research/data_slices/", "configs/")):
+        raise RunnerAdapterError("BLOCKED_APPROVAL_METADATA_ROLE")
     if execution:
         _ordinary_input(approval_path)
         for path in (
@@ -646,9 +728,23 @@ def run_product_runner_adapter(
     ohlcv_input_path: Path | str | None = None,
     d4_catalog_slice_path: Path | str | None = None,
     d2_import_report_path: Path | str | None = None,
+    custody=None,
 ) -> RunnerAdapterResult:
     """Execute the product runner adapter over bridge prepare-only outputs."""
 
+    _check_prepared_roles((prepared_strategy_spec_path, prepared_variant_manifest_path, prepared_sweep_plan_path))
+    original_route = None
+    if canonical_15m:
+        original_route = _route_before_read(
+            prepared_strategy_spec_path, custody=custody, approval_path=execute_approval_path,
+            prepared_paths=(prepared_strategy_spec_path, prepared_variant_manifest_path, prepared_sweep_plan_path),
+            source_paths=(ohlcv_input_path, d4_catalog_slice_path, d2_import_report_path), deterministic_seed=deterministic_seed,
+            approval_kwargs=dict(prepared_strategy_spec_path=_safe_repo_relative(prepared_strategy_spec_path),
+                                 prepared_variant_manifest_path=_safe_repo_relative(prepared_variant_manifest_path),
+                                 prepared_sweep_plan_path=_safe_repo_relative(prepared_sweep_plan_path),
+                                 bridge_preparation_run_id=bridge_preparation_run_id,
+                                 product_pipeline_run_id=product_pipeline_run_id,
+                                 output_root=_validate_product_output_root(Path(output_root))))
     if canonical_15m:
         for source in (
             prepared_strategy_spec_path,
@@ -685,6 +781,7 @@ def run_product_runner_adapter(
         d4_catalog_slice_path=d4_catalog_slice_path,
         d2_import_report_path=d2_import_report_path,
         deterministic_seed=deterministic_seed,
+        custody=custody,
     )
     approval, approval_hash = _require_execute_approval(
         approval_path=_repo_path(approval_rel),
@@ -718,6 +815,8 @@ def run_product_runner_adapter(
     }
     if execution:
         bindings["execution"] = execution
+    if original_route:
+        bindings["original_route"] = original_route
     run_id = _runner_adapter_run_id(bindings)
     run_dir = output_root_path / run_id
 
@@ -767,6 +866,11 @@ def run_product_runner_adapter(
             raise RunnerAdapterError(
                 "possible prior physical execution: reconcile before rerun"
             ) from exc
+    if custody is not None:
+        # Fresh marker verified; durable revocation/holdout recheck and single use before the runner.
+        bindings["custody_receipt"] = custody.consume_for_run(
+            execution=execution, approval_sha256=approval_hash
+        )
     adapter_result = _invoke_existing_runner(
         output_dir=run_dir / "runner_artifacts" / "adapter",
         strategy_spec_path=_repo_path(strategy_rel),
@@ -775,6 +879,8 @@ def run_product_runner_adapter(
         deterministic_seed=deterministic_seed,
         **({"execution": execution} if execution else {}),
     )
+    if custody is not None:
+        custody.verify_unchanged()
     if execution:
         _assert_real_population_inputs(adapter_result["result_population"], execution)
         adapter_approval, current_hash = _require_execute_approval(
@@ -799,6 +905,8 @@ def run_product_runner_adapter(
         deterministic_seed=deterministic_seed,
         **({"execution": execution} if execution else {}),
     )
+    if custody is not None:
+        custody.verify_unchanged()
     if execution:
         _assert_real_population_inputs(direct_result["result_population"], execution)
         _validate_real_execution(execution)

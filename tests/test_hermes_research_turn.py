@@ -39,7 +39,8 @@ function New-MockDockerProcess($info) {
             'com.docker.compose.project'=$env:COMPOSE_PROJECT_NAME
             'com.docker.compose.service'='hermes'
             'com.docker.compose.project.working_dir'=$PSScriptRoot
-        }};Mounts=@(@{Destination='/opt/data';Source=$env:HERMES_PROJECT_HOME})} | ConvertTo-Json -Depth 10 -Compress
+            Image='hermes:test'
+        }};Image=('sha256:' + 'c' * 64);Mounts=@(@{Destination='/opt/data';Source=$env:HERMES_PROJECT_HOME})} | ConvertTo-Json -Depth 10 -Compress
         if ($env:MOCK_CASE -eq 'desktop-mount') {
             $mount = $env:HERMES_PROJECT_HOME.Replace('\', '/') -replace '^([a-zA-Z]):/', '/run/desktop/mnt/host/$1/'
             $object = $text | ConvertFrom-Json
@@ -53,6 +54,10 @@ function New-MockDockerProcess($info) {
         if ($script:turnCount -eq 1) {
             $answer = @{sources=@(@{id='S1';kind='public';url_or_uri='https://example.org/source'})
                 hypotheses=@('one','two','three');materials_markdown='Supplied source data'} | ConvertTo-Json -Depth 10 -Compress
+        }
+        if ($env:MOCK_CASE -eq 'receipt' -and $script:turnCount -eq 5) {
+            $answer = @{schema_version='cpw_hermes_structured_intent_handoff_v1';ideas=@(@{idea_id='IDEA-1';
+                source_claims=@();critic_assessment=@{stance='MIXED';critic_excerpt='profitability UNKNOWN'}})} | ConvertTo-Json -Depth 10 -Compress
         }
         if ($env:MOCK_CASE -eq 'missing' -and $script:turnCount -eq 2) { $answer = '' }
         if ($env:MOCK_CASE -eq 'secret' -and $script:turnCount -eq 2) { $answer = $env:BROWSERBASE_API_KEY }
@@ -220,3 +225,30 @@ def test_default_cycle_never_runs_intent_turn_or_adapter(tmp_path):
     assert not any('director-intent' in json.dumps(c) for c in calls)
     assert not (output / 'structured_intent_drafts.json').exists()
     assert not list(tmp_path.glob('*.discovery-intent'))
+
+
+def test_host_observation_receipt_is_opt_in_sibling_and_consistent(tmp_path, monkeypatch):
+    import hashlib
+    import sys
+    from tools.hermes import model_origin_receipt as mor
+    monkeypatch.setenv('MOCK_ADAPTER_LOG', str(tmp_path / 'adapter.json'))
+    (tmp_path / 'repo/tools/hermes').mkdir(parents=True)
+    (tmp_path / 'repo/tools/hermes/discovery_intent.py').write_text(ADAPTER_STUB, encoding='utf-8')
+    result, output, calls = run_script(tmp_path, 'receipt', extra=(
+        '-StructuredIntentHandoff', '-HostObservationReceipt', '-PythonExe', sys.executable))
+    assert result.returncode == 0, result.stdout + result.stderr
+    receipt = Path(str(output) + '.host-receipt.json')
+    digest = hashlib.sha256(receipt.read_bytes()).hexdigest()
+    assert f'Host observation receipt sha256: {digest}' in result.stdout
+    # Cycle inventory is unchanged; the receipt is a sibling written by the host launcher.
+    assert not any('host' in p.name for p in output.iterdir())
+    assert len([c for c in calls if 'exec' in c['args']]) == 5
+    # Every recomputed hash/binding passes; only the out-of-band operator anchor is absent.
+    verdict = mor.verify_origin(output, receipt, anchor_sha256=None, expected_repo_sha=SHA)
+    assert verdict['reason'] == 'TRUST_ANCHOR_MISSING' and verdict['B_verified'] is False
+
+
+def test_default_cycle_writes_no_host_receipt(tmp_path):
+    result, output, calls = run_script(tmp_path)
+    assert result.returncode == 0
+    assert not Path(str(output) + '.host-receipt.json').exists()

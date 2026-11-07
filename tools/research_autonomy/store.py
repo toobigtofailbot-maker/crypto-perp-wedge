@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from contextlib import contextmanager
+from contextvars import ContextVar
 from pathlib import Path
 
 import psycopg
@@ -13,6 +14,7 @@ from .envelope import canonical_json, content_hash, validate_control, validate_e
 from .models import BudgetState, DurableLineageSnapshot, HoldoutState
 
 ZERO_HASH = "sha256:" + "0" * 64
+_terminal_evidence = ContextVar("native_terminal_evidence", default=None)
 
 
 class AuthorityConflict(ValueError):
@@ -377,7 +379,6 @@ class ResearchAuthorityStore:
 
     def commit_trial_result(self, payload, *, repo_root: Path):
         """Atomically commit reverified scratch evidence and its ordered audit event."""
-        from tools.research_factory.evidence import verify_commitment
 
         payload = json.loads(canonical_json(payload))
         event_id = "result:" + payload["idempotency_id"]
@@ -387,7 +388,7 @@ class ResearchAuthorityStore:
             current = self._snapshot(conn, contract.campaign_id)
             if current.holdout.state != "unexposed" or current.holdout.contaminated:
                 raise AuthorityConflict("unexposed uncontaminated development authority required")
-            verify_commitment(repo_root, payload, contract)
+            self._verify_terminal_evidence(conn, repo_root, payload, contract)
             if payload.get("fold_binding"):
                 protocol_row = conn.execute(
                     "SELECT semantic_payload FROM research_authority.envelope_registry WHERE envelope_id=%s AND envelope_version=%s",
@@ -504,7 +505,7 @@ class ResearchAuthorityStore:
                 values,
             )
             # Recheck the external bytes before releasing the transaction lock.
-            verify_commitment(repo_root, payload, contract)
+            self._verify_terminal_evidence(conn, repo_root, payload, contract)
             return dict(
                 conn.execute(
                     "SELECT * FROM research_authority.trial_result_binding WHERE idempotency_id=%s",
@@ -514,7 +515,6 @@ class ResearchAuthorityStore:
 
     def load_trial_result(self, scientific_trial_id, *, repo_root: Path, attempt_number=None):
         """Recover durable completion only after revalidating retained external evidence."""
-        from tools.research_factory.evidence import verify_commitment
 
         with self._transaction() as conn:
             if attempt_number is None:
@@ -537,8 +537,18 @@ class ResearchAuthorityStore:
             kind = "trial_attempt" if row["classification"] == "SOFTWARE_FAILED" else "trial_result"
             if not self._replay(conn, row["audit_event_id"], kind, payload):
                 raise AuthorityConflict("terminal audit absent")
-            verify_commitment(repo_root, payload, contract)
+            self._verify_terminal_evidence(conn, repo_root, payload, contract)
             return dict(row)
+
+    def _verify_terminal_evidence(self, conn, root, payload, contract):
+        from tools.research_factory.evidence import verify_commitment
+
+        # Only the native verifier's dynamic scope may reuse this locked transaction.
+        token = _terminal_evidence.set((self, conn, Path(root).resolve(), contract))
+        try:
+            return verify_commitment(root, payload, contract)
+        finally:
+            _terminal_evidence.reset(token)
 
     def load_scientific_protocol(self, search_id):
         """Read the exact envelope-owned fold requirements; never infer policy."""

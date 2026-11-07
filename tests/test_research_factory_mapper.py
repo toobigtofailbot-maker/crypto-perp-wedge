@@ -370,3 +370,48 @@ def authority_inputs(root):
         "policies": policy["policies"],
     }
     return intent, frozen, BoundedSearchRequest.model_validate_json(json.dumps(request))
+
+
+def _original(contract, **changes):
+    value = {
+        "idea_id": "IDEA-FIXTURE",
+        "original_hypothesis_sha256": "sha256:" + "1" * 64,
+        "fingerprint_sha256": contract.hypothesis_fingerprint,
+        "original_parent_sha256": "sha256:" + "2" * 64,
+    }
+    value.update(changes)
+    return value
+
+
+def test_original_route_maps_reviewed_spec_axes_without_template_substitution(tmp_path):
+    # Fixture exercises route mechanics over a committed canonical spec; it is not a Hermes origin.
+    root, store, contract, handoff = factory_fixture(tmp_path)
+    args = dict(store=store, handoff=handoff, contract=contract, repo_root=root,
+                output_root=root / "scratch/prepared", created_at_utc="2026-10-08T00:00:00Z")
+    legacy = mapper.prepare_wave(**args)
+    assert legacy["schema_version"] == "research_factory_mapping_v1" and "original_parent" not in legacy
+    original = _original(contract)
+    with pytest.raises(mapper.MappingBlocked, match="BLOCKED_ORIGINAL_SOURCE_REQUIRED"):
+        mapper.prepare_wave(**dict(args, output_root=root / "scratch/original"), original=original)
+    assert not (root / "scratch/original").exists()
+
+
+@pytest.mark.parametrize("change,message", [
+    ({"fingerprint_sha256": "sha256:" + "9" * 64}, "BLOCKED_ORIGINAL_SOURCE_REQUIRED"),
+    ({"extra": True}, "BLOCKED_ORIGINAL_SOURCE_REQUIRED"),
+])
+def test_original_route_refuses_substituted_or_unbound_parent(tmp_path, change, message):
+    root, store, contract, handoff = factory_fixture(tmp_path)
+    with pytest.raises(mapper.MappingBlocked, match=message):
+        mapper.prepare_wave(store=store, handoff=handoff, contract=contract, repo_root=root,
+                            output_root=root / "scratch/original", created_at_utc="2026-10-08T00:00:00Z",
+                            original=_original(contract, **change))
+    assert not (root / "scratch/original").exists()
+
+
+def test_original_route_refuses_uncommitted_or_noncanonical_paths(tmp_path):
+    root, *_ = factory_fixture(tmp_path)
+    sha = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
+    for path in ("scratch/x.strategy_spec.json", "research/strategy_specs/../../x.json"):
+        with pytest.raises(mapper.MappingBlocked):
+            mapper.committed_json(root, path, sha, original=True)

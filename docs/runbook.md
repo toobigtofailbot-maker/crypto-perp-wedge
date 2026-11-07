@@ -628,3 +628,28 @@ DSR calculation.  Do not inflate this count with test runs or aborted evaluation
 # WP-1b tests only
 .venv/Scripts/python.exe -m pytest tests/test_backtest.py tests/test_evaluation.py -v
 ```
+### Lane B P1 local fixture portfolio
+
+The paper trader has two explicit manual modes. `--native-portfolio --config <fixture-json>`
+runs a bounded two-instrument CPWSIM fixture on NautilusTrader 1.231.0. The
+config is a JSON array of one to twelve `portfolio_execution_request_v1`
+cycles, with run-scoped request IDs and short UTC validity. Use the fixture
+constructor in `tests/test_nautilus_native_portfolio.py` to generate examples.
+The mode prints a request-file hash and `native_execution_observation_v1`
+objects to stdout. Redirect stdout only to an external, noncanonical path.
+
+Use a dedicated disposable loopback Redis instance on port 16379, with AOF and
+`appendfsync always`. Initialize `cpw:laneb:p1:isolation` to `LOCAL_TEST_ONLY`
+in that isolated instance. The namespace is claimed once per fixture run ID.
+Redis and the native wheel can run in a container network without external
+connectivity. Price inputs are synthetic quotes and the pinned Binance source
+fixture supplies instrument filters. Orders are local CPWSIM only.
+
+`--native-portfolio-recover --config <same-fixture-json>` inspects native
+persisted state with the default Redis user restricted to the read-only ACL
+used by the existing native recovery test. It registers zero execution clients
+and returns HOLD. Recovery supports a single uninterrupted position lifecycle
+per symbol, with a possible close, and refuses resized or reopened histories.
+Do not reset a namespace to resume it. Fixture observations are for Side 25
+read-only review and carry no research, promotion, credential, or trading
+authority.

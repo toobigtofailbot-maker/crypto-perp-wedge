@@ -228,6 +228,15 @@ def _authorized_path_scope_rejection(
     if not normalized_scope:
         return "authorized scope is empty"
 
+    if normalized_scope == "cpw-laneb-multisymbol-native-portfolio-01":
+        if (scope != "cpw-laneb-multisymbol-native-portfolio-01"
+                or authorized_package != "CPW-LANEB-MULTISYMBOL-NATIVE-PORTFOLIO-01"):
+            return "P1 portfolio scope requires its exact package and scope"
+        if path in {"src/runtime/paper_trader.py", "src/execution/nautilus_native_backend.py",
+                    "src/execution/nautilus_portfolio_contract.py"}:
+            return None
+        return "P1 portfolio scope is limited to its three explicitly authorized runtime files"
+
     if normalized_scope == "cpw-nautilus-native-first-01":
         if scope != "cpw-nautilus-native-first-01" or authorized_package != "CPW-NAUTILUS-NATIVE-FIRST-01":
             return "native consumer scope requires the exact CPW-NAUTILUS-NATIVE-FIRST-01 package and scope"

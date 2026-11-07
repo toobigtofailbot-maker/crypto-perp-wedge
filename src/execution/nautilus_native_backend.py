@@ -151,8 +151,6 @@ async def run(config, policy, *, ticks=None, instrument=None):
                 super().__init__(StrategyConfig(strategy_id="CPWPOLICY-001"))
                 self.previous = 0
                 self.previous_tick = None
-                self.opened = False
-                self.closed = False
 
             def on_start(self):
                 self.subscribe_quote_ticks(source_id)
@@ -183,6 +181,12 @@ async def run(config, policy, *, ticks=None, instrument=None):
                     self.cache.add_quote_tick(local_tick)
                     self.portfolio.update_quote_tick(local_tick)
                     sandbox.on_data(local_tick)
+                    if decisions:
+                        # A submitted command can still be queued before the native order is inflight.
+                        last = self.cache.order(ClientOrderId(decisions[-1]))
+                        if last is None or not last.is_closed:
+                            return
+                        require(last.status.name == "FILLED", "incomplete native fill; HOLD")
                     require(not self.cache.orders_inflight() and not self.cache.orders_open(), "unsettled native order")
                     current = sum((D(str(p.signed_qty)) for p in self.cache.positions_open()), D(0))
                     intent = policy(tick, current)
@@ -191,9 +195,9 @@ async def run(config, policy, *, ticks=None, instrument=None):
                     qty = intent.qty
                     side = intent.side.value
                     target = current + (qty if side == "BUY" else -qty)
-                    require(not self.closed and qty == QUANTITY and intent.symbol == "BTCUSDT"
-                            and ((not self.opened and current == 0 and target == qty and side == "BUY")
-                                 or (self.opened and current == qty and target == 0 and side == "SELL")),
+                    require(qty == QUANTITY and intent.symbol == "BTCUSDT"
+                            and ((not decisions and current == 0 and target == qty and side == "BUY")
+                                 or (len(decisions) == 1 and current == qty and target == 0 and side == "SELL")),
                             "unsupported target/history; HOLD")
                     require(qty >= local.min_quantity and qty % local.size_increment.as_decimal() == 0
                             and (local.max_quantity is None or qty <= local.max_quantity.as_decimal())
@@ -204,8 +208,6 @@ async def run(config, policy, *, ticks=None, instrument=None):
                         local.make_qty(qty), client_order_id=ClientOrderId(intent.client_order_id),
                         reduce_only=intent.reduce_only)
                     decisions.append(intent.client_order_id)
-                    self.opened = True
-                    self.closed = target == 0
                     self.submit_order(order)
                 except Exception as exc:
                     failure.append(exc)

@@ -6,12 +6,14 @@ import copy
 import hashlib
 import json
 import os
+import re
 import subprocess
 import tempfile
 from pathlib import Path
 
 from tools.research_autonomy.contract_builder import contract_from_payload
 from tools.research_autonomy.handoff import replay_handoff, validate_handoff
+from tools.research_autonomy.m1_source import M1_MAPPING, M1_ROOT, M1_VERSION, M1Source
 from tools.research_runner import run_offline_sweep as runner
 from tools.research_search.contract import sha256_payload
 
@@ -154,6 +156,7 @@ def prepare_wave(
     output_root: Path,
     created_at_utc: str,
     original=None,
+    m1_source=None,
 ):
     """Validate authority before emitting legal planning artifacts, never approval.
 
@@ -166,47 +169,83 @@ def prepare_wave(
     if frozen.contract_hash != handoff.contract_hash:
         raise MappingBlocked("contract/handoff mismatch")
     governor = replay_handoff(handoff, store=store, repo_root=root)
-    if original is None:
-        sources = (SOURCE_SPEC, SOURCE_VM, SOURCE_SWEEP, SOURCE_CATALOG)
+    if (frozen.data_version == M1_VERSION) != (m1_source is not None) or (
+        m1_source is not None and original is not None
+    ):
+        raise MappingBlocked("explicit M1 mapping required; routes cannot be combined")
+    m1 = m1_source is not None
+    if m1:
+        try:
+            source = M1Source.model_validate_json(m1_source.model_dump_json())
+            if source.identity != frozen.data_identity:
+                raise ValueError("M1 frozen source identity mismatch")
+            source.require_partition(frozen.split_protocol)
+            spec_path = f"research/strategy_specs/{frozen.strategy_spec_id}.strategy_spec.json"
+            if not re.fullmatch(r"STRAT-SPEC-[0-9]{4}", frozen.strategy_spec_id):
+                raise ValueError("M1 exact committed strategy spec ID required")
+            spec = committed_json(root, spec_path, frozen.repo_sha, original=True)
+            source.require_spec(spec)
+            vm_id = spec["pre_registration_support"]["variant_manifest_ref"]
+            if not re.fullmatch(r"VM-[0-9]{4}", vm_id):
+                raise ValueError("M1 exact committed VM ID required")
+            vm_path = f"research/variant_manifests/{vm_id}.variant_manifest.json"
+            vm = committed_json(root, vm_path, frozen.repo_sha, original=True)
+            sweep_path = f"research/sweep_plans/{source.sweep_plan_id}.sweep_plan.json"
+            sources = (spec_path, vm_path, sweep_path)
+            sweep = committed_json(root, sources[2], frozen.repo_sha, original=True)
+            if (file_hash(root / spec_path) != frozen.strategy_spec_hash
+                    or file_hash(root / vm_path) != source.variant_manifest_sha256
+                    or file_hash(root / sweep_path) != source.sweep_plan_sha256
+                    or sweep["sweep_plan_id"] != source.sweep_plan_id
+                    or vm["parent_strategy_spec"]["strategy_spec_id"] != frozen.strategy_spec_id
+                    or sweep["parent_variant_manifest"]["variant_manifest_id"] != vm_id
+                    or sweep["data_and_timeframe_assumptions"]["primary_timeframe"] != source.timeframe
+                    or sweep["realism_assumptions"]["fee_side_assumption"] != "taker_entry_taker_exit"):
+                raise ValueError("M1 exact parent chain, clock and fee convention required")
+        except (AttributeError, KeyError, OSError, TypeError, ValueError, subprocess.CalledProcessError) as exc:
+            raise MappingBlocked("blocked_unsupported_mapping: M1 fixture parent or source binding") from exc
     else:
-        sources = _original_sources(root, frozen, original)
-    spec, vm, sweep, catalog = (
-        committed_json(root, path, frozen.repo_sha, original=original is not None)
-        for path in sources
-    )
-    if original is None and (
-        frozen.family_id != "sma_stddev_mean_reversion_v1"
-        or frozen.strategy_spec_id != "STRAT-SPEC-0003"
-        or frozen.strategy_spec_hash != file_hash(root / SOURCE_SPEC)
-    ):
-        raise MappingBlocked("blocked_unsupported_mapping: exact supported spec bytes required")
-    if (
-        spec["timeframe_and_data"]["primary_timeframe"] != "15m"
-        or sweep["data_and_timeframe_assumptions"]["primary_timeframe"] != "15m"
-        or frozen.split_protocol.development_data_ref != frozen.data_identity
-    ):
-        raise MappingBlocked("blocked_unsupported_mapping: 15m development data binding required")
-    # The adapter consumes this entire catalog slice. A narrower development
-    # partition would expose undeclared bars; require the exact frozen interval.
-    import pandas as pd
-
-    try:
-        start, end = [
-            pd.Timestamp(value) for value in frozen.split_protocol.development_window.split("/")
-        ]
-        expected_start = pd.Timestamp(catalog["range"]["start_utc"])
-        expected_end = pd.Timestamp(catalog["range"]["end_utc"]) + pd.Timedelta(minutes=15)
-        if (
-            start != expected_start
-            or end != expected_end
-            or frozen.data_identity != catalog["slice_identity"]["data_slice_identity"]
-            or frozen.data_version != catalog["catalog_version"]
+        if original is None:
+            sources = (SOURCE_SPEC, SOURCE_VM, SOURCE_SWEEP, SOURCE_CATALOG)
+        else:
+            sources = _original_sources(root, frozen, original)
+        spec, vm, sweep, catalog = (
+            committed_json(root, path, frozen.repo_sha, original=original is not None)
+            for path in sources
+        )
+        if original is None and (
+            frozen.family_id != "sma_stddev_mean_reversion_v1"
+            or frozen.strategy_spec_id != "STRAT-SPEC-0003"
+            or frozen.strategy_spec_hash != file_hash(root / SOURCE_SPEC)
         ):
-            raise ValueError("development partition mismatch")
-    except (TypeError, ValueError, KeyError) as exc:
-        raise MappingBlocked(
-            "blocked_unsupported_mapping: exact catalog development partition required"
-        ) from exc
+            raise MappingBlocked("blocked_unsupported_mapping: exact supported spec bytes required")
+        if (
+            spec["timeframe_and_data"]["primary_timeframe"] != "15m"
+            or sweep["data_and_timeframe_assumptions"]["primary_timeframe"] != "15m"
+            or frozen.split_protocol.development_data_ref != frozen.data_identity
+        ):
+            raise MappingBlocked("blocked_unsupported_mapping: 15m development data binding required")
+        # The adapter consumes this entire catalog slice. A narrower development
+        # partition would expose undeclared bars; require the exact frozen interval.
+        import pandas as pd
+
+        try:
+            start, end = [
+                pd.Timestamp(value) for value in frozen.split_protocol.development_window.split("/")
+            ]
+            expected_start = pd.Timestamp(catalog["range"]["start_utc"])
+            expected_end = pd.Timestamp(catalog["range"]["end_utc"]) + pd.Timedelta(minutes=15)
+            if (
+                start != expected_start
+                or end != expected_end
+                or frozen.data_identity != catalog["slice_identity"]["data_slice_identity"]
+                or frozen.data_version != catalog["catalog_version"]
+            ):
+                raise ValueError("development partition mismatch")
+        except (TypeError, ValueError, KeyError) as exc:
+            raise MappingBlocked(
+                "blocked_unsupported_mapping: exact catalog development partition required"
+            ) from exc
     # v1 VM grammar excludes adaptive search. This slice supports frozen random only.
     if (
         frozen.proposer.backend != "random"
@@ -219,7 +258,7 @@ def prepare_wave(
         )
     declared = {p["name"]: p for p in spec["free_parameters"]["parameters"]}
     # The original route uses the reviewed spec's own axes, never the 0003 template domains.
-    parameters = PARAMETERS if original is None else set(declared)
+    parameters = set(declared) if original is not None or m1 else PARAMETERS
     if set(declared) != parameters or {p.name for p in frozen.parameter_space} != parameters:
         raise MappingBlocked("blocked_unsupported_mapping: parameter surface mismatch")
     for domain in frozen.parameter_space:
@@ -283,6 +322,8 @@ def prepare_wave(
     relative = destination.relative_to(root)
     if relative.parts[0] != "scratch" or ".." in relative.parts:
         raise MappingBlocked("single isolated scratch namespace required")
+    if m1 and not (relative.as_posix() + "/").startswith(M1_ROOT):
+        raise MappingBlocked("M1 output must stay in its TEST_ONLY scratch namespace")
     cursor = root
     import stat
 
@@ -310,7 +351,8 @@ def prepare_wave(
         )
     ]
     spec["strategy_spec_id"] = ids[0]
-    spec["title"] = "Noncanonical frozen Governor 15m population"
+    spec["title"] = (f"TEST_ONLY M1 {source.instrument} {source.timeframe} Governor population"
+                     if m1 else "Noncanonical frozen Governor 15m population")
     spec["lineage"] = {
         "parent_refs": [
             {
@@ -477,6 +519,12 @@ def prepare_wave(
             original_evidence=dict(original),
             source_proof_sha256=file_hash(source_path),
             source_paths=dict(zip(("spec", "vm", "sweep", "catalog"), sources)),
+        )
+    if m1:
+        metadata.update(
+            schema_version=M1_MAPPING,
+            m1_source=source.model_dump(mode="json"),
+            source_paths=dict(zip(("spec", "vm", "sweep"), sources)),
         )
     write_once(namespace / "mapping.json", metadata)
     return metadata

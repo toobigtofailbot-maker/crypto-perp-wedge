@@ -2024,14 +2024,17 @@ def _run_canonical_15m_backtest(
     sizing: _SizingResolution,
     evaluation_start: pd.Timestamp | None = None,
     evaluation_end: pd.Timestamp | None = None,
+    *,
+    fixture_costs=None,
 ) -> Any:
     if evaluation_end is not None:
         execution_input = _slice_execution_input_for_evaluation_end(execution_input, evaluation_end)
+    fixture_costs = execution_input.funding_input_identity.get("m1_fixture_costs")
     signal = compile_signal(
         strategy_spec,
         variant,
         execution_input.ohlcv,
-        funding=execution_input.funding,
+        funding=execution_input.funding if fixture_costs is None else None,
     )
     if evaluation_start is not None:
         signal = _mask_signal_before_window(signal, evaluation_start)
@@ -2039,9 +2042,9 @@ def _run_canonical_15m_backtest(
         signal=signal,
         ohlcv=execution_input.ohlcv,
         funding=execution_input.funding,
-        fee_bps_taker=4.0,
-        fee_bps_maker=2.0,
-        slippage_bps=1.0,
+        fee_bps_taker=4.0 if fixture_costs is None else fixture_costs["fee_bps_taker"],
+        fee_bps_maker=2.0 if fixture_costs is None else fixture_costs["fee_bps_maker"],
+        slippage_bps=1.0 if fixture_costs is None else fixture_costs["slippage_bps"],
         initial_equity=INITIAL_EQUITY,
         stream="klines",
         interval=execution_input.timeframe,
@@ -2049,7 +2052,7 @@ def _run_canonical_15m_backtest(
         entry_fee_side="taker",
         exit_fee_side="taker",
         funding_cost_mode=execution_input.funding_input_identity["funding_mode"],
-        funding_notional_mode="entry_price",
+        funding_notional_mode="entry_price" if fixture_costs is None else fixture_costs["funding_notional"],
         order_size=sizing.resolved_order_size,
         sizing_mode=sizing_context.sizing_mode,
         target_leverage=sizing_context.target_leverage,
@@ -3659,6 +3662,87 @@ def _write_and_validate(
     if errors:
         raise OfflineSweepError("; ".join(errors))
     return path
+
+
+def _m1_fixture_execution_input(source, objects):
+    """Decode the complete pair delivered through the fixture-only custody lease."""
+    from tools.data_ingestion.ccxt_public_funding_adapter import FUNDING_INTERVAL_MS, normalize_raw_row
+    from tools.data_ingestion.m1_public_source_probe import _check_bar
+    from tools.research_autonomy.m1_source import exact_json
+    from tools.research_autonomy.nonholdout_qualification import CADENCE
+
+    common = {
+        "classification": "TEST_ONLY",
+        "instrument": source.instrument,
+        "epoch_id": source.epoch_id,
+    }
+
+    def rows(raw, identity):
+        payload = exact_json(raw)
+        if set(payload) != {*identity, "rows"} or any(
+            payload[key] != expected for key, expected in identity.items()
+        ) or not isinstance(payload["rows"], list):
+            raise OfflineSweepError("M1 TEST_ONLY source identity mismatch")
+        return payload["rows"]
+
+    klines = rows(objects[0], common | {"timeframe": source.timeframe})
+    raw_events = rows(objects[1], common)
+    start, end = source.effective_window.start_ms, source.effective_window.end_ms
+    step = CADENCE[source.timeframe]
+    timestamps = range(start, end, step)
+    events = range(start, end, FUNDING_INTERVAL_MS)
+    if len(klines) != len(timestamps) or len(raw_events) != len(events):
+        raise OfflineSweepError("M1 incomplete price or funding coverage")
+    bars = []
+    for row, ts in zip(klines, timestamps, strict=True):
+        _check_bar(row, opened=ts, step=step, clock=source.timeframe)
+        bar = tuple(float(value) for value in row[1:6])
+        if not all(math.isfinite(value) for value in bar) or min(bar[:4]) <= 0:
+            raise OfflineSweepError("M1 OHLCV exceeds runner numeric precision")
+        bars.append(bar)
+
+    rates = []
+    for index, (row, ts) in enumerate(zip(raw_events, events, strict=True)):
+        if not isinstance(row, dict) or row.get("symbol") != source.instrument:
+            raise OfflineSweepError("M1 funding symbol mismatch")
+        normalized = normalize_raw_row(row, page_index=0, row_index=index, expected_symbol=source.instrument)
+        rate = float(normalized["funding_rate"])
+        if normalized["exchange_funding_time_ms"] != ts or not -1 <= rate <= 1:
+            raise OfflineSweepError("M1 fixture funding must use the exact settlement grid and fractional units")
+        rates.append(rate)
+
+    ohlcv = pd.DataFrame(bars, index=pd.to_datetime(timestamps, unit="ms", utc=True),
+                         columns=REQUIRED_OHLCV_COLUMNS)
+    funding = pd.DataFrame({"funding_rate": rates}, index=pd.to_datetime(events, unit="ms", utc=True))
+    identity = _funding_input_identity_off() | {
+        "funding_mode": "on",
+        "m1_funding_sha256": source.funding_sha256,
+        "m1_fixture_costs": source.costs.model_dump(mode="json"),
+    }
+    return _ExecutionInput(
+        mode="m1_test_only", execution_provenance_class="fixture_offline",
+        ohlcv=ohlcv, funding=funding, timeframe=source.timeframe,
+        data_catalog_ref=source.identity, data_slice_identity=source.identity,
+        environment_summary=["M1 TEST_ONLY USD-M fixture", _funding_identity_note(identity)],
+        data_coverage_notes=[f"TEST_ONLY {source.instrument} {source.epoch_id} {start}/{end}",
+                             _funding_identity_note(identity)],
+        funding_input_identity=identity,
+    )
+
+
+def _run_m1_fixture_sweep(spec, manifest, sweep, *, source, objects, seed):
+    source.require_spec(spec)
+    if (_declared_non_ohlcv_columns(spec)
+            or sweep["data_and_timeframe_assumptions"]["primary_timeframe"] != source.timeframe
+            or sweep["realism_assumptions"]["fee_side_assumption"] != "taker_entry_taker_exit"):
+        raise OfflineSweepError("M1 fixture supports a single OHLCV clock and taker fills")
+    execution = _m1_fixture_execution_input(source, objects)
+    payload, aborted = _build_result_population(
+        spec, manifest, sweep, "M1 TEST_ONLY", seed, execution,
+        SIZING_MODE_DYNAMIC_EQUITY_TARGET_LEVERAGE, 1.0, 1,
+    )
+    _validate_in_memory_payload(payload)
+    return payload, aborted
 
 
 def run_offline_sweep(

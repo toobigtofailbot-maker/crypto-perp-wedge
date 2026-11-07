@@ -34,6 +34,7 @@ from psycopg.pq import TransactionStatus
 from pydantic import Field, ValidationError, model_validator
 
 from .envelope import canonical_json, content_hash, validate_envelope
+from .m1_source import M1_ROOT, M1_VERSION, M1Source, Symbol
 from .models import Count, Identity, Positive, RepoSha, Sha, StrictModel
 from .nonholdout_qualification import (
     CADENCE,
@@ -48,6 +49,9 @@ from .nonholdout_qualification import (
 from .store import AuthorityConflict, ResearchAuthorityStore
 
 SCHEMA = "cpw_nonholdout_historical_v1"
+M1_SCHEMA = "cpw_m1_fixture_custody_v1"
+M1_RECEIPT = "cpw_m1_fixture_reader_use_v1"
+M1_ROLES = ("ohlcv_input", "funding_input")
 ROLES = ("ohlcv_input", "d4_catalog_slice", "d2_import_report")
 STORAGE = {"win32": "windows_share_deny_write_v1", "linux": "linux_immutable_flag_v1"}
 REFUSAL = "BLOCKED_NONHOLDOUT_CUSTODY"
@@ -119,6 +123,53 @@ class HistoricalRequest(StrictModel):
         return self
 
 
+class M1Object(HistoricalObject):
+    role: Literal["ohlcv_input", "funding_input"]
+
+    @model_validator(mode="after")
+    def role_path(self):
+        if (not self.repo_path.startswith(M1_ROOT)
+                or not self.repo_path.endswith("/" + self.role + ".json")
+                or any(part in {"", ".", ".."} for part in self.repo_path.split("/"))):
+            raise ValueError("M1 source must be a role-scoped TEST_ONLY JSON object")
+        return self
+
+
+class M1Request(HistoricalRequest):
+    schema_version: Literal["cpw_m1_fixture_custody_v1"]
+    purpose: Literal["m1_fixture_read"]
+    data_version: Literal["cpw_m1_fixture_source_v1"]
+    instrument: Symbol
+    timeframe: Literal["15m", "1h"]
+    objects: tuple[M1Object, M1Object]
+    source: M1Source
+
+    @model_validator(mode="after")
+    def closed_dependencies(self):
+        source = self.source
+        if ((self.data_identity, self.instrument, self.timeframe, self.effective_window)
+                != (source.identity, source.instrument, source.timeframe, source.effective_window)
+                or self.original_parent_sha256 != self.strategy_spec_hash
+                or tuple(obj.role for obj in self.objects) != M1_ROLES
+                or tuple(obj.sha256 for obj in self.objects) != (source.ohlcv_sha256, source.funding_sha256)
+                or not all(value.startswith("TEST-ONLY-") for value in (self.campaign_id, self.search_id))):
+            raise ValueError("M1 custody must bind the complete fixture cell and source pair")
+        return self
+
+    def execution_binding(self, *, mapping_sha256, seed):
+        return {
+            "mode": "M1_TEST_ONLY",
+            "data_slice_identity": self.data_identity,
+            "contract_hash": self.contract_hash,
+            "mapping_sha256": mapping_sha256,
+            "deterministic_seed": seed,
+            "funding_cost_mode": "on",
+            "source": self.source.model_dump(mode="json"),
+        } | {obj.role + "_path": obj.repo_path for obj in self.objects} | {
+            obj.role + "_sha256": obj.sha256 for obj in self.objects
+        }
+
+
 class HistoricalDesignation(StrictModel):
     record_id: Identity
     approved_by: Literal["Karl"]
@@ -129,6 +180,19 @@ class HistoricalDesignation(StrictModel):
     request: HistoricalRequest
     protected_mapping_complete: Literal[True]
     protected_intervals: Annotated[tuple[Interval, ...], Field(min_length=1)]
+
+
+class M1Designation(HistoricalDesignation):
+    approval_reference: Literal["TEST-ONLY"]
+    request: M1Request
+
+
+def _schema(value):
+    return value.schema_version if isinstance(value, HistoricalRequest) else value["schema_version"]
+
+
+def _designation_model(request):
+    return M1Designation if _schema(request) == M1_SCHEMA else HistoricalDesignation
 
 
 class HistoricalAttestation(StrictModel):
@@ -142,9 +206,10 @@ class HistoricalAttestation(StrictModel):
     signature_hex: Annotated[str, Field(pattern=r"^[0-9a-f]{128}$")]
 
 
-def signing_bytes(attestation: HistoricalAttestation) -> bytes:
+def signing_bytes(attestation: HistoricalAttestation, *, m1_fixture: bool = False) -> bytes:
     # Domain-separated from 02J so a synthetic signature can never authorize history.
-    return b"CPW-NONHOLDOUT-HISTORICAL-D3-2\x00" + canonical_json(
+    domain = b"CPW-M1-TEST-ONLY\x00" if m1_fixture else b"CPW-NONHOLDOUT-HISTORICAL-D3-2\x00"
+    return domain + canonical_json(
         attestation.model_dump(mode="json", exclude={"signature_hex"})
     ).encode("ascii")
 
@@ -300,6 +365,13 @@ class HistoricalLease:
             if _sha256_handle(self._leases[obj.role].fd) != obj.sha256:
                 raise Refused(REFUSAL)
 
+    def read_m1_fixture(self, execution, *, fixture_binding_sha256):
+        if type(self.request) is not M1Request:
+            raise Refused(REFUSAL)
+        self.require_preread([obj.repo_path for obj in self.request.objects])
+        receipt = self.consume_for_run(execution=execution, approval_sha256=fixture_binding_sha256)
+        return [_read_handle(self._leases[role].fd) for role in M1_ROLES], receipt
+
     def consume_for_run(self, *, execution, approval_sha256: str) -> dict:
         """After the fresh Karl marker and before the runner: durable recheck, single use."""
         if self.receipt is not None:
@@ -331,7 +403,8 @@ class HistoricalLease:
                 raise
             raise Refused(REVOKED) from None
         self.receipt = {
-            "schema_version": "cpw_historical_custody_use_receipt_v1",
+            "schema_version": (M1_RECEIPT if type(self.request) is M1Request
+                               else "cpw_historical_custody_use_receipt_v1"),
             "audit_event_id": event_id,
             "attestation_id": self.attestation.attestation_id,
             "designation_id": self.attestation.designation_id,
@@ -341,6 +414,8 @@ class HistoricalLease:
             "approval_sha256": approval_sha256,
             "not_authority": True,
         }
+        if type(self.request) is M1Request:
+            self.receipt["test_only"] = True
         return dict(self.receipt)
 
 
@@ -353,7 +428,8 @@ class HistoricalSourceGate:
     def designate(self, record) -> None:
         """Owner connection only (same privilege as 02J control); stores an immutable designation."""
         try:
-            record = _parse(HistoricalDesignation, record)
+            request = record.request if isinstance(record, HistoricalDesignation) else record["request"]
+            record = _parse(_designation_model(request), record)
             raw = record.model_dump(mode="json")
             payload = {"record_id": record.record_id, "kind": "designation", "record": raw,
                        "content_sha256": content_hash(raw)}
@@ -374,7 +450,7 @@ class HistoricalSourceGate:
 
     def _durable(self, conn, attestation, request):
         """Current durable authority, revocation, validity and holdout state; never cached."""
-        designation = self._native._record(conn, attestation.designation_id, "designation", HistoricalDesignation)
+        designation = self._native._record(conn, attestation.designation_id, "designation", _designation_model(request))
         custodian = self._native._record(conn, attestation.custodian_id, "custodian", Custodian)
         self._native._unrevoked(conn, attestation.attestation_id)
         contract = self.store._load_contract(conn, request.search_id)
@@ -398,8 +474,16 @@ class HistoricalSourceGate:
                 or content_hash(designation.model_dump(mode="json")) != attestation.designation_sha256
                 or content_hash(request.model_dump(mode="json")) != attestation.request_sha256):
             raise Refused("ATTESTATION_BINDING")
+        m1 = type(request) is M1Request
+        if m1 and (custodian.approval_reference != "TEST-ONLY" or not all(
+            value.startswith("TEST-ONLY-") for value in (custodian.record_id, designation.record_id,
+                                                        attestation.attestation_id)
+        )):
+            raise Refused("M1_TEST_ONLY_CUSTODY_REQUIRED")
+        if m1:
+            self.store._search_active(conn, contract)
         Ed25519PublicKey.from_public_bytes(bytes.fromhex(custodian.public_key_hex)).verify(
-            bytes.fromhex(attestation.signature_hex), signing_bytes(attestation))
+            bytes.fromhex(attestation.signature_hex), signing_bytes(attestation, m1_fixture=m1))
         now = _now(conn)
         for record in (designation, custodian, attestation):
             _valid(record, now)
@@ -410,7 +494,14 @@ class HistoricalSourceGate:
         leases = {}
         try:
             attestation = _parse(HistoricalAttestation, attestation)
-            request = _parse(HistoricalRequest, request)
+            m1 = _schema(request) == M1_SCHEMA
+            request = _parse(M1Request if m1 else HistoricalRequest, request)
+            if (contract.data_version == M1_VERSION) != m1:
+                raise Refused("STUDY_BINDING")
+            if m1:
+                if type(self.store) is not ResearchAuthorityStore:
+                    raise Refused(REFUSAL)
+                request.source.require_partition(contract.split_protocol)
             if repo_sha != _code_sha():
                 raise Refused("STALE_CODE")
             envelope = validate_envelope(envelope, repo_sha=repo_sha)
@@ -425,10 +516,13 @@ class HistoricalSourceGate:
                                         contract.data_version, contract.repo_sha,
                                         contract.split_protocol.final_holdout_ref):
                 raise Refused("STUDY_BINDING")
+            if m1 and (request.instrument not in envelope.surface.instruments
+                       or request.timeframe not in envelope.surface.timeframes):
+                raise Refused("CODE_ENVELOPE_BINDING")
             with self.store._transaction() as conn:
                 self.store._active_envelope(conn, envelope)
                 designation = self._durable(conn, attestation, request)
-                horizon = (protocol.purge_bars + protocol.embargo_bars) * CADENCE["15m"]
+                horizon = (protocol.purge_bars + protocol.embargo_bars) * CADENCE[request.timeframe]
                 window = request.effective_window
                 if any(window.start_ms - horizon < h.end_ms and h.start_ms < window.end_ms + horizon
                        for h in designation.protected_intervals):
@@ -443,6 +537,8 @@ class HistoricalSourceGate:
                 leases[obj.role] = _lease(_components(self.root, obj.repo_path), request.storage)
             lease = HistoricalLease(self, self.root, designation, attestation, request, leases)
             lease.verify_unchanged()
+            if m1:
+                return lease
             catalog = json.loads(_read_handle(leases["d4_catalog_slice"].fd))
             if (catalog.get("slice_identity", {}).get("data_slice_identity") != request.data_identity
                     or catalog.get("normalized", {}).get("sha256") != request.objects[0].sha256.removeprefix("sha256:")
@@ -477,11 +573,34 @@ class HistoricalSourceGate:
                     raise Refused(REVOKED)
                 return self._verify_commit(_transaction[1], receipt)
             with self.store._transaction() as conn:
-                self._verify_commit(conn, receipt)
+                request = self._verify_commit(conn, receipt)
+                if type(request) is M1Request:
+                    return request
         except Refused:
             raise
         except (AuthorityConflict, ValidationError, ValueError, TypeError, KeyError, IndexError, DatabaseError):
             raise Refused(REVOKED) from None
+
+    def m1_observation(self, receipt, observation_sha256, *, record=False):
+        """Bind fixture evidence using the existing native audit transaction."""
+        if type(self.store) is not ResearchAuthorityStore:
+            raise Refused(REVOKED)
+        with self.store._transaction() as conn:
+            request = self._verify_commit(conn, receipt)
+            if type(request) is not M1Request:
+                raise Refused(REVOKED)
+            event_id = receipt["audit_event_id"] + ":m1-observation"
+            payload = {
+                "phase": "m1_fixture_observation",
+                "use_receipt": receipt,
+                "observation_sha256": observation_sha256,
+            }
+            if not self.store._replay(conn, event_id, "nonholdout_read", payload):
+                if not record:
+                    raise Refused("M1_TEST_ONLY_OBSERVATION_ABSENT")
+                self.store._audit(conn, event_id=event_id, event_type="nonholdout_read",
+                                  payload=payload, campaign=self.store._campaign(conn, request.campaign_id))
+            return request
 
     def _verify_commit(self, conn, receipt):
         row = conn.execute("SELECT normalized_payload FROM research_authority.authority_audit "
@@ -495,8 +614,15 @@ class HistoricalSourceGate:
                 or used["approval_sha256"] != receipt["approval_sha256"]
                 or attestation.attestation_id != receipt["attestation_id"]):
             raise Refused(REVOKED)
-        designation = self._native._record(conn, attestation.designation_id, "designation",
-                                           HistoricalDesignation)
+        model = M1Designation if receipt.get("schema_version") == M1_RECEIPT else HistoricalDesignation
+        designation = self._native._record(conn, attestation.designation_id, "designation", model)
+        if model is M1Designation and (
+                used["phase"] != "historical_runner_use"
+                or receipt["audit_event_id"] != "nonholdout-read:" + attestation.attestation_id
+                or used["request_sha256"] != receipt["request_sha256"]
+                or receipt.get("not_authority") is not True
+                or receipt.get("test_only") is not True):
+            raise Refused(REVOKED)
         self._durable(conn, attestation, designation.request)
         if (receipt.get("designation_id") != designation.record_id
                 or receipt.get("campaign_id") != designation.request.campaign_id

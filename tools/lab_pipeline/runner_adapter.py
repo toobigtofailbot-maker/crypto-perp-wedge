@@ -166,9 +166,10 @@ def _execution_binding(
     if type(canonical_15m) is not bool or type(deterministic_seed) is not int:
         raise RunnerAdapterError("explicit boolean mode and integer seed required")
     if custody is not None:
-        from tools.research_autonomy.historical_source_gate import HistoricalLease
+        from tools.research_autonomy.historical_source_gate import HistoricalLease, HistoricalRequest
 
-        if type(custody) is not HistoricalLease or not canonical_15m or custody._root != REPO_ROOT.resolve():
+        if (type(custody) is not HistoricalLease or type(custody.request) is not HistoricalRequest
+                or not canonical_15m or custody._root != REPO_ROOT.resolve()):
             raise RunnerAdapterError("BLOCKED_NONHOLDOUT_CUSTODY: genuine historical lease required")
     paths = (ohlcv_input_path, d4_catalog_slice_path, d2_import_report_path)
     if not canonical_15m:
@@ -991,3 +992,45 @@ def run_product_runner_adapter(
         reconciliation=reconciliation,
         audit_records=audit_records,
     )
+
+
+def run_m1_fixture_adapter(*, repo_root, preparation_root, created_at_utc, handoff, contract, custody):
+    """Run one Governor-mapped cell through the native offline evaluator in memory."""
+    from tools.research_autonomy.envelope import content_hash
+    from tools.research_autonomy.historical_source_gate import HistoricalLease, M1Request, Refused
+    from tools.research_factory.evidence import load_m1_fixture_preparation, verify_m1_fixture_population
+    from tools.research_factory.mapper import prepare_wave
+
+    if (type(custody) is not HistoricalLease or type(custody.request) is not M1Request
+            or custody._root != repo_root.resolve()):
+        raise RunnerAdapterError("M1 requires a native TEST_ONLY source lease")
+    if custody.receipt is not None:
+        raise Refused("ATTESTATION_ALREADY_USED")
+    request = custody.request
+    prepared = prepare_wave(
+        store=custody._gate.store, handoff=handoff, contract=contract, repo_root=repo_root,
+        output_root=preparation_root, created_at_utc=created_at_utc, m1_source=request.source,
+    )
+    spec, vm, sweep = load_m1_fixture_preparation(repo_root, prepared, contract, request)
+    mapping_hash = content_hash(prepared)
+    execution = request.execution_binding(mapping_sha256=mapping_hash, seed=contract.seed)
+    objects, receipt = custody.read_m1_fixture(
+        execution, fixture_binding_sha256=content_hash({"TEST_ONLY": mapping_hash}),
+    )
+    population, aborted = offline_runner._run_m1_fixture_sweep(
+        spec, vm, sweep, source=request.source, objects=objects, seed=contract.seed,
+    )
+    custody.verify_unchanged()
+    report = {
+        "schema_version": "cpw_m1_fixture_observation_v1",
+        "mode": "TEST_ONLY",
+        "not_authority": True,
+        "execution": execution,
+        "custody_receipt": receipt,
+        "population": population,
+        "population_sha256": content_hash(population),
+        "aborted": aborted,
+        "real_scientific_trials": 0,
+    }
+    verify_m1_fixture_population(custody._gate, contract, prepared, report, record=True)
+    return prepared, report

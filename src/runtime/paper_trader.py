@@ -201,6 +201,44 @@ def _serialize_ledger_state(state: LedgerState) -> dict[str, Any]:
     return state.to_dict()
 
 
+def _overlay_target(desired_position, payload, evaluation_time_utc, macro_flags_path):
+    overlay_result = evaluate_overlay(desired_position=payload,
+        evaluation_time_utc=evaluation_time_utc, macro_flags_path=macro_flags_path)
+    size_multiplier = Decimal(str(overlay_result.get("size_multiplier", 1.0)))
+    target = desired_position.target_qty
+    if target is not None:
+        target *= size_multiplier
+    return overlay_result, target, size_multiplier
+
+
+async def run_native_noncapital(config_path: str, *, signal_provider=None, ticks=None, instrument=None):
+    """Manual native profile of this consumer; never uses legacy fills or writers."""
+    from src.execution import nautilus_native_backend as native
+
+    config = _load_json(config_path)
+    native.validate_config(config)
+    provider = signal_provider or build_signal_provider(config.get("signal_provider", "flat"))
+    broker = PaperBroker()
+
+    def policy(tick, current_qty):
+        evaluation = datetime.fromtimestamp(tick.ts_event / 1e9, timezone.utc).isoformat()
+        inputs = {"symbol": "BTCUSDT", "decision_id": "D-0001", "correlation_id": config["trader_id"],
+                  "run_id": config["trader_id"], "source_timeframe": "1m"}
+        desired = provider.compute_desired_position(evaluation_time_utc=evaluation, inputs=inputs)
+        payload = _serialize_desired_position(symbol=desired.symbol, target_qty=desired.target_qty,
+            target_notional=desired.target_notional, timestamp_utc=desired.timestamp_utc,
+            source_timeframe=desired.source_timeframe, decision_id=desired.decision_id,
+            correlation_id=desired.correlation_id, run_id=desired.run_id)
+        _, target, _ = _overlay_target(desired, payload, evaluation, config["macro_flags_path"])
+        if target is None:
+            return None
+        return broker.build_rebalance_order_intent(symbol=desired.symbol, current_qty=current_qty,
+            target_qty=target, evaluation_time_utc=evaluation, decision_id=desired.decision_id,
+            correlation_id=desired.correlation_id)
+
+    return await native.run(config, policy, ticks=ticks, instrument=instrument)
+
+
 def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
     config = _load_json(config_path)
 
@@ -371,16 +409,8 @@ def run_once(config_path: str, bar_close_time_utc: str | None = None) -> int:
         ),
     )
 
-    overlay_result = evaluate_overlay(
-        desired_position=desired_position_payload,
-        evaluation_time_utc=evaluation_time_utc,
-        macro_flags_path=macro_flags_path,
-    )
-
-    size_multiplier = Decimal(str(overlay_result.get("size_multiplier", 1.0)))
-    adjusted_target_qty = desired_position.target_qty
-    if adjusted_target_qty is not None:
-        adjusted_target_qty = adjusted_target_qty * size_multiplier
+    overlay_result, adjusted_target_qty, size_multiplier = _overlay_target(
+        desired_position, desired_position_payload, evaluation_time_utc, macro_flags_path)
 
     overlay_result["target_qty_after_multiplier"] = _decimal_text(adjusted_target_qty)
     overlay_result["desired_position_after_overlay"] = _serialize_desired_position(
@@ -623,12 +653,18 @@ def main() -> int:
     parser.add_argument("--once", action="store_true", help="Run exactly one paper-safe cycle")
     parser.add_argument("--loop", action="store_true", help="Run each UTC 1h bar close")
     parser.add_argument("--once-at", help="Run one cycle at explicit UTC bar-close timestamp (ISO8601)")
+    parser.add_argument("--native-noncapital", action="store_true", help="Manual isolated native sandbox; no private venue")
     parser.add_argument("--config", required=True, help="Path to runtime config JSON")
     args = parser.parse_args()
 
-    selected_modes = sum(bool(mode) for mode in [args.once, args.loop, args.once_at])
+    selected_modes = sum(bool(mode) for mode in [args.once, args.loop, args.once_at, args.native_noncapital])
     if selected_modes != 1:
-        raise SystemExit("Select exactly one mode: --once, --loop, or --once-at")
+        raise SystemExit("Select exactly one mode: --once, --loop, --once-at, or --native-noncapital")
+
+    if args.native_noncapital:
+        import asyncio
+        print(json.dumps(asyncio.run(run_native_noncapital(args.config)), sort_keys=True))
+        return 0
 
     if args.once:
         return run_once(args.config)

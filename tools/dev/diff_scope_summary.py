@@ -221,10 +221,19 @@ def _authorized_canonical_result_population_paths(
     return authorized, rejected
 
 
-def _authorized_path_scope_rejection(path: str, scope: str) -> str | None:
+def _authorized_path_scope_rejection(
+    path: str, scope: str, authorized_package: str | None = None,
+) -> str | None:
     normalized_scope = scope.strip().lower()
     if not normalized_scope:
         return "authorized scope is empty"
+
+    if normalized_scope == "cpw-nautilus-native-first-01":
+        if scope != "cpw-nautilus-native-first-01" or authorized_package != "CPW-NAUTILUS-NATIVE-FIRST-01":
+            return "native consumer scope requires the exact CPW-NAUTILUS-NATIVE-FIRST-01 package and scope"
+        if path in {"src/runtime/paper_trader.py", "src/execution/nautilus_native_backend.py"}:
+            return None
+        return "native consumer scope is limited to its two explicitly authorized runtime files"
 
     if normalized_scope in {
         "strategy-spec-schema",
@@ -330,6 +339,7 @@ def _authorized_general_paths(
     changed_files: Sequence[str],
     authorized_paths: Sequence[str],
     authorized_scope: str | None,
+    authorized_package: str | None,
 ) -> tuple[list[dict[str, Any]], list[dict[str, str]]]:
     changed_set = {_normalize_path(path) for path in changed_files}
     authorized: list[dict[str, Any]] = []
@@ -341,7 +351,7 @@ def _authorized_general_paths(
         if path not in changed_set:
             rejected.append({"path": path, "scope": scope, "reason": "path not changed"})
             continue
-        scope_rejection = _authorized_path_scope_rejection(path, scope)
+        scope_rejection = _authorized_path_scope_rejection(path, scope, authorized_package)
         if scope_rejection:
             rejected.append({"path": path, "scope": scope, "reason": scope_rejection})
             continue
@@ -431,6 +441,7 @@ def build_summary(args: argparse.Namespace) -> dict[str, Any]:
         changed_files,
         args.authorized_path,
         args.authorized_scope,
+        args.authorized_package,
     )
     authorized_general_paths = {item["path"] for item in authorized_general_writes}
     authorized_paths = authorized_canonical_paths | authorized_general_paths

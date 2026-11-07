@@ -1,5 +1,56 @@
 # Runbook (Ops)
 
+## Manual isolated native consumer (default OFF)
+
+CPW-NAUTILUS-NATIVE-FIRST-01 adds a noncapital profile to the existing consumer.
+Use the isolated Python3.12.10/Nautilus1.231.0 environment qualified by
+`tools/nautilus_adapter/requirements-win-py312.lock.txt`. No root dependency change.
+Create a task-owned JSON outside tracked configs, for example:
+
+```json
+{"profile":"NONCAPITAL_NATIVE","trader_id":"CPWNATIVE-a1b2c3d4e5f6","macro_flags_path":"/tmp/task/macro_flags.json","public_data":true,"duration_seconds":10}
+```
+
+Use a NEW random12-hex trader suffix for each producer. `macro_flags_path` points
+only to the authorized task-owned macro flags; existing missing-input overlay
+behavior remains unchanged. The provider defaults to the existing `flat` provider.
+
+```text
+python -B -m src.runtime.paper_trader --native-noncapital --config <task-profile.json>
+```
+
+This runs public native data and a separate LOCAL CPWSIM venue only, for at most
+60seconds. It registers no Binance execution client, loads no key/environment
+credential, and permits no actual paper/testnet/LIVE order. Do not add arbitrary
+client/endpoint/credential options: they refuse before native factory creation.
+Native local bounds are .001 BTC, one open/close cycle, 1x,10000 disposable USDT,
+250USDT maximum notional,4bps declared fixture fee. No funding/liquidation/reversal.
+
+Optional `"persist":true` uses ONLY a newly provisioned task-owned Redis on
+127.0.0.1:6379 with AOF enabled and appendfsync=always. Never point it at a store
+containing real account data. Native keys use `trader-<trader_id>:`; an existing
+namespace rejects producer restart. One atomic CPW producer claim prevents two
+producers sharing that namespace; it stores no economic state or permit. For
+inspection, first make this disposable backend's default ACL read-only
+(-@all,+@read, plus ping/info/config|get/acl|getuser/client|setinfo/client|setname).
+Then, in a fresh process:
+
+```text
+python -B -m tools.nautilus_adapter.native_consumer_acceptance --config <task-profile.json> --recover
+```
+
+Recovery never starts an execution client or issues commands. Unsupported,
+incomplete or unknown native history refuses; successful inspection still returns
+NO_NEW_ORDERS/NO_RESUME. It is not authenticated venue reconciliation or a permit.
+Synthetic acceptance uses the same real consumer with `public_data` absent/false
+and `--synthetic-case open` or `flat`; it injects only a test SignalProvider and
+native synthetic quotes. Fixture evidence is not scientific or private evidence.
+
+Rollback: omit the native flag and use the unchanged legacy entry. Stop/remove
+only task-owned node/services; do not flush existing stores or remove historical
+proofs. No schedule, unattended activation, credentials, economic resume, capital
+or trading approval is provided by these instructions.
+
 ## Start/Stop
 
 * Start:

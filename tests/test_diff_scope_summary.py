@@ -1543,3 +1543,44 @@ def test_default_mode_remains_working_tree_and_staged(tmp_path, capsys):
     assert payload["tracked_changed_files"] == ["README.md"]
     assert payload["numstat"]["mode"] == "working_tree_and_staged"
     assert payload["numstat"]["committed"] == []
+
+
+NATIVE_SCOPE = "cpw-nautilus-native-first-01"
+NATIVE_PACKAGE = "CPW-NAUTILUS-NATIVE-FIRST-01"
+NATIVE_PATHS = ("src/runtime/paper_trader.py", "src/execution/nautilus_native_backend.py")
+
+
+def test_native_scope_authorizes_only_its_two_exact_paths(tmp_path, capsys):
+    repo = _repo(tmp_path)
+    for path in NATIVE_PATHS:
+        _write(repo / path, "# authorized\n")
+    args = ["--repo-root", str(repo), "--json", "--check-forbidden", "--authorized-package",
+            NATIVE_PACKAGE, "--authorized-scope", NATIVE_SCOPE]
+    for path in NATIVE_PATHS:
+        args += ["--authorized-path", path]
+    exit_code, stdout, _ = _run(args, capsys)
+    assert exit_code == 0
+    assert [x["path"] for x in json.loads(stdout)["authorized_path_writes"]["authorized"]] == list(NATIVE_PATHS)
+
+
+@pytest.mark.parametrize("package,scope,path", [
+    (None, None, None),
+    ("OTHER-PACKAGE", NATIVE_SCOPE, NATIVE_PATHS[0]),
+    (NATIVE_PACKAGE, "runtime", NATIVE_PATHS[0]),
+    (NATIVE_PACKAGE, NATIVE_SCOPE, "src/execution/nautilus_recovery_hold_guard.py"),
+    (NATIVE_PACKAGE, NATIVE_SCOPE, "src/runtime/scheduler.py"),
+    (NATIVE_PACKAGE, NATIVE_SCOPE, "lib/backtest.py"),
+    (NATIVE_PACKAGE, NATIVE_SCOPE, "configs/paper_runtime.json"),
+])
+def test_native_scope_keeps_wrong_or_unlisted_authority_forbidden(tmp_path, capsys, package, scope, path):
+    repo = _repo(tmp_path)
+    changed = path or NATIVE_PATHS[0]
+    _write(repo / changed, "# protected\n")
+    args = ["--repo-root", str(repo), "--json", "--check-forbidden"]
+    if package:
+        args += ["--authorized-package", package, "--authorized-scope", scope, "--authorized-path", path]
+    exit_code, stdout, _ = _run(args, capsys)
+    assert exit_code == 1
+    result = json.loads(stdout)
+    assert result["authorized_path_writes"]["authorized"] == []
+    assert [x["path"] for x in result["forbidden_matches"]] == [changed]

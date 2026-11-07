@@ -164,9 +164,11 @@ def build_exchange(ccxt_module: Any | None = None) -> Any:
     return exchange
 
 
-def normalize_raw_row(raw: dict[str, Any], *, page_index: int, row_index: int) -> dict[str, Any]:
+def normalize_raw_row(
+    raw: dict[str, Any], *, page_index: int, row_index: int, expected_symbol: str = DEFAULT_SYMBOL
+) -> dict[str, Any]:
     symbol = str(raw.get("symbol", "")).strip()
-    if symbol != DEFAULT_SYMBOL:
+    if symbol != expected_symbol:
         raise FundingIngestError(f"unexpected funding symbol {symbol!r}")
     try:
         funding_time_ms = int(str(raw["fundingTime"]).strip())
@@ -181,7 +183,7 @@ def normalize_raw_row(raw: dict[str, Any], *, page_index: int, row_index: int) -
     return {
         "exchange": "binance",
         "market_type": DEFAULT_MARKET_TYPE,
-        "symbol": DEFAULT_SYMBOL,
+        "symbol": symbol,
         "data_type": DEFAULT_DATA_TYPE,
         "funding_time_utc": _iso(_utc_from_ms(nominal_funding_time_ms)),
         "funding_time_ms": nominal_funding_time_ms,

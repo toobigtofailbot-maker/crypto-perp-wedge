@@ -43,9 +43,10 @@ def fixture_inputs(count=2, *, bad=None):
             if bad == "reordered" and previous is not None:
                 now = previous - 1
             previous = now
+            bid, ask = {"off_tick": ("99999.01", "100000.00"),
+                        "over_notional": ("250000.0", "250000.1")}.get(bad, ("99999.0", "100000.0"))
             yield QuoteTick(InstrumentId.from_str("BTCUSDT-PERP.BINANCE"),
-                Price.from_str("99999.01" if bad == "off_tick" else "99999.0"),
-                Price.from_str("100000.00" if bad == "off_tick" else "100000.0"),
+                Price.from_str(bid), Price.from_str(ask),
                 Quantity.from_str("1.000"), Quantity.from_str("1.000"), now, now)
     return source, ticks()
 
@@ -104,6 +105,11 @@ def test_duplicate_quote_has_no_duplicate_economic_effect(tmp_path):
 def test_off_tick_price_refuses_without_rounding(tmp_path):
     with pytest.raises(ValueError, match="price increment"):
         invoke(tmp_path, bad="off_tick")
+
+
+def test_over_cap_quote_cannot_enter_sandbox(tmp_path):
+    with pytest.raises(ValueError, match="exceeds notional bound"):
+        invoke(tmp_path, bad="over_notional")
 
 
 @pytest.mark.parametrize("targets", [("0.002",), ("-0.001",), ("NaN",), ("0.001", "0", "0.001")])

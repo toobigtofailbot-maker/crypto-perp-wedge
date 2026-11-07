@@ -12,6 +12,7 @@ from src.execution.nautilus_recovery_hold_guard import HoldDecision, refuse_befo
 VERSION = "1.231.0"
 LOCAL_ID = "BTCUSDT-PERP.CPWSIM"
 PUBLIC_ID = "BTCUSDT-PERP.BINANCE"
+QUANTITY = D("0.001")
 
 
 def require(condition, reason):
@@ -168,10 +169,11 @@ async def run(config, policy, *, ticks=None, instrument=None):
                             and now - tick.ts_event <= 5_000_000_000
                             and tick.ts_event <= tick.ts_init <= now,
                             f"stale/duplicate/reordered quote: event={tick.ts_event} init={tick.ts_init} now={now} previous={self.previous}")
-                    require(0 < tick.bid_price <= tick.ask_price and tick.bid_size >= local.min_quantity
-                            and tick.ask_size >= local.min_quantity, "invalid native quote")
+                    require(0 < tick.bid_price <= tick.ask_price and tick.bid_size.as_decimal() >= QUANTITY
+                            and tick.ask_size.as_decimal() >= QUANTITY, "invalid native quote")
                     require(all(p.as_decimal() % local.price_increment.as_decimal() == 0
                                 for p in (tick.bid_price, tick.ask_price)), "native price increment mismatch")
+                    require(QUANTITY * tick.ask_price.as_decimal() <= D(250), "native quote exceeds notional bound")
                     self.previous = tick.ts_event
                     self.previous_tick = key
                     observations.append(QuoteTick.to_dict(tick))
@@ -189,14 +191,14 @@ async def run(config, policy, *, ticks=None, instrument=None):
                     qty = intent.qty
                     side = intent.side.value
                     target = current + (qty if side == "BUY" else -qty)
-                    require(not self.closed and qty == D("0.001") and intent.symbol == "BTCUSDT"
+                    require(not self.closed and qty == QUANTITY and intent.symbol == "BTCUSDT"
                             and ((not self.opened and current == 0 and target == qty and side == "BUY")
                                  or (self.opened and current == qty and target == 0 and side == "SELL")),
                             "unsupported target/history; HOLD")
                     require(qty >= local.min_quantity and qty % local.size_increment.as_decimal() == 0
                             and (local.max_quantity is None or qty <= local.max_quantity.as_decimal())
-                            and qty * tick.bid_price.as_decimal() >= local.min_notional.as_decimal()
-                            and qty * tick.ask_price.as_decimal() <= D(250), "native quantity/notional bounds")
+                            and qty * tick.bid_price.as_decimal() >= local.min_notional.as_decimal(),
+                            "native quantity/notional bounds")
                     order = self.order_factory.market(local.id,
                         OrderSide.BUY if side == "BUY" else OrderSide.SELL,
                         local.make_qty(qty), client_order_id=ClientOrderId(intent.client_order_id),
@@ -232,13 +234,18 @@ async def run(config, policy, *, ticks=None, instrument=None):
             raise failure[0]
         require(bool(observations), "no native data reached consumer")
         require(node.kernel.cache.check_integrity(), "native cache integrity")
+        orders = node.kernel.cache.orders()
+        require({str(o.client_order_id) for o in orders} == set(decisions)
+                and all(o.status.name == "FILLED" for o in orders), "missing or incomplete native fill; HOLD")
         return {**snapshot(node), "source": "PUBLIC_UNSIGNED" if ticks is None else "SYNTHETIC_NATIVE",
                 "observations": observations, "intent_ids": decisions}
     finally:
-        if task is not None:
-            await node.stop_async()
-            await asyncio.wait_for(task, 5)
-        node.kernel.dispose()
+        try:
+            if task is not None:
+                await node.stop_async()
+                await asyncio.wait_for(task, 5)
+        finally:
+            node.kernel.dispose()
 
 
 async def recover(config):
@@ -257,7 +264,7 @@ async def recover(config):
         require(position.opening_order_id in ids
                 and (position.closing_order_id is None or position.closing_order_id in ids),
                 "incomplete native recovery order lineage; HOLD")
-        require(all(o.status.name == "FILLED" and o.quantity.as_decimal() == D("0.001")
+        require(all(o.status.name == "FILLED" and o.quantity.as_decimal() == QUANTITY
                     and o.order_type.name == "MARKET" for o in cache.orders())
                 and state["quantity"] in ("0", "0.001")
                 and all(str(o.instrument_id) == LOCAL_ID for o in cache.orders()), "unknown native state; HOLD")

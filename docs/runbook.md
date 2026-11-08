@@ -649,7 +649,10 @@ fixture supplies instrument filters. Orders are local CPWSIM only.
 persisted state with the default Redis user restricted to the read-only ACL
 used by the existing native recovery test. It registers zero execution clients
 and returns HOLD. Recovery supports a single uninterrupted position lifecycle
-per symbol, with a possible close, and refuses resized or reopened histories.
-Do not reset a namespace to resume it. Fixture observations are for Side 25
+per symbol, with a possible close. Resized, reopened, incomplete or unknown
+histories remain frozen in HOLD with NO_NEW_ORDERS and NO_RESUME. The limited
+P1-G acceptance defers complete multi-cycle economic history after process
+loss. Full historical recovery and authenticated venue reconciliation remain
+future operational-readiness gates. Do not reset a namespace to resume it. Fixture observations are for Side 25
 read-only review and carry no research, promotion, credential, or trading
 authority.

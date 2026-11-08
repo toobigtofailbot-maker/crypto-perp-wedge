@@ -16,15 +16,15 @@ helpers = runpy.run_path(str(Path(__file__).with_name("test_nautilus_native_port
 isolated_redis = helpers["isolated_redis"]
 
 CRASH_PRODUCER = """
-import sys, time
+import json, sys, time
 from src.execution import nautilus_native_backend as native
 from src.runtime import paper_trader
 
 observe = native._portfolio_observation
+last_cycle = int(sys.argv[2])
 def pause(node, request, *args, **kwargs):
-    import json
     evidence = observe(node, request, *args, **kwargs)
-    if request["cycle_index"] == 2:
+    if request["cycle_index"] == last_cycle:
         print("P1_BEFORE_KILL:" + json.dumps(evidence), flush=True)
         time.sleep(30)
     return evidence
@@ -35,24 +35,52 @@ paper_trader.main()
 """
 
 
+RECOVERY_READER = """
+import json, sys
+from src.execution import nautilus_native_backend as native
+from src.runtime import paper_trader
+
+recover = native._recover_portfolio
+def observe(node, *args):
+    try:
+        return recover(node, *args)
+    finally:
+        engine = node.kernel.exec_engine
+        print("P1_RECOVERY_EFFECTS:" + json.dumps({
+            "commands": engine.command_count,
+            "events": engine.event_count,
+            "clients": len(engine.registered_clients),
+        }), file=sys.stderr, flush=True)
+
+native._recover_portfolio = observe
+sys.argv = ["paper_trader", "--native-portfolio-recover", "--config", sys.argv[1]]
+paper_trader.main()
+"""
+
+
 @isolated_redis
-def test_two_symbol_process_kill_and_fresh_read_only_hold(tmp_path):
+@pytest.mark.parametrize("history", ["supported-open-closed", "unsupported-seven-fill"])
+def test_two_symbol_process_kill_and_fresh_read_only_hold(tmp_path, history):
     import redis
 
     path = tmp_path / "requests.json"
-    rows = helpers["requests"](targets=[("0.001", "0"), ("0.001", "0.40"), ("0", "0.40")])
+    supported = history == "supported-open-closed"
+    targets = [("0.001", "0"), ("0.001", "0.40"), ("0", "0.40")] if supported else None
+    rows = helpers["requests"](targets=targets)
+    expected_fills = 3 if supported else 7
     path.write_text(json.dumps(rows))
     profile = contract.profile(rows[0])
     prefix = f"trader-{profile['trader_id']}:"
     controller = redis.Redis(port=16379, username="controller", socket_timeout=2)
-    process = subprocess.Popen([sys.executable, "-B", "-c", CRASH_PRODUCER, str(path)],
+    process = subprocess.Popen([sys.executable, "-B", "-c", CRASH_PRODUCER, str(path), str(len(rows) - 1)],
                                text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     try:
         for _ in range(500):
             keys = list(controller.scan_iter(prefix + "*"))
             order_keys = [key for key in keys if b":orders:" in key]
-            if len(order_keys) == 3 and all(controller.llen(key) >= 3 for key in order_keys):
-                if len([key for key in keys if b":positions:" in key]) == 2:
+            if len(order_keys) == expected_fills and all(controller.llen(key) >= 3 for key in order_keys):
+                if (len([key for key in keys if b":positions:" in key]) == 2
+                        and controller.llen(prefix + "accounts:CPWSIM-001") == expected_fills + 1):
                     break
             if process.poll() is not None:
                 break
@@ -71,7 +99,8 @@ def test_two_symbol_process_kill_and_fresh_read_only_hold(tmp_path):
         assert process.returncode != 0
         original = json.loads(stdout.split("P1_BEFORE_KILL:")[-1])
         assert original["execution"]["registered_clients"] == 1
-        assert len(original["portfolio"]["account_events"]) > 1
+        assert sum(len(item["fills"]) for item in original["per_symbol"]) == expected_fills
+        assert len(original["portfolio"]["account_events"]) == expected_fills + 1
         assert {p["position_qty"] for p in original["per_symbol"]} == {"0", "0.40"}
         assert dump() == before
         controller.acl_setuser("default", enabled=True, nopass=True, keys=["*"],
@@ -80,23 +109,42 @@ def test_two_symbol_process_kill_and_fresh_read_only_hold(tmp_path):
         with pytest.raises(redis.exceptions.NoPermissionError):
             redis.Redis(port=16379).set("cpw:laneb:p1:acl-negative", "refused")
 
-        recovered = helpers["launch"](path, "--native-portfolio-recover")
+        recovered = subprocess.run([sys.executable, "-B", "-c", RECOVERY_READER, str(path)],
+                                   capture_output=True, text=True, timeout=55)
+        after = dump()
+        producer = helpers["launch"](path)
+        assert producer.returncode and "no automatic resume" in producer.stderr
+        assert dump() == after == before
+        effects = [json.loads(line.removeprefix("P1_RECOVERY_EFFECTS:"))
+                   for line in recovered.stderr.splitlines() if line.startswith("P1_RECOVERY_EFFECTS:")]
+        assert effects == [{"commands": 0, "events": 0, "clients": 0}], recovered.stderr
+        if evidence := os.environ.get("CPW_LANEB_P1_EVIDENCE"):
+            out = Path(evidence) / history
+            out.mkdir(parents=True, exist_ok=True)
+            (out / "physical-request.json").write_bytes(path.read_bytes())
+            (out / "physical-producer.json").write_text(json.dumps(original, indent=2))
+            (out / "physical-recovery.json").write_text(recovered.stdout)
+            (out / "physical-recovery.stderr").write_text(recovered.stderr)
+            (out / "physical-producer-refusal.stderr").write_text(producer.stderr)
+            (out / "physical-kill.json").write_text(json.dumps({
+                "pid": process.pid, "exit": process.returncode, "stderr": stderr,
+                "recovery_exit": recovered.returncode, "recovery_effects": effects,
+                "durable_sha256_before": {key.decode(): sha256(value).hexdigest()
+                                          for key, value in before.items()},
+                "durable_sha256_after": {key.decode(): sha256(value).hexdigest()
+                                         for key, value in after.items()},
+            }, indent=2))
+        if not supported:
+            assert recovered.returncode != 0
+            assert "unsupported resized or reopened native position history; HOLD" in recovered.stderr
+            assert '"schema": "native_execution_observation_v1"' not in recovered.stdout
+            return
+
         assert recovered.returncode == 0, recovered.stdout + recovered.stderr
         restore = json.loads(recovered.stdout.splitlines()[-1])["observations"][0]
         assert restore["execution"]["commands"] == restore["execution"]["registered_clients"] == 0
         assert restore["risk"]["disposition"] == "HOLD" and restore["risk"]["no_resume"]
-        if evidence := os.environ.get("CPW_LANEB_P1_EVIDENCE"):
-            out = Path(evidence)
-            (out / "physical-request.json").write_bytes(path.read_bytes())
-            (out / "physical-producer.json").write_text(json.dumps(original, indent=2))
-            (out / "physical-recovery.json").write_text(recovered.stdout)
-            (out / "physical-kill.json").write_text(json.dumps({
-                "pid": process.pid, "exit": process.returncode, "stderr": stderr,
-                "durable_sha256_before": {key.decode(): sha256(value).hexdigest()
-                                          for key, value in before.items()},
-                "durable_sha256_after": {key.decode(): sha256(value).hexdigest()
-                                         for key, value in dump().items()},
-            }, indent=2))
+        assert "NO_NEW_ORDERS / NO_RESUME" in restore["risk"]["authority"]
         assert restore["portfolio"] == original["portfolio"]
         for left, right in zip(original["per_symbol"], restore["per_symbol"], strict=True):
             for field in ("orders", "fills", "order_events", "positions", "position_qty", "position_snapshots"):
@@ -104,13 +152,13 @@ def test_two_symbol_process_kill_and_fresh_read_only_hold(tmp_path):
         assert dump() == before
         repeated = helpers["launch"](path, "--native-portfolio-recover")
         assert json.loads(repeated.stdout.splitlines()[-1])["observations"] == [restore]
-        producer = helpers["launch"](path)
-        assert producer.returncode and "no automatic resume" in producer.stderr
         assert dump() == before
 
         controller.delete(order_keys[0])
+        damaged = dump()
         corrupt = helpers["launch"](path, "--native-portfolio-recover")
         assert corrupt.returncode and "HOLD" in corrupt.stderr
+        assert dump() == damaged
         if evidence:
             (out / "physical-negative.log").write_text(
                 producer.stderr + "\n" + corrupt.stderr)
@@ -119,6 +167,8 @@ def test_two_symbol_process_kill_and_fresh_read_only_hold(tmp_path):
             process.kill()
             process.communicate(timeout=10)
         controller.acl_setuser("default", enabled=True, nopass=True, keys=["*"], commands=["+@all"])
+
+
 @isolated_redis
 def test_reopened_history_refuses_under_read_only_acl(tmp_path):
     import redis

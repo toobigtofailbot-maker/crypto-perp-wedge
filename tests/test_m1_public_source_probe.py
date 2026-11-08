@@ -112,3 +112,30 @@ def test_bad_funding_is_rejected(mutation):
     exchange.events[-1].update(mutation)
     with pytest.raises(FundingIngestError):
         exchange.probe()
+
+
+@pytest.mark.parametrize("mutation", ["symbol", "clock", "rate", "gap", "offset"])
+def test_full_public_coverage_refuses_cross_cell_or_corrupt_source(mutation):
+    from tools.data_ingestion.m1_public_source_probe import validate_public_coverage
+
+    result = Exchange("ETHUSDT").probe()
+    inputs = {
+        "symbol": "ETHUSDT", "clock": "15m", "start_ms": START, "end_ms": END,
+        "klines": result["klines"]["15m"], "funding": result["funding_events"],
+    }
+    assert validate_public_coverage(**inputs) == {
+        "bars": 64, "funding_events": 2, "missing_settlement_marks": 2,
+        "nonzero_settlement_offsets": 2,
+    }
+    if mutation == "symbol":
+        inputs["symbol"] = "BTCUSDT"
+    elif mutation == "clock":
+        inputs["clock"] = "1h"
+    elif mutation == "rate":
+        inputs["funding"][0]["funding_rate"] = "NaN"
+    elif mutation == "gap":
+        inputs["klines"].pop()
+    else:
+        inputs["funding"][0]["exchange_funding_time_offset_ms"] = 0
+    with pytest.raises(FundingIngestError):
+        validate_public_coverage(**inputs)

@@ -17,7 +17,10 @@ from tools.research_search.contract import (
 )
 
 from .envelope import canonical_json, validate_envelope
-from .m1_source import M1_SOURCE_CLASS, M1_VERSION, M1Intent, M1Source, exact_json
+from .m1_source import (
+    M1_REAL_SOURCE_CLASS, M1_REAL_VERSION, M1_SOURCE_CLASS, M1_VERSION,
+    M1HistoricalIntent, M1HistoricalSource, M1Intent, M1Source, exact_json,
+)
 from .models import BoundedSearchRequest, DurableLineageSnapshot, EvidenceBinding
 
 
@@ -67,11 +70,15 @@ def _subset(requested, approved):
 
 def validate_inputs(intent, envelope, request, *, repo_root: Path):
     request = BoundedSearchRequest.model_validate_json(request.model_dump_json())
-    m1 = request.data_version == M1_VERSION
-    intent_model = M1Intent if m1 else BoundedResearchIntentV1
-    intent = intent_model.model_validate_json(intent.model_dump_json())
-    if (request.data_source_class == M1_SOURCE_CLASS) != m1:
+    m1_fixture = request.data_version == M1_VERSION
+    m1_historical = request.data_version == M1_REAL_VERSION
+    m1 = m1_fixture or m1_historical
+    if ((request.data_source_class == M1_SOURCE_CLASS) != m1_fixture
+            or (request.data_source_class == M1_REAL_SOURCE_CLASS) != m1_historical):
         raise ValueError("M1 version/source class mismatch")
+    intent_model = (M1HistoricalIntent if m1_historical else M1Intent if m1_fixture
+                    else BoundedResearchIntentV1)
+    intent = intent_model.model_validate_json(intent.model_dump_json())
     head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repo_root, text=True).strip()
     envelope = validate_envelope(envelope, repo_sha=head)
     if intent.repo_sha != head or intent.content_sha256 != semantic_content_sha256(intent) or request.intent_sha256 != intent.content_sha256:
@@ -122,16 +129,19 @@ def validate_inputs(intent, envelope, request, *, repo_root: Path):
         raise ValueError("strategy spec identity mismatch")
     data = verify_evidence(repo_root, request.data_evidence, repo_sha=head)
     if m1:
-        source = M1Source.model_validate_json(canonical_json(exact_json(data)))
+        source_model = M1HistoricalSource if m1_historical else M1Source
+        source = source_model.model_validate_json(canonical_json(exact_json(data)))
         if ((request.instrument, request.venue, request.market_type, intent.primary_timeframe,
              request.data_identity, intent.instrument_scope)
                 != (source.instrument, source.venue, source.market_type, source.timeframe,
                     source.identity, source.instrument + "_BINANCE_USDTM_PERP")
-                or not all(ident.startswith("TEST-ONLY-") for ident in
-                           (request.campaign_id, request.search_id))):
-            raise ValueError("M1 fixture contract/source identity mismatch")
+                or any(ident.startswith("TEST-ONLY-") != m1_fixture for ident in
+                       (request.campaign_id, request.search_id))):
+            raise ValueError("M1 contract/source identity mismatch")
         source.require_partition(request.split_protocol)
         source.require_spec(strategy)
+        if m1_historical:
+            source.require_protocol(envelope.scientific_protocol)
     return intent, envelope, request
 
 

@@ -108,3 +108,40 @@ def _check_bar(row, *, opened, step, clock):
         and volume >= 0
     ):
         raise FundingIngestError(f"{clock} bar contains invalid OHLCV")
+
+
+def validate_public_coverage(*, symbol, clock, start_ms, end_ms, klines, funding):
+    """Verify a complete public candidate grid, retaining observed funding offsets."""
+    step = _BAR_MS[clock]
+    if not (0 < start_ms < end_ms and start_ms % FUNDING_INTERVAL_MS == 0
+            and end_ms % FUNDING_INTERVAL_MS == 0):
+        raise FundingIngestError("public coverage window must be aligned and nonempty")
+    times = range(start_ms, end_ms, step)
+    if len(klines) != len(times):
+        raise FundingIngestError(f"{clock} bar count differs from the requested grid")
+    for row, opened in zip(klines, times, strict=True):
+        _check_bar(row, opened=opened, step=step, clock=clock)
+
+    events = range(start_ms, end_ms, FUNDING_INTERVAL_MS)
+    if len(funding) != len(events):
+        raise FundingIngestError("funding event count differs from the requested grid")
+    for event, nominal in zip(funding, events, strict=True):
+        observed = event["exchange_funding_time_ms"]
+        offset = observed - nominal
+        rate = Decimal(event["funding_rate"])
+        if (event["symbol"] != symbol or event["raw_symbol"] != symbol
+                or event["funding_time_ms"] != nominal or type(observed) is not int
+                or not start_ms <= observed < end_ms
+                or offset != event["exchange_funding_time_offset_ms"]
+                or abs(offset) > MAX_EXCHANGE_TIMESTAMP_OFFSET_MS
+                or not rate.is_finite() or not -1 <= rate <= 1):
+            raise FundingIngestError("public funding symbol, rate or settlement grid mismatch")
+        mark = event["mark_price"]
+        if mark is not None and not (Decimal(mark).is_finite() and Decimal(mark) > 0):
+            raise FundingIngestError("public funding mark must be positive")
+    return {
+        "bars": len(klines),
+        "funding_events": len(funding),
+        "missing_settlement_marks": sum(event["mark_price"] is None for event in funding),
+        "nonzero_settlement_offsets": sum(event["exchange_funding_time_offset_ms"] != 0 for event in funding),
+    }

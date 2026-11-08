@@ -34,7 +34,7 @@ from psycopg.pq import TransactionStatus
 from pydantic import Field, ValidationError, model_validator
 
 from .envelope import canonical_json, content_hash, validate_envelope
-from .m1_source import M1_ROOT, M1_VERSION, M1Source, Symbol
+from .m1_source import M1_REAL_ROOT, M1_REAL_VERSION, M1_ROOT, M1_VERSION, M1HistoricalSource, M1Source, Symbol
 from .models import Count, Identity, Positive, RepoSha, Sha, StrictModel
 from .nonholdout_qualification import (
     CADENCE,
@@ -50,6 +50,8 @@ from .store import AuthorityConflict, ResearchAuthorityStore
 
 SCHEMA = "cpw_nonholdout_historical_v1"
 M1_SCHEMA = "cpw_m1_fixture_custody_v1"
+M1_REAL_SCHEMA = "cpw_m1_historical_custody_v1"
+M1_REAL_BLOCK = "BLOCKED_M1_REAL_GATE_C_SIGNATURE_AND_EXECUTE_AUTHORITY"
 M1_RECEIPT = "cpw_m1_fixture_reader_use_v1"
 M1_ROLES = ("ohlcv_input", "funding_input")
 ROLES = ("ohlcv_input", "d4_catalog_slice", "d2_import_report")
@@ -168,6 +170,38 @@ class M1Request(HistoricalRequest):
         } | {obj.role + "_path": obj.repo_path for obj in self.objects} | {
             obj.role + "_sha256": obj.sha256 for obj in self.objects
         }
+
+
+class M1HistoricalObject(M1Object):
+    @model_validator(mode="after")
+    def role_path(self):
+        parts = self.repo_path.split("/")
+        if (not self.repo_path.startswith(M1_REAL_ROOT + "sources/")
+                or not self.repo_path.endswith("/" + self.role + ".json")
+                or any(part in {"", ".", ".."} for part in parts)):
+            raise ValueError("M1 historical source must use its isolated role path")
+        return self
+
+
+class M1HistoricalRequest(M1Request):
+    schema_version: Literal["cpw_m1_historical_custody_v1"]
+    purpose: Literal["m1_historical_study_read"]
+    data_version: Literal["cpw_m1_historical_source_v1"]
+    objects: tuple[M1HistoricalObject, M1HistoricalObject]
+    source: M1HistoricalSource
+    owner_execution_marker_sha256: Sha
+
+    @model_validator(mode="after")
+    def closed_dependencies(self):
+        source = self.source
+        if ((self.data_identity, self.instrument, self.timeframe, self.effective_window)
+                != (source.identity, source.instrument, source.timeframe, source.effective_window)
+                or self.original_parent_sha256 != self.strategy_spec_hash
+                or tuple(obj.role for obj in self.objects) != M1_ROLES
+                or tuple(obj.sha256 for obj in self.objects) != (source.ohlcv_sha256, source.funding_sha256)
+                or any(value.startswith("TEST-ONLY-") for value in (self.campaign_id, self.search_id))):
+            raise ValueError("M1 historical request/source identity mismatch")
+        return self
 
 
 class HistoricalDesignation(StrictModel):
@@ -493,6 +527,10 @@ class HistoricalSourceGate:
         """Custodial integrity read only: verifies and leases bytes; grants no runner use."""
         leases = {}
         try:
+            if _schema(request) == M1_REAL_SCHEMA or getattr(contract, "data_version", None) == M1_REAL_VERSION:
+                _parse(M1HistoricalRequest, request)
+                # The committed Gate C write audit does not verify a historical study signature.
+                raise Refused(M1_REAL_BLOCK)
             attestation = _parse(HistoricalAttestation, attestation)
             m1 = _schema(request) == M1_SCHEMA
             request = _parse(M1Request if m1 else HistoricalRequest, request)

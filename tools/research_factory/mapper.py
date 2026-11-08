@@ -13,7 +13,10 @@ from pathlib import Path
 
 from tools.research_autonomy.contract_builder import contract_from_payload
 from tools.research_autonomy.handoff import replay_handoff, validate_handoff
-from tools.research_autonomy.m1_source import M1_MAPPING, M1_ROOT, M1_VERSION, M1Source
+from tools.research_autonomy.m1_source import (
+    M1_MAPPING, M1_REAL_MAPPING, M1_REAL_ROOT, M1_REAL_SPEC_REF, M1_REAL_VERSION, M1_ROOT, M1_VERSION,
+    M1HistoricalSource, M1Source,
+)
 from tools.research_runner import run_offline_sweep as runner
 from tools.research_search.contract import sha256_payload
 
@@ -169,14 +172,16 @@ def prepare_wave(
     if frozen.contract_hash != handoff.contract_hash:
         raise MappingBlocked("contract/handoff mismatch")
     governor = replay_handoff(handoff, store=store, repo_root=root)
-    if (frozen.data_version == M1_VERSION) != (m1_source is not None) or (
+    historical = frozen.data_version == M1_REAL_VERSION
+    if (frozen.data_version in {M1_VERSION, M1_REAL_VERSION}) != (m1_source is not None) or (
         m1_source is not None and original is not None
     ):
         raise MappingBlocked("explicit M1 mapping required; routes cannot be combined")
     m1 = m1_source is not None
     if m1:
         try:
-            source = M1Source.model_validate_json(m1_source.model_dump_json())
+            source_model = M1HistoricalSource if historical else M1Source
+            source = source_model.model_validate_json(m1_source.model_dump_json())
             if source.identity != frozen.data_identity:
                 raise ValueError("M1 frozen source identity mismatch")
             source.require_partition(frozen.split_protocol)
@@ -322,8 +327,8 @@ def prepare_wave(
     relative = destination.relative_to(root)
     if relative.parts[0] != "scratch" or ".." in relative.parts:
         raise MappingBlocked("single isolated scratch namespace required")
-    if m1 and not (relative.as_posix() + "/").startswith(M1_ROOT):
-        raise MappingBlocked("M1 output must stay in its TEST_ONLY scratch namespace")
+    if m1 and not (relative.as_posix() + "/").startswith(M1_REAL_ROOT if historical else M1_ROOT):
+        raise MappingBlocked("M1 output must stay in its versioned scratch namespace")
     cursor = root
     import stat
 
@@ -351,7 +356,8 @@ def prepare_wave(
         )
     ]
     spec["strategy_spec_id"] = ids[0]
-    spec["title"] = (f"TEST_ONLY M1 {source.instrument} {source.timeframe} Governor population"
+    spec["title"] = (f"M1 {source.classification} {source.instrument} {source.timeframe} Governor population"
+                     if historical else f"TEST_ONLY M1 {source.instrument} {source.timeframe} Governor population"
                      if m1 else "Noncanonical frozen Governor 15m population")
     spec["lineage"] = {
         "parent_refs": [
@@ -375,6 +381,8 @@ def prepare_wave(
     # Historical internal scope is not reproducible from this schema. Do not
     # manufacture a new scope: the exact external bytes and parent hashes bind it.
     spec["hash_pinning"].update(canonical_spec_hash=None, hash_status="not_computed")
+    if historical:
+        spec["provenance"]["source_refs"].append(M1_REAL_SPEC_REF + source.identity)
     if original is not None:
         from .original_source import ROUTE_PREFIX, verify
 
@@ -522,7 +530,7 @@ def prepare_wave(
         )
     if m1:
         metadata.update(
-            schema_version=M1_MAPPING,
+            schema_version=M1_REAL_MAPPING if historical else M1_MAPPING,
             m1_source=source.model_dump(mode="json"),
             source_paths=dict(zip(("spec", "vm", "sweep"), sources)),
         )

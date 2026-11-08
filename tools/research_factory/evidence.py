@@ -333,8 +333,10 @@ def verify_fold_report(root, binding, manifest_binding, prepared, contract):
 
 def verify_commitment(root, payload, contract):
     """No caller-supplied verified flag: independently re-resolve evidence bytes."""
-    from tools.research_autonomy.m1_source import M1_MAPPING, M1_VERSION
+    from tools.research_autonomy.m1_source import M1_MAPPING, M1_REAL_MAPPING, M1_REAL_VERSION, M1_VERSION
 
+    if getattr(contract, "data_version", None) == M1_REAL_VERSION:
+        raise EvidenceBlocked("M1 historical terminal evidence requires an approved native execution route")
     if getattr(contract, "data_version", None) == M1_VERSION:
         raise EvidenceBlocked("M1 TEST_ONLY cannot create a terminal scientific commitment")
     required = {
@@ -367,8 +369,8 @@ def verify_commitment(root, payload, contract):
     if set(payload) != required:
         raise EvidenceBlocked("closed trial commitment metadata required; no metric payloads")
     _, prepared = bound_json(root, payload["mapping_binding"])
-    if prepared.get("schema_version") == M1_MAPPING:
-        raise EvidenceBlocked("M1 TEST_ONLY cannot create a terminal scientific commitment")
+    if prepared.get("schema_version") in {M1_MAPPING, M1_REAL_MAPPING}:
+        raise EvidenceBlocked("M1 unqualified mapping cannot create a terminal scientific commitment")
     if prepared.get("schema_version") == ORIGINAL_SCHEMA:
         from tools.research_autonomy.store import ResearchAuthorityStore, _terminal_evidence
 

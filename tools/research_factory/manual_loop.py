@@ -101,8 +101,12 @@ def manual_research_loop(
     root = repo_root.resolve(strict=True)
     handoff = validate_handoff(handoff)
     contract = contract_from_payload(handoff.frozen_contract.model_dump(mode="json"))
-    from tools.research_autonomy.m1_source import M1_VERSION
+    from tools.research_autonomy.m1_source import M1_REAL_VERSION, M1_VERSION
 
+    if contract.data_version == M1_REAL_VERSION:
+        from tools.research_autonomy.historical_source_gate import M1_REAL_BLOCK
+
+        return _report(reason=M1_REAL_BLOCK, runner_calls=0)
     if contract.data_version == M1_VERSION:
         from tools.research_autonomy.historical_source_gate import HistoricalLease, M1Request
 

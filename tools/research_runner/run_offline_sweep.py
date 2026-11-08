@@ -3824,6 +3824,12 @@ def run_offline_sweep(
         variant_manifest_path,
         sweep_plan_path,
     )
+    from tools.research_autonomy.m1_source import M1_REAL_SPEC_REF
+
+    if any(ref.startswith(M1_REAL_SPEC_REF) for ref in strategy_spec["provenance"]["source_refs"]):
+        from tools.research_autonomy.historical_source_gate import M1_REAL_BLOCK
+
+        raise OfflineSweepError(M1_REAL_BLOCK)
     if funding_cost_mode == "off" and _requires_funding_costs(strategy_spec, sweep_plan):
         raise OfflineSweepError("strategy/sweep requires funding costs but funding mode is off")
     declared_non_ohlcv_columns = _declared_non_ohlcv_columns(strategy_spec)

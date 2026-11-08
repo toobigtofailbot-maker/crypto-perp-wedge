@@ -92,6 +92,12 @@ def _route_before_read(spec, *, custody=None, approval_path=None, prepared_paths
             raise RunnerAdapterError("BLOCKED_UNKNOWN_EXECUTION_ROUTE: prepared metadata role required")
         if prepared_paths is not None:
             _check_prepared_roles(prepared_paths)
+        from tools.research_autonomy.m1_source import M1_REAL_ROOT
+
+        if relative.startswith(M1_REAL_ROOT):
+            from tools.research_autonomy.historical_source_gate import M1_REAL_BLOCK
+
+            raise RunnerAdapterError(M1_REAL_BLOCK)
         binding = route(REPO_ROOT, _ordinary_input(spec), custody=custody)
         if approval_path is not None:
             approval_relative = _safe_repo_relative(approval_path)

@@ -16,6 +16,11 @@ M1_VERSION = "cpw_m1_fixture_source_v1"
 M1_SOURCE_CLASS = "m1_test_only"
 M1_MAPPING = "research_factory_mapping_m1_fixture_v1"
 M1_ROOT = "scratch/m1/TEST_ONLY/"
+M1_REAL_VERSION = "cpw_m1_historical_source_v1"
+M1_REAL_SOURCE_CLASS = "m1_historical"
+M1_REAL_MAPPING = "research_factory_mapping_m1_historical_v1"
+M1_REAL_ROOT = "scratch/m1/historical/"
+M1_REAL_SPEC_REF = "cpw-m1-historical-candidate:"
 Symbol = Annotated[str, Field(pattern=r"^[A-Z0-9]+USDT$", max_length=30)]
 BasisPoints = Annotated[float, Field(ge=0, lt=10_000)]
 
@@ -88,6 +93,58 @@ class M1Source(StrictModel):
                 or any(ref["timeframe"] not in (None, self.timeframe)
                        for ref in timeframes["host_data_refs"])):
             raise ValueError("M1 Strategy Spec instrument or clock substitution")
+
+
+class M1HistoricalIntent(M1Intent):
+    schema_version: Literal["cpw_m1_historical_intent_v1"]
+
+
+class M1HistoricalCosts(M1Costs):
+    qualification: Literal["HISTORICAL_EVIDENCE_REQUIRED"]
+    fee_epoch: Interval
+    fee_schedule_sha256: Sha
+    slippage_model_sha256: Sha
+    funding_notional_approval_sha256: Sha
+
+
+class M1HistoricalSource(M1Source):
+    """Immutable candidate identity. Evidence digests never confer read authority."""
+
+    schema_version: Literal["cpw_m1_historical_source_v1"]
+    classification: Literal["HISTORICAL_CANDIDATE"]
+    funding_source: Literal["BINANCE_USDM_PUBLIC_FUNDING_HISTORY"]
+    costs: M1HistoricalCosts
+    provenance_sha256: Sha
+    epoch_evidence_sha256: Sha
+    terms_evidence_sha256: Sha
+    in_sample: Interval
+    out_of_sample: Interval
+    gate_c_approval_sha256: Sha
+
+    @model_validator(mode="after")
+    def eligible_window(self):
+        step = CADENCE[self.timeframe]
+        start, end = self.effective_window.start_ms, self.effective_window.end_ms
+        if (not self.epoch_window.start_ms <= start < end <= self.epoch_window.end_ms
+                or not self.costs.fee_epoch.start_ms <= start < end <= self.costs.fee_epoch.end_ms
+                or not start < self.in_sample.start_ms < self.in_sample.end_ms
+                <= self.out_of_sample.start_ms < self.out_of_sample.end_ms == end
+                or start % FUNDING_INTERVAL_MS or end % FUNDING_INTERVAL_MS
+                or any(v % step for v in (self.in_sample.start_ms, self.in_sample.end_ms,
+                                          self.out_of_sample.start_ms))
+                or not 20 <= (end - start) // step <= 100_000):
+            raise ValueError("M1 historical source requires a complete clock, epoch and frozen IS/OOS window")
+        return self
+
+    @property
+    def identity(self):
+        return "M1-HISTORICAL-" + content_hash(self.model_dump(mode="json")).split(":")[1]
+
+    def require_protocol(self, protocol):
+        step = CADENCE[self.timeframe]
+        if (self.out_of_sample.start_ms - self.in_sample.end_ms
+                < (protocol.purge_bars + protocol.embargo_bars) * step):
+            raise ValueError("M1 historical source split violates frozen purge/embargo")
 
 
 def exact_json(raw):

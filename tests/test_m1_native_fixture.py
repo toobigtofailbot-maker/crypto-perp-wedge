@@ -17,7 +17,10 @@ from tools.mcp.project_evidence.research_intent import semantic_content_sha256
 from tools.research_autonomy import historical_source_gate as gate
 from tools.research_autonomy.envelope import content_hash, envelope_hash, validate_envelope
 from tools.research_autonomy.handoff import make_handoff
-from tools.research_autonomy.m1_source import M1_ROOT, M1_SOURCE_CLASS, M1_VERSION, M1Intent, M1Source
+from tools.research_autonomy.m1_source import (
+    M1_REAL_ROOT, M1_REAL_SOURCE_CLASS, M1_REAL_VERSION, M1_ROOT, M1_SOURCE_CLASS, M1_VERSION,
+    M1HistoricalIntent, M1HistoricalSource, M1Intent, M1Source,
+)
 from tools.research_autonomy.models import BoundedSearchRequest
 from tools.research_autonomy.nonholdout_qualification import Custodian, NonHoldoutQualification, Revocation
 from tools.research_autonomy.store import AuthorityConflict, ResearchAuthorityStore
@@ -46,8 +49,8 @@ def _metadata(repo, symbol, clock):
         (repo / name).write_text(json.dumps(payload), encoding="utf-8")
 
 
-def _objects(repo, symbol, clock):
-    folder = repo / M1_ROOT / "source"
+def _objects(repo, symbol, clock, *, historical=False):
+    folder = repo / (M1_REAL_ROOT + "sources/generated" if historical else M1_ROOT + "source")
     folder.mkdir(parents=True)
     common = {"classification": "TEST_ONLY", "instrument": symbol, "epoch_id": f"TEST-EPOCH-{symbol}"}
     step = gate.CADENCE[clock]
@@ -73,13 +76,16 @@ def _objects(repo, symbol, clock):
     return out
 
 
-def _open_cell(authority_db, tmp_path, monkeypatch, symbol, clock, *, protected_start=END + 10 * 86_400_000):
+def _open_cell(authority_db, tmp_path, monkeypatch, symbol, clock, *,
+               protected_start=END + 10 * 86_400_000, historical=False):
     repo, intent, envelope, request = fixture_inputs(tmp_path)
     _metadata(repo, symbol, clock)
     (repo / ".gitignore").write_text("/.cpw/\n/scratch/\n", encoding="utf-8")
-    objects = _objects(repo, symbol, clock)
+    objects = _objects(repo, symbol, clock, historical=historical)
+    version = M1_REAL_VERSION if historical else M1_VERSION
+    source_class = M1_REAL_SOURCE_CLASS if historical else M1_SOURCE_CLASS
     window = {"start_ms": START, "end_ms": END}
-    source = M1Source.model_validate_json(json.dumps({
+    source_fields = {
         "schema_version": M1_VERSION, "classification": "TEST_ONLY", "instrument": symbol,
         "timeframe": clock, "venue": "Binance USDT-M", "market_type": "perpetual",
         "quote_and_margin_asset": "USDT", "epoch_id": f"TEST-EPOCH-{symbol}",
@@ -89,7 +95,22 @@ def _open_cell(authority_db, tmp_path, monkeypatch, symbol, clock, *, protected_
         "sweep_plan_id": "SWEEP-PLAN-0003", "sweep_plan_sha256": mapper.file_hash(repo / SWEEP),
         "costs": {"qualification": "TEST_ONLY", "fee_bps_taker": 5, "fee_bps_maker": 2,
                   "slippage_bps": 3, "funding_notional": "entry_price"},
-    }))
+    }
+    if historical:
+        digest = "sha256:" + "b" * 64
+        source_fields.update(
+            schema_version=version, classification="HISTORICAL_CANDIDATE",
+            funding_source="BINANCE_USDM_PUBLIC_FUNDING_HISTORY", provenance_sha256=digest,
+            epoch_evidence_sha256=digest, terms_evidence_sha256=digest, gate_c_approval_sha256=digest,
+            in_sample={"start_ms": START + 86_400_000, "end_ms": START + 3 * 86_400_000},
+            out_of_sample={"start_ms": START + 4 * 86_400_000, "end_ms": END},
+        )
+        source_fields["costs"].update(
+            qualification="HISTORICAL_EVIDENCE_REQUIRED", fee_epoch=window, fee_schedule_sha256=digest,
+            slippage_model_sha256=digest, funding_notional_approval_sha256=digest,
+        )
+    source_model = M1HistoricalSource if historical else M1Source
+    source = source_model.model_validate_json(json.dumps(source_fields))
     (repo / CELL_PATH).parent.mkdir(parents=True)
     (repo / CELL_PATH).write_text(source.model_dump_json(), encoding="utf-8")
     subprocess.run(["git", "add", "."], cwd=repo, check=True)
@@ -110,29 +131,32 @@ def _open_cell(authority_db, tmp_path, monkeypatch, symbol, clock, *, protected_
     env = envelope.model_dump(mode="json")
     env["repo_sha"] = head
     env["surface"].update(instruments=[symbol], timeframes=[clock], strategy_spec_ids=["STRAT-SPEC-0003"],
-                          data_source_classes=[M1_SOURCE_CLASS])
+                          data_source_classes=[source_class])
     policy = env["search_policy"]
     policy["parameter_domains"] = domains
-    policy["data_bindings"] = [{"data_identity": source.identity, "data_version": M1_VERSION,
+    policy["data_bindings"] = [{"data_identity": source.identity, "data_version": version,
                                 "evidence": binding(CELL_PATH)}]
     split = policy["split_protocols"][0]
     split.update(development_data_ref=source.identity, development_window="2021-01-01T00:00:00Z/2021-01-11T00:00:00Z")
     env["content_sha256"] = envelope_hash(env)
     envelope = validate_envelope(env, repo_sha=head)
     intent_raw = intent.model_dump(mode="json")
-    intent_raw.update(schema_version="cpw_m1_fixture_intent_v1", repo_sha=head, primary_timeframe=clock,
+    intent_raw.update(schema_version=("cpw_m1_historical_intent_v1" if historical else "cpw_m1_fixture_intent_v1"),
+                      repo_sha=head, primary_timeframe=clock,
                       instrument_scope=f"{symbol}_BINANCE_USDTM_PERP", free_parameter_count=3,
                       evidence_anchors=[binding("docs/fixture.md")])
     intent_raw["fingerprint_sha256"] = fingerprint(intent_raw)
     intent_raw["research_memory"]["fingerprint_sha256"] = intent_raw["fingerprint_sha256"]
-    intent = M1Intent.model_validate_json(json.dumps(intent_raw))
+    intent_model = M1HistoricalIntent if historical else M1Intent
+    intent = intent_model.model_validate_json(json.dumps(intent_raw))
     intent = intent.model_copy(update={"content_sha256": semantic_content_sha256(intent)})
     payload = request.model_dump(mode="json")
-    payload.update(campaign_id="TEST-ONLY-CAMPAIGN", search_id="TEST-ONLY-SEARCH",
+    prefix = "FIXTURE-HISTORICAL" if historical else "TEST-ONLY"
+    payload.update(campaign_id=f"{prefix}-CAMPAIGN", search_id=f"{prefix}-SEARCH",
                    intent_sha256=intent.content_sha256, strategy_spec_id="STRAT-SPEC-0003",
                    strategy_spec_evidence=binding(SPEC), data_identity=source.identity,
-                   data_version=M1_VERSION, data_evidence=binding(CELL_PATH), instrument=symbol,
-                   data_source_class=M1_SOURCE_CLASS, parameter_space=domains, split_protocol=split)
+                   data_version=version, data_evidence=binding(CELL_PATH), instrument=symbol,
+                   data_source_class=source_class, parameter_space=domains, split_protocol=split)
     request = BoundedSearchRequest.model_validate_json(json.dumps(payload))
     store = ResearchAuthorityStore(make_conninfo(authority_db[0], options="-c role=cpw_research_authority_writer"))
     store.register_envelope(envelope)
@@ -149,11 +173,6 @@ def _open_cell(authority_db, tmp_path, monkeypatch, symbol, clock, *, protected_
     owner_store = ResearchAuthorityStore(make_conninfo(authority_db[0], options="-c role=cpw_nonholdout_owner"))
     controller = NonHoldoutQualification(owner_store)
     now = int(time.time() * 1000)
-    key = Ed25519PrivateKey.generate()
-    custodian = Custodian(record_id="TEST-ONLY-CUSTODIAN", approved_by="Karl", approval_reference="TEST-ONLY",
-                          public_key_hex=key.public_key().public_bytes_raw().hex(),
-                          valid_from_ms=now - 60_000, valid_until_ms=now + 600_000)
-    controller.control("custodian", custodian)
     raw = {
         "schema_version": gate.M1_SCHEMA, "purpose": "m1_fixture_read", "repository": "toobigtofailbot-maker/crypto-perp-wedge",
         "repo_sha": head, "campaign_id": contract.campaign_id, "search_id": contract.search_id,
@@ -161,13 +180,23 @@ def _open_cell(authority_db, tmp_path, monkeypatch, symbol, clock, *, protected_
         "original_parent_sha256": contract.strategy_spec_hash, "contamination_domain_id": envelope.contamination_domain_id,
         "holdout_id": split["final_holdout_ref"], "envelope_sha256": envelope.content_sha256,
         "protocol_sha256": content_hash(envelope.scientific_protocol.model_dump(mode="json")),
-        "data_identity": source.identity, "data_version": M1_VERSION, "instrument": symbol,
+        "data_identity": source.identity, "data_version": version, "instrument": symbol,
         "venue": source.venue, "market": source.market_type, "timeframe": clock,
         "effective_window": window, "label_horizon_bars": 0, "fitting": "none",
         "storage": gate.STORAGE.get(gate.sys.platform, "linux_immutable_flag_v1"), "objects": objects,
         "source": source.model_dump(mode="json"),
     }
+    if historical:
+        raw.update(schema_version=gate.M1_REAL_SCHEMA, purpose="m1_historical_study_read",
+                   owner_execution_marker_sha256="sha256:" + "c" * 64)
+        historical_request = gate.M1HistoricalRequest.model_validate_json(json.dumps(raw))
+        return repo, store, reader, contract, handoff, historical_request, envelope, controller, None
     custody_request = gate.M1Request.model_validate_json(json.dumps(raw))
+    key = Ed25519PrivateKey.generate()
+    custodian = Custodian(record_id="TEST-ONLY-CUSTODIAN", approved_by="Karl", approval_reference="TEST-ONLY",
+                          public_key_hex=key.public_key().public_bytes_raw().hex(),
+                          valid_from_ms=now - 60_000, valid_until_ms=now + 600_000)
+    controller.control("custodian", custodian)
     designation = gate.M1Designation(
         record_id="TEST-ONLY-DESIGNATION", approved_by="Karl", approval_reference="TEST-ONLY",
         custodian_id=custodian.record_id, valid_from_ms=now - 60_000, valid_until_ms=now + 600_000,

@@ -1001,7 +1001,7 @@ def run_product_runner_adapter(
 
 
 def preflight_m1_historical_adapter(
-    *, store, repo_root, preparation_root, created_at_utc, handoff, contract, request, public_objects,
+    *, store, repo_root, preparation_root, created_at_utc, handoff, contract, request, public_objects, public_manifest,
 ):
     """Prepare an exact historical candidate using public bytes and the native Governor mapping."""
     from tools.research_autonomy.historical_source_gate import M1HistoricalRequest
@@ -1014,7 +1014,9 @@ def preflight_m1_historical_adapter(
         store=store, handoff=handoff, contract=contract, repo_root=repo_root,
         output_root=preparation_root, created_at_utc=created_at_utc, m1_source=request.source,
     )
-    return prepared, verify_m1_historical_preparation(repo_root, prepared, contract, request, public_objects)
+    return prepared, verify_m1_historical_preparation(
+        repo_root, prepared, contract, request, public_objects, public_manifest,
+    )
 
 
 def run_m1_fixture_adapter(*, repo_root, preparation_root, created_at_utc, handoff, contract, custody):

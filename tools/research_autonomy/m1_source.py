@@ -147,7 +147,7 @@ class M1HistoricalSource(M1Source):
             raise ValueError("M1 historical source split violates frozen purge/embargo")
 
 
-def exact_json(raw):
+def exact_json(raw, *, root_type=dict):
     """Parse frozen metadata without ambiguous duplicate keys or nonfinite numbers."""
     def unique(items):
         result = {}
@@ -161,7 +161,7 @@ def exact_json(raw):
         raise ValueError("nonfinite M1 metadata")
 
     value = json.loads(raw, object_pairs_hook=unique, parse_constant=reject_constant)
-    if not isinstance(value, dict):
-        raise ValueError("M1 metadata object required")
+    if type(value) is not root_type:
+        raise ValueError(f"M1 JSON {root_type.__name__} root required")
     content_hash(value)
     return value

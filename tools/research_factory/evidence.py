@@ -470,7 +470,7 @@ def load_m1_fixture_preparation(root, prepared, contract, request):
     return _load_m1_preparation(root, prepared, contract, request, M1_MAPPING, M1_ROOT, M1_VERSION)
 
 
-def verify_m1_historical_preparation(root, prepared, contract, request, public_objects):
+def verify_m1_historical_preparation(root, prepared, contract, request, public_objects, public_manifest):
     """Check the frozen preparation and in-memory public inputs without execution authority."""
     from tools.research_autonomy.historical_source_gate import M1HistoricalRequest
     from tools.research_autonomy.m1_source import M1_REAL_MAPPING, M1_REAL_ROOT, M1_REAL_VERSION
@@ -479,7 +479,7 @@ def verify_m1_historical_preparation(root, prepared, contract, request, public_o
         raise EvidenceBlocked("M1 historical candidate preparation required")
     request.source.require_partition(contract.split_protocol)
     _load_m1_preparation(root, prepared, contract, request, M1_REAL_MAPPING, M1_REAL_ROOT, M1_REAL_VERSION)
-    return runner.verify_m1_historical_inputs(request, public_objects)
+    return runner.verify_m1_historical_inputs(request, public_objects, public_manifest)
 
 
 def _load_m1_preparation(root, prepared, contract, request, mapping_version, scratch_root, source_version):

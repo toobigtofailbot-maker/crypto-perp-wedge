@@ -53,7 +53,6 @@ def source_for(symbol, clock):
 
 def public_objects(source):
     """Synthetic bytes with the public-source wire format and observed event offsets."""
-    common = {"classification": source.classification, "instrument": source.instrument, "epoch_id": source.epoch_id}
     step = CADENCE[source.timeframe]
     klines = [[ts, "1", "3", "0.5", "2", "5", ts + step - 1, "7", 2, "1", "2", "0"]
               for ts in range(START, END, step)]
@@ -61,9 +60,14 @@ def public_objects(source):
         {"symbol": source.instrument, "fundingTime": ts + 2, "fundingRate": "-0.0001"},
         page_index=0, row_index=i, expected_symbol=source.instrument,
     ) for i, ts in enumerate(range(START, END, FUNDING_INTERVAL_MS))]
-    return tuple(json.dumps(payload).encode() for payload in (
-        common | {"timeframe": source.timeframe, "rows": klines}, common | {"rows": events},
-    ))
+    manifest = {"classification": "PUBLIC_CANDIDATE_ONLY", "start_ms": START, "end_ms_exclusive": END}
+    objects, streams = [], {}
+    for name, rows in ((source.timeframe, klines), ("funding", events)):
+        raw = json.dumps(rows).encode()
+        objects.append(raw)
+        streams[name] = {"sha256": hashlib.sha256(raw).hexdigest(), "bytes": len(raw), "rows": len(rows)}
+    manifest["symbols"] = {source.instrument: {"streams": streams}}
+    return tuple(objects), json.dumps(manifest).encode()
 
 
 @pytest.mark.parametrize(("symbol", "clock"), [
@@ -98,10 +102,11 @@ def test_candidate_refuses_missing_epoch_coverage_oos_and_fee_epoch(field):
 
 def test_historical_candidate_reaches_mapper_and_stops_at_all_native_entrypoints(tmp_path, monkeypatch):
     source = source_for("BTCUSDT", "15m")
-    objects = public_objects(source)
+    objects, public_manifest = public_objects(source)
     price_hash, funding_hash = ("sha256:" + hashlib.sha256(raw).hexdigest() for raw in objects)
     source = M1HistoricalSource.model_validate(source.model_dump() | {
         "ohlcv_sha256": price_hash, "funding_sha256": funding_hash,
+        "provenance_sha256": "sha256:" + hashlib.sha256(public_manifest).hexdigest(),
     })
     root, store, contract, handoff = factory_fixture(
         tmp_path, data_identity=source.identity, data_version=M1_REAL_VERSION,
@@ -156,15 +161,17 @@ def test_historical_candidate_reaches_mapper_and_stops_at_all_native_entrypoints
     replayed, coverage = runner_adapter.preflight_m1_historical_adapter(
         store=store, handoff=handoff, contract=contract, repo_root=root,
         preparation_root=args["output_root"], created_at_utc=args["created_at_utc"],
-        request=bound, public_objects=objects,
+        request=bound, public_objects=objects, public_manifest=public_manifest,
     )
     assert replayed == prepared
     assert coverage == {"bars": 31 * 96, "funding_events": 31 * 3,
                         "missing_settlement_marks": 31 * 3, "nonzero_settlement_offsets": 31 * 3}
     with pytest.raises(runner.OfflineSweepError, match="bytes differ"):
-        verify_m1_historical_preparation(root, prepared, contract, bound, objects[::-1])
+        verify_m1_historical_preparation(root, prepared, contract, bound, objects[::-1], public_manifest)
+    with pytest.raises(runner.OfflineSweepError, match="provenance differs"):
+        verify_m1_historical_preparation(root, prepared, contract, bound, objects, public_manifest + b" ")
     with pytest.raises(EvidenceBlocked, match="candidate preparation required"):
-        verify_m1_historical_preparation(root, prepared | {"runner_authority": True}, contract, bound, objects)
+        verify_m1_historical_preparation(root, prepared | {"runner_authority": True}, contract, bound, objects, public_manifest)
     with pytest.raises(runner.OfflineSweepError, match="TEST_ONLY source required"):
         runner._m1_fixture_execution_input(source, objects)
     monkeypatch.setattr(gate, "_lease", forbidden)

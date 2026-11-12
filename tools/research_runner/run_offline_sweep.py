@@ -3684,22 +3684,44 @@ def _m1_object_rows(source, objects):
     return rows(objects[0], common | {"timeframe": source.timeframe}), rows(objects[1], common)
 
 
-def verify_m1_historical_inputs(request, objects):
+def verify_m1_historical_inputs(request, objects, public_manifest):
     """Validate caller-supplied public candidate bytes without opening a reader or trial."""
     from tools.data_ingestion.m1_public_source_probe import validate_public_coverage
     from tools.research_autonomy.historical_source_gate import M1HistoricalRequest
+    from tools.research_autonomy.m1_source import exact_json
 
     if type(request) is not M1HistoricalRequest or type(objects) is not tuple or len(objects) != 2:
         raise OfflineSweepError("M1 historical request and exact public source pair required")
-    for raw, binding in zip(objects, request.objects, strict=True):
+    source = request.source
+    if (type(public_manifest) is not bytes
+            or "sha256:" + hashlib.sha256(public_manifest).hexdigest() != source.provenance_sha256):
+        raise OfflineSweepError("M1 public provenance differs from the request")
+    manifest = exact_json(public_manifest)
+    start, end = source.effective_window.start_ms, source.effective_window.end_ms
+    if (manifest.get("classification"), manifest.get("start_ms"), manifest.get("end_ms_exclusive")) != (
+        "PUBLIC_CANDIDATE_ONLY", start, end,
+    ):
+        raise OfflineSweepError("M1 public provenance window or classification mismatch")
+    try:
+        streams = manifest["symbols"][source.instrument]["streams"]
+        identities = (streams[source.timeframe], streams["funding"])
+    except (KeyError, TypeError) as exc:
+        raise OfflineSweepError("M1 public provenance does not bind the requested cell") from exc
+    rows = []
+    for raw, binding, identity in zip(objects, request.objects, identities, strict=True):
+        if (identity["sha256"], identity["bytes"]) != (binding.sha256.removeprefix("sha256:"), binding.byte_length):
+            raise OfflineSweepError("M1 public provenance source identity mismatch")
         if (type(raw) is not bytes or len(raw) != binding.byte_length
                 or "sha256:" + hashlib.sha256(raw).hexdigest() != binding.sha256):
             raise OfflineSweepError("M1 historical source bytes differ from the request")
-    source = request.source
-    klines, funding = _m1_object_rows(source, objects)
+        values = exact_json(raw, root_type=list)
+        if identity["rows"] != len(values):
+            raise OfflineSweepError("M1 public provenance row count mismatch")
+        rows.append(values)
+    klines, funding = rows
     coverage = validate_public_coverage(
         symbol=source.instrument, clock=source.timeframe,
-        start_ms=source.effective_window.start_ms, end_ms=source.effective_window.end_ms,
+        start_ms=start, end_ms=end,
         klines=klines, funding=funding,
     )
     if any(not math.isfinite(float(value)) or (i < 4 and float(value) <= 0)

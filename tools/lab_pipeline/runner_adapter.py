@@ -1000,6 +1000,23 @@ def run_product_runner_adapter(
     )
 
 
+def preflight_m1_historical_adapter(
+    *, store, repo_root, preparation_root, created_at_utc, handoff, contract, request, public_objects,
+):
+    """Prepare an exact historical candidate using public bytes and the native Governor mapping."""
+    from tools.research_autonomy.historical_source_gate import M1HistoricalRequest
+    from tools.research_factory.evidence import verify_m1_historical_preparation
+    from tools.research_factory.mapper import prepare_wave
+
+    if type(request) is not M1HistoricalRequest:
+        raise RunnerAdapterError("M1 historical candidate request required")
+    prepared = prepare_wave(
+        store=store, handoff=handoff, contract=contract, repo_root=repo_root,
+        output_root=preparation_root, created_at_utc=created_at_utc, m1_source=request.source,
+    )
+    return prepared, verify_m1_historical_preparation(repo_root, prepared, contract, request, public_objects)
+
+
 def run_m1_fixture_adapter(*, repo_root, preparation_root, created_at_utc, handoff, contract, custody):
     """Run one Governor-mapped cell through the native offline evaluator in memory."""
     from tools.research_autonomy.envelope import content_hash

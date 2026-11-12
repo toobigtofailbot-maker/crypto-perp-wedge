@@ -3664,15 +3664,11 @@ def _write_and_validate(
     return path
 
 
-def _m1_fixture_execution_input(source, objects):
-    """Decode the complete pair delivered through the fixture-only custody lease."""
-    from tools.data_ingestion.ccxt_public_funding_adapter import FUNDING_INTERVAL_MS, normalize_raw_row
-    from tools.data_ingestion.m1_public_source_probe import _check_bar
+def _m1_object_rows(source, objects):
     from tools.research_autonomy.m1_source import exact_json
-    from tools.research_autonomy.nonholdout_qualification import CADENCE
 
     common = {
-        "classification": "TEST_ONLY",
+        "classification": source.classification,
         "instrument": source.instrument,
         "epoch_id": source.epoch_id,
     }
@@ -3682,11 +3678,46 @@ def _m1_fixture_execution_input(source, objects):
         if set(payload) != {*identity, "rows"} or any(
             payload[key] != expected for key, expected in identity.items()
         ) or not isinstance(payload["rows"], list):
-            raise OfflineSweepError("M1 TEST_ONLY source identity mismatch")
+            raise OfflineSweepError("M1 source object identity mismatch")
         return payload["rows"]
 
-    klines = rows(objects[0], common | {"timeframe": source.timeframe})
-    raw_events = rows(objects[1], common)
+    return rows(objects[0], common | {"timeframe": source.timeframe}), rows(objects[1], common)
+
+
+def verify_m1_historical_inputs(request, objects):
+    """Validate caller-supplied public candidate bytes without opening a reader or trial."""
+    from tools.data_ingestion.m1_public_source_probe import validate_public_coverage
+    from tools.research_autonomy.historical_source_gate import M1HistoricalRequest
+
+    if type(request) is not M1HistoricalRequest or type(objects) is not tuple or len(objects) != 2:
+        raise OfflineSweepError("M1 historical request and exact public source pair required")
+    for raw, binding in zip(objects, request.objects, strict=True):
+        if (type(raw) is not bytes or len(raw) != binding.byte_length
+                or "sha256:" + hashlib.sha256(raw).hexdigest() != binding.sha256):
+            raise OfflineSweepError("M1 historical source bytes differ from the request")
+    source = request.source
+    klines, funding = _m1_object_rows(source, objects)
+    coverage = validate_public_coverage(
+        symbol=source.instrument, clock=source.timeframe,
+        start_ms=source.effective_window.start_ms, end_ms=source.effective_window.end_ms,
+        klines=klines, funding=funding,
+    )
+    if any(not math.isfinite(float(value)) or (i < 4 and float(value) <= 0)
+           for row in klines for i, value in enumerate(row[1:6])):
+        raise OfflineSweepError("M1 OHLCV exceeds runner numeric precision")
+    return coverage
+
+
+def _m1_fixture_execution_input(source, objects):
+    """Decode the complete pair delivered through the fixture-only custody lease."""
+    from tools.data_ingestion.ccxt_public_funding_adapter import FUNDING_INTERVAL_MS, normalize_raw_row
+    from tools.data_ingestion.m1_public_source_probe import _check_bar
+    from tools.research_autonomy.m1_source import M1Source
+    from tools.research_autonomy.nonholdout_qualification import CADENCE
+
+    if type(source) is not M1Source:
+        raise OfflineSweepError("M1 TEST_ONLY source required")
+    klines, raw_events = _m1_object_rows(source, objects)
     start, end = source.effective_window.start_ms, source.effective_window.end_ms
     step = CADENCE[source.timeframe]
     timestamps = range(start, end, step)

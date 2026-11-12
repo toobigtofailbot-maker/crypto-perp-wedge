@@ -9,7 +9,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Any, Mapping
 
 
@@ -87,6 +87,11 @@ def _normalize_portable_path(value: Any, repo_root: Path) -> Any:
                 f"{value}"
             )
         return relative
+
+    if PureWindowsPath(value).anchor:
+        raise ReplayNormalizationError(
+            f"Windows-anchored path cannot be normalized safely: {value}"
+        )
 
     repo_prefix = repo_root.as_posix().rstrip("/") + "/"
     if normalized.startswith(repo_prefix):

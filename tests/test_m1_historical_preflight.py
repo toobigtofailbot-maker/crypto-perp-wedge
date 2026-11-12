@@ -1,6 +1,7 @@
 """Metadata and pre-read negatives. This suite never invokes a real trial."""
 
 import copy
+import hashlib
 import json
 from pathlib import Path
 from types import SimpleNamespace
@@ -9,11 +10,12 @@ import pytest
 from pydantic import ValidationError
 
 from test_research_factory_mapper import factory_fixture
+from tools.data_ingestion.ccxt_public_funding_adapter import FUNDING_INTERVAL_MS, normalize_raw_row
 from tools.lab_pipeline import runner_adapter
 from tools.research_autonomy import historical_source_gate as gate
-from tools.research_autonomy.m1_source import M1_REAL_MAPPING, M1_REAL_ROOT, M1_REAL_VERSION, M1HistoricalSource, M1Source
+from tools.research_autonomy.m1_source import CADENCE, M1_REAL_MAPPING, M1_REAL_ROOT, M1_REAL_VERSION, M1HistoricalSource, M1Source
 from tools.research_factory import mapper
-from tools.research_factory.evidence import EvidenceBlocked, verify_commitment
+from tools.research_factory.evidence import EvidenceBlocked, verify_commitment, verify_m1_historical_preparation
 from tools.research_factory.manual_loop import manual_research_loop
 from tools.research_runner import run_offline_sweep as runner
 from tools.research_search.contract import SplitProtocol
@@ -49,6 +51,21 @@ def source_for(symbol, clock):
     })
 
 
+def public_objects(source):
+    """Synthetic bytes with the public-source wire format and observed event offsets."""
+    common = {"classification": source.classification, "instrument": source.instrument, "epoch_id": source.epoch_id}
+    step = CADENCE[source.timeframe]
+    klines = [[ts, "1", "3", "0.5", "2", "5", ts + step - 1, "7", 2, "1", "2", "0"]
+              for ts in range(START, END, step)]
+    events = [normalize_raw_row(
+        {"symbol": source.instrument, "fundingTime": ts + 2, "fundingRate": "-0.0001"},
+        page_index=0, row_index=i, expected_symbol=source.instrument,
+    ) for i, ts in enumerate(range(START, END, FUNDING_INTERVAL_MS))]
+    return tuple(json.dumps(payload).encode() for payload in (
+        common | {"timeframe": source.timeframe, "rows": klines}, common | {"rows": events},
+    ))
+
+
 @pytest.mark.parametrize(("symbol", "clock"), [
     ("BTCUSDT", "15m"), ("BTCUSDT", "1h"), ("ETHUSDT", "15m"), ("ETHUSDT", "1h"), ("SOLUSDT", "1h"),
 ])
@@ -81,6 +98,11 @@ def test_candidate_refuses_missing_epoch_coverage_oos_and_fee_epoch(field):
 
 def test_historical_candidate_reaches_mapper_and_stops_at_all_native_entrypoints(tmp_path, monkeypatch):
     source = source_for("BTCUSDT", "15m")
+    objects = public_objects(source)
+    price_hash, funding_hash = ("sha256:" + hashlib.sha256(raw).hexdigest() for raw in objects)
+    source = M1HistoricalSource.model_validate(source.model_dump() | {
+        "ohlcv_sha256": price_hash, "funding_sha256": funding_hash,
+    })
     root, store, contract, handoff = factory_fixture(
         tmp_path, data_identity=source.identity, data_version=M1_REAL_VERSION,
         split_protocol=SplitProtocol("M1-PLAN", source.identity, DEV_WINDOW, "UNOPENED-HOLDOUT"),
@@ -114,7 +136,6 @@ def test_historical_candidate_reaches_mapper_and_stops_at_all_native_entrypoints
     with pytest.raises(EvidenceBlocked, match="requires an approved"):
         verify_commitment(root, {}, contract)
 
-    obj = {"byte_length": 10, "device": 1, "inode": 1}
     request = {
         "schema_version": gate.M1_REAL_SCHEMA, "purpose": "m1_historical_study_read",
         "repository": "toobigtofailbot-maker/crypto-perp-wedge", "repo_sha": contract.repo_sha,
@@ -127,9 +148,25 @@ def test_historical_candidate_reaches_mapper_and_stops_at_all_native_entrypoints
         "timeframe": source.timeframe, "effective_window": WINDOW, "label_horizon_bars": 0,
         "fitting": "none", "storage": "windows_share_deny_write_v1", "source": source.model_dump(mode="json"),
         "owner_execution_marker_sha256": HASH,
-        "objects": [obj | {"role": role, "sha256": digest, "repo_path": f"{M1_REAL_ROOT}sources/cell/{role}.json"}
-                    for role, digest in zip(gate.M1_ROLES, (HASH, OTHER), strict=True)],
+        "objects": [{"byte_length": len(raw), "device": 1, "inode": 1, "role": role,
+                     "sha256": digest, "repo_path": f"{M1_REAL_ROOT}sources/cell/{role}.json"}
+                    for role, digest, raw in zip(gate.M1_ROLES, (price_hash, funding_hash), objects, strict=True)],
     }
+    bound = gate.M1HistoricalRequest.model_validate_json(json.dumps(request))
+    replayed, coverage = runner_adapter.preflight_m1_historical_adapter(
+        store=store, handoff=handoff, contract=contract, repo_root=root,
+        preparation_root=args["output_root"], created_at_utc=args["created_at_utc"],
+        request=bound, public_objects=objects,
+    )
+    assert replayed == prepared
+    assert coverage == {"bars": 31 * 96, "funding_events": 31 * 3,
+                        "missing_settlement_marks": 31 * 3, "nonzero_settlement_offsets": 31 * 3}
+    with pytest.raises(runner.OfflineSweepError, match="bytes differ"):
+        verify_m1_historical_preparation(root, prepared, contract, bound, objects[::-1])
+    with pytest.raises(EvidenceBlocked, match="candidate preparation required"):
+        verify_m1_historical_preparation(root, prepared | {"runner_authority": True}, contract, bound, objects)
+    with pytest.raises(runner.OfflineSweepError, match="TEST_ONLY source required"):
+        runner._m1_fixture_execution_input(source, objects)
     monkeypatch.setattr(gate, "_lease", forbidden)
     reader = gate.HistoricalSourceGate(store, root)
     kwargs = dict(attestation=None, envelope=None, contract=contract, repo_sha=contract.repo_sha)

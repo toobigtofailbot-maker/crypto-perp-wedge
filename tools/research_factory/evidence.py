@@ -462,19 +462,38 @@ def verify_commitment(root, payload, contract):
 
 def load_m1_fixture_preparation(root, prepared, contract, request):
     """Revalidate the exact prepared artifact chain before a TEST_ONLY reader use."""
+    from tools.research_autonomy.historical_source_gate import M1Request
     from tools.research_autonomy.m1_source import M1_MAPPING, M1_ROOT, M1_VERSION
 
+    if type(request) is not M1Request:
+        raise EvidenceBlocked("M1 TEST_ONLY request required")
+    return _load_m1_preparation(root, prepared, contract, request, M1_MAPPING, M1_ROOT, M1_VERSION)
+
+
+def verify_m1_historical_preparation(root, prepared, contract, request, public_objects):
+    """Check the frozen preparation and in-memory public inputs without execution authority."""
+    from tools.research_autonomy.historical_source_gate import M1HistoricalRequest
+    from tools.research_autonomy.m1_source import M1_REAL_MAPPING, M1_REAL_ROOT, M1_REAL_VERSION
+
+    if type(request) is not M1HistoricalRequest or prepared.get("runner_authority") is not False:
+        raise EvidenceBlocked("M1 historical candidate preparation required")
+    request.source.require_partition(contract.split_protocol)
+    _load_m1_preparation(root, prepared, contract, request, M1_REAL_MAPPING, M1_REAL_ROOT, M1_REAL_VERSION)
+    return runner.verify_m1_historical_inputs(request, public_objects)
+
+
+def _load_m1_preparation(root, prepared, contract, request, mapping_version, scratch_root, source_version):
     source = request.source
-    if (contract.data_version != M1_VERSION
-            or prepared.get("schema_version") != M1_MAPPING
+    if (contract.data_version != source_version
+            or prepared.get("schema_version") != mapping_version
             or (prepared["repo_sha"], prepared["contract_hash"], prepared["m1_source"])
             != (contract.repo_sha, contract.contract_hash, source.model_dump(mode="json"))
             or request.contract_hash != contract.contract_hash
             or request.data_identity != contract.data_identity):
-        raise EvidenceBlocked("M1 fixture mapping/source substitution")
+        raise EvidenceBlocked("M1 mapping/source substitution")
     names = ("spec", "vm", "sweep")
-    if any(not prepared["paths"][key].startswith(M1_ROOT) for key in names):
-        raise EvidenceBlocked("M1 prepared paths must remain in TEST_ONLY scratch")
+    if any(not prepared["paths"][key].startswith(scratch_root) for key in names):
+        raise EvidenceBlocked("M1 prepared paths must remain in versioned scratch")
     paths = [safe_file(root, prepared["paths"][key], scratch=True) for key in names]
     if any(file_hash(path) != prepared["hashes"][key] for key, path in zip(names, paths)):
         raise EvidenceBlocked("M1 prepared input hash mismatch")

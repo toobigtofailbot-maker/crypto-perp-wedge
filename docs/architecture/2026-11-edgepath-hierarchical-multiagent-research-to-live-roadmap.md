@@ -2,7 +2,7 @@
 
 **Status:** OWNER-PROPOSED IMPLEMENTATION ROADMAP; planning only. Not an implementation WP, architecture supersession, data-use approval, research-execution approval, capital allocation, or trading activation. Karl approves/merges separately.
 
-**Repository snapshot used for planning:** \`40034f3c7b15fcc26aa410a0bcb560653f67901e\` (PR #773 and PR #774 merged, no open PRs when this plan was drafted). Refresh \`origin/main\` and all active PRs before every subsequent WP. This snapshot is evidence, not a permanent base pin.
+**Repository snapshot used for planning:** `40034f3c7b15fcc26aa410a0bcb560653f67901e` (PR #773 and PR #774 merged, no open PRs when this plan was drafted). Refresh `origin/main` and all active PRs before every subsequent WP. This snapshot is evidence, not a permanent base pin.
 
 **Permanent workflow:** **EdgePath** — the shortest evidence-backed path to a sophisticated, autonomous, multi-symbol Binance USD-M perpetual trading system capable of discovering, validating, executing, and continuously improving *net-of-cost* trading advantage. Profitability is an objective, not an engineering promise.
 
@@ -33,7 +33,7 @@ The 57-repository adoption register is a full accountability universe, **not** a
 
 ## 3. Target intelligence flow and explicit owners
 
-\`\`\`text
+```text
 Time- and source-qualified USD-M universe / live observations
   -> Hermes persistent director (research sandbox; no exchange secrets)
        -> independent market/regime specialist
@@ -54,7 +54,7 @@ Time- and source-qualified USD-M universe / live observations
                 -> (paper/LIVE only after separate owner-approved crossing)
                 -> Lane B native Nautilus -> orders/fills/account/reconcile
                 -> actual net results -> immutable feedback -> Hermes research
-\`\`\`
+```
 
 **Two clocks, not one monolithic agent loop.** Fast data, qualified model signals, order handling, risk enforcement and venue recovery use deterministic code. Slower evidence-rich Hermes research and portfolio deliberation run asynchronously at budgeted, causal decision points. Do not invent a fixed cadence or latency target without measurements.
 
@@ -64,7 +64,7 @@ Time- and source-qualified USD-M universe / live observations
 
 **Specialist and upstream ownership:**
 - Hermes: intelligence, research delegation, synthesis, operational working memory; upstream Bot/profile/delegation/skills first, no second custom generic agent runtime.
-- TradingAgents: call real upstream \`TradingAgentsGraph\` and \`propagate\` or pinned verified successor API; preserve useful upstream role/debate/checkpoint behavior; replace stock-centric data assumptions with source-qualified crypto tools. Its own simulated transaction or risk approval never grants CPW economic authority.
+- TradingAgents: call real upstream `TradingAgentsGraph` and `propagate` or pinned verified successor API; preserve useful upstream role/debate/checkpoint behavior; replace stock-centric data assumptions with source-qualified crypto tools. Its own simulated transaction or risk approval never grants CPW economic authority.
 - RD-Agent: execute actual pinned upstream quantitative RD loop/factor or model generation, not a CPW-written imitation.
 - Qlib: use actual upstream data loader, dataset/model training/prediction APIs; ensure predictions are timestamped and generated out-of-sample relative to training.
 - Optuna: proposals only under CPW Search Governor, not independent scientific budget authority.
@@ -117,12 +117,12 @@ Account for all ideas investigated, unexecuted and rejected; prevent lookahead a
 ## 6. EdgePath coding workflow — mandatory on EVERY WP and coding follow-up
 
 1. **Owner/Side prep:** refresh merged repo, relevant PRs, actual changed-file owners, primary dependency and the first measurable working user capability. Avoid drafting a WP if the next prerequisite is a specific owner permission or already-merged feature.
-2. **Ponytail FIRST:** locate and genuinely invoke \`$ponytail\` at the beginning of **each** Codex coding WP **and every coding follow-up**; do not confuse writing the instruction with using the skill. Verify installed skill names and current versions; never claim missing skill usage.
-3. **All other four mandatory skills every time:** \`$wp-predraft-inspector\` (real source/file/authority recon), \`$wp-minimum-test-plan\` (focused/adjacent/full validation and meaningful exit), \`$wp-one-shot-review\` (semantic scope, changed files, forbidden touches), \`$verification-before-completion\` (exact source and raw test evidence). Use them at their proper task stages, including follow-ups. Invoke relevant *available* specialist skills for upstream-source reuse, scientific correctness, prompt/model provenance, finance invariants, Docker isolation, security, systematic debugging, release and PR evidence; inspect the actual local skill inventory.
+2. **Ponytail FIRST:** locate and genuinely invoke `$ponytail` at the beginning of **each** Codex coding WP **and every coding follow-up**; do not confuse writing the instruction with using the skill. Verify installed skill names and current versions; never claim missing skill usage.
+3. **All other four mandatory skills every time:** `$wp-predraft-inspector` (real source/file/authority recon), `$wp-minimum-test-plan` (focused/adjacent/full validation and meaningful exit), `$wp-one-shot-review` (semantic scope, changed files, forbidden touches), `$verification-before-completion` (exact source and raw test evidence). Use them at their proper task stages, including follow-ups. Invoke relevant *available* specialist skills for upstream-source reuse, scientific correctness, prompt/model provenance, finance invariants, Docker isolation, security, systematic debugging, release and PR evidence; inspect the actual local skill inventory.
 4. **Use a single designated write-authorized agent per worktree.** Parallel **read-only** agents may research, critique and design tests. Lane A / Lane B use separate worktrees; share interface agreement rather than mutate one another's live branch. Record writer ownership; if collision, preserve everything and stop competing writes before recovery.
 5. **One Codex owner outcome, not a micro-WP chain.** Supply the objective, actual source entrypoints, dependencies, allowed/forbidden files, exact protected gates and measurable acceptance. Codex autonomously edits, tests, diagnoses and fixes routine in-scope failures until final validation. Do not stop for each import error, ordinary fixture issue or intermediate test. The same blocker twice triggers a root-cause investigation, not a third identical continuation.
 6. **One complete evidence ZIP** from the executor on DONE, BLOCKED, FAILED or PARTIAL, including actual changed-file inventory, base/head, upstream call proof, skills receipts, raw test commands/outcomes, missing inputs, impact on science/economics, PR ref, checksums and forbidden-scope check. Side independently inspects exact diff/blobs, not just a summary.
-7. **Minimal owner reporting:** if merge-ready, respond \`MERGE PR #XXX\` and at most 2–3 factual sentences; no additional owner merge-note/assessment files. If blocked, one precise authority decision. If coding fix needed, smallest *same writer/same PR* follow-up, with all five mandatory skills again.
+7. **Minimal owner reporting:** if merge-ready, respond `MERGE PR #XXX` and at most 2–3 factual sentences; no additional owner merge-note/assessment files. If blocked, one precise authority decision. If coding fix needed, smallest *same writer/same PR* follow-up, with all five mandatory skills again.
 8. **Validation:** label ENGINEERING_READY, SCIENTIFIC_PENDING, SHADOW_ONLY, PAPER_TESTNET_READY, or LIVE_AUTHORIZED accurately. Hosted smoke is not full T3; fixture outputs are not scientific truth. Do not modify validators or narrow test profiles to manufacture PASS. Full validation class follows repo rules.
 
 **Skills are mandatory, not the deliverable.** Never extend a WP just to create procedural reports or load the complete 57-repo research register into each coding context. Use concise source pointers and stage-specific skills.
@@ -149,19 +149,19 @@ Account for all ideas investigated, unexecuted and rejected; prevent lookahead a
 ## 9. Source-of-truth index / external source review
 
 Repo controls (all at planning snapshot unless otherwise noted):
-- \`AGENTS.md\`
-- \`docs/architecture/2026-10-extreme_hermes_autonomous_research_director.md\` (D2-024)
-- \`docs/architecture/2026-10-extreme_hermes_capability_coverage_and_orchestration_ownership.md\` (D2-025)
-- \`docs/architecture/2026-09-adoption_first_migration_architecture_freeze.md\`
-- \`docs/architecture/LONG_TERM_SCOPE.md\`
-- \`tools/hermes/config/config.f1f2.yaml\`; \`tools/hermes/research_cycle_coordinator.py\`
-- \`tools/research_autonomy/m1_source.py\`; \`tools/research_autonomy/historical_source_gate.py\`; \`tools/research_autonomy/m1_study_authorization.py\`
-- \`tools/data_ingestion/m1_public_source_probe.py\`
-- \`src/execution/nautilus_portfolio_contract.py\`; \`src/execution/nautilus_native_backend.py\`
+- `AGENTS.md`
+- `docs/architecture/2026-10-extreme_hermes_autonomous_research_director.md` (D2-024)
+- `docs/architecture/2026-10-extreme_hermes_capability_coverage_and_orchestration_ownership.md` (D2-025)
+- `docs/architecture/2026-09-adoption_first_migration_architecture_freeze.md`
+- `docs/architecture/LONG_TERM_SCOPE.md`
+- `tools/hermes/config/config.f1f2.yaml`; `tools/hermes/research_cycle_coordinator.py`
+- `tools/research_autonomy/m1_source.py`; `tools/research_autonomy/historical_source_gate.py`; `tools/research_autonomy/m1_study_authorization.py`
+- `tools/data_ingestion/m1_public_source_probe.py`
+- `src/execution/nautilus_portfolio_contract.py`; `src/execution/nautilus_native_backend.py`
 - PRs [#773](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/773) and [#774](https://github.com/toobigtofailbot-maker/crypto-perp-wedge/pull/774).
 
 Upstream verification pointers (examples; *recheck immutable pins/licenses inside each WP*):
-- [TauricResearch/TradingAgents](https://github.com/TauricResearch/TradingAgents): Apache-2.0, \`TradingAgentsGraph\`/\`propagate\`; stock-centric adapters need crypto-appropriate data; upstream output is not CPW approval.
+- [TauricResearch/TradingAgents](https://github.com/TauricResearch/TradingAgents): Apache-2.0, `TradingAgentsGraph`/`propagate`; stock-centric adapters need crypto-appropriate data; upstream output is not CPW approval.
 - [microsoft/RD-Agent](https://github.com/microsoft/RD-Agent): genuine quant RD loops/factor/model work, pin and test runnable dependencies before promising integration.
 - [microsoft/qlib](https://github.com/microsoft/qlib): MIT, use actual dataset/model/prediction APIs and causal splits.
 - [bmoscon/cryptofeed](https://github.com/bmoscon/cryptofeed): Python >=3.13 and AGPL-3.0-or-later in current available metadata; assess license/deployment obligations and isolate interpreter.

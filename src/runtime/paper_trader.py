@@ -654,12 +654,26 @@ def main() -> int:
     parser.add_argument("--loop", action="store_true", help="Run each UTC 1h bar close")
     parser.add_argument("--once-at", help="Run one cycle at explicit UTC bar-close timestamp (ISO8601)")
     parser.add_argument("--native-noncapital", action="store_true", help="Manual isolated native sandbox; no private venue")
+    parser.add_argument("--native-portfolio", action="store_true", help="Offline P1 fixture sandbox")
+    parser.add_argument("--native-portfolio-recover", action="store_true", help="Read-only P1 native HOLD")
     parser.add_argument("--config", required=True, help="Path to runtime config JSON")
     args = parser.parse_args()
 
-    selected_modes = sum(bool(mode) for mode in [args.once, args.loop, args.once_at, args.native_noncapital])
+    selected_modes = sum(bool(mode) for mode in (args.once, args.loop, args.once_at, args.native_noncapital,
+                                                args.native_portfolio, args.native_portfolio_recover))
     if selected_modes != 1:
-        raise SystemExit("Select exactly one mode: --once, --loop, --once-at, or --native-noncapital")
+        raise SystemExit("Select exactly one runtime mode")
+
+    if args.native_portfolio or args.native_portfolio_recover:
+        import asyncio
+
+        from src.execution.nautilus_portfolio_contract import read_requests
+        cycles, source, input_hash = read_requests(args.config, recovery=args.native_portfolio_recover)
+        from src.execution.nautilus_native_backend import run_portfolio
+
+        observations = asyncio.run(run_portfolio(cycles, source, recovery=args.native_portfolio_recover))
+        print(json.dumps({"request_file_sha256": input_hash, "observations": observations}, sort_keys=True))
+        return 0
 
     if args.native_noncapital:
         import asyncio

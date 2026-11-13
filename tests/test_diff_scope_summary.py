@@ -1584,3 +1584,29 @@ def test_native_scope_keeps_wrong_or_unlisted_authority_forbidden(tmp_path, caps
     result = json.loads(stdout)
     assert result["authorized_path_writes"]["authorized"] == []
     assert [x["path"] for x in result["forbidden_matches"]] == [changed]
+P1_SCOPE = "cpw-laneb-multisymbol-native-portfolio-01"
+P1_PACKAGE = "CPW-LANEB-MULTISYMBOL-NATIVE-PORTFOLIO-01"
+
+
+@pytest.mark.parametrize("package,scope,path,expected", [
+    (P1_PACKAGE, P1_SCOPE, "src/runtime/paper_trader.py", 0),
+    (P1_PACKAGE, P1_SCOPE, "src/execution/nautilus_native_backend.py", 0),
+    (P1_PACKAGE, P1_SCOPE, "src/execution/nautilus_portfolio_contract.py", 0),
+    (P1_PACKAGE, P1_SCOPE, "src/execution/nautilus_recovery_hold_guard.py", 1),
+    (P1_PACKAGE, P1_SCOPE, "src/runtime/scheduler.py", 1),
+    (NATIVE_PACKAGE, P1_SCOPE, "src/runtime/paper_trader.py", 1),
+    (P1_PACKAGE, P1_SCOPE.upper(), "src/runtime/paper_trader.py", 1),
+    (P1_PACKAGE, NATIVE_SCOPE, "src/runtime/paper_trader.py", 1),
+    (None, None, "src/runtime/paper_trader.py", 1),
+])
+def test_p1_authorizes_only_exact_runtime_paths(tmp_path, capsys, package, scope, path, expected):
+    repo = _repo(tmp_path)
+    _write(repo / path, "# changed\n")
+    args = ["--repo-root", str(repo), "--json", "--check-forbidden", "--allowed-file", path]
+    if package:
+        args += ["--authorized-package", package, "--authorized-scope", scope, "--authorized-path", path]
+    exit_code, stdout, _ = _run(args, capsys)
+    assert exit_code == expected
+    payload = json.loads(stdout)
+    assert bool(payload["authorized_path_writes"]["authorized"]) == (expected == 0)
+    assert bool(payload["forbidden_matches"]) == (expected != 0)

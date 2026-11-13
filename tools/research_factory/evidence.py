@@ -333,6 +333,12 @@ def verify_fold_report(root, binding, manifest_binding, prepared, contract):
 
 def verify_commitment(root, payload, contract):
     """No caller-supplied verified flag: independently re-resolve evidence bytes."""
+    from tools.research_autonomy.m1_source import M1_MAPPING, M1_REAL_MAPPING, M1_REAL_VERSION, M1_VERSION
+
+    if getattr(contract, "data_version", None) == M1_REAL_VERSION:
+        raise EvidenceBlocked("M1 historical terminal evidence requires an approved native execution route")
+    if getattr(contract, "data_version", None) == M1_VERSION:
+        raise EvidenceBlocked("M1 TEST_ONLY cannot create a terminal scientific commitment")
     required = {
         "campaign_id",
         "search_id",
@@ -363,6 +369,8 @@ def verify_commitment(root, payload, contract):
     if set(payload) != required:
         raise EvidenceBlocked("closed trial commitment metadata required; no metric payloads")
     _, prepared = bound_json(root, payload["mapping_binding"])
+    if prepared.get("schema_version") in {M1_MAPPING, M1_REAL_MAPPING}:
+        raise EvidenceBlocked("M1 unqualified mapping cannot create a terminal scientific commitment")
     if prepared.get("schema_version") == ORIGINAL_SCHEMA:
         from tools.research_autonomy.store import ResearchAuthorityStore, _terminal_evidence
 
@@ -450,3 +458,108 @@ def verify_commitment(root, payload, contract):
     elif payload["robustness_sha256"] is not None:
         raise EvidenceBlocked("missing advisory artifact")
     return prepared, m, rows[0]
+
+
+def load_m1_fixture_preparation(root, prepared, contract, request):
+    """Revalidate the exact prepared artifact chain before a TEST_ONLY reader use."""
+    from tools.research_autonomy.historical_source_gate import M1Request
+    from tools.research_autonomy.m1_source import M1_MAPPING, M1_ROOT, M1_VERSION
+
+    if type(request) is not M1Request:
+        raise EvidenceBlocked("M1 TEST_ONLY request required")
+    return _load_m1_preparation(root, prepared, contract, request, M1_MAPPING, M1_ROOT, M1_VERSION)
+
+
+def verify_m1_historical_preparation(root, prepared, contract, request, public_objects, public_manifest):
+    """Check the frozen preparation and in-memory public inputs without execution authority."""
+    from tools.research_autonomy.historical_source_gate import M1HistoricalRequest
+    from tools.research_autonomy.m1_source import M1_REAL_MAPPING, M1_REAL_ROOT, M1_REAL_VERSION
+
+    if type(request) is not M1HistoricalRequest or prepared.get("runner_authority") is not False:
+        raise EvidenceBlocked("M1 historical candidate preparation required")
+    request.source.require_partition(contract.split_protocol)
+    _load_m1_preparation(root, prepared, contract, request, M1_REAL_MAPPING, M1_REAL_ROOT, M1_REAL_VERSION)
+    return runner.verify_m1_historical_inputs(request, public_objects, public_manifest)
+
+
+def _load_m1_preparation(root, prepared, contract, request, mapping_version, scratch_root, source_version):
+    source = request.source
+    if (contract.data_version != source_version
+            or prepared.get("schema_version") != mapping_version
+            or (prepared["repo_sha"], prepared["contract_hash"], prepared["m1_source"])
+            != (contract.repo_sha, contract.contract_hash, source.model_dump(mode="json"))
+            or request.contract_hash != contract.contract_hash
+            or request.data_identity != contract.data_identity):
+        raise EvidenceBlocked("M1 mapping/source substitution")
+    names = ("spec", "vm", "sweep")
+    if any(not prepared["paths"][key].startswith(scratch_root) for key in names):
+        raise EvidenceBlocked("M1 prepared paths must remain in versioned scratch")
+    paths = [safe_file(root, prepared["paths"][key], scratch=True) for key in names]
+    if any(file_hash(path) != prepared["hashes"][key] for key, path in zip(names, paths)):
+        raise EvidenceBlocked("M1 prepared input hash mismatch")
+    spec, vm, sweep = runner._validate_parent_inputs(*paths)
+    if any(file_hash(path) != prepared["hashes"][key] for key, path in zip(names, paths)):
+        raise EvidenceBlocked("M1 prepared inputs changed during validation")
+    source.require_spec(spec)
+    canonical_path = f"research/strategy_specs/{contract.strategy_spec_id}.strategy_spec.json"
+    original = committed_json(root, canonical_path, contract.repo_sha, original=True)
+    if file_hash(root / canonical_path) != contract.strategy_spec_hash or any(
+        original[field] != spec[field] for field in (
+            "entry_logic", "exit_logic", "filters", "instruments", "timeframe_and_data",
+            "free_parameters", "constraints", "risk_model", "backtest_realism_assumptions",
+        )
+    ):
+        raise EvidenceBlocked("M1 prepared strategy semantics substitution")
+    return spec, vm, sweep
+
+
+def verify_m1_fixture_population(gate, contract, prepared, report, *, record=False):
+    """Recheck native custody and the complete in-memory denominator, without a write."""
+    from tools.research_autonomy.envelope import content_hash
+    from tools.research_autonomy.historical_source_gate import M1Request
+
+    receipt = report["custody_receipt"]
+    request = gate.verify_commit(receipt)
+    if (type(request) is not M1Request or report["mode"] != "TEST_ONLY"
+            or report["not_authority"] is not True or report["real_scientific_trials"] != 0
+            or report["schema_version"] != "cpw_m1_fixture_observation_v1"):
+        raise EvidenceBlocked("M1 TEST_ONLY reader receipt required")
+    execution = request.execution_binding(mapping_sha256=content_hash(prepared), seed=contract.seed)
+    if (request.contract_hash != contract.contract_hash
+            or report["execution"] != execution
+            or receipt["execution_sha256"] != content_hash(execution)
+            or receipt["approval_sha256"] != content_hash({"TEST_ONLY": execution["mapping_sha256"]})):
+        raise EvidenceBlocked("M1 reader execution binding mismatch")
+    population = report["population"]
+    runner._validate_in_memory_payload(population)
+    spec, vm, sweep = load_m1_fixture_preparation(gate.root, prepared, contract, request)
+    if population["lineage"]["parent_hash_chain"] != {
+        "strategy_spec_hash": runner._sha256_prefixed(spec),
+        "variant_manifest_hash": vm["manifest_hash_pinning"]["manifest_hash"],
+        "sweep_plan_identity_hash": runner._sha256_prefixed(sweep),
+        "input_identity_hash": population["input_identity_hash"]["hash"],
+    }:
+        raise EvidenceBlocked("M1 population parent hash mismatch")
+    expected = {row["variant_id"]: row for row in prepared["mapping"]}
+    rows = population["variant_result_rows"]
+    if (len(rows) != len(expected) or len(expected) != prepared["scientific_denominator"]
+            or len({row["scientific_trial_id"] for row in expected.values()}) != len(expected)
+            or {row["variant_id"] for row in rows} != set(expected)
+            or set(sweep["test_selection"]["selected_variant_ids"]) != set(expected)
+            or len(vm["variant_assignments"]) != len(expected)
+            or report["population_sha256"] != content_hash(population)
+            or population["committed_denominator_snapshot"]["committed_denominator"] != len(expected)):
+        raise EvidenceBlocked("M1 fixture population denominator mismatch")
+    assignments = {row["variant_id"]: row["parameter_values"] for row in vm["variant_assignments"]}
+    for row in rows:
+        mapped = expected[row["variant_id"]]
+        coverage = row["data_coverage"]
+        if (mapped["contract_hash"] != contract.contract_hash
+                or mapped["parameter_values"] != assignments.get(row["variant_id"])
+                or sha256_payload(mapped["parameter_values"]) != mapped["params_fingerprint"]
+                or row["assignment_hash"] != mapped["params_fingerprint"]
+                or coverage["timeframe"] != request.timeframe
+                or coverage["data_slice_identity"] != request.data_identity):
+            raise EvidenceBlocked("M1 fixture population variant or source substitution")
+    gate.m1_observation(receipt, content_hash(report), record=record)
+    return len(expected)

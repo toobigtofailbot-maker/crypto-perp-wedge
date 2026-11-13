@@ -101,6 +101,32 @@ def manual_research_loop(
     root = repo_root.resolve(strict=True)
     handoff = validate_handoff(handoff)
     contract = contract_from_payload(handoff.frozen_contract.model_dump(mode="json"))
+    from tools.research_autonomy.m1_source import M1_REAL_VERSION, M1_VERSION
+
+    if contract.data_version == M1_REAL_VERSION:
+        from tools.research_autonomy.historical_source_gate import M1_REAL_BLOCK
+
+        return _report(reason=M1_REAL_BLOCK, runner_calls=0)
+    if contract.data_version == M1_VERSION:
+        from tools.research_autonomy.historical_source_gate import HistoricalLease, M1Request
+
+        if (any(value is not None for value in (
+            original, execute_approval_path, ohlcv_input_path, d4_catalog_slice_path,
+            d2_import_report_path, fold_manifest_binding, tool_context,
+        )) or type(custody) is not HistoricalLease or type(custody.request) is not M1Request
+                or custody._gate.store is not store or custody._root != root
+                or custody.request.contract_hash != contract.contract_hash):
+            return _report(reason="M1_TEST_ONLY_NATIVE_CUSTODY_REQUIRED", runner_calls=0)
+        try:
+            prepared, observation = adapter.run_m1_fixture_adapter(
+                repo_root=root, preparation_root=preparation_root, created_at_utc=created_at_utc,
+                handoff=handoff, contract=contract, custody=custody,
+            )
+        except MappingBlocked as exc:
+            return _report(reason=str(exc), runner_calls=0)
+        return _report(prepared, status="research_failed" if observation["aborted"] else "research_insufficient_evidence",
+                       reason="M1_TEST_ONLY", runner_calls=1, fixture_observation=observation, real_scientific_trials=0)
+
     # Durable records take precedence over active-workspace caches and a stale wave lineage.
     accepted = [
         r for r in handoff.proposal_records if r.status == "ACCEPTED_FOR_SCIENTIFIC_EXECUTION"

@@ -111,12 +111,15 @@ def test_repo_root_absolute_path_matches_relative_path(tmp_path):
     )
 
 
-def test_external_absolute_paths_fail_closed(tmp_path):
+@pytest.mark.parametrize(
+    "ref",
+    [r"C:\outside-repo\strategy_spec.json", r"\\server\share\strategy_spec.json",
+     r"C:strategy_spec.json", r"\outside-repo\strategy_spec.json"],
+)
+def test_external_absolute_paths_fail_closed(tmp_path, ref):
     payload = _fixture_payload(tmp_path)
     changed = copy.deepcopy(payload)
-    changed["parent_strategy_spec"]["strategy_spec_ref"] = (
-        "C:\\outside-repo\\strategy_spec.json"
-    )
+    changed["parent_strategy_spec"]["strategy_spec_ref"] = ref
 
     with pytest.raises(ReplayNormalizationError):
         normalized_stable_hash(changed, repo_root=tmp_path)

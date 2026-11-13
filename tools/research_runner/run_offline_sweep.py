@@ -2024,14 +2024,17 @@ def _run_canonical_15m_backtest(
     sizing: _SizingResolution,
     evaluation_start: pd.Timestamp | None = None,
     evaluation_end: pd.Timestamp | None = None,
+    *,
+    fixture_costs=None,
 ) -> Any:
     if evaluation_end is not None:
         execution_input = _slice_execution_input_for_evaluation_end(execution_input, evaluation_end)
+    fixture_costs = execution_input.funding_input_identity.get("m1_fixture_costs")
     signal = compile_signal(
         strategy_spec,
         variant,
         execution_input.ohlcv,
-        funding=execution_input.funding,
+        funding=execution_input.funding if fixture_costs is None else None,
     )
     if evaluation_start is not None:
         signal = _mask_signal_before_window(signal, evaluation_start)
@@ -2039,9 +2042,9 @@ def _run_canonical_15m_backtest(
         signal=signal,
         ohlcv=execution_input.ohlcv,
         funding=execution_input.funding,
-        fee_bps_taker=4.0,
-        fee_bps_maker=2.0,
-        slippage_bps=1.0,
+        fee_bps_taker=4.0 if fixture_costs is None else fixture_costs["fee_bps_taker"],
+        fee_bps_maker=2.0 if fixture_costs is None else fixture_costs["fee_bps_maker"],
+        slippage_bps=1.0 if fixture_costs is None else fixture_costs["slippage_bps"],
         initial_equity=INITIAL_EQUITY,
         stream="klines",
         interval=execution_input.timeframe,
@@ -2049,7 +2052,7 @@ def _run_canonical_15m_backtest(
         entry_fee_side="taker",
         exit_fee_side="taker",
         funding_cost_mode=execution_input.funding_input_identity["funding_mode"],
-        funding_notional_mode="entry_price",
+        funding_notional_mode="entry_price" if fixture_costs is None else fixture_costs["funding_notional"],
         order_size=sizing.resolved_order_size,
         sizing_mode=sizing_context.sizing_mode,
         target_leverage=sizing_context.target_leverage,
@@ -3661,6 +3664,140 @@ def _write_and_validate(
     return path
 
 
+def _m1_object_rows(source, objects):
+    from tools.research_autonomy.m1_source import exact_json
+
+    common = {
+        "classification": source.classification,
+        "instrument": source.instrument,
+        "epoch_id": source.epoch_id,
+    }
+
+    def rows(raw, identity):
+        payload = exact_json(raw)
+        if set(payload) != {*identity, "rows"} or any(
+            payload[key] != expected for key, expected in identity.items()
+        ) or not isinstance(payload["rows"], list):
+            raise OfflineSweepError("M1 source object identity mismatch")
+        return payload["rows"]
+
+    return rows(objects[0], common | {"timeframe": source.timeframe}), rows(objects[1], common)
+
+
+def verify_m1_historical_inputs(request, objects, public_manifest):
+    """Validate caller-supplied public candidate bytes without opening a reader or trial."""
+    from tools.data_ingestion.m1_public_source_probe import validate_public_coverage
+    from tools.research_autonomy.historical_source_gate import M1HistoricalRequest
+    from tools.research_autonomy.m1_source import exact_json
+
+    if type(request) is not M1HistoricalRequest or type(objects) is not tuple or len(objects) != 2:
+        raise OfflineSweepError("M1 historical request and exact public source pair required")
+    source = request.source
+    if (type(public_manifest) is not bytes
+            or "sha256:" + hashlib.sha256(public_manifest).hexdigest() != source.provenance_sha256):
+        raise OfflineSweepError("M1 public provenance differs from the request")
+    manifest = exact_json(public_manifest)
+    start, end = source.effective_window.start_ms, source.effective_window.end_ms
+    if (manifest.get("classification"), manifest.get("start_ms"), manifest.get("end_ms_exclusive")) != (
+        "PUBLIC_CANDIDATE_ONLY", start, end,
+    ):
+        raise OfflineSweepError("M1 public provenance window or classification mismatch")
+    try:
+        streams = manifest["symbols"][source.instrument]["streams"]
+        identities = (streams[source.timeframe], streams["funding"])
+    except (KeyError, TypeError) as exc:
+        raise OfflineSweepError("M1 public provenance does not bind the requested cell") from exc
+    rows = []
+    for raw, binding, identity in zip(objects, request.objects, identities, strict=True):
+        if (identity["sha256"], identity["bytes"]) != (binding.sha256.removeprefix("sha256:"), binding.byte_length):
+            raise OfflineSweepError("M1 public provenance source identity mismatch")
+        if (type(raw) is not bytes or len(raw) != binding.byte_length
+                or "sha256:" + hashlib.sha256(raw).hexdigest() != binding.sha256):
+            raise OfflineSweepError("M1 historical source bytes differ from the request")
+        values = exact_json(raw, root_type=list)
+        if identity["rows"] != len(values):
+            raise OfflineSweepError("M1 public provenance row count mismatch")
+        rows.append(values)
+    klines, funding = rows
+    coverage = validate_public_coverage(
+        symbol=source.instrument, clock=source.timeframe,
+        start_ms=start, end_ms=end,
+        klines=klines, funding=funding,
+    )
+    if any(not math.isfinite(float(value)) or (i < 4 and float(value) <= 0)
+           for row in klines for i, value in enumerate(row[1:6])):
+        raise OfflineSweepError("M1 OHLCV exceeds runner numeric precision")
+    return coverage
+
+
+def _m1_fixture_execution_input(source, objects):
+    """Decode the complete pair delivered through the fixture-only custody lease."""
+    from tools.data_ingestion.ccxt_public_funding_adapter import FUNDING_INTERVAL_MS, normalize_raw_row
+    from tools.data_ingestion.m1_public_source_probe import _check_bar
+    from tools.research_autonomy.m1_source import M1Source
+    from tools.research_autonomy.nonholdout_qualification import CADENCE
+
+    if type(source) is not M1Source:
+        raise OfflineSweepError("M1 TEST_ONLY source required")
+    klines, raw_events = _m1_object_rows(source, objects)
+    start, end = source.effective_window.start_ms, source.effective_window.end_ms
+    step = CADENCE[source.timeframe]
+    timestamps = range(start, end, step)
+    events = range(start, end, FUNDING_INTERVAL_MS)
+    if len(klines) != len(timestamps) or len(raw_events) != len(events):
+        raise OfflineSweepError("M1 incomplete price or funding coverage")
+    bars = []
+    for row, ts in zip(klines, timestamps, strict=True):
+        _check_bar(row, opened=ts, step=step, clock=source.timeframe)
+        bar = tuple(float(value) for value in row[1:6])
+        if not all(math.isfinite(value) for value in bar) or min(bar[:4]) <= 0:
+            raise OfflineSweepError("M1 OHLCV exceeds runner numeric precision")
+        bars.append(bar)
+
+    rates = []
+    for index, (row, ts) in enumerate(zip(raw_events, events, strict=True)):
+        if not isinstance(row, dict) or row.get("symbol") != source.instrument:
+            raise OfflineSweepError("M1 funding symbol mismatch")
+        normalized = normalize_raw_row(row, page_index=0, row_index=index, expected_symbol=source.instrument)
+        rate = float(normalized["funding_rate"])
+        if normalized["exchange_funding_time_ms"] != ts or not -1 <= rate <= 1:
+            raise OfflineSweepError("M1 fixture funding must use the exact settlement grid and fractional units")
+        rates.append(rate)
+
+    ohlcv = pd.DataFrame(bars, index=pd.to_datetime(timestamps, unit="ms", utc=True),
+                         columns=REQUIRED_OHLCV_COLUMNS)
+    funding = pd.DataFrame({"funding_rate": rates}, index=pd.to_datetime(events, unit="ms", utc=True))
+    identity = _funding_input_identity_off() | {
+        "funding_mode": "on",
+        "m1_funding_sha256": source.funding_sha256,
+        "m1_fixture_costs": source.costs.model_dump(mode="json"),
+    }
+    return _ExecutionInput(
+        mode="m1_test_only", execution_provenance_class="fixture_offline",
+        ohlcv=ohlcv, funding=funding, timeframe=source.timeframe,
+        data_catalog_ref=source.identity, data_slice_identity=source.identity,
+        environment_summary=["M1 TEST_ONLY USD-M fixture", _funding_identity_note(identity)],
+        data_coverage_notes=[f"TEST_ONLY {source.instrument} {source.epoch_id} {start}/{end}",
+                             _funding_identity_note(identity)],
+        funding_input_identity=identity,
+    )
+
+
+def _run_m1_fixture_sweep(spec, manifest, sweep, *, source, objects, seed):
+    source.require_spec(spec)
+    if (_declared_non_ohlcv_columns(spec)
+            or sweep["data_and_timeframe_assumptions"]["primary_timeframe"] != source.timeframe
+            or sweep["realism_assumptions"]["fee_side_assumption"] != "taker_entry_taker_exit"):
+        raise OfflineSweepError("M1 fixture supports a single OHLCV clock and taker fills")
+    execution = _m1_fixture_execution_input(source, objects)
+    payload, aborted = _build_result_population(
+        spec, manifest, sweep, "M1 TEST_ONLY", seed, execution,
+        SIZING_MODE_DYNAMIC_EQUITY_TARGET_LEVERAGE, 1.0, 1,
+    )
+    _validate_in_memory_payload(payload)
+    return payload, aborted
+
+
 def run_offline_sweep(
     strategy_spec_path: Path,
     variant_manifest_path: Path,
@@ -3740,6 +3877,12 @@ def run_offline_sweep(
         variant_manifest_path,
         sweep_plan_path,
     )
+    from tools.research_autonomy.m1_source import M1_REAL_SPEC_REF
+
+    if any(ref.startswith(M1_REAL_SPEC_REF) for ref in strategy_spec["provenance"]["source_refs"]):
+        from tools.research_autonomy.historical_source_gate import M1_REAL_BLOCK
+
+        raise OfflineSweepError(M1_REAL_BLOCK)
     if funding_cost_mode == "off" and _requires_funding_costs(strategy_spec, sweep_plan):
         raise OfflineSweepError("strategy/sweep requires funding costs but funding mode is off")
     declared_non_ohlcv_columns = _declared_non_ohlcv_columns(strategy_spec)
